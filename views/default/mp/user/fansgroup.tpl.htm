@@ -1,0 +1,47 @@
+<div ng-controller='groupCtrl'>
+    <div ng-if="apis.wx_joined==='Y'&&apis.wx_fansgroup==='N'">
+        <div class='alert alert-warning'>未开通微信公众平台的粉丝分组管理接口。</div>
+    </div>
+    <div ng-if="apis.yx_joined==='Y'&&apis.yx_fansgroup==='N'">
+        <div class='alert alert-warning'>未开通易信公众平台的粉丝分组管理接口。</div>
+    </div>
+    <div ng-if="apis.wx_fansgroup==='Y'||apis.yx_fansgroup==='Y'">
+        <div class='col-md-4' style='padding-left:0'>
+            <div class='list-group'>
+                <a class='list-group-item' ng-class={'active':editing===g} ng-repeat='g in groups' ng-click='edit(g)'>
+                    <span>{{g.name}}</span>
+                </a>
+                <li class='list-group-item'><button class='btn btn-success' ng-click="addGroup()"><span class='glyphicon glyphicon-plus'></span>新建分组</button></li>
+            </div>
+        </div>
+        <div class='col-md-8' ng-if='editing' style='padding-right:0'>
+            <div class='form-group'>
+                <label>名称</label>
+                <input type='text' class='form-control' ng-model='editing.name'>
+            </div>
+            <div class='form-group text-right'>
+                <button class='btn btn-success' ng-click='save()'>保存</button>
+            </div>
+            <div class='form-group'>
+                <div class="table-responsive">
+                    <table class='table table-bordered'>
+                        <thead>
+                            <tr>
+                                <th>昵称</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat='f in fans'>
+                                <td><a href='#' userpopover xxt-fid='{{f.fid}}' ng-click='viewUser(f)'>{{f.nickname||f.openid}}</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class='form-inline'>
+                <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+                <pagination ng-show='page.total>page.size' class='pull-right' style='cursor:pointer;margin:0;vertical-align:middle' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" class="pagination" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="searchFans()"></pagination>
+            </div>
+        </div>
+    </div>
+</div>

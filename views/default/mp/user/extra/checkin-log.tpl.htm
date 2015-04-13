@@ -1,0 +1,27 @@
+<div class='clearfix'>
+    <div class='pull-right'>
+        <pagination boundary-links="true" total-items="totalItems" max-size="7" items-per-page="itemsPerPage" rotate="false" ng-model="currentPage" class="pagination" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="pageChanged()" style='cursor:pointer'></pagination>
+    </div>
+</div>
+<div>
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <th>会员姓名</td>
+                <th>会员卡号</td>
+                <th>手机号</td>
+                <th>签到时间</td>
+                <th>持续签到次数</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat='l in log'>
+                <td>{{l.name}}</td>
+                <td>{{l.cardno}}</td>
+                <td>{{l.mobile}}</td>
+                <td>{{(l.checkin_at*1000)|date:'yyyy-MM-dd hh:mm'}}</td>
+                <td>{{l.times_accumulated}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

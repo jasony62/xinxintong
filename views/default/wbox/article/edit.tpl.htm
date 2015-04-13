@@ -1,0 +1,90 @@
+<div ng-controller='EditCtrl'>
+    <div class='form-horizontal'>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>通过审核</label>
+            <div class='col-md-10'>
+                <label class='checkbox-inline'><input type='checkbox' disabled ng-true-value='Y' ng-false-value='N' ng-model='editing.approved'></label>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>标题</label>
+            <div class='col-md-10'>
+                <input type='text' class='form-control' ng-model='editing.title' ng-blur="update('title');">
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>编号</label>
+            <div class='col-md-10'>
+                <p class='form-control-static'>{{editing.code}}
+                <span ng-if='editing.codesearchKeyword' style='color:red'>{{'（向公账号输入【'+editing.codesearchKeyword+editing.code+'】可获得文章的信息卡片进行预览或分享。)'}}</span>
+                </p>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>创建日期</label>
+            <div class='col-md-10'>
+                <p class='form-control-static'>{{editing.create_at*1000|date:'yyyy-MM-dd'}}</p>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>修改日期</label>
+            <div class='col-md-10'>
+                <p class='form-control-static'>{{editing.modify_at*1000|date:'yyyy-MM-dd'}}</p>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>头图</label>
+            <div class='col-md-10'>
+                <div style="width:182px;border:1px solid #CCC">
+                    <div style="height:100px;text-align:center;padding-top:32px" ng-if="editing.pic==''">
+                        <button class='btn btn-default' ng-click='setPic();'>
+                            <span class='glyphicon glyphicon-picture'></span> 选择图片
+                        </button>
+                    </div>
+                    <div style='position:relative' ng-if="editing.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                        <img name='pic' ng-src="{{editing.pic}}" width='180px'/>
+                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                            <span class='glyphicon glyphicon-picture'></span>
+                        </button>
+                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                            <span class='glyphicon glyphicon-trash'></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>显示设置</label>
+            <div class='col-md-10'>
+                <label class='checkbox-inline'><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='editing.hide_pic' ng-change="update('hide_pic');">隐藏头图</label>
+                <label class='checkbox-inline'><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='editing.can_picviewer' ng-change="update('can_picviewer');">支持图片缩放浏览</label>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label' for='summary'>摘要</label>
+            <div class='col-md-10'>
+                <textarea class='form-control' ng-model='editing.summary' ng-blur="update('summary');"></textarea>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label' for='body'>正文</label>
+            <div class='col-md-10'>
+                <tinymce class='form-control' id='body'></tinymce>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>标签</label>
+            <div class='col-md-10'>
+                <combox prop='title' existing='editing.tags' options='tags'></combox>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label' for='url'>原文链接(可选)</label>
+            <div class='col-md-10'>
+                <textarea class='form-control' ng-model='editing.url' ng-blur="update('url');"></textarea>
+            </div>
+        </div>
+    </div>
+    <div mattersgallery style='display:none' matter-url='/rest/wbox/list'></div>
+    <div picgallery style='display:none' url='{{picGalleryUrl}}'></div>
+</div>

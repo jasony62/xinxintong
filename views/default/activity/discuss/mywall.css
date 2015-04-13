@@ -1,0 +1,12 @@
+.wall{list-style-type:none;width:100%;margin:0;padding:0 4px;background:#EEE;overflow-x:hidden}
+.message{display:inline;list-style-type:none}
+.wall .message{position:relative;margin-bottom:15px}
+.wall .message .avatar{position:absolute;height:40px;width:40px;border:1px solid #CCC}
+.wall .message .avatar img{width:40px;height:40px}
+.wall .message .nickname{position:relative;margin-left:54px;font-size:10px}
+.wall .message .content{position:relative;margin:7px 54px 0 54px;font-size:14px;background:#FFF;padding:7px;border-radius:6px}
+.wall .message.other .content:before {content:'';position:absolute;top:3px;left:-5px;width:10px;height:10px;background:#FFF;border-top-left-radius:0;transform:rotate(45deg);-webkit-transform:rotate(45deg);-moz-transform:rotate(45deg);}
+.wall .message.mine .avatar{right:0}
+.wall .message.mine .nickname{margin-right:54px;text-align:right}
+.wall .message.mine .content{background:#A0E060;border-top-right-radius:0}
+.wall .message.mine .content:after {content:'';position:absolute;top:3px;right:-5px;width:10px;height:10px;background:#A0E060;transform:rotate(45deg);-webkit-transform:rotate(45deg);-moz-transform:rotate(45deg);}

@@ -1,0 +1,10 @@
+<div class='list-group'>
+    <?php $authapis = TPL::val('authapis');?>
+    <?php foreach($authapis as $a) {?>
+    <div class='list-group-item'>
+        <a class='btn btn-primary btn-lg btn-block' href='<?php echo $a->url;?>'>
+            <?php echo $a->name;?>
+        </a>
+    </div>
+    <?php }?>
+</div>

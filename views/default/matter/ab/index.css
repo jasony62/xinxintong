@@ -1,0 +1,15 @@
+body{margin:8px}
+.list-group-item{position:relative}
+.list-group-item .open{position:absolute;top:50%;right:4px;margin-top:-7px;color:#CCC}
+.list-group-item .name{color:#202090}
+.list-group-item .dept{color:#999}
+#dlg{z-index:1099;background-color:white;position:absolute;box-sizing:border-box;-moz-box-sizing:border-box;padding:15px;width:400px;margin:auto;display:none;webkit-box-shadow:0 3px 9px rgba(0,0,0,0.5);box-shadow:0 3px 9px rgba(0,0,0,0.5)}
+#dlg:before,#dlg:after {content:" ";display:table}
+#dlg:after {clear:both}
+#dlg2{position:absolute;top:0;bottom:0;left:0;right:0;z-index:999;background:#EEE;display:none}
+#dlg2 .depts{position:absolute;top:0;bottom:56px;left:0;right:0;margin-bottom:0;overflow:auto}
+#dlg2 .actions{position:absolute;bottom:4px;left:0;right:0}
+#dlg2 .actions button{position:relative;width:46%}
+#dlg2 .actions button:first-child {left:2%}
+#dlg2 .actions button:last-child {left:4%}
+@media screen and (max-width:360px){ #dlg {width:324px}}

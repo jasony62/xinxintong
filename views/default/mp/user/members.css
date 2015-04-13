@@ -1,0 +1,11 @@
+table th{text-align:center}
+table th:first-child, table th:last-child{width:48px}
+.combox>.form-control{padding:3px 12px}
+.combox .selected{display:inline-block;font-size:100%;font-weight:400;margin-right:4px;padding:4px 4px;vertical-align:middle}
+.combox .selected button.close{float:none;color:#FFFFFF;font-weight:400;opacity:1;margin-left:4px;font-size:130%}
+.combox .dropdown-menu .options{max-height:150px;overflow-y:auto}
+.combox .dropdown-menu .actions{margin:4px 4px 0 0}
+.combox .dropdown-menu .actions button{padding:4px 12px}
+.combox .dropdown-menu .checkbox{clear:both;padding:3px 20px;margin:0 0 0 10px;white-space:nowrap}
+.combox .dropdown-menu .checkbox label{display:inline-block;width:100%}
+.combox .dropdown-menu .checkbox:hover{background-color:#F5F5F5}

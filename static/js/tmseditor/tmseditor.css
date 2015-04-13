@@ -1,0 +1,12 @@
+body{padding:8px;height:2000px;font-size:14px;font-family:Arial,"Microsoft YaHei"}
+*{box-sizing:border-box}
+.form-group{margin-bottom:15px}
+.radio,.checkbox{position:relative;display:block;min-height:20px;margin-top:10px;margin-bottom:10px}
+.btn{display:inline-block;margin-bottom:0px;font-weight:400;text-align:center;vertical-align:middle;cursor:text;background-image:none;border:1px solid transparent;white-space:nowrap;padding:6px 12px;font-size:14px;line-height:1.42857;border-radius:4px}
+.btn-block{display:block;padding-left:0;padding-right:0;width: 100%}
+.btn-primary{color:#FFF;background-color:#428BCA;border-color:#357EBD;}
+.form-control{display:block;width:100%;padding:6px 12px;font-size:14px;line-height:1.428571429;color:#555;vertical-align:middle;background-color:#fff;background-image:none;border: 1px solid #ccc;border-radius:4px}
+input.form-control{height:34px}
+[wrap].active{outline:1px dashed #666}
+[wrap="radio"]>label>*,[wrap="checkbox"]>label>*{vertical-align:middle}
+[wrap="radio"]>label,[wrap="checkbox"]>label{width:100%;display:block;cursor:pointer}

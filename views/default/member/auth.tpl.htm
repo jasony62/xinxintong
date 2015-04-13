@@ -1,0 +1,56 @@
+<?php
+$attrs = TPL::val('attrs');
+$clientSrc = TPL::val('clientSrc');
+?>
+<div ng-clock ng-app='xxtApp' ng-controller='authCtrl' ng-init="mpid='<?php TPL::pt("mpid");?>';authid='<?php TPL::pt("authid");?>';callback='<?php TPL::pt("callback");?>';jsonAuthedMember='<?php echo TPL::val("authedMember") ? urlencode(json_encode(TPL::val("authedMember"))):'';?>'">
+    <div id='errmsg' class='alert alert-danger' style='word-break:break-all' ng-class="errmsg=='' ? '':'active'" ng-click="errmsg=''">{{errmsg}}</div>
+    <div class='container'>
+        <div class='row'>
+            <div id='header' class='form-group h4'>
+                <p id='welcome' ng-if='authedMember' ng-bind="(authedMember.name||authedMember.mobile||authedMember.email)+'，您好！您已经通过认证，不需要再次认证。'"></p>
+            </div>
+            <div id='form'>
+                <?php if ($clientSrc&&$attrs['name'][0]==='0'&&$attrs['name'][3]==='0') {?>
+                <div id='attrName' class='form-group'>
+                    <input type='text' ng-model='member.name' ng-init="member.name=''" placeholder='姓名' class='form-control input-lg'>
+                </div>
+                <?php }?>
+                <?php if ($attrs['mobile'][5]==='1'||($clientSrc&&$attrs['mobile'][0]==='0'&&$attrs['mobile'][3]==='0')) {?>
+                <div id='attrMobile' class='form-group'>
+                    <input type='text' ng-model='member.mobile' ng-init="member.mobile=''" placeholder='手机号' class='form-control input-lg'>
+                </div>
+                <?php }?>
+                <?php if ($attrs['email'][5]==='1'||($clientSrc&&$attrs['email'][0]==='0'&&$attrs['email'][3]==='0')) {?>
+                <div id='attrEmail' class='form-group'>
+                    <input type='text' ng-model='member.email' ng-init="member.email=''" placeholder='邮箱' class='form-control input-lg'>
+                </div>
+                <?php }?>
+                <?php if ($attrs['password'][0]==='0') {?>
+                <div id='attrPassword' class='form-group'>
+                    <input type='password' ng-model='member.password' ng-init="member.password=''" placeholder='访问密码' class='form-control input-lg'>
+                    <p class='help-block'>访问您私有数据时需要的密码。长度不小于6位。</p>
+                </div>
+                <?php if ($clientSrc) {?>
+                <div id='attrPassword2' class='form-group'>
+                    <input type='password' ng-model='member.password2' ng-init="member.password2=''" placeholder='重复访问密码' class='form-control input-lg'>
+                </div>
+                <?php }?>
+                <?php }?>
+                <?php foreach ($attrs['extattr'] as $ea) {?>
+                <div id='attr_<?php echo $ea->id;?>' class='form-group'>
+                    <input type='text' ng-model='member.<?php echo $ea->id;?>' placeholder='<?php echo $ea->label;?>' class='form-control input-lg'>
+                </div>
+                <?php }?>
+                <?php if ($clientSrc) {?>
+                <div class='form-group'>
+                    <button id='btnAuth' class='btn btn-lg btn-block' ng-class="posting ? 'btn-default':'btn-primary'" ng-disabled='posting' ng-click='doAuth()'>进行验证</button>
+                </div>
+                <?php }?>
+                <div class='form-group'>
+                    <button id='btnReauth' class='btn btn-lg btn-block' ng-class="posting ? 'btn-default':'btn-primary'" ng-disabled='posting' ng-click='doReauth()'>重新验证</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php TPL::pt('extra_ele');?>

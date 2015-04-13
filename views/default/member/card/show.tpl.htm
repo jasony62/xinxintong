@@ -1,0 +1,12 @@
+<style>
+    #member_info{width:240px;margin:0 auto}
+    #member_info p{padding-bottom:0.5em;border-bottom:1px solid #CCC}
+</style>
+<div id='member_info'>
+    <input type='hidden' ng-model='member.cardno' ng-init="member.cardno='<?php TPL::pt('member.cardno');?>'">
+    <p>尊敬的会员：<span><?php TPL::pt('member.name');?></span></p>
+    <p>昵称：<span><?php TPL::pt('member.nickname');?></span></p>
+    <p>当前积分：<span><?php TPL::pt('member.credits');?></span></p>
+    <p>当前等级：LV.<span><?php TPL::pt('member.level');?></span></p>
+    <p>当前头衔：<span><?php TPL::pt('member.level_title');?></span></p>
+</div>

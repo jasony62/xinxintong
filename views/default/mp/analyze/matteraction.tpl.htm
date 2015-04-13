@@ -1,0 +1,40 @@
+<div ng-controller='matteractionCtrl'>
+    <div class='form-group form-inline'>
+        <div class='form-group'>
+            <select class='form-control' title='排序' ng-model='orderby' ng-change='getData(1)'>
+                <option value='read'>阅读</option>
+                <option value='share_friend'>发送给朋友</option>
+                <option value='share_timeline'>分享到朋友圈</option>
+            </select>
+        </div>
+        <div class='form-group' style='width:150px'>
+            <tms-datepicker tms-date='startAt' tms-title='开始日期'></tms-datepicker>
+        </div>
+        <div class='form-group' style='width:150px'>
+            <tms-datepicker tms-date='endAt' tms-title='结束日期'></tms-datepicker>
+        </div>
+        <pagination ng-show='page.total>page.size' class='pull-right' style='cursor:pointer;margin:0;vertical-align:middle' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.current" class="pagination" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getData()"></pagination>
+    </div>
+    <div>
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>名称</th>
+                    <th>阅读</th>
+                    <th>发送给朋友</th>
+                    <th>分享到朋友圈</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat='m in matters'>
+                    <td>{{$index+1}}</td>
+                    <td>{{m.matter_id}}</td>
+                    <td>{{m.read_num}}</td>
+                    <td>{{m.share_friend_num}}</td>
+                    <td>{{m.share_timeline_num}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

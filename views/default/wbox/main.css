@@ -1,0 +1,18 @@
+.toolbar{margin-bottom:20px}
+.toolbar >*{float:left}
+.thumbnail{position:relative;height:180px}
+.thumbnail>:first-child{height:100px;overflow:hidden}
+.thumbnail>:nth-child(2){height:30px;padding-top:4px;overflow:hidden}
+.thumbnail .label{margin:0 2px 2px 0}
+.thumbnail>:nth-child(3){position:absolute;height:30px;left:4px;right:4px;bottom:4px}
+.thumbnail .modify_at{display:inline-block;color:#999;line-height:30px;float:right}
+.thumbnail button.remove{position:absolute;top:4px;right:4px}
+.combox>.form-control{padding:3px 12px}
+.combox .selected{display:inline-block;font-size:100%;font-weight:400;margin-right:4px;padding:4px 4px;vertical-align:middle}
+.combox .selected button.close{float:none;color:#FFFFFF;font-weight:400;opacity:1;margin-left:4px;font-size:130%}
+.combox .dropdown-menu .options{max-height:150px;overflow-y:auto}
+.combox .dropdown-menu .actions{margin:4px 4px 0 0}
+.combox .dropdown-menu .actions button{padding:4px 12px}
+.combox .dropdown-menu .checkbox{clear:both;display:block;padding:3px 20px;margin:0 0 0 10px;white-space:nowrap}
+.combox .dropdown-menu .checkbox label{display:inline-block;width:100%}
+.combox .dropdown-menu .checkbox:hover{background-color:#F5F5F5}

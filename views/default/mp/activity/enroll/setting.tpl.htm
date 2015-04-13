@@ -1,0 +1,136 @@
+<?php $mpid=$_SESSION['mpid'];?>
+<div ng-controller='settingCtrl'>
+    <div class='form-inline form-group' style='text-align:right'>
+        <div class='form-group'>
+            <button class='btn btn-default' title='设置轮次' ng-if='!activity.rounds' ng-click="activity.rounds=[]">设置轮次</button>
+        </div>
+        <div class='form-group'>
+            <pushmatter class='btn btn-primary' title="发送给指定用户" matter-id={{activity.aid}} matter-type='activity'/>
+        </div>
+        <div class='qrcode form-group' ng-controller='SendmeController'>
+            <button class='btn btn-primary' data-toggle="popover" data-placement='left' ng-click="qrcode({type:'activity',id:activity.aid},$event)">发送给我</button>
+        </div>
+    </div>
+    <div id='attrs' ng-class="{'col-md-8':activity.rounds}" style='padding-left:0'>
+        <div class='form-horizontal'>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>URL</label>
+                <div class='col-md-10'>
+                    <p class="form-control" style='margin:0;height:auto'>{{activity.url}}</p>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>活动名称</label>
+                <div class='col-md-10'>
+                    <input type="text" class="form-control" ng-model='activity.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>头图</label>
+                <div class='col-md-10'>
+                    <div style="width:182px;border:1px solid #CCC">
+                        <div style="height:100px;text-align:center;padding-top:32px" ng-if="activity.pic==''">
+                            <button class='btn btn-default' ng-click='setPic();'>
+                                <span class='glyphicon glyphicon-picture'></span> 选择图片
+                            </button>
+                        </div>
+                        <div style='position:relative' ng-if="activity.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                            <img name='pic' ng-src='{{activity.pic}}' width='180px'/>
+                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                                <span class='glyphicon glyphicon-picture'></span>
+                            </button>
+                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                                <span class='glyphicon glyphicon-trash'></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>摘要</label>
+                <div class='col-md-10'>
+                    <textarea class='form-control' ng-model='activity.summary' tms-auto-update tms-wait=1000 tms-update="update('summary');" rows='3'></textarea>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>参与限制</label>
+                <div class='col-md-10'>
+                    <label class='checkbox-inline'><input type="checkbox" ng-true-value='Y' ng-false-value='N' ng-model='activity.wxyx_only' ng-change="update('wxyx_only');">禁止通过其他应用打开</label>
+                    <label class='checkbox-inline'><input type="checkbox" ng-true-value='Y' ng-false-value='N' ng-model='activity.fans_enter_only' ng-change="update('fans_enter_only');">仅限关注用户进入</label>
+                    <label class='checkbox-inline'><input type="checkbox" ng-true-value='Y' ng-false-value='N' ng-model='activity.fans_only' ng-change="update('fans_only');">仅限关注用户登记</label>
+                </div>
+            </div>
+            <accesscontrol mpid='<?php echo $mpid;?>' obj='activity' prop-access='canSetReceiver' update-access-control=false prop-acl='receiver' label-of-list='登记事件消息接收人' change-acl-url='/rest/mp/activity/enroll/setEnrollReceiver?aid={{aid}}' remove-acl-url='/rest/mp/activity/enroll/delEnrollReceiver' label-span='2' control-span='10' hide-access-control=true></accesscontrol>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>接收通知页</label>
+                <div class='col-md-10'>
+                    <select class='form-control' ng-model='activity.receiver_page' ng-options='pname as page.title for (pname, page) in activity.pages' ng-change="update('receiver_page')">
+                        <option value=''></option>
+                    </select>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>扩展功能</label>
+                <div class='col-md-10'>
+                    <label class='checkbox-inline'><input type="checkbox" ng-true-value='Y' ng-false-value='N' ng-model='activity.can_signin' ng-change="update('can_signin');">支持签到</label>
+                    <label class='checkbox-inline'><input type="checkbox" ng-true-value='Y' ng-false-value='N' ng-model='activity.can_lottery' ng-change="update('can_lottery');">支持抽奖</label>
+                </div>
+            </div>
+            <accesscontrol mpid='<?php echo $mpid;?>' obj='activity' title='参与限制' label='仅限认证用户参与（允许填写登记信息）' prop-acl='acl' prop-access='access_control' prop-apis='authapis' update-access-control="update('access_control')" update-authapis="update('authapis')" change-acl-url='/rest/mp/activity/enroll/setAcl?actid={{aid}}' remove-acl-url='/rest/mp/activity/enroll/removeAcl' label-span='2' control-span='10'></accesscontrol>
+            <div class='form-group' ng-show="activity.can_signin==='Y'">
+                <label class='col-md-2 control-label'>签到时已登记回复</label>
+                <div class='col-md-10'>
+                    <button class='btn btn-default btn-sm' ng-click='setSuccessReply()'>指定素材</button>
+                    <a class='list-group-item' title='{{activity.successMatter.type|typetitle}}' ng-if='activity.successMatter'><span>{{activity.successMatter.title||activity.successMatter.content}}</span><button class='btn btn-default btn-xs pull-right' ng-click='removeSuccessReply()'><span class='glyphicon glyphicon-remove'></span></button></a>
+                </div>
+            </div>
+            <div class='form-group' ng-show="activity.can_signin==='Y'">
+                <label class='col-md-2 control-label'>签到时未登记回复</label>
+                <div class='col-md-10'>
+                    <button class='btn btn-default btn-sm' ng-click='setFailureReply()'>指定素材</button>
+                    <a class='list-group-item' title='{{activity.failureMatter.type|typetitle}}' ng-if='activity.failureMatter'><span>{{activity.failureMatter.title||activity.failureMatter.content}}</span><button class='btn btn-default btn-xs pull-right' ng-click='removeFailureReply()'><span class='glyphicon glyphicon-remove'></span></button></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id='rounds' ng-if='activity.rounds!==undefined' ng-class="{'col-md-4':activity.rounds}" style='padding-right:0'>
+        <div class='list-group'>
+            <li class='list-group-item' title='{{roundState[r.state]}}'ng-repeat='r in activity.rounds'>
+            <span>{{r.title}}</span>
+            <button class="close" ng-click='openRound(r)'><span class='glyphicon glyphicon-edit'></span></button>
+            </li>
+            <li class='list-group-item'>
+            <button class='btn btn-success btn-block' ng-disabled='activity.rounds[0].state==0' ng-click='addRound()'>增加轮次</button>
+            </li>
+        </div>
+    </div>
+    <div picgallery style='display:none' url='{{picGalleryUrl}}'></div>
+    <mattersgallery style='display:none' single-matter='true' has-parent='false' matter-url='/rest/mp/matter' matter-types='matterTypes'></mattersgallery>
+    <script type="text/ng-template" id="roundEditor.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="close()">×</button>
+            <h5 class="modal-title">轮次</h5>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-md-2 control-label">名称</label>
+                    <div class="col-md-10">
+                        <input type='text' class="form-control" ng-model='round.title'>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">状态</label>
+                    <div class="col-md-10">
+                        <p class="form-control-static">{{roundState[round.state]}}</p>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-danger pull-left" ng-click="remove()" ng-if='round.rid&&round.state==0'>删除</button>
+            <button class="btn btn-success pull-left" ng-click="start()" ng-if='round.state==0'>启用</button>
+            <button class="btn btn-success" ng-click="ok()">保存</button>
+        </div>
+    </script>
+</div>

@@ -1,0 +1,27 @@
+<nav class='navbar navbar-inverse'>
+</nav>
+<script type="text/javascript" src="http://sso.crccre.cn/MCSWebApp/PassportService/Anonymous/GetUserAccount.aspx"></script>    
+<div class='container' ng-controller='userCtrl' ng-init="token='<?php TPL::pt("token");?>'">
+    <div class='row'>
+        <?php $callback = TPL::val('callback'); if (!empty($callback)) {?>
+        <input type='hidden' ng-model='callback' ng-init="callback='<?php TPL::pt("callback");?>'">
+        <?php }?>
+        <div class='col-md-4 col-md-offset-4'>
+            <div class='form-group'>
+                <input type='text' ng-model='data.username' class='form-control' placeholder='用户名' required autofocus/>
+            </div>
+            <div class='form-group'>
+                <input type='password' ng-model='data.password' class='form-control' placeholder='密码' required/>
+            </div>
+            <div class='form-group'>
+                <select ng-model='data.group' class='form-control'>
+                    <option value=1>内部用户</option>
+                    <option value=2>外部用户</option>
+                </select>
+            </div>
+            <div class='form-group'>
+                <button class='btn btn-primary btn-block' ng-click='login()'>登录</button>
+            </div>
+        </div>
+    </div>
+</div>

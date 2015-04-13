@@ -1,0 +1,32 @@
+<div ng-app='xxtApp' ng-controller='loginCtrl' ng-init="token='<?php TPL::pt("token");?>';jsonMember='<?php echo TPL::val("authedMember") ? urlencode(json_encode(TPL::val("authedMember"))):'';?>';authid='<?php TPL::pt("authid");?>'">
+    <div id='errmsg' class='alert alert-danger' ng-class="errmsg=='' ? '':'active'" ng-click="errmsg=''">{{errmsg}}</div>
+    <div class='container'>
+        <div class='row'>
+            <div class='form-group' style='margin-bottom:30px;color:#428bca'>
+                <h3 style='text-align:center'>用户认证信息提交</h3>
+            </div>
+            <div class='form-group' ng-if='authedMember'>
+                <h4>{{authedMember.name||authedMember.nickname}}，您好！您已经通过认证，不需要再次认证。</h3>
+            </div>
+            <div class='form-group'>
+                <input type='text' ng-model='user.username' placeholder='用户名' class='form-control input-lg'>
+            </div>
+            <div class='form-group'>
+                <input type='password' ng-model='user.password' placeholder='密码' class='form-control input-lg'>
+            </div>
+            <div class='form-group'>
+                <button class='btn btn-primary btn-lg btn-block' ng-disabled='submitting' ng-click='submit()'>登录</button>
+                <p class='help-block' style='text-align:center'>中国铁建地产 技术支持：（010）52689973</p>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    if (window.wx !== undefined) {
+        signPackage.jsApiList = ['hideOptionMenu'];
+        wx.config(signPackage);
+        wx.ready(function(){
+            wx.hideOptionMenu();
+        });
+    }
+</script>

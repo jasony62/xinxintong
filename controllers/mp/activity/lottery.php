@@ -1,0 +1,345 @@
+<?php
+require_once dirname(__FILE__).'/base.php';
+/**
+ *
+ */
+class lottery extends act_base {
+    /**
+     *
+     */
+    protected function getActType() 
+    {
+        return 'L';
+    }
+    /**
+     * 返回转盘抽奖活动数据
+     */
+    public function index_action($lid=null, $src=null) 
+    {
+        $uid = TMS_CLIENT::get_client_uid();
+        if ($lid) {
+            /**
+             * one
+             */
+            $r = $this->model('activity/lottery')->byId($lid, '*', array('award','task'));
+            $r->url = 'http://'.$_SERVER['HTTP_HOST']."/rest/activity/lottery?mpid=$r->mpid&lid=$lid";
+            $r->preactivitydone_url = 'http://'.$_SERVER['HTTP_HOST']."/rest/activity/lottery/preactiondone?mpid=$r->mpid&lid=$lid";
+            /**
+             * acl
+             */
+            $r->acl = $this->model('acl')->act($this->mpid, $lid, 'L');
+
+            return new ResponseData($r);
+        } else {
+            /**
+             * list
+             */
+            $q = array('*', 'xxt_lottery');
+            if ($src === 'p') {
+                $pmpid = $_SESSION['mpaccount']->parent_mpid;
+                $q[2] = "mpid='$pmpid'";
+            } else
+                $q[2] = "mpid='$this->mpid'";
+
+            $q2['o'] = 'create_at desc';
+
+            $r = $this->model()->query_objs_ss($q, $q2);
+
+            return new ResponseData($r);
+        }
+    }
+    /**
+     * 获得转盘设置信息
+     */
+    public function plate_action($lid) 
+    {
+        $q = array(
+            '*',
+            'xxt_lottery_plate',
+            "lid='$lid'"
+        );
+        $p = $this->model()->query_obj_ss($q);
+
+        return new ResponseData($p);
+    }
+    /**
+     * 创建一个轮盘抽奖活动
+     *
+     * 自动生成没有奖励的奖项
+     * 自动将转盘各个槽位的奖项设置为没有奖励的缺省奖项
+     */
+    public function create_action() 
+    {
+        $lid = uniqid();
+        $newone['mpid'] = $this->mpid;
+        $newone['lid'] = $lid;
+        $newone['title'] = '新抽奖活动';
+        $newone['creater'] = TMS_CLIENT::get_client_uid();
+        $newone['create_at'] = time();
+        $newone['nonfans_alert'] = "请先关注公众号，再参与抽奖！";
+        $newone['nochance_alert'] = "您的抽奖机会已经用光了，下次再来试试吧！";
+        $newone['extra_css'] = "#awards{list-style:none;background:#CCC;border:1px solid #666}".PHP_EOL."#myAwards,#winners,#chance{display:none}";
+        $newone['extra_ele'] = "活动说明";
+        $this->model()->insert('xxt_lottery', $newone, false);
+        /**
+         * default award
+         */
+        $aid = uniqid();
+        $award['mpid'] = $this->mpid;
+        $award['lid'] = $lid;
+        $award['aid'] = $aid;
+        $award['title'] = '谢谢参与';
+        $award['prob'] = 100;
+        $award['type'] = 0;
+        $this->model()->insert('xxt_lottery_award', $award, false);
+        /**
+         * plate
+         */
+        $plate['mpid'] = $this->mpid;
+        $plate['lid'] = $lid;
+        for ($i=0; $i<12; $i++) {
+            $plate["a$i"] = $aid;
+        }
+        $this->model()->insert('xxt_lottery_plate', $plate, false);
+
+        return new ResponseData($lid);
+    }
+    /**
+     * 更新轮盘抽奖的基本设置信息
+     */
+    public function update_action($lid)
+    {
+        $nv = (array)$this->getPostJson();
+
+        $keys = array_keys($nv);
+        foreach ($keys as $k) {
+            if (in_array($k, array('nonfans_alert','nochance_alert','nostart_alert','hasend_alert','preactivity','extra_css','extra_ele','extra_js')))
+                $nv[$k] = mysql_real_escape_string($nv[$k]);
+        }
+        $rst = $this->model()->update('xxt_lottery', $nv, "lid='$lid'");
+
+        return new ResponseData($rst);
+    }
+    /**
+     * 添加奖项
+     */
+    public function addAward_action($lid, $mpid) 
+    {
+        $a = array(
+            'mpid' => $mpid, 
+            'lid' => $lid,
+            'aid' => uniqid(), 
+            'title' => '新增奖项', 
+            'pic' => '', 
+            'type' => 0,
+            'quantity' =>0,
+            'prob' => 0
+        );
+        $this->model()->insert('xxt_lottery_award', $a, false);
+
+        return new ResponseData($a);
+    }
+    /**
+     * 设置奖项的属性
+     *
+     * $aid award's id.
+     */
+    public function setAward_action($aid) 
+    {
+        $nv = $this->getPostJson();
+
+        if (isset($nv->description))
+            $nv->description = mysql_real_escape_string($nv->description); 
+        else if (isset($nv->greeting))
+            $nv->greeting = mysql_real_escape_string($nv->greeting); 
+
+        $rst = $this->model()->update('xxt_lottery_award', (array)$nv, "aid='$aid'");
+
+        return new ResponseData($rst);
+    }
+    /**
+     * 删除奖项
+     *
+     * 如果已经有人中奖，就不允许删除奖项
+     */
+    public function delAward_action($aid)
+    {
+        /**
+         * 检查是否已经有中奖记录
+         */
+        $q = array(
+            'count(*)',
+            'xxt_lottery_log',
+            "aid='$aid'"
+        );
+        $cnt = $this->model()->query_val_ss($q);
+        if ($cnt > 0)
+            return new ComplianceError('已经有中奖记录，奖项不允许被删除！');
+
+        $rst = $this->model()->delete('xxt_lottery_award', "aid='$aid'");
+
+        return new ResponseData($rst);
+    }
+    /**
+     * 设置转盘槽位的奖项
+     */
+    public function setPlate_action($lid) 
+    {
+        $r = $this->getPostJson();
+
+        $rst = $this->model()->update(
+            'xxt_lottery_plate', 
+            (array)$r, 
+            "lid='$lid'"
+        );
+
+        return new ResponseData($rst);
+    }
+    /**
+     * 抽奖结果列表
+     */
+    public function result_action($lid, $startAt=null, $endAt=null, $page=1, $size=30, $award=null, $assocAct=null)
+    {
+        $r = $this->model('activity/lottery')->byId($lid, 'access_control');
+        if ($r->access_control === 'Y') {
+            $q = array(
+                'l.mid,m.name,m.mobile,m.email,l.draw_at,a.title award_title,l.takeaway',
+                'xxt_lottery_log l,xxt_lottery_award a,xxt_member m',
+                "l.lid='$lid' and l.mid=m.mid and m.forbidden='N' and l.aid=a.aid"
+            );
+        } else {
+            /**
+             * 参与抽奖的用户不一定是关注用户，所以粉丝表里不一定有对应的记录
+             */
+            $q = array(
+                "f.nickname,l.openid,l.src,l.draw_at,a.title award_title,l.takeaway",
+                "xxt_lottery_log l left join xxt_lottery_award a on l.aid=a.aid left join xxt_fans f on f.mpid='$this->mpid' and l.openid=f.openid and l.src=f.src",
+                "l.lid='$lid'"
+            );
+        }
+        /**
+         * 指定时间范围
+         */
+        if ($startAt !== null && $endAt !== null)
+            $q[2] .= " and l.draw_at>=$startAt and l.draw_at<=$endAt";
+        /**
+         * 指定奖项
+         */
+        if (!empty($award))
+            $q[2] .= " and l.aid='$award'";
+        /**
+         * 排序和分页
+         */
+        $q2['o'] = 'draw_at desc';
+        $q2['r']['o'] = ($page-1)*$size;
+        $q2['r']['l'] = $size;
+
+        $result = $this->model()->query_objs_ss($q, $q2);
+        /**
+         * 总数
+         */
+        $q[0] = 'count(*)';
+        $amount = $this->model()->query_val_ss($q);
+        /**
+         * 从关联活动中获得登记数据
+         * todo 有可能实现批量获取吗？
+         */
+        if (!empty($assocAct)) {
+            foreach ($result as &$r) {
+                /**
+                 * 获取数据
+                 */
+                $sql = 'select c.name,c.value';
+                $sql .= ' from xxt_activity_enroll_cusdata c, xxt_activity_enroll e';
+                $sql .= " where e.aid='$assocAct' and c.enroll_key=e.enroll_key";
+                $sql .= " and e.openid='$r->openid' and e.src='$r->src'";
+                $cusdata = $this->model()->query_objs($sql);
+                /**
+                 * 组合数据
+                 */
+                foreach ($cusdata as $cd)
+                    $r->assoc->{$cd->name} = $cd->value;
+            }
+            if (isset($cusdata)) {
+                $assocDef = array();
+                foreach ($cusdata as $cd)
+                    $assocDef[] = $cd->name;
+            }
+        }
+
+        return new ResponseData(array($result, $amount, isset($assocDef) ? $assocDef : array()));
+    }
+    /**
+     * 抽奖情况统计
+     */
+    public function stat_action($lid)
+    {
+        $q = array(
+            'a.aid,a.title,count(*) number',
+            'xxt_lottery_award a,xxt_lottery_log l',
+            "l.lid='$lid' and a.lid=l.lid and a.aid=l.aid"
+        );
+        $q2 = array(
+            'g'=>'a.aid',
+            'o'=>'a.prob'
+        );
+
+        $stat = $this->model()->query_objs_ss($q, $q2);
+
+        return new ResponseData($stat);
+    }
+    /**
+     * 删除一条抽奖活动数据
+     * todo 是否应该更新奖品数量？
+     */
+    public function removeRoll_action($lid, $openid='', $src='', $mid='')
+    {
+        if (!empty($openid) && !empty($src))
+            $whichuser = "lid='$lid' and openid='$openid' and src='$src'";
+        else if (!empty($mid))
+            $whichuser = "lid='$lid' and mid='$mid'";
+        else
+            die('invalid parameters.');
+
+        $this->model()->delete(
+            'xxt_lottery_task_log',
+            $whichuser
+        );
+
+        $rst = $this->model()->delete(
+            'xxt_lottery_log',
+            $whichuser
+        );
+
+        return new ResponseData($rst);
+    }
+    /**
+     * 清空抽奖活动数据
+     */
+    public function clean_action($lid)
+    {
+        $rst = $this->model('activity/lottery')->clean($lid);
+
+        return new ResponseData($rst);
+    }
+    /**
+     * 给所有未中奖的用户增加一次抽奖机会 
+     */
+    public function addChance_action($lid)
+    {
+        /**
+         * 获得所有未中奖的用户
+         */
+        $q = array(
+            'l.mid,l.openid,l.src',
+            'xxt_lottery_log l,xxt_lottery_award a',
+            "l.lid='$lid' and l.aid=a.aid and l.last='Y' and a.type=0"
+        );
+        $award['quantity'] = 1;
+        $losers = $this->model()->query_objs_ss($q);
+        foreach ($losers as $loser)
+            $this->model('activity/lottery')->earnPlayAgain($lid, $loser->mid, $loser->openid, $loser->src, $award);
+
+        return new ResponseData(count($losers));
+    }
+}

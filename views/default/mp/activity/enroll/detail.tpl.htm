@@ -1,0 +1,32 @@
+<style>
+    .modal.picgallery .modal-dialog{position:absolute;top:0;bottom:0;left:50%;margin-left:-450px}
+    .modal.picgallery .modal-dialog .modal-content{height:100%}
+    .modal.picgallery .modal-dialog .modal-content .modal-body{position:absolute;top:57px;bottom:0;left:0;right:0}
+</style>
+<div ng-controller='enrollCtrl' ng-init="aid='<?php echo $_GET['aid'];?>'">
+    <nav class="navbar navbar-default">
+    <ul class="nav navbar-nav">
+        <li>
+        <a href='/page/mp/activity/enroll' target='_self'>
+            <span class='glyphicon glyphicon-chevron-left'></span>
+        </a>
+        </li>
+        <li ng-class="{'active':subView=='setting'}">
+        <a href='javascript:void(0);' ng-click="subView='setting'">活动设置</a>
+        </li>
+        <li ng-class="{'active':subView=='page'}">
+        <a href='javascript:void(0);' ng-click="subView='page'">页面设置</a>
+        </li>
+        <li ng-class="{'active':subView=='roll'}">
+        <a href='javascript:void(0);' ng-click="subView='roll'">登记汇总</a>
+        </li>
+        <li ng-class="{'active':subView=='stat'}">
+        <a href='javascript:void(0);' ng-click="subView='stat'">数据统计</a>
+        </li>
+        <li ng-if="activity.can_lottery==='Y'" ng-class="{'active':subView=='lottery'}">
+        <a href='javascript:void(0);' ng-click="subView='lottery'">活动抽奖</a>
+        </li>
+    </ul>
+    </nav>
+    <div ng-init="subView='setting'" ng-include="'/page/mp/activity/enroll/'+subView"></div>
+</div>

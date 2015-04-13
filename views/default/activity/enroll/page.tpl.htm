@@ -1,0 +1,11 @@
+<div ng-app='formApp' ng-controller='formCtrl' ng-init="mpid='<?php echo $_GET['mpid'];?>';aid='<?php echo $_GET['aid'];?>';rid='<?php echo isset($_GET['rid']) ? $_GET['rid']:'';?>';jsonParams='<?php echo urlencode(json_encode(TPL::val('params')));?>';authurl='<?php TPL::pt('authurl');?>';">
+    <div id='errmsg' class='alert alert-danger' ng-class={'active':errmsg} ng-click="errmsg=''">{{errmsg}}</div>
+    <div class='container ng-cloak' ng-cloak>
+        <?php TPL::pt('extra_html');?>
+    </div>
+    <div id='pickImageFrom'>
+        <div class='form-group'><button class='btn btn-default btn-lg btn-block' ng-click="chooseImage(null,'camera')">拍照</button></div>
+        <div class='form-group'><button class='btn btn-default btn-lg btn-block' ng-click="chooseImage(null,'album')">相册</button></div>
+    </div>
+</div>
+<iframe id='frmAuth' onload='this.height=$(document).height()'></iframe>

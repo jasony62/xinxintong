@@ -1,0 +1,35 @@
+<div ng-controller='ArticleCtrl' ng-init="hasParent='<?php echo empty($_SESSION['mpaccount']->parent_mpid) ? 'N':'Y';?>'">
+    <div class='form-inline form-group'>
+        <button class='btn btn-success' ng-click='create()' title='新建图文'>新建</button>
+        <select style='width:110px' class='form-control' title='排序' ng-model='order' ng-change='doSearch()'>
+            <option value='time'>修改时间</option>
+            <option value='title'>图文标题</option>
+        </select>
+        <div class='form-group'>
+            <combox style='width:180px' readonly='true' prop='title' existing='selectedTags' options='tags'></combox>
+        </div>
+        <label class="checkbox-inline" ng-show="hasParent==='Y'"><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='fromParent' ng-change='doSearch()'>来源于父账号</label>
+    </div>
+    <div class='clearfix' style='margin:0 -15px'>
+        <div class='col-md-4' ng-repeat='a in articles'>
+            <div class='thumbnail' ng-class={'contribution':!a.creater} ng-mouseenter='enter=true' ng-mouseleave='enter=false' ng-click='edit(a)'>
+                <div>
+                    <h4>{{a.title}}</h4>
+                    <p>{{a.summary}}</p>
+                </div>
+                <div><span class='label label-warning' ng-repeat='t in a.tags'>{{t.title}}</span></div>
+                <div>
+                    <span class='creater_name'>{{a.creater_name}}</span>
+                    <span class='modify_at'>{{a.modify_at*1000|date:'yyyy-MM-dd'}}</span>
+                </div>
+                <button class='btn btn-default btn-sm remove' ng-click='remove($event,a,$index)' ng-if='a.creater&&enter'>
+                    <span class='glyphicon glyphicon-trash'></span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class='form-group clearfix'>
+        <span style='height:34px;line-height:34px' ng-show='page.total>0'>总数：{{page.total}}</span>
+        <pagination style='margin:0;cursor:pointer' class='pull-right' ng-show='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
+    </div>
+</div>

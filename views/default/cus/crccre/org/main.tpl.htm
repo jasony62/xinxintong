@@ -1,0 +1,29 @@
+<div class="modal-header">
+    <button class="close" type="button" ng-click="close()">×</button>
+    <h5 class="modal-title">组织机构</h5>
+</div>
+<div class="modal-body clearfix" style='padding:0 25px'>
+    <div style='height:100%;overflow:auto'>
+        <div class='form-group'>
+            <ol class='tree'>
+                <li class='treenode' tms-tree="child in nodes.children at ol">
+                <div style='width:200px'>
+                    <div class="input-group input-group-sm">
+                        <div class="input-group-btn" ng-if="child.data.titletype!=5">
+                            <button type="button" class="btn btn-default" ng-click='toggleChild(child)'><span class="glyphicon" ng-class="child.expanded?'glyphicon-chevron-down':'glyphicon-chevron-right'"></span></button>
+                        </div>
+                        <p class='form-control' style='overflow:hidden' title='{{child.data.title}}' ng-class="{'active':child.data===selectedDept}" ng-click='selectDept(child.data)'>{{child.data.title}}</p>
+                        <span class="input-group-addon" ng-if="child.data.titletype==5">
+                            <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='child.data.checked' ng-change="checkMembers(child.data)">
+                        </span>
+                    </div>
+                </div>
+                <ol ng-class="{pregnant:child.children.length}" ng-show="child.children.length&&child.expanded"></ol>
+                </li>
+            </ol>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-warning" ng-click="ok()">确定</button>
+</div>

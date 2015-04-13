@@ -1,0 +1,139 @@
+<div ng-controller='feaCtrl' ng-init='jsonParams="<?php echo urlencode(json_encode(TPL::val('params')));?>";'>
+    <div class="panel panel-default">
+        <div class="panel-heading">系统运行模式</div>
+        <div class="panel-body">
+            <div class='form-horizontal'>
+                <div class='form-group' style='display:none'>
+                    <label class='col-md-2 control-label'>文章评论</label> 
+                    <div class='col-md-10'>
+                        <label class='checkbox-inline'><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='features.can_article_remark_by_fans' ng-change="update('can_article_remark_by_fans')">允许关注用户在文章后面发表评论（开通<span style='color:red'>网页授权</span>接口才生效）</label>
+                    </div>
+                </div>
+                <accesscontrol title='文章评论' label='允许认证用户在文章后面发表评论（开通用户认证接口才生效）' mpid='<?php TPL::S("mpid");?>' obj='features' prop-acl='acl' prop-access='can_article_remark' prop-apis='article_remark_authapis' update-access-control="update('can_article_remark')" update-authapis="update('article_remark_authapis')" label-span='2' control-span='10'></accesscontrol>
+                <div class='form-group'>
+                    <label class='col-md-2 control-label'>素材可见性</label> 
+                    <div class='col-md-10'>
+                        <label class='checkbox-inline'><input type='checkbox' ng-model='features.matter_visible_to_creater' ng-true-value='Y' ng-false-value='N' ng-change="update('matter_visible_to_creater')">&nbsp;仅创建者和管理员可见</label>
+                        <p class="help-block">设置此选项可限制编辑的素材其他人不可编辑和使用，包括：图文，文本，多图文，频道和链接。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">公众号管理员</div>
+        <div class="panel-body">
+            <div class='form-horizontal'>
+                <div class='form-group'>
+                    <label class='col-md-2 control-label'>联系方式</label> 
+                    <div class='col-md-10'>
+                        <input type='text' class='form-control' ng-model='features.admin_contact' tms-auto-update tms-wait=1000 tms-update="update('admin_contact')">
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class='col-md-2 control-label'>邮箱</label> 
+                    <div class='col-md-10'>
+                        <input type='text' class='form-control' ng-model='features.admin_email' tms-auto-update tms-wait=1000 tms-update="update('admin_email')">
+                        <p class="help-block">若指定了公众号管理员邮箱，系统将用此邮箱向用户发送邮件。</p>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class='col-md-2 control-label'>口令</label> 
+                    <div class='col-md-10'>
+                        <input type='password' class='form-control' ng-model='features.admin_email_pwd' ng-blur="update('admin_email_pwd')">
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class='col-md-2 control-label'>SMTP</label> 
+                    <div class='col-md-10'>
+                        <input type='text' class='form-control' ng-model='features.admin_email_smtp' tms-auto-update tms-wait=1000 tms-update="update('admin_email_smtp')">
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class='col-md-2 control-label'>PORT</label> 
+                    <div class='col-md-10'>
+                        <input type='text' class='form-control' ng-model='features.admin_email_port' tms-auto-update tms-wait=1000 tms-update="update('admin_email_port')">
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class='col-md-2 control-label'>TLS</label> 
+                    <div class='col-md-10'>
+                        <label class='checkbox-inline'><input type='checkbox' ng-model='features.admin_email_tls' ng-true-value='Y' ng-false-value='N' ng-change="update('admin_email_tls')">是</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">页面背景设置</div>
+        <div class="panel-body">
+            <div class='form-horizontal'>
+                <div class='form-group'>
+                    <label class='col-md-2 control-label'>背景元素</label> 
+                    <div class='col-md-10'>
+                        <textarea class='form-control' ng-model='features.body_ele' rows=6 ng-blur="update('body_ele')"></textarea>
+                        <p class="help-block">用于给所有页面添加页面元素。</p>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class='col-md-2 control-label'>背景样式</label> 
+                    <div class='col-md-10'>
+                        <textarea class='form-control' ng-model='features.body_css' rows=6 ng-blur="update('body_css')"></textarea>
+                        <p class="help-block">用于给所有页面设置页面样式。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">提示关注页</div>
+        <div class="panel-body">
+            <div class='form-horizontal'>
+                <div class='form-group'>
+                    <label class='col-md-2 control-label'>关注页内容</label> 
+                    <div class='col-md-10'>
+                        <textarea class='form-control' ng-model='features.follow_ele' rows=6 ng-blur="update('follow_ele')"></textarea>
+                        <p class="help-block">通过OAuth判断用户为非关注用户时显示的页面。</p>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class='col-md-2 control-label'>关注页样式</label> 
+                    <div class='col-md-10'>
+                        <textarea class='form-control' ng-model='features.follow_css' rows=6 ng-blur="update('follow_css')"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+    <div class="panel panel-default" ng-if='false'>
+        <div class="panel-heading">认证用户管理</div>
+        <div class="panel-body">
+            <div class='form-horizontal'>
+                <div class='form-group'>
+                    <label class='col-md-2 control-label'>用户认证</label> 
+                    <div class='col-md-10'>
+                        <label class='checkbox-inline'><input type='checkbox' ng-model='features.can_member' ng-true-value='Y' ng-false-value='N' ng-change="update('can_member')">提供用户注册功能。</label>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class='col-md-2 control-label'>用户卡</label> 
+                    <div class='col-md-10'>
+                        <label class='checkbox-inline'><input type='checkbox' ng-model='features.can_member_card' ng-true-value='Y' ng-false-value='N' ng-change="update('can_member_card')">允许注册用户申请用户卡。</label>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class='col-md-2 control-label'>用户签到</label> 
+                    <div class='col-md-10'>
+                        <label class='checkbox-inline'><input type='checkbox' ng-model='features.can_member_checkin' ng-true-value='Y' ng-false-value='N' ng-change="update('can_member_checkin')">提供注册用户签到功能。</label>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class='col-md-2 control-label'>用户积分</label> 
+                    <div class='col-md-10'>
+                        <label class='checkbox-inline'><input type='checkbox' ng-model='features.can_member_credits' ng-true-value='Y' ng-false-value='N' ng-change="update('can_member_credits')">提供注册用户积分功能。</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

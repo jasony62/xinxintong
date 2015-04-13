@@ -1,0 +1,72 @@
+<div id='setting_page' ng-controller='SettingCtrl'>
+    <div class='form-group'>
+        <input type="text" class="form-control" ng-model='activity.title' ng-blur="update('title')" placeholder='输入活动名称'>
+    </div>
+    <div id='activity_code' class='form-group'>
+        <label class='control-label'>活动编号</label>
+        <p class='form-control-static'>{{activity.code}}
+        <span ng-if='activity.codesearchKeyword' style='color:red'>{{'（向公账号输入【'+activity.codesearchKeyword+activity.code+'】可获得编辑活动的信息卡片。)'}}</span>
+        </p>
+    </div>
+    <div id="enroll_pages" class="carousel slide" data-ride="carousel">
+        <div class="carousel-inner" role="listbox">
+            <div class="item active">
+                <tmseditor id='enroll_ele' content='activity.enroll_ele' cmds='enrollCmds' update="update('enroll_ele')"></tmseditor>
+                <div class="carousel-caption">
+                </div>
+            </div>
+            <div class="item">
+                <tmseditor id='state_ele' content='activity.state_ele' update="update('state_ele')"></tmseditor>
+                <div class="carousel-caption">
+                </div>
+            </div>
+        </div>
+        <ol class="carousel-indicators">
+            <li data-target="#enroll_pages" data-slide-to="0" class="active"></li>
+            <li data-target="#enroll_pages" data-slide-to="1"></li>
+        </ol>
+    </div>
+    <div id='sendme'>
+        <button class="btn btn-success" ng-click='sendMe()'>发给我</button>
+    </div>
+    <link href="/views/default/wbox/activity/setting.css?_=<?php echo time();?>" rel="stylesheet">
+    <script type="text/ng-template" id="cusdata.html">
+        <div class="modal-header">
+            <button class="close" ng-click="cancel()" type="button">×</button>
+            <h4 class="modal-title">自定义信息</h4>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal" role="form">
+                <div class="form-group">
+                    <label class="col-md-2 control-label">类型</label>
+                    <div class="col-md-10">
+                        <select class='form-control' ng-model='def.type'>
+                            <option value='0'>短文本</option>
+                            <option value='1'>长文本</option>
+                            <option value='2'>单选项</option>
+                            <option value='3'>多选项</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">名称</label>
+                    <div class="col-md-10">
+                        <input type='text' class='form-control' ng-model='def.name'>
+                    </div>
+                </div>
+                <div class="form-group" ng-if='def.type==2||def.type==3'>
+                    <label class="col-md-2 control-label">选项</label>
+                    <div class="col-md-10">
+                        <button class="btn btn-default btn-sm" ng-click='addOption()'>添加</button>
+                        <ul class='list-group'>
+                            <li class='list-group-item' ng-repeat='op in def.ops' editable prop='text' obj='op'></li>
+                        </ul>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer" style="margin-top:0">
+            <button class="btn btn-primary" ng-click="ok()">确定</button>
+        </div>
+    </script>
+</div>

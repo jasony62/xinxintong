@@ -1,0 +1,89 @@
+<?php
+if (!TMS_APP::M('mp\permission')->can('mpsecurity','read')) {
+?>
+<div class='alert alert-warning'>您没有权限对公众号的权限进行设置，请联系账号管理员。</div>
+<?php } else {?>
+<div ng-controller='permCtrl'>
+    <div class='col-md-4'> 
+        <div class='list-group'>
+            <a href='#' class='list-group-item' ng-class='{active:u.selected}' ng-repeat="u in users" ng-click='selected(u)'>
+                <span>{{u.authed_id}}</span>
+            </a>
+        </div>
+    </div>
+    <div class='col-md-8'>
+        <div ng-hide='selectedUser' class="alert alert-info ng-hide">
+            <strong>提醒！</strong>请选择一个要设置权限的用户。
+        </div>
+        <table ng-show='selectedUser' class="table table-bordered table-striped ng-hide">
+            <thead>
+                <tr>
+                    <th>权限</th>
+                    <th><span>创建</span></th>
+                    <th><span>查看</span></th>
+                    <th><span>更新</span></th>
+                    <th><span>删除</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>配置公众号</td>
+                    <td></td>
+                    <td><input type="checkbox" disabled ng-model="rights.mpsetting.read_p" ng-true-value='Y' ng-false-value='N'></td>
+                    <td><input type="checkbox" disabled ng-model="rights.mpsetting.update_p" ng-true-value='Y' ng-false-value='N'></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>公众号权限设置</td>
+                    <td></td>
+                    <td><input type="checkbox" disabled ng-model="rights.mpsecurity.read_p" ng-true-value='Y' ng-false-value='N'></td>
+                    <td><input type="checkbox" disabled ng-model="rights.mpsecurity.update_p" ng-true-value='Y' ng-false-value='N'></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>素材管理</td>
+                    <td></td>
+                    <td><input type="checkbox" disabled ng-model="rights.matter.read_p" ng-true-value='Y' ng-false-value='N'></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>回复管理</td>
+                    <td></td>
+                    <td><input type="checkbox" disabled ng-model="rights.reply.read_p" ng-true-value='Y' ng-false-value='N'></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>粉丝管理</td>
+                    <td></td>
+                    <td><input type="checkbox" disabled ng-model="rights.fans.read_p" ng-true-value='Y' ng-false-value='N'></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>认证用户管理</td>
+                    <td></td>
+                    <td><input type="checkbox" disabled ng-model="rights.member.read_p" ng-true-value='Y' ng-false-value='N'></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>活动管理</td>
+                    <td></td>
+                    <td><input type="checkbox" disabled ng-model="rights.activity.read_p" ng-true-value='Y' ng-false-value='N'></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>统计分析</td>
+                    <td></td>
+                    <td><input type="checkbox" disabled ng-model="rights.analyze.read_p" ng-true-value='Y' ng-false-value='N'></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<?php }?>

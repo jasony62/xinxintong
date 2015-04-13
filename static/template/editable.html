@@ -1,0 +1,3 @@
+<input type="text" class="form-control" ng-if="focus" ng-model="obj[prop]">
+<span ng-if="!focus">{{obj[prop]}}</span>
+<button class="btn btn-default btn-xs pull-right" ng-if="enter" ng-click="remove($event)"><span class="glyphicon glyphicon-remove"></span></button>

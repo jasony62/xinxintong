@@ -1,0 +1,33 @@
+<div ng-controller='UserCtrl'>
+    <div class='clearfix'>
+        <div class='pull-right'>
+            <pagination style='margin-top:0' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.current" class="pagination" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="pageChanged()" style='cursor:pointer'></pagination>
+        </div>
+    </div>
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <th>昵称</th>
+                <th>登录邮箱</th>
+                <th>注册日期</th>
+                <th>最后登录日期</th>
+                <th>用户组</th>
+                <th style='width:48px'>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat='u in users'>
+                <td>{{u.nickname}}</td>
+                <td>{{u.email}}</td>
+                <td>{{u.reg_time*1000|date:'yyyy-MM-dd'}}</td>
+                <td>{{u.last_login*1000|date:'yyyy-MM-dd'}}</td>
+                <td style='padding:0'>
+                    <select class='form-control' ng-model='u.group_id' ng-options='g.group_id as g.group_name for g in groups' ng-change='changeGroup(u)'></select>
+                </td>
+                <td>
+                    <button class='btn btn-danger btn-xs' ng-click='remove(u)'><span class='glyphicon glyphicon-remove'></span></button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

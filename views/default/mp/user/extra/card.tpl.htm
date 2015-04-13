@@ -1,0 +1,89 @@
+<div ng-controller='CardCtrl'>
+    <div class='form-group clearfix'>
+        <div class='pull-right'>
+            <button class='btn btn-primary' ng-click='submit()'>提交</button>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label>URL</label>
+        <div class='form-control'>{{card.url}}</div>
+    </div>
+    <div class='form-group'>
+        <label>底图</label>
+        <div>
+            <div style="width:242px;height:152px;border:1px solid #CCC">
+                <div style="height:100px;text-align:center;padding-top:32px" ng-if="card.board_pic==''">
+                    <button class='btn btn-default' ng-click='setBoardPic();'>
+                        <span class='glyphicon glyphicon-picture'></span> 选择图片
+                    </button>
+                </div>
+                <div style='position:relative' ng-if="card.board_pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                    <img src="{{card.board_pic}}" width='240px' height='150px'/>
+                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setBoardPic();'>
+                        <span class='glyphicon glyphicon-picture'></span>
+                    </button>
+                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removeBoardPic();'>
+                        <span class='glyphicon glyphicon-trash'></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label>图标</label>
+        <div>
+            <div style="width:242px;height:152px;border:1px solid #CCC">
+                <div style="height:100px;text-align:center;padding-top:32px" ng-if="card.badge_pic==''">
+                    <button class='btn btn-default' ng-click='setBadgePic();'>
+                        <span class='glyphicon glyphicon-picture'></span> 选择图片
+                    </button>
+                </div>
+                <div style='position:relative' ng-if="card.badge_pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                    <img src="{{card.badge_pic}}" width='240px' height='150px'/>
+                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setBadgePic();'>
+                        <span class='glyphicon glyphicon-picture'></span>
+                    </button>
+                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removeBadgePic();'>
+                        <span class='glyphicon glyphicon-trash'></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label>会员卡名称</label>
+        <input type='text' class='form-control' ng-model='card.title'>
+    </div>
+    <div class='form-group'>
+        <label>会员卡名称颜色</label>
+        <input type='text' class='form-control' ng-model='card.title_color'>
+    </div>
+    <div class='form-group'>
+        <label>会员卡号颜色</label>
+        <input type='text' class='form-control' ng-model='card.cardno_color'>
+    </div>
+    <div class='form-group'>
+        <label>领取会员卡页面（CSS）</label>
+        <textarea class='form-control' ng-model='card.apply_css'></textarea>
+    </div>
+    <div class='form-group'>
+        <label>领取会员卡页面（HTML）</label>
+        <textarea class='form-control' ng-model='card.apply_ele'></textarea>
+    </div>
+    <div class='form-group'>
+        <label>领取会员卡页面（JS）</label>
+        <textarea class='form-control' ng-model='card.apply_js'></textarea>
+    </div>
+    <div class='form-group'>
+        <label>显示会员卡页面（CSS）</label>
+        <textarea class='form-control' ng-model='card.show_css'></textarea>
+    </div>
+    <div class='form-group'>
+        <label>显示会员卡页面（HTML）</label>
+        <textarea class='form-control' ng-model='card.show_ele'></textarea>
+    </div>
+    <div class='form-group'>
+        <label>显示会员卡页面（CSS）</label>
+        <textarea class='form-control' ng-model='card.show_js'></textarea>
+    </div>
+</div>

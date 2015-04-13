@@ -1,0 +1,83 @@
+<div ng-controller='ChannelCtrl' ng-init="hasParent='<?php echo empty($_SESSION['mpaccount']->parent_mpid) ? 'N':'Y';?>'">
+    <div class='col-md-5' style='padding-left:0'>
+        <div class='list-group'>
+            <div class='list-group-item'>
+                <div class='form-inline'>
+                    <button class='btn btn-success' ng-click='create()'>新建频道</button>
+                    <label class="checkbox-inline" ng-show="hasParent==='Y'"><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='fromParent' ng-change='doSearch()'>来源于父账号</label>
+                </div>
+            </div>
+            <a class='list-group-item' style='min-height:42px' ng-repeat="c in channels" ng-click='edit(c)' ng-class="{'active':c===editing}"><span>{{c.title}}</span><button class='btn btn-xs btn-default pull-right' ng-if="c===editing" ng-click='deleteOne($event,$index)'><span class='glyphicon glyphicon-remove'></span></button></a>
+        </div>
+    </div>
+    <div class='col-md-7 form-horizontal' ng-show='editing' style='padding-right:0'>
+        <div style='text-align:right;padding-bottom:15px'>
+            <div style='display:inline-block'>
+                <pushmatter class='btn btn-primary' title="发送给指定用户" matter-id={{editing.id}} matter-type='channel'/>
+            </div>
+            <div class='qrcode' style='display:inline-block' ng-controller='SendmeController'>
+                <button class='btn btn-primary' data-toggle="popover" data-placement='left' ng-click="qrcode({type:'channel',id:editing.id},$event)">发送给我</button>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-3 control-label'>名称</label>
+            <div class='col-md-9'>
+                <input type='text' class='form-control' ng-model="editing.title" tms-auto-update tms-wait=1000 tms-update="update('title')">
+            </div>
+        </div>
+        <div class='form-group' ng-if='editing.creater!==editing.uid'>
+            <label class='col-md-3 control-label'>创建人</label>
+            <div class='col-md-9'>
+                <p class='form-control-static'>{{editing.creater_name}}</p>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-3 control-label'>固定标题</label>
+            <div class='col-md-9'>
+                <input type='text' class='form-control' ng-model="editing.fixed_title" tms-auto-update tms-wait=1000 tms-update="update('fixed_title')">
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-3 control-label'>显示数量</label>
+            <div class='col-md-9'>
+                <input type='text' class='form-control' ng-model="editing.volume" tms-auto-update tms-wait=1000 tms-update="update('volume')">
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-3 control-label'>置顶（可选）</label>
+            <div class='col-md-9'>
+                <button class='btn btn-default btn-sm' ng-click="setFixed('top')">选择图文</button>
+                <ul class='list-group' style='margin-bottom:0;'>
+                    <li class='list-group-item' ng-if='topMatter' ng-mouseenter="hover=true" ng-mouseleave="hover=false" stuff="topMatter"  title='{{topMatter.type|typetitle}}'><span>{{topMatter.title}}</span><button class='btn btn-xs btn-default pull-right' ng-if="hover" ng-click="setFixed('top',true)"><span class='glyphicon glyphicon-remove'></span></button></li></ul>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-3 control-label'>已有图文</label>
+            <div class='col-md-9'>
+                <ul class='list-group' style='margin-bottom:0'>
+                    <li class='list-group-item' ng-repeat="m in matters" ng-mouseenter='hover=true' ng-mouseleave='hover=false' title='{{m.type|typetitle}}'>
+                    <span>{{m.title}}</span><button class='btn btn-xs btn-default pull-right' ng-if="hover" ng-click="removeMatter(m)"><span class='glyphicon glyphicon-remove'></span></button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-3 control-label'>置底（可选）</label>
+            <div class='col-md-9'>
+                <button class='btn btn-default btn-sm' ng-click="setFixed('bottom',false)">选择图文</button>
+                <ul class='list-group' style='margin-bottom:0;'>
+                    <li class='list-group-item' ng-if='bottomMatter' ng-mouseenter="hover=true" ng-mouseleave="hover=false" stuff="bottomMatter" title='{{bottomMatter.type|typetitle}}'><span>{{bottomMatter.title}}</span><button class='btn btn-xs btn-default pull-right' ng-if="hover" ng-click="setFixed('bottom',true)"><span class='glyphicon glyphicon-remove'></span></button></li></ul>
+            </div>
+        </div>
+        <div class='form-group' ng-if="features.matter_visible_to_creater==='Y'">
+            <label class='col-md-3 control-label'>可见范围</label>
+            <div class='col-md-9'>
+                <div class='checkbox'>
+                    <label><input type='checkbox' ng-disabled="editing.creater!==editing.uid" ng-model='editing.public_visible' ng-true-value='Y' ng-false-value='N' ng-change="update('public_visible')">设置为公开可见</label>
+                </div>
+            </div>
+        </div>
+        <accesscontrol obj='editing' prop-acl='acl' prop-access='access_control' prop-apis='authapis' update-access-control="update('access_control')" update-authapis="update('authapis')" change-acl-url='/rest/mp/matter/channel/setAcl?id={{editing.id}}' remove-acl-url='/rest/mp/matter/channel/removeAcl' label-span='3' control-span='9'></accesscontrol>
+    </div>
+    <div mattersgallery style='display:none' single-matter='true' matter-url='/rest/mp/matter' matter-types='matterTypes'></div>
+</div>

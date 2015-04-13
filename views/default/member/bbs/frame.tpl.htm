@@ -1,0 +1,11 @@
+<style>
+    #frmRegister{display:none;position:absolute;top:0;left:0;right:0;border:none;width:100%;z-index:999}
+    .subject{color:#5090C0;font-size:1.3em;height:1.5em;overflow:hidden}
+    .nickname{color:#B06060;overflow:hidden;float:left}
+    .datetime{color:#CCC;float:right;overflow:hidden}
+</style> 
+<div ng-app='bbs' ng-controller='MainCtrl'>
+    <div class='container' ng-include='subViewUrl'>
+    </div>
+</div>
+<iframe id='frmRegister' onload='this.height=$(document).height()'></iframe>

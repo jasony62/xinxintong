@@ -1,0 +1,14 @@
+name: xinxintong
+version: 1
+handle:
+- rewrite: if ( !is_dir() && !is_file() && path ~ "^/rest/(.*)" ) goto "/app.php/$1"
+- rewrite: if ( !is_dir() && !is_file() && path ~ "^/page/(.*)" ) goto "/app.php/$1"
+- compress: if ( out_header["Content-type"] ~ "text/css" ) compress
+- compress: if ( out_header["Content-type"] ~ "text/javascript" ) compress
+- compress: if ( out_header["Content-type"] ~ "text/html" ) compress
+- compress: if ( out_header["Content-type"] ~ "text/plain" ) compress
+- compress: if ( out_header["Content-type"] ~ "image/jpeg" ) compress
+- compress: if ( out_header["Content-type"] ~ "image/png" ) compress
+- compress: if ( out_header["Content-type"] ~ "image/bmp" ) compress
+- compress: if ( out_header["Content-Length"] >= 5120 ) compress
+- expire:  if( path ~ "/static" ) time 8640000

@@ -1,0 +1,26 @@
+xxtApp.controller('linkCtrl',['$scope','http2',function($scope,http2){
+    $scope.create = function(){
+        http2.get('/rest/mp/matter/link/create', function(rsp) {
+            location.href = '/page/mp/matter/link?id='+rsp.data.id;
+        });
+    };
+    $scope.edit = function(link) {
+        location.href = '/page/mp/matter/link?id='+link.id;
+    };
+    $scope.remove = function(event,link) {
+        event.preventDefault();
+        event.stopPropagation();
+        http2.get('/rest/mp/matter/link/remove?id='+link.id, function(rsp){
+            var i = $scope.links.indexOf(link);
+            $scope.links.splice(i,1);
+        });
+    };
+    $scope.doSearch = function() {
+        var url = '/rest/mp/matter/link?cascade=n';
+        $scope.fromParent && $scope.fromParent==='Y' && (url += '&src=p');
+        http2.get(url, function(rsp) {
+            $scope.links = rsp.data;
+        });
+    };
+    $scope.doSearch();
+}]);

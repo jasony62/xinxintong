@@ -1,0 +1,25 @@
+<div ng-controller='mainCtrl'>
+    <div class='form-group'>
+        <div class='col-md-3' ng-repeat='p in pages'>
+            <div class='thumbnail' ng-mouseenter='mouseenter=true' ng-mouseleave='mouseenter=false'>
+                <button class='btn btn-default btn-sm pull-right' ng-if='mouseenter' ng-click='removePage(p)'><span class='glyphicon glyphicon-trash'></span></button>
+                <a href='#' ng-click='open(p.id)'>{{p.title}}</a>
+                <div class='footer'><span class='datetime'>{{p.create_at*1000|date:'yyyy-MM-dd HH:mm'}}</span></div>
+            </div>
+        </div>
+        <div class='col-md-3'>
+            <div class='thumbnail create'>
+                <div>
+                    <div>
+                        <button class='btn btn-success btn-lg' ng-click='open()'>新建页面</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='clearfix'>
+        <div class='pull-right'>
+            <pagination style='margin-top:0;cursor:pointer' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
+        </div>
+    </div>
+</div>

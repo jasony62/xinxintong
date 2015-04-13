@@ -1,0 +1,24 @@
+<div>
+    <div></div>
+    <iframe src="javascript:void(0);" style="display:block;width:100%"></iframe>
+    <div>
+        <div class='btn-group'>
+            <button class='btn btn-default btn-sm' command='remove'>X</button>
+            <button class='btn btn-default btn-sm' command='addtext'>+</button>
+            <button class='btn btn-default btn-sm' command='bold'>B</button>
+            <button class='btn btn-default btn-sm' command='italic'>I</button>
+            <button class='btn btn-default btn-sm' command='underline'>U</button>
+            <button class='btn btn-default btn-sm' command='BackColor'>BC</button>
+            <div class="btn-group dropup" ng-if='cmds'>
+                <button type="button" class="btn btn-default btn-sm">登记项</button>
+                <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li ng-repeat='c in cmds'><a href="#" ng-click='c.action()'>{{c.title}}</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

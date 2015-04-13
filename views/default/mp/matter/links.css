@@ -1,0 +1,7 @@
+.thumbnail{position:relative;height:180px;cursor:pointer}
+.thumbnail>:first-child{height:100px;overflow:hidden}
+.thumbnail .label{margin:0 2px 2px 0}
+.thumbnail>:nth-child(2){position:absolute;height:30px;left:4px;right:4px;bottom:4px}
+.thumbnail .creater_name{display:inline-block;color:#999;line-height:30px}
+.thumbnail .create_at{display:inline-block;color:#999;line-height:30px;float:right}
+.thumbnail button.remove{position:absolute;top:4px;right:4px}

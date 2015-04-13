@@ -1,0 +1,27 @@
+<style>
+    #frmRegister{display:none;position:absolute;top:0;left:0;right:0;border:none;width:100%;z-index:999}
+    #board{position:relative;width:240px;height:150px;margin:0 auto 15px auto;background-repeat:no-repeat;background-size:contain;background-position:bottom right}
+    #board .card-badge{position:absolute;top:10px;left:20px;height:48px;width:100%;background-repeat:no-repeat;background-size:contain}
+    #board .title{position:absolute;top:10px;right:20px;font-weight:700;text-shadow:0 0 2px #999}
+    #board .cardno{position:absolute;bottom:10px;right:20px;font-weight:700;text-shadow:0 0 1px #FFF}
+    #board .cardno div:first-child {font-size:11px;font-weight:700;text-shadow:0 0 1px #EEE}
+</style> 
+<div class='container' ng-app='CardApp' ng-controller='CardCtrl'>
+    <input type='hidden' ng-model='mpid' ng-init="mpid='<?php echo $_GET['mpid'];?>'">
+    <div class='row'>
+        <div id='board' style="background-image:url(<?php TPL::pt('board_pic');?>)">
+            <div class='card-badge' style="background-image:url(<?php TPL::pt('badge_pic');?>)">
+            </div>
+            <div class='title' style="color:<?php TPL::pt('title_color');?>">
+                <span><?php TPL::pt('title');?></span>
+            </div>
+            <div class='cardno' style="color:<?php TPL::pt('cardno_color');?>">
+                <div>会员卡号</div>
+                <div>{{member.cardno}}</div>
+            </div>
+        </div>
+        <div id='info' ng-include="infoUrl">
+        </div>
+    </div>
+</div>
+<iframe id='frmRegister' onload='this.height=$(document).height()'></iframe>

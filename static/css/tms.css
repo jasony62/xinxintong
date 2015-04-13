@@ -1,0 +1,81 @@
+body{font-family:Arial,'Microsoft YaHei'}
+.cloak{display:none}
+@media screen and (min-device-width:768px) and (max-device-width:1024px) and (orientation:landscape){
+    .container{width:970px}
+    .col-md-1,.col-md-2,.col-md-3,.col-md-4,.col-md-5,.col-md-6,.col-md-7,.col-md-8,.col-md-9,.col-md-10,.col-md-11,.col-md-12{float:left}
+    .col-md-12{width:100%}
+    .col-md-11{width:91.6667%}
+    .col-md-10{width:83.3333%}
+    .col-md-9{width:75%}
+    .col-md-8{width:66.6667%}
+    .col-md-7{width:58.3333%}
+    .col-md-6{width:50%}
+    .col-md-5{width:41.6667%}
+    .col-md-4{width:33.3333%}
+    .col-md-3{width:25%}
+    .col-md-2{width:16.6667%}
+    .col-md-1{width:8.33333%}
+    .col-md-offset-12{margin-left:100%}
+    .col-md-offset-11{margin-left:91.6667%}
+    .col-md-offset-10{margin-left:83.3333%}
+    .col-md-offset-9{margin-left:75%}
+    .col-md-offset-8{margin-left:66.6667%}
+    .col-md-offset-7{margin-left:58.3333%}
+    .col-md-offset-6{margin-left:50%}
+    .col-md-offset-5{margin-left:41.6667%}
+    .col-md-offset-4{margin-left: 33.3333%}
+    .col-md-offset-3{margin-left:25%}
+    .col-md-offset-2{margin-left:16.6667%}
+    .col-md-offset-1{margin-left:8.33333%}
+    .col-md-offset-0{margin-left:0}
+}            
+.navbar{border-radius:0}
+.navbar-nav.navbar-right:last-child{margin-right:0}
+body>.notice-box{position:fixed;width:300px;top:0px;left:50%;margin-left:-150px;overflow:none;z-index:3999;text-align:center;word-break:break-all}
+.modal.auto-height .modal-dialog.modal-lg {
+    left: 50%;
+    margin-left: -450px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+}
+.modal.auto-height .modal-dialog .modal-content{height:100%}
+.modal.auto-height .modal-dialog .modal-content .modal-body{position:absolute;top:57px;bottom:74px;left:0;right:0}
+.modal.auto-height .modal-dialog .modal-content .modal-footer{position:absolute;bottom:0;left:0;right:0;margin-top:0}
+.tree {border:0 none transparent;margin:0;padding:0}
+.tree li.treenode{
+    list-style-type:none;
+    margin:0;
+    padding:10px 5px 0 25px;
+    position:relative
+}
+.tree li.treenode::before,.tree li.treenode::after {
+    content:'';
+    left:0px;
+    position:absolute;
+    right:auto
+}
+.tree li.treenode::before {
+    border-left:1px solid #999;
+    bottom:-25px;
+    top:0px;
+    width:1px
+}
+.tree li.treenode::after {
+    border-top:1px solid #999;
+    height:20px;
+    top:25px;
+    width:25px
+}
+.tree>li.treenode:first-child::before {top:0}
+.tree li.treenode:last-child::before {height:25px}
+.tree ol.pregnant{padding-left:16px}
+.combox>.form-control{padding:3px 12px}
+.combox .selected{display:inline-block;font-size:100%;font-weight:400;margin-right:4px;padding:4px 4px;vertical-align:middle}
+.combox .selected button.close{float:none;color:#FFFFFF;font-weight:400;opacity:1;margin-left:4px;font-size:130%}
+.combox .dropdown-menu .options{max-height:150px;overflow-y:auto}
+.combox .dropdown-menu .actions{margin:4px 4px 0 0}
+.combox .dropdown-menu .actions button{padding:4px 12px}
+.combox .dropdown-menu .checkbox{clear:both;padding:3px 20px;margin:0 0 0 10px;white-space:nowrap}
+.combox .dropdown-menu .checkbox label{display:inline-block;width:100%}
+.combox .dropdown-menu .checkbox:hover{background-color:#F5F5F5}

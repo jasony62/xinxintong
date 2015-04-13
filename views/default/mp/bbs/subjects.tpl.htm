@@ -1,0 +1,31 @@
+<div>
+    <div class='col-md-6' style='padding-left:0'>
+        <div class='list-group subjects'>
+            <a class='list-group-item' ng-click='selectSubject(s)' ng-repeat='s in subjects' ng-mouseenter='standby=true' ng-mouseleave='standby=false'>
+                <div class='subject' ng-class="selectedSubject===s ? 'selected':''">{{s.subject}}</div>
+                <div class='content'>{{s.content}}</div>
+                <div class='clearfix'>
+                    <div class='nickname'><span>昵称：</span>{{s.nickname}}</div>
+                    <div class='datetime'>{{s.publish_at*1000|date:'yyyy-MM-dd HH:mm'}}</div>
+                </div>
+                <button class='btn btn-default btn-sm remove' ng-if='standby' ng-click='removeSubject(s)'>
+                    <span class='glyphicon glyphicon-trash'></span>
+                </button>
+            </a>
+        </div>
+    </div>
+    <div class='col-md-6' style='padding-right:0'>
+        <div class='list-group replies'>
+            <a class='list-group-item' ng-repeat='r in replies' ng-mouseenter='standby=true' ng-mouseleave='standby=false'>
+                <div class='clearfix'>
+                    <div class='nickname'><span>昵称：</span>{{r.nickname}}</div>
+                    <div class='datetime'>{{r.reply_at*1000|date:'yyyy-MM-dd HH:mm'}}</div>
+                </div>
+                <div>{{r.content}}</div>
+                <button class='btn btn-default btn-sm remove' ng-if='standby' ng-click='removeReply(r)'>
+                    <span class='glyphicon glyphicon-trash'></span>
+                </button>
+            </a>
+        </div>
+    </div>
+</div>

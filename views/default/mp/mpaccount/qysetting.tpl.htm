@@ -1,0 +1,68 @@
+<div ng-if="mpa.asparent==='N'">
+    <div class='form-horizontal'>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>CropId</label>
+            <div class='col-md-10'>
+                <input type='text' class='form-control' ng-model='mpa.qy_corpid' tms-auto-update tms-wait=1000 tms-update="update('qy_corpid')">
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>Secret</label>
+            <div class='col-md-10'>
+                <input type='text' class='form-control' ng-model='mpa.qy_secret' tms-auto-update tms-wait=1000 tms-update="update('qy_secret')">
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>URL</label>
+            <div class='col-md-10'>
+                <p class='form-control' style='height:auto'>{{mpa.qy_url}}</p>
+                <p class="help-block">将URL拷贝到微信企业号管理平台中，执行验证操作。</p>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>EncodingAESKey</label>
+            <div class='col-md-10'>
+                <input type='text' class='form-control' ng-model='mpa.qy_encodingaeskey' tms-auto-update tms-wait=1000 tms-update="update('qy_encodingaeskey')">
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>连接成功</label>
+            <div class='col-md-10'>
+                <div class='col-md-1'>
+                    <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='mpa.qy_joined' disabled>
+                </div>
+                <button class='btn btn-success' ng-disabled="mpa.qy_joined==='Y'" ng-click="checkJoin('qy')">
+                    检查<span ng-show="stateOfCheckJoin.src==='qy'">{{'('+stateOfCheckJoin.count+')'}}</span>
+                </button>
+                <button class='btn btn-default' ng-click="reset('qy_joined')">重置</button>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>应用ID</label>
+            <div class='col-md-10'>
+                <input type='text' class='form-control' ng-model='mpa.qy_agentid' tms-auto-update tms-wait=1000 tms-update="update('qy_agentid')">
+            </div>
+        </div>
+    </div>
+</div>
+<div ng-if="mpa.asparent==='N'" class='form-horizontal'>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>高级接口</label>
+        <div class='col-md-10'>
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th>名称</th>
+                        <th>开通</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>更新通讯录</td>
+                        <td><input type='checkbox' ng-model='mpapis.qy_updateab' ng-true-value='Y' ng-false-value='N' ng-change="updateApi('qy_updateab')"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,41 @@
+<div ng-controller='mainCtrl' ng-init='jsonParams="<?php echo urlencode(json_encode(TPL::val('params')));?>";'>
+    <div ng-if="mpa.asparent==='Y'">
+        <div class='form-horizontal' role='form'>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>账号名称</label>
+                <div class='col-md-10'>
+                    <p class='form-control'>{{mpa.name}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div ng-if="mpa.asparent==='N'">
+        <div class='form-horizontal' role='form'>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>账号标识</label>
+                <div class='col-md-10'>
+                    <p class='form-control'>{{mpa.mpid}}</p>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>账号名称</label>
+                <div class='col-md-10'>
+                    <p class='form-control'>{{mpa.name}}</p>
+                </div>
+            </div>
+            <div class='form-group' ng-show='mpa.parent_mpid'>
+                <label class='col-md-2 control-label'>父账号名称</label>
+                <div class='col-md-10'>
+                    <p class='form-control'>{{mpa.parentname}}</p>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>Token</label>
+                <div class='col-md-10'>
+                    <p class='form-control'>{{mpa.token}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div ng-include="'/page/mp/mpaccount/read/'+mpa.mpsrc+'setting'"></div>
+</div>

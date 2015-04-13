@@ -1,0 +1,4 @@
+<div ng-app='xxtApp' ng-controller='authedCtrl' ng-init="jsonParams='<?php echo urlencode(json_encode(TPL::val('params')));?>'">
+    <div class='alert alert-success'>通过用户身份认证！</div>
+    <button class='btn btn-success btn-lg btn-block' ng-click='closeWindow()'>关闭</button>
+</div>

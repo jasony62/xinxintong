@@ -1,0 +1,14 @@
+<div class="modal-header">
+    <div class='form-inline'>
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <div class='form-group' style='width:100px'>
+            <p class="modal-title h5 form-control-static">选择用户</p>
+        </div>
+    </div>
+</div>
+<div class="modal-body" style='overflow:auto'>
+    <userpicker user-set='userSet' user-config='userConfig'/> 
+</div>
+<div class="modal-footer">
+    <button class="btn btn-warning" ng-click="ok()">发送</button>
+</div>

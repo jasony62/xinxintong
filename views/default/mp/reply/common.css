@@ -1,0 +1,4 @@
+.modal.mattersgallery .modal-dialog{position:absolute;top:0;bottom:0;left:50%;margin-left:-450px}
+.modal.mattersgallery .modal-dialog .modal-content{height:100%}
+.modal.mattersgallery .modal-dialog .modal-content .modal-body{position:absolute;top:66px;bottom:90px;left:0;right:0;overflow:auto}
+.modal.mattersgallery .modal-dialog .modal-content .modal-footer{position:absolute;bottom:0;left:0;right:0}

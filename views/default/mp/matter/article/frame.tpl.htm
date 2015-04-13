@@ -1,0 +1,14 @@
+<div ng-controller='ArticleCtrl'>
+    <div class='navbar navbar-default'>
+        <ul class='nav navbar-nav'>
+            <li><a href='javascript:void(0);' ng-click="back()"><span class="glyphicon glyphicon-chevron-left"></span></a></li>
+            <li ng-class={'active':subView=='edit'}><a href='javascript:void(0);' ng-click="subView='edit'">编辑</a></li>
+            <li ng-class={'active':subView=='read'}><a href='javascript:void(0);' ng-click="subView='read'">访问日志</a></li>
+            <li ng-class={'active':subView=='remark'}><a href='javascript:void(0);' ng-click="subView='remark'">评论</a></li>
+            <li ng-class={'active':subView=='stat'}><a href='javascript:void(0);' ng-click="subView='stat'">统计</a></li>
+        </ul>
+    </div>
+    <div>
+        <div ng-init="subView='edit'" ng-include="'/page/mp/matter/article/'+subView"></div>
+    </div>
+</div>

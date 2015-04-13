@@ -1,0 +1,40 @@
+<div ng-controller='CallCtrl'>
+    <div class='col-md-5'>
+        <div class='list-group'>
+            <a class='list-group-item'><button class='btn btn-success btn-block' ng-click='create()'>新建文本消息</button></a>
+            <a class='list-group-item' ng-class="{'active':c===editing}" ng-repeat='c in calls' ng-click='edit(c)'>
+                <span>{{c.keyword}}</span>
+                <button class='btn btn-default btn-xs pull-right' ng-click='remove()' ng-if="c===editing&&editing.fromParent==='N'"><span class='glyphicon glyphicon-remove'></span></button>
+            </a>
+        </div>
+    </div>
+    <div class='col-md-7 form-horizontal' ng-show='editing'>
+        <div class='alert alert-warning' ng-if="editing.fromParent==='Y'">
+            文本消息由父账号定义，不允许修改。
+        </div>
+        <div class='form-group'>
+            <label class='col-md-3 control-label'>输入消息</label>
+            <div class='col-md-9'>
+                <input type='text' class='form-control' ng-disabled="editing.fromParent==='Y'" tms-auto-update tms-wait=1000 ng-model='editing.keyword' tms-update="update('keyword')">
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-3 control-label'>匹配模式</label>
+            <div class='col-md-9'>
+                <select class='form-control' ng-disabled="editing.fromParent==='Y'" ng-model='editing.match_mode' ng-change="update('match_mode')">
+                    <option value='full'>全文匹配</option>
+                    <option value='cmd'>开头匹配</option>
+                </select>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-3 control-label'>回复素材</label>
+            <div class='col-md-9'>
+                <button class='btn btn-default btn-sm' ng-disabled="editing.fromParent==='Y'" ng-click='setReply()'>指定素材</button>
+                <a class='list-group-item' title='{{editing.matter.type|typetitle}}'>{{editing.matter.title||editing.matter.content}}</a>
+            </div>
+        </div>
+        <accesscontrol ng-if="editing.fromParent==='N'" obj='editing' prop-acl='acl' prop-access='access_control' prop-apis='authapis' update-access-control="update('access_control')" update-authapis="update('authapis')" change-acl-url='/rest/mp/call/text/setAcl?k={{editing.keyword}}' remove-acl-url='/rest/mp/call/text/removeAcl' label-span='3' control-span='9'></accesscontrol>
+    </div>
+    <mattersgallery style='display:none' single-matter='true' has-parent='<?php echo empty($_SESSION['mpaccount']->parent_mpid) ? 'false':'true'?>' matter-url='/rest/mp/matter' matter-types='matterTypes'></mattersgallery>
+</div>

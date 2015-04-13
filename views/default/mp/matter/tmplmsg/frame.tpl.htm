@@ -1,0 +1,11 @@
+<div ng-controller='tmplmsgCtrl' ng-init="jsonParam='<?php echo urlencode(json_encode(TPL::val("param")));?>'">
+    <div class='navbar navbar-default'>
+        <ul class='nav navbar-nav'>
+            <li><a href='javascript:void(0);' ng-click="back()"><span class="glyphicon glyphicon-chevron-left"></span></a></li>
+            <li ng-class={'active':subView=='edit'}><a href='javascript:void(0);' ng-click="subView='edit'">编辑</a></li>
+            <li ng-class={'active':subView=='send'}><a href='javascript:void(0);' ng-click="subView='send'">发送</a></li>
+            <li ng-class={'active':subView=='log'}><a href='javascript:void(0);' ng-click="subView='log'">日志</a></li>
+        </ul>
+    </div>
+    <div ng-init="subView='edit'" ng-include="'/page/mp/matter/tmplmsg/'+subView"></div>
+</div>

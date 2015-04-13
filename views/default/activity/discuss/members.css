@@ -1,0 +1,7 @@
+.list-group-item{height:70px}
+.img-wrap{position:absolute;top:8px;left:6px;box-sizing:border-box;width:54px;height:54px;border:2px solid #EEE}
+.img-wrap img{width:100%;height:100%}
+.intro{position:absolute;top:8px;left:71px;right:11px}
+.nickname{color:#202070;font-size:18px;width:100%;height:20px;line-height:20px;overflow:hidden}
+.summary{color:#666666;font-size:16px;width:100%;height:30px;line-height:30px;margin-top:4px;overflow:hidden} 
+.next{position:absolute;right:8px;color:#CCC;top:28px}

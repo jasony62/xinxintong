@@ -1,0 +1,29 @@
+<?php
+$mpid = $_SESSION["mpid"];
+$pactivity = TMS_APP::model('mp\permission')->hasMpRight($mpid, 'activity', 'read');
+if ($pactivity===true||$pactivity->read_p==='Y') {
+$pages = array(
+array('url'=>'/mp/activity/enroll/main','title'=>'登记活动'),
+array('url'=>'/mp/activity/lottery/main','title'=>'抽奖活动'),
+array('url'=>'/mp/activity/discuss/main','title'=>'讨论组')
+);
+?>
+<div>
+    <div class='navbar navbar-default'>
+        <ul class='nav navbar-nav'>
+            <?php foreach ($pages as $page) {?>
+            <li class='<?php echo $page["url"] == TPL::val("action-view") ? "active" : "";?>'>
+            <a href='/page<?php echo $page["url"];?>'><?php echo $page["title"];?></a>
+            </li>
+            <?php }?>
+        </ul>
+    </div>
+    <div>
+        <?php $c = TPL::val('action-view'); $c && TPL::output($c);?>
+    </div>
+</div>
+<?php } else {
+$contact = TMS_APP::model('mp\mpaccount')->getAdminContact($mpid);
+?>
+<div class='alert alert-warning'>您没有权限对公众号的活动进行管理，请联账号理员（<?php echo $contact;?>）。</div>
+<?php }?>

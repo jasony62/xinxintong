@@ -1,0 +1,35 @@
+<div ng-controller='TextCtrl' ng-init="hasParent='<?php echo empty($_SESSION['mpaccount']->parent_mpid) ? 'N':'Y';?>'">
+    <div class='col-md-5' style='padding-left:0'>
+        <div class='list-group'>
+            <div class='list-group-item'>
+                <div class='form-inline'>
+                    <button class='btn btn-success' ng-click='create()'>新建文本</button>
+                    <label class="checkbox-inline" ng-show="hasParent==='Y'"><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='fromParent' ng-change='doSearch()'>来源于父账号</label>
+                </div>
+            </div>
+            <a class='list-group-item' style='min-height:42px' ng-class="{'active':selectedIndex==$index}" ng-repeat="t in texts" ng-click='selectOne($index)'><span>{{t.content|truncate:40}}</span><button class='btn btn-xs btn-default pull-right' ng-if="selectedIndex==$index" ng-click='deleteOne($event)'><span class='glyphicon glyphicon-remove'></span></button></a>
+        </div>
+    </div>
+    <div class='col-md-7' ng-show='editing' style='padding-right:0'>
+        <div style='text-align:right;padding-bottom:15px'>
+            <div style='display:inline-block'>
+                <pushmatter class='btn btn-primary' title="发送给指定用户" matter-id={{editing.id}} matter-type='text'/>
+            </div>
+            <div class='qrcode' style='display:inline-block' ng-controller='SendmeController'>
+                <button class='btn btn-primary' data-toggle="popover" title="扫描二维码获得图文" data-placement='left' ng-click="qrcode({type:'text',id:editing.id},$event)">发送给我</button>
+            </div>
+        </div>
+        <div class='form-group clearfix' ng-if='editing.creater!==editing.uid'>
+            <label class='col-md-2 control-label'>创建人</label>
+            <div class='col-md-8'>
+                <p class='form-control-static'>{{editing.creater_name}}</p>
+            </div>
+        </div>
+        <div class='form-group'>
+            <textarea class='form-control' ng-model='editing.content' tms-auto-update tms-wait=1000 tms-update="update('content')" rows='20'></textarea>
+        </div>
+        <div class='checkbox' ng-if="features.matter_visible_to_creater==='Y'">
+            <label><input type='checkbox' ng-disabled="editing.creater!==editing.uid" ng-model='editing.public_visible' ng-true-value='Y' ng-false-value='N' ng-change="update('public_visible')">设置为公开可见</label>
+        </div>
+    </div>
+</div>

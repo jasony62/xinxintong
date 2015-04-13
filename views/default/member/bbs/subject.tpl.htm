@@ -1,0 +1,27 @@
+<div ng-controller='SubjectCtrl'>
+    <div class='row' style='padding:15px;background:#FFF'>
+        <div class='subject' style='height:auto'>{{subject.subject}}</div>
+        <div class='clearfix'>
+            <div class='nickname'><span>发布者：</span>{{subject.nickname}}</div>
+            <div class='datetime'>{{subject.publish_at*1000|date:'yyyy-MM-dd hh:mm'}}</div>
+        </div>
+    </div>
+    <div class='row' style='padding:15px;border-top:1px solid #DDD;background:#FFF'>
+        <div class='content'>{{subject.content}}</div>
+    </div>
+    <div class='row' style='padding:15px;border-top:1px solid #DDD;background:#FFF'>
+        <div class='input-group'>
+            <input type="text" class="form-control" ng-model='newReply'>
+            <span class="input-group-btn">
+                <button ng-click='doReply()' class="btn btn-primary" type="button">回复</button>
+            </span>
+        </div>
+    </div>
+    <div class='row'>
+        <ul class='list-group'>
+            <li class='list-group-item' ng-repeat='r in subject.replies'>
+            <span style='color:#B06060'>{{r.nickname}}：</span><span>{{r.content}}</span>
+            </li>
+        </ul>
+    </div>
+</div>

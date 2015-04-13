@@ -1,0 +1,227 @@
+<div ng-controller='userCtrl' ng-init="jsonParams='<?php echo urlencode(json_encode(TPL::val('params')));?>'">
+    <div class='navbar navbar-default'>
+        <ul class='nav navbar-nav'>
+            <li>
+            <a href='/page/mp/user/received' target='_self'><span class="glyphicon glyphicon-chevron-left"></span></a>
+            </li>
+        </ul>
+        <ul class='nav navbar-nav avatar'>
+            <img ng-src='{{user.headimgurl}}' ng-show='user.headimgurl' class='img-circle'>
+        </ul>
+        <ul class='nav navbar-nav'>
+            <p class="navbar-text navbar-right">
+            <span>&nbsp;{{user.nickname}}</span>
+            </p>
+        </ul>
+        <ul class="navbar-form navbar-right" style='margin-right:0'>
+            <button class="btn btn-default" ng-click='remove()'>删除</button>
+            <button class="btn btn-default" ng-click='refresh()'>刷新</button>
+        </ul>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">关注用户</div>
+        <div class="panel-body">
+            <div class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-md-2 control-label">关注时间</label>
+                    <div class='col-md-10'>
+                        <p class="form-control-static">{{user.subscribe_at*1000|date:'yyyy-MM-dd HH:mm'}}</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">性别</label>
+                    <div class="col-md-10">
+                        <p class="form-control-static">{{SexMap[user.sex]}}</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">地区</label>
+                    <div class="col-md-10">
+                        <p class="form-control-static">{{user.province}}{{user.city}}</p>
+                    </div>
+                </div>
+                <div class="form-group" style='margin-bottom:0' ng-if="user.src!='qy'">
+                    <label class="col-md-2 control-label">粉丝分组</label>
+                    <div class="col-md-10">
+                        <select class='form-control' ng-model='user.groupid' ng-options='g.id as g.name group by SrcMap[g.src] for g in groups' ng-change="update('groupid')"></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default" ng-repeat='m in user.members'>
+        <div class="panel-heading">
+            <span>{{m.authapi.name}}</span>
+            <a href='javascript:void(0)' class='pull-right' ng-click='editMember(m)'>修改</a>
+        </div>
+        <div class="panel-body">
+            <div class="form-horizontal">
+                <div class="form-group" ng-show="canFieldShow(m.authapi,'name')">
+                    <label class="col-md-2 control-label">姓名</label>
+                    <div class="col-md-10">
+                        <p class="form-control-static">{{m.name}}</p>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="canFieldShow(m.authapi,'mobile')">
+                    <label class="col-md-2 control-label">手机</label>
+                    <div class="col-md-10">
+                        <p class="form-control-static">{{m.mobile}}</p>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="canFieldShow(m.authapi,'email')">
+                    <label class="col-md-2 control-label">邮箱</label>
+                    <div class="col-md-10">
+                        <p class="form-control-static">{{m.email}}</p>
+                    </div>
+                </div>
+                <div class="form-group" ng-repeat='ea in m.authapi.extattr'>
+                    <label class="col-md-2 control-label">{{ea.label}}</label>
+                    <div class="col-md-10">
+                        <p class="form-control-static">{{m.extattr[ea.id]}}</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">标签</label>
+                    <div class="col-md-10">
+                        <combox readonly=true evt-prefix='tag' prop='name' existing='m.tags2' options='m.authapi.tags' state={{$index}}></combox>
+                    </div>
+                </div>
+                <div class="form-group" style='margin-bottom:0'>
+                    <label class="col-md-2 control-label">部门</label>
+                    <div class="col-md-10">
+                        <div class='input-group'>
+                            <div class='form-control'>{{m.depts2}}</div>
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" ng-click='selectDept(m)'><span class="caret"></span></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='form-inline form-group' ng-show='availableAuthapis.length'>
+        <select class='form-control' ng-model='selectedAuthapi' ng-options='a.name for a in availableAuthapis'>
+            <option value=''></option>
+        </select>
+        <button class='btn btn-primary' ng-disabled='!selectedAuthapi' ng-click='addMember(selectedAuthapi)'>添加认证信息</button>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">交流记录</div>
+        <div class="panel-body">
+            <div class='col-md-5'>
+                <div class='form-inline form-group'>
+                    <div class='form-group'>
+                        <select class='form-control' ng-model='matterType' ng-change='fetchMatter()'>
+                            <option value='write'>编辑</option>
+                            <option value='text'>文本</option>
+                            <option value='article'>单图文</option>
+                            <option value='news'>多图文</option>
+                            <option value='link'>链接</option>
+                            <option value='channel'>频道</option>
+                        </select>
+                    </div>
+                    <label class="checkbox-inline" ng-show="hasParent==='Y'"><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='fromParent' ng-change='fetchMatter()'>来源于父账号</label>
+                    <div class='form-group pull-right'>
+                        <button class='btn btn-primary' ng-disabled="!selectedMatter&&matterType!='write'" ng-click='send()'>发送</button>
+                    </div>
+                </div>
+                <textarea class='form-control' rows=4 ng-model='text' ng-show="matterType=='write'"></textarea>
+                <div class='list-group' ng-hide="matterType=='write'">
+                    <a class='list-group-item' ng-class="{'active':selectedMatter==m}" ng-repeat='m in matters' ng-click='selectMatter(m)'>{{m.title||m.content}}</a>
+                </div>
+                <div ng-show='matterpage.total>matterpage.size'>
+                    <pagination ng-show="matterType==='article'" class="form-group pagination" style='cursor:pointer;margin:0' total-items="matterpage.total" max-size="5" items-per-page="matterpage.size" rotate="false" ng-model="matterpage.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="fetchMatter()"></pagination>
+                </div>
+            </div>
+            <div class='col-md-7'>
+                <ul class='list-group'>
+                    <a class='list-group-item' ng-class="{'send':t.creater}" ng-repeat='t in track'>
+                        <div>{{t.content}}</div>
+                        <div><span>{{t.create_at*1000|date:'yyyy-MM-dd HH:mm'}}</span></div>
+                    </a>
+                </ul>
+                <pagination ng-show="trackpage.total>trackpage.size" class="form-group pagination" style='cursor:pointer;margin:0' total-items="trackpage.total" max-size="5" items-per-page="trackpage.size" rotate="false" ng-model="trackpage.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="fetchMatter()"></pagination>
+            </div>
+        </div>
+    </div>
+    <script type="text/ng-template" id="deptSelector.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="close()">×</button>
+            <h5 class="modal-title">选择部门</h5>
+        </div>
+        <div class="modal-body">
+            <ol class='tree'>
+                <li class='treenode' tms-tree="child in depts.children at ol">
+                <div style='width:200px'>
+                    <div class="input-group input-group-sm">
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default" ng-click='toggleChild(child)'><span class="glyphicon" ng-class="child.expanded?'glyphicon-chevron-down':'glyphicon-chevron-right'"></span></button>
+                        </div>
+                        <p class='form-control'>{{child.data.name}}</p>
+                        <span class="input-group-addon" ng-init="child.data.checked = isChecked(child.data) ? 'Y':'N'">
+                            <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='child.data.checked' ng-change="updateDepts(child.data)">
+                        </span>
+                    </div>
+                </div>
+                <ol ng-class="{pregnant:child.children.length}" ng-show="child.children.length>0"></ol>
+                </li>
+            </ol>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" ng-click="ok()">确定</button>
+        </div>
+    </script>
+    <script type="text/ng-template" id="memberEditor.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="close()">×</button>
+            <h5 class="modal-title">{{authapi.name}}</h5>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal">
+                <div class="form-group" ng-if="member.mid">
+                    <label class="col-md-2 control-label">认证日期</label>
+                    <div class="col-md-10">
+                        <p class="form-control-static">{{member.create_at*1000|date:'yyyy-MM-dd hh:mm'}}</p>
+                    </div>
+                </div>
+                <div class="form-group" ng-if="canShow('name')">
+                    <label class="col-md-2 control-label">姓名</label>
+                    <div class="col-md-10">
+                        <input class="form-control" ng-model='member.name'>
+                    </div>
+                </div>
+                <div class="form-group" ng-if="canShow('mobile')">
+                    <label class="col-md-2 control-label">手机</label>
+                    <div class="col-md-10">
+                        <input class="form-control" ng-model='member.mobile'>
+                    </div>
+                </div>
+                <div class="form-group" ng-if="canShow('email')">
+                    <label class="col-md-2 control-label">邮箱</label>
+                    <div class="col-md-10">
+                        <input class="form-control" ng-model='member.email'>
+                    </div>
+                </div>
+                <div class="form-group" ng-if='authapi.attr_email[4]==1'>
+                    <label class="col-md-2 control-label">邮箱验证通过</label>
+                    <div class="col-md-10">
+                        <label class='checkbox-inline'>
+                            <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='member.email_verified'>是
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group" ng-repeat='ea in authapi.extattr'>
+                    <label class="col-md-2 control-label">{{ea.label}}</label>
+                    <div class="col-md-10">
+                        <input class="form-control" ng-model='member.extattr[ea.id]'>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-danger pull-left" ng-click="remove()" ng-if='member.mid'>删除</button>
+            <button class="btn btn-success" ng-click="ok()">保存</button>
+        </div>
+    </script>
+</div>

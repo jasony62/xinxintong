@@ -1,0 +1,57 @@
+<div ng-controller='editCtrl'>
+    <div class='form-horizontal'>
+        <div class='form-group'>
+            <label class='col-md-2 control-label' for='title'>模板ID</label>
+            <div class='col-md-10'>
+                <input type='text' class='form-control' ng-model='editing.templateid' tms-auto-update tms-wait=1000 tms-update="update('templateid')">
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label' for='title'>标题</label>
+            <div class='col-md-10'>
+                <input type='text' class='form-control' ng-model='editing.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+            </div>
+        </div>
+        <div class='form-group' ng-if='editing.creater!==editing.uid'>
+            <label class='col-md-2 control-label'>创建人</label>
+            <div class='col-md-10'>
+                <p class='form-control-static'>{{editing.creater_name}}</p>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>创建日期</label>
+            <div class='col-md-10'>
+                <p class='form-control-static'>{{editing.create_at*1000|date:'yyyy-MM-dd'}}</p>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>参数（可选）</label>
+            <div class='col-md-10'>
+                <button class='btn btn-default btn-sm' ng-click='addParam();'>添加</button>
+                <ul class='list-group' name='params' style='margin-bottom:0'>
+                    <li class='list-group-item clearfix' ng-repeat='p in editing.params'>
+                    <div class='col-md-6' style='padding:0'>
+                        <div class ='input-group'>
+                            <input type='text' placeholder='参数名称' class='form-control' ng-model='p.pname' tms-auto-update tms-wait=1000 tms-update='updateParam(p);'>
+                            <span class='input-group-btn'>
+                                <button class='btn btn-default' ng-click='removeParam(p);'>
+                                    <span class='glyphicon glyphicon-remove'></span>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class='col-md-6' style='padding:0'>
+                        <input type='text' placeholder='参数标题' class='form-control' ng-model='p.plabel' tms-auto-update tms-wait=1000 tms-update='updateParam(p);'>
+                    </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>内容示例</label>
+            <div class='col-md-10'>
+                <textarea class='form-control' ng-model='editing.example' tms-auto-update tms-wait=1000 tms-update="update('example');" rows='5'></textarea>
+            </div>
+        </div>
+    </div>
+</div>

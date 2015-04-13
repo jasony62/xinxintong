@@ -1,0 +1,60 @@
+<?php 
+$mpaccount = $_SESSION['mpaccount'];
+$apis = TMS_APP::model('mp\mpaccount')->getApis($mpaccount->mpid);
+$canWxGroup = $mpaccount->mpsrc === 'wx' && ($apis->wx_group_push==='Y'&&$apis->wx_fansgroup==='Y');
+$canYxGroup = $mpaccount->mpsrc === 'yx' && ($apis->yx_group_push==='Y'&&$apis->yx_fansgroup==='Y');
+$canMember = $apis->mpsrc === 'qy' || ($apis->mpsrc === 'yx' && $apis->yx_p2p==='Y');
+$canSend = $canWxGroup || $canYxGroup || $canMember; 
+?>
+<?php if (!$canSend) {?>
+<div class='alert alert-warning'>未开通群发消息和粉丝分组高级接口。</div>
+<?php } else {?>
+<div ng-controller='sendCtrl' ng-init="hasParent='<?php echo empty($mpaccount->parent_mpid) ? 'N':'Y';?>';">
+    <div class='col-md-4'>
+        <div class='form-group'>
+            <button class='btn btn-success' ng-click='openUserPicker()'>选择用户</button>
+            <ul class='list-group'>
+                <li class='list-group-item' ng-repeat="us in userSet" ng-mouseenter='enter=true' ng-mouseleave='enter=false'>
+                <button class="btn btn-default btn-xs pull-right" ng-click="removeUserSet(us, $index)"><span class="glyphicon glyphicon-remove"></span></button>
+                <span>{{us.label||us.identity}}</span>
+            </ul>
+        </div>
+    </div>
+    <div class='col-md-8'>
+        <div class='form-inline form-group'>
+            <div class='form-group'>
+                <select class='form-control' ng-model='matterType' ng-change='fetchMatter()'>
+                    <option value='text'>文本</option>
+                    <option value='article'>单图文</option>
+                    <option value='news'>多图文</option>
+                    <option value='channel'>频道</option>
+                </select>
+            </div>
+            <label class="checkbox-inline" ng-show="hasParent==='Y'"><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='fromParent' ng-change='fetchMatter()'>来源于父账号</label>
+            <div class='form-group pull-right'>
+                <button class='btn btn-primary' ng-disabled='userSet.length===0||!selectedMatter' ng-click='send($event)'>发送</button>
+            </div>
+        </div>
+        <div class='list-group'>
+            <a class='list-group-item' ng-class="{'active':selectedMatter==m}" ng-repeat='m in matters' ng-click='selectMatter(m)'>{{m.title||m.content}}</a>
+        </div>
+        <pagination ng-show="matterType==='article'&&page.total>page.size" class="form-group pagination pull-right" style='cursor:pointer;margin-top:0' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.current" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="fetchMatter()"></pagination>
+    </div>
+</div>
+<script type="text/ng-template" id='userPicker.html'>
+    <div class="modal-header">
+        <div class='form-inline'>
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <div class='form-group' style='width:100px'>
+                <p class="modal-title h5 form-control-static">选择用户</p>
+            </div>
+        </div>
+    </div>
+    <div class="modal-body">
+        <userpicker user-set='userSet'/> 
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-warning" ng-click="ok()">确定</button>
+    </div>
+</script>
+<?php }?>

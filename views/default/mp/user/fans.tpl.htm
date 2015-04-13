@@ -1,0 +1,52 @@
+<div ng-controller='fansCtrl'>
+    <div class='form-group form-inline'>
+        <div class='form-group' style='margin-left:0;width:250px'>
+            <div class="input-group">
+                <input type='text' class='form-control' ng-model='page.keyword' placeholder='按昵称、标签或认证身份过滤' ng-keyup='keywordKeyup($event)'>
+                <span class="input-group-btn"><button class="btn btn-default" type="button" ng-click='doSearch()'><span class="glyphicon glyphicon-search"></span></button></span>
+            </div>
+        </div>
+        <select class='form-control' title='公众号关注用户分组' ng-show='groups' ng-model='selectedGroup' ng-options='g.name for g in groups' ng-change="doSearch()"><option value=><option></select>
+        <select class='form-control' title='认证接口' ng-show='authapis' ng-model='selectedAuthapi' ng-options='a.name for a in authapis' ng-change="changeAuthapi()"><option value=><option></select>
+    </div>
+    <div>
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th>昵称</th>
+                    <th style='width:100px'>关注日期</th>
+                    <th style='width:60px' ng-if='selectedAuthapi'>已认证</th>
+                    <th ng-if='selectedAuthapi'>认证身份</th>
+                    <th style='width:48px'>性别</th>
+                    <th>城市</th>
+                    <th ng-if='mattrs.name[0]==0'>姓名</th>
+                    <th ng-if='mattrs.mobile[0]==0'>手机号</th>
+                    <th ng-if='mattrs.email[0]==0'>电子邮件</th>
+                    <th style='width:80px' ng-if='mattrs.email[0]==0&&mattrs.email[4]==1'>邮箱验证</th>
+                    <th ng-if="mattrs" style='width:100px'>认证日期</th>
+                    <th ng-repeat='ea in mattrs.extattr'>{{ea.label}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat='f in fans'>
+                    <td><a href='#' userpopover xxt-fid='{{f.fid}}' ng-click='viewUser(f)'>{{f.nickname||f.openid}}</a></td>
+                    <td>{{f.subscribe_at*1000|date:'yyyy-MM-dd'}}</td>
+                    <td ng-if='selectedAuthapi'>{{f.mid ? '是':'否'}}</td>
+                    <td ng-if='selectedAuthapi'>{{f.authed_identity}}</td>
+                    <td>{{SexMap[f.sex]}}</td>
+                    <td>{{f.city}}</td>
+                    <td ng-if='mattrs.name[0]==0'>{{f.name}}</td>
+                    <td ng-if="mattrs.mobile[0]==0">{{f.m_mobile}}</td>
+                    <td ng-if="mattrs.email[0]==0">{{f.m_email}}</td>
+                    <td ng-if="mattrs.email[0]==0&&mattrs.email[4]==1">{{f.email_verified==='Y'?'通过':'未通过'}}</td>
+                    <td ng-if="mattrs">{{f.create_at?(f.create_at*1000|date:'yyyy-MM-dd'):''}}</td>
+                    <td ng-repeat='ea in mattrs.extattr'>{{f.m_extattr[ea.id]}}</td>
+                </tr>
+            </tbody>
+        </table> 
+    </div>
+    <div class='form-group clearfix'>
+        <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+        <pagination ng-show='page.total>page.size' class='pull-right' style='cursor:pointer;margin:0;vertical-align:middle' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" class="pagination" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
+    </div>
+</div>

@@ -1,0 +1,52 @@
+<div ng-controller='mainCtrl' ng-init='jsonParams="<?php echo urlencode(json_encode(TPL::val('params')));?>";'>
+    <div ng-if="mpa.asparent==='Y'">
+        <div class='form-horizontal' role='form'>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>账号名称</label>
+                <div class='col-md-10'>
+                    <input type='text' class='form-control' ng-model='mpa.name' tms-auto-update tms-wait=1000 tms-update="update('name')">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div ng-if="mpa.asparent==='N'">
+        <div class='form-horizontal' role='form'>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>账号标识</label>
+                <div class='col-md-10'>
+                    <p class='form-control'>{{mpa.mpid}}</p>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>账号类型</label>
+                <div class='col-md-10'>
+                    <select class='form-control' ng-disabled="mpa.wx_joined==='Y'||mpa.yx_joined==='Y'||mpa.qy_joined==='Y'" ng-model='mpa.mpsrc' ng-change="update('mpsrc')" ng-options='src.v as src.l for src in mpsrcs'></select>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>账号名称</label>
+                <div class='col-md-10'>
+                    <input type='text' class='form-control' ng-model='mpa.name' tms-auto-update tms-wait=1000 tms-update="update('name')">
+                </div>
+            </div>
+            <div class='form-group' ng-show='mpa.parent_mpid'>
+                <label class='col-md-2 control-label'>父账号名称</label>
+                <div class='col-md-10'>
+                    <p class='form-control'>{{mpa.parentname}}</p>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>Token</label>
+                <div class='col-md-10'>
+                    <input type='text' class='form-control' ng-model='mpa.token' tms-auto-update tms-wait=1000 tms-update="update('token')">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div ng-include="'/page/mp/mpaccount/'+mpa.mpsrc+'setting'"></div>
+    <?php if (TMS_APP::model('mp\permission')->hasSystemRight('p_mpgroup_create')) {?>
+    <div class='pull-right' ng-if="mpa.asparent==='N'&&mpa.parent_mpid===''">
+        <button class='btn btn-danger' ng-click='genParent()'>生成父账号</button>
+    </div>
+    <?php }?>
+</div>

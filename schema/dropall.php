@@ -30,6 +30,8 @@ $sql[] = "drop table if exists xxt_news_matter";
 $sql[] = "drop table if exists xxt_channel";
 $sql[] = "drop table if exists xxt_inner";
 $sql[] = "drop table if exists xxt_matter_acl";
+$sql[] = "drop table if exists xxt_tmplmsg";
+$sql[] = "drop table if exists xxt_tmplmsg_param";
 /*
  * tags
  */
@@ -60,6 +62,7 @@ $sql[] = "drop table if exists xxt_fansgroup";
 $sql[] = 'drop table if exists xxt_member';
 $sql[] = 'drop table if exists xxt_member_authapi';
 $sql[] = 'drop table if exists xxt_member_card';
+$sql[] = 'drop table if exists xxt_member_tag';
 $sql[] = "drop table if exists xxt_access_token";
 /**
  * log
@@ -69,22 +72,31 @@ $sql[] = "drop table if exists xxt_mpreceive_log";
 $sql[] = "drop table if exists xxt_mpsend_log";
 $sql[] = "drop table if exists xxt_matter_read_log";
 $sql[] = "drop table if exists xxt_shareaction_log";
-$sql[] = "drop table if exists xxt_templatemsg_log";
+$sql[] = "drop table if exists xxt_tmplmsg_log";
 $sql[] = "drop table if exists xxt_user_action_log";
 $sql[] = "drop table if exists xxt_matter_action_log";
 /*
  * 活动
  */
 $sql[] = 'drop table if exists xxt_activity';
+$sql[] = 'drop table if exists xxt_activity_receiver';
+$sql[] = 'drop table if exists xxt_activity_round';
+$sql[] = 'drop table if exists xxt_activity_page';
 $sql[] = 'drop table if exists xxt_activity_enroll';
 $sql[] = 'drop table if exists xxt_activity_enroll_cusdata';
+$sql[] = 'drop table if exists xxt_activity_enroll_remark';
+$sql[] = 'drop table if exists xxt_activity_enroll_score';
+$sql[] = 'drop table if exists xxt_activity_act_acl';
+$sql[] = 'drop table if exists xxt_activity_lottery_round';
+$sql[] = 'drop table if exists xxt_activity_lottery';
 /**
  * 轮盘抽奖活动
  */
-$sql[] = "drop table if exists xxt_roulette";
-$sql[] = "drop table if exists xxt_roulette_award";
-$sql[] = "drop table if exists xxt_roulette_plate";
-$sql[] = "drop table if exists xxt_roulette_log";
+$sql[] = "drop table if exists xxt_lottery";
+$sql[] = "drop table if exists xxt_lottery_award";
+$sql[] = "drop table if exists xxt_lottery_plate";
+$sql[] = "drop table if exists xxt_lottery_log";
+$sql[] = "drop table if exists xxt_lottery_task_log";
 /**
  * bbs
  */
@@ -102,10 +114,6 @@ $sql[] = 'drop table if exists xxt_checkin_log';
 $sql[] = 'drop table if exists  xxt_wall';
 $sql[] = 'drop table if exists  xxt_wall_enroll';
 $sql[] = 'drop table if exists  xxt_wall_log';
-/**
- * 投稿人工具箱
- */
-$sql[] = 'drop table if exists xxt_writer_box';
 /**
  * 执行操作
  */

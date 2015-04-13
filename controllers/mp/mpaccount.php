@@ -573,8 +573,24 @@ class mpaccount extends mp_controller {
             array('mpid'=>$pmpid),
             "mpid='$this->mpid'"
         );
+        //todo ???
+        /*$rst = $this->model()->update(
+            'xxt_news_matter', 
+            array('mpid'=>$pmpid),
+            "mpid='$this->mpid'"
+        );*/
         $rst = $this->model()->update(
             'xxt_link', 
+            array('mpid'=>$pmpid),
+            "mpid='$this->mpid'"
+        );
+        $rst = $this->model()->update(
+            'xxt_link_param', 
+            array('mpid'=>$pmpid),
+            "mpid='$this->mpid'"
+        );
+        $rst = $this->model()->update(
+            'xxt_link_channel', 
             array('mpid'=>$pmpid),
             "mpid='$this->mpid'"
         );
@@ -666,5 +682,96 @@ class mpaccount extends mp_controller {
         );
 
         return new ResponseData($pmpid);
+    }
+    /**
+     *
+     */
+    public function removeMp_action($mpid, $code)
+    {
+        if ($code !== 'p0o9i8u7')
+            return new ResponseError('failed');
+
+        $rst = $this->model()->update(
+            'xxt_mpaccount', 
+            array('parent_mpid'=>''),
+            "parent_mpid='$mpid'"
+        );
+
+        $this->model()->delete('xxt_mpaccount', "mpid='$mpid'");
+        $this->model()->delete('xxt_mpsetting', "mpid='$mpid'");
+        $this->model()->delete('xxt_mprelay', "mpid='$mpid'");
+        $this->model()->delete('xxt_mpadministrator', "mpid='$mpid'");
+        $this->model()->delete('xxt_mppermission', "mpid='$mpid'");
+
+        $this->model()->delete('xxt_tag', "mpid='$mpid'");
+        $this->model()->delete('xxt_article_channel', "article_id in (select id from xxt_article where mpid='$mpid')");
+        $this->model()->delete('xxt_article_remark', "article_id in (select id from xxt_article where mpid='$mpid')");
+        $this->model()->delete('xxt_article_score', "article_id in (select id from xxt_article where mpid='$mpid')");
+        $this->model()->delete('xxt_article', "mpid='$mpid'");
+        $this->model()->delete('xxt_article_tag', "mpid='$mpid'");
+        $this->model()->delete('xxt_text', "mpid='$mpid'");
+        $this->model()->delete('xxt_news_matter', "news_id in (select id from xxt_news where mpid='$mpid')");
+        $this->model()->delete('xxt_news', "mpid='$mpid'");
+        $this->model()->delete('xxt_link_param', "link_id in (select id from xxt_link where mpid='$mpid')");
+        $this->model()->delete('xxt_link_channel', "link_id in (select id from xxt_link where mpid='$mpid')");
+        $this->model()->delete('xxt_link', "mpid='$mpid'");
+        $this->model()->delete('xxt_channel', "mpid='$mpid'");
+        $this->model()->delete('xxt_address_book', "mpid='$mpid'");
+        $this->model()->delete('xxt_ab_dept', "mpid='$mpid'");
+        $this->model()->delete('xxt_ab_person', "mpid='$mpid'");
+        $this->model()->delete('xxt_ab_person_dept', "mpid='$mpid'");
+        $this->model()->delete('xxt_ab_title', "mpid='$mpid'");
+        $this->model()->delete('xxt_matter_acl', "mpid='$mpid'");
+        $this->model()->delete('xxt_tmplmsg_log', "tmplmsg_id in (select id from xxt_tmplmsg where mpid='$mpid')");
+        $this->model()->delete('xxt_tmplmsg_param', "tmplmsg_id in (select id from xxt_tmplmsg where mpid='$mpid')");
+        $this->model()->delete('xxt_tmplmsg', "mpid='$mpid'");
+
+        $this->model()->delete('xxt_text_call_reply', "mpid='$mpid'");
+        $this->model()->delete('xxt_qrcode_call_reply', "mpid='$mpid'");
+        $this->model()->delete('xxt_other_call_reply', "mpid='$mpid'");
+        $this->model()->delete('xxt_menu_reply', "mpid='$mpid'");
+        $this->model()->delete('xxt_call_acl', "mpid='$mpid'");
+
+        $this->model()->delete('xxt_activity_lottery_round', "aid in (select aid from xxt_activity where mpid='$mpid')");
+        $this->model()->delete('xxt_activity_lottery', "aid in (select aid from xxt_activity where mpid='$mpid')");
+        $this->model()->delete('xxt_activity', "mpid='$mpid'");
+        $this->model()->delete('xxt_activity_receiver', "mpid='$mpid'");
+        $this->model()->delete('xxt_activity_round', "mpid='$mpid'");
+        $this->model()->delete('xxt_activity_page', "mpid='$mpid'");
+        $this->model()->delete('xxt_activity_enroll_cusdata', "enroll_key in (select enroll_key from xxt_activity_enroll where mpid='$mpid')");
+        $this->model()->delete('xxt_activity_enroll_remark', "enroll_key in (select enroll_key from xxt_activity_enroll where mpid='$mpid')");
+        $this->model()->delete('xxt_activity_enroll_score', "enroll_key in (select enroll_key from xxt_activity_enroll where mpid='$mpid')");
+        $this->model()->delete('xxt_activity_enroll', "mpid='$mpid'");
+        $this->model()->delete('xxt_act_acl', "mpid='$mpid'");
+
+        $this->model()->delete('xxt_lottery_task_log', "lid in (select lid from xxt_lottery where mpid='$mpid')");
+        $this->model()->delete('xxt_lottery_task', "lid in (select lid from xxt_lottery where mpid='$mpid')");
+        $this->model()->delete('xxt_lottery', "mpid='$mpid'");
+        $this->model()->delete('xxt_lottery_award', "mpid='$mpid'");
+        $this->model()->delete('xxt_lottery_plate', "mpid='$mpid'");
+        $this->model()->delete('xxt_lottery_log', "mpid='$mpid'");
+
+        $this->model()->delete('xxt_wall', "mpid='$mpid'");
+        $this->model()->delete('xxt_wall_enroll', "mpid='$mpid'");
+        $this->model()->delete('xxt_wall_log', "mpid='$mpid'");
+
+        $this->model()->delete('xxt_log', "mpid='$mpid'");
+        $this->model()->delete('xxt_mpreceive_log', "mpid='$mpid'");
+        $this->model()->delete('xxt_mpsend_log', "mpid='$mpid'");
+        $this->model()->delete('xxt_matter_read_log', "mpid='$mpid'");
+        $this->model()->delete('xxt_shareaction_log', "mpid='$mpid'");
+        $this->model()->delete('xxt_user_action_log', "mpid='$mpid'");
+        $this->model()->delete('xxt_matter_action_log', "mpid='$mpid'");
+
+        $this->model()->delete('xxt_visitor', "mpid='$mpid'");
+        $this->model()->delete('xxt_fans', "mpid='$mpid'");
+        $this->model()->delete('xxt_fansgroup', "mpid='$mpid'");
+        $this->model()->delete('xxt_member', "mpid='$mpid'");
+        $this->model()->delete('xxt_member_authapi', "mpid='$mpid'");
+        $this->model()->delete('xxt_member_card', "mpid='$mpid'");
+        $this->model()->delete('xxt_member_tag', "mpid='$mpid'");
+        //$this->model()->delete('xxt_access_token', "mpid='$mpid'");
+
+        return new ResponseData($mpid);
     }
 }

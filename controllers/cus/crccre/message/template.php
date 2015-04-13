@@ -95,14 +95,17 @@ class template extends xxt_base {
         );
         $openids = $this->model()->query_vals_ss($q);
         if (!empty($openids)) {
-            $mpsrc = strpos($url, '?') ? '&' : '?';
-            $mpsrc .= 'mpsrc=wx'; 
+            if (!empty($url)) {
+                $mpsrc = strpos($url, '?') ? '&' : '?';
+                $mpsrc .= 'mpsrc=wx'; 
+                $url .= $mpsrc;
+            } 
             /**
              * 处理消息数据并发送
              */
             $msg = array(
                 'template_id'=>'yHKOEV6FxO7WhMIbm0ncKzH2lgY37s3DqPk11hniAZU',
-                'url'=>$url.$mpsrc,
+                'url'=>$url,
                 'topcolor'=>'#FF0000',
                 'data'=>array(
                     'first'=>array(
@@ -137,11 +140,12 @@ class template extends xxt_base {
         /**
          * todo 临时方法，向企业号同时发布
          */
-        $mpsrc = strpos($url, '?') ? '&' : '?';
-        $mpsrc .= 'mpsrc=qy'; 
         $content = urlencode($text);
-        !empty($url) && $content .= " <a href='$url$mpsrc'>".urlencode('详情')."</a>";
-
+        if (!empty($url)) {
+            $mpsrc = strpos($url, '?') ? '&' : '?';
+            $mpsrc .= 'mpsrc=qy'; 
+            $content .= " <a href='$url$mpsrc'>".urlencode('详情')."</a>";
+        }
         $message = array(
             "msgtype"=>"text",
             "text"=>array(

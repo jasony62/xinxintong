@@ -43,7 +43,7 @@
             </div>
         </div>
     </div>
-    <div ng-include="'/page/mp/mpaccount/'+mpa.mpsrc+'setting'"></div>
+    <div ng-if='mpa.mpsrc' ng-include="'/page/mp/mpaccount/'+mpa.mpsrc+'setting'"></div>
     <?php if (TMS_APP::model('mp\permission')->hasSystemRight('p_mpgroup_create')) {?>
     <div class='pull-right' ng-if="mpa.asparent==='N'&&mpa.parent_mpid===''">
         <button class='btn btn-danger' ng-click='genParent()'>生成父账号</button>

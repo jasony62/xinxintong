@@ -801,6 +801,10 @@ class enroll extends act_base {
     public function setEnrollReceiver_action($aid)
     {
         $receiver = $this->getPostJson();
+
+        if (empty($receiver->identity))
+            return new ResponseError('没有指定用户的唯一标识');
+        
         if (isset($receiver->id)) {
             $u['identity'] = $receiver->identity;
             $rst = $this->model()->update(
@@ -813,9 +817,9 @@ class enroll extends act_base {
             $i['mpid'] = $this->mpid;
             $i['aid'] = $aid;
             $i['identity'] = $receiver->identity;
-            $i['idsrc'] = $receiver->idsrc;
+            $i['idsrc'] = empty($receiver->idsrc) ? '' : $receiver->idsrc;
             $i['id'] = $this->model()->insert('xxt_activity_receiver', $i, true);
-            $i['label'] = $receiver->label;
+            $i['label'] = empty($receiver->label) ? $receiver->identity : $receiver->label;
 
             return new ResponseData($i);
         }

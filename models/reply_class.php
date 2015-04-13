@@ -441,47 +441,6 @@ class FullsearchReply extends MultiArticleReply {
     }
 }
 /**
- * 单个活动的信息卡片
- */
-class MyActivitiesReply extends Reply {
-    /**
-     *
-     */
-    public function __construct($call) 
-    {
-        parent::__construct($call);
-    }
-    /**
-     * 
-     */
-    public function exec() 
-    {
-        $current = time();
-        $src = $this->call['src'];
-        $mpid = $this->call['mpid'];
-        $openid = $this->call['from_user'];
-
-        $acts = TMS_APP::model('activity/enroll')->byPromoter($mpid, $openid);
-        $r = '<xml>';
-        $r .= $this->header();
-        $r .= '<MsgType><![CDATA[news]]></MsgType>';
-        $r .= '<ArticleCount>'.count($acts).'</ArticleCount>';
-        $r .= '<Articles>';
-        foreach ($acts as $a) {
-            $url = 'http://'.$_SERVER['HTTP_HOST'].'/page/wbox/activity?aid='.$a->aid.'&_='.$current;
-            $r .= '<item>';
-            $r .= '<Title><![CDATA['.$a->title.']]></Title>';
-            $r .= '<Description><![CDATA[]]></Description>';
-            $r .= '<PicUrl><![CDATA[]]></PicUrl>';
-            $r .= '<Url><![CDATA['.$url.']]></Url>';
-            $r .= '</item>';
-        }
-        $r .='</Articles>';
-        $r .= '</xml>'; 
-        die($r);
-    }
-}
-/**
  * 加入信息墙 
  */
 class JoinwallReply extends Reply { 
@@ -600,17 +559,11 @@ class InnerReply extends Reply {
         case 4:
             $this->fullsearchReply();
             break;
-        case 6:
-            $this->contributeReply();
-            break;
         case 7:
             $this->codesearchReply();
             break;
         case 8:
             $this->activitycodesearchReply();
-            break;
-        case 9:
-            $this->myactivitiesReply();
             break;
         }
     }
@@ -710,86 +663,6 @@ class InnerReply extends Reply {
         $tr->exec();
     }
     /**
-     * 获得投稿箱
-     *
-     * 每个粉丝在每个公众账号拥有一个投稿箱
-     * 如果投稿箱不存在则创建一个投稿箱
-     *
-     * 如果投稿箱中包含auth_code说明正在等待输入验证码
-     *
-     * 1、提供投稿箱的登录地址，含一次性登录码
-     * 2、提供投稿箱的验证码
-     */
-    private function contributeReply() 
-    {
-        $src = $this->call['src'];
-        $mpid = $this->call['mpid'];
-        $openid = $this->call['from_user'];
-        /**
-         * 投稿箱是否存在
-         */
-        $q = array(
-            'code,auth_code',
-            'xxt_writer_box',
-            "mpid='$mpid' and src='$src' and openid='$openid'"
-        );
-        if (!($box = TMS_APP::model()->query_obj_ss($q))) {
-            /**
-             * 投稿箱代码
-             */
-            $box_code = rand(100000,999999);
-            $q = array(
-                'count(*)',
-                'xxt_writer_box',
-                "code='$box_code'"
-            );
-            while (1===(int)TMS_APP::model()->query_val_ss($q)) {
-                $box_code = rand(100000,999999);
-            }
-            /**
-             * 进入投稿箱要求输入【验证码】
-             */
-            $auth_code = rand(100000,999999);
-            /**
-             * 投稿箱不存在，创建一个投稿箱
-             */
-            $i = array(
-                'code'=>$box_code,
-                'mpid'=>$mpid,
-                'src'=>$src,
-                'openid'=>$openid,
-                'auth_mode'=>1,
-                'auth_code'=>$auth_code
-            );
-            TMS_APP::model()->insert('xxt_writer_box', $i, false);
-            $box->code = $box_code;
-            $box->auth_code = $auth_code;
-        }
-        if (empty($box->auth_code)) {
-            /**
-             * 进入投稿箱要求输入【验证码】
-             */
-            $box->auth_code = rand(100000,999999);
-            TMS_APP::model()->update(
-                'xxt_writer_box', 
-                array('auth_code'=>$box->auth_code), 
-                "code='$box->code'"
-            );
-        }
-        /**
-         * 投稿箱地址
-         */
-        $url = "http://".$_SERVER['HTTP_HOST'];
-        $url .= "/page/wbox/$box->code";
-        /**
-         * 进入投稿箱的验证码
-         */
-        $r = "欢迎投稿，请进入【{$url}】进行稿件编辑工作，验证码为【{$box->auth_code}】。\r";
-        $r .= "为保证信息安全，每次进入个人投稿箱都需要重新获取验证码。";
-        $tr = new TextReply($this->call, $r, false);
-        $tr->exec();
-    }
-    /**
      * 根据图文编号检索（只针对单图文）
      */
     private function codesearchReply() 
@@ -842,17 +715,6 @@ class InnerReply extends Reply {
             $tr = new TextReply($this->call, $r, false);
             $tr->exec();
         }
-    }
-    /**
-     * 我发起的活动列表
-     *
-     * 多图文的形式返回
-     * //todo 目前最多10条，以后应该支持翻页的机制
-     */
-    private function myactivitiesReply() 
-    {
-        $tr = new MyActivitiesReply($this->call); 
-        $tr->exec();
     }
 }
 /**

@@ -58,7 +58,8 @@ class mpproxy_base {
             return $token;
 
         $url = $cmd;
-        $url .= "?access_token=".$token[1];
+        $url .= false == strpos($url, '?') ? '?' : '&'; 
+        $url .= "access_token=".$token[1];
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_HEADER, 0);

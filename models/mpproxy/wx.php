@@ -148,6 +148,17 @@ class wx_model extends mpproxy_base {
         return $rst;
     }
     /**
+     * upload menu.
+     */
+    public function menuCreate($menu)
+    {
+        $cmd = 'https://api.weixin.qq.com/cgi-bin/menu/create';
+
+        $rst = $this->httpPost($cmd, $menu);
+
+        return $rst;
+    }
+    /**
      * 获得下载媒体文件的链接
      *
      * $mediaid

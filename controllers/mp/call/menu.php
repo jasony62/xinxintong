@@ -448,17 +448,20 @@ class menu extends call_base {
          */
         $mpa = $this->model('mp\mpaccount')->getApis($this->mpid);
         if ($mpa->asparent === 'N') {
+            $mpsrc = $mpa->mpsrc;
             /**
              * 父账号的菜单不能被发布到公众平台
              */
-            if ($mpa->yx_joined === 'N' && $mpa->wx_joined === 'N' && $mpa->qy_joined === 'N')
+            if ($mpa->{$mpsrc.'_joined'} === 'N')
                 return new ResponseError('公众账号未连接成功，请检查。');
 
-            if (($mpa->mpsrc === 'yx' && $mpa->yx_menu === 'N')||($mpa->mpsrc === 'wx' && $mpa->wx_menu === 'N'))
+            if (isset($mpa->{$mpsrc.'_menu'}) && $mpa->{$mpsrc.'_menu'} === 'N')
                 return new ResponseError("未开通发布菜单高级接口");
 
-            if (true !== ($ret = $this->publish($literal_menu, $mpa->mpsrc)))
-                return new ResponseError("菜单发布失败：$ret");
+            $proxy = $this->model("mpproxy/$mpsrc", $this->mpid);
+            $rst = $proxy->menuCreate($literal_menu);
+            if ($rst[0] === false)
+                return new ResponseError("菜单发布失败：".$rst[1]);
         }
         /**
          * 将菜单设置为发布状态

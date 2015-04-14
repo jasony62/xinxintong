@@ -158,4 +158,15 @@ class yx_model extends mpproxy_base {
 
         return $rst;
     }
+    /**
+     * upload menu.
+     */
+    public function menuCreate($menu)
+    {
+        $cmd = 'https://api.yixin.im/cgi-bin/menu/create';
+
+        $rst = $this->httpPost($cmd, $menu);
+
+        return $rst;
+    }
 }

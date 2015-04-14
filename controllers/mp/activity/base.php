@@ -20,6 +20,9 @@ class act_base extends mp_controller {
     public function setAcl_action($actid)
     {
         $acl = $this->getPostJson();
+        if (empty($acl->identity))
+            return new ResponseError('身份标识为空');
+
         if (isset($acl->id)) {
             $u['identity'] = $acl->identity;
             $rst = $this->model()->update('xxt_act_acl', $u, "id=$acl->id");
@@ -30,7 +33,7 @@ class act_base extends mp_controller {
             $i['act_id'] = $actid;
             $i['identity'] = $acl->identity;
             $i['idsrc'] = $acl->idsrc;
-            $i['label'] = $acl->label;
+            $i['label'] = isset($acl->label) ? $acl->label : $acl->identity;
             $i['id'] = $this->model()->insert('xxt_act_acl', $i, true);
 
             return new ResponseData($i);

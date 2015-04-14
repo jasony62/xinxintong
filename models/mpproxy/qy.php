@@ -381,4 +381,16 @@ class qy_model extends mpproxy_base {
 
         return $result;
     }
+    /**
+     * upload menu.
+     */
+    public function menuCreate($menu)
+    {
+        $app = $this->model('mp\mpaccount')->byId($this->mpid, 'qy_agentid');
+        $cmd = "https://qyapi.weixin.qq.com/cgi-bin/menu/create?agentid=$app->qy_agentid&access_token=";
+
+        $rst = $this->httpPost($cmd, $menu);
+
+        return $rst;
+    }
 }

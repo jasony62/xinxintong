@@ -78,7 +78,7 @@ class discuss extends member_base {
             $model = $this->model('activity/wall');
             $wall = $model->byId($wid, 'wid,mpid,title,entry_ele,entry_css,access_control,authapis');
 
-            list($ooid, $osrc) = !empty($who) ? $who : $this->getOAuthUser($wall->mpid);
+            list($ooid, $osrc) = !empty($who) ? $who : $this->getCookieOAuthUser($wall->mpid);
 
             if ($osrc !== 'qy' && $wall->access_control === 'Y')
                 $this->accessControl($wall->mpid, $wid, $wall->authapis, array($ooid, $osrc), $wall);
@@ -106,7 +106,7 @@ class discuss extends member_base {
             $q2['o'] = 'create_at desc';
             $walls = $this->model()->query_objs_ss($q);
 
-            list($ooid, $osrc) = !empty($who) ? $who : $this->getOAuthUser($mpid);
+            list($ooid, $osrc) = !empty($who) ? $who : $this->getCookieOAuthUser($mpid);
             /**
              * 当前用户可访问的讨论组
              */
@@ -181,7 +181,7 @@ class discuss extends member_base {
         if (empty($mpid)) return new ResponseError('mpid为空');
         if (empty($wid)) return new ResponseError('wid为空');
 
-        list($ooid, $osrc) = $this->getOAuthUser();
+        list($ooid, $osrc) = $this->getCookieOAuthUser();
         if (empty($ooid)) return new ResponseError('无法获得用户身份');
 
         $model = $this->model('activity/wall');

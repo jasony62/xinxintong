@@ -51,7 +51,6 @@
         <script src="/rest/mi/matter/wxjssdksignpackage?mpid=<?php echo $_GET['mpid'];?>&url=<?php echo urlencode("http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");?>"></script>
         <?php } ?>
         <script src="/static/js/angular.min.js"></script>
-        <script src="/static/js/ng-infinite-scroll.min.js"></script>
         <?php
         if ($js = TPL::val('global_js')) {
         call_user_func_array(array($this,'global_js'), $js);

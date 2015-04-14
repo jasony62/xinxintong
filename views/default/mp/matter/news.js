@@ -119,7 +119,7 @@ xxtApp.controller('NewsCtrl',['$scope','$http','http2',function($scope,$http,htt
                 $scope.edit($scope.news[0]);
         });
     };
-    $http.get('/rest/mp/mpaccount/features?fields=matter_visible_to_creater').
+    $http.get('/rest/mp/mpaccount/feature?fields=matter_visible_to_creater').
     success(function(rsp) {
         $scope.features = rsp.data;
     });

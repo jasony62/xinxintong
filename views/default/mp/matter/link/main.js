@@ -143,7 +143,7 @@ xxtApp.controller('linkCtrl',['$scope','$http','$location',function($scope,$http
     $scope.changePValueMode = function(p) {
         p.pvalue = '';
     };
-    $http.get('/rest/mp/mpaccount/features?fields=matter_visible_to_creater').
+    $http.get('/rest/mp/mpaccount/feature?fields=matter_visible_to_creater').
     success(function(rsp) {
         $scope.features = rsp.data;
     });

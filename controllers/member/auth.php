@@ -99,7 +99,7 @@ class auth extends member_base {
         /**
          * 已经认证过的用户身份
          */
-        list($ooid, $osrc) = empty($who) ? $this->getOAuthUser($mpid) : $who;
+        list($ooid, $osrc) = empty($who) ? $this->getCookieOAuthUser($mpid) : $who;
         if (!empty($ooid)) {
             $member = $this->model('user/member')->byOpenid($mpid, $ooid, '*', $authid);
             TPL::assign('authedMember', $member);
@@ -274,7 +274,7 @@ class auth extends member_base {
             /**
              * 通过OAuth获得的openid优先级高
              */
-            list($openid) = $this->getOAuthUser($mpid);
+            list($openid) = $this->getCookieOAuthUser($mpid);
         else if ($fanInCookie = $this->myGetcookie("_{$mpid}_mauth_f"))
             /**
              * URL直接指定的openid

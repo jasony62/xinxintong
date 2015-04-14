@@ -246,6 +246,7 @@ class member_base extends xxt_base {
         return false;
     }
     /**
+     * 通过OAuth接口获得用户信息
      *
      * $mpid
      * $code
@@ -270,12 +271,41 @@ class member_base extends xxt_base {
         return $who;
     }
     /**
+     * 在cookie中保存OAuth用户信息
+     * $mpid
+     * $openid
+     * $src
+     */
+    protected function setCookieOAuthUser($mpid, $openid, $src='') 
+    {
+        $who = array($openid, $src);
+        $encoded = $this->model()->encrypt(json_encode($who), 'ENCODE', $mpid);
+        $this->mySetcookie("_{$mpid}_oauth", $encoded);
+
+        return true;
+    }
+    /**
+     * 返回当前的用户
+     *
+     * $mpid
+     * $who
+     */
+    protected function getCookieOAuthUser($mpid)
+    {
+        if ($user = $this->myGetcookie("_{$mpid}_oauth"))
+            $user = json_decode($this->model()->encrypt($user, 'DECODE', $mpid));
+        else
+            $user = array('', '');
+
+        return $user;
+    }
+    /**
      * 通过OAuth获得当前用户的openid
      */
     protected function getWxOAuthUser($mpid, $code)
     {
         if ($this->myGetcookie("_{$mpid}_oauth"))
-            return $this->getOAuthUser($mpid);
+            return $this->getCookieOAuthUser($mpid);
         /**
          * 获得openid
          */
@@ -319,7 +349,7 @@ class member_base extends xxt_base {
     protected function getYxOAuthUser($mpid, $code)
     {
         if ($this->myGetcookie("_{$mpid}_oauth"))
-            return $this->getOAuthUser($mpid);
+            return $this->getCookieOAuthUser($mpid);
         /**
          * 获得openid
          */
@@ -400,21 +430,6 @@ class member_base extends xxt_base {
         $this->mySetcookie("_{$mpid}_oauth", $encoded);
 
         return $who;
-    }
-    /**
-     * 返回当前的用户
-     *
-     * $mpid
-     * $who
-     */
-    protected function getOAuthUser($mpid)
-    {
-        if ($user = $this->myGetcookie("_{$mpid}_oauth"))
-            $user = json_decode($this->model()->encrypt($user, 'DECODE', $mpid));
-        else
-            $user = array('', '');
-
-        return $user;
     }
     /**
      * 判断发起呼叫的用户是否为认证用户，如果是则返回用户的身份信息

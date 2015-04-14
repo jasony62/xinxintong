@@ -11,6 +11,7 @@ class member_model extends TMS_MODEL {
      */
     public function create($fid, $data, $attrs) 
     {
+        if (is_array($data)) $data = (object)$data;
         /**
          * 处理访问口令
          */

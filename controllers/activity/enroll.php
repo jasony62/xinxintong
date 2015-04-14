@@ -180,7 +180,7 @@ class enroll extends member_base {
         /**
          * 当前用户
          */
-        list($ooid, $osrc) = empty($fan) ? $this->getOAuthUser($mpid) : $fan;
+        list($ooid, $osrc) = empty($fan) ? $this->getCookieOAuthUser($mpid) : $fan;
         /**
          * 确保只有认证过的用户才能提交数据
          * todo 企业号直接跳过这个限制？
@@ -445,7 +445,7 @@ class enroll extends member_base {
         /**
          * 检查是否为关注用户
          */
-        list($ooid, $osrc) = $this->getOAuthUser($act->mpid);
+        list($ooid, $osrc) = $this->getCookieOAuthUser($act->mpid);
 
         if ($this->model('activity/enroll')->hasEnrolled($act->mpid, $aid, $ooid))
             return new ResponseData(true);

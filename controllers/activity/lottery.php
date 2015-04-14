@@ -80,7 +80,7 @@ class lottery extends member_base {
         /**
          * 当前访问用户
          */
-        list($ooid, $osrc) = !empty($who) ? $who : $this->getOAuthUser($mpid);
+        list($ooid, $osrc) = !empty($who) ? $who : $this->getCookieOAuthUser($mpid);
         $vid = $this->getVisitorId($mpid);
         /**
          * 要求先关注再参与
@@ -232,7 +232,7 @@ class lottery extends member_base {
         /**
          * 如果仅限关注用户参与，获得openid
          */
-        list($openid, $src) = $this->getOAuthUser($mpid);
+        list($openid, $src) = $this->getCookieOAuthUser($mpid);
 
         if ($r->fans_only === 'Y') {
             if (empty($openid) || empty($src))

@@ -60,7 +60,7 @@ class mywall extends member_base {
         /**
          * 当前访问用户
          */
-        list($ooid, $osrc) = $this->getOAuthUser($wall->mpid);
+        list($ooid, $osrc) = $this->getCookieOAuthUser($wall->mpid);
 
         $data = $model->approvedMessages($mpid, $wid, 0);
         $messages = $data ? $data[0] : array();

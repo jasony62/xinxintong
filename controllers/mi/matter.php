@@ -54,7 +54,7 @@ class matter extends member_base {
         /**
          * visit fans.
          */
-        list($ooid, $osrc) = empty($who) ? $this->getOAuthUser($mpid) : $who;
+        list($ooid, $osrc) = empty($who) ? $this->getCookieOAuthUser($mpid) : $who;
         /**
          * 根据类型获得处理素材的对象
          */
@@ -304,7 +304,7 @@ class matter extends member_base {
     public function logShare_action($shareid, $mpid, $id, $type, $shareto, $shareby='')
     {
         $vid = $this->getVisitorId($mpid);
-        list($ooid, $osrc) = $this->getOAuthUser($mpid);
+        list($ooid, $osrc) = $this->getCookieOAuthUser($mpid);
         $openid_agent = $_SERVER['HTTP_USER_AGENT'];
         $client_ip = $this->client_ip();
 

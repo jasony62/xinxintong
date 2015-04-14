@@ -9,7 +9,7 @@ class menu_model extends \TMS_MODEL {
      */
     public function &createButton($data) 
     {
-        $uid = \MS_CLIENT::get_client_uid();
+        $uid = \TMS_CLIENT::get_client_uid();
         $data['creater'] = $uid;
         $data['create_at'] = time();
 

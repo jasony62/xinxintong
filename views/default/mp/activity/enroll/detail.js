@@ -207,7 +207,8 @@ xxtApp.controller('enrollCtrl',['$scope','http2',function($scope,http2) {
                     }
                     break;
                 case 'img':
-                    title = schema.match(/title=\".+?\"/).pop().replace('title=', '').replace(/\"/g, '');
+                    title = schema.match(/title=\".*?\"/).pop().replace('title=', '').replace(/\"/g, '');
+                    if (title.length === 0) title='（没有指定字段标题）';
                     if (modelId = schema.match(/ng-repeat=\"img in data\.(.+?)\"/)) {
                         modelId = modelId.pop().replace(/ng-repeat=\"img in data\./,'').replace(/\"/g,'');
                         defs[modelId] = {id:modelId,title:title,type:type};

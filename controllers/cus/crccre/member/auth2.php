@@ -30,7 +30,7 @@ class auth2 extends crccre_member_base2 {
         /**
          * 已经认证过的用户身份
          */
-        list($ooid, $osrc) = empty($who) ? $this->getOAuthUser($mpid) : $who;
+        list($ooid, $osrc) = empty($who) ? $this->getCookieOAuthUser($mpid) : $who;
         $member = $this->model('user/member')->byOpenid($mpid, $ooid, '*', $authid);
         TPL::assign('mpid', $mpid);
         TPL::assign('authid', $authid);
@@ -106,7 +106,7 @@ class auth2 extends crccre_member_base2 {
      */
     private function bind($mpid, $authid, $username)
     {
-        list($ooid, $osrc) = $this->getOAuthUser($mpid);
+        list($ooid, $osrc) = $this->getCookieOAuthUser($mpid);
         empty($ooid) && die('openid is empty.');
         /**
          * 获得用户身份信息

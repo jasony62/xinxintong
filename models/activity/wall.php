@@ -383,9 +383,16 @@ class wall_model extends TMS_MODEL {
                 /**
                  * 易信的图片消息不支持MediaId
                  */
-                $rst = $ctrl->upload_pic_to_mp($mpsrc, $token, $msg['data'][1]);
-                if ($rst[0] === false)
+                $rst = $ctrl->upload_pic_to_mp($mpsrc, null, $msg['data'][1], $mpid);
+                if ($rst[0] === false) {
+                    $ctrl->send_to_user($mpid, 'yx', $openid, array( 
+                        "msgtype"=>"text",
+                        "text"=>array(
+                            "content"=>urlencode($rst[1])
+                        ))
+                    );
                     return $rst;
+                }
                 $mediaId = $rst[1];
             } else 
                 $mediaId = $msg['data'][0];

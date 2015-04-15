@@ -31,7 +31,7 @@ body{font-family:Arial,'Microsoft YaHei'}
 }            
 .navbar{border-radius:0}
 .navbar-nav.navbar-right:last-child{margin-right:0}
-body>.notice-box{position:fixed;width:300px;top:0px;left:50%;margin-left:-150px;overflow:none;z-index:3999;text-align:center;word-break:break-all}
+.notice-box{position:fixed;width:50%;top:0px;left:50%;margin-left:-25%;overflow:none;z-index:3999;text-align:center;word-break:break-all}
 .modal.auto-height .modal-dialog.modal-lg {
     left: 50%;
     margin-left: -450px;

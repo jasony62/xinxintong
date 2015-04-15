@@ -195,7 +195,7 @@ class matter extends member_base {
         /**
          * 文章的基本信息
          */
-        $a = $this->model('matter/article')->byId($id, 'mpid,writer,src,remark_notice');
+        $a = $this->model('matter/article')->byId($id, 'mpid,src,remark_notice');
         /**
          * 仅限认证用户发表评论，如果没有认证，先引导用户进行认证
          * todo 存在多个用户的问题

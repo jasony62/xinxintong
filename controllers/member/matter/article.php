@@ -51,9 +51,20 @@ class article extends member_base {
         } else {
             $params = array();
             $params['mpid'] = $mpid;
+            $params['articles'] = array();
 
             TPL::assign('params', $params);
             $this->view_action('/member/matter/article');
         }
+    }
+    /**
+     *
+     */
+    public function create_action($mpid)
+    {
+        $article = array();
+        $article['title'] = '新文章';
+
+        return new ResponseData($article);
     }
 }

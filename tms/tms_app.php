@@ -72,29 +72,25 @@ class TMS_APP {
      */
     public static function run($config) 
     {
-        try {
-            global $__controller, $__action;
-            /**
-             * map uri to controller and action.
-             */ 
-            $url = parse_url($_SERVER['REQUEST_URI']);
-            $path = $url['path'];
-            if (0 === strpos($path, TMS_APP_API_PREFIX.'/')) {
-                $path = substr($path, strlen(TMS_APP_API_PREFIX));
-                self::request_api($path);
-            } else if (0 === strpos($path, TMS_APP_VIEW_PREFIX.'/')) {
-                $path = substr($path, strlen(TMS_APP_VIEW_PREFIX));
+        global $__controller, $__action;
+        /**
+         * map uri to controller and action.
+         */ 
+        $url = parse_url($_SERVER['REQUEST_URI']);
+        $path = $url['path'];
+        if (0 === strpos($path, TMS_APP_API_PREFIX.'/')) {
+            $path = substr($path, strlen(TMS_APP_API_PREFIX));
+            self::request_api($path);
+        } else if (0 === strpos($path, TMS_APP_VIEW_PREFIX.'/')) {
+            $path = substr($path, strlen(TMS_APP_VIEW_PREFIX));
+            self::request_view($path);
+        } else {
+            if (self::authenticate()){
+                $path = TMS_APP_AUTHED;
+                if (0 === strpos($path, TMS_APP_VIEW_PREFIX.'/'))
+                    $path = substr($path, strlen(TMS_APP_VIEW_PREFIX));
                 self::request_view($path);
-            } else {
-                if (self::authenticate()){
-                    $path = TMS_APP_AUTHED;
-                    if (0 === strpos($path, TMS_APP_VIEW_PREFIX.'/'))
-                        $path = substr($path, strlen(TMS_APP_VIEW_PREFIX));
-                    self::request_view($path);
-                }
             }
-        } catch (Exception $e) {
-            die('Exception:'.$e->getMessage());
         }
     }
     /**
@@ -107,18 +103,18 @@ class TMS_APP {
         /**
          * create controller.
          */
-        if (!$obj_controller = self::create_controller($__controller)){
-            throw new Exception("请求的控制器($__controller)不存在！");
-        }
+        if (!$obj_controller = self::create_controller($__controller))
+            throw new Exception("控制器($__controller)不存在！");
+
         // check controller's action.
         $action_method = $__action . '_action';
-        if (!method_exists($obj_controller, $action_method)) {
-            throw new Exception("请求的操作($__controller->$action_method)不存在！");
-        }
+        if (!method_exists($obj_controller, $action_method))
+            throw new Exception("操作($__controller->$action_method)不存在！");
+
         // access control
-        if (method_exists($obj_controller, 'get_access_rule')) {
+        if (method_exists($obj_controller, 'get_access_rule'))
             $access_rule = $obj_controller->get_access_rule();
-        }
+
         if (isset($access_rule)) {
             if (isset($access_rule['rule_type']) && ($access_rule['rule_type'] == 'white')) {
                 if ((! $access_rule['actions']) || (! in_array($__action, $access_rule['actions']))) {
@@ -182,17 +178,15 @@ class TMS_APP {
          * create controller.
          */
         if ($__controller) {
-            if (!$obj_controller = self::create_controller($__controller, true)){
-                throw new Exception("请求的控制器($__controller)不存在！");
-            }
-        } else {
+            if (!$obj_controller = self::create_controller($__controller, true))
+                throw new Exception("控制器($__controller)不存在！");
+        } else
             $obj_controller = new TMS_CONTROLLER;
-        }
+
         // check controller's action.
         $action_method = 'view_action';
-        if (!method_exists($obj_controller, $action_method)) {
-            throw new Exception("请求的操作($__controller->$action_method)不存在！");
-        }
+        if (!method_exists($obj_controller, $action_method))
+            throw new Exception("操作($__controller->$action_method)不存在！");
         /**
          * access control
          */

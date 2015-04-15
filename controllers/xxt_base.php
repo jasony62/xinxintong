@@ -870,8 +870,14 @@ class xxt_base extends TMS_CONTROLLER {
      * $token
      * $imageUrl
      */
-    public function upload_pic_to_mp($mpsrc, $token, $imageUrl) 
+    public function upload_pic_to_mp($mpsrc, $token, $imageUrl, $mpid=null) 
     {
+        if (empty($token)) {
+            $token = $this->access_token($mpid, $mpsrc); 
+            if ($token[0] === false)
+                return $token;
+            $token = $token[1];
+        }
         /**
          * download image
          */
@@ -887,19 +893,21 @@ class xxt_base extends TMS_CONTROLLER {
         /**
          * 临时文件
          */
-        $imageUrl = urldecode($imageUrl);
-        $imageType = explode('.', $imageUrl);
-        $imageType = $imageType[count($imageType)-1];
-        $imageType = preg_replace('/\?.*/', '', $imageType);
+        //$imageUrl = urldecode($imageUrl);
+        //$imageType = explode('.', $imageUrl);
+        //$imageType = $imageType[count($imageType)-1];
+        //$imageType = preg_replace('/\?.*/', '', $imageType);
         $tmpfname = tempnam('','');
-        rename($tmpfname, "$tmpfname.$imageType");
-        $handle = fopen("$tmpfname.$imageType", "w");
+        //rename($tmpfname, "$tmpfname.$imageType");
+        //$handle = fopen("$tmpfname.$imageType", "w");
+        $handle = fopen($tmpfname, "w");
         fwrite($handle, $imageData);
         fclose($handle);
         /**
          * upload image
          */
-        $post_data['media'] = "@$tmpfname.$imageType";
+        //$post_data['media'] = "@$tmpfname.$imageType";
+        $post_data['media'] = "@$tmpfname";
         /**
          * upload image
          */

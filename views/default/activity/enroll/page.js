@@ -143,7 +143,7 @@ formApp.factory('User', function(){
     };
     return Stat;
 });
-formApp.controller('formCtrl', ['$scope','$http','$timeout','Round','Record','Statistic','User',function($scope,$http,$timeout,Round,Record,Statistic,User){
+formApp.controller('formCtrl', ['$scope','$http','$timeout','$q','Round','Record','Statistic','User',function($scope,$http,$timeout,$q,Round,Record,Statistic,User){
     window.shareCounter = 0;
     var logShare = function(shareto) {
         var url = "/rest/mi/matter/logShare"; 
@@ -159,6 +159,7 @@ formApp.controller('formCtrl', ['$scope','$http','$timeout','Round','Record','St
     };
     if (/MicroMessenger/i.test(navigator.userAgent)) {
         signPackage.jsApiList = ['hideOptionMenu','showOptionMenu','closeWindow','chooseImage','uploadImage','onMenuShareTimeline','onMenuShareAppMessage'];
+        signPackage.debug = false;
         wx.config(signPackage);
         wx.ready(function(){
             wx.showOptionMenu();
@@ -291,10 +292,11 @@ formApp.controller('formCtrl', ['$scope','$http','$timeout','Round','Record','St
                     type:from,
                     quality:100
                 }, function(result){
-                    var img = {imgSrc:'data:'+result.mime+';base64,'+result.data};
-                    $scope.data[imgFieldName].push(img);
-                    $scope.$apply('data.'+imgFieldName);
-                    //$('ul[name="'+imgFieldName+'"] li:nth-last-child(2) img').attr('src', img.imgSrc);
+                    if (result.data && result.data.length) {
+                        var img = {imgSrc:'data:'+result.mime+';base64,'+result.data};
+                        $scope.data[imgFieldName].push(img);
+                        $scope.$apply('data.'+imgFieldName);
+                    }
                 }
             );
         } else {
@@ -314,7 +316,6 @@ formApp.controller('formCtrl', ['$scope','$http','$timeout','Round','Record','St
                             img.imgSrc = e.target.result.replace(/^.+(,)/, "data:"+theFile.type2+";base64,");
                             $scope.data[imgFieldName].push(img);
                             $scope.$apply('data.'+imgFieldName);
-                            //$('ul[name="'+imgFieldName+'"] li:nth-last-child(2) img').attr('src', img.imgSrc);
                         };
                     })(f);
                     reader.readAsDataURL(f);
@@ -330,20 +331,23 @@ formApp.controller('formCtrl', ['$scope','$http','$timeout','Round','Record','St
         if (!validate()) return;
         document.querySelector('#btnSubmit').setAttribute('disabled', true);
 
-        var uploadWxImage = function(index, imgs) {
-            if (index === imgs.length) return true;
-            var img = imgs[index];
-            if (0 === img.imgSrc.indexOf('weixin://')) {
+        var uploadWxImage = function(img) {
+            var deferred, promise;
+            deferred = $q.defer();
+            promise = deferred.promise;
+            if (0 === img.imgSrc.indexOf('weixin://') || 0 === img.imgSrc.indexOf('wxLocalResource://')) {
                 wx.uploadImage({
                     localId: img.imgSrc,
                     isShowProgressTips: 1,
                     success: function(res) {
                         img.serverId = res.serverId;
-                        uploadImage(++index, imgs);
+                        deferred.resolve(img);
                     }
                 });
             } else 
-                uploadWxImage(++index, imgs);
+                deferred.resolve(img);
+
+            return promise;
         };
         var submitWhole = function() {
             var url = '/rest/activity/enroll/submit?mpid='+$scope.params.mpid+'&aid='+$scope.params.activity.aid;
@@ -377,17 +381,29 @@ formApp.controller('formCtrl', ['$scope','$http','$timeout','Round','Record','St
         }
         if (window.wx !== undefined && modifiedImgFields.length) {
             try {
-                var i,j,imgField,img;
-                for (i in modifiedImgFields) {
+                var i=0,j=0,imgField,img;
+                var nextWxImage = function() {
                     imgField = $scope.data[modifiedImgFields[i]];
-                    if (imgField.length)
-                        uploadWxImage(0, imgField)
-                }
+                    img = imgField[j];
+                    uploadWxImage(img).then(function(data){
+                        if (j < imgField.length - 1)
+                            j++;
+                        else if (i < modifiedImgFields.length - 1) {
+                            j = 0;
+                            i++;
+                        } else {
+                            submitWhole();
+                            return true;
+                        }
+                        nextWxImage();
+                    });
+                };
+                nextWxImage();
             } catch (e) {
                 alert(e.message);
             }
-        }
-        submitWhole();
+        } else
+            submitWhole();
     };
     $scope.gotoPage = function(event, page, ek, rid) {
         event.preventDefault();

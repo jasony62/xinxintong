@@ -169,18 +169,23 @@ angular.module('ui.tms',[])
 .controller('NoticeBoxController',['$scope','$timeout',function($scope,$timeout){
     $scope.closeBox = function() {
         var msgType = '';
-        if ($scope.err && $scope.err.length)
+        if ($scope.err && $scope.err.length) {
+            $scope.err = '';
             msgType = 'err';
-        else if ($scope.info && $scope.info.length)
+        } else if ($scope.info && $scope.info.length) {
+            $scope.info = '';
             msgType = 'info';
-        else if ($scope.prog && $scope.prog.length)
+        } else if ($scope.prog && $scope.prog.length) {
+            $scope.prog = '';
             msgType = 'prog';
+        }
         $scope.$emit('xxt.notice-box.timeout',msgType);
     };
     $scope.$watch('info',function(nv){
         if (nv && nv.length > 0) {
             $scope.err = $scope.prog = '';
             $timeout(function(){
+                $scope.info = '';
                 $scope.$emit('xxt.notice-box.timeout','info');
             }, $scope.delay||2000);
         }

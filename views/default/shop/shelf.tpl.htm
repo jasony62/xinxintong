@@ -1,0 +1,29 @@
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div style='margin-left:15px'>
+        <button class='btn btn-default navbar-btn' onclick="history.back()">
+            <span class='glyphicon glyphicon-arrow-left'></span>
+        </button>
+    </div>
+</nav>
+<div ng-app='shopApp' ng-controller='shopCtrl' ng-init="jsonParams='<?php echo urlencode(json_encode(TPL::val('params')));?>';">
+    <div class='container ng-cloak' ng-cloak>
+        <div id='list-matters' class='list-group'>
+            <div class='list-group-item' ng-repeat="m in matters">
+                <div class='creater-datetime'>
+                    <div ng-bind="m.put_at*1000|date:'yyyyMMdd'"></div>
+                    <div ng-bind="m.creater_name"></div>
+                </div>
+                <div class='title' ng-bind="m.title"></div>
+                <div class='heading-pic' heading-pic ng-if="m.pic">
+                    <img ng-src='{{m.pic}}'>
+                </div>
+                <div class='summary' ng-bind="m.summary"></div>
+                <div class='actions'>
+                    <div>
+                        <button class='btn btn-success' ng-click='copyMatter(m)'>复制</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

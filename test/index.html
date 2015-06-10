@@ -1,0 +1,20 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>信信通</title>
+    </head>
+    <body ng-app='xxtApp' ng-controller='myCtrl'>
+        <input ng-model='data'></input>
+        <button ng-click='doSubmit()'>submit</button>
+    </body>
+    <script src='/static/js/angular.min.js'></script>
+    <script type="text/javascript">
+        angular.module('xxtApp',[]).controller('myCtrl', function($scope,$http){
+            $scope.doSubmit = function() {
+                var p = {'css':$scope.data};
+                $http.post('/test/submit.php', p, {headers:{'Content-Type':'application/x-www-form-urlencoded'}}).success(function(rsp){});
+            }
+        });
+    </script>
+</html>

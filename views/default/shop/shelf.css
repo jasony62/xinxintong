@@ -1,0 +1,14 @@
+body{background:#EEE;margin-top:65px}
+.ng-cloak{display:none;}
+#errmsg{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:0;left:50%;margin:0 0 0 -150px;text-align:center;transition:opacity 1s;z-index:-1;word-break:break-all}
+#errmsg.active{opacity:1;height:auto;z-index:999}
+#list-matters .list-group-item{position:relative;padding:8px 8px 45px;margin-bottom:8px}
+#list-matters .list-group-item>div{margin-top:4px}
+#list-matters .list-group-item .heading-pic {overflow:hidden;margin-bottom:8px}
+#list-matters .list-group-item .heading-pic img{width:100%}
+#list-matters .list-group-item .title{font-size:14px;font-weight:700}
+#list-matters .list-group-item .summary{color:#999;font-size:12px}
+#list-matters .list-group-item .creater-datetime{display:table;width:100%;color:#999;font-size:12px}
+#list-matters .list-group-item .creater-datetime>div{display:table-cell}
+#list-matters .list-group-item .creater-datetime>div:nth-child(2){text-align:right}
+#list-matters .list-group-item .actions{position:absolute;bottom:0;left:0;right:0;text-align:right}

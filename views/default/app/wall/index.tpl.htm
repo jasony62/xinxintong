@@ -1,0 +1,14 @@
+<div ng-app='xxt' ng-controller='wallCtrl' ng-init="jsonWalls='<?php echo urlencode(json_encode(TPL::val('walls')));?>'">
+    <div class='container'>
+        <div class='row'>
+            <ul class='list-group'>
+                <li class='list-group-item' ng-repeat='w in walls' ng-click='open(w)'>{{w.title}}</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<?php $css=TPL::val('body_css'); if (!empty($css)) { ?>
+<style>
+    <?php echo $css;?>
+</style>
+<?php }?>

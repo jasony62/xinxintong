@@ -1,0 +1,21 @@
+<div ng-app='xxt' ng-controller='wallCtrl' ng-init="jsonMembers='<?php echo urlencode(json_encode(TPL::val('members')));?>';memberUrl='<?php TPL::pt('member_url');?>'">
+    <div class='container'>
+        <div class='row'>
+            <ul class='list-group'>
+                <li class='list-group-item' ng-repeat='m in members' ng-click='open(m)'>
+                <div class='img-wrap'><img ng-src='{{m.headimgurl}}'></div>
+                <div class='intro'>
+                    <div class='nickname'>{{m.nickname}}</div>
+                    <div class='summary'>{{m.depts|orgs}}</div>
+                </div>
+                <span class='glyphicon glyphicon-chevron-right next'></span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<?php $css=TPL::val('body_css'); if (!empty($css)) { ?>
+<style>
+    <?php echo $css;?>
+</style>
+<?php }?>

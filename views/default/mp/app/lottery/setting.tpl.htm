@@ -1,0 +1,117 @@
+<div ng-controller='SettingCtrl'>
+    <div class='form-inline form-group' style='text-align:right'>
+        <div class='form-group'>
+            <pushmatter class='btn btn-primary' title="发送给指定用户" matter-id={{lottery.id}} matter-type='lottery'/>
+        </div>
+        <div class='qrcode form-group' ng-controller='SendmeController'>
+            <button class='btn btn-primary' data-toggle="popover" data-placement='left' ng-click="qrcode({type:'lottery',id:lottery.id},$event)">发送给我</button>
+        </div>
+    </div>
+    <div class='form-horizontal' ng-controller='SettingCtrl'>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>URL</label>
+            <div class='col-md-10'>
+                <div class="form-control" style='height:auto'>{{lottery.url}}</div>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>活动名称</label>
+            <div class='col-md-10'>
+                <input type="text" class="form-control" ng-model='lottery.title' tms-auto-update tms-wait=1000 tms-update="update('title');">
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>头图</label>
+            <div class='col-md-10'>
+                <div style="width:182px;border:1px solid #CCC">
+                    <div style="height:100px;text-align:center;padding-top:32px" ng-if="!lottery.pic">
+                        <button class='btn btn-default' ng-click='setPic();'>
+                            <span class='glyphicon glyphicon-picture'></span> 选择图片
+                        </button>
+                    </div>
+                    <div style='position:relative' ng-if="lottery.pic" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                        <img name='pic' ng-src='{{lottery.pic}}' width='180px'/>
+                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                            <span class='glyphicon glyphicon-picture'></span>
+                        </button>
+                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                            <span class='glyphicon glyphicon-trash'></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>摘要</label>
+            <div class='col-md-10'>
+                <textarea class='form-control' ng-model='lottery.summary' tms-auto-update tms-wait=1000 tms-update="update('summary');" rows='3'></textarea>
+                <p class='help-block'>最多120个汉字，240个英文字符</p>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>开始日期</label>
+            <div class='col-md-10 form-inline'>
+                <select class='form-control' ng-model='start_at.year' ng-options='y for y in years' ng-change="updateTime('start_at')"></select>
+                <select class='form-control' ng-model='start_at.month' ng-options='m for m in months' ng-change="updateTime('start_at')"></select>
+                <select class='form-control' ng-model='start_at.mday' ng-options='d for d in days' ng-change="updateTime('start_at')"></select>
+                <select class='form-control' ng-model='start_at.hour' ng-options='h for h in hours' ng-change="updateTime('start_at')"></select>
+                <select class='form-control' ng-model='start_at.minute' ng-options='m for m in minutes' ng-change="updateTime('start_at')"></select>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>结束日期</label>
+            <div class='col-md-10 form-inline'>
+                <select class='form-control' ng-model='end_at.year' ng-options='y for y in years' ng-change="updateTime('end_at')"></select>
+                <select class='form-control' ng-model='end_at.month' ng-options='m for m in months' ng-change="updateTime('end_at')"></select>
+                <select class='form-control' ng-model='end_at.mday' ng-options='d for d in days' ng-change="updateTime('end_at')"></select>
+                <select class='form-control' ng-model='end_at.hour' ng-options='h for h in hours' ng-change="updateTime('end_at')"></select>
+                <select class='form-control' ng-model='end_at.minute' ng-options='m for m in minutes' ng-change="updateTime('end_at')"></select>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>抽奖次数</label>
+            <div class='col-md-10'>
+                <input type="text" class="form-control" ng-model='lottery.chance'  tms-auto-update tms-wait=1000 tms-update="update('chance');">
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>抽奖周期</label>
+            <div class='col-md-10'>
+                <select class='form-control' ng-model='lottery.period' ng-change="update('period');">
+                    <option value='A'>总计</option>
+                    <option value='D'>每天</option>
+                </select>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>参与限制</label>
+            <div class='col-md-10'>
+                <label class='checkbox-inline'><input type="checkbox" ng-true-value='Y' ng-false-value='N' ng-model='lottery.fans_enter_only' ng-change="update('fans_enter_only')">仅限关注用户进入</label>
+                <label class='checkbox-inline'><input type="checkbox" ng-true-value='Y' ng-false-value='N' ng-model='lottery.fans_only' ng-change="update('fans_only')">仅限关注用户参与</label>
+            </div>
+        </div>
+        <accesscontrol mpid='{{mpid}}' obj='lottery' title='参与限制' label='仅限认证用户参与' prop-acl='acl' prop-access='access_control' prop-apis='authapis' update-access-control="update('access_control')" update-authapis="update('authapis')" change-acl-url='/rest/mp/app/lottery/setAcl?id={{lid}}' remove-acl-url='/rest/mp/app/lottery/removeAcl' label-span='2' control-span='10'></accesscontrol>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>前置活动</label>
+            <div class='col-md-10'>
+                <div class='checkbox'>
+                    <label><input type="checkbox" ng-true-value='Y' ng-false-value='N' ng-model='lottery.precondition' ng-change="update('precondition');">必须完成前置活动才能抽奖</label>
+                </div>
+            </div>
+        </div>
+        <div class='form-group' ng-if="lottery.precondition==='Y'">
+            <label class='col-md-2 control-label'>前置活动完成URL</label>
+            <div class='col-md-10'>
+                <div class="form-control" style='height:auto'>{{lottery.preactivitydone_url}}</div>
+            </div>
+        </div>
+        <div class='form-group' ng-if="lottery.precondition==='Y'">
+            <label class='col-md-2 control-label'>前置活动执行次数</label>
+            <div class='col-md-10'>
+                <label class='radio-inline'><input type="radio" name='preactivitycount' value='F' ng-model='lottery.preactivitycount' ng-change="update('preactivitycount');"> 首次执行</label>
+                <label class='radio-inline'><input type="radio" name='preactivitycount' value='E' ng-model='lottery.preactivitycount' ng-change="update('preactivitycount');"> 每次都执行</label>
+            </div>
+        </div>
+        <div picgallery style='display:none' url='{{picGalleryUrl}}'></div>
+    </div>
+</div>

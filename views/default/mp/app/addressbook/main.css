@@ -1,0 +1,7 @@
+.toolbar{margin-bottom:20px}
+.thumbnail{position:relative;height:140px;cursor:pointer}
+.thumbnail>:first-child{height:100px;overflow:hidden}
+.thumbnail>:nth-child(2){height:30px;padding-top:4px;overflow:hidden}
+.thumbnail .label{margin:0 2px 2px 0}
+.thumbnail .modify_at{display:inline-block;color:#999;line-height:30px;float:right}
+.thumbnail button.remove{position:absolute;top:4px;right:4px}

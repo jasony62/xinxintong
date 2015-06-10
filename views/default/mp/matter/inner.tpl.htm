@@ -1,0 +1,17 @@
+<div ng-controller='innerCtrl' ng-init="mpid='<?php echo TPL::S('mpid');?>'">
+    <div class='col-md-4' style='padding-left:0'>
+        <div class='list-group'>
+            <a class='list-group-item' style='min-height:42px' ng-class="{'active':i===editing}" ng-click='edit(i)' ng-repeat="i in inners">
+                <span>{{i.title}}</span>
+            </a>
+        </div>
+    </div>
+    <div class='col-md-8 form-horizontal' ng-show='editing' style='padding-right:0'>
+        <div class='form-group'>
+            <label class='col-md-3 control-label'>名称</label>
+            <div class='col-md-9'>
+                <p class='form-control-static'>{{editing.title}}</p>
+            </div>
+        </div>
+    </div>
+</div>

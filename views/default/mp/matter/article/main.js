@@ -1,71 +1,108 @@
-xxtApp.controller('ArticleCtrl',['$scope','$location',function($scope,$location){
+xxtApp.controller('articleCtrl', ['$scope', '$location', 'http2', function ($scope, $location, http2) {
     $scope.id = $location.search().id;
-    $scope.back = function() {
+    $scope.back = function () {
         location.href = '/page/mp/matter/articles';
     };
+    http2.get('/rest/mp/matter/article?id=' + $scope.id, function (rsp) {
+        $scope.editing = rsp.data;
+        $scope.entryUrl = 'http://' + location.host + '/rest/mi/matter?mpid=' + $scope.editing.mpid + '&id=' + $scope.id + '&type=article';
+        $scope.picGalleryUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid=' + $scope.editing.mpid;
+        if (!$scope.editing.creater)
+            $scope.bodyEditable = false;
+        else
+            $scope.bodyEditable = true;
+    });
 }]).
-controller('EditCtrl',['$scope','http2',function($scope,http2){
+    controller('editCtrl', ['$rootScope', '$scope', 'http2', function ($rootScope, $scope, http2) {
     $scope.innerlinkTypes = [
-        {value:'article',title:'单图文'},
-        {value:'news',title:'多图文'},
-        {value:'channel',title:'频道'}
+        { value: 'article', title: '单图文', url: '/rest/mp/matter' },
+        { value: 'news', title: '多图文', url: '/rest/mp/matter' },
+        { value: 'channel', title: '频道', url: '/rest/mp/matter' }
     ];
-    var getInitData = function() {
-        http2.get('/rest/mp/matter/article?id='+$scope.id, function(rsp) {
-            $scope.editing = rsp.data;
-            $scope.entryUrl = 'http://'+location.host+'/rest/mi/matter?mpid='+$scope.editing.mpid+'&id='+$scope.id+'&type=article';
-            $scope.picGalleryUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid='+$scope.editing.mpid;
-            if (!$scope.editing.creater)
-                $scope.bodyEditable = false;
-            else
-                $scope.bodyEditable = true;
-        });
-        http2.get('/rest/mp/matter/tag?resType=article', function(rsp) {
+    var getInitData = function () {
+        http2.get('/rest/mp/matter/tag?resType=article', function (rsp) {
             $scope.tags = rsp.data;
         });
-        http2.get('/rest/mp/matter/channel?cascade=n', function(rsp) {
-            $scope.channels = rsp.data;
+        http2.get('/rest/mp/mpaccount/feature?fields=matter_visible_to_creater', function (rsp) {
+            $scope.features = rsp.data;
         });
     };
-    $scope.update = function(name) {
+    window.onbeforeunload = function (e) {
+        var message;
+        if ($scope.bodyModified) {
+            message = '已经修改的正文还没有保存',
+            e = e || window.event;
+            if (e) {
+                e.returnValue = message;
+            }
+            return message;
+        }
+    };
+    $scope.onBodyChange = function () {
+        $scope.bodyModified = true;
+    };
+    $scope.update = function (name) {
         var nv = {};
-        nv[name] = $scope.editing[name];
-        http2.post('/rest/mp/matter/article/update?id='+$scope.editing.id, nv);
-    };
-    $scope.setPic = function(){
-        $scope.$broadcast('picgallery.open', function(url){
-            var t=(new Date()).getTime(),url=url+'?_='+t,nv={'pic':url};
-            http2.post('/rest/mp/matter/article/update?id='+$scope.editing.id, nv, function() {
-                $scope.editing.pic = url;
-            });
-        }, false);
-    }; 
-    $scope.removePic = function(){
-        var nv = {'pic': ''};
-        http2.post('/rest/mp/matter/article/update?id='+$scope.editing.id, nv, function() {
-            $scope.editing.pic = '';
+        nv[name] = name === 'body' ? encodeURIComponent($scope.editing[name]) : $scope.editing[name];
+        http2.post('/rest/mp/matter/article/update?id=' + $scope.editing.id, nv, function () {
+            name === 'body' && ($scope.bodyModified = false);
         });
-    }; 
-    $scope.gotoCode = function() {
+    };
+    $scope.setPic = function () {
+        $scope.$broadcast('picgallery.open', function (url) {
+            url += '?_=' + (new Date()).getTime();
+            $scope.editing.pic = url;
+            $scope.update('pic');
+        }, false);
+    };
+    $scope.removePic = function () {
+        $scope.editing.pic = '';
+        $scope.update('pic');
+    };
+    $scope.delAttachment = function (index, att) {
+        $rootScope.progmsg = '删除文件';
+        http2.get('/rest/mp/matter/article/attachmentDel?id=' + att.id, function success(rsp) {
+            $scope.editing.attachments.splice(index, 1);
+            $rootScope.progmsg = null;
+        });
+    };
+    $scope.downloadUrl = function (att) {
+        return '/rest/mi/matter/articleAttachment?mpid=' + $scope.mpid + '&articleid=' + $scope.editing.id + '&attachmentid=' + att.id;
+    };
+    $scope.gotoCode = function () {
         if ($scope.editing.page_id != 0)
-            location.href = '/rest/code?pid='+$scope.editing.page_id;
+            location.href = '/rest/code?pid=' + $scope.editing.page_id;
         else {
-            http2.get('/rest/code/create', function(rsp){
-                var nv = {'page_id': rsp.data.id};
-                http2.post('/rest/mp/matter/article/update?id='+$scope.editing.id, nv, function() {
+            http2.get('/rest/code/create', function (rsp) {
+                var nv = { 'page_id': rsp.data.id };
+                http2.post('/rest/mp/matter/article/update?id=' + $scope.editing.id, nv, function () {
                     $scope.editing.page_id = rsp.data.id;
-                    location.href = '/rest/code?pid='+rsp.data.id;
+                    location.href = '/rest/code?pid=' + rsp.data.id;
                 });
             });
         }
     };
-    $scope.$on('tinymce.innerlink_dlg.open', function(event, callback){
-        $scope.$broadcast('mattersgallery.open', callback);
-    });
-    $scope.$on('tinymce.multipleimage.open', function(event, callback){
+    $scope.embedMatter = function () {
+        $scope.$broadcast('mattersgallery.open', function (matters, type) {
+            var editor, dom, i, matter, mtype, fn;
+            editor = tinymce.get('body1');
+            dom = editor.dom;
+            for (i = 0; i < matters.length; i++) {
+                matter = matters[i];
+                mtype = matter.type ? matter.type : type;
+                fn = "openMatter(" + matter.id + ",'" + mtype + "')";
+                console.log('fn', fn);
+                editor.insertContent(dom.createHTML('p', { 'class': 'matter-link' }, dom.createHTML('a', {
+                    href: '#',
+                    "onclick": fn,
+                }, dom.encode(matter.title))));
+            }
+        });
+    };
+    $scope.$on('tinymce.multipleimage.open', function (event, callback) {
         $scope.$broadcast('picgallery.open', callback, true, true);
     });
-    $scope.$on('tag.xxt.combox.done', function(event, aSelected){
+    $scope.$on('tag.xxt.combox.done', function (event, aSelected) {
         var aNewTags = [];
         for (var i in aSelected) {
             var existing = false;
@@ -77,52 +114,84 @@ controller('EditCtrl',['$scope','http2',function($scope,http2){
             }
             !existing && aNewTags.push(aSelected[i]);
         }
-        http2.post('/rest/mp/matter/article/addTag?id='+$scope.editing.id, aNewTags, function(rsp){
+        http2.post('/rest/mp/matter/article/addTag?id=' + $scope.id, aNewTags, function (rsp) {
             $scope.editing.tags = $scope.editing.tags.concat(aNewTags);
         });
     });
-    $scope.$on('tag.xxt.combox.add', function(event, newTag){
-        var oNewTag = {title:newTag};
-        http2.post('/rest/mp/matter/article/addTag?id='+$scope.editing.id, [oNewTag], function(rsp){
+    $scope.$on('tag.xxt.combox.add', function (event, newTag) {
+        var oNewTag = { title: newTag };
+        http2.post('/rest/mp/matter/article/addTag?id=' + $scope.id, [oNewTag], function (rsp) {
             $scope.editing.tags.push(oNewTag);
         });
     });
-    $scope.$on('tag.xxt.combox.del', function(event, removed){
-        http.post('/rest/mp/matter/article/removeTag?id='+$scope.editing.id, [removed], function(rsp){
+    $scope.$on('tag.xxt.combox.del', function (event, removed) {
+        http2.post('/rest/mp/matter/article/removeTag?id=' + $scope.editing.id, [removed], function (rsp) {
             $scope.editing.tags.splice($scope.editing.tags.indexOf(removed), 1);
         });
     });
-    http2.get('/rest/mp/mpaccount/feature?fields=matter_visible_to_creater', function(rsp) {
-        $scope.features = rsp.data;
-    });
     getInitData();
+    var r = new Resumable({
+        target: '/rest/mp/matter/article/upload?articleid=' + $scope.id,
+        testChunks: false,
+    });
+    r.assignBrowse(document.getElementById('addAttachment'));
+    r.on('fileAdded', function (file, event) {
+        console.log('fileAdded.');
+        $rootScope.progmsg = '开始上传文件';
+        $rootScope.$apply('progmsg');
+        r.upload();
+    });
+    r.on('progress', function (file, event) {
+        console.log('progress.');
+        $rootScope.progmsg = '正在上传文件：' + Math.floor(r.progress() * 100) + '%';
+        $rootScope.$apply('progmsg');
+    });
+    r.on('complete', function () {
+        console.log('complete.');
+        var f, lastModified, posted;
+        f = r.files.pop().file;
+        lastModified = f.lastModified ? f.lastModified : (f.lastModifiedDate ? f.lastModifiedDate.getTime() : 0);
+        posted = { name: f.name, size: f.size, type: f.type, lastModified: lastModified };
+        http2.post('/rest/mp/matter/article/attachmentAdd?id=' + $scope.id, posted, function success(rsp) {
+            $scope.editing.attachments.push(rsp.data);
+            $rootScope.progmsg = null;
+        });
+    });
 }]).
-controller('RemarkCtrl',['$scope','http2',function($scope,http2){
-    $scope.page = {current:1,size:30};
-    $scope.nickname = function(remark) {
-        if (remark.nickname && remark.nickname.length >0)
-            return remark.nickname;
-        else if (remark.email && remark.email.length > 0)
-            return remark.email.slice(0, remark.email.indexOf('@'));
-        else
-            return '未知';
+    controller('RemarkCtrl', ['$scope', 'http2', function ($scope, http2) {
+    $scope.page = { current: 1, size: 30 };
+    $scope.delRemark = function (remark, index) {
+        var ret = window.prompt('删除当前评论吗？请输入文章的标题');
+        if (ret === $scope.editing.title) {
+            http2.get('/rest/mp/matter/article/delRemark?id=' + remark.id, function (rsp) {
+                $scope.remarks.splice(index, 1);
+            });
+        }
     };
-    $scope.doSearch = function() {
-        var page = 'page='+$scope.page.current+'&size='+$scope.page.size;
-        http2.get('/rest/mp/matter/article/remarks?id='+$scope.id+'&'+page, function(rsp){
+    $scope.cleanRemark = function () {
+        var ret = window.prompt('删除当前评论吗？请输入文章的标题');
+        if (ret === $scope.editing.title) {
+            http2.get('/rest/mp/matter/article/cleanRemark?articleid=' + $scope.id, function (rsp) {
+                $scope.remarks = [];
+            });
+        }
+    };
+    $scope.doSearch = function () {
+        var page = 'page=' + $scope.page.current + '&size=' + $scope.page.size;
+        http2.get('/rest/mp/matter/article/remarks?id=' + $scope.id + '&' + page, function (rsp) {
             $scope.remarks = rsp.data[0];
-            $scope.page.total = rsp.data[1]; 
+            $scope.page.total = rsp.data[1];
         });
     };
     $scope.doSearch();
 }]).
-controller('StatCtrl',['$scope','http2',function($scope,http2){
-    http2.get('/rest/mp/matter/article/stat?id='+$scope.id, function(rsp){
+    controller('StatCtrl', ['$scope', 'http2', function ($scope, http2) {
+    http2.get('/rest/mp/matter/article/stat?id=' + $scope.id, function (rsp) {
         $scope.stat = rsp.data;
     });
 }]).
-controller('ReadCtrl',['$scope','http2',function($scope,http2){
-    http2.get('/rest/mp/matter/article/read?id='+$scope.id, function(rsp){
+    controller('ReadCtrl', ['$scope', 'http2', function ($scope, http2) {
+    http2.get('/rest/mp/matter/article/read?id=' + $scope.id, function (rsp) {
         $scope.reads = rsp.data;
     });
 }]);

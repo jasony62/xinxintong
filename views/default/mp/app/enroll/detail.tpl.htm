@@ -1,0 +1,27 @@
+<div ng-controller='enrollCtrl' ng-init="mpid='<?php echo TPL::S('mpid');?>';aid='<?php echo $_GET['aid'];?>'">
+    <nav class="navbar navbar-default">
+        <ul class="nav navbar-nav">
+            <li>
+                <a href='/page/mp/app/enroll' target='_self'>
+                    <span class='glyphicon glyphicon-chevron-left'></span>
+                </a>
+            </li>
+            <li ng-class="{'active':subView=='setting'}">
+                <a href='javascript:void(0);' ng-click="subView='setting'">活动设置</a>
+            </li>
+            <li ng-class="{'active':subView=='page'}">
+                <a href='javascript:void(0);' ng-click="subView='page'">页面设置</a>
+            </li>
+            <li ng-class="{'active':subView=='roll'}">
+                <a href='javascript:void(0);' ng-click="subView='roll'">登记汇总</a>
+            </li>
+            <li ng-class="{'active':subView=='stat'}">
+                <a href='javascript:void(0);' ng-click="subView='stat'">数据统计</a>
+            </li>
+            <li ng-show="editing.can_lottery==='Y'" ng-class="{'active':subView=='lottery'}">
+                <a href='javascript:void(0);' ng-click="subView='lottery'">活动抽奖</a>
+            </li>
+        </ul>
+    </nav>
+    <div ng-init="subView='setting'" ng-include="'/page/mp/app/enroll/'+subView"></div>
+</div>

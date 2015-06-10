@@ -1,0 +1,27 @@
+<div class='container' ng-clock ng-app='xxtApp' ng-controller='myArticleCtrl' style='padding:71px 0' ng-init="jsonParams='<?php echo urlencode(json_encode(TPL::val('params')));?>'">
+    <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
+    <div class='table'>
+        <div class='thead'>
+            <div class='tr'>
+                <div>标题</div>
+                <div>创建人</div>
+                <div>创建时间</div>
+                <div>阶段</div>
+                <div>状态</div>
+                <div>阅读</div>
+                <div>点赞</div>
+            </div>
+        </div>
+        <div class='tbody'>
+            <div class='tr' ng-repeat="a in articles" ng-click="open(a)">
+                <div ng-bind="a.title" ng-class="{'pending':a.disposer.state==='P'&&a.disposer.phase==='R'}"></div>
+                <div ng-bind="a.creater_name"></div>
+                <div ng-bind="a.create_at*1000|date:'yyyy-MM-dd HH:mm'"></div>
+                <div ng-bind="phases[a.disposer.phase]"></div>
+                <div></div>
+                <div ng-bind="a.read_num"></div>
+                <div ng-bind="a.score"></div>
+            </div>
+        </div>
+    </div>
+</div>

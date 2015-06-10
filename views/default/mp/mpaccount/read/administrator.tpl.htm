@@ -1,0 +1,10 @@
+<div ng-controller='adminCtrl' ng-init='jsonParams="<?php echo urlencode(json_encode(TPL::val('params')));?>";'>
+    <div ng-show="isAdmin">
+        <div class='col-md-4'> 
+            <div class='list-group'>
+                <div class='list-group-item' ng-repeat="a in admins" ng-bind="a.authed_id">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

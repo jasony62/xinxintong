@@ -1,0 +1,26 @@
+<div ng-app='xxt' ng-controller='wallCtrl' ng-init="mpid='<?php TPL::pt('mpid');?>';wid='<?php TPL::pt('wid');?>';joined='<?php TPL::pt('joined');?>'">
+    <div id='nickname'>
+        <p><?php TPL::pt('nickname');?>：您好</p> 
+    </div>
+    <div id='intro'>
+        <p><?php TPL::pt('entry_ele');?></p> 
+    </div>
+    <div id='actJoin'>
+        <?php $joined=TPL::val('joined'); if ($joined==='Y'){?>
+        <button class='btn btn-primary btn-lg btn-block' ng-click='unjoin()'>退出讨论</button>
+        <?php } else {?>
+        <button class='btn btn-primary btn-lg btn-block' ng-click='join()'>参加讨论</button>
+        <?php }?>
+    </div>
+    <div id='actLog'>
+        <button class='btn btn-primary btn-lg btn-block' ng-click='records()'><span class='icon'></span>聊天记录</button>
+    </div>
+    <div id='actMember'>
+        <button class='btn btn-default btn-lg btn-block' ng-click='members()'><span class='icon'></span>同组成员</button>
+    </div>
+</div>
+<?php $css=TPL::val('body_css'); if (!empty($css)) { ?>
+<style>
+    <?php echo $css;?>
+</style>
+<?php }?>

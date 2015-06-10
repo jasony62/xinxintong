@@ -1,0 +1,4 @@
+.qrcode .popover img{width:150px;height:150px}
+.modal.picgallery .modal-dialog{position:absolute;top:0;bottom:0;left:50%;margin-left:-450px}
+.modal.picgallery .modal-dialog .modal-content{height:100%}
+.modal.picgallery .modal-dialog .modal-content .modal-body{position:absolute;top:57px;bottom:0;left:0;right:0}

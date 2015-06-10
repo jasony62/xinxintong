@@ -1,6 +1,0 @@
- .subject{color:#5090C0;font-size:1.3em;height:1.5em;overflow:hidden}
- .subject.selected{background:#EEE}
- .nickname{color:#B06060;overflow:hidden;float:left}
- .datetime{color:#999;float:right;overflow:hidden}
- .subjects a,.replies a{position:relative}
- .btn.remove{position:absolute;top:2px;right:2px}

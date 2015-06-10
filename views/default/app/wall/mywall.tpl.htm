@@ -1,0 +1,20 @@
+<div ng-app='xxtApp' ng-controller='wallCtrl' ng-init="wid='<?php TPL::pt('wid');?>';openid='<?php TPL::pt('openid');?>';?>';jsonMessages='<?php echo urlencode(json_encode(TPL::val('messages')));?>'">
+    <div class='container'>
+        <div class='row'>
+            <ul class='wall'>
+                <li style="display:list-item" class='message' ng-class="(m.openid==openid)?'mine':'other'" ng-repeat='m in messages'>
+                <div class="avatar">
+                    <img ng-src="{{m.headimgurl}}">
+                </div>
+                <div class='nickname'>{{m.nickname}}</div>
+                <div class="content">{{m.data}}</div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<?php $css=TPL::val('body_css'); if (!empty($css)) { ?>
+<style>
+    <?php echo $css;?>
+</style>
+<?php }?>

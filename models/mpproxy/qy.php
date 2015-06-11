@@ -542,7 +542,7 @@ class qy_model extends mpproxy_base {
     public function menuCreate($menu)
     {
         $app = TMS_APP::M('mp\mpaccount')->byId($this->mpid, 'qy_agentid');
-        $cmd = "https://qyapi.weixin.qq.com/cgi-bin/menu/create?agentid=$app->qy_agentid&access_token=";
+        $cmd = "https://qyapi.weixin.qq.com/cgi-bin/menu/create?agentid=$app->qy_agentid";
 
         $rst = $this->httpPost($cmd, $menu);
 

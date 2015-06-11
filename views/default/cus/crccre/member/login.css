@@ -1,0 +1,3 @@
+body{padding:15px;background:#eee}
+#errmsg{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:0;left:50%;margin:0 0 0 -150px;text-align:center;transition:opacity 1s;z-index:-1}
+#errmsg.active{opacity:1;height:auto;z-index:999}

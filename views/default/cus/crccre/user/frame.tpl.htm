@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/static/css/tms.css" rel="stylesheet">
+        <title><?php TPL::pt('app_title');?></title>
+        <style type='text/css'>
+            body {background-color:#eee}
+        </style>
+    </head>
+    <body ng-app='xxtApp' ng-controller='mainCtrl' ng-keypress='keypress($event)'>
+        <notice-box err='errmsg' info='infomsg' delay='1000'></notice-box>
+        <?php $sv=TPL::val('subView'); $sv && TPL::output($sv);?>
+        <script src="/static/js/jquery.min.js"></script>
+        <script src="/static/js/bootstrap.min.js"></script>
+        <script src="/static/js/angular.min.js"></script>
+        <script src="/static/js/angular-route.min.js"></script>
+        <script src="/static/js/ui-tms.js"></script>
+        <?php
+        if ($js = TPL::val('global_js')) {
+        call_user_func_array(array($this,'global_js'), $js);
+        }
+        ?>
+        <script>
+            xxtApp=angular.module('xxtApp',['ui.tms'<?php $m = TPL::val('angular-modules');if (!empty($m)) echo ','.$m;?>])
+            .controller('mainCtrl',['$rootScope',function($rootScope){
+                $rootScope.$on('xxt.notice-box.timeout',function(event,name){
+                    if (name==='info') $rootScope.infomsg = '';
+                    else if (name==='err') $rootScope.errmsg = '';
+                });
+            }]); 
+        </script>
+        <?php
+        if ($js = TPL::val('js')) {
+        foreach ($js as $j) {
+        $j[] = true;
+        call_user_func_array(array($this,'import_js'), $j);
+        }
+        }
+        ?>
+    </body>
+</html>

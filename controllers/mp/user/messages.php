@@ -1,7 +1,9 @@
 <?php
+namespace mp\user;
+
 require_once dirname(dirname(__FILE__)).'/mp_controller.php';
 
-class messages extends mp_controller {
+class messages extends \mp\mp_controller {
 
     public function get_access_rule() 
     {
@@ -11,16 +13,23 @@ class messages extends mp_controller {
         return $rule_action;
     }
     /**
+     *
+     */
+    public function index_action()
+    {
+        $this->view_action('/mp/user/received');
+    }
+    /**
      * all messages.
      *
      * $offset
      * $size
      */
-    public function index_action($keyword='', $page=1, $size=30, $amount=null) 
+    public function get_action($keyword='', $page=1, $size=30, $amount=null) 
     {
         $q = array(
-            'l.id,l.nickname,l.create_at,l.data',
-            'xxt_mpreceive_log l', 
+            'l.id,l.openid,l.nickname,l.create_at,l.data',
+            'xxt_log_mpreceive l', 
             "l.mpid='$this->mpid' and l.type='text'"
         );
         !empty($keyword) && $q[2] .= " and data like '%$keyword%'";
@@ -33,9 +42,9 @@ class messages extends mp_controller {
                 $q[0] = 'count(*)';
                 $amount = (int)$this->model()->query_val_ss($q);
             }
-            return new ResponseData(array($messages, $amount)); 
+            return new \ResponseData(array($messages, $amount)); 
         }
 
-        return new ResponseData(array(array(),0));
+        return new \ResponseData(array(array(),0));
     }
 }

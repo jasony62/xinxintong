@@ -1,7 +1,9 @@
 <?php
+namespace mp\user;
+
 require_once dirname(dirname(__FILE__)).'/mp_controller.php';
 
-class fans extends mp_controller {
+class fans extends \mp\mp_controller {
 
     public function get_access_rule() 
     {
@@ -11,18 +13,25 @@ class fans extends mp_controller {
         return $rule_action;
     }
     /**
+     *
+     */
+    public function index_action()
+    {
+        $this->view_action('/mp/user/fans');    
+    }
+    /**
      * all fans.
      *
      * $keyword
      * $amount
      * $gid 关注用户分组
      */
-    public function index_action($keyword='', $page=1, $size=30, $amount=null, $gid=null, $authid=null, $contain='') 
+    public function get_action($keyword='', $page=1, $size=30, $amount=null, $gid=null, $authid=null, $contain='') 
     {
         $contain = explode(',', $contain);
 
         if ($authid !== null) {
-            $q[] = 'f.fid,f.src,f.openid,f.subscribe_at,f.nickname,f.sex,f.city,m.mid,m.authed_identity,m.tags,m.depts,m.email m_email,m.mobile m_mobile,m.name m_name,m.create_at,m.email_verified,m.extattr m_extattr';
+            $q[] = 'f.fid,f.openid,f.subscribe_at,f.nickname,f.sex,f.city,m.mid,m.authed_identity,m.tags,m.depts,m.email m_email,m.mobile m_mobile,m.name m_name,m.create_at,m.email_verified,m.extattr m_extattr';
             $q[] = "xxt_fans f left join xxt_member m on m.forbidden='N' and f.fid=m.fid and m.authapi_id=$authid";
             if (in_array('memberAttrs', $contain)) {
                 /**
@@ -37,7 +46,7 @@ class fans extends mp_controller {
                 //$setting->can_member_credits = $features->can_member_credits;
             }
         } else {
-            $q[] = 'f.fid,f.src,f.openid,f.subscribe_at,f.nickname,f.sex,f.city';
+            $q[] = 'f.fid,f.openid,f.subscribe_at,f.nickname,f.sex,f.city';
             $q[] = 'xxt_fans f';
         }
 
@@ -69,10 +78,10 @@ class fans extends mp_controller {
             /**
              * 返回属性设置信息
              */
-            return new ResponseData(array($fans, $amount, isset($setting)?$setting:null)); 
+            return new \ResponseData(array($fans, $amount, isset($setting)?$setting:null)); 
         }
 
-        return new ResponseData(array(array(), 0)); 
+        return new \ResponseData(array(array(), 0)); 
     }
     /**
      * get one
@@ -81,7 +90,7 @@ class fans extends mp_controller {
     {
         $fan = $this->model('user/fans')->byId($fid);
         $mm = $this->model('user/member');
-        if ($members = $mm->byFanid($this->mpid, $fid)) {
+        if ($members = $mm->byFanid($fid)) {
             foreach ($members as &$member) {
                 !empty($member->depts) && $member->depts = $mm->getDepts($member->mid, $member->depts);
                 !empty($member->tags) && $member->tags = $mm->getTags($member->mid, $member->tags);
@@ -89,31 +98,33 @@ class fans extends mp_controller {
             $fan->members = $members;
         }
 
-        return new ResponseData($fan);
+        return new \ResponseData($fan);
     }
     /**
      * get groups
      */
-    public function group_action($src=null)
+    public function group_action()
     {
         $groups = $this->model('user/fans')->getGroups($this->mpid);
 
-        return new ResponseData($groups);
+        return new \ResponseData($groups);
     }
     /**
      * 用户的交互足迹
      */
-    public function track_action($openid, $src, $page=1, $size=30)
+    public function track_action($openid, $page=1, $size=30)
     {
         $track = $this->model('log')->track($this->mpid, $openid, $page, $size);
 
-        return new ResponseData($track);    
+        return new \ResponseData($track);    
     }
     /**
      * 更新粉丝信息
      */
-    public function update_action($openid, $src) 
+    public function update_action($openid) 
     {
+        $mpa = $this->model('mp\mpaccount')->byId($this->mpid);
+
         $nv = $this->getPostJson();
         /**
          * 如果要更新粉丝的分组，需要先在公众平台上更新
@@ -122,19 +133,10 @@ class fans extends mp_controller {
             /**
              * 更新公众平台上的数据
              */
-            if ($src === 'yx')
-                $cmd = "https://api.yixin.im/cgi-bin/groups/members/update";
-            else
-                $cmd = "https://api.weixin.qq.com/cgi-bin/groups/members/update";
-            $posted = json_encode(array("openid"=>$openid,"to_groupid"=>$nv->groupid));
-            $rst = $this->postToMp($this->mpid, $src, $cmd, $posted);
-
+            $mpproxy = $this->model('mpproxy/'.$mpa->mpsrc);
+            $rst = $mpproxy->groupsMembersUpdate($openid, $nv->groupid);
             if ($rst[0] === false)
-                return new ResponseData($rst[1]);
-
-            if (isset($rst[1]->errcode) && $rst[1]->errcode != 0) {
-                return new ResponseError($rst[1]->errmsg);
-            }
+                return new \ResponseError($rst[1]);
         }
         /**
          * 更新本地数据
@@ -142,10 +144,10 @@ class fans extends mp_controller {
         $rst = $this->model()->update(
             'xxt_fans', 
             (array)$nv, 
-            "mpid='$this->mpid' and openid='$openid' and src='$src'"
+            "mpid='$this->mpid' and openid='$openid'"
         );
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      * 从公众平台同步所有粉丝的基本信息和分组信息
@@ -167,7 +169,7 @@ class fans extends mp_controller {
             $proxy = $this->model("mpproxy/$mpa->mpsrc", $this->mpid);
             $rst = $proxy->userGet($nextOpenid);
             if (false === $rst[0])
-                return new ResponseError($rst[1]);
+                return new \ResponseError($rst[1]);
 
             $total = $rst[1]->total; // 所有粉丝的数量
             $openids = $rst[1]->data->openid; // 本次获得的粉丝id数组
@@ -187,7 +189,6 @@ class fans extends mp_controller {
             $current = time();
             $ins = array(
                 'mpid' => $this->mpid,
-                'src' => $mpa->mpsrc,
                 'subscribe_at' => $current,
                 'sync_at' => $current
             );
@@ -202,7 +203,7 @@ class fans extends mp_controller {
                         'openids' => $openids
                     );
                     $_SESSION['fans_refreshAll_stack'] = $stack;
-                    return new ResponseData(array('total'=>$total,'step'=>$step,'left'=>count($openids),'finish'=>$finish,'refreshCount'=>$fansCount,'nextOpenid'=>$nextOpenid));
+                    return new \ResponseData(array('total'=>$total,'step'=>$step,'left'=>count($openids),'finish'=>$finish,'refreshCount'=>$fansCount,'nextOpenid'=>$nextOpenid));
                 }
 
                 $finish++;
@@ -219,7 +220,7 @@ class fans extends mp_controller {
                  */
                 $info = $proxy->userInfo($openid, true); 
                 if ($info[0] == false)
-                    return new ResponseError($info[1]);
+                    return new \ResponseError($info[1]);
 
                 $rfan = $info[1];
                 if ($lfan) {
@@ -228,7 +229,7 @@ class fans extends mp_controller {
                      */
                     if ($rfan->subscribe !== 0) {
                         $upd = array(
-                            'nickname' => mysql_real_escape_string($rfan->nickname),
+                            'nickname' => $this->model()->escape($rfan->nickname),
                             'sex' => $rfan->sex,
                             'city' => $rfan->city,
                             'groupid' => $rfan->groupid,
@@ -248,11 +249,11 @@ class fans extends mp_controller {
                     /**
                      * 新粉丝
                      */
-                    $ins['fid'] = $this->model('user/fans')->calcId($this->mpid, $mpa->mpsrc, $openid);
+                    $ins['fid'] = $this->model('user/fans')->calcId($this->mpid, $openid);
                     $ins['openid'] = $openid;
                     if ($info[0]) {
                         $ins['groupid'] = $rfan->groupid;
-                        $ins['nickname'] = mysql_real_escape_string($rfan->nickname);
+                        $ins['nickname'] = $this->model()->escape($rfan->nickname);
                         $ins['sex'] = $rfan->sex;
                         $ins['city'] = $rfan->city;
                         isset($rfan->subscribe_time) && $ins['subscribe_at'] = $rfan->subscribe_time;
@@ -266,24 +267,26 @@ class fans extends mp_controller {
             }
         }
 
-        return new ResponseData(array('total'=>$total,'step'=>$step,'left'=>count($openids),'finish'=>$finish,'refreshCount'=>$fansCount,'nextOpenid'=>$nextOpenid));
+        return new \ResponseData(array('total'=>$total,'step'=>$step,'left'=>count($openids),'finish'=>$finish,'refreshCount'=>$fansCount,'nextOpenid'=>$nextOpenid));
     }
     /**
      * 从公众平台同步指定粉丝的基本信息和分组信息
      *
      * todo 从公众号获得粉丝的代码是否应该挪走？
      */
-    public function refreshOne_action($openid, $src)
+    public function refreshOne_action($openid)
     {
-        if ($src === 'qy') {
+        $mpa = $this->model('mp\mpaccount')->byId($this->mpid);
+
+        if ($mpa->mpsrc === 'qy') {
             $member = $this->model('user/member')->byOpenid($this->mpid, $openid);
             if (count($member) !== 1)
                 return array(false, '数据错误');
             $member = $member[0];
 
-            $result = $this->getFanInfo($this->mpid, $src, $openid, false);
+            $result = $this->getFanInfo($this->mpid, $openid, false);
             if ($result[0] === false)
-                return new ResponseError($result[1]);
+                return new \ResponseError($result[1]);
 
             $user = $result[1];
 
@@ -291,15 +294,15 @@ class fans extends mp_controller {
 
             $fan = $this->model('user/fans')->byId($member->fid);
 
-            return new ResponseData($fan);
+            return new \ResponseData($fan);
         } else {
-            $info = $this->getFanInfo($this->mpid, $src, $openid, true); 
+            $info = $this->getFanInfo($this->mpid, $openid, true); 
             if ($info[0] && $info[1]->subscribe !== 0) {
                 /**
                  * 更新数据
                  */
                 $u = array(
-                    'nickname' => mysql_real_escape_string($info[1]->nickname),
+                    'nickname' => $this->model()->escape($info[1]->nickname),
                     'sex' => $info[1]->sex,
                     'city' => $info[1]->city,
                     'groupid' => $info[1]->groupid
@@ -311,12 +314,12 @@ class fans extends mp_controller {
                 $this->model()->update(
                     'xxt_fans', 
                     $u, 
-                    "mpid='$this->mpid' and src='$src' and openid='$openid'"
+                    "mpid='$this->mpid' and openid='$openid'"
                 );
-                return new ResponseData($info[1]);
+                return new \ResponseData($info[1]);
             }
         }
-        return new ResponseError('用户未关注公众号！');
+        return new \ResponseError('用户未关注公众号！');
     }
     /**
      * 从公众平台更新粉丝分组信息
@@ -331,17 +334,17 @@ class fans extends mp_controller {
         $proxy = $this->model("mpproxy/$mpa->mpsrc", $this->mpid);
         $rst = $proxy->groupsGet();
         if (false === $rst[0])
-            return new ResponseError($rst[1]);
+            return new \ResponseError($rst[1]);
 
         $groups = $rst[1]->groups;
 
         $this->model()->delete('xxt_fansgroup', "mpid='$this->mpid'");
         foreach ($groups as $g){
-            $i = array('id'=>$g->id,'mpid'=>$this->mpid,'src'=>$mpa->mpsrc,'name'=>$g->name);
+            $i = array('id'=>$g->id,'mpid'=>$this->mpid,'name'=>$g->name);
             $this->model()->insert('xxt_fansgroup', $i, false);
         }
 
-        return new ResponseData(count($groups));
+        return new \ResponseData(count($groups));
     }
     /**
      * 添加粉丝分组
@@ -352,29 +355,14 @@ class fans extends mp_controller {
     {
         $mpa = $this->getMpaccount();
         $group = $this->getPostJson();
-        $src = $mpa->mpsrc;
         $name = $group->name;
         /**
          * 在公众平台上添加
          */
-        if ($src === 'yx') {
-            $posted = json_encode(array('group'=>$group));
-            $cmd = 'https://api.yixin.im/cgi-bin/groups/create';
-        } else if ($src === 'wx') {
-            $group->name = urlencode($group->name);
-            $posted = urldecode(json_encode(array('group'=>$group)));
-            $cmd = 'https://api.weixin.qq.com/cgi-bin/groups/create';
-        } else 
-            return new ResponseError('无法获得公众号的来源');
-
-
-        $rst = $this->postToMp($this->mpid, $src, $cmd, $posted);
-
+        $mpproxy = $this->model('mpproxy/'.$mpa->mpsrc);
+        $rst = $mpproxy->groupsCreate($group);
         if ($rst[0] === false)
-            return new ResponseError($rst[1]);
-
-        if (isset($rst[1]->errcode))
-            return new ResponseError($rst[1]->errmsg);
+            return new \ResponseError($rst[1]);
 
         $group = $rst[1]->group;
         /**
@@ -384,7 +372,7 @@ class fans extends mp_controller {
         $group->name = $name;
         $this->model()->insert('xxt_fansgroup', (array)$group, false);
 
-        return new ResponseData($group);
+        return new \ResponseData($group);
     }
     /**
      * 更新粉丝分组的名称
@@ -395,94 +383,66 @@ class fans extends mp_controller {
     {
         $mpa = $this->getMpaccount();
         $group = $this->getPostJson();
-        $name = $group->name;
         /**
          * 更新公众平台上的数据
          */
-        if ($mpa->mpsrc === 'yx') {
-            $posted = json_encode(array('group'=>$group));
-            $cmd = "https://api.yixin.im/cgi-bin/groups/update";
-        } else if ($mpa->mpsrc === 'wx') {
-            $group->name = urlencode($group->name);
-            $posted = urldecode(json_encode(array('group'=>$group)));
-            $cmd = "https://api.weixin.qq.com/cgi-bin/groups/update";
-        } else 
-            return new ResponseError('无法获得公众号的来源');
-
-        $rst = $this->postToMp($this->mpid, $mpa->mpsrc, $cmd, $posted);
-
+        $mpproxy = $this->model('mpproxy/'.$mpa->mpsrc);
+        $rst = $mpproxy->groupsUpdate($group);
         if ($rst[0] === false)
-            return new ResponseError($rst[1]);
-
-        if (isset($rst[1]->errcode) && $rst[1]->errcode != 0)
-            return new ResponseError($rst[1]->errmsg);
+            return new \ResponseError($rst[1]);
         /**
          * 更新本地数据
          */
         $rst = $this->model()->update(
             'xxt_fansgroup', 
-            array('name'=>$name), 
+            array('name'=>$group->name), 
             "mpid='$this->mpid' and id='$group->id'"
         );
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      * 删除粉丝分组
-     *
-     * todo 标准接口中不支持
      *
      * 同时删除公众平台上的数据和本地数据
      */
     public function removeGroup_action()
     {
+        $mpa = $this->getMpaccount();
         $group = $this->getPostJson();
         /**
          * 删除公众平台数据
          */
-        if ($group->src === 'yx') {
-            $cmd = "https://api.yixin.im/cgi-bin/groups/delete";
-            $posted = json_encode(array('group'=>$group));
-        } else {
-            $group->name = urlencode($group->name);
-            $posted = urldecode(json_encode(array('group'=>$group)));
-            $cmd = "https://api.weixin.qq.com/cgi-bin/groups/delete";
-        }
-        $rst = $this->postToMp($this->mpid, $group->src, $cmd, $posted);
-
+        $mpproxy = $this->model('mpproxy/'.$mpa->mpsrc);
+        $rst = $mpproxy->groupsDelete($group);
         if ($rst[0] === false)
-            return new ResponseData($rst[1]);
-
-        if (isset($rst[1]->errcode) && $rst[1]->errcode != 0) {
-            return new ResponseError($rst[1]->errmsg);
-        }
+            return new \ResponseError($rst[1]);
         /**
          * 删除本地数据
          * todo 级联更新粉丝所属分组数据
          */
-        $rst = $this->model()->delete('xxt_fansgroup', "mpid='$this->mpid' and src='$group->src' and id='$group->id'");
+        $rst = $this->model()->delete('xxt_fansgroup', "mpid='$this->mpid' and id='$group->id'");
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      * 删除一个关注用户
      */
     public function removeOne_action($fid)
     {
-
         $mpa = $this->model('mp\mpaccount')->getApis($this->mpid);
         if ($mpa->qy_joined === 'Y') {
             $fan = $this->model('user/fans')->byId($fid, 'openid');
             $rst = $this->model('mpproxy/qy', $this->mpid)->userDelete($fan->openid);
             if ($rst[0] === false)
-                return new ResponseError($rst[1]);
+                return new \ResponseError($rst[1]);
         }
         
         $this->model()->update('xxt_member', array('forbidden'=>'Y'), "fid='$fid'");
 
         $this->model()->update('xxt_fans', array('forbidden'=>'Y'), "fid='$fid'");
 
-        return new ResponseData('success');
+        return new \ResponseData('success');
     }
     /**
      *
@@ -491,32 +451,38 @@ class fans extends mp_controller {
     {
         $fans = $this->yxfans();
         if ($fans[0]) 
-            return new ResponseData($fans[1]);
+            return new \ResponseData($fans[1]);
         else
-            return new ResponseError($fans[1]);
+            return new \ResponseError($fans[1]);
     }
     /**
      *
      */
     public function yxfansgroup_action()
     {
-        $cmd = 'https://api.yixin.im/cgi-bin/groups/get';
-        $groups = $this->getFromMp($this->mpid, 'yx', $cmd);
-        if ($groups[0]) 
-            return new ResponseData($groups[1]);
+        $mpa = $this->getMpaccount();
+
+        $mpproxy = $this->model('mpproxy/'.$mpa->mpsrc);
+        $rst = $mpproxy->groupsGet();
+
+        if ($rst[0] === false) 
+            return new \ResponseError($rst[1]);
         else
-            return new ResponseError($groups[1]);
+            return new \ResponseData($rst[1]);
     }
     /**
      *
      */
     public function wxfansgroup_action()
     {
-        $cmd = 'https://api.weixin.qq.com/cgi-bin/groups/get';
-        $groups = $this->getFromMp($this->mpid, 'wx', $cmd);
-        if ($groups[0]) 
-            return new ResponseData($groups[1]);
+        $mpa = $this->getMpaccount();
+
+        $mpproxy = $this->model('mpproxy/'.$mpa->mpsrc);
+        $rst = $mpproxy->groupsGet();
+
+        if ($rst[0] === false) 
+            return new \ResponseError($rst[1]);
         else
-            return new ResponseError($groups[1]);
+            return new \ResponseData($rst[1]);
     }
 }

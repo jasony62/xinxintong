@@ -37,7 +37,7 @@ xxtApp.controller('adminCtrl',['$scope','$modal','http2',function($scope,$modal,
     };
     $scope.$watch('jsonParams', function(nv) { 
         if (nv && nv.length) {
-            var params = JSON.parse(decodeURIComponent(nv.replace(/\+/g,'20%')));
+            var params = JSON.parse(decodeURIComponent(nv.replace(/\+/g,'%20')));
             $scope.admins = params.administrators;
         }
     });

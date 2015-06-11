@@ -1,18 +1,9 @@
 <?php
+namespace mp\user;
 /**
  * 会员卡
  */
-class card extends TMS_CONTROLLER {
-
-    private $mpid;
-
-    public function __construct()
-    {
-        if (!isset($_SESSION['mpid']) || !($mpid = $_SESSION['mpid'])) {
-            die('not get valid mpid.');
-        } 
-        $this->mpid = $mpid; 
-    }
+class card extends \mp\TMS_CONTROLLER {
     /**
      *
      */
@@ -36,19 +27,19 @@ class card extends TMS_CONTROLLER {
             $updated['badge_pic'] = $card->badge_pic;
             $updated['title_color'] = $card->title_color;
             $updated['cardno_color'] = $card->cardno_color;
-            $updated['apply_css'] = mysql_real_escape_string($card->apply_css);
-            $updated['apply_ele'] = mysql_real_escape_string($card->apply_ele);
-            $updated['apply_js'] = mysql_real_escape_string($card->apply_js);
-            $updated['show_css'] = mysql_real_escape_string($card->show_css);
-            $updated['show_ele'] = mysql_real_escape_string($card->show_ele);
-            $updated['show_js'] = mysql_real_escape_string($card->show_js);
+            $updated['apply_css'] = $this->model()->escape($card->apply_css);
+            $updated['apply_ele'] = $this->model()->escape($card->apply_ele);
+            $updated['apply_js'] = $this->model()->escape($card->apply_js);
+            $updated['show_css'] = $this->model()->escape($card->show_css);
+            $updated['show_ele'] = $this->model()->escape($card->show_ele);
+            $updated['show_js'] = $this->model()->escape($card->show_js);
             $this->model()->update('xxt_member_card', $updated, "mpid='$this->mpid'");
-            return new ResponseData('success');
+            return new \ResponseData('success');
         } else {
             $card = $this->model('user/card')->get($this->mpid);
             //todo
             $card->url = 'http://'.$_SERVER['HTTP_HOST'].'/rest/member/card?mpid='.$this->mpid;
-            return new ResponseData($card);
+            return new \ResponseData($card);
         }
     }
 }

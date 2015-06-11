@@ -1,7 +1,9 @@
 <?php
+namespace mp\matter;
+
 require_once dirname(dirname(__FILE__)).'/mp_controller.php';
 
-class text extends mp_controller {
+class text extends \mp\mp_controller {
 
     public function get_access_rule()
     {
@@ -14,10 +16,17 @@ class text extends mp_controller {
      */
     public function index_action($src=null) 
     {
+        $this->view_action('/mp/matter/texts');
+    } 
+    /**
+     *
+     */
+    public function get_action($src=null) 
+    {
         /**
          * 当前用户
          */
-        $uid = TMS_CLIENT::get_client_uid();
+        $uid = \TMS_CLIENT::get_client_uid();
         /**
          * 素材的来源 
          */
@@ -39,21 +48,21 @@ class text extends mp_controller {
 
         $q2['o'] = 'create_at desc';
         $texts = $this->model()->query_objs_ss($q, $q2);
-        return new ResponseData($texts);
+        return new \ResponseData($texts);
     }
     /** 
      * 创建文本素材
      */
     public function create_action()
     {
-        $uid = TMS_CLIENT::get_client_uid();
+        $uid = \TMS_CLIENT::get_client_uid();
         $text = $this->getPostJson(); 
 
         $d = array();
         $d['mpid'] = $this->mpid;
         $d['creater'] = $uid;
         $d['create_at'] = time();
-        $d['content'] = mysql_real_escape_string($text->content);
+        $d['content'] = $this->model()->escape($text->content);
 
         $id = $this->model()->insert('xxt_text', $d, true);
 
@@ -64,19 +73,16 @@ class text extends mp_controller {
         );
         $text = $this->model()->query_obj_ss($q);
 
-        return new ResponseData($text);
+        return new \ResponseData($text);
     }
     /**
      *
      */
     public function delete_action($id)
     {
-        if ($this->model()->delete('xxt_text', "id=$id and used=0"))
-            return new ResponseData('success');
-        else if ($this->model()->update('xxt_text', array('state'=>0),"id=$id and used=1"))
-            return new ResponseData('success');
+        $rst = $this->model()->update('xxt_text', array('state'=>0), "mpid='$this->mpid' and id=$id");
 
-        return new ResponseError('数据无法删除！');
+        return new \ResponseError($rst);
     }
     /**
      * 更新文本素材的属性
@@ -84,15 +90,15 @@ class text extends mp_controller {
     public function update_action($id) 
     {
         $nv = $this->getPostJson();
-        
+
         if (isset($nv->content))
-            $nv->content = mysql_real_escape_string($nv->content);
+            $nv->content = $this->model()->escape($nv->content);
 
         $rst = $this->model()->update('xxt_text', 
             (array)$nv,
             "mpid='$this->mpid' and id=$id"
         );
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
 }

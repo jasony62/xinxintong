@@ -45,6 +45,23 @@ class mpaccount_model extends \TMS_MODEL {
         return $mpaccount;
     }
     /**
+     * $mpid
+     */
+    public function &byMpid($mpid, $fields='*')
+    {
+        if (empty($mpid)) return false;
+        
+        $q = array(
+            $fields,
+            'xxt_mpaccount',
+            "parent_mpid='$mpid'"
+        );
+
+        $mpas = $this->query_objs_ss($q);
+
+        return $mpas;
+    }
+    /**
      * 是否为账号管理员
      */
     public function isCreater($mpid=null, $uid=null)
@@ -144,8 +161,9 @@ class mpaccount_model extends \TMS_MODEL {
     public function &getFeatures($mpid, $fields='*')
     {
         if ($fields === '*') {
-            $names = 'can_article_remark_by_fans,can_article_remark,article_remark_authapis';
-            $names .= ',body_ele,body_css,follow_ele,follow_css';
+            $names = 'mpid';
+            $names .= ',can_article_remark';
+            $names .= ',body_ele,body_css,follow_ele,follow_css,heading_pic,shift2pc_page_id';
             $names .= ',matter_visible_to_creater';
             $names .= ',admin_contact,admin_email,admin_email_pwd,admin_email_smtp,admin_email_port,admin_email_tls';
             $names .= ',can_member,can_member_card,can_member_checkin,can_member_credits';
@@ -161,32 +179,6 @@ class mpaccount_model extends \TMS_MODEL {
         $mpsetting = $this->query_obj_ss($q);
 
         return $mpsetting;
-    }
-    /**
-     * 获得定义的认证接口
-     *
-     * $mpid
-     * $valid [null|Y|N]
-     */
-    public function &getAuthapis($mpid, $valid=null)
-    {
-        $q = array(
-            '*',
-            'xxt_member_authapi',
-            "mpid='$mpid'"
-        );
-
-        if ($valid !== null)
-            $q[2] .= " and valid='$valid'";
-
-        if (!($apis = $this->query_objs_ss($q)))
-            $apis = array();
-
-        foreach ($apis as $api)
-            if (!empty($api->extattr))
-                $api->extattr = json_decode($api->extattr);
-
-        return $apis;
     }
     /**
      * 获得定义的转发接口

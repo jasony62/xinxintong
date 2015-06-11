@@ -10,23 +10,13 @@ class xxt_base extends TMS_CONTROLLER {
     {
         $user_agent = $_SERVER['HTTP_USER_AGENT'];
         if (preg_match('/yixin/i', $user_agent))
-            $src = 'yx';
+            $csrc = 'yx';
         elseif (preg_match('/MicroMessenger/i', $user_agent))
-            $src = 'wx';
+            $csrc = 'wx';
         else
-            $src = false;
+            $csrc = false;
 
-        return $src;
-    }
-    /**
-     *
-     */
-    protected function getMpaccount()
-    {
-        if (isset($_SESSION['mpaccount']))
-            return $_SESSION['mpaccount'];
-        else
-            return TMS_APP::model('mp\mpaccount')->byId($this->mpid,'name,mpid,mpsrc,asparent,parent_mpid,yx_joined,wx_joined,qy_joined');
+        return $csrc;
     }
     /**
      * 获得当前访客的ID
@@ -55,221 +45,18 @@ class xxt_base extends TMS_CONTROLLER {
         }
     }
     /**
-     * 获得与公众平台进行交互的token
-     */
-    protected function access_token($mpid, $src, $newAccessToken=false) 
-    {
-        /**
-         * 不重用之前保留的access_token
-         */
-        switch ($src) {
-        case 'yx':
-        case 'wx':
-            $whichToken = "{$src}_appid,{$src}_appsecret,{$src}_token,{$src}_token_expire_at";
-            break;
-        case 'qy':
-            $whichToken = "qy_corpid,qy_secret,qy_token,qy_token_expire_at";
-        }
-        if ($newAccessToken === false) {
-            if (isset($this->{$src.'_token'}) && time()<$this->{$src.'_token'}['expire_at']-60) {
-                /**
-                 * 在同一次请求中可以重用
-                 */
-                return array(true, $this->{$src.'_token'}['value']);
-            }
-            /**
-             * 从数据库中获取之前保留的token
-             */
-            $app = $this->model('mp\mpaccount')->byId(
-                $mpid,
-                $whichToken
-            );
-            if (!empty($app->{$src.'_token'}) && time() < (int)$app->{$src.'_token_expire_at'}-60) {
-                /**
-                 * 数据库中保存的token可用
-                 */
-                $this->{$src.'_token'} = array(
-                    'value'=>$app->{$src.'_token'},
-                    'expire_at'=>$app->{$src.'_token_expire_at'}
-                );
-                return array(true, $app->{$src.'_token'});
-            }
-        } else {
-            /**
-             * 从数据库中获取之前保留的token
-             */
-            $app = $this->model('mp\mpaccount')->byId(
-                $mpid,
-                $whichToken
-            );
-        }
-        /**
-         * 重新获取token
-         */
-        if ($src === 'yx') {
-            $url_token = "https://api.yixin.im/cgi-bin/token";
-            $url_token .= "?grant_type=client_credential"; 
-            $url_token .= "&appid=$app->yx_appid&secret=$app->yx_appsecret";
-        } else if ($src === 'wx') {
-            $url_token = "https://api.weixin.qq.com/cgi-bin/token";
-            $url_token .= "?grant_type=client_credential"; 
-            $url_token .= "&appid=$app->wx_appid&secret=$app->wx_appsecret"; 
-        } else if ($src === 'qy') {
-            $url_token = "https://qyapi.weixin.qq.com/cgi-bin/gettoken";
-            $url_token .= "?corpid=$app->qy_corpid&corpsecret=$app->qy_secret";
-        }
-        $ch = curl_init($url_token);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
-        if (false === ($response = curl_exec($ch))) {
-            $err = curl_error($ch);
-            curl_close($ch);
-            return array(false, $err);
-        }
-        curl_close($ch);
-        $token = json_decode($response);
-        if (isset($token->errcode))
-            return array(false, $token->errmsg);
-        /**
-         * 保存获得的token
-         */
-        $u["{$src}_token"] = $token->access_token;
-        if ($src === 'qy')
-            $u["{$src}_token_expire_at"] = 7200 + time();
-        else
-            $u["{$src}_token_expire_at"] = (int)$token->expires_in + time();
-
-        $this->model()->update('xxt_mpaccount', $u, "mpid='$mpid'");
-
-        $this->{$src.'_token'} = array(
-            'value'=>$u["{$src}_token"],
-            'expire_at'=>$u["{$src}_token_expire_at"]
-        );
-
-        return array(true, $token->access_token);
-    }
-    /**
-     * 从易信公众号获取信息
-     *
-     * 需要提供token的请求
-     */
-    protected function getFromMp($mpid, $src, $cmd, $params=null, $newAccessToken=false)
-    {
-        $token = $this->access_token($mpid, $src, $newAccessToken);
-        if ($token[0] === false)
-            return $token;
-
-        $url = $cmd;
-        $url .= "?access_token={$token[1]}";
-        !empty($params) && $url .= '&'.http_build_query($params);
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
-        if (false === ($response = curl_exec($ch))) {
-            $err = curl_error($ch);
-            curl_close($ch);
-            return array(false, $err);
-        }
-        curl_close($ch);
-
-        $result = json_decode($response);
-        if (isset($result->errcode)) {
-            if ($result->errcode == 40014) {
-                /**
-                 * 不合法的access_token
-                 */
-                return $this->getFromMp($mpid, $src, $cmd, $params, true);
-            }
-            if ($result->errcode !== 0)
-                return array(false, $result->errmsg."($result->errcode)");
-        }
-
-        return array(true, $result);
-    }
-    /**
-     * 提交信息到公众号平台
-     */
-    protected function postToMp($mpid, $src, $cmd, $posted, $newAccessToken=false)
-    {
-        $token = $this->access_token($mpid, $src, $newAccessToken);
-        if ($token[0] === false)
-            return $token;
-
-        $url = $cmd;
-        $url .= "?access_token=".$token[1];
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $posted);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
-        if (false === ($response = curl_exec($ch))) {
-            $err = curl_error($ch);
-            curl_close($ch);
-            return array(false, $err);
-        }
-        curl_close($ch);
-
-        $rst = json_decode($response);
-        if (isset($rst->errcode)) {
-            if ($rst->errcode == 40014) {
-                /**
-                 * 不合法的access_token
-                 */
-                return $this->postToMp($mpid, $src, $cmd, $posted, true);
-            }
-            if ($rst->errcode !== 0)
-                return array(false, $rst->errmsg."($rst->errcode)");
-        }
-
-        return array(true, $rst);
-    }
-    /**
      * 获得一个指定粉丝的信息
      */
-    protected function getFanInfo($mpid, $src, $openid, $getGroup=false)
+    protected function getFanInfo($mpid, $openid, $getGroup=false)
     {
-        if ($src === 'qy') {
-            $cmd = "https://qyapi.weixin.qq.com/cgi-bin/user/get";
-            $params = array(
-                'userid'=>$openid
-            );
-            $result = $this->getFromMp($mpid, $src, $cmd, $params);
-        } else {
-            if ($src == 'yx')
-                $cmd = 'https://api.yixin.im/cgi-bin/user/info';
-            else 
-                $cmd = 'https://api.weixin.qq.com/cgi-bin/user/info';
+        $mpa = $this->model('mp\mpaccount')->byId($mpid);
+        $mpproxy = $this->model('mpproxy/'.$mpa->mpsrc, $mpid);
 
-            $params = array('openid'=>$openid);
+        if ($mpa->mpsrc === 'qy')
+            $result = $mpproxy->userGet($openid);
+        else
+            $result = $mpproxy->userInfo($openid, $getGroup);
 
-            $result = $this->getFromMp($mpid, $src, $cmd, $params);
-
-            if ($getGroup && $result[0]) {
-                /**
-                 * 获得粉丝的分组信息
-                 */
-                if ($src == 'yx')
-                    $cmd = 'https://api.yixin.im/cgi-bin/groups/getid';
-                else 
-                    $cmd = 'https://api.weixin.qq.com/cgi-bin/groups/getid';
-                $posted = json_encode(array("openid"=>$openid));
-                $group = $this->postToMp($mpid, $src, $cmd, $posted);
-                if ($group[0]) {
-                    $gid = $group[1]->groupid;
-                    $result[1]->groupid = $group[1]->groupid;
-                }
-            }
-        }
         return $result;
     }
     /**
@@ -286,7 +73,7 @@ class xxt_base extends TMS_CONTROLLER {
         $create_at = time();
         empty($timestamp) && $timestamp = $create_at;
         $mid = md5(uniqid().$create_at); //member's id
-        $fid = $this->model('user/fans')->calcId($mpid, 'qy', $user->userid);
+        $fid = $this->model('user/fans')->calcId($mpid, $user->userid);
 
         $aMember = array();
         $aMember['mid'] = $mid;
@@ -295,7 +82,6 @@ class xxt_base extends TMS_CONTROLLER {
         $aMember['create_at'] = $create_at;
         $aMember['sync_at'] = $timestamp;
         $aMember['ooid'] = $user->userid;
-        $aMember['osrc'] = 'qy';
         $aMember['authapi_id'] = $authid;
         $aMember['authed_identity'] = $user->userid;
         $aMember['name'] = $user->name;
@@ -395,7 +181,7 @@ class xxt_base extends TMS_CONTROLLER {
         $this->model()->update(
             'xxt_member', 
             $aMember, 
-            "mpid='$mpid' and ooid='$user->userid' and osrc='qy'"
+            "mpid='$mpid' and ooid='$user->userid'"
         );
         /**
          * 成员用户对应的粉丝用户
@@ -430,61 +216,36 @@ class xxt_base extends TMS_CONTROLLER {
         return true;
     }
     /**
-     * 发送客服消息
+     * 尽最大可能向用户发送消息
      *
      * $mpid
-     * $src
      * $openid
      * $message
      */
-    public function send_to_user($mpid, $src, $openid, $message)
+    public function send_to_user($mpid, $openid, $message)
     {
-        /**
-         * get access token.
-         */
-        $token = $this->access_token($mpid, $src);
-        if ($token[0] === false)
-            return $token[1];
-        /**
-         * send message.
-         */
-        $message['touser'] = $openid; 
+        $mpa = $this->model('mp\mpaccount')->getApis($mpid);
+        $mpproxy = $this->model('mpproxy/'.$mpa->mpsrc, $mpid);
 
-        switch ($src) {
+        switch ($mpa->mpsrc) {
         case 'yx':
-            $url_send = 'https://api.yixin.im/cgi-bin/message/custom/send';
+            if ($mpa->mpsrc === 'yx' && $mpa->yx_p2p === 'Y') {
+                $rst = $mpproxy->messageSend($message, array($openid));
+            } else {
+                $rst = $mpproxy->messageCustomSend($message, $openid);
+            }
             break;
         case 'wx':
-            $url_send = 'https://api.weixin.qq.com/cgi-bin/message/custom/send';
+            $rst = $mpproxy->messageCustomSend($message, $openid);
             break;
         case 'qy':
-            $url_send = 'https://qyapi.weixin.qq.com/cgi-bin/message/send';
-            $mpa = $this->model('mp\mpaccount')->byId($mpid, 'qy_agentid');
+            $message['touser'] = $openid; 
             $message['agentid'] = $mpa->qy_agentid;
+            $rst = $mpproxy->messageSend($message, $openid);
             break;
-        default:
-            return 'invalid parameter';
         }
 
-        $url_send .= "?access_token={$token[1]}";
-
-        $sMessage = urldecode(json_encode($message)); 
-        $ch = curl_init($url_send);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $sMessage);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        $ret = json_decode($response);
-        if (isset($ret->errcode) && $ret->errcode != 0)
-            return $ret->errmsg;
-
-        return true;
+        return $rst;
     }
     /**
      * 向企业号用户发送消息
@@ -492,39 +253,13 @@ class xxt_base extends TMS_CONTROLLER {
      * $mpid
      * $message
      */
-    public function send_to_qyuser($mpid, $message)
+    public function send_to_qyuser($mpid, $message, $encoded=false)
     {
-        /**
-         * get access token.
-         */
-        $token = $this->access_token($mpid, 'qy');
-        if ($token[0] === false)
-            return $token[1];
-        /**
-         * send message.
-         */
-        $url_send = 'https://qyapi.weixin.qq.com/cgi-bin/message/send';
-        $mpa = $this->model('mp\mpaccount')->byId($mpid, 'qy_agentid');
-        $message['agentid'] = $mpa->qy_agentid;
-        $url_send .= "?access_token={$token[1]}";
+        $mpproxy = $this->model('mpproxy/qy', $mpid);
 
-        $sMessage = urldecode(json_encode($message)); 
-        $ch = curl_init($url_send);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $sMessage);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
-        $response = curl_exec($ch);
-        curl_close($ch);
+        $rst = $mpproxy->messageSend($message, $encoded);
 
-        $ret = json_decode($response);
-        if (isset($ret->errcode) && $ret->errcode != 0)
-            return $ret->errmsg;
-
-        return true;
+        return $rst;
     }
     /**
      * 通过易信点对点接口向用户发送消息
@@ -535,36 +270,11 @@ class xxt_base extends TMS_CONTROLLER {
      */
     public function send_to_yxuser_byp2p($mpid, $message, $openids) 
     {
-        is_string($openids) && $openids = array($openids);
-        /**
-         * 发送消息
-         */
-        $token = $this->access_token($mpid, 'yx');
-        if ($token[0] === false) return $token[1];
+        $mpproxy = $this->model('mpproxy/yx', $mpid);
 
-        $url_send = 'https://api.yixin.im/cgi-bin/message/send';
-        $url_send .= '?access_token='.$token[1];
+        $rst = $mpproxy->messageSend($message, $openids);
 
-        foreach ($openids as $openid) {
-            $message['touser'] = $openid;
-
-            $posted = urldecode(json_encode($message)); 
-            $ch = curl_init($url_send);
-            curl_setopt($ch, CURLOPT_HEADER, 0);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $posted);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-            curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
-            $response = curl_exec($ch);
-            curl_close($ch);
-
-            $ret = json_decode($response);
-            if ($ret->errcode != 0) $warning[] = $ret->errmsg;
-        }
-
-        return isset($warning) ? $warning : true;
+        return $rst;
     }
     /**
      * 发送给认证用户
@@ -579,7 +289,7 @@ class xxt_base extends TMS_CONTROLLER {
         /**
          * 消息内容
          */
-        $model = $this->model("matter/$matter->type"); 
+        $model = $this->model('matter\\'.$matter->type); 
         $message = $model->forCustomPush($mpaccount->mpid, $matter->id);
         /**
          * 发送给认证用户
@@ -630,8 +340,7 @@ class xxt_base extends TMS_CONTROLLER {
             /**
              * 发送消息
              */
-            if (true !== ($errmsg = $this->send_to_qyuser($mpaccount->mpid, $message)))
-                return array(false, $errmsg);
+            $this->send_to_qyuser($mpaccount->mpid, $message);
         } else if ($mpaccount->mpsrc === 'yx') {
             /**
              * 发送给开通了点对点接口的易信用户
@@ -641,8 +350,9 @@ class xxt_base extends TMS_CONTROLLER {
                 return $rst;
 
             $openids = $rst[1];
-            if (true !== ($errmsg = $this->send_to_yxuser_byp2p($this->mpid, $message, $openids)))
-                return array(false, $errmsg);
+            $rst = $this->send_to_yxuser_byp2p($this->mpid, $message, $openids);
+            if (false === $rst[0])
+                return array(false, $rst[1]);
         }
     }
     /**
@@ -711,7 +421,7 @@ class xxt_base extends TMS_CONTROLLER {
         }
 
         if (defined('SAE_MYSQL_DB')) { // sae
-            $mail = new SaeMail();
+            $mail = new \SaeMail();
             if ($mail->setOpt(array(
                 'from'=>$email,
                 'to'=>$to,
@@ -731,7 +441,7 @@ class xxt_base extends TMS_CONTROLLER {
         } else {
             require_once(dirname(dirname(__FILE__)).'/lib/mail/SmtpMail.php');
 
-            $smtp = new SmtpMail($smtp, $port, $email, $pwd);
+            $smtp = new \SmtpMail($smtp, $port, $email, $pwd);
             $smtp->send(
                 $email,
                 $to,
@@ -740,87 +450,6 @@ class xxt_base extends TMS_CONTROLLER {
             );
         }
         return true;
-    }
-    /**
-     * 获得微信JSSDK签名包
-     *
-     * $mpid
-     */
-    protected function getWxjssdkSignPackage($mpid, $url)
-    {
-        $mpa = $this->model('mp\mpaccount')->byId($mpid, 'mpsrc,wx_appid,qy_corpid');
-
-        if ($mpa->mpsrc !== 'wx' && $mpa->mpsrc !== 'qy')
-            return array(false, '当前账号不支持微信JS-SDK');
-
-        $rst = $this->getWxJsApiTicket($mpid);
-        if ($rst[0] === false)
-            return $rst;
-
-        $jsapiTicket = $rst[1];
-
-        $timestamp = time();
-        $nonceStr = $this->createNonceStr();
-        // 这里参数的顺序要按照 key 值 ASCII 码升序排序
-        $string = "jsapi_ticket=$jsapiTicket&noncestr=$nonceStr&timestamp=$timestamp&url=$url";
-        $signature = sha1($string);
-        $signPackage = array(
-            "appId" => $mpa->mpsrc==='wx' ? $mpa->wx_appid : $mpa->qy_corpid,
-            "nonceStr" => $nonceStr,
-            "timestamp" => $timestamp,
-            "url" => $url,
-            "signature" => $signature,
-            "rawString" => $string
-        );
-
-        return array(true, $signPackage); 
-    }
-    /**
-     *
-     */
-    private function createNonceStr($length = 16) 
-    {
-        $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        $str = "";
-        for ($i = 0; $i < $length; $i++)
-            $str .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
-
-        return $str;
-    }
-    /**
-     *
-     */
-    private function getWxJsApiTicket($mpid) 
-    {
-        $mpa = $this->model('mp\mpaccount')->byId($mpid, 'mpsrc,wx_jsapi_ticket,wx_jsapi_ticket_expire_at');
-
-        if (!empty($mpa->wx_jsapi_ticket) && time()<$mpa->wx_jsapi_ticket_expire_at-60)
-            return array(true, $mpa->wx_jsapi_ticket);
-
-        if ($mpa->mpsrc === 'wx') {
-            $cmd = "https://api.weixin.qq.com/cgi-bin/ticket/getticket";
-            $params = array('type'=>'jsapi');
-        } else if ($mpa->mpsrc === 'qy')
-            $cmd = "https://qyapi.weixin.qq.com/cgi-bin/get_jsapi_ticket";
-        $rst = $this->getFromMp($mpid, $mpa->mpsrc, $cmd, $params);
-
-        if ($rst[0] === false)
-            return array(false, $rst[1]);
-
-        $rst = $rst[1];
-        if ($rst->errcode !== 0)
-            return array(false, $rst->errmsg."($rst->errcode)");
-
-        $this->model()->update(
-            'xxt_mpaccount', 
-            array(
-                'wx_jsapi_ticket'=>$rst->ticket,
-                'wx_jsapi_ticket_expire_at'=>time()+$rst->expires_in
-            ),
-            "mpid='$mpid'"
-        );
-
-        return array(true, $rst->ticket);
     }
     /**
      *
@@ -862,87 +491,5 @@ class xxt_base extends TMS_CONTROLLER {
         }
 
         return $setting;
-    }
-    /**
-     * 将图片上传到公众号平台
-     *
-     * $mpsrc wx|yx
-     * $token
-     * $imageUrl
-     */
-    public function upload_pic_to_mp($mpsrc, $token, $imageUrl, $mpid=null) 
-    {
-        if (empty($token)) {
-            $token = $this->access_token($mpid, $mpsrc); 
-            if ($token[0] === false)
-                return $token;
-            $token = $token[1];
-        }
-        /**
-         * download image
-         */
-        $ch = curl_init($imageUrl);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        if (false === ($imageData = curl_exec($ch))) {
-            $err = curl_error($ch);
-            curl_close($ch);
-            return array(false, $err);
-        }
-        curl_close($ch);
-        /**
-         * 临时文件
-         */
-        //$imageUrl = urldecode($imageUrl);
-        //$imageType = explode('.', $imageUrl);
-        //$imageType = $imageType[count($imageType)-1];
-        //$imageType = preg_replace('/\?.*/', '', $imageType);
-        $tmpfname = tempnam('','');
-        //rename($tmpfname, "$tmpfname.$imageType");
-        //$handle = fopen("$tmpfname.$imageType", "w");
-        $handle = fopen($tmpfname, "w");
-        fwrite($handle, $imageData);
-        fclose($handle);
-        /**
-         * upload image
-         */
-        //$post_data['media'] = "@$tmpfname.$imageType";
-        $post_data['media'] = "@$tmpfname";
-        /**
-         * upload image
-         */
-        switch ($mpsrc) {
-        case 'wx':
-            $cmd = 'http://file.api.weixin.qq.com/cgi-bin/media/upload?access_token=';
-            break;
-        case 'yx':
-            $cmd = "https://api.yixin.im/cgi-bin/media/upload?access_token=";
-            break;
-        }
-        $url_send = $cmd.$token.'&type=image';
-
-        $ch = curl_init($url_send);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
-        if (false === ($response = curl_exec($ch))) {
-            $err = curl_error($ch);
-            curl_close($ch);
-            return array(false, $err);
-        }
-        curl_close($ch);
-
-        $rsp = json_decode($response);
-        if (isset($rsp->errcode) && $rsp->errcode != 0) {
-            return array(false, $rsp->errmsg);
-        }
-
-        $media_id = $rsp->media_id;
-
-        return array(true, $media_id);
     }
 }

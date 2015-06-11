@@ -24,34 +24,6 @@ class reply_model extends TMS_MODEL {
         return $this->query_val_ss($q);
     }
     /**
-     * 公众号是否支持根据文章编码检索
-     */
-    public function canCodesearch($mpid)
-    {
-        $q = array(
-            'keyword',
-            'xxt_text_call_reply',
-            "mpid='$mpid' and matter_type='Inner' and matter_id='7'"
-        );
-        $k = $this->query_val_ss($q);
-
-        return $k;
-    }
-    /**
-     * 公众号是否支持根据活动编码检索
-     */
-    public function canActivityCodesearch($mpid)
-    {
-        $q = array(
-            'keyword',
-            'xxt_text_call_reply',
-            "mpid='$mpid' and matter_type='Inner' and matter_id='8'"
-        );
-        $k = $this->query_val_ss($q);
-
-        return $k;
-    }
-    /**
      * 根据menu key获得响应素材
      *
      * todo 代码的逻辑有问题，如果找不到回复信息怎么办？
@@ -62,7 +34,7 @@ class reply_model extends TMS_MODEL {
     {
         $q = array(
             'matter_type,matter_id,access_control,authapis',
-            'xxt_menu_reply',
+            'xxt_call_menu',
             "mpid='$mpid' and menu_key='$key' and published='Y'"
         );
         $q2['o'] = 'version desc';
@@ -82,7 +54,7 @@ class reply_model extends TMS_MODEL {
     public function qrcode_call($mpid, $scene_id) 
     {
         $q[] = 'id,matter_type,matter_id,expire_at';
-        $q[] = 'xxt_qrcode_call_reply';
+        $q[] = 'xxt_call_qrcode';
         $q[] = "mpid='$mpid' and scene_id=$scene_id";
 
         $cr = $this->query_obj_ss($q);
@@ -102,7 +74,7 @@ class reply_model extends TMS_MODEL {
          */
         $q = array(
             'id,keyword,match_mode,matter_type,matter_id,access_control,authapis',
-            'xxt_text_call_reply',
+            'xxt_call_text',
         );
         /**
          * 如果存在父账号，优先从父账号中查找回复定义
@@ -152,7 +124,7 @@ class reply_model extends TMS_MODEL {
     {
         $p = array(
             'matter_type,matter_id',
-            'xxt_other_call_reply',
+            'xxt_call_other',
             "mpid='$mpid' and name='$name'"
         );
         if ($reply = $this->query_obj_ss($p)) {
@@ -165,9 +137,8 @@ class reply_model extends TMS_MODEL {
     }
     /**
      * 拼接URL中的参数
-     * todo 应该挪到reply_model中
      */
-    public function spliceParams($mpid, &$params, $mid=null, $src=null, $openid=null) 
+    public function spliceParams($mpid, &$params, $mid=null, $openid=null) 
     {
         $pairs = array();
         foreach ($params as $p) {
@@ -175,9 +146,6 @@ class reply_model extends TMS_MODEL {
             {
             case '{{mpid}}':
                 $v = $mpid;
-                break;
-            case '{{src}}':
-                $v = $src;
                 break;
             case '{{openid}}':
                 $v = $openid;
@@ -187,7 +155,7 @@ class reply_model extends TMS_MODEL {
                     $q = array(
                         'authed_identity',
                         'xxt_fans f,xxt_member m',
-                        "f.mpid='$mpid' and m.forbidden='N' and f.mpid=m.mpid and f.src='$src' and f.openid='$openid' and f.fid=m.fid and authapi_id=$p->authapi_id"
+                        "f.mpid='$mpid' and m.forbidden='N' and f.mpid=m.mpid and f.openid='$openid' and f.fid=m.fid and authapi_id=$p->authapi_id"
                     );
                 else
                     $q = array(
@@ -207,81 +175,5 @@ class reply_model extends TMS_MODEL {
         $spliced = implode('&', $pairs);
 
         return $spliced;
-    }
-    /**
-     * 
-     * 获得素材的访问链接
-     *
-     * $runningMpid 当前正在运行的公众号。因为素材有可能属于父账号，所以不能素材的mpid和当前正在运行的mpid不一定一直 
-     * $matter link|article|channel|news (id,type)
-     * $openid
-     * $src
-     */
-    public function getMatterUrl($runningMpid, $matter, $openid=null, $src=null) 
-    {
-        if (isset($matter->type) && lcfirst($matter->type) === 'link' && isset($matter->urlsrc)) {
-            /**
-             * link
-             */
-            switch ($matter->urlsrc) {
-            case 0: // external link
-                if ($matter->open_directly === 'Y') {
-                    $url = $matter->url;
-                    $q = array(
-                        'pname,pvalue,authapi_id',
-                        'xxt_link_param',
-                        "link_id=$matter->id"
-                    );
-                    if ($params = $this->query_objs_ss($q)) {
-                        $url .= (strpos($url, '?') === false) ? '?':'&';
-                        $url .= $this->spliceParams($runningMpid, $params, null, $src, $openid);
-                    }
-                    if (preg_match('/^(http:|https:)/', $url) === 0)
-                        $url = 'http://'.$url;
-                    return $url;
-                } else
-                    $url = "?mpid=$runningMpid&id=$matter->id&type=link";
-                break;
-            case 1: // news
-                $url = "?mpid=$runningMpid&type=news&id=".$matter->url;
-                break;
-            case 2: // channel
-                $url = "?mpid=$runningMpid&type=channel&id=".$matter->url;
-                break;
-            default:
-                die('unknown link urlsrc.');
-            }
-        } else if (isset($matter->type) && in_array(lcfirst($matter->type), array('activity','lottery','discuss'))) {
-            /**
-             * 活动
-             */
-            $url = 'http://'.$_SERVER['HTTP_HOST'];
-            switch (lcfirst($matter->type)) {
-            case 'activity':
-                $url .= "/rest/activity/enroll?mpid=$runningMpid&aid=".(empty($matter->id) ? $matter->aid : $matter->id);
-                break;
-            case 'lottery':
-                $url .= "/rest/activity/lottery?mpid=$runningMpid&lid=".(empty($matter->id) ? $matter->lid : $matter->id);
-                break;
-            case 'discuss':
-                $url .= "/rest/activity/discuss?mpid=$runningMpid&wid=".(empty($matter->id) ? $matter->wid : $matter->id);
-                break;
-            }
-            return $url;
-        } else { 
-            /**
-             * article,news,channel
-             */
-            $url = "?mpid=$runningMpid&id=$matter->id&type=";
-            $url .= isset($matter->type) ? strtolower($matter->type) : "article";
-        }
-        /**
-         * 返回素材的打开链接
-         */
-        $url = $this->baseUrl()."/rest/mi/matter".$url;
-        if (!empty($openid) && !empty($src))
-            $url .= "&openid=$openid&src=$src";
-
-        return $url;
     }
 }

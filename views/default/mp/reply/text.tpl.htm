@@ -1,4 +1,4 @@
-<div ng-controller='CallCtrl'>
+<div ng-controller='callCtrl' ng-init="mpid='<?php echo $_SESSION['mpid'];?>'">
     <div class='col-md-5'>
         <div class='list-group'>
             <a class='list-group-item'><button class='btn btn-success btn-block' ng-click='create()'>新建文本消息</button></a>
@@ -34,7 +34,7 @@
                 <a class='list-group-item' title='{{editing.matter.type|typetitle}}'>{{editing.matter.title||editing.matter.content}}</a>
             </div>
         </div>
-        <accesscontrol ng-if="editing.fromParent==='N'" obj='editing' prop-acl='acl' prop-access='access_control' prop-apis='authapis' update-access-control="update('access_control')" update-authapis="update('authapis')" change-acl-url='/rest/mp/call/text/setAcl?k={{editing.keyword}}' remove-acl-url='/rest/mp/call/text/removeAcl' label-span='3' control-span='9'></accesscontrol>
+        <accesscontrol ng-if="editing.fromParent==='N'" mpid="{{mpid}}" obj='editing' prop-acl='acl' prop-access='access_control' prop-apis='authapis' update-access-control="update('access_control')" update-authapis="update('authapis')" change-acl-url='/rest/mp/call/text/setAcl?k={{editing.keyword}}' remove-acl-url='/rest/mp/call/text/removeAcl' label-span='3' control-span='9'></accesscontrol>
     </div>
-    <mattersgallery style='display:none' single-matter='true' has-parent='<?php echo empty($_SESSION['mpaccount']->parent_mpid) ? 'false':'true'?>' matter-url='/rest/mp/matter' matter-types='matterTypes'></mattersgallery>
+    <mattersgallery style='display:none' single-matter='true' has-parent='<?php echo empty($_SESSION['mpaccount']->parent_mpid) ? 'false':'true'?>' matter-types='matterTypes'></mattersgallery>
 </div>

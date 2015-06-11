@@ -49,7 +49,7 @@ class member_base extends xxt_base {
                     $q = array(
                         'mid,fid,email_verified,authapi_id,authed_identity,depts,tags', 
                         'xxt_member', 
-                        "mpid='$mpid' and mid='$mid' and forbidden='N'"
+                        "authapi_id=$authid and mid='$mid' and forbidden='N'"
                     );
                     if ($member = $this->model()->query_obj_ss($q))
                         $members[] =  $member;
@@ -66,7 +66,6 @@ class member_base extends xxt_base {
      * $targetUrl
      * 成功后跳转回指定$targetUrl
      * 若url===false，说明不跳转，而是前端通知
-     * $fan
      *
      * 如果没有提供用户的公众号身份信息，且公众号开通OAuth认证接口，那么就通过认证接口获取openid
      * 如何知道当前用户是哪来的呢？因为OAuth必须在微信或易信的客户端中打开，所以可以通过当前的浏览器判断是从哪里来的
@@ -88,24 +87,24 @@ class member_base extends xxt_base {
      * 没有cookie就重新认真
      *
      */
-    protected function authenticate($runningMpid, $aAuthapis, $targetUrl=null, $fan=null) 
+    protected function authenticate($runningMpid, $aAuthapis, $targetUrl=null, $ooid=null) 
     {
         empty($aAuthapis) && die('aAuthapis is emtpy.');
 
-        if (!empty($fan) && !empty($fan[0])) {
+        if (!empty($ooid)) {
             /**
              * 优先根据通过OAuth获得的openid判断用户的身份
              */
-            list($ooid) = $fan;
             $authids = implode(',', $aAuthapis);
             $q = array(
                 'm.mid,m.fid,m.email_verified,m.authapi_id,m.authed_identity,m.depts,m.tags',
                 'xxt_member m,xxt_fans f',
-                "m.mpid='$runningMpid' and m.fid=f.fid and f.openid='$ooid' and m.forbidden='N' and m.authapi_id in($authids)"
+                "m.forbidden='N' and m.authapi_id in($authids) and m.fid=f.fid and f.openid='$ooid'"
             );
             $members = $this->model()->query_objs_ss($q);
-        } else
+        } else {
             $members = $this->getCookieMember($runningMpid, $aAuthapis);
+        }
         /**
          * 获得用户身份信息
          */
@@ -161,10 +160,10 @@ class member_base extends xxt_base {
      * 如果用户没有认证，跳转到认证页
      *
      */
-    protected function accessControl($runningMpid, $objId, $authapis, $fan, &$obj, $targetUrl=null)
+    protected function accessControl($runningMpid, $objId, $authapis, $openid, &$obj, $targetUrl=null)
     {
         $aAuthapis = explode(',', $authapis);
-        $members = $this->authenticate($runningMpid, $aAuthapis, $targetUrl, $fan);
+        $members = $this->authenticate($runningMpid, $aAuthapis, $targetUrl, $openid);
 
         $passed = false;
         foreach ($members as $member) {
@@ -200,6 +199,31 @@ class member_base extends xxt_base {
         return $member;
     }
     /**
+     *
+     * $mpid
+     * $code
+     * $mocker
+     */
+    protected function doAuth($mpid, $code, $mocker)
+    {
+        $openid = $this->getCookieOAuthUser($mpid);
+        if (empty($openid)) {
+            if ($code !== null) {
+                $openid = $this->getOAuthUserByCode($mpid, $code);
+            } else {
+                if (!empty($mocker)) {
+                    $openid = $mocker;
+                    $this->setCookieOAuthUser($mpid, $mocker);
+                } else {
+                    if (!$this->oauth($mpid))
+                        $openid = null;
+                }
+            }
+        }
+
+        return $openid;
+    }
+    /**
      * 执行OAuth操作
      *
      * 会在cookie保留结果5分钟
@@ -208,7 +232,7 @@ class member_base extends xxt_base {
      * $controller OAuth的回调地址
      * $state OAuth回调时携带的参数
      */
-    protected function oauth($mpid, $state=null)
+    protected function oauth($mpid)
     {
         empty($mpid) && die('mpid is emtpy, cannot execute oauth.');
         /**
@@ -220,7 +244,10 @@ class member_base extends xxt_base {
         /**
          * 如果公众号开放了OAuth接口，通过OAuth获得openid
          */
-        $ruri = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+        $httpHost = $_SERVER['HTTP_HOST'];
+        $httpHost = str_replace('www.', '', $_SERVER['HTTP_HOST']);
+        $ruri = "http://$httpHost".$_SERVER['REQUEST_URI'];
+
         $app = $this->model('mp\mpaccount')->byId($mpid, 'mpsrc');
 
         switch ($app->mpsrc) {
@@ -239,7 +266,7 @@ class member_base extends xxt_base {
             break;
         }
         if (isset($mpproxy)) {
-            $oauthUrl = $mpproxy->oauthUrl($mpid, $ruri, $state);
+            $oauthUrl = $mpproxy->oauthUrl($mpid, $ruri);
             $this->redirect($oauthUrl);
         }
 
@@ -253,33 +280,36 @@ class member_base extends xxt_base {
      */
     protected function getOAuthUserByCode($mpid, $code)
     {
-        $app = $this->model('mp\mpaccount')->byId($mpid, 'mpsrc');
-        switch ($app->mpsrc) {
-        case 'yx':
-            $who = $this->getYxOAuthUser($mpid, $code);
-            break;
-        case 'wx':
-            $who = $this->getWxOAuthUser($mpid, $code);
-            break;
-        case 'qy':
-            $who = $this->getQyOAuthUser($mpid, $code);
-            break;
-        default:
-            $who = null;
-        }
+        $csrc = $this->getClientSrc();
+        if ($csrc !== 'yx' && $csrc !== 'wx')
+            return null;
 
-        return $who;
+        if ($this->myGetcookie("_{$mpid}_oauth"))
+            return $this->getCookieOAuthUser($mpid);
+        /**
+         * 获得openid
+         */
+        $mpa = $this->model('mp\mpaccount')->byId($mpid, 'mpsrc');
+        $mpproxy = $this->model('mpproxy/'.$mpa->mpsrc, $mpid);
+        $rst = $mpproxy->getOAuthUser($code);
+        if ($rst[0] === false)
+            die('oauth2 failed:'.$rst[1]);
+        /**
+         * 将openid保存在cookie，可用于进行用户身份绑定
+         */
+        $openid = $rst[1];
+        $this->setCookieOAuthUser($mpid, $openid);
+
+        return $openid;
     }
     /**
      * 在cookie中保存OAuth用户信息
      * $mpid
      * $openid
-     * $src
      */
-    protected function setCookieOAuthUser($mpid, $openid, $src='') 
+    protected function setCookieOAuthUser($mpid, $openid) 
     {
-        $who = array($openid, $src);
-        $encoded = $this->model()->encrypt(json_encode($who), 'ENCODE', $mpid);
+        $encoded = $this->model()->encrypt($openid, 'ENCODE', $mpid);
         $this->mySetcookie("_{$mpid}_oauth", $encoded);
 
         return true;
@@ -292,193 +322,18 @@ class member_base extends xxt_base {
      */
     protected function getCookieOAuthUser($mpid)
     {
-        if ($user = $this->myGetcookie("_{$mpid}_oauth"))
-            $user = json_decode($this->model()->encrypt($user, 'DECODE', $mpid));
-        else
-            $user = array('', '');
+        if ($user = $this->myGetcookie("_{$mpid}_oauth")) {
+            $user = $this->model()->encrypt($user, 'DECODE', $mpid);
+            if (0===strpos($user,'[')) {
+                $user = json_decode($user);
+                $user = $user[0];
+                $this->setCookieOAuthUser($mpid, $user);
+            }
+        } else {
+            $user ='';
+        }
 
         return $user;
-    }
-    /**
-     * 通过OAuth获得当前用户的openid
-     */
-    protected function getWxOAuthUser($mpid, $code)
-    {
-        if ($this->myGetcookie("_{$mpid}_oauth"))
-            return $this->getCookieOAuthUser($mpid);
-        /**
-         * 获得openid
-         */
-        $app = $this->model('mp\mpaccount')->byId($mpid, "wx_appid,wx_appsecret");
-
-        $tokenUrl = "https://api.weixin.qq.com/sns/oauth2/access_token";
-        $tokenUrl .= "?appid=$app->wx_appid";
-        $tokenUrl .= "&secret=$app->wx_appsecret";
-        $tokenUrl .= "&code=$code";
-        $tokenUrl .= "&grant_type=authorization_code";
-
-        $ch = curl_init($tokenUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
-        if (false === ($response = curl_exec($ch))) {
-            $err = curl_error($ch);
-            curl_close($ch);
-            die($err);
-        }
-        curl_close($ch);
-
-        $token = json_decode($response);
-        if (isset($token->errcode))
-            die($token->errmsg);
-
-        $openid = $token->openid;
-        /**
-         * 将openid保存在cookie，可用于进行用户身份绑定
-         */
-        $who = array($openid,'wx');
-        $encoded = $this->model()->encrypt(json_encode($who), 'ENCODE', $mpid);
-        $this->mySetcookie("_{$mpid}_oauth", $encoded);
-
-        return $who;
-    }
-    /**
-     *
-     */
-    protected function getYxOAuthUser($mpid, $code)
-    {
-        if ($this->myGetcookie("_{$mpid}_oauth"))
-            return $this->getCookieOAuthUser($mpid);
-        /**
-         * 获得openid
-         */
-        $app = $this->model('mp\mpaccount')->byId($mpid, "yx_appid,yx_appsecret");
-
-        $tokenUrl = " https://api.yixin.im/sns/oauth2/access_token";
-        $tokenUrl .= "?appid=$app->yx_appid";
-        $tokenUrl .= "&secret=$app->yx_appsecret";
-        $tokenUrl .= "&code=$code";
-        $tokenUrl .= "&grant_type=authorization_code";
-
-        $ch = curl_init($tokenUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
-        if (false === ($response = curl_exec($ch))) {
-            $err = curl_error($ch);
-            curl_close($ch);
-            die($err);
-        }
-        curl_close($ch);
-
-        $token = json_decode($response);
-        if (isset($token->errcode))
-            die($token->errmsg);
-
-        $openid = $token->openid;
-        /**
-         * 将openid保存在cookie，可用于进行用户身份绑定
-         */
-        $who = array($openid,'yx');
-        $encoded = $this->model()->encrypt(json_encode($who), 'ENCODE', $mpid);
-        $this->mySetcookie("_{$mpid}_oauth", $encoded);
-
-        return $who;
-    }
-    /**
-     *
-     */
-    protected function getQyOAuthUser($mpid, $code)
-    {
-        /**
-         * 换取userid
-         */
-        $token = $this->access_token($mpid, 'qy');
-        if ($token[0] === false)
-            $this->outputError($token[1], '网页授权失败');
-
-        $app = $this->model('mp\mpaccount')->byId($mpid, "qy_agentid");
-        $tokenUrl = "https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo";
-        $tokenUrl .= "?access_token={$token[1]}";
-        $tokenUrl .= "&code=$code";
-        $tokenUrl .= "&agentid=$app->qy_agentid";
-
-        $ch = curl_init($tokenUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
-        if (false === ($response = curl_exec($ch))) {
-            $err = curl_error($ch);
-            curl_close($ch);
-            $this->outputError($err, '网页授权失败');
-        }
-        curl_close($ch);
-
-        $token = json_decode($response);
-        if (isset($token->errcode))
-            $this->outputError($token->errmsg, '网页授权失败');
-
-        $openid = $token->UserId;
-        /**
-         * 将openid保存在cookie，可用于进行用户身份绑定
-         */
-        $who = array($openid, 'qy');
-        $encoded = $this->model()->encrypt(json_encode($who), 'ENCODE', $mpid);
-        $this->mySetcookie("_{$mpid}_oauth", $encoded);
-
-        return $who;
-    }
-    /**
-     * 判断发起呼叫的用户是否为认证用户，如果是则返回用户的身份信息
-     *
-     * 一个粉丝用户可能有多个认证用户身份
-     * 所以要知道是哪个通过认证接口认证的用户身份
-     * 如果是企业号的用户可能就不再需要进行认证，因此有可能不指定authapis
-     *
-     * $mpid
-     * $src
-     * $openid
-     * $authapis
-     *
-     */ 
-    protected function getUserMembers($mpid, $src, $openid, $authapis) 
-    {
-        $q = array(
-            'm.mid,m.email_verified,m.authapi_id,m.authed_identity,m.depts,m.tags',
-            'xxt_member m,xxt_fans f',
-            "f.mpid='$mpid' and m.forbidden='N' and f.src='$src' and f.openid='$openid' and f.fid=m.fid"
-        );
-        !empty($authapis) && $q[2] .= " and authapi_id in ($authapis)";
-
-        $mids = $this->model()->query_objs_ss($q);
-
-        return $mids;
-    }
-    /**
-     * 提示用户进行身份认证
-     *
-     * $call 客户端发起的请求
-     * 由于请求是由客户端直接发起的，因此其中的openid和用户直接关联，是可以信赖的信息
-     *
-     */
-    protected function auth_reply($call, $authapis) 
-    {
-        $aAuthapis = explode(',', $authapis);
-        $tip = array();
-        foreach ($aAuthapis as $authid) {
-            $tip[] = $this->model('user/authapi')->getEntryStatement(
-                $authid,
-                $call['mpid'],
-                $call['src'],
-                $call['from_user']
-            );
-        }
-        $tip = implode("\n", $tip);
-        $tr = new TextReply($call, $tip, false);
-        $tr->exec();
     }
     /**
      *
@@ -486,12 +341,11 @@ class member_base extends xxt_base {
      *
      * $runningMpid
      * $ooid
-     * $osrc
      *
      */
-    protected function askFollow($runningMpid, $ooid, $osrc)
+    protected function askFollow($runningMpid, $ooid)
     {
-        $isfollow = $this->model('user/fans')->isFollow($runningMpid, $ooid, $osrc);
+        $isfollow = $this->model('user/fans')->isFollow($runningMpid, $ooid);
 
         if (!$isfollow) {
             $fea = $this->model('mp\mpaccount')->getFeatures($runningMpid);
@@ -518,22 +372,15 @@ class member_base extends xxt_base {
      */
     public function wxjssdksignpackage_action($mpid, $url)
     {
-        $rst = $this->getWxjssdkSignPackage($mpid, urldecode($url));
-        if ($rst[0] === false) {
-            header('Content-Type: text/javascript');
-            die("alert('{$rst[1]}');");
-        }
+        $mpa = $this->model('mp\mpaccount')->byId($mpid);
+        $mpproxy = $this->model('mpproxy/'.$mpa->mpsrc, $mpid);
 
-        $signPackage = $rst[1];
-
-        $js = "signPackage={appId:'{$signPackage['appId']}'";
-        $js .= ",nonceStr:'{$signPackage['nonceStr']}'";
-        $js .= ",timestamp:'{$signPackage['timestamp']}'";
-        $js .= ",url:'{$signPackage['url']}'";
-        $js .= ",signature:'{$signPackage['signature']}'}";
-        //$js .= ",rawString:'{$signPackage['rawString']}'};";
+        $rst = $mpproxy->getJssdkSignPackage(urldecode($url));
 
         header('Content-Type: text/javascript');
-        die($js);
+        if ($rst[0] === false)
+            die("alert('{$rst[1]}');");
+
+        die($rst[1]);
     }
 }

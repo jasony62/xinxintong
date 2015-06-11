@@ -4,7 +4,7 @@
             <div class='form-group'>
                 <label class='col-md-2 control-label'>账号名称</label>
                 <div class='col-md-10'>
-                    <p class='form-control'>{{mpa.name}}</p>
+                    <p class='form-control' ng-bind="mpa.name"></p>
                 </div>
             </div>
         </div>
@@ -14,28 +14,28 @@
             <div class='form-group'>
                 <label class='col-md-2 control-label'>账号标识</label>
                 <div class='col-md-10'>
-                    <p class='form-control'>{{mpa.mpid}}</p>
+                    <p class='form-control' ng-bind="mpa.mpid"></p>
                 </div>
             </div>
             <div class='form-group'>
                 <label class='col-md-2 control-label'>账号名称</label>
                 <div class='col-md-10'>
-                    <p class='form-control'>{{mpa.name}}</p>
+                    <p class='form-control' ng-bind="mpa.name"></p>
                 </div>
             </div>
             <div class='form-group' ng-show='mpa.parent_mpid'>
                 <label class='col-md-2 control-label'>父账号名称</label>
                 <div class='col-md-10'>
-                    <p class='form-control'>{{mpa.parentname}}</p>
+                    <p class='form-control' ng-bind="mpa.parentname"></p>
                 </div>
             </div>
             <div class='form-group'>
                 <label class='col-md-2 control-label'>Token</label>
                 <div class='col-md-10'>
-                    <p class='form-control'>{{mpa.token}}</p>
+                    <p class='form-control' ng-bind="mpa.token"></p>
                 </div>
             </div>
         </div>
     </div>
-    <div ng-include="'/page/mp/mpaccount/read/'+mpa.mpsrc+'setting'"></div>
+    <div ng-include="'/page/mp/mpaccount/read/'+mpa.mpsrc+'setting'" ng-if='mpa.mpsrc'></div>
 </div>

@@ -1,15 +1,15 @@
-xxtApp.controller('linkCtrl',['$scope','$http','$location',function($scope,$http,$location){
+xxtApp.controller('linkCtrl',['$scope','http2','$location',function($scope,http2,$location){
     $scope.id = $location.search().id;
     $scope.back = function() {
         window.location.href = '/page/mp/matter/links';
     };
 }])
-.controller('editCtrl',['$scope','$http','$location',function($scope,$http,$location){
-    $scope.mpid = $location.search().mpid;
+.controller('editCtrl',['$scope','http2',function($scope,http2){
     $scope.urlsrcs = {
         '0':'外部链接',
         '1':'多图文',
         '2':'频道',
+        '3':'内置回复',
     };
     $scope.linkparams = {
         '{{openid}}':'用户标识(openid)',
@@ -18,22 +18,11 @@ xxtApp.controller('linkCtrl',['$scope','$http','$location',function($scope,$http
         '{{authed_identity}}':'用户绑定ID',
     };
     var getInitData = function() {
-        $http.get('/rest/mp/matter/link?id='+$scope.id).
-        success(function(rsp) {
+        http2.get('/rest/mp/mpaccount/feature?fields=matter_visible_to_creater', function(rsp) {
+            $scope.features = rsp.data;
+        });
+        http2.get('/rest/mp/matter/link?id='+$scope.id, function(rsp) {
             editLink(rsp.data);
-            $scope.picGalleryUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid='+rsp.data.mpid;
-        });
-        $http.get('/rest/mp/mpaccount/authapis').
-        success(function(rsp) {
-            $scope.authapis = rsp.data;
-        });
-        $http.get('/rest/mp/matter/news?cascade=n').
-        success(function(rsp) {
-            $scope.news = rsp.data;
-        });
-        $http.get('/rest/mp/matter/channel?cascade=n').
-        success(function(rsp) {
-            $scope.channels = rsp.data;
         });
     };
     var editLink = function(link) {
@@ -43,11 +32,6 @@ xxtApp.controller('linkCtrl',['$scope','$http','$location',function($scope,$http
                 p = link.params[i];
                 p.customValue = $scope.linkparams[p.pvalue] ? false : true;
             }
-        }
-        $scope.editingAuthapis = angular.copy($scope.authapis);
-        if (link.authapis) {
-            for (var i in $scope.editingAuthapis)
-                $scope.editingAuthapis[i].checked = link.authapis.indexOf($scope.editingAuthapis[i].authid) !== -1 ? 'Y':'N';
         }
         $scope.editing = link;
         $scope.persisted = angular.copy(link);
@@ -79,42 +63,28 @@ xxtApp.controller('linkCtrl',['$scope','$http','$location',function($scope,$http
                     }
                 }
                 nv.authapis = '';
-            } else if ($scope.authapis.length===1 && n==='access_control')
-                nv.authapis = nv[n] === 'Y' ? $scope.authapis[0].authid : '';
-            $http.post('/rest/mp/matter/link/update?id='+$scope.editing.id, nv).
-            success(function(rsp){
+            }
+            http2.post('/rest/mp/matter/link/update?id='+$scope.editing.id, nv, function(rsp){
                 $scope.persisted = angular.copy($scope.editing);
             });
         }
     };
-    $scope.updateAuthapi = function(api) {
-        var eapis = $scope.editing.authapis,p={};
-        api.checked === 'Y' ? eapis.push(api.authid) : eapis.splice(eapis.indexOf(api.authid),1);
-        p.authapis = eapis.join();
-        $http.post('/rest/mp/matter/link/update?id='+$scope.editing.id, p).
-        success(function() {});
-    };
-
     $scope.setPic = function(){
         $scope.$broadcast('picgallery.open', function(url){
-            var t=(new Date()).getTime(),url=url+'?_='+t,nv={pic:url};
-            $http.post('/rest/mp/matter/link/update?id='+$scope.editing.id, nv).
-            success(function() {
-                $scope.editing.pic = url;
-            });
+            var t=(new Date()).getTime();
+            url += '?_='+t;
+            $scope.editing.pic = url;
+            $scope.update('pic');
         }, false);
     }; 
     $scope.removePic = function(){
-        var nv = {pic:''};
-        $http.post('/rest/mp/matter/link/update?id='+$scope.editing.id, nv).
-        success(function() {
-            $scope.editing.pic = '';
-        });
+        $scope.editing.pic = '';
+        $scope.update('pic');
     };
     $scope.addParam = function() {
-        $http.post('/rest/mp/matter/link/addParam?linkid='+$scope.editing.id).
-        success(function(rsp) {
+        http2.get('/rest/mp/matter/link/addParam?linkid='+$scope.editing.id, function(rsp) {
             var oNewParam = {id:rsp.data, pname:'newparam', pvalue:''};
+            if ($scope.editing.urlsrc === '3' && $scope.editing.url === '9') oNewParam.pname = 'channelid';
             $scope.editing.params.push(oNewParam);
         });
     };
@@ -128,14 +98,13 @@ xxtApp.controller('linkCtrl',['$scope','$http','$location',function($scope,$http
         // 参数中有额外定义，需清除
         var p = {
             pname:updated.pname,
-            pvalue:updated.pvalue,
+            pvalue:encodeURIComponent(updated.pvalue),
             authapi_id:updated.authapi_id
         };
-        $http.post('/rest/mp/matter/link/updateParam?id='+updated.id, p);
+        http2.post('/rest/mp/matter/link/updateParam?id='+updated.id, p);
     };
     $scope.removeParam = function(removed) {
-        $http.post('/rest/mp/matter/link/removeParam?id='+removed.id).
-        success(function(rsp) {
+        http2.get('/rest/mp/matter/link/removeParam?id='+removed.id, function(rsp) {
             var i = $scope.editing.params.indexOf(removed);
             $scope.editing.params.splice(i, 1);
         });
@@ -143,9 +112,40 @@ xxtApp.controller('linkCtrl',['$scope','$http','$location',function($scope,$http
     $scope.changePValueMode = function(p) {
         p.pvalue = '';
     };
-    $http.get('/rest/mp/mpaccount/feature?fields=matter_visible_to_creater').
-    success(function(rsp) {
-        $scope.features = rsp.data;
+    $scope.$watch('mpid', function(nv){
+        if (nv && nv.length) {
+            getInitData();
+            $scope.picGalleryUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid='+nv;
+        }
     });
-    getInitData();
+    $scope.$watch('editing.urlsrc', function(nv){
+        switch (nv) {
+            case '1':
+            if ($scope.news === undefined) {
+                http2.get('/rest/mp/matter/news?cascade=n', function(rsp) {
+                    $scope.news = rsp.data;
+                });
+            }
+            break;
+            case '2':
+            if ($scope.channels === undefined) {
+                http2.get('/rest/mp/matter/channel?cascade=n', function(rsp) {
+                    $scope.channels = rsp.data;
+                });
+            }
+            break;
+            case '3':
+            if ($scope.inners === undefined) {
+                http2.get('/rest/mp/matter/inner', function(rsp) {
+                    $scope.inners = rsp.data;
+                });
+            }
+            if ($scope.channels === undefined) {
+                http2.get('/rest/mp/matter/channel?cascade=n', function(rsp) {
+                    $scope.channels = rsp.data;
+                });
+            }
+            break;
+        }
+    });
 }]);

@@ -13,7 +13,7 @@
         ?>
         <title><?php echo empty($_SESSION['mpaccount']) ? APP_TITLE : $_SESSION['mpaccount']->name;?></title>
     </head>
-    <body style='padding-top:71px;' ng-app='xxt' ng-controller='mpCtrl'>
+    <body style='padding:71px 0;' ng-app='xxt' ng-controller='mpCtrl'>
         <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
         <nav class='navbar navbar-inverse navbar-fixed-top'>
         <ul class='nav navbar-nav'>
@@ -34,6 +34,11 @@
                 </div>
             </div>
         </div>
+        <div id='float-toolbar' ng-if='floatToolbar'>
+            <a class='btn btn-default action' title='放入展示架' matter-shop ng-click='openShop()' ng-if='floatToolbar.matterShop'>
+                <span class='glyphicon glyphicon-share'></span>
+            </a>
+        </div>
         <script src="/static/js/jquery.min.js"></script>
         <script src="/static/js/jquery-ui.min.js"></script>
         <script src="/static/js/bootstrap.min.js"></script>
@@ -48,17 +53,9 @@
         }
         ?>
         <script>
-            xxtApp=angular.module('xxt',['ui.tms'<?php $m = TPL::val('angular-modules');if (!empty($m)) echo ','.$m;?>])
-            .config(['$locationProvider','$controllerProvider',function($locationProvider,$controllerProvider) {
-                $locationProvider.html5Mode(true);
-                xxtApp.register = {controller: $controllerProvider.register};
-            }])
-            .controller('mpCtrl',['$rootScope',function($rootScope){
-                $rootScope.$on('xxt.notice-box.timeout',function(event,name){
-                    $rootScope.infomsg = $rootScope.errmsg = $rootScope.progmsg = '';
-                });
-            }]); 
+            xxtApp=angular.module('xxt',['ui.tms','ui.bootstrap'<?php $m = TPL::val('angular-modules');if (!empty($m)) echo ','.$m;?>]); 
         </script>
+        <script src="/views/default/mp/frame.js"></script>
         <?php
         if ($js = TPL::val('js')) {
         foreach ($js as $j) {

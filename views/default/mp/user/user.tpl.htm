@@ -40,10 +40,10 @@
                         <p class="form-control-static">{{user.province}}{{user.city}}</p>
                     </div>
                 </div>
-                <div class="form-group" style='margin-bottom:0' ng-if="user.src!='qy'">
+                <div class="form-group" style='margin-bottom:0'>
                     <label class="col-md-2 control-label">粉丝分组</label>
                     <div class="col-md-10">
-                        <select class='form-control' ng-model='user.groupid' ng-options='g.id as g.name group by SrcMap[g.src] for g in groups' ng-change="update('groupid')"></select>
+                        <select class='form-control' ng-model='user.groupid' ng-options='g.id as g.name for g in groups' ng-change="update('groupid')"></select>
                     </div>
                 </div>
             </div>

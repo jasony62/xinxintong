@@ -1,25 +1,37 @@
 <?php
+namespace mp\matter;
+
 require_once dirname(__FILE__).'/matter_ctrl.php';
 
 class channel extends matter_ctrl {
     /**
      *
+     */
+    public function index_action($src=null, $acceptType=null, $cascade='y') 
+    {
+        return $this->get_action($src, $acceptType, $cascade);
+    }
+    /**
+     *
      * $src 是否从父账号获取资源
+     * $acceptType
      * $cascade 是否获得频道内的素材和访问控制列表
      */
-    public function index_action($src=null, $cascade='y') 
+    public function get_action($src=null, $acceptType=null, $cascade='y') 
     {
-        $uid = TMS_CLIENT::get_client_uid();
+        $uid = \TMS_CLIENT::get_client_uid();
         /**
          * 素材的来源
          */
         $mpid = (!empty($src) && $src==='p') ? $this->getParentMpid() : $this->mpid;
 
         $q = array(
-            "*,a.nickname creater_name,'$uid' uid",
+            "c.*,a.nickname creater_name,'$uid' uid",
             'xxt_channel c,account a', 
             "c.mpid='$mpid' and c.state=1 and c.creater=a.uid"
         );
+        if (!empty($acceptType))
+            $q[2] .= " and (matter_type='' or matter_type='$acceptType')";
         /**
          * 仅限作者和管理员？
          */
@@ -39,22 +51,23 @@ class channel extends matter_ctrl {
                 /**
                  * matters
                  */
-                $c->matters = $this->model('matter/channel')->getMatters($c->id, $c);
+                $c->matters = $this->model('matter\channel')->getMatters($c->id, $c);
                 /**
                  * acl
                  */
-                $c->acl = $this->model('acl')->matter($mpid, 'C', $c->id);
+                $c->acl = $this->model('acl')->byMatter($mpid, 'channel', $c->id);
             }
         }
 
-        return new ResponseData($channels);
+        return new \ResponseData($channels);
     }
     /**
      * 获得频道的子资源
+     * 如果频道是父账号的频道,只应该列出父账号和当前账号的素材
      */
     public function cascade_action($id) 
     {
-        $model = $this->model('matter/channel');
+        $model = $this->model('matter\channel');
         /**
          *
          */
@@ -62,20 +75,20 @@ class channel extends matter_ctrl {
         /**
          * matters
          */
-        $c['matters'] = $model->getMatters($id, $channel);
+        $c['matters'] = $model->getMatters($id, $channel, $this->mpid);
         /**
          * acl
          */
-        $c['acl'] = $this->model('acl')->matter($channel->mpid, 'C', $id);
+        $c['acl'] = $this->model('acl')->byMatter($channel->mpid, 'channel', $id);
 
-        return new ResponseData($c);
+        return new \ResponseData($c);
     }
     /**
      * 创建一个平道素材
      */
     public function create_action()
     {
-        $uid = TMS_CLIENT::get_client_uid();
+        $uid = \TMS_CLIENT::get_client_uid();
 
         $d = (array)$this->getPostJson();
 
@@ -91,7 +104,7 @@ class channel extends matter_ctrl {
         );
         $channel = $this->model()->query_obj_ss($q);
 
-        return new ResponseData($channel);
+        return new \ResponseData($channel);
     }
     /**
      * 更新频道的属性信息
@@ -108,7 +121,7 @@ class channel extends matter_ctrl {
             "mpid='$this->mpid' and id=$id"
         );
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      *
@@ -127,7 +140,7 @@ class channel extends matter_ctrl {
         if ($pos === 'top') {
             $this->model()->update('xxt_channel', 
                 array(
-                    'top_type'=>empty($matter->t) ? $matter->t : ucfirst($matter->t), 
+                    'top_type'=>$matter->t,
                     'top_id'=>$matter->id
                 ),
                 "mpid='$this->mpid' and id=$id"
@@ -135,60 +148,68 @@ class channel extends matter_ctrl {
         } else if ($pos === 'bottom') {
             $this->model()->update('xxt_channel', 
                 array(
-                    'bottom_type'=>empty($matter->t) ? $matter->t : ucfirst($matter->t), 
+                    'bottom_type'=>$matter->t, 
                     'bottom_id'=>$matter->id
                 ),
                 "mpid='$this->mpid' and id=$id"
             );
         }
 
-        $matters = $this->model('matter/channel')->getMatters($id);
+        $matters = $this->model('matter\channel')->getMatters($id);
 
-        return new ResponseData($matters);
+        return new \ResponseData($matters);
     }
     /**
-     * 删除频道中的图文
      *
-     * 需要重新获得频道中的图文
      */
-    public function removematter_action($id)
+    public function addMatter_action() 
     {
-        $removed = $this->getPostJson();
+        $relations = $this->getPostJson();
 
-        $model = $this->model('matter/channel');
+        $creater = \TMS_CLIENT::get_client_uid();
+        $createrName = \TMS_CLIENT::account()->nickname;
 
-        $model->removeMatter($id, $removed);
+        $channels = $relations->channels;
+        $matter = $relations->matter;
 
-        $matters = $model->getMatters($id);
+        $model = $this->model('matter\channel');
+        foreach ($channels as $channel)
+            $model->addMatter($channel->id, $matter, $creater, $createrName);
 
-        return new ResponseData($matters);
+        return new \ResponseData('success');
+    }
+    /**
+     *
+     */
+    public function removeMatter_action($id, $reload='N') 
+    {
+        $matter = $this->getPostJson();
+
+        $model = $this->model('matter\channel');
+
+        $rst = $model->removeMatter($id, $matter);
+
+        if ($reload === 'Y') {
+            $matters = $model->getMatters($id);
+            return new \ResponseData($matters);
+        } else {
+            return new \ResponseData($rst);
+        }
     }
     /**
      * 删除频道
      */
     public function delete_action($id)
     {
-        if ($this->model()->delete('xxt_channel', "id=$id and used=0")){
-            /**
-             * 删除数据
-             */
-            $this->model()->delete('xxt_article_channel', "channel_id=$id");
-            $this->model()->delete('xxt_link_channel', "channel_id=$id");
-            $this->model()->delete('xxt_matter_acl',"mpid='$this->mpid' and matter_type='C' and matter_id=$id");
-            return new ResponseData('success');
-        } else if ($this->model()->update('xxt_channel', array('state'=>0),"id=$id and used=1")){
-            /**
-             * 将数据标记为删除
-             */
-            return new ResponseData('success');
-        }
-        return new ResponseError('数据无法删除！');
+        $rst = $this->model()->update('xxt_channel', array('state'=>0), "mpid='$this->mpid' and id=$id");
+
+        return new \ResponseData($rst);
     }
     /**
      *
      */
-    protected function getAclMatterType()
+    protected function getMatterType()
     {
-        return 'C';
+        return 'channel';
     }
 }

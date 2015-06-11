@@ -84,7 +84,6 @@ class member_model extends TMS_MODEL {
      * 只返回有效的认证身份，如果认证身份被禁用了，不返回
      *
      * $openid
-     * $src
      * $fields
      * $authapi
      */
@@ -107,12 +106,12 @@ class member_model extends TMS_MODEL {
     /**
      * 返回关注用户的认证用户信息
      */
-    public function &byFanid($mpid, $fid, $fields='*', $authapi=null)
+    public function &byFanid($fid, $fields='*', $authapi=null)
     {
         $q = array(
             $fields,
             'xxt_member m',
-            "m.mpid='$mpid' and m.fid='$fid' and m.forbidden='N' and exists(select 1 from xxt_member_authapi a where m.authapi_id=a.authid and a.valid='Y')"
+            "m.fid='$fid' and m.forbidden='N' and exists(select 1 from xxt_member_authapi a where m.authapi_id=a.authid and a.valid='Y')"
         );
         if (empty($authapi))
             $member = $this->query_objs_ss($q);
@@ -187,9 +186,9 @@ class member_model extends TMS_MODEL {
      */
     public function rejectAuth($member, $attrs) 
     {
-        empty($member->mpid) && die('mpid is empty.');
+        //empty($member->mpid) && die('mpid is empty.');
 
-        $mpid = $member->mpid;
+        //$mpid = $member->mpid;
         if (isset($member->mobile) && (int)$attrs->attr_mobile[2] === 1) {
             /**
              * 检查手机号的唯一性
@@ -198,7 +197,7 @@ class member_model extends TMS_MODEL {
             $q = array(
                 '1', 
                 'xxt_member', 
-                "mpid='$mpid' and forbidden='N' and mobile='$mobile'"
+                "authapi_id=$member->authapi_id and forbidden='N' and mobile='$mobile'"
             );
             if (1 === (int)$this->query_val_ss($q))
                 return '手机号已经认证，不允许重复认证！';
@@ -211,7 +210,7 @@ class member_model extends TMS_MODEL {
             $q = array(
                 '1', 
                 'xxt_member', 
-                "mpid='$mpid' and forbidden='N' and email='$email'"
+                "authapi_id=$member->authapi_id and forbidden='N' and email='$email'"
             );
             if (1 === (int)$this->query_val_ss($q))
                 return '邮箱已经认证，不允许重复认证！';
@@ -230,9 +229,9 @@ class member_model extends TMS_MODEL {
      */
     public function findMember($member, $attrs) 
     {
-        empty($member->mpid) && die('mpid is empty.');
+        //empty($member->mpid) && die('mpid is empty.');
 
-        $mpid = $member->mpid;
+        //$mpid = $member->mpid;
         if (isset($member->mobile) && $attrs->attr_mobile[5] === '1') {
             /**
              * 手机号唯一
@@ -248,7 +247,7 @@ class member_model extends TMS_MODEL {
             $q = array(
                 'mid,password,password_salt', 
                 'xxt_member', 
-                "mpid='$mpid' and fid!='' and forbidden='N' and authed_identity='$identity'"
+                "authapi_id=$member->authapi_id and fid!='' and forbidden='N' and authed_identity='$identity'"
             );
             $found = $this->query_obj_ss($q);
             if (!empty($found)) {

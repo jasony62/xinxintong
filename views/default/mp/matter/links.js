@@ -10,10 +10,11 @@ xxtApp.controller('linkCtrl',['$scope','http2',function($scope,http2){
     $scope.remove = function(event,link) {
         event.preventDefault();
         event.stopPropagation();
-        http2.get('/rest/mp/matter/link/remove?id='+link.id, function(rsp){
-            var i = $scope.links.indexOf(link);
-            $scope.links.splice(i,1);
-        });
+        if (confirm('确认删除？'))
+            http2.get('/rest/mp/matter/link/remove?id='+link.id, function(rsp){
+                var i = $scope.links.indexOf(link);
+                $scope.links.splice(i,1);
+            });
     };
     $scope.doSearch = function() {
         var url = '/rest/mp/matter/link?cascade=n';

@@ -34,7 +34,7 @@ xxtApp.controller('tagCtrl',['$rootScope','$scope','http2',function($rootScope,$
             removeEditing();
     };
     $scope.doSearch = function() {
-        var url = '/rest/mp/user/tag';
+        var url = '/rest/mp/user/tag/get';
         url += '?authid='+$scope.selectedAuthapi.authid;
         http2.get(url, function(rsp){
             $scope.tags = rsp.data;
@@ -45,7 +45,7 @@ xxtApp.controller('tagCtrl',['$rootScope','$scope','http2',function($rootScope,$
     };
     $scope.searchMembers = function() {
         var url;
-        url = '/rest/mp/user/member?authid='+$scope.selectedAuthapi.authid;
+        url = '/rest/mp/user/member/get?authid='+$scope.selectedAuthapi.authid;
         url += '&tag='+$scope.editing.id;
         url += '&page='+$scope.page.at+'&size='+$scope.page.size
         url += '&contain=total';
@@ -54,7 +54,7 @@ xxtApp.controller('tagCtrl',['$rootScope','$scope','http2',function($rootScope,$
             rsp.data[1] !== undefined && ($scope.page.total = rsp.data[1]);
         });
     };
-    http2.get('/rest/mp/mpaccount/authapis?valid=Y', function(rsp){
+    http2.get('/rest/mp/authapi/get?valid=Y', function(rsp){
         $scope.authapis = rsp.data;
         $scope.selectedAuthapi = $scope.authapis[0];
         $scope.doSearch();

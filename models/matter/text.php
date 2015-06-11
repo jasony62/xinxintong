@@ -1,4 +1,6 @@
 <?php
+namespace matter;
+
 require_once dirname(__FILE__).'/base.php';
 
 class text_model extends base_model {

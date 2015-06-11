@@ -3,11 +3,13 @@ require_once dirname(dirname(__FILE__)) . '/lib/Savant3.php';
 
 class MySavant3 extends Savant3 {
 
-    public function __construct($config = null) {
+    public function __construct($config = null) 
+    {
         parent::__construct($config);
     }
 
-    public function global_css() {
+    public function global_css() 
+    {
         $names = func_get_args();
         foreach ($names as $name) {
             $link = '<link rel="stylesheet" type="text/css"';
@@ -18,7 +20,8 @@ class MySavant3 extends Savant3 {
     /**
      *
      */
-    public function import_css($dir) {
+    public function import_css($dir) 
+    {
         $current_uri = TMS_APP_URI.'/views/default' . $dir;
         $names = func_get_args();
         $argnum = count($names);
@@ -36,7 +39,8 @@ class MySavant3 extends Savant3 {
     /**
      *
      */
-    public function global_js() {
+    public function global_js() 
+    {
         $names = func_get_args();
         foreach ($names as $name) {
             $script = '<script type="text/javascript"';
@@ -79,7 +83,8 @@ class TPL {
      */
     public static $template_path;
 
-    public static function init() {
+    public static function init() 
+    {
         if (!is_object(self::$view)) {
             self::$template_path = realpath(TMS_APP_DIR . '/views/');
             self::$view = new MySavant3(
@@ -93,7 +98,8 @@ class TPL {
         return self::$view;
     }
 
-    public static function output($template_filename, $display = true) {
+    public static function output($template_filename, $display = true) 
+    {
         self::init();
 
         if (!strstr($template_filename, self::$template_ext)) {
@@ -105,7 +111,6 @@ class TPL {
         self::assign('template_name', 'default');
 
         $output = self::$view->getOutput($display_template_filename);
-
         if ($display) {
             echo $output;
         } else {
@@ -113,34 +118,41 @@ class TPL {
         }
     }
 
-    public static function set_meta($tag, $value) {
+    public static function set_meta($tag, $value) 
+    {
         self::init();
         self::assign('_meta_' . $tag, $value);
     }
 
-    public static function assign($name, $value) {
+    public static function assign($name, $value) 
+    {
         self::init();
         self::$view->$name = $value;
     }
 
-    public static function val($name) {
+    public static function val($name) 
+    {
         self::init();
         return isset(self::$view->$name) ? self::$view->$name : false;
     }
 
-    public static function pt($name) {
+    public static function pt($name) 
+    {
         echo self::val($name);
     }
 
-    public static function et($str, $escapemode = 'html') {
+    public static function et($str, $escapemode = 'html') 
+    {
         echo $str;
     }
 
-    public static function gt($str, $escapemode = 'html') {
+    public static function gt($str, $escapemode = 'html') 
+    {
         return $str;
     }
 
-    public static function fetch($template_filename) {
+    public static function fetch($template_filename) 
+    {
         self::init();
 
         if (self::$in_app) {
@@ -156,7 +168,8 @@ class TPL {
         return file_get_contents(self::$template_path . '/default/' . $template_filename . self::$template_ext);
     }
 
-    public static function is_output($output_filename, $template_filename) {
+    public static function is_output($output_filename, $template_filename) 
+    {
         if (!isset(self::$output_matchs[md5($template_filename)])) {
             preg_match_all("/TPL::output\(['|\"](.+)['|\"]\)/i", self::fetch($template_filename), $matchs);
 
@@ -185,7 +198,7 @@ class TPL {
      */
     public static function S($name)
     {
-        echo isset($_SESSION[$name]) ? $_SESSION[$name] : '';
+        return isset($_SESSION[$name]) ? $_SESSION[$name] : '';
     }
     /**
      * 获得model对象
@@ -195,5 +208,28 @@ class TPL {
     public static function M($path)
     {
         return TMS_APP::model($path);
+    }
+    /**
+     *
+     */
+    private  static function deepUrlencode($data)
+    {
+        $data2 = array();
+        foreach ($data as $k=>$v) {
+            if (is_object($v) || is_array($v)) {
+                $v2 = self::deepUrlencode($v);
+                $data2[$k] = $v2;
+            } else 
+                $data2[$k] = urlencode($v);
+        }
+
+        return $data2;
+    }
+    /**
+     *
+     */
+    public static function json($data)
+    {
+        return json_encode(self::deepUrlencode($data));
     }
 }

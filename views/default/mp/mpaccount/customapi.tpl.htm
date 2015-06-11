@@ -38,13 +38,13 @@
                                 <tbody>
                                     <tr ng-repeat='attr in authAttrOps'>
                                         <td>{{attr[0]}}</td>
-                                        <td ng-repeat='op in attr[2]'><input type='checkbox' ng-if='op===$index' ng-disabled="ia.attrs[attr[1]][5]==='1'&&($index===0||$index===1||$index===2||$index===3)" ng-true-value='1' ng-false-value='0' ng-model="ia.attrs[attr[1]][$index]" ng-change="updAuthAttr(ia,attr[1])"></td>
+                                        <td ng-repeat='op in attr[2]'><input type='checkbox' ng-show='op===$index' ng-disabled="ia.attrs[attr[1]][5]==='1'&&($index===0||$index===1||$index===2||$index===3)" ng-true-value='1' ng-false-value='0' ng-model="ia.attrs[attr[1]][$index]" ng-change="updAuthAttr(ia,attr[1])"></td>
                                         <td></td>
                                     </tr>
                                     <tr ng-repeat='ea in ia.extattr'>
                                         <td>{{ea.label}}</td>
-                                        <td><input type='checkbox' disabled ng-true-value='1' ng-false-value='0' ng-model="ea.cfg2[0]" ng-change="updAuthExtattr(ia,ea)"></td>
-                                        <td><input type='checkbox' disabled ng-true-value='1' ng-false-value='0' ng-model="ea.cfg2[1]" ng-change="updAuthExtattr(ia,ea)"></td>
+                                        <td></td>
+                                        <td><input type='checkbox' ng-true-value='1' ng-false-value='0' ng-model="ea.cfg2[1]" ng-change="updAuthExtattr(ia,ea)"></td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
@@ -61,7 +61,7 @@
                             <div class='form-control' style='height:auto'>{{ia.url2}}</div>
                         </div>
                         <div class='form-group'>
-                            <label>进入前提示</label>
+                            <label>进入认证页面前提示</label>
                             <textarea class='form-control' title='进入前提示' ng-model='ia.entry_statement' placeholder='进入前提示' tms-auto-update tms-wait=1000 tms-update="updAuthapi(ia,'entry_statement')"></textarea>
                         </div>
                         <div class='form-group'>
@@ -73,16 +73,7 @@
                             <textarea class='form-control' title='验证未通过提示' ng-model='ia.notpass_statement' placeholder='验证未通过提示' tms-auto-update tms-wait=1000 tms-update="updAuthapi(ia,'notpass_statement')"></textarea>
                         </div>
                         <div class='form-group'>
-                            <label>认证页元素（HTML）</label>
-                            <textarea class='form-control' ng-model='ia.auth_html' tms-auto-update tms-wait=1000 tms-update="updAuthapi(ia,'auth_html')"></textarea>
-                        </div>
-                        <div class='form-group'>
-                            <label>认证页样式（CSS）</label>
-                            <textarea class='form-control' ng-model='ia.auth_css' tms-auto-update tms-wait=1000 tms-update="updAuthapi(ia,'auth_css')"></textarea>
-                        </div>
-                        <div class='form-group'>
-                            <label>认证页脚本（JS）</label>
-                            <textarea class='form-control' ng-model='ia.auth_js' tms-auto-update tms-wait=1000 tms-update="updAuthapi(ia,'auth_js')"></textarea>
+                            <button class='btn btn-success' ng-click='gotoCode(ia)'>定制认证页面</button>
                         </div>
                     </div>
                 </div>
@@ -149,7 +140,7 @@
                             <div class='form-control' style='height:auto'>{{fullAuthUrl(a)}}</div>
                         </div>
                         <div class='form-group'>
-                            <label>进入前提示</label>
+                            <label>进入认证页面前提示</label>
                             <textarea class='form-control' title='进入前说明' ng-model='a.entry_statement' placeholder='进入前说明' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'entry_statement')"></textarea>
                         </div>
                         <div class='form-group'>
@@ -164,7 +155,7 @@
                 </div>
             </div>
             <?php if (!defined('SAE_MYSQL_HOST_M')) { ?>
-            <button class='btn btn-primary' ng-click='addAuthapi()'>添加</button>
+            <button class='btn btn-primary' ng-click='addAuthapi()'>添加认证接口</button>
             <?php }?>
         </div>
     </div>
@@ -194,7 +185,7 @@
                     </div>
                 </div>
             </div>
-            <button class='btn btn-primary' ng-click='addRelay()'>添加</button>
+            <button class='btn btn-primary' ng-click='addRelay()'>添加转发接口</button>
         </div>
     </div>
     <script type="text/ng-template" id="authapiEditor.html">

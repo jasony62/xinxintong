@@ -13,7 +13,7 @@ class menu_model extends \TMS_MODEL {
         $data['creater'] = $uid;
         $data['create_at'] = time();
 
-        if ($rst = $this->insert('xxt_menu_reply', $data, false))
+        if ($rst = $this->insert('xxt_call_menu', $data, false))
             $rst = $this->getButtonById($data['mpid'], $data['menu_key']);
 
         return $rst;
@@ -31,17 +31,15 @@ class menu_model extends \TMS_MODEL {
         if ($version = $this->getVersion($mpid, $published)) {
             $q = array(
                 $fields,
-                'xxt_menu_reply',
+                'xxt_call_menu',
                 "mpid='$mpid' and menu_key='$key' and version=$version->v"
             );
             if ($button = $this->query_obj_ss($q)) {
                 /**
                  * 回复素材
                  */
-                if (in_array('matter', $cascade) && $button->matter_id) {
-                    $button->matter = \TMS_APP::model('matter/base')->get_by_id($button->matter_type, $button->matter_id);
-                    $button->matter->type = $button->matter_type;
-                }
+                if (in_array('matter', $cascade) && $button->matter_id)
+                    $button->matter = \TMS_APP::model('matter\base')->getMatterInfoById($button->matter_type, $button->matter_id);
                 /**
                  * 访问控制列表
                  */
@@ -93,7 +91,7 @@ class menu_model extends \TMS_MODEL {
             /**
              * 获得已经发布的父账号菜单
              */
-            $pMenu = $this->getMyMenu($pmpid, 1, $fields); 
+            $pMenu = $this->getMyMenu($pmpid, 1, $fields);
             $pButtons = $pMenu[0];
             $pVersion = $pMenu[1];
             if ($pVersion !== false) {
@@ -109,7 +107,7 @@ class menu_model extends \TMS_MODEL {
                         $pBtn->version = 0;
                         $pBtn->pversion = $pVersion->v;
                         $pBtn->published = 'N';
-                        $this->insert('xxt_menu_reply', (array)$pBtn, false);
+                        $this->insert('xxt_call_menu', (array)$pBtn, false);
                     }
                     $myMenu = $this->getMyMenu($mpid, 0, $fields);
                     $buttons = $myMenu[0];
@@ -133,7 +131,7 @@ class menu_model extends \TMS_MODEL {
                      */
                     $buttons = $this->mergeButtons($pButtons, $myButtons);
                     // 删除原有父账号定义的菜单项
-                    $this->delete('xxt_menu_reply', "mpid='$mpid' and version= $myVersion->v and pversion<>-1");
+                    $this->delete('xxt_call_menu', "mpid='$mpid' and version= $myVersion->v and pversion<>-1");
                     // 插入或更新新的菜单项
                     $l1_pos = $l2_pos = 0; 
                     foreach ($buttons as $btn) {
@@ -154,13 +152,13 @@ class menu_model extends \TMS_MODEL {
                             $btn->l1_pos = $l1_pos;
                             $btn->l2_pos = $l2_pos;
                             $btn->published = 'N';
-                            $this->insert('xxt_menu_reply', (array)$btn, false);
+                            $this->insert('xxt_call_menu', (array)$btn, false);
                         } else {
                             /**
                              * 更新子账号菜单项
                              */
                             $this->update(
-                                'xxt_menu_reply', 
+                                'xxt_call_menu', 
                                 array('l1_pos'=>$l1_pos, 'l2_pos'=>$l2_pos), 
                                 "mpid='$mpid' and menu_key='$btn->menu_key' and published='N'"
                             );
@@ -202,7 +200,7 @@ class menu_model extends \TMS_MODEL {
              */
             $q = array(
                 $fields,
-                'xxt_menu_reply',
+                'xxt_call_menu',
                 "mpid='$mpid' and version=$version->v"
             );
             $q2['o'] = 'l1_pos,l2_pos';
@@ -446,14 +444,14 @@ class menu_model extends \TMS_MODEL {
              */
             $q = array(
                 'max(version) v,max(pversion) pv',
-                'xxt_menu_reply',
+                'xxt_call_menu',
                 "mpid='$mpid'"
             );
             $version = $this->query_obj_ss($q);
             if ($version->v !== null) {
                 $q = array(
                     'published',
-                    'xxt_menu_reply',
+                    'xxt_call_menu',
                     "mpid='$mpid' and version={$version->v}"
                 );
                 $q2 = array('r'=>array('o'=>0,'l'=>1));
@@ -463,7 +461,7 @@ class menu_model extends \TMS_MODEL {
         } else {
             $q = array(
                 "max(version) v,max(pversion) pv,'Y' p",
-                'xxt_menu_reply',
+                'xxt_call_menu',
                 "mpid='$mpid' and published='Y'"
             );
             $version = $this->query_obj_ss($q);
@@ -508,9 +506,9 @@ class menu_model extends \TMS_MODEL {
          */
         $newVersion = (int)$version->v + 1;
         $fields = 'mpid,menu_key,pversion,creater,create_at,menu_name,l1_pos,l2_pos,url,matter_type,matter_id,asview,access_control';
-        $sql = "insert into xxt_menu_reply($fields,version)";
+        $sql = "insert into xxt_call_menu($fields,version)";
         $sql .= " select $fields,$newVersion";
-        $sql .= ' from xxt_menu_reply';
+        $sql .= ' from xxt_call_menu';
         $sql .= " where mpid='$mpid' and version=$version->v";
 
         $this->insert($sql, null, false);

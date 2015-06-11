@@ -1,7 +1,7 @@
 <?php
 $mpid = $_SESSION["mpid"];
 $panalyze = TMS_APP::model('mp\permission')->hasMpRight($mpid, 'analyze', 'read');
-if ($panalyze===true||$panalyze->read_p==='Y') {
+if ($panalyze!==false&&($panalyze===true||$panalyze->read_p==='Y')) {
 ?>
 <div ng-controller='analyzeCtrl' ng-init="subView='useraction'">
     <div class='navbar navbar-default'>

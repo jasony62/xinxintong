@@ -1,43 +1,54 @@
 <?php
+/**
+ *
+ */
 class TMS_MODEL {
-    public function insert($table, $data=null, $autoid = DEFAULT_DB_AUTOID) 
+    /**
+     *
+     */
+    public static function insert($table, $data=null, $autoid = DEFAULT_DB_AUTOID) 
     {
         return TMS_DB::db()->insert($table, $data, $autoid);
     }
 
-    public function update($table, $data = null, $where = null) 
+    public static function update($table, $data = null, $where = null) 
     {
         return TMS_DB::db()->update($table, $data, $where);
     }
 
-    public function delete($table, $where) 
+    public static function delete($table, $where) 
     {
         return TMS_DB::db()->delete($table, $where);
     }
 
-    public function query_value($select, $from = null, $where = null) 
+    public static function query_value($select, $from = null, $where = null) 
     {
         return TMS_DB::db()->query_value($select, $from, $where);
     }
 
-    public function query_values($select, $from = null, $where = null) 
+    public static function query_values($select, $from = null, $where = null) 
     {
         return TMS_DB::db()->query_values($select, $from, $where);
     }
 
-    public function query_obj($select, $from = null, $where = null) 
+    public static function query_obj($select, $from = null, $where = null) 
     {
         return TMS_DB::db()->query_obj($select, $from, $where);
     }
 
-    public function query_objs($select, $from = null, $where = null, $group = null, $order = null, $limit = null, $offset = null)
+    public static function query_objs($select, $from = null, $where = null, $group = null, $order = null, $limit = null, $offset = null)
     {
         return TMS_DB::db()->query_objs($select, $from, $where, $group, $order, $limit, $offset);
     }
 
-    public function found_rows() 
+    public static function found_rows() 
     {		
         return TMS_DB::db()->query_value('SELECT FOUND_ROWS()');
+    }
+
+    public static function escape($str) 
+    {       
+        return TMS_DB::db()->escape($str);
     }
     /**
      * Array(
@@ -49,7 +60,7 @@ class TMS_MODEL {
      * r=>range
      * )
      */
-    public function query_objs_s($params)
+    public static function query_objs_s($params)
     {
         $select = $params['s'];
         $from = $params['f'] ? $params['f'] : null;
@@ -61,22 +72,22 @@ class TMS_MODEL {
             $offset = $params['r']['o'] ? $params['r']['o'] : null;
             $limit = $params['r']['l'] ? $params['r']['l'] : null;
         }
-        return $this->query_objs($select, $from, $where, $group, $order, $offset, $limit);
+        return self::query_objs($select, $from, $where, $group, $order, $offset, $limit);
     }
     /**
      *
      */
-    public function query_val_s($params)
+    public static function query_val_s($params)
     {
         $select = $params['s'];
         $from = $params['f'] ? $params['f'] : null;
         $where = isset($params['w']) ? $params['w'] : null;
-        return $this->query_value($select, $from, $where);
+        return self::query_value($select, $from, $where);
     }
     /**
      * $p [select,from,where]
      */
-    public function query_objs_ss($p, $p2=null) 
+    public static function query_objs_ss($p, $p2=null) 
     {
         // select,from,where
         $select = $p[0];
@@ -92,42 +103,43 @@ class TMS_MODEL {
                 $limit = $p2['r']['l'];
             }
         }
-        return $this->query_objs($select, $from, $where, $group, $order, $offset, $limit);
+        return self::query_objs($select, $from, $where, $group, $order, $offset, $limit);
     }
     /**
      * $params [select,from,where]
      */
-    public function query_obj_ss($p, $p2=null) 
+    public static function query_obj_ss($p, $p2=null) 
     {
         $select = $p[0];
         $from = $p[1];
         $where = isset($p[2]) ? $p[2] : null;
-        return $this->query_obj($select, $from, $where);
+        return self::query_obj($select, $from, $where);
     }
     /**
      * $params [select,from,where]
      */
-    public function query_val_ss($p)
+    public static function query_val_ss($p)
     {
         $select = $p[0];
         $from = $p[1];
         $where = isset($p[2]) ? $p[2] : null;
-        return $this->query_value($select, $from, $where);
+        return self::query_value($select, $from, $where);
     }
     /**
      * $params [select,from,where]
      */
-    public function query_vals_ss($p)
+    public static function query_vals_ss($p)
     {
         $select = $p[0];
         $from = $p[1];
         $where = isset($p[2]) ? $p[2] : null;
-        return $this->query_values($select, $from, $where);
+        return self::query_values($select, $from, $where);
     }
     /**
      *
+     * return 32bit
      */
-    protected function uuid($prefix) 
+    protected static function uuid($prefix) 
     {
         !$prefix && $prefix = TMS_CLIENT::get_client_uid();
         return md5(uniqid($prefix) . mt_rand());
@@ -141,7 +153,7 @@ class TMS_MODEL {
      * @param String $operation 操作类型定义 DECODE=解密 ENCODE=加密  
      * @param String $key 加密算子  
      */  
-    public function encrypt($string, $operation, $key) 
+    public static function encrypt($string, $operation, $key) 
     {   
         /**  
          * 获取密码算子,如未指定，采取系统默认算子  
@@ -199,7 +211,7 @@ class TMS_MODEL {
     /**
      * generate a 32bits salt.
      */
-    protected function gen_salt() 
+    protected static  function gen_salt() 
     {
         $alpha_digits = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $alpha_digits_len = strlen($alpha_digits) - 1;
@@ -213,12 +225,12 @@ class TMS_MODEL {
     /**
      * 对用户的密码进行加密
      */
-    public function compile_password($identity, $password, $salt) 
+    public static function compile_password($identity, $password, $salt) 
     {
         $sign = $identity.$salt.$password;
 
         $sha = hash('sha256', $sign);
-        
+
         return $sha;
     }
 }

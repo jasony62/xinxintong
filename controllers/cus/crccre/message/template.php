@@ -1,13 +1,11 @@
 <?php
+namespace cus\crccre\message;
+
 require_once dirname(dirname(dirname(dirname(__FILE__)))).'/xxt_base.php';
 /**
  * 向公众号用户发送模板消息 
  */
-class template extends xxt_base {
-    /**
-     * 模板消息地址
-     */
-    const CMD = 'https://api.weixin.qq.com/cgi-bin/message/template/send';
+class template extends \xxt_base {
     /**
      *
      */
@@ -35,13 +33,14 @@ class template extends xxt_base {
          */
         if (!empty($authapi)) {
             if (!($authapi = $this->model('user/authapi')->byUrl($mpid, $authapi, 'authid')))
-                return new ResponseError('没有定义身份认证接口，无法进行身份转换，消息发送失败！');
+                return new \ResponseError('没有定义身份认证接口，无法进行身份转换，消息发送失败！');
 
             $authid = $authapi->authid;
         }
         /**
          * 处理消息数据并发送
          */
+        $mpproxy = \TMS_APP::M('mpproxy/wx', $mpid);
         foreach ($messages as $msg) {
             if (isset($authid)) {
                 /**
@@ -51,7 +50,7 @@ class template extends xxt_base {
                 $q = array(
                     'openid',
                     'xxt_member m,xxt_fans f',
-                    "m.fid=f.fid and forbidden='N' and m.authed_identity='$authuser' and f.src='wx' and f.unsubscribe_at=0"
+                    "m.fid=f.fid and forbidden='N' and m.authed_identity='$authuser' and f.unsubscribe_at=0"
                 );
                 if (!($openid = $this->model()->query_val_ss($q))) {
                     $msg->errmsg = '无法获得openid'; 
@@ -62,18 +61,17 @@ class template extends xxt_base {
             /**
              * 发送消息
              */
-            $posted = json_encode($msg);
-            $rst = $this->postToMp($mpid, 'wx', self::CMD, $posted);
-            if (!$rst[0]) {
+            $rst = $mpproxy->messageTemplateSend($msg);
+            if ($rst[0] === false) {
                 $msg->errmsg = $rst[1]; 
                 $failed[] = $msg;
             }
         }
 
         if (empty($failed))
-            return new ResponseData('finish');
+            return new \ResponseData('finish');
         else
-            return new ResponseError($failed);
+            return new \ResponseError($failed);
     }
     /**
      * 发送待办事项模板消息 
@@ -91,7 +89,7 @@ class template extends xxt_base {
         $q = array(
             'f.openid',
             'xxt_member m,xxt_fans f',
-            "f.mpid='$mpid' and m.fid=f.fid and m.forbidden='N' and m.authed_identity='$userid' and f.src='wx' and f.unsubscribe_at=0 and exists(select 1 from xxt_member_authapi a where m.authapi_id=a.authid and a.valid='Y')"
+            "f.mpid='$mpid' and m.fid=f.fid and m.forbidden='N' and m.authed_identity='$userid' and f.unsubscribe_at=0 and exists(select 1 from xxt_member_authapi a where m.authapi_id=a.authid and a.valid='Y')"
         );
         $openids = $this->model()->query_vals_ss($q);
         if (!empty($openids)) {
@@ -129,12 +127,12 @@ class template extends xxt_base {
             /**
              * 发送消息
              */
+            $mpproxy = \TMS_APP::M('mpproxy/wx', $mpid);
             foreach ($openids as $openid) {
                 $msg['touser'] = $openid;
-                $posted = json_encode($msg);
-                $rst = $this->postToMp($mpid, 'wx', self::CMD, $posted);
-                if (!$rst[0])
-                    return new ResponseError($rst[1]);
+                $rst = $mpproxy->messageTemplateSend($msg);
+                if ($rst[0] === false)
+                    return new \ResponseError($rst[1]);
             }
         }
         /**
@@ -148,13 +146,15 @@ class template extends xxt_base {
         }
         $message = array(
             "msgtype"=>"text",
+            "touser"=>$userid, 
             "text"=>array(
                 "content"=>$content
             )
         );
-        if (true === ($rsp = $this->send_to_user('87b697a59119899e8dceb9d0daaf0e4b', 'qy', $userid, $message)))
-            return new ResponseData('ok');
+        $rsp = $this->send_to_qyuser('cbf5e6c0b273373fc085a985e4af7725', $message);
+        if (true === $rsp[0])
+            return new \ResponseData('ok');
         else
-            return new ResponseError($rsp);
+            return new \ResponseError($rsp[1]);
     }
 }

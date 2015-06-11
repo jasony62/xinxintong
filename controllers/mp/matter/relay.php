@@ -1,7 +1,9 @@
 <?php
+namespace mp\matter;
+
 require_once dirname(__FILE__).'/matter_ctrl.php';
 
-class relay extends mp_controller {
+class relay extends \mp\mp_controller {
 
     public function get_access_rule()
     {
@@ -24,6 +26,14 @@ class relay extends mp_controller {
         );
         $relays = $this->model()->query_objs_ss($q);
 
-        return new ResponseData($relays);
+        return new \ResponseData($relays);
+    }
+    /**
+     *
+     * $src 转发接口的来源
+     */
+    public function get_action($src=null) 
+    {
+        return $this->index_action($src);
     }
 }

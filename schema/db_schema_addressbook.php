@@ -1,7 +1,7 @@
 <?php
 require_once '../db.php';
 // address book
-$sql = "create table if not exists xxt_address_book(";
+$sql = "create table if not exists xxt_addressbook(";
 $sql .= "id int not null auto_increment";
 $sql .= ',mpid varchar(32) not null';
 $sql .= ",title varchar(70) not null";
@@ -16,9 +16,9 @@ $sql .= ",authapis text";
 $sql .= ",limit_view_detail char(1) not null default 'N'";
 $sql .= ",limit_view_detail_authapis text";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$db_result = mysql_query($sql)) {
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error(xxt_address_book): '.mysql_error();
+    echo 'database error(xxt_addressbook): '.$mysqli->error;
 }
 //
 $sql = "create table if not exists xxt_ab_dept(";
@@ -31,9 +31,9 @@ $sql .= ",fullpath text";
 $sql .= ",ab_id int not null";
 $sql .= ",primary key(id)";
 $sql .= ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$db_result = mysql_query($sql)) {
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error(xxt_ab_dept): '.mysql_error();
+    echo 'database error(xxt_ab_dept): '.$mysqli->error;
 }
 //
 $sql = "create table if not exists xxt_ab_title(";
@@ -43,9 +43,9 @@ $sql .= ",name varchar(60) not null";
 $sql .= ",ab_id int not null";
 $sql .= ",primary key(id)";
 $sql .= ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$db_result = mysql_query($sql)) {
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error(title): '.mysql_error();
+    echo 'database error(xxt_ab_title): '.$mysqli->error;
 }
 // person
 $sql = "create table if not exists xxt_ab_person";
@@ -57,9 +57,9 @@ $sql .= ",email text";
 $sql .= ",tels text";
 $sql .= ",ab_id int not null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$db_result = mysql_query($sql)) {
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.mysql_error();
+    echo 'database error(xxt_ab_person): '.$mysqli->error;
 }
 //
 $sql = "create table if not exists xxt_ab_person_dept(";
@@ -71,9 +71,9 @@ $sql .= ",title_id int null";
 $sql .= ",ab_id int not null";
 $sql .= ",primary key(id)";
 $sql .= ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$db_result = mysql_query($sql)) {
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error(person_org): '.mysql_error();
+    echo 'database error(xxt_ab_person_dept): '.$mysqli->error;
 }
 //
 echo 'finish addressbook.'.PHP_EOL;

@@ -1,9 +1,11 @@
 <?php
+namespace cus\crccre\member;
+
 require_once dirname(dirname(dirname(dirname(__FILE__)))).'/member_base.php';
 /**
  * crccre用户认证
  */
-class crccre_member_base extends member_base {
+class crccre_member_base extends \member_base {
     /**
      *
      */
@@ -16,7 +18,7 @@ class crccre_member_base extends member_base {
         if (!isset($this->soap)) {
             ini_set('soap.wsdl_cache_enabled', '0');
             try {
-                $this->soap = new SoapClient(
+                $this->soap = new \SoapClient(
                     'http://um.crccre.cn/webservices/adgrouptree.asmx?wsdl', 
                     array(
                         'soap_version' => SOAP_1_2,
@@ -25,7 +27,7 @@ class crccre_member_base extends member_base {
                         'trace'=>1, 
                     )
                 );
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 die('exception: '.$e->getMessage());
             }
         }
@@ -37,10 +39,10 @@ class crccre_member_base extends member_base {
     protected function getSupDepartment($mpid, $guid, &$depts)
     {
         try {
-            $param = new stdClass;
+            $param = new \stdClass;
             $param->guid = $guid;
             $ret = $this->soap->GetNodeByGUID($param);
-            $xml = new SimpleXMLElement($ret->GetNodeByGUIDResult);
+            $xml = new \SimpleXMLElement($ret->GetNodeByGUIDResult);
             foreach ($xml->children() as $node) {
                 $attributes = $node->attributes();
                 $titletype = ''.$attributes['titletype'];
@@ -62,7 +64,7 @@ class crccre_member_base extends member_base {
                 if (!empty($parentid) && $titletype !== '1')
                     $this->getSupDepartment($mpid, $parentid, $depts);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             die('exception: '.$e->getMessage());
         }
     }

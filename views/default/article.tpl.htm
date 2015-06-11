@@ -4,6 +4,22 @@ $mpid = $data['mpid'];
 $article = $data['article'];
 $visitor = $data['visitor'];
 $remarks = $article->remarks;
+function exchangeSize($size) {
+    if ($size / 1024 < 1) {
+        $unit = 'B';
+    } else {
+        $size = $size / 1024;            
+        if ($size / 1024 < 1) {
+            $unit = 'K';
+        } else {
+            $size = $size / 1024; 
+            $unit = 'M';
+        }
+    }
+    $size = number_format($size, 2);
+
+    return $size.$unit;
+}
 ?> 
 <!DOCTYPE html>
 <html>
@@ -16,9 +32,6 @@ $remarks = $article->remarks;
         <?php $body_css=TPL::val('body_css'); if (!empty($body_css)) {?>
         <style><?php echo $body_css;?></style> 
         <?php } ?>
-        <?php if ($article->can_carousel === 'Y') {?>
-        <link rel="stylesheet" type="text/css" href="/static/css/carousel.css"/>
-        <?php } ?>
     </head>
     <body>
         <?php TPL::pt('body_ele');?>
@@ -26,7 +39,8 @@ $remarks = $article->remarks;
             <div class="wrap">
                 <h1 class="tlt" id="title"><?php echo $article->title;?></h1>
                 <div>
-                    <span class="time"><?php echo date('Y-m-d', $article->modify_at);?></span> 
+                    <span class="time"><?php echo date('Y-m-d', $article->modify_at);?></span>
+                    <span class="writer"><?php echo $article->creater_name;?></span> 
                     <?php if (TPL::val('yx_cardid')) {?>
                     <span id='article_from_nick'>
                         <a href="<?php echo 'yixin://opencard?pid='.TPL::val('yx_cardid');?>"><?php echo TPL::val('yx_cardname');?></a>
@@ -37,60 +51,92 @@ $remarks = $article->remarks;
                 <div class="headpic"><img src="<?php echo $article->pic;?>"></div> 
                 <?php } ?>
                 <div class="content" id="content"></div>
+                <?php if ($article->has_attachment==='Y') {
+                    echo "<table class='table table-bordered'><caption>附件</caption>";
+                    foreach ($article->attachments as $att) {
+                        $downloadUrl = '/rest/mi/matter/articleAttachment?mpid='.$mpid.'&articleid='.$article->id.'&attachmentid='.$att->id;
+                        echo "<tr>";
+                        echo "<td><a href='$downloadUrl' target='_blank'>$att->name</a></td>";
+                        $size = exchangeSize($att->size);
+                        echo "<td>$size</td>";
+                        echo "</tr>";
+                    }
+                    echo "</table>";
+                } ?>
                 <?php if (!empty($article->url)) {?>
                 <p class="url"><a href="<?php echo $article->url;?>" target="_self">阅读原文</a></p> 
                 <?php } ?>
                 <div id='interaction'>
-                    <span class='read'><span>阅读</span><span id='readNum'><?php echo $article->readNum;?></span></span>
+                    <span class='read'><span>阅读</span><span id='readNum'><?php echo $article->read_num;?></span></span>
                     <span class='like'><em class="<?php echo $article->praised ? 'praised':'';?>" onclick='Like.change();'></em><span id='score'><?php echo $article->score;?></span></span>
                 </div>
                 <?php if ($remarks !== false) {?>
                 <div class='remark clearfix'>
                     <h4>评论</h4>
+                    <a id='gotoRemarksHeader' href='#remarks' style='display:none'></a>
                     <ul id='remarks'>
                         <?php 
                         foreach ($remarks as $r) {
                         $nickname = empty($r->nickname) ? strtok($r->email,'@'):$r->nickname;
-                        $create_at = date('Y-m-d H:m', $r->create_at);
-                        echo "<li><div>$r->remark</div><div class='clearfix'>
-                            <div class='nickname'><span>发布者：</span>$nickname</div>
+                        $create_at = date('Y-m-d H:i', $r->create_at);
+                        echo "<li data-nickname='$nickname'><div class='content'>$r->remark</div><div class='clearfix'>
+                            <div class='nickname'>$nickname</div>
                             <div class='datetime'>$create_at</div>
                         </div></li>";
                         }
                         ?>
                     </ul>
-                    <textarea id='newRemark' rows=4></textarea>
+                    <a id='gotoNewRemark' href='#newRemark' style='display:none'></a>
+                    <textarea id='newRemark' rows='4'></textarea>
                     <button onclick='Remark.publish();'>发表评论</button>
                 </div>
                 <?php } ?>
             </div> 
         </div>
+        <?php if (isset($_GET['preview']) && $_GET['preview'] === 'Y') {?>
+        <div id='tipPreview' onclick="this.style.display='none'">
+            <span>点击右上角【...】，邀请好友参与活动</span>
+            <button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+        <?php } ?>
         <footer></footer>
         <div id='dlg'><div></div><button>关闭</button></div>
         <?php if ($article->can_picviewer === 'Y') {?>
         <div id='picViewer'><span>X</span><img/></div>
         <?php } ?>
-        <iframe id='frmAuth'></iframe>
         <script type="text/javascript">
             window.mpid = '<?php echo $mpid;?>';
             window.article = <?php echo json_encode($article);?>; 
-            window.visitor = <?php echo json_encode($visitor);?>; 
+            window.visitor = <?php echo json_encode($visitor);?>;
+            document.querySelector('#content').innerHTML = article.body.replace(/<\s*(iframe)(\s+[^>]*)?>(?:[^<]*?<\s*\/\s*\1\s*>)?/gi, function (match, s1, s2) {
+                var escape = function (str) {
+                    return str.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;");
+                };
+                if (s2) {
+                    var arr = s2.match(/\s+src\s*=\s*['"]?([^'"]*)['"]?/i);
+                    var src = arr && arr[1];
+                    if (src) {
+                        var query = src.slice(src.indexOf('?') + 1);
+                        var obj = queryToObject(query);
+                        var str;
+                        if (obj && obj.src) {
+                            str = '<video controls="" autoplay="" poster="'
+                            + escape(obj.src) + '?vframe=1"><source src="';
+                            str += escape(obj.src) + '" type="video/mp4"></video>';
+                        }
+                    }
+                }
+                return str || '';
+            });
         </script>
         <?php if (preg_match('/MicroMessenger/i', $_SERVER['HTTP_USER_AGENT'])) {?>
         <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
-        <script src="/rest/mi/matter/wxjssdksignpackage?mpid=<?php echo $mpid;?>&url=<?php echo urlencode("http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");?>"></script>
+        <script src="/rest/mi/matter/wxjssdksignpackage?mpid=<?php echo $mpid;?>&url=<?php echo urlencode("http://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);?>"></script>
         <?php } ?>
         <?php $this->import_js('','article', true);?>
-        <?php if ($article->can_carousel === 'Y') {?>
-        <script src="/static/js/swipeview.js"></script>
-        <script src="/static/js/carousel.js"></script>
-        <?php } ?>
         <?php if ($article->can_picviewer === 'Y') {?>
         <script src="/static/js/hammer.min.js"></script>
         <script src="/static/js/picViewer.js"></script>
-        <script>
-            window.addEventListener('load', supportPicviewer);
-        </script>
         <?php } ?>
         <?php if (defined('SAE_MYSQL_HOST_M')) { ?>
         <script type="text/javascript">

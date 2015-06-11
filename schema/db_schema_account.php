@@ -19,9 +19,9 @@ $sql = 'CREATE TABLE IF NOT EXISTS `account` (
     `is_first_login` tinyint(1) DEFAULT \'1\' COMMENT \'首次登录标记\',
     PRIMARY KEY (`uid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8';
-if (!mysql_query($sql)) {
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.mysql_error();
+    echo 'database error: '.$mysqli->error;
 }
 /**
  * account group and group's permissions.
@@ -35,9 +35,9 @@ $sql = 'CREATE TABLE IF NOT EXISTS `account_group` (
     `p_mp_permission` tinyint not null default 0 comment \'设置公众号权限\',
     PRIMARY KEY (`group_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8';
-if (!mysql_query($sql)) {
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.mysql_error();
+    echo 'database error: '.$mysqli->error;
 }
 /**
  * relation of acount and group.
@@ -47,9 +47,9 @@ $sql = 'CREATE TABLE IF NOT EXISTS `account_in_group` (
     `group_id` int NOT NULL COMMENT \'用户组的 ID\',
     PRIMARY KEY (`account_uid`,`group_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8';
-if (!mysql_query($sql)) {
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.mysql_error();
+    echo 'database error: '.$mysqli->error;
 }
 
 echo 'finish account.'.PHP_EOL;

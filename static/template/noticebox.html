@@ -1,4 +1,5 @@
 <div class='notice-box alert' ng-class={'alert-danger':err,'alert-success':info,'alert-info':prog} ng-show='err||info||prog'>
     <button type="button" class="close" ng-click="closeBox()"><span>&times;</span></button>
-    {{err||info||prog}}
+    <pre ng-if='err'>{{err}}</pre>
+    <span ng-if='!err'>{{info||prog}}</span>
 </div>

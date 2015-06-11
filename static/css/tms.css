@@ -1,4 +1,4 @@
-body{font-family:Arial,'Microsoft YaHei'}
+body,pre,code{font-family:Arial,'Microsoft YaHei'}
 .cloak{display:none}
 @media screen and (min-device-width:768px) and (max-device-width:1024px) and (orientation:landscape){
     .container{width:970px}
@@ -79,3 +79,6 @@ body{font-family:Arial,'Microsoft YaHei'}
 .combox .dropdown-menu .checkbox{clear:both;padding:3px 20px;margin:0 0 0 10px;white-space:nowrap}
 .combox .dropdown-menu .checkbox label{display:inline-block;width:100%}
 .combox .dropdown-menu .checkbox:hover{background-color:#F5F5F5}
+.notice-box pre{background:rgba(0,0,0,0);max-height:300px;overflow:auto;border:0;padding:0;margin:0}
+#float-toolbar{background:#f8f8f8;border:1px solid #e7e7e7;position:fixed;top:71px;right:20px;width:48px;height:100px;z-index:10;white-space:nowrap;overflow: hidden;}
+#float-toolbar .action{display:inline-block;position:absolute;top:5px;left:3px}

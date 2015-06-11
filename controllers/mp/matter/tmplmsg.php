@@ -1,4 +1,6 @@
 <?php
+namespace mp\matter;
+
 require_once dirname(__FILE__).'/matter_ctrl.php';
 
 class tmplmsg extends matter_ctrl {
@@ -7,7 +9,7 @@ class tmplmsg extends matter_ctrl {
      */
     public function index_action($id=null) 
     {
-        $uid = TMS_CLIENT::get_client_uid();
+        $uid = \TMS_CLIENT::get_client_uid();
 
         if (!empty($id)) {
             $q = array(
@@ -24,7 +26,7 @@ class tmplmsg extends matter_ctrl {
             $tmplmsg->params = $this->model()->query_objs_ss($q);
 
             if ($_SERVER['HTTP_ACCEPT'] === 'application/json')
-                return new ResponseData($tmplmsg);
+                return new \ResponseData($tmplmsg);
             else {
                 $param = array();
                 $param['tmplmsg'] = $tmplmsg;
@@ -40,7 +42,7 @@ class tmplmsg extends matter_ctrl {
             $q2['o'] = 't.create_at desc';
             $tmplmsgs = $this->model()->query_objs_ss($q, $q2);
 
-            return new ResponseData($tmplmsgs);
+            return new \ResponseData($tmplmsgs);
         }
     }
     /**
@@ -48,7 +50,7 @@ class tmplmsg extends matter_ctrl {
      */
     public function create_action($title='新模板消息')
     {
-        $uid = TMS_CLIENT::get_client_uid(); 
+        $uid = \TMS_CLIENT::get_client_uid(); 
         $d['mpid'] = $this->mpid;
         $d['creater'] = $uid;
         $d['create_at'] = time();
@@ -64,7 +66,7 @@ class tmplmsg extends matter_ctrl {
 
         $tmplmsg = $this->model()->query_obj_ss($q);
 
-        return new ResponseData($tmplmsg);
+        return new \ResponseData($tmplmsg);
     }
     /**
      * 删除模板消息
@@ -79,7 +81,7 @@ class tmplmsg extends matter_ctrl {
             "mpid='$this->mpid' and id=$id"
         );
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      * 更新模板消息属性
@@ -94,7 +96,7 @@ class tmplmsg extends matter_ctrl {
             "mpid='$this->mpid' and id=$id"
         );
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      *
@@ -106,7 +108,7 @@ class tmplmsg extends matter_ctrl {
 
         $id = $this->model()->insert('xxt_tmplmsg_param', $p, true);
 
-        return new ResponseData($id);
+        return new \ResponseData($id);
     }
     /**
      *
@@ -124,7 +126,7 @@ class tmplmsg extends matter_ctrl {
             "id=$id"
         );
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      *
@@ -134,6 +136,6 @@ class tmplmsg extends matter_ctrl {
     {
         $rst = $this->model()->delete('xxt_tmplmsg_param', "id=$pid");
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
 }

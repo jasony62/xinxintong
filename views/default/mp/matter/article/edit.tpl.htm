@@ -1,7 +1,4 @@
-<?php
-$mpid = $_SESSION["mpid"];
-?>
-<div ng-controller='EditCtrl' ng-init="codesearchKeyword='<?php TPL::pt('codesearchKeyword');?>'">
+<div ng-controller='editCtrl'>
     <div class='form-inline form-group' style='text-align:right'>
         <div class='form-group'>
             <pushmatter class='btn btn-primary' title="发送给指定用户" matter-id={{editing.id}} matter-type='article'/>
@@ -11,24 +8,23 @@ $mpid = $_SESSION["mpid"];
         </div>
     </div>
     <div class='form-horizontal'>
+        <div class='form-group' ng-show="editing.creater_src!=='A'">
+            <label class='col-md-2 control-label'>审核通过</label>
+            <div class='col-md-10'>
+                <label class='checkbox-inline'><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='editing.approved' ng-change="update('approved');">是</label>
+            </div>
+        </div>
         <div class='form-group'>
             <label class='col-md-2 control-label'>URL</label>
             <div class='col-md-10'>
-                <p class='form-control' style='height:auto'>{{entryUrl}}</p>
+                <p class='form-control' style='height:auto;min-height:34px'>{{entryUrl}}</p>
             </div>
         </div>
         <div class='form-group'>
             <label class='col-md-2 control-label'>标题</label>
             <div class='col-md-10'>
                 <input type='text' class='form-control' ng-model='editing.title' tms-auto-update tms-wait=1000 tms-update="update('title');">
-            </div>
-        </div>
-        <div class='form-group'>
-            <label class='col-md-2 control-label'>编号</label>
-            <div class='col-md-10'>
-                <p class='form-control-static'>{{editing.code}}
-                <span ng-if='codesearchKeyword' style='color:red'>{{'（向公账号输入【'+codesearchKeyword+editing.code+'】可获得文章的信息卡片进行预览或分享。)'}}</span>
-                </p>
+                <p class='help-block'>最多35个汉字，70个英文字符</p>
             </div>
         </div>
         <div class='form-group' ng-if='editing.creater!==editing.uid'>
@@ -74,7 +70,6 @@ $mpid = $_SESSION["mpid"];
             <label class='col-md-2 control-label'>显示设置</label>
             <div class='col-md-10'>
                 <label class='checkbox-inline'><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='editing.hide_pic' ng-change="update('hide_pic');">隐藏头图</label>
-                <label class='checkbox-inline'><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='editing.can_carousel' ng-change="update('can_carousel');">支持图册</label>
                 <label class='checkbox-inline'><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='editing.can_picviewer' ng-change="update('can_picviewer');">支持图片缩放浏览</label>
                 <label class='checkbox-inline'><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='editing.custom_body' ng-change="update('custom_body');">定制页面</label>
                 <label class='checkbox-inline'><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='editing.can_share' ng-change="update('can_share');">可以分享</label>
@@ -84,24 +79,34 @@ $mpid = $_SESSION["mpid"];
             <label class='col-md-2 control-label'>摘要</label>
             <div class='col-md-10'>
                 <textarea class='form-control' ng-model='editing.summary' tms-auto-update tms-wait=1000 tms-update="update('summary');"></textarea>
+                <p class='help-block'>最多120个汉字，240个英文字符</p>
             </div>
         </div>
-        <div class='form-group'>
+        <div class='form-group' ng-show="editing.custom_body==='N'">
             <label class='col-md-2 control-label'>正文</label>
             <div class='col-md-10'>
-                <tinymce content='editing.body' contenteditable='bodyEditable' update="update('body')" id='body1'></tinymce>
+                <div>
+                    <button class='btn' ng-click="update('body')" ng-disabled='!bodyModified' ng-class="bodyModified?'btn-success':'btn-default'">保存</button>
+                    <button class='btn btn-default' ng-click="embedMatter()">添加素材</button>
+                </div>
+                <tinymce content='editing.body' contenteditable='bodyEditable' change="onBodyChange()" id='body1'></tinymce>
             </div>
-        </div>
-        <div class='form-group' ng-if="editing.custom_body==='Y'">
-            <label class='col-md-2 control-label'>样式</label>
+        </div><div class='form-group' ng-show="editing.custom_body==='N'">
+            <label class='col-md-2 control-label'>附件</label>
             <div class='col-md-10'>
-                <textarea class='form-control' rows='6' ng-model='editing.css' ng-blur="update('css');"></textarea>
+                <button id='addAttachment' class='btn btn-default btn-sm'><span class='glyphicon glyphicon-plus'></span></button>
+                <ul class='list-group' style='margin-bottom:0'>
+                    <li class='list-group-item' ng-repeat='a in editing.attachments' ng-mouseenter="enter=true" ng-mouseleave="enter=false">
+                        <span><a ng-href='{{downloadUrl(a)}}' target='_blank'>{{a.name}}</a></span>
+                        <button class='btn btn-default btn-xs pull-right' ng-if='enter' ng-click='delAttachment($index,a)'><span class='glyphicon glyphicon-remove'></span></button>
+                    </li>
+                </ul>
             </div>
         </div>
         <div class='form-group' ng-if="editing.custom_body==='Y'">
             <label class='col-md-2 control-label'></label>
             <div class='col-md-10'>
-                <button class='btn btn-default' ng-click='gotoCode()'>编辑页面</button>
+                <button class='btn btn-success' ng-click='gotoCode()'>编辑页面</button>
             </div>
         </div>
         <div class='form-group'>
@@ -110,10 +115,11 @@ $mpid = $_SESSION["mpid"];
                 <combox evt-prefix='tag' prop='title' existing='editing.tags' options='tags'></combox>
             </div>
         </div>
-        <div class='form-group' ng-controller='SetChanCtrl' ng-init="matterType='article'">
+        <div class='form-group' ng-controller='setChannelCtrl' ng-init="matterType='article'">
             <label class='col-md-2 control-label'>频道（可选）</label>
             <div class='col-md-10'>
                 <combox evt-prefix='channel' readonly=true prop='title' existing='editing.channels' options='channels'></combox>
+                <label class='checkbox-inline'><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='channelsFromParent' ng-change='updateChannelSrc()');">来源于父账号</label>
             </div>
         </div>
         <div class='form-group'>
@@ -130,7 +136,7 @@ $mpid = $_SESSION["mpid"];
                 </div>
             </div>
         </div>
-        <accesscontrol mpid='<?php echo $mpid;?>' obj='editing' prop-acl='acl' prop-access='access_control' prop-apis='authapis' update-access-control="update('access_control')" update-authapis="update('authapis')" change-acl-url='/rest/mp/matter/article/setAcl?id={{editing.id}}' remove-acl-url='/rest/mp/matter/article/removeAcl' label-span='2' control-span='10'></accesscontrol>
+        <accesscontrol mpid='{{mpid}}' obj='editing' prop-acl='acl' prop-access='access_control' prop-apis='authapis' update-access-control="update('access_control')" update-authapis="update('authapis')" change-acl-url='/rest/mp/matter/article/setAcl?id={{editing.id}}' remove-acl-url='/rest/mp/matter/article/removeAcl' label-span='2' control-span='10'></accesscontrol>
     </div>
     <div mattersgallery style='display:none' matter-url='/rest/mp/matter' matter-types='innerlinkTypes'></div>
     <div picgallery style='display:none' url='{{picGalleryUrl}}'></div>

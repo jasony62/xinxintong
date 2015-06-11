@@ -1,3 +1,4 @@
+<?php $shift2pcAlert=TPL::val('shift2pcAlert');?>
 <!DOCTYPE html>
 <html>
     <head>
@@ -17,6 +18,9 @@
             .ng-cloak{display:none}
             .radio input[type="radio"],.radio input[type="checkbox"]{height:20px;margin:0 0 0 -20px}
         </style> 
+        <?php $extcss=TPL::val('ext_css'); if (!empty($extcss)) foreach($extcss as $ecss) {?>
+        <link href="<?php echo $ecss->url;?>" rel="stylesheet"> 
+        <?php }?>
         <?php $body_css=TPL::val('body_css'); if (!empty($body_css)) {?>
         <style><?php echo $body_css;?></style> 
         <?php } ?>
@@ -32,7 +36,6 @@
             #picViewer{position:absolute;left:0px;right:0px;top:0px;bottom:0px;z-index:999;display:none;margin:0 auto;overflow:hidden;background:black}
             #picViewer span{position:absolute;display:inline-block;top:6px;right:8px;z-index:1999;background:rgba(255,255,255,0.5);width:40px;height:40px;text-align:center;line-height:40px;border-radius:4px;font-size:32px}
         </style>
-        <div id='picViewer'><span class='glyphicon glyphicon-circle-arrow-left'></span><img/></div>
         <script src="/static/js/jquery.min.js"></script>
         <script src="/static/js/hammer.min.js"></script>
         <script src="/static/js/picViewer.js"></script>
@@ -41,14 +44,23 @@
             <?php echo $extra_css;?>
         </style>
         <?php }?>
+        <?php if ($shift2pcAlert && !empty($shift2pcAlert->css)) {?>
+        <style>
+            <?php echo $shift2pcAlert->css;?>
+        </style>
+        <?php }?>
     </head>
     <body>
         <?php TPL::pt('body_ele');?>
+        <?php if ($shift2pcAlert && !empty($shift2pcAlert->html)) {
+            echo $shift2pcAlert->html;
+        }?>
         <?php $v=TPL::val('app_view'); TPL::output($v);?>
         <footer></footer>
+        <div id='picViewer'><span class='glyphicon glyphicon-circle-arrow-left'></span><img/></div>
         <?php if (preg_match('/MicroMessenger/i', $_SERVER['HTTP_USER_AGENT'])) {?>
         <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
-        <script src="/rest/mi/matter/wxjssdksignpackage?mpid=<?php echo $_GET['mpid'];?>&url=<?php echo urlencode("http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");?>"></script>
+        <script src="/rest/mi/matter/wxjssdksignpackage?mpid=<?php echo $_GET['mpid'];?>&url=<?php echo urlencode("http://".str_replace('www.','',$_SERVER['HTTP_HOST']).$_SERVER['REQUEST_URI']);?>"></script>
         <?php } ?>
         <script src="/static/js/angular.min.js"></script>
         <?php
@@ -56,6 +68,9 @@
         call_user_func_array(array($this,'global_js'), $js);
         }
         ?>
+        <?php $extjs=TPL::val('ext_js'); if (!empty($extjs)) foreach($extjs as $ejs) {?>
+        <script type='text/javascript' src="<?php echo $ejs->url;?>"></script> 
+        <?php }?>
         <?php
         if ($js = TPL::val('js')) {
         foreach ($js as $j) {
@@ -64,6 +79,11 @@
         }
         }
         ?>
+        <?php if ($shift2pcAlert && !empty($shift2pcAlert->js)) {?>
+        <script type='text/javascript'>
+            <?php echo $shift2pcAlert->js;?>
+        </script>
+        <?php }?>
         <?php $extra_js=TPL::val('extra_js'); if (!empty($extra_js)) {?>
         <script type='text/javascript'>
             <?php echo $extra_js;?>

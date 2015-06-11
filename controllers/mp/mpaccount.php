@@ -1,9 +1,30 @@
 <?php
+namespace mp;
+
 require_once dirname(__FILE__)."/mp_controller.php";
 /**
  *
  */
 class mpaccount extends mp_controller {
+    /**
+     *
+     */
+    public function __construct() 
+    {
+        parent::__construct();
+        /**
+         * entries
+         */
+        $entries = array();
+        $pmodel = $this->model('mp\permission');
+        $pmodel->can('mpsetting_setting','read') && $entries[] = array('name'=>'main','title'=>'基本信息', 'entry'=>'');
+        $pmodel->can('mpsetting_feature','read') && $entries[] = array('name'=>'feature','title'=>'定制功能', 'entry'=>'');
+        $pmodel->can('mpsetting_customapi','read') && $entries[] = array('name'=>'customapi','title'=>'自定义接口', 'entry'=>'');
+        $pmodel->can('mpsetting_permission','read') && $entries[] = array('name'=>'permission','title'=>'权限设置', 'entry'=>'');
+        $pmodel->can('mpsetting_administrator','read') && $entries[] = array('name'=>'administrator','title'=>'系统管理员', 'entry'=>'');
+
+        \TPL::assign('mpsetting_view_entries', $entries);
+    }
     /**
      *
      */
@@ -29,11 +50,11 @@ class mpaccount extends mp_controller {
      */
     private function getUserPermissions()
     {
-        $uid = TMS_CLIENT::get_client_uid();
+        $uid = \TMS_CLIENT::get_client_uid();
 
         $perms = $this->model('mp\permission')->hasMpRight(
             $this->mpid, 
-            array('mpsetting','mpsecurity'),
+            array('mpsetting_setting','mpsetting_feature','mpsetting_customapi','mpsetting_permission','mpsetting_administrator'),
             array('create','read','update','delete'), 
             $uid
         );
@@ -47,6 +68,8 @@ class mpaccount extends mp_controller {
     {
         $modelMpa = $this->model('mp\mpaccount');
         $mpa = $modelMpa->byId($this->mpid);
+        $creater = $this->model('account')->byId($mpa->creater);
+        $mpa->creater_name = $creater->nickname;
         if ($mpa->asparent === 'N') {
             /**
              * 实体账号
@@ -65,7 +88,7 @@ class mpaccount extends mp_controller {
         }
 
         if ($_SERVER['HTTP_ACCEPT'] === 'application/json')
-            return new ResponseData($mpa);
+            return new \ResponseData($mpa);
         else {
             $perms = $this->getUserPermissions();
             $params = array(
@@ -74,9 +97,9 @@ class mpaccount extends mp_controller {
             $apis = $modelMpa->getApis($this->mpid);
             isset($apis) && $params['apis'] = $apis;
 
-            TPL::assign('params', $params);
+            \TPL::assign('params', $params);
 
-            if ($perms===true || $perms['mpsetting']['update_p']==='Y')
+            if ($perms===true || $perms['mpsetting_setting']['update_p']==='Y')
                 $this->view_action('/mp/mpaccount/main');
             else
                 $this->view_action('/mp/mpaccount/read/main');
@@ -92,15 +115,15 @@ class mpaccount extends mp_controller {
         $features = $modelMpa->getFeatures($this->mpid, $fields);
         
         if ($_SERVER['HTTP_ACCEPT'] === 'application/json')
-            return new ResponseData($features);
+            return new \ResponseData($features);
         else {
             $perms = $this->getUserPermissions();
             $params = array(
                 'features' => $features
             );
 
-            TPL::assign('params', $params);
-            if ($perms===true || $perms['mpsetting']['update_p']==='Y')
+            \TPL::assign('params', $params);
+            if ($perms===true || $perms['mpsetting_feature']['update_p']==='Y')
                 $this->view_action('/mp/mpaccount/feature');
             else
                 $this->view_action('/mp/mpaccount/read/feature');
@@ -113,7 +136,7 @@ class mpaccount extends mp_controller {
     {
         $perms = $this->getUserPermissions();
 
-        if ($perms===true || $perms['mpsetting']['update_p']==='Y')
+        if ($perms===true || $perms['mpsetting_customapi']['update_p']==='Y')
             $this->view_action('/mp/mpaccount/customapi');
         else
             $this->view_action('/mp/mpaccount/read/customapi');
@@ -125,7 +148,7 @@ class mpaccount extends mp_controller {
     {
         $perms = $this->getUserPermissions();
 
-        if ($perms===true || $perms['mpsecurity']['update_p']=='Y')
+        if ($perms===true || $perms['mpsetting_permission']['update_p']=='Y')
             $this->view_action('/mp/mpaccount/permission');
         else
             $this->view_action('/mp/mpaccount/read/permission');
@@ -146,9 +169,13 @@ class mpaccount extends mp_controller {
                 $a->authed_id = $a->email;
 
         $params['administrators'] = $admins;
-        TPL::assign('params', $params);
+        \TPL::assign('params', $params);
 
-        $this->view_action('/mp/mpaccount/administrator');
+        $perms = $this->getUserPermissions();
+        if ($perms===true || $perms['mpsetting_administrator']['update_p']=='Y')
+            $this->view_action('/mp/mpaccount/administrator');
+        else
+            $this->view_action('/mp/mpaccount/read/administrator');
     }
     /**
      * 更新账号配置信息
@@ -168,44 +195,20 @@ class mpaccount extends mp_controller {
         if (isset($nv->token))
             $rst = $this->model()->update(
                 'xxt_mpaccount', 
-                array('yx_joined'=>'N','wx_joined'=>'N','qy_joined'=>'Y'),
+                array('yx_joined'=>'N','wx_joined'=>'N','qy_joined'=>'N'),
                 "mpid='$this->mpid'"
             );
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      *
      */
-    private function hasYxJoined() 
+    public function checkJoin_action() 
     {
-        $q = array('yx_joined', 'xxt_mpaccount', "mpid='$this->mpid'");
-        return $this->model()->query_val_ss($q);
-    }
-    /**
-     *
-     */
-    private function hasWxJoined() 
-    {
-        $q = array('wx_joined', 'xxt_mpaccount', "mpid='$this->mpid'");
-        return $this->model()->query_val_ss($q);
-    }
-    /**
-     *
-     */
-    public function checkJoin_action($src) 
-    {
-        switch ($src) {
-        case 'yx':
-            $v = $this->hasYxJoined();
-            break;
-        case 'wx':
-            $v = $this->hasWxJoined();
-            break;
-        default:
-            return new ResponseError("未知来源（$src）。");
-        }
-        return new ResponseData($v);    
+        $mpa = $this->model('mp\mpaccount')->byId($this->mpid);
+
+        return new \ResponseData($mpa->{$mpa->mpsrc.'_joined'});
     }
     /**
      * 获得当前用户的权限
@@ -214,7 +217,7 @@ class mpaccount extends mp_controller {
     {
         $perms = $this->getUserPermission();
 
-        return new ResponseData($perms);
+        return new \ResponseData($perms);
     }
     /**
      * 获得高级接口定义
@@ -225,27 +228,7 @@ class mpaccount extends mp_controller {
 
         $apis = $modelMpa->getApis($this->mpid);
 
-        return new ResponseData($apis);
-    }
-    /**
-     * 更新内置用户注册设置
-     */
-    public function updateUserauth_action($authid) 
-    {
-        $nv = (array)$this->getPostJson();
-
-        foreach ($nv as $k=>$v) {
-            if (in_array($k, array('auth_css','auth_html','auth_js')))    
-                $nv[$k] = mysql_real_escape_string($v);
-        }
-
-        $rst = $this->model()->update(
-            'xxt_member_authapi', 
-            $nv, 
-            "authid=$authid and mpid='$this->mpid'"
-        );
-
-        return new ResponseData($rst);
+        return new \ResponseData($apis);
     }
     /**
      *
@@ -260,7 +243,7 @@ class mpaccount extends mp_controller {
             "mpid='$this->mpid'"
         );
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      *
@@ -281,13 +264,13 @@ class mpaccount extends mp_controller {
             );
         } else {
             if (isset($nv->body_ele))
-                $nv->body_ele = mysql_real_escape_string($nv->body_ele);
+                $nv->body_ele = $this->model()->escape($nv->body_ele);
             else if (isset($nv->body_css))
-                $nv->body_css = mysql_real_escape_string($nv->body_css);
+                $nv->body_css = $this->model()->escape($nv->body_css);
             else if (isset($nv->follow_ele))
-                $nv->follow_ele = mysql_real_escape_string($nv->follow_ele);
+                $nv->follow_ele = $this->model()->escape($nv->follow_ele);
             else if (isset($nv->follow_css))
-                $nv->follow_css = mysql_real_escape_string($nv->follow_css);
+                $nv->follow_css = $this->model()->escape($nv->follow_css);
 
             $rst = $this->model()->update(
                 'xxt_mpsetting',
@@ -296,115 +279,7 @@ class mpaccount extends mp_controller {
             );
         }
 
-        return new ResponseData($rst);
-    }
-    /**
-     * 获得定义的认证接口
-     *
-     * 返回当前公众号和它的父账号的
-     *
-     * $valid
-     */
-    public function authapis_action($valid=null)
-    {
-        $modelMpa = $this->model('mp\mpaccount');
-
-        $pmp = $modelMpa->byId($this->mpid, 'parent_mpid');
-        if (!empty($pmp->parent_mpid))
-            $papis = $modelMpa->getAuthapis($pmp->parent_mpid, $valid);
-
-        $apis = $modelMpa->getAuthapis($this->mpid, $valid);
-
-        !empty($papis) && $apis = array_merge($papis, $apis);
-
-        return new ResponseData($apis);
-    }
-    /**
-     *
-     */
-    public function updAuthapi_action($type, $id=null) 
-    {
-        $uid = TMS_CLIENT::get_client_uid();
-
-        $nv = $this->getPostJson();
-
-        if (empty($id) && $type === 'inner') {
-            /**
-             * 如果是首次使用内置接口，就创建新的接口定义
-             */
-            $i = array(
-                'mpid'=>$this->mpid,
-                'name'=>'内置认证',
-                'type'=>'inner',
-                'valid'=>'N',
-                'creater'=>$uid,
-                'create_at'=>time(),
-                'url'=>TMS_APP_API_PREFIX."/member/auth"
-            );
-            $i = array_merge($i, (array)$nv);
-            $id = $this->model()->insert('xxt_member_authapi', $i, true);
-        } else {
-            /**
-             * 更新已有的认证接口定义
-             */
-            if (isset($nv->entry_statement))
-                $nv->entry_statement = mysql_real_escape_string($nv->entry_statement);
-            else if (isset($nv->acl_statement))
-                $nv->acl_statement = mysql_real_escape_string($nv->acl_statement);
-            else if (isset($nv->notpass_statement))
-                $nv->notpass_statement = mysql_real_escape_string($nv->notpass_statement);
-            else if (isset($nv->extattr)) {
-                foreach ($nv->extattr as &$attr) {
-                    $attr->id = urlencode($attr->id);
-                    $attr->label = urlencode($attr->label);
-                }
-                $nv->extattr = urldecode(json_encode($nv->extattr));
-            }
-
-            $rst = $this->model()->update(
-                'xxt_member_authapi',
-                (array)$nv,
-                "mpid='$this->mpid' and authid='$id'"
-            );
-        }
-
-        $api = $this->model('user/authapi')->byId($id);
-
-        return new ResponseData($api);
-    }
-    /**
-     * 填加自定义认证接口
-     * 自定义认证接口只有在本地部署版本中才有效
-     */
-    public function addAuthapi_action() 
-    {
-        $uid = TMS_CLIENT::get_client_uid();
-
-        $i = array(
-            'mpid'=>$this->mpid,
-            'name'=>'',
-            'type'=>'cus',
-            'valid'=>'N',
-            'creater'=>$uid,
-            'create_at'=>time(),
-            'url'=>''
-        );
-        $id = $this->model()->insert('xxt_member_authapi', $i, true);
-
-        $q = array('*','xxt_member_authapi',"mpid='$this->mpid' and authid='$id'");
-
-        $api = $this->model()->query_obj_ss($q);
-
-        return new ResponseData($api);
-    }
-    /**
-     * 只有没有被使用的自定义接口才允许被删除 
-     */
-    public function delAuthapi_action($id) 
-    {
-        $rst = $this->model()->delete('xxt_member_authapi',"mpid='$this->mpid' and authid='$id' and used=0");
-
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      * 获得定义的转发接口
@@ -413,7 +288,7 @@ class mpaccount extends mp_controller {
     {
         $relays = $this->model('mp\mpaccount')->getRelays($this->mpid);
 
-        return new ResponseData($relays);
+        return new \ResponseData($relays);
     }
     /**
      * 添加转发接口
@@ -425,7 +300,7 @@ class mpaccount extends mp_controller {
 
         $r = $this->model('mp\mpaccount')->addRelay($r);
 
-        return new ResponseData($r);
+        return new \ResponseData($r);
     }
     /**
      * 更新转发接口
@@ -436,16 +311,16 @@ class mpaccount extends mp_controller {
 
         $rst = $this->model()->update('xxt_mprelay', (array)$nv, "id='$rid'");
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      * 只有没有被使用的自定义接口才允许被删除 
      */
     public function delRelay_action($rid) 
     {
-        $res = $this->model()->delete('xxt_mprelay',"mpid='$this->mpid' and id='$rid' and used=0");
+        $res = $this->model()->update('xxt_mprelay', array('state'=>0), "mpid='$this->mpid' and id='$rid'");
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      * 设置的系统管理员
@@ -462,7 +337,7 @@ class mpaccount extends mp_controller {
             if (empty($a->authed_id))
                 $a->authed_id = $a->email;
 
-        return new ResponseData($admins);
+        return new \ResponseData($admins);
     }
     /**
      * 添加系统管理员
@@ -470,14 +345,14 @@ class mpaccount extends mp_controller {
     public function addAdmin_action($authedid=null,$authapp='',$autoreg='N')
     {
         if (empty($authedid) && defined('TMS_APP_ADDON_EXTERNAL_ORG'))
-            return new ResponseData(array('externalOrg'=>TMS_APP_ADDON_EXTERNAL_ORG));
+            return new \ResponseData(array('externalOrg'=>TMS_APP_ADDON_EXTERNAL_ORG));
 
         $model = $this->model('account');
         $account = $model->getAccountByAuthedId($authedid);
 
         if (!$account)
             if ($autoreg!=='Y')
-                return new ResponseError('指定的账号不是注册账号，请先注册！');
+                return new \ResponseError('指定的账号不是注册账号，请先注册！');
             else
                 $account = $model->authed_from($authedid, $authapp, '0.0.0.0', $authedid);
 
@@ -490,9 +365,9 @@ class mpaccount extends mp_controller {
             "mpid='$this->mpid' and uid='$account->uid'"
         );
         if ((int)$this->model()->query_val_ss($q) > 0)
-            return new ResponseError('该账号已经是系统管理员，不能重复添加！');
+            return new \ResponseError('该账号已经是系统管理员，不能重复添加！');
 
-        $uid = TMS_CLIENT::get_client_uid();
+        $uid = \TMS_CLIENT::get_client_uid();
         $this->model()->insert(
             'xxt_mpadministrator',
             array(
@@ -504,7 +379,7 @@ class mpaccount extends mp_controller {
             false
         );
 
-        return new ResponseData(array('uid'=>$account->uid, 'authed_id'=>$authedid));
+        return new \ResponseData(array('uid'=>$account->uid, 'authed_id'=>$authedid));
     }
     /**
      * 删除一个系统管理员
@@ -515,7 +390,7 @@ class mpaccount extends mp_controller {
             'xxt_mpadministrator', 
             "mpid='$this->mpid' and uid='$uid'"
         );
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      * 生成当前公众号的父账号
@@ -533,18 +408,22 @@ class mpaccount extends mp_controller {
         /**
          * 1、生成一个新的父账号
          */
-        $d['name'] = $mpa->name.'（父账号）';
-        $d['asparent'] = 'Y';
+        if (empty($mpa->parent_mpid)) {
+            $d['name'] = $mpa->name.'（父账号）';
+            $d['asparent'] = 'Y';
 
-        $pmpid = $this->model('mp\mpaccount')->create($d);
-        /**
-         * 2、将当前账号设置为父账号的子账号
-         */
-        $rst = $this->model()->update(
-            'xxt_mpaccount', 
-            array('parent_mpid'=>$pmpid),
-            "mpid='$this->mpid'"
-        );
+            $pmpid = $this->model('mp\mpaccount')->create($d);
+            /**
+            * 2、将当前账号设置为父账号的子账号
+            */
+            $rst = $this->model()->update(
+                'xxt_mpaccount', 
+                array('parent_mpid'=>$pmpid),
+                "mpid='$this->mpid'"
+            );
+        } else {
+            $pmpid = $mpa->parent_mpid;
+        }
         /**
          * 3、将当前账号的素材迁移到父账号
          */
@@ -573,27 +452,13 @@ class mpaccount extends mp_controller {
             array('mpid'=>$pmpid),
             "mpid='$this->mpid'"
         );
-        //todo ???
-        /*$rst = $this->model()->update(
-            'xxt_news_matter', 
-            array('mpid'=>$pmpid),
-            "mpid='$this->mpid'"
-        );*/
+        // xxt_news_matter
         $rst = $this->model()->update(
             'xxt_link', 
             array('mpid'=>$pmpid),
             "mpid='$this->mpid'"
         );
-        $rst = $this->model()->update(
-            'xxt_link_param', 
-            array('mpid'=>$pmpid),
-            "mpid='$this->mpid'"
-        );
-        $rst = $this->model()->update(
-            'xxt_link_channel', 
-            array('mpid'=>$pmpid),
-            "mpid='$this->mpid'"
-        );
+        // xxt_link_param
         $rst = $this->model()->update(
             'xxt_channel', 
             array('mpid'=>$pmpid),
@@ -603,7 +468,7 @@ class mpaccount extends mp_controller {
          * 通讯录迁移
          */
         $rst = $this->model()->update(
-            'xxt_address_book', 
+            'xxt_addressbook', 
             array('mpid'=>$pmpid),
             "mpid='$this->mpid'"
         );
@@ -631,12 +496,12 @@ class mpaccount extends mp_controller {
          * 回复响应事件迁移
          */
         $rst = $this->model()->update(
-            'xxt_text_call_reply', 
+            'xxt_call_text', 
             array('mpid'=>$pmpid),
             "mpid='$this->mpid'"
         );
         $rst = $this->model()->update(
-            'xxt_menu_reply', 
+            'xxt_call_menu', 
             array('mpid'=>$pmpid,'pversion'=>-1),
             "mpid='$this->mpid'"
         );
@@ -644,12 +509,12 @@ class mpaccount extends mp_controller {
          * 活动数据迁移
          */
         $rst = $this->model()->update(
-            'xxt_activity', 
+            'xxt_enroll', 
             array('mpid'=>$pmpid),
             "mpid='$this->mpid'"
         );
         $rst = $this->model()->update(
-            'xxt_activity_receiver', 
+            'xxt_enroll_receiver', 
             array('mpid'=>$pmpid),
             "mpid='$this->mpid'"
         );
@@ -681,7 +546,7 @@ class mpaccount extends mp_controller {
             "mpid='$this->mpid'"
         );
 
-        return new ResponseData($pmpid);
+        return new \ResponseData($pmpid);
     }
     /**
      *
@@ -689,7 +554,7 @@ class mpaccount extends mp_controller {
     public function removeMp_action($mpid, $code)
     {
         if ($code !== 'p0o9i8u7')
-            return new ResponseError('failed');
+            return new \ResponseError('failed');
 
         $rst = $this->model()->update(
             'xxt_mpaccount', 
@@ -704,7 +569,6 @@ class mpaccount extends mp_controller {
         $this->model()->delete('xxt_mppermission', "mpid='$mpid'");
 
         $this->model()->delete('xxt_tag', "mpid='$mpid'");
-        $this->model()->delete('xxt_article_channel', "article_id in (select id from xxt_article where mpid='$mpid')");
         $this->model()->delete('xxt_article_remark', "article_id in (select id from xxt_article where mpid='$mpid')");
         $this->model()->delete('xxt_article_score', "article_id in (select id from xxt_article where mpid='$mpid')");
         $this->model()->delete('xxt_article', "mpid='$mpid'");
@@ -713,36 +577,33 @@ class mpaccount extends mp_controller {
         $this->model()->delete('xxt_news_matter', "news_id in (select id from xxt_news where mpid='$mpid')");
         $this->model()->delete('xxt_news', "mpid='$mpid'");
         $this->model()->delete('xxt_link_param', "link_id in (select id from xxt_link where mpid='$mpid')");
-        $this->model()->delete('xxt_link_channel', "link_id in (select id from xxt_link where mpid='$mpid')");
         $this->model()->delete('xxt_link', "mpid='$mpid'");
+        $this->model()->delete('xxt_channel_matter', "channel_id in (select id from xxt_channel where mpid='$mpid')");
         $this->model()->delete('xxt_channel', "mpid='$mpid'");
-        $this->model()->delete('xxt_address_book', "mpid='$mpid'");
+        $this->model()->delete('xxt_addressbook', "mpid='$mpid'");
         $this->model()->delete('xxt_ab_dept', "mpid='$mpid'");
         $this->model()->delete('xxt_ab_person', "mpid='$mpid'");
         $this->model()->delete('xxt_ab_person_dept', "mpid='$mpid'");
         $this->model()->delete('xxt_ab_title', "mpid='$mpid'");
-        $this->model()->delete('xxt_matter_acl', "mpid='$mpid'");
-        $this->model()->delete('xxt_tmplmsg_log', "tmplmsg_id in (select id from xxt_tmplmsg where mpid='$mpid')");
         $this->model()->delete('xxt_tmplmsg_param', "tmplmsg_id in (select id from xxt_tmplmsg where mpid='$mpid')");
         $this->model()->delete('xxt_tmplmsg', "mpid='$mpid'");
 
-        $this->model()->delete('xxt_text_call_reply', "mpid='$mpid'");
-        $this->model()->delete('xxt_qrcode_call_reply', "mpid='$mpid'");
-        $this->model()->delete('xxt_other_call_reply', "mpid='$mpid'");
-        $this->model()->delete('xxt_menu_reply', "mpid='$mpid'");
+        $this->model()->delete('xxt_call_text', "mpid='$mpid'");
+        $this->model()->delete('xxt_call_qrcode', "mpid='$mpid'");
+        $this->model()->delete('xxt_call_other', "mpid='$mpid'");
+        $this->model()->delete('xxt_call_menu', "mpid='$mpid'");
         $this->model()->delete('xxt_call_acl', "mpid='$mpid'");
 
-        $this->model()->delete('xxt_activity_lottery_round', "aid in (select aid from xxt_activity where mpid='$mpid')");
-        $this->model()->delete('xxt_activity_lottery', "aid in (select aid from xxt_activity where mpid='$mpid')");
-        $this->model()->delete('xxt_activity', "mpid='$mpid'");
-        $this->model()->delete('xxt_activity_receiver', "mpid='$mpid'");
-        $this->model()->delete('xxt_activity_round', "mpid='$mpid'");
-        $this->model()->delete('xxt_activity_page', "mpid='$mpid'");
-        $this->model()->delete('xxt_activity_enroll_cusdata', "enroll_key in (select enroll_key from xxt_activity_enroll where mpid='$mpid')");
-        $this->model()->delete('xxt_activity_enroll_remark', "enroll_key in (select enroll_key from xxt_activity_enroll where mpid='$mpid')");
-        $this->model()->delete('xxt_activity_enroll_score', "enroll_key in (select enroll_key from xxt_activity_enroll where mpid='$mpid')");
-        $this->model()->delete('xxt_activity_enroll', "mpid='$mpid'");
-        $this->model()->delete('xxt_act_acl', "mpid='$mpid'");
+        $this->model()->delete('xxt_enroll_lottery_round', "aid in (select aid from xxt_enroll where mpid='$mpid')");
+        $this->model()->delete('xxt_enroll_lottery', "aid in (select aid from xxt_enroll where mpid='$mpid')");
+        $this->model()->delete('xxt_enroll', "mpid='$mpid'");
+        $this->model()->delete('xxt_enroll_receiver', "mpid='$mpid'");
+        $this->model()->delete('xxt_enroll_round', "mpid='$mpid'");
+        $this->model()->delete('xxt_enroll_page', "mpid='$mpid'");
+        $this->model()->delete('xxt_enroll_record_data', "enroll_key in (select enroll_key from xxt_enroll_record where mpid='$mpid')");
+        $this->model()->delete('xxt_enroll_record_remark', "enroll_key in (select enroll_key from xxt_enroll_record where mpid='$mpid')");
+        $this->model()->delete('xxt_enroll_record_score', "enroll_key in (select enroll_key from xxt_enroll_record where mpid='$mpid')");
+        $this->model()->delete('xxt_enroll_record', "mpid='$mpid'");
 
         $this->model()->delete('xxt_lottery_task_log', "lid in (select lid from xxt_lottery where mpid='$mpid')");
         $this->model()->delete('xxt_lottery_task', "lid in (select lid from xxt_lottery where mpid='$mpid')");
@@ -755,13 +616,16 @@ class mpaccount extends mp_controller {
         $this->model()->delete('xxt_wall_enroll', "mpid='$mpid'");
         $this->model()->delete('xxt_wall_log', "mpid='$mpid'");
 
+        $this->model()->delete('xxt_matter_acl', "mpid='$mpid'");
+
         $this->model()->delete('xxt_log', "mpid='$mpid'");
-        $this->model()->delete('xxt_mpreceive_log', "mpid='$mpid'");
-        $this->model()->delete('xxt_mpsend_log', "mpid='$mpid'");
-        $this->model()->delete('xxt_matter_read_log', "mpid='$mpid'");
-        $this->model()->delete('xxt_shareaction_log', "mpid='$mpid'");
-        $this->model()->delete('xxt_user_action_log', "mpid='$mpid'");
-        $this->model()->delete('xxt_matter_action_log', "mpid='$mpid'");
+        $this->model()->delete('xxt_log_mpreceive', "mpid='$mpid'");
+        $this->model()->delete('xxt_log_mpsend', "mpid='$mpid'");
+        $this->model()->delete('xxt_log_matter_read', "mpid='$mpid'");
+        $this->model()->delete('xxt_log_matter_share', "mpid='$mpid'");
+        $this->model()->delete('xxt_log_tmplmsg', "tmplmsg_id in (select id from xxt_tmplmsg where mpid='$mpid')");
+        $this->model()->delete('xxt_log_user_action', "mpid='$mpid'");
+        $this->model()->delete('xxt_log_matter_action', "mpid='$mpid'");
 
         $this->model()->delete('xxt_visitor', "mpid='$mpid'");
         $this->model()->delete('xxt_fans', "mpid='$mpid'");
@@ -772,6 +636,6 @@ class mpaccount extends mp_controller {
         $this->model()->delete('xxt_member_tag', "mpid='$mpid'");
         //$this->model()->delete('xxt_access_token', "mpid='$mpid'");
 
-        return new ResponseData($mpid);
+        return new \ResponseData($mpid);
     }
 }

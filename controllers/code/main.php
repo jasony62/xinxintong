@@ -1,8 +1,9 @@
 <?php
+namespace code;
 /**
  *
  */
-class main extends TMS_CONTROLLER {
+class main extends \TMS_CONTROLLER {
 
     public function get_access_rule() 
     {
@@ -18,19 +19,19 @@ class main extends TMS_CONTROLLER {
     {
         if ($_SERVER['HTTP_ACCEPT'] === 'application/json') {
             if ($pid === null) {
-                $uid = TMS_CLIENT::get_client_uid();
+                $uid = \TMS_CLIENT::get_client_uid();
                 $pages = $this->model('code/page')->byUser($uid);
-                return new ResponseData(array($pages, count($pages)));
+                return new \ResponseData(array($pages, count($pages)));
             } else {
                 $page = $this->model('code/page')->byId($pid);
-                return new ResponseData($page);
+                return new \ResponseData($page);
             }
         } else {
             if ($pid === null) {
                 $this->view_action('/code/main');
             } else {
                 $page = $this->model('code/page')->byId($pid);
-                TPL::assign('page', $page);
+                \TPL::assign('page', $page);
                 $this->view_action('/code/page');
             }
         }
@@ -40,10 +41,10 @@ class main extends TMS_CONTROLLER {
      */
     public function create_action()
     {
-        $uid = TMS_CLIENT::get_client_uid();
+        $uid = \TMS_CLIENT::get_client_uid();
         $page = $this->model('code/page')->create($uid);
 
-        return new ResponseData($page);
+        return new \ResponseData($page);
     }
     /**
      * 删除页面
@@ -52,7 +53,7 @@ class main extends TMS_CONTROLLER {
     {
         $rst = $this->model('code/page')->remove($id);
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      *
@@ -62,8 +63,10 @@ class main extends TMS_CONTROLLER {
         $nv = $this->getPostJson();
 
         foreach ($nv as $n=>$v) {
-            if (in_array($n, array('summary','html','css','js')))
-                $nv->$n = mysql_real_escape_string($v);
+            if (in_array($n, array('html','css','js'))) {
+                $v = urldecode($v);
+                $nv->$n = $this->model()->escape($v);
+            }
         }
 
         $rst = $this->model()->update(
@@ -72,6 +75,29 @@ class main extends TMS_CONTROLLER {
             "id=$id"
         );
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
+    }
+    /**
+     * 给页面添加资源
+     *
+     * $id 页面ID
+     */
+    public function addExternal_action($id)
+    {
+        $res = $this->getPostJson();
+        
+        $res->code_id = $id;
+        $res->id = $this->model()->insert('xxt_code_external', (array)$res, true);
+        
+        return new \ResponseData($res);
+    }
+    /**
+     * $id 外部资源ID
+     */
+    public function delExternal_action($id)
+    {
+        $rst = $this->model()->delete('xxt_code_external', "id=$id");
+        
+        return new \ResponseData($rst);
     }
 }

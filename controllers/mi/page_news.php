@@ -1,4 +1,5 @@
 <?php
+namespace mi;
 /**
  * 页面形式的多图文
  *
@@ -8,66 +9,34 @@ class page_news extends matter_page_base {
     /**
      *
      */
-    public function __construct($id, $openid, $src)
+    public function __construct($id, $openid)
     {
-        $q = array(
-            'id,mpid,title,access_control,authapis,"N" type,filter_by_matter_acl,empty_reply_type,empty_reply_id', 
-            'xxt_news', 
-            "id=$id"
-        );
-        $this->news = TMS_APP::model()->query_obj_ss($q);
-        parent::__construct($this->news, $openid, $src);
+        $this->news = \TMS_APP::M('matter\news')->byId($id, "*,'news' type");
+        parent::__construct($this->news, $openid);
     }
     /**
-     * 
-     *$runningMpid 当前运行的公众号
+     *
+     * $runningMpid 当前运行的公众号
      */
     public function output($runningMpid)
     {
-        $members = TMS_APP::model('user/member')->byOpenid($runningMpid, $this->openid);
+        $members = \TMS_APP::M('user/member')->byOpenid($runningMpid, $this->openid);
+        $matters = \TMS_APP::M('matter\news')->getMatters($this->news->id);
+        $modelAcl = \TMS_APP::M('acl');
+
         $matters2 = array();
-        $matters = TMS_APP::model('matter/news')->getMatters($this->news->id);
         foreach ($matters as $m) {
-            $m->url = TMS_APP::model('reply')->getMatterUrl($runningMpid, $m, $this->openid, $this->src);
             if ($m->access_control === 'Y' && $this->news->filter_by_matter_acl === 'Y') {
-                $model = TMS_APP::model('acl');
-                switch (lcfirst($m->type)) {
-                case 'activity':
-                    $actType = 'A';
-                    break;
-                case 'lottery':
-                    $actType = 'L';
-                    break;
-                case 'discuss':
-                    $actType = 'W';
-                    break;
-                case 'article':
-                    $matterType = 'A';
-                    break;
-                case 'link':
-                    $matterType = 'L';
-                    break;
-                }
-                if (isset($actType)) {
-                    $inacl = false;
-                    foreach ($members as $member) {
-                        if ($model->canAccessAct($runningMpid, $m->id, $actType, $member, $m->authapis)){
-                            $inacl = true;
-                            break;
-                        }
+                $inacl = false;
+                foreach ($members as $member) {
+                    if ($modelAcl->canAccessMatter($runningMpid, $m->type, $m->id, $member, $m->authapis)){
+                        $inacl = true;
+                        break;
                     }
-                    if (!$inacl) continue;
-                } else if (isset($matterType)) {
-                    $inacl = false;
-                    foreach ($members as $member) {
-                        if ($model->canAccessMatter($runningMpid, $matterType, $m->id, $member, $m->authapis)){
-                            $inacl = true;
-                            break;
-                        }
-                    }
-                    if (!$inacl) continue;
                 }
+                if (!$inacl) continue;
             }
+            $m->url = \TMS_APP::M('matter\\'.$m->type)->getEntryUrl($runningMpid, $m->id, $this->openid);
             $matters2[] = $m;
         }
 
@@ -75,16 +44,15 @@ class page_news extends matter_page_base {
             header("Location: ".$matters2[0]->url);
             exit;
         } else if (count($matters2) === 0) {
-            $m = TMS_APP::model('matter/base')->get_by_id($this->news->empty_reply_type, $this->news->empty_reply_id);
-            $url = TMS_APP::model('reply')->getMatterUrl($runningMpid, $m, $this->openid, $this->src);
+            $url = \TMS_APP::M('matter\\'.$this->news->empty_reply_type)->getEntryUrl($runningMpid, $this->news->empty_reply_id, $this->openid);
             header("Location: ".$url);
             exit;
         } else {
-            $body_ele = TMS_APP::model()->query_value('body_ele', 'xxt_mpsetting', "mpid='$mpid'");
-            TPL::assign('list_title', $this->news->title);
-            TPL::assign('body_ele', $body_ele);
-            TPL::assign('matters', $matters2);
-            TPL::output('article-list');
+            $body_ele = \TMS_APP::model()->query_value('body_ele', 'xxt_mpsetting', "mpid='$runningMpid'");
+            \TPL::assign('list_title', $this->news->title);
+            \TPL::assign('body_ele', $body_ele);
+            \TPL::assign('matters', $matters2);
+            \TPL::output('article-list');
             exit;
         }
     }

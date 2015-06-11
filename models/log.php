@@ -3,14 +3,13 @@ class log_model extends TMS_MODEL {
     /**
      *
      */
-    public function log($mpid, $src, $method, $data)
+    public function log($mpid, $method, $data)
     {
         $current = time();
         $i['mpid'] = $mpid;
         $i['method'] = $method;
         $i['create_at'] = $current;
-        $i['src'] = $src;
-        $i['data'] = mysql_real_escape_string($data);
+        $i['data'] = $this->escape($data);
 
         $this->insert('xxt_log', $i, false);
 
@@ -33,37 +32,37 @@ class log_model extends TMS_MODEL {
         $r['msgid'] = $msg['msgid'];  
         $r['to_user'] = $msg['to_user'];  
         $r['openid'] = $openid;  
-        $r['nickname'] = $fan->nickname;  
+        $r['nickname'] = !empty($fan) ? $fan->nickname : '';  
         $r['create_at'] = $createAt;  
         $r['type'] = $msg['type'];
         if (is_array($msg['data'])) {
             $data = array();
             foreach ($msg['data'] as $d)
                 $data[] = urlencode($d);
-            $r['data'] = mysql_real_escape_string(urldecode(json_encode($data)));  
+            $r['data'] = $this->escape(urldecode(json_encode($data)));  
         } else
-            $r['data'] = mysql_real_escape_string($msg['data']);  
+            $r['data'] = $this->escape($msg['data']);  
 
-        $this->insert('xxt_mpreceive_log', $r, false);
+        $this->insert('xxt_log_mpreceive', $r, false);
 
         return true;
     }
     /**
      * 记录所有发送给用户的消息
      */
-    public function send($mpid, $src, $openid, $groupid, $content, $matter)
+    public function send($mpid, $openid, $groupid, $content, $matter)
     {
         $i['mpid'] = $mpid;
         $i['creater'] = TMS_CLIENT::get_client_uid();
         $i['create_at'] = time();
         !empty($openid) && $i['openid'] = $openid;
         !empty($groupid) && $i['groupid'] = $groupid;
-        !empty($content) && $i['content'] = mysql_real_escape_string($content);
+        !empty($content) && $i['content'] = $this->escape($content);
         if (!empty($matter)) {
             $i['matter_id'] = $matter->id;
             $i['matter_type'] = $matter->type;
         }
-        $this->insert('xxt_mpsend_log', $i, false);
+        $this->insert('xxt_log_mpsend', $i, false);
 
         return true;
     }
@@ -74,9 +73,9 @@ class log_model extends TMS_MODEL {
     {
     }
     /**
-     * 用户是否可以接收客服消息
+     * 用户是否可以接收t推送消息
      */
-    public function canReceiveCustomPush($mpid, $src, $openid)
+    public function canReceivePush($mpid, $openid)
     {
         return true;
     }
@@ -87,7 +86,7 @@ class log_model extends TMS_MODEL {
     {
         $q = array(
             'creater,create_at,content,matter_id,matter_type',
-            'xxt_mpsend_log',
+            'xxt_log_mpsend',
             "mpid='$mpid' and openid='$openid'"
         );
         $q2 = array(
@@ -99,7 +98,7 @@ class log_model extends TMS_MODEL {
 
         $q = array(
             'create_at,data content',
-            'xxt_mpreceive_log',
+            'xxt_log_mpreceive',
             "mpid='$mpid' and openid='$openid' and type='text'"
         );
         $q2 = array(
@@ -108,7 +107,7 @@ class log_model extends TMS_MODEL {
         );
 
         $recelogs = $this->query_objs_ss($q, $q2);
-        
+
         $logs = array_merge($sendlogs, $recelogs);
 
         /**
@@ -117,7 +116,7 @@ class log_model extends TMS_MODEL {
         usort($logs, function($a, $b){
             return $b->create_at - $a->create_at; 
         });
-        
+
         return $logs;
     }
     /**
@@ -127,12 +126,11 @@ class log_model extends TMS_MODEL {
      *      如果一个用户A向公众账号发消息，获得了打开素材的书签，然后将这个书签转发给了用户B，B打开了素材。
      *      那么vid对应的是B，user对应的是A。          
      */
-    public function writeMatterReadLog($vid, $mpid, $id, $type, $ooid, $osrc, $shareby, $openid_agent, $client_ip) 
+    public function writeMatterReadLog($vid, $mpid, $id, $type, $ooid, $shareby, $openid_agent, $client_ip) 
     {
         $current = time();
         $d = array(); 
         $d['vid'] = $vid;
-        $d['osrc'] = $osrc;
         $d['ooid'] = $ooid;
         $d['read_at'] = $current;
         $d['mpid'] = $mpid;
@@ -142,10 +140,10 @@ class log_model extends TMS_MODEL {
         $d['user_agent'] = $openid_agent;
         $d['client_ip'] = $client_ip;
 
-        $id = $this->insert('xxt_matter_read_log', $d, true);
+        $id = $this->insert('xxt_log_matter_read', $d, true);
 
         // 日志汇总
-        $this->writeUserActionLog($mpid, $vid, $osrc, $ooid, $current, 'R', $id);
+        $this->writeUserActionLog($mpid, $vid, $ooid, $current, 'R', $id);
         $this->writeMatterActionLog($mpid, $type, $id, $current, 'R', $id);
 
         return $id;
@@ -158,7 +156,6 @@ class log_model extends TMS_MODEL {
      * $matter_id 分享的素材ID 
      * $matter_type 分享的素材类型 
      * $ooid  谁进行的分享
-     * $osrc  谁进行的分享
      * $user_agent  谁进行的分享 
      * $client_ip  谁进行的分享
      * $share_at 什么时间做的分享
@@ -166,7 +163,7 @@ class log_model extends TMS_MODEL {
      * $mshareid 素材的分享ID
      * 
      */
-    public function writeShareActionLog($shareid, $vid, $osrc, $ooid, $shareto, $shareby, $mpid, $id, $type, $openid_agent, $client_ip)
+    public function writeShareActionLog($shareid, $vid, $ooid, $shareto, $shareby, $mpid, $id, $type, $openid_agent, $client_ip)
     {
         $mopenid = '';
         $mshareid = '';
@@ -175,7 +172,6 @@ class log_model extends TMS_MODEL {
         $d = array();
         $d['shareid'] = $shareid;
         $d['vid'] = $vid;
-        $d['osrc'] = $osrc;
         $d['ooid'] = $ooid;
         $d['share_at'] = $current;
         $d['share_to'] = $shareto;
@@ -186,10 +182,10 @@ class log_model extends TMS_MODEL {
         $d['user_agent'] = $openid_agent;
         $d['client_ip'] = $client_ip;
 
-        $id = $this->insert('xxt_shareaction_log', $d, true);
+        $id = $this->insert('xxt_log_matter_share', $d, true);
 
         // 日志汇总
-        $this->writeUserActionLog($mpid, $vid, $osrc, $ooid, $current, 'S'.$shareto, $id);
+        $this->writeUserActionLog($mpid, $vid, $ooid, $current, 'S'.$shareto, $id);
         $this->writeMatterActionLog($mpid, $type, $id, $current, 'S'.$shareto, $id);
 
         return $id;
@@ -198,12 +194,11 @@ class log_model extends TMS_MODEL {
      * 用户行为汇总日志
      * 为了便于进行数据统计
      */
-    private function writeUserActionLog($mpid, $vid, $src, $openid, $action_at, $action_name, $original_logid)
+    private function writeUserActionLog($mpid, $vid, $openid, $action_at, $action_name, $original_logid)
     {
         $d = array();
         $d['mpid'] = $mpid;
         $d['vid'] = $vid;
-        $d['src'] = $src;
         $d['openid'] = $openid;
         $d['action_at'] = $action_at;
         $d['original_logid'] = $original_logid;
@@ -220,7 +215,7 @@ class log_model extends TMS_MODEL {
         default:
             die('invalid parameter!');
         }
-        $this->insert('xxt_user_action_log', $d, false);
+        $this->insert('xxt_log_user_action', $d, false);
 
         return true;
     }
@@ -249,7 +244,7 @@ class log_model extends TMS_MODEL {
         default:
             die('invalid parameter!');
         }
-        $this->insert('xxt_matter_action_log', $d, false);
+        $this->insert('xxt_log_matter_action', $d, false);
 
         return true;
     }

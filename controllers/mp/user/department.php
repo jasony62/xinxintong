@@ -1,7 +1,9 @@
 <?php
+namespace mp\user;
+
 require_once dirname(dirname(__FILE__)).'/mp_controller.php';
 
-class department extends mp_controller {
+class department extends \mp\mp_controller {
 
     public function get_access_rule() 
     {
@@ -11,16 +13,23 @@ class department extends mp_controller {
         return $rule_action;
     }
     /**
+     *
+     */
+    public function index_action()
+    {
+        $this->view_action('/mp/user/departments');
+    }
+    /**
      * 获得指定父节点下的部门
      *
      * $authid
      * $pid
      */
-    public function index_action($authid, $pid=0)
+    public function get_action($authid, $pid=0)
     {
         $depts = $this->model('user/department')->byMpid($this->mpid, $authid, $pid);
 
-        return new ResponseData($depts);
+        return new \ResponseData($depts);
     }
     /**
      * 添加部门
@@ -44,7 +53,7 @@ class department extends mp_controller {
             $result = $this->model('mpproxy/qy', $this->mpid)->departmentCreate($dept->name, $pdept->id, $dept->seq);
             if ($result[0] === false) {
                 $this->model()->delete('xxt_member_department', "id=$dept->id");
-                return new ResponseError($result[1]);
+                return new \ResponseError($result[1]);
             }
 
             $dept->extattr = json_encode(array('id'=>(int)$result[1]->id,'parentid'=>(int)$pdept->id));
@@ -55,7 +64,7 @@ class department extends mp_controller {
             );
         }
 
-        return new ResponseData($dept);
+        return new \ResponseData($dept);
     }
     /**
      * 更新部门
@@ -79,7 +88,7 @@ class department extends mp_controller {
             if (!empty($rdept->id)) {
                 $result = $this->model('mpproxy/qy', $this->mpid)->departmentUpdate($rdept->id, $nv->name);
                 if ($result[0] === false)
-                    return new ResponseError($result[1]);
+                    return new \ResponseError($result[1]);
             }
         }
 
@@ -89,7 +98,7 @@ class department extends mp_controller {
             "mpid='$this->mpid' and id=$id"
         );
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      * 删除部门
@@ -105,7 +114,7 @@ class department extends mp_controller {
 
         $rst = $this->model('user/department')->remove($this->mpid, $id);
         if ($rst[0] === false)
-            return new ResponseError($rst[1]);
+            return new \ResponseError($rst[1]);
 
         if ($mpapis->mpsrc === 'qy' && $mpapis->qy_joined === 'Y') {
             /**
@@ -115,10 +124,10 @@ class department extends mp_controller {
             if (!empty($rdept->id)) {
                 $result = $this->model('mpproxy/qy', $this->mpid)->departmentDelete($rdept->id);
                 if ($result[0] === false)
-                    return new ResponseError($result[1]);
+                    return new \ResponseError($result[1]);
             }
         }
 
-        return new ResponseData(true);
+        return new \ResponseData(true);
     }
 }

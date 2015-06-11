@@ -1,7 +1,9 @@
 <?php
+namespace mp\matter;
+
 require_once dirname(__FILE__).'/matter_ctrl.php';
 
-class joinwall extends mp_controller {
+class joinwall extends \mp\mp_controller {
 
     public function get_access_rule()
     {
@@ -15,12 +17,19 @@ class joinwall extends mp_controller {
     public function index_action() 
     {
         $p = array(
-            'wid id,title', 
+            'id,title', 
             'xxt_wall',
             "mpid='$this->mpid'"
         );
         $walls = $this->model()->query_objs_ss($p);
 
-        return new ResponseData($walls);
+        return new \ResponseData($walls);
+    }
+    /**
+     *
+     */
+    public function get_action() 
+    {
+        return $this->index_action();
     }
 }

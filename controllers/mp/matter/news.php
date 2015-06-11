@@ -1,4 +1,6 @@
 <?php
+namespace mp\matter;
+
 require_once dirname(__FILE__).'/matter_ctrl.php';
 
 class news extends matter_ctrl {
@@ -7,7 +9,7 @@ class news extends matter_ctrl {
      */
     public function index_action($src=null, $cascade='y') 
     {
-        $uid = TMS_CLIENT::get_client_uid();
+        $uid = \TMS_CLIENT::get_client_uid();
         /**
          * 素材的来源
          */
@@ -34,18 +36,23 @@ class news extends matter_ctrl {
          */
         if ($news) {
             foreach ($news as &$n) {
-                if ($n->empty_reply_type && $n->empty_reply_id) {
-                    $m = $this->model('matter/base')->get_by_id($n->empty_reply_type, $n->empty_reply_id);
-                    $m->type = $n->empty_reply_type;
-                    $n->emptyReply = $m;
-                }
+                if ($n->empty_reply_type && $n->empty_reply_id)
+                    $n->emptyReply = $this->model('matter\base')->getMatterInfoById($n->empty_reply_type, $n->empty_reply_id);
                 if ( $cascade === 'y') {
-                    $n->stuffs = $this->model('matter/news')->getMatters($n->id);
-                    $n->acl = $this->model('acl')->matter($mpid, 'N', $n->id);
+                    $n->stuffs = $this->model('matter\news')->getMatters($n->id);
+                    $n->acl = $this->model('acl')->byMatter($mpid, 'news', $n->id);
                 }
             }
         }
-        return new ResponseData($news);
+        
+        return new \ResponseData($news);
+    }
+     /**
+     *
+     */
+    public function get_action($src=null, $cascade='y') 
+    {
+        return $this->index_action($src, $cascade);
     }
     /**
      *
@@ -55,11 +62,11 @@ class news extends matter_ctrl {
         /**
          * 包含的素材
          */
-        $n['stuffs'] = $this->model('matter/news')->getMatters($id);
+        $n['stuffs'] = $this->model('matter\news')->getMatters($id);
 
-        $n['acl'] = $this->model('acl')->matter($this->mpid, 'N', $id);
+        $n['acl'] = $this->model('acl')->byMatter($this->mpid, 'news', $id);
 
-        return new ResponseData($n);
+        return new \ResponseData($n);
     }
     /**
      *
@@ -74,7 +81,7 @@ class news extends matter_ctrl {
             "mpid='$this->mpid' and id=$id"
         );
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      *
@@ -91,7 +98,7 @@ class news extends matter_ctrl {
          */
         $this->assign_news_stuff($id, $s);
 
-        return new ResponseData('success');
+        return new \ResponseData('success');
     }
     /**
      *
@@ -106,14 +113,8 @@ class news extends matter_ctrl {
             $ns['matter_type'] = $stuff_type;
             $ns['seq'] = $i;
             $this->model()->insert('xxt_news_matter', $ns);
-            /**
-             * set stuff state.
-             */
-            if ($stuff_type == 'Article')
-                $this->model()->update('xxt_article',array('used'=>1),"id=$stuff_id");
-            elseif ($stuff_type == 'Link')
-                $this->model()->update('xxt_link',array('used'=>1),"id=$stuff_id");
         }
+        
         return true;
     }
     /**
@@ -121,7 +122,7 @@ class news extends matter_ctrl {
      */
     public function create_action() 
     {
-        $uid = TMS_CLIENT::get_client_uid();
+        $uid = \TMS_CLIENT::get_client_uid();
         $news = $this->getPostJson();
 
         $d = array();
@@ -143,33 +144,25 @@ class news extends matter_ctrl {
         );
         $news = $this->model()->query_obj_ss($q);
 
-        $news->stuffs = $this->model('matter/news')->getMatters($news->id);
+        $news->stuffs = $this->model('matter\news')->getMatters($news->id);
 
-        return new ResponseData($news);
+        return new \ResponseData($news);
     }
     /**
      * 删除一个多图文素材
      */
     public function delete_action($id)
     {
-        if ($this->model()->delete('xxt_news', "id=$id and used=0")){
-            /**
-             * 删除数据
-             */
-            $this->model()->delete('xxt_news_matter', "news_id=$id");
-            $this->model()->delete('xxt_matter_acl',"mpid='$this->mpid' and matter_type='N' and matter_id=$id");
-            return new ResponseData('success');
-        } else if ($this->model()->update('xxt_news', array('state'=>0), "mpid='$this->mpid' and id=$id and used=1"))
-            return new ResponseData('success');
+        $rst = $this->model()->update('xxt_news', array('state'=>0), "mpid='$this->mpid' and id=$id");
 
-        return new ResponseError('数据无法删除！');
+        return new \ResponseData($rst);
     }
     /**
      *
      */
-    protected function getAclMatterType()
+    protected function getMatterType()
     {
-        return 'N';
+        return 'news';
     }
     /**
      * 内容为空时的回复
@@ -181,12 +174,12 @@ class news extends matter_ctrl {
         $ret = $this->model()->update(
             'xxt_news', 
             array(
-                'empty_reply_type'=>ucfirst($matter->mt), 
+                'empty_reply_type'=>$matter->mt, 
                 'empty_reply_id'=>$matter->mid
             ),
             "mpid='$this->mpid' and id='$id'"
         );
 
-        return new ResponseData($ret);
+        return new \ResponseData($ret);
     }
 }

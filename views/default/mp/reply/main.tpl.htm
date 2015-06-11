@@ -1,36 +1,18 @@
 <?php
-$mpaccount = $_SESSION["mpaccount"];
-$mpid = $_SESSION["mpid"];
-$asparent = $mpaccount->asparent;
-$preply = TMS_APP::model('mp\permission')->hasMpRight($mpid, 'reply', 'read');
-if ($preply===true||$preply->read_p==='Y') {
+    $menus = TPL::val('reply_view_entries');
+    $menu = TPL::val('msg_type');
 ?>
 <div class='category navbar navbar-default'>
     <ul class='nav navbar-nav'>
-        <?php
-        $menus['text'] = array('title'=>'文本消息');
-        $menus['menu'] = array('title'=>'菜单事件');
-        $asparent==='N' && $menus['qrcode'] = array('title'=>'扫二维码');
-        $menus['other'] = array('title'=>'其他事件');
-        $menu = TPL::val('msg_type');
-        $menu && $menus[$menu]['selected'] = true;
-        ?>
-        <?php foreach($menus as $category=>$m){ ?>
-        <?php if (isset($m['selected']) && $m['selected']){ ?>
-        <li class='active'>
-        <?php } else { ?>
-        <li>
-        <?php } ?>
-        <a href="<?php echo '/page/mp/reply/'.$category;?>"><?php echo $m['title'];?></a>
-        </li>
-        <?php } ?>                
+    <?php
+        if (!empty($menus)) foreach($menus as $category=>$m) {
+            echo $menu && $menu === $category ? "<li class='active'>" : "<li>";
+            echo "<a href='/rest/mp/call/" . $category . "'>".$m['title'] . "</a>";
+            echo "</li>";
+        }
+    ?>                
     </ul>
 </div>
 <div>
-    <?php $msg_type = TPL::val('msg_type'); TPL::output('/mp/reply/' . $msg_type);?>
+<?php !empty($menus) && TPL::output('/mp/reply/' . $menu);?>
 </div>
-<?php } else {
-$contact = TMS_APP::model('mp\mpaccount')->getAdminContact($mpid);
-?>
-<div class='alert alert-warning'>您没有权限对公众号的回复信息进行设置，请联账号理员（<?php echo $contact;?>）。</div>
-<?php }?>

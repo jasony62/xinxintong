@@ -15,15 +15,21 @@ class mpproxy_base {
      *
      * 需要提供token的请求
      */
-    protected function httpGet($cmd, $params=null, $newAccessToken=false)
+    protected function httpGet($cmd, $params=null, $newAccessToken=false, $appendAccessToken=true)
     {
         $token = $this->accessToken($newAccessToken);
         if ($token[0] === false)
             return $token;
 
         $url = $cmd;
-        $url .= "?access_token={$token[1]}";
-        !empty($params) && $url .= '&'.http_build_query($params);
+        if ($appendAccessToken) {
+            $url .= false == strpos($url, '?') ? '?' : '&'; 
+            $url .= "access_token={$token[1]}";
+        }
+        if (!empty($params)) {
+            false == strpos($url, '?') && $url .= '?';
+            $url .= '&'.http_build_query($params);
+        }
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -85,5 +91,43 @@ class mpproxy_base {
         }
 
         return array(true, $rst);
+    }
+    /**
+    * 将url的数据抓取到本地并保存在临时文件中返回
+    *
+    * $url
+    */
+    public function fetchUrl($url) 
+    {
+        /**
+         * 下载文件
+         */
+        $ext = 'jpg';
+        $urlContent = file_get_contents($url);
+        $responseInfo = $http_response_header;
+        foreach ($responseInfo as $loop) {
+            if(strpos($loop, "Content-disposition") !== false){
+                $disposition = trim(substr($loop, 21));
+                $filename = explode(';', $disposition);
+                $filename = array_pop($filename);
+                $filename = explode('=', $filename);
+                $filename = array_pop($filename);
+                $filename = str_replace('"', '', $filename);
+                $filename = explode('.', $filename);
+                $ext = array_pop($filename);
+                break;
+            }
+        }
+        /**
+         * 临时文件
+         */
+        $tmpfname = tempnam('','');
+        $tmpfname2 = $tmpfname.'.'.$ext;
+        rename($tmpfname, $tmpfname2);
+        $handle = fopen($tmpfname2, "w");
+        fwrite($handle, $urlContent);
+        fclose($handle);
+
+        return $tmpfname2;
     }
 }

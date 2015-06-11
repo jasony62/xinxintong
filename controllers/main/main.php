@@ -1,5 +1,7 @@
 <?php
-class main extends TMS_CONTROLLER {
+namespace main;
+
+class main extends \TMS_CONTROLLER {
     /**
      *
      */
@@ -18,7 +20,7 @@ class main extends TMS_CONTROLLER {
         /**
          * 当前用户是公众号的创建人或者被授权人
          */
-        $uid = TMS_CLIENT::get_client_uid();
+        $uid = \TMS_CLIENT::get_client_uid();
 
         $w = "a.asparent='$asparent' and a.state=1 and (a.creater='$uid' 
             or exists(
@@ -40,7 +42,7 @@ class main extends TMS_CONTROLLER {
 
         $mps = $this->model()->query_objs_ss($q, $q2);
 
-        return new ResponseData($mps);
+        return new \ResponseData($mps);
     }
     /**
      * create an mp account basic information.
@@ -59,7 +61,7 @@ class main extends TMS_CONTROLLER {
         $d['parent_mpid'] = $pmpid;
         $mpid = $this->model('mp\mpaccount')->create($d);
 
-        return new ResponseData($mpid);
+        return new \ResponseData($mpid);
     }
     /**
      * 删除公众号
@@ -74,7 +76,7 @@ class main extends TMS_CONTROLLER {
         $act = $this->model('mp\mpaccount')->byId($mpid);
         if ($act->asparent === 'N') {
             if ($act->yx_joined === 'Y' || $act->wx_joined === 'Y')
-                return new ResponseError('公众号已经开通，不允许删除！');
+                return new \ResponseError('公众号已经开通，不允许删除！');
         } else {
             $q = array(
                 'count(*)',
@@ -82,7 +84,7 @@ class main extends TMS_CONTROLLER {
                 "parent_mpid='$mpid' and (yx_joined='Y' or wx_joined='Y')"
             );
             if ((int)$this->model()->query_val_ss($q) > 0)
-                return new ResponseError('公众号群下的子公众号已经开通，不允许删除！');
+                return new \ResponseError('公众号群下的子公众号已经开通，不允许删除！');
         }
         /**
          * 做标记
@@ -93,6 +95,6 @@ class main extends TMS_CONTROLLER {
             "mpid='$mpid' or parent_mpid='$mpid'"
         );
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
 }

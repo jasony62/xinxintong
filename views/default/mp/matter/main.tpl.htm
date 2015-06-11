@@ -1,37 +1,21 @@
 <?php
-$mpid = $_SESSION["mpid"];
-$pmatter = TMS_APP::model('mp\permission')->hasMpRight($mpid, 'matter', 'read');
-if ($pmatter===true||$pmatter->read_p==='Y') {
+$menus = TPL::val('matter_view_entries');
+$msg_type = TPL::val('msg_type');
 ?>
 <nav class='navbar navbar-default'>
-<ul class='nav navbar-nav'>
-    <?php
-    $menus['articles'] = array('title'=>'单图文');
-    $menus['texts'] = array('title'=>'文本');
-    $menus['news'] = array('title'=>'多图文');
-    $menus['channels'] = array('title'=>'频道');
-    $menus['links'] = array('title'=>'链接');
-    $menus['tmplmsgs'] = array('title'=>'模板消息');
-    $menus['addressbook'] = array('title'=>'通讯录');
-    $menu = TPL::val('msg_type');
-    $menu && $menus[$menu]['selected'] = true;
+    <ul class='nav navbar-nav'>
+    <?php 
+    if (!empty($menus)) {
+        $menu = TPL::val('msg_type');
+        foreach($menus as $category=>$m) {
+            echo $menu && $category === $menu ? "<li class='active'>" : "<li>";
+            echo "<a href='/page/mp/matter/".$category."' target='_self'>".$m['title']."</a>";
+            echo "</li>";
+        }
+    }
     ?>
-    <?php foreach($menus as $category=>$m) {
-    if (isset($m['selected']) && $m['selected']) {?>
-    <li class='active'>
-    <?php } else { ?>
-    <li>
-    <?php } ?>
-    <a href="<?php echo '/page/mp/matter/'.$category;?>" target='_self'><?php echo $m['title'];?></a>
-    </li>
-    <?php } ?>                
-</ul>
+    </ul>
 </nav>
 <div>
-    <?php $msg_type = TPL::val('msg_type'); TPL::output('/mp/matter/'.$msg_type);?>
+<?php !empty($menus) && TPL::output('/mp/matter/'.$msg_type);?>
 </div>
-<?php } else {
-$contact = TMS_APP::model('mp\mpaccount')->getAdminContact($mpid);
-?>
-<div class='alert alert-warning'>您没有权限对公众号的素材进行管理，请联账号理员（<?php echo $contact;?>）。</div>
-<?php }?>

@@ -1,13 +1,21 @@
 <?php
 session_start();
 /**
+ * for long time execution.
+ */
+@set_time_limit(0);
+/**
+ * local timezone
+ */
+date_default_timezone_set('Asia/Shanghai');
+/**
  * character set
  */
 iconv_set_encoding("internal_encoding", "UTF-8");
 iconv_set_encoding("output_encoding", "UTF-8");
 iconv_set_encoding("input_encoding", "UTF-8");
 /**
- * exception handle
+ * error and exception handle
  */
 function show_error($message) {
     header("HTTP/1.1 500 Internal Server Error");
@@ -16,17 +24,41 @@ function show_error($message) {
         echo $message->getMessage()."\n";
         $trace = $message->getTrace();
         foreach ($trace as $t) {
-            echo json_encode($t)."\n";
+            foreach ($t as $k=>$v)
+                echo $k.':'.json_encode($v)."\n";
         }
     } else {
         echo $message;
     }
     exit;
 }
-function exception_handler($exception) {
+
+function tms_error_handler($errno, $errstr, $errfile, $errline, $errcontext) {
+    switch($errno)
+    {
+    case E_ERROR:               show_error(new ErrorException('ERROR:'.$errstr, 0, $errno, $errfile, $errline));
+    case E_WARNING:             show_error(new ErrorException('E_WARNING:'.$errstr, 0, $errno, $errfile, $errline));
+    case E_PARSE:               show_error(new ErrorException('E_PARSE:'.$errstr, 0, $errno, $errfile, $errline));
+    case E_NOTICE:              show_error(new ErrorException('E_NOTICE:'.$errstr, 0, $errno, $errfile, $errline));
+    case E_CORE_ERROR:          show_error(new ErrorException('E_CORE_ERROR:'.$errstr, 0, $errno, $errfile, $errline));
+    case E_CORE_WARNING:        show_error(new ErrorException('E_CORE_WARNING:'.$errstr, 0, $errno, $errfile, $errline));
+    case E_COMPILE_ERROR:       show_error(new ErrorException('E_COMPILE_ERROR:'.$errstr, 0, $errno, $errfile, $errline));
+    case E_COMPILE_WARNING:     show_error(new ErrorException('E_COMPILE_WARNING:'.$errstr, 0, $errno, $errfile, $errline));
+    case E_USER_ERROR:          show_error(new ErrorException('E_USER_ERROR:'.$errstr, 0, $errno, $errfile, $errline));
+    case E_USER_WARNING:        show_error(new ErrorException('E_USER_WARNING:'.$errstr, 0, $errno, $errfile, $errline));
+    case E_USER_NOTICE:         show_error(new ErrorException('E_USER_NOTICE:'.$errstr, 0, $errno, $errfile, $errline));
+    case E_STRICT:              show_error(new ErrorException('E_STRICT:'.$errstr, 0, $errno, $errfile, $errline));
+    case E_RECOVERABLE_ERROR:   show_error(new ErrorException('E_RECOVERABLE_ERROR:'.$errstr, 0, $errno, $errfile, $errline));
+    case E_DEPRECATED:          show_error(new ErrorException('E_DEPRECATED:'.$errstr, 0, $errno, $errfile, $errline));
+    case E_USER_DEPRECATED:     show_error(new ErrorException('E_USER_DEPRECATED:'.$errstr, 0, $errno, $errfile, $errline));
+    }
+}
+set_error_handler('tms_error_handler');
+
+function tms_exception_handler($exception) {
     show_error($exception);
 }
-set_exception_handler('exception_handler');
+set_exception_handler('tms_exception_handler');
 /**
  * error handle
  */
@@ -34,14 +66,6 @@ ini_set('display_errors', 'On');
 //ini_set('display_errors', 'Off');
 error_reporting(E_ALL);
 //error_reporting(E_ERROR);
-/**
- * for long time execution.
- */
-@set_time_limit(0);
-/**
- * local timezone
- */
-date_default_timezone_set('Asia/Shanghai');
 /**
  * database resource.
  */
@@ -72,7 +96,7 @@ define('DEFAULT_DB_AUTOID', true);
 // 定义 Cookies 作用域
 define('G_COOKIE_DOMAIN','');
 // 定义 Cookies 前缀
-define('G_COOKIE_PREFIX','tjwy');
+define('G_COOKIE_PREFIX','xxt');
 // 定义应用加密 KEY
 define('G_COOKIE_HASH_KEY', 'gzuhhqnckcryrrd');
 /**
@@ -95,9 +119,16 @@ define('TMS_APP_DIR', dirname(__FILE__));
 !defined('TMS_APP_UNAUTH') && define('TMS_APP_UNAUTH', '/rest/auth/auth'); // 未认证通过的缺省页
 define('TMS_APP_AUTHED', TMS_APP_VIEW_PREFIX.'/main'); // 认证通过后的缺省页
 /**
+ * default upload directory
+ */
+if (defined('SAE_TMP_PATH'))
+    define('TMS_UPLOAD_DIR', SAE_TMP_PATH );
+else
+    define('TMS_UPLOAD_DIR', 'kcfinder/upload/');
+
+/**
  * run application.
  */
-
 require_once 'tms/tms_app.php';
 
 $config = array();

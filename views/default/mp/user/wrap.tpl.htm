@@ -2,26 +2,26 @@
 $mpid = TMS_APP::S('mpid');
 $mpaccount = $_SESSION['mpaccount'];
 $authapis = $_SESSION['authapis'];
-$pfans = TMS_APP::model('mp\permission')->hasMpRight($mpid, 'fans', 'read');
-if ($pfans===true||$pfans->read_p==='Y') {
+$puser = TMS_APP::model('mp\permission')->hasMpRight($mpid, 'user', 'read');
+if ($puser!==false&&($puser===true||$puser->read_p==='Y')) {
 $sv = TPL::val('subView');
 ?>
 <div class='navbar navbar-default'>
     <ul class='nav navbar-nav'>
-        <li <?php if ($sv==='/mp/user/received') echo "class='active'";?>><a href="/page/mp/user/received" target="_self">用户消息</a></li>
-        <li <?php if ($sv==='/mp/user/send') echo "class='active'";?>><a href="/page/mp/user/send" target="_self">发送消息</a></li>
-        <li <?php if ($sv==='/mp/user/fans') echo "class='active'";?>><a href='/page/mp/user/fans' target="_self">关注用户</a></li>
+        <li <?php if ($sv==='/mp/user/received') echo "class='active'";?>><a href="/rest/mp/user/messages" target="_self">用户消息</a></li>
+        <li <?php if ($sv==='/mp/user/send') echo "class='active'";?>><a href="/rest/mp/user/send" target="_self">发送消息</a></li>
+        <li <?php if ($sv==='/mp/user/fans') echo "class='active'";?>><a href='/rest/mp/user/fans' target="_self">关注用户</a></li>
         <?php if (!empty($authapis)) {?>
-        <li <?php if ($sv==='/mp/user/members') echo "class='active'";?>><a href='/page/mp/user/members' target="_self">认证用户</a></li>
+        <li <?php if ($sv==='/mp/user/members') echo "class='active'";?>><a href='/rest/mp/user/member' target="_self">认证用户</a></li>
         <?php }?>
         <?php if (!empty($authapis)) {?>
-        <li <?php if ($sv==='/mp/user/departments') echo "class='active'";?>><a href='/page/mp/user/departments' target="_self">部门</a></li>
+        <li <?php if ($sv==='/mp/user/departments') echo "class='active'";?>><a href='/rest/mp/user/department' target="_self">部门</a></li>
         <?php }?>
         <?php if (!empty($authapis)) {?>
-        <li <?php if ($sv==='/mp/user/tags') echo "class='active'";?>><a href='/page/mp/user/tags' target="_self">标签</a></li>
+        <li <?php if ($sv==='/mp/user/tags') echo "class='active'";?>><a href='/rest/mp/user/tag' target="_self">标签</a></li>
         <?php }?>
         <?php if ($mpaccount->mpsrc==='wx' || $mpaccount->mpsrc==='yx') {?>
-        <li <?php if ($sv==='/mp/user/fansgroup') echo "class='active'";?>><a href="/page/mp/user/fansgroup" target="_self">分组</a></li>
+        <li <?php if ($sv==='/mp/user/fansgroup') echo "class='active'";?>><a href="/rest/mp/user/fansgroup" target="_self">分组</a></li>
         <?php }?>
     </ul>
 </div>

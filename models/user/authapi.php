@@ -1,42 +1,75 @@
 <?php
+/**
+ *
+ */
 class authapi_model extends TMS_MODEL {
     /**
-     * 认证接口定义
+     *
      */
-    public function byId($authid, $fields='*') 
+    private function &queryBy($where, $fields='*')
     {
         $q = array(
             $fields,
             'xxt_member_authapi',
-            "authid=$authid",
+            $where
         );
-        $authapi = $this->query_obj_ss($q); 
 
-        if (!empty($authapi->extattr))
-            $authapi->extattr = json_decode($authapi->extattr);
-        else
-            $authapi->extattr = array();
+        !($apis = $this->query_objs_ss($q)) && $apis = array();
 
-        return $authapi;
+        foreach ($apis as &$api) {
+            if (!empty($api->extattr))
+                $api->extattr = json_decode($api->extattr);
+            if ($api->auth_code_id != 0) {
+                $page = \TMS_APP::M('code/page')->byId($api->auth_code_id, 'html,css,js');
+                $api->auth_html = $page->html; 
+                $api->auth_css = $page->css;
+                $api->auth_js = $page->js;
+            }
+        }
+        
+        return $apis;
+    }
+    /**
+     * 认证接口定义
+     */
+    public function &byId($authid, $fields='*') 
+    {
+        $api = $this->queryBy("authid=$authid");
+        
+        $api = count($api) === 1 ? $api[0] : false;
+        
+        return $api;
     }
     /**
      *
      */
     public function byUrl($mpid, $url, $fields='*')
     {
-        $q = array(
-            $fields,
-            'xxt_member_authapi',
-            "mpid='$mpid' and url='$url'"
-        );
-        $authapi = $this->query_obj_ss($q);
-
-        return $authapi;
+        $api = $this->queryBy("mpid='$mpid' and url='$url'");
+        
+        $api = count($api) === 1 ? $api[0] : false;
+        
+        return $api;
+    }
+    /**
+     * 获得定义的认证接口
+     *
+     * $mpid
+     * $valid [null|Y|N]
+     */
+    public function &byMpid($mpid, $valid=null)
+    {
+        $where = "mpid='$mpid'";
+        !empty($valid) && $where .= " and valid='$valid'";
+        
+        $apis = $this->queryBy($where);
+        
+        return $apis;
     }
     /**
      * 进入用户身份认证页的说明
      */
-    public function getEntryStatement($authid, $mpid, $src, $openid)
+    public function getEntryStatement($authid, $mpid, $openid)
     {
         $authapi = $this->byId($authid, 'url,entry_statement'); 
         $r = $authapi->entry_statement;
@@ -44,7 +77,7 @@ class authapi_model extends TMS_MODEL {
             // auth page's url
             $url = "http://" . $_SERVER['HTTP_HOST'];
             $url .= $authapi->url;
-            $url .= "?mpid=$mpid&authid=$authid&src=$src&openid=$openid";
+            $url .= "?mpid=$mpid&authid=$authid&openid=$openid";
             // require auth reply
             $r = str_replace('{{authapi}}', $url, $authapi->entry_statement);
         }
@@ -57,7 +90,7 @@ class authapi_model extends TMS_MODEL {
      * $authid
      * $runningMpid
      */
-    public function getNotpassStatement($authid, $runningMpid, $src=null, $openid=null)
+    public function getNotpassStatement($authid, $runningMpid, $openid=null)
     {
         $authapi = $this->byId($authid, 'url,notpass_statement'); 
         $r = $authapi->notpass_statement;
@@ -66,8 +99,8 @@ class authapi_model extends TMS_MODEL {
             $url = "http://" . $_SERVER['HTTP_HOST'];
             $url .= $authapi->url;
             $url .= "?mpid=$runningMpid&authid=$authid";
-            if (!empty($src) && !empty($openid))
-                $url .= "&src=$src&openid=$openid";
+            if (!empty($openid))
+                $url .= "&openid=$openid";
 
             // require auth reply
             $r = str_replace('{{authapi}}', $url, $authapi->notpass_statement);
@@ -78,7 +111,7 @@ class authapi_model extends TMS_MODEL {
     /**
      * 用户身份认证信息没有在白名单中
      */
-    public function getAclStatement($authid, $runningMpid, $src=null, $openid=null)
+    public function getAclStatement($authid, $runningMpid, $openid=null)
     {
         $authapi = $this->byId($authid, 'url,acl_statement'); 
         $r = $authapi->acl_statement;
@@ -87,8 +120,8 @@ class authapi_model extends TMS_MODEL {
             $url = "http://" . $_SERVER['HTTP_HOST'];
             $url .= $authapi->url;
             $url .= "?mpid=$runningMpid&authid=$authid";
-            if (!empty($src) && !empty($openid))
-                $url .= "&src=$src&openid=$openid";
+            if (!empty($openid))
+                $url .= "&openid=$openid";
 
             // require auth reply
             $r = str_replace('{{authapi}}', $url, $authapi->acl_statement);

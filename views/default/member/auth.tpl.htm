@@ -12,17 +12,17 @@ $clientSrc = TPL::val('clientSrc');
             <div id='form'>
                 <?php if ($clientSrc&&$attrs['name'][0]==='0'&&$attrs['name'][3]==='0') {?>
                 <div id='attrName' class='form-group'>
-                    <input type='text' ng-model='member.name' ng-init="member.name=''" placeholder='姓名' class='form-control input-lg'>
+                    <input type='text'<?php echo $attrs['name'][1]==='1'?' required=""':''?> ng-model='member.name' ng-init="member.name=''" placeholder='姓名' class='form-control input-lg'>
                 </div>
                 <?php }?>
                 <?php if ($attrs['mobile'][5]==='1'||($clientSrc&&$attrs['mobile'][0]==='0'&&$attrs['mobile'][3]==='0')) {?>
                 <div id='attrMobile' class='form-group'>
-                    <input type='text' ng-model='member.mobile' ng-init="member.mobile=''" placeholder='手机号' class='form-control input-lg'>
+                    <input type='text'<?php echo $attrs['mobile'][1]==='1'?' required=""':''?> ng-model='member.mobile' ng-init="member.mobile=''" placeholder='手机号' class='form-control input-lg'>
                 </div>
                 <?php }?>
                 <?php if ($attrs['email'][5]==='1'||($clientSrc&&$attrs['email'][0]==='0'&&$attrs['email'][3]==='0')) {?>
                 <div id='attrEmail' class='form-group'>
-                    <input type='text' ng-model='member.email' ng-init="member.email=''" placeholder='邮箱' class='form-control input-lg'>
+                    <input type='text'<?php echo $attrs['email'][1]==='1'?' required=""':''?> ng-model='member.email' ng-init="member.email=''" placeholder='邮箱' class='form-control input-lg'>
                 </div>
                 <?php }?>
                 <?php if ($attrs['password'][0]==='0') {?>
@@ -36,9 +36,9 @@ $clientSrc = TPL::val('clientSrc');
                 </div>
                 <?php }?>
                 <?php }?>
-                <?php foreach ($attrs['extattr'] as $ea) {?>
+                <?php if ($clientSrc) foreach ($attrs['extattr'] as $ea) {?>
                 <div id='attr_<?php echo $ea->id;?>' class='form-group'>
-                    <input type='text' ng-model='member.<?php echo $ea->id;?>' placeholder='<?php echo $ea->label;?>' class='form-control input-lg'>
+                    <input type='text'<?php echo $ea->cfg[1]==='1'?' required=""':''?> ng-model='member.<?php echo $ea->id;?>' placeholder='<?php echo $ea->label;?>' class='form-control input-lg'>
                 </div>
                 <?php }?>
                 <?php if ($clientSrc) {?>

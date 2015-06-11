@@ -6,10 +6,10 @@ xxtApp.controller('userCtrl',['$rootScope','$scope','http2','$modal',function($r
     $scope.update = function(name) {
         var nv = {};
         nv[name] = $scope.user[name];
-        http2.post('/rest/mp/user/fans/update?openid='+$scope.user.openid+'&src='+$scope.user.src, nv);
+        http2.post('/rest/mp/user/fans/update?openid='+$scope.user.openid, nv);
     };
     $scope.userTrack = function() {
-        var url = '/rest/mp/user/fans/track?openid='+$scope.user.openid+'&src='+$scope.user.src;
+        var url = '/rest/mp/user/fans/track?openid='+$scope.user.openid;
         url += '&page='+$scope.trackpage.at+'&size='+$scope.trackpage.size;
         http2.get(url, function(rsp){
             $scope.track = rsp.data;
@@ -24,7 +24,7 @@ xxtApp.controller('userCtrl',['$rootScope','$scope','http2','$modal',function($r
             return;
         }
         $scope.selectedMatter = null;
-        var url = '/rest/mp/matter/' + $scope.matterType;
+        var url = '/rest/mp/matter/' + $scope.matterType + '/get';
         !page && (page = $scope.matterpage.at);
         url += '?page='+page+'&size='+$scope.matterpage.size;
         if ($scope.fromParent && $scope.fromParent==='Y')
@@ -48,7 +48,7 @@ xxtApp.controller('userCtrl',['$rootScope','$scope','http2','$modal',function($r
                 title:$scope.selectedMatter.title||$scope.selectedMatter.content
             };
         }
-        http2.post('/rest/mp/send/custom?openid='+$scope.user.openid+'&src='+$scope.user.src, data, function(rsp){
+        http2.post('/rest/mp/send/custom?openid='+$scope.user.openid, data, function(rsp){
             $scope.userTrack();
         });
     };
@@ -58,7 +58,7 @@ xxtApp.controller('userCtrl',['$rootScope','$scope','http2','$modal',function($r
         });
     };
     $scope.refresh = function() {
-        http2.get('/rest/mp/user/fans/refreshOne?openid='+$scope.user.openid+'&src='+$scope.user.src, function(rsp){
+        http2.get('/rest/mp/user/fans/refreshOne?openid='+$scope.user.openid, function(rsp){
             $scope.user.sex = rsp.data.sex;
             $scope.user.nickname = rsp.data.nickname;
             rsp.data.subscribe_at !== undefined && ($scope.user.subscribe_at = rsp.data.subscribe_at);
@@ -133,7 +133,7 @@ xxtApp.controller('userCtrl',['$rootScope','$scope','http2','$modal',function($r
         }).result.then(function(member) {
             http2.post('/rest/mp/user/member/create?fid='+$scope.user.fid+'&authid='+authapi.authid, member, function(rsp){
                 member = rsp.data;
-                member.extattr = JSON.parse(decodeURIComponent(member.extattr.replace(/\+/g, '20%')));
+                member.extattr = JSON.parse(decodeURIComponent(member.extattr.replace(/\+/g, '%20')));
                 member.authapi = authapi;
                 !$scope.user.members && ($scope.user.members = []); 
                 $scope.user.members.push(member);
@@ -255,7 +255,7 @@ xxtApp.controller('userCtrl',['$rootScope','$scope','http2','$modal',function($r
     $scope.toggleChild = function(child) {
         if (!child.loaded) {
             child.loaded = true;
-            http2.get('/rest/mp/user/department?authid='+member.authapi_id+'&pid='+child.data.id, function(rsp){
+            http2.get('/rest/mp/user/department/get?authid='+member.authapi_id+'&pid='+child.data.id, function(rsp){
                 var depts = rsp.data;
                 buildDepts(child.data.id, depts, child);
             });

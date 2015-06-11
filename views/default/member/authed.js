@@ -23,7 +23,7 @@ controller('authedCtrl',['$scope','$http',function($scope,$http){
     };
     $scope.$watch('jsonParams', function(nv){
         if (nv && nv.length) {
-            var params = JSON.parse(decodeURIComponent(nv.replace(/\+/g, '20%')));
+            var params = JSON.parse(decodeURIComponent(nv.replace(/\+/g, '%20')));
             $scope.mpid = params.mpid;
             $scope.authid = params.authid;
             getUserInfo();

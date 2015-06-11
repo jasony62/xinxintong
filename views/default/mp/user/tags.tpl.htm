@@ -4,7 +4,7 @@
     </div>
     <div class='col-md-4' style='padding-left:0'>
         <div class='list-group'>
-            <a class='list-group-item' ng-class="{'active':t===editing}" ng-repeat='t in tags' ng-click='open(t)'>
+            <a style='min-height:43px' class='list-group-item' ng-class="{'active':t===editing}" ng-repeat='t in tags' ng-click='open(t)'>
                 <span>{{t.name}}</span>
                 <button class='btn btn-default btn-xs pull-right' ng-if='t===editing' ng-click="remove()">
                     <span class='glyphicon glyphicon-remove'></span>

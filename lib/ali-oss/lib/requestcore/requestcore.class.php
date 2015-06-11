@@ -607,7 +607,7 @@ class RequestCore
 		curl_setopt($curl_handle, CURLOPT_URL, $this->request_url);
 		curl_setopt($curl_handle, CURLOPT_FILETIME, true);
 		curl_setopt($curl_handle, CURLOPT_FRESH_CONNECT, false);
-		curl_setopt($curl_handle, CURLOPT_CLOSEPOLICY, CURLCLOSEPOLICY_LEAST_RECENTLY_USED);
+		//curl_setopt($curl_handle, CURLOPT_CLOSEPOLICY, CURLCLOSEPOLICY_LEAST_RECENTLY_USED);
 		curl_setopt($curl_handle, CURLOPT_MAXREDIRS, 5);
 		curl_setopt($curl_handle, CURLOPT_HEADER, true);
 		curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, true);
@@ -622,12 +622,12 @@ class RequestCore
 		if ($this->ssl_verification)
 		{
 			curl_setopt($curl_handle, CURLOPT_SSL_VERIFYPEER, true);
-			curl_setopt($curl_handle, CURLOPT_SSL_VERIFYHOST, true);
+			curl_setopt($curl_handle, CURLOPT_SSL_VERIFYHOST, 2);
 		}
 		else
 		{
 			curl_setopt($curl_handle, CURLOPT_SSL_VERIFYPEER, false);
-			curl_setopt($curl_handle, CURLOPT_SSL_VERIFYHOST, false);
+			curl_setopt($curl_handle, CURLOPT_SSL_VERIFYHOST, 2);
 		}
 
 		// chmod the file as 0755

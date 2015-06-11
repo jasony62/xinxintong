@@ -1,4 +1,24 @@
 <div ng-controller='mainCtrl' ng-init='jsonParams="<?php echo urlencode(json_encode(TPL::val('params')));?>";'>
+    <div class='form-horizontal' role='form'>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>账号标识</label>
+            <div class='col-md-10'>
+                <p class='form-control-static' ng-bind="mpa.mpid"></p>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>创建人</label>
+            <div class='col-md-10'>
+                <p class='form-control-static' ng-bind="mpa.creater_name"></p>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>创建时间</label>
+            <div class='col-md-10'>
+                <p class='form-control-static' ng-bind="mpa.create_at*1000|date:'yyyy-MM-dd HH:mm'"></p>
+            </div>
+        </div>
+    </div>
     <div ng-if="mpa.asparent==='Y'">
         <div class='form-horizontal' role='form'>
             <div class='form-group'>
@@ -11,12 +31,6 @@
     </div>
     <div ng-if="mpa.asparent==='N'">
         <div class='form-horizontal' role='form'>
-            <div class='form-group'>
-                <label class='col-md-2 control-label'>账号标识</label>
-                <div class='col-md-10'>
-                    <p class='form-control'>{{mpa.mpid}}</p>
-                </div>
-            </div>
             <div class='form-group'>
                 <label class='col-md-2 control-label'>账号类型</label>
                 <div class='col-md-10'>
@@ -32,7 +46,7 @@
             <div class='form-group' ng-show='mpa.parent_mpid'>
                 <label class='col-md-2 control-label'>父账号名称</label>
                 <div class='col-md-10'>
-                    <p class='form-control'>{{mpa.parentname}}</p>
+                    <p class='form-control' ng-bind="mpa.parentname"></p>
                 </div>
             </div>
             <div class='form-group'>

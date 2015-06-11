@@ -1,15 +1,7 @@
 <?php
-$pmodel = TMS_APP::M('mp\permission');
-if ($pmodel->can('mpsetting','read')) { 
-$subViews = array(
-array('name'=>'main','title'=>'基本信息'),
-array('name'=>'feature','title'=>'定制功能'),
-array('name'=>'customapi','title'=>'自定义接口')
-);
-$pmodel->can('mpsecurity','read') && $subViews[] = array('name'=>'permission','title'=>'权限设置');
-TMS_APP::M('mp\mpaccount')->isCreater() && $subViews[] = array('name'=>'administrator','title'=>'系统管理员');
+$subViews = TPL::val('mpsetting_view_entries');
 ?>
-<div ng-cloak>
+<div ng-cloak class='ng-cloak'>
     <div class='navbar navbar-default'>
         <ul class='nav navbar-nav'>
             <?php foreach ($subViews as $v) {?>
@@ -23,8 +15,3 @@ TMS_APP::M('mp\mpaccount')->isCreater() && $subViews[] = array('name'=>'administ
         <?php $sv = TPL::val('sub-view'); $sv && TPL::output('/mp/mpaccount/'.$sv);?>
     </div>
 </div>
-<?php } else {
-$contact = TMS_APP::M('mp\mpaccount')->getAdminContact();
-?>
-<div class='alert alert-warning'>您没有权限对公众号的配置信息进行设置，请联账号理员（<?php echo $contact;?>）。</div>
-<?php }?>

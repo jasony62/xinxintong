@@ -8,13 +8,13 @@ xxtApp.controller('ReceCtrl',['$scope','http2',function($scope,http2){
         var param = '?page='+page+'&size='+$scope.page.size;
         if ($scope.page.keyword && $scope.page.keyword.length > 0)
             param += '&keyword='+$scope.page.keyword;
-        http2.get('/rest/mp/user/messages'+param, function(rsp) {
+        http2.get('/rest/mp/user/messages/get'+param, function(rsp) {
             $scope.messages = rsp.data[0];
             rsp.data[1] && ($scope.page.total = rsp.data[1]);
         });
     };
-    $scope.viewUser = function(fid){
-        location.href = '/rest/mp/user?fid='+fid;
+    $scope.viewUser = function(openid){
+        location.href = '/rest/mp/user?openid='+openid;
     };
     $scope.doSearch();
 }]);

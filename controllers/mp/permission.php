@@ -1,4 +1,6 @@
 <?php
+namespace mp;
+
 require_once dirname(__FILE__).'/mp_controller.php';
 
 class permission extends mp_controller {
@@ -26,10 +28,10 @@ class permission extends mp_controller {
                 if (empty($u->authed_id))
                     $u->authed_id = $u->email;
             }
-            return new ResponseData($aUser);
+            return new \ResponseData($aUser);
         }
 
-        return new ResponseData(array());
+        return new \ResponseData(array());
     }
     /**
      * 添加一个授权用户
@@ -39,14 +41,14 @@ class permission extends mp_controller {
     public function addUser_action($authedid=null,$autoreg='N',$authapp='') 
     {
         if (empty($authedid) && defined('TMS_APP_ADDON_EXTERNAL_ORG'))
-            return new ResponseData(array('externalOrg'=>TMS_APP_ADDON_EXTERNAL_ORG));
+            return new \ResponseData(array('externalOrg'=>TMS_APP_ADDON_EXTERNAL_ORG));
 
         $model = $this->model('account');
         $account = $model->getAccountByAuthedId($authedid);
 
         if (!$account)
             if ($autoreg!=='Y')
-                return new ResponseError('指定的账号不是注册账号，请先注册！');
+                return new \ResponseError('指定的账号不是注册账号，请先注册！');
             else
                 $account = $model->authed_from($authedid, $authapp, '0.0.0.0', $authedid);
 
@@ -59,18 +61,43 @@ class permission extends mp_controller {
             "mpid='$this->mpid' and uid='$account->uid'"
         );
         if ((int)$this->model()->query_val_ss($q) > 0)
-            return new ResponseError('已经为指定的账号设置了权限，不能重复添加！');
+            return new \ResponseError('已经为指定的账号设置了权限，不能重复添加！');
         /**
          * set initail permissions
          */
         $otherPermissions = array(
             'mpsetting',
-            'mpsecurity',
+            'mpsetting_setting',
+            'mpsetting_feature',
+            'mpsetting_customapi',
+            'mpsetting_permission',
+            'mpsetting_administrator',
             'matter',
+            'matter_article',
+            'matter_text',
+            'matter_news',
+            'matter_channel',
+            'matter_link',
+            'matter_tmplmsg',
             'reply',
-            'fans',
-            'member',
-            'activity',
+            'reply_text',
+            'reply_menu',
+            'reply_qrcode',
+            'reply_other',
+            'user',
+            'user_received',
+            'user_send',
+            'user_fans',
+            'user_member',
+            'user_department',
+            'user_tag',
+            'user_fansgroup',
+            'app',
+            'app_enroll',
+            'app_lottery',
+            'app_wall',
+            'app_addressbook',
+            'app_contribute',
             'analyze',
         );
         foreach ($otherPermissions as $perm) {
@@ -78,7 +105,7 @@ class permission extends mp_controller {
                 array('mpid'=>$this->mpid, 'uid'=>$account->uid, 'permission'=>$perm));
         }
 
-        return new ResponseData(array('uid'=>$account->uid, 'authed_id'=>$authedid));
+        return new \ResponseData(array('uid'=>$account->uid, 'authed_id'=>$authedid));
     }
     /**
      *
@@ -89,7 +116,7 @@ class permission extends mp_controller {
             'xxt_mppermission', 
             "mpid='$this->mpid' and uid='$uid'"
         );
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      *
@@ -104,7 +131,7 @@ class permission extends mp_controller {
             "mpid='$this->mpid' and uid='$uid' and permission='$perm'"
         );
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      * 获得指定用户的权限
@@ -123,8 +150,8 @@ class permission extends mp_controller {
                 unset($right->permission);
                 $map[$permission] = $right;
             }
-            return new ResponseData($map);
+            return new \ResponseData($map);
         }
-        return new ResponseData(array());
+        return new \ResponseData(array());
     }
 }

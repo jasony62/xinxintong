@@ -1,4 +1,6 @@
 <?php
+namespace matter;
+
 require_once dirname(__FILE__).'/article_base.php';
 
 class article_model extends article_base {
@@ -10,12 +12,61 @@ class article_model extends article_base {
         return 'xxt_article';
     }
     /**
+    *
+    */
+    public function getTypeName()
+    {
+        return 'article';
+    }
+    /**
+    *
+    */
+    public function &byCreater($mpid, $creater, $fields='*', $cascade=false)
+    {
+        $q = array(
+            $fields,
+            'xxt_article',
+            "mpid='$mpid' and creater='$creater' and state=1");
+        $q2 = array('o'=>'modify_at desc');
+
+        $articles = $this->query_objs_ss($q, $q2);
+        
+        if (!empty($articles) && $cascade) foreach ($articles as &$a) {
+            $a->channels = \TMS_APP::M('matter\channel')->byMatter($a->id, 'article');
+        }
+
+        return $articles;
+    }
+    /**
+     * $mid member's 仅限认证用户
+     * $entry 指定的投稿活动
+     * $phase 
+     */
+    public function &byReviewer($mid, $entry, $phase, $fields='*', $cascade=false)
+    {
+        $q = array(
+            'a.*',
+            'xxt_article a',
+            "a.entry='$entry' and exists(select 1 from xxt_article_review_log l where a.id=l.article_id and l.mid='$mid' and phase='R')"
+        );
+        $q2 = array('o'=>'a.create_at desc');
+
+        $articles = $this->query_objs_ss($q, $q2);
+        if (!empty($articles) && $cascade) foreach ($articles as &$a) {
+            $a->disposer = $this->disposer($a->id);
+            $a->channels = \TMS_APP::M('matter\channel')->byMatter($a->id, 'article');
+        }
+
+        return $articles;
+    }
+    /**
      * 这个是基类要求的方法
      * todo 应该用抽象类的机制处理
      */
     public function &getMatters($id) 
     {
-        $article = $this->byId($id, "id,mpid,title,summary,pic,'Article' type");
+        $article = $this->byId($id, "id,mpid,title,summary,pic");
+        $article->type = 'article';
         $articles = array($article);
 
         return $articles;
@@ -26,23 +77,10 @@ class article_model extends article_base {
     public function &getArticles($id) 
     {
         $article = $this->byId($id, 'id,mpid,title,summary,pic,body');
+        $article->type = 'article';
         $articles = array($article);
 
         return $articles;
-    }
-    /**
-     * 根据文章的编号检索文章
-     */
-    public function &byCode($mpid, $code)
-    {
-        $q = array(
-            '*',
-            'xxt_article',
-            "mpid='$mpid' and code='$code'"
-        );
-        $a = $this->query_obj_ss($q);
-
-        return $a;
     }
     /**
      * 文章打开的次数
@@ -51,9 +89,9 @@ class article_model extends article_base {
     public function readLog($id)
     {
         $q = array(
-            'f.fid,f.nickname,f.src,f.openid,l.read_at',
-            'xxt_matter_read_log l,xxt_fans f',
-            "l.mpid=f.mpid and l.matter_type='article' and l.matter_id='$id' and l.osrc=f.src and l.ooid=f.openid"
+            'f.fid,f.nickname,f.openid,l.read_at',
+            'xxt_log_matter_read l,xxt_fans f',
+            "l.mpid=f.mpid and l.matter_type='article' and l.matter_id='$id' and l.ooid=f.openid"
         );
 
         $log = $this->query_objs_ss($q);
@@ -94,7 +132,7 @@ class article_model extends article_base {
     {
         $q = array(
             'count(*)',
-            'xxt_matter_read_log',
+            'xxt_log_matter_read',
             "matter_type='article' and matter_id='$id'"
         );
 
@@ -110,9 +148,9 @@ class article_model extends article_base {
     public function remarks($articleId, $remarkId=null, $range=false)
     {
         $q = array(
-            'r.*,m.email,m.mobile',
-            'xxt_article_remark r,xxt_member m',
-            "r.article_id='$articleId' and m.forbidden='N' and r.mid=m.mid"
+            'r.*,f.nickname,f.fid',
+            'xxt_article_remark r,xxt_fans f',
+            "r.article_id='$articleId' and r.fid=f.fid"
         );
 
         if (!$range) {
@@ -149,11 +187,32 @@ class article_model extends article_base {
         }
     }
     /**
+     * 文章评论
+     *
+     * $range 分页参数
+     */
+    public function remarkers($articleId)
+    {
+        $remarkers = array();
+        
+        $q = array(
+            'distinct fid',
+            'xxt_article_remark r',
+            "r.article_id='$articleId'"
+        );
+        $remarks = $this->query_objs_ss($q);
+        foreach ($remarks as $remark) {
+            $remarkers[] = \TMS_APP::M('user/fans')->byId($remark->fid, 'openid,nickname');
+        }
+        
+        return $remarkers;
+    }
+    /**
      * 全文检索单图文，将符合条件的结果组成多图文
      */
     public function fullsearch_its($mpid, $keyword, $page = 1, $limit = 5) 
     {
-        $s = 'id,mpid,title,summary,pic';
+        $s = "id,mpid,title,summary,pic,'article' type";
         $f = 'xxt_article';
         $w = "mpid='$mpid' and state=1 and approved='Y'";
         $w .= " and (title like '%$keyword%'";
@@ -168,5 +227,63 @@ class article_model extends article_base {
         $articles = parent::query_objs_ss($q, $q2);
 
         return $articles;
+    }
+    /**
+     * 审核记录
+     *
+     * $mpid
+     * $id article'id
+     * $mid member's id
+     * $phase
+     */
+    public function forward($mpid, $id, $mid, $phase)
+    {
+        $q = array(
+            '*', 
+            'xxt_article_review_log', 
+            "mpid='$mpid' and article_id='$id'"
+        );
+        $q2 = array(
+            'o'=>'seq desc',
+            'r'=>array('o'=>0,'l'=>1)
+        );
+        $last = $this->query_objs_ss($q, $q2);
+        if (!empty($last)) {
+            $last = $last[0];
+            $this->update(
+                'xxt_article_review_log', 
+                array('state'=>'F'),
+                "id=$last->id"
+            );
+        }
+        
+        $seq = empty($last) ? 1 : $last->seq + 1;
+        
+        $newlog = array( 
+            'mpid' => $mpid,
+            'article_id' => $id,
+            'seq' => $seq,
+            'mid' => $mid,
+            'send_at' => time(),
+            'state' => 'P',
+            'phase' => $phase
+        );
+        $newlog['id'] = $this->insert('xxt_article_review_log', $newlog, true);
+        
+        return (object)$newlog;
+    }
+    /**
+     * 获得当前处理人
+     */
+    public function &disposer($id) 
+    {
+        $q = array(
+            'id,seq,mid,phase,state,send_at,receive_at,read_at',
+            'xxt_article_review_log',
+            "article_id='$id' and state in ('P','D')"
+        );
+        $lastlog = $this->query_obj_ss($q);
+        
+        return $lastlog;
     }
 }

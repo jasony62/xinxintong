@@ -66,12 +66,10 @@ class WXBizMsgCrypt
 		}
 
         $result = $pc->decrypt($sEchoStr, $this->m_sCorpid, $logger);
-        $logger !== null && $logger->log('123', '456', '789', '666:'.json_encode($result));
 		if ($result[0] != 0) {
 			return $result[0];
 		}
 		$sReplyEchoStr = $result[1];
-        $logger !== null && $logger->log('123', '456', '789', '777');
 
 		return ErrorCode::$OK;
 	}

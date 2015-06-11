@@ -1,4 +1,6 @@
 <?php
+namespace mp\matter;
+
 require_once dirname(__FILE__).'/matter_ctrl.php';
 /**
  *
@@ -7,9 +9,9 @@ class addressbook extends matter_ctrl {
     /**
      *
      */
-    protected function getAclMatterType()
+    protected function getMatterType()
     {
-        return 'B';
+        return 'addressbook';
     }
     /**
      *
@@ -17,40 +19,47 @@ class addressbook extends matter_ctrl {
     public function index_action($abid=null)
     {
         if (empty($abid)) {
-            $abs = $this->model('matter/addressbook')->byMpid($this->mpid);
-            return new ResponseData($abs);
+            $abs = $this->model('matter\addressbook')->byMpid($this->mpid);
+            return new \ResponseData($abs);
         } else {
-            $ab = $this->model('matter/addressbook')->byId($abid);
+            $ab = $this->model('matter\addressbook')->byId($abid);
             /**
              * acl
              */
-            $ab->acl = $this->model('acl')->matter($this->mpid, 'B', $abid);
+            $ab->acl = $this->model('acl')->byMatter($this->mpid, 'addressbook', $abid);
 
-            return new ResponseData($ab);
+            return new \ResponseData($ab);
         }
+    }
+    /**
+     *
+     */
+    public function get_action($abid=null)
+    {
+        return $this->index_action($abid);
     }
     /**
      * 创建通讯录
      */
     public function create_action($title='新通讯录') 
     {
-        $uid = TMS_CLIENT::get_client_uid();
+        $uid = \TMS_CLIENT::get_client_uid();
 
-        $abid = $this->model('matter/addressbook')->insert_ab($this->mpid, $uid, $title);
+        $abid = $this->model('matter\addressbook')->insert_ab($this->mpid, $uid, $title);
 
-        return new ResponseData($abid);
+        return new \ResponseData($abid);
     }
     /**
      * 删除通讯录
      */
     public function remove_action($id)
     {
-        $rst = $this->model('matter/addressbook')->remove_ab($this->mpid, $id);
+        $rst = $this->model('matter\addressbook')->remove_ab($this->mpid, $id);
 
         if ($rst[0])
-            return new ResponseData('success');
+            return new \ResponseData('success');
         else
-            return new ResponseError($rst[1]);
+            return new \ResponseError($rst[1]);
     }
     /**
      * 更新通讯录基本设置
@@ -63,15 +72,15 @@ class addressbook extends matter_ctrl {
 
         $nv['modify_at'] = time();
 
-        isset($nv['pic']) && $nv['pic'] = mysql_real_escape_string($nv['pic']);
+        isset($nv['pic']) && $nv['pic'] = $this->model()->escape($nv['pic']);
 
         $rst = $this->model()->update(
-            'xxt_address_book', 
+            'xxt_addressbook', 
             (array)$nv,
             "mpid='$this->mpid' and id='$abid'"
         );
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      * 获得部门列表
@@ -88,7 +97,7 @@ class addressbook extends matter_ctrl {
 
         $depts = $this->model()->query_objs_ss($q, $q2);
 
-        return new ResponseData($depts);
+        return new \ResponseData($depts);
     }
     /**
      * 添加部门
@@ -98,9 +107,9 @@ class addressbook extends matter_ctrl {
      */
     public function addDept_action($abid, $pid=0, $seq=null)
     {
-        $dept = $this->model('matter/addressbook')->addDept($this->mpid, $abid, '新部门', $pid, $seq);
+        $dept = $this->model('matter\addressbook')->addDept($this->mpid, $abid, '新部门', $pid, $seq);
 
-        return new ResponseData($dept);
+        return new \ResponseData($dept);
     }
     /**
      * 更新部门信息
@@ -117,7 +126,7 @@ class addressbook extends matter_ctrl {
             "mpid='$this->mpid' and id=$id"
         );
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      * 删除部门
@@ -127,12 +136,12 @@ class addressbook extends matter_ctrl {
      */
     public function delDept_action($id)
     {
-        $rst = $this->model('matter/addressbook')->delDept($this->mpid, $id);
+        $rst = $this->model('matter\addressbook')->delDept($this->mpid, $id);
 
         if ($rst[0] === false)
-            return new ResponseError($rst[1]);
+            return new \ResponseError($rst[1]);
         else
-            return new ResponseData(true);
+            return new \ResponseData(true);
     }
     /**
      * 设置部门的父部门
@@ -145,7 +154,7 @@ class addressbook extends matter_ctrl {
             "mpid='$this->mpid' and id=$id"
         );
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      * 获得联系人信息（列表/详细）
@@ -157,7 +166,7 @@ class addressbook extends matter_ctrl {
      */
     public function person_action($abid, $id=null, $abbr='', $page=1, $size=30) 
     {
-        $model = $this->model('matter/addressbook');
+        $model = $this->model('matter\addressbook');
 
         if (empty($id)) {
             $offset = ($page-1) * $size;
@@ -165,12 +174,12 @@ class addressbook extends matter_ctrl {
 
             $persons = $model->getPersonByAb($this->mpid, $abid, $abbr, $dept_id, $offset, $size);
 
-            return new ResponseData($persons);
+            return new \ResponseData($persons);
         } else {
             $person = $model->getPersonById($id);
             $person->depts = $model->getDeptByPerson($id);
 
-            return new ResponseData($person);
+            return new \ResponseData($person);
         }
     }
     /**
@@ -178,14 +187,14 @@ class addressbook extends matter_ctrl {
      */
     public function personCreate_action($abid) 
     {
-        $model = $this->model('matter/addressbook');
+        $model = $this->model('matter\addressbook');
         $name = '新联系人';
 
         $id = $model->createPerson($this->mpid, $abid, $name);
 
         $person = $model->getPersonById($id);
 
-        return new ResponseData($person);
+        return new \ResponseData($person);
     }
     /**
      * 更新属性信息
@@ -203,7 +212,7 @@ class addressbook extends matter_ctrl {
             "mpid='$this->mpid' and id='$id'"
         );
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      * 更新联系人所属的部门
@@ -218,11 +227,11 @@ class addressbook extends matter_ctrl {
             $r = array(
                 'dept_id' => $deptid
             );
-            $r['id'] = $this->model('matter/addressbook')->addPersonDept($this->mpid, $abid, $id, $deptid);
+            $r['id'] = $this->model('matter\addressbook')->addPersonDept($this->mpid, $abid, $id, $deptid);
             $rels[] = $r;
         }
 
-        return new ResponseData($rels);
+        return new \ResponseData($rels);
     }
     /**
      * 删除联系人和部门之间的关联
@@ -237,7 +246,7 @@ class addressbook extends matter_ctrl {
             "mpid='$this->mpid' and person_id=$id and dept_id=$deptid"
         );
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      * 删除通讯录中的一个联系人
@@ -259,7 +268,7 @@ class addressbook extends matter_ctrl {
             "mpid='$this->mpid' and id=$id"
         );
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
 
     /**
@@ -280,7 +289,7 @@ class addressbook extends matter_ctrl {
         @set_time_limit(0);
 
         if (!($file = fopen($_FILES['addressbook']['tmp_name'], "r")))
-            return new ResponseError('open file, failed.');
+            return new \ResponseError('open file, failed.');
 
         $all_depts = $this->getDeptsByMp($this->mpid);
 
@@ -291,7 +300,7 @@ class addressbook extends matter_ctrl {
         /**
          * handle data.
          */
-        $model = $this->model('matter/addressbook');
+        $model = $this->model('matter\addressbook');
         for ($row = 0; ($contact = fgetcsv($file)) != false; $row++) {
             $name = $email = '';
             $tels = array();
@@ -338,11 +347,11 @@ class addressbook extends matter_ctrl {
         }
 
         if (!feof($file)) {
-            return new ResponseError('unexpected fgets() fail.');
+            return new \ResponseError('unexpected fgets() fail.');
         }
         fclose($file);
 
-        return new ResponseData($row);
+        return new \ResponseData($row);
     }
     /**
      *

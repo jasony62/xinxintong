@@ -9,12 +9,37 @@ class permission_model extends \TMS_MODEL {
      */
     private $RIGHTS = array(
         'mpsetting'=>'MP',
-        'mpsecurity'=>'MP',
+        'mpsetting_setting'=>'MP',
+        'mpsetting_feature'=>'MP',
+        'mpsetting_customapi'=>'MP',
+        'mpsetting_permission'=>'MP',
+        'mpsetting_administrator'=>'MP',
         'matter'=>'MP',
+        'matter_article'=>'MP',
+        'matter_text'=>'MP',
+        'matter_news'=>'MP',
+        'matter_channel'=>'MP',
+        'matter_link'=>'MP',
+        'matter_tmplmsg'=>'MP',
         'reply'=>'MP',
-        'fans'=>'MP',
-        'members'=>'MP',
-        'activity'=>'MP',
+        'reply_text'=>'MP',
+        'reply_menu'=>'MP',
+        'reply_qrcode'=>'MP',
+        'reply_other'=>'MP',
+        'user'=>'MP',
+        'user_received'=>'MP',
+        'user_send'=>'MP',
+        'user_fans'=>'MP',
+        'user_member'=>'MP',
+        'user_department'=>'MP',
+        'user_tag'=>'MP',
+        'user_fansgroup'=>'MP',
+        'app'=>'MP',
+        'app_enroll'=>'MP',
+        'app_lottery'=>'MP',
+        'app_wall'=>'MP',
+        'app_addressbook'=>'MP',
+        'app_contribute'=>'MP',
         'analyze'=>'MP',
         'p_mpgroup_create'=>'SYS',
         'p_mp_create'=>'SYS',
@@ -61,7 +86,7 @@ class permission_model extends \TMS_MODEL {
             return false;
 
         empty($uid) && $uid = \TMS_CLIENT::get_client_uid();
-        
+
         /**
          * 检查是否为账号的管理员
          */
@@ -81,7 +106,7 @@ class permission_model extends \TMS_MODEL {
             else
                 $sCRUD = array($sCRUD.'_p');
         }
-
+        $bPermission = false;
         if (is_array($sMpPermission)) {
             $sMpPermission = implode("','", $sMpPermission);
             $q = array(

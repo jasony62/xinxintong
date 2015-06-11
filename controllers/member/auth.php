@@ -1,4 +1,6 @@
 <?php
+namespace member;
+
 require_once dirname(dirname(__FILE__)).'/member_base.php';
 /**
  * 应用内用户身份认证
@@ -7,7 +9,7 @@ require_once dirname(dirname(__FILE__)).'/member_base.php';
  *
  * 参见:member_authapis
  */
-class auth extends member_base {
+class auth extends \member_base {
 
     public function get_access_rule() 
     {
@@ -22,7 +24,6 @@ class auth extends member_base {
      * $mpid
      * $authid
      * $openid
-     * $src
      *
      * 打开认证页，完成认证不一定意味着通过认证，可能还需要发送验证邮件或短信验证码
      *
@@ -34,51 +35,47 @@ class auth extends member_base {
      * 所以只有在无法获得之前页面取得OAuth时，认证页面才做OAuth
      *
      */
-    public function index_action($mpid, $authid, $openid=null, $code=null, $state=null) 
+    public function index_action($mpid, $authid, $openid=null, $code=null) 
     {
-        if ($code != null && $state != null)
+        if ($code != null)
             $who = $this->getOAuthUserByCode($mpid, $code);
         else {
-            $mpa = $this->model('mp\mpaccount')->getApis($mpid);
-            $state = json_encode(array($mpid, $authid));
-            $state = $this->model()->encrypt($state, 'ENCODE', 'auth');
             if (!empty($openid)) {
                 /**
                  * 如果是直接打开认证页，而且提供了openid，就在cookie中保留信息，用于进行用户身份的绑定
                  */
-                $who = array($openid,$mpa->mpsrc);
-                $encoded = $this->model()->encrypt(json_encode($who), 'ENCODE', $mpid);
+                $who = $openid;
+                $encoded = $this->model()->encrypt($who, 'ENCODE', $mpid);
                 $this->mySetcookie("_{$mpid}_mauth_f", $encoded, time()+300);
             } else {
                 /**
                  * 如果支持OAuth，强制使用OAuth
                  * 如果进入之前的页面已经做过，不会再重复认证
                  */
-                $this->oauth($mpid, $state);
+                $this->oauth($mpid);
                 $who = null;
             }
         }
-        $this->afterOAuth($state, $who);
+        $this->afterOAuth($mpid, $authid, $who);
     }
     /**
      *
      */
-    protected function afterOAuth($state, $who=null)
+    protected function afterOAuth($mpid, $authid, $who=null)
     {
-        list($mpid, $authid) = json_decode($this->model()->encrypt($state, 'DECODE', 'auth'));
-        TPL::assign('mpid', $mpid);
-        TPL::assign('authid', $authid);
-        TPL::assign('clientSrc', $this->getClientSrc());
+        \TPL::assign('mpid', $mpid);
+        \TPL::assign('authid', $authid);
+        \TPL::assign('clientSrc', $this->getClientSrc());
         /**
          * 页面背景设置
          */
         $mpsetting = $this->getCommonSetting($mpid);
-        TPL::assign('body_ele', $mpsetting->body_ele);
-        TPL::assign('body_css', $mpsetting->body_css);
+        \TPL::assign('body_ele', $mpsetting->body_ele);
+        \TPL::assign('body_css', $mpsetting->body_css);
         /**
          * 内置用户身份认证认证的规则定义数据
          */
-        $authSetting = $this->model('user/authapi')->byId($authid, 'attr_mobile,attr_email,attr_name,attr_password,extattr,auth_css,auth_html,auth_js'); 
+        $authSetting = $this->model('user/authapi')->byId($authid); 
         $attrs = array(
             'mobile'=>$authSetting->attr_mobile,
             'email'=>$authSetting->attr_email,
@@ -86,23 +83,23 @@ class auth extends member_base {
             'password'=>$authSetting->attr_password,
             'extattr'=>$authSetting->extattr
         );
-        TPL::assign('attrs', $attrs);
+        \TPL::assign('attrs', $attrs);
 
-        $authSetting->auth_css && TPL::assign('extra_css', $authSetting->auth_css);
-        $authSetting->auth_html && TPL::assign('extra_ele', $authSetting->auth_html);
-        $authSetting->auth_js && TPL::assign('extra_js', $authSetting->auth_js);
+        !empty($authSetting->auth_css) && \TPL::assign('extra_css', $authSetting->auth_css);
+        !empty($authSetting->auth_html) && \TPL::assign('extra_ele', $authSetting->auth_html);
+        !empty($authSetting->auth_js) && \TPL::assign('extra_js', $authSetting->auth_js);
         /**
          * 成功后的回调地址
          * 将身份验证和用户身份绑定分开
          */
-        TPL::assign('callback', urlencode("/rest/member/auth/passed?mpid=$mpid&authid=$authid"));
+        \TPL::assign('callback', urlencode("/rest/member/auth/passed?mpid=$mpid&authid=$authid"));
         /**
          * 已经认证过的用户身份
          */
-        list($ooid, $osrc) = empty($who) ? $this->getCookieOAuthUser($mpid) : $who;
+        $ooid = empty($who) ? $this->getCookieOAuthUser($mpid) : $who;
         if (!empty($ooid)) {
             $member = $this->model('user/member')->byOpenid($mpid, $ooid, '*', $authid);
-            TPL::assign('authedMember', $member);
+            \TPL::assign('authedMember', $member);
         }
 
         $this->view_action('/member/auth');
@@ -123,7 +120,7 @@ class auth extends member_base {
     public function doAuth_action($mpid, $authid) 
     {
         if (false === ($fan = $this->getCurrentUserFan($mpid)))
-            return new ResponseError('无法获得当前用户的openid');
+            return new \ResponseError('无法获得当前用户的openid');
 
         $member = $this->getPostJson();
 
@@ -139,7 +136,7 @@ class auth extends member_base {
          * check auth data.
          */ 
         if ($err_msg = $this->model('user/member')->rejectAuth($member, $attrs))
-            return new ParameterError($err_msg);
+            return new \ParameterError($err_msg);
 
         /**
          * 用户的邮箱需要验证，将状态设置为等待验证的状态
@@ -152,33 +149,34 @@ class auth extends member_base {
             /**
              * 手机号作为唯一标识
              */
-            $mobile = $member->mobile;
-            $mpa = $this->model('mp\mpaccount')->getApis($mpid);
-            if ('yx'!==$mpa->mpsrc || 'yx' !== $this->getClientSrc())
-                return new ResponseError('目前仅支持在易信客户端中验证手机号');
-            if ('N' == $mpa->yx_checkmobile)
-                return new ResponseError('仅支持在开通了手机验证接口的公众号中验证手机号');
+            if ($attrs->attr_mobile[4] === '1') {
+                $mobile = $member->mobile;
+                $mpa = $this->model('mp\mpaccount')->getApis($mpid);
+                if ('yx'!==$mpa->mpsrc || 'yx' !== $this->getClientSrc())
+                    return new \ResponseError('目前仅支持在易信客户端中验证手机号');
+                if ('N' == $mpa->yx_checkmobile)
+                    return new \ResponseError('仅支持在开通了手机验证接口的公众号中验证手机号');
 
-            $rst = $this->model('mpproxy/yx', $mpid)->mobile2Openid($mobile);
-            if ($rst[0] === false)
-                return new ResponseError("验证手机号失败【{$rst[1]}】");
-            if ($fan->openid !== $rst[1]->openid)
-                return new ResponseError("您输入的手机号与注册易信用户时的提供手机号不一致");
-
-            $member->authed_identity = $mobile;
+                $rst = $this->model('mpproxy/yx', $mpid)->mobile2Openid($mobile);
+                if ($rst[0] === false)
+                    return new \ResponseError("验证手机号失败【{$rst[1]}】");
+                if ($fan->openid !== $rst[1]->openid)
+                    return new \ResponseError("您输入的手机号与注册易信用户时的提供手机号不一致");
+            }
+            $member->authed_identity = $member->mobile;
         } else if ($attrs->attr_email[5] === '1' && isset($member->email))
             /**
              * 邮箱作为唯一标识
              */
             $member->authed_identity = $member->email;
         else
-            return new ResponseError('无法获得身份标识信息');
+            return new \ResponseError('无法获得身份标识信息');
         /**
          * 添加新的认证用户
          */
         $rst = $this->model('user/member')->create($fan->fid, $member, $attrs);
         if ($rst[0] === false)
-            return new ResponseError($rst[1]);
+            return new \ResponseError($rst[1]);
         $mid = $rst[1];
         /**
          * 验证邮箱真实性
@@ -198,7 +196,7 @@ class auth extends member_base {
             "mpid='$mpid' and vid='$vid'"
         );
 
-        return new ResponseData($mid);
+        return new \ResponseData($mid);
     }
     /**
      * 重新进行用户身份验证 
@@ -207,13 +205,13 @@ class auth extends member_base {
     {
         $member = $this->getPostJson();
 
-        $member->mpid = $mpid;
+        $member->authapi_id = $authid;
         /**
          * get auth settings.
          */
         $attrs = $this->model('user/authapi')->byId($authid, 'attr_mobile,attr_email,attr_name,attr_password'); 
         if (false === ($mid = $this->model('user/member')->findMember($member, $attrs)))
-            return new ParameterError('找不到匹配的认证用户');
+            return new \ParameterError('找不到匹配的认证用户');
         /**
          * 是否需要进行验证
          * 目前仅支持邮箱验证
@@ -231,7 +229,7 @@ class auth extends member_base {
          */
         $this->setCookie4Member($mpid, $authid, $mid);
 
-        return new ResponseData($mid);
+        return new \ResponseData($mid);
     }
     /**
      * 认证完成后的回调地址
@@ -259,7 +257,7 @@ class auth extends member_base {
                 'mpid'=>$mpid,
                 'authid'=>$authid
             );
-            TPL::assign('params', $params);
+            \TPL::assign('params', $params);
             $this->view_action('/member/authed');
         }
     }
@@ -274,12 +272,12 @@ class auth extends member_base {
             /**
              * 通过OAuth获得的openid优先级高
              */
-            list($openid) = $this->getCookieOAuthUser($mpid);
+            $openid = $this->getCookieOAuthUser($mpid);
         else if ($fanInCookie = $this->myGetcookie("_{$mpid}_mauth_f"))
             /**
              * URL直接指定的openid
              */
-            list($openid) = json_decode($this->model()->encrypt($fanInCookie, 'DECODE', $mpid));
+            $openid = json_decode($this->model()->encrypt($fanInCookie, 'DECODE', $mpid));
         else
             return false;
 
@@ -349,7 +347,7 @@ class auth extends member_base {
         $this->model()->delete('xxt_access_token',"token='$token'"); 
 
         // todo 邮件验证的信息应该允许定制
-        TPL::output('emailpassed');
+        \TPL::output('emailpassed');
     }
     /**
      * 给当前用户发送验证邮件
@@ -373,7 +371,7 @@ class auth extends member_base {
 
         $this->send_verify_email($mpid, $member->authed_identity); 
 
-        return new ResponseData('success');
+        return new \ResponseData('success');
     }
     /**
      * 返回组织机构组件
@@ -384,7 +382,7 @@ class auth extends member_base {
             'js'=>'/views/default/member/memberSelector.js',
             'view'=>"/rest/member/auth/organization?authid=$authid"
         );
-        return new ResponseData($addon);
+        return new \ResponseData($addon);
     }
     /**
      *
@@ -407,7 +405,7 @@ class auth extends member_base {
             "authapi_id=$authid and authed_identity='$uid' and forbidden='N'"
         );
         $member = $this->model()->query_obj_ss($q);
-        if (!$member) return new ResponseError('指定的用户不存在');
+        if (!$member) return new \ResponseError('指定的用户不存在');
 
         $acls = $this->getPostJson();
 
@@ -420,7 +418,7 @@ class auth extends member_base {
                     foreach ($depts as $ds)
                         $aDepts = array_merge($aDepts, $ds);
                     if (in_array($acl->identity, $aDepts))
-                        return new ResponseData('passed');
+                        return new \ResponseData('passed');
                 }
                 break;
             case 'T':
@@ -428,11 +426,11 @@ class auth extends member_base {
                 $aIdentity = explode(',', $acl->identity);
                 $aIntersect = array_intersect($aIdentity, $aMemberTags);
                 if (count($aIntersect) === count($aIdentity))
-                    return new ResponseData('passed');
+                    return new \ResponseData('passed');
                 break;
             case 'M':
                 if ($member->mid === $acl->identity)
-                    return new ResponseData('passed');
+                    return new \ResponseData('passed');
                 break;
             case 'DT':
                 $depts = json_decode($member->depts);
@@ -449,14 +447,14 @@ class auth extends member_base {
                         unset($aIdentity[0]);
                         $aIntersect = array_intersect($aIdentity, $aMemberTags);
                         if (count($aIntersect) === count($aIdentity))
-                            return new ResponseData('passed');
+                            return new \ResponseData('passed');
                     }
                 }
                 break;
             }
         }
 
-        return new ResponseError('no matched');
+        return new \ResponseError('no matched');
     }
     /**
      * 将内部组织结构数据全量导入到企业号通讯录 
@@ -466,7 +464,7 @@ class auth extends member_base {
      */
     public function import2Qy_action($mpid, $authid)
     {
-        return new ResponseError('not support');
+        return new \ResponseError('not support');
     }
     /**
      * 将内部组织结构数据增量导入到企业号通讯录 
@@ -476,7 +474,7 @@ class auth extends member_base {
      */
     public function sync2Qy_action($mpid, $authid)
     {
-        return new ResponseError('not support');
+        return new \ResponseError('not support');
     }
     /**
      * 将内部组织结构数据增量导入到企业号通讯录 
@@ -486,7 +484,7 @@ class auth extends member_base {
      */
     public function syncFromQy_action($mpid, $authid)
     {
-        return new ResponseError('not support');
+        return new \ResponseError('not support');
     }
     /**
      * 从企业号导入通讯录数据
@@ -498,11 +496,11 @@ class auth extends member_base {
     public function importFromQy_action($mpid, $authid, $pdid=1)
     {
         if (!($authapi = $this->model('user/authapi')->byId($authid)))
-            return new ResponseError('未设置内置认证接口，无法同步通讯录');
+            return new \ResponseError('未设置内置认证接口，无法同步通讯录');
 
         $mp = $this->model('mp\mpaccount')->byId($mpid, 'qy_joined');
         if (!$mp && $mp->qy_joined !== 'Y')
-            return new ResponseError('未与企业号连接，无法同步通讯录');
+            return new \ResponseError('未与企业号连接，无法同步通讯录');
 
         $timestamp = time(); // 进行同步操作的时间戳
         /**
@@ -512,7 +510,7 @@ class auth extends member_base {
         $mapDeptR2L = array(); // 部门的远程ID和本地ID的映射
         $result = $qyproxy->departmentList($mpid, $pdid);
         if ($result[0] === false)
-            return new ResponseError($result[1]);
+            return new \ResponseError($result[1]);
 
         $rootDepts = array(); // 根部门
         $rdepts = $result[1]->department;
@@ -557,14 +555,14 @@ class auth extends member_base {
              */
             $result = $qyproxy->userList($rootDept->id, 1);
             if ($result[0] === false)
-                return new ResponseError($result[1]);
+                return new \ResponseError($result[1]);
 
             $users = $result[1]->userlist;
             foreach ($users as $user) {
                 $q = array(
                     'mid,fid',
                     'xxt_member',
-                    "mpid='$mpid' and ooid='$user->userid' and osrc='qy'"
+                    "mpid='$mpid' and ooid='$user->userid'"
                 );
                 if (!($luser = $this->model()->query_obj_ss($q)))
                     $this->createQyFan($mpid, $user, $authid, $timestamp, $mapDeptR2L);
@@ -591,7 +589,7 @@ class auth extends member_base {
          */
         $result = $qyproxy->tagList();
         if ($result[0] === false)
-            return new ResponseError($result[1]);
+            return new \ResponseError($result[1]);
 
         $tags = $result[1]->taglist;
         foreach ($tags as $tag) {
@@ -626,7 +624,7 @@ class auth extends member_base {
              */
             $result = $qyproxy->tagUserList($tag->tagid);
             if ($result[0] === false)
-                return new ResponseError($result[1]);
+                return new \ResponseError($result[1]);
             $users = $result[1]->userlist;
             foreach ($users as $user) {
                 $q = array(
@@ -655,6 +653,6 @@ class auth extends member_base {
             "mpid='$mpid' and sync_at<$timestamp"
         );
 
-        return new ResponseData(array(count($rdepts), count($users), count($tags)));
+        return new \ResponseData(array(count($rdepts), count($users), count($tags)));
     }
 }

@@ -1,8 +1,9 @@
 <?php
+namespace cus\crccre\auth;
 /**
  * 后台管理员身份认证
  */
-class auth extends TMS_CONTROLLER {
+class auth extends \TMS_CONTROLLER {
     /**
      * 应用的名称
      */
@@ -24,7 +25,7 @@ class auth extends TMS_CONTROLLER {
          * 用于在多个请求之间传递数据
          */
         $token = uniqid();
-        TPL::assign('token', $token);
+        \TPL::assign('token', $token);
         /**
          * 成功后的回调地址
          */
@@ -33,7 +34,7 @@ class auth extends TMS_CONTROLLER {
         $url[] = $_SERVER['HTTP_HOST'];
         $url[] = "/rest/cus/crccre/auth/auth/passed?token=$token";
         $url = implode('', $url);
-        TPL::assign('callback', $url);
+        \TPL::assign('callback', $url);
         /**
          * 打开用户登录页面
          */
@@ -50,14 +51,14 @@ class auth extends TMS_CONTROLLER {
         $up = $this->getPostJson();
         if (isset($up->dessaposs) && $up->dessaposs === 'Y') {
             $this->bind($up->username);
-            return new ResponseData('身份认证成功！');
+            return new \ResponseData('身份认证成功！');
         } else {
             /**
              * 调用sso接口进行身份验证
              */
             ini_set('soap.wsdl_cache_enabled', '0');
             try {
-                $soap = new SoapClient(
+                $soap = new \SoapClient(
                     'http://um.crccre.cn/webservices/adgrouptree.asmx?wsdl', 
                     array(
                         'soap_version' => SOAP_1_2,
@@ -66,18 +67,18 @@ class auth extends TMS_CONTROLLER {
                         'trace'=>1, 
                     )
                 );
-                $param = new stdClass;
+                $param = new \stdClass;
                 $param->userName = $up->username;
                 $param->passWord = $up->password;
                 $param->groupUserType = $up->group;
                 $ret = $soap->GetUserGroupAuthenticate($param);
                 if ($ret->GetUserGroupAuthenticateResult === true) { 
                     $this->bind($up->username);
-                    return new ResponseData('身份认证成功！');
+                    return new \ResponseData('身份认证成功！');
                 } else
-                    return new ResponseError('身份认证失败！');
-            } catch (Exception $e) {
-                return new ResponseError($e->getMessage());
+                    return new \ResponseError('身份认证失败！');
+            } catch (\Exception $e) {
+                return new \ResponseError($e->getMessage());
             }
         }
     }
@@ -106,6 +107,6 @@ class auth extends TMS_CONTROLLER {
         /**
          * 记录客户端登陆状态
          */
-        TMS_CLIENT::account($act);
+        \TMS_CLIENT::account($act);
     }
 }

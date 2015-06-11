@@ -14,7 +14,7 @@
         <title>定制页面</title>
     </head>
     <body style='padding-top:71px;' ng-app='xxtApp' ng-controller='codeCtrl'>
-        <notice-box err='errmsg' info='infomsg' delay='1000'></notice-box>
+        <notice-box err='errmsg' info='infomsg' prog='prog' delay='1000'></notice-box>
         <nav class='navbar navbar-inverse navbar-fixed-top'>
         <ul class='nav navbar-nav'>
             <?php $c = TPL::val('layout-top'); $c && TPL::output($c);?>

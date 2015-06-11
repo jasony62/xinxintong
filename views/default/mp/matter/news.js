@@ -1,22 +1,17 @@
-xxtApp.controller('NewsCtrl',['$scope','$http','http2',function($scope,$http,http2){
+xxtApp.controller('newsCtrl',['$scope','http2',function($scope,http2){
     $scope.matterTypes = [
-        {value:'article',title:'单图文'},
-        {value:'link',title:'链接'},
-        {value:'activity',title:'通用活动'},
-        {value:'lottery',title:'抽奖活动'},
-        {value:'discuss',title:'讨论组'},
+        {value:'article',title:'单图文',url:'/rest/mp/matter'},
+        {value:'link',title:'链接',url:'/rest/mp/matter'},
+        {value:'enroll',title:'通用活动',url:'/rest/mp/matter'},
+        {value:'lottery',title:'抽奖活动',url:'/rest/mp/matter'},
+        {value:'wall',title:'讨论组',url:'/rest/mp/matter'},
     ];
     var updateMatters = function() {
         http2.post('/rest/mp/matter/news/updateStuff?id='+$scope.editing.id, $scope.editing.stuffs);
     };
     var editNews = function(news) {
-        var i,checked,editingAuthapis;
-        checked =  news.authapis ? news.authapis : '';
-        $scope.editingAuthapis = angular.copy($scope.authapis);
-        for (i in $scope.editingAuthapis) {
-            editingAuthapis = $scope.editingAuthapis[i];
-            editingAuthapis.checked = checked.indexOf(editingAuthapis.authid) !== -1 ? 'Y':'N';
-        }
+        if (news.url === undefined)
+            news.url = 'http://'+location.host+'/rest/mi/matter?mpid='+$scope.mpid+'&id='+news.id+'&type=news';
         $scope.editing = news;
     };
     $scope.create = function(){
@@ -36,15 +31,7 @@ xxtApp.controller('NewsCtrl',['$scope','$http','http2',function($scope,$http,htt
     $scope.update = function(prop){
         var nv = {};
         nv[prop] = $scope.editing[prop];
-        if ($scope.authapis.length===1 && prop==='access_control')
-            nv['authapis'] = nv[prop] === 'Y' ? $scope.authapis[0].authid : '';
         http2.post('/rest/mp/matter/news/update?id='+$scope.editing.id, nv);
-    };
-    $scope.updateAuthapi = function(api) {
-        var eapis = $scope.editing.authapis,p={};
-        api.checked === 'Y' ? eapis.push(api.authid) : eapis.splice(eapis.indexOf(api.authid),1);
-        p.authapis = eapis.join();
-        http2.post('/rest/mp/matter/news/update?id='+$scope.editing.id, p);
     };
     $scope.assign = function(){
         $scope.$broadcast('mattersgallery.open', function(aSelected, matterType){
@@ -105,10 +92,6 @@ xxtApp.controller('NewsCtrl',['$scope','$http','http2',function($scope,$http,htt
         }
         updateMatters();
     });
-    $http.get('/rest/mp/mpaccount/authapis').
-    success(function(rsp) {
-        $scope.authapis = rsp.data;
-    });
     // load news
     $scope.doSearch = function() {
         var url = '/rest/mp/matter/news?cascade=n';
@@ -119,8 +102,7 @@ xxtApp.controller('NewsCtrl',['$scope','$http','http2',function($scope,$http,htt
                 $scope.edit($scope.news[0]);
         });
     };
-    $http.get('/rest/mp/mpaccount/feature?fields=matter_visible_to_creater').
-    success(function(rsp) {
+    http2.get('/rest/mp/mpaccount/feature?fields=matter_visible_to_creater', function(rsp) {
         $scope.features = rsp.data;
     });
     $scope.doSearch();

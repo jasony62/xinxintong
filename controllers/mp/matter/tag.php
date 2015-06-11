@@ -1,7 +1,9 @@
 <?php
+namespace mp\matter;
+
 require_once dirname(dirname(__FILE__)).'/mp_controller.php';
 
-class tag extends mp_controller {
+class tag extends \mp\mp_controller {
 
     public function get_access_rule()
     {
@@ -16,6 +18,6 @@ class tag extends mp_controller {
     {
         $tags = $this->model('tag')->get_tags($this->mpid, $resType);
 
-        return new ResponseData($tags);
+        return new \ResponseData($tags);
     }
 }

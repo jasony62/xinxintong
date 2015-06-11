@@ -1,6 +1,6 @@
 <?php
 /**
- * common activity
+ *
  */
 class debug extends TMS_CONTROLLER {
 

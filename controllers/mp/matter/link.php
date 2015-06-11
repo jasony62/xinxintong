@@ -1,4 +1,6 @@
 <?php
+namespace mp\matter;
+
 require_once dirname(__FILE__).'/matter_ctrl.php';
 
 class link extends matter_ctrl {
@@ -7,9 +9,9 @@ class link extends matter_ctrl {
      */
     public function index_action($src=null, $id=null, $cascade='y') 
     {
-        $uid = TMS_CLIENT::get_client_uid();
+        $uid = \TMS_CLIENT::get_client_uid();
 
-        $pmpid = isset($_SESSION['mpaccount']->parent_mpid) ? $_SESSION['mpaccount']->parent_mpid : false;
+        $pmpid = $this->getParentMpid();
 
         if (!empty($id)) {
             $q = array(
@@ -30,19 +32,13 @@ class link extends matter_ctrl {
             /**
              * channels
              */
-            $q = array(
-                'c.id,c.title,lc.create_at',
-                'xxt_link_channel lc,xxt_channel c',
-                "lc.link_id='$id' and lc.channel_id=c.id"
-            );
-            $q2['o'] = 'lc.create_at desc';
-            $link->channels = $this->model()->query_objs_ss($q, $q2);
+            $link->channels = $this->model('matter\channel')->byMatter($id, 'link');
             /**
              * acl
              */
-            $link->acl = $this->model('acl')->matter($this->mpid, 'L', $id);
+            $link->acl = $this->model('acl')->byMatter($this->mpid, 'link', $id);
 
-            return new ResponseData($link);
+            return new \ResponseData($link);
         } else {
             /**
              * 本公众号内的素材
@@ -83,19 +79,26 @@ class link extends matter_ctrl {
                      * channels
                      */
                     $q = array('c.id,c.title,lc.create_at',
-                        'xxt_link_channel lc,xxt_channel c',
-                        "lc.link_id=$l->id and lc.channel_id=c.id");
+                        'xxt_channel_matter lc,xxt_channel c',
+                        "lc.matter_id=$l->id and lc.matter_type='link' and lc.channel_id=c.id");
                     $q2['o'] = 'lc.create_at desc';
                     $l->channels = $this->model()->query_objs_ss($q, $q2);
                     /**
                      * acl
                      */
-                    $l->acl = $this->model('acl')->matter($mpid, 'L', $l->id);
+                    $l->acl = $this->model('acl')->byMatter($mpid, 'link', $l->id);
                 }
             }
 
-            return new ResponseData($links);
+            return new \ResponseData($links);
         }
+    }
+    /**
+     *
+     */
+    public function get_action($src=null, $id=null, $cascade='y') 
+    {
+        return $this->index_action($src, $id, $cascade);
     }
     /**
      *
@@ -114,26 +117,20 @@ class link extends matter_ctrl {
         /**
          * channels
          */
-        $q = array(
-            'c.id,c.title,lc.create_at',
-            'xxt_link_channel lc,xxt_channel c',
-            "lc.link_id='$id' and lc.channel_id=c.id"
-        );
-        $q2['o'] = 'lc.create_at desc';
-        $l['channels'] = $this->model()->query_objs_ss($q, $q2);
+        $l['channels'] = $this->model('matter\channel')->byMatter($id, 'link');
         /**
          * acl
          */
-        $l['acl'] = $this->model('acl')->matter($this->mpid, 'L', $id);
+        $l['acl'] = $this->model('acl')->byMatter($this->mpid, 'link', $id);
 
-        return new ResponseData($l);
+        return new \ResponseData($l);
     }
     /**
      * 创建外部链接素材
      */
-    public function create_action($title='新外部链接')
+    public function create_action($title='新链接')
     {
-        $uid = TMS_CLIENT::get_client_uid(); 
+        $uid = \TMS_CLIENT::get_client_uid(); 
         $d['mpid'] = $this->mpid;
         $d['creater'] = $uid;
         $d['create_at'] = time();
@@ -149,28 +146,27 @@ class link extends matter_ctrl {
 
         $link = $this->model()->query_obj_ss($q);
 
-        return new ResponseData($link);
+        return new \ResponseData($link);
     }
     /**
      * 删除链接
      */
     public function remove_action($id)
     {
-        if ($this->model()->delete('xxt_link', "id=$id and used=0")){
-            // 删除和频道的关联
-            $this->model()->delete('xxt_link_channel',"link_id=$id");
-            // 删除链接参数
-            $this->model()->delete('xxt_link_param',"link_id=$id");
-            // 删除ACL
-            $this->model()->delete('xxt_matter_acl',"mpid='$this->mpid' and matter_type='L' and matter_id=$id");
-            return new ResponseData('success');
-        } else if ($this->model()->update('xxt_link', array('state'=>0),"id=$id and used=1")){
-            /**
-             * 标记为删除
-             */
-            return new ResponseData('success');
+        $model = $this->model();
+        
+        $rst = $model->update('xxt_link', array('state'=>0),"mpid='$this->mpid' and id=$id");
+        
+        if ($rst) {
+            $model->delete('xxt_channel_matter', "matter_id='$id' and matter_type='link'");
+            $modelNews = $this->model('matter\news');
+            if ($news = $modelNews->byMatter($id, 'link')) {
+                foreach ($news as $n)
+                    $modelNews->removeMatter($n->id, $id, 'link');
+            }
         }
-        return new ResponseError('数据无法删除！');
+
+        return new \ResponseData($rst);
     }
     /**
      * 更新链接属性
@@ -180,7 +176,7 @@ class link extends matter_ctrl {
         $nv = $this->getPostJson();
         $ret = $this->model()->update('xxt_link', $nv, "mpid='$this->mpid' and id=$id");
 
-        return new ResponseData($ret);
+        return new \ResponseData($ret);
     }
     /**
      *
@@ -192,7 +188,7 @@ class link extends matter_ctrl {
 
         $id = $this->model()->insert('xxt_link_param', $p);
 
-        return new ResponseData($id);
+        return new \ResponseData($id);
     }
     /**
      *
@@ -206,13 +202,15 @@ class link extends matter_ctrl {
     {
         $p = $this->getPostJson();
 
+        !empty($p->pvalue) && $p->pvalue = urldecode($p->pvalue);
+
         $rst = $this->model()->update(
             'xxt_link_param', 
             (array)$p, 
             "id=$id"
         );
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      *
@@ -222,52 +220,13 @@ class link extends matter_ctrl {
     {
         $rst = $this->model()->delete('xxt_link_param', "id=$id");
 
-        return new ResponseData($rst);
-    }
-    /**
-     *
-     * $id link's id.
-     */
-    public function addChannel_action($id) 
-    {
-        $c = $this->getPostJson();
-        /**
-         * insert new relation.
-         */
-        $current = time();
-        foreach ($c as $channel) {
-            // check
-            $q = array(
-                'count(*)',
-                'xxt_link_channel',
-                "link_id=$id and channel_id=$channel->id"
-            );
-            if (1 === (int)$this->model()->query_val_ss($q)) {
-                continue;
-            }
-            // new 
-            $dc['link_id'] = $id;
-            $dc['channel_id'] = $channel->id;
-            $dc['create_at'] = $current;
-            $this->model()->insert('xxt_link_channel', $dc, false);
-            $this->model()->update('xxt_channel',array('used'=>1),"id={$channel->id}");
-        }
-        return new ResponseData('success');
+        return new \ResponseData($rst);
     }
     /**
      *
      */
-    public function deleteChannel_action($id, $cid) 
+    protected function getMatterType()
     {
-        $rst = $this->model()->delete('xxt_link_channel', "link_id=$id and channel_id=$cid");
-
-        return new ResponseData($rst);
-    }
-    /**
-     *
-     */
-    protected function getAclMatterType()
-    {
-        return 'L';
+        return 'link';
     }
 }

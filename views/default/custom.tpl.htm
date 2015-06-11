@@ -4,39 +4,35 @@
         <meta charset="utf-8"> 
         <title><?php echo TPL::val('title');?></title> 
         <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">  
+        <?php $extcss=TPL::val('ext_css'); if (!empty($extcss)) foreach($extcss as $ecss) {?>
+        <link href="<?php echo $ecss->url;?>" rel="stylesheet"> 
+        <?php }?>
         <style>
             *{margin:0;padding:0}
             body{height:100%;font-family:Microsoft Yahei,Arial}
             a{text-decoration:none}
-        </style> 
+        </style>
         <?php $css=TPL::val('css'); if (!empty($css)) {?>
         <style>
             <?php echo $css;?>
         </style> 
         <?php } ?>
-        <?php if (TPL::val('can_carousel') === 'Y') {?>
-        <link rel="stylesheet" type="text/css" href="/static/css/carousel.css"/>
-        <?php } ?>
     </head>
     <body>
         <?php echo TPL::val('body');?>
-        <script type="text/javascript">
-            var $ = function(el) {return document.querySelectorAll(el);};
-            els = $('a.innerlink');
-            for (var i=0,l=els.length,el; i<l && (el=els[i]); i++) {
-                el.addEventListener('click', function(e){
-                    e.preventDefault();
-                    var id=this.getAttribute('href'),type=this.getAttribute('type'),url=location.href;
-                    id = id.match(/\d+/)[0];
-                    url = url.replace(/\bid=\d+/,'id='+id);
-                    url = url.replace(/\btype=article/,'type='+type);
-                    location.href = url;
-                }, false);
-            }
-        </script>     
-        <?php if (TPL::val('can_carousel') === 'Y') {?>
-        <script src="/static/js/swipeview.js"></script>
-        <script src="/static/js/carousel.js"></script>
+        <?php if (isset($_GET['mpid']) && preg_match('/MicroMessenger/i', $_SERVER['HTTP_USER_AGENT'])) {?>
+        <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+        <script src="/rest/mi/matter/wxjssdksignpackage?mpid=<?php echo $_GET['mpid'];?>&url=<?php echo urlencode("http://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);?>"></script>
+        <?php } ?>
+        <script src="/static/js/jquery.min.js"></script>
+        <script src="/static/js/angular.min.js"></script>
+        <?php $extjs=TPL::val('ext_js'); if (!empty($extjs)) foreach($extjs as $ejs) {?>
+        <script type='text/javascript' src="<?php echo $ejs->url;?>"></script> 
+        <?php }?>
+        <?php $js=TPL::val('js'); if (!empty($js)) {?>
+        <script type='text/javascript'>
+            <?php echo $js;?>
+        </script> 
         <?php } ?>
         <?php if (defined('SAE_MYSQL_HOST_M')) { ?>
         <script type="text/javascript">

@@ -1,22 +1,22 @@
 <?php
-$mpid = $_SESSION['mpid'];
-$mpa = TMS_APP::model('mp\mpaccount')->byId($mpid, 'mpsrc');
+$mpid = TPL::S('mpid');
+$mpa = TMS_APP::M('mp\mpaccount')->byId($mpid, 'asparent,mpsrc');
 ?>
 <div class='form-inline form-group'>
     <div class='form-group'>
         <select class='form-control' ng-model='userSet.userScope'>
             <option value=''></option>
-            <?php if ($mpa->mpsrc==='yx'||$mpa->mpsrc==='wx') {?>
+            <?php if ($mpa->asparent==='Y') {?>
+            <option value='a' ng-if="canGroup()">全部用户</option>
+            <?php } else if ($mpa->mpsrc==='yx'||$mpa->mpsrc==='wx') {?>
             <option value='a' ng-if="canGroup()">全部用户</option>
             <option value='g' ng-if="canGroup()">用户分组</option>
             <?php }?>
             <option value="{{'authid_'+authapi.authid}}" ng-if="canMember()" ng-repeat='authapi in authapis'>{{authapi.name}}</option>
         </select>
     </div>
-    <div class='form-group' ng-show="showPickSingleMember">
-        <div class='checkbox'>
-            <label><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='isPickSingleMember'> 选择用户</label>
-        </div>
+    <div class='checkbox' ng-show="showPickSingleMember">
+        <label><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='isPickSingleMember'> 选择用户</label>
     </div>
 </div>
 <div id="all" ng-show="userSet.userScope==='a'">
@@ -26,11 +26,11 @@ $mpa = TMS_APP::model('mp\mpaccount')->byId($mpid, 'mpsrc');
     <div class='col-md-6' style='padding-left:0'>
         <ul class='list-group' style='margin-bottom:0'>
             <li class='list-group-item' ng-repeat='g in groups'>
-            <label class='checkbox-inline'><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='g.checked' ng-change='pickGroup(g)'>{{g.name}}</label>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='g.checked' ng-change='pickGroup(g)'>{{g.name}}</label>
             </li>
             <li class='list-group-item' ng-show='groups&&groups.length===0' style='color:#CCC'>没有分组</li>
         </ul>
     </div>
 </div>
-<div id="member" ng-include="memberViewUrl" ng-show="isPickMember()">
-</div>
+<div id="member" ng-include="memberViewUrl" ng-show="isPickMember()"></div>

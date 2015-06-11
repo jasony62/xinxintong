@@ -3,13 +3,12 @@
         <div class="panel-heading">系统运行模式</div>
         <div class="panel-body">
             <div class='form-horizontal'>
-                <div class='form-group' style='display:none'>
+                <div class='form-group'>
                     <label class='col-md-2 control-label'>文章评论</label> 
                     <div class='col-md-10'>
-                        <label class='checkbox-inline'><input type='checkbox' disabled ng-true-value='Y' ng-false-value='N' ng-model='features.can_article_remark_by_fans'>允许关注用户在文章后面发表评论（开通<span style='color:red'>网页授权</span>接口才生效）</label>
+                        <label class='checkbox-inline'><input type='checkbox' disabled ng-true-value='Y' ng-false-value='N' ng-model='features.can_article_remark'>允许关注用户在文章后面发表评论（开通<span style='color:red'>网页授权</span>接口才生效）</label>
                     </div>
                 </div>
-                <accesscontrol title='文章评论' label='允许认证用户在文章后面发表评论（开通用户认证接口才生效）' mpid='<?php TPL::S("mpid");?>' obj='features' prop-acl='acl' prop-access='can_article_remark' prop-apis='article_remark_authapis' update-access-control="update('can_article_remark')" update-authapis="update('article_remark_authapis')" label-span='2' control-span='10' disabled='Y'></accesscontrol>
                 <div class='form-group'>
                     <label class='col-md-2 control-label'>素材可见性</label> 
                     <div class='col-md-10'>

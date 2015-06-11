@@ -1,7 +1,7 @@
-xxtApp.controller('QrcodeCtrl',['$scope','http2','matterTypes',function($scope,http2,matterTypes){
+xxtApp.controller('qrcodeCtrl',['$scope','http2','matterTypes',function($scope,http2,matterTypes){
     $scope.matterTypes = matterTypes;
     $scope.create = function() {
-        http2.get('/rest/mp/call/qrcode/create?src='+$scope.src, function(rsp){
+        http2.get('/rest/mp/call/qrcode/create', function(rsp){
             $scope.calls.splice(0,0,rsp.data);
             $scope.edit($scope.calls[0]);
         });
@@ -34,15 +34,12 @@ xxtApp.controller('QrcodeCtrl',['$scope','http2','matterTypes',function($scope,h
     };
     http2.get('/rest/mp/mpaccount/apis', function(rsp){
         $scope.apis = rsp.data;
-        $scope.src = $scope.apis.wx_qrcode === 'Y' ?  'wx' : $scope.apis.yx_qrcode === 'Y' ? 'yx' : '';
-        if ($scope.src && $scope.src.length) {
-            http2.get('/rest/mp/call/qrcode?src='+$scope.src, function(rsp) {
-                $scope.calls = rsp.data;
-                if ($scope.calls.length > 0)
-                    $scope.edit($scope.calls[0]);
-                else
-                    $scope.edit(null);
-            });
-        }
+        http2.get('/rest/mp/call/qrcode/get', function(rsp) {
+            $scope.calls = rsp.data;
+            if ($scope.calls.length > 0)
+                $scope.edit($scope.calls[0]);
+            else
+                $scope.edit(null);
+        });
     });
 }]);

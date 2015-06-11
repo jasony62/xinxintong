@@ -1,8 +1,7 @@
-<?php $mpid = $_SESSION["mpid"];?>
 <div ng-controller='editCtrl'>
     <div class='form-inline form-group' style='text-align:right'>
         <div class='form-group'>
-            <pushmatter class='btn btn-primary' title="发送给指定用户" matter-id={{editing.id}} matter-type='article'/>
+            <pushmatter class='btn btn-primary' title="发送给指定用户" matter-id={{editing.id}} matter-type='link'/>
         </div>
         <div class='qrcode form-group' ng-controller='SendmeController'>
             <button class='btn btn-primary' data-toggle="popover" data-placement='left' ng-click="qrcode({type:'link',id:editing.id},$event)">发送给我</button>
@@ -31,12 +30,12 @@
             <label class='col-md-2 control-label'>头图</label>
             <div class='col-md-10'>
                 <div style="width:182px;border:1px solid #CCC">
-                    <div style="height:100px;text-align:center;padding-top:32px" ng-if="editing.pic==''">
+                    <div style="height:100px;text-align:center;padding-top:32px" ng-if="!editing.pic">
                         <button class='btn btn-default' ng-click='setPic();'>
                             <span class='glyphicon glyphicon-picture'></span> 选择图片
                         </button>
                     </div>
-                    <div style='position:relative' ng-if="editing.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                    <div style='position:relative' ng-if="editing.pic" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
                         <img name='pic' ng-src='{{editing.pic}}' width='180px'/>
                         <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
                             <span class='glyphicon glyphicon-picture'></span>
@@ -52,12 +51,14 @@
             <label class='col-md-2 control-label' for='summary'>摘要</label>
             <div class='col-md-10'>
                 <textarea class='form-control' ng-model='editing.summary' tms-auto-update tms-wait=1000 tms-update="update('summary');" rows='3'></textarea>
+                <p class='help-block'>最多120个汉字，240个英文字符</p>
             </div>
         </div>
-        <div class='form-group' ng-controller='SetChanCtrl' ng-init="matterType='link'">
+        <div class='form-group' ng-controller='setChannelCtrl' ng-init="matterType='link'">
             <label class='col-md-2 control-label'>频道（可选）</label>
             <div class='col-md-10'>
                 <combox evt-prefix='channel' readonly=true prop='title' existing='editing.channels' options='channels'></combox>
+                <label class='checkbox-inline'><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='channelsFromParent' ng-change='updateChannelSrc()');">来源于父账号</label>
             </div>
         </div>
         <div class='form-group'>
@@ -66,9 +67,11 @@
                 <select class='form-control' ng-model='editing.urlsrc' ng-options='k as v for (k,v) in urlsrcs' ng-change="update('urlsrc');">
                 </select>
                 <textarea class='form-control' ng-model='editing.url' tms-auto-update tms-wait=1000 tms-update="update('url');" ng-switch-when="0"></textarea>
-                <select class='form-control' ng-model='editing.url' ng-options='n.id as n.title for n in news' ng-blur="update('url');" ng-switch-when="1">
+                <select class='form-control' ng-model='editing.url' ng-options='n.id as n.title for n in news' ng-change="update('url');" ng-switch-when="1">
                 </select>
-                <select class='form-control' ng-model='editing.url' ng-options='n.id as n.title for n in channels' ng-blur="update('url');" ng-switch-when="2">
+                <select class='form-control' ng-model='editing.url' ng-options='c.id as c.title for c in channels' ng-change="update('url');" ng-switch-when="2">
+                </select>
+                <select class='form-control' ng-model='editing.url' ng-options='i.id as i.title for i in inners' ng-change="update('url');" ng-switch-when="3">
                 </select>
             </div>
         </div>
@@ -86,7 +89,7 @@
         <div class='form-group' ng-show='editing.urlsrc==0'>
             <label class='col-md-2 control-label'>参数（可选）</label>
             <div class='col-md-10'>
-                <button class='btn btn-default btn-sm' ng-click='addParam();'>添加</button>
+                <button class='btn btn-default btn-sm' ng-click='addParam()'>添加</button>
                 <ul class='list-group' name='params' style='margin-bottom:0'>
                     <li class='list-group-item' ng-repeat='p in editing.params'>
                     <div>
@@ -114,6 +117,26 @@
                 </ul>
             </div>
         </div>
+        <div class='form-group' ng-show='editing.urlsrc==3||editing.url==9'>
+            <label class='col-md-2 control-label'>参数（可选）</label>
+            <div class='col-md-10'>
+                <button class='btn btn-default btn-sm' ng-click='addParam()'>添加</button>
+                <ul class='list-group' name='params' style='margin-bottom:0'>
+                    <li class='list-group-item' ng-repeat='p in editing.params'>
+                        <div class ='input-group'>
+                            <p title='参数名称' class='form-control'>{{p.pname}}</p>
+                            <span class='input-group-btn'>
+                                <button class='btn btn-default' ng-click='removeParam(p);'>
+                                    <span class='glyphicon glyphicon-remove'></span>
+                                </button>
+                            </span>
+                        </div>
+                        <select class='form-control' ng-model='p.pvalue' ng-options="c.id as c.title for c in channels" ng-change='updateParam(p)'>
+                        </select>
+                    </li>
+                </ul>
+            </div>
+        </div>
         <div class='form-group' ng-if="editing.urlsrc==0 && editing.method=='GET'">
             <label class='col-md-2 control-label'>直接打开</label>
             <div class='col-md-10'>
@@ -130,7 +153,6 @@
                 </div>
             </div>
         </div>
-        <accesscontrol ng-if="editing.open_directly==='N'" mpid='<?php echo $mpid;?>' obj='editing' prop-acl='acl' prop-access='access_control' prop-apis='authapis' update-access-control="update('access_control')" update-authapis="update('authapis')" change-acl-url='/rest/mp/matter/link/setAcl?id={{editing.id}}' remove-acl-url='/rest/mp/matter/link/removeAcl' label-span='2' control-span='10'></accesscontrol>
         <div class='form-group'>
             <label class='col-md-2 control-label'>访问控制</label>
             <div class='col-md-10'>
@@ -139,6 +161,7 @@
                 </div>
             </div>
         </div>
+        <accesscontrol ng-if="editing.open_directly==='N'" mpid='{{mpid}}' obj='editing' prop-acl='acl' prop-access='access_control' prop-apis='authapis' update-access-control="update('access_control')" update-authapis="update('authapis')" change-acl-url='/rest/mp/matter/link/setAcl?id={{editing.id}}' remove-acl-url='/rest/mp/matter/link/removeAcl' label-span='2' control-span='10'></accesscontrol>
     </div>
     <div picgallery style='display:none' url='{{picGalleryUrl}}'></div>
 </div>

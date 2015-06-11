@@ -1,4 +1,6 @@
 <?php
+namespace cus\crccre\member;
+
 require_once dirname(__FILE__).'/base.php';
 /**
  * crccre用户身份认证基类
@@ -26,7 +28,7 @@ class crccre_member_base2 extends crccre_member_base {
      * $mpid
      * $authid
      */
-    public function index_action($mpid, $authid, $code=null, $state=null) 
+    public function index_action($mpid, $authid, $code=null) 
     {
         empty($mpid) && die('mpid is empty.');
         empty($authid) && die('authid is empty.');
@@ -35,21 +37,19 @@ class crccre_member_base2 extends crccre_member_base {
          * 设置一种一次性进入机制，必须要求从头开始整个流程
          */
         $token = uniqid();
-        TPL::assign('token', $token);
+        \TPL::assign('token', $token);
         /**
          * 在cookie中保留mpid
          */
         $this->mySetcookie("_{$token}_mpid", $mpid, time()+300);
 
-        if ($code !== null && $state !== null)
-            $who = $this->getWxOAuthUser($mpid, $code);
+        if ($code !== null)
+            $who = $this->getOAuthUserByCode($mpid, $code);
         else {
-            $state = json_encode(array($mpid, $authid));
-            $state = $this->model()->encrypt($state, 'ENCODE', 'auth');
-            $this->oauth($mpid, $state);
+            $this->oauth($mpid);
             $who = null;
         }
-        $this->afterOAuth($state, $who);
+        $this->afterOAuth($mpid, $authid, $who);
     }
     /**
      * 设置关注用户的分组
@@ -59,22 +59,18 @@ class crccre_member_base2 extends crccre_member_base {
         /**
          * 更新公众平台上的数据
          */
-        $cmd = "https://api.weixin.qq.com/cgi-bin/groups/members/update";
-        $posted = json_encode(array("openid"=>$openid,"to_groupid"=>$groupid));
-        $rst = $this->postToMp($mpid, 'wx', $cmd, $posted);
+        $mpproxy = \TMS_APP::M('mpproxy/wx', $mpid);
+        $rst = $mpproxy->groupsMembersUpdate($openid, $groupid);
 
         if ($rst[0] === false)
             return $rst[1];
-
-        if (isset($rst[1]->errcode) && $rst[1]->errcode != 0)
-            return $rst[1]->errmsg;
         /**
          * 更新本地数据
          */
         $rst = $this->model()->update(
             'xxt_fans', 
             array('groupid'=>$groupid), 
-            "mpid='$mpid' and openid='$openid' and src='wx'"
+            "mpid='$mpid' and openid='$openid'"
         );
 
         return ($rst) === 1;
@@ -92,12 +88,12 @@ class crccre_member_base2 extends crccre_member_base {
          * 获得认证接口
          */
         if (!($authapi = $this->model('user/authapi')->byUrl($mpid, $authapi, 'authid')))
-            return new ResponseError("authentication's api invalid.");
+            return new \ResponseError("authentication's api invalid.");
 
         $q = array(
             'authed_identity',
             'xxt_member',
-            "mpid='$mpid' and forbidden='N' and authapi_id=$authapi->authid and ooid='$openid' and osrc='wx'"
+            "mpid='$mpid' and forbidden='N' and authapi_id=$authapi->authid and ooid='$openid'"
         );
 
         if ($member = $this->model()->query_objs_ss($q)) {
@@ -106,11 +102,11 @@ class crccre_member_base2 extends crccre_member_base {
                 $ret = array(
                     'userid'=>$member->authed_identity
                 );
-                return new ResponseData($ret);
+                return new \ResponseData($ret);
             } else 
-                return new ResponseError('invalid data');
+                return new \ResponseError('invalid data');
         } else
-            return new ResponseError('not exists');
+            return new \ResponseError('not exists');
     }
     /**
      * 禁用绑定的用户认证信息
@@ -121,21 +117,21 @@ class crccre_member_base2 extends crccre_member_base {
          * 获得认证接口
          */
         if (!($authapi = $this->model('user/authapi')->byUrl($mpid, $authapi, 'authid')))
-            return new ResponseError("authentication's api invalid.");
+            return new \ResponseError("authentication's api invalid.");
 
         $rst = $this->model()->update(
             'xxt_member',
             array('forbidden'=>'Y'),
             "mpid='$mpid' and authapi_id=$authapi->authid and authed_identity='$userid'"
         );
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      * 更新用户绑定信息
      */
     public function refresh_action($mpid, $authapi, $userid)
     {
-        return new ResponseData(1);
+        return new \ResponseData(1);
     }
     /**
      * 返回组织机构组件
@@ -146,7 +142,7 @@ class crccre_member_base2 extends crccre_member_base {
             'js'=>'/views/default/cus/crccre/member/memberSelector.js',
             'view'=>"/rest/cus/crccre/member/auth/organization?authid=$authid"
         );
-        return new ResponseData($addon);
+        return new \ResponseData($addon);
     }
     /**
      *
@@ -171,7 +167,7 @@ class crccre_member_base2 extends crccre_member_base {
             "authapi_id=$authid and authed_identity='$uid' and forbidden='N'"
         );
         $members = $this->model()->query_objs_ss($q);
-        if (empty($members)) return new ResponseError('指定的用户不存在');
+        if (empty($members)) return new \ResponseError('指定的用户不存在');
 
         $acls = $this->getPostJson();
 
@@ -183,17 +179,17 @@ class crccre_member_base2 extends crccre_member_base {
                 $url .= "&GUIDs=$acl->identity";
                 $rsp = file_get_contents($url);
                 if ($rsp === 'true')
-                    return new ResponseData('passed');
+                    return new \ResponseData('passed');
                 break;
             case 'M':
                 foreach ($members as $member)
                     if ($member->authed_identity === $acl->identity)
-                        return new ResponseData('passed');
+                        return new \ResponseData('passed');
                 break;
             }
         }
 
-        return new ResponseError('no matched');
+        return new \ResponseError('no matched');
     }
     /**
      * 将内部组织结构数据全量导入到企业号通讯录 
@@ -203,7 +199,7 @@ class crccre_member_base2 extends crccre_member_base {
      */
     public function import2Qy_action($mpid, $authid)
     {
-        return new ResponseError('not support');
+        return new \ResponseError('not support');
     }
     /**
      * 将内部组织结构数据增量导入到企业号通讯录 
@@ -213,7 +209,7 @@ class crccre_member_base2 extends crccre_member_base {
      */
     public function sync2Qy_action($mpid, $authid)
     {
-        return new ResponseError('not support');
+        return new \ResponseError('not support');
     }
     /**
      * 将内部组织结构数据增量导入到企业号通讯录 
@@ -223,6 +219,6 @@ class crccre_member_base2 extends crccre_member_base {
      */
     public function syncFromQy_action($mpid, $authid)
     {
-        return new ResponseError('not support');
+        return new \ResponseError('not support');
     }
 }

@@ -1,4 +1,6 @@
 <?php
+namespace cus\crccre\member;
+
 require_once dirname(__FILE__).'/base2.php';
 /**
  * crccre外部用户身份认证
@@ -24,17 +26,16 @@ class auth2 extends crccre_member_base2 {
     /**
      * 打开认证页面
      */
-    public function afterOAuth($state, $who=null)
+    public function afterOAuth($mpid, $authid, $who=null)
     {
-        list($mpid, $authid) = json_decode($this->model()->encrypt($state, 'DECODE', 'auth'));
         /**
          * 已经认证过的用户身份
          */
-        list($ooid, $osrc) = empty($who) ? $this->getCookieOAuthUser($mpid) : $who;
+        $ooid = empty($who) ? $this->getCookieOAuthUser($mpid) : $who;
         $member = $this->model('user/member')->byOpenid($mpid, $ooid, '*', $authid);
-        TPL::assign('mpid', $mpid);
-        TPL::assign('authid', $authid);
-        TPL::assign('authedMember', $member);
+        \TPL::assign('mpid', $mpid);
+        \TPL::assign('authid', $authid);
+        \TPL::assign('authedMember', $member);
 
         $this->view_action("/cus/crccre/member/login2");
     }
@@ -56,13 +57,13 @@ class auth2 extends crccre_member_base2 {
         /**
          * 调用sso接口进行身份验证
          */
-        $param = new stdClass;
+        $param = new \stdClass;
         $param->userName = $up->username;
         $param->passWord = $up->password;
         $param->groupUserType = 2;
         $ret = $this->soap()->GetUserGroupAuthenticate($param);
         if ($ret->GetUserGroupAuthenticateResult !== true) 
-            return new ResponseError('身份认证失败！');
+            return new \ResponseError('身份认证失败！');
         /**
          * 身份信息绑定
          */
@@ -92,7 +93,7 @@ class auth2 extends crccre_member_base2 {
          */
         $this->mySetCookie("_{$token}_mpid", '', 0);
 
-        return new ResponseData($target);
+        return new \ResponseData($target);
     }
     /**
      * 打开通过认证页
@@ -106,25 +107,25 @@ class auth2 extends crccre_member_base2 {
      */
     private function bind($mpid, $authid, $username)
     {
-        list($ooid, $osrc) = $this->getCookieOAuthUser($mpid);
+        $ooid = $this->getCookieOAuthUser($mpid);
         empty($ooid) && die('openid is empty.');
         /**
          * 获得用户身份信息
          */
         try {
-            $param = new stdClass;
+            $param = new \stdClass;
             $param->userAccount = $username;    
             $ret = $this->soap()->GetUserByAccount($param);
-            $xml = new SimpleXMLElement($ret->GetUserByAccountResult);
+            $xml = new \SimpleXMLElement($ret->GetUserByAccountResult);
             foreach ($xml->children() as $node) {
                 $user = array();
                 foreach ($node->attributes() as $k => $v)
                     $user[$k] = ''.$v;
             }
             if (!isset($user)) {
-                TPL::assign('title', '身份绑定未通过');
-                TPL::assign('body', '无法获取用户信息');
-                TPL::output('error');
+                \TPL::assign('title', '身份绑定未通过');
+                \TPL::assign('body', '无法获取用户信息');
+                \TPL::output('error');
                 exit;
             }
             /**
@@ -136,10 +137,10 @@ class auth2 extends crccre_member_base2 {
             //$deptids = array();
             //foreach ($depts as $dept)
             //    array_splice($deptids, 0, 0, $dept['deptid']);
-        } catch (Exception $e) {
-            TPL::assign('title', '身份绑定未通过');
-            TPL::assign('body', $e->getMessage());
-            TPL::output('error');
+        } catch (\Exception $e) {
+            \TPL::assign('title', '身份绑定未通过');
+            \TPL::assign('body', $e->getMessage());
+            \TPL::output('error');
             exit;
         }
         /**
@@ -149,7 +150,7 @@ class auth2 extends crccre_member_base2 {
         $q = array(
             'mid',
             'xxt_member',
-            "mpid='$mpid' and forbidden='N' and ooid='$ooid' and osrc='$osrc' and authapi_id='$authid'"
+            "mpid='$mpid' and forbidden='N' and ooid='$ooid' and authapi_id='$authid'"
         );
         if ($mid = $this->model()->query_val_ss($q)) {
             /**
@@ -158,7 +159,7 @@ class auth2 extends crccre_member_base2 {
             $this->model()->update(
                 'xxt_member',
                 array('forbidden'=>'Y'),
-                "mpid='$mpid' and forbidden='N' and ooid='$ooid' and osrc='$osrc' and authapi_id='$authid'"
+                "mpid='$mpid' and forbidden='N' and ooid='$ooid' and authapi_id='$authid'"
             );
         }
         /**
@@ -201,7 +202,6 @@ class auth2 extends crccre_member_base2 {
             'mpid'=>$mpid,
             'fid'=>$fan->fid,
             'ooid'=>$ooid,
-            'osrc'=>$osrc,
             'authapi_id'=>$authid,
             'authed_identity'=>$username,
             'name'=>$user['title'],
@@ -210,9 +210,9 @@ class auth2 extends crccre_member_base2 {
         );
         $rst = $this->model('user/member')->create($fan->fid, $member, $attrs);
         if ($rst[0] === false) {
-            TPL::assign('title', '身份绑定未通过');
-            TPL::assign('body', '添加用户信息失败');
-            TPL::output('error');
+            \TPL::assign('title', '身份绑定未通过');
+            \TPL::assign('body', '添加用户信息失败');
+            \TPL::output('error');
             exit;
         }
         $mid = $rst[1];

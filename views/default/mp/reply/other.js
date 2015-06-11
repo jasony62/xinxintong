@@ -1,4 +1,4 @@
-xxtApp.controller('OtherCtrl',['$scope','$http','matterTypes',function($scope,$http,matterTypes){
+xxtApp.controller('otherCtrl',['$scope','http2','matterTypes',function($scope,http2,matterTypes){
     $scope.matterTypes = matterTypes;//.slice(0,matterTypes.length-1);
     $scope.edit = function(call) {
         if (call.name === 'templatemsg' || call.name === 'cardevent')
@@ -14,9 +14,7 @@ xxtApp.controller('OtherCtrl',['$scope','$http','matterTypes',function($scope,$h
             if (aSelected.length === 1) {
                 var matter = aSelected[0], p={matter_id:matter.id,matter_type:matterType};
                 matter.type = matterType;
-
-                $http.post('/rest/mp/call/other/setreply?id='+$scope.editing.id, p).
-                success(function(rsp) {
+                http2.post('/rest/mp/call/other/setreply?id='+$scope.editing.id, p, function(rsp) {
                     $scope.editing.matter = aSelected[0]; 
                 });
             }
@@ -24,13 +22,11 @@ xxtApp.controller('OtherCtrl',['$scope','$http','matterTypes',function($scope,$h
     };
     $scope.remove = function() {
         var p = {matter_id:'',matter_type:''};
-        $http.post('/rest/mp/call/other/setreply?id='+$scope.editing.id, p).
-        success(function(rsp) {
+        http2.post('/rest/mp/call/other/setreply?id='+$scope.editing.id, p, function(rsp) {
             $scope.editing.matter = null; 
         });
     };
-    $http.get('/rest/mp/call/other').
-    success(function(rsp) {
+    http2.get('/rest/mp/call/other/get', function(rsp) {
         $scope.calls = rsp.data;
         $scope.edit($scope.calls[0]);
     });

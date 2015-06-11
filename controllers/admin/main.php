@@ -1,8 +1,9 @@
 <?php
+namespace admin;
 /**
  * 系统管理
  */
-class main extends TMS_CONTROLLER {
+class main extends \TMS_CONTROLLER {
 
     public function get_access_rule() 
     {
@@ -24,7 +25,7 @@ class main extends TMS_CONTROLLER {
     public function user_action($page, $size) 
     {
         $rst = $this->model('account')->getAccount($page, $size);
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      *
@@ -36,7 +37,7 @@ class main extends TMS_CONTROLLER {
             array('group_id'=>$gid),
             "account_uid='$uid'"
         );
-        return new ResponseData($ret);
+        return new \ResponseData($ret);
     }
     /**
      * 返回用户组列表
@@ -44,7 +45,7 @@ class main extends TMS_CONTROLLER {
     public function group_action()
     {
         $rst = $this->model('account')->getGroup();
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      *
@@ -56,7 +57,7 @@ class main extends TMS_CONTROLLER {
 
         $rst = $this->model('account')->getGroup($gid);
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      *
@@ -67,7 +68,7 @@ class main extends TMS_CONTROLLER {
 
         $ret = $this->model()->update('account_group', $nv, "group_id=$gid");
 
-        return new ResponseData($ret);
+        return new \ResponseData($ret);
     }
     /**
      *
@@ -77,9 +78,9 @@ class main extends TMS_CONTROLLER {
         $rst = $this->model('account')->remove($uid);
 
         if ($rst)
-            return new ResponseData('success');
+            return new \ResponseData('success');
         else
-            return new ResponseError('fail');
+            return new \ResponseError('fail');
     }
     /**
      *
@@ -88,12 +89,12 @@ class main extends TMS_CONTROLLER {
     {
         $q = array('count(*)', 'account_in_group', "group_id=$gid"); 
         if ((int)$this->model()->query_val_ss($q) != 0) {
-            return new ResponseError('用户组包含用户，不允许删除！');
+            return new \ResponseError('用户组包含用户，不允许删除！');
         }
 
         $ret = $this->model()->delete('account_group', "group_id=$gid");
 
-        return new ResponseData($ret);
+        return new \ResponseData($ret);
     }
 
 }

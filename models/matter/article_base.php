@@ -1,9 +1,11 @@
 <?php
+namespace matter;
+
 require_once dirname(__FILE__).'/base.php';
 /**
  * 图文消息基类
  */
-class article_base extends base_model {
+abstract class article_base extends base_model {
     /**
      * 返回进行推送的客服消息格式
      *
@@ -19,7 +21,7 @@ class article_base extends base_model {
             $ma[] = array(
                 'title'=>urlencode($m->title),
                 'description'=>urlencode($m->summary),
-                'url'=>TMS_APP::model('reply')->getMatterUrl($runningMpid, $m),
+                'url'=>\TMS_APP::model('matter\\'.$m->type)->getEntryUrl($runningMpid, $m->id),
                 'picurl'=>urlencode($m->pic)
             );
         }
@@ -50,7 +52,7 @@ class article_base extends base_model {
             $ma[] = array(
                 'title'=>$a->title,
                 'description'=>$a->summary,
-                'url'=>TMS_APP::model('reply')->getMatterUrl($runningMpid, $a),
+                'url'=>\TMS_APP::model('matter\\'.$a->type)->getEntryUrl($runningMpid, $a->id),
                 'picurl'=>$a->pic,
                 'body'=>$a->body
             );
@@ -63,5 +65,18 @@ class article_base extends base_model {
         );
 
         return $msg;
+    }
+    /**
+     *
+     */
+    public function getEntryUrl($runningMpid, $id, $openid=null)
+    {
+        $url = "http://".$_SERVER['HTTP_HOST'];
+        $url .= "/rest/mi/matter";
+        $url .= "?mpid=$runningMpid&id=$id&type=".$this->getTypeName();
+        if (!empty($openid))
+            $url .= "&openid=$openid";
+
+        return $url;
     }
 }

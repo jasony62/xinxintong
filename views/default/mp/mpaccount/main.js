@@ -6,7 +6,7 @@ xxtApp.controller('mainCtrl',['$rootScope','$scope','http2','$timeout',function(
                     $scope.stateOfCheckJoin.count++;
                     $timeout(checkJoin, 10000);
                 } else {
-                    $scope.mpa[$scope.stateOfCheckJoin.src+'_joined'] = 'Y';
+                    $scope.mpa[$scope.mpa.mpsrc+'_joined'] = 'Y';
                     $scope.stateOfCheckJoin = false;
                 }
             });
@@ -23,18 +23,19 @@ xxtApp.controller('mainCtrl',['$rootScope','$scope','http2','$timeout',function(
             if (name === 'token') {
                 $scope.mpa.wx_joined = 'N';
                 $scope.mpa.yx_joined = 'N';
+                $scope.mpa.qy_joined = 'N';
             }
         });
     };
     $scope.stateOfCheckJoin = false;
-    $scope.checkJoin = function(src){
+    $scope.checkJoin = function(){
         if ($scope.stateOfCheckJoin) {
             $scope.stateOfCheckJoin = false;
         } else {
             $scope.stateOfCheckJoin = {
-                src:src, 
+                running:true, 
                 count:0,
-                url:'/rest/mp/mpaccount/checkJoin?src='+src
+                url:'/rest/mp/mpaccount/checkJoin'
             };
             checkJoin();
         }
@@ -72,7 +73,7 @@ xxtApp.controller('mainCtrl',['$rootScope','$scope','http2','$timeout',function(
         };
         doRefresh(0);
     };
-    $scope.refreshFansGroup = function(src){
+    $scope.refreshFansGroup = function(){
         $scope.backRunning = true;
         http2.get('/rest/mp/user/fans/refreshGroup', function(rsp){
             $scope.backRunning = false;
@@ -90,8 +91,9 @@ xxtApp.controller('mainCtrl',['$rootScope','$scope','http2','$timeout',function(
     };
     $scope.$watch('jsonParams', function(nv){
         if (nv && nv.length) {
-            var params = JSON.parse(decodeURIComponent(nv.replace(/\+/g,'20%')));
+            var params = JSON.parse(decodeURIComponent(nv.replace(/\+/g,'%20')));
             $scope.mpa = params.mpaccount;
+            console.log('mpa', $scope.mpa);
             $scope.mpapis = params.apis;
         }
     });

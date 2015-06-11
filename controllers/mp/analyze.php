@@ -1,4 +1,6 @@
 <?php
+namespace mp;
+
 require_once dirname(__FILE__) . '/mp_controller.php';
 
 class analyze extends mp_controller {
@@ -18,17 +20,17 @@ class analyze extends mp_controller {
          * 分页数据 
          */
         $q = array();
-        $s = 'l.openid,l.src,f.nickname';
+        $s = 'l.openid,f.nickname';
         $s .= ',sum(l.act_read) read_num';
         $s .= ',sum(l.act_share_friend) share_friend_num';
         $s .= ',sum(l.act_share_timeline) share_timeline_num';
         $q[] = $s;
-        $q[] = 'xxt_user_action_log l left join xxt_fans f on l.mpid=f.mpid and l.src=f.src and l.openid=f.openid';
+        $q[] = 'xxt_log_user_action l left join xxt_fans f on l.mpid=f.mpid and l.openid=f.openid';
         $w = "l.mpid='$this->mpid'";
         $w .= " and l.action_at>=$startAt and l.action_at<=$endAt";
         $q[] = $w;
         $q2 = array(
-            'g'=>'openid,src',
+            'g'=>'openid',
             'o'=>"act_$orderby",
             'l'=>array('o'=>($page-1)*$size, 's'=>$size)
         );
@@ -37,13 +39,13 @@ class analyze extends mp_controller {
          * 总数
          */
         $q = array(
-            'count(distinct openid,src)',
-            'xxt_user_action_log',
+            'count(distinct openid)',
+            'xxt_log_user_action',
             "mpid='$this->mpid' and action_at>=$startAt and action_at<=$endAt"
         );
         $cnt = $this->model()->query_val_ss($q);
 
-        return new ResponseData(array($stat, $cnt));
+        return new \ResponseData(array($stat, $cnt));
     }
     /**
      * 素材行为统计数据
@@ -58,7 +60,7 @@ class analyze extends mp_controller {
         $s .= ',sum(l.act_share_friend) share_friend_num';
         $s .= ',sum(l.act_share_timeline) share_timeline_num';
         $q[] = $s;
-        $q[] = 'xxt_matter_action_log l';
+        $q[] = 'xxt_log_matter_action l';
         $w = "l.mpid='$this->mpid'";
         $w .= " and l.action_at>=$startAt and l.action_at<=$endAt";
         $q[] = $w;
@@ -74,11 +76,11 @@ class analyze extends mp_controller {
          */
         $q = array(
             'count(distinct matter_type,matter_id)',
-            'xxt_matter_action_log',
+            'xxt_log_matter_action',
             "mpid='$this->mpid' and action_at>=$startAt and action_at<=$endAt"
         );
         $cnt = $this->model()->query_val_ss($q);
 
-        return new ResponseData(array($stat, $cnt));
+        return new \ResponseData(array($stat, $cnt));
     }
 }

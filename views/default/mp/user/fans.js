@@ -7,19 +7,19 @@ xxtApp.controller('fansCtrl',['$scope','http2',function($scope,http2){
         if ($scope.page.keyword && $scope.page.keyword.length > 0)
             param += '&keyword='+$scope.page.keyword;
         if ($scope.selectedGroup)
-            param += '&gid='+$scope.selectedGroup.id+'&src='+$scope.selectedGroup.src; 
+            param += '&gid='+$scope.selectedGroup.id; 
         if ($scope.selectedAuthapi) {
             param += '&authid='+$scope.selectedAuthapi.authid;
             if ($scope.mattrs === undefined)
                 param += '&contain=memberAttrs';
         }
-        http2.get('/rest/mp/user/fans'+param, function(rsp){
+        http2.get('/rest/mp/user/fans/get'+param, function(rsp){
             var fans = rsp.data[0];
             if ($scope.selectedAuthapi) {
                 var i,fan;
                 for (i in fans) {
                     fan = fans[i];
-                    if (fan.m_extattr) fan.m_extattr = JSON.parse(decodeURIComponent(fan.m_extattr.replace(/\+/g, '20%')));
+                    if (fan.m_extattr) fan.m_extattr = JSON.parse(decodeURIComponent(fan.m_extattr.replace(/\+/g, '%20')));
                 }
             }
             $scope.fans = fans;
@@ -40,7 +40,7 @@ xxtApp.controller('fansCtrl',['$scope','http2',function($scope,http2){
     http2.get('/rest/mp/user/fans/group', function(rsp){
         $scope.groups = rsp.data;
     });
-    http2.get('/rest/mp/mpaccount/authapis?valid=Y', function(rsp){
+    http2.get('/rest/mp/authapi/get?valid=Y', function(rsp){
         $scope.authapis = rsp.data;
     });
     $scope.doSearch();

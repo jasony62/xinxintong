@@ -1,10 +1,11 @@
 <?php
+namespace mi;
+
 require_once dirname(dirname(dirname(__FILE__))).'/lib/wxqy/WXBizMsgCrypt.php';
 require_once dirname(__FILE__).'/usercall_class.php';
-require_once dirname(dirname(dirname(__FILE__))).'/models/reply_class.php';
 require_once dirname(dirname(__FILE__)).'/member_base.php';
 
-class main extends member_base {
+class main extends \member_base {
 
     public function get_access_rule() 
     {
@@ -18,145 +19,36 @@ class main extends member_base {
      * 接收来源于公众平台的请求
      *
      */
-    public function api_action($mpid, $src) 
+    public function api_action($mpid) 
     {
+        $mpa = $this->model('mp\mpaccount')->byId($mpid);
+        \TMS_APP::G('mp\mpaccount', $mpa);
+
         $method = $_SERVER['REQUEST_METHOD'];
-        //$this->model('log')->log($mpid, $src, $method, '');
+
         switch ($method) {
         case 'GET':
-            $this->model('log')->log($mpid, $src, 'get', 'join');
-            if ($src === 'yx')
-                $this->yx_join($mpid, $_GET['signature'], $_GET['timestamp'], $_GET['nonce'], $_GET['echostr']);
-            else if ($src === 'wx')
-                $this->wx_join($mpid, $_GET['signature'], $_GET['timestamp'], $_GET['nonce'], $_GET['echostr']);
-            else if ($src === 'qy')
-                $this->qy_join($mpid, $_GET['msg_signature'], $_GET['timestamp'], $_GET['nonce'], $_GET['echostr']);
+            $this->model('log')->log($mpid, 'GET', 'join');
+            $mpproxy = $this->model('mpproxy/'.$mpa->mpsrc, $mpid);
+            $rst = $mpproxy->join($_GET);
+            header('Content-Type: text/html; charset=utf-8');
+            die($rst[1]);
             break;
         case 'POST':
             $data = file_get_contents("php://input");
-            //$this->model('log')->log($mpid, $src, 'post', $data);
-            if ($src === 'qy') {
+            $mpproxy = $this->model('mpproxy/'.$mpa->mpsrc, $mpid);
+            if ($mpa->mpsrc === 'qy') {
                 /**
-                 * 需要对数据进行解密处理
+                 * 企业号需要对数据进行解密处理
                  */
-                $app = $this->model('mp\mpaccount')->byId($mpid);
-                $msg_signature = $_GET['msg_signature'];
-                $timestamp = $_GET['timestamp'];
-                $nonce = $_GET['nonce'];
-                $sMsg = "";
-                $wxcpt = new WXBizMsgCrypt($app->token, $app->qy_encodingaeskey, $app->qy_corpid);
-                $errCode = $wxcpt->DecryptMsg($msg_signature, $timestamp, $nonce, $data, $sMsg);
-                if ($errCode != 0) exit;
-                $data = $sMsg;
-                //$this->model('log')->log($mpid, 'qy', 'post', $data);
+                $rst = $mpproxy->DecryptMsg($_GET, $data);
+                if ($rst[0] === false) exit;
+                $data = $rst[1];
             }
-            $call = new UserCall($src, $data);
+            $call = new UserCall($data);
             $this->handle($mpid, $call);
             break;
-        default:
         }
-    }
-    /**
-     * 加密/校验流程：
-     * 1. 将token、timestamp、nonce三个参数进行字典序排序 
-     * 2. 将三个参数字符串拼接成一个字符串进行sha1加密 
-     * 3. 开发者获得加密后的字符串可与signature对比，标识该请求来源于易信 
-     *
-     * 若确认此次GET请求来自易信服务器，请原样返回echostr参数内容，则接入生效，否则接入失败。
-     */
-    private function yx_join($mpid, $signature, $timestamp, $nonce, $echostr) 
-    {
-        $app = $this->model('mp\mpaccount')->byId($mpid);
-        $p = array($app->token, $timestamp, $nonce);
-        asort($p);
-        $s = implode('', $p);
-        $ss = sha1($s);
-        if ($ss === $signature) {
-            /**
-             * 断开连接
-             */
-            $this->model()->update(
-                'xxt_mpaccount', 
-                array('yx_joined'=>'N'), 
-                "yx_appid='$app->yx_appid' and yx_appsecret='$app->yx_appsecret'"
-            );
-            /**
-             * 确认建立连接
-             */
-            $this->model()->update('xxt_mpaccount', array('yx_joined'=>'Y'), "mpid='$mpid'");
-            die($echostr);
-        } else {
-            die('failed.');
-        }
-    }
-    /**
-     * 加密/校验流程：
-     * 1. 将token、timestamp、nonce三个参数进行字典序排序 
-     * 2. 将三个参数字符串拼接成一个字符串进行sha1加密 
-     * 3. 开发者获得加密后的字符串可与signature对比，标识该请求来源于易信 
-     *
-     * 若确认此次GET请求来自易信服务器，请原样返回echostr参数内容，则接入生效，否则接入失败。
-     */
-    private function wx_join($mpid, $signature, $timestamp, $nonce, $echostr) 
-    {    
-        $app = $this->model('mp\mpaccount')->byId($mpid);
-        //$p = array($app->token, $timestamp, $nonce);
-        //asort($p);
-        //$ss = sha1($s);
-        $tmpArr = array($app->token, $timestamp, $nonce);
-        // use SORT_STRING rule
-		sort($tmpArr, SORT_STRING);
-		$tmpStr = implode($tmpArr );
-		$tmpStr = sha1($tmpStr);
-        if ($tmpStr === $signature) {
-        	 /**
-             * 断开连接
-             */
-            $this->model()->update(
-                'xxt_mpaccount', 
-                array('wx_joined'=>'N'), 
-                "wx_appid='$app->wx_appid' and wx_appsecret='$app->wx_appsecret'"
-            );
-            /**
-             * 确认建立连接
-             */
-            $this->model()->update('xxt_mpaccount', array('wx_joined'=>'Y'), "mpid='$mpid'");
-            header('Content-Type: text/html; charset=utf-8');
-            die($echostr);
-        } else {
-            die('failed.');
-        }
-    }
-    /**
-     * 对接企业号
-     */
-    private function qy_join($mpid, $msg_signature, $timestamp, $nonce, $echostr) 
-    {    
-        $logger = $this->model('log');
-        $logger->log($mpid, 'qy', 'get', 'qy_join');
-
-        $app = $this->model('mp\mpaccount')->byId($mpid);
-
-        $sEchoStr = '';
-        $wxcpt = new WXBizMsgCrypt($app->token, $app->qy_encodingaeskey, $app->qy_corpid);
-        $errCode = $wxcpt->VerifyURL($msg_signature, $timestamp, $nonce, $echostr, $sEchoStr, $logger);
-
-        $logger->log($mpid, 'qy', 'get', "qy_join:errCode:$errCode");
-
-        if ($errCode == 0) {
-            /**
-             * 确认建立连接
-             */
-            $this->model()->update(
-                'xxt_mpaccount', 
-                array('qy_joined'=>'Y'), 
-                "mpid='$mpid'"
-            );
-            $logger->log($mpid, 'qy', 'get', "qy_join:reture:$sEchoStr");
-            header('Content-Type: text/html; charset=utf-8');
-            die($sEchoStr);
-        } else
-            die($errCode);
     }
     /**
      * 处理收到的消息
@@ -198,8 +90,7 @@ class main extends member_base {
                 break;
             case 'location':
                 if ($reply = $this->model('reply')->other_call($mpid, 'location')) {
-                    $cls = $reply->matter_type.'Reply';
-                    $r = new $cls($msg, $reply->matter_id);
+                    $r = $this->model('reply\\'.$reply->matter_type, $msg, $reply->matter_id);
                     $r->exec();
                 }
             }
@@ -220,7 +111,7 @@ class main extends member_base {
                 /**
                  * 返回分支活动的回复
                  */
-                $tr = new TextReply($msg, $reply, false);
+                $tr = $this->model('reply\text', $msg, $reply, false);
                 $tr->exec();
             } else
                 /**
@@ -246,11 +137,10 @@ class main extends member_base {
     {
         $mpid = $msg['mpid'];
         $openid = $msg['from_user'];
-        $src = $msg['src'];
-        $activity = $this->model('activity/wall');
+        $wall = $this->model('app\wall');
 
-        if ($wid = $activity->joined($mpid, $openid, $src))
-            return array($wid, $activity);
+        if ($wid = $wall->joined($mpid, $openid))
+            return array($wid, $wall);
         else
             return false;
     }
@@ -259,7 +149,7 @@ class main extends member_base {
      */
     private function event_call($data) 
     {
-        //$this->model('log')->log($data['mpid'], $data['src'], 'event', json_encode($data));
+        //$this->model('log')->log($data['mpid'], 'event', json_encode($data));
         $e = json_decode($data['data']);
         $t = $e[0]; 
         $k = isset($e[1]) ? $e[1] : null; 
@@ -305,9 +195,8 @@ class main extends member_base {
          */
         $current = time();
         $mpid = $data['mpid'];
-        $src = $data['src'];
         $openid = $data['from_user'];
-        $fanpk = "mpid='$mpid' and src='$src' and openid='$openid'";
+        $fanpk = "mpid='$mpid' and openid='$openid'";
         $q = array('count(*)', 'xxt_fans', $fanpk);
         if ((int)$this->model()->query_val_ss($q) === 1) {
             /**
@@ -323,16 +212,17 @@ class main extends member_base {
                 $fanpk
             );
         } else { 
-            if ($src === 'qy') {
-                $result = $this->getFanInfo($mpid, $src, $openid, false);
+            $mpa = \TMS_APP::G('mp\mpaccount');
+            if ($mpa->mpsrc === 'qy') {
+                $result = $this->getFanInfo($mpid, $openid, false);
                 if ($result[0] === false) {
-                    $tr = new TextReply($data, $result[1], false);
+                    $tr = $this->model('reply\text', $data, $result[1], false);
                     $tr->exec();
                 }
                 $user = $result[1];
                 $rst = $this->createQyFan($mpid, $user);
                 if (is_string($rst)) {
-                    $tr = new TextReply($call, $rst, false);
+                    $tr = $this->model('reply\text', $call, $rst, false);
                     $tr->exec();
                 }
             } else {
@@ -340,9 +230,8 @@ class main extends member_base {
                  * new fan
                  */
                 $fan = array(
-                    'fid' => $this->model('user/fans')->calcId($mpid, $src, $openid),
+                    'fid' => $this->model('user/fans')->calcId($mpid, $openid),
                     'mpid' => $mpid,
-                    'src' => $src,
                     'openid' => $openid,
                     'subscribe_at' => $current,
                     'sync_at' => $current
@@ -353,26 +242,25 @@ class main extends member_base {
         /**
          * 用户关注公众账号时是首次获得【touser】信息的机会
          * 需要更新和mpid的匹配关系
-         */
-        /**
          * 如果开通了高级接口，获得粉丝信息
          */
-        if ($src !== 'qy') {
+        $mpa = \TMS_APP::G('mp\mpaccount');
+        if ($mpa->mpsrc !== 'qy') {
             $this->model()->update(
                 'xxt_mpaccount', 
-                array($src.'_mpid'=>$data['to_user']),
+                array($mpa->mpsrc.'_mpid'=>$data['to_user']),
                 "mpid='$mpid'"
             );
             $apis = $this->model('mp\mpaccount')->getApis($mpid);
-            if ($apis && $apis->{$src.'_fans'} === 'Y') {
+            if ($apis && $apis->{$mpa->mpsrc.'_fans'} === 'Y') {
                 /**
                  * 获取粉丝信息并更新
                  * todo 是否应该更新用户所属的分组？
                  */
-                $fanInfo = $this->getFanInfo($mpid, $src, $openid);
+                $fanInfo = $this->getFanInfo($mpid, $openid);
                 if ($fanInfo[0]) {
                     $u = array(
-                        'nickname' => mysql_real_escape_string($fanInfo[1]->nickname),
+                        'nickname' => $this->model()->escape($fanInfo[1]->nickname),
                         'sex' => $fanInfo[1]->sex,
                         'city' => $fanInfo[1]->city
                     );
@@ -399,8 +287,7 @@ class main extends member_base {
          * subscribe reply.
          */
         if ($reply = $this->model('reply')->other_call($mpid, 'subscribe')) {
-            $cls = $reply->matter_type.'Reply';
-            $r = new $cls($data, $reply->matter_id);
+            $r = $this->model('reply\\'.$reply->matter_type, $data, $reply->matter_id);
             $r->exec();
         }
     }
@@ -410,13 +297,12 @@ class main extends member_base {
     private function unsubscribe_call($data) 
     {
         $mpid = $data['mpid'];
-        $src = $data['src'];
         $openid = $data['from_user'];
         $unsubscribe_at = time();
         $rst = $this->model()->update(
             'xxt_fans', 
             array('unsubscribe_at'=>$unsubscribe_at), 
-            "mpid='$mpid' and src='$src' and openid='$openid'"
+            "mpid='$mpid' and openid='$openid'"
         );
 
         return $rst;
@@ -434,7 +320,7 @@ class main extends member_base {
          * 更新数据状态
          */
         $rst = $this->model()->update(
-            'xxt_tmplmsg_log',
+            'xxt_log_tmplmsg',
             array('status'=>$status),
             "mpid='$mpid' and openid='$openid' and msgid='$msgid'"    
         );
@@ -442,8 +328,7 @@ class main extends member_base {
          * 处理事件响应，选择消息转发事件，通知模板消息处理结果
          */
         if ($reply = $this->model('reply')->other_call($mpid, 'templatemsg')) {
-            $cls = $reply->matter_type.'Reply';
-            $r = new $cls($data, $reply->matter_id);
+            $r = $this->model('reply\\'.$reply->matter_type, $data, $reply->matter_id);
             $r->exec();
         }
     }
@@ -457,8 +342,7 @@ class main extends member_base {
          * 处理事件响应，消息转发事件
          */
         if ($reply = $this->model('reply')->other_call($mpid, 'cardevent')) {
-            $cls = $reply->matter_type.'Reply';
-            $r = new $cls($data, $reply->matter_id);
+            $r = $this->model('reply\\'.$reply->matter_type, $data, $reply->matter_id);
             $r->exec();
         }
     }
@@ -472,9 +356,8 @@ class main extends member_base {
         $text = $call['data'];
         if ($reply = $this->model('reply')->text_call($mpid, $text)) {
             if ($reply->access_control === 'Y')
-                $this->access_control($call, 'Text', $reply->keyword, $reply->authapis);
-            $cls = $reply->matter_type . 'Reply';
-            $r = new $cls($call, $reply->matter_id, $reply->keyword);
+                $this->accessControl4Call($call, 'Text', $reply->keyword, $reply->authapis);
+            $r = $this->model('reply\\'.$reply->matter_type, $call, $reply->matter_id, $reply->keyword);
             $r->exec();
         } else
             $this->universal_call($call);
@@ -487,10 +370,10 @@ class main extends member_base {
         $mpid = $_GET['mpid'];
         $data = $call['data'];
         if (!empty($data[2])) {
-            $tr = new TextReply($call, $data[2], false);
+            $this->model('reply\text', $call, $data[2], false);
             $tr->exec();
         } else {
-            $tr = new TextReply($call, '未开通语音识别接口', false);
+            $this->model('reply\text', '未开通语音识别接口', false);
             $tr->exec();
         }
     }
@@ -500,12 +383,10 @@ class main extends member_base {
     private function menu_call($call, $k) 
     {
         $mpid = $_GET['mpid'];
-        $src = $call['src'];
         $openid = $call['from_user'];
         if ($reply = $this->model('reply')->menu_call($mpid, $k)) {
-            $this->model('log')->log($mpid, $src, 'menu', $k);
             if ($reply->access_control === 'Y')
-                $this->access_control($call, 'Menu', $k, $reply->authapis);
+                $this->accessControl4Call($call, 'Menu', $k, $reply->authapis);
             if (!empty($reply->matter_type)) {
                 /**
                  * demo auto reply
@@ -515,24 +396,24 @@ class main extends member_base {
                     /**
                      * 原始消息
                      */
-                    $model = $this->model("matter/".lcfirst($reply->matter_type)); 
+                    $model = $this->model('matter\\'.$reply->matter_type); 
                     $message = $model->forCustomPush($mpid, $reply->matter_id);
-                    $this->send_to_user($mpid, $src, $openid, $message);
+                    $this->send_to_user($mpid, $openid, $message);
                     /**
                      * 附加消息
                      */
                     $fan = $this->model('user/fans')->byOpenid($mpid, $openid, 'nickname');
-                    $txt = $fan->nickname.'，送你100M[<a href="http://yxs.im/3etcE4">免费流量</a>]尽情听歌，[<a href="http://yxs.im/3etcE4">点此</a>]领取';
+                    //$txt = $fan->nickname.'，送你100M[<a href="http://yxs.im/3etcE4">免费流量</a>]尽情听歌，[<a href="http://yxs.im/3etcE4">点此</a>]领取';
+                    $txt = '推荐阅读[<a href="http://yxs.im/dNZCh3">一季度18地区GDP增速跑赢全国释放啥信号</a>]';
                     $message = array(
                         "msgtype"=>"text",
                         "text"=>array(
                             "content"=>$txt
                         )
                     );
-                    $this->send_to_user($mpid, $src, $openid, $message);
+                    $this->send_to_user($mpid, $openid, $message);
                 } else {
-                    $cls = $reply->matter_type.'Reply';
-                    $r = new $cls($call, $reply->matter_id);
+                    $r = $this->model('reply\\'.$reply->matter_type, $call, $reply->matter_id);
                     $r->exec();
                 }
             }
@@ -547,8 +428,7 @@ class main extends member_base {
     {
         $mpid = $data['mpid'];
         if ($reply = $this->model('reply')->other_call($mpid, 'universal')) {
-            $cls = $reply->matter_type.'Reply';
-            $r = new $cls($data, $reply->matter_id);
+            $r = $this->model('reply\\'.$reply->matter_type, $data, $reply->matter_id);
             $r->exec();
         }
     }
@@ -560,38 +440,38 @@ class main extends member_base {
      */
     private function qrcode_call($call)
     {
+        $mpa = \TMS_APP::G('mp\mpaccount');
         $mpid = $call['mpid'];
-        $src = $call['src'];
         $openid = $call['from_user'];
         $data = json_decode($call['data']);
+
         if ($reply = $this->model('reply')->qrcode_call($mpid, $data[1])) {
             if ($reply->expire_at > 0) {
                 /**
                  * 一次性二维码，用完后就删除
                  */
-                $this->model()->delete('xxt_qrcode_call_reply', "id=$reply->id");
+                $this->model()->delete('xxt_call_qrcode', "id=$reply->id");
             }
-            if ($src === 'wx') {
-                $cls = ucfirst($reply->matter_type) . 'Reply';
-                $r = new $cls($call, $reply->matter_id);
+
+            if ($mpa->mpsrc === 'wx') {
+                $r = $this->model('reply\\'.$reply->matter_type, $call, $reply->matter_id);
                 $r->exec();
             } else {
                 /**
-                 * 易信，发送客户消息
+                 * 易信，发送客服消息
                  */
                 $setting = $this->model('mp\mpaccount')->getSetting($mpid, 'yx_custom_push');
                 if ($setting->yx_custom_push === 'N')
                     return;
-                switch (lcfirst($reply->matter_type)) {
-                case 'activitysignin':
-                    $cls = ucfirst($reply->matter_type) . 'Reply';
-                    $r = new $cls($call, $reply->matter_id, false);
+
+                switch ($reply->matter_type) {
+                case 'enrollsignin':
+                    $r = $this->model('reply\enrollsignin', $call, $reply->matter_id, false);
                     $r2 = $r->exec();
-                    if (lcfirst($r2['matter_type']) === 'activity')
-                        $message = $this->model("matter/activity")->forCustomPush($mpid, $r2['matter_id']);
-                    else if (lcfirst($r2['matter_type']) === 'joinwall') {
-                        $cls = ucfirst($r2['matter_type']) . 'Reply';
-                        $r = new $cls($call, $r2['matter_id']);
+                    if ($r2['matter_type'] === 'enroll')
+                        $message = $this->model("matter\enroll")->forCustomPush($mpid, $r2['matter_id']);
+                    else if ($r2['matter_type'] === 'joinwall') {
+                        $r = new $this->model('reply\joinwall', $call, $r2['matter_id']);
                         $tip = $r->exec(false);
                         if (!empty($tip)) 
                             $message = array(
@@ -600,12 +480,12 @@ class main extends member_base {
                                     "content"=>urlencode($tip)
                                 )
                             );
-                    } else
-                        $message = $this->model("matter/".lcfirst($r2['matter_type']))->forCustomPush($mpid, $r2['matter_id']);
+                    } else {
+                        $message = $this->model('matter\\'.$r2['matter_type'])->forCustomPush($mpid, $r2['matter_id']);
+                    }
                     break;
                 case 'joinwall':
-                    $cls = ucfirst($reply->matter_type) . 'Reply';
-                    $r = new $cls($call, $reply->matter_id);
+                    $r = new $this->model('reply\joinwall', $call, $reply->matter_id);
                     $tip = $r->exec(false);
                     if (!empty($tip)) 
                         $message = array(
@@ -615,19 +495,19 @@ class main extends member_base {
                             )
                         );
                     break;
-                case 'activity':
-                    $message = $this->model("matter/activity")->forCustomPush($mpid, $reply->matter_id);
-                    break;
-                case 'lottery':
-                    $message = $this->model("activity/lottery")->forCustomPush($mpid, $reply->matter_id);
-                    break;
                 default:
-                    $message = $this->model("matter/$reply->matter_type")->forCustomPush($mpid, $reply->matter_id);
+                    $message = $this->model('matter\\'.$reply->matter_type)->forCustomPush($mpid, $reply->matter_id);
                 }
                 /**
                  * 发送消息
                  */
-                if (isset($message)) $this->send_to_user($mpid, $src, $openid, $message);
+                if (isset($message)) {
+                    $rst = $this->send_to_user($mpid, $openid, $message);
+                    if (false === $rst[0]) {
+                        $tr = $this->model('reply\text', $call, $rst[1], false);
+                        $tr->exec();
+                    }
+                }
             }
         }
     }
@@ -642,22 +522,19 @@ class main extends member_base {
      * $keyword
      * $authapis
      */
-    private function access_control($call, $call_type, $keyword, $authapis) 
+    private function accessControl4Call($call, $call_type, $keyword, $authapis) 
     {
         /**
          * check bind data.
          * 获得当前粉丝用户的身份信息
          */
         $mpid = $call['mpid'];
-        $src = $call['src'];
         $openid = $call['from_user'];
-        $members = $this->getUserMembers($mpid, $src, $openid, $authapis);
-
+        $members = $this->getUserMembers($mpid, $openid, $authapis);
         /**
          * 无法确认用户的身份，要求进行身份认证
          */
-        if (empty($members)) $this->auth_reply($call, $authapis);
-
+        empty($members) && $this->authReply($call, $authapis);
         /**
          * 检查用户是否通过了邮箱验证
          * 如果不需要进行邮箱验证，邮箱会被设置为已通过验证的状态
@@ -678,21 +555,19 @@ class main extends member_base {
             $tip = array();
             foreach ($members as $member) {
                 $tip[] = $this->model('user/authapi')->getNotpassStatement(
-                    $member->authapi_id, $mpid, $src, $openid
+                    $member->authapi_id, $mpid, $openid
                 ); 
             }
             $tip = implode("\n", $tip);
-            $tr = new TextReply($call, $tip, false);
+            $tr = $this->model('reply\text', $call, $tip, false);
             $tr->exec();
         }
-
         /**
          * 是否在白名单中，只要有一个身份匹配就允许访问
          */
         $matched = false;
         foreach ($members as $member)
             $matched = $this->model('acl')->canAccessCall($mpid, $call_type, $keyword, $member, $authapis);
-
         /**
          * 不y允许访问，通知用户
          */
@@ -700,12 +575,60 @@ class main extends member_base {
             $tip = array();
             foreach ($members as $member) {
                 $tip[] = $this->model('user/authapi')->getAclStatement(
-                    $member->authapi_id, $runningMpid, $src, $openid
+                    $member->authapi_id, $mpid, $openid
                 ); 
             }
             $tip = implode("\n", $tip);
-            $tr = new TextReply($call, $tip, false);
+            $tr = $this->model('reply\text', $call, $tip, false);
             $tr->exec();
         }
+    }
+    /**
+     * 提示用户进行身份认证
+     *
+     * $call 客户端发起的请求
+     * 由于请求是由客户端直接发起的，因此其中的openid和用户直接关联，是可以信赖的信息
+     *
+     */
+    private function authReply($call, $authapis) 
+    {
+        $aAuthapis = explode(',', $authapis);
+        $tip = array();
+        foreach ($aAuthapis as $authid) {
+            $tip[] = $this->model('user/authapi')->getEntryStatement(
+                $authid,
+                $call['mpid'],
+                $call['src'],
+                $call['from_user']
+            );
+        }
+        $tip = implode("\n", $tip);
+        $tr = $this->model('reply\text', $call, $tip, false);
+        $tr->exec();
+    }
+    /**
+     * 判断发起呼叫的用户是否为认证用户，如果是则返回用户的身份信息
+     *
+     * 一个粉丝用户可能有多个认证用户身份
+     * 所以要知道是哪个通过认证接口认证的用户身份
+     * 如果是企业号的用户可能就不再需要进行认证，因此有可能不指定authapis
+     *
+     * $mpid
+     * $openid
+     * $authapis
+     *
+     */ 
+    private function getUserMembers($mpid, $openid, $authapis) 
+    {
+        $q = array(
+            'm.mid,m.email_verified,m.authapi_id,m.authed_identity,m.depts,m.tags',
+            'xxt_member m,xxt_fans f',
+            "f.mpid='$mpid' and m.forbidden='N' and f.openid='$openid' and f.fid=m.fid"
+        );
+        !empty($authapis) && $q[2] .= " and authapi_id in ($authapis)";
+
+        $mids = $this->model()->query_objs_ss($q);
+
+        return $mids;
     }
 }

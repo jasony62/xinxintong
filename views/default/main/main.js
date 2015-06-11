@@ -25,8 +25,10 @@ controller('MpCtrl',['$scope','http2',function($scope,http2){
             $scope.mps = rsp.data;
         });
     };
-    $scope.openmp = function(mp) {
-        location.href = '/rest/mp/mpaccount?mpid=' + mp.mpid + '&_=' + t;
+    $scope.openmp = function(event,mp) {
+        event.preventDefault();
+        event.stopPropagation();
+        location.href = '/rest/mp?mpid=' + mp.mpid + '&_=' + t;
     };
     $scope.removemp = function(event, mp) {
         event.preventDefault();

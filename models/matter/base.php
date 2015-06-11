@@ -1,40 +1,55 @@
 <?php
-class base_model extends TMS_MODEL {
+namespace matter;
+/**
+ *
+ */
+class base_model extends \TMS_MODEL {
     /**
      * 根据类型和ID获得素材
-     *
-     * $type: Text,Article,News,Link,Inner,Channel,Joinwall
      */
-    public function get_by_id($type, $id) 
+    public static function getCardInfoById($type, $id) 
     {
-        switch (lcfirst($type)) {
-        case 'joinwall':
-            $q = array('*', 'xxt_wall', "wid='$id'");
+        switch ($type) {
+            case 'enrollsignin':
+            $q = array('id,title,summary,pic', 'xxt_enroll', "id='$id'");
+            break;
+            case 'joinwall':
+            $q = array('id,title,summary,pic', 'xxt_wall', "id='$id'");
+            break;
+            default:
+            $table = 'xxt_'.$type;
+            $q = array('id,title,summary,pic', $table, "id='$id'");
+        }
+        if ($matter = self::query_obj_ss($q))
+            $matter->type = $type;
+
+        return $matter;
+    }
+    /**
+     * 根据类型和ID获得素材基本信息，mpid,id和title
+     */
+    public static function getMatterInfoById($type, $id) 
+    {
+        switch ($type) {
+        case 'text':
+            $q = array('id,content title,content', 'xxt_text', "id='$id'");
             break;
         case 'relay':
-            $q = array('*', 'xxt_mprelay', "id='$id'");
+            $q = array('id,title', 'xxt_mprelay', "id='$id'");
             break;
-        case 'addressbook':
-            $q = array('*', 'xxt_address_book', "id='$id'");
+        case 'enrollsignin':
+            $q = array('id,title', 'xxt_enroll', "id='$id'");
             break;
-        case 'activity':
-            $q = array('*', 'xxt_activity', "aid='$id'");
-            break;
-        case 'activitysignin':
-            $q = array('*', 'xxt_activity', "aid='$id'");
-            break;
-        case 'discuss':
-            $q = array('*', 'xxt_wall', "wid='$id'");
-            break;
-        case 'lottery':
-            $q = array('*', 'xxt_lottery', "lid='$id'");
+        case 'joinwall':
+            $q = array('id,title', 'xxt_wall', "id='$id'");
             break;
         default:
-            $table = 'xxt_'.lcfirst($type);
-            $q = array('*', $table, "id='$id'");
+            $table = 'xxt_'.$type;
+            $q = array('id,title', $table, "id='$id'");
         }
 
-        $matter = $this->query_obj_ss($q);
+        if ($matter = self::query_obj_ss($q))
+            $matter->type = $type;
 
         return $matter;
     }

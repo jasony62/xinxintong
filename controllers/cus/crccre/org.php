@@ -1,8 +1,10 @@
 <?php
+namespace cus\crccre;
+
 /**
  * 铁建地产组织机构
  */
-class org extends TMS_CONTROLLER {
+class org extends \TMS_CONTROLLER {
 
     public function get_access_rule() 
     {
@@ -26,6 +28,6 @@ class org extends TMS_CONTROLLER {
     {
         $depts = $this->model('cus/org')->nodes($pid);
 
-        return new ResponseData($depts);
+        return new \ResponseData($depts);
     }
 }

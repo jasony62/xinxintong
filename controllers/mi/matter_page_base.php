@@ -1,13 +1,14 @@
 <?php
+namespace mi;
+
 class matter_page_base {
     /**
      *
      */
-    protected function __construct(&$matter, $openid, $src)
+    protected function __construct(&$matter, $openid)
     {
         $this->matter = $matter;
         $this->openid = $openid;
-        $this->src = $src;
     }
     /**
      * 返回素材对象

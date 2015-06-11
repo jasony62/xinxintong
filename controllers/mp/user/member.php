@@ -1,9 +1,11 @@
 <?php
+namespace mp\user;
+
 require_once dirname(dirname(__FILE__)).'/mp_controller.php';
 /**
  *
  */
-class member extends mp_controller {
+class member extends \mp\mp_controller {
 
     public function get_access_rule() 
     {
@@ -18,9 +20,16 @@ class member extends mp_controller {
     public function view_action($path)
     {
         $features = $this->model('mp\mpaccount')->getFeatures($this->mpid);
-        TPL::assign('can_member_card', $features->can_member_card);
-        TPL::assign('can_member_checkin', $features->can_member_checkin);
+        \TPL::assign('can_member_card', $features->can_member_card);
+        \TPL::assign('can_member_checkin', $features->can_member_checkin);
         parent::view_action($path);
+    }
+    /**
+     *
+     */
+    public function index_action()
+    {
+        $this->view_action('/mp/user/members');    
     }
     /**
      * all members.
@@ -32,11 +41,12 @@ class member extends mp_controller {
      *
      * return member list|total|itemsSetting
      */
-    public function index_action($authid, $page=1, $size=30, $kw=null, $by=null, $dept=null, $tag=null, $contain='') 
+    public function get_action($authid, $page=1, $size=30, $kw=null, $by=null, $dept=null, $tag=null, $contain='') 
     {
         $contain = explode(',',$contain);
 
-        $w = "m.mpid='$this->mpid' and m.authapi_id=$authid and m.forbidden='N'";
+        //$w = "m.mpid='$this->mpid' and m.authapi_id=$authid and m.forbidden='N'";
+        $w = "m.authapi_id=$authid and m.forbidden='N'";
 
         if (!empty($kw) && !empty($by)) $w .= " and m.$by like '%$kw%'";
 
@@ -45,7 +55,7 @@ class member extends mp_controller {
         if (!empty($tag)) $w .= " and concat(',',m.tags,',') like '%,$tag,%'";
 
         $q = array(
-            'm.*,f.openid,f.src,f.nickname f_nickname', 
+            'm.*,f.openid,f.nickname f_nickname', 
             'xxt_member m left join xxt_fans f on m.fid=f.fid', 
             $w
         );
@@ -75,10 +85,10 @@ class member extends mp_controller {
                  */
                 $result[] = $setting;
             }
-            return new ResponseData($result); 
+            return new \ResponseData($result); 
         }
 
-        return new ResponseData(array());
+        return new \ResponseData(array());
     }
     /**
      * 直接创建一个认证用户
@@ -101,7 +111,7 @@ class member extends mp_controller {
         else if ($attrs->attr_email[5] === '1')
             $member->authed_identity = $member->email;
         else
-            return new ResponseError('没有指定认证用户的唯一标识字段');
+            return new \ResponseError('没有指定认证用户的唯一标识字段');
         /**
          * 设置缺省密码
          */
@@ -117,12 +127,12 @@ class member extends mp_controller {
 
         $rst = $this->model('user/member')->create($fid, $member, $attrs);
         if ($rst[0] === false)
-            return new ResponseError($rst[1]);
+            return new \ResponseError($rst[1]);
         $mid = $rst[1];
 
         $member = $this->model('user/member')->byId($mid);
 
-        return new ResponseData($member);
+        return new \ResponseData($member);
     }
     /**
      * 更新成员数据
@@ -193,10 +203,10 @@ class member extends mp_controller {
 
             $rst = $this->model('mpproxy/qy', $this->mpid)->userUpdate($fan->openid, $posted);
             if ($rst[0] === false)
-                return new ResponseError($rst[1]);
+                return new \ResponseError($rst[1]);
         }
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      * 跟新用户所属的部门
@@ -224,7 +234,7 @@ class member extends mp_controller {
             $fan = $this->model('user/fans')->byMid($mid);
             $rst = $this->model('mpproxy/qy', $this->mpid)->userUpdate($fan->openid, array('department'=>$rdepts));
             if ($rst[0] === false)
-                return new ResponseError($rst[1]);
+                return new \ResponseError($rst[1]);
         }
         /**
          * 更新本地数据
@@ -237,7 +247,7 @@ class member extends mp_controller {
 
         $sDepts = $this->model('user/department')->strUserDepts($u->depts); 
 
-        return new ResponseData($sDepts);
+        return new \ResponseData($sDepts);
     }
     /**
      * 删除一个注册用户
@@ -252,7 +262,7 @@ class member extends mp_controller {
             "mid='$mid'"
         );
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      * 添加的标签
@@ -277,7 +287,7 @@ class member extends mp_controller {
                 $tagid = $extattr->tagid; 
                 $result = $this->model('mpproxy/qy', $this->mpid)->tagAddUser($tagid, array($member->ooid));
                 if ($result[0] === false)
-                    return new ResponseError($result[1]);
+                    return new \ResponseError($result[1]);
             }
         }
         /**
@@ -291,7 +301,7 @@ class member extends mp_controller {
             "mpid='$this->mpid' and mid='$mid'"
         );
 
-        return new ResponseData($all);
+        return new \ResponseData($all);
     }
     /**
      * 删除成员的标签
@@ -309,7 +319,7 @@ class member extends mp_controller {
             $exttagid = $extattr->tagid; 
             $result = $this->model('mpproxy/qy', $this->mpid)->tagDeleteUser($exttagid, array($member->ooid));
             if ($result[0] === false)
-                return new ResponseError($result[1]);
+                return new \ResponseError($result[1]);
         }
         /**
          * 提交到本地
@@ -324,6 +334,6 @@ class member extends mp_controller {
             "mpid='$this->mpid' and mid='$mid'"
         );
 
-        return new ResponseData($all);
+        return new \ResponseData($all);
     }
 }

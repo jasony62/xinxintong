@@ -1,4 +1,6 @@
 <?php
+namespace message;
+
 require_once dirname(dirname(__FILE__)).'/xxt_base.php';
 /**
  * 向公众号用户发送模板消息 
@@ -22,47 +24,21 @@ class template extends xxt_base {
      */
     public function send_action($mpid, $auth_url=null)
     {
-        $cmd = 'https://api.weixin.qq.com/cgi-bin/message/template/send';
-
         $messages = $this->getPostJson();
         !is_object($messages) && $messages = array($messages);
-
-        /*$messages = array(
-            array(
-                'touser'=>'oXHmUjn5s00MC4av7uKN-iSmXVS0',
-                'template_id'=>'zwZNVNjr7D_eZV5fc0mAs1QEHNTuuEcfY_tR1VkSFjI',
-                'url'=>'http://www.baidu.com',
-                'topcolor'=>'#FF0000',
-                'data'=>array(
-                    'first'=>array(
-                        'value'=>'你好，杨戉，有待办事项',
-                        'color'=>'#173177'
-                    ),
-                    'keyword1'=>array(
-                        'value'=>'下午两点到铁建地产交流',
-                        'color'=>'#173177'
-                    ),
-                    'keyword2'=>array(
-                        'value'=>'2014年10月22日',
-                        'color'=>'#173177'
-                    ),
-                    'remark'=>array(
-                        'value'=>'需要带上方案',
-                        'color'=>'#173177'
-                    )
-                )
-            )
-        );*/
 
         $failed = array();
 
         if (!empty($auth_url)) {
             if (!($authapi = $this->model('user/authapi')->byUrl($mpid, $auth_url, 'authid')))
-                return new ResponseData('没有定义身份认证接口，无法进行身份转换，消息发送失败！');
+                return new \ResponseData('没有定义身份认证接口，无法进行身份转换，消息发送失败！');
 
             $authid = $authapi->authid;
         }
-
+        /**
+         *
+         */
+        $mpproxy = \TMS_APP::M('mpproxy/wx', $mpid);
         foreach ($messages as $msg) {
             $msg = (object)$msg;
             if (isset($authid)) {
@@ -70,7 +46,7 @@ class template extends xxt_base {
                 $q = array(
                     'openid',
                     'xxt_member m,xxt_fans f',
-                    "m.fid=f.fid and m.forbidden='N' and m.authed_identity='$authuser' and f.src='wx' and f.unsubscribe_at=0"
+                    "m.fid=f.fid and m.forbidden='N' and m.authed_identity='$authuser' and f.unsubscribe_at=0"
                 );
                 if (!($openid = $this->model()->query_val_ss($q))) {
                     $msg->errmsg = '无法获得openid'; 
@@ -78,17 +54,16 @@ class template extends xxt_base {
                 }
                 $msg->touser = $openid;
             }
-            $posted = json_encode($msg);
-            $rst = $this->postToMp($mpid, 'wx', $cmd, $posted);
-            if (!$rst[0]) {
+            $rst = $mpproxy->messageTemplateSend($msg);
+            if ($rst[0] === false) {
                 $msg->errmsg = $rst[1]; 
                 $failed[] = $msg;
             }
         }
 
         if (empty($failed))
-            return new ResponseData('finish');
+            return new \ResponseData('finish');
         else
-            return new ResponseError($failed);
+            return new \ResponseError($failed);
     }
 }

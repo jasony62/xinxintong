@@ -1,28 +1,18 @@
 <div class='list-group'>
     <?php
-    $mpaccount = $_SESSION['mpaccount'];
-    $menus['/rest/mp/mpaccount'] = array('title'=>'账号管理');
-    $menus['/page/mp/matter'] = array('title'=>'素材管理');
-    $menus['/page/mp/reply'] = array('title'=>'回复管理');
-    $menus['/page/mp/activity/enroll'] = array('title'=>'活动管理');
-    $mpaccount->asparent==='N' && $menus['/page/mp/user/received'] = array('title'=>'用户管理');
-    //$mpaccount->asparent==='N' && $menus['/page/mp/fans'] = array('title'=>'粉丝互动');
-    //$menus['/page/mp/member'] = array('title'=>'认证用户');
-    //$menus['/page/mp/bbs'] = array('title'=>'用户微吧');
-    $menus['/page/mp/analyze'] = array('title'=>'统计分析');
+    $menus = TPL::val('mp_view_entries');
     $menu = TPL::val('menu');
-    $menu && $menus[$menu]['selected'] = true;
+    $menu && isset($menus[$menu]) && $menus[$menu]['selected'] = true;
     ?>
-    <?php foreach($menus as $href=>$m){ ?>
+    <?php if(!empty($menus)) foreach($menus as $href=>$m){ ?>
     <?php if (isset($m['selected']) && $m['selected']){ ?>
-    <a class='list-group-item active' href="<?php echo $href;?>" target="_self"><?php echo $m['title'];?></a>
+    <a class='list-group-item active' href="<?php echo $href.'/'.$m['entry'];?>" target="_self"><?php echo $m['title'];?></a>
     <?php } else { ?>
-    <a class='list-group-item' href="<?php echo $href;?>" target="_self"><?php echo $m['title'];?></a>
+    <a class='list-group-item' href="<?php echo $href.'/'.$m['entry'];?>" target="_self"><?php echo $m['title'];?></a>
     <?php } ?>
     <?php } ?>                
 </div>
-<?php $tips = TPL::val('tips');?>
-<?php if ($tips) {?>
+<?php $tips = TPL::val('tips'); if ($tips) { ?>
 <div class='alert alert-info'>
     <?php echo $tips;?>
 </div>

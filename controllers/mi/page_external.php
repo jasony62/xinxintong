@@ -1,4 +1,5 @@
 <?php
+namespace mi;
 /**
  * 链接
  */
@@ -6,10 +7,10 @@ class page_external extends matter_page_base {
     /**
      *
      */
-    public function __construct(&$link, $openid, $src)
+    public function __construct(&$link, $openid)
     {
         $this->link = $link;
-        parent::__construct($this->link, $openid, $src);
+        parent::__construct($this->link, $openid);
     }
     /**
      *
@@ -23,12 +24,12 @@ class page_external extends matter_page_base {
         if ($this->link->method == 'GET') {
             if (isset($this->link->params)) {
                 $url .= (strpos($url, '?') === false) ? '?':'&';
-                $url .= TMS_APP::model('reply')->spliceParams($runningMpid, $this->link->params, $mid, $this->src, $this->openid);
+                $url .= \TMS_APP::M('reply')->spliceParams($runningMpid, $this->link->params, $mid, $this->openid);
             }
             header("Location: $url");
         } elseif ($this->link->method == 'POST') {
             if (isset($this->link->params)) {
-                $posted = TMS_APP::model('reply')->spliceParams($runningMpid, $this->link->params, $mid, $this->src, $this->openid);
+                $posted = \TMS_APP::M('reply')->spliceParams($runningMpid, $this->link->params, $mid, $this->openid);
             }
             $ch = curl_init(); //初始化curl
             curl_setopt($ch, CURLOPT_URL, $url);//设置链接

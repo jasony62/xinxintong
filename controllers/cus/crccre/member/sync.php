@@ -1,4 +1,6 @@
 <?php
+namespace cus\crccre\member;
+
 require_once dirname(__FILE__).'/base.php';
 /**
  * crccre用户数据同步
@@ -32,10 +34,10 @@ class sync extends crccre_member_base {
 
         $depts = array();
         try {
-            $param = new stdClass;
+            $param = new \stdClass;
             $param->titleType = 1;    
             $ret = $this->soap()->GetNodesByTitleType($param);
-            $xml = new SimpleXMLElement($ret->GetNodesByTitleTypeResult);
+            $xml = new \SimpleXMLElement($ret->GetNodesByTitleTypeResult);
             foreach ($xml->children() as $node) {
                 $dept = array();
                 foreach ($node->attributes() as $k => $v)
@@ -44,10 +46,10 @@ class sync extends crccre_member_base {
                 $depts[] = $dept;
                 $this->getSubDepartment($mpid, $dept['guid'], $did, $depts);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             die('exception: '.$e->getMessage());
         }
-        return new ResponseData(count($depts));
+        return new \ResponseData(count($depts));
     }
     /**
      * 获得部门下面的子部门
@@ -55,10 +57,10 @@ class sync extends crccre_member_base {
     private function getSubDepartment($mpid, $guid, $pid, &$depts)
     {
         try {
-            $param = new stdClass;
+            $param = new \stdClass;
             $param->GUID = $guid;
             $ret = $this->soap()->GetNodesByGUID($param);
-            $xml = new SimpleXMLElement('<xml>'.$ret->GetNodesByGUIDResult.'</xml>');
+            $xml = new \SimpleXMLElement('<xml>'.$ret->GetNodesByGUIDResult.'</xml>');
             foreach ($xml->children() as $node) {
                 $attributes = ''.$node->attributes();
                 $titletype = ''.$attributes['titletype'];
@@ -70,10 +72,10 @@ class sync extends crccre_member_base {
                 $depts[] = $dept;
                 $this->getSubDepartment($mpid, $dept['guid'], $did, $depts);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             echo 'exception: '.$e->getMessage();
         }
-        return new ResponseData(1);
+        return new \ResponseData(1);
     }
     /**
      * 添加部门
@@ -126,7 +128,7 @@ class sync extends crccre_member_base {
         foreach ($users as $u)
             $rst = $this->getOneUser($mpid, $u);
 
-        return new ResponseData(count($users));
+        return new \ResponseData(count($users));
     }
     /**
      *
@@ -137,10 +139,10 @@ class sync extends crccre_member_base {
         /**
          * 获得所有属性信息
          */
-        $param = new stdClass;
+        $param = new \stdClass;
         $param->userAccount = $userAccount;    
         $ret = $this->soap()->GetUserByAccount($param);
-        $xml = new SimpleXMLElement($ret->GetUserByAccountResult);
+        $xml = new \SimpleXMLElement($ret->GetUserByAccountResult);
         foreach ($xml->children() as $node) {
             $user = array();
             foreach ($node->attributes() as $k => $v)
@@ -178,42 +180,42 @@ class sync extends crccre_member_base {
         $sql .= " where openid='okWw3t86oKybXfBxBTboh7ORKnLw'";
         $fans = $this->model()->query_objs($sql);
 
-        return new ResponseData($fans);*/
+        return new \ResponseData($fans);*/
 
         /*$sql = "select * from xxt_member";
         $sql .= " where mpid='$mpid' and forbidden='N' and ooid='okWw3t5Iv_qgzte6BtL4IdJby4i8' and authapi_id=4";
 
         $members = $this->model()->query_objs($sql);
 
-        return new ResponseData($members);*/
+        return new \ResponseData($members);*/
 
         /*$sql = 'select * from xxt_member_department';
         $sql .= " where mpid='$mpid'";
         $depts = $this->model()->query_objs($sql);
 
-        return new ResponseData($depts);*/
+        return new \ResponseData($depts);*/
 
         /*$sql = "select * from xxt_member";
         $sql .= " where mpid='$mpid' and  fid = '4a56981fb1a2fc60317ae792909ca413'";
         $depts = $this->model()->query_objs($sql);
 
-        return new ResponseData($depts);*/
+        return new \ResponseData($depts);*/
 
         /*$sql = "select * from xxt_member";
         $sql .= " where mpid='$mpid' and authapi_id=2";
         $members = $this->model()->query_objs($sql);*/
 
-        //return new ResponseData($members);
+        //return new \ResponseData($members);
 
         $rst = $this->model()->delete('xxt_member', 'authapi_id=2');
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
 
         /*$rst = $this->model()->update(
             'xxt_member', 
             array('depts'=>''), 
             "mpid='$mpid' and  depts like '%false%'"
         );
-        return new ResponseData($rst);*/
+        return new \ResponseData($rst);*/
 
         /*$rst = $this->model()->update(
             'xxt_member', 
@@ -221,6 +223,6 @@ class sync extends crccre_member_base {
             "mpid='$mpid' and mid='d4a1f0c90b2ee33b027b10b53f183282'"
         );
 
-        return new ResponseData($rst);*/
+        return new \ResponseData($rst);*/
     }
 }

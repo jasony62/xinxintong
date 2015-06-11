@@ -4,8 +4,10 @@ require_once '../db.php';
  * 轮盘抽奖活动
  */
 $sql = "create table if not exists xxt_lottery(";
-$sql .= "mpid varchar(32) not null";
-$sql .= ",lid varchar(40) not null"; //轮盘抽奖活动的ID
+$sql .= "id varchar(40) not null"; //轮盘抽奖活动的ID
+$sql .= ",mpid varchar(32) not null";
+$sql .= ',creater varchar(40) not null';
+$sql .= ',create_at int not null';
 $sql .= ",title varchar(70) not null";
 $sql .= ',pic text'; // 分享或生成链接时的图片 
 $sql .= ',summary varchar(240) not null'; // 分享或生成链接时的摘要
@@ -34,12 +36,10 @@ $sql .= ',page_id int not null default 0';
 $sql .= ",autostop char(1) not null default 'Y'";
 $sql .= ",maxstep int not null default 60";
 $sql .= ",active char(1) not null default 'N'"; //激活状态
-$sql .= ',creater varchar(40) not null';
-$sql .= ',create_at int not null';
-$sql .= ",primary key(mpid,lid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!mysql_query($sql)) {
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error(action): '.$sql;
+    echo 'database error(action): '.$sql.':'.$mysqli->error;
 }
 //
 $sql = "create table if not exists xxt_lottery_task(";
@@ -49,9 +49,9 @@ $sql .= ',tid varchar(32) not null'; //任务ID
 $sql .= ',title varchar(20) not null';
 $sql .= ",description text"; // 任务提示
 $sql .= ",primary key(tid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!mysql_query($sql)) {
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error(lottery_task): '.$sql;
+    echo 'database error(lottery_task): '.$sql.':'.$mysqli->error;
 }
 //
 $sql = "create table if not exists xxt_lottery_task_log(";
@@ -59,14 +59,13 @@ $sql .= 'id int not null auto_increment';
 $sql .= ',lid varchar(40) not null'; //轮盘抽奖活动的ID 
 $sql .= ',tid varchar(32) not null'; //任务ID
 $sql .= ',mid varchar(32) not null'; // 中奖会员
-$sql .= ",src char(2) not null default ''";
 $sql .= ",openid varchar(255) not null default ''";
 $sql .= ',create_at int not null'; // 抽奖的时间
 $sql .= ",finished char(1) not null default 'N'"; // 任务是否已经完成 
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!mysql_query($sql)) {
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error(lottery_task_log): '.$sql;
+    echo 'database error(lottery_task_log): '.$sql.':'.$mysqli->error;
 }
 //
 $sql = "create table if not exists xxt_lottery_award(";
@@ -84,9 +83,9 @@ $sql .= ",quantity int not null default 0"; //奖品的参数，例如：【积�
 $sql .= ",takeaway int not null default 0"; //已经抽中的奖品数量
 $sql .= ",greeting text"; //中奖贺词
 $sql .= ",primary key(mpid,lid,aid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!mysql_query($sql)) {
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error(award): '.$sql;
+    echo 'database error(award): '.$sql.':'.$mysqli->error;
 }
 //
 $sql = "create table if not exists xxt_lottery_plate(";
@@ -106,26 +105,25 @@ $sql .= ",a9 varchar(40) not null default ''";
 $sql .= ",a10 varchar(40) not null default ''";
 $sql .= ",a11 varchar(40) not null default ''";
 $sql .= ",primary key(mpid,lid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!mysql_query($sql)) {
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error(plate): '.mysql_error();
+    echo 'database error(plate): '.$sql.':'.$mysqli->error;
 }
 //
 $sql = "create table if not exists xxt_lottery_log(";
 $sql .= 'mpid varchar(32) not null';
 $sql .= ',lid varchar(40) not null'; // 轮盘抽奖活动的ID 
 $sql .= ',mid varchar(32) not null'; // 中奖会员
-$sql .= ",src char(2) not null default ''";
 $sql .= ",openid varchar(255) not null default ''";
 $sql .= ',draw_at int not null'; // 抽奖的时间
 $sql .= ',aid varchar(40) not null'; // 奖品的ID 
 $sql .= ",times_accumulated int not null default 1"; //有效时段内，累积的次数
 $sql .= ",last char(1) not null default 'Y'"; // 最后一次抽奖记录。每一次抽奖动作都记录，记录最后一条便于计算。
 $sql .= ",takeaway char(1) not null default 'N'"; // 奖品是否已经领取。只对非实物奖品有效。
-$sql .= ",primary key(lid,mid,src,openid,draw_at)) ENGINE=MyISAM DEFAULT CHARSET=utf8"; 
-if (!mysql_query($sql)) {
+$sql .= ",primary key(lid,mid,openid,draw_at)) ENGINE=MyISAM DEFAULT CHARSET=utf8"; 
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error(result): '.mysql_error();
+    echo 'database error(result): '.$sql.':'.$mysqli->error;
 }
 //
 echo 'lottery finish.'.PHP_EOL;

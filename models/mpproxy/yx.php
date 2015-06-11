@@ -13,6 +13,48 @@ class yx_model extends mpproxy_base {
         parent::__construct($mpid);
     }
     /**
+     * 加密/校验流程：
+     * 1. 将token、timestamp、nonce三个参数进行字典序排序 
+     * 2. 将三个参数字符串拼接成一个字符串进行sha1加密 
+     * 3. 开发者获得加密后的字符串可与signature对比，标识该请求来源于易信 
+     *
+     * 若确认此次GET请求来自易信服务器，请原样返回echostr参数内容，则接入生效，否则接入失败。
+     */
+    public function join($params) 
+    {
+        $signature = $params['signature'];
+        $timestamp = $params['timestamp'];
+        $nonce = $params['nonce'];
+        $echostr = $params['echostr'];
+
+        $mpa = TMS_APP::G('mp\mpaccount');
+
+        $p = array($mpa->token, $timestamp, $nonce);
+        asort($p);
+        $s = implode('', $p);
+        $ss = sha1($s);
+        if ($ss === $signature) {
+            /**
+             * 断开连接
+             */
+            TMS_APP::model()->update(
+                'xxt_mpaccount', 
+                array('yx_joined'=>'N'), 
+                "yx_appid='$mpa->yx_appid' and yx_appsecret='$mpa->yx_appsecret'");
+            /**
+             * 确认建立连接
+             */
+            TMS_APP::model()->update(
+                'xxt_mpaccount', 
+                array('yx_joined'=>'Y'), 
+                "mpid='$this->mpid'");
+
+            return array(true, $echostr);
+        } else {
+            return array(false, 'failed');
+        }
+    }
+    /**
      * 获得与公众平台进行交互的token
      */
     protected function accessToken($newAccessToken=false) 
@@ -98,6 +140,28 @@ class yx_model extends mpproxy_base {
         return $oauth;
     }
     /**
+     * 获得openid
+     */
+    public function getOAuthUser($code)
+    {
+        $mpa = TMS_APP::M('mp\mpaccount')->byId($this->mpid, "yx_appid,yx_appsecret");
+
+        $cmd = "https://api.yixin.im/sns/oauth2/access_token";
+        $params["appid"] = $mpa->yx_appid;
+        $params["secret"] = $mpa->yx_appsecret;
+        $params["code"] = $code;
+        $params["grant_type"] = "authorization_code";
+
+        $rst = $this->httpGet($cmd, $params, false, false);
+
+        if ($rst[0] === false)
+            return $rst;
+
+        $openid = $rst[1]->openid;
+
+        return array(true, $openid);
+    }
+    /**
      *
      */
     public function mobile2Openid($mobile)
@@ -159,6 +223,50 @@ class yx_model extends mpproxy_base {
         return $rst;
     }
     /**
+     * 添加粉丝分组
+     *
+     * 同时在公众平台和本地添加
+     */
+    public function groupsCreate($group)
+    {
+        /**
+         * 在公众平台上添加
+         */
+        $cmd = 'https://api.yixin.im/cgi-bin/groups/create';
+        $posted = json_encode(array('group'=>$group));
+        $rst = $this->httpPost($cmd, $posted);
+
+        return $rst;
+    }
+    /**
+     * 更新粉丝分组的名称
+     *
+     * 同时修改公众平台的数据和本地数据
+     */
+    public function groupsUpdate($group)
+    {
+        $cmd = "https://api.yixin.im/cgi-bin/groups/update";
+        $posted = json_encode(array('group'=>$group));
+        $rst = $this->httpPost($posted);
+
+        return $rst;
+    }
+    /**
+     * 删除粉丝分组
+     *
+     * todo 标准接口中不支持
+     *
+     * 同时删除公众平台上的数据和本地数据
+     */
+    public function groupsDelete($group)
+    {
+        $cmd = "https://api.yixin.im/cgi-bin/groups/delete";
+        $posted = json_encode(array('group'=>$group));
+        $rst = $this->httpPost($cmd, $posted);
+
+        return $rst;
+    }
+    /**
      * upload menu.
      */
     public function menuCreate($menu)
@@ -169,4 +277,130 @@ class yx_model extends mpproxy_base {
 
         return $rst;
     }
+    /**
+     * 将图片上传到公众号平台
+     *
+     * $imageUrl
+     * $imageType
+     */
+    public function mediaUpload($mediaUrl, $mediaType='image') 
+    {
+        $tmpfname = $this->fetchUrl($mediaUrl);
+        $uploaded['media'] = "@$tmpfname";
+        /**
+         * upload image
+         */
+        $cmd = 'https://api.yixin.im/cgi-bin/media/upload';
+        $cmd .= "?type=$mediaType";
+
+        $rst = $this->httpPost($cmd, $uploaded);
+        if ($rst[0] === false)
+            return $rst;
+
+        $media_id = $rst[1]->media_id;
+
+        return array(true, $media_id);
+    }
+    /**
+     * 向易信用户群发消息
+     */
+    public function messageGroupSend($message) 
+    {
+        $cmd = 'https://api.yixin.im/cgi-bin/message/group/send';
+
+        $rst = $this->httpPost($cmd, $message);
+
+        return $rst;
+    }
+    /**
+     * 发送客服消息
+     *
+     * $message
+     * $openid
+     */
+    public function messageCustomSend($message, $openid)
+    {
+        $message['touser'] = $openid; 
+        $cmd = 'https://api.yixin.im/cgi-bin/message/custom/send';
+        $posted = urldecode(json_encode($message)); 
+
+        $rst = $this->httpPost($cmd, $posted); 
+
+        return $rst;
+    }
+    /**
+     * 通过易信点对点接口向用户发送消息
+     * 
+     * $mpid
+     * $message
+     * $openids
+     */
+    public function messageSend($message, $openids) 
+    {
+        is_string($openids) && $openids = array($openids);
+        /**
+         * 发送消息
+         */
+        $cmd = 'https://api.yixin.im/cgi-bin/message/send';
+
+        foreach ($openids as $openid) {
+            $message['touser'] = $openid;
+
+            $posted = urldecode(json_encode($message)); 
+
+            $rst = $this->httpPost($cmd, $posted);
+
+            $rst[0] === false && $warning[] = $rst[1];
+        }
+
+        if (isset($warning))
+            return array(false, $warning);
+
+        return array(true);
+    }
+    /**
+     * 创建一个二维码响应
+     *
+     * 易信的永久二维码最大值1000
+     */
+    public function qrcodeCreate($scene_id, $oneOff=true, $expire=1800)
+    {
+        /**
+         * 获去二维码的ticket
+         */
+        $cmd = 'https://api.yixin.im/cgi-bin/qrcode/create';
+
+        if ($oneOff)
+            $posted = array(
+                "action_name"=>"QR_SCENE",
+                "action_info"=>array(
+                    "expire_seconds"=>$expire,
+                    "scene"=>array("scene_id"=>$scene_id)
+                )
+            );
+        else 
+            $posted = array(
+                "action_name"=>"QR_LIMIT_SCENE", 
+                "action_info"=>array(
+                    "scene"=>array("scene_id"=>$scene_id)
+                )
+            );
+
+        $posted = json_encode($posted);
+        $rst = $this->httpPost($cmd, $posted);
+        if (false === $rst[0])
+            return $rst;
+
+        $ticket = $rst[1]->ticket;
+        $pic = "https://api.yixin.im/cgi-bin/qrcode/showqrcode?ticket=$ticket";
+
+        $d = array(
+            'scene_id' => $scene_id,
+            'pic' => $pic
+        );
+        $oneOff && $d['expire_seconds'] = $expire;
+
+        return array(true, (object)$d);
+    }
+
 }

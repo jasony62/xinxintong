@@ -1,4 +1,5 @@
 <?php
+namespace mi;
 /**
  * convert xml message into an array object.
  */
@@ -22,19 +23,16 @@ class UserCall {
         'type' => 'MsgType' //text,image,location
     ); 
 
-    private $src; // yx,wx
     private $xml; // xml object
     /**
-     * $src call message come from
      * $xlmstr call message xml string
      */
-    public function __construct($src, $xmlstr) 
+    public function __construct($xmlstr) 
     {
-        $this->src  = $src;
-        $this->xml = new DomDocument();
+        $this->xml = new \DomDocument();
         $this->xml->loadXML($xmlstr);
     }
-    
+
     public function __get($name) 
     {
         $tag = !empty($this->mapping[$name]) ? $this->mapping[$name] : $name;
@@ -84,8 +82,10 @@ class UserCall {
 
         return $a;
     }
-
-    private function location_data() 
+    /**
+     *
+     */
+    private function location_data()
     {
         $ld[] = $this->Location_X;
         $ld[] = $this->Location_Y;
@@ -138,6 +138,11 @@ class UserCall {
              * 删除卡卷事件
              */
             $ed = array($e, $this->CardId, $this->IsGiveByFriend);
+        } else if ($e === 'LOCATION') {
+            /**
+             * 易信自动上报地理位置
+             */
+            $ed = array($e, $this->Latitude, $this->Longitude, $this->Precision);
         } else
             $ed = array($e);
 

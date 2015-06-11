@@ -1,4 +1,5 @@
 <?php
+require_once dirname(dirname(dirname(__FILE__))).'/lib/wxqy/WXBizMsgCrypt.php';
 require_once dirname(__FILE__).'/base.php';
 /**
  * 企业号代理类
@@ -11,6 +12,62 @@ class qy_model extends mpproxy_base {
     public function __construct($mpid)
     {
         parent::__construct($mpid);
+    }
+    /**
+     * 对接企业号
+     */
+    public function join($params) 
+    {    
+        $msg_signature = $params['msg_signature'];
+        $timestamp = $params['timestamp'];
+        $nonce = $params['nonce'];
+        $echostr = $params['echostr'];
+
+        $logger = TMS_APP::M('log');
+        $mpa = TMS_APP::G('mp\mpaccount');
+
+        $sEchoStr = '';
+        $wxcpt = new WXBizMsgCrypt($mpa->token, $mpa->qy_encodingaeskey, $mpa->qy_corpid);
+        $errCode = $wxcpt->VerifyURL($msg_signature, $timestamp, $nonce, $echostr, $sEchoStr, $logger);
+
+        if ($errCode == 0) {
+            /**
+             * 如果存在，断开公众号原有连接
+             */
+            TMS_APP::model()->update(
+                'xxt_mpaccount', 
+                array('qy_joined'=>'N'), 
+                "qy_corpid='$mpa->qy_corpid' and qy_secret='$mpa->qy_secret'");
+            /**
+             * 确认建立连接
+             */
+            TMS_APP::model()->update(
+                'xxt_mpaccount', 
+                array('qy_joined'=>'Y'), 
+                "mpid='$this->mpid'");
+
+            return array(true, $sEchoStr);
+        } else {
+            return array(false, $errCode);
+        }
+    }
+    /**
+     *
+     */
+    public function DecryptMsg($params, $data)
+    {
+        $mpa = TMS_APP::G('mp\mpaccount');
+
+        $msg_signature = $params['msg_signature'];
+        $timestamp = $params['timestamp'];
+        $nonce = $params['nonce'];
+        $sMsg = "";
+        $wxcpt = new WXBizMsgCrypt($mpa->token, $mpa->qy_encodingaeskey, $mpa->qy_corpid);
+        $errCode = $wxcpt->DecryptMsg($msg_signature, $timestamp, $nonce, $data, $sMsg);
+
+        if ($errCode != 0) return array(false, $errCode);
+        
+        return array(true, $sMsg);
     }
     /**
      * 获得与公众平台进行交互的token
@@ -82,6 +139,84 @@ class qy_model extends mpproxy_base {
         return array(true, $token->access_token);
     }
     /**
+     * 获得微信JSSDK签名包
+     *
+     * $mpid
+     */
+    protected function getJssdkSignPackage($url)
+    {
+        $mpa = TMS_APP::M('mp\mpaccount')->byId($this->mpid, 'qy_corpid');
+
+        $rst = $this->getJsApiTicket();
+        if ($rst[0] === false)
+            return $rst;
+
+        $jsapiTicket = $rst[1];
+
+        $timestamp = time();
+        $nonceStr = $this->createNonceStr();
+        // 这里参数的顺序要按照 key 值 ASCII 码升序排序
+        $string = "jsapi_ticket=$jsapiTicket&noncestr=$nonceStr&timestamp=$timestamp&url=$url";
+        $signature = sha1($string);
+
+        $signPackage = array(
+            "appId" => $mpa->qy_corpid,
+            "nonceStr" => $nonceStr,
+            "timestamp" => $timestamp,
+            "url" => $url,
+            "signature" => $signature,
+            "rawString" => $string
+        );
+
+        $js = "signPackage={appId:'{$signPackage['appId']}'";
+        $js .= ",nonceStr:'{$signPackage['nonceStr']}'";
+        $js .= ",timestamp:'{$signPackage['timestamp']}'";
+        $js .= ",url:'{$signPackage['url']}'";
+        $js .= ",signature:'{$signPackage['signature']}'}";
+
+        return array(true, $signPackage); 
+    }
+    /**
+     *
+     */
+    private function createNonceStr($length = 16) 
+    {
+        $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        $str = "";
+        for ($i = 0; $i < $length; $i++)
+            $str .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
+
+        return $str;
+    }
+    /**
+     *
+     */
+    public function getJsapiTicket()
+    {
+        $mpa = TMS_APP::M('mp\mpaccount')->byId($this->mpid, 'wx_jsapi_ticket,wx_jsapi_ticket_expire_at');
+
+        if (!empty($mpa->wx_jsapi_ticket) && time() < $mpa->wx_jsapi_ticket_expire_at-60)
+            return array(true, $mpa->wx_jsapi_ticket);
+
+        $cmd = "https://qyapi.weixin.qq.com/cgi-bin/get_jsapi_ticket";
+        $rst = $this->httpGet($cmd);
+        if ($rst[0] === false)
+            return $rst[1];
+
+        $ticket = $rst[1];
+
+        $this->model()->update(
+            'xxt_mpaccount', 
+            array(
+                'wx_jsapi_ticket'=>$ticket->ticket,
+                'wx_jsapi_ticket_expire_at'=>time()+$ticket->expires_in
+            ),
+            "mpid='$mpid'"
+        );
+
+        return array(true, $ticket->ticket);
+    }
+    /**
      *
      */
     public function oauthUrl($mpid, $redirect, $state=null)
@@ -97,6 +232,26 @@ class qy_model extends mpproxy_base {
         $oauth .= "#wechat_redirect";
 
         return $oauth;
+    }
+    /**
+     * 换取userid
+     */
+    public function getOAuthUser($code)
+    {
+        $mpa = TMS_APP::M('mp\mpaccount')->byId($this->mpid, "qy_agentid");
+
+        $cmd = "https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo";
+        $params["code"] = $code;
+        $params["agentid"] = $mpa->qy_agentid;
+
+        $rst = $this->httpGet($cmd, $params);
+
+        if ($rst[0] === false)
+            return $rst;
+
+        $openid = $rst[1]->UserId;
+
+        return array(true, $openid);
     }
     /**
      *
@@ -386,10 +541,29 @@ class qy_model extends mpproxy_base {
      */
     public function menuCreate($menu)
     {
-        $app = $this->model('mp\mpaccount')->byId($this->mpid, 'qy_agentid');
+        $app = TMS_APP::M('mp\mpaccount')->byId($this->mpid, 'qy_agentid');
         $cmd = "https://qyapi.weixin.qq.com/cgi-bin/menu/create?agentid=$app->qy_agentid&access_token=";
 
         $rst = $this->httpPost($cmd, $menu);
+
+        return $rst;
+    }
+    /**
+     * 向企业号用户发送消息
+     *
+     * $mpid
+     * $message
+     */
+    public function messageSend($message, $encoded=false)
+    {
+        $mpa = TMS_APP::M('mp\mpaccount')->byId($this->mpid, 'qy_agentid');
+
+        $cmd = 'https://qyapi.weixin.qq.com/cgi-bin/message/send';
+        $message['agentid'] = $mpa->qy_agentid;
+        
+        $posted = $encoded ? json_encode($message) : urldecode(json_encode($message)); 
+
+        $rst = $this->httpPost($cmd, $posted);
 
         return $rst;
     }

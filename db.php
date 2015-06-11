@@ -1,7 +1,4 @@
 <?php
-/**
- * database resource.
- */
 if (defined('SAE_MYSQL_HOST_M')) {
     $host = SAE_MYSQL_HOST_M;
     $port = SAE_MYSQL_PORT;
@@ -15,10 +12,9 @@ if (defined('SAE_MYSQL_HOST_M')) {
     $pwd = '123456';
     $dbname = 'xxt';
 }
-if (!($link = @mysql_connect("{$host}:{$port}",$user,$pwd,true)))
-    die('Connect Database Server Failed: '.mysql_error());
 
-if(!mysql_select_db($dbname,$link))
-    die("Select Database Failed: " . mysql_error($link));
+$mysqli = new mysqli("{$host}:{$port}", $user, $pwd, $dbname);
+if ($mysqli->connect_errno)
+    echo "Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error;
 
-mysql_query("SET NAMES UTF8");
+$mysqli->query("SET NAMES UTF8");

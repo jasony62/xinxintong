@@ -9,7 +9,7 @@ xxtApp.controller('sendCtrl',['$scope','http2','$rootScope','$modal',function($s
         $scope.selectedMatter = null;
         var url = '/rest/mp/matter/' + $scope.matterType;
         !page && (page = $scope.page.at);
-        url += '?page='+page+'&size='+$scope.page.size;
+        url += '/get?page='+page+'&size='+$scope.page.size;
         if ($scope.fromParent && $scope.fromParent==='Y')
             url += '&src=p';
         http2.get(url, function(rsp) {

@@ -15,9 +15,23 @@ $sql .= ',css text';
 $sql .= ',js text';
 $sql .= ',primary key(id)';
 $sql .= ') ENGINE=MyISAM DEFAULT CHARSET=utf8';
-if (!mysql_query($sql)) {
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.mysql_error();
+    echo 'database error: '.$mysqli->error;
+}
+/*
+ * external resources.
+ */
+$sql = 'create table if not exists xxt_code_external(';
+$sql .= 'id int not null auto_increment';
+$sql .= ',code_id int not null';
+$sql .= ",type char(1) not null";
+$sql .= ',url text not null';
+$sql .= ',primary key(id)';
+$sql .= ') ENGINE=MyISAM DEFAULT CHARSET=utf8';
+if (!$mysqli->query($sql)) {
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: '.$mysqli->error;
 }
 
 echo 'finish code.'.PHP_EOL;

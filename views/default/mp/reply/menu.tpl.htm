@@ -2,7 +2,7 @@
     <div class='form-group clearfix'>
         <button class='pull-right btn' ng-class="(menu.length==0||published===undefined||published==='Y') ? 'btn-default':'btn-success'" ng-disabled="menu.length==0||published===undefined||published==='Y'" ng-click='publish()'>发布</button>
     </div>
-    <div dnd-list dataset='menu' class='clearfix form-group'>
+    <div dnd-list dataset='menu' class='clearfix form-group' style='border:1px dashed #CCC'>
         <div class='m1 dndable pull-left' ng-repeat='b in menu'>
             <div class='menu-wrap'>
                 <a class='list-group-item s text-center action' title='添加二级菜单' ng-if="b.sub.length<5" ng-click='appendSubButton(b)'>
@@ -82,7 +82,7 @@
                     <button class='btn btn-default btn-sm' ng-disabled='editing.pversion!=-1' ng-click='setReply()'>指定素材</button>
                     <div ng-if='editing.matter'>
                         <a class='list-group-item' title={{editing.matter.type|typetitle}}>{{editing.matter.title||editing.matter.content}}</a>
-                        <label class='checkbox-inline' ng-hide="editing.matter.type=='Text'"><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='editing.asview' ng-change="update('asview')">作为链接直接打开</label>
+                        <label class='checkbox-inline' ng-hide="editing.matter.type=='Text'"><input type='checkbox' ng-disabled='editing.pversion!=-1' ng-true-value='Y' ng-false-value='N' ng-model='editing.asview' ng-change="update('asview')">作为链接直接打开</label>
                     </div>
                 </div>
             </div>
@@ -95,5 +95,5 @@
             <accesscontrol ng-if="editing.replySrc==='matter'&&editing.asview==='N'" obj='editing' prop-acl='acl' prop-access='access_control' prop-apis='authapis' update-access-control="update('access_control')" update-authapis="update('authapis')" change-acl-url='/rest/mp/call/menu/setAcl?k={{editing.menu_key}}' remove-acl-url='/rest/mp/call/menu/removeAcl' label-span='2' control-span='10'></accesscontrol>
         </div>
     </div>
-    <div mattersgallery style='display:none' single-matter='true' has-parent='<?php echo empty($_SESSION['mpaccount']->parent_mpid) ? 'false':'true'?>' matter-url='/rest/mp/matter' matter-types='matterTypes'></div>
+    <div mattersgallery style='display:none' single-matter='true' has-parent='<?php echo empty($_SESSION['mpaccount']->parent_mpid) ? 'false':'true'?>' matter-types='matterTypes'></div>
 </div>

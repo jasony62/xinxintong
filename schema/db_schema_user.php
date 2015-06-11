@@ -9,9 +9,9 @@ $sql .= ',vid varchar(32) not null';
 $sql .= ',create_at int not null';
 $sql .= ',fid varchar(32)';
 $sql .= ",primary key(mpid,vid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!mysql_query($sql)) {
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . mysql_error();
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 粉丝 
@@ -19,7 +19,6 @@ if (!mysql_query($sql)) {
 $sql = "create table if not exists xxt_fans(";
 $sql .= 'fid varchar(32) not null';
 $sql .= ',mpid varchar(32) not null';
-$sql .= ',src char(2) not null';
 $sql .= ',openid varchar(255) not null';
 $sql .= ',groupid int default 0'; // 缺省属于未分组
 $sql .= ',subscribe_at int not null';
@@ -32,10 +31,10 @@ $sql .= ",city varchar(255) not null default ''";
 $sql .= ",province varchar(255) not null default ''";
 $sql .= ",country varchar(255) not null default ''";
 $sql .= ",forbidden char(1) not null default 'N'";
-$sql .= ",primary key(mpid,src,openid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!mysql_query($sql)) {
+$sql .= ",primary key(mpid,openid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . mysql_error();
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 粉丝分组
@@ -43,12 +42,11 @@ if (!mysql_query($sql)) {
 $sql = "create table if not exists xxt_fansgroup(";
 $sql .= 'id int not null';
 $sql .= ',mpid varchar(32) not null';
-$sql .= ',src char(2) not null';
 $sql .= ',name varchar(30) not null';
-$sql .= ",primary key(id,mpid,src)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!mysql_query($sql)) {
+$sql .= ",primary key(id,mpid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . mysql_error();
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 用户认证服务接口 
@@ -80,10 +78,11 @@ $sql .= ',notpass_statement text';
 $sql .= ',auth_html text';
 $sql .= ',auth_css text';
 $sql .= ',auth_js text';
+$sql .= ',auth_code_id int not null default 0';
 $sql .= ",primary key(authid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!mysql_query($sql)) {
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . mysql_error();
+    echo 'database error: ' . $mysqli->error;
 }
 /*
  * 通过认证的用户
@@ -97,7 +96,6 @@ $sql .= 'mid varchar(32) not null';
 $sql .= ',fid varchar(32) not null';
 $sql .= ',mpid varchar(32) not null'; // 用户在哪个公众号进行的认证
 $sql .= ',ooid varchar(255)'; // 通过OAuth获得的openid
-$sql .= ',osrc char(2) not null';
 $sql .= ",authapi_id int not null"; // id from xxt_member_authapi
 $sql .= ",authed_identity varchar(255)"; // 用户唯一性的标识 
 $sql .= ',create_at int not null';
@@ -118,9 +116,9 @@ $sql .= ",tags text";
 $sql .= ",forbidden char(1) not null default 'N'";
 $sql .= ",extattr text"; //扩展属性
 $sql .= ',primary key(mid)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
-if (!mysql_query($sql)) {
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . mysql_error();
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * departments
@@ -136,9 +134,9 @@ $sql .= ",name varchar(20) not null default ''";
 $sql .= ",fullpath text";
 $sql .= ",extattr text"; //扩展属性
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!mysql_query($sql)) {
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.mysql_error();
+    echo 'database error: '.$mysqli->error;
 }
 /**
  * tags
@@ -152,9 +150,9 @@ $sql .= ",name varchar(64) not null default ''";
 $sql .= ",type tinyint not null default 0"; // 0:自定义,1:岗位
 $sql .= ",extattr text"; //扩展属性
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!mysql_query($sql)) {
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.mysql_error();
+    echo 'database error: '.$mysqli->error;
 }
 /*
  * member's card
@@ -173,9 +171,9 @@ $sql .= ",show_css text";
 $sql .= ",show_ele text";
 $sql .= ",show_js text";
 $sql .= ',primary key(mpid)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
-if (!mysql_query($sql)) {
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . mysql_error();
+    echo 'database error: ' . $mysqli->error;
 }
 /**
  * 用于保存验证邮箱的验证码
@@ -186,9 +184,9 @@ $sql .= ',create_at int not null';
 $sql .= ',expired int not null default 600'; // 600s
 $sql .= ',data text';
 $sql .= ",primary key(token)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!mysql_query($sql)) {
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . mysql_error();
+    echo 'database error: ' . $mysqli->error;
 }
 //
 echo 'finish user.'.PHP_EOL;

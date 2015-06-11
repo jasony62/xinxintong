@@ -52,7 +52,7 @@ class fans_model extends TMS_MODEL {
      *
      * todo 企业号的用户如何判断？
      */
-    public function isFollow($mpid, $openid, $src='')
+    public function isFollow($mpid, $openid)
     {
         if (empty($openid))
             return false;
@@ -70,19 +70,19 @@ class fans_model extends TMS_MODEL {
     /**
      * 计算关注用户的内部id
      */
-    public function calcId($mpid, $src, $openid)
+    public function calcId($mpid, $openid)
     {
-        return md5($mpid.$src.$openid);
+        return md5($mpid.$openid);
     }
     /**
      *
      */
-    public function getAll($mpid, $src) 
+    public function getAll($mpid) 
     {
         $q = array(
             '*',
             'xxt_fans',
-            "mpid='$mpid' and src='$src'"
+            "mpid='$mpid'"
         );
         $fans = $this->query_objs_ss($q);
 
@@ -91,14 +91,15 @@ class fans_model extends TMS_MODEL {
     /**
      *
      */
-    public function getGroups($mpid, $src=null)
+    public function getGroups($mpid)
     {
         $q = array(
-            'id,name,src',
+            'id,name',
             'xxt_fansgroup',
-            "mpid='$mpid'".(empty($src) ? '':"and src='$src'")
+            "mpid='$mpid'"
         );
         $q2 = array('o'=>'id');
+
         $groups = $this->query_objs_ss($q, $q2);
 
         return $groups;

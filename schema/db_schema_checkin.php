@@ -9,9 +9,9 @@ $sql .= ',extra_css text';
 $sql .= ',extra_ele text';
 $sql .= ',extra_js text';
 $sql .= ',primary key(mpid)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
-if (!mysql_query($sql)) {
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . mysql_error();
+    echo 'database error: ' . $mysqli->error;
 }
 /*
  * member's checkin
@@ -30,8 +30,8 @@ $sql .= ',checkin_at int not null';
 $sql .= ",times_accumulated int not null default 1";
 $sql .= ",last int not null default 1";
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
-if (!mysql_query($sql)) {
+if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . mysql_error();
+    echo 'database error: ' . $mysqli->error;
 }
 echo 'finish checkin.'.PHP_EOL;

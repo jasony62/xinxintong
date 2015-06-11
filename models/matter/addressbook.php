@@ -1,22 +1,42 @@
 <?php
+namespace matter;
+
+require_once dirname(__FILE__).'/app_base.php';
 /**
  *
  */
-class addressbook_model extends TMS_MODEL {
+class addressbook_model extends app_base {
     /**
      *
      */
-    public function byId($abid)
+    protected function table()
     {
-        $q = array(
-            '*',
-            'xxt_address_book',
-            "id=$abid"
-        );
+        return 'xxt_addressbook';
+    }
+    /**
+     *
+     */
+    protected function getMatterType() 
+    {
+        return 'addressbook';
+    }
+    /**
+    *
+    */
+    public function getTypeName()
+    {
+        return 'addressbook';
+    }
+    /**
+    *
+    */
+    public function getEntryUrl($runningMpid, $id)
+    {
+        $url = "http://".$_SERVER['HTTP_HOST'];
+        $url .= "/rest/addressbook";
+        $url .= "?mpid=$runningMpid&cid=".$id;
 
-        $ab = $this->query_obj_ss($q);
-
-        return $ab;
+        return $url;
     }
     /**
      *
@@ -25,7 +45,7 @@ class addressbook_model extends TMS_MODEL {
     {
         $q = array(
             '*',
-            'xxt_address_book',
+            'xxt_addressbook',
             "mpid='$mpid'"
         );
         $q2 = array(
@@ -49,7 +69,7 @@ class addressbook_model extends TMS_MODEL {
         $ab['create_at'] = $current;
         $ab['modify_at'] = $current;
 
-        return $this->insert('xxt_address_book', $ab, true);
+        return $this->insert('xxt_addressbook', $ab, true);
     }
     /**
      *
@@ -88,7 +108,7 @@ class addressbook_model extends TMS_MODEL {
         if ($this->query_val_ss($q))
             return array(false, '通讯录中的岗位不为空不允许删除');
         
-        $this->delete('xxt_address_book', "mpid='$mpid' and id=$abid");
+        $this->delete('xxt_addressbook', "mpid='$mpid' and id=$abid");
         
         return array(true);
     }
@@ -286,7 +306,7 @@ class addressbook_model extends TMS_MODEL {
      */
     public function getPersonByAb($mpid, $abid, $abbr = null, $dept_id = null, $offset = 0, $limit = null) 
     {
-        $mpa = TMS_APP::model('mp\mpaccount')->byId($mpid, 'parent_mpid');
+        $mpa = \TMS_APP::model('mp\mpaccount')->byId($mpid, 'parent_mpid');
         //
         $cols = 'SQL_CALC_FOUND_ROWS id,name,email,tels';
         $from = 'xxt_ab_person';
@@ -316,7 +336,7 @@ class addressbook_model extends TMS_MODEL {
             $where .= ")";
         }
         //
-        $result = new stdClass;
+        $result = new \stdClass;
         $result->objects = $this->query_objs($cols, 'xxt_ab_person', $where, null, null, $offset, $limit);
         $result->amount = $this->found_rows();
 

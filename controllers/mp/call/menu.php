@@ -1,7 +1,9 @@
 <?php
+namespace mp\call;
+
 require_once dirname(__FILE__).'/base.php';
 
-class MenuInvalidException extends Exception { }
+class MenuInvalidException extends \Exception { }
 
 class menu extends call_base {
     
@@ -24,12 +26,19 @@ class menu extends call_base {
      */
     public function index_action($k=null) 
     {
+        $this->view_action('/mp/reply/menu');
+    }
+    /**
+     * 返回菜单的完整定义，或者一个菜单项的定义
+     */
+    public function get_action($k=null) 
+    {
         if (empty($k)) {
             $menu = $this->model('mp\menu')->getMenu($this->mpid);
-            return new ResponseData($menu); 
+            return new \ResponseData($menu); 
         } else {
             $button = $this->model('mp\menu')->getButtonById($this->mpid, $k, 'N', '*', array('matter','acl'));
-            return new ResponseData($button); 
+            return new \ResponseData($button); 
         }
 
     }
@@ -40,7 +49,7 @@ class menu extends call_base {
     {
         $version = $this->model('mp\menu')->getVersion($mpid);
         if ($version === false) {
-            $version = new stdClass;
+            $version = new \stdClass;
             $version->v  = 0;
             $version->p = 'N';
         } else if ($version->p === 'Y') {
@@ -78,7 +87,7 @@ class menu extends call_base {
              */
             $q = array(
                 'max(l1_pos)', 
-                'xxt_menu_reply',
+                'xxt_call_menu',
                 "mpid='$this->mpid' and l2_pos=0 and published='N'"
             );
             $l1_pos = $this->model()->query_val_ss($q);
@@ -91,7 +100,7 @@ class menu extends call_base {
 
         $button = $this->model('mp\menu')->createButton((array)$button);
 
-        return new ResponseData($button);
+        return new \ResponseData($button);
     }
     /**
      * 创建二级菜单按钮
@@ -116,7 +125,7 @@ class menu extends call_base {
              */
             $q = array(
                 'max(l2_pos)', 
-                'xxt_menu_reply',
+                'xxt_call_menu',
                 "mpid='$this->mpid' and l1_pos=$button->l1_pos and published='N'"
             );
             $max_l2_pos = (int)$this->model()->query_val_ss($q);
@@ -127,7 +136,7 @@ class menu extends call_base {
                  * 更新现有的数据
                  */
                 $this->model()->update(
-                    "update xxt_menu_reply set l2_pos=l2_pos+1 where mpid='$this->mpid' and published='N' and l2_pos>=$button->l2_pos");
+                    "update xxt_call_menu set l2_pos=l2_pos+1 where mpid='$this->mpid' and published='N' and l2_pos>=$button->l2_pos");
             }
         } else {
             /**
@@ -135,7 +144,7 @@ class menu extends call_base {
              */
             $q = array(
                 'max(l2_pos)', 
-                'xxt_menu_reply',
+                'xxt_call_menu',
                 "mpid='$this->mpid' and l1_pos=$button->l1_pos and published='N'"
             );
             $l2_pos = (int)$this->model()->query_val_ss($q);
@@ -144,7 +153,7 @@ class menu extends call_base {
 
         $button = $this->model('mp\menu')->createButton((array)$button);
 
-        return new ResponseData($button);
+        return new \ResponseData($button);
     }
     /**
      *
@@ -159,13 +168,13 @@ class menu extends call_base {
              * 删除一级菜单及子菜单
              */
             $this->model()->delete(
-                'xxt_menu_reply',
+                'xxt_call_menu',
                 "mpid='$this->mpid' and published='N' and l1_pos=$button->l1_pos"
             );
             /**
              * 更新菜单项位置
              */
-            $sql = 'update xxt_menu_reply'; 
+            $sql = 'update xxt_call_menu'; 
             $sql .= ' set l1_pos=l1_pos-1';
             $sql .= " where mpid='$this->mpid' and published='N'";
             $sql .= " and l1_pos>$button->l1_pos";
@@ -175,20 +184,20 @@ class menu extends call_base {
              * 删除二级菜单
              */
             $this->model()->delete(
-                'xxt_menu_reply',
+                'xxt_call_menu',
                 "mpid='$this->mpid' and published='N' and menu_key='$k'"
             );
             /**
              * 更新菜单项位置
              */
-            $sql = 'update xxt_menu_reply'; 
+            $sql = 'update xxt_call_menu'; 
             $sql .= ' set l2_pos=l2_pos-1';
             $sql .= " where mpid='$this->mpid' and published='N' and l1_pos=$button->l1_pos";
             $sql .= " and l2_pos>$button->l2_pos";
             $this->model()->update($sql);
         }
 
-        return new ResponseData('success');
+        return new \ResponseData('success');
     }
     /**
      * 更新基本属性
@@ -208,7 +217,7 @@ class menu extends call_base {
 
         $version = $this->model('mp\menu')->getVersion($this->mpid);
         if ($version === false) {
-            $version = new stdClass;
+            $version = new \stdClass;
             $version->v = 0;
             $version->p = 'N';
         } else if ($version->p === 'Y') {
@@ -248,7 +257,7 @@ class menu extends call_base {
          * 在最新版本上更新
          */
         $rst = $this->model()->update(
-            'xxt_menu_reply',
+            'xxt_call_menu',
             (array)$nv,
             "mpid='$this->mpid' and menu_key='$k' and version=$version->v"
         );
@@ -261,9 +270,9 @@ class menu extends call_base {
         }
         if ($updateOther) {
             $button = $this->model('mp\menu')->getButtonById($this->mpid, $k);
-            return new ResponseData($button);
+            return new \ResponseData($button);
         } else
-            return new ResponseData($rst);
+            return new \ResponseData($rst);
     }
     /**
      * 设置菜单按钮的位置
@@ -278,7 +287,7 @@ class menu extends call_base {
 
         $q = array(
             'l1_pos,l2_pos',
-            'xxt_menu_reply',
+            'xxt_call_menu',
             "mpid='$this->mpid' and menu_key='$k' and published='N'"
         );
         $oldpos = $this->model()->query_obj_ss($q);
@@ -287,25 +296,25 @@ class menu extends call_base {
              * 一级菜单
              */
             $this->model()->update(
-                'xxt_menu_reply', 
+                'xxt_call_menu', 
                 array('l1_pos'=>-1),
                 "mpid='$this->mpid' and published='N' and l1_pos=$oldpos->l1_pos"
             );
             if ($newpos->l1_pos > $oldpos->l1_pos) {
-                $sql = 'update xxt_menu_reply'; 
+                $sql = 'update xxt_call_menu'; 
                 $sql .= ' set l1_pos=l1_pos-1';
                 $sql .= " where mpid='$this->mpid' and published='N'";
                 $sql .= " and l1_pos>$oldpos->l1_pos and l1_pos<=$newpos->l1_pos";
                 $this->model()->update($sql);
             } else {
-                $sql = 'update xxt_menu_reply'; 
+                $sql = 'update xxt_call_menu'; 
                 $sql .= ' set l1_pos=l1_pos+1';
                 $sql .= " where mpid='$this->mpid' and published='N'";
                 $sql .= " and l1_pos>=$newpos->l1_pos and l1_pos<$oldpos->l1_pos";
                 $this->model()->update($sql);
             }
             $this->model()->update(
-                'xxt_menu_reply', 
+                'xxt_call_menu', 
                 array('l1_pos'=>$newpos->l1_pos),
                 "mpid='$this->mpid' and published='N' and l1_pos=-1"
             );
@@ -314,20 +323,20 @@ class menu extends call_base {
              * 在同一个一级菜单内调整二级菜单的顺序
              */
             if ($newpos->l2_pos > $oldpos->l2_pos) {
-                $sql = 'update xxt_menu_reply'; 
+                $sql = 'update xxt_call_menu'; 
                 $sql .= ' set l2_pos=l2_pos-1';
                 $sql .= " where mpid='$this->mpid' and published='N' and l1_pos=$oldpos->l1_pos";
                 $sql .= " and l2_pos>$oldpos->l2_pos and l2_pos<=$newpos->l2_pos";
                 $this->model()->update($sql);
             } else {
-                $sql = 'update xxt_menu_reply'; 
+                $sql = 'update xxt_call_menu'; 
                 $sql .= ' set l2_pos=l2_pos+1';
                 $sql .= " where mpid='$this->mpid' and published='N' and l1_pos=$oldpos->l1_pos";
                 $sql .= " and l2_pos>=$newpos->l2_pos and l2_pos<$oldpos->l2_pos";
                 $this->model()->update($sql);
             }
             $this->model()->update(
-                'xxt_menu_reply', 
+                'xxt_call_menu', 
                 array('l2_pos'=>$newpos->l2_pos),
                 "mpid='$this->mpid' and published='N' and menu_key='$k'"
             );
@@ -335,25 +344,25 @@ class menu extends call_base {
             /**
              * 在不同一级菜单间调整二级菜单的顺序
              */
-            $sql = 'update xxt_menu_reply'; 
+            $sql = 'update xxt_call_menu'; 
             $sql .= ' set l2_pos=l2_pos-1';
             $sql .= " where mpid='$this->mpid' and published='N' and l1_pos=$oldpos->l1_pos";
             $sql .= " and l2_pos>$oldpos->l2_pos";
             $this->model()->update($sql);
 
-            $sql = 'update xxt_menu_reply'; 
+            $sql = 'update xxt_call_menu'; 
             $sql .= ' set l2_pos=l2_pos+1';
             $sql .= " where mpid='$this->mpid' and published='N' and l1_pos=$newpos->l1_pos";
             $sql .= " and l2_pos>=$newpos->l2_pos";
             $this->model()->update($sql);
 
             $this->model()->update(
-                'xxt_menu_reply', 
+                'xxt_call_menu', 
                 array('l1_pos'=>$newpos->l1_pos,'l2_pos'=>$newpos->l2_pos),
                 "mpid='$this->mpid' and published='N' and menu_key='$k'"
             );
         }
-        return new ResponseData(true);
+        return new \ResponseData(true);
     }
     /**
      * 指定菜单项的回复素材
@@ -370,7 +379,7 @@ class menu extends call_base {
          */
         $version = $this->model('mp\menu')->getVersion($this->mpid);
         if ($version === false) {
-            $version = new stdClass;
+            $version = new \stdClass;
             $version->v = 0;
             $version->p = 'N';
         } else if ($version->p === 'Y') {
@@ -388,12 +397,11 @@ class menu extends call_base {
          * 如果设置了回复的素材，需要将URL清空，并缺省设置为不作为view
          */
         $matter = $this->getPostJson();
-        $matter->matter_type = ucfirst($matter->matter_type);
         if (!empty($button->url)) {
             $matter->url = '';
             $updateOther = true;
         }
-        if ($button->asview === 'Y') {
+        if (!empty($button->asview) && $button->asview === 'Y') {
             $matter->asview = 'N';
             $updateOther = true;
         }
@@ -401,16 +409,16 @@ class menu extends call_base {
          * update mapping.
          */
         $rst = $this->model()->update(
-            'xxt_menu_reply', 
+            'xxt_call_menu', 
             (array)$matter,
             "mpid='$this->mpid' and version=$version->v and menu_key='$k'"
         );
 
         if ($updateOther) {
             $button = $this->model('mp\menu')->getButtonById($this->mpid, $k);
-            return new ResponseData($button);
+            return new \ResponseData($button);
         } else {
-            return new ResponseData(true);
+            return new \ResponseData(true);
         }
     }
     /**
@@ -428,18 +436,18 @@ class menu extends call_base {
          */
         $q = array(
             'count(*)',
-            'xxt_menu_reply',
+            'xxt_call_menu',
             "mpid='$this->mpid' and published='N'"
         );
         if (0 === (int)$this->model()->query_val_ss($q))
-            return new ComplianceError();
+            return new \ComplianceError();
         /**
          * 获得菜单的消息格式
          */
         try {
             $literal_menu = $this->convertMenu();
         } catch (MenuInvalidException $e){
-            return new ResponseError($e->getMessage());
+            return new \ResponseError($e->getMessage());
         }
         /**
          * 向公众号平台发布消息
@@ -453,26 +461,26 @@ class menu extends call_base {
              * 父账号的菜单不能被发布到公众平台
              */
             if ($mpa->{$mpsrc.'_joined'} === 'N')
-                return new ResponseError('公众账号未连接成功，请检查。');
+                return new \ResponseError('公众账号未连接成功，请检查。');
 
             if (isset($mpa->{$mpsrc.'_menu'}) && $mpa->{$mpsrc.'_menu'} === 'N')
-                return new ResponseError("未开通发布菜单高级接口");
+                return new \ResponseError("未开通发布菜单高级接口");
 
             $proxy = $this->model("mpproxy/$mpsrc", $this->mpid);
             $rst = $proxy->menuCreate($literal_menu);
             if ($rst[0] === false)
-                return new ResponseError("菜单发布失败：".$rst[1]);
+                return new \ResponseError("菜单发布失败：".$rst[1]);
         }
         /**
          * 将菜单设置为发布状态
          */
         $rst = $this->model()->update(
-            'xxt_menu_reply',
+            'xxt_call_menu',
             array('published'=>'Y'),
             "mpid='$this->mpid' and published='N'"
         );
 
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      * 将编辑状态的菜单定义转化为消息格式
@@ -494,14 +502,19 @@ class menu extends call_base {
                 /**
                  * 二级菜单
                  */
-                $buttons[count($buttons)-1]['sub_button'][] = $this->convertButton($button);
+                $pButtons = &$buttons[count($buttons)-1];
+                if (!isset($pButtons['sub_button'])) {
+                    unset($pButtons['type']);
+                    unset($pButtons['key']);
+                }
+                $pButtons['sub_button'][] = $this->convertButton($button);
             }
         }
 
-        $msg = new stdClass;
+        $msg = new \stdClass;
         $msg->button = &$buttons;
         $literal = urldecode(json_encode($msg));
-
+        
         return $literal;
     }
     /**
@@ -537,12 +550,7 @@ class menu extends call_base {
                 /**
                  * matter as link.
                  */
-                $matter = new stdClass;
-                $matter->type = $button->matter_type;
-                $matter->id = $button->matter_id;
-                $matter->mpid = $this->mpid;
-                $runningMpid = $this->mpid;
-                $url = $this->model('reply')->getMatterUrl($runningMpid, $matter);
+                $url = $this->model('matter\\'.$button->matter_type)->getEntryUrl($this->mpid, $button->matter_id);
                 $formatted['url'] = $url; 
             } else {
                 throw new MenuInvalidException("菜单【{$button->menu_name}】的链接不允许为空。");
@@ -550,50 +558,5 @@ class menu extends call_base {
         }
 
         return $formatted;
-    }
-    /**
-     *
-     * $mpid
-     * $target
-     * $menu
-     */
-    private function publish($menu, $target) 
-    {
-        /**
-         * get access token.
-         */
-        $token = $this->access_token($this->mpid, $target);
-        if ($token[0] === false)
-            return $token[1];
-        /**
-         * upload menu.
-         */
-        if ($target === 'yx') {
-            $url_create = 'https://api.yixin.im/cgi-bin/menu/create?access_token=';
-        } else if ($target === 'wx') {
-            $url_create = 'https://api.weixin.qq.com/cgi-bin/menu/create?access_token=';
-        } else if ($target === 'qy') {
-            $app = $this->model('mp\mpaccount')->byId($this->mpid, 'qy_agentid');
-            $url_create = "https://qyapi.weixin.qq.com/cgi-bin/menu/create?agentid=$app->qy_agentid&access_token=";
-        } else {
-            return 'unknown source.';
-        }
-        $url_create .= $token[1];
-
-        $ch = curl_init($url_create);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $menu);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
-        $response = curl_exec($ch);
-        curl_close($ch);
-        $ret = json_decode($response);
-        if ($ret->errcode != 0) {
-            return $ret->errmsg;
-        }
-        return true;
     }
 }

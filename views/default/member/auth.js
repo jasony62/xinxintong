@@ -82,11 +82,19 @@ controller('authCtrl',['$scope','$http', function($scope,$http){
     });
     $scope.doAuth = function() {
         if (!validate()) return;
+        if (document.querySelectorAll('.ng-invalid-required').length) {
+            $scope.errmsg = '请填写必填项';
+            return;
+        }
         var url = '/rest/member/auth/doAuth?mpid='+$scope.mpid+'&authid='+$scope.authid;
         sendAuthRequest(url);
     };
     $scope.doReauth = function() {
         if (!validate()) return;
+        if (document.querySelectorAll('.ng-invalid-required').length) {
+            $scope.errmsg = '请填写必填项';
+            return;
+        }
         var url = '/rest/member/auth/doReauth?mpid='+$scope.mpid+'&authid='+$scope.authid;
         sendAuthRequest(url);
     };

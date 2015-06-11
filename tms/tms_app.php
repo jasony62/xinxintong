@@ -10,6 +10,10 @@ require_once dirname(__FILE__) . '/client.php';
 class TMS_APP {
     //
     private static $models = array();
+    /**
+     * 缓存全局变量
+     */
+    private static $globals = array();
     //
     private static $app_dir = TMS_APP_DIR;
     private static $default_controller = 'main';
@@ -24,7 +28,7 @@ class TMS_APP {
      * 1 - a/b/c，含义为：文件为a/b/c，类为c
      * 2 - a/b/c.d，含义为：文件为a/b/c，类为c_d
      */
-    public static function model($model_path = null) 
+    public static function &model($model_path = null) 
     {
 		if (!$model_path) { // 缺省的model实例
 			$model_class = 'TMS_MODEL';
@@ -223,6 +227,7 @@ class TMS_APP {
         if (empty($path) || is_dir(self::$app_dir . $cd . $path)) {
             // the path is moudle.
             // assign default controller and action.
+            $path = rtrim($path, '/');
             $__controller = trim($path . '/' . self::$default_controller, '/');
             $__action = self::$default_action;
         } else {
@@ -306,14 +311,17 @@ class TMS_APP {
             $controller_path = self::$app_dir . '/controllers/' . $controller;
         } else {
             $controller_path = $controller;
+            $controller = str_replace(self::$app_dir . '/controllers', '', $controller);
         }
         if (is_dir($controller_path)) {
             // if ignore classname, then append it.
             $controller_path .= '/main';
+            $controller .= '/main';
         }
         $class_file = $controller_path . '.php';
         if (is_file($class_file)) {
-            $class_name = basename($controller_path);
+            //$class_name = basename($controller_path);
+            $class_name = str_replace('/', '\\', $controller);
             if (! class_exists($class_name, false)) {
                 require_once ($class_file);
             }
@@ -405,8 +413,57 @@ class TMS_APP {
      *
      * $path
      */
-    public static function M($path)
+    public static function &M($model_path)
     {
-        return TMS_APP::model($path);
+        if (!$model_path) { // 缺省的model实例
+			$model_class = 'TMS_MODEL';
+        } else {
+            if (strpos($model_path, "\\")) {
+                $model_class = $model_path;
+                $model_file = preg_replace("/\\\\/",'/',$model_path);
+            } else if (strpos($model_path, '/')) {
+                $model_class = preg_replace('/^.*\//','',$model_path);
+                $model_file = $model_path;
+            } else if (strpos($model_path, '.')) {
+                $model_class = str_replace('.', '_', $model_path);
+                $model_file = strstr($model_path, '.', true);
+            } else {
+                $model_class = $model_path;
+                $model_file = $model_path;
+            }
+            if (strpos($model_file, self::$model_prefix))
+                $model_file = strstr($model_path, self::$model_prefix, true);
+            if (false === strpos($model_class, self::$model_prefix))
+                $model_class .= self::$model_prefix;
+        }
+		if (! isset(self::$models[$model_class])) {
+            // no constructed class
+            if (!class_exists($model_class)) {
+                require_once dirname(dirname(__FILE__)) . '/models/'. $model_file . '.php';
+            }
+            $args = func_get_args();
+            if (count($args) <= 1) {
+                $model_obj = new $model_class();
+            } else {
+                $r = new ReflectionClass($model_class);
+                $model_obj = $r->newInstanceArgs(array_slice($args, 1));
+            }
+			self::$models[$model_class] = $model_obj;
+		}
+		
+		return self::$models[$model_class];
+    }
+    /**
+     * 保存/获取全局变量
+     */
+    public static function &G($path, &$val=false)
+    {
+        if ($val)
+            self::$globals[$path] = $val;
+
+        if (isset(self::$globals[$path]))
+            return self::$globals[$path];
+
+        return $val;
     }
 }

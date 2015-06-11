@@ -1,4 +1,7 @@
 <?php
+/**
+ *
+ */
 class acl_model extends TMS_MODEL {
     /**
      * 获得文本事件的ACL
@@ -19,33 +22,15 @@ class acl_model extends TMS_MODEL {
         return $this->call_acls($mpid, 'Menu', $key);
     }
     /**
-     * 获得获得的ACL
-     *
-     * 需要根据指定的授权对象的不同获取不同的数据
-     */
-    public function act($mpid, $actid, $actType) 
-    {
-        $q = array(
-            'a.id,a.identity,a.idsrc,a.label',
-            'xxt_act_acl a',
-            "a.mpid='$mpid' and a.act_id='$actid' and act_type='$actType'"
-        );
-        $acls = $this->query_objs_ss($q);
-
-        return $acls;
-    }
-    /**
      * 通用活动登记通知消息的接收人 
      */
-    public function activityEnrollReceiver($mpid, $aid) 
+    public function enrollReceiver($mpid, $aid) 
     {
-        return $this->activityEnrollReceiver_acls($mpid, $aid);
+        return $this->enrollReceiver_acls($mpid, $aid);
     }
     /**
      * 获得讨论组的所有用户
      * 将ACL翻译为具体的用户
-     *
-     * todo 需要指定src？需要指定authid？
      */
     public function wallUsers($mpid, $wid)
     {
@@ -55,8 +40,8 @@ class acl_model extends TMS_MODEL {
          */
         $q = array(
             'a.identity',
-            'xxt_act_acl a',
-            "a.mpid='$mpid' and a.act_type= 'W' and a.act_id='$wid' and idsrc=''"
+            'xxt_matter_acl a',
+            "a.mpid='$mpid' and a.matter_type= 'wall' and a.matter_id='$wid' and idsrc=''"
         );
         if ($acls = $this->query_objs_ss($q)) {
             foreach ($acls as $acl)
@@ -67,18 +52,18 @@ class acl_model extends TMS_MODEL {
          */
         /*$q = array(
             'a.id,a.identity,a.idsrc,d.name dept',
-            'xxt_act_acl a,xxt_member_department d',
-            "a.mpid='$mpid' and a.act_type='W' and a.act_id='$wid' and idsrc='D' and a.mpid=d.mpid and a.identity=d.id"
+            'xxt_matter_acl a,xxt_member_department d',
+            "a.mpid='$mpid' and a.matter_type='wall' and a.matter_id='$wid' and idsrc='D' and a.mpid=d.mpid and a.identity=d.id"
         );
         if ($acls = $this->query_objs_ss($q))
-            $all = array_merge($all, $acls);*/
+        $all = array_merge($all, $acls);*/
         /**
          * 标签
          */
         $q = array(
             'a.identity',
-            'xxt_act_acl a',
-            "a.mpid='$mpid' and a.act_type='W' and a.act_id='$wid' and idsrc='T'"
+            'xxt_matter_acl a',
+            "a.mpid='$mpid' and a.matter_type='wall' and a.matter_id='$wid' and idsrc='T'"
         );
         if ($acls = $this->query_objs_ss($q)) {
             foreach ($acls as $acl) {
@@ -103,8 +88,8 @@ class acl_model extends TMS_MODEL {
          */
         /*$q = array(
             'a.id,a.identity,a.idsrc',
-            'xxt_act_acl a',
-            "a.mpid='$mpid' and a.act_type='W' and a.act_id='$wid' and idsrc='DT'"
+            'xxt_matter_acl a',
+            "a.mpid='$mpid' and a.matter_type='wall' and a.matter_id='$wid' and idsrc='DT'"
         );
         if ($acls = $this->query_objs_ss($q)) {
             foreach ($acls as &$acl) {
@@ -131,7 +116,7 @@ class acl_model extends TMS_MODEL {
      *
      * todo 需要指定src？需要指定authid？
      */
-    public function activityEnrollReceivers($mpid, $aid)
+    public function enrollReceivers($mpid, $aid)
     {
         $users = array();
         /**
@@ -139,7 +124,7 @@ class acl_model extends TMS_MODEL {
          */
         /*$q = array(
             'a.identity',
-            'xxt_activity_receiver a',
+            'xxt_enroll_receiver a',
             "a.mpid='$mpid' and a.aid='$aid' and idsrc=''"
         );
         if ($acls = $this->query_objs_ss($q)) {
@@ -151,17 +136,17 @@ class acl_model extends TMS_MODEL {
          */
         /*$q = array(
             'a.id,a.identity,a.idsrc,d.name dept',
-            'xxt_activity_receiver a,xxt_member_department d',
+            'xxt_enroll_receiver a,xxt_member_department d',
             "a.mpid='$mpid' and a.aid='$aid' and idsrc='D' and a.mpid=d.mpid and a.identity=d.id"
         );
         if ($acls = $this->query_objs_ss($q))
-            $all = array_merge($all, $acls);*/
+        $all = array_merge($all, $acls);*/
         /**
          * 标签
          */
         $q = array(
             'a.identity',
-            'xxt_activity_receiver a',
+            'xxt_enroll_receiver a',
             "a.mpid='$mpid' and a.aid='$aid' and idsrc='T'"
         );
         if ($acls = $this->query_objs_ss($q)) {
@@ -187,7 +172,7 @@ class acl_model extends TMS_MODEL {
          */
         /*$q = array(
             'a.id,a.identity,a.idsrc',
-            'xxt_activity_receiver a',
+            'xxt_enroll_receiver a',
             "a.mpid='$mpid' and a.aid='$aid' and idsrc='DT'"
         );
         if ($acls = $this->query_objs_ss($q)) {
@@ -213,7 +198,7 @@ class acl_model extends TMS_MODEL {
          */
         $q = array(
             'a.identity',
-            'xxt_activity_receiver a',
+            'xxt_enroll_receiver a',
             "a.mpid='$mpid' and a.aid='$aid' and idsrc='M'"
         );
         if ($acls = $this->query_objs_ss($q)) {
@@ -253,7 +238,7 @@ class acl_model extends TMS_MODEL {
      *
      * 需要根据指定的授权对象的不同获取不同的数据
      */
-    public function matter($mpid, $type, $id) 
+    public function byMatter($mpid, $type, $id) 
     {
         $q = array(
             'a.id,a.identity,a.idsrc,a.label',
@@ -261,12 +246,13 @@ class acl_model extends TMS_MODEL {
             "a.mpid='$mpid' and a.matter_type='$type' and a.matter_id='$id'"
         );
         $acls = $this->query_objs_ss($q);
+
         return $acls;
     }
     /**
      * 获得活动登记通知接收人的ACL
      */
-    private function activityEnrollReceiver_acls($mpid, $aid) 
+    private function enrollReceiver_acls($mpid, $aid) 
     {
         $all = array();
         /**
@@ -274,7 +260,7 @@ class acl_model extends TMS_MODEL {
          */
         $q = array(
             'a.id,a.identity,a.idsrc',
-            'xxt_activity_receiver a',
+            'xxt_enroll_receiver a',
             "a.mpid='$mpid' and a.aid='$aid' and idsrc=''"
         );
         if ($acls = $this->query_objs_ss($q))
@@ -284,7 +270,7 @@ class acl_model extends TMS_MODEL {
          */
         $q = array(
             'a.id,a.identity,a.idsrc,d.name dept',
-            'xxt_activity_receiver a,xxt_member_department d',
+            'xxt_enroll_receiver a,xxt_member_department d',
             "a.mpid='$mpid' and a.aid='$aid' and idsrc='D' and a.mpid=d.mpid and a.identity=d.id"
         );
         if ($acls = $this->query_objs_ss($q))
@@ -294,7 +280,7 @@ class acl_model extends TMS_MODEL {
          */
         $q = array(
             'a.id,a.identity,a.idsrc',
-            'xxt_activity_receiver a',
+            'xxt_enroll_receiver a',
             "a.mpid='$mpid' and a.aid='$aid' and idsrc='T'"
         );
         if ($acls = $this->query_objs_ss($q)) {
@@ -313,7 +299,7 @@ class acl_model extends TMS_MODEL {
          */
         $q = array(
             'a.id,a.identity,a.idsrc',
-            'xxt_activity_receiver a',
+            'xxt_enroll_receiver a',
             "a.mpid='$mpid' and a.aid='$aid' and idsrc='DT'"
         );
         if ($acls = $this->query_objs_ss($q)) {
@@ -339,7 +325,7 @@ class acl_model extends TMS_MODEL {
          */
         $q = array(
             'a.id,a.identity,a.idsrc',
-            'xxt_activity_receiver a',
+            'xxt_enroll_receiver a',
             "a.mpid='$mpid' and a.aid='$aid' and idsrc='M'"
         );
         if ($acls = $this->query_objs_ss($q)) {
@@ -373,7 +359,7 @@ class acl_model extends TMS_MODEL {
     {
         $whichAcl = "mpid='$mpid' and call_type='$call_type' and keyword='$keyword'";
 
-        return $this->canAccess($mpid, 'xxt_call_acl', $whichAcl, $member, $authapis);
+        return $this->canAccess($mpid, 'xxt_call_acl', $whichAcl, $member->authed_identity, $authapis);
     }
     /**
      * 素材访问控制检查 
@@ -382,40 +368,38 @@ class acl_model extends TMS_MODEL {
      */
     public function canAccessMatter($mpid, $matter_type, $matter_id, $member, $authapis)
     {
-        $whichAcl = "mpid='$mpid' and matter_type='$matter_type' and matter_id=$matter_id";
+        $whichAcl = "mpid='$mpid' and matter_type='$matter_type' and matter_id='$matter_id'";
 
-        return $this->canAccess($mpid, 'xxt_matter_acl', $whichAcl, $member, $authapis);
-    }
-    /**
-     * 讨论组访问控制检查
-     */
-    public function canAccessAct($mpid, $actid, $actType, $member, $authapis)
-    {
-        $whichAcl = "mpid='$mpid' and act_type='$actType' and act_id='$actid'";
-
-        return $this->canAccess($mpid, 'xxt_act_acl', $whichAcl, $member, $authapis);
+        return $this->canAccess($mpid, 'xxt_matter_acl', $whichAcl, $member->authed_identity, $authapis);
     }
     /**
      * 通用的白名单检查机制
+     * 
+     * $mpid
+     * $table 访问控制列表
+     * $whichAcl 需要检查的列表项
+     * $identity 用户身份标识
+     * $authapis
      */
-    private function canAccess($mpid, $table, $whichAcl, $member, $authapis)
+    public function canAccess($mpid, $table, $whichAcl, $identity, $authapis, $mustInclude=false)
     {
         /**
          * 是否设置了白名单
          */
-        $q = array(
-            'count(*)', 
-            $table, 
-            $whichAcl
-        );
-        if (0 === (int)$this->query_val_ss($q))
-            return true;
+        if (!$mustInclude) {
+            $q = array(
+                'count(*)', 
+                $table, 
+                $whichAcl
+            );
+            if (0 === (int)$this->query_val_ss($q))
+                return true;
+        }
         /**
          * 检查当前用户是否在白名单中
          * 如果有多个认证身份信息，有一个在白名单中就行
          * todo 用户身份必须和指定认证接口匹配才可以
          */ 
-        $identity = $member->authed_identity;
         $q = array(
             'count(*)',
             $table,
@@ -448,7 +432,7 @@ class acl_model extends TMS_MODEL {
         return false;
     }
     /**
-     *
+     * 
      */
     private function checkAclByAuthapi($mpid, $authapis, $acls, $identity)
     {

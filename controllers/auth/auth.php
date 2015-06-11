@@ -1,5 +1,7 @@
 <?php
-class auth extends TMS_CONTROLLER {
+namespace auth;
+
+class auth extends \TMS_CONTROLLER {
 
     public function get_access_rule() 
     {
@@ -33,7 +35,7 @@ class auth extends TMS_CONTROLLER {
         /**
          * 记录客户端登陆状态
          */
-        TMS_CLIENT::account($act);
+        \TMS_CLIENT::account($act);
         /**
          * 跳转到缺省页
          */

@@ -1,7 +1,31 @@
 <?php
+namespace mp\call;
+
 require_once dirname(dirname(__FILE__)).'/mp_controller.php';
 
-class call_base extends mp_controller {
+class call_base extends \mp\mp_controller {
+    /**
+     *
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        
+        $mpa = $this->model('mp\mpaccount')->byId($this->mpid);
+        
+        $prights = $this->model('mp\permission')->hasMpRight(
+            $this->mpid, 
+            array('reply_text', 'reply_menu', 'reply_qrcode', 'reply_other'), 
+            'read'
+        );
+        $entries = array();
+        (true === $prights || $prights['reply_text']['read_p'] === 'Y') && $entries['text'] = array('title'=>'文本消息');
+        (true === $prights || $prights['reply_menu']['read_p'] === 'Y') && $entries['menu'] = array('title'=>'菜单事件');
+        $mpa->asparent==='N' && (true === $prights || $prights['reply_qrcode']['read_p'] === 'Y') && $entries['qrcode'] = array('title'=>'扫二维码');
+        (true === $prights || $prights['reply_other']['read_p'] === 'Y') && $entries['other'] = array('title'=>'其他事件');
+        
+        \TPL::assign('reply_view_entries', $entries);
+    }
     /**
      * 设置访问白名单
      */
@@ -16,7 +40,7 @@ class call_base extends mp_controller {
              */
             $u['identity'] = $acl->identity;
             $rst = $this->model()->update('xxt_call_acl', $u, "id=$acl->id");
-            return new ResponseData($rst);
+            return new \ResponseData($rst);
         } else {
             $i['mpid'] = $this->mpid;
             $i['call_type'] = $this->getCallType();
@@ -26,7 +50,7 @@ class call_base extends mp_controller {
             $i['label'] = empty($acl->label) ? '' : $acl->label;
             $i['id'] = $this->model()->insert('xxt_call_acl', $i, true);
 
-            return new ResponseData($i);
+            return new \ResponseData($i);
         }
     }
     /**
@@ -39,6 +63,6 @@ class call_base extends mp_controller {
     {
         $ret = $this->model()->delete('xxt_call_acl', "mpid='$this->mpid' and id=$acl");
 
-        return new ResponseData($ret);
+        return new \ResponseData($ret);
     }
 }

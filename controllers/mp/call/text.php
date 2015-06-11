@@ -1,4 +1,6 @@
 <?php
+namespace mp\call;
+
 require_once dirname(__FILE__).'/base.php';
 
 class text extends call_base {
@@ -22,7 +24,14 @@ class text extends call_base {
     /**
      * get all text call.
      */
-    public function index_action($cascade='y') 
+    public function index_action() 
+    {
+        $this->view_action('/mp/reply/text');
+    }
+    /**
+     * get all text call.
+     */
+    public function get_action($cascade='y') 
     {
         $calls = array();
         /**
@@ -31,7 +40,7 @@ class text extends call_base {
         if ($pmpid = $this->getParentMpid()) {
             $q = array(
                 'id', 
-                'xxt_text_call_reply', 
+                'xxt_call_text', 
                 "mpid='$pmpid'"
             );
             $q2['o'] = 'id desc';
@@ -48,7 +57,7 @@ class text extends call_base {
          */
         $q = array(
             'id', 
-            'xxt_text_call_reply', 
+            'xxt_call_text', 
             "mpid='$this->mpid'"
         );
         $q2['o'] = 'id desc';
@@ -60,7 +69,7 @@ class text extends call_base {
                 $calls[] = $call;
             }
         }
-        return new ResponseData($calls); 
+        return new \ResponseData($calls); 
     }
     /**
      * 获得文本命令的子资源
@@ -72,7 +81,7 @@ class text extends call_base {
          */
         $q = array(
             'mpid,keyword,matter_type,matter_id',
-            'xxt_text_call_reply',
+            'xxt_call_text',
             "id=$id"
         );
         $call = $this->model()->query_obj_ss($q);
@@ -80,13 +89,13 @@ class text extends call_base {
          * 回复素材
          */
         if ($call->matter_id)
-            $call->matter = $this->get_matter($call->mpid, $call->matter_type, $call->matter_id);
+            $call->matter = $this->model('matter\base')->getMatterInfoById($call->matter_type, $call->matter_id);
         /**
          * acl
          */
         $call->acl = $this->model('acl')->textCall($call->mpid, $call->keyword);
-
-        return new ResponseData($call);
+        
+        return new \ResponseData($call);
     }
     /**
      * get one text call.
@@ -98,7 +107,7 @@ class text extends call_base {
     {
         $q = array(
             'id,mpid,keyword,match_mode,matter_type,matter_id,access_control,authapis',
-            'xxt_text_call_reply',
+            'xxt_call_text',
             "id=$id"
         );
         $call = $this->model()->query_obj_ss($q);
@@ -107,7 +116,7 @@ class text extends call_base {
          */
         if (!empty($contain) && in_array('matter', $contain))
             if ($call->matter_id)
-                $call->matter = $this->get_matter($call->mpid, $call->matter_type, $call->matter_id);
+                $call->matter = $this->model('matter\base')->getMatterInfoById($call->matter_type, $call->matter_id);
         /**
          * acl
          */
@@ -117,22 +126,13 @@ class text extends call_base {
         return $call;
     }
     /**
-     * todo 如果素材不存在了怎么办？
-     */
-    private function get_matter($mpid, $type, $id)
-    {
-        if ($m = $this->model('matter/base')->get_by_id($type, $id))
-            $m->type = $type;
-        return $m;
-    }
-    /**
      * 添加文本命令
      */
     public function create_action() 
     {
         $matter = $this->getPostJson();
 
-        $d['matter_type'] = ucfirst($matter->type);
+        $d['matter_type'] = $matter->type;
         $d['matter_id'] = $matter->id;
         $d['mpid'] = $this->mpid;
         $keyword = isset($_POST['keyword']) ? $_POST['keyword']:'新文本消息';
@@ -140,19 +140,19 @@ class text extends call_base {
         $d['keyword'] = $keyword;
         $d['match_mode'] = $matchMode;
 
-        $id = $this->model()->insert('xxt_text_call_reply', $d, true);
+        $id = $this->model()->insert('xxt_call_text', $d, true);
 
         $call = $this->get_by_id($id);
         $call->fromParent = 'N';
 
-        return new ResponseData($call);
+        return new \ResponseData($call);
     }
     /**
      * 删除文本命令
      */
     public function delete_action($id) 
     {
-        $q = array('mpid,keyword', 'xxt_text_call_reply', "id=$id");
+        $q = array('mpid,keyword', 'xxt_call_text', "id=$id");
         if ($call = $this->model()->query_obj_ss($q)) {
             /**
              * 清除文本命令的白名单
@@ -163,9 +163,9 @@ class text extends call_base {
         /**
          * 删除文本命令
          */
-        $rsp = $this->model()->delete('xxt_text_call_reply',"id=$id");
+        $rsp = $this->model()->delete('xxt_call_text',"id=$id");
 
-        return new ResponseData($rsp);
+        return new \ResponseData($rsp);
     }
     /**
      * 更新文本项的基本信息
@@ -183,7 +183,7 @@ class text extends call_base {
              */
             $q = array(
                 'keyword',
-                'xxt_text_call_reply',
+                'xxt_call_text',
                 "mpid='$this->mpid' and id=$id"
             );
             if ($old = $this->model()->query_val_ss($q)) {
@@ -198,11 +198,11 @@ class text extends call_base {
             }
         }
         $rst = $this->model()->update(
-            'xxt_text_call_reply', 
+            'xxt_call_text', 
             (array)$nv,
             "mpid='$this->mpid' and id=$id"
         );
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
     /**
      * 指定文本项的回复素材
@@ -212,14 +212,14 @@ class text extends call_base {
         $reply = $this->getPostJson();
 
         $ret = $this->model()->update(
-            'xxt_text_call_reply', 
+            'xxt_call_text', 
             array(
-                'matter_type'=>ucfirst($reply->rt), 
+                'matter_type'=>$reply->rt, 
                 'matter_id'=>$reply->rid
             ),
             "mpid='$this->mpid' and id=$id"
         );
 
-        return new ResponseData($ret);
+        return new \ResponseData($ret);
     }
 }

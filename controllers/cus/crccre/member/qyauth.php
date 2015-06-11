@@ -1,9 +1,11 @@
 <?php
+namespace cus\crccre\member;
+
 require_once dirname(dirname(dirname(dirname(__FILE__)))).'/member_base.php';
 /**
  * crccre企业号认证用户接口
  */
-class qyauth extends member_base {
+class qyauth extends \member_base {
     /**
      *
      */
@@ -22,7 +24,7 @@ class qyauth extends member_base {
     {
         if (!isset($this->soap)) {
             ini_set('soap.wsdl_cache_enabled', '0');
-            $this->soap = new SoapClient(
+            $this->soap = new \SoapClient(
                 'http://um.crccre.cn/webservices/adgrouptree.asmx?wsdl', 
                 array(
                     'soap_version' => SOAP_1_2,
@@ -123,13 +125,13 @@ class qyauth extends member_base {
              */
             $rst = $this->model('mpproxy/qy', $mpid)->departmentList(1);
             if ($rst[0] === false)
-                return new ResponseError($rst[1]);
+                return new \ResponseError($rst[1]);
             $existDepts = array();
             foreach ($rst[1]->department as $rdept)
                 $existDepts[$rdept->id] = $rdept;
 
             $_SESSION['existDepts'] = $existDepts;
-            return new ResponseData(array('param'=>array('next'=>1)));
+            return new \ResponseData(array('param'=>array('next'=>1)));
         }
         /**
          * 更新部门数据
@@ -149,7 +151,7 @@ class qyauth extends member_base {
             $_SESSION['dCounter'] = $dCounter;
             $_SESSION['localDepts'] = $localDepts;
             $_SESSION['warning'] = $warning;
-            return new ResponseData(array('param'=>array('next'=>2)));
+            return new \ResponseData(array('param'=>array('next'=>2)));
         }
         /**
          * 获得企业号通讯录中已有的所有的用户
@@ -159,13 +161,13 @@ class qyauth extends member_base {
             $uploadUsers = array();  
             $rst = $this->model('mpproxy/qy', $mpid)->userSimpleList(1);
             if ($rst[0] === false)
-                return new ResponseError($rst[1]);
+                return new \ResponseError($rst[1]);
             $existUsers = array();
             foreach ($rst[1]->userlist as $ruser)
                 $existUsers[$ruser->userid] = $ruser;
 
             $_SESSION['existUsers'] = $existUsers;
-            return new ResponseData(array('param'=>array('next'=>3)));
+            return new \ResponseData(array('param'=>array('next'=>3)));
         }
         /**
          * 获得本地用户数据
@@ -194,7 +196,7 @@ class qyauth extends member_base {
 
             }
             $_SESSION['uploadUsers'] = $uploadUsers;
-            return new ResponseData(array('param'=>array('next'=>4)));
+            return new \ResponseData(array('param'=>array('next'=>4)));
         }
         /**
          * 更新用户数据
@@ -216,7 +218,7 @@ class qyauth extends member_base {
                     $_SESSION['warning'] = $warning;
                     $_SESSION['uCounter'] = $uCounter;
                     $step++;
-                    return new ResponseData(array('param'=>array('next'=>4,'step'=>$step,'left'=>count($uploadUsers))));
+                    return new \ResponseData(array('param'=>array('next'=>4,'step'=>$step,'left'=>count($uploadUsers))));
                 } 
                 $user = next($uploadUsers);
             }
@@ -233,7 +235,7 @@ class qyauth extends member_base {
         unset($_SESSION['existUsers']);
         unset($_SESSION['uploadUsers']);
 
-        return new ResponseData(array($dCounter, $existDepts, $uCounter, $existUsers, $warning));
+        return new \ResponseData(array($dCounter, $existDepts, $uCounter, $existUsers, $warning));
     }
     /**
      * 将内部组织结构数据增量导入到企业号通讯录 
@@ -243,7 +245,7 @@ class qyauth extends member_base {
      */
     public function sync2Qy_action($mpid, $authid)
     {
-        return new ResponseData('ok');
+        return new \ResponseData('ok');
     }
     /**
      * 将内部组织结构数据增量导入到企业号通讯录 
@@ -253,7 +255,7 @@ class qyauth extends member_base {
      */
     public function syncFromQy_action($mpid, $authid)
     {
-        return new ResponseError('not support');
+        return new \ResponseError('not support');
     }
     /**
      * 返回组织机构组件
@@ -264,7 +266,7 @@ class qyauth extends member_base {
             'js'=>'/views/default/cus/crccre/member/memberSelector.js',
             'view'=>"/rest/cus/crccre/member/auth/organization?authid=$authid"
         );
-        return new ResponseData($addon);
+        return new \ResponseData($addon);
     }
     /**
      *

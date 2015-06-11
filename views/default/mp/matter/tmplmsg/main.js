@@ -39,9 +39,9 @@ xxtApp.controller('tmplmsgCtrl',['$scope','http2',function($scope,http2){
 }])
 .controller('sendCtrl',['$rootScope','$scope','http2','$modal',function($rootScope,$scope,http2,$modal){
     $scope.matterTypes = [
-        {value:'article',title:'单图文'},
-        {value:'news',title:'多图文'},
-        {value:'channel',title:'频道'},
+        {value:'article',title:'单图文',url:'/rest/mp/matter'},
+        {value:'news',title:'多图文',url:'/rest/mp/matter'},
+        {value:'channel',title:'频道',url:'/rest/mp/matter'},
     ];
     $scope.userSet = [];
     $scope.data = {};

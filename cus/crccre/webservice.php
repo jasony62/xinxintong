@@ -11,7 +11,7 @@ class webservice {
         return $a + $b;
     }
 
-    public function SendDbshx($userid, $text, $url='') 
+    public function SendDbshx($userid, $text, $url) 
     {
         $restUrl = 'http://';
         $restUrl .= '10.22.250.26';

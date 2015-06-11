@@ -10,10 +10,10 @@ $soap = new SoapClient(
     )
 );
 try {
-    // echo $soap->Hello();
-    // echo $soap->Add(1, 2);
-    $ret = $soap->SendDbshx('testkwt', 'test');
-    echo json_encode($ret);
+//	echo $soap->Hello();
+$ret = $soap->SendDbshx('testkwt', 'test', 'www.baidu.com');
+echo json_encode($ret);
 } catch (Exception $e) {
-    echo 'exception:'.$e->getMessage();
+	echo 'exception:'.$e->getMessage();
 }
+//echo $soap->Add(1, 2);

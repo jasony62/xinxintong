@@ -1,17 +1,19 @@
 <?php
+namespace mi;
+
 class page_addressbook extends matter_page_base {
     /**
      *
      */
-    public function __construct($id, $openid, $src)
+    public function __construct($id, $openid)
     {
         $q = array(
-            "*,'B' type", 
-            'xxt_address_book', 
+            "*,'addressbook' type", 
+            'xxt_addressbook', 
             "id=$id"
         );
-        $this->addressbook = TMS_APP::model()->query_obj_ss($q);
-        parent::__construct($this->addressbook, $openid, $src);
+        $this->addressbook = \TMS_APP::model()->query_obj_ss($q);
+        parent::__construct($this->addressbook, $openid);
     }
     /**
      *
@@ -21,10 +23,10 @@ class page_addressbook extends matter_page_base {
         $mpid = $this->addressbook->mpid;
         $depts = $this->deptByAb($this->addressbook->id);
 
-        TPL::assign('mpid', $mpid);
-        TPL::assign('title', $this->addressbook->title);
-        TPL::assign('depts', $depts);
-        
+        \TPL::assign('mpid', $mpid);
+        \TPL::assign('title', $this->addressbook->title);
+        \TPL::assign('depts', $depts);
+
         $ctrl->view_action('/matter/ab/index');
     }
     /**
@@ -37,7 +39,7 @@ class page_addressbook extends matter_page_base {
             'xxt_ab_dept',
             "ab_id='$abid'"
         );
-        $depts = TMS_APP::model()->query_objs_ss($q);
+        $depts = \TMS_APP::model()->query_objs_ss($q);
 
         return $depts;
     }

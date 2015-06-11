@@ -8,7 +8,7 @@ xxtApp.controller('memberCtrl',['$scope','http2', function($scope,http2){
             filter = '&kw=' + $scope.page.keyword;
             filter += '&by=' + $scope.page.searchBy;
         }
-        url = '/rest/mp/user/member?authid='+$scope.selectedAuthapi.authid;
+        url = '/rest/mp/user/member/get?authid='+$scope.selectedAuthapi.authid;
         url += '&page='+$scope.page.at+'&size='+$scope.page.size+filter
         url += '&contain=total';
         if ($scope.attrs === undefined) url+=',memberAttrs';
@@ -43,7 +43,7 @@ xxtApp.controller('memberCtrl',['$scope','http2', function($scope,http2){
         event.stopPropagation();
         location.href = '/rest/mp/user?fid='+fan.fid;
     };
-    http2.get('/rest/mp/mpaccount/authapis?valid=Y', function(rsp){
+    http2.get('/rest/mp/authapi/get?valid=Y', function(rsp){
         $scope.authapis = rsp.data;
         $scope.selectedAuthapi = $scope.authapis[0];
         $scope.doSearch();

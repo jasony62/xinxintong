@@ -1,17 +1,9 @@
 <?php
+namespace mp\user;
 /**
  *
  */
-class checkin extends TMS_CONTROLLER {
-    
-    private $mpid;
-
-    public function __construct() {
-        if (!isset($_SESSION['mpid']) || !($mpid = $_SESSION['mpid'])) {
-            die('not get valid mpid.');
-        } 
-        $this->mpid = $mpid;
-    }
+class checkin extends \mp\TMS_CONTROLLER {
     /**
      *
      */
@@ -29,7 +21,7 @@ class checkin extends TMS_CONTROLLER {
         //todo
         $checkin->url = 'http://'.$_SERVER['HTTP_HOST'].'/rest/member/checkin?mpid='.$this->mpid;
 
-        return new ResponseData($checkin);
+        return new \ResponseData($checkin);
     }
     /**
      *
@@ -38,13 +30,13 @@ class checkin extends TMS_CONTROLLER {
     {
         $c = $this->getPostJson();
 
-        $updated['extra_css'] = mysql_real_escape_string($c->extra_css);
-        $updated['extra_ele'] = mysql_real_escape_string($c->extra_ele);
-        $updated['extra_js'] = mysql_real_escape_string($c->extra_js);
+        $updated['extra_css'] = $this->model()->escape($c->extra_css);
+        $updated['extra_ele'] = $this->model()->escape($c->extra_ele);
+        $updated['extra_js'] = $this->model()->escape($c->extra_js);
 
         $this->model()->update('xxt_checkin', $updated, "mpid='$this->mpid'");
 
-        return new ResponseData('success');
+        return new \ResponseData('success');
     }
     /**
      * 返回签到日志
@@ -66,8 +58,8 @@ class checkin extends TMS_CONTROLLER {
                 $total = (int)$this->model()->query_val_ss($q);
                 $result[] = $total;
             }
-            return new ResponseData($result); 
+            return new \ResponseData($result); 
         }
-        return new ResponseData(array());
+        return new \ResponseData(array());
     }
 }

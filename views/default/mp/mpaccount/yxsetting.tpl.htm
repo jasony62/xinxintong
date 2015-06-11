@@ -13,8 +13,8 @@
                 <div class='col-md-1'>
                     <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='mpa.yx_joined' disabled>
                 </div>
-                <button class='btn btn-success' ng-disabled="mpa.yx_joined==='Y'" ng-click="checkJoin('yx')">
-                    检查<span ng-show="stateOfCheckJoin.src==='yx'">{{'('+stateOfCheckJoin.count+')'}}</span>
+                <button class='btn btn-success' ng-disabled="mpa.yx_joined==='Y'" ng-click="checkJoin()">
+                    检查<span ng-show="stateOfCheckJoin.running">{{'('+stateOfCheckJoin.count+')'}}</span>
                 </button>
                 <button class='btn btn-default' ng-click="reset('yx_joined')">重置</button>
                 <p class="help-block">【检查】连接是否成功，成功后填写【AppId】和【AppSecret】并保存。</p>

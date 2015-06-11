@@ -1,8 +1,9 @@
 <?php
+namespace user;
 /**
  *
  */
-class main extends TMS_CONTROLLER {
+class main extends \TMS_CONTROLLER {
 
     public function get_access_rule() 
     {
@@ -42,9 +43,9 @@ class main extends TMS_CONTROLLER {
         /**
          * record account into session and cookie.
          */
-        TMS_CLIENT::account($account);
+        \TMS_CLIENT::account($account);
 
-        return new ResponseData($account);
+        return new \ResponseData($account);
     }
     /**
      * login
@@ -65,14 +66,14 @@ class main extends TMS_CONTROLLER {
         $fromip = $this->client_ip();
         $this->model('account')->update_last_login($account->uid, $fromip);
 
-        return new ResponseData($account->uid);
+        return new \ResponseData($account->uid);
     }
     /**
      * 结束登录状态
      */ 
     public function logout_action() 
     {
-        TMS_CLIENT::logout();
+        \TMS_CLIENT::logout();
         $this->redirect('');
     }
     /**
@@ -82,7 +83,7 @@ class main extends TMS_CONTROLLER {
     {
         $data = $this->getPostJson();
 
-        $account = TMS_CLIENT::account();
+        $account = \TMS_CLIENT::account();
         /**
          * check old password
          */
@@ -96,6 +97,6 @@ class main extends TMS_CONTROLLER {
         $new_pwd = $data->npwd;
         $this->model('account')->change_password($account->email, $new_pwd, $account->salt);
 
-        return new ResponseData($account->uid);
+        return new \ResponseData($account->uid);
     }
 }

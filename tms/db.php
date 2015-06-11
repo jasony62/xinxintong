@@ -8,7 +8,7 @@ class TMS_DB {
     public function __construct() 
     {
         $this->prefix = '';
-	}
+    }
 
     public static function db() 
     {
@@ -17,18 +17,18 @@ class TMS_DB {
         }
         return self::$db;
     }
-	
+
     public function get_prefix() 
     {
-		return $this->prefix;
-	}
-	
+        return $this->prefix;
+    }
+
     /**
      * 获取表名 (直接写 SQL 的时候要用这个函数, 外部程序使用 get_table() 方法)
      */
     public function get_table($name) 
     {
-		return $this->get_prefix() . $name;
+        return $this->get_prefix() . $name;
     }
     /**
      *
@@ -45,19 +45,24 @@ class TMS_DB {
             $sql .= ') VALUES (' . implode(', ', $insert_data) . ')';
         }
 
-        ($db_result = mysql_query($sql)) || $this->show_error('database error:'.$sql.';'.mysql_error());
-		
+        global $mysqli;
+
+        ($mysqli->query($sql)) || $this->show_error('database error:'.$sql.';'.$mysqli->error);
+
         if ($autoid) { // 自增列作为id
-            $last_insert_id = mysql_insert_id();
+            $last_insert_id = $mysqli->insert_id;
             return $last_insert_id;
-        } else
+        } else {
             return true;
+        }
     }
     /**
      *
      */
     public function update($table, $data=null, $where = '') 
     {
+        global $mysqli;
+
         if (stripos($table, 'update') === 0)
             $sql = $table;
         else {
@@ -70,53 +75,70 @@ class TMS_DB {
             $sql .= '` SET ' . implode(', ', $update_string);
             $sql .= ' WHERE ' . $where;
         }
-        if (!$db_result = mysql_query($sql))
-            throw new Exception("database error(update $table):".$sql.';'.mysql_error());
 
-        $rows_affected = mysql_affected_rows();
+        if (!$mysqli->query($sql))
+            throw new Exception("database error(update $table):".$sql.';'.$mysqli->error);
+
+        $rows_affected = $mysqli->affected_rows;
 
         return $rows_affected;
     }
-
+    /**
+    *
+    */
     public function delete($table, $where = '') 
     {
         if (!$where)
             throw new Exception('DB Delete no where string.');
 
+        global $mysqli;
+
         $sql = 'DELETE FROM `' . $this->get_table($table);
         $sql .= '` WHERE ' . $where;
 
-        if (!$db_result = mysql_query($sql))
-            throw new Exception("database error(delete $table):".$sql.';'.mysql_error());
+        if (!$mysqli->query($sql))
+            throw new Exception("database error(delete $table):".$sql.';'.$mysqli>error);
 
-        $rows_affected = mysql_affected_rows();
+        $rows_affected = $mysqli->affected_rows;
 
         return $rows_affected;
     }
-
-    // 查询一行, 返回对象
+    /**
+    *查询一行, 返回对象
+    */
     public function query_obj($select, $from = null, $where = null) 
     {		
+        global $mysqli;
+
         $sql = $this->_assemble_query($select, $from, $where); 
-        ($db_result = mysql_query($sql)) || $this->show_error("database error:" . $sql.';'.mysql_error());
 
-        if (mysql_num_rows($db_result) == 1) {
-            $row = mysql_fetch_object($db_result);
-            return $row;
-        }
+        ($db_result = $mysqli->query($sql)) || $this->show_error("database error:" . $sql.';'.$mysqli->error);
 
-        return false;
+        if ($db_result->num_rows === 1)
+            $row = $db_result->fetch_object();
+        else
+            $row = false; 
+
+        $db_result->free();
+
+        return $row;
     }
     /**
      * 获取查询全部
      */
     public function query_objs($select, $from = null, $where = null, $group = null, $order = null, $offset = null, $limit = null) 
     {
+        global $mysqli;
+
         $sql = $this->_assemble_query($select, $from, $where, $group, $order, $offset, $limit); 
-        ($db_result = mysql_query($sql)) || $this->show_error("database error:$sql;".mysql_error());
+
+        ($db_result = $mysqli->query($sql)) || $this->show_error("database error:$sql;".$mysqli->error);
+
         $objects = array();
-        while ($obj = mysql_fetch_object($db_result))
+        while ($obj = $db_result->fetch_object())
             $objects[] = $obj;
+
+        $db_result->free();
 
         return $objects;
     }
@@ -127,10 +149,18 @@ class TMS_DB {
      */
     public function query_value($select, $from = null, $where = null) 
     {
+        global $mysqli;
+
         $sql = $this->_assemble_query($select, $from, $where); 
-        ($db_result = mysql_query($sql)) || $this->show_error("database error:$sql;".mysql_error());
-        $row = mysql_fetch_row($db_result);
+
+        ($db_result = $mysqli->query($sql)) || $this->show_error("database error:$sql;".$mysqli->error);
+
+        $row = $db_result->fetch_row();
+
         $value = $row ? $row[0] : false;
+
+        $db_result->free();
+
         return $value;
     }
     /**
@@ -138,12 +168,17 @@ class TMS_DB {
      */
     public function query_values($select, $from = null, $where = null) 
     {
+        global $mysqli;
+
         $sql = $this->_assemble_query($select, $from, $where); 
-        ($db_result = mysql_query($sql)) || $this->show_error("database error:" . $sql.';'.mysql_error());
+
+        ($db_result = $mysqli->query($sql)) || $this->show_error("database error:" . $sql.';'.$mysql->error);
 
         $values = array();
-        while ($row = mysql_fetch_row($db_result))
+        while ($row = $db_result->fetch_row())
             $values[] = $row[0];
+
+        $db_result->free();
 
         return $values;
     }
@@ -152,13 +187,19 @@ class TMS_DB {
     {		
         return $this->query_value('SELECT FOUND_ROWS()');
     }
-
+    /**
+    *
+    */
+    public function escape($str) 
+    {
+        global $mysqli;
+        return $mysqli->real_escape_string($str);
+    }
     // 带页码的 fetch_all, 默认从第一页开始
     public function fetch_page($table, $where = null, $order = null, $page = null, $limit = 10) 
     {
         return false;
     }
-
     /**
      * 添加引号防止数据库攻击
      */

@@ -17,10 +17,6 @@ xxtApp.controller('mainCtrl',['$scope','http2', function($scope,http2){
         }
     };
     $scope.removePage = function(page) {
-        http2.get('/rest/mp/activity/remove?aid='+act.aid, function(rsp){
-            var i = $scope.activities.indexOf(act);
-            $scope.activities.splice(i,1);
-        });
     };
     $scope.doSearch();
 }]);

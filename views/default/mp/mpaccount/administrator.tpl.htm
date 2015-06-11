@@ -1,25 +1,20 @@
 <div ng-controller='adminCtrl' ng-init='jsonParams="<?php echo urlencode(json_encode(TPL::val('params')));?>";'>
-    <div ng-show="!isAdmin">
-        <div class='alert alert-warning'>您没有权限对公众号的管理员进行设置，请联系账号管理员。</div>
-    </div>
-    <div ng-show="isAdmin">
-        <div class='col-md-4'> 
-            <div class='form-group'>
-                <div class='input-group'>
-                    <input type="text" class="form-control" placeholder='请输入用户的账号' ng-model='authedid'>
-                    <span class='input-group-btn'>
-                        <button class='btn btn-primary' ng-click='add()'>
-                            <span class='glyphicon glyphicon-plus'></span>
-                        </button>
-                    </span>
-                </div>
+    <div class='col-md-4'> 
+        <div class='form-group'>
+            <div class='input-group'>
+                <input type="text" class="form-control" placeholder='请输入用户的账号' ng-model='authedid'>
+                <span class='input-group-btn'>
+                    <button class='btn btn-primary' ng-click='add()'>
+                        <span class='glyphicon glyphicon-plus'></span>
+                    </button>
+                </span>
             </div>
-            <div class='list-group'>
-                <a href='#' class='list-group-item' ng-class='{active:selectedAdmin===a}' ng-repeat="a in admins" ng-click='select(a)'>
-                    <span>{{a.authed_id}}</span>
-                    <button class='btn btn-default btn-xs pull-right' ng-show='selectedAdmin===a' ng-click='remove()'><span class='glyphicon glyphicon-remove'></span></button>
-                </a>
-            </div>
+        </div>
+        <div class='list-group'>
+            <a href='#' class='list-group-item' ng-class='{active:selectedAdmin===a}' ng-repeat="a in admins" ng-click='select(a)'>
+                <span>{{a.authed_id}}</span>
+                <button class='btn btn-default btn-xs pull-right' ng-show='selectedAdmin===a' ng-click='remove()'><span class='glyphicon glyphicon-remove'></span></button>
+            </a>
         </div>
     </div>
 </div>

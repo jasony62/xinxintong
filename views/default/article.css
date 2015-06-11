@@ -4,15 +4,16 @@ body{height:100%;background-color:#fff;font:12.5pt/1.45 Microsoft Yahei,Arial}
 .m-detail{position:relative;margin:0 auto;padding:40px 0 8px;color:#666;white-space:normal;word-wrap:break-word;word-break:break-all}
 .m-detail .wrap{margin:0 40px}
 .m-detail .tlt{font-size:15pt;color:#333;font-weight:bold}
-.m-detail .time{font-size:8pt;color:#b9b9b9}
+.m-detail .time{font-size:10pt;color:#b9b9b9}
+.m-detail .writer{font-size:10pt;color:#b9b9b9}
 .m-detail .headpic{margin:10px 0}
 .m-detail img{display:block;max-width:100%;margin:5px auto}
 .m-detail .content {margin:12pt 0 12pt 0}
-.m-detail .content p{margin:0 0 12pt}
+.m-detail .content p{margin:0 0 12pt;line-height:2em}
 .m-detail .url{margin-top:20px}
 .m-detail a{color:#2980b9;text-decoration:none}
 .m-detail a:hover{text-decoration: underline}
-#article_from_nick{font-size:8pt;overflow:hidden;text-align:left}
+#article_from_nick{font-size:10pt;overflow:hidden;text-align:left}
 #article_from_nick a{text-overflow:ellipsis;overflow:hidden;white-space:nowrap;text-decoration:none;color:#2880C0}
 .m-detail a.link2email.btn{text-decoration:none} 
 #dlg{z-index:1099;background-color:white;position:absolute;box-sizing:border-box;-moz-box-sizing:border-box;padding:15px;height:200px;width:400px;margin:auto;display:none;webkit-box-shadow:0 3px 9px rgba(0,0,0,0.5);box-shadow:0 3px 9px rgba(0,0,0,0.5)}
@@ -37,12 +38,14 @@ table th,table td,table.mce-item-table th,table.mce-item-table td{border-left:1p
 #interaction .like em{-webkit-tap-highlight-color:rgba(0,0,0,0);display:inline-block;background-image:url("/static/img/icons.svg");background-size: 68.75px 103.13px;background-position:-31.25px 0;background-repeat:no-repeat;width:15px;height:15px}
 #interaction .like em.praised{background-position:-31.25px -25px}
 #interaction *{vertical-align:middle}
-.remark h4{margin:0;padding:0}
+.remark h4{margin:0;padding:0 0 4px}
 .remark ul{list-style:none;margin:0 0 14px;padding:0}
-.remark li{border-top:1px solid #ddd;padding:7px 0}
+.remark li{border-top:1px solid #ddd;padding:7px;background:rgba(255,255,255,0.5);}
 .remark textarea{width:100%;border:1px solid #ddd}
-.remark .nickname{color:#B06060;overflow:hidden;float:left;font-size:13px}
-.remark .datetime{color:#CCC;float:right;overflow:hidden;font-size:13px}
-#frmAuth{display:none;position:absolute;top:0;left:0;right:0;border:none;width:100%;z-index:999}
+.remark li>.content{font-size:14px;margin:8px 0}
+.remark .nickname{color:#B06060;overflow:hidden;float:left;font-size:12px}
+.remark .datetime{color:#CCC;float:right;overflow:hidden;font-size:12px}
 #picViewer{position:absolute;left:0px;right:0px;top:0px;bottom:0px;z-index:999;display:none;margin:0 auto;overflow:hidden;background:black}
 #picViewer span{position:absolute;display:inline-block;top:6px;right:8px;z-index:1999;background:rgba(255,255,255,0.5);width:24px;height:24px;text-align:center;line-height:24px;border-radius:12px;font-size:20px}
+#tipPreview{z-index:9999;position:fixed;bottom:4px;left:4px;right:4px;height:48px;background:rgba(0,0,0,0.5);border-radius: 4px;text-align:center;line-height:48px;color:#FFF;font-size:14px}
+#tipPreview button{float:auto;position:absolute;top:12px;right:8px}

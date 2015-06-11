@@ -11,7 +11,7 @@ xxtApp.controller('MenuCtrl',['$rootScope','$scope','http2','matterTypes','$time
     };
     $scope.edit = function(button) {
         if (button.sub === undefined || button.sub.length === 0) {
-            http2.get('/rest/mp/call/menu?k='+button.menu_key, function(rsp){
+            http2.get('/rest/mp/call/menu/get?k='+button.menu_key, function(rsp){
                 $scope.editing = button;
                 delete $scope.editing.matter;
                 delete $scope.editing.acl;
@@ -157,7 +157,7 @@ xxtApp.controller('MenuCtrl',['$rootScope','$scope','http2','matterTypes','$time
             });
         }
     });
-    http2.get('/rest/mp/call/menu', function(rsp){
+    http2.get('/rest/mp/call/menu/get', function(rsp){
         $scope.menu = [];
         for (var i in rsp.data) {
             var button = rsp.data[i];

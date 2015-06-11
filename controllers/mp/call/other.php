@@ -1,7 +1,9 @@
 <?php
-require_once dirname(dirname(__FILE__)).'/mp_controller.php';
+namespace mp\call;
 
-class other extends mp_controller {
+require_once dirname(__FILE__).'/base.php';
+
+class other extends call_base {
 
     public function get_access_rule() 
     {
@@ -11,13 +13,20 @@ class other extends mp_controller {
         return $rule_action;
     }
     /**
+     * get all text call.
+     */
+    public function index_action() 
+    {
+        $this->view_action('/mp/reply/other');
+    }
+    /**
      * 其他事件
      *
      * 如果没有创建过相应的事件，系统自动创建
      *
      * subscribe,universal,templatemsg
      */
-    public function index_action() 
+    public function get_action() 
     {
         /**
          * 支持的消息类型
@@ -32,7 +41,7 @@ class other extends mp_controller {
 
         $q = array(
             'id,name,title,matter_type,matter_id',
-            'xxt_other_call_reply',
+            'xxt_call_other',
             "mpid='$this->mpid'"
         );
         if ($calls = $this->model()->query_objs_ss($q)) {
@@ -42,7 +51,7 @@ class other extends mp_controller {
                  * 回复素材
                  */
                 if ($call->matter_id)
-                    $call->matter = $this->matter($this->mpid, $call->matter_type, $call->matter_id);
+                    $call->matter = $this->model('matter\base')->getMatterInfoById($call->matter_type, $call->matter_id);
             }
         }
 
@@ -58,7 +67,7 @@ class other extends mp_controller {
                 'matter_id'=>''
             );
             $call['id'] = $this->model()->insert(
-                'xxt_other_call_reply',
+                'xxt_call_other',
                 $call,
                 true
             );
@@ -66,16 +75,7 @@ class other extends mp_controller {
             $calls[] = (object)$call;
         }
 
-        return new ResponseData($calls); 
-    }
-    /**
-     *
-     */
-    private function matter($mpid, $type, $id)
-    {
-        $m = $this->model('matter/base')->get_by_id($type, $id);
-        $m->type = $type;
-        return $m;
+        return new \ResponseData($calls); 
     }
     /**
      * 设置回复素材 
@@ -83,28 +83,13 @@ class other extends mp_controller {
     public function setreply_action($id) 
     {
         $matter = $this->getPostJson();
-        $matter->matter_type = ucfirst($matter->matter_type);
 
         $rst = $this->model()->update(
-            'xxt_other_call_reply', 
+            'xxt_call_other', 
             $matter, 
             "id=$id"
         );
-        if (!empty($matter->matter_type)) {
-            if (strtolower($matter->matter_type) === 'relay')
-                $matter_table = 'xxt_mprelay';
-            else 
-                $matter_table = 'xxt_'.strtolower($matter->matter_type);
 
-            if ($matter_table != 'xxt_inner') {
-                $rst = $this->model()->update(
-                    $matter_table,
-                    array('used'=>1),
-                    "id=" . $matter->matter_id
-                );
-            }
-        }
-
-        return new ResponseData($rst);
+        return new \ResponseData($rst);
     }
 }

@@ -31,8 +31,8 @@
                 <div class='col-md-1'>
                     <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='mpa.qy_joined' disabled>
                 </div>
-                <button class='btn btn-success' ng-disabled="mpa.qy_joined==='Y'" ng-click="checkJoin('qy')">
-                    检查<span ng-show="stateOfCheckJoin.src==='qy'">{{'('+stateOfCheckJoin.count+')'}}</span>
+                <button class='btn btn-success' ng-disabled="mpa.qy_joined==='Y'" ng-click="checkJoin()">
+                    检查<span ng-show="stateOfCheckJoin.running">{{'('+stateOfCheckJoin.count+')'}}</span>
                 </button>
                 <button class='btn btn-default' ng-click="reset('qy_joined')">重置</button>
             </div>

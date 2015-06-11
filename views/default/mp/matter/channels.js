@@ -1,8 +1,18 @@
-xxtApp.controller('ChannelCtrl',['$scope','http2',function($scope,http2){
+xxtApp.controller('channelCtrl',['$scope','http2',function($scope,http2){
     $scope.matterTypes = [
-        {value:'article',title:'单图文'},
-        {value:'link',title:'链接'}
+        {value:'article',title:'单图文',url:'/rest/mp/matter'},
+        {value:'link',title:'链接',url:'/rest/mp/matter'}
     ];
+    $scope.acceptMatterTypes = [
+        {name:'',title:'任意'},
+        {name:'article',title:'单图文'},
+        {name:'link',title:'链接'},
+        {name:'enroll',title:'登记活动'},
+        {name:'lottery',title:'抽奖活动'},
+        {name:'wall',title:'信息墙'},
+        {name:'contribute',title:'投稿活动'}
+    ];
+    $scope.volumes = ['1','2','3','4','5','6','7','8','9','10'];
     $scope.doSearch = function() {
         var url = '/rest/mp/matter/channel?cascade=N';
         $scope.fromParent && $scope.fromParent === 'Y' && (url += '&src=p');
@@ -40,6 +50,8 @@ xxtApp.controller('ChannelCtrl',['$scope','http2',function($scope,http2){
         });
     };
     var editChannel = function(channel) {
+        if (channel.url === undefined)
+            channel.url = 'http://'+location.host+'/rest/mi/matter?mpid='+$scope.mpid+'&id='+channel.id+'&type=channel';
         $scope.editing = channel;
         arrangeMatters();
     };
@@ -95,8 +107,8 @@ xxtApp.controller('ChannelCtrl',['$scope','http2',function($scope,http2){
         }
     };
     $scope.removeMatter = function(matter) {
-        var p = {id:matter.id,type:matter.type};
-        http2.post('/rest/mp/matter/channel/removematter?id='+$scope.editing.id, p, function(rsp) {
+        var removed = {id:matter.id, type:matter.type.toLowerCase()};
+        http2.post('/rest/mp/matter/channel/removeMatter?reload=Y&id='+$scope.editing.id, removed, function(rsp) {
             $scope.editing.matters = rsp.data;
             arrangeMatters();
         });

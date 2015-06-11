@@ -1,7 +1,9 @@
 <?php
+namespace mp\user;
+
 require_once dirname(dirname(__FILE__)).'/mp_controller.php';
 
-class tag extends mp_controller {
+class tag extends \mp\mp_controller {
 
     public function get_access_rule() 
     {
@@ -11,17 +13,24 @@ class tag extends mp_controller {
         return $rule_action;
     }
     /**
+     *
+     */
+    public function index_action()
+    {
+        $this->view_action('/mp/user/tags');    
+    }
+    /**
      * 获得所有标签
      *
      * $authid 每个认证接口下可以定义标签
      *
      * todo 如何排序？
      */
-    public function index_action($authid)
+    public function get_action($authid)
     {
         $tags = $this->model('user/tag')->byMpid($this->mpid, $authid);
 
-        return new ResponseData($tags);
+        return new \ResponseData($tags);
     }
     /**
      * 更新标签
@@ -34,14 +43,14 @@ class tag extends mp_controller {
         $mpapis = $this->model('mp\mpaccount')->getApis($this->mpid);
 
         if ($mpapis->mpsrc === 'qy' && $mpapis->qy_joined === 'N')
-            return new ResponseError('企业号未开通，不能同步标签');
+            return new \ResponseError('企业号未开通，不能同步标签');
 
         if (isset($tag->id)) {
             if ($mpapis->qy_joined === 'Y') {
                 $extattr = json_decode($tag->extattr);
                 $result = $this->model('mpproxy/qy', $this->mpid)->tagUpdate($extattr->tagid, $tag->name);
                 if ($result[0] === false)
-                    return new ResponseError($result[1]);
+                    return new \ResponseError($result[1]);
             }
             $tagid = $tag->id;
             unset($tag->id);
@@ -50,18 +59,18 @@ class tag extends mp_controller {
                 (array)$tag, 
                 "mpid='$this->mpid' and id=$tagid"
             );
-            return new ResponseData($rst);
+            return new \ResponseData($rst);
         } else {
             if ($mpapis->qy_joined === 'Y') {
                 $result = $this->model('mpproxy/qy', $this->mpid)->tagCreate($tag->name);
                 if ($result[0] === false)
-                    return new ResponseError($result[1]);
+                    return new \ResponseError($result[1]);
                 $extattr['tagid'] = $result[1]->tagid;
                 $tag->extattr = json_encode($extattr);
             }
             $tag = $this->model('user/tag')->create($this->mpid, $tag);
 
-            return new ResponseData($tag);
+            return new \ResponseData($tag);
         }
     }
     /**
@@ -81,7 +90,7 @@ class tag extends mp_controller {
              */
             $result = $this->model('mpproxy/qy', $this->mpid)->tagDelete($extattr->tagid);
             if ($result[0] === false)
-                return new ResponseError($result[1]);
+                return new \ResponseError($result[1]);
         }
         /**
          * 提交到本地
@@ -89,8 +98,8 @@ class tag extends mp_controller {
         $rst = $this->model('user/tag')->remove($this->mpid, $id);
 
         if ($rst[0] === false)
-            return new ResponseError($rst[1]);
+            return new \ResponseError($rst[1]);
         else
-            return new ResponseData(true);
+            return new \ResponseData(true);
     }
 }

@@ -67,14 +67,13 @@ ini_set('display_errors', 'On');
 error_reporting(E_ALL);
 //error_reporting(E_ERROR);
 /**
+ * 加载本地化设置
+ */
+file_exists('cus/app.php') && include_once('cus/app.php');
+/**
  * database resource.
  */
 include_once 'db.php';
-/**
- * 加载本地化设置
- */
-if (file_exists('cus/app.php'))
-    include_once 'cus/app.php';
 /**
  * 常量定义不允许被覆盖，需要检查常量是否已经被定义
  */

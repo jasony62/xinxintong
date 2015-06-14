@@ -197,7 +197,7 @@ class menu extends call_base {
             $this->model()->update($sql);
         }
 
-        return new \ResponseData('success');
+        return new \ResponseData('ok');
     }
     /**
      * 更新基本属性
@@ -439,8 +439,9 @@ class menu extends call_base {
             'xxt_call_menu',
             "mpid='$this->mpid' and published='N'"
         );
-        if (0 === (int)$this->model()->query_val_ss($q))
-            return new \ComplianceError();
+        if (0 === (int)$this->model()->query_val_ss($q)) {
+            return new \ResponseError('空菜单无法发布');
+        }
         /**
          * 获得菜单的消息格式
          */
@@ -483,6 +484,26 @@ class menu extends call_base {
         return new \ResponseData($rst);
     }
     /**
+     *
+     */
+    public function removeMenu_action()
+    {
+        $mpa = $this->model('mp\mpaccount')->getApis($this->mpid);
+        if ($mpa->asparent === 'N') {
+            $mpsrc = $mpa->mpsrc;
+            $proxy = $this->model("mpproxy/$mpsrc", $this->mpid);
+            $rst = $proxy->menuDelete();
+            if ($rst[0] === false)
+                return new \ResponseError("菜单删除失败：".$rst[1]);
+            
+            $this->model()->delete('xxt_call_menu', "mpid='$this->mpid'");
+            
+            return new \ResponseData($rst[1]);
+        } else {
+            return new \ResponseError("不支持删除父账号菜单");
+        }
+    }
+    /**
      * 将编辑状态的菜单定义转化为消息格式
      * todo 检查菜单数量，不允许只有一个子菜单的父菜单
      * todo 检查菜单数量，一级菜单微信1-3个，易信1-4个
@@ -510,7 +531,7 @@ class menu extends call_base {
                 $pButtons['sub_button'][] = $this->convertButton($button);
             }
         }
-
+        
         $msg = new \stdClass;
         $msg->button = &$buttons;
         $literal = urldecode(json_encode($msg));

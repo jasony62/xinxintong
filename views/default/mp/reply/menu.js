@@ -131,6 +131,15 @@ xxtApp.controller('MenuCtrl',['$rootScope','$scope','http2','matterTypes','$time
                 setPublishState('N');
         });
     };
+    $scope.removeMenu = function() {
+        if (confirm('确定删除菜单？')) {
+            http2.get('/rest/mp/call/menu/removeMenu', function(rsp) {
+                setPublishState('Y');
+                $scope.editing = false;
+                $scope.menu = [];
+            });
+        }
+    };
     $scope.publish = function() {
         http2.get('/rest/mp/call/menu/publish', function(rsp) {
             setPublishState('Y');

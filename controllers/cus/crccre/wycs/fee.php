@@ -35,19 +35,16 @@ class fee extends wycs_base {
         $xml = simplexml_load_string($rst->return);
         $resultAttrs = $xml->result->attributes();
         if ((string)$resultAttrs['name'] === 'success') {
-            $sumAttrs = $xml->result->sum->attributes();
-            $sum = array(
-                'num'=>(int)$sumAttrs['num'],
-                'amount'=>(string)$sumAttrs['amount']
-            );
+            $sum = array();
+            foreach($xml->result->sum->attributes() as $n => $v) {
+                $sum[$n] = (string)$v;
+            }
             $fees = array();
-            if (isset($xml->result->feelist)) {
-                foreach($xml->result->feelist->children() as $nodefee) {
-                    $fee = array();
-                    foreach ($nodefee->attributes() as $n => $v)
-                        $fee[$n] = (string)$v;
-                    $fees[] = $fee;
-                }
+            if (isset($xml->result->feelist)) foreach($xml->result->feelist->children() as $nodefee) {
+                $fee = array();
+                foreach ($nodefee->attributes() as $n => $v)
+                    $fee[$n] = (string)$v;
+                $fees[] = $fee;
             }
             return new \ResponseData(array('fees'=>$fees, 'sum'=>$sum));
         } else

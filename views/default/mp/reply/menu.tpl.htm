@@ -1,6 +1,7 @@
 <div ng-controller='MenuCtrl'>
-    <div class='form-group clearfix'>
-        <button class='pull-right btn' ng-class="(menu.length==0||published===undefined||published==='Y') ? 'btn-default':'btn-success'" ng-disabled="menu.length==0||published===undefined||published==='Y'" ng-click='publish()'>发布</button>
+    <div class='form-group' style='text-align:right'>
+        <button class='btn btn-danger' ng-click='removeMenu()'>删除</button>
+        <button class='btn' ng-class="(published===undefined||published==='Y') ? 'btn-default':'btn-success'" ng-disabled="published===undefined||published==='Y'" ng-click='publish()'>发布</button>
     </div>
     <div dnd-list dataset='menu' class='clearfix form-group' style='border:1px dashed #CCC'>
         <div class='m1 dndable pull-left' ng-repeat='b in menu'>

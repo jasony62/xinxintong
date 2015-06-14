@@ -355,6 +355,17 @@ class wx_model extends mpproxy_base {
         return $rst;
     }
     /**
+     * upload menu.
+     */
+    public function menuDelete()
+    {
+        $cmd = 'https://api.weixin.qq.com/cgi-bin/menu/delete';
+
+        $rst = $this->httpGet($cmd);
+
+        return $rst;
+    }
+    /**
      * 获得下载媒体文件的链接
      *
      * $mediaid

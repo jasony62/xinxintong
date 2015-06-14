@@ -111,12 +111,13 @@ class channel_model extends article_base {
             $q1[] = "m.id,m.title,m.summary,m.pic,m.create_at,cm.create_at add_at,'".$type."' type";
             $q1[] = "$table m,xxt_channel_matter cm";
             $qaw = "m.state=1 and cm.channel_id=$channel_id and m.id=cm.matter_id and cm.matter_type='$type'";
-            if (!empty($top) && $top->type === $type)
-                $qaw .= " and m.id<>$top->id";
-            if (!empty($bottom) && $bottom->type === $type)
-                $qaw .= " and m.id<>$bottom->id";
-            if (!empty($pmpid))
-                $qaw .= " and (m.mpid = '$mpid' or m.mpid = '$pmpid')";
+            
+            !empty($top) && $top->type === $type && $qaw .= " and m.id<>$top->id";
+            
+            !empty($bottom) && $bottom->type === $type && $qaw .= " and m.id<>$bottom->id";
+            // in parent mp
+            empty($pmpid) && $qaw .= " and m.mpid = '$mpid'";
+            
             $q1[] = $qaw;
             $q2 = array();
             $q2['o'] = 'cm.create_at desc';

@@ -549,6 +549,18 @@ class qy_model extends mpproxy_base {
         return $rst;
     }
     /**
+     * upload menu.
+     */
+    public function menuDelete()
+    {
+        $app = TMS_APP::M('mp\mpaccount')->byId($this->mpid, 'qy_agentid');
+        $cmd = "https://qyapi.weixin.qq.com/cgi-bin/menu/delete";
+
+        $rst = $this->httpGet($cmd, array('agentid'=>$app->qy_agentid));
+
+        return $rst;
+    }
+    /**
      * 向企业号用户发送消息
      *
      * $mpid

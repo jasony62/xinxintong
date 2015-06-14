@@ -278,6 +278,17 @@ class yx_model extends mpproxy_base {
         return $rst;
     }
     /**
+     * upload menu.
+     */
+    public function menuDelete()
+    {
+        $cmd = 'https://api.yixin.im/cgi-bin/menu/delete';
+
+        $rst = $this->httpGet($cmd);
+
+        return $rst;
+    }
+    /**
      * 将图片上传到公众号平台
      *
      * $imageUrl

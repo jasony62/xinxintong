@@ -57,7 +57,7 @@ class wx_model extends mpproxy_base {
     /**
      * 获得与公众平台进行交互的token
      */
-    protected function accessToken($newAccessToken=false) 
+    public function accessToken($newAccessToken=false) 
     {
         $whichToken = "wx_appid,wx_appsecret,wx_token,wx_token_expire_at";
         if ($newAccessToken === false) {

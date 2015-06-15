@@ -57,7 +57,7 @@ class yx_model extends mpproxy_base {
     /**
      * 获得与公众平台进行交互的token
      */
-    protected function accessToken($newAccessToken=false) 
+    public function accessToken($newAccessToken=false) 
     {
         $whichToken = "yx_appid,yx_appsecret,yx_token,yx_token_expire_at";
         if ($newAccessToken === false) {

@@ -5,7 +5,7 @@ require_once dirname(dirname(__FILE__)).'/mp_controller.php';
 
 class matter_ctrl extends \mp\mp_controller {
     /**
-     *
+     * 检查权限
      */
     public function __construct() 
     {
@@ -19,7 +19,8 @@ class matter_ctrl extends \mp\mp_controller {
                 'matter_news',
                 'matter_channel',
                 'matter_link',
-                'matter_tmplmsg'
+                'matter_tmplmsg',
+                'matter_media'
             ), 
             'read'
         );
@@ -32,9 +33,13 @@ class matter_ctrl extends \mp\mp_controller {
         (true === $prights || $prights['matter_channel']['read_p'] === 'Y') && $entries['channels'] = array('title'=>'频道');
         (true === $prights || $prights['matter_link']['read_p'] === 'Y') && $entries['links'] = array('title'=>'链接');
         (true === $prights || $prights['matter_tmplmsg']['read_p'] === 'Y') && $entries['tmplmsgs'] = array('title'=>'模板消息');
+        (true === $prights || $prights['matter_media']['read_p'] === 'Y') && $entries['media'] = array('title'=>'图片');
         
         \TPL::assign('matter_view_entries', $entries);
     }
+    /**
+     *
+     */
     public function get_access_rule()
     {
         $rule_action['rule_type'] = 'white';

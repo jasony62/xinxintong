@@ -21,6 +21,7 @@ class permission_model extends \TMS_MODEL {
         'matter_channel'=>'MP',
         'matter_link'=>'MP',
         'matter_tmplmsg'=>'MP',
+        'matter_media'=>'MP',
         'reply'=>'MP',
         'reply_text'=>'MP',
         'reply_menu'=>'MP',

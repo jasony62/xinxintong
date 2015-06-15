@@ -138,6 +138,14 @@
                     <td></td>
                 </tr>
                 <tr>
+                    <td>素材管理-多媒体</td>
+                    <td><a href='#' ng-click="batchCheck('matter_media','Y')">全选</a> / <a href='#' ng-click="batchCheck('matter_media','N')">清空</a></td>
+                    <td></td>
+                    <td><input type="checkbox" ng-model="rights.matter_media.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('matter_media','read_p')"></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
                     <td>回复管理</td>
                     <td><a href='#' ng-click="batchCheck('reply','Y')">全选</a> / <a href='#' ng-click="batchCheck('reply','N')">清空</a></td>
                     <td></td>

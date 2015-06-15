@@ -12,8 +12,8 @@ xxtApp.controller('articleCtrl', ['$scope', '$location', 'http2', function ($sco
         else
             $scope.bodyEditable = true;
     });
-}]).
-    controller('editCtrl', ['$rootScope', '$scope', 'http2', function ($rootScope, $scope, http2) {
+}]);
+xxtApp.controller('editCtrl', ['$rootScope', '$scope', 'http2', function ($rootScope, $scope, http2) {
     $scope.innerlinkTypes = [
         { value: 'article', title: '单图文', url: '/rest/mp/matter' },
         { value: 'news', title: '多图文', url: '/rest/mp/matter' },
@@ -157,8 +157,8 @@ xxtApp.controller('articleCtrl', ['$scope', '$location', 'http2', function ($sco
             $rootScope.progmsg = null;
         });
     });
-}]).
-    controller('RemarkCtrl', ['$scope', 'http2', function ($scope, http2) {
+}]);
+xxtApp.controller('RemarkCtrl', ['$scope', 'http2', function ($scope, http2) {
     $scope.page = { current: 1, size: 30 };
     $scope.delRemark = function (remark, index) {
         var ret = window.prompt('删除当前评论吗？请输入文章的标题');
@@ -184,13 +184,13 @@ xxtApp.controller('articleCtrl', ['$scope', '$location', 'http2', function ($sco
         });
     };
     $scope.doSearch();
-}]).
-    controller('StatCtrl', ['$scope', 'http2', function ($scope, http2) {
+}]);
+xxtApp.controller('StatCtrl', ['$scope', 'http2', function ($scope, http2) {
     http2.get('/rest/mp/matter/article/stat?id=' + $scope.id, function (rsp) {
         $scope.stat = rsp.data;
     });
-}]).
-    controller('ReadCtrl', ['$scope', 'http2', function ($scope, http2) {
+}])
+xxtApp.controller('ReadCtrl', ['$scope', 'http2', function ($scope, http2) {
     http2.get('/rest/mp/matter/article/read?id=' + $scope.id, function (rsp) {
         $scope.reads = rsp.data;
     });

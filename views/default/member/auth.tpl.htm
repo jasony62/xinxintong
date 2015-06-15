@@ -36,7 +36,7 @@ $clientSrc = TPL::val('clientSrc');
                 </div>
                 <?php }?>
                 <?php }?>
-                <?php if ($clientSrc) foreach ($attrs['extattr'] as $ea) {?>
+                <?php if ($clientSrc && !empty($attrs['extattr'])) foreach ($attrs['extattr'] as $ea) {?>
                 <div id='attr_<?php echo $ea->id;?>' class='form-group'>
                     <input type='text'<?php echo $ea->cfg[1]==='1'?' required=""':''?> ng-model='member.<?php echo $ea->id;?>' placeholder='<?php echo $ea->label;?>' class='form-control input-lg'>
                 </div>

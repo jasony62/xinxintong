@@ -79,6 +79,7 @@ class permission extends mp_controller {
             'matter_channel',
             'matter_link',
             'matter_tmplmsg',
+            'matter_media',
             'reply',
             'reply_text',
             'reply_menu',

@@ -226,6 +226,9 @@ class enroll_model extends \matter\enroll_model {
      */
     public function hasEnrolled($mpid, $aid, $openid)
     {
+        if (empty($mpid) || empty($aid) || empty($openid))
+            return false;
+            
         $q = array(
             'count(*)',
             'xxt_enroll_record',

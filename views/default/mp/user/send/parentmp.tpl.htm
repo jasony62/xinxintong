@@ -1,0 +1,34 @@
+<div ng-controller='parentmpCtrl'>
+    <div class='col-md-4'>
+        <ul class='list-group'>
+            <li class='list-group-item' ng-repeat="mp in childmps">
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='mp.checked' ng-change='selectMp(mp)'>{{mp.name}}</label>
+            </li>
+            <li class='list-group-item'>
+                <a href='javascript:void(0)' ng-click='selectAllMps()'>全选</a>
+            </li>
+        </ul>
+    </div>
+    <div class='col-md-8'>
+        <div class='form-inline form-group'>
+            <div class='form-group'>
+                <select class='form-control' ng-model='matterType' ng-change='fetchMatter()'>
+                    <option value='text'>文本</option>
+                    <option value='article'>单图文</option>
+                    <option value='news'>多图文</option>
+                    <option value='channel'>频道</option>
+                </select>
+            </div>
+            <div class='form-group pull-right'>
+                <button class='btn' ng-class="selectedMps.length===0||!selectedMatter?'btn-default':'btn-primary'" ng-disabled='selectedMps.length===0||!selectedMatter' ng-click='send($event)'>发送</button>
+            </div>
+        </div>
+        <div class='list-group'>
+            <a class='list-group-item' ng-class="{'active':selectedMatter==m}" ng-repeat='m in matters' ng-click='selectMatter(m)'>{{m.title||m.content}}</a>
+        </div>
+        <pagination ng-show="matterType==='article'&&page.total>page.size" class="form-group pagination pull-right" style='cursor:pointer;margin-top:0'
+        boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.current"
+        previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="fetchMatter()"></pagination>
+    </div>
+</div>

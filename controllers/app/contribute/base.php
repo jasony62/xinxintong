@@ -65,22 +65,33 @@ class base extends \member_base {
         return $article;
     }
     /**
+     * 单篇文章
+     */
+    protected function &getNews($mpid, $id)
+    {
+        $newsModel = $this->model('matter\news');
+        $news = $newsModel->byId($id);
+        $news->disposer = $newsModel->disposer($id);
+        
+        return $news;
+    }
+    /**
      * 更新单图文的字段
      *
      * $id article's id
      * $nv pair of name and value
      */
-    public function update_action($mpid, $id) 
+    public function articleUpdate_action($mpid, $id) 
     {
         $nv = (array)$this->getPostJson();
 
-        isset($nv['body']) && $nv['body'] = urldecode($nv['body']);
+        isset($nv['body']) && $nv['body'] = $this->model()->escape(urldecode($nv['body']));
 
         $nv['modify_at'] = time();
         $rst = $this->model()->update(
             'xxt_article', 
             $nv,
-            "mpid='$mpid' and creater='".$this->user->fid."' and id='$id'"
+            "mpid='$mpid' and creater='".$this->user->mid."' and id='$id'"
         );
 
         return new \ResponseData($rst);
@@ -88,21 +99,21 @@ class base extends \member_base {
     /**
      * 退回到上一步
      */
-    public function return_action($mpid, $id)
+    public function articleReturn_action($mpid, $id)
     {
         $articleModel = $this->model('matter\article');
         $disposer = $articleModel->disposer($id);
         if ($disposer->seq == 1) {
             $article = $articleModel->byId($id);
-            $mid = $article->creater;
+            $mid = $article->creater; // todo ??? creater不是mid
             $phase = 'I';
         } else {
             $q = array(
                 '*',
                 'xxt_article_review_log',
-                "article_id=$id and seq=".$disposer->seq-1
+                "article_id=$id and seq=".($disposer->seq-1)
             );
-            $prev = $this->query_obj_ss($q);
+            $prev = $this->model()->query_obj_ss($q);
             $mid = $prev->mid;
             $phase = $prev->phase;
         }
@@ -118,7 +129,7 @@ class base extends \member_base {
      * $id 文章ID
      * $phase 处理的阶段
      */
-    public function forward_action($mpid, $id, $phase)
+    public function articleForward_action($mpid, $id, $phase)
     {
         $reviewer = $this->getPostJson();
         
@@ -127,6 +138,96 @@ class base extends \member_base {
         $log = $this->model('matter\article')->forward($mpid, $id, $mid, $phase);
         
         return new \ResponseData('ok');
+    }
+    /**
+     * 获得单个多图文
+     */
+    public function newsGet_action($mpid, $id)
+    {
+        $q = array(
+            "n.*",
+            'xxt_news n',
+            "n.mpid='$mpid' and n.id=$id"
+        );
+        
+        if ($news = $this->model()->query_obj_ss($q)) {
+            $news->matters = $this->model('matter\news')->getArticles($id);
+        }
+        
+        return new \ResponseData($news);
+    }
+    /**
+     * 将多图文转发给指定人进行处理
+     *
+     * $mpid 公众平台ID
+     * $id 文章ID
+     * $phase 处理的阶段
+     */
+    public function newsForward_action($mpid, $id, $phase)
+    {
+        $reviewer = $this->getPostJson();
+        
+        $mid = $reviewer->userSet[0]->identity;
+        
+        $log = $this->model('matter\news')->forward($mpid, $id, $mid, $phase);
+        
+        return new \ResponseData('ok');
+    }
+    /**
+     * 退回到多图文的上一处理人
+     * $mpid
+     * $id
+     */
+    public function newsReturn_action($mpid, $id)
+    {
+        $newsModel = $this->model('matter\news');
+        $disposer = $newsModel->disposer($id);
+        if ($disposer->seq == 1) {
+            $news = $newsModel->byId($id);
+            $mid = $news->creater;
+            $phase = 'T';
+        } else {
+            $q = array(
+                '*',
+                'xxt_news_review_log',
+                "news_id=$id and seq=".($disposer->seq - 1)
+            );
+            $prev = $this->model()->query_obj_ss($q);
+            $mid = $prev->mid;
+            $phase = $prev->phase;
+        }
+        
+        $log = $newsModel->forward($mpid, $id, $mid, $phase);
+        
+        return new \ResponseData('ok');
+    }
+    /**
+     * 当前公众号的父账号的所有子公众号
+     */
+    public function childmps_action($mpid) 
+    {
+        $mpa = $this->model('mp\mpaccount')->byId($mpid, 'parent_mpid');
+        
+        if ($mpa && !empty($mpa->parent_mpid)) {
+            $q = array(
+                'mpid,name,mpsrc,create_at,yx_joined,wx_joined,qy_joined',
+                'xxt_mpaccount a',
+                "parent_mpid='$mpa->parent_mpid'"
+            );
+            $q2 = array('o'=>'name'); 
+    
+            $mps = $this->model()->query_objs_ss($q, $q2);
+        } else {
+            $q = array(
+                'mpid,name,mpsrc,create_at,yx_joined,wx_joined,qy_joined',
+                'xxt_mpaccount a',
+                "mpid='$mpid'"
+            );
+            $mp = $this->model()->query_obj_ss($q);
+            $mps = array($mp);
+        }
+        
+        return new \ResponseData($mps);
     }
     /**
      * $pid 获得父公众平台下的子平台

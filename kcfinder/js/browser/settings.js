@@ -58,8 +58,8 @@ browser.initSettings = function() {
 
     if (!_.kuki.isSet('orderDesc'))
         _.kuki.set('orderDesc', 'off');
-
-    $('#order input[value="' + _.kuki.get('order') + '"]').get(0).checked = true;
+    
+    $('#order input[value="' + (_.kuki.get('order') === null ? 'name' : _.kuki.get('order')) + '"]').get(0).checked = true;
     $('#order input[name="desc"]').get(0).checked = (_.kuki.get('orderDesc') == 'on');
 
     $('#order input[type="radio"]').click(function() {
@@ -80,7 +80,7 @@ browser.initSettings = function() {
         $('#show input').each(function() { this.disabled = true; });
     }
 
-    $('#view input[value="' + _.kuki.get('view') + '"]').get(0).checked = true;
+    _.kuki.get('view') !== null && ($('#view input[value="' + _.kuki.get('view') + '"]').get(0).checked = true);
 
     $('#view input').click(function() {
         var view = $(this).attr('value');

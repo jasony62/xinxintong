@@ -5,15 +5,13 @@
             <div class='navbar-header'>
                 <a class='navbar-brand' href='#' ng-click="back($event)"><span class='glyphicon glyphicon-chevron-left'></span></a>
             </div>
-            <ul class='nav navbar-nav'>
-                <button class='btn navbar-btn btn-danger' ng-click='remove()'>删除</button>
-            </ul>
             <ul class='nav navbar-nav navbar-right'>
                 <span ng-if="needReview==='N'" class='qrcode form-group' ng-controller='SendmeController'>
                     <button class='btn btn-primary navbar-btn' data-toggle="popover" data-placement='left' ng-click="qrcode({type:'article',id:editing.id},$event)">发送给我</button>
                 </span>
                 <button ng-if="needReview==='N'" ng-disabled="editing.finished==='Y'" class='btn navbar-btn btn-success' ng-click='finish()'>完成</button>
-                <button ng-if="needReview==='Y'" class='btn navbar-btn btn-default' ng-click='forward()'>发送给</button>
+                <button ng-if="needReview==='Y'" class='btn navbar-btn btn-default' ng-click='forward()'>送审</button>
+                <button class='btn navbar-btn btn-danger' ng-click='remove()'>删除</button>
             </ul>
         </div>
     </nav>
@@ -61,7 +59,21 @@
         <div class='form-group'>
             <label class='col-md-2 control-label'>正文</label>
             <div class='col-md-10'>
-                <tinymce content='editing.body' contenteditable='bodyEditable' update="update('body')" id='body1'></tinymce>
+                <button class='btn' ng-click="update('body')" ng-disabled='!bodyModified' ng-class="bodyModified?'btn-success':'btn-default'">保存</button>
+                <tinymce content='editing.body' contenteditable='bodyEditable' change="onBodyChange()" id='body1'></tinymce>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>发生地点</label>
+            <div class='col-md-10 form-inline'>
+                <label>经度&nbsp;</label><input type='text' class='form-control' ng-model='editing.extinfo.occured_lat' tms-auto-update tms-wait=1000 tms-update="update('extinfo.occured_lat');">
+                <label>纬度&nbsp;</label><input type='text' class='form-control' ng-model='editing.extinfo.occured_lng' tms-auto-update tms-wait=1000 tms-update="update('extinfo.occured_lng');">
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>发生时间</label>
+            <div class='col-md-10'>
+                <input type='text' class='form-control' ng-model='editing.extinfo.occured_time' tms-auto-update tms-wait=1000 tms-update="update('extinfo.occured_time');">
             </div>
         </div>
     </div>

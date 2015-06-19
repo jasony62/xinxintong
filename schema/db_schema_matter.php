@@ -29,7 +29,7 @@ $sql .= ',css text';
 $sql .= ',page_id int not null default 0';
 $sql .= ",access_control char(1) not null default 'N'";
 $sql .= ",authapis text";
-$sql .= ",finished char(1) not null default 'Y'"; // 审核通过
+$sql .= ",finished char(1) not null default 'Y'"; // 完成编辑
 $sql .= ",approved char(1) not null default 'Y'"; // 审核通过
 $sql .= ",remark_notice char(1) not null default 'Y'"; // 接收评论提示 
 $sql .= ",remark_notice_all char(1) not null default 'N'"; // 通知所有参与评论的人有新评论
@@ -211,6 +211,27 @@ $sql .= ",authapis text";
 $sql .= ",filter_by_matter_acl char(1) not null default 'Y'"; // 根据素材的访问控制进行过滤
 $sql .= ',empty_reply_type varchar(20) not null';
 $sql .= ',empty_reply_id varchar(40) not null';
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: '.$mysqli->error;
+}
+/**
+ * 多图文发布过程日志
+ */
+$sql = "create table if not exists xxt_news_review_log(";
+$sql .= 'id int not null auto_increment';
+$sql .= ',mpid varchar(32) not null';
+$sql .= ',news_id int not null';
+$sql .= ',seq int not null';
+$sql .= ',mid varchar(32) not null';
+$sql .= ',send_at int not null';
+$sql .= ',receive_at int not null default 0';
+$sql .= ',read_at int not null default 0';
+$sql .= ',close_at int not null default 0';
+$sql .= ',phase char(1) not null'; // Review|Typeset
+$sql .= ",state char(1) not null"; // Pending|Disposing|Forward|Close
+$sql .= ',remark text';
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');

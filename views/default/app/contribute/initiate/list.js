@@ -1,28 +1,18 @@
-xxtApp=angular.module('xxtApp', ['ui.tms']);
-xxtApp.config(['$locationProvider', '$controllerProvider', function ($locationProvider, $controllerProvider) {
-    $locationProvider.html5Mode(true);
-    xxtApp.register = { controller: $controllerProvider.register };
-}]);
-xxtApp.controller('myArticleCtrl',['$scope','$location','http2',function($scope,$location,http2){
-    $scope.phases = {'I':'投稿','R':'审核','T':'版面'};
-    $scope.create = function() {
-        var url, params = $location.search();
-        url = '/rest/app/contribute/initiate/create';
-        url += '?mpid='+params.mpid+'&entry='+params.entry;
-        http2.get(url, function success(rsp){
-            location.href = '/rest/app/contribute/initiate/article?mpid='+params.mpid+'&id='+rsp.data.id;
+xxtApp.controller('initiateCtrl', ['$scope', '$location', 'Article', function ($scope, $location, Article) {
+    $scope.phases = { 'I': '投稿', 'R': '审核', 'T': '版面' };
+    $scope.approved = { 'Y': '通过', 'N': '未通过' };
+    $scope.create = function () {
+        $scope.Article.create().then(function (data) {
+            location.href = '/rest/app/contribute/initiate/article?mpid=' + $scope.mpid + '&entry=' + $scope.entry + '&id=' + data.id;
         });
     };
-    $scope.open = function(article) {
-        location.href = '/rest/app/contribute/initiate/article?mpid='+$scope.mpid+'&id='+article.id;
+    $scope.open = function (article) {
+        location.href = '/rest/app/contribute/initiate/article?mpid=' + $scope.mpid + '&entry=' + $scope.entry + '&id=' + article.id;
     };
-    $scope.$watch('jsonParams', function(nv) {
-        if (nv && nv.length) {
-            var params = JSON.parse(decodeURIComponent(nv.replace(/\+/, '%20')));
-            console.log('ready', params);
-            $scope.mpid = params.mpid;
-            $scope.needReview = params.needReview;
-            $scope.articles = params.articles;
-        }
+    $scope.mpid = $location.search().mpid;
+    $scope.entry = $location.search().entry;
+    $scope.Article = new Article('initiate', $scope.mpid, $scope.entry);
+    $scope.Article.list().then(function (data) {
+        $scope.articles = data;
     });
 }]);

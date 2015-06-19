@@ -3,8 +3,23 @@ xxtApp.controller('myArticleCtrl', ['$location', '$scope', '$modal', 'http2', 'A
         event.preventDefault();
         history.back();
     };
+    window.onbeforeunload = function (e) {
+        var message;
+        if ($scope.bodyModified) {
+            message = '已经修改的正文还没有保存',
+            e = e || window.event;
+            if (e) {
+                e.returnValue = message;
+            }
+            return message;
+        }
+    };
+    $scope.onBodyChange = function () {
+        $scope.bodyModified = true;
+    };
     $scope.update = function (name) {
         $scope.Article.update($scope.editing, name);
+        name === 'body' && ($scope.bodyModified = false);
     };
     $scope.setTargetMp = function (mp) {
         var mps = JSON.parse($scope.editing.target_mps);
@@ -50,10 +65,7 @@ xxtApp.controller('myArticleCtrl', ['$location', '$scope', '$modal', 'http2', 'A
             $scope.editing.channels.splice(i, 1);
         });
     });
-    $scope.$on('tinymce.innerlink_dlg.open', function(event, callback){
-        $scope.$broadcast('mattersgallery.open', callback);
-    });
-    $scope.$on('tinymce.multipleimage.open', function(event, callback){
+    $scope.$on('tinymce.multipleimage.open', function (event, callback) {
         $scope.$broadcast('picgallery.open', callback, true, true);
     });
     $scope.mpid = $location.search().mpid;

@@ -9,7 +9,7 @@ $sv = TPL::val('subView');
 <div class='navbar navbar-default'>
     <ul class='nav navbar-nav'>
         <li <?php if ($sv==='/mp/user/received') echo "class='active'";?>><a href="/rest/mp/user/messages" target="_self">用户消息</a></li>
-        <li <?php if ($sv==='/mp/user/send') echo "class='active'";?>><a href="/rest/mp/user/send" target="_self">发送消息</a></li>
+        <li <?php if (strpos($sv, '/mp/user/send') === 0) echo "class='active'";?>><a href="/rest/mp/user/send" target="_self">发送消息</a></li>
         <li <?php if ($sv==='/mp/user/fans') echo "class='active'";?>><a href='/rest/mp/user/fans' target="_self">关注用户</a></li>
         <?php if (!empty($authapis)) {?>
         <li <?php if ($sv==='/mp/user/members') echo "class='active'";?>><a href='/rest/mp/user/member' target="_self">认证用户</a></li>

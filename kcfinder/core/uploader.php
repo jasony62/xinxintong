@@ -313,7 +313,7 @@ class uploader {
             $path = iconv('UTF-8', KCFINDER_LOCAL_ENCODING, $path);
         if (file_exists($path))
             return true;
-        return @mkdir($path, $this->config['dirPerms']);
+        return @mkdir($path, $this->config['dirPerms'], true);
     }
 
     public function upload() {

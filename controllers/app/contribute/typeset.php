@@ -12,9 +12,18 @@ class typeset extends base {
     public function afterOAuth($mpid, $entry, $openid=null) 
     {
         $myUrl = 'http://'.$_SERVER['HTTP_HOST']."/rest/app/contribute/typeset?mpid=$mpid&entry=$entry";
-        list($fid, $openid, $mid) = $this->getCurrentUserInfo($mpid, $myUrl);
+        $this->getCurrentUserInfo($mpid, $myUrl);
 
-        $myArticles = $this->model('matter\article')->byReviewer($mid, $entry, 'T', '*', true);
+        $this->view_action('/app/contribute/typeset/list');
+    }
+    /**
+     *
+     */
+    public function articleList_action($mpid, $entry) 
+    {
+        list($fid, $openid, $mid) = $this->getCurrentUserInfo($mpid);
+
+        /*$myArticles = $this->model('matter\article')->byReviewer($mid, $entry, 'T', '*', true);
         if (!empty($myArticles)) foreach ($myArticles as $a) {
             if (!empty($a->disposer) && $a->disposer->mid === $mid && $a->disposer->phase === 'T' && $a->disposer->receive_at == 0) {
                 $this->model()->update(
@@ -22,14 +31,11 @@ class typeset extends base {
                     array('receive_at'=>time()),
                     "id=".$a->disposer->id);
             }
-        }
-
-        $params = array();
-        $params['mpid'] = $mpid;
-        $params['articles'] = $myArticles;
-
-        \TPL::assign('params', $params);
-        $this->view_action('/app/contribute/typeset/list');
+        }*/
+        
+        $approved = $this->model('matter\article')->getApproved($mpid, $entry);
+        
+        return new \ResponseData($approved);
     }
     /**
      *
@@ -37,17 +43,77 @@ class typeset extends base {
     public function article_action($mpid, $id)
     {
         $article = $this->getArticle($mpid, $id);
-        $disposer = $article->disposer;
-        if ($disposer && $disposer->mid === $this->user->mid && $disposer->phase === 'T' && $disposer->state === 'P') {
-            $this->model()->update(
-                'xxt_article_review_log', 
-                array('read_at'=>time(), 'state'=>'D'),
-                "id=$disposer->id");
+        
+        $this->view_action('/app/contribute/typeset/article');
+    }
+    /**
+     *
+     */
+    public function news_action($mpid, $id)
+    {
+        $this->view_action('/app/contribute/typeset/news');
+    }
+    /**
+     *
+     */
+    public function newsList_action($mpid, $id)
+    {
+        $q = array(
+            "n.*",
+            'xxt_news n',
+            "n.mpid='$mpid' and n.state=1"
+        );
+        $q2['o'] = 'create_at desc';
+        
+        $news = $this->model()->query_objs_ss($q, $q2);
+        /**
+         * 处理日志
+         */
+        $newsModel = $this->model('matter\news');
+        if (!empty($news)) foreach ($news as &$n) {
+            $disposer = $newsModel->disposer($n->id);
+            $n->disposer = $disposer;
+            if (!empty($disposer) && $disposer->mid === $this->user->mid && $disposer->phase === 'T' && $disposer->receive_at == 0) {
+                $this->model()->update(
+                    'xxt_news_review_log', 
+                    array('receive_at'=>time()),
+                    "id=".$n->disposer->id);
+            }
         }
-        if ($disposer && $disposer->mid === $this->user->mid && $disposer->phase === 'T' && ($disposer->state === 'P' || $disposer->state === 'D'))
-            $this->view_action('/app/contribute/typeset/article');
-        else
-            $this->view_action('/app/contribute/typeset/article-r');
+        
+        return new \ResponseData($news);
+    }
+    /**
+     * 创建新版面
+     *
+     * $mpid
+     * $entry 投稿入口
+     */
+    public function newsCreate_action($mpid, $entry=null)
+    {
+        list($fid, $openid, $mid) = $this->getCurrentUserInfo($mpid);
+
+        $d = array();
+        $d['mpid'] = $mpid;
+        $d['creater'] = $mid;
+        //$d['creater_name'] = $fan->nickname;
+        //$d['creater_src'] = 'M';
+        $d['create_at'] = time();
+        $d['title'] = date('Y-m-d_Hi');
+        $id = $this->model()->insert('xxt_news', $d, true);
+        /**
+         * articles
+         */
+        $articleIds = $this->getPostJson();
+        foreach ($articleIds as $i=>$articleId) {
+            $ns['news_id'] = $id;
+            $ns['matter_id'] = $articleId;
+            $ns['matter_type'] = 'article';
+            $ns['seq'] = $i;
+            $this->model()->insert('xxt_news_matter', $ns);
+        }
+        
+        return new \ResponseData($id);
     }
     /**
      *

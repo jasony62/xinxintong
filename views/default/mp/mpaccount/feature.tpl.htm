@@ -72,12 +72,12 @@
         <div class="panel-heading">图文消息缺省头图</div>
         <div class="panel-body">
             <div style="width:182px;border:1px solid #CCC">
-                <div style="height:100px;text-align:center;padding-top:32px" ng-if="features.heading_pic==''">
+                <div style="height:100px;text-align:center;padding-top:32px" ng-if="!features.heading_pic">
                     <button class='btn btn-default' ng-click='setPic();'>
                         <span class='glyphicon glyphicon-picture'></span> 选择图片
                     </button>
                 </div>
-                <div style='position:relative' ng-if="features.heading_pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                <div style='position:relative' ng-if="features.heading_pic" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
                     <img name='pic' ng-src="{{features.heading_pic}}" width='180px'/>
                     <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
                         <span class='glyphicon glyphicon-picture'></span>

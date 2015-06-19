@@ -13,7 +13,7 @@
     <div class='col-md-7 form-horizontal' ng-show='editing' style='padding-right:0'>
         <div style='text-align:right;padding-bottom:15px'>
             <div style='display:inline-block'>
-                <pushmatter class='btn btn-primary' title="发送给指定用户" matter-id={{editing.id}} matter-type='news'/>
+                <pushmatter class='btn btn-primary' matter-id={{editing.id}} matter-type='news'>发送给指定用户</pushmatter>
             </div>
             <div class='qrcode' style='display:inline-block' ng-controller='SendmeController'>
                 <button class='btn btn-primary' data-toggle="popover" data-placement='left' ng-click="qrcode({type:'news',id:editing.id},$event)">发送给我</button>

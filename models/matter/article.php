@@ -54,9 +54,28 @@ class article_model extends article_base {
         $articles = $this->query_objs_ss($q, $q2);
         if (!empty($articles) && $cascade) foreach ($articles as &$a) {
             $a->disposer = $this->disposer($a->id);
-            $a->channels = \TMS_APP::M('matter\channel')->byMatter($a->id, 'article');
         }
 
+        return $articles;
+    }
+    /**
+     * 获得审核通过的文稿
+     * 
+     * $mpid
+     */
+    public function &getApproved($mpid, $entry=null, $page=1, $size=30)
+    {
+        $q = array(
+            'a.*',
+            'xxt_article a',
+            "a.mpid='$mpid' and a.approved='Y' and state=1"
+        );
+        !empty($entry) && $q[2] .= " and a.entry='$entry'";
+        
+        $q2 = array('o'=>'a.create_at desc');
+
+        $articles = $this->query_objs_ss($q, $q2);
+        
         return $articles;
     }
     /**
@@ -274,6 +293,7 @@ class article_model extends article_base {
     }
     /**
      * 获得当前处理人
+     * 状态为等待处理（Pending），或正在处理（Dispose）
      */
     public function &disposer($id) 
     {

@@ -31,7 +31,7 @@ class template extends xxt_base {
 
         if (!empty($auth_url)) {
             if (!($authapi = $this->model('user/authapi')->byUrl($mpid, $auth_url, 'authid')))
-                return new \ResponseData('没有定义身份认证接口，无法进行身份转换，消息发送失败！');
+                return new \ResponseError('没有定义身份认证接口，无法进行身份转换，消息发送失败！');
 
             $authid = $authapi->authid;
         }

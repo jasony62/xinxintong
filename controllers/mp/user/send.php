@@ -17,6 +17,15 @@ class send extends \mp\mp_controller {
      */
     public function index_action()
     {
-        $this->view_action('/mp/user/send');
+        $mpa = $this->getMpaccount();
+        if ($mpa->asparent === 'Y') {
+            $params = array();
+            $params['mpaccount'] = $mpa;
+            \TPL::assign('params', $params);
+            
+            $this->view_action('/mp/user/send/parentmp');
+        } else {
+            $this->view_action('/mp/user/send');
+        }
     }
 }

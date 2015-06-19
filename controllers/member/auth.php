@@ -477,23 +477,13 @@ class auth extends \member_base {
         return new \ResponseError('not support');
     }
     /**
-     * 将内部组织结构数据增量导入到企业号通讯录 
-     *
-     * $mpid
-     * $authid
-     */
-    public function syncFromQy_action($mpid, $authid)
-    {
-        return new \ResponseError('not support');
-    }
-    /**
-     * 从企业号导入通讯录数据
+     * 从企业号通讯录同步用户数据
      *
      * $authid
      * $pdid 父部门id
      *
      */
-    public function importFromQy_action($mpid, $authid, $pdid=1)
+    public function syncFromQy_action($mpid, $authid, $pdid=1)
     {
         if (!($authapi = $this->model('user/authapi')->byId($authid)))
             return new \ResponseError('未设置内置认证接口，无法同步通讯录');

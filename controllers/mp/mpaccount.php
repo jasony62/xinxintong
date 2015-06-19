@@ -32,6 +32,7 @@ class mpaccount extends mp_controller {
     {
         $rule_action['rule_type'] = 'white';
         $rule_action['actions'][] = 'hello';
+        $rule_action['actions'][] = 'apis'; // todo ????
 
         return $rule_action;
     }
@@ -104,6 +105,22 @@ class mpaccount extends mp_controller {
             else
                 $this->view_action('/mp/mpaccount/read/main');
         }
+    }
+    /**
+     * 当前公众号的所有子公众号
+     */
+    public function childmps_action() 
+    {
+        $q = array(
+            'mpid,name,mpsrc,create_at,yx_joined,wx_joined,qy_joined',
+            'xxt_mpaccount a',
+            "parent_mpid='$this->mpid'"
+        );
+        $q2 = array('o'=>'name'); 
+
+        $mps = $this->model()->query_objs_ss($q, $q2);
+
+        return new \ResponseData($mps);
     }
     /**
      *

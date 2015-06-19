@@ -5,8 +5,9 @@ body{background:#EEE}
 .table .thead .tr>div{text-align:center;font-weight:700}
 .table .tbody .tr{cursor:pointer}
 .table .tr>div{display:table-cell;padding:15px 8px;border-left:1px solid #CCC}
+.table .tr>div.pending{color:red}
 .table .tr>div:nth-child(2){width:140px}
-.table .tr>div:nth-child(3){width:100px;text-align:center}
-.table .tr>div:nth-child(4){width:60px;text-align:center}
+.table .tr>div:nth-child(3){width:80px;text-align:center}
+.table .tr>div:nth-child(4){width:80px;text-align:center}
 .table .tr>div:nth-child(5){width:60px;text-align:center}
 .table .tr>div:nth-child(6){width:60px;text-align:center}

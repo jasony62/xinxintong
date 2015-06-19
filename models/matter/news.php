@@ -19,6 +19,27 @@ class news_model extends article_base {
         return 'news';
     }
     /**
+    
+     * $mid member's 仅限认证用户
+     * $phase 
+     */
+    public function &byReviewer($mid, $phase, $fields='*', $cascade=false)
+    {
+        $q = array(
+            'n.*',
+            'xxt_news n',
+            "exists(select 1 from xxt_news_review_log l where n.id=l.news_id and l.mid='$mid' and l.phase='R')"
+        );
+        $q2 = array('o'=>'n.create_at desc');
+
+        $news = $this->query_objs_ss($q, $q2);
+        if (!empty($news) && $cascade) foreach ($news as &$n) {
+            $n->disposer = $this->disposer($n->id);
+        }
+
+        return $news;
+    }
+    /**
      * 返回多图文包含的素材
      *
      * $param int $news_id
@@ -119,7 +140,7 @@ class news_model extends article_base {
          * 单图文
          */
         $q = array(
-            "a.id,a.mpid,a.title,a.pic,a.summary,a.body,a.url,a.create_at,nm.seq",
+            "a.id,a.mpid,a.title,a.pic,a.summary,a.body,a.url,a.create_at,nm.seq,'article' type",
             'xxt_article a,xxt_news_matter nm',
             "nm.matter_type='article' and nm.news_id=$news_id and nm.matter_id=a.id"
         );
@@ -144,7 +165,7 @@ class news_model extends article_base {
         return $news;
     }
     /**
-     *
+     * 删除文稿
      */
     public function removeMatter($id, $matterId, $matterType)
     {
@@ -160,5 +181,63 @@ class news_model extends article_base {
         $rst && $this->update("update xxt_news_matter set seq=seq-1 where news_id='$id' and seq>$seq");
         
         return $rst;
+    }
+    /**
+     * 多图文审核记录
+     *
+     * $mpid
+     * $id news'id
+     * $mid member's id
+     * $phase
+     */
+    public function forward($mpid, $id, $mid, $phase)
+    {
+        $q = array(
+            '*', 
+            'xxt_news_review_log', 
+            "mpid='$mpid' and news_id='$id'"
+        );
+        $q2 = array(
+            'o'=>'seq desc',
+            'r'=>array('o'=>0,'l'=>1)
+        );
+        $last = $this->query_objs_ss($q, $q2);
+        if (!empty($last)) {
+            $last = $last[0];
+            $this->update(
+                'xxt_news_review_log', 
+                array('state'=>'F'),
+                "id=$last->id"
+            );
+        }
+        
+        $seq = empty($last) ? 1 : $last->seq + 1;
+        
+        $newlog = array( 
+            'mpid' => $mpid,
+            'news_id' => $id,
+            'seq' => $seq,
+            'mid' => $mid,
+            'send_at' => time(),
+            'state' => 'P',
+            'phase' => $phase
+        );
+        $newlog['id'] = $this->insert('xxt_news_review_log', $newlog, true);
+        
+        return (object)$newlog;
+    }
+    /**
+     * 获得当前处理人
+     */
+    public function &disposer($id) 
+    {
+        $q = array(
+            'id,seq,mid,phase,state,send_at,receive_at,read_at',
+            'xxt_news_review_log',
+            "news_id='$id' and state in ('P','D')"
+        );
+        $lastlog = $this->query_obj_ss($q);
+        
+        return $lastlog;
     }
 }

@@ -589,6 +589,13 @@ angular.module('matters.xxt', ['ui.bootstrap'])
     $scope.canMember = function () {
         return !$scope.userConfig || $scope.userConfig.userScope.indexOf('M') !== -1;
     };
+    $scope.pickMp = function (mp) {
+        !$scope.userSet.childmps && ($scope.userSet.childmps = []);
+        if (mp.checked === 'Y')
+            $scope.userSet.childmps.push(mp);
+        else
+            $scope.userSet.childmps.splice($scope.userSet.childmps.indexOf(mp), 1);
+    };
     $scope.pickGroup = function (g) {
         !$scope.userSet.fansGroup && ($scope.userSet.fansGroup = []);
         if (g.checked === 'Y')
@@ -597,18 +604,24 @@ angular.module('matters.xxt', ['ui.bootstrap'])
             $scope.userSet.fansGroup.splice($scope.userSet.fansGroup.indexOf(g), 1);
     };
     $scope.$watch('userSet.userScope', function (nv) {
-        if (nv && nv === 'g' && $scope.groups === undefined) {
-            http2.get('/rest/mp/user/fans/group', function (rsp) {
-                $scope.groups = rsp.data;
-            });
-        } else if (nv && /authid_\d+/.test(nv)) {
-            $scope.authapi = getPickedAuthapi();
-            http2.get($scope.authapi.url + '/memberSelector?authid=' + $scope.authapi.authid, function (rsp) {
-                $.getScript(rsp.data.js, function () {
-                    $scope.memberViewUrl = rsp.data.view;
-                    $scope.$apply('memberViewUrl');
+        if (nv && nv.length) {
+            if (nv === 'mp') {
+                http2.get('/rest/mp/mpaccount/childmps', function (rsp) {
+                    $scope.childmps = rsp.data;
                 });
-            });
+            } else if (nv === 'g' && $scope.groups === undefined) {
+                http2.get('/rest/mp/user/fans/group', function (rsp) {
+                    $scope.groups = rsp.data;
+                });
+            } else if (/authid_\d+/.test(nv)) {
+                $scope.authapi = getPickedAuthapi();
+                http2.get($scope.authapi.url + '/memberSelector?authid=' + $scope.authapi.authid, function (rsp) {
+                    $.getScript(rsp.data.js, function () {
+                        $scope.memberViewUrl = rsp.data.view;
+                        $scope.$apply('memberViewUrl');
+                    });
+                });
+            }
         }
     });
     $scope.$on('init.member.selector', function (event, config) {
@@ -663,8 +676,10 @@ angular.module('matters.xxt', ['ui.bootstrap'])
         data = {
             targetUser: targetUser
         };
-        if ($scope.targetUser === 'F') {
-            if ($scope.userSet.userScope === 'a')
+        if (targetUser === 'F') {
+            if ($scope.userSet.userScope === 'mp')
+                data.mps = $scope.userSet.childmps;
+            else if ($scope.userSet.userScope === 'a')
                 data.allUsers = 'Y';
             else if ($scope.userScope == 'g')
                 data.gs = $scope.userSet.fansGroup;
@@ -692,14 +707,26 @@ angular.module('matters.xxt', ['ui.bootstrap'])
                 }).result.then(function (data) {
                     data.id = $scope.matterId;
                     data.type = $scope.matterType;
-                    http2.post('/rest/mp/send/mass', data, function (rsp) {
-                        $rootScope.infomsg = '发送完成';
-                    });
+                    if (data.mps !== undefined) {
+                        var i = 0, mps = [];
+                        for (i; i < data.mps.length; i++) {
+                            mps.push(data.mps[i].mpid);
+                        }
+                        data.mps = mps;
+                        http2.post('/rest/mp/send/mass2mps', data, function (rsp) {
+                            $rootScope.infomsg = '发送完成';
+                        });
+                    } else {
+                        http2.post('/rest/mp/send/mass', data, function (rsp) {
+                            $rootScope.infomsg = '发送完成';
+                        });
+                    }
                 });
             };
         }],
         replace: true,
-        template: "<button ng-click='open()'>发送给指定用户</button>",
+        transclude: true,
+        template: "<button ng-click='open()' ng-transclude></button>",
     };
 }).directive('matterShop', ['$q', 'http2', function ($q, http2) {
     var Shop = function (type, mpid) {

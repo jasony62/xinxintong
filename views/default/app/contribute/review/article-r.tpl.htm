@@ -5,11 +5,11 @@
             <div class="navbar-header">
                 <a class="navbar-brand" href="#" ng-click="back($event)"><span class='glyphicon glyphicon-chevron-left'></span></a>
             </div>
-            <ul class='nav navbar-nav navbar-right' ng-if="editing.disposer.phase==='R'">
-                <button class='btn navbar-btn btn-default' ng-click='forward()'>发送给</button>
-                <button class='btn navbar-btn btn-default' ng-click='return()'>退回</button>
-                <button class='btn navbar-btn btn-default' disabled>不通过</button>
-                <button class='btn navbar-btn btn-default' disabled>发布</button>
+            <ul class='nav navbar-nav navbar-right'>
+                <button class='btn navbar-btn btn-default' ng-if="editing.disposer.phase==='R'" ng-click='return()'>退回</button>
+                <button class='btn navbar-btn btn-default' ng-if="editing.disposer.phase==='R'" ng-click='refuse()'>不通过</button>
+                <button class='btn navbar-btn btn-success' ng-if="editing.disposer.phase==='R'" ng-click='pass()'>通过</button>
+                <button class='btn navbar-btn btn-default' ng-if="editing.approved==='Y'" ng-click='publish()'>发布</button>
             </ul>
         </div>
     </nav>
@@ -52,6 +52,19 @@
             <label class='col-md-2 control-label'>正文</label>
             <div class='col-md-10'>
                 <iframe id='content' class='form-control' style='height:300px'></iframe>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>发生地点</label>
+            <div class='col-md-10 form-inline'>
+                <label>经度&nbsp;</label><p class='form-control' ng-bind='editing.extinfo.occured_lat'></p>
+                <label>纬度&nbsp;</label><p class='form-control' ng-bind='editing.extinfo.occured_lng'></p>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>发生时间</label>
+            <div class='col-md-10'>
+                <p class='form-control' ng-bind='editing.extinfo.occured_time'></p>
             </div>
         </div>
         <div class='form-group' ng-if='targetMps'>

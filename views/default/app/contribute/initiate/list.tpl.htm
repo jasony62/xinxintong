@@ -1,4 +1,4 @@
-<div class='container' ng-clock ng-app='xxtApp' ng-controller='myArticleCtrl' style='padding:15px 0' ng-init="jsonParams='<?php echo urlencode(json_encode(TPL::val('params')));?>'">
+<div class='container' ng-clock ng-app='xxtApp' ng-controller='initiateCtrl' style='padding:15px 0'>
     <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
     <nav class='navbar navbar-default'>
         <div class="container-fluid">
@@ -12,18 +12,18 @@
             <div class='tr'>
                 <div>标题</div>
                 <div>创建时间</div>
-                <div ng-if="needReview==='Y'">阶段</div>
-                <div>状态</div>
+                <div>处理阶段</div>
+                <div>审核状态</div>
                 <div>阅读</div>
                 <div>点赞</div>
             </div>
         </div>
         <div class='tbody'>
             <div class='tr' ng-repeat="a in articles" ng-click="open(a)">
-                <div ng-bind="a.title"></div>
+                <div ng-bind="a.title" ng-class="{'pending':a.disposer.state==='P'&&a.disposer.phase==='I'}"></div>
                 <div ng-bind="a.create_at*1000|date:'yy-MM-dd HH:mm'"></div>
-                <div ng-if="needReview==='Y'" ng-bind="phases[a.disposer.phase]"></div>
-                <div ng-bind=""></div>
+                <div ng-bind="phases[a.disposer.phase]||'投稿'"></div>
+                <div ng-bind="approved[a.approved]"></div>
                 <div ng-bind="a.read_num"></div>
                 <div ng-bind="a.score"></div>
             </div>

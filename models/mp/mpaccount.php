@@ -226,5 +226,103 @@ class mpaccount_model extends \TMS_MODEL {
 
         return $relay;
     }
+    /**
+     * 群发消息
+     * 需要开通群发接口
+     */
+    public function mass2mps($matterId, $matterType, $mpids) 
+    {
+        if (empty($mpids))
+            return array(false, '没有指定接收消息的公众号');
+
+        $mpModel = \TMS_APP::M('mp\mpaccount');
+        foreach ($mpids as $mpid) {
+            $mpaccount = $mpModel->byId($mpid);
+            $mpsrc = $mpaccount->mpsrc;
+            /**
+             * set message
+             */
+            $matterModel = \TMS_APP::M('matter\\'.$matterType);
+            if ($mpsrc === 'wx' && in_array($matterType, array('article', 'news', 'channel'))) {
+                /**
+                 * 微信的图文群发消息需要上传到公众号平台，所以链接素材无法处理
+                 */
+                $message = $matterModel->forWxGroupPush($mpid, $matterId);
+            } else {
+                $message = $matterModel->forCustomPush($mpid, $matterId);
+            }
+            if (empty($message)) {
+                $warning[$mpid] = '指定的素材无法向公众号用户群发！';
+                continue;
+            }
+            /**
+             * send
+             */
+            if ($mpsrc === 'wx') {
+                $message['filter'] = array('is_to_all'=> true);
+                $rst = $this->send_to_wx_group($mpid, $message);
+            } else if ($mpsrc === 'yx') {
+                $rst = $this->send_to_yx_group($mpid, $message);
+            }
+            false === $rst[0] && $warning[$mpid] = $rst[1];
+        }
+        
+        if (!empty($warning)) 
+            return array(false, $warning);
+        else
+            return array(true, 'ok');
+    }
+    /**
+     * 向微信用户群发消息
+     */
+    private function send_to_wx_group($mpid, $message) 
+    {
+        $mpproxy = \TMS_APP::M('mpproxy/wx', $mpid);
+        if ($message['msgtype'] == 'news') {
+            /**
+             * 图文消息需要上传
+             */
+            $articles = &$message['news']['articles'];
+            foreach ($articles as &$a) {
+                $media = $mpproxy->mediaUpload(urldecode($a['picurl']));
+                if ($media[0] === false)
+                    return array(false, '上传头图失败：'.$media[1]);
+                $a['thumb_media_id'] = $media[1];
+            }
+            /**
+             * 上传消息
+             */
+            $media = $mpproxy->mediaUploadNews($message);
+            if ($media[0] === false)
+                return $media;
+
+            $message = array(
+                'filter'=>$message['filter'],
+                'mpnews'=>array(
+                    "media_id"=>$media[1]
+                ),
+                'msgtype'=>"mpnews"
+            );
+        }
+        /**
+         * 发送消息
+         */
+        $message = urldecode(json_encode($message)); 
+        $rst = $mpproxy->messageMassSendall($message);
+        
+        return $rst;
+    }
+    /**
+     * 向易信用户群发消息
+     */
+    private function send_to_yx_group($mpid, $message) 
+    {
+        $mpproxy = \TMS_APP::M('mpproxy/yx', $mpid);
+
+        $message = urldecode(json_encode($message)); 
+        $rst = $mpproxy->messageGroupSend($message);
+        
+        return $rst;
+    }
 }
 

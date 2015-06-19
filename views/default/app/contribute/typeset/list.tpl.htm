@@ -1,9 +1,12 @@
-<div class='container' ng-clock ng-app='xxtApp' ng-controller='myArticleCtrl' style='padding:15px 0' ng-init="jsonParams='<?php echo urlencode(json_encode(TPL::val('params')));?>'">
+<div class='container' ng-clock ng-app='xxtApp' ng-controller='typesetCtrl' style='padding:15px 0'>
     <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
     <nav class='navbar navbar-default'>
         <ul class='nav navbar-nav' ng-init="subView='articles'">
             <li ng-class="{'active':subView==='articles'}">
                 <a href="#" ng-click="subView='articles'">文稿</a>
+            </li>
+            <li ng-class="{'active':subView==='news'}">
+                <a href="#" ng-click="subView='news'">版面</a>
             </li>
             <li ng-class="{'active':subView==='channels'}">
                 <a href="#" ng-click="subView='channels'">专题</a>
@@ -11,7 +14,10 @@
         </ul>
     </nav>
     <div ng-switch on="subView">
-        <div ng-switch-when="articles" id='articles'>
+        <div ng-switch-when="articles" id='articles' ng-controller="articleCtrl">
+            <div class='form-group' style='text-align:right'>
+                <button class='btn btn-success' ng-click='createNews()'>新建版面</button>
+            </div>
             <div class='table'>
                 <div class='thead'>
                     <div class='tr'>
@@ -22,21 +28,43 @@
                         <div>修改人</div>
                         <div>发布到</div>
                         <div>专题</div>
-                        <div>阶段</div>
-                        <div>状态</div>
                     </div>
                 </div>
                 <div class='tbody'>
-                    <div class='tr' ng-repeat="a in articles" ng-click='open(a)'>
-                        <div><input type='checkbox'></div>
+                    <div class='tr' ng-repeat="a in articles" ng-click='open($event, a)'>
+                        <div>
+                            <input type='checkbox' ng-model='a.checked' ng-change='checkArticle(a)'>
+                        </div>
                         <div ng-bind="a.title" ng-class="{'pending':a.disposer.state==='P'&&a.disposer.phase==='T'}"></div>
                         <div ng-bind="a.creater_name"></div>
                         <div ng-bind="a.create_at*1000|date:'yyyy-MM-dd HH:mm'"></div>
                         <div ng-bind=""></div>
                         <div ng-bind=""></div>
                         <div ng-bind="titleOfChannels(a)"></div>
-                        <div ng-bind="phases[a.disposer.phase]"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-switch-when="news" id='news' ng-controller='newsCtrl'>
+            <div class='table'>
+                <div class='thead'>
+                    <div class='tr'>
                         <div></div>
+                        <div>名称</div>
+                        <div>创建人</div>
+                        <div>创建时间</div>
+                        <div>处理阶段</div>
+                        <div>审核状态</div>
+                    </div>
+                </div>
+                <div class='tbody'>
+                    <div class='tr' ng-repeat="n in news" ng-click='open(n)'>
+                        <div ng-bind="$index+1"></div>
+                        <div ng-bind="n.title"></div>
+                        <div ng-bind="n.creater_name"></div>
+                        <div ng-bind="n.create_at*1000|date:'yyyy-MM-dd HH:mm'"></div>
+                        <div ng-bind="phases[n.disposer.phase]"></div>
+                        <div ng-bind=""></div>
                     </div>
                 </div>
             </div>
@@ -52,20 +80,14 @@
                         <div>名称</div>
                         <div>创建人</div>
                         <div>创建时间</div>
-                        <div>修改人</div>
-                        <div>修改时间</div>
                         <div>精确关键字</div>
                         <div>模糊关键字</div>
                         <div>状态</div>
-                        <div></div>
                     </div>
                 </div>
                 <div class='tbody'>
                     <div class='tr' ng-repeat="c in channels">
                         <div ng-bind="$index"></div>
-                        <div ng-bind=""></div>
-                        <div ng-bind=""></div>
-                        <div ng-bind=""></div>
                         <div ng-bind=""></div>
                         <div ng-bind=""></div>
                         <div ng-bind=""></div>

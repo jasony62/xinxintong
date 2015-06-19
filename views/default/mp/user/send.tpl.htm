@@ -15,8 +15,11 @@ $canSend = $canWxGroup || $canYxGroup || $canMember;
             <button class='btn btn-success' ng-click='openUserPicker()'>选择用户</button>
             <ul class='list-group'>
                 <li class='list-group-item' ng-repeat="us in userSet" ng-mouseenter='enter=true' ng-mouseleave='enter=false'>
-                <button class="btn btn-default btn-xs pull-right" ng-click="removeUserSet(us, $index)"><span class="glyphicon glyphicon-remove"></span></button>
-                <span>{{us.label||us.identity}}</span>
+                    <button class="btn btn-default btn-xs pull-right" ng-click="removeUserSet(us, $index)">
+                        <span class="glyphicon glyphicon-remove"></span>
+                    </button>
+                    <span>{{us.label||us.identity}}</span>
+                </li>
             </ul>
         </div>
     </div>
@@ -30,7 +33,8 @@ $canSend = $canWxGroup || $canYxGroup || $canMember;
                     <option value='channel'>频道</option>
                 </select>
             </div>
-            <label class="checkbox-inline" ng-show="hasParent==='Y'"><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='fromParent' ng-change='fetchMatter()'>来源于父账号</label>
+            <label class="checkbox-inline" ng-show="hasParent==='Y'">
+                <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='fromParent' ng-change='fetchMatter()'>来源于父账号</label>
             <div class='form-group pull-right'>
                 <button class='btn btn-primary' ng-disabled='userSet.length===0||!selectedMatter' ng-click='send($event)'>发送</button>
             </div>
@@ -38,7 +42,9 @@ $canSend = $canWxGroup || $canYxGroup || $canMember;
         <div class='list-group'>
             <a class='list-group-item' ng-class="{'active':selectedMatter==m}" ng-repeat='m in matters' ng-click='selectMatter(m)'>{{m.title||m.content}}</a>
         </div>
-        <pagination ng-show="matterType==='article'&&page.total>page.size" class="form-group pagination pull-right" style='cursor:pointer;margin-top:0' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.current" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="fetchMatter()"></pagination>
+        <pagination ng-show="matterType==='article'&&page.total>page.size" class="form-group pagination pull-right" style='cursor:pointer;margin-top:0'
+        boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.current"
+        previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="fetchMatter()"></pagination>
     </div>
 </div>
 <script type="text/ng-template" id='userPicker.html'>

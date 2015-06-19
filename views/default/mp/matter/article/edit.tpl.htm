@@ -1,7 +1,7 @@
 <div ng-controller='editCtrl'>
     <div class='form-inline form-group' style='text-align:right'>
         <div class='form-group'>
-            <pushmatter class='btn btn-primary' title="发送给指定用户" matter-id={{editing.id}} matter-type='article'/>
+            <pushmatter class='btn btn-primary' matter-id={{editing.id}} matter-type='article'>发送给指定用户</pushmatter>
         </div>
         <div class='qrcode form-group' ng-controller='SendmeController'>
             <button class='btn btn-primary' data-toggle="popover" data-placement='left' ng-click="qrcode({type:'article',id:editing.id},$event)">发送给我</button>

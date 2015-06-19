@@ -48,7 +48,7 @@ abstract class article_base extends base_model {
         $articles = $this->getArticles($id);
         foreach ($articles as $a) {
             if (empty($a->title) || empty($a->pic) || empty($a->body))
-                die('文章的标题或者正文为空，不能向微信用户群发！');
+                die('文章的标题、头图或者正文为空，不能向微信用户群发！');
             $ma[] = array(
                 'title'=>$a->title,
                 'description'=>$a->summary,

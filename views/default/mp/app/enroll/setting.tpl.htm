@@ -4,7 +4,7 @@
             <button class='btn btn-default' title='设置轮次' ng-if='!editing.rounds' ng-click="editing.rounds=[]">设置轮次</button>
         </div>
         <div class='form-group'>
-            <pushmatter class='btn btn-primary' title="发送给指定用户" matter-id={{editing.id}} matter-type='enroll'/>
+            <pushmatter class='btn btn-primary' matter-id={{editing.id}} matter-type='enroll'>发送给指定用户</pushmatter>
         </div>
         <div class='qrcode form-group' ng-controller='SendmeController'>
             <button class='btn btn-primary' data-toggle="popover" data-placement='left' ng-click="qrcode({type:'enroll',id:editing.id},$event)">发送给我</button>

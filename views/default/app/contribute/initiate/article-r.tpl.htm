@@ -42,5 +42,24 @@
                 <iframe id='content' class='form-control' style='height:300px'></iframe>
             </div>
         </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>发生地点</label>
+            <div class='col-md-10 form-inline'>
+                <label>经度&nbsp;</label><p class='form-control' ng-bind='editing.extinfo.occured_lat'></p>
+                <label>纬度&nbsp;</label><p class='form-control' ng-bind='editing.extinfo.occured_lng'></p>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>发生时间</label>
+            <div class='col-md-10'>
+                <p class='form-control' ng-bind='editing.extinfo.occured_time'></p>
+            </div>
+        </div>
+        <div class='form-group' ng-if='targetMps'>
+            <label class='col-md-2 control-label'>发布到</label>
+            <div class='col-md-10'>
+                <p class='form-control-static' ng-bind='targetMps'></p>
+            </div>
+        </div>
     </div>
 </div>

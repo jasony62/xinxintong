@@ -148,6 +148,27 @@ class send extends mp_controller {
             return new \ResponseData('success');
     }
     /**
+     * 群发消息
+     * 需要开通高级接口
+     *
+     * 开通了群发接口的微信和易信公众号
+     * 微信企业号
+     * 开通了点对点认证接口的易信公众号
+     */
+    public function mass2mps_action() 
+    {
+        $matter = $this->getPostJson();
+        if (empty($matter->mps))
+            return new \ResponseError('请指定接收消息的公众号');
+        
+        $rst = $this->model('mp\mpaccount')->mass2mps($matter->id, $matter->type, $matter->mps);
+               
+        if ($rst[0] === false) 
+            return new \ResponseError($rst[1]);
+        else
+            return new \ResponseData('ok');
+    }
+    /**
      * 根据指定的素材，组装客服消息
      */
     private function assemble_custom_message($matter) 

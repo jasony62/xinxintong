@@ -275,6 +275,17 @@ class xxt_base extends TMS_CONTROLLER {
         return $rst;
     }
     /**
+     * 通过微信
+     */
+    public function send_to_wxuser_by_preview($mpid, $message, $openid)
+    {
+        $mpproxy = $this->model('mpproxy/wx', $mpid);
+        
+        $rst = $mpproxy->messageMassPreview($message, $openid);
+
+        return $rst;
+    }
+    /**
      * 发送给认证用户
      *
      * $mpaccount mpid or mpaccount object

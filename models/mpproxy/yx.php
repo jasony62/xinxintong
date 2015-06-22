@@ -413,5 +413,14 @@ class yx_model extends mpproxy_base {
 
         return array(true, (object)$d);
     }
-
+    /**
+     * 向易信用户群发消息
+     */
+    public function send2group($message) 
+    {
+        $message = urldecode(json_encode($message));
+        $rst = $this->messageGroupSend($message);
+        
+        return $rst;
+    }
 }

@@ -59,6 +59,26 @@ class send extends mp_controller {
         return new \ResponseData('success');
     }
     /**
+     *
+     */
+    private function send2group($mpsrc, $mpid, $message, $matter, &$warning)
+    {
+        $uid = \TMS_CLIENT::get_client_uid();
+        
+        $mpproxy = $this->model('mpproxy/'.$mpsrc, $mpid);
+        
+        $rst = $mpproxy->send2group($message);
+        if ($rst[0] === true) {
+            $msgid = isset($rst[1]->msg_id) ? $rst[1]->msg_id : 0;
+            $this->model('log')->mass($uid, $mpid, $matter->type, $matter->id, $message, $msgid, 'ok');
+        } else {
+            $warning[] = $rst[1];
+            $this->model('log')->mass($uid, $mpid, $matter->type, $matter->id, $message, 0, $rst[1]);
+        }
+        
+        return true;
+    }
+    /**
      * 群发消息
      * 需要开通高级接口
      *
@@ -98,19 +118,13 @@ class send extends mp_controller {
             /**
              * send
              */
+            
             if ($userSet[0]->identity === -1) {
                 /**
                  * 发给所有用户
                  */
-                if ($mpaccount->mpsrc === 'wx') {
-                    $message['filter'] = array('is_to_all'=> true);
-                    if (true !== ($rst = $this->send_to_wx_group($message)))
-                        $warning[] = $rst;
-
-                } else if ($mpaccount->mpsrc === 'yx') {
-                    if (true !== ($rst = $this->send_to_yx_group($message)))
-                        $warning[] = $rst;
-                }
+                $mpaccount->mpsrc === 'wx' && $message['filter'] = array('is_to_all'=> true);
+                $this->send2group($mpaccount->mpsrc, $this->mpid, $message, $matter, $warning);
             } else {
                 /**
                  * 发送给指定的关注用户组
@@ -121,15 +135,13 @@ class send extends mp_controller {
                             'is_to_all'=>false,
                             'group_id'=>$us->identity
                         );
-                        if (true !== ($rst = $this->send_to_wx_group($message)))
-                            $warning[] = $rst;
+                        $this->send2group($mpaccount->mpsrc, $this->mpid, $message, $matter, $warning);
                     }
                 } else if ($mpaccount->mpsrc === 'yx') {
                     $message = $this->assemble_custom_message($matter);
                     foreach ($userSet as $us) {
                         $message['group'] = $us->label;
-                        if (true !== ($rst = $this->send_to_yx_group($message)))
-                            $warning[] = $rst;
+                        $this->send2group($mpaccount->mpsrc, $this->mpid, $message, $matter, $warning);
                     }
                 }
             }
@@ -148,7 +160,43 @@ class send extends mp_controller {
             return new \ResponseData('success');
     }
     /**
-     * 群发消息
+     * 预览消息
+     *
+     * 开通预览接口的微信公众号
+     * 开通点对点消息的易信公众奥
+     * 微信企业号
+     */
+    public function preview_action($matterId, $matterType, $openids)
+    {
+        $mpaccount = $this->getMpaccount();
+        
+        if ($mpaccount->mpsrc === 'wx') {
+            $model = $this->model('matter\\'.$matterType); 
+            if ($matterType === 'text')
+                $message = $model->forCustomPush($this->mpid, $matterId);
+            else if (in_array($matterType, array('article', 'news', 'channel'))) {
+                /**
+                 * 微信的图文群发消息需要上传到公众号平台，所以链接素材无法处理
+                 */
+                $message = $model->forWxGroupPush($this->mpid, $matterId);
+            }
+            $rst = $this->send_to_wxuser_by_preview($this->mpid, $message, $openids);
+        } else if ($mpaccount->mpsrc === 'yx') {
+            $message = $this->assemble_custom_message($matter);
+            $rst = $this->sent_to_yxuser_byp2p($this->mpid, $message, $openids);
+        } else if ($mpaccount->mpsrc === 'qy') {
+        }
+        
+        if (empty($message)) 
+            return new \ResponseError('指定的素材无法向用户群发！');
+        
+        if ($rst[0] === false) 
+            return new \ResponseError($rst[1]);
+        else
+            return new \ResponseData('ok');
+    }
+    /**
+     * 群发消息到子公众号
      * 需要开通高级接口
      *
      * 开通了群发接口的微信和易信公众号
@@ -161,9 +209,10 @@ class send extends mp_controller {
         if (empty($matter->mps))
             return new \ResponseError('请指定接收消息的公众号');
         
-        $rst = $this->model('mp\mpaccount')->mass2mps($matter->id, $matter->type, $matter->mps);
+        $uid = \TMS_CLIENT::get_client_uid();
+        $rst = $this->model('mp\mpaccount')->mass2mps($uid, $matter->id, $matter->type, $matter->mps);
                
-        if ($rst[0] === false) 
+        if ($rst[0] === false)
             return new \ResponseError($rst[1]);
         else
             return new \ResponseData('ok');
@@ -177,62 +226,6 @@ class send extends mp_controller {
         $message = $model->forCustomPush($this->mpid, $matter->id);
 
         return $message;
-    }
-    /**
-     * 向微信用户群发消息
-     */
-    private function send_to_wx_group($message) 
-    {
-        $mpproxy = $this->model('mpproxy/wx', $this->mpid);
-        if ($message['msgtype'] == 'news') {
-            /**
-             * 图文消息需要上传
-             */
-            $articles = &$message['news']['articles'];
-            foreach ($articles as &$a) {
-                $media = $mpproxy->mediaUpload(urldecode($a['picurl']));
-                if ($media[0] === false)
-                    return '上传头图失败：'.$media[1];
-                $a['thumb_media_id'] = $media[1];
-            }
-            /**
-             * 上传消息
-             */
-            $media = $mpproxy->mediaUploadNews($message);
-            if ($media[0] === false)
-                return $media[1];
-
-            $message = array(
-                'filter'=>$message['filter'],
-                'mpnews'=>array(
-                    "media_id"=>$media[1]
-                ),
-                'msgtype'=>"mpnews"
-            );
-        }
-        /**
-         * 发送消息
-         */
-        $message = urldecode(json_encode($message)); 
-        $rst = $mpproxy->messageMassSendall($message);
-        if ($rst[0] === false)
-            return $rst[1];
-
-        return true;
-    }
-    /**
-     * 向易信用户群发消息
-     */
-    private function send_to_yx_group($message) 
-    {
-        $mpproxy = $this->model('mpproxy/yx', $this->mpid);
-
-        $message = urldecode(json_encode($message)); 
-        $rst = $mpproxy->messageGroupSend($message);
-        if ($rst[0] === false)
-            return $rst[1];
-
-        return true;
     }
     /**
      * 发送模板消息

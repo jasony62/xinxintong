@@ -151,15 +151,22 @@ class main extends \member_base {
     {
         //$this->model('log')->log($data['mpid'], 'event', json_encode($data));
         $e = json_decode($data['data']);
-        $t = $e[0]; 
-        $k = isset($e[1]) ? $e[1] : null; 
-
+        if (is_array($e)) {
+            $t = $e[0]; 
+            $k = isset($e[1]) ? $e[1] : null; 
+        } else {
+            $t = $e->Event; 
+            $k = null;
+        }
         switch ($t) {
         case 'subscribe':
             $this->subscribe_call($data, $k);
             break;
         case 'unsubscribe':
             $this->unsubscribe_call($data);
+            break;
+        case 'MASSSENDJOBFINISH':
+            $this->massmsg_call($data);
             break;
         case 'TEMPLATESENDJOBFINISH':
             $this->template_call($data, $k, $e[2]);
@@ -305,6 +312,32 @@ class main extends \member_base {
             "mpid='$mpid' and openid='$openid'"
         );
 
+        return $rst;
+    }
+    /**
+     * 群发消息处理结果（仅限微信）
+     */
+    private function massmsg_call($data)
+    {
+        $mpid = $data['mpid'];
+        
+        $e = json_decode($data['data']);
+        $msgid = $e->MsgID;
+        /**
+         * 更新数据状态
+         */
+        $rst = $this->model()->update(
+            'xxt_log_massmsg',
+            array(
+                'status' => $e->Status,
+                'total_count' => $e->TotalCount,
+                'filter_count' => $e->FilterCount,
+                'sent_count' => $e->SentCount,
+                'error_count' => $e->ErrorCount,
+            ),
+            "mpid='$mpid' and msgid='$msgid'"
+        );
+        
         return $rst;
     }
     /**

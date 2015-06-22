@@ -442,6 +442,39 @@ class wx_model extends mpproxy_base {
         return array(true, $media_id);
     }
     /**
+     * 将图文素材转换为媒体文件
+     * 
+     * 微信的群发素材必须上传到腾讯才能发送
+     */
+    public function news2Media($message)
+    {
+        /**
+         * 图文消息需要上传
+         */
+        $articles = &$message['news']['articles'];
+        foreach ($articles as &$a) {
+            $rst = $this->mediaUpload(urldecode($a['picurl']));
+            if ($rst[0] === false)
+                return array(false, '上传头图失败：'.$rst[1]);
+            $a['thumb_media_id'] = $rst[1];
+        }
+        /**
+         * 上传消息
+         */
+        $rst = $this->mediaUploadNews($message);
+        if ($rst[0] === false)
+            return $rst;
+
+        $message = array(
+            'mpnews'=>array(
+                "media_id"=>$rst[1]
+            ),
+            'msgtype'=>"mpnews"
+        );
+        
+        return array(true, $message);
+    }
+    /**
      * 向用户群发消息
      */
     public function messageMassSendall($message) 
@@ -449,12 +482,33 @@ class wx_model extends mpproxy_base {
         $cmd = 'https://api.weixin.qq.com/cgi-bin/message/mass/sendall';
 
         $rst = $this->httpPost($cmd, $message);
-        if ($rst[0] === false)
-            return $rst;
+        
+        return $rst;
+    }
+    /**
+     * 向用户发送预览消息
+     */
+    public function messageMassPreview($message, $openid)
+    {
+        if ($message['msgtype'] == 'news') {
+            /**
+             * 图文消息需要上传
+             */
+            $rst = $this->news2Media($message);
+            if ($rst[0] === false) return $rst;
+            $message = $rst[1];
+        }
+        /**
+         * 发送消息
+         */
+        $message['touser'] = $openid;
+        $message = urldecode(json_encode($message)); 
+        
+        $cmd = 'https://api.weixin.qq.com/cgi-bin/message/mass/preview';
 
-        $msgid = $rst[1]->msg_id;
-
-        return array(true, $msgid);
+        $rst = $this->httpPost($cmd, $message);
+        
+        return $rst;
     }
     /**
      * 发送客服消息
@@ -524,5 +578,25 @@ class wx_model extends mpproxy_base {
         $oneOff && $d['expire_seconds'] = $expire;
 
         return array(true, (object)$d);
+    }
+    /**
+     * 向微信用户群发消息
+     */
+    public function send2group($message) 
+    {
+        if ($message['msgtype'] == 'news') {
+            $filter = $message['filter'];
+            $rst = $this->news2Media($message);
+            if ($rst[0] === false) return $rst;
+            $message = $rst[1];
+            $message['filter'] = $filter;
+        }
+        /**
+         * 发送消息
+         */
+        $message = urldecode(json_encode($message)); 
+        $rst = $this->messageMassSendall($message);
+        
+        return $rst;
     }
 }

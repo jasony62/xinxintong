@@ -113,6 +113,19 @@ class UserCall {
              * 为关注时，扫描场景二维码事件
              */
             $ed = array($e, $ek);
+        } else if ($e === 'MASSSENDJOBFINISH') {
+            /**
+             * 模板消息处理结果
+             */
+            $ed = array(
+                'Event' => $e, 
+                'MsgID' => $this->MsgID, 
+                'Status' => $this->Status,
+                'TotalCount' => $this->TotalCount,
+                'FilterCount' => $this->FilterCount,
+                'SentCount' => $this->SentCount,
+                'ErrorCount' => $this->ErrorCount,
+            );
         } else if ($e === 'TEMPLATESENDJOBFINISH') {
             /**
              * 模板消息处理结果

@@ -248,4 +248,31 @@ class log_model extends TMS_MODEL {
 
         return true;
     }
+    /**
+     * 群发消息发送日志
+     */
+    public function mass($sender, $mpid, $matterId, $matterType, $message, $msgid, $result)
+    {
+        $log = array(
+            'mpid' => $mpid,
+            'matter_type' => $matterType,
+            'matter_id' => $matterId,
+            'sender' => $sender,
+            'send_at' => time(),
+            'message' => $this->escape(json_encode($message)),
+            'result' => $result,
+            'msgid' => $msgid
+        );
+        
+        $this->insert('xxt_log_massmsg', $log, false);
+        
+        return true;
+    }
+    /**
+     * 群发消息发送结果日志（仅限微信公众号）
+     */
+    public function massResponse($mpid, $msgid)
+    {
+        
+    }
 }

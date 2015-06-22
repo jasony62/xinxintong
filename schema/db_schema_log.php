@@ -92,6 +92,29 @@ if (!$mysqli->query($sql)) {
     echo 'database error(xxt_log_matter_share): '.$mysqli->error;
 }
 /**
+ * 记录群发消息发送情况
+ */
+$sql = "create table if not exists xxt_log_massmsg(";
+$sql .= 'id int not null auto_increment';
+$sql .= ',mpid varchar(32) not null';
+$sql .= ',matter_id varchar(40) not null';
+$sql .= ',matter_type varchar(20) not null';
+$sql .= ',sender varchar(40) not null';
+$sql .= ',send_at int not null';
+$sql .= ',message text'; // 发送的消息内容
+$sql .= ',result varchar(255)'; // 发送的消息内容
+$sql .= ',msgid bigint(64) not null'; 
+$sql .= ',status varchar(255) not null';
+$sql .= ',total_count int not null default 0';
+$sql .= ',filter_count int not null default 0';
+$sql .= ',sent_count int not null default 0';
+$sql .= ',error_count int not null default 0';
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_log_tmplmsg): '.$mysqli->error;
+}
+/**
  * 记录模板消息发送情况
  */
 $sql = "create table if not exists xxt_log_tmplmsg(";

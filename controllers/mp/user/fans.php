@@ -331,7 +331,7 @@ class fans extends \mp\mp_controller {
     public function refreshGroup_action()
     {
         $mpa = $this->getMpaccount();
-        $proxy = $this->model("mpproxy/$mpa->mpsrc", $this->mpid);
+        $proxy = $this->model("mpproxy/".$mpa->mpsrc, $this->mpid);
         $rst = $proxy->groupsGet();
         if (false === $rst[0])
             return new \ResponseError($rst[1]);
@@ -359,7 +359,7 @@ class fans extends \mp\mp_controller {
         /**
          * 在公众平台上添加
          */
-        $mpproxy = $this->model('mpproxy/'.$mpa->mpsrc);
+        $mpproxy = $this->model('mpproxy/'.$mpa->mpsrc, $this->mpid);
         $rst = $mpproxy->groupsCreate($group);
         if ($rst[0] === false)
             return new \ResponseError($rst[1]);

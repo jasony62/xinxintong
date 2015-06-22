@@ -212,7 +212,7 @@ class mpaccount_model extends \TMS_MODEL {
         return $mprelay;
     }
     /**
-     *
+     * 添加转发接口
      */
     public function addRelay($aRelay)
     {
@@ -230,10 +230,9 @@ class mpaccount_model extends \TMS_MODEL {
      * 群发消息
      * 需要开通群发接口
      */
-    public function mass2mps($matterId, $matterType, $mpids) 
+    public function mass2mps($sender, $matterId, $matterType, $mpids) 
     {
-        if (empty($mpids))
-            return array(false, '没有指定接收消息的公众号');
+        if (empty($mpids)) return array(false, '没有指定接收消息的公众号');
 
         $mpModel = \TMS_APP::M('mp\mpaccount');
         foreach ($mpids as $mpid) {
@@ -258,13 +257,16 @@ class mpaccount_model extends \TMS_MODEL {
             /**
              * send
              */
-            if ($mpsrc === 'wx') {
-                $message['filter'] = array('is_to_all'=> true);
-                $rst = $this->send_to_wx_group($mpid, $message);
-            } else if ($mpsrc === 'yx') {
-                $rst = $this->send_to_yx_group($mpid, $message);
+            $mpsrc === 'wx' && $message['filter'] = array('is_to_all'=> true);
+            $mpproxy = \TMS_APP::M('mpproxy/'.$mpsrc, $mpid);
+            $rst = $mpproxy->send2group($message);
+             if ($rst[0] === true) {
+                $msgid = isset($rst[1]->msg_id) ? $rst[1]->msg_id : 0;
+                \TMS_APP::M('log')->mass($sender, $mpid, $matterType, $matterId, $message, $msgid, 'ok');
+            } else {
+                $warning[$mpid] = $rst[1];
+                \TMS_APP::M('log')->mass($sender, $mpid, $matterType, $matterId, $message, 0, $rst[1]);
             }
-            false === $rst[0] && $warning[$mpid] = $rst[1];
         }
         
         if (!empty($warning)) 
@@ -272,57 +274,4 @@ class mpaccount_model extends \TMS_MODEL {
         else
             return array(true, 'ok');
     }
-    /**
-     * 向微信用户群发消息
-     */
-    private function send_to_wx_group($mpid, $message) 
-    {
-        $mpproxy = \TMS_APP::M('mpproxy/wx', $mpid);
-        if ($message['msgtype'] == 'news') {
-            /**
-             * 图文消息需要上传
-             */
-            $articles = &$message['news']['articles'];
-            foreach ($articles as &$a) {
-                $media = $mpproxy->mediaUpload(urldecode($a['picurl']));
-                if ($media[0] === false)
-                    return array(false, '上传头图失败：'.$media[1]);
-                $a['thumb_media_id'] = $media[1];
-            }
-            /**
-             * 上传消息
-             */
-            $media = $mpproxy->mediaUploadNews($message);
-            if ($media[0] === false)
-                return $media;
-
-            $message = array(
-                'filter'=>$message['filter'],
-                'mpnews'=>array(
-                    "media_id"=>$media[1]
-                ),
-                'msgtype'=>"mpnews"
-            );
-        }
-        /**
-         * 发送消息
-         */
-        $message = urldecode(json_encode($message)); 
-        $rst = $mpproxy->messageMassSendall($message);
-        
-        return $rst;
-    }
-    /**
-     * 向易信用户群发消息
-     */
-    private function send_to_yx_group($mpid, $message) 
-    {
-        $mpproxy = \TMS_APP::M('mpproxy/yx', $mpid);
-
-        $message = urldecode(json_encode($message)); 
-        $rst = $mpproxy->messageGroupSend($message);
-        
-        return $rst;
-    }
 }
-

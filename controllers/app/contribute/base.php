@@ -135,7 +135,25 @@ class base extends \member_base {
         
         $mid = $reviewer->userSet[0]->identity;
         
-        $log = $this->model('matter\article')->forward($mpid, $id, $mid, $phase);
+        $model = $this->model('matter\article');
+        
+        $log = $model->forward($mpid, $id, $mid, $phase);
+        /**
+         * 发给指定用户进行预览
+         */
+        $mpa = $this->model('mp\mpaccount')->byId($mpid);
+        $fan = $this->model('user/fans')->byMid($mid);
+        
+        if ($mpa->mpsrc === 'wx') {
+            $message = $model->forWxGroupPush($mpid, $id);
+            $rst = $this->send_to_wxuser_by_preview($mpid, $message, $fan->openid);
+        } else if ($mpa->mpsrc === 'yx') {
+            $message = $model->forCustomPush($mpid, $id);
+            $rst = $this->send_to_yxuser_byp2p($mpid, $message, $fan->openid);
+        } else if ($mpa->mpsrc === 'qy') {
+            $message = $model->forCustomPush($mpid, $id);
+            $rst = $this->send_to_user($mpid, $fan->openid, $message);
+        }
         
         return new \ResponseData('ok');
     }
@@ -169,7 +187,25 @@ class base extends \member_base {
         
         $mid = $reviewer->userSet[0]->identity;
         
-        $log = $this->model('matter\news')->forward($mpid, $id, $mid, $phase);
+        $model = $this->model('matter\news'); 
+        
+        $log = $model->forward($mpid, $id, $mid, $phase);
+        /**
+         * 发给指定用户进行预览
+         */
+        $mpa = $this->model('mp\mpaccount')->byId($mpid);
+        $fan = $this->model('user/fans')->byMid($mid);
+        
+        if ($mpa->mpsrc === 'wx') {
+            $message = $model->forWxGroupPush($mpid, $id);
+            $rst = $this->send_to_wxuser_by_preview($mpid, $message, $fan->openid);
+        } else if ($mpa->mpsrc === 'yx') {
+            $message = $model->forCustomPush($mpid, $id);
+            $rst = $this->sent_to_yxuser_byp2p($mpid, $message, $fan->openid);
+        } else if ($mpa->mpsrc === 'qy') {
+            $message = $model->forCustomPush($mpid, $id);
+            $rst = $this->send_to_user($mpid, $fan->openid, $message);
+        } 
         
         return new \ResponseData('ok');
     }

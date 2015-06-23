@@ -26,14 +26,14 @@ class authapi extends mp_controller {
      */
     public function get_action($own='N', $valid=null)
     {
-        $modelMpa = $this->model('user/authapi');
+        $modelAuth = $this->model('user/authapi');
         
-        $apis = $modelMpa->byMpid($this->mpid, $valid);
+        $apis = $modelAuth->byMpid($this->mpid, $valid);
         
         if ($own === 'N') {
-            $pmp = $modelMpa->byMpid($this->mpid, 'parent_mpid');
+            $pmp = $this->model('mp\mpaccount')->byId($this->mpid);
             if (!empty($pmp->parent_mpid))
-                $papis = $modelMpa->byMpid($pmp->parent_mpid, $valid);
+                $papis = $modelAuth->byMpid($pmp->parent_mpid, $valid);
             if (!empty($papis)) {
                 if (!empty($apis))
                     $apis = array_merge($papis, $apis);

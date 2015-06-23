@@ -44,9 +44,13 @@ class member extends \mp\mp_controller {
     public function get_action($authid, $page=1, $size=30, $kw=null, $by=null, $dept=null, $tag=null, $contain='') 
     {
         $contain = explode(',',$contain);
-
-        //$w = "m.mpid='$this->mpid' and m.authapi_id=$authid and m.forbidden='N'";
+        
         $w = "m.authapi_id=$authid and m.forbidden='N'";
+        /**
+         * 子账号只能看到自己账号中数据
+         */
+        $mpa = $this->getMpaccount();
+        $mpa->asparent === 'N' && $w .= " and m.mpid='$this->mpid'";
 
         if (!empty($kw) && !empty($by)) $w .= " and m.$by like '%$kw%'";
 

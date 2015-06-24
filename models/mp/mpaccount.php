@@ -251,7 +251,7 @@ class mpaccount_model extends \TMS_MODEL {
                 $message = $matterModel->forCustomPush($mpid, $matterId);
             }
             if (empty($message)) {
-                $warning[$mpid] = '指定的素材无法向公众号用户群发！';
+                $response[$mpid] = '指定的素材无法向公众号用户群发！';
                 continue;
             }
             /**
@@ -261,17 +261,15 @@ class mpaccount_model extends \TMS_MODEL {
             $mpproxy = \TMS_APP::M('mpproxy/'.$mpsrc, $mpid);
             $rst = $mpproxy->send2group($message);
              if ($rst[0] === true) {
+                $response[$mpid] = 'ok';                 
                 $msgid = isset($rst[1]->msg_id) ? $rst[1]->msg_id : 0;
                 \TMS_APP::M('log')->mass($sender, $mpid, $matterType, $matterId, $message, $msgid, 'ok');
             } else {
-                $warning[$mpid] = $rst[1];
+                $response[$mpid] = $rst[1];
                 \TMS_APP::M('log')->mass($sender, $mpid, $matterType, $matterId, $message, 0, $rst[1]);
             }
         }
         
-        if (!empty($warning)) 
-            return array(false, $warning);
-        else
-            return array(true, 'ok');
+        return array(true, $response);
     }
 }

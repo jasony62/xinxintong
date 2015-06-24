@@ -1,29 +1,29 @@
-<?php 
-$mpaccount = $_SESSION['mpaccount'];
-$apis = TMS_APP::model('mp\mpaccount')->getApis($mpaccount->mpid);
-$canWxGroup = $mpaccount->mpsrc === 'wx' && ($apis->wx_group_push==='Y'&&$apis->wx_fansgroup==='Y');
-$canYxGroup = $mpaccount->mpsrc === 'yx' && ($apis->yx_group_push==='Y'&&$apis->yx_fansgroup==='Y');
-$canMember = $apis->mpsrc === 'qy' || ($apis->mpsrc === 'yx' && $apis->yx_p2p==='Y');
-$canSend = $canWxGroup || $canYxGroup || $canMember; 
-?>
-<?php if (!$canSend) {?>
-<div class='alert alert-warning'>未开通群发消息和粉丝分组高级接口。</div>
-<?php } else {?>
+<style>
+    .mp{position:relative;padding-left:50px}
+    .status{position:absolute;display:block;width:20px;height:20px;border-radius:10px;left:15px;top:10px;background:#eee}
+    .status.success{background:green}
+    .status.failed{background:red}
+    .mp .help-block{margin-bottom:0;font-size:0.8em}
+</style>
 <div ng-controller='sendCtrl' ng-init="hasParent='<?php echo empty($mpaccount->parent_mpid) ? 'N':'Y';?>';">
-    <div class='col-md-4'>
+    <div class='col-md-6'>
         <div class='form-group'>
             <button class='btn btn-success' ng-click='openUserPicker()'>选择用户</button>
+        </div>
+        <div class='form-group'>
             <ul class='list-group'>
-                <li class='list-group-item' ng-repeat="us in userSet" ng-mouseenter='enter=true' ng-mouseleave='enter=false'>
+                <li class='list-group-item' ng-class="{'mp':us.identity===-1}" ng-repeat="us in userSet" ng-mouseenter='enter=true' ng-mouseleave='enter=false'>
                     <button class="btn btn-default btn-xs pull-right" ng-click="removeUserSet(us, $index)">
                         <span class="glyphicon glyphicon-remove"></span>
                     </button>
+                    <span class='status' ng-if='us.identity===-1' ng-class="{'success':massStatus.result==='ok','failed':(massStatus&&massStatus.result!=='ok')}"></span>
                     <span>{{us.label||us.identity}}</span>
+                    <p class='help-block' ng-if="massStatus&&massStatus.result!=='ok'" ng-bind='massStatus.result'></p>
                 </li>
             </ul>
         </div>
     </div>
-    <div class='col-md-8'>
+    <div class='col-md-6'>
         <div class='form-inline form-group'>
             <div class='form-group'>
                 <select class='form-control' ng-model='matterType' ng-change='fetchMatter()'>
@@ -63,4 +63,3 @@ $canSend = $canWxGroup || $canYxGroup || $canMember;
         <button class="btn btn-warning" ng-click="ok()">确定</button>
     </div>
 </script>
-<?php }?>

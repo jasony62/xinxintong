@@ -1,16 +1,25 @@
+<style>
+    .mp{padding-right:60px;position:relative}
+    .status{display:block;position:absolute;top:10px;right:15px;width:20px;height:20px;border-radius:10px;background:#eee}
+    .status.success{background:green}
+    .status.failed{background:red}
+    .mp .help-block{margin-bottom:0;font-size:0.8em}
+</style>
 <div ng-controller='parentmpCtrl'>
-    <div class='col-md-4'>
+    <div class='col-md-6'>
         <ul class='list-group'>
-            <li class='list-group-item' ng-repeat="mp in childmps">
+            <li class='list-group-item mp' ng-repeat="mp in childmps">
                 <label class='checkbox-inline'>
                     <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='mp.checked' ng-change='selectMp(mp)'>{{mp.name}}</label>
+                <p class='help-block' ng-if="mp.logs[0]!==undefined&&mp.logs[0].result!=='ok'" ng-bind='mp.logs[0].result'></p>
+                <span class='status' ng-class="{'success':mp.logs[0].result==='ok','failed':(mp.logs[0]!==undefined&&mp.logs[0].result!=='ok')}"></span>
             </li>
             <li class='list-group-item'>
                 <a href='javascript:void(0)' ng-click='selectAllMps()'>全选</a>
             </li>
         </ul>
     </div>
-    <div class='col-md-8'>
+    <div class='col-md-6'>
         <div class='form-inline form-group'>
             <div class='form-group'>
                 <select class='form-control' ng-model='matterType' ng-change='fetchMatter()'>
@@ -21,7 +30,8 @@
                 </select>
             </div>
             <div class='form-group pull-right'>
-                <button class='btn' ng-class="selectedMps.length===0||!selectedMatter?'btn-default':'btn-primary'" ng-disabled='selectedMps.length===0||!selectedMatter' ng-click='send($event)'>发送</button>
+                <button class='btn' ng-class="selectedMps.length===0||!selectedMatter?'btn-default':'btn-primary'" ng-disabled='selectedMps.length===0||!selectedMatter'
+                ng-click='send($event)'>发送</button>
             </div>
         </div>
         <div class='list-group'>

@@ -1,0 +1,9 @@
+<?php 
+$mpaccount = $_SESSION['mpaccount'];
+$apis = TMS_APP::model('mp\mpaccount')->getApis($mpaccount->mpid);
+$canWxGroup = $mpaccount->mpsrc === 'wx' && ($apis->wx_group_push==='Y'&&$apis->wx_fansgroup==='Y');
+$canYxGroup = $mpaccount->mpsrc === 'yx' && ($apis->yx_group_push==='Y'&&$apis->yx_fansgroup==='Y');
+$canMember = $apis->mpsrc === 'qy' || ($apis->mpsrc === 'yx' && $apis->yx_p2p==='Y');
+$canSend = $canWxGroup || $canYxGroup || $canMember; 
+?>
+<div class='alert alert-warning'>未开通群发消息和粉丝分组高级接口。</div>

@@ -83,4 +83,13 @@ class analyze extends mp_controller {
 
         return new \ResponseData(array($stat, $cnt));
     }
+    /**
+     * 群发消息事件统计
+     */
+    public function massmsg_action()
+    {
+        $logs = $this->model('log')->massByMpid($this->mpid);
+        
+        return new \ResponseData($logs);
+    }
 }

@@ -25,7 +25,19 @@ class send extends \mp\mp_controller {
             
             $this->view_action('/mp/user/send/parentmp');
         } else {
-            $this->view_action('/mp/user/send');
+            /**
+             * 是否开通了支持发送消息的接口
+             */
+            $mpaccount = $this->getMpaccount();
+            $apis = $this->model('mp\mpaccount')->getApis($mpaccount->mpid);
+            $canWxGroup = $mpaccount->mpsrc === 'wx' && ($apis->wx_group_push==='Y'&&$apis->wx_fansgroup==='Y');
+            $canYxGroup = $mpaccount->mpsrc === 'yx' && ($apis->yx_group_push==='Y'&&$apis->yx_fansgroup==='Y');
+            $canMember = $apis->mpsrc === 'qy' || ($apis->mpsrc === 'yx' && $apis->yx_p2p==='Y');
+            $canSend = $canWxGroup || $canYxGroup || $canMember;
+            if ($canSend) 
+                $this->view_action('/mp/user/send/main');
+            else
+                $this->view_action('/mp/user/send/unsupport');
         }
     }
 }

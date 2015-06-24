@@ -46,11 +46,28 @@ xxtApp.controller('parentmpCtrl', ['$scope', 'http2', function ($scope, http2) {
             mps: mps,
         };
         http2.post('/rest/mp/send/mass2mps', data, function (rsp) {
-            $scope.$root.infomsg = '发送完成';
+            var result;
+            for (var mpid in rsp.data) {
+                result = rsp.data[mpid];
+                $scope.mapOfMps[mpid].logs.push({ result: result });
+            }
         });
     };
     $scope.fetchMatter();
     http2.get('/rest/mp/mpaccount/childmps', function (rsp) {
         $scope.childmps = rsp.data;
+        http2.get('/rest/mp/analyze/massmsg', function (rsp) {
+            var i, l, mp, map = {}, log;
+            for (i = 0, l = $scope.childmps.length; i < l; i++) {
+                mp = $scope.childmps[i];
+                mp.logs = [];
+                map[mp.mpid] = mp;
+            }
+            for (i = 0, l = rsp.data.length; i < l; i++) {
+                log = rsp.data[i];
+                map[log.mpid].logs.push(log);
+            }
+            $scope.mapOfMps = map;
+        });
     });
 }]);

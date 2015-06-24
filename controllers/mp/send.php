@@ -212,10 +212,7 @@ class send extends mp_controller {
         $uid = \TMS_CLIENT::get_client_uid();
         $rst = $this->model('mp\mpaccount')->mass2mps($uid, $matter->id, $matter->type, $matter->mps);
                
-        if ($rst[0] === false)
-            return new \ResponseError($rst[1]);
-        else
-            return new \ResponseData('ok');
+        return new \ResponseData($rst[1]);
     }
     /**
      * 根据指定的素材，组装客服消息

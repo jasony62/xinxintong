@@ -48,6 +48,21 @@ class tag_model extends TMS_MODEL {
         return $tag;
     }
     /**
+     * 获得指定认证接口下的标签
+     */
+    public function byAuthid($authid, $fields='*')
+    {
+        $q = array(
+            $fields,
+            'xxt_member_tag',
+            "authapi_id=$authid"
+        );
+
+        $tags = $this->query_objs_ss($q);
+
+        return $tags;
+    }
+    /**
      * 添加标签
      */
     public function create($mpid, $tag) 

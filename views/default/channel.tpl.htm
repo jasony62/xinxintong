@@ -18,7 +18,7 @@
             <li class='list-group-item' ng-repeat='m in Matter.matters' ng-click='open(m)'>
                 <div class='header clearfix'>
                     <div class='create_at' ng-bind="m.add_at*1000|date:'yyyy-MM-dd'"></div>
-                    <div class='creater_name' ng-bind='m.creater_name'></div>
+                    <div class='creater_name' ng-bind='m.creater_name' style='display:none'></div>
                 </div>
                 <div class='content'>
                     <div ng-if="channel.show_pic_in_page==='Y'" ng-class="{'heading_pic':channel.show_pic_in_page==='Y'}" style="{{'background-image:url('+m.pic+')'}}">

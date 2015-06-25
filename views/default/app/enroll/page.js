@@ -252,15 +252,6 @@ formApp.controller('formCtrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'R
             YixinJSBridge.call('closeWebView');
         }
     };
-    $scope.onUnauthorized = function (callback) {
-        var $el = $('#frmAuth');
-        window.onAuthSuccess = function () {
-            $scope.requireAuth = 'N';
-            $el.hide();
-            callback && callback();
-        };
-        $el.attr('src', $scope.authurl).show();
-    };
     $scope.getMyLocation = function (prop) {
         if (window.wx) {
             wx.getLocation({
@@ -410,8 +401,7 @@ formApp.controller('formCtrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'R
                     }
                 }
             }
-            $http.post(url, posted)
-                .success(function (rsp) {
+            $http.post(url, posted).success(function (rsp) {
                 if (typeof (rsp) === 'string') {
                     $scope.errmsg = rsp;
                     btnSubmit && btnSubmit.removeAttribute('disabled');
@@ -435,6 +425,15 @@ formApp.controller('formCtrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'R
                     location.href = url;
                 } else {
                     deferred2.resolve('ok');
+                }
+            }).error(function(content, httpCode){
+                if (httpCode === 401) {
+                    var $el = $('#frmAuth');
+                    window.onAuthSuccess = function () {
+                        $el.hide();
+                        btnSubmit && btnSubmit.removeAttribute('disabled');
+                    };
+                    $el.attr('src', content).show();
                 }
             });
         }

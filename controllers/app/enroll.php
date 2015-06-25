@@ -60,9 +60,9 @@ class enroll extends \member_base {
         $enrollModel = $this->model('app\enroll');
         $act = $enrollModel->byId($aid);
         /**
-         * 当前访问用户
+         * 当前访问用户的基本信息
          */
-        list($ooid, $mid, $vid) = $this->getCurrentUserInfo($mpid, $act, $who, true);
+        list($ooid, $mid, $vid) = $this->getVisitorInfo($mpid, $act, $who);
         /**
          * 要求先关注再参与
          */
@@ -183,12 +183,12 @@ class enroll extends \member_base {
      *
      * $mpid
      * $act
-     * $who
+     * $ooid
      */
-    private function getCurrentUserInfo($mpid, $act, $ooid=null, $askAuth=false) 
+    private function getVisitorInfo($mpid, $act, $ooid=null, $checkAccessControl = false, $askAuth=false)
     {
         /**
-         * 当前用户
+         * 当前用户在cookie中的记录
          */
         empty($ooid) && $ooid = $this->getCookieOAuthUser($mpid);
         /**
@@ -196,7 +196,7 @@ class enroll extends \member_base {
          * todo 企业号直接跳过这个限制？
          */
         $mid = '';
-        if ($act->access_control === 'Y') {
+        if ($act->access_control === 'Y' && $checkAccessControl) {
             /**
              * 仅限注册用户报名，若不是注册用户，先要求进行注册
              */
@@ -204,11 +204,13 @@ class enroll extends \member_base {
                 $myUrl = 'http://'.$_SERVER['HTTP_HOST']."/rest/app/enroll?mpid=$mpid&aid=$act->id";
                 $member = $this->accessControl($mpid, $act->id, $act->authapis, $ooid, $act, $myUrl);
             } else {
-                $aAuthapis = explode(',', $act->authapis);
+                $member = $this->accessControl($mpid, $act->id, $act->authapis, $ooid, $act, false);
+                /*$aAuthapis = explode(',', $act->authapis);
                 $members = $this->getCookieMember($mpid, $aAuthapis);
-                // todo 提示信息应该用认证接口中指定的内容，应该用定制报错页
-                if (empty($members)) die('unauthenticated! can not get current user info.');
-                $member = $members[0];
+                if (empty($members)) {
+                    die('unauthenticated! can not get current user info.');
+                }
+                $member = $members[0];*/
             }
             $mid = $member->mid;
             if (empty($ooid)) { 
@@ -216,6 +218,7 @@ class enroll extends \member_base {
                 $ooid = $fan->openid;
             }
         }
+        
         $vid = $this->getVisitorId($mpid);
 
         return array($ooid, $mid, $vid);
@@ -303,7 +306,7 @@ class enroll extends \member_base {
         /**
          * 当前用户
          */
-        list($ooid, $mid, $vid) = $this->getCurrentUserInfo($mpid, $act, null, true);
+        list($ooid, $mid, $vid) = $this->getVisitorInfo($mpid, $act, null, true, false);
 
         if ($act->fans_only === 'Y') {
             if (!$this->model('user/fans')->isFollow($mpid, $ooid))
@@ -388,7 +391,7 @@ class enroll extends \member_base {
         /**
          * 当前用户
          */
-        list($openid) = $this->getCurrentUserInfo($mpid, $act);
+        list($openid) = $this->getVisitorInfo($mpid, $act);
 
         if ($modelEnroll->rollPraised($openid, $ek)) {
             /**
@@ -443,7 +446,7 @@ class enroll extends \member_base {
         /**
          * 发表评论的用户
          */
-        list($openid) = $this->getCurrentUserInfo($mpid, $act, null, true);
+        list($openid) = $this->getVisitorInfo($mpid, $act, null, true, true);
         if (empty($openid))
             return new \ResponseError('无法获得用户身份标识');
 
@@ -544,7 +547,7 @@ class enroll extends \member_base {
 
         $act = $modelEnroll->byId($aid);
 
-        list($ooid) = $this->getCurrentUserInfo($mpid, $act);
+        list($ooid) = $this->getVisitorInfo($mpid, $act);
 
         $options = array(
             'creater' => $openid,
@@ -580,7 +583,7 @@ class enroll extends \member_base {
 
         $act = $modelEnroll->byId($aid);
 
-        list($openid) = $this->getCurrentUserInfo($mpid, $act);
+        list($openid) = $this->getVisitorInfo($mpid, $act);
 
         $options = array(
             'creater' => $openid,

@@ -279,26 +279,27 @@ class article extends matter_ctrl {
      * $order
      *
      */
-    public function index_action($id=null, $page=1, $size=30, $src=null) 
+    public function index_action($id=null, $page=1, $size=30) 
     {
-       return $this->get_action($id, $page, $size, $src);
+       return $this->get_action($id, $page, $size);
     }
     /**
      * 获得可见的图文列表
      *
      * $id article's id
-     * $src p:从父账号检索图文
-     * $id
-     * $tag
      * $page
      * $size
-     * $order
+     * post options
+     * --$src p:从父账号检索图文
+     * --$tag
+     * --$channel
+     * --$order
      *
      */
-    public function get_action($id=null, $page=1, $size=30, $src=null) 
+    public function get_action($id=null, $page=1, $size=30) 
     {
         $options = $this->getPostJson();
-
+        
         if ($id) {
             $article = $this->getOne($this->mpid, $id);
             return new \ResponseData($article);
@@ -307,7 +308,7 @@ class article extends matter_ctrl {
             /**
              * 单图文来源 
              */
-            $mpid = (!empty($src) && $src==='p') ? $this->getParentMpid() : $this->mpid;
+            $mpid = (!empty($options->src) && $options->src==='p') ? $this->getParentMpid() : $this->mpid;
             /**
              * select fields
              */

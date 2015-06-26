@@ -284,13 +284,12 @@ angular.module('matters.xxt', ['ui.bootstrap'])
     };
     $scope.doSearch = function () {
         if (!$scope.p.matterType) return;
-        var url = $scope.p.matterType.url;
+        var url, params = {};
+        url = $scope.p.matterType.url;
         url += '/' + $scope.p.matterType.value;
         url += '/get?page=' + $scope.page.current + '&size=' + $scope.page.size + '&fields=' + fields;
-        if ($scope.p.fromParent && $scope.p.fromParent == 1)
-            url += '&src=p';
-        $http.get(url, { headers: { 'ACCEPT': 'application/json' } }).
-            success(function (rsp) {
+        $scope.p.fromParent && $scope.p.fromParent == 1 && (params.src = 'p');
+        $http.post(url, params, { headers: { 'ACCEPT': 'application/json' } }).success(function (rsp) {
             if ($scope.p.matterType.value === 'article' || $scope.p.matterType.value === 'contribute') {
                 $scope.matters = rsp.data[0];
                 rsp.data[1] && ($scope.page.total = rsp.data[1]);

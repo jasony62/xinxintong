@@ -3,6 +3,10 @@ xxtApp.controller('articleCtrl', ['$scope', '$location', 'http2', function ($sco
     $scope.back = function () {
         location.href = '/page/mp/matter/articles';
     };
+    http2.get('/rest/mp/mpaccount/get', function (rsp) {
+        $scope.mpaccount = rsp.data;
+        $scope.hasParent = rsp.data.parent_mpid && rsp.data.parent_mpid.length;
+    });
     http2.get('/rest/mp/matter/article?id=' + $scope.id, function (rsp) {
         $scope.editing = rsp.data;
         $scope.entryUrl = 'http://' + location.host + '/rest/mi/matter?mpid=' + $scope.editing.mpid + '&id=' + $scope.id + '&type=article';

@@ -7,13 +7,22 @@ class news extends matter_ctrl {
     /**
      *
      */
-    public function index_action($src=null, $cascade='y') 
+    public function index_action($cascade='y') 
     {
+        return $this->get_action($cascade);
+    }
+     /**
+     *
+     */
+    public function get_action($cascade='y') 
+    {
+        $options = $this->getPostJson();
+        
         $uid = \TMS_CLIENT::get_client_uid();
         /**
          * 素材的来源
          */
-        $mpid = (!empty($src) && $src==='p') ? $this->getParentMpid() : $this->mpid;
+        $mpid = (!empty($options->src) && $options->src==='p') ? $this->getParentMpid() : $this->mpid;
 
         $q = array(
             "n.*,a.nickname creater_name,'$uid' uid",
@@ -46,13 +55,6 @@ class news extends matter_ctrl {
         }
         
         return new \ResponseData($news);
-    }
-     /**
-     *
-     */
-    public function get_action($src=null, $cascade='y') 
-    {
-        return $this->index_action($src, $cascade);
     }
     /**
      *

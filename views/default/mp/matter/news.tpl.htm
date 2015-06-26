@@ -73,5 +73,5 @@
         </div>
         <accesscontrol mpid='{{mpid}}' obj='editing' prop-acl='acl' prop-access='access_control' prop-apis='authapis' update-access-control="update('access_control')" update-authapis="update('authapis')" change-acl-url='/rest/mp/matter/news/setAcl?id={{editing.id}}' remove-acl-url='/rest/mp/matter/news/removeAcl' label-span='3' control-span='9'></accesscontrol>
     </div>
-    <div mattersgallery style='display:none' matter-url='/rest/mp/matter' matter-types='matterTypes'></div>
+    <div mattersgallery style='display:none' matter-url='/rest/mp/matter' matter-types='matterTypes' has-parent="hasParent==='Y'"></div>
 </div>

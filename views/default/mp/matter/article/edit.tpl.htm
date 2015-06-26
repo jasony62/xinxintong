@@ -138,6 +138,6 @@
         </div>
         <accesscontrol mpid='{{mpid}}' obj='editing' prop-acl='acl' prop-access='access_control' prop-apis='authapis' update-access-control="update('access_control')" update-authapis="update('authapis')" change-acl-url='/rest/mp/matter/article/setAcl?id={{editing.id}}' remove-acl-url='/rest/mp/matter/article/removeAcl' label-span='2' control-span='10'></accesscontrol>
     </div>
-    <div mattersgallery style='display:none' matter-url='/rest/mp/matter' matter-types='innerlinkTypes'></div>
+    <div mattersgallery style='display:none' matter-url='/rest/mp/matter' matter-types='innerlinkTypes' has-parent='hasParent'></div>
     <div picgallery style='display:none' url='{{picGalleryUrl}}'></div>
 </div>

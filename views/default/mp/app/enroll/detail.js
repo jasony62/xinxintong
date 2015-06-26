@@ -25,6 +25,10 @@ xxtApp.controller('enrollCtrl', ['$rootScope', '$scope', 'http2', function ($roo
     $scope.$on('xxt.float-toolbar.shop.open', function (event) {
         $scope.$emit('mattershop.new', $scope.mpid, $scope.editing);
     });
+    http2.get('/rest/mp/mpaccount/get', function (rsp) {
+        $scope.mpaccount = rsp.data;
+        $scope.hasParent = $scope.mpaccount.parent_mpid && $scope.mpaccount.parent_mpid.length;
+    });
     http2.get('/rest/mp/mpaccount/feature?fields=matter_visible_to_creater', function (rsp) {
         $scope.features = rsp.data;
     });

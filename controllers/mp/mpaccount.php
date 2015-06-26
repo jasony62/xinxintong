@@ -107,6 +107,34 @@ class mpaccount extends mp_controller {
         }
     }
     /**
+     *
+     */
+    public function get_action() 
+    {
+        $modelMpa = $this->model('mp\mpaccount');
+        $mpa = $modelMpa->byId($this->mpid);
+        $creater = $this->model('account')->byId($mpa->creater);
+        $mpa->creater_name = $creater->nickname;
+        if ($mpa->asparent === 'N') {
+            /**
+             * 实体账号
+             */
+            $API_URL = $this->apiurl();
+            $mpa->yx_url = "$API_URL?mpid=$this->mpid&src=yx";
+            $mpa->wx_url = "$API_URL?mpid=$this->mpid&src=wx";
+            $mpa->qy_url = "$API_URL?mpid=$this->mpid&src=qy";
+            if (!empty($mpa->parent_mpid)) {
+                /**
+                 * 有父账号
+                 */
+                $pmp = $modelMpa->byId($mpa->parent_mpid, 'name');
+                $mpa->parentname = $pmp->name;
+            }
+        }
+
+        return new \ResponseData($mpa);
+    }
+    /**
      * 当前公众号的所有子公众号
      */
     public function childmps_action() 

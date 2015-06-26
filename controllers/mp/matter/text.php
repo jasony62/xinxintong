@@ -14,15 +14,16 @@ class text extends \mp\mp_controller {
     /**
      * get all static texts.
      */
-    public function index_action($src=null) 
+    public function index_action() 
     {
         $this->view_action('/mp/matter/texts');
     } 
     /**
      *
      */
-    public function get_action($src=null) 
+    public function get_action() 
     {
+        $options = $this->getPostJson();
         /**
          * 当前用户
          */
@@ -30,7 +31,7 @@ class text extends \mp\mp_controller {
         /**
          * 素材的来源 
          */
-        $mpid = (!empty($src) && $src==='p') ? $this->getParentMpid() : $this->mpid;
+        $mpid = (!empty($options->src) && $options->src==='p') ? $this->getParentMpid() : $this->mpid;
 
         $q = array(
             "t.*,a.nickname creater_name,'$uid' uid",

@@ -46,6 +46,10 @@ xxtApp.controller('myArticleCtrl', ['$rootScope', '$scope', '$location', '$modal
         $scope.Article.update($scope.editing, name);
         name === 'body' && ($scope.bodyModified = false);
     };
+    $scope.finish = function () {
+        $scope.editing.finished = 'Y';
+        $scope.Article.update($scope.editing, 'finished');
+    };
     $scope.remove = function () {
         if (window.confirm('确认删除？')) {
             $scope.Article.remove($scope.editing).then(function (data) {

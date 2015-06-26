@@ -7,9 +7,9 @@ class channel extends matter_ctrl {
     /**
      *
      */
-    public function index_action($src=null, $acceptType=null, $cascade='y') 
+    public function index_action($acceptType=null, $cascade='y') 
     {
-        return $this->get_action($src, $acceptType, $cascade);
+        return $this->get_action($acceptType, $cascade);
     }
     /**
      *
@@ -17,13 +17,15 @@ class channel extends matter_ctrl {
      * $acceptType
      * $cascade 是否获得频道内的素材和访问控制列表
      */
-    public function get_action($src=null, $acceptType=null, $cascade='y') 
+    public function get_action($acceptType=null, $cascade='y') 
     {
+        $options = $this->getPostJson();
+        
         $uid = \TMS_CLIENT::get_client_uid();
         /**
          * 素材的来源
          */
-        $mpid = (!empty($src) && $src==='p') ? $this->getParentMpid() : $this->mpid;
+        $mpid = (!empty($options->src) && $options->src==='p') ? $this->getParentMpid() : $this->mpid;
 
         $q = array(
             "c.*,a.nickname creater_name,'$uid' uid",

@@ -17,9 +17,9 @@ xxtApp.controller('linkCtrl',['$scope','http2',function($scope,http2){
             });
     };
     $scope.doSearch = function() {
-        var url = '/rest/mp/matter/link?cascade=n';
-        $scope.fromParent && $scope.fromParent==='Y' && (url += '&src=p');
-        http2.get(url, function(rsp) {
+        var url = '/rest/mp/matter/link?cascade=n', params = {};
+        $scope.fromParent && $scope.fromParent==='Y' && (params.src = 'p');
+        http2.post(url, params, function(rsp) {
             $scope.links = rsp.data;
         });
     };

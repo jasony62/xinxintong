@@ -24,12 +24,12 @@ xxtApp.controller('userCtrl',['$rootScope','$scope','http2','$modal',function($r
             return;
         }
         $scope.selectedMatter = null;
-        var url = '/rest/mp/matter/' + $scope.matterType + '/get';
+        var url, params = {};
+        url = '/rest/mp/matter/' + $scope.matterType + '/get';
         !page && (page = $scope.matterpage.at);
         url += '?page='+page+'&size='+$scope.matterpage.size;
-        if ($scope.fromParent && $scope.fromParent==='Y')
-            url += '&src=p';
-        http2.get(url, function(rsp) {
+        $scope.fromParent && $scope.fromParent==='Y' && (params.src = 'p');
+        http2.post(url, params, function(rsp) {
             if (/article/.test($scope.matterType)) {
                 $scope.matters = rsp.data[0];
                 rsp.data[1] && ($scope.matterpage.total = rsp.data[1]);
@@ -184,6 +184,10 @@ xxtApp.controller('userCtrl',['$rootScope','$scope','http2','$modal',function($r
             }
         });
     };
+    http2.get('/rest/mp/mpaccount/get', function(rsp){
+        $scope.mpaccount = rsp.data;
+        $scope.hasParent = $scope.mpaccount.parent_mpid && $scope.mpaccount.parent_mpid.length;
+    });
     $scope.$watch('jsonParams', function(nv){
         if (!nv || nv.length===0) return;
         var params = JSON.parse(decodeURIComponent(nv.replace(/\+/g,'%20')));

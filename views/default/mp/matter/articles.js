@@ -5,9 +5,8 @@ xxtApp.controller('articleCtrl', ['$scope', '$window', 'http2', function ($scope
             tag: $scope.selectedTagsId,
             order: $scope.order
         };
-        var url = '/rest/mp/matter/article?' + $scope.page.toString();
-        if ($scope.fromParent && $scope.fromParent === 'Y')
-            options.src = 'p';
+        var url = '/rest/mp/matter/article/get?' + $scope.page.toString();
+        $scope.fromParent && $scope.fromParent === 'Y' && (options.src = 'p');
         http2.post(url, options, function (rsp) {
             $scope.articles = rsp.data[0];
             rsp.data[1] !== undefined && ($scope.page.total = rsp.data[1]);

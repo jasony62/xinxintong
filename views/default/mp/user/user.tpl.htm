@@ -121,7 +121,7 @@
                             <option value='channel'>频道</option>
                         </select>
                     </div>
-                    <label class="checkbox-inline" ng-show="hasParent==='Y'"><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='fromParent' ng-change='fetchMatter()'>来源于父账号</label>
+                    <label class="checkbox-inline" ng-show="hasParent"><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='fromParent' ng-change='fetchMatter()'>来源于父账号</label>
                     <div class='form-group pull-right'>
                         <button class='btn btn-primary' ng-disabled="!selectedMatter&&matterType!='write'" ng-click='send()'>发送</button>
                     </div>

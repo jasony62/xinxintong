@@ -7,8 +7,17 @@ class link extends matter_ctrl {
     /**
      *
      */
-    public function index_action($src=null, $id=null, $cascade='y') 
+    public function index_action($id=null, $cascade='y') 
     {
+        return $this->get_action($id, $cascade);
+    }
+    /**
+     *
+     */
+    public function get_action($id=null, $cascade='y') 
+    {
+        $options = $this->getPostJson();
+        
         $uid = \TMS_CLIENT::get_client_uid();
 
         $pmpid = $this->getParentMpid();
@@ -43,7 +52,7 @@ class link extends matter_ctrl {
             /**
              * 本公众号内的素材
              */
-            $mpid = (!empty($src) && $src==='p') ? $this->getParentMpid() : $this->mpid;
+            $mpid = (!empty($options->src) && $options->src==='p') ? $this->getParentMpid() : $this->mpid;
             /**
              * get links
              */
@@ -92,13 +101,6 @@ class link extends matter_ctrl {
 
             return new \ResponseData($links);
         }
-    }
-    /**
-     *
-     */
-    public function get_action($src=null, $id=null, $cascade='y') 
-    {
-        return $this->index_action($src, $id, $cascade);
     }
     /**
      *

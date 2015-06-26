@@ -14,9 +14,9 @@ xxtApp.controller('channelCtrl',['$scope','http2',function($scope,http2){
     ];
     $scope.volumes = ['1','2','3','4','5','6','7','8','9','10'];
     $scope.doSearch = function() {
-        var url = '/rest/mp/matter/channel?cascade=N';
-        $scope.fromParent && $scope.fromParent === 'Y' && (url += '&src=p');
-        http2.get(url, function(rsp) {
+        var url = '/rest/mp/matter/channel?cascade=N', params = {};
+        $scope.fromParent && $scope.fromParent === 'Y' && (params.src = 'p');
+        http2.post(url, params, function(rsp) {
             $scope.channels = rsp.data;
             if ($scope.channels.length > 0)
                 $scope.edit($scope.channels[0]);

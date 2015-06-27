@@ -404,53 +404,56 @@ class auth extends \member_base {
             'xxt_member',
             "authapi_id=$authid and authed_identity='$uid' and forbidden='N'"
         );
-        $member = $this->model()->query_obj_ss($q);
-        if (!$member) return new \ResponseError('指定的用户不存在');
+        $members = $this->model()->query_objs_ss($q);
+        if (empty($members)) 
+            return new \ResponseError('指定的认证用户不存在');
 
         $acls = $this->getPostJson();
 
-        foreach ($acls as $acl) {
-            switch ($acl->idsrc) {
-            case 'D':
-                $depts = json_decode($member->depts);
-                if (!empty($depts)) {
-                    $aDepts = array();
-                    foreach ($depts as $ds)
-                        $aDepts = array_merge($aDepts, $ds);
-                    if (in_array($acl->identity, $aDepts))
-                        return new \ResponseData('passed');
-                }
-                break;
-            case 'T':
-                $aMemberTags = explode(',', $member->tags);
-                $aIdentity = explode(',', $acl->identity);
-                $aIntersect = array_intersect($aIdentity, $aMemberTags);
-                if (count($aIntersect) === count($aIdentity))
-                    return new \ResponseData('passed');
-                break;
-            case 'M':
-                if ($member->mid === $acl->identity)
-                    return new \ResponseData('passed');
-                break;
-            case 'DT':
-                $depts = json_decode($member->depts);
-                if (!empty($depts)) {
-                    $aMemberDepts = array();
-                    foreach ($depts as $ds)
-                        $aMemberDepts = array_merge($aMemberDepts, $ds);
-                    $aMemberTags = explode(',', $member->tags);
-                    /**
-                     * 第一个是部门，后面是标签，需要同时匹配
-                     */
-                    $aIdentity = explode(',', $acl->identity);
-                    if (in_array($aIdentity[0], $aMemberDepts)) {
-                        unset($aIdentity[0]);
-                        $aIntersect = array_intersect($aIdentity, $aMemberTags);
-                        if (count($aIntersect) === count($aIdentity))
+        foreach ($members as $member) {
+            foreach ($acls as $acl) {
+                switch ($acl->idsrc) {
+                case 'D':
+                    $depts = json_decode($member->depts);
+                    if (!empty($depts)) {
+                        $aDepts = array();
+                        foreach ($depts as $ds)
+                            $aDepts = array_merge($aDepts, $ds);
+                        if (in_array($acl->identity, $aDepts))
                             return new \ResponseData('passed');
                     }
+                    break;
+                case 'T':
+                    $aMemberTags = explode(',', $member->tags);
+                    $aIdentity = explode(',', $acl->identity);
+                    $aIntersect = array_intersect($aIdentity, $aMemberTags);
+                    if (count($aIntersect) === count($aIdentity))
+                        return new \ResponseData('passed');
+                    break;
+                case 'M':
+                    if ($member->mid === $acl->identity)
+                        return new \ResponseData('passed');
+                    break;
+                case 'DT':
+                    $depts = json_decode($member->depts);
+                    if (!empty($depts)) {
+                        $aMemberDepts = array();
+                        foreach ($depts as $ds)
+                            $aMemberDepts = array_merge($aMemberDepts, $ds);
+                        $aMemberTags = explode(',', $member->tags);
+                        /**
+                         * 第一个是部门，后面是标签，需要同时匹配
+                         */
+                        $aIdentity = explode(',', $acl->identity);
+                        if (in_array($aIdentity[0], $aMemberDepts)) {
+                            unset($aIdentity[0]);
+                            $aIntersect = array_intersect($aIdentity, $aMemberTags);
+                            if (count($aIntersect) === count($aIdentity))
+                                return new \ResponseData('passed');
+                        }
+                    }
+                    break;
                 }
-                break;
             }
         }
 

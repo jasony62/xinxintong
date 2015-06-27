@@ -179,7 +179,7 @@ class news extends matter_ctrl {
                 'empty_reply_type'=>$matter->mt, 
                 'empty_reply_id'=>$matter->mid
             ),
-            "mpid='$this->mpid' and id='$id'"
+            "id='$id'"
         );
 
         return new \ResponseData($ret);

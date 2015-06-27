@@ -12,8 +12,8 @@
             <option value="{{'authid_'+authapi.authid}}" ng-if="canMember()" ng-repeat='authapi in authapis'>{{authapi.name}}</option>
         </select>
     </div>
-    <div class='checkbox' ng-show="showPickSingleMember">
-        <label>
+    <div class='form-group' ng-show="showPickSingleMember">
+        <label class="checkbox-inline">
             <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='isPickSingleMember'>选择用户</label>
     </div>
 </div>

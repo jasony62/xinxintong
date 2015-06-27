@@ -368,7 +368,7 @@ class acl_model extends TMS_MODEL {
      */
     public function canAccessMatter($mpid, $matter_type, $matter_id, $member, $authapis)
     {
-        $whichAcl = "mpid='$mpid' and matter_type='$matter_type' and matter_id='$matter_id'";
+        $whichAcl = "matter_type='$matter_type' and matter_id='$matter_id'";
 
         return $this->canAccess($mpid, 'xxt_matter_acl', $whichAcl, $member->authed_identity, $authapis);
     }
@@ -442,7 +442,7 @@ class acl_model extends TMS_MODEL {
             $q = array(
                 'url',
                 'xxt_member_authapi',
-                "mpid='$mpid' and authid=$authid and valid='Y'"
+                "authid=$authid and valid='Y'"
             );
             if ($url = $this->query_val_ss($q)) {
                 $url = 'http://'.$_SERVER['HTTP_HOST'].$url."/checkAcl?authid=$authid&uid=$identity";

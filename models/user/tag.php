@@ -25,7 +25,7 @@ class tag_model extends TMS_MODEL {
         $q = array(
             '*',
             'xxt_member_tag',
-            "mpid='$mpid' and authapi_id=$authid"
+            "authapi_id=$authid"
         );
 
         $tags = $this->query_objs_ss($q);

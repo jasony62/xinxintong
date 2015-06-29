@@ -33,8 +33,8 @@ class addressbook_model extends app_base {
     public function getEntryUrl($runningMpid, $id)
     {
         $url = "http://".$_SERVER['HTTP_HOST'];
-        $url .= "/rest/addressbook";
-        $url .= "?mpid=$runningMpid&cid=".$id;
+        $url .= "/rest/app/addressbook";
+        $url .= "?mpid=$runningMpid&id=".$id;
 
         return $url;
     }
@@ -263,7 +263,7 @@ class addressbook_model extends app_base {
     /**
      * 给用户添加部门
      */
-    public function addPersonDept($mpid, $abid, $person_id, $dept_id, $title_id = 0) 
+    public function addPersonDept($mpid, $abid, $person_id, $dept_id) 
     {
         $q[] = 'id';
         $q[] = 'xxt_ab_person_dept';
@@ -275,7 +275,6 @@ class addressbook_model extends app_base {
         $i['ab_id'] = $abid;
         $i['person_id'] = $person_id;
         $i['dept_id'] = $dept_id;
-        $i['title_id'] = $title_id;
 
         return $this->insert('xxt_ab_person_dept', $i, true);
     }
@@ -284,7 +283,7 @@ class addressbook_model extends app_base {
      */
     public function getPersonById($person_id) 
     {
-        $cols = 'id,name,email,tels,ab_id';
+        $cols = 'id,name,email,tels,remark,tags,ab_id';
 
         return $this->query_obj($cols, 'xxt_ab_person', "id=$person_id");
     }

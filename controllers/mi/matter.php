@@ -333,21 +333,6 @@ class matter extends \member_base {
         return new \ResponseData('finish');
     }
     /**
-     * 通讯录查询
-     *
-     * $mpid
-     * $abbr
-     * $page
-     * $size
-     */
-    public function addressbook_action($mpid, $abbr='', $deptid=null, $page=1, $size=20)
-    {
-        $model = $this->model('matter\addressbook');
-        $rst = $model->searchPersons($mpid, $abbr, $deptid, $page, $size);
-
-        return new \ResponseData($rst);
-    }
-    /**
      *
      * $mpid
      * $id channel's id

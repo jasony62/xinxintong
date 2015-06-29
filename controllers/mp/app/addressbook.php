@@ -270,7 +270,73 @@ class addressbook extends app_base {
 
         return new \ResponseData($rst);
     }
+    /**
+     * 添加的标签
+     *
+     * $id person's id
+     */
+    public function personAddTag_action($id)
+    {
+        $modelPerson = $this->model('app\addressbook\person'); 
+        $modelTag = $this->model('app\addressbook\tag'); 
+        $person = $modelPerson->byId($id);
+        /**
+         * 是否需要建立新标签
+         */
+        $addedIds = array();
+        $addeds = $this->getPostJson();
+        foreach ($addeds as &$add) {
+            if (empty($add->id)) {
+                $existed = $modelTag->byTitle($person->ab_id, $add->name);
+                if ($existed === false) {
+                    $add->id = $modelTag->create($person->mpid, $person->ab_id, $add->name);
+                } else {
+                    $add->id = $existed->id;
+                }
+            }
+            $addedIds[] = $add->id;
+        }
+        /**
+         * 更新
+         */
+        $all = !empty($person->tags) ? array_merge(explode(',',$person->tags), $addedIds) : $addedIds;
+        $all = implode(',', $all);
+        $rst = $this->model()->update(
+            'xxt_ab_person', 
+            array('tags'=>$all),
+            "id=$id"
+        );
 
+        return new \ResponseData($all);
+    }
+    /**
+     * 删除人员的标签
+     */
+    public function personDelTag_action($id, $tagid)
+    {
+        $person = $this->model('app\addressbook\person')->byId($id);
+
+        $all = explode(',', $person->tags);
+        $pos = array_search($tagid, $all); 
+        unset($all[$pos]);
+        $all = implode(',', $all);
+        $rst = $this->model()->update(
+            'xxt_ab_person', 
+            array('tags'=>$all),
+            "id=$id"
+        );
+
+        return new \ResponseData($all);
+    }
+    /**
+     *
+     */
+    public function tagGet_action($abid)
+    {
+        $tags = $this->model('app\addressbook\tag')->byAbid($abid, 'id,name');
+        
+        return new \ResponseData($tags); 
+    }
     /**
      * import an address book(cvs,utf-8).
      *

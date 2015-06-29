@@ -1,20 +1,18 @@
-xxtApp.controller('ImportAddressbookModalInstCtrl', ['$rootScope', '$scope', '$modalInstance', 'abid', function ($rootScope, $scope, $modalInstance, abid) {
-    $scope.cleanExistent = 'N';
+xxtApp.controller('ImportAddressbookModalInstCtrl', ['$scope', '$modalInstance', 'abid', function ($scope, $modalInstance, abid) {
+    $scope.options = {};
+    $scope.options.cleanExistent = 'N';
     $scope.ok = function () {
         $('#formImport').ajaxSubmit({
-            url: '/rest/mp/app/addressbook/import?abid=' + abid + '&cleanExistent=' + $scope.cleanExistent,
+            url: '/rest/mp/app/addressbook/import?abid=' + abid + '&cleanExistent=' + $scope.options.cleanExistent,
             type: 'POST',
             success: function (rsp) {
                 if (typeof rsp === 'string')
-                    $rootScope.errmsg = rsp;
+                    $scope.$root.errmsg = rsp;
                 else
-                    $rootScope.infomsg = rsp.err_msg;
+                    $scope.$root.infomsg = rsp.err_msg;
                 $modalInstance.close();
             }
         });
-    };
-    $scope.change = function () {
-        $scope.cleanExistent = $scope.cleanExistent === 'Y' ? 'N' : 'Y';
     };
     $scope.cancel = function () {
         $modalInstance.dismiss();

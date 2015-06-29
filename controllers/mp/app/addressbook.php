@@ -349,7 +349,7 @@ class addressbook extends app_base {
             $this->model()->delete('xxt_ab_person_dept', "mpid='$this->mpid' and ab_id=$abid");
             $this->model()->delete('xxt_ab_person', "mpid='$this->mpid' and ab_id=$abid");
             $this->model()->delete('xxt_ab_dept', "mpid='$this->mpid' and ab_id=$abid");
-            $this->model()->delete('xxt_ab_title', "mpid='$this->mpid' and ab_id=$abid");
+            $this->model()->delete('xxt_ab_tag', "mpid='$this->mpid' and ab_id=$abid");
         }
         //solving: Maximum execution time of 30 seconds exceeded
         @set_time_limit(0);
@@ -357,7 +357,8 @@ class addressbook extends app_base {
         if (!($file = fopen($_FILES['addressbook']['tmp_name'], "r")))
             return new \ResponseError('open file, failed.');
 
-        $all_depts = $this->getDeptsByMp($this->mpid);
+        $all_depts = $this->getDeptsByAbid($abid);
+        $all_tags = $this->getTagsByAbid($abid);
 
         $headers = fgetcsv($file);
         $first_header = $headers[0];
@@ -367,9 +368,11 @@ class addressbook extends app_base {
          * handle data.
          */
         $model = $this->model('matter\addressbook');
+        $modelTag = $this->model('app\addressbook\tag');
         for ($row = 0; ($contact = fgetcsv($file)) != false; $row++) {
-            $name = $email = '';
+            $name = $email = $remark = '';
             $tels = array();
+            $tags = array();
             $depts = array();
             $titles = array();
             foreach ($headers as $h=>$header) {
@@ -381,9 +384,16 @@ class addressbook extends app_base {
                 case 'email':
                     $email = trim($contact[$h]);
                     break;
+                case 'remark':
+                    $remark = trim($contact[$h]);
+                    break;
                 case 'tel':
                     $tel = trim($contact[$h]);
                     !empty($tel) && $tels[] = $tel;
+                    break;
+                case 'tag':
+                    $tag = trim($contact[$h]);
+                    !empty($tag) && $tags[] = $tag;
                     break;
                 case 'org':
                 case 'dept':
@@ -396,6 +406,31 @@ class addressbook extends app_base {
              * new person
              */
             $personId = $model->createPerson($this->mpid, $abid, $name, $email, implode($tels, ','), false);
+            /**
+             * remark
+             */
+            if (!empty($remark)) {
+                $this->model()->update('xxt_ab_person', array('remark'=>$remark), "id=$personId");
+            }
+            /**
+             * tags
+             */
+            $personTagIds = array();
+            foreach ($tags as $tagName) {
+                if (isset($all_tags[$tagName]))
+                    $oTag = $all_tags[$tagName];
+                else {
+                    $id = $modelTag->create($this->mpid, $abid, $tagName);
+                    $oTag = new \stdClass;
+                    $oTag->id = $id;
+                    $oTag->name = $tagName;
+                    $all_tags[$tagName] =  $oTag;
+                }
+                $personTagIds[] = $oTag->id;
+            } 
+            if (!empty($personTagIds)) {
+                $this->model()->update('xxt_ab_person', array('tags'=>implode(',', $personTagIds)), "id=$personId");
+            }           
             /**
              * depts
              */
@@ -422,17 +457,36 @@ class addressbook extends app_base {
     /**
      *
      */
-    private function getDeptsByMp($mpid) 
+    private function getDeptsByAbid($abid) 
     {
-        $selected = array();
+        $map = array();
+        
         $q[] = 'id,name';
         $q[] = 'xxt_ab_dept';
-        $q[] = "mpid='$mpid'";
+        $q[] = "ab_id='$abid'";
         if ($depts = $this->model()->query_objs_ss($q)) {
             foreach ($depts as $oDept) {
-                $selected[$oDept->name] = $oDept;
+                $map[$oDept->name] = $oDept;
             }
         }
-        return $selected;
-    } 
+        return $map;
+    }
+    /**
+     *
+     */
+    private function getTagsByAbid($abid) 
+    {
+        $map = array();
+        
+        $q[] = 'id,name';
+        $q[] = 'xxt_ab_tag';
+        $q[] = "ab_id='$abid'";
+        if ($tags = $this->model()->query_objs_ss($q)) {
+            foreach ($tags as $oTag) {
+                $map[$oTag->name] = $oTag;
+            }
+        }
+        
+        return $map;
+    }
 }

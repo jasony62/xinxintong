@@ -197,24 +197,6 @@ class addressbook extends matter_ctrl {
         return new \ResponseData($person);
     }
     /**
-     * 更新属性信息
-     */
-    public function personUpdate_action($id) 
-    {
-        $u = $this->getPostJson();
-
-        if (isset($u->name))
-            $u->pinyin = pinyin($u->name, 'UTF-8');
-
-        $rst = $this->model()->update(
-            'xxt_ab_person', 
-            (array)$u, 
-            "mpid='$this->mpid' and id='$id'"
-        );
-
-        return new \ResponseData($rst);
-    }
-    /**
      * 更新联系人所属的部门
      *
      * $id person's id.

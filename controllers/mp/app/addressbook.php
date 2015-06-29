@@ -203,12 +203,15 @@ class addressbook extends app_base {
     {
         $u = $this->getPostJson();
 
-        if (isset($u->name))
-            $u->pinyin = pinyin($u->name, 'UTF-8');
-
+        isset($u->name) && $u->pinyin = pinyin($u->name, 'UTF-8');
+        
+        $u = (array)$u;
+        if (empty($u))
+            return new \ResponseData(0);
+            
         $rst = $this->model()->update(
             'xxt_ab_person', 
-            (array)$u, 
+            $u, 
             "mpid='$this->mpid' and id='$id'"
         );
 
@@ -270,7 +273,73 @@ class addressbook extends app_base {
 
         return new \ResponseData($rst);
     }
+    /**
+     * 添加的标签
+     *
+     * $id person's id
+     */
+    public function personAddTag_action($id)
+    {
+        $modelPerson = $this->model('app\addressbook\person'); 
+        $modelTag = $this->model('app\addressbook\tag'); 
+        $person = $modelPerson->byId($id);
+        /**
+         * 是否需要建立新标签
+         */
+        $addedIds = array();
+        $addeds = $this->getPostJson();
+        foreach ($addeds as &$add) {
+            if (empty($add->id)) {
+                $existed = $modelTag->byTitle($person->ab_id, $add->name);
+                if ($existed === false) {
+                    $add->id = $modelTag->create($person->mpid, $person->ab_id, $add->name);
+                } else {
+                    $add->id = $existed->id;
+                }
+            }
+            $addedIds[] = $add->id;
+        }
+        /**
+         * 更新
+         */
+        $all = !empty($person->tags) ? array_merge(explode(',',$person->tags), $addedIds) : $addedIds;
+        $all = implode(',', $all);
+        $rst = $this->model()->update(
+            'xxt_ab_person', 
+            array('tags'=>$all),
+            "id=$id"
+        );
 
+        return new \ResponseData($all);
+    }
+    /**
+     * 删除人员的标签
+     */
+    public function personDelTag_action($id, $tagid)
+    {
+        $person = $this->model('app\addressbook\person')->byId($id);
+
+        $all = explode(',', $person->tags);
+        $pos = array_search($tagid, $all); 
+        unset($all[$pos]);
+        $all = implode(',', $all);
+        $rst = $this->model()->update(
+            'xxt_ab_person', 
+            array('tags'=>$all),
+            "id=$id"
+        );
+
+        return new \ResponseData($all);
+    }
+    /**
+     *
+     */
+    public function tagGet_action($abid)
+    {
+        $tags = $this->model('app\addressbook\tag')->byAbid($abid, 'id,name');
+        
+        return new \ResponseData($tags); 
+    }
     /**
      * import an address book(cvs,utf-8).
      *
@@ -283,15 +352,16 @@ class addressbook extends app_base {
             $this->model()->delete('xxt_ab_person_dept', "mpid='$this->mpid' and ab_id=$abid");
             $this->model()->delete('xxt_ab_person', "mpid='$this->mpid' and ab_id=$abid");
             $this->model()->delete('xxt_ab_dept', "mpid='$this->mpid' and ab_id=$abid");
-            $this->model()->delete('xxt_ab_title', "mpid='$this->mpid' and ab_id=$abid");
+            $this->model()->delete('xxt_ab_tag', "mpid='$this->mpid' and ab_id=$abid");
         }
         //solving: Maximum execution time of 30 seconds exceeded
-        @set_time_limit(0);
+        //@set_time_limit(0);
 
         if (!($file = fopen($_FILES['addressbook']['tmp_name'], "r")))
             return new \ResponseError('open file, failed.');
 
-        $all_depts = $this->getDeptsByMp($this->mpid);
+        $all_depts = $this->getDeptsByAbid($abid);
+        $all_tags = $this->getTagsByAbid($abid);
 
         $headers = fgetcsv($file);
         $first_header = $headers[0];
@@ -301,9 +371,11 @@ class addressbook extends app_base {
          * handle data.
          */
         $model = $this->model('matter\addressbook');
+        $modelTag = $this->model('app\addressbook\tag');
         for ($row = 0; ($contact = fgetcsv($file)) != false; $row++) {
-            $name = $email = '';
+            $name = $email = $remark = '';
             $tels = array();
+            $tags = array();
             $depts = array();
             $titles = array();
             foreach ($headers as $h=>$header) {
@@ -315,9 +387,16 @@ class addressbook extends app_base {
                 case 'email':
                     $email = trim($contact[$h]);
                     break;
+                case 'remark':
+                    $remark = trim($contact[$h]);
+                    break;
                 case 'tel':
                     $tel = trim($contact[$h]);
                     !empty($tel) && $tels[] = $tel;
+                    break;
+                case 'tag':
+                    $tag = trim($contact[$h]);
+                    !empty($tag) && $tags[] = $tag;
                     break;
                 case 'org':
                 case 'dept':
@@ -330,6 +409,31 @@ class addressbook extends app_base {
              * new person
              */
             $personId = $model->createPerson($this->mpid, $abid, $name, $email, implode($tels, ','), false);
+            /**
+             * remark
+             */
+            if (!empty($remark)) {
+                $this->model()->update('xxt_ab_person', array('remark'=>$remark), "id=$personId");
+            }
+            /**
+             * tags
+             */
+            $personTagIds = array();
+            foreach ($tags as $tagName) {
+                if (isset($all_tags[$tagName]))
+                    $oTag = $all_tags[$tagName];
+                else {
+                    $id = $modelTag->create($this->mpid, $abid, $tagName);
+                    $oTag = new \stdClass;
+                    $oTag->id = $id;
+                    $oTag->name = $tagName;
+                    $all_tags[$tagName] =  $oTag;
+                }
+                $personTagIds[] = $oTag->id;
+            } 
+            if (!empty($personTagIds)) {
+                $this->model()->update('xxt_ab_person', array('tags'=>implode(',', $personTagIds)), "id=$personId");
+            }           
             /**
              * depts
              */
@@ -356,17 +460,36 @@ class addressbook extends app_base {
     /**
      *
      */
-    private function getDeptsByMp($mpid) 
+    private function getDeptsByAbid($abid) 
     {
-        $selected = array();
+        $map = array();
+        
         $q[] = 'id,name';
         $q[] = 'xxt_ab_dept';
-        $q[] = "mpid='$mpid'";
+        $q[] = "ab_id='$abid'";
         if ($depts = $this->model()->query_objs_ss($q)) {
             foreach ($depts as $oDept) {
-                $selected[$oDept->name] = $oDept;
+                $map[$oDept->name] = $oDept;
             }
         }
-        return $selected;
-    } 
+        return $map;
+    }
+    /**
+     *
+     */
+    private function getTagsByAbid($abid) 
+    {
+        $map = array();
+        
+        $q[] = 'id,name';
+        $q[] = 'xxt_ab_tag';
+        $q[] = "ab_id='$abid'";
+        if ($tags = $this->model()->query_objs_ss($q)) {
+            foreach ($tags as $oTag) {
+                $map[$oTag->name] = $oTag;
+            }
+        }
+        
+        return $map;
+    }
 }

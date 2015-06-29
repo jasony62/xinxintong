@@ -1,6 +1,8 @@
 <?php
 require_once '../db.php';
-// address book
+/**
+ * address book
+ */
 $sql = "create table if not exists xxt_addressbook(";
 $sql .= "id int not null auto_increment";
 $sql .= ',mpid varchar(32) not null';
@@ -20,7 +22,9 @@ if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
     echo 'database error(xxt_addressbook): '.$mysqli->error;
 }
-//
+/**
+ * 部门
+ */
 $sql = "create table if not exists xxt_ab_dept(";
 $sql .= "id int not null auto_increment";
 $sql .= ',mpid varchar(32) not null';
@@ -35,40 +39,46 @@ if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
     echo 'database error(xxt_ab_dept): '.$mysqli->error;
 }
-//
-$sql = "create table if not exists xxt_ab_title(";
+/**
+ * tags
+ */
+$sql = "create table if not exists xxt_ab_tag(";
 $sql .= "id int not null auto_increment";
 $sql .= ',mpid varchar(32) not null';
-$sql .= ",name varchar(60) not null";
 $sql .= ",ab_id int not null";
-$sql .= ",primary key(id)";
-$sql .= ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
+$sql .= ",name varchar(64) not null default ''";
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error(xxt_ab_title): '.$mysqli->error;
+    echo 'database error: '.$mysqli->error;
 }
-// person
-$sql = "create table if not exists xxt_ab_person";
-$sql .= "(id int not null auto_increment";
+/**
+ * person
+ */
+$sql = "create table if not exists xxt_ab_person(";
+$sql .= "id int not null auto_increment";
 $sql .= ',mpid varchar(32) not null';
+$sql .= ",ab_id int not null";
 $sql .= ",name varchar(20) not null";
 $sql .= ",pinyin varchar(100) not null";
 $sql .= ",email text";
 $sql .= ",tels text";
-$sql .= ",ab_id int not null";
+$sql .= ",remark text";
+$sql .= ",tags text";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
     echo 'database error(xxt_ab_person): '.$mysqli->error;
 }
-//
+/**
+ * 部门人员对应关系
+ */
 $sql = "create table if not exists xxt_ab_person_dept(";
 $sql .= "id int not null auto_increment";
 $sql .= ',mpid varchar(32) not null';
+$sql .= ",ab_id int not null";
 $sql .= ",person_id int not null";
 $sql .= ",dept_id int null";
-$sql .= ",title_id int null";
-$sql .= ",ab_id int not null";
 $sql .= ",primary key(id)";
 $sql .= ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

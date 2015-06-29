@@ -1,4 +1,4 @@
-<div ng-app='xxt' ng-controller='abCtrl' ng-init="mpid='<?php TPL::pt('mpid');?>';jsonDepts='<?php echo TPL::val('depts') ? urlencode(json_encode(TPL::val('depts'))):'';?>'">
+<div ng-app='xxt' ng-controller='abCtrl'>
     <div class='container-fluid'>
         <div class='row'>
             <div class='form-group'>
@@ -18,14 +18,16 @@
             <div class='input-group input-group-lg' ng-if='pickedDept' ng-click='pickDept(null)'>
                 <p class='form-control'>{{pickedDept.name}}</p>
                 <div class='input-group-btn'>
-                    <button class='btn btn-default'><span class='glyphicon glyphicon-remove'></span></button>
+                    <button class='btn btn-default'>
+                        <span class='glyphicon glyphicon-remove'></span>
+                    </button>
                 </div>
             </div>
-            <ul class='list-group' infinite-scroll='more()' infinite-scroll-distance='0'infinite-scroll-disabled='loading'>
+            <ul class='list-group' infinite-scroll='more()' infinite-scroll-distance='0' infinite-scroll-disabled='loading'>
                 <li class='list-group-item' ng-repeat='p in persons' ng-click='open(p)'>
-                <div class='name'>{{p.name}}</div>
-                <div class='dept'>{{p.depts|depts}}</div>
-                <span class='glyphicon glyphicon-chevron-right pull-right open'></span>
+                    <div class='name'>{{p.name}}</div>
+                    <div class='dept'>{{p.depts|depts}}</div>
+                    <span class='glyphicon glyphicon-chevron-right pull-right open'></span>
                 </li>
             </ul>
         </div>
@@ -38,7 +40,11 @@
             </tr>
             <tr>
                 <td>电话</td>
-                <td><span ng-repeat='t in opened.tels'><a href='tel:{{t}}'>{{t}}</a>&nbsp;&nbsp;<span></td>
+                <td>
+                    <span ng-repeat='t in opened.tels'>
+                        <a href='tel:{{t}}'>{{t}}</a>&nbsp;&nbsp;
+                        <span>
+                </td>
             </tr>
             <tr>
                 <td>邮件</td>
@@ -46,7 +52,11 @@
             </tr>
             <tr>
                 <td>部门</td>
-                <td><span ng-repeat='o in opened.depts'>{{o.name}}<span ng-if='$index<opened.depts.length-1'>,</span></span></td>
+                <td>
+                    <span ng-repeat='o in opened.depts'>{{o.name}}
+                        <span ng-if='$index<opened.depts.length-1'>,</span>
+                    </span>
+                </td>
             </tr>
         </table>
         <button class='btn btn-default btn-block'>关闭</button>
@@ -54,18 +64,16 @@
     <div id='dlg2'>
         <ul class='depts list-group'>
             <li class='list-group-item clearfix' ng-repeat='d in showDepts'>
-            <button class='btn btn-default' ng-click='pickDept(d)'>{{d.name}}</button>
-            <button class='btn btn-default pull-right' ng-click='childDept(d)' ng-if='d.hasChild'><span class='glyphicon glyphicon-chevron-right'></span></button>
+                <button class='btn btn-default' ng-click='pickDept(d)'>{{d.name}}</button>
+                <button class='btn btn-default pull-right' ng-click='childDept(d)' ng-if='d.hasChild'>
+                    <span class='glyphicon glyphicon-chevron-right'></span>
+                </button>
             </li>
         </ul>
         <div class='actions'>
-            <button class='btn btn-lg' ng-class="upperDepts.length?'btn-primary':'btn-default'" ng-disabled='upperDepts.length===0' ng-click='backDept()'>返回</button>
+            <button class='btn btn-lg' ng-class="upperDepts.length?'btn-primary':'btn-default'" ng-disabled='upperDepts.length===0'
+            ng-click='backDept()'>返回</button>
             <button class='btn btn-primary btn-lg' ng-click='closeDeptPicker()'>关闭</button>
         </div>
     </div>
 </div>
-<?php $css=TPL::val('body_css'); if (!empty($css)) { ?>
-<style>
-    <?php echo $css;?>
-</style>
-<?php }?>

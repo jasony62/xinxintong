@@ -203,12 +203,15 @@ class addressbook extends app_base {
     {
         $u = $this->getPostJson();
 
-        if (isset($u->name))
-            $u->pinyin = pinyin($u->name, 'UTF-8');
-
+        isset($u->name) && $u->pinyin = pinyin($u->name, 'UTF-8');
+        
+        $u = (array)$u;
+        if (empty($u))
+            return new \ResponseData(0);
+            
         $rst = $this->model()->update(
             'xxt_ab_person', 
-            (array)$u, 
+            $u, 
             "mpid='$this->mpid' and id='$id'"
         );
 

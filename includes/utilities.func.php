@@ -87,7 +87,7 @@ function pinyin($zhongwen, $encode = 'GBK') {
     }
     $oCpy->unload();
 
-    return implode($words, ',');
+    return implode(',', $words);
 }
 /**
  *

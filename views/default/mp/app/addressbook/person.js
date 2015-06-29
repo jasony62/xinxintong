@@ -50,7 +50,7 @@ xxtApp.controller('personCtrl', ['$scope', 'http2', '$timeout', '$modal', functi
         if (!angular.equals($scope.person, $scope.persisted)) {
             var p = {};
             p[name] = $scope.person[name];
-            http2.post('/rest/mp/matter/addressbook/personUpdate?id=' + $scope.personId, p, function (rsp) {
+            http2.post('/rest/mp/app/addressbook/personUpdate?id=' + $scope.personId, p, function (rsp) {
                 $scope.persisted = angular.copy($scope.person);
             });
         }

@@ -1,0 +1,52 @@
+<div id='catelog-view'>
+    <div class='col-md-5'>
+        <div class='list-group'>
+            <div class='list-group-item' ng-class="{'active':editing===c}" ng-repeat='c in catelogs' ng-bind='c.name' ng-click='open(c)'></div>
+            <div class='list-group-item'>
+                <button class='btn btn-success btn-block' ng-click='create()'>添加</button>
+            </div>
+        </div>
+    </div>
+    <div class='col-md-7' ng-show='editing'>
+        <div class='form-group'>
+            <label>名称</label>
+            <input class='form-control' ng-model='editing.name' tms-auto-update tms-wait=1000 tms-update="update('name')">
+        </div>
+        <div class='form-group'>
+            <div>
+                <label>属性</label>
+                <button class='btn btn-default btn-xs' ng-click="addProp()">
+                    <span class='glyphicon glyphicon-plus'></span>
+                </button>
+            </div>
+            <ul class='list-group'>
+                <li class='list-group-item' ng-repeat='p in editing.properties'>
+                    <span ng-bind='p.name'></span>
+                    <button class='btn btn-default btn-xs pull-right' ng-click="editProp(p, $index)">
+                        <span class='glyphicon glyphicon-edit'></span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <script type="text/ng-template" id="propEditor.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="close()">×</button>
+            <h5 class="modal-title">编辑属性</h5>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-md-2 control-label">名称</label>
+                    <div class="col-md-10">
+                        <input type='text' class='form-control' ng-model='prop.name'>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-danger" ng-click="remove()">删除</button>
+            <button class="btn btn-success" ng-click="ok()">保存</button>
+        </div>
+    </script>
+</div>

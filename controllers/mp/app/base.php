@@ -26,6 +26,7 @@ class app_base extends \mp\matter\matter_ctrl {
         (true === $prights || $prights['app_wall']['read_p'] === 'Y') && $entries[] = array('url'=>'/mp/app/wall','title'=>'信息墙');
         (true === $prights || $prights['app_addressbook']['read_p'] === 'Y') && $entries[] = array('url'=>'/mp/app/addressbook','title'=>'通讯录');
         (true === $prights || $prights['app_contribute']['read_p'] === 'Y') && $entries[] = array('url'=>'/mp/app/contribute','title'=>'投稿');
+        $entries[] = array('url'=>'/mp/app/merchant','title'=>'订购');
         
         \TPL::assign('app_view_entries', $entries);
     }

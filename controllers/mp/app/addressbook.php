@@ -352,7 +352,7 @@ class addressbook extends app_base {
             $this->model()->delete('xxt_ab_tag', "mpid='$this->mpid' and ab_id=$abid");
         }
         //solving: Maximum execution time of 30 seconds exceeded
-        @set_time_limit(0);
+        //@set_time_limit(0);
 
         if (!($file = fopen($_FILES['addressbook']['tmp_name'], "r")))
             return new \ResponseError('open file, failed.');

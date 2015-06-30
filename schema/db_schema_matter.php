@@ -52,8 +52,9 @@ $sql .= ',occured_year int not null default 0'; //yyyy
 $sql .= ',occured_month int not null default 0'; // 1-12
 $sql .= ',occured_day int not null default 0'; // 1-31
 $sql .= ',occured_hour int not null default 0'; // 0-23
-$sql .= ',occured_lat double(10,6) not null default 0'; // 
-$sql .= ',occured_lng double(10,6) not null default 0'; // 
+$sql .= ',occured_lat double(10,6) not null default 0'; 
+$sql .= ',occured_lng double(10,6) not null default 0'; 
+$sql .= ',occured_place text'; 
 $sql .= ",primary key(article_id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');

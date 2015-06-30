@@ -164,15 +164,18 @@ var Remark = (function () {
         }
     };
 })();
-document.querySelector('#remarks').addEventListener('click', function (e) {
-    var target = e.target;
-    while (!/li/i.test(target.tagName)) {
-        target = target.parentNode;
-    }
-    if (target.dataset.nickname && target.dataset.nickname.length)
-        document.querySelector('#newRemark').value += '@' + target.dataset.nickname + ' ';
-    document.querySelector('#gotoNewRemark').click();
-}, false);
+var eleRemarks = document.querySelector('#remarks');
+if (eleRemarks) { 
+    eleRemarks.addEventListener('click', function (e) {
+        var target = e.target;
+        while (!/li/i.test(target.tagName)) {
+            target = target.parentNode;
+        }
+        if (target.dataset.nickname && target.dataset.nickname.length)
+            document.querySelector('#newRemark').value += '@' + target.dataset.nickname + ' ';
+        document.querySelector('#gotoNewRemark').click();
+    }, false);
+}
 if (window.PicViewer !== undefined) {
     var eViewer = document.querySelector('#picViewer');
     var oPicViewer = PicViewer('#picViewer img', {});

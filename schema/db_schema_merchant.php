@@ -204,7 +204,7 @@ if (!$mysqli->query($sql)) {
 /*
  * 产品订单
  */
-$sql = 'create table if not exists xxt_merchant_group_product(';
+$sql = 'create table if not exists xxt_merchant_order(';
 $sql .= 'id int not null auto_increment';
 $sql .= ',mpid varchar(32) not null';
 $sql .= ',sid varchar(32) not null';

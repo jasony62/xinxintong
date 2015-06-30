@@ -24,7 +24,7 @@ xxtApp.controller('deptSelectorCtrl',['$scope','http2','$modalInstance','abid','
     $scope.toggleChild = function(child) {
         if (!child.loaded) {
             child.loaded = true;
-            http2.get('/rest/mp/matter/addressbook/dept?abid='+abid+'&pid='+child.data.id, function(rsp){
+            http2.get('/rest/mp/app/addressbook/dept?abid='+abid+'&pid='+child.data.id, function(rsp){
                 var depts = rsp.data;
                 buildDepts(child.data.id, depts, child);
             });
@@ -38,7 +38,7 @@ xxtApp.controller('deptSelectorCtrl',['$scope','http2','$modalInstance','abid','
         $modalInstance.dismiss('cancel');
     };
     $scope.depts = {children:[]};
-    http2.get('/rest/mp/matter/addressbook/dept?abid='+abid, function(rsp){
+    http2.get('/rest/mp/app/addressbook/dept?abid='+abid, function(rsp){
         var depts = rsp.data;
         buildDepts(0, depts, $scope.depts, []);
     });

@@ -16,7 +16,7 @@ xxtApp.controller('personCtrl', ['$scope', 'http2', '$timeout', '$modal', functi
         });
     };
     var getPerson = function () {
-        http2.get('/rest/mp/matter/addressbook/person?id=' + $scope.personId, function (rsp) {
+        http2.get('/rest/mp/app/addressbook/person?id=' + $scope.personId, function (rsp) {
             $scope.person = rsp.data;
             if ($scope.person.tels && $scope.person.tels.length > 0) {
                 var tels = $scope.person.tels.split(',');
@@ -38,7 +38,7 @@ xxtApp.controller('personCtrl', ['$scope', 'http2', '$timeout', '$modal', functi
         }
         tels = tels.join();
         p.tels = tels;
-        http2.post('/rest/mp/matter/addressbook/personUpdate?id=' + $scope.personId, p, function (rsp) {
+        http2.post('/rest/mp/app/addressbook/personUpdate?id=' + $scope.personId, p, function (rsp) {
             $scope.persisted = angular.copy($scope.person);
         });
     };
@@ -56,8 +56,8 @@ xxtApp.controller('personCtrl', ['$scope', 'http2', '$timeout', '$modal', functi
         }
     };
     $scope.remove = function () {
-        http2.get('/rest/mp/matter/addressbook/personDelete?id=' + $scope.personId, function (rsp) {
-            location.href = '/page/mp/matter/addressbook';
+        http2.get('/rest/mp/app/addressbook/personDelete?id=' + $scope.personId, function (rsp) {
+            location.href = '/rest/mp/app/addressbook';
         });
     };
     $scope.addTel = function () {
@@ -88,7 +88,7 @@ xxtApp.controller('personCtrl', ['$scope', 'http2', '$timeout', '$modal', functi
             var deptids = [];
             for (var i in selected)
                 deptids.push(selected[i].id);
-            http2.post('/rest/mp/matter/addressbook/updPersonDept?abid=' + $scope.person.ab_id + '&id=' + $scope.personId, deptids, function (rsp) {
+            http2.post('/rest/mp/app/addressbook/updPersonDept?abid=' + $scope.person.ab_id + '&id=' + $scope.personId, deptids, function (rsp) {
                 for (var j in rsp.data) {
                     for (var i in selected) {
                         if (rsp.data[j].dept_id = selected[i].id) {
@@ -102,7 +102,7 @@ xxtApp.controller('personCtrl', ['$scope', 'http2', '$timeout', '$modal', functi
         });
     };
     $scope.delDept = function (dept) {
-        http2.get('/rest/mp/matter/addressbook/delPersonDept?id=' + $scope.personId + '&deptid=' + dept.dept_id, function (rsp) {
+        http2.get('/rest/mp/app/addressbook/delPersonDept?id=' + $scope.personId + '&deptid=' + dept.dept_id, function (rsp) {
             var i = $scope.person.depts.indexOf(dept);
             $scope.person.depts.splice(i, 1);
         });

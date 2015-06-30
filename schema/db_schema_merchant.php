@@ -201,5 +201,39 @@ if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
     echo 'database error: '.$mysqli->error;
 }
+/*
+ * 产品订单
+ */
+$sql = 'create table if not exists xxt_merchant_group_product(';
+$sql .= 'id int not null auto_increment';
+$sql .= ',mpid varchar(32) not null';
+$sql .= ',sid varchar(32) not null';
+$sql .= ',order_status int not null'; // 2-待发货, 3-已发货, 5-已完成, 8-维权中
+$sql .= ",order_total_price int not null";
+$sql .= ',order_create_time int not null';
+$sql .= ',order_express_price int not null';
+$sql .= ',buyer_openid int not null';
+$sql .= ',buyer_nick varchar(255) not null';
+$sql .= ',receiver_name varchar(255) not null';
+$sql .= ',receiver_province varchar(20) not null';
+$sql .= ',receiver_city varchar(20) not null';
+$sql .= ',receiver_zone varchar(40) not null';
+$sql .= ',receiver_addresss varchar(255) not null';
+$sql .= ',receiver_mobile varchar(20) not null';
+$sql .= ',receiver_phone varchar(20) not null';
+$sql .= ',product_id int not null';
+$sql .= ',product_name varchar(70) not null';
+$sql .= ',product_price int not null';
+$sql .= ',product_sku int not null';
+$sql .= ',product_count int not null';
+$sql .= ',product_img text';
+$sql .= ",delivery_id int not null default 0";
+$sql .= ",delivery_company varchar(255) not null default ''";
+$sql .= ",trans_id varchar(255) not null default ''";
+$sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
+if (!$mysqli->query($sql)) {
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: '.$mysqli->error;
+}
 
 echo 'finish merchant.'.PHP_EOL;

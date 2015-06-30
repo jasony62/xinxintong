@@ -36,6 +36,24 @@ class product_model extends \TMS_MODEL {
 		return $products;
 	}
 	/**
+	 *
+	 */
+	public function &byPropValue($cateId, $vids)
+	{
+		$q = array(
+			'*', 
+			'xxt_merchant_product p',
+			"cate_id=$cateId"
+		);
+		foreach ($vids as $vid) {
+			$q[2] .= " and prop_value like '%:\"$vid\"%'";
+		}
+		
+		$products = $this->query_objs_ss($q);
+		
+		return $products;
+	}
+	/**
 	 * $id catelog's id
 	 */
 	public function &cascaded($id)

@@ -71,4 +71,31 @@ class catelog_model extends \TMS_MODEL {
 		
 		return $cascaded;
 	}
+	/**
+	 * $id property's id
+	 */
+	public function &valuesById($id, $assoPropVid = null) 
+	{
+		$q = array(
+			'*',
+			'xxt_merchant_catelog_property_value v',
+			"prop_id=$id"	
+		);
+		
+		if ($assoPropVid !== null) {
+			$prop = \TMS_APP::M('app\merchant\property')->byId($id);
+			
+			$w = " and exists (select 1 from xxt_merchant_product p where";
+			$w .= " p.cate_id=$prop->cate_id";
+			$w .= " and p.prop_value like concat('%\"$id\":\"',v.id,'\"%')";
+			$w .= " and p.prop_value like '%:\"$assoPropVid\"%'";
+			$w .= ")";
+			
+			$q[2] .= $w; 
+		}
+		
+		$values = $this->query_objs_ss($q);
+		
+		return $values;
+	}
 }

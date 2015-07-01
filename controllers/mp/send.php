@@ -47,7 +47,7 @@ class send extends mp_controller {
          */
         $rst = $this->send_to_user($this->mpid, $openid, $message);
         if (false === $rst[0])
-            return $rst;
+            return new \ResponseError($rst[1]);
         /**
          * 记录日志
          */

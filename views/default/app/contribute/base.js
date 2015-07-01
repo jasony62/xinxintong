@@ -1,4 +1,4 @@
-xxtApp = angular.module('xxtApp', ['ui.tms', 'matters.xxt']);
+xxtApp = angular.module('xxtApp', ['ngRoute', 'ui.tms', 'matters.xxt']);
 xxtApp.config(['$locationProvider', '$controllerProvider', function ($locationProvider, $controllerProvider) {
     $locationProvider.html5Mode(true);
     xxtApp.register = { controller: $controllerProvider.register };
@@ -42,13 +42,14 @@ xxtApp.factory('Article', function ($q, http2) {
 
         return promise;
     };
-    Article.prototype.return = function (obj) {
+    Article.prototype.return = function (obj, msg) {
         var deferred = $q.defer();
         var promise = deferred.promise;
         var url;
         url = this.baseUrl + 'articleReturn';
         url += '?mpid=' + this.mpid;
         url += '&id=' + obj.id;
+        url += '&msg=' + msg;
         http2.get(url, function success(rsp) {
             deferred.resolve(rsp.data);
         });

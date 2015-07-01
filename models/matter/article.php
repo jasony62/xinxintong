@@ -255,7 +255,7 @@ class article_model extends article_base {
      * $mid member's id
      * $phase
      */
-    public function forward($mpid, $id, $mid, $phase)
+    public function forward($mpid, $id, $mid, $phase, $remark='')
     {
         $q = array(
             '*', 
@@ -285,7 +285,8 @@ class article_model extends article_base {
             'mid' => $mid,
             'send_at' => time(),
             'state' => 'P',
-            'phase' => $phase
+            'phase' => $phase,
+            'remark' => $remark
         );
         $newlog['id'] = $this->insert('xxt_article_review_log', $newlog, true);
         

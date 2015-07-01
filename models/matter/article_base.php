@@ -18,11 +18,16 @@ abstract class article_base extends base_model {
         $matters = $this->getMatters($id);
         $ma = array();
         foreach ($matters as $m) {
+            if (!empty($m->pic) && stripos($m->pic, 'http') === false) {
+                $pic = 'http://' . $_SERVER['HTTP_HOST'] . $m->pic;
+            } else {
+                $pic = $m->pic;
+            }
             $ma[] = array(
                 'title'=>urlencode($m->title),
                 'description'=>urlencode($m->summary),
                 'url'=>\TMS_APP::model('matter\\'.$m->type)->getEntryUrl($runningMpid, $m->id),
-                'picurl'=>urlencode($m->pic)
+                'picurl'=>urlencode($pic)
             );
         }
 
@@ -49,12 +54,17 @@ abstract class article_base extends base_model {
         foreach ($articles as $a) {
             if (empty($a->title) || empty($a->pic) || empty($a->body))
                 die('文章的标题、头图或者正文为空，不能向微信用户群发！');
+            if (!empty($a->pic) && stripos($a->pic, 'http') === false) {
+                $pic = 'http://' . $_SERVER['HTTP_HOST'] . $a->pic;
+            } else {
+                $pic = $a->pic;
+            }
             $ma[] = array(
-                'title'=>$a->title,
-                'description'=>$a->summary,
-                'url'=>\TMS_APP::model('matter\\'.$a->type)->getEntryUrl($runningMpid, $a->id),
-                'picurl'=>$a->pic,
-                'body'=>$a->body
+                'title' => $a->title,
+                'description' => $a->summary,
+                'url' => \TMS_APP::model('matter\\'.$a->type)->getEntryUrl($runningMpid, $a->id),
+                'picurl' => $pic,
+                'body' => $a->body
             );
         }
         $msg = array(

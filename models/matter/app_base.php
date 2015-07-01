@@ -15,19 +15,25 @@ abstract class app_base extends base_model {
     public function &forCustomPush($runningMpid, $id) 
     {
         $app = $this->byId($id);
-
+        
+        if (!empty($app->pic) && stripos($app->pic, 'http') === false) {
+            $pic = 'http://' . $_SERVER['HTTP_HOST'] . $app->pic;
+        } else {
+            $pic = $app->pic;
+        }
+        
         $ma[] = array(
             'title'=>urlencode($app->title),
             'description'=>urlencode($app->summary),
             'url'=>$this->getEntryUrl($runningMpid, $id),
-            'picurl'=>urlencode($app->pic)
-            );
+            'picurl'=>urlencode($pic)
+        );
         $msg = array(
             'msgtype'=>'news',
             'news'=>array(
                 'articles'=>$ma
                 )
-            );
+        );
 
         return $msg;
     }

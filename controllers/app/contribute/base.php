@@ -99,7 +99,7 @@ class base extends \member_base {
     /**
      * 退回到上一步
      */
-    public function articleReturn_action($mpid, $id)
+    public function articleReturn_action($mpid, $id, $msg='')
     {
         $articleModel = $this->model('matter\article');
         $disposer = $articleModel->disposer($id);
@@ -118,7 +118,7 @@ class base extends \member_base {
             $phase = $prev->phase;
         }
         
-        $log = $articleModel->forward($mpid, $id, $mid, $phase);
+        $log = $articleModel->forward($mpid, $id, $mid, $phase, $msg);
         
         return new \ResponseData('ok');
     }

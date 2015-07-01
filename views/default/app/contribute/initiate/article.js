@@ -1,8 +1,39 @@
-xxtApp.controller('myArticleCtrl', ['$rootScope', '$scope', '$location', '$modal', 'http2', 'Article', function ($rootScope, $scope, $location, $modal, http2, Article) {
+xxtApp.config(['$routeProvider', function ($routeProvider) {
+    $routeProvider.when('/rest/app/contribute/initiate/article', {
+        templateUrl: '/views/default/app/contribute/initiate/edit.html',
+        controller: 'editCtrl',
+    }).when('/rest/app/contribute/initiate/reviewlog', {
+        templateUrl: '/views/default/app/contribute/initiate/reviewlog.html',
+        controller: 'reviewlogCtrl',
+    });
+}]);
+xxtApp.controller('initiateCtrl', ['$scope', '$location', '$modal', 'http2', 'Article', function ($scope, $location, $modal, http2, Article) {
     $scope.back = function (event) {
         event.preventDefault();
         history.back();
     };
+    $scope.subView = '';
+    $scope.mpid = $location.search().mpid;
+    $scope.entry = $location.search().entry;
+    $scope.id = $location.search().id;
+    $scope.Article = new Article('initiate', $scope.mpid, $scope.entry);
+    $scope.Article.get($scope.id).then(function (data) {
+        $scope.editing = data;
+    });
+    $scope.$watch('jsonParams', function (nv) {
+        if (nv && nv.length) {
+            var params = JSON.parse(decodeURIComponent(nv.replace(/\+/, '%20')));
+            $scope.fid = params.fid;
+            $scope.needReview = params.needReview;
+            if ($scope.needReview === 'Y')
+                $scope.picGalleryUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid=' + $scope.mpid;
+            else
+                $scope.picGalleryUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid=' + $scope.fid;
+        }
+    });
+}]);
+xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', 'Article', function ($scope, $modal, http2, Article) {
+    $scope.$parent.subView = 'edit';
     $scope.edit = function (event, article) {
         if (article._cascade === true)
             $scope.editing = article;
@@ -70,22 +101,7 @@ xxtApp.controller('myArticleCtrl', ['$rootScope', '$scope', '$location', '$modal
             });
         });
     };
-    $scope.mpid = $location.search().mpid;
-    $scope.entry = $location.search().entry;
-    $scope.id = $location.search().id;
-    $scope.Article = new Article('initiate', $scope.mpid, $scope.entry);
-    $scope.Article.get($scope.id).then(function (data) {
-        $scope.editing = data;
-    });
-    $scope.$watch('jsonParams', function (nv) {
-        if (nv && nv.length) {
-            var params = JSON.parse(decodeURIComponent(nv.replace(/\+/, '%20')));
-            $scope.fid = params.fid;
-            $scope.needReview = params.needReview;
-            if ($scope.needReview === 'Y')
-                $scope.picGalleryUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid=' + $scope.mpid;
-            else
-                $scope.picGalleryUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid=' + $scope.fid;
-        }
-    });
+}]);
+xxtApp.controller('reviewlogCtrl', ['$scope', '$location', '$modal', 'http2', function ($scope, $location, $modal, http2) {
+    $scope.$parent.subView = 'reviewlog';
 }]);

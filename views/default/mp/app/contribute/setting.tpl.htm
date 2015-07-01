@@ -1,7 +1,7 @@
 <div class='form-group'>
     <div class='form-inline form-group' style='text-align:right'>
         <div class='form-group'>
-            <pushmatter class='btn btn-primary' title="发送给指定用户" matter-id={{editing.id}} matter-type='contribute' />
+            <pushmatter class='btn btn-primary' matter-id={{editing.id}} matter-type='contribute'>发送给指定用户</pushmatter>
         </div>
         <div class='qrcode form-group' ng-controller='SendmeController'>
             <button class='btn btn-primary' data-toggle="popover" data-placement='left' ng-click="qrcode({type:'contribute',id:editing.id},$event)">发送给我</button>
@@ -69,7 +69,7 @@
                     <label>
                         <input type='checkbox' ng-model='editing.shift2pc' ng-true-value='Y' ng-false-value='N' ng-change="update('shift2pc')">是</label>
                 </div>
-                <p class='help-block'>用户在手机上打开时会引导用户转发到PC端打开。需在【账号管理】【定制功能】中设置提示内容。</p>
+                <div class='help-block'>用户在手机上打开时会引导用户转发到PC端打开。需在【账号管理】【定制功能】中设置提示内容。</div>
             </div>
         </div>
         <div class='form-group'>

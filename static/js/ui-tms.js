@@ -480,5 +480,14 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
         replace: true,
         transclude: true
     }
+})
+    .directive('tmsAutoFocus', function ($timeout) {
+    return {
+        restrict: 'A',
+        link: function (_scope, _element) {
+            $timeout(function () {
+                _element[0].focus();
+            });
+        }
+    };
 });
-

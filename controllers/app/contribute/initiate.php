@@ -65,6 +65,35 @@ class initiate extends base {
             $this->view_action('/app/contribute/initiate/article-r');
     }
     /**
+     * 单篇文稿页面
+     */
+    public function reviewlog_action($mpid, $id)
+    {
+        $article = $this->getArticle($mpid, $id);
+        
+        $disposer = $article->disposer;
+        if ($disposer && $disposer->mid === $this->user->mid && $disposer->phase === 'I' && $disposer->state === 'P') {
+            $this->model()->update(
+                'xxt_article_review_log', 
+                array('read_at'=>time(), 'state'=>'D'),
+                "id=$disposer->id");
+        }
+
+        list($entryType, $entryId) = explode(',', $article->entry);
+        $initiators = $this->model('app\contribute')->userAcls($mpid, $entryId, 'I'); // todo ???
+        
+        $params = array();
+        $params['fid'] = $this->user->fid;
+        $params['needReview'] = empty($initiators) ? 'N' : 'Y';
+        
+        \TPL::assign('params', $params);
+
+        if (empty($article->disposer) || $article->disposer->phase === 'I')
+            $this->view_action('/app/contribute/initiate/article');
+        else
+            $this->view_action('/app/contribute/initiate/article-r');
+    }
+    /**
      * 当前用户文稿
      */
     public function articleList_action($mpid, $entry, $openid=null) 

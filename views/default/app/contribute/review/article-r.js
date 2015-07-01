@@ -3,9 +3,26 @@ xxtApp.controller('myArticleCtrl', ['$location', '$scope', '$modal', 'http2', 'A
         event.preventDefault();
         history.back();
     };
+    $scope.refuse = function () {
+
+    };
     $scope.return = function () {
-        $scope.Article.return($scope.editing).then(function () {
-            location.href = '/rest/app/contribute/review?mpid=' + $scope.mpid + '&entry=' + $scope.editing.entry;
+        $modal.open({
+            templateUrl: 'replyBox.html',
+            controller: function ($scope, $modalInstance, http2) {
+                $scope.data = { message: '' };
+                $scope.close = function () {
+                    $modalInstance.dismiss();
+                };
+                $scope.ok = function () {
+                    $modalInstance.close($scope.data);
+                };
+            },
+            backdrop: 'static',
+        }).result.then(function (data) {
+            $scope.Article.return($scope.editing, data.message).then(function () {
+                location.href = '/rest/app/contribute/review?mpid=' + $scope.mpid + '&entry=' + $scope.editing.entry;
+            });
         });
     };
     $scope.pass = function () {

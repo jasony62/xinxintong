@@ -133,6 +133,7 @@ function exchangeSize($size) {
         <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
         <script src="/rest/mi/matter/wxjssdksignpackage?mpid=<?php echo $mpid;?>&url=<?php echo urlencode("http://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);?>"></script>
         <?php } ?>
+        <script src="/static/js/xxt.share.js"></script>
         <?php $this->import_js('','article', true);?>
         <?php if ($article->can_picviewer === 'Y') {?>
         <script src="/static/js/hammer.min.js"></script>

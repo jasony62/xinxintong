@@ -6,13 +6,12 @@ sharelink += "?mpid=" + window.mpid;
 sharelink += "&id=" + window.article.id;
 sharelink += "&type=article";
 sharelink += "&shareby=" + window.shareid;
-window.shareData = {
-    'img_url': window.article.pic,
-    'link': window.sharelink,
-    'title': window.article.title,
-    'desc': window.article.summary
-};
-var logShare = function (shareto) {
+if (/MicroMessenger/.test(navigator.userAgent)) {
+    //signPackage.debug = true;
+    signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
+    wx.config(signPackage);
+} 
+window.xxt.share.options.logger = function (shareto) {
     var url = "/rest/mi/matter/logShare";
     url += "?shareid=" + window.shareid;
     url += "&mpid=" + window.mpid;
@@ -22,49 +21,8 @@ var logShare = function (shareto) {
     url += "&shareby=" + window.article.shareby;
     ajax('POST', url, null);
 };
-if (/MicroMessenger/.test(navigator.userAgent)) {
-    //signPackage.debug = true;
-    signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
-    wx.config(signPackage);
-    wx.ready(function () {
-        window.article.can_share === 'N' && wx.hideOptionMenu();
-        wx.onMenuShareTimeline({
-            title: shareData.title,
-            link: shareData.link,
-            imgUrl: shareData.img_url,
-            success: function () {
-                logShare('F');
-            },
-            cancel: function () {
-            }
-        });
-        wx.onMenuShareAppMessage({
-            title: shareData.title,
-            desc: shareData.desc,
-            link: shareData.link,
-            imgUrl: shareData.img_url,
-            success: function () {
-                logShare('T');
-            },
-            cancel: function () {
-            }
-        });
-    });
-} else if (/YiXin/.test(navigator.userAgent)) {
-    document.addEventListener('YixinJSBridgeReady', function () {
-        window.article.can_share === 'N' && YixinJSBridge.call('hideOptionMenu');
-        YixinJSBridge.on('menu:share:appmessage', function (argv) {
-            logShare('F');
-            YixinJSBridge.invoke('sendAppMessage', shareData, function (res) {
-            })
-        });
-        YixinJSBridge.on('menu:share:timeline', function (argv) {
-            logShare('T');
-            YixinJSBridge.invoke('shareTimeline', shareData, function (res) {
-            })
-        });
-    }, false);
-}
+window.xxt.share.set(window.article.title, window.sharelink, window.article.summary, window.article.pic);
+
 var dlg = function (msg) {
     var st = (document.body && document.body.scrollTop) ? document.body.scrollTop : document.documentElement.scrollTop;
     var ch = document.documentElement.clientHeight;

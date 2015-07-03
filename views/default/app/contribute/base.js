@@ -229,6 +229,25 @@ xxtApp.factory('News', function ($q, http2) {
     };
     return News;
 });
+xxtApp.factory('Reviewlog', function ($q, http2) {
+    var Reviewlog = function (phase, mpid, matter) {
+        this.mpid = mpid;
+        this.matter = matter;
+        this.baseUrl = '/rest/app/contribute/reviewlog/';
+    };
+    Reviewlog.prototype.list = function (id) {
+        var deferred = $q.defer(), promise = deferred.promise;
+        var url = this.baseUrl + 'list';
+        url += '?mpid=' + this.mpid;
+        url += '&matterId=' + this.matter.id;
+        url += '&matterType=' + this.matter.type;
+        http2.get(url, function success(rsp) {
+            deferred.resolve(rsp.data);
+        });
+        return promise;
+    };
+    return Reviewlog;
+});
 xxtApp.controller('ReviewUserPickerCtrl', ['$scope', '$modalInstance', 'userSetAsParam', function ($scope, $mi, userSetAsParam) {
     $scope.userConfig = { userScope: ['M'] };
     $scope.userSet = {};

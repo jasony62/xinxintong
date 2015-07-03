@@ -9,12 +9,14 @@ xxtApp.config(['$routeProvider', function ($routeProvider) {
 }]);
 xxtApp.controller('initiateCtrl', ['$location', '$scope', 'Article', function ($location, $scope, Article) {
     $scope.subView = '';
+    $scope.phases = { 'I': '投稿', 'R': '审核', 'T': '版面' };
     $scope.mpid = $location.search().mpid;
+    $scope.entry = $location.search().entry;
     $scope.id = $location.search().id;
     $scope.Article = new Article('initiate', $scope.mpid, '');
     $scope.back = function (event) {
         event.preventDefault();
-        history.back();
+        location.href = '/rest/app/contribute/initiate?mpid=' + $scope.mpid + '&entry=' + $scope.entry;
     };
 }]);
 xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', 'Article', function ($scope, $modal, http2, Article) {
@@ -26,7 +28,14 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', 'Article', function 
             ele.contentDocument.body.innerHTML = $scope.editing.body;
         }
     });
+    http2.get('/rest/mp/matter/tag?resType=article', function (rsp) {
+        $scope.tags = rsp.data;
+    });
 }]);
-xxtApp.controller('reviewlogCtrl', ['$scope', '$modal', 'http2', 'Article', function ($scope, $modal, http2, Article) {
+xxtApp.controller('reviewlogCtrl', ['$scope', '$modal', 'http2', 'Reviewlog', function ($scope, $modal, http2, Reviewlog) {
     $scope.$parent.subView = 'reviewlog';
+    $scope.Reviewlog = new Reviewlog('initiate', $scope.mpid, { type: 'article', id: $scope.id });
+    $scope.Reviewlog.list().then(function (data) {
+        $scope.logs = data;
+    });
 }]);

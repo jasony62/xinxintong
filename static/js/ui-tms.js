@@ -93,7 +93,7 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
 }]).directive('combox', function () {
     return {
         restrict: 'EA',
-        scope: { readonly: '@', retainState: '@', evtPrefix: '@', prop: '@', existing: '=', options: '=', state: '@' },
+        scope: { disabled:'@', readonly: '@', retainState: '@', evtPrefix: '@', prop: '@', existing: '=', options: '=', state: '@' },
         controller: 'ComboxController',
         templateUrl: function () {
             return '/static/template/combox.html?_=2';

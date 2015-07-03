@@ -125,6 +125,7 @@ $sql .= ',mpid varchar(32) not null';
 $sql .= ',article_id int not null';
 $sql .= ',seq int not null';
 $sql .= ',mid varchar(32) not null';
+$sql .= ',disposer_name varchar(255) not null';
 $sql .= ',send_at int not null';
 $sql .= ',receive_at int not null default 0';
 $sql .= ',read_at int not null default 0';

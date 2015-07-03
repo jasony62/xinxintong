@@ -61,6 +61,10 @@ class base extends \member_base {
          * channels
          */
         $article->channels = $this->model('matter\channel')->byMatter($id, 'article');
+        /**
+         * tags
+         */
+        $article->tags = $this->model('tag')->tagsByRes($article->id, 'article');
         
         return $article;
     }

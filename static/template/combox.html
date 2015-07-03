@@ -1,9 +1,9 @@
 <div class="combox input-group">
     <div class="form-control">
-        <span class="label label-primary selected" ng-repeat="e in existing">{{e[prop]?e[prop]:e}}<button class="close" ng-click="removeOne(e)">×</button></span>
+        <span class="label label-primary selected" ng-repeat="e in existing">{{e[prop]?e[prop]:e}}<button ng-show="!disabled" class="close" ng-click="removeOne(e)">×</button></span>
         <input type="text" size="10" style="border:0px none;padding:0px;height:100%" ng-show="!readonly" ng-model="input" ng-blur="blur($event)" ng-keydown="keydown($event)">
     </div>
-    <div class="input-group-btn">
+    <div class="input-group-btn" ng-show="!disabled">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
         <div class="dropdown-menu" style="left:auto;right:0">
             <div class="options">

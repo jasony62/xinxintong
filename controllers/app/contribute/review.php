@@ -51,6 +51,23 @@ class review extends base {
 
         $this->view_action('/app/contribute/review/article-r');
     }
+    /**
+     * 页面
+     */
+    public function reviewlog_action($mpid, $id)
+    {
+        $article = $this->getArticle($mpid, $id);
+        
+        $disposer = $article->disposer;
+        if ($disposer && $disposer->mid === $this->user->mid && $disposer->phase === 'R' && $disposer->state === 'P') {
+            $this->model()->update(
+                'xxt_article_review_log', 
+                array('read_at'=>time(), 'state'=>'D'),
+                "id=$disposer->id");
+        }
+
+        $this->view_action('/app/contribute/review/article-r');
+    }
 
     /**
      * 文稿审核通过

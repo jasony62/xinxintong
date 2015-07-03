@@ -10,7 +10,7 @@ if (/MicroMessenger/.test(navigator.userAgent)) {
     //signPackage.debug = true;
     signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
     wx.config(signPackage);
-} 
+}
 window.xxt.share.options.logger = function (shareto) {
     var url = "/rest/mi/matter/logShare";
     url += "?shareid=" + window.shareid;
@@ -22,7 +22,6 @@ window.xxt.share.options.logger = function (shareto) {
     ajax('POST', url, null);
 };
 window.xxt.share.set(window.article.title, window.sharelink, window.article.summary, window.article.pic);
-
 var dlg = function (msg) {
     var st = (document.body && document.body.scrollTop) ? document.body.scrollTop : document.documentElement.scrollTop;
     var ch = document.documentElement.clientHeight;
@@ -123,7 +122,7 @@ var Remark = (function () {
     };
 })();
 var eleRemarks = document.querySelector('#remarks');
-if (eleRemarks) { 
+if (eleRemarks) {
     eleRemarks.addEventListener('click', function (e) {
         var target = e.target;
         while (!/li/i.test(target.tagName)) {

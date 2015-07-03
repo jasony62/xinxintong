@@ -36,7 +36,9 @@
         set: function (title, link, desc, img, fnOther) {
             if (/Android/i.test(navigator.userAgent) || /iPhone/i.test(navigator.userAgent) || /iPad/i.test(navigator.userAgent)) {
                 if (/MicroMessenger/i.test(navigator.userAgent)) {
-                    setWxShare(title, desc, link, img);
+                    window.wx.ready(function () {
+                        setWxShare(title, link, desc, img);
+                    });
                 } else if (/YiXin/i.test(navigator.userAgent)) {
                     if (window.YixinJSBridge === undefined) {
                         document.addEventListener('YixinJSBridgeReady', function () {

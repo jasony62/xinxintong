@@ -426,7 +426,14 @@ class wx_model extends mpproxy_base {
     public function mediaUpload($mediaUrl, $mediaType='image') 
     {
         $tmpfname = $this->fetchUrl($mediaUrl);
-        $uploaded['media'] = "@$tmpfname";
+        /**
+         * 解决php版本兼容性问题
+         */
+        if (class_exists('\CURLFile')) {
+            $uploaded['media'] = new \CURLFile($tmpfname);
+        } else {
+            $uploaded['media'] = '@'.$tmpfname;
+        }
         /**
          * upload image
          */

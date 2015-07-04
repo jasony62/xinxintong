@@ -5,6 +5,14 @@ require_once dirname(dirname(__FILE__)).'/mp_controller.php';
 
 class matter_ctrl extends \mp\mp_controller {
     /**
+     * 当前用户拥有的操作权限
+     */
+    protected $prights;
+    /**
+     * 有权限的入口
+     */
+    protected $entries;
+    /**
      * 检查权限
      */
     public function __construct() 
@@ -27,24 +35,18 @@ class matter_ctrl extends \mp\mp_controller {
 
         $entries = array();
         
-        (true === $prights || $prights['matter_article']['read_p'] === 'Y') && $entries['articles'] = array('title'=>'单图文');
-        (true === $prights || $prights['matter_text']['read_p'] === 'Y') && $entries['texts'] = array('title'=>'文本');
-        (true === $prights || $prights['matter_news']['read_p'] === 'Y') && $entries['news'] = array('title'=>'多图文');
-        (true === $prights || $prights['matter_channel']['read_p'] === 'Y') && $entries['channels'] = array('title'=>'频道');
-        (true === $prights || $prights['matter_link']['read_p'] === 'Y') && $entries['links'] = array('title'=>'链接');
-        (true === $prights || $prights['matter_tmplmsg']['read_p'] === 'Y') && $entries['tmplmsgs'] = array('title'=>'模板消息');
-        (true === $prights || $prights['matter_media']['read_p'] === 'Y') && $entries['media'] = array('title'=>'图片');
+        (true === $prights || (isset($prights['matter_article']) && $prights['matter_article']['read_p'] === 'Y')) && $entries[] = array('url'=>'/mp/matter/articles','title'=>'单图文');
+        (true === $prights || (isset($prights['matter_text']) && $prights['matter_text']['read_p'] === 'Y')) && $entries[] = array('url'=>'/mp/matter/texts','title'=>'文本');
+        (true === $prights || (isset($prights['matter_news']) && $prights['matter_news']['read_p'] === 'Y')) && $entries[] = array('url'=>'/mp/matter/news','title'=>'多图文');
+        (true === $prights || (isset($prights['matter_channel']) && $prights['matter_channel']['read_p'] === 'Y')) && $entries[] = array('url'=>'/mp/matter/channels','title'=>'频道');
+        (true === $prights || (isset($prights['matter_link']) && $prights['matter_link']['read_p'] === 'Y')) && $entries[] = array('url'=>'/mp/matter/links','title'=>'链接');
+        (true === $prights || (isset($prights['matter_tmplmsg']) && $prights['matter_tmplmsg']['read_p'] === 'Y')) && $entries[] = array('url'=>'/mp/matter/tmplmsgs','title'=>'模板消息');
+        (true === $prights || (isset($prights['matter_media']) && $prights['matter_media']['read_p'] === 'Y')) && $entries[] = array('url'=>'/mp/matter/media','title'=>'图片');
+        
+        $this->prights = $prights;
+        $this->entries = $entries;
         
         \TPL::assign('matter_view_entries', $entries);
-    }
-    /**
-     *
-     */
-    public function get_access_rule()
-    {
-        $rule_action['rule_type'] = 'white';
-        $rule_action['actions'][] = 'hello';
-        return $rule_action;
     }
     /**
      * 设置访问白名单

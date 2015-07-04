@@ -1,0 +1,83 @@
+<div class='form-group' style='text-align:right'>
+    <button class='btn navbar-btn btn-default' ng-if="editing.disposer.phase==='R'" ng-click='return()'>退回</button>
+    <button class='btn navbar-btn btn-default' disabled ng-if="editing.disposer.phase==='R'" ng-click='refuse()'>不通过</button>
+    <button class='btn navbar-btn btn-success' ng-if="editing.disposer.phase==='R'" ng-click='pass()'>通过</button>
+    <button class='btn navbar-btn btn-default' disabled ng-if="editing.approved==='Y'" ng-click='publish()'>发布</button>
+</div>
+<div class='form-horizontal'>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>标题</label>
+        <div class='col-md-10'>
+            <p class='form-control-static' ng-bind='editing.title'></p>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>创建时间</label>
+        <div class='col-md-10'>
+            <p class='form-control-static' ng-bind="editing.create_at*1000|date:'yyyy-MM-dd HH:mm'"></p>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>创建人</label>
+        <div class='col-md-10'>
+            <p class='form-control-static' ng-bind="editing.creater_name"></p>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>头图</label>
+        <div class='col-md-10'>
+            <div style="width:182px;border:1px solid #CCC">
+                <div style='position:relative' ng-if="editing.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                    <img name='pic' ng-src="{{editing.pic}}" width='180px' />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>摘要</label>
+        <div class='col-md-10'>
+            <p class='form-control-static' ng-bind='editing.summary'></p>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>正文</label>
+        <div class='col-md-10'>
+            <iframe id='content' class='form-control' style='height:300px'></iframe>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>标签</label>
+        <div class='col-md-10'>
+            <combox disabled='true' readonly='true' evt-prefix='tag' prop='title' existing='editing.tags' options='tags'></combox>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>发生地点</label>
+        <div class='col-md-10 form-inline'>
+            <label>名称&nbsp;</label>
+            <p class='form-control' ng-bind='editing.extinfo.occured_place'></p>
+            <label>经度&nbsp;</label>
+            <p class='form-control' ng-bind='editing.extinfo.occured_lat'></p>
+            <label>纬度&nbsp;</label>
+            <p class='form-control' ng-bind='editing.extinfo.occured_lng'></p>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>发生时间</label>
+        <div class='col-md-10'>
+            <p class='form-control' ng-bind='editing.extinfo.occured_time'></p>
+        </div>
+    </div>
+</div>
+<script type="text/ng-template" id="replyBox.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="close()">×</button>
+        <h5 class="modal-title">回复</h5>
+    </div>
+    <div class="modal-body">
+        <textarea class='form-control' rows=6 ng-model='data.message' tms-auto-focus></textarea>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="ok()">确定</button>
+    </div>
+</script>

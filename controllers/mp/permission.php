@@ -99,6 +99,7 @@ class permission extends mp_controller {
             'app_wall',
             'app_addressbook',
             'app_contribute',
+            'app_merchant',
             'analyze',
         );
         foreach ($otherPermissions as $perm) {

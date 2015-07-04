@@ -49,6 +49,15 @@ class mp_controller extends \xxt_base {
     /**
      *
      */
+    public function get_access_rule()
+    {
+        $rule_action['rule_type'] = 'white';
+        $rule_action['actions'][] = 'hello';
+        return $rule_action;
+    }
+    /**
+     *
+     */
     protected function getMpaccount()
     {
         return \TMS_APP::M('mp\mpaccount')->byId($this->mpid,'name,mpid,mpsrc,asparent,parent_mpid,yx_joined,wx_joined,qy_joined');

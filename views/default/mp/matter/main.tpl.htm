@@ -1,15 +1,14 @@
 <?php
 $menus = TPL::val('matter_view_entries');
-$msg_type = TPL::val('msg_type');
+$matterType = TPL::val('msg_type');
 ?>
 <nav class='navbar navbar-default'>
     <ul class='nav navbar-nav'>
     <?php 
     if (!empty($menus)) {
-        $menu = TPL::val('msg_type');
-        foreach($menus as $category=>$m) {
-            echo $menu && $category === $menu ? "<li class='active'>" : "<li>";
-            echo "<a href='/page/mp/matter/".$category."' target='_self'>".$m['title']."</a>";
+        foreach($menus as $m) {
+            echo false !== strpos($m['url'], $matterType) ? "<li class='active'>" : "<li>";
+            echo "<a href='/page".$m['url']."' target='_self'>".$m['title']."</a>";
             echo "</li>";
         }
     }
@@ -17,5 +16,5 @@ $msg_type = TPL::val('msg_type');
     </ul>
 </nav>
 <div>
-<?php !empty($menus) && TPL::output('/mp/matter/'.$msg_type);?>
+<?php !empty($menus) && TPL::output('/mp/matter/'.$matterType);?>
 </div>

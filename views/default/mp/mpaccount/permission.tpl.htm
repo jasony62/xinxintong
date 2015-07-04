@@ -298,6 +298,14 @@
                     <td></td>
                 </tr>
                 <tr>
+                    <td>应用管理-订购</td>
+                    <td><a href='#' ng-click="batchCheck('app_merchant','Y')">全选</a> / <a href='#' ng-click="batchCheck('app_merchant','N')">清空</a></td>
+                    <td></td>
+                    <td><input type="checkbox" ng-model="rights.app_merchant.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('app_merchant','read_p')"></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
                     <td>统计分析</td>
                     <td><a href='#' ng-click="batchCheck('analyze','Y')">全选</a> / <a href='#' ng-click="batchCheck('analyze','N')">清空</a></td>
                     <td></td>

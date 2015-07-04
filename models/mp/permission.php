@@ -41,6 +41,7 @@ class permission_model extends \TMS_MODEL {
         'app_wall'=>'MP',
         'app_addressbook'=>'MP',
         'app_contribute'=>'MP',
+        'app_merchant'=>'MP',
         'analyze'=>'MP',
         'p_mpgroup_create'=>'SYS',
         'p_mp_create'=>'SYS',

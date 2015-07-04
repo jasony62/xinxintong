@@ -41,11 +41,39 @@ class MySavant3 extends Savant3 {
      */
     public function global_js() 
     {
-        $names = func_get_args();
-        foreach ($names as $name) {
-            $script = '<script type="text/javascript"';
-            $script .= ' src="/static/js/' . $name. '.js"></script>';
-            echo $script . PHP_EOL;
+        $args = func_get_args();
+        if (is_array($args[0])) {
+            foreach ($args as $arg) {
+                $names = $arg;
+                $argnum = count($names);
+                // 是否需要强制刷新
+                $fresh = is_bool($names[$argnum - 1]) ? $names[$argnum - 1] : false; 
+                $fresh && $argnum--;
+                for ($i = 0; $i < $argnum; $i++) {
+                    $name = $names[$i]; 
+                    $script = '<script type="text/javascript"';
+                    if ($fresh)
+                        $script .= ' src="/static/js/' . $name. '.js?_='.time().'"></script>';
+                    else
+                        $script .= ' src="/static/js/' . $name. '.js"></script>';
+                    echo $script . PHP_EOL;
+                }
+            }    
+        } else {
+            $names = $args;
+            $argnum = count($names);
+            // 是否需要强制刷新
+            $fresh = is_bool($names[$argnum - 1]) ? $names[$argnum - 1] : false; 
+            $fresh && $argnum--;
+            for ($i = 0; $i < $argnum; $i++) {
+                $name = $names[$i]; 
+                $script = '<script type="text/javascript"';
+                if ($fresh)
+                    $script .= ' src="/static/js/' . $name. '.js?_='.time().'"></script>';
+                else
+                    $script .= ' src="/static/js/' . $name. '.js"></script>';
+                echo $script . PHP_EOL;
+            }
         }
     }
     /**

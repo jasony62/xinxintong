@@ -651,9 +651,11 @@ angular.module('matters.xxt', ['ui.bootstrap'])
         !$scope.userSet.members && ($scope.userSet.members = []);
         $scope.userSet.members.splice($scope.userSet.members.indexOf(member), 1);
     });
-    http2.get('/rest/member/authapis', function (rsp) {
-        $scope.authapis = rsp.data;
-    });
+    if ($scope.canMember()) {
+        http2.get('/rest/member/authapis', function (rsp) {
+            $scope.authapis = rsp.data;
+        });
+    }
 }]).directive('userpicker', ['http2', function (http2) {
     return {
         restrict: 'EA',
@@ -664,7 +666,7 @@ angular.module('matters.xxt', ['ui.bootstrap'])
         },
     };
 }]).controller('PushMatterController', ['http2', '$scope', '$modalInstance', 'userSetAsParam', function (http2, $scope, $modalInstance, userSetAsParam) {
-    $scope.userConfig = { userScope: ['G'] };
+    $scope.userConfig = { userScope: ['M'] };
     $scope.userSet = {};
     $scope.cancel = function () {
         $modalInstance.dismiss();
@@ -698,7 +700,7 @@ angular.module('matters.xxt', ['ui.bootstrap'])
         controller: ['$rootScope', '$scope', '$modal', 'http2', function ($rootScope, $scope, $modal, http2) {
             $scope.open = function () {
                 $modal.open({
-                    templateUrl: '/static/template/pushmatter.html?_=3',
+                    templateUrl: '/static/template/pushmatter.html?_=4',
                     controller: 'PushMatterController',
                     backdrop: 'static',
                     size: 'lg',

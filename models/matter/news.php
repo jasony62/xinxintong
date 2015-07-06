@@ -55,7 +55,7 @@ class news_model extends article_base {
         $q = array(
             "a.id,a.mpid,a.title,a.pic,a.summary,a.url,a.create_at,nm.seq,'article' type,a.access_control,a.authapis",
             'xxt_article a,xxt_news_matter nm',
-            "nm.matter_type='Article' and nm.news_id=$news_id and nm.matter_id=a.id"
+            "a.state=1 and a.approved='Y' and nm.matter_type='Article' and nm.news_id=$news_id and nm.matter_id=a.id"
         );
         $q2= array('o'=>'nm.seq');
         if ($articles = $this->query_objs_ss($q, $q2)){

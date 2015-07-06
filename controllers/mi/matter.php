@@ -349,9 +349,31 @@ class matter extends \member_base {
         }
         
         $matters = \TMS_APP::M('matter\channel')->getMattersNoLimit($id, $vid, $params);
-        foreach ($matters as $m)
-            $m->url = \TMS_APP::M('matter\\'.$m->type)->getEntryUrl($mpid, $m->id);
+        $tagModel = $this->model('tag');
+        foreach ($matters as $m) {
+            $matterModel = \TMS_APP::M('matter\\'.$m->type); 
+            $m->url = $matterModel->getEntryUrl($mpid, $m->id);
+            $m->tags = $tagModel->tagsByRes($m->id, 'article');            
+        }
 
+        return new \ResponseData($matters);
+    }
+    /**
+     *
+     * $mpid
+     * $id channel's id
+     */
+    public function byNews_action($mpid, $id)
+    {
+        $matters = \TMS_APP::M('matter\news')->getMatters($id);
+        $tagModel = $this->model('tag');
+        foreach ($matters as $m) {
+            $matterModel = \TMS_APP::M('matter\\'.$m->type); 
+            $m->url = $matterModel->getEntryUrl($mpid, $m->id);
+            if ($m->type === 'article')
+                $m->tags = $tagModel->tagsByRes($m->id, 'article');            
+        }
+        
         return new \ResponseData($matters);
     }
     /**

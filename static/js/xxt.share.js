@@ -1,6 +1,5 @@
 (function () {
     var setWxShare = function (title, link, desc, img) {
-        img.indexOf('http') === -1 && (img = 'http://' + location.hostname + img);
         window.wx.onMenuShareTimeline({
             title: title,
             link: link,
@@ -36,6 +35,7 @@
         options: {},
         set: function (title, link, desc, img, fnOther) {
             if (/Android/i.test(navigator.userAgent) || /iPhone/i.test(navigator.userAgent) || /iPad/i.test(navigator.userAgent)) {
+                img.indexOf('http') === -1 && (img = 'http://' + location.hostname + img);
                 if (/MicroMessenger/i.test(navigator.userAgent)) {
                     window.wx.ready(function () {
                         setWxShare(title, link, desc, img);

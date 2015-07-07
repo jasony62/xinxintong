@@ -1,5 +1,6 @@
 (function () {
     var setWxShare = function (title, link, desc, img) {
+        img.indexOf('http') === -1 && (img = 'http://' + location.hostname + img);
         window.wx.onMenuShareTimeline({
             title: title,
             link: link,

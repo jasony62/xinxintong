@@ -82,7 +82,6 @@ var Like = (function () {
         icon = $('#interaction .like em');
     return {
         change: function () {
-            if (location.search.indexOf('debug=Y')) { alert('debug'); }
             ajax('POST', url, null, function (rsp) {
                 icon.className = icon.className ? '' : 'praised';
                 $('#score').innerHTML = rsp.data;

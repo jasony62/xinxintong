@@ -21,6 +21,34 @@ class enroll extends app_base {
         $this->view_action('/mp/app/enroll');
     }
     /**
+     *
+     */
+    public function detail_action() 
+    {
+        $this->view_action('/mp/app/enroll/detail');
+    }
+    /**
+     *
+     */
+    public function page_action() 
+    {
+        $this->view_action('/mp/app/enroll/detail');
+    }
+    /**
+     *
+     */
+    public function roll_action() 
+    {
+        $this->view_action('/mp/app/enroll/detail');
+    }
+    /**
+     *
+     */
+    public function stat_action() 
+    {
+        $this->view_action('/mp/app/enroll/detail');
+    }
+    /**
      * 返回一个活动，或者活动列表
      *
      * $src 是否来源于父账号，=p
@@ -628,7 +656,7 @@ class enroll extends app_base {
      * name => array(l=>label,c=>count)
      *
      */
-    public function stat_action($aid)
+    public function statGet_action($aid)
     {
         $result = $this->model('app\enroll')->getStat($aid);
 

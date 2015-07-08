@@ -133,7 +133,7 @@ class fans extends \mp\mp_controller {
             /**
              * 更新公众平台上的数据
              */
-            $mpproxy = $this->model('mpproxy/'.$mpa->mpsrc);
+            $mpproxy = $this->model('mpproxy/'.$mpa->mpsrc, $this->mpid);
             $rst = $mpproxy->groupsMembersUpdate($openid, $nv->groupid);
             if ($rst[0] === false)
                 return new \ResponseError($rst[1]);

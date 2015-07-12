@@ -95,7 +95,7 @@
                         <div class='form-group'>
                             <select class='form-control' title='认证结果有效期' ng-model='a.validity' ng-options='d.v as d.n for d in days' ng-change="updAuthapi(a,'validity')"></select>
                         </div>
-                        <div class='form-group' ng-show="ia.valid==='Y'">
+                        <div class='form-group' ng-show="a.valid==='Y'">
                             <button class='btn btn-success' ng-click='addExtattr(a)'>增加信息项</button>
                         </div>
                     </div>
@@ -151,12 +151,12 @@
                             <textarea class='form-control' title='验证未通过说明' ng-model='a.notpass_statement' placeholder='验证未通过说明' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'notpass_statement')"></textarea>
                         </div>
                     </div>
-                    <div class='alert alert-info' ng-show="ia.valid==='Y'" ng-if="mpaccount.mpsrc==='qy'">
+                    <div class='alert alert-info' ng-show="a.valid==='Y'" ng-if="mpaccount.mpsrc==='qy'">
                         <button class='btn' ng-class="backRunning?'btn-default':'btn-primary'" ng-disabled='backRunning' ng-click='import2Qy(a)'>全量导入到企业号</button>
                         <button class='btn btn-default' ng-click='sync2Qy(a)'>增量同步到企业号</button>
                         <span ng-show='a.sync_from_qy_at>0'>上次同步到企业号通讯录时间：{{ia.sync_to_qy_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
                     </div>
-                    <div class='alert alert-info' ng-show="ia.valid==='Y'" ng-if="mpaccount.mpsrc==='qy'">
+                    <div class='alert alert-info' ng-show="a.valid==='Y'" ng-if="mpaccount.mpsrc==='qy'">
                         <button class='btn btn-default' ng-click='syncFromQy(a)'>从企业号同步</button>
                         <span ng-show='a.sync_from_qy_at>0'>上次从企业号通讯录同步时间：{{ia.sync_from_qy_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
                     </div>

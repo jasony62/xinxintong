@@ -11,7 +11,7 @@
         $scope.doSearch = function (page) {
             var url;
             page && ($scope.page.at = page);
-            url = '/rest/mp/app/enroll/records';
+            url = '/rest/mp/app/enroll/record/get';
             url += '?aid=' + $scope.aid;
             url += '&tags=' + $scope.page.tags.join(',');
             url += '&contain=total' + $scope.page.joinParams();
@@ -45,16 +45,46 @@
             { n: '昵称', v: 'nickname' },
             { n: '手机号', v: 'mobile' },
         ];
+        $scope.selected = {};
+        $scope.selectAll;
         $scope.$on('search-tag.xxt.combox.done', function (event, aSelected) {
             $scope.page.tags = $scope.page.tags.concat(aSelected);
+            $scope.doSearch();
         });
         $scope.$on('search-tag.xxt.combox.del', function (event, removed) {
             var i = $scope.page.tags.indexOf(removed);
             $scope.page.tags.splice(i, 1);
+            $scope.doSearch();
+        });
+        $scope.$on('batch-tag.xxt.combox.done', function (event, aSelected) {
+            var i, record, records = [], eks = [], posted;
+            for (i in $scope.selected) {
+                if ($scope.selected) {
+                    record = $scope.roll[i];
+                    eks.push(record.enroll_key);
+                    records.push(record);
+                }
+            }
+            if (eks.length) {
+                posted = { eks: eks, tags: aSelected };
+                http2.post('/rest/mp/app/enroll/record/batchTag?aid=' + $scope.aid, posted, function (rsp) {
+                    var i, l, m, n, newTag;
+                    n = aSelected.length;
+                    for (i = 0, l = records.length; i < l; i++) {
+                        record = records[i];
+                        if (!record.tags || record.length === 0) {
+                            record.tags = aSelected.join(',');
+                        } else for (m = 0; m < n; m++) {
+                            newTag = aSelected[m];
+                            (',' + record.tags + ',').indexOf(newTag) === -1 && (record.tags += ',' + newTag);
+                        }
+                    }
+                });
+            }
         });
         $scope.$on('pushnotify.xxt.done', function (event, matter) {
             console.log('mmm', matter);
-            var url = '/rest/mp/app/enroll/sendNotify';
+            var url = '/rest/mp/app/enroll/record/sendNotify';
             url += '?matterType=' + matter[1];
             url += '&matterId=' + matter[0][0].id;
             url += '&aid=' + $scope.aid;
@@ -70,7 +100,7 @@
         $scope.keywordKeyup = function (evt) {
             evt.which === 13 && $scope.doSearch();
         };
-        $scope.editRoll = function (rollItem) {
+        $scope.editRecord = function (rollItem) {
             $modal.open({
                 templateUrl: 'editor.html',
                 controller: 'editorCtrl',
@@ -92,7 +122,7 @@
                     $scope.editing.tags = tags;
                     $scope.update('tags');
                 }
-                http2.post('/rest/mp/app/enroll/updateRoll?aid=' + $scope.aid + '&ek=' + rollItem.enroll_key, p);
+                http2.post('/rest/mp/app/enroll/record/update?aid=' + $scope.aid + '&ek=' + rollItem.enroll_key, p);
             });
         };
         $scope.addRecord = function () {
@@ -110,7 +140,7 @@
                     $scope.editing.tags = tags;
                     $scope.update('tags');
                 }
-                http2.post('/rest/mp/app/enroll/addRoll?aid=' + $scope.aid, p, function (rsp) {
+                http2.post('/rest/mp/app/enroll/record/add?aid=' + $scope.aid, p, function (rsp) {
                     $scope.roll.splice(0, 0, rsp.data);
                 });
             });
@@ -129,7 +159,7 @@
                     var members = [];
                     for (var i in selected.members)
                         members.push(selected.members[i].data.mid);
-                    http2.post('/rest/mp/app/importUser?aid=' + $scope.aid, members, function (rsp) {
+                    http2.post('/rest/mp/app/record/importUser?aid=' + $scope.aid, members, function (rsp) {
                         for (var i in rsp.data)
                             $scope.roll.splice(0, 0, rsp.data[i]);
                     });
@@ -143,31 +173,37 @@
                 backdrop: 'static',
                 size: 'lg'
             }).result.then(function (param) {
-                http2.post('/rest/mp/app/enroll/importApp?aid=' + $scope.aid, param, function (rsp) {
+                http2.post('/rest/mp/app/enroll/record/importApp?aid=' + $scope.aid, param, function (rsp) {
                     $scope.doSearch(1);
                 });
             });
         };
-        $scope.removeRoll = function (roll) {
+        $scope.removeRecord = function (roll) {
             var vcode;
             vcode = prompt('是否要删除登记信息？，若是，请输入活动名称。');
             if (vcode === $scope.editing.title) {
-                http2.get('/rest/mp/app/enroll/removeRoll?aid=' + $scope.aid + '&key=' + roll.enroll_key, function (rsp) {
+                http2.get('/rest/mp/app/enroll/record/remove?aid=' + $scope.aid + '&key=' + roll.enroll_key, function (rsp) {
                     var i = $scope.roll.indexOf(roll);
                     $scope.roll.splice(i, 1);
                     $scope.page.total = $scope.page.total - 1;
                 });
             }
         };
-        $scope.cleanAll = function () {
+        $scope.empty = function () {
             var vcode;
             vcode = prompt('是否要删除所有登记信息？，若是，请输入活动名称。');
             if (vcode === $scope.editing.title) {
-                http2.get('/rest/mp/app/enroll/clean?aid=' + $scope.aid, function (rsp) {
+                http2.get('/rest/mp/app/enroll/record/empty?aid=' + $scope.aid, function (rsp) {
                     $scope.doSearch(1);
                 });
             }
         };
+        $scope.$watch('selectAll', function (nv) {
+            var i, j;
+            if (nv !== undefined) for (i = 0, j = $scope.roll.length; i < j; i++) {
+                $scope.selected[i] = nv;
+            }
+        });
         $scope.doSearch();
     }]);
     xxtApp.register.controller('importAppCtrl', ['$scope', 'http2', '$modalInstance', function ($scope, http2, $modalInstance) {

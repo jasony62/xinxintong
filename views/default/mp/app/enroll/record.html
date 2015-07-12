@@ -37,6 +37,7 @@
         <table class='table table-bordered'>
             <thead>
                 <tr>
+                    <th style='width:40px'><input type='checkbox' ng-model="selectAll"></th>
                     <th style='width:140px'>登记时间</th>
                     <th style='width:100px' ng-if="editing.fans_only==='Y'||editing.wxyx_only==='Y'">昵称</th>
                     <th ng-repeat="c in cols" title="{{c.ops}}">{{c.title}}</th>
@@ -49,9 +50,10 @@
             </thead>
             <tbody>
                 <tr ng-repeat='r in roll' class='roll'>
+                    <td><input type='checkbox' ng-model='selected[$index]'></td>
                     <td>{{(r.enroll_at*1000)|date:'yyyy-MM-dd HH:mm'}}</td>
                     <td ng-if="editing.fans_only==='Y'||editing.wxyx_only==='Y'">
-                        <a href='#' userpopover xxt-fid='{{r.fid}}' ng-click='viewUser(r)'>{{r.nickname}}</a>
+                        <a href='#' xxt-fid='{{r.fid}}' ng-click='viewUser(r)'>{{r.nickname}}</a>
                     </td>
                     <td ng-repeat="c in cols">
                         <span ng-if="c.type!=='img'">{{r.data[c.id]}}</span>
@@ -64,10 +66,10 @@
                     <td>{{r.score}}</td>
                     <td>{{r.remark_num}}</td>
                     <td>
-                        <button class='btn btn-xs btn-danger' ng-click='removeRoll(r)'>
+                        <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
                             <span class='glyphicon glyphicon-remove'></span>
                         </button>
-                        <button class='btn btn-xs btn-default' ng-click='editRoll(r)'>
+                        <button class='btn btn-xs btn-default' ng-click='editRecord(r)'>
                             <span class='glyphicon glyphicon-edit'></span>
                         </button>
                     </td>
@@ -76,7 +78,8 @@
         </table>
     </div>
     <div class='form-group form-inline'>
-        <button class='btn btn-danger' ng-click='cleanAll()'>清空记录</button>
+        <combox title='标签' evt-prefix='batch-tag' readonly='true' options='editing.tags'></combox>
+        <button class='btn btn-danger' ng-click='empty()'>清空记录</button>
         <div class="btn-group">
             <button type="button" class="btn btn-default">添加用户记录</button>
             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

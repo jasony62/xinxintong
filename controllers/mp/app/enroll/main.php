@@ -1,11 +1,11 @@
 <?php
-namespace mp\app;
+namespace mp\app\enroll;
 
-require_once dirname(__FILE__).'/base.php';
+require_once dirname(dirname(__FILE__)).'/base.php';
 /**
  *
  */
-class enroll extends app_base {
+class main extends \mp\app\app_base {
     /**
      *
      */
@@ -301,28 +301,6 @@ class enroll extends app_base {
         return new \ResponseData($rst);
     }
     /**
-     * 给登记活动的参与人发消息
-     */
-    public function sendNotify_action($matterType=null, $matterId=null, $aid, $rid=null, $tags=null, $kw=null, $by=null)
-    {
-        /**
-         *
-         */
-        $options = array(
-            'tags' => $tags,
-            'rid' => $rid,
-            'kw' => $kw,
-            'by' => $by,
-        );
-        $participants = $this->model('app\enroll')->getParticipants($this->mpid, $aid, $options);
-        /**
-         * 发送消息给指定参与人
-         */
-        die(json_encode($participants));
-        
-        return new \ResponseData(count($participants));
-    }
-    /**
      * 添加活动页面
      *
      * $aid 获动的id
@@ -476,42 +454,6 @@ class enroll extends app_base {
         return new \ResponseData($rst);
     }
     /**
-     * 活动报名名单
-     *
-     * 1、如果活动仅限会员报名，那么要叠加会员信息
-     * 2、如果报名的表单中有扩展信息，那么要提取扩展信息
-     *
-     * return
-     * [0] 数据列表
-     * [1] 数据总条数
-     * [2] 数据项的定义
-     */
-    public function records_action($aid, $page=1, $size=30, $tags=null, $rid=null, $kw=null, $by=null, $contain=null) 
-    {
-        $options = array(
-            'page' => $page,
-            'size' => $size,
-            'tags' => $tags,
-            'rid' => $rid,
-            'kw' => $kw,
-            'by' => $by,
-            'contain' => $contain,
-        );
-
-        $result = $this->model('app\enroll')->getRecords($this->mpid, $aid, $options);
-
-        return new \ResponseData($result);
-    }
-    /**
-     * 清空一条登记信息
-     */
-    public function removeRoll_action($aid, $key)
-    {
-        $rst = $this->model('app\enroll')->removeRoll($aid, $key);
-
-        return new \ResponseData($rst);
-    }
-    /**
      * 参与抽奖的人
      *
      * todo 临时
@@ -640,15 +582,6 @@ class enroll extends app_base {
         return new \ResponseData($result);
     }
     /**
-     * 清空登记信息
-     */
-    public function clean_action($aid)
-    {
-        $rst = $this->model('app\enroll')->cleanRoll($aid);
-
-        return new \ResponseData($rst);
-    }
-    /**
      * 删除一个活动
      *
      * 如果没有报名数据，就将活动彻底删除
@@ -689,201 +622,6 @@ class enroll extends app_base {
         $result = $this->model('app\enroll')->getStat($aid);
 
         return new \ResponseData($result);
-    }
-    /**
-     * 更新报名信息
-     *
-     * $ek enroll_key
-     */
-    public function updateRoll_action($aid, $ek) 
-    {
-        $roll = $this->getPostJson();
-
-        foreach ($roll as $k=>$v) {
-            if (in_array($k, array('signin_at','tags','comment')))
-                $this->model()->update(
-                    'xxt_enroll_record', 
-                    array($k=>$v), 
-                    "enroll_key='$ek'"
-                );
-            else if ($k === 'data' and is_object($v)) {
-                foreach ($v as $cn=>$cv) {
-                    /**
-                     * 检查数据项是否存在，如果不存在就先创建一条
-                     */
-                    $q = array(
-                        'count(*)',
-                        'xxt_enroll_record_data',
-                        "enroll_key='$ek' and name='$cn'"
-                    );
-                    if (1 === (int)$this->model()->query_val_ss($q))
-                        $this->model()->update(
-                            'xxt_enroll_record_data', 
-                            array('value'=>$cv), 
-                            "enroll_key='$ek' and name='$cn'"
-                        );
-                    else {
-                        $cd = array(
-                            'aid'=>$aid,
-                            'enroll_key'=>$ek,
-                            'name'=>$cn,
-                            'value'=>$cv
-                        );
-                        $this->model()->insert(
-                            'xxt_enroll_record_data', 
-                            $cd
-                        );
-                    }
-                }
-            }
-        }
-
-        return new \ResponseData('success');
-    }
-    /**
-     * 手工添加报名信息
-     */
-    public function addRoll_action($aid) 
-    {
-        $d = (array)$this->getPostJson();
-        /**
-         * 报名记录
-         */
-        $current = time();
-        $enroll_key = $this->model('app\enroll')->genEnrollKey($this->mpid, $aid);
-        $r = array();
-        $r['aid'] = $aid;
-        $r['mpid'] = $this->mpid;
-        $r['enroll_key'] = $enroll_key;
-        $r['enroll_at'] = $current;
-        $r['signin_at'] = $current;
-        if (isset($d['tags'])) $r['tags'] = $d['tags'];
-
-        $id = $this->model()->insert('xxt_enroll_record', $r, true);
-
-        $r['id'] = $id;
-        /**
-         * 登记信息
-         */
-        foreach ($d as $n => $v) {
-            if (in_array($n, array('signin_at','tags','comment')))
-                continue;
-            $cd = array(
-                'aid'=>$aid,
-                'enroll_key'=>$enroll_key,
-                'name'=>$n,
-                'value'=>$v
-            );
-            $this->model()->insert(
-                'xxt_enroll_record_data', 
-                $cd
-            );
-            $r[$n] = $v;
-        }
-
-        return new \ResponseData($r);
-    }
-    /**
-     * 导入认证用户
-     */
-    public function importUser_action($aid) 
-    {
-        $mids = $this->getPostJson();
-
-        $q = array(
-            'count(*)',
-            'xxt_enroll_record'
-        );
-        $rolls = array();
-        $current = time();
-        foreach ($mids as $mid) {
-            $member = $this->model('user/member')->byId($mid);
-            $q[2] = "aid='$aid' and mid='$mid'";
-            if (1===(int)$this->model()->query_val_ss($q))
-                continue;
-            /**
-             * 报名记录
-             */
-            $enroll_key = $this->model('app\enroll')->genEnrollKey($this->mpid, $aid);
-            $r = array();
-            $r['aid'] = $aid;
-            $r['mpid'] = $this->mpid;
-            $r['mid'] = $member->mid;
-            $r['openid'] = $member->ooid;
-            $r['enroll_key'] = $enroll_key;
-            $r['enroll_at'] = $current;
-            $r['signin_at'] = $current;
-
-            $id = $this->model()->insert('xxt_enroll_record', $r, true);
-
-            $r['id'] = $id;
-            $r['nickname'] = $member->name;
-
-            $rolls[] = $r;
-        }
-
-        return new \ResponseData($rolls);
-    }
-    /**
-     * 通过已有的活动导入用户
-     *
-     * 目前支持指定的活动包括通用活动和讨论组活动
-     * 目前仅支持指定一个通用活动和一个讨论组活动
-     */
-    public function importApp_action($aid)
-    {
-        $param = $this->getPostJson();
-        $current = time();
-
-        $caid = $param->checkedActs[0];
-        $cwid = $param->checkedWalls[0];
-        $q = array(
-            'w.openid,a.enroll_key',
-            'xxt_enroll_record a,xxt_wall_enroll w',
-            "a.aid='$caid' and w.wid='$cwid' and a.openid=w.openid and w.last_msg_at>0"
-        );
-        $fans = $this->model()->query_objs_ss($q);
-
-        if (!empty($fans)) {
-            foreach ($fans as $f) {
-                /**
-                 * 检查重复记录
-                 */
-                $q = array(
-                    'count(*)',
-                    'xxt_enroll_record',
-                    "mpid='$this->mpid' and aid='$aid' and src='$f->src' and openid='$f->openid'"
-                );
-                if (0 < (int)$this->model()->query_val_ss($q))
-                    continue;
-                /**
-                 * 插入数据
-                 */
-                $enroll_key = $this->model('app\enroll')->genEnrollKey($this->mpid, $aid);
-                $r = array();
-                $r['aid'] = $aid;
-                $r['mpid'] = $this->mpid;
-                $r['enroll_key'] = $enroll_key;
-                $r['enroll_at'] = $current;
-                $r['signin_at'] = $current;
-                $r['openid'] = $f->openid;
-
-                $this->model()->insert('xxt_enroll_record', $r);
-                /**
-                 * 导入登记数据
-                 * todo 临时方法
-                 */
-                $sql = 'insert into xxt_enroll_record_data(aid,enroll_key,name,value)';
-                $sql .= " select '$aid','$enroll_key',name,value";
-                $sql .= ' from xxt_enroll_record_data';
-                $sql .= " where aid='$caid' and enroll_key='$f->enroll_key'";
-
-                $this->model()->insert($sql);
-            }
-        }
-
-        return new \ResponseData(count($fans)); 
-
     }
     /**
      * 活动签到成功回复

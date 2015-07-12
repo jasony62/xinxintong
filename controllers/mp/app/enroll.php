@@ -288,6 +288,9 @@ class enroll extends app_base {
     {
         $nv = (array)$this->getPostJson();
         foreach ($nv as $n=>$v) {
+            if (in_array($n, array('entry_rule'))) {
+                $nv[$n] = $this->model()->escape(urldecode($v));
+            }
             if (in_array($n, array('nonfans_alert'))) {
                 $nv[$n] = $this->model()->escape($v);
             } 

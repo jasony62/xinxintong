@@ -297,6 +297,7 @@ class enroll extends \member_base {
         /**
          * 页面
          */
+        $newForm = false;
         $oPage = $act->pages[$page];
         if ($page === 'form' || $oPage->type === 'I') {
             if ($act->open_lastroll === 'N' && empty($ek))

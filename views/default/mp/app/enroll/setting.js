@@ -22,7 +22,7 @@
         }, true);
         $scope.matterTypes = matterTypes;
         $scope.updateEntryRule = function () {
-            var p = { entry_rule: JSON.stringify($scope.editing.entry_rule) };
+            var p = { entry_rule: encodeURIComponent(JSON.stringify($scope.editing.entry_rule)) };
             http2.post('/rest/mp/app/enroll/update?aid=' + $scope.aid, p, function (rsp) {
                 $scope.persisted = angular.copy($scope.editing);
             });

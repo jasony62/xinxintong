@@ -45,7 +45,7 @@ formApp.factory('Record', function ($http) {
         url += ins.owner === 'user' ? 'myRecords' : 'records';
         url += '?mpid=' + ins.mpid;
         url += '&aid=' + ins.aid;
-        url += '&rid=' + ins.rid;
+        ins.rid !== undefined && ins.rid.length && (url += '&rid=' + ins.rid);
         url += '&orderby=' + ins.orderBy;
         url += '&page=' + ins.page;
         url += '&size=10';
@@ -205,7 +205,7 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
     var modifiedImgFields = [];
     $scope.mpid = $location.search().mpid;
     $scope.aid = $location.search().aid;
-    $scope.rid = $location.search().rid;
+    $scope.rid = $location.search().rid || '';
     $scope.preview = $location.search().preview;
     $scope.data = { member: {} };
     $scope.ready = false;

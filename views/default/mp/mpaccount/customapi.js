@@ -29,7 +29,7 @@ xxtApp.controller('apiCtrl', ['$rootScope', '$scope', 'http2', '$http', '$modal'
         ['密码', 'password', [0, -1, -2, -3, -4, -5]],
     ];
     $scope.fullAuthUrl = function (authapi) {
-        return 'http://' + location.host + authapi.url + '?mpid=' + $scope.mpid + '&authid=' + authapi.authid;
+        return 'http://' + location.host + authapi.url + '?mpid=' + $scope.mpaccount.mpid + '&authid=' + authapi.authid;
     };
     $scope.update = function (name) {
         var p = {};
@@ -59,7 +59,7 @@ xxtApp.controller('apiCtrl', ['$rootScope', '$scope', 'http2', '$http', '$modal'
             p[field] = api[field];
         http2.post(url, p, function (rsp) {
             if (api === $scope.ia) {
-                rsp.data.url2 = 'http://' + location.host + rsp.data.url + '?mpid=' + $scope.mpid + '&authid=' + rsp.data.authid;
+                rsp.data.url2 = 'http://' + location.host + rsp.data.url + '?mpid=' + $scope.mpaccount.mpid + '&authid=' + rsp.data.authid;
                 shiftAuthapiAttr(rsp.data);
                 $scope.ia = rsp.data;
             }
@@ -152,7 +152,7 @@ xxtApp.controller('apiCtrl', ['$rootScope', '$scope', 'http2', '$http', '$modal'
     $scope.backRunning = false;
     $scope.import2Qy = function (authapi) {
         var url = authapi.url + '/import2Qy';
-        url += '?mpid=' + $scope.mpid;
+        url += '?mpid=' + $scope.mpaccount.mpid;
         url += '&authid=' + authapi.authid;
         var doImport = function (param) {
             $scope.backRunning = true;
@@ -174,7 +174,7 @@ xxtApp.controller('apiCtrl', ['$rootScope', '$scope', 'http2', '$http', '$modal'
     };
     $scope.sync2Qy = function (authapi) {
         var url = authapi.url + '/sync2Qy';
-        url += '?mpid=' + $scope.mpid;
+        url += '?mpid=' + $scope.mpaccount.mpid;
         url += '&authid=' + authapi.authid;
         http2.get(url, function (rsp) {
             $rootScope.infomsg = rsp.data;
@@ -182,7 +182,7 @@ xxtApp.controller('apiCtrl', ['$rootScope', '$scope', 'http2', '$http', '$modal'
     };
     $scope.syncFromQy = function (authapi) {
         var url = authapi.url + '/syncFromQy';
-        url += '?mpid=' + $scope.mpid;
+        url += '?mpid=' + $scope.mpaccount.mpid;
         url += '&authid=' + authapi.authid;
         http2.get(url, function (rsp) {
             $rootScope.infomsg = rsp.data;
@@ -205,23 +205,26 @@ xxtApp.controller('apiCtrl', ['$rootScope', '$scope', 'http2', '$http', '$modal'
                 ea.cfg2.push(ea.cfg.charAt(j));
         }
     };
-    http2.get('/rest/mp/authapi/get?own=Y', function (rsp) {
-        if (rsp.data.length > 0) {
-            var i, l, authapi;
-            for (i = 0, l = rsp.data.length; i < l; i++) {
-                authapi = rsp.data[i];
-                if (authapi.type === 'inner') {
-                    $scope.ia = authapi;
-                    $scope.ia.url2 = 'http://' + location.host + $scope.ia.url + '?mpid=' + $scope.mpid + '&authid=' + $scope.ia.authid;
-                } else
-                    $scope.authapis.push(authapi);
-                shiftAuthapiAttr(authapi);
-            }
-        }
-        if (!$scope.ia) $scope.ia = { type: 'inner', valid: 'N' };
-    });
     http2.get('/rest/mp/mpaccount/relays', function (rsp) {
         $scope.relays = rsp.data;
+    });
+    http2.get('/rest/mp/mpaccount/get', function (rsp) {
+        $scope.mpaccount = rsp.data;
+        http2.get('/rest/mp/authapi/get?own=Y', function (rsp) {
+            if (rsp.data.length > 0) {
+                var i, l, authapi;
+                for (i = 0, l = rsp.data.length; i < l; i++) {
+                    authapi = rsp.data[i];
+                    if (authapi.type === 'inner') {
+                        $scope.ia = authapi;
+                        $scope.ia.url2 = 'http://' + location.host + $scope.ia.url + '?mpid=' + $scope.mpaccount.mpid + '&authid=' + $scope.ia.authid;
+                    } else
+                        $scope.authapis.push(authapi);
+                    shiftAuthapiAttr(authapi);
+                }
+            }
+            if (!$scope.ia) $scope.ia = { type: 'inner', valid: 'N' };
+        });
     });
     $scope.Authapi = new Authapi();
 }]);

@@ -1,4 +1,4 @@
-<div ng-controller='apiCtrl' ng-init="mpid='<?php echo TMS_APP::S('mpid');?>'">
+<div ng-controller='apiCtrl'>
     <div class="panel panel-default">
         <div class="panel-heading">用户认证服务</div>
         <div class="panel-body">
@@ -10,14 +10,15 @@
                                 <span class='input-group-addon'>
                                     <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='ia.valid' ng-change="updAuthapi(ia,'valid')">
                                 </span>
-                                <p class='form-control' style='width:200px'>应用内置认证</p>
+                                <input type='text' class='form-control' style='width:200px' ng-model='ia.name' placeholder='输入名称' tms-auto-update tms-wait=1000 tms-update="updAuthapi(ia,'name')">
                             </div>
                         </div>
                         <div class='form-group'>
                             <select class='form-control' title='认证结果有效期' ng-model='ia.validity' ng-options='d.v as d.n for d in days' ng-change="updAuthapi(ia,'validity')"></select>
                         </div>
                         <div class='form-group'>
-                            <button class='btn btn-default' ng-click='syncFromQy(ia)'>从企业号同步</button>
+                            <button class='btn btn-success' ng-click='addExtattr(ia)'>增加信息项</button>
+                            <button class='btn btn-success' ng-click='gotoCode(ia)'>定制认证页面</button>
                         </div>
                     </div>
                     <div ng-show="ia.valid==='Y'">
@@ -54,11 +55,11 @@
                                 </tbody>
                             </table>
                             <div class='alert alert-danger' ng-show="ia.attrs['mobile'][5]==='0'&&ia.attrs['email'][5]==='0'">至少指定一个字段作为身份标识</div>
-                            <button class='btn btn-success' ng-click='addExtattr(ia)'>增加信息项</button>
+                            
                         </div>
                         <div class='form-group'>
                             <label>认证页面地址</label>
-                            <div class='form-control' style='height:auto'>{{ia.url2}}</div>
+                            <div class='form-control-static'>{{ia.url2}}</div>
                         </div>
                         <div class='form-group'>
                             <label>进入认证页面前提示</label>
@@ -72,9 +73,10 @@
                             <label>验证未通过提示</label>
                             <textarea class='form-control' title='验证未通过提示' ng-model='ia.notpass_statement' placeholder='验证未通过提示' tms-auto-update tms-wait=1000 tms-update="updAuthapi(ia,'notpass_statement')"></textarea>
                         </div>
-                        <div class='form-group'>
-                            <button class='btn btn-success' ng-click='gotoCode(ia)'>定制认证页面</button>
-                        </div>
+                    </div>
+                    <div class='alert alert-info' ng-if="mpaccouont.mpsrc==='qy'">
+                        <button class='btn btn-default' ng-click='syncFromQy(ia)'>从企业号同步</button>
+                        <span ng-show='ia.sync_from_qy_at>0'>上次从企业号通讯录同步时间：{{ia.sync_from_qy_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
                     </div>
                 </div>
                 <div class='list-group-item' ng-repeat='a in authapis'>
@@ -94,9 +96,7 @@
                             <select class='form-control' title='认证结果有效期' ng-model='a.validity' ng-options='d.v as d.n for d in days' ng-change="updAuthapi(a,'validity')"></select>
                         </div>
                         <div class='form-group'>
-                            <button class='btn' ng-class="backRunning?'btn-default':'btn-primary'" ng-disabled='backRunning' ng-click='import2Qy(a)'>全量导入到企业号</button>
-                            <button class='btn btn-default' ng-click='sync2Qy(a)'>增量同步到企业号</button>
-                            <button class='btn btn-default' ng-click='syncFromQy(a)'>从企业号同步</button>
+                            <button class='btn btn-success' ng-click='addExtattr(a)'>增加信息项</button>
                         </div>
                     </div>
                     <div ng-show="a.valid==='Y'">
@@ -132,12 +132,11 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <button class='btn btn-success' ng-click='addExtattr(a)'>增加信息项</button>
                         </div>
                         <div class='form-group'>
                             <label>认证页面地址</label>
                             <input type='text' class='form-control' ng-model='a.url' placeholder='输入URL' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'url')">
-                            <div class='form-control' style='height:auto'>{{fullAuthUrl(a)}}</div>
+                            <div class='form-control-static'>{{fullAuthUrl(a)}}</div>
                         </div>
                         <div class='form-group'>
                             <label>进入认证页面前提示</label>
@@ -151,6 +150,15 @@
                             <label>验证未通过说明</label>
                             <textarea class='form-control' title='验证未通过说明' ng-model='a.notpass_statement' placeholder='验证未通过说明' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'notpass_statement')"></textarea>
                         </div>
+                    </div>
+                    <div class='alert alert-info' ng-if="mpaccouont.mpsrc==='qy'">
+                        <button class='btn' ng-class="backRunning?'btn-default':'btn-primary'" ng-disabled='backRunning' ng-click='import2Qy(a)'>全量导入到企业号</button>
+                        <button class='btn btn-default' ng-click='sync2Qy(a)'>增量同步到企业号</button>
+                        <span ng-show='a.sync_from_qy_at>0'>上次同步到企业号通讯录时间：{{ia.sync_to_qy_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
+                    </div>
+                    <div class='alert alert-info' ng-if="mpaccouont.mpsrc==='qy'">
+                        <button class='btn btn-default' ng-click='syncFromQy(a)'>从企业号同步</button>
+                        <span ng-show='a.sync_from_qy_at>0'>上次从企业号通讯录同步时间：{{ia.sync_from_qy_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
                     </div>
                 </div>
             </div>

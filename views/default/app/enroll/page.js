@@ -1,17 +1,6 @@
 formApp = angular.module('formApp', ['infinite-scroll']);
-formApp.directive('tmsInit', ['$rootScope', '$timeout', function ($rootScope, $timeout) {
-    return {
-        restrict: 'A',
-        link: function (scope, elem, attrs) {
-            return $timeout(function () {
-                if ($rootScope.$$phase) {
-                    return scope.$eval(attrs.tmsInit);
-                } else {
-                    return scope.$apply(attrs.tmsInit);
-                }
-            }, 0);
-        }
-    };
+formApp.config(['$locationProvider', function ($lp) {
+    $lp.html5Mode(true);
 }]);
 formApp.factory('Round', function ($http) {
     var Round = function (mpid, aid, current) {
@@ -140,9 +129,9 @@ formApp.factory('Statistic', function () {
     };
     return Stat;
 });
-formApp.controller('formCtrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 'Statistic', function ($scope, $http, $timeout, $q, Round, Record, Statistic) {
+formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'Round', 'Record', 'Statistic', function ($location, $scope, $http, $timeout, $q, Round, Record, Statistic) {
     window.shareCounter = 0;
-    var logShare = function (shareto) {
+    window.xxt.share.options.logger = function (shareto) {
         var url = "/rest/mi/matter/logShare";
         url += "?shareid=" + window.shareid;
         url += "&mpid=" + $scope.params.mpid;
@@ -160,39 +149,14 @@ formApp.controller('formCtrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'R
         wx.config(signPackage);
         wx.ready(function () {
             wx.showOptionMenu();
-            wx.onMenuShareTimeline({
-                title: $scope.shareData.title,
-                link: $scope.shareData.link,
-                imgUrl: $scope.shareData.img_url,
-                success: function () {
-                    logShare('T');
-                }
-            });
-            wx.onMenuShareAppMessage({
-                title: $scope.shareData.title,
-                desc: $scope.shareData.desc,
-                link: $scope.shareData.link,
-                imgUrl: $scope.shareData.img_url,
-                success: function () {
-                    logShare('F');
-                }
-            });
         });
     } else if (/YiXin/i.test(navigator.userAgent)) {
         document.addEventListener('YixinJSBridgeReady', function () {
             YixinJSBridge.call('showOptionMenu');
-            YixinJSBridge.on('menu:share:appmessage', function () {
-                logShare('F');
-                YixinJSBridge.invoke('sendAppMessage', $scope.shareData, function () { });
-            });
-            YixinJSBridge.on('menu:share:timeline', function () {
-                logShare('T');
-                YixinJSBridge.invoke('shareTimeline', $scope.shareData, function () { });
-            });
         }, false);
     }
     document.body.addEventListener('click', function (event) {
-        var target = event.target;
+        var url, target = event.target;
         if (target.tagName === 'A' && target.classList.contains('innerlink')) {
             event.preventDefault();
             var id = target.getAttribute('href'), type = target.getAttribute('type');
@@ -239,9 +203,13 @@ formApp.controller('formCtrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'R
         return true;
     };
     var modifiedImgFields = [];
+    $scope.mpid = $location.search().mpid;
+    $scope.aid = $location.search().aid;
+    $scope.rid = $location.search().rid;
+    $scope.preview = $location.search().preview;
+    $scope.data = { member: {} };
     $scope.ready = false;
     $scope.errmsg = '';
-    $scope.data = {};
     $scope.closePreviewTip = function () {
         $scope.preview = 'N';
     };
@@ -384,11 +352,10 @@ formApp.controller('formCtrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'R
                 });
             } else
                 deferred.resolve(img);
-
             return promise;
         };
         var submitWhole = function () {
-            var url = '/rest/app/enroll/submit?mpid=' + $scope.params.mpid + '&aid=' + $scope.params.enroll.id;
+            var url = '/rest/app/enroll/submit?mpid=' + $scope.mpid + '&aid=' + $scope.aid;
             if (!$scope.isNew && $scope.params.enrollKey && $scope.params.enrollKey.length)
                 url += '&ek=' + $scope.params.enrollKey;
             var d, d2, posted = angular.copy($scope.data);
@@ -418,48 +385,53 @@ formApp.controller('formCtrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'R
                 }
                 if (nextAction !== undefined && nextAction.length) {
                     var url = '/rest/app/enroll';
-                    url += '?mpid=' + $scope.params.mpid;
-                    url += '&aid=' + $scope.params.enroll.id;
+                    url += '?mpid=' + $scope.mpid;
+                    url += '&aid=' + $scope.aid;
                     url += '&ek=' + rsp.data;
                     url += '&page=' + nextAction;
                     location.href = url;
                 } else {
                     deferred2.resolve('ok');
                 }
-            }).error(function(content, httpCode){
+            }).error(function (content, httpCode) {
                 if (httpCode === 401) {
                     var $el = $('#frmAuth');
-                    window.onAuthSuccess = function () {
-                        $el.hide();
-                        btnSubmit && btnSubmit.removeAttribute('disabled');
-                    };
-                    $el.attr('src', content).show();
+                    if (content.indexOf('http') === 0) {
+                        window.onAuthSuccess = function () {
+                            $el.hide();
+                            btnSubmit && btnSubmit.removeAttribute('disabled');
+                        };
+                        $el.attr('src', content).show();
+                    } else {
+                        if ($el[0].contentDocument && $el[0].contentDocument.body) {
+                            $el[0].contentDocument.body.innerHTML = content;
+                            $el.show();
+                        }
+                    }
+                } else {
+                    $scope.errmsg = content;
                 }
             });
         }
         if (window.wx !== undefined && modifiedImgFields.length) {
-            try {
-                var i = 0, j = 0, imgField, img;
-                var nextWxImage = function () {
-                    imgField = $scope.data[modifiedImgFields[i]];
-                    img = imgField[j];
-                    uploadWxImage(img).then(function (data) {
-                        if (j < imgField.length - 1)
-                            j++;
-                        else if (i < modifiedImgFields.length - 1) {
-                            j = 0;
-                            i++;
-                        } else {
-                            submitWhole();
-                            return true;
-                        }
-                        nextWxImage();
-                    });
-                };
-                nextWxImage();
-            } catch (e) {
-                alert(e.message);
-            }
+            var i = 0, j = 0, imgField, img;
+            var nextWxImage = function () {
+                imgField = $scope.data[modifiedImgFields[i]];
+                img = imgField[j];
+                uploadWxImage(img).then(function (data) {
+                    if (j < imgField.length - 1)
+                        j++;
+                    else if (i < modifiedImgFields.length - 1) {
+                        j = 0;
+                        i++;
+                    } else {
+                        submitWhole();
+                        return true;
+                    }
+                    nextWxImage();
+                });
+            };
+            nextWxImage();
         } else {
             submitWhole();
         }
@@ -477,8 +449,7 @@ formApp.controller('formCtrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'R
             else if (ek !== undefined && ek.length)
                 url += '&ek=' + ek;
         }
-        if (rid !== undefined)
-            url += '&rid=' + rid;
+        rid !== undefined && (url += '&rid=' + rid);
         url += '&page=' + page;
         location.href = url;
     };
@@ -488,34 +459,36 @@ formApp.controller('formCtrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'R
     $scope.openMatter = function (id, type) {
         location.href = '/rest/mi/matter?mpid=' + $scope.mpid + '&id=' + id + '&type=' + type;
     };
-    $scope.$watch('jsonParams', function (nv) {
-        if (nv && nv.length) {
-            var params = JSON.parse(decodeURIComponent(nv.replace(/\+/g, '%20')));
-            window.shareid = params.user.vid + (new Date()).getTime();
-            var sharelink = 'http://' + location.hostname + "/rest/app/enroll";
-            sharelink += "?mpid=" + params.mpid;
-            sharelink += "&aid=" + params.enroll.id;
+    $scope.$watch('pageName', function (nv) {
+        if (!nv) return;
+        var url;
+        url = '/rest/app/enroll/get';
+        url += '?mpid=' + $scope.mpid;
+        url += '&aid=' + $scope.aid;
+        url += '&page=' + nv;
+        $location.search().ek && (url += '&ek=' + $location.search().ek);
+        $http.get(url).success(function (rsp) {
+            var params = rsp.data, sharelink, summary;
+            sharelink = 'http://' + location.hostname + "/rest/app/enroll";
+            sharelink += "?mpid=" + $scope.mpid;
+            sharelink += "&aid=" + $scope.aid;
             if (params.page.share_page && params.page.share_page === 'Y') {
                 sharelink += '&page=' + params.page.name;
                 sharelink += '&ek=' + params.enrollKey;
             }
+            window.shareid = params.user.vid + (new Date()).getTime();
             sharelink += "&shareby=" + window.shareid;
-            $scope.shareData = {
-                'img_url': params.enroll.pic,
-                'link': sharelink,
-                'title': params.enroll.title,
-                'desc': params.enroll.summary
-            };
+            summary = params.enroll.summary;
             if (params.page.share_summary && params.page.share_summary.length && params.record)
-                $scope.shareData.desc = params.record.data[params.page.share_summary];
-            else
-                $scope.shareData.desc = params.enroll.summary;
+                summary = params.record.data[params.page.share_summary];
+            window.xxt.share.set(params.enroll.title, sharelink, summary, params.enroll.pic);
+
             $scope.User = params.user;
             $scope.Record = new Record($scope.mpid, $scope.aid, $scope.rid, params.record, $scope);
             $scope.Round = new Round($scope.mpid, $scope.aid);
             $scope.Statistic = new Statistic($scope.mpid, $scope.aid, params.statdata);
             $scope.params = params;
-            if ($scope.params.subView === 'form' && params.record) {
+            if (params.page.name === 'form' && params.record) {
                 $timeout(function () {
                     var p, type, dataOfRecord, value;
                     dataOfRecord = $scope.Record.current.data;
@@ -524,8 +497,7 @@ formApp.controller('formCtrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'R
                             if (dataOfRecord[p] && dataOfRecord[p].length) {
                                 value = dataOfRecord[p].split(',');
                                 $scope.data[p] = [];
-                                for (var i in value)
-                                    $scope.data[p].push({ imgSrc: value[i] });
+                                for (var i in value) $scope.data[p].push({ imgSrc: value[i] });
                             }
                         } else {
                             type = $('[name=' + p + ']').attr('type');
@@ -533,8 +505,7 @@ formApp.controller('formCtrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'R
                                 if (dataOfRecord[p] && dataOfRecord[p].length) {
                                     value = dataOfRecord[p].split(',');
                                     $scope.data[p] = {};
-                                    for (var i in value)
-                                        $scope.data[p][value[i]] = true;
+                                    for (var i in value) $scope.data[p][value[i]] = true;
                                 }
                             } else {
                                 $scope.data[p] = dataOfRecord[p];
@@ -543,15 +514,26 @@ formApp.controller('formCtrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'R
                     }
                 });
             }
-
-            params.preview && ($scope.preview = params.preview);
-
+            if ($scope.data.member.authid && params.user.members.length) {
+                for (var m in $scope.User.members) {
+                    if ($scope.data.member.authid == $scope.User.members[m].authapi_id) {
+                        $scope.data.member.name = $scope.User.members[m].name;
+                        $scope.data.member.mobile = $scope.User.members[m].mobile;
+                        $scope.data.member.email = $scope.User.members[m].email;
+                        var extAttrs = JSON.parse($scope.User.members[m].extattr);
+                        for (var ea in extAttrs) {
+                            $scope.data.member[ea] = extAttrs[ea];
+                        }
+                        break;
+                    }
+                }
+            }
             $scope.ready = true;
             console.log('page ready', $scope.params);
-        }
+        });
     });
-}])
-    .directive('runningButton', function () {
+}]);
+formApp.directive('runningButton', function () {
     return {
         restrict: 'EA',
         template: "<button ng-class=\"isRunning?'btn-default':'btn-primary'\" ng-disabled='isRunning' ng-transclude></button>",
@@ -559,8 +541,8 @@ formApp.controller('formCtrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'R
         replace: true,
         transclude: true
     }
-})
-    .directive('flexImg', function () {
+});
+formApp.directive('flexImg', function () {
     return {
         restrict: 'A',
         replace: true,

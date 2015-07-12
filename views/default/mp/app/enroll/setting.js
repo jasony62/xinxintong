@@ -1,7 +1,32 @@
 (function () {
     xxtApp.register.controller('settingCtrl', ['$scope', 'http2', 'matterTypes', '$modal', function ($scope, http2, matterTypes, $modal) {
         $scope.$parent.subView = 'setting';
+        $scope.pages4OutAcl = [];
+        $scope.pages4Unauth = [];
+        $scope.pages4Nonfan = [];
+        $scope.$watch('editing.pages', function (nv) {
+            var newPage;
+            if (!nv) return;
+            $scope.pages4OutAcl = $scope.editing.access_control === 'Y' ? [{ name: '$authapi_outacl', title: '提示白名单' }] : [];
+            $scope.pages4Unauth = $scope.editing.access_control === 'Y' ? [{ name: '$authapi_auth', title: '提示认证' }] : [];
+            $scope.pages4Nonfan = [{ name: '$mp_follow', title: '提示关注' }];
+            for (var p in nv) {
+                newPage = {
+                    name: p,
+                    title: nv[p].title
+                };
+                $scope.pages4OutAcl.push(newPage);
+                $scope.pages4Unauth.push(newPage);
+                $scope.pages4Nonfan.push(newPage);
+            }
+        }, true);
         $scope.matterTypes = matterTypes;
+        $scope.updateEntryRule = function () {
+            var p = { entry_rule: JSON.stringify($scope.editing.entry_rule) };
+            http2.post('/rest/mp/app/enroll/update?aid=' + $scope.aid, p, function (rsp) {
+                $scope.persisted = angular.copy($scope.editing);
+            });
+        };
         $scope.setPic = function () {
             $scope.$broadcast('picgallery.open', function (url) {
                 var t = (new Date()).getTime(), url = url + '?_=' + t, nv = { pic: url };
@@ -92,8 +117,9 @@
                     };
                 }]
             }).result.then(function (rst) {
+                var url;
                 if (rst.action === 'update') {
-                    var url = '/rest/mp/app/enroll/updateRound';
+                    url = '/rest/mp/app/enroll/updateRound';
                     url += '?aid=' + $scope.aid;
                     url += '&rid=' + round.rid;
                     http2.post(url, rst.data, function (rsp) {
@@ -102,7 +128,7 @@
                         angular.extend(round, rst.data);
                     });
                 } else if (rst.action === 'remove') {
-                    var url = '/rest/mp/app/enroll/removeRound';
+                    url = '/rest/mp/app/enroll/removeRound';
                     url += '?aid=' + $scope.aid;
                     url += '&rid=' + round.rid;
                     http2.get(url, function (rsp) {

@@ -57,12 +57,24 @@ class authapi_model extends TMS_MODEL {
      * $mpid
      * $valid [null|Y|N]
      */
-    public function &byMpid($mpid, $valid=null)
+    public function &byMpid($mpid, $valid=null, $own='Y')
     {
         $where = "mpid='$mpid'";
         !empty($valid) && $where .= " and valid='$valid'";
         
         $apis = $this->queryBy($where);
+        
+        if ($own === 'N') {
+            $pmp = \TMS_APP::M('mp\mpaccount')->byId($mpid);
+            if (!empty($pmp->parent_mpid))
+                $papis = $this->byMpid($pmp->parent_mpid, $valid);
+            if (!empty($papis)) {
+                if (!empty($apis))
+                    $apis = array_merge($papis, $apis);
+                else
+                    $apis = $papis;
+            }
+        }
         
         return $apis;
     }

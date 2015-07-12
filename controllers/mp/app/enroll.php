@@ -37,7 +37,7 @@ class enroll extends app_base {
     /**
      *
      */
-    public function roll_action() 
+    public function record_action() 
     {
         $this->view_action('/mp/app/enroll/detail');
     }
@@ -112,11 +112,11 @@ class enroll extends app_base {
             $q2['r']['l'] = $size;
             if ($a = $this->model()->query_objs_ss($q, $q2)) {
                 $result[] = $a;
-                if (in_array('total', $contain)) {
+                //if (in_array('total', $contain)) {
                     $q[0] = 'count(*)';
                     $total = (int)$this->model()->query_val_ss($q);
                     $result[] = $total;
-                }
+                //}
                 return new \ResponseData($result); 
             }
             return new \ResponseData(array());
@@ -141,6 +141,7 @@ class enroll extends app_base {
         $newone['creater_src'] = 'A';
         $newone['creater_name'] = \TMS_CLIENT::account()->nickname;
         $newone['create_at'] = time();
+        $newone['entry_rule'] = "{}";
         $newone['nonfans_alert'] = "请先关注公众号，再参与活动！";
         /**
          * 创建定制页
@@ -207,6 +208,7 @@ class enroll extends app_base {
         $newact['entry_page'] = $copied->entry_page;
         $newact['enrolled_entry_page'] = $copied->enrolled_entry_page;
         $newact['receiver_page'] = $copied->receiver_page;
+        $newact['entry_rule'] = $copied->entry_rule;
         if ($copied->mpid === $this->mpid) {
             $newact['access_control'] = $copied->access_control;
             $newact['authapis'] = $copied->authapis;
@@ -294,6 +296,28 @@ class enroll extends app_base {
         $rst = $this->model()->update('xxt_enroll', $nv, "id='$aid'");
 
         return new \ResponseData($rst);
+    }
+    /**
+     * 给登记活动的参与人发消息
+     */
+    public function sendNotify_action($matterType=null, $matterId=null, $aid, $rid=null, $tags=null, $kw=null, $by=null)
+    {
+        /**
+         *
+         */
+        $options = array(
+            'tags' => $tags,
+            'rid' => $rid,
+            'kw' => $kw,
+            'by' => $by,
+        );
+        $participants = $this->model('app\enroll')->getParticipants($this->mpid, $aid, $options);
+        /**
+         * 发送消息给指定参与人
+         */
+        die(json_encode($participants));
+        
+        return new \ResponseData(count($participants));
     }
     /**
      * 添加活动页面
@@ -459,11 +483,12 @@ class enroll extends app_base {
      * [1] 数据总条数
      * [2] 数据项的定义
      */
-    public function records_action($aid, $page=1, $size=30, $rid=null, $kw=null, $by=null, $contain=null) 
+    public function records_action($aid, $page=1, $size=30, $tags=null, $rid=null, $kw=null, $by=null, $contain=null) 
     {
         $options = array(
             'page' => $page,
             'size' => $size,
+            'tags' => $tags,
             'rid' => $rid,
             'kw' => $kw,
             'by' => $by,
@@ -756,9 +781,9 @@ class enroll extends app_base {
         return new \ResponseData($r);
     }
     /**
-     * 手工添加报名信息
+     * 导入认证用户
      */
-    public function importRoll_action($aid) 
+    public function importUser_action($aid) 
     {
         $mids = $this->getPostJson();
 
@@ -802,7 +827,7 @@ class enroll extends app_base {
      * 目前支持指定的活动包括通用活动和讨论组活动
      * 目前仅支持指定一个通用活动和一个讨论组活动
      */
-    public function importRoll2_action($aid)
+    public function importApp_action($aid)
     {
         $param = $this->getPostJson();
         $current = time();
@@ -838,7 +863,6 @@ class enroll extends app_base {
                 $r['enroll_key'] = $enroll_key;
                 $r['enroll_at'] = $current;
                 $r['signin_at'] = $current;
-                $r['src'] = $f->src;
                 $r['openid'] = $f->openid;
 
                 $this->model()->insert('xxt_enroll_record', $r);

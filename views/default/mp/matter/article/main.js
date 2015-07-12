@@ -1,5 +1,24 @@
+xxtApp.config(['$routeProvider', function ($routeProvider) {
+    $routeProvider.when('/rest/mp/matter/article/edit', {
+        templateUrl: '/views/default/mp/matter/article/edit.html',
+        controller: 'editCtrl',
+    }).when('/rest/mp/matter/article/read', {
+        templateUrl: '/views/default/mp/matter/article/read.html',
+        controller: 'readCtrl',
+    }).when('/rest/mp/matter/article/remark', {
+        templateUrl: '/views/default/mp/matter/article/remark.html',
+        controller: 'remarkCtrl',
+    }).when('/rest/mp/matter/article/stat', {
+        templateUrl: '/views/default/mp/matter/article/stat.html',
+        controller: 'statCtrl'
+    }).otherwise({
+        templateUrl: '/views/default/mp/matter/article/edit.html',
+        controller: 'editCtrl'
+    });
+}]);
 xxtApp.controller('articleCtrl', ['$scope', '$location', 'http2', function ($scope, $location, http2) {
     $scope.id = $location.search().id;
+    $scope.subView = '';
     $scope.back = function () {
         location.href = '/page/mp/matter/articles';
     };
@@ -7,7 +26,7 @@ xxtApp.controller('articleCtrl', ['$scope', '$location', 'http2', function ($sco
         $scope.mpaccount = rsp.data;
         $scope.hasParent = rsp.data.parent_mpid && rsp.data.parent_mpid.length;
     });
-    http2.get('/rest/mp/matter/article?id=' + $scope.id, function (rsp) {
+    http2.get('/rest/mp/matter/article/get?id=' + $scope.id, function (rsp) {
         $scope.editing = rsp.data;
         $scope.entryUrl = 'http://' + location.host + '/rest/mi/matter?mpid=' + $scope.editing.mpid + '&id=' + $scope.id + '&type=article';
         $scope.picGalleryUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid=' + $scope.editing.mpid;
@@ -17,7 +36,8 @@ xxtApp.controller('articleCtrl', ['$scope', '$location', 'http2', function ($sco
             $scope.bodyEditable = true;
     });
 }]);
-xxtApp.controller('editCtrl', ['$rootScope', '$scope', 'http2', function ($rootScope, $scope, http2) {
+xxtApp.controller('editCtrl', ['$scope', 'http2', function ($scope, http2) {
+    $scope.$parent.subView = 'edit';
     $scope.innerlinkTypes = [
         { value: 'article', title: '单图文', url: '/rest/mp/matter' },
         { value: 'news', title: '多图文', url: '/rest/mp/matter' },
@@ -64,10 +84,10 @@ xxtApp.controller('editCtrl', ['$rootScope', '$scope', 'http2', function ($rootS
         $scope.update('pic');
     };
     $scope.delAttachment = function (index, att) {
-        $rootScope.progmsg = '删除文件';
+        $scope.$root.progmsg = '删除文件';
         http2.get('/rest/mp/matter/article/attachmentDel?id=' + att.id, function success(rsp) {
             $scope.editing.attachments.splice(index, 1);
-            $rootScope.progmsg = null;
+            $scope.$root.progmsg = null;
         });
     };
     $scope.downloadUrl = function (att) {
@@ -101,6 +121,16 @@ xxtApp.controller('editCtrl', ['$rootScope', '$scope', 'http2', function ($rootS
                     "onclick": fn,
                 }, dom.encode(matter.title))));
             }
+        });
+    };
+    $scope.upload2Mp = function () {
+        var url;
+        url = '/rest/mp/matter/article/upload2Mp?id=' + $scope.id;
+        $scope.editing.media_id && $scope.editing.media_id.length && (url += '&mediaId=' + $scope.editing.media_id);
+        http2.get(url, function (rsp) {
+            $scope.editing.media_id = rsp.data.media_id;
+            $scope.editing.upload_at = rsp.data.upload_at;
+            $scope.$root.infomsg = '上传成功';
         });
     };
     $scope.$on('tinymce.multipleimage.open', function (event, callback) {
@@ -141,14 +171,14 @@ xxtApp.controller('editCtrl', ['$rootScope', '$scope', 'http2', function ($rootS
     r.assignBrowse(document.getElementById('addAttachment'));
     r.on('fileAdded', function (file, event) {
         console.log('fileAdded.');
-        $rootScope.progmsg = '开始上传文件';
-        $rootScope.$apply('progmsg');
+        $scope.$root.progmsg = '开始上传文件';
+        $scope.$root.$apply('progmsg');
         r.upload();
     });
     r.on('progress', function (file, event) {
         console.log('progress.');
-        $rootScope.progmsg = '正在上传文件：' + Math.floor(r.progress() * 100) + '%';
-        $rootScope.$apply('progmsg');
+        $scope.$root.progmsg = '正在上传文件：' + Math.floor(r.progress() * 100) + '%';
+        $scope.$root.$apply('progmsg');
     });
     r.on('complete', function () {
         console.log('complete.');
@@ -158,11 +188,12 @@ xxtApp.controller('editCtrl', ['$rootScope', '$scope', 'http2', function ($rootS
         posted = { name: f.name, size: f.size, type: f.type, lastModified: lastModified };
         http2.post('/rest/mp/matter/article/attachmentAdd?id=' + $scope.id, posted, function success(rsp) {
             $scope.editing.attachments.push(rsp.data);
-            $rootScope.progmsg = null;
+            $scope.$root.progmsg = null;
         });
     });
 }]);
-xxtApp.controller('RemarkCtrl', ['$scope', 'http2', function ($scope, http2) {
+xxtApp.controller('remarkCtrl', ['$scope', 'http2', function ($scope, http2) {
+    $scope.$parent.subView = 'remark';
     $scope.page = { current: 1, size: 30 };
     $scope.delRemark = function (remark, index) {
         var ret = window.prompt('删除当前评论吗？请输入文章的标题');
@@ -182,20 +213,22 @@ xxtApp.controller('RemarkCtrl', ['$scope', 'http2', function ($scope, http2) {
     };
     $scope.doSearch = function () {
         var page = 'page=' + $scope.page.current + '&size=' + $scope.page.size;
-        http2.get('/rest/mp/matter/article/remarks?id=' + $scope.id + '&' + page, function (rsp) {
+        http2.get('/rest/mp/matter/article/remarkGet?id=' + $scope.id + '&' + page, function (rsp) {
             $scope.remarks = rsp.data[0];
             $scope.page.total = rsp.data[1];
         });
     };
     $scope.doSearch();
 }]);
-xxtApp.controller('StatCtrl', ['$scope', 'http2', function ($scope, http2) {
-    http2.get('/rest/mp/matter/article/stat?id=' + $scope.id, function (rsp) {
+xxtApp.controller('statCtrl', ['$scope', 'http2', function ($scope, http2) {
+    $scope.$parent.subView = 'stat';
+    http2.get('/rest/mp/matter/article/statGet?id=' + $scope.id, function (rsp) {
         $scope.stat = rsp.data;
     });
 }])
-xxtApp.controller('ReadCtrl', ['$scope', 'http2', function ($scope, http2) {
-    http2.get('/rest/mp/matter/article/read?id=' + $scope.id, function (rsp) {
+xxtApp.controller('readCtrl', ['$scope', 'http2', function ($scope, http2) {
+    $scope.$parent.subView = 'read';
+    http2.get('/rest/mp/matter/article/readGet?id=' + $scope.id, function (rsp) {
         $scope.reads = rsp.data;
     });
 }]);

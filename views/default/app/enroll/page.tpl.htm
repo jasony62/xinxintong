@@ -1,17 +1,23 @@
-<div ng-app='formApp' ng-controller='formCtrl' ng-init="mpid='<?php echo $_GET['mpid'];?>';aid='<?php echo $_GET['aid'];?>';rid='<?php echo isset($_GET['rid']) ? $_GET['rid']:'';?>';jsonParams='<?php echo urlencode(json_encode(TPL::val('params')));?>';authurl='<?php TPL::pt('authurl');?>';">
-    <div id='errmsg' class='alert alert-danger' ng-class={'active':errmsg} ng-click="errmsg=''">{{errmsg}}</div>
+<div ng-app='formApp' ng-controller='formCtrl' ng-init="pageName='<?php TPL::pt('page')?>'">
+    <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
     <div class='container ng-cloak' ng-cloak>
         <form name='formOfEnroll' novalidate>
-            <?php TPL::pt('extra_html');?>
+            <?php TPL::pt( 'extra_html');?>
         </form>
     </div>
     <div id='pickImageFrom'>
-        <div class='form-group'><button class='btn btn-default btn-lg btn-block' ng-click="chooseImage(null,null,'camera')">拍照</button></div>
-        <div class='form-group'><button class='btn btn-default btn-lg btn-block' ng-click="chooseImage(null,null,'album')">相册</button></div>
+        <div class='form-group'>
+            <button class='btn btn-default btn-lg btn-block' ng-click="chooseImage(null,null,'camera')">拍照</button>
+        </div>
+        <div class='form-group'>
+            <button class='btn btn-default btn-lg btn-block' ng-click="chooseImage(null,null,'album')">相册</button>
+        </div>
     </div>
     <div id='tipPreview' ng-if="preview==='Y'" ng-click="closePreviewTip()">
         <span>点击右上角【...】，邀请好友参与活动</span>
-        <button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <button type="button" class="close" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
 </div>
 <iframe id='frmAuth' onload='this.height=$(document).height()'></iframe>

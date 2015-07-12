@@ -252,6 +252,17 @@ class yx_model extends mpproxy_base {
         return $rst;
     }
     /**
+     * 设置关注用户的分组
+     */
+    public function groupsMembersUpdate($openid, $groupid)
+    {
+        $cmd = "https://api.yixin.im/cgi-bin/groups/members/update";
+        $posted = json_encode(array("openid"=>$openid,"to_groupid"=>$groupid));
+        $rst = $this->httpPost($cmd, $posted);
+
+        return $rst;
+    }
+    /**
      * 删除粉丝分组
      *
      * todo 标准接口中不支持

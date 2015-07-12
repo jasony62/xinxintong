@@ -1,6 +1,8 @@
-<div ng-controller='RemarkCtrl'>
+<div>
     <div class='form-group form-inline clearfix'>
-        <pagination ng-show='page.total>page.size' class='pull-right' style='cursor:pointer;margin:0;vertical-align:middle' total-items="page.total" max-size="7" items-per-page="page.size" boundary-links="true" rotate="false" ng-model="page.current" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
+        <pagination ng-show='page.total>page.size' class='pull-right' style='cursor:pointer;margin:0;vertical-align:middle' total-items="page.total"
+        max-size="7" items-per-page="page.size" boundary-links="true" rotate="false" ng-model="page.current" previous-text="&lsaquo;"
+        next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
     </div>
     <table class='table table-bordered'>
         <thead>
@@ -16,7 +18,11 @@
                 <td ng-bind="r.nickname"></td>
                 <td ng-bind="r.create_at*1000|date:'yyyy-MM-dd HH:mm'"></td>
                 <td ng-bind="r.remark"></td>
-                <td><button class='btn btn-danger btn-xs' ng-click='delRemark(r, $index)'><span class='glyphicon glyphicon-remove'></span></button></td>
+                <td>
+                    <button class='btn btn-danger btn-xs' ng-click='delRemark(r, $index)'>
+                        <span class='glyphicon glyphicon-remove'></span>
+                    </button>
+                </td>
             </tr>
         </tbody>
     </table>

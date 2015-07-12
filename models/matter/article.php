@@ -84,7 +84,7 @@ class article_model extends article_base {
      */
     public function &getMatters($id) 
     {
-        $article = $this->byId($id, "id,mpid,title,summary,pic");
+        $article = $this->byId($id, "id,mpid,title,author,summary,pic,body,url");
         $article->type = 'article';
         $articles = array($article);
 
@@ -95,7 +95,7 @@ class article_model extends article_base {
      */
     public function &getArticles($id) 
     {
-        $article = $this->byId($id, 'id,mpid,title,summary,pic,body');
+        $article = $this->byId($id, 'id,mpid,title,author,summary,pic,body,url');
         $article->type = 'article';
         $articles = array($article);
 
@@ -231,7 +231,7 @@ class article_model extends article_base {
      */
     public function fullsearch_its($mpid, $keyword, $page = 1, $limit = 5) 
     {
-        $s = "id,mpid,title,summary,pic,'article' type";
+        $s = "id,mpid,title,author,summary,pic,body,url,'article' type";
         $f = 'xxt_article';
         $w = "mpid='$mpid' and state=1 and approved='Y'";
         $w .= " and (title like '%$keyword%'";

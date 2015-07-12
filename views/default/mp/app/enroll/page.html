@@ -1,32 +1,31 @@
 <div>
-    <div class='form-group form-inline'>
-        <div class='form-group'>
-            <label>打开活动显示</label>
-            <select class='form-control' ng-model='editing.entry_page' ng-options='pname as page.title for (pname, page) in editing.pages' ng-change="update('entry_page')"></select>
-        </div>
-        <div class='form-group'>
-            <label>已登记过显示</label>
-            <select class='form-control' ng-model='editing.enrolled_entry_page' ng-options='pname as page.title for (pname, page) in editing.pages' ng-change="update('enrolled_entry_page')">
-                <option value=''></option>
-            </select>
-        </div>
-    </div>
     <ul class="nav nav-tabs">
-        <li class='active'><a href="#tab_form" data-toggle='tab'>{{editing.pages.form.title}}</a></li>
-        <li ng-repeat='ep in extraPages()'><a href="#tab_{{ep.name}}" data-toggle='tab'>{{ep.title}}</a></li>
-        <li class='pull-right'><button class='btn btn-success' ng-click='addPage()'><span class='glyphicon glyphicon-plus'>添加页面</span></button></li>
+        <li class='active'>
+            <a href="#tab_form" ng-click="shiftPage($event)" data-toggle='tab'>{{editing.pages.form.title}}</a>
+        </li>
+        <li ng-repeat='ep in extraPages()'>
+            <a href="#tab_{{ep.name}}" ng-click="shiftPage($event)" data-toggle='tab'>{{ep.title}}</a>
+        </li>
+        <li class='pull-right'>
+            <button class='btn btn-success' ng-click='addPage()'>
+                <span class='glyphicon glyphicon-plus'>添加页面</span>
+            </button>
+        </li>
     </ul>
     <div class="tab-content">
         <div id='tab_form' class='tab-pane active'>
             <div class='form-inline' style='margin:15px 0'>
-                <label class="checkbox-inline"><input type="checkbox" ng-true-value='Y' ng-false-value='N' ng-model='editing.open_lastroll' ng-change="update('open_lastroll')">打开最后一条登记记录</label>
+                <label class="checkbox-inline">
+                    <input type="checkbox" ng-true-value='Y' ng-false-value='N' ng-model='editing.open_lastroll' ng-change="update('open_lastroll')">打开最后一条登记记录</label>
             </div>
             <div class='form-group'>
                 <div>
-                    <button class='btn' ng-class="editing.pages.form.$$modified?'btn-success':'btn-default'" ng-disabled='!editing.pages.form.$$modified' ng-click="updPage(editing.pages.form,'html')">保存</button>
-                    <button class='btn btn-default' ng-click="embedInput(editing.pages.form)">添加内容</button>
-                    <button class='btn btn-default' ng-click="embedButton(editing.pages.form)">添加操作</button>
+                    <button class='btn' ng-class="editing.pages.form.$$modified?'btn-success':'btn-default'" ng-disabled='!editing.pages.form.$$modified'
+                    ng-click="updPage(editing.pages.form,'html')">保存</button>
+                    <button class='btn btn-default' ng-click="embedInput(editing.pages.form)">添加登记项</button>
                     <button class='btn btn-default' ng-click="embedMatter(editing.pages.form)">添加素材</button>
+                    <button class='btn btn-default' ng-click="embedMember(editing.pages.form)">添加用户认证信息</button>
+                    <button class='btn btn-default' ng-click="embedButton(editing.pages.form)">添加操作</button>
                     <button class='btn btn-default' ng-click="removeWrap(editing.pages.form)" ng-disabled='!hasActiveWrap'>删除内容</button>
                     <a href='#' class='pull-right' ng-click="gotoCode(editing.pages.form.code_id)">编辑页面代码</a>
                 </div>
@@ -47,19 +46,22 @@
                 <div class='form-group'>
                     <input type='text' class='form-control' ng-model='ep.title' tms-auto-update tms-wait=1000 tms-update="updPage(ep,'title')">
                 </div>
-                <button class='btn btn-default' ng-click='delPage(ep)'>删除</span></button>
-                <label class='checkbox-inline'><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='ep.share_page' ng-change="updPage(ep,'share_page')">分享当前页</label>
+                <button class='btn btn-default' ng-click='delPage(ep)'>删除</span>
+                </button>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='ep.share_page' ng-change="updPage(ep,'share_page')">分享当前页</label>
                 <div class='form-group'>
-                <select class='form-control' title='摘要信息' ng-model='ep.share_summary' ng-options='v.id as v.title for (k,v) in schema()' ng-change="updPage(ep,'share_summary')">
-                    <option value=''>活动摘要</option>
-                </select>
+                    <select class='form-control' title='摘要信息' ng-model='ep.share_summary' ng-options='v.id as v.title for (k,v) in schema()'
+                    ng-change="updPage(ep,'share_summary')">
+                        <option value=''>活动摘要</option>
+                    </select>
                 </div>
             </div>
             <div class='form-group'>
                 <div>
                     <button class='btn' ng-class="ep.$$modified?'btn-success':'btn-default'" ng-disabled='!ep.$$modified' ng-click="updPage(ep,'html')">保存</button>
-                    <button class='btn btn-default' ng-if="ep.type==='I'" ng-click="embedInput(ep)">添加内容</button>
-                    <button class='btn btn-default' ng-if="ep.type==='V'" ng-click="embedShow(ep)">添加内容</button>
+                    <button class='btn btn-default' ng-if="ep.type==='I'" ng-click="embedInput(ep)">添加登记项</button>
+                    <button class='btn btn-default' ng-if="ep.type==='V'" ng-click="embedShow(ep)">添加登记信息</button>
                     <button class='btn btn-default' ng-click="embedMatter(ep)">添加素材</button>
                     <button class='btn btn-default' ng-click="embedButton(ep)">添加操作</button>
                     <button class='btn btn-default' ng-click="removeWrap(ep)" ng-disabled='!hasActiveWrap'>删除内容</button>
@@ -232,6 +234,27 @@
                     </div>
                 </div>
             </form>
+        </div>
+        <div class="modal-footer" style="margin-top:0">
+            <button class="btn btn-success" ng-click="ok()">确定</button>
+        </div>
+    </script>
+    <script type="text/ng-template" id="embedMemberLib.html">
+        <div class="modal-header">
+            <button class="close" ng-click="cancel()" type="button">×</button>
+            <h5 class="modal-title">操作</h5>
+        </div>
+        <div class="modal-body">
+            <div class='form-group'>
+                <select class='form-control' ng-model='selected.authapi' ng-options='a.name for a in authapis' ng-change='shiftAuthapi()'></select>
+            </div>
+            <div class='form-group'>
+                <div class='list-group'>
+                    <div class='list-group-item' ng-repeat='attr in authAttrs'>
+                        <label class='checkbox-inline'><input type='checkbox' ng-model="attr.checked">{{attr.label}}</label>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="modal-footer" style="margin-top:0">
             <button class="btn btn-success" ng-click="ok()">确定</button>

@@ -1,14 +1,24 @@
-<div ng-controller='articleCtrl' ng-init='mpid="<?php echo $_SESSION['mpid'];?>";'>
+<div ng-controller='articleCtrl'>
     <div class='navbar navbar-default'>
         <ul class='nav navbar-nav'>
-            <li><a href='javascript:void(0);' ng-click="back()"><span class="glyphicon glyphicon-chevron-left"></span></a></li>
-            <li ng-class={'active':subView=='edit'}><a href='javascript:void(0);' ng-click="subView='edit'">编辑</a></li>
-            <li ng-class={'active':subView=='read'}><a href='javascript:void(0);' ng-click="subView='read'">访问日志</a></li>
-            <li ng-class={'active':subView=='remark'}><a href='javascript:void(0);' ng-click="subView='remark'">评论</a></li>
-            <li ng-class={'active':subView=='stat'}><a href='javascript:void(0);' ng-click="subView='stat'">统计</a></li>
+            <li>
+                <a href='javascript:void(0);' ng-click="back()"><span class="glyphicon glyphicon-chevron-left"></span></a>
+            </li>
+            <li ng-class="{ 'active':subView=='edit' }">
+                <a href='/rest/mp/matter/article/edit?id={{id}}'>编辑</a>
+            </li>
+            <li ng-class="{ 'active':subView=='read' }">
+                <a href='/rest/mp/matter/article/read?id={{id}}'>访问日志</a>
+            </li>
+            <li ng-class="{ 'active':subView=='remark' }">
+                <a href='/rest/mp/matter/article/remark?id={{id}}'>评论</a>
+            </li>
+            <li ng-class="{ 'active':subView=='stat' }">
+                <a href='/rest/mp/matter/article/stat?id={{id}}'>统计</a>
+            </li>
         </ul>
     </div>
     <div>
-        <div ng-init="subView='edit'" ng-include="'/page/mp/matter/article/'+subView"></div>
+        <div ng-view></div>
     </div>
 </div>

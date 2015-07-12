@@ -1,10 +1,20 @@
 (function () {
-    xxtApp.register.controller('rollCtrl', ['$scope', 'http2', '$modal', function ($scope, http2, $modal) {
-        $scope.$parent.subView = 'roll';
-        var t = (new Date()).getTime();
+    xxtApp.register.controller('recordCtrl', ['$scope', 'http2', '$modal', function ($scope, http2, $modal) {
+        $scope.$parent.subView = 'record';
+        $scope.notifyMatterTypes = [
+            { value: 'text', title: '文本', url: '/rest/mp/matter' },
+            { value: 'article', title: '单图文', url: '/rest/mp/matter' },
+            { value: 'news', title: '多图文', url: '/rest/mp/matter' },
+            { value: 'channel', title: '频道', url: '/rest/mp/matter' },
+            { value: 'enroll', title: '登记活动', url: '/rest/mp/app' },
+        ];
         $scope.doSearch = function (page) {
+            var url;
             page && ($scope.page.at = page);
-            var url = '/rest/mp/app/enroll/records?aid=' + $scope.aid + '&contain=total' + $scope.page.joinParams();
+            url = '/rest/mp/app/enroll/records';
+            url += '?aid=' + $scope.aid;
+            url += '&tags=' + $scope.page.tags.join(',');
+            url += '&contain=total' + $scope.page.joinParams();
             http2.get(url, function (rsp) {
                 if (rsp.data) {
                     $scope.roll = rsp.data[0] ? rsp.data[0] : [];
@@ -18,6 +28,7 @@
             at: 1,
             size: 30,
             keyword: '',
+            tags: [],
             searchBy: 'nickname',
             joinParams: function () {
                 var p;
@@ -34,16 +45,33 @@
             { n: '昵称', v: 'nickname' },
             { n: '手机号', v: 'mobile' },
         ];
+        $scope.$on('search-tag.xxt.combox.done', function (event, aSelected) {
+            $scope.page.tags = $scope.page.tags.concat(aSelected);
+        });
+        $scope.$on('search-tag.xxt.combox.del', function (event, removed) {
+            var i = $scope.page.tags.indexOf(removed);
+            $scope.page.tags.splice(i, 1);
+        });
+        $scope.$on('pushnotify.xxt.done', function (event, matter) {
+            console.log('mmm', matter);
+            var url = '/rest/mp/app/enroll/sendNotify';
+            url += '?matterType=' + matter[1];
+            url += '&matterId=' + matter[0][0].id;
+            url += '&aid=' + $scope.aid;
+            url += '&tags=' + $scope.page.tags.join(',');
+            url += $scope.page.joinParams();
+            http2.get(url, function (data) {
+                alert(data);
+            });
+        });
         $scope.viewUser = function (fan) {
             location.href = '/rest/mp/user?fid=' + fan.fid;
-            // todo 如果是认证用户???
         };
         $scope.keywordKeyup = function (evt) {
-            if (evt.which === 13)
-                $scope.doSearch();
+            evt.which === 13 && $scope.doSearch();
         };
         $scope.editRoll = function (rollItem) {
-            var ins = $modal.open({
+            $modal.open({
                 templateUrl: 'editor.html',
                 controller: 'editorCtrl',
                 resolve: {
@@ -58,8 +86,7 @@
                         return $scope.cols;
                     }
                 }
-            });
-            ins.result.then(function (updated) {
+            }).result.then(function (updated) {
                 var p = updated[0], tags = updated[1].join(',');
                 if ($scope.editing.tags.length !== tags.length) {
                     $scope.editing.tags = tags;
@@ -68,23 +95,16 @@
                 http2.post('/rest/mp/app/enroll/updateRoll?aid=' + $scope.aid + '&ek=' + rollItem.enroll_key, p);
             });
         };
-        $scope.addRoll = function () {
-            var ins = $modal.open({
+        $scope.addRecord = function () {
+            $modal.open({
                 templateUrl: 'editor.html',
                 controller: 'editorCtrl',
                 resolve: {
-                    rollItem: function () {
-                        return { aid: $scope.aid, tags: '' };
-                    },
-                    tags: function () {
-                        return $scope.editing.tags;
-                    },
-                    cols: function () {
-                        return $scope.cols;
-                    }
+                    rollItem: function () { return { aid: $scope.aid, tags: '' }; },
+                    tags: function () { return $scope.editing.tags; },
+                    cols: function () { return $scope.cols; }
                 }
-            });
-            ins.result.then(function (updated) {
+            }).result.then(function (updated) {
                 var p = updated[0], tags = updated[1].join(',');
                 if ($scope.editing.tags.length !== tags.length) {
                     $scope.editing.tags = tags;
@@ -95,32 +115,35 @@
                 });
             });
         };
-        $scope.importRoll = function () {
-            http2.get('/rest/member/auth/userselector', function (rsp) {
-                var url = rsp.data;
-                $.getScript(url, function () {
-                    $modal.open(AddonParams).result.then(function (selected) {
-                        if (selected.members && selected.members.length) {
-                            var members = [];
-                            for (var i in selected.members)
-                                members.push(selected.members[i].data.mid);
-                            http2.post('/rest/mp/app/importRoll?aid=' + $scope.aid, members, function (rsp) {
-                                for (var i in rsp.data)
-                                    $scope.roll.splice(0, 0, rsp.data[i]);
-                            });
-                        }
-                    })
-                });
+        $scope.importUser = function () {
+            $modal.open({
+                templateUrl: "userPicker.html",
+                backdrop: 'static',
+                windowClass: 'auto-height',
+                size: 'lg',
+                controller: function ($scope, $modalInstance) {
+                    $scope.cancel = function () { $modalInstance.dismiss(); }
+                },
+            }).result.then(function (selected) {
+                if (selected.members && selected.members.length) {
+                    var members = [];
+                    for (var i in selected.members)
+                        members.push(selected.members[i].data.mid);
+                    http2.post('/rest/mp/app/importUser?aid=' + $scope.aid, members, function (rsp) {
+                        for (var i in rsp.data)
+                            $scope.roll.splice(0, 0, rsp.data[i]);
+                    });
+                }
             });
         };
-        $scope.importRoll2 = function () {
+        $scope.importApp = function () {
             $modal.open({
-                templateUrl: 'importActivityRoll.html',
-                controller: 'importActivityRollCtrl',
+                templateUrl: 'importApp.html',
+                controller: 'importAppCtrl',
                 backdrop: 'static',
                 size: 'lg'
             }).result.then(function (param) {
-                http2.post('/rest/mp/app/enroll/importRoll2?aid=' + $scope.aid, param, function (rsp) {
+                http2.post('/rest/mp/app/enroll/importApp?aid=' + $scope.aid, param, function (rsp) {
                     $scope.doSearch(1);
                 });
             });
@@ -147,7 +170,7 @@
         };
         $scope.doSearch();
     }]);
-    xxtApp.register.controller('importActivityRollCtrl', ['$scope', 'http2', '$modalInstance', function ($scope, http2, $modalInstance) {
+    xxtApp.register.controller('importAppCtrl', ['$scope', 'http2', '$modalInstance', function ($scope, http2, $modalInstance) {
         $scope.param = {
             checkedActs: [],
             checkedWalls: [],
@@ -174,17 +197,17 @@
         $scope.ok = function () {
             $modalInstance.close($scope.param);
         };
-        http2.get('/rest/mp/app/enroll?page=1&size=999', function (rsp) {
+        http2.get('/rest/mp/app/enroll/get?page=1&size=999', function (rsp) {
             $scope.activities = rsp.data[0];
         });
-        http2.get('/rest/mp/app/wall', function (rsp) {
+        http2.get('/rest/mp/app/wall/get', function (rsp) {
             $scope.walls = rsp.data;
         });
     }]);
     xxtApp.register.controller('editorCtrl', ['$scope', '$modalInstance', 'rollItem', 'tags', 'cols', function ($scope, $modalInstance, rollItem, tags, cols) {
         $scope.item = rollItem;
         $scope.item.aTags = (!rollItem.tags || rollItem.tags.length === 0) ? [] : rollItem.tags.split(',');
-        $scope.aTags = (!tags || tags.length === 0) ? [] : tags.split(',');
+        $scope.aTags = tags;
         $scope.cols = cols;
         $scope.signin = function () {
             $scope.item.signin_at = Math.round((new Date()).getTime() / 1000);
@@ -220,9 +243,7 @@
         });
         $scope.$on('tag.xxt.combox.add', function (event, newTag) {
             $scope.item.aTags.push(newTag);
-            if ($scope.aTags.indexOf(newTag) === -1) {
-                $scope.aTags.push(newTag);
-            }
+            $scope.aTags.indexOf(newTag) === -1 && $scope.aTags.push(newTag);
         });
         $scope.$on('tag.xxt.combox.del', function (event, removed) {
             $scope.item.aTags.splice($scope.item.aTags.indexOf(removed), 1);

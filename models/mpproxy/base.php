@@ -121,12 +121,17 @@ class mpproxy_base {
         /**
          * 临时文件
          */
-        $tmpfname = tempnam('','');
-        $tmpfname2 = $tmpfname.'.'.$ext;
-        rename($tmpfname, $tmpfname2);
-        $handle = fopen($tmpfname2, "w");
-        fwrite($handle, $urlContent);
-        fclose($handle);
+        if (defined('SAE_TMP_PATH')) {
+            $tmpfname2 = SAE_TMP_PATH . uniqid() . '.' . $ext;
+            file_put_contents($tmpfname2 , $urlContent);
+        } else {
+            $tmpfname = tempnam('','');
+            $tmpfname2 = $tmpfname.'.'.$ext;
+            rename($tmpfname, $tmpfname2);
+            $handle = fopen($tmpfname2, "w");
+            fwrite($handle, $urlContent);
+            fclose($handle);
+        }
 
         return $tmpfname2;
     }

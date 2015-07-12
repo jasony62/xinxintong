@@ -16,24 +16,26 @@ class enroll_model extends \matter\enroll_model {
             'xxt_enroll', 
             "id='$aid'"
         );
-        $a = $this->query_obj_ss($q);
-        /**
-         * 页面内容
-         */
-        if ($a && $fields === '*') {
-            // form page
-            $page = \TMS_APP::model('code/page')->byId($a->form_code_id, 'html,css,js');
-            $page->id = 0;
-            $page->name = 'form';
-            $page->code_id = $a->form_code_id;
-            $a->pages['form'] = $page;
-            // other page
-            $extraPages = $this->getPages($aid);
-            foreach ($extraPages as $ep)
-                $a->pages[$ep->name] = $ep;
+        if ($e = $this->query_obj_ss($q)) {
+            ($fields === '*' || strpos($fields, 'entry_rule')) && $e->entry_rule = json_decode($e->entry_rule);
+            /**
+             * 页面内容
+             */
+            if ($fields === '*') {
+                // form page
+                $page = \TMS_APP::model('code/page')->byId($e->form_code_id, 'html,css,js');
+                $page->id = 0;
+                $page->name = 'form';
+                $page->code_id = $e->form_code_id;
+                $e->pages['form'] = $page;
+                // other page
+                $extraPages = $this->getPages($aid);
+                foreach ($extraPages as $ep)
+                    $e->pages[$ep->name] = $ep;
+            }
         }
 
-        return $a;
+        return $e;
     }
     /**
      *
@@ -827,6 +829,13 @@ class enroll_model extends \matter\enroll_model {
                 break;
             }
         }
+        // tags
+        if (!empty($options->tags)) {
+            $aTags = explode(',', $options->tags);
+            foreach ($aTags as $tag) {
+                $w .= "and concat(',',e.tags,',') like '%,$tag,%'";
+            }
+        }
         // todo 逻辑有问题，如果要求既是粉丝又是会员怎么办？
         if ($act->wxyx_only === 'Y') {
             $q = array(
@@ -892,6 +901,76 @@ class enroll_model extends \matter\enroll_model {
         }
 
         return $result;
+    }
+    /**
+     * 活动报名名单
+     *
+     * 1、如果活动仅限会员报名，那么要叠加会员信息
+     * 2、如果报名的表单中有扩展信息，那么要提取扩展信息
+     *
+     * $mpid
+     * $aid
+     * $options
+     * --creater openid 
+     * --visitor openid 
+     * --page
+     * --size
+     * --rid 轮次id
+     * --kw 检索关键词
+     * --by 检索字段
+     * 
+     *
+     * return
+     * [0] 数据列表
+     * [1] 数据总条数
+     * [2] 数据项的定义
+     */
+    public function getParticipants($mpid, $aid, $options=null) 
+    {
+        if ($options) {
+            is_array($options) && $options = (object)$options;
+            $rid = null;
+            if (!empty($options->rid)) {
+                if ($options->rid==='ALL')
+                    $rid = null;
+                else if (!empty($options->rid))
+                    $rid = $options->rid;
+            } else if ($activeRound = $this->getActiveRound($mpid, $aid))
+                $rid = $activeRound->rid;
+
+            $kw = isset($options->kw) ? $options->kw : null; 
+            $by = isset($options->by) ? $options->by : null;
+        }
+        $w = "e.mpid='$mpid' and aid='$aid'";
+        !empty($rid) && $w .= " and e.rid='$rid'";
+        // tags
+        if (!empty($options->tags)) {
+            $aTags = explode(',', $options->tags);
+            foreach ($aTags as $tag) $w .= "and concat(',',e.tags,',') like '%,$tag,%'";
+        }
+        // todo need support?
+        if (!empty($kw) && !empty($by)) {
+            switch ($by) {
+            case 'mobile':
+                $kw && $w .= " and mobile like '%$kw%'";
+                break;
+            case 'nickname':
+                $kw && $w .= " and nickname like '%$kw%'";
+                break;
+            }
+        }
+        // 活动参与人
+        $q = array(
+            'distinct e.openid',
+            "xxt_enroll_record e",
+            $w
+        );
+        /**
+         * 获得填写的登记数据
+         */ 
+        $participants = $this->query_vals_ss($q);
+        
+        return $participants;
     }
     /**
      * 统计登记信息

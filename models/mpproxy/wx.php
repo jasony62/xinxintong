@@ -383,7 +383,7 @@ class wx_model extends mpproxy_base {
         return array(true, $url);
     }
     /**
-     * 将消息上传到微信公众号平台
+     * 将图文消息上传到微信公众号平台
      */
     public function mediaUploadNews($message)
     {
@@ -401,6 +401,8 @@ class wx_model extends mpproxy_base {
                 "digest"=>urlencode($a['description']),
                 "show_cover_pic"=>"1"
             );
+            !empty($a->url) && $uploaded['content_source_url'] = $a->url;
+            !empty($a->author) && $uploaded['author'] = $a->author;
         }
         $uploaded = array('articles'=>$uploaded);
         $uploaded = urldecode(json_encode($uploaded)); 
@@ -480,6 +482,145 @@ class wx_model extends mpproxy_base {
         );
         
         return array(true, $message);
+    }
+    /**
+     * 将图片上传到公众号平台
+     *
+     * $imageUrl
+     * $imageType
+     */
+    public function materialAddMaterial($mediaUrl, $mediaType='image') 
+    {
+        $tmpfname = $this->fetchUrl($mediaUrl);
+        /**
+         * 解决php版本兼容性问题
+         */
+        if (class_exists('\CURLFile')) {
+            $uploaded['media'] = new \CURLFile($tmpfname);
+        } else {
+            $uploaded['media'] = '@'.$tmpfname;
+        }
+        /**
+         * upload image
+         */
+        $cmd = 'https://api.weixin.qq.com/cgi-bin/material/add_material';
+        $cmd .= "?type=$mediaType";
+
+        $rst = $this->httpPost($cmd, $uploaded);
+        if ($rst[0] === false)
+            return $rst;
+
+        $media_id = $rst[1]->media_id;
+        $url = $rst[1]->url;
+
+        return array(true, $media_id, $url);
+    }
+    /**
+     * 添加永久素材
+     */
+    public function materialAddNews($message)
+    {
+        /**
+         * 图文消息需要上传
+         */
+        $articles = &$message['news']['articles'];
+        foreach ($articles as &$a) {
+            $rst = $this->materialAddMaterial(urldecode($a['picurl']));
+            if ($rst[0] === false)
+                return array(false, '上传头图失败：'.$rst[1]);
+            $a['thumb_media_id'] = $rst[1];
+        }
+        /**
+         * 拼装消息
+         */
+        $uploaded = array();
+        $articles = $message['news']['articles'];
+        foreach ($articles as $a) {
+            $body = str_replace(array("\r\n", "\n", "\r"), '', $a['body']);
+            $one = array(
+                "thumb_media_id" => $a['thumb_media_id'],
+                "title" => urlencode($a['title']),
+                "content" => urlencode(addslashes($body)),
+                "digest" => urlencode($a['description']),
+                "show_cover_pic" => "1",
+            );
+            !empty($a['author']) && $one['author'] = urlencode($a['author']);
+            !empty($a['url']) && $one['content_source_url'] = urlencode($a['url']);
+            $uploaded[] = $one;
+        }
+        $uploaded = array('articles'=>$uploaded);
+        $uploaded = urldecode(json_encode($uploaded)); 
+        /**
+         * 发送消息
+         */
+        $cmd = "https://api.weixin.qq.com/cgi-bin/material/add_news";
+
+        $rst = $this->httpPost($cmd, $uploaded);
+        if ($rst[0] === false)
+            return $rst;
+
+        $mediaId = $rst[1]->media_id;
+
+        return array(true, $mediaId);
+    }
+    /**
+     * 更新永久素材
+     */
+    public function materialUpdateNews($mediaId, $article)
+    {
+        /**
+         * 上传头图
+         */
+        $rst = $this->materialAddMaterial(urldecode($article['picurl']));
+        if ($rst[0] === false)
+            return array(false, '上传头图失败：'.$rst[1]);
+        $article['thumb_media_id'] = $rst[1];
+        /**
+         * 拼装消息
+         */
+        $body = str_replace(array("\r\n", "\n", "\r"), '', $article['body']);
+        $newOne = array(
+            "thumb_media_id" => $article['thumb_media_id'],
+            "title" => urlencode($article['title']),
+            "content" => urlencode(addslashes($body)),
+            "digest" => urlencode($article['description']),
+            "show_cover_pic" => "1",
+        );
+        !empty($article['author']) && $newOne['author'] = urlencode($article['author']);
+        !empty($article['url']) && $newOne['content_source_url'] = urlencode($article['url']); 
+        
+        $uploaded = array(
+            'media_id' => $mediaId,
+            'articles' => $newOne
+        );
+        $uploaded = urldecode(json_encode($uploaded)); 
+        /**
+         * 发送消息
+         */
+        $cmd = "https://api.weixin.qq.com/cgi-bin/material/update_news";
+
+        $rst = $this->httpPost($cmd, $uploaded);
+        if ($rst[0] === false)
+            return $rst;
+
+        return array(true);
+    }
+    /**
+     * 删除永久素材
+     */
+    public function materialDelMaterial($mediaId)
+    {
+        $posted = "{media_id:'$mediaId'}";
+        /**
+         * 发送消息
+         */
+        $cmd = "https://api.weixin.qq.com/cgi-bin/material/del_material";
+
+        $rst = $this->httpPost($cmd, $posted);
+        if ($rst[0] === false)
+            return $rst;
+
+        return array(true);
     }
     /**
      * 向用户群发消息

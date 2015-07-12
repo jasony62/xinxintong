@@ -1,5 +1,5 @@
 (function () {
-    xxtApp.register.controller('pageCtrl', ['$scope', 'http2', '$modal', '$timeout', function ($scope, http2, $modal, $timeout) {
+    xxtApp.register.controller('pageCtrl', ['$scope', 'http2', '$modal', '$timeout', 'Mp', function ($scope, http2, $modal, $timeout, Mp) {
         $scope.$parent.subView = 'page';
         var addWrap = function (page, name, attrs, html) {
             var dom, body, wrap, newWrap, selection, activeEditor;
@@ -449,6 +449,45 @@
                 }
             });
         };
+        $scope.embedMember = function (page) {
+            $modal.open({
+                templateUrl: 'embedMemberLib.html',
+                backdrop: 'static',
+                controller: ['$modalInstance', '$scope', 'Mp', function ($mi, $scope, Mp) {
+                    (new Mp()).getAuthapis().then(function (data) {
+                        $scope.authapis = data;
+                    });
+                    $scope.selected = {};
+                    $scope.authAttrs = [];
+                    $scope.ok = function () {
+                        $scope.selected.attrs = [];
+                        for (var i = 0, l = $scope.authAttrs.length; i < l; i++) {
+                            $scope.authAttrs[i].checked && $scope.selected.attrs.push($scope.authAttrs[i]);
+                        }
+                        $mi.close($scope.selected);
+                    };
+                    $scope.cancel = function () { $mi.dismiss(); };
+                    $scope.shiftAuthapi = function () {
+                        var auth = $scope.selected.authapi, authAttrs = [];
+                        auth.attr_name[0] === '0' && (authAttrs.push({ id: 'name', label: '姓名' }));
+                        auth.attr_mobile[0] === '0' && (authAttrs.push({ id: 'mobile', label: '手机' }));
+                        auth.attr_email[0] === '0' && (authAttrs.push({ id: 'email', label: '邮箱' }));
+                        auth.extattr.length && (authAttrs = authAttrs.concat(auth.extattr));
+                        $scope.authAttrs = authAttrs;
+                    };
+                }],
+            }).result.then(function (data) {
+                var inpAttrs = { wrap: 'input', class: 'form-group member' }, tpl, html, attr;
+                tpl = '<input type="text" ng-init="data.member.authid=' + data.authapi.authid + '" ng-model="data.member.%id%" title="%label%" placeholder="%label%" class="form-control input-lg">';
+                for (var i = 0, l = data.attrs.length; i < l; i++) {
+                    attr = data.attrs[i];
+                    html = tpl.replace(/%\w+%/g, function (pl) {
+                        return attr[pl.replace(/%/g, '')];
+                    });
+                    addWrap(page, 'div', inpAttrs, html);
+                }
+            });
+        };
         $scope.$on('tinymce.wrap.select', function (event, wrap) {
             $scope.$apply(function () {
                 $scope.hasActiveWrap = false;
@@ -472,6 +511,7 @@
             $scope.$broadcast('picgallery.open', callback, true, true);
         });
         $scope.extraPages = function () {
+            if ($scope.editing === undefined) return;
             var result = {};
             angular.forEach($scope.editing.pages, function (value, key) {
                 key !== 'form' && (result[key] = value);
@@ -522,7 +562,7 @@
                 }
                 $scope.$root.progmsg = '正在保存页面...';
                 var url, p = {};
-                p[name] = encodeURIComponent(page[name]);
+                p[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
                 url = '/rest/mp/app/enroll/updPage';
                 url += '?aid=' + $scope.aid;
                 url += '&pid=' + page.id;
@@ -546,6 +586,10 @@
                     $('a[href="#tab_form"]').tab('show');
                 });
             });
+        };
+        $scope.shiftPage = function (event) {
+            event.preventDefault();
+            $(event.target).tab('show');
         };
         $scope.gotoCode = function (codeid) {
             window.open('/rest/code?pid=' + codeid, '_self');

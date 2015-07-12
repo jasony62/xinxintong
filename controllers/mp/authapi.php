@@ -23,24 +23,13 @@ class authapi extends mp_controller {
      *
      * $own
      * $valid
+     * $cascaded
      */
     public function get_action($own='N', $valid=null)
     {
         $modelAuth = $this->model('user/authapi');
         
-        $apis = $modelAuth->byMpid($this->mpid, $valid);
-        
-        if ($own === 'N') {
-            $pmp = $this->model('mp\mpaccount')->byId($this->mpid);
-            if (!empty($pmp->parent_mpid))
-                $papis = $modelAuth->byMpid($pmp->parent_mpid, $valid);
-            if (!empty($papis)) {
-                if (!empty($apis))
-                    $apis = array_merge($papis, $apis);
-                else
-                    $apis = $papis;
-            }
-        }
+        $apis = $modelAuth->byMpid($this->mpid, $valid, 'N');
         
         return new \ResponseData($apis);
     }

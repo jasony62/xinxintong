@@ -1,3 +1,20 @@
+xxtApp.factory('Mp', function ($q, http2) {
+    var Mp = function () {
+    };
+    Mp.prototype.getAuthapis = function (id) {
+        var _this = this, deferred = $q.defer(), promise = deferred.promise;
+        if (_this.authapis !== undefined) {
+            deferred.resolve(_this.authapis);
+        } else {
+            http2.get('/rest/mp/authapi/get?valid=Y', function (rsp) {
+                _this.authapis = rsp.data;
+                deferred.resolve(rsp.data);
+            });
+        }
+        return promise;
+    };
+    return Mp;
+});
 xxtApp.config(['$routeProvider', function ($routeProvider) {
     $routeProvider.when('/rest/mp/app/enroll/detail', {
         templateUrl: '/views/default/mp/app/enroll/setting.html',
@@ -5,11 +22,7 @@ xxtApp.config(['$routeProvider', function ($routeProvider) {
         resolve: {
             load: function ($q) {
                 var defer = $q.defer();
-                (function () {
-                    $.getScript('/views/default/mp/app/enroll/setting.js', function () {
-                        defer.resolve();
-                    });
-                })();
+                (function () { $.getScript('/views/default/mp/app/enroll/setting.js', function () { defer.resolve(); }); })();
                 return defer.promise;
             }
         }
@@ -19,25 +32,17 @@ xxtApp.config(['$routeProvider', function ($routeProvider) {
         resolve: {
             load: function ($q) {
                 var defer = $q.defer();
-                (function () {
-                    $.getScript('/views/default/mp/app/enroll/page.js', function () {
-                        defer.resolve();
-                    });
-                })();
+                (function () { $.getScript('/views/default/mp/app/enroll/page.js', function () { defer.resolve(); }); })();
                 return defer.promise;
             }
         }
-    }).when('/rest/mp/app/enroll/roll', {
-        templateUrl: '/views/default/mp/app/enroll/roll.html',
-        controller: 'rollCtrl',
+    }).when('/rest/mp/app/enroll/record', {
+        templateUrl: '/views/default/mp/app/enroll/record.html',
+        controller: 'recordCtrl',
         resolve: {
             load: function ($q) {
                 var defer = $q.defer();
-                (function () {
-                    $.getScript('/views/default/mp/app/enroll/roll.js', function () {
-                        defer.resolve();
-                    });
-                })();
+                (function () { $.getScript('/views/default/mp/app/enroll/record.js', function () { defer.resolve(); }); })();
                 return defer.promise;
             }
         }
@@ -69,6 +74,7 @@ xxtApp.controller('enrollCtrl', ['$scope', '$location', 'http2', function ($scop
     });
     http2.get('/rest/mp/app/enroll/get?aid=' + $scope.aid, function (rsp) {
         $scope.editing = rsp.data;
+        $scope.editing.tags = (!$scope.editing.tags || $scope.editing.tags.length === 0) ? [] : $scope.editing.tags.split(',');
         $scope.editing.type = 'enroll';
         $scope.editing.pages.form.title = '登记信息页';
         $scope.editing.canSetReceiver = 'Y';

@@ -1,5 +1,5 @@
-angular.module('matters.xxt', ['ui.bootstrap'])
-    .constant('matterTypes', [
+var xxtMatters = angular.module('matters.xxt', ['ui.bootstrap']);
+xxtMatters.constant('matterTypes', [
     { value: 'text', title: '文本', url: '/rest/mp/matter' },
     { value: 'article', title: '单图文', url: '/rest/mp/matter' },
     { value: 'news', title: '多图文', url: '/rest/mp/matter' },
@@ -14,7 +14,8 @@ angular.module('matters.xxt', ['ui.bootstrap'])
     { value: 'contribute', title: '投稿活动', url: '/rest/mp/app' },
     { value: 'inner', title: '内置回复', url: '/rest/mp/matter' },
     { value: 'relay', title: '转发消息', url: '/rest/mp/matter' },
-]).service('userSetAsParam', [function () {
+]);
+xxtMatters.service('userSetAsParam', [function () {
     this.convert = function (userSet) {
         if (userSet.userScope === '') return [];
         var params = [], i, dept, tagIds = [], tagNames = [];
@@ -78,7 +79,8 @@ angular.module('matters.xxt', ['ui.bootstrap'])
         }
         return params;
     };
-}]).filter('typetitle', ['matterTypes', function (matterTypes) {
+}]);
+xxtMatters.filter('typetitle', ['matterTypes', function (matterTypes) {
     return function (type) {
         for (var i in matterTypes) {
             if (type && type.toLowerCase() === matterTypes[i].value)
@@ -86,7 +88,8 @@ angular.module('matters.xxt', ['ui.bootstrap'])
         }
         return '';
     }
-}]).directive('tinymce', function ($timeout) {
+}]);
+xxtMatters.directive('tinymce', function ($timeout) {
     return {
         restrict: 'EA',
         scope: { id: '@', height: '=', content: '=', contenteditable: '=', update: '&', change: '&' },
@@ -260,7 +263,8 @@ angular.module('matters.xxt', ['ui.bootstrap'])
             });
         }
     }
-}).controller('MattersGalleryModalInstCtrl', ['$scope', '$http', '$modalInstance', 'matterTypes', 'singleMatter', 'hasParent', function ($scope, $http, $modalInstance, matterTypes, singleMatter, hasParent) {
+});
+xxtMatters.controller('MattersGalleryModalInstCtrl', ['$scope', '$http', '$modalInstance', 'matterTypes', 'singleMatter', 'hasParent', function ($scope, $http, $modalInstance, matterTypes, singleMatter, hasParent) {
     $scope.matterTypes = matterTypes;
     $scope.singleMatter = singleMatter;
     $scope.hasParent = hasParent;
@@ -290,7 +294,7 @@ angular.module('matters.xxt', ['ui.bootstrap'])
         url += '/get?page=' + $scope.page.current + '&size=' + $scope.page.size + '&fields=' + fields;
         $scope.p.fromParent && $scope.p.fromParent == 1 && (params.src = 'p');
         $http.post(url, params, { headers: { 'ACCEPT': 'application/json' } }).success(function (rsp) {
-            if ($scope.p.matterType.value === 'article' || $scope.p.matterType.value === 'contribute') {
+            if (/article|contribute|enroll/.test($scope.p.matterType.value)) {
                 $scope.matters = rsp.data[0];
                 rsp.data[1] && ($scope.page.total = rsp.data[1]);
             } else {
@@ -308,7 +312,8 @@ angular.module('matters.xxt', ['ui.bootstrap'])
     $scope.$watch('p.matterType', function (nv) {
         $scope.doSearch();
     });
-}]).controller('MattersController', ['$scope', '$http', '$modal', function ($scope, $http, $modal) {
+}]);
+xxtMatters.controller('MattersController', ['$scope', '$http', '$modal', function ($scope, $http, $modal) {
     var open = function () {
         $modal.open({
             templateUrl: 'modalMattersGalllery.html',
@@ -338,14 +343,16 @@ angular.module('matters.xxt', ['ui.bootstrap'])
         $scope.callback = callback;
         open();
     });
-}]).directive('mattersgallery', function () {
+}]);
+xxtMatters.directive('mattersgallery', function () {
     return {
         restrict: 'EA',
         scope: { singleMatter: '@', hasParent: '@', matterTypes: '=' },
         controller: 'MattersController',
         templateUrl: '/static/template/mattersgallery.html?v=3',
     }
-}).controller('PicGalleryModalInstCtrl', ['$scope', '$modalInstance', 'url', 'setshowname', function ($scope, $modalInstance, url, setshowname) {
+});
+xxtMatters.controller('PicGalleryModalInstCtrl', ['$scope', '$modalInstance', 'url', 'setshowname', function ($scope, $modalInstance, url, setshowname) {
     $scope.url = url;
     $scope.setshowname = setshowname;
     $scope.setting = { isShowName: 'N' };
@@ -355,7 +362,8 @@ angular.module('matters.xxt', ['ui.bootstrap'])
     $scope.$watch('setting.isShowName', function (nv) {
         $modalInstance.isShowName = nv;
     });
-}]).controller('PicController', ['$scope', '$http', '$modal', function ($scope, $http, $modal) {
+}]);
+xxtMatters.controller('PicController', ['$scope', '$http', '$modal', function ($scope, $http, $modal) {
     var modalInstance,
         open = function (setshowname) {
             modalInstance = $modal.open({
@@ -386,14 +394,16 @@ angular.module('matters.xxt', ['ui.bootstrap'])
             window.KCFinder = { callBack: kcfCallBack };
         open(setshowname);
     });
-}]).directive('picgallery', function () {
+}]);
+xxtMatters.directive('picgallery', function () {
     return {
         restrict: 'EA',
         scope: { picGalleryUrl: '@url' },
         controller: 'PicController',
         templateUrl: '/static/template/picgallery.html?_=1',
     }
-}).controller('AccessControllerUserPickerController', ['$scope', '$modalInstance', 'userSetAsParam', function ($scope, $mi, userSetAsParam) {
+});
+xxtMatters.controller('AccessControllerUserPickerController', ['$scope', '$modalInstance', 'userSetAsParam', function ($scope, $mi, userSetAsParam) {
     $scope.userConfig = { userScope: ['M'] };
     $scope.userSet = {};
     $scope.cancel = function () {
@@ -405,7 +415,8 @@ angular.module('matters.xxt', ['ui.bootstrap'])
         data.userSet = userSetAsParam.convert($scope.userSet);
         $mi.close(data);
     };
-}]).controller('AccessControlController', ['$rootScope', '$scope', 'http2', '$timeout', '$modal', function ($rootScope, $scope, http2, $timeout, $modal) {
+}]);
+xxtMatters.controller('AccessControlController', ['$rootScope', '$scope', 'http2', '$timeout', '$modal', function ($rootScope, $scope, http2, $timeout, $modal) {
     var objAuthapis = function () {
         $scope.objAuthapis = angular.copy($scope.authapis);
         var aAuthapis = $scope.obj[$scope.propApis] ? $scope.obj[$scope.propApis].trim() : '';
@@ -499,14 +510,16 @@ angular.module('matters.xxt', ['ui.bootstrap'])
         $scope.authapis = rsp.data;
         if ($scope.obj) objAuthapis();
     });
-}]).directive('accesscontrol', function () {
+}]);
+xxtMatters.directive('accesscontrol', function () {
     return {
         restrict: 'EA',
         scope: { title: '@', label: '@', mpid: '@', obj: '=', propAcl: '@', labelOfList: '@', propAccess: '@', propApis: '@', changeAclUrl: '@', removeAclUrl: '@', updateAccessControl: '&', updateAuthapis: '&', labelSpan: '@', controlSpan: '@', disabled: '@', hideAccessControl: '@' },
         controller: 'AccessControlController',
         templateUrl: '/static/template/accesscontrol.html?_=5',
     }
-}).directive('userpopover', ['http2', function (http2) {
+});
+xxtMatters.directive('userpopover', ['http2', function (http2) {
     return {
         restrict: 'A',
         scope: { xxtFid: '@' },
@@ -545,7 +558,8 @@ angular.module('matters.xxt', ['ui.bootstrap'])
             });
         }
     };
-}]).controller('SendmeController', ['$scope', 'http2', function ($scope, http2) {
+}]);
+xxtMatters.controller('SendmeController', ['$scope', 'http2', function ($scope, http2) {
     $scope.qrcodeShown = false;
     $scope.qrcode = function (matter, event) {
         if (!$scope.qrcodeShown) {
@@ -569,7 +583,8 @@ angular.module('matters.xxt', ['ui.bootstrap'])
             });
         }
     };
-}]).controller('UserPickerController', ['http2', '$scope', function (http2, $scope) {
+}]);
+xxtMatters.controller('UserPickerController', ['http2', '$scope', function (http2, $scope) {
     var getPickedAuthapi = function () {
         var authid = $scope.userSet.userScope.split('_').pop();
         for (var i in $scope.authapis) {
@@ -656,7 +671,8 @@ angular.module('matters.xxt', ['ui.bootstrap'])
             $scope.authapis = rsp.data;
         });
     }
-}]).directive('userpicker', ['http2', function (http2) {
+}]);
+xxtMatters.directive('userpicker', ['http2', function (http2) {
     return {
         restrict: 'EA',
         scope: { userSet: '=', userConfig: '=' },
@@ -665,7 +681,8 @@ angular.module('matters.xxt', ['ui.bootstrap'])
             return '/rest/mp/user/picker';
         },
     };
-}]).controller('PushMatterController', ['http2', '$scope', '$modalInstance', 'userSetAsParam', function (http2, $scope, $modalInstance, userSetAsParam) {
+}]);
+xxtMatters.controller('PushMatterController', ['http2', '$scope', '$modalInstance', 'userSetAsParam', function (http2, $scope, $modalInstance, userSetAsParam) {
     $scope.userConfig = { userScope: ['M'] };
     $scope.userSet = {};
     $scope.cancel = function () {
@@ -693,7 +710,8 @@ angular.module('matters.xxt', ['ui.bootstrap'])
         if (rsp.data.mpsrc === 'qy' || (rsp.data.mpsrc === 'yx' && rsp.data.yx_p2p))
             $scope.userConfig.userScope.push('M');
     });
-}]).directive('pushmatter', function () {
+}]);
+xxtMatters.directive('pushmatter', function () {
     return {
         restrict: 'E',
         scope: { matterId: '@', matterType: '@' },
@@ -729,7 +747,81 @@ angular.module('matters.xxt', ['ui.bootstrap'])
         transclude: true,
         template: "<button ng-click='open()' ng-transclude></button>",
     };
-}).directive('matterShop', ['$q', 'http2', function ($q, http2) {
+});
+xxtMatters.controller('PushNotifyController', ['http2', '$scope', '$modalInstance', 'options', function (http2, $scope, $mi, options) {
+    $scope.options = options;
+    $scope.p = {};
+    options.matterTypes && options.matterTypes.length && ($scope.p.matterType = options.matterTypes[0]);
+    var fields = ['id', 'title'];
+    $scope.page = { current: 1, size: 10 };
+    $scope.aChecked = [];
+    $scope.doCheck = function (matter) {
+        if (options.singleMatter === 'Y') {
+            $scope.aChecked = [matter];
+        } else {
+            var i = $scope.aChecked.indexOf(matter);
+            i === -1 ? $scope.aChecked.push(matter) : $scope.aChecked.splice(i, 1);
+        }
+    };
+    $scope.doSearch = function () {
+        if (!$scope.p.matterType) return;
+        var url, params = {};
+        url = $scope.p.matterType.url;
+        url += '/' + $scope.p.matterType.value;
+        url += '/get?page=' + $scope.page.current + '&size=' + $scope.page.size + '&fields=' + fields;
+        $scope.p.fromParent && $scope.p.fromParent == 1 && (params.src = 'p');
+        http2.post(url, params, function (rsp) {
+            if (/article|contribute|enroll/.test($scope.p.matterType.value)) {
+                $scope.matters = rsp.data[0];
+                rsp.data[1] && ($scope.page.total = rsp.data[1]);
+            } else {
+                $scope.matters = rsp.data;
+                $scope.page.total = $scope.matters.length;
+            }
+        }, { headers: { 'ACCEPT': 'application/json' } });
+    };
+    $scope.ok = function () {
+        $mi.close([$scope.aChecked, $scope.p.matterType ? $scope.p.matterType.value : 'article']);
+    };
+    $scope.cancel = function () {
+        $mi.dismiss('cancel');
+    };
+    $scope.$watch('p.matterType', function (nv) {
+        $scope.doSearch();
+    });
+}]);
+xxtMatters.directive('pushnotify', function () {
+    return {
+        restrict: 'E',
+        scope: { singleMatter: '@', matterTypes: '=', canFromParentMp: '@' },
+        controller: ['$scope', '$modal', 'http2', function ($scope, $modal, http2) {
+            $scope.open = function () {
+                $modal.open({
+                    templateUrl: '/static/template/pushnotify.html?_=0',
+                    controller: 'PushNotifyController',
+                    resolve: {
+                        options: function () {
+                            return {
+                                singleMatter: $scope.singleMatter ? $scope.singleMatter : 'N',
+                                canFromParent: $scope.canFromParent ? $scope.canFromParent : 'N',
+                                matterTypes: $scope.matterTypes
+                            };
+                        }
+                    },
+                    backdrop: 'static',
+                    size: 'lg',
+                    windowClass: 'auto-height'
+                }).result.then(function (data) {
+                    $scope.$emit('pushnotify.xxt.done', data);
+                });
+            };
+        }],
+        replace: true,
+        transclude: true,
+        template: "<button ng-click='open()' ng-transclude></button>",
+    };
+});
+xxtMatters.directive('matterShop', ['$q', 'http2', function ($q, http2) {
     var Shop = function (type, mpid) {
         this.type = type;
         this.mpid = mpid === undefined ? '' : mpid;
@@ -823,7 +915,6 @@ angular.module('matters.xxt', ['ui.bootstrap'])
                 open(matter, mpid, true);
             });
             $rootScope.$on('mattershop.open', function (event, matter) {
-                console.log('bbbbb');
                 open(matter, null, false);
             });
         }]

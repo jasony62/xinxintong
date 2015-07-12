@@ -1,0 +1,30 @@
+<div>
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <span class="modal-title h5">发送信息</span>
+        <select class='form-control' ng-if='options.matterTypes&&options.matterTypes.length>0' style='display:inline-block;width:120px'
+        ng-model='p.matterType' ng-options='t.title for t in options.matterTypes'></select>
+        <pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="p.matterType.value==='article'&&page.total>page.size"
+        boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.current"
+        previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
+        <label class="checkbox-inline" ng-show="options.canFromParentMp==='Y'">
+            <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='p.fromParentMp' ng-change='doSearch()'>来源于父账号</label>
+    </div>
+    <div class="modal-body" style='overflow:auto'>
+        <ul class="list-group">
+            <li class="list-group-item" ng-repeat="m in matters">
+                <div class="checkbox" style="margin:0" ng-if="options.singleMatter!=='Y'">
+                    <label>
+                        <input type="checkbox" ng-checked="aChecked.indexOf(m)!==-1" ng-click="doCheck(m)">{{m.title||m.content}}</label>
+                </div>
+                <div class="radio" style="margin:0" ng-if="options.singleMatter==='Y'">
+                    <label>
+                        <input type="radio" ng-checked="aChecked.indexOf(m)!==-1" ng-click="doCheck(m)">{{m.title||m.content}}</label>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="ok()">发送</button>
+    </div>
+</div>

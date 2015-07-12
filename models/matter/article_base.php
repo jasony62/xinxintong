@@ -24,10 +24,10 @@ abstract class article_base extends base_model {
                 $pic = $m->pic;
             }
             $ma[] = array(
-                'title'=>urlencode($m->title),
-                'description'=>urlencode($m->summary),
-                'url'=>\TMS_APP::model('matter\\'.$m->type)->getEntryUrl($runningMpid, $m->id),
-                'picurl'=>urlencode($pic)
+                'title' => urlencode($m->title),
+                'description' => urlencode($m->summary),
+                'url' => \TMS_APP::model('matter\\'.$m->type)->getEntryUrl($runningMpid, $m->id),
+                'picurl' => urlencode($pic)
             );
         }
 
@@ -61,8 +61,9 @@ abstract class article_base extends base_model {
             }
             $ma[] = array(
                 'title' => $a->title,
+                'author' => empty($a->author) ? '' : $a->author,
                 'description' => $a->summary,
-                'url' => \TMS_APP::model('matter\\'.$a->type)->getEntryUrl($runningMpid, $a->id),
+                'url' => empty($a->url) ? '' : $a->url,
                 'picurl' => $pic,
                 'body' => $a->body
             );

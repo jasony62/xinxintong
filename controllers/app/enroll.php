@@ -15,170 +15,6 @@ class enroll extends \member_base {
         return $rule_action;
     }
     /**
-     * 返回活动页
-     *
-     * 活动是否只向会员开放，如果是要求先成为会员，否则允许直接
-     * 如果已经报过名如何判断？
-     * 如果已经是会员，则可以查看和会员的关联
-     * 如果不是会员，临时分配一个key，保存在cookie中，允许重新报名
-     *
-     * $mpid 因为活动有可能来源于父账号，因此需要指明活动是在哪个公众号中进行的
-     * $aid
-     * $page 要进入活动的哪一页 
-     * $ek 登记记录的id
-     * $shareid 谁进行的分享
-     * $openid 用于测试，模拟访问用户
-     * $code
-     *
-     */
-    public function index_action($mpid, $aid, $shareby='', $page='', $ek='', $mocker='', $code=null) 
-    {
-        empty($mpid) && $this->outputError('没有指定当前运行的公众号');
-        empty($aid) && $this->outputError('登记活动id为空');
-
-        $act = $this->model('app\enroll')->byId($aid);
-        /**
-         * 仅限微信易信客户端访问
-         */
-        if ($act->wxyx_only === 'Y') {
-            $csrc = $this->getClientSrc();
-            if ($csrc !== 'wx' && $csrc !== 'yx')
-                $this->outputError('请用指定客户端打开！');
-        }
-        /**
-         * 获得当前访问用户
-         */
-        $openid = $this->doAuth($mpid, $code, $mocker);
-        
-        $this->afterOAuth($mpid, $aid, $ek, $page, $shareby, $openid);
-    }
-    /**
-     * 返回活动页面
-     */
-    private function afterOAuth($mpid, $aid, $ek, $page, $shareby, $who=null)
-    {
-        $enrollModel = $this->model('app\enroll');
-        $act = $enrollModel->byId($aid);
-        /**
-         * 当前访问用户的基本信息
-         */
-        list($ooid, $mid, $vid) = $this->getVisitorInfo($mpid, $act, $who);
-        /**
-         * 要求先关注再参与
-         */
-        if ($act->fans_enter_only === 'Y') {
-            $this->askFollow($mpid, $ooid);
-        }
-        if ($this->getClientSrc() && isset($act->shift2pc) && $act->shift2pc === 'Y') {
-            /**
-             * 提示在PC端完成
-             */
-            $fea = $this->model('mp\mpaccount')->getFeatures($mpid,'shift2pc_page_id');
-            $pageOfShift2Pc = $this->model('code/page')->byId($fea->shift2pc_page_id, 'html,css,js'); 
-            /**
-             * 任务码
-             */
-            if ($act->can_taskcode && $act->can_taskcode === 'Y') {
-                $fan = $this->model('user/fans')->byOpenid($mpid, $ooid);
-                $httpHost = $_SERVER['HTTP_HOST'];
-                $httpHost = str_replace('www.', '', $_SERVER['HTTP_HOST']);
-                $myUrl = "http://$httpHost".$_SERVER['REQUEST_URI'];
-                $taskCode = $this->model('task')->addTask($mpid, $fan->fid, $myUrl);
-                $pageOfShift2Pc->html = str_replace('{{taskCode}}', $taskCode, $pageOfShift2Pc->html);
-            }
-            \TPL::assign('shift2pcAlert', $pageOfShift2Pc);
-        }
-        /**
-         * 页面所需的数据
-         */
-        $params = array();
-        /**
-         * 是否需要进行用户身份认证
-         * 如果跳过介绍页就先进行身份验证，再进入页面，否则由页面发起身份认证
-         */
-        $params['require_auth'] = 'N';
-        \TPL::assign('title', $act->title);
-        $params['mpid'] = $mpid;
-        $params['shareby'] = $shareby;
-        $params['enroll'] = $act;
-        /**
-         * 登记活动管理员
-         */
-        $admins = \TMS_APP::model('acl')->enrollReceivers($mpid, $aid);
-        $params['admins'] = $admins;
-        /**
-         * 当前用户信息
-         */
-        if (!empty($ooid) && $user = $this->getUserInfo($mpid, $ooid))
-            $visitor = $user;
-        else
-            $visitor = new \stdClass;
-        $visitor->vid = $vid;
-        $params['user'] = $visitor;
-        /**
-         * 全局设置
-         */
-        $mpsetting = $this->getCommonSetting($mpid);
-        \TPL::assign('body_ele', $mpsetting->body_ele);
-        \TPL::assign('body_css', $mpsetting->body_css);
-        /**
-         * 进入到哪一个状态页
-         */
-        $newForm = false;
-        if (empty($page)) {
-            if ($enrollModel->hasEnrolled($mpid, $act->id, $ooid) && !empty($act->enrolled_entry_page))
-                $page = $act->enrolled_entry_page;
-            else
-                $page = $act->entry_page;
-        }
-        /**
-         * 页面是否存在
-         */
-        if (empty($act->pages[$page]))
-            $this->outputError("指定的页面[$page]不存在");
-        
-        $oPage = $act->pages[$page];
-        if ($page === 'form' || $oPage->type === 'I') {
-            if ($act->open_lastroll === 'N' && empty($ek))
-                $newForm = true;
-        }
-        
-        $params['subView'] = $page;
-        $params['page'] = $oPage;
-        !empty($oPage->html) && \TPL::assign('extra_html', $oPage->html);
-        !empty($oPage->css) && \TPL::assign('extra_css', $oPage->css);
-        !empty($oPage->js) && \TPL::assign('extra_js', $oPage->js);
-        !empty($oPage->ext_js) && \TPL::assign('ext_js', $oPage->ext_js);
-        !empty($oPage->ext_css) && \TPL::assign('ext_css', $oPage->ext_css);
-        /**
-         * 页面数据设置 
-         */
-        list($openedek, $record, $statdata) = $this->getPageData($mpid, $act, $ek, $ooid, $page, $newForm);
-        $params['enrollKey'] = $openedek;
-        $params['record'] = $record;
-        $params['statdata'] = $statdata;
-        
-        if (isset($_GET['preview']))
-            $params['preview'] = $_GET['preview'];
-        /**
-         * 记录日志，完成前置活动再次进入的情况不算
-         */
-        $this->model('log')->writeMatterReadLog(
-            $vid, 
-            $mpid, 
-            $act->id, 
-            'enroll', 
-            isset($ooid) ? $ooid : '',
-            $shareby, 
-            $_SERVER['HTTP_USER_AGENT'], 
-            $this->client_ip()
-        );
-
-        \TPL::assign('params', $params);
-
-        $this->view_action('/app/enroll/page');
-    }
-    /**
      * 获得当前访问用户的信息
      *
      * $mpid
@@ -213,15 +49,269 @@ class enroll extends \member_base {
                 $member = $members[0];*/
             }
             $mid = $member->mid;
-            if (empty($ooid)) { 
-                $fan = $this->model('user/fans')->byMid($mid, 'openid'); 
-                $ooid = $fan->openid;
-            }
         }
+        
+        if (empty($ooid) && !empty($mid)) {
+            $fan = $this->model('user/fans')->byMid($mid, 'openid'); 
+            $ooid = $fan->openid;
+        } else if (!empty($ooid))
+            $fan = $this->model('user/fans')->byOpenid($mpid, $ooid);
         
         $vid = $this->getVisitorId($mpid);
 
-        return array($ooid, $mid, $vid);
+        return array($ooid, $mid, $vid, isset($fan) ? $fan->fid : '');
+    }
+    /**
+     * 获得当前用户的相关信息
+     *
+     * todo 认证用户信息如何体现？
+     */
+    private function getUserInfo($mpid, $openid)
+    {
+        if ($user = $this->model('user/fans')->byOpenid($mpid, $openid)) {
+
+            $members = $this->model('user/member')->byOpenid($mpid, $openid);
+            foreach ($members as &$member) {
+                if (!empty($member->depts))
+                    $member->depts = $this->model('user/member')->getDepts($member->mid, $member->depts);
+                if (!empty($member->tags))
+                    $member->tags = $this->model('user/member')->getTags($member->mid, $member->tags);
+            }
+
+            $user->members = $members;
+        }
+
+        return $user;
+    }
+    /**
+     * 获得当前访问用户的信息
+     *
+     * $mpid
+     * $act
+     * $openid
+     * $matter
+     * $checkAccessControl
+     */
+    protected function &getUser($mpid, $sAuthapis = null, $openid = '', $matter = null)
+    {
+        /**
+         * 当前用户在cookie中的记录
+         */
+        empty($openid) && $openid = $this->getCookieOAuthUser($mpid);
+        /**
+         * 所有用户认证信息
+         */
+        $members = $this->getMembersByMpid($mpid, $sAuthapis, $openid);
+        /**
+         * 限定的用户认证身份
+         */
+        if ($matter && isset($matter->access_control) && $matter->access_control === 'Y') {
+            $membersInAcl = array();
+            foreach ($members as $member) {
+                if ($this->canAccessObj($mpid, $matter->id, $member, $sAuthapis, $matter)) {
+                    $membersInAcl[] = $member;
+                }
+            }
+        }
+        /**
+         * 关注用户信息
+         */
+        if (empty($openid) && !empty($members)) {
+            $fan = $this->model('user/fans')->byMid($members[0]->mid, '*'); 
+            $openid = $fan->openid;
+        } else if (!empty($openid))
+            $fan = $this->model('user/fans')->byOpenid($mpid, $openid);
+        else
+            $fan = null;
+        
+        $vid = $this->getVisitorId($mpid);
+
+        $user = new \stdClass;
+        $user->vid = $vid;
+        $user->openid = $openid;
+        $user->fan = $fan;
+        $user->members = $members;
+        isset($membersInAcl) && $user->membersInAcl = $membersInAcl;
+
+        return $user;
+    }
+    /**
+     * 返回活动页
+     *
+     * 活动是否只向会员开放，如果是要求先成为会员，否则允许直接
+     * 如果已经报过名如何判断？
+     * 如果已经是会员，则可以查看和会员的关联
+     * 如果不是会员，临时分配一个key，保存在cookie中，允许重新报名
+     *
+     * $mpid 因为活动有可能来源于父账号，因此需要指明活动是在哪个公众号中进行的
+     * $aid
+     * $page 要进入活动的哪一页 
+     * $ek 登记记录的id
+     * $shareid 谁进行的分享
+     * $mocker 用于测试，模拟访问用户
+     * $code OAuth返回的code
+     *
+     */
+    public function index_action($mpid, $aid, $shareby='', $page='', $ek='', $mocker='', $code=null) 
+    {
+        empty($mpid) && $this->outputError('没有指定当前公众号的ID');
+        empty($aid) && $this->outputError('登记活动ID为空');
+        /**
+         * 获得当前访问用户
+         */
+        $openid = $this->doAuth($mpid, $code, $mocker);
+        
+        $this->afterOAuth($mpid, $aid, $ek, $page, $shareby, $openid);
+    }
+    /**
+     * 返回活动页面
+     */
+    private function afterOAuth($mpid, $aid, $ek, $page, $shareby, $openid=null)
+    {
+        $enrollModel = $this->model('app\enroll');
+        $act = $enrollModel->byId($aid);
+        /**
+         * 当前访问用户的基本信息
+         */
+        $user = $this->getUser($mpid, $act->authapis, $openid, $act);
+        //die(json_encode($user));
+        /**
+         * 如果没有指定页面，计算应该进入到哪一个状态页
+         * todo 需要避免直接指定page进入的情况
+         */
+        if (empty($page)) {
+            if ($enrollModel->hasEnrolled($mpid, $act->id, $user->openid) && !empty($act->enrolled_entry_page))
+                $page = $act->enrolled_entry_page;
+            else {
+                if (empty($user->fan)) {
+                    /**
+                     * 非关注用户
+                     */
+                    $page = $act->entry_rule->nonfan->entry;
+                } else {
+                    if (isset($user->fan)) {
+                        /**
+                         * 关注用户
+                         */
+                        $page = $act->entry_rule->fan->entry;
+                    }
+                    if (isset($user->membersInAcl) && !empty($user->members)) {
+                        /**
+                         * 认证用户不在白名单中
+                         */
+                        $page = $act->entry_rule->member_outacl->entry;
+                        
+                    }
+                    if (!empty($user->membersInAcl) || (!isset($user->membersInAcl) && !empty($user->members))) {
+                        /**
+                         * 白名单中的认证用户，或者，不限制白名单的认证用户
+                         */
+                        $page = $act->entry_rule->member->entry;
+                    } 
+                }
+                switch ($page) {
+                    case '$authapi_outacl':
+                        $this->gotoOutAcl($mpid, explode(',', $act->authapis)[0]);
+                        break;
+                    case '$authapi_auth':
+                        $this->gotoAuth($mpid, $act->authapis, $user->openid);
+                        break;
+                    case '$mp_follow':
+                        $this->askFollow($mpid, $openid);
+                        break;
+                }
+            }
+        }
+        
+        empty($act->pages[$page]) && $this->outputError("指定页面[$page]不存在");
+        
+        if (isset($user->fan) && $this->getClientSrc() && isset($act->shift2pc) && $act->shift2pc === 'Y') {
+            /**
+             * 提示在PC端完成
+             */
+            $fea = $this->model('mp\mpaccount')->getFeatures($mpid,'shift2pc_page_id');
+            $pageOfShift2Pc = $this->model('code/page')->byId($fea->shift2pc_page_id, 'html,css,js'); 
+            /**
+             * 任务码
+             */
+            if ($act->can_taskcode && $act->can_taskcode === 'Y') {
+                $httpHost = $_SERVER['HTTP_HOST'];
+                $httpHost = str_replace('www.', '', $_SERVER['HTTP_HOST']);
+                $myUrl = "http://$httpHost".$_SERVER['REQUEST_URI'];
+                $taskCode = $this->model('task')->addTask($mpid, $user->fan->fid, $myUrl);
+                $pageOfShift2Pc->html = str_replace('{{taskCode}}', $taskCode, $pageOfShift2Pc->html);
+            }
+            \TPL::assign('shift2pcAlert', $pageOfShift2Pc);
+        }
+        
+        $oPage = $act->pages[$page];
+        \TPL::assign('page', $oPage->name);
+        !empty($oPage->html) && \TPL::assign('extra_html', $oPage->html);
+        !empty($oPage->css) && \TPL::assign('extra_css', $oPage->css);
+        !empty($oPage->js) && \TPL::assign('extra_js', $oPage->js);
+        !empty($oPage->ext_js) && \TPL::assign('ext_js', $oPage->ext_js);
+        !empty($oPage->ext_css) && \TPL::assign('ext_css', $oPage->ext_css);
+        /**
+         * 全局设置
+         */
+        \TPL::assign('title', $act->title);
+        $mpsetting = $this->getCommonSetting($mpid);
+        \TPL::assign('body_ele', $mpsetting->body_ele);
+        \TPL::assign('body_css', $mpsetting->body_css);
+        /**
+         * 记录日志，完成前置活动再次进入的情况不算
+         */
+        $this->model('log')->writeMatterReadLog(
+            $user->vid, 
+            $mpid, 
+            $act->id, 
+            'enroll', 
+            $user->openid,
+            $shareby, 
+            $_SERVER['HTTP_USER_AGENT'], 
+            $this->client_ip()
+        );
+        
+        $this->view_action('/app/enroll/page');
+    }
+    /**
+     * 返回活动页面
+     */
+    public function get_action($mpid, $aid, $page=null, $ek=null)
+    {
+        $params = array();
+        
+        $enrollModel = $this->model('app\enroll');
+        $act = $enrollModel->byId($aid);
+        $params['enroll'] = $act;
+        /**
+         * 当前访问用户的基本信息
+         */
+        $user = $this->getUser($mpid, $act->authapis, null, $act);
+        $params['user'] = $user;
+        /**
+         * 登记活动管理员
+         */
+        $admins = \TMS_APP::model('acl')->enrollReceivers($mpid, $aid);
+        $params['admins'] = $admins;
+        /**
+         * 页面
+         */
+        $oPage = $act->pages[$page];
+        if ($page === 'form' || $oPage->type === 'I') {
+            if ($act->open_lastroll === 'N' && empty($ek))
+                $newForm = true;
+        }
+        $params['page'] = $oPage;
+        /**
+         * 设置页面登记数据 
+         */
+        list($openedek, $record, $statdata) = $this->getPageData($mpid, $act, $ek, $user->openid, $page, $newForm);
+        $params['enrollKey'] = $openedek;
+        $params['record'] = $record;
+        $params['statdata'] = $statdata;
+        
+        return new \ResponseData($params);
     }
     /**
      *
@@ -296,21 +386,61 @@ class enroll extends \member_base {
         empty($mpid) && die('mpid is empty.');
         empty($aid) && die('aid is empty.');
         
-        $mpa = $this->model('mp\mpaccount')->getApis($mpid);
-
         $model = $this->model('app\enroll');
-        
-        $posted = $this->getPostJson();
-        
         $act = $model->byId($aid);
         /**
-         * 当前用户
+         * 当前访问用户的基本信息
          */
-        list($ooid, $mid, $vid) = $this->getVisitorInfo($mpid, $act, null, true, false);
-
-        if ($act->fans_only === 'Y') {
-            if (!$this->model('user/fans')->isFollow($mpid, $ooid))
-                return new \ComplianceError($act->nonfans_alert);
+        $user = $this->getUser($mpid, $act->authapis, null, $act);
+        if (empty($user->fan)) {
+            /**
+             * 非关注用户
+             */
+            $rule = $act->entry_rule->nonfan->enroll;
+        } else {
+            if (isset($user->fan)) {
+                /**
+                 * 关注用户
+                 */
+                $rule = $act->entry_rule->fan->enroll;
+            }
+            if (isset($user->membersInAcl) && !empty($user->members)) {
+                /**
+                 * 认证用户不在白名单中
+                 */
+                $rule = $act->entry_rule->member_outacl->enroll;
+            }
+            if (!empty($user->membersInAcl) || (!isset($user->membersInAcl) && !empty($user->members))) {
+                /**
+                 * 白名单中的认证用户，或者，不限制白名单的认证用户，允许登记
+                 */
+                $rule = 'Y';
+            } 
+        }
+        switch ($rule) {
+            case '$authapi_outacl':
+                $this->gotoOutAcl($mpid, explode(',', $act->authapis)[0]);
+                break;
+            case '$mp_follow':
+                $this->askFollow($mpid, $user->openid);
+                break;
+            case '$authapi_auth':
+                $this->gotoAuth($mpid, $act->authapis, $user->openid, false);
+                break;
+        }
+        /**
+         * 处理提交数据
+         */    
+        $posted = $this->getPostJson();
+        $mid = '';
+        !empty($user->membersInAcl) && $mid = $user->membersInAcl[0]->mid;
+        /**
+         * 包含用户身份信息
+         */
+        if (isset($posted->member)) {
+            $rst = $this->submitMember($mpid, $posted, $user->fan->fid, $mid);
+            if ($rst[0] === false) 
+                return new \ParameterError($rst[1]);
         }
         /**
          * 处理提交数据 
@@ -332,7 +462,7 @@ class enroll extends \member_base {
             /**
              * 插入报名数据
              */
-            $ek = $model->enroll($mpid, $act, $ooid, $vid, $mid);
+            $ek = $model->enroll($mpid, $act, $user->openid, $user->vid, $mid);
             /**
              * 处理自定义信息
              */
@@ -345,7 +475,7 @@ class enroll extends \member_base {
          */
         if (!empty($act->receiver_page)) { 
             $admins = \TMS_APP::model('acl')->enrollReceivers($mpid, $aid);
-            if (false !== ($key = array_search($ooid, $admins)))
+            if (false !== ($key = array_search($user->openid, $admins)))
                 unset($admins[$key]);
             if (!empty($admins)) {
                 $url = 'http://'.$_SERVER['HTTP_HOST']."/rest/app/enroll?mpid=$mpid&aid=$act->id&ek=$ek&page=$act->receiver_page";
@@ -359,6 +489,7 @@ class enroll extends \member_base {
                         "content"=>$txt
                     )
                 );
+                $mpa = $this->model('mp\mpaccount')->getApis($mpid);
                 if ($mpa->mpsrc === 'qy') {
                     $message['touser'] = implode('|', $admins);
                     $this->send_to_qyuser($mpid, $message);
@@ -372,6 +503,28 @@ class enroll extends \member_base {
         }
 
         return new \ResponseData($ek);
+    }
+    /**
+     * 提交信息中包含的用户身份信息
+     */
+    private function submitMember($mpid, $posted, $fid)
+    {
+        /**
+         * 处理用户认证信息
+         */
+        $member = $posted->member;
+        unset($posted->member);
+        $authid = $member->authid;
+        unset($member->authid);
+        $memberModel = $this->model('user/member');
+
+        if ($existentMember = $memberModel->byFanid($fid, 'mid', $authid)) {
+            $rst = $memberModel->modify($mpid, $authid, $existentMember->mid, $member);
+        } else {
+            $rst = $memberModel->create2($mpid, $authid, $fid, $member);
+        }
+        
+        return $rst;
     }
     /**
      * 登记记录点赞 
@@ -624,28 +777,6 @@ class enroll extends \member_base {
         \TPL::assign('enroll', $act);
 
         $this->view_action('/app/enroll/carousel');
-    }
-    /**
-     * 获得当前用户的相关信息
-     *
-     * todo 认证用户信息如何体现？
-     */
-    private function getUserInfo($mpid, $openid)
-    {
-        if ($user = $this->model('user/fans')->byOpenid($mpid, $openid)) {
-
-            $members = $this->model('user/member')->byOpenid($mpid, $openid);
-            foreach ($members as &$member) {
-                if (!empty($member->depts))
-                    $member->depts = $this->model('user/member')->getDepts($member->mid, $member->depts);
-                if (!empty($member->tags))
-                    $member->tags = $this->model('user/member')->getTags($member->mid, $member->tags);
-            }
-
-            $user->members = $members;
-        }
-
-        return $user;
     }
     /**
      * 获得指定坐标对应的地址名称

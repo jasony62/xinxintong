@@ -29,11 +29,11 @@ xxtApp.controller('articleCtrl', ['$scope', '$window', 'http2', function ($scope
     $scope.page = { at: 1, size: 30, toString: function () { return 'page=' + this.at + '&size=' + this.size; } };
     $scope.create = function () {
         http2.get('/rest/mp/matter/article/create', function (rsp) {
-            location.href = '/page/mp/matter/article?id=' + rsp.data.id;
+            location.href = '/rest/mp/matter/article?id=' + rsp.data.id;
         });
     };
     $scope.edit = function (article) {
-        location.href = '/page/mp/matter/article?id=' + article.id;
+        location.href = '/rest/mp/matter/article?id=' + article.id;
     };
     $scope.remove = function (event, article, index) {
         event.preventDefault();

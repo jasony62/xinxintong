@@ -12,20 +12,23 @@ $sql .= ",creater varchar(40) not null default ''"; //accountid/fid
 $sql .= ",creater_name varchar(255) not null default ''"; //from account or fans
 $sql .= ",creater_src char(1)"; //A:accouont|F:fans|M:member
 $sql .= ',create_at int not null';
+$sql .= ",modifier varchar(40) not null default ''"; //accountid/fid
+$sql .= ",modifier_name varchar(255) not null default ''"; //from account or fans
+$sql .= ",modifier_src char(1)"; //A:accouont|F:fans|M:member
 $sql .= ',modify_at int not null';
 $sql .= ",public_visible char(1) not null default 'N'";
 $sql .= ',state tinyint not null default 1'; //0:stop,1:normal
 $sql .= ',title varchar(70) not null';
+$sql .= ',author varchar(16) not null'; // 作者
 $sql .= ',pic text'; // head image.
 $sql .= ",hide_pic char(1) not null default 'N'"; // hide head image in body of article.
 $sql .= ",can_picviewer char(1) not null default 'N'";
 $sql .= ",can_share char(1) not null default 'N'";
 $sql .= ',summary varchar(240) not null';
-$sql .= ',url text';
+$sql .= ',url text'; // 图文消息的原文地址，即点击“阅读原文”后的URL
 $sql .= ',weight int default 0'; // 权重
 $sql .= ",custom_body char(1) not null default 'N'";
 $sql .= ',body text';
-$sql .= ',css text';
 $sql .= ',page_id int not null default 0';
 $sql .= ",access_control char(1) not null default 'N'";
 $sql .= ",authapis text";
@@ -37,6 +40,8 @@ $sql .= ",read_num int not null default 0"; // 阅读数
 $sql .= ",score int not null default 0"; // 点赞数
 $sql .= ",remark_num int not null default 0"; // 评论数
 $sql .= ",has_attachment char(1) not null default 'N'";
+$sql .= ",media_id varchar(256) not null default ''";
+$sql .= ",upload_at int not null defalut 0";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');

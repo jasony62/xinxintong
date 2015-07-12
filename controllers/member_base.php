@@ -57,7 +57,97 @@ class member_base extends xxt_base {
             }
         }
         return $members;
-    } 
+    }
+    /**
+     *
+     */
+    protected function getMembersByMpid($mpid, $aAuthapis=null, $openid=null)
+    {
+        if (empty($aAuthapis)) {
+            $authapis = $this->model('user/authapi')->byMpid($mpid, 'Y', 'N');
+            if ($empty($authapis)) return false;
+            foreach ($authapis as $k => $v) $aAuthapis[] = $v->authid;
+        } else if (is_string($aAuthapis)) {
+            $aAuthapis = explode(',', $aAuthapis);
+        }
+        if (!empty($openid)) {
+            $authids = implode(',', $aAuthapis);
+            /**
+             * 优先根据openid判断用户的身份
+             */
+            $q = array(
+                'm.mid,m.fid,m.email_verified,m.authapi_id,m.authed_identity,m.depts,m.tags',
+                'xxt_member m,xxt_fans f',
+                "m.forbidden='N' and m.authapi_id in($authids) and m.fid=f.fid and f.openid='$openid'"
+            );
+            $members = $this->model()->query_objs_ss($q);
+        } else {
+            $members = $this->getCookieMember($mpid, $aAuthapis);
+        }
+        
+        return $members;
+    }
+    /**
+     * 跳转到用户认证页
+     */
+    protected function gotoAuth($mpid, $aAuthapis, $openid, $targetUrl = null)
+    {
+        /**
+         * 如果不是注册用户，要求先进行认证
+         */
+        if (count($aAuthapis) === 1) {
+            $authapi = $this->model('user/authapi')->byId($aAuthapis[0], 'authid,url');
+            strpos($authapi->url, 'http') === false && $authUrl = 'http://' . $_SERVER['HTTP_HOST'];
+            $authUrl .= $authapi->url;
+            $authUrl .= "?mpid=$mpid";
+            !empty($openid) && $authUrl .= "&openid=$openid";
+            $authUrl .= "&authid=".$aAuthapis[0];
+        } else {
+            /**
+             * 让用户选择通过那个认证接口进行认证
+             */
+            $authUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/rest/member/authoptions';
+            $authUrl .= "?mpid=$mpid";
+            !empty($openid) && $authUrl .= "&openid=$ooid";
+            $authUrl .= "&authids=".implode(',',$aAuthapis);
+        }
+        /**
+         * 返回身份认证页
+         */
+        if ($targetUrl === false) {
+            /**
+             * 直接返回认证地址
+             * todo angular无法自动执行初始化，所以只能返回URL，由前端加载页面
+             */
+            $protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
+            header($protocol.' 401 Unauthorized');
+            die("$authUrl");       
+        } else {
+            /**
+             * 跳转到认证接口
+             */
+            if (empty($targetUrl)) $targetUrl = $this->getRequestUrl();
+            /**
+             * 将跳转信息保存在cookie中
+             */
+            $targetUrl = $this->model()->encrypt($targetUrl, 'ENCODE', $mpid);
+            $this->mySetCookie("_{$mpid}_mauth_t", $targetUrl, time()+300);
+            $this->redirect($authUrl);
+        }
+    }
+    /**
+     *
+     */
+    protected function gotoOutAcl($mpid, $authid)
+    {
+        $protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
+        header($protocol.' 401 Unauthorized');
+        $r = $this->model('user/authapi')->getAclStatement($authid, $mpid); 
+        TPL::assign('title', '访问控制未通过');
+        TPL::assign('body', $r);
+        TPL::output('error');
+        exit;
+    }
     /**
      * 用户身份认证和绑定
      * 
@@ -87,24 +177,11 @@ class member_base extends xxt_base {
      * 没有cookie就重新认真
      *
      */
-    protected function authenticate($runningMpid, $aAuthapis, $targetUrl=null, $ooid=null) 
+    protected function authenticate($runningMpid, $aAuthapis, $targetUrl=null, $openid=null) 
     {
         empty($aAuthapis) && die('aAuthapis is emtpy.');
 
-        if (!empty($ooid)) {
-            /**
-             * 优先根据通过OAuth获得的openid判断用户的身份
-             */
-            $authids = implode(',', $aAuthapis);
-            $q = array(
-                'm.mid,m.fid,m.email_verified,m.authapi_id,m.authed_identity,m.depts,m.tags',
-                'xxt_member m,xxt_fans f',
-                "m.forbidden='N' and m.authapi_id in($authids) and m.fid=f.fid and f.openid='$ooid'"
-            );
-            $members = $this->model()->query_objs_ss($q);
-        } else {
-            $members = $this->getCookieMember($runningMpid, $aAuthapis);
-        }
+        $members = $this->getMembersByMpid($runningMpid, $aAuthapis, $openid);
         /**
          * 获得用户身份信息
          */
@@ -112,44 +189,7 @@ class member_base extends xxt_base {
         /**
          * 如果不是注册用户，要求先进行认证
          */
-        if (count($aAuthapis) === 1) {
-            $authapi = $this->model('user/authapi')->byId($aAuthapis[0], 'authid,url');
-            $authUrl = $authapi->url;
-            $authUrl .= "?mpid=$runningMpid";
-            !empty($ooid) && $authUrl .= "&openid=$ooid";
-            $authUrl .= "&authid=".$aAuthapis[0];
-        } else {
-            /**
-             * 让用户选择通过那个认证接口进行认证
-             */
-            $authUrl = '/rest/member/authoptions';
-            $authUrl .= "?mpid=$runningMpid";
-            !empty($ooid) && $authUrl .= "&openid=$ooid";
-            $authUrl .= "&authids=".implode(',',$aAuthapis);
-        }
-        /**
-         * 返回身份认证页
-         */
-        if ($targetUrl === false) {
-            /**
-             * 直接返回认证地址
-             * todo angular无法自动执行初始化，所以只能返回URL，由前端加载页面
-             */
-            $protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
-            header($protocol.' 401 Unauthorized');
-            die("$authUrl");       
-        } else {
-            /**
-             * 跳转到认证接口
-             */
-            if (empty($targetUrl)) $targetUrl = $this->getRequestUrl();
-            /**
-             * 将跳转信息保存在cookie中
-             */
-            $targetUrl = $this->model()->encrypt($targetUrl, 'ENCODE', $runningMpid);
-            $this->mySetCookie("_{$runningMpid}_mauth_t", $targetUrl, time()+300);
-            $this->redirect($authUrl);
-        }
+        $this->gotoAuth($runningMpid, $aAuthapis, $openid, $targetUrl);
     }
     /**
      * 访问控制设置
@@ -186,15 +226,8 @@ class member_base extends xxt_base {
                 $passed = true;
                 break;
             }
-
         }
-        if (!$passed) {
-            $r = $this->model('user/authapi')->getAclStatement($member->authapi_id, $runningMpid); 
-            TPL::assign('title', '访问控制未通过');
-            TPL::assign('body', $r);
-            TPL::output('error');
-            exit;
-        }
+        !$passed && $this->gotoOutAcl($runningMpid, $member->authapi_id);
 
         return $member;
     }
@@ -356,6 +389,8 @@ class member_base extends xxt_base {
                 empty($fea->follow_ele) && !empty($pfea->follow_ele) && $fea->follow_ele = $pfea->follow_ele;
                 empty($fea->follow_css) && !empty($pfea->follow_css) && $fea->follow_css = $pfea->follow_css;
             }
+            $protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
+            header($protocol.' 401 Unauthorized');
             TPL::assign('follow_ele', $fea->follow_ele);
             TPL::assign('follow_css', $fea->follow_css);
             TPL::output('follow');

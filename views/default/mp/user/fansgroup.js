@@ -11,7 +11,7 @@ xxtApp.controller('groupCtrl',['$scope','http2', function($scope,http2){
     $scope.searchFans = function() {
         if ($scope.editing.id === undefined) return;
         var url;
-        url = '/rest/mp/user/fans?gid='+$scope.editing.id;
+        url = '/rest/mp/user/fans/get?gid='+$scope.editing.id;
         url += '&page='+$scope.page.at+'&size='+$scope.page.size;
         http2.get(url, function(rsp){
             $scope.fans = rsp.data[0];

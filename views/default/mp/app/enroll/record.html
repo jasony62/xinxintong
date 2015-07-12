@@ -7,14 +7,20 @@
             <div class="input-group">
                 <input type='text' class='form-control' ng-model='page.keyword' placeholder='搜索条件' ng-keyup='keywordKeyup($event)'>
                 <span class="input-group-btn">
-                    <button class="btn btn-default" type="button" ng-click='doSearch(1)'><span class="glyphicon glyphicon-search"></span></button>
+                    <button class="btn btn-default" type="button" ng-click='doSearch(1)'>
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
                 </span>
             </div>
         </div>
         <div class='form-group'>
-            <select class='form-control' title='登记轮次' ng-if='editing.rounds' ng-model='page.byRound' ng-options='r.rid as r.title for r in editing.rounds' ng-change='doSearch(1)'>
+            <select class='form-control' title='登记轮次' ng-if='editing.rounds' ng-model='page.byRound' ng-options='r.rid as r.title for r in editing.rounds'
+            ng-change='doSearch(1)'>
                 <option value=>全部</option>
             </select>
+        </div>
+        <div class='form-group'>
+            <combox title='标签' evt-prefix='search-tag' readonly='true' existing='page.tags' options='editing.tags'></combox>
         </div>
         <div class='form-group pull-right' style='width:120px'>
             <div class='input-group'>
@@ -35,7 +41,7 @@
                     <th style='width:100px' ng-if="editing.fans_only==='Y'||editing.wxyx_only==='Y'">昵称</th>
                     <th ng-repeat="c in cols" title="{{c.ops}}">{{c.title}}</th>
                     <th style='width:140px' ng-if="editing.can_signin==='Y'">签到时间</th>
-                    <th ng-if="editing.can_lottery==='Y'">标签</th>
+                    <th>标签</th>
                     <th style='width:60px'>点赞</th>
                     <th style='width:60px'>评论数</th>
                     <th style='width:72px'>操作</th>
@@ -44,7 +50,9 @@
             <tbody>
                 <tr ng-repeat='r in roll' class='roll'>
                     <td>{{(r.enroll_at*1000)|date:'yyyy-MM-dd HH:mm'}}</td>
-                    <td ng-if="editing.fans_only==='Y'||editing.wxyx_only==='Y'"><a href='#' userpopover xxt-fid='{{r.fid}}' ng-click='viewUser(r)'>{{r.nickname}}</a></td>
+                    <td ng-if="editing.fans_only==='Y'||editing.wxyx_only==='Y'">
+                        <a href='#' userpopover xxt-fid='{{r.fid}}' ng-click='viewUser(r)'>{{r.nickname}}</a>
+                    </td>
                     <td ng-repeat="c in cols">
                         <span ng-if="c.type!=='img'">{{r.data[c.id]}}</span>
                         <span ng-if="c.type==='img'" ng-init="imgs=r.data[c.id].split(',')">
@@ -52,7 +60,7 @@
                         </span>
                     </td>
                     <td ng-if="editing.can_signin==='Y'">{{r.signin_at>0 ? ((r.signin_at*1000)|date:'yyyy-MM-dd HH:mm') : ''}}</td>
-                    <td ng-if="editing.can_lottery==='Y'">{{r.tags}}</td>
+                    <td>{{r.tags}}</td>
                     <td>{{r.score}}</td>
                     <td>{{r.remark_num}}</td>
                     <td>
@@ -69,16 +77,34 @@
     </div>
     <div class='form-group form-inline'>
         <button class='btn btn-danger' ng-click='cleanAll()'>清空记录</button>
-        <button class='btn btn-default' ng-click='importRoll()'>导入用户</button>
-        <button class='btn btn-default' ng-click='importRoll2()'>从活动导入关注用户</button>
-        <button class='btn btn-default' ng-click='addRoll()'>手工登记</button>
-        <span>总数：</span><span>{{page.total}}</span>
-        <pagination style='margin:0;cursor:pointer;vertical-align:bottom' ng-if='page.total>page.size' class='pull-right' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
+        <div class="btn-group">
+            <button type="button" class="btn btn-default">添加用户记录</button>
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <a href="#" ng-click='importUser()'>认证用户</a>
+                </li>
+                <li>
+                    <a href="#" ng-click='importApp()'>其他活动</a>
+                </li>
+                <li>
+                    <a href="#" ng-click='addRecord()'>手工添加</a>
+                </li>
+            </ul>
+        </div>
+        <pushnotify class='btn btn-primary' single-matter='Y' matter-types='notifyMatterTypes'>发送信息</pushnotify>
+        <span>总数：{{page.total}}</span>
+        <pagination style='margin:0;cursor:pointer;vertical-align:bottom' ng-if='page.total>page.size' class='pull-right'
+        boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at"
+        previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
     </div>
     <script type="text/ng-template" id="editor.html">
         <div class="modal-header">
             <button class="close" type="button" ng-click="cancel()">×</button>
-            <h4 class="modal-title">登记信息</h4>
+            <h5 class="modal-title">登记记录</h5>
         </div>
         <div class="modal-body">
             <form class="form-horizontal roll-editor">
@@ -119,13 +145,25 @@
             </form>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-primary pull-left" ng-click="ok()">保存</button>
+            <button class="btn btn-primary" ng-click="ok()">保存</button>
         </div>
     </script>
-    <script type="text/ng-template" id="importActivityRoll.html">
+    <script type="text/ng-template" id="userPicker.html">
         <div class="modal-header">
             <button class="close" type="button" ng-click="cancel()">×</button>
-            <h4 class="modal-title">导入关注用户</h4>
+            <h4 class="modal-title">选择认证用户</h5>
+        </div>
+        <div class="modal-body">
+            <userpicker user-set='userSet' user-config='userConfig'></userpicker>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">确定</button>
+        </div>
+    </script>
+    <script type="text/ng-template" id="importApp.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title">导入用户</h5>
         </div>
         <div class="modal-body clearfix">
             <div class='col-md-6'>

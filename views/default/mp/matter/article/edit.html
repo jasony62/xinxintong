@@ -1,0 +1,155 @@
+<div>
+    <div class='form-inline form-group' style='text-align:right'>
+        <button class='btn btn-primary' ng-if="mpaccount.mpsrc==='wx'" ng-click='upload2Mp()'>上传到腾讯</button>
+        <pushmatter class='btn btn-primary' matter-id='{{editing.id}}' matter-type='article'>发送给指定用户</pushmatter>
+        <div class='qrcode form-group' ng-controller='SendmeController'>
+            <button class='btn btn-primary' data-toggle="popover" data-placement='left' ng-click="qrcode({type:'article',id:editing.id},$event)">发送给我</button>
+        </div>
+    </div>
+    <div class='form-horizontal'>
+        <div class='form-group' ng-show="editing.creater_src!=='A'">
+            <label class='col-md-2 control-label'>审核通过</label>
+            <div class='col-md-10'>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='editing.approved' ng-change="update('approved');">是</label>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>URL</label>
+            <div class='col-md-10'>
+                <p class='form-control-static'>{{entryUrl}}</p>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>标题</label>
+            <div class='col-md-10'>
+                <input type='text' class='form-control' ng-model='editing.title' tms-auto-update tms-wait=1000 tms-update="update('title');">
+                <div class='help-block'>最多35个汉字，70个英文字符</div>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>作者</label>
+            <div class='col-md-10'>
+                <input type='text' class='form-control' ng-model='editing.author' tms-auto-update tms-wait=1000 tms-update="update('author');">
+                <div class='help-block'>最多8个汉字或英文字符</div>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>头图</label>
+            <div class='col-md-10'>
+                <div style="width:182px;border:1px solid #CCC">
+                    <div style="height:100px;text-align:center;padding-top:32px" ng-if="editing.pic==''">
+                        <button class='btn btn-default' ng-click='setPic();'>
+                            <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                    </div>
+                    <div style='position:relative' ng-if="editing.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                        <img name='pic' ng-src="{{editing.pic}}" width='180px' />
+                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                            <span class='glyphicon glyphicon-picture'></span>
+                        </button>
+                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                            <span class='glyphicon glyphicon-trash'></span>
+                        </button>
+                    </div>
+                </div>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='editing.hide_pic' ng-change="update('hide_pic');">正文中不显示头图</label>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>摘要</label>
+            <div class='col-md-10'>
+                <textarea class='form-control' ng-model='editing.summary' tms-auto-update tms-wait=1000 tms-update="update('summary');"></textarea>
+                <p class='help-block'>最多120个汉字，240个英文字符</p>
+            </div>
+        </div>
+        <div class='form-group' ng-show="editing.custom_body==='N'">
+            <label class='col-md-2 control-label'>正文</label>
+            <div class='col-md-10'>
+                <div>
+                    <button class='btn' ng-click="update('body')" ng-disabled='!bodyModified' ng-class="bodyModified?'btn-success':'btn-default'">保存</button>
+                    <button class='btn btn-default' ng-click="embedMatter()">添加素材</button>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='editing.can_picviewer' ng-change="update('can_picviewer');">支持图片缩放浏览</label>
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='editing.custom_body' ng-change="update('custom_body');">定制页面</label>
+                </div>
+                <tinymce content='editing.body' contenteditable='bodyEditable' change="onBodyChange()" id='body1'></tinymce>
+            </div>
+        </div>
+        <div class='form-group' ng-if="editing.custom_body==='Y'">
+            <label class='col-md-2 control-label'>正文</label>
+            <div class='col-md-10'>
+                <button class='btn btn-success' ng-click='gotoCode()'>编辑页面</button>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='editing.custom_body' ng-change="update('custom_body');">定制页面</label>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>原文链接(可选)</label>
+            <div class='col-md-10'>
+                <textarea class='form-control' ng-model='editing.url' tms-auto-update tms-wait=1000 tms-update="update('url');"></textarea>
+            </div>
+        </div>
+        <div class='form-group' ng-show="editing.custom_body==='N'">
+            <label class='col-md-2 control-label'>附件（可选）</label>
+            <div class='col-md-10'>
+                <button id='addAttachment' class='btn btn-default btn-sm'>
+                    <span class='glyphicon glyphicon-plus'></span>
+                </button>
+                <ul class='list-group' style='margin-bottom:0'>
+                    <li class='list-group-item' ng-repeat='a in editing.attachments' ng-mouseenter="enter=true" ng-mouseleave="enter=false">
+                        <span>
+                            <a ng-href='{{downloadUrl(a)}}' target='_blank'>{{a.name}}</a>
+                        </span>
+                        <button class='btn btn-default btn-xs pull-right' ng-if='enter' ng-click='delAttachment($index,a)'>
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>标签（可选）</label>
+            <div class='col-md-10'>
+                <combox evt-prefix='tag' prop='title' existing='editing.tags' options='tags'></combox>
+            </div>
+        </div>
+        <div class='form-group' ng-controller='setChannelCtrl' ng-init="matterType='article'">
+            <label class='col-md-2 control-label'>频道（可选）</label>
+            <div class='col-md-10'>
+                <combox evt-prefix='channel' readonly=true prop='title' existing='editing.channels' options='channels'></combox>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='channelsFromParent' ng-change='updateChannelSrc()'>来源于父账号</label>
+            </div>
+        </div>
+        <div class='form-group' ng-if="features.matter_visible_to_creater==='Y'">
+            <label class='col-md-2 control-label'>可见范围</label>
+            <div class='col-md-10'>
+                <div class='checkbox'>
+                    <label>
+                        <input type='checkbox' ng-disabled="editing.creater!==editing.uid" ng-model='editing.public_visible' ng-true-value='Y' ng-false-value='N'
+                        ng-change="update('public_visible')">设置为公开可见</label>
+                </div>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>其他设置</label>
+            <div class='col-md-10'>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='editing.can_share' ng-change="update('can_share');">可以分享</label>
+            </div>
+        </div>
+        <accesscontrol mpid='{{mpaccount.mpid}}' obj='editing' prop-acl='acl' prop-access='access_control' prop-apis='authapis'
+        update-access-control="update('access_control')" update-authapis="update('authapis')" change-acl-url='/rest/mp/matter/article/setAcl?id={{editing.id}}'
+        remove-acl-url='/rest/mp/matter/article/removeAcl' label-span='2' control-span='10'></accesscontrol>
+        <div class='alert alert-info'>
+            <span>创建人：{{editing.creater_name}}，</span>
+            <span>创建于：{{editing.create_at*1000|date:'yyyy-MM-dd HH:mm'}}，</span>
+            <span>修改人：{{editing.modifier_name}}，</span>
+            <span>最后一次修改：{{editing.modify_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
+        </div>
+    </div>
+    <div mattersgallery style='display:none' matter-url='/rest/mp/matter' matter-types='innerlinkTypes' has-parent='hasParent'></div>
+    <div picgallery style='display:none' url='{{picGalleryUrl}}'></div>
+</div>

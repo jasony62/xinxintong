@@ -1,27 +1,30 @@
 <!DOCTYPE html>
 <html>
+    
     <head>
-        <meta charset="utf-8"> 
-        <title>关注</title> 
-        <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">  
+        <meta charset="utf-8">
+        <title>关注</title>
+        <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
         <style>
             *{margin:0;padding:0}
             *,:before,:after{box-sizing:border-box}
-            body{height:100%;font-family:Microsoft Yahei,Arial}
-        </style> 
-        <?php $css=TPL::val('follow_css'); if (!empty($css)) {?>
-        <style>
-            <?php echo $css;?>
-        </style> 
+            body{height:100%;font-family:Microsoft Yahei,Arial;background-color: white}
+        </style>
+        <?php $css=TPL::val( 'follow_css'); if (!empty($css)) {?>
+            <style>
+                <?php echo $css;?>
+            </style>
         <?php }?>
     </head>
+    
     <body>
-        <?php echo TPL::val('follow_ele');?>
-        <?php if (defined('SAE_MYSQL_HOST_M')) { ?>
-        <script type="text/javascript">
-            var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
-            document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F40ec59c933400d729f57930675635edb' type='text/javascript'%3E%3C/script%3E"));
-        </script>
+        <?php echo TPL::val( 'follow_ele');?>
+        <?php if (defined( 'SAE_MYSQL_HOST_M')) { ?>
+            <script type="text/javascript">
+                var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+                document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F40ec59c933400d729f57930675635edb' type='text/javascript'%3E%3C/script%3E"));
+            </script>
         <?php }?>
     </body>
+
 </html>

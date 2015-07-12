@@ -242,46 +242,40 @@ class resumableSae {
     }
 }
 /*
-*
-*/
+ *
+ */
 class article extends matter_ctrl {
-    /*
-    *
-    */
-    public function get_access_rule() 
+    /**
+     * 返回单图文视图
+     */
+    public function index_action() 
     {
-        $rule_action['rule_type'] = 'white';
-        $rule_action['actions'][] = 'hello';
-        return $rule_action;
+       $this->view_action('/mp/matter/article');
     }
     /**
-     * 判断当前的图文是否允许编辑
+     * 返回单图文视图
      */
-    public function view_action($path)
+    public function edit_action() 
     {
-        if (isset($_GET['id'])) {
-            if ($creater = $this->model('matter\article')->byId($_GET['id'], 'creater'))
-                \TPL::assign('creater', $creater);
-        } else {
-            \TPL::assign('mpaccount', $this->getMpaccount());
-        }
-        parent::view_action($path);
-    }
-    /**
-     * 获得可见的图文列表
-     *
-     * $id article's id
-     * $src p:从父账号检索图文
-     * $id
-     * $tag
-     * $page
-     * $size
-     * $order
-     *
+       $this->view_action('/mp/matter/article');
+    }/**
+     * 返回单图文视图
      */
-    public function index_action($id=null, $page=1, $size=30) 
+    public function read_action() 
     {
-       return $this->get_action($id, $page, $size);
+       $this->view_action('/mp/matter/article');
+    }/**
+     * 返回单图文视图
+     */
+    public function stat_action() 
+    {
+       $this->view_action('/mp/matter/article');
+    }/**
+     * 返回单图文视图
+     */
+    public function remark_action() 
+    {
+       $this->view_action('/mp/matter/article');
     }
     /**
      * 获得可见的图文列表
@@ -428,7 +422,7 @@ class article extends matter_ctrl {
     /**
      * 图文的阅读情况
      */
-    public function read_action($id)
+    public function readGet_action($id)
     {
         $model = $this->model('matter\article');
 
@@ -441,7 +435,7 @@ class article extends matter_ctrl {
      *
      * $id article's id
      */
-    public function remarks_action($id, $page=1, $size=30)
+    public function remarkGet_action($id, $page=1, $size=30)
     {
         $range = array(
             'p'=>$page, 
@@ -472,7 +466,7 @@ class article extends matter_ctrl {
     /**
      * 图文的统计数据
      */
-    public function stat_action($id)
+    public function statGet_action($id)
     {
         $model = $this->model('matter\article');
         $article = $model->byId($id);
@@ -499,12 +493,16 @@ class article extends matter_ctrl {
         $d['creater_src'] = 'A';
         $d['creater_name'] = \TMS_CLIENT::account()->nickname;
         $d['create_at'] = $current;
+        $d['modifier'] = \TMS_CLIENT::get_client_uid();
+        $d['modifier_src'] = 'A';
+        $d['modifier_name'] = \TMS_CLIENT::account()->nickname;
         $d['modify_at'] = $current;
         $d['title'] = '新单图文';
-        $d['pic'] = '';
+        $d['author'] = $d['creater_name'];
+        $d['pic'] = ''; // 头图
         $d['hide_pic'] = 'N';
         $d['summary'] = '';
-        $d['url'] = '';
+        $d['url'] = ''; // 原文链接
         $d['body'] = '';
         $id = $this->model()->insert('xxt_article', $d);
 
@@ -526,6 +524,9 @@ class article extends matter_ctrl {
 
         isset($nv['body']) && $nv['body'] = $this->model()->escape(urldecode($nv['body']));
 
+        $nv['modifier'] = \TMS_CLIENT::get_client_uid();
+        $nv['modifier_src'] = 'A';
+        $nv['modifier_name'] = \TMS_CLIENT::account()->nickname;
         $nv['modify_at'] = time();
 
         $rst = $this->model()->update(
@@ -537,7 +538,43 @@ class article extends matter_ctrl {
         return new \ResponseData($rst);
     }
     /**
-     *
+     * 上传单图文到公众号后台
+     */
+    public function upload2Mp_action($id, $mediaId=null)
+    {
+        $article = $this->model('matter\article')->forWxGroupPush($this->mpid, $id);
+        
+        if (empty($mediaId)) {
+            $rsp = $this->model('mpproxy/wx', $this->mpid)->materialAddNews($article);
+            if ($rsp[0] === false)
+                return new \ResponseError($rsp[1]);
+            
+            $data = array(
+                'media_id' => $rsp[1], 
+                'uploaded_at' => time()
+            );
+        } else {
+            $article = $article['news']['articles'][0];
+            $rsp = $this->model('mpproxy/wx', $this->mpid)->materialUpdateNews($mediaId, $article);
+            if ($rsp[0] === false)
+                return new \ResponseError($rsp[1]);
+            
+            $data = array(
+                'uploaded_at' => time()
+            );
+        }
+        
+        $pmpid = $this->getParentMpid();
+        $rst = $this->model()->update(
+            'xxt_article', 
+            $data,
+            "(mpid='$this->mpid' or mpid='$pmpid') and id='$id'"
+        );
+        
+        return new \ResponseData($data);
+    }
+    /**
+     * 上传附件
      */
     public function upload_action($articleid)
     {
@@ -615,8 +652,6 @@ class article extends matter_ctrl {
     }
     /**
      * 删除一个单图文
-     * 
-     * 
      */
     public function remove_action($id)
     {

@@ -24,6 +24,7 @@ $sql .= ",fans_only char(1) not null default 'Y'"; //仅限关注用户登记
 $sql .= ",fans_enter_only char(1) not null default 'N'"; //仅限关注用户进入
 $sql .= ",access_control char(1) not null default 'N'";
 $sql .= ",authapis text";
+$sql .= ",entry_rule text"; // 参与规则
 $sql .= ',success_matter_type varchar(14)';
 $sql .= ',success_matter_id varchar(128)';
 $sql .= ',failure_matter_type varchar(14)';

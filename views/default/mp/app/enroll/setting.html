@@ -65,7 +65,7 @@
                 <label class='col-md-2 control-label'>开始时间（可选）</label>
                 <div class='col-md-10 form-inline'>
                     <tms-datepicker tms-title='开始时间' tms-date='editing.start_at' tms-state='start_at'></tms-datepicker>
-                    <select title='进入页面' class='form-control' ng-model='editing.before_start_page' ng-options='pname as page.title for (pname, page) in editing.pages' ng-change="update( 'receiver_page') ">
+                    <select title='进入页面' class='form-control' ng-model='editing.before_start_page' ng-options='pname as page.title for (pname, page) in editing.pages' ng-change="update('before_start_page')">
                         <option value=''></option>
                     </select>
                 </div>
@@ -74,7 +74,7 @@
                 <label class='col-md-2 control-label'>结束时间（可选）</label>
                 <div class='col-md-10 form-inline'>
                     <tms-datepicker tms-title='结束时间' tms-date='editing.end_at' tms-state='end_at'></tms-datepicker>
-                    <select title='进入页面' class='form-control' ng-model='editing.after_end_page' ng-options='pname as page.title for (pname, page) in editing.pages' ng-change="update( 'receiver_page') ">
+                    <select title='进入页面' class='form-control' ng-model='editing.after_end_page' ng-options='pname as page.title for (pname, page) in editing.pages' ng-change="update('after_end_page')">
                         <option value=''></option>
                     </select>
                 </div>

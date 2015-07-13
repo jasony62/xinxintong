@@ -41,12 +41,6 @@ class enroll extends \member_base {
                 $member = $this->accessControl($mpid, $act->id, $act->authapis, $ooid, $act, $myUrl);
             } else {
                 $member = $this->accessControl($mpid, $act->id, $act->authapis, $ooid, $act, false);
-                /*$aAuthapis = explode(',', $act->authapis);
-                $members = $this->getCookieMember($mpid, $aAuthapis);
-                if (empty($members)) {
-                    die('unauthenticated! can not get current user info.');
-                }
-                $member = $members[0];*/
             }
             $mid = $member->mid;
         }
@@ -156,6 +150,38 @@ class enroll extends \member_base {
     {
         empty($mpid) && $this->outputError('没有指定当前公众号的ID');
         empty($aid) && $this->outputError('登记活动ID为空');
+        /**
+         * 判断活动的开始结束时间
+         */
+        $enrollModel = $this->model('app\enroll');
+        $act = $enrollModel->byId($aid);
+        $tipPage = false;
+        $current = time();
+        if ($act->start_at != 0 && !empty($act->before_start_page) && $current < $act->start_at) {
+            /**
+             * 活动没有开始
+             */
+            $tipPage = $act->before_start_page;
+        } else if ($act->end_at != 0 && !empty($act->after_end_page) && $current > $act->end_at) {
+            /**
+             * 活动已经结束
+             */
+            $tipPage = $act->after_end_page;
+        }
+        if ($tipPage !== false) {
+            $oPage = $act->pages[$tipPage];
+            \TPL::assign('page', $oPage->name);
+            !empty($oPage->html) && \TPL::assign('extra_html', $oPage->html);
+            !empty($oPage->css) && \TPL::assign('extra_css', $oPage->css);
+            !empty($oPage->js) && \TPL::assign('extra_js', $oPage->js);
+            !empty($oPage->ext_js) && \TPL::assign('ext_js', $oPage->ext_js);
+            !empty($oPage->ext_css) && \TPL::assign('ext_css', $oPage->ext_css);
+            \TPL::assign('title', $act->title);
+            $mpsetting = $this->getCommonSetting($mpid);
+            \TPL::assign('body_ele', $mpsetting->body_ele);
+            \TPL::assign('body_css', $mpsetting->body_css);
+            $this->view_action('/app/enroll/page');
+        }
         /**
          * 获得当前访问用户
          */

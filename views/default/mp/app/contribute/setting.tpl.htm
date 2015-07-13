@@ -62,11 +62,11 @@
         <div class='form-group'>
             <label class='col-md-2 control-label'>投稿人指定频道</label>
             <div class='col-md-6'>
-                <combox evt-prefix='sub-channel' readonly=true prop='title' existing='editing.params.subChannels' options='channels'></combox>
+                <combox evt-prefix='sub-channel' readonly=true prop='title' existing='editing.subChannels' options='channels'></combox>
             </div>
             <div class='col-md-4'>
                 <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='initChannelsFromParent' ng-change='updateInitChannelSrc()'>来源于父账号</label>
+                    <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='subChannelsFromParent' ng-change='updateSubChannelSrc()'>来源于父账号</label>
             </div>
         </div>
         <accesscontrol mpid='{{mpid}}' obj='editing' prop-access='canSetInitiator' prop-acl='initiator' label-of-list='指定投稿人' change-acl-url='/rest/mp/app/contribute/setUser?cid={{editing.id}}&role=I'

@@ -386,7 +386,7 @@ class fans extends \mp\mp_controller {
         /**
          * 更新公众平台上的数据
          */
-        $mpproxy = $this->model('mpproxy/'.$mpa->mpsrc);
+        $mpproxy = $this->model('mpproxy/'.$mpa->mpsrc, $this->mpid);
         $rst = $mpproxy->groupsUpdate($group);
         if ($rst[0] === false)
             return new \ResponseError($rst[1]);
@@ -413,7 +413,7 @@ class fans extends \mp\mp_controller {
         /**
          * 删除公众平台数据
          */
-        $mpproxy = $this->model('mpproxy/'.$mpa->mpsrc);
+        $mpproxy = $this->model('mpproxy/'.$mpa->mpsrc, $this->mpid);
         $rst = $mpproxy->groupsDelete($group);
         if ($rst[0] === false)
             return new \ResponseError($rst[1]);

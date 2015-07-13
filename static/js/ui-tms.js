@@ -93,7 +93,7 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
 }]).directive('combox', function () {
     return {
         restrict: 'EA',
-        scope: { disabled:'@', readonly: '@', retainState: '@', evtPrefix: '@', prop: '@', existing: '=', options: '=', state: '@' },
+        scope: { disabled: '@', readonly: '@', retainState: '@', evtPrefix: '@', prop: '@', existing: '=', options: '=', state: '@' },
         controller: 'ComboxController',
         templateUrl: function () {
             return '/static/template/combox.html?_=2';
@@ -201,57 +201,42 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
         controller: 'NoticeBoxController',
         replace: true
     };
-}]).controller('tmsModalDatepickerInstCtrl', ['$scope', '$modalInstance', 'date', function ($scope, $modalInstance, $date) {
-    $scope.years = [2014, 2015, 2016];
-    $scope.months = [];
-    $scope.days = [];
-    for (var i = 1; i <= 12; i++)
-        $scope.months.push(i);
-    for (var i = 1; i <= 31; i++)
-        $scope.days.push(i);
-    $scope.date = $date;
-    $scope.persist = angular.copy($date);
-    $scope.ok = function () {
-        if (!angular.equals($scope.date, $scope.persist))
-            $modalInstance.close();
-        else
-            $modalInstance.dismiss('cancel');
-    };
-    $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
-    };
-}])
-    .controller('tmsDatepickerCtrl', ['$scope', '$modal', function ($scope, $modal) {
-    $scope.open = function () {
-        $modal.open({
-            templateUrl: 'tmsModalDatepicker.html',
-            controller: 'tmsModalDatepickerInstCtrl',
-            backdrop: 'static',
-            size: 'sm',
-            resolve: {
-                date: function () {
-                    return $scope.date;
-                }
-            }
-        }).result.then(function (result) {
-            $scope.$emit('xxt.tms-datepicker.change');
-        }, function () {
-            });
-    };
-}])
-    .directive('tmsDatepicker', function () {
-    var link = function (scope, element, attrs) {
-    };
+}]).directive('tmsDatepicker', function () {
     return {
         restrict: 'EA',
-        scope: { date: '=tmsDate', title: '@tmsTitle' },
+        scope: { date: '=tmsDate', title: '@tmsTitle', state: '@tmsState' },
         templateUrl: '/static/template/datepicker.html',
-        controller: 'tmsDatepickerCtrl',
-        replace: true,
-        link: link
+        controller: ['$scope', '$modal', function ($scope, $modal) {
+            $scope.open = function () {
+                $modal.open({
+                    templateUrl: 'tmsModalDatepicker.html',
+                    controller: ['$scope', '$modalInstance', 'date', function ($scope, $mi, date) {
+                        $scope.years = [2015, 2016, 2017];
+                        $scope.months = [];
+                        $scope.days = [];
+                        for (var i = 1; i <= 12; i++)
+                            $scope.months.push(i);
+                        for (var i = 1; i <= 31; i++)
+                            $scope.days.push(i);
+                        $scope.date = {};
+                        $scope.ok = function () { $mi.close($scope.date); };
+                        $scope.cancel = function () { $mi.dismiss('cancel'); };
+                    }],
+                    backdrop: 'static',
+                    size: 'sm',
+                    resolve: {
+                        date: function () { return $scope.date; }
+                    }
+                }).result.then(function (result) {
+                    var d = Date.parse(result.year + '/' + result.month + '/' + result.mday) / 1000;
+                    $scope.date = d;
+                    $scope.$emit('xxt.tms-datepicker.change', $scope.state);
+                });
+            };
+        }],
+        replace: true
     };
-})
-    .directive('tmsAutoUpdate', function () {
+}).directive('tmsAutoUpdate', function () {
     var link = function (scope, element, attrs) {
         var fnPending = null;
         var onInput = function () {
@@ -269,8 +254,7 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
         },
         link: link,
     };
-}).
-    directive('dndList', function () {
+}).directive('dndList', function () {
     var link = function (scope, element, attrs) {
         var dndableOffset = attrs.dndableOffset || 0,
             connectWith = attrs.connectWith,
@@ -362,8 +346,7 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
         },
         link: link,
     };
-}).
-    directive('tmsTree', function () {
+}).directive('tmsTree', function () {
     return {
         restrict: 'A',
         transclude: 'element',
@@ -471,8 +454,7 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
             };
         }
     };
-})
-    .directive('runningButton', function () {
+}).directive('runningButton', function () {
     return {
         restrict: 'EA',
         template: "<button ng-class=\"isRunning?'btn-default':'btn-primary'\" ng-disabled='isRunning' ng-transclude></button>",
@@ -480,8 +462,7 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
         replace: true,
         transclude: true
     }
-})
-    .directive('tmsAutoFocus', function ($timeout) {
+}).directive('tmsAutoFocus', function ($timeout) {
     return {
         restrict: 'A',
         link: function (_scope, _element) {

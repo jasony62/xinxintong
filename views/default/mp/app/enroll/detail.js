@@ -176,3 +176,12 @@ xxtApp.controller('lotteryCtrl', ['$scope', 'http2', function ($scope, http2) {
     });
     getWinners();
 }]);
+xxtApp.directive('tmsDatetime', ['$timeout', function ($timeout) {
+    return {
+        restrict: 'A',
+        scope: { value: '=' },
+        template: "<div><span ng-show='value<>0' ng-bind=\"value*1000|date:'yyyy-MM-dd HH:mm'\"></span></div>",
+        controller: function () { },
+        replace: true
+    };
+}]);

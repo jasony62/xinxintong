@@ -1,7 +1,11 @@
 <div class="input-group">
-    <p class="form-control" title="{{title}}">{{date.year}}-{{date.month}}-{{date.mday}}</p>
+    <div class="form-control" title="{{title}}">
+        <span ng-show="date!=0" ng-bind="date*1000|date:'yyyy-MM-dd'"></span>
+    </div>
     <span class="input-group-btn">
-        <button class="btn btn-default" ng-click='open()'><span class='glyphicon glyphicon-calendar'></span></button>
+        <button class="btn btn-default" ng-click='open()'>
+            <span class='glyphicon glyphicon-calendar'></span>
+        </button>
     </span>
     <script type="text/ng-template" id="tmsModalDatepicker.html">
         <div class="modal-header">

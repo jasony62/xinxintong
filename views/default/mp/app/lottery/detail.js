@@ -238,7 +238,7 @@ xxtApp.controller('lotteryCtrl',['$scope','http2','$location',function($scope,ht
             });
         }
     };
-    http2.get('/rest/mp/app/enroll?page=1&size=9999', function(rsp){
+    http2.get('/rest/mp/app/enroll/get?page=1&size=9999', function(rsp){
         $scope.activities = rsp.data[0];
     });
     $scope.refresh();

@@ -230,7 +230,7 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
                 }).result.then(function (result) {
                     var d = Date.parse(result.year + '/' + result.month + '/' + result.mday) / 1000;
                     $scope.date = d;
-                    $scope.$emit('xxt.tms-datepicker.change', $scope.state);
+                    $scope.$emit('xxt.tms-datepicker.change', { state: $scope.state, value: d });
                 });
             };
         }],

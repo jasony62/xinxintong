@@ -41,6 +41,10 @@
                 $scope.editing.pic = '';
             });
         };
+        $scope.$on('xxt.tms-datepicker.change', function (event, data) {
+            $scope.editing[data.state] = data.value;
+            $scope.update(data.state);
+        });
         $scope.setSuccessReply = function () {
             $scope.$broadcast('mattersgallery.open', function (aSelected, matterType) {
                 if (aSelected.length === 1) {

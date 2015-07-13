@@ -237,7 +237,8 @@ class enroll extends \member_base {
                 }
                 switch ($page) {
                     case '$authapi_outacl':
-                        $this->gotoOutAcl($mpid, explode(',', $act->authapis)[0]);
+                        $actAuthapis = explode(',', $act->authapis);
+                        $this->gotoOutAcl($mpid, $actAuthapis[0]);
                         break;
                     case '$authapi_auth':
                         $this->gotoAuth($mpid, $act->authapis, $user->openid);
@@ -446,7 +447,8 @@ class enroll extends \member_base {
         }
         switch ($rule) {
             case '$authapi_outacl':
-                $this->gotoOutAcl($mpid, explode(',', $act->authapis)[0]);
+                $actAuthapis = explode(',', $act->authapis);
+                $this->gotoOutAcl($mpid, $actAuthapis[0]);
                 break;
             case '$mp_follow':
                 $this->askFollow($mpid, $user->openid);

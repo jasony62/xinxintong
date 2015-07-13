@@ -208,7 +208,7 @@ class user_model {
         $matches = array();
         $rst = preg_match('/data:image\/(.+?);base64\,/', $data, $matches);
         if (1 !==  $rst)
-            return array(false, 'xxx数据格式错误'.$rst);
+            return array(false, '数据格式错误'.$rst);
 
         list($header, $ext) = $matches;
         $ext === 'jpeg' && $ext = 'jpg';

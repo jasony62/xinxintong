@@ -83,7 +83,6 @@
             }
         });
         $scope.$on('pushnotify.xxt.done', function (event, matter) {
-            console.log('mmm', matter);
             var url = '/rest/mp/app/enroll/record/sendNotify';
             url += '?matterType=' + matter[1];
             url += '&matterId=' + matter[0][0].id;
@@ -91,7 +90,7 @@
             url += '&tags=' + $scope.page.tags.join(',');
             url += $scope.page.joinParams();
             http2.get(url, function (data) {
-                alert(data);
+                $scope.$root.infomsg = '发送成功';
             });
         });
         $scope.viewUser = function (fan) {

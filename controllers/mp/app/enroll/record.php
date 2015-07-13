@@ -19,7 +19,22 @@ class record extends \mp\app\app_base {
     public function sendNotify_action($matterType=null, $matterId=null, $aid, $rid=null, $tags=null, $kw=null, $by=null)
     {
         /**
-         *
+         * 接口是否具备
+         */
+        $modelMpa = $this->model('mp\mpaccount'); 
+        $mpa = $modelMpa->byId($this->mpid);
+        if ($mpa->mpsrc !== 'yx')
+            return new \ResponseError('目前仅支持向易信用户发送通知消息！');
+        $setting = $modelMpa->getSetting($this->mpid, 'yx_p2p');
+        if ($setting->yx_p2p !== 'Y')
+            return new \ResponseError('目前仅支持向开通了点对点消息接口的公众号发送消息！');
+        /**
+         * get matter.
+         */
+        $model = $this->model('matter\\'.$matterType); 
+        $message = $model->forCustomPush($this->mpid, $matterId);
+        /**
+         * 用户筛选条件
          */
         $options = array(
             'tags' => $tags,
@@ -28,10 +43,10 @@ class record extends \mp\app\app_base {
             'by' => $by,
         );
         $participants = $this->model('app\enroll')->getParticipants($this->mpid, $aid, $options);
-        /**
-         * 发送消息给指定参与人
-         */
-        die(json_encode($participants));
+        
+        $rst = $this->model('mpproxy/yx', $this->mpid)->messageSend($message, $participants);
+        if ($rst[0] === false)
+            return new \ResponseError($rst[1]);
         
         return new \ResponseData(count($participants));
     }

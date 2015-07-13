@@ -65,7 +65,7 @@ class member_base extends xxt_base {
     {
         if (empty($aAuthapis)) {
             $authapis = $this->model('user/authapi')->byMpid($mpid, 'Y', 'N');
-            if ($empty($authapis)) return false;
+            if (empty($authapis)) return false;
             foreach ($authapis as $k => $v) $aAuthapis[] = $v->authid;
         } else if (is_string($aAuthapis)) {
             $aAuthapis = explode(',', $aAuthapis);

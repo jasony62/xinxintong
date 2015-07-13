@@ -161,7 +161,7 @@ xxtApp.controller('apiCtrl', ['$rootScope', '$scope', 'http2', '$http', '$modal'
             param && param.step && (url2 += '&step=' + param.step);
             $http.get(url2).success(function (rsp) {
                 $scope.backRunning = false;
-                param && ($rootScope.infomsg = '阶段：' + param.next + (param.step ? '，步骤：' + param.step : ''));
+                param && ($rootScope.progmsg = '阶段：' + param.next + (param.step ? '，步骤：' + param.step : ''));
                 if (angular.isString(rsp))
                     $rootScope.errmsg = rsp;
                 else if (rsp.err_code != 0)

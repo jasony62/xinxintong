@@ -154,11 +154,11 @@
                     <div class='alert alert-info' ng-show="a.valid==='Y'" ng-if="mpaccount.mpsrc==='qy'">
                         <button class='btn' ng-class="backRunning?'btn-default':'btn-primary'" ng-disabled='backRunning' ng-click='import2Qy(a)'>全量导入到企业号</button>
                         <button class='btn btn-default' ng-click='sync2Qy(a)'>增量同步到企业号</button>
-                        <span ng-show='a.sync_from_qy_at>0'>上次同步到企业号通讯录时间：{{ia.sync_to_qy_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
+                        <span ng-show='a.sync_to_qy_at>0'>上次同步到企业号通讯录时间：{{a.sync_to_qy_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
                     </div>
                     <div class='alert alert-info' ng-show="a.valid==='Y'" ng-if="mpaccount.mpsrc==='qy'">
                         <button class='btn btn-default' ng-click='syncFromQy(a)'>从企业号同步</button>
-                        <span ng-show='a.sync_from_qy_at>0'>上次从企业号通讯录同步时间：{{ia.sync_from_qy_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
+                        <span ng-show='a.sync_from_qy_at>0'>上次从企业号通讯录同步时间：{{a.sync_from_qy_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
                     </div>
                 </div>
             </div>

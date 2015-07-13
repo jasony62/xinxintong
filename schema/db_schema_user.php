@@ -75,10 +75,9 @@ $sql .= ",extattr text"; // 扩展属性定义
 $sql .= ',entry_statement text';
 $sql .= ',acl_statement text';
 $sql .= ',notpass_statement text';
-$sql .= ',auth_html text';
-$sql .= ',auth_css text';
-$sql .= ',auth_js text';
 $sql .= ',auth_code_id int not null default 0';
+$sql .= ',sync_to_qy_at int not null default 0'; // 最近一次向企业号通讯录同步的时间
+$sql .= ',sync_from_qy_at int not null default 0'; // 最近一次从企业号通讯录同步的时间
 $sql .= ",primary key(authid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');

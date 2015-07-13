@@ -58,8 +58,25 @@
                 <div class='col-md-10'>
                     <combox evt-prefix='channel' readonly=true prop='title' existing='editing.channels' options='channels'></combox>
                     <label class='checkbox-inline'>
-                        <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='channelsFromParent' ng-change='updateChannelSrc()'
-                        ); ">来源于父账号</label>
+                        <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='channelsFromParent' ng-change='updateChannelSrc()'>来源于父账号</label>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>开始时间（可选）</label>
+                <div class='col-md-10 form-inline'>
+                    <tms-datepicker tms-title='开始时间' tms-date='editing.start_at' tms-state='start'></tms-datepicker>
+                    <select title='进入页面' class='form-control' ng-model='editing.before_start_page' ng-options='pname as page.title for (pname, page) in editing.pages' ng-change="update( 'receiver_page') ">
+                        <option value=''></option>
+                    </select>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>结束时间（可选）</label>
+                <div class='col-md-10 form-inline'>
+                    <tms-datepicker tms-title='结束时间' tms-date='editing.end_at' tms-state='end'></tms-datepicker>
+                    <select title='进入页面' class='form-control' ng-model='editing.after_end_page' ng-options='pname as page.title for (pname, page) in editing.pages' ng-change="update( 'receiver_page') ">
+                        <option value=''></option>
+                    </select>
                 </div>
             </div>
             <div class='form-group' ng-if="features.matter_visible_to_creater==='Y' ">

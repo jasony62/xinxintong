@@ -9,6 +9,12 @@
     </div>
     <div class='form-horizontal'>
         <div class='form-group'>
+            <label class='col-md-2 control-label'>URL</label>
+            <div class='col-md-10'>
+                <div class='form-control-static' ng-bind="entryUrl"></div>
+            </div>
+        </div>
+        <div class='form-group'>
             <label class='col-md-2 control-label'>名称</label>
             <div class='col-md-10'>
                 <input type='text' class='form-control' ng-model="editing.title" tms-auto-update tms-wait=1000 tms-update="update('title')">

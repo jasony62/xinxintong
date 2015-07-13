@@ -162,6 +162,39 @@ class base extends \member_base {
         return new \ResponseData('ok');
     }
     /**
+     *
+     */
+    public function articleAddChannel_action($mpid) 
+    {
+        $fan = $this->model('user/fans')->byId($this->user->fid, 'nickname');
+        
+        $relations = $this->getPostJson();
+
+        $channels = $relations->channels;
+        $matter = $relations->matter;
+
+        $model = $this->model('matter\channel');
+        foreach ($channels as $channel)
+            $model->addMatter($channel->id, $matter, $this->user->mid, $fan->nickname, 'M');
+
+        return new \ResponseData('ok');
+    }
+    /**
+     *
+     */
+    public function articleRemoveChannel_action($id, $channelId) 
+    {
+        $model = $this->model('matter\channel');
+
+        $matter = new \stdClass;
+        $matter->id = $id;
+        $matter->type = 'article';
+        
+        $rst = $model->removeMatter($channelId, $matter);
+
+        return new \ResponseData($rst);
+    }
+    /**
      * 获得单个多图文
      */
     public function newsGet_action($mpid, $id)

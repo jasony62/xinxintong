@@ -7,15 +7,30 @@ xxtApp.config(['$routeProvider', function ($routeProvider) {
         controller: 'reviewlogCtrl',
     });
 }]);
-xxtApp.controller('initiateCtrl', ['$scope', '$location', '$modal', 'http2', 'Article', function ($scope, $location, $modal, http2, Article) {
+xxtApp.controller('initiateCtrl', ['$scope', '$location', '$modal', 'http2', 'Article', 'Entry', function ($scope, $location, $modal, http2, Article, Entry) {
     $scope.subView = '';
     $scope.phases = { 'I': '投稿', 'R': '审核', 'T': '版面' };
     $scope.mpid = $location.search().mpid;
     $scope.entry = $location.search().entry;
     $scope.id = $location.search().id;
     $scope.Article = new Article('initiate', $scope.mpid, $scope.entry);
+    $scope.Entry = new Entry($scope.mpid, $scope.entry);
     $scope.Article.get($scope.id).then(function (data) {
         $scope.editing = data;
+    }).then(function () {
+        $scope.Entry.get().then(function (data) {
+            var i, j, ch, mapSubChannels = {};
+            $scope.editing.subChannels = [];
+            $scope.entryApp = data;
+            for (i = 0, j = data.subChannels.length; i < j; i++) {
+                ch = data.subChannels[i];
+                mapSubChannels[ch.id] = ch;
+            }
+            for (i = 0, j = $scope.editing.channels.length; i < j; i++) {
+                ch = $scope.editing.channels[i];
+                mapSubChannels[ch.id] && $scope.editing.subChannels.push(ch);
+            }
+        });
     });
     $scope.back = function (event) {
         event.preventDefault();
@@ -78,6 +93,25 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', 'Article', function 
         $scope.Article.update($scope.editing, name);
         name === 'body' && ($scope.bodyModified = false);
     };
+    $scope.$on('sub-channel.xxt.combox.done', function (event, aSelected) {
+        var i, j, c, params = { channels: [], matter: { id: $scope.editing.id, type: 'article' } };
+        for (i = 0, j = aSelected.length; i < j; i++) {
+            c = aSelected[i];
+            params.channels.push({ id: c.id });
+        }
+        $scope.Article.addChannels(params).then(function () {
+            for (i = 0, j = aSelected.length; i < j; i++) {
+                c = aSelected[i];
+                $scope.editing.subChannels.push({ id: c.id, title: c.title });
+            }
+        });
+    });
+    $scope.$on('sub-channel.xxt.combox.del', function (event, removed) {
+        $scope.Article.delChannel($scope.editing.id, removed.id).then(function () {
+            var i = $scope.editing.subChannels.indexOf(removed);
+            $scope.editing.subChannels.splice(i, 1);
+        });
+    });
     $scope.$on('tag.xxt.combox.done', function (event, aSelected) {
         var aNewTags = [];
         for (var i in aSelected) {

@@ -5,15 +5,87 @@
             <div class="navbar-header">
                 <a class="navbar-brand" href="#" ng-click="back($event)"><span class='glyphicon glyphicon-chevron-left'></span></a>
             </div>
-            <ul class='nav navbar-nav'>
-                <li ng-class="{'active':subView==='edit'}">
-                    <a href="/rest/app/contribute/review/article?mpid={{mpid}}&entry={{entry}}&id={{id}}">内容</a>
-                </li>
-                <li ng-class="{'active':subView==='reviewlog'}">
-                    <a href="/rest/app/contribute/review/reviewlog?mpid={{mpid}}&entry={{entry}}&id={{id}}">审核记录</a>
-                </li>
-            </ul>
         </div>
     </nav>
-    <div ng-view></div>
+    <div class='col-md-6' ng-controller="editCtrl">
+        <div class='alert alert-info'>
+            <span>创建人：</span>
+            <span ng-bind="editing.creater_name"></span>
+            <span>，创建时间：</span>
+            <span ng-bind="editing.create_at*1000|date:'yyyy-MM-dd HH:mm'"></span>
+        </div>
+        <div class='form-group' style='text-align:right'>
+            <button class='btn navbar-btn btn-default' ng-if="editing.disposer.phase==='R'" ng-click='return()'>退回</button>
+            <button class='btn navbar-btn btn-default' disabled ng-if="editing.disposer.phase==='R'" ng-click='refuse()'>不通过</button>
+            <button class='btn navbar-btn btn-success' ng-if="editing.disposer.phase==='R'" ng-click='pass()'>通过</button>
+            <button class='btn navbar-btn btn-default' disabled ng-if="editing.approved==='Y'" ng-click='publish()'>发布</button>
+        </div>
+        <div class='form-group'>
+            <label>标题</label>
+            <p class='form-control-static' ng-bind='editing.title'></p>
+        </div>
+        <div class='form-group'>
+            <label>头图</label>
+            <div style="min-height:120px;width:182px;border:1px solid #CCC">
+                <div style='position:relative' ng-if="editing.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                    <img name='pic' ng-src="{{editing.pic}}" width='180px' />
+                </div>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label>摘要</label>
+            <p class='form-control-static' ng-bind='editing.summary'></p>
+        </div>
+        <div class='form-group'>
+            <label>正文</label>
+            <iframe id='content' class='form-control' style='height:300px'></iframe>
+        </div>
+        <div class='form-group'>
+            <label>频道</label>
+            <combox disabled='true' readonly='true' evt-prefix='sub-channel' prop='title' existing='editing.subChannels' options='entryApp.subChannels'></combox>
+        </div>
+    </div>
+    <div class='col-md-6' ng-controller="reviewlogCtrl">
+        <div class='table'>
+            <div class='thead'>
+                <div class='tr'>
+                    <div>序号</div>
+                    <div>发起时间</div>
+                    <div>处理人</div>
+                    <div>接收时间</div>
+                    <div>处理时间</div>
+                    <div>阶段</div>
+                    <div>消息</div>
+                </div>
+            </div>
+            <div class='tbody'>
+                <div class='tr' ng-repeat="l in logs">
+                    <div ng-bind="l.seq"></div>
+                    <div ng-bind="l.send_at*1000|date:'yy-MM-dd HH:mm'"></div>
+                    <div ng-bind="l.disposer_name"></div>
+                    <div>
+                        <span ng-if='l.receive_at>0' ng-bind="l.receive_at*1000|date:'yy-MM-dd HH:mm'"></span>
+                    </div>
+                    <div>
+                        <span ng-if='l.read_at>0' ng-bind="l.read_at*1000|date:'yy-MM-dd HH:mm'">
+                            <span>
+                    </div>
+                    <div ng-bind="phases[l.phase]"></div>
+                    <div ng-bind="l.remark"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/ng-template" id="replyBox.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="close()">×</button>
+            <h5 class="modal-title">回复</h5>
+        </div>
+        <div class="modal-body">
+            <textarea class='form-control' rows=6 ng-model='data.message' tms-auto-focus></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" ng-click="ok()">确定</button>
+        </div>
+    </script>
 </div>

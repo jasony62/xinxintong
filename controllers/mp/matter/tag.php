@@ -9,6 +9,7 @@ class tag extends \mp\mp_controller {
     {
         $rule_action['rule_type'] = 'white';
         $rule_action['actions'][] = 'hello';
+        $rule_action['actions'][] = 'index';
         return $rule_action;
     }
     /**

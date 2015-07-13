@@ -116,6 +116,26 @@ xxtApp.factory('Article', function ($q, http2) {
         });
         return promise;
     };
+    Article.prototype.addChannels = function (params) {
+        var deferred = $q.defer(), promise = deferred.promise;
+        var url = this.baseUrl + 'articleAddChannel';
+        url += '?mpid=' + this.mpid;
+        http2.post(url, params, function success(rsp) {
+            deferred.resolve(rsp.data);
+        });
+        return promise;
+    };
+    Article.prototype.delChannel = function (id, channelId) {
+        var deferred = $q.defer(), promise = deferred.promise;
+        var url = this.baseUrl + 'articleRemoveChannel';
+        url += '?mpid=' + this.mpid;
+        url += '&id=' + id;
+        url += '&channelId=' + channelId;
+        http2.get(url, function success(rsp) {
+            deferred.resolve(rsp.data);
+        });
+        return promise;
+    };
     Article.prototype.mpaccounts = function (id) {
         var deferred = $q.defer(), promise = deferred.promise;
         var url = this.baseUrl + 'mpaccountGet';
@@ -228,6 +248,26 @@ xxtApp.factory('News', function ($q, http2) {
         return promise;
     };
     return News;
+});
+xxtApp.factory('Entry', function ($q, http2) {
+    var Entry = function (mpid, entry) {
+        this.mpid = mpid;
+        entry = entry.split(',');
+        this.type = entry[0];
+        this.id = entry[1];
+    };
+    Entry.prototype.get = function () {
+        var deferred = $q.defer(), promise = deferred.promise;
+        var url = '/rest/app/contribute/entryGet';
+        url += '?mpid=' + this.mpid;
+        url += '&type=' + this.type;
+        url += '&id=' + this.id;
+        http2.get(url, function success(rsp) {
+            deferred.resolve(rsp.data);
+        });
+        return promise;
+    };
+    return Entry;
 });
 xxtApp.factory('Reviewlog', function ($q, http2) {
     var Reviewlog = function (phase, mpid, matter) {

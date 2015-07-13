@@ -1,19 +1,11 @@
-xxtApp.config(['$routeProvider', function ($routeProvider) {
-    $routeProvider.when('/rest/app/contribute/review/article', {
-        templateUrl: '/views/default/app/contribute/review/edit-r.html',
-        controller: 'editCtrl',
-    }).when('/rest/app/contribute/review/reviewlog', {
-        templateUrl: '/views/default/app/contribute/review/reviewlog.html',
-        controller: 'reviewlogCtrl',
-    });
-}]);
-xxtApp.controller('reviewCtrl', ['$location', '$scope', '$modal', 'http2', 'Article', function ($location, $scope, $modal, http2, Article) {
+xxtApp.controller('reviewCtrl', ['$location', '$scope', '$modal', 'http2', 'Article', 'Entry', function ($location, $scope, $modal, http2, Article, Entry) {
     $scope.phases = { 'I': '投稿', 'R': '审核', 'T': '版面' };
     $scope.subView = '';
     $scope.mpid = $location.search().mpid;
     $scope.entry = $location.search().entry;
     $scope.id = $location.search().id;
     $scope.Article = new Article('review', $scope.mpid, $scope.entry);
+    $scope.Entry = new Entry($scope.mpid, $scope.entry);
     $scope.back = function (event) {
         event.preventDefault();
         location.href = '/rest/app/contribute/review?mpid=' + $scope.mpid + '&entry=' + $scope.entry;
@@ -105,6 +97,20 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', function ($scope, $m
                     mps.indexOf(mpa.id) !== -1 && target_mps2.push(mpa.name);
                 });
                 $scope.targetMps = target_mps2.join(',');
+            }
+        });
+    }).then(function () {
+        $scope.Entry.get().then(function (data) {
+            var i, j, ch, mapSubChannels = {};
+            $scope.editing.subChannels = [];
+            $scope.entryApp = data;
+            for (i = 0, j = data.subChannels.length; i < j; i++) {
+                ch = data.subChannels[i];
+                mapSubChannels[ch.id] = ch;
+            }
+            for (i = 0, j = $scope.editing.channels.length; i < j; i++) {
+                ch = $scope.editing.channels[i];
+                mapSubChannels[ch.id] && $scope.editing.subChannels.push(ch);
             }
         });
     });

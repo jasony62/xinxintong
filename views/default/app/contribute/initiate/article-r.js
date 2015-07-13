@@ -1,19 +1,11 @@
-xxtApp.config(['$routeProvider', function ($routeProvider) {
-    $routeProvider.when('/rest/app/contribute/initiate/article', {
-        templateUrl: '/views/default/app/contribute/initiate/edit-r.html',
-        controller: 'editCtrl',
-    }).when('/rest/app/contribute/initiate/reviewlog', {
-        templateUrl: '/views/default/app/contribute/initiate/reviewlog.html',
-        controller: 'reviewlogCtrl',
-    });
-}]);
-xxtApp.controller('initiateCtrl', ['$location', '$scope', 'Article', function ($location, $scope, Article) {
+xxtApp.controller('initiateCtrl', ['$location', '$scope', 'Article', 'Entry', function ($location, $scope, Article, Entry) {
     $scope.subView = '';
     $scope.phases = { 'I': '投稿', 'R': '审核', 'T': '版面' };
     $scope.mpid = $location.search().mpid;
     $scope.entry = $location.search().entry;
     $scope.id = $location.search().id;
     $scope.Article = new Article('initiate', $scope.mpid, '');
+    $scope.Entry = new Entry($scope.mpid, $scope.entry);
     $scope.back = function (event) {
         event.preventDefault();
         location.href = '/rest/app/contribute/initiate?mpid=' + $scope.mpid + '&entry=' + $scope.entry;
@@ -27,6 +19,20 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', 'Article', function 
         if (ele.contentDocument && ele.contentDocument.body) {
             ele.contentDocument.body.innerHTML = $scope.editing.body;
         }
+    }).then(function () {
+        $scope.Entry.get().then(function (data) {
+            var i, j, ch, mapSubChannels = {};
+            $scope.editing.subChannels = [];
+            $scope.entryApp = data;
+            for (i = 0, j = data.subChannels.length; i < j; i++) {
+                ch = data.subChannels[i];
+                mapSubChannels[ch.id] = ch;
+            }
+            for (i = 0, j = $scope.editing.channels.length; i < j; i++) {
+                ch = $scope.editing.channels[i];
+                mapSubChannels[ch.id] && $scope.editing.subChannels.push(ch);
+            }
+        });
     });
     http2.get('/rest/mp/matter/tag?resType=article', function (rsp) {
         $scope.tags = rsp.data;

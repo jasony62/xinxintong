@@ -156,7 +156,7 @@ class initiate extends base {
         $params = json_decode($entry->params);
         if (!empty($params->channel)) {
             $channelId = $params->channel;
-            $this->model('matter\channel')->addMatter($channelId, array('id'=>$id, 'type'=>'article'), $this->user->fid, $fan->nickname);
+            $this->model('matter\channel')->addMatter($channelId, array('id'=>$id, 'type'=>'article'), $this->user->mid, $fan->nickname, 'M');
         } 
 
         $article = $this->model('matter\article')->byId($id);

@@ -15,12 +15,6 @@
         </div>
     </div>
     <div class='form-group'>
-        <label class='col-md-2 control-label'>创建日期</label>
-        <div class='col-md-10'>
-            <p class='form-control-static' ng-bind="editing.create_at*1000|date:'yyyy-MM-dd HH:mm'"></p>
-        </div>
-    </div>
-    <div class='form-group'>
         <label class='col-md-2 control-label'>头图</label>
         <div class='col-md-10'>
             <div style="width:182px;border:1px solid #CCC">
@@ -55,27 +49,13 @@
         </div>
     </div>
     <div class='form-group'>
-        <label class='col-md-2 control-label'>标签</label>
+        <label class='col-md-2 control-label'>频道</label>
         <div class='col-md-10'>
-            <combox evt-prefix='tag' prop='title' existing='editing.tags' options='tags'></combox>
+            <combox evt-prefix='sub-channel' readonly=true prop='title' existing='editing.subChannels' options='entryApp.subChannels'></combox>
         </div>
     </div>
-    <div class='form-group'>
-        <label class='col-md-2 control-label'>发生地点</label>
-        <div class='col-md-10 form-inline'>
-            <label>经度&nbsp;</label>
-            <input type='text' class='form-control' ng-model='editing.extinfo.occured_lat' tms-auto-update tms-wait=1000
-            tms-update="update('extinfo.occured_lat');">
-            <label>纬度&nbsp;</label>
-            <input type='text' class='form-control' ng-model='editing.extinfo.occured_lng' tms-auto-update tms-wait=1000
-            tms-update="update('extinfo.occured_lng');">
-        </div>
-    </div>
-    <div class='form-group'>
-        <label class='col-md-2 control-label'>发生时间</label>
-        <div class='col-md-10'>
-            <input type='text' class='form-control' ng-model='editing.extinfo.occured_time' tms-auto-update tms-wait=1000 tms-update="update('extinfo.occured_time');">
-        </div>
+    <div class='alert alert-info'>
+        <span>创建日期：{{editing.create_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
     </div>
     <div picgallery style='display:none' url='{{picGalleryUrl}}'></div>
 </div>

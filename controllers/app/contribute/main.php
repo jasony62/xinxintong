@@ -114,4 +114,25 @@ class main extends \member_base {
 
         return array($fan->fid, $fan->openid, $mid, $vid);
     }
+    /**
+     *
+     */
+    public function entryGet_action($mpid, $type, $id)
+    {
+        $c = $this->model('app\contribute')->byId($id);
+        
+        if (!empty($c->params)) {
+            $modelCh = $this->model('matter\channel');
+            $params = json_decode($c->params);
+            if (!empty($params->subChannels)) {
+                foreach ($params->subChannels as $scid) {
+                    $ch = $modelCh->byId($scid, 'id,title');
+                    $chs[] = $ch;
+                }
+                $c->subChannels = $chs;
+            }
+        }
+        
+        return new \ResponseData($c);
+    }
 }

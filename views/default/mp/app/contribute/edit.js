@@ -43,7 +43,6 @@ xxtApp.controller('contributeCtrl', ['$scope', 'http2', function ($scope, http2)
             $scope.mpid = params.mpid;
             entryUrl = 'http://' + location.hostname + '/rest/app/contribute';
             entryUrl += '?mpid=' + params.mpid;
-            entryUrl += '&entry=contribute,' + params.app.id;
             $scope.entryUrl = entryUrl;
             $scope.editing = params.app;
             $scope.editing.canSetInitiator = 'Y';

@@ -2,7 +2,7 @@
     <label class='col-md-{{labelSpan}} control-label'>{{title||'访问控制'}}</label>
     <div class='col-md-{{controlSpan}}'>
         <div class='checkbox'>
-            <label><input type='checkbox' ng-disabled="disabled&&disabled==='Y'" ng-true-value='Y' ng-false-value='N' ng-model="obj[propAccess]" ng-change="setAccessControl()">{{label||'仅限认证用户访问'}}</label>
+            <label><input type='checkbox' ng-disabled="disabled&&disabled==='Y'" ng-true-value="'Y'" ng-false-value="'N'" ng-model="obj[propAccess]" ng-change="setAccessControl()">{{label||'仅限认证用户访问'}}</label>
         </div>
     </div>
 </div>
@@ -10,7 +10,7 @@
     <div class='col-md-{{controlSpan}} col-md-offset-{{labelSpan}}'>
         <div class='list-group' style='margin-bottom:0'>
             <div class='list-group-item' ng-repeat='a in objAuthapis'>
-                <label class='checkbox-inline' style='padding-top:0'><input type='checkbox' ng-disabled="disabled&&disabled==='Y'" ng-true-value='Y' ng-false-value='N' ng-model='a.checked' ng-change='setAuthapi(a)'>{{a.name}}</label>
+                <label class='checkbox-inline' style='padding-top:0'><input type='checkbox' ng-disabled="disabled&&disabled==='Y'" ng-true-value="'Y'" ng-false-value="'N'" ng-model='a.checked' ng-change='setAuthapi(a)'>{{a.name}}</label>
                 <span class='label label-info pull-right' style='font-size:100%;font-weight:400;padding: 0.3em 0.6em 0.3em;' ng-if='a.mpid!==mpid'>父账号</span>
             </div>
         </div>

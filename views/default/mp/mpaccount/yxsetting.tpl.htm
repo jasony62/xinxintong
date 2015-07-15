@@ -11,7 +11,7 @@
             <label class='col-md-2 control-label'>连接成功</label>
             <div class='col-md-10'>
                 <div class='col-md-1'>
-                    <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='mpa.yx_joined' disabled>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='mpa.yx_joined' disabled>
                 </div>
                 <button class='btn btn-success' ng-disabled="mpa.yx_joined==='Y'" ng-click="checkJoin()">
                     检查<span ng-show="stateOfCheckJoin.running">{{'('+stateOfCheckJoin.count+')'}}</span>
@@ -60,19 +60,19 @@
                 <tbody>
                     <tr>
                         <td>自定义菜单</td>
-                        <td><input type='checkbox' ng-model='mpapis.yx_menu' ng-true-value='Y' ng-false-value='N' ng-change="updateApi('yx_menu')"></td>
+                        <td><input type='checkbox' ng-model='mpapis.yx_menu' ng-true-value="'Y'" ng-false-value="'N'" ng-change="updateApi('yx_menu')"></td>
                     </tr>
                     <tr>
                         <td>群发消息</td>
-                        <td><input type='checkbox' ng-model='mpapis.yx_group_push' ng-true-value='Y' ng-false-value='N' ng-change="updateApi('yx_group_push')"></td>
+                        <td><input type='checkbox' ng-model='mpapis.yx_group_push' ng-true-value="'Y'" ng-false-value="'N'" ng-change="updateApi('yx_group_push')"></td>
                     </tr>
                     <tr>
                         <td>客服消息</td>
-                        <td><input type='checkbox' ng-model='mpapis.yx_custom_push' ng-true-value='Y' ng-false-value='N' ng-change="updateApi('yx_custom_push')"></td>
+                        <td><input type='checkbox' ng-model='mpapis.yx_custom_push' ng-true-value="'Y'" ng-false-value="'N'" ng-change="updateApi('yx_custom_push')"></td>
                     </tr>
                     <tr>
                         <td>粉丝分组</td>
-                        <td><input type='checkbox' ng-model='mpapis.yx_fansgroup' ng-true-value='Y' ng-false-value='N' ng-change="updateApi('yx_fansgroup')"></td>
+                        <td><input type='checkbox' ng-model='mpapis.yx_fansgroup' ng-true-value="'Y'" ng-false-value="'N'" ng-change="updateApi('yx_fansgroup')"></td>
                     </tr>
                     <tr ng-show="mpapis.yx_fansgroup==='Y'">
                         <td colspan='2'>
@@ -81,7 +81,7 @@
                     </tr>
                     <tr>
                         <td>粉丝信息</td>
-                        <td><input type='checkbox' ng-model='mpapis.yx_fans' ng-true-value='Y' ng-false-value='N' ng-change="updateApi('yx_fans')"></td>
+                        <td><input type='checkbox' ng-model='mpapis.yx_fans' ng-true-value="'Y'" ng-false-value="'N'" ng-change="updateApi('yx_fans')"></td>
                     </tr>
                     <tr ng-show="mpapis.yx_fans==='Y'">
                         <td colspan='2'>
@@ -90,19 +90,19 @@
                     </tr>
                     <tr>
                         <td>场景二维码</td>
-                        <td><input type='checkbox' ng-model='mpapis.yx_qrcode' ng-true-value='Y' ng-false-value='N' ng-change="updateApi('yx_qrcode')"></td>
+                        <td><input type='checkbox' ng-model='mpapis.yx_qrcode' ng-true-value="'Y'" ng-false-value="'N'" ng-change="updateApi('yx_qrcode')"></td>
                     </tr>
                     <tr>
                         <td>网页授权（OAuth2.0）</td>
-                        <td><input type='checkbox' ng-model='mpapis.yx_oauth' ng-true-value='Y' ng-false-value='N' ng-change="updateApi('yx_oauth')"></td>
+                        <td><input type='checkbox' ng-model='mpapis.yx_oauth' ng-true-value="'Y'" ng-false-value="'N'" ng-change="updateApi('yx_oauth')"></td>
                     </tr>
                     <tr>
                         <td>点对点消息</td>
-                        <td><input type='checkbox' ng-model='mpapis.yx_p2p' ng-true-value='Y' ng-false-value='N' ng-change="updateApi('yx_p2p')"></td>
+                        <td><input type='checkbox' ng-model='mpapis.yx_p2p' ng-true-value="'Y'" ng-false-value="'N'" ng-change="updateApi('yx_p2p')"></td>
                     </tr>
                     <tr>
                         <td>验证手机号</td>
-                        <td><input type='checkbox' ng-model='mpapis.yx_checkmobile' ng-true-value='Y' ng-false-value='N' ng-change="updateApi('yx_checkmobile')"></td>
+                        <td><input type='checkbox' ng-model='mpapis.yx_checkmobile' ng-true-value="'Y'" ng-false-value="'N'" ng-change="updateApi('yx_checkmobile')"></td>
                     </tr>
                 </tbody>
             </table>

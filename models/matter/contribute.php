@@ -26,7 +26,7 @@ class contribute_model extends app_base {
     public function getEntryUrl($runningMpid, $id)
     {
         $url = "http://".$_SERVER['HTTP_HOST'];
-        $url .= "/rest/app/contribute/initiate";
+        $url .= "/rest/app/contribute";
         $url .= "?mpid=$runningMpid&entry=contribute,".$id;
 
         return $url;

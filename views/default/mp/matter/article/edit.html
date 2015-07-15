@@ -11,7 +11,7 @@
             <label class='col-md-2 control-label'>审核通过</label>
             <div class='col-md-10'>
                 <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='editing.approved' ng-change="update('approved');">是</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.approved' ng-change="update('approved');">是</label>
             </div>
         </div>
         <div class='form-group'>
@@ -53,7 +53,7 @@
                     </div>
                 </div>
                 <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='editing.hide_pic' ng-change="update('hide_pic');">正文中不显示头图</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.hide_pic' ng-change="update('hide_pic');">正文中不显示头图</label>
             </div>
         </div>
         <div class='form-group'>
@@ -70,9 +70,9 @@
                     <button class='btn' ng-click="update('body')" ng-disabled='!bodyModified' ng-class="bodyModified?'btn-success':'btn-default'">保存</button>
                     <button class='btn btn-default' ng-click="embedMatter()">添加素材</button>
                     <label class='checkbox-inline'>
-                        <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='editing.can_picviewer' ng-change="update('can_picviewer');">支持图片缩放浏览</label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_picviewer' ng-change="update('can_picviewer');">支持图片缩放浏览</label>
                     <label class='checkbox-inline'>
-                        <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='editing.custom_body' ng-change="update('custom_body');">定制页面</label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.custom_body' ng-change="update('custom_body');">定制页面</label>
                 </div>
                 <tinymce content='editing.body' contenteditable='bodyEditable' change="onBodyChange()" id='body1'></tinymce>
             </div>
@@ -82,7 +82,7 @@
             <div class='col-md-10'>
                 <button class='btn btn-success' ng-click='gotoCode()'>编辑页面</button>
                 <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='editing.custom_body' ng-change="update('custom_body');">定制页面</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.custom_body' ng-change="update('custom_body');">定制页面</label>
             </div>
         </div>
         <div class='form-group'>
@@ -120,7 +120,7 @@
             <div class='col-md-10'>
                 <combox evt-prefix='channel' readonly=true prop='title' existing='editing.channels' options='channels'></combox>
                 <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='channelsFromParent' ng-change='updateChannelSrc()'>来源于父账号</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='channelsFromParent' ng-change='updateChannelSrc()'>来源于父账号</label>
             </div>
         </div>
         <div class='form-group' ng-if="features.matter_visible_to_creater==='Y'">
@@ -128,7 +128,7 @@
             <div class='col-md-10'>
                 <div class='checkbox'>
                     <label>
-                        <input type='checkbox' ng-disabled="editing.creater!==editing.uid" ng-model='editing.public_visible' ng-true-value='Y' ng-false-value='N'
+                        <input type='checkbox' ng-disabled="editing.creater!==editing.uid" ng-model='editing.public_visible' ng-true-value="'Y'" ng-false-value="'N'"
                         ng-change="update('public_visible')">设置为公开可见</label>
                 </div>
             </div>
@@ -137,7 +137,7 @@
             <label class='col-md-2 control-label'>其他设置</label>
             <div class='col-md-10'>
                 <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='editing.can_share' ng-change="update('can_share');">可以分享</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_share' ng-change="update('can_share');">可以分享</label>
             </div>
         </div>
         <accesscontrol mpid='{{mpaccount.mpid}}' obj='editing' prop-acl='acl' prop-access='access_control' prop-apis='authapis'

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html ng-app='xxt' ng-controller='ctrl'>
+    
+    <head>
+        <meta charset="utf-8">
+        <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+        <base href="/" />
+        <title ng-bind='article.title'></title>
+        <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/views/default/article2.css?_=1" rel="stylesheet">
+    </head>
+    
+    <body ng-cloak class='ng-cloak'>
+        <div class="article">
+            <div class="wrap">
+                <h1 id="title" class="ttile" ng-bind='article.title'></h1>
+                <div id="attribute">
+                    <span class="time" ng-bind="article.modify_at*1000|date:'yyyy-MM-dd'"></span>
+                    <span class="author" ng-bind='article.author'></span>
+                    <span id='article_from_mp' ng-if='mpa.yx_cardid'>
+                        <a ng-href="'yixin://opencard?pid='+article.yx_cardid" ng-bind='article.yx_cardname'></a>
+                    </span>
+                </div>
+                <div class="headpic">
+                    <img ng-src="{{article.pic}}">
+                </div>
+                <div id="content" class="content" ng-bind-html='article.body'></div>
+                <p class="url" ng-if="article.url">
+                    <a href="{{article.url}}" target="_self">阅读原文</a>
+                </p>
+                <div id='stat'>
+                    <span class='read'>
+                        <span>阅读</span>
+                        <span id='readNum' ng-bind='article.read_num'></span>
+                    </span>
+                    <span class='like'>
+                        <em ng-class="{'praised':article.praised}" ng-click="like()"></em>
+                        <span id='score' ng-bind='article.score'></span>
+                    </span>
+                </div>
+                <div id='remark' class='clearfix' ng-show="mpa.can_article_remark==='Y'">
+                    <h4>评论
+                        <span ng-if='article.remark_num' ng-bind="'（' + article.remark_num + '）'"></span>
+                    </h4>
+                    <a id='gotoRemarksHeader' href='#remark'></a>
+                    <ul class='list-group' ng-hide="mode==='preview'">
+                        <li class='list-group-item' ng-repeat="r in article.remarks" ng-click='reply(r)'>
+                            <div class='content' ng-bind="r.remark"></div>
+                            <div class='clearfix'>
+                                <div class='nickname' ng-bind="r.nickname"></div>
+                                <div class='datetime' ng-bind="r.create_at*1000|date:'yyyy-MM-dd HH:mm'"></div>
+                            </div>
+                        </li>
+                    </ul>
+                    <a id='gotoNewRemark' href='#newRemark'></a>
+                    <textarea id='newRemark' rows='4' class='form-control' ng-disabled="mode==='preview'" ng-model="newRemark"></textarea>
+                    <button class='btn btn-primary pull-right' ng-disabled="mode==='preview'" ng-click='remark()'>发表评论</button>
+                </div>
+            </div>
+        </div>
+        <footer></footer>
+        <div id='dlg'>
+            <div></div>
+            <button>关闭</button>
+        </div>
+        <script src="/static/js/angular.min.js "></script>
+        <script src="/static/js/angular-sanitize.min.js "></script>
+        <script src="/views/default/article2.js?_=1 "></script>
+    </body>
+
+</html>

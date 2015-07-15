@@ -20,7 +20,7 @@
     <div class="tab-content">
         <div id='tab_form' class='tab-pane active'>
             <div class='form-inline' style='margin:15px 0'>
-                <label class="checkbox-inline"><input type="checkbox" ng-true-value='Y' ng-false-value='N' ng-model='editing.open_lastroll' ng-change="update('open_lastroll')">打开最后一条登记记录</label>
+                <label class="checkbox-inline"><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.open_lastroll' ng-change="update('open_lastroll')">打开最后一条登记记录</label>
             </div>
             <div class='form-group'>
                 <div class='form-inline'>
@@ -58,7 +58,7 @@
                     <input type='text' class='form-control' ng-model='ep.title' tms-auto-update tms-wait=1000 tms-update="updPage(ep,'title')">
                 </div>
                 <button class='btn btn-default' ng-click='delPage(ep)'>删除</span></button>
-                <label class='checkbox-inline'><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='ep.share_page' ng-change="updPage(ep,'share_page')">分享当前页</label>
+                <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='ep.share_page' ng-change="updPage(ep,'share_page')">分享当前页</label>
             </div>
             <div class='form-group'>
                 <div>
@@ -101,7 +101,7 @@
                     <div class="col-md-10">
                         <input type='text' class='form-control' ng-model='def.name'>
                         <div class="checkbox">
-                            <label><input type='checkbox' ng-true-value='1' ng-false-value='0' ng-model='def.showname'>显示名称</label>
+                            <label><input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model='def.showname'>显示名称</label>
                         </div>
                     </div>
                 </div>
@@ -154,7 +154,7 @@
                 <div class="form-group" ng-show="def.type==='list'">
                     <label class="col-md-2 control-label">扩展操作</label>
                     <div class="col-md-10">
-                        <label class='checkbox-inline'><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='def.canLike'>点赞</label>
+                        <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='def.canLike'>点赞</label>
                     </div>
                 </div>
                 <div class="form-group" ng-show="def.type==='list'||def.type==='rounds'">

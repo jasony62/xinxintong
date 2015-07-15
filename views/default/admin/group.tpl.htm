@@ -23,9 +23,9 @@
             <tr ng-repeat='g in groups'>
                 <td style='padding:0'><input type='text' class='form-control' ng-model='g.group_name' ng-change="update(g,'group_name')"></td>
                 <td><input type='radio' ng-value='g' ng-model='defaultGroup'></td>
-                <td><input type='checkbox' ng-true-value='1' ng-false-value='0' ng-model='g.p_mpgroup_create' ng-change="update(g,'p_mpgroup_create')"></td>
-                <td><input type='checkbox' ng-true-value='1' ng-false-value='0' ng-model='g.p_mp_create' ng-change="update(g,'p_mp_create')"></td>
-                <td><input type='checkbox' ng-true-value='1' ng-false-value='0' ng-model='g.p_mp_permission' ng-change="update(g,'p_mp_permission')"></td>
+                <td><input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model='g.p_mpgroup_create' ng-change="update(g,'p_mpgroup_create')"></td>
+                <td><input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model='g.p_mp_create' ng-change="update(g,'p_mp_create')"></td>
+                <td><input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model='g.p_mp_permission' ng-change="update(g,'p_mp_permission')"></td>
                 <td>{{g.account_count}}</td>
                 <td><a href='#' ng-click='remove(g)' ng-if="g.account_count==0">删除</a></td>
             </tr>

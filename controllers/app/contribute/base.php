@@ -105,11 +105,14 @@ class base extends \member_base {
      */
     public function articleReturn_action($mpid, $id, $msg='')
     {
+        /**
+         * 记录日志
+         */
         $articleModel = $this->model('matter\article');
         $disposer = $articleModel->disposer($id);
         if ($disposer->seq == 1) {
             $article = $articleModel->byId($id);
-            $mid = $article->creater; // todo ??? creater不是mid
+            $mid = $article->creater;
             $phase = 'I';
         } else {
             $q = array(
@@ -123,6 +126,32 @@ class base extends \member_base {
         }
         
         $log = $articleModel->forward($mpid, $id, $mid, $phase, $msg);
+        /**
+         * 发送通知
+         */
+        $article = $articleModel->byId($id);
+        $url = 'http://'. $_SERVER['HTTP_HOST'];
+        $url .= '/rest/app/contribute/initiate/article';
+        $url .= "?mpid=$mpid";
+        $url .= "&entry=$article->entry";
+        $url .= "&id=$id";
+        
+        $reply = urlencode('您的投稿【');
+        $reply .= "<a href=\"$url\">";
+        $reply .= urlencode($article->title);
+        $reply .= "</a>";
+        $reply .= urlencode('】已退回。退回原因【' . $msg . '】，请修改后再次送审。');
+        
+        $message = array(
+            "msgtype" => "text",
+            "text" => array(
+                "content" => $reply
+            )
+        );
+        
+        $fan = $this->model('user/fans')->byMid($mid);
+
+        $rst = $this->notify($mpid, $fan->openid, $message);
         
         return new \ResponseData('ok');
     }
@@ -133,33 +162,108 @@ class base extends \member_base {
      * $id 文章ID
      * $phase 处理的阶段
      */
-    public function articleForward_action($mpid, $id, $phase)
+    public function articleForward_action($mpid, $id, $phase, $mid)
     {
-        $reviewer = $this->getPostJson();
-        
-        $mid = $reviewer->userSet[0]->identity;
-        
         $model = $this->model('matter\article');
+        $article = $model->byId($id);
+        
+        $modelCtrb = $this->model('app\contribute');
+        $entry = explode(',', $article->entry);
+        $c = $modelCtrb->byId($entry[1]);
         
         $log = $model->forward($mpid, $id, $mid, $phase);
         /**
-         * 发给指定用户进行预览
+         * 发给指定用户进行处理
          */
-        $mpa = $this->model('mp\mpaccount')->byId($mpid);
-        $fan = $this->model('user/fans')->byMid($mid);
+        $url = $this->articleReviewUrl($mpid, $id);
+        $msg = urlencode('投稿活动【' . $c->title . '】有一篇新稿件，');
+        $msg .= "<a href=\"$url\">";
+        $msg .= urlencode('请处理');
+        $msg .= "</a>";
         
-        if ($mpa->mpsrc === 'wx') {
-            $message = $model->forWxGroupPush($mpid, $id);
-            $rst = $this->send_to_wxuser_by_preview($mpid, $message, $fan->openid);
-        } else if ($mpa->mpsrc === 'yx') {
-            $message = $model->forCustomPush($mpid, $id);
-            $rst = $this->send_to_yxuser_byp2p($mpid, $message, $fan->openid);
-        } else if ($mpa->mpsrc === 'qy') {
-            $message = $model->forCustomPush($mpid, $id);
-            $rst = $this->send_to_user($mpid, $fan->openid, $message);
-        }
+        $message = array(
+            "msgtype"=>"text",
+            "text"=>array(
+                "content"=>$msg
+            )
+        );
+                
+        $fan = $this->model('user/fans')->byMid($mid);
+
+        $rst = $this->notify($mpid, $fan->openid, $message);
         
         return new \ResponseData('ok');
+    }
+    /**
+     * 文章的投稿链接
+     *
+     * $mpid 公众平台ID
+     * $id 文章ID
+     */
+    public function articleInitiateUrl($mpid, $id)
+    {
+        $model = $this->model('matter\article');
+        $article = $model->byId($id);
+        
+        $modelCtrb = $this->model('app\contribute');
+        $entry = explode(',', $article->entry);
+        $c = $modelCtrb->byId($entry[1]);
+        
+        $url = 'http://'. $_SERVER['HTTP_HOST'];
+        $url .= '/rest/app/contribute/initiate/article';
+        $url .= "?mpid=$mpid";
+        $url .= "&entry=$article->entry";
+        $url .= "&id=$id";
+        
+        return $url;
+    }
+    /**
+     * 文章的审稿链接
+     *
+     * $mpid 公众平台ID
+     * $id 文章ID
+     */
+    public function articleReviewUrl($mpid, $id)
+    {
+        $model = $this->model('matter\article');
+        $article = $model->byId($id);
+        
+        $modelCtrb = $this->model('app\contribute');
+        $entry = explode(',', $article->entry);
+        $c = $modelCtrb->byId($entry[1]);
+        
+        $url = 'http://'. $_SERVER['HTTP_HOST'];
+        $url .= '/rest/app/contribute/review/article';
+        $url .= "?mpid=$mpid";
+        $url .= "&entry=$article->entry";
+        $url .= "&id=$id";
+        
+        return $url;
+    }
+    /**
+     * 发送通知
+     *
+     * $mpid 公众平台ID
+     * $id 文章ID
+     * $phase 处理的阶段
+     */
+    public function notify($mpid, $openid, $message)
+    {
+        $mpa = $this->model('mp\mpaccount')->byId($mpid);
+        
+        switch ($mpa->mpsrc) {
+            case 'wx':
+                $rst = $this->send_to_wxuser_by_preview($mpid, $message, $openid);
+                break;
+            case 'yx':
+                $rst = $this->send_to_yxuser_byp2p($mpid, $message, $openid);
+                break;
+            case 'qy':
+                $rst = $this->send_to_user($mpid, $openid, $message);
+                break;
+        }
+        
+        return $rst;
     }
     /**
      *

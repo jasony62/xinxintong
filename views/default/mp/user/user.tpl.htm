@@ -121,7 +121,7 @@
                             <option value='channel'>频道</option>
                         </select>
                     </div>
-                    <label class="checkbox-inline" ng-show="hasParent"><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='fromParent' ng-change='fetchMatter()'>来源于父账号</label>
+                    <label class="checkbox-inline" ng-show="hasParent"><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='fromParent' ng-change='fetchMatter()'>来源于父账号</label>
                     <div class='form-group pull-right'>
                         <button class='btn btn-primary' ng-disabled="!selectedMatter&&matterType!='write'" ng-click='send()'>发送</button>
                     </div>
@@ -160,7 +160,7 @@
                         </div>
                         <p class='form-control'>{{child.data.name}}</p>
                         <span class="input-group-addon" ng-init="child.data.checked = isChecked(child.data) ? 'Y':'N'">
-                            <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='child.data.checked' ng-change="updateDepts(child.data)">
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='child.data.checked' ng-change="updateDepts(child.data)">
                         </span>
                     </div>
                 </div>
@@ -207,7 +207,7 @@
                     <label class="col-md-2 control-label">邮箱验证通过</label>
                     <div class="col-md-10">
                         <label class='checkbox-inline'>
-                            <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='member.email_verified'>是
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='member.email_verified'>是
                         </label>
                     </div>
                 </div>

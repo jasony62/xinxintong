@@ -7,32 +7,13 @@ require_once dirname(__FILE__).'/base.php';
  */
 class initiate extends base {
     /**
-     * 进入缺省页面
+     * 进入投稿人投稿列表页面
      */
     public function afterOAuth($mpid, $entry, $openid=null) 
     {
         $myUrl = 'http://'.$_SERVER['HTTP_HOST']."/rest/app/contribute/initiate?mpid=$mpid&entry=$entry";
-        list($fid) = $this->getCurrentUserInfo($mpid, $myUrl);
+        $this->getCurrentUserInfo($mpid, $myUrl);
 
-        list($entryType, $entryId) = explode(',', $entry);
-        $oEntry = $this->model('matter\\'.$entryType)->byId($entryId);
-
-        if ($this->getClientSrc() && isset($oEntry->shift2pc) && $oEntry->shift2pc === 'Y') {
-            /**
-             * 提示在PC端完成
-             */
-            $fea = $this->model('mp\mpaccount')->getFeatures($mpid,'shift2pc_page_id');
-            $page = $this->model('code/page')->byId($fea->shift2pc_page_id, 'html,css,js'); 
-            /**
-             * 任务码
-             */
-            if ($oEntry->can_taskcode && $oEntry->can_taskcode === 'Y') {
-                $taskCode = $this->model('task')->addTask($mpid, $fid, $myUrl);
-                $page->html = str_replace('{{taskCode}}', $taskCode, $page->html);
-            }
-            \TPL::assign('shift2pcAlert', $page);
-        }
-        
         $this->view_action('/app/contribute/initiate/list');
     }
     /**
@@ -58,8 +39,11 @@ class initiate extends base {
         $params['needReview'] = empty($initiators) ? 'N' : 'Y';
         
         \TPL::assign('params', $params);
-
-        if (empty($article->disposer) || $article->disposer->phase === 'I')
+        /**
+         * 只有为投稿状态，且在PC端打开的时候才允许编辑
+         */
+        $csrc = $this->getClientSrc();
+        if (empty($csrc) && (empty($article->disposer) || $article->disposer->phase === 'I'))
             $this->view_action('/app/contribute/initiate/article');
         else
             $this->view_action('/app/contribute/initiate/article-r');
@@ -181,8 +165,9 @@ class initiate extends base {
      * $mpid 公众平台ID
      * $id 文章ID
      * $phase 处理的阶段
+     * $mid 审核人ID
      */
-    public function articleForward_action($mpid, $id, $phase)
+    public function articleForward_action($mpid, $id, $phase, $mid)
     {
         $rst = $this->model()->update(
             'xxt_article', 
@@ -190,6 +175,6 @@ class initiate extends base {
             "mpid='$mpid' and id='$id'"
         );
         
-        return parent::articleForward_action($mpid, $id, $phase);
+        return parent::articleForward_action($mpid, $id, $phase, $mid);
     }
 }

@@ -55,7 +55,6 @@ class article_model extends article_base {
         if (!empty($articles) && $cascade) foreach ($articles as &$a) {
             $a->disposer = $this->disposer($a->id);
         }
-
         return $articles;
     }
     /**

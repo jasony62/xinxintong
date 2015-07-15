@@ -58,7 +58,7 @@
             <label class='col-md-2 control-label'>频道（可选）</label>
             <div class='col-md-10'>
                 <combox evt-prefix='channel' readonly=true prop='title' existing='editing.channels' options='channels'></combox>
-                <label class='checkbox-inline'><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='channelsFromParent' ng-change='updateChannelSrc()');">来源于父账号</label>
+                <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='channelsFromParent' ng-change='updateChannelSrc()');">来源于父账号</label>
             </div>
         </div>
         <div class='form-group'>
@@ -141,7 +141,7 @@
             <label class='col-md-2 control-label'>直接打开</label>
             <div class='col-md-10'>
                 <div class='checkbox'>
-                    <label><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='editing.open_directly' ng-change="update('open_directly');">跳过日志和访问控制</label>
+                    <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.open_directly' ng-change="update('open_directly');">跳过日志和访问控制</label>
                 </div>
             </div>
         </div>
@@ -149,7 +149,7 @@
             <label class='col-md-2 control-label'>可见范围</label>
             <div class='col-md-10'>
                 <div class='checkbox'>
-                    <label><input type='checkbox' ng-disabled="editing.creater!==editing.uid" ng-model='editing.public_visible' ng-true-value='Y' ng-false-value='N' ng-change="update('public_visible')">设置为公开可见</label>
+                    <label><input type='checkbox' ng-disabled="editing.creater!==editing.uid" ng-model='editing.public_visible' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('public_visible')">设置为公开可见</label>
                 </div>
             </div>
         </div>
@@ -157,7 +157,7 @@
             <label class='col-md-2 control-label'>访问控制</label>
             <div class='col-md-10'>
                 <div class='checkbox'>
-                    <label><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='editing.fans_only' ng-change="update('fans_only');">仅限关注用户访问</label>
+                    <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.fans_only' ng-change="update('fans_only');">仅限关注用户访问</label>
                 </div>
             </div>
         </div>

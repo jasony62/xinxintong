@@ -4,7 +4,7 @@
             <div class='list-group-item'>
                 <div class='form-inline'>
                     <button class='btn btn-success' ng-click='create()'>新建频道</button>
-                    <label class="checkbox-inline" ng-show="hasParent==='Y'"><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='fromParent' ng-change='doSearch()'>来源于父账号</label>
+                    <label class="checkbox-inline" ng-show="hasParent==='Y'"><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='fromParent' ng-change='doSearch()'>来源于父账号</label>
                 </div>
             </div>
             <a class='list-group-item' style='min-height:42px' ng-repeat="c in channels" ng-click='edit(c)' ng-class="{'active':c===editing}"><span>{{c.title}}</span><button class='btn btn-xs btn-default pull-right' ng-if="c===editing" ng-click='deleteOne($event,$index)'><span class='glyphicon glyphicon-remove'></span></button></a>
@@ -85,7 +85,7 @@
             <label class='col-md-3 control-label'>自动过滤</label>
             <div class='col-md-9'>
                 <div class='checkbox'>
-                    <label><input type='checkbox' ng-model='editing.filter_by_matter_acl' ng-true-value='Y' ng-false-value='N' ng-change="update('filter_by_matter_acl')">根据素材的访问控制规则自动过滤</label>
+                    <label><input type='checkbox' ng-model='editing.filter_by_matter_acl' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('filter_by_matter_acl')">根据素材的访问控制规则自动过滤</label>
                 </div>
             </div>
         </div>
@@ -93,7 +93,7 @@
             <label class='col-md-3 control-label'>显示头图</label>
             <div class='col-md-9'>
                 <div class='checkbox'>
-                    <label><input type='checkbox' ng-model='editing.show_pic_in_page' ng-true-value='Y' ng-false-value='N' ng-change="update('show_pic_in_page')">页面形式中显示每条素材的头图</label>
+                    <label><input type='checkbox' ng-model='editing.show_pic_in_page' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('show_pic_in_page')">页面形式中显示每条素材的头图</label>
                 </div>
             </div>
         </div>
@@ -101,7 +101,7 @@
             <label class='col-md-3 control-label'>可见范围</label>
             <div class='col-md-9'>
                 <div class='checkbox'>
-                    <label><input type='checkbox' ng-disabled="editing.creater!==editing.uid" ng-model='editing.public_visible' ng-true-value='Y' ng-false-value='N' ng-change="update('public_visible')">设置为公开可见</label>
+                    <label><input type='checkbox' ng-disabled="editing.creater!==editing.uid" ng-model='editing.public_visible' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('public_visible')">设置为公开可见</label>
                 </div>
             </div>
         </div>

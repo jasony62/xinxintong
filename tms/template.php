@@ -7,7 +7,9 @@ class MySavant3 extends Savant3 {
     {
         parent::__construct($config);
     }
-
+    /**
+     * 引入全局CSS
+     */
     public function global_css() 
     {
         $names = func_get_args();
@@ -18,20 +20,25 @@ class MySavant3 extends Savant3 {
         }
     }
     /**
-     *
+     * 引入CSS文件
      */
     public function import_css($dir) 
     {
         $current_uri = TMS_APP_URI.'/views/default' . $dir;
         $names = func_get_args();
         $argnum = count($names);
+        // 附加参数，是否刷新
         $fresh = is_bool($names[$argnum - 1]) ? $names[$argnum - 1] : false;
         $fresh && $argnum--;
+        // 是否支持媒体查询参数
+        $media = is_array($names[$argnum - 1]) ? $names[$argnum - 1][0] : false;
+        $media && $argnum--; 
         for ($i = 1; $i<$argnum; $i++) {
             $name = $names[$i]; 
             $link = '<link rel="stylesheet" type="text/css"';
+            $media && $link .= " media='$media'";
             $link .= " href='$current_uri/$name.css";
-            if ($fresh) $link .= '?_='.time();
+            $fresh && $link .= '?_='.time();
             $link .= "'/>";
             echo $link . PHP_EOL;
         }

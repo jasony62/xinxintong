@@ -254,6 +254,11 @@ xxtMatters.directive('tinymce', function ($timeout) {
                     }
                 });
             }, 1);
+            scope.$watch('content', function (nv) {
+                if (nv && nv.length && scope.initialized) {
+                    tinymce.get(scope.id).setContent(nv);
+                }
+            });
             scope.$on('$destroy', function () {
                 var tinyInstance;
                 if (tinyInstance = tinymce.get(scope.id)) {
@@ -294,7 +299,7 @@ xxtMatters.controller('MattersGalleryModalInstCtrl', ['$scope', '$http', '$modal
         url += '/get?page=' + $scope.page.current + '&size=' + $scope.page.size + '&fields=' + fields;
         $scope.p.fromParent && $scope.p.fromParent == 1 && (params.src = 'p');
         $http.post(url, params, { headers: { 'ACCEPT': 'application/json' } }).success(function (rsp) {
-            if (/article|contribute|enroll/.test($scope.p.matterType.value)) {
+            if (/article|contribute/.test($scope.p.matterType.value)) {
                 $scope.matters = rsp.data[0];
                 rsp.data[1] && ($scope.page.total = rsp.data[1]);
             } else {

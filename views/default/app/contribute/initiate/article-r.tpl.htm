@@ -1,81 +1,104 @@
-<div class='container' ng-clock ng-app='xxtApp' ng-controller='initiateCtrl' style='padding:15px 0' ng-init="jsonParams='<?php echo urlencode(json_encode(TPL::val('params')));?>'">
+<div class='ng-cloak' ng-cloak ng-app='xxtApp' ng-controller='initiateCtrl'>
     <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
-    <div class="container-fluid">
-        <nav class="navbar navbar-default">
-            <div class='navbar-header'>
-                <a class='navbar-brand' href='#' ng-click="back($event)"><span class='glyphicon glyphicon-chevron-left'></span></a>
+    <div class='container'>
+        <div class='row'>
+            <div id='viewer' class='col-md-6'>
+                <div id='card' ng-click='preview()'>
+                    <p class='title' ng-bind='editing.title'></p>
+                    <span class='date' ng-bind="editing.create_at*1000|date:'yyyy-MM-dd HH:mm'"></span>
+                    <div class='imgwrap'>
+                        <div>
+                            <img name='pic' ng-src="{{editing.pic}}" width='180px' />
+                        </div>
+                    </div>
+                    <p class='summary' ng-bind='editing.summary'></p>
+                    <div class='preview'>查看全文</div>
+                </div>
+                <div id='content' class='form-group'>
+                    <iframe class='form-control' style='height:400px'></iframe>
+                </div>
+                <div id='attributes' class='form-group'>
+                    <table class='table table-bordered'>
+                        <tbody>
+                            <tr>
+                                <td>投稿人</td>
+                                <td ng-bind="editing.creater_name"></td>
+                            </tr>
+                            <tr>
+                                <td>频道</td>
+                                <td>
+                                    <span class='channel' ng-repeat='sc in editing.subChannels' ng-bind='sc.title'></span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id='logs' class='col-md-6'>
+                <div class='table'>
+                    <div class='thead'>
+                        <div class='tr'>
+                            <div>序号</div>
+                            <div>发起时间</div>
+                            <div>处理人</div>
+                            <div>接收时间</div>
+                            <div>处理时间</div>
+                            <div>阶段</div>
+                            <div>消息</div>
+                        </div>
+                    </div>
+                    <div class='tbody'>
+                        <div class='tr' ng-repeat="l in logs">
+                            <div>
+                                <span class='visible-xs-inline'>序号</span>
+                                <span ng-bind="l.seq"></span>
+                            </div>
+                            <div>
+                                <span class='visible-xs-inline'>发起时间</span>
+                                <span ng-bind="l.send_at*1000|date:'yy-MM-dd HH:mm'"></span>
+                            </div>
+                            <div>
+                                <span class='visible-xs-inline'>处理人</span>
+                                <span ng-bind="l.disposer_name"></span>
+                            </div>
+                            <div>
+                                <span class='visible-xs-inline'>接收时间</span>
+                                <span ng-if='l.receive_at>0' ng-bind="l.receive_at*1000|date:'yy-MM-dd HH:mm'"></span>
+                            </div>
+                            <div>
+                                <span class='visible-xs-inline'>处理时间</span>
+                                <span ng-if='l.read_at>0' ng-bind="l.read_at*1000|date:'yy-MM-dd HH:mm'">
+                                    <span>
+                            </div>
+                            <div>
+                                <span class='visible-xs-inline'>阶段</span>
+                                <span ng-bind="phases[l.phase]"></span>
+                            </div>
+                            <div>
+                                <span class='visible-xs-inline'>消息</span>
+                                <span ng-bind="l.remark"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <nav id='toolbar' class="navbar navbar-default">
+            <div class="container text-center">
+                <button class='btn btn-lg navbar-btn btn-default' ng-click='back($event)'>
+                    <span class='glyphicon glyphicon-list'></span>
+                </button>
+                <button class='btn btn-lg navbar-btn btn-default visible-xs-inline' ng-if="!editing.disposer||editing.disposer.phase==='I'"
+                ng-click='shift2pc($event)'>
+                    <span class='glyphicon glyphicon-pencil'></span>
+                </button>
             </div>
         </nav>
-        <div></div>
     </div>
-    <div class='form-horizontal col-md-6' ng-controller="editCtrl">
-        <div class='form-group'>
-            <label class='col-md-2 control-label'>标题</label>
-            <div class='col-md-10'>
-                <p class='form-control-static' ng-bind='editing.title'></p>
-            </div>
+    <div id='pagePopup'>
+        <div style='text-align:right'>
+            <button class='btn btn-default' onclick="document.querySelector('#pagePopup').style.display='none'">关闭</button>
         </div>
-        <div class='form-group'>
-            <label class='col-md-2 control-label'>头图</label>
-            <div class='col-md-10'>
-                <div style="min-height:120px;width:182px;border:1px solid #CCC">
-                    <div style='position:relative' ng-if="editing.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
-                        <img name='pic' ng-src="{{editing.pic}}" width='180px' />
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class='form-group'>
-            <label class='col-md-2 control-label'>摘要</label>
-            <div class='col-md-10'>
-                <p class='form-control-static' ng-bind='editing.summary'></p>
-            </div>
-        </div>
-        <div class='form-group'>
-            <label class='col-md-2 control-label'>正文</label>
-            <div class='col-md-10'>
-                <iframe id='content' class='form-control' style='height:300px'></iframe>
-            </div>
-        </div>
-        <div class='form-group'>
-            <label class='col-md-2 control-label'>频道</label>
-            <div class='col-md-10'>
-                <combox disabled='true' readonly='true' evt-prefix='sub-channel' prop='title' existing='editing.subChannels' options='entryApp.subChannels'></combox>
-            </div>
-        </div>
-        <div class='alert alert-info'>
-            <span>创建日期：{{editing.create_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
-        </div>
-    </div>
-    <div class='col-md-6' ng-controller="reviewlogCtrl">
-        <div class='table'>
-            <div class='thead'>
-                <div class='tr'>
-                    <div>序号</div>
-                    <div>发起时间</div>
-                    <div>处理人</div>
-                    <div>接收时间</div>
-                    <div>处理时间</div>
-                    <div>阶段</div>
-                    <div>消息</div>
-                </div>
-            </div>
-            <div class='tbody'>
-                <div class='tr' ng-repeat="l in logs">
-                    <div ng-bind="l.seq"></div>
-                    <div ng-bind="l.send_at*1000|date:'yy-MM-dd HH:mm'"></div>
-                    <div ng-bind="l.disposer_name"></div>
-                    <div>
-                        <span ng-if='l.receive_at>0' ng-bind="l.receive_at*1000|date:'yy-MM-dd HH:mm'"></span>
-                    </div>
-                    <div>
-                        <span ng-if='l.read_at>0' ng-bind="l.read_at*1000|date:'yy-MM-dd HH:mm'">
-                            <span>
-                    </div>
-                    <div ng-bind="phases[l.phase]"></div>
-                    <div ng-bind="l.remark"></div>
-                </div>
-            </div>
-        </div>
+        <iframe></iframe>
     </div>
 </div>

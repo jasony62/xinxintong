@@ -10,7 +10,7 @@
         <ul class='list-group'>
             <li class='list-group-item mp' ng-repeat="mp in childmps">
                 <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='mp.checked' ng-change='selectMp(mp)'>{{mp.name}}</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='mp.checked' ng-change='selectMp(mp)'>{{mp.name}}</label>
                 <p class='help-block' ng-if="mp.logs[0]!==undefined&&mp.logs[0].result!=='ok'" ng-bind='mp.logs[0].result'></p>
                 <span class='status' ng-class="{'success':mp.logs[0].result==='ok','failed':(mp.logs[0]!==undefined&&mp.logs[0].result!=='ok')}"></span>
             </li>

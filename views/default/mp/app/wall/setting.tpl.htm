@@ -67,8 +67,8 @@
     <div class='form-group'>
         <label class='col-md-2 control-label'>消息处理</label>
         <div class='col-md-10'>
-            <label class='checkbox-inline'><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='wall.skip_approve' ng-change="update('skip_approve')">跳过审核</label>
-            <label class='checkbox-inline'><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='wall.push_others' ng-change="update('push_others')">推送消息</label>
+            <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='wall.skip_approve' ng-change="update('skip_approve')">跳过审核</label>
+            <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='wall.push_others' ng-change="update('push_others')">推送消息</label>
         </div>
     </div>
     <div picgallery style='display:none' url='{{picGalleryUrl}}'></div>

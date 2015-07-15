@@ -33,7 +33,7 @@
         <label class='col-md-2 control-label'>奖项中奖词</label>
         <div class='col-md-10'>
             <div class='checkbox'>
-                <label><input type="checkbox" ng-true-value='Y' ng-false-value='N' ng-model='lottery.show_greeting' ng-change="update('show_greeting');">显示</label>
+                <label><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='lottery.show_greeting' ng-change="update('show_greeting');">显示</label>
             </div>
         </div>
     </div>
@@ -41,7 +41,7 @@
         <label class='col-md-2 control-label'>获奖名单</label>
         <div class='col-md-10'>
             <div class='checkbox'>
-                <label><input type="checkbox" ng-true-value='Y' ng-false-value='N' ng-model='lottery.show_winners' ng-change="update('show_winners');">显示</label>
+                <label><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='lottery.show_winners' ng-change="update('show_winners');">显示</label>
             </div>
         </div>
     </div>
@@ -49,7 +49,7 @@
         <label class='col-md-2 control-label'>定制页面</label>
         <div class='col-md-10'>
             <div class='checkbox'>
-                <label><input type="checkbox" ng-true-value='Y' ng-false-value='N' ng-model='lottery.custom_body' ng-change="update('custom_body');">是</label>
+                <label><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='lottery.custom_body' ng-change="update('custom_body');">是</label>
                 <a href='#' ng-click='gotoCode()' ng-show="lottery.custom_body==='Y'">编辑页面</a>
             </div>
         </div>

@@ -29,7 +29,7 @@
             <label class='col-md-2 control-label'>连接成功</label>
             <div class='col-md-10'>
                 <div class='col-md-1'>
-                    <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='mpa.qy_joined' disabled>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='mpa.qy_joined' disabled>
                 </div>
                 <button class='btn btn-success' ng-disabled="mpa.qy_joined==='Y'" ng-click="checkJoin()">
                     检查<span ng-show="stateOfCheckJoin.running">{{'('+stateOfCheckJoin.count+')'}}</span>
@@ -59,7 +59,7 @@
                 <tbody>
                     <tr>
                         <td>更新通讯录</td>
-                        <td><input type='checkbox' ng-model='mpapis.qy_updateab' ng-true-value='Y' ng-false-value='N' ng-change="updateApi('qy_updateab')"></td>
+                        <td><input type='checkbox' ng-model='mpapis.qy_updateab' ng-true-value="'Y'" ng-false-value="'N'" ng-change="updateApi('qy_updateab')"></td>
                     </tr>
                 </tbody>
             </table>

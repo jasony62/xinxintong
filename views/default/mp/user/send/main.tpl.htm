@@ -34,7 +34,7 @@
                 </select>
             </div>
             <label class="checkbox-inline" ng-show="hasParent==='Y'">
-                <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='fromParent' ng-change='fetchMatter()'>来源于父账号</label>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='fromParent' ng-change='fetchMatter()'>来源于父账号</label>
             <div class='form-group pull-right'>
                 <button class='btn btn-primary' ng-disabled='userSet.length===0||!selectedMatter' ng-click='send($event)'>发送</button>
             </div>

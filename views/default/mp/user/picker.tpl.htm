@@ -14,7 +14,7 @@
     </div>
     <div class='form-group' ng-show="showPickSingleMember">
         <label class="checkbox-inline">
-            <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='isPickSingleMember'>选择用户</label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='isPickSingleMember'>选择用户</label>
     </div>
 </div>
 <div id="childmps" ng-show="userSet.userScope==='mp'">
@@ -22,7 +22,7 @@
         <ul class='list-group' style='margin-bottom:0'>
             <li class='list-group-item' ng-repeat='mp in childmps'>
                 <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='mp.checked' ng-change='pickMp(mp)'>{{mp.name}}</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='mp.checked' ng-change='pickMp(mp)'>{{mp.name}}</label>
             </li>
             <li class='list-group-item' ng-show='groups&&groups.length===0' style='color:#CCC'>没有分组</li>
         </ul>
@@ -36,7 +36,7 @@
         <ul class='list-group' style='margin-bottom:0'>
             <li class='list-group-item' ng-repeat='g in groups'>
                 <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='g.checked' ng-change='pickGroup(g)'>{{g.name}}</label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='g.checked' ng-change='pickGroup(g)'>{{g.name}}</label>
             </li>
             <li class='list-group-item' ng-show='groups&&groups.length===0' style='color:#CCC'>没有分组</li>
         </ul>

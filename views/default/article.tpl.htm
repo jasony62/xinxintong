@@ -28,7 +28,7 @@ function exchangeSize($size) {
         <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
         <title><?php echo $article->title;?></title> 
         <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-        <?php $this->import_css('','article', true);?>
+        <link href="/views/default/article.css?_=1" rel="stylesheet">
         <?php $body_css=TPL::val('body_css'); if (!empty($body_css)) {?>
         <style><?php echo $body_css;?></style> 
         <?php } ?>
@@ -134,7 +134,7 @@ function exchangeSize($size) {
         <script src="/rest/mi/matter/wxjssdksignpackage?mpid=<?php echo $mpid;?>&url=<?php echo urlencode("http://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);?>"></script>
         <?php } ?>
         <script src="/static/js/xxt.share.js?_=2"></script>
-        <?php $this->import_js('','article', true);?>
+        <script src="/views/default/article.js?_=1"></script>
         <?php if ($article->can_picviewer === 'Y') {?>
         <script src="/static/js/hammer.min.js"></script>
         <script src="/static/js/picViewer.js"></script>

@@ -8,7 +8,7 @@
         boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.current"
         previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
         <label class="checkbox-inline" ng-show="options.canFromParentMp==='Y'">
-            <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='p.fromParentMp' ng-change='doSearch()'>来源于父账号</label>
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='p.fromParentMp' ng-change='doSearch()'>来源于父账号</label>
     </div>
     <div class="modal-body" style='overflow:auto'>
         <ul class="list-group">

@@ -78,58 +78,6 @@ class enroll extends \member_base {
         return $user;
     }
     /**
-     * 获得当前访问用户的信息
-     *
-     * $mpid
-     * $act
-     * $openid
-     * $matter
-     * $checkAccessControl
-     */
-    protected function &getUser($mpid, $sAuthapis = null, $openid = '', $matter = null)
-    {
-        /**
-         * 当前用户在cookie中的记录
-         */
-        empty($openid) && $openid = $this->getCookieOAuthUser($mpid);
-        /**
-         * 所有用户认证信息
-         */
-        $members = $this->getMembersByMpid($mpid, $sAuthapis, $openid);
-        /**
-         * 限定的用户认证身份
-         */
-        if ($matter && isset($matter->access_control) && $matter->access_control === 'Y') {
-            $membersInAcl = array();
-            foreach ($members as $member) {
-                if ($this->canAccessObj($mpid, $matter->id, $member, $sAuthapis, $matter)) {
-                    $membersInAcl[] = $member;
-                }
-            }
-        }
-        /**
-         * 关注用户信息
-         */
-        if (empty($openid) && !empty($members)) {
-            $fan = $this->model('user/fans')->byMid($members[0]->mid, '*'); 
-            $openid = $fan->openid;
-        } else if (!empty($openid))
-            $fan = $this->model('user/fans')->byOpenid($mpid, $openid);
-        else
-            $fan = null;
-        
-        $vid = $this->getVisitorId($mpid);
-
-        $user = new \stdClass;
-        $user->vid = $vid;
-        $user->openid = $openid;
-        $user->fan = $fan;
-        $user->members = $members;
-        isset($membersInAcl) && $user->membersInAcl = $membersInAcl;
-
-        return $user;
-    }
-    /**
      * 返回活动页
      *
      * 活动是否只向会员开放，如果是要求先成为会员，否则允许直接

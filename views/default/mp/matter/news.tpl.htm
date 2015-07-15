@@ -3,7 +3,7 @@
         <div class='list-group'>
             <div class='list-group-item'>
                 <button class='btn btn-success' ng-click='create()'>新建多图文</button>
-                 <label class="checkbox-inline" ng-show="hasParent==='Y'"><input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='fromParent' ng-change='doSearch()'>来源于父账号</label>
+                 <label class="checkbox-inline" ng-show="hasParent==='Y'"><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='fromParent' ng-change='doSearch()'>来源于父账号</label>
             </div>
             <a class='list-group-item' style='min-height:42px' ng-class="{'active':n===editing}" ng-click='edit(n)' ng-repeat="n in news">
                 <span>{{n.title}}</span><button class='btn btn-default btn-xs pull-right' ng-click='removeOne($event,$index)' ng-if="editing===n"><span class='glyphicon glyphicon-remove'></span></button>
@@ -52,7 +52,7 @@
             <label class='col-md-3 control-label'>自动过滤</label>
             <div class='col-md-9'>
                 <div class='checkbox'>
-                    <label><input type='checkbox' ng-model='editing.filter_by_matter_acl' ng-true-value='Y' ng-false-value='N' ng-change="update('filter_by_matter_acl')">根据素材的访问控制规则自动过滤</label>
+                    <label><input type='checkbox' ng-model='editing.filter_by_matter_acl' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('filter_by_matter_acl')">根据素材的访问控制规则自动过滤</label>
                 </div>
             </div>
         </div>
@@ -67,7 +67,7 @@
             <label class='col-md-3 control-label'>可见范围</label>
             <div class='col-md-9'>
                 <div class='checkbox'>
-                    <label><input type='checkbox' ng-disabled="editing.creater!==editing.uid" ng-model='editing.public_visible' ng-true-value='Y' ng-false-value='N' ng-change="update('public_visible')">设置为公开可见</label>
+                    <label><input type='checkbox' ng-disabled="editing.creater!==editing.uid" ng-model='editing.public_visible' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('public_visible')">设置为公开可见</label>
                 </div>
             </div>
         </div>

@@ -1,32 +1,70 @@
-<div class='container' ng-clock ng-app='xxtApp' ng-controller='initiateCtrl' style='padding:15px 0'>
+<div class='ng-cloak' ng-cloak ng-app='xxtApp' ng-controller='initiateCtrl'>
     <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
-    <nav class='navbar navbar-default'>
-        <div class="container-fluid">
-            <ul class='nav navbar-nav navbar-right'>
-                <button class='btn btn-success navbar-btn' ng-click='create()'>新建</button>
-            </ul>
-        </div>
-    </nav>
-    <div class='table'>
-        <div class='thead'>
-            <div class='tr'>
-                <div>标题</div>
-                <div>创建时间</div>
-                <div>处理阶段</div>
-                <div>审核状态</div>
-                <div>阅读</div>
-                <div>点赞</div>
+    <div class='container'>
+        <div class='row'>
+            <nav class='navbar navbar-default hidden-xs'>
+                <div class="container-fluid">
+                    <ul class='nav navbar-nav navbar-right'>
+                        <button class='btn btn-success navbar-btn' ng-click='create()'>新建</button>
+                    </ul>
+                </div>
+            </nav>
+            <div id='list' class='table' ng-if='articles.length'>
+                <div class='thead'>
+                    <div class='tr'>
+                        <div>标题</div>
+                        <div>创建时间</div>
+                        <div>处理阶段</div>
+                        <div>审核状态</div>
+                        <div>阅读</div>
+                        <div>点赞</div>
+                    </div>
+                </div>
+                <div class='tbody'>
+                    <div class='tr' ng-repeat="a in articles" ng-click="open(a)">
+                        <div ng-class="{'pending':a.disposer.state==='P'&&a.disposer.phase==='I'}">
+                            <span class='visible-xs-inline'>标题</span>
+                            <span ng-bind="a.title"></span>
+                        </div>
+                        <div>
+                            <span class='visible-xs-inline'>创建时间</span>
+                            <span ng-bind="a.create_at*1000|date:'yy-MM-dd HH:mm'"></span>
+                        </div>
+                        <div>
+                            <span class='visible-xs-inline'>处理阶段</span>
+                            <span ng-bind="phases[a.disposer.phase]||'投稿'"></span>
+                        </div>
+                        <div>
+                            <span class='visible-xs-inline'>审核状态</span>
+                            <span ng-bind="approved[a.approved]"></span>
+                        </div>
+                        <div>
+                            <span class='visible-xs-inline'>阅读</span>
+                            <span ng-bind="a.read_num"></span>
+                        </div>
+                        <div>
+                            <span class='visible-xs-inline'>点赞</span>
+                            <span ng-bind="a.score"></span>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class='tbody'>
-            <div class='tr' ng-repeat="a in articles" ng-click="open(a)">
-                <div ng-bind="a.title" ng-class="{'pending':a.disposer.state==='P'&&a.disposer.phase==='I'}"></div>
-                <div ng-bind="a.create_at*1000|date:'yy-MM-dd HH:mm'"></div>
-                <div ng-bind="phases[a.disposer.phase]||'投稿'"></div>
-                <div ng-bind="approved[a.approved]"></div>
-                <div ng-bind="a.read_num"></div>
-                <div ng-bind="a.score"></div>
+            <div id='startup' ng-if='articles.length===0'>
+                <span ng-bind='entryApp.summary'></span>
             </div>
+            <nav id='status' class="navbar navbar-default navbar-fixed-bottom">
+                <div class="container text-center">
+                    <button class='btn btn-success btn-lg navbar-btn visible-xs-inline' ng-click='create()'>
+                        <span class='glyphicon glyphicon-plus'></span>
+                    </button>
+                </div>
+            </nav>
         </div>
+    </div>
+    <div id='pagePopup'>
+        <div style='text-align:right'>
+            <button class='btn btn-default' onclick="document.querySelector('#pagePopup').style.display='none'">关闭</button>
+        </div>
+        <iframe></iframe>
     </div>
 </div>

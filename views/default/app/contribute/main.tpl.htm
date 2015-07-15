@@ -1,16 +1,16 @@
-<div class='container' ng-clock ng-app='xxtApp' ng-controller='contributeCtrl' ng-init="jsonParams='<?php echo urlencode(json_encode(TPL::val('params')));?>'">
+<div class='ng-cloak' ng-cloak ng-app='xxtApp' ng-controller='contributeCtrl' ng-init="jsonParams='<?php echo urlencode(json_encode(TPL::val('params')));?>'">
     <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
-    <table class='table table-bordered'>
-        <tbody>
-            <tr ng-repeat='e in entries'>
-                <td ng-bind='e.title'></td>
-                <td ng-bind='e.summary'></td>
-                <td>
-                    <a href='#' ng-if='e.isInitiator' ng-click='initiate(e)'>发起</a>
-                    <a href='#' ng-if='e.isReviewer' ng-click='review(e)'>审稿</a>
-                    <a href='#' ng-if='e.isTypesetter' ng-click='typeset(e)'>版面</a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <div class='container'>
+        <div class='row'>
+            <div class="col-md-4" ng-repeat='e in entries'>
+                <div class="thumbnail">
+                    <p class='title' ng-bind='e.title'></p>
+                    <p class='summary' ng-bind='e.summary'></p>
+                    <button class='btn btn-default' ng-if='e.isInitiator' ng-click='initiate(e)'>投稿</button>
+                    <button class='btn btn-default' ng-if='e.isReviewer' ng-click='review(e)'>审稿</button>
+                    <button class='btn btn-default' ng-if='e.isTypesetter' ng-click='typeset(e)'>版面</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

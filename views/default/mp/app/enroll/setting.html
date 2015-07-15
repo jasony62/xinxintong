@@ -58,7 +58,7 @@
                 <div class='col-md-10'>
                     <combox evt-prefix='channel' readonly=true prop='title' existing='editing.channels' options='channels'></combox>
                     <label class='checkbox-inline'>
-                        <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='channelsFromParent' ng-change='updateChannelSrc()'>来源于父账号</label>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='channelsFromParent' ng-change='updateChannelSrc()'>来源于父账号</label>
                 </div>
             </div>
             <div class='form-group'>
@@ -83,7 +83,7 @@
                 <label class='col-md-2 control-label'>可见范围</label>
                 <div class='col-md-10'>
                     <div class='checkbox'>
-                        <label><input type='checkbox' ng-disabled="editing.creater!==editing.uid" ng-model='editing.public_visible' ng-true-value='Y' ng-false-value='N' ng-change="update( 'public_visible') ">设置为公开可见</label>
+                        <label><input type='checkbox' ng-disabled="editing.creater!==editing.uid" ng-model='editing.public_visible' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update( 'public_visible') ">设置为公开可见</label>
                     </div>
                 </div>
             </div>
@@ -233,9 +233,9 @@
             <div class='form-group'>
                 <label class='col-md-2 control-label'>扩展功能</label>
                 <div class='col-md-10'>
-                    <label class='checkbox-inline'><input type="checkbox" ng-true-value='Y' ng-false-value='N' ng-model='editing.can_signin' ng-change="update( 'can_signin'); ">支持签到</label>
-                    <label class='checkbox-inline'><input type="checkbox" ng-true-value='Y' ng-false-value='N' ng-model='editing.can_lottery' ng-change="update( 'can_lottery'); ">支持抽奖</label>
-                    <label class='checkbox-inline'><input type="checkbox" ng-true-value='Y' ng-false-value='N' ng-model='editing.remark_notice' ng-change="update( 'remark_notice'); ">登记评论提醒</label>
+                    <label class='checkbox-inline'><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_signin' ng-change="update( 'can_signin'); ">支持签到</label>
+                    <label class='checkbox-inline'><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_lottery' ng-change="update( 'can_lottery'); ">支持抽奖</label>
+                    <label class='checkbox-inline'><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.remark_notice' ng-change="update( 'remark_notice'); ">登记评论提醒</label>
                 </div>
             </div>
             <div class='form-group' ng-if="editing.remark_notice==='Y'">
@@ -264,7 +264,7 @@
                 <label class='col-md-2 control-label'>提示PC端完成</label>
                 <div class='col-md-10'>
                     <div class='checkbox'>
-                        <label><input type='checkbox' ng-model='editing.shift2pc' ng-true-value='Y' ng-false-value='N' ng-change="update( 'shift2pc')">用户在手机上打开时会引导用户转发到PC端打开。需在【账号管理/定制功能】中设置提示内容。</label>
+                        <label><input type='checkbox' ng-model='editing.shift2pc' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update( 'shift2pc')">用户在手机上打开时会引导用户转发到PC端打开。需在【账号管理/定制功能】中设置提示内容。</label>
                     </div>
                 </div>
             </div>
@@ -272,7 +272,7 @@
                 <label class='col-md-2 control-label'>支持PC端任务码</label>
                 <div class='col-md-10'>
                     <div class='checkbox'>
-                        <label><input type='checkbox' ng-model='editing.can_taskcode' ng-true-value='Y' ng-false-value='N' ng-change="update( 'can_taskcode') ">通过任务码直接在PC浏览器中输入（{{taskCodeEntryUrl}}）进入任务</label>
+                        <label><input type='checkbox' ng-model='editing.can_taskcode' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update( 'can_taskcode') ">通过任务码直接在PC浏览器中输入（{{taskCodeEntryUrl}}）进入任务</label>
                     </div>
                 </div>
             </div>

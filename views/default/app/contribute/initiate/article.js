@@ -7,8 +7,7 @@ xxtApp.config(['$routeProvider', function ($routeProvider) {
         controller: 'reviewlogCtrl',
     });
 }]);
-xxtApp.controller('initiateCtrl', ['$scope', '$location', '$modal', 'http2', 'Article', 'Entry', function ($scope, $location, $modal, http2, Article, Entry) {
-    $scope.subView = '';
+xxtApp.controller('initiateCtrl', ['$scope', '$location', '$modal', 'http2', 'Article', 'Entry', 'Reviewlog', function ($scope, $location, $modal, http2, Article, Entry, Reviewlog) {
     $scope.phases = { 'I': '投稿', 'R': '审核', 'T': '版面' };
     $scope.mpid = $location.search().mpid;
     $scope.entry = $location.search().entry;
@@ -47,9 +46,6 @@ xxtApp.controller('initiateCtrl', ['$scope', '$location', '$modal', 'http2', 'Ar
                 $scope.picGalleryUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid=' + $scope.fid;
         }
     });
-}]);
-xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', 'Article', function ($scope, $modal, http2, Article) {
-    $scope.$parent.subView = 'edit';
     $scope.edit = function (event, article) {
         if (article._cascade === true)
             $scope.editing = article;
@@ -155,20 +151,27 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', 'Article', function 
     };
     $scope.forward = function () {
         $modal.open({
-            templateUrl: '/static/template/userpicker.html?_=2',
-            controller: 'ReviewUserPickerCtrl',
+            templateUrl: 'review-list.html',
+            controller: ['$scope', '$modalInstance', 'reviewers', function ($scope, $mi, reviewers) {
+                $scope.reviewers = reviewers;
+                $scope.data = { selected: '0' };
+                $scope.cancel = function () {
+                    $mi.dismiss();
+                };
+                $scope.ok = function () {
+                    $scope.data.selected ? $mi.close(reviewers[$scope.data.selected]) : $mi.dismiss();
+                };
+            }],
+            resolve: {
+                reviewers: function () { return $scope.entryApp.reviewers; }
+            },
             backdrop: 'static',
-            size: 'lg',
-            windowClass: 'auto-height'
-        }).result.then(function (data) {
-            $scope.Article.forward($scope.editing, data, 'R').then(function () {
+        }).result.then(function (who) {
+            $scope.Article.forward($scope.editing, who.identity, 'R').then(function () {
                 location.href = '/rest/app/contribute/initiate?mpid=' + $scope.mpid + '&entry=' + $scope.entry;
             });
         });
     };
-}]);
-xxtApp.controller('reviewlogCtrl', ['$scope', '$modal', 'http2', 'Reviewlog', function ($scope, $modal, http2, Reviewlog) {
-    $scope.$parent.subView = 'reviewlog';
     $scope.Reviewlog = new Reviewlog('initiate', $scope.mpid, { type: 'article', id: $scope.id });
     $scope.Reviewlog.list().then(function (data) {
         $scope.logs = data;

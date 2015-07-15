@@ -36,7 +36,7 @@
         <div class='form-group'>
             <label>扩展功能</label>
             <label class='checkbox-inline'>
-                <input type="checkbox" ng-true-value='Y' ng-false-value='N' ng-model='editing.remark_notice' ng-change="update('remark_notice');">登记评论提醒</label>
+                <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.remark_notice' ng-change="update('remark_notice');">登记评论提醒</label>
         </div>
         <div class='form-group' ng-if="editing.remark_notice==='Y'">
             <label>接收评论提醒页</label>

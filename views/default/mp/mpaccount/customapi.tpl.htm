@@ -8,7 +8,7 @@
                         <div class='form-group'>
                             <div class='input-group'>
                                 <span class='input-group-addon'>
-                                    <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='ia.valid' ng-change="updAuthapi(ia,'valid')">
+                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='ia.valid' ng-change="updAuthapi(ia,'valid')">
                                 </span>
                                 <input type='text' class='form-control' style='width:200px' ng-model='ia.name' placeholder='输入名称' tms-auto-update tms-wait=1000 tms-update="updAuthapi(ia,'name')">
                             </div>
@@ -39,13 +39,13 @@
                                 <tbody>
                                     <tr ng-repeat='attr in authAttrOps'>
                                         <td>{{attr[0]}}</td>
-                                        <td ng-repeat='op in attr[2]'><input type='checkbox' ng-show='op===$index' ng-disabled="ia.attrs[attr[1]][5]==='1'&&($index===0||$index===1||$index===2||$index===3)" ng-true-value='1' ng-false-value='0' ng-model="ia.attrs[attr[1]][$index]" ng-change="updAuthAttr(ia,attr[1])"></td>
+                                        <td ng-repeat='op in attr[2]'><input type='checkbox' ng-show='op===$index' ng-disabled="ia.attrs[attr[1]][5]==='1'&&($index===0||$index===1||$index===2||$index===3)" ng-true-value="'1'" ng-false-value="'0'" ng-model="ia.attrs[attr[1]][$index]" ng-change="updAuthAttr(ia,attr[1])"></td>
                                         <td></td>
                                     </tr>
                                     <tr ng-repeat='ea in ia.extattr'>
                                         <td>{{ea.label}}</td>
                                         <td></td>
-                                        <td><input type='checkbox' ng-true-value='1' ng-false-value='0' ng-model="ea.cfg2[1]" ng-change="updAuthExtattr(ia,ea)"></td>
+                                        <td><input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model="ea.cfg2[1]" ng-change="updAuthExtattr(ia,ea)"></td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
@@ -84,7 +84,7 @@
                         <div class='form-group'>
                             <div class='input-group'>
                                 <span class='input-group-addon'>
-                                    <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='a.valid' ng-change="updAuthapi(a,'valid')">
+                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='a.valid' ng-change="updAuthapi(a,'valid')">
                                 </span>
                                 <input type='text' class='form-control' style='width:200px' ng-model='a.name' placeholder='输入名称' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'name')">
                                 <span class="input-group-btn">
@@ -117,13 +117,13 @@
                                 <tbody>
                                     <tr ng-repeat='attr in authAttrOps'>
                                         <td>{{attr[0]}}</td>
-                                        <td ng-repeat='op in attr[2]'><input type='checkbox' ng-if='op===$index' ng-true-value='1' ng-false-value='0' ng-model="a.attrs[attr[1]][$index]" ng-change="updAuthAttr(a,attr[1])"></td>
+                                        <td ng-repeat='op in attr[2]'><input type='checkbox' ng-if='op===$index' ng-true-value="'1'" ng-false-value="'0'" ng-model="a.attrs[attr[1]][$index]" ng-change="updAuthAttr(a,attr[1])"></td>
                                         <td></td>
                                     </tr>
                                     <tr ng-repeat='ea in a.extattr'>
                                         <td>{{ea.label}}</td>
-                                        <td><input type='checkbox' disabled ng-true-value='1' ng-false-value='0' ng-model="ea.cfg[0]" ng-change="updAuthExtattr(a,ea)"></td>
-                                        <td><input type='checkbox' disabled ng-true-value='1' ng-false-value='0' ng-model="ea.cfg[1]" ng-change="updAuthExtattr(a,ea)"></td>
+                                        <td><input type='checkbox' disabled ng-true-value="'1'" ng-false-value="'0'" ng-model="ea.cfg[0]" ng-change="updAuthExtattr(a,ea)"></td>
+                                        <td><input type='checkbox' disabled ng-true-value="'1'" ng-false-value="'0'" ng-model="ea.cfg[1]" ng-change="updAuthExtattr(a,ea)"></td>
                                         <td></td>
                                         <td></td>
                                         <td></td>

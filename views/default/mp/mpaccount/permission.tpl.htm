@@ -11,7 +11,7 @@
             </div>
         </div>
         <div class='list-group'>
-            <a href='#' class='list-group-item' ng-class='{active:u.selected}' ng-repeat="u in users" ng-click='selected(u)'>
+            <a href='javascript:void(0)' class='list-group-item' ng-class='{active:u.selected}' ng-repeat="u in users" ng-click='selected($event,u)'>
                 <span>{{u.authed_id}}</span>
                 <button class='btn btn-default btn-xs pull-right' ng-show='selectedUser===u' ng-click='removeUser()'><span class='glyphicon glyphicon-remove'></span></button>
             </a>
@@ -35,281 +35,281 @@
             <tbody>
                 <tr>
                     <td>配置公众号</td>
-                    <td><a href='#' ng-click="batchCheck('mpsetting','Y')">全选</a> / <a href='#' ng-click="batchCheck('mpsetting','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('mpsetting','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('mpsetting','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.mpsetting.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('mpsetting','read_p')"></td>
-                    <td><input type="checkbox" ng-model="rights.mpsetting.update_p" ng-true-value='Y' ng-false-value='N' ng-change="update('mpsetting','update_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.mpsetting.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('mpsetting','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.mpsetting.update_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('mpsetting','update_p')"></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>配置公众号-设置</td>
-                    <td><a href='#' ng-click="batchCheck('mpsetting_setting','Y')">全选</a> / <a href='#' ng-click="batchCheck('mpsetting_setting','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('mpsetting_setting','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('mpsetting_setting','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.mpsetting_setting.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('mpsetting_setting','read_p')"></td>
-                    <td><input type="checkbox" ng-model="rights.mpsetting_setting.update_p" ng-true-value='Y' ng-false-value='N' ng-change="update('mpsetting_setting','update_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.mpsetting_setting.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('mpsetting_setting','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.mpsetting_setting.update_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('mpsetting_setting','update_p')"></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>配置公众号—特性</td>
-                    <td><a href='#' ng-click="batchCheck('mpsetting_feature','Y')">全选</a> / <a href='#' ng-click="batchCheck('mpsetting_feature','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('mpsetting_feature','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('mpsetting_feature','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.mpsetting_feature.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('mpsetting_feature','read_p')"></td>
-                    <td><input type="checkbox" ng-model="rights.mpsetting_feature.update_p" ng-true-value='Y' ng-false-value='N' ng-change="update('mpsetting_feature','update_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.mpsetting_feature.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('mpsetting_feature','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.mpsetting_feature.update_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('mpsetting_feature','update_p')"></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>配置公众号-接口</td>
-                    <td><a href='#' ng-click="batchCheck('mpsetting_customapi','Y')">全选</a> / <a href='#' ng-click="batchCheck('mpsetting_customapi','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('mpsetting_customapi','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('mpsetting_customapi','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.mpsetting_customapi.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('mpsetting_customapi','read_p')"></td>
-                    <td><input type="checkbox" ng-model="rights.mpsetting_customapi.update_p" ng-true-value='Y' ng-false-value='N' ng-change="update('mpsetting_customapi','update_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.mpsetting_customapi.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('mpsetting_customapi','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.mpsetting_customapi.update_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('mpsetting_customapi','update_p')"></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>配置公众号-权限</td>
-                    <td><a href='#' ng-click="batchCheck('mpsetting_permission','Y')">全选</a> / <a href='#' ng-click="batchCheck('mpsetting_permission','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('mpsetting_permission','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('mpsetting_permission','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.mpsetting_permission.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('mpsetting_permission','read_p')"></td>
-                    <td><input type="checkbox" ng-model="rights.mpsetting_permission.update_p" ng-true-value='Y' ng-false-value='N' ng-change="update('mpsetting_permission','update_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.mpsetting_permission.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('mpsetting_permission','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.mpsetting_permission.update_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('mpsetting_permission','update_p')"></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>配置公众号-管理员</td>
-                    <td><a href='#' ng-click="batchCheck('mpsetting_administrator','Y')">全选</a> / <a href='#' ng-click="batchCheck('mpsetting_custom','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('mpsetting_administrator','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('mpsetting_custom','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.mpsetting_administrator.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('mpsetting_administrator','read_p')"></td>
-                    <td><input type="checkbox" ng-model="rights.mpsetting_administrator.update_p" ng-true-value='Y' ng-false-value='N' ng-change="update('mpsetting_administrator','update_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.mpsetting_administrator.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('mpsetting_administrator','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.mpsetting_administrator.update_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('mpsetting_administrator','update_p')"></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>素材管理</td>
-                    <td><a href='#' ng-click="batchCheck('matter','Y')">全选</a> / <a href='#' ng-click="batchCheck('matter','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('matter','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('matter','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.matter.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('matter','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.matter.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('matter','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>素材管理-单图文</td>
-                    <td><a href='#' ng-click="batchCheck('matter_article','Y')">全选</a> / <a href='#' ng-click="batchCheck('matter_article','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('matter_article','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('matter_article','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.matter_article.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('matter_article','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.matter_article.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('matter_article','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>素材管理-文本</td>
-                    <td><a href='#' ng-click="batchCheck('matter_text','Y')">全选</a> / <a href='#' ng-click="batchCheck('matter_text','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('matter_text','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('matter_text','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.matter_text.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('matter_text','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.matter_text.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('matter_text','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>素材管理-多图文</td>
-                    <td><a href='#' ng-click="batchCheck('matter_news','Y')">全选</a> / <a href='#' ng-click="batchCheck('matter_news','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('matter_news','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('matter_news','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.matter_news.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('matter_news','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.matter_news.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('matter_news','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>素材管理-频道</td>
-                    <td><a href='#' ng-click="batchCheck('matter_channel','Y')">全选</a> / <a href='#' ng-click="batchCheck('matter_channel','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('matter_channel','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('matter_channel','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.matter_channel.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('matter_channel','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.matter_channel.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('matter_channel','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>素材管理-链接</td>
-                    <td><a href='#' ng-click="batchCheck('matter_link','Y')">全选</a> / <a href='#' ng-click="batchCheck('matter_link','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('matter_link','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('matter_link','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.matter_link.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('matter_link','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.matter_link.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('matter_link','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>素材管理-模板消息</td>
-                    <td><a href='#' ng-click="batchCheck('matter_tmplmsg','Y')">全选</a> / <a href='#' ng-click="batchCheck('matter_tmplmsg','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('matter_tmplmsg','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('matter_tmplmsg','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.matter_tmplmsg.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('matter_tmplmsg','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.matter_tmplmsg.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('matter_tmplmsg','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>素材管理-多媒体</td>
-                    <td><a href='#' ng-click="batchCheck('matter_media','Y')">全选</a> / <a href='#' ng-click="batchCheck('matter_media','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('matter_media','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('matter_media','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.matter_media.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('matter_media','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.matter_media.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('matter_media','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>回复管理</td>
-                    <td><a href='#' ng-click="batchCheck('reply','Y')">全选</a> / <a href='#' ng-click="batchCheck('reply','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('reply','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('reply','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.reply.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('reply','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.reply.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('reply','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>回复管理-文本事件</td>
-                    <td><a href='#' ng-click="batchCheck('reply_text','Y')">全选</a> / <a href='#' ng-click="batchCheck('reply_text','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('reply_text','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('reply_text','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.reply_text.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('reply_text','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.reply_text.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('reply_text','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>回复管理-菜单事件</td>
-                    <td><a href='#' ng-click="batchCheck('reply_menu','Y')">全选</a> / <a href='#' ng-click="batchCheck('reply_menu','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('reply_menu','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('reply_menu','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.reply_menu.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('reply_menu','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.reply_menu.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('reply_menu','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>回复管理-二维码事件</td>
-                    <td><a href='#' ng-click="batchCheck('reply_qrcode','Y')">全选</a> / <a href='#' ng-click="batchCheck('reply_qrcode','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('reply_qrcode','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('reply_qrcode','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.reply_qrcode.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('reply_qrcode','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.reply_qrcode.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('reply_qrcode','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>回复管理-其他事件</td>
-                    <td><a href='#' ng-click="batchCheck('reply_other','Y')">全选</a> / <a href='#' ng-click="batchCheck('reply_other','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('reply_other','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('reply_other','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.reply_other.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('reply_other','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.reply_other.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('reply_other','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>用户管理</td>
-                    <td><a href='#' ng-click="batchCheck('user','Y')">全选</a> / <a href='#' ng-click="batchCheck('user','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('user','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('user','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.user.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('user','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.user.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('user','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>用户管理-接收消息</td>
-                    <td><a href='#' ng-click="batchCheck('user_recevied','Y')">全选</a> / <a href='#' ng-click="batchCheck('user_recevied','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('user_recevied','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('user_recevied','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.user_recevied.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('user_recevied','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.user_recevied.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('user_recevied','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>用户管理-发送消息</td>
-                    <td><a href='#' ng-click="batchCheck('user_send','Y')">全选</a> / <a href='#' ng-click="batchCheck('user_send','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('user_send','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('user_send','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.user_send.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('user_send','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.user_send.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('user_send','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>用户管理-关注用户</td>
-                    <td><a href='#' ng-click="batchCheck('user_fans','Y')">全选</a> / <a href='#' ng-click="batchCheck('user_fans','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('user_fans','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('user_fans','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.user_fans.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('user_fans','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.user_fans.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('user_fans','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>用户管理-认证用户</td>
-                    <td><a href='#' ng-click="batchCheck('user_member','Y')">全选</a> / <a href='#' ng-click="batchCheck('user_member','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('user_member','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('user_member','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.user_member.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('user_member','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.user_member.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('user_member','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>用户管理-部门</td>
-                    <td><a href='#' ng-click="batchCheck('user_department','Y')">全选</a> / <a href='#' ng-click="batchCheck('user_department','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('user_department','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('user_department','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.user_department.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('user_department','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.user_department.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('user_department','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>用户管理-标签</td>
-                    <td><a href='#' ng-click="batchCheck('user_tag','Y')">全选</a> / <a href='#' ng-click="batchCheck('user_tag','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('user_tag','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('user_tag','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.user_tag.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('user_tag','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.user_tag.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('user_tag','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>用户管理-分组</td>
-                    <td><a href='#' ng-click="batchCheck('user_fansgroup','Y')">全选</a> / <a href='#' ng-click="batchCheck('user_fansgroup','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('user_fansgroup','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('user_fansgroup','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.user_fansgroup.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('user_fansgroup','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.user_fansgroup.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('user_fansgroup','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>应用管理</td>
-                    <td><a href='#' ng-click="batchCheck('app','Y')">全选</a> / <a href='#' ng-click="batchCheck('app','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('app','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('app','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.app.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('app','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.app.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('app','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>应用管理-登记活动</td>
-                    <td><a href='#' ng-click="batchCheck('app_enroll','Y')">全选</a> / <a href='#' ng-click="batchCheck('app_enroll','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('app_enroll','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('app_enroll','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.app_enroll.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('app_enroll','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.app_enroll.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('app_enroll','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>应用管理-抽奖活动</td>
-                    <td><a href='#' ng-click="batchCheck('app_lottery','Y')">全选</a> / <a href='#' ng-click="batchCheck('app_lottery','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('app_lottery','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('app_lottery','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.app_lottery.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('app_lottery','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.app_lottery.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('app_lottery','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>应用管理-信息墙</td>
-                    <td><a href='#' ng-click="batchCheck('app_wall','Y')">全选</a> / <a href='#' ng-click="batchCheck('app_wall','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('app_wall','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('app_wall','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.app_wall.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('app_wall','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.app_wall.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('app_wall','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>应用管理-通讯录</td>
-                    <td><a href='#' ng-click="batchCheck('app_addressbook','Y')">全选</a> / <a href='#' ng-click="batchCheck('app_addressbook','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('app_addressbook','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('app_addressbook','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.app_addressbook.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('app_addressbook','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.app_addressbook.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('app_addressbook','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>应用管理-投稿</td>
-                    <td><a href='#' ng-click="batchCheck('app_contribute','Y')">全选</a> / <a href='#' ng-click="batchCheck('app_contribute','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('app_contribute','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('app_contribute','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.app_contribute.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('app_contribute','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.app_contribute.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('app_contribute','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>应用管理-订购</td>
-                    <td><a href='#' ng-click="batchCheck('app_merchant','Y')">全选</a> / <a href='#' ng-click="batchCheck('app_merchant','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('app_merchant','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('app_merchant','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.app_merchant.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('app_merchant','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.app_merchant.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('app_merchant','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>
                 <tr>
                     <td>统计分析</td>
-                    <td><a href='#' ng-click="batchCheck('analyze','Y')">全选</a> / <a href='#' ng-click="batchCheck('analyze','N')">清空</a></td>
+                    <td><a href="javascript:void(0)" ng-click="batchCheck('analyze','Y')">全选</a> / <a href="javascript:void(0)" ng-click="batchCheck('analyze','N')">清空</a></td>
                     <td></td>
-                    <td><input type="checkbox" ng-model="rights.analyze.read_p" ng-true-value='Y' ng-false-value='N' ng-change="update('analyze','read_p')"></td>
+                    <td><input type="checkbox" ng-model="rights.analyze.read_p" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('analyze','read_p')"></td>
                     <td></td>
                     <td></td>
                 </tr>

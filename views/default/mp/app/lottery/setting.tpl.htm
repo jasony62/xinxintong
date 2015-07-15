@@ -86,8 +86,8 @@
         <div class='form-group'>
             <label class='col-md-2 control-label'>参与限制</label>
             <div class='col-md-10'>
-                <label class='checkbox-inline'><input type="checkbox" ng-true-value='Y' ng-false-value='N' ng-model='lottery.fans_enter_only' ng-change="update('fans_enter_only')">仅限关注用户进入</label>
-                <label class='checkbox-inline'><input type="checkbox" ng-true-value='Y' ng-false-value='N' ng-model='lottery.fans_only' ng-change="update('fans_only')">仅限关注用户参与</label>
+                <label class='checkbox-inline'><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='lottery.fans_enter_only' ng-change="update('fans_enter_only')">仅限关注用户进入</label>
+                <label class='checkbox-inline'><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='lottery.fans_only' ng-change="update('fans_only')">仅限关注用户参与</label>
             </div>
         </div>
         <accesscontrol mpid='{{mpid}}' obj='lottery' title='参与限制' label='仅限认证用户参与' prop-acl='acl' prop-access='access_control' prop-apis='authapis' update-access-control="update('access_control')" update-authapis="update('authapis')" change-acl-url='/rest/mp/app/lottery/setAcl?id={{lid}}' remove-acl-url='/rest/mp/app/lottery/removeAcl' label-span='2' control-span='10'></accesscontrol>
@@ -95,7 +95,7 @@
             <label class='col-md-2 control-label'>前置活动</label>
             <div class='col-md-10'>
                 <div class='checkbox'>
-                    <label><input type="checkbox" ng-true-value='Y' ng-false-value='N' ng-model='lottery.precondition' ng-change="update('precondition');">必须完成前置活动才能抽奖</label>
+                    <label><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='lottery.precondition' ng-change="update('precondition');">必须完成前置活动才能抽奖</label>
                 </div>
             </div>
         </div>

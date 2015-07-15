@@ -25,7 +25,7 @@
                     </div>
                     <p class='form-control' style='overflow:hidden' title='{{child.data.name}}' ng-class="{'active':child.data===selectedDept}" ng-click='selectDept(child.data)'>{{child.data.name}}</p>
                     <span class="input-group-addon" ng-init="child.data.checked = isDeptChecked(child.data) ? 'Y':'N'" ng-show="isPickSingleMember==='N'">
-                        <input type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='child.data.checked' ng-change="checkDepts(child.data)">
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='child.data.checked' ng-change="checkDepts(child.data)">
                     </span>
                 </div>
             </div>
@@ -36,14 +36,14 @@
     <div id='tags' ng-class="{'col-md-3':isPickSingleMember==='N'}" ng-show='tags.length'>
         <ul class='list-group'>
             <li class='list-group-item' ng-class="{'active':t===selectedTag}" ng-repeat='t in tags' ng-init="t.checked=isTagChecked(t)?'Y':'N'" ng-click='selectTag(t)'>
-            <label class='checkbox-inline'>{{t.name}}<input class='pull-right' style='position:static' type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='t.checked' ng-change="checkTags(t)" ng-show="isPickSingleMember==='N'"></label></li>
+            <label class='checkbox-inline'>{{t.name}}<input class='pull-right' style='position:static' type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='t.checked' ng-change="checkTags(t)" ng-show="isPickSingleMember==='N'"></label></li>
         </ul>
     </div>
     <div id='members' ng-show="isPickSingleMember==='Y'">
         <ul class='list-group'>
             <li class='list-group-item' ng-repeat='m in members'>
             <label class='checkbox-inline'>{{m.name||m.nickname||m.email||m.mobile}}
-                <input type='checkbox' class='pull-right' style='position:static' ng-true-value='Y' ng-false-value='N' ng-model='m.checked' ng-change="checkMembers(m)">
+                <input type='checkbox' class='pull-right' style='position:static' ng-true-value="'Y'" ng-false-value="'N'" ng-model='m.checked' ng-change="checkMembers(m)">
             </label>
             </li>
         </ul>

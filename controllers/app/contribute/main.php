@@ -19,15 +19,15 @@ class main extends \member_base {
      * $mpid
      * $entry
      */
-    public function index_action($mpid, $code=null, $mocker=null) 
+    public function index_action($mpid, $entry=null, $code=null, $mocker=null) 
     {
         $openid = $this->doAuth($mpid, $code, $mocker);
-        $this->afterOAuth($mpid, $openid);
+        $this->afterOAuth($mpid, $entry, $openid);
     }
     /**
      *
      */
-    public function afterOAuth($mpid, $openid=null) 
+    public function afterOAuth($mpid, $entry=null, $openid=null) 
     {
         $myUrl = 'http://'.$_SERVER['HTTP_HOST']."/rest/app/contribute?mpid=$mpid";
         list($fid, $openid, $mid) = $this->getCurrentUserInfo($mpid, $myUrl);
@@ -40,7 +40,14 @@ class main extends \member_base {
         $member = $this->model('user/member')->byId($mid);
 
         $mine = array();
-        $entries = $this->model('app\contribute')->byMpid($mpid);
+        if ($entry === null)
+            $entries = $this->model('app\contribute')->byMpid($mpid);
+        else {
+            $entry = explode(',', $entry);
+            $entry = $this->model('app\contribute')->byId($entry[1]);
+            $entries = array($entry);
+        } 
+            
         if (!empty($entries)) foreach ($entries as $entry) {
             $set = "cid='$entry->id' and role='I'";
             $entry->isInitiator = $this->model('acl')->canAccess(
@@ -115,12 +122,16 @@ class main extends \member_base {
         return array($fan->fid, $fan->openid, $mid, $vid);
     }
     /**
-     *
+     * 获得投稿活动定义
      */
     public function entryGet_action($mpid, $type, $id)
     {
-        $c = $this->model('app\contribute')->byId($id);
-        
+        $modelCtrb = $this->model('app\contribute');
+         
+        $c = $modelCtrb->byId($id);
+        /**
+         * 设置投稿子频道（允许投稿人指定的频道）
+         */
         if (!empty($c->params)) {
             $modelCh = $this->model('matter\channel');
             $params = json_decode($c->params);
@@ -130,6 +141,41 @@ class main extends \member_base {
                     $chs[] = $ch;
                 }
                 $c->subChannels = $chs;
+            }
+        }
+        /**
+         * 提示在PC端完成
+         */
+        if ($this->getClientSrc() && isset($c->shift2pc) && $c->shift2pc === 'Y') {
+            /**
+             * 获得用户信息
+             */
+            $entry = 'contribute,'.$c->id;
+            $myUrl = 'http://'.$_SERVER['HTTP_HOST']."/rest/app/contribute/initiate?mpid=$mpid&entry=$entry";
+            list($fid) = $this->getCurrentUserInfo($mpid, $myUrl);
+            /**
+             * 提示在PC端完成
+             */
+            $fea = $this->model('mp\mpaccount')->getFeatures($mpid,'shift2pc_page_id');
+            $page = $this->model('code/page')->byId($fea->shift2pc_page_id, 'html,css,js'); 
+            /**
+             * 任务码
+             */
+            if ($c->can_taskcode && $c->can_taskcode === 'Y') {
+                $taskCode = $this->model('task')->addTask($mpid, $fid, $myUrl);
+                $page->html = str_replace('{{taskCode}}', $taskCode, $page->html);
+            }
+            $c->pageShift2Pc = $page;
+        }
+        /**
+         * 审稿人列表
+         */
+        $c->reviewers = $modelCtrb->userAcls($mpid, $id, 'R');
+        foreach ($c->reviewers as &$reviewer) {
+            switch ($reviewer->idsrc){
+                case 'M':
+                    $reviewer->member = $this->model('user/member')->byId($reviewer->identity);
+                break;
             }
         }
         

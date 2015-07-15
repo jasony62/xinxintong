@@ -67,13 +67,14 @@ xxtApp.factory('Article', function ($q, http2) {
         });
         return promise;
     };
-    Article.prototype.forward = function (obj, who, phase) {
+    Article.prototype.forward = function (obj, mid, phase) {
         var deferred = $q.defer(), promise = deferred.promise;
         var url = this.baseUrl + 'articleForward';
         url += '?mpid=' + this.mpid;
         url += '&id=' + obj.id;
         url += '&phase=' + phase;
-        http2.post(url, who, function success(rsp) {
+        url += '&mid=' + mid;
+        http2.get(url, function success(rsp) {
             deferred.resolve(rsp.data);
         });
         return promise;
@@ -288,16 +289,3 @@ xxtApp.factory('Reviewlog', function ($q, http2) {
     };
     return Reviewlog;
 });
-xxtApp.controller('ReviewUserPickerCtrl', ['$scope', '$modalInstance', 'userSetAsParam', function ($scope, $mi, userSetAsParam) {
-    $scope.userConfig = { userScope: ['M'] };
-    $scope.userSet = {};
-    $scope.cancel = function () {
-        $mi.dismiss();
-    };
-    $scope.ok = function () {
-        var data = {};
-        data.userScope = $scope.userSet.userScope;
-        data.userSet = userSetAsParam.convert($scope.userSet);
-        $mi.close(data);
-    };
-}]);

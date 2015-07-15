@@ -1,19 +1,123 @@
 <div class='container' ng-clock ng-app='xxtApp' ng-controller='initiateCtrl' style='padding:15px 0' ng-init="jsonParams='<?php echo urlencode(json_encode(TPL::val('params')));?>'">
     <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
-    <nav class="navbar navbar-default">
-        <div class="container-fluid">
-            <div class='navbar-header'>
-                <a class='navbar-brand' href='#' ng-click="back($event)"><span class='glyphicon glyphicon-chevron-left'></span></a>
+    <div class='container'>
+        <div class='row'>
+            <nav id='toolbar' class="navbar navbar-default navbar-fixed-top">
+                <div class="container text-center">
+                    <button class='btn btn-default' ng-click="back($event)">
+                        <span class='glyphicon glyphicon-list'></span>
+                    </button>
+                    <span ng-if="needReview==='N'" class='qrcode form-group' ng-controller='SendmeController'>
+                        <button class='btn btn-primary navbar-btn' data-toggle="popover" data-placement='left' ng-click="qrcode({type:'article',id:editing.id},$event)">发送给我</button>
+                    </span>
+                    <button ng-if="needReview==='N'" ng-disabled="editing.finished==='Y'" class='btn navbar-btn btn-success' ng-click='finish()'>完成</button>
+                    <button ng-if="needReview==='Y'" class='btn navbar-btn btn-default' ng-click='forward()'>送审</button>
+                    <button class='btn navbar-btn btn-danger' ng-click='remove()'>删除</button>
+                </div>
+            </nav>
+            <div id='editor'>
+                <div class='form-horizontal'>
+                    <div class='form-group'>
+                        <label class='col-md-2 control-label'>标题</label>
+                        <div class='col-md-10'>
+                            <input type='text' class='form-control' ng-model='editing.title' tms-auto-update tms-wait=1000 tms-update="update('title');">
+                            <p class='help-block'>最多35个汉字，70个英文字符</p>
+                        </div>
+                    </div>
+                    <div class='form-group'>
+                        <label class='col-md-2 control-label'>头图</label>
+                        <div class='col-md-10'>
+                            <div style="width:182px;border:1px solid #CCC">
+                                <div style="height:100px;text-align:center;padding-top:32px" ng-if="editing.pic==''">
+                                    <button class='btn btn-default' ng-click='setPic();'>
+                                        <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                                </div>
+                                <div style='position:relative' ng-if="editing.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                                    <img name='pic' ng-src="{{editing.pic}}" width='180px' />
+                                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                                        <span class='glyphicon glyphicon-picture'></span>
+                                    </button>
+                                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                                        <span class='glyphicon glyphicon-trash'></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class='form-group'>
+                        <label class='col-md-2 control-label'>摘要</label>
+                        <div class='col-md-10'>
+                            <textarea class='form-control' ng-model='editing.summary' tms-auto-update tms-wait=1000 tms-update="update('summary');"></textarea>
+                            <p class='help-block'>最多120个汉字，240个英文字符</p>
+                        </div>
+                    </div>
+                    <div class='form-group'>
+                        <label class='col-md-2 control-label'>正文</label>
+                        <div class='col-md-10'>
+                            <button class='btn' ng-click="update('body')" ng-disabled='!bodyModified' ng-class="bodyModified?'btn-success':'btn-default'">保存</button>
+                            <tinymce content='editing.body' contenteditable='bodyEditable' change="onBodyChange()" id='body1'></tinymce>
+                        </div>
+                    </div>
+                    <div class='form-group'>
+                        <label class='col-md-2 control-label'>频道</label>
+                        <div class='col-md-10'>
+                            <combox evt-prefix='sub-channel' readonly=true prop='title' existing='editing.subChannels' options='entryApp.subChannels'></combox>
+                        </div>
+                    </div>
+                    <div class='alert alert-info'>
+                        <span>创建日期：{{editing.create_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
+                    </div>
+                    <div picgallery style='display:none' url='{{picGalleryUrl}}'></div>
+                </div>
             </div>
-            <ul class='nav navbar-nav'>
-                <li ng-class="{'active':subView==='edit'}">
-                    <a href="/rest/app/contribute/initiate/article?mpid={{mpid}}&entry={{entry}}&id={{id}}">内容</a>
-                </li>
-                <li ng-class="{'active':subView==='reviewlog'}">
-                    <a href="/rest/app/contribute/initiate/reviewlog?mpid={{mpid}}&entry={{entry}}&id={{id}}">审核记录</a>
-                </li>
-            </ul>
+            <div id='logs' class='table'>
+                <div class='thead'>
+                    <div class='tr'>
+                        <div>序号</div>
+                        <div>发起时间</div>
+                        <div>处理人</div>
+                        <div>接收时间</div>
+                        <div>处理时间</div>
+                        <div>阶段</div>
+                        <div>消息</div>
+                    </div>
+                </div>
+                <div class='tbody'>
+                    <div class='tr' ng-repeat="l in logs">
+                        <div ng-bind="l.seq"></div>
+                        <div ng-bind="l.send_at*1000|date:'yy-MM-dd HH:mm'"></div>
+                        <div ng-bind="l.disposer_name"></div>
+                        <div>
+                            <span ng-if='l.receive_at>0' ng-bind="l.receive_at*1000|date:'yy-MM-dd HH:mm'"></span>
+                        </div>
+                        <div>
+                            <span ng-if='l.read_at>0' ng-bind="l.read_at*1000|date:'yy-MM-dd HH:mm'">
+                                <span>
+                        </div>
+                        <div ng-bind="phases[l.phase]"></div>
+                        <div ng-bind="l.remark"></div>
+                    </div>
+                </div>
+            </div>
+            <script type="text/ng-template" id="review-list.html">
+                <div class="modal-header">
+                    <button class="close" type="button" ng-click="cancel()">×</button>
+                    <h5 class="modal-title">选择</h5>
+                </div>
+                <div class="modal-body clearfix">
+                    <ul class='list-group'>
+                        <li class='list-group-item' ng-repeat="r in reviewers">
+                            <label class='radio-inline'>
+                                <input type='radio' name='reviwer' value='{{$index}}' ng-model='data.selected'>
+                                <span>{{r.member.name||r.member.email||r.member.mobile||r.label}}</span>
+                            </label>
+                        </li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" ng-click="ok()">确定</button>
+                </div>
+            </script>
         </div>
-    </nav>
-    <div ng-view></div>
+    </div>
 </div>

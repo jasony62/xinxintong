@@ -32,7 +32,9 @@ xxtApp.controller('permCtrl',['$scope','$modal','http2',function($scope,$modal,h
             $scope.selectedUser = false;
         });
     };
-    $scope.selected = function(user) {
+    $scope.selected = function(event, user) {
+        event.preventDefault();
+        event.stopPropagation();
         $scope.selectedUser && (delete $scope.selectedUser.selected);
         $scope.selectedUser = user;
         $scope.selectedUser.selected = true;

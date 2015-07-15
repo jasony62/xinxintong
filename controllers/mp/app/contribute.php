@@ -129,7 +129,7 @@ class contribute extends app_base {
         return new \ResponseData($rst);
     }
     /**
-     * 设置登记通知的接收人
+     * 按角色设置参与投稿活动的人
      */
     public function setUser_action($cid, $role)
     {
@@ -159,7 +159,7 @@ class contribute extends app_base {
         }
     }
     /**
-     * 删除登记通知的接收人
+     * 按角色设置参与投稿活动的人
      * $id
      * $acl aclid
      */

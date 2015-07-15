@@ -1,4 +1,10 @@
-body{background:#EEE}
+.ng-cloak{display:none;}
+body{background:#E7E8E8;padding:71px 0 10px 0}
+/*toolbar*/
+#toolbar{
+	background:rgba(192,192,192,0.2);
+}
+body{background:#E7E8E8}
 .mce-tinymce.mce-container.mce-panel{margin-top:0}
 .mce-tinymce.mce-container.mce-panel.mce-fullscreen{margin-top:51px}
 .modal.picgallery .modal-dialog{position:absolute;top:0;bottom:0;left:50%;margin-left:-450px}

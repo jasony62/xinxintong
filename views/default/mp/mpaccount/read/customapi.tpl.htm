@@ -6,7 +6,7 @@
                 <div class='list-group-item'>
                     <div class="input-group">
                         <span class="input-group-addon">
-                            <input type='checkbox' disabled ng-true-value='Y' ng-false-value='N' ng-model='ia.valid'>
+                            <input type='checkbox' disabled ng-true-value="'Y'" ng-false-value="'N'" ng-model='ia.valid'>
                         </span>
                         <p class='form-control'>应用内置认证</p>
                     </div>
@@ -17,7 +17,7 @@
                 <div class='list-group-item' ng-repeat='a in authapis'>
                     <div class="input-group">
                         <span class="input-group-addon">
-                            <input disabled type='checkbox' ng-true-value='Y' ng-false-value='N' ng-model='a.valid'>
+                            <input disabled type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='a.valid'>
                         </span>
                         <p class='form-control'>{{a.name}}</p>
                     </div>

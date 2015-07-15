@@ -94,6 +94,31 @@ class review extends base {
             array('approved'=>'Y'),
             "mpid='$mpid' and id='$id'"
         );
+        /**
+         * 发送通知
+         */
+        $url = 'http://'. $_SERVER['HTTP_HOST'];
+        $url .= '/rest/app/contribute/initiate/article';
+        $url .= "?mpid=$mpid";
+        $url .= "&entry=$article->entry";
+        $url .= "&id=$id";
+        
+        $reply = urlencode('您的稿件【');
+        $reply .= "<a href=\"$url\">";
+        $reply .= urlencode($article->title);
+        $reply .= "</a>";
+        $reply .= urlencode('】已经通过审核。');
+        
+        $message = array(
+            "msgtype" => "text",
+            "text" => array(
+                "content" => $reply
+            )
+        );
+        
+        $fan = $this->model('user/fans')->byMid($article->creater);
+
+        $rst = $this->notify($mpid, $fan->openid, $message);
         
         return new \ResponseData('ok');
     }

@@ -166,10 +166,11 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
         }
     }, false);
     var openPickImageFrom = function () {
-        var st = (document.body && document.body.scrollTop) ? document.body.scrollTop : document.documentElement.scrollTop;
-        var ch = document.documentElement.clientHeight;
-        var cw = document.documentElement.clientWidth;
-        var $dlg = $('#pickImageFrom');
+        var st, ch, cw, $dlg;
+        st = (document.body && document.body.scrollTop) ? document.body.scrollTop : document.documentElement.scrollTop;
+        ch = document.documentElement.clientHeight;
+        cw = document.documentElement.clientWidth;
+        $dlg = $('#pickImageFrom');
         $dlg.css({
             'display': 'block',
             'top': (st + (ch - $dlg.height() - 30) / 2) + 'px',
@@ -469,6 +470,9 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
         $location.search().ek && (url += '&ek=' + $location.search().ek);
         $http.get(url).success(function (rsp) {
             var params = rsp.data, sharelink, summary;
+            /**
+             * set share info
+             */
             sharelink = 'http://' + location.hostname + "/rest/app/enroll";
             sharelink += "?mpid=" + $scope.mpid;
             sharelink += "&aid=" + $scope.aid;
@@ -482,13 +486,14 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
             if (params.page.share_summary && params.page.share_summary.length && params.record)
                 summary = params.record.data[params.page.share_summary];
             window.xxt.share.set(params.enroll.title, sharelink, summary, params.enroll.pic);
-
+            /**
+             * set form data
+             */
             $scope.User = params.user;
             $scope.Record = new Record($scope.mpid, $scope.aid, $scope.rid, params.record, $scope);
             $scope.Round = new Round($scope.mpid, $scope.aid);
             $scope.Statistic = new Statistic($scope.mpid, $scope.aid, params.statdata);
-            $scope.params = params;
-            if (params.page.name === 'form' && params.record) {
+            if ((params.page.name === 'form' || params.page.type === 'I') && params.record) {
                 $timeout(function () {
                     var p, type, dataOfRecord, value;
                     dataOfRecord = $scope.Record.current.data;
@@ -515,19 +520,19 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
                 });
             }
             if ($scope.data.member.authid && params.user.members.length) {
-                for (var m in $scope.User.members) {
+                var m, extAttrs, ea;
+                for (m in $scope.User.members) {
                     if ($scope.data.member.authid == $scope.User.members[m].authapi_id) {
                         $scope.data.member.name = $scope.User.members[m].name;
                         $scope.data.member.mobile = $scope.User.members[m].mobile;
                         $scope.data.member.email = $scope.User.members[m].email;
-                        var extAttrs = JSON.parse($scope.User.members[m].extattr);
-                        for (var ea in extAttrs) {
-                            $scope.data.member[ea] = extAttrs[ea];
-                        }
+                        extAttrs = JSON.parse($scope.User.members[m].extattr);
+                        for (ea in extAttrs) $scope.data.member[ea] = extAttrs[ea];
                         break;
                     }
                 }
             }
+            $scope.params = params;
             $scope.ready = true;
             console.log('page ready', $scope.params);
         });

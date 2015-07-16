@@ -1,11 +1,11 @@
 <?php
-namespace app;
+namespace app\enroll;
 
-include_once dirname(dirname(__FILE__)).'/member_base.php';
+include_once dirname(dirname(dirname(__FILE__))).'/member_base.php';
 /**
  * 登记活动
  */
-class enroll extends \member_base {
+class main extends \member_base {
 
     public function get_access_rule() 
     {
@@ -157,31 +157,45 @@ class enroll extends \member_base {
             if ($enrollModel->hasEnrolled($mpid, $act->id, $user->openid) && !empty($act->enrolled_entry_page))
                 $page = $act->enrolled_entry_page;
             else {
-                if (empty($user->fan)) {
+                if (!$this->getClientSrc() && empty($user->openid)) {
                     /**
-                     * 非关注用户
+                     * 非易信、微信公众号打开，无法获得openid
                      */
-                    $page = $act->entry_rule->nonfan->entry;
+                    if (!empty($act->authapis)) {
+                        /**
+                         * 如果活动限认证用户访问
+                         */
+                        $page = '$authapi_auth';
+                    } else {
+                        $page = $act->entry_rule->nonfan->entry;
+                    }
                 } else {
-                    if (isset($user->fan)) {
+                    if (empty($user->fan)) {
                         /**
-                         * 关注用户
+                         * 非关注用户
                          */
-                        $page = $act->entry_rule->fan->entry;
+                        $page = $act->entry_rule->nonfan->entry;
+                    } else {
+                        if (isset($user->fan)) {
+                            /**
+                             * 关注用户
+                             */
+                            $page = $act->entry_rule->fan->entry;
+                        }
+                        if (isset($user->membersInAcl) && !empty($user->members)) {
+                            /**
+                             * 认证用户不在白名单中
+                             */
+                            $page = $act->entry_rule->member_outacl->entry;
+                            
+                        }
+                        if (!empty($user->membersInAcl) || (!isset($user->membersInAcl) && !empty($user->members))) {
+                            /**
+                             * 白名单中的认证用户，或者，不限制白名单的认证用户
+                             */
+                            $page = $act->entry_rule->member->entry;
+                        } 
                     }
-                    if (isset($user->membersInAcl) && !empty($user->members)) {
-                        /**
-                         * 认证用户不在白名单中
-                         */
-                        $page = $act->entry_rule->member_outacl->entry;
-                        
-                    }
-                    if (!empty($user->membersInAcl) || (!isset($user->membersInAcl) && !empty($user->members))) {
-                        /**
-                         * 白名单中的认证用户，或者，不限制白名单的认证用户
-                         */
-                        $page = $act->entry_rule->member->entry;
-                    } 
                 }
                 switch ($page) {
                     case '$authapi_outacl':
@@ -189,7 +203,8 @@ class enroll extends \member_base {
                         $this->gotoOutAcl($mpid, $actAuthapis[0]);
                         break;
                     case '$authapi_auth':
-                        $this->gotoAuth($mpid, $act->authapis, $user->openid);
+                        $actAuthapis = explode(',', $act->authapis);
+                        $this->gotoAuth($mpid, $actAuthapis, $user->openid);
                         break;
                     case '$mp_follow':
                         $this->askFollow($mpid, $openid);
@@ -250,9 +265,9 @@ class enroll extends \member_base {
         $this->view_action('/app/enroll/page');
     }
     /**
-     * 返回活动页面
+     * 返回活动数据
      */
-    public function get_action($mpid, $aid, $page=null, $ek=null)
+    public function get_action($mpid, $aid, $page, $ek=null)
     {
         $params = array();
         
@@ -414,7 +429,7 @@ class enroll extends \member_base {
         /**
          * 包含用户身份信息
          */
-        if (isset($posted->member)) {
+        if (isset($posted->member) && isset($posted->member->authid)) {
             $rst = $this->submitMember($mpid, $posted, $user->fan->fid, $mid);
             if ($rst[0] === false) 
                 return new \ParameterError($rst[1]);

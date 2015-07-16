@@ -3,7 +3,7 @@
         <li class='active'>
             <a href="#tab_form" ng-click="shiftPage($event)" data-toggle='tab'>{{editing.pages.form.title}}</a>
         </li>
-        <li ng-repeat='ep in extraPages()'>
+        <li ng-repeat="ep in extraPages">
             <a href="#tab_{{ep.name}}" ng-click="shiftPage($event)" data-toggle='tab'>{{ep.title}}</a>
         </li>
         <li class='pull-right'>
@@ -32,7 +32,7 @@
                 <tinymce content='editing.pages.form.html' id='form' height='500' change="onPageChange(editing.pages.form)"></tinymce>
             </div>
         </div>
-        <div id='tab_{{ep.name}}' class='tab-pane' ng-repeat='ep in extraPages()'>
+        <div id='tab_{{ep.name}}' class='tab-pane' ng-repeat="ep in extraPages">
             <div class='form-inline' style='margin:15px 0'>
                 <div class='form-group'>
                     <p class='help-block'>ID:{{ep.name}}</p>
@@ -51,7 +51,7 @@
                 <label class='checkbox-inline'>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='ep.share_page' ng-change="updPage(ep,'share_page')">分享当前页</label>
                 <div class='form-group'>
-                    <select class='form-control' title='摘要信息' ng-model='ep.share_summary' ng-options='v.id as v.title for (k,v) in schema()'
+                    <select class='form-control' title='摘要信息' ng-model='ep.share_summary' ng-options='v.id as v.title for (k,v) in schema'
                     ng-change="updPage(ep,'share_summary')">
                         <option value=''>活动摘要</option>
                     </select>
@@ -76,7 +76,7 @@
     <script type="text/ng-template" id="embedInputLib.html">
         <div class="modal-header">
             <button class="close" ng-click="cancel()" type="button">×</button>
-            <h4 class="modal-title">内容</h4>
+            <h5 class="modal-title">内容</h5>
         </div>
         <div class="modal-body">
             <form class="form-horizontal" role="form">
@@ -94,6 +94,12 @@
                             <option value='7'>图片</option>
                             <option value='8'>位置</option>
                         </select>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="['3','4','5','6'].indexOf(def.type)!==-1">
+                    <label class="col-md-2 control-label">ID</label>
+                    <div class="col-md-10">
+                        <input type='text' class='form-control' ng-model='def.key'>
                     </div>
                 </div>
                 <div class="form-group">
@@ -140,6 +146,18 @@
                     <label class="col-md-2 control-label">数量</label>
                     <div class="col-md-10">
                         <input type='text' class='form-control' ng-model='def.count'>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">附加信息</label>
+                    <div class="col-md-10">
+                        <button class="btn btn-default btn-sm" ng-click='addAttr()'>添加</button>
+                        <ul class='list-group'>
+                            <li class='list-group-item' ng-repeat='attr in def.attrs'>
+                                <input type='text' ng-model='attr.name'>
+                                <input type='text' ng-model='attr.value'>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </form>

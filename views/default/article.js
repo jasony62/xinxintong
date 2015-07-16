@@ -78,13 +78,13 @@ var openMatter = function (id, type) {
 };
 $('#dlg button').addEventListener('click', function (e) { $('#dlg').style.display = 'none'; });
 var Like = (function () {
-    var url = "/rest/mi/matter/score?mpid=" + window.mpid + "&id=" + article.id,
+    var url = "/rest/mi/article/score?mpid=" + window.mpid + "&id=" + article.id,
         icon = $('#interaction .like em');
     return {
         change: function () {
             ajax('POST', url, null, function (rsp) {
                 icon.className = icon.className ? '' : 'praised';
-                $('#score').innerHTML = rsp.data;
+                $('#score').innerHTML = rsp.data[0];
             });
             return false;
         }

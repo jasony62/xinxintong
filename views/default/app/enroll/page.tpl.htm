@@ -1,9 +1,11 @@
-<div ng-app='formApp' ng-controller='formCtrl' ng-init="pageName='<?php TPL::pt('page')?>'">
+<div ng-app='formApp' ng-controller='formCtrl' ng-cloak class='ng-cloak' ng-init="pageName='<?php TPL::pt('page')?>'">
     <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
-    <div class='container ng-cloak' ng-cloak>
-        <form name='formOfEnroll' novalidate>
-            <?php TPL::pt( 'extra_html');?>
-        </form>
+    <div class='container'>
+        <div class='row'>
+            <form name='formOfEnroll' novalidate>
+                <?php TPL::pt( 'extra_html');?>
+            </form>
+        </div>
     </div>
     <div id='pickImageFrom'>
         <div class='form-group'>
@@ -16,7 +18,7 @@
     <div id='tipPreview' ng-if="preview==='Y'" ng-click="closePreviewTip()">
         <span>点击右上角【...】，邀请好友参与活动</span>
         <button type="button" class="close" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
+            <span>&times;</span>
         </button>
     </div>
 </div>

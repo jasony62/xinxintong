@@ -521,7 +521,7 @@ xxtMatters.directive('accesscontrol', function () {
         restrict: 'EA',
         scope: { title: '@', label: '@', mpid: '@', obj: '=', propAcl: '@', labelOfList: '@', propAccess: '@', propApis: '@', changeAclUrl: '@', removeAclUrl: '@', updateAccessControl: '&', updateAuthapis: '&', labelSpan: '@', controlSpan: '@', disabled: '@', hideAccessControl: '@' },
         controller: 'AccessControlController',
-        templateUrl: '/static/template/accesscontrol.html?_=5',
+        templateUrl: '/static/template/accesscontrol.html?_=6',
     }
 });
 xxtMatters.directive('userpopover', ['http2', function (http2) {

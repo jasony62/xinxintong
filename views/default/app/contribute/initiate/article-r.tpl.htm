@@ -39,8 +39,8 @@
                     <div class='thead'>
                         <div class='tr'>
                             <div>序号</div>
-                            <div>发起时间</div>
-                            <div>处理人</div>
+                            <div>发送时间</div>
+                            <div>审核人</div>
                             <div>接收时间</div>
                             <div>处理时间</div>
                             <div>阶段</div>
@@ -49,33 +49,33 @@
                     </div>
                     <div class='tbody'>
                         <div class='tr' ng-repeat="l in logs">
-                            <div>
+                            <div class='seq'>
                                 <span class='visible-xs-inline'>序号</span>
                                 <span ng-bind="l.seq"></span>
                             </div>
-                            <div>
-                                <span class='visible-xs-inline'>发起时间</span>
+                            <div class='send_at' ng-if="l.phase!=='I'">
+                                <span class='visible-xs-inline'>发送时间</span>
                                 <span ng-bind="l.send_at*1000|date:'yy-MM-dd HH:mm'"></span>
                             </div>
-                            <div>
-                                <span class='visible-xs-inline'>处理人</span>
-                                <span ng-bind="l.disposer_name"></span>
-                            </div>
-                            <div>
+                            <div class='receive_at' ng-if="l.phase==='I'">
                                 <span class='visible-xs-inline'>接收时间</span>
                                 <span ng-if='l.receive_at>0' ng-bind="l.receive_at*1000|date:'yy-MM-dd HH:mm'"></span>
                             </div>
-                            <div>
+                            <div class='disposer_name' ng-if="l.phase!=='I'">
+                                <span class='visible-xs-inline'>审核人</span>
+                                <span ng-bind="l.disposer_name"></span>
+                            </div>
+                            <div class='read_at'>
                                 <span class='visible-xs-inline'>处理时间</span>
                                 <span ng-if='l.read_at>0' ng-bind="l.read_at*1000|date:'yy-MM-dd HH:mm'">
                                     <span>
                             </div>
-                            <div>
+                            <div class='phase'>
                                 <span class='visible-xs-inline'>阶段</span>
                                 <span ng-bind="phases[l.phase]"></span>
                             </div>
-                            <div>
-                                <span class='visible-xs-inline'>消息</span>
+                            <div class='remark' ng-if='l.remark'>
+                                <span class='visible-xs-inline'>审核意见</span>
                                 <span ng-bind="l.remark"></span>
                             </div>
                         </div>

@@ -140,45 +140,6 @@ class matter extends \member_base {
         exit;
     }
     /**
-     * 文章点赞
-     *
-     * $mpid
-     * $id article's id.
-     */
-    public function score_action($mpid, $id)
-    {
-        /**
-         * 因为打开的文章的不一定是粉丝或者认证用户，但是一定是访客，所以记录访客ID
-         */
-        $vid = $this->getVisitorId($mpid);
-
-        if ($this->model('matter\article')->praised($vid, $id)) {
-            /**
-             * 点了赞，再次点击，取消赞
-             */
-            $this->model()->delete('xxt_article_score', "article_id='$id' and vid='$vid'");
-            $this->model()->update("update xxt_article set score=score-1 where id='$id'");
-        } else {
-            /**
-             * 点赞
-             */
-            $i = array(
-                'vid'=>$vid,
-                'article_id'=>$id,
-                'create_at'=>time(),
-                'score'=>1
-            );
-            $this->model()->insert('xxt_article_score', $i);
-            $this->model()->update("update xxt_article set score=score+1 where id='$id'");
-        }
-        /**
-         * 获得点赞的总数
-         */
-        $score = $this->model('matter\article')->score($id);
-
-        return new \ResponseData($score);
-    }
-    /**
      * 发表评论
      *
      * 如果公众号支持客服消息或者点对点，如果文章的投稿者具备接收客户消息的条件

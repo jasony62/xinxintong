@@ -1,5 +1,5 @@
 xxtApp.controller('initiateCtrl', ['$scope', '$location', 'Article', 'Entry', function ($scope, $location, Article, Entry) {
-    $scope.phases = { 'I': '投稿', 'R': '审核', 'T': '版面' };
+    $scope.phases = { 'I': '未送审', 'R': '审核中', 'T': '版面' };
     $scope.approved = { 'Y': '通过', 'N': '未通过' };
     $scope.create = function () {
         if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {

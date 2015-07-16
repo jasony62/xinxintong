@@ -638,6 +638,7 @@ class enroll_model extends \matter\enroll_model {
     }
     /**
      * 获得登记数据定义
+     * todo move to enroll\schema
      *
      * 数据项的定义需要从表单中获取
      * 表单中定义了数据项的id和name

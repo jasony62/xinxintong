@@ -13,7 +13,9 @@ body{background:#E7E8E8;padding:10px 0 70px 0}
 /*log*/
 .table .thead{display:none;}
 .table .tr{display:table;width:100%;background:#fff;border:1px solid #ddd;margin-bottom:5px}
-.table .tr>div.pending{color:red}
+#logs .tr {position:relative;padding:10px;}
+#logs .tr span:first-child{display:inline-block !important;width:75px}
+#logs .tr .seq,#logs .tr .read_at,#logs .tr .phase{display:none;}
 /*common*/
 #card{background:#fff;width:335px;padding:8px 20px 15px;margin:0 auto 15px;border:1px solid #DDD}
 #card p {padding:0;margin:0}

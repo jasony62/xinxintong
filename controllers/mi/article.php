@@ -55,41 +55,47 @@ class article extends \member_base {
      *
      * $mpid
      * $id article's id.
+     * $scope 分数
+     * $once 只允许投一次
      */
-    public function score_action($mpid, $id)
+    public function score_action($mpid, $id, $score=1, $once='Y')
     {
         /**
          * 因为打开的文章的不一定是粉丝或者认证用户，但是一定是访客，所以记录访客ID
          */
-        $vid = $this->getVisitorId($mpid);
-
-        if ($this->model('matter\article')->praised($vid, $id)) {
-            /**
-             * 点了赞，再次点击，取消赞
-             */
-            $this->model()->delete('xxt_article_score', "article_id='$id' and vid='$vid'");
-            $this->model()->update("update xxt_article set score=score-1 where id='$id'");
-            $praised = false;
+        if ($once === 'Y') {
+            $vid = $this->getVisitorId($mpid);
+            if ($this->model('matter\article')->praised($vid, $id)) {
+                /**
+                 * 点了赞，再次点击，取消赞
+                 */
+                $this->model()->delete('xxt_article_score', "article_id='$id' and vid='$vid'");
+                $this->model()->update("update xxt_article set score=score-$score where id='$id'");
+                $praised = false;
+            } else {
+                /**
+                 * 点赞
+                 */
+                $i = array(
+                    'vid' => $vid,
+                    'article_id' => $id,
+                    'create_at' => time(),
+                    'score' => $score
+                );
+                $this->model()->insert('xxt_article_score', $i);
+                $this->model()->update("update xxt_article set score=score+$score where id='$id'");
+                $praised = true;
+            }
         } else {
-            /**
-             * 点赞
-             */
-            $i = array(
-                'vid'=>$vid,
-                'article_id'=>$id,
-                'create_at'=>time(),
-                'score'=>1
-            );
-            $this->model()->insert('xxt_article_score', $i);
-            $this->model()->update("update xxt_article set score=score+1 where id='$id'");
+            $this->model()->update("update xxt_article set score=score+$score where id='$id'");
             $praised = true;
         }
         /**
          * 获得点赞的总数
          */
-        $score = $this->model('matter\article')->score($id);
+        $article = $this->model('matter\article')->byId($id, 'score');
 
-        return new \ResponseData(array($score, $praised));
+        return new \ResponseData(array($article->score, $praised));
     }
     /**
      * 发表评论

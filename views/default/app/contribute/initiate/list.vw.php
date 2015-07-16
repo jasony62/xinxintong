@@ -1,6 +1,6 @@
 <?php
 $view['template'] = '/app';
-$view['params']['app_title'] = '稿件编辑';
+$view['params']['app_title'] = '我的稿件';
 $view['params']['app_view'] = '/app/contribute/initiate/list';
 $view['params']['global_js'] = array('angular-route.min','bootstrap.min','ui-bootstrap.min','ui-bootstrap-tpls.min','ui-tms','matters-xxt');
 $view['params']['global_css'] = array('tms');

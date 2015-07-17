@@ -512,6 +512,7 @@
             http2.get('/rest/mp/app/enroll/addPage?aid=' + $scope.aid, function (rsp) {
                 var page = rsp.data;
                 $scope.editing.pages[page.name] = page;
+                $scope.extraPages[page.name] = page;
                 $timeout(function () {
                     $('a[href="#tab_' + page.name + '"]').tab('show');
                 });
@@ -572,6 +573,7 @@
             http2.get(url, function (rsp) {
                 tinymce.remove('#' + page.name);
                 delete $scope.editing.pages[page.name];
+                delete $scope.extraPages[page.name];
                 $timeout(function () {
                     $('a[href="#tab_form"]').tab('show');
                 });

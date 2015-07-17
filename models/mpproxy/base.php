@@ -5,8 +5,15 @@
 class mpproxy_base {
 
     protected $mpid;
-
+    
     public function __construct($mpid)
+    {
+        $this->mpid = $mpid;
+    }
+    /**
+     *
+     */
+    public function reset($mpid) 
     {
         $this->mpid = $mpid;
     }

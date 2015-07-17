@@ -233,7 +233,9 @@ class mpaccount_model extends \TMS_MODEL {
     public function mass2mps($sender, $matterId, $matterType, $mpids) 
     {
         if (empty($mpids)) return array(false, '没有指定接收消息的公众号');
-
+        
+        $response = array();
+        
         $mpModel = \TMS_APP::M('mp\mpaccount');
         foreach ($mpids as $mpid) {
             $mpaccount = $mpModel->byId($mpid);
@@ -259,8 +261,9 @@ class mpaccount_model extends \TMS_MODEL {
              */
             $mpsrc === 'wx' && $message['filter'] = array('is_to_all'=> true);
             $mpproxy = \TMS_APP::M('mpproxy/'.$mpsrc, $mpid);
+            $mpproxy->reset($mpid); // 因为重复获得对象会缓存
             $rst = $mpproxy->send2group($message);
-             if ($rst[0] === true) {
+            if ($rst[0] === true) {
                 $response[$mpid] = 'ok';                 
                 $msgid = isset($rst[1]->msg_id) ? $rst[1]->msg_id : 0;
                 \TMS_APP::M('log')->mass($sender, $mpid, $matterType, $matterId, $message, $msgid, 'ok');

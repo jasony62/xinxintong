@@ -14,6 +14,14 @@ class qy_model extends mpproxy_base {
         parent::__construct($mpid);
     }
     /**
+     *
+     */
+    public function reset($mpid) 
+    {
+        parent::reset($mpid);
+        unset($this->qy_token);
+    }
+    /**
      * 对接企业号
      */
     public function join($params) 

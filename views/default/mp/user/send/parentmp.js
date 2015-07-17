@@ -49,7 +49,7 @@ xxtApp.controller('parentmpCtrl', ['$scope', 'http2', function ($scope, http2) {
             var result;
             for (var mpid in rsp.data) {
                 result = rsp.data[mpid];
-                $scope.mapOfMps[mpid].logs.push({ result: result });
+                $scope.mapOfMps[mpid].logs.splice(0, 0, { result: result });
             }
         });
     };

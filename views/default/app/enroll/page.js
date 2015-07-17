@@ -1,4 +1,4 @@
-formApp = angular.module('formApp', ['infinite-scroll']);
+formApp = angular.module('formApp', ['ngSanitize', 'infinite-scroll']);
 formApp.config(['$locationProvider', function ($lp) {
     $lp.html5Mode(true);
 }]);

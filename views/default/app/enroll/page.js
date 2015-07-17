@@ -216,69 +216,29 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
     };
     $scope.closeWindow = function () {
         if (/MicroMessenger/i.test(navigator.userAgent)) {
-            wx.closeWindow();
+            window.wx.closeWindow();
         } else if (/YiXin/i.test(navigator.userAgent)) {
-            YixinJSBridge.call('closeWebView');
+            window.YixinJSBridge.call('closeWebView');
         }
     };
     $scope.getMyLocation = function (prop) {
-        if (window.wx) {
-            wx.getLocation({
-                success: function (res) {
-                    var url = '/rest/app/enroll/locationGet';
-                    url += '?mpid=' + $scope.mpid;
-                    url += '&lat=' + res.latitude;
-                    url += '&lng=' + res.longitude;
-                    $http.get(url).success(function (rsp) {
-                        $scope.data[prop] = rsp.data.address;
-                    });
-                }
-            });
-        } else {
-            var nav = window.navigator;
-            if (nav !== null) {
-                var geoloc = nav.geolocation;
-                if (geoloc !== null) {
-                    geoloc.getCurrentPosition(function (position) {
-                        var url = '/rest/app/enroll/locationGet';
-                        url += '?mpid=' + $scope.mpid;
-                        url += '&lat=' + position.coords.latitude;
-                        url += '&lng=' + position.coords.longitude;
-                        $http.get(url).success(function (rsp) {
-                            $scope.data[prop] = rsp.data.address;
-                        });
-                    }, function () { alert('获取地理位置失败'); });
-                }
-                else {
-                    alert("无法获取地理位置");
-                }
-            } else {
-                alert("无法获取地理位置");
-            }
-        }
+        window.xxt.geo.getAddress($http, $q.defer(), $scope.mpid).then(function (data) {
+            if (data.errmsg === 'ok')
+                $scope.data[prop] = data.address;
+            else
+                $scope.errmsg = data.errmsg;
+        });
     };
     $scope.chooseImage = function (imgFieldName, count, from) {
         if (imgFieldName !== null) {
-            if (-1 === modifiedImgFields.indexOf(imgFieldName)) modifiedImgFields.push(imgFieldName);
-            if ($scope.data[imgFieldName] === undefined) $scope.data[imgFieldName] = [];
+            modifiedImgFields.indexOf(imgFieldName) === -1 && modifiedImgFields.push(imgFieldName);
+            $scope.data[imgFieldName] === undefined && ($scope.data[imgFieldName] = []);
             if (count !== null && $scope.data[imgFieldName].length === count) {
                 $scope.errmsg = '最多允许上传' + count + '张图片';
                 return;
             }
         }
-        if (window.wx !== undefined) {
-            wx.chooseImage({
-                success: function (res) {
-                    var i, img;
-                    for (i in res.localIds) {
-                        img = { imgSrc: res.localIds[i] };
-                        $scope.data[imgFieldName].push(img);
-                        $scope.$apply('data.' + imgFieldName);
-                        $('ul[name="' + imgFieldName + '"] li:nth-last-child(2) img').attr('src', img.imgSrc);
-                    }
-                }
-            });
-        } else if (window.YixinJSBridge) {
+        if (window.YixinJSBridge) {
             if (from === undefined) {
                 $scope.cachedImgFieldName = imgFieldName;
                 openPickImageFrom();
@@ -287,42 +247,16 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
             imgFieldName = $scope.cachedImgFieldName;
             $scope.cachedImgFieldName = null;
             $('#pickImageFrom').hide();
-            YixinJSBridge.invoke(
-                'pickImage', {
-                    type: from,
-                    quality: 100
-                }, function (result) {
-                    if (result.data && result.data.length) {
-                        var img = { imgSrc: 'data:' + result.mime + ';base64,' + result.data };
-                        $scope.data[imgFieldName].push(img);
-                        $scope.$apply('data.' + imgFieldName);
-                    }
-                }
-                );
-        } else {
-            var eleInp = document.createElement('input');
-            eleInp.setAttribute('type', 'file');
-            eleInp.addEventListener('change', function (evt) {
-                var i, cnt, f;
-                cnt = evt.target.files.length;
-                for (i = 0; i < cnt; i++) {
-                    f = evt.target.files[i];
-                    type = { ".jp": "image/jpeg", ".pn": "image/png", ".gi": "image/gif" }[f.name.match(/\.(\w){2}/g)[0] || ".jp"];
-                    f.type2 = f.type || type;
-                    var reader = new FileReader();
-                    reader.onload = (function (theFile) {
-                        return function (e) {
-                            var img = {};
-                            img.imgSrc = e.target.result.replace(/^.+(,)/, "data:" + theFile.type2 + ";base64,");
-                            $scope.data[imgFieldName].push(img);
-                            $scope.$apply('data.' + imgFieldName);
-                        };
-                    })(f);
-                    reader.readAsDataURL(f);
-                }
-            }, false);
-            eleInp.click();
         }
+        window.xxt.image.choose($q.defer(), from).then(function (imgs) {
+            var i, j, img;
+            for (i = 0, j = imgs.length; i < j; i++) {
+                img = imgs[i];
+                $scope.data[imgFieldName].push(img);
+                $scope.$apply('data.' + imgFieldName);
+                (window.wx !== undefined) && $('ul[name="' + imgFieldName + '"] li:nth-last-child(2) img').attr('src', img.imgSrc);
+            }
+        });
     };
     $scope.removeImage = function (imgField, index) {
         imgField.splice(index, 1);
@@ -338,28 +272,11 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
         deferred2 = $q.defer();
         promise2 = deferred2.promise;
         btnSubmit && btnSubmit.setAttribute('disabled', true);
-        var uploadWxImage = function (img) {
-            var deferred, promise;
-            deferred = $q.defer();
-            promise = deferred.promise;
-            if (0 === img.imgSrc.indexOf('weixin://') || 0 === img.imgSrc.indexOf('wxLocalResource://')) {
-                wx.uploadImage({
-                    localId: img.imgSrc,
-                    isShowProgressTips: 1,
-                    success: function (res) {
-                        img.serverId = res.serverId;
-                        deferred.resolve(img);
-                    }
-                });
-            } else
-                deferred.resolve(img);
-            return promise;
-        };
         var submitWhole = function () {
-            var url = '/rest/app/enroll/submit?mpid=' + $scope.mpid + '&aid=' + $scope.aid;
+            var url, d, d2, posted = angular.copy($scope.data);
+            url = '/rest/app/enroll/submit?mpid=' + $scope.mpid + '&aid=' + $scope.aid;
             if (!$scope.isNew && $scope.params.enrollKey && $scope.params.enrollKey.length)
                 url += '&ek=' + $scope.params.enrollKey;
-            var d, d2, posted = angular.copy($scope.data);
             for (var i in posted) {
                 d = posted[i];
                 if (angular.isArray(d) && d.length && d[0].imgSrc !== undefined && d[0].serverId !== undefined) {
@@ -370,21 +287,15 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
                 }
             }
             $http.post(url, posted).success(function (rsp) {
-                if (typeof (rsp) === 'string') {
+                if (typeof rsp === 'string') {
                     $scope.errmsg = rsp;
                     btnSubmit && btnSubmit.removeAttribute('disabled');
-                    return;
-                }
-                if (rsp.err_code != 0) {
+                } else if (rsp.err_code != 0) {
                     $scope.errmsg = rsp.err_msg;
                     btnSubmit && btnSubmit.removeAttribute('disabled');
-                    return;
-                }
-                if (nextAction === 'closeWindow') {
+                } else if (nextAction === 'closeWindow') {
                     $scope.closeWindow();
-                    return;
-                }
-                if (nextAction !== undefined && nextAction.length) {
+                } else if (nextAction !== undefined && nextAction.length) {
                     var url = '/rest/app/enroll';
                     url += '?mpid=' + $scope.mpid;
                     url += '&aid=' + $scope.aid;
@@ -419,7 +330,7 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
             var nextWxImage = function () {
                 imgField = $scope.data[modifiedImgFields[i]];
                 img = imgField[j];
-                uploadWxImage(img).then(function (data) {
+                window.xxt.image.wxUpload($q.defer(), img).then(function (data) {
                     if (j < imgField.length - 1)
                         j++;
                     else if (i < modifiedImgFields.length - 1) {
@@ -485,6 +396,12 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
             summary = params.enroll.summary;
             if (params.page.share_summary && params.page.share_summary.length && params.record)
                 summary = params.record.data[params.page.share_summary];
+            $scope.shareData = {
+                title: params.enroll.title,
+                link: sharelink,
+                desc: summary,
+                pic: params.enroll.pic
+            };
             window.xxt.share.set(params.enroll.title, sharelink, summary, params.enroll.pic);
             /**
              * set form data

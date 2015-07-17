@@ -208,7 +208,7 @@ class main extends \mp\app\app_base {
         $newact['entry_page'] = $copied->entry_page;
         $newact['enrolled_entry_page'] = $copied->enrolled_entry_page;
         $newact['receiver_page'] = $copied->receiver_page;
-        $newact['entry_rule'] = $copied->entry_rule;
+        $newact['entry_rule'] = json_encode($copied->entry_rule);
         if ($copied->mpid === $this->mpid) {
             $newact['access_control'] = $copied->access_control;
             $newact['authapis'] = $copied->authapis;

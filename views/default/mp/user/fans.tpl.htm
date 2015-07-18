@@ -29,7 +29,7 @@
             </thead>
             <tbody>
                 <tr ng-repeat='f in fans'>
-                    <td><a href='#' userpopover xxt-fid='{{f.fid}}' ng-click='viewUser(f)'>{{f.nickname||f.openid}}</a></td>
+                    <td><a href='javascript:void(0)' userpopover xxt-fid='{{f.fid}}' ng-click='viewUser(f)'>{{f.nickname||f.openid}}</a></td>
                     <td>{{f.subscribe_at*1000|date:'yyyy-MM-dd'}}</td>
                     <td ng-if='selectedAuthapi'>{{f.mid ? '是':'否'}}</td>
                     <td ng-if='selectedAuthapi'>{{f.authed_identity}}</td>

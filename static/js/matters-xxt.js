@@ -114,9 +114,9 @@ xxtMatters.directive('tinymce', function ($timeout) {
                             var wrap;
                             wrap = e.target;
                             if (wrap.tagName !== 'HTML') {
-                                if (wrap !== editor.getBody()) {
+                                if (!wrap.hasAttribute('wrap') && wrap !== editor.getBody()) {
                                     while (wrap.parentNode !== editor.getBody()) {
-                                        if (wrap.parentNode === null) break;
+                                        if (wrap.hasAttribute('wrap') || wrap.parentNode === null) break;
                                         wrap = wrap.parentNode;
                                     }
                                 }

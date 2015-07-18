@@ -17,7 +17,7 @@
         </thead>
         <tbody>
             <tr ng-repeat='m in messages'>
-                <td><a href='#' ng-click='viewUser(m.openid)'>{{m.nickname||m.openid}}</a></td>
+                <td><a href='javascript:void(0)' ng-click='viewUser(m.openid)'>{{m.nickname||m.openid}}</a></td>
                 <td>{{m.create_at*1000|date:'yyyy-MM-dd HH:mm'}}</td>
                 <td style='width:500px'>{{m.data}}</td>
             </tr>

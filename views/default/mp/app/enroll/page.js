@@ -488,21 +488,37 @@
         };
         $scope.$on('tinymce.wrap.select', function (event, wrap) {
             $scope.$apply(function () {
+                var root = wrap;
+                while (root.parentNode) root = root.parentNode;
+                $(root).find('.active').removeClass('active');
                 $scope.hasActiveWrap = false;
                 if (wrap.hasAttribute('wrap')) {
-                    $(wrap.parentNode).children('.active').removeClass('active');
                     wrap.classList.add('active');
                     $scope.hasActiveWrap = true;
-                } else {
-                    $(wrap).children('.active').removeClass('active');
                 }
             });
         });
+        $scope.editWrap = function (page) {
+        };
         $scope.removeWrap = function (page) {
             var editor;
             editor = tinymce.get(page.name);
-            $(editor.getBody()).children('.active').remove();
+            $(editor.getBody()).find('.active').remove();
             $scope.hasActiveWrap = false;
+            editor.save();
+        };
+        $scope.upWrap = function (page) {
+            var editor, active;
+            editor = tinymce.get(page.name);
+            active = $(editor.getBody()).find('.active');
+            active.prev().before(active);
+            editor.save();
+        };
+        $scope.downWrap = function (page) {
+            var editor, active;
+            editor = tinymce.get(page.name);
+            active = $(editor.getBody()).find('.active');
+            active.next().after(active);
             editor.save();
         };
         $scope.$on('tinymce.multipleimage.open', function (event, callback) {

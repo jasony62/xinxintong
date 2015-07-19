@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    
+    <head>
+        <meta charset="utf-8">
+        <title>演示设置分享内容</title>
+    </head>
+    
+    <body>
+        <div>演示设置分享内容</div>
+        <script src='/static/js/xxt.share.js?_=1'></script>
+        <script>
+            if (/MicroMessenger/i.test(navigator.userAgent)) {
+                document.write("<script src='http:\/\/res.wx.qq.com\/open\/js\/jweixin-1.0.0.js'><\/script>");
+                document.write("<script src='\/rest\/mi\/matter\/wxjssdksignpackage?mpid=9688d86c06adad6b08ae170e0c553864&url="+encodeURIComponent(location.href.split('#')[0])+"'><\/script>");
+                document.write("<script src='sharedemo.js'><\/script>");
+            } else {
+                document.write("<script src='sharedemo.js'><\/script>");
+            }
+        </script>
+    </body>
+
+</html>

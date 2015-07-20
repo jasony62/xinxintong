@@ -185,6 +185,7 @@ class member_model extends TMS_MODEL {
                 $rst = \TMS_APP::M('mpproxy/yx', $mpid)->mobile2Openid($mobile);
                 if ($rst[0] === false)
                     return array(false, "验证手机号失败【{$rst[1]}】");
+                $fan = \TMS_APP::M('user/fans')->byMid($mid);
                 if ($fan->openid !== $rst[1]->openid)
                     return array(false, "您输入的手机号与注册易信用户时的提供手机号不一致");
             }

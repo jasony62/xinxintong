@@ -443,8 +443,10 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
                         $scope.data.member.name = $scope.User.members[m].name;
                         $scope.data.member.mobile = $scope.User.members[m].mobile;
                         $scope.data.member.email = $scope.User.members[m].email;
-                        extAttrs = JSON.parse($scope.User.members[m].extattr);
-                        for (ea in extAttrs) $scope.data.member[ea] = extAttrs[ea];
+                        if ($scope.User.members[m].extattr) {
+                            extAttrs = JSON.parse($scope.User.members[m].extattr);
+                            for (ea in extAttrs) $scope.data.member[ea] = extAttrs[ea];
+                        }
                         break;
                     }
                 }

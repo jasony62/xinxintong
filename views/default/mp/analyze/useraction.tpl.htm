@@ -8,12 +8,14 @@
             </select>
         </div>
         <div class='form-group' style='width:150px'>
-            <tms-datepicker tms-date='startAt' tms-title='开始日期'></tms-datepicker>
+            <tms-datepicker tms-title='开始日期' tms-date='startAt' tms-state='start'></tms-datepicker>
         </div>
         <div class='form-group' style='width:150px'>
-            <tms-datepicker tms-date='endAt' tms-title='结束日期'></tms-datepicker>
+            <tms-datepicker tms-title='结束日期' tms-date='endAt' tms-state='end'></tms-datepicker>
         </div>
-        <pagination ng-show='page.total>page.size' class='pull-right' style='cursor:pointer;margin:0;vertical-align:middle' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.current" class="pagination" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getData()"></pagination>
+        <pagination ng-show='page.total>page.size' class='pull-right' style='cursor:pointer;margin:0;vertical-align:middle' boundary-links="true"
+        total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.current" class="pagination"
+        previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getData()"></pagination>
     </div>
     <div>
         <table class='table table-bordered'>
@@ -29,7 +31,9 @@
             <tbody>
                 <tr ng-repeat='u in users'>
                     <td>{{$index+1}}</td>
-                    <td ng-if='u.openid'><a href='#' ng-click='viewUser(u.fid)'>{{u.nickname||u.openid}}</a></td>
+                    <td ng-if='u.openid'>
+                        <a href='#' ng-click='viewUser(u.fid)'>{{u.nickname||u.openid}}</a>
+                    </td>
                     <td ng-if='!u.openid'>未知</td>
                     <td>{{u.read_num}}</td>
                     <td>{{u.share_friend_num}}</td>

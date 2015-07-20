@@ -126,7 +126,7 @@ class log_model extends TMS_MODEL {
      *      如果一个用户A向公众账号发消息，获得了打开素材的书签，然后将这个书签转发给了用户B，B打开了素材。
      *      那么vid对应的是B，user对应的是A。          
      */
-    public function writeMatterReadLog($vid, $mpid, $id, $type, $ooid, $shareby, $openid_agent, $client_ip) 
+    public function writeMatterReadLog($vid, $mpid, $matterId, $matterType, $ooid, $shareby, $openid_agent, $client_ip) 
     {
         $current = time();
         $d = array(); 
@@ -134,19 +134,19 @@ class log_model extends TMS_MODEL {
         $d['ooid'] = $ooid;
         $d['read_at'] = $current;
         $d['mpid'] = $mpid;
-        $d['matter_id'] = $id;
-        $d['matter_type'] = $type;
+        $d['matter_id'] = $matterId;
+        $d['matter_type'] = $matterType;
         $d['matter_shareby'] = $shareby;
         $d['user_agent'] = $openid_agent;
         $d['client_ip'] = $client_ip;
 
-        $id = $this->insert('xxt_log_matter_read', $d, true);
+        $logid = $this->insert('xxt_log_matter_read', $d, true);
 
         // 日志汇总
-        $this->writeUserActionLog($mpid, $vid, $ooid, $current, 'R', $id);
-        $this->writeMatterActionLog($mpid, $type, $id, $current, 'R', $id);
+        $this->writeUserActionLog($mpid, $vid, $ooid, $current, 'R', $logid);
+        $this->writeMatterActionLog($mpid, $matterType, $matterId, $current, 'R', $logid);
 
-        return $id;
+        return $logid;
     }
     /**
      * 记录分享动作
@@ -182,13 +182,13 @@ class log_model extends TMS_MODEL {
         $d['user_agent'] = $openid_agent;
         $d['client_ip'] = $client_ip;
 
-        $id = $this->insert('xxt_log_matter_share', $d, true);
+        $logid = $this->insert('xxt_log_matter_share', $d, true);
 
         // 日志汇总
-        $this->writeUserActionLog($mpid, $vid, $ooid, $current, 'S'.$shareto, $id);
-        $this->writeMatterActionLog($mpid, $type, $id, $current, 'S'.$shareto, $id);
+        $this->writeUserActionLog($mpid, $vid, $ooid, $current, 'S'.$shareto, $logid);
+        $this->writeMatterActionLog($mpid, $type, $id, $current, 'S'.$shareto, $logid);
 
-        return $id;
+        return $logid;
     }
     /**
      * 用户行为汇总日志

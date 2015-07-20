@@ -55,7 +55,7 @@ class analyze extends mp_controller {
         /**
          * 分页数据
          */
-        $s = 'l.matter_type,l.matter_id';
+        $s = 'l.matter_title,l.matter_type,l.matter_id';
         $s .= ',sum(l.act_read) read_num';
         $s .= ',sum(l.act_share_friend) share_friend_num';
         $s .= ',sum(l.act_share_timeline) share_timeline_num';
@@ -69,7 +69,6 @@ class analyze extends mp_controller {
             'o'=>"act_$orderby",
             'l'=>array('o'=>($page-1)*$size, 's'=>$size)
         );
-
         $stat = $this->model()->query_objs_ss($q, $q2);
         /**
          * 总数

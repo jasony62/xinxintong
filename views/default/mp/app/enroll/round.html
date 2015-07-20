@@ -1,0 +1,47 @@
+<div id='setting'>
+    <div class='form-inline form-group' style='text-align:right'>
+        <div class='form-group'>
+            <button class='btn btn-default' title='设置轮次' ng-if='!editing.rounds' ng-click="editing.rounds=[]">设置轮次</button>
+        </div>
+    </div>
+    <div id='rounds' ng-if='editing.rounds!==undefined'>
+        <div class='list-group'>
+            <li class='list-group-item' title='{{roundState[r.state]}}' ng-repeat='r in editing.rounds'>
+                <span>{{r.title}}</span>
+                <button class="close " ng-click='open(r)'>
+                    <span class='glyphicon glyphicon-edit'></span>
+                </button>
+            </li>
+            <li class='list-group-item'>
+                <button class='btn btn-success btn-block' ng-disabled='editing.rounds[0].state==0' ng-click='add()'>增加轮次</button>
+            </li>
+        </div>
+    </div>
+    <script type="text/ng-template " id="roundEditor.html ">
+        <div class="modal-header ">
+            <button class="close " type="button " ng-click="close() ">×</button>
+            <h5 class="modal-title ">轮次</h5>
+        </div>
+        <div class="modal-body ">
+            <form class="form-horizontal ">
+                <div class="form-group ">
+                    <label class="col-md-2 control-label ">名称</label>
+                    <div class="col-md-10 ">
+                        <input type='text' class="form-control " ng-model='round.title'>
+                    </div>
+                </div>
+                <div class="form-group ">
+                    <label class="col-md-2 control-label ">状态</label>
+                    <div class="col-md-10 ">
+                        <p class="form-control-static ">{{roundState[round.state]}}</p>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer ">
+            <button class="btn btn-danger pull-left " ng-click="remove() " ng-if='round.rid&&round.state==0'>删除</button>
+            <button class="btn btn-success pull-left " ng-click="start() " ng-if='round.state==0'>启用</button>
+            <button class="btn btn-success " ng-click="ok() ">保存</button>
+        </div>
+    </script>
+</div>

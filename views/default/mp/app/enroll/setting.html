@@ -1,7 +1,7 @@
 <div id='setting'>
     <div class='form-inline form-group' style='text-align:right'>
         <div class='form-group'>
-            <button class='btn btn-default' title='设置轮次' ng-if='!editing.rounds' ng-click="editing.rounds=[]">设置轮次</button>
+            <button class='btn btn-default' title='设置轮次' ng-if="editing.multi_rounds==='N'" ng-click="canRounds()">设置轮次</button>
         </div>
         <div class='form-group'>
             <pushmatter class='btn btn-primary' matter-id={{editing.id}} matter-type='enroll'>发送给指定用户</pushmatter>
@@ -10,7 +10,7 @@
             <button class='btn btn-primary' data-toggle="popover" data-placement='left' ng-click="qrcode({type:'enroll',id:editing.id},$event)">发送给我</button>
         </div>
     </div>
-    <div id='attrs' ng-class="{'col-md-8':editing.rounds}" style='padding-left:0'>
+    <div id='attrs'>
         <div class='form-horizontal'>
             <div class='form-group'>
                 <label class='col-md-2 control-label'>URL</label>
@@ -278,44 +278,6 @@
             </div>
         </div>
     </div>
-    <div id='rounds' ng-if='editing.rounds!==undefined' ng-class="{ 'col-md-4':editing.rounds} " style='padding-right:0'>
-        <div class='list-group'>
-            <li class='list-group-item' title='{{roundState[r.state]}}'ng-repeat='r in editing.rounds'>
-            <span>{{r.title}}</span>
-            <button class="close " ng-click='openRound(r)'><span class='glyphicon glyphicon-edit'></span></button>
-            </li>
-            <li class='list-group-item'>
-            <button class='btn btn-success btn-block' ng-disabled='editing.rounds[0].state==0' ng-click='addRound()'>增加轮次</button>
-            </li>
-        </div>
-    </div>
     <div picgallery style='display:none' url='{{picGalleryUrl}}'></div>
     <mattersgallery style='display:none' single-matter='true' has-parent='false' matter-url='/rest/mp/matter' matter-types='matterTypes'></mattersgallery>
-    <script type="text/ng-template " id="roundEditor.html ">
-        <div class="modal-header ">
-            <button class="close " type="button " ng-click="close() ">×</button>
-            <h5 class="modal-title ">轮次</h5>
-        </div>
-        <div class="modal-body ">
-            <form class="form-horizontal ">
-                <div class="form-group ">
-                    <label class="col-md-2 control-label ">名称</label>
-                    <div class="col-md-10 ">
-                        <input type='text' class="form-control " ng-model='round.title'>
-                    </div>
-                </div>
-                <div class="form-group ">
-                    <label class="col-md-2 control-label ">状态</label>
-                    <div class="col-md-10 ">
-                        <p class="form-control-static ">{{roundState[round.state]}}</p>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div class="modal-footer ">
-            <button class="btn btn-danger pull-left " ng-click="remove() " ng-if='round.rid&&round.state==0'>删除</button>
-            <button class="btn btn-success pull-left " ng-click="start() " ng-if='round.state==0'>启用</button>
-            <button class="btn btn-success " ng-click="ok() ">保存</button>
-        </div>
-    </script>
 </div>

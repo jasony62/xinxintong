@@ -6,16 +6,19 @@
                     <span class='glyphicon glyphicon-chevron-left'></span>
                 </a>
             </li>
-            <li ng-class="{'active':subView=='setting'}">
+            <li ng-class="{'active':subView==='setting'}">
                 <a href="/rest/mp/app/enroll/detail?aid={{aid}}">活动设置</a>
             </li>
-            <li ng-class="{'active':subView=='page'}">
+            <li ng-show="editing.multi_rounds==='Y'" ng-class="{'active':subView=='round'}">
+                <a href="/rest/mp/app/enroll/round?aid={{aid}}">轮次设置</a>
+            </li>
+            <li ng-class="{'active':subView==='page'}">
                 <a href="/rest/mp/app/enroll/page?aid={{aid}}">页面设置</a>
             </li>
-            <li ng-class="{'active':subView=='record'}">
+            <li ng-class="{'active':subView==='record'}">
                 <a href="/rest/mp/app/enroll/record?aid={{aid}}">登记汇总</a>
             </li>
-            <li ng-class="{'active':subView=='stat'}">
+            <li ng-class="{'active':subView==='stat'}">
                 <a href="/rest/mp/app/enroll/stat?aid={{aid}}">数据统计</a>
             </li>
             <li ng-show="editing.can_lottery==='Y'" ng-class="{'active':subView=='lottery'}">

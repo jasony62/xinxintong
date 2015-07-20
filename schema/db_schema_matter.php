@@ -41,7 +41,7 @@ $sql .= ",score int not null default 0"; // 点赞数
 $sql .= ",remark_num int not null default 0"; // 评论数
 $sql .= ",has_attachment char(1) not null default 'N'";
 $sql .= ",media_id varchar(256) not null default ''";
-$sql .= ",upload_at int not null defalut 0";
+$sql .= ",upload_at int not null default 0";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');

@@ -17,6 +17,7 @@ window.xxt.share.options.logger = function (shareto) {
     url += "&mpid=" + window.mpid;
     url += "&id=" + window.article.id;
     url += "&type=article";
+    url += "&title=" + window.article.title;
     url += "&shareto=" + shareto;
     url += "&shareby=" + window.article.shareby;
     ajax('POST', url, null);

@@ -128,7 +128,7 @@ class matter extends \member_base {
         if ($type === 'article') {
             $this->model()->update("update xxt_article set read_num=read_num+1 where id='$id'");
         }
-        $this->model('log')->writeMatterReadLog($vid, $mpid, $id, $type, $ooid, $shareby, $userAgent, $clientIp);
+        $this->model('log')->writeMatterReadLog($vid, $mpid, $id, $type, $matter->title, $ooid, $shareby, $userAgent, $clientIp);
         /**
          * 访问控制
          */
@@ -281,7 +281,7 @@ class matter extends \member_base {
      * $shareby 谁分享的当前素材ID
      *
      */
-    public function logShare_action($shareid, $mpid, $id, $type, $shareto, $shareby='')
+    public function logShare_action($shareid, $mpid, $id, $type, $title, $shareto, $shareby='')
     {
         $vid = $this->getVisitorId($mpid);
         $ooid = $this->getCookieOAuthUser($mpid);
@@ -289,7 +289,7 @@ class matter extends \member_base {
         $client_ip = $this->client_ip();
 
         $this->model('log')->writeShareActionLog(
-            $shareid, $vid, $ooid, $shareto, $shareby, $mpid, $id, $type, $openid_agent, $client_ip);
+            $shareid, $vid, $ooid, $shareto, $shareby, $mpid, $id, $type, $title, $openid_agent, $client_ip);
 
         return new \ResponseData('finish');
     }

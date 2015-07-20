@@ -24,6 +24,9 @@
             <li ng-show="editing.can_lottery==='Y'" ng-class="{'active':subView=='lottery'}">
                 <a href="/rest/mp/app/enroll/lottery?aid={{aid}}">活动抽奖</a>
             </li>
+            <li ng-class="{'active':subView=='accesslog'}">
+                <a href="/rest/mp/app/enroll/accesslog?aid={{aid}}">访问统计</a>
+            </li>
         </ul>
     </nav>
     <div ng-view></div>

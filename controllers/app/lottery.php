@@ -123,6 +123,7 @@ class lottery extends \member_base {
                 $mpid, 
                 $lot->id, 
                 'lottery', 
+                $lot->title,
                 isset($ooid) ? $ooid : '',
                 $shareby, 
                 $openid_agent, 

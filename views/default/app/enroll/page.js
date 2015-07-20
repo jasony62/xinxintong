@@ -137,6 +137,7 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
         url += "&mpid=" + $scope.params.mpid;
         url += "&id=" + $scope.params.enroll.id;
         url += "&type=enroll";
+        url += "&title=" + $scope.params.enroll.title;
         url += "&shareby=" + $scope.params.shareby;
         url += "&shareto=" + shareto;
         $http.get(url);

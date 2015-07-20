@@ -126,7 +126,7 @@ class log_model extends TMS_MODEL {
      *      如果一个用户A向公众账号发消息，获得了打开素材的书签，然后将这个书签转发给了用户B，B打开了素材。
      *      那么vid对应的是B，user对应的是A。          
      */
-    public function writeMatterReadLog($vid, $mpid, $matterId, $matterType, $ooid, $shareby, $openid_agent, $client_ip) 
+    public function writeMatterReadLog($vid, $mpid, $matterId, $matterType, $matterTitle, $ooid, $shareby, $openid_agent, $client_ip) 
     {
         $current = time();
         $d = array(); 
@@ -136,6 +136,7 @@ class log_model extends TMS_MODEL {
         $d['mpid'] = $mpid;
         $d['matter_id'] = $matterId;
         $d['matter_type'] = $matterType;
+        $d['matter_title'] = $matterTitle;
         $d['matter_shareby'] = $shareby;
         $d['user_agent'] = $openid_agent;
         $d['client_ip'] = $client_ip;
@@ -144,7 +145,7 @@ class log_model extends TMS_MODEL {
 
         // 日志汇总
         $this->writeUserActionLog($mpid, $vid, $ooid, $current, 'R', $logid);
-        $this->writeMatterActionLog($mpid, $matterType, $matterId, $current, 'R', $logid);
+        $this->writeMatterActionLog($mpid, $matterType, $matterId, $matterTitle, $current, 'R', $logid);
 
         return $logid;
     }
@@ -163,7 +164,7 @@ class log_model extends TMS_MODEL {
      * $mshareid 素材的分享ID
      * 
      */
-    public function writeShareActionLog($shareid, $vid, $ooid, $shareto, $shareby, $mpid, $id, $type, $openid_agent, $client_ip)
+    public function writeShareActionLog($shareid, $vid, $ooid, $shareto, $shareby, $mpid, $id, $type, $title, $openid_agent, $client_ip)
     {
         $mopenid = '';
         $mshareid = '';
@@ -178,6 +179,7 @@ class log_model extends TMS_MODEL {
         $d['mpid'] = $mpid;
         $d['matter_id'] = $id;
         $d['matter_type'] = $type;
+        $d['matter_title'] = $title;
         $d['matter_shareby'] = $shareby;
         $d['user_agent'] = $openid_agent;
         $d['client_ip'] = $client_ip;
@@ -186,7 +188,7 @@ class log_model extends TMS_MODEL {
 
         // 日志汇总
         $this->writeUserActionLog($mpid, $vid, $ooid, $current, 'S'.$shareto, $logid);
-        $this->writeMatterActionLog($mpid, $type, $id, $current, 'S'.$shareto, $logid);
+        $this->writeMatterActionLog($mpid, $type, $id, $title, $current, 'S'.$shareto, $logid);
 
         return $logid;
     }
@@ -223,12 +225,13 @@ class log_model extends TMS_MODEL {
      * 素材行为汇总日志
      * 为了便于进行数据统计
      */
-    private function writeMatterActionLog($mpid, $matter_type, $matter_id, $action_at, $action_name, $original_logid)
+    private function writeMatterActionLog($mpid, $matter_type, $matter_id, $title, $action_at, $action_name, $original_logid)
     {
         $d = array();
         $d['mpid'] = $mpid;
         $d['matter_type'] = $matter_type;
         $d['matter_id'] = $matter_id;
+        $d['matter_title'] = $title;
         $d['action_at'] = $action_at;
         $d['original_logid'] = $original_logid;
         switch ($action_name){

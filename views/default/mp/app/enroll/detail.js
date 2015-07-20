@@ -52,6 +52,9 @@ xxtApp.config(['$routeProvider', function ($routeProvider) {
     }).when('/rest/mp/app/enroll/stat', {
         templateUrl: '/views/default/mp/app/enroll/stat.html',
         controller: 'statCtrl'
+    }).when('/rest/mp/app/enroll/accesslog', {
+        templateUrl: '/views/default/mp/app/enroll/accesslog.html',
+        controller: 'accesslogCtrl'
     }).otherwise({
         templateUrl: '/views/default/mp/app/enroll/setting.html',
         controller: 'settingCtrl'
@@ -171,6 +174,12 @@ xxtApp.controller('roundCtrl', ['$scope', '$modal', 'http2', function ($scope, $
 xxtApp.controller('statCtrl', ['$scope', 'http2', function ($scope, http2) {
     $scope.$parent.subView = 'stat';
     http2.get('/rest/mp/app/enroll/statGet?aid=' + $scope.aid, function (rsp) {
+        $scope.stat = rsp.data;
+    });
+}]);
+xxtApp.controller('accesslogCtrl', ['$scope', 'http2', function ($scope, http2) {
+    $scope.$parent.subView = 'accesslog';
+    http2.get('/rest/mp/app/enroll/accesslogGet?aid=' + $scope.aid, function (rsp) {
         $scope.stat = rsp.data;
     });
 }]);

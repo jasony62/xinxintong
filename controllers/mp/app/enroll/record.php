@@ -73,7 +73,7 @@ class record extends \mp\app\app_base {
             'contain' => $contain,
         );
 
-        $result = $this->model('app\enroll')->getRecords($this->mpid, $aid, $options);
+        $result = $this->model('app\enroll\record')->byEnroll($this->mpid, $aid, $options);
 
         return new \ResponseData($result);
     }

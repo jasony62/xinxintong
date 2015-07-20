@@ -26,7 +26,7 @@ class page extends \member_base {
     {
         $modelPage = $this->model('app\enroll\page');
         
-        $pages = $modelPage->byEnrollId($id);
+        $pages = $modelPage->byEnroll($id);
         
         if ($byPage === 'Y') {
             /**

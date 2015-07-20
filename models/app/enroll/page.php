@@ -5,7 +5,7 @@ class page_model extends \TMS_MODEL {
     /**
      * 根据活动
      */
-    public function &byEnrollId($id)
+    public function &byEnroll($id)
     {
         // form page
         $q = array(
@@ -48,7 +48,7 @@ class page_model extends \TMS_MODEL {
      * 定义数据项都是input，所以首先应该将页面中所有input元素提取出来
      * 每一个元素中都有ng-model和title属相，ng-model包含了id，title是名称
      */
-    public function schemaByHtml($html, $size=null) 
+    public function &schemaByHtml($html, $size=null) 
     {
         $defs = array();
 
@@ -170,5 +170,21 @@ class page_model extends \TMS_MODEL {
             return $randomDefs;
         } else
             return $defs;
+    }
+    /**
+     *
+     */
+    public function &schemaByEnroll($id)
+    {
+        $schema = array();
+        
+        $pages = $this->byEnroll($id);
+        foreach ($pages as $p)
+            if ($p->type === 'I') {
+                $defs = $this->schemaByHtml($p->html);
+                $schema = array_merge($schema, $defs);
+            }
+            
+        return $schema;   
     }
 }

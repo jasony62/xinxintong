@@ -107,6 +107,7 @@ $sql .= ',password_salt char(32) not null';
 $sql .= ',weixinid varchar(16) not null';
 $sql .= ",mobile_verified char(1) not null default 'Y'";
 $sql .= ",email_verified char(1) not null default 'Y'";
+$sql .= ",verified char(1) not null default 'N'"; // 用户是否已通过认证 
 $sql .= ",cardno varchar(16) not null default ''";
 $sql .= ",level int not null default 0";
 $sql .= ",credits int not null default 0";

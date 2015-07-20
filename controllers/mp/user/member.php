@@ -155,7 +155,8 @@ class member extends \mp\mp_controller {
             'mobile' => empty($data->mobile) ? '':$data->mobile,
             'email' => empty($data->email) ? '':$data->email,
             'name' => empty($data->name) ? '':$data->name,
-            'email_verified' => $emailVerified
+            'email_verified' => $emailVerified,
+            'verified' =>  (isset($data->verified) && $data->verified === 'Y') ? 'Y':'N'
         );
         if ($attrs->attr_mobile[5] === '1')
             $newMember['authed_identity'] = $data->mobile;

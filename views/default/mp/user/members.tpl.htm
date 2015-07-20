@@ -20,6 +20,7 @@
             <tr>
                 <th>关注用户</th>
                 <th style='width:100px'>认证日期</th>
+                <th style='width:80px'>完成认证</th>
                 <th ng-if='attrs.attr_name[0]==0'>姓名</th>
                 <th ng-if='attrs.attr_mobile[0]==0'>手机号</th>
                 <th ng-if='attrs.attr_email[0]==0'>电子邮件</th>
@@ -31,6 +32,7 @@
             <tr ng-repeat='r in roll'>
                 <td><a href='#' userpopover xxt-fid='{{r.fid}}' ng-click='viewUser($event,r)'>{{r.f_nickname}}</a></td>
                 <td>{{r.create_at*1000|date:'yyyy-MM-dd'}}</td>
+                <td>{{r.verified==='Y'?'是':'否'}}</td>
                 <td ng-if='attrs.attr_name[0]==0'>{{r.name}}</td>
                 <td ng-if="attrs.attr_mobile[0]==0">{{r.mobile}}</td>
                 <td ng-if="attrs.attr_email[0]==0">{{r.email}}</td>

@@ -31,7 +31,7 @@ class analyze extends mp_controller {
         $q[] = $w;
         $q2 = array(
             'g'=>'openid',
-            'o'=>"act_$orderby",
+            //'o'=>"act_$orderby",
             'l'=>array('o'=>($page-1)*$size, 's'=>$size)
         );
         $stat = $this->model()->query_objs_ss($q, $q2);
@@ -66,8 +66,8 @@ class analyze extends mp_controller {
         $q[] = $w;
         $q2 = array(
             'g'=>'matter_type,matter_id',
-            'o'=>"act_$orderby",
-            'l'=>array('o'=>($page-1)*$size, 's'=>$size)
+            //'o'=>"act_$orderby",
+            //'l'=>array('o'=>($page-1)*$size, 's'=>$size)
         );
         $stat = $this->model()->query_objs_ss($q, $q2);
         /**

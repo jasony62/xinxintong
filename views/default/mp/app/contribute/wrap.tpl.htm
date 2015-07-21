@@ -1,11 +1,13 @@
 <div ng-controller='contributeCtrl' ng-init="jsonParams ='<?php echo urlencode(json_encode(TPL::val('params')));?>'">
     <div class='navbar navbar-default'>
         <ul class='nav navbar-nav'>
-            <li><a href='/page/mp/app/contribute' target='_self'><span class="glyphicon glyphicon-chevron-left"></span></a></li>
-            <li class='active'><a href='javascript:void(0);'>设置</a></li>
+            <li>
+                <a href='/page/mp/app/contribute' target='_self'><span class="glyphicon glyphicon-chevron-left"></span></a>
+            </li>
+            <li class='active'>
+                <a href='javascript:void(0);'>设置</a>
+            </li>
         </ul>
     </div>
-    <div>
-        <div ng-include="'/page/mp/app/contribute/setting'"></div>
-    </div>
+    <div ng-view></div>
 </div>

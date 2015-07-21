@@ -178,6 +178,10 @@ class main extends \member_base {
                 break;
             }
         }
+        /**
+         * 当前用户
+         */
+        $c->user = $this->getUser($mpid);
         
         return new \ResponseData($c);
     }

@@ -19,6 +19,7 @@ $sql .= ',params text'; // 投稿频道{channels:[channel_id]}
 $sql .= ",fans_only char(1) not null default 'N'"; // 仅限关注用户打开
 $sql .= ",access_control char(1) not null default 'N'";
 $sql .= ",authapis text";
+$sql .= ",pic_store_at char(1) not null default 'U'"; // 图片存储位置，公众号（M）|用户（U）
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');

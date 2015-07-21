@@ -18,7 +18,7 @@ xxtApp.controller('initiateCtrl', ['$scope', '$location', '$modal', 'http2', 'Ar
         $scope.editing = data;
     }).then(function () {
         $scope.Entry.get().then(function (data) {
-            var i, j, ch, mapSubChannels = {};
+            var i, j, ch, mapSubChannels = {}, picUrl;
             $scope.editing.subChannels = [];
             $scope.entryApp = data;
             for (i = 0, j = data.subChannels.length; i < j; i++) {
@@ -29,6 +29,9 @@ xxtApp.controller('initiateCtrl', ['$scope', '$location', '$modal', 'http2', 'Ar
                 ch = $scope.editing.channels[i];
                 mapSubChannels[ch.id] && $scope.editing.subChannels.push(ch);
             }
+            picUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid=' + $scope.mpid;
+            picUrl += data.pic_store_at === 'M' ? $scope.mpid : data.user.fan.fid;
+            $scope.picGalleryUrl = picUrl;
         });
     });
     $scope.back = function (event) {
@@ -38,12 +41,7 @@ xxtApp.controller('initiateCtrl', ['$scope', '$location', '$modal', 'http2', 'Ar
     $scope.$watch('jsonParams', function (nv) {
         if (nv && nv.length) {
             var params = JSON.parse(decodeURIComponent(nv.replace(/\+/, '%20')));
-            $scope.fid = params.fid;
             $scope.needReview = params.needReview;
-            if ($scope.needReview === 'Y')
-                $scope.picGalleryUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid=' + $scope.mpid;
-            else
-                $scope.picGalleryUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid=' + $scope.fid;
         }
     });
     $scope.edit = function (event, article) {

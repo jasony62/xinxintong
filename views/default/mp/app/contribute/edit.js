@@ -1,4 +1,11 @@
-xxtApp.controller('contributeCtrl', ['$scope', 'http2', function ($scope, http2) {
+xxtApp.config(['$routeProvider', function ($rp) {
+    $rp.when('/rest/mp/app/contribute', {
+        templateUrl: '/views/default/mp/app/contribute/setting.html',
+    });
+}]);
+xxtApp.controller('contributeCtrl', ['$location', '$scope', 'http2', function ($location, $scope, http2) {
+    var id;
+    id = $location.search().id;
     $scope.taskCodeEntryUrl = 'http://' + location.host + '/rest/q';
     $scope.update = function (name) {
         var nv = {};

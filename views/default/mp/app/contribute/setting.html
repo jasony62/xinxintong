@@ -47,6 +47,15 @@
                 <p class='help-block'>最多120个汉字，240个英文字符</p>
             </div>
         </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>图片存储位置</label>
+            <div class='col-md-10'>
+                <label class='radio-inline'>
+                    <input type='radio' name='pic_store_at' value='U' ng-model='editing.pic_store_at' ng-change="update('pic_store_at');">用户私有</label>
+                <label class='radio-inline'>
+                    <input type='radio' name='pic_store_at' value='M' ng-model='editing.pic_store_at' ng-change="update('pic_store_at');">公众号共有</label>
+            </div>
+        </div>
         <div class='form-group' ng-controller='setChannelCtrl' ng-init="matterType='contribute'">
             <label class='col-md-2 control-label'>活动所属频道</label>
             <div class='col-md-6'>

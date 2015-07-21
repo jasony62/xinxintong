@@ -344,10 +344,10 @@ class enroll_model extends \matter\enroll_model {
                  * 用户认证信息
                  */
                 $vv = new \stdClass;
-                isset($v->name) && $vv->name = $v->name;
-                isset($v->email) && $vv->email = $v->email;
-                isset($v->mobile) && $vv->mobile = $v->mobile;
-                $vv = json_encode($vv);
+                isset($v->name) && $vv->name = urlencode($v->name);
+                isset($v->email) && $vv->email = urlencode($v->email);
+                isset($v->mobile) && $vv->mobile = urlencode($v->mobile);
+                $vv = urldecode(json_encode($vv));
             } else if (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
                 $vv = array();
                 $fsuser = \TMS_APP::model('fs/user', $runningMpid);

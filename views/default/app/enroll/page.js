@@ -408,6 +408,7 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
             /**
              * set form data
              */
+            params.record && params.record.data && params.record.data.member && (params.record.data.member = JSON.parse(params.record.data.member));
             $scope.User = params.user;
             $scope.Record = new Record($scope.mpid, $scope.aid, $scope.rid, params.record, $scope);
             $scope.Round = new Round($scope.mpid, $scope.aid);
@@ -417,7 +418,9 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
                     var p, type, dataOfRecord, value;
                     dataOfRecord = $scope.Record.current.data;
                     for (p in dataOfRecord) {
-                        if ($('[name=' + p + ']').hasClass('img-tiles')) {
+                        if (p === 'member') {
+                            $scope.data.member = dataOfRecord.member;
+                        } else if ($('[name=' + p + ']').hasClass('img-tiles')) {
                             if (dataOfRecord[p] && dataOfRecord[p].length) {
                                 value = dataOfRecord[p].split(',');
                                 $scope.data[p] = [];
@@ -437,21 +440,6 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
                         }
                     }
                 });
-            }
-            if ($scope.data.member.authid && params.user.members.length) {
-                var m, extAttrs, ea;
-                for (m in $scope.User.members) {
-                    if ($scope.data.member.authid == $scope.User.members[m].authapi_id) {
-                        $scope.data.member.name = $scope.User.members[m].name;
-                        $scope.data.member.mobile = $scope.User.members[m].mobile;
-                        $scope.data.member.email = $scope.User.members[m].email;
-                        if ($scope.User.members[m].extattr) {
-                            extAttrs = JSON.parse($scope.User.members[m].extattr);
-                            for (ea in extAttrs) $scope.data.member[ea] = extAttrs[ea];
-                        }
-                        break;
-                    }
-                }
             }
             $scope.params = params;
             $scope.ready = true;

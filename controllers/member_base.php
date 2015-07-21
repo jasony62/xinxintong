@@ -144,6 +144,7 @@ class member_base extends xxt_base {
      */
     protected function gotoAuth($mpid, $aAuthapis, $openid, $targetUrl = null)
     {
+        is_string($aAuthapis) && $aAuthapis = explode(',', $aAuthapis);
         /**
          * 如果不是注册用户，要求先进行认证
          */

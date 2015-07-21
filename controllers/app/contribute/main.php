@@ -30,25 +30,38 @@ class main extends \member_base {
     public function afterOAuth($mpid, $entry=null, $openid=null) 
     {
         $myUrl = 'http://'.$_SERVER['HTTP_HOST']."/rest/app/contribute?mpid=$mpid";
-        list($fid, $openid, $mid) = $this->getCurrentUserInfo($mpid, $myUrl);
-        
+        /**
+         * 身份信息
+         */
+        $user = $this->getUser($mpid);
+        /**
+         * 必须是关注用户
+         */
+        $this->getClientSrc() && $this->askFollow($mpid, $user->openid);
+        /**
+         * 必须是认证用户
+         */
         $authids = array();
         $authapis = $this->model('user/authapi')->byMpid($mpid, 'Y');
         foreach ($authapis as $aa)
             $authids[] = $aa->authid;
-        $authids = implode(',', $authids);
-        $member = $this->model('user/member')->byId($mid);
-
-        $mine = array();
+        empty($user->members) && $this->gotoAuth($mpid, $authids, $user->openid, $myUrl);
+        /**
+         * 投稿活动
+         */
         if ($entry === null)
             $entries = $this->model('app\contribute')->byMpid($mpid);
         else {
             $entry = explode(',', $entry);
             $entry = $this->model('app\contribute')->byId($entry[1]);
             $entries = array($entry);
-        } 
-            
+        }
+        
+        $member = $user->members[0];
+        $authids = implode(',', $authids);
+        $mine = array();
         if (!empty($entries)) foreach ($entries as $entry) {
+            // 可以参与投稿？
             $set = "cid='$entry->id' and role='I'";
             $entry->isInitiator = $this->model('acl')->canAccess(
                 $mpid, 
@@ -56,7 +69,7 @@ class main extends \member_base {
                 $set,
                 $member->authed_identity,
                 $authids, true);
-            //
+            // 可以参与审稿？
             $set = "cid='$entry->id' and role='R'";
             $entry->isReviewer = $this->model('acl')->canAccess(
                 $mpid, 
@@ -64,7 +77,7 @@ class main extends \member_base {
                 $set,
                 $member->authed_identity,
                 $authids, true);
-            //
+            // 可以参与版面？
             $set = "cid='$entry->id' and role='T'";
             $entry->isTypesetter = $this->model('acl')->canAccess(
                 $mpid, 

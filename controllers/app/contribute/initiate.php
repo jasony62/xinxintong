@@ -30,20 +30,11 @@ class initiate extends base {
                 array('read_at'=>time(), 'state'=>'D'),
                 "id=$disposer->id");
         }
-
-        list($entryType, $entryId) = explode(',', $article->entry);
-        $initiators = $this->model('app\contribute')->userAcls($mpid, $entryId, 'I'); // todo ???
-        
-        $params = array();
-        $params['fid'] = $this->user->fid;
-        $params['needReview'] = empty($initiators) ? 'N' : 'Y';
-        
-        \TPL::assign('params', $params);
         /**
          * 只有为投稿状态，且在PC端打开的时候才允许编辑
          */
         $csrc = $this->getClientSrc();
-        if (empty($csrc) && (empty($article->disposer) || $article->disposer->phase === 'I'))
+        if (empty($csrc) && $article->approved === 'N' && (empty($article->disposer) || $article->disposer->phase === 'I'))
             $this->view_action('/app/contribute/initiate/article');
         else
             $this->view_action('/app/contribute/initiate/article-r');

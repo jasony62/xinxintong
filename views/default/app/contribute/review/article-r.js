@@ -31,11 +31,11 @@ xxtApp.controller('reviewCtrl', ['$location', '$scope', '$modal', 'http2', 'Arti
             var i, j, ch, mapSubChannels = {};
             $scope.editing.subChannels = [];
             $scope.entryApp = data;
-            for (i = 0, j = data.subChannels.length; i < j; i++) {
+            if (data.subChannels) for (i = 0, j = data.subChannels.length; i < j; i++) {
                 ch = data.subChannels[i];
                 mapSubChannels[ch.id] = ch;
             }
-            for (i = 0, j = $scope.editing.channels.length; i < j; i++) {
+            if ($scope.editing.channels) for (i = 0, j = $scope.editing.channels.length; i < j; i++) {
                 ch = $scope.editing.channels[i];
                 mapSubChannels[ch.id] && $scope.editing.subChannels.push(ch);
             }

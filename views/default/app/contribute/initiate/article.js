@@ -19,31 +19,27 @@ xxtApp.controller('initiateCtrl', ['$scope', '$location', '$modal', 'http2', 'Ar
     }).then(function () {
         $scope.Entry.get().then(function (data) {
             var i, j, ch, mapSubChannels = {}, picUrl;
+            data.params = JSON.parse(data.params);
             $scope.editing.subChannels = [];
             $scope.entryApp = data;
-            for (i = 0, j = data.subChannels.length; i < j; i++) {
+            if (data.subChannels) for (i = 0, j = data.subChannels.length; i < j; i++) {
                 ch = data.subChannels[i];
                 mapSubChannels[ch.id] = ch;
             }
-            for (i = 0, j = $scope.editing.channels.length; i < j; i++) {
+            if ($scope.editing.channels) for (i = 0, j = $scope.editing.channels.length; i < j; i++) {
                 ch = $scope.editing.channels[i];
                 mapSubChannels[ch.id] && $scope.editing.subChannels.push(ch);
             }
             picUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid=' + $scope.mpid;
             picUrl += data.pic_store_at === 'M' ? $scope.mpid : data.user.fan.fid;
             $scope.picGalleryUrl = picUrl;
+            $scope.needReview = (data.reviewers && data.reviewers.length) ? 'Y' : 'N';
         });
     });
     $scope.back = function (event) {
         event.preventDefault();
         location.href = '/rest/app/contribute/initiate?mpid=' + $scope.mpid + '&entry=' + $scope.entry;
     };
-    $scope.$watch('jsonParams', function (nv) {
-        if (nv && nv.length) {
-            var params = JSON.parse(decodeURIComponent(nv.replace(/\+/, '%20')));
-            $scope.needReview = params.needReview;
-        }
-    });
     $scope.edit = function (event, article) {
         if (article._cascade === true)
             $scope.editing = article;
@@ -148,6 +144,12 @@ xxtApp.controller('initiateCtrl', ['$scope', '$location', '$modal', 'http2', 'Ar
         }
     };
     $scope.forward = function () {
+        if ($scope.entryApp.params.requireSubChannel && $scope.entryApp.params.requireSubChannel === 'Y') {
+            if (!$scope.editing.subChannels || $scope.editing.subChannels.length === 0) {
+                $scope.errmsg = '请指定投稿频道';
+                return;
+            }
+        }
         $modal.open({
             templateUrl: 'review-list.html',
             controller: ['$scope', '$modalInstance', 'reviewers', function ($scope, $mi, reviewers) {

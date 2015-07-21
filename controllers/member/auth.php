@@ -409,7 +409,6 @@ class auth extends \member_base {
             return new \ResponseError('指定的认证用户不存在');
 
         $acls = $this->getPostJson();
-
         foreach ($members as $member) {
             foreach ($acls as $acl) {
                 switch ($acl->idsrc) {

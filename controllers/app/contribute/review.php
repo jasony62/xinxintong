@@ -45,6 +45,10 @@ class review extends base {
         if ($disposer && $disposer->mid === $this->user->mid && $disposer->phase === 'R' && $disposer->state === 'P') {
             $this->model()->update(
                 'xxt_article_review_log', 
+                array('receive_at'=>time()),
+                "id=$disposer->id and receive_at=0");
+            $this->model()->update(
+                'xxt_article_review_log', 
                 array('read_at'=>time(), 'state'=>'D'),
                 "id=$disposer->id");
         }

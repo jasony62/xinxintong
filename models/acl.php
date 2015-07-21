@@ -423,10 +423,10 @@ class acl_model extends TMS_MODEL {
         $q = array(
             'identity,idsrc',
             $table,
-            "$whichAcl and idsrc<>''"
+            "$whichAcl"
         );
         $acls = $this->query_objs_ss($q);
-        if ($this->checkAclByAuthapi($mpid, $authapis, $acls, $identity))
+        if (true === $this->checkAclByAuthapi($mpid, $authapis, $acls, $identity))
             return true;
 
         return false;
@@ -445,7 +445,8 @@ class acl_model extends TMS_MODEL {
                 "authid=$authid and valid='Y'"
             );
             if ($url = $this->query_val_ss($q)) {
-                $url = 'http://'.$_SERVER['HTTP_HOST'].$url."/checkAcl?authid=$authid&uid=$identity";
+                false === strpos($url, 'http') && $url = 'http://' . $_SERVER['HTTP_HOST'] . $url;
+                $url .= "/checkAcl?authid=$authid&uid=$identity";
                 $ch = curl_init($url);
                 curl_setopt($ch, CURLOPT_HEADER, 0);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -457,10 +458,10 @@ class acl_model extends TMS_MODEL {
                     return array(false, $err);
                 }
                 curl_close($ch);
-
                 $rst = json_decode($response);
-                if ($rst->err_code == 0 && $rst->data === 'passed')
+                if ($rst->err_code == 0 && $rst->data === 'passed') {
                     return true;
+                }
             }
         }
         return false;

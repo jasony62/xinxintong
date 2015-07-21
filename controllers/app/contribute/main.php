@@ -68,7 +68,7 @@ class main extends \member_base {
                 'xxt_contribute_user',
                 $set,
                 $member->authed_identity,
-                $authids, true);
+                $authids, false);
             // 可以参与审稿？
             $set = "cid='$entry->id' and role='R'";
             $entry->isReviewer = $this->model('acl')->canAccess(

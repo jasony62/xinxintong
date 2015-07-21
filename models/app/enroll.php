@@ -339,7 +339,16 @@ class enroll_model extends \matter\enroll_model {
             /**
              * 插入自定义属性
              */
-            if (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
+            if ($n === 'member' && is_object($v)) {
+                /**
+                 * 用户认证信息
+                 */
+                $vv = new \stdClass;
+                isset($v->name) && $vv->name = $v->name;
+                isset($v->email) && $vv->email = $v->email;
+                isset($v->mobile) && $vv->mobile = $v->mobile;
+                $vv = json_encode($vv);
+            } else if (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
                 $vv = array();
                 $fsuser = \TMS_APP::model('fs/user', $runningMpid);
                 foreach ($v as $img) {

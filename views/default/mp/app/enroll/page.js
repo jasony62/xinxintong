@@ -69,7 +69,13 @@
                     case 'input':
                     case 'radio':
                     case 'checkbox':
-                        title = schema.match(/\btitle=\".*?\"/).pop().replace('title=', '').replace(/\"/g, '');
+                        title = schema.match(/\btitle=\".*?\"/);
+                        try {
+                            title = title.pop().replace('title=', '').replace(/\"/g, '');
+                        } catch (e) {
+                            alert('登记项数据格式错误，请检查');
+                            console.log('eee:' + schema, e);
+                        }
                         if (schema.match(/(<textarea|type=\"text\")/)) {
                             if (modelId = extractModelId(schema))
                                 defs[modelId] = { id: modelId, title: title, type: type };

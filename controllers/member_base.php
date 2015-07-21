@@ -76,7 +76,7 @@ class member_base extends xxt_base {
              * 优先根据openid判断用户的身份
              */
             $q = array(
-                'm.mid,m.fid,m.email_verified,m.authapi_id,m.authed_identity,m.depts,m.tags',
+                'm.mid,m.name,m.email,m.mobile,m.fid,m.email_verified,m.authapi_id,m.authed_identity,m.depts,m.tags',
                 'xxt_member m,xxt_fans f',
                 "m.forbidden='N' and m.authapi_id in($authids) and m.fid=f.fid and f.openid='$openid'"
             );

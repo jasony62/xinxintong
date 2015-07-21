@@ -30,9 +30,9 @@
                 </div>
                 <tinymce content='editing.pages.form.html' id='form' height='500' change="onPageChange(editing.pages.form)"></tinymce>
                 <div class='sidebar'>
-                    <button class='btn btn-default' ng-click="removeWrap(editing.pages.form)" ng-disabled='!hasActiveWrap'>
-                        <span class='glyphicon glyphicon-edit'></span></button>
                     <button class='btn btn-default' ng-click="editWrap(editing.pages.form)" ng-disabled='!hasActiveWrap'>
+                        <span class='glyphicon glyphicon-edit'></span></button>
+                    <button class='btn btn-default' ng-click="removeWrap(editing.pages.form)" ng-disabled='!hasActiveWrap'>
                         <span class='glyphicon glyphicon-remove'></span></button>
                     </button>
                     <button class='btn btn-default' ng-click="upWrap(editing.pages.form)" ng-disabled='!hasActiveWrap'>
@@ -79,9 +79,9 @@
                 </div>
                 <tinymce content='ep.html' id='{{ep.name}}' height='500' change="onPageChange(ep)"></tinymce>
                 <div class='sidebar'>
-                    <button class='btn btn-default' ng-click="removeWrap(ep)" ng-disabled='!hasActiveWrap'>
-                        <span class='glyphicon glyphicon-edit'></span></button>
                     <button class='btn btn-default' ng-click="editWrap(ep)" ng-disabled='!hasActiveWrap'>
+                        <span class='glyphicon glyphicon-edit'></span></button>
+                    <button class='btn btn-default' ng-click="removeWrap(ep)" ng-disabled='!hasActiveWrap'>
                         <span class='glyphicon glyphicon-remove'></span></button>
                     </button>
                     <button class='btn btn-default' ng-click="upWrap(ep)" ng-disabled='!hasActiveWrap'>

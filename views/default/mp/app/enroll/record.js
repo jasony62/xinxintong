@@ -16,12 +16,17 @@
             url += '&tags=' + $scope.page.tags.join(',');
             url += '&contain=total' + $scope.page.joinParams();
             http2.get(url, function (rsp) {
+                var i, j, r;
                 if (rsp.data) {
                     $scope.roll = rsp.data[0] ? rsp.data[0] : [];
                     rsp.data[1] && ($scope.page.total = rsp.data[1]);
                     rsp.data[2] && ($scope.cols = rsp.data[2]);
                 } else
                     $scope.roll = [];
+                for (i = 0, j = $scope.roll.length; i < j; i++) {
+                    r = $scope.roll[i];
+                    r.data.member && (r.data.member = JSON.parse(r.data.member));
+                }
             });
         };
         $scope.page = {

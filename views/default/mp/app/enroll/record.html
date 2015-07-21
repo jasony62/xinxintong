@@ -37,7 +37,9 @@
         <table class='table table-bordered'>
             <thead>
                 <tr>
-                    <th style='width:40px'><input type='checkbox' ng-model="selectAll"></th>
+                    <th style='width:40px'>
+                        <input type='checkbox' ng-model="selectAll">
+                    </th>
                     <th style='width:140px'>登记时间</th>
                     <th style='width:100px' ng-if="editing.fans_only==='Y'||editing.wxyx_only==='Y'">昵称</th>
                     <th ng-repeat="c in cols" title="{{c.ops}}">{{c.title}}</th>
@@ -50,12 +52,15 @@
             </thead>
             <tbody>
                 <tr ng-repeat='r in roll' class='roll'>
-                    <td><input type='checkbox' ng-model='selected[$index]'></td>
+                    <td>
+                        <input type='checkbox' ng-model='selected[$index]'>
+                    </td>
                     <td>{{(r.enroll_at*1000)|date:'yyyy-MM-dd HH:mm'}}</td>
                     <td ng-if="editing.fans_only==='Y'||editing.wxyx_only==='Y'">
                         <a href='#' xxt-fid='{{r.fid}}' ng-click='viewUser(r)'>{{r.nickname}}</a>
                     </td>
                     <td ng-repeat="c in cols">
+                        <span ng-if="c.id.indexOf('member')===0">{{r.data.member[c.id.split('.')[1]]}}</span>
                         <span ng-if="c.type!=='img'">{{r.data[c.id]}}</span>
                         <span ng-if="c.type==='img'" ng-init="imgs=r.data[c.id].split(',')">
                             <img ng-repeat="img in imgs" ng-src='{{img}}' />
@@ -82,7 +87,8 @@
         <button class='btn btn-danger' ng-click='empty()'>清空记录</button>
         <div class="btn-group">
             <button type="button" class="btn btn-default">添加用户记录</button>
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+            aria-expanded="false">
                 <span class="caret"></span>
                 <span class="sr-only">Toggle Dropdown</span>
             </button>

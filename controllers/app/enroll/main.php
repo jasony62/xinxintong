@@ -506,7 +506,7 @@ class main extends \member_base {
          * 处理用户认证信息
          */
         $member = $posted->member;
-        unset($posted->member);
+        //unset($posted->member);
         $authid = $member->authid;
         unset($member->authid);
         $memberModel = $this->model('user/member');
@@ -516,6 +516,7 @@ class main extends \member_base {
         } else {
             $rst = $memberModel->create2($mpid, $authid, $fid, $member);
         }
+        $member->authid = $authid;
         
         return $rst;
     }

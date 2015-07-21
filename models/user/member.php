@@ -109,14 +109,14 @@ class member_model extends TMS_MODEL {
         /**
          * 处理访问口令
          */
-        if ($attrs->attr_password[0] === '0') {
+        /*if ($attrs->attr_password[0] === '0') {
             if (empty($member->password) || strlen($member->password) < 6)
                 return array(false, '密码长度不符合要求');
             $salt = $this->gen_salt();
             $cpw = $this->compile_password($member->authed_identity, $member->password, $salt);
             $member->password = $cpw;
             $member->password_salt = $salt;
-        }
+        }*/
 
         $create_at = time();
         $mid = md5(uniqid().$create_at); //member's id
@@ -199,14 +199,14 @@ class member_model extends TMS_MODEL {
         /**
          * 处理访问口令
          */
-        if ($attrs->attr_password[0] === '0') {
+        /*if ($attrs->attr_password[0] === '0') {
             if (empty($member->password) || strlen($member->password) < 6)
                 return array(false, '密码长度不符合要求');
             $salt = $this->gen_salt();
             $cpw = $this->compile_password($member->authed_identity, $member->password, $salt);
             $member->password = $cpw;
             $member->password_salt = $salt;
-        }
+        }*/
         /**
          * 扩展属性
          */

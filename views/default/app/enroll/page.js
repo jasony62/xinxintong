@@ -304,6 +304,7 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
                     url += '&page=' + nextAction;
                     location.href = url;
                 } else {
+                    btnSubmit && btnSubmit.removeAttribute('disabled');
                     deferred2.resolve('ok');
                 }
             }).error(function (content, httpCode) {

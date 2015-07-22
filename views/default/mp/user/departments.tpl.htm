@@ -1,50 +1,64 @@
 <div ng-controller='deptCtrl'>
     <div class='form-group form-inline'>
-        <select class='form-control' title='认证接口' ng-show='authapis' ng-model='selectedAuthapi' ng-options='a.name for a in authapis' ng-change="doSearch()"></select>
+        <select class='form-control' title='认证接口' ng-show='authapis' ng-model='selectedAuthapi' ng-options='a.name for a in authapis'
+        ng-change="doSearch()"></select>
     </div>
     <div class='col-md-4' style='overflow-x:auto;overflow-y:hidden;padding-bottom:15px'>
         <button class='btn btn-primary' ng-click="addChild(depts)">添加</button>
         <ol class='tree'>
             <li class='treenode' tms-tree="child in depts.children at ol">
-            <div style='width:200px'>
-                <div class="input-group input-group-sm">
-                    <div class="input-group-btn">
-                        <button type="button" class="btn btn-default" ng-click='toggleChild(child)'><span class="glyphicon" ng-class="child.expanded?'glyphicon-chevron-down':'glyphicon-chevron-right'"></span></span></button>
+                <div style='width:200px'>
+                    <div class="input-group input-group-sm">
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default" ng-click='toggleChild(child)'>
+                                <span class="glyphicon" ng-class="child.expanded?'glyphicon-chevron-down':'glyphicon-chevron-right'"></span>
+                                </span>
+                            </button>
+                        </div>
+                        <p class='form-control' ng-class="{'active':child.data===editing}" ng-click="open(child.data)" style='overflow:hidden' title='{{child.data.name}}'>{{child.data.name}}</p>
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                <li>
+                                    <a href="javascript:void(0)" ng-click="addChild(child)">添加</a>
+                                </li>
+                                <li>
+                                    <a href="javascript:void(0)" ng-click="removeChild(child)">删除</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-                <p class='form-control' ng-class="{'active':child.data===editing}" ng-click="open(child.data)" style='overflow:hidden' title='{{child.data.name}}'>{{child.data.name}}</p>
-                <div class="input-group-btn">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
-                    <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                        <li><a href="#" ng-click="addChild(child)">添加</a></li>
-                        <li><a href="#" ng-click="removeChild(child)">删除</a></li>
-                    </ul>
-                </div>
-            </div>
+                <ol ng-class="{pregnant:child.children.length}" ng-show="child.children.length>0"></ol>
+            </li>
+        </ol>
+    </div>
+    <div class='col-md-8' ng-if='editing'>
+        <div class='form-group'>
+            <label>名称</label>
+            <input type='text' class='form-control' ng-model='editing.name' tms-auto-update tms-wait=1000 tms-update="updateDept('name')">
         </div>
-        <ol ng-class="{pregnant:child.children.length}" ng-show="child.children.length>0"></ol>
-        </li>
-    </ol>
-</div>
-<div class='col-md-8' ng-if='editing'>
-    <div class='form-group'>
-        <label>名称</label>
-        <input type='text' class='form-control' ng-model='editing.name' tms-auto-update tms-wait=1000 tms-update="updateDept('name')">
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th>用户</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat='m in members'>
+                    <td>
+                        <a href='#' userpopover xxt-fid='{{m.fid}}' ng-click='viewUser($event,m)'>{{m.name||m.nickname||m.mobile||m.email}}</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class='form-group form-inline'>
+            <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+            <pagination style='margin:0;cursor:pointer' class='pull-right' ng-if='page.total>page.size' boundary-links="true"
+            total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;"
+            next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="searchMembers()"></pagination>
+        </div>
     </div>
-    <table class='table table-bordered'>
-        <thead>
-            <tr>
-                <th>用户</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr ng-repeat='m in members'>
-                <td><a href='#' userpopover xxt-fid='{{m.fid}}' ng-click='viewUser($event,m)'>{{m.name||m.nickname||m.mobile||m.email}}</a></td>
-            </tr>
-        </tbody>
-    </table> 
-    <div class='form-group form-inline'>
-        <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
-        <pagination style='margin:0;cursor:pointer' class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="searchMembers()"></pagination>
-    </div>
-</div>
 </div>

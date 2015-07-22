@@ -537,7 +537,8 @@ class main extends \member_base {
                 if (isset($message)) {
                     $rst = $this->send_to_user($mpid, $openid, $message);
                     if (false === $rst[0]) {
-                        $tr = $this->model('reply\text', $call, $rst[1], false);
+                        $err = is_array($rst[1]) ? implode(',', $rst[1]) : $rst[1];
+                        $tr = $this->model('reply\text', $call, $err, false);
                         $tr->exec();
                     }
                 }

@@ -3,7 +3,7 @@
     <nav class='navbar navbar-default'>
         <div class='container-fluid'>
             <div class="navbar-header">
-                <a class="navbar-brand" href="#" ng-click="back($event)"><span class='glyphicon glyphicon-chevron-left'></span></a>
+                <a class="navbar-brand" href="javascript:void(0)" ng-click="back($event)"><span class='glyphicon glyphicon-chevron-left'></span></a>
             </div>
         </div>
     </nav>
@@ -37,7 +37,7 @@
             <div class='col-md-10'>
                 <div style="width:182px;border:1px solid #CCC">
                     <div style='position:relative' ng-if="editing.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
-                        <img name='pic' ng-src="{{editing.pic}}" width='180px'/>
+                        <img name='pic' ng-src="{{editing.pic}}" width='180px' />
                     </div>
                 </div>
             </div>

@@ -3,7 +3,7 @@
     <nav class='navbar navbar-default'>
         <div class='container-fluid'>
             <div class="navbar-header">
-                <a class="navbar-brand" href="#" ng-click="back($event)"><span class='glyphicon glyphicon-chevron-left'></span></a>
+                <a class="navbar-brand" href="javascript:void(0)" ng-click="back($event)"><span class='glyphicon glyphicon-chevron-left'></span></a>
             </div>
         </div>
     </nav>
@@ -34,11 +34,10 @@
                 <div style="width:182px;border:1px solid #CCC">
                     <div style="height:100px;text-align:center;padding-top:32px" ng-if="editing.pic==''">
                         <button class='btn btn-default' ng-click='setPic();'>
-                            <span class='glyphicon glyphicon-picture'></span> 选择图片
-                        </button>
+                            <span class='glyphicon glyphicon-picture'></span>选择图片</button>
                     </div>
                     <div style='position:relative' ng-if="editing.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
-                        <img name='pic' ng-src="{{editing.pic}}" width='180px'/>
+                        <img name='pic' ng-src="{{editing.pic}}" width='180px' />
                         <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
                             <span class='glyphicon glyphicon-picture'></span>
                         </button>
@@ -66,8 +65,12 @@
         <div class='form-group'>
             <label class='col-md-2 control-label'>发生地点</label>
             <div class='col-md-10 form-inline'>
-                <label>经度&nbsp;</label><input type='text' class='form-control' ng-model='editing.extinfo.occured_lat' tms-auto-update tms-wait=1000 tms-update="update('extinfo.occured_lat');">
-                <label>纬度&nbsp;</label><input type='text' class='form-control' ng-model='editing.extinfo.occured_lng' tms-auto-update tms-wait=1000 tms-update="update('extinfo.occured_lng');">
+                <label>经度&nbsp;</label>
+                <input type='text' class='form-control' ng-model='editing.extinfo.occured_lat' tms-auto-update tms-wait=1000
+                tms-update="update('extinfo.occured_lat');">
+                <label>纬度&nbsp;</label>
+                <input type='text' class='form-control' ng-model='editing.extinfo.occured_lng' tms-auto-update tms-wait=1000
+                tms-update="update('extinfo.occured_lng');">
             </div>
         </div>
         <div class='form-group'>

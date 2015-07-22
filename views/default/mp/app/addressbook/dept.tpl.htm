@@ -3,24 +3,30 @@
         <button class='btn btn-primary' ng-click="addChild(tree)">添加</button>
         <ol class='tree'>
             <li class='treenode' tms-tree="child in tree.children at ol">
-            <div style='width:300px'>
-                <div class="input-group input-group-sm">
-                    <div class="input-group-btn">
-                        <button type="button" class="btn btn-default" ng-click='toggleChild(child)'>
-                            <span class="glyphicon" ng-class="child.expanded?'glyphicon-chevron-down':'glyphicon-chevron-right'"></span>
-                        </button>
-                    </div>
-                    <p class='form-control' ng-click="open(child)" style='overflow:hidden' title='{{child.data.name}}' ng-class="{'active':child===editingNode}">{{child.data.name}}</p>
-                    <div class="input-group-btn">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
-                        <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                            <li><a href="#" ng-click="addChild(child)">添加</a></li>
-                            <li><a href="#" ng-click="removeChild(child)">删除</a></li>
-                        </ul>
+                <div style='width:300px'>
+                    <div class="input-group input-group-sm">
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default" ng-click='toggleChild(child)'>
+                                <span class="glyphicon" ng-class="child.expanded?'glyphicon-chevron-down':'glyphicon-chevron-right'"></span>
+                            </button>
+                        </div>
+                        <p class='form-control' ng-click="open(child)" style='overflow:hidden' title='{{child.data.name}}' ng-class="{'active':child===editingNode}">{{child.data.name}}</p>
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                <li>
+                                    <a href="javascript:void(0)" ng-click="addChild(child)">添加</a>
+                                </li>
+                                <li>
+                                    <a href="javascript:void(0)" ng-click="removeChild(child)">删除</a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <ol ng-class="{pregnant:child.children.length}" ng-show="child.children.length&&child.expanded"></ol>
+                <ol ng-class="{pregnant:child.children.length}" ng-show="child.children.length&&child.expanded"></ol>
             </li>
         </ol>
     </div>
@@ -34,8 +40,12 @@
             <div class='input-group'>
                 <p class='form-control'>{{editingDept.pdept.name}}</p>
                 <div class='input-group-btn'>
-                    <button class='btn btn-default' ng-click='setDeptParent()'><span class='glyphicon glyphicon-edit'></span></button>
-                    <button class='btn btn-default' ng-click='cleanDeptParent()'><span class='glyphicon glyphicon-remove'></span></button>
+                    <button class='btn btn-default' ng-click='setDeptParent()'>
+                        <span class='glyphicon glyphicon-edit'></span>
+                    </button>
+                    <button class='btn btn-default' ng-click='cleanDeptParent()'>
+                        <span class='glyphicon glyphicon-remove'></span>
+                    </button>
                 </div>
             </div>
         </div>

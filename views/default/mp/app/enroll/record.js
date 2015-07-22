@@ -121,11 +121,9 @@
                     }
                 }
             }).result.then(function (updated) {
-                var p = updated[0], tags = updated[1].join(',');
-                if ($scope.editing.tags.length !== tags.length) {
-                    $scope.editing.tags = tags;
-                    $scope.update('tags');
-                }
+                var p = updated[0], tags = updated[1];
+                $scope.editing.tags = tags;
+                $scope.update('tags');
                 http2.post('/rest/mp/app/enroll/record/update?aid=' + $scope.aid + '&ek=' + rollItem.enroll_key, p);
             });
         };

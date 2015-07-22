@@ -117,7 +117,7 @@
         </div>
         <div class="modal-body">
             <form class="form-horizontal roll-editor">
-                <div class="form-group" ng-repeat="c in cols">
+                <div class="form-group" ng-repeat="c in cols" ng-if="c.id.indexOf('member')!==0">
                     <label class="col-md-2 control-label">{{c.title}}</label>
                     <div class="col-md-10">
                         <input type='text' class='form-control' ng-if="c.type!=='img'" ng-model="item.data[c.id]">

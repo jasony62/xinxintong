@@ -47,9 +47,10 @@ xxtApp.controller('contributeCtrl', ['$location', '$scope', 'http2', function ($
             var params, entryUrl, ch, mapChannels = {};
             params = JSON.parse(decodeURIComponent(nv.replace(/\+/g, '%20')));
             console.log('ready', params);
-            $scope.mpid = params.mpid;
             entryUrl = 'http://' + location.hostname + '/rest/app/contribute';
             entryUrl += '?mpid=' + params.mpid;
+            entryUrl += '&entry=contribute,' + params.app.id;
+            $scope.mpid = params.mpid;
             $scope.entryUrl = entryUrl;
             $scope.editing = params.app;
             $scope.editing.canSetInitiator = 'Y';

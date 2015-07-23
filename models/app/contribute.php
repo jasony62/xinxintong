@@ -15,7 +15,7 @@ class contribute_model extends \matter\contribute_model {
 		$q = array(
 			'*', 
 			'xxt_contribute c',
-			"mpid='$mpid'"
+			"mpid='$mpid' and state=1"
 		);
 		$q2 = array('o'=>'create_at desc');
 		

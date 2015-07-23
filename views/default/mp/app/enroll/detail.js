@@ -74,7 +74,9 @@ xxtApp.controller('enrollCtrl', ['$scope', '$location', 'http2', function ($scop
         if (!angular.equals($scope.editing, $scope.persisted)) {
             var p = {};
             if (name === 'entry_rule')
-                p[name] = encodeURIComponent($scope.editing[name]);
+                p.entry_rule = encodeURIComponent($scope.editing[name]);
+            else if (name === 'tags')
+                p.tags = $scope.editing.tags.join(',');
             else
                 p[name] = $scope.editing[name];
             http2.post('/rest/mp/app/enroll/update?aid=' + $scope.aid, p, function (rsp) {

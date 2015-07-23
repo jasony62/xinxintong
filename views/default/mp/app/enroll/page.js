@@ -271,7 +271,7 @@
                                     html += '<li class="' + cls + '" wrap="radio"><label';
                                     if (def.align === 'H') html += ' class="radio-inline"';
                                     html += '><input type="radio" name="' + key + '"';
-                                    html += ' value="' + i + '"';
+                                    html += ' value="v' + i + '"';
                                     html += ' ng-model="data.' + key + '"';
                                     def.required == 1 && (html += 'required=""');
                                     html += ' title="' + def.name + '"';
@@ -286,7 +286,7 @@
                                 def.required == 1 && (html += 'required=""');
                                 html += ' title="' + def.name + '">';
                                 for (var i in def.ops) {
-                                    html += '<option wrap="option" name="data.' + key + '" value="' + i + '"' + 'data-label="' + def.ops[i].text + '"' + 'title="' + def.name + '"' + '>' + def.ops[i].text + '</option>';
+                                    html += '<option wrap="option" name="data.' + key + '" value="v' + i + '"' + 'data-label="' + def.ops[i].text + '"' + 'title="' + def.name + '"' + '>' + def.ops[i].text + '</option>';
                                 }
                                 html += '</select>';
                                 addWrap(page, 'div', { class: 'form-group', wrap: 'select' }, html);
@@ -304,7 +304,7 @@
                                 if (def.align === 'H') html += ' class="checkbox-inline"';
                                 html += '><input type="checkbox" name="' + key + '"';
                                 def.required == 1 && (html += 'required=""');
-                                html += ' ng-model="data.' + key + '.' + i + '"';
+                                html += ' ng-model="data.' + key + '.v' + i + '"';
                                 html += ' title="' + def.name + '" data-label="' + def.ops[i].text + '"><span>' + def.ops[i].text + '</span></label></li>';
                             }
                             addWrap(page, 'ul', { class: 'form-group' }, html);

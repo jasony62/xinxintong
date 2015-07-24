@@ -74,7 +74,7 @@ class initiate extends base {
     public function articleList_action($mpid, $entry, $openid=null) 
     {
         $articleModel = $this->model('matter\article');
-        $myArticles = $articleModel->byCreater($mpid, $this->user->mid, '*');
+        $myArticles = $articleModel->byEntry($mpid, $entry, $this->user->mid, '*');
         if (!empty($myArticles)) foreach ($myArticles as &$a) {
             $a->disposer = $articleModel->disposer($a->id);
             $disposer = $a->disposer; 

@@ -11,7 +11,7 @@ xxtApp.controller('appCtrl', ['$scope', 'http2', function ($scope, http2) {
         event.preventDefault();
         event.stopPropagation();
         http2.get('/rest/mp/app/contribute/remove?id=' + app.id, function (rsp) {
-            $scope.addressbooks.splice(index, 1);
+            $scope.apps.splice(index, 1);
         });
     };
     $scope.doSearch = function () {

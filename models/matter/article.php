@@ -38,6 +38,25 @@ class article_model extends article_base {
         return $articles;
     }
     /**
+     * 根据投稿来源
+     */
+    public function &byEntry($mpid, $entry, $creater, $fields='*', $cascade=false)
+    {
+        $q = array(
+            $fields,
+            'xxt_article',
+            "mpid='$mpid' and entry='$entry' and creater='$creater' and state=1");
+        $q2 = array('o'=>'modify_at desc');
+
+        $articles = $this->query_objs_ss($q, $q2);
+        
+        if (!empty($articles) && $cascade) foreach ($articles as &$a) {
+            $a->channels = \TMS_APP::M('matter\channel')->byMatter($a->id, 'article');
+        }
+
+        return $articles;
+    }
+    /**
      * $mid member's 仅限认证用户
      * $entry 指定的投稿活动
      * $phase 

@@ -194,6 +194,37 @@
             <button class="btn btn-success" ng-click="ok()">确定</button>
         </div>
     </script>
+    <script type="text/ng-template" id="embedInputEditor.html">
+        <div class="modal-header">
+            <button class="close" ng-click="cancel()" type="button">×</button>
+            <h5 class="modal-title">内容</h5>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal" role="form">
+                <div class="form-group">
+                    <label class="col-md-2 control-label">名称*</label>
+                    <div class="col-md-10">
+                        <input type='text' class='form-control' ng-model='def.name' required>
+                        <div class="radio">
+                            <label><input type='radio' value='placeholder' ng-model='def.showname'>输入框内</label>
+                            <label><input type='radio' value='label' ng-model='def.showname'>输入框前</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="['0','1','2','3','4','5','6','8'].indexOf(def.type)!==-1">
+                    <label class="col-md-2 control-label">必填</label>
+                    <div class="col-md-10">
+                        <div class="checkbox">
+                            <label><input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model='def.required'>是</label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer" style="margin-top:0">
+            <button class="btn btn-success" ng-click="ok()">确定</button>
+        </div>
+    </script>
     <script type="text/ng-template" id="embedShowLib.html">
         <div class="modal-header">
             <button class="close" ng-click="cancel()" type="button">×</button>
@@ -260,7 +291,7 @@
     <script type="text/ng-template" id="embedButtonLib.html">
         <div class="modal-header">
             <button class="close" ng-click="cancel()" type="button">×</button>
-            <h4 class="modal-title">操作</h4>
+            <h5 class="modal-title">操作</h5>
         </div>
         <div class="modal-body">
             <form class="form-horizontal" role="form">

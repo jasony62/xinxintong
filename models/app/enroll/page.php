@@ -118,7 +118,7 @@ class page_model extends \TMS_MODEL {
                     /**
                      * for checkbox group.
                      */
-                    if (preg_match('/ng-model="data\.(.+?)\.(\d+?)"/', $inp, $ngmodel)) {
+                    if (preg_match('/ng-model="data\.(.+?)\.(.+?)"/', $inp, $ngmodel)) {
                         $id = $ngmodel[1];
                         $opval = $ngmodel[2];
                     }

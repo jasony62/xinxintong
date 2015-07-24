@@ -19,6 +19,13 @@
         selection.setCursorLocation(newWrap, 0);
         activeEditor.save();
     };
+    WrapLib.prototype.extractInputSchema = function (wrap) {
+        var $label, def = {};
+        $label = $($(wrap).find('label').get(0));
+        def.name = $label.html();
+        def.showname = $label.hasClass('sr-only') ? 'placeholder' : 'label';
+        return def;
+    };
     WrapLib.prototype.extractSchema = function (html) {
         var extractModelId = function (model) {
             var id;
@@ -61,7 +68,7 @@
             return { v: v, l: l };
         };
         var defs = {}, i, schemas, schema, type, title, modelId;
-        schemas = html.match(/<(div|li|option).+?wrap=(.+?)>.+?<\/(div|li|option)>/gi);
+        schemas = html.match(/<(div|li|option).+?wrap=(.+?)>.+?<\/(div|li|option)>/ig);
         for (i in schemas) {
             schema = schemas[i];
             type = schema.match(/wrap=\".+?\"/).pop().replace('wrap=', '').replace(/\"/g, '');
@@ -104,7 +111,6 @@
                     break;
                 case 'img':
                     title = schema.match(/title=\".*?\"/).pop().replace('title=', '').replace(/\"/g, '');
-                    if (title.length === 0) title = '（没有指定字段标题）';
                     if (modelId = schema.match(/ng-repeat=\"img in data\.(.+?)\"/)) {
                         modelId = modelId.pop().replace(/ng-repeat=\"img in data\./, '').replace(/\"/g, '');
                         defs[modelId] = { id: modelId, title: title, type: type };
@@ -113,6 +119,21 @@
             }
         }
         return defs;
+    };
+    WrapLib.prototype.changeEmbedInput = function (page, wrap, def) {
+        var $label, input;
+        $label = $($(wrap).find('label').get(0));
+        $label.html(def.name);
+        input = $(wrap).find('input,textarea,select,option,[wrap=img]');
+        input.attr('title', def.name);
+        if (def.showname === 'placeholder') {
+            $label.addClass('sr-only');
+            input.filter('input,textarea,select').attr('placeholder', def.name);
+        } else {
+            $label.removeClass('sr-only');
+            input.filter('input,textarea,select').attr('placeholder', '');
+        }
+        tinymce.get(page.name).save();
     };
     WrapLib.prototype.embedInput = function (page, def) {
         var key, inpAttrs, html = '', fn;
@@ -130,10 +151,10 @@
                 html += ' class="form-control">';
                 break;
             case '4':
-                html = '<textarea ng-model="data.' + key + '" title="' + def.name + '"';
+                html += '<textarea ng-model="data.' + key + '" title="' + def.name + '"';
                 def.showname === 'placeholder' && (html += ' placeholder="' + def.name + '"');
                 def.required == 1 && (html += 'required=""');
-                html += ' class="form-control" rows="3">' + def.name + '</textarea>';
+                html += ' class="form-control" rows="3"></textarea>';
                 break;
             case '5':
                 if (def.ops && def.ops.length > 0) {
@@ -157,11 +178,11 @@
                     } else if (def.component === 'S') {
                         html += '<select class="form-control" ng-model="data.' + key + '"';
                         def.required == 1 && (html += 'required=""');
-                        html += ' title="' + def.name + '">';
+                        html += ' title="' + def.name + '">\r\n';
                         for (var i in def.ops) {
                             html += '<option wrap="option" name="data.' + key + '" value="v' + i + '"' + 'data-label="' + def.ops[i].text + '"' + 'title="' + def.name + '"' + '>' + def.ops[i].text + '</option>';
                         }
-                        html += '</select>';
+                        html += '\r\n</select>';
                     }
                 }
                 break;
@@ -510,17 +531,33 @@
         };
         $scope.$on('tinymce.wrap.select', function (event, wrap) {
             $scope.$apply(function () {
-                var root = wrap;
+                var root = wrap, inputWrap = wrap;
                 while (root.parentNode) root = root.parentNode;
                 $(root).find('.active').removeClass('active');
                 $scope.hasActiveWrap = false;
-                if (wrap.hasAttribute('wrap')) {
-                    wrap.classList.add('active');
+                while ($(inputWrap).attr('wrap') !== 'input') inputWrap = inputWrap.parentNode;
+                if ($(inputWrap).attr('wrap') === 'input') {
+                    inputWrap.classList.add('active');
                     $scope.hasActiveWrap = true;
                 }
             });
         });
         $scope.editWrap = function (page) {
+            var editor, active, def;
+            editor = tinymce.get(page.name);
+            active = $(editor.getBody()).find('.active');
+            def = wrapLib.extractInputSchema(active[0]);
+            $modal.open({
+                templateUrl: 'embedInputEditor.html',
+                controller: function ($scope, $modalInstance) {
+                    $scope.def = def;
+                    $scope.ok = function () { $modalInstance.close($scope.def); };
+                    $scope.cancel = function () { $modalInstance.dismiss(); };
+                },
+                backdrop: 'static',
+            }).result.then(function (def) {
+                wrapLib.changeEmbedInput(page, active[0], def);
+            });
         };
         $scope.removeWrap = function (page) {
             var editor;
@@ -626,14 +663,13 @@
         };
         $scope.$watch('editing', function (nv) {
             if (!nv) return;
-            /* extra pages */
             var extraPages = {};
             angular.forEach($scope.editing.pages, function (value, key) {
                 key !== 'form' && (extraPages[key] = value);
             });
             $scope.extraPages = extraPages;
-            /* schema */
             $scope.schema = extractSchema();
+            console.log('ssss', $scope.schema);
         });
     }]);
 })();

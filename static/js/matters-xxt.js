@@ -104,7 +104,7 @@ xxtMatters.directive('tinymce', function ($timeout) {
                     statusbar: false,
                     plugins: ['textcolor code table paste fullscreen visualblocks'],
                     toolbar: 'fontsizeselect styleselect forecolor backcolor bullist numlist outdent indent table multipleimage fullscreen visualblocks code',
-                    content_css: '/static/css/bootstrap.min.css,/static/css/tinymce.css?v=3',
+                    content_css: '/static/css/bootstrap.min.css,/static/css/tinymce.css?v=4',
                     forced_root_block: 'p',
                     height: scope.height ? scope.height : 300,
                     valid_elements: "*[*]",

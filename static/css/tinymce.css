@@ -2,6 +2,9 @@ body{font-size:14px;overflow-x:hidden;padding:10px}
 ul{list-style:none;padding:0}
 div[wrap].active,li[wrap].active{outline:1px dotted #ccc}
 div[wrap].active:before,li[wrap].active:before{content:'A';display:block;font-size:0.8em;color:#ccc}
+div[wrap].wrap-splitline{padding-bottom:0.5em;border-bottom:1px solid #eee;}
+div[wrap].wrap-inline>*{display:inline-block;vertical-align:middle;margin:0 1em 0 0;}
+div[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
 div.tablewrap{width:100%;overflow-x:auto;overflow-y:hidden}
 table,table.mce-item-table{
     border:solid 1px #ddd;

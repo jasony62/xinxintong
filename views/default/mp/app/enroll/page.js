@@ -1,123 +1,368 @@
 (function () {
-    xxtApp.register.controller('pageCtrl', ['$scope', 'http2', '$modal', '$timeout', 'Mp', function ($scope, http2, $modal, $timeout, Mp) {
-        $scope.$parent.subView = 'page';
-        var addWrap = function (page, name, attrs, html) {
-            var dom, body, wrap, newWrap, selection, activeEditor;
-            activeEditor = tinymce.get(page.name);
-            dom = activeEditor.dom;
-            body = activeEditor.getBody();
-            selection = activeEditor.selection;
-            wrap = selection.getNode();
-            if (wrap === body) {
-                newWrap = dom.add(body, name, attrs, html);
-            } else {
-                while (wrap.parentNode !== body)
-                    wrap = wrap.parentNode;
-                newWrap = dom.create(name, attrs, html);
-                dom.insertAfter(newWrap, wrap);
+    var WrapLib = function () {
+    };
+    WrapLib.prototype.addWrap = function (page, name, attrs, html) {
+        var dom, body, wrap, newWrap, selection, activeEditor;
+        activeEditor = tinymce.get(page.name);
+        dom = activeEditor.dom;
+        body = activeEditor.getBody();
+        selection = activeEditor.selection;
+        wrap = selection.getNode();
+        if (wrap === body) {
+            newWrap = dom.add(body, name, attrs, html);
+        } else {
+            while (wrap.parentNode !== body)
+                wrap = wrap.parentNode;
+            newWrap = dom.create(name, attrs, html);
+            dom.insertAfter(newWrap, wrap);
+        }
+        selection.setCursorLocation(newWrap, 0);
+        activeEditor.save();
+    };
+    WrapLib.prototype.extractSchema = function (html) {
+        var extractModelId = function (model) {
+            var id;
+            if (id = model.match(/ng-model=\"data\.(.+?)\"/)) {
+                id = id.pop().replace('ng-model="data.', '').replace('"', '');
+                return id;
             }
-            selection.setCursorLocation(newWrap, 0);
-            activeEditor.save();
+            return false;
         };
-        var extractSchema = function (html) {
-            var extractModelId = function (model) {
-                var id;
-                if (id = model.match(/ng-model=\"data\.(.+?)\"/)) {
-                    id = id.pop().replace('ng-model="data.', '').replace('"', '');
-                    return id;
-                }
-                return false;
-            };
-            var extractRadioModelOp = function (model) {
-                var v, l;
-                if (v = schema.match(/value=\"(.+?)\"/))
-                    v = v.pop().replace('value=', '').replace(/\"/g, '');
-                if (l = schema.match(/data-label=\"(.+?)\"/))
-                    l = l.pop().replace('data-label=', '').replace(/\"/g, '');
-                return { v: v, l: l };
-            };
-            var extractCheckboxModelOp = function (model) {
-                var v, l;
-                if (v = schema.match(/ng-model=\"(.+?)\"/))
-                    v = v.pop().replace('ng-model=', '').replace(/\"/g, '').split('.').pop();
-                if (l = schema.match(/data-label=\"(.+?)\"/))
-                    l = l.pop().replace('data-label=', '').replace(/\"/g, '');
-                return { v: v, l: l };
-            };
-            var extractSelectModelId = function (model) {
-                var id;
-                if (id = model.match(/name=\"data\.(.+?)\"/)) {
-                    id = id.pop().replace('name="data.', '').replace('"', '');
-                    return id;
-                }
-                return false;
-            };
-            var extractSelectModelOp = function (model) {
-                var v, l;
-                if (v = schema.match(/value=\"(.+?)\"/))
-                    v = v.pop().replace('value=', '').replace(/\"/g, '');
-                if (l = schema.match(/data-label=\"(.+?)\"/))
-                    l = l.pop().replace('data-label=', '').replace(/\"/g, '');
-                return { v: v, l: l };
-            };
-            var defs = {}, i, schemas, schema, type, title, modelId;
-            schemas = html.match(/<(div|li|option).+?wrap=(.+?)>.+?<\/(div|li|option)>/gi);
-            for (i in schemas) {
-                schema = schemas[i];
-                type = schema.match(/wrap=\".+?\"/).pop().replace('wrap=', '').replace(/\"/g, '');
-                switch (type) {
-                    case 'input':
-                    case 'radio':
-                    case 'checkbox':
-                        title = schema.match(/\btitle=\".*?\"/);
-                        try {
-                            title = title.pop().replace('title=', '').replace(/\"/g, '');
-                        } catch (e) {
-                            alert('登记项数据格式错误，请检查');
-                            console.log('eee:' + schema, e);
-                        }
-                        if (schema.match(/(<textarea|type=\"text\")/)) {
-                            if (modelId = extractModelId(schema))
-                                defs[modelId] = { id: modelId, title: title, type: type };
-                        } else if (schema.match(/type=\"radio\"/)) {
-                            if (modelId = extractModelId(schema)) {
-                                if (defs[modelId] === undefined)
-                                    defs[modelId] = { id: modelId, title: title, type: type, op: [] };
-                                defs[modelId].op.push(extractRadioModelOp(schema));
-                            }
-                        } else if (schema.match(/type=\"checkbox\"/)) {
-                            if (modelId = extractModelId(schema)) {
-                                modelId = modelId.split('.')[0];
-                                if (defs[modelId] === undefined)
-                                    defs[modelId] = { id: modelId, title: title, type: type, op: [] };
-                                defs[modelId].op.push(extractCheckboxModelOp(schema));
-                            }
-                        }
-                        break;
-                    case 'option':
-                        title = schema.match(/\btitle=\".*?\"/).pop().replace('title=', '').replace(/\"/g, '');
-                        if (modelId = extractSelectModelId(schema)) {
+        var extractRadioModelOp = function (model) {
+            var v, l;
+            if (v = schema.match(/value=\"(.+?)\"/))
+                v = v.pop().replace('value=', '').replace(/\"/g, '');
+            if (l = schema.match(/data-label=\"(.+?)\"/))
+                l = l.pop().replace('data-label=', '').replace(/\"/g, '');
+            return { v: v, l: l };
+        };
+        var extractCheckboxModelOp = function (model) {
+            var v, l;
+            if (v = schema.match(/ng-model=\"(.+?)\"/))
+                v = v.pop().replace('ng-model=', '').replace(/\"/g, '').split('.').pop();
+            if (l = schema.match(/data-label=\"(.+?)\"/))
+                l = l.pop().replace('data-label=', '').replace(/\"/g, '');
+            return { v: v, l: l };
+        };
+        var extractSelectModelId = function (model) {
+            var id;
+            if (id = model.match(/name=\"data\.(.+?)\"/)) {
+                id = id.pop().replace('name="data.', '').replace('"', '');
+                return id;
+            }
+            return false;
+        };
+        var extractSelectModelOp = function (model) {
+            var v, l;
+            if (v = schema.match(/value=\"(.+?)\"/))
+                v = v.pop().replace('value=', '').replace(/\"/g, '');
+            if (l = schema.match(/data-label=\"(.+?)\"/))
+                l = l.pop().replace('data-label=', '').replace(/\"/g, '');
+            return { v: v, l: l };
+        };
+        var defs = {}, i, schemas, schema, type, title, modelId;
+        schemas = html.match(/<(div|li|option).+?wrap=(.+?)>.+?<\/(div|li|option)>/gi);
+        for (i in schemas) {
+            schema = schemas[i];
+            type = schema.match(/wrap=\".+?\"/).pop().replace('wrap=', '').replace(/\"/g, '');
+            switch (type) {
+                case 'input':
+                case 'radio':
+                case 'checkbox':
+                    title = schema.match(/\btitle=\".*?\"/);
+                    try {
+                        title = title.pop().replace('title=', '').replace(/\"/g, '');
+                    } catch (e) {
+                        alert('登记项数据格式错误，请检查');
+                        console.log('eee:' + schema, e);
+                    }
+                    if (schema.match(/(<textarea|type=\"text\")/)) {
+                        if (modelId = extractModelId(schema))
+                            defs[modelId] = { id: modelId, title: title, type: type };
+                    } else if (schema.match(/type=\"radio\"/)) {
+                        if (modelId = extractModelId(schema)) {
                             if (defs[modelId] === undefined)
                                 defs[modelId] = { id: modelId, title: title, type: type, op: [] };
-                            defs[modelId].op.push(extractSelectModelOp(schema));
+                            defs[modelId].op.push(extractRadioModelOp(schema));
                         }
+                    } else if (schema.match(/type=\"checkbox\"/)) {
+                        if (modelId = extractModelId(schema)) {
+                            modelId = modelId.split('.')[0];
+                            if (defs[modelId] === undefined)
+                                defs[modelId] = { id: modelId, title: title, type: type, op: [] };
+                            defs[modelId].op.push(extractCheckboxModelOp(schema));
+                        }
+                    }
+                    break;
+                case 'option':
+                    title = schema.match(/\btitle=\".*?\"/).pop().replace('title=', '').replace(/\"/g, '');
+                    if (modelId = extractSelectModelId(schema)) {
+                        if (defs[modelId] === undefined)
+                            defs[modelId] = { id: modelId, title: title, type: type, op: [] };
+                        defs[modelId].op.push(extractSelectModelOp(schema));
+                    }
+                    break;
+                case 'img':
+                    title = schema.match(/title=\".*?\"/).pop().replace('title=', '').replace(/\"/g, '');
+                    if (title.length === 0) title = '（没有指定字段标题）';
+                    if (modelId = schema.match(/ng-repeat=\"img in data\.(.+?)\"/)) {
+                        modelId = modelId.pop().replace(/ng-repeat=\"img in data\./, '').replace(/\"/g, '');
+                        defs[modelId] = { id: modelId, title: title, type: type };
+                    }
+                    break;
+            }
+        }
+        return defs;
+    };
+    WrapLib.prototype.embedInput = function (page, def) {
+        var key, inpAttrs, html = '', fn;
+        key = def.key;
+        inpAttrs = { wrap: 'input', class: 'form-group form-group-lg' };
+        html += '<label' + (def.showname === 'label' ? '' : ' class="sr-only"') + '>' + def.name + '</label>';
+        switch (def.type) {
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+                html += '<input type="text" ng-model="data.' + ['name', 'mobile', 'email', key][def.type] + '" title="' + def.name + '"';
+                def.showname === 'placeholder' && (html += ' placeholder="' + def.name + '"');
+                def.required == 1 && (html += 'required=""');
+                html += ' class="form-control">';
+                break;
+            case '4':
+                html = '<textarea ng-model="data.' + key + '" title="' + def.name + '"';
+                def.showname === 'placeholder' && (html += ' placeholder="' + def.name + '"');
+                def.required == 1 && (html += 'required=""');
+                html += ' class="form-control" rows="3">' + def.name + '</textarea>';
+                break;
+            case '5':
+                if (def.ops && def.ops.length > 0) {
+                    if (def.component === 'R') {
+                        html += '<ul>', cls = 'radio';
+                        if (def.align === 'H') cls += '-inline'
+                        for (var i in def.ops) {
+                            html += '<li class="' + cls + '" wrap="radio"><label';
+                            if (def.align === 'H') html += ' class="radio-inline"';
+                            html += '><input type="radio" name="' + key + '"';
+                            html += ' value="v' + i + '"';
+                            html += ' ng-model="data.' + key + '"';
+                            def.required == 1 && (html += 'required=""');
+                            html += ' title="' + def.name + '"';
+                            for (var a in def.attrs) {
+                                html += 'data-' + def.attrs[a].name + '="' + def.attrs[a].value + '"';
+                            }
+                            html += ' data-label="' + def.ops[i].text + '"><span>' + def.ops[i].text + '</span></label></li>';
+                        }
+                        html += '</ul>';
+                    } else if (def.component === 'S') {
+                        html += '<select class="form-control" ng-model="data.' + key + '"';
+                        def.required == 1 && (html += 'required=""');
+                        html += ' title="' + def.name + '">';
+                        for (var i in def.ops) {
+                            html += '<option wrap="option" name="data.' + key + '" value="v' + i + '"' + 'data-label="' + def.ops[i].text + '"' + 'title="' + def.name + '"' + '>' + def.ops[i].text + '</option>';
+                        }
+                        html += '</select>';
+                    }
+                }
+                break;
+            case '6':
+                if (def.ops && def.ops.length > 0) {
+                    var cls;
+                    html += '<ul>';
+                    cls = 'checkbox';
+                    if (def.align === 'H') cls += '-inline';
+                    for (var i in def.ops) {
+                        html += '<li class="' + cls + '" wrap="checkbox"><label';
+                        if (def.align === 'H') html += ' class="checkbox-inline"';
+                        html += '><input type="checkbox" name="' + key + '"';
+                        def.required == 1 && (html += 'required=""');
+                        html += ' ng-model="data.' + key + '.v' + i + '"';
+                        html += ' title="' + def.name + '" data-label="' + def.ops[i].text + '"><span>' + def.ops[i].text + '</span></label></li>';
+                    }
+                    html += '</ul>';
+                }
+                break;
+            case '7':
+                html += '<ul class="img-tiles clearfix" name="' + key + '">';
+                html += '<li wrap="img" ng-repeat="img in data.' + key + '" class="img-thumbnail" title="' + def.name + '">';
+                html += '<img flex-img>';
+                html += '<button class="btn btn-default btn-xs" ng-click="removeImage(data.' + key + ',$index)"><span class="glyphicon glyphicon-remove"></span></button>';
+                html += '</li>';
+                html += '<li class="img-picker">';
+                html += '<button class="btn btn-default" ng-click="chooseImage(\'' + key + '\',' + def.count + ')"><span class="glyphicon glyphicon-picture"></span><br>上传图片</button>';
+                html += '</li>';
+                html += '</ul>';
+                break;
+            case '8':
+                html += '<div class="input-group input-group-lg">';
+                html += '<input type="text" ng-model="data.' + key + '"';
+                html += ' title="' + def.name + '"';
+                html += ' placeholder="' + def.name + '"';
+                def.required == 1 && (html += 'required=""');
+                html += ' class="form-control">';
+                html += '<span class="input-group-btn">';
+                fn = 'getMyLocation(\'' + key + '\')';
+                html += '<button class="btn btn-default" type="button" ng-click="' + fn + '">定位</button>';
+                html += '</span>';
+                html += '</div>';
+                break;
+        }
+        this.addWrap(page, 'div', inpAttrs, html);
+    };
+    WrapLib.prototype.embedRecord = function (page, def) {
+        if (def.schema === undefined) return;
+        var i, s, c, html;
+        c = 'form-group';
+        def.inline && (c += ' wrap-inline');
+        def.splitLine && (c += ' wrap-splitline');
+        for (i in def.schema) {
+            s = def.schema[i];
+            if (!s.checked) continue;
+            switch (s.type) {
+                case 'input':
+                    this.addWrap(page, 'div', { wrap: 'text', class: c }, '<label>' + s.title + '</label><p class="form-control-static">{{Record.current.data.' + s.id + '}}</p>');
+                    break;
+                case 'radio':
+                case 'checkbox':
+                case 'option':
+                    this.addWrap(page, 'div', { wrap: 'text', class: c }, '<label>' + s.title + '</label><p class="form-control-static">{{Record.current.data.' + s.id + '}}</p>');
+                    break;
+                case 'img':
+                    this.addWrap(page, 'div', { wrap: 'text', class: c }, '<label>' + s.title + '</label><ul><li ng-repeat="img in Record.current.data.' + s.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul>');
+                    break;
+            }
+        }
+        if (def.addEnrollAt) {
+            html = "<label>登记时间</label><p>{{Record.current.enroll_at*1000|date:'yyyy-MM-dd HH:mm'}}</p>";
+            this.addWrap(page, 'div', { wrap: 'text', class: c }, html);
+        }
+        if (def.addNickname) {
+            html = "<label>昵称</label><p>{{Record.current.enroller.nickname}}</p>";
+            this.addWrap(page, 'div', { wrap: 'text', class: c }, html);
+        }
+    };
+    WrapLib.prototype.embedList = function (page, def) {
+        var dataApi, onclick, html;
+        dataApi = def.dataScope === 'A' ? "Record.nextPage()" : "Record.nextPage('user')";
+        onclick = def.onclick.length ? " ng-click=\"gotoPage($event,'" + def.onclick + "',r.enroll_key)\"" : '';
+        html = '<ul class="list-group" infinite-scroll="' + dataApi + '" infinite-scroll-disabled="Record.busy" infinite-scroll-distance="1">';
+        html += '<li class="list-group-item" ng-repeat="r in Record.list"' + onclick + '>';
+        if (def.addEnrollAt) {
+            html += "<div><label>登记时间</label><div>{{(r.enroll_at*1000)|date:'yyyy-MM-dd HH:mm'}}</div></div>";
+        }
+        if (def.addNickname) {
+            html += "<div><label>昵称</label><div>{{r.nickname}}</div></div>";
+        }
+        if (def.schema) {
+            var i, s;
+            for (i in def.schema) {
+                s = def.schema[i];
+                if (!s.checked) continue;
+                switch (s.type) {
+                    case 'input':
+                        html += '<div class="form-group"><label>' + s.title + '</label><p class="form-control-static">{{r.data.' + s.id + '}}</p></div>';
+                        break;
+                    case 'radio':
+                    case 'checkbox':
+                    case 'option':
+                        html += '<div class="form-group"><label>' + s.title + '</label><p class="form-control-static">{{r.data.' + s.id + '}}</p></div>';
                         break;
                     case 'img':
-                        title = schema.match(/title=\".*?\"/).pop().replace('title=', '').replace(/\"/g, '');
-                        if (title.length === 0) title = '（没有指定字段标题）';
-                        if (modelId = schema.match(/ng-repeat=\"img in data\.(.+?)\"/)) {
-                            modelId = modelId.pop().replace(/ng-repeat=\"img in data\./, '').replace(/\"/g, '');
-                            defs[modelId] = { id: modelId, title: title, type: type };
-                        }
+                        html += '<div class="form-group"><label>' + s.title + '</label><ul><li ng-repeat="img in r.data.' + s.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul></div>';
                         break;
                 }
             }
-            return defs;
-        };
+        }
+        if (def.canLike === 'Y') {
+            html += '<div title="总赞数">{{r.score}}</div>';
+            html += "<div ng-if='!r.myscore'><a href='javascript:void(0)' ng-click='Record.like($event,r)'>赞</a></div>";
+            html += "<div ng-if='r.myscore==1'>已赞</div>";
+        }
+        html += "</li></ul>";
+        this.addWrap(page, 'div', { wrap: 'list', class: 'form-group' }, html);
+    };
+    WrapLib.prototype.embedRounds = function (page, def) {
+        var onclick, html;
+        onclick = def.onclick.length ? " ng-click=\"gotoPage($event,'" + def.onclick + "',null,r.rid)\"" : '';
+        html = "<ul class='list-group' tms-init='Round.nextPage()'><li class='list-group-item' ng-repeat='r in Round.list'" + onclick + "><div>{{r.title}}</div></li></ul>";
+        this.addWrap(page, 'div', { wrap: 'list', class: 'form-group' }, html);
+    };
+    WrapLib.prototype.embedRemarks = function (page, def) {
+        var html;
+        html = "<ul class='list-group'><li class='list-group-item' ng-repeat='r in Record.current.remarks'><div>{{r.remark}}</div><div>{{r.nickname}}</div><div>{{(r.create_at*1000)|date:'yyyy-MM-dd HH:mm'}}</div></li></ul>";
+        this.addWrap(page, 'div', { wrap: 'list', class: 'form-group' }, html);
+    };
+    WrapLib.prototype.embedShow = function (page, def) {
+        switch (def.type) {
+            case 'record':
+                this.embedRecord(page, def);
+                break;
+            case 'list':
+                this.embedList(page, def);
+                break;
+            case 'rounds':
+                this.embedRounds(page, def);
+                break;
+            case 'remarks':
+                this.embedRemarks(page, def);
+                break;
+        }
+    };
+    WrapLib.prototype.embedButton = function (page, def) {
+        var attrs = { wrap: 'button', class: 'form-group' },
+            tmplBtn = function (id, action, label) {
+                return '<button id="' + id + '" class="btn btn-primary btn-block btn-lg" ng-click="' + action + '"><span>' + label + '</span></button>';
+            },
+            args = def.next ? "($event,'" + def.next + "')" : "($event)",
+            button = def.type[0];
+        switch (button) {
+            case 'submit':
+                this.addWrap(page, 'div', attrs, tmplBtn('btnSubmit', "submit" + args, def.label));
+                break;
+            case 'addRecord':
+                this.addWrap(page, 'div', attrs, tmplBtn('btnNewRecord', "addRecord" + args, def.label));
+                break;
+            case 'editRecord':
+                this.addWrap(page, 'div', attrs, tmplBtn('btnNewRecord', "gotoPage($event,'form',Record.current.enroll_key)", def.label));
+                break;
+            case 'likeRecord':
+                this.addWrap(page, 'div', attrs, tmplBtn('btnLikeRecord', "Record.like($event)", def.label));
+                break;
+            case 'remarkRecord':
+                var html = '<input type="text" class="form-control" placeholder="评论" ng-model="newRemark">';
+                html += '<span class="input-group-btn">';
+                html += '<button class="btn btn-success" type="button" ng-click="Record.remark($event,newRemark)">发送</button>';
+                html += '</span>';
+                this.addWrap(page, 'div', { class: 'form-group input-group input-group-lg' }, html);
+                break;
+            case 'gotoPage':
+                this.addWrap(page, 'div', attrs, tmplBtn('btnGotoPage_' + def.next, "gotoPage" + args, def.label));
+                break;
+            case 'closeWindow':
+                this.addWrap(page, 'div', attrs, tmplBtn('btnCloseWindow', 'closeWindow($event)', def.label));
+                break;
+        }
+    };
+    WrapLib.prototype.embedMeber = function (page, data) {
+        var inpAttrs = { wrap: 'input', class: 'form-group member' }, tpl, html, attr;
+        tpl = '<input type="text" ng-init="data.member.authid=' + data.authapi.authid + '" ng-model="data.member.%id%" title="%label%" placeholder="%label%" class="form-control input-lg">';
+        for (var i = 0, l = data.attrs.length; i < l; i++) {
+            attr = data.attrs[i];
+            html = tpl.replace(/%\w+%/g, function (pl) {
+                return attr[pl.replace(/%/g, '')];
+            });
+            this.addWrap(page, 'div', inpAttrs, html);
+        }
+    };
+    window.wrapLib = new WrapLib();
+})();
+(function () {
+    xxtApp.register.controller('pageCtrl', ['$scope', 'http2', '$modal', '$timeout', 'Mp', function ($scope, http2, $modal, $timeout, Mp) {
+        $scope.$parent.subView = 'page';
         var CusdataCtrl = function ($scope, $modalInstance) {
             var key;
             key = 'c' + (new Date()).getTime();
-            $scope.def = { key: key, type: '0', name: '', showname: '1', component: 'R', align: 'V', count: 1 };
+            $scope.def = { key: key, type: '0', name: '姓名', showname: 'placeholder', component: 'R', align: 'V', count: 1 };
             $scope.addOption = function () {
                 if ($scope.def.ops === undefined)
                     $scope.def.ops = [];
@@ -134,92 +379,33 @@
                 var i = $scope.def.ops.indexOf(op);
                 $scope.def.ops.splice(i, 1);
             });
+            $scope.changeType = function () {
+                var map = { '0': '姓名', '1': '手机', '2': '邮箱' };
+                map[$scope.def.type] ? $scope.def.name = map[$scope.def.type] : $scope.def.name = '';
+            };
             $scope.ok = function () {
+                if ($scope.def.name.length === 0) {
+                    alert('必须指定登记项的名称');
+                    return;
+                }
                 $modalInstance.close($scope.def);
             };
             $scope.cancel = function () {
                 $modalInstance.dismiss();
             };
         };
-        var embedRecord = function (page, def) {
-            if (def.schema === undefined) return;
-            var i, s, html;
-            for (i in def.schema) {
-                s = def.schema[i];
-                if (!s.checked) continue;
-                switch (s.type) {
-                    case 'input':
-                        addWrap(page, 'div', { wrap: 'text', class: 'form-group' }, '<label>' + s.title + '</label><p class="form-control-static">{{Record.current.data.' + s.id + '}}</p>');
-                        break;
-                    case 'radio':
-                    case 'checkbox':
-                    case 'option':
-                        addWrap(page, 'div', { wrap: 'text', class: 'form-group' }, '<label>' + s.title + '</label><p class="form-control-static">{{Record.current.data.' + s.id + '}}</p>');
-                        break;
-                    case 'img':
-                        addWrap(page, 'div', { wrap: 'text', class: 'form-group' }, '<label>' + s.title + '</label><ul><li ng-repeat="img in Record.current.data.' + s.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul>');
-                        break;
+        var extractSchema = function () {
+            var i, pages, page, s, s2;
+            pages = $scope.editing.pages;
+            s = wrapLib.extractSchema(pages.form.html);
+            for (i in pages) {
+                page = pages[i];
+                if (page.type && page.type === 'I') {
+                    s2 = wrapLib.extractSchema(page.html);
+                    s = angular.extend(s, s2);
                 }
             }
-            if (def.addEnrollAt) {
-                html = "<label>登记时间</label><p>{{(Record.current.enroll_at*1000)|date:'yyyy-MM-dd HH:mm'}}</p>";
-                addWrap(page, 'div', { wrap: 'text', class: 'form-group' }, html);
-            }
-            if (def.addNickname) {
-                html = "<label>昵称</label><p>{{Record.current.enroller.nickname}}</p>";
-                addWrap(page, 'div', { wrap: 'text', class: 'form-group' }, html);
-            }
-        };
-        var embedList = function (page, def) {
-            var dataApi, onclick, html;
-            dataApi = def.dataScope === 'A' ? "Record.nextPage()" : "Record.nextPage('user')";
-            onclick = def.onclick.length ? " ng-click=\"gotoPage($event,'" + def.onclick + "',r.enroll_key)\"" : '';
-            html = '<ul class="list-group" infinite-scroll="' + dataApi + '" infinite-scroll-disabled="Record.busy" infinite-scroll-distance="1">';
-            html += '<li class="list-group-item" ng-repeat="r in Record.list"' + onclick + '>';
-            if (def.addEnrollAt) {
-                html += "<div><label>登记时间</label><div>{{(r.enroll_at*1000)|date:'yyyy-MM-dd HH:mm'}}</div></div>";
-            }
-            if (def.addNickname) {
-                html += "<div><label>昵称</label><div>{{r.nickname}}</div></div>";
-            }
-            if (def.schema) {
-                var i, s;
-                for (i in def.schema) {
-                    s = def.schema[i];
-                    if (!s.checked) continue;
-                    switch (s.type) {
-                        case 'input':
-                            html += '<div class="form-group"><label>' + s.title + '</label><p class="form-control-static">{{r.data.' + s.id + '}}</p></div>';
-                            break;
-                        case 'radio':
-                        case 'checkbox':
-                        case 'option':
-                            html += '<div class="form-group"><label>' + s.title + '</label><p class="form-control-static">{{r.data.' + s.id + '}}</p></div>';
-                            break;
-                        case 'img':
-                            html += '<div class="form-group"><label>' + s.title + '</label><ul><li ng-repeat="img in r.data.' + s.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul></div>';
-                            break;
-                    }
-                }
-            }
-            if (def.canLike === 'Y') {
-                html += '<div title="总赞数">{{r.score}}</div>';
-                html += "<div ng-if='!r.myscore'><a href='javascript:void(0)' ng-click='Record.like($event,r)'>赞</a></div>";
-                html += "<div ng-if='r.myscore==1'>已赞</div>";
-            }
-            html += "</li></ul>";
-            addWrap(page, 'div', { wrap: 'list', class: 'form-group' }, html);
-        };
-        var embedRounds = function (page, def) {
-            var onclick, html;
-            onclick = def.onclick.length ? " ng-click=\"gotoPage($event,'" + def.onclick + "',null,r.rid)\"" : '';
-            html = "<ul class='list-group' tms-init='Round.nextPage()'><li class='list-group-item' ng-repeat='r in Round.list'" + onclick + "><div>{{r.title}}</div></li></ul>";
-            addWrap(page, 'div', { wrap: 'list', class: 'form-group' }, html);
-        };
-        var embedRemarks = function (page, def) {
-            var html;
-            html = "<ul class='list-group'><li class='list-group-item' ng-repeat='r in Record.current.remarks'><div>{{r.remark}}</div><div>{{r.nickname}}</div><div>{{(r.create_at*1000)|date:'yyyy-MM-dd HH:mm'}}</div></li></ul>";
-            addWrap(page, 'div', { wrap: 'list', class: 'form-group' }, html);
+            return s;
         };
         $scope.innerlinkTypes = [
             { value: 'article', title: '单图文', url: '/rest/mp/matter' },
@@ -232,108 +418,7 @@
                 controller: CusdataCtrl,
                 backdrop: 'static',
             }).result.then(function (def) {
-                var key, inpAttrs, html, fn;
-                key = def.key;
-                inpAttrs = { wrap: 'input', class: 'form-group' };
-                (def.showname == 1 && def.name && def.name.length) && addWrap(page, 'div', { wrap: 'text', class: 'form-group' }, def.name);
-                switch (def.type) {
-                    case '0':
-                        addWrap(page, 'div', inpAttrs, '<input type="text" ng-model="data.name" title="姓名" placeholder="姓名" class="form-control input-lg">');
-                        break;
-                    case '1':
-                        addWrap(page, 'div', inpAttrs, '<input type="text" ng-model="data.mobile" title="手机" placeholder="手机" class="form-control input-lg">');
-                        break;
-                    case '2':
-                        addWrap(page, 'div', inpAttrs, '<input type="text" ng-model="data.email" title="邮箱" placeholder="邮箱" class="form-control input-lg">');
-                        break;
-                    case '3':
-                        html = '<input type="text" ng-model="data.' + key + '"';
-                        html += ' title="' + def.name + '"';
-                        html += ' placeholder="' + def.name + '"';
-                        def.required == 1 && (html += 'required=""');
-                        html += ' class="form-control input-lg">';
-                        addWrap(page, 'div', inpAttrs, html);
-                        break;
-                    case '4':
-                        html = '<textarea ng-model="data.' + key + '"';
-                        html += ' title="' + def.name + '"';
-                        html += ' placeholder="' + def.name + '"';
-                        def.required == 1 && (html += 'required=""');
-                        html += ' class="form-control input-lg" rows="3">' + def.name + '</textarea>';
-                        addWrap(page, 'div', inpAttrs, html);
-                        break;
-                    case '5':
-                        if (def.ops && def.ops.length > 0) {
-                            if (def.component === 'R') {
-                                html = '', cls = 'radio';
-                                if (def.align === 'H') cls += '-inline'
-                                for (var i in def.ops) {
-                                    html += '<li class="' + cls + '" wrap="radio"><label';
-                                    if (def.align === 'H') html += ' class="radio-inline"';
-                                    html += '><input type="radio" name="' + key + '"';
-                                    html += ' value="v' + i + '"';
-                                    html += ' ng-model="data.' + key + '"';
-                                    def.required == 1 && (html += 'required=""');
-                                    html += ' title="' + def.name + '"';
-                                    for (var a in def.attrs) {
-                                        html += 'data-' + def.attrs[a].name + '="' + def.attrs[a].value + '"';
-                                    }
-                                    html += ' data-label="' + def.ops[i].text + '"><span>' + def.ops[i].text + '</span></label></li>';
-                                }
-                                addWrap(page, 'ul', { class: 'form-group' }, html);
-                            } else if (def.component === 'S') {
-                                html = '<select class="form-control input-lg" ng-model="data.' + key + '"';
-                                def.required == 1 && (html += 'required=""');
-                                html += ' title="' + def.name + '">';
-                                for (var i in def.ops) {
-                                    html += '<option wrap="option" name="data.' + key + '" value="v' + i + '"' + 'data-label="' + def.ops[i].text + '"' + 'title="' + def.name + '"' + '>' + def.ops[i].text + '</option>';
-                                }
-                                html += '</select>';
-                                addWrap(page, 'div', { class: 'form-group', wrap: 'select' }, html);
-                            }
-                        }
-                        break;
-                    case '6':
-                        if (def.ops && def.ops.length > 0) {
-                            var cls;
-                            html = '';
-                            cls = 'checkbox';
-                            if (def.align === 'H') cls += '-inline';
-                            for (var i in def.ops) {
-                                html += '<li class="' + cls + '" wrap="checkbox"><label';
-                                if (def.align === 'H') html += ' class="checkbox-inline"';
-                                html += '><input type="checkbox" name="' + key + '"';
-                                def.required == 1 && (html += 'required=""');
-                                html += ' ng-model="data.' + key + '.v' + i + '"';
-                                html += ' title="' + def.name + '" data-label="' + def.ops[i].text + '"><span>' + def.ops[i].text + '</span></label></li>';
-                            }
-                            addWrap(page, 'ul', { class: 'form-group' }, html);
-                        }
-                        break;
-                    case '7':
-                        html = '';
-                        html += '<li wrap="img" ng-repeat="img in data.' + key + '" class="img-thumbnail" title="' + def.name + '">';
-                        html += '<img flex-img>';
-                        html += '<button class="btn btn-default btn-xs" ng-click="removeImage(data.' + key + ',$index)"><span class="glyphicon glyphicon-remove"></span></button>';
-                        html += '</li>';
-                        html += '<li class="img-picker">';
-                        html += '<button class="btn btn-default" ng-click="chooseImage(\'' + key + '\',' + def.count + ')"><span class="glyphicon glyphicon-picture"></span><br>上传图片</button>';
-                        html += '</li>';
-                        addWrap(page, 'ul', { class: 'form-group img-tiles clearfix', name: key }, html);
-                        break;
-                    case '8':
-                        html = '<input type="text" ng-model="data.' + key + '"';
-                        html += ' title="' + def.name + '"';
-                        html += ' placeholder="' + def.name + '"';
-                        def.required == 1 && (html += 'required=""');
-                        html += ' class="form-control">';
-                        html += '<span class="input-group-btn">';
-                        fn = 'getMyLocation(\'' + key + '\')';
-                        html += '<button class="btn btn-default" type="button" ng-click="' + fn + '">定位</button>';
-                        html += '</span>';
-                        addWrap(page, 'div', { wrap: 'input', class: 'form-group input-group input-group-lg' }, html);
-                        break;
-                }
+                wrapLib.embedInput(page, def);
             });
         };
         $scope.embedButton = function (page) {
@@ -358,41 +443,7 @@
                 resolve: {
                     pages: function () { return $scope.editing.pages; }
                 }
-            }).result.then(function (def) {
-                var attrs = { wrap: 'button', class: 'form-group' }
-                    , tmplBtn = function (id, action, label) {
-                        return '<button id="' + id + '" class="btn btn-primary btn-block btn-lg" ng-click="' + action + '"><span>' + label + '</span></button>';
-                    }
-                    , args = def.next ? "($event,'" + def.next + "')" : "($event)"
-                    , button = def.type[0];
-                switch (button) {
-                    case 'submit':
-                        addWrap(page, 'div', attrs, tmplBtn('btnSubmit', "submit" + args, def.label));
-                        break;
-                    case 'addRecord':
-                        addWrap(page, 'div', attrs, tmplBtn('btnNewRecord', "addRecord" + args, def.label));
-                        break;
-                    case 'editRecord':
-                        addWrap(page, 'div', attrs, tmplBtn('btnNewRecord', "gotoPage($event,'form',Record.current.enroll_key)", def.label));
-                        break;
-                    case 'likeRecord':
-                        addWrap(page, 'div', attrs, tmplBtn('btnLikeRecord', "Record.like($event)", def.label));
-                        break;
-                    case 'remarkRecord':
-                        var html = '<input type="text" class="form-control" placeholder="评论" ng-model="newRemark">';
-                        html += '<span class="input-group-btn">';
-                        html += '<button class="btn btn-success" type="button" ng-click="Record.remark($event,newRemark)">发送</button>';
-                        html += '</span>';
-                        addWrap(page, 'div', { class: 'form-group input-group input-group-lg' }, html);
-                        break;
-                    case 'gotoPage':
-                        addWrap(page, 'div', attrs, tmplBtn('btnGotoPage_' + def.next, "gotoPage" + args, def.label));
-                        break;
-                    case 'closeWindow':
-                        addWrap(page, 'div', attrs, tmplBtn('btnCloseWindow', 'closeWindow($event)', def.label));
-                        break;
-                }
-            });
+            }).result.then(function (def) { wrapLib.embedButton(page, def); });
         };
         $scope.embedShow = function (page) {
             $modal.open({
@@ -400,42 +451,16 @@
                 backdrop: 'static',
                 resolve: {
                     pages: function () { return $scope.editing.pages; },
-                    schema: function () {
-                        var i, page, s, s2;
-                        s = extractSchema($scope.editing.pages.form.html);
-                        for (i in $scope.editing.pages) {
-                            page = $scope.editing.pages[i];
-                            if (page.type && page.type === 'I') {
-                                s2 = extractSchema(page.html);
-                                s = angular.extend(s, s2);
-                            }
-                        }
-                        return s;
-                    }
+                    schema: function () { return extractSchema(); }
                 },
                 controller: ['$scope', '$modalInstance', 'pages', 'schema', function ($scope, $mi, pages, schema) {
                     $scope.pages = pages;
-                    $scope.def = { type: 'record', dataScope: 'U', canLike: 'N', onclick: '', addEnrollAt: 0, addNickname: 0 };
+                    $scope.def = { type: 'record', inline: true, splitLine: true, dataScope: 'U', canLike: 'N', onclick: '', addEnrollAt: 0, addNickname: 0 };
                     $scope.def.schema = schema;
                     $scope.ok = function () { $mi.close($scope.def); };
                     $scope.cancel = function () { $mi.dismiss(); };
                 }]
-            }).result.then(function (def) {
-                switch (def.type) {
-                    case 'record':
-                        embedRecord(page, def);
-                        break;
-                    case 'list':
-                        embedList(page, def);
-                        break;
-                    case 'rounds':
-                        embedRounds(page, def);
-                        break;
-                    case 'remarks':
-                        embedRemarks(page, def);
-                        break;
-                }
-            });
+            }).result.then(function (def) { wrapLib.embedShow(page, def); });
         };
         $scope.embedMatter = function (page) {
             $scope.$broadcast('mattersgallery.open', function (matters, type) {
@@ -481,17 +506,7 @@
                         $scope.authAttrs = authAttrs;
                     };
                 }],
-            }).result.then(function (data) {
-                var inpAttrs = { wrap: 'input', class: 'form-group member' }, tpl, html, attr;
-                tpl = '<input type="text" ng-init="data.member.authid=' + data.authapi.authid + '" ng-model="data.member.%id%" title="%label%" placeholder="%label%" class="form-control input-lg">';
-                for (var i = 0, l = data.attrs.length; i < l; i++) {
-                    attr = data.attrs[i];
-                    html = tpl.replace(/%\w+%/g, function (pl) {
-                        return attr[pl.replace(/%/g, '')];
-                    });
-                    addWrap(page, 'div', inpAttrs, html);
-                }
-            });
+            }).result.then(function (data) { wrapLib.embedMember(page, data); });
         };
         $scope.$on('tinymce.wrap.select', function (event, wrap) {
             $scope.$apply(function () {
@@ -618,16 +633,7 @@
             });
             $scope.extraPages = extraPages;
             /* schema */
-            var i, page, s, s2;
-            s = extractSchema($scope.editing.pages.form.html);
-            for (i in $scope.editing.pages) {
-                page = $scope.editing.pages[i];
-                if (page.type && page.type === 'I') {
-                    s2 = extractSchema(page.html);
-                    s = angular.extend(s, s2);
-                }
-            }
-            $scope.schema = s;
+            $scope.schema = extractSchema();
         });
     }]);
 })();

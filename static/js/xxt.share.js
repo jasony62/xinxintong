@@ -1,7 +1,7 @@
 (function () {
     var setWxShare = function (title, link, desc, img) {
         window.wx.onMenuShareTimeline({
-            title: title,
+            title: window.xxt.share.options.descAsTitle ? desc : title,
             link: link,
             imgUrl: img,
             success: function () { window.xxt.share.options.logger && window.xxt.share.options.logger('T'); },
@@ -24,10 +24,14 @@
             'desc': desc
         };
         window.YixinJSBridge.on('menu:share:appmessage', function (argv) {
-            window.YixinJSBridge.invoke('sendAppMessage', shareData, function (res) { window.xxt.share.options.logger && window.xxt.share.options.logger('F'); });
+            window.YixinJSBridge.invoke('sendAppMessage', shareData, function (res) {
+                window.xxt.share.options.logger && window.xxt.share.options.logger('F');
+            });
         });
         window.YixinJSBridge.on('menu:share:timeline', function (argv) {
-            window.YixinJSBridge.invoke('shareTimeline', shareData, function (res) { window.xxt.share.options.logger && window.xxt.share.options.logger('T'); });
+            window.YixinJSBridge.invoke('shareTimeline', shareData, function (res) {
+                window.xxt.share.options.logger && window.xxt.share.options.logger('T');
+            });
         });
     };
     window.xxt === undefined && (window.xxt = {});

@@ -241,12 +241,10 @@
             if (!s.checked) continue;
             switch (s.type) {
                 case 'input':
-                    this.addWrap(page, 'div', { wrap: 'text', class: c }, '<label>' + s.title + '</label><p class="form-control-static">{{Record.current.data.' + s.id + '}}</p>');
-                    break;
                 case 'radio':
                 case 'checkbox':
                 case 'option':
-                    this.addWrap(page, 'div', { wrap: 'text', class: c }, '<label>' + s.title + '</label><p class="form-control-static">{{Record.current.data.' + s.id + '}}</p>');
+                    this.addWrap(page, 'div', { wrap: 'text', class: c }, '<label>' + s.title + '</label><div>{{Record.current.data.' + s.id + '}}</div>');
                     break;
                 case 'img':
                     this.addWrap(page, 'div', { wrap: 'text', class: c }, '<label>' + s.title + '</label><ul><li ng-repeat="img in Record.current.data.' + s.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul>');
@@ -254,11 +252,11 @@
             }
         }
         if (def.addEnrollAt) {
-            html = "<label>登记时间</label><p>{{Record.current.enroll_at*1000|date:'yyyy-MM-dd HH:mm'}}</p>";
+            html = "<label>登记时间</label><div>{{Record.current.enroll_at*1000|date:'yyyy-MM-dd HH:mm'}}</div>";
             this.addWrap(page, 'div', { wrap: 'text', class: c }, html);
         }
         if (def.addNickname) {
-            html = "<label>昵称</label><p>{{Record.current.enroller.nickname}}</p>";
+            html = "<label>昵称</label><div>{{Record.current.enroller.nickname}}</div>";
             this.addWrap(page, 'div', { wrap: 'text', class: c }, html);
         }
     };
@@ -269,10 +267,10 @@
         html = '<ul class="list-group" infinite-scroll="' + dataApi + '" infinite-scroll-disabled="Record.busy" infinite-scroll-distance="1">';
         html += '<li class="list-group-item" ng-repeat="r in Record.list"' + onclick + '>';
         if (def.addEnrollAt) {
-            html += "<div><label>登记时间</label><div>{{(r.enroll_at*1000)|date:'yyyy-MM-dd HH:mm'}}</div></div>";
+            html += "<div wrap='static' class='wrap-inline'><label>登记时间</label><div>{{(r.enroll_at*1000)|date:'yyyy-MM-dd HH:mm'}}</div></div>";
         }
         if (def.addNickname) {
-            html += "<div><label>昵称</label><div>{{r.nickname}}</div></div>";
+            html += "<div wrap='static' class='wrap-inline'><label>昵称</label><div>{{r.nickname}}</div></div>";
         }
         if (def.schema) {
             var i, s;
@@ -281,23 +279,23 @@
                 if (!s.checked) continue;
                 switch (s.type) {
                     case 'input':
-                        html += '<div class="form-group"><label>' + s.title + '</label><p class="form-control-static">{{r.data.' + s.id + '}}</p></div>';
+                        html += '<div wrap="static" class="wrap-inline"><label>' + s.title + '</label><div>{{r.data.' + s.id + '}}</div></div>';
                         break;
                     case 'radio':
                     case 'checkbox':
                     case 'option':
-                        html += '<div class="form-group"><label>' + s.title + '</label><p class="form-control-static">{{r.data.' + s.id + '}}</p></div>';
+                        html += '<div wrap="static" class="wrap-inline"><label>' + s.title + '</label><div>{{r.data.' + s.id + '}}</div></div>';
                         break;
                     case 'img':
-                        html += '<div class="form-group"><label>' + s.title + '</label><ul><li ng-repeat="img in r.data.' + s.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul></div>';
+                        html += '<div wrap="static" class="wrap-inline"><label>' + s.title + '</label><ul><li ng-repeat="img in r.data.' + s.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul></div>';
                         break;
                 }
             }
         }
         if (def.canLike === 'Y') {
-            html += '<div title="总赞数">{{r.score}}</div>';
-            html += "<div ng-if='!r.myscore'><a href='javascript:void(0)' ng-click='Record.like($event,r)'>赞</a></div>";
-            html += "<div ng-if='r.myscore==1'>已赞</div>";
+            html += '<div wrap="static" class="wrap-inline"><label>总赞数</label><div>{{r.score}}</div></div>';
+            html += "<div wrap='static' ng-if='!r.myscore'><a href='javascript:void(0)' ng-click='Record.like($event,r)'>赞</a></div>";
+            html += "<div wrap='static' ng-if='r.myscore==1'>已赞</div>";
         }
         html += "</li></ul>";
         this.addWrap(page, 'div', { wrap: 'list', class: 'form-group' }, html);
@@ -310,7 +308,13 @@
     };
     WrapLib.prototype.embedRemarks = function (page, def) {
         var html;
-        html = "<ul class='list-group'><li class='list-group-item' ng-repeat='r in Record.current.remarks'><div>{{r.remark}}</div><div>{{r.nickname}}</div><div>{{(r.create_at*1000)|date:'yyyy-MM-dd HH:mm'}}</div></li></ul>";
+        html = "<ul class='list-group'>";
+        html += "<li class='list-group-item' ng-repeat='r in Record.current.remarks'>";
+        html += "<div wrap='static'>{{r.remark}}</div>";
+        html += "<div wrap='static'>{{r.nickname}}</div>";
+        html += "<div wrap='static'>{{(r.create_at*1000)|date:'yyyy-MM-dd HH:mm'}}</div>";
+        html += "</li>";
+        html += "</ul>";
         this.addWrap(page, 'div', { wrap: 'list', class: 'form-group' }, html);
     };
     WrapLib.prototype.embedShow = function (page, def) {
@@ -364,9 +368,9 @@
                 break;
         }
     };
-    WrapLib.prototype.embedMeber = function (page, data) {
-        var inpAttrs = { wrap: 'input', class: 'form-group member' }, tpl, html, attr;
-        tpl = '<input type="text" ng-init="data.member.authid=' + data.authapi.authid + '" ng-model="data.member.%id%" title="%label%" placeholder="%label%" class="form-control input-lg">';
+    WrapLib.prototype.embedMember = function (page, data) {
+        var inpAttrs = { wrap: 'input', class: 'form-group form-group-lg member' }, tpl, html, attr;
+        tpl = '<label class="sr-only">%label%</label><input type="text" ng-init="data.member.authid=' + data.authapi.authid + '" ng-model="data.member.%id%" title="%label%" placeholder="%label%" class="form-control">';
         for (var i = 0, l = data.attrs.length; i < l; i++) {
             attr = data.attrs[i];
             html = tpl.replace(/%\w+%/g, function (pl) {
@@ -535,8 +539,8 @@
                 while (root.parentNode) root = root.parentNode;
                 $(root).find('.active').removeClass('active');
                 $scope.hasActiveWrap = false;
-                while ($(inputWrap).attr('wrap') !== 'input') inputWrap = inputWrap.parentNode;
-                if ($(inputWrap).attr('wrap') === 'input') {
+                while (!/input|static|button|list/.test($(inputWrap).attr('wrap')) && inputWrap.parentNode) inputWrap = inputWrap.parentNode;
+                if (/input|static|button|list/.test($(inputWrap).attr('wrap'))) {
                     inputWrap.classList.add('active');
                     $scope.hasActiveWrap = true;
                 }
@@ -616,12 +620,12 @@
             page.$$modified = page.html !== $scope.persisted.pages[page.name].html;
         };
         $scope.updPage = function (page, name) {
+            var editor;
             if (!angular.equals($scope.editing, $scope.persisted)) {
                 if (name === 'html') {
-                    var editor;
                     editor = tinymce.get(page.name);
-                    if ($(editor.getBody()).children('.active').length) {
-                        $(editor.getBody()).children('.active').removeClass('active');
+                    if ($(editor.getBody()).find('.active').length) {
+                        $(editor.getBody()).find('.active').removeClass('active');
                         $scope.hasActiveWrap = false;
                         page.html = $(editor.getBody()).html();
                     }
@@ -669,7 +673,6 @@
             });
             $scope.extraPages = extraPages;
             $scope.schema = extractSchema();
-            console.log('ssss', $scope.schema);
         });
     }]);
 })();

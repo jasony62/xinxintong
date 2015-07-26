@@ -23,25 +23,30 @@
                     <button class='btn' ng-class="editing.pages.form.$$modified?'btn-success':'btn-default'" ng-disabled='!editing.pages.form.$$modified'
                     ng-click="updPage(editing.pages.form,'html')">保存</button>
                     <button class='btn btn-default' ng-click="embedInput(editing.pages.form)">添加登记项</button>
-                    <button class='btn btn-default' ng-click="embedMatter(editing.pages.form)">添加素材</button>
-                    <button class='btn btn-default' ng-click="embedMember(editing.pages.form)">添加用户认证信息</button>
                     <button class='btn btn-default' ng-click="embedButton(editing.pages.form)">添加操作</button>
+                    <button class='btn btn-default' ng-click="embedMatter(editing.pages.form)">添加素材</button>
                     <a href='#' class='pull-right' ng-click="gotoCode(editing.pages.form.code_id)">编辑页面代码</a>
                 </div>
                 <tinymce content='editing.pages.form.html' id='form' height='500' change="onPageChange(editing.pages.form)"></tinymce>
                 <div class='sidebar'>
-                    <button class='btn btn-default' ng-click="editWrap(editing.pages.form)" ng-disabled='!hasActiveWrap'>
-                        <span class='glyphicon glyphicon-edit'></span>
+                    <button class='btn btn-default' title='修改' ng-click="editWrap(editing.pages.form)" ng-disabled='!hasActiveWrap||!activeWrap.editable'>
+                        <i class='fa fa-edit fa-fw'></i>
                     </button>
-                    <button class='btn btn-default' ng-click="removeWrap(editing.pages.form)" ng-disabled='!hasActiveWrap'>
-                        <span class='glyphicon glyphicon-remove'></span>
+                    <button class='btn btn-default' title='删除' ng-click="removeWrap(editing.pages.form)" ng-disabled='!hasActiveWrap'>
+                        <i class='fa fa-remove fa-fw'></i>
                     </button>
                     </button>
-                    <button class='btn btn-default' ng-click="upWrap(editing.pages.form)" ng-disabled='!hasActiveWrap'>
-                        <span class='glyphicon glyphicon-arrow-up'></span>
+                    <button class='btn btn-default' title='上移' ng-click="upWrap(editing.pages.form)" ng-disabled='!hasActiveWrap'>
+                        <span class='fa fa-arrow-up fa-fw'></span>
                     </button>
-                    <button class='btn btn-default' ng-click="downWrap(editing.pages.form)" ng-disabled='!hasActiveWrap'>
-                        <span class='glyphicon glyphicon-arrow-down'></span>
+                    <button class='btn btn-default' title='下移' ng-click="downWrap(editing.pages.form)" ng-disabled='!hasActiveWrap'>
+                        <span class='fa fa-arrow-down fa-fw'></span>
+                    </button>
+                    <button class='btn btn-default' title='上一级' ng-click="upLevel(editing.pages.form)" ng-disabled='!hasActiveWrap||activeWrap.upmost'>
+                        <span class='fa fa-level-up fa-fw'></span>
+                    </button>
+                    <button class='btn btn-default' title='下一级' ng-click="downLevel(editing.pages.form)" ng-disabled='!hasActiveWrap||activeWrap.downmost'>
+                        <span class='fa fa-level-down fa-fw'></span>
                     </button>
                 </div>
             </div>
@@ -75,24 +80,30 @@
                     <button class='btn' ng-class="ep.$$modified?'btn-success':'btn-default'" ng-disabled='!ep.$$modified' ng-click="updPage(ep,'html')">保存</button>
                     <button class='btn btn-default' ng-if="ep.type==='I'" ng-click="embedInput(ep)">添加登记项</button>
                     <button class='btn btn-default' ng-if="ep.type==='V'" ng-click="embedShow(ep)">添加登记信息</button>
-                    <button class='btn btn-default' ng-click="embedMatter(ep)">添加素材</button>
                     <button class='btn btn-default' ng-click="embedButton(ep)">添加操作</button>
+                    <button class='btn btn-default' ng-click="embedMatter(ep)">添加素材</button>
                     <a href='#' class='pull-right' ng-click="gotoCode(ep.code_id)">编辑页面</a>
                 </div>
                 <tinymce content='ep.html' id='{{ep.name}}' height='500' change="onPageChange(ep)"></tinymce>
                 <div class='sidebar'>
-                    <button class='btn btn-default' ng-click="editWrap(ep)" ng-disabled='!hasActiveWrap'>
-                        <span class='glyphicon glyphicon-edit'></span>
+                    <button class='btn btn-default' ng-click="editWrap(ep)" ng-disabled='!hasActiveWrap||!activeWrap.editable'>
+                        <i class='fa fa-edit fa-fw'></i>
                     </button>
-                    <button class='btn btn-default' ng-click="removeWrap(ep)" ng-disabled='!hasActiveWrap'>
-                        <span class='glyphicon glyphicon-remove'></span>
+                    <button class='btn btn-default' title='修改' ng-click="removeWrap(ep)" ng-disabled='!hasActiveWrap'>
+                        <i class='fa fa-remove fa-fw'></i>
                     </button>
                     </button>
                     <button class='btn btn-default' ng-click="upWrap(ep)" ng-disabled='!hasActiveWrap'>
-                        <span class='glyphicon glyphicon-arrow-up'></span>
+                        <span class='fa fa-arrow-up fa-fw'></span>
                     </button>
                     <button class='btn btn-default' ng-click="downWrap(ep)" ng-disabled='!hasActiveWrap'>
-                        <span class='glyphicon glyphicon-arrow-down'></span>
+                        <span class='fa fa-arrow-down fa-fw'></span>
+                    </button>
+                    <button class='btn btn-default' title='上一级' ng-click="upLevel(ep)" ng-disabled='!hasActiveWrap||activeWrap.upmost'>
+                        <span class='fa fa-level-up fa-fw'></span>
+                    </button>
+                    <button class='btn btn-default' title='下一级' ng-click="downLevel(ep)" ng-disabled='!hasActiveWrap||activeWrap.downmost'>
+                        <span class='fa fa-level-down fa-fw'></span>
                     </button>
                 </div>
             </div>
@@ -120,13 +131,21 @@
                             <option value='6'>多选项</option>
                             <option value='7'>图片</option>
                             <option value='8'>位置</option>
+                            <option value='auth'>用户认证信息</option>
                         </select>
                     </div>
                 </div>
-                <div class="form-group" ng-show="['3','4','5','6'].indexOf(def.type)!==-1">
+                <div class="form-group" ng-if="def.type==='auth'">
+                    <label class="col-md-2 control-label">认证接口</label>
+                    <div class="col-md-10">
+                        <select class='form-control' ng-model='selectedAuth.api' ng-options='a.name for a in authapis' ng-change='shiftAuthapi()'></select>
+                        <select class='form-control' ng-model='selectedAuth.attr' ng-options='a.label for a in selectedAuth.attrs' ng-change="shiftAuthAttr()"></select>
+                    </div>
+                </div>
+                <div class="form-group">
                     <label class="col-md-2 control-label">ID</label>
                     <div class="col-md-10">
-                        <input type='text' class='form-control' ng-model='def.key'>
+                        <input type='text' class='form-control' ng-model='def.key' readonly>
                     </div>
                 </div>
                 <div class="form-group">
@@ -139,7 +158,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group" ng-show="['0','1','2','3','4','5','6','8'].indexOf(def.type)!==-1">
+                <div class="form-group" ng-show="['7'].indexOf(def.type)===-1">
                     <label class="col-md-2 control-label">必填</label>
                     <div class="col-md-10">
                         <div class="checkbox">
@@ -179,7 +198,7 @@
                 <div class="form-group">
                     <label class="col-md-2 control-label">附加信息</label>
                     <div class="col-md-10">
-                        <button class="btn btn-default btn-sm" ng-click='addAttr()'>添加</button>
+                        <button class="btn btn-default btn-sm" ng-click='addExtAttr()'>添加</button>
                         <ul class='list-group'>
                             <li class='list-group-item' ng-repeat='attr in def.attrs'>
                                 <input type='text' ng-model='attr.name'>
@@ -288,6 +307,26 @@
             <button class="btn btn-success" ng-click="ok()">确定</button>
         </div>
     </script>
+    <script type="text/ng-template" id="embedStaticEditor.html">
+        <div class="modal-header">
+            <button class="close" ng-click="cancel()" type="button">×</button>
+            <h5 class="modal-title">修改</h5>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="col-md-2 control-label">样式</label>
+                <div class="col-md-10">
+                    <label class="checkbox-inline">
+                        <input type='checkbox' name='inline' ng-model='def.inline'>标题与数据在同一行</label>
+                    <label class="checkbox-inline">
+                        <input type='checkbox' name='splitLine' ng-model='def.splitLine'>显示分割线</label>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer" style="margin-top:0">
+            <button class="btn btn-success" ng-click="ok()">确定</button>
+        </div>
+    </script>
     <script type="text/ng-template" id="embedButtonLib.html">
         <div class="modal-header">
             <button class="close" ng-click="cancel()" type="button">×</button>
@@ -298,47 +337,24 @@
                 <div class="form-group">
                     <label class="col-md-3 control-label">操作</label>
                     <div class="col-md-9">
-                        <select class='form-control' ng-model='def.type' ng-options='b[1] for b in buttons' ng-change='def.label=def.type[1]'></select>
+                        <select class='form-control' ng-model='def.type' ng-options='k as v.l for (k,v) in buttons' ng-change="def.label=buttons[def.type].l"></select>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group" ng-show="'remarkRecord'!==def.type">
                     <label class="col-md-3 control-label">显示为</label>
                     <div class="col-md-9">
                         <input type='text' class='form-control' ng-model='def.label'>
                     </div>
                 </div>
-                <div class="form-group" ng-if="def.type[0]==='submit'||def.type[0]==='gotoPage'">
-                    <label class="col-md-3 control-label">成功后</label>
+                <div class="form-group" ng-show="['submit','gotoPage'].indexOf(def.type)!==-1">
+                    <label class="col-md-3 control-label">操作后</label>
                     <div class="col-md-9">
-                        <select class='form-control' ng-model='def.next'>
-                            <option value=''></option>
-                            <option value='{{ep.name}}' ng-repeat='ep in pages'>{{ep.title}}</option>
-                            <option value='closeWindow'>关闭页面</option>
+                        <select class='form-control' ng-model='def.next' ng-options='k as v.l for (k,v) in pages'>
+                            <option></option>
                         </select>
                     </div>
                 </div>
             </form>
-        </div>
-        <div class="modal-footer" style="margin-top:0">
-            <button class="btn btn-success" ng-click="ok()">确定</button>
-        </div>
-    </script>
-    <script type="text/ng-template" id="embedMemberLib.html">
-        <div class="modal-header">
-            <button class="close" ng-click="cancel()" type="button">×</button>
-            <h5 class="modal-title">操作</h5>
-        </div>
-        <div class="modal-body">
-            <div class='form-group'>
-                <select class='form-control' ng-model='selected.authapi' ng-options='a.name for a in authapis' ng-change='shiftAuthapi()'></select>
-            </div>
-            <div class='form-group'>
-                <div class='list-group'>
-                    <div class='list-group-item' ng-repeat='attr in authAttrs'>
-                        <label class='checkbox-inline'><input type='checkbox' ng-model="attr.checked">{{attr.label}}</label>
-                    </div>
-                </div>
-            </div>
         </div>
         <div class="modal-footer" style="margin-top:0">
             <button class="btn btn-success" ng-click="ok()">确定</button>

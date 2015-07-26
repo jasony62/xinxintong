@@ -85,18 +85,18 @@
                     }
                     if (schema.match(/(<textarea|type=\"text\")/)) {
                         if (modelId = extractModelId(schema))
-                            defs[modelId] = { id: modelId, title: title, type: type };
+                            defs[modelId] = { id: modelId, title: title, type: 'input' };
                     } else if (schema.match(/type=\"radio\"/)) {
                         if (modelId = extractModelId(schema)) {
                             if (defs[modelId] === undefined)
-                                defs[modelId] = { id: modelId, title: title, type: type, op: [] };
+                                defs[modelId] = { id: modelId, title: title, type: 'radio', op: [] };
                             defs[modelId].op.push(extractRadioModelOp(schema));
                         }
                     } else if (schema.match(/type=\"checkbox\"/)) {
                         if (modelId = extractModelId(schema)) {
                             modelId = modelId.split('.')[0];
                             if (defs[modelId] === undefined)
-                                defs[modelId] = { id: modelId, title: title, type: type, op: [] };
+                                defs[modelId] = { id: modelId, title: title, type: 'checkbox', op: [] };
                             defs[modelId].op.push(extractCheckboxModelOp(schema));
                         }
                     }
@@ -105,7 +105,7 @@
                     title = schema.match(/\btitle=\".*?\"/).pop().replace('title=', '').replace(/\"/g, '');
                     if (modelId = extractSelectModelId(schema)) {
                         if (defs[modelId] === undefined)
-                            defs[modelId] = { id: modelId, title: title, type: type, op: [] };
+                            defs[modelId] = { id: modelId, title: title, type: 'option', op: [] };
                         defs[modelId].op.push(extractSelectModelOp(schema));
                     }
                     break;
@@ -113,11 +113,12 @@
                     title = schema.match(/title=\".*?\"/).pop().replace('title=', '').replace(/\"/g, '');
                     if (modelId = schema.match(/ng-repeat=\"img in data\.(.+?)\"/)) {
                         modelId = modelId.pop().replace(/ng-repeat=\"img in data\./, '').replace(/\"/g, '');
-                        defs[modelId] = { id: modelId, title: title, type: type };
+                        defs[modelId] = { id: modelId, title: title, type: 'img' };
                     }
                     break;
             }
         }
+        console.log('defs', defs);
         return defs;
     };
     WrapLib.prototype.changeEmbedInput = function (page, wrap, def) {
@@ -145,9 +146,11 @@
             case '1':
             case '2':
             case '3':
-                html += '<input type="text" ng-model="data.' + ['name', 'mobile', 'email', key][def.type] + '" title="' + def.name + '"';
+            case 'auth':
+                html += '<input type="text" ng-model="data.' + key + '" title="' + def.name + '"';
                 def.showname === 'placeholder' && (html += ' placeholder="' + def.name + '"');
                 def.required == 1 && (html += 'required=""');
+                def.type === 'auth' && (html += 'ng-init="data.member.authid=' + def.auth.authid + '"');
                 html += ' class="form-control">';
                 break;
             case '4':
@@ -241,23 +244,25 @@
             if (!s.checked) continue;
             switch (s.type) {
                 case 'input':
+                    this.addWrap(page, 'div', { wrap: 'static', class: c }, '<label>' + s.title + '</label><div>{{Record.current.data.' + s.id + '}}</div>');
+                    break;
                 case 'radio':
                 case 'checkbox':
                 case 'option':
-                    this.addWrap(page, 'div', { wrap: 'text', class: c }, '<label>' + s.title + '</label><div>{{Record.current.data.' + s.id + '}}</div>');
+                    this.addWrap(page, 'div', { wrap: 'static', class: c }, '<label>' + s.title + '</label><div>{{Record.current.data.' + s.id + '|value2Label:"' + s.id + '"}}</div>');
                     break;
                 case 'img':
-                    this.addWrap(page, 'div', { wrap: 'text', class: c }, '<label>' + s.title + '</label><ul><li ng-repeat="img in Record.current.data.' + s.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul>');
+                    this.addWrap(page, 'div', { wrap: 'static', class: c }, '<label>' + s.title + '</label><ul><li ng-repeat="img in Record.current.data.' + s.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul>');
                     break;
             }
         }
         if (def.addEnrollAt) {
             html = "<label>登记时间</label><div>{{Record.current.enroll_at*1000|date:'yyyy-MM-dd HH:mm'}}</div>";
-            this.addWrap(page, 'div', { wrap: 'text', class: c }, html);
+            this.addWrap(page, 'div', { wrap: 'static', class: c }, html);
         }
         if (def.addNickname) {
             html = "<label>昵称</label><div>{{Record.current.enroller.nickname}}</div>";
-            this.addWrap(page, 'div', { wrap: 'text', class: c }, html);
+            this.addWrap(page, 'div', { wrap: 'static', class: c }, html);
         }
     };
     WrapLib.prototype.embedList = function (page, def) {
@@ -266,12 +271,10 @@
         onclick = def.onclick.length ? " ng-click=\"gotoPage($event,'" + def.onclick + "',r.enroll_key)\"" : '';
         html = '<ul class="list-group" infinite-scroll="' + dataApi + '" infinite-scroll-disabled="Record.busy" infinite-scroll-distance="1">';
         html += '<li class="list-group-item" ng-repeat="r in Record.list"' + onclick + '>';
-        if (def.addEnrollAt) {
-            html += "<div wrap='static' class='wrap-inline'><label>登记时间</label><div>{{(r.enroll_at*1000)|date:'yyyy-MM-dd HH:mm'}}</div></div>";
-        }
-        if (def.addNickname) {
+        if (def.addEnrollAt)
+            html += "<div wrap='static' class='wrap-inline'><label>登记时间</label><div>{{r.enroll_at*1000|date:'yyyy-MM-dd HH:mm'}}</div></div>";
+        if (def.addNickname)
             html += "<div wrap='static' class='wrap-inline'><label>昵称</label><div>{{r.nickname}}</div></div>";
-        }
         if (def.schema) {
             var i, s;
             for (i in def.schema) {
@@ -279,8 +282,6 @@
                 if (!s.checked) continue;
                 switch (s.type) {
                     case 'input':
-                        html += '<div wrap="static" class="wrap-inline"><label>' + s.title + '</label><div>{{r.data.' + s.id + '}}</div></div>';
-                        break;
                     case 'radio':
                     case 'checkbox':
                     case 'option':
@@ -298,7 +299,7 @@
             html += "<div wrap='static' ng-if='r.myscore==1'>已赞</div>";
         }
         html += "</li></ul>";
-        this.addWrap(page, 'div', { wrap: 'list', class: 'form-group' }, html);
+        this.addWrap(page, 'div', { wrap: 'list' }, html);
     };
     WrapLib.prototype.embedRounds = function (page, def) {
         var onclick, html;
@@ -333,50 +334,68 @@
                 break;
         }
     };
+    WrapLib.prototype.changeEmbedStatic = function (page, wrap, def) {
+        def.inline ? $(wrap).addClass('wrap-inline') : $(wrap).removeClass('wrap-inline');
+        def.splitLine ? $(wrap).addClass('wrap-splitline') : $(wrap).removeClass('wrap-splitline');
+    };
+    WrapLib.prototype.extractStaticSchema = function (wrap) {
+        var def = {};
+        def.inline = $(wrap).hasClass('wrap-inline');
+        def.splitLine = $(wrap).hasClass('wrap-splitline');
+        return def;
+    };
+    WrapLib.prototype.extractButtonSchema = function (wrap) {
+        var $button, action, arg, def = {};
+        $button = $(wrap).find('button');
+        def.label = $button.children('span').html();
+        action = $button.attr('ng-click');
+        action = action.match(/(.+?)\((.+?)\)/);
+        def.type = action[1];
+        arg = action[2].split(',');
+        arg.length === 2 && (def.next = arg[1].replace(/'/g, ''));
+        return def;
+    };
+    var EmbedButtonSchema = {
+        _args: function (def) { return def.next ? "($event,'" + def.next + "')" : "($event)" },
+        submit: { id: 'btnSubmit', act: function (def) { return 'submit' + EmbedButtonSchema._args(def); } },
+        addRecord: { id: 'btnNewRecord', act: function (def) { return 'addRecord($evnet)' } },
+        editRecord: { id: 'btnEditRecord', act: "editRecord($event)" },
+        likeRecord: { id: 'btnLikeRecord', act: "likeRecord($event)" },
+        //remarkRecord: { id: 'btnRemarkRecord', act: '' },
+        gotoPage: { id: function (def) { return 'btnGotoPage_' + def.next; }, act: function (def) { return 'gotoPage' + EmbedButtonSchema._args(def); } },
+        closeWindow: { id: 'btnCloseWindow', act: 'closeWindow($event)' },
+    };
+    WrapLib.prototype.changeEmbedButton = function (page, wrap, def) {
+        var schema, id, action, $button;
+        if (schema = EmbedButtonSchema[def.type]) {
+            action = schema.act;
+            angular.isFunction(action) && (action = action(def));
+            $button = $(wrap).find('button');
+            $button.children('span').html(def.label);
+            $button.attr('ng-click', action);
+        } else if (button === 'remarkRecord') {
+            // not support
+        }
+    };
     WrapLib.prototype.embedButton = function (page, def) {
         var attrs = { wrap: 'button', class: 'form-group' },
             tmplBtn = function (id, action, label) {
                 return '<button id="' + id + '" class="btn btn-primary btn-block btn-lg" ng-click="' + action + '"><span>' + label + '</span></button>';
             },
-            args = def.next ? "($event,'" + def.next + "')" : "($event)",
-            button = def.type[0];
-        switch (button) {
-            case 'submit':
-                this.addWrap(page, 'div', attrs, tmplBtn('btnSubmit', "submit" + args, def.label));
-                break;
-            case 'addRecord':
-                this.addWrap(page, 'div', attrs, tmplBtn('btnNewRecord', "addRecord" + args, def.label));
-                break;
-            case 'editRecord':
-                this.addWrap(page, 'div', attrs, tmplBtn('btnNewRecord', "gotoPage($event,'form',Record.current.enroll_key)", def.label));
-                break;
-            case 'likeRecord':
-                this.addWrap(page, 'div', attrs, tmplBtn('btnLikeRecord', "Record.like($event)", def.label));
-                break;
-            case 'remarkRecord':
-                var html = '<input type="text" class="form-control" placeholder="评论" ng-model="newRemark">';
-                html += '<span class="input-group-btn">';
-                html += '<button class="btn btn-success" type="button" ng-click="Record.remark($event,newRemark)">发送</button>';
-                html += '</span>';
-                this.addWrap(page, 'div', { class: 'form-group input-group input-group-lg' }, html);
-                break;
-            case 'gotoPage':
-                this.addWrap(page, 'div', attrs, tmplBtn('btnGotoPage_' + def.next, "gotoPage" + args, def.label));
-                break;
-            case 'closeWindow':
-                this.addWrap(page, 'div', attrs, tmplBtn('btnCloseWindow', 'closeWindow($event)', def.label));
-                break;
-        }
-    };
-    WrapLib.prototype.embedMember = function (page, data) {
-        var inpAttrs = { wrap: 'input', class: 'form-group form-group-lg member' }, tpl, html, attr;
-        tpl = '<label class="sr-only">%label%</label><input type="text" ng-init="data.member.authid=' + data.authapi.authid + '" ng-model="data.member.%id%" title="%label%" placeholder="%label%" class="form-control">';
-        for (var i = 0, l = data.attrs.length; i < l; i++) {
-            attr = data.attrs[i];
-            html = tpl.replace(/%\w+%/g, function (pl) {
-                return attr[pl.replace(/%/g, '')];
-            });
-            this.addWrap(page, 'div', inpAttrs, html);
+            schema, id, action;
+
+        if (schema = EmbedButtonSchema[def.type]) {
+            id = schema.id;
+            angular.isFunction(id) && (id = id(def));
+            action = schema.act;
+            angular.isFunction(action) && (action = action(def));
+            this.addWrap(page, 'div', attrs, tmplBtn(id, action, def.label));
+        } else if (def.type === 'remarkRecord') {
+            var html = '<input type="text" class="form-control" placeholder="评论" ng-model="newRemark">';
+            html += '<span class="input-group-btn">';
+            html += '<button class="btn btn-success" type="button" ng-click="remarkRecord($event)"><span>发送</span></button>';
+            html += '</span>';
+            this.addWrap(page, 'div', { wrap: 'button', class: 'form-group input-group input-group-lg' }, html);
         }
     };
     window.wrapLib = new WrapLib();
@@ -384,41 +403,6 @@
 (function () {
     xxtApp.register.controller('pageCtrl', ['$scope', 'http2', '$modal', '$timeout', 'Mp', function ($scope, http2, $modal, $timeout, Mp) {
         $scope.$parent.subView = 'page';
-        var CusdataCtrl = function ($scope, $modalInstance) {
-            var key;
-            key = 'c' + (new Date()).getTime();
-            $scope.def = { key: key, type: '0', name: '姓名', showname: 'placeholder', component: 'R', align: 'V', count: 1 };
-            $scope.addOption = function () {
-                if ($scope.def.ops === undefined)
-                    $scope.def.ops = [];
-                var newOp = { text: '' };
-                $scope.def.ops.push(newOp);
-                $timeout(function () { $scope.$broadcast('xxt.editable.add', newOp); });
-            };
-            $scope.addAttr = function () {
-                $scope.def.attrs === undefined && ($scope.def.attrs = []);
-                var newAttr = { name: '', value: '' };
-                $scope.def.attrs.push(newAttr);
-            };
-            $scope.$on('xxt.editable.remove', function (e, op) {
-                var i = $scope.def.ops.indexOf(op);
-                $scope.def.ops.splice(i, 1);
-            });
-            $scope.changeType = function () {
-                var map = { '0': '姓名', '1': '手机', '2': '邮箱' };
-                map[$scope.def.type] ? $scope.def.name = map[$scope.def.type] : $scope.def.name = '';
-            };
-            $scope.ok = function () {
-                if ($scope.def.name.length === 0) {
-                    alert('必须指定登记项的名称');
-                    return;
-                }
-                $modalInstance.close($scope.def);
-            };
-            $scope.cancel = function () {
-                $modalInstance.dismiss();
-            };
-        };
         var extractSchema = function () {
             var i, pages, page, s, s2;
             pages = $scope.editing.pages;
@@ -440,34 +424,104 @@
         $scope.embedInput = function (page) {
             $modal.open({
                 templateUrl: 'embedInputLib.html',
-                controller: CusdataCtrl,
                 backdrop: 'static',
-            }).result.then(function (def) {
-                wrapLib.embedInput(page, def);
-            });
+                controller: ['$scope', '$modalInstance', function ($scope, $mi) {
+                    var key;
+                    key = 'c' + (new Date()).getTime();
+                    (new Mp()).getAuthapis().then(function (data) {
+                        $scope.authapis = data;
+                    });
+                    $scope.def = { key: 'name', type: '0', name: '姓名', showname: 'placeholder', component: 'R', align: 'V', count: 1 };
+                    $scope.addOption = function () {
+                        if ($scope.def.ops === undefined)
+                            $scope.def.ops = [];
+                        var newOp = { text: '' };
+                        $scope.def.ops.push(newOp);
+                        $timeout(function () { $scope.$broadcast('xxt.editable.add', newOp); });
+                    };
+                    $scope.addExtAttr = function () {
+                        $scope.def.attrs === undefined && ($scope.def.attrs = []);
+                        var newAttr = { name: '', value: '' };
+                        $scope.def.attrs.push(newAttr);
+                    };
+                    $scope.$on('xxt.editable.remove', function (e, op) {
+                        var i = $scope.def.ops.indexOf(op);
+                        $scope.def.ops.splice(i, 1);
+                    });
+                    $scope.changeType = function () {
+                        var map = { '0': { name: '姓名', key: 'name' }, '1': { name: '手机', key: 'mobile' }, '2': { name: '邮箱', key: 'email' } };
+                        if (map[$scope.def.type]) {
+                            $scope.def.name = map[$scope.def.type].name;
+                            $scope.def.key = map[$scope.def.type].key;
+                        } else if ($scope.def.type === 'auth') {
+                            $scope.def.name = '';
+                            $scope.def.key = '';
+                            $scope.def.auth = {};
+                        } else {
+                            $scope.def.name = '';
+                            $scope.def.key = key;
+                        }
+                    };
+                    $scope.selectedAuth = {
+                        api: null,
+                        attrs: null,
+                        attr: null
+                    };
+                    $scope.shiftAuthapi = function () {
+                        var auth = $scope.selectedAuth.api, authAttrs = [];
+                        $scope.def.auth.authid = auth.authid;
+                        auth.attr_name[0] === '0' && (authAttrs.push({ id: 'name', label: '姓名' }));
+                        auth.attr_mobile[0] === '0' && (authAttrs.push({ id: 'mobile', label: '手机' }));
+                        auth.attr_email[0] === '0' && (authAttrs.push({ id: 'email', label: '邮箱' }));
+                        auth.extattr && auth.extattr.length && (authAttrs = authAttrs.concat(auth.extattr));
+                        $scope.selectedAuth.attrs = authAttrs;
+                    };
+                    $scope.shiftAuthAttr = function () {
+                        var attr = $scope.selectedAuth.attr;
+                        $scope.def.name = attr.label;
+                        $scope.def.key = 'member.' + attr.id;
+                    };
+                    $scope.ok = function () {
+                        if ($scope.def.name.length === 0) {
+                            alert('必须指定登记项的名称');
+                            return;
+                        }
+                        $mi.close($scope.def);
+                    };
+                    $scope.cancel = function () { $mi.dismiss(); };
+                }],
+            }).result.then(function (def) { wrapLib.embedInput(page, def); });
         };
+        var embedButtonCtrl = ['$scope', '$modalInstance', 'pages', 'def', function ($scope, $mi, pages, def) {
+            var page, targetPages = {};
+            $scope.buttons = {
+                submit: { l: '提交信息' },
+                addRecord: { l: '新增登记' },
+                editRecord: { l: '修改登记' },
+                likeRecord: { l: '点赞' },
+                remarkRecord: { l: '评论' },
+                gotoPage: { l: '页面导航' },
+                closeWindow: { l: '关闭页面' }
+            };
+            for (var p in pages) {
+                page = pages[p];
+                targetPages[page.name] = { l: page.title };
+            }
+            targetPages.closeWindow = { l: '关闭页面' };
+            $scope.pages = targetPages;
+            $scope.def = def;
+            $scope.ok = function () { $mi.close($scope.def); };
+            $scope.cancel = function () { $mi.dismiss(); };
+        }];
         $scope.embedButton = function (page) {
             $modal.open({
                 templateUrl: 'embedButtonLib.html',
-                controller: ['$scope', '$modalInstance', 'pages', function ($scope, $mi, pages) {
-                    $scope.buttons = [
-                        ['submit', '提交信息'],
-                        ['addRecord', '新增登记'],
-                        ['editRecord', '修改登记'],
-                        ['likeRecord', '点赞'],
-                        ['remarkRecord', '评论'],
-                        ['gotoPage', '页面导航'],
-                        ['closeWindow', '关闭页面']
-                    ];
-                    $scope.pages = pages;
-                    $scope.def = { type: '0', label: '', next: '' };
-                    $scope.ok = function () { $mi.close($scope.def); };
-                    $scope.cancel = function () { $mi.dismiss(); };
-                }],
                 backdrop: 'static',
                 resolve: {
-                    pages: function () { return $scope.editing.pages; }
-                }
+                    pages: function () { return $scope.editing.pages; },
+                    def: function () { return { type: '', label: '', next: '' }; }
+                },
+                controller: embedButtonCtrl,
             }).result.then(function (def) { wrapLib.embedButton(page, def); });
         };
         $scope.embedShow = function (page) {
@@ -496,7 +550,6 @@
                     matter = matters[i];
                     mtype = matter.type ? matter.type : type;
                     fn = "openMatter(" + matter.id + ",'" + mtype + "')";
-                    console.log('fn', fn);
                     editor.insertContent(dom.createHTML('div', { 'wrap': 'link', 'class': 'matter-link' }, dom.createHTML('a', {
                         href: '#',
                         "ng-click": fn,
@@ -504,71 +557,94 @@
                 }
             });
         };
-        $scope.embedMember = function (page) {
-            $modal.open({
-                templateUrl: 'embedMemberLib.html',
-                backdrop: 'static',
-                controller: ['$modalInstance', '$scope', 'Mp', function ($mi, $scope, Mp) {
-                    (new Mp()).getAuthapis().then(function (data) {
-                        $scope.authapis = data;
-                    });
-                    $scope.selected = {};
-                    $scope.authAttrs = [];
-                    $scope.ok = function () {
-                        $scope.selected.attrs = [];
-                        for (var i = 0, l = $scope.authAttrs.length; i < l; i++) {
-                            $scope.authAttrs[i].checked && $scope.selected.attrs.push($scope.authAttrs[i]);
-                        }
-                        $mi.close($scope.selected);
-                    };
-                    $scope.cancel = function () { $mi.dismiss(); };
-                    $scope.shiftAuthapi = function () {
-                        var auth = $scope.selected.authapi, authAttrs = [];
-                        auth.attr_name[0] === '0' && (authAttrs.push({ id: 'name', label: '姓名' }));
-                        auth.attr_mobile[0] === '0' && (authAttrs.push({ id: 'mobile', label: '手机' }));
-                        auth.attr_email[0] === '0' && (authAttrs.push({ id: 'email', label: '邮箱' }));
-                        auth.extattr && auth.extattr.length && (authAttrs = authAttrs.concat(auth.extattr));
-                        $scope.authAttrs = authAttrs;
-                    };
-                }],
-            }).result.then(function (data) { wrapLib.embedMember(page, data); });
+        $scope.activeWrap = false;
+        var setActiveWrap = function (wrap) {
+            var wrapType;
+            if (wrap) {
+                wrapType = $(wrap).attr('wrap');
+                wrap.classList.add('active');
+                $scope.hasActiveWrap = true;
+                $scope.activeWrap = {
+                    type: wrapType,
+                    editable: !/list/.test(wrapType),
+                    upmost: /body/i.test(wrap.parentNode.tagName),
+                    downmost: /button|static|radio|checkbox/.test(wrapType),
+                };
+            } else {
+                $scope.hasActiveWrap = false;
+                $scope.activeWrap = false;
+            }
         };
         $scope.$on('tinymce.wrap.select', function (event, wrap) {
             $scope.$apply(function () {
-                var root = wrap, inputWrap = wrap;
+                var root = wrap, selectableWrap = wrap, wrapType;
                 while (root.parentNode) root = root.parentNode;
                 $(root).find('.active').removeClass('active');
                 $scope.hasActiveWrap = false;
-                while (!/input|static|button|list/.test($(inputWrap).attr('wrap')) && inputWrap.parentNode) inputWrap = inputWrap.parentNode;
-                if (/input|static|button|list/.test($(inputWrap).attr('wrap'))) {
-                    inputWrap.classList.add('active');
-                    $scope.hasActiveWrap = true;
+                $scope.activeWrap = false;
+                wrapType = $(selectableWrap).attr('wrap');
+                while (!/input|radio|checkbox|static|button|list/.test(wrapType) && selectableWrap.parentNode) {
+                    selectableWrap = selectableWrap.parentNode;
+                    wrapType = $(selectableWrap).attr('wrap');
+                }
+                if (/input|radio|checkbox|static|button|list/.test(wrapType)) {
+                    setActiveWrap(selectableWrap);
                 }
             });
         });
         $scope.editWrap = function (page) {
-            var editor, active, def;
+            var editor, $active, def;
             editor = tinymce.get(page.name);
-            active = $(editor.getBody()).find('.active');
-            def = wrapLib.extractInputSchema(active[0]);
-            $modal.open({
-                templateUrl: 'embedInputEditor.html',
-                controller: function ($scope, $modalInstance) {
-                    $scope.def = def;
-                    $scope.ok = function () { $modalInstance.close($scope.def); };
-                    $scope.cancel = function () { $modalInstance.dismiss(); };
-                },
-                backdrop: 'static',
-            }).result.then(function (def) {
-                wrapLib.changeEmbedInput(page, active[0], def);
-            });
+            $active = $(editor.getBody()).find('.active');
+            if (/button/.test($active.attr('wrap'))) {
+                def = wrapLib.extractButtonSchema($active[0]);
+                if (def.type === 'remarkRecord') {
+                    $scope.$root.errmsg = '不支持修改该类型组件';
+                    return;
+                }
+                $modal.open({
+                    templateUrl: 'embedButtonLib.html',
+                    backdrop: 'static',
+                    resolve: {
+                        pages: function () { return $scope.editing.pages; },
+                        def: function () { return def; }
+                    },
+                    controller: embedButtonCtrl,
+                }).result.then(function (def) {
+                    wrapLib.changeEmbedButton(page, $active[0], def);
+                });
+            } else if (/input/.test($active.attr('wrap'))) {
+                def = wrapLib.extractInputSchema($active[0]);
+                $modal.open({
+                    templateUrl: 'embedInputEditor.html',
+                    backdrop: 'static',
+                    controller: function ($scope, $modalInstance) {
+                        $scope.def = def;
+                        $scope.ok = function () { $modalInstance.close($scope.def); };
+                        $scope.cancel = function () { $modalInstance.dismiss(); };
+                    },
+                }).result.then(function (def) {
+                    wrapLib.changeEmbedInput(page, $active[0], def);
+                });
+            } else if (/static/.test($active.attr('wrap'))) {
+                def = wrapLib.extractStaticSchema($active[0]);
+                $modal.open({
+                    templateUrl: 'embedStaticEditor.html',
+                    backdrop: 'static',
+                    controller: ['$scope', '$modalInstance', function ($scope, $mi) {
+                        $scope.def = def;
+                        $scope.ok = function () { $mi.close($scope.def); };
+                        $scope.cancel = function () { $mi.dismiss(); };
+                    }]
+                }).result.then(function (def) { wrapLib.changeEmbedStatic(page, $active[0], def); });
+            }
         };
         $scope.removeWrap = function (page) {
             var editor;
             editor = tinymce.get(page.name);
             $(editor.getBody()).find('.active').remove();
-            $scope.hasActiveWrap = false;
             editor.save();
+            setActiveWrap(null);
         };
         $scope.upWrap = function (page) {
             var editor, active;
@@ -584,6 +660,26 @@
             active.next().after(active);
             editor.save();
         };
+        $scope.upLevel = function (page) {
+            var editor, $active, $parent;
+            editor = tinymce.get(page.name);
+            $active = $(editor.getBody()).find('.active');
+            $parent = $active.parents('[wrap]');
+            if ($parent.length) {
+                $active.removeClass('active');
+                setActiveWrap($parent[0]);
+            }
+        };
+        $scope.downLevel = function (page) {
+            var editor, $active, $children;
+            editor = tinymce.get(page.name);
+            $active = $(editor.getBody()).find('.active');
+            $children = $active.find('[wrap]');
+            if ($children.length) {
+                $active.removeClass('active');
+                setActiveWrap($children[0]);
+            }
+        };
         $scope.$on('tinymce.multipleimage.open', function (event, callback) {
             $scope.$broadcast('picgallery.open', callback, true, true);
         });
@@ -596,25 +692,6 @@
                     $('a[href="#tab_' + page.name + '"]').tab('show');
                 });
             });
-        };
-        window.onbeforeunload = function (e) {
-            var i, p, message, modified;
-            modified = false;
-            for (i in $scope.editing.pages) {
-                p = $scope.editing.pages[i];
-                if (p.$$modified) {
-                    modified = true;
-                    break;
-                }
-            }
-            if (modified) {
-                message = '已经修改的页面还没有保存',
-                e = e || window.event;
-                if (e) {
-                    e.returnValue = message;
-                }
-                return message;
-            }
         };
         $scope.onPageChange = function (page) {
             page.$$modified = page.html !== $scope.persisted.pages[page.name].html;
@@ -664,6 +741,25 @@
         };
         $scope.gotoCode = function (codeid) {
             window.open('/rest/code?pid=' + codeid, '_self');
+        };
+        window.onbeforeunload = function (e) {
+            var i, p, message, modified;
+            modified = false;
+            for (i in $scope.editing.pages) {
+                p = $scope.editing.pages[i];
+                if (p.$$modified) {
+                    modified = true;
+                    break;
+                }
+            }
+            if (modified) {
+                message = '已经修改的页面还没有保存',
+                e = e || window.event;
+                if (e) {
+                    e.returnValue = message;
+                }
+                return message;
+            }
         };
         $scope.$watch('editing', function (nv) {
             if (!nv) return;

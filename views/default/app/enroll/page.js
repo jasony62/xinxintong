@@ -97,12 +97,12 @@ formApp.factory('Record', function ($http) {
         event.stopPropagation();
         if (!newRemark || newRemark.length === 0) {
             alert('评论内容不允许为空');
-            return;
+            return false;
         }
         var _this = this;
         if (this.current.enroll_key === undefined) {
             alert('没有指定要评论的登记记录');
-            return;
+            return false;
         }
         var url = '/rest/app/enroll/recordRemark';
         url += '?mpid=' + this.mpid;
@@ -118,6 +118,7 @@ formApp.factory('Record', function ($http) {
             }
             _this.current.remarks.push(rsp.data);
         });
+        return true;
     };
     return Record;
 });
@@ -129,6 +130,28 @@ formApp.factory('Statistic', function () {
     };
     return Stat;
 });
+formApp.factory('Schema', ['$location', '$http', '$q', function ($location, $http, $q) {
+    var mpid, aid, schema, Schema;
+    mpid = $location.search().mpid;
+    aid = $location.search().aid;
+    schema = null;
+    Schema = function () { };
+    Schema.prototype.get = function () {
+        var deferred, promise;
+        deferred = $q.defer();
+        promise = deferred.promise;
+        if (schema !== null)
+            deferred.resolve(schema);
+        else {
+            $http.get('/rest/app/enroll/page/schemaGet?mpid=' + mpid + '&id=' + aid + '&byPage=N').success(function (rsp) {
+                schema = rsp.data;
+                deferred.resolve(schema);
+            });
+        }
+        return promise;
+    };
+    return Schema;
+}]);
 formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'Round', 'Record', 'Statistic', function ($location, $scope, $http, $timeout, $q, Round, Record, Statistic) {
     window.shareCounter = 0;
     window.xxt.share.options.logger = function (shareto) {
@@ -370,6 +393,17 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
     $scope.addRecord = function (event) {
         $scope.gotoPage(event, 'form');
     };
+    $scope.editRecord = function (event) {
+        $scope.gotoPage(event, 'form', $scope.Record.current.enroll_key);
+    };
+    $scope.likeRecord = function (event) {
+        $scope.Record.like(event);
+    };
+    $scope.newRemark = '';
+    $scope.remarkRecord = function (event) {
+        if ($scope.Record.remark(event, $scope.newRemark))
+            $scope.newRemark = '';
+    };
     $scope.openMatter = function (id, type) {
         location.href = '/rest/mi/matter?mpid=' + $scope.mpid + '&id=' + id + '&type=' + type;
     };
@@ -446,6 +480,31 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
             console.log('page ready', $scope.params);
         });
     });
+}]);
+formApp.filter('value2Label', ['Schema', function (Schema) {
+    var schemas;
+    (new Schema()).get().then(function (data) {
+        schemas = data;
+    });
+    return function (val, key) {
+        var i, j, s, aVal, aLab = [];
+        if (val === undefined) return '';
+        for (i = 0, j = schemas.length; i < j; i++) {
+            s = schemas[i];
+            if (schemas[i].id === key) {
+                s = schemas[i];
+                break;
+            }
+        }
+        if (s && s.ops && s.ops.length) {
+            aVal = val.split(',');
+            for (i = 0, j = s.ops.length; i < j; i++) {
+                aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].label);
+            }
+            if (aLab.length) return aLab.join(',');
+        }
+        return val;
+    };
 }]);
 formApp.directive('runningButton', function () {
     return {

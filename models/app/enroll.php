@@ -26,6 +26,7 @@ class enroll_model extends \matter\enroll_model {
                 $page = \TMS_APP::model('code/page')->byId($e->form_code_id, 'html,css,js');
                 $page->id = 0;
                 $page->name = 'form';
+                $page->type = 'I';
                 $page->code_id = $e->form_code_id;
                 $e->pages['form'] = $page;
                 // other page
@@ -1059,7 +1060,7 @@ class enroll_model extends \matter\enroll_model {
                         /**
                          * for checkbox group.
                          */
-                        if (preg_match('/ng-model="data\.(.+?)\.(\d+?)"/', $wrap, $ngmodel)) {
+                        if (preg_match('/ng-model="data\.(.+?)\.(.+?)"/', $wrap, $ngmodel)) {
                             $id = $ngmodel[1];
                             $opval = $ngmodel[2];
                         }
@@ -1081,7 +1082,7 @@ class enroll_model extends \matter\enroll_model {
                         $q = array(
                             'count(*)',
                             'xxt_enroll_record_data',
-                            "name='$id' and FIND_IN_SET($opval, value)"
+                            "name='$id' and FIND_IN_SET('$opval', value)"
                         );
                         $op['c'] = $this->query_val_ss($q);
                         //

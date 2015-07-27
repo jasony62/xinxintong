@@ -205,21 +205,35 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
     return {
         restrict: 'EA',
         scope: { date: '=tmsDate', title: '@tmsTitle', state: '@tmsState' },
-        templateUrl: '/static/template/datepicker.html',
+        templateUrl: '/static/template/datepicker.html?_=2',
         controller: ['$scope', '$modal', function ($scope, $modal) {
             $scope.open = function () {
                 $modal.open({
                     templateUrl: 'tmsModalDatepicker.html',
                     controller: ['$scope', '$modalInstance', 'date', function ($scope, $mi, date) {
+                        date = (function () { var d = new Date(); d.setTime(date == 0 ? d.getTime() : date * 1000); return d; })();
                         $scope.years = [2015, 2016, 2017];
                         $scope.months = [];
                         $scope.days = [];
+                        $scope.hours = [];
+                        $scope.minutes = [];
+                        $scope.date = {
+                            year: date.getFullYear(),
+                            month: date.getMonth() + 1,
+                            mday: date.getDate(),
+                            hour: date.getHours(),
+                            minute: date.getMinutes()
+                        };
                         for (var i = 1; i <= 12; i++)
                             $scope.months.push(i);
                         for (var i = 1; i <= 31; i++)
                             $scope.days.push(i);
-                        $scope.date = {};
+                        for (var i = 0; i <= 23; i++)
+                            $scope.hours.push(i);
+                        for (var i = 0; i <= 59; i++)
+                            $scope.minutes.push(i);
                         $scope.ok = function () { $mi.close($scope.date); };
+                        $scope.empty = function () { $mi.close(null); };
                         $scope.cancel = function () { $mi.dismiss('cancel'); };
                     }],
                     backdrop: 'static',
@@ -228,7 +242,8 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
                         date: function () { return $scope.date; }
                     }
                 }).result.then(function (result) {
-                    var d = Date.parse(result.year + '/' + result.month + '/' + result.mday) / 1000;
+                    var d;
+                    d = result === null ? 0 : Date.parse(result.year + '/' + result.month + '/' + result.mday + ' ' + result.hour + ':' + result.minute) / 1000;
                     $scope.date = d;
                     $scope.$emit('xxt.tms-datepicker.change', { state: $scope.state, value: d });
                 });

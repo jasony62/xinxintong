@@ -14,10 +14,6 @@
     </ul>
     <div class="tab-content">
         <div id='tab_form' class='tab-pane active'>
-            <div class='form-inline' style='margin:15px 0'>
-                <label class="checkbox-inline">
-                    <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.open_lastroll' ng-change="update('open_lastroll')">打开最后一条登记记录</label>
-            </div>
             <div class='form-group editor'>
                 <div>
                     <button class='btn' ng-class="editing.pages.form.$$modified?'btn-success':'btn-default'" ng-disabled='!editing.pages.form.$$modified'
@@ -254,12 +250,7 @@
                 <div class="form-group">
                     <label class="col-md-2 control-label">类型</label>
                     <div class="col-md-10">
-                        <select class='form-control' ng-model='def.type'>
-                            <option value='record'>登记项</option>
-                            <option value='list'>登记清单</option>
-                            <option value='remarks'>评论清单</option>
-                            <option value='rounds'>轮次清单</option>
-                        </select>
+                        <select class='form-control' ng-model='def.type' ng-options="k as v.l for (k,v) in options"></select>
                     </div>
                 </div>
                 <div class="form-group" ng-show="def.type==='list'">

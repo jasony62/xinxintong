@@ -197,6 +197,8 @@ class enroll_model extends \matter\enroll_model {
      */
     public function enroll($mpid, $act, $openid, $vid='', $mid='')
     {
+        $fan = \TMS_APP::M('user/fans')->byOpenid($mpid, $openid);
+        
         $ek = $this->genEnrollKey($mpid, $act->id);
         $i = array(
             'aid' => $act->id,
@@ -204,6 +206,7 @@ class enroll_model extends \matter\enroll_model {
             'enroll_at' => time(),
             'enroll_key' => $ek,
             'openid' => $openid,
+            'nickname' => $fan->nickname,
             'vid' => $vid,
             'mid' => $mid,
         );
@@ -276,8 +279,8 @@ class enroll_model extends \matter\enroll_model {
     public function getRecordById($ek)
     {
         $q = array(
-            'e.enroll_key,e.enroll_at,e.signin_at,e.score,e.openid,f.nickname,e.rid',
-            'xxt_enroll_record e left join xxt_fans f on e.mpid=f.mpid and e.openid=f.openid',
+            'e.enroll_key,e.enroll_at,e.signin_at,e.score,e.openid,e.nickname,e.rid',
+            'xxt_enroll_record e',
             "e.enroll_key='$ek'"
         );
 
@@ -455,36 +458,20 @@ class enroll_model extends \matter\enroll_model {
          * 获得活动的定义
          */
         $q = array(
-            'a.wxyx_only,a.fans_only,a.access_control,p.html form_html',
+            'a.access_control,p.html form_html',
             'xxt_enroll a,xxt_code_page p',
             "a.id='$aid' and a.form_code_id=p.id"
         );
         $act = $this->query_obj_ss($q);
         // 返回的结果
         $result = array(array(),array());
-
         $w = "e.aid='$aid'";
         $w .= " and not exists(select 1 from xxt_enroll_lottery l where e.enroll_key=l.enroll_key)";
-        // todo 逻辑有问题，如果要求既是粉丝又是会员怎么办？
-        if ($act->wxyx_only === 'Y') {
-            $q = array(
-                'e.id,e.enroll_key,f.nickname,e.openid,e.enroll_at,signin_at,e.tags',
-                'xxt_enroll_record e left join xxt_fans f on e.mpid=f.mpid and e.openid=f.openid',
-                $w
-            );
-        } else if ($act->fans_only === 'Y') {
-            $q = array(
-                'e.id,e.enroll_key,f.nickname,e.openid,e.enroll_at,signin_at,e.tags',
-                'xxt_enroll_record e left join xxt_fans f on e.mpid=f.mpid and e.openid=f.openid',
-                $w
-            );
-        } else {
-            $q = array(
-                'e.id,e.enroll_key,e.openid,e.enroll_at,signin_at,e.tags',
-                'xxt_enroll_record e',
-                $w
-            );
-        }
+        $q = array(
+            'e.id,e.enroll_key,e.nickname,e.openid,e.enroll_at,signin_at,e.tags',
+            'xxt_enroll_record e',
+            $w
+        );
         $q2['o'] = 'e.enroll_at desc';
         /**
          * 获得填写的登记数据
@@ -558,7 +545,7 @@ class enroll_model extends \matter\enroll_model {
          * 获得活动的定义
          */
         $q = array(
-            'wxyx_only,fans_only,access_control',
+            'access_control',
             'xxt_enroll',
             "id='$aid'"
         );
@@ -587,7 +574,7 @@ class enroll_model extends \matter\enroll_model {
          * 获得活动的定义
          */
         $q = array(
-            'wxyx_only,fans_only,access_control',
+            'access_control',
             'xxt_enroll',
             "id='$aid'"
         );
@@ -808,7 +795,7 @@ class enroll_model extends \matter\enroll_model {
          * 获得活动的定义
          */
         $q = array(
-            'a.wxyx_only,a.fans_only,a.access_control,p.html form_html',
+            'a.access_control,p.html form_html',
             'xxt_enroll a,xxt_code_page p',
             "a.id='$aid' and a.form_code_id=p.id"
         );
@@ -847,20 +834,7 @@ class enroll_model extends \matter\enroll_model {
                 $w .= "and concat(',',e.tags,',') like '%,$tag,%'";
             }
         }
-        // todo 逻辑有问题，如果要求既是粉丝又是会员怎么办？
-        if ($act->wxyx_only === 'Y') {
-            $q = array(
-                'e.enroll_key,f.fid,f.nickname,f.openid,f.headimgurl,e.enroll_at,signin_at,e.tags,e.score,s.score myscore,e.remark_num',
-                "xxt_enroll_record e left join xxt_fans f on e.mpid=f.mpid and e.openid=f.openid left join xxt_enroll_record_score s on s.enroll_key=e.enroll_key and s.openid='$visitor'",
-                $w
-            );
-        } else if ($act->fans_only === 'Y') {
-            $q = array(
-                'e.enroll_key,f.fid,f.nickname,f.openid,f.headimgurl,e.enroll_at,signin_at,e.tags,e.score,s.score myscore,e.remark_num',
-                "xxt_enroll_record e left join xxt_fans f on e.mpid=f.mpid and e.openid=f.openid left join xxt_enroll_record_score s on s.enroll_key=e.enroll_key and s.openid='$visitor'",
-                $w
-            );
-        } else if ($act->access_control === 'Y') {
+        if ($act->access_control === 'Y') {
             $q = array(
                 'e.enroll_key,m.name,m.mobile,e.enroll_at,e.signin_at,e.tags,e.score,e.remark_num,m.mid',
                 "xxt_enroll_record e left join xxt_member m on m.forbidden='N' and e.mid=m.mid",
@@ -868,8 +842,8 @@ class enroll_model extends \matter\enroll_model {
             );
         } else {
             $q = array(
-                'e.enroll_key,e.enroll_at,e.signin_at,e.score,e.remark_num,e.tags',
-                'xxt_enroll_record e',
+                'e.enroll_key,f.fid,f.nickname,f.openid,f.headimgurl,e.enroll_at,signin_at,e.tags,e.score,s.score myscore,e.remark_num',
+                "xxt_enroll_record e left join xxt_fans f on e.mpid=f.mpid and e.openid=f.openid left join xxt_enroll_record_score s on s.enroll_key=e.enroll_key and s.openid='$visitor'",
                 $w
             );
         }

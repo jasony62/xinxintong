@@ -8,8 +8,8 @@ class record_model extends \TMS_MODEL {
     public function byId($ek, $cascaded='Y')
     {
         $q = array(
-            'e.*,f.nickname',
-            'xxt_enroll_record e left join xxt_fans f on e.mpid=f.mpid and e.openid=f.openid',
+            'e.*',
+            'xxt_enroll_record e',
             "e.enroll_key='$ek'"
         );
         if (($record = $this->query_obj_ss($q)) && $cascaded === 'Y') {
@@ -67,7 +67,7 @@ class record_model extends \TMS_MODEL {
          * 获得活动的定义
          */
         $q = array(
-            'a.wxyx_only,a.fans_only,a.access_control',
+            'a.access_control',
             'xxt_enroll a',
             "a.id='$aid'"
         );
@@ -103,20 +103,7 @@ class record_model extends \TMS_MODEL {
                 $w .= "and concat(',',e.tags,',') like '%,$tag,%'";
             }
         }
-        // todo 逻辑有问题，如果要求既是粉丝又是会员怎么办？
-        if ($act->wxyx_only === 'Y') {
-            $q = array(
-                'e.enroll_key,f.fid,f.nickname,f.openid,f.headimgurl,e.enroll_at,signin_at,e.tags,e.score,s.score myscore,e.remark_num',
-                "xxt_enroll_record e left join xxt_fans f on e.mpid=f.mpid and e.openid=f.openid left join xxt_enroll_record_score s on s.enroll_key=e.enroll_key and s.openid='$visitor'",
-                $w
-            );
-        } else if ($act->fans_only === 'Y') {
-            $q = array(
-                'e.enroll_key,f.fid,f.nickname,f.openid,f.headimgurl,e.enroll_at,signin_at,e.tags,e.score,s.score myscore,e.remark_num',
-                "xxt_enroll_record e left join xxt_fans f on e.mpid=f.mpid and e.openid=f.openid left join xxt_enroll_record_score s on s.enroll_key=e.enroll_key and s.openid='$visitor'",
-                $w
-            );
-        } else if ($act->access_control === 'Y') {
+        if ($act->access_control === 'Y') {
             $q = array(
                 'e.enroll_key,m.name,m.mobile,e.enroll_at,e.signin_at,e.tags,e.score,e.remark_num,m.mid',
                 "xxt_enroll_record e left join xxt_member m on m.forbidden='N' and e.mid=m.mid",
@@ -124,8 +111,8 @@ class record_model extends \TMS_MODEL {
             );
         } else {
             $q = array(
-                'e.enroll_key,e.enroll_at,e.signin_at,e.score,e.remark_num,e.tags',
-                'xxt_enroll_record e',
+                'e.enroll_key,f.fid,f.nickname,f.openid,f.headimgurl,e.enroll_at,signin_at,e.tags,e.score,s.score myscore,e.remark_num',
+                "xxt_enroll_record e left join xxt_fans f on e.mpid=f.mpid and e.openid=f.openid left join xxt_enroll_record_score s on s.enroll_key=e.enroll_key and s.openid='$visitor'",
                 $w
             );
         }

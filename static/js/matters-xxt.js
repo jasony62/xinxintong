@@ -246,17 +246,21 @@ xxtMatters.directive('tinymce', function ($timeout) {
                     },
                     init_instance_callback: function () {
                         scope.initialized = true;
-                        if (scope.content !== undefined)
+                        if (scope.content !== undefined) {
                             tinymce.get(scope.id).setContent(scope.content);
+                            scope.setContentDone = true;
+                        }
                         if (scope.contenteditable !== undefined)
                             $(tinymce.activeEditor.getBody()).attr('contenteditable', scope.contenteditable);
                         scope.$emit('tinymce.instance.init');
                     }
                 });
             }, 1);
+            scope.setContentDone = false;
             scope.$watch('content', function (nv) {
-                if (nv && nv.length && scope.initialized) {
+                if (!scope.setContentDone && nv && nv.length && scope.initialized) {
                     tinymce.get(scope.id).setContent(nv);
+                    scope.setContentDone = true;
                 }
             });
             scope.$on('$destroy', function () {

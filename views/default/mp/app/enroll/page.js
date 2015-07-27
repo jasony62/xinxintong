@@ -1,22 +1,19 @@
 (function () {
-    var WrapLib = function () {
-    };
+    var WrapLib = function () { };
     WrapLib.prototype.addWrap = function (page, name, attrs, html) {
-        var dom, body, wrap, newWrap, selection, activeEditor;
+        var dom, body, wrap, newWrap, selection, activeEditor, $activeWrap, $upmost;
         activeEditor = tinymce.get(page.name);
         dom = activeEditor.dom;
         body = activeEditor.getBody();
-        selection = activeEditor.selection;
-        wrap = selection.getNode();
-        if (wrap === body) {
-            newWrap = dom.add(body, name, attrs, html);
-        } else {
-            while (wrap.parentNode !== body)
-                wrap = wrap.parentNode;
+        $activeWrap = $(body).find('[wrap].active');
+        if ($activeWrap.length) {
+            $upmost = $activeWrap.parents('[wrap]');
+            $upmost = $upmost.length === 0 ? $activeWrap : $($upmost.get($upmost.length - 1));
             newWrap = dom.create(name, attrs, html);
-            dom.insertAfter(newWrap, wrap);
+            dom.insertAfter(newWrap, $upmost[0]);
+        } else {
+            newWrap = dom.add(body, name, attrs, html);
         }
-        selection.setCursorLocation(newWrap, 0);
         activeEditor.save();
     };
     WrapLib.prototype.extractInputSchema = function (wrap) {
@@ -118,7 +115,6 @@
                     break;
             }
         }
-        console.log('defs', defs);
         return defs;
     };
     WrapLib.prototype.changeEmbedInput = function (page, wrap, def) {
@@ -492,19 +488,19 @@
                 }],
             }).result.then(function (def) { wrapLib.embedInput(page, def); });
         };
-        var embedButtonCtrl = ['$scope', '$modalInstance', 'pages', 'def', function ($scope, $mi, pages, def) {
+        var embedButtonCtrl = ['$scope', '$modalInstance', 'enroll', 'def', function ($scope, $mi, enroll, def) {
             var page, targetPages = {};
             $scope.buttons = {
                 submit: { l: '提交信息' },
                 addRecord: { l: '新增登记' },
                 editRecord: { l: '修改登记' },
-                likeRecord: { l: '点赞' },
-                remarkRecord: { l: '评论' },
                 gotoPage: { l: '页面导航' },
-                closeWindow: { l: '关闭页面' }
+                closeWindow: { l: '关闭页面' },
             };
-            for (var p in pages) {
-                page = pages[p];
+            enroll.can_like_record === 'Y' && ($scope.buttons.likeReocrd = { l: '点赞' });
+            enroll.can_remark_record === 'Y' && ($scope.buttons.remarkRecord = { l: '评论' });
+            for (var p in enroll.pages) {
+                page = enroll.pages[p];
                 targetPages[page.name] = { l: page.title };
             }
             targetPages.closeWindow = { l: '关闭页面' };
@@ -518,7 +514,7 @@
                 templateUrl: 'embedButtonLib.html',
                 backdrop: 'static',
                 resolve: {
-                    pages: function () { return $scope.editing.pages; },
+                    enroll: function () { return $scope.editing; },
                     def: function () { return { type: '', label: '', next: '' }; }
                 },
                 controller: embedButtonCtrl,
@@ -529,11 +525,17 @@
                 templateUrl: 'embedShowLib.html',
                 backdrop: 'static',
                 resolve: {
-                    pages: function () { return $scope.editing.pages; },
+                    enroll: function () { return $scope.editing; },
                     schema: function () { return extractSchema(); }
                 },
-                controller: ['$scope', '$modalInstance', 'pages', 'schema', function ($scope, $mi, pages, schema) {
-                    $scope.pages = pages;
+                controller: ['$scope', '$modalInstance', 'enroll', 'schema', function ($scope, $mi, enroll, schema) {
+                    $scope.options = {
+                        record: { l: '登记项' },
+                        list: { l: '登记清单' },
+                    };
+                    enroll.multi_rounds === 'Y' && ($scope.options.rounds = { l: '轮次清单' });
+                    enroll.can_remark_record === 'Y' && ($scope.options.remarks = { l: '评论清单' });
+                    $scope.pages = enroll.pages;
                     $scope.def = { type: 'record', inline: true, splitLine: true, dataScope: 'U', canLike: 'N', onclick: '', addEnrollAt: 0, addNickname: 0 };
                     $scope.def.schema = schema;
                     $scope.ok = function () { $mi.close($scope.def); };
@@ -606,7 +608,7 @@
                     templateUrl: 'embedButtonLib.html',
                     backdrop: 'static',
                     resolve: {
-                        pages: function () { return $scope.editing.pages; },
+                        enroll: function () { return $scope.editing; },
                         def: function () { return def; }
                     },
                     controller: embedButtonCtrl,

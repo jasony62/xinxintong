@@ -65,7 +65,8 @@
                 <label class='col-md-2 control-label'>开始时间（可选）</label>
                 <div class='col-md-10 form-inline'>
                     <tms-datepicker tms-title='开始时间' tms-date='editing.start_at' tms-state='start_at'></tms-datepicker>
-                    <select title='进入页面' class='form-control' ng-model='editing.before_start_page' ng-options='pname as page.title for (pname, page) in editing.pages' ng-change="update('before_start_page')">
+                    <select title='进入页面' class='form-control' ng-model='editing.before_start_page' ng-options='pname as page.title for (pname, page) in editing.pages'
+                    ng-change="update('before_start_page')">
                         <option value=''></option>
                     </select>
                 </div>
@@ -74,7 +75,8 @@
                 <label class='col-md-2 control-label'>结束时间（可选）</label>
                 <div class='col-md-10 form-inline'>
                     <tms-datepicker tms-title='结束时间' tms-date='editing.end_at' tms-state='end_at'></tms-datepicker>
-                    <select title='进入页面' class='form-control' ng-model='editing.after_end_page' ng-options='pname as page.title for (pname, page) in editing.pages' ng-change="update('after_end_page')">
+                    <select title='进入页面' class='form-control' ng-model='editing.after_end_page' ng-options='pname as page.title for (pname, page) in editing.pages'
+                    ng-change="update('after_end_page')">
                         <option value=''></option>
                     </select>
                 </div>
@@ -83,11 +85,15 @@
                 <label class='col-md-2 control-label'>可见范围</label>
                 <div class='col-md-10'>
                     <div class='checkbox'>
-                        <label><input type='checkbox' ng-disabled="editing.creater!==editing.uid" ng-model='editing.public_visible' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update( 'public_visible') ">设置为公开可见</label>
+                        <label>
+                            <input type='checkbox' ng-disabled="editing.creater!==editing.uid" ng-model='editing.public_visible' ng-true-value="'Y'"
+                            ng-false-value="'N'" ng-change="update( 'public_visible') ">设置为公开可见</label>
                     </div>
                 </div>
             </div>
-            <accesscontrol mpid='{{mpaccount.mpid}}' obj='editing' title='参与限制' label='仅限认证用户参与' prop-acl='acl' prop-access='access_control' prop-apis='authapis' update-access-control="update( 'access_control') " update-authapis="update( 'authapis') " change-acl-url='/rest/mp/app/enroll/setAcl?id={{aid}}' remove-acl-url='/rest/mp/app/enroll/removeAcl' label-span='2' control-span='10'></accesscontrol>
+            <accesscontrol mpid='{{mpaccount.mpid}}' obj='editing' title='参与限制' label='仅限认证用户参与' prop-acl='acl' prop-access='access_control'
+            prop-apis='authapis' update-access-control="update( 'access_control') " update-authapis="update( 'authapis') " change-acl-url='/rest/mp/app/enroll/setAcl?id={{aid}}'
+            remove-acl-url='/rest/mp/app/enroll/removeAcl' label-span='2' control-span='10'></accesscontrol>
             <div class='form-group'>
                 <label class='col-md-2 control-label'>参与规则</label>
                 <div class='col-md-10'>
@@ -105,24 +111,33 @@
                                 <td>未指定时</td>
                                 <td>
                                     <div class='form-inline'>
-                                        <select class='form-control' ng-change="updateEntryRule()" ng-model='editing.entry_rule.otherwise.entry' ng-options='pname as page.title for (pname, page) in editing.pages'>
-                                        </select>
-                                        <button class='btn btn-default'><span class='glyphicon glyphicon-plus'></span></button>
-                                        <button class='btn btn-default'><span class='glyphicon glyphicon-edit'></span></button>
+                                        <select class='form-control' ng-change="updateEntryRule()" ng-model='editing.entry_rule.otherwise.entry' ng-options='pname as page.title for (pname, page) in editing.pages'></select>
+                                        <button class='btn btn-default'>
+                                            <span class='glyphicon glyphicon-plus'></span>
+                                        </button>
+                                        <button class='btn btn-default'>
+                                            <span class='glyphicon glyphicon-edit'></span>
+                                        </button>
                                     </div>
                                 </td>
                                 <td></td>
                                 <td></td>
                             </tr>
                             <tr>
-                                <td>认证用户<span ng-if="editing.acl.length">（在白名单）</span></td>
+                                <td>认证用户
+                                    <span ng-if="editing.acl.length">（在白名单）</span>
+                                </td>
                                 <td>
                                     <div class='form-inline'>
                                         <select class='form-control' ng-change="updateEntryRule()" ng-model='editing.entry_rule.member.entry' ng-options='pname as page.title for (pname, page) in editing.pages'>
                                             <option value=''></option>
                                         </select>
-                                        <button class='btn btn-default'><span class='glyphicon glyphicon-plus'></span></button>
-                                        <button class='btn btn-default'><span class='glyphicon glyphicon-edit'></span></button>
+                                        <button class='btn btn-default'>
+                                            <span class='glyphicon glyphicon-plus'></span>
+                                        </button>
+                                        <button class='btn btn-default'>
+                                            <span class='glyphicon glyphicon-edit'></span>
+                                        </button>
                                     </div>
                                 </td>
                                 <td>
@@ -136,15 +151,19 @@
                                     </select>
                                 </td>
                             </tr>
-                            <tr >
+                            <tr>
                                 <td>认证用户（不在白名单）</td>
                                 <td>
                                     <div class='form-inline'>
                                         <select class='form-control' ng-change="updateEntryRule()" ng-model='editing.entry_rule.member_outacl.entry' ng-options='p.name as p.title for p in pages4OutAcl'>
                                             <option value=''></option>
                                         </select>
-                                        <button class='btn btn-default'><span class='glyphicon glyphicon-plus'></span></button>
-                                        <button class='btn btn-default'><span class='glyphicon glyphicon-edit'></span></button>
+                                        <button class='btn btn-default'>
+                                            <span class='glyphicon glyphicon-plus'></span>
+                                        </button>
+                                        <button class='btn btn-default'>
+                                            <span class='glyphicon glyphicon-edit'></span>
+                                        </button>
                                     </div>
                                 </td>
                                 <td>
@@ -168,8 +187,12 @@
                                         <select class='form-control' ng-change="updateEntryRule()" ng-model='editing.entry_rule.fan.entry' ng-options='p.name as p.title for p in pages4Unauth'>
                                             <option value=''></option>
                                         </select>
-                                        <button class='btn btn-default'><span class='glyphicon glyphicon-plus'></span></button>
-                                        <button class='btn btn-default'><span class='glyphicon glyphicon-edit'></span></button>
+                                        <button class='btn btn-default'>
+                                            <span class='glyphicon glyphicon-plus'></span>
+                                        </button>
+                                        <button class='btn btn-default'>
+                                            <span class='glyphicon glyphicon-edit'></span>
+                                        </button>
                                     </div>
                                 </td>
                                 <td>
@@ -190,10 +213,13 @@
                                 <td>非关注用户</td>
                                 <td>
                                     <div class='form-inline'>
-                                        <select class='form-control' ng-change="updateEntryRule()" ng-model='editing.entry_rule.nonfan.entry' ng-options="p.name as p.title for p in pages4Nonfan">
-                                        </select>
-                                        <button class='btn btn-default'><span class='glyphicon glyphicon-plus'></span></button>
-                                        <button class='btn btn-default'><span class='glyphicon glyphicon-edit'></span></button>
+                                        <select class='form-control' ng-change="updateEntryRule()" ng-model='editing.entry_rule.nonfan.entry' ng-options="p.name as p.title for p in pages4Nonfan"></select>
+                                        <button class='btn btn-default'>
+                                            <span class='glyphicon glyphicon-plus'></span>
+                                        </button>
+                                        <button class='btn btn-default'>
+                                            <span class='glyphicon glyphicon-edit'></span>
+                                        </button>
                                     </div>
                                 </td>
                                 <td>
@@ -213,7 +239,14 @@
                 </div>
             </div>
             <div class='form-group'>
-                <label class='col-md-2 control-label'>已登记过显示</label>
+                <label class='col-md-2 control-label'>已登记过时</label>
+                <div class='col-md-10'>
+                    <label class='checkbox-inline'>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.open_lastroll' ng-change="update('open_lastroll')">显示已登记记录</label>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>已登记过时进入</label>
                 <div class='col-md-10'>
                     <select class='form-control' ng-model='editing.enrolled_entry_page' ng-options='pname as page.title for (pname, page) in editing.pages'
                     ng-change="update('enrolled_entry_page')">
@@ -221,11 +254,14 @@
                     </select>
                 </div>
             </div>
-            <accesscontrol mpid='{{mpaccount.mpid}}' obj='editing' prop-access='canSetReceiver' update-access-control=false prop-acl='receiver' label-of-list='登记活动管理员' change-acl-url='/rest/mp/app/enroll/setEnrollReceiver?aid={{aid}}' remove-acl-url='/rest/mp/app/enroll/delEnrollReceiver' label-span='2' control-span='10' hide-access-control=true></accesscontrol>
+            <accesscontrol mpid='{{mpaccount.mpid}}' obj='editing' prop-access='canSetReceiver' update-access-control=false prop-acl='receiver'
+            label-of-list='登记活动管理员' change-acl-url='/rest/mp/app/enroll/setEnrollReceiver?aid={{aid}}' remove-acl-url='/rest/mp/app/enroll/delEnrollReceiver'
+            label-span='2' control-span='10' hide-access-control=true></accesscontrol>
             <div class='form-group'>
                 <label class='col-md-2 control-label'>接收登记通知页</label>
                 <div class='col-md-10'>
-                    <select class='form-control' ng-model='editing.receiver_page' ng-options='pname as page.title for (pname, page) in editing.pages' ng-change="update( 'receiver_page') ">
+                    <select class='form-control' ng-model='editing.receiver_page' ng-options='pname as page.title for (pname, page) in editing.pages'
+                    ng-change="update( 'receiver_page') ">
                         <option value=''></option>
                     </select>
                 </div>
@@ -233,15 +269,23 @@
             <div class='form-group'>
                 <label class='col-md-2 control-label'>扩展功能</label>
                 <div class='col-md-10'>
-                    <label class='checkbox-inline'><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_signin' ng-change="update( 'can_signin'); ">支持签到</label>
-                    <label class='checkbox-inline'><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_lottery' ng-change="update( 'can_lottery'); ">支持抽奖</label>
-                    <label class='checkbox-inline'><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.remark_notice' ng-change="update( 'remark_notice'); ">登记评论提醒</label>
+                    <label class='checkbox-inline'>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_like_record' ng-change="update('can_like_record');">支持登记点赞</label>
+                    <label class='checkbox-inline'>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_remark_record' ng-change="update('can_remark_record');">支持登记评论</label>
+                    <label class='checkbox-inline'>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.remark_notice' ng-change="update('remark_notice');">登记评论提醒</label>
+                    <label class='checkbox-inline'>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_signin' ng-change="update('can_signin');">支持签到</label>
+                    <label class='checkbox-inline'>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_lottery' ng-change="update('can_lottery');">支持抽奖</label>
                 </div>
             </div>
             <div class='form-group' ng-if="editing.remark_notice==='Y'">
                 <label class='col-md-2 control-label'>接收评论提醒页</label>
                 <div class='col-md-10'>
-                    <select class='form-control' ng-model='editing.remark_notice_page' ng-options='pname as page.title for (pname, page) in editing.pages' ng-change="update( 'remark_notice_page')">
+                    <select class='form-control' ng-model='editing.remark_notice_page' ng-options='pname as page.title for (pname, page) in editing.pages'
+                    ng-change="update( 'remark_notice_page')">
                         <option value=''></option>
                     </select>
                 </div>
@@ -264,7 +308,8 @@
                 <label class='col-md-2 control-label'>提示PC端完成</label>
                 <div class='col-md-10'>
                     <div class='checkbox'>
-                        <label><input type='checkbox' ng-model='editing.shift2pc' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update( 'shift2pc')">用户在手机上打开时会引导用户转发到PC端打开。需在【账号管理/定制功能】中设置提示内容。</label>
+                        <label>
+                            <input type='checkbox' ng-model='editing.shift2pc' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update( 'shift2pc')">用户在手机上打开时会引导用户转发到PC端打开。需在【账号管理/定制功能】中设置提示内容。</label>
                     </div>
                 </div>
             </div>
@@ -272,7 +317,8 @@
                 <label class='col-md-2 control-label'>支持PC端任务码</label>
                 <div class='col-md-10'>
                     <div class='checkbox'>
-                        <label><input type='checkbox' ng-model='editing.can_taskcode' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update( 'can_taskcode') ">通过任务码直接在PC浏览器中输入（{{taskCodeEntryUrl}}）进入任务</label>
+                        <label>
+                            <input type='checkbox' ng-model='editing.can_taskcode' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update( 'can_taskcode') ">通过任务码直接在PC浏览器中输入（{{taskCodeEntryUrl}}）进入任务</label>
                     </div>
                 </div>
             </div>

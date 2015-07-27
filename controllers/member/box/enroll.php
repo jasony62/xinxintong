@@ -118,14 +118,9 @@ class enroll extends \member_base {
         $newact['pic'] = $copied->pic;
         $newact['summary'] = $copied->summary;
         $newact['public_visible'] = 'N';
-        $newact['wxyx_only'] = 'Y';
-        $newact['fans_only'] = 'N';
-        $newact['fans_enter_only'] = 'N';
-        $newact['nonfans_alert'] = '';
         $newact['open_lastroll'] = $copied->open_lastroll;
         $newact['can_signin'] = $copied->can_signin;
         $newact['can_lottery'] = 'N';
-        $newact['entry_page'] = $copied->entry_page;
         $newact['enrolled_entry_page'] = $copied->enrolled_entry_page;
         $newact['receiver_page'] = $copied->receiver_page;
         /**

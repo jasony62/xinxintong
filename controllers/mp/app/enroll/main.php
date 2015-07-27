@@ -149,7 +149,6 @@ class main extends \mp\app\app_base {
         $newone['creater_name'] = \TMS_CLIENT::account()->nickname;
         $newone['create_at'] = time();
         $newone['entry_rule'] = "{}";
-        $newone['nonfans_alert'] = "请先关注公众号，再参与活动！";
         /**
          * 创建定制页
          */
@@ -204,15 +203,10 @@ class main extends \mp\app\app_base {
         $newact['pic'] = $copied->pic;
         $newact['summary'] = $copied->summary;
         $newact['public_visible'] = $copied->public_visible;
-        $newact['wxyx_only'] = $copied->wxyx_only;
-        $newact['fans_only'] = $copied->fans_only;
-        $newact['fans_enter_only'] = $copied->fans_enter_only;
-        $newact['nonfans_alert'] = $copied->nonfans_alert;
         $newact['open_lastroll'] = $copied->open_lastroll;
         $newact['can_signin'] = $copied->can_signin;
         $newact['can_lottery'] = $copied->can_lottery;
         $newact['tags'] = $copied->tags;
-        $newact['entry_page'] = $copied->entry_page;
         $newact['enrolled_entry_page'] = $copied->enrolled_entry_page;
         $newact['receiver_page'] = $copied->receiver_page;
         $newact['entry_rule'] = json_encode($copied->entry_rule);
@@ -298,9 +292,6 @@ class main extends \mp\app\app_base {
             if (in_array($n, array('entry_rule'))) {
                 $nv[$n] = $this->model()->escape(urldecode($v));
             }
-            if (in_array($n, array('nonfans_alert'))) {
-                $nv[$n] = $this->model()->escape($v);
-            } 
         }
 
         $rst = $this->model()->update('xxt_enroll', $nv, "id='$aid'");

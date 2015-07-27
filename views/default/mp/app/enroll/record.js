@@ -104,6 +104,25 @@
         $scope.keywordKeyup = function (evt) {
             evt.which === 13 && $scope.doSearch();
         };
+        $scope.value2Label = function (val, key) {
+            var i, j, s, aVal, aLab = [];
+            if (val === undefined) return '';
+            for (i = 0, j = $scope.cols.length; i < j; i++) {
+                s = $scope.cols[i];
+                if ($scope.cols[i].id === key) {
+                    s = $scope.cols[i];
+                    break;
+                }
+            }
+            if (s && s.ops && s.ops.length) {
+                aVal = val.split(',');
+                for (i = 0, j = s.ops.length; i < j; i++) {
+                    aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].label);
+                }
+                if (aLab.length) return aLab.join(',');
+            }
+            return val;
+        };
         $scope.editRecord = function (rollItem) {
             $modal.open({
                 templateUrl: 'editor.html',

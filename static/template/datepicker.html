@@ -1,6 +1,6 @@
 <div class="input-group">
     <div class="form-control" title="{{title}}">
-        <span ng-show="date!=0" ng-bind="date*1000|date:'yyyy-MM-dd'"></span>
+        <span ng-show="date!=0" ng-bind="date*1000|date:'yyyy-MM-dd HH:mm'"></span>
     </div>
     <span class="input-group-btn">
         <button class="btn btn-default" ng-click='open()'>
@@ -10,7 +10,7 @@
     <script type="text/ng-template" id="tmsModalDatepicker.html">
         <div class="modal-header">
             <button class="close" type="button" ng-click="cancel()">×</button>
-            <span class="modal-title h4">选择日期</span>
+            <span class="modal-title h5">选择日期</span>
         </div>
         <div class="modal-body form-horizontal">
             <div class='form-group'>
@@ -31,8 +31,21 @@
                     <select class='form-control' ng-model='date.mday' ng-options='d for d in days'></select>
                 </div>
             </div>
+            <div class='form-group'>
+                <label class='col-sm-2 control-label'>点</label>
+                <div class='col-sm-10'>
+                    <select class='form-control' ng-model='date.hour' ng-options='h for h in hours'></select>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='col-sm-2 control-label'>分</label>
+                <div class='col-sm-10'>
+                    <select class='form-control' ng-model='date.minute' ng-options='m for m in minutes'></select>
+                </div>
+            </div>
         </div>
         <div class="modal-footer">
+            <button class="btn btn-danger pull-left" ng-click="empty()">清除</button>
             <button class="btn btn-primary" ng-click="ok()">选择</button>
         </div>
     </script>

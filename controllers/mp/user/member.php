@@ -59,8 +59,8 @@ class member extends \mp\mp_controller {
         if (!empty($tag)) $w .= " and concat(',',m.tags,',') like '%,$tag,%'";
 
         $q = array(
-            'm.*,f.openid,f.nickname f_nickname', 
-            'xxt_member m left join xxt_fans f on m.fid=f.fid', 
+            'm.*', 
+            'xxt_member m', 
             $w
         );
         $q2['o'] = 'm.create_at desc';
@@ -119,21 +119,17 @@ class member extends \mp\mp_controller {
         /**
          * 设置缺省密码
          */
-        if ($attrs->attr_password[0] === '0')
-            $member->password = '123456';
-
-        if (!isset($member->email_verified))
-            $member->email_verified = ((int)$attrs->attr_email[4] === 1) ? 'N':'Y';
+        $attrs->attr_password[0] === '0' && $member->password = '123456';
+        !isset($member->email_verified) && $member->email_verified = ($attrs->attr_email[4] === '1') ? 'N' : 'Y';
 
         $member->mpid = $this->mpid;
-        //$member->fid = $fid;
         $member->authapi_id = $authid;
 
         $rst = $this->model('user/member')->create($fid, $member, $attrs);
         if ($rst[0] === false)
             return new \ResponseError($rst[1]);
+        
         $mid = $rst[1];
-
         $member = $this->model('user/member')->byId($mid);
 
         return new \ResponseData($member);
@@ -263,7 +259,7 @@ class member extends \mp\mp_controller {
     {
         $rst = $this->model()->update(
             'xxt_member', 
-            array('forbidden'=>'Y'), 
+            array('forbidden' => 'Y'), 
             "mid='$mid'"
         );
 
@@ -302,7 +298,7 @@ class member extends \mp\mp_controller {
         $all = implode(',', $all);
         $rst = $this->model()->update(
             'xxt_member', 
-            array('tags'=>$all),
+            array('tags' => $all),
             "mpid='$this->mpid' and mid='$mid'"
         );
 
@@ -335,7 +331,7 @@ class member extends \mp\mp_controller {
         $all = implode(',', $all);
         $rst = $this->model()->update(
             'xxt_member', 
-            array('tags'=>$all),
+            array('tags' => $all),
             "mpid='$this->mpid' and mid='$mid'"
         );
 

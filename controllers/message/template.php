@@ -45,8 +45,8 @@ class template extends xxt_base {
                 $authuser = $msg->touser;
                 $q = array(
                     'openid',
-                    'xxt_member m,xxt_fans f',
-                    "m.fid=f.fid and m.forbidden='N' and m.authed_identity='$authuser' and f.unsubscribe_at=0"
+                    'xxt_member m',
+                    "m.forbidden='N' and m.authed_identity='$authuser'"
                 );
                 if (!($openid = $this->model()->query_val_ss($q))) {
                     $msg->errmsg = '无法获得openid'; 

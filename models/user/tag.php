@@ -99,7 +99,7 @@ class tag_model extends TMS_MODEL {
         /**
          * 删除标签
          */
-        $rst = (int)$this->delete(
+        $this->delete(
             'xxt_member_tag',
             "mpid='$mpid' and id=$id"
         );

@@ -10,7 +10,8 @@
                                 <span class='input-group-addon'>
                                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='ia.valid' ng-change="updAuthapi(ia,'valid')">
                                 </span>
-                                <input type='text' class='form-control' style='width:200px' ng-model='ia.name' placeholder='输入名称' tms-auto-update tms-wait=1000 tms-update="updAuthapi(ia,'name')">
+                                <input type='text' class='form-control' style='width:200px' ng-model='ia.name' placeholder='输入名称' tms-auto-update tms-wait=1000
+                                tms-update="updAuthapi(ia,'name')">
                             </div>
                         </div>
                         <div class='form-group'>
@@ -39,23 +40,29 @@
                                 <tbody>
                                     <tr ng-repeat='attr in authAttrOps'>
                                         <td>{{attr[0]}}</td>
-                                        <td ng-repeat='op in attr[2]'><input type='checkbox' ng-show='op===$index' ng-disabled="ia.attrs[attr[1]][5]==='1'&&($index===0||$index===1||$index===2||$index===3)" ng-true-value="'1'" ng-false-value="'0'" ng-model="ia.attrs[attr[1]][$index]" ng-change="updAuthAttr(ia,attr[1])"></td>
+                                        <td ng-repeat='op in attr[2]'>
+                                            <input type='checkbox' ng-show='op===$index' ng-disabled="ia.attrs[attr[1]][5]==='1'&&($index===0||$index===1||$index===2||$index===3)"
+                                            ng-true-value="'1'" ng-false-value="'0'" ng-model="ia.attrs[attr[1]][$index]" ng-change="updAuthAttr(ia,attr[1])">
+                                        </td>
                                         <td></td>
                                     </tr>
                                     <tr ng-repeat='ea in ia.extattr'>
                                         <td>{{ea.label}}</td>
                                         <td></td>
-                                        <td><input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model="ea.cfg2[1]" ng-change="updAuthExtattr(ia,ea)"></td>
+                                        <td>
+                                            <input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model="ea.cfg2[1]" ng-change="updAuthExtattr(ia,ea)">
+                                        </td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td><a href='javascript:void(0)' ng-click='editExtattr(ia,ea)'>修改</a></td>
+                                        <td>
+                                            <a href='javascript:void(0)' ng-click='editExtattr(ia,ea)'>修改</a>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
                             <div class='alert alert-danger' ng-show="ia.attrs['mobile'][5]==='0'&&ia.attrs['email'][5]==='0'">至少指定一个字段作为身份标识</div>
-                            
                         </div>
                         <div class='form-group'>
                             <label>认证页面地址</label>
@@ -63,19 +70,25 @@
                         </div>
                         <div class='form-group'>
                             <label>进入认证页面前提示</label>
-                            <textarea class='form-control' title='进入前提示' ng-model='ia.entry_statement' placeholder='进入前提示' tms-auto-update tms-wait=1000 tms-update="updAuthapi(ia,'entry_statement')"></textarea>
+                            <textarea class='form-control' title='进入前提示' ng-model='ia.entry_statement' placeholder='进入前提示' tms-auto-update
+                            tms-wait=1000 tms-update="updAuthapi(ia,'entry_statement')"></textarea>
                         </div>
                         <div class='form-group'>
                             <label>不在白名单中提示</label>
-                            <textarea class='form-control' title='不在白名单中提示' ng-model='ia.acl_statement' placeholder='不在白名单中提示' tms-auto-update tms-wait=1000 tms-update="updAuthapi(ia,'acl_statement')"></textarea>
+                            <textarea class='form-control' title='不在白名单中提示' ng-model='ia.acl_statement' placeholder='不在白名单中提示' tms-auto-update
+                            tms-wait=1000 tms-update="updAuthapi(ia,'acl_statement')"></textarea>
                         </div>
                         <div class='form-group'>
                             <label>验证未通过提示</label>
-                            <textarea class='form-control' title='验证未通过提示' ng-model='ia.notpass_statement' placeholder='验证未通过提示' tms-auto-update tms-wait=1000 tms-update="updAuthapi(ia,'notpass_statement')"></textarea>
+                            <textarea class='form-control' title='验证未通过提示' ng-model='ia.notpass_statement' placeholder='验证未通过提示' tms-auto-update
+                            tms-wait=1000 tms-update="updAuthapi(ia,'notpass_statement')"></textarea>
                         </div>
                     </div>
                     <div class='alert alert-info' ng-show="ia.valid==='Y'" ng-if="mpaccount.mpsrc==='qy'">
-                        <button class='btn btn-default' ng-click='syncFromQy(ia)'>从企业号同步</button>
+                        <button class='btn btn-default' ng-click='syncFromQy(ia)'>
+                            <span>
+                                <i class='fa fa-refresh' ng-class="{'fa-spin':taskRunning}"></i> 从企业号同步</span>
+                        </button>
                         <span ng-show='ia.sync_from_qy_at>0'>上次从企业号通讯录同步时间：{{ia.sync_from_qy_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
                     </div>
                 </div>
@@ -86,9 +99,12 @@
                                 <span class='input-group-addon'>
                                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='a.valid' ng-change="updAuthapi(a,'valid')">
                                 </span>
-                                <input type='text' class='form-control' style='width:200px' ng-model='a.name' placeholder='输入名称' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'name')">
+                                <input type='text' class='form-control' style='width:200px' ng-model='a.name' placeholder='输入名称' tms-auto-update tms-wait=1000
+                                tms-update="updAuthapi(a,'name')">
                                 <span class="input-group-btn">
-                                    <button class="btn btn-default" type="button" ng-click='delAuthapi(a)'><span class='glyphicon glyphicon-remove'></span></button>
+                                    <button class="btn btn-default" type="button" ng-click='delAuthapi(a)'>
+                                        <span class='glyphicon glyphicon-remove'></span>
+                                    </button>
                                 </span>
                             </div>
                         </div>
@@ -117,38 +133,51 @@
                                 <tbody>
                                     <tr ng-repeat='attr in authAttrOps'>
                                         <td>{{attr[0]}}</td>
-                                        <td ng-repeat='op in attr[2]'><input type='checkbox' ng-if='op===$index' ng-true-value="'1'" ng-false-value="'0'" ng-model="a.attrs[attr[1]][$index]" ng-change="updAuthAttr(a,attr[1])"></td>
+                                        <td ng-repeat='op in attr[2]'>
+                                            <input type='checkbox' ng-if='op===$index' ng-true-value="'1'" ng-false-value="'0'" ng-model="a.attrs[attr[1]][$index]"
+                                            ng-change="updAuthAttr(a,attr[1])">
+                                        </td>
                                         <td></td>
                                     </tr>
                                     <tr ng-repeat='ea in a.extattr'>
                                         <td>{{ea.label}}</td>
-                                        <td><input type='checkbox' disabled ng-true-value="'1'" ng-false-value="'0'" ng-model="ea.cfg[0]" ng-change="updAuthExtattr(a,ea)"></td>
-                                        <td><input type='checkbox' disabled ng-true-value="'1'" ng-false-value="'0'" ng-model="ea.cfg[1]" ng-change="updAuthExtattr(a,ea)"></td>
+                                        <td>
+                                            <input type='checkbox' disabled ng-true-value="'1'" ng-false-value="'0'" ng-model="ea.cfg[0]" ng-change="updAuthExtattr(a,ea)">
+                                        </td>
+                                        <td>
+                                            <input type='checkbox' disabled ng-true-value="'1'" ng-false-value="'0'" ng-model="ea.cfg[1]" ng-change="updAuthExtattr(a,ea)">
+                                        </td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td><a href='javascript:void(0)' ng-click='editExtattr(a,ea)'>修改</a></td>
+                                        <td>
+                                            <a href='javascript:void(0)' ng-click='editExtattr(a,ea)'>修改</a>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                         <div class='form-group'>
                             <label>认证页面地址</label>
-                            <input type='text' class='form-control' ng-model='a.url' placeholder='输入URL' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'url')">
+                            <input type='text' class='form-control' ng-model='a.url' placeholder='输入URL' tms-auto-update tms-wait=1000
+                            tms-update="updAuthapi(a,'url')">
                             <div class='form-control-static'>{{fullAuthUrl(a)}}</div>
                         </div>
                         <div class='form-group'>
                             <label>进入认证页面前提示</label>
-                            <textarea class='form-control' title='进入前说明' ng-model='a.entry_statement' placeholder='进入前说明' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'entry_statement')"></textarea>
+                            <textarea class='form-control' title='进入前说明' ng-model='a.entry_statement' placeholder='进入前说明' tms-auto-update
+                            tms-wait=1000 tms-update="updAuthapi(a,'entry_statement')"></textarea>
                         </div>
                         <div class='form-group'>
                             <label>不在白名单中说明</label>
-                            <textarea class='form-control' title='不在白名单中说明' ng-model='a.acl_statement' placeholder='不在白名单中说明' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'acl_statement')"></textarea>
+                            <textarea class='form-control' title='不在白名单中说明' ng-model='a.acl_statement' placeholder='不在白名单中说明' tms-auto-update
+                            tms-wait=1000 tms-update="updAuthapi(a,'acl_statement')"></textarea>
                         </div>
                         <div class='form-group'>
                             <label>验证未通过说明</label>
-                            <textarea class='form-control' title='验证未通过说明' ng-model='a.notpass_statement' placeholder='验证未通过说明' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'notpass_statement')"></textarea>
+                            <textarea class='form-control' title='验证未通过说明' ng-model='a.notpass_statement' placeholder='验证未通过说明' tms-auto-update
+                            tms-wait=1000 tms-update="updAuthapi(a,'notpass_statement')"></textarea>
                         </div>
                     </div>
                     <div class='alert alert-info' ng-show="a.valid==='Y'" ng-if="mpaccount.mpsrc==='qy'">
@@ -157,7 +186,10 @@
                         <span ng-show='a.sync_to_qy_at>0'>上次同步到企业号通讯录时间：{{a.sync_to_qy_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
                     </div>
                     <div class='alert alert-info' ng-show="a.valid==='Y'" ng-if="mpaccount.mpsrc==='qy'">
-                        <button class='btn btn-default' ng-click='syncFromQy(a)'>从企业号同步</button>
+                        <button class='btn btn-default' ng-click='syncFromQy(a)'>
+                            <span>
+                                <i class='fa fa-refresh' ng-class="{'fa-spin':taskRunning}"></i> 从企业号同步</span>
+                        </button>
                         <span ng-show='a.sync_from_qy_at>0'>上次从企业号通讯录同步时间：{{a.sync_from_qy_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
                     </div>
                 </div>
@@ -175,9 +207,11 @@
                             <label class='col-md-2 control-label'>接口名称</label>
                             <div class='col-md-10'>
                                 <div class="input-group">
-                                    <input type='text' class='form-control' ng-model='r.title' ng-blur="updateRelay(r,'title');">
+                                    <input type='text' class='form-control' ng-model='r.title' tms-auto-update tms-wait=1000 tms-update="updateRelay(r,'title');">
                                     <span class="input-group-btn">
-                                        <button class="btn btn-default" type="button" ng-click='delRelay(r)'><span class='glyphicon glyphicon-remove'></span></button>
+                                        <button class="btn btn-default" type="button" ng-click='delRelay(r)'>
+                                            <span class='glyphicon glyphicon-remove'></span>
+                                        </button>
                                     </span>
                                 </div>
                             </div>
@@ -185,7 +219,7 @@
                         <div class='form-group'>
                             <label class='col-md-2 control-label'>接口地址</label>
                             <div class='col-md-10'>
-                                <textarea class='form-control' ng-model='r.url' ng-blur="updateRelay(r,'url');"></textarea>
+                                <textarea class='form-control' ng-model='r.url' tms-auto-update tms-wait=1000 tms-update="updateRelay(r,'url');"></textarea>
                             </div>
                         </div>
                     </div>

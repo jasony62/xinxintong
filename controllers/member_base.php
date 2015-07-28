@@ -47,12 +47,11 @@ class member_base extends xxt_base {
                      * 检查数据库中是否有匹配的记录
                      */
                     $q = array(
-                        'mid,fid,email_verified,authapi_id,authed_identity,depts,tags', 
+                        '*', 
                         'xxt_member', 
                         "authapi_id=$authid and mid='$mid' and forbidden='N'"
                     );
-                    if ($member = $this->model()->query_obj_ss($q))
-                        $members[] =  $member;
+                    $member = $this->model()->query_obj_ss($q) && $members[] =  $member;
                 }
             }
         }
@@ -76,9 +75,9 @@ class member_base extends xxt_base {
              * 优先根据openid判断用户的身份
              */
             $q = array(
-                'm.mid,m.name,m.email,m.mobile,m.fid,m.email_verified,m.authapi_id,m.authed_identity,m.depts,m.tags',
-                'xxt_member m,xxt_fans f',
-                "m.forbidden='N' and m.authapi_id in($authids) and m.fid=f.fid and f.openid='$openid'"
+                '*',
+                'xxt_member m',
+                "m.forbidden='N' and m.authapi_id in($authids) and m.openid='$openid'"
             );
             $members = $this->model()->query_objs_ss($q);
         } else {
@@ -262,10 +261,10 @@ class member_base extends xxt_base {
         foreach ($members as $member) {
             if ($this->canAccessObj($runningMpid, $objId, $member, $authapis, $obj)) {
                 /**
-                 * 检查用户是否通过了邮箱验证
+                 * 检查用户是否通过了验证
                  */
                 $q = array(
-                    'email_verified',
+                    'verified',
                     'xxt_member', 
                     "mpid='$runningMpid' and mid='$member->mid'"
                 );

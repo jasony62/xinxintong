@@ -154,8 +154,8 @@ class reply_model extends TMS_MODEL {
                 if (empty($mid))
                     $q = array(
                         'authed_identity',
-                        'xxt_fans f,xxt_member m',
-                        "f.mpid='$mpid' and m.forbidden='N' and f.mpid=m.mpid and f.openid='$openid' and f.fid=m.fid and authapi_id=$p->authapi_id"
+                        'xxt_member m',
+                        "m.mpid='$mpid' and m.forbidden='N' and m.openid='$openid' and m.authapi_id=$p->authapi_id"
                     );
                 else
                     $q = array(

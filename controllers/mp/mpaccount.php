@@ -327,47 +327,6 @@ class mpaccount extends mp_controller {
         return new \ResponseData($rst);
     }
     /**
-     * 获得定义的转发接口
-     */
-    public function relays_action()
-    {
-        $relays = $this->model('mp\mpaccount')->getRelays($this->mpid);
-
-        return new \ResponseData($relays);
-    }
-    /**
-     * 添加转发接口
-     */
-    public function addRelay_action()
-    {
-        $r['mpid'] = $this->mpid;
-        $r['title'] = '新转发接口';
-
-        $r = $this->model('mp\mpaccount')->addRelay($r);
-
-        return new \ResponseData($r);
-    }
-    /**
-     * 更新转发接口
-     */
-    public function updateRelay_action($rid)
-    {
-        $nv = $this->getPostJson();
-
-        $rst = $this->model()->update('xxt_mprelay', (array)$nv, "id='$rid'");
-
-        return new \ResponseData($rst);
-    }
-    /**
-     * 只有没有被使用的自定义接口才允许被删除 
-     */
-    public function delRelay_action($rid) 
-    {
-        $res = $this->model()->update('xxt_mprelay', array('state'=>0), "mpid='$this->mpid' and id='$rid'");
-
-        return new \ResponseData($rst);
-    }
-    /**
      * 设置的系统管理员
      */
     public function admins_action() 

@@ -655,9 +655,9 @@ class main extends \member_base {
     private function getUserMembers($mpid, $openid, $authapis) 
     {
         $q = array(
-            'm.mid,m.email_verified,m.authapi_id,m.authed_identity,m.depts,m.tags',
-            'xxt_member m,xxt_fans f',
-            "f.mpid='$mpid' and m.forbidden='N' and f.openid='$openid' and f.fid=m.fid"
+            '*',
+            'xxt_member m',
+            "f.mpid='$mpid' and m.forbidden='N' and m.openid='$openid'"
         );
         !empty($authapis) && $q[2] .= " and authapi_id in ($authapis)";
 

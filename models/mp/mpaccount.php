@@ -181,52 +181,6 @@ class mpaccount_model extends \TMS_MODEL {
         return $mpsetting;
     }
     /**
-     * 获得定义的转发接口
-     */
-    public function &getRelays($mpid)
-    {
-        $q = array(
-            '*',
-            'xxt_mprelay r',
-            "r.mpid='$mpid'"
-        );
-
-        if (!($mprelays = $this->query_objs_ss($q)))
-            $mprelays = array();
-
-        return $mprelays;
-    }
-    /**
-     * 获得定义的转发接口
-     */
-    public function &getRelay($id)
-    {
-        $q = array(
-            '*',
-            'xxt_mprelay r',
-            "r.id='$id'"
-        );
-
-        $mprelay = $this->query_obj_ss($q);
-
-        return $mprelay;
-    }
-    /**
-     * 添加转发接口
-     */
-    public function addRelay($aRelay)
-    {
-        $rid = $this->insert('xxt_mprelay', $aRelay, true);
-        $q = array(
-            '*',
-            'xxt_mprelay r',
-            "r.id='$rid'"
-        );
-        $relay = $this->query_obj_ss($q);
-
-        return $relay;
-    }
-    /**
      * 群发消息
      * 需要开通群发接口
      */

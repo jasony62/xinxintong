@@ -1,19 +1,7 @@
-xxtApp.factory('Authapi', function ($q, http2) {
-    var Authapi = function () {
-        this.baseUrl = '/rest/mp/authapi/';
-    };
-    Authapi.prototype.update = function (api, updated) {
-        var deferred = $q.defer(), promise = deferred.promise;
-        var url = this.baseUrl + 'update?type=' + api.type;
-        if (api.authid) url += '&id=' + api.authid;
-        http2.post(url, updated, function (rsp) {
-            deferred.resolve(rsp.data);
-        });
-        return promise;
-    };
-    return Authapi;
-});
-xxtApp.controller('apiCtrl', ['$rootScope', '$scope', 'http2', '$http', '$modal', 'Authapi', function ($rootScope, $scope, http2, $http, $modal, Authapi) {
+xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Authapi', function ($scope, http2, $http, $modal, Mp, Authapi) {
+    var service = {};
+    service.mp = new Mp();
+    service.authapi = new Authapi();
     $scope.days = [
         { n: '会话', v: '0' },
         { n: '1天', v: '1' },
@@ -29,7 +17,9 @@ xxtApp.controller('apiCtrl', ['$rootScope', '$scope', 'http2', '$http', '$modal'
         ['密码', 'password', [0, -1, -2, -3, -4, -5]],
     ];
     $scope.fullAuthUrl = function (authapi) {
-        return 'http://' + location.host + authapi.url + '?mpid=' + $scope.mpaccount.mpid + '&authid=' + authapi.authid;
+        var url = '';
+        !/^http/.test(authapi.url) && (url = 'http://' + location.host);
+        return url + authapi.url + '?mpid=' + $scope.mpaccount.mpid + '&authid=' + authapi.authid;
     };
     $scope.update = function (name) {
         var p = {};
@@ -125,30 +115,14 @@ xxtApp.controller('apiCtrl', ['$rootScope', '$scope', 'http2', '$http', '$modal'
         else {
             http2.get('/rest/code/create', function (rsp) {
                 var nv = { 'auth_code_id': rsp.data.id };
-                $scope.Authapi.update(authapi, nv).then(function (rsp) {
+                service.authapi.update(authapi, nv).then(function (rsp) {
                     authapi.auth_code_id = nv.auth_code_id;
                     location.href = '/rest/code?pid=' + nv.auth_code_id;
                 });
             });
         }
     };
-    $scope.addRelay = function () {
-        http2.get('/rest/mp/mpaccount/addRelay', function (rsp) {
-            $scope.relays.push(rsp.data);
-        });
-    };
-    $scope.updateRelay = function (r, name) {
-        var p = {};
-        p[name] = r[name];
-        http2.post('/rest/mp/mpaccount/updateRelay?rid=' + r.id, p);
-    };
-    $scope.delRelay = function (r) {
-        var url = '/rest/mp/mpaccount/delRelay?rid=' + r.id;
-        http2.post(url, function (rsp) {
-            var i = $scope.relays.indexOf(r);
-            $scope.relays.splice(i, 1);
-        });
-    };
+    $scope.taskRunning = false;
     $scope.backRunning = false;
     $scope.import2Qy = function (authapi) {
         var url = authapi.url + '/import2Qy';
@@ -161,11 +135,11 @@ xxtApp.controller('apiCtrl', ['$rootScope', '$scope', 'http2', '$http', '$modal'
             param && param.step && (url2 += '&step=' + param.step);
             $http.get(url2).success(function (rsp) {
                 $scope.backRunning = false;
-                param && ($rootScope.progmsg = '阶段：' + param.next + (param.step ? '，步骤：' + param.step : ''));
+                param && ($scope.$root.progmsg = '阶段：' + param.next + (param.step ? '，步骤：' + param.step : ''));
                 if (angular.isString(rsp))
-                    $rootScope.errmsg = rsp;
+                    $scope.$root.errmsg = rsp;
                 else if (rsp.err_code != 0)
-                    $rootScope.errmsg = rsp.err_msg;
+                    $scope.$root.errmsg = rsp.err_msg;
                 else if (rsp.data.param && rsp.data.param.next)
                     doImport(rsp.data.param);
             });
@@ -177,15 +151,17 @@ xxtApp.controller('apiCtrl', ['$rootScope', '$scope', 'http2', '$http', '$modal'
         url += '?mpid=' + $scope.mpaccount.mpid;
         url += '&authid=' + authapi.authid;
         http2.get(url, function (rsp) {
-            $rootScope.infomsg = rsp.data;
+            $scope.$root.infomsg = rsp.data;
         });
     };
     $scope.syncFromQy = function (authapi) {
+        $scope.taskRunning = true;
         var url = authapi.url + '/syncFromQy';
         url += '?mpid=' + $scope.mpaccount.mpid;
         url += '&authid=' + authapi.authid;
         http2.get(url, function (rsp) {
-            $rootScope.infomsg = rsp.data;
+            $scope.$root.progmsg = "同步" + rsp.data[0] + "个部门，" + rsp.data[1] + "个用户，" + rsp.data[2] + "个标签";
+            $scope.taskRunning = false;
         });
     };
     var shiftAuthapiAttr = function (authapi) {
@@ -205,26 +181,38 @@ xxtApp.controller('apiCtrl', ['$rootScope', '$scope', 'http2', '$http', '$modal'
                 ea.cfg2.push(ea.cfg.charAt(j));
         }
     };
-    http2.get('/rest/mp/mpaccount/relays', function (rsp) {
-        $scope.relays = rsp.data;
-    });
-    http2.get('/rest/mp/mpaccount/get', function (rsp) {
-        $scope.mpaccount = rsp.data;
-        http2.get('/rest/mp/authapi/get?own=Y', function (rsp) {
-            if (rsp.data.length > 0) {
-                var i, l, authapi;
-                for (i = 0, l = rsp.data.length; i < l; i++) {
-                    authapi = rsp.data[i];
-                    if (authapi.type === 'inner') {
-                        $scope.ia = authapi;
-                        $scope.ia.url2 = 'http://' + location.host + $scope.ia.url + '?mpid=' + $scope.mpaccount.mpid + '&authid=' + $scope.ia.authid;
-                    } else
-                        $scope.authapis.push(authapi);
-                    shiftAuthapiAttr(authapi);
-                }
+    $scope.addRelay = function () {
+        http2.get('/rest/mp/relay/add', function (rsp) {
+            $scope.relays.push(rsp.data);
+        });
+    };
+    $scope.updateRelay = function (r, name) {
+        var p = {};
+        p[name] = r[name];
+        http2.post('/rest/mp/relay/update?id=' + r.id, p);
+    };
+    $scope.delRelay = function (r) {
+        var url = '/rest/mp/relay/remove?id=' + r.id;
+        http2.get(url, function (rsp) {
+            var i = $scope.relays.indexOf(r);
+            $scope.relays.splice(i, 1);
+        });
+    };
+    service.mp.relayGet().then(function (data) { $scope.relays = data; });
+    service.mp.get().then(function (data) {
+        $scope.mpaccount = data;
+        service.authapi.get('Y').then(function (data) {
+            var i, l, authapi;
+            if (data.length > 0) for (i = 0, l = data.length; i < l; i++) {
+                authapi = data[i];
+                if (authapi.type === 'inner') {
+                    $scope.ia = authapi;
+                    $scope.ia.url2 = 'http://' + location.host + $scope.ia.url + '?mpid=' + $scope.mpaccount.mpid + '&authid=' + $scope.ia.authid;
+                } else
+                    $scope.authapis.push(authapi);
+                shiftAuthapiAttr(authapi);
             }
-            if (!$scope.ia) $scope.ia = { type: 'inner', valid: 'N' };
+            !$scope.ia && ($scope.ia = { type: 'inner', valid: 'N' });
         });
     });
-    $scope.Authapi = new Authapi();
 }]);

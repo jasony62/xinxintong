@@ -14,7 +14,7 @@ class member_model extends TMS_MODEL {
         if (empty($fid))
             return array(false, '仅支持对关注用户进行认证');
             
-        if (is_array($data)) $data = (object)$data;
+        is_array($data) && $data = (object)$data;
         /**
          * 处理访问口令
          */
@@ -26,11 +26,15 @@ class member_model extends TMS_MODEL {
             $data->password = $cpw;
             $data->password_salt = $salt;
         }
-
+        
+        $fan = \TMS_APP::M('user/fans')->byId($fid);
+        
         $create_at = time();
         $mid = md5(uniqid().$create_at); //member's id
         $data->mid = $mid;
         $data->fid = $fid;
+        $data->openid = $fan->openid;
+        $data->nickname = $fan->nickname;
         $data->create_at = $create_at;
         /**
          * 扩展属性
@@ -105,7 +109,6 @@ class member_model extends TMS_MODEL {
             $member->authed_identity = $member->email;
         else
             return array(false, '无法获得用户身份标识信息');
-        
         /**
          * 处理访问口令
          */
@@ -234,24 +237,25 @@ class member_model extends TMS_MODEL {
         $q = array(
             $fields,
             'xxt_member',
-            "mid='$mid'"
+            "mid='$mid' and forbidden='N'"
         );
-        $m = $this->query_obj_ss($q);
-        /**
-         * 部门信息
-         */
-        if (in_array('dept', $contain)) {
-            if (isset($m->depts) && !empty($m->depts))
-                $m->depts = $this->getDepts($m->mid, $m->depts);
-            else if (!isset($m->depts))
-                $m->depts = $this->getDepts($m->mid);
-            else
-                $m->depts = array();
-        }
-        /**
-         * 标签信息
-         */
-        if (in_array('tag', $contain)) {
+        if ($m = $this->query_obj_ss($q)) {
+            /**
+             * 部门信息
+             */
+            if (in_array('dept', $contain)) {
+                if (isset($m->depts) && !empty($m->depts))
+                    $m->depts = $this->getDepts($m->mid, $m->depts);
+                else if (!isset($m->depts))
+                    $m->depts = $this->getDepts($m->mid);
+                else
+                    $m->depts = array();
+            }
+            /**
+             * 标签信息
+             */
+            if (in_array('tag', $contain)) {
+            }
         }
 
         return $m;
@@ -269,8 +273,8 @@ class member_model extends TMS_MODEL {
     {
         $q = array(
             $fields,
-            'xxt_member m,xxt_fans f',
-            "m.mpid='$mpid' and m.fid=f.fid and f.openid='$openid' and m.forbidden='N' and exists(select 1 from xxt_member_authapi a where m.authapi_id=a.authid and a.valid='Y')"
+            'xxt_member m',
+            "m.mpid='$mpid' and m.openid='$openid' and m.forbidden='N' and exists(select 1 from xxt_member_authapi a where m.authapi_id=a.authid and a.valid='Y')"
         );
         if (empty($authid))
             $member = $this->query_objs_ss($q);

@@ -28,45 +28,30 @@ class wall extends \member_base {
      */
     public function index_action($mpid, $wid=null, $mocker='', $code=null) 
     {
-        if ($code !== null)
-            $who = $this->getOAuthUserByCode($mpid, $code);
-        else {
-            if (!empty($mocker)) {
-                /**
-                 * 为测试方便使用
-                 */
-                $who = $mocker;
-                $this->setCookieOAuthUser($mpid, $mocker);
-            } else {
-                if (!$this->oauth($mpid))
-                    $who = null;
-            }
-        }
-
-        $this->afterOAuth($mpid, $wid, $who);
+        $openid = doAuth($mpid, $code, $mocker);
+        $this->afterOAuth($mpid, $wid, $openid);
     }
     /**
      * 需要通过OAuth确认用户的身份
      */
     private function afterOAuth($mpid, $wid, $who=null)
     {
+        $openid = !empty($who) ? $who : $this->getCookieOAuthUser($mpid);
+        
         if (isset($wid)) { 
             $wid = $state->wid;
             $model = $this->model('app\wall');
             $wall = $model->byId($wid, 'wid,mpid,title,entry_ele,entry_css,access_control,authapis');
-
-            $ooid = !empty($who) ? $who : $this->getCookieOAuthUser($wall->mpid);
-
             if ($wall->access_control === 'Y')
-                $this->accessControl($wall->mpid, $wid, $wall->authapis, $ooid, $wall);
+                $this->accessControl($mpid, $wid, $wall->authapis, $openid, $wall);
 
             \TPL::assign('title', $wall->title);
             \TPL::assign('mpid', $mpid);
             \TPL::assign('wid', $wid);
-            \TPL::assign('ooid', $ooid);
+            \TPL::assign('ooid', $openid);
             \TPL::assign('entry_ele', $wall->entry_ele);
             \TPL::assign('entry_css', $wall->entry_css);
-            if ($model->joinedWall($mpid, $wid, $ooid))
+            if ($model->joinedWall($mpid, $wid, $openid))
                 \TPL::assign('joined', 'Y');
 
             $this->view_action('/app/wall/main');
@@ -82,26 +67,21 @@ class wall extends \member_base {
             );
             $q2['o'] = 'create_at desc';
             $walls = $this->model()->query_objs_ss($q);
-
-            $ooid = !empty($who) ? $who : $this->getCookieOAuthUser($mpid);
             /**
              * 当前用户可访问的讨论组
              */
-            $q = array(
-                '*',
-                'xxt_member',
-                "mpid='$mpid' and ooid='$ooid'"
-            );
-            $me = $this->model()->query_obj_ss($q);
             $mywalls = array();
-            foreach ($walls as $wall) {
-                if ($this->model('acl')->canAccessMatter($mpid, 'wall', $wall->wid, $me, $wall->authapis))
-                    $mywalls[] = $wall;
+            $members = $this->model('user/member')->byOpenid($mpid, $openid);
+            foreach ($members as $me) {
+                foreach ($walls as $wall) {
+                    if ($this->model('acl')->canAccessMatter($mpid, 'wall', $wall->wid, $me, $wall->authapis))
+                        $mywalls[] = $wall;
+                }
             }
             if (count($mywalls) === 1) {
                 $this->redirect('/rest/app/wall?wid='.$mywalls[0]->wid);
             } else {
-                \TPL::assign('ooid', $ooid);
+                \TPL::assign('ooid', $openid);
                 \TPL::assign('title', '讨论组');
                 \TPL::assign('walls', $mywalls);
                 $this->view_action('/app/wall/index');
@@ -189,7 +169,7 @@ class wall extends \member_base {
         $users = $this->model('acl')->wallUsers($wall->mpid, $wid);
 
         $q = array(
-            'f.nickname,f.headimgurl,f.openid,m.mid,m.depts,m.tags',
+            'm.nickname,m.openid,m.mid,m.depts,m.tags,f.headimgurl',
             'xxt_member m,xxt_fans f',
             "m.mpid='$wall->mpid' and m.mpid=f.mpid and m.fid=f.fid and f.openid in('".implode("','", $users)."')"
         );

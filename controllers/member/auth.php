@@ -96,9 +96,9 @@ class auth extends \member_base {
         /**
          * 已经认证过的用户身份
          */
-        $ooid = empty($who) ? $this->getCookieOAuthUser($mpid) : $who;
-        if (!empty($ooid)) {
-            $member = $this->model('user/member')->byOpenid($mpid, $ooid, '*', $authid);
+        $openid = empty($who) ? $this->getCookieOAuthUser($mpid) : $who;
+        if (!empty($openid)) {
+            $member = $this->model('user/member')->byOpenid($mpid, $openid, '*', $authid);
             \TPL::assign('authedMember', $member);
         }
 
@@ -219,10 +219,17 @@ class auth extends \member_base {
         if ($attrs->attr_email[4] === '1') {
             $this->model()->update(
                 'xxt_member', 
-                array('email_verified'=>'N'),
+                array('verified'=>'N', 'email_verified'=>'N'),
                 "mid='$mid'"
             );
             $this->send_verify_email($mpid, $member->email);
+        }
+        if ($attrs->attr_mobile[4] === '1') {
+            $this->model()->update(
+                'xxt_member', 
+                array('verified'=>'N', 'mobile_verified'=>'N'),
+                "mid='$mid'"
+            );
         } 
         /**
          * 在cookie中记录认证用户的身份信息
@@ -335,6 +342,8 @@ class auth extends \member_base {
         /**
          * update user state.
          */
+        $u = array();
+        $u['verified'] = 'Y';
         $u['email_verified'] = 'Y';
         $this->model()->update(
             'xxt_member', 
@@ -344,7 +353,7 @@ class auth extends \member_base {
         /**
          * remove token.
          */
-        $this->model()->delete('xxt_access_token',"token='$token'"); 
+        $this->model()->delete('xxt_access_token', "token='$token'"); 
 
         // todo 邮件验证的信息应该允许定制
         \TPL::output('emailpassed');
@@ -500,7 +509,7 @@ class auth extends \member_base {
          */
         $qyproxy = $this->model('mpproxy/qy', $mpid);
         $mapDeptR2L = array(); // 部门的远程ID和本地ID的映射
-        $result = $qyproxy->departmentList($mpid, $pdid);
+        $result = $qyproxy->departmentList($pdid);
         if ($result[0] === false)
             return new \ResponseError($result[1]);
 
@@ -554,7 +563,7 @@ class auth extends \member_base {
                 $q = array(
                     'mid,fid',
                     'xxt_member',
-                    "mpid='$mpid' and ooid='$user->userid'"
+                    "mpid='$mpid' and openid='$user->userid'"
                 );
                 if (!($luser = $this->model()->query_obj_ss($q)))
                     $this->createQyFan($mpid, $user, $authid, $timestamp, $mapDeptR2L);
@@ -622,7 +631,7 @@ class auth extends \member_base {
                 $q = array(
                     'tags',
                     'xxt_member',
-                    "mpid='$mpid' and ooid='$user->userid'"
+                    "mpid='$mpid' and openid='$user->userid'"
                 );
                 $memeberTags = $this->model()->query_val_ss($q);
                 if (empty($memeberTags)) 
@@ -631,8 +640,8 @@ class auth extends \member_base {
                     $memeberTags .= ','.$memberTagId;
                 $this->model()->update(
                     'xxt_member',
-                    array('tags'=>$memeberTags),
-                    "mpid='$mpid' and ooid='$user->userid'"
+                    array('tags' => $memeberTags),
+                    "mpid='$mpid' and openid='$user->userid'"
                 );
 
             }

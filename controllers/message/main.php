@@ -33,9 +33,9 @@ class main extends \xxt_base {
          * 获取用户的openid
          */
         $q = array(
-            'f.openid',
-            'xxt_member m,xxt_fans f',
-            "m.authapi_id=$authid and m.fid=f.fid and m.forbidden='N' and m.authed_identity='$userKey' and f.unsubscribe_at=0"
+            'm.openid',
+            'xxt_member m',
+            "m.authapi_id=$authid and m.forbidden='N' and m.authed_identity='$userKey'"
         );
         if (!($openid = $this->model()->query_val_ss($q))) {
             return new \ResponseError('无法确认指定的用户身份信息');

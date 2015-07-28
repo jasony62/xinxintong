@@ -141,8 +141,8 @@ class main extends \member_base {
         if (!empty($tag)) $w .= " and concat(',',m.tags,',') like '%,$tag,%'";
 
         $q = array(
-            'm.*,f.openid,f.nickname f_nickname', 
-            'xxt_member m left join xxt_fans f on m.fid=f.fid', 
+            'm.*', 
+            'xxt_member m', 
             $w
         );
         $q2['o'] = 'm.create_at desc';

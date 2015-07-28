@@ -105,13 +105,13 @@ class record_model extends \TMS_MODEL {
         }
         if ($act->access_control === 'Y') {
             $q = array(
-                'e.enroll_key,m.name,m.mobile,e.enroll_at,e.signin_at,e.tags,e.score,e.remark_num,m.mid',
+                'e.enroll_key,e.enroll_at,e.signin_at,e.tags,e.score,e.remark_num,m.name,m.mobile,m.email,m.nickname,m.openid,m.mid',
                 "xxt_enroll_record e left join xxt_member m on m.forbidden='N' and e.mid=m.mid",
                 $w
             );
         } else {
             $q = array(
-                'e.enroll_key,f.fid,f.nickname,f.openid,f.headimgurl,e.enroll_at,signin_at,e.tags,e.score,s.score myscore,e.remark_num',
+                'e.enroll_key,e.enroll_at,e.signin_at,e.tags,e.score,s.score myscore,e.remark_num,f.fid,f.nickname,f.openid,f.headimgurl',
                 "xxt_enroll_record e left join xxt_fans f on e.mpid=f.mpid and e.openid=f.openid left join xxt_enroll_record_score s on s.enroll_key=e.enroll_key and s.openid='$visitor'",
                 $w
             );

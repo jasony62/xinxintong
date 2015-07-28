@@ -7,10 +7,10 @@
                 <option value='share_timeline'>分享到朋友圈</option>
             </select>
         </div>
-        <div class='form-group' style='width:150px'>
+        <div class='form-group' style='width:180px'>
             <tms-datepicker tms-title='开始日期' tms-date='startAt' tms-state='startAt'></tms-datepicker>
         </div>
-        <div class='form-group' style='width:150px'>
+        <div class='form-group' style='width:180px'>
             <tms-datepicker tms-title='结束日期' tms-date='endAt' tms-state='endAt'></tms-datepicker>
         </div>
         <pagination ng-show='page.total>page.size' class='pull-right' style='cursor:pointer;margin:0;vertical-align:middle' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.current" class="pagination" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getData()"></pagination>

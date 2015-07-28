@@ -79,9 +79,11 @@ class xxt_base extends TMS_CONTROLLER {
         $aMember['mid'] = $mid;
         $aMember['fid'] = $fid;
         $aMember['mpid'] = $mpid;
+        $aMember['openid'] = $user->userid;
+        $aMember['nickname'] = $user->name;
+        $aMember['verified'] = 'Y';
         $aMember['create_at'] = $create_at;
         $aMember['sync_at'] = $timestamp;
-        $aMember['ooid'] = $user->userid;
         $aMember['authapi_id'] = $authid;
         $aMember['authed_identity'] = $user->userid;
         $aMember['name'] = $user->name;
@@ -180,7 +182,7 @@ class xxt_base extends TMS_CONTROLLER {
         $this->model()->update(
             'xxt_member', 
             $aMember, 
-            "mpid='$mpid' and ooid='$user->userid'"
+            "mpid='$mpid' and openid='$user->userid'"
         );
         /**
          * 成员用户对应的粉丝用户

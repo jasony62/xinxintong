@@ -70,14 +70,14 @@ class acl_model extends TMS_MODEL {
                 $tagIds = explode(',', $acl->identity);
                 foreach ($tagIds as $tagId) {
                     $q = array(
-                        'ooid',
+                        'openid',
                         'xxt_member',
                         "mpid='$mpid' and concat(',',tags,',') like '%,$tagId,%'"
                     );
                     if ($members = $this->query_objs_ss($q)) {
                         foreach ($members as $m) {
-                            if (!in_array($m->ooid, $users))
-                                $users[] = $m->ooid;
+                            if (!in_array($m->openid, $users))
+                                $users[] = $m->openid;
                         }
                     }
                 }
@@ -154,14 +154,14 @@ class acl_model extends TMS_MODEL {
                 $tagIds = explode(',', $acl->identity);
                 foreach ($tagIds as $tagId) {
                     $q = array(
-                        'ooid',
+                        'openid',
                         'xxt_member',
                         "mpid='$mpid' and concat(',',tags,',') like '%,$tagId,%'"
                     );
                     if ($members = $this->query_objs_ss($q)) {
                         foreach ($members as $m) {
-                            if (!in_array($m->ooid, $users))
-                                $users[] = $m->ooid;
+                            if (!in_array($m->openid, $users))
+                                $users[] = $m->openid;
                         }
                     }
                 }
@@ -205,8 +205,8 @@ class acl_model extends TMS_MODEL {
             foreach ($acls as $acl) {
                 $q = array(
                     'openid',
-                    'xxt_member m,xxt_fans f',
-                    "m.mpid='$mpid' and m.mid='$acl->identity' and m.fid=f.fid"
+                    'xxt_member m',
+                    "m.mpid='$mpid' and m.mid='$acl->identity'"
                 );
                 if ($openid = $this->query_val_ss($q)) {
                     if (!in_array($openid, $users))

@@ -98,7 +98,7 @@ $sql .= 'id int not null auto_increment';
 $sql .= ',mpid varchar(32) not null';
 $sql .= ",title varchar(50) not null default ''";
 $sql .= ",url text";
-$sql .= ',used int not null default 0';
+$sql .= ',state tinyint not null default 1'; // 1:正常, 0:停用 
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');

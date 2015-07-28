@@ -13,6 +13,7 @@ class main extends app_base {
             $entry = $this->entries[0];
             $this->view_action($entry['url']);
         } else {
+            header('Content-Type: text/plain; charset=utf-8');
             die('没有访问权限');
         }
     }

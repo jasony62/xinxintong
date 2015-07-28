@@ -653,7 +653,14 @@ class auth extends \member_base {
             'xxt_member_tag', 
             "mpid='$mpid' and sync_at<$timestamp"
         );
+        
+        $timestamp = time();
+        $this->model()->update(
+            'xxt_member_authapi',
+            array('sync_from_qy_at' => $timestamp),
+            "authid=$authid"
+        );
 
-        return new \ResponseData(array(count($rdepts), count($users), count($tags)));
+        return new \ResponseData(array(count($rdepts), count($users), count($tags), $timestamp));
     }
 }

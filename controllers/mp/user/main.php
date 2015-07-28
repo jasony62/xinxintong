@@ -21,6 +21,16 @@ class main extends \mp\mp_controller {
      */
     public function index_action($fid=null, $openid=null) 
     {
+        $this->view_action('/mp/user/user');
+    }
+    /**
+     * 获得一个用户的完整信息
+     *
+     * $fid
+     * $openid
+     */
+    public function get_action($fid=null, $openid=null) 
+    {
         // 关注用户信息
         if (!empty($fid))
             $fan = $this->model('user/fans')->byId($fid);
@@ -45,10 +55,8 @@ class main extends \mp\mp_controller {
         $params['fan'] = $fan;
         $params['authapis'] = $this->model('user/authapi')->byMpid($this->mpid, 'Y');
         $params['groups'] = $this->model('user/fans')->getGroups($this->mpid);
-
-        \TPL::assign('params', $params);
-
-        $this->view_action('/mp/user/user');
+        
+        return new \ResponseData($params);
     }
     /**
      * 获得用户选择器的页面

@@ -1,8 +1,14 @@
-xxtApp.controller('userCtrl', ['$scope', 'http2', '$modal', function ($scope, http2, $modal) {
+xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$modal', function ($location, $scope, http2, $modal) {
+    var openid;
+    openid = $location.search().openid;
     $scope.SexMap = { '0': '未知', '1': '男', '2': '女', '3': '无效值' };
     $scope.trackpage = { at: 1, size: 30 };
     $scope.matterType = 'write';
     $scope.matterpage = { at: 1, size: 30 };
+    $scope.back = function (event) {
+        event.preventDefault();
+        history.back();
+    };
     $scope.update = function (name) {
         var nv = {};
         nv[name] = $scope.user[name];
@@ -189,16 +195,15 @@ xxtApp.controller('userCtrl', ['$scope', 'http2', '$modal', function ($scope, ht
         $scope.mpaccount = rsp.data;
         $scope.hasParent = $scope.mpaccount.parent_mpid && $scope.mpaccount.parent_mpid.length;
     });
-    $scope.$watch('jsonParams', function (nv) {
-        if (!nv || nv.length === 0) return;
-        var params = JSON.parse(decodeURIComponent(nv.replace(/\+/g, '%20')));
-        $scope.user = params.fan;
-        $scope.groups = params.groups;
-        $scope.authapis = params.authapis;
-        $scope.availableAuthapis = angular.copy(params.authapis);
+    http2.get('/rest/mp/user/get?openid=' + openid, function (rsp) {
+        var i, j;
+        $scope.user = rsp.data.fan;
+        $scope.groups = rsp.data.groups;
+        $scope.authapis = rsp.data.authapis;
+        $scope.availableAuthapis = angular.copy(rsp.data.authapis);
         //
         if ($scope.user.members) {
-            for (var i in $scope.user.members) {
+            for (i in $scope.user.members) {
                 var member, aTagIds, aTags = [];
                 member = $scope.user.members[i];
                 member.extattr ? member.extattr = JSON.parse(member.extattr) : {};
@@ -212,7 +217,7 @@ xxtApp.controller('userCtrl', ['$scope', 'http2', '$modal', function ($scope, ht
                     }
                 }
                 member.tags2 = aTags;
-                for (var j = 0; j < $scope.availableAuthapis.length; j++) {
+                for (j = 0; j < $scope.availableAuthapis.length; j++) {
                     if (member.authapi.authid === $scope.availableAuthapis[j].authid) {
                         $scope.availableAuthapis.splice(j, 1);
                         break;
@@ -222,72 +227,70 @@ xxtApp.controller('userCtrl', ['$scope', 'http2', '$modal', function ($scope, ht
         }
         $scope.userTrack();
     });
-}])
-    .controller('deptSelectorCtrl', ['$modalInstance', 'http2', '$scope', 'member', function ($modalInstance, http2, $scope, member) {
-        var checkedDepts;
-        if (member.depts && member.depts.length)
-            checkedDepts = JSON.parse(member.depts);
-        else
-            checkedDepts = [];
-        $scope.depts = { children: [] };
-        $scope.isChecked = function (dept) {
-            var i, checked;
-            for (i in checkedDepts) {
-                checked = checkedDepts[i].indexOf(dept.id) === checkedDepts[i].length - 1;
-                if (checked) return true;
-            }
-            return false;
-        };
-        var buildDepts = function (pid, depts, treeNode, path) {
-            var i, dept, newNode;
-            for (i in depts) {
-                dept = depts[i];
-                dept.path = path; // parent path.
-                dept.indexAtParent = i;
-                newNode = {
-                    data: dept,
-                    children: [],
-                };
-                treeNode.children.push(newNode);
-            }
-        };
-        $scope.close = function () {
-            $modalInstance.dismiss('cancel');
-        };
-        $scope.ok = function () {
-            $modalInstance.close(checkedDepts);
-        };
-        $scope.toggleChild = function (child) {
-            if (!child.loaded) {
-                child.loaded = true;
-                http2.get('/rest/mp/user/department/get?authid=' + member.authapi_id + '&pid=' + child.data.id, function (rsp) {
-                    var depts = rsp.data;
-                    buildDepts(child.data.id, depts, child);
-                });
-            }
-            child.expanded = !child.expanded;
-        };
-        $scope.updateDepts = function (dept) {
-            if (dept.checked && dept.checked === 'Y') {
-                var path;
-                path = dept.fullpath.split(',');
-                checkedDepts.push(path);
-            } else {
-                for (var i in checkedDepts) {
-                    if (checkedDepts[i].indexOf(dept.id) === checkedDepts[i].length - 1) {
-                        checkedDepts.splice(i, 1);
-                        break;
-                    }
+}]).controller('deptSelectorCtrl', ['$modalInstance', 'http2', '$scope', 'member', function ($modalInstance, http2, $scope, member) {
+    var checkedDepts;
+    if (member.depts && member.depts.length)
+        checkedDepts = JSON.parse(member.depts);
+    else
+        checkedDepts = [];
+    $scope.depts = { children: [] };
+    $scope.isChecked = function (dept) {
+        var i, checked;
+        for (i in checkedDepts) {
+            checked = checkedDepts[i].indexOf(dept.id) === checkedDepts[i].length - 1;
+            if (checked) return true;
+        }
+        return false;
+    };
+    var buildDepts = function (pid, depts, treeNode, path) {
+        var i, dept, newNode;
+        for (i in depts) {
+            dept = depts[i];
+            dept.path = path; // parent path.
+            dept.indexAtParent = i;
+            newNode = {
+                data: dept,
+                children: [],
+            };
+            treeNode.children.push(newNode);
+        }
+    };
+    $scope.close = function () {
+        $modalInstance.dismiss('cancel');
+    };
+    $scope.ok = function () {
+        $modalInstance.close(checkedDepts);
+    };
+    $scope.toggleChild = function (child) {
+        if (!child.loaded) {
+            child.loaded = true;
+            http2.get('/rest/mp/user/department/get?authid=' + member.authapi_id + '&pid=' + child.data.id, function (rsp) {
+                var depts = rsp.data;
+                buildDepts(child.data.id, depts, child);
+            });
+        }
+        child.expanded = !child.expanded;
+    };
+    $scope.updateDepts = function (dept) {
+        if (dept.checked && dept.checked === 'Y') {
+            var path;
+            path = dept.fullpath.split(',');
+            checkedDepts.push(path);
+        } else {
+            for (var i in checkedDepts) {
+                if (checkedDepts[i].indexOf(dept.id) === checkedDepts[i].length - 1) {
+                    checkedDepts.splice(i, 1);
+                    break;
                 }
             }
-        };
-        buildDepts(0, member.authapi.depts, $scope.depts, []);
-    }])
-    .filter('joinobj', function () {
-        return function (objs, prop) {
-            var output = [];
-            for (i in objs)
-                output.push(objs[i][prop]);
-            return output.join(',');
-        };
-    });
+        }
+    };
+    buildDepts(0, member.authapi.depts, $scope.depts, []);
+}]).filter('joinobj', function () {
+    return function (objs, prop) {
+        var output = [];
+        for (i in objs)
+            output.push(objs[i][prop]);
+        return output.join(',');
+    };
+});

@@ -1,8 +1,8 @@
-<div ng-controller='userCtrl' ng-init="jsonParams='<?php echo urlencode(json_encode(TPL::val('params')));?>'">
+<div ng-controller='userCtrl'>
     <div class='navbar navbar-default'>
         <ul class='nav navbar-nav'>
             <li>
-            <a href='/page/mp/user/received' target='_self'><span class="glyphicon glyphicon-chevron-left"></span></a>
+                <a href='javascript:void(0)' ng-click='back($event)' target='_self'><span class="glyphicon glyphicon-chevron-left"></span></a>
             </li>
         </ul>
         <ul class='nav navbar-nav avatar'>
@@ -10,7 +10,7 @@
         </ul>
         <ul class='nav navbar-nav'>
             <p class="navbar-text navbar-right">
-            <span>&nbsp;{{user.nickname}}</span>
+                <span>&nbsp;{{user.nickname}}</span>
             </p>
         </ul>
         <ul class="navbar-form navbar-right" style='margin-right:0'>
@@ -98,7 +98,9 @@
                         <div class='input-group'>
                             <div class='form-control'>{{m.depts2}}</div>
                             <span class="input-group-btn">
-                                <button class="btn btn-default" ng-click='selectDept(m)'><span class="caret"></span></button>
+                                <button class="btn btn-default" ng-click='selectDept(m)'>
+                                    <span class="caret"></span>
+                                </button>
                             </span>
                         </div>
                     </div>
@@ -127,7 +129,8 @@
                             <option value='channel'>频道</option>
                         </select>
                     </div>
-                    <label class="checkbox-inline" ng-show="hasParent"><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='fromParent' ng-change='fetchMatter()'>来源于父账号</label>
+                    <label class="checkbox-inline" ng-show="hasParent">
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='fromParent' ng-change='fetchMatter()'>来源于父账号</label>
                     <div class='form-group pull-right'>
                         <button class='btn btn-primary' ng-disabled="!selectedMatter&&matterType!='write'" ng-click='send()'>发送</button>
                     </div>
@@ -137,7 +140,9 @@
                     <a class='list-group-item' ng-class="{'active':selectedMatter==m}" ng-repeat='m in matters' ng-click='selectMatter(m)'>{{m.title||m.content}}</a>
                 </div>
                 <div ng-show='matterpage.total>matterpage.size'>
-                    <pagination ng-show="matterType==='article'" class="form-group pagination" style='cursor:pointer;margin:0' total-items="matterpage.total" max-size="5" items-per-page="matterpage.size" rotate="false" ng-model="matterpage.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="fetchMatter()"></pagination>
+                    <pagination ng-show="matterType==='article'" class="form-group pagination" style='cursor:pointer;margin:0' total-items="matterpage.total"
+                    max-size="5" items-per-page="matterpage.size" rotate="false" ng-model="matterpage.at" previous-text="&lsaquo;" next-text="&rsaquo;"
+                    ng-change="fetchMatter()"></pagination>
                 </div>
             </div>
             <div class='col-md-7'>
@@ -147,7 +152,9 @@
                         <div><span>{{t.create_at*1000|date:'yyyy-MM-dd HH:mm'}}</span></div>
                     </a>
                 </ul>
-                <pagination ng-show="trackpage.total>trackpage.size" class="form-group pagination" style='cursor:pointer;margin:0' total-items="trackpage.total" max-size="5" items-per-page="trackpage.size" rotate="false" ng-model="trackpage.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="fetchMatter()"></pagination>
+                <pagination ng-show="trackpage.total>trackpage.size" class="form-group pagination" style='cursor:pointer;margin:0' total-items="trackpage.total"
+                max-size="5" items-per-page="trackpage.size" rotate="false" ng-model="trackpage.at" previous-text="&lsaquo;" next-text="&rsaquo;"
+                ng-change="fetchMatter()"></pagination>
             </div>
         </div>
     </div>

@@ -626,8 +626,8 @@ class auth extends \member_base {
             $result = $qyproxy->tagUserList($tag->tagid);
             if ($result[0] === false)
                 return new \ResponseError($result[1]);
-            $users = $result[1]->userlist;
-            foreach ($users as $user) {
+            $tagUsers = $result[1]->userlist;
+            foreach ($tagUsers as $user) {
                 $q = array(
                     'tags',
                     'xxt_member',

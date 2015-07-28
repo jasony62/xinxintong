@@ -27,7 +27,7 @@
                             <table class='table table-bordered'>
                                 <thead>
                                     <tr>
-                                        <th>信息项</th>
+                                        <th style='width:96px'>信息项</th>
                                         <th style='width:96px'>隐藏</th>
                                         <th style='width:96px'>必填</th>
                                         <th style='width:96px'>唯一</th>
@@ -85,9 +85,9 @@
                         </div>
                     </div>
                     <div class='alert alert-info' ng-show="ia.valid==='Y'" ng-if="mpaccount.mpsrc==='qy'">
-                        <button class='btn btn-default' ng-click='syncFromQy(ia)'>
+                        <button class='btn btn-primary' ng-disabled='taskRunning' ng-click='syncFromQy(ia)'>
                             <span>
-                                <i class='fa fa-refresh' ng-class="{'fa-spin':taskRunning}"></i> 从企业号同步</span>
+                                <i class='fa fa-refresh' ng-class="{'fa-spin':taskRunning}"></i>&nbsp;从企业号同步</span>
                         </button>
                         <span ng-show='ia.sync_from_qy_at>0'>上次从企业号通讯录同步时间：{{ia.sync_from_qy_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
                     </div>
@@ -120,7 +120,7 @@
                             <table class='table table-bordered'>
                                 <thead>
                                     <tr>
-                                        <th>信息项</th>
+                                        <th style='width:96px'>信息项</th>
                                         <th style='width:96px'>隐藏</th>
                                         <th style='width:96px'>必填</th>
                                         <th style='width:96px'>唯一</th>
@@ -181,14 +181,20 @@
                         </div>
                     </div>
                     <div class='alert alert-info' ng-show="a.valid==='Y'" ng-if="mpaccount.mpsrc==='qy'">
-                        <button class='btn' ng-class="backRunning?'btn-default':'btn-primary'" ng-disabled='backRunning' ng-click='import2Qy(a)'>全量导入到企业号</button>
-                        <button class='btn btn-default' ng-click='sync2Qy(a)'>增量同步到企业号</button>
+                        <button class='btn btn-primary' ng-disabled='taskkRunning' ng-click='import2Qy(a)'>
+                            <span>
+                                <i class='fa fa-fresh' ng-class="{'fa-spin':taskRunning}"></i>&nbsp;全量导入到企业号</span>
+                        </button>
+                        <button class='btn btn-primary' ng-disabled='taskRunning' ng-click='sync2Qy(a)'>
+                            <span>
+                                <i class='fa fa-fresh' ng-class="{'fa-spin':taskRunning}"></i>&nbsp;增量同步到企业号</span>
+                        </button>
                         <span ng-show='a.sync_to_qy_at>0'>上次同步到企业号通讯录时间：{{a.sync_to_qy_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
                     </div>
                     <div class='alert alert-info' ng-show="a.valid==='Y'" ng-if="mpaccount.mpsrc==='qy'">
-                        <button class='btn btn-default' ng-click='syncFromQy(a)'>
+                        <button class='btn btn-primary' ng-disabled='taskRunning' ng-click='syncFromQy(a)'>
                             <span>
-                                <i class='fa fa-refresh' ng-class="{'fa-spin':taskRunning}"></i> 从企业号同步</span>
+                                <i class='fa fa-refresh' ng-class="{'fa-spin':taskRunning}"></i>&nbsp;从企业号同步</span>
                         </button>
                         <span ng-show='a.sync_from_qy_at>0'>上次从企业号通讯录同步时间：{{a.sync_from_qy_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
                     </div>

@@ -123,18 +123,17 @@ xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Autha
         }
     };
     $scope.taskRunning = false;
-    $scope.backRunning = false;
     $scope.import2Qy = function (authapi) {
         var url = authapi.url + '/import2Qy';
         url += '?mpid=' + $scope.mpaccount.mpid;
         url += '&authid=' + authapi.authid;
         var doImport = function (param) {
-            $scope.backRunning = true;
+            $scope.taskRunning = true;
             var url2 = url;
             param && (url2 += '&next=' + param.next);
             param && param.step && (url2 += '&step=' + param.step);
             $http.get(url2).success(function (rsp) {
-                $scope.backRunning = false;
+                $scope.taskRunning = false;
                 param && ($scope.$root.progmsg = '阶段：' + param.next + (param.step ? '，步骤：' + param.step : ''));
                 if (angular.isString(rsp))
                     $scope.$root.errmsg = rsp;

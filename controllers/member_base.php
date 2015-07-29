@@ -51,7 +51,8 @@ class member_base extends xxt_base {
                         'xxt_member', 
                         "authapi_id=$authid and mid='$mid' and forbidden='N'"
                     );
-                    $member = $this->model()->query_obj_ss($q) && $members[] =  $member;
+                    if ($member = $this->model()->query_obj_ss($q))
+                        $members[] =  $member;
                 }
             }
         }

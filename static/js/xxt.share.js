@@ -24,14 +24,12 @@
             'desc': desc
         };
         window.YixinJSBridge.on('menu:share:appmessage', function (argv) {
-            window.YixinJSBridge.invoke('sendAppMessage', shareData, function (res) {
-                window.xxt.share.options.logger && window.xxt.share.options.logger('F');
-            });
+            window.xxt.share.options.logger && window.xxt.share.options.logger('F');
+            window.YixinJSBridge.invoke('sendAppMessage', shareData, function (res) { });
         });
         window.YixinJSBridge.on('menu:share:timeline', function (argv) {
-            window.YixinJSBridge.invoke('shareTimeline', shareData, function (res) {
-                window.xxt.share.options.logger && window.xxt.share.options.logger('T');
-            });
+            window.xxt.share.options.logger && window.xxt.share.options.logger('T');
+            window.YixinJSBridge.invoke('shareTimeline', shareData, function (res) { });
         });
     };
     window.xxt === undefined && (window.xxt = {});
@@ -39,7 +37,7 @@
         options: {},
         set: function (title, link, desc, img, fnOther) {
             if (/Android/i.test(navigator.userAgent) || /iPhone/i.test(navigator.userAgent) || /iPad/i.test(navigator.userAgent)) {
-                img.indexOf('http') === -1 && (img = 'http://' + location.hostname + img);
+                img && img.length && img.indexOf('http') === -1 && (img = 'http://' + location.hostname + img);
                 if (/MicroMessenger/i.test(navigator.userAgent)) {
                     window.wx.ready(function () {
                         setWxShare(title, link, desc, img);

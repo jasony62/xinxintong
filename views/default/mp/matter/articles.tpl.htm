@@ -5,6 +5,9 @@
             <select style='width:110px' class='form-control' title='排序' ng-model='order' ng-change='doSearch()'>
                 <option value='time'>修改时间</option>
                 <option value='title'>图文标题</option>
+                <option value='read'>阅读数</option>
+                <option value='score'>点赞数</option>
+                <option value='remark'>评论数</option>
             </select>
         </div>
         <div class='form-group'>
@@ -13,19 +16,27 @@
         <div class='form-group'>
             <combox title='标签' evt-prefix='tag' readonly='true' prop='title' existing='selectedTags' options='tags'></combox>
         </div>
-        <label class="checkbox-inline" ng-show="hasParent==='Y'"><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='fromParent' ng-change='doSearch()'>来源于父账号</label>
+        <label class="checkbox-inline" ng-show="hasParent==='Y'">
+            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='fromParent' ng-change='doSearch()'>来源于父账号</label>
     </div>
     <div class='clearfix' style='margin:0 -15px'>
         <div class='col-md-4' ng-repeat='a in articles'>
-            <div class='thumbnail' ng-class="{'contribution':!a.creater}"" ng-mouseenter='enter=true' ng-mouseleave='enter=false' ng-click='edit(a)'>
+            <div class='thumbnail' ng-class="{'contribution':!a.creater}" " ng-mouseenter='enter=true' ng-mouseleave='enter=false' ng-click='edit(a)'>
                 <div>
                     <h4 ng-bind='a.title'></h4>
                     <p ng-bind='a.summary'></p>
                 </div>
                 <div><span class='label label-warning' ng-repeat='t in a.tags' ng-bind='t.title'></span></div>
-                <div>
-                    <span class='creater_name' ng-bind='a.creater_name'></span>
-                    <span class='modify_at' ng-bind="a.modify_at*1000|date:'yyyy-MM-dd'"></span>
+                <div class='bottom'>
+                    <div>
+                        <div class='creater_name' ng-bind='a.creater_name'></div>
+                        <div class='stat'>
+                            <span title='阅读数' ng-bind='a.read_num'></span>/
+                            <span title='点赞数' ng-bind='a.score'></span>/
+                            <span title='评论数' ng-bind='a.remark_num'></span>
+                        </div>
+                        <div class='modify_at' title='修改时间' ng-bind="a.modify_at*1000|date:'yyyy-MM-dd'"></div>
+                    </div>
                 </div>
                 <button class='btn btn-default btn-sm remove' ng-click='remove($event,a,$index)' ng-if='a.creater&&enter'>
                     <span class='glyphicon glyphicon-trash'></span>
@@ -35,6 +46,8 @@
     </div>
     <div class='form-group clearfix'>
         <span style='height:34px;line-height:34px' ng-show='page.total>0'>总数：{{page.total}}</span>
-        <pagination style='margin:0;cursor:pointer' class='pull-right' ng-show='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
+        <pagination style='margin:0;cursor:pointer' class='pull-right' ng-show='page.total>page.size' boundary-links="true"
+        total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;"
+        next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
     </div>
 </div>

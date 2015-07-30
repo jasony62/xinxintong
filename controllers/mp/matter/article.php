@@ -503,25 +503,6 @@ class article extends matter_ctrl {
         return new \ResponseData($rst);
     }
     /**
-     * 图文的统计数据
-     */
-    public function statGet_action($id)
-    {
-        $model = $this->model('matter\article');
-        $article = $model->byId($id);
-        /**
-         * 阅读次数
-         */
-        $stat['readNum'] = $model->readNum($id);
-        /**
-         * 赞的数量
-         */
-        $stat['score'] = $article->score;
-        $stat['remark_num'] = $article->remark_num;
-
-        return new \ResponseData($stat);
-    }
-    /**
      * 创建新图文
      */
     public function create_action()

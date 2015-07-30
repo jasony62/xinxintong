@@ -344,6 +344,7 @@ class article extends matter_ctrl {
             /**
              * 按标签过滤
              */
+            !isset($options->order) && $options->order = '';
             if (empty($options->tag)) {
                 $q = array(
                     $s, 

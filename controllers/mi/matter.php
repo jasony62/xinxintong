@@ -283,11 +283,25 @@ class matter extends \member_base {
      */
     public function logShare_action($shareid, $mpid, $id, $type, $title, $shareto, $shareby='')
     {
+        switch ($type) {
+            case 'article':
+            $table = 'xxt_article';
+            break;
+            $table = 'xxt_enroll';
+            break;
+        }
+        if (isset($table)) {
+            if ($shareto === 'F')
+                $this->model()->update("update $table set share_friend_num=share_friend_num+1 where id='$id'");
+            else if ($shareto === 'T')
+                $this->model()->update("update $table set share_timeline_num=share_timeline_num+1 where id='$id'");
+        }
+        
         $vid = $this->getVisitorId($mpid);
         $ooid = $this->getCookieOAuthUser($mpid);
         $openid_agent = $_SERVER['HTTP_USER_AGENT'];
         $client_ip = $this->client_ip();
-
+        
         $this->model('log')->writeShareActionLog(
             $shareid, $vid, $ooid, $shareto, $shareby, $mpid, $id, $type, $title, $openid_agent, $client_ip);
 

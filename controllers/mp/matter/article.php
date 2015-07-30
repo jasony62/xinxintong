@@ -320,7 +320,7 @@ class article extends matter_ctrl {
             /**
              * select fields
              */
-            $s = "a.id,a.mpid,a.title,a.summary,a.custom_body,a.create_at,a.modify_at,a.approved,a.creater,a.creater_name,a.creater_src,'$uid' uid";
+            $s = "a.id,a.mpid,a.title,a.summary,a.custom_body,a.create_at,a.modify_at,a.approved,a.creater,a.creater_name,a.creater_src,'$uid' uid,a.read_num,a.score,a.remark_num";
             /**
              * where
              */
@@ -344,16 +344,29 @@ class article extends matter_ctrl {
             /**
              * 按标签过滤
              */
+            !isset($options->order) && $options->order = '';
             if (empty($options->tag)) {
                 $q = array(
                     $s, 
                     'xxt_article a', 
                     $w
                 );
-                if (!empty($options->order) && $options->order === 'title')
-                    $q2['o'] = 'CONVERT(a.title USING gbk ) COLLATE gbk_chinese_ci';
-                else 
-                    $q2['o'] = 'a.modify_at desc';
+                switch ($options->order) {
+                    case 'title':
+                        $q2['o'] = 'CONVERT(a.title USING gbk ) COLLATE gbk_chinese_ci';
+                        break;
+                    case 'read':
+                        $q2['o'] = 'a.read_num desc';
+                        break;
+                    case 'score':
+                        $q2['o'] = 'a.score desc';
+                        break;
+                    case 'remark':
+                        $q2['o'] = 'a.remark_num desc';
+                        break;
+                    default:
+                        $q2['o'] = 'a.modify_at desc';
+                }
             } else {
                 /**
                  * 按标签过滤
@@ -366,10 +379,22 @@ class article extends matter_ctrl {
                     $w
                 );
                 $q2['g'] = 'a.id';
-                if ($options->order === 'title')
-                    $q2['o'] = 'count(*),CONVERT(a.title USING gbk ) COLLATE gbk_chinese_ci';
-                else 
-                    $q2['o'] = 'count(*) desc,a.modify_at desc';
+                switch ($options->order) {
+                    case 'title':
+                        $q2['o'] = 'count(*),CONVERT(a.title USING gbk ) COLLATE gbk_chinese_ci';
+                        break;
+                    case 'read':
+                        $q2['o'] = 'a.read_num desc';
+                        break;
+                    case 'score':
+                        $q2['o'] = 'a.score desc';
+                        break;
+                    case 'remark':
+                        $q2['o'] = 'a.remark_num desc';
+                        break;
+                    default:
+                        $q2['o'] = 'a.modify_at desc';
+                }
             }
             /**
              * limit

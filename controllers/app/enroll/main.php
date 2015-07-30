@@ -251,6 +251,7 @@ class main extends \member_base {
         /**
          * 记录日志，完成前置活动再次进入的情况不算
          */
+        $this->model()->update("update xxt_enroll set read_num=read_num+1 where id='$act->id'");  
         $this->model('log')->writeMatterReadLog(
             $user->vid, 
             $mpid, 

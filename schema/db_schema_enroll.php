@@ -40,6 +40,9 @@ $sql .= ",can_signin char(1) not null default 'N'"; // 是否支持签到
 $sql .= ",can_lottery char(1) not null default 'N'"; // 是否支持抽奖 
 $sql .= ",remark_notice char(1) not null default 'N'";
 $sql .= ",tags text";
+$sql .= ",read_num int not null default 0"; // 阅读数
+$sql .= ",share_friend_num int not null default 0"; // 分享给好友数
+$sql .= ",share_timeline_num int not null default 0"; // 分享朋友圈数
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');

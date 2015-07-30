@@ -181,9 +181,6 @@ xxtApp.controller('statCtrl', ['$scope', 'http2', function ($scope, http2) {
 }]);
 xxtApp.controller('accesslogCtrl', ['$scope', 'http2', function ($scope, http2) {
     $scope.$parent.subView = 'accesslog';
-    http2.get('/rest/mp/app/enroll/accesslogGet?aid=' + $scope.aid, function (rsp) {
-        $scope.stat = rsp.data;
-    });
 }]);
 xxtApp.controller('lotteryCtrl', ['$scope', 'http2', function ($scope, http2) {
     var getWinners = function () {

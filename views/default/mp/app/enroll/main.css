@@ -1,7 +1,10 @@
 .thumbnail{position:relative;height:140px;cursor:pointer}
 .thumbnail .footer{position:absolute;left:4px;right:4px;bottom:4px;}
-.thumbnail .creater_name{display:inline-block;color:#999;line-height:30px;float:left}
-.thumbnail .datetime{display:inline-block;color:#999;line-height:30px;float:right}
+.thumbnail .footer>div{display:table;width:100%}
+.thumbnail .footer>div>div{display:table-cell;color:#999;line-height:30px;}
+.thumbnail .creater_name{width:30%}
+.thumbnail .stat{width:40%;text-align:center}
+.thumbnail .datetime{width:30%;text-align:right}
 .thumbnail button.remove{position:absolute;top:4px;right:4px}
 .act .thumbnail.create>div{display:table;width:100%;height:100%}
 .act .thumbnail.create>div>div{display:table-cell;vertical-align:middle;text-align:center}

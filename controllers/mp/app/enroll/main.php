@@ -700,21 +700,4 @@ class main extends \mp\app\app_base {
 
         return new \ResponseData($ret);
     }
-    /**
-     *
-     */
-    public function accesslogGet_action($aid)
-    {
-        $stat = new \stdClass;
-        
-        $q = array(
-            "sum(act_read) 'read',sum(act_share_friend) share_to_friend,sum(act_share_timeline) share_to_timeline",
-            'xxt_log_matter_action',
-            "matter_type='enroll' and matter_id='$aid'"
-        );
-        
-        $stat = $this->model()->query_obj_ss($q); 
-        
-        return new \ResponseData($stat); 
-    }
 }

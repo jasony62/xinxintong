@@ -223,9 +223,6 @@ xxtApp.controller('remarkCtrl', ['$scope', 'http2', function ($scope, http2) {
 }]);
 xxtApp.controller('statCtrl', ['$scope', 'http2', function ($scope, http2) {
     $scope.$parent.subView = 'stat';
-    http2.get('/rest/mp/matter/article/statGet?id=' + $scope.id, function (rsp) {
-        $scope.stat = rsp.data;
-    });
 }])
 xxtApp.controller('readCtrl', ['$scope', 'http2', function ($scope, http2) {
     $scope.$parent.subView = 'read';

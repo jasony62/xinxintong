@@ -349,13 +349,17 @@ class matter extends \member_base {
         );
         $att = $this->model()->query_obj_ss($q);
         
-        $fs = $this->model('fs/attachment', $mpid);
-        
-        //header("Content-Type: application/force-download");
-        header("Content-Type: $att->type");
-        header("Content-Disposition: attachment; filename=".$att->name);
-        header('Content-Length: '.$att->size);
-        echo $fs->read($att->url);
+        if (strpos($att->url, 'alioss') === 0) {
+            $downloadUrl = 'http://xxt-attachment.oss-cn-shanghai.aliyuncs.com/'.$mpid.'/article/'.$articleid.'/'.$att->name;
+            $this->redirect($downloadUrl);
+        } else {
+            $fs = $this->model('fs/saestore', $mpid);
+            //header("Content-Type: application/force-download");
+            header("Content-Type: $att->type");
+            header("Content-Disposition: attachment; filename=".$att->name);
+            header('Content-Length: '.$att->size);
+            echo $fs->read($att->url);
+        }
         
         exit;
     }

@@ -1,84 +1,6 @@
 <?php
-class alioss_fs {
-    
-    const ALIOSS_URL = 'http://xinxintong.oss-cn-hangzhou.aliyuncs.com';
+require_once dirname(__FILE__).'/alioss.php';
 
-    protected $mpid;
-
-    protected $bucket;
-    
-    private $rootDir;
-
-    public function __construct($mpid, $bucket='xinxintong') 
-    {
-        $this->mpid = $mpid;
-        
-        $this->bucket = $bucket;
-
-        $this->rootDir = "$this->mpid/_user";
-    }
-    /**
-     *
-     */
-    protected function &get_alioss() 
-    {
-        require_once dirname(dirname(dirname(__FILE__))).'/lib/ali-oss/sdk.class.php';
-        $oss_sdk_service = new ALIOSS();
-
-        //设置是否打开curl调试模式
-        $oss_sdk_service->set_debug_mode(FALSE);
-
-        return $oss_sdk_service;
-    }
-    /**
-     * 将文件上传到alioss
-     */
-    public function writeFile($dir, $filename, $content) 
-    {
-        /**
-         * 写到临时文件中
-         */
-        $tmpfname = tempnam($dir, 'xxt');
-        $handle = fopen($tmpfname, "w");
-        fwrite($handle, $content);
-        fclose($handle);
-        
-        $target = "$this->rootDir/$dir/$filename";
-
-        $alioss = $this->get_alioss();
-        $rsp = $alioss->upload_file_by_file($this->bucket, $target, $tmpfname);
-
-        return self::ALIOSS_URL.'/'.$target;
-    }
-    /**
-     * $url
-     */
-    public function remove($url) 
-    {
-        $file = str_replace(self::ALIOSS_URL.'/', '', $url);
-        $alioss = $this->get_alioss();
-        $rsp = $alioss->delete_object($this->bucket, $file);
-
-        //if ($rsp->status != 200)
-        //    return array(false, $rsp);
-
-        return array(true);
-    }
-    /**
-     *
-     */
-    public function getFile($url)
-    {
-        $file = str_replace(self::ALIOSS_URL.'/', '', $url);
-        $alioss = $this->get_alioss();
-        $rsp = $alioss->get_object($this->bucket, $file);
-
-        //if ($rsp->status != 200)
-        //    return array(false, $rsp);
-
-        return array(true, $rsp->body);
-    }
-}
 class local_fs {
     
     protected $mpid;
@@ -142,7 +64,7 @@ class user_model {
     {
         $this->mpid = $mpid;
         if (defined('SAE_TMP_PATH'))
-            $this->service = new alioss_fs($mpid, $bucket);
+            $this->service = new alioss_model($mpid, $bucket);
         else
             $this->service = new local_fs($mpid, $bucket);
     }

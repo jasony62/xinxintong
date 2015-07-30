@@ -28,6 +28,7 @@ xxtApp.controller('articleCtrl', ['$scope', '$location', 'http2', function ($sco
     });
     http2.get('/rest/mp/matter/article/get?id=' + $scope.id, function (rsp) {
         $scope.editing = rsp.data;
+        $scope.editing.attachments === undefined && ($scope.editing.attachments = []);
         $scope.entryUrl = 'http://' + location.host + '/rest/mi/matter?mpid=' + $scope.editing.mpid + '&id=' + $scope.id + '&type=article';
         $scope.picGalleryUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid=' + $scope.editing.mpid;
         if (!$scope.editing.creater)
@@ -91,7 +92,7 @@ xxtApp.controller('editCtrl', ['$scope', 'http2', function ($scope, http2) {
         });
     };
     $scope.downloadUrl = function (att) {
-        return '/rest/mi/matter/articleAttachment?mpid=' + $scope.mpid + '&articleid=' + $scope.editing.id + '&attachmentid=' + att.id;
+        return '/rest/mi/matter/articleAttachment?mpid=' + $scope.editing.mpid + '&articleid=' + $scope.editing.id + '&attachmentid=' + att.id;
     };
     $scope.gotoCode = function () {
         if ($scope.editing.page_id != 0)

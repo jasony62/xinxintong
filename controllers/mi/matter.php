@@ -123,12 +123,7 @@ class matter extends \member_base {
         /**
          * write log.
          */
-        $userAgent = $_SERVER['HTTP_USER_AGENT'];
-        $clientIp = $this->client_ip();
-        if ($type === 'article') {
-            $this->model()->update("update xxt_article set read_num=read_num+1 where id='$id'");
-        }
-        $this->model('log')->writeMatterReadLog($vid, $mpid, $id, $type, $matter->title, $ooid, $shareby, $userAgent, $clientIp);
+        $this->logAccess_action($mpid, $id, $type, $matter->title, $shareby);
         /**
          * 访问控制
          */
@@ -140,135 +135,32 @@ class matter extends \member_base {
         exit;
     }
     /**
-     * 发表评论
-     *
-     * 如果公众号支持客服消息或者点对点，如果文章的投稿者具备接收客户消息的条件
-     * 如果投稿人设定了接收客服消息
-     * 那么每次有新的评论都发送一条提醒消息给投稿人
-     *
-     * $id article's id.
-     * $mpid article's mpid.
+     * 记录访问日志
      */
-    public function remarkPublish_action($mpid, $id)
+    public function logAccess_action($mpid, $id, $type, $title, $shareby='')
     {
-        $remark = $this->getPost('remark');
-        if (empty($remark))
-            return new \ResponseError('评论不允许为空！');
-
-        $openid = $this->getCookieOAuthUser($mpid);
-        if (empty($openid))
-            return new \ResponseError('无法获得用户标识，不允许发布评论');
-
-        $remarker = $this->model('user/fans')->byOpenid($mpid, $openid);
-        if (empty($remarker))
-            return new \ResponseError("无法获得用户信息($openid)，不允许发布评论");
-            
-        $i = array(
-            'fid'=>$remarker->fid,
-            'article_id'=>$id, 
-            'create_at'=>time(), 
-            'remark'=>$this->model()->escape($remark)
-        ); 
-        $remarkId = $this->model()->insert('xxt_article_remark', $i, true);
-        $this->model()->update("update xxt_article set remark_num=remark_num+1 where id='$id'");
-        /**
-         * 获得完整的评论数据
-         */
-        $remark = $this->model('matter\article')->remarks($id, $remarkId);
-        /**
-         * 是否为投稿文章，投稿人是否要接收评论
-         */
-        $receivers = array();
-        $a = $this->model('matter\article')->byId($id, 'title,creater,creater_src,remark_notice,remark_notice_all');
-        if ($a->creater_src === 'F' && $a->remark_notice === 'Y' && $a->creater !== $remarker->fid) {
-            /**
-             * 投稿人接收评论提醒
-             */
-            $creater = $this->model('user/fans')->byId($a->creater); 
-            $receivers[] = $creater->openid;
-        }
-        /**
-         * 通知指定的评论接收人
-         */
-        if ($a->remark_notice_all === 'Y') {
-            /**
-             * 获得所有发表过评论的人
-             */
-            $others = $this->model('matter\article')->remarkers($id);
-            foreach ($others as $other) {
-                $other->openid !== $remarker->openid && !in_array($other->openid, $receivers) && $receivers[] = $other->openid;
-            }
-        } else if (false !== strpos($remark->remark, '@')) {
-            /**
-             * 获得所有发表过评论的人
-             */
-            $others = $this->model('matter\article')->remarkers($id);
-            foreach ($others as $other) {
-                if (false !== strpos($remark->remark, '@'.$other->nickname)) {
-                    $other->openid !== $remarker->openid && !in_array($other->openid, $receivers) && $receivers[] = $other->openid;
-                }
-            }
-        }
+        $user = $this->getUser($mpid);
         
-        if (!empty($receivers)) {
-            /**
-             * 发送评论提醒
-             */
-            $url = 'http://'.$_SERVER['HTTP_HOST']."/rest/mi/matter?mpid=$mpid&id=$id&type=article";
-            $text = urlencode($remark->nickname);
-            $text .= urlencode('对【');
-            $text .= '<a href="'.$url.'">';
-            $text .= urlencode($a->title);
-            $text .= urlencode('</a>】发表了评论：');
-            $text .= urlencode($remark->remark);
-            $message = array(
-                "msgtype"=>"text",
-                "text"=>array(
-                    "content"=>$text
-                )
-            );
-            /**
-             * 获得所有发表过评论的人
-             */
-            foreach ($receivers as $receiver) {
-                $this->send_to_user($mpid, $receiver, $message);
-            }
+        if ($type === 'article') {
+            $this->model()->update("update xxt_article set read_num=read_num+1 where id='$id'");
         }
-
-        return new \ResponseData($remark);
-    }
-    /**
-     * 下载文件
-     *
-     * todo 仅对会员开放 
-     */
-    public function link_action($mpid, $user, $url, $text, $code) 
-    {
-        if ($mid = $this->getMemberId($call)) {
-            $q = array(
-                'email,email_verified',
-                'xxt_member',
-                "mpid='$mpid' and mid='$mid'"
-            );
-            $identity = $this->model()->query_obj_ss($q);
-            if ($identity->email && $identity->email_verified === 'Y') {
-                if (true !== ($msg = $this->send_link_email($mpid, $identity->email, $url, $text, $code))){
-                    return new \ResponseData($msg);
-                } else {
-                    $rsp = '已通过【xin_xin_tong@163.com】将链接发送到你的个人邮箱，请在邮件内打开！';
-                    return new \ResponseData($rsp);
-                }
-            } else {
-                $rsp = '没有获取邮箱信息，请向指定个人邮箱！';
-                return new \ResponseData($rsp);
-            }
-        } else {
-            /**
-             * 引导用户进行认证
-             */
-            $tr = $this->register_reply($call);
-            $tr->exec();
-        }
+        $logUser = new \stdClass;
+        $logUser->vid = $user->vid;
+        $logUser->openid = isset($user->fan) ? $user->fan->openid : '';
+        $logUser->nickname =  isset($user->fan) ? $user->fan->nickname : '';
+        
+        $logMatter = new \stdClass;
+        $logMatter->id = $id;
+        $logMatter->type = $type;
+        $logMatter->title = $title;
+        
+        $logClient = new \stdClass;
+        $logClient->agent = $_SERVER['HTTP_USER_AGENT'];
+        $logClient->ip = $this->client_ip();
+        
+        $this->model('log')->writeMatterRead($mpid, $logUser, $logMatter, $logClient, $shareby);
+        
+        return new \ResponseData('ok');
     }
     /**
      * 记录分享动作
@@ -298,14 +190,27 @@ class matter extends \member_base {
         }
         
         $vid = $this->getVisitorId($mpid);
-        $ooid = $this->getCookieOAuthUser($mpid);
-        $openid_agent = $_SERVER['HTTP_USER_AGENT'];
-        $client_ip = $this->client_ip();
+        $openid = $this->getCookieOAuthUser($mpid);
         
-        $this->model('log')->writeShareActionLog(
-            $shareid, $vid, $ooid, $shareto, $shareby, $mpid, $id, $type, $title, $openid_agent, $client_ip);
-
-        return new \ResponseData('finish');
+        !empty($openid) && $fan = $this->model('user/fans')->byOpenid($mpid, $openid); 
+        
+        $logUser = new \stdClass;
+        $logUser->vid = $vid;
+        $logUser->openid = $ooid;
+        $logUser->nickname = isset($fan) ? $fan->nickname : 'nickname';
+        
+        $logMatter = new \stdClass;
+        $logMatter->id = $id;
+        $logMatter->type = $type;
+        $logMatter->title = $title;
+        
+        $logClient = neww \stdClass;
+        $logClient->agent = $_SERVER['HTTP_USER_AGENT'];
+        $logClient->ip = $this->client_ip();
+        
+        $this->model('log')->writeShareAction($mpid, $shareid, $shareto, $shareby, $logUser, $logMatter, $logClient);
+        
+        return new \ResponseData('ok');
     }
     /**
      *
@@ -354,32 +259,6 @@ class matter extends \member_base {
     /**
      *
      */
-    public function articleAttachment_action($mpid, $articleid, $attachmentid)
-    {
-        $q = array(
-            '*', 
-            'xxt_article_attachment', 
-            "article_id='$articleid' and id='$attachmentid'"
-        );
-        $att = $this->model()->query_obj_ss($q);
-        
-        if (strpos($att->url, 'alioss') === 0) {
-            $downloadUrl = 'http://xxt-attachment.oss-cn-shanghai.aliyuncs.com/'.$mpid.'/article/'.$articleid.'/'.$att->name;
-            $this->redirect($downloadUrl);
-        } else {
-            $fs = $this->model('fs/saestore', $mpid);
-            //header("Content-Type: application/force-download");
-            header("Content-Type: $att->type");
-            header("Content-Disposition: attachment; filename=".$att->name);
-            header('Content-Length: '.$att->size);
-            echo $fs->read($att->url);
-        }
-        
-        exit;
-    }
-    /**
-     *
-     */
     protected function canAccessObj($mpid, $matterId, $member, $authapis, &$matter)
     {
         return $this->model('acl')->canAccessMatter($mpid, $matter->type, $matterId, $member, $authapis);
@@ -406,5 +285,38 @@ class matter extends \member_base {
             return $msg;
 
         return true;
+    }
+    /**
+     * 下载文件
+     *
+     * todo 仅对会员开放 
+     */
+    public function link_action($mpid, $user, $url, $text, $code) 
+    {
+        if ($mid = $this->getMemberId($call)) {
+            $q = array(
+                'email,email_verified',
+                'xxt_member',
+                "mpid='$mpid' and mid='$mid'"
+            );
+            $identity = $this->model()->query_obj_ss($q);
+            if ($identity->email && $identity->email_verified === 'Y') {
+                if (true !== ($msg = $this->send_link_email($mpid, $identity->email, $url, $text, $code))){
+                    return new \ResponseData($msg);
+                } else {
+                    $rsp = '已通过【xin_xin_tong@163.com】将链接发送到你的个人邮箱，请在邮件内打开！';
+                    return new \ResponseData($rsp);
+                }
+            } else {
+                $rsp = '没有获取邮箱信息，请向指定个人邮箱！';
+                return new \ResponseData($rsp);
+            }
+        } else {
+            /**
+             * 引导用户进行认证
+             */
+            $tr = $this->register_reply($call);
+            $tr->exec();
+        }
     }
 }

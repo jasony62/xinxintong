@@ -31,6 +31,15 @@ class article extends \member_base {
         $article = $modelArticle->byId($id);
         $article->remarks =  $article->remark_num > 0 ? $modelArticle->remarks($id) : false;
         $article->praised =  $modelArticle->praised($vid, $id);
+        if ($article->has_attachment === 'Y')
+            $article->attachments = $this->model()->query_objs_ss(
+                array(
+                    '*',
+                    'xxt_article_attachment',
+                    "article_id='$id'"
+                )
+            );
+        
         $data['article'] = $article;
 
         $user = new \stdClass;
@@ -109,7 +118,12 @@ class article extends \member_base {
      */
     public function remark_action($mpid, $id)
     {
-        $posted = $this->getPostJson();
+        if (isset($_POST['remark'])) {
+            $posted = new \stdClass;
+            $posted->remark = $_POST['remark'];
+        } else {
+            $posted = $this->getPostJson();
+        }
         if (empty($posted->remark))
             return new \ResponseError('评论不允许为空！');
         
@@ -121,11 +135,14 @@ class article extends \member_base {
          */
         $i = array(
             'fid' => $user->fan->fid,
+            'openid' => $user->openid,
+            'nickname' => $user->fan->nickname,
             'article_id' => $id, 
             'create_at' => time(), 
             'remark' => $this->model()->escape($posted->remark)
         ); 
         $remarkId = $this->model()->insert('xxt_article_remark', $i, true);
+        
         $this->model()->update("update xxt_article set remark_num=remark_num+1 where id='$id'");
         
         $modelArticle = $this->model('matter\article'); 
@@ -194,5 +211,31 @@ class article extends \member_base {
         }
 
         return new \ResponseData($remark);
+    }
+    /**
+     *
+     */
+    public function attachmentGet_action($mpid, $articleid, $attachmentid)
+    {
+        $q = array(
+            '*', 
+            'xxt_article_attachment', 
+            "article_id='$articleid' and id='$attachmentid'"
+        );
+        $att = $this->model()->query_obj_ss($q);
+        
+        if (strpos($att->url, 'alioss') === 0) {
+            $downloadUrl = 'http://xxt-attachment.oss-cn-shanghai.aliyuncs.com/'.$mpid.'/article/'.$articleid.'/'.$att->name;
+            $this->redirect($downloadUrl);
+        } else {
+            $fs = $this->model('fs/saestore', $mpid);
+            //header("Content-Type: application/force-download");
+            header("Content-Type: $att->type");
+            header("Content-Disposition: attachment; filename=".$att->name);
+            header('Content-Length: '.$att->size);
+            echo $fs->read($att->url);
+        }
+        
+        exit;
     }
 }

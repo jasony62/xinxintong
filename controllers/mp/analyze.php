@@ -20,12 +20,12 @@ class analyze extends mp_controller {
          * 分页数据 
          */
         $q = array();
-        $s = 'l.openid,f.nickname';
+        $s = 'l.openid,l.nickname';
         $s .= ',sum(l.act_read) read_num';
         $s .= ',sum(l.act_share_friend) share_friend_num';
         $s .= ',sum(l.act_share_timeline) share_timeline_num';
         $q[] = $s;
-        $q[] = 'xxt_log_user_action l left join xxt_fans f on l.mpid=f.mpid and l.openid=f.openid';
+        $q[] = 'xxt_log_user_action l';
         $w = "l.mpid='$this->mpid'";
         $w .= " and l.action_at>=$startAt and l.action_at<=$endAt";
         $q[] = $w;

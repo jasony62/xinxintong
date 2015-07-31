@@ -116,19 +116,21 @@ class lottery extends \member_base {
          * 记录日志，完成前置活动再次进入的情况不算
          */
         if ($preactivitydone) {
-            $openid_agent = $_SERVER['HTTP_USER_AGENT'];
-            $client_ip = $this->client_ip();
-            $this->model('log')->writeMatterReadLog(
-                $vid, 
-                $mpid, 
-                $lot->id, 
-                'lottery', 
-                $lot->title,
-                isset($ooid) ? $ooid : '',
-                $shareby, 
-                $openid_agent, 
-                $client_ip
-            );
+            $logUser = new \stdClass;
+            $logUser->vid = $vid;
+            $logUser->openid = isset($ooid) ? $ooid : '';
+            $logUser->nickname = '';
+            
+            $logMatter = new \stdClass;
+            $logMatter->id = $lot->id;
+            $logMatter->type = 'lottery';
+            $logMatter->title = $lot->title;
+            
+            $logClient = new \stdClass;
+            $logClient->agent = $_SERVER['HTTP_USER_AGENT'];
+            $logClient->ip = $this->client_ip();
+            
+            $this->model('log')->writeMatterRead($mpid, $logUser, $logMatter, $logClient, $shareby);
         }
         /**
          * is member? 

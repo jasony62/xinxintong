@@ -123,15 +123,25 @@ class article_model extends article_base {
      * 文章打开的次数
      * todo 应该用哪个openid，根据oauth是否开放来决定？
      */
-    public function readLog($id)
+    public function readLog($id, $page, $size)
     {
         $q = array(
-            'f.fid,f.nickname,f.openid,l.read_at',
-            'xxt_log_matter_read l,xxt_fans f',
-            "l.mpid=f.mpid and l.matter_type='article' and l.matter_id='$id' and l.ooid=f.openid"
+            'l.openid,l.nickname,l.read_at',
+            'xxt_log_matter_read l',
+            "l.matter_type='article' and l.matter_id='$id'"
+        );
+        /**
+         * 分页数据
+         */
+        $q2 = array(
+            'o' => 'l.read_at desc',
+            'r' => array(
+                'o' => (($page-1)*$size),
+                'l' => $size
+            )
         );
 
-        $log = $this->query_objs_ss($q);
+        $log = $this->query_objs_ss($q, $q2);
 
         return $log;
     }
@@ -149,35 +159,6 @@ class article_model extends article_base {
         return 1 === (int)$this->query_val_ss($q);
     }
     /**
-     * 文章总的赞数
-     */
-    public function score($id)
-    {
-        $q = array(
-            'count(*)',
-            'xxt_article_score',
-            "article_id='$id'" 
-        );
-        $score = $this->query_val_ss($q);
-
-        return $score;
-    }
-    /**
-     * 文章打开的次数
-     */
-    public function readNum($id)
-    {
-        $q = array(
-            'count(*)',
-            'xxt_log_matter_read',
-            "matter_type='article' and matter_id='$id'"
-        );
-
-        $num = $this->query_val_ss($q);
-
-        return $num;
-    }
-    /**
      * 文章评论
      *
      * $range 分页参数
@@ -185,9 +166,9 @@ class article_model extends article_base {
     public function remarks($articleId, $remarkId=null, $range=false)
     {
         $q = array(
-            'r.*,f.nickname,f.fid',
-            'xxt_article_remark r,xxt_fans f',
-            "r.article_id='$articleId' and r.fid=f.fid"
+            'r.*',
+            'xxt_article_remark r',
+            "r.article_id='$articleId'"
         );
 
         if (!$range) {
@@ -224,23 +205,16 @@ class article_model extends article_base {
         }
     }
     /**
-     * 文章评论
-     *
-     * $range 分页参数
+     * 文章的评论用户
      */
     public function remarkers($articleId)
     {
-        $remarkers = array();
-        
         $q = array(
-            'distinct fid',
+            'distinct fid,openid,nickname',
             'xxt_article_remark r',
             "r.article_id='$articleId'"
         );
-        $remarks = $this->query_objs_ss($q);
-        foreach ($remarks as $remark) {
-            $remarkers[] = \TMS_APP::M('user/fans')->byId($remark->fid, 'openid,nickname');
-        }
+        $remarkers = $this->query_objs_ss($q);
         
         return $remarkers;
     }

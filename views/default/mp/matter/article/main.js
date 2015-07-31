@@ -92,7 +92,7 @@ xxtApp.controller('editCtrl', ['$scope', 'http2', function ($scope, http2) {
         });
     };
     $scope.downloadUrl = function (att) {
-        return '/rest/mi/matter/articleAttachment?mpid=' + $scope.editing.mpid + '&articleid=' + $scope.editing.id + '&attachmentid=' + att.id;
+        return '/rest/mi/article/attachmentGet?mpid=' + $scope.editing.mpid + '&articleid=' + $scope.editing.id + '&attachmentid=' + att.id;
     };
     $scope.gotoCode = function () {
         if ($scope.editing.page_id != 0)
@@ -199,7 +199,7 @@ xxtApp.controller('remarkCtrl', ['$scope', 'http2', function ($scope, http2) {
     $scope.delRemark = function (remark, index) {
         var ret = window.prompt('删除当前评论吗？请输入文章的标题');
         if (ret === $scope.editing.title) {
-            http2.get('/rest/mp/matter/article/delRemark?id=' + remark.id, function (rsp) {
+            http2.get('/rest/mp/matter/article/remarkDel?id=' + remark.id, function (rsp) {
                 $scope.remarks.splice(index, 1);
             });
         }
@@ -207,7 +207,7 @@ xxtApp.controller('remarkCtrl', ['$scope', 'http2', function ($scope, http2) {
     $scope.cleanRemark = function () {
         var ret = window.prompt('删除当前评论吗？请输入文章的标题');
         if (ret === $scope.editing.title) {
-            http2.get('/rest/mp/matter/article/cleanRemark?articleid=' + $scope.id, function (rsp) {
+            http2.get('/rest/mp/matter/article/remarkClean?articleid=' + $scope.id, function (rsp) {
                 $scope.remarks = [];
             });
         }

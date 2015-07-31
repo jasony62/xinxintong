@@ -16,10 +16,6 @@ body{height:100%;background-color:#fff;font:12.5pt/1.45 Microsoft Yahei,Arial}
 .article a:hover{text-decoration: underline}
 #article_from_mp{font-size:10pt;overflow:hidden;text-align:left}
 #article_from_mp a{text-overflow:ellipsis;overflow:hidden;white-space:nowrap;text-decoration:none;color:#2880C0}
-#dlg{z-index:1099;background-color:white;position:absolute;box-sizing:border-box;-moz-box-sizing:border-box;padding:15px;height:200px;width:400px;margin:auto;display:none;webkit-box-shadow:0 3px 9px rgba(0,0,0,0.5);box-shadow:0 3px 9px rgba(0,0,0,0.5)}
-#dlg:before,#dlg:after {content:" ";display:table}
-#dlg:after {clear:both}
-#dlg div{height:120px;border-bottom:1px solid #ccc;margin-bottom:10px;overflow-x:auto}
 @media screen and (max-width:719px){ .article{padding-top:28px;} .article .wrap{margin:0 28px;}}
 @media screen and (max-width:639px){ .article{padding-top:24px;} .article .wrap{margin:0 24px;}}
 @media screen and (max-width:479px){ .article{padding-top:18px;} .article .wrap{margin:0 18px;}}
@@ -37,8 +33,19 @@ table th,table td,table.mce-item-table th,table.mce-item-table td{border-left:1p
 #stat .like em{-webkit-tap-highlight-color:rgba(0,0,0,0);display:inline-block;background-image:url("/static/img/icons.svg");background-size: 68.75px 103.13px;background-position:-31.25px 0;background-repeat:no-repeat;width:15px;height:15px}
 #stat .like em.praised{background-position:-31.25px -25px}
 #stat *{vertical-align:middle}
+/* dialog */
+#dlg{z-index:1099;background-color:white;position:absolute;box-sizing:border-box;-moz-box-sizing:border-box;padding:15px;height:200px;width:400px;margin:auto;display:none;webkit-box-shadow:0 3px 9px rgba(0,0,0,0.5);box-shadow:0 3px 9px rgba(0,0,0,0.5)}
+#dlg:before,#dlg:after {content:" ";display:table}
+#dlg:after {clear:both}
+#dlg div{height:120px;border-bottom:1px solid #ccc;margin-bottom:10px;overflow-x:auto}
+/* remark */
 #remark h4{margin:0;padding:0 0 4px}
 #remark li>.content{font-size:14px;margin:0 0 8px}
 #remark .nickname{color:#B06060;overflow:hidden;float:left;font-size:12px}
 #remark .datetime{color:#CCC;float:right;overflow:hidden;font-size:12px}
 #gotoRemarksHeader,#gotoNewRemark{display:none}
+/* pic viewer */
+#picViewer{position:absolute;left:0px;right:0px;top:0px;bottom:0px;z-index:999;display:none;margin:0 auto;overflow:hidden;background:black}
+#picViewer span{position:absolute;display:inline-block;top:6px;right:8px;z-index:1999;background:rgba(255,255,255,0.5);width:24px;height:24px;text-align:center;line-height:24px;border-radius:12px;font-size:20px}
+#tipPreview{z-index:9999;position:fixed;bottom:4px;left:4px;right:4px;height:48px;background:rgba(0,0,0,0.5);border-radius: 4px;text-align:center;line-height:48px;color:#FFF;font-size:14px}
+#tipPreview button{float:auto;position:absolute;top:12px;right:8px}

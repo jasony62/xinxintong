@@ -92,7 +92,7 @@ var Like = (function () {
     };
 })();
 var Remark = (function () {
-    var url = "/rest/mi/matter/remarkPublish?mpid=" + mpid + "&id=" + article.id,
+    var url = "/rest/mi/article/remark?mpid=" + mpid + "&id=" + article.id,
         $newRemark = $('#newRemark'),
         $remarks = $('#remarks');
     return {

@@ -173,7 +173,7 @@ class lottery_model extends \matter\lottery_model {
             $q = array(
                 'count(*)',
                 'xxt_log_matter_share',
-                "ooid='$openid' and (share_to='F' or share_to='T') and matter_type='lottery' and matter_id='$lid' and share_at>$tasklog->create_at"
+                "openid='$openid' and (share_to='F' or share_to='T') and matter_type='lottery' and matter_id='$lid' and share_at>$tasklog->create_at"
             );
             if (3 <= (int)$this->query_val_ss($q)) {
                 /**

@@ -85,7 +85,9 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_article_remark(";
 $sql .= 'id int not null auto_increment';
 $sql .= ',article_id int not null';
+$sql .= ',fid varchar(32) not null';
 $sql .= ',openid varchar(255) not null';
+$sql .= ',nickname varchar(255) not null';
 $sql .= ',create_at int not null';
 $sql .= ',remark text';
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";

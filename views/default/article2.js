@@ -1,9 +1,10 @@
 angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function ($lp) {
     $lp.html5Mode(true);
 }]).controller('ctrl', ['$location', '$scope', '$http', '$sce', '$timeout', function ($location, $scope, $http, $sce, $timeout) {
-    var mpid, id, mode;
+    var mpid, id, shareby;
     mpid = $location.search().mpid;
     id = $location.search().id;
+    shareby = $location.search().shareby ? $location.search().shareby : '';
     $scope.mode = $location.search().mode || false;
     $http.get('/rest/mi/article/get?mpid=' + mpid + '&id=' + id).success(function (rsp) {
         var params = rsp.data;
@@ -11,8 +12,8 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function ($lp
         $scope.article = params.article;
         $scope.user = params.user;
         params.mpaccount && ($scope.mpa = params.mpaccount);
+        $http.get('/rest/mi/matter/logAccess?mpid=' + mpid + '&id=' + id + '&type=article&title=' + $scope.article.title + '&shareby=' + shareby);
     });
-    $scope.newRemark = '';
     $scope.like = function () {
         if ($scope.mode === 'preview') return;
         var url = "/rest/mi/article/score?mpid=" + mpid + "&id=" + id;
@@ -21,6 +22,7 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function ($lp
             $scope.article.praised = rsp.data[1];
         });
     };
+    $scope.newRemark = '';
     $scope.remark = function () {
         var url = "/rest/mi/article/remark?mpid=" + mpid + "&id=" + id;
         if ($scope.newRemark === '') { alert('评论内容不允许为空！'); return; };

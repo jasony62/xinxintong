@@ -272,20 +272,23 @@ class article extends matter_ctrl {
     public function edit_action() 
     {
        $this->view_action('/mp/matter/article');
-    }/**
-     * 返回单图文视图
+    }
+    /**
+     * 
      */
     public function read_action() 
     {
        $this->view_action('/mp/matter/article');
-    }/**
-     * 返回单图文视图
+    }
+    /**
+     * 
      */
     public function stat_action() 
     {
        $this->view_action('/mp/matter/article');
-    }/**
-     * 返回单图文视图
+    }
+    /**
+     * 
      */
     public function remark_action() 
     {
@@ -459,13 +462,13 @@ class article extends matter_ctrl {
         return $article;
     }
     /**
-     * 图文的阅读情况
+     * 图文的阅读日志
      */
-    public function readGet_action($id)
+    public function readGet_action($id, $page = 1, $size = 30)
     {
         $model = $this->model('matter\article');
 
-        $reads = $model->readLog($id);
+        $reads = $model->readLog($id, $page, $size);
 
         return new \ResponseData($reads);
     }
@@ -487,7 +490,7 @@ class article extends matter_ctrl {
     /**
      *
      */
-    public function delRemark_action($id)
+    public function remarkDel_action($id)
     {
         $rst = $this->model()->delete('xxt_article_remark', "id=$id");
         
@@ -496,7 +499,7 @@ class article extends matter_ctrl {
     /**
      *
      */
-    public function cleanRemark_action($articleid)
+    public function remarkClean_action($articleid)
     {
         $rst = $this->model()->delete('xxt_article_remark', "article_id=$articleid");
         

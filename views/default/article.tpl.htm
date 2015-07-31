@@ -54,7 +54,7 @@ function exchangeSize($size) {
                 <?php if ($article->has_attachment==='Y') {
                     echo "<table class='table table-bordered'><caption>附件</caption>";
                     foreach ($article->attachments as $att) {
-                        $downloadUrl = '/rest/mi/matter/articleAttachment?mpid='.$mpid.'&articleid='.$article->id.'&attachmentid='.$att->id;
+                        $downloadUrl = '/rest/mi/article/attachmentGet?mpid='.$mpid.'&articleid='.$article->id.'&attachmentid='.$att->id;
                         echo "<tr>";
                         echo "<td><a href='$downloadUrl' target='_blank'>$att->name</a></td>";
                         $size = exchangeSize($att->size);

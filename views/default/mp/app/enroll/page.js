@@ -354,7 +354,7 @@
     var EmbedButtonSchema = {
         _args: function (def) { return def.next ? "($event,'" + def.next + "')" : "($event)" },
         submit: { id: 'btnSubmit', act: function (def) { return 'submit' + EmbedButtonSchema._args(def); } },
-        addRecord: { id: 'btnNewRecord', act: function (def) { return 'addRecord($evnet)' } },
+        addRecord: { id: 'btnNewRecord', act: function (def) { return 'addRecord($event)' } },
         editRecord: { id: 'btnEditRecord', act: "editRecord($event)" },
         likeRecord: { id: 'btnLikeRecord', act: "likeRecord($event)" },
         //remarkRecord: { id: 'btnRemarkRecord', act: '' },

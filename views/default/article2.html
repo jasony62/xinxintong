@@ -4,7 +4,7 @@
     <head>
         <meta charset="utf-8">
         <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
-        <base href="/" />
+        <base href="." />
         <title ng-bind='article.title'></title>
         <link href="/static/css/bootstrap.min.css" rel="stylesheet">
         <link href="/views/default/article2.css?_=1" rel="stylesheet">
@@ -25,6 +25,17 @@
                     <img ng-src="{{article.pic}}">
                 </div>
                 <div id="content" class="content" ng-bind-html='article.body'></div>
+                <div id="attachment" ng-if="article.attachments">
+                    <table class='table table-bordered'>
+                        <caption>附件</caption>
+                        <tr ng-repeat='a in attachments'>
+                            <td>
+                                <a ng-href='a.downloadUrl' target='_blank' ng-bind='a.name'></a>
+                            </td>
+                            <td ng-bind='a.size'></td>
+                        </tr>
+                    </table>
+                </div>
                 <p class="url" ng-if="article.url">
                     <a href="{{article.url}}" target="_self">阅读原文</a>
                 </p>
@@ -63,9 +74,15 @@
             <div></div>
             <button>关闭</button>
         </div>
+        <div id='picViewer'>
+            <span>X</span>
+            <img/>
+        </div>
         <script src="/static/js/angular.min.js "></script>
         <script src="/static/js/angular-sanitize.min.js "></script>
         <script src="/views/default/article2.js?_=1 "></script>
+        <script src="/static/js/hammer.min.js"></script>
+        <script src="/static/js/picViewer.js"></script>
     </body>
 
 </html>

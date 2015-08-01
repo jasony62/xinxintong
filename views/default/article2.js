@@ -3,9 +3,10 @@ if (/MicroMessenger/.test(navigator.userAgent)) {
     signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
     wx.config(signPackage);
 }
+window.addEventListener('load', function () { console.log('window load...'); });
 angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function ($lp) {
     $lp.html5Mode(true);
-}]).controller('ctrl', ['$location', '$scope', '$http', '$sce', '$timeout', function ($location, $scope, $http, $sce, $timeout) {
+}]).controller('ctrl', ['$location', '$scope', '$http', '$sce', '$timeout', '$q', function ($location, $scope, $http, $sce, $timeout, $q) {
     var mpid, id, shareby, setShare, getArticle;
     mpid = $location.search().mpid;
     id = $location.search().id;
@@ -33,13 +34,15 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function ($lp
         window.xxt.share.set($scope.article.title, sharelink, $scope.article.summary, $scope.article.pic);
     };
     getArticle = function () {
+        var deferred = $q.defer();
         $http.get('/rest/mi/article/get?mpid=' + mpid + '&id=' + id).success(function (rsp) {
             var params;
-            params = rsp.data;  
-            params.body = $sce.trustAsHtml(params.body);
+            params = rsp.data;
+            params.article.body = $sce.trustAsHtml(params.article.body);
             $scope.article = params.article;
             $scope.user = params.user;
-            params.mpaccount && ($scope.mpa = params.mpaccount);
+            params.mpaccount.body_ele = $sce.trustAsHtml(params.mpaccount.body_ele);
+            $scope.mpa = params.mpaccount;
             $http.get('/rest/mi/matter/logAccess?mpid=' + mpid + '&id=' + id + '&type=article&title=' + $scope.article.title + '&shareby=' + shareby);
             if (/MicroMessenge|Yixin/i.test(navigator.userAgent)) {
                 setShare();
@@ -52,15 +55,59 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function ($lp
                 body.appendChild(hm);
                 hm = document.createElement("script");
                 hm.src = "/static/js/picViewer.js";
+                hm.onload = function () {
+                    var eViewer = document.querySelector('#picViewer');
+                    var oPicViewer = PicViewer('#picViewer img', {});
+                    var clickImg = function (event) {
+                        event.preventDefault();
+                        var top = Math.max(document.documentElement.scrollTop, document.body.scrollTop);
+                        var height = document.documentElement.clientHeight;
+                        var src = this.src;
+                        document.body.style.overflow = 'hidden';
+                        eViewer.style.top = top + 'px';
+                        eViewer.style.height = height + 1 + 'px';
+                        eViewer.style.display = 'block';
+                        eViewer.querySelector('img').src = src;
+                        oPicViewer.fresh();
+                    };
+                    var supportPicviewer = function () {
+                        console.log('picviewer init...');
+                        var eThumbs = document.querySelectorAll('.wrap img');
+                        var eCloser = document.querySelector('#picViewer span');
+
+                        eCloser.addEventListener('click', function (e) {
+                            eViewer.style.display = 'none';
+                            document.body.style.overflow = 'auto';
+                            return false;
+                        }, false);
+                        eViewer.addEventListener('touchmove', function (e) {
+                            e.preventDefault();
+                        }, false);
+                        for (var i = 0, l = eThumbs.length; i < l; i++) {
+                            eThumbs[i].addEventListener('click', clickImg);
+                        }
+                        window.addEventListener('resize', function () {
+                            if (eViewer.style.display === 'block') {
+                                var top = Math.max(document.documentElement.scrollTop, document.body.scrollTop);
+                                var height = document.documentElement.clientHeight;
+                                eViewer.style.top = top + 'px';
+                                eViewer.style.height = height + 1 + 'px';
+                                oPicViewer.fresh();
+                            }
+                        });
+                    };
+                    supportPicviewer();
+                };
                 body.appendChild(hm);
             }
+            deferred.resolve();
         }).error(function (content, httpCode) {
             if (httpCode === 401) {
                 var el = document.querySelector('#frmAuth');
                 if (content.indexOf('http') === 0) {
                     window.onAuthSuccess = function () {
-                        getArticle();
                         el.style.display = 'none';
+                        getArticle().then(function () { $scope.loading = false });
                     };
                     el.setAttribute('src', content);
                     el.style.display = 'block';
@@ -74,8 +121,10 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function ($lp
                 alert(content);
             }
         });
+        return deferred.promise;
     };
-    getArticle();
+    $scope.loading = true;
+    getArticle().then(function () { $scope.loading = false });
     $scope.like = function () {
         if ($scope.mode === 'preview') return;
         var url = "/rest/mi/article/score?mpid=" + mpid + "&id=" + id;

@@ -59,7 +59,7 @@ class matter extends \member_base {
          */
         switch ($type) {
         case 'article':
-            if (isset($_GET['tpl']) && $_GET['tpl'] === 'std' && $mpid !== 'cdc0926dbb84d918df6b3469afe3a2c7') {
+            if (isset($_GET['tpl']) && $_GET['tpl'] === 'std' && (!defined('SAE_TMP_PATH)') || in_array($mpid, array('9688d86c06adad6b08ae170e0c553864','cdc0926dbb84d918df6b3469afe3a2c7')))) {
                 \TPL::output('article2');
                 exit;
             } else {

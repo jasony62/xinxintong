@@ -49,3 +49,5 @@ table th,table td,table.mce-item-table th,table.mce-item-table td{border-left:1p
 #picViewer span{position:absolute;display:inline-block;top:6px;right:8px;z-index:1999;background:rgba(255,255,255,0.5);width:24px;height:24px;text-align:center;line-height:24px;border-radius:12px;font-size:20px}
 #tipPreview{z-index:9999;position:fixed;bottom:4px;left:4px;right:4px;height:48px;background:rgba(0,0,0,0.5);border-radius: 4px;text-align:center;line-height:48px;color:#FFF;font-size:14px}
 #tipPreview button{float:auto;position:absolute;top:12px;right:8px}
+/* auth */
+#frmAuth{display:none;position:absolute;top:0;left:0;right:0;border:none;width:100%;z-index:999}

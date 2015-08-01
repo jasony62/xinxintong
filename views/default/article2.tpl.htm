@@ -4,7 +4,7 @@
     <head>
         <meta charset="utf-8">
         <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
-        <base href="/" />
+        <base href="." />
         <title ng-bind='article.title'></title>
         <link href="/static/css/bootstrap.min.css" rel="stylesheet">
         <link href="/views/default/article2.css?_=1" rel="stylesheet">
@@ -78,7 +78,7 @@
             <span>X</span>
             <img/>
         </div>
-        <iframe id='frmAuth' onload='this.height=$(document).height()'></iframe>
+        <iframe id='frmAuth' onload='this.height=document.documentElement.clientHeight'></iframe>
         <script type="text/javascript">
             if (/MicroMessenger/i.test(navigator.userAgent)) {
                 var mpid = location.search.match(/mpid=([^&]*)/)[1];

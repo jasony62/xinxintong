@@ -96,46 +96,55 @@ class member_base extends xxt_base {
      * $matter
      * $checkAccessControl
      */
-    protected function &getUser($mpid, $sAuthapis = null, $openid = '', $matter = null)
+    protected function &getUser($mpid, $options = array())
     {
+        $sAuthapis = isset($options['authapis']) ? $options['authapis'] : null;
+        $openid = isset($options['openid']) ? $options['openid'] : '';
+        $matter = isset($options['matter']) ? $options['matter'] : null;
+        // return value
+        $user = new \stdClass;
         /**
          * 当前用户在cookie中的记录
          */
+        $vid = $this->getVisitorId($mpid);
+        $user->vid = $vid;
+        //
         empty($openid) && $openid = $this->getCookieOAuthUser($mpid);
+        $user->openid = $openid;
         /**
-         * 所有用户认证信息
+         * 用户详细信息
          */
-        $members = $this->getMembersByMpid($mpid, $sAuthapis, $openid);
-        /**
-         * 限定的用户认证身份
-         */
-        if ($matter && isset($matter->access_control) && $matter->access_control === 'Y') {
-            $membersInAcl = array();
-            foreach ($members as $member) {
-                if ($this->canAccessObj($mpid, $matter->id, $member, $sAuthapis, $matter)) {
-                    $membersInAcl[] = $member;
+        if (isset($options['verbose'])) {
+            if (isset($options['verbose']['member'])) {
+                /**
+                 * 用户认证身份
+                 */
+                $members = $this->getMembersByMpid($mpid, $sAuthapis, $openid);
+                if ($matter && isset($matter->access_control) && $matter->access_control === 'Y') {
+                    $membersInAcl = array();
+                    foreach ($members as $member) {
+                        if ($this->canAccessObj($mpid, $matter->id, $member, $sAuthapis, $matter)) {
+                            $membersInAcl[] = $member;
+                        }
+                    }
                 }
+                $user->members = $members;
+                isset($membersInAcl) && $user->membersInAcl = $membersInAcl;
+            }
+            if (isset($options['verbose']['fan'])) {
+                /**
+                 * 关注用户信息
+                 */
+                if (empty($openid) && !empty($members)) {
+                    $fan = $this->model('user/fans')->byMid($members[0]->mid, '*'); 
+                    $openid = $fan->openid;
+                } else if (!empty($openid))
+                    $fan = $this->model('user/fans')->byOpenid($mpid, $openid);
+                else
+                    $fan = null;
+                $user->fan = $fan;
             }
         }
-        /**
-         * 关注用户信息
-         */
-        if (empty($openid) && !empty($members)) {
-            $fan = $this->model('user/fans')->byMid($members[0]->mid, '*'); 
-            $openid = $fan->openid;
-        } else if (!empty($openid))
-            $fan = $this->model('user/fans')->byOpenid($mpid, $openid);
-        else
-            $fan = null;
-        
-        $vid = $this->getVisitorId($mpid);
-
-        $user = new \stdClass;
-        $user->vid = $vid;
-        $user->openid = $openid;
-        $user->fan = $fan;
-        $user->members = $members;
-        isset($membersInAcl) && $user->membersInAcl = $membersInAcl;
 
         return $user;
     }
@@ -257,7 +266,6 @@ class member_base extends xxt_base {
     {
         $aAuthapis = explode(',', $authapis);
         $members = $this->authenticate($runningMpid, $aAuthapis, $targetUrl, $openid);
-
         $passed = false;
         foreach ($members as $member) {
             if ($this->canAccessObj($runningMpid, $objId, $member, $authapis, $obj)) {

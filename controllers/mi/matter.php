@@ -59,8 +59,13 @@ class matter extends \member_base {
          */
         switch ($type) {
         case 'article':
-            require_once dirname(__FILE__).'/page_article.php';
-            $page = new page_article($id, $ooid, $shareby);
+            if (isset($_GET['tpl']) && $_GET['tpl'] === 'std' && $mpid !== 'cdc0926dbb84d918df6b3469afe3a2c7') {
+                \TPL::output('article2');
+                exit;
+            } else {
+                require_once dirname(__FILE__).'/page_article.php';
+                $page = new page_article($id, $ooid, $shareby);
+            }
             break;
         case 'news':
             require_once dirname(__FILE__).'/page_news.php';
@@ -139,14 +144,14 @@ class matter extends \member_base {
      */
     public function logAccess_action($mpid, $id, $type, $title, $shareby='')
     {
-        $user = $this->getUser($mpid);
+        $user = $this->getUser($mpid, array('verbose' => array('fan' => 'Y')));
         
         if ($type === 'article') {
             $this->model()->update("update xxt_article set read_num=read_num+1 where id='$id'");
         }
         $logUser = new \stdClass;
         $logUser->vid = $user->vid;
-        $logUser->openid = isset($user->fan) ? $user->fan->openid : '';
+        $logUser->openid = isset($user->fan) ? $user->openid : '';
         $logUser->nickname =  isset($user->fan) ? $user->fan->nickname : '';
         
         $logMatter = new \stdClass;

@@ -14,6 +14,13 @@ class article extends \member_base {
 
         return $rule_action;
     }
+    /**
+     *
+     */
+    protected function canAccessObj($mpid, $matterId, $member, $authapis, &$matter)
+    {
+        return $this->model('acl')->canAccessMatter($mpid, 'article', $matterId, $member, $authapis);
+    }
     /** 
      * 返回请求的素材
      *
@@ -22,15 +29,17 @@ class article extends \member_base {
      */
     public function get_action($mpid, $id)
     {
-        $openid = $this->getCookieOAuthUser($mpid);
-        $vid = $this->getVisitorId($mpid);
+        $user = $this->getUser($mpid);
         
         $data = array();
         
         $modelArticle = $this->model('matter\article');
         $article = $modelArticle->byId($id);
+        if (isset($article->access_control) && $article->access_control === 'Y')
+            $this->accessControl($mpid, $id, $article->authapis, $user->openid, $article);
+        
         $article->remarks =  $article->remark_num > 0 ? $modelArticle->remarks($id) : false;
-        $article->praised =  $modelArticle->praised($vid, $id);
+        $article->praised =  $modelArticle->praised($user->vid, $id);
         if ($article->has_attachment === 'Y')
             $article->attachments = $this->model()->query_objs_ss(
                 array(
@@ -42,9 +51,6 @@ class article extends \member_base {
         
         $data['article'] = $article;
 
-        $user = new \stdClass;
-        $user->openid = $openid;
-        $user->vid = $vid;
         $data['user'] = $user;
         
         $mpaccount = $this->getCommonSetting($mpid);
@@ -127,7 +133,7 @@ class article extends \member_base {
         if (empty($posted->remark))
             return new \ResponseError('评论不允许为空！');
         
-        $user = $this->getUser($mpid);
+        $user = $this->getUser($mpid, array('verbose' => array('fan' => 'Y')));
         if (empty($user->openid))
             return new \ResponseError('无法获得用户标识，不允许发布评论');
         /**

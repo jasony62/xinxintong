@@ -33,7 +33,7 @@ class main extends \member_base {
         /**
          * 身份信息
          */
-        $user = $this->getUser($mpid);
+        $user = $this->getUser($mpid, array('verbose'=>array('member'=>'Y')));
         /**
          * 必须是关注用户
          */
@@ -194,7 +194,7 @@ class main extends \member_base {
         /**
          * 当前用户
          */
-        $c->user = $this->getUser($mpid);
+        $c->user = $this->getUser($mpid, array('verbose'=>array('member'=>'Y')));
         
         return new \ResponseData($c);
     }

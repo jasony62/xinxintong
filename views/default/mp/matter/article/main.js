@@ -22,6 +22,7 @@ xxtApp.controller('articleCtrl', ['$scope', '$location', 'http2', function ($sco
     $scope.back = function () {
         location.href = '/page/mp/matter/articles';
     };
+    $scope.entryUrl = '';
     http2.get('/rest/mp/mpaccount/get', function (rsp) {
         $scope.mpaccount = rsp.data;
         $scope.hasParent = rsp.data.parent_mpid && rsp.data.parent_mpid.length;
@@ -30,6 +31,7 @@ xxtApp.controller('articleCtrl', ['$scope', '$location', 'http2', function ($sco
         $scope.editing = rsp.data;
         $scope.editing.attachments === undefined && ($scope.editing.attachments = []);
         $scope.entryUrl = 'http://' + location.host + '/rest/mi/matter?mpid=' + $scope.editing.mpid + '&id=' + $scope.id + '&type=article';
+        $scope.entryUrl += '&tpl=' + ($scope.editing.custom_body === 'N' ? 'std' : 'cus');
         $scope.picGalleryUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid=' + $scope.editing.mpid;
         if (!$scope.editing.creater)
             $scope.bodyEditable = false;
@@ -191,6 +193,10 @@ xxtApp.controller('editCtrl', ['$scope', 'http2', function ($scope, http2) {
             $scope.editing.attachments.push(rsp.data);
             $scope.$root.progmsg = null;
         });
+    });
+    $scope.$watch('editing.custom_body', function (nv) {
+        if (!nv) return;
+        $scope.entryUrl = $scope.entryUrl.replace(/tpl=[^&]*/, nv === 'Y' ? 'tpl=cus' : 'tpl=std');
     });
 }]);
 xxtApp.controller('remarkCtrl', ['$scope', 'http2', function ($scope, http2) {

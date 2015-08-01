@@ -19,6 +19,22 @@ class article_model extends article_base {
         return 'article';
     }
     /**
+     *
+     */
+    public function getEntryUrl($runningMpid, $id, $openid=null)
+    {
+        $url = "http://".$_SERVER['HTTP_HOST'];
+        $url .= "/rest/mi/matter";
+        $url .= "?mpid=$runningMpid&id=$id&type=article";
+        !empty($openid) && $url .= "&openid=$openid";
+        
+        $article = $this->byId($id, 'custom_body');
+        
+        $url .= '&tpl=' . ($article->custom_body === 'Y' ? 'cus' : 'std');
+        
+        return $url;
+    }
+    /**
     *
     */
     public function &byCreater($mpid, $creater, $fields='*', $cascade=false)

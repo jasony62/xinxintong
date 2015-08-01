@@ -85,8 +85,7 @@ abstract class article_base extends base_model {
         $url = "http://".$_SERVER['HTTP_HOST'];
         $url .= "/rest/mi/matter";
         $url .= "?mpid=$runningMpid&id=$id&type=".$this->getTypeName();
-        if (!empty($openid))
-            $url .= "&openid=$openid";
+        !empty($openid) && $url .= "&openid=$openid";
 
         return $url;
     }

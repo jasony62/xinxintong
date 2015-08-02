@@ -6,15 +6,19 @@
         <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
         <base href="/" />
         <title ng-bind='article.title'></title>
-        <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-        <link href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" />
+        <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link href="//libs.useso.com/js/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
         <link href="/views/default/article2.css?_=1" rel="stylesheet">
         <style ng-bind='mpa.body_css'></style>
     </head>
     
     <body ng-cloak class='ng-cloak'>
         <header ng-bind-html='mpa.body_ele'></header>
-        <div id='mask' ng-if="loading"><div><i class='fa fa-spinner fa-5x fa-pulse'></i></div></div>
+        <div id='mask' ng-if="loading">
+            <div>
+                <i class='fa fa-spinner fa-5x fa-pulse'></i>
+            </div>
+        </div>
         <div class="article">
             <div class="wrap">
                 <h1 id="title" class="ttile" ng-bind='article.title'></h1>
@@ -74,15 +78,6 @@
             </div>
         </div>
         <footer></footer>
-        <div id='dlg'>
-            <div></div>
-            <button>关闭</button>
-        </div>
-        <div id='picViewer' ng-if="article.can_picviewer==='Y'">
-            <span>X</span>
-            <img/>
-        </div>
-        <iframe id='frmAuth' onload='this.height=document.documentElement.clientHeight'></iframe>
         <script type="text/javascript">
             if (/MicroMessenger/i.test(navigator.userAgent)) {
                 var mpid = location.search.match(/mpid=([^&]*)/)[1];

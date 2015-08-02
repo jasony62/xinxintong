@@ -36,7 +36,7 @@ class article extends \member_base {
         $modelArticle = $this->model('matter\article');
         $article = $modelArticle->byId($id);
         if (isset($article->access_control) && $article->access_control === 'Y')
-            $this->accessControl($mpid, $id, $article->authapis, $user->openid, $article);
+            $this->accessControl($mpid, $id, $article->authapis, $user->openid, $article, false);
         
         $article->remarks =  $article->remark_num > 0 ? $modelArticle->remarks($id) : false;
         $article->praised =  $modelArticle->praised($user->vid, $id);

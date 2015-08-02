@@ -43,12 +43,17 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function ($lp
             $scope.user = params.user;
             params.mpaccount.body_ele = $sce.trustAsHtml(params.mpaccount.body_ele);
             $scope.mpa = params.mpaccount;
+            deferred.resolve();
             $http.get('/rest/mi/matter/logAccess?mpid=' + mpid + '&id=' + id + '&type=article&title=' + $scope.article.title + '&shareby=' + shareby);
             if (/MicroMessenge|Yixin/i.test(navigator.userAgent)) {
                 setShare();
             }
             if ($scope.article.can_picviewer === 'Y') {
-                var hm, body;
+                var eViewer, hm, body;
+                eViewer = document.createElement('div');
+                eViewer.setAttribute('id', 'picViewer');
+                eViewer.innerHTML = "<span><i class='fa fa-times-circle-o'></i></span><img>";
+                document.body.appendChild(eViewer);
                 body = document.querySelector('body');
                 hm = document.createElement("script");
                 hm.src = "/static/js/hammer.min.js";
@@ -56,7 +61,6 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function ($lp
                 hm = document.createElement("script");
                 hm.src = "/static/js/picViewer.js";
                 hm.onload = function () {
-                    var eViewer = document.querySelector('#picViewer');
                     var oPicViewer = PicViewer('#picViewer img', {});
                     var clickImg = function (event) {
                         event.preventDefault();
@@ -100,10 +104,12 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function ($lp
                 };
                 body.appendChild(hm);
             }
-            deferred.resolve();
         }).error(function (content, httpCode) {
             if (httpCode === 401) {
-                var el = document.querySelector('#frmAuth');
+                var el = document.createElement('iframe');
+                el.setAttribute('id', 'frmAuth');
+                el.onload = function () { this.height = document.documentElement.clientHeight; };
+                document.body.appendChild(el);
                 if (content.indexOf('http') === 0) {
                     window.onAuthSuccess = function () {
                         el.style.display = 'none';

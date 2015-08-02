@@ -462,17 +462,6 @@ class article extends matter_ctrl {
         return $article;
     }
     /**
-     * 图文的阅读日志
-     */
-    public function readGet_action($id, $page = 1, $size = 30)
-    {
-        $model = $this->model('log');
-
-        $reads = $model->readLog('article', $id, $page, $size);
-
-        return new \ResponseData($reads);
-    }
-    /**
      * 获得指定文章的所有评论
      *
      * $id article's id

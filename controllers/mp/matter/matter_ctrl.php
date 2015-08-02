@@ -86,4 +86,17 @@ class matter_ctrl extends \mp\mp_controller {
         );
         return new \ResponseData($rst);
     }
+    /**
+     * 素材的阅读日志
+     */
+    public function readGet_action($id, $page = 1, $size = 30)
+    {
+        $model = $this->model('log');
+
+        $type = $this->getMatterType();
+        
+        $reads = $model->getMatterRead($type, $id, $page, $size);
+
+        return new \ResponseData($reads);
+    }
 }

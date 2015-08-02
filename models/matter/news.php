@@ -240,30 +240,4 @@ class news_model extends article_base {
         
         return $lastlog;
     }
-    /**
-     * 文章打开的次数
-     * todo 应该用哪个openid，根据oauth是否开放来决定？
-     */
-    public function readLog($id, $page, $size)
-    {
-        $q = array(
-            'l.openid,l.nickname,l.read_at',
-            'xxt_log_matter_read l',
-            "l.matter_type='news' and l.matter_id='$id'"
-        );
-        /**
-         * 分页数据
-         */
-        $q2 = array(
-            'o' => 'l.read_at desc',
-            'r' => array(
-                'o' => (($page-1)*$size),
-                'l' => $size
-            )
-        );
-
-        $log = $this->query_objs_ss($q, $q2);
-
-        return $log;
-    }
 }

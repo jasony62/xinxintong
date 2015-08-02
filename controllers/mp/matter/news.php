@@ -209,9 +209,9 @@ class news extends matter_ctrl {
      */
     public function readGet_action($id, $page = 1, $size = 30)
     {
-        $model = $this->model('matter\news');
+        $model = $this->model('log');
 
-        $reads = $model->readLog($id, $page, $size);
+        $reads = $model->readLog('news', $id, $page, $size);
 
         return new \ResponseData($reads);
     }

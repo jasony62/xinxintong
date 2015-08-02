@@ -466,9 +466,9 @@ class article extends matter_ctrl {
      */
     public function readGet_action($id, $page = 1, $size = 30)
     {
-        $model = $this->model('matter\article');
+        $model = $this->model('log');
 
-        $reads = $model->readLog($id, $page, $size);
+        $reads = $model->readLog('article', $id, $page, $size);
 
         return new \ResponseData($reads);
     }

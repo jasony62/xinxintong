@@ -216,6 +216,17 @@ class channel extends matter_ctrl {
         return new \ResponseData($rst);
     }
     /**
+     * 图文的阅读日志
+     */
+    public function readGet_action($id, $page = 1, $size = 30)
+    {
+        $model = $this->model('matter\channel');
+
+        $reads = $model->readLog($id, $page, $size);
+
+        return new \ResponseData($reads);
+    }
+    /**
      *
      */
     protected function getMatterType()

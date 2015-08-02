@@ -204,4 +204,15 @@ class news extends matter_ctrl {
 
         return new \ResponseData($ret);
     }
+    /**
+     * 图文的阅读日志
+     */
+    public function readGet_action($id, $page = 1, $size = 30)
+    {
+        $model = $this->model('matter\news');
+
+        $reads = $model->readLog($id, $page, $size);
+
+        return new \ResponseData($reads);
+    }
 }

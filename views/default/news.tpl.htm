@@ -5,32 +5,33 @@
         <meta charset="utf-8">
         <meta content="width=device-width,initial-scale=1.0,user-scalable=no" name="viewport">
         <base href="/" />
-        <title ng-bind='channel.title'></title>
+        <title ng-bind='news.title'></title>
         <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
         <link href="//libs.useso.com/js/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
-        <link href='/views/default/channel.css?_=1' rel="stylesheet">
+        <link href='/views/default/news.css?_=1' rel="stylesheet">
     </head>
     
     <body ng-cloak class='ng-cloak'>
+        <div id='mask' ng-if="loading">
+            <div>
+                <i class='fa fa-spinner fa-5x fa-pulse'></i>
+            </div>
+        </div>
         <div class="matters">
-            <select class='form-control input-lg' ng-model='Matter.orderby' ng-change='Matter.changeOrderby()' ng-if="channel.matter_type==='article'">
-                <option value='time'>最新</option>
-                <option value='score'>最热</option>
-            </select>
-            <ul class='list-group' infinite-scroll="Matter.nextPage()" infinite-scroll-disabled="Matter.busy" infinite-scroll-distance="1">
-                <li class='list-group-item' ng-repeat='m in Matter.matters' ng-click='open(m)'>
+            <ul class='list-group'>
+                <li class='list-group-item' ng-repeat='m in news.matters' ng-click='open(m)'>
                     <div class='header clearfix'>
-                        <div class='create_at' ng-bind="m.add_at*1000|date:'yyyy-MM-dd'"></div>
+                        <div class='create_at' ng-bind="m.create_at*1000|date:'yyyy-MM-dd'"></div>
                         <div class='creater_name' ng-bind='m.creater_name' style='display:none'></div>
                     </div>
                     <div class='content'>
-                        <div ng-if="channel.show_pic_in_page==='Y'" ng-class="{'heading_pic':channel.show_pic_in_page==='Y'}" style="{{'background-image:url('+m.pic+')'}}"></div>
+                        <div class='heading_pic' style="{{'background-image:url('+m.pic+')'}}"></div>
                         <div class='text'>
                             <div class='title' ng-bind='m.title'></div>
-                            <div class='summary' ng-class="{'last-row':channel.matter_type!=='article'}" ng-bind='m.summary'></div>
+                            <div class='summary' ng-bind='m.summary'></div>
                         </div>
                     </div>
-                    <div class='actions' ng-if="channel.matter_type==='article'">
+                    <div class='actions' ng-if="m.type==='article'">
                         <span class='like' ng-class="{'praised':m.myscore==1}" ng-bind='m.score'></span>
                         <span class='remark' ng-bind='m.remark_num'></span>
                     </div>
@@ -40,8 +41,7 @@
         <script src="/static/js/jquery.min.js"></script>
         <script src="/static/js/angular.min.js"></script>
         <script src="/static/js/angular-route.min.js"></script>
-        <script src="/static/js/ng-infinite-scroll.min.js"></script>
-        <script src="/views/default/channel.js?_=1"></script>
+        <script src="/views/default/news.js?_=1"></script>
         <script type="text/javascript">
             if (document.location.host === 'xinxintong.sinaapp.com') { 
                 var _bdhmProtocol = (("https:" == document.location.protocol) ? "https://" : "http://"); 

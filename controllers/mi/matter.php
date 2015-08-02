@@ -68,13 +68,9 @@ class matter extends \member_base {
             }
             break;
         case 'news':
-            require_once dirname(__FILE__).'/page_news.php';
-            $page = new page_news($id, $ooid);
-            break;
         case 'channel':
-            require_once dirname(__FILE__).'/page_channel.php';
-            $page = new page_channel($id, $ooid);
-            break;
+            \TPL::output($type);
+            exit;
         case 'addressbook':
             require_once dirname(__FILE__).'/page_addressbook.php';
             $page = new page_addressbook($id, $ooid);
@@ -146,8 +142,16 @@ class matter extends \member_base {
     {
         $user = $this->getUser($mpid, array('verbose' => array('fan' => 'Y')));
         
-        if ($type === 'article') {
-            $this->model()->update("update xxt_article set read_num=read_num+1 where id='$id'");
+        switch ($type) {
+            case 'article':
+                $this->model()->update("update xxt_article set read_num=read_num+1 where id='$id'");
+                break;
+            case 'channel':
+                $this->model()->update("update xxt_channel set read_num=read_num+1 where id='$id'");
+                break;
+            case 'news':
+                $this->model()->update("update xxt_news set read_num=read_num+1 where id='$id'");
+                break;
         }
         $logUser = new \stdClass;
         $logUser->vid = $user->vid;

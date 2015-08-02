@@ -122,14 +122,14 @@ xxtApp.controller('linkCtrl',['$scope','http2','$location',function($scope,http2
         switch (nv) {
             case '1':
             if ($scope.news === undefined) {
-                http2.get('/rest/mp/matter/news?cascade=n', function(rsp) {
+                http2.get('/rest/mp/matter/news/get?cascade=N', function(rsp) {
                     $scope.news = rsp.data;
                 });
             }
             break;
             case '2':
             if ($scope.channels === undefined) {
-                http2.get('/rest/mp/matter/channel?cascade=n', function(rsp) {
+                http2.get('/rest/mp/matter/channel/get?cascade=N', function(rsp) {
                     $scope.channels = rsp.data;
                 });
             }
@@ -141,7 +141,7 @@ xxtApp.controller('linkCtrl',['$scope','http2','$location',function($scope,http2
                 });
             }
             if ($scope.channels === undefined) {
-                http2.get('/rest/mp/matter/channel?cascade=n', function(rsp) {
+                http2.get('/rest/mp/matter/channel/get?cascade=N', function(rsp) {
                     $scope.channels = rsp.data;
                 });
             }

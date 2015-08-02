@@ -56,13 +56,13 @@ class channel_model extends article_base {
      *
      * $channel_id int 频道的id
      * $channel 频道
-     * $mpid
+     * $runningMpid
      *
      * 置顶+动态+置底
      *
      * return 频道包含的文章，小于等于频道的容量
      */
-    public function &getMatters($channel_id, $channel=null, $mpid=null) 
+    public function &getMatters($channel_id, $channel=null, $runningMpid=null) 
     {
         $fixed_num = 0;
         $matters = array();
@@ -78,7 +78,7 @@ class channel_model extends article_base {
         if (empty($channel))
             $channel = $this->byId($channel_id, 'id,mpid,volume,top_type,top_id,bottom_type,bottom_id');
             
-        if ($mpid !== null && $mpid !== $channel->mpid) {
+        if ($runningMpid !== null && $runningMpid !== $channel->mpid) {
             $pmpid = $channel->mpid;
         }
         /**
@@ -115,8 +115,8 @@ class channel_model extends article_base {
             !empty($top) && $top->type === $type && $qaw .= " and m.id<>$top->id";
             
             !empty($bottom) && $bottom->type === $type && $qaw .= " and m.id<>$bottom->id";
-            // in parent mp
-            empty($pmpid) && $qaw .= " and m.mpid = '$mpid'";
+            // channel in parent mp
+            !empty($pmpid) && $qaw .= " and (m.mpid = '$pmpid' or m.mpid = '$runningMpid')";
             
             $q1[] = $qaw;
             $q2 = array();

@@ -222,6 +222,9 @@ $sql .= ",authapis text";
 $sql .= ",filter_by_matter_acl char(1) not null default 'Y'"; // 根据素材的访问控制进行过滤
 $sql .= ',empty_reply_type varchar(20) not null';
 $sql .= ',empty_reply_id varchar(40) not null';
+$sql .= ",read_num int not null default 0"; // 阅读数
+$sql .= ",share_friend_num int not null default 0"; // 分享给好友数
+$sql .= ",share_timeline_num int not null default 0"; // 分享朋友圈数
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
@@ -283,6 +286,9 @@ $sql .= ",access_control char(1) not null default 'N'";
 $sql .= ",authapis text";
 $sql .= ",filter_by_matter_acl char(1) not null default 'Y'"; // 根据素材的访问控制进行过滤
 $sql .= ",show_pic_in_page char(1) not null default 'Y'"; // 是否在页面中显示头图
+$sql .= ",read_num int not null default 0"; // 阅读数
+$sql .= ",share_friend_num int not null default 0"; // 分享给好友数
+$sql .= ",share_timeline_num int not null default 0"; // 分享朋友圈数
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');

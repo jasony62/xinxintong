@@ -1,6 +1,8 @@
 *{margin:0;padding:0}
 body{height:100%;background-color:#ddd;font-family:Microsoft Yahei,Arial;padding:0 8px}
 .ng-cloak{display:none}
+#mask{position:relative;background:#aaa;position:fixed;top:0;bottom:0;left:0;right:0;z-index:666;color:#999;text-align:center}
+#mask>div{position:absolute;top:50%;margin-top:-60px;width: 100%;}
 /* matters */
 .list-group{margin-top:4px}
 .list-group-item{margin-bottom:8px;padding-bottom:0}
@@ -12,11 +14,5 @@ body{height:100%;background-color:#ddd;font-family:Microsoft Yahei,Arial;padding
 .create_at{float:left}
 .title{font-weight: 700;font-size:16px;margin-top:4px}
 .summary{font-size:14px;color:#666;margin-top:4px;max-height:36px;overflow:hidden}
-.summary.last-row{margin-bottom:10px}
-.actions{height:36px;background:#eee;margin:12px -15px 0}
-.actions>span{display:inline-block;width:49%;text-align: center;line-height: 36px}
-.actions .like:before {content:' ';margin-right:4px;-webkit-tap-highlight-color:rgba(0,0,0,0);display:inline-block;background-image:url("/static/img/icons.svg");background-size: 68.75px 103.13px;background-position:-31.25px 0;background-repeat:no-repeat;width:15px;height:15px}
-.actions .like.praised:before{background-position:-31.25px -25px}
-.actions .remark:before{content:'评论';margin-right:4px}
 /* auth */
 #frmAuth{display:none;position:absolute;top:0;left:0;right:0;border:none;width:100%;z-index:999;box-sizing: border-box;}

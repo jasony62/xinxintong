@@ -17,7 +17,7 @@ xxtApp.controller('articleCtrl', ['$scope', '$window', 'http2', function ($scope
             $scope.tags = rsp.data;
             getArticles();
         });
-        http2.get('/rest/mp/matter/channel?cascade=n', function (rsp) {
+        http2.get('/rest/mp/matter/channel/get?cascade=N', function (rsp) {
             $scope.channels = rsp.data;
         });
     };

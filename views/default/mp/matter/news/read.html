@@ -1,0 +1,16 @@
+<div>
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <th>用户</th>
+                <th>打开时间</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat='r in reads'>
+                <td>{{r.nickname||r.openid}}</td>
+                <td>{{r.read_at*1000|date:'yyyy-MM-dd HH:mm'}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

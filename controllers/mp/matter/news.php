@@ -7,68 +7,88 @@ class news extends matter_ctrl {
     /**
      *
      */
-    public function index_action($cascade='y') 
+    public function index_action() 
     {
-        return $this->get_action($cascade);
-    }
-     /**
-     *
-     */
-    public function get_action($cascade='y') 
-    {
-        $options = $this->getPostJson();
-        
-        $uid = \TMS_CLIENT::get_client_uid();
-        /**
-         * 素材的来源
-         */
-        $mpid = (!empty($options->src) && $options->src==='p') ? $this->getParentMpid() : $this->mpid;
-
-        $q = array(
-            "n.*,a.nickname creater_name,'$uid' uid",
-            'xxt_news n,account a',
-            "n.mpid='$mpid' and n.state=1 and n.creater=a.uid"
-        );
-        /**
-         * 仅限作者和管理员？
-         */
-        if (!$this->model('mp\permission')->isAdmin($mpid, $uid, true)) {
-            $limit = $this->model()->query_value('matter_visible_to_creater', 'xxt_mpsetting', "mpid='$mpid'");
-            if ($limit === 'Y')
-                $q[2] .= " and (creater='$uid' or public_visible='Y')";
-        }
-
-        $q2['o'] = 'create_at desc';
-        $news = $this->model()->query_objs_ss($q, $q2);
-        /**
-         * 获得子资源
-         */
-        if ($news) {
-            foreach ($news as &$n) {
-                if ($n->empty_reply_type && $n->empty_reply_id)
-                    $n->emptyReply = $this->model('matter\base')->getMatterInfoById($n->empty_reply_type, $n->empty_reply_id);
-                if ( $cascade === 'y') {
-                    $n->stuffs = $this->model('matter\news')->getMatters($n->id);
-                    $n->acl = $this->model('acl')->byMatter($mpid, 'news', $n->id);
-                }
-            }
-        }
-        
-        return new \ResponseData($news);
+       $this->view_action('/mp/matter/news');
     }
     /**
      *
      */
-    public function cascade_action($id) 
+    public function edit_action() 
     {
-        /**
-         * 包含的素材
-         */
-        $n['stuffs'] = $this->model('matter\news')->getMatters($id);
-
-        $n['acl'] = $this->model('acl')->byMatter($this->mpid, 'news', $id);
-
-        return new \ResponseData($n);
+       $this->view_action('/mp/matter/news');
+    }
+    /**
+     * 
+     */
+    public function read_action() 
+    {
+       $this->view_action('/mp/matter/news');
+    }
+    /**
+     * 
+     */
+    public function stat_action() 
+    {
+       $this->view_action('/mp/matter/news');
+    }
+    /**
+     *
+     */
+    public function get_action($id=null, $cascade='Y') 
+    {
+        $uid = \TMS_CLIENT::get_client_uid();
+        
+        if ($id !== null) {
+            $n = $this->model('matter\news')->byId($id);
+            $n->uid = $uid;
+            if ($n->empty_reply_type && $n->empty_reply_id)
+                $n->emptyReply = $this->model('matter\base')->getMatterInfoById($n->empty_reply_type, $n->empty_reply_id);
+            if ( $cascade === 'Y') {
+                $n->stuffs = $this->model('matter\news')->getMatters($n->id);
+                $n->acl = $this->model('acl')->byMatter($this->mpid, 'news', $n->id);
+            }
+            
+            return new \ResponseData($n);
+        } else {
+            $options = $this->getPostJson();
+            /**
+             * 素材的来源
+             */
+            $mpid = (!empty($options->src) && $options->src==='p') ? $this->getParentMpid() : $this->mpid;
+    
+            $q = array(
+                "n.*,a.nickname creater_name,'$uid' uid",
+                'xxt_news n,account a',
+                "n.mpid='$mpid' and n.state=1 and n.creater=a.uid"
+            );
+            /**
+             * 仅限作者和管理员？
+             */
+            if (!$this->model('mp\permission')->isAdmin($mpid, $uid, true)) {
+                $limit = $this->model()->query_value('matter_visible_to_creater', 'xxt_mpsetting', "mpid='$mpid'");
+                if ($limit === 'Y')
+                    $q[2] .= " and (creater='$uid' or public_visible='Y')";
+            }
+    
+            $q2['o'] = 'create_at desc';
+            $news = $this->model()->query_objs_ss($q, $q2);
+            /**
+             * 获得子资源
+             */
+            if ($news) {
+                foreach ($news as &$n) {
+                    if ($n->empty_reply_type && $n->empty_reply_id)
+                        $n->emptyReply = $this->model('matter\base')->getMatterInfoById($n->empty_reply_type, $n->empty_reply_id);
+                    if ( $cascade === 'Y') {
+                        $n->stuffs = $this->model('matter\news')->getMatters($n->id);
+                        $n->acl = $this->model('acl')->byMatter($mpid, 'news', $n->id);
+                    }
+                }
+            }
+            
+            return new \ResponseData($news);
+        }
     }
     /**
      *

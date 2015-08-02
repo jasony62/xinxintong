@@ -27,7 +27,7 @@ angular.module('channel.matter.mp', ['ui.tms'])
     });
     $scope.$watch('channelsFromParent', function(nv) {
         if (nv && nv.length) {
-            var url = '/rest/mp/matter/channel?acceptType=' + $scope.matterType + '&cascade=n';
+            var url = '/rest/mp/matter/channel/get?acceptType=' + $scope.matterType + '&cascade=N';
             nv === 'Y' && (url += '&src=p');
             http2.get(url, function (rsp) {
                 $scope.channels = rsp.data;
@@ -37,7 +37,7 @@ angular.module('channel.matter.mp', ['ui.tms'])
     $scope.$watch('matterType', function (nv) {
         if (nv && nv.length) {
             $scope.matterType = nv;
-            http2.get('/rest/mp/matter/channel?acceptType=' + nv + '&cascade=n', function (rsp) {
+            http2.get('/rest/mp/matter/channel/get?acceptType=' + nv + '&cascade=N', function (rsp) {
                 $scope.channels = rsp.data;
             });
         }

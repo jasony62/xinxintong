@@ -1,0 +1,19 @@
+<div ng-controller='channelCtrl'>
+    <div class='navbar navbar-default'>
+        <ul class='nav navbar-nav'>
+            <li>
+                <a href='javascript:void(0);' ng-click="back()"><span class="glyphicon glyphicon-chevron-left"></span></a>
+            </li>
+            <li ng-class="{ 'active':subView=='edit' }">
+                <a href='/rest/mp/matter/channel/edit?id={{id}}'>编辑</a>
+            </li>
+            <li ng-class="{ 'active':subView=='read' }">
+                <a href='/rest/mp/matter/channel/read?id={{id}}'>访问日志</a>
+            </li>
+            <li ng-class="{ 'active':subView=='stat' }">
+                <a href='/rest/mp/matter/channel/stat?id={{id}}'>统计</a>
+            </li>
+        </ul>
+    </div>
+    <div ng-view></div>
+</div>

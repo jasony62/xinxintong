@@ -1,0 +1,11 @@
+.thumbnail{position:relative;height:180px;cursor:pointer}
+.thumbnail>:first-child{height:100px;overflow:hidden}
+.thumbnail>:nth-child(2){height:30px;padding-top:4px;overflow:hidden}
+.thumbnail .label{margin:0 2px 2px 0}
+.thumbnail .bottom {position:absolute;height:30px;left:4px;right:4px;bottom:4px}
+.thumbnail .bottom>div {display:table;width:100%;}
+.thumbnail .bottom>div>div {display:table-cell;color:#999;line-height:30px}
+.thumbnail .bottom .creater{width:30%;}
+.thumbnail .bottom .stat{width:40%;text-align:center}
+.thumbnail .bottom .create_at{width:30%;text-align:right}
+.thumbnail button.remove{position:absolute;top:4px;right:4px}

@@ -21,12 +21,14 @@
     </div>
     <div class='clearfix' style='margin:0 -15px'>
         <div class='col-md-4' ng-repeat='a in articles'>
-            <div class='thumbnail' ng-class="{'contribution':!a.creater}" " ng-mouseenter='enter=true' ng-mouseleave='enter=false' ng-click='edit(a)'>
+            <div class='thumbnail' ng-class="{'contribution':!a.creater}" ng-mouseenter='enter=true' ng-mouseleave='enter=false' ng-click='edit(a)'>
                 <div>
                     <h4 ng-bind='a.title'></h4>
                     <p ng-bind='a.summary'></p>
                 </div>
-                <div><span class='label label-warning' ng-repeat='t in a.tags' ng-bind='t.title'></span></div>
+                <div>
+                    <span class='label label-warning' ng-repeat='t in a.tags' ng-bind='t.title'></span>
+                </div>
                 <div class='bottom'>
                     <div>
                         <div class='creater_name' ng-bind='a.creater_name'></div>
@@ -38,8 +40,8 @@
                         <div class='modify_at' title='修改时间' ng-bind="a.modify_at*1000|date:'yyyy-MM-dd'"></div>
                     </div>
                 </div>
-                <button class='btn btn-default btn-sm remove' ng-click='remove($event,a,$index)' ng-if='a.creater&&enter'>
-                    <span class='glyphicon glyphicon-trash'></span>
+                <button class='btn btn-default remove' ng-click='remove($event,a,$index)' ng-if='a.creater&&enter'>
+                    <i class='fa fa-trash-o fa-2x'></i>
                 </button>
             </div>
         </div>

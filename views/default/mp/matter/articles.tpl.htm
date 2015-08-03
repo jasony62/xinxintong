@@ -6,8 +6,8 @@
                 <option value='time'>修改时间</option>
                 <option value='title'>图文标题</option>
                 <option value='read'>阅读数</option>
-                <option value='score'>点赞数</option>
-                <option value='remark'>评论数</option>
+                <option value='share_friend'>分享好友数</option>
+                <option value='share_timeline'>分享朋友圈数</option>
             </select>
         </div>
         <div class='form-group'>
@@ -34,8 +34,8 @@
                         <div class='creater_name' ng-bind='a.creater_name'></div>
                         <div class='stat'>
                             <span title='阅读数' ng-bind='a.read_num'></span>/
-                            <span title='点赞数' ng-bind='a.score'></span>/
-                            <span title='评论数' ng-bind='a.remark_num'></span>
+                            <span title='分享好友数' ng-bind='a.share_friend_num'></span>/
+                            <span title='分享朋友圈数' ng-bind='a.share_timeline_num'></span>
                         </div>
                         <div class='modify_at' title='修改时间' ng-bind="a.modify_at*1000|date:'yyyy-MM-dd'"></div>
                     </div>

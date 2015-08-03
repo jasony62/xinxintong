@@ -45,7 +45,7 @@ class news extends matter_ctrl {
             if ($n->empty_reply_type && $n->empty_reply_id)
                 $n->emptyReply = $this->model('matter\base')->getMatterInfoById($n->empty_reply_type, $n->empty_reply_id);
             if ( $cascade === 'Y') {
-                $n->stuffs = $this->model('matter\news')->getMatters($n->id);
+                $n->matters = $this->model('matter\news')->getMatters($n->id);
                 $n->acl = $this->model('acl')->byMatter($this->mpid, 'news', $n->id);
             }
             
@@ -81,7 +81,7 @@ class news extends matter_ctrl {
                     if ($n->empty_reply_type && $n->empty_reply_id)
                         $n->emptyReply = $this->model('matter\base')->getMatterInfoById($n->empty_reply_type, $n->empty_reply_id);
                     if ( $cascade === 'Y') {
-                        $n->stuffs = $this->model('matter\news')->getMatters($n->id);
+                        $n->matters = $this->model('matter\news')->getMatters($n->id);
                         $n->acl = $this->model('acl')->byMatter($mpid, 'news', $n->id);
                     }
                 }
@@ -108,9 +108,9 @@ class news extends matter_ctrl {
     /**
      *
      */
-    public function updateStuff_action($id) 
+    public function updateMatter_action($id) 
     {
-        $s = $this->getPostJson();
+        $matters = $this->getPostJson();
         /**
          * delete relation.
          */
@@ -118,21 +118,21 @@ class news extends matter_ctrl {
         /**
          * insert new relation.
          */
-        $this->assign_news_stuff($id, $s);
+        $this->assign_news_matter($id, $matters);
 
-        return new \ResponseData('success');
+        return new \ResponseData(count($matters));
     }
     /**
      *
      */
-    private function assign_news_stuff($news_id, &$stuffs) 
+    private function assign_news_matter($news_id, &$matters) 
     {
-        foreach ($stuffs as $i=>$s) {
-            $stuff_id = $s->id;
-            $stuff_type = $s->type;
+        foreach ($matters as $i=>$m) {
+            $matter_id = $m->id;
+            $matter_type = $m->type;
             $ns['news_id'] = $news_id;
-            $ns['matter_id'] = $stuff_id;
-            $ns['matter_type'] = $stuff_type;
+            $ns['matter_id'] = $matter_id;
+            $ns['matter_type'] = $matter_type;
             $ns['seq'] = $i;
             $this->model()->insert('xxt_news_matter', $ns);
         }
@@ -145,28 +145,23 @@ class news extends matter_ctrl {
     public function create_action() 
     {
         $uid = \TMS_CLIENT::get_client_uid();
+        
         $news = $this->getPostJson();
 
         $d = array();
         $d['mpid'] = $this->mpid;
         $d['creater'] = $uid;
         $d['create_at'] = time();
+        $d['creater_src'] = 'A';
+        $d['creater_name'] = \TMS_CLIENT::account()->nickname;
         $d['title'] = isset($news->title) ? $news->title : '新多图文';
         $id = $this->model()->insert('xxt_news', $d, true);
         /**
-         * stuffs
+         * matters
          */
-        if (isset($news->stuffs))
-            $this->assign_news_stuff($id, $news->stuffs);
+        isset($news->matters) && $this->assign_news_matter($id, $news->matters);
 
-        $q = array(
-            "n.*,a.nickname creater_name,'$uid' uid",
-            'xxt_news n,account a',
-            "n.id='$id' and n.state=1 and n.creater=a.uid"
-        );
-        $news = $this->model()->query_obj_ss($q);
-
-        $news->stuffs = $this->model('matter\news')->getMatters($news->id);
+        $news = $this->model('matter\news')->byId($id);
 
         return new \ResponseData($news);
     }

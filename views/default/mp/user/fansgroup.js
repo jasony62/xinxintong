@@ -32,7 +32,7 @@ xxtApp.controller('groupCtrl',['$scope','http2', function($scope,http2){
             http2.post('/rest/mp/user/fans/updateGroup', $scope.editing);
     };
     $scope.viewUser = function(fan){
-        location.href = '/rest/mp/user?fid='+fan.fid;
+        location.href = '/rest/mp/user?openid='+fan.openid;
     };
     http2.get('/rest/mp/mpaccount/apis', function(rsp){
         $scope.apis = rsp.data;

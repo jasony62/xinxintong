@@ -1,3 +1,8 @@
+if (/MicroMessenger/.test(navigator.userAgent)) {
+    //signPackage.debug = true;
+    signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
+    wx.config(signPackage);
+}
 angular.module('xxt', []).config(['$locationProvider', function ($locationProvider) {
     $locationProvider.html5Mode(true);
 }]).controller('ctrl', ['$scope', '$location', '$http', '$q', function ($scope, $location, $http, $q) {
@@ -5,15 +10,41 @@ angular.module('xxt', []).config(['$locationProvider', function ($locationProvid
     mpid = $location.search().mpid;
     newsId = $location.search().id;
     shareby = $location.search().shareby ? $location.search().shareby : '';
-
+    var setShare = function () {
+        var shareid, sharelink;
+        shareid = $scope.user.vid + (new Date()).getTime();
+        window.xxt.share.options.logger = function (shareto) {
+            var url = "/rest/mi/matter/logShare";
+            url += "?shareid=" + shareid;
+            url += "&mpid=" + mpid;
+            url += "&id=" + newsId;
+            url += "&type=news";
+            url += "&title=" + $scope.news.title;
+            url += "&shareto=" + shareto;
+            url += "&shareby=" + shareby;
+            $http.get(url);
+        };
+        sharelink = location.href;
+        if (/shareby=/.test(sharelink))
+            sharelink = sharelink.replace(/shareby=[^&]*/, 'shareby=' + shareid);
+        else
+            sharelink += "&shareby=" + shareid;
+        window.xxt.share.set($scope.news.title, sharelink, $scope.news.title, '');
+    };
     var getNews = function () {
         var deferred = $q.defer();
         $http.get('/rest/mi/news/get?mpid=' + mpid + '&id=' + newsId).success(function (rsp) {
-            if (rsp.data.matters && rsp.data.matters.length === 1) {
+            var news;
+            news = rsp.data.news;
+            if (news.matters && news.matters.length === 1) {
                 $http.get('/rest/mi/matter/logAccess?mpid=' + mpid + '&id=' + newsId + '&type=news&title=' + rsp.data.title + '&shareby=' + shareby);
-                location.href = rsp.data.matters[0].url;
+                location.href = news.matters[0].url;
             } else {
-                $scope.news = rsp.data;
+                $scope.user = rsp.data.user;
+                $scope.news = news;
+                if (/MicroMessenge|Yixin/i.test(navigator.userAgent)) {
+                    setShare();
+                }
                 deferred.resolve();
                 $http.get('/rest/mi/matter/logAccess?mpid=' + mpid + '&id=' + newsId + '&type=news&title=' + $scope.news.title + '&shareby=' + shareby);
             }

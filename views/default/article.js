@@ -1,178 +1,181 @@
-window.$ = function (el) { return document.querySelector(el); };
-window.$$ = function (el) { return document.querySelectorAll(el); };
-window.shareid = window.visitor.vid + (new Date()).getTime();
-var sharelink = 'http://' + location.hostname + '/rest/mi/matter';
-sharelink += "?mpid=" + window.mpid;
-sharelink += "&id=" + window.article.id;
-sharelink += "&type=article";
-sharelink += "&shareby=" + window.shareid;
 if (/MicroMessenger/.test(navigator.userAgent)) {
     //signPackage.debug = true;
     signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
     wx.config(signPackage);
 }
-window.xxt.share.options.logger = function (shareto) {
-    var url = "/rest/mi/matter/logShare";
-    url += "?shareid=" + window.shareid;
-    url += "&mpid=" + window.mpid;
-    url += "&id=" + window.article.id;
-    url += "&type=article";
-    url += "&title=" + window.article.title;
-    url += "&shareto=" + shareto;
-    url += "&shareby=" + window.article.shareby;
-    ajax('POST', url, null);
-};
-window.xxt.share.set(window.article.title, window.sharelink, window.article.summary, window.article.pic);
-var dlg = function (msg) {
-    var st = (document.body && document.body.scrollTop) ? document.body.scrollTop : document.documentElement.scrollTop;
-    var ch = document.documentElement.clientHeight;
-    var cw = document.documentElement.clientWidth;
-    var $dlg = $('#dlg');
-    $dlg.style.display = 'block';
-    $dlg.style.top = (st + ch / 2 - $dlg.clientHeight / 2) + 'px';
-    $dlg.style.left = (cw / 2 - $dlg.clientWidth / 2) + 'px';
-    $dlg.children[0].innerHTML = msg;
-};
-function ajax(type, url, data, callback, unAuthorized) {
-    var xhr = new XMLHttpRequest();
-    xhr.open(type, url, true);
-    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded;charset=UTF-8");
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState == 4) {
-            if (xhr.status >= 200 && xhr.status < 400) {
-                try {
-                    if (callback) {
-                        var rsp = xhr.responseText;
-                        var obj = eval("(" + rsp + ')');
-                        callback(obj);
-                    }
-                } catch (e) {
-                    dlg('E2:' + xhr.responseText);
-                    console.log('exception', e);
-                }
-            } else if (xhr.status == 401) {
-                unAuthorized && unAuthorized(xhr.responseText);
-            } else {
-                dlg('E1:' + xhr.responseText);
+angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function ($lp) {
+    $lp.html5Mode(true);
+}]).controller('ctrl', ['$location', '$scope', '$http', '$sce', '$timeout', '$q', function ($location, $scope, $http, $sce, $timeout, $q) {
+    var mpid, id, shareby;
+    mpid = $location.search().mpid;
+    id = $location.search().id;
+    shareby = $location.search().shareby ? $location.search().shareby : '';
+    $scope.mpid = mpid;
+    $scope.articleId = id;
+    $scope.mode = $location.search().mode || false;
+    var setShare = function () {
+        var shareid, sharelink;
+        shareid = $scope.user.vid + (new Date()).getTime();
+        window.xxt.share.options.logger = function (shareto) {
+            var url = "/rest/mi/matter/logShare";
+            url += "?shareid=" + shareid;
+            url += "&mpid=" + mpid;
+            url += "&id=" + id;
+            url += "&type=article";
+            url += "&title=" + $scope.article.title;
+            url += "&shareto=" + shareto;
+            url += "&shareby=" + shareby;
+            $http.get(url);
+        };
+        sharelink = location.href;
+        if (/shareby=/.test(sharelink))
+            sharelink = sharelink.replace(/shareby=[^&]*/, 'shareby=' + shareid);
+        else
+            sharelink += "&shareby=" + shareid;
+        window.xxt.share.set($scope.article.title, sharelink, $scope.article.summary, $scope.article.pic);
+    };
+    var getArticle = function () {
+        var deferred = $q.defer();
+        $http.get('/rest/mi/article/get?mpid=' + mpid + '&id=' + id).success(function (rsp) {
+            var params;
+            params = rsp.data;
+            params.article.body = $sce.trustAsHtml(params.article.body);
+            $scope.article = params.article;
+            $scope.user = params.user;
+            params.mpaccount.body_ele = $sce.trustAsHtml(params.mpaccount.body_ele);
+            $scope.mpa = params.mpaccount;
+            deferred.resolve();
+            $http.get('/rest/mi/matter/logAccess?mpid=' + mpid + '&id=' + id + '&type=article&title=' + $scope.article.title + '&shareby=' + shareby);
+            if (/MicroMessenge|Yixin/i.test(navigator.userAgent)) {
+                setShare();
             }
-        }
-    };
-    xhr.send(data ? data : null);
-};
-function queryToObject(query) {
-    if (!query)
-        return;
-    var result = {};
-    var arr = query.split('&');
-    var item, arr1;
-    for (var i = 0, length = arr.length, item; i < length; i++) {
-        item = arr[i];
-        arr1 = item.split('=');
-        if (arr1[0]) {
-            result[decodeURIComponent(arr1[0])] = decodeURIComponent(arr1[1]);
-        }
-    }
-    return result;
-};
-var openMatter = function (id, type) {
-    location.href = '/rest/mi/matter?mpid=' + window.mpid + '&id=' + id + '&type=' + type;
-};
-$('#dlg button').addEventListener('click', function (e) { $('#dlg').style.display = 'none'; });
-var Like = (function () {
-    var url = "/rest/mi/article/score?mpid=" + window.mpid + "&id=" + article.id,
-        icon = $('#interaction .like em');
-    return {
-        change: function () {
-            ajax('POST', url, null, function (rsp) {
-                icon.className = icon.className ? '' : 'praised';
-                $('#score').innerHTML = rsp.data[0];
-            });
-            return false;
-        }
-    };
-})();
-var Remark = (function () {
-    var url = "/rest/mi/article/remark?mpid=" + mpid + "&id=" + article.id,
-        $newRemark = $('#newRemark'),
-        $remarks = $('#remarks');
-    return {
-        publish: function () {
-            if ($newRemark.value === '') { dlg('评论内容不允许为空！'); return; };
-            var param = 'remark=' + $newRemark.value;
-            ajax('POST', url, param,
-                function (rsp) {
-                    if (rsp.err_code != 0) { dlg(rsp.err_msg); return; };
-                    var remark = rsp.data,
-                        nickname = remark.nickname.length == 0 ? remark.email.substr(0, remark.email.indexOf('@')) : remark.nickname,
-                        createAt = '刚刚';
-                    var html = "<div class='content'>" + remark.remark + '</div>';
-                    html += "<div class='clearfix'>";
-                    html += "<div class='nickname'>" + nickname + "</div>";
-                    html += "<div class='datetime'>" + createAt + "</div>";
-                    html += "</div></li>";
-                    var $li = document.createElement('li');
-                    $li.innerHTML = html;
-                    $newRemark.value = '';
-                    var $first = $remarks.children.length == 0 ? null : $remarks.children[0];
-                    $remarks.insertBefore($li, $first);
-                    document.querySelector('#gotoRemarksHeader').click();
-                }
-                );
-            return false;
-        }
-    };
-})();
-var eleRemarks = document.querySelector('#remarks');
-if (eleRemarks) {
-    eleRemarks.addEventListener('click', function (e) {
-        var target = e.target;
-        while (!/li/i.test(target.tagName)) {
-            target = target.parentNode;
-        }
-        if (target.dataset.nickname && target.dataset.nickname.length)
-            document.querySelector('#newRemark').value += '@' + target.dataset.nickname + ' ';
-        document.querySelector('#gotoNewRemark').click();
-    }, false);
-}
-if (window.PicViewer !== undefined) {
-    var eViewer = document.querySelector('#picViewer');
-    var oPicViewer = PicViewer('#picViewer img', {});
-    var clickImg = function (event) {
-        event.preventDefault();
-        var top = Math.max(document.documentElement.scrollTop, document.body.scrollTop);
-        var height = document.documentElement.clientHeight;
-        var src = this.src;
-        document.body.style.overflow = 'hidden';
-        eViewer.style.top = top + 'px';
-        eViewer.style.height = height + 1 + 'px';
-        eViewer.style.display = 'block';
-        eViewer.querySelector('img').src = src;
-        oPicViewer.fresh();
-    };
-    var supportPicviewer = function () {
-        var eThumbs = document.querySelectorAll('.wrap img');
-        var eCloser = document.querySelector('#picViewer span');
+            if ($scope.article.can_picviewer === 'Y') {
+                var eViewer, hm, body;
+                eViewer = document.createElement('div');
+                eViewer.setAttribute('id', 'picViewer');
+                eViewer.innerHTML = "<span><i class='fa fa-times-circle-o'></i></span><img>";
+                document.body.appendChild(eViewer);
+                body = document.querySelector('body');
+                hm = document.createElement("script");
+                hm.src = "/static/js/hammer.min.js";
+                body.appendChild(hm);
+                hm = document.createElement("script");
+                hm.src = "/static/js/picViewer.js";
+                hm.onload = function () {
+                    var oPicViewer = PicViewer('#picViewer img', {});
+                    var clickImg = function (event) {
+                        event.preventDefault();
+                        var top = Math.max(document.documentElement.scrollTop, document.body.scrollTop);
+                        var height = document.documentElement.clientHeight;
+                        var src = this.src;
+                        document.body.style.overflow = 'hidden';
+                        eViewer.style.top = top + 'px';
+                        eViewer.style.height = height + 1 + 'px';
+                        eViewer.style.display = 'block';
+                        eViewer.querySelector('img').src = src;
+                        oPicViewer.fresh();
+                    };
+                    var supportPicviewer = function () {
+                        var eThumbs = document.querySelectorAll('.wrap img');
+                        var eCloser = document.querySelector('#picViewer span');
 
-        eCloser.addEventListener('click', function (e) {
-            eViewer.style.display = 'none';
-            document.body.style.overflow = 'auto';
-            return false;
-        }, false);
-        eViewer.addEventListener('touchmove', function (e) {
-            e.preventDefault();
-        }, false);
-        for (var i = 0, l = eThumbs.length; i < l; i++) {
-            eThumbs[i].addEventListener('click', clickImg);
-        }
-        window.addEventListener('resize', function () {
-            if (eViewer.style.display === 'block') {
-                var top = Math.max(document.documentElement.scrollTop, document.body.scrollTop);
-                var height = document.documentElement.clientHeight;
-                eViewer.style.top = top + 'px';
-                eViewer.style.height = height + 1 + 'px';
-                oPicViewer.fresh();
+                        eCloser.addEventListener('click', function (e) {
+                            eViewer.style.display = 'none';
+                            document.body.style.overflow = 'auto';
+                            return false;
+                        }, false);
+                        eViewer.addEventListener('touchmove', function (e) {
+                            e.preventDefault();
+                        }, false);
+                        for (var i = 0, l = eThumbs.length; i < l; i++) {
+                            eThumbs[i].addEventListener('click', clickImg);
+                        }
+                        window.addEventListener('resize', function () {
+                            if (eViewer.style.display === 'block') {
+                                var top = Math.max(document.documentElement.scrollTop, document.body.scrollTop);
+                                var height = document.documentElement.clientHeight;
+                                eViewer.style.top = top + 'px';
+                                eViewer.style.height = height + 1 + 'px';
+                                oPicViewer.fresh();
+                            }
+                        });
+                    };
+                    supportPicviewer();
+                };
+                body.appendChild(hm);
+            }
+        }).error(function (content, httpCode) {
+            if (httpCode === 401) {
+                var el = document.createElement('iframe');
+                el.setAttribute('id', 'frmAuth');
+                el.onload = function () { this.height = document.documentElement.clientHeight; };
+                document.body.appendChild(el);
+                if (content.indexOf('http') === 0) {
+                    window.onAuthSuccess = function () {
+                        el.style.display = 'none';
+                        getArticle().then(function () { $scope.loading = false });
+                    };
+                    el.setAttribute('src', content);
+                    el.style.display = 'block';
+                } else {
+                    if (el.contentDocument && el.contentDocument.body) {
+                        el.contentDocument.body.innerHTML = content;
+                        el.style.display = 'block';
+                    }
+                }
+            } else {
+                alert(content);
             }
         });
+        return deferred.promise;
     };
-    window.addEventListener('load', supportPicviewer);
-}
+    $scope.loading = true;
+    getArticle().then(function () { $scope.loading = false; });
+    $scope.like = function () {
+        if ($scope.mode === 'preview') return;
+        var url = "/rest/mi/article/score?mpid=" + mpid + "&id=" + id;
+        $http.get(url).success(function (rsp) {
+            $scope.article.score = rsp.data[0];
+            $scope.article.praised = rsp.data[1];
+        });
+    };
+    $scope.newRemark = '';
+    $scope.remark = function () {
+        var url, param;
+        if ($scope.newRemark === '') { alert('评论内容不允许为空！'); return; };
+        url = "/rest/mi/article/remark?mpid=" + mpid + "&id=" + id;
+        param = { remark: $scope.newRemark };
+        $http.post(url, param).success(function (rsp) {
+            if (rsp.err_code != 0) { alert(rsp.err_msg); return; };
+            $scope.newRemark = '';
+            $scope.article.remarks === false ? $scope.article.remarks = [rsp.data] : $scope.article.remarks.splice(0, 0, rsp.data);
+            $timeout(function () {
+                document.querySelector('#gotoRemarksHeader').click();
+            });
+        });
+    };
+    $scope.reply = function (remark) {
+        $scope.newRemark += '@' + remark.nickname;
+        $timeout(function () {
+            document.querySelector('#gotoNewRemark').click();
+        });
+    };
+}]).filter('filesize', function () {
+    return function (length) {
+        var unit;
+        if (length / 1024 < 1) {
+            unit = 'B';
+        } else {
+            length = length / 1024;
+            if (length / 1024 < 1) {
+                unit = 'K';
+            } else {
+                length = length / 1024;
+                unit = 'M';
+            }
+        }
+        length = (new Number(length)).toFixed(2);
+
+        return length + unit;
+    };
+});

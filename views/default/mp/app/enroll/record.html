@@ -57,7 +57,7 @@
                     </td>
                     <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                     <td>
-                        <a href='#' xxt-fid='{{r.fid}}' ng-click='viewUser(r)'>{{r.nickname}}</a>
+                        <a href='javascript:void(0)' xxt-fid='{{r.fid}}' ng-click='viewUser(r)'>{{r.nickname}}</a>
                     </td>
                     <td ng-repeat="c in cols">
                         <span ng-if="c.id.indexOf('member')===0">{{r.data.member[c.id.split('.')[1]]}}</span>

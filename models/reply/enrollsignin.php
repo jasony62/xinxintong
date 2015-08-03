@@ -36,7 +36,7 @@ class enrollsignin_model extends Reply {
             if ($act->success_matter_type && $act->success_matter_id) {
                 $cls = $act->success_matter_type;
                 if ($this->directReply === true) 
-                    \TMS_APP::model('reply\\'.$cls, $this->call, $act->success_matter_id);
+                    $r = \TMS_APP::model('reply\\'.$cls, $this->call, $act->success_matter_id);
                 else
                     return array('matter_type'=>$act->success_matter_type, 'matter_id'=>$act->success_matter_id);
             } else {
@@ -46,7 +46,7 @@ class enrollsignin_model extends Reply {
             if ($act->failure_matter_type && $act->failure_matter_id) {
                 $cls = $act->failure_matter_type;
                 if ($this->directReply === true) 
-                    \TMS_APP::model('reply\\'.$cls, $this->call, $act->failure_matter_id);
+                    $r = \TMS_APP::model('reply\\'.$cls, $this->call, $act->failure_matter_id);
                 else
                     return array('matter_type'=>$act->failure_matter_type, 'matter_id'=>$act->failure_matter_id);
             } else {

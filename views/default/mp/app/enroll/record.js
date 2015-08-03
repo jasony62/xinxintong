@@ -99,7 +99,7 @@
             });
         });
         $scope.viewUser = function (fan) {
-            location.href = '/rest/mp/user?fid=' + fan.fid;
+            location.href = '/rest/mp/user?openid=' + fan.openid;
         };
         $scope.keywordKeyup = function (evt) {
             evt.which === 13 && $scope.doSearch();

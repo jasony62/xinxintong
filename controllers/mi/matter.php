@@ -60,7 +60,7 @@ class matter extends \member_base {
         switch ($type) {
         case 'article':
             if (isset($_GET['tpl']) && $_GET['tpl'] === 'std') {
-                \TPL::output('article2');
+                \TPL::output('article');
                 exit;
             } else {
                 require_once dirname(__FILE__).'/page_article.php';
@@ -188,6 +188,13 @@ class matter extends \member_base {
             case 'article':
             $table = 'xxt_article';
             break;
+            case 'news':
+            $table = 'xxt_news';
+            break;
+            case 'channel':
+            $table = 'xxt_channel';
+            break;
+            case 'enroll':
             $table = 'xxt_enroll';
             break;
         }

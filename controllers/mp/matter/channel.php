@@ -55,23 +55,19 @@ class channel extends matter_ctrl {
              * 素材的来源
              */
             $mpid = (!empty($options->src) && $options->src==='p') ? $this->getParentMpid() : $this->mpid;
-    
             $q = array(
-                "c.*,a.nickname creater_name,'$uid' uid",
-                'xxt_channel c,account a', 
-                "c.mpid='$mpid' and c.state=1 and c.creater=a.uid"
+                "c.*,'$uid' uid",
+                'xxt_channel c', 
+                "c.mpid='$mpid' and c.state=1"
             );
-            if (!empty($acceptType))
-                $q[2] .= " and (matter_type='' or matter_type='$acceptType')";
+            !empty($acceptType) && $q[2] .= " and (matter_type='' or matter_type='$acceptType')";
             /**
              * 仅限作者和管理员？
              */
             if (!$this->model('mp\permission')->isAdmin($mpid, $uid, true)) {
                 $visible = $this->model()->query_value('matter_visible_to_creater', 'xxt_mpsetting', "mpid='$mpid'");
-                if ($visible === 'Y')
-                    $q[2] .= " and (creater='$uid' or public_visible='Y')";
+                $visible === 'Y' && $q[2] .= " and (creater='$uid' or public_visible='Y')";
             }
-    
             $q2['o'] = 'create_at desc';
             $channels = $this->model()->query_objs_ss($q, $q2);
             /**
@@ -105,14 +101,12 @@ class channel extends matter_ctrl {
         $d['mpid'] = $this->mpid;
         $d['creater'] = $uid;
         $d['create_at'] = time();
+        $d['creater_src'] = 'A';
+        $d['creater_name'] = \TMS_CLIENT::account()->nickname;
+        
         $id = $this->model()->insert('xxt_channel', $d, true);
 
-        $q = array(
-            "c.*,a.nickname creater_name,'$uid' uid",
-            'xxt_channel c,account a', 
-            "c.id=$id and c.creater=a.uid"
-        );
-        $channel = $this->model()->query_obj_ss($q);
+        $channel = $this->model('matter\channel')->byId($id);
 
         return new \ResponseData($channel);
     }

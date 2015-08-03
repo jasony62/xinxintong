@@ -25,7 +25,7 @@ xxtApp.controller('initiateCtrl', ['$location', '$scope', '$modal', 'http2', 'Ar
         $('#pagePopup').show();
     };
     $scope.preview = function () {
-        location.href = '/views/default/article2.html?mode=preview&mpid=' + mpid + '&id=' + id;
+        location.href = '/rest/mi/matter?mode=preview&tpl=std&mpid=' + mpid + '&id=' + id;
     };
     $scope.Article.get(id).then(function (data) {
         $scope.editing = data;

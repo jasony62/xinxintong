@@ -195,7 +195,7 @@ class article extends \member_base {
             /**
              * 发送评论提醒
              */
-            $url = 'http://'.$_SERVER['HTTP_HOST']."/views/default/article2.html?mpid=$mpid&id=$id";
+            $url = 'http://'.$_SERVER['HTTP_HOST']."/rest/mi/matter?mpid=$mpid&id=$id&tpl=std";
             $text = urlencode($remark->nickname);
             $text .= urlencode('对【');
             $text .= '<a href="'.$url.'">';

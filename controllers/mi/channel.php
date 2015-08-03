@@ -19,13 +19,17 @@ class channel extends \member_base {
      */
     public function get_action($mpid, $id) 
     {
+        $data = array();
+        
         $user = $this->getUser($mpid);
+        $data['user'] = $user;
         
         $channel = $this->model('matter\channel')->byId($id);
-        $channel->matters = $this->model('matter\channel')->getMatters($id, $channel, $mpid);
-        $channel->acl = $this->model('acl')->byMatter($mpid, 'channel', $id);
+        //$channel->matters = $this->model('matter\channel')->getMatters($id, $channel, $mpid);
+        //$channel->acl = $this->model('acl')->byMatter($mpid, 'channel', $id);
+        $data['channel'] = $channel;
         
-        return new \ResponseData($channel);
+        return new \ResponseData($data);
     }
     /**
      *

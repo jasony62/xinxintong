@@ -1,7 +1,7 @@
 <script type="text/ng-template" id="modalMattersGalllery.html">
     <div class="modal-header">
         <button class="close" type="button" ng-click="cancel()">×</button>
-        <span class="modal-title h4">素材库</span>
+        <span class="modal-title h5">素材库</span>
         <select class='form-control' ng-if='matterTypes&&matterTypes.length>0' style='display:inline-block;width:120px' ng-model='p.matterType' ng-options='t.title for t in matterTypes'></select>
         <pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="p.matterType.value==='article'&&page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.current" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
         <label class="checkbox-inline" ng-show='hasParent'><input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model='p.fromParent' ng-change='doSearch()'>来源于父账号</label>

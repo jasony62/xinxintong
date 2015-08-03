@@ -1,3 +1,8 @@
+if (/MicroMessenger/.test(navigator.userAgent)) {
+    //signPackage.debug = true;
+    signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
+    wx.config(signPackage);
+}
 angular.module('xxt', ['infinite-scroll']).config(['$locationProvider', function ($locationProvider) {
     $locationProvider.html5Mode(true);
 }]).controller('ctrl', ['$scope', '$location', '$http', '$q', function ($scope, $location, $http, $q) {
@@ -5,6 +10,27 @@ angular.module('xxt', ['infinite-scroll']).config(['$locationProvider', function
     mpid = $location.search().mpid;
     channelId = $location.search().id;
     shareby = $location.search().shareby ? $location.search().shareby : '';
+    var setShare = function () {
+        var shareid, sharelink;
+        shareid = $scope.user.vid + (new Date()).getTime();
+        window.xxt.share.options.logger = function (shareto) {
+            var url = "/rest/mi/matter/logShare";
+            url += "?shareid=" + shareid;
+            url += "&mpid=" + mpid;
+            url += "&id=" + channelId;
+            url += "&type=channel";
+            url += "&title=" + $scope.channel.title;
+            url += "&shareto=" + shareto;
+            url += "&shareby=" + shareby;
+            $http.get(url);
+        };
+        sharelink = location.href;
+        if (/shareby=/.test(sharelink))
+            sharelink = sharelink.replace(/shareby=[^&]*/, 'shareby=' + shareid);
+        else
+            sharelink += "&shareby=" + shareid;
+        window.xxt.share.set($scope.channel.title, sharelink, $scope.channel.title, '');
+    };
     $scope.Matter = {
         matters: [],
         busy: false,
@@ -50,7 +76,11 @@ angular.module('xxt', ['infinite-scroll']).config(['$locationProvider', function
     var getChannel = function () {
         var deferred = $q.defer();
         $http.get('/rest/mi/channel/get?mpid=' + mpid + '&id=' + channelId).success(function (rsp) {
-            $scope.channel = rsp.data;
+            $scope.user = rsp.data.user;
+            $scope.channel = rsp.data.channel;
+            if (/MicroMessenge|Yixin/i.test(navigator.userAgent)) {
+                setShare();
+            }
             deferred.resolve();
             $http.get('/rest/mi/matter/logAccess?mpid=' + mpid + '&id=' + channelId + '&type=channel&title=' + $scope.channel.title + '&shareby=' + shareby);
         }).error(function (content, httpCode) {

@@ -19,9 +19,13 @@ xxtApp.controller('channelCtrl', ['$location', '$scope', 'http2', function ($loc
     $scope.back = function () {
         location.href = '/page/mp/matter/channels';
     };
-    http2.get('/rest/mp/matter/channel/get?id=' + $scope.id, function (rsp) {
-        $scope.editing = rsp.data;
-        $scope.entryUrl = 'http://' + location.host + '/rest/mi/matter?mpid=' + $scope.editing.mpid + '&id=' + $scope.id + '&type=channel';
+    http2.get('/rest/mp/mpaccount/get', function (rsp) {
+        $scope.mpaccount = rsp.data;
+        $scope.hasParent = rsp.data.parent_mpid && rsp.data.parent_mpid.length;
+        http2.get('/rest/mp/matter/channel/get?id=' + $scope.id, function (rsp) {
+            $scope.editing = rsp.data;
+            $scope.entryUrl = 'http://' + location.host + '/rest/mi/matter?mpid=' + $scope.mpaccount.mpid + '&id=' + $scope.id + '&type=channel';
+        });
     });
 }]);
 xxtApp.controller('editCtrl', ['$scope', 'http2', function ($scope, http2) {

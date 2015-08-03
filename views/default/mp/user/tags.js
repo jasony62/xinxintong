@@ -40,8 +40,10 @@ xxtApp.controller('tagCtrl',['$rootScope','$scope','http2',function($rootScope,$
             $scope.tags = rsp.data;
         });
     };
-    $scope.viewUser = function(event,fan){
-        location.href = '/rest/mp/user?fid='+fan.fid;
+    $scope.viewUser = function(event,member){
+        event.preventDefault();
+        event.stopPropagation();
+        location.href = '/rest/mp/user?openid='+member.openid;
     };
     $scope.searchMembers = function() {
         var url;

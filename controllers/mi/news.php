@@ -19,8 +19,11 @@ class news extends \member_base {
      */
     public function get_action($mpid, $id) 
     {
-        $user = $this->getUser($mpid, array('verbose' => array('member' => true)));
+        $data = array();
         
+        $user = $this->getUser($mpid, array('verbose' => array('member' => true)));
+        $data['user'] = $user;
+        //
         $news = $this->model('matter\news')->byId($id);
         $matters = \TMS_APP::M('matter\news')->getMatters($id);
         $modelAcl = \TMS_APP::M('acl');
@@ -49,7 +52,8 @@ class news extends \member_base {
         } else {
             $news->matters = $matters2;
         }
+        $data['news'] = $news;
         
-        return new \ResponseData($news);
+        return new \ResponseData($data);
     }
 }

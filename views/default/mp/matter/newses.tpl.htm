@@ -14,7 +14,9 @@
                     <div>
                         <div class='creater' ng-bind='n.creater_name'></div>
                         <div class='stat'>
-                            <span title='阅读数' ng-bind='n.read_num'></span>
+                            <span title='阅读数' ng-bind='n.read_num'></span>/
+                            <span title='分享好友数' ng-bind='n.share_friend_num'></span>/
+                            <span title='分享朋友圈数' ng-bind='n.share_timeline_num'></span>
                         </div>
                         <div class='create_at' title='创建时间' ng-bind="n.create_at*1000|date:'yyyy-MM-dd'"></div>
                     </div>

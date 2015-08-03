@@ -81,7 +81,7 @@ xxtApp.controller('deptCtrl',['$scope','http2',function($scope,http2){
         http2.post('/rest/mp/user/department/update?id='+$scope.editing.id, nv);
     };
     $scope.viewUser = function(event,fan){
-        location.href = '/rest/mp/user?fid='+fan.fid;
+        location.href = '/rest/mp/user?openid='+fan.openid;
     };
     http2.get('/rest/mp/authapi/get?valid=Y', function(rsp){
         $scope.authapis = rsp.data;

@@ -200,7 +200,7 @@ xxtApp.controller('lotteryCtrl',['$scope','http2','$location',function($scope,ht
         page ? doSearch(page) : doSearch();
     };
     $scope.viewUser = function(fan){
-        location.href = '/rest/mp/user?fid='+fan.fid;
+        location.href = '/rest/mp/user?openid='+fan.openid;
     };
     $scope.refresh = function() {
         doStat();

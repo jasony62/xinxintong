@@ -1,6 +1,6 @@
 xxtApp.controller('channelCtrl', ['$scope', 'http2', function ($scope, http2) {
     $scope.doSearch = function () {
-        var url = '/rest/mp/matter/channel/get', params = {};
+        var url = '/rest/mp/matter/channel/get?cascade=N', params = {};
         $scope.fromParent && $scope.fromParent === 'Y' && (params.src = 'p');
         http2.post(url, params, function (rsp) {
             $scope.channels = rsp.data;
@@ -12,7 +12,7 @@ xxtApp.controller('channelCtrl', ['$scope', 'http2', function ($scope, http2) {
             volume: 5
         };
         http2.post('/rest/mp/matter/channel/create', obj, function (rsp) {
-            $scope.channels.splice(0, 0, rsp.data);
+            location.href = '/rest/mp/matter/channel?id=' + rsp.data.id;
         });
     };
     $scope.edit = function (channel) {

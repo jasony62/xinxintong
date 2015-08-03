@@ -323,7 +323,8 @@ class article extends matter_ctrl {
             /**
              * select fields
              */
-            $s = "a.id,a.mpid,a.title,a.summary,a.custom_body,a.create_at,a.modify_at,a.approved,a.creater,a.creater_name,a.creater_src,'$uid' uid,a.read_num,a.score,a.remark_num";
+            $s = "a.id,a.mpid,a.title,a.summary,a.custom_body,a.create_at,a.modify_at,a.approved,a.creater,a.creater_name,a.creater_src,'$uid' uid";
+            $s .= ",a.read_num,a.score,a.remark_num,a.share_friend_num,a.share_timeline_num";
             /**
              * where
              */
@@ -361,11 +362,11 @@ class article extends matter_ctrl {
                     case 'read':
                         $q2['o'] = 'a.read_num desc';
                         break;
-                    case 'score':
-                        $q2['o'] = 'a.score desc';
+                    case 'share_friend':
+                        $q2['o'] = 'a.share_friend_num desc';
                         break;
-                    case 'remark':
-                        $q2['o'] = 'a.remark_num desc';
+                    case 'share_timeline':
+                        $q2['o'] = 'a.share_timeline_num desc';
                         break;
                     default:
                         $q2['o'] = 'a.modify_at desc';

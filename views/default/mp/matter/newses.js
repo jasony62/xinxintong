@@ -13,7 +13,7 @@ xxtApp.controller('newsesCtrl', ['$scope', 'http2', function ($scope, http2) {
                 s = aSelected[i];
                 lean.push({ id: s.id, type: matterType });
             }
-            http2.post('/rest/mp/matter/news/create', { stuffs: lean }, function (rsp) {
+            http2.post('/rest/mp/matter/news/create', { matters: lean }, function (rsp) {
                 location.href = '/rest/mp/matter/news?id=' + rsp.data.id;
             });
         });

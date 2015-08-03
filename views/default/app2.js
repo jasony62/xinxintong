@@ -7,7 +7,7 @@ app.config(['$routeProvider', function ($rp) {
     $rp.when('/views/default/app2.tpl.htm', {
         template: function () {
             console.log('tttt:' + location.search);
-            return '<div>test</div><button ng-click="changeView()">change</button><script>console.log("hello");</script>';
+            return '<div>test</div><button ng-click="changeView()">change</button><style>body{background:red}</style>';
         },
         controller: 'ctrl',
     });

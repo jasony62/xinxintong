@@ -94,6 +94,10 @@ class channel extends matter_ctrl {
      */
     public function create_action()
     {
+        $account = \TMS_CLIENT::account();
+        if ($account === false)
+            return new \ResponseError('长时间未操作，请重新登陆！');
+            
         $uid = \TMS_CLIENT::get_client_uid();
 
         $d = (array)$this->getPostJson();
@@ -102,7 +106,7 @@ class channel extends matter_ctrl {
         $d['creater'] = $uid;
         $d['create_at'] = time();
         $d['creater_src'] = 'A';
-        $d['creater_name'] = \TMS_CLIENT::account()->nickname;
+        $d['creater_name'] = $account->nickname;
         
         $id = $this->model()->insert('xxt_channel', $d, true);
 
@@ -168,10 +172,14 @@ class channel extends matter_ctrl {
      */
     public function addMatter_action() 
     {
+        $account = \TMS_CLIENT::account();
+        if ($account === false)
+            return new \ResponseError('长时间未操作，请重新登陆！');
+            
         $relations = $this->getPostJson();
 
         $creater = \TMS_CLIENT::get_client_uid();
-        $createrName = \TMS_CLIENT::account()->nickname;
+        $createrName = $account->nickname;
 
         $channels = $relations->channels;
         $matter = $relations->matter;

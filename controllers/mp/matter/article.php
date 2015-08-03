@@ -500,15 +500,19 @@ class article extends matter_ctrl {
      */
     public function create_action()
     {
+        $account = \TMS_CLIENT::account();
+        if ($account === false)
+            return new \ResponseError('长时间未操作，请重新登陆！');
+        
         $current = time();
         $d['mpid'] = $this->mpid;
         $d['creater'] = \TMS_CLIENT::get_client_uid();
         $d['creater_src'] = 'A';
-        $d['creater_name'] = \TMS_CLIENT::account()->nickname;
+        $d['creater_name'] = $account->nickname;
         $d['create_at'] = $current;
         $d['modifier'] = \TMS_CLIENT::get_client_uid();
         $d['modifier_src'] = 'A';
-        $d['modifier_name'] = \TMS_CLIENT::account()->nickname;
+        $d['modifier_name'] = $account->nickname;
         $d['modify_at'] = $current;
         $d['title'] = '新单图文';
         $d['author'] = $d['creater_name'];
@@ -531,6 +535,10 @@ class article extends matter_ctrl {
      */
     public function update_action($id) 
     {
+        $account = \TMS_CLIENT::account();
+        if ($account === false)
+            return new \ResponseError('长时间未操作，请重新登陆！');
+            
         $pmpid = $this->getParentMpid();
 
         $nv = (array)$this->getPostJson();
@@ -539,7 +547,7 @@ class article extends matter_ctrl {
 
         $nv['modifier'] = \TMS_CLIENT::get_client_uid();
         $nv['modifier_src'] = 'A';
-        $nv['modifier_name'] = \TMS_CLIENT::account()->nickname;
+        $nv['modifier_name'] = $account->nickname;
         $nv['modify_at'] = time();
 
         $rst = $this->model()->update(

@@ -144,6 +144,10 @@ class news extends matter_ctrl {
      */
     public function create_action() 
     {
+        $account = \TMS_CLIENT::account();
+        if ($account === false)
+            return new \ResponseError('长时间未操作，请重新登陆！');
+            
         $uid = \TMS_CLIENT::get_client_uid();
         
         $news = $this->getPostJson();
@@ -153,7 +157,7 @@ class news extends matter_ctrl {
         $d['creater'] = $uid;
         $d['create_at'] = time();
         $d['creater_src'] = 'A';
-        $d['creater_name'] = \TMS_CLIENT::account()->nickname;
+        $d['creater_name'] = $account->nickname;
         $d['title'] = isset($news->title) ? $news->title : '新多图文';
         $id = $this->model()->insert('xxt_news', $d, true);
         /**

@@ -29,7 +29,7 @@
                         <a ng-href="'yixin://opencard?pid='+article.yx_cardid" ng-bind='article.yx_cardname'></a>
                     </span>
                 </div>
-                <div class="headpic">
+                <div class="headpic" ng-if="article.hide_pic!=='Y'">
                     <img ng-src="{{article.pic}}">
                 </div>
                 <div id="content" class="content" ng-bind-html='article.body'></div>

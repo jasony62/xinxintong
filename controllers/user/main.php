@@ -81,9 +81,11 @@ class main extends \TMS_CONTROLLER {
      */
     public function changePwd_action() 
     {
-        $data = $this->getPostJson();
-
         $account = \TMS_CLIENT::account();
+        if ($account === false)
+            return new \ResponseError('长时间未操作，请重新登陆！');
+            
+        $data = $this->getPostJson();
         /**
          * check old password
          */

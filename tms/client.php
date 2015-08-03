@@ -37,7 +37,11 @@ class TMS_CLIENT {
     public static function account($account = null) 
     {
         if ($account == null) {
-            return $_SESSION['account_info'];
+            if (isset($_SESSION['account_info']))
+                return $_SESSION['account_info'];
+            else {
+                return false;
+            }
         } else {
             /**
              * store account information in cookie.

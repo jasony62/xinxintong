@@ -134,6 +134,10 @@ class main extends \mp\app\app_base {
      */
     public function create_action() 
     {
+        $account = \TMS_CLIENT::account();
+        if ($account === false)
+            return new \ResponseError('长时间未操作，请重新登陆！');
+            
         $uid = \TMS_CLIENT::get_client_uid();
         $mpa = $this->model('mp\mpaccount')->getFeatures($this->mpid, 'heading_pic');
         /**
@@ -146,7 +150,7 @@ class main extends \mp\app\app_base {
         $newone['pic'] = $mpa->heading_pic;
         $newone['creater'] = $uid;
         $newone['creater_src'] = 'A';
-        $newone['creater_name'] = \TMS_CLIENT::account()->nickname;
+        $newone['creater_name'] = $account->nickname;
         $newone['create_at'] = time();
         $newone['entry_rule'] = "{}";
         /**
@@ -171,8 +175,12 @@ class main extends \mp\app\app_base {
      */
     public function copy_action($aid=null, $shopid=null)
     {
+        $account = \TMS_CLIENT::account();
+        if ($account === false)
+            return new \ResponseError('长时间未操作，请重新登陆！');
+            
         $uid = \TMS_CLIENT::get_client_uid();
-        $uname = \TMS_CLIENT::account()->nickname;
+        $uname = $account->nickname;
         $current = time();
         $enrollModel = $this->model('app\enroll');
         $codeModel = $this->model('code/page');

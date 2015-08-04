@@ -1,24 +1,26 @@
 <div ng-app='carouselApp' ng-controller='ctrl' ng-init="aid='<?php echo $_GET['aid'];?>';round='<?php echo isset($_GET['rid'])?$_GET['rid']:''; ?>'">
-    <select ng-model='round' ng-change='changeRound()' ng-options="r.round_id as r.title for r in rounds">
+    <select ng-model='round' ng-change='shiftRound()' ng-options="r.round_id as r.title for r in rounds">
         <option value=''></option>
     </select>
-    <button class='btn btn-sm btn-default pull-right' ng-click='cleanAll()'>RESET</button>
+    <button class='btn btn-sm btn-default pull-right' ng-click='empty()'>RESET</button>
     <div id='frame'>
         <div class='winners list-group'>
             <div class='list-group-item'>
-                <span>获奖人数<span>{{winners.length}}</span></span>
+                <span>获奖人数
+                    <span ng-bind="winners.length"></span>
+                </span>
             </div>
             <div class='list-group-item' ng-repeat='w in winners'>
-                <span class='name'>{{w.name}}</span>
-                <span class='mobile'>{{w.mobile|maskmobile}}</span>
+                <span class='name' ng-bind="w.name"></span>
+                <span class='mobile' ng-bind="w.mobile|maskmobile"></span>
             </div>
         </div>
         <div class='lottery-box'>
             <div class='swiper-container'>
                 <div class='swiper-wrapper'>
                     <div class='swiper-slide' ng-repeat='p in persons'>
-                        <div class='name'>{{p.name||p.nickname}}</div>
-                        <div class='mobile' ng-show='p.mobile'>{{p.mobile|maskmobile}}</div>
+                        <div class='name' ng-bind="p.name||p.nickname"></div>
+                        <div class='mobile' ng-show='p.mobile' ng-bind="p.mobile|maskmobile"></div>
                     </div>
                 </div>
             </div>

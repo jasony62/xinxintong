@@ -175,7 +175,7 @@ class record extends \mp\app\app_base {
      */
     public function add_action($aid) 
     {
-        $d = (array)$this->getPostJson();
+        $posted = (array)$this->getPostJson();
         /**
          * 报名记录
          */
@@ -187,7 +187,7 @@ class record extends \mp\app\app_base {
         $r['enroll_key'] = $enroll_key;
         $r['enroll_at'] = $current;
         $r['signin_at'] = $current;
-        if (isset($d['tags'])) $r['tags'] = $d['tags'];
+        if (isset($posted['tags'])) $r['tags'] = $posted['tags'];
 
         $id = $this->model()->insert('xxt_enroll_record', $r, true);
 
@@ -195,8 +195,8 @@ class record extends \mp\app\app_base {
         /**
          * 登记信息
          */
-        foreach ($d as $n => $v) {
-            if (in_array($n, array('signin_at','tags','comment')))
+        if (!empty($posted->data)) foreach ($posted->data as $n => $v) {
+            if (in_array($n, array('signin_at','comment')))
                 continue;
             $cd = array(
                 'aid'=>$aid,

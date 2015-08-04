@@ -4,17 +4,17 @@
             <div class='form-group'>
                 <label class='col-md-1 control-label'>URL</label>
                 <div class='col-md-11'>
-                    <p class="form-control">{{lotteryUrl}}</p>
+                    <p class="form-control-static" ng-bind="lotteryUrl"></p>
                 </div>
             </div>
         </div>
     </div>
     <div class='col-md-3'>
         <div class='list-group'>
-            <a class='list-group-item' ng-class="{'active':!editing}" ng-click='open()' style='text-align:center'>全部</a>
-            <a class='list-group-item' ng-class="{'active':r===editing}" ng-repeat='r in rounds' ng-click='open(r)'>
+            <a class='list-group-item' ng-class="{'active':!editingRound}" ng-click='open()' style='text-align:center'>全部</a>
+            <a class='list-group-item' ng-class="{'active':r===editingRound}" ng-repeat='r in rounds' ng-click='open(r)'>
                 <span>{{r.title}}</span>
-                <button class='btn btn-xs btn-default pull-right' ng-if="r===editing" ng-click='removeLotteryRound()'><span class='glyphicon glyphicon-remove'></span></button>
+                <button class='btn btn-xs btn-default pull-right' ng-if="r===editingRound" ng-click='removeRound()'><span class='glyphicon glyphicon-remove'></span></button>
             </a>
             <a class='list-group-item'>
                 <button class='btn btn-success btn-block' ng-click='addRound()'>添加</button> 
@@ -22,28 +22,29 @@
         </div>
     </div>
     <div class='col-md-9'>
-        <div class='form-horizontal' ng-if='editing'>
+        <div class='form-horizontal' ng-if='editingRound'>
             <div class='form-group'>
                 <label class='col-md-2 control-label'>轮次名称</label>
                 <div class='col-md-10'>
-                    <input type='text' class='form-control' ng-model='editing.title' tms-auto-update tms-wait=1000 tms-update="updateLotteryRound('title')">
+                    <input type='text' class='form-control' ng-model='editingRound.title' tms-auto-update tms-wait=1000 tms-update="updateRound('title')">
                 </div>
             </div>
             <div class='form-group'>
                 <label class='col-md-2 control-label'>抽奖次数</label>
                 <div class='col-md-10'>
-                    <input type='text' class='form-control' ng-model='editing.times' tms-auto-update tms-wait=1000 tms-update="updateLotteryRound('times')">
+                    <input type='text' class='form-control' ng-model='editingRound.times' tms-auto-update tms-wait=1000 tms-update="updateRound('times')">
                 </div>
             </div>
             <div class='form-group'>
                 <div class='col-md-offset-2 col-md-10'>
                     <div class="checkbox">
-                        <label><input type='checkbox' ng-model='editing.autoplay' ng-true-value="'Y'" ng-false-value="'N'" ng-change="updateLotteryRound('autoplay')"> 自动抽奖</label>
+                        <label>
+                            <input type='checkbox' ng-model='editingRound.autoplay' ng-true-value="'Y'" ng-false-value="'N'" ng-change="updateRound('autoplay')">自动抽奖</label>
                     </div>
                 </div>
             </div>
         </div>
-        <div class='list-group' ng-if='editing'>
+        <div class='list-group' ng-if='editingRound'>
             <table class='table table-bordered'>
                 <thead>
                     <tr>
@@ -55,7 +56,9 @@
                 <tbody>
                     <tr ng-repeat="t in aTargets">
                         <td>{{$index+1}}</td>
-                        <td><combox evt-prefix='tag' existing='t.tags' options='aTags' state={{$index}}></combox></td>
+                        <td>
+                            <combox evt-prefix='tag' existing='t.tags' options='aTags' state={{$index}}></combox>
+                        </td>
                         <td>
                             <button class='btn btn-default btn-sm' ng-click='removeTarget($index)'>
                                 <span class='glyphicon glyphicon-remove'></span>
@@ -75,19 +78,19 @@
             <table class='table table-bordered'>
                 <thead>
                     <tr>
-                        <th ng-if='!editing'>轮次</th>
+                        <th ng-if='!editingRound'>轮次</th>
                         <th>姓名</th>
                         <th>手机号</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat="w in winners">
-                        <td ng-if='!editing'>{{w.title}}</td>
+                        <td ng-if='!editingRound'>{{w.title}}</td>
                         <td>{{w.name}}</td>
                         <td>{{w.mobile}}</td>
                     </tr>
                 </tbody>
-            </table> 
+            </table>
         </div>
     </div>
 </div>

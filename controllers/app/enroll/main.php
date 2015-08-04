@@ -782,22 +782,6 @@ class main extends \member_base {
         return new \ResponseData($rounds);
     }
     /**
-     * 走马灯抽奖页面
-     *
-     * todo 和独立的抽奖有冲突
-     */
-    public function lottery2_action($aid)
-    {
-        /**
-         * 获得活动的定义
-         */
-        $act = $this->model('app\enroll')->byId($aid);
-
-        \TPL::assign('enroll', $act);
-
-        $this->view_action('/app/enroll/carousel');
-    }
-    /**
      * 获得指定坐标对应的地址名称
      * 
      * 没有指定位置信息时通过日志获取当前用户最后一次发送的位置

@@ -156,7 +156,7 @@
                     cols: function () { return $scope.cols; }
                 }
             }).result.then(function (updated) {
-                var p = updated[0], tags = updated[1].join(',');
+                var p = updated[0], tags = updated[1];
                 if ($scope.editing.tags.length !== tags.length) {
                     $scope.editing.tags = tags;
                     $scope.update('tags');

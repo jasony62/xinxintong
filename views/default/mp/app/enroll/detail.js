@@ -52,6 +52,16 @@ xxtApp.config(['$routeProvider', function ($routeProvider) {
     }).when('/rest/mp/app/enroll/stat', {
         templateUrl: '/views/default/mp/app/enroll/stat.html',
         controller: 'statCtrl'
+    }).when('/rest/mp/app/enroll/lottery', {
+        templateUrl: '/views/default/mp/app/enroll/lottery.html?_='+(new Date()).getTime(),
+        controller: 'lotteryCtrl',
+        resolve: {
+            load: function ($q) {
+                var defer = $q.defer();
+                (function () { $.getScript('/views/default/mp/app/enroll/lottery.js', function () { defer.resolve(); }); })();
+                return defer.promise;
+            }
+        }
     }).when('/rest/mp/app/enroll/accesslog', {
         templateUrl: '/views/default/mp/app/enroll/accesslog.html',
         controller: 'accesslogCtrl'
@@ -181,91 +191,4 @@ xxtApp.controller('statCtrl', ['$scope', 'http2', function ($scope, http2) {
 }]);
 xxtApp.controller('accesslogCtrl', ['$scope', 'http2', function ($scope, http2) {
     $scope.$parent.subView = 'accesslog';
-}]);
-xxtApp.controller('lotteryCtrl', ['$scope', 'http2', function ($scope, http2) {
-    var getWinners = function () {
-        var url = '/rest/mp/app/enroll/lotteryWinners?aid=' + $scope.aid;
-        if ($scope.editing)
-            url += '&rid=' + $scope.editing.round_id;
-        http2.get(url, function (rsp) {
-            $scope.winners = rsp.data;
-        });
-    };
-    $scope.aTargets = null;
-    $scope.addRound = function () {
-        http2.post('/rest/mp/app/enroll/addLotteryRound?aid=' + $scope.aid, null, function (rsp) {
-            $scope.rounds.push(rsp.data);
-        });
-    };
-    $scope.open = function (round) {
-        $scope.editing = round;
-        $scope.aTargets = $scope.editing.targets.length === 0 ? [] : eval($scope.editing.targets);
-        getWinners();
-    };
-    $scope.updateLotteryRound = function (name) {
-        var nv = {};
-        nv[name] = $scope.editing[name];
-        http2.post('/rest/mp/app/enroll/updateLotteryRound?aid=' + $scope.aid + '&rid=' + $scope.editing.round_id, nv, function (rsp) {
-        });
-    };
-    $scope.removeLotteryRound = function () {
-        http2.post('/rest/mp/app/enroll/removeLotteryRound?aid=' + $scope.aid + '&rid=' + $scope.editing.round_id, null, function (rsp) {
-            var i = $scope.rounds.indexOf($scope.editing);
-            $scope.rounds.splice(i, 1);
-        });
-    };
-    $scope.addTarget = function () {
-        var target = { tags: [] };
-        $scope.aTargets.push(target);
-    };
-    $scope.removeTarget = function (i) {
-        $scope.aTargets.splice(i, 1);
-    };
-    $scope.saveTargets = function () {
-        var arr = [];
-        for (var i in $scope.aTargets)
-            arr.push({ tags: $scope.aTargets[i].tags });
-        $scope.editing.targets = JSON.stringify(arr);
-        $scope.updateLotteryRound('targets');
-    };
-    $scope.$on('tag.xxt.combox.done', function (event, aSelected, state) {
-        var aNewTags = [];
-        for (var i in aSelected) {
-            var existing = false;
-            for (var j in $scope.aTargets[state].tags) {
-                if (aSelected[i] === $scope.aTargets[state].tags[j]) {
-                    existing = true;
-                    break;
-                }
-            }
-            !existing && aNewTags.push(aSelected[i]);
-        }
-        $scope.aTargets[state].tags = $scope.aTargets[state].tags.concat(aNewTags);
-    });
-    $scope.$on('tag.xxt.combox.add', function (event, newTag, state) {
-        $scope.aTargets[state].tags.push(newTag);
-        if ($scope.aTags.indexOf(newTag) === -1) {
-            $scope.aTags.push(newTag);
-            $scope.editing.tags = $scope.aTags.join(',');
-            $scope.update('tags');
-        }
-    });
-    $scope.$on('tag.xxt.combox.del', function (event, removed, state) {
-        $scope.aTargets[state].tags.splice($scope.aTargets[state].tags.indexOf(removed), 1);
-    });
-    $scope.aTags = $scope.editing.tags.length === 0 ? [] : $scope.editing.tags.split(',');
-    $scope.lotteryUrl = "http://" + location.host + "/rest/app/enroll/lottery2?aid=" + $scope.aid;
-    http2.get('/rest/mp/app/enroll/lotteryRounds?aid=' + $scope.aid, function (rsp) {
-        $scope.rounds = rsp.data;
-    });
-    getWinners();
-}]);
-xxtApp.directive('tmsDatetime', ['$timeout', function ($timeout) {
-    return {
-        restrict: 'A',
-        scope: { value: '=' },
-        template: "<div><span ng-show='value<>0' ng-bind=\"value*1000|date:'yyyy-MM-dd HH:mm'\"></span></div>",
-        controller: function () { },
-        replace: true
-    };
 }]);

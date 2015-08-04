@@ -11,7 +11,7 @@ angular.module('carouselApp', []).filter("maskmobile", function () {
     }
 }).controller('ctrl', ['$scope', '$http', '$timeout', '$interval', function ($scope, $http, $timeout, $interval) {
     var mySwiper, timer, winnerIndex = -1;
-    $scope.speed = 500;
+    $scope.speed = 50;
     $scope.times = 0;
     $scope.stopping = false;
     $scope.winners = [];

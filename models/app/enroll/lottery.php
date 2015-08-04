@@ -8,15 +8,6 @@ class lottery_model extends \TMS_MODEL {
     public function players($aid, $rid) 
     {
         $result = array(array(),array());
-        /**
-         * 获得活动的定义
-         */
-        $q = array(
-            'a.access_control,p.html form_html',
-            'xxt_enroll a,xxt_code_page p',
-            "a.id='$aid' and a.form_code_id=p.id"
-        );
-        $act = $this->query_obj_ss($q);
         
         $w = "e.aid='$aid'";
         $w .= " and not exists(select 1 from xxt_enroll_lottery l where e.enroll_key=l.enroll_key)";

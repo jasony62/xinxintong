@@ -477,11 +477,11 @@ class xxt_base extends TMS_CONTROLLER {
      *
      * $runningMpid 当前正在运行的公众号
      */
-    public function getCommonSetting($runningMpid)
+    public function getMpSetting($runningMpid)
     {
 
         $q = array(
-            'body_ele,body_css,can_article_remark', 
+            'body_ele,body_css,can_article_remark,header_page_id,footer_page_id', 
             'xxt_mpsetting', 
             "mpid='$runningMpid'"
         );
@@ -490,12 +490,22 @@ class xxt_base extends TMS_CONTROLLER {
         $mp = $this->model('mp\mpaccount')->byId($runningMpid, 'parent_mpid');
         if (!empty($mp->parent_mpid)) {
             $q = array(
-                'body_ele,body_css,can_article_remark', 
+                'body_ele,body_css,can_article_remark,header_page_id,footer_page_id', 
                 'xxt_mpsetting', 
                 "mpid='$mp->parent_mpid'"
             );
             $psetting = $this->model()->query_obj_ss($q);
 
+            $setting->header_page_id === '0' && $psetting->header_page_id !== '0' && $setting->header_page_id = $psetting->header_page_id;
+            $setting->footer_page_id === '0' && $psetting->footer_page_id !== '0' && $setting->footer_page_id = $psetting->footer_page_id;
+            if ($setting->header_page_id !== '0') {
+                $page = $this->model('code/page')->byId($setting->header_page_id);
+                $setting->header_page = $page;
+            }
+            if ($setting->footer_page_id) {
+                $page = $this->model('code/page')->byId($setting->footer_page_id);
+                $setting->footer_page = $page;
+            }
             empty($setting->body_ele) && !empty($psetting->body_ele) && $setting->body_ele = $psetting->body_ele;
             empty($setting->body_css) && !empty($psetting->body_css) && $setting->body_css = $psetting->body_css;
             $setting->can_article_remark === 'N' && $psetting->can_article_remark === 'Y' && $setting->can_article_remark = 'Y';

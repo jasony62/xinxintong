@@ -42,7 +42,18 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function ($lp
             params.article.body = $sce.trustAsHtml(params.article.body);
             $scope.article = params.article;
             $scope.user = params.user;
-            params.mpaccount.body_ele = $sce.trustAsHtml(params.mpaccount.body_ele);
+            if (params.mpaccount.header_page) {
+                params.mpaccount.header_page.html = $sce.trustAsHtml(params.mpaccount.header_page.html);
+                (function () {
+                    eval(params.mpaccount.header_page.js);
+                })();
+            }
+            if (params.mpaccount.footer_page) {
+                params.mpaccount.footer_page.html = $sce.trustAsHtml(params.mpaccount.footer_page.html);
+                (function () {
+                    eval(params.mpaccount.footer_page.js);
+                })();
+            }
             $scope.mpa = params.mpaccount;
             deferred.resolve();
             $http.get('/rest/mi/matter/logAccess?mpid=' + mpid + '&id=' + id + '&type=article&title=' + $scope.article.title + '&shareby=' + shareby);
@@ -159,6 +170,9 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function ($lp
         $timeout(function () {
             document.querySelector('#gotoNewRemark').click();
         });
+    };
+    $scope.followMp = function () {
+        location.href = 'yixin://opencard?pid=' + $scope.mpa.yx_cardid;
     };
 }]).filter('filesize', function () {
     return function (length) {

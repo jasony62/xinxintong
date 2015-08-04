@@ -89,7 +89,7 @@
             </div>
         </div>
     </div>
-    <div class="panel panel-default">
+    <div class="panel panel-default" ng-if="features.body_ele">
         <div class="panel-heading">页面背景设置</div>
         <div class="panel-body">
             <div class='form-horizontal'>
@@ -134,6 +134,16 @@
         <div class="panel-heading">定制页面</div>
         <div class="panel-body">
             <table class='table table-bordered'>
+                <tr>
+                    <td>通用页头设置</td>
+                    <td>用于给所有页面添加页头元素。</td>
+                    <td><a href='javascript:void(0)' ng-click="editPage($event,'header_page_id')">编辑页面</a></td>
+                </tr>
+                <tr>
+                    <td>通用页脚设置</td>
+                    <td>用于给所有页面添加页脚元素。</td>
+                    <td><a href='javascript:void(0)' ng-click="editPage($event,'footer_page_id')">编辑页面</a></td>
+                </tr>
                 <tr>
                     <td>提示在PC端完成。</td>
                     <td>某些与公众号用户互动的页面适合在PC端展现，可以在此处设置提示的内容。</td>

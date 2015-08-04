@@ -154,7 +154,7 @@ class lottery extends \member_base {
 
         \TPL::assign('params', $params);
 
-        $mpsetting = $this->getCommonSetting($mpid);
+        $mpsetting = $this->getMpSetting($mpid);
         \TPL::assign('body_ele', $mpsetting->body_ele);
         \TPL::assign('body_css', $mpsetting->body_css);
 

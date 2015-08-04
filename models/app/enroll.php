@@ -206,7 +206,7 @@ class enroll_model extends \matter\enroll_model {
             'enroll_at' => time(),
             'enroll_key' => $ek,
             'openid' => $openid,
-            'nickname' => $fan->nickname,
+            'nickname' => !empty($fan) ? $fan->nickname : '',
             'vid' => $vid,
             'mid' => $mid,
         );

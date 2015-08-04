@@ -125,7 +125,7 @@ class main extends \member_base {
             !empty($oPage->ext_js) && \TPL::assign('ext_js', $oPage->ext_js);
             !empty($oPage->ext_css) && \TPL::assign('ext_css', $oPage->ext_css);
             \TPL::assign('title', $act->title);
-            $mpsetting = $this->getCommonSetting($mpid);
+            $mpsetting = $this->getMpSetting($mpid);
             \TPL::assign('body_ele', $mpsetting->body_ele);
             \TPL::assign('body_css', $mpsetting->body_css);
             $this->view_action('/app/enroll/page');
@@ -252,7 +252,7 @@ class main extends \member_base {
          * 全局设置
          */
         \TPL::assign('title', $act->title);
-        $mpsetting = $this->getCommonSetting($mpid);
+        $mpsetting = $this->getMpSetting($mpid);
         \TPL::assign('body_ele', $mpsetting->body_ele);
         \TPL::assign('body_css', $mpsetting->body_css);
         /**

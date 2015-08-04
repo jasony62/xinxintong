@@ -53,7 +53,7 @@ class article extends \member_base {
 
         $data['user'] = $user;
         
-        $mpaccount = $this->getCommonSetting($mpid);
+        $mpaccount = $this->getMpSetting($mpid);
         $user_agent = $_SERVER['HTTP_USER_AGENT'];
         if (preg_match('/yixin/i', $user_agent)) {
             $modelMpa = $this->model('mp\mpaccount');

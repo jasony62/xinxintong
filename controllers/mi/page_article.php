@@ -52,7 +52,7 @@ class page_article extends matter_page_base {
         /**
          * 页面背景设置
          */
-        $mpsetting = $ctrl->getCommonSetting($runningMpid);
+        $mpsetting = $ctrl->getMpSetting($runningMpid);
         \TPL::assign('body_ele', $mpsetting->body_ele);
         \TPL::assign('body_css', $mpsetting->body_css);
         /**

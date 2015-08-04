@@ -9,11 +9,12 @@
         <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
         <link href="//libs.useso.com/js/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
         <link href="/views/default/article.css?_=1" rel="stylesheet">
-        <style ng-bind='mpa.body_css'></style>
+        <style ng-if="mpa.header_page.css" ng-bind='mpa.header_page.css'></style>
+        <style ng-if="mpa.footer_page.css" ng-bind='mpa.footer_page.css'></style>
     </head>
     
     <body ng-cloak class='ng-cloak'>
-        <header ng-bind-html='mpa.body_ele'></header>
+        <header ng-bind-html='mpa.header_page.html'></header>
         <div id='mask' ng-if="loading">
             <div>
                 <i class='fa fa-spinner fa-5x fa-pulse'></i>
@@ -26,7 +27,7 @@
                     <span class="time" ng-bind="article.modify_at*1000|date:'yyyy-MM-dd'"></span>
                     <span class="author" ng-bind='article.author'></span>
                     <span id='article_from_mp' ng-if='mpa.yx_cardid'>
-                        <a ng-href="'yixin://opencard?pid='+article.yx_cardid" ng-bind='article.yx_cardname'></a>
+                        <a ng-click="followMp()" href="javascript:void(0)" ng-bind='mpa.yx_cardname'></a>
                     </span>
                 </div>
                 <div class="headpic" ng-if="article.hide_pic!=='Y'">
@@ -78,7 +79,7 @@
                 </div>
             </div>
         </div>
-        <footer></footer>
+        <footer ng-bind-html='mpa.footer_page.html'></footer>
         <script type="text/javascript">
             if (/MicroMessenger/i.test(navigator.userAgent)) {
                 var mpid = location.search.match(/mpid=([^&]*)/)[1];

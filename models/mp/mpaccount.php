@@ -160,18 +160,8 @@ class mpaccount_model extends \TMS_MODEL {
      */
     public function &getFeatures($mpid, $fields='*')
     {
-        if ($fields === '*') {
-            $names = 'mpid';
-            $names .= ',can_article_remark';
-            $names .= ',body_ele,body_css,follow_ele,follow_css,heading_pic,shift2pc_page_id';
-            $names .= ',matter_visible_to_creater';
-            $names .= ',admin_contact,admin_email,admin_email_pwd,admin_email_smtp,admin_email_port,admin_email_tls';
-            $names .= ',can_member,can_member_card,can_member_checkin,can_member_credits';
-        } else {
-            $names = $fields;
-        }
         $q = array(
-            $names,
+            $fields,
             'xxt_mpsetting s',
             "s.mpid='$mpid'"
         );

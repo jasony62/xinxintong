@@ -50,7 +50,7 @@ class fans extends \mp\mp_controller {
             $q[] = 'xxt_fans f';
         }
 
-        $w = "f.mpid='$this->mpid' and f.unsubscribe_at=0 and forbidden='N'";
+        $w = "f.mpid='$this->mpid' and f.unsubscribe_at=0 and f.forbidden='N'";
         /**
          * search by keyword
          */
@@ -301,8 +301,9 @@ class fans extends \mp\mp_controller {
                 /**
                  * 更新数据
                  */
+                $nickname = trim($this->model()->escape($info[1]->nickname));
                 $u = array(
-                    'nickname' => $this->model()->escape($info[1]->nickname),
+                    'nickname' => empty($nickname) ? '未知' : $nickname,
                     'sex' => $info[1]->sex,
                     'city' => $info[1]->city,
                     'groupid' => $info[1]->groupid

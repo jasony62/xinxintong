@@ -266,8 +266,9 @@ class main extends \member_base {
                  */
                 $fanInfo = $this->getFanInfo($mpid, $openid);
                 if ($fanInfo[0]) {
+                    $nickname = trim($this->model()->escape($fanInfo[1]->nickname));
                     $u = array(
-                        'nickname' => $this->model()->escape($fanInfo[1]->nickname),
+                        'nickname' => empty($nickname) ? '未知' : $nickname,
                         'sex' => $fanInfo[1]->sex,
                         'city' => $fanInfo[1]->city
                     );

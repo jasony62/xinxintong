@@ -34,7 +34,7 @@
         <tbody>
             <tr ng-repeat='r in roll'>
                 <td>
-                    <a href='#' userpopover xxt-fid='{{r.fid}}' ng-click='viewUser($event,r)'>{{r.nickname}}</a>
+                    <a href='#' userpopover xxt-fid='{{r.fid}}' ng-click='viewUser($event,r)'>{{r.nickname||'未知'}}</a>
                 </td>
                 <td>{{r.create_at*1000|date:'yyyy-MM-dd'}}</td>
                 <td>{{r.verified==='Y'?'是':'否'}}</td>

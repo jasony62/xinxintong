@@ -13,6 +13,31 @@ if (!$mysqli->query($sql)) {
     echo 'database error(xxt_log): '.$mysqli->error;
 }
 /**
+ * 公众号汇总日志
+ * 日增量和累积
+ */
+$sql = "create table if not exists xxt_log_mpa(";
+$sql .= 'id int not null auto_increment';
+$sql .= ',mpid varchar(32) not null';
+$sql .= ',year int not null default 0';
+$sql .= ',month int not null default 0';
+$sql .= ',day int not null default 0';
+$sql .= ',read_inc int not null default 0'; 
+$sql .= ',read_sum int not null default 0'; 
+$sql .= ',sf_inc int not null default 0'; 
+$sql .= ',sf_sum int not null default 0'; 
+$sql .= ',st_inc int not null default 0'; 
+$sql .= ',st_sum int not null default 0'; 
+$sql .= ',fans_inc int not null default 0'; 
+$sql .= ',fans_sum int not null default 0'; 
+$sql .= ',member_inc int not null default 0'; 
+$sql .= ',member_sum int not null default 0'; 
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error(xxt_log): '.$mysqli->error;
+}
+/**
  * log received parsed msessages.
  * 这应该是一个全局日志，所有收到的用户消息都要记录
  */

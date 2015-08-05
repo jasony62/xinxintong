@@ -245,6 +245,20 @@ class log_model extends TMS_MODEL {
             die('invalid parameter!');
         }
         $this->insert('xxt_log_user_action', $d, false);
+        
+        if (!empty($user->openid)) {
+            switch ($action_name){
+            case 'R':
+                $this->update("update xxt_fans set read_num=read_num+1 where mpid='$mpid' and openid='$user->openid'");
+                break;
+            case 'SF':
+                $this->update("update xxt_fans set share_friend_num=share_friend_num+1 where mpid='$mpid' and openid='$user->openid'");
+                break;
+            case 'ST':
+                $this->update("update xxt_fans set share_timeline_num=share_timeline_num+1 where mpid='$mpid' and openid='$user->openid'");
+                break;
+            }    
+        }
 
         return true;
     }
@@ -276,6 +290,21 @@ class log_model extends TMS_MODEL {
         }
         $this->insert('xxt_log_matter_action', $d, false);
 
+        if (!empty($mpid)) {
+            
+            switch ($action_name){
+            case 'R':
+                $this->update("update xxt_log_mpa set read_inc=read_inc+1,read_sum=read_sum+1 where id='$logid'");
+                break;
+            case 'SF':
+                $this->update("update xxt_log_mpa set sf_inc=sf_inc+1,sf_sum=sf_sum+1 where id='$logid'");
+                break;
+            case 'ST':
+                $this->update("update xxt_log_mpa set st_inc=st_inc+1,st_sum=st_sum+1 where id='$logid'");
+                break;
+            }    
+        }
+        
         return true;
     }
     /**

@@ -108,7 +108,14 @@ class alioss_model {
     {
         $alioss = $this->get_alioss();
         
-        $rsp = $alioss->create_mpu_object($this->bucket, $object, array(ALIOSS::OSS_FILE_UPLOAD => $filename));
+        $rsp = $alioss->create_mpu_object(
+            $this->bucket, 
+            $object, 
+            array(
+                ALIOSS::OSS_FILE_UPLOAD => $filename,
+                ALIOSS::OSS_PART_SIZE => 5242880,
+            )
+        );
         
         return $rsp;
     }

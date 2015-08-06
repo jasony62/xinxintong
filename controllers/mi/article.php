@@ -231,7 +231,7 @@ class article extends \member_base {
         $att = $this->model()->query_obj_ss($q);
         
         if (strpos($att->url, 'alioss') === 0) {
-            $downloadUrl = 'http://xxt-attachment.oss-cn-shanghai.aliyuncs.com/'.$mpid.'/article/'.$articleid.'/'.$att->name;
+            $downloadUrl = 'http://xxt-attachment.oss-cn-shanghai.aliyuncs.com/'.$mpid.'/article/'.$articleid.'/'.urlencode($att->name);
             $this->redirect($downloadUrl);
         } else {
             $fs = $this->model('fs/saestore', $mpid);

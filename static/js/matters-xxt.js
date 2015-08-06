@@ -302,7 +302,7 @@ xxtMatters.controller('MattersGalleryModalInstCtrl', ['$scope', '$http', '$modal
         url += '/' + $scope.p.matterType.value;
         url += '/get?page=' + $scope.page.current + '&size=' + $scope.page.size + '&fields=' + fields;
         $scope.p.fromParent && $scope.p.fromParent == 1 && (params.src = 'p');
-        $http.post(url, params, { headers: { 'ACCEPT': 'application/json' } }).success(function (rsp) {
+        $http.post(url, params).success(function (rsp) {
             if (/article|contribute/.test($scope.p.matterType.value)) {
                 $scope.matters = rsp.data[0];
                 rsp.data[1] && ($scope.page.total = rsp.data[1]);

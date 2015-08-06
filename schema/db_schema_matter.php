@@ -286,6 +286,7 @@ $sql .= ',top_type varchar(20)'; // article,link
 $sql .= ',top_id varchar(40)';
 $sql .= ',bottom_type varchar(20)'; // article,link
 $sql .= ',bottom_id varchar(40)';
+$sql .= ",orderby varchar(20) not null default 'time'";
 $sql .= ",access_control char(1) not null default 'N'";
 $sql .= ",authapis text";
 $sql .= ",filter_by_matter_acl char(1) not null default 'Y'"; // 根据素材的访问控制进行过滤

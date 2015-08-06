@@ -12,6 +12,28 @@ class analyze extends mp_controller {
         return $rule_action;
     }
     /**
+     * 素材行为统计数据
+     */
+    public function mpActions_action($startAt, $endAt, $page=1, $size=30) 
+    {
+        $q = array(
+            '*',
+            "xxt_log_mpa",
+            "mpid='$this->mpid'"
+        );
+        $q2 = array(
+            'l'=>array('o'=>($page-1)*$size, 's'=>$size)
+        );
+        $logs = $this->model()->query_objs_ss($q, $q2);
+        /**
+         * 总数
+         */
+        $q[0] = 'count(*)';
+        $cnt = $this->model()->query_val_ss($q);
+
+        return new \ResponseData(array($logs, $cnt));
+    }
+    /**
      * 用户行为统计数据
      */
     public function userActions_action($orderby, $startAt, $endAt, $page=1, $size=30) 

@@ -7,12 +7,11 @@ xxtApp.controller('sendCtrl', ['$scope', 'http2', '$modal', function ($scope, ht
     };
     $scope.fetchMatter = function (page) {
         $scope.selectedMatter = null;
-        var url = '/rest/mp/matter/' + $scope.matterType;
+        var url = '/rest/mp/matter/' + $scope.matterType, params = {};;
         !page && (page = $scope.page.at);
         url += '/get?page=' + page + '&size=' + $scope.page.size;
-        if ($scope.fromParent && $scope.fromParent === 'Y')
-            url += '&src=p';
-        http2.get(url, function (rsp) {
+        $scope.fromParent && $scope.fromParent === 'Y' && (params.src = 'p');
+        http2.post(url, params, function (rsp) {
             if ('article' === $scope.matterType) {
                 $scope.matters = rsp.data[0];
                 rsp.data[1] && ($scope.page.total = rsp.data[1]);
@@ -57,6 +56,10 @@ xxtApp.controller('sendCtrl', ['$scope', 'http2', '$modal', function ($scope, ht
         }
         $scope.userSet.splice(index, 1);
     };
+    http2.get('/rest/mp/mpaccount/get', function (rsp) {
+        $scope.mpa = rsp.data;
+        $scope.hasParent = ($scope.mpa.parent_mpid && $scope.mpa.parent_mpid.length) ? 'Y' : 'N';
+    });
     $scope.fetchMatter();
 }]);
 xxtApp.controller('SendMatterController', ['$scope', '$modalInstance', 'userSetAsParam', function ($scope, $modalInstance, userSetAsParam) {

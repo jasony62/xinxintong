@@ -416,18 +416,18 @@ class member_base extends xxt_base {
      */
     protected function getCookieOAuthUser($mpid)
     {
-        if ($user = $this->myGetcookie("_{$mpid}_oauth")) {
-            $user = $this->model()->encrypt($user, 'DECODE', $mpid);
-            if (0===strpos($user,'[')) {
-                $user = json_decode($user);
-                $user = $user[0];
-                $this->setCookieOAuthUser($mpid, $user);
+        if ($openid = $this->myGetcookie("_{$mpid}_oauth")) {
+            $openid = $this->model()->encrypt($openid, 'DECODE', $mpid);
+            if (0===strpos($openid,'[')) {
+                $openid = json_decode($openid);
+                $openid = $openid[0];
+                $this->setCookieOAuthUser($mpid, $openid);
             }
         } else {
-            $user ='';
+            $openid ='';
         }
 
-        return $user;
+        return $openid;
     }
     /**
      *

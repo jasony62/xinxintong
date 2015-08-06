@@ -1,0 +1,49 @@
+<div ng-controller='mpactionCtrl'>
+    <div class='form-group form-inline'>
+        <div class='form-group' style='display:none;width:180px'>
+            <tms-datepicker tms-title='开始日期' tms-date='startAt' tms-state='startAt'></tms-datepicker>
+        </div>
+        <div class='form-group' style='display:none;width:180px'>
+            <tms-datepicker tms-title='结束日期' tms-date='endAt' tms-state='endAt'></tms-datepicker>
+        </div>
+        <pagination ng-show='page.total>page.size' class='pull-right' style='cursor:pointer;margin:0;vertical-align:middle' boundary-links="true"
+        total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.current" class="pagination"
+        previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getData()"></pagination>
+    </div>
+    <div>
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th style='width:40px'></th>
+                    <th style='width:80px'>日期</th>
+                    <th>关注用户累积</th>
+                    <th>关注用户新增</th>
+                    <th>认证用户累积</th>
+                    <th>认证用户新增</th>
+                    <th>阅读累积</th>
+                    <th>阅读新增</th>
+                    <th>分享好友累积</th>
+                    <th>分享好友新增</th>
+                    <th>分享朋友圈累积</th>
+                    <th>分享朋友圈新增</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat='l in logs'>
+                    <td>{{$index+1}}</td>
+                    <td>{{l.year + '-' + l.month + '-' + l.day}}</td>
+                    <td>{{l.fans_sum}}</td>
+                    <td>{{l.fans_inc}}</td>
+                    <td>{{l.member_sum}}</td>
+                    <td>{{l.member_inc}}</td>
+                    <td>{{l.read_sum}}</td>
+                    <td>{{l.read_inc}}</td>
+                    <td>{{l.sf_sum}}</td>
+                    <td>{{l.sf_inc}}</td>
+                    <td>{{l.st_sum}}</td>
+                    <td>{{l.st_inc}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

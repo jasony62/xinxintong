@@ -18,17 +18,29 @@
         ng-change="changeAuthapi()">
             <option value=></option>
         </select>
+        <div class='form-group'>
+            <select style='width:120px' class='form-control' title='排序' ng-model='order' ng-change='doSearch()'>
+                <option value='time'>关注时间</option>
+                <option value='read'>阅读数</option>
+                <option value='share_friend'>分享好友数</option>
+                <option value='share_timeline'>分享朋友圈数</option>
+            </select>
+        </div>
     </div>
     <div>
         <table class='table table-bordered'>
             <thead>
                 <tr>
+                    <th style='width:40px'></th>
                     <th>昵称</th>
                     <th style='width:100px'>关注日期</th>
                     <th style='width:60px' ng-if='selectedAuthapi'>已认证</th>
                     <th ng-if='selectedAuthapi'>认证身份</th>
                     <th style='width:48px'>性别</th>
                     <th>城市</th>
+                    <th style='width:70px'>阅读数</th>
+                    <th style='width:70px'>分享好友数</th>
+                    <th style='width:70px'>分享朋友圈数</th>
                     <th ng-if='mattrs.name[0]==0'>姓名</th>
                     <th ng-if='mattrs.mobile[0]==0'>手机号</th>
                     <th ng-if='mattrs.email[0]==0'>电子邮件</th>
@@ -39,6 +51,7 @@
             </thead>
             <tbody>
                 <tr ng-repeat='f in fans'>
+                    <td ng-bind="$index+1"></td>
                     <td>
                         <a href='javascript:void(0)' userpopover xxt-fid='{{f.fid}}' ng-click='viewUser($event,f)'>{{f.nickname||'未知'}}</a>
                     </td>
@@ -47,6 +60,9 @@
                     <td ng-if='selectedAuthapi'>{{f.authed_identity}}</td>
                     <td>{{SexMap[f.sex]}}</td>
                     <td>{{f.city}}</td>
+                    <td>{{f.read_num}}</td>
+                    <td>{{f.share_friend_num}}</td>
+                    <td>{{f.share_timeline_num}}</td>
                     <td ng-if='mattrs.name[0]==0'>{{f.name}}</td>
                     <td ng-if="mattrs.mobile[0]==0">{{f.m_mobile}}</td>
                     <td ng-if="mattrs.email[0]==0">{{f.m_email}}</td>

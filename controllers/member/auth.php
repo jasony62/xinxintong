@@ -40,21 +40,22 @@ class auth extends \member_base {
         if ($code != null)
             $who = $this->getOAuthUserByCode($mpid, $code);
         else {
-            if (!empty($openid)) {
+            //if (!empty($openid)) {
                 /**
                  * 如果是直接打开认证页，而且提供了openid，就在cookie中保留信息，用于进行用户身份的绑定
                  */
-                $who = $openid;
-                $encoded = $this->model()->encrypt($who, 'ENCODE', $mpid);
-                $this->mySetcookie("_{$mpid}_mauth_f", $encoded, time()+300);
-            } else {
+            //    $who = $openid;
+            //    $encoded = $this->model()->encrypt($who, 'ENCODE', $mpid);
+            //    $this->mySetcookie("_{$mpid}_mauth_f", $encoded, time()+300);
+            //} else {
                 /**
                  * 如果支持OAuth，强制使用OAuth
                  * 如果进入之前的页面已经做过，不会再重复认证
                  */
-                $this->oauth($mpid);
-                $who = null;
-            }
+            //    $this->oauth($mpid);
+            //    $who = null;
+            //}
+            $who = $this->doAuth($mpid, $code, $openid);
         }
         $this->afterOAuth($mpid, $authid, $who);
     }
@@ -119,8 +120,11 @@ class auth extends \member_base {
      */
     public function doAuth_action($mpid, $authid) 
     {
-        if (false === ($fan = $this->getCurrentUserFan($mpid)))
+        $openid = $this->getCookieOAuthUser($mpid);
+        if (empty($openid))
             return new \ResponseError('无法获得当前用户的openid');
+            
+        $user = $this->getUser($mpid, array('verbose'=>array('fan'=>'Y')));
 
         $member = $this->getPostJson();
 
@@ -174,10 +178,14 @@ class auth extends \member_base {
         /**
          * 添加新的认证用户
          */
-        $rst = $this->model('user/member')->create($fan->fid, $member, $attrs);
+        $rst = $this->model('user/member')->create($user->fan->fid, $member, $attrs);
         if ($rst[0] === false)
             return new \ResponseError($rst[1]);
         $mid = $rst[1];
+        // log
+        
+        $this->model('log')->writeMemberAuth($mpid, $openid, $mid);
+                
         /**
          * 验证邮箱真实性
          */
@@ -192,7 +200,7 @@ class auth extends \member_base {
         $vid = $this->getVisitorId($mpid);
         $this->model()->update(
             'xxt_visitor', 
-            array('fid'=>$fan->fid), 
+            array('fid'=>$user->fan->fid), 
             "mpid='$mpid' and vid='$vid'"
         );
 
@@ -267,31 +275,6 @@ class auth extends \member_base {
             \TPL::assign('params', $params);
             $this->view_action('/member/authed');
         }
-    }
-    /**
-     * 获得当前用户的关注用户信息
-     *
-     * $mpid
-     */
-    private function getCurrentUserFan($mpid)
-    {
-        if ($this->myGetcookie("_{$mpid}_oauth"))
-            /**
-             * 通过OAuth获得的openid优先级高
-             */
-            $openid = $this->getCookieOAuthUser($mpid);
-        else if ($fanInCookie = $this->myGetcookie("_{$mpid}_mauth_f"))
-            /**
-             * URL直接指定的openid
-             */
-            $openid = json_decode($this->model()->encrypt($fanInCookie, 'DECODE', $mpid));
-        else
-            return false;
-
-        if ($fan = $this->model('user/fans')->byOpenid($mpid, $openid))
-            return  $fan;
-
-        return false;
     }
     /**
      * 发送验证邮件

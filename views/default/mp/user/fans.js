@@ -1,6 +1,7 @@
 xxtApp.controller('fansCtrl', ['$scope', 'http2', function ($scope, http2) {
     $scope.SexMap = { '0': '未知', '1': '男', '2': '女', '3': '无效值' };
     $scope.page = { at: 1, size: 30, keyword: '' };
+    $scope.order = 'time';
     $scope.doSearch = function (page) {
         if (page) $scope.page.at = page;
         var param = '?page=' + $scope.page.at + '&size=' + $scope.page.size;
@@ -13,6 +14,7 @@ xxtApp.controller('fansCtrl', ['$scope', 'http2', function ($scope, http2) {
             if ($scope.mattrs === undefined)
                 param += '&contain=memberAttrs';
         }
+        param += '&order=' + $scope.order;
         http2.get('/rest/mp/user/fans/get' + param, function (rsp) {
             var fans = rsp.data[0];
             if ($scope.selectedAuthapi) {

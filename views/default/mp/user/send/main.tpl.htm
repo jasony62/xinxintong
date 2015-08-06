@@ -5,7 +5,7 @@
     .status.failed{background:red}
     .mp .help-block{margin-bottom:0;font-size:0.8em}
 </style>
-<div ng-controller='sendCtrl' ng-init="hasParent='<?php echo empty($mpaccount->parent_mpid) ? 'N':'Y';?>';">
+<div ng-controller='sendCtrl'>
     <div class='col-md-6'>
         <div class='form-group'>
             <button class='btn btn-success' ng-click='openUserPicker()'>选择用户</button>

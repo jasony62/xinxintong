@@ -244,6 +244,8 @@ class main extends \member_base {
                     'sync_at' => $current
                 );
                 $this->model()->insert('xxt_fans', $fan, false);
+                // log
+                $this->model('log')->writeSubscribe($mpid, $openid);
             }
         }
         /**

@@ -17,7 +17,8 @@ $sql .= ',st_sum int not null default 0';
 $sql .= ',fans_inc int not null default 0'; 
 $sql .= ',fans_sum int not null default 0'; 
 $sql .= ',member_inc int not null default 0'; 
-$sql .= ',member_sum int not null default 0'; 
+$sql .= ',member_sum int not null default 0';
+$sql .= ",islast char(1) not null default 'N'";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 $sqls[] = $sql;
 

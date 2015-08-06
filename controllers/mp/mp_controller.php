@@ -42,7 +42,7 @@ class mp_controller extends \xxt_base {
         (true === $prights || $prights['app']['read_p'] === 'Y') && $entries['/rest/mp/app'] = array('title'=>'应用管理', 'entry'=>'');
         (true === $prights || $prights['reply']['read_p'] === 'Y') && $entries['/rest/mp/call'] = array('title'=>'回复管理', 'entry'=>'');
         (true === $prights || $prights['user']['read_p'] === 'Y') && $entries['/page/mp/user/received'] = array('title'=>'用户管理', 'entry'=>'');
-        !defined('SAE_TMP_PATH') && (true === $prights || $prights['analyze']['read_p'] === 'Y') && $entries['/page/mp/analyze'] = array('title'=>'统计分析', 'entry'=>'');
+        (true === $prights || $prights['analyze']['read_p'] === 'Y') && $entries['/page/mp/analyze'] = array('title'=>'统计分析', 'entry'=>'');
 
         \TPL::assign('mp_view_entries', $entries);
     }

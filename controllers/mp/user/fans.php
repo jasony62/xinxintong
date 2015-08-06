@@ -26,12 +26,12 @@ class fans extends \mp\mp_controller {
      * $amount
      * $gid 关注用户分组
      */
-    public function get_action($keyword='', $page=1, $size=30, $amount=null, $gid=null, $authid=null, $contain='') 
+    public function get_action($keyword='', $page=1, $size=30, $order='time', $amount=null, $gid=null, $authid=null, $contain='') 
     {
         $contain = explode(',', $contain);
 
         if ($authid !== null) {
-            $q[] = 'f.fid,f.openid,f.subscribe_at,f.nickname,f.sex,f.city,m.mid,m.authed_identity,m.tags,m.depts,m.email m_email,m.mobile m_mobile,m.name m_name,m.create_at,m.email_verified,m.extattr m_extattr';
+            $q[] = 'f.fid,f.openid,f.subscribe_at,f.nickname,f.sex,f.city,f.read_num,f.share_friend_num,f.share_timeline_num,m.mid,m.authed_identity,m.tags,m.depts,m.email m_email,m.mobile m_mobile,m.name m_name,m.create_at,m.email_verified,m.extattr m_extattr';
             $q[] = "xxt_fans f left join xxt_member m on m.forbidden='N' and f.fid=m.fid and m.authapi_id=$authid";
             if (in_array('memberAttrs', $contain)) {
                 /**
@@ -46,7 +46,7 @@ class fans extends \mp\mp_controller {
                 //$setting->can_member_credits = $features->can_member_credits;
             }
         } else {
-            $q[] = 'f.fid,f.openid,f.subscribe_at,f.nickname,f.sex,f.city';
+            $q[] = 'f.fid,f.openid,f.subscribe_at,f.nickname,f.sex,f.city,f.read_num,f.share_friend_num,f.share_timeline_num';
             $q[] = 'xxt_fans f';
         }
 
@@ -66,8 +66,21 @@ class fans extends \mp\mp_controller {
         if ($gid !== null) $w .= " and f.groupid=$gid";
 
         $q[] = $w;
-
-        $q2['o'] = 'subscribe_at desc';
+        
+        switch ($order) {
+            case 'time':
+                $q2['o'] = 'subscribe_at desc';
+                break;
+            case 'read':
+                $q2['o'] = 'read_num desc';
+                break;
+            case 'share_friend':
+                $q2['o'] = 'share_friend_num desc';
+                break;
+            case 'share_timeline':
+                $q2['o'] = 'share_timeline_num desc';
+                break;
+        }
         $q2['r'] = array('o'=>($page-1)*$size, 'l'=>$size);
         if ($fans = $this->model()->query_objs_ss($q, $q2)) {
             if (empty($amount)) {

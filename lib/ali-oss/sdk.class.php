@@ -1588,7 +1588,6 @@ class ALIOSS{
 
 		// 或的分片
 		$pieces = $this->get_multipart_counts($upload_filesize, (integer) $options[self::OSS_PART_SIZE]);
-
 		$response_upload_part = array();
 		foreach ($pieces as $i => $piece){
 			$response_upload_part[] = $this->upload_part($bucket, $object, $uploadId, array(

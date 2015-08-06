@@ -156,22 +156,6 @@ class resumableAliOss {
     }
     /**
      *
-     * Logging operation - to a file (upload_log.txt) and to the stdout
-     * @param string $str - the logging string
-     */
-    private function _log($str) {
-        // log to the output
-        //$log_str = date('d.m.Y').": {$str}\r\n";
-        //echo $log_str;
-    
-        // log to file
-        //if (($fp = fopen('upload_log.txt', 'a+')) !== false) {
-        //    fputs($fp, $log_str);
-        //    fclose($fp);
-        //}
-    }
-    /**
-     *
      * Check if all the parts exist, and 
      * gather all the parts of the file together
      * @param string $temp_dir - the temporary directory holding all the parts of the file
@@ -192,30 +176,21 @@ class resumableAliOss {
         }
         // check that all the parts are present
         // the size of the last part is between chunkSize and 2*$chunkSize
-        if ($total_files * $chunkSize >=  ($totalSize - $chunkSize + 1)) {
-            
+        if ($total_files * $chunkSize >=  ($totalSize - $chunkSize + 1)) {            
             $fs2 = \TMS_APP::M('fs/alioss', $this->mpid, 'xxt-attachment');
             $object = $this->mpid . '/article/' . $articleid . '/' . $_POST['resumableFilename'];
-            // uploadId
-            $upload = $fs2->initiate_multipart_upload($object);
-            if ($upload[0] === false) {
-                throw new \Exception($upload[1]);
-            }
-            $uploadId = $upload[1];
-            
-            $responseUploadPart = array();
             // create the final destination file
-            $content = '';
-            for ($i=1; $i<=$total_files; $i++) {
-                $content .= $fs->read($temp_dir.'/'.$fileName.'.part'.$i);
-                $fs->delete($temp_dir.'/'.$fileName.'.part'.$i);
-            }
             $tmpfname = tempnam(sys_get_temp_dir(), 'xxt');
             $handle = fopen($tmpfname, "w");
-            fwrite($handle, $content);
+            for ($i=1; $i<=$total_files; $i++) {
+                $content = $fs->read($temp_dir.'/'.$fileName.'.part'.$i);
+                fwrite($handle, $content);
+                $fs->delete($temp_dir.'/'.$fileName.'.part'.$i);
+            }
             fclose($handle);
-            
+            //
             $rsp = $fs2->create_mpu_object($object, $tmpfname);
+            echo(json_encode($rsp));
         }
     }
     /**
@@ -223,22 +198,11 @@ class resumableAliOss {
      */
     public function handleRequest($articleid)
     {
-        //check if request is GET and the requested chunk exists or not. this makes testChunks work
-        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            $temp_dir = $_GET['resumableIdentifier'];
-            $chunk_file = $temp_dir.'/'.$_GET['resumableFilename'].'.part'.$_GET['resumableChunkNumber'];
-            if (file_exists($chunk_file)) {
-                 header("HTTP/1.0 200 Ok");
-            } else {
-                 header("HTTP/1.0 404 Not Found");
-            }
-        }
         // loop through files and move the chunks to a temporarily created directory
         if (!empty($_FILES)) foreach ($_FILES as $file) {
             // check the error status
             if ($file['error'] != 0) {
-                $this->_log('error '.$file['error'].' in file '.$_POST['resumableFilename']);
-                continue;
+                return array(false, 'error '.$file['error'].' in file '.$_POST['resumableFilename']);
             }
             // init the destination file (format <filename.ext>.part<#chunk>
             // the file is stored in a temporary directory
@@ -247,10 +211,11 @@ class resumableAliOss {
             // move the temporary file
             $fs = \TMS_APP::M('fs/saestore', $this->mpid);
             if (!$fs->upload($dest_file, $file['tmp_name'])) {
-                $this->_log('Error saving (move_uploaded_file) chunk '.$_POST['resumableChunkNumber'].' for file '.$_POST['resumableFilename']);
+                return array(false, 'Error saving (move_uploaded_file) chunk '.$_POST['resumableChunkNumber'].' for file '.$_POST['resumableFilename']);
             } else {
                 // check if all the parts present, and create the final destination file
                 $this->createFileFromChunks($temp_dir, $articleid, $_POST['resumableFilename'], $_POST['resumableChunkSize'], $_POST['resumableTotalSize']);
+                return array(true);
             }
         }
     }
@@ -309,7 +274,7 @@ class article extends matter_ctrl {
      */
     public function get_action($id=null, $page=1, $size=30) 
     {
-        $options = $this->getPostJson();
+        if (!($options = $this->getPostJson())) $options = new \stdClass;
         
         if ($id) {
             $article = $this->getOne($this->mpid, $id);
@@ -646,14 +611,14 @@ class article extends matter_ctrl {
      */
     public function attachmentDel_action($id)
     {
-        $att = $this->model()->query_obj_ss(array('name,url','xxt_article_attachment', "id='$id'"));
+        $att = $this->model()->query_obj_ss(array('article_id,name,url','xxt_article_attachment', "id='$id'"));
         /**
          * remove from fs
          */
         if (strpos($att->url, 'alioss') === 0) {
             $fs = $this->model('fs/alioss', $this->mpid, 'xxt-attachment');
-            $object = $this->mpid.'/article/'.$id.'/'.$att->name;
-            $fs->delete_object($object);
+            $object = $this->mpid.'/article/'.$att->article_id.'/'.$att->name;
+            $rsp = $fs->delete_object($object);
         } else {
             $fs = $this->model('fs/saestore', $this->mpid);
             $fs->delete($att->url);

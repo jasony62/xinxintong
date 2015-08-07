@@ -265,7 +265,7 @@
         var dataApi, onclick, html;
         dataApi = def.dataScope === 'A' ? "Record.nextPage()" : "Record.nextPage('user')";
         onclick = def.onclick.length ? " ng-click=\"gotoPage($event,'" + def.onclick + "',r.enroll_key)\"" : '';
-        html = '<ul class="list-group" infinite-scroll="' + dataApi + '" infinite-scroll-disabled="Record.busy" infinite-scroll-distance="1">';
+        html = '<ul class="list-group" ng-init="requireRecordList=\'' + (def.dataScope === 'A' ? "" : "user") + '\'"infinite-scroll="' + dataApi + '" infinite-scroll-disabled="Record.busy" infinite-scroll-distance="1">';
         html += '<li class="list-group-item" ng-repeat="r in Record.list"' + onclick + '>';
         if (def.addEnrollAt)
             html += "<div wrap='static' class='wrap-inline'><label>登记时间</label><div>{{r.enroll_at*1000|date:'yyyy-MM-dd HH:mm'}}</div></div>";

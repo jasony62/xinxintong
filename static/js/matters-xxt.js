@@ -373,24 +373,24 @@ xxtMatters.controller('PicGalleryModalInstCtrl', ['$scope', '$modalInstance', 'u
     });
 }]);
 xxtMatters.controller('PicController', ['$scope', '$http', '$modal', function ($scope, $http, $modal) {
-    var modalInstance,
-        open = function (setshowname) {
-            modalInstance = $modal.open({
-                templateUrl: 'modalPicGalllery.html',
-                controller: 'PicGalleryModalInstCtrl',
-                backdrop: 'static',
-                size: 'lg',
-                windowClass: 'auto-height picgallery',
-                resolve: {
-                    url: function () {
-                        return $scope.picGalleryUrl;
-                    },
-                    setshowname: function () {
-                        return setshowname;
-                    }
+    var modalInstance, open;
+    open = function (setshowname) {
+        modalInstance = $modal.open({
+            templateUrl: 'modalPicGalllery.html',
+            controller: 'PicGalleryModalInstCtrl',
+            backdrop: 'static',
+            size: 'lg',
+            windowClass: 'auto-height picgallery',
+            resolve: {
+                url: function () {
+                    return $scope.picGalleryUrl;
+                },
+                setshowname: function () {
+                    return setshowname;
                 }
-            });
-        };
+            }
+        });
+    };
     $scope.$on('picgallery.open', function (event, callback, multiple, setshowname) {
         var kcfCallBack = function (url) {
             window.KCFinder = null;

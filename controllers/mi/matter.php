@@ -205,22 +205,20 @@ class matter extends \member_base {
                 $this->model()->update("update $table set share_timeline_num=share_timeline_num+1 where id='$id'");
         }
         
-        $vid = $this->getVisitorId($mpid);
-        $openid = $this->getCookieOAuthUser($mpid);
-        
-        !empty($openid) && $fan = $this->model('user/fans')->byOpenid($mpid, $openid); 
+        $user = $this->getUser($mpid, array('verbose'=>array('fan'=>'Y')));
+        //$user = $this->getUser($mpid);
         
         $logUser = new \stdClass;
-        $logUser->vid = $vid;
-        $logUser->openid = $ooid;
-        $logUser->nickname = isset($fan) ? $fan->nickname : 'nickname';
+        $logUser->vid = $user->vid;
+        $logUser->openid = $user->openid;
+        $logUser->nickname = empty($user->fan) ? '' : $this->model()->escape($user->fan->nickname);
         
         $logMatter = new \stdClass;
         $logMatter->id = $id;
         $logMatter->type = $type;
-        $logMatter->title = $title;
+        $logMatter->title = $this->model()->escape($title);
         
-        $logClient = neww \stdClass;
+        $logClient = new \stdClass;
         $logClient->agent = $_SERVER['HTTP_USER_AGENT'];
         $logClient->ip = $this->client_ip();
         

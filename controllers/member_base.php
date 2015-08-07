@@ -5,17 +5,6 @@ include_once dirname(__FILE__).'/xxt_base.php';
  */
 class member_base extends xxt_base {
     /**
-     * 设置代表用户认真身份的cookie
-     */
-    protected function setCookie4Member($mpid, $authid, $mid) 
-    {
-        $authapi = $this->model('user/authapi')->byId($authid, 'validity');
-        $key = $this->getCookieKey($mpid);
-        $encoded = $this->model()->encrypt($mid, 'ENCODE', $key);
-        $expireAt = $authapi->validity == 0 ? null : time()+(86400*(int)$authapi->validity);
-        $this->mySetCookie("_{$mpid}_{$authid}_member", $encoded, $expireAt);
-    }
-    /**
      * 
      */
     protected function getCookieKey($mpid) 
@@ -25,6 +14,17 @@ class member_base extends xxt_base {
             die('invalid parameters.');
 
         return md5($mpid.$mpCreater);
+    }
+    /**
+     * 设置代表用户认真身份的cookie
+     */
+    protected function setCookie4Member($mpid, $authid, $mid) 
+    {
+        $authapi = $this->model('user/authapi')->byId($authid, 'validity');
+        $key = $this->getCookieKey($mpid);
+        $encoded = $this->model()->encrypt($mid, 'ENCODE', $key);
+        $expireAt = $authapi->validity == 0 ? null : time()+(86400*(int)$authapi->validity);
+        $this->mySetCookie("_{$mpid}_{$authid}_member", $encoded, $expireAt);
     }
     /**
      * 判断是否为注册用户的条件是
@@ -104,12 +104,22 @@ class member_base extends xxt_base {
         // return value
         $user = new \stdClass;
         /**
-         * 当前用户在cookie中的记录
+         * 获得当前用户的访客id
          */
         $vid = $this->getVisitorId($mpid);
         $user->vid = $vid;
-        //
+        /**
+         * 获得当前用户的openid
+         */
         empty($openid) && $openid = $this->getCookieOAuthUser($mpid);
+        if (!$this->getClientSrc() && empty($openid) && !empty($sAuthapis)) {
+            /**
+             * 如果是非微信，易信客户端访问，无法通过OAuth获得openid，检查是否可以通过cookie中的认证用户信息获得openid
+             */
+            $aAuthapis = explode(',', $sAuthapis);
+            $members = $this->getCookieMember($mpid, $aAuthapis);
+            !empty($members) && $openid = $members[0]->openid;
+        }
         $user->openid = $openid;
         /**
          * 用户详细信息
@@ -424,7 +434,7 @@ class member_base extends xxt_base {
                 $this->setCookieOAuthUser($mpid, $openid);
             }
         } else {
-            $openid ='';
+            $openid = '';
         }
 
         return $openid;

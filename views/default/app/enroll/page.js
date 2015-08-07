@@ -407,6 +407,14 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
     $scope.openMatter = function (id, type) {
         location.href = '/rest/mi/matter?mpid=' + $scope.mpid + '&id=' + id + '&type=' + type;
     };
+    $scope.$watch('requireRecordList', function (nv) {
+        if (nv && nv.length) {
+            if ($scope.Record)
+                $scope.Record.nextPage(nv);
+            else
+                $scope.requireRecordList = nv;
+        }
+    });
     $scope.$watch('pageName', function (nv) {
         if (!nv) return;
         var url;
@@ -477,6 +485,9 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
             }
             $scope.params = params;
             $scope.ready = true;
+            if ($scope.requireRecordList) {
+                $scope.Record.nextPage($scope.requireRecordList);
+            }
             console.log('page ready', $scope.params);
         });
     });

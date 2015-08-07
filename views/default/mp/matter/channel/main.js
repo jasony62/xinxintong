@@ -74,7 +74,13 @@ xxtApp.controller('editCtrl', ['$scope', 'http2', function ($scope, http2) {
     $scope.update = function (name) {
         var nv = {};
         nv[name] = $scope.editing[name];
-        http2.post('/rest/mp/matter/channel/update?id=' + $scope.editing.id, nv);
+        http2.post('/rest/mp/matter/channel/update?id=' + $scope.editing.id, nv, function () {
+            if (name === 'orderby') {
+                http2.get('/rest/mp/matter/channel/get?id=' + $scope.id, function (rsp) {
+                    $scope.$parent.editing = rsp.data;
+                });
+            }
+        });
     };
     $scope.setFixed = function (pos, clean) {
         if (!clean) {

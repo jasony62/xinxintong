@@ -37,7 +37,7 @@ class channel_model extends article_base {
         return $channels;
     }
     /**
-     *
+     * 获得素材的所有频道
      */
     public function &byMatter($id, $type)
     {
@@ -53,7 +53,58 @@ class channel_model extends article_base {
         return $channels;
     }
     /**
-     *
+     * 获得返回素材的列列表
+     */
+    private function matterColumns($type, $prefix='m')
+    {
+        $columns = array('id','title','summary','pic','create_at');
+        switch ($type) {
+            case 'article':
+                $columns[] = 'read_num';
+                $columns[] = 'share_friend_num';
+                $columns[] = 'share_timeline_num';
+                $columns[] = 'score';
+                $columns[] = 'remark_num';
+            break;
+        }
+        
+        $columns = $prefix . '.' . implode(",$prefix.", $columns) . ',"'. $type . '" type';
+        
+        return $columns;
+    }
+    /**
+     * 获得素材的排序字段
+     */
+    private function matterOrderby($type, $ordeby, $default='', $prefix='m')
+    {
+        $schema = '';
+        if ($type === 'article') {
+            switch ($ordeby) {
+                case 'read':
+                    $schema = $prefix.'.read_num desc';
+                    break;
+                case 'like':
+                    $schema = $prefix.'.score desc';
+                    break;
+                case 'remark':
+                    $schema = $prefix.'.remark_num desc';
+                    break;
+                case 'share':
+                    $schema = "($prefix.share_friend_num+$prefix.share_timeline_num*50) desc";
+                    break;
+            }
+        }
+        if (!empty($default))
+            if (!empty($schema))
+                $schema = $schema.','.$default;
+            else
+                $schema = $default;
+        
+        return $schema;
+    }
+    /**
+     * 获得指定频道下的素材
+     * 
      * $channel_id int 频道的id
      * $channel 频道
      * $runningMpid
@@ -64,31 +115,33 @@ class channel_model extends article_base {
      */
     public function &getMatters($channel_id, $channel=null, $runningMpid=null) 
     {
-        $fixed_num = 0;
-        $matters = array();
-        $matterTypes = array(
-            'article'=>'xxt_article',
-            'link'=>'xxt_link',
-            'enroll'=>'xxt_enroll',
-            'contribute'=>'xxt_contribute'
-        );
         /**
          * load channel.
          */
         if (empty($channel))
-            $channel = $this->byId($channel_id, 'id,mpid,volume,top_type,top_id,bottom_type,bottom_id');
-            
-        if ($runningMpid !== null && $runningMpid !== $channel->mpid) {
-            $pmpid = $channel->mpid;
-        }
+            $channel = $this->byId($channel_id, 'id,mpid,matter_type,orderby,volume,top_type,top_id,bottom_type,bottom_id');
+        
+        if (empty($channel->matter_type))
+            $matterTypes = array(
+                'article'=>'xxt_article',
+                'link'=>'xxt_link',
+                'enroll'=>'xxt_enroll',
+                'contribute'=>'xxt_contribute',
+                //'wall'=>'xxt_wall',
+                //'lottery'=>'xxt_lottery'
+            );
+        else
+            $matterTypes = array($channel->matter_type => 'xxt_'.$channel->matter_type);
+        
+        $matters = array(); // 返回结果
+        $fixed_num = 0;
         /**
          * top matter
          */
         if (!empty($channel->top_type)) {
-            $qt[] = 'id,title,summary,pic,create_at,"'.$channel->top_type.'" type';
+            $qt[] = $this->matterColumns($channel->top_type, '');
             $qt[] = $matterTypes[$channel->top_type];
             $qt[] = "id='$channel->top_id'";
-
             $top = $this->query_obj_ss($qt);
             $fixed_num++;
         }
@@ -96,19 +149,20 @@ class channel_model extends article_base {
          * bottom matter
          */
         if (!empty($channel->bottom_type)) {
-            $qb[] = 'id,title,summary,pic,create_at,"'.$channel->bottom_type.'" type';
+            $qb[] = $this->matterColumns($channel->bottom_type, '');
             $qb[] = $matterTypes[$channel->bottom_type];
             $qb[] = "id='$channel->bottom_id'";
-
             $bottom = $this->query_obj_ss($qb);
             $fixed_num++;
         }
+        if ($runningMpid !== null && $runningMpid !== $channel->mpid)
+            $pmpid = $channel->mpid;
         /**
          * in channel
          */
-        foreach ($matterTypes as $type=>$table) {
+        foreach ($matterTypes as $type => $table) {
             $q1 = array();
-            $q1[] = "m.id,m.title,m.summary,m.pic,m.create_at,cm.create_at add_at,'".$type."' type";
+            $q1[] = $this->matterColumns($type) . ",cm.create_at add_at";
             $q1[] = "$table m,xxt_channel_matter cm";
             $qaw = "m.state=1 and cm.channel_id=$channel_id and m.id=cm.matter_id and cm.matter_type='$type'";
             
@@ -120,29 +174,32 @@ class channel_model extends article_base {
             
             $q1[] = $qaw;
             $q2 = array();
-            $q2['o'] = 'cm.create_at desc';
+            /**
+             * order by
+             */
+            $q2['o'] = $this->matterOrderby($type, $channel->orderby , 'cm.create_at desc');
+            /**
+             * $size
+             */    
             $q2['r']['o'] = 0;
-            $q2['r']['l'] = $channel->volume-$fixed_num;
-
+            $q2['r']['l'] = $channel->volume - $fixed_num;
             $typeMatters = $this->query_objs_ss($q1, $q2);
 
             $matters = array_merge($matters, $typeMatters);
         }
-        /**
-         * order by create_at
-         */
-        usort($matters, function($a, $b){
-            return $b->add_at - $a->add_at; 
-        });
+        if (count($matterTypes) > 1) {
+            /**
+             * order by add_at
+             */
+            usort($matters, function($a, $b){
+                return $b->add_at - $a->add_at; 
+            });
+        }
         /**
          * add top and bottom.
          */
         !empty($top) && $matters = array_merge(array($top), $matters);
         !empty($bottom) && $matters = array_merge($matters, array($bottom));
-        /**
-         * size
-         */
-        $matters = array_slice($matters, 0, $channel->volume);
 
         return $matters;
     }
@@ -161,9 +218,8 @@ class channel_model extends article_base {
         /**
          * load channel.
          */
-        if (empty($channel)) {
-            $channel = $this->byId($channel_id, 'id,mpid,volume,top_type,top_id,bottom_type,bottom_id');
-        }
+        if (empty($channel))
+            $channel = $this->byId($channel_id, 'id,mpid,orderby,volume,top_type,top_id,bottom_type,bottom_id');
         /**
          * top matter
          */
@@ -195,7 +251,7 @@ class channel_model extends article_base {
             $qaw .= " and a.id<>$bottom->id";
         }
         $qa1[] = $qaw;
-        $qa2['o'] = 'ca.create_at desc';
+        $qa2['o'] = $this->matterOrderby('article', $channel->orderby , 'ca.create_at desc');
         $qa2['r']['o'] = 0;
         $qa2['r']['l'] = $channel->volume;
         $articles = $this->query_objs_ss($qa1, $qa2);
@@ -229,16 +285,14 @@ class channel_model extends article_base {
          * in channel
          */
         if ($channel->matter_type === 'article') {
+            $orderby = $params->orderby || $channel->orderby;
             $q1 = array();
             $q1[] = "m.id,m.title,m.summary,m.pic,m.create_at,m.creater_name,cm.create_at add_at,'article' type,m.score,m.remark_num,s.score myscore";
             $q1[] = "xxt_article m left join xxt_article_score s on m.id=s.article_id and s.vid='$vid',xxt_channel_matter cm";
             $q1[] = "m.state=1 and m.approved='Y' and cm.channel_id=$channel_id and m.id=cm.matter_id and cm.matter_type='article'";
 
             $q2 = array();
-            if ($params->orderby === 'time')
-                $q2['o'] = 'cm.create_at desc';
-            else if ($params->orderby === 'score')
-                $q2['o'] = 'm.score + m.remark_num desc';
+            $q2['o'] = $this->matterOrderby('article', $orderby , 'cm.create_at desc');
 
             if (isset($params->page) && isset($params->size)) {
                 $q2['r'] = array(

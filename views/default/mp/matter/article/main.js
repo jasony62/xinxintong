@@ -26,20 +26,20 @@ xxtApp.controller('articleCtrl', ['$scope', '$location', 'http2', function ($sco
     http2.get('/rest/mp/mpaccount/get', function (rsp) {
         $scope.mpaccount = rsp.data;
         $scope.hasParent = rsp.data.parent_mpid && rsp.data.parent_mpid.length;
-    });
-    http2.get('/rest/mp/matter/article/get?id=' + $scope.id, function (rsp) {
-        $scope.editing = rsp.data;
-        $scope.editing.attachments === undefined && ($scope.editing.attachments = []);
-        $scope.entryUrl = 'http://' + location.host + '/rest/mi/matter?mpid=' + $scope.mpaccount.mpid + '&id=' + $scope.id + '&type=article';
-        $scope.entryUrl += '&tpl=' + ($scope.editing.custom_body === 'N' ? 'std' : 'cus');
-        $scope.picGalleryUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid=' + $scope.editing.mpid;
-        if (!$scope.editing.creater)
-            $scope.bodyEditable = false;
-        else
-            $scope.bodyEditable = true;
+        http2.get('/rest/mp/matter/article/get?id=' + $scope.id, function (rsp) {
+            $scope.editing = rsp.data;
+            $scope.editing.attachments === undefined && ($scope.editing.attachments = []);
+            $scope.entryUrl = 'http://' + location.host + '/rest/mi/matter?mpid=' + $scope.mpaccount.mpid + '&id=' + $scope.id + '&type=article';
+            $scope.entryUrl += '&tpl=' + ($scope.editing.custom_body === 'N' ? 'std' : 'cus');
+            $scope.picGalleryUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid=' + $scope.editing.mpid;
+            if (!$scope.editing.creater)
+                $scope.bodyEditable = false;
+            else
+                $scope.bodyEditable = true;
+        });
     });
 }]);
-xxtApp.controller('editCtrl', ['$scope', 'http2', function ($scope, http2) {
+xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', function ($scope, $modal, http2) {
     $scope.$parent.subView = 'edit';
     $scope.innerlinkTypes = [
         { value: 'article', title: '单图文', url: '/rest/mp/matter' },
@@ -123,6 +123,68 @@ xxtApp.controller('editCtrl', ['$scope', 'http2', function ($scope, http2) {
                     href: '#',
                     "onclick": fn,
                 }, dom.encode(matter.title))));
+            }
+        });
+    };
+    $scope.embedVideo = function () {
+        $modal.open({
+            templateUrl: 'insertMedia.html',
+            controller: ['$modalInstance', '$scope', function ($mi, $scope) {
+                $scope.data = { url: '' };
+                $scope.cancel = function () { $mi.dismiss() };
+                $scope.ok = function () { $mi.close($scope.data) };
+            }],
+            backdrop: 'static',
+        }).result.then(function (data) {
+            var editor, dom, url;
+            url = data.url;
+            if (data.url.length > 0) {
+                editor = tinymce.get('body1');
+                dom = editor.dom;
+                editor.insertContent(
+                    dom.createHTML('p', { 'class': 'video' },
+                        dom.createHTML(
+                            'video',
+                            {
+                                style: 'width:100%',
+                                controls: "controls",
+                            },
+                            dom.createHTML(
+                                'source',
+                                {
+                                    src: url,
+                                    type: "video/mp4",
+                                })
+                            )
+                        )
+                    );
+            }
+        });
+    };
+    $scope.embedAudio = function () {
+        $modal.open({
+            templateUrl: 'insertMedia.html',
+            controller: ['$modalInstance', '$scope', function ($mi, $scope) {
+                $scope.data = { url: '' };
+                $scope.cancel = function () { $mi.dismiss() };
+                $scope.ok = function () { $mi.close($scope.data) };
+            }],
+            backdrop: 'static',
+        }).result.then(function (data) {
+            var editor, dom, url;
+            url = data.url;
+            if (data.url.length > 0) {
+                editor = tinymce.get('body1');
+                dom = editor.dom;
+                url = data.url;
+                editor.insertContent(
+                    dom.createHTML('p', { 'class': 'audio' },
+                        dom.createHTML('audio', {
+                            src: url,
+                            controls: "controls",
+                            autoplay: "autoplay"
+                        }))
+                    );
             }
         });
     };

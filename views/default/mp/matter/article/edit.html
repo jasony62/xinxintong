@@ -68,7 +68,22 @@
             <div class='col-md-10'>
                 <div>
                     <button class='btn' ng-click="update('body')" ng-disabled='!bodyModified' ng-class="bodyModified?'btn-success':'btn-default'">保存</button>
-                    <button class='btn btn-default' ng-click="embedMatter()">添加素材</button>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">添加素材
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="#" ng-click="embedMatter()">内置素材</a>
+                            </li>
+                            <li>
+                                <a href="#" ng-click="embedVideo()">视频</a>
+                            </li>
+                            <li>
+                                <a href="#" ng-click="embedAudio()">音频</a>
+                            </li>
+                        </ul>
+                    </div>
                     <label class='checkbox-inline'>
                         <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_picviewer' ng-change="update('can_picviewer');">支持图片缩放浏览</label>
                     <label class='checkbox-inline'>
@@ -128,8 +143,8 @@
             <div class='col-md-10'>
                 <div class='checkbox'>
                     <label>
-                        <input type='checkbox' ng-disabled="editing.creater!==editing.uid" ng-model='editing.public_visible' ng-true-value="'Y'" ng-false-value="'N'"
-                        ng-change="update('public_visible')">设置为公开可见</label>
+                        <input type='checkbox' ng-disabled="editing.creater!==editing.uid" ng-model='editing.public_visible' ng-true-value="'Y'"
+                        ng-false-value="'N'" ng-change="update('public_visible')">设置为公开可见</label>
                 </div>
             </div>
         </div>
@@ -152,4 +167,19 @@
     </div>
     <div mattersgallery style='display:none' matter-url='/rest/mp/matter' matter-types='innerlinkTypes' has-parent='hasParent'></div>
     <div picgallery style='display:none' url='{{picGalleryUrl}}'></div>
+    <script type="text/ng-template" id="insertMedia.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title">媒体文件</h5>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>地址（URL）</label>
+                <textarea class="form-control" ng-model='data.url' rows=6></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" ng-click="ok()">确定</button>
+        </div>
+    </script>
 </div>

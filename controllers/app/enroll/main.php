@@ -752,14 +752,16 @@ class main extends \member_base {
     public function myRecords_action($mpid, $aid, $rid='', $orderby='time', $page=1, $size=10)
     {
         $modelEnroll = $this->model('app\enroll');
-
+        
         $act = $modelEnroll->byId($aid);
-
-        list($openid) = $this->getVisitorInfo($mpid, $act);
-
+        
+        $user = $this->getUser($mpid, array('authapis' => $act->authapis));
+        if (!$this->getClientSrc() && empty($user->openid))
+            return new \ResponseError('无法获得用户身份信息');
+        
         $options = array(
-            'creater' => $openid,
-            'visitor' => $openid,
+            'creater' => $user->openid,
+            'visitor' => $user->openid,
             'rid' => $rid,
             'page' => $page,
             'size' => $size,

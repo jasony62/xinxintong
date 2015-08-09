@@ -146,7 +146,7 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function ($lp
         $timeout(function () {
             var audios;
             audios = document.querySelectorAll('audio');
-            audios.length > 0 && audios[0].setAttribute('autoplay', 'autoplay');
+            audios.length > 0 && audios[0].play();
         });
     });
     $scope.like = function () {

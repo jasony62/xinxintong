@@ -683,7 +683,12 @@
             }
         };
         $scope.$on('tinymce.multipleimage.open', function (event, callback) {
-            $scope.$broadcast('mediagallery.open', callback, true, true);
+            var options = {
+                callback: callback,
+                multiple: true,
+                setshowname: true
+            }
+            $scope.$broadcast('mediagallery.open', options);
         });
         $scope.addPage = function () {
             http2.get('/rest/mp/app/enroll/addPage?aid=' + $scope.aid, function (rsp) {

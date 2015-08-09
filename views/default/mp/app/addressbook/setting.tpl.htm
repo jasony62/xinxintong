@@ -42,6 +42,6 @@
         <accesscontrol mpid='{{mpaccount.mpid}}' obj='editing' prop-acl='acl' prop-access='access_control' prop-apis='authapis'
         update-access-control="update('access_control')" update-authapis="update('authapis')" change-acl-url='/rest/mp/app/addressbook/setAcl?id={{editing.id}}'
         remove-acl-url='/rest/mp/app/addressbook/removeAcl' label-span='2' control-span='10'></accesscontrol>
-        <div mediagallery media-type="图片" box-id="{{mpaccount.mpid}}"></div>
+        <mediagallery box-id="{{mpaccount.mpid}}" />
     </div>
 </div>

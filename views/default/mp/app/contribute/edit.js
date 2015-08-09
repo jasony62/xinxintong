@@ -13,12 +13,13 @@ xxtApp.controller('contributeCtrl', ['$location', '$scope', 'http2', function ($
         http2.post('/rest/mp/app/contribute/update?id=' + $scope.editing.id, nv);
     };
     $scope.setPic = function () {
-        $scope.$broadcast('mediagallery.open', function (url) {
-            var t = (new Date()).getTime();
-            url += '?_=' + t;
-            $scope.editing.pic = url;
-            $scope.update('pic');
-        }, false);
+        var options = {
+            callback: function (url) {
+                $scope.editing.pic = url + '?_=' + (new Date()) * 1;
+                $scope.update('pic');
+            }
+        };
+        $scope.$broadcast('mediagallery.open', options);
     };
     $scope.removePic = function () {
         $scope.editing.pic = '';

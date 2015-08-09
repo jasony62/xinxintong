@@ -38,18 +38,17 @@ xxtApp.filter('transState', function () {
         http2.post('/rest/mp/app/wall/update?wid=' + $scope.wid, nv);
     };
     $scope.setPic = function () {
-        $scope.$broadcast('mediagallery.open', function (url) {
-            var nv = { pic: url };
-            http2.post('/rest/mp/app/wall/update?wid=' + $scope.wid, nv, function () {
-                $scope.wall.pic = url;
-            });
-        }, false);
+        var options = {
+            callback: function (url) {
+                $scope.wall.pic = url + '?_=' + (new Date()) * 1;
+                $scope.update('pic');
+            }
+        };
+        $scope.$broadcast('mediagallery.open', options);
     };
     $scope.removePic = function () {
-        var nv = { pic: '' };
-        http2.post('/rest/mp/app/wall/update?wid=' + $scope.wid, nv, function () {
-            $scope.wall.pic = '';
-        });
+        $scope.wall.pic = '';
+        $scope.update('pic');
     };
     $scope.start = function () {
         $scope.wall.active = 'Y';

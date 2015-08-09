@@ -5,11 +5,13 @@ xxtApp.controller('feaCtrl', ['$scope', 'http2', function ($scope, http2) {
         http2.post('/rest/mp/mpaccount/updateFeature', p);
     };
     $scope.setPic = function () {
-        $scope.$broadcast('mediagallery.open', function (url) {
-            url += '?_=' + (new Date()).getTime();
-            $scope.features.heading_pic = url;
-            $scope.update('heading_pic');
-        }, false);
+        var options = {
+            callback: function (url) {
+                $scope.features.heading_pic = url + '?_=' + (new Date()) * 1;;
+                $scope.update('heading_pic');
+            }
+        };
+        $scope.$broadcast('mediagallery.open', options);
     };
     $scope.removePic = function () {
         $scope.features.heading_pic = '';

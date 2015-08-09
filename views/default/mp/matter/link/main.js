@@ -69,12 +69,13 @@ xxtApp.controller('linkCtrl', ['$scope', 'http2', '$location', function ($scope,
         }
     };
     $scope.setPic = function () {
-        $scope.$broadcast('mediagallery.open', function (url) {
-            var t = (new Date()).getTime();
-            url += '?_=' + t;
-            $scope.editing.pic = url;
-            $scope.update('pic');
-        }, false);
+        var options = {
+            callback: function (url) {
+                $scope.editing.pic = url + '?_=' + (new Date()) * 1;
+                $scope.update('pic');
+            }
+        };
+        $scope.$broadcast('mediagallery.open', options);
     };
     $scope.removePic = function () {
         $scope.editing.pic = '';

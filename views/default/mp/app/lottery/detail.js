@@ -42,18 +42,17 @@ xxtApp.controller('lotteryCtrl', ['$scope', 'http2', '$location', function ($sco
         http2.post('/rest/mp/app/lottery/update?lid=' + $scope.lid, p);
     };
     $scope.setPic = function () {
-        $scope.$broadcast('mediagallery.open', function (url) {
-            var nv = { pic: url };
-            http2.post('/rest/mp/app/lottery/update?lid=' + $scope.lid, nv, function () {
-                $scope.lottery.pic = url;
-            });
-        }, false);
+        var options = {
+            callback: function (url) {
+                $scope.lottery.pic = url + '?_=' + (new Date()) * 1;
+                $scope.update('pic');
+            }
+        };
+        $scope.$broadcast('mediagallery.open', options);
     };
     $scope.removePic = function () {
-        var nv = { pic: '' };
-        http2.post('/rest/mp/app/lottery/update?lid=' + $scope.lid, nv, function () {
-            $scope.lottery.pic = '';
-        });
+        $scope.lottery.pic = '';
+        $scope.update('pic');
     };
     $scope.gotoCode = function () {
         if ($scope.lottery.page_id != 0)
@@ -121,10 +120,13 @@ xxtApp.controller('lotteryCtrl', ['$scope', 'http2', '$location', function ($sco
         });
     };
     $scope.setPic = function (award) {
-        $scope.$broadcast('mediagallery.open', function (url) {
-            award.pic = url;
-            $scope.update(award, 'pic');
-        }, false);
+        var options = {
+            callback: function (url) {
+                award.pic = url + '?_=' + (new Date()) * 1;
+                $scope.update(award, 'pic');
+            }
+        };
+        $scope.$broadcast('mediagallery.open', options);
     };
     $scope.removePic = function (award) {
         award.pic = '';
@@ -135,17 +137,16 @@ xxtApp.controller('lotteryCtrl', ['$scope', 'http2', '$location', function ($sco
         p[name] = award[name];
         http2.post('/rest/mp/app/lottery/setAward?aid=' + award.aid, p);
     };
+}]).controller('PlateCtrl', ['$scope', 'http2', function ($scope, http2) {
+    http2.get('/rest/mp/app/lottery/plate?lid=' + $scope.lid, function (rsp) {
+        $scope.plate = rsp.data;
+    });
+    $scope.update = function (slot) {
+        var p = {};
+        p[slot] = $scope.plate[slot];
+        http2.post('/rest/mp/app/lottery/setPlate?lid=' + $scope.lid, p);
+    };
 }])
-    .controller('PlateCtrl', ['$scope', 'http2', function ($scope, http2) {
-        http2.get('/rest/mp/app/lottery/plate?lid=' + $scope.lid, function (rsp) {
-            $scope.plate = rsp.data;
-        });
-        $scope.update = function (slot) {
-            var p = {};
-            p[slot] = $scope.plate[slot];
-            http2.post('/rest/mp/app/lottery/setPlate?lid=' + $scope.lid, p);
-        };
-    }])
     .controller('resultCtrl', ['$rootScope', '$scope', 'http2', function ($rootScope, $scope, http2) {
         var doSearch = function (page) {
             !page && (page = $scope.page.current);

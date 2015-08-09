@@ -49,12 +49,13 @@ xxtApp.controller('initiateCtrl', ['$scope', '$location', '$modal', 'http2', 'Ar
             });
     };
     $scope.setPic = function () {
-        $scope.$broadcast('mediagallery.open', function (url) {
-            var t = (new Date()).getTime();
-            url += '?_=' + t;
-            $scope.editing.pic = url;
-            $scope.Article.update($scope.editing, 'pic');
-        }, false);
+        var options = {
+            callback: function (url) {
+                $scope.editing.pic = url + '?_=' + (new Date()) * 1;;
+                $scope.Article.update($scope.editing, 'pic');
+            }
+        };
+        $scope.$broadcast('mediagallery.open', options);
     };
     $scope.removePic = function () {
         $scope.editing.pic = '';

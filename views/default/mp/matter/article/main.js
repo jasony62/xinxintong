@@ -75,16 +75,26 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', function ($scope, $m
         });
     };
     $scope.setPic = function () {
-        $scope.$broadcast('mediagallery.open', function (url) {
-            url += '?_=' + (new Date()).getTime();
-            $scope.editing.pic = url;
-            $scope.update('pic');
-        }, false);
+        var options = {
+            callback: function (url) {
+                $scope.editing.pic = url + '?_=' + (new Date()) * 1;
+                $scope.update('pic');
+            }
+        };
+        $scope.$broadcast('mediagallery.open', options);
     };
     $scope.removePic = function () {
         $scope.editing.pic = '';
         $scope.update('pic');
     };
+    $scope.$on('tinymce.multipleimage.open', function (event, callback) {
+        var options = {
+            callback: callback,
+            multiple: true,
+            setshowname: true
+        };
+        $scope.$broadcast('mediagallery.open', options);
+    });
     $scope.delAttachment = function (index, att) {
         $scope.$root.progmsg = '删除文件';
         http2.get('/rest/mp/matter/article/attachmentDel?id=' + att.id, function success(rsp) {
@@ -197,9 +207,7 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', function ($scope, $m
             $scope.$root.infomsg = '上传成功';
         });
     };
-    $scope.$on('tinymce.multipleimage.open', function (event, callback) {
-        $scope.$broadcast('mediagallery.open', callback, true, true);
-    });
+
     $scope.$on('tag.xxt.combox.done', function (event, aSelected) {
         var aNewTags = [];
         for (var i in aSelected) {

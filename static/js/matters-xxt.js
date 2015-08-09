@@ -364,48 +364,42 @@ xxtMatters.directive('mattersgallery', function () {
 xxtMatters.directive('mediagallery', function () {
     return {
         restrict: 'EA',
-        scope: { mediaType: '@mediaType', boxId: '@boxId' },
+        scope: { boxId: '@boxId' },
         controller: ['$scope', '$http', '$modal', function ($scope, $http, $modal) {
             var modalInstance, open;
-            open = function (setshowname) {
+            open = function (options) {
                 modalInstance = $modal.open({
                     templateUrl: 'modalMediaGalllery.html',
-                    controller: ['$scope', '$modalInstance', 'url', 'setshowname', function ($scope2, $modalInstance, url, setshowname) {
-                        $scope2.title = '图片库';
+                    controller: ['$scope', '$modalInstance', 'url', function ($scope2, $mi, url) {
+                        $scope2.title = options.mediaType;
                         $scope2.url = url;
-                        $scope2.setshowname = setshowname;
+                        $scope2.setshowname = options.setshowname;
                         $scope2.setting = { isShowName: 'N' };
-                        $scope2.cancel = function () {
-                            $modalInstance.dismiss('cancel');
-                        };
-                        $scope2.$watch('setting.isShowName', function (nv) {
-                            $modalInstance.isShowName = nv;
-                        });
+                        $scope2.cancel = function () { $mi.dismiss('cancel'); };
+                        $scope2.$watch('setting.isShowName', function (nv) { $mi.isShowName = nv; });
                     }],
                     backdrop: 'static',
                     size: 'lg',
                     windowClass: 'auto-height media-gallery',
                     resolve: {
                         url: function () {
-                            return "/kcfinder/browse.php?lang=zh-cn&type=" + $scope.mediaType + "&mpid=" + $scope.boxId;
+                            return "/kcfinder/browse.php?lang=zh-cn&type=" + options.mediaType + "&mpid=" + $scope.boxId;
                         },
-                        setshowname: function () {
-                            return setshowname;
-                        }
                     }
                 });
             };
-            $scope.$on('mediagallery.open', function (event, callback, multiple, setshowname) {
+            $scope.$on('mediagallery.open', function (event, options) {
+                options = angular.extend({ mediaType: "图片", callback: null, multiple: false, setshowname: false }, options);
                 var kcfCallBack = function (url) {
                     window.KCFinder = null;
-                    callback && callback(url, modalInstance.isShowName);
+                    options.callback && options.callback(url, modalInstance.isShowName);
                     modalInstance.close();
                 };
-                if (multiple)
+                if (options.multiple)
                     window.KCFinder = { callBackMultiple: kcfCallBack };
                 else
                     window.KCFinder = { callBack: kcfCallBack };
-                open(setshowname);
+                open(options);
             });
         }],
         templateUrl: '/static/template/mediagallery.html?_=1',

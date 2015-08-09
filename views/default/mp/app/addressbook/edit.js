@@ -28,18 +28,17 @@ xxtApp.controller('abCtrl', ['$scope', 'http2', function ($scope, http2) {
         http2.post('/rest/mp/app/addressbook/update?abid=' + $scope.editing.id, nv);
     };
     $scope.setPic = function () {
-        $scope.$broadcast('mediagallery.open', function (url) {
-            var t = (new Date()).getTime(), url = url + '?_=' + t, nv = { 'pic': url };
-            http2.post('/rest/mp/app/addressbook/update?abid=' + $scope.editing.id, nv, function () {
-                $scope.editing.pic = url;
-            });
-        }, false);
+        var options = {
+            callback: function (url) {
+                $scope.editing.pic = url + '?_=' + (new Date()) * 1
+                $scope.update('pic');
+            }
+        };
+        $scope.$broadcast('mediagallery.open', options);
     };
     $scope.removePic = function () {
-        var nv = { 'pic': '' };
-        http2.post('/rest/mp/app/addressbook/update?abid=' + $scope.editing.id, nv, function () {
-            $scope.editing.pic = '';
-        });
+        $scope.editing.pic = '';
+        $scope.update('pic');
     };
     $scope.$watch('abid', function (nv) {
         http2.get('/rest/mp/app/addressbook/get?abid=' + nv, function (rsp) {

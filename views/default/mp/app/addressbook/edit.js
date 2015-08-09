@@ -28,7 +28,7 @@ xxtApp.controller('abCtrl', ['$scope', 'http2', function ($scope, http2) {
         http2.post('/rest/mp/app/addressbook/update?abid=' + $scope.editing.id, nv);
     };
     $scope.setPic = function () {
-        $scope.$broadcast('picgallery.open', function (url) {
+        $scope.$broadcast('mediagallery.open', function (url) {
             var t = (new Date()).getTime(), url = url + '?_=' + t, nv = { 'pic': url };
             http2.post('/rest/mp/app/addressbook/update?abid=' + $scope.editing.id, nv, function () {
                 $scope.editing.pic = url;
@@ -47,8 +47,8 @@ xxtApp.controller('abCtrl', ['$scope', 'http2', function ($scope, http2) {
             $scope.entryUrl = "http://" + location.host + "/rest/app/addressbook?mpid=" + $scope.editing.mpid + "&id=" + $scope.editing.id;
         });
     });
-    $scope.$watch('mpid', function (nv) {
-        nv && nv.length && ($scope.picGalleryUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid=' + nv);
+    http2.get('/rest/mp/mpaccount/get', function (rsp) {
+        $scope.mpaccount = rsp.data;
     });
 }]);
 xxtApp.controller('rollCtrl', ['$scope', '$modal', 'http2', function ($scope, $modal, http2) {

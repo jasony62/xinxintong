@@ -45,6 +45,11 @@ body,pre,code{font-family:Arial,'Microsoft YaHei'}
 .modal.auto-height .modal-dialog .modal-content{height:100%}
 .modal.auto-height .modal-dialog .modal-content .modal-body{position:absolute;top:57px;bottom:74px;left:0;right:0}
 .modal.auto-height .modal-dialog .modal-content .modal-footer{position:absolute;bottom:0;left:0;right:0;margin-top:0}
+/* media gallery*/
+.modal.media-gallery{display: none;}
+.modal.media-gallery .modal-dialog{position:absolute;top:0;bottom:0;left:50%;margin-left:-450px}
+.modal.media-gallery .modal-dialog .modal-content{height:100%}
+.modal.media-gallery .modal-dialog .modal-content .modal-body{position:absolute;top:52px;bottom:0;left:0;right:0}
 /* tree */
 .tree {border:0 none transparent;margin:0;padding:0}
 .tree li.treenode{

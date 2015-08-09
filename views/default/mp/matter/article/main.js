@@ -31,7 +31,6 @@ xxtApp.controller('articleCtrl', ['$scope', '$location', 'http2', function ($sco
             $scope.editing.attachments === undefined && ($scope.editing.attachments = []);
             $scope.entryUrl = 'http://' + location.host + '/rest/mi/matter?mpid=' + $scope.mpaccount.mpid + '&id=' + $scope.id + '&type=article';
             $scope.entryUrl += '&tpl=' + ($scope.editing.custom_body === 'N' ? 'std' : 'cus');
-            $scope.picGalleryUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid=' + $scope.editing.mpid;
             if (!$scope.editing.creater)
                 $scope.bodyEditable = false;
             else
@@ -76,7 +75,7 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', function ($scope, $m
         });
     };
     $scope.setPic = function () {
-        $scope.$broadcast('picgallery.open', function (url) {
+        $scope.$broadcast('mediagallery.open', function (url) {
             url += '?_=' + (new Date()).getTime();
             $scope.editing.pic = url;
             $scope.update('pic');
@@ -199,7 +198,7 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', function ($scope, $m
         });
     };
     $scope.$on('tinymce.multipleimage.open', function (event, callback) {
-        $scope.$broadcast('picgallery.open', callback, true, true);
+        $scope.$broadcast('mediagallery.open', callback, true, true);
     });
     $scope.$on('tag.xxt.combox.done', function (event, aSelected) {
         var aNewTags = [];

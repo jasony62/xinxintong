@@ -361,55 +361,54 @@ xxtMatters.directive('mattersgallery', function () {
         templateUrl: '/static/template/mattersgallery.html?v=3',
     }
 });
-xxtMatters.controller('PicGalleryModalInstCtrl', ['$scope', '$modalInstance', 'url', 'setshowname', function ($scope, $modalInstance, url, setshowname) {
-    $scope.url = url;
-    $scope.setshowname = setshowname;
-    $scope.setting = { isShowName: 'N' };
-    $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
-    };
-    $scope.$watch('setting.isShowName', function (nv) {
-        $modalInstance.isShowName = nv;
-    });
-}]);
-xxtMatters.controller('PicController', ['$scope', '$http', '$modal', function ($scope, $http, $modal) {
-    var modalInstance, open;
-    open = function (setshowname) {
-        modalInstance = $modal.open({
-            templateUrl: 'modalPicGalllery.html',
-            controller: 'PicGalleryModalInstCtrl',
-            backdrop: 'static',
-            size: 'lg',
-            windowClass: 'auto-height picgallery',
-            resolve: {
-                url: function () {
-                    return $scope.picGalleryUrl;
-                },
-                setshowname: function () {
-                    return setshowname;
-                }
-            }
-        });
-    };
-    $scope.$on('picgallery.open', function (event, callback, multiple, setshowname) {
-        var kcfCallBack = function (url) {
-            window.KCFinder = null;
-            callback && callback(url, modalInstance.isShowName);
-            modalInstance.close();
-        };
-        if (multiple)
-            window.KCFinder = { callBackMultiple: kcfCallBack };
-        else
-            window.KCFinder = { callBack: kcfCallBack };
-        open(setshowname);
-    });
-}]);
-xxtMatters.directive('picgallery', function () {
+xxtMatters.directive('mediagallery', function () {
     return {
         restrict: 'EA',
-        scope: { picGalleryUrl: '@url' },
-        controller: 'PicController',
-        templateUrl: '/static/template/picgallery.html?_=1',
+        scope: { mediaType: '@mediaType', boxId: '@boxId' },
+        controller: ['$scope', '$http', '$modal', function ($scope, $http, $modal) {
+            var modalInstance, open;
+            open = function (setshowname) {
+                modalInstance = $modal.open({
+                    templateUrl: 'modalMediaGalllery.html',
+                    controller: ['$scope', '$modalInstance', 'url', 'setshowname', function ($scope2, $modalInstance, url, setshowname) {
+                        $scope2.title = '图片库';
+                        $scope2.url = url;
+                        $scope2.setshowname = setshowname;
+                        $scope2.setting = { isShowName: 'N' };
+                        $scope2.cancel = function () {
+                            $modalInstance.dismiss('cancel');
+                        };
+                        $scope2.$watch('setting.isShowName', function (nv) {
+                            $modalInstance.isShowName = nv;
+                        });
+                    }],
+                    backdrop: 'static',
+                    size: 'lg',
+                    windowClass: 'auto-height media-gallery',
+                    resolve: {
+                        url: function () {
+                            return "/kcfinder/browse.php?lang=zh-cn&type=" + $scope.mediaType + "&mpid=" + $scope.boxId;
+                        },
+                        setshowname: function () {
+                            return setshowname;
+                        }
+                    }
+                });
+            };
+            $scope.$on('mediagallery.open', function (event, callback, multiple, setshowname) {
+                var kcfCallBack = function (url) {
+                    window.KCFinder = null;
+                    callback && callback(url, modalInstance.isShowName);
+                    modalInstance.close();
+                };
+                if (multiple)
+                    window.KCFinder = { callBackMultiple: kcfCallBack };
+                else
+                    window.KCFinder = { callBack: kcfCallBack };
+                open(setshowname);
+            });
+        }],
+        templateUrl: '/static/template/mediagallery.html?_=1',
     }
 });
 xxtMatters.controller('AccessControllerUserPickerController', ['$scope', '$modalInstance', 'userSetAsParam', function ($scope, $mi, userSetAsParam) {

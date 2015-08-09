@@ -28,7 +28,7 @@
             });
         };
         $scope.setPic = function () {
-            $scope.$broadcast('picgallery.open', function (url) {
+            $scope.$broadcast('mediagallery.open', function (url) {
                 var t = (new Date()).getTime(), url = url + '?_=' + t, nv = { pic: url };
                 http2.post('/rest/mp/app/enroll/update?aid=' + $scope.aid, nv, function () {
                     $scope.editing.pic = url;

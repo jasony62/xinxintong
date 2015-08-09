@@ -30,9 +30,7 @@ xxtApp.controller('initiateCtrl', ['$scope', '$location', '$modal', 'http2', 'Ar
                 ch = $scope.editing.channels[i];
                 mapSubChannels[ch.id] && $scope.editing.subChannels.push(ch);
             }
-            picUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid=' + $scope.mpid;
-            picUrl += data.pic_store_at === 'M' ? $scope.mpid : data.user.fan.fid;
-            $scope.picGalleryUrl = picUrl;
+            $scope.picBoxId = data.pic_store_at === 'M' ? $scope.mpid : data.user.fan.fid;
             $scope.needReview = (data.reviewers && data.reviewers.length) ? 'Y' : 'N';
         });
     });
@@ -51,7 +49,7 @@ xxtApp.controller('initiateCtrl', ['$scope', '$location', '$modal', 'http2', 'Ar
             });
     };
     $scope.setPic = function () {
-        $scope.$broadcast('picgallery.open', function (url) {
+        $scope.$broadcast('mediagallery.open', function (url) {
             var t = (new Date()).getTime();
             url += '?_=' + t;
             $scope.editing.pic = url;
@@ -77,7 +75,7 @@ xxtApp.controller('initiateCtrl', ['$scope', '$location', '$modal', 'http2', 'Ar
         $scope.bodyModified = true;
     };
     $scope.$on('tinymce.multipleimage.open', function (event, callback) {
-        $scope.$broadcast('picgallery.open', callback, true, true);
+        $scope.$broadcast('mediagallery.open', callback, true, true);
     });
     $scope.update = function (name) {
         $scope.Article.update($scope.editing, name);

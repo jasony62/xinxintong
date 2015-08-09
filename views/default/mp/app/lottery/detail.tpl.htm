@@ -1,4 +1,4 @@
-<div ng-controller='lotteryCtrl' ng-init='mpid="<?php echo TPL::S('mpid');?>"'>
+<div ng-controller='lotteryCtrl'>
     <nav class="navbar navbar-default">
         <ul class="nav navbar-nav">
             <li>
@@ -6,13 +6,22 @@
                     <span class='glyphicon glyphicon-chevron-left'></span>
                 </a>
             </li>
-            <li ng-class="{'active':subView=='setting'}"><a href='javascript:void(0);' ng-click="subView='setting'">活动设置</a></li>
-            <li ng-class="{'active':subView=='award'}"><a href='javascript:void(0);' ng-click="subView='award'">奖项设置</a></li>
-            <li ng-class="{'active':subView=='plate'}"><a href='javascript:void(0);' ng-click="subView='plate'">奖项位置</a></li>
-            <li ng-class="{'active':subView=='page'}"><a href='javascript:void(0);' ng-click="subView='page'">页面定制</a></li>
-            <li ng-class="{'active':subView=='result'}"><a href='javascript:void(0);' ng-click="subView='result'">抽奖结果</a></li>
+            <li ng-class="{'active':subView=='setting'}">
+                <a href='javascript:void(0);' ng-click="subView='setting'">活动设置</a>
+            </li>
+            <li ng-class="{'active':subView=='award'}">
+                <a href='javascript:void(0);' ng-click="subView='award'">奖项设置</a>
+            </li>
+            <li ng-class="{'active':subView=='plate'}">
+                <a href='javascript:void(0);' ng-click="subView='plate'">奖项位置</a>
+            </li>
+            <li ng-class="{'active':subView=='page'}">
+                <a href='javascript:void(0);' ng-click="subView='page'">页面定制</a>
+            </li>
+            <li ng-class="{'active':subView=='result'}">
+                <a href='javascript:void(0);' ng-click="subView='result'">抽奖结果</a>
+            </li>
         </ul>
     </nav>
-    <div ng-init="subView='setting'" ng-include="'/page/mp/app/lottery/'+subView">
-    </div>
+    <div ng-init="subView='setting'" ng-include="'/page/mp/app/lottery/'+subView"></div>
 </div>

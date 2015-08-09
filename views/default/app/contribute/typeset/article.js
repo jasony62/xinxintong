@@ -65,12 +65,8 @@ xxtApp.controller('myArticleCtrl', ['$location', '$scope', '$modal', 'http2', 'A
             $scope.editing.channels.splice(i, 1);
         });
     });
-    $scope.$on('tinymce.multipleimage.open', function (event, callback) {
-        $scope.$broadcast('picgallery.open', callback, true, true);
-    });
     $scope.mpid = $location.search().mpid;
     $scope.id = $location.search().id;
-    $scope.picGalleryUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid=' + $scope.mpid;
     $scope.Article = new Article('typeset', $scope.mpid, '');
     $scope.Article.get($scope.id).then(function (data) {
         $scope.editing = data;

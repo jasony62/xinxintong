@@ -1,8 +1,12 @@
-<div ng-controller='linkCtrl' ng-init='mpid="<?php echo TPL::S('mpid');?>"'>
+<div ng-controller='linkCtrl'>
     <div class='navbar navbar-default'>
         <ul class='nav navbar-nav'>
-            <li><a href='javascript:void(0);' ng-click="back()"><span class="glyphicon glyphicon-chevron-left"></span></a></li>
-            <li ng-class={'active':subView=='edit'}><a href='javascript:void(0);' ng-click="subView='edit'">编辑</a></li>
+            <li>
+                <a href='javascript:void(0);' ng-click="back()"><span class="glyphicon glyphicon-chevron-left"></span></a>
+            </li>
+            <li ng-class="{'active':subView=='edit'}">
+                <a href='javascript:void(0);' ng-click="subView='edit'">编辑</a>
+            </li>
         </ul>
     </div>
     <div>

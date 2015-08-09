@@ -7,7 +7,4 @@
 .combox .dropdown-menu .checkbox{clear:both;padding:3px 20px;margin:0 0 0 10px;white-space:nowrap}
 .combox .dropdown-menu .checkbox label{display:inline-block;width:100%}
 .combox .dropdown-menu .checkbox:hover{background-color:#F5F5F5}
-.modal.picgallery .modal-dialog{position:absolute;top:0;bottom:0;left:50%;margin-left:-450px}
-.modal.picgallery .modal-dialog .modal-content{height:100%}
-.modal.picgallery .modal-dialog .modal-content .modal-body{position:absolute;top:57px;bottom:0;left:0;right:0}
 .qrcode .popover img{width:150px;height:150px}

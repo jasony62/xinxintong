@@ -447,7 +447,7 @@ xxtApp.controller('enrollCtrl', ['$rootScope', '$scope', '$location', 'http2', f
         });
     };
     $scope.$on('tinymce.multipleimage.open', function (event, callback) {
-        $scope.$broadcast('picgallery.open', callback, true, true);
+        $scope.$broadcast('mediagallery.open', callback, true, true);
     });
     $scope.extraPages = function () {
         var result = {};

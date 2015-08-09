@@ -13,7 +13,7 @@ xxtApp.controller('contributeCtrl', ['$location', '$scope', 'http2', function ($
         http2.post('/rest/mp/app/contribute/update?id=' + $scope.editing.id, nv);
     };
     $scope.setPic = function () {
-        $scope.$broadcast('picgallery.open', function (url) {
+        $scope.$broadcast('mediagallery.open', function (url) {
             var t = (new Date()).getTime();
             url += '?_=' + t;
             $scope.editing.pic = url;
@@ -41,6 +41,9 @@ xxtApp.controller('contributeCtrl', ['$location', '$scope', 'http2', function ($
         i = $scope.editing.params.subChannels.indexOf(ch.id);
         $scope.editing.params.subChannels.splice(i, 1);
         $scope.update('params');
+    });
+    http2.get('/rest/mp/mpaccount/get', function (rsp) {
+        $scope.mpaccount = rsp.data;
     });
     $scope.$watch('jsonParams', function (nv) {
         if (nv && nv.length) {
@@ -70,7 +73,6 @@ xxtApp.controller('contributeCtrl', ['$location', '$scope', 'http2', function ($
                 }
             }
             $scope.channels = params.channels;
-            $scope.picGalleryUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid=' + params.mpid;
         }
     });
 }]);

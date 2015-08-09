@@ -2,25 +2,38 @@
     <div class='form-group form-inline'>
         <div class='form-group'>
             <label>打开活动显示</label>
-            <select class='form-control' ng-model='editing.entry_page' ng-options='pname as page.title for (pname, page) in editing.pages' ng-change="update('entry_page')"></select>
+            <select class='form-control' ng-model='editing.entry_page' ng-options='pname as page.title for (pname, page) in editing.pages'
+            ng-change="update('entry_page')"></select>
         </div>
         <div class='form-group'>
             <label>已登记过显示</label>
-            <select class='form-control' ng-model='editing.enrolled_entry_page' ng-options='pname as page.title for (pname, page) in editing.pages' ng-change="update('enrolled_entry_page')">
+            <select class='form-control' ng-model='editing.enrolled_entry_page' ng-options='pname as page.title for (pname, page) in editing.pages'
+            ng-change="update('enrolled_entry_page')">
                 <option value=''></option>
             </select>
         </div>
     </div>
     <ul class="nav nav-tabs">
-        <li class='active'><a href="#tab_form" data-toggle='tab'>{{editing.pages.form.title}}</a></li>
-        <li><a href="#tab_result" data-toggle='tab'>{{editing.pages.result.title}}</a></li>
-        <li ng-repeat='ep in extraPages()'><a href="#tab_{{ep.name}}" data-toggle='tab'>{{ep.title}}</a></li>
-        <li class='pull-right'><button class='btn btn-success' ng-click='addPage()'><span class='glyphicon glyphicon-plus'>添加页面</span></button></li>
+        <li class='active'>
+            <a href="#tab_form" data-toggle='tab'>{{editing.pages.form.title}}</a>
+        </li>
+        <li>
+            <a href="#tab_result" data-toggle='tab'>{{editing.pages.result.title}}</a>
+        </li>
+        <li ng-repeat='ep in extraPages()'>
+            <a href="#tab_{{ep.name}}" data-toggle='tab'>{{ep.title}}</a>
+        </li>
+        <li class='pull-right'>
+            <button class='btn btn-success' ng-click='addPage()'>
+                <span class='glyphicon glyphicon-plus'>添加页面</span>
+            </button>
+        </li>
     </ul>
     <div class="tab-content">
         <div id='tab_form' class='tab-pane active'>
             <div class='form-inline' style='margin:15px 0'>
-                <label class="checkbox-inline"><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.open_lastroll' ng-change="update('open_lastroll')">打开最后一条登记记录</label>
+                <label class="checkbox-inline">
+                    <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.open_lastroll' ng-change="update('open_lastroll')">打开最后一条登记记录</label>
             </div>
             <div class='form-group'>
                 <div class='form-inline'>
@@ -29,7 +42,8 @@
                     <a href='#' class='pull-right' ng-click="gotoCode(editing.pages.form.code_id)">编辑页面代码</a>
                 </div>
                 <tinymce content='editing.pages.form.html' id='form' height='500' update="updPage(editing.pages.form, 'html')"></tinymce>
-                <textarea class="form-control" title='javascript' ng-model='editing.pages.form.js' rows=10 ng-if='editing.pages.form.js' tms-auto-update tms-wait=1000 tms-update="updPage(editing.pages.form, 'js');"></textarea>
+                <textarea class="form-control" title='javascript' ng-model='editing.pages.form.js' rows=10 ng-if='editing.pages.form.js'
+                tms-auto-update tms-wait=1000 tms-update="updPage(editing.pages.form, 'js');"></textarea>
             </div>
         </div>
         <div id='tab_result' class='tab-pane'>
@@ -40,7 +54,8 @@
                     <a href='#' class='pull-right' ng-click="gotoCode(editing.pages.result.code_id)">编辑页面代码</a>
                 </div>
                 <tinymce content='editing.pages.result.html' id='result' height='500' update="updPage(editing.pages.result, 'html')"></tinymce>
-                <textarea class="form-control" title='javascript' ng-model='editing.pages.result.js' rows=10 ng-if='editing.pages.result.js' tms-auto-update tms-wait=1000 tms-update="updPage(editing.pages.result, 'js');"></textarea>
+                <textarea class="form-control" title='javascript' ng-model='editing.pages.result.js' rows=10 ng-if='editing.pages.result.js'
+                tms-auto-update tms-wait=1000 tms-update="updPage(editing.pages.result, 'js');"></textarea>
             </div>
         </div>
         <div id='tab_{{ep.name}}' class='tab-pane' ng-repeat='ep in extraPages()'>
@@ -57,8 +72,10 @@
                 <div class='form-group'>
                     <input type='text' class='form-control' ng-model='ep.title' tms-auto-update tms-wait=1000 tms-update="updPage(ep,'title')">
                 </div>
-                <button class='btn btn-default' ng-click='delPage(ep)'>删除</span></button>
-                <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='ep.share_page' ng-change="updPage(ep,'share_page')">分享当前页</label>
+                <button class='btn btn-default' ng-click='delPage(ep)'>删除</span>
+                </button>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='ep.share_page' ng-change="updPage(ep,'share_page')">分享当前页</label>
             </div>
             <div class='form-group'>
                 <div>
@@ -68,11 +85,12 @@
                     <a href='#' class='pull-right' ng-click="gotoCode(ep.code_id)">编辑页面代码</a>
                 </div>
                 <tinymce content='ep.html' id='{{ep.name}}' height='500' update="updPage(ep,'html')"></tinymce>
-                <textarea class="form-control" rows=10 title='javascript' ng-model='ep.js' ng-if='ep.js' tms-auto-update tms-wait=1000 tms-update="updPage(ep, 'js');"></textarea>
+                <textarea class="form-control" rows=10 title='javascript' ng-model='ep.js' ng-if='ep.js' tms-auto-update tms-wait=1000
+                tms-update="updPage(ep, 'js');"></textarea>
             </div>
         </div>
         <div mattersgallery style='display:none' matter-url='/rest/mp/matter' matter-types='innerlinkTypes'></div>
-        <div picgallery style='display:none' url='{{picGalleryUrl}}'></div>
+        <div meidagallery media-type="图片" box-id='{{mpid}}'></div>
     </div>
     <script type="text/ng-template" id="embedInputLib.html">
         <div class="modal-header">

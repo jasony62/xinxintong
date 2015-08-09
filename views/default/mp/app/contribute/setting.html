@@ -88,13 +88,14 @@
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.params.requireSubChannel' ng-change="update('params');">必选</label>
             </div>
         </div>
-        <accesscontrol mpid='{{mpid}}' obj='editing' prop-access='canSetInitiator' prop-acl='initiator' label-of-list='指定投稿人' change-acl-url='/rest/mp/app/contribute/setUser?cid={{editing.id}}&role=I'
-        remove-acl-url='/rest/mp/app/contribute/delUser' label-span='2' control-span='10' hide-access-control=true update-access-control=false></accesscontrol>
-        <accesscontrol mpid='{{mpid}}' obj='editing' prop-access='canSetReviewer' prop-acl='reviewer' label-of-list='稿件编辑'
-        change-acl-url='/rest/mp/app/contribute/setUser?cid={{editing.id}}&role=R' remove-acl-url='/rest/mp/app/contribute/delUser'
+        <accesscontrol mpid='{{mpaccount.mpid}}' obj='editing' prop-access='canSetInitiator' prop-acl='initiator' label-of-list='指定投稿人'
+        change-acl-url='/rest/mp/app/contribute/setUser?cid={{editing.id}}&role=I' remove-acl-url='/rest/mp/app/contribute/delUser'
         label-span='2' control-span='10' hide-access-control=true update-access-control=false></accesscontrol>
-        <accesscontrol mpid='{{mpid}}' obj='editing' prop-access='canSetTypesetter' prop-acl='typesetter' label-of-list='版面编辑'
-        change-acl-url='/rest/mp/app/contribute/setUser?cid={{editing.id}}&role=T' remove-acl-url='/rest/mp/app/contribute/delUser'
+        <accesscontrol mpid='{{mpaccount.mpid}}' obj='editing' prop-access='canSetReviewer' prop-acl='reviewer'
+        label-of-list='稿件编辑' change-acl-url='/rest/mp/app/contribute/setUser?cid={{editing.id}}&role=R' remove-acl-url='/rest/mp/app/contribute/delUser'
+        label-span='2' control-span='10' hide-access-control=true update-access-control=false></accesscontrol>
+        <accesscontrol mpid='{{mpaccount.mpid}}' obj='editing' prop-access='canSetTypesetter' prop-acl='typesetter'
+        label-of-list='版面编辑' change-acl-url='/rest/mp/app/contribute/setUser?cid={{editing.id}}&role=T' remove-acl-url='/rest/mp/app/contribute/delUser'
         label-span='2' control-span='10' hide-access-control=true update-access-control=false></accesscontrol>
         <div class='form-group'>
             <label class='col-md-2 control-label'>提示PC端完成</label>
@@ -114,6 +115,6 @@
                 </div>
             </div>
         </div>
-        <div picgallery style='display:none' url='{{picGalleryUrl}}'></div>
+        <div mediagallery media-type="图片" box-id="{{mpaccount.mpid}}"></div>
     </div>
 </div>

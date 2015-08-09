@@ -68,7 +68,10 @@ class channel_model extends article_base {
             break;
         }
         
-        $columns = $prefix . '.' . implode(",$prefix.", $columns) . ',"'. $type . '" type';
+        if (!empty($prefix))
+            $columns = $prefix . '.' . implode(",$prefix.", $columns) . ',"'. $type . '" type';
+        else
+            $columns = implode(",", $columns) . ',"'. $type . '" type';
         
         return $columns;
     }

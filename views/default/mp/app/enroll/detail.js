@@ -53,7 +53,7 @@ xxtApp.config(['$routeProvider', function ($routeProvider) {
         templateUrl: '/views/default/mp/app/enroll/stat.html',
         controller: 'statCtrl'
     }).when('/rest/mp/app/enroll/lottery', {
-        templateUrl: '/views/default/mp/app/enroll/lottery.html?_='+(new Date()).getTime(),
+        templateUrl: '/views/default/mp/app/enroll/lottery.html?_=' + (new Date()).getTime(),
         controller: 'lotteryCtrl',
         resolve: {
             load: function ($q) {
@@ -104,7 +104,6 @@ xxtApp.controller('enrollCtrl', ['$scope', '$location', 'http2', function ($scop
         $scope.editing.pages.form.title = '登记信息页';
         $scope.editing.canSetReceiver = 'Y';
         $scope.persisted = angular.copy($scope.editing);
-        $scope.picGalleryUrl = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid=' + $scope.editing.mpid;
     });
     http2.get('/rest/mp/mpaccount/get', function (rsp) {
         $scope.mpaccount = rsp.data;

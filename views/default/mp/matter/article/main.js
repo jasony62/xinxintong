@@ -170,32 +170,37 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', function ($scope, $m
             }
         });
     };
+    var insertAudio = function (url) {
+        var editor, dom;
+        if (url.length > 0) {
+            editor = tinymce.get('body1');
+            dom = editor.dom;
+            editor.insertContent(
+                dom.createHTML('p', { 'class': 'audio' },
+                    dom.createHTML('audio', {
+                        src: url,
+                        controls: "controls",
+                        //autoplay: "autoplay"
+                    }))
+                );
+        }
+    };
     $scope.embedAudio = function () {
-        $modal.open({
-            templateUrl: 'insertMedia.html',
-            controller: ['$modalInstance', '$scope', function ($mi, $scope) {
-                $scope.data = { url: '' };
-                $scope.cancel = function () { $mi.dismiss() };
-                $scope.ok = function () { $mi.close($scope.data) };
-            }],
-            backdrop: 'static',
-        }).result.then(function (data) {
-            var editor, dom, url;
-            url = data.url;
-            if (data.url.length > 0) {
-                editor = tinymce.get('body1');
-                dom = editor.dom;
-                url = data.url;
-                editor.insertContent(
-                    dom.createHTML('p', { 'class': 'audio' },
-                        dom.createHTML('audio', {
-                            src: url,
-                            controls: "controls",
-                            autoplay: "autoplay"
-                        }))
-                    );
-            }
-        });
+        if ($scope.mpaccount._env.SAE) {
+            $modal.open({
+                templateUrl: 'insertMedia.html',
+                controller: ['$modalInstance', '$scope', function ($mi, $scope) {
+                    $scope.data = { url: '' };
+                    $scope.cancel = function () { $mi.dismiss() };
+                    $scope.ok = function () { $mi.close($scope.data) };
+                }],
+                backdrop: 'static',
+            }).result.then(function (data) {
+                insertAudio(data.url);
+            });
+        } else {
+            $scope.$broadcast('mediagallery.open', { mediaType: '音频', callback: insertAudio });
+        }
     };
     $scope.upload2Mp = function () {
         var url;

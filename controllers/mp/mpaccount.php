@@ -131,6 +131,11 @@ class mpaccount extends mp_controller {
                 $mpa->parentname = $pmp->name;
             }
         }
+        /**
+         * 环境变量
+         */
+        $mpa->_env = new \stdClass;
+        $mpa->_env->SAE = defined('SAE_TMP_PATH');
 
         return new \ResponseData($mpa);
     }

@@ -65,6 +65,7 @@ $_CONFIG = array(
         'media'   =>  "swf flv avi mpg mpeg qt mov wmv asf rm",
         'image'   =>  "*img",
         '图片'   =>  "*img",
+        '音频'   =>  "mp3",
         '文件'    =>  "",
     ),
 

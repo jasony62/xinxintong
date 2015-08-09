@@ -76,7 +76,12 @@ xxtApp.controller('initiateCtrl', ['$scope', '$location', '$modal', 'http2', 'Ar
         $scope.bodyModified = true;
     };
     $scope.$on('tinymce.multipleimage.open', function (event, callback) {
-        $scope.$broadcast('mediagallery.open', callback, true, true);
+        var options = {
+            callback: callback,
+            multiple: true,
+            setshowname: true
+        }
+        $scope.$broadcast('mediagallery.open', options);
     });
     $scope.update = function (name) {
         $scope.Article.update($scope.editing, name);

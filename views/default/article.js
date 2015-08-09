@@ -141,7 +141,14 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function ($lp
         return deferred.promise;
     };
     $scope.loading = true;
-    getArticle().then(function () { $scope.loading = false; });
+    getArticle().then(function () {
+        $scope.loading = false;
+        $timeout(function () {
+            var audios;
+            audios = document.querySelectorAll('audio');
+            audios.length > 0 && audios[0].setAttribute('autoplay', 'autoplay');
+        });
+    });
     $scope.like = function () {
         if ($scope.mode === 'preview') return;
         var url = "/rest/mi/article/score?mpid=" + mpid + "&id=" + id;

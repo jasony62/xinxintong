@@ -3,16 +3,16 @@ xxtApp = angular.module('xxt', ['ui.tms', 'matters.xxt']);
 xxtApp.config(['$locationProvider', function ($locationProvider) {
     $locationProvider.html5Mode(true);
 }]);
-xxtApp.directive('headingPic', function(){
-	return {
-		restrict: 'A',
+xxtApp.directive('headingPic', function () {
+    return {
+        restrict: 'A',
         link: function (scope, elem, attrs) {
-			var w,h;
-			w = $(elem).width();
-			h = w / 9 * 5;
+            var w, h;
+            w = $(elem).width();
+            h = w / 9 * 5;
             $(elem).css('max-height', h);
         }
-	};
+    };
 });
 xxtApp.controller('enrollCtrl', ['$rootScope', '$scope', '$location', 'http2', function ($rootScope, $scope, $location, http2) {
     var appid;
@@ -22,13 +22,13 @@ xxtApp.controller('enrollCtrl', ['$rootScope', '$scope', '$location', 'http2', f
         if (!angular.equals($scope.editing, $scope.persisted)) {
             var p = {};
             p[name] = $scope.editing[name];
-            http2.post('/rest/member/box/enroll/update?mpid='+$scope.mpid+'&id=' + appid, p, function (rsp) {
+            http2.post('/rest/member/box/enroll/update?mpid=' + $scope.mpid + '&id=' + appid, p, function (rsp) {
                 $scope.persisted = angular.copy($scope.editing);
             });
         }
     };
-    $scope.preview = function() {
-        location.href= '/rest/app/enroll?mpid='+$scope.mpid+'&aid='+appid+'&preview=Y';   
+    $scope.preview = function () {
+        location.href = '/rest/app/enroll?mpid=' + $scope.mpid + '&aid=' + appid + '&preview=Y';
     };
     http2.get('/rest/member/box/enroll/get?mpid=' + $scope.mpid + '&id=' + appid, function (rsp) {
         $scope.editing = rsp.data;
@@ -41,27 +41,27 @@ xxtApp.controller('enrollCtrl', ['$rootScope', '$scope', '$location', 'http2', f
         $scope.$emit('mattershop.new', $scope.mpid, $scope.editing);
     });
 }]).controller('settingCtrl', ['$scope', 'http2', function ($scope, http2, $modal) {
-    var openPickImageFrom = function() {
+    var openPickImageFrom = function () {
         var st = (document.body && document.body.scrollTop) ? document.body.scrollTop : document.documentElement.scrollTop;
         var ch = document.documentElement.clientHeight;
         var cw = document.documentElement.clientWidth;
         var $dlg = $('#pickImageFrom');
         $dlg.css({
-            'display':'block',
+            'display': 'block',
             'top': (st + (ch - $dlg.height() - 30) / 2) + 'px',
-            'left': ((cw -$dlg.width() - 30) / 2) + 'px'
+            'left': ((cw - $dlg.width() - 30) / 2) + 'px'
         });
     };
-    $scope.chooseImage = function(from) {
+    $scope.chooseImage = function (from) {
         if (window.wx !== undefined) {
             wx.chooseImage({
-                success: function(res) {
+                success: function (res) {
                     $scope.editing.pic = res.localIds[0];
                     $scope.$apply('editing.pic');
                     $scope.update('pic');
                 }
             });
-        } else if (window.YixinJSBridge){
+        } else if (window.YixinJSBridge) {
             if (from === undefined) {
                 openPickImageFrom();
                 return;
@@ -69,29 +69,29 @@ xxtApp.controller('enrollCtrl', ['$rootScope', '$scope', '$location', 'http2', f
             $('#pickImageFrom').hide();
             YixinJSBridge.invoke(
                 'pickImage', {
-                    type:from,
-                    quality:100
-                }, function(result){
+                    type: from,
+                    quality: 100
+                }, function (result) {
                     if (result.data && result.data.length) {
-                        $scope.editing.pic = 'data:'+result.mime+';base64,'+result.data;
+                        $scope.editing.pic = 'data:' + result.mime + ';base64,' + result.data;
                         $scope.$apply('editing.pic');
                         $scope.update('pic');
                     }
                 }
-            );
+                );
         } else {
             var eleInp = document.createElement('input');
             eleInp.setAttribute('type', 'file');
-            eleInp.addEventListener('change', function(evt){
-                var cnt,f,type; 
+            eleInp.addEventListener('change', function (evt) {
+                var cnt, f, type;
                 cnt = evt.target.files.length;
                 f = evt.target.files[0];
-                type = {".jp":"image/jpeg",".pn":"image/png",".gi":"image/gif"}[f.name.match(/\.(\w){2}/g)[0]||".jp"];
-                f.type2 = f.type||type;
+                type = { ".jp": "image/jpeg", ".pn": "image/png", ".gi": "image/gif" }[f.name.match(/\.(\w){2}/g)[0] || ".jp"];
+                f.type2 = f.type || type;
                 var reader = new FileReader();
-                reader.onload = (function(theFile) {
-                    return function(e) {
-                        $scope.editing.pic = e.target.result.replace(/^.+(,)/, "data:"+theFile.type2+";base64,");
+                reader.onload = (function (theFile) {
+                    return function (e) {
+                        $scope.editing.pic = e.target.result.replace(/^.+(,)/, "data:" + theFile.type2 + ";base64,");
                         $scope.$apply('editng.pic');
                         $scope.update('pic');
                     };
@@ -447,7 +447,12 @@ xxtApp.controller('enrollCtrl', ['$rootScope', '$scope', '$location', 'http2', f
         });
     };
     $scope.$on('tinymce.multipleimage.open', function (event, callback) {
-        $scope.$broadcast('mediagallery.open', callback, true, true);
+        var options = {
+            callback: callback,
+            multiple: true,
+            setshowname: true
+        }
+        $scope.$broadcast('mediagallery.open', options);
     });
     $scope.extraPages = function () {
         var result = {};

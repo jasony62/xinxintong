@@ -166,7 +166,7 @@ class uploader {
             isset($this->types[$this->get['type']])
         )
         ? $this->get['type'] : $firstType;
-
+        
         // LOAD TYPE DIRECTORY SPECIFIC CONFIGURATION IF EXISTS
         if (is_array($this->types[$this->type])) {
             foreach ($this->types[$this->type] as $key => $val)

@@ -2,12 +2,15 @@
     <div class='form-inline form-group'>
         <button class='btn btn-success' ng-click='create()' title='新建图文'>新建</button>
         <div class='form-group'>
-            <select style='width:110px' class='form-control' title='排序' ng-model='order' ng-change='doSearch()'>
+            <select style='width:135px' class='form-control' title='排序' ng-model='order' ng-change='doSearch()'>
                 <option value='time'>修改时间</option>
                 <option value='title'>图文标题</option>
                 <option value='read'>阅读数</option>
                 <option value='share_friend'>分享好友数</option>
                 <option value='share_timeline'>分享朋友圈数</option>
+                <option value='like'>点赞数</option>
+                <option value='remark'>评论数</option>
+                <option value='download'>附件下载数</option>
             </select>
         </div>
         <div class='form-group'>
@@ -29,15 +32,20 @@
                 <div>
                     <span class='label label-warning' ng-repeat='t in a.tags' ng-bind='t.title'></span>
                 </div>
-                <div class='bottom'>
+                <div class='attr'>
                     <div>
                         <div class='creater_name' ng-bind='a.creater_name'></div>
-                        <div class='stat'>
-                            <span title='阅读数' ng-bind='a.read_num'></span>/
-                            <span title='分享好友数' ng-bind='a.share_friend_num'></span>/
-                            <span title='分享朋友圈数' ng-bind='a.share_timeline_num'></span>
-                        </div>
                         <div class='modify_at' title='修改时间' ng-bind="a.modify_at*1000|date:'yyyy-MM-dd'"></div>
+                    </div>
+                </div>
+                <div class='stat'>
+                    <div>
+                        <span ng-class="{'ordered':order==='read'}" title='阅读数' ng-bind='a.read_num'></span>/
+                        <span ng-class="{'ordered':order==='share_friend'}" title='分享好友数' ng-bind='a.share_friend_num'></span>/
+                        <span ng-class="{'ordered':order==='share_timeline'}" title='分享朋友圈数' ng-bind='a.share_timeline_num'></span>/
+                        <span ng-class="{'ordered':order==='like'}" title='点赞数' ng-bind='a.score'></span>/
+                        <span ng-class="{'ordered':order==='remark'}" title='评论数' ng-bind='a.remark_num'></span>/
+                        <span ng-class="{'ordered':order==='download'}" title='附件下载数' ng-bind='a.download_num'></span>
                     </div>
                 </div>
                 <button class='btn btn-default remove' ng-click='remove($event,a,$index)' ng-if='a.creater&&enter'>

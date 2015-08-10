@@ -219,10 +219,30 @@ class article extends \member_base {
         return new \ResponseData($remark);
     }
     /**
-     *
+     * 下载附件
      */
     public function attachmentGet_action($mpid, $articleid, $attachmentid)
     {
+        /**
+         * 记录日志
+         */
+        $this->model()->update("update xxt_article set download_num=download_num+1 where id='$articleid'");
+        $user = $this->getUser($mpid, array('verbose' => array('fan' => 'Y')));
+        $log = array(
+            'vid' => $user->vid,
+            'openid' => $user->openid,
+            'nickname' => empty($user->fan) ? '' : $user->fan->nickname,
+            'download_at' => time(),
+            'mpid' => $mpid,
+            'article_id' => $articleid,
+            'attachment_id' => $attachmentid,
+            'user_agent' => $_SERVER['HTTP_USER_AGENT'],
+            'client_ip' => $this->client_ip()
+        );
+        $this->model()->insert('xxt_article_download_log', $log, false);
+        /**
+         * 获取附件
+         */
         $q = array(
             '*', 
             'xxt_article_attachment', 

@@ -42,6 +42,7 @@ $sql .= ",remark_num int not null default 0"; // 评论数
 $sql .= ",share_friend_num int not null default 0"; // 分享给好友数
 $sql .= ",share_timeline_num int not null default 0"; // 分享朋友圈数
 $sql .= ",has_attachment char(1) not null default 'N'";
+$sql .= ",download_num int not null default 0"; // 附件下载数
 $sql .= ",media_id varchar(256) not null default ''";
 $sql .= ",upload_at int not null default 0";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
@@ -120,6 +121,25 @@ $sql .= ',type varchar(255) not null';
 $sql .= ',size int not null';
 $sql .= ',last_modified bigint(13) not null';
 $sql .= ',url text';
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: '.$mysqli->error;
+}
+/**
+ * 文章发布过程日志
+ */
+$sql = "create table if not exists xxt_article_download_log(";
+$sql .= 'id int not null auto_increment';
+$sql .= ',vid varchar(32) not null';
+$sql .= ',openid varchar(255) not null';
+$sql .= ',nickname varchar(255) not null';
+$sql .= ',download_at int not null';
+$sql .= ',mpid varchar(32) not null';
+$sql .= ',article_id int not null';
+$sql .= ',attachment_id int not null';
+$sql .= ",user_agent text";
+$sql .= ",client_ip varchar(40) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');

@@ -23,6 +23,7 @@ class call_base extends \mp\mp_controller {
         (true === $prights || $prights['reply_menu']['read_p'] === 'Y') && $entries['menu'] = array('title'=>'菜单事件');
         $mpa->asparent==='N' && (true === $prights || $prights['reply_qrcode']['read_p'] === 'Y') && $entries['qrcode'] = array('title'=>'扫二维码');
         (true === $prights || $prights['reply_other']['read_p'] === 'Y') && $entries['other'] = array('title'=>'其他事件');
+        $entries['timer'] = array('title'=>'定时推送');
         
         \TPL::assign('reply_view_entries', $entries);
     }

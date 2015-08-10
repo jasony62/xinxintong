@@ -1,0 +1,39 @@
+<div ng-controller='timerCtrl'>
+    <div class='col-md-5'>
+        <div class='list-group'>
+            <a class='list-group-item'><button class='btn btn-success btn-block' ng-click='create()'>新建定时消息</button></a>
+            <a class='list-group-item' ng-class="{'active':t===editing}" ng-repeat='t in timers' ng-click='edit(t)'>
+                <span>{{t.schedule}}</span>
+                <button class='btn btn-default btn-xs pull-right' ng-click='remove($index)'><span class='glyphicon glyphicon-remove'></span></button>
+            </a>
+        </div>
+    </div>
+    <div class='col-md-7 form-horizontal' ng-show='editing'>
+        <div class='form-group'>
+            <label class='col-md-3 control-label'>发送时间</label>
+            <div class='col-md-9'>
+                <input type='text' title='分钟' class='form-control' ng-model='editing.min' tms-auto-update tms-wait=1000 tms-update="update('min')">
+                <p class='help-block'>分钟 (0 - 59)</p>
+                <input type='text' title='小时' class='form-control' ng-model='editing.hour' tms-auto-update tms-wait=1000
+                tms-update="update('hour')">
+                <p class='help-block'>小时 (0 - 23)</p>
+                <input type='text' title='日期' class='form-control' ng-model='editing.mday' tms-auto-update tms-wait=1000
+                tms-update="update('mday')">
+                <p class='help-block'>日期 (1 - 31)</p>
+                <input type='text' title='月' class='form-control' ng-model='editing.mon' tms-auto-update tms-wait=1000 tms-update="update('mon')">
+                <p class='help-block'>月 (1 - 12)</p>
+                <input type='text' title='星期几' class='form-control' ng-model='editing.wday' tms-auto-update tms-wait=1000
+                tms-update="update('wday')">
+                <p class='help-block'>星期几 (0 - 6) (周日=0)</p>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-3 control-label'>推送素材</label>
+            <div class='col-md-9'>
+                <button class='btn btn-default btn-sm' ng-click='setReply()'>指定素材</button>
+                <a class='list-group-item' title='{{editing.matter.type|typetitle}}'>{{editing.matter.title||editing.matter.content}}</a>
+            </div>
+        </div>
+    </div>
+    <mattersgallery single-matter='true' has-parent="{{hasParent}}" matter-types='matterTypes'></mattersgallery>
+</div>

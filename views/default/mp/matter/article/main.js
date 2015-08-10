@@ -135,6 +135,29 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', function ($scope, $m
             }
         });
     };
+    var insertVideo = function (url) {
+        var editor, dom, html;
+        if (url.length > 0) {
+            editor = tinymce.get('body1');
+            dom = editor.dom;
+            html = dom.createHTML('p', {},
+                dom.createHTML(
+                    'video',
+                    {
+                        style: 'width:100%',
+                        controls: "controls",
+                    },
+                    dom.createHTML(
+                        'source',
+                        {
+                            src: url,
+                            type: "video/mp4",
+                        })
+                    )
+                );
+            editor.insertContent('<p>&nbsp;</p>' + html + '<p>&nbsp;</p>');
+        }
+    };
     $scope.embedVideo = function () {
         $modal.open({
             templateUrl: 'insertMedia.html',
@@ -145,44 +168,16 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', function ($scope, $m
             }],
             backdrop: 'static',
         }).result.then(function (data) {
-            var editor, dom, url;
-            url = data.url;
-            if (data.url.length > 0) {
-                editor = tinymce.get('body1');
-                dom = editor.dom;
-                editor.insertContent(
-                    dom.createHTML('p', { 'class': 'video' },
-                        dom.createHTML(
-                            'video',
-                            {
-                                style: 'width:100%',
-                                controls: "controls",
-                            },
-                            dom.createHTML(
-                                'source',
-                                {
-                                    src: url,
-                                    type: "video/mp4",
-                                })
-                            )
-                        )
-                    );
-            }
+            insertVideo(data.url);
         });
     };
     var insertAudio = function (url) {
-        var editor, dom;
+        var editor, dom, html;
         if (url.length > 0) {
             editor = tinymce.get('body1');
             dom = editor.dom;
-            editor.insertContent(
-                dom.createHTML('p', { 'class': 'audio' },
-                    dom.createHTML('audio', {
-                        src: url,
-                        controls: "controls",
-                        //autoplay: "autoplay"
-                    }))
-                );
+            html = dom.createHTML('p', {}, dom.createHTML('audio', { src: url, controls: "controls", }));
+            editor.insertContent('<p>&nbsp;</p>' + html + '<p>&nbsp;</p>');
         }
     };
     $scope.embedAudio = function () {

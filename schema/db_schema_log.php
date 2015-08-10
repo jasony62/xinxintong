@@ -202,5 +202,19 @@ if (!$mysqli->query($sql)) {
     header('HTTP/1.0 500 Internal Server Error');
     echo 'database error: '.$mysqli->error;
 }
+/**
+ * 定时任务执行日志
+ */
+$sql = "create table if not exists xxt_log_timer(";
+$sql .= 'id int not null auto_increment';
+$sql .= ',mpid varchar(32) not null';
+$sql .= ",task_id int not null";
+$sql .= ",occur_at int not null";
+$sql .= ",result text";
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: '.$mysqli->error;
+}
 
 echo 'finish log.'.PHP_EOL;

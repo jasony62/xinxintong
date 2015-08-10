@@ -133,16 +133,20 @@ xxtMatters.directive('tinymce', function ($timeout) {
                                 var dom, wrap, selection;
                                 dom = editor.dom;
                                 selection = editor.selection;
-                                wrap = selection.getNode();
-                                while (wrap.parentNode !== editor.getBody()) {
-                                    wrap = wrap.parentNode;
-                                }
-                                if (wrap.hasAttribute('wrap') && wrap.getAttribute('wrap') !== 'text') {
-                                    evt.preventDefault();
-                                    var newWrap = dom.create('div', { wrap: 'text', class: 'form-group' }, '&nbsp;');
-                                    dom.insertAfter(newWrap, wrap);
-                                    selection.setCursorLocation(newWrap, 0);
-                                    editor.focus();
+                                if (selection && selection.getNode()) {
+                                    wrap = selection.getNode();
+                                    if (wrap !== editor.getBody()) {
+                                        while (wrap.parentNode !== editor.getBody()) {
+                                            wrap = wrap.parentNode;
+                                        }
+                                        if (wrap.hasAttribute('wrap') && wrap.getAttribute('wrap') !== 'text') {
+                                            evt.preventDefault();
+                                            var newWrap = dom.create('div', { wrap: 'text', class: 'form-group' }, '&nbsp;');
+                                            dom.insertAfter(newWrap, wrap);
+                                            selection.setCursorLocation(newWrap, 0);
+                                            editor.focus();
+                                        }
+                                    }
                                 }
                             }
                         });

@@ -289,7 +289,7 @@ class article extends matter_ctrl {
              * select fields
              */
             $s = "a.id,a.mpid,a.title,a.summary,a.custom_body,a.create_at,a.modify_at,a.approved,a.creater,a.creater_name,a.creater_src,'$uid' uid";
-            $s .= ",a.read_num,a.score,a.remark_num,a.share_friend_num,a.share_timeline_num";
+            $s .= ",a.read_num,a.score,a.remark_num,a.share_friend_num,a.share_timeline_num,a.download_num";
             /**
              * where
              */
@@ -333,6 +333,15 @@ class article extends matter_ctrl {
                     case 'share_timeline':
                         $q2['o'] = 'a.share_timeline_num desc';
                         break;
+                    case 'like':
+                        $q2['o'] = 'a.score desc';
+                        break;
+                    case 'remark':
+                        $q2['o'] = 'a.remark_num desc';
+                        break;
+                    case 'download':
+                        $q2['o'] = 'a.download_num desc';
+                        break;
                     default:
                         $q2['o'] = 'a.modify_at desc';
                 }
@@ -355,11 +364,20 @@ class article extends matter_ctrl {
                     case 'read':
                         $q2['o'] = 'a.read_num desc';
                         break;
-                    case 'score':
+                    case 'share_friend':
+                        $q2['o'] = 'a.share_friend_num desc';
+                        break;
+                    case 'share_timeline':
+                        $q2['o'] = 'a.share_timeline_num desc';
+                        break;
+                    case 'like':
                         $q2['o'] = 'a.score desc';
                         break;
                     case 'remark':
                         $q2['o'] = 'a.remark_num desc';
+                        break;
+                    case 'download':
+                        $q2['o'] = 'a.download_num desc';
                         break;
                     default:
                         $q2['o'] = 'a.modify_at desc';

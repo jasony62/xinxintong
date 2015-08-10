@@ -12,18 +12,20 @@
         <div class='form-group'>
             <label class='col-md-3 control-label'>发送时间</label>
             <div class='col-md-9'>
-                <input type='text' title='分钟' class='form-control' ng-model='editing.min' tms-auto-update tms-wait=1000 tms-update="update('min')">
-                <p class='help-block'>分钟 (0 - 59)</p>
-                <input type='text' title='小时' class='form-control' ng-model='editing.hour' tms-auto-update tms-wait=1000
-                tms-update="update('hour')">
+                <input type='text' title='小时' class='form-control' ng-model='editing.hour' tms-auto-update tms-wait=1000 tms-update="update('hour')">
                 <p class='help-block'>小时 (0 - 23)</p>
-                <input type='text' title='日期' class='form-control' ng-model='editing.mday' tms-auto-update tms-wait=1000
-                tms-update="update('mday')">
+                <select title='日期' class='form-control' ng-model='editing.mday' ng-change="update('mday')" ng-options="m for m in mdays"></select>
                 <p class='help-block'>日期 (1 - 31)</p>
-                <input type='text' title='月' class='form-control' ng-model='editing.mon' tms-auto-update tms-wait=1000 tms-update="update('mon')">
-                <p class='help-block'>月 (1 - 12)</p>
-                <input type='text' title='星期几' class='form-control' ng-model='editing.wday' tms-auto-update tms-wait=1000
-                tms-update="update('wday')">
+                <select title='星期几' class='form-control' ng-model='editing.wday' ng-change="update('wday')">
+                    <option value='忽略'>忽略</option>
+                    <option value='1'>周一</option>
+                    <option value='2'>周二</option>
+                    <option value='3'>周三</option>
+                    <option value='4'>周四</option>
+                    <option value='5'>周五</option>
+                    <option value='6'>周六</option>
+                    <option value='0'>周日</option>
+                </select>
                 <p class='help-block'>星期几 (0 - 6) (周日=0)</p>
             </div>
         </div>

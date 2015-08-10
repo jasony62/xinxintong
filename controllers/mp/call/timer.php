@@ -82,7 +82,7 @@ class timer extends call_base {
         
         foreach ($nv as $n => $v) {
             if (in_array($n, array('min', 'hour', 'mday', 'mon', 'wday'))) {
-                $v === '*' && $nv->{$n} = -1;        
+                $v === '忽略' && $nv->{$n} = -1;        
             }
         }
         

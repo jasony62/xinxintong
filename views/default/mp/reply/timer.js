@@ -1,5 +1,9 @@
 xxtApp.controller('timerCtrl', ['$scope', 'http2', 'matterTypes', function ($scope, http2, matterTypes) {
     $scope.matterTypes = matterTypes;
+    $scope.mdays = ['忽略'];
+    while ($scope.mdays.length < 32) {
+        $scope.mdays.push('' + $scope.mdays.length);
+    }
     $scope.create = function () {
         $scope.$broadcast('mattersgallery.open', function (aSelected, matterType) {
             if (aSelected.length === 1) {
@@ -51,17 +55,17 @@ xxtApp.controller('timerCtrl', ['$scope', 'http2', 'matterTypes', function ($sco
     });
     var getSchedule = function (timer) {
         var schedule = [];
-        timer.min == -1 && (timer.min = '*');
-        schedule.push(timer.min);
-        timer.hour == -1 && (timer.hour = '*');
+        //timer.min == -1 && (timer.min = '*');
+        //schedule.push(timer.min);
+        timer.hour == -1 && (timer.hour = '忽略');
         schedule.push(timer.hour);
-        timer.mday == -1 && (timer.mday = '*');
+        timer.mday == -1 && (timer.mday = '忽略');
         schedule.push(timer.mday);
-        timer.mon == -1 && (timer.mon = '*');
-        schedule.push(timer.mon);
-        timer.wday == -1 && (timer.wday = '*');
+        //timer.mon == -1 && (timer.mon = '*');
+        //schedule.push(timer.mon);
+        timer.wday == -1 && (timer.wday = '忽略');
         schedule.push(timer.wday);
-        return schedule.join(' ');
+        return schedule.join(',');
     };
     http2.get('/rest/mp/call/timer/get', function (rsp) {
         var i, j, timer;

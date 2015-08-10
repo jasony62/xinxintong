@@ -1,6 +1,40 @@
 <?php
 namespace mp;
 /**
+ * 推送素材任务
+ */
+class TaskPush {
+    //
+    private $mpid;
+    //
+    private $taksId;
+    /**
+     *
+     */
+    public function __construct($mpid, $taskId)
+    {
+        $this->id = $taskId;
+        $this->mpid = $mpid;
+    }
+    /**
+     *
+     */
+    public function __get($property_name)
+    {
+        if (isset($this->$property_name))
+            return $this->$property_name;
+        else
+            return null;
+    }
+    /**
+     * 执行任务
+     */
+    public function exec() 
+    {
+        return new \ResponseData('ok');
+    }
+}
+/**
  * 定时推送事件
  */
 class timer_model extends \TMS_MODEL {
@@ -37,9 +71,19 @@ class timer_model extends \TMS_MODEL {
     /**
      * 获得当前时间段要执行的任务
      */
-    public function byTime()
+    public function tasksByTime()
     {
-        $tasks = array();
+        $q = array(
+            '*',
+            'xxt_timer_push',
+            "enabled='Y'"
+        );
+        $schedules = $this->query_objs_ss($q);
+        
+        foreach ($schedules as $schedule) {
+            $task = new TaskPush($schedule->mpid, $schedule->id);
+            $tasks[] = $task;
+        }
         
         return $tasks;
     }

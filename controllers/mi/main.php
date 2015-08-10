@@ -58,7 +58,7 @@ class main extends \member_base {
         /**
          * 查找匹配的定时任务
          */
-        $tasks = $this->model('mp\timer')->byTime();
+        $tasks = $this->model('mp\timer')->tasksByTime();
         /**
          * 记录日志
          */

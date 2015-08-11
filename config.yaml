@@ -12,3 +12,7 @@ handle:
 - compress: if ( out_header["Content-type"] ~ "image/bmp" ) compress
 - compress: if ( out_header["Content-Length"] >= 5120 ) compress
 - expire:  if( path ~ "/static" ) time 8640000
+cron:
+- description: timerpush
+  url: /rest/mi/timer
+  schedule: "7-22 * * * *"

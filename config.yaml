@@ -15,4 +15,4 @@ handle:
 cron:
 - description: timerpush
   url: /rest/mi/timer
-  schedule: "* 7-22 * * *"
+  schedule: "0 7-22 * * *"

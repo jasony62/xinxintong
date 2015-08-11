@@ -2,20 +2,23 @@
 /**
  * create all tables.
  */
-include_once(dirname(__FILE__)).'/db_schema_account.php';
-include_once(dirname(__FILE__)).'/db_schema_addressbook.php';
-include_once(dirname(__FILE__)).'/db_schema_app.php';
-include_once(dirname(__FILE__)).'/db_schema_checkin.php';
-include_once(dirname(__FILE__)).'/db_schema_code.php';
-include_once(dirname(__FILE__)).'/db_schema_enroll.php';
-include_once(dirname(__FILE__)).'/db_schema_log.php';
-include_once(dirname(__FILE__)).'/db_schema_lottery.php';
-include_once(dirname(__FILE__)).'/db_schema_matter.php';
-include_once(dirname(__FILE__)).'/db_schema_mpa.php';
-include_once(dirname(__FILE__)).'/db_schema_reply.php';
-include_once(dirname(__FILE__)).'/db_schema_tag.php';
-include_once(dirname(__FILE__)).'/db_schema_user.php';
-include_once(dirname(__FILE__)).'/db_schema_wall.php';
+include_once dirname(__FILE__) . '/db_schema_account.php';
+include_once dirname(__FILE__) . '/db_schema_addressbook.php';
+include_once dirname(__FILE__) . '/db_schema_app.php';
+include_once dirname(__FILE__) . '/db_schema_checkin.php';
+include_once dirname(__FILE__) . '/db_schema_code.php';
+include_once dirname(__FILE__) . '/db_schema_enroll.php';
+include_once dirname(__FILE__) . '/db_schema_log.php';
+include_once dirname(__FILE__) . '/db_schema_lottery.php';
+include_once dirname(__FILE__) . '/db_schema_matter.php';
+include_once dirname(__FILE__) . '/db_schema_merchant.php';
+include_once dirname(__FILE__) . '/db_schema_mpa.php';
+include_once dirname(__FILE__) . '/db_schema_reply.php';
+include_once dirname(__FILE__) . '/db_schema_shop.php';
+include_once dirname(__FILE__) . '/db_schema_tag.php';
+include_once dirname(__FILE__) . '/db_schema_task.php';
+include_once dirname(__FILE__) . '/db_schema_user.php';
+include_once dirname(__FILE__) . '/db_schema_wall.php';
 /**
  * init data.
  */
@@ -30,8 +33,8 @@ $sql[] = "INSERT INTO xxt_inner(id,title,name) VALUES(3, '翻译', 'translate')"
 $sql[] = "INSERT INTO xxt_inner(id,title,name) VALUES(4, '按关键字搜索文章', 'fullsearch')";
 // 执行
 foreach ($sql as $s) {
-    if (!$mysqli->query($s)) {
-        header('HTTP/1.0 500 Internal Server Error');
-        echo "database error: ".$mysqli->error;
-    }
+	if (!$mysqli->query($s)) {
+		header('HTTP/1.0 500 Internal Server Error');
+		echo "database error: " . $mysqli->error;
+	}
 }

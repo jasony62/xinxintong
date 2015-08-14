@@ -181,13 +181,13 @@
                         </div>
                     </div>
                     <div class='alert alert-info' ng-show="a.valid==='Y'" ng-if="mpaccount.mpsrc==='qy'">
-                        <button class='btn btn-primary' ng-disabled='taskkRunning' ng-click='import2Qy(a)'>
+                        <button class='btn btn-primary' ng-disabled='import2QyRunning' ng-click='import2Qy(a)'>
                             <span>
-                                <i class='fa fa-fresh' ng-class="{'fa-spin':taskRunning}"></i>&nbsp;全量导入到企业号</span>
+                                <i class='fa fa-refresh' ng-class="{'fa-spin':import2QyRunning}"></i>&nbsp;全量导入到企业号</span>
                         </button>
                         <button class='btn btn-primary' ng-disabled='taskRunning' ng-click='sync2Qy(a)'>
                             <span>
-                                <i class='fa fa-fresh' ng-class="{'fa-spin':taskRunning}"></i>&nbsp;增量同步到企业号</span>
+                                <i class='fa fa-refresh' ng-class="{'fa-spin':taskRunning}"></i>&nbsp;增量同步到企业号</span>
                         </button>
                         <span ng-show='a.sync_to_qy_at>0'>上次同步到企业号通讯录时间：{{a.sync_to_qy_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
                     </div>

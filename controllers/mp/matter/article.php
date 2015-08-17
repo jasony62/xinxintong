@@ -84,7 +84,7 @@ class resumable {
 		// count all the parts of this file
 		$total_files = 0;
 		foreach (scandir($temp_dir) as $file) {
-			if (stripos($file, $fileName) !== false) {
+			if (stripos($file, \TMS_MODEL::toLocalEncoding($fileName)) !== false) {
 				$total_files++;
 			}
 		}
@@ -93,9 +93,11 @@ class resumable {
 		if ($total_files * $chunkSize >= ($totalSize - $chunkSize + 1)) {
 			$modelFs = \TMS_APP::M('fs/local', $this->mpid, '附件');
 			// create the final destination file
-			if (($fp = fopen($modelFs->rootDir . '/' . 'article_' . $this->articleid . '_' . $fileName, 'w')) !== false) {
+			if (($fp = fopen($modelFs->rootDir . '/' . 'article_' . $this->articleid . '_' . \TMS_MODEL::toLocalEncoding($fileName), 'w')) !== false) {
 				for ($i = 1; $i <= $total_files; $i++) {
-					fwrite($fp, file_get_contents($temp_dir . '/' . $fileName . '.part' . $i));
+					$partname = $temp_dir . '/' . \TMS_MODEL::toLocalEncoding($fileName) . '.part' . $i;
+					$content = file_get_contents($partname);
+					fwrite($fp, $content);
 					$this->_log('writing chunk ' . $i);
 				}
 				fclose($fp);

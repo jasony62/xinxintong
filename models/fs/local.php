@@ -13,7 +13,7 @@ class local_model {
 
 		$this->bucket = $bucket;
 
-		$this->rootDir = TMS_UPLOAD_DIR . "$this->mpid" . '/' . $bucket;
+		$this->rootDir = TMS_UPLOAD_DIR . "$this->mpid" . '/' . TMS_MODEL::toLocalEncoding($bucket);
 		/* 检查根目录是否存在，不存在就创建 */
 		!file_exists($this->rootDir) && mkdir($this->rootDir, 0777, true);
 	}
@@ -31,11 +31,11 @@ class local_model {
 	 * return bool
 	 */
 	public function upload($filename, $destName, $destDir) {
-		$absDir = $this->rootDir . '/' . $destDir;
+		$absDir = $this->rootDir . '/' . TMS_MODEL::toLocalEncoding($destDir);
 		// 目录是否存在
 		!is_dir($absDir) && mkdir($absDir, 0777, true);
 		// 文件的完整路径
-		$filePath = $absDir . '/' . $destName;
+		$filePath = $absDir . '/' . TMS_MODEL::toLocalEncoding($destName);
 		// move the temporary file
 		return move_uploaded_file($filename, $filePath);
 	}
@@ -49,15 +49,15 @@ class local_model {
 	 *
 	 */
 	public function read($filename) {
-		$absPath = $this->rootDir . '/' . $filename;
+		$absPath = $this->rootDir . '/' . TMS_MODEL::toLocalEncoding($filename);
 		return file_get_contents($absPath);
 	}
-
+	/**/
 	public function write($filename, $content) {
 		//return $this->storage->write($this->domain, $this->mpid . '/' . $filename, $content);
 	}
-
+	/**/
 	public function delete($filename) {
-		return unlink($this->rootDir . '/' . $filename);
+		return unlink($this->rootDir . '/' . TMS_MODEL::toLocalEncoding($filename));
 	}
 }

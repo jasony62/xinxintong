@@ -52,11 +52,23 @@ class local_model {
 		$absPath = $this->rootDir . '/' . $filename;
 		return file_get_contents($absPath);
 	}
-
+	/**
+	 *
+	 */
 	public function write($filename, $content) {
-		//return $this->storage->write($this->domain, $this->mpid . '/' . $filename, $content);
-	}
+		$absPath = $this->rootDir . '/' . $filename;
 
+		if (($fp = fopen($absPath, 'w')) !== false) {
+			fwrite($fp, $content);
+			fclose($fp);
+			return $absPath;
+		}
+
+		return false;
+	}
+	/**
+	 *
+	 */
 	public function delete($filename) {
 		return unlink($this->rootDir . '/' . $filename);
 	}

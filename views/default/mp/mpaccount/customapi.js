@@ -176,8 +176,8 @@ xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Autha
                     if (rsp.data.param.next)
                         doImport(rsp.data.param);
                 } else {
-                    if (rsp.data[4] !== undefined && rsp.data[4].length) 
-                        $scope.$root.errmsg = JSON.stringify(rsp.data[4]);
+                    if (rsp.data.warning !== undefined && rsp.data.warning.length) 
+                        $scope.$root.errmsg = JSON.stringify(rsp.data.warning);
                     else
                         $scope.$root.progmsg = '同步操作完成';
                 }

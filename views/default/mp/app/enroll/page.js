@@ -150,7 +150,7 @@
                 html += ' class="form-control">';
                 break;
             case '4':
-                html += '<textarea ng-model="data.' + key + '" title="' + def.name + '"';
+                html += '<textarea style="height:auto" ng-model="data.' + key + '" title="' + def.name + '"';
                 def.showname === 'placeholder' && (html += ' placeholder="' + def.name + '"');
                 def.required == 1 && (html += 'required=""');
                 html += ' class="form-control" rows="3"></textarea>';

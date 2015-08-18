@@ -56,8 +56,16 @@ class local_model {
 	 *
 	 */
 	public function write($filename, $content) {
+		/* 文件的完整路径 */
 		$absPath = $this->rootDir . '/' . $filename;
 
+		/* 文件目录是否存在，不存在则创建 */
+		$dirname = dirname($absPath);
+		if (!file_exists($dirname)) {
+			mkdir($dirname, 0755, true);
+		}
+
+		/* 将内容写入文件 */
 		if (($fp = fopen($absPath, 'w')) !== false) {
 			fwrite($fp, $content);
 			fclose($fp);

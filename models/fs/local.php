@@ -52,11 +52,31 @@ class local_model {
 		$absPath = $this->rootDir . '/' . TMS_MODEL::toLocalEncoding($filename);
 		return file_get_contents($absPath);
 	}
-	/**/
+	/**
+	 *
+	 */
 	public function write($filename, $content) {
-		//return $this->storage->write($this->domain, $this->mpid . '/' . $filename, $content);
+		/* 文件的完整路径 */
+		$absPath = $this->rootDir . '/' . TMS_MODEL::toLocalEncoding($filename);
+
+		/* 文件目录是否存在，不存在则创建 */
+		$dirname = dirname($absPath);
+		if (!file_exists($dirname)) {
+			mkdir($dirname, 0755, true);
+		}
+
+		/* 将内容写入文件 */
+		if (($fp = fopen($absPath, 'w')) !== false) {
+			fwrite($fp, $content);
+			fclose($fp);
+			return $absPath;
+		}
+
+		return false;
 	}
-	/**/
+	/**
+	 *
+	 */
 	public function delete($filename) {
 		return unlink($this->rootDir . '/' . TMS_MODEL::toLocalEncoding($filename));
 	}

@@ -1,6 +1,7 @@
 <div ng-controller='articleCtrl' ng-init="hasParent='<?php echo empty($_SESSION['mpaccount']->parent_mpid) ? 'N':'Y';?>'">
     <div class='form-inline form-group'>
         <button class='btn btn-success' ng-click='create()' title='新建图文'>新建</button>
+        <button class='btn btn-default' ng-click='upload()' title='上传文件创建图文'>上传</button>
         <div class='form-group'>
             <select style='width:135px' class='form-control' title='排序' ng-model='order' ng-change='doSearch()'>
                 <option value='time'>修改时间</option>
@@ -20,7 +21,7 @@
             <combox title='标签' evt-prefix='tag' readonly='true' prop='title' existing='selectedTags' options='tags'></combox>
         </div>
         <label class="checkbox-inline" ng-show="hasParent==='Y'">
-            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='fromParent' ng-change='doSearch()'>来源于父账号</label>
+        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='fromParent' ng-change='doSearch()'>来源于父账号</label>
     </div>
     <div class='clearfix' style='margin:0 -15px'>
         <div class='col-md-4' ng-repeat='a in articles'>
@@ -49,7 +50,7 @@
                     </div>
                 </div>
                 <button class='btn btn-default remove' ng-click='remove($event,a,$index)' ng-if='a.creater&&enter'>
-                    <i class='fa fa-trash-o fa-2x'></i>
+                <i class='fa fa-trash-o fa-2x'></i>
                 </button>
             </div>
         </div>
@@ -57,7 +58,21 @@
     <div class='form-group clearfix'>
         <span style='height:34px;line-height:34px' ng-show='page.total>0'>总数：{{page.total}}</span>
         <pagination style='margin:0;cursor:pointer' class='pull-right' ng-show='page.total>page.size' boundary-links="true"
-        total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;"
+            total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;"
         next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
     </div>
+    <script type="text/ng-template" id="uploadArticle.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">上传</h5>
+    </div>
+    <div class="modal-body">
+        <div class="form-group">
+            <input id='fileUpload' type='file' class='form-control'>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="ok()">确定</button>
+    </div>
+    </script>
 </div>

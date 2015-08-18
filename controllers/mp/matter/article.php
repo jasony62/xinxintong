@@ -22,30 +22,25 @@ class resumable {
 
 	private $mpid;
 
-	private $articleid;
+	private $dest;
 
-	public function __construct($mpid, $articleid) {
+	private $modelFs;
+
+	public function __construct($mpid, $dest, $modelFs) {
 
 		$this->mpid = $mpid;
 
-		$this->articleid = $articleid;
+		$this->dest = $dest;
+
+		$this->modelFs = $modelFs;
 	}
 	/**
 	 *
-	 * Logging operation - to a file (upload_log.txt) and to the stdout
+	 * Logging operation
 	 *
 	 * @param string $str - the logging string
 	 */
 	private function _log($str) {
-		// log to the output
-		//$log_str = date('d.m.Y').": {$str}\r\n";
-		//echo $log_str;
-
-		// log to file
-		//if (($fp = fopen('upload_log.txt', 'a+')) !== false) {
-		//    fputs($fp, $log_str);
-		//    fclose($fp);
-		//}
 	}
 	/**
 	 *
@@ -91,9 +86,8 @@ class resumable {
 		// check that all the parts are present
 		// the size of the last part is between chunkSize and 2*$chunkSize
 		if ($total_files * $chunkSize >= ($totalSize - $chunkSize + 1)) {
-			$modelFs = \TMS_APP::M('fs/local', $this->mpid, '附件');
 			// create the final destination file
-			if (($fp = fopen($modelFs->rootDir . '/' . 'article_' . $this->articleid . '_' . \TMS_MODEL::toLocalEncoding($fileName), 'w')) !== false) {
+			if (($fp = fopen($this->modelFs->rootDir . $this->dest, 'w')) !== false) {
 				for ($i = 1; $i <= $total_files; $i++) {
 					$partname = $temp_dir . '/' . \TMS_MODEL::toLocalEncoding($fileName) . '.part' . $i;
 					$content = file_get_contents($partname);
@@ -115,38 +109,26 @@ class resumable {
 		}
 	}
 	/**
-	 *
+	 * 处理分段上传的请求
 	 */
 	public function handleRequest() {
-		$modelFs = \TMS_APP::M('fs/local', $this->mpid, '附件');
-		//check if request is GET and the requested chunk exists or not. this makes testChunks work
-		if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-			$temp_dir = $modelFs->rootDir . '/' . $_GET['resumableIdentifier'];
-			$chunk_file = $temp_dir . '/' . $_GET['resumableFilename'] . '.part' . $_GET['resumableChunkNumber'];
-			if (file_exists($chunk_file)) {
-				header("HTTP/1.0 200 Ok");
-			} else {
-				header("HTTP/1.0 404 Not Found");
+		$filename = str_replace(' ', '_', $_POST['resumableFilename']);
+		foreach ($_FILES as $file) {
+			// check the error status
+			if ($file['error'] != 0) {
+				$this->_log('error ' . $file['error'] . ' in file ' . $filename);
+				continue;
 			}
-		} else if (!empty($_FILES)) {
-			// loop through files and move the chunks to a temporarily created directory
-			foreach ($_FILES as $file) {
-				// check the error status
-				if ($file['error'] != 0) {
-					$this->_log('error ' . $file['error'] . ' in file ' . $_POST['resumableFilename']);
-					continue;
-				}
-				// init the destination file (format <filename.ext>.part<#chunk>
-				// the file is stored in a temporary directory
-				$tmpDir = $_POST['resumableIdentifier'];
-				$tmpFile = $_POST['resumableFilename'] . '.part' . $_POST['resumableChunkNumber'];
-				if (!$modelFs->upload($file['tmp_name'], $tmpFile, $tmpDir)) {
-					$this->_log('Error saving chunk ' . $_POST['resumableChunkNumber'] . ' for file ' . $_POST['resumableFilename']);
-				} else {
-					// check if all the parts present, and create the final destination file
-					$absTmpDir = $modelFs->rootDir . '/' . $tmpDir;
-					$this->createFileFromChunks($absTmpDir, $_POST['resumableFilename'], $_POST['resumableChunkSize'], $_POST['resumableTotalSize']);
-				}
+			// init the destination file (format <filename.ext>.part<#chunk>
+			// the file is stored in a temporary directory
+			$tmpDir = $_POST['resumableIdentifier'];
+			$tmpFile = $filename . '.part' . $_POST['resumableChunkNumber'];
+			if (!$this->modelFs->upload($file['tmp_name'], $tmpFile, $tmpDir)) {
+				$this->_log('Error saving chunk ' . $_POST['resumableChunkNumber'] . ' for file ' . $filename);
+			} else {
+				// check if all the parts present, and create the final destination file
+				$absTmpDir = $this->modelFs->rootDir . '/' . $tmpDir;
+				$this->createFileFromChunks($absTmpDir, $filename, $_POST['resumableChunkSize'], $_POST['resumableTotalSize']);
 			}
 		}
 	}
@@ -167,6 +149,7 @@ class resumableAliOss {
 	 *
 	 * Check if all the parts exist, and
 	 * gather all the parts of the file together
+	 *
 	 * @param string $temp_dir - the temporary directory holding all the parts of the file
 	 * @param string $fileName - the original file name
 	 * @param string $chunkSize - each chunk size (in bytes)
@@ -186,7 +169,6 @@ class resumableAliOss {
 		// the size of the last part is between chunkSize and 2*$chunkSize
 		if ($total_files * $chunkSize >= ($totalSize - $chunkSize + 1)) {
 			$fs2 = \TMS_APP::M('fs/alioss', $this->mpid, 'xxt-attachment');
-			$object = $this->mpid . '/article/' . $this->articleid . '/' . $_POST['resumableFilename'];
 			// create the final destination file
 			$tmpfname = tempnam(sys_get_temp_dir(), 'xxt');
 			$handle = fopen($tmpfname, "w");
@@ -197,7 +179,7 @@ class resumableAliOss {
 			}
 			fclose($handle);
 			//
-			$rsp = $fs2->create_mpu_object($object, $tmpfname);
+			$rsp = $fs2->create_mpu_object($$this->mpid . $this->dest, $tmpfname);
 			echo (json_encode($rsp));
 		}
 	}
@@ -308,7 +290,6 @@ class article extends matter_ctrl {
 				if ($fea->matter_visible_to_creater === 'Y') {
 					$w .= " and (a.creater='$uid' or a.public_visible='Y')";
 				}
-
 			}
 			/**
 			 * 按频道过滤
@@ -514,9 +495,7 @@ class article extends matter_ctrl {
 		$d['body'] = '';
 		$id = $this->model()->insert('xxt_article', $d);
 
-		$article = $this->getOne($this->mpid, $id, false);
-
-		return new \ResponseData($article);
+		return new \ResponseData($id);
 	}
 	/**
 	 * 更新单图文的字段
@@ -591,9 +570,11 @@ class article extends matter_ctrl {
 	 */
 	public function upload_action($articleid) {
 		if (defined('SAE_TMP_PATH')) {
-			$resumable = new resumableAliOss($this->mpid, $articleid);
+			$dest = '/article/' . $articleid . '/' . $_POST['resumableFilename'];
+			$resumable = new resumableAliOss($this->mpid, $dest);
 		} else {
-			$resumable = new resumable($this->mpid, $articleid);
+			$dest = '/article_' . $articleid . '_' . $_POST['resumableFilename'];
+			$resumable = new resumable($this->mpid, $dest);
 		}
 		$resumable->handleRequest();
 		exit;
@@ -672,6 +653,144 @@ class article extends matter_ctrl {
 		return new \ResponseData($rst);
 	}
 	/**
+	 * 将文件生成的图片转为正文
+	 */
+	private function setBodyByAtt($articleid, $dir) {
+		$body = '';
+		$files = scandir($dir);
+		$dir = \TMS_MODEL::toUTF8($dir);
+		for ($i = 0, $l = count($files) - 2; $i < $l; $i++) {
+			$body .= '<p>';
+			$body .= '<img src="' . '/' . $dir . '/' . $i . '.png">';
+			$body .= '</p>';
+		}
+
+		$rst = $this->model()->update(
+			'xxt_article',
+			array('body' => $body),
+			"id='$articleid'"
+		);
+
+		return $body;
+	}
+	/**
+	 * 将文件生成的图片的第一张设置为头图
+	 */
+	private function setCoverByAtt($articleid, $dir) {
+		$dir = \TMS_MODEL::toUTF8($dir);
+		$url = '/' . $dir . '/0.png';
+		$rst = $this->model()->update(
+			'xxt_article',
+			array('pic' => $url),
+			"id='$articleid'"
+		);
+
+		return $url;
+	}
+	/**
+	 * 上传文件并创建图文
+	 */
+	public function uploadAndCreate_action($state = null) {
+		if ($state === 'done') {
+			$account = \TMS_CLIENT::account();
+			if ($account === false) {
+				return new \ResponseError('长时间未操作，请重新登陆！');
+			}
+
+			$posted = $this->getPostJson();
+			$file = $posted->file;
+
+			$modelFs = \TMS_APP::M('fs/local', $this->mpid, '_resumable');
+			$fileUploaded = $modelFs->rootDir . '/article_' . $file->uniqueIdentifier;
+
+			$current = time();
+			$uid = \TMS_CLIENT::get_client_uid();
+			$uname = $account->nickname;
+			$filename = str_replace(' ', '_', $file->name);
+
+			$d = array();
+			$d['mpid'] = $this->mpid;
+			$d['creater'] = $uid;
+			$d['creater_src'] = 'A';
+			$d['creater_name'] = $uname;
+			$d['create_at'] = $current;
+			$d['modifier'] = $uid;
+			$d['modifier_src'] = 'A';
+			$d['modifier_name'] = $uname;
+			$d['modify_at'] = $current;
+			$d['title'] = substr($filename, 0, strrpos($filename, '.'));
+			$d['author'] = $uname;
+			$d['url'] = '';
+			$d['hide_pic'] = 'Y';
+			$d['can_picviewer'] = 'Y';
+			$d['has_attachment'] = 'Y';
+			$d['pic'] = '';
+			$d['summary'] = '';
+			$d['body'] = '';
+
+			$id = $this->model()->insert('xxt_article', $d, true);
+			/**
+			 * 保存附件
+			 */
+			$att = array();
+			$att['article_id'] = $id;
+			$att['name'] = $filename;
+			$att['type'] = $file->type;
+			$att['size'] = $file->size;
+			$att['last_modified'] = $file->lastModified;
+			$att['url'] = 'local://article_' . $id . '_' . $filename;
+
+			$this->model()->insert('xxt_article_attachment', $att, true);
+
+			$modelFs = \TMS_APP::M('fs/local', $this->mpid, '附件');
+			$attachment = $modelFs->rootDir . '/article_' . $id . '_' . \TMS_MODEL::toLocalEncoding($filename);
+			rename($fileUploaded, $attachment);
+			/**
+			 * 获取附件的内容
+			 */
+			$appRoot = dirname(dirname(dirname(dirname(__FILE__))));
+			$ext = explode('.', $filename);
+			$ext = array_pop($ext);
+			$attAbs = $appRoot . '/' . $attachment;
+			if (in_array($ext, array('doc', 'docx', 'ppt', 'pptx'))) {
+				/* 存放附件转换结果 */
+				$attDir = str_replace('.' . $ext, '', $attachment);
+				mkdir($appRoot . '/' . $attDir, 0755);
+				/* 执行转换操作 */
+				$attPdf = $appRoot . '/' . $attDir . '/' . $id . '.pdf ';
+				$cmd = $appRoot . '/cus/conv2pdf ' . $attPdf . ' ' . $attAbs;
+				$rsp = exec($cmd);
+				$attPng = $appRoot . '/' . $attDir . '/%d.png';
+				$cmd = $appRoot . '/cus/conv2img ' . $attPdf . ' ' . $attPng;
+				$rsp = exec($cmd);
+				unlink($attPdf);
+				$this->setBodyByAtt($id, $attDir);
+				if (in_array($ext, array('doc', 'docx', 'ppt', 'pptx'))) {
+					$this->setCoverByAtt($id, $attDir);
+				}
+			} else if ($ext === 'pdf') {
+				/* 存放附件转换结果 */
+				$attDir = str_replace('.' . $ext, '', $attachment);
+				mkdir($appRoot . '/' . $attDir, 0755);
+				$attPng = $appRoot . '/' . $attDir . '/%d.png';
+				$cmd = $appRoot . '/cus/conv2img ' . $attAbs . ' ' . $attPng;
+				$rsp = exec($cmd);
+				$this->setBodyByAtt($id, $attDir);
+			}
+
+			return new \ResponseData($id);
+		} else {
+			/**
+			 * 分块上传文件
+			 */
+			$modelFs = \TMS_APP::M('fs/local', $this->mpid, '_resumable');
+			$dest = '/article_' . $_POST['resumableIdentifier'];
+			$resumable = new resumable($this->mpid, $dest, $modelFs);
+			$resumable->handleRequest();
+			exit;
+		}
+	}
+	/**
 	 * 删除一个单图文
 	 */
 	public function remove_action($id) {
@@ -693,7 +812,6 @@ class article extends matter_ctrl {
 				foreach ($news as $n) {
 					$modelNews->removeMatter($n->id, $id, 'article');
 				}
-
 			}
 		}
 

@@ -22,30 +22,25 @@ class resumable {
 
 	private $mpid;
 
-	private $articleid;
+	private $dest;
 
-	public function __construct($mpid, $articleid) {
+	private $modelFs;
+
+	public function __construct($mpid, $dest, $modelFs) {
 
 		$this->mpid = $mpid;
 
-		$this->articleid = $articleid;
+		$this->dest = $dest;
+
+		$this->modelFs = $modelFs;
 	}
 	/**
 	 *
-	 * Logging operation - to a file (upload_log.txt) and to the stdout
+	 * Logging operation
 	 *
 	 * @param string $str - the logging string
 	 */
 	private function _log($str) {
-		// log to the output
-		//$log_str = date('d.m.Y').": {$str}\r\n";
-		//echo $log_str;
-
-		// log to file
-		//if (($fp = fopen('upload_log.txt', 'a+')) !== false) {
-		//    fputs($fp, $log_str);
-		//    fclose($fp);
-		//}
 	}
 	/**
 	 *
@@ -91,9 +86,8 @@ class resumable {
 		// check that all the parts are present
 		// the size of the last part is between chunkSize and 2*$chunkSize
 		if ($total_files * $chunkSize >= ($totalSize - $chunkSize + 1)) {
-			$modelFs = \TMS_APP::M('fs/local', $this->mpid, '附件');
 			// create the final destination file
-			if (($fp = fopen($modelFs->rootDir . '/' . 'article_' . $this->articleid . '_' . $fileName, 'w')) !== false) {
+			if (($fp = fopen($this->modelFs->rootDir . $this->dest, 'w')) !== false) {
 				for ($i = 1; $i <= $total_files; $i++) {
 					fwrite($fp, file_get_contents($temp_dir . '/' . $fileName . '.part' . $i));
 					$this->_log('writing chunk ' . $i);
@@ -113,13 +107,12 @@ class resumable {
 		}
 	}
 	/**
-	 *
+	 * 处理分段上传的请求
 	 */
 	public function handleRequest() {
-		$modelFs = \TMS_APP::M('fs/local', $this->mpid, '附件');
 		//check if request is GET and the requested chunk exists or not. this makes testChunks work
 		if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-			$temp_dir = $modelFs->rootDir . '/' . $_GET['resumableIdentifier'];
+			$temp_dir = $this->modelFs->rootDir . '/' . $_GET['resumableIdentifier'];
 			$chunk_file = $temp_dir . '/' . $_GET['resumableFilename'] . '.part' . $_GET['resumableChunkNumber'];
 			if (file_exists($chunk_file)) {
 				header("HTTP/1.0 200 Ok");
@@ -138,11 +131,11 @@ class resumable {
 				// the file is stored in a temporary directory
 				$tmpDir = $_POST['resumableIdentifier'];
 				$tmpFile = $_POST['resumableFilename'] . '.part' . $_POST['resumableChunkNumber'];
-				if (!$modelFs->upload($file['tmp_name'], $tmpFile, $tmpDir)) {
+				if (!$this->modelFs->upload($file['tmp_name'], $tmpFile, $tmpDir)) {
 					$this->_log('Error saving chunk ' . $_POST['resumableChunkNumber'] . ' for file ' . $_POST['resumableFilename']);
 				} else {
 					// check if all the parts present, and create the final destination file
-					$absTmpDir = $modelFs->rootDir . '/' . $tmpDir;
+					$absTmpDir = $this->modelFs->rootDir . '/' . $tmpDir;
 					$this->createFileFromChunks($absTmpDir, $_POST['resumableFilename'], $_POST['resumableChunkSize'], $_POST['resumableTotalSize']);
 				}
 			}
@@ -165,6 +158,7 @@ class resumableAliOss {
 	 *
 	 * Check if all the parts exist, and
 	 * gather all the parts of the file together
+	 *
 	 * @param string $temp_dir - the temporary directory holding all the parts of the file
 	 * @param string $fileName - the original file name
 	 * @param string $chunkSize - each chunk size (in bytes)
@@ -184,7 +178,6 @@ class resumableAliOss {
 		// the size of the last part is between chunkSize and 2*$chunkSize
 		if ($total_files * $chunkSize >= ($totalSize - $chunkSize + 1)) {
 			$fs2 = \TMS_APP::M('fs/alioss', $this->mpid, 'xxt-attachment');
-			$object = $this->mpid . '/article/' . $this->articleid . '/' . $_POST['resumableFilename'];
 			// create the final destination file
 			$tmpfname = tempnam(sys_get_temp_dir(), 'xxt');
 			$handle = fopen($tmpfname, "w");
@@ -195,7 +188,7 @@ class resumableAliOss {
 			}
 			fclose($handle);
 			//
-			$rsp = $fs2->create_mpu_object($object, $tmpfname);
+			$rsp = $fs2->create_mpu_object($$this->mpid . $this->dest, $tmpfname);
 			echo (json_encode($rsp));
 		}
 	}
@@ -306,7 +299,6 @@ class article extends matter_ctrl {
 				if ($fea->matter_visible_to_creater === 'Y') {
 					$w .= " and (a.creater='$uid' or a.public_visible='Y')";
 				}
-
 			}
 			/**
 			 * 按频道过滤
@@ -512,9 +504,7 @@ class article extends matter_ctrl {
 		$d['body'] = '';
 		$id = $this->model()->insert('xxt_article', $d);
 
-		$article = $this->getOne($this->mpid, $id, false);
-
-		return new \ResponseData($article);
+		return new \ResponseData($id);
 	}
 	/**
 	 * 更新单图文的字段
@@ -589,9 +579,11 @@ class article extends matter_ctrl {
 	 */
 	public function upload_action($articleid) {
 		if (defined('SAE_TMP_PATH')) {
-			$resumable = new resumableAliOss($this->mpid, $articleid);
+			$dest = '/article/' . $articleid . '/' . $_POST['resumableFilename'];
+			$resumable = new resumableAliOss($this->mpid, $dest);
 		} else {
-			$resumable = new resumable($this->mpid, $articleid);
+			$dest = '/article_' . $articleid . '_' . $_POST['resumableFilename'];
+			$resumable = new resumable($this->mpid, $dest);
 		}
 		$resumable->handleRequest();
 		exit;
@@ -668,6 +660,102 @@ class article extends matter_ctrl {
 		}
 
 		return new \ResponseData($rst);
+	}
+	/**
+	 * 上传文件并创建图文
+	 */
+	public function uploadAndCreate_action($state = null) {
+		if ($state === 'done') {
+			$account = \TMS_CLIENT::account();
+			if ($account === false) {
+				return new \ResponseError('长时间未操作，请重新登陆！');
+			}
+
+			$posted = $this->getPostJson();
+			$file = $posted->file;
+
+			$modelFs = \TMS_APP::M('fs/local', $this->mpid, '_resumable');
+			$fileUploaded = $modelFs->rootDir . '/article_' . $file->uniqueIdentifier;
+
+			$current = time();
+			$uid = \TMS_CLIENT::get_client_uid();
+			$uname = $account->nickname;
+
+			$d = array();
+			$d['mpid'] = $this->mpid;
+			$d['creater'] = $uid;
+			$d['creater_src'] = 'A';
+			$d['creater_name'] = $uname;
+			$d['create_at'] = $current;
+			$d['modifier'] = $uid;
+			$d['modifier_src'] = 'A';
+			$d['modifier_name'] = $uname;
+			$d['modify_at'] = $current;
+			$d['title'] = $file->name;
+			$d['author'] = $uname;
+			$d['url'] = '';
+			$d['hide_pic'] = 'N';
+			$d['has_attachment'] = 'Y';
+			$d['pic'] = '';
+			$d['summary'] = '';
+			$d['body'] = '';
+
+			$id = $this->model()->insert('xxt_article', $d, true);
+			/**
+			 * 保存附件
+			 */
+			$att = array();
+			$att['article_id'] = $id;
+			$att['name'] = $file->name;
+			$att['type'] = $file->type;
+			$att['size'] = $file->size;
+			$att['last_modified'] = $file->lastModified;
+			$att['url'] = 'local://article_' . $id . '_' . $file->name;
+
+			$this->model()->insert('xxt_article_attachment', $att, true);
+
+			$modelFs = \TMS_APP::M('fs/local', $this->mpid, 'att');
+			$attachment = $modelFs->rootDir . '/article_' . $id . '_' . $file->name;
+			rename($fileUploaded, $attachment);
+			/**
+			 * 获取附件的内容
+			 */
+			$appRoot = dirname(dirname(dirname(dirname(__FILE__))));
+			$ext = explode('.', $file->name);
+			$ext = array_pop($ext);
+			$attAbs = $appRoot . '/' . $attachment;
+			if (in_array($ext, array('doc', 'docx', 'ppt', 'pptx'))) {
+				/* 存放附件转换结果 */
+				$attDir = str_replace('.' . $ext, '', $attachment);
+				mkdir($appRoot . '/' . $attDir, 07555);
+				/* 执行转换操作 */
+				$attPdf = $appRoot . '/' . $attDir . '/' . $id . '.pdf ';
+				$cmd = $appRoot . '/cus/conv2pdf ' . $attPdf . ' ' . $attAbs;
+				$rsp = exec($cmd);
+				$attPng = $appRoot . '/' . $attDir . '/%d.png';
+				$cmd = $appRoot . '/cus/conv2img ' . $attPdf . ' ' . $attPng;
+				$rsp = exec($cmd);
+				unlink($attPdf);
+			} else if ($ext === 'pdf') {
+				/* 存放附件转换结果 */
+				$attDir = str_replace('.' . $ext, '', $attachment);
+				mkdir($appRoot . '/' . $attDir, 07555);
+				$attPng = $appRoot . '/' . $attDir . '/%d.png';
+				$cmd = $appRoot . '/cus/conv2img ' . $attAbs . ' ' . $attPng;
+				$rsp = exec($cmd);
+			}
+
+			return new \ResponseData($rsp);
+		} else {
+			/**
+			 * 分块上传文件
+			 */
+			$modelFs = \TMS_APP::M('fs/local', $this->mpid, '_resumable');
+			$dest = '/article_' . $_POST['resumableIdentifier'];
+			$resumable = new resumable($this->mpid, $dest, $modelFs);
+			$resumable->handleRequest();
+			exit;
+		}
 	}
 	/**
 	 * 删除一个单图文

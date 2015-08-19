@@ -6,43 +6,43 @@ require_once '../db.php';
 $sql = "create table if not exists xxt_mpaccount(";
 $sql .= 'id int not null auto_increment';
 $sql .= ',mpid varchar(32) not null';
-$sql .= ",mpsrc char(2) not null"; // yx,wx,qy 
+$sql .= ",mpsrc char(2) not null default ''"; // yx,wx,qy
 $sql .= ",yx_mpid varchar(255) not null default ''"; // 公众平台上的账号ID，对应消息中touser字段
 $sql .= ",wx_mpid varchar(255) not null default ''"; // 公众平台上的账号ID，对应消息中touser字段
 $sql .= ",asparent char(1) not null default 'N'";
 $sql .= ",parent_mpid varchar(32) not null default ''";
 $sql .= ',name varchar(50) not null';
-$sql .= ',token varchar(40) not null';
-$sql .= ',yx_appid varchar(255) not null';
-$sql .= ',yx_appsecret varchar(255) not null';
+$sql .= ",token varchar(40) not null default ''";
+$sql .= ",yx_appid varchar(255) not null default ''";
+$sql .= ",yx_appsecret varchar(255) not null default ''";
 $sql .= ",yx_cardname varchar(50) not null default ''";
 $sql .= ",yx_cardid varchar(255) not null default ''";
 $sql .= ",yx_joined char(1) not null default 'N'";
 $sql .= ',yx_token text';
-$sql .= ',yx_token_expire_at int not null';
-$sql .= ',wx_appid varchar(255) not null';
-$sql .= ',wx_appsecret varchar(255) not null';
+$sql .= ",yx_token_expire_at int not null default 0";
+$sql .= ",wx_appid varchar(255) not null default ''";
+$sql .= ",wx_appsecret varchar(255) not null default ''";
 $sql .= ",wx_cardname varchar(50) not null default ''";
 $sql .= ",wx_cardid varchar(36) not null default ''";
 $sql .= ",wx_joined char(1) not null default 'N'";
 $sql .= ",wx_token text";
-$sql .= ",wx_token_expire_at int not null";
+$sql .= ",wx_token_expire_at int not null default 0";
 $sql .= ',wx_jsapi_ticket text';
-$sql .= ',wx_jsapi_ticket_expire_at int not null';
+$sql .= ',wx_jsapi_ticket_expire_at int not null default 0';
 $sql .= ",qy_corpid varchar(255) not null default ''";
 $sql .= ",qy_secret varchar(255) not null default ''";
 $sql .= ",qy_encodingaeskey varchar(43) not null default ''";
-$sql .= ",qy_agentid int not null";
+$sql .= ",qy_agentid int not null default 0";
 $sql .= ",qy_joined char(1) not null default 'N'";
 $sql .= ",qy_token text";
-$sql .= ",qy_token_expire_at int not null";
+$sql .= ",qy_token_expire_at int not null default 0";
 $sql .= ',creater varchar(40) not null';
 $sql .= ',create_at int not null';
-$sql .= ',state tinyint not null default 1'; // 1:正常, 0:停用 
+$sql .= ',state tinyint not null default 1'; // 1:正常, 0:停用
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error(xxt_mpaccount): '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error(xxt_mpaccount): ' . $mysqli->error;
 }
 /**
  * 公众账号的全局变量设置
@@ -68,7 +68,7 @@ $sql .= ",yx_checkmobile char(1) not null default 'N'"; // 检查手机号是否
 $sql .= ",qy_updateab char(1) not null default 'N'"; //更新通讯录
 $sql .= ',body_ele text'; // 全局背景
 $sql .= ',body_css text'; // 全局背景
-$sql .= ',follow_ele text'; // 关注页内容 
+$sql .= ',follow_ele text'; // 关注页内容
 $sql .= ',follow_css text'; // 关注页样式
 $sql .= ",follow_pic text"; // 引导关注的二维码
 $sql .= ",heading_pic text"; // 缺省头图
@@ -90,8 +90,8 @@ $sql .= ",can_member_checkin char(1) not null default 'N'"; //是否支持用户
 $sql .= ",can_member_credits char(1) not null default 'N'"; //是否支持会员积分
 $sql .= ",primary key(mpid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error(xxt_mpsetting): '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error(xxt_mpsetting): ' . $mysqli->error;
 }
 /**
  * 设置转发接口
@@ -102,11 +102,11 @@ $sql .= 'id int not null auto_increment';
 $sql .= ',mpid varchar(32) not null';
 $sql .= ",title varchar(50) not null default ''";
 $sql .= ",url text";
-$sql .= ',state tinyint not null default 1'; // 1:正常, 0:停用 
+$sql .= ',state tinyint not null default 1'; // 1:正常, 0:停用
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error(xxt_mprelay): '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error(xxt_mprelay): ' . $mysqli->error;
 }
 /**
  * 公众号授权管理员
@@ -118,8 +118,8 @@ $sql .= ',creater varchar(40) not null';
 $sql .= ',create_at int not null';
 $sql .= ",primary key(mpid,uid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error(xxt_mppermission): '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error(xxt_mppermission): ' . $mysqli->error;
 }
 /**
  * 公众平台账号合作者的权限设置
@@ -144,8 +144,8 @@ $sql .= ",update_p char(1) not null default 'N'";
 $sql .= ",delete_p char(1) not null default 'N'";
 $sql .= ",primary key(mpid,uid,permission)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error(xxt_mppermission): '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error(xxt_mppermission): ' . $mysqli->error;
 }
 
-echo 'finish mpa.'.PHP_EOL;
+echo 'finish mpa.' . PHP_EOL;

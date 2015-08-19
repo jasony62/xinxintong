@@ -119,7 +119,7 @@ class log_model extends TMS_MODEL {
 	/**
 	 * 记录访问素材日志
 	 */
-	public function writeMatterRead($mpid, $user, $matter, $client, $shareby) {
+	public function writeMatterRead($mpid, $user, $matter, $client, $shareby, $search, $referer) {
 		$current = time();
 		$d = array();
 		$d['mpid'] = $mpid;
@@ -133,6 +133,8 @@ class log_model extends TMS_MODEL {
 		$d['matter_shareby'] = $shareby;
 		$d['user_agent'] = $client->agent;
 		$d['client_ip'] = $client->ip;
+		$d['search'] = $search;
+		$d['referer'] = $referer;
 
 		$logid = $this->insert('xxt_log_matter_read', $d, true);
 

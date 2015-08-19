@@ -3,9 +3,9 @@ if (/MicroMessenger/.test(navigator.userAgent)) {
     signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
     wx.config(signPackage);
 }
-angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function ($lp) {
+angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function($lp) {
     $lp.html5Mode(true);
-}]).controller('ctrl', ['$location', '$scope', '$http', '$sce', '$timeout', '$q', function ($location, $scope, $http, $sce, $timeout, $q) {
+}]).controller('ctrl', ['$location', '$scope', '$http', '$sce', '$timeout', '$q', function($location, $scope, $http, $sce, $timeout, $q) {
     var mpid, id, shareby;
     mpid = $location.search().mpid;
     id = $location.search().id;
@@ -13,10 +13,10 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function ($lp
     $scope.mpid = mpid;
     $scope.articleId = id;
     $scope.mode = $location.search().mode || false;
-    var setShare = function () {
+    var setShare = function() {
         var shareid, sharelink;
         shareid = $scope.user.vid + (new Date()).getTime();
-        window.xxt.share.options.logger = function (shareto) {
+        window.xxt.share.options.logger = function(shareto) {
             var url = "/rest/mi/matter/logShare";
             url += "?shareid=" + shareid;
             url += "&mpid=" + mpid;
@@ -34,9 +34,9 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function ($lp
             sharelink += "&shareby=" + shareid;
         window.xxt.share.set($scope.article.title, sharelink, $scope.article.summary, $scope.article.pic);
     };
-    var getArticle = function () {
+    var getArticle = function() {
         var deferred = $q.defer();
-        $http.get('/rest/mi/article/get?mpid=' + mpid + '&id=' + id).success(function (rsp) {
+        $http.get('/rest/mi/article/get?mpid=' + mpid + '&id=' + id).success(function(rsp) {
             var params;
             params = rsp.data;
             params.article.body = $sce.trustAsHtml(params.article.body);
@@ -44,19 +44,22 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function ($lp
             $scope.user = params.user;
             if (params.mpaccount.header_page) {
                 params.mpaccount.header_page.html = $sce.trustAsHtml(params.mpaccount.header_page.html);
-                (function () {
+                (function() {
                     eval(params.mpaccount.header_page.js);
                 })();
             }
             if (params.mpaccount.footer_page) {
                 params.mpaccount.footer_page.html = $sce.trustAsHtml(params.mpaccount.footer_page.html);
-                (function () {
+                (function() {
                     eval(params.mpaccount.footer_page.js);
                 })();
             }
             $scope.mpa = params.mpaccount;
             deferred.resolve();
-            $http.get('/rest/mi/matter/logAccess?mpid=' + mpid + '&id=' + id + '&type=article&title=' + $scope.article.title + '&shareby=' + shareby);
+            $http.post('/rest/mi/matter/logAccess?mpid=' + mpid + '&id=' + id + '&type=article&title=' + $scope.article.title + '&shareby=' + shareby, {
+                search: location.search.replace('?', ''),
+                referer: document.referrer
+            });
             if (/MicroMessenge|Yixin/i.test(navigator.userAgent)) {
                 setShare();
             }
@@ -72,9 +75,9 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function ($lp
                 body.appendChild(hm);
                 hm = document.createElement("script");
                 hm.src = "/static/js/picViewer.js";
-                hm.onload = function () {
+                hm.onload = function() {
                     var oPicViewer = PicViewer('#picViewer img', {});
-                    var clickImg = function (event) {
+                    var clickImg = function(event) {
                         event.preventDefault();
                         var top = Math.max(document.documentElement.scrollTop, document.body.scrollTop);
                         var height = document.documentElement.clientHeight;
@@ -86,22 +89,22 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function ($lp
                         eViewer.querySelector('img').src = src;
                         oPicViewer.fresh();
                     };
-                    var supportPicviewer = function () {
+                    var supportPicviewer = function() {
                         var eThumbs = document.querySelectorAll('.wrap img');
                         var eCloser = document.querySelector('#picViewer span');
 
-                        eCloser.addEventListener('click', function (e) {
+                        eCloser.addEventListener('click', function(e) {
                             eViewer.style.display = 'none';
                             document.body.style.overflow = 'auto';
                             return false;
                         }, false);
-                        eViewer.addEventListener('touchmove', function (e) {
+                        eViewer.addEventListener('touchmove', function(e) {
                             e.preventDefault();
                         }, false);
                         for (var i = 0, l = eThumbs.length; i < l; i++) {
                             eThumbs[i].addEventListener('click', clickImg);
                         }
-                        window.addEventListener('resize', function () {
+                        window.addEventListener('resize', function() {
                             if (eViewer.style.display === 'block') {
                                 var top = Math.max(document.documentElement.scrollTop, document.body.scrollTop);
                                 var height = document.documentElement.clientHeight;
@@ -115,16 +118,20 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function ($lp
                 };
                 body.appendChild(hm);
             }
-        }).error(function (content, httpCode) {
+        }).error(function(content, httpCode) {
             if (httpCode === 401) {
                 var el = document.createElement('iframe');
                 el.setAttribute('id', 'frmAuth');
-                el.onload = function () { this.height = document.documentElement.clientHeight; };
+                el.onload = function() {
+                    this.height = document.documentElement.clientHeight;
+                };
                 document.body.appendChild(el);
                 if (content.indexOf('http') === 0) {
-                    window.onAuthSuccess = function () {
+                    window.onAuthSuccess = function() {
                         el.style.display = 'none';
-                        getArticle().then(function () { $scope.loading = false });
+                        getArticle().then(function() {
+                            $scope.loading = false
+                        });
                     };
                     el.setAttribute('src', content);
                     el.style.display = 'block';
@@ -141,51 +148,59 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function ($lp
         return deferred.promise;
     };
     $scope.loading = true;
-    getArticle().then(function () {
+    getArticle().then(function() {
         $scope.loading = false;
-        $timeout(function () {
+        $timeout(function() {
             var audios;
             audios = document.querySelectorAll('audio');
             audios.length > 0 && audios[0].play();
         });
     });
-    $scope.like = function () {
+    $scope.like = function() {
         if ($scope.mode === 'preview') return;
         var url = "/rest/mi/article/score?mpid=" + mpid + "&id=" + id;
-        $http.get(url).success(function (rsp) {
+        $http.get(url).success(function(rsp) {
             $scope.article.score = rsp.data[0];
             $scope.article.praised = rsp.data[1];
         });
     };
     $scope.newRemark = '';
-    $scope.remark = function () {
+    $scope.remark = function() {
         var url, param;
-        if ($scope.newRemark === '') { alert('评论内容不允许为空！'); return; };
+        if ($scope.newRemark === '') {
+            alert('评论内容不允许为空！');
+            return;
+        };
         url = "/rest/mi/article/remark?mpid=" + mpid + "&id=" + id;
-        param = { remark: $scope.newRemark };
-        $http.post(url, param).success(function (rsp) {
-            if (rsp.err_code != 0) { alert(rsp.err_msg); return; };
+        param = {
+            remark: $scope.newRemark
+        };
+        $http.post(url, param).success(function(rsp) {
+            if (rsp.err_code != 0) {
+                alert(rsp.err_msg);
+                return;
+            };
             $scope.newRemark = '';
             $scope.article.remarks === false ? $scope.article.remarks = [rsp.data] : $scope.article.remarks.splice(0, 0, rsp.data);
-            $timeout(function () {
+            $timeout(function() {
                 document.querySelector('#gotoRemarksHeader').click();
             });
         });
     };
-    $scope.reply = function (remark) {
+    $scope.reply = function(remark) {
         $scope.newRemark += '@' + remark.nickname;
-        $timeout(function () {
+        $timeout(function() {
             document.querySelector('#gotoNewRemark').click();
         });
     };
-    $scope.followMp = function () {
+    $scope.followMp = function() {
         location.href = 'yixin://opencard?pid=' + $scope.mpa.yx_cardid;
     };
-    window.openMatter = function (id, type) {
+    window.openMatter = function(id, type) {
         location.href = '/rest/mi/matter?mpid=' + mpid + '&id=' + id + '&type=' + type + '&tpl=std';
     };
-}]).filter('filesize', function () {
-    return function (length) {
+}]).filter('filesize', function() {
+    return function(length) {
         var unit;
         if (length / 1024 < 1) {
             unit = 'B';

@@ -26,9 +26,9 @@ $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 $sqls[] = $sql;
 
 foreach ($sqls as $sql) {
-    if (!$mysqli->query($sql)) {
-        header('HTTP/1.0 500 Internal Server Error');
-        echo 'database error: '.$mysqli->error;
-    }
+	if (!$mysqli->query($sql)) {
+		header('HTTP/1.0 500 Internal Server Error');
+		echo 'database error: ' . $mysqli->error;
+	}
 }
-echo "end update ".__FILE__.PHP_EOL;
+echo "end update " . __FILE__ . PHP_EOL;

@@ -62,7 +62,7 @@ class local_model {
 		/* 文件目录是否存在，不存在则创建 */
 		$dirname = dirname($absPath);
 		if (!file_exists($dirname)) {
-			mkdir($dirname, 0755, true);
+			mkdir($dirname, 0777, true);
 		}
 
 		/* 将内容写入文件 */

@@ -661,7 +661,7 @@ class article extends matter_ctrl {
 		$dir = \TMS_MODEL::toUTF8($dir);
 		for ($i = 0, $l = count($files) - 2; $i < $l; $i++) {
 			$body .= '<p>';
-			$body .= '<img src="' . '/' . $dir . '/' . $i . '.png">';
+			$body .= '<img src="' . '/' . $dir . '/' . $i . '.jpg">';
 			$body .= '</p>';
 		}
 
@@ -678,7 +678,7 @@ class article extends matter_ctrl {
 	 */
 	private function setCoverByAtt($articleid, $dir) {
 		$dir = \TMS_MODEL::toUTF8($dir);
-		$url = '/' . $dir . '/0.png';
+		$url = '/' . $dir . '/0.jpg';
 		$rst = $this->model()->update(
 			'xxt_article',
 			array('pic' => $url),
@@ -748,31 +748,32 @@ class article extends matter_ctrl {
 			/**
 			 * 获取附件的内容
 			 */
-			$appRoot = dirname(dirname(dirname(dirname(__FILE__))));
+			$appRoot = $_SERVER['DOCUMENT_ROOT'];
 			$ext = explode('.', $filename);
 			$ext = array_pop($ext);
 			$attAbs = $appRoot . '/' . $attachment;
 			if (in_array($ext, array('doc', 'docx', 'ppt', 'pptx'))) {
 				/* 存放附件转换结果 */
 				$attDir = str_replace('.' . $ext, '', $attachment);
-				mkdir($appRoot . '/' . $attDir, 0755);
+				mkdir($appRoot . '/' . $attDir);
 				/* 执行转换操作 */
-				$attPdf = $appRoot . '/' . $attDir . '/' . $id . '.pdf ';
-				$cmd = $appRoot . '/cus/conv2pdf ' . $attPdf . ' ' . $attAbs;
-				$rsp = exec($cmd);
-				$attPng = $appRoot . '/' . $attDir . '/%d.png';
-				$cmd = $appRoot . '/cus/conv2img ' . $attPdf . ' ' . $attPng;
-				$rsp = exec($cmd);
-				unlink($attPdf);
+				$output = array();
+				$attPng = $appRoot . '/' . $attDir . '/%d.jpg';
+				$cmd = $appRoot . '/cus/conv2pdf2img ' . $attAbs . ' ' . $attPng;
+				$rsp = exec($cmd, $output, $status);
+				if ($status == 1) {
+					die(json_encode(array($cmd, $rsp, $output, $status)));
+				}
+
 				$this->setBodyByAtt($id, $attDir);
-				if (in_array($ext, array('doc', 'docx', 'ppt', 'pptx'))) {
+				if (in_array($ext, array('ppt', 'pptx'))) {
 					$this->setCoverByAtt($id, $attDir);
 				}
 			} else if ($ext === 'pdf') {
 				/* 存放附件转换结果 */
 				$attDir = str_replace('.' . $ext, '', $attachment);
-				mkdir($appRoot . '/' . $attDir, 0755);
-				$attPng = $appRoot . '/' . $attDir . '/%d.png';
+				mkdir($appRoot . '/' . $attDir);
+				$attPng = $appRoot . '/' . $attDir . '/%d.jpg';
 				$cmd = $appRoot . '/cus/conv2img ' . $attAbs . ' ' . $attPng;
 				$rsp = exec($cmd);
 				$this->setBodyByAtt($id, $attDir);

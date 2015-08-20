@@ -121,7 +121,7 @@ class matter extends \member_base {
 		/**
 		 * write log.
 		 */
-		$this->logAccess_action($mpid, $id, $type, $matter->title, $shareby, '', '');
+		$this->logAccess_action($mpid, $id, $type, $matter->title, $shareby);
 		/**
 		 * 访问控制
 		 */

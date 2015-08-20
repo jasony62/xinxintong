@@ -15,7 +15,7 @@
         ?>
         <title><?php echo empty($_SESSION['mpaccount']) ? APP_TITLE : $_SESSION['mpaccount']->name;?></title>
     </head>
-    <body style='padding:71px 0;' ng-app='xxt' ng-controller='mpCtrl'>
+    <body style='padding:71px 0;' ng-app='xxt' ng-controller='mpCtrl' ng-cloak class='ng-cloak'>
         <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
         <nav class='navbar navbar-inverse navbar-fixed-top'>
         <ul class='nav navbar-nav'>

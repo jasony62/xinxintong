@@ -50,10 +50,12 @@ formApp.factory('Record', function ($http) {
         url += '&page=' + ins.page;
         url += '&size=10';
         $http.get(url).success(function (rsp) {
-            if (rsp.data[0] && rsp.data[0].length) {
-                for (var i = 0; i < rsp.data[0].length; i++)
-                    ins.list.push(rsp.data[0][i]);
-                ins.page++;
+            if (rsp.err_code == 0) {
+                if (rsp.data[0] && rsp.data[0].length) {
+                    for (var i = 0; i < rsp.data[0].length; i++)
+                        ins.list.push(rsp.data[0][i]);
+                    ins.page++;
+                }
             }
             ins.busy = false;
         });

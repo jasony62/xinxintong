@@ -64,8 +64,8 @@ xxtApp.controller('useractionCtrl', ['$scope', '$http', function ($scope, $http)
                 $scope.page.total = rsp.data[1];
             });
     };
-    $scope.viewUser = function (fid) {
-        location.href = '/rest/mp/user?fid=' + fid;
+    $scope.viewUser = function (openid) {
+        location.href = '/rest/mp/user?openid=' + openid;
     };
     $scope.$on('xxt.tms-datepicker.change', function (event, data) {
         $scope[data.state] = data.value;

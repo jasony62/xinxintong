@@ -32,7 +32,7 @@
                 <tr ng-repeat='u in users'>
                     <td>{{$index+1}}</td>
                     <td ng-if='u.openid'>
-                        <a href='#' ng-click='viewUser(u.fid)'>{{u.nickname||u.openid}}</a>
+                        <a href='javascript(0)' ng-click='viewUser(u.openid)'>{{u.nickname||u.openid}}</a>
                     </td>
                     <td ng-if='!u.openid'>未知</td>
                     <td>{{u.read_num}}</td>

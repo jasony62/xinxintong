@@ -1,7 +1,7 @@
-<div ng-controller='articleCtrl' ng-init="hasParent='<?php echo empty($_SESSION['mpaccount']->parent_mpid) ? 'N':'Y';?>'">
+<div ng-controller='articleCtrl'>
     <div class='form-inline form-group'>
         <button class='btn btn-success' ng-click='create()' title='新建图文'>新建</button>
-        <button class='btn btn-default' ng-click='upload()' title='上传文件创建图文'>上传</button>
+        <button class='btn btn-default' ng-click='upload()' title='上传文件创建图文' ng-if="mpa._env.SAE===false">上传</button>
         <div class='form-group'>
             <select style='width:135px' class='form-control' title='排序' ng-model='order' ng-change='doSearch()'>
                 <option value='time'>修改时间</option>
@@ -72,7 +72,7 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-default" ng-click="ok()">确定</button>
+        <button class="btn btn-success" ng-click="ok()"><i ng-class="{'fa fa-spinner fa-spin':uploading}"></i>&nbsp;确定&nbsp;</button>
     </div>
     </script>
 </div>

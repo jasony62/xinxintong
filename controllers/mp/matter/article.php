@@ -762,7 +762,7 @@ class article extends matter_ctrl {
 				$cmd = $appRoot . '/cus/conv2pdf2img ' . $attAbs . ' ' . $attPng;
 				$rsp = exec($cmd, $output, $status);
 				if ($status == 1) {
-					die(json_encode(array($cmd, $rsp, $output, $status)));
+					return new \ResponseError('转换文件失败：' . $rsp);
 				}
 
 				$this->setBodyByAtt($id, $attDir);

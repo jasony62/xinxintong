@@ -2,12 +2,12 @@
 .thumbnail>:first-child{height:100px;overflow:hidden}
 .thumbnail>:nth-child(2){height:30px;padding-top:4px;overflow:hidden}
 .thumbnail .label{margin:0 2px 2px 0}
-.thumbnail .attr {position:absolute;height:20px;left:4px;right:4px;bottom:34px}
-.thumbnail .attr>div {display:table;width:100%;}
-.thumbnail .attr>div>div {display:table-cell;width:50%;}
+.thumbnail .attr{position:absolute;height:20px;left:4px;right:4px;bottom:34px}
+.thumbnail .attr>div{display:table;width:100%;}
+.thumbnail .attr>div>div{display:table-cell;width:50%;}
 .thumbnail .attr .modify_at{text-align:right}
-.thumbnail .stat {position:absolute;height:20px;left:4px;right:4px;bottom:8px}
-.thumbnail .stat>div {display:table-cell;color:#999;line-height:30px}
+.thumbnail .stat{position:absolute;height:20px;left:4px;right:4px;bottom:8px}
+.thumbnail .stat>div{display:table-cell;color:#999;line-height:30px}
 .thumbnail .stat .ordered{color:red;}
 .thumbnail button.remove{position:absolute;top:4px;right:4px}
 .combox>.form-control{padding:3px 12px}

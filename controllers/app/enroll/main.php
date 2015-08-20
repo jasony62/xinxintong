@@ -274,8 +274,8 @@ class main extends \member_base {
 		$logClient->agent = $_SERVER['HTTP_USER_AGENT'];
 		$logClient->ip = $this->client_ip();
 
-		$search = $_SERVER['QUERY_STRING'];
-		$referer = $_SERVER['HTTP_REFERER'];
+		$search = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '';
+		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 		$this->model('log')->writeMatterRead($mpid, $logUser, $logMatter, $logClient, $shareby, $search, $referer);
 
 		$this->view_action('/app/enroll/page');

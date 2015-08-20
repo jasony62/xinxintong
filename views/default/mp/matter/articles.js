@@ -13,6 +13,10 @@ xxtApp.controller('articleCtrl', ['$scope', '$window', '$modal', 'http2', functi
         });
     };
     var getInitData = function() {
+        http2.get('/rest/mp/mpaccount/get', function(rsp) {
+            $scope.mpa = rsp.data;
+            $scope.hasParent = (rsp.data.parent_mpid && rsp.data.parent_mpid.length) ? 'Y' : 'N';
+        });
         http2.get('/rest/mp/matter/tag?resType=article', function(rsp) {
             $scope.tags = rsp.data;
             getArticles();
@@ -46,6 +50,7 @@ xxtApp.controller('articleCtrl', ['$scope', '$window', '$modal', 'http2', functi
                     $mi.dismiss();
                 };
                 $scope.ok = function() {
+                    $scope.uploading = true;
                     var r = new Resumable({
                         target: '/rest/mp/matter/article/uploadAndCreate',
                         testChunks: false,
@@ -71,7 +76,8 @@ xxtApp.controller('articleCtrl', ['$scope', '$window', '$modal', 'http2', functi
                                 lastModified: lastModified
                             }
                         };
-                        http2.post('/rest/mp/matter/article/uploadAndCreate?state=done', posted, function success(rsp) {
+                        http2.post('/rest/mp/matter/article/uploadAndCreate?state=done', posted, function(rsp) {
+                            $scope.uploading = false;
                             $mi.close(rsp.data);
                         });
                     });

@@ -1,7 +1,9 @@
 if (/MicroMessenger/.test(navigator.userAgent)) {
-    //signPackage.debug = true;
-    signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
-    wx.config(signPackage);
+    if (window.signPackage) {
+        //signPackage.debug = true;
+        signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
+        wx.config(signPackage);
+    }
 }
 angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function($lp) {
     $lp.html5Mode(true);

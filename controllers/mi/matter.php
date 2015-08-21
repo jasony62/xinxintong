@@ -154,8 +154,8 @@ class matter extends \member_base {
 		}
 		$logUser = new \stdClass;
 		$logUser->vid = $user->vid;
-		$logUser->openid = isset($user->fan) ? $user->openid : '';
-		$logUser->nickname = isset($user->fan) ? $user->fan->nickname : '';
+		$logUser->openid = empty($user->fan) ? '' : $user->openid;
+		$logUser->nickname = empty($user->fan) ? '' : $user->fan->nickname;
 
 		$logMatter = new \stdClass;
 		$logMatter->id = $id;

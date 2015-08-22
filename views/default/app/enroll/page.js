@@ -1,20 +1,35 @@
 formApp = angular.module('formApp', ['ngSanitize', 'infinite-scroll']);
-formApp.config(['$locationProvider', function ($lp) {
+formApp.config(['$locationProvider', function($lp) {
     $lp.html5Mode(true);
 }]);
-formApp.factory('Round', function ($http) {
-    var Round = function (mpid, aid, current) {
+formApp.directive('tmsExec', ['$rootScope', '$timeout', function($rootScope, $timeout) {
+    return {
+        restrict: 'A',
+        link: function(scope, elem, attrs) {
+            return $timeout(function() {
+                if ($rootScope.$$phase) {
+                    return scope.$eval(attrs.tmsExec);
+                } else {
+                    return scope.$apply(attrs.tmsExec);
+                }
+            }, 0);
+        }
+    };
+}]);
+formApp.factory('Round', function($http) {
+    var Round = function(mpid, aid, current) {
         this.mpid = mpid;
         this.aid = aid;
         this.current = current;
         this.list = [];
     };
-    Round.prototype.nextPage = function () {
-        var _this = this;
-        var url = '/rest/app/enroll/rounds';
+    Round.prototype.nextPage = function() {
+        var _this = this,
+            url;
+        url = '/rest/app/enroll/rounds';
         url += '?mpid=' + _this.mpid;
         url += '&aid=' + _this.aid;
-        $http.get(url).success(function (rsp) {
+        $http.get(url).success(function(rsp) {
             if (rsp.err_code != 0) {
                 alert(rsp.data);
                 return;
@@ -24,8 +39,8 @@ formApp.factory('Round', function ($http) {
     };
     return Round;
 });
-formApp.factory('Record', function ($http) {
-    var Record = function (mpid, aid, rid, current, $scope) {
+formApp.factory('Record', function($http) {
+    var Record = function(mpid, aid, rid, current, $scope) {
         this.mpid = mpid;
         this.aid = aid;
         this.rid = rid;
@@ -37,7 +52,7 @@ formApp.factory('Record', function ($http) {
         this.owner = 'all';
         this.$scope = $scope;
     };
-    var listGet = function (ins, owner) {
+    var listGet = function(ins, owner) {
         if (ins.busy) return;
         ins.busy = true;
         var url;
@@ -49,7 +64,7 @@ formApp.factory('Record', function ($http) {
         url += '&orderby=' + ins.orderBy;
         url += '&page=' + ins.page;
         url += '&size=10';
-        $http.get(url).success(function (rsp) {
+        $http.get(url).success(function(rsp) {
             if (rsp.err_code == 0) {
                 if (rsp.data[0] && rsp.data[0].length) {
                     for (var i = 0; i < rsp.data[0].length; i++)
@@ -60,24 +75,24 @@ formApp.factory('Record', function ($http) {
             ins.busy = false;
         });
     };
-    Record.prototype.changeOrderBy = function (orderBy) {
+    Record.prototype.changeOrderBy = function(orderBy) {
         this.orderBy = orderBy;
         this.reset();
     };
-    Record.prototype.reset = function () {
+    Record.prototype.reset = function() {
         this.list = [];
         this.busy = false;
         this.page = 1;
         this.nextPage();
     };
-    Record.prototype.nextPage = function (owner) {
+    Record.prototype.nextPage = function(owner) {
         if (owner && this.owner !== owner) {
             this.owner = owner;
             this.reset();
         } else
             listGet(this);
     };
-    Record.prototype.like = function (event, record) {
+    Record.prototype.like = function(event, record) {
         event.preventDefault();
         event.stopPropagation();
         if (!record && !this.current) {
@@ -89,12 +104,12 @@ formApp.factory('Record', function ($http) {
         url += '&ek=';
         record === undefined && (record = this.current);
         url += record.enroll_key;
-        $http.get(url).success(function (rsp) {
+        $http.get(url).success(function(rsp) {
             record.myscore = rsp.data[0];
             record.score = rsp.data[1];
         });
     };
-    Record.prototype.remark = function (event, newRemark) {
+    Record.prototype.remark = function(event, newRemark) {
         event.preventDefault();
         event.stopPropagation();
         if (!newRemark || newRemark.length === 0) {
@@ -109,7 +124,9 @@ formApp.factory('Record', function ($http) {
         var url = '/rest/app/enroll/recordRemark';
         url += '?mpid=' + this.mpid;
         url += '&ek=' + this.current.enroll_key;
-        $http.post(url, { remark: newRemark }).success(function (rsp) {
+        $http.post(url, {
+            remark: newRemark
+        }).success(function(rsp) {
             if (angular.isString(rsp)) {
                 alert(rsp);
                 return;
@@ -124,28 +141,28 @@ formApp.factory('Record', function ($http) {
     };
     return Record;
 });
-formApp.factory('Statistic', function () {
-    var Stat = function (mpid, aid, data) {
+formApp.factory('Statistic', function() {
+    var Stat = function(mpid, aid, data) {
         this.mpid = mpid;
         this.aid = aid;
         this.data = null;
     };
     return Stat;
 });
-formApp.factory('Schema', ['$location', '$http', '$q', function ($location, $http, $q) {
+formApp.factory('Schema', ['$location', '$http', '$q', function($location, $http, $q) {
     var mpid, aid, schema, Schema;
     mpid = $location.search().mpid;
     aid = $location.search().aid;
     schema = null;
-    Schema = function () { };
-    Schema.prototype.get = function () {
+    Schema = function() {};
+    Schema.prototype.get = function() {
         var deferred, promise;
         deferred = $q.defer();
         promise = deferred.promise;
         if (schema !== null)
             deferred.resolve(schema);
         else {
-            $http.get('/rest/app/enroll/page/schemaGet?mpid=' + mpid + '&id=' + aid + '&byPage=N').success(function (rsp) {
+            $http.get('/rest/app/enroll/page/schemaGet?mpid=' + mpid + '&id=' + aid + '&byPage=N').success(function(rsp) {
                 schema = rsp.data;
                 deferred.resolve(schema);
             });
@@ -154,9 +171,9 @@ formApp.factory('Schema', ['$location', '$http', '$q', function ($location, $htt
     };
     return Schema;
 }]);
-formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'Round', 'Record', 'Statistic', function ($location, $scope, $http, $timeout, $q, Round, Record, Statistic) {
+formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'Round', 'Record', 'Statistic', function($location, $scope, $http, $timeout, $q, Round, Record, Statistic) {
     window.shareCounter = 0;
-    window.xxt.share.options.logger = function (shareto) {
+    window.xxt.share.options.logger = function(shareto) {
         var url = "/rest/mi/matter/logShare";
         url += "?shareid=" + window.shareid;
         url += "&mpid=" + $scope.params.mpid;
@@ -173,25 +190,26 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
         signPackage.jsApiList = ['hideOptionMenu', 'showOptionMenu', 'closeWindow', 'chooseImage', 'uploadImage', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'getLocation'];
         signPackage.debug = false;
         wx.config(signPackage);
-        wx.ready(function () {
+        wx.ready(function() {
             wx.showOptionMenu();
         });
     } else if (/YiXin/i.test(navigator.userAgent)) {
-        document.addEventListener('YixinJSBridgeReady', function () {
+        document.addEventListener('YixinJSBridgeReady', function() {
             YixinJSBridge.call('showOptionMenu');
         }, false);
     }
-    document.body.addEventListener('click', function (event) {
+    document.body.addEventListener('click', function(event) {
         var url, target = event.target;
         if (target.tagName === 'A' && target.classList.contains('innerlink')) {
             event.preventDefault();
-            var id = target.getAttribute('href'), type = target.getAttribute('type');
+            var id = target.getAttribute('href'),
+                type = target.getAttribute('type');
             id = id.split('/').pop();
             url = '/rest/mi/matter?mpid=' + $scope.param.mpid + 'type=' + type + '&id=' + id;
             location.href = url;
         }
     }, false);
-    var openPickImageFrom = function () {
+    var openPickImageFrom = function() {
         var st, ch, cw, $dlg;
         st = (document.body && document.body.scrollTop) ? document.body.scrollTop : document.documentElement.scrollTop;
         ch = document.documentElement.clientHeight;
@@ -203,17 +221,23 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
             'left': ((cw - $dlg.width() - 30) / 2) + 'px'
         });
     };
-    var required = function (value, len, alerttext) {
+    var required = function(value, len, alerttext) {
         if (value == null || value == "" || value.length < len) {
-            $scope.errmsg = alerttext; return false;
-        } else { return true; }
+            $scope.errmsg = alerttext;
+            return false;
+        } else {
+            return true;
+        }
     };
-    var validatePhone = function (value, alerttext) {
+    var validatePhone = function(value, alerttext) {
         if (false === /^1[3|4|5|7|8][0-9]\d{4,8}$/.test(value)) {
-            $scope.errmsg = alerttext; return false;
-        } else { return true; }
+            $scope.errmsg = alerttext;
+            return false;
+        } else {
+            return true;
+        }
     };
-    var validate = function () {
+    var validate = function() {
         if ($('[ng-model="data.name"]').length === 1) {
             if (false === required($scope.data.name, 2, '请提供您的姓名！')) {
                 document.querySelector('[ng-model="data.name"]').focus();
@@ -234,28 +258,31 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
     $scope.aid = $location.search().aid;
     $scope.rid = $location.search().rid || '';
     $scope.preview = $location.search().preview;
-    $scope.data = { member: {} };
+    $scope.data = {
+        member: {}
+    };
     $scope.ready = false;
     $scope.errmsg = '';
-    $scope.closePreviewTip = function () {
+    $scope.Round = new Round($scope.mpid, $scope.aid);
+    $scope.closePreviewTip = function() {
         $scope.preview = 'N';
     };
-    $scope.closeWindow = function () {
+    $scope.closeWindow = function() {
         if (/MicroMessenger/i.test(navigator.userAgent)) {
             window.wx.closeWindow();
         } else if (/YiXin/i.test(navigator.userAgent)) {
             window.YixinJSBridge.call('closeWebView');
         }
     };
-    $scope.getMyLocation = function (prop) {
-        window.xxt.geo.getAddress($http, $q.defer(), $scope.mpid).then(function (data) {
+    $scope.getMyLocation = function(prop) {
+        window.xxt.geo.getAddress($http, $q.defer(), $scope.mpid).then(function(data) {
             if (data.errmsg === 'ok')
                 $scope.data[prop] = data.address;
             else
                 $scope.errmsg = data.errmsg;
         });
     };
-    $scope.chooseImage = function (imgFieldName, count, from) {
+    $scope.chooseImage = function(imgFieldName, count, from) {
         if (imgFieldName !== null) {
             modifiedImgFields.indexOf(imgFieldName) === -1 && modifiedImgFields.push(imgFieldName);
             $scope.data[imgFieldName] === undefined && ($scope.data[imgFieldName] = []);
@@ -274,7 +301,7 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
             $scope.cachedImgFieldName = null;
             $('#pickImageFrom').hide();
         }
-        window.xxt.image.choose($q.defer(), from).then(function (imgs) {
+        window.xxt.image.choose($q.defer(), from).then(function(imgs) {
             var i, j, img;
             for (i = 0, j = imgs.length; i < j; i++) {
                 img = imgs[i];
@@ -284,10 +311,10 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
             }
         });
     };
-    $scope.removeImage = function (imgField, index) {
+    $scope.removeImage = function(imgField, index) {
         imgField.splice(index, 1);
     };
-    $scope.submit = function (event, nextAction) {
+    $scope.submit = function(event, nextAction) {
         if (!validate()) return;
         if (document.querySelectorAll('.ng-invalid-required').length) {
             $scope.errmsg = '请填写必填项';
@@ -298,7 +325,7 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
         deferred2 = $q.defer();
         promise2 = deferred2.promise;
         btnSubmit && btnSubmit.setAttribute('disabled', true);
-        var submitWhole = function () {
+        var submitWhole = function() {
             var url, d, d2, posted = angular.copy($scope.data);
             url = '/rest/app/enroll/submit?mpid=' + $scope.mpid + '&aid=' + $scope.aid;
             if (!$scope.isNew && $scope.params.enrollKey && $scope.params.enrollKey.length)
@@ -312,7 +339,7 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
                     }
                 }
             }
-            $http.post(url, posted).success(function (rsp) {
+            $http.post(url, posted).success(function(rsp) {
                 if (typeof rsp === 'string') {
                     $scope.errmsg = rsp;
                     btnSubmit && btnSubmit.removeAttribute('disabled');
@@ -332,11 +359,11 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
                     btnSubmit && btnSubmit.removeAttribute('disabled');
                     deferred2.resolve('ok');
                 }
-            }).error(function (content, httpCode) {
+            }).error(function(content, httpCode) {
                 if (httpCode === 401) {
                     var $el = $('#frmAuth');
                     if (content.indexOf('http') === 0) {
-                        window.onAuthSuccess = function () {
+                        window.onAuthSuccess = function() {
                             $el.hide();
                             btnSubmit && btnSubmit.removeAttribute('disabled');
                         };
@@ -353,11 +380,13 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
             });
         }
         if (window.wx !== undefined && modifiedImgFields.length) {
-            var i = 0, j = 0, imgField, img;
-            var nextWxImage = function () {
+            var i = 0,
+                j = 0,
+                imgField, img;
+            var nextWxImage = function() {
                 imgField = $scope.data[modifiedImgFields[i]];
                 img = imgField[j];
-                window.xxt.image.wxUpload($q.defer(), img).then(function (data) {
+                window.xxt.image.wxUpload($q.defer(), img).then(function(data) {
                     if (j < imgField.length - 1)
                         j++;
                     else if (i < modifiedImgFields.length - 1) {
@@ -376,40 +405,40 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
         }
         return promise2;
     };
-    $scope.gotoPage = function (event, page, ek, rid) {
+    $scope.gotoPage = function(event, page, ek, rid) {
         event.preventDefault();
         event.stopPropagation();
         var url = '/rest/app/enroll';
         url += '?mpid=' + $scope.mpid;
         url += '&aid=' + $scope.aid;
-        if (page !== 'form' || ek !== undefined) {
+        if (page !== 'form' || (ek !== undefined && ek !== null)) {
             if (ek === undefined && $scope.Record.current)
                 url += '&ek=' + $scope.Record.current.enroll_key;
-            else if (ek !== undefined && ek.length)
+            else if (ek && ek.length)
                 url += '&ek=' + ek;
         }
         rid !== undefined && (url += '&rid=' + rid);
         url += '&page=' + page;
         location.href = url;
     };
-    $scope.addRecord = function (event) {
+    $scope.addRecord = function(event) {
         $scope.gotoPage(event, 'form');
     };
-    $scope.editRecord = function (event) {
+    $scope.editRecord = function(event) {
         $scope.gotoPage(event, 'form', $scope.Record.current.enroll_key);
     };
-    $scope.likeRecord = function (event) {
+    $scope.likeRecord = function(event) {
         $scope.Record.like(event);
     };
     $scope.newRemark = '';
-    $scope.remarkRecord = function (event) {
+    $scope.remarkRecord = function(event) {
         if ($scope.Record.remark(event, $scope.newRemark))
             $scope.newRemark = '';
     };
-    $scope.openMatter = function (id, type) {
+    $scope.openMatter = function(id, type) {
         location.href = '/rest/mi/matter?mpid=' + $scope.mpid + '&id=' + id + '&type=' + type;
     };
-    $scope.$watch('requireRecordList', function (nv) {
+    $scope.$watch('requireRecordList', function(nv) {
         if (nv && nv.length) {
             if ($scope.Record)
                 $scope.Record.nextPage(nv);
@@ -417,16 +446,18 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
                 $scope.requireRecordList = nv;
         }
     });
-    $scope.$watch('pageName', function (nv) {
+    $scope.$watch('pageName', function(nv) {
         if (!nv) return;
         var url;
         url = '/rest/app/enroll/get';
         url += '?mpid=' + $scope.mpid;
         url += '&aid=' + $scope.aid;
+        url += '&rid=' + $scope.rid;
         url += '&page=' + nv;
         $location.search().ek && (url += '&ek=' + $location.search().ek);
-        $http.get(url).success(function (rsp) {
-            var params = rsp.data, sharelink, summary;
+        $http.get(url).success(function(rsp) {
+            var params = rsp.data,
+                sharelink, summary;
             /**
              * set share info
              */
@@ -455,10 +486,9 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
             params.record && params.record.data && params.record.data.member && (params.record.data.member = JSON.parse(params.record.data.member));
             $scope.User = params.user;
             $scope.Record = new Record($scope.mpid, $scope.aid, $scope.rid, params.record, $scope);
-            $scope.Round = new Round($scope.mpid, $scope.aid);
             $scope.Statistic = new Statistic($scope.mpid, $scope.aid, params.statdata);
             if ((params.page.name === 'form' || params.page.type === 'I') && params.record) {
-                $timeout(function () {
+                $timeout(function() {
                     var p, type, dataOfRecord, value;
                     dataOfRecord = $scope.Record.current.data;
                     for (p in dataOfRecord) {
@@ -468,7 +498,9 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
                             if (dataOfRecord[p] && dataOfRecord[p].length) {
                                 value = dataOfRecord[p].split(',');
                                 $scope.data[p] = [];
-                                for (var i in value) $scope.data[p].push({ imgSrc: value[i] });
+                                for (var i in value) $scope.data[p].push({
+                                    imgSrc: value[i]
+                                });
                             }
                         } else {
                             type = $('[name=' + p + ']').attr('type');
@@ -494,12 +526,12 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
         });
     });
 }]);
-formApp.filter('value2Label', ['Schema', function (Schema) {
+formApp.filter('value2Label', ['Schema', function(Schema) {
     var schemas;
-    (new Schema()).get().then(function (data) {
+    (new Schema()).get().then(function(data) {
         schemas = data;
     });
-    return function (val, key) {
+    return function(val, key) {
         var i, j, s, aVal, aLab = [];
         if (val === undefined) return '';
         for (i = 0, j = schemas.length; i < j; i++) {
@@ -519,29 +551,45 @@ formApp.filter('value2Label', ['Schema', function (Schema) {
         return val;
     };
 }]);
-formApp.directive('runningButton', function () {
+formApp.directive('runningButton', function() {
     return {
         restrict: 'EA',
         template: "<button ng-class=\"isRunning?'btn-default':'btn-primary'\" ng-disabled='isRunning' ng-transclude></button>",
-        scope: { isRunning: '=' },
+        scope: {
+            isRunning: '='
+        },
         replace: true,
         transclude: true
     }
 });
-formApp.directive('flexImg', function () {
+formApp.directive('flexImg', function() {
     return {
         restrict: 'A',
         replace: true,
         template: "<img src='{{img.imgSrc}}'>",
-        link: function (scope, elem, attrs) {
-            $(elem).on('load', function () {
-                var w = $(this).width(), h = $(this).height(), sw, sh;
+        link: function(scope, elem, attrs) {
+            $(elem).on('load', function() {
+                var w = $(this).width(),
+                    h = $(this).height(),
+                    sw, sh;
                 if (w > h) {
                     sw = w / h * 72;
-                    $(this).css({ 'height': '100%', 'width': sw + 'px', 'top': '0', 'left': '50%', 'margin-left': (-1 * sw / 2) + 'px' });
+                    $(this).css({
+                        'height': '100%',
+                        'width': sw + 'px',
+                        'top': '0',
+                        'left': '50%',
+                        'margin-left': (-1 * sw / 2) + 'px'
+                    });
                 } else {
                     sh = h / w * 72;
-                    $(this).css({ 'width': '100%', 'height': sh + 'px', 'left': '0', 'top': '50%', 'margin-top': (-1 * sh / 2) + 'px' });
+                    $(this).css({
+                        'width': '100%',
+                        'height': sh + 'px',
+                        'left': '0',
+                        'top': '50%',
+                        'margin-top': (-1 * sh / 2) + 'px'
+                    });
                 }
             })
         }

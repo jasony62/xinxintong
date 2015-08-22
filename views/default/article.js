@@ -142,9 +142,16 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function($lp)
                         eViewer.addEventListener('touchmove', function(e) {
                             e.preventDefault();
                         }, false);
-                        for (var i = 0, l = eImgs.length; i < l; i++) {
-                            eImgs[i].addEventListener('click', fnClickImg);
-                            aImgs.push(eImgs[i]);
+                        var img, i, l, indicator;
+                        for (i = 0, l = eImgs.length; i < l; i++) {
+                            img = eImgs[i];
+                            img.addEventListener('click', fnClickImg);
+                            indicator = document.createElement('i');
+                            indicator.classList.add('fa');
+                            indicator.classList.add('fa-search');
+                            img.parentNode.appendChild(indicator);
+                            img.parentNode.classList.add('wrap-img');
+                            aImgs.push(img);
                         }
                         window.addEventListener('resize', function() {
                             if (eViewer.style.display === 'block') {

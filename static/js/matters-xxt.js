@@ -104,7 +104,7 @@ xxtMatters.directive('tinymce', function ($timeout) {
                     statusbar: false,
                     plugins: ['textcolor code table paste fullscreen visualblocks'],
                     toolbar: 'fontsizeselect styleselect forecolor backcolor bullist numlist outdent indent table multipleimage fullscreen visualblocks code',
-                    content_css: '/static/css/bootstrap.min.css,/static/css/tinymce.css?v=5',
+                    content_css: '/static/css/bootstrap.min.css,/static/css/tinymce.css?v=6',
                     forced_root_block: 'p',
                     height: scope.height ? scope.height : 300,
                     valid_elements: "*[*]",
@@ -230,7 +230,7 @@ xxtMatters.directive('tinymce', function ($timeout) {
                                     dom = editor.dom;
                                     for (i in urls) {
                                         url = urls[i] + '?_=' + t,
-                                        data = { src: url, style: 'max-width:100%' },
+                                        data = { src: url},
                                         pElm = dom.add(selectedId, 'p');
                                         dom.add(pElm, 'img', data);
                                         if (isShowName === 'Y') {

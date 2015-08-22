@@ -69,7 +69,7 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function($lp)
                 var eViewer, hm, body;
                 eViewer = document.createElement('div');
                 eViewer.setAttribute('id', 'picViewer');
-                eViewer.innerHTML = "<span><i class='fa fa-times-circle-o'></i></span><img>";
+                eViewer.innerHTML = "<div><span class='page'></span><span class='prev'><i class='fa fa-angle-left'></i></span><span class='next'><i class='fa fa-angle-right'></i></span><span class='exit'><i class='fa fa-times-circle-o'></i></span></div><img>";
                 document.body.appendChild(eViewer);
                 body = document.querySelector('body');
                 hm = document.createElement("script");
@@ -78,23 +78,62 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function($lp)
                 hm = document.createElement("script");
                 hm.src = "/static/js/picViewer.js";
                 hm.onload = function() {
-                    var oPicViewer = PicViewer('#picViewer img', {});
-                    var clickImg = function(event) {
-                        event.preventDefault();
-                        var top = Math.max(document.documentElement.scrollTop, document.body.scrollTop);
-                        var height = document.documentElement.clientHeight;
-                        var src = this.src;
-                        document.body.style.overflow = 'hidden';
-                        eViewer.style.top = top + 'px';
-                        eViewer.style.height = height + 1 + 'px';
-                        eViewer.style.display = 'block';
-                        eViewer.querySelector('img').src = src;
-                        oPicViewer.fresh();
-                    };
-                    var supportPicviewer = function() {
-                        var eThumbs = document.querySelectorAll('.wrap img');
-                        var eCloser = document.querySelector('#picViewer span');
-
+                    var eImgs, aImgs, currentIndex, oPicViewer;
+                    aImgs = [];
+                    eImgs = document.querySelectorAll('.wrap img');
+                    oPicViewer = PicViewer('#picViewer img', {});
+                    (function() {
+                        var eCloser, ePage, ePrev, eNext, fnClickImg, fnSetActionStatus;
+                        ePage = document.querySelector('#picViewer span.page');
+                        ePrev = document.querySelector('#picViewer span.prev');
+                        eNext = document.querySelector('#picViewer span.next');
+                        eCloser = document.querySelector('#picViewer span.exit');
+                        fnClickImg = function(event) {
+                            var top, height, src;
+                            event.preventDefault();
+                            currentIndex = aImgs.indexOf(this);
+                            top = Math.max(document.documentElement.scrollTop, document.body.scrollTop);
+                            height = document.documentElement.clientHeight;
+                            src = this.src;
+                            document.body.style.overflow = 'hidden';
+                            eViewer.style.top = top + 'px';
+                            eViewer.style.height = height + 1 + 'px';
+                            eViewer.style.display = 'block';
+                            eViewer.querySelector('img').src = src;
+                            oPicViewer.fresh();
+                            fnSetActionStatus();
+                        };
+                        fnSetActionStatus = function() {
+                            if (currentIndex === 0) {
+                                ePrev.classList.add('hide');
+                                eNext.classList.remove('hide');
+                            } else if (currentIndex === aImgs.length - 1) {
+                                ePrev.classList.remove('hide');
+                                eNext.classList.add('hide');
+                            } else {
+                                ePrev.classList.remove('hide');
+                                eNext.classList.remove('hide');
+                            }
+                            ePage.innerHTML = currentIndex + 1 + '/' + aImgs.length;
+                        };
+                        ePrev.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            if (currentIndex > 0) {
+                                currentIndex--;
+                                eViewer.querySelector('img').src = aImgs[currentIndex].src;
+                                fnSetActionStatus();
+                            }
+                            return false;
+                        }, false);
+                        eNext.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            if (currentIndex < aImgs.length - 1) {
+                                currentIndex++;
+                                eViewer.querySelector('img').src = aImgs[currentIndex].src;
+                                fnSetActionStatus();
+                            }
+                            return false;
+                        }, false);
                         eCloser.addEventListener('click', function(e) {
                             eViewer.style.display = 'none';
                             document.body.style.overflow = 'auto';
@@ -103,8 +142,9 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function($lp)
                         eViewer.addEventListener('touchmove', function(e) {
                             e.preventDefault();
                         }, false);
-                        for (var i = 0, l = eThumbs.length; i < l; i++) {
-                            eThumbs[i].addEventListener('click', clickImg);
+                        for (var i = 0, l = eImgs.length; i < l; i++) {
+                            eImgs[i].addEventListener('click', fnClickImg);
+                            aImgs.push(eImgs[i]);
                         }
                         window.addEventListener('resize', function() {
                             if (eViewer.style.display === 'block') {
@@ -115,8 +155,7 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function($lp)
                                 oPicViewer.fresh();
                             }
                         });
-                    };
-                    supportPicviewer();
+                    })();
                 };
                 body.appendChild(hm);
             }

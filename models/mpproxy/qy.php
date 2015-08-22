@@ -213,7 +213,7 @@ class qy_model extends mpproxy_base {
 
 		$ticket = $rst[1];
 
-		$this->model()->update(
+		TMS_APP::model()->update(
 			'xxt_mpaccount',
 			array(
 				'wx_jsapi_ticket' => $ticket->ticket,

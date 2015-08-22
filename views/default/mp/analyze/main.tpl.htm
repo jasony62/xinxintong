@@ -3,17 +3,23 @@ $mpid = $_SESSION["mpid"];
 $panalyze = TMS_APP::model('mp\permission')->hasMpRight($mpid, 'analyze', 'read');
 if ($panalyze!==false&&($panalyze===true||$panalyze->read_p==='Y')) {
 ?>
-<div ng-controller='analyzeCtrl' ng-init="subView='mpaction'">
+<div ng-controller='analyzeCtrl'>
     <div class='navbar navbar-default'>
         <ul class='nav navbar-nav'>
-            <li ng-class="{'active':subView=='mpaction'}"><a href='javascript:void(0);' ng-click="subView='mpaction'">账号汇总</a></li>
+            <li ng-class="{'active':subView==='mp'}">
+                <a href='/page/mp/analyze/mp'>账号汇总</a>
+            </li>
             <?php if (!defined('SAE_TMP_PATH')) {?>
-            <li ng-class="{'active':subView=='useraction'}"><a href='javascript:void(0);' ng-click="subView='useraction'">用户行为</a></li>
-            <li ng-class="{'active':subView=='matteraction'}"><a href='javascript:void(0);' ng-click="subView='matteraction'">受访素材</a></li>
+            <li ng-class="{'active':subView==='user'}">
+                <a href='/page/mp/analyze/user'>用户行为</a>
+            </li>
+            <li ng-class="{'active':subView==='matter'}">
+                <a href='/page/mp/analyze/matter'>受访素材</a>
+            </li>
             <?php }?>
         </ul>
     </div>
-    <div ng-include="'/page/mp/analyze/'+subView"></div>
+    <div ng-view></div>
 </div>
 <?php } else {
 $contact = TMS_APP::model('mp\mpaccount')->getAdminContact($mpid);

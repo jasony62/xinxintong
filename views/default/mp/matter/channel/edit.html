@@ -123,7 +123,7 @@
                 </div>
             </div>
         </div>
-        <accesscontrol mpid='{{mpid}}' obj='editing' prop-acl='acl' prop-access='access_control' prop-apis='authapis' update-access-control="update('access_control')"
+        <accesscontrol mpid='{{mpaccount.mpid}}' obj='editing' prop-acl='acl' prop-access='access_control' prop-apis='authapis' update-access-control="update('access_control')"
         update-authapis="update('authapis')" change-acl-url='/rest/mp/matter/channel/setAcl?id={{editing.id}}' remove-acl-url='/rest/mp/matter/channel/removeAcl'
         label-span='2' control-span='10'></accesscontrol>
         <div class='alert alert-info'>

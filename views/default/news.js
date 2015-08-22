@@ -49,7 +49,7 @@ angular.module('xxt', []).config(['$locationProvider', function($locationProvide
                     setShare();
                 }
                 deferred.resolve();
-                $http.post('/rest/mi/matter/logAccess?mpid=' + mpid + '&id=' + newsId + '&type=news' + '&shareby=' + shareby, {
+                $http.post('/rest/mi/matter/logAccess?mpid=' + mpid + '&id=' + newsId + '&title=' + news.title + '&type=news' + '&shareby=' + shareby, {
                     search: location.search.replace('?', ''),
                     referer: document.referrer
                 });

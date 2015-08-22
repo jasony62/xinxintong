@@ -38,11 +38,11 @@
             </ul>
         </div>
         <script type="text/javascript">
-            if (/MicroMessenger/i.test(navigator.userAgent)) {
-                var mpid = location.search.match(/mpid=([^&]*)/)[1];
-                document.write("<script src='http:\/\/res.wx.qq.com\/open\/js\/jweixin-1.0.0.js'><\/script>");
-                document.write("<script src='\/rest\/mi\/matter\/wxjssdksignpackage?mpid="+mpid+"&url="+encodeURIComponent(location.href.split('#')[0])+"'><\/script>");
-            }
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+        var mpid = location.search.match(/mpid=([^&]*)/)[1];
+        document.write("<script src='http:\/\/res.wx.qq.com\/open\/js\/jweixin-1.0.0.js'><\/script>");
+        document.write("<script src='\/rest\/mi\/matter\/wxjssdksignpackage?mpid="+mpid+"&url="+encodeURIComponent(location.href.split('#')[0])+"'><\/script>");
+        }
         </script>
         <script src="/static/js/jquery.min.js"></script>
         <script src="/static/js/angular.min.js"></script>
@@ -50,11 +50,10 @@
         <script src="/static/js/xxt.share.js?_=1"></script>
         <script src="/views/default/channel.js?_=2"></script>
         <script type="text/javascript">
-            if (document.location.host === 'xinxintong.sinaapp.com') { 
-                var _bdhmProtocol = (("https:" == document.location.protocol) ? "https://" : "http://"); 
-                document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F40ec59c933400d729f57930675635edb' type='text/javascript'%3E%3C/script%3E")); 
-            }
+        if (document.location.host === 'xinxintong.sinaapp.com') {
+        var _bdhmProtocol = (("https:" == document.location.protocol) ? "https://" : "http://");
+        document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F40ec59c933400d729f57930675635edb' type='text/javascript'%3E%3C/script%3E"));
+        }
         </script>
     </body>
-
 </html>

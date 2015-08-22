@@ -47,6 +47,7 @@ angular.module('xxt', ['infinite-scroll']).config(['$locationProvider', function
             this.nextPage();
         },
         nextPage: function() {
+            //if ($scope.channel === undefined) return;
             if (this.end) return;
             var url, _this = this;
             this.busy = true;

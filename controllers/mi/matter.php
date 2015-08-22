@@ -271,6 +271,8 @@ class matter extends \member_base {
 
 		}
 
+		header('Access-Control-Allow-Origin:*');
+
 		return new \ResponseData($matters);
 	}
 	/**

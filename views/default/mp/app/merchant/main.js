@@ -1,21 +1,22 @@
-xxtApp.controller('shopCtrl', ['$scope', 'http2', function ($scope, http2) {
+xxtApp.controller('shopCtrl', ['$scope', 'http2', function($scope, http2) {
     $scope.subView = 'catelog';
-    $scope.doSearch = function () {
-        var url = '/rest/mp/app/merchant/get', params = {};
+    $scope.doSearch = function() {
+        var url = '/rest/mp/app/merchant/shop/list',
+            params = {};
         $scope.fromParent && $scope.fromParent === 'Y' && (params.src = 'p');
-        http2.post(url, params, function (rsp) {
+        http2.post(url, params, function(rsp) {
             $scope.shops = rsp.data;
         });
     };
-    $scope.open = function (shop) {
-        location.href = '/rest/mp/app/merchant?shopId=' + shop.id;
+    $scope.open = function(shop) {
+        location.href = '/rest/mp/app/merchant/shop?shopId=' + shop.id;
     };
-    $scope.create = function () {
-        http2.get('/rest/mp/app/merchant/shopCreate', function (rsp) {
-            location.href = '/rest/mp/app/merchant?shopId=' + rsp.data;
+    $scope.create = function() {
+        http2.get('/rest/mp/app/merchant/shop/create', function(rsp) {
+            location.href = '/rest/mp/app/merchant/shop?shopId=' + rsp.data;
         });
     };
-    http2.get('/rest/mp/mpaccount/get', function (rsp) {
+    http2.get('/rest/mp/mpaccount/get', function(rsp) {
         $scope.mpa = rsp.data;
         $scope.hasParentMp = $scope.mpa.parent_mpid && $scope.mpa.parent_mpid.length ? "Y" : "N";
     });

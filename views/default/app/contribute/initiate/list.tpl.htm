@@ -6,6 +6,7 @@
                 <div class="container-fluid">
                     <ul class='nav navbar-nav navbar-right'>
                         <button class='btn btn-success navbar-btn' ng-click='create()'>新建</button>
+                        <button class='btn btn-success navbar-btn' ng-click='upload()'>上传</button>
                     </ul>
                 </div>
             </nav>
@@ -80,4 +81,18 @@
         </div>
         <iframe></iframe>
     </div>
+    <script type="text/ng-template" id="uploadArticle.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title">上传</h5>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <input id='fileUpload' type='file' class='form-control'>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-success" ng-click="ok()"><i ng-class="{'fa fa-spinner fa-spin':uploading}"></i>&nbsp;确定&nbsp;</button>
+        </div>
+    </script>
 </div>

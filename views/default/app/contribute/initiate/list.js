@@ -31,7 +31,7 @@ xxtApp.controller('initiateCtrl', ['$scope', '$location', 'http2', '$modal', 'Ar
     $scope.upload = function() {
         $modal.open({
             templateUrl: 'uploadArticle.html',
-            controller: ['$scope', '$modalInstance', 'mpid', function($scope, $mi, mpid) {
+            controller: ['$scope', '$modalInstance', 'mpid', 'entry', function($scope, $mi, mpid, entry) {
                 $scope.cancel = function() {
                     $mi.dismiss();
                 };
@@ -62,7 +62,7 @@ xxtApp.controller('initiateCtrl', ['$scope', '$location', 'http2', '$modal', 'Ar
                                 lastModified: lastModified
                             }
                         };
-                        http2.post('/rest/app/contribute/initiate/articleUpload?state=done&mpid=' + mpid, posted, function(rsp) {
+                        http2.post('/rest/app/contribute/initiate/articleUpload?state=done&mpid=' + mpid + '&entry=' + entry, posted, function(rsp) {
                             $scope.uploading = false;
                             $mi.close(rsp.data);
                         });
@@ -73,6 +73,9 @@ xxtApp.controller('initiateCtrl', ['$scope', '$location', 'http2', '$modal', 'Ar
             resolve: {
                 mpid: function() {
                     return $scope.mpid;
+                },
+                entry: function() {
+                    return $scope.entry;
                 }
             },
             backdrop: 'static',

@@ -226,6 +226,9 @@ class initiate extends base {
 		$article['creater_name'] = $fan->nickname;
 		$article['creater_src'] = 'M';
 		$article['create_at'] = $current;
+		$article['modifier'] = $this->user->mid;
+		$article['modifier_name'] = $fan->nickname;
+		$article['modifier_src'] = 'M';
 		$article['modify_at'] = $current;
 		$article['title'] = '新文稿';
 		$article['pic'] = $mpa->heading_pic;
@@ -293,7 +296,7 @@ class initiate extends base {
 	/**
 	 * 上传文件并创建图文
 	 */
-	public function articleUpload_action($mpid, $state = null) {
+	public function articleUpload_action($mpid, $entry = null, $state = null) {
 		if ($state === 'done') {
 			$fan = $this->model('user/fans')->byId($this->user->fid, 'nickname');
 
@@ -308,12 +311,13 @@ class initiate extends base {
 
 			$d = array();
 			$d['mpid'] = $mpid;
+			$d['entry'] = $entry;
 			$d['creater'] = $this->user->mid;
 			$d['creater_name'] = $fan->nickname;
 			$d['creater_src'] = 'M';
 			$d['create_at'] = $current;
 			$d['modifier'] = $this->user->mid;
-			$d['modifier_src'] = 'A';
+			$d['modifier_src'] = 'M';
 			$d['modifier_name'] = $fan->nickname;
 			$d['modify_at'] = $current;
 			$d['title'] = substr($filename, 0, strrpos($filename, '.'));
@@ -325,8 +329,22 @@ class initiate extends base {
 			$d['pic'] = '';
 			$d['summary'] = '';
 			$d['body'] = '';
+			$d['finished'] = 'N';
+			$d['approved'] = 'N';
+			$d['public_visible'] = 'Y';
+			$d['remark_notice'] = 'Y';
 
 			$id = $this->model()->insert('xxt_article', $d, true);
+			/**
+			 * 设置频道
+			 */
+			list($entryType, $entryId) = explode(',', $entry);
+			$entry = $this->model('matter\\' . $entryType)->byId($entryId, 'params');
+			$params = json_decode($entry->params);
+			if (!empty($params->channel)) {
+				$channelId = $params->channel;
+				$this->model('matter\channel')->addMatter($channelId, array('id' => $id, 'type' => 'article'), $this->user->mid, $fan->nickname, 'M');
+			}
 			/**
 			 * 保存附件
 			 */

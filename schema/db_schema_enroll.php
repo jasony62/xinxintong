@@ -11,12 +11,12 @@ $sql .= ",creater_name varchar(255) not null default ''"; //from account or fans
 $sql .= ",creater_src char(1)"; //A:accouont|F:fans
 $sql .= ",create_at int not null";
 $sql .= ",public_visible char(1) not null default 'N'";
-$sql .= ",shift2pc char(1) not null default 'N'"; // 
+$sql .= ",shift2pc char(1) not null default 'N'"; //
 $sql .= ",can_taskcode char(1) not null default 'N'";
 $sql .= ',state tinyint not null default 1'; //0:stop,1:normal
 $sql .= ",title varchar(255) not null default ''";
-$sql .= ',pic text'; // 分享或生成链接时的图片 
-$sql .= ',summary varchar(240) not null'; // 分享或生成链接时的摘要
+$sql .= ',pic text'; // 分享或生成链接时的图片
+$sql .= ",summary varchar(240) not null default ''"; // 分享或生成链接时的摘要
 $sql .= ",start_at int not null default 0"; // 开始时间
 $sql .= ",before_start_page varchar(20) not null default ''";
 $sql .= ",end_at int not null default 0"; // 结束时间
@@ -29,15 +29,15 @@ $sql .= ',success_matter_id varchar(128)';
 $sql .= ',failure_matter_type varchar(14)';
 $sql .= ',failure_matter_id varchar(128)';
 $sql .= ",enrolled_entry_page varchar(20) not null default ''";
-$sql .= ",receiver_page varchar(20) not null";
-$sql .= ",remark_notice_page varchar(20) not null";
+$sql .= ",receiver_page varchar(20) not null default ''";
+$sql .= ",remark_notice_page varchar(20) not null default ''";
 $sql .= ',form_code_id int not null default 0'; // 表单页
 $sql .= ",open_lastroll char(1) not null default 'Y'"; // 打开最后一条登记记录，还是编辑新的
 $sql .= ",multi_rounds char(1) not null default 'Y'"; // 支持轮次
 $sql .= ",can_like_record char(1) not null default 'N'"; // 支持对登记记录点赞
 $sql .= ",can_remark_record char(1) not null default 'N'"; // 支持对登记记录评论
 $sql .= ",can_signin char(1) not null default 'N'"; // 是否支持签到
-$sql .= ",can_lottery char(1) not null default 'N'"; // 是否支持抽奖 
+$sql .= ",can_lottery char(1) not null default 'N'"; // 是否支持抽奖
 $sql .= ",remark_notice char(1) not null default 'N'";
 $sql .= ",tags text";
 $sql .= ",read_num int not null default 0"; // 阅读数
@@ -45,8 +45,8 @@ $sql .= ",share_friend_num int not null default 0"; // 分享给好友数
 $sql .= ",share_timeline_num int not null default 0"; // 分享朋友圈数
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 /**
  * 活动页面
@@ -60,13 +60,13 @@ $sql .= ",create_at int not null";
 $sql .= ",type char(1) not null default 'V'"; //I:input,V:view
 $sql .= ",title varchar(70) not null default ''";
 $sql .= ",name varchar(20) not null default ''";
-$sql .= ',code_id int not null default 0'; // from xxt_code_page 
+$sql .= ',code_id int not null default 0'; // from xxt_code_page
 $sql .= ",share_page char(1) default 'N'"; // 分享时分享当前页还是分享活动，缺省分享活动
 $sql .= ",share_summary varchar(240)"; // 分享时的摘要字段
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 /**
  * 活动轮次
@@ -78,44 +78,44 @@ $sql .= ',aid varchar(40) not null';
 $sql .= ',mpid varchar(32) not null';
 $sql .= ",creater varchar(40) not null default ''";
 $sql .= ",create_at int not null";
-$sql .= ",start_at int not null"; // 轮次开始时间 
+$sql .= ",start_at int not null"; // 轮次开始时间
 $sql .= ",end_at int not null"; // 轮次结束时间
 $sql .= ",title varchar(70) not null default ''"; // 分享或生成链接时的标题
 $sql .= ',summary varchar(240)'; // 分享或生成链接时的摘要
 $sql .= ",state tinyint not null default 0"; // 0:新建|1:启用|2:停用
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 登记信息通知接收人 
+ * 登记信息通知接收人
  */
 $sql = "create table if not exists xxt_enroll_receiver(";
 $sql .= 'id int not null auto_increment';
 $sql .= ',mpid varchar(32) not null';
 $sql .= ',aid varchar(40) not null';
-$sql .= ',identity varchar(100) not null'; 
-$sql .= ",idsrc char(2) not null default ''"; 
+$sql .= ',identity varchar(100) not null';
+$sql .= ",idsrc char(2) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 /**
  * 活动登记评分
- * enroll_key mpid+uniqid+name 
+ * enroll_key mpid+uniqid+name
  */
 $sql = 'create table if not exists xxt_enroll_record(';
 $sql .= 'id int not null auto_increment';
 $sql .= ',aid varchar(40) not null';
 $sql .= ',mpid varchar(32) not null';
-$sql .= ',rid varchar(13) not null';
+$sql .= ",rid varchar(13) not null default ''";
 $sql .= ",openid varchar(255) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",enroll_at int not null"; // 填写报名信息时间
-$sql .= ",signin_at int not null"; // 签到时间
+$sql .= ",signin_at int not null default 0"; // 签到时间
 $sql .= ",tags text";
 $sql .= ",comment text";
 $sql .= ',vid varchar(32)';
@@ -124,11 +124,11 @@ $sql .= ',score int not null default 0'; // 点赞数
 $sql .= ",remark_num int not null default 0"; // 评论数
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 活动登记评分 
+ * 活动登记评分
  */
 $sql = "create table if not exists xxt_enroll_record_score(";
 $sql .= 'id int not null auto_increment';
@@ -138,8 +138,8 @@ $sql .= ',create_at int not null';
 $sql .= ',score int not null default 0';
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 /**
  * 活动登记评
@@ -152,8 +152,8 @@ $sql .= ',create_at int';
 $sql .= ',remark text';
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 /**
  * 活动报名自定义信息
@@ -165,8 +165,8 @@ $sql .= ',name varchar(40) not null';
 $sql .= ',value text';
 $sql .= ',primary key(aid,enroll_key,name)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 /*
  * 通用活动抽奖轮次
@@ -181,8 +181,8 @@ $sql .= ",times int not null"; // 抽奖次数
 $sql .= ",targets text";
 $sql .= ',primary key(aid,round_id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 /*
  * 通用活动抽奖结果
@@ -195,8 +195,8 @@ $sql .= ",draw_at int not null";
 $sql .= ",openid varchar(255) not null default ''";
 $sql .= ',primary key(aid,round_id,enroll_key)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 
-echo 'finish enroll.'.PHP_EOL;
+echo 'finish enroll.' . PHP_EOL;

@@ -495,15 +495,19 @@ class member_base extends xxt_base {
 	 */
 	public function wxjssdksignpackage_action($mpid, $url) {
 		$mpa = $this->model('mp\mpaccount')->byId($mpid);
-		$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $mpid);
 
-		$rst = $mpproxy->getJssdkSignPackage(urldecode($url));
+		if (($mpa->mpsrc === 'wx' && $mpa->wx_joined === 'Y') || ($mpa->mpsrc === 'qy' && $mpa->qy_joined === 'Y')) {
+			$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $mpid);
 
-		header('Content-Type: text/javascript');
-		if ($rst[0] === false) {
-			die("alert('{$rst[1]}');");
+			$rst = $mpproxy->getJssdkSignPackage(urldecode($url));
+
+			header('Content-Type: text/javascript');
+			if ($rst[0] === false) {
+				die("alert('{$rst[1]}');");
+			}
+			die($rst[1]);
+		} else {
+			die('');
 		}
-
-		die($rst[1]);
 	}
 }

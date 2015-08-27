@@ -186,7 +186,7 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
         window.shareCounter++;
         window.onshare && window.onshare(window.shareCounter);
     };
-    if (/MicroMessenger/i.test(navigator.userAgent)) {
+    if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage !== undefined) {
         signPackage.jsApiList = ['hideOptionMenu', 'showOptionMenu', 'closeWindow', 'chooseImage', 'uploadImage', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'getLocation'];
         signPackage.debug = false;
         wx.config(signPackage);
@@ -321,10 +321,10 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
         console.log('progress', r.progress());
         var phase = $scope.$root.$$phase;
         if (phase === '$digest' || phase === '$apply') {
-            $scope.progressOfUploadFile = Math.ceil(r.progress()*100);
+            $scope.progressOfUploadFile = Math.ceil(r.progress() * 100);
         } else {
             $scope.$apply(function() {
-                $scope.progressOfUploadFile = Math.ceil(r.progress()*100);
+                $scope.progressOfUploadFile = Math.ceil(r.progress() * 100);
             });
         }
     });

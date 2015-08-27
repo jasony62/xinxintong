@@ -8,16 +8,16 @@ $sql .= 'id int not null auto_increment';
 $sql .= ',creater varchar(40) not null';
 $sql .= ',create_at int not null';
 $sql .= ',modify_at int not null';
-$sql .= ',title varchar(255) not null';
-$sql .= ',summary varchar(240) not null';
+$sql .= ",title varchar(255) not null default ''";
+$sql .= ",summary varchar(240) not null default ''";
 $sql .= ',html text';
 $sql .= ',css text';
 $sql .= ',js text';
 $sql .= ',primary key(id)';
 $sql .= ') ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 /*
  * external resources.
@@ -30,8 +30,8 @@ $sql .= ',url text not null';
 $sql .= ',primary key(id)';
 $sql .= ') ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 
-echo 'finish code.'.PHP_EOL;
+echo 'finish code.' . PHP_EOL;

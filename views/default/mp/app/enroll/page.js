@@ -146,6 +146,17 @@
                         };
                     }
                     break;
+                case 'file':
+                    title = schema.match(/title=\".*?\"/).pop().replace('title=', '').replace(/\"/g, '');
+                    if (modelId = schema.match(/ng-repeat=\"file in data\.(.+?)\"/)) {
+                        modelId = modelId.pop().replace(/ng-repeat=\"file in data\./, '').replace(/\"/g, '');
+                        defs[modelId] = {
+                            id: modelId,
+                            title: title,
+                            type: 'file'
+                        };
+                    }
+                    break;
             }
         }
         return defs;
@@ -247,6 +258,17 @@
                 html += '</li>';
                 html += '<li class="img-picker">';
                 html += '<button class="btn btn-default" ng-click="chooseImage(\'' + key + '\',' + def.count + ')"><span class="glyphicon glyphicon-picture"></span><br>上传图片</button>';
+                html += '</li>';
+                html += '</ul>';
+                break;
+            case 'file':
+                html += '<ul class="list-group" name="' + key + '">';
+                html += '<li class="list-group-item" ng-show="progressOfUploadFile"><div class="progressOfUploadFile" ng-bind="progressOfUploadFile"></li>';
+                html += '<li wrap="file" ng-repeat="file in data.' + key + '" class="list-group-item" title="' + def.name + '">';
+                html += '<span class="file-name" ng-bind="file.name"></span>';
+                html += '</li>';
+                html += '<li class="list-group-item file-picker">';
+                html += '<button class="btn btn-success" ng-click="chooseFile(\'' + key + '\',' + def.count + ')">' + def.name + '</button>';
                 html += '</li>';
                 html += '</ul>';
                 break;

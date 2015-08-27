@@ -328,9 +328,10 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
             });
         }
     });
-    $scope.chooseFile = function(fileFieldName) {
+    $scope.chooseFile = function(fileFieldName, accept) {
         var ele = document.createElement('input');
         ele.setAttribute('type', 'file');
+        accept !== undefined && ele.setAttribute('accept', accept);
         ele.addEventListener('change', function(evt) {
             var i, cnt, f;
             cnt = evt.target.files.length;

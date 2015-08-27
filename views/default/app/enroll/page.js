@@ -363,8 +363,8 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
         if (r.files && r.files.length) {
             r.on('complete', function() {
                 console.log('resumable complete.');
-                //r.files = [];
-                //$scope.submit(event, nextAction);
+                r.files = [];
+                $scope.submit(event, nextAction);
             });
             r.upload();
             return;

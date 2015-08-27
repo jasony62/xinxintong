@@ -305,8 +305,14 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
             var i, j, img;
             for (i = 0, j = imgs.length; i < j; i++) {
                 img = imgs[i];
-                $scope.data[imgFieldName].push(img);
-                $scope.$apply('data.' + imgFieldName);
+                var phase = $scope.$root.$$phase;
+                if (phase === '$digest' || phase === '$apply') {
+                    $scope.data[imgFieldName].push(img);
+                } else {
+                    $scope.$apply(function() {
+                        $scope.data[imgFieldName].push(img);
+                    });
+                }
                 (window.wx !== undefined) && $('ul[name="' + imgFieldName + '"] li:nth-last-child(2) img').attr('src', img.imgSrc);
             }
         });

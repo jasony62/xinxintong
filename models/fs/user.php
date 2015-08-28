@@ -30,7 +30,7 @@ class local_fs {
 		$handle = fopen($storeAt, "w");
 		fwrite($handle, $content);
 		fclose($handle);
-		false === chmod($storeAt, '644') && die('chmod failed');
+		false === chmod($storeAt, 0755) && die('chmod failed');
 
 		return '/' . $storeAt;
 	}

@@ -61,9 +61,12 @@
                     </td>
                     <td ng-repeat="c in cols">
                         <span ng-if="c.id.indexOf('member')===0">{{r.data.member[c.id.split('.')[1]]}}</span>
-                        <span ng-if="c.type!=='img'">{{value2Label(r.data[c.id], c.id)}}</span>
+                        <span ng-if="c.type!=='img'&&c.type!=='file'">{{value2Label(r.data[c.id], c.id)}}</span>
                         <span ng-if="c.type==='img'" ng-init="imgs=r.data[c.id].split(',')">
                             <img ng-repeat="img in imgs" ng-src='{{img}}' />
+                        </span>
+                        <span ng-if="c.type==='file'" ng-init="files=json2Obj(r.data[c.id])">
+                            <span ng-repeat='file in files'>{{file.name}}</span>
                         </span>
                     </td>
                     <td ng-if="editing.can_signin==='Y'">{{r.signin_at>0 ? ((r.signin_at*1000)|date:'yyyy-MM-dd HH:mm') : ''}}</td>
@@ -120,9 +123,12 @@
                 <div class="form-group" ng-repeat="c in cols" ng-if="c.id.indexOf('member')!==0">
                     <label class="col-md-2 control-label">{{c.title}}</label>
                     <div class="col-md-10">
-                        <input type='text' class='form-control' ng-if="c.type!=='img'" ng-model="item.data[c.id]">
+                        <input type='text' class='form-control' ng-if="c.type!=='img'&&c.type!=='file'" ng-model="item.data[c.id]">
                         <span ng-if="c.type==='img'" ng-init="imgs=item.data[c.id].split(',')">
                             <img ng-repeat="img in imgs" ng-src='{{img}}' />
+                        </span>
+                        <span ng-if="c.type==='file'" ng-init="files=json2Obj(item.data[c.id])">
+                            <video ng-repeat="file in files" style="width: 100%;" controls="controls"><source ng-src="{{file.url}}" type="{{file.type}}" /></video>
                         </span>
                     </div>
                 </div>

@@ -123,6 +123,10 @@
             }
             return val;
         };
+        $scope.json2Obj = function (json) {
+            obj = JSON.parse(json);
+            return obj;
+        };
         $scope.editRecord = function (rollItem) {
             $modal.open({
                 templateUrl: 'editor.html',
@@ -266,6 +270,10 @@
         $scope.item.aTags = (!rollItem.tags || rollItem.tags.length === 0) ? [] : rollItem.tags.split(',');
         $scope.aTags = tags;
         $scope.cols = cols;
+        $scope.json2Obj = function (json) {
+            obj = JSON.parse(json);
+            return obj;
+        };
         $scope.signin = function () {
             $scope.item.signin_at = Math.round((new Date()).getTime() / 1000);
         };

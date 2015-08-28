@@ -343,7 +343,6 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
             cnt = evt.target.files.length;
             for (i = 0; i < cnt; i++) {
                 f = evt.target.files[i];
-                console.log('file', f);
                 r.addFile(f);
                 $scope.data[fileFieldName] === undefined && ($scope.data[fileFieldName] = []);
                 $scope.data[fileFieldName].push({

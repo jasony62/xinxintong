@@ -95,7 +95,6 @@ class record extends base {
 			);
 			/* 重新插入新提交的数据 */
 			$rst = \TMS_APP::M('app\enroll\record')->setData($user, $mpid, $aid, $ek, $posted);
-			//$rst = $model->setRollData($mpid, $aid, $ek, $posted, false);
 		}
 		if (false === $rst[0]) {
 			return new ResponseError($rst[1]);
@@ -178,6 +177,7 @@ class record extends base {
 		$dest = $user->vid . '_' . $_POST['resumableIdentifier'];
 		$resumable = \TMS_APP::M('fs/resumable', $mpid, $dest, $modelFs);
 		$resumable->handleRequest($_FILES, $_POST);
-		exit;
+
+		return new \ResponseData('ok');
 	}
 }

@@ -253,7 +253,9 @@ class record_model extends \TMS_MODEL {
 						$fileUploaded = $modelFs->rootDir . '/' . $user->vid . '_' . $file->uniqueIdentifier;
 						!file_exists($modelFs2->rootDir . '/' . $user->vid) && mkdir($modelFs2->rootDir . '/' . $user->vid, 0777, true);
 						$fileUploaded2 = $modelFs2->rootDir . '/' . $user->vid . '/' . $file->name;
-						rename($fileUploaded, $fileUploaded2);
+						if (false === rename($fileUploaded, $fileUploaded2)) {
+							return array(false, '移动上传文件失败');
+						}
 						unset($file->uniqueIdentifier);
 						$file->url = $fileUploaded2;
 						$vv[] = $file;

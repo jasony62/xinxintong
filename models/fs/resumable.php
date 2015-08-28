@@ -61,7 +61,7 @@ class resumable_model {
 	 * @param string $chunkSize - each chunk size (in bytes)
 	 * @param string $totalSize - original file size (in bytes)
 	 */
-	private function createFileFromChunks($chunkDir, $fileName, $chunkSize, $totalSize) {
+	private function createFileFromChunks($chunkDir, $fileName, $chunkTotal) {
 		// count all the parts of this file
 		$uploadedNumber = 0;
 		foreach (scandir($chunkDir) as $file) {
@@ -71,7 +71,7 @@ class resumable_model {
 		}
 		// check that all the parts are present
 		// the size of the last part is between chunkSize and 2*$chunkSize
-		if ($uploadedNumber * $chunkSize >= ($totalSize - $chunkSize + 1)) {
+		if ($uploadedNumber == $chunkTotal) {
 			// create the final destination file
 			if (($fp = fopen($this->modelFs->rootDir . '/' . $this->dest, 'w')) !== false) {
 				for ($i = 1; $i <= $uploadedNumber; $i++) {
@@ -98,24 +98,18 @@ class resumable_model {
 	 * 处理分段上传的请求
 	 */
 	public function handleRequest($files, $resumabled) {
+		$chunkNumber = $resumabled['resumableChunkNumber'];
 		$filename = str_replace(' ', '_', $resumabled['resumableFilename']);
-		foreach ($files as $file) {
-			// check the error status
-			if ($file['error'] != 0) {
-				$this->_log('error ' . $file['error'] . ' in file ' . $filename);
-				continue;
-			}
-			// init the destination file (format <filename.ext>.part<#chunk>
-			// the file is stored in a temporary directory
-			$chunkDir = $resumabled['resumableIdentifier'] . '_part';
-			$chunkFile = $filename . '.part' . $resumabled['resumableChunkNumber'];
-			if (!$this->modelFs->upload($file['tmp_name'], $chunkFile, $chunkDir)) {
-				$this->_log('Error saving chunk ' . $resumabled['resumableChunkNumber'] . ' for file ' . $filename);
-			} else {
-				// check if all the parts present, and create the final destination file
-				$absChunkDir = $this->modelFs->rootDir . '/' . $chunkDir;
-				$this->createFileFromChunks($absChunkDir, $filename, $resumabled['resumableChunkSize'], $resumabled['resumableTotalSize']);
-			}
+		$chunkDir = $resumabled['resumableIdentifier'] . '_part';
+		$chunkFile = \TMS_MODEL::toLocalEncoding($filename) . '.part' . $chunkNumber;
+		$content = base64_decode(preg_replace('/data:(.*?)base64\,/', '', $resumabled['resumableChunkContent']));
+		$ret = $this->modelFs->write($chunkDir . '/' . $chunkFile, $content);
+		if (false === $ret) {
+			$this->_log('Error saving chunk ' . $chunkNumber . ' for file ' . $filename);
+		} else {
+			// check if all the parts present, and create the final destination file
+			$absChunkDir = $this->modelFs->rootDir . '/' . $chunkDir;
+			$this->createFileFromChunks($absChunkDir, $filename, $resumabled['resumableTotalChunks']);
 		}
 	}
 }

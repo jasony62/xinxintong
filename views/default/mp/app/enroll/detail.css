@@ -1,14 +1,16 @@
 .qrcode .popover img{width:150px;height:150px}
-.modal.mattersgallery .modal-dialog .modal-content .modal-body{overflow: auto}
-.roll td img {max-width:64px;max-height:64px}
-.roll-editor img{max-width: 100%}
-.editor {position:relative}
-.editor .mce-tinymce{margin-right:48px !important}
+.modal.mattersgallery .modal-dialog .modal-content .modal-body{overflow:auto}
+.roll td img{max-width:64px;max-height:64px}
+.roll-editor img{max-width:100%}
+.editor{position:relative}
+.editor .mce-tinymce{margin-right:48px!important}
 .editor .sidebar{width:44px;background:transparent;position:absolute;top:34px;right:0}
-.editor .sidebar button{color:black;border-radius: 0;margin-bottom:-1px}
+.editor .sidebar button{color:black;border-radius:0;margin-bottom:-1px}
 .editor .sidebar button:disabled{color:grey}
+
 /*records*/
-#records {width: 100%;overflow: auto;}
-#records .table{max-width: none;min-width: none;table-layout: fixed;}
-#records .table th{text-align: center;}
-#records .table th.custom-col{width: 140px;}
+#records{width:100%;overflow:auto;}
+#records .table{max-width:none;min-width:none;table-layout:fixed;}
+#records .table th{text-align:center;}
+#records .table th.custom-col{width:140px;}
+#records .table .a{word-break:break-all;}

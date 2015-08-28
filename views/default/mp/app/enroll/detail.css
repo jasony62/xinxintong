@@ -13,4 +13,4 @@
 #records .table{max-width:none;min-width:none;table-layout:fixed;}
 #records .table th{text-align:center;}
 #records .table th.custom-col{width:140px;}
-#records .table .a{word-break:break-all;}
+#records .table a{word-break:break-all;}

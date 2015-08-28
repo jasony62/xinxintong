@@ -66,7 +66,7 @@
                             <img ng-repeat="img in imgs" ng-src='{{img}}' />
                         </span>
                         <span ng-if="c.type==='file'" ng-init="files=json2Obj(r.data[c.id])">
-                            <span ng-repeat='file in files'>{{file.name}}</span>
+                            <span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                         </span>
                     </td>
                     <td ng-if="editing.can_signin==='Y'">{{r.signin_at>0 ? ((r.signin_at*1000)|date:'yyyy-MM-dd HH:mm') : ''}}</td>

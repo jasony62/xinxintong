@@ -119,42 +119,42 @@
             <h5 class="modal-title">登记记录</h5>
         </div>
         <div class="modal-body">
-            <form class="form-horizontal roll-editor">
+            <form class="form-horizontal record-editor">
+                <div class="form-group" ng-if='record.enroll_at'>
+                    <label class="col-md-2 control-label">登记时间</label>
+                    <div class="col-md-10">
+                        <p class="form-control-static">{{record.enroll_at*1000|date:'yyyy-MM-dd hh:mm'}}</p>
+                    </div>
+                </div>
                 <div class="form-group" ng-repeat="c in cols" ng-if="c.id.indexOf('member')!==0">
                     <label class="col-md-2 control-label">{{c.title}}</label>
                     <div class="col-md-10">
-                        <input type='text' class='form-control' ng-if="c.type!=='img'&&c.type!=='file'" ng-model="item.data[c.id]">
-                        <span ng-if="c.type==='img'" ng-init="imgs=item.data[c.id].split(',')">
-                            <img ng-repeat="img in imgs" ng-src='{{img}}' />
+                        <input type='text' class='form-control' ng-if="c.type!=='img'&&c.type!=='file'" ng-model="record.data[c.id]">
+                        <span ng-if="c.type==='img'" ng-init="imgs=record.data[c.id].split(',')">
+                            <img ng-repeat="img in imgs" ng-src='{{img}}' style="width:100%"/>
                         </span>
-                        <span ng-if="c.type==='file'" ng-init="files=json2Obj(item.data[c.id])">
-                            <video ng-repeat="file in files" style="width: 100%;" controls="controls"><source ng-src="{{file.url}}" type="{{file.type}}" /></video>
+                        <span ng-if="c.type==='file'" ng-init="files=json2Obj(record.data[c.id])">
+                            <video ng-repeat="file in files" style="width:100%;" controls="controls"><source ng-src="{{file.url}}" type="{{file.type}}" /></video>
                         </span>
                     </div>
                 </div>
-                <div class="form-group" ng-if='item.enroll_at'>
-                    <label class="col-md-2 control-label">登记时间</label>
-                    <div class="col-md-10">
-                        <p class="form-control-static">{{item.enroll_at*1000|date:'yyyy-MM-dd hh:mm'}}</p>
-                    </div>
-                </div>
-                <div class="form-group" ng-if='item.enroll_at'>
+                <div class="form-group" ng-if="enroll.can_signin==='Y'&&record.enroll_at">
                     <label class="col-md-2 control-label">签到时间</label>
                     <div class="col-md-10">
-                        <p class="form-control-static" ng-if='item.signin_at>0'>{{item.signin_at*1000|date:'yyyy-MM-dd hh:mm'}}</p>
-                        <button class="btn btn-primary" ng-if='item.signin_at==0' ng-click="signin()">签到</button>
+                        <p class="form-control-static" ng-if='record.signin_at>0'>{{record.signin_at*1000|date:'yyyy-MM-dd hh:mm'}}</p>
+                        <button class="btn btn-primary" ng-if='record.signin_at==0' ng-click="signin()">签到</button>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-md-2 control-label">活动标签</label>
                     <div class="col-md-10">
-                        <combox evt-prefix='tag' existing='item.aTags' options='aTags'></combox>
+                        <combox evt-prefix='tag' existing='record.aTags' options='aTags'></combox>
                     </div>
                 </div>
                 <div class="form-group" style='display:none'>
                     <label class="col-md-2 control-label">备注</label>
                     <div class="col-md-10">
-                        <textarea class='form-control' ng-model='item.comment'></textarea>
+                        <textarea class='form-control' ng-model='record.comment'></textarea>
                     </div>
                 </div>
             </form>

@@ -302,19 +302,20 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
             $('#pickImageFrom').hide();
         }
         window.xxt.image.choose($q.defer(), from).then(function(imgs) {
-            var i, j, img;
+            var phase, i, j, img;
+            phase = $scope.$root.$$phase;
+            if (phase === '$digest' || phase === '$apply') {
+                $scope.data[imgFieldName] = $scope.data[imgFieldName].concat(imgs);
+            } else {
+                $scope.$apply(function() {
+                    $scope.data[imgFieldName] = $scope.data[imgFieldName].concat(imgs);
+                });
+            }
             for (i = 0, j = imgs.length; i < j; i++) {
                 img = imgs[i];
-                var phase = $scope.$root.$$phase;
-                if (phase === '$digest' || phase === '$apply') {
-                    $scope.data[imgFieldName].push(img);
-                } else {
-                    $scope.$apply(function() {
-                        $scope.data[imgFieldName].push(img);
-                    });
-                }
                 (window.wx !== undefined) && $('ul[name="' + imgFieldName + '"] li:nth-last-child(2) img').attr('src', img.imgSrc);
             }
+            $scope.$broadcast('xxt.enroll.image.choose.done', imgFieldName);
         });
     };
     $scope.progressOfUploadFile = 0;
@@ -354,6 +355,7 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
                 });
             }
             $scope.$apply('data.' + fileFieldName);
+            $scope.$broadcast('xxt.enroll.file.choose.done', fileFieldName);
         }, false);
         ele.click();
     };
@@ -573,11 +575,10 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
                 });
             }
             $scope.params = params;
-            $scope.ready = true;
             if ($scope.requireRecordList) {
                 $scope.Record.nextPage($scope.requireRecordList);
             }
-            console.log('page ready', $scope.params);
+            $scope.$broadcast('xxt.enroll.ready', params);
         });
     });
 }]);

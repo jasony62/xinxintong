@@ -11,11 +11,11 @@ class resumableAliOss {
 
 	private $articleid;
 
-	public function __construct($mpid, $articleid) {
+	public function __construct($mpid, $dest) {
 
 		$this->mpid = $mpid;
 
-		$this->articleid = $articleid;
+		$this->dest = $dest;
 	}
 	/**
 	 *
@@ -51,7 +51,7 @@ class resumableAliOss {
 			}
 			fclose($handle);
 			//
-			$rsp = $fs2->create_mpu_object($$this->mpid . $this->dest, $tmpfname);
+			$rsp = $fs2->create_mpu_object($this->mpid . $this->dest, $tmpfname);
 			echo (json_encode($rsp));
 		}
 	}

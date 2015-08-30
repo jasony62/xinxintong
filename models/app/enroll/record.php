@@ -83,10 +83,15 @@ class record_model extends \TMS_MODEL {
 		/**
 		 *
 		 */
+		$mpa = \TMS_APP::M('mp\mpaccount')->byId($mpid, 'asparent');
 		$contain = isset($contain) ? explode(',', $contain) : array();
-		$w = "e.mpid='$mpid' and aid='$aid'";
+		$w = "aid='$aid' and state=1";
+		// 限定公众号
+		$mpa->asparent === 'N' && $w .= " and e.mpid='$mpid'";
 		!empty($creater) && $w .= " and e.openid='$creater'";
+		// 限定轮次
 		!empty($rid) && $w .= " and e.rid='$rid'";
+		// 限定关键字
 		if (!empty($kw) && !empty($by)) {
 			switch ($by) {
 			case 'mobile':
@@ -205,87 +210,112 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 保存登记的数据
 	 */
-	public function setData($user, $runningMpid, $aid, $ek, $data, $clean = false) {
-		if ($clean) {
-			$this->delete('xxt_enroll_record_data', "aid='$aid' and enroll_key='$ek'");
-		} else {
-			$fields = $this->query_vals_ss(array('name', 'xxt_enroll_record_data', "aid='$aid' and enroll_key='$ek'"));
+	public function setData($user, $runningMpid, $aid, $ek, $data, $submitkey = '') {
+		if (empty($data)) {
+			return array(true);
 		}
 
-		if (!empty($data)) {
-			foreach ($data as $n => $v) {
+		if (empty($submitkey)) {
+			$submitkey = $user->vid;
+		}
+		// 已有的登记数据
+		$fields = $this->query_vals_ss(array('name', 'xxt_enroll_record_data', "aid='$aid' and enroll_key='$ek'"));
+		foreach ($data as $n => $v) {
+			/**
+			 * 插入自定义属性
+			 */
+			if ($n === 'member' && is_object($v)) {
 				/**
-				 * 插入自定义属性
+				 * 用户认证信息
 				 */
-				if ($n === 'member' && is_object($v)) {
-					/**
-					 * 用户认证信息
-					 */
-					$vv = new \stdClass;
-					isset($v->name) && $vv->name = urlencode($v->name);
-					isset($v->email) && $vv->email = urlencode($v->email);
-					isset($v->mobile) && $vv->mobile = urlencode($v->mobile);
-					$vv = urldecode(json_encode($vv));
-				} else if (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
-					/**
-					 * 上传图片
-					 */
-					$vv = array();
-					$fsuser = \TMS_APP::model('fs/user', $runningMpid);
-					foreach ($v as $img) {
-						$rst = $fsuser->storeImg($img);
-						if (false === $rst[0]) {
-							return $rst;
-						}
+				$vv = new \stdClass;
+				isset($v->name) && $vv->name = urlencode($v->name);
+				isset($v->email) && $vv->email = urlencode($v->email);
+				isset($v->mobile) && $vv->mobile = urlencode($v->mobile);
+				$vv = urldecode(json_encode($vv));
+			} else if (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
+				/**
+				 * 上传图片
+				 */
+				$vv = array();
+				$fsuser = \TMS_APP::model('fs/user', $runningMpid);
+				foreach ($v as $img) {
+					$rst = $fsuser->storeImg($img);
+					if (false === $rst[0]) {
+						return $rst;
+					}
 
-						$vv[] = $rst[1];
-					}
-					$vv = implode(',', $vv);
-				} else if (is_array($v) && isset($v[0]->uniqueIdentifier)) {
-					/**
-					 * 上传文件
-					 */
-					$modelFs2 = \TMS_APP::M('fs/local', $runningMpid, '_user');
-					$modelFs = \TMS_APP::M('fs/local', $runningMpid, '_resumable');
-					$vv = array();
-					$fsuser = \TMS_APP::model('fs/user', $runningMpid);
-					foreach ($v as $file) {
-						$fileUploaded = $modelFs->rootDir . '/' . $user->vid . '_' . $file->uniqueIdentifier;
-						!file_exists($modelFs2->rootDir . '/' . $user->vid) && mkdir($modelFs2->rootDir . '/' . $user->vid, 0777, true);
-						$fileUploaded2 = $modelFs2->rootDir . '/' . $user->vid . '/' . $file->name;
-						if (false === rename($fileUploaded, $fileUploaded2)) {
-							return array(false, '移动上传文件失败');
-						}
-						unset($file->uniqueIdentifier);
-						$file->url = $fileUploaded2;
-						$vv[] = $file;
-					}
-					$vv = json_encode($vv);
-				} else {
-					/**
-					 * 文本和选择题
-					 */
-					$vv = is_string($v) ? $this->escape($v) : implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
+					$vv[] = $rst[1];
 				}
-				if (!empty($fields) && in_array($n, $fields)) {
-					$this->update(
-						'xxt_enroll_record_data',
-						array('value' => $vv),
-						"aid='$aid' and enroll_key='$ek' and name='$n'"
-					);
-					unset($fields[array_search($n, $fields)]);
-				} else {
-					$ic = array(
-						'aid' => $aid,
-						'enroll_key' => $ek,
-						'name' => $n,
-						'value' => $vv,
-					);
-					$this->insert('xxt_enroll_record_data', $ic, false);
+				$vv = implode(',', $vv);
+			} else if (is_array($v) && isset($v[0]->uniqueIdentifier)) {
+				/**
+				 * 上传文件
+				 */
+				$modelFs2 = \TMS_APP::M('fs/local', $runningMpid, '_user');
+				$modelFs = \TMS_APP::M('fs/local', $runningMpid, '_resumable');
+				$vv = array();
+				$fsuser = \TMS_APP::model('fs/user', $runningMpid);
+				foreach ($v as $file) {
+					$fileUploaded = $modelFs->rootDir . '/' . $submitkey . '_' . $file->uniqueIdentifier;
+					!file_exists($modelFs2->rootDir . '/' . $submitkey) && mkdir($modelFs2->rootDir . '/' . $submitkey, 0777, true);
+					$fileUploaded2 = $modelFs2->rootDir . '/' . $submitkey . '/' . $file->name;
+					if (false === rename($fileUploaded, $fileUploaded2)) {
+						return array(false, '移动上传文件失败');
+					}
+					unset($file->uniqueIdentifier);
+					$file->url = $fileUploaded2;
+					$vv[] = $file;
 				}
+				$vv = json_encode($vv);
+			} else {
+				/**
+				 * 文本和选择题
+				 */
+				$vv = is_string($v) ? $this->escape($v) : implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
+			}
+			if (!empty($fields) && in_array($n, $fields)) {
+				$this->update(
+					'xxt_enroll_record_data',
+					array('value' => $vv),
+					"aid='$aid' and enroll_key='$ek' and name='$n'"
+				);
+				unset($fields[array_search($n, $fields)]);
+			} else {
+				$ic = array(
+					'aid' => $aid,
+					'enroll_key' => $ek,
+					'name' => $n,
+					'value' => $vv,
+				);
+				$this->insert('xxt_enroll_record_data', $ic, false);
 			}
 		}
 
 		return array(true);
+	}
+	/**
+	 * 清除一条活动报名名单
+	 */
+	public function remove($aid, $key) {
+		$rst = $this->update(
+			'xxt_enroll_record',
+			array('state' => 0),
+			"aid='$aid' and enroll_key='$key'"
+		);
+
+		return $rst;
+	}
+	/**
+	 * 清除活动报名名单
+	 */
+	public function clean($aid) {
+		$rst = $this->update(
+			'xxt_enroll_record',
+			array('state' => 0),
+			"aid='$aid'"
+		);
+
+		return $rst;
 	}
 }

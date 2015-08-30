@@ -78,6 +78,11 @@ class local_model {
 	 *
 	 */
 	public function delete($filename) {
-		return unlink($this->rootDir . '/' . TMS_MODEL::toLocalEncoding($filename));
+		$abs = $this->rootDir . '/' . TMS_MODEL::toLocalEncoding($filename);
+		if (file_exists($abs)) {
+			return unlink($abs);
+		} else {
+			return false;
+		}
 	}
 }

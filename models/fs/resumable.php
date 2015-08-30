@@ -97,7 +97,7 @@ class resumable_model {
 	/**
 	 * 处理分段上传的请求
 	 */
-	public function handleRequest($files, $resumabled) {
+	public function handleRequest($resumabled) {
 		$chunkNumber = $resumabled['resumableChunkNumber'];
 		$filename = str_replace(' ', '_', $resumabled['resumableFilename']);
 		$chunkDir = $resumabled['resumableIdentifier'] . '_part';

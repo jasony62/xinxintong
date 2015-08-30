@@ -55,20 +55,20 @@ class TMS_APP {
 			}
 
 		}
-		if (!isset(self::$models[$model_class])) {
-			// no constructed class
-			if (!class_exists($model_class)) {
-				require_once dirname(dirname(__FILE__)) . '/models/' . $model_file . '.php';
-			}
-			$args = func_get_args();
-			if (count($args) <= 1) {
-				$model_obj = new $model_class();
-			} else {
-				$r = new ReflectionClass($model_class);
-				$model_obj = $r->newInstanceArgs(array_slice($args, 1));
-			}
-			self::$models[$model_class] = $model_obj;
+		//if (!isset(self::$models[$model_class])) {
+		// no constructed class
+		if (!class_exists($model_class)) {
+			require_once dirname(dirname(__FILE__)) . '/models/' . $model_file . '.php';
 		}
+		$args = func_get_args();
+		if (count($args) <= 1) {
+			$model_obj = new $model_class();
+		} else {
+			$r = new ReflectionClass($model_class);
+			$model_obj = $r->newInstanceArgs(array_slice($args, 1));
+		}
+		self::$models[$model_class] = $model_obj;
+		//}
 
 		return self::$models[$model_class];
 	}

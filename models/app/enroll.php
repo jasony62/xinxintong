@@ -621,30 +621,6 @@ class enroll_model extends \matter\enroll_model {
 		return $winners;
 	}
 	/**
-	 * 清除一条活动报名名单
-	 *
-	 * todo 是否应该清除日志？
-	 */
-	public function removeRoll($aid, $key) {
-		$this->delete('xxt_enroll_record_data', "aid='$aid' and enroll_key='$key'");
-
-		$rst = $this->delete('xxt_enroll_record', "aid='$aid' and enroll_key='$key'");
-
-		return $rst;
-	}
-	/**
-	 * 清除活动报名名单
-	 *
-	 * todo 是否应该清除日志？
-	 */
-	public function cleanRoll($aid) {
-		$this->delete('xxt_enroll_record_data', "aid='$aid'");
-
-		$rst = $this->delete('xxt_enroll_record', "aid='$aid'");
-
-		return $rst;
-	}
-	/**
 	 * 获得登记数据定义
 	 * todo move to enroll\schema
 	 *

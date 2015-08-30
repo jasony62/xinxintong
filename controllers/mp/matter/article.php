@@ -3,136 +3,8 @@ namespace mp\matter;
 
 require_once dirname(__FILE__) . '/matter_ctrl.php';
 /**
- * This is the implementation of the server side part of
- * Resumable.js client script, which sends/uploads files
- * to a server in several chunks.
  *
- * The script receives the files in a standard way as if
- * the files were uploaded using standard HTML form (multipart).
- *
- * This PHP script stores all the chunks of a file in a temporary
- * directory (`temp`) with the extension `_part<#ChunkN>`. Once all
- * the parts have been uploaded, a final destination file is
- * being created from all the stored parts (appending one by one).
- *
- * @author Gregory Chris (http://online-php.com)
- * @email www.online.php@gmail.com
  */
-class resumable {
-
-	private $mpid;
-
-	private $dest;
-
-	private $modelFs;
-
-	public function __construct($mpid, $dest, $modelFs) {
-
-		$this->mpid = $mpid;
-
-		$this->dest = $dest;
-
-		$this->modelFs = $modelFs;
-	}
-	/**
-	 *
-	 * Logging operation
-	 *
-	 * @param string $str - the logging string
-	 */
-	private function _log($str) {
-	}
-	/**
-	 *
-	 * Delete a directory RECURSIVELY
-	 *
-	 * @param string $dir - directory path
-	 * @link http://php.net/manual/en/function.rmdir.php
-	 */
-	private function rrmdir($dir) {
-		if (is_dir($dir)) {
-			$objects = scandir($dir);
-			foreach ($objects as $object) {
-				if ($object != "." && $object != "..") {
-					if (filetype($dir . "/" . $object) == "dir") {
-						$this->rrmdir($dir . "/" . $object);
-					} else {
-						unlink($dir . "/" . $object);
-					}
-				}
-			}
-			reset($objects);
-			rmdir($dir);
-		}
-	}
-	/**
-	 *
-	 * Check if all the parts exist, and
-	 * gather all the parts of the file together
-	 *
-	 * @param string $temp_dir - the temporary directory holding all the parts of the file
-	 * @param string $fileName - the original file name
-	 * @param string $chunkSize - each chunk size (in bytes)
-	 * @param string $totalSize - original file size (in bytes)
-	 */
-	private function createFileFromChunks($temp_dir, $fileName, $chunkSize, $totalSize) {
-		// count all the parts of this file
-		$total_files = 0;
-		foreach (scandir($temp_dir) as $file) {
-			if (stripos($file, \TMS_MODEL::toLocalEncoding($fileName)) !== false) {
-				$total_files++;
-			}
-		}
-		// check that all the parts are present
-		// the size of the last part is between chunkSize and 2*$chunkSize
-		if ($total_files * $chunkSize >= ($totalSize - $chunkSize + 1)) {
-			// create the final destination file
-			if (($fp = fopen($this->modelFs->rootDir . $this->dest, 'w')) !== false) {
-				for ($i = 1; $i <= $total_files; $i++) {
-					$partname = $temp_dir . '/' . \TMS_MODEL::toLocalEncoding($fileName) . '.part' . $i;
-					$content = file_get_contents($partname);
-					fwrite($fp, $content);
-					$this->_log('writing chunk ' . $i);
-				}
-				fclose($fp);
-			} else {
-				$this->_log('cannot create the destination file');
-				return false;
-			}
-			// rename the temporary directory (to avoid access from other
-			// concurrent chunks uploads) and than delete it
-			if (rename($temp_dir, $temp_dir . '_UNUSED')) {
-				$this->rrmdir($temp_dir . '_UNUSED');
-			} else {
-				$this->rrmdir($temp_dir);
-			}
-		}
-	}
-	/**
-	 * 处理分段上传的请求
-	 */
-	public function handleRequest() {
-		$filename = str_replace(' ', '_', $_POST['resumableFilename']);
-		foreach ($_FILES as $file) {
-			// check the error status
-			if ($file['error'] != 0) {
-				$this->_log('error ' . $file['error'] . ' in file ' . $filename);
-				continue;
-			}
-			// init the destination file (format <filename.ext>.part<#chunk>
-			// the file is stored in a temporary directory
-			$tmpDir = $_POST['resumableIdentifier'];
-			$tmpFile = $filename . '.part' . $_POST['resumableChunkNumber'];
-			if (!$this->modelFs->upload($file['tmp_name'], $tmpFile, $tmpDir)) {
-				$this->_log('Error saving chunk ' . $_POST['resumableChunkNumber'] . ' for file ' . $filename);
-			} else {
-				// check if all the parts present, and create the final destination file
-				$absTmpDir = $this->modelFs->rootDir . '/' . $tmpDir;
-				$this->createFileFromChunks($absTmpDir, $filename, $_POST['resumableChunkSize'], $_POST['resumableTotalSize']);
-			}
-		}
-	}
-}
 class resumableAliOss {
 
 	private $mpid;
@@ -187,29 +59,20 @@ class resumableAliOss {
 	 *
 	 */
 	public function handleRequest() {
-		// loop through files and move the chunks to a temporarily created directory
-		if (!empty($_FILES)) {
-			foreach ($_FILES as $file) {
-				// check the error status
-				if ($file['error'] != 0) {
-					return array(false, 'error ' . $file['error'] . ' in file ' . $_POST['resumableFilename']);
-				}
-				// init the destination file (format <filename.ext>.part<#chunk>
-				// the file is stored in a temporary directory
-				$temp_dir = $_POST['resumableIdentifier'];
-				$dest_file = $temp_dir . '/' . $_POST['resumableFilename'] . '.part' . $_POST['resumableChunkNumber'];
-				// move the temporary file
-				$fs = \TMS_APP::M('fs/saestore', $this->mpid);
-				if (!$fs->upload($dest_file, $file['tmp_name'])) {
-					return array(false, 'Error saving (move_uploaded_file) chunk ' . $_POST['resumableChunkNumber'] . ' for file ' . $_POST['resumableFilename']);
-				} else {
-					// check if all the parts present, and create the final destination file
-					$this->createFileFromChunks($temp_dir, $_POST['resumableFilename'], $_POST['resumableChunkSize'], $_POST['resumableTotalSize']);
-					return array(true);
-				}
-			}
+		// init the destination file (format <filename.ext>.part<#chunk>
+		// the file is stored in a temporary directory
+		$temp_dir = $_POST['resumableIdentifier'];
+		$dest_file = $temp_dir . '/' . $_POST['resumableFilename'] . '.part' . $_POST['resumableChunkNumber'];
+		$content = base64_decode(preg_replace('/data:(.*?)base64\,/', '', $_POST['resumableChunkContent']));
+		// move the temporary file
+		$fs = \TMS_APP::M('fs/saestore', $this->mpid);
+		if (!$fs->write($dest_file, $content)) {
+			return array(false, 'Error saving (move_uploaded_file) chunk ' . $_POST['resumableChunkNumber'] . ' for file ' . $_POST['resumableFilename']);
+		} else {
+			// check if all the parts present, and create the final destination file
+			$this->createFileFromChunks($temp_dir, $_POST['resumableFilename'], $_POST['resumableChunkSize'], $_POST['resumableTotalSize']);
+			return array(true);
 		}
-
 	}
 }
 /*
@@ -572,11 +435,13 @@ class article extends matter_ctrl {
 		if (defined('SAE_TMP_PATH')) {
 			$dest = '/article/' . $articleid . '/' . $_POST['resumableFilename'];
 			$resumable = new resumableAliOss($this->mpid, $dest);
+			$resumable->handleRequest();
 		} else {
-			$dest = '/article_' . $articleid . '_' . $_POST['resumableFilename'];
-			$resumable = new resumable($this->mpid, $dest);
+			$modelFs = $this->model('fs/local', $this->mpid, '_resumable');
+			$dest = '/article_' . $articleid . '_' . $_POST['resumableIdentifier'];
+			$resumable = $this->model('fs/resumable', $this->mpid, $dest, $modelFs);
+			$resumable->handleRequest($_POST);
 		}
-		$resumable->handleRequest();
 		exit;
 	}
 	/**
@@ -588,6 +453,13 @@ class article extends matter_ctrl {
 		if (defined('SAE_TMP_PATH')) {
 			$url = 'alioss://article/' . $id . '/' . $file->name;
 		} else {
+			$modelRes = $this->model('fs/local', $this->mpid, '_resumable');
+			$modelAtt = $this->model('fs/local', $this->mpid, '附件');
+			$fileUploaded = $modelRes->rootDir . '/article_' . $id . '_' . $file->uniqueIdentifier;
+			$fileUploaded2 = $modelAtt->rootDir . '/article_' . $id . '_' . $file->name;
+			if (false === rename($fileUploaded, $fileUploaded2)) {
+				return new ResponseError('移动上传文件失败');
+			}
 			$url = 'local://article_' . $id . '_' . $file->name;
 		}
 		$att = array();
@@ -700,14 +572,12 @@ class article extends matter_ctrl {
 			$posted = $this->getPostJson();
 			$file = $posted->file;
 
-			$modelFs = \TMS_APP::M('fs/local', $this->mpid, '_resumable');
-			$fileUploaded = $modelFs->rootDir . '/article_' . $file->uniqueIdentifier;
-
 			$current = time();
 			$uid = \TMS_CLIENT::get_client_uid();
 			$uname = $account->nickname;
 			$filename = str_replace(' ', '_', $file->name);
 
+			/* 生成图文*/
 			$d = array();
 			$d['mpid'] = $this->mpid;
 			$d['creater'] = $uid;
@@ -741,10 +611,14 @@ class article extends matter_ctrl {
 			$att['url'] = 'local://article_' . $id . '_' . $filename;
 
 			$this->model()->insert('xxt_article_attachment', $att, true);
-
-			$modelFs = \TMS_APP::M('fs/local', $this->mpid, '附件');
-			$attachment = $modelFs->rootDir . '/article_' . $id . '_' . \TMS_MODEL::toLocalEncoding($filename);
-			rename($fileUploaded, $attachment);
+			/* 处理附件 */
+			$modelRes = $this->model('fs/local', $this->mpid, '_resumable');
+			$modelAtt = $this->model('fs/local', $this->mpid, '附件');
+			$fileUploaded = $modelRes->rootDir . '/article_' . $file->uniqueIdentifier;
+			$attachment = $modelAtt->rootDir . '/article_' . $id . '_' . \TMS_MODEL::toLocalEncoding($filename);
+			if (false === rename($fileUploaded, $attachment)) {
+				return new ResponseError('移动上传文件失败');
+			}
 			/**
 			 * 获取附件的内容
 			 */
@@ -784,11 +658,11 @@ class article extends matter_ctrl {
 			/**
 			 * 分块上传文件
 			 */
-			$modelFs = \TMS_APP::M('fs/local', $this->mpid, '_resumable');
+			$modelFs = $this->model('fs/local', $this->mpid, '_resumable');
 			$dest = '/article_' . $_POST['resumableIdentifier'];
-			$resumable = new resumable($this->mpid, $dest, $modelFs);
-			$resumable->handleRequest();
-			exit;
+			$resumable = $this->model('fs/resumable', $this->mpid, $dest, $modelFs);
+			$resumable->handleRequest($_POST);
+			return new \ResponseData('ok');
 		}
 	}
 	/**

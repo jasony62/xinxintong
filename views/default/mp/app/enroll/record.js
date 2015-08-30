@@ -246,9 +246,7 @@
             });
         };
         $scope.removeRecord = function(roll) {
-            var vcode;
-            vcode = prompt('是否要删除登记信息？，若是，请输入活动名称。');
-            if (vcode === $scope.editing.title) {
+             if (window.confirm('确认删除？')) {
                 http2.get('/rest/mp/app/enroll/record/remove?aid=' + $scope.aid + '&key=' + roll.enroll_key, function(rsp) {
                     var i = $scope.roll.indexOf(roll);
                     $scope.roll.splice(i, 1);

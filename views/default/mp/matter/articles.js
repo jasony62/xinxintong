@@ -73,7 +73,8 @@ xxtApp.controller('articleCtrl', ['$scope', '$window', '$modal', 'http2', functi
                                 name: f.name,
                                 size: f.size,
                                 type: f.type,
-                                lastModified: lastModified
+                                lastModified: lastModified,
+                                uniqueIdentifier: f.uniqueIdentifier,
                             }
                         };
                         http2.post('/rest/mp/matter/article/uploadAndCreate?state=done', posted, function(rsp) {

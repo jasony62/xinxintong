@@ -3,16 +3,16 @@
         <div class='form-group'>
             <button class='btn btn-default' title='设置轮次' ng-if="editing.multi_rounds==='N'" ng-click="canRounds()">设置轮次</button>
         </div>
-        <div class='form-group'>
+        <div class='form-group' ng-if="mpaccount.asparent==='N'">
             <pushmatter class='btn btn-primary' matter-id={{editing.id}} matter-type='enroll'>发送给指定用户</pushmatter>
         </div>
-        <div class='qrcode form-group' ng-controller='SendmeController'>
+        <div class='qrcode form-group' ng-controller='SendmeController' ng-if="mpaccount.asparent==='N'">
             <button class='btn btn-primary' data-toggle="popover" data-placement='left' ng-click="qrcode({type:'enroll',id:editing.id},$event)">发送给我</button>
         </div>
     </div>
     <div id='attrs'>
         <div class='form-horizontal'>
-            <div class='form-group'>
+            <div class='form-group' ng-if="mpaccount.asparent==='N'">
                 <label class='col-md-2 control-label'>URL</label>
                 <div class='col-md-10'>
                     <p class="form-control-static">{{editing.url}}</p>

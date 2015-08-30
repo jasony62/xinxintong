@@ -289,7 +289,8 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', function($scope, $mo
             name: f.name,
             size: f.size,
             type: f.type,
-            lastModified: lastModified
+            lastModified: lastModified,
+            uniqueIdentifier: f.uniqueIdentifier,
         };
         http2.post('/rest/mp/matter/article/attachmentAdd?id=' + $scope.id, posted, function success(rsp) {
             $scope.editing.attachments.push(rsp.data);

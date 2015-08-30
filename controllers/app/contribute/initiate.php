@@ -2,122 +2,6 @@
 namespace app\contribute;
 
 require_once dirname(__FILE__) . '/base.php';
-/**/
-class resumable {
-
-	private $mpid;
-
-	private $dest;
-
-	private $modelFs;
-
-	public function __construct($mpid, $dest, $modelFs) {
-
-		$this->mpid = $mpid;
-
-		$this->dest = $dest;
-
-		$this->modelFs = $modelFs;
-	}
-	/**
-	 *
-	 * Logging operation
-	 *
-	 * @param string $str - the logging string
-	 */
-	private function _log($str) {
-	}
-	/**
-	 *
-	 * Delete a directory RECURSIVELY
-	 *
-	 * @param string $dir - directory path
-	 * @link http://php.net/manual/en/function.rmdir.php
-	 */
-	private function rrmdir($dir) {
-		if (is_dir($dir)) {
-			$objects = scandir($dir);
-			foreach ($objects as $object) {
-				if ($object != "." && $object != "..") {
-					if (filetype($dir . "/" . $object) == "dir") {
-						$this->rrmdir($dir . "/" . $object);
-					} else {
-						unlink($dir . "/" . $object);
-					}
-				}
-			}
-			reset($objects);
-			rmdir($dir);
-		}
-	}
-	/**
-	 *
-	 * Check if all the parts exist, and
-	 * gather all the parts of the file together
-	 *
-	 * @param string $temp_dir - the temporary directory holding all the parts of the file
-	 * @param string $fileName - the original file name
-	 * @param string $chunkSize - each chunk size (in bytes)
-	 * @param string $totalSize - original file size (in bytes)
-	 */
-	private function createFileFromChunks($temp_dir, $fileName, $chunkSize, $totalSize) {
-		// count all the parts of this file
-		$total_files = 0;
-		foreach (scandir($temp_dir) as $file) {
-			if (stripos($file, \TMS_MODEL::toLocalEncoding($fileName)) !== false) {
-				$total_files++;
-			}
-		}
-		// check that all the parts are present
-		// the size of the last part is between chunkSize and 2*$chunkSize
-		if ($total_files * $chunkSize >= ($totalSize - $chunkSize + 1)) {
-			// create the final destination file
-			if (($fp = fopen($this->modelFs->rootDir . $this->dest, 'w')) !== false) {
-				for ($i = 1; $i <= $total_files; $i++) {
-					$partname = $temp_dir . '/' . \TMS_MODEL::toLocalEncoding($fileName) . '.part' . $i;
-					$content = file_get_contents($partname);
-					fwrite($fp, $content);
-					$this->_log('writing chunk ' . $i);
-				}
-				fclose($fp);
-			} else {
-				$this->_log('cannot create the destination file');
-				return false;
-			}
-			// rename the temporary directory (to avoid access from other
-			// concurrent chunks uploads) and than delete it
-			if (rename($temp_dir, $temp_dir . '_UNUSED')) {
-				$this->rrmdir($temp_dir . '_UNUSED');
-			} else {
-				$this->rrmdir($temp_dir);
-			}
-		}
-	}
-	/**
-	 * 处理分段上传的请求
-	 */
-	public function handleRequest() {
-		$filename = str_replace(' ', '_', $_POST['resumableFilename']);
-		foreach ($_FILES as $file) {
-			// check the error status
-			if ($file['error'] != 0) {
-				$this->_log('error ' . $file['error'] . ' in file ' . $filename);
-				continue;
-			}
-			// init the destination file (format <filename.ext>.part<#chunk>
-			// the file is stored in a temporary directory
-			$tmpDir = $_POST['resumableIdentifier'];
-			$tmpFile = $filename . '.part' . $_POST['resumableChunkNumber'];
-			if (!$this->modelFs->upload($file['tmp_name'], $tmpFile, $tmpDir)) {
-				$this->_log('Error saving chunk ' . $_POST['resumableChunkNumber'] . ' for file ' . $filename);
-			} else {
-				// check if all the parts present, and create the final destination file
-				$absTmpDir = $this->modelFs->rootDir . '/' . $tmpDir;
-				$this->createFileFromChunks($absTmpDir, $filename, $_POST['resumableChunkSize'], $_POST['resumableTotalSize']);
-			}
-		}
-	}
-}
 /**
  * 发起投稿
  */
@@ -303,9 +187,6 @@ class initiate extends base {
 			$posted = $this->getPostJson();
 			$file = $posted->file;
 
-			$modelFs = \TMS_APP::M('fs/local', $mpid, '_resumable');
-			$fileUploaded = $modelFs->rootDir . '/article_' . $file->uniqueIdentifier;
-
 			$current = time();
 			$filename = str_replace(' ', '_', $file->name);
 
@@ -357,10 +238,14 @@ class initiate extends base {
 			$att['url'] = 'local://article_' . $id . '_' . $filename;
 
 			$this->model()->insert('xxt_article_attachment', $att, true);
-
-			$modelFs = \TMS_APP::M('fs/local', $mpid, '附件');
-			$attachment = $modelFs->rootDir . '/article_' . $id . '_' . \TMS_MODEL::toLocalEncoding($filename);
-			rename($fileUploaded, $attachment);
+			/* 处理附件 */
+			$modelRes = $this->model('fs/local', $mpid, '_resumable');
+			$modelAtt = $this->model('fs/local', $mpid, '附件');
+			$fileUploaded = $modelRes->rootDir . '/article_' . $file->uniqueIdentifier;
+			$attachment = $modelAtt->rootDir . '/article_' . $id . '_' . \TMS_MODEL::toLocalEncoding($filename);
+			if (false === rename($fileUploaded, $attachment)) {
+				return new ResponseError('移动上传文件失败');
+			}
 			/**
 			 * 获取附件的内容
 			 */
@@ -380,7 +265,6 @@ class initiate extends base {
 				if ($status == 1) {
 					return new \ResponseError('转换文件失败：' . $rsp);
 				}
-
 				$this->setBodyByAtt($id, $attDir);
 				if (in_array($ext, array('ppt', 'pptx'))) {
 					$this->setCoverByAtt($id, $attDir);
@@ -400,11 +284,11 @@ class initiate extends base {
 			/**
 			 * 分块上传文件
 			 */
-			$modelFs = \TMS_APP::M('fs/local', $mpid, '_resumable');
+			$modelFs = $this->model('fs/local', $mpid, '_resumable');
 			$dest = '/article_' . $_POST['resumableIdentifier'];
-			$resumable = new resumable($mpid, $dest, $modelFs);
-			$resumable->handleRequest();
-			exit;
+			$resumable = $this->model('fs/resumable', $mpid, $dest, $modelFs);
+			$resumable->handleRequest($_POST);
+			return new \ResponseData('ok');
 		}
 	}
 	/**

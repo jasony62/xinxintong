@@ -134,7 +134,10 @@
                             <img ng-repeat="img in imgs" ng-src='{{img}}' style="width:100%"/>
                         </span>
                         <span ng-if="c.type==='file'" ng-init="files=json2Obj(record.data[c.id])">
-                            <video ng-repeat="file in files" style="width:100%;" controls="controls"><source ng-src="{{file.url}}" type="{{file.type}}" /></video>
+                            <span ng-repeat="file in files">
+                                <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls"><source ng-src="{{file.url}}" type="{{file.type}}" /></video>
+                                <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%"/>
+                            </span>
                         </span>
                     </div>
                 </div>

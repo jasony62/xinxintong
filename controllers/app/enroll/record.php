@@ -7,13 +7,32 @@ include_once dirname(__FILE__) . '/base.php';
  */
 class record extends base {
 	/**
+	 *
+	 */
+	public function submitkeyGet_action() {
+		/* support CORS */
+		header('Access-Control-Allow-Origin:*');
+		$key = md5(uniqid() . mt_rand());
+
+		return new \ResponseData($key);
+	}
+	/**
 	 * 报名登记页，记录登记信息
 	 *
 	 * $mpid
 	 * $aid
 	 * $ek enrollKey 如果要更新之前已经提交的数据，需要指定
+	 * $submitkey
 	 */
-	public function submit_action($mpid, $aid, $ek = null) {
+	public function submit_action($mpid, $aid, $ek = null, $submitkey = '') {
+		/* support CORS */
+		header('Access-Control-Allow-Origin:*');
+		header('Access-Control-Allow-Methods:POST');
+		header('Access-Control-Allow-Headers:Content-Type');
+		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+			exit;
+		}
+
 		empty($mpid) && die('mpid is empty.');
 		empty($aid) && die('aid is empty.');
 
@@ -86,7 +105,7 @@ class record extends base {
 			/* 插入报名数据 */
 			$ek = $model->enroll($mpid, $act, $user->openid, $user->vid, $mid);
 			/* 处理自定义信息 */
-			$rst = \TMS_APP::M('app\enroll\record')->setData($user, $mpid, $aid, $ek, $posted);
+			$rst = \TMS_APP::M('app\enroll\record')->setData($user, $mpid, $aid, $ek, $posted, $submitkey);
 		} else {
 			/* 已经登记，更新原先提交的数据 */
 			$this->model()->update('xxt_enroll_record',
@@ -94,7 +113,7 @@ class record extends base {
 				"enroll_key='$ek'"
 			);
 			/* 重新插入新提交的数据 */
-			$rst = \TMS_APP::M('app\enroll\record')->setData($user, $mpid, $aid, $ek, $posted);
+			$rst = \TMS_APP::M('app\enroll\record')->setData($user, $mpid, $aid, $ek, $posted, $submitkey);
 		}
 		if (false === $rst[0]) {
 			return new ResponseError($rst[1]);
@@ -166,17 +185,27 @@ class record extends base {
 		return true;
 	}
 	/**
-	 * 上传文件
+	 * 分段上传文件
 	 */
-	public function uploadFile_action($mpid, $aid) {
-		$user = $this->getUser($mpid);
+	public function uploadFile_action($mpid, $aid, $submitkey = '') {
+		/* support CORS */
+		header('Access-Control-Allow-Origin:*');
+		header('Access-Control-Allow-Methods:POST');
+		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+			exit;
+		}
+
+		if (empty($submitkey)) {
+			$user = $this->getUser($mpid);
+			$submitkey = $user->vid;
+		}
 		/**
 		 * 分块上传文件
 		 */
 		$modelFs = \TMS_APP::M('fs/local', $mpid, '_resumable');
-		$dest = $user->vid . '_' . $_POST['resumableIdentifier'];
+		$dest = $submitkey . '_' . $_POST['resumableIdentifier'];
 		$resumable = \TMS_APP::M('fs/resumable', $mpid, $dest, $modelFs);
-		$resumable->handleRequest($_FILES, $_POST);
+		$resumable->handleRequest($_POST);
 
 		return new \ResponseData('ok');
 	}

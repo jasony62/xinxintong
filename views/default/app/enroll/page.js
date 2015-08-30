@@ -322,16 +322,18 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
     var r = new Resumable({
         target: '/rest/app/enroll/record/uploadFile?mpid=' + $scope.mpid + '&aid=' + $scope.aid,
         testChunks: false,
-        chunkSize: 256 * 1024
+        chunkSize: 512 * 1024
     });
     r.on('progress', function() {
-        console.log('progress', r.progress());
+        var phase, p;
+        p = r.progress();
+        console.log('progress', p);
         var phase = $scope.$root.$$phase;
         if (phase === '$digest' || phase === '$apply') {
-            $scope.progressOfUploadFile = Math.ceil(r.progress() * 100);
+            $scope.progressOfUploadFile = Math.ceil(p * 100);
         } else {
             $scope.$apply(function() {
-                $scope.progressOfUploadFile = Math.ceil(r.progress() * 100);
+                $scope.progressOfUploadFile = Math.ceil(p * 100);
             });
         }
     });
@@ -371,7 +373,15 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
         if (r.files && r.files.length) {
             r.on('complete', function() {
                 console.log('resumable complete.');
-                r.files = [];
+                var phase = $scope.$root.$$phase;
+                if (phase === '$digest' || phase === '$apply') {
+                    $scope.progressOfUploadFile = '完成';
+                } else {
+                    $scope.$apply(function() {
+                        $scope.progressOfUploadFile = '完成';
+                    });
+                }
+                r.cancel();
                 $scope.submit(event, nextAction);
             });
             r.upload();

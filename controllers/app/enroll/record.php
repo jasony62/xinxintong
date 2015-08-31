@@ -121,7 +121,7 @@ class record extends base {
 		/**
 		 * 通知登记活动的管理员
 		 */
-		!empty($act->receiver_page) && $this->notifyAdmin($mpid, $act, $user);
+		!empty($act->receiver_page) && $this->notifyAdmin($mpid, $act, $user, $ek);
 
 		return new \ResponseData($ek);
 	}
@@ -150,7 +150,7 @@ class record extends base {
 	/**
 	 * 通知活动管理员
 	 */
-	private function notifyAdmin($mpid, $act, $user) {
+	private function notifyAdmin($mpid, $act, $user, $ek) {
 		$admins = \TMS_APP::model('acl')->enrollReceivers($mpid, $act->id);
 		if (false !== ($key = array_search($user->openid, $admins))) {
 			/* 管理员是登记人，不再通知 */

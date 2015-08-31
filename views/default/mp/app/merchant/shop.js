@@ -9,7 +9,7 @@ xxtApp.config(['$routeProvider', function($rp) {
             load: function($q) {
                 var defer = $q.defer();
                 (function() {
-                    $.getScript('/views/default/mp/app/merchant/catelog.js', function() {
+                    $.getScript('/views/default/mp/app/merchant/catelog.js?_=1', function() {
                         defer.resolve();
                     });
                 })();
@@ -23,7 +23,7 @@ xxtApp.config(['$routeProvider', function($rp) {
             load: function($q) {
                 var defer = $q.defer();
                 (function() {
-                    $.getScript('/views/default/mp/app/merchant/product.js', function() {
+                    $.getScript('/views/default/mp/app/merchant/product.js?_=1', function() {
                         defer.resolve();
                     });
                 })();

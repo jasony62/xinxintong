@@ -1,58 +1,31 @@
 <div id='product-view'>
-    <div class='col-md-5'>
-        <div class='list-group'>
-            <div class='list-group-item' ng-class="{'active':editing===p}" ng-repeat='p in products' ng-bind='p.name' ng-click='open(p)'></div>
-            <div class='list-group-item'>
-                <button class='btn btn-success btn-block' ng-click='create()'>添加</button>
-            </div>
-        </div>
+    <div class='form-inline form-group'>
+        <select class="form-control" ng-model='selectedCatelog' ng-options="cate.name for cate in catelogs" ng-change="selectCatelog()"></select>
+        <button class='btn btn-success' ng-click='create()'>添加</button>
     </div>
-    <div class='col-md-7' ng-show='editing'>
-        <div class='form-group'>
-            <label>分类</label>
-            <p class='form-control-static' ng-bind='editing.catelog.name'></p>
-        </div>
-        <div class='form-group'>
-            <label>名称</label>
-            <input class='form-control' ng-model='editing.name' tms-auto-update tms-wait=1000 tms-update="update('name')">
-        </div>
-        <div class='form-group'>
-            <label>介绍</label>
-            <textarea class='form-control' ng-model='editing.detail_text' tms-auto-update tms-wait=1000 tms-update="update('detail_text')"
-            rows=3></textarea>
-        </div>
-        <div class='form-group' ng-repeat='p in editing.catelog.properties'>
-            <label ng-bind='p.name'></label>
-            <p class='form-control' ng-bind="editing.prop_value2[p.id].name" ng-click='setPropValue(p)'></p>
-        </div>
-        <div class='form-group'>
-            <div>
-                <label>SKU</label>
-                <button class='btn btn-default btn-xs' ng-click='addSKU()'>
-                    <span class='glyphicon glyphicon-plus'></span>
-                </button>
-            </div>
-            <ul class='list-group skus' ng-repeat='s in editing.skus'>
-                <li class='list-group-item sku'>
-                    <div class='price form-group'>
-                        <label>价格（分）</label>
-                        <input class='form-control' ng-model='s.price' tms-auto-update tms-wait=1000 tms-update="updateSku(s, 'price')">
-                    </div>
-                    <div class='quantity form-group'>
-                        <label>数量</label>
-                        <input class='form-control' ng-model='s.quantity' tms-auto-update tms-wait=1000 tms-update="updateSku(s, 'quantity')">
-                    </div>
-                </li>
-            </ul>
-        </div>
-    </div>
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <td>名称</td>
+                <td>介绍</td>
+                <td ng-repeat="prop in selectedCatelog.properties" ng-bind='prop.name'></td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat='prod in products' ng-click="open(prod)">
+                <td ng-bind='prod.name'>名称</td>
+                <td ng-bind='prod.detail_text'>介绍</td>
+                <td ng-repeat="prop in selectedCatelog.properties" ng-bind="prod.propValue2[prop.id].name"></td>
+            </tr>
+        </tbody>
+    </table>
     <script type="text/ng-template " id="catelogSelector.html ">
         <div class="modal-header ">
             <button class="close " type="button " ng-click="close() ">×</button>
             <h5 class="modal-title ">选择分类</h5>
         </div>
         <div class="modal-body ">
-            <form class="form-horizontal ">
+            <form class="form-horizontal">
                 <div class="form-group ">
                     <label class="col-md-2 control-label ">名称</label>
                     <div class="col-md-10 ">
@@ -61,27 +34,8 @@
                 </div>
             </form>
         </div>
-        <div class="modal-footer ">
-            <button class="btn btn-success " ng-disabled='!data.selected' ng-click="ok() ">确定</button>
-        </div>
-    </script>
-    <script type="text/ng-template " id="propValueSetter.html ">
-        <div class="modal-header ">
-            <button class="close " type="button " ng-click="close() ">×</button>
-            <h5 class="modal-title ">设置属性</h5>
-        </div>
-        <div class="modal-body ">
-            <form class="form-horizontal ">
-                <div class="form-group ">
-                    <label class="col-md-2 control-label ">{{prop.name}}</label>
-                    <div class="col-md-10 ">
-                        <input type='text' class='form-control' ng-model='data.name'>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div class="modal-footer ">
-            <button class="btn btn-success " ng-disabled='!data.name' ng-click="ok() ">确定</button>
+        <div class="modal-footer">
+            <button class="btn btn-success" ng-disabled='!data.selected' ng-click="ok() ">确定</button>
         </div>
     </script>
 </div>

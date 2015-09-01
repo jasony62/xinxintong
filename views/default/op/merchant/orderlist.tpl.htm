@@ -1,0 +1,18 @@
+<div ng-app='app' ng-controller='orderListCtrl' ng-cloak class='ng-cloak container-fluid'>
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <th>姓名</th>
+                <th>手机</th>
+                <th>下单日期</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat='o in orders' ng-click='open(o)'>
+                <td data-th="姓名" ng-bind='o.receiver_name'></td>
+                <td data-th="手机" ng-bind='o.receiver_mobile'></td>
+                <td data-th="下单日期" ng-bind="o.order_create_time*1000|date:'yy-MM-dd HH:mm'"></td>
+            </tr>
+        </tbody>
+    </table>
+</div>

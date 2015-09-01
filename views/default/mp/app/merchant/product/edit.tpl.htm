@@ -46,23 +46,26 @@
             </div>
         </div>
     </div>
-    <script type="text/ng-template " id="propValueSetter.html ">
-        <div class="modal-header ">
-            <button class="close " type="button " ng-click="close() ">×</button>
-            <h5 class="modal-title ">设置属性</h5>
+    <script type="text/ng-template" id="propValueSetter.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="close()">×</button>
+            <h5 class="modal-title">设置属性</h5>
         </div>
-        <div class="modal-body ">
-            <form class="form-horizontal ">
-                <div class="form-group ">
-                    <label class="col-md-2 control-label ">{{prop.name}}</label>
-                    <div class="col-md-10 ">
-                        <input type='text' class='form-control' ng-model='data.name'>
+        <div class="modal-body">
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-md-2 control-label">{{prop.name}}</label>
+                    <div class="col-md-10">
+                        <input type='text' class="form-control" ng-model="data.name"/>
+                       <select class="form-control" size="5" ng-model="data.name" ng-options="v.name as v.name for v in options">
+                            <option value="">空</option>
+                       </select>
                     </div>
                 </div>
             </form>
         </div>
-        <div class="modal-footer ">
-            <button class="btn btn-success " ng-disabled='!data.name' ng-click="ok() ">确定</button>
+        <div class="modal-footer">
+            <button class="btn btn-success" ng-disabled="!data.name" ng-click="ok()">确定</button>
         </div>
     </script>
 </div>

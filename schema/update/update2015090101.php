@@ -2,7 +2,7 @@
 require_once '../../db.php';
 
 $sqls = array();
-$sqls[] = "ALTER TABLE `xxt_merchant_order` CHANGE `buyer_openid` `buyer_openid` VARCHAR(255) NOT NULL DEFAULT ''";
+$sqls[] = "alter table xxt_enroll_record add state tinyint not null default 1";
 
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

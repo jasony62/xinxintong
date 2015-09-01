@@ -13,18 +13,19 @@ xxtApp.controller('productCtrl', ['$scope', '$location', '$modal', 'http2', func
         $modal.open({
             templateUrl: 'propValueSetter.html',
             backdrop: 'static',
-            controller: ['$modalInstance', '$scope', function($modalInstance, $scope2) {
+            controller: ['$modalInstance', '$scope', function($mi, $scope2) {
                 $scope2.prop = prop;
                 if ($scope.editing.propValue2[prop.id]) {
                     $scope2.data = angular.copy($scope.editing.propValue2[prop.id]);
                 } else {
                     $scope2.data = {};
                 }
+                $scope2.options = $scope.editing.catelog.propValues[prop.id];
                 $scope2.close = function() {
-                    $modalInstance.dismiss();
+                    $mi.dismiss();
                 };
                 $scope2.ok = function() {
-                    $modalInstance.close($scope2.data);
+                    $mi.close($scope2.data);
                 };
             }]
         }).result.then(function(data) {

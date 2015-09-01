@@ -19,3 +19,5 @@
 .combox .dropdown-menu .checkbox{clear:both;display:block;padding:3px 20px;margin:0 0 0 10px;white-space:nowrap}
 .combox .dropdown-menu .checkbox label{display:inline-block;width:100%}
 .combox .dropdown-menu .checkbox:hover{background-color:#F5F5F5}
+.status-bar>*{vertical-align:middle;}
+.status-bar>.pagination{margin:0;cursor:pointer;}

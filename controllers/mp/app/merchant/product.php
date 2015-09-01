@@ -13,32 +13,31 @@ class product extends \mp\app\app_base {
 		$this->view_action('/mp/app/merchant/shop');
 	}
 	/**
-	 *
+	 * 单个产品编辑页面
 	 */
 	public function edit_action() {
 		$this->view_action('/mp/app/merchant/product/edit');
 	}
 	/**
-	 *
+	 * 获得商品
 	 */
-	public function get_action($shopId = null, $id = null) {
-		if (!empty($shopId)) {
-			$products = $this->model('app\merchant\product')->byShopId($shopId);
-			foreach ($products as &$prod) {
-				$cascaded = $this->model('app\merchant\product')->cascaded($prod->id);
-				$prod->propValue2 = $cascaded->propValue2;
-				$prod->skus = $cascaded->skus;
-			}
-
-			return new \ResponseData($products);
-		} else if (!empty($id)) {
-			$prod = $this->model('app\merchant\product')->byId($id);
-			$cascaded = $this->model('app\merchant\product')->cascaded($id);
-			$prod->catelog = $cascaded->catelog;
+	public function get_action($id) {
+		$model = $this->model('app\merchant\product');
+		$prod = $model->byId($id, true);
+		return new \ResponseData($prod);
+	}
+	/**
+	 * 获得商品列表
+	 */
+	public function list_action($shopId, $cateId) {
+		$model = $this->model('app\merchant\product');
+		$products = $model->byShopId($shopId, $cateId);
+		foreach ($products as &$prod) {
+			$cascaded = $model->cascaded($prod->id);
 			$prod->propValue2 = $cascaded->propValue2;
 			$prod->skus = $cascaded->skus;
-			return new \ResponseData($prod);
 		}
+		return new \ResponseData($products);
 	}
 	/**
 	 * 关联的数据

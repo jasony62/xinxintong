@@ -5,61 +5,66 @@ namespace app\merchant;
  */
 class product_model extends \TMS_MODEL {
 	/**
-	 * $mpid
+	 * $id
 	 */
-	public function &byId($id)
-	{
+	public function &byId($id, $cascaded = false) {
 		$q = array(
-			'*', 
+			'*',
 			'xxt_merchant_product p',
-			"id=$id"
+			"id=$id",
 		);
-		
+
 		$prod = $this->query_obj_ss($q);
-		
+
+		if ($cascaded) {
+			$cascaded = $this->cascaded($id);
+			$prod->catelog = $cascaded->catelog;
+			$prod->propValue2 = $cascaded->propValue2;
+			$prod->skus = $cascaded->skus;
+		}
+
 		return $prod;
 	}
 	/**
-	 * $mpid
+	 *
+	 * $shopId
+	 * $cateId
 	 */
-	public function &byShopId($shopId)
-	{
+	public function &byShopId($shopId, $cateId) {
 		$q = array(
-			'*', 
+			'*',
 			'xxt_merchant_product p',
-			"sid=$shopId"
+			"sid=$shopId and cate_id=$cateId",
 		);
-		$q2 = array('o'=>'create_at desc');
-		
+		$q2 = array('o' => 'create_at desc');
+
 		$products = $this->query_objs_ss($q, $q2);
-		
+
 		return $products;
 	}
 	/**
 	 *
 	 */
-	public function &byPropValue($cateId, $vids)
-	{
+	public function &byPropValue($cateId, $vids) {
 		$q = array(
-			'*', 
+			'*',
 			'xxt_merchant_product p',
-			"cate_id=$cateId"
+			"cate_id=$cateId",
 		);
 		foreach ($vids as $vid) {
 			$q[2] .= " and prop_value like '%:\"$vid\"%'";
 		}
-		
+
 		$products = $this->query_objs_ss($q);
-		
+
 		return $products;
 	}
 	/**
 	 * $id catelog's id
 	 */
-	public function &cascaded($id)
-	{
+	public function &cascaded($id) {
 		$cascaded = new \stdClass;
-	
+
 		$prod = $this->byId($id);
 		/**
 		 * 分类
@@ -68,7 +73,7 @@ class product_model extends \TMS_MODEL {
 		$cateCascaded = \TMS_APP::M('app\merchant\catelog')->cascaded($prod->cate_id);
 		$catelog->properties = $cateCascaded->properties;
 		isset($cateCascaded->propValues) && $catelog->propValues = $cateCascaded->propValues;
-		
+
 		$cascaded->catelog = $catelog;
 		/**
 		 * 分类属性
@@ -87,8 +92,10 @@ class product_model extends \TMS_MODEL {
 						break;
 					}
 				}
-			} else 
+			} else {
 				$propValue2->{$prop->id} = '';
+			}
+
 		}
 		$cascaded->propValue2 = $propValue2;
 		/**
@@ -97,11 +104,11 @@ class product_model extends \TMS_MODEL {
 		$q = array(
 			'*',
 			'xxt_merchant_product_sku',
-			"prod_id=$id"
+			"prod_id=$id",
 		);
 		$skus = $this->query_objs_ss($q);
 		$cascaded->skus = $skus;
-		
+
 		return $cascaded;
 	}
 }

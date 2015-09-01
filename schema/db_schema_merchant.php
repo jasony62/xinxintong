@@ -12,15 +12,15 @@ $sql .= ",create_at int not null";
 $sql .= ',reviser varchar(40) not null';
 $sql .= ",modify_at int not null";
 $sql .= ",title varchar(70) not null";
-$sql .= ',pic text'; 
+$sql .= ',pic text';
 $sql .= ',summary varchar(240) not null';
 $sql .= ",approved char(1) not null default 'N'";
 $sql .= ",access_control char(1) not null default 'N'";
 $sql .= ",authapis text";
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 /*
  * 产品分类
@@ -37,8 +37,8 @@ $sql .= ",parent_cate_id int not null default 0"; // 父分类ID
 $sql .= ",name varchar(70) not null";
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 /*
  * 产品分类属性定义
@@ -56,8 +56,8 @@ $sql .= ",name varchar(255) not null";
 $sql .= ",seq int not null default 0";
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 /*
  * 产品分类属性-值定义
@@ -76,8 +76,8 @@ $sql .= ",name varchar(255) not null";
 $sql .= ",weight int not null default 0";
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 /*
  * 产品分类sku定义
@@ -95,8 +95,8 @@ $sql .= ",name varchar(255) not null";
 $sql .= ",seq int not null default 0";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 /*
  * 产品分类属性-值定义
@@ -115,8 +115,8 @@ $sql .= ",name varchar(255) not null";
 $sql .= ",weight int not null default 0";
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 /*
  * 产品
@@ -141,8 +141,8 @@ $sql .= ",prop_value text"; // 属性ID及属性值ID
 $sql .= ",sku_info text"; // 产品对应的sku定义
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 /*
  * 产品sku
@@ -165,8 +165,8 @@ $sql .= ",quantity int not null default 0";
 $sql .= ",product_code varchar(255) not null default ''";
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 /*
  * 产品分组
@@ -182,8 +182,8 @@ $sql .= ",modify_at int not null";
 $sql .= ",name varchar(70) not null";
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 /*
  * 产品分组——产品
@@ -198,8 +198,8 @@ $sql .= ',seq int not null';
 $sql .= ",modify_at int not null";
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 /*
  * 产品订单
@@ -212,7 +212,7 @@ $sql .= ',order_status int not null'; // 2-待发货, 3-已发货, 5-已完成, 
 $sql .= ",order_total_price int not null";
 $sql .= ',order_create_time int not null';
 $sql .= ',order_express_price int not null';
-$sql .= ',buyer_openid int not null';
+$sql .= ",buyer_openid varchar(255) not null default ''";
 $sql .= ',buyer_nick varchar(255) not null';
 $sql .= ',receiver_name varchar(255) not null';
 $sql .= ',receiver_province varchar(20) not null';
@@ -232,8 +232,8 @@ $sql .= ",delivery_company varchar(255) not null default ''";
 $sql .= ",trans_id varchar(255) not null default ''";
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 
-echo 'finish merchant.'.PHP_EOL;
+echo 'finish merchant.' . PHP_EOL;

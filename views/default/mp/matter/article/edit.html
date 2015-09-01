@@ -1,5 +1,5 @@
 <div>
-    <div class='form-inline form-group' style='text-align:right'>
+    <div class='form-inline form-group' style='text-align:right' ng-if="mpaccount.asparent==='N'">
         <button class='btn btn-primary' ng-if="mpaccount.mpsrc==='wx'" ng-click='upload2Mp()'>上传到腾讯</button>
         <pushmatter class='btn btn-primary' matter-id='{{editing.id}}' matter-type='article'>发送给指定用户</pushmatter>
         <div class='qrcode form-group' ng-controller='SendmeController'>
@@ -14,7 +14,7 @@
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.approved' ng-change="update('approved');">是</label>
             </div>
         </div>
-        <div class='form-group'>
+        <div class='form-group' ng-if="mpaccount.asparent==='N'">
             <label class='col-md-2 control-label'>URL</label>
             <div class='col-md-10'>
                 <p class='form-control-static'>{{entryUrl}}</p>

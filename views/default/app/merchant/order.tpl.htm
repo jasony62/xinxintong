@@ -1,4 +1,22 @@
 <div class='container-fluid' ng-app='app' ng-controller='merchantCtrl'>
+    <div id='product' class="table">
+        <div class='tr'>
+            <div>名称</div>
+            <div class='form-control-static' ng-bind='product.name'></div>
+        </div>
+        <div class='tr'>
+            <div>介绍</div>
+            <div class='form-control-static' ng-bind='product.detail_text'></div>
+        </div>
+        <div class='tr prop' ng-repeat='p in catelog.properties'>
+            <div ng-bind='p.name'></div>
+            <div class='form-control-static' ng-bind="propValues[p.id].name"></div>
+        </div>
+        <div class='tr'>
+            <div>价格</div>
+            <div class='form-control-static' ng-bind='sku.price'></div>
+        </div>
+    </div>
     <div id='customer'>
         <div class='form-group'>
             <label>姓名</label>
@@ -9,19 +27,5 @@
             <input type='text' class='form-control' ng-model='orderInfo.receiver_mobile'>
         </div>
     </div>
-    <div id='product'>
-        <div class='form-group'>
-            <label>名称</label>
-            <div class='form-control-static' ng-bind='product.name'></div>
-        </div>
-        <div class='form-group' ng-repeat='p in catelog.properties'>
-            <label ng-bind='p.name'></label>
-            <div class='form-control-static' ng-bind="propValues[p.id].name"></div>
-        </div>
-        <div class='form-group'>
-            <label>价格</label>
-            <div class='form-control-static' ng-bind='sku.price'></div>
-        </div>
-        <button class='btn btn-success btn-block' ng-click='buy()'>提交</button>
-    </div>
+    <button class='btn btn-success btn-block' ng-click='buy()'>提交</button>
 </div>

@@ -1,2 +1,6 @@
 html,body{width:100%;height:100%}
 body{background-color:#EEE}
+div.container-fluid{padding: 15px}
+.table .tr{display:table}
+.table .tr>div{display:table-cell;}
+.table .tr>div:first-child{width:80px;white-space:normal;word-wrap:break-word;word-break:break-all;font-weight:700}

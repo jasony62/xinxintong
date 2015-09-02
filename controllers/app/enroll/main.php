@@ -494,7 +494,7 @@ class main extends base {
 				 */
 				if ($this->model('log')->canReceivePush($mpid, $record->openid)) {
 					if ($record->openid !== $remarker->openid) {
-						$this->send_to_user($mpid, $record->openid, $message);
+						$this->sendByOpenid($mpid, $record->openid, $message);
 					}
 
 				}
@@ -507,7 +507,7 @@ class main extends base {
 						continue;
 					}
 
-					$this->send_to_user($mpid, $other->openid, $message);
+					$this->sendByOpenid($mpid, $other->openid, $message);
 				}
 			}
 		}

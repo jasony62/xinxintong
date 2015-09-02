@@ -33,4 +33,20 @@ class shop_model extends \TMS_MODEL {
 
 		return $shops;
 	}
+	/**
+	 *
+	 */
+	public function &staffAcls($mpid, $shopid, $role) {
+		/**
+		 * 直接指定
+		 */
+		$q = array(
+			's.id,s.identity,s.idsrc,s.label',
+			'xxt_merchant_staff s',
+			"s.mpid='$mpid' and s.shopid='$shopid' and role='$role'",
+		);
+		$acls = $this->query_objs_ss($q);
+
+		return $acls;
+	}
 }

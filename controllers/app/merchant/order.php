@@ -53,4 +53,39 @@ class order extends \member_base {
 
 		return new \ResponseData('ok');
 	}
+	/**
+	 *
+	 */
+	private function notify($mpid, $order) {
+		/**
+		 * 如果设置了客户人员，向客服人员发消息
+		 */
+		$url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/op/merchant/order";
+		$url .= "?mpid=" . $mpid;
+		$url .= "&shop=" . $order->sid;
+		$url .= "&order=" . $order->id;
+
+		$txt = urlencode("有新订单，");
+		$txt .= "<a href=\"$url\">";
+		$txt .= urlencode("请处理");
+		$txt .= "</a>";
+		$message = array(
+			"msgtype" => "text",
+			"text" => array(
+				"content" => $txt,
+			),
+		);
+		$modelFan = $this->model('user/fans');
+		$staffs = $this->model('app\merchant\shop')->staffAcls($mpid, $id, 'c');
+		foreach ($staffs as $staff) {
+			switch ($staff->idsrc) {
+			case 'M':
+				$fan = $modelFan->byMid($staff->identity);
+				$this->sendByOpenid($mpid, $fan->openid, $message);
+				break;
+			}
+		}
+
+		return true;
+	}
 }

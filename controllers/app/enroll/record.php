@@ -177,7 +177,7 @@ class record extends base {
 				$this->send_to_yxuser_byp2p($mpid, $message, $admins);
 			} else {
 				foreach ($admins as $admin) {
-					$this->send_to_user($mpid, $admin, $message);
+					$this->sendByOpenid($mpid, $admin, $message);
 				}
 			}
 		}

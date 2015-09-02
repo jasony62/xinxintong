@@ -4,6 +4,6 @@ body{font-size:15px}
 #order .form-group{display:table;width:100%;margin-bottom:0;border-bottom:1px dotted #ddd}
 #order .form-group:last-child{border-bottom:0}
 #order .form-group>*{display:table-cell;}
-#order .form-group>label{width:80px;white-space:normal;word-wrap:break-word;word-break:break-all;background:#ddd;padding-left:8px}
+#order .form-group>label{width:80px;white-space:normal;word-wrap:break-word;word-break:break-all;background:#fafafa;padding-left:8px}
 #order .form-group>div{padding-left:1em}
 #dispose{position:fixed;left:15px;right:15px;bottom:15px;text-align:right}

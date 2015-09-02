@@ -212,7 +212,7 @@ class article extends \member_base {
 			 * 获得所有发表过评论的人？？？
 			 */
 			foreach ($receivers as $receiver) {
-				$this->send_to_user($mpid, $receiver, $message);
+				$this->sendByOpenid($mpid, $receiver, $message);
 			}
 		}
 

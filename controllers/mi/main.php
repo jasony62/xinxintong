@@ -464,7 +464,7 @@ class main extends \member_base {
 					 */
 					$model = $this->model('matter\\' . $reply->matter_type);
 					$message = $model->forCustomPush($mpid, $reply->matter_id);
-					$this->send_to_user($mpid, $openid, $message);
+					$this->sendByOpenid($mpid, $openid, $message);
 					/**
 					 * 附加消息
 					 */
@@ -477,7 +477,7 @@ class main extends \member_base {
 							"content" => $txt,
 						),
 					);
-					$this->send_to_user($mpid, $openid, $message);
+					$this->sendByOpenid($mpid, $openid, $message);
 				} else {
 					$r = $this->model('reply\\' . $reply->matter_type, $call, $reply->matter_id);
 					$r->exec();
@@ -571,7 +571,7 @@ class main extends \member_base {
 				 * 发送消息
 				 */
 				if (isset($message)) {
-					$rst = $this->send_to_user($mpid, $openid, $message);
+					$rst = $this->sendByOpenid($mpid, $openid, $message);
 					if (false === $rst[0]) {
 						$err = is_array($rst[1]) ? implode(',', $rst[1]) : $rst[1];
 						$tr = $this->model('reply\text', $call, $err, false);

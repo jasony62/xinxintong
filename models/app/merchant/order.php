@@ -36,7 +36,7 @@ class order_model extends \TMS_MODEL {
 		return $orders;
 	}
 	/**
-	 * $id
+	 * 创建订单
 	 */
 	public function create($skuId, $user, $info) {
 		$sku = \TMS_APP::M('app\merchant\sku')->byId($skuId);

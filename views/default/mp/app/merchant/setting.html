@@ -1,15 +1,13 @@
 <div class='form-horizontal'>
 	<div class='form-group'>
-		<label class='col-md-2 control-label'>URL</label>
-		<div class='col-md-10'>
-			<p class="form-control-static">{{editing.url}}</p>
-		</div>
-	</div>
-	<div class='form-group'>
 		<label class='col-md-2 control-label'>名称</label>
 		<div class='col-md-10'>
 			<input type="text" class="form-control" ng-model='editing.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
 			<div class='help-block'>最多35个汉字，70个英文字符</div>
 		</div>
 	</div>
+	<accesscontrol mpid='{{mpaccount.mpid}}' obj='editing' prop-access='canSetSupporter' prop-acl='staffs' label-of-list='指定客服'
+		change-acl-url='/rest/mp/app/merchant/shop/setStaff?shopId={{editing.id}}&role=c' remove-acl-url='/rest/mp/app/merchant/shop/delStaff'
+		label-span='2' control-span='10' hide-access-control=true update-access-control=false>
+	</accesscontrol>
 </div>

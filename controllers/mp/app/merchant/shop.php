@@ -18,6 +18,8 @@ class shop extends \mp\app\app_base {
 	public function get_action($id) {
 		$shop = $this->model('app\merchant\shop')->byId($id);
 
+		$shop->staffs = $this->model('app\merchant\shop')->staffAcls($this->mpid, $id, 'c');
+
 		return new \ResponseData($shop);
 	}
 	/**
@@ -61,6 +63,49 @@ class shop extends \mp\app\app_base {
 		$nv = (array) $this->getPostJson();
 
 		$rst = $this->model()->update('xxt_merchant_shop', $nv, "id='$id'");
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 按角色设置参与投稿活动的人
+	 */
+	public function setStaff_action($shopId, $role) {
+		$user = $this->getPostJson();
+
+		if (empty($user->identity)) {
+			return new \ResponseError('没有指定用户的唯一标识');
+		}
+
+		if (isset($user->id)) {
+			$u['identity'] = $user->identity;
+			$rst = $this->model()->update(
+				'xxt_merchant_staff',
+				$u,
+				"id=$user->id"
+			);
+			return new \ResponseData($rst);
+		} else {
+			$i['mpid'] = $this->mpid;
+			$i['shopid'] = $shopId;
+			$i['role'] = $role;
+			$i['identity'] = $user->identity;
+			$i['idsrc'] = empty($user->idsrc) ? '' : $user->idsrc;
+			$i['label'] = empty($user->label) ? $user->identity : $user->label;
+			$i['id'] = $this->model()->insert('xxt_merchant_staff', $i, true);
+
+			return new \ResponseData($i);
+		}
+	}
+	/**
+	 * 按角色设置参与投稿活动的人
+	 * $id
+	 * $acl aclid
+	 */
+	public function delStaff_action($acl) {
+		$rst = $this->model()->delete(
+			'xxt_merchant_staff',
+			"mpid='$this->mpid' and id=$acl"
+		);
 
 		return new \ResponseData($rst);
 	}

@@ -19,7 +19,7 @@
 <div class='form-group' ng-if="propAccess&&obj[propAccess]==='Y'&&authapis.length&&changeAclUrl">
     <label class='col-md-{{labelSpan}} control-label'>{{labelOfList||'白名单'}}</label>
     <div class='col-md-{{controlSpan}}'>
-        <button class='btn btn-default btn-sm' ng-click='addAcl()' ng-hide="disabled&&disabled==='Y'"><span class='glyphicon glyphicon-plus'></span></button>
+        <button class='btn btn-default btn-sm' ng-click='addAcl()' style="display:none" ng-hide="disabled&&disabled==='Y'"><span class='glyphicon glyphicon-plus'></span></button>
         <button class="btn btn-default btn-sm" title='部门、标签、用户' ng-click="openAclSelector()" ng-hide="disabled&&disabled==='Y'"><span class='glyphicon glyphicon-folder-open'></span></button>
         <ul class='list-group acls' style='margin:0'>
             <li class='list-group-item' ng-repeat="acl in obj[propAcl||'acl']" ng-init="state={editing:acl.idsrc===''&&acl.id===undefined}" ng-click="clickAcl(acl,state,$event)" ng-mouseenter='enter=true' ng-mouseleave='enter=false'>

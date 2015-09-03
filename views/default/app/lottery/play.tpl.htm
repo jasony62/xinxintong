@@ -20,9 +20,9 @@ $lot = $params['lottery'];
         <?php $body_css=TPL::val('body_css'); if (!empty($body_css)) {?>
         <style><?php echo $body_css;?></style> 
         <?php } ?>
-        <?php $extra_css=TPL::val('extra_css'); if (!empty($extra_css)) {?>
+        <?php $page_css=TPL::val('page_css'); if (!empty($page_css)) {?>
         <style>
-            <?php echo $extra_css;?>
+            <?php echo $page_css;?>
         </style>
         <?php }?>
     </head>
@@ -32,7 +32,7 @@ $lot = $params['lottery'];
     <body>
         <?php }?>
         <?php TPL::pt('body_ele');?>
-        <div class='ng-clock' ng-clock ng-app='lottery' ng-controller='lotCtrl' ng-init="jsonParams='<?php echo urlencode(json_encode(TPL::val('params')));?>'">
+        <div class='ng-cloak' ng-cloak ng-app='lottery' ng-controller='lotCtrl' ng-init="jsonParams='<?php echo urlencode(json_encode(TPL::val('params')));?>'">
             <div id='errmsg' ng-class="errmsg==''?'':'active'" ng-click="errmsg=''">{{errmsg}}</div>
             <div id='nonfansalert' ng-class="nonfansalert==''?'':'active'" ng-click="nonfansalert=''"></div>
             <div id='nochancealert' ng-class="nochancealert==''?'':'active'" ng-click="nochancealert=''"></div>
@@ -41,7 +41,7 @@ $lot = $params['lottery'];
             <div id='preactivity'><?php echo $preactivity;?></div>
             <?php }?>
             <span id='chance'>{{setting.chance}}</span>
-            <?php $pattern = TPL::val('pattern'); !empty($pattern) && TPL::output($pattern);?>
+            <?php TPL::pt('page_html');?>
             <ul id='awards'>
                 <li ng-repeat='a in setting.awards|filter:validAward'>
                 <span>{{a.title}}</span>
@@ -73,7 +73,6 @@ $lot = $params['lottery'];
                 </div>
             </div>
             <?php } ?>
-            <?php TPL::pt('extra_ele');?>
             <div id='debug'><button ng-click='debugReset()'>RESET</button></div>
         </div>
         <iframe id='frmAuth' onload='this.height=document.documentElement.clientHeight'></iframe>
@@ -95,9 +94,9 @@ $lot = $params['lottery'];
         }
         }
         ?>
-        <?php $extra_js=TPL::val('extra_js'); if (!empty($extra_js)) {?>
+        <?php $page_js=TPL::val('page_js'); if (!empty($page_js)) {?>
         <script type='text/javascript'>
-            <?php echo $extra_js;?>
+            <?php echo $page_js;?>
         </script>
         <?php }?>
         <?php if (defined('SAE_MYSQL_HOST_M')) { ?>

@@ -1,25 +1,25 @@
-lotApp.controller('rouCtrl',['$scope','$interval',function($scope,$interval){
+lotApp.controller('rouCtrl', ['$scope', '$interval', function($scope, $interval) {
     var deg = Math.PI / 180,
-    timer = null,
-    stop = false,
-    running = false,
-    speed = 300,
-    stepall, stepfast = 7,
-    pointerIndex,
-    stepslow, stepping,
-    selected,
-    slotAngle,
-    state;
+        timer = null,
+        stop = false,
+        running = false,
+        speed = 300,
+        stepall, stepfast = 7,
+        pointerIndex,
+        stepslow, stepping,
+        selected,
+        slotAngle,
+        state;
     var drawBg = function() {
         var tmp_1 = 270 - (slotAngle / 2),
-        tmp_2 = tmp_1 + slotAngle,
-        item_x, item_y,
-        height = $('#rouletteWrap').height(),
-        width = $('#rouletteWrap').width(),
-        c_x = width / 2,
-        c_y = height / 2,
-        radius = height / 2,
-        dom_bg = $('#bg')[0];
+            tmp_2 = tmp_1 + slotAngle,
+            item_x, item_y,
+            height = $('#rouletteWrap').height(),
+            width = $('#rouletteWrap').width(),
+            c_x = width / 2,
+            c_y = height / 2,
+            radius = height / 2,
+            dom_bg = $('#bg')[0];
         dom_bg.height = height;
         dom_bg.width = width;
         ctx = dom_bg.getContext('2d');
@@ -34,12 +34,13 @@ lotApp.controller('rouCtrl',['$scope','$interval',function($scope,$interval){
             ctx.fill();
             item_x = c_x + Math.cos(deg * (tmp_1 + (slotAngle / 2))) * radius * 0.75;
             item_y = c_y + Math.sin(deg * (tmp_1 + (slotAngle / 2))) * radius * 0.75;
-            var aid = $scope.setting.plate['a'+i];
-            var atitle = $scope.awards[aid].title,pic=$scope.awards[aid].pic;
+            var aid = $scope.setting.plate['a' + i];
+            var atitle = $scope.awards[aid].title,
+                pic = $scope.awards[aid].pic;
             var slot = document.createElement('div');
             slot.classList.add('award_slot');
             slot.style.top = (item_y - 30) + 'px';
-            slot.style.left =  (item_x - 30) + 'px';
+            slot.style.left = (item_x - 30) + 'px';
             var award_bg = document.createElement('div');
             award_bg.classList.add('award_bg');
             if (pic) award_bg.style.background = "url('" + pic + "')";
@@ -55,18 +56,18 @@ lotApp.controller('rouCtrl',['$scope','$interval',function($scope,$interval){
     };
     var drawPointer = function() {
         var dom_plate = document.getElementById('plate'),
-        ctx = dom_plate.getContext('2d'),
-        startAngle = slotAngle * (pointerIndex - 2),
-        half,
-        dot_x,dot_y,dot_r,
-        gradient;
+            ctx = dom_plate.getContext('2d'),
+            startAngle = slotAngle * (pointerIndex - 2),
+            half,
+            dot_x, dot_y, dot_r,
+            gradient;
 
         dom_plate.height = $('#pointer').height();
         dom_plate.width = $('#pointer').width();
         half = dom_plate.width / 2,
-        dot_r = half/4,
-        // disc
-        ctx.beginPath();
+            dot_r = half / 4,
+            // disc
+            ctx.beginPath();
         ctx.fillStyle = '#FFD700';
         ctx.arc(half, half, half, 0, 2 * Math.PI);
         ctx.fill();
@@ -78,13 +79,13 @@ lotApp.controller('rouCtrl',['$scope','$interval',function($scope,$interval){
         ctx.arc(dot_x, dot_y, dot_r, 0, 2 * Math.PI);
         ctx.fill();
         // text
-        ctx.font="bold 24px Microsoft Yahei,Arial";
-        gradient=ctx.createLinearGradient(0,0,dom_plate.width,0);
-        gradient.addColorStop("1.0","red");
-        ctx.strokeStyle=gradient;
-        ctx.textAlign="center";     
-        ctx.textBaseline="middle"; 
-        ctx.strokeText("抽奖",dom_plate.width / 2, dom_plate.height / 2); 
+        ctx.font = "bold 24px Microsoft Yahei,Arial";
+        gradient = ctx.createLinearGradient(0, 0, dom_plate.width, 0);
+        gradient.addColorStop("1.0", "red");
+        ctx.strokeStyle = gradient;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.strokeText("抽奖", dom_plate.width / 2, dom_plate.height / 2);
     };
     var rotate = function() {
         if (state === 1) {
@@ -129,7 +130,7 @@ lotApp.controller('rouCtrl',['$scope','$interval',function($scope,$interval){
         $scope.leftChance = null;
         if ($scope.$parent.newAward) {
             if ($scope.$parent.newAward.type != 0)
-                $scope.$parent.setting.myAwards.splice(0,0,$scope.newAward);
+                $scope.$parent.setting.myAwards.splice(0, 0, $scope.newAward);
             greeting = $scope.$parent.newAward.award_greeting;
             $scope.$parent.newAward = null;
             if (greeting && greeting.length && greeting.trim().length)
@@ -141,7 +142,7 @@ lotApp.controller('rouCtrl',['$scope','$interval',function($scope,$interval){
         $scope.nonfansalert = '';
         $scope.nochancealert = '';
         $scope.showGreeting('');
-        $scope.play(function(){
+        $scope.play(function() {
             if (running) return;
             running = true;
             stop = false;
@@ -160,7 +161,7 @@ lotApp.controller('rouCtrl',['$scope','$interval',function($scope,$interval){
         $interval.cancel(timer);
         timer = null;
     };
-    var setup = function () {
+    var setup = function() {
         clearTimer();
         state = 0;
         pointerIndex = 0;
@@ -191,7 +192,7 @@ lotApp.controller('rouCtrl',['$scope','$interval',function($scope,$interval){
                 return;
         }
     };
-    $scope.$watch('params', function(){
+    $scope.$watch('params', function() {
         setup();
     });
 }]);

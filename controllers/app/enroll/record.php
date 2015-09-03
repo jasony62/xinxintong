@@ -121,7 +121,7 @@ class record extends base {
 		/**
 		 * 通知登记活动的管理员
 		 */
-		!empty($act->receiver_page) && $this->notifyAdmin($mpid, $act, $user, $ek);
+		!empty($act->receiver_page) && $this->notifyAdmin($mpid, $act, $user);
 
 		return new \ResponseData($ek);
 	}
@@ -150,7 +150,7 @@ class record extends base {
 	/**
 	 * 通知活动管理员
 	 */
-	private function notifyAdmin($mpid, $act, $user, $ek) {
+	private function notifyAdmin($mpid, $act, $user) {
 		$admins = \TMS_APP::model('acl')->enrollReceivers($mpid, $act->id);
 		if (false !== ($key = array_search($user->openid, $admins))) {
 			/* 管理员是登记人，不再通知 */
@@ -177,7 +177,7 @@ class record extends base {
 				$this->send_to_yxuser_byp2p($mpid, $message, $admins);
 			} else {
 				foreach ($admins as $admin) {
-					$this->sendByOpenid($mpid, $admin, $message);
+					$this->send_to_user($mpid, $admin, $message);
 				}
 			}
 		}

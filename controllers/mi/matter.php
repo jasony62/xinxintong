@@ -137,6 +137,14 @@ class matter extends \member_base {
 	 * 记录访问日志
 	 */
 	public function logAccess_action($mpid, $id, $type, $title = '', $shareby = '') {
+		/* support CORS */
+		header('Access-Control-Allow-Origin:*');
+		header('Access-Control-Allow-Methods:POST');
+		header('Access-Control-Allow-Headers:Content-Type');
+		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+			exit;
+		}
+
 		$posted = $this->getPostJson();
 
 		$user = $this->getUser($mpid, array('verbose' => array('fan' => 'Y')));
@@ -185,6 +193,8 @@ class matter extends \member_base {
 	 *
 	 */
 	public function logShare_action($shareid, $mpid, $id, $type, $title, $shareto, $shareby = '') {
+		header('Access-Control-Allow-Origin:*');
+
 		switch ($type) {
 		case 'article':
 			$table = 'xxt_article';

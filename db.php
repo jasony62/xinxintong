@@ -22,6 +22,7 @@ if (file_exists(dirname(__FILE__) . '/cus/db.php')) {
 } else {
 	header('Content-Type: text/plain; charset=utf-8');
 	die('无法获得数据库连接参数');
+	exit();
 }
 /**
  * 连接数据库

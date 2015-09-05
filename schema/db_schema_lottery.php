@@ -80,6 +80,7 @@ $sql .= ',taskid varchar(32) not null'; //任务ID，仅当type==3时有效
 $sql .= ",period char(1) not null default 'A'"; // A:accumulate;D:day,W:week,M:month,Y:year
 $sql .= ",quantity int not null default 0"; //奖品的参数，例如：【积分】的数量，【再来一次】的次数
 $sql .= ",takeaway int not null default 0"; //已经抽中的奖品数量
+$sql .= ",takeaway_at int not null default 0";
 $sql .= ",greeting text"; //中奖贺词
 $sql .= ",primary key(mpid,lid,aid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

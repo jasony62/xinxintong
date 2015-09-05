@@ -1,73 +1,105 @@
-lotApp.controller('rouCtrl', ['$scope', '$interval', function($scope, $interval) {
-    var deg = Math.PI / 180,
+lotApp.register.controller('rouCtrl', ['$scope', '$interval', function($scope, $interval) {
+    var lot,
+        deg = Math.PI / 180,
         timer = null,
         stop = false,
         running = false,
         speed = 300,
-        stepall, stepfast = 7,
+        stepall,
+        stepfast = 7,
         pointerIndex,
-        stepslow, stepping,
-        selected,
+        stepslow,
+        stepping,
         slotAngle,
-        state;
+        state,
+        newAward,
+        selectedSlot,
+        playAfter;
+    var setup = function() {
+        clearTimer();
+        state = 0;
+        pointerIndex = 0;
+        running = false;
+        stop = true;
+        stepping = 0;
+        slotAngle = 360 / lot.plate.size;
+        drawBg();
+        drawPointer();
+    };
+    var drawAward = function(oAward, posx, posy) {
+        var title, pic, eleWrap, eleBg, eleTitle;
+        title = oAward.title;
+        pic = oAward.pic;
+        eleWrap = document.createElement('div');
+        eleWrap.classList.add('award-slot');
+        eleWrap.style.top = (posy - 30) + 'px';
+        eleWrap.style.left = (posx - 30) + 'px';
+        eleBg = document.createElement('div');
+        eleBg.classList.add('award-bg');
+        if (pic) eleBg.style.background = "url('" + pic + "')";
+        eleTitle = document.createElement('div');
+        eleTitle.classList.add('award-title');
+        eleTitle.innerHTML = title;
+        eleBg.appendChild(eleTitle);
+        eleWrap.appendChild(eleBg);
+
+        return eleWrap;
+    };
     var drawBg = function() {
-        var tmp_1 = 270 - (slotAngle / 2),
-            tmp_2 = tmp_1 + slotAngle,
-            item_x, item_y,
-            height = $('#rouletteWrap').height(),
-            width = $('#rouletteWrap').width(),
-            c_x = width / 2,
-            c_y = height / 2,
+        var $wrap = $('#rouletteWrap'),
+            startAngle = 270 - (slotAngle / 2),
+            endAngle = startAngle + slotAngle,
+            height = $wrap.height(),
+            width = $wrap.width(),
+            centerx = width / 2,
+            centery = height / 2,
             radius = height / 2,
-            dom_bg = $('#bg')[0];
-        dom_bg.height = height;
-        dom_bg.width = width;
-        ctx = dom_bg.getContext('2d');
+            eleBg = document.querySelector('.roulette-bg'),
+            options,
+            stylesLength;
+        eleBg.height = height;
+        eleBg.width = width;
+        ctx = eleBg.getContext('2d');
+        options = {
+            fillStyle: ['#E60000', '#FFB30F']
+        };
+        stylesLength = options.fillStyle.length;
         // clean
-        $('.award_slot').remove();
+        $('.award-slot').remove();
         // draw
-        for (var i = 0; i < $scope.setting.plate.size; i++) {
+        var i, l, aid, awardx, awardy, eleAward;
+        for (i = 0, l = lot.plate.size; i < l; i++) {
+            // slot
             ctx.beginPath();
-            ctx.fillStyle = $scope.options.fillStyle[i % $scope.options.fillStyle.length];
-            ctx.moveTo(c_x, c_y);
-            ctx.arc(c_x, c_y, radius, deg * tmp_1, deg * tmp_2, false);
+            ctx.fillStyle = options.fillStyle[i % stylesLength];
+            ctx.moveTo(centerx, centery);
+            ctx.arc(centerx, centery, radius, deg * startAngle, deg * endAngle, false);
             ctx.fill();
-            item_x = c_x + Math.cos(deg * (tmp_1 + (slotAngle / 2))) * radius * 0.75;
-            item_y = c_y + Math.sin(deg * (tmp_1 + (slotAngle / 2))) * radius * 0.75;
-            var aid = $scope.setting.plate['a' + i];
-            var atitle = $scope.awards[aid].title,
-                pic = $scope.awards[aid].pic;
-            var slot = document.createElement('div');
-            slot.classList.add('award_slot');
-            slot.style.top = (item_y - 30) + 'px';
-            slot.style.left = (item_x - 30) + 'px';
-            var award_bg = document.createElement('div');
-            award_bg.classList.add('award_bg');
-            if (pic) award_bg.style.background = "url('" + pic + "')";
-            var award_title = document.createElement('div');
-            award_title.classList.add('award_title');
-            award_title.innerHTML = atitle;
-            award_bg.appendChild(award_title);
-            slot.appendChild(award_bg);
-            $('#rouletteWrap').append(slot);
-            tmp_1 += slotAngle;
-            tmp_2 += slotAngle;
+            // award
+            aid = lot.plate['a' + i];
+            awardx = centerx + Math.cos(deg * (startAngle + (slotAngle / 2))) * radius * 0.75;
+            awardy = centery + Math.sin(deg * (startAngle + (slotAngle / 2))) * radius * 0.75;
+            eleAward = drawAward($scope.$parent.awards[aid], awardx, awardy);
+            $wrap.append(eleAward);
+            startAngle += slotAngle;
+            endAngle += slotAngle;
         }
     };
     var drawPointer = function() {
-        var dom_plate = document.getElementById('plate'),
-            ctx = dom_plate.getContext('2d'),
+        var elePlate = document.querySelector('.roulette-plate'),
+            elePointer = document.querySelector('.roulette-pointer'),
+            ctx = elePlate.getContext('2d'),
             startAngle = slotAngle * (pointerIndex - 2),
             half,
             dot_x, dot_y, dot_r,
             gradient;
 
-        dom_plate.height = $('#pointer').height();
-        dom_plate.width = $('#pointer').width();
-        half = dom_plate.width / 2,
-            dot_r = half / 4,
-            // disc
-            ctx.beginPath();
+        elePlate.height = $(elePointer).height();
+        elePlate.width = $(elePointer).width();
+        half = elePlate.width / 2;
+        dot_r = half / 4;
+        // disc
+        ctx.beginPath();
         ctx.fillStyle = '#FFD700';
         ctx.arc(half, half, half, 0, 2 * Math.PI);
         ctx.fill();
@@ -80,17 +112,17 @@ lotApp.controller('rouCtrl', ['$scope', '$interval', function($scope, $interval)
         ctx.fill();
         // text
         ctx.font = "bold 24px Microsoft Yahei,Arial";
-        gradient = ctx.createLinearGradient(0, 0, dom_plate.width, 0);
+        gradient = ctx.createLinearGradient(0, 0, elePlate.width, 0);
         gradient.addColorStop("1.0", "red");
         ctx.strokeStyle = gradient;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.strokeText("抽奖", dom_plate.width / 2, dom_plate.height / 2);
+        ctx.strokeText("抽奖", elePlate.width / 2, elePlate.height / 2);
     };
     var rotate = function() {
         if (state === 1) {
             if (stepping > 7) {
-                if ($scope.setting.autostop === 'Y' && stepping >= $scope.setting.maxstep) {
+                if (lot.autostop === 'Y' && stepping >= lot.maxstep) {
                     $scope.act(true);
                 } else {
                     clearTimer();
@@ -104,7 +136,7 @@ lotApp.controller('rouCtrl', ['$scope', '$interval', function($scope, $interval)
             speed = 300;
             timer = $interval(rotate, speed);
         }
-        if (pointerIndex == $scope.setting.plate.size) {
+        if (pointerIndex == lot.plate.size) {
             pointerIndex = 0;
         }
         if (state === 2 && stepping == stepall) {
@@ -116,36 +148,25 @@ lotApp.controller('rouCtrl', ['$scope', '$interval', function($scope, $interval)
         stepping++;
     };
     var createStop = function() {
-        selected = $scope.setting.selected;
-        var circle = Math.floor(Math.random() * 3) + 1;
-        var c_step = circle * $scope.setting.plate.size;
-        var actualIndex = stepping % $scope.setting.plate.size;
-        stepall = selected - actualIndex + c_step;
+        var circle, step, actualIndex;
+        circle = Math.floor(Math.random() * 3) + 1;
+        step = circle * lot.plate.size;
+        actualIndex = stepping % lot.plate.size;
+        stepall = selectedSlot - actualIndex + step;
         stepslow = stepall - 7;
         stepping = 0;
     };
     var onStopRotate = function() {
-        var greeting;
-        $scope.$parent.setting.chance = $scope.$parent.leftChance;
-        $scope.leftChance = null;
-        if ($scope.$parent.newAward) {
-            if ($scope.$parent.newAward.type != 0)
-                $scope.$parent.setting.myAwards.splice(0, 0, $scope.newAward);
-            greeting = $scope.$parent.newAward.award_greeting;
-            $scope.$parent.newAward = null;
-            if (greeting && greeting.length && greeting.trim().length)
-                $scope.showGreeting(greeting);
-        }
+        playAfter();
     };
     var startClick = function() {
-        $scope.errmsg = '';
-        $scope.nonfansalert = '';
-        $scope.nochancealert = '';
-        $scope.showGreeting('');
-        $scope.play(function() {
+        $scope.$parent.play(function(result, after) {
             if (running) return;
             running = true;
             stop = false;
+            newAward = result.award;
+            selectedSlot = result.slot;
+            playAfter = after;
             timer = $interval(rotate, speed);
         });
     };
@@ -161,17 +182,6 @@ lotApp.controller('rouCtrl', ['$scope', '$interval', function($scope, $interval)
         $interval.cancel(timer);
         timer = null;
     };
-    var setup = function() {
-        clearTimer();
-        state = 0;
-        pointerIndex = 0;
-        running = false;
-        stop = true;
-        stepping = 0;
-        slotAngle = 360 / $scope.setting.plate.size;
-        drawBg();
-        drawPointer();
-    };
     $scope.act = function(forced) {
         switch (state) {
             case 0:
@@ -179,7 +189,7 @@ lotApp.controller('rouCtrl', ['$scope', '$interval', function($scope, $interval)
                 startClick();
                 break;
             case 1:
-                if (forced || $scope.setting.autostop === 'N') {
+                if (forced || lot.autostop === 'N') {
                     state = 2;
                     endClick();
                 }
@@ -192,7 +202,8 @@ lotApp.controller('rouCtrl', ['$scope', '$interval', function($scope, $interval)
                 return;
         }
     };
-    $scope.$watch('params', function() {
+    $scope.$on('xxt.app.lottery.ready', function(params) {
+        lot = $scope.$parent.lot;
         setup();
     });
 }]);

@@ -16,6 +16,12 @@ class lottery extends \member_base {
 		return $rule_action;
 	}
 	/**
+	 *
+	 */
+	protected function canAccessObj($mpid, $lid, $member, $authapis, $lot) {
+		return $this->model('acl')->canAccessMatter($mpid, 'lottery', $lid, $member, $authapis);
+	}
+	/**
 	 * 获得轮盘抽奖活动的页面或定义
 	 *
 	 * $mpid
@@ -66,31 +72,19 @@ class lottery extends \member_base {
 		/**
 		 * 当前访问用户
 		 */
-		$ooid = !empty($who) ? $who : $this->getCookieOAuthUser($mpid);
-		$vid = $this->getVisitorId($mpid);
+		$user = $this->getUser($mpid);
 		/**
 		 * 要求先关注再参与
 		 */
 		if ($lot->fans_enter_only === 'Y') {
-			$this->askFollow($mpid, $ooid);
+			$this->askFollow($mpid, $user->openid);
 		}
-
 		/**
 		 * 访问控制
 		 */
 		if ($lot->access_control === 'Y') {
-			$this->accessControl($mpid, $lot->id, $lot->authapis, $ooid, $lot);
+			$this->accessControl($mpid, $lot->id, $lot->authapis, $user->openid, $lot);
 		}
-
-		$params = array();
-		$params['visitor'] = array();
-		/**
-		 * 返回抽奖活动页面
-		 */
-		$params['mpid'] = $mpid;
-		$params['shareby'] = $shareby;
-		$params['visitor']['openid'] = isset($ooid) ? $ooid : '';
-		$params['visitor']['vid'] = $vid;
 		/**
 		 * 处理前置活动
 		 */
@@ -111,8 +105,8 @@ class lottery extends \member_base {
 		 */
 		if ($preactivitydone) {
 			$logUser = new \stdClass;
-			$logUser->vid = $vid;
-			$logUser->openid = isset($ooid) ? $ooid : '';
+			$logUser->vid = $user->vid;
+			$logUser->openid = $user->openid;
 			$logUser->nickname = '';
 
 			$logMatter = new \stdClass;
@@ -126,46 +120,38 @@ class lottery extends \member_base {
 
 			$this->model('log')->writeMatterRead($mpid, $logUser, $logMatter, $logClient, $shareby);
 		}
-		/**
-		 * is member?
-		 */
-		$mid = null;
-		if ($lot->access_control) {
-			$aAuthapis = explode(',', $lot->authapis);
-			if ($members = $this->getCookieMember($mpid, $aAuthapis)) {
-				$mid = $members[0]->mid;
-			}
 
-		}
-		/**
-		 * 抽奖活动定义
-		 */
-		$r = $model->byId($lid, 'id,pic,summary,title,show_greeting,show_winners,autostop,maxstep,chance max_chance', array('award', 'plate'));
-		/**
-		 * 获得当前用户的抽奖数据
-		 */
-		$r->myAwards = $model->getLog($lid, $mid, $ooid);
-		$r->chance = $model->getChance($lid, $mid, $ooid);
-		$params['lottery'] = $r;
-
-		\TPL::assign('params', $params);
-
-		$mpsetting = $this->getMpSetting($mpid);
-		\TPL::assign('body_ele', $mpsetting->body_ele);
-		\TPL::assign('body_css', $mpsetting->body_css);
-
-		$page = $this->model('code/page')->byId($lot->page_id);
-		\TPL::assign('page_html', $page->html);
-		\TPL::assign('page_css', $page->css);
-		\TPL::assign('page_js', $page->js);
 		\TPL::output('/app/lottery/play');
+
 		exit;
 	}
 	/**
-	 *
+	 * 抽奖活动定义
 	 */
-	protected function canAccessObj($mpid, $lid, $member, $authapis, $lot) {
-		return $this->model('acl')->canAccessMatter($mpid, 'lottery', $lid, $member, $authapis);
+	public function get_action($mpid, $lid) {
+		/* user */
+		$user = $this->getUser($mpid);
+		/**/
+		$mid = null;
+		$params = new \stdClass;
+		$params->user = $user;
+		/**
+		 * 抽奖活动定义
+		 */
+		$model = $this->model('app\lottery');
+		$lot = $model->byId($lid, 'id,pic,summary,title,show_greeting,show_winners,autostop,maxstep,chance max_chance,page_id', array('award', 'plate'));
+		$params->logs = $model->getLog($lid, $mid, $user->openid, true);
+		$params->leftChance = $model->getChance($lid, $mid, $user->openid);
+		$params->lottery = $lot;
+
+		//$mpsetting = $this->getMpSetting($mpid);
+		//\TPL::assign('body_ele', $mpsetting->body_ele);
+		//\TPL::assign('body_css', $mpsetting->body_css);
+
+		$page = $this->model('code/page')->byId($lot->page_id);
+		$params->page = $page;
+
+		return new \ResponseData($params);
 	}
 	/**
 	 * 完成前置活动
@@ -197,7 +183,7 @@ class lottery extends \member_base {
 	/**
 	 * 最近的获奖者清单
 	 */
-	public function winners_action($lid) {
+	public function winnersList_action($lid) {
 		$winners = $this->model('app\lottery')->getWinners($lid);
 
 		return new \ResponseData($winners);
@@ -220,7 +206,6 @@ class lottery extends \member_base {
 			if (empty($openid)) {
 				return new \ResponseData(null, 302, $r->nonfans_alert);
 			}
-
 			$q = array(
 				'count(*)',
 				'xxt_fans',
@@ -229,7 +214,6 @@ class lottery extends \member_base {
 			if (1 !== (int) $this->model()->query_val_ss($q)) {
 				return new \ResponseData(null, 302, $r->nonfans_alert);
 			}
-
 		}
 		/**
 		 * 如果仅限会员参与，获得用户身份信息
@@ -241,7 +225,6 @@ class lottery extends \member_base {
 		} else {
 			$mid = null;
 		}
-
 		/**
 		 * 如果不能获得一个确定的身份信息，就无法将抽奖结果和用户关联
 		 * 因此无法确定用户身份时，就不允许进行抽奖
@@ -249,14 +232,12 @@ class lottery extends \member_base {
 		if (empty($openid) && empty($mid)) {
 			return new \ComplianceError('无法确定您的身份信息，不能参与抽奖！');
 		}
-
 		/**
 		 * 是否完成了指定内置任务
 		 */
 		if ($task = $model->hasTask($lid, $mid, $openid)) {
 			return new \ResponseData(null, 301, $task->description);
 		}
-
 		/**
 		 * 还有参加抽奖的机会吗？
 		 */
@@ -272,22 +253,12 @@ class lottery extends \member_base {
 		if (empty($myAward)) {
 			return new \ResponseData(null, 301, '对不起，没有奖品了！');
 		}
-
-		/**
-		 * record result
-		 */
-		$model->recordResult($mpid, $lid, $mid, $openid, $selectedAwardID);
 		/**
 		 * 领取非实体奖品
 		 */
 		if ($myAward['type'] == 1 || $myAward['type'] == 2 || $myAward['type'] == 3) {
 			$model->acceptAward($lid, $mid, $openid, $myAward);
 		}
-
-		/**
-		 * 检查剩余的机会
-		 */
-		$chance = $model->getChance($r->id, $mid, $openid);
 		/**
 		 * 返回奖项信息
 		 */
@@ -297,8 +268,23 @@ class lottery extends \member_base {
 				break;
 			}
 		}
+		/**
+		 * record result
+		 */
+		$log = $model->logResult($mpid, $lid, $mid, $openid, $myAward2);
+		/**
+		 * 检查剩余的机会
+		 */
+		$chance = $model->getChance($r->id, $mid, $openid);
+		/**
+		 * 清理冗余数据
+		 */
+		unset($myAward2->prob);
+		unset($myAward2->quantity);
 
-		return new \ResponseData(array($selectedSlot, $chance, $myAward2));
+		$result = array('slot' => $selectedSlot, 'leftChance' => $chance, 'award' => $myAward2, 'log' => $log);
+
+		return new \ResponseData($result);
 	}
 	/**
 	 * 返回当前用户获得的奖品
@@ -345,7 +331,6 @@ class lottery extends \member_base {
 			if ((int) $a->prob === 0 || ($a->period === 'A' && $a->type == 99 && ((int) $a->takeaway >= (int) $a->quantity))) {
 				continue;
 			}
-
 			$awards[$a->aid] = array(
 				'aid' => $a->aid,
 				'prob' => $a->prob,
@@ -361,7 +346,6 @@ class lottery extends \member_base {
 		if (empty($awards)) {
 			return false;
 		}
-
 		/**
 		 * 每个奖项所在位置
 		 * 跳过无效的奖品
@@ -370,7 +354,6 @@ class lottery extends \member_base {
 			if (isset($awards[$r->plate->{"a$i"}])) {
 				$awards[$r->plate->{"a$i"}]['pos'][] = $i;
 			}
-
 		}
 		/**
 		 * 清除掉不在槽位中的奖项
@@ -388,7 +371,6 @@ class lottery extends \member_base {
 			if ((int) $a['prob'] === (int) $b['prob']) {
 				return 0;
 			}
-
 			return ((int) $a['prob'] < (int) $b['prob']) ? -1 : 1;
 		});
 		/**

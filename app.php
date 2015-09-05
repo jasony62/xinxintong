@@ -16,8 +16,8 @@ ini_set('default_charset', 'utf-8');
  * error and exception handle
  */
 function show_error($message) {
-	//header("HTTP/1.1 500 Internal Server Error");
-	//header('Content-Type: text/plain; charset=utf-8');
+	header("HTTP/1.1 500 Internal Server Error");
+	header('Content-Type: text/plain; charset=utf-8');
 	if ($message instanceof Exception) {
 		echo $message->getMessage() . "\n";
 		$trace = $message->getTrace();
@@ -25,7 +25,6 @@ function show_error($message) {
 			foreach ($t as $k => $v) {
 				echo $k . ':' . json_encode($v) . "\n";
 			}
-
 		}
 	} else {
 		echo $message;

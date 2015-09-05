@@ -82,6 +82,7 @@ $sql .= ",quantity int not null default 0"; //奖品的参数，例如：【积�
 $sql .= ",takeaway int not null default 0"; //已经抽中的奖品数量
 $sql .= ",takeaway_at int not null default 0";
 $sql .= ",greeting text"; //中奖贺词
+$sql .= ",get_prize_url text"; //获得兑奖url的url
 $sql .= ",primary key(mpid,lid,aid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -120,6 +121,7 @@ $sql .= ',aid varchar(40) not null'; // 奖品的ID
 $sql .= ",times_accumulated int not null default 1"; //有效时段内，累积的次数
 $sql .= ",last char(1) not null default 'Y'"; // 最后一次抽奖记录。每一次抽奖动作都记录，记录最后一条便于计算。
 $sql .= ",takeaway char(1) not null default 'N'"; // 奖品是否已经领取。只对非实物奖品有效。
+$sql .= ",prize_url text"; // 兑奖的地址
 $sql .= ",primary key(lid,mid,openid,draw_at)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

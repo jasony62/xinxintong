@@ -209,4 +209,36 @@ class record extends base {
 
 		return new \ResponseData('ok');
 	}
+	/**
+	 * 给当前用户产生一条空的登记记录，并返回这条记录
+	 */
+	public function emptyGet_action($mpid, $aid) {
+		$model = $this->model('app\enroll');
+		if (false === ($act = $model->byId($aid))) {
+			return new \ParameterError('活动不存在');
+		}
+		/**
+		 * 当前访问用户的基本信息
+		 */
+		$user = $this->getUser($mpid,
+			array(
+				'authapis' => $act->authapis,
+				'matter' => $act,
+				'verbose' => array('member' => 'Y', 'fan' => 'Y'),
+			)
+		);
+		$mid = '';
+		$ek = $model->enroll($mpid, $act, $user->openid, $user->vid, $mid);
+
+		$url = 'http://' . $_SERVER['HTTP_HOST'] . '/rest/app/enroll';
+		$url .= '?mpid=' . $mpid;
+		$url .= '&aid=' . $aid;
+		$url .= '&ek=' . $ek;
+
+		$rsp = new \stdClass;
+		$rsp->url = $url;
+		$rsp->ek = $ek;
+
+		return new \ResponseData($rsp);
+	}
 }

@@ -40,7 +40,7 @@ class lottery_model extends \matter\lottery_model {
 	 */
 	public function &getAwards($lid) {
 		$q = array(
-			'aid,title,description,pic,prob,type,taskid,period,quantity,takeaway,greeting',
+			'*',
 			'xxt_lottery_award',
 			"lid='$lid'",
 		);
@@ -300,7 +300,7 @@ class lottery_model extends \matter\lottery_model {
 			$log = array();
 		} else {
 			$q = array(
-				'l.aid,l.draw_at,a.title award_title,a.pic award_pic,a.greeting award_greeting,a.type',
+				'l.aid,l.draw_at,l.prize_url,a.title award_title,a.pic award_pic,a.greeting award_greeting,a.type',
 				'xxt_lottery_log l,xxt_lottery_award a',
 			);
 			if (!empty($mid)) {

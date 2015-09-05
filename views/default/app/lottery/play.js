@@ -41,12 +41,9 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
             this.type = 'nochance';
             this.msg = msg;
         },
-        greeting: function(msg) {
-            this.type = 'greeting';
-            this.msg = msg;
-        },
     };
     $scope.awards = {};
+    $scope.greeting = null;
     $http.get('/rest/app/lottery/get?mpid=' + mpid + '&lid=' + lid).success(function(rsp) {
         var i, l, award, params, awards, lot, page;
         params = rsp.data;
@@ -74,11 +71,14 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
         }, 0);
     });
     var playAfter = function(result) {
+        var log;
+        log = result.log;
         $scope.leftChance = result.leftChance;
-        $scope.logs.push(result.log);
-        greeting = result.award.greeting;
-        if (greeting && greeting.length && greeting.trim().length)
-            $scope.showGreeting(greeting);
+        $scope.logs.push(log);
+        if ($scope.lot.show_greeting === 'Y') {
+            if (log.award_greeting && log.award_greeting.length)
+                $scope.showGreeting(log);
+        }
     };
     $scope.play = function(cbSuccess, cbError) {
         $scope.alert.empty();
@@ -105,7 +105,6 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
                     })) {
                     playAfter(rsp.data);
                 }
-
             } else {
                 playAfter(rsp.data);
             }
@@ -140,10 +139,38 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
     $scope.validAward = function(award) {
         return award.type != 0 && award.type != 3;
     };
-    $scope.showGreeting = function(greeting) {
-        if ($scope.lot.show_greeting === 'Y') {
-            $scope.alert.greeting(greeting);
+    $scope.canPrize = function(log) {
+        var award;
+        if (!log) return false;
+        award = $scope.awards[log.aid];
+        return (!!award.get_prize_url && award.get_prize_url.length);
+    };
+    $scope.prize = function(log) {
+        var award;
+        if (log.prize_url && log.prize_url.length) {
+            location.href = log.prize_url;
+        } else {
+            award = $scope.awards[log.aid];
+            if (!award.get_prize_url) return false;
+            $http.get(award.get_prize_url).success(function(rsp) {
+                var prizeUrl;
+                prizeUrl = {
+                    mpid: mpid,
+                    lid: lid,
+                    draw_at: log.draw_at,
+                    url: rsp.data.url
+                }
+                $http.post('/rest/app/lottery/prize', prizeUrl).success(function() {
+                    location.href = rsp.data.url;
+                })
+            });
         }
+    };
+    $scope.showGreeting = function(log) {
+        $scope.greeting = log;
+    };
+    $scope.hideGreeting = function() {
+        $scope.greeting = null;
     };
     $scope.debugReset = function() {
         var c, expdate = new Date();

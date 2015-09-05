@@ -10,6 +10,15 @@
     <body>
         <div>
             <div id='alert' class="{{alert.type}}" ng-class="{'active':alert.msg}" ng-click="clickAlert($event)" ng-bind="alert.msg"></div>
+            <div id='greeting' ng-show="greeting">
+                <div>
+                    <div ng-bind="greeting.award_greeting"></div>
+                </div>
+                <div>
+                    <a href="javascript:void(0)" ng-click="hideGreeting()">关闭</a>
+                    <a href="javascript:void(0)" ng-show="canPrize(greeting)" ng-click="prize(greeting)">兑奖</a>
+                </div>
+            </div>
             <div id='leftChance' title="剩余抽奖机会" ng-bind="leftChance"></div>
             <div id="pattern" dynamic-html='params.page.html'></div>
             <ul id='awards'>
@@ -30,7 +39,7 @@
                         <td>{{l.draw_at*1000|date:'MM-dd HH:mm'}}</td>
                         <td ng-if='!l.award_greeting'>{{l.award_title}}</td>
                         <td ng-if='l.award_greeting'>
-                            <a href='#' ng-click="showGreeting(l.award_greeting)">{{l.award_title}}</a>
+                            <a href='#' ng-click="showGreeting(l)">{{l.award_title}}</a>
                         </td>
                     </tr>
                 </tbody>

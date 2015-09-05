@@ -287,6 +287,22 @@ class lottery extends \member_base {
 		return new \ResponseData($result);
 	}
 	/**
+	 * 记录兑奖地址
+	 */
+	public function prize_action() {
+		$log = $this->getPostJson();
+
+		$user = $this->getUser($log->mpid);
+
+		$rst = $this->model()->update(
+			'xxt_lottery_log',
+			array('prize_url' => $log->url),
+			"mpid='$log->mpid' and lid='$log->lid' and openid='$user->openid' and draw_at=$log->draw_at"
+		);
+
+		return new \ResponseData('ok');
+	}
+	/**
 	 * 返回当前用户获得的奖品
 	 */
 	public function myawards_action($mpid, $lid) {

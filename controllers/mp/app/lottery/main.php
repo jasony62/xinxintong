@@ -79,13 +79,17 @@ class main extends \mp\app\app_base {
 		$mpa = $this->model('mp\mpaccount')->getFeatures($this->mpid, 'heading_pic');
 
 		$lid = uniqid();
+		$current = time();
+
 		$newone['mpid'] = $this->mpid;
 		$newone['id'] = $lid;
 		$newone['title'] = '新抽奖活动';
 		$newone['creater'] = \TMS_CLIENT::get_client_uid();
 		//$newone['creater_name'] = $account->nickname;
-		$newone['create_at'] = time();
+		$newone['create_at'] = $current;
 		$newone['pic'] = $mpa->heading_pic;
+		$newone['start_at'] = $current;
+		$newone['end_at'] = $current + 86400;
 		$newone['nonfans_alert'] = "请先关注公众号，再参与抽奖！";
 		$newone['nochance_alert'] = "您的抽奖机会已经用光了，下次再来试试吧！";
 		/**
@@ -94,15 +98,12 @@ class main extends \mp\app\app_base {
 		$codeModel = $this->model('code/page');
 		$page = $codeModel->create($uid);
 		$data = array(
-			'html' => file_get_contents(dirname(__FILE__) . '/pattern/roulette.html'),
-			'css' => file_get_contents(dirname(__FILE__) . '/pattern/roulette.css'),
-			'js' => file_get_contents(dirname(__FILE__) . '/pattern/roulette.js'),
+			'html' => '<button ng-click="play()">开始</button>',
+			'css' => '#pattern button{width:100%;font-size:1.2em;padding:.5em 0}',
+			'js' => '',
 		);
 		$codeModel->modify($page->id, $data);
 		$newone['page_id'] = $page->id;
-
-		//$newone['extra_css'] = "#awards{list-style:none;background:#CCC;border:1px solid #666}" . PHP_EOL . "#myAwards,#winners,#chance{display:none}";
-		//$newone['extra_ele'] = "活动说明";
 
 		$this->model()->insert('xxt_lottery', $newone, false);
 		/**
@@ -215,6 +216,21 @@ class main extends \mp\app\app_base {
 			(array) $r,
 			"lid='$lid'"
 		);
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 *
+	 */
+	public function pageSet_action($lid, $pageid, $pattern) {
+		$codeModel = $this->model('code/page');
+		$page = $codeModel->byId($pageid);
+		$data = array(
+			'html' => file_get_contents(dirname(__FILE__) . '/pattern/' . $pattern . '.html'),
+			'css' => file_get_contents(dirname(__FILE__) . '/pattern/' . $pattern . '.css'),
+			'js' => file_get_contents(dirname(__FILE__) . '/pattern/' . $pattern . '.js'),
+		);
+		$rst = $codeModel->modify($page->id, $data);
 
 		return new \ResponseData($rst);
 	}

@@ -9,12 +9,9 @@
     </head>
     <body>
         <div>
-            <div id='errmsg' ng-class="errmsg==''?'':'active'" ng-click="errmsg=''">{{errmsg}}</div>
-            <div id='nonfansalert' ng-class="nonfansalert==''?'':'active'" ng-click="nonfansalert=''"></div>
-            <div id='nochancealert' ng-class="nochancealert==''?'':'active'" ng-click="nochancealert=''"></div>
-            <div id='greetingmsg' ng-class="greetingmsg==''?'':'active'" ng-click="greetingmsg=''"></div>
-            <div id='chance' title="抽奖机会" ng-bind="leftChance"></div>
-            <div id="board" dynamic-html='params.page.html'></div>
+            <div id='alert' class="{{alert.type}}" ng-class="{'active':alert.msg}" ng-click="clickAlert($event)" ng-bind="alert.msg"></div>
+            <div id='leftChance' title="剩余抽奖机会" ng-bind="leftChance"></div>
+            <div id="pattern" dynamic-html='params.page.html'></div>
             <ul id='awards'>
                 <li ng-repeat='a in lot.awards|filter:validAward'>
                     <span ng-bind="a.title"></span>

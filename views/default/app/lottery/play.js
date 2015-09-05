@@ -22,10 +22,30 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
     var mpid, lid;
     mpid = location.search.match(/mpid=([^&]*)/)[1];
     lid = location.search.match(/lid=([^&]*)/)[1];
-    $scope.errmsg = '';
-    $scope.nonfansalert = '';
-    $scope.nochancealert = '';
-    $scope.greetingmsg = '';
+    $scope.alert = {
+        type: '',
+        msg: '',
+        empty: function() {
+            this.type = '';
+            this.msg = '';
+        },
+        error: function(msg) {
+            this.type = 'error';
+            this.msg = msg;
+        },
+        nonfan: function(msg) {
+            this.type = 'nonfan';
+            this.msg = msg;
+        },
+        nochance: function(msg) {
+            this.type = 'nochance';
+            this.msg = msg;
+        },
+        greeting: function(msg) {
+            this.type = 'greeting';
+            this.msg = msg;
+        },
+    };
     $scope.awards = {};
     $http.get('/rest/app/lottery/get?mpid=' + mpid + '&lid=' + lid).success(function(rsp) {
         var i, l, award, params, awards, lot, page;
@@ -61,27 +81,22 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
             $scope.showGreeting(greeting);
     };
     $scope.play = function(cbSuccess, cbError) {
-        $scope.errmsg = '';
-        $scope.nonfansalert = '';
-        $scope.nochancealert = '';
-        $scope.showGreeting('');
+        $scope.alert.empty();
         $http.get('/rest/app/lottery/play?mpid=' + mpid + '&lid=' + lid).success(function(rsp) {
             if (angular.isString(rsp)) {
-                $scope.errmsg = rsp;
+                $scope.alert.error(rsp);
                 return;
             }
             if (rsp.err_code === 302) {
-                $('#nonfansalert').html(rsp.err_msg);
-                $scope.nonfansalert = rsp.err_msg;
+                $scope.alert.nonfan(rsp.err_msg);
                 return;
             }
             if (rsp.err_code === 301) {
-                $('#nochancealert').html(rsp.err_msg);
-                $scope.nochancealert = rsp.err_msg;
+                $scope.alert.nochance(rsp.err_msg);
                 return;
             }
             if (rsp.err_code !== 0) {
-                $scope.errmsg = rsp.err_msg;
+                $scope.alert.error(rsp);
                 return;
             }
             if (cbSuccess) {
@@ -119,13 +134,15 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
             }
         });
     };
+    $scope.clickAlert = function(event) {
+        $scope.alert.empty();
+    };
     $scope.validAward = function(award) {
         return award.type != 0 && award.type != 3;
     };
     $scope.showGreeting = function(greeting) {
         if ($scope.lot.show_greeting === 'Y') {
-            $('#greetingmsg').html(greeting);
-            $scope.greetingmsg = greeting;
+            $scope.alert.greeting(greeting);
         }
     };
     $scope.debugReset = function() {

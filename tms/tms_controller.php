@@ -38,6 +38,7 @@ class TMS_CONTROLLER {
 			$url = 'http://' . $_SERVER['HTTP_HOST'];
 			$url .= $path;
 		}
+		die('xxxxxx');
 		header("Location: $url");
 		exit;
 	}

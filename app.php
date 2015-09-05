@@ -11,7 +11,7 @@ date_default_timezone_set('Asia/Shanghai');
 /**
  * character set
  */
-int_set('default_charset', 'utf-8');
+ini_set('default_charset', 'utf-8');
 /**
  * error and exception handle
  */

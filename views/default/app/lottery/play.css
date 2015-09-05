@@ -4,8 +4,9 @@
 body{font-family:Microsoft Yahei,Arial;background:#f8f8f8}
 table{width:100%;border:1px solid #ddd;border-collapse:collapse;border-spacing:0}
 th,td{border:1px solid #ddd;padding:.5em}
+th{text-align:center;}
 th:first-child{width:7em}
-#alert{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:40%;left:50%;margin:0 0 0 -150px;text-align:center;color:#a94442;transition:opacity .5s;border:1px solid #999;padding:1em;background-color:#fff;-webkit-box-shadow:3px 3px 3px #999;-moz-box-shadow:3px 3px 3px #999;box-shadow:3px 3px 3px #999;z-index:-1;}
+#alert{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:40%;left:50%;margin:0 0 0 -150px;text-align:center;color:#333;transition:opacity .5s;border:1px solid #999;padding:1em;background-color:#fff;-webkit-box-shadow:3px 3px 3px #999;-moz-box-shadow:3px 3px 3px #999;box-shadow:3px 3px 3px #999;z-index:-1;}
 #alert.active{opacity:1;height:auto;z-index:999}
 #greeting{position:absolute;left:15px;right:15px;bottom:30px;border:1px solid #999;-webkit-box-shadow:3px 3px 3px #999;-moz-box-shadow:3px 3px 3px #999;box-shadow:3px 3px 3px #999;background:#fff;padding:15px;z-index:999;}
 #greeting>div{text-align:center;}

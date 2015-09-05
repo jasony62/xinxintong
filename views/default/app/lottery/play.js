@@ -96,7 +96,7 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
                 return;
             }
             if (rsp.err_code !== 0) {
-                $scope.alert.error(rsp);
+                $scope.alert.error(rsp.err_msg);
                 return;
             }
             if (cbSuccess) {

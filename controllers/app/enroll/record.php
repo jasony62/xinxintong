@@ -121,7 +121,7 @@ class record extends base {
 		/**
 		 * 通知登记活动的管理员
 		 */
-		!empty($act->receiver_page) && $this->notifyAdmin($mpid, $act, $user, $ek);
+		!empty($act->receiver_page) && $this->notifyAdmin($mpid, $act, $user);
 
 		return new \ResponseData($ek);
 	}
@@ -150,7 +150,7 @@ class record extends base {
 	/**
 	 * 通知活动管理员
 	 */
-	private function notifyAdmin($mpid, $act, $user, $ek) {
+	private function notifyAdmin($mpid, $act, $user) {
 		$admins = \TMS_APP::model('acl')->enrollReceivers($mpid, $act->id);
 		if (false !== ($key = array_search($user->openid, $admins))) {
 			/* 管理员是登记人，不再通知 */
@@ -177,7 +177,7 @@ class record extends base {
 				$this->send_to_yxuser_byp2p($mpid, $message, $admins);
 			} else {
 				foreach ($admins as $admin) {
-					$this->sendByOpenid($mpid, $admin, $message);
+					$this->send_to_user($mpid, $admin, $message);
 				}
 			}
 		}
@@ -208,5 +208,37 @@ class record extends base {
 		$resumable->handleRequest($_POST);
 
 		return new \ResponseData('ok');
+	}
+	/**
+	 * 给当前用户产生一条空的登记记录，并返回这条记录
+	 */
+	public function emptyGet_action($mpid, $aid) {
+		$model = $this->model('app\enroll');
+		if (false === ($act = $model->byId($aid))) {
+			return new \ParameterError('活动不存在');
+		}
+		/**
+		 * 当前访问用户的基本信息
+		 */
+		$user = $this->getUser($mpid,
+			array(
+				'authapis' => $act->authapis,
+				'matter' => $act,
+				'verbose' => array('member' => 'Y', 'fan' => 'Y'),
+			)
+		);
+		$mid = '';
+		$ek = $model->enroll($mpid, $act, $user->openid, $user->vid, $mid);
+
+		$url = 'http://' . $_SERVER['HTTP_HOST'] . '/rest/app/enroll';
+		$url .= '?mpid=' . $mpid;
+		$url .= '&aid=' . $aid;
+		$url .= '&ek=' . $ek;
+
+		$rsp = new \stdClass;
+		$rsp->url = $url;
+		$rsp->ek = $ek;
+
+		return new \ResponseData($rsp);
 	}
 }

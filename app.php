@@ -11,9 +11,7 @@ date_default_timezone_set('Asia/Shanghai');
 /**
  * character set
  */
-iconv_set_encoding("internal_encoding", "UTF-8");
-iconv_set_encoding("output_encoding", "UTF-8");
-iconv_set_encoding("input_encoding", "UTF-8");
+ini_set('default_charset', 'utf-8');
 /**
  * error and exception handle
  */
@@ -27,7 +25,6 @@ function show_error($message) {
 			foreach ($t as $k => $v) {
 				echo $k . ':' . json_encode($v) . "\n";
 			}
-
 		}
 	} else {
 		echo $message;

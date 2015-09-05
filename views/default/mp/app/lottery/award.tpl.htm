@@ -36,8 +36,12 @@
                     tms-update="update(award,'takeaway')" placeholder='已领取数量'>
                 </div>
                 <button class='btn btn-default pull-right' ng-click='removeAward(award)'>
-                    <span class='glyphicon glyphicon-trash'></span>
+                <span class='glyphicon glyphicon-trash'></span>
                 </button>
+            </div>
+            <div>
+                <input type="text" class="form-control" placeholder="兑奖URL" ng-model="award.get_prize_url" tms-auto-update tms-wait=1000
+                tms-update="update(award,'get_prize_url')">
             </div>
             <div class='row' style='margin-top:10px'>
                 <div class='col-md-4'>
@@ -52,15 +56,15 @@
                     <div style="height:10em;border:1px solid #CCC">
                         <div style="height:100%;text-align:center;padding-top:3em" ng-if="award.pic==''">
                             <button class='btn btn-default' ng-click='setPic(award);'>
-                                <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                            <span class='glyphicon glyphicon-picture'></span>选择图片</button>
                         </div>
                         <div style='height:100%;position:relative' ng-if="award.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
                             <img name='pic' ng-src="{{award.pic}}" width='100%' height='100%' />
                             <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic(award)'>
-                                <span class='glyphicon glyphicon-picture'></span>
+                            <span class='glyphicon glyphicon-picture'></span>
                             </button>
                             <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic(award)'>
-                                <span class='glyphicon glyphicon-trash'></span>
+                            <span class='glyphicon glyphicon-trash'></span>
                             </button>
                         </div>
                     </div>

@@ -1,0 +1,3 @@
+#shakeWrap{position:relative;width:300px;height:200px;margin:0 auto;border:1px dotted #ccc;}
+.shake-indicator{position:absolute;width:120px;height:80px;left:50%;top:50%;margin-left:-60px;margin-top:-40px;background:#ccc;line-height:80px;text-align:center;}
+.running{background:red;}

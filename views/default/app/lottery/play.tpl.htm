@@ -1,110 +1,80 @@
-<?php
-$params = TPL::val('params');
-$lot = $params['lottery'];
-?>
 <!DOCTYPE html>
-<html>
+<html class='ng-cloak' ng-cloak ng-app='app' ng-controller='lotCtrl'>
     <head>
-        <meta charset="utf-8"> 
+        <meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
-        <title><?php echo $lot->title;?></title> 
-        <?php $this->import_css('/app/lottery','play',true);?>
-        <?php 
-        if ($css = TPL::val('css')) {
-        foreach ($css as $c) {
-        $c[] = true;
-        call_user_func_array(array($this,'import_css'), $c);
-        }
-        }
-        ?>
-        <?php $body_css=TPL::val('body_css'); if (!empty($body_css)) {?>
-        <style><?php echo $body_css;?></style> 
-        <?php } ?>
-        <?php $extra_css=TPL::val('extra_css'); if (!empty($extra_css)) {?>
-        <style>
-            <?php echo $extra_css;?>
-        </style>
-        <?php }?>
+        <title ng-bind="lot.title"></title>
+        <link href="/views/default/app/lottery/play.css?_=1" rel="stylesheet">
+        <style ng-if="params.page.css" ng-bind='params.page.css'></style>
     </head>
-    <?php $preactivity=TPL::val('preactivity'); if (!empty($preactivity)) {?>
-    <body ontouchmove="event.preventDefault()">
-    <?php } else {?>
     <body>
-        <?php }?>
-        <?php TPL::pt('body_ele');?>
-        <div class='ng-clock' ng-clock ng-app='lottery' ng-controller='lotCtrl' ng-init="jsonParams='<?php echo urlencode(json_encode(TPL::val('params')));?>'">
-            <div id='errmsg' ng-class="errmsg==''?'':'active'" ng-click="errmsg=''">{{errmsg}}</div>
-            <div id='nonfansalert' ng-class="nonfansalert==''?'':'active'" ng-click="nonfansalert=''"></div>
-            <div id='nochancealert' ng-class="nochancealert==''?'':'active'" ng-click="nochancealert=''"></div>
-            <div id='greetingmsg' ng-class="greetingmsg==''?'':'active'" ng-click="greetingmsg=''"></div>
-            <?php $preactivity=TPL::val('preactivity'); if (!empty($preactivity)) {?>
-            <div id='preactivity'><?php echo $preactivity;?></div>
-            <?php }?>
-            <span id='chance'>{{setting.chance}}</span>
-            <?php $pattern = TPL::val('pattern'); !empty($pattern) && TPL::output($pattern);?>
+        <div>
+            <div id='alert' class="{{alert.type}}" ng-class="{'active':alert.msg}" ng-click="clickAlert($event)" ng-bind="alert.msg"></div>
+            <div id='greeting' ng-show="greeting">
+                <div>
+                    <div ng-bind="greeting.award_greeting"></div>
+                </div>
+                <div>
+                    <a href="javascript:void(0)" ng-click="hideGreeting()">关闭</a>
+                    <a href="javascript:void(0)" ng-show="canPrize(greeting)" ng-click="prize(greeting)">兑奖</a>
+                </div>
+            </div>
+            <div id='leftChance' title="剩余抽奖机会" ng-bind="leftChance"></div>
+            <div id="pattern" dynamic-html='params.page.html'></div>
             <ul id='awards'>
-                <li ng-repeat='a in setting.awards|filter:validAward'>
-                <span>{{a.title}}</span>
-                <span>{{a.description}}</span>
+                <li ng-repeat='a in lot.awards|filter:validAward'>
+                    <span ng-bind="a.title"></span>
+                    <span ng-bind="a.description"></span>
                 </li>
             </ul>
             <table id='myAwards' class='table table-bordered'>
                 <thead>
-                    <tr><th>抽奖时间</th><th>抽奖结果</th></tr>
+                    <tr>
+                        <th>抽奖时间</th>
+                        <th>抽奖结果</th>
+                    </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat='l in setting.myAwards'>
+                    <tr ng-repeat='l in logs'>
                         <td>{{l.draw_at*1000|date:'MM-dd HH:mm'}}</td>
                         <td ng-if='!l.award_greeting'>{{l.award_title}}</td>
-                        <td ng-if='l.award_greeting'><a href='#' ng-click="showGreeting(l.award_greeting)">{{l.award_title}}</a></td>
+                        <td ng-if='l.award_greeting'>
+                            <a href='#' ng-click="showGreeting(l)">{{l.award_title}}</a>
+                        </td>
                     </tr>
                 </tbody>
             </table>
-            <?php if ($lot->show_winners==='Y') {?>
-            <div id='winners'>
+            <div id='winners' ng-if="lot.show_winners==='Y'">
                 <div id="scroller">
                     <ul>
                         <li ng-repeat='w in winners'>
-                        <span>{{$index+1}}:</span>
-                        <span>{{w.nickname}}</span>
-                        <span>{{w.award_title}}</span>
+                            <span>{{$index+1}}:</span>
+                            <span>{{w.nickname}}</span>
+                            <span>{{w.award_title}}</span>
                         </li>
                     </ul>
                 </div>
             </div>
-            <?php } ?>
-            <?php TPL::pt('extra_ele');?>
-            <div id='debug'><button ng-click='debugReset()'>RESET</button></div>
         </div>
-        <iframe id='frmAuth' onload='this.height=document.documentElement.clientHeight'></iframe>
+        <div id='debug'><button ng-click='debugReset()'>RESET</button></div>
         <script src="/static/js/jquery.min.js"></script>
         <script src="/static/js/angular.min.js"></script>
-        <?php $show_winners=TPL::val('show_winners'); if ($show_winners==='Y') {?>
-        <script src="/static/js/iscroll-lite.min.js"></script>
-        <?php } ?>
-        <?php if (preg_match('/MicroMessenger/i', $_SERVER['HTTP_USER_AGENT'])) {?>
-        <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
-        <script src="/rest/mi/matter/wxjssdksignpackage?mpid=<?php echo $_GET['mpid'];?>&url=<?php echo urlencode("http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]");?>"></script>
-        <?php } ?>
-        <?php $this->import_js('/app/lottery','play',true);?>
-        <?php
-        if ($js = TPL::val('js')) {
-        foreach ($js as $j) {
-        $j[] = true;
-        call_user_func_array(array($this,'import_js'), $j);
-        }
-        }
-        ?>
-        <?php $extra_js=TPL::val('extra_js'); if (!empty($extra_js)) {?>
-        <script type='text/javascript'>
-            <?php echo $extra_js;?>
-        </script>
-        <?php }?>
-        <?php if (defined('SAE_MYSQL_HOST_M')) { ?>
+        <script src="/static/js/angular-sanitize.min.js "></script>
+        <script src="/static/js/shake.js "></script>
+        <script src="/static/js/xxt.share.js?_=1"></script>
         <script type="text/javascript">
-            var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
-            document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F40ec59c933400d729f57930675635edb' type='text/javascript'%3E%3C/script%3E"));
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+        var mpid = location.search.match(/mpid=([^&]*)/)[1];
+        document.write("<script src='http:\/\/res.wx.qq.com\/open\/js\/jweixin-1.0.0.js'><\/script>");
+        document.write("<script src='\/rest\/mi\/matter\/wxjssdksignpackage?mpid="+mpid+"&url="+encodeURIComponent(location.href.split('#')[0])+"'><\/script>");
+        }
         </script>
-        <?php }?>
+        <script src="/views/default/app/lottery/play.js?_=1"></script>
+        <script type="text/javascript">
+        if (document.location.host === 'xinxintong.sinaapp.com') {
+        var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+        document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F40ec59c933400d729f57930675635edb' type='text/javascript'%3E%3C/script%3E"));
+        }
+        </script>
     </body>
 </html>

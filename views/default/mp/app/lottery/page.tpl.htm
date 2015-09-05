@@ -48,30 +48,30 @@
     <div class='form-group'>
         <label class='col-md-2 control-label'>定制页面</label>
         <div class='col-md-10'>
-            <div class='checkbox'>
-                <label><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='lottery.custom_body' ng-change="update('custom_body');">是</label>
-                <a href='#' ng-click='gotoCode()' ng-show="lottery.custom_body==='Y'">编辑页面</a>
-            </div>
+            <p class="form-control-static">
+                <button class="btn btn-success" ng-click="setPage()">重置页面</button>
+                <a href='#' ng-click='gotoCode()'>编辑页面</a>
+            </p>
         </div>
     </div>
-    <div ng-show="lottery.custom_body==='N'">
-        <div class='form-group'>
-            <label class='col-md-2 control-label'>补充内容（HTML）</label>
-            <div class='col-md-10'>
-                <textarea class="form-control" ng-model='lottery.extra_ele' rows=6 tms-auto-update tms-wait=1000 tms-update="update('extra_ele');"></textarea>
+    <script type="text/ng-template " id="pageSetting.html ">
+        <div class="modal-header ">
+            <button class="close " type="button " ng-click="close() ">×</button>
+            <h5 class="modal-title ">重置页面</h5>
+        </div>
+        <div class="modal-body ">
+            <div class="alert alert-danger"><strong>重置页面</strong>操作将覆盖所有对页面进行过的修改，且不可以恢复！</div>
+            <div class="form-horizontal">
+                <div class="form-group ">
+                    <label class="col-md-2 control-label ">模式</label>
+                    <div class="col-md-10 ">
+                        <select class='form-control' ng-model='data.pattern' ng-options='p.l for p in patterns'></select>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class='form-group'>
-            <label class='col-md-2 control-label'>样式（CSS）</label>
-            <div class='col-md-10'>
-                <textarea class="form-control" ng-model='lottery.extra_css' rows=6 tms-auto-update tms-wait=1000 tms-update="update('extra_css');"></textarea>
-            </div>
+        <div class="modal-footer">
+            <button class="btn btn-success" ng-click="ok()">确定</button>
         </div>
-        <div class='form-group'>
-            <label class='col-md-2 control-label'>脚本（JS）</label>
-            <div class='col-md-10'>
-                <textarea class="form-control" ng-model='lottery.extra_js' rows=6 tms-auto-update tms-wait=1000 tms-update="update('extra_js');"></textarea>
-            </div>
-        </div>
-        <div>
-        </div>
+    </script>
+</div>

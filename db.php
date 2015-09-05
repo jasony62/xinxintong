@@ -1,4 +1,4 @@
- <?php
+<?php
 if (file_exists(dirname(__FILE__) . '/cus/db.php')) {
 	/**
 	 * 加载本地化配置

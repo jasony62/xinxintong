@@ -692,7 +692,7 @@ class main extends \member_base {
 		$q = array(
 			'*',
 			'xxt_member m',
-			"f.mpid='$mpid' and m.forbidden='N' and m.openid='$openid'",
+			"m.mpid='$mpid' and m.forbidden='N' and m.openid='$openid'",
 		);
 		!empty($authapis) && $q[2] .= " and authapi_id in ($authapis)";
 

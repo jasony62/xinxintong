@@ -24,22 +24,30 @@ class order extends \member_base {
 	 * $shop shop'id
 	 * $sku sku'id
 	 */
-	public function index_action($mpid, $shop, $sku = null, $order = null, $mocker = null, $code = null) {
+	public function index_action($mpid, $shop, $product = null, $sku = null, $order = null, $mocker = null, $code = null) {
 		/**
 		 * 获得当前访问用户
 		 */
 		$openid = $this->doAuth($mpid, $code, $mocker);
 
-		$this->afterOAuth($mpid, $shop, $sku, $order, $openid);
+		$this->afterOAuth($mpid, $shop, $product, $sku, $order, $openid);
 	}
 	/**
 	 * 返回页面
 	 */
-	public function afterOAuth($mpid, $shopId, $skuId, $orderId, $openid) {
-		if (empty($skuId) && empty($orderId)) {
-			$this->view_action('/app/merchant/orderlist');
-		} else {
+	public function afterOAuth($mpid, $shopId, $productId, $skuId, $orderId, $openid) {
+		if (!empty($orderId)) {
+			/* 打开已有订单 */
 			$this->view_action('/app/merchant/order');
+		} else if (!empty($skuId)) {
+			/* 创建新订单 */
+			$this->view_action('/app/merchant/order');
+		} else if (!empty($productId)) {
+			/* 创建新订单 */
+			$this->view_action('/app/merchant/order');
+		} else {
+			/* 订单列表 */
+			$this->view_action('/app/merchant/orderlist');
 		}
 	}
 	/**
@@ -60,7 +68,7 @@ class order extends \member_base {
 	/**
 	 * 购买商品
 	 */
-	public function buy_action($mpid, $sku) {
+	public function buy_action($mpid, $sku = null) {
 		$user = $this->getUser($mpid, array('verbose' => array('fan' => 'Y')));
 		if (empty($user->openid)) {
 			return new \ResponseError('无法获得当前用户身份信息');

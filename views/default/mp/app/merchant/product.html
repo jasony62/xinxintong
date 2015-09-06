@@ -12,8 +12,8 @@
             </tr>
         </thead>
         <tbody>
-            <tr ng-repeat='prod in products' ng-click="open(prod)">
-                <td ng-bind='prod.name'>名称</td>
+            <tr ng-repeat='prod in products'>
+                <td ng-bind='prod.name' ng-click="open(prod)">名称</td>
                 <td ng-bind='prod.detail_text'>介绍</td>
                 <td ng-repeat="prop in selectedCatelog.properties" ng-bind="prod.propValue2[prop.id].name"></td>
             </tr>

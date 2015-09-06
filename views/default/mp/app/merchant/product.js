@@ -20,7 +20,9 @@
                 backdrop: 'static',
                 controller: ['$modalInstance', '$scope', function($mi, $scope2) {
                     $scope2.catelogs = $scope.catelogs;
-                    $scope2.data = {};
+                    $scope2.data = {
+                        selected: $scope.selectedCatelog
+                    };
                     $scope2.close = function() {
                         $mi.dismiss();
                     };
@@ -34,8 +36,10 @@
                     url += '?cateId=' + catelog.id;
                     http2.get(url, function(rsp) {
                         var prod = rsp.data;
+                        $scope.open(prod);
                         prod.prop_value2 = rsp.data.propValue2;
                         $scope.products.push(prod);
+                        $scope.open(prod);
                     });
                 }
             });

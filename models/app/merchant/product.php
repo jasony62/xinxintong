@@ -7,7 +7,7 @@ class product_model extends \TMS_MODEL {
 	/**
 	 * $id
 	 */
-	public function &byId($id, $cascaded = false) {
+	public function &byId($id, $cascaded = 'N') {
 		$q = array(
 			'*',
 			'xxt_merchant_product p',
@@ -16,7 +16,7 @@ class product_model extends \TMS_MODEL {
 
 		$prod = $this->query_obj_ss($q);
 
-		if ($cascaded) {
+		if ($cascaded === 'Y') {
 			$cascaded = $this->cascaded($id);
 			$prod->catelog = $cascaded->catelog;
 			$prod->propValue2 = $cascaded->propValue2;
@@ -43,9 +43,9 @@ class product_model extends \TMS_MODEL {
 		return $products;
 	}
 	/**
-	 *
+	 * 根据属性值获得产品列表
 	 */
-	public function &byPropValue($cateId, $vids) {
+	public function &byPropValue($cateId, $vids, $cascaded = 'Y') {
 		$q = array(
 			'*',
 			'xxt_merchant_product p',
@@ -56,6 +56,15 @@ class product_model extends \TMS_MODEL {
 		}
 
 		$products = $this->query_objs_ss($q);
+
+		if ($cascaded === 'Y') {
+			foreach ($products as &$prod) {
+				$cascaded = $this->cascaded($prod->id);
+				foreach ($cascaded as $k => $v) {
+					$prod->{$k} = $v;
+				}
+			}
+		}
 
 		return $products;
 	}

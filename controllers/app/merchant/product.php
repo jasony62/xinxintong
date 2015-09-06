@@ -22,12 +22,30 @@ class product extends \xxt_base {
 	 * $assoPropId 关联的属性ID
 	 * $assoPropVid 关联的属性ID
 	 */
-	public function getByPropValue_action($cateId, $vids) {
+	public function getByPropValue_action($cateId, $vids, $cascaded = 'N') {
 		$vids = explode(',', $vids);
 
-		$products = $this->model('app\merchant\product')->byPropValue($cateId, $vids);
+		$products = $this->model('app\merchant\product')->byPropValue($cateId, $vids, $cascaded);
 
 		return new \ResponseData($products);
+	}
+	/*
+	 *
+	 */
+	public function get_action($id) {
+		$modelProd = $this->model('app\merchant\product');
+		$prod = $modelProd->byId($id, 'Y');
+
+		/*$prodPropValues = array();
+		foreach ($prod->catelog->properties as $prop) {
+		$prodPropValues[] = array(
+		'name' => $prop->name,
+		'value' => $prod->propValue2->{$prop->id}->name,
+		);
+		}*/
+		//$prod->propValues = $prodPropValues;
+
+		return new \ResponseData($prod);
 	}
 	/**
 	 *

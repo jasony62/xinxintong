@@ -23,7 +23,7 @@ class product extends \mp\app\app_base {
 	 */
 	public function get_action($id) {
 		$model = $this->model('app\merchant\product');
-		$prod = $model->byId($id, true);
+		$prod = $model->byId($id, 'Y');
 		return new \ResponseData($prod);
 	}
 	/**

@@ -4,7 +4,8 @@ app.config(['$locationProvider', function($locationProvider) {
 }]);
 app.controller('merchantCtrl', ['$scope', '$http', '$location', function($scope, $http, $location) {
 	var mpid = $location.search().mpid,
-		skuId = $location.search().sku;
+		skuId = $location.search().sku,
+		orderId = $location.search().order;
 	$scope.orderInfo = {
 		product_count: 1
 	};
@@ -25,17 +26,32 @@ app.controller('merchantCtrl', ['$scope', '$http', '$location', function($scope,
 			alert('提交成功');
 		});
 	};
-	$http.get('/rest/app/merchant/product/skuGet?id=' + skuId).success(function(rsp) {
-		if (rsp.err_code !== 0) {
-			alert(rsp.err_msg);
-			return;
-		}
-		var propValue;
-		$scope.sku = rsp.data.sku;
-		$scope.product = rsp.data.prod;
-		$scope.catelog = rsp.data.cate;
-		$scope.propValues = rsp.data.propValues;
-		propValue = JSON.parse($scope.product.prop_value);
-		$scope.product.propValue = propValue;
-	});
+	var skuGet = function(id) {
+		$http.get('/rest/app/merchant/product/skuGet?mpid=' + mpid + '&id=' + id).success(function(rsp) {
+			if (rsp.err_code !== 0) {
+				alert(rsp.err_msg);
+				return;
+			}
+			var propValue;
+			$scope.sku = rsp.data.sku;
+			$scope.product = rsp.data.prod;
+			$scope.catelog = rsp.data.cate;
+			$scope.propValues = rsp.data.propValues;
+			propValue = JSON.parse($scope.product.prop_value);
+			$scope.product.propValue = propValue;
+		});
+	};
+	if (skuId) {
+		skuGet(skuId);
+	} else if (orderId) {
+		$http.get('/rest/app/merchant/order/get?mpid=' + mpid + '&order=' + orderId).success(function(rsp) {
+			if (rsp.err_code !== 0) {
+				alert(rsp.err_msg);
+				return;
+			}
+			$scope.orderInfo.receiver_name = rsp.data.receiver_name;
+			$scope.orderInfo.receiver_mobile = rsp.data.receiver_mobile;
+			skuGet(rsp.data.sid);
+		});
+	}
 }]);

@@ -21,12 +21,14 @@ class order_model extends \TMS_MODEL {
 	/**
 	 * $id
 	 */
-	public function &byShopid($shopId) {
+	public function &byShopid($shopId, $openid = null) {
 		$q = array(
 			'*',
 			'xxt_merchant_order',
 			"sid=$shopId",
 		);
+		!empty($openid) && $q[2] .= " and buyer_openid='$openid'";
+
 		$q2 = array(
 			'o' => 'order_create_time desc',
 		);

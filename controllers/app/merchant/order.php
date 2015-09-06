@@ -24,19 +24,38 @@ class order extends \member_base {
 	 * $shop shop'id
 	 * $sku sku'id
 	 */
-	public function index_action($mpid, $shop, $sku, $mocker = null, $code = null) {
+	public function index_action($mpid, $shop, $sku = null, $order = null, $mocker = null, $code = null) {
 		/**
 		 * 获得当前访问用户
 		 */
 		$openid = $this->doAuth($mpid, $code, $mocker);
 
-		$this->afterOAuth($mpid, $shop, $sku, $openid);
+		$this->afterOAuth($mpid, $shop, $sku, $order, $openid);
+	}
+	/**
+	 * 返回页面
+	 */
+	public function afterOAuth($mpid, $shopId, $skuId, $orderId, $openid) {
+		if (empty($skuId) && empty($orderId)) {
+			$this->view_action('/app/merchant/orderlist');
+		} else {
+			$this->view_action('/app/merchant/order');
+		}
 	}
 	/**
 	 *
 	 */
-	public function afterOAuth($mpid, $shopId, $skuId, $openid) {
-		$this->view_action('/app/merchant/order');
+	public function get_action($mpid, $order = null, $shop = null, $sku = null) {
+		$user = $this->getUser($mpid);
+		if (empty($order)) {
+			$orders = $this->model('app\merchant\order')->byShopid($shop, $user->openid);
+
+			return new \ResponseData($orders);
+		} else {
+			$order = $this->model('app\merchant\order')->byId($order);
+
+			return new \ResponseData($order);
+		}
 	}
 	/**
 	 * 购买商品

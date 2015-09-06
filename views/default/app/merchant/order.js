@@ -49,7 +49,7 @@ app.controller('merchantCtrl', ['$scope', '$http', '$location', function($scope,
 			}
 			$scope.orderInfo.receiver_name = rsp.data.receiver_name;
 			$scope.orderInfo.receiver_mobile = rsp.data.receiver_mobile;
-			skuGet(rsp.data.sid);
+			productGet(rsp.data.product_id);
 		});
 	}
 }]);

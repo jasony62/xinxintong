@@ -361,7 +361,7 @@ class member_base extends xxt_base {
 		 * 如果公众号开放了OAuth接口，通过OAuth获得openid
 		 */
 		$httpHost = $_SERVER['HTTP_HOST'];
-		$httpHost = str_replace('www.', '', $_SERVER['HTTP_HOST']);
+		//$httpHost = str_replace('www.', '', $_SERVER['HTTP_HOST']);
 		$ruri = "http://$httpHost" . $_SERVER['REQUEST_URI'];
 
 		$app = $this->model('mp\mpaccount')->byId($mpid, 'mpsrc');

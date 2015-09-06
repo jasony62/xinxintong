@@ -34,7 +34,7 @@ class catelog_model extends \TMS_MODEL {
 		foreach ($catelogs as &$cate) {
 			$cascaded = $this->cascaded($cate->id);
 			$cate->properties = $cascaded->properties;
-			$cate->propValues = $cascaded->propValues;
+			$cate->propValues = isset($cascaded->propValues) ? $cascaded->propValues : [];
 		}
 
 		return $catelogs;

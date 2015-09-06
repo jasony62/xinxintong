@@ -1,0 +1,9 @@
+html,body{width:100%;height:100%}
+div.container-fluid{padding:15px}
+@media screen and (max-width:479px){
+	table thead{display:none}
+	.table-bordered{border:0}
+	.table-bordered>tbody>tr{border:1px solid #ddd}
+	.table-bordered>tbody>tr>td{display:block;position:relative;border:0;}
+	td:before{content:attr(data-th);display:inline-block;width:80px;}
+}

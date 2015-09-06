@@ -1,0 +1,14 @@
+<div class='container-fluid' ng-app='app' ng-controller='merchantCtrl'>
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <th>下单日期</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat='o in orders' ng-click='open(o)'>
+                <td data-th="下单日期" ng-bind="o.order_create_time*1000|date:'yy-MM-dd HH:mm'"></td>
+            </tr>
+        </tbody>
+    </table>
+</div>

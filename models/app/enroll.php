@@ -218,7 +218,7 @@ class enroll_model extends \matter\enroll_model {
 	 * 生成活动登记的key
 	 */
 	public function genEnrollKey($mpid, $aid) {
-		return md5(uniqid() . $mpid . $aid);
+		return \TMS_APP::M('app\enroll\record')->genKey($mpid, $aid);
 	}
 	/**
 	 * 检查用户是否已经登记

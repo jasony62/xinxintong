@@ -300,7 +300,7 @@ class lottery_model extends \matter\lottery_model {
 			$log = array();
 		} else {
 			$q = array(
-				'l.aid,l.draw_at,l.prize_url,a.title award_title,a.pic award_pic,a.greeting award_greeting,a.type',
+				'l.id,l.aid,l.draw_at,l.prize_url,a.title award_title,a.pic award_pic,a.greeting award_greeting,a.type',
 				'xxt_lottery_log l,xxt_lottery_award a',
 			);
 			if (!empty($mid)) {
@@ -319,68 +319,6 @@ class lottery_model extends \matter\lottery_model {
 
 			$log = $this->query_objs_ss($q, $q2);
 		}
-		return $log;
-	}
-	/**
-	 * 记录抽奖结果
-	 * 在已有记录上进行累加和更新，不进行逻辑判断
-	 * 逻辑判断可单独进行，如果需要可事先更新数据状态
-	 */
-	public function logResult($mpid, $lid, $mid, $openid, $award) {
-		if (empty($mpid)) {
-			$mpid = $this->query_value('mpid', 'xxt_lottery', "id='$lid'");
-		}
-
-		/**
-		 * 获得之前的签到情况
-		 */
-		$q = array(
-			'times_accumulated,draw_at',
-			'xxt_lottery_log',
-		);
-		if (!empty($mid)) {
-			$q[2] = "lid='$lid' and mid='$mid' and last='Y'";
-		} else {
-			$q[2] = "lid='$lid' and openid='$openid' and last='Y'";
-		}
-
-		if ($last = $this->query_obj_ss($q)) {
-			$times = (int) $last->times_accumulated + 1;
-			/**
-			 * 更新之前的数据状态
-			 */
-			if (!empty($mid)) {
-				$w = "lid='$lid' and mid='$mid' and last='Y'";
-			} else {
-				$w = "lid='$lid' and openid='$openid' and last='Y'";
-			}
-
-			$this->update('xxt_lottery_log', array('last' => 'N'), $w);
-		} else {
-			$times = 1;
-		}
-		/**
-		 * 新抽奖记录
-		 */
-		$current = time();
-		$i['mpid'] = $mpid;
-		$i['lid'] = $lid;
-		$i['mid'] = $mid;
-		$i['openid'] = $openid;
-		$i['draw_at'] = $current;
-		$i['aid'] = $award->aid;
-		$i['times_accumulated'] = $times;
-
-		$this->insert('xxt_lottery_log', $i);
-
-		$log = new \stdClass;
-		$log->aid = $award->aid;
-		$log->draw_at = $current;
-		$log->award_title = $award->title;
-		$log->award_greeting = $award->greeting;
-		$log->award_pic = $award->pic;
-		$log->type = $award->type;
-
 		return $log;
 	}
 	/**

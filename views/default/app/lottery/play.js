@@ -146,21 +146,22 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
         return (!!award.get_prize_url && award.get_prize_url.length);
     };
     $scope.prize = function(log) {
-        var award;
+        var award, referrer;
         if (log.prize_url && log.prize_url.length) {
             location.href = log.prize_url;
         } else {
             award = $scope.awards[log.aid];
             if (!award.get_prize_url) return false;
-            $http.get(award.get_prize_url).success(function(rsp) {
+            referrer = '/rest/app/lottery/log/get?id=' + log.id;
+            $http.post(award.get_prize_url, {
+                referrer: referrer
+            }).success(function(rsp) {
                 var prizeUrl;
                 prizeUrl = {
-                    mpid: mpid,
-                    lid: lid,
-                    draw_at: log.draw_at,
+                    logid: log.id,
                     url: rsp.data.url
                 }
-                $http.post('/rest/app/lottery/prize', prizeUrl).success(function() {
+                $http.post('/rest/app/lottery/prize?mpid=' + mpid, prizeUrl).success(function() {
                     location.href = rsp.data.url;
                 })
             });

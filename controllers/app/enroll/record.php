@@ -213,6 +213,8 @@ class record extends base {
 	 * 给当前用户产生一条空的登记记录，并返回这条记录
 	 */
 	public function emptyGet_action($mpid, $aid) {
+		$posted = $this->getPostJson();
+
 		$model = $this->model('app\enroll');
 		if (false === ($act = $model->byId($aid))) {
 			return new \ParameterError('活动不存在');
@@ -227,10 +229,11 @@ class record extends base {
 				'verbose' => array('member' => 'Y', 'fan' => 'Y'),
 			)
 		);
-		$mid = '';
-		$ek = $model->enroll($mpid, $act, $user->openid, $user->vid, $mid);
 
-		$url = 'http://' . $_SERVER['HTTP_HOST'] . '/rest/app/enroll';
+		$modelRec = $this->model('app\enroll\record');
+		$ek = $modelRec->add($mpid, $act, $user, (empty($posted->referrer) ? '' : $posted->referrer));
+
+		$url = '/rest/app/enroll';
 		$url .= '?mpid=' . $mpid;
 		$url .= '&aid=' . $aid;
 		$url .= '&ek=' . $ek;

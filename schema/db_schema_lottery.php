@@ -112,9 +112,9 @@ if (!$mysqli->query($sql)) {
 }
 //
 $sql = "create table if not exists xxt_lottery_log(";
-$sql .= 'mpid varchar(32) not null';
+$sql .= 'id int not null auto_increment';
+$sql .= ',mpid varchar(32) not null';
 $sql .= ',lid varchar(40) not null'; // 轮盘抽奖活动的ID
-$sql .= ',mid varchar(32) not null'; // 中奖会员
 $sql .= ",openid varchar(255) not null default ''";
 $sql .= ',draw_at int not null'; // 抽奖的时间
 $sql .= ',aid varchar(40) not null'; // 奖品的ID
@@ -122,7 +122,7 @@ $sql .= ",times_accumulated int not null default 1"; //有效时段内，累积�
 $sql .= ",last char(1) not null default 'Y'"; // 最后一次抽奖记录。每一次抽奖动作都记录，记录最后一条便于计算。
 $sql .= ",takeaway char(1) not null default 'N'"; // 奖品是否已经领取。只对非实物奖品有效。
 $sql .= ",prize_url text"; // 兑奖的地址
-$sql .= ",primary key(lid,mid,openid,draw_at)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error(result): ' . $sql . ':' . $mysqli->error;

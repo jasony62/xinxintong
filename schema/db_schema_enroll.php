@@ -123,6 +123,7 @@ $sql .= ',mid varchar(32)';
 $sql .= ',score int not null default 0'; // 点赞数
 $sql .= ",remark_num int not null default 0"; // 评论数
 $sql .= ',state tinyint not null default 1'; //0:remove,1:normal
+$sql .= ",referrer text"; //
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

@@ -17,11 +17,8 @@
                 <td>{{s.number}}</td>
             </tr>
         </tbody>
-    </table> 
+    </table>
     <div class='form-inline'>
-        <div class='form-group'>
-            <select class='form-control' ng-model='associatedAct' ng-options='a.title for a in activities' ng-change='doSearch()' title='登记信息'></select>
-        </div>
         <div class='form-group'>
             <select class='form-control' ng-model='byAward' ng-options='a.aid as a.title for a in lottery.awards' ng-change="doSearch()">
                 <option value=''></option>
@@ -49,37 +46,27 @@
                 <th>昵称</th>
                 <th>抽奖时间</th>
                 <th>奖品</th>
-                <th ng-if="lottery.access_control==='Y'">姓名</th>
-                <th ng-if="lottery.access_control==='Y'">电子邮件</th>
-                <th ng-if="lottery.access_control==='Y'">手机号</th>
-                <th ng-repeat="d in assocDef"></th>
                 <th style='width:48px'>操作</th>
             </tr>
         </thead>
         <tbody>
             <tr ng-repeat='r in result'>
                 <td>{{$index+1}}</td>
-                <td ng-if='r.openid&&r.nickname'><a href='#' ng-click='viewUser(r)'>{{r.nickname}}</a></td>
-                <td ng-if='r.openid&&!r.nickname'></td>
-                <td ng-if='!r.openid'>{{r.nickname}}</td>
-                <td>{{r.draw_at*1000|date:'yyyy-MM-dd HH:mm'}}</td>
+                <td><a href='javascript:void(0)' ng-click='viewUser(r)'>{{r.nickname}}</a></td>
+                <td>{{r.draw_at*1000|date:'MM-dd HH:mm'}}</td>
                 <td>{{r.award_title}}</td>
-                <td ng-if="lottery.access_control==='Y'">{{r.name}}</td>
-                <td ng-if="lottery.access_control==='Y'">{{r.email}}</td>
-                <td ng-if="lottery.access_control==='Y'">{{r.mobile}}</td>
-                <td ng-repeat="d in assocDef">{{r.assoc[d]}}</td>
                 <td>
                     <button class='btn btn-xs btn-danger' ng-click='removeRoll(r)'>
-                        <span class='glyphicon glyphicon-remove'></span>
+                    <span class='glyphicon glyphicon-remove'></span>
                     </button>
                 </td>
             </tr>
         </tbody>
-    </table> 
+    </table>
     <div class='form-inline'>
         <span style='margin-left:20px'>总计：{{page.total}}</span>
         <div class='pull-right'>
-            <pagination boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.current" class="pagination" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()" style='margin:0;cursor:pointer'></pagination>
-        </div>
+        <pagination boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.current" class="pagination" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()" style='margin:0;cursor:pointer'></pagination>
     </div>
+</div>
 </div>

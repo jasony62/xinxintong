@@ -295,6 +295,42 @@ class record_model extends \TMS_MODEL {
 		return array(true);
 	}
 	/**
+	 * 生成活动登记的key
+	 */
+	public function genKey($mpid, $aid) {
+		return md5(uniqid() . $mpid . $aid);
+	}
+	/**
+	 * 活动登记（不包括登记数据）
+	 *
+	 * $mpid 运行的公众号，和openid和src相对应
+	 * $act
+	 * $mid
+	 */
+	public function add($mpid, $act, $user, $referrer = '') {
+		$ek = $this->genKey($mpid, $act->id);
+		$i = array(
+			'aid' => $act->id,
+			'mpid' => $mpid,
+			'enroll_at' => time(),
+			'enroll_key' => $ek,
+			'openid' => $user->openid,
+			'nickname' => empty($user->nickname) ? '' : $user->nickname,
+			'vid' => $user->vid,
+			'mid' => '',
+			'referrer' => $referrer,
+		);
+
+		$modelRou = \TMS_APP::M('app\enroll\round');
+		if ($activeRound = $modelRou->getActive($mpid, $act->id)) {
+			$i['rid'] = $activeRound->rid;
+		}
+
+		$this->insert('xxt_enroll_record', $i, false);
+
+		return $ek;
+	}
+	/**
 	 * 清除一条活动报名名单
 	 */
 	public function remove($aid, $key) {

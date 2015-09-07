@@ -17,10 +17,13 @@
         activeEditor.save();
     };
     WrapLib.prototype.extractInputSchema = function(wrap) {
-        var $label, def = {};
+        var $label, def = {}, $input, model;
         $label = $($(wrap).find('label').get(0));
         def.name = $label.html();
         def.showname = $label.hasClass('sr-only') ? 'placeholder' : 'label';
+        $input = $(wrap).find('input,select');
+        model = $input.attr('ng-model');
+        def.key = model.split('.')[1];
         return def;
     };
     WrapLib.prototype.extractSchema = function(html) {

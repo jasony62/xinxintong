@@ -58,9 +58,10 @@ class log_model extends \matter\lottery_model {
 		$i['aid'] = $award->aid;
 		$i['times_accumulated'] = $times;
 
-		$this->insert('xxt_lottery_log', $i);
+		$id = $this->insert('xxt_lottery_log', $i, true);
 
 		$log = new \stdClass;
+		$log->id = $id;
 		$log->aid = $award->aid;
 		$log->draw_at = $current;
 		$log->award_title = $award->title;

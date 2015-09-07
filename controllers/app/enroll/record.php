@@ -217,7 +217,7 @@ class record extends base {
 
 		$model = $this->model('app\enroll');
 		if (false === ($act = $model->byId($aid))) {
-			return new \ParameterError('活动不存在');
+			return new \ParameterError("指定的活动（$aid）不存在");
 		}
 		/**
 		 * 当前访问用户的基本信息
@@ -229,10 +229,24 @@ class record extends base {
 				'verbose' => array('member' => 'Y', 'fan' => 'Y'),
 			)
 		);
-
 		$modelRec = $this->model('app\enroll\record');
 		$ek = $modelRec->add($mpid, $act, $user, (empty($posted->referrer) ? '' : $posted->referrer));
-
+		/**
+		 * 处理提交数据
+		 */
+		$data = $_GET;
+		unset($data['mpid']);
+		unset($data['aid']);
+		if (!empty($data)) {
+			$data = (object) $data;
+			$rst = $modelRec->setData($user, $mpid, $aid, $ek, $data);
+			if (false === $rst[0]) {
+				return new ResponseError($rst[1]);
+			}
+		}
+		/**
+		 * 登记记录的URL
+		 */
 		$url = '/rest/app/enroll';
 		$url .= '?mpid=' . $mpid;
 		$url .= '&aid=' . $aid;

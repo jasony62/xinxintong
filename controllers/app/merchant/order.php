@@ -66,7 +66,7 @@ class order extends \member_base {
 		}
 	}
 	/**
-	 * 购买商品
+	 * 下订单
 	 */
 	public function buy_action($mpid, $sku = null) {
 		$user = $this->getUser($mpid, array('verbose' => array('fan' => 'Y')));
@@ -78,12 +78,19 @@ class order extends \member_base {
 
 		$order = $this->model('app\merchant\order')->create($sku, $user, $orderInfo);
 
+		$this->notify($mpid, $order);
+
 		return new \ResponseData('ok');
 	}
 	/**
-	 *
+	 * 通知客服有新订单
 	 */
 	private function notify($mpid, $order) {
+		/* 客服员工 */
+		$staffs = $this->model('app\merchant\shop')->staffAcls($mpid, $order->sid, 'c');
+		if (empty($staffs)) {
+			return false;
+		}
 		/**
 		 * 如果设置了客户人员，向客服人员发消息
 		 */
@@ -103,7 +110,6 @@ class order extends \member_base {
 			),
 		);
 		$modelFan = $this->model('user/fans');
-		$staffs = $this->model('app\merchant\shop')->staffAcls($mpid, $id, 'c');
 		foreach ($staffs as $staff) {
 			switch ($staff->idsrc) {
 			case 'M':

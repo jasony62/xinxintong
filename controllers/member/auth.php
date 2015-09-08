@@ -80,7 +80,7 @@ class auth extends \member_base {
 		/**
 		 * 已经认证过的用户身份
 		 */
-		$openid = empty($who) ? $this->getCookieOAuthUser($mpid) : $who;
+		$openid = empty($who) ? $this->getCookieOAuthUser($mpid)->openid : $who;
 		if (!empty($openid)) {
 			$member = $this->model('user/member')->byOpenid($mpid, $openid, '*', $authid);
 			\TPL::assign('authedMember', $member);
@@ -102,12 +102,10 @@ class auth extends \member_base {
 	 *
 	 */
 	public function doAuth_action($mpid, $authid) {
-		$openid = $this->getCookieOAuthUser($mpid);
-		if (empty($openid)) {
+		$user = $this->getUser($mpid, array('verbose' => array('fan' => 'Y')));
+		if (empty($user->openid)) {
 			return new \ResponseError('无法获得当前用户的openid');
 		}
-
-		$user = $this->getUser($mpid, array('verbose' => array('fan' => 'Y')));
 
 		$member = $this->getPostJson();
 
@@ -183,7 +181,7 @@ class auth extends \member_base {
 		$mid = $rst[1];
 		// log
 
-		$this->model('log')->writeMemberAuth($mpid, $openid, $mid);
+		$this->model('log')->writeMemberAuth($mpid, $user->openid, $mid);
 
 		/**
 		 * 验证邮箱真实性

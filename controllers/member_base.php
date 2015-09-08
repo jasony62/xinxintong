@@ -112,19 +112,28 @@ class member_base extends xxt_base {
 		 */
 		$vid = $this->getVisitorId($mpid);
 		$user->vid = $vid;
-		/**
-		 * 获得当前用户的openid
-		 */
-		empty($openid) && $openid = $this->getCookieOAuthUser($mpid);
+		/* 从cookie中获得当前用户的openid */
+		if (empty($openid)) {
+			$fan = $this->getCookieOAuthUser($mpid);
+			$openid = $fan->openid;
+			$user->openid = $fan->openid;
+			$user->nickname = $fan->nickname;
+		} else {
+			$user->openid = $openid;
+			$user->fan = $this->model('user/fans')->byOpenid($mpid, $openid);
+			$user->nickname = $user->fan->nickname;
+		}
+		/* 如果是非微信，易信客户端访问，无法通过OAuth获得openid，检查是否可以通过cookie中的认证用户信息获得openid */
 		if (!$this->getClientSrc() && empty($openid) && !empty($sAuthapis)) {
-			/**
-			 * 如果是非微信，易信客户端访问，无法通过OAuth获得openid，检查是否可以通过cookie中的认证用户信息获得openid
-			 */
 			$aAuthapis = explode(',', $sAuthapis);
 			$members = $this->getCookieMember($mpid, $aAuthapis);
-			!empty($members) && $openid = $members[0]->openid;
+			if (!empty($members)) {
+				$openid = $members[0]->openid;
+				$user->openid = $openid;
+				$user->fan = $this->model('user/fans')->byOpenid($mpid, $openid);
+				$user->nickname = $user->fan->nickname;
+			}
 		}
-		$user->openid = $openid;
 		/**
 		 * 用户详细信息
 		 */
@@ -145,7 +154,7 @@ class member_base extends xxt_base {
 				$user->members = $members;
 				isset($membersInAcl) && $user->membersInAcl = $membersInAcl;
 			}
-			if (isset($options['verbose']['fan'])) {
+			if (!isset($user->fans) && isset($options['verbose']['fan'])) {
 				/**
 				 * 关注用户信息
 				 */
@@ -157,7 +166,6 @@ class member_base extends xxt_base {
 				} else {
 					$fan = null;
 				}
-
 				$user->fan = $fan;
 			}
 		}
@@ -318,9 +326,9 @@ class member_base extends xxt_base {
 	 * $code
 	 * $mocker
 	 */
-	protected function doAuth($mpid, $code, $mocker) {
-		$openid = $this->getCookieOAuthUser($mpid);
-		if (empty($openid)) {
+	protected function doAuth($mpid, $code, $mocker = '') {
+		$fan = $this->getCookieOAuthUser($mpid);
+		if (empty($fan->openid)) {
 			if ($code !== null) {
 				$openid = $this->getOAuthUserByCode($mpid, $code);
 			} else {
@@ -329,14 +337,16 @@ class member_base extends xxt_base {
 					$this->setCookieOAuthUser($mpid, $mocker);
 				} else {
 					if (!$this->oauth($mpid)) {
-						$openid = null;
+						$openid = '';
+					} else {
+						$openid = '';
 					}
-
 				}
 			}
+			return $openid;
+		} else {
+			return $fan->openid;
 		}
-
-		return $openid;
 	}
 	/**
 	 * 执行OAuth操作
@@ -405,7 +415,8 @@ class member_base extends xxt_base {
 		}
 
 		if ($this->myGetcookie("_{$mpid}_oauth")) {
-			return $this->getCookieOAuthUser($mpid);
+			$fan = $this->getCookieOAuthUser($mpid);
+			return $fan->openid;
 		}
 
 		/**
@@ -428,34 +439,52 @@ class member_base extends xxt_base {
 	}
 	/**
 	 * 在cookie中保存OAuth用户信息
-	 * $mpid
-	 * $openid
+	 *
+	 * $param mpid
+	 * $param openid
 	 */
-	protected function setCookieOAuthUser($mpid, $openid) {
-		$encoded = $this->model()->encrypt($openid, 'ENCODE', $mpid);
+	protected function setCookieOAuthUser($mpid, $openid, $nickname = '') {
+		if (empty($nickname)) {
+			$fan = $this->model('user/fans')->byOpenid($mpid, $openid, 'nickname');
+			$fan->openid = $openid;
+		} else {
+			$fan = new \stdClass;
+			$fan->openid = $openid;
+			$fan->nickname = $nickname;
+		}
+		$encoded = $this->model()->encrypt(json_encode($fan), 'ENCODE', $mpid);
 		$this->mySetcookie("_{$mpid}_oauth", $encoded);
 
 		return true;
 	}
 	/**
-	 * 返回当前的用户
+	 * 返回当前cookie中保留的用户
 	 *
-	 * $mpid
-	 * $who
+	 * $param mpid
 	 */
 	protected function getCookieOAuthUser($mpid) {
-		if ($openid = $this->myGetcookie("_{$mpid}_oauth")) {
-			$openid = $this->model()->encrypt($openid, 'DECODE', $mpid);
-			if (0 === strpos($openid, '[')) {
-				$openid = json_decode($openid);
-				$openid = $openid[0];
-				$this->setCookieOAuthUser($mpid, $openid);
+		if ($fan = $this->myGetcookie("_{$mpid}_oauth")) {
+			$fan = $this->model()->encrypt($fan, 'DECODE', $mpid);
+			if (0 === strpos($fan, '{')) {
+				$fan = json_decode($fan);
+			} else {
+				if (0 === strpos($fan, '[')) {
+					$openid = json_decode($fan);
+					$openid = $fan[0];
+				} else {
+					$openid = $fan;
+				}
+				$fan = $this->model('user/fans')->byOpenid($mpid, $openid, 'nickname');
+				$fan->openid = $openid;
+				$this->setCookieOAuthUser($mpid, $openid, $fan->nickname);
 			}
 		} else {
-			$openid = '';
+			$fan = new \stdClass;
+			$fan->openid = '';
+			$fan->nickname = '';
 		}
 
-		return $openid;
+		return $fan;
 	}
 	/**
 	 *

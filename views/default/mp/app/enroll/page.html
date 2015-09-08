@@ -19,6 +19,7 @@
                     <button class='btn' ng-class="editing.pages.form.$$modified?'btn-success':'btn-default'" ng-disabled='!editing.pages.form.$$modified'
                     ng-click="updPage(editing.pages.form,'html')">保存</button>
                     <button class='btn btn-default' ng-click="embedInput(editing.pages.form)">添加登记项</button>
+                    <button class='btn btn-default' ng-click="embedUser(editing.pages.form)">添加用户项</button>
                     <button class='btn btn-default' ng-click="embedButton(editing.pages.form)">添加操作</button>
                     <button class='btn btn-default' ng-click="embedMatter(editing.pages.form)">添加素材</button>
                     <a href='#' class='pull-right' ng-click="gotoCode(editing.pages.form.code_id)">编辑页面代码</a>
@@ -75,6 +76,7 @@
                 <div>
                     <button class='btn' ng-class="ep.$$modified?'btn-success':'btn-default'" ng-disabled='!ep.$$modified' ng-click="updPage(ep,'html')">保存</button>
                     <button class='btn btn-default' ng-if="ep.type==='I'" ng-click="embedInput(ep)">添加登记项</button>
+                    <button class='btn btn-default' ng-click="embedUser(ep)">添加用户项</button>
                     <button class='btn btn-default' ng-if="ep.type==='V'" ng-click="embedShow(ep)">添加登记信息</button>
                     <button class='btn btn-default' ng-click="embedButton(ep)">添加操作</button>
                     <button class='btn btn-default' ng-click="embedMatter(ep)">添加素材</button>
@@ -238,6 +240,27 @@
                         <div class="checkbox">
                             <label><input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model='def.required'>是</label>
                         </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer" style="margin-top:0">
+            <button class="btn btn-success" ng-click="ok()">确定</button>
+        </div>
+    </script>
+    <script type="text/ng-template" id="embedUserLib.html">
+        <div class="modal-header">
+            <button class="close" ng-click="cancel()" type="button">×</button>
+            <h5 class="modal-title">访问用户</h5>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal" role="form">
+                <div class="form-group">
+                    <label class="col-md-2 control-label">登记项</label>
+                    <div class="col-md-10">
+                        <ul class='list-group' style='overflow-y:auto;max-height:245px;margin-bottom:0'>
+                            <li class='list-group-item' style='padding-top:0;padding-bottom:7px'><label class='checkbox-inline'><input type='checkbox' ng-model='def.nickname'>用户昵称</label></li>
+                        </ul>
                     </div>
                 </div>
             </form>

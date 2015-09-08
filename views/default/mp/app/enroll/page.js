@@ -17,7 +17,8 @@
         activeEditor.save();
     };
     WrapLib.prototype.extractInputSchema = function(wrap) {
-        var $label, def = {}, $input, model;
+        var $label, def = {},
+            $input, model;
         $label = $($(wrap).find('label').get(0));
         def.name = $label.html();
         def.showname = $label.hasClass('sr-only') ? 'placeholder' : 'label';
@@ -415,6 +416,15 @@
                 break;
         }
     };
+    WrapLib.prototype.embedUser = function(page, def) {
+        if (def.nickname === true) {
+            html = "<label>昵称</label><div>{{User.fan.nickname}}</div>";
+            this.addWrap(page, 'div', {
+                wrap: 'static',
+                class: 'form-group'
+            }, html);
+        }
+    };
     WrapLib.prototype.changeEmbedStatic = function(page, wrap, def) {
         def.inline ? $(wrap).addClass('wrap-inline') : $(wrap).removeClass('wrap-inline');
         def.splitLine ? $(wrap).addClass('wrap-splitline') : $(wrap).removeClass('wrap-splitline');
@@ -769,6 +779,31 @@
                 }]
             }).result.then(function(def) {
                 wrapLib.embedShow(page, def);
+            });
+        };
+        $scope.embedUser = function(page) {
+            $modal.open({
+                templateUrl: 'embedUserLib.html',
+                backdrop: 'static',
+                resolve: {
+                    enroll: function() {
+                        return $scope.editing;
+                    }
+                },
+                controller: ['$scope', '$modalInstance', 'enroll', function($scope, $mi, enroll) {
+                    $scope.pages = enroll.pages;
+                    $scope.def = {
+                        nickname: 0
+                    };
+                    $scope.ok = function() {
+                        $mi.close($scope.def);
+                    };
+                    $scope.cancel = function() {
+                        $mi.dismiss();
+                    };
+                }]
+            }).result.then(function(def) {
+                wrapLib.embedUser(page, def);
             });
         };
         $scope.embedMatter = function(page) {

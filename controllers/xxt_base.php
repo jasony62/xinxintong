@@ -390,8 +390,9 @@ class xxt_base extends TMS_CONTROLLER {
 		}
 	}
 	/**
+	 * 将用户集转换为openid
 	 *
-	 * $userSet
+	 * $param userSet
 	 */
 	protected function getOpenid($userSet) {
 		$openids = array();

@@ -31,8 +31,8 @@ class order extends \member_base {
 	 * 查看订单
 	 */
 	public function get_action($mpid, $order) {
-		//$openid = $this->getCookieOAuthUser($mpid);
-		//if (empty($openid))
+		//$fan = $this->getCookieOAuthUser($mpid);
+		//if (empty($fan->openid))
 		//    return new \ResponseError('无法获得当前用户身份信息');
 
 		$order = $this->model('app\merchant\order')->byId($order);
@@ -43,8 +43,8 @@ class order extends \member_base {
 	 * 查询订单
 	 */
 	public function list_action($mpid, $shop) {
-		//$openid = $this->getCookieOAuthUser($mpid);
-		//if (empty($openid))
+		//$fan = $this->getCookieOAuthUser($mpid);
+		//if (empty($fan->openid))
 		//    return new \ResponseError('无法获得当前用户身份信息');
 
 		$orders = $this->model('app\merchant\order')->byShopid($shop);

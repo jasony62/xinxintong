@@ -17,7 +17,7 @@ class main extends base {
 		/**
 		 * 当前用户在cookie中的记录
 		 */
-		empty($ooid) && $ooid = $this->getCookieOAuthUser($mpid);
+		empty($ooid) && $ooid = $this->getCookieOAuthUser($mpid)->openid;
 		/**
 		 * 确保只有认证过的用户才能提交数据
 		 * todo 企业号直接跳过这个限制？
@@ -148,7 +148,6 @@ class main extends base {
 				'verbose' => array('member' => 'Y', 'fan' => 'Y'),
 			)
 		);
-		//die(json_encode($user));
 		/**
 		 * 如果没有指定页面，计算应该进入到哪一个状态页
 		 * todo 需要避免直接指定page进入的情况
@@ -526,9 +525,9 @@ class main extends base {
 		/**
 		 * 检查是否为关注用户
 		 */
-		$ooid = $this->getCookieOAuthUser($act->mpid);
+		$fan = $this->getCookieOAuthUser($act->mpid);
 
-		if ($modelEnroll->hasEnrolled($act->mpid, $aid, $ooid)) {
+		if ($modelEnroll->hasEnrolled($act->mpid, $aid, $fan->openid)) {
 			return new \ResponseData(true);
 		} else {
 			return new \ResponseError('没有报名');
@@ -625,8 +624,8 @@ class main extends base {
 	 * 没有指定位置信息时通过日志获取当前用户最后一次发送的位置
 	 */
 	public function locationGet_action($mpid, $lat = '', $lng = '') {
-		$openid = $this->getCookieOAuthUser($mpid);
-		if (empty($openid)) {
+		$fan = $this->getCookieOAuthUser($mpid);
+		if (empty($fan->openid)) {
 			return new \ResponseError('无法获得身份信息');
 		}
 
@@ -635,7 +634,7 @@ class main extends base {
 			$q = array(
 				'max(id)',
 				'xxt_log_mpreceive',
-				"mpid='$mpid' and openid='$openid' and type='event' and data like '%LOCATION%'",
+				"mpid='$mpid' and openid='$fan->openid' and type='event' and data like '%LOCATION%'",
 			);
 			if ($lastid = $this->model()->query_val_ss($q)) {
 				$q = array(

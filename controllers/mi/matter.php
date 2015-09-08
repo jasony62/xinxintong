@@ -50,7 +50,7 @@ class matter extends \member_base {
 		/**
 		 * visit fans.
 		 */
-		$ooid = empty($who) ? $this->getCookieOAuthUser($mpid) : $who;
+		$ooid = empty($who) ? $this->getCookieOAuthUser($mpid)->openid : $who;
 		/**
 		 * 根据类型获得处理素材的对象
 		 */

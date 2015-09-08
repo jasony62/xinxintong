@@ -200,7 +200,7 @@ class main extends \member_base {
 		/**
 		 * 如果仅限关注用户参与，获得openid
 		 */
-		$openid = $this->getCookieOAuthUser($mpid);
+		$openid = $this->getCookieOAuthUser($mpid)->openid;
 
 		if ($r->fans_only === 'Y') {
 			if (empty($openid)) {
@@ -324,9 +324,9 @@ class main extends \member_base {
 
 		}
 
-		$openid = $this->getCookieOAuthUser($mpid);
+		$fan = $this->getCookieOAuthUser($mpid);
 
-		$myAwards = $model->getLog($lid, $mid, $openid, true);
+		$myAwards = $model->getLog($lid, $mid, $fan->openid, true);
 
 		return new \ResponseData($myAwards);
 	}

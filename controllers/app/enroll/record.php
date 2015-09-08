@@ -212,7 +212,7 @@ class record extends base {
 	/**
 	 * 给当前用户产生一条空的登记记录，并返回这条记录
 	 */
-	public function emptyGet_action($mpid, $aid) {
+	public function emptyGet_action($mpid, $aid, $once = 'N') {
 		$posted = $this->getPostJson();
 
 		$model = $this->model('app\enroll');
@@ -229,19 +229,26 @@ class record extends base {
 				'verbose' => array('member' => 'Y', 'fan' => 'Y'),
 			)
 		);
-		$modelRec = $this->model('app\enroll\record');
-		$ek = $modelRec->add($mpid, $act, $user, (empty($posted->referrer) ? '' : $posted->referrer));
-		/**
-		 * 处理提交数据
-		 */
-		$data = $_GET;
-		unset($data['mpid']);
-		unset($data['aid']);
-		if (!empty($data)) {
-			$data = (object) $data;
-			$rst = $modelRec->setData($user, $mpid, $aid, $ek, $data);
-			if (false === $rst[0]) {
-				return new ResponseError($rst[1]);
+		/* 如果已经有登记记录则不登记 */
+		if ($once === 'Y') {
+			$ek = $model->getLastEnrollKey($mpid, $aid, $user->openid);
+		}
+		/* 创建登记记录*/
+		if (empty($ek)) {
+			$modelRec = $this->model('app\enroll\record');
+			$ek = $modelRec->add($mpid, $act, $user, (empty($posted->referrer) ? '' : $posted->referrer));
+			/**
+			 * 处理提交数据
+			 */
+			$data = $_GET;
+			unset($data['mpid']);
+			unset($data['aid']);
+			if (!empty($data)) {
+				$data = (object) $data;
+				$rst = $modelRec->setData($user, $mpid, $aid, $ek, $data);
+				if (false === $rst[0]) {
+					return new ResponseError($rst[1]);
+				}
 			}
 		}
 		/**

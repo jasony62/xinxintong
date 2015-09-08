@@ -174,16 +174,22 @@ formApp.factory('Schema', ['$location', '$http', '$q', function($location, $http
 formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'Round', 'Record', 'Statistic', function($location, $scope, $http, $timeout, $q, Round, Record, Statistic) {
     window.shareCounter = 0;
     window.xxt.share.options.logger = function(shareto) {
-        var url = "/rest/mi/matter/logShare";
+        var app, url;
+        app = $scope.params.enroll;
+        url = "/rest/mi/matter/logShare";
         url += "?shareid=" + window.shareid;
         url += "&mpid=" + $scope.params.mpid;
-        url += "&id=" + $scope.params.enroll.id;
+        url += "&id=" + app.id;
         url += "&type=enroll";
-        url += "&title=" + $scope.params.enroll.title;
+        url += "&title=" + app.title;
         url += "&shareby=" + $scope.params.shareby;
         url += "&shareto=" + shareto;
         $http.get(url);
         window.shareCounter++;
+        /* 是否需要自动登记 */
+        if (app.can_autoenroll === 'Y' && app.page.autoenroll_onshare === 'Y') {
+            $http.get('/rest/app/enroll/record/emptyGet?mpid=' + $scope.params.mpid + '&aid=' + app.id + '&once=Y');
+        }
         window.onshare && window.onshare(window.shareCounter);
     };
     if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage !== undefined) {

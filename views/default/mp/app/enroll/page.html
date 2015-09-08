@@ -1,58 +1,17 @@
 <div>
     <ul class="nav nav-tabs">
-        <li class='active'>
-            <a href="#tab_form" ng-click="shiftPage($event)" data-toggle='tab'>{{editing.pages.form.title}}</a>
-        </li>
-        <li ng-repeat="ep in extraPages">
+        <li ng-repeat="ep in editing.pages">
             <a href="#tab_{{ep.name}}" ng-click="shiftPage($event)" data-toggle='tab'>{{ep.title}}</a>
         </li>
         <li class='pull-right'>
             <button class='btn btn-success' ng-click='addPage()'>
-                <span class='glyphicon glyphicon-plus'>添加页面</span>
+            <span class='glyphicon glyphicon-plus'>添加页面</span>
             </button>
         </li>
     </ul>
     <div class="tab-content">
-        <div id='tab_form' class='tab-pane active'>
-            <div class='form-group editor'>
-                <div>
-                    <button class='btn' ng-class="editing.pages.form.$$modified?'btn-success':'btn-default'" ng-disabled='!editing.pages.form.$$modified'
-                    ng-click="updPage(editing.pages.form,'html')">保存</button>
-                    <button class='btn btn-default' ng-click="embedInput(editing.pages.form)">添加登记项</button>
-                    <button class='btn btn-default' ng-click="embedUser(editing.pages.form)">添加用户项</button>
-                    <button class='btn btn-default' ng-click="embedButton(editing.pages.form)">添加操作</button>
-                    <button class='btn btn-default' ng-click="embedMatter(editing.pages.form)">添加素材</button>
-                    <a href='#' class='pull-right' ng-click="gotoCode(editing.pages.form.code_id)">编辑页面代码</a>
-                </div>
-                <tinymce content='editing.pages.form.html' id='form' height='500' change="onPageChange(editing.pages.form)"></tinymce>
-                <div class='sidebar'>
-                    <button class='btn btn-default' title='修改' ng-click="editWrap(editing.pages.form)" ng-disabled='!hasActiveWrap||!activeWrap.editable'>
-                        <i class='fa fa-edit fa-fw'></i>
-                    </button>
-                    <button class='btn btn-default' title='删除' ng-click="removeWrap(editing.pages.form)" ng-disabled='!hasActiveWrap'>
-                        <i class='fa fa-remove fa-fw'></i>
-                    </button>
-                    </button>
-                    <button class='btn btn-default' title='上移' ng-click="upWrap(editing.pages.form)" ng-disabled='!hasActiveWrap'>
-                        <span class='fa fa-arrow-up fa-fw'></span>
-                    </button>
-                    <button class='btn btn-default' title='下移' ng-click="downWrap(editing.pages.form)" ng-disabled='!hasActiveWrap'>
-                        <span class='fa fa-arrow-down fa-fw'></span>
-                    </button>
-                    <button class='btn btn-default' title='上一级' ng-click="upLevel(editing.pages.form)" ng-disabled='!hasActiveWrap||activeWrap.upmost'>
-                        <span class='fa fa-level-up fa-fw'></span>
-                    </button>
-                    <button class='btn btn-default' title='下一级' ng-click="downLevel(editing.pages.form)" ng-disabled='!hasActiveWrap||activeWrap.downmost'>
-                        <span class='fa fa-level-down fa-fw'></span>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div id='tab_{{ep.name}}' class='tab-pane' ng-repeat="ep in extraPages">
+        <div id='tab_{{ep.name}}' class='tab-pane' ng-repeat="ep in editing.pages">
             <div class='form-inline' style='margin:15px 0'>
-                <div class='form-group'>
-                    <p class='help-block'>ID:{{ep.name}}</p>
-                </div>
                 <div class='form-group'>
                     <select class='form-control' ng-model='ep.type' ng-change="updPage(ep,'type')">
                         <option value='I'>登记页</option>
@@ -62,14 +21,17 @@
                 <div class='form-group'>
                     <input type='text' class='form-control' ng-model='ep.title' tms-auto-update tms-wait=1000 tms-update="updPage(ep,'title')">
                 </div>
-                <button class='btn btn-default' ng-click='delPage(ep)'>删除</span>
-                </button>
+                <button class='btn btn-default' ng-click='delPage($index,ep)'>删除</button>
                 <label class='checkbox-inline'>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='ep.share_page' ng-change="updPage(ep,'share_page')">分享当前页</label>
                 <div class='form-group'>
                     <select class='form-control' title='摘要信息' ng-model='ep.share_summary' ng-options='v.id as v.title for (k,v) in schema' ng-change="updPage(ep,'share_summary')">
                         <option value=''>活动摘要</option>
                     </select>
+                </div>
+                <div class='form-group' ng-show="editing.can_autoenroll==='Y'">
+                    <label class="checkbox-inline"><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='ep.autoenroll_onenter' ng-change="updPage(ep,'autoenroll_onenter')">进入时自动登记</label>
+                    <label class="checkbox-inline"><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='ep.autoenroll_onshare' ng-change="updPage(ep,'autoenroll_onshare')">分享时自动登记</label>
                 </div>
             </div>
             <div class='form-group editor'>
@@ -85,23 +47,28 @@
                 <tinymce content='ep.html' id='{{ep.name}}' height='500' change="onPageChange(ep)"></tinymce>
                 <div class='sidebar'>
                     <button class='btn btn-default' ng-click="editWrap(ep)" ng-disabled='!hasActiveWrap||!activeWrap.editable'>
-                        <i class='fa fa-edit fa-fw'></i>
+                    <i class='fa fa-edit fa-fw'></i>
                     </button>
                     <button class='btn btn-default' title='修改' ng-click="removeWrap(ep)" ng-disabled='!hasActiveWrap'>
-                        <i class='fa fa-remove fa-fw'></i>
+                    <i class='fa fa-remove fa-fw'></i>
                     </button>
                     <button class='btn btn-default' ng-click="upWrap(ep)" ng-disabled='!hasActiveWrap'>
-                        <span class='fa fa-arrow-up fa-fw'></span>
+                    <span class='fa fa-arrow-up fa-fw'></span>
                     </button>
                     <button class='btn btn-default' ng-click="downWrap(ep)" ng-disabled='!hasActiveWrap'>
-                        <span class='fa fa-arrow-down fa-fw'></span>
+                    <span class='fa fa-arrow-down fa-fw'></span>
                     </button>
                     <button class='btn btn-default' title='上一级' ng-click="upLevel(ep)" ng-disabled='!hasActiveWrap||activeWrap.upmost'>
-                        <span class='fa fa-level-up fa-fw'></span>
+                    <span class='fa fa-level-up fa-fw'></span>
                     </button>
                     <button class='btn btn-default' title='下一级' ng-click="downLevel(ep)" ng-disabled='!hasActiveWrap||activeWrap.downmost'>
-                        <span class='fa fa-level-down fa-fw'></span>
+                    <span class='fa fa-level-down fa-fw'></span>
                     </button>
+                </div>
+            </div>
+            <div class='form-inline'>
+                <div class='form-group'>
+                    <p class='help-block'>ID:{{ep.name}}</p>
                 </div>
             </div>
         </div>

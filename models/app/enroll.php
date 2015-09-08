@@ -9,31 +9,20 @@ class enroll_model extends \matter\enroll_model {
 	 * $aid string
 	 * $cascaded array []
 	 */
-	public function &byId($aid, $fields = '*') {
+	public function &byId($aid, $fields = '*', $cascaded = 'Y') {
 		$q = array(
 			$fields,
 			'xxt_enroll',
 			"id='$aid'",
 		);
 		if ($e = $this->query_obj_ss($q)) {
-			($fields === '*' || strpos($fields, 'entry_rule')) && $e->entry_rule = json_decode($e->entry_rule);
+			$e->entry_rule = json_decode($e->entry_rule);
 			/**
 			 * 页面内容
 			 */
-			if ($fields === '*') {
-				// form page
-				$page = \TMS_APP::model('code/page')->byId($e->form_code_id, 'html,css,js');
-				$page->id = 0;
-				$page->name = 'form';
-				$page->type = 'I';
-				$page->code_id = $e->form_code_id;
-				$e->pages['form'] = $page;
-				// other page
-				$extraPages = $this->getPages($aid);
-				foreach ($extraPages as $ep) {
-					$e->pages[$ep->name] = $ep;
-				}
-
+			if ($cascaded === 'Y') {
+				$modelPage = \TMS_APP::M('app\enroll\page');
+				$e->pages = $modelPage->byEnroll($aid);
 			}
 		}
 
@@ -59,56 +48,6 @@ class enroll_model extends \matter\enroll_model {
 		$ep->ext_css = $code->ext_css;
 
 		return $ep;
-	}
-	/**
-	 *
-	 */
-	public function getPages($aid) {
-		$select = 'ap.*';
-		$from = 'xxt_enroll_page ap';
-		$where = "ap.aid='$aid'";
-
-		$q = array($select, $from, $where);
-
-		$eps = $this->query_objs_ss($q);
-		foreach ($eps as &$ep) {
-			$code = \TMS_APP::model('code/page')->byId($ep->code_id);
-			$ep->html = $code->html;
-			$ep->css = $code->css;
-			$ep->js = $code->js;
-			$ep->ext_js = $code->ext_js;
-			$ep->ext_css = $code->ext_css;
-		}
-
-		return $eps;
-	}
-	/**
-	 * 创建活动页面
-	 */
-	public function addPage($mpid, $aid, $data = null) {
-		$uid = \TMS_CLIENT::get_client_uid();
-
-		$code = \TMS_APP::model('code/page')->create($uid);
-
-		$newPage = array(
-			'mpid' => $mpid,
-			'aid' => $aid,
-			'creater' => $uid,
-			'create_at' => time(),
-			'type' => isset($data['type']) ? $data['type'] : 'V',
-			'title' => isset($data['title']) ? $data['title'] : '新页面',
-			'name' => 'z' . time(),
-			'code_id' => $code->id,
-		);
-
-		$apid = $this->insert('xxt_enroll_page', $newPage, true);
-
-		$newPage['id'] = $apid;
-		$newPage['html'] = '';
-		$newPage['css'] = '';
-		$newPage['js'] = '';
-
-		return (object) $newPage;
 	}
 	/**
 	 *

@@ -21,7 +21,7 @@
             }];
             for (var p in nv) {
                 newPage = {
-                    name: p,
+                    name: nv[p].name,
                     title: nv[p].title
                 };
                 $scope.pages4OutAcl.push(newPage);

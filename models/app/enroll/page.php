@@ -6,27 +6,13 @@ class page_model extends \TMS_MODEL {
 	 * 根据活动
 	 */
 	public function &byEnroll($id) {
-		// form page
-		$q = array(
-			'form_code_id',
-			'xxt_enroll',
-			"id='$id'",
-		);
-		$e = $this->query_obj_ss($q);
-		$page = \TMS_APP::model('code/page')->byId($e->form_code_id, 'html,css,js');
-		$page->id = 0;
-		$page->name = 'form';
-		$page->type = 'I';
-		$page->code_id = $e->form_code_id;
-		$pages['form'] = $page;
-
-		// others
 		$q = array(
 			'ap.*',
 			'xxt_enroll_page ap',
 			"ap.aid='$id'",
 		);
-		$eps = $this->query_objs_ss($q);
+		$q2 = array('o' => 'create_at');
+		$eps = $this->query_objs_ss($q, $q2);
 		foreach ($eps as &$ep) {
 			$code = \TMS_APP::model('code/page')->byId($ep->code_id);
 			$ep->html = $code->html;
@@ -34,7 +20,7 @@ class page_model extends \TMS_MODEL {
 			$ep->js = $code->js;
 			$ep->ext_js = $code->ext_js;
 			$ep->ext_css = $code->ext_css;
-			$pages[$ep->name] = $ep;
+			$pages[] = $ep;
 		}
 
 		return $pages;
@@ -228,5 +214,33 @@ class page_model extends \TMS_MODEL {
 		}
 
 		return $schema;
+	}
+	/**
+	 * 创建活动页面
+	 */
+	public function add($mpid, $aid, $data = null) {
+		$uid = \TMS_CLIENT::get_client_uid();
+
+		$code = \TMS_APP::model('code/page')->create($uid);
+
+		$newPage = array(
+			'mpid' => $mpid,
+			'aid' => $aid,
+			'creater' => $uid,
+			'create_at' => time(),
+			'type' => isset($data['type']) ? $data['type'] : 'V',
+			'title' => isset($data['title']) ? $data['title'] : '新页面',
+			'name' => isset($data['name']) ? $data['name'] : 'z' . time(),
+			'code_id' => $code->id,
+		);
+
+		$apid = $this->insert('xxt_enroll_page', $newPage, true);
+
+		$newPage['id'] = $apid;
+		$newPage['html'] = '';
+		$newPage['css'] = '';
+		$newPage['js'] = '';
+
+		return (object) $newPage;
 	}
 }

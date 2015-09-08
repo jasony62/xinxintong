@@ -111,7 +111,7 @@
                                 <td>未指定时</td>
                                 <td>
                                     <div class='form-inline'>
-                                        <select class='form-control' ng-change="updateEntryRule()" ng-model='editing.entry_rule.otherwise.entry' ng-options='pname as page.title for (pname, page) in editing.pages'></select>
+                                        <select class='form-control' ng-change="updateEntryRule()" ng-model='editing.entry_rule.otherwise.entry' ng-options='page.name as page.title for page in editing.pages'></select>
                                         <button class='btn btn-default'>
                                             <span class='glyphicon glyphicon-plus'></span>
                                         </button>
@@ -129,7 +129,7 @@
                                 </td>
                                 <td>
                                     <div class='form-inline'>
-                                        <select class='form-control' ng-change="updateEntryRule()" ng-model='editing.entry_rule.member.entry' ng-options='pname as page.title for (pname, page) in editing.pages'>
+                                        <select class='form-control' ng-change="updateEntryRule()" ng-model='editing.entry_rule.member.entry' ng-options='page.name as page.title for page in editing.pages'>
                                             <option value=''></option>
                                         </select>
                                         <button class='btn btn-default'>
@@ -248,7 +248,7 @@
             <div class='form-group'>
                 <label class='col-md-2 control-label'>已登记过时进入</label>
                 <div class='col-md-10'>
-                    <select class='form-control' ng-model='editing.enrolled_entry_page' ng-options='pname as page.title for (pname, page) in editing.pages'
+                    <select class='form-control' ng-model='editing.enrolled_entry_page' ng-options='page.name as page.title for page in editing.pages'
                     ng-change="update('enrolled_entry_page')">
                         <option value=''></option>
                     </select>
@@ -260,7 +260,7 @@
             <div class='form-group'>
                 <label class='col-md-2 control-label'>接收登记通知页</label>
                 <div class='col-md-10'>
-                    <select class='form-control' ng-model='editing.receiver_page' ng-options='pname as page.title for (pname, page) in editing.pages'
+                    <select class='form-control' ng-model='editing.receiver_page' ng-options='page.name as page.title for page in editing.pages'
                     ng-change="update( 'receiver_page') ">
                         <option value=''></option>
                     </select>
@@ -276,6 +276,8 @@
                     <label class='checkbox-inline'>
                         <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.remark_notice' ng-change="update('remark_notice');">登记评论提醒</label>
                     <label class='checkbox-inline'>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_autoenroll' ng-change="update('can_autoenroll');">支持自动登记</label>
+                    <label class='checkbox-inline'>
                         <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_signin' ng-change="update('can_signin');">支持签到</label>
                     <label class='checkbox-inline'>
                         <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_lottery' ng-change="update('can_lottery');">支持抽奖</label>
@@ -284,7 +286,7 @@
             <div class='form-group' ng-if="editing.remark_notice==='Y'">
                 <label class='col-md-2 control-label'>接收评论提醒页</label>
                 <div class='col-md-10'>
-                    <select class='form-control' ng-model='editing.remark_notice_page' ng-options='pname as page.title for (pname, page) in editing.pages'
+                    <select class='form-control' ng-model='editing.remark_notice_page' ng-options='page.name as page.title for page in editing.pages'
                     ng-change="update( 'remark_notice_page')">
                         <option value=''></option>
                     </select>

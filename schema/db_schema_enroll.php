@@ -36,6 +36,7 @@ $sql .= ",open_lastroll char(1) not null default 'Y'"; // 打开最后一条登�
 $sql .= ",multi_rounds char(1) not null default 'Y'"; // 支持轮次
 $sql .= ",can_like_record char(1) not null default 'N'"; // 支持对登记记录点赞
 $sql .= ",can_remark_record char(1) not null default 'N'"; // 支持对登记记录评论
+$sql .= ",can_autoenroll char(1) not null default 'N'"; // 是否支持自动登记
 $sql .= ",can_signin char(1) not null default 'N'"; // 是否支持签到
 $sql .= ",can_lottery char(1) not null default 'N'"; // 是否支持抽奖
 $sql .= ",remark_notice char(1) not null default 'N'";
@@ -63,6 +64,8 @@ $sql .= ",name varchar(20) not null default ''";
 $sql .= ',code_id int not null default 0'; // from xxt_code_page
 $sql .= ",share_page char(1) default 'N'"; // 分享时分享当前页还是分享活动，缺省分享活动
 $sql .= ",share_summary varchar(240)"; // 分享时的摘要字段
+$sql .= ",autoenroll_onenter char(1) not null default 'N'"; // 进入时自动登记
+$sql .= ",autoenroll_onshare char(1) not null default 'N'"; // 分享时自动登记
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

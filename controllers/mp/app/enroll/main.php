@@ -135,6 +135,7 @@ class main extends \mp\app\app_base {
 			return new \ResponseError('长时间未操作，请重新登陆！');
 		}
 
+		$current = time();
 		$uid = \TMS_CLIENT::get_client_uid();
 		$mpa = $this->model('mp\mpaccount')->getFeatures($this->mpid, 'heading_pic');
 		/**
@@ -149,23 +150,27 @@ class main extends \mp\app\app_base {
 		$newone['creater_src'] = 'A';
 		$newone['creater_name'] = $account->nickname;
 		$newone['create_at'] = time();
+		/* form page */
+		$page = array(
+			'title' => '登记信息页',
+			'type' => 'I',
+			'name' => 'z' . $current,
+		);
+		$page = $this->model('app\enroll\page')->add($this->mpid, $aid, $page);
 		$newone['entry_rule'] = json_encode(array(
-			'otherwise' => array('entry' => 'form'),
-			'member' => array('entry' => 'form', 'enroll' => 'Y', 'remark' => 'Y'),
-			'member_outacl' => array('entry' => 'form', 'enroll' => 'Y', 'remark' => 'Y'),
-			'fan' => array('entry' => 'form', 'enroll' => 'Y', 'remark' => 'Y'),
+			'otherwise' => array('entry' => $page->name),
+			'member' => array('entry' => $page->name, 'enroll' => 'Y', 'remark' => 'Y'),
+			'member_outacl' => array('entry' => $page->name, 'enroll' => 'Y', 'remark' => 'Y'),
+			'fan' => array('entry' => $page->name, 'enroll' => 'Y', 'remark' => 'Y'),
 			'nonfan' => array('entry' => '$mp_follow', 'enroll' => '$mp_follow'),
 		));
-		/**
-		 * 创建定制页
-		 */
-		$page = $this->model('code/page')->create($uid);
-		$newone['form_code_id'] = $page->id;
+		/* result page */
 		$page = array(
 			'title' => '查看结果页',
 			'type' => 'V',
+			'name' => 'z' . ($current + 1),
 		);
-		$this->model('app\enroll')->addPage($this->mpid, $aid, $page);
+		$this->model('app\enroll\page')->add($this->mpid, $aid, $page);
 
 		$this->model()->insert('xxt_enroll', $newone, false);
 

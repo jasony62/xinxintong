@@ -531,7 +531,7 @@
         var extractSchema = function() {
             var i, pages, page, s, s2;
             pages = $scope.editing.pages;
-            s = wrapLib.extractSchema(pages.form.html);
+            s = {};
             for (i in pages) {
                 page = pages[i];
                 if (page.type && page.type === 'I') {
@@ -975,15 +975,20 @@
         $scope.addPage = function() {
             http2.get('/rest/mp/app/enroll/addPage?aid=' + $scope.aid, function(rsp) {
                 var page = rsp.data;
-                $scope.editing.pages[page.name] = page;
-                $scope.extraPages[page.name] = page;
+                $scope.editing.pages.push(page);
                 $timeout(function() {
                     $('a[href="#tab_' + page.name + '"]').tab('show');
                 });
             });
         };
         $scope.onPageChange = function(page) {
-            page.$$modified = page.html !== $scope.persisted.pages[page.name].html;
+            var i, old;
+            for (i = $scope.persisted.pages.length - 1; i >= 0; i--) {
+                old = $scope.persisted.pages[i];
+                if (old.name === page.name)
+                    break;
+            }
+            page.$$modified = page.html !== old.html;
         };
         $scope.updPage = function(page, name) {
             var editor;
@@ -1011,16 +1016,15 @@
                 });
             }
         };
-        $scope.delPage = function(page) {
+        $scope.delPage = function(index, page) {
             var url = '/rest/mp/app/enroll/delPage';
             url += '?aid=' + $scope.aid;
             url += '&pid=' + page.id;
             http2.get(url, function(rsp) {
                 tinymce.remove('#' + page.name);
-                delete $scope.editing.pages[page.name];
-                delete $scope.extraPages[page.name];
+                $scope.editing.pages.splice(index, 1);
                 $timeout(function() {
-                    $('a[href="#tab_form"]').tab('show');
+                    $($('a[href^=#tab_]')[0]).tab('show');
                 });
             });
         };
@@ -1052,12 +1056,10 @@
         };
         $scope.$watch('editing', function(nv) {
             if (!nv) return;
-            var extraPages = {};
-            angular.forEach($scope.editing.pages, function(value, key) {
-                key !== 'form' && (extraPages[key] = value);
-            });
-            $scope.extraPages = extraPages;
             $scope.schema = extractSchema();
+            $timeout(function() {
+                $($('a[href^=#tab_]')[0]).tab('show');
+            });
         });
     }]);
 })();

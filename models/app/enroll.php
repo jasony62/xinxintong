@@ -172,7 +172,7 @@ class enroll_model extends \matter\enroll_model {
 		$q = array(
 			'count(*)',
 			'xxt_enroll_record',
-			"mpid='$mpid' and aid='$aid' and openid='$openid'",
+			"state=1 and mpid='$mpid' and aid='$aid' and openid='$openid'",
 		);
 
 		if ($activeRound = $this->getActiveRound($mpid, $aid)) {
@@ -192,7 +192,7 @@ class enroll_model extends \matter\enroll_model {
 		$q = array(
 			'enroll_key',
 			'xxt_enroll_record',
-			"mpid='$mpid' and aid='$aid' and openid='$openid'",
+			"state=1 and mpid='$mpid' and aid='$aid' and openid='$openid'",
 		);
 		if ($activeRound = $this->getActiveRound($mpid, $aid)) {
 			$q[2] .= " and rid='$activeRound->rid'";

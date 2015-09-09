@@ -97,6 +97,7 @@ class main extends base {
 		 */
 		$enrollModel = $this->model('app\enroll');
 		$act = $enrollModel->byId($aid);
+		$mapPages = array();
 		foreach ($act->pages as &$p) {
 			$mapPages[$p->name] = $p;
 		}
@@ -155,7 +156,6 @@ class main extends base {
 				'verbose' => array('member' => 'Y', 'fan' => 'Y'),
 			)
 		);
-		// 是否已经进行过登记
 		$hasEnrolled = $enrollModel->hasEnrolled($mpid, $act->id, $user->openid);
 		/**
 		 * 如果没有指定页面，计算应该进入到哪一个状态页
@@ -222,13 +222,7 @@ class main extends base {
 		}
 
 		empty($mapPages[$page]) && $this->outputError("指定页面[$page]不存在");
-		$oPage = $mapPages[$page];
 
-		/* 是否要进入时自动登记 */
-		if (!$hasEnrolled && $act->can_autoenroll === 'Y' && $oPage->autoenroll_onenter === 'Y') {
-			$modelRec = $this->model('app\enroll\record');
-			$modelRec->add($mpid, $act, $user);
-		}
 		/* 提示在PC端完成 */
 		if (isset($user->fan) && $this->getClientSrc() && isset($act->shift2pc) && $act->shift2pc === 'Y') {
 			$fea = $this->model('mp\mpaccount')->getFeatures($mpid, 'shift2pc_page_id');
@@ -244,6 +238,13 @@ class main extends base {
 				$pageOfShift2Pc->html = str_replace('{{taskCode}}', $taskCode, $pageOfShift2Pc->html);
 			}
 			\TPL::assign('shift2pcAlert', $pageOfShift2Pc);
+		}
+
+		$oPage = $mapPages[$page];
+		/* 自动登记 */
+		if (!$hasEnrolled && $act->can_autoenroll === 'Y' && $oPage->autoenroll_onenter === 'Y') {
+			$modelRec = $this->model('app\enroll\record');
+			$modelRec->add($mpid, $act, $user, (empty($posted->referrer) ? '' : $posted->referrer));
 		}
 
 		\TPL::assign('page', $oPage->name);

@@ -625,6 +625,70 @@ class main extends base {
 		return new \ResponseData($rst);
 	}
 	/**
+	 * 列出当前访问用户所有的登记记录
+	 *
+	 * $mpid
+	 * $aid
+	 * $orderby
+	 * $page
+	 * $size
+	 *
+	 * return
+	 * [0] 数据列表
+	 * [1] 数据总条数
+	 * [2] 数据项的定义
+	 *
+	 */
+	public function followers_action($mpid, $aid, $rid = '', $orderby = 'time', $page = 1, $size = 10) {
+		$modelRec = $this->model('app\enroll\record');
+
+		$user = $this->getUser($mpid);
+
+		$options = array(
+			'inviter' => $user->openid,
+			'rid' => $rid,
+			'page' => $page,
+			'size' => $size,
+			'orderby' => $orderby,
+		);
+
+		$rst = $modelRec->find($mpid, $aid, $options);
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 列出当前访问用户所有的登记记录
+	 *
+	 * $mpid
+	 * $aid
+	 * $orderby
+	 * $page
+	 * $size
+	 *
+	 * return
+	 * [0] 数据列表
+	 * [1] 数据总条数
+	 * [2] 数据项的定义
+	 *
+	 */
+	public function myFollowers_action($mpid, $aid, $rid = '', $orderby = 'time', $page = 1, $size = 10) {
+		$modelRec = $this->model('app\enroll\record');
+
+		$user = $this->getUser($mpid);
+
+		$options = array(
+			'inviter' => $user->openid,
+			'rid' => $rid,
+			'page' => $page,
+			'size' => $size,
+			'orderby' => $orderby,
+		);
+
+		$rst = $modelRec->find($mpid, $aid, $options);
+
+		return new \ResponseData($rst);
+	}
+	/**
 	 *
 	 * $mpid
 	 * $aid

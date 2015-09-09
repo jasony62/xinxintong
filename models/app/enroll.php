@@ -759,22 +759,18 @@ class enroll_model extends \matter\enroll_model {
 		/**
 		 * 获得活动的定义
 		 */
-		$q = array(
-			'a.access_control,p.html form_html',
-			'xxt_enroll a,xxt_code_page p',
-			"a.id='$aid' and a.form_code_id=p.id",
-		);
-		$act = $this->query_obj_ss($q);
+		$modelApp = \TMS_APP::M('app\enroll');
+		/* 获得活动的定义 */
+		$act = $modelApp->byId($aid);
 
 		$result = array(); // 返回的结果
 		/**
 		 * 获得数据项定义
 		 */
-		$result[2] = $this->getSchema($act->form_html);
-		$extraPages = $this->getPages($aid);
-		foreach ($extraPages as $ep) {
-			if ($ep->type === 'I') {
-				$defs = $this->getSchema($ep->html);
+		$result[2] = array();
+		foreach ($act->pages as $p) {
+			if ($p->type === 'I') {
+				$defs = $this->getSchema($p->html);
 				$result[2] = array_merge($result[2], $defs);
 			}
 		}

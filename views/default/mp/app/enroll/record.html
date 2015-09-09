@@ -45,6 +45,7 @@
                     <th class='custom-col' ng-repeat="c in cols" title="{{c.ops}}">{{c.title}}</th>
                     <th style='width:100px' ng-if="editing.can_signin==='Y'">签到时间</th>
                     <th style='width:140px'>标签</th>
+                    <th style='width:60px'>邀请</th>
                     <th style='width:60px' ng-if="editing.can_like_record==='Y'">点赞</th>
                     <th style='width:60px' ng-if="editing.can_remark_record==='Y'">评论</th>
                     <th style='width:72px'>操作</th>
@@ -71,6 +72,7 @@
                     </td>
                     <td ng-if="editing.can_signin==='Y'">{{r.signin_at>0 ? ((r.signin_at*1000)|date:'yyyy-MM-dd HH:mm') : ''}}</td>
                     <td>{{r.tags}}</td>
+                    <td>{{r.follower_num}}</td>
                     <td ng-if="editing.can_like_record==='Y'">{{r.score}}</td>
                     <td ng-if="editing.can_remark_record==='Y'">{{r.remark_num}}</td>
                     <td>

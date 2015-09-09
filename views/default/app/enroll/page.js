@@ -52,12 +52,22 @@ formApp.factory('Record', function($http) {
         this.owner = 'all';
         this.$scope = $scope;
     };
-    var listGet = function(ins, owner) {
+    var listGet = function(ins) {
         if (ins.busy) return;
         ins.busy = true;
         var url;
         url = '/rest/app/enroll/';
-        url += ins.owner === 'user' ? 'myRecords' : 'records';
+        switch (ins.owner) {
+            case 'A':
+                url += 'records';
+                break;
+            case 'U':
+                url += 'myRecords';
+                break;
+            case 'I':
+                url += 'followers';
+                break;
+        }
         url += '?mpid=' + ins.mpid;
         url += '&aid=' + ins.aid;
         ins.rid !== undefined && ins.rid.length && (url += '&rid=' + ins.rid);
@@ -66,7 +76,11 @@ formApp.factory('Record', function($http) {
         url += '&size=10';
         $http.get(url).success(function(rsp) {
             if (rsp.err_code == 0) {
-                if (rsp.data[0] && rsp.data[0].length) {
+                if (rsp.data.records && rsp.data.records.length) {
+                    for (var i = 0; i < rsp.data.records.length; i++)
+                        ins.list.push(rsp.data.records[i]);
+                    ins.page++;
+                } else if (rsp.data[0] && rsp.data[0].length) {
                     for (var i = 0; i < rsp.data[0].length; i++)
                         ins.list.push(rsp.data[0][i]);
                     ins.page++;
@@ -188,9 +202,7 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
         window.shareCounter++;
         /* 是否需要自动登记 */
         if (app.can_autoenroll === 'Y' && $scope.params.page.autoenroll_onshare === 'Y') {
-            $http.get('/rest/app/enroll/record/emptyGet?mpid=' + $scope.mpid + '&aid=' + app.id + '&once=Y').success(function(rsp) {
-                alert(JSON.stringify(rsp));
-            });
+            $http.get('/rest/app/enroll/record/emptyGet?mpid=' + $scope.mpid + '&aid=' + app.id + '&once=Y');
         }
         window.onshare && window.onshare(window.shareCounter);
     };
@@ -515,8 +527,14 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
     };
     $scope.acceptInvite = function(event, nextAction) {
         var inviter, url;
-        if (!$scope.Record.current)
+        if (!$scope.Record.current) {
             alert('未进行登记，无效的邀请');
+            return;
+        }
+        if ($scope.Record.current.openid === $scope.User.fan.openid) {
+            alert('不能自己邀请自己');
+            return;
+        }
         inviter = $scope.Record.current.enroll_key;
         url = '/rest/app/enroll/record/acceptInvite';
         url += '?mpid=' + $scope.mpid;
@@ -539,8 +557,8 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
         if (nv && nv.length) {
             if ($scope.Record)
                 $scope.Record.nextPage(nv);
-            else
-                $scope.requireRecordList = nv;
+            //else
+            //    $scope.requireRecordList = nv;
         }
     });
     $scope.$watch('pageName', function(nv) {

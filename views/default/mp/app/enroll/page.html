@@ -254,6 +254,7 @@
                     <div class="col-md-10">
                         <label class='radio-inline'><input type='radio' value='U' name='scope' ng-model='def.dataScope'>当前用户</label>
                         <label class='radio-inline'><input type='radio' value='A' name='scope' ng-model='def.dataScope'>整个活动</label>
+                        <label class='radio-inline'><input type='radio' value='I' name='scope' ng-model='def.dataScope'>当前用户邀请的</label>
                     </div>
                 </div>
                 <div class="form-group" ng-show="def.type==='list'">
@@ -333,7 +334,7 @@
                         <input type='text' class='form-control' ng-model='def.label'>
                     </div>
                 </div>
-                <div class="form-group" ng-show="['submit','gotoPage'].indexOf(def.type)!==-1">
+                <div class="form-group" ng-show="['submit','gotoPage','acceptInvite'].indexOf(def.type)!==-1">
                     <label class="col-md-3 control-label">操作后</label>
                     <div class="col-md-9">
                         <select class='form-control' ng-model='def.next' ng-options='k as v.l for (k,v) in pages'>

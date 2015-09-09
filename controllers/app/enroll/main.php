@@ -7,72 +7,6 @@ include_once dirname(__FILE__) . '/base.php';
  */
 class main extends base {
 	/**
-	 * 获得当前访问用户的信息
-	 *
-	 * $mpid
-	 * $act
-	 * $ooid
-	 */
-	private function getVisitorInfo($mpid, $act, $ooid = null, $checkAccessControl = false, $askAuth = false) {
-		/**
-		 * 当前用户在cookie中的记录
-		 */
-		empty($ooid) && $ooid = $this->getCookieOAuthUser($mpid)->openid;
-		/**
-		 * 确保只有认证过的用户才能提交数据
-		 * todo 企业号直接跳过这个限制？
-		 */
-		$mid = '';
-		if ($act->access_control === 'Y' && $checkAccessControl) {
-			/**
-			 * 仅限注册用户报名，若不是注册用户，先要求进行注册
-			 */
-			if ($askAuth) {
-				$myUrl = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/enroll?mpid=$mpid&aid=$act->id";
-				$member = $this->accessControl($mpid, $act->id, $act->authapis, $ooid, $act, $myUrl);
-			} else {
-				$member = $this->accessControl($mpid, $act->id, $act->authapis, $ooid, $act, false);
-			}
-			$mid = $member->mid;
-		}
-
-		if (empty($ooid) && !empty($mid)) {
-			$fan = $this->model('user/fans')->byMid($mid, 'openid');
-			$ooid = $fan->openid;
-		} else if (!empty($ooid)) {
-			$fan = $this->model('user/fans')->byOpenid($mpid, $ooid);
-		}
-
-		$vid = $this->getVisitorId($mpid);
-
-		return array($ooid, $mid, $vid, isset($fan) ? $fan->fid : '');
-	}
-	/**
-	 * 获得当前用户的相关信息
-	 *
-	 * todo 认证用户信息如何体现？
-	 */
-	private function getUserInfo($mpid, $openid) {
-		if ($user = $this->model('user/fans')->byOpenid($mpid, $openid)) {
-
-			$members = $this->model('user/member')->byOpenid($mpid, $openid);
-			foreach ($members as &$member) {
-				if (!empty($member->depts)) {
-					$member->depts = $this->model('user/member')->getDepts($member->mid, $member->depts);
-				}
-
-				if (!empty($member->tags)) {
-					$member->tags = $this->model('user/member')->getTags($member->mid, $member->tags);
-				}
-
-			}
-
-			$user->members = $members;
-		}
-
-		return $user;
-	}
-	/**
 	 * 返回活动页
 	 *
 	 * 活动是否只向会员开放，如果是要求先成为会员，否则允许直接
@@ -291,8 +225,8 @@ class main extends base {
 	public function get_action($mpid, $aid, $rid = null, $page, $ek = null) {
 		$params = array();
 
-		$enrollModel = $this->model('app\enroll');
-		$act = $enrollModel->byId($aid);
+		$modelApp = $this->model('app\enroll');
+		$act = $modelApp->byId($aid);
 		$mapPages = array();
 		foreach ($act->pages as &$p) {
 			$mapPages[$p->name] = $p;
@@ -346,31 +280,30 @@ class main extends base {
 	 *
 	 */
 	private function getPageData($mpid, $act, $rid, $ek, $openid, $page, $newForm = false) {
-		$modelEnroll = $this->model('app\enroll');
 		$openedek = $ek;
 		$record = null;
+		$modelRec = $this->model('app\enroll\record');
 		/**
-		 * 打开登记数据页
+		 * 登记数据
 		 */
 		if (empty($openedek)) {
 			if (!$newForm) {
 				/**
 				 * 获得最后一条登记数据
 				 */
-				$enrollList = $modelEnroll->getRecordList($mpid, $act->id, $openid, $rid);
-				if (!empty($enrollList)) {
-					$record = $enrollList[0];
+				$myRecords = $modelRec->byUser($mpid, $act->id, $openid, $rid);
+				if (!empty($myRecords)) {
+					$record = $myRecords[0];
 					$openedek = $record->enroll_key;
-					$record->data = $modelEnroll->getRecordData($openedek);
+					$record->data = $modelRec->dataById($openedek);
 				}
 			}
 		} else {
 			/**
 			 * 打开指定的登记记录
 			 */
-			$record = $modelEnroll->getRecordById($openedek);
+			$record = $modelRec->byId($openedek);
 		}
-
 		/**
 		 * 互动数据
 		 */
@@ -379,324 +312,24 @@ class main extends base {
 			 * 登记人信息
 			 */
 			if (!empty($record->openid)) {
-				$record->enroller = $this->getUserInfo($mpid, $record->openid);
+				$options = array(
+					'openid' => $record->openid,
+					'verbose' => array('fan' => 'Y', 'member' => 'Y'),
+				);
+				$record->enroller = $this->getUser($mpid, $options);
 			}
-
 			/**
 			 * 评论数据
 			 */
-			$record->remarks = $modelEnroll->getRecordRemarks($openedek);
+			$record->remarks = $modelRec->remarksByEnroll($openedek);
 		}
-
+		/**
+		 * 统计数据
+		 */
+		$modelEnroll = $this->model('app\enroll');
 		$statdata = $modelEnroll->getStat($act->id);
 
 		return array($openedek, $record, $statdata);
-	}
-	/**
-	 * 登记记录点赞
-	 *
-	 * $mpid
-	 * $ek
-	 */
-	public function recordScore_action($mpid, $ek) {
-		$modelEnroll = $this->model('app\enroll');
-		/**
-		 * 当前活动
-		 */
-		$q = array('aid', 'xxt_enroll_record', "enroll_key='$ek'");
-		$aid = $this->model()->query_val_ss($q);
-		$act = $modelEnroll->byId($aid);
-		/**
-		 * 当前用户
-		 */
-		list($openid) = $this->getVisitorInfo($mpid, $act);
-
-		if ($modelEnroll->rollPraised($openid, $ek)) {
-			/**
-			 * 点了赞，再次点击，取消赞
-			 */
-			$this->model()->delete(
-				'xxt_enroll_record_score',
-				"enroll_key='$ek' and openid='$openid'"
-			);
-			$myScore = 0;
-		} else {
-			/**
-			 * 点赞
-			 */
-			$i = array(
-				'openid' => $openid,
-				'enroll_key' => $ek,
-				'create_at' => time(),
-				'score' => 1,
-			);
-			$this->model()->insert('xxt_enroll_record_score', $i, false);
-			$myScore = 1;
-		}
-		/**
-		 * 获得点赞的总数
-		 */
-		$score = $modelEnroll->rollScore($ek);
-		$this->model()->update('xxt_enroll_record', array('score' => $score), "enroll_key='$ek'");
-
-		return new \ResponseData(array($myScore, $score));
-	}
-	/**
-	 * 针对登记记录发表评论
-	 *
-	 * $mpid
-	 * $ek
-	 */
-	public function recordRemark_action($mpid, $ek) {
-		$data = $this->getPostJson();
-		if (empty($data->remark)) {
-			return new \ResponseError('评论不允许为空！');
-		}
-
-		$modelEnroll = $this->model('app\enroll');
-		/**
-		 * 当前活动
-		 */
-		$q = array('aid,openid', 'xxt_enroll_record', "enroll_key='$ek'");
-		$record = $this->model()->query_obj_ss($q);
-		$aid = $record->aid;
-		$act = $modelEnroll->byId($aid);
-		/**
-		 * 发表评论的用户
-		 */
-		list($openid) = $this->getVisitorInfo($mpid, $act, null, true, true);
-		if (empty($openid)) {
-			return new \ResponseError('无法获得用户身份标识');
-		}
-
-		$remarker = $this->model('user/fans')->byOpenid($mpid, $openid);
-		if (empty($remarker)) {
-			return new \ResponseError('无法获得用户身份信息');
-		}
-
-		$remark = array(
-			'openid' => $openid,
-			'enroll_key' => $ek,
-			'create_at' => time(),
-			'remark' => $this->model()->escape($data->remark),
-		);
-		$remark['id'] = $this->model()->insert('xxt_enroll_record_remark', $remark, true);
-		$remark['nickname'] = $remarker->nickname;
-		$this->model()->update("update xxt_enroll_record set remark_num=remark_num+1 where enroll_key='$ek'");
-		/**
-		 * 通知登记人有评论
-		 */
-		if ($act->remark_notice === 'Y' && !empty($act->remark_notice_page)) {
-			$apis = $this->model('mp\mpaccount')->getApis($mpid);
-			if ($apis && $apis->{$apis->mpsrc . '_custom_push'} === 'Y') {
-				/**
-				 * 发送评论提醒
-				 */
-				$url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/enroll?mpid=$mpid&aid=$aid&ek=$ek&page=$act->remark_notice_page";
-				$text = urlencode($remark['nickname'] . '对【');
-				$text .= '<a href="' . $url . '">';
-				$text .= urlencode($act->title);
-				$text .= '</a>';
-				$text .= urlencode('】发表了评论：' . $remark['remark']);
-				$message = array(
-					"msgtype" => "text",
-					"text" => array(
-						"content" => $text,
-					),
-				);
-				/**
-				 * 通知登记人
-				 */
-				if ($this->model('log')->canReceivePush($mpid, $record->openid)) {
-					if ($record->openid !== $remarker->openid) {
-						$this->send_to_user($mpid, $record->openid, $message);
-					}
-
-				}
-				/**
-				 * 通知其他发表了评论的用户
-				 */
-				$others = $modelEnroll->getRecordRemarkers($ek);
-				foreach ($others as $other) {
-					if ($other->openid === $record->openid || $other->openid === $remarker->openid) {
-						continue;
-					}
-
-					$this->send_to_user($mpid, $other->openid, $message);
-				}
-			}
-		}
-
-		return new \ResponseData($remark);
-	}
-	/**
-	 * 返回当前用户的报名数据
-	 *
-	 * $aid
-	 */
-	public function hasEnrolled_action($aid) {
-		$modelEnroll = $this->model('app\enroll');
-
-		$act = $modelEnroll->byId($aid);
-		/**
-		 * 检查是否为关注用户
-		 */
-		$fan = $this->getCookieOAuthUser($act->mpid);
-
-		if ($modelEnroll->hasEnrolled($act->mpid, $aid, $fan->openid)) {
-			return new \ResponseData(true);
-		} else {
-			return new \ResponseError('没有报名');
-		}
-
-	}
-	/**
-	 * 列出所有的登记记录
-	 *
-	 * $mpid
-	 * $aid
-	 * $orderby
-	 * $openid
-	 * $page
-	 * $size
-	 *
-	 * return
-	 * [0] 数据列表
-	 * [1] 数据总条数
-	 * [2] 数据项的定义
-	 *
-	 */
-	public function records_action($mpid, $aid, $rid = '', $orderby = 'time', $openid = null, $page = 1, $size = 10) {
-		$modelEnroll = $this->model('app\enroll');
-
-		$act = $modelEnroll->byId($aid);
-
-		list($ooid) = $this->getVisitorInfo($mpid, $act);
-
-		$options = array(
-			'creater' => $openid,
-			'visitor' => $ooid,
-			'rid' => $rid,
-			'page' => $page,
-			'size' => $size,
-			'orderby' => $orderby,
-		);
-
-		$rst = $modelEnroll->getRecords($mpid, $aid, $options);
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 * 列出当前访问用户所有的登记记录
-	 *
-	 * $mpid
-	 * $aid
-	 * $orderby
-	 * $page
-	 * $size
-	 *
-	 * return
-	 * [0] 数据列表
-	 * [1] 数据总条数
-	 * [2] 数据项的定义
-	 *
-	 */
-	public function myRecords_action($mpid, $aid, $rid = '', $orderby = 'time', $page = 1, $size = 10) {
-		$modelEnroll = $this->model('app\enroll');
-
-		$act = $modelEnroll->byId($aid);
-
-		$user = $this->getUser($mpid, array('authapis' => $act->authapis));
-		if (!$this->getClientSrc() && empty($user->openid)) {
-			return new \ResponseError('无法获得用户身份信息');
-		}
-
-		$options = array(
-			'creater' => $user->openid,
-			'visitor' => $user->openid,
-			'rid' => $rid,
-			'page' => $page,
-			'size' => $size,
-			'orderby' => $orderby,
-		);
-
-		$rst = $modelEnroll->getRecords($mpid, $aid, $options);
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 * 列出当前访问用户所有的登记记录
-	 *
-	 * $mpid
-	 * $aid
-	 * $orderby
-	 * $page
-	 * $size
-	 *
-	 * return
-	 * [0] 数据列表
-	 * [1] 数据总条数
-	 * [2] 数据项的定义
-	 *
-	 */
-	public function followers_action($mpid, $aid, $rid = '', $orderby = 'time', $page = 1, $size = 10) {
-		$modelRec = $this->model('app\enroll\record');
-
-		$user = $this->getUser($mpid);
-
-		$options = array(
-			'inviter' => $user->openid,
-			'rid' => $rid,
-			'page' => $page,
-			'size' => $size,
-			'orderby' => $orderby,
-		);
-
-		$rst = $modelRec->find($mpid, $aid, $options);
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 * 列出当前访问用户所有的登记记录
-	 *
-	 * $mpid
-	 * $aid
-	 * $orderby
-	 * $page
-	 * $size
-	 *
-	 * return
-	 * [0] 数据列表
-	 * [1] 数据总条数
-	 * [2] 数据项的定义
-	 *
-	 */
-	public function myFollowers_action($mpid, $aid, $rid = '', $orderby = 'time', $page = 1, $size = 10) {
-		$modelRec = $this->model('app\enroll\record');
-
-		$user = $this->getUser($mpid);
-
-		$options = array(
-			'inviter' => $user->openid,
-			'rid' => $rid,
-			'page' => $page,
-			'size' => $size,
-			'orderby' => $orderby,
-		);
-
-		$rst = $modelRec->find($mpid, $aid, $options);
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 *
-	 * $mpid
-	 * $aid
-	 */
-	public function rounds_action($mpid, $aid) {
-		$rounds = $this->model('app\enroll')->getRounds($mpid, $aid);
-
-		return new \ResponseData($rounds);
 	}
 	/**
 	 * 获得指定坐标对应的地址名称

@@ -661,7 +661,16 @@
                             id: 'email',
                             label: '邮箱'
                         }));
-                        auth.extattr && auth.extattr.length && (authAttrs = authAttrs.concat(auth.extattr));
+                        if (auth.extattr && auth.extattr.length) {
+                            var i, l, ea;
+                            for (i = 0, l = auth.extattr.length; i < l; i++) {
+                                ea = auth.extattr[i];
+                                authAttrs.push({
+                                    id: 'extattr.' + ea.id,
+                                    label: ea.label
+                                });
+                            }
+                        }
                         $scope.selectedAuth.attrs = authAttrs;
                     };
                     $scope.shiftAuthAttr = function() {

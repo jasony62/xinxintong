@@ -148,13 +148,10 @@ class member_model extends TMS_MODEL {
 		/**
 		 * 扩展属性
 		 */
-		if (!empty($attrs->extattr)) {
+		if (!empty($member->extattr)) {
 			$extdata = array();
-			foreach ($attrs->extattr as $ea) {
-				if (isset($member->{$ea->id})) {
-					$extdata[$ea->id] = urlencode($member->{$ea->id});
-					unset($member->{$ea->id});
-				}
+			foreach ($member->extattr as $ek => $ev) {
+				$extdata[$ek] = urlencode($ev);
 			}
 			$member->extattr = urldecode(json_encode($extdata));
 		} else {
@@ -249,13 +246,10 @@ class member_model extends TMS_MODEL {
 		/**
 		 * 扩展属性
 		 */
-		if (!empty($attrs->extattr)) {
+		if (!empty($member->extattr)) {
 			$extdata = array();
-			foreach ($attrs->extattr as $ea) {
-				if (isset($member->{$ea->id})) {
-					$extdata[$ea->id] = urlencode($member->{$ea->id});
-					unset($member->{$ea->id});
-				}
+			foreach ($member->extattr as $ek => $ev) {
+				$extdata[$ek] = urlencode($ev);
 			}
 			$member->extattr = urldecode(json_encode($extdata));
 		} else {

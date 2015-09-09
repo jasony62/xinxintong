@@ -56,16 +56,16 @@ formApp.factory('Record', function($http) {
         if (ins.busy) return;
         ins.busy = true;
         var url;
-        url = '/rest/app/enroll/';
+        url = '/rest/app/enroll/record/';
         switch (ins.owner) {
             case 'A':
-                url += 'records';
+                url += 'list';
                 break;
             case 'U':
-                url += 'myRecords';
+                url += 'mine';
                 break;
             case 'I':
-                url += 'followers';
+                url += 'myFollowers';
                 break;
         }
         url += '?mpid=' + ins.mpid;
@@ -113,7 +113,7 @@ formApp.factory('Record', function($http) {
             alert('没有指定要点赞的登记记录');
             return;
         }
-        var url = '/rest/app/enroll/recordScore';
+        var url = '/rest/app/enroll/record/score';
         url += '?mpid=' + this.mpid;
         url += '&ek=';
         record === undefined && (record = this.current);
@@ -135,7 +135,7 @@ formApp.factory('Record', function($http) {
             alert('没有指定要评论的登记记录');
             return false;
         }
-        var url = '/rest/app/enroll/recordRemark';
+        var url = '/rest/app/enroll/record/remark';
         url += '?mpid=' + this.mpid;
         url += '&ek=' + this.current.enroll_key;
         $http.post(url, {
@@ -553,12 +553,40 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
             }
         });
     };
+    $scope.$watch('data.member.authid', function(nv) {
+        if (nv && nv.length) autoSetMember();
+    });
     $scope.$watch('requireRecordList', function(nv) {
         if (nv && nv.length) {
             if ($scope.Record)
                 $scope.Record.nextPage(nv);
         }
     });
+    var autoSetMember = function() {
+        var params;
+        if ($scope.params) {
+            params = $scope.params;
+            if ($scope.data.member && $scope.data.member.authid && params.user.members && params.user.members.length) {
+                params.user.members
+                angular.forEach(params.user.members, function(member) {
+                    if (member.authapi_id == $scope.data.member.authid) {
+                        $("[ng-model^='data.member']").each(function() {
+                            var attr;
+                            attr = $(this).attr('ng-model');
+                            attr = attr.replace('data.member.', '');
+                            attr = attr.split('.');
+                            if (attr.length == 2) {
+                                !$scope.data.member.extattr && ($scope.data.member.extattr = {});
+                                $scope.data.member.extattr[attr[1]] = member.extattr[attr[1]];
+                            } else {
+                                $scope.data.member[attr[0]] = member[attr[0]];
+                            }
+                        });
+                    }
+                });
+            }
+        }
+    };
     $scope.$watch('pageName', function(nv) {
         if (!nv) return;
         var url;
@@ -597,10 +625,11 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
              * set form data
              */
             params.record && params.record.data && params.record.data.member && (params.record.data.member = JSON.parse(params.record.data.member));
+            $scope.params = params;
             $scope.User = params.user;
             $scope.Record = new Record($scope.mpid, $scope.aid, $scope.rid, params.record, $scope);
             $scope.Statistic = new Statistic($scope.mpid, $scope.aid, params.statdata);
-            if ((params.page.name === 'form' || params.page.type === 'I') && params.record) {
+            if (params.page.type === 'I' && params.record) {
                 $timeout(function() {
                     var p, type, dataOfRecord, value;
                     dataOfRecord = $scope.Record.current.data;
@@ -629,8 +658,9 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
                         }
                     }
                 });
+            } else {
+                autoSetMember();
             }
-            $scope.params = params;
             if ($scope.requireRecordList) {
                 $scope.Record.nextPage($scope.requireRecordList);
             }

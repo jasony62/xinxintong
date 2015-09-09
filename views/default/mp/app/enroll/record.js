@@ -127,6 +127,15 @@
         $scope.keywordKeyup = function(evt) {
             evt.which === 13 && $scope.doSearch();
         };
+        $scope.memberAttr = function(val, key) {
+            var keys;
+            keys = key.split('.');
+            if (keys.length === 2) {
+                return val[keys[1]];
+            } else {
+                return val[keys[1]][keys[2]];
+            }
+        };
         $scope.value2Label = function(val, key) {
             var i, j, s, aVal, aLab = [];
             if (val === undefined) return '';
@@ -246,7 +255,7 @@
             });
         };
         $scope.removeRecord = function(roll) {
-             if (window.confirm('确认删除？')) {
+            if (window.confirm('确认删除？')) {
                 http2.get('/rest/mp/app/enroll/record/remove?aid=' + $scope.aid + '&key=' + roll.enroll_key, function(rsp) {
                     var i = $scope.roll.indexOf(roll);
                     $scope.roll.splice(i, 1);

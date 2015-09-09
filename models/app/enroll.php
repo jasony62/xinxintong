@@ -212,70 +212,6 @@ class enroll_model extends \matter\enroll_model {
 
 	}
 	/**
-	 * 获得用户的登记清单
-	 */
-	public function getRecordById($ek) {
-		$q = array(
-			'e.enroll_key,e.enroll_at,e.signin_at,e.score,e.openid,e.nickname,e.rid',
-			'xxt_enroll_record e',
-			"e.enroll_key='$ek'",
-		);
-
-		if ($record = $this->query_obj_ss($q)) {
-			$record->data = $this->getRecordData($ek);
-		}
-
-		return $record;
-	}
-	/**
-	 * 获得用户的登记清单
-	 */
-	public function getRecordList($mpid, $aid, $openid, $rid = null) {
-		if (!empty($openid)) {
-			$q = array(
-				'*',
-				'xxt_enroll_record',
-				"mpid='$mpid' and aid='$aid' and openid='$openid'",
-			);
-			if ($rid === null) {
-				if ($activeRound = $this->getActiveRound($mpid, $aid)) {
-					$q[2] .= " and rid='$activeRound->rid'";
-				}
-
-			} else {
-				$q[2] .= " and rid='$rid'";
-			}
-
-			$q2 = array('o' => 'enroll_at desc');
-
-			$list = $this->query_objs_ss($q, $q2);
-
-			return $list;
-		} else {
-			return false;
-		}
-
-	}
-	/**
-	 * 获得一条登记记录的数据
-	 */
-	public function getRecordData($enrollKey) {
-		$q = array(
-			'name,value',
-			'xxt_enroll_record_data',
-			"enroll_key='$enrollKey'",
-		);
-		$cusdata = array();
-		$cdata = $this->query_objs_ss($q);
-		if (count($cdata) > 0) {
-			foreach ($cdata as $cd) {
-				$cusdata[$cd->name] = $cd->value;
-			}
-
-		}
-		return $cusdata;
-	}
-	/**
 	 * 保存登记的数据
 	 */
 	public function setRollData($runningMpid, $aid, $ek, $data, $clean = false) {
@@ -337,24 +273,6 @@ class enroll_model extends \matter\enroll_model {
 		}
 
 		return array(true);
-	}
-	/**
-	 * 评论
-	 */
-	public function getRecordRemarks($ek, $page = 1, $size = 30) {
-		$q = array(
-			'r.*,f.nickname',
-			'xxt_enroll_record e, xxt_enroll_record_remark r, xxt_fans f',
-			"e.enroll_key='$ek' and e.enroll_key=r.enroll_key and e.mpid=f.mpid and r.openid=f.openid",
-		);
-		$q2 = array(
-			'o' => 'r.create_at',
-			'r' => array('o' => ($page - 1) * $size, 'l' => $size),
-		);
-
-		$remarks = $this->query_objs_ss($q, $q2);
-
-		return $remarks;
 	}
 	/*
 	 * 所有发表过评论的用户
@@ -958,7 +876,7 @@ class enroll_model extends \matter\enroll_model {
 		 */
 		if (!empty($act->form_html)) {
 			$wraps = array();
-			if (preg_match_all('/<div.+?wrap=.+?>.+?<\/div/i', $act->form_html, $wraps)) {
+			if (preg_match_all("/<div.+?wrap=.+?>.+?<\/div/i", $act->form_html, $wraps)) {
 				$wraps = $wraps[0];
 				foreach ($wraps as $wrap) {
 					$def = array();

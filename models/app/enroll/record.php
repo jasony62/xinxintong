@@ -14,7 +14,6 @@ class record_model extends \TMS_MODEL {
 		if (($record = $this->query_obj_ss($q)) && $cascaded === 'Y') {
 			$record->data = $this->dataById($ek);
 		}
-
 		return $record;
 	}
 	/**
@@ -167,17 +166,21 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 获得用户的登记清单
 	 */
-	public function byUser($mpid, $aid, $openid) {
+	public function byUser($mpid, $aid, $openid, $rid = null) {
 		if (!empty($openid)) {
 			$q = array(
 				'*',
 				'xxt_enroll_record',
-				"mpid='$mpid' and aid='$aid' and openid='$openid'",
+				"state=1 and mpid='$mpid' and aid='$aid' and openid='$openid'",
 			);
-			if ($activeRound = $this->getActiveRound($mpid, $aid)) {
-				$q[2] .= " and rid='$activeRound->rid'";
+			if ($rid === null) {
+				$modelRun = $this->model('app\enroll\round');
+				if ($activeRound = $modelRun->getActive($mpid, $aid)) {
+					$q[2] .= " and rid='$activeRound->rid'";
+				}
+			} else {
+				$q[2] .= " and rid='$rid'";
 			}
-
 			$q2 = array('o' => 'enroll_at desc');
 
 			$list = $this->query_objs_ss($q, $q2);
@@ -186,16 +189,15 @@ class record_model extends \TMS_MODEL {
 		} else {
 			return false;
 		}
-
 	}
 	/**
 	 * 获得一条登记记录的数据
 	 */
-	public function dataById($enrollKey) {
+	public function dataById($ek) {
 		$q = array(
 			'name,value',
 			'xxt_enroll_record_data',
-			"enroll_key='$enrollKey'",
+			"enroll_key='$ek'",
 		);
 		$cusdata = array();
 		$cdata = $this->query_objs_ss($q);
@@ -203,10 +205,28 @@ class record_model extends \TMS_MODEL {
 			foreach ($cdata as $cd) {
 				$cusdata[$cd->name] = $cd->value;
 			}
-
 		}
 		return $cusdata;
 	}
+	/**
+	 * 评论
+	 */
+	public function remarksByEnroll($ek, $page = 1, $size = 30) {
+		$q = array(
+			'r.*,f.nickname',
+			'xxt_enroll_record e, xxt_enroll_record_remark r, xxt_fans f',
+			"e.enroll_key='$ek' and e.enroll_key=r.enroll_key and e.mpid=f.mpid and r.openid=f.openid",
+		);
+		$q2 = array(
+			'o' => 'r.create_at',
+			'r' => array('o' => ($page - 1) * $size, 'l' => $size),
+		);
+
+		$remarks = $this->query_objs_ss($q, $q2);
+
+		return $remarks;
+	}
+
 	/**
 	 * 保存登记的数据
 	 */
@@ -225,18 +245,21 @@ class record_model extends \TMS_MODEL {
 			 * 插入自定义属性
 			 */
 			if ($n === 'member' && is_object($v)) {
-				/**
-				 * 用户认证信息
-				 */
+				/* 用户认证信息 */
 				$vv = new \stdClass;
-				isset($v->name) && $vv->name = urlencode($v->name);
-				isset($v->email) && $vv->email = urlencode($v->email);
-				isset($v->mobile) && $vv->mobile = urlencode($v->mobile);
+				$vv->name = urlencode($v->name);
+				$vv->email = urlencode($v->email);
+				$vv->mobile = urlencode($v->mobile);
+				$extattr = new \stdClass;
+				if (!empty($v->extattr)) {
+					foreach ($v->extattr as $mek => $mev) {
+						$extattr->{$mek} = urlencode($mev);
+					}
+				}
+				$vv->extattr = $extattr;
 				$vv = urldecode(json_encode($vv));
 			} else if (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
-				/**
-				 * 上传图片
-				 */
+				/* 上传图片 */
 				$vv = array();
 				$fsuser = \TMS_APP::model('fs/user', $runningMpid);
 				foreach ($v as $img) {
@@ -249,9 +272,7 @@ class record_model extends \TMS_MODEL {
 				}
 				$vv = implode(',', $vv);
 			} else if (is_array($v) && isset($v[0]->uniqueIdentifier)) {
-				/**
-				 * 上传文件
-				 */
+				/* 上传文件 */
 				$modelFs2 = \TMS_APP::M('fs/local', $runningMpid, '_user');
 				$modelFs = \TMS_APP::M('fs/local', $runningMpid, '_resumable');
 				$vv = array();
@@ -431,7 +452,6 @@ class record_model extends \TMS_MODEL {
 		$modelApp = \TMS_APP::M('app\enroll');
 		/* 获得活动的定义 */
 		$act = $modelApp->byId($aid);
-
 		$result = new \stdClass; // 返回的结果
 		$result->total = 0;
 		/* 获得数据项定义 */
@@ -509,7 +529,6 @@ class record_model extends \TMS_MODEL {
 				foreach ($cds as $cd) {
 					$r->data->{$cd->name} = $cd->value;
 				}
-
 			}
 			$result->records = $records;
 			/* total */

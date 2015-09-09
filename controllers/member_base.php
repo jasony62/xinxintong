@@ -52,7 +52,6 @@ class member_base extends xxt_base {
 					if ($member = $this->model()->query_obj_ss($q)) {
 						$members[] = $member;
 					}
-
 				}
 			}
 		}
@@ -67,11 +66,9 @@ class member_base extends xxt_base {
 			if (empty($authapis)) {
 				return false;
 			}
-
 			foreach ($authapis as $k => $v) {
 				$aAuthapis[] = $v->authid;
 			}
-
 		} else if (is_string($aAuthapis)) {
 			$aAuthapis = explode(',', $aAuthapis);
 		}
@@ -88,6 +85,11 @@ class member_base extends xxt_base {
 			$members = $this->model()->query_objs_ss($q);
 		} else {
 			$members = $this->getCookieMember($mpid, $aAuthapis);
+		}
+		foreach ($members as &$member) {
+			if (!empty($member->extattr)) {
+				$member->extattr = json_decode($member->extattr);
+			}
 		}
 
 		return $members;

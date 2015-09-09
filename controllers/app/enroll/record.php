@@ -265,4 +265,53 @@ class record extends base {
 
 		return new \ResponseData($rsp);
 	}
+	/**
+	 * 记录参加登记活动的用户之间的邀请关系
+	 *
+	 * 邀请必须依赖于某条已经存在的登记记录
+	 *
+	 * $param inviter enroll_key
+	 */
+	public function acceptInvite_action($mpid, $aid, $inviter) {
+		$model = $this->model('app\enroll');
+		if (false === ($act = $model->byId($aid))) {
+			return new \ParameterError("指定的活动（$aid）不存在");
+		}
+		/**
+		 * 当前访问用户的基本信息
+		 */
+		$user = $this->getUser($mpid,
+			array(
+				'authapis' => $act->authapis,
+				'matter' => $act,
+				'verbose' => array('member' => 'Y', 'fan' => 'Y'),
+			)
+		);
+		/* 如果已经有登记记录则不登记 */
+		$ek = $model->getLastEnrollKey($mpid, $aid, $user->openid);
+		/* 创建登记记录*/
+		if (empty($ek)) {
+			$modelRec = $this->model('app\enroll\record');
+			$ek = $modelRec->add($mpid, $act, $user, 'ek:' . $inviter);
+			/**
+			 * 处理提交数据
+			 */
+			$data = $_GET;
+			unset($data['mpid']);
+			unset($data['aid']);
+			if (!empty($data)) {
+				$data = (object) $data;
+				$rst = $modelRec->setData($user, $mpid, $aid, $ek, $data);
+				if (false === $rst[0]) {
+					return new ResponseError($rst[1]);
+				}
+			}
+			/* 记录邀请数 */
+			$this->model()->update("update xxt_enroll_record set follower_num=follower_num+1 where enroll_key='$inviter'");
+		}
+		$rsp = new \stdClass;
+		$rsp->ek = $ek;
+
+		return new \ResponseData($rsp);
+	}
 }

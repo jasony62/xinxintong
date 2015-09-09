@@ -125,6 +125,7 @@ $sql .= ',vid varchar(32)';
 $sql .= ',mid varchar(32)';
 $sql .= ',score int not null default 0'; // 点赞数
 $sql .= ",remark_num int not null default 0"; // 评论数
+$sql .= ",follower_num int not null default 0"; // 接收邀请的下家
 $sql .= ',state tinyint not null default 1'; //0:remove,1:normal
 $sql .= ",referrer text"; //
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';

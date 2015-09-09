@@ -178,7 +178,7 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
         app = $scope.params.enroll;
         url = "/rest/mi/matter/logShare";
         url += "?shareid=" + window.shareid;
-        url += "&mpid=" + $scope.params.mpid;
+        url += "&mpid=" + $scope.mpid;
         url += "&id=" + app.id;
         url += "&type=enroll";
         url += "&title=" + app.title;
@@ -187,8 +187,10 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
         $http.get(url);
         window.shareCounter++;
         /* 是否需要自动登记 */
-        if (app.can_autoenroll === 'Y' && app.page.autoenroll_onshare === 'Y') {
-            $http.get('/rest/app/enroll/record/emptyGet?mpid=' + $scope.params.mpid + '&aid=' + app.id + '&once=Y');
+        if (app.can_autoenroll === 'Y' && $scope.params.page.autoenroll_onshare === 'Y') {
+            $http.get('/rest/app/enroll/record/emptyGet?mpid=' + $scope.mpid + '&aid=' + app.id + '&once=Y').success(function(rsp) {
+                alert(JSON.stringify(rsp));
+            });
         }
         window.onshare && window.onshare(window.shareCounter);
     };
@@ -484,7 +486,7 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
         var url = '/rest/app/enroll';
         url += '?mpid=' + $scope.mpid;
         url += '&aid=' + $scope.aid;
-        if (page !== 'form' || (ek !== undefined && ek !== null)) {
+        if (ek !== undefined && ek !== null) {
             if (ek === undefined && $scope.Record.current)
                 url += '&ek=' + $scope.Record.current.enroll_key;
             else if (ek && ek.length)
@@ -510,6 +512,28 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
     };
     $scope.openMatter = function(id, type) {
         location.href = '/rest/mi/matter?mpid=' + $scope.mpid + '&id=' + id + '&type=' + type;
+    };
+    $scope.acceptInvite = function(event, nextAction) {
+        var inviter, url;
+        if (!$scope.Record.current)
+            alert('未进行登记，无效的邀请');
+        inviter = $scope.Record.current.enroll_key;
+        url = '/rest/app/enroll/record/acceptInvite';
+        url += '?mpid=' + $scope.mpid;
+        url += '&aid=' + $scope.aid;
+        url += '&inviter=' + inviter;
+        $http.get(url).success(function(rsp) {
+            if (nextAction === 'closeWindow') {
+                $scope.closeWindow();
+            } else if (nextAction !== undefined && nextAction.length) {
+                var url = '/rest/app/enroll';
+                url += '?mpid=' + $scope.mpid;
+                url += '&aid=' + $scope.aid;
+                url += '&ek=' + rsp.data.ek;
+                url += '&page=' + nextAction;
+                location.href = url;
+            }
+        });
     };
     $scope.$watch('requireRecordList', function(nv) {
         if (nv && nv.length) {

@@ -129,11 +129,17 @@
         };
         $scope.memberAttr = function(val, key) {
             var keys;
-            keys = key.split('.');
-            if (keys.length === 2) {
-                return val[keys[1]];
+            if (val.member) {
+                keys = key.split('.');
+                if (keys.length === 2) {
+                    return val.member[keys[1]];
+                } else if (val.member.extattr) {
+                    return val.member.extattr[keys[2]];
+                } else {
+                    return '';
+                }
             } else {
-                return val[keys[1]][keys[2]];
+                return '';
             }
         };
         $scope.value2Label = function(val, key) {

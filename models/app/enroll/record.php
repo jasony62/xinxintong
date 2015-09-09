@@ -247,16 +247,16 @@ class record_model extends \TMS_MODEL {
 			if ($n === 'member' && is_object($v)) {
 				/* 用户认证信息 */
 				$vv = new \stdClass;
-				$vv->name = urlencode($v->name);
-				$vv->email = urlencode($v->email);
-				$vv->mobile = urlencode($v->mobile);
-				$extattr = new \stdClass;
+				isset($v->name) && $vv->name = urlencode($v->name);
+				isset($v->email) && $vv->email = urlencode($v->email);
+				isset($v->mobile) && $vv->mobile = urlencode($v->mobile);
 				if (!empty($v->extattr)) {
+					$extattr = new \stdClass;
 					foreach ($v->extattr as $mek => $mev) {
 						$extattr->{$mek} = urlencode($mev);
 					}
+					$vv->extattr = $extattr;
 				}
-				$vv->extattr = $extattr;
 				$vv = urldecode(json_encode($vv));
 			} else if (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
 				/* 上传图片 */

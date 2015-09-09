@@ -480,7 +480,6 @@
             id: 'btnLikeRecord',
             act: "likeRecord($event)"
         },
-        //remarkRecord: { id: 'btnRemarkRecord', act: '' },
         acceptInvite: {
             id: function(def) {
                 return 'btnAcceptInvite_' + def.next;

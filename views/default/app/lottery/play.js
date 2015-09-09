@@ -148,7 +148,7 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
     $scope.prize = function(log) {
         var award, referrer;
         if (log.prize_url && log.prize_url.length) {
-            location.href = log.prize_url;
+            location.replace(log.prize_url);
         } else {
             award = $scope.awards[log.aid];
             if (!award.get_prize_url) return false;
@@ -162,7 +162,7 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
                     url: rsp.data.url
                 }
                 $http.post('/rest/app/lottery/prize?mpid=' + mpid, prizeUrl).success(function() {
-                    location.href = rsp.data.url;
+                    location.replace(rsp.data.url);
                 })
             });
         }

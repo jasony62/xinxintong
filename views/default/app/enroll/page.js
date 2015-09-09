@@ -226,7 +226,7 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
                 type = target.getAttribute('type');
             id = id.split('/').pop();
             url = '/rest/mi/matter?mpid=' + $scope.param.mpid + 'type=' + type + '&id=' + id;
-            location.href = url;
+            location.replace(url);
         }
     }, false);
     var openPickImageFrom = function() {
@@ -441,7 +441,7 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
                     url += '&aid=' + $scope.aid;
                     url += '&ek=' + rsp.data;
                     url += '&page=' + nextAction;
-                    location.href = url;
+                    location.replace(url);
                 } else {
                     btnSubmit && btnSubmit.removeAttribute('disabled');
                     deferred2.resolve('ok');
@@ -506,7 +506,7 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
         }
         rid !== undefined && (url += '&rid=' + rid);
         url += '&page=' + page;
-        location.href = url;
+        location.replace(url);
     };
     $scope.addRecord = function(event) {
         $scope.gotoPage(event, 'form');
@@ -523,7 +523,7 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
             $scope.newRemark = '';
     };
     $scope.openMatter = function(id, type) {
-        location.href = '/rest/mi/matter?mpid=' + $scope.mpid + '&id=' + id + '&type=' + type;
+        location.replace('/rest/mi/matter?mpid=' + $scope.mpid + '&id=' + id + '&type=' + type);
     };
     $scope.acceptInvite = function(event, nextAction) {
         var inviter, url;
@@ -549,7 +549,7 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
                 url += '&aid=' + $scope.aid;
                 url += '&ek=' + rsp.data.ek;
                 url += '&page=' + nextAction;
-                location.href = url;
+                location.replace(url);
             }
         });
     };
@@ -557,8 +557,6 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
         if (nv && nv.length) {
             if ($scope.Record)
                 $scope.Record.nextPage(nv);
-            //else
-            //    $scope.requireRecordList = nv;
         }
     });
     $scope.$watch('pageName', function(nv) {

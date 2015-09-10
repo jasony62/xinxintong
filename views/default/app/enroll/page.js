@@ -462,17 +462,23 @@ app.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'R
                 }
             }).error(function(content, httpCode) {
                 if (httpCode === 401) {
-                    var $el = $('#frmAuth');
+                    var el = document.createElement('iframe');
+                    el.setAttribute('id', 'frmPopup');
+                    el.onload = function() {
+                        this.height = document.querySelector('body').clientHeight;
+                    };
+                    document.body.appendChild(el);
                     if (content.indexOf('http') === 0) {
                         window.onAuthSuccess = function() {
-                            $el.hide();
+                            el.style.display = 'none';
                             btnSubmit && btnSubmit.removeAttribute('disabled');
                         };
-                        $el.attr('src', content).show();
+                        el.setAttribute('src', content);
+                        el.style.display = 'block';
                     } else {
-                        if ($el[0].contentDocument && $el[0].contentDocument.body) {
-                            $el[0].contentDocument.body.innerHTML = content;
-                            $el.show();
+                        if (el.contentDocument && el.contentDocument.body) {
+                            el.contentDocument.body.innerHTML = content;
+                            el.style.display = 'block';
                         }
                     }
                 } else {
@@ -506,20 +512,43 @@ app.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'R
         }
         return promise2;
     };
-    $scope.gotoPage = function(event, page, ek, rid) {
+    var openAskFollow = function() {
+        $http.get('/rest/app/enroll/askFollow?mpid=' + $scope.mpid).error(function(content) {
+            var el = document.createElement('iframe');
+            el.setAttribute('id', 'frmPopup');
+            el.onload = function() {
+                this.height = document.querySelector('body').clientHeight;
+            };
+            document.body.appendChild(el);
+            if (content.indexOf('http') === 0) {
+                window.closeAskFollow = function() {
+                    el.style.display = 'none';
+                };
+                el.setAttribute('src', content);
+                el.style.display = 'block';
+            } else {
+                if (el.contentDocument && el.contentDocument.body) {
+                    el.contentDocument.body.innerHTML = content;
+                    el.style.display = 'block';
+                }
+            }
+        });
+    }
+    $scope.gotoPage = function(event, page, ek, rid, fansOnly) {
         event.preventDefault();
         event.stopPropagation();
+        if (fansOnly && !$scope.User.fan) {
+            openAskFollow();
+            return;
+        }
         var url = '/rest/app/enroll';
         url += '?mpid=' + $scope.mpid;
         url += '&aid=' + $scope.aid;
-        if (ek !== undefined && ek !== null) {
-            if (ek === undefined && $scope.Record.current)
-                url += '&ek=' + $scope.Record.current.enroll_key;
-            else if (ek && ek.length)
-                url += '&ek=' + ek;
+        if (ek !== undefined && ek !== null && ek.length) {
+            url += '&ek=' + ek;
         }
-        rid !== undefined && (url += '&rid=' + rid);
-        page !== undefined && (url += '&page=' + page);
+        rid !== undefined && rid !== null && rid.length && (url += '&rid=' + rid);
+        page !== undefined && page !== null && page.length && (url += '&page=' + page);
         location.replace(url);
     };
     $scope.addRecord = function(event) {

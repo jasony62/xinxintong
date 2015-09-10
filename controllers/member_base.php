@@ -512,11 +512,14 @@ class member_base extends xxt_base {
 	 * 要求关注
 	 *
 	 * $runningMpid
-	 * $ooid
+	 * $openid
 	 *
 	 */
-	protected function askFollow($runningMpid, $ooid) {
-		$isfollow = $this->model('user/fans')->isFollow($runningMpid, $ooid);
+	protected function askFollow($runningMpid, $openid = false) {
+		$isfollow = false;
+		if ($openid !== false) {
+			$isfollow = $this->model('user/fans')->isFollow($runningMpid, $openid);
+		}
 
 		if (!$isfollow) {
 			$fea = $this->model('mp\mpaccount')->getFeatures($runningMpid);
@@ -536,6 +539,12 @@ class member_base extends xxt_base {
 		}
 
 		return true;
+	}
+	/**
+	 * 返回全局的邀请关注页面
+	 */
+	public function askFollow_action($mpid) {
+		$this->askFollow($mpid);
 	}
 	/**
 	 * 微信jssdk包

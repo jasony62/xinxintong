@@ -2,23 +2,29 @@
 body{padding:15px;font-size:16px;}
 #errmsg{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:0;left:50%;margin:0 0 0 -150px;text-align:center;transition:opacity 1s;z-index:-1;word-break:break-all}
 #errmsg.active{opacity:1;height:auto;z-index:999}
-#frmAuth{display:none;position:absolute;top:0;left:0;right:0;border:none;width:100%;z-index:999}
+
 /* img tiles */
 ul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;margin:4px;float:left}
-ul.img-tiles li.img-thumbnail img {display:inline-block;position:absolute}
+ul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute}
 ul.img-tiles li.img-thumbnail button{position:absolute;top:0;right:0}
 ul.img-tiles li.img-picker button{position:auto;width:100%;height:100%}
 ul.img-tiles li.img-picker button span{font-size:36px}
+
 /* dialog */
 #pickImageFrom{display:none;z-index:1099;background-color:white;position:absolute;box-sizing:border-box;-moz-box-sizing:border-box;padding:15px;width:400px;margin:auto;webkit-box-shadow:0 3px 9px rgba(0,0,0,0.5);box-shadow:0 3px 9px rgba(0,0,0,0.5)}
-#pickImageFrom:before,#dlg:after {content:" ";display:table}
-#pickImageFrom:after {clear:both}
-#tipPreview{z-index:9999;position:fixed;bottom:4px;left:4px;right:4px;height:48px;background:rgba(0,0,0,0.5);border-radius: 4px;text-align:center;line-height:48px;color:#FFF;font-size:14px}
+#pickImageFrom:before,#dlg:after{content:" ";display:table}
+#pickImageFrom:after{clear:both}
+#tipPreview{z-index:9999;position:fixed;bottom:4px;left:4px;right:4px;height:48px;background:rgba(0,0,0,0.5);border-radius:4px;text-align:center;line-height:48px;color:#FFF;font-size:14px}
 #tipPreview button{float:auto;position:absolute;top:12px;right:8px}
-@media screen and (max-width:360px){ #pickImageFrom {width:324px}}
+@media screen and (max-width:360px){
+	#pickImageFrom{width:324px}
+}
 form input.ng-invalid{border:1px solid red}
+
 /* default form style*/
 div[wrap].wrap-splitline{padding-bottom:0.5em;border-bottom:1px solid #eee;}
 div[wrap].wrap-inline>*{display:inline-block;vertical-align:middle;margin:0 1em 0 0;}
 div[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
 
+/* auth */
+#frmPopup{display:none;position:absolute;top:0;left:0;right:0;border:none;width:100%;z-index:999;box-sizing:border-box;}

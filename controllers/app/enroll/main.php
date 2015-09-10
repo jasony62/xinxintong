@@ -149,24 +149,7 @@ class main extends base {
 		 * 记录日志，完成前置活动再次进入的情况不算
 		 */
 		$this->model()->update("update xxt_enroll set read_num=read_num+1 where id='$act->id'");
-
-		$logUser = new \stdClass;
-		$logUser->vid = $user->vid;
-		$logUser->openid = $user->openid;
-		$logUser->nickname = $user->nickname;
-
-		$logMatter = new \stdClass;
-		$logMatter->id = $act->id;
-		$logMatter->type = 'enroll';
-		$logMatter->title = $act->title;
-
-		$logClient = new \stdClass;
-		$logClient->agent = $_SERVER['HTTP_USER_AGENT'];
-		$logClient->ip = $this->client_ip();
-
-		$search = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '';
-		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
-		$this->model('log')->writeMatterRead($mpid, $logUser, $logMatter, $logClient, $shareby, $search, $referer);
+		$this->logRead($mpid, $user, $act->id, 'enroll', $act->title, $shareby);
 
 		$this->view_action('/app/enroll/page');
 	}

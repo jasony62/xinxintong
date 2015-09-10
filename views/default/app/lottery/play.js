@@ -41,12 +41,20 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', '$sce', function($scope, $
             this.type = 'nochance';
             this.msg = $sce.trustAsHtml(msg);
         },
+        pretask: function(msg) {
+            this.type = 'pretask';
+            this.msg = $sce.trustAsHtml(msg);
+        },
     };
     $scope.awards = {};
     $scope.greeting = null;
     $http.get('/rest/app/lottery/get?mpid=' + mpid + '&lid=' + lid).success(function(rsp) {
-        var i, l, award, params, awards, lot, page;
+        var i, l, award, params, awards;
         params = rsp.data;
+        if (params.lottery.pretask === 'Y' && params.lottery._pretaskstate !== 'done') {
+            $scope.alert.pretask(params.lottery.pretaskdesc);
+            return;
+        }
         awards = params.lottery.awards;
         for (i = 0, l = awards.length; i < l; i++) {
             award = awards[i];
@@ -134,7 +142,11 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', '$sce', function($scope, $
         });
     };
     $scope.clickAlert = function(event) {
-        $scope.alert.empty();
+        event.preventDefault();
+        event.stopPropagation();
+        if ($scope.alert.type !== 'pretask') {
+            $scope.alert.empty();
+        }
     };
     $scope.validAward = function(award) {
         return award.type != 0 && award.type != 3;

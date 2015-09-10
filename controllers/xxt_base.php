@@ -546,4 +546,29 @@ class xxt_base extends TMS_CONTROLLER {
 
 		return $setting;
 	}
+	/**
+	 *
+	 */
+	protected function logRead($mpid, $user, $id, $type, $title, $shareby = '') {
+		$logUser = new \stdClass;
+		$logUser->vid = $user->vid;
+		$logUser->openid = $user->openid;
+		$logUser->nickname = $user->nickname;
+
+		$logMatter = new \stdClass;
+		$logMatter->id = $id;
+		$logMatter->type = $type;
+		$logMatter->title = $title;
+
+		$logClient = new \stdClass;
+		$logClient->agent = $_SERVER['HTTP_USER_AGENT'];
+		$logClient->ip = $this->client_ip();
+
+		$search = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '';
+		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+
+		$this->model('log')->writeMatterRead($mpid, $logUser, $logMatter, $logClient, $shareby, $search, $referer);
+
+		return true;
+	}
 }

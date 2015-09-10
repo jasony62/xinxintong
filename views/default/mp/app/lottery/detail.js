@@ -25,8 +25,7 @@ xxtApp.controller('lotteryCtrl', ['$scope', 'http2', '$location', function($scop
             }
         });
     });
-}])
-.controller('SettingCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+}]).controller('SettingCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
     $scope.years = [2014, 2015, 2016];
     $scope.months = [];
     $scope.days = [];

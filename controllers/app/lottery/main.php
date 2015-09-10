@@ -28,7 +28,7 @@ class main extends \member_base {
 	 * $lid 抽奖活动id
 	 * $shareby 谁做的分享
 	 */
-	public function index_action($mpid, $lid, $shareby = '', $mocker = null, $code = null) {
+	public function index_action($mpid, $lid, $shareby = '', $pretaskdone = 'N', $mocker = null, $code = null) {
 		empty($mpid) && $this->outputError('没有指定当前运行的公众号');
 		empty($lid) && $this->outputError('抽奖活动id为空');
 
@@ -56,17 +56,12 @@ class main extends \member_base {
 
 		$openid = $this->doAuth($mpid, $code, $mocker);
 
-		$this->afterOAuth($mpid, $lid, $shareby, $openid);
+		$this->afterOAuth($mpid, $lid, $shareby, $pretaskdone);
 	}
 	/**
 	 * 返回页面信息
-	 *
-	 * $state state/id
-	 * $who OAuth的结果
-	 * $preactivitydone 是否来源于前置操作的回调
-	 *
 	 */
-	private function afterOAuth($mpid, $lid, $shareby = null, $who = null, $preactivitydone = false) {
+	private function afterOAuth($mpid, $lid, $shareby = null, $pretaskdone = 'N') {
 		$model = $this->model('app\lottery');
 		$lot = $model->byId($lid);
 		/**
@@ -83,44 +78,21 @@ class main extends \member_base {
 		 * 访问控制
 		 */
 		if ($lot->access_control === 'Y') {
-			$this->accessControl($mpid, $lot->id, $lot->authapis, $user->openid, $lot);
+			$this->accessControl($mpid, $lot->id, $lot->authapis, $user->openid, $lßot);
 		}
 		/**
-		 * 处理前置活动
+		 * 记录前置活动执行状态
 		 */
-		if ($lot->precondition === 'Y' && !$preactivitydone) {
-			if ($lot->preactivitycount === 'E') {
-				\TPL::assign('preactivity', $lot->preactivity);
-			} else {
+		if ($lot->pretask === 'N') {
+			$this->logRead($mpid, $user, $lot->id, 'lottery', $lot->title, $shareby);
+		} else if ($pretaskdone === 'Y') {
+			if ($lot->pretaskcount === 'F') {
 				$expire = (int) $lot->end_at;
-				$precondition = $this->myGetCookie("_{$lid}_precondition");
-				if ($precondition !== 'done') {
-					\TPL::assign('preactivity', $lot->preactivity);
-				}
-
+				$this->mySetCookie("_{$lid}_pretask", 'done', $expire);
+			} else {
+				$this->mySetCookie("_{$lid}_pretask", 'done');
 			}
-		}
-		/**
-		 * 记录日志，完成前置活动再次进入的情况不算
-		 */
-		if ($preactivitydone) {
-			$logUser = new \stdClass;
-			$logUser->vid = $user->vid;
-			$logUser->openid = $user->openid;
-			$logUser->nickname = $user->nickname;
-
-			$logMatter = new \stdClass;
-			$logMatter->id = $lot->id;
-			$logMatter->type = 'lottery';
-			$logMatter->title = $lot->title;
-
-			$logClient = new \stdClass;
-			$logClient->agent = $_SERVER['HTTP_USER_AGENT'];
-			$logClient->ip = $this->client_ip();
-
-			$search = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '';
-			$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
-			$this->model('log')->writeMatterRead($mpid, $logUser, $logMatter, $logClient, $shareby, $search, $referer);
+			$this->logRead($mpid, $user, $lot->id, 'lottery', $lot->title, $shareby);
 		}
 
 		\TPL::output('/app/lottery/play');
@@ -142,13 +114,22 @@ class main extends \member_base {
 		 */
 		$model = $this->model('app\lottery');
 		$lot = $model->byId($lid, '*', array('award', 'plate'));
+		/**
+		 * 处理前置活动
+		 */
+		if ($lot->pretask === 'Y') {
+			$state = $this->myGetCookie("_{$lid}_pretask");
+			$lot->_pretaskstate = $state === 'done' ? 'done' : 'pending';
+			if ($lot->pretaskcount === 'E') {
+				$this->mySetCookie("_{$lid}_pretask", '', time() - 86400);
+			}
+		}
+		/**
+		 *
+		 */
 		$params->logs = $model->getLog($lid, $mid, $user->openid, true);
 		$params->leftChance = $model->getChance($lid, $mid, $user->openid);
 		$params->lottery = $lot;
-
-		//$mpsetting = $this->getMpSetting($mpid);
-		//\TPL::assign('body_ele', $mpsetting->body_ele);
-		//\TPL::assign('body_css', $mpsetting->body_css);
 
 		$page = $this->model('code/page')->byId($lot->page_id);
 		$params->page = $page;
@@ -174,7 +155,7 @@ class main extends \member_base {
 		$expire = (int) $lot->end_at;
 		$this->mySetCookie("_{$lid}_precondition", 'done', $expire);
 
-		$this->afterOAuth($mpid, $lid, null, $who, true);
+		$this->afterOAuth($mpid, $lid, null, true);
 	}
 	/**
 	 * 最近的获奖者清单

@@ -29,7 +29,7 @@ class main extends \mp\app\app_base {
 			 */
 			$r = $this->model('app\lottery')->byId($lid, '*', array('award', 'task'));
 			$r->url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/lottery?mpid=$r->mpid&lid=$lid";
-			$r->preactivitydone_url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/lottery/preactiondone?mpid=$r->mpid&lid=$lid";
+			$r->pretaskdone_url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/lottery?mpid=$r->mpid&lid=$lid&pretaskdone=Y";
 			/**
 			 * acl
 			 */
@@ -92,6 +92,7 @@ class main extends \mp\app\app_base {
 		$newone['end_at'] = $current + 86400;
 		$newone['nonfans_alert'] = "请先关注公众号，再参与抽奖！";
 		$newone['nochance_alert'] = "您的抽奖机会已经用光了，下次再来试试吧！";
+		$newone['pretaskdesc'] = "请设置前置任务";
 		/**
 		 * 创建定制页
 		 */

@@ -104,19 +104,19 @@
                 </div>
             </div>
         </div>
-        <div class='form-group' ng-if="lottery.precondition==='Y'">
+        <div class='form-group' ng-if="lottery.pretask==='Y'">
             <label class='col-md-2 control-label'>前置活动完成URL</label>
             <div class='col-md-10'>
-                <div class="form-control" style='height:auto'>{{lottery.preactivitydone_url}}</div>
+                <div class="form-control" style='height:auto'>{{lottery.pretaskdone_url}}</div>
             </div>
         </div>
-        <div class='form-group' ng-if="lottery.precondition==='Y'">
+        <div class='form-group' ng-if="lottery.pretask==='Y'">
             <label class='col-md-2 control-label'>前置活动执行次数</label>
             <div class='col-md-10'>
                 <label class='radio-inline'>
-                    <input type="radio" name='preactivitycount' value='F' ng-model='lottery.preactivitycount' ng-change="update('preactivitycount')">首次执行</label>
+                    <input type="radio" name='pretaskcount' value='F' ng-model='lottery.pretaskcount' ng-change="update('pretaskcount')">首次执行</label>
                 <label class='radio-inline'>
-                    <input type="radio" name='preactivitycount' value='E' ng-model='lottery.preactivitycount' ng-change="update('preactivitycount')">每次都执行</label>
+                    <input type="radio" name='pretaskcount' value='E' ng-model='lottery.pretaskcount' ng-change="update('pretaskcount')">每次都执行</label>
             </div>
         </div>
         <mediagallery box-id="{{mpaccount.mpid}}" />

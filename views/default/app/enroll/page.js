@@ -1,12 +1,12 @@
-formApp = angular.module('formApp', ['ngSanitize', 'infinite-scroll']);
-formApp.config(['$locationProvider', function($lp) {
+app = angular.module('app', ['ngSanitize', 'infinite-scroll']);
+app.config(['$locationProvider', function($lp) {
     $lp.html5Mode(true);
 }]);
-formApp.directive('tmsExec', ['$rootScope', '$timeout', function($rootScope, $timeout) {
+app.directive('tmsExec', ['$rootScope', '$timeout', function($rootScope, $timeout) {
     return {
         restrict: 'A',
         link: function(scope, elem, attrs) {
-            return $timeout(function() {
+            $timeout(function() {
                 if ($rootScope.$$phase) {
                     return scope.$eval(attrs.tmsExec);
                 } else {
@@ -16,7 +16,7 @@ formApp.directive('tmsExec', ['$rootScope', '$timeout', function($rootScope, $ti
         }
     };
 }]);
-formApp.factory('Round', function($http) {
+app.factory('Round', function($http) {
     var Round = function(mpid, aid, current) {
         this.mpid = mpid;
         this.aid = aid;
@@ -39,7 +39,7 @@ formApp.factory('Round', function($http) {
     };
     return Round;
 });
-formApp.factory('Record', function($http) {
+app.factory('Record', function($http) {
     var Record = function(mpid, aid, rid, current, $scope) {
         this.mpid = mpid;
         this.aid = aid;
@@ -155,15 +155,26 @@ formApp.factory('Record', function($http) {
     };
     return Record;
 });
-formApp.factory('Statistic', function() {
+app.factory('Statistic', ['$http', function($http) {
     var Stat = function(mpid, aid, data) {
         this.mpid = mpid;
         this.aid = aid;
         this.data = null;
+        this.result = {};
+    };
+    Stat.prototype.rankByFollower = function() {
+        var _this, url;
+        _this = this;
+        url = '/rest/app/enroll/rankByFollower';
+        url += '?mpid=' + this.mpid;
+        url += '&aid=' + this.aid;
+        $http.get(url).success(function(rsp) {
+            _this.result.rankByFollower = rsp.data;
+        });
     };
     return Stat;
-});
-formApp.factory('Schema', ['$location', '$http', '$q', function($location, $http, $q) {
+}]);
+app.factory('Schema', ['$location', '$http', '$q', function($location, $http, $q) {
     var mpid, aid, schema, Schema;
     mpid = $location.search().mpid;
     aid = $location.search().aid;
@@ -185,7 +196,7 @@ formApp.factory('Schema', ['$location', '$http', '$q', function($location, $http
     };
     return Schema;
 }]);
-formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'Round', 'Record', 'Statistic', function($location, $scope, $http, $timeout, $q, Round, Record, Statistic) {
+app.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'Round', 'Record', 'Statistic', function($location, $scope, $http, $timeout, $q, Round, Record, Statistic) {
     window.shareCounter = 0;
     window.xxt.share.options.logger = function(shareto) {
         var app, url;
@@ -281,9 +292,12 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
     $scope.data = {
         member: {}
     };
-    $scope.ready = false;
     $scope.errmsg = '';
     $scope.Round = new Round($scope.mpid, $scope.aid);
+    var tasksOfOnReady = [];
+    $scope.onReady = function(task) {
+        tasksOfOnReady.push(task);
+    };
     $scope.closePreviewTip = function() {
         $scope.preview = 'N';
     };
@@ -664,11 +678,29 @@ formApp.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q'
             if ($scope.requireRecordList) {
                 $scope.Record.nextPage($scope.requireRecordList);
             }
+            if (tasksOfOnReady.length) {
+                angular.forEach(tasksOfOnReady, function(task) {
+                    var obj, fn, valid;
+                    valid = true;
+                    obj = $scope;
+                    angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
+                        if (fn) obj = fn;
+                        if (!obj[attr]) {
+                            valid = false;
+                            return;
+                        }
+                        fn = obj[attr];
+                    });
+                    if (valid) {
+                        fn.call(obj);
+                    }
+                });
+            }
             $scope.$broadcast('xxt.enroll.ready', params);
         });
     });
 }]);
-formApp.filter('value2Label', ['Schema', function(Schema) {
+app.filter('value2Label', ['Schema', function(Schema) {
     var schemas;
     (new Schema()).get().then(function(data) {
         schemas = data;
@@ -693,7 +725,7 @@ formApp.filter('value2Label', ['Schema', function(Schema) {
         return val;
     };
 }]);
-formApp.directive('runningButton', function() {
+app.directive('runningButton', function() {
     return {
         restrict: 'EA',
         template: "<button ng-class=\"isRunning?'btn-default':'btn-primary'\" ng-disabled='isRunning' ng-transclude></button>",
@@ -704,7 +736,7 @@ formApp.directive('runningButton', function() {
         transclude: true
     }
 });
-formApp.directive('flexImg', function() {
+app.directive('flexImg', function() {
     return {
         restrict: 'A',
         replace: true,

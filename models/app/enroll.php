@@ -1004,4 +1004,21 @@ class enroll_model extends \matter\enroll_model {
 
 		return $score;
 	}
+	/**
+	 * 根据邀请到的用户数量进行的排名
+	 */
+	public function rankByFollower($mpid, $aid, $openid) {
+		$modelRec = \TMS_APP::M('app\enroll\record');
+		$last = $modelRec->getLast($mpid, $aid, $openid);
+
+		$q = array(
+			'count(*)',
+			'xxt_enroll_record',
+			"state=1 and aid='$aid' and follower_num>$last->follower_num",
+		);
+
+		$rank = (int) $this->query_val_ss($q);
+
+		return $rank + 1;
+	}
 }

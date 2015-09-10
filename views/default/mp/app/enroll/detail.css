@@ -2,6 +2,7 @@
 .modal.mattersgallery .modal-dialog .modal-content .modal-body{overflow:auto}
 .roll td img{max-width:64px;max-height:64px}
 .roll-editor img{max-width:100%}
+.list-group-item.slim{padding-top:0;padding-bottom:7px}
 .editor{position:relative}
 .editor .mce-tinymce{margin-right:48px!important}
 .editor .sidebar{width:44px;background:transparent;position:absolute;top:34px;right:0}

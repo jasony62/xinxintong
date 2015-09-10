@@ -434,6 +434,20 @@
                 class: 'form-group'
             }, html);
         }
+        if (def.headpic === true) {
+            html = '<label>头像</label><div><img ng-src="{{User.fan.headimgurl}}"></div>';
+            this.addWrap(page, 'div', {
+                wrap: 'static',
+                class: 'form-group'
+            }, html);
+        }
+        if (def.rankByFollower === true) {
+            html = '<label>邀请用户排名</label><div tms-exec="onReady(\'Statistic.rankByFollower()\')">{{Statistic.result.rankByFollower.rank}}</div>';
+            this.addWrap(page, 'div', {
+                wrap: 'static',
+                class: 'form-group'
+            }, html);
+        }
     };
     WrapLib.prototype.changeEmbedStatic = function(page, wrap, def) {
         def.inline ? $(wrap).addClass('wrap-inline') : $(wrap).removeClass('wrap-inline');

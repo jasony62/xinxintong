@@ -376,4 +376,14 @@ class main extends base {
 
 		return new \ResponseData($geo);
 	}
+	/**
+	 * 根据邀请用户数的排名
+	 */
+	public function rankByFollower_action($mpid, $aid) {
+		$modelApp = $this->model('app\enroll');
+		$user = $this->getUser($mpid);
+		$rank = $modelApp->rankByFollower($mpid, $aid, $user->openid);
+
+		return new \ResponseData(array('rank' => $rank));
+	}
 }

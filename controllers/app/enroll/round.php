@@ -5,7 +5,7 @@ include_once dirname(__FILE__) . '/base.php';
 /**
  * 登记活动轮次
  */
-class main extends base {
+class round extends base {
 	/**
 	 *
 	 * $mpid

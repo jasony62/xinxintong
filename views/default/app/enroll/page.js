@@ -26,7 +26,7 @@ app.factory('Round', function($http) {
     Round.prototype.nextPage = function() {
         var _this = this,
             url;
-        url = '/rest/app/enroll/rounds';
+        url = '/rest/app/enroll/round/list';
         url += '?mpid=' + _this.mpid;
         url += '&aid=' + _this.aid;
         $http.get(url).success(function(rsp) {
@@ -519,14 +519,14 @@ app.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'R
                 url += '&ek=' + ek;
         }
         rid !== undefined && (url += '&rid=' + rid);
-        url += '&page=' + page;
+        page !== undefined && (url += '&page=' + page);
         location.replace(url);
     };
     $scope.addRecord = function(event) {
-        $scope.gotoPage(event, 'form');
+        $scope.gotoPage(event);
     };
-    $scope.editRecord = function(event) {
-        $scope.gotoPage(event, 'form', $scope.Record.current.enroll_key);
+    $scope.editRecord = function(event, page) {
+        $scope.gotoPage(event, page, $scope.Record.current.enroll_key);
     };
     $scope.likeRecord = function(event) {
         $scope.Record.like(event);

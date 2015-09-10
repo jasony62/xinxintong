@@ -53,37 +53,7 @@ class record extends base {
 		/**
 		 * 当前用户是否可以进行提交操作
 		 */
-		if (empty($user->fan)) {
-			/**
-			 * 非关注用户
-			 */
-			$rule = $act->entry_rule->nonfan->enroll;
-		} else {
-			if (isset($user->fan)) {
-				/* 关注用户 */
-				$rule = $act->entry_rule->fan->enroll;
-			}
-			if (isset($user->membersInAcl) && !empty($user->members)) {
-				/* 认证用户不在白名单中 */
-				$rule = $act->entry_rule->member_outacl->enroll;
-			}
-			if (!empty($user->membersInAcl) || (!isset($user->membersInAcl) && !empty($user->members))) {
-				/* 白名单中的认证用户，或者，不限制白名单的认证用户，允许登记 */
-				$rule = 'Y';
-			}
-		}
-		switch ($rule) {
-		case '$authapi_outacl':
-			$actAuthapis = explode(',', $act->authapis);
-			$this->gotoOutAcl($mpid, $actAuthapis[0]);
-			break;
-		case '$mp_follow':
-			$this->askFollow($mpid, $user->openid);
-			break;
-		case '$authapi_auth':
-			$this->gotoAuth($mpid, $act->authapis, $user->openid, false);
-			break;
-		}
+		$this->checkActionRule($mpid, $act, $user);
 		/**
 		 * 处理提交数据
 		 */
@@ -122,7 +92,7 @@ class record extends base {
 		/**
 		 * 通知登记活动的管理员
 		 */
-		!empty($act->receiver_page) && $this->notifyAdmin($mpid, $act, $user);
+		!empty($act->receiver_page) && $this->notifyAdmin($mpid, $act, $ek, $user);
 
 		return new \ResponseData($ek);
 	}
@@ -149,7 +119,7 @@ class record extends base {
 	/**
 	 * 通知活动管理员
 	 */
-	private function notifyAdmin($mpid, $act, $user) {
+	private function notifyAdmin($mpid, $act, $ek, $user) {
 		$admins = \TMS_APP::model('acl')->enrollReceivers($mpid, $act->id);
 		if (false !== ($key = array_search($user->openid, $admins))) {
 			/* 管理员是登记人，不再通知 */
@@ -176,7 +146,7 @@ class record extends base {
 				$this->send_to_yxuser_byp2p($mpid, $message, $admins);
 			} else {
 				foreach ($admins as $admin) {
-					$this->send_to_user($mpid, $admin, $message);
+					$this->sendByOpenid($mpid, $admin, $message);
 				}
 			}
 		}
@@ -341,8 +311,8 @@ class record extends base {
 			'orderby' => $orderby,
 		);
 
-		$modelApp = $this->model('app\enroll');
-		$rst = $modelApp->getRecords($mpid, $aid, $options);
+		$modelRec = $this->model('app\enroll\record');
+		$rst = $modelRec->find($mpid, $aid, $options);
 
 		return new \ResponseData($rst);
 	}
@@ -362,14 +332,7 @@ class record extends base {
 	 *
 	 */
 	public function mine_action($mpid, $aid, $rid = '', $orderby = 'time', $page = 1, $size = 10) {
-		$modelEnroll = $this->model('app\enroll');
-
-		$act = $modelEnroll->byId($aid);
-
-		$user = $this->getUser($mpid, array('authapis' => $act->authapis));
-		if (!$this->getClientSrc() && empty($user->openid)) {
-			return new \ResponseError('无法获得用户身份信息');
-		}
+		$user = $this->getUser($mpid);
 
 		$options = array(
 			'creater' => $user->openid,
@@ -380,7 +343,8 @@ class record extends base {
 			'orderby' => $orderby,
 		);
 
-		$rst = $modelEnroll->getRecords($mpid, $aid, $options);
+		$modelRec = $this->model('app\enroll\record');
+		$rst = $modelRec->find($mpid, $aid, $options);
 
 		return new \ResponseData($rst);
 	}

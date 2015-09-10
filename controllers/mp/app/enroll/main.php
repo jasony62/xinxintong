@@ -319,7 +319,7 @@ class main extends \mp\app\app_base {
 	 * $aid 获动的id
 	 */
 	public function addPage_action($aid) {
-		$newPage = $this->model('app\enroll')->addPage($this->mpid, $aid);
+		$newPage = $this->model('app\enroll\page')->add($this->mpid, $aid);
 
 		return new \ResponseData($newPage);
 	}
@@ -364,7 +364,7 @@ class main extends \mp\app\app_base {
 	 * $pid
 	 */
 	public function delPage_action($aid, $pid) {
-		$page = $this->model('app\enroll')->getPage($aid, $pid);
+		$page = $this->model('app\enroll\page')->byId($aid, $pid);
 
 		$this->model('code/page')->remove($page->code_id);
 

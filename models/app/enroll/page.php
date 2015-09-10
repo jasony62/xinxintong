@@ -3,6 +3,27 @@ namespace app\enroll;
 
 class page_model extends \TMS_MODEL {
 	/**
+	 *
+	 */
+	public function byId($aid, $apid) {
+		$select = 'ap.*,cp.html,cp.css,cp.js';
+		$from = 'xxt_enroll_page ap,xxt_code_page cp';
+		$where = "ap.aid='$aid' and ap.id=$apid and ap.code_id=cp.id";
+
+		$q = array($select, $from, $where);
+
+		$ep = $this->query_obj_ss($q);
+
+		$code = \TMS_APP::model('code/page')->byId($ep->code_id);
+		$ep->html = $code->html;
+		$ep->css = $code->css;
+		$ep->js = $code->js;
+		$ep->ext_js = $code->ext_js;
+		$ep->ext_css = $code->ext_css;
+
+		return $ep;
+	}
+	/**
 	 * 根据活动
 	 */
 	public function &byEnroll($id) {

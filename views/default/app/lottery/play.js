@@ -18,7 +18,7 @@ directive('dynamicHtml', function($compile) {
         }
     };
 }).
-controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
+controller('lotCtrl', ['$scope', '$http', '$timeout', '$sce', function($scope, $http, $timeout, $sce) {
     var mpid, lid;
     mpid = location.search.match(/mpid=([^&]*)/)[1];
     lid = location.search.match(/lid=([^&]*)/)[1];
@@ -35,11 +35,11 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
         },
         nonfan: function(msg) {
             this.type = 'nonfan';
-            this.msg = msg;
+            this.msg = $sce.trustAsHtml(msg);
         },
         nochance: function(msg) {
             this.type = 'nochance';
-            this.msg = msg;
+            this.msg = $sce.trustAsHtml(msg);
         },
     };
     $scope.awards = {};

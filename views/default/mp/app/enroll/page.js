@@ -350,13 +350,13 @@
         var dataApi, onclick, html;
         switch (def.dataScope) {
             case 'A':
-                dataApi = "Record.nextPage()";
+                dataApi = "Record.nextPage('A')";
                 break;
             case 'U':
-                dataApi = "Record.nextPage('user')";
+                dataApi = "Record.nextPage('U')";
                 break;
             case 'I':
-                dataApi = "Record.followers()";
+                dataApi = "Record.nextPage('I')";
                 break;
         }
         onclick = def.onclick.length ? " ng-click=\"gotoPage($event,'" + def.onclick + "',r.enroll_key)\"" : '';

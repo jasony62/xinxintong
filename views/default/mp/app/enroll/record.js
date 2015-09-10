@@ -28,13 +28,13 @@
             url = '/rest/mp/app/enroll/record/get';
             url += '?aid=' + $scope.aid;
             url += '&tags=' + $scope.page.tags.join(',');
-            url += '&contain=total' + $scope.page.joinParams();
+            url += $scope.page.joinParams();
             http2.get(url, function(rsp) {
                 var i, j, r;
                 if (rsp.data) {
-                    $scope.roll = rsp.data[0] ? rsp.data[0] : [];
-                    rsp.data[1] && ($scope.page.total = rsp.data[1]);
-                    rsp.data[2] && ($scope.cols = rsp.data[2]);
+                    $scope.roll = rsp.data.records ? rsp.data.records : [];
+                    rsp.data.total && ($scope.page.total = rsp.data.total);
+                    rsp.data.schema && ($scope.cols = rsp.data.schema);
                 } else
                     $scope.roll = [];
                 for (i = 0, j = $scope.roll.length; i < j; i++) {

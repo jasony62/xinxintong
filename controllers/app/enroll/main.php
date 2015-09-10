@@ -26,16 +26,17 @@ class main extends base {
 	public function index_action($mpid, $aid, $shareby = '', $page = '', $ek = '', $mocker = '', $code = null) {
 		empty($mpid) && $this->outputError('没有指定当前公众号的ID');
 		empty($aid) && $this->outputError('登记活动ID为空');
-		/**
-		 * 判断活动的开始结束时间
-		 */
-		$enrollModel = $this->model('app\enroll');
-		$act = $enrollModel->byId($aid);
+
+		$modelApp = $this->model('app\enroll');
+		$act = $modelApp->byId($aid);
 		$mapPages = array();
 		foreach ($act->pages as &$p) {
 			$mapPages[$p->name] = $p;
 		}
 		$tipPage = false;
+		/**
+		 * 判断活动的开始结束时间
+		 */
 		$current = time();
 		if ($act->start_at != 0 && !empty($act->before_start_page) && $current < $act->start_at) {
 			/**
@@ -73,8 +74,8 @@ class main extends base {
 	 * 返回活动页面
 	 */
 	private function afterOAuth($mpid, $aid, $ek, $page, $shareby, $openid = null) {
-		$enrollModel = $this->model('app\enroll');
-		$act = $enrollModel->byId($aid);
+		$modelApp = $this->model('app\enroll');
+		$act = $modelApp->byId($aid);
 		$mapPages = array();
 		foreach ($act->pages as &$p) {
 			$mapPages[$p->name] = $p;
@@ -90,73 +91,23 @@ class main extends base {
 				'verbose' => array('member' => 'Y', 'fan' => 'Y'),
 			)
 		);
-		$hasEnrolled = $enrollModel->hasEnrolled($mpid, $act->id, $user->openid);
+		$hasEnrolled = $modelApp->hasEnrolled($mpid, $act->id, $user->openid);
 		/**
 		 * 如果没有指定页面，计算应该进入到哪一个状态页
-		 * todo 需要避免直接指定page进入的情况
 		 */
 		if (empty($page)) {
 			if ($hasEnrolled && !empty($act->enrolled_entry_page)) {
 				$page = $act->enrolled_entry_page;
 			} else {
-				if (!$this->getClientSrc() && empty($user->openid)) {
-					/**
-					 * 非易信、微信公众号打开，无法获得openid
-					 */
-					if (!empty($act->authapis)) {
-						/**
-						 * 如果活动限认证用户访问
-						 */
-						$page = '$authapi_auth';
-					} else {
-						$page = $act->entry_rule->nonfan->entry;
-					}
-				} else {
-					if (empty($user->fan)) {
-						/**
-						 * 非关注用户
-						 */
-						$page = $act->entry_rule->nonfan->entry;
-					} else {
-						if (isset($user->fan)) {
-							/**
-							 * 关注用户
-							 */
-							$page = $act->entry_rule->fan->entry;
-						}
-						if (isset($user->membersInAcl) && !empty($user->members)) {
-							/**
-							 * 认证用户不在白名单中
-							 */
-							$page = $act->entry_rule->member_outacl->entry;
-
-						}
-						if (!empty($user->membersInAcl) || (!isset($user->membersInAcl) && !empty($user->members))) {
-							/**
-							 * 白名单中的认证用户，或者，不限制白名单的认证用户
-							 */
-							$page = $act->entry_rule->member->entry;
-						}
-					}
-				}
-				switch ($page) {
-				case '$authapi_outacl':
-					$actAuthapis = explode(',', $act->authapis);
-					$this->gotoOutAcl($mpid, $actAuthapis[0]);
-					break;
-				case '$authapi_auth':
-					$actAuthapis = explode(',', $act->authapis);
-					$this->gotoAuth($mpid, $actAuthapis, $user->openid);
-					break;
-				case '$mp_follow':
-					$this->askFollow($mpid, $openid);
-					break;
-				}
+				$page = $this->checkEntryRule($mpid, $act, $user);
+			}
+		} else {
+			$oPage = $mapPages[$page];
+			empty($mapPages[$page]) && $this->outputError("指定页面[$page]不存在");
+			if ($oPage->check_entry_rule === 'Y') {
+				$page = $this->checkEntryRule($mpid, $act, $user);
 			}
 		}
-
-		empty($mapPages[$page]) && $this->outputError("指定页面[$page]不存在");
-
 		/* 提示在PC端完成 */
 		if (isset($user->fan) && $this->getClientSrc() && isset($act->shift2pc) && $act->shift2pc === 'Y') {
 			$fea = $this->model('mp\mpaccount')->getFeatures($mpid, 'shift2pc_page_id');
@@ -202,7 +153,7 @@ class main extends base {
 		$logUser = new \stdClass;
 		$logUser->vid = $user->vid;
 		$logUser->openid = $user->openid;
-		$logUser->nickname = isset($user->fan) ? $user->fan->nickname : '';
+		$logUser->nickname = $user->nickname;
 
 		$logMatter = new \stdClass;
 		$logMatter->id = $act->id;
@@ -262,7 +213,7 @@ class main extends base {
 		/**
 		 * 设置页面登记数据
 		 */
-		list($openedek, $record, $statdata) = $this->getPageData($mpid, $act, $rid, $ek, $user->openid, $page, $newForm);
+		list($openedek, $record, $statdata) = $this->getRecord($mpid, $act, $rid, $ek, $user->openid, $page, $newForm);
 		$params['enrollKey'] = $openedek;
 		$params['record'] = $record;
 		$params['statdata'] = $statdata;
@@ -279,7 +230,7 @@ class main extends base {
 	 * $newForm
 	 *
 	 */
-	private function getPageData($mpid, $act, $rid, $ek, $openid, $page, $newForm = false) {
+	private function getRecord($mpid, $act, $rid, $ek, $openid, $page, $newForm = false) {
 		$openedek = $ek;
 		$record = null;
 		$modelRec = $this->model('app\enroll\record');
@@ -317,6 +268,12 @@ class main extends base {
 					'verbose' => array('fan' => 'Y', 'member' => 'Y'),
 				);
 				$record->enroller = $this->getUser($mpid, $options);
+				if (!empty($record->enroller->fan)) {
+					if ($record->nickname !== $record->enroller->fan->nickname) {
+						$record->nickname = $record->enroller->fan->nickname;
+						$this->model()->update('xxt_enroll_record', array('nickname' => $record->nickname), "enroll_key='$record->enroll_key'");
+					}
+				}
 			}
 			/**
 			 * 评论数据

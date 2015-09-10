@@ -119,11 +119,27 @@ class member_base extends xxt_base {
 			$fan = $this->getCookieOAuthUser($mpid);
 			$openid = $fan->openid;
 			$user->openid = $fan->openid;
-			$user->nickname = $fan->nickname;
+			if (empty($fan->nickname)) {
+				/* 可能用户通过OAuth时并未关注，取不到完整，能获得信息就补充 */
+				if ($fan = $this->model('user/fans')->byOpenid($mpid, $openid)) {
+					$user->fan = $fan;
+					$user->nickname = $fan->nickname;
+					$this->setCookieOAuthUser($mpid, $openid, $user->nickname);
+				} else {
+					$user->nickname = '';
+				}
+			} else {
+				$user->nickname = $fan->nickname;
+			}
 		} else {
 			$user->openid = $openid;
-			$user->fan = $this->model('user/fans')->byOpenid($mpid, $openid);
-			$user->nickname = $user->fan->nickname;
+			if ($fan = $this->model('user/fans')->byOpenid($mpid, $openid)) {
+				$user->fan = $fan;
+				$user->nickname = $fan->nickname;
+			} else {
+				$user->fan = false;
+				$user->nickname = '';
+			}
 		}
 		/* 如果是非微信，易信客户端访问，无法通过OAuth获得openid，检查是否可以通过cookie中的认证用户信息获得openid */
 		if (!$this->getClientSrc() && empty($openid) && !empty($sAuthapis)) {
@@ -447,13 +463,16 @@ class member_base extends xxt_base {
 	 */
 	protected function setCookieOAuthUser($mpid, $openid, $nickname = '') {
 		if (empty($nickname)) {
-			$fan = $this->model('user/fans')->byOpenid($mpid, $openid, 'nickname');
-			$fan->openid = $openid;
-		} else {
+			if ($fan = $this->model('user/fans')->byOpenid($mpid, $openid, 'nickname')) {
+				$fan->openid = $openid;
+			}
+		}
+		if (empty($fan)) {
 			$fan = new \stdClass;
 			$fan->openid = $openid;
 			$fan->nickname = $nickname;
 		}
+
 		$encoded = $this->model()->encrypt(json_encode($fan), 'ENCODE', $mpid);
 		$this->mySetcookie("_{$mpid}_oauth", $encoded);
 

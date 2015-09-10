@@ -255,7 +255,7 @@ class enroll extends \member_base {
 			'contain' => $contain,
 		);
 
-		$result = $this->model('app\enroll')->getRecords($mpid, $id, $options);
+//		$result = $this->model('app\enroll')->getRecords($mpid, $id, $options);
 
 		return new \ResponseData($result);
 	}

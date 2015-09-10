@@ -107,7 +107,7 @@ class main extends \member_base {
 			$logUser = new \stdClass;
 			$logUser->vid = $user->vid;
 			$logUser->openid = $user->openid;
-			$logUser->nickname = '';
+			$logUser->nickname = $user->nickname;
 
 			$logMatter = new \stdClass;
 			$logMatter->id = $lot->id;
@@ -118,7 +118,9 @@ class main extends \member_base {
 			$logClient->agent = $_SERVER['HTTP_USER_AGENT'];
 			$logClient->ip = $this->client_ip();
 
-			$this->model('log')->writeMatterRead($mpid, $logUser, $logMatter, $logClient, $shareby);
+			$search = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '';
+			$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+			$this->model('log')->writeMatterRead($mpid, $logUser, $logMatter, $logClient, $shareby, $search, $referer);
 		}
 
 		\TPL::output('/app/lottery/play');
@@ -139,7 +141,7 @@ class main extends \member_base {
 		 * 抽奖活动定义
 		 */
 		$model = $this->model('app\lottery');
-		$lot = $model->byId($lid, 'id,pic,summary,title,show_greeting,show_winners,autostop,maxstep,chance max_chance,page_id', array('award', 'plate'));
+		$lot = $model->byId($lid, '*', array('award', 'plate'));
 		$params->logs = $model->getLog($lid, $mid, $user->openid, true);
 		$params->leftChance = $model->getChance($lid, $mid, $user->openid);
 		$params->lottery = $lot;
@@ -161,16 +163,10 @@ class main extends \member_base {
 	 * $code 支持OAuth
 	 *
 	 */
-	public function preactiondone_action($mpid, $lid, $code = null) {
-		if ($code !== null) {
-			$who = $this->getOAuthUserByCode($mpid, $code);
-		} else {
-			//$shareid = $this->myGetCookie("_{$lid}_shareid");
-			if (!$this->oauth($mpid)) {
-				$who = null;
-			}
+	public function preactiondone_action($mpid, $lid, $code = null, $mocker = null) {
+		$openid = $this->doAuth($mpid, $code, $mocker);
 
-		}
+		$user = $this->getUser($mpid);
 		/**
 		 * 记录前置活动执行状态
 		 */

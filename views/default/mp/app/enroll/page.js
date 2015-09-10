@@ -338,6 +338,13 @@
                 class: c
             }, html);
         }
+        if (def.addHeadpic) {
+            html = "<label>头像</label><div><img ng-src='{{Record.current.enroller.fan.headimgurl}}'></div>";
+            this.addWrap(page, 'div', {
+                wrap: 'static',
+                class: c
+            }, html);
+        }
     };
     WrapLib.prototype.embedList = function(page, def) {
         var dataApi, onclick, html;
@@ -359,6 +366,8 @@
             html += "<div wrap='static' class='wrap-inline'><label>登记时间</label><div>{{r.enroll_at*1000|date:'yyyy-MM-dd HH:mm'}}</div></div>";
         if (def.addNickname)
             html += "<div wrap='static' class='wrap-inline'><label>昵称</label><div>{{r.nickname}}</div></div>";
+        if (def.addHeadpic)
+            html += "<div wrap='static' class='wrap-inline'><label>头像</label><div><img ng-src='{{r.headimgurl}}'></div></div>";
         if (def.schema) {
             var i, s;
             for (i in def.schema) {

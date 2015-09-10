@@ -53,8 +53,6 @@ xxtApp.controller('mpCtrl', ['$scope', 'http2', function($scope, http2) {
         var url = '/rest/mp/analyze/mpActions';
         url += '?startAt=' + $scope.startAt;
         url += '&endAt=' + $scope.endAt;
-        url += '&page=' + $scope.page.current;
-        url += '&size=' + $scope.page.size;
         http2.get(url, function(rsp) {
             $scope.logs = rsp.data[0];
             $scope.page.total = rsp.data[1];

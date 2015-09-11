@@ -137,27 +137,6 @@ class main extends \member_base {
 		return new \ResponseData($params);
 	}
 	/**
-	 * 完成前置活动
-	 *
-	 * $mpid
-	 * $lid
-	 * $code 支持OAuth
-	 *
-	 */
-	public function preactiondone_action($mpid, $lid, $code = null, $mocker = null) {
-		$openid = $this->doAuth($mpid, $code, $mocker);
-
-		$user = $this->getUser($mpid);
-		/**
-		 * 记录前置活动执行状态
-		 */
-		$lot = $this->model('app\lottery')->byId($lid, 'end_at');
-		$expire = (int) $lot->end_at;
-		$this->mySetCookie("_{$lid}_precondition", 'done', $expire);
-
-		$this->afterOAuth($mpid, $lid, null, true);
-	}
-	/**
 	 * 最近的获奖者清单
 	 */
 	public function winnersList_action($lid) {

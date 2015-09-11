@@ -53,6 +53,6 @@ class log extends \mp\app\app_base {
 		$q[0] = 'count(*)';
 		$amount = $this->model()->query_val_ss($q);
 
-		return new \ResponseData(array($result, $amount));
+		return new \ResponseData(array('result' => $result, 'total' => $amount));
 	}
 }

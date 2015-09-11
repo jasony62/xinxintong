@@ -191,16 +191,16 @@ xxtApp.controller('lotteryCtrl', ['$scope', 'http2', '$location', function($scop
         !page && (page = $scope.page.current);
         var url = '/rest/mp/app/lottery/log/list';
         url += '?lid=' + $scope.lid + '&page=' + page + '&size=' + $scope.page.size;
-        url += '&startAt=' + $scope.startAt.getTime() / 1000;
-        url += '&endAt=' + $scope.endAt.getTime() / 1000;
+        url += '&startAt=' + $scope.startAt;
+        url += '&endAt=' + $scope.endAt;
         if ($scope.byAward && $scope.byAward.length > 0)
             url += '&award=' + $scope.byAward;
         if ($scope.associatedAct)
             url += '&assocAct=' + $scope.associatedAct.aid;
         http2.get(url, function(rsp) {
-            $scope.result = rsp.data[0];
-            rsp.data[1] && ($scope.page.total = rsp.data[1]);
-            rsp.data[2] && ($scope.assocDef = rsp.data[2]);
+            $scope.result = rsp.data.result;
+            $scope.page.total = rsp.data.total;
+            //rsp.data[2] && ($scope.assocDef = rsp.data[2]);
         });
     };
     var doStat = function() {
@@ -246,7 +246,7 @@ xxtApp.controller('lotteryCtrl', ['$scope', 'http2', '$location', function($scop
     };
     $scope.refresh = function() {
         doStat();
-        //doSearch();
+        doSearch();
     };
     $scope.removeRoll = function(r) {
         var vcode;

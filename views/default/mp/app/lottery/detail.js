@@ -213,8 +213,9 @@ xxtApp.controller('lotteryCtrl', ['$scope', 'http2', '$location', function($scop
         current: 1,
         size: 30
     };
-    var current = new Date();
-    $scope.startAt = {
+    var current, startAt, endAt;
+    current = new Date();
+    startAt = {
         year: current.getFullYear(),
         month: current.getMonth() + 1,
         mday: current.getDate(),
@@ -223,7 +224,7 @@ xxtApp.controller('lotteryCtrl', ['$scope', 'http2', '$location', function($scop
             return d.getTime();
         }
     };
-    $scope.endAt = {
+    endAt = {
         year: current.getFullYear(),
         month: current.getMonth() + 1,
         mday: current.getDate(),
@@ -232,6 +233,8 @@ xxtApp.controller('lotteryCtrl', ['$scope', 'http2', '$location', function($scop
             return d.getTime();
         }
     };
+    $scope.startAt = startAt.getTime() / 1000;
+    $scope.endAt = endAt.getTime() / 1000;
     $scope.$on('xxt.tms-datepicker.change', function(n) {
         doSearch(1);
     });
@@ -243,7 +246,7 @@ xxtApp.controller('lotteryCtrl', ['$scope', 'http2', '$location', function($scop
     };
     $scope.refresh = function() {
         doStat();
-        doSearch();
+        //doSearch();
     };
     $scope.removeRoll = function(r) {
         var vcode;

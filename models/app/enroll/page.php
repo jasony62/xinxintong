@@ -26,11 +26,12 @@ class page_model extends \TMS_MODEL {
 	/**
 	 * 根据活动
 	 */
-	public function &byEnroll($id) {
+	public function &byEnroll($id, $fields = null) {
+		$fields === null && $fields = 'id,name,type,title,code_id,autoenroll_onenter,autoenroll_onshare,check_entry_rule,share_page,share_summary';
 		$q = array(
-			'ap.*',
-			'xxt_enroll_page ap',
-			"ap.aid='$id'",
+			$fields,
+			'xxt_enroll_page',
+			"aid='$id'",
 		);
 		$q2 = array('o' => 'create_at');
 		$eps = $this->query_objs_ss($q, $q2);

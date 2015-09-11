@@ -533,7 +533,42 @@ app.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'R
                 }
             }
         });
-    }
+    };
+    var autoSetMember = function() {
+        var params;
+        if ($scope.params) {
+            params = $scope.params;
+            if ($scope.data.member && $scope.data.member.authid && params.user.members && params.user.members.length) {
+                params.user.members
+                angular.forEach(params.user.members, function(member) {
+                    if (member.authapi_id == $scope.data.member.authid) {
+                        $("[ng-model^='data.member']").each(function() {
+                            var attr;
+                            attr = $(this).attr('ng-model');
+                            attr = attr.replace('data.member.', '');
+                            attr = attr.split('.');
+                            if (attr.length == 2) {
+                                !$scope.data.member.extattr && ($scope.data.member.extattr = {});
+                                $scope.data.member.extattr[attr[1]] = member.extattr[attr[1]];
+                            } else {
+                                $scope.data.member[attr[0]] = member[attr[0]];
+                            }
+                        });
+                    }
+                });
+            }
+        }
+    };
+    var getFirstInputPage = function() {
+        var firstInputPage;
+        angular.forEach($scope.params.enroll.pages, function(oPage) {
+            if (oPage.type === 'I') {
+                firstInputPage = oPage;
+                return;
+            }
+        });
+        return firstInputPage;
+    };
     $scope.gotoPage = function(event, page, ek, rid, fansOnly) {
         event.preventDefault();
         event.stopPropagation();
@@ -552,10 +587,14 @@ app.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'R
         location.replace(url);
     };
     $scope.addRecord = function(event) {
-        $scope.gotoPage(event);
+        var firstInputPage;
+        firstInputPage = getFirstInputPage();
+        firstInputPage ? $scope.gotoPage(event, firstInputPage.name) : alert('当前活动没有包含数据登记页');
     };
-    $scope.editRecord = function(event, page) {
-        $scope.gotoPage(event, page, $scope.Record.current.enroll_key);
+    $scope.editRecord = function(event) {
+        var firstInputPage;
+        firstInputPage = getFirstInputPage();
+        firstInputPage ? $scope.gotoPage(event, firstInputPage.name, $scope.Record.current.enroll_key) : alert('当前活动没有包含数据登记页');
     };
     $scope.likeRecord = function(event) {
         $scope.Record.like(event);
@@ -605,31 +644,6 @@ app.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'R
                 $scope.Record.nextPage(nv);
         }
     });
-    var autoSetMember = function() {
-        var params;
-        if ($scope.params) {
-            params = $scope.params;
-            if ($scope.data.member && $scope.data.member.authid && params.user.members && params.user.members.length) {
-                params.user.members
-                angular.forEach(params.user.members, function(member) {
-                    if (member.authapi_id == $scope.data.member.authid) {
-                        $("[ng-model^='data.member']").each(function() {
-                            var attr;
-                            attr = $(this).attr('ng-model');
-                            attr = attr.replace('data.member.', '');
-                            attr = attr.split('.');
-                            if (attr.length == 2) {
-                                !$scope.data.member.extattr && ($scope.data.member.extattr = {});
-                                $scope.data.member.extattr[attr[1]] = member.extattr[attr[1]];
-                            } else {
-                                $scope.data.member[attr[0]] = member[attr[0]];
-                            }
-                        });
-                    }
-                });
-            }
-        }
-    };
     $scope.$watch('pageName', function(nv) {
         if (!nv) return;
         var url;
@@ -709,9 +723,10 @@ app.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'R
             }
             if (tasksOfOnReady.length) {
                 angular.forEach(tasksOfOnReady, function(task) {
-                    var obj, fn, valid;
+                    var obj, fn, args, valid;
                     valid = true;
                     obj = $scope;
+                    args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
                     angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
                         if (fn) obj = fn;
                         if (!obj[attr]) {
@@ -721,7 +736,7 @@ app.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'R
                         fn = obj[attr];
                     });
                     if (valid) {
-                        fn.call(obj);
+                        fn.apply(obj, args);
                     }
                 });
             }

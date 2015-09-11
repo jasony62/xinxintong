@@ -138,7 +138,7 @@ class main extends \mp\app\app_base {
 
 		$keys = array_keys($nv);
 		foreach ($keys as $k) {
-			if (in_array($k, array('nonfans_alert', 'nochance_alert', 'nostart_alert', 'hasend_alert', 'preactivity', 'extra_css', 'extra_ele', 'extra_js'))) {
+			if (in_array($k, array('nonfans_alert', 'nochance_alert', 'nostart_alert', 'hasend_alert', 'pretaskdesc'))) {
 				$nv[$k] = $this->model()->escape($nv[$k]);
 			}
 

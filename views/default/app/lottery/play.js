@@ -49,23 +49,20 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', '$sce', function($scope, $
     $scope.awards = {};
     $scope.greeting = null;
     $http.get('/rest/app/lottery/get?mpid=' + mpid + '&lid=' + lid).success(function(rsp) {
-        var i, l, award, params, awards;
+        var lot, i, l, award, params, awards, sharelink;
         params = rsp.data;
-        if (params.lottery.pretask === 'Y' && params.lottery._pretaskstate !== 'done') {
-            $scope.alert.pretask(params.lottery.pretaskdesc);
-            return;
-        }
-        awards = params.lottery.awards;
+        lot = params.lottery;
+        $scope.lot = lot;
+        awards = lot.awards;
         for (i = 0, l = awards.length; i < l; i++) {
             award = awards[i];
             $scope.awards[award.aid] = award;
         }
-        if (params.lottery.show_winners === 'Y') {
+        if (lot.show_winners === 'Y') {
             $http.get('/rest/app/lottery/winnersList?lid=' + lid).success(function(rsp) {
                 $scope.winners = rsp.data;
             });
         }
-        $scope.lot = params.lottery;
         $scope.logs = params.logs || [];
         $scope.leftChance = params.leftChance;
         if (params.page && params.page.js && params.page.js.length) {
@@ -74,6 +71,31 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', '$sce', function($scope, $
             })();
         }
         $scope.params = params;
+        /**
+         * set share info
+         */
+        sharelink = 'http://' + location.hostname + "/rest/app/lottery";
+        sharelink += "?mpid=" + mpid;
+        sharelink += "&lid=" + lid;
+        window.shareid = params.user.vid + (new Date()).getTime();
+        sharelink += "&shareby=" + window.shareid;
+        window.xxt.share.set(lot.title, sharelink, lot.summary, lot.pic);
+        window.xxt.share.options.logger = function(shareto) {
+            var url;
+            url = "/rest/mi/matter/logShare";
+            url += "?shareid=" + window.shareid;
+            url += "&mpid=" + mpid;
+            url += "&id=" + lot.id;
+            url += "&type=lottery";
+            url += "&title=" + lot.title;
+            url += "&shareby=" + window.shareid;
+            url += "&shareto=" + shareto;
+            $http.get(url);
+        };
+        if (lot.pretask === 'Y' && lot._pretaskstate !== 'done') {
+            $scope.alert.pretask(lot.pretaskdesc);
+            return;
+        }
         $timeout(function() {
             $scope.$broadcast('xxt.app.lottery.ready', params);
         }, 0);
@@ -188,7 +210,7 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', '$sce', function($scope, $
     $scope.debugReset = function() {
         var c, expdate = new Date();
         expdate.setTime(expdate.getTime() - (86400 * 1000 * 1));
-        c = 'xxt_' + lid + '_precondition' + "=; expires=" + expdate.toGMTString() + "; path=/";
+        c = 'xxt_' + lid + '_pretask' + "=; expires=" + expdate.toGMTString() + "; path=/";
         document.cookie = c;
         alert('clean');
     };

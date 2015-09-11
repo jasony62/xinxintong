@@ -514,12 +514,13 @@ app.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'R
     };
     var openAskFollow = function() {
         $http.get('/rest/app/enroll/askFollow?mpid=' + $scope.mpid).error(function(content) {
-            var el = document.createElement('iframe');
+            var body, el;;
+            body = document.body;
+            el = document.createElement('iframe');
             el.setAttribute('id', 'frmPopup');
-            el.onload = function() {
-                this.height = document.querySelector('body').clientHeight;
-            };
-            document.body.appendChild(el);
+            el.height = body.clientHeight;
+            body.scrollTop = 0;
+            body.appendChild(el);
             if (content.indexOf('http') === 0) {
                 window.closeAskFollow = function() {
                     el.style.display = 'none';
@@ -714,9 +715,8 @@ app.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'R
                             }
                         }
                     }
+                    autoSetMember();
                 });
-            } else {
-                autoSetMember();
             }
             if ($scope.requireRecordList) {
                 $scope.Record.nextPage($scope.requireRecordList);

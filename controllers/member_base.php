@@ -121,7 +121,7 @@ class member_base extends xxt_base {
 			$user->openid = $fan->openid;
 			if (empty($fan->nickname)) {
 				/* 可能用户通过OAuth时并未关注，取不到完整，能获得信息就补充 */
-				if ($fan = $this->model('user/fans')->byOpenid($mpid, $openid)) {
+				if ($fan = $this->model('user/fans')->byOpenid($mpid, $openid, '*', 'Y')) {
 					$user->fan = $fan;
 					$user->nickname = $fan->nickname;
 					$this->setCookieOAuthUser($mpid, $openid, $user->nickname);
@@ -133,7 +133,7 @@ class member_base extends xxt_base {
 			}
 		} else {
 			$user->openid = $openid;
-			if ($fan = $this->model('user/fans')->byOpenid($mpid, $openid)) {
+			if ($fan = $this->model('user/fans')->byOpenid($mpid, $openid, '*', 'Y')) {
 				$user->fan = $fan;
 				$user->nickname = $fan->nickname;
 			} else {
@@ -180,9 +180,9 @@ class member_base extends xxt_base {
 					$fan = $this->model('user/fans')->byMid($members[0]->mid, '*');
 					$openid = $fan->openid;
 				} else if (!empty($openid)) {
-					$fan = $this->model('user/fans')->byOpenid($mpid, $openid);
+					$fan = $this->model('user/fans')->byOpenid($mpid, $openid, '*', 'Y');
 				} else {
-					$fan = null;
+					$fan = false;
 				}
 				$user->fan = $fan;
 			}
@@ -351,8 +351,12 @@ class member_base extends xxt_base {
 				$openid = $this->getOAuthUserByCode($mpid, $code);
 			} else {
 				if (!empty($mocker)) {
-					$openid = $mocker;
-					$this->setCookieOAuthUser($mpid, $mocker);
+					if ($fan = $this->model('user/fans')->byOpenid($mpid, $mocker, 'nickname', 'Y')) {
+						$openid = $mocker;
+						$this->setCookieOAuthUser($mpid, $openid);
+					} else {
+						$openid = '';
+					}
 				} else {
 					if (!$this->oauth($mpid)) {
 						$openid = '';
@@ -462,8 +466,13 @@ class member_base extends xxt_base {
 	 * $param openid
 	 */
 	protected function setCookieOAuthUser($mpid, $openid, $nickname = '') {
+		if (empty($openid)) {
+			$this->mySetcookie("_{$mpid}_oauth", '', time() - 86400);
+			return true;
+		}
+
 		if (empty($nickname)) {
-			if ($fan = $this->model('user/fans')->byOpenid($mpid, $openid, 'nickname')) {
+			if ($fan = $this->model('user/fans')->byOpenid($mpid, $openid, 'nickname', 'Y')) {
 				$fan->openid = $openid;
 			}
 		}
@@ -472,7 +481,6 @@ class member_base extends xxt_base {
 			$fan->openid = $openid;
 			$fan->nickname = $nickname;
 		}
-
 		$encoded = $this->model()->encrypt(json_encode($fan), 'ENCODE', $mpid);
 		$this->mySetcookie("_{$mpid}_oauth", $encoded);
 

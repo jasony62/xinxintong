@@ -199,12 +199,12 @@ class record extends base {
 			)
 		);
 		/* 如果已经有登记记录则不登记 */
+		$modelRec = $this->model('app\enroll\record');
 		if ($once === 'Y') {
-			$ek = $model->getLastEnrollKey($mpid, $aid, $user->openid);
+			$ek = $modelRec->getLastKey($mpid, $aid, $user->openid);
 		}
 		/* 创建登记记录*/
 		if (empty($ek)) {
-			$modelRec = $this->model('app\enroll\record');
 			$ek = $modelRec->add($mpid, $act, $user, (empty($posted->referrer) ? '' : $posted->referrer));
 			/**
 			 * 处理提交数据
@@ -257,10 +257,10 @@ class record extends base {
 			)
 		);
 		/* 如果已经有登记记录则不登记 */
-		$ek = $model->getLastEnrollKey($mpid, $aid, $user->openid);
+		$modelRec = $this->model('app\enroll\record');
+		$ek = $modelRec->getLastKey($mpid, $aid, $user->openid);
 		/* 创建登记记录*/
 		if (empty($ek)) {
-			$modelRec = $this->model('app\enroll\record');
 			$ek = $modelRec->add($mpid, $act, $user, 'ek:' . $inviter);
 			/**
 			 * 处理提交数据
@@ -398,8 +398,8 @@ class record extends base {
 		 * 当前用户
 		 */
 		$user = $this->getUser($mpid);
-
-		if ($modelEnroll->rollPraised($user->openid, $ek)) {
+		$modelRec = $this->M('app\model\record');
+		if ($modelRec->hasScored($user->openid, $ek)) {
 			/**
 			 * 点了赞，再次点击，取消赞
 			 */
@@ -424,7 +424,7 @@ class record extends base {
 		/**
 		 * 获得点赞的总数
 		 */
-		$score = $modelEnroll->rollScore($ek);
+		$score = $modelRec->score($ek);
 		$this->model()->update('xxt_enroll_record', array('score' => $score), "enroll_key='$ek'");
 
 		return new \ResponseData(array($myScore, $score));
@@ -494,17 +494,16 @@ class record extends base {
 					if ($record->openid !== $user->openid) {
 						$this->send_to_user($mpid, $record->openid, $message);
 					}
-
 				}
 				/**
 				 * 通知其他发表了评论的用户
 				 */
-				$others = $modelEnroll->getRecordRemarkers($ek);
+				$modelRec = $this->model('app\enroll\record');
+				$others = $modelRec->remarkers($ek);
 				foreach ($others as $other) {
 					if ($other->openid === $record->openid || $other->openid === $remarker->openid) {
 						continue;
 					}
-
 					$this->send_to_user($mpid, $other->openid, $message);
 				}
 			}

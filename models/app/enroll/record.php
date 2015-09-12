@@ -55,38 +55,29 @@ class record_model extends \TMS_MODEL {
 				} else if (!empty($options->rid)) {
 					$rid = $options->rid;
 				}
-			} else if ($activeRound = \TMS_APP::M('app\enroll\round')->getActive($mpid, $aid)) {
+			} else if ($activeRound = $this->M('app\enroll\round')->getActive($mpid, $aid)) {
 				$rid = $activeRound->rid;
 			}
-
 			$kw = isset($options->kw) ? $options->kw : null;
 			$by = isset($options->by) ? $options->by : null;
 		}
-		$modelApp = \TMS_APP::M('app\enroll');
+		$modelApp = $this->M('app\enroll');
 		/* 获得活动的定义 */
 		$act = $modelApp->byId($aid);
 		$result = new \stdClass; // 返回的结果
 		$result->total = 0;
 		/* 获得数据项定义 */
-		$result->schema = array();
-		foreach ($act->pages as $p) {
-			if ($p->type === 'I') {
-				$defs = $modelApp->getSchema($p->html);
-				$result->schema = array_merge($result->schema, $defs);
-			}
-		}
+		$modelPage = $this->M('app\enroll\page');
+		$result->schema = $modelPage->schemaByEnroll($aid);
 		/* 获得登记数据 */
 		$w = "e.state=1 and e.mpid='$mpid' and aid='$aid'";
-
 		if (!empty($creater)) {
 			$w .= " and e.openid='$creater'";
 		} else if (!empty($inviter)) {
 			$inviterek = $this->getLastKey($mpid, $aid, $inviter);
 			$w .= " and e.referrer='ek:$inviterek'";
 		}
-
 		!empty($rid) && $w .= " and e.rid='$rid'";
-
 		if (!empty($kw) && !empty($by)) {
 			switch ($by) {
 			case 'mobile':
@@ -106,13 +97,13 @@ class record_model extends \TMS_MODEL {
 		}
 		if ($act->access_control === 'Y') {
 			$q = array(
-				'e.enroll_key,e.enroll_at,e.signin_at,e.tags,e.score,e.remark_num,m.mid,m.name,m.mobile,m.email,m.nickname,m.openid',
+				'e.enroll_key,e.enroll_at,e.signin_at,e.tags,e.follower_num,e.score,e.remark_num,m.mid,m.name,m.mobile,m.email,m.nickname,m.openid',
 				"xxt_enroll_record e left join xxt_member m on m.forbidden='N' and e.mid=m.mid",
 				$w,
 			);
 		} else {
 			$q = array(
-				'e.enroll_key,e.enroll_at,e.signin_at,e.tags,e.score,s.score myscore,e.remark_num,f.fid,f.nickname,f.openid,f.headimgurl',
+				'e.enroll_key,e.enroll_at,e.signin_at,e.tags,e.follower_num,e.score,s.score myscore,e.remark_num,f.fid,f.nickname,f.openid,f.headimgurl',
 				"xxt_enroll_record e left join xxt_fans f on e.mpid=f.mpid and e.openid=f.openid left join xxt_enroll_record_score s on s.enroll_key=e.enroll_key and s.openid='$visitor'",
 				$w,
 			);
@@ -125,6 +116,12 @@ class record_model extends \TMS_MODEL {
 			break;
 		case 'score':
 			$q2['o'] = 'e.score desc';
+			break;
+		case 'remark':
+			$q2['o'] = 'e.remark_num desc';
+			break;
+		case 'follower':
+			$q2['o'] = 'e.follower_num desc';
 			break;
 		default:
 			$q2['o'] = 'e.enroll_at desc';
@@ -231,7 +228,7 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 评论
 	 */
-	public function remarksByEnroll($ek, $page = 1, $size = 30) {
+	public function &remarks($ek, $page = 1, $size = 30) {
 		$q = array(
 			'r.*,f.nickname',
 			'xxt_enroll_record e, xxt_enroll_record_remark r, xxt_fans f',
@@ -245,6 +242,19 @@ class record_model extends \TMS_MODEL {
 		$remarks = $this->query_objs_ss($q, $q2);
 
 		return $remarks;
+	}
+	/*
+	 * 所有发表过评论的用户
+	 */
+	public function &remarkers($ek) {
+		$q = array(
+			'distinct openid',
+			'xxt_enroll_record_remark',
+			"enroll_key='$ek'");
+
+		$remarkers = $this->query_objs_ss($q);
+
+		return $remarkers;
 	}
 	/**
 	 * 保存登记的数据
@@ -393,5 +403,35 @@ class record_model extends \TMS_MODEL {
 		);
 
 		return $rst;
+	}
+	/**
+	 * 当前访问用户是否已经点了赞
+	 *
+	 * $openid
+	 * $ek
+	 */
+	public function hasScored($openid, $ek) {
+		$q = array(
+			'score',
+			'xxt_enroll_record_score',
+			"enroll_key='$ek' and openid='$openid'",
+		);
+
+		return 1 === (int) $this->query_val_ss($q);
+	}
+	/**
+	 * 登记总的赞数
+	 *
+	 * $ek
+	 */
+	public function score($ek) {
+		$q = array(
+			'count(*)',
+			'xxt_enroll_record_score',
+			"enroll_key='$ek'",
+		);
+		$score = (int) $this->query_val_ss($q);
+
+		return $score;
 	}
 }

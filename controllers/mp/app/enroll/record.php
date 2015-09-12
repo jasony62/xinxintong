@@ -43,7 +43,7 @@ class record extends \mp\app\app_base {
 			'kw' => $kw,
 			'by' => $by,
 		);
-		$participants = $this->model('app\enroll')->getParticipants($this->mpid, $aid, $options);
+		$participants = $this->model('app\enroll')->participants($this->mpid, $aid, $options);
 
 		$rst = $this->model('mpproxy/yx', $this->mpid)->messageSend($message, $participants);
 		if ($rst[0] === false) {
@@ -63,7 +63,7 @@ class record extends \mp\app\app_base {
 	 * [1] 数据总条数
 	 * [2] 数据项的定义
 	 */
-	public function get_action($aid, $page = 1, $size = 30, $tags = null, $rid = null, $kw = null, $by = null, $contain = null) {
+	public function get_action($aid, $page = 1, $size = 30, $tags = null, $rid = null, $kw = null, $by = null, $orderby = null, $contain = null) {
 		$options = array(
 			'page' => $page,
 			'size' => $size,
@@ -71,10 +71,11 @@ class record extends \mp\app\app_base {
 			'rid' => $rid,
 			'kw' => $kw,
 			'by' => $by,
+			'orderby' => $orderby,
 			'contain' => $contain,
 		);
-
-		$result = $this->model('app\enroll\record')->find($this->mpid, $aid, $options);
+		$mdoelRec = $this->model('app\enroll\record');
+		$result = $mdoelRec->find($this->mpid, $aid, $options);
 
 		return new \ResponseData($result);
 	}
@@ -168,15 +169,14 @@ class record extends \mp\app\app_base {
 		return new \ResponseData('ok');
 	}
 	/**
-	 * 手工添加报名信息
+	 * 手工添加登记信息
 	 */
 	public function add_action($aid) {
 		$posted = (array) $this->getPostJson();
-		/**
-		 * 报名记录
-		 */
+
 		$current = time();
-		$enroll_key = $this->model('app\enroll')->genEnrollKey($this->mpid, $aid);
+		$modelRec = $this->model('app\enroll\record');
+		$enroll_key = $mddelRec->genKey($this->mpid, $aid);
 		$r = array();
 		$r['aid'] = $aid;
 		$r['mpid'] = $this->mpid;
@@ -220,6 +220,7 @@ class record extends \mp\app\app_base {
 	 */
 	public function importUser_action($aid) {
 		$mids = $this->getPostJson();
+		$modelRec = $this->model('app\enroll\record');
 
 		$q = array(
 			'count(*)',
@@ -233,11 +234,7 @@ class record extends \mp\app\app_base {
 			if (1 === (int) $this->model()->query_val_ss($q)) {
 				continue;
 			}
-
-			/**
-			 * 报名记录
-			 */
-			$enroll_key = $this->model('app\enroll')->genEnrollKey($this->mpid, $aid);
+			$enroll_key = $mddelRec->genKey($this->mpid, $aid);
 			$r = array();
 			$r['aid'] = $aid;
 			$r['mpid'] = $this->mpid;
@@ -265,6 +262,7 @@ class record extends \mp\app\app_base {
 	 */
 	public function importApp_action($aid) {
 		$param = $this->getPostJson();
+		$modelRec = $this->model('app\enroll\record');
 		$current = time();
 
 		$caid = $param->checkedActs[0];
@@ -292,7 +290,7 @@ class record extends \mp\app\app_base {
 				/**
 				 * 插入数据
 				 */
-				$enroll_key = $this->model('app\enroll')->genEnrollKey($this->mpid, $aid);
+				$enroll_key = $modelRec->genKey($this->mpid, $aid);
 				$r = array();
 				$r['aid'] = $aid;
 				$r['mpid'] = $this->mpid;

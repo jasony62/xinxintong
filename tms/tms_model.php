@@ -235,4 +235,10 @@ class TMS_MODEL {
 
 		return $str;
 	}
+	/**
+	 *
+	 */
+	public function &M($model_path) {
+		return TMS_APP::M($model_path);
+	}
 }

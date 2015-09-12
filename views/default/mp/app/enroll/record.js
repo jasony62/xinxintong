@@ -32,13 +32,13 @@
             http2.get(url, function(rsp) {
                 var i, j, r;
                 if (rsp.data) {
-                    $scope.roll = rsp.data.records ? rsp.data.records : [];
+                    $scope.records = rsp.data.records ? rsp.data.records : [];
                     rsp.data.total && ($scope.page.total = rsp.data.total);
                     rsp.data.schema && ($scope.cols = rsp.data.schema);
                 } else
-                    $scope.roll = [];
-                for (i = 0, j = $scope.roll.length; i < j; i++) {
-                    r = $scope.roll[i];
+                    $scope.records = [];
+                for (i = 0, j = $scope.records.length; i < j; i++) {
+                    r = $scope.records[i];
                     r.data.member && (r.data.member = JSON.parse(r.data.member));
                 }
             });
@@ -49,6 +49,7 @@
             keyword: '',
             tags: [],
             searchBy: 'nickname',
+            orderBy: 'time',
             joinParams: function() {
                 var p;
                 p = '&page=' + this.at + '&size=' + this.size;
@@ -56,6 +57,7 @@
                     p += '&kw=' + this.keyword;
                     p += '&by=' + this.searchBy;
                 }
+                p += '&orderby=' + this.orderBy;
                 p += '&rid=' + (this.byRound ? this.byRound : 'ALL');
                 return p;
             }
@@ -63,9 +65,19 @@
         $scope.searchBys = [{
             n: '昵称',
             v: 'nickname'
+        }, ];
+        $scope.orderBys = [{
+            n: '登记时间',
+            v: 'time'
         }, {
-            n: '手机号',
-            v: 'mobile'
+            n: '点赞数',
+            v: 'score'
+        }, {
+            n: '评论数',
+            v: 'remark'
+        }, {
+            n: '邀请数',
+            v: 'follower'
         }, ];
         $scope.selected = {};
         $scope.selectAll;
@@ -84,7 +96,7 @@
                 posted;
             for (i in $scope.selected) {
                 if ($scope.selected) {
-                    record = $scope.roll[i];
+                    record = $scope.records[i];
                     eks.push(record.enroll_key);
                     records.push(record);
                 }
@@ -221,7 +233,7 @@
                     $scope.update('tags');
                 }
                 http2.post('/rest/mp/app/enroll/record/add?aid=' + $scope.aid, p, function(rsp) {
-                    $scope.roll.splice(0, 0, rsp.data);
+                    $scope.records.splice(0, 0, rsp.data);
                 });
             });
         };
@@ -243,7 +255,7 @@
                         members.push(selected.members[i].data.mid);
                     http2.post('/rest/mp/app/record/importUser?aid=' + $scope.aid, members, function(rsp) {
                         for (var i in rsp.data)
-                            $scope.roll.splice(0, 0, rsp.data[i]);
+                            $scope.records.splice(0, 0, rsp.data[i]);
                     });
                 }
             });
@@ -260,11 +272,11 @@
                 });
             });
         };
-        $scope.removeRecord = function(roll) {
+        $scope.removeRecord = function(record) {
             if (window.confirm('确认删除？')) {
-                http2.get('/rest/mp/app/enroll/record/remove?aid=' + $scope.aid + '&key=' + roll.enroll_key, function(rsp) {
-                    var i = $scope.roll.indexOf(roll);
-                    $scope.roll.splice(i, 1);
+                http2.get('/rest/mp/app/enroll/record/remove?aid=' + $scope.aid + '&key=' + record.enroll_key, function(rsp) {
+                    var i = $scope.records.indexOf(record);
+                    $scope.records.splice(i, 1);
                     $scope.page.total = $scope.page.total - 1;
                 });
             }
@@ -281,7 +293,7 @@
         $scope.$watch('selectAll', function(nv) {
             var i, j;
             if (nv !== undefined)
-                for (i = 0, j = $scope.roll.length; i < j; i++) {
+                for (i = 0, j = $scope.records.length; i < j; i++) {
                     $scope.selected[i] = nv;
                 }
         });

@@ -261,7 +261,7 @@ class main extends base {
 			/**
 			 * 评论数据
 			 */
-			$record->remarks = $modelRec->remarksByEnroll($openedek);
+			$record->remarks = $modelRec->remarks($openedek);
 		}
 		/**
 		 * 统计数据

@@ -32,6 +32,9 @@
                 </span>
             </div>
         </div>
+        <div class='form-group'>
+            <select class='form-control' title="排序条件" ng-model='page.orderBy' ng-options='o.v as o.n for o in orderBys' ng-change='doSearch(1)'></select>
+        </div>
     </div>
     <div id='records'>
         <table class='table table-bordered'>
@@ -52,7 +55,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat='r in roll' class='roll'>
+                <tr ng-repeat='r in records' class='record'>
                     <td>
                         <input type='checkbox' ng-model='selected[$index]'>
                     </td>

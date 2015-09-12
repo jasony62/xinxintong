@@ -374,7 +374,8 @@ class enroll extends \member_base {
 		 * 报名记录
 		 */
 		$current = time();
-		$enroll_key = $this->model('app\enroll')->genEnrollKey($this->mpid, $aid);
+		$modelRec = \TMS_APP::M('app\enroll\record');
+		$enroll_key = $modelRec->genKey($this->mpid, $aid);
 		$r = array();
 		$r['aid'] = $aid;
 		$r['mpid'] = $this->mpid;

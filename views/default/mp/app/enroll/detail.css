@@ -1,6 +1,5 @@
 .qrcode .popover img{width:150px;height:150px}
 .modal.mattersgallery .modal-dialog .modal-content .modal-body{overflow:auto}
-.roll td img{max-width:64px;max-height:64px}
 .roll-editor img{max-width:100%}
 .list-group-item.slim{padding-top:0;padding-bottom:7px}
 .editor{position:relative}
@@ -15,3 +14,4 @@
 #records .table th{text-align:center;}
 #records .table th.custom-col{width:140px;}
 #records .table a{word-break:break-all;}
+#records .record td img{max-width:64px;max-height:64px}

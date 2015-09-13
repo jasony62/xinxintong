@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html ng-app='xxt' ng-controller='ctrl'>
+    
+    <head>
+        <meta charset="utf-8">
+        <meta content="width=device-width,initial-scale=1.0,user-scalable=no" name="viewport">
+        <base href="/" />
+        <title></title>
+        <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link href="//libs.useso.com/js/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
+        <link href='/views/default/matter/article-list.css?_=1' rel="stylesheet">
+    </head>
+    
+    <body ng-cloak class='ng-cloak'>
+        <div id='mask' ng-if="loading">
+            <div>
+                <i class='fa fa-spinner fa-5x fa-pulse'></i>
+            </div>
+        </div>
+        <div class="articles">
+            <ul class='list-group'>
+                <li class='list-group-item' ng-repeat='a in articles' ng-click='open(a)'>
+                    <div class='header clearfix'>
+                        <div class='modify_at' ng-bind="a.modify_at*1000|date:'yy-MM-dd'"></div>
+                        <div class='author' ng-bind='a.author'></div>
+                    </div>
+                    <div class='content'>
+                        <div class='heading_pic' ng-style="a._style"></div>
+                        <div class='text'>
+                            <div class='title' ng-bind='a.title'></div>
+                            <div class='summary' ng-bind='a.summary'></div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <script src="/static/js/angular.min.js"></script>
+        <script src="/views/default/matter/article-list.js?_=1"></script>
+        <script type="text/javascript">
+            if (document.location.host === 'xinxintong.sinaapp.com') { 
+                var _bdhmProtocol = (("https:" == document.location.protocol) ? "https://" : "http://"); 
+                document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F40ec59c933400d729f57930675635edb' type='text/javascript'%3E%3C/script%3E")); 
+            }
+        </script>
+    </body>
+
+</html>

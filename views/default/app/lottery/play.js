@@ -1,3 +1,10 @@
+if (/MicroMessenger/.test(navigator.userAgent)) {
+    if (window.signPackage) {
+        //signPackage.debug = true;
+        signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
+        wx.config(signPackage);
+    }
+}
 lotApp = angular.module('app', ["ngSanitize"]).
 config(['$controllerProvider', function($cp) {
     lotApp.register = {
@@ -18,7 +25,7 @@ directive('dynamicHtml', function($compile) {
         }
     };
 }).
-controller('lotCtrl', ['$scope', '$http', '$timeout', '$sce', function($scope, $http, $timeout, $sce) {
+controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
     var mpid, lid;
     mpid = location.search.match(/mpid=([^&]*)/)[1];
     lid = location.search.match(/lid=([^&]*)/)[1];
@@ -35,15 +42,15 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', '$sce', function($scope, $
         },
         nonfan: function(msg) {
             this.type = 'nonfan';
-            this.msg = $sce.trustAsHtml(msg);
+            this.msg = msg;
         },
         nochance: function(msg) {
             this.type = 'nochance';
-            this.msg = $sce.trustAsHtml(msg);
+            this.msg = msg;
         },
         pretask: function(msg) {
             this.type = 'pretask';
-            this.msg = $sce.trustAsHtml(msg);
+            this.msg = msg;
         },
     };
     $scope.awards = {};

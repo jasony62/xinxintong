@@ -1,6 +1,20 @@
+if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage !== undefined) {
+    signPackage.jsApiList = ['hideOptionMenu', 'showOptionMenu', 'closeWindow', 'chooseImage', 'uploadImage', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'getLocation'];
+    signPackage.debug = false;
+    wx.config(signPackage);
+    wx.ready(function() {
+        wx.showOptionMenu();
+    });
+} else if (/YiXin/i.test(navigator.userAgent)) {
+    document.addEventListener('YixinJSBridgeReady', function() {
+        YixinJSBridge.call('showOptionMenu');
+    }, false);
+}
 app = angular.module('app', ['ngSanitize', 'infinite-scroll']);
-app.config(['$locationProvider', function($lp) {
-    $lp.html5Mode(true);
+app.config(['$controllerProvider', function($cp) {
+    app.register = {
+        controller: $cp.register
+    };
 }]);
 app.directive('tmsExec', ['$rootScope', '$timeout', function($rootScope, $timeout) {
     return {
@@ -48,12 +62,15 @@ app.factory('Record', function($http) {
         this.list = [];
         this.busy = false;
         this.page = 1;
+        this.size = 10;
         this.orderBy = 'time';
         this.owner = 'all';
+        this.total = -1;
         this.$scope = $scope;
     };
     var listGet = function(ins) {
         if (ins.busy) return;
+        if (ins.total !== -1 && ins.total <= (ins.page - 1) * ins.size) return;
         ins.busy = true;
         var url;
         url = '/rest/app/enroll/record/';
@@ -67,22 +84,26 @@ app.factory('Record', function($http) {
             case 'I':
                 url += 'myFollowers';
                 break;
+            default:
+                alert('没有指定要获得的登记记录类型');
+                return;
         }
         url += '?mpid=' + ins.mpid;
         url += '&aid=' + ins.aid;
         ins.rid !== undefined && ins.rid.length && (url += '&rid=' + ins.rid);
         url += '&orderby=' + ins.orderBy;
         url += '&page=' + ins.page;
-        url += '&size=10';
+        url += '&size=' + ins.size;
         $http.get(url).success(function(rsp) {
+            var record;
             if (rsp.err_code == 0) {
+                ins.total = rsp.data.total;
                 if (rsp.data.records && rsp.data.records.length) {
-                    for (var i = 0; i < rsp.data.records.length; i++)
-                        ins.list.push(rsp.data.records[i]);
-                    ins.page++;
-                } else if (rsp.data[0] && rsp.data[0].length) {
-                    for (var i = 0; i < rsp.data[0].length; i++)
-                        ins.list.push(rsp.data[0][i]);
+                    for (var i = 0; i < rsp.data.records.length; i++) {
+                        record = rsp.data.records[i];
+                        record.data.member && (record.data.member = JSON.parse(record.data.member));
+                        ins.list.push(record);
+                    }
                     ins.page++;
                 }
             }
@@ -174,10 +195,10 @@ app.factory('Statistic', ['$http', function($http) {
     };
     return Stat;
 }]);
-app.factory('Schema', ['$location', '$http', '$q', function($location, $http, $q) {
+app.factory('Schema', ['$http', '$q', function($http, $q) {
     var mpid, aid, schema, Schema;
-    mpid = $location.search().mpid;
-    aid = $location.search().aid;
+    mpid = location.search.match(/mpid=([^&]*)/)[1];
+    aid = location.search.match(/aid=([^&]*)/)[1];
     schema = null;
     Schema = function() {};
     Schema.prototype.get = function() {
@@ -196,50 +217,84 @@ app.factory('Schema', ['$location', '$http', '$q', function($location, $http, $q
     };
     return Schema;
 }]);
-app.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'Round', 'Record', 'Statistic', function($location, $scope, $http, $timeout, $q, Round, Record, Statistic) {
-    window.shareCounter = 0;
-    window.xxt.share.options.logger = function(shareto) {
-        var app, url;
-        app = $scope.params.enroll;
-        url = "/rest/mi/matter/logShare";
-        url += "?shareid=" + window.shareid;
-        url += "&mpid=" + $scope.mpid;
-        url += "&id=" + app.id;
-        url += "&type=enroll";
-        url += "&title=" + app.title;
-        url += "&shareby=" + $scope.params.shareby;
-        url += "&shareto=" + shareto;
-        $http.get(url);
-        window.shareCounter++;
-        /* 是否需要自动登记 */
-        if (app.can_autoenroll === 'Y' && $scope.params.page.autoenroll_onshare === 'Y') {
-            $http.get('/rest/app/enroll/record/emptyGet?mpid=' + $scope.mpid + '&aid=' + app.id + '&once=Y');
-        }
-        window.onshare && window.onshare(window.shareCounter);
-    };
-    if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage !== undefined) {
-        signPackage.jsApiList = ['hideOptionMenu', 'showOptionMenu', 'closeWindow', 'chooseImage', 'uploadImage', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'getLocation'];
-        signPackage.debug = false;
-        wx.config(signPackage);
-        wx.ready(function() {
-            wx.showOptionMenu();
-        });
-    } else if (/YiXin/i.test(navigator.userAgent)) {
-        document.addEventListener('YixinJSBridgeReady', function() {
-            YixinJSBridge.call('showOptionMenu');
-        }, false);
-    }
-    document.body.addEventListener('click', function(event) {
-        var url, target = event.target;
-        if (target.tagName === 'A' && target.classList.contains('innerlink')) {
-            event.preventDefault();
-            var id = target.getAttribute('href'),
-                type = target.getAttribute('type');
-            id = id.split('/').pop();
-            url = '/rest/mi/matter?mpid=' + $scope.param.mpid + 'type=' + type + '&id=' + id;
-            location.replace(url);
-        }
-    }, false);
+app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 'Statistic', function($scope, $http, $timeout, $q, Round, Record, Statistic) {
+    var LS = (function() {
+        function locationSearch() {
+            var ls, search;
+            ls = location.search;
+            search = {};
+            angular.forEach(['mpid', 'aid', 'rid', 'page', 'ek', 'preview'], function(q) {
+                var match, pattern;
+                pattern = new RegExp(q + '=([^&]*)');
+                match = ls.match(pattern);
+                search[q] = match ? match[1] : '';
+            });
+            return search;
+        };
+        /*join search*/
+        function j(method) {
+            var j, l, url = '/rest/app/enroll',
+                _this = this,
+                search = [];
+            method && method.length && (url += '/' + method);
+            if (arguments.length > 1) {
+                for (i = 1, l = arguments.length; i < l; i++) {
+                    search.push(arguments[i] + '=' + _this.p[arguments[i]]);
+                };
+                url += '?' + search.join('&');
+            }
+            return url;
+        };
+        return {
+            p: locationSearch(),
+            j: j
+        };
+    })();
+    var PG = (function() {
+        return {
+            exec: function(task) {
+                var obj, fn, args, valid;
+                valid = true;
+                obj = $scope;
+                args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
+                angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
+                    if (fn) obj = fn;
+                    if (!obj[attr]) {
+                        valid = false;
+                        return;
+                    }
+                    fn = obj[attr];
+                });
+                if (valid) {
+                    fn.apply(obj, args);
+                }
+            },
+            setMember: function() {
+                var params;
+                if ($scope.params) {
+                    params = $scope.params;
+                    if ($scope.data.member && $scope.data.member.authid && params.user.members && params.user.members.length) {
+                        angular.forEach(params.user.members, function(member) {
+                            if (member.authapi_id == $scope.data.member.authid) {
+                                $("[ng-model^='data.member']").each(function() {
+                                    var attr;
+                                    attr = $(this).attr('ng-model');
+                                    attr = attr.replace('data.member.', '');
+                                    attr = attr.split('.');
+                                    if (attr.length == 2) {
+                                        !$scope.data.member.extattr && ($scope.data.member.extattr = {});
+                                        $scope.data.member.extattr[attr[1]] = member.extattr[attr[1]];
+                                    } else {
+                                        $scope.data.member[attr[0]] = member[attr[0]];
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+            }
+        };
+    })();
     var openPickImageFrom = function() {
         var st, ch, cw, $dlg;
         st = (document.body && document.body.scrollTop) ? document.body.scrollTop : document.documentElement.scrollTop;
@@ -284,20 +339,12 @@ app.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'R
         $scope.errmsg = '';
         return true;
     };
-    var modifiedImgFields = [];
-    $scope.mpid = $location.search().mpid;
-    $scope.aid = $location.search().aid;
-    $scope.rid = $location.search().rid || '';
-    $scope.preview = $location.search().preview;
+    var modifiedImgFields = [],
+        tasksOfOnReady = [];
     $scope.data = {
         member: {}
     };
     $scope.errmsg = '';
-    $scope.Round = new Round($scope.mpid, $scope.aid);
-    var tasksOfOnReady = [];
-    $scope.onReady = function(task) {
-        tasksOfOnReady.push(task);
-    };
     $scope.closePreviewTip = function() {
         $scope.preview = 'N';
     };
@@ -354,7 +401,7 @@ app.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'R
     };
     $scope.progressOfUploadFile = 0;
     var r = new Resumable({
-        target: '/rest/app/enroll/record/uploadFile?mpid=' + $scope.mpid + '&aid=' + $scope.aid,
+        target: '/rest/app/enroll/record/uploadFile?mpid=' + LS.p.mpid + '&aid=' + LS.p.aid,
         testChunks: false,
         chunkSize: 512 * 1024
     });
@@ -428,7 +475,7 @@ app.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'R
         btnSubmit && btnSubmit.setAttribute('disabled', true);
         var submitWhole = function() {
             var url, d, d2, posted = angular.copy($scope.data);
-            url = '/rest/app/enroll/record/submit?mpid=' + $scope.mpid + '&aid=' + $scope.aid;
+            url = '/rest/app/enroll/record/submit?mpid=' + LS.p.mpid + '&aid=' + LS.p.aid;
             if (!$scope.isNew && $scope.params.enrollKey && $scope.params.enrollKey.length)
                 url += '&ek=' + $scope.params.enrollKey;
             for (var i in posted) {
@@ -451,8 +498,8 @@ app.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'R
                     $scope.closeWindow();
                 } else if (nextAction !== undefined && nextAction.length) {
                     var url = '/rest/app/enroll';
-                    url += '?mpid=' + $scope.mpid;
-                    url += '&aid=' + $scope.aid;
+                    url += '?mpid=' + LS.p.mpid;
+                    url += '&aid=' + LS.p.aid;
                     url += '&ek=' + rsp.data;
                     url += '&page=' + nextAction;
                     location.replace(url);
@@ -513,7 +560,7 @@ app.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'R
         return promise2;
     };
     var openAskFollow = function() {
-        $http.get('/rest/app/enroll/askFollow?mpid=' + $scope.mpid).error(function(content) {
+        $http.get('/rest/app/enroll/askFollow?mpid=' + LS.p.mpid).error(function(content) {
             var body, el;;
             body = document.body;
             el = document.createElement('iframe');
@@ -535,31 +582,6 @@ app.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'R
             }
         });
     };
-    var autoSetMember = function() {
-        var params;
-        if ($scope.params) {
-            params = $scope.params;
-            if ($scope.data.member && $scope.data.member.authid && params.user.members && params.user.members.length) {
-                params.user.members
-                angular.forEach(params.user.members, function(member) {
-                    if (member.authapi_id == $scope.data.member.authid) {
-                        $("[ng-model^='data.member']").each(function() {
-                            var attr;
-                            attr = $(this).attr('ng-model');
-                            attr = attr.replace('data.member.', '');
-                            attr = attr.split('.');
-                            if (attr.length == 2) {
-                                !$scope.data.member.extattr && ($scope.data.member.extattr = {});
-                                $scope.data.member.extattr[attr[1]] = member.extattr[attr[1]];
-                            } else {
-                                $scope.data.member[attr[0]] = member[attr[0]];
-                            }
-                        });
-                    }
-                });
-            }
-        }
-    };
     var getFirstInputPage = function() {
         var firstInputPage;
         angular.forEach($scope.params.enroll.pages, function(oPage) {
@@ -578,8 +600,8 @@ app.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'R
             return;
         }
         var url = '/rest/app/enroll';
-        url += '?mpid=' + $scope.mpid;
-        url += '&aid=' + $scope.aid;
+        url += '?mpid=' + LS.p.mpid;
+        url += '&aid=' + LS.p.aid;
         if (ek !== undefined && ek !== null && ek.length) {
             url += '&ek=' + ek;
         }
@@ -606,7 +628,7 @@ app.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'R
             $scope.newRemark = '';
     };
     $scope.openMatter = function(id, type) {
-        location.replace('/rest/mi/matter?mpid=' + $scope.mpid + '&id=' + id + '&type=' + type);
+        location.replace('/rest/mi/matter?mpid=' + LS.p.mpid + '&id=' + id + '&type=' + type);
     };
     $scope.acceptInvite = function(event, nextAction) {
         var inviter, url;
@@ -620,16 +642,16 @@ app.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'R
         }
         inviter = $scope.Record.current.enroll_key;
         url = '/rest/app/enroll/record/acceptInvite';
-        url += '?mpid=' + $scope.mpid;
-        url += '&aid=' + $scope.aid;
+        url += '?mpid=' + LS.p.mpid;
+        url += '&aid=' + LS.p.aid;
         url += '&inviter=' + inviter;
         $http.get(url).success(function(rsp) {
             if (nextAction === 'closeWindow') {
                 $scope.closeWindow();
             } else if (nextAction !== undefined && nextAction.length) {
                 var url = '/rest/app/enroll';
-                url += '?mpid=' + $scope.mpid;
-                url += '&aid=' + $scope.aid;
+                url += '?mpid=' + LS.p.mpid;
+                url += '&aid=' + LS.p.aid;
                 url += '&ek=' + rsp.data.ek;
                 url += '&page=' + nextAction;
                 location.replace(url);
@@ -637,32 +659,34 @@ app.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'R
         });
     };
     $scope.$watch('data.member.authid', function(nv) {
-        if (nv && nv.length) autoSetMember();
+        if (nv && nv.length) PG.setMember();
     });
-    $scope.$watch('requireRecordList', function(nv) {
-        if (nv && nv.length) {
-            if ($scope.Record)
-                $scope.Record.nextPage(nv);
+    $scope.onReady = function(task) {
+        console.log('add task');
+        if ($scope.params) {
+            PG.exec(task);
+        } else {
+            tasksOfOnReady.push(task);
         }
-    });
-    $scope.$watch('pageName', function(nv) {
-        if (!nv) return;
-        var url;
-        url = '/rest/app/enroll/get';
-        url += '?mpid=' + $scope.mpid;
-        url += '&aid=' + $scope.aid;
-        url += '&rid=' + $scope.rid;
-        url += '&page=' + nv;
-        $location.search().ek && (url += '&ek=' + $location.search().ek);
-        $http.get(url).success(function(rsp) {
-            var params = rsp.data,
-                sharelink, summary;
-            /**
-             * set share info
-             */
-            sharelink = 'http://' + location.hostname + "/rest/app/enroll";
-            sharelink += "?mpid=" + $scope.mpid;
-            sharelink += "&aid=" + $scope.aid;
+    };
+    $http.get(LS.j('get', 'mpid', 'aid', 'rid', 'page', 'ek')).success(function(rsp) {
+        if (rsp.err_code !== 0) {
+            $scope.errmsg = rsp.err_msg;
+            return;
+        }
+        var params;
+        params = rsp.data;
+        params.record && params.record.data && params.record.data.member && (params.record.data.member = JSON.parse(params.record.data.member));
+        $scope.params = params;
+        $scope.App = params.enroll;
+        $scope.Page = params.page;
+        $scope.User = params.user;
+        $scope.Round = new Round(LS.p.mpid, LS.p.aid);
+        $scope.Record = new Record(LS.p.mpid, LS.p.aid, LS.p.rid, params.record, $scope);
+        $scope.Statistic = new Statistic(LS.p.mpid, LS.p.aid, params.statdata);
+        (function setShareData() {
+            var sharelink, summary;
+            sharelink = 'http://' + location.hostname + LS.j('', 'mpid', 'aid');
             if (params.page.share_page && params.page.share_page === 'Y') {
                 sharelink += '&page=' + params.page.name;
                 sharelink += '&ek=' + params.enrollKey;
@@ -679,68 +703,88 @@ app.controller('formCtrl', ['$location', '$scope', '$http', '$timeout', '$q', 'R
                 pic: params.enroll.pic
             };
             window.xxt.share.set(params.enroll.title, sharelink, summary, params.enroll.pic);
-            /**
-             * set form data
-             */
-            params.record && params.record.data && params.record.data.member && (params.record.data.member = JSON.parse(params.record.data.member));
-            $scope.params = params;
-            $scope.User = params.user;
-            $scope.Record = new Record($scope.mpid, $scope.aid, $scope.rid, params.record, $scope);
-            $scope.Statistic = new Statistic($scope.mpid, $scope.aid, params.statdata);
-            if (params.page.type === 'I' && params.record) {
-                $timeout(function() {
-                    var p, type, dataOfRecord, value;
-                    dataOfRecord = $scope.Record.current.data;
-                    for (p in dataOfRecord) {
-                        if (p === 'member') {
-                            $scope.data.member = dataOfRecord.member;
-                        } else if ($('[name=' + p + ']').hasClass('img-tiles')) {
-                            if (dataOfRecord[p] && dataOfRecord[p].length) {
-                                value = dataOfRecord[p].split(',');
-                                $scope.data[p] = [];
-                                for (var i in value) $scope.data[p].push({
-                                    imgSrc: value[i]
-                                });
-                            }
-                        } else {
-                            type = $('[name=' + p + ']').attr('type');
-                            if (type === 'checkbox') {
+            window.shareCounter = 0;
+            window.xxt.share.options.logger = function(shareto) {
+                var app, url;
+                app = $scope.App;
+                url = "/rest/mi/matter/logShare";
+                url += "?shareid=" + window.shareid;
+                url += "&mpid=" + LS.p.mpid;
+                url += "&id=" + app.id;
+                url += "&type=enroll";
+                url += "&title=" + app.title;
+                url += "&shareby=" + $scope.params.shareby;
+                url += "&shareto=" + shareto;
+                $http.get(url);
+                window.shareCounter++;
+                /* 是否需要自动登记 */
+                if (app.can_autoenroll === 'Y' && $scope.Page.autoenroll_onshare === 'Y') {
+                    $http.get(LS.j('emptyGet', 'mpid', 'aid') + '&once=Y');
+                }
+                window.onshare && window.onshare(window.shareCounter);
+            };
+        })();
+        (function setPage(page) {
+            if (page.ext_css && page.ext_css.length) {
+                angular.forEach(page.ext_css, function(css) {
+                    var link, head;
+                    link = document.createElement('link');
+                    link.href = css.url;
+                    link.rel = 'stylesheet';
+                    head = document.querySelector('head');
+                    head.appendChild(link);
+                });
+            }
+            if (page.ext_js && page.ext_js.length) {
+                angular.forEach(page.ext_js, function(js) {
+                    $.getScript(js.url);
+                });
+            }
+            if (page.js && page.js.length) {
+                (function dynamicjs() {
+                    eval(page.js);
+                })();
+            }
+            if (page.type === 'I') {
+                $timeout(function setPageDate() {
+                    if ($scope.Record.current) {
+                        var p, type, dataOfRecord, value;
+                        dataOfRecord = $scope.Record.current.data;
+                        for (p in dataOfRecord) {
+                            if (p === 'member') {
+                                $scope.data.member = dataOfRecord.member;
+                            } else if ($('[name=' + p + ']').hasClass('img-tiles')) {
                                 if (dataOfRecord[p] && dataOfRecord[p].length) {
                                     value = dataOfRecord[p].split(',');
-                                    $scope.data[p] = {};
-                                    for (var i in value) $scope.data[p][value[i]] = true;
+                                    $scope.data[p] = [];
+                                    for (var i in value) $scope.data[p].push({
+                                        imgSrc: value[i]
+                                    });
                                 }
                             } else {
-                                $scope.data[p] = dataOfRecord[p];
+                                type = $('[name=' + p + ']').attr('type');
+                                if (type === 'checkbox') {
+                                    if (dataOfRecord[p] && dataOfRecord[p].length) {
+                                        value = dataOfRecord[p].split(',');
+                                        $scope.data[p] = {};
+                                        for (var i in value) $scope.data[p][value[i]] = true;
+                                    }
+                                } else {
+                                    $scope.data[p] = dataOfRecord[p];
+                                }
                             }
                         }
-                    }
-                    autoSetMember();
-                });
-            }
-            if ($scope.requireRecordList) {
-                $scope.Record.nextPage($scope.requireRecordList);
-            }
-            if (tasksOfOnReady.length) {
-                angular.forEach(tasksOfOnReady, function(task) {
-                    var obj, fn, args, valid;
-                    valid = true;
-                    obj = $scope;
-                    args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
-                    angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
-                        if (fn) obj = fn;
-                        if (!obj[attr]) {
-                            valid = false;
-                            return;
-                        }
-                        fn = obj[attr];
-                    });
-                    if (valid) {
-                        fn.apply(obj, args);
+                    } else {
+                        PG.setMember();
                     }
                 });
             }
-            $scope.$broadcast('xxt.enroll.ready', params);
+        })(params.page);
+        if (tasksOfOnReady.length) {
+            angular.forEach(tasksOfOnReady, PG.exec);
+        }
+        $timeout(function() {
+            $scope.$broadcast('xxt.app.enroll.ready', params);
         });
     });
 }]);
@@ -812,4 +856,18 @@ app.directive('flexImg', function() {
             })
         }
     }
+});
+app.directive('dynamicHtml', function($compile) {
+    return {
+        restrict: 'EA',
+        replace: true,
+        link: function(scope, ele, attrs) {
+            scope.$watch(attrs.dynamicHtml, function(html) {
+                if (html && html.length) {
+                    ele.html(html);
+                    $compile(ele.contents())(scope);
+                }
+            });
+        }
+    };
 });

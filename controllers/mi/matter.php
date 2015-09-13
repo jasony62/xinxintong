@@ -15,6 +15,12 @@ class matter extends \member_base {
 		return $rule_action;
 	}
 	/**
+	 *
+	 */
+	protected function canAccessObj($mpid, $matterId, $member, $authapis, &$matter) {
+		return $this->model('acl')->canAccessMatter($mpid, $matter->type, $matterId, $member, $authapis);
+	}
+	/**
 	 * 打开指定的素材
 	 *
 	 * 这个接口是由浏览器直接调动，不能可靠提供关注用户（openid）信息
@@ -145,10 +151,6 @@ class matter extends \member_base {
 			exit;
 		}
 
-		$posted = $this->getPostJson();
-
-		$user = $this->getUser($mpid, array('verbose' => array('fan' => 'Y')));
-
 		switch ($type) {
 		case 'article':
 			$this->model()->update("update xxt_article set read_num=read_num+1 where id='$id'");
@@ -160,10 +162,13 @@ class matter extends \member_base {
 			$this->model()->update("update xxt_news set read_num=read_num+1 where id='$id'");
 			break;
 		}
+
+		$posted = $this->getPostJson();
+		$user = $this->getUser($mpid);
 		$logUser = new \stdClass;
 		$logUser->vid = $user->vid;
-		$logUser->openid = empty($user->fan) ? '' : $user->openid;
-		$logUser->nickname = empty($user->fan) ? '' : $user->fan->nickname;
+		$logUser->openid = $user->openid;
+		$logUser->nickname = $user->nickname;
 
 		$logMatter = new \stdClass;
 		$logMatter->id = $id;
@@ -284,66 +289,5 @@ class matter extends \member_base {
 		header('Access-Control-Allow-Origin:*');
 
 		return new \ResponseData($matters);
-	}
-	/**
-	 *
-	 */
-	protected function canAccessObj($mpid, $matterId, $member, $authapis, &$matter) {
-		return $this->model('acl')->canAccessMatter($mpid, $matter->type, $matterId, $member, $authapis);
-	}
-	/**
-	 * 发送含有链接的邮件
-	 * todo 邮件的内容不应该在代码中写死
-	 */
-	private function send_link_email($mpid, $email, $url, $text = '打开', $code = null) {
-		$mp = $this->model('mp\mpaccount')->byId($mpid);
-
-		$subject = $mp->name . "-链接";
-
-		$content = "<p></p>";
-		$content .= "<p>请点击下面的链接完成操作：</p>";
-		$content .= "<p></p>";
-		$content .= "<p><a href='$url'>$text</a></p>";
-		if (!empty($code)) {
-			$content .= "<p></p>";
-			$content .= "<p>密码：$code</p>";
-		}
-		if (true !== ($msg = $this->send_email($mpid, $subject, $content, $email))) {
-			return $msg;
-		}
-
-		return true;
-	}
-	/**
-	 * 下载文件
-	 *
-	 * todo 仅对会员开放
-	 */
-	public function link_action($mpid, $user, $url, $text, $code) {
-		if ($mid = $this->getMemberId($call)) {
-			$q = array(
-				'email,email_verified',
-				'xxt_member',
-				"mpid='$mpid' and mid='$mid'",
-			);
-			$identity = $this->model()->query_obj_ss($q);
-			if ($identity->email && $identity->email_verified === 'Y') {
-				if (true !== ($msg = $this->send_link_email($mpid, $identity->email, $url, $text, $code))) {
-					return new \ResponseData($msg);
-				} else {
-					$rsp = '已通过【xin_xin_tong@163.com】将链接发送到你的个人邮箱，请在邮件内打开！';
-					return new \ResponseData($rsp);
-				}
-			} else {
-				$rsp = '没有获取邮箱信息，请向指定个人邮箱！';
-				return new \ResponseData($rsp);
-			}
-		} else {
-			/**
-			 * 引导用户进行认证
-			 */
-			$tr = $this->register_reply($call);
-			$tr->exec();
-		}
 	}
 }

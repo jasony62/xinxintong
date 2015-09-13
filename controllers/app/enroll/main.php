@@ -29,10 +29,7 @@ class main extends base {
 
 		$modelApp = $this->model('app\enroll');
 		$act = $modelApp->byId($aid);
-		$mapPages = array();
-		foreach ($act->pages as &$p) {
-			$mapPages[$p->name] = $p;
-		}
+
 		$tipPage = false;
 		/**
 		 * 判断活动的开始结束时间
@@ -50,6 +47,10 @@ class main extends base {
 			$tipPage = $act->after_end_page;
 		}
 		if ($tipPage !== false) {
+			$mapPages = array();
+			foreach ($act->pages as &$p) {
+				$mapPages[$p->name] = $p;
+			}
 			$oPage = $mapPages[$tipPage];
 			\TPL::assign('page', $oPage->name);
 			!empty($oPage->html) && \TPL::assign('extra_html', $oPage->html);
@@ -76,38 +77,10 @@ class main extends base {
 	private function afterOAuth($mpid, $aid, $ek, $page, $shareby, $openid = null) {
 		$modelApp = $this->model('app\enroll');
 		$act = $modelApp->byId($aid);
-		$mapPages = array();
-		foreach ($act->pages as &$p) {
-			$mapPages[$p->name] = $p;
-		}
 		/**
 		 * 当前访问用户的基本信息
 		 */
-		$user = $this->getUser($mpid,
-			array(
-				'authapis' => $act->authapis,
-				'openid' => $openid,
-				'matter' => $act,
-				'verbose' => array('member' => 'Y', 'fan' => 'Y'),
-			)
-		);
-		$hasEnrolled = $modelApp->hasEnrolled($mpid, $act->id, $user->openid);
-		/**
-		 * 如果没有指定页面，计算应该进入到哪一个状态页
-		 */
-		if (empty($page)) {
-			if ($hasEnrolled && !empty($act->enrolled_entry_page)) {
-				$page = $act->enrolled_entry_page;
-			} else {
-				$page = $this->checkEntryRule($mpid, $act, $user);
-			}
-		} else {
-			$oPage = $mapPages[$page];
-			empty($mapPages[$page]) && $this->outputError("指定页面[$page]不存在");
-			if ($oPage->check_entry_rule === 'Y') {
-				$page = $this->checkEntryRule($mpid, $act, $user);
-			}
-		}
+		$user = $this->getUser($mpid);
 		/* 提示在PC端完成 */
 		if (isset($user->fan) && $this->getClientSrc() && isset($act->shift2pc) && $act->shift2pc === 'Y') {
 			$fea = $this->model('mp\mpaccount')->getFeatures($mpid, 'shift2pc_page_id');
@@ -122,49 +95,42 @@ class main extends base {
 				$taskCode = $this->model('task')->addTask($mpid, $user->fan->fid, $myUrl);
 				$pageOfShift2Pc->html = str_replace('{{taskCode}}', $taskCode, $pageOfShift2Pc->html);
 			}
-			\TPL::assign('shift2pcAlert', $pageOfShift2Pc);
+			//\TPL::assign('shift2pcAlert', $pageOfShift2Pc);
 		}
-
-		$oPage = $mapPages[$page];
 		/* 自动登记 */
+		$hasEnrolled = $modelApp->hasEnrolled($mpid, $act->id, $user->openid);
 		if (!$hasEnrolled && $act->can_autoenroll === 'Y' && $oPage->autoenroll_onenter === 'Y') {
 			$modelRec = $this->model('app\enroll\record');
 			$modelRec->add($mpid, $act, $user, (empty($posted->referrer) ? '' : $posted->referrer));
 		}
-
-		\TPL::assign('page', $oPage->name);
-		!empty($oPage->html) && \TPL::assign('extra_html', $oPage->html);
-		!empty($oPage->css) && \TPL::assign('extra_css', $oPage->css);
-		!empty($oPage->js) && \TPL::assign('extra_js', $oPage->js);
-		!empty($oPage->ext_js) && \TPL::assign('ext_js', $oPage->ext_js);
-		!empty($oPage->ext_css) && \TPL::assign('ext_css', $oPage->ext_css);
-		/**
-		 * 全局设置
-		 */
-		\TPL::assign('title', $act->title);
-		$mpsetting = $this->getMpSetting($mpid);
-		\TPL::assign('body_ele', $mpsetting->body_ele);
-		\TPL::assign('body_css', $mpsetting->body_css);
 		/**
 		 * 记录日志，完成前置活动再次进入的情况不算
 		 */
 		$this->model()->update("update xxt_enroll set read_num=read_num+1 where id='$act->id'");
 		$this->logRead($mpid, $user, $act->id, 'enroll', $act->title, $shareby);
 
-		$this->view_action('/app/enroll/page');
+		\TPL::output('/app/enroll/page');
+		exit;
+	}
+	/**
+	 *
+	 */
+	private function defaultPage($mpid, $act, $user, $hasEnrolled = false) {
+		if ($hasEnrolled && !empty($act->enrolled_entry_page)) {
+			$page = $act->enrolled_entry_page;
+		} else {
+			$page = $this->checkEntryRule($mpid, $act, $user);
+		}
+		return $page;
 	}
 	/**
 	 * 返回活动数据
 	 */
-	public function get_action($mpid, $aid, $rid = null, $page, $ek = null) {
+	public function get_action($mpid, $aid, $rid = null, $page = null, $ek = null) {
 		$params = array();
 
 		$modelApp = $this->model('app\enroll');
 		$act = $modelApp->byId($aid);
-		$mapPages = array();
-		foreach ($act->pages as &$p) {
-			$mapPages[$p->name] = $p;
-		}
 		$params['enroll'] = $act;
 		/**
 		 * 当前访问用户的基本信息
@@ -185,17 +151,27 @@ class main extends base {
 		/**
 		 * 页面
 		 */
-		$newForm = false;
-		$oPage = $mapPages[$page];
-		if ($oPage->type === 'I') {
-			if ($act->open_lastroll === 'N' && empty($ek)) {
-				$newForm = true;
+		$hasEnrolled = $modelApp->hasEnrolled($mpid, $act->id, $user->openid);
+		empty($page) && $page = $this->defaultPage($mpid, $act, $user, false);
+		foreach ($act->pages as $p) {
+			if ($p->name === $page) {
+				$oPage = $p;
+				break;
 			}
+		}
+		if (!isset($oPage)) {
+			return new \ResponseError('指定的页面[' . $page . ']不存在');
 		}
 		$params['page'] = $oPage;
 		/**
 		 * 设置页面登记数据
 		 */
+		$newForm = false;
+		if ($oPage->type === 'I') {
+			if ($act->open_lastroll === 'N' && empty($ek)) {
+				$newForm = true;
+			}
+		}
 		list($openedek, $record, $statdata) = $this->getRecord($mpid, $act, $rid, $ek, $user->openid, $page, $newForm);
 		$params['enrollKey'] = $openedek;
 		$params['record'] = $record;

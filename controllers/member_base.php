@@ -119,7 +119,7 @@ class member_base extends xxt_base {
 			$fan = $this->getCookieOAuthUser($mpid);
 			$openid = $fan->openid;
 			$user->openid = $fan->openid;
-			if (empty($fan->nickname)) {
+			if (!empty($openid) && empty($fan->nickname)) {
 				/* 可能用户通过OAuth时并未关注，取不到完整，能获得信息就补充 */
 				if ($fan = $this->model('user/fans')->byOpenid($mpid, $openid, '*', 'Y')) {
 					$user->fan = $fan;

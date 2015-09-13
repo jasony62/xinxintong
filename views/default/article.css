@@ -45,7 +45,7 @@ table thead,table.mce-item-table thead{text-align:center}
 table th,table td,table.mce-item-table th,table.mce-item-table td{border-left:1px solid #ddd;border-top:1px solid #ddd;padding:5px;empty-cells:show}
 
 /* stat */
-#stat{color:#8c8c8c;font-size:14px;padding:18px 0}
+#stat{color:#8c8c8c;font-size:14px;padding:1.5em 0;border-top:1px solid #eee}
 #stat .read{margin-right:14px}
 #stat .read span:nth-child(2){margin-left:7px}
 #stat .like span{margin-left:7px}
@@ -53,8 +53,13 @@ table th,table td,table.mce-item-table th,table.mce-item-table td{border-left:1p
 #stat .like em.praised{background-position:-31.25px -25px}
 #stat *{vertical-align:middle}
 
+/* tag */
+#tag{font-size:14px;padding:1em 0;border-top:1px solid #eee}
+#tag>span{display:inline-block;margin-right:.3em;padding:.7em;color:#333;background:#ccc}
+
 /* remark */
-#remark h4{margin:0;padding:0 0 4px}
+#remark{color:#8c8c8c;font-size:14px;padding:1.5em 0;border-top:1px solid #eee}
+#remark h5{margin:0;padding:0 0 4px}
 #remark li>.content{font-size:14px;margin:0 0 8px}
 #remark .nickname{color:#B06060;overflow:hidden;float:left;font-size:12px}
 #remark .datetime{color:#CCC;float:right;overflow:hidden;font-size:12px}

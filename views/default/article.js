@@ -5,16 +5,15 @@ if (/MicroMessenger/.test(navigator.userAgent)) {
         wx.config(signPackage);
     }
 }
-angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function($lp) {
-    $lp.html5Mode(true);
-}]).controller('ctrl', ['$location', '$scope', '$http', '$sce', '$timeout', '$q', function($location, $scope, $http, $sce, $timeout, $q) {
-    var mpid, id, shareby;
-    mpid = $location.search().mpid;
-    id = $location.search().id;
-    shareby = $location.search().shareby ? $location.search().shareby : '';
+angular.module('xxt', ["ngSanitize"]).controller('ctrl', ['$scope', '$http', '$sce', '$timeout', '$q', function($scope, $http, $sce, $timeout, $q) {
+    var ls, mpid, id, shareby;
+    ls = location.search;
+    mpid = ls.match(/mpid=([^&]*)/)[1];
+    id = ls.match(/(\?|&)id=([^&]*)/)[2];
+    shareby = ls.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
     $scope.mpid = mpid;
     $scope.articleId = id;
-    $scope.mode = $location.search().mode || false;
+    $scope.mode = ls.match(/mode=([^&]*)/) ? location.search.match(/mode=([^&]*)/)[1] : '';
     var setShare = function() {
         var shareid, sharelink;
         shareid = $scope.user.vid + (new Date()).getTime();
@@ -243,6 +242,12 @@ angular.module('xxt', ["ngSanitize"]).config(['$locationProvider', function($lp)
     };
     $scope.followMp = function() {
         location.href = 'yixin://opencard?pid=' + $scope.mpa.yx_cardid;
+    };
+    $scope.openChannel = function(ch) {
+        location.href = '/rest/mi/matter?mpid=' + mpid + '&type=channel&id=' + ch.id;
+    };
+    $scope.searchByTag = function(tag) {
+        location.href = '/rest/mi/article?mpid=' + mpid + '&tagid=' + tag.id;
     };
     window.openMatter = function(id, type) {
         location.href = '/rest/mi/matter?mpid=' + mpid + '&id=' + id + '&type=' + type + '&tpl=std';

@@ -347,11 +347,14 @@
         }
     };
     WrapLib.prototype.embedList = function(page, def) {
-        var dataApi, dataApi2, onclick, html;
+        var dataApi, dataApi2, autoload, onclick, html;
         dataApi = "Record.nextPage(\\'" + def.dataScope + "\\')";
         dataApi2 = "Record.nextPage('" + def.dataScope + "')";
+        def.autoload === 'Y' && (autoload = 'infinite-scroll="' + dataApi2 + '" infinite-scroll-disabled="Record.busy" infinite-scroll-distance="1"');
         onclick = def.onclick.length ? " ng-click=\"gotoPage($event,'" + def.onclick + "',r.enroll_key)\"" : '';
-        html = '<ul class="list-group" tms-exec="onReady(\'' + dataApi + '\')" infinite-scroll="' + dataApi2 + '" infinite-scroll-disabled="Record.busy" infinite-scroll-distance="1">';
+        html = '<ul class="list-group" tms-exec="onReady(\'' + dataApi + '\')"';
+        def.autoload === 'Y' && (html += autoload);
+        html += '>';
         html += '<li class="list-group-item" ng-repeat="r in Record.list"' + onclick + '>';
         if (def.addEnrollAt)
             html += "<div wrap='static' class='wrap-inline'><label>登记时间</label><div>{{r.enroll_at*1000|date:'yyyy-MM-dd HH:mm'}}</div></div>";
@@ -808,6 +811,7 @@
                         splitLine: true,
                         dataScope: 'U',
                         canLike: 'N',
+                        autoload: 'N',
                         onclick: '',
                         addEnrollAt: 0,
                         addNickname: 0

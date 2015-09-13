@@ -65,20 +65,20 @@
         $scope.searchBys = [{
             n: '昵称',
             v: 'nickname'
-        }, ];
+        }];
         $scope.orderBys = [{
             n: '登记时间',
             v: 'time'
+        }, {
+            n: '邀请数',
+            v: 'follower'
         }, {
             n: '点赞数',
             v: 'score'
         }, {
             n: '评论数',
             v: 'remark'
-        }, {
-            n: '邀请数',
-            v: 'follower'
-        }, ];
+        }];
         $scope.selected = {};
         $scope.selectAll;
         $scope.$on('search-tag.xxt.combox.done', function(event, aSelected) {

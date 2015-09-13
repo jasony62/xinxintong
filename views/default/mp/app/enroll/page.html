@@ -263,6 +263,12 @@
                     </div>
                 </div>
                 <div class="form-group" ng-show="def.type==='list'">
+                    <label class="col-md-2 control-label">加载数据</label>
+                    <div class="col-md-10">
+                        <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='def.autoload'>自动</label>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="def.type==='list'">
                     <label class="col-md-2 control-label">扩展操作</label>
                     <div class="col-md-10">
                         <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='def.canLike'>点赞</label>

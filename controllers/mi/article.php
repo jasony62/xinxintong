@@ -20,6 +20,18 @@ class article extends \member_base {
 		return $this->model('acl')->canAccessMatter($mpid, 'article', $matterId, $member, $authapis);
 	}
 	/**
+	 *
+	 */
+	public function index_action($mpid, $id) {
+		if (empty($id)) {
+			/* list */
+			\TPL::output('/matter/article-list');
+			exit;
+		} else {
+
+		}
+	}
+	/**
 	 * 返回请求的素材
 	 *
 	 * $mpid
@@ -38,6 +50,8 @@ class article extends \member_base {
 
 		$article->remarks = $article->remark_num > 0 ? $modelArticle->remarks($id) : false;
 		$article->praised = $modelArticle->praised($user->vid, $id);
+		$article->channels = $this->model('matter\channel')->byMatter($id, 'article');
+		$article->tags = $modelArticle->tags($id);
 		if ($article->has_attachment === 'Y') {
 			$article->attachments = $this->model()->query_objs_ss(
 				array(
@@ -49,7 +63,6 @@ class article extends \member_base {
 		}
 
 		$data['article'] = $article;
-
 		$data['user'] = $user;
 
 		$mpaccount = $this->getMpSetting($mpid);
@@ -63,6 +76,21 @@ class article extends \member_base {
 		$data['mpaccount'] = $mpaccount;
 
 		return new \ResponseData($data);
+	}
+	/**
+	 *
+	 */
+	public function list_action($mpid, $tagid, $page = 1, $size = 10) {
+		$model = $this->model('matter\article');
+
+		$user = $this->getUser($mpid);
+
+		$options = new \stdClass;
+		$options->tag = array($tagid);
+
+		$result = $model->find($mpid, $user, $page, $size, $options);
+
+		return new \ResponseData($result);
 	}
 	/**
 	 * 文章点赞

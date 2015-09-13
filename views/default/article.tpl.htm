@@ -59,10 +59,14 @@
                         <span id='score' ng-bind='article.score'></span>
                     </span>
                 </div>
+                <div id='tag'>
+                    <span ng-repeat="c in article.channels" ng-click="openChannel(c)">{{c.title}}</span>
+                    <span ng-repeat="t in article.tags" ng-click="searchByTag(t)">{{t.title}}</span>
+                </div>
                 <div id='remark' class='clearfix' ng-show="mpa.can_article_remark==='Y'">
-                    <h4>评论
+                    <h5>评论
                         <span ng-if='article.remark_num' ng-bind="'（' + article.remark_num + '）'"></span>
-                    </h4>
+                    </h5>
                     <a id='gotoRemarksHeader' href='#remark'></a>
                     <ul class='list-group' ng-hide="mode==='preview'">
                         <li class='list-group-item' ng-repeat="r in article.remarks" ng-click='reply(r)'>

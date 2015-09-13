@@ -270,17 +270,19 @@
                 <label class='col-md-2 control-label'>扩展功能</label>
                 <div class='col-md-10'>
                     <label class='checkbox-inline'>
-                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_like_record' ng-change="update('can_like_record');">支持登记点赞</label>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_like_record' ng-change="update('can_like_record');">登记点赞</label>
                     <label class='checkbox-inline'>
-                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_remark_record' ng-change="update('can_remark_record');">支持登记评论</label>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_remark_record' ng-change="update('can_remark_record');">登记评论</label>
                     <label class='checkbox-inline'>
                         <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.remark_notice' ng-change="update('remark_notice');">登记评论提醒</label>
                     <label class='checkbox-inline'>
-                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_autoenroll' ng-change="update('can_autoenroll');">支持自动登记</label>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_autoenroll' ng-change="update('can_autoenroll');">自动登记</label>
                     <label class='checkbox-inline'>
-                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_signin' ng-change="update('can_signin');">支持签到</label>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_invite' ng-change="update('can_invite');">邀请</label>
                     <label class='checkbox-inline'>
-                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_lottery' ng-change="update('can_lottery');">支持抽奖</label>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_signin' ng-change="update('can_signin');">签到</label>
+                    <label class='checkbox-inline'>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_lottery' ng-change="update('can_lottery');">抽奖</label>
                 </div>
             </div>
             <div class='form-group' ng-if="editing.remark_notice==='Y'">

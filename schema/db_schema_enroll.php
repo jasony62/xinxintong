@@ -37,6 +37,7 @@ $sql .= ",multi_rounds char(1) not null default 'N'"; // 支持轮次
 $sql .= ",can_like_record char(1) not null default 'N'"; // 支持对登记记录点赞
 $sql .= ",can_remark_record char(1) not null default 'N'"; // 支持对登记记录评论
 $sql .= ",can_autoenroll char(1) not null default 'N'"; // 是否支持自动登记
+$sql .= ",can_invite char(1) not null default 'N'"; // 是否支持邀请
 $sql .= ",can_signin char(1) not null default 'N'"; // 是否支持签到
 $sql .= ",can_lottery char(1) not null default 'N'"; // 是否支持抽奖
 $sql .= ",remark_notice char(1) not null default 'N'";

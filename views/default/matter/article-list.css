@@ -1,0 +1,16 @@
+*{margin:0;padding:0}
+body{height:100%;background:#eee;font-family:Microsoft Yahei,Arial;padding:1em}
+.ng-cloak{display:none}
+#mask{position:relative;background:#aaa;position:fixed;top:0;bottom:0;left:0;right:0;z-index:666;color:#999;text-align:center}
+#mask>div{position:absolute;top:50%;margin-top:-60px;width: 100%;}
+/* matters */
+.list-group{margin-top:4px}
+.list-group-item{margin-bottom:8px;background:#fff}
+.heading_pic{position:absolute;top:0;left:0px;box-sizing:border-box;width:64px;height:64px;border:2px solid #EEE;background-size:cover;background-position:center;}
+.header{font-size:12px;color:#999}
+.content{position:relative;min-height:70px}
+.content>div:nth-child(2){margin-left:70px}
+.author{float:right}
+.modify_at{float:left}
+.title{font-weight: 700;font-size:16px;margin-top:4px}
+.summary{font-size:14px;color:#666;margin-top:4px;max-height:36px;overflow:hidden}

@@ -5,11 +5,10 @@
         <meta charset="utf-8">
         <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
         <base href="/" />
-        <title ng-bind='App.title'></title>
-        <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+        <title ng-bind="App.title||'活动'"></title>
+        <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link href="//libs.useso.com/js/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
         <link href="/views/default/app/enroll/page.css?_=1" rel="stylesheet">
-        <style ng-if="mpa.header_page.css" ng-bind='mpa.header_page.css'></style>
-        <style ng-if="mpa.footer_page.css" ng-bind='mpa.footer_page.css'></style>
         <style ng-if="Page.css" ng-bind='Page.css'></style>
     </head>
     
@@ -37,7 +36,6 @@
                 </div>
             </div>
         </div>
-        <footer ng-bind-html='mpa.footer_page.html'></footer>
         <script type="text/javascript">
             if (/MicroMessenger/i.test(navigator.userAgent)) {
                 var mpid = location.search.match(/mpid=([^&]*)/)[1];

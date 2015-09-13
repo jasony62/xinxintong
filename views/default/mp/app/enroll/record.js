@@ -167,7 +167,7 @@
             if (s && s.ops && s.ops.length) {
                 aVal = val.split(',');
                 for (i = 0, j = s.ops.length; i < j; i++) {
-                    aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
+                    aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].label);
                 }
                 if (aLab.length) return aLab.join(',');
             }

@@ -774,9 +774,9 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 
                                 }
                             }
                         }
-                    } else {
-                        PG.setMember();
                     }
+                    /* 无论是否有登记记录都自动填写用户认证信息 */
+                    PG.setMember();
                 });
             }
         })(params.page);

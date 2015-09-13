@@ -97,12 +97,6 @@ class main extends base {
 			}
 			//\TPL::assign('shift2pcAlert', $pageOfShift2Pc);
 		}
-		/* 自动登记 */
-		$hasEnrolled = $modelApp->hasEnrolled($mpid, $act->id, $user->openid);
-		if (!$hasEnrolled && $act->can_autoenroll === 'Y' && $oPage->autoenroll_onenter === 'Y') {
-			$modelRec = $this->model('app\enroll\record');
-			$modelRec->add($mpid, $act, $user, (empty($posted->referrer) ? '' : $posted->referrer));
-		}
 		/**
 		 * 记录日志，完成前置活动再次进入的情况不算
 		 */
@@ -151,7 +145,6 @@ class main extends base {
 		/**
 		 * 页面
 		 */
-		$hasEnrolled = $modelApp->hasEnrolled($mpid, $act->id, $user->openid);
 		empty($page) && $page = $this->defaultPage($mpid, $act, $user, false);
 		foreach ($act->pages as $p) {
 			if ($p->name === $page) {
@@ -163,6 +156,12 @@ class main extends base {
 			return new \ResponseError('指定的页面[' . $page . ']不存在');
 		}
 		$params['page'] = $oPage;
+		/* 自动登记 */
+		$hasEnrolled = $modelApp->hasEnrolled($mpid, $act->id, $user->openid);
+		if (!$hasEnrolled && $act->can_autoenroll === 'Y' && $oPage->autoenroll_onenter === 'Y') {
+			$modelRec = $this->model('app\enroll\record');
+			$modelRec->add($mpid, $act, $user, (empty($posted->referrer) ? '' : $posted->referrer));
+		}
 		/**
 		 * 设置页面登记数据
 		 */

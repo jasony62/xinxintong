@@ -136,13 +136,11 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', function($scope, $mo
             for (i = 0; i < matters.length; i++) {
                 matter = matters[i];
                 mtype = matter.type ? matter.type : type;
-                fn = "openMatter(" + matter.id + ",'" + mtype + "')";
-                console.log('fn', fn);
+                fn = "openMatter($event," + matter.id + ",'" + mtype + "')";
                 editor.insertContent(dom.createHTML('p', {
                     'class': 'matter-link'
                 }, dom.createHTML('a', {
-                    href: '#',
-                    "onclick": fn,
+                    "ng-click": fn,
                 }, dom.encode(matter.title))));
             }
         });

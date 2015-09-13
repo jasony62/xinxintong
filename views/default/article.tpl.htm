@@ -14,7 +14,7 @@
     </head>
     
     <body ng-cloak class='ng-cloak'>
-        <header ng-bind-html='mpa.header_page.html'></header>
+        <header dynamic-html='mpa.header_page.html'></header>
         <div id='mask' ng-if="loading">
             <div>
                 <i class='fa fa-spinner fa-5x fa-pulse'></i>
@@ -33,7 +33,7 @@
                 <div class="headpic" ng-if="article.hide_pic!=='Y'">
                     <img ng-src="{{article.pic}}">
                 </div>
-                <div id="content" class="content" ng-bind-html='article.body'></div>
+                <div id="content" class="content" dynamic-html='article.body'></div>
                 <div id="attachment" ng-if="article.attachments">
                     <table class='table table-bordered'>
                         <caption>附件</caption>
@@ -83,7 +83,7 @@
                 </div>
             </div>
         </div>
-        <footer ng-bind-html='mpa.footer_page.html'></footer>
+        <footer dynamic-html='mpa.footer_page.html'></footer>
         <script type="text/javascript">
             if (/MicroMessenger/i.test(navigator.userAgent)) {
                 var mpid = location.search.match(/mpid=([^&]*)/)[1];

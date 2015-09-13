@@ -5,15 +5,15 @@ if (/MicroMessenger/.test(navigator.userAgent)) {
         wx.config(signPackage);
     }
 }
-angular.module('xxt', ["ngSanitize"]).controller('ctrl', ['$scope', '$http', '$sce', '$timeout', '$q', function($scope, $http, $sce, $timeout, $q) {
+angular.module('xxt', ["ngSanitize"]).controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
     var ls, mpid, id, shareby;
     ls = location.search;
     mpid = ls.match(/mpid=([^&]*)/)[1];
     id = ls.match(/(\?|&)id=([^&]*)/)[2];
-    shareby = ls.match(/shareby=([^&]*)/) ? location.search.match(/shareby=([^&]*)/)[1] : '';
+    shareby = ls.match(/shareby=([^&]*)/) ? ls.match(/shareby=([^&]*)/)[1] : '';
     $scope.mpid = mpid;
     $scope.articleId = id;
-    $scope.mode = ls.match(/mode=([^&]*)/) ? location.search.match(/mode=([^&]*)/)[1] : '';
+    $scope.mode = ls.match(/mode=([^&]*)/) ? ls.match(/mode=([^&]*)/)[1] : '';
     var setShare = function() {
         var shareid, sharelink;
         shareid = $scope.user.vid + (new Date()).getTime();
@@ -40,17 +40,14 @@ angular.module('xxt', ["ngSanitize"]).controller('ctrl', ['$scope', '$http', '$s
         $http.get('/rest/mi/article/get?mpid=' + mpid + '&id=' + id).success(function(rsp) {
             var params;
             params = rsp.data;
-            params.article.body = $sce.trustAsHtml(params.article.body);
             $scope.article = params.article;
             $scope.user = params.user;
             if (params.mpaccount.header_page) {
-                params.mpaccount.header_page.html = $sce.trustAsHtml(params.mpaccount.header_page.html);
                 (function() {
                     eval(params.mpaccount.header_page.js);
                 })();
             }
             if (params.mpaccount.footer_page) {
-                params.mpaccount.footer_page.html = $sce.trustAsHtml(params.mpaccount.footer_page.html);
                 (function() {
                     eval(params.mpaccount.footer_page.js);
                 })();
@@ -249,10 +246,25 @@ angular.module('xxt', ["ngSanitize"]).controller('ctrl', ['$scope', '$http', '$s
     $scope.searchByTag = function(tag) {
         location.href = '/rest/mi/article?mpid=' + mpid + '&tagid=' + tag.id;
     };
-    window.openMatter = function(id, type) {
+    $scope.openMatter = function(event, id, type) {
+        event.preventDefault();
+        event.stopPropagation();
         location.href = '/rest/mi/matter?mpid=' + mpid + '&id=' + id + '&type=' + type + '&tpl=std';
     };
-}]).filter('filesize', function() {
+}]).directive('dynamicHtml', function($compile) {
+    return {
+        restrict: 'EA',
+        replace: true,
+        link: function(scope, ele, attrs) {
+            scope.$watch(attrs.dynamicHtml, function(html) {
+                if (html && html.length) {
+                    ele.html(html);
+                    $compile(ele.contents())(scope);
+                }
+            });
+        }
+    };
+}).filter('filesize', function() {
     return function(length) {
         var unit;
         if (length / 1024 < 1) {

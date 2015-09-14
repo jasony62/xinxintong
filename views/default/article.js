@@ -72,7 +72,7 @@ angular.module('xxt', ["ngSanitize"]).controller('ctrl', ['$scope', '$http', '$t
                 js.src = "/static/js/hammer.min.js";
                 body.appendChild(js);
                 js = document.createElement("script");
-                js.src = "/static/js/picViewer.js";
+                js.src = "/static/js/picViewer.js?_=1";
                 js.onload = function() {
                     var eImgs, aImgs, currentIndex;
                     aImgs = [];

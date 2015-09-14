@@ -39,12 +39,10 @@
             style = elImg.style, vendor;
             cssScale = "scale(" + currentScale + ")";
             cssTranslate = 'translate(' + toX + "px, " + toY + "px)"; //如果xy的值太小有可能使设置无效
-
             for (var i = 0, l = vendorPrefixes.length; i < l; i++) {
                 vendor = vendorPrefixes[i];
                 style[vendor + "transform"] = cssTranslate + ' ' + cssScale;
             };
-            options.log(cssTranslate + ' ' + cssScale);
         };
         var setOrigin = function(x, y) {
             var style = elImg.style,
@@ -65,16 +63,61 @@
             lastX = lastY = toX = toY = 0;
 
             if (hammertime === undefined) {
-                hammertime = Hammer(elImg, {}).
-                on('swipeleft', function(event) {
+                hammertime = Hammer(elImg, {});
+                hammertime.get('pan').set({
+                    direction: Hammer.DIRECTION_ALL
+                });
+                hammertime.get('pinch').set({
+                    enable: true
+                });
+                hammertime.on('swipeleft', function(event) {
                     options.next && options.next();
-                }).
-                on('swiperight', function(event) {
-                    try {
-                        options.prev && options.prev();
-                    } catch (e) {
-                        console.log('ex', e);
+                }).on('swiperight', function(event) {
+                    options.prev && options.prev();
+                });
+                hammertime.on('pinchstart', function(event) {
+                    event.preventDefault();
+                    scaleX = event.center.x;
+                    scaleY = event.center.y;
+                }).on('pinchmove', function(event) {
+                    event.preventDefault();
+                    var deltaScale;
+                    deltaScale = event.scale;
+                    if (lastScale * deltaScale > maxScale) {
+                        if (lastScale === maxScale) {
+                            return;
+                        }
+                        deltaScale = maxScale / lastScale;
+                    } else if (lastScale * deltaScale < minScale) {
+                        if (lastScale === minScale) {
+                            return;
+                        }
                     }
+                    currentScale = lastScale * deltaScale;
+                    toX = scaleX - (scaleX - lastX) * deltaScale;
+                    toY = scaleY - (scaleY - lastY) * deltaScale;
+                    transform();
+                }).on('pinchend', function(event) {
+                    event.preventDefault();
+                    lastScale = currentScale;
+                    lastX = toX;
+                    lastY = toY;
+                });
+                hammertime.on('panstart', function(event) {
+                    event.preventDefault();
+                    lastX = toX;
+                    lastY = toY;
+                }).on('panmove', function(event) {
+                    var gesture = event.gesture;
+                    event.preventDefault();
+                    toX = lastX + (event.deltaX / currentScale);
+                    toY = lastY + (event.deltaY / currentScale);
+                    transform();
+                }).on('panend', function(event) {
+                    event.preventDefault();
+                });
+                hammertime.on('tap', function(event) {
+                    options.close && options.close();
                 });
             }
             setOrigin(0, 0);

@@ -101,12 +101,20 @@ angular.module('xxt', ["ngSanitize"]).controller('ctrl', ['$scope', '$http', '$t
                             }
                         };
 
+                        function fnClose() {
+                            eViewer.style.display = 'none';
+                            document.body.style.overflow = 'auto';
+                            document.body.removeEventListener('touchmove', fnStopMove, false);
+                            return false;
+                        };
+
                         function fnStopMove(e) {
                             e.preventDefault();
                         };
                         oPicViewer = PicViewer('#picViewer img', {
                             next: next,
                             prev: prev,
+                            close: fnClose
                         });
 
                         fnClickImg = function(event) {
@@ -148,12 +156,7 @@ angular.module('xxt', ["ngSanitize"]).controller('ctrl', ['$scope', '$http', '$t
                             next();
                             return false;
                         }, false);
-                        eCloser.addEventListener('click', function(e) {
-                            eViewer.style.display = 'none';
-                            document.body.style.overflow = 'auto';
-                            document.body.removeEventListener('touchmove', fnStopMove, false);
-                            return false;
-                        }, false);
+                        eCloser.addEventListener('click', fnClose, false);
                         var img, i, l, indicator;
                         for (i = 0, l = eImgs.length; i < l; i++) {
                             img = eImgs[i];
@@ -166,11 +169,11 @@ angular.module('xxt', ["ngSanitize"]).controller('ctrl', ['$scope', '$http', '$t
                             aImgs.push(img);
                         }
                         window.addEventListener('resize', function() {
+                            var top = Math.max(document.documentElement.scrollTop, document.body.scrollTop);
+                            var height = document.documentElement.clientHeight;
+                            eViewer.style.top = top + 'px';
+                            eViewer.style.height = height + 1 + 'px';
                             if (eViewer.style.display === 'block') {
-                                var top = Math.max(document.documentElement.scrollTop, document.body.scrollTop);
-                                var height = document.documentElement.clientHeight;
-                                eViewer.style.top = top + 'px';
-                                eViewer.style.height = height + 1 + 'px';
                                 oPicViewer.fresh();
                             }
                         });

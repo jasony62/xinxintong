@@ -292,6 +292,18 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 
                         });
                     }
                 }
+            },
+            firstInput: function() {
+                var first;
+                $scope.params.enroll.pages.some(function(oPage) {
+                    if (oPage.type === 'I') {
+                        first = oPage;
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
+                return first;
             }
         };
     })();
@@ -582,16 +594,6 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 
             }
         });
     };
-    var getFirstInputPage = function() {
-        var firstInputPage;
-        angular.forEach($scope.params.enroll.pages, function(oPage) {
-            if (oPage.type === 'I') {
-                firstInputPage = oPage;
-                return;
-            }
-        });
-        return firstInputPage;
-    };
     $scope.gotoPage = function(event, page, ek, rid, fansOnly) {
         event.preventDefault();
         event.stopPropagation();
@@ -610,14 +612,16 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 
         location.replace(url);
     };
     $scope.addRecord = function(event) {
-        var firstInputPage;
-        firstInputPage = getFirstInputPage();
-        firstInputPage ? $scope.gotoPage(event, firstInputPage.name) : alert('当前活动没有包含数据登记页');
+        var first;
+        if (page === undefined && (first = PG.firstInput()))
+            page = first.name;
+        page ? $scope.gotoPage(event, page) : alert('当前活动没有包含数据登记页');
     };
-    $scope.editRecord = function(event) {
-        var firstInputPage;
-        firstInputPage = getFirstInputPage();
-        firstInputPage ? $scope.gotoPage(event, firstInputPage.name, $scope.Record.current.enroll_key) : alert('当前活动没有包含数据登记页');
+    $scope.editRecord = function(event, page) {
+        var first;
+        if (page === undefined && (first = PG.firstInput()))
+            page = first.name;
+        page ? $scope.gotoPage(event, page, $scope.Record.current.enroll_key) : alert('当前活动没有包含数据登记页');
     };
     $scope.likeRecord = function(event) {
         $scope.Record.like(event);
@@ -662,7 +666,6 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 
         if (nv && nv.length) PG.setMember();
     });
     $scope.onReady = function(task) {
-        console.log('add task');
         if ($scope.params) {
             PG.exec(task);
         } else {
@@ -796,6 +799,7 @@ app.filter('value2Label', ['Schema', function(Schema) {
     return function(val, key) {
         var i, j, s, aVal, aLab = [];
         if (val === undefined) return '';
+        //if (!schemas) return '';
         for (i = 0, j = schemas.length; i < j; i++) {
             s = schemas[i];
             if (schemas[i].id === key) {

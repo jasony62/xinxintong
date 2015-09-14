@@ -111,7 +111,7 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
         var log;
         log = result.log;
         $scope.leftChance = result.leftChance;
-        $scope.logs.push(log);
+        $scope.logs.splice(0, 0, log);
         if ($scope.lot.show_greeting === 'Y') {
             if (log.award_greeting && log.award_greeting.length)
                 $scope.showGreeting(log);

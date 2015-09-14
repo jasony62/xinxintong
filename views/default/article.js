@@ -62,28 +62,51 @@ angular.module('xxt', ["ngSanitize"]).controller('ctrl', ['$scope', '$http', '$t
                 setShare();
             }
             if ($scope.article.can_picviewer === 'Y') {
-                var eViewer, hm, body;
+                var eViewer, js, body;
                 eViewer = document.createElement('div');
                 eViewer.setAttribute('id', 'picViewer');
                 eViewer.innerHTML = "<div><span class='page'></span><span class='prev'><i class='fa fa-angle-left'></i></span><span class='next'><i class='fa fa-angle-right'></i></span><span class='exit'><i class='fa fa-times-circle-o'></i></span></div><img>";
                 document.body.appendChild(eViewer);
                 body = document.querySelector('body');
-                hm = document.createElement("script");
-                hm.src = "/static/js/hammer.min.js";
-                body.appendChild(hm);
-                hm = document.createElement("script");
-                hm.src = "/static/js/picViewer.js";
-                hm.onload = function() {
-                    var eImgs, aImgs, currentIndex, oPicViewer;
+                js = document.createElement("script");
+                js.src = "/static/js/hammer.min.js";
+                body.appendChild(js);
+                js = document.createElement("script");
+                js.src = "/static/js/picViewer.js";
+                js.onload = function() {
+                    var eImgs, aImgs, currentIndex;
                     aImgs = [];
                     eImgs = document.querySelectorAll('.wrap img');
-                    oPicViewer = PicViewer('#picViewer img', {});
+
                     (function() {
-                        var eCloser, ePage, ePrev, eNext, fnClickImg, fnSetActionStatus;
+                        var oPicViewer, eCloser, ePage, ePrev, eNext, fnClickImg, fnSetActionStatus;
                         ePage = document.querySelector('#picViewer span.page');
                         ePrev = document.querySelector('#picViewer span.prev');
                         eNext = document.querySelector('#picViewer span.next');
                         eCloser = document.querySelector('#picViewer span.exit');
+
+                        function next() {
+                            if (currentIndex < aImgs.length - 1) {
+                                currentIndex++;
+                                eViewer.querySelector('img').src = aImgs[currentIndex].src;
+                                fnSetActionStatus();
+                            }
+                        };
+
+                        function prev() {
+                            if (currentIndex > 0) {
+                                currentIndex--;
+                                eViewer.querySelector('img').src = aImgs[currentIndex].src;
+                                fnSetActionStatus();
+                            }
+                        };
+                        oPicViewer = PicViewer('#picViewer img', {
+                            next: next,
+                            prev: prev,
+                        });
+                        fnStopMove = function(evnet) {
+                            e.preventDefault();
+                        };
                         fnClickImg = function(event) {
                             var top, height, src;
                             event.preventDefault();
@@ -98,6 +121,7 @@ angular.module('xxt', ["ngSanitize"]).controller('ctrl', ['$scope', '$http', '$t
                             eViewer.querySelector('img').src = src;
                             oPicViewer.fresh();
                             fnSetActionStatus();
+                            document.body.addEventListener('touchmove', fnStopMove, false);
                         };
                         fnSetActionStatus = function() {
                             if (currentIndex === 0) {
@@ -114,29 +138,19 @@ angular.module('xxt', ["ngSanitize"]).controller('ctrl', ['$scope', '$http', '$t
                         };
                         ePrev.addEventListener('click', function(e) {
                             e.preventDefault();
-                            if (currentIndex > 0) {
-                                currentIndex--;
-                                eViewer.querySelector('img').src = aImgs[currentIndex].src;
-                                fnSetActionStatus();
-                            }
+                            prev();
                             return false;
                         }, false);
                         eNext.addEventListener('click', function(e) {
                             e.preventDefault();
-                            if (currentIndex < aImgs.length - 1) {
-                                currentIndex++;
-                                eViewer.querySelector('img').src = aImgs[currentIndex].src;
-                                fnSetActionStatus();
-                            }
+                            next();
                             return false;
                         }, false);
                         eCloser.addEventListener('click', function(e) {
                             eViewer.style.display = 'none';
                             document.body.style.overflow = 'auto';
+                            document.body.removeEventListener('touchmove', fnStopMove, false);
                             return false;
-                        }, false);
-                        eViewer.addEventListener('touchmove', function(e) {
-                            e.preventDefault();
                         }, false);
                         var img, i, l, indicator;
                         for (i = 0, l = eImgs.length; i < l; i++) {
@@ -160,7 +174,7 @@ angular.module('xxt', ["ngSanitize"]).controller('ctrl', ['$scope', '$http', '$t
                         });
                     })();
                 };
-                body.appendChild(hm);
+                body.appendChild(js);
             }
         }).error(function(content, httpCode) {
             if (httpCode === 401) {

@@ -100,13 +100,15 @@ angular.module('xxt', ["ngSanitize"]).controller('ctrl', ['$scope', '$http', '$t
                                 fnSetActionStatus();
                             }
                         };
+
+                        function fnStopMove(e) {
+                            e.preventDefault();
+                        };
                         oPicViewer = PicViewer('#picViewer img', {
                             next: next,
                             prev: prev,
                         });
-                        fnStopMove = function(evnet) {
-                            e.preventDefault();
-                        };
+
                         fnClickImg = function(event) {
                             var top, height, src;
                             event.preventDefault();

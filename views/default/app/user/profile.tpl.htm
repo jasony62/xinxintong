@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html class='ng-cloak' ng-cloak ng-app='app' ng-controller='userCtrl'>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
+        <title ng-bind="'主页'"></title>
+        <link href="http://libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link href="http://libs.useso.com/js/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
+        <link href="/views/default/app/user/profile.css?_=1" rel="stylesheet">
+    </head>
+    <body>
+        <div class='container'>
+            <div class='row'>
+                <div id='main'>
+                    <div id='avatar' ng-style='user._styleAvatar'></div>
+                    <div>
+                        <div id='nickname' ng-bind="user.nickname"></div>
+                        </div>
+                </div>
+                <div id='stat'>
+                    <div id='read'>阅读<span ng-bind="user.fan.read_num"></span></div>
+                    <div id='shareFriend'>分享好友<span ng-bind="user.fan.share_friend_num"></span></div>
+                    <div id='shareTimeline'>分享朋友圈<span ng-bind="user.fan.share_timeline_num"></span></div>
+                </div>
+                <div id='track'>
+                    <div><span>我阅读过的文章（{{stat.article.read_num}}）</span><i class='fa fa-chevron-right'></i></div>
+                    <div><span>我收藏过的文章（{{stat.article.like_num}}）</span><i class='fa fa-chevron-right'></i></div>
+                    <div><span>我评论过的文章（{{stat.article.remark_num}}）</span><i class='fa fa-chevron-right'></i></div>
+                </div>
+            </div>
+        </div>
+        <script src="/static/js/angular.min.js"></script>
+        <script src="/static/js/angular-sanitize.min.js "></script>
+        <script src="/static/js/xxt.share.js?_=1"></script>
+        <script type="text/javascript">
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+        var mpid = location.search.match(/mpid=([^&]*)/)[1];
+        document.write("<script src='http:\/\/res.wx.qq.com\/open\/js\/jweixin-1.0.0.js'><\/script>");
+        document.write("<script src='\/rest\/mi\/matter\/wxjssdksignpackage?mpid="+mpid+"rl="+encodeURIComponent(location.href.split('#')[0])+"'><\/script>");
+        }
+        </script>
+        <script src="/views/default/app/user/profile.js?_=1"></script>
+        </script>
+    </body>
+</html>

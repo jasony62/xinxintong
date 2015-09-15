@@ -26,7 +26,7 @@ class wall extends \member_base {
 	 * 2、所有的组
 	 */
 	public function index_action($mpid, $wid = null, $mocker = '', $code = null) {
-		$openid = doAuth($mpid, $code, $mocker);
+		$openid = $this->doAuth($mpid, $code, $mocker);
 		$this->afterOAuth($mpid, $wid, $openid);
 	}
 	/**

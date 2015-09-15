@@ -59,7 +59,7 @@
                         <span id='score' ng-bind='article.score'></span>
                     </span>
                 </div>
-                <div id='tag'>
+                <div id='tag' ng-if="article.channels.length||article.tags.length">
                     <span ng-repeat="c in article.channels" ng-click="openChannel(c)">{{c.title}}</span>
                     <span ng-repeat="t in article.tags" ng-click="searchByTag(t)">{{t.title}}</span>
                 </div>

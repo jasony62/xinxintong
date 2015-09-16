@@ -140,8 +140,8 @@ class log_model extends TMS_MODEL {
 
 		// 日志汇总
 		$this->writeUserAction($mpid, $user, $current, 'R', $logid);
-
 		$this->writeMatterAction($mpid, $matter, $current, 'R', $logid);
+		$this->writeUserMatterAction($mpid, $user, $matter, $current, 'R');
 
 		return $logid;
 	}
@@ -332,6 +332,58 @@ class log_model extends TMS_MODEL {
 					break;
 				}
 			}
+		}
+
+		return true;
+	}
+	/**
+	 * 用户行为汇总日志
+	 * 为了便于进行数据统计
+	 */
+	private function writeUserMatterAction($mpid, $user, $matter, $action_at, $action_name) {
+		$q = array(
+			'id',
+			'xxt_log_user_matter',
+			"mpid='$mpid' and openid='$user->openid' and matter_id='$matter->id' and matter_type='$matter->type'",
+		);
+		$lastid = $this->query_val_ss($q);
+		if ($lastid) {
+			switch ($action_name) {
+			case 'R':
+				$this->update("update xxt_log_user_matter set read_num=read_num+1 where id=$lastid");
+				break;
+			case 'SF':
+				$this->update("update xxt_log_user_matter set share_friend_num=share_friend_num+1 where id=$lastid");
+				break;
+			case 'ST':
+				$this->update("update xxt_log_user_matter set share_timeline_num=share_timeline_num+1 where id=$lastid");
+				break;
+			default:
+				die('invalid parameter!');
+			}
+		} else {
+			$log = array();
+			$log['mpid'] = $mpid;
+			$log['openid'] = $user->openid;
+			$log['nickname'] = $user->nickname;
+			$log['matter_id'] = $matter->id;
+			$log['matter_type'] = $matter->type;
+			$log['matter_title'] = $matter->title;
+			$log['last_action_at'] = $action_at;
+			switch ($action_name) {
+			case 'R':
+				$log['read_num'] = 1;
+				break;
+			case 'SF':
+				$log['share_friend_num'] = 1;
+				break;
+			case 'ST':
+				$log['share_timeline_num'] = 1;
+				break;
+			default:
+				die('invalid parameter!');
+			}
+			$this->insert('xxt_log_user_matter', $log, false);
 		}
 
 		return true;

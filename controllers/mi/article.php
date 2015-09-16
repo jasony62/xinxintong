@@ -49,7 +49,7 @@ class article extends \member_base {
 		}
 
 		$article->remarks = $article->remark_num > 0 ? $modelArticle->remarks($id) : false;
-		$article->praised = $modelArticle->praised($user->vid, $id);
+		$article->praised = $modelArticle->praised($user, $id);
 		$article->channels = $this->model('matter\channel')->byMatter($id, 'article');
 		$article->tags = $modelArticle->tags($id);
 		if ($article->has_attachment === 'Y') {
@@ -98,43 +98,34 @@ class article extends \member_base {
 	 * $mpid
 	 * $id article's id.
 	 * $scope 分数
-	 * $once 只允许投一次
 	 */
-	public function score_action($mpid, $id, $score = 1, $once = 'Y') {
-		/**
-		 * 因为打开的文章的不一定是粉丝或者认证用户，但是一定是访客，所以记录访客ID
-		 */
-		if ($once === 'Y') {
-			$vid = $this->getVisitorId($mpid);
-			if ($this->model('matter\article')->praised($vid, $id)) {
-				/**
-				 * 点了赞，再次点击，取消赞
-				 */
-				$this->model()->delete('xxt_article_score', "article_id='$id' and vid='$vid'");
-				$this->model()->update("update xxt_article set score=score-$score where id='$id'");
-				$praised = false;
-			} else {
-				/**
-				 * 点赞
-				 */
-				$i = array(
-					'vid' => $vid,
-					'article_id' => $id,
-					'create_at' => time(),
-					'score' => $score,
-				);
-				$this->model()->insert('xxt_article_score', $i);
-				$this->model()->update("update xxt_article set score=score+$score where id='$id'");
-				$praised = true;
-			}
+	public function score_action($mpid, $id, $score = 1) {
+		$modelArt = $this->model('matter\article');
+		$article = $modelArt->byId($id, 'title,score');
+		$user = $this->getUser($mpid);
+		if ($modelArt->praised($user, $id)) {
+			/* 点了赞，再次点击，取消赞 */
+			$this->model()->delete('xxt_article_score', "article_id='$id' and vid='$user->vid'");
+			$this->model()->update("update xxt_article set score=score-$score where id='$id'");
+			$praised = false;
+			$article->score--;
 		} else {
+			/* 点赞 */
+			$log = array(
+				'mpid' => $mpid,
+				'vid' => $user->vid,
+				'openid' => $user->openid,
+				'nickname' => $user->nickname,
+				'article_id' => $id,
+				'article_title' => $article->title,
+				'create_at' => time(),
+				'score' => $score,
+			);
+			$this->model()->insert('xxt_article_score', $log);
 			$this->model()->update("update xxt_article set score=score+$score where id='$id'");
 			$praised = true;
+			$article->score++;
 		}
-		/**
-		 * 获得点赞的总数
-		 */
-		$article = $this->model('matter\article')->byId($id, 'score');
 
 		return new \ResponseData(array($article->score, $praised));
 	}
@@ -164,22 +155,24 @@ class article extends \member_base {
 			return new \ResponseError('无法获得用户标识，不允许发布评论');
 		}
 
+		$modelArticle = $this->model('matter\article');
+		$art = $modelArticle->byId($id, 'title,creater,creater_src,remark_notice,remark_notice_all');
 		/**
 		 * 插入一条新评论
 		 */
 		$i = array(
+			'mpid' => $mpid,
 			'fid' => $user->fan->fid,
 			'openid' => $user->openid,
-			'nickname' => $user->fan->nickname,
+			'nickname' => $user->nickname,
 			'article_id' => $id,
+			'article_title' => $art->title,
 			'create_at' => time(),
 			'remark' => $this->model()->escape($posted->remark),
 		);
 		$remarkId = $this->model()->insert('xxt_article_remark', $i, true);
 
 		$this->model()->update("update xxt_article set remark_num=remark_num+1 where id='$id'");
-
-		$modelArticle = $this->model('matter\article');
 		/**
 		 * 获得完整的评论数据
 		 */
@@ -188,18 +181,17 @@ class article extends \member_base {
 		 * 是否为投稿文章，投稿人是否要接收评论？？？
 		 */
 		$receivers = array();
-		$a = $modelArticle->byId($id, 'title,creater,creater_src,remark_notice,remark_notice_all');
-		if ($a->creater_src === 'F' && $a->remark_notice === 'Y' && $a->creater !== $user->fan->fid) {
+		if ($art->creater_src === 'F' && $art->remark_notice === 'Y' && $art->creater !== $user->fan->fid) {
 			/**
 			 * 投稿人接收评论提醒
 			 */
-			$creater = $this->model('user/fans')->byId($a->creater);
+			$creater = $this->model('user/fans')->byId($art->creater);
 			$receivers[] = $creater->openid;
 		}
 		/**
 		 * 通知指定的评论接收人
 		 */
-		if ($a->remark_notice_all === 'Y') {
+		if ($art->remark_notice_all === 'Y') {
 			/**
 			 * 获得所有发表过评论的人
 			 */

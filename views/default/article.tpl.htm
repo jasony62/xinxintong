@@ -4,7 +4,7 @@
     <head>
         <meta charset="utf-8">
         <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
-        <base href="/" />
+        <base href="." />
         <title ng-bind="article.title||'文章'"></title>
         <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
         <link href="//libs.useso.com/js/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
@@ -67,7 +67,6 @@
                     <h5>评论
                         <span ng-if='article.remark_num' ng-bind="'（' + article.remark_num + '）'"></span>
                     </h5>
-                    <a id='gotoRemarksHeader' href='#remark'></a>
                     <ul class='list-group' ng-hide="mode==='preview'">
                         <li class='list-group-item' ng-repeat="r in article.remarks" ng-click='reply(r)'>
                             <div class='content' ng-bind="r.remark"></div>
@@ -77,7 +76,6 @@
                             </div>
                         </li>
                     </ul>
-                    <a id='gotoNewRemark' href='#newRemark'></a>
                     <textarea id='newRemark' rows='4' class='form-control' ng-disabled="mode==='preview'" ng-model="newRemark"></textarea>
                     <button class='btn btn-primary pull-right' ng-disabled="mode==='preview'" ng-click='remark()'>发表评论</button>
                 </div>

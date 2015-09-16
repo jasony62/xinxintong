@@ -143,14 +143,28 @@ class article_model extends article_base {
 	/**
 	 * 当前访问用户是否已经点了赞
 	 */
-	public function praised($vid, $article_id) {
+	public function praised($user, $article_id) {
 		$q = array(
-			'score',
+			'id,score,openid,nickname',
 			'xxt_article_score',
-			"article_id='$article_id' and vid='$vid'",
+			"article_id='$article_id' and vid='$user->vid'",
 		);
-
-		return 1 === (int) $this->query_val_ss($q);
+		$log = $this->query_obj_ss($q);
+		if ($log) {
+			$updated = array();
+			if (empty($log->openid) && !empty($user->openid)) {
+				$updated['openid'] = $user->openid;
+			}
+			if (empty($log->nickname) && !empty($user->nickname)) {
+				$updated['nickname'] = $user->nickname;
+			}
+			if (!empty($updated)) {
+				$this->update('xxt_article_score', $updated, "id=$log->id");
+			}
+			return 1 === (int) $log->score;
+		} else {
+			return false;
+		}
 	}
 	/**
 	 * 文章评论

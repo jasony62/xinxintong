@@ -165,24 +165,8 @@ class matter extends \member_base {
 
 		$posted = $this->getPostJson();
 		$user = $this->getUser($mpid);
-		$logUser = new \stdClass;
-		$logUser->vid = $user->vid;
-		$logUser->openid = $user->openid;
-		$logUser->nickname = $user->nickname;
 
-		$logMatter = new \stdClass;
-		$logMatter->id = $id;
-		$logMatter->type = $type;
-		$logMatter->title = $title;
-
-		$logClient = new \stdClass;
-		$logClient->agent = $_SERVER['HTTP_USER_AGENT'];
-		$logClient->ip = $this->client_ip();
-
-		$search = isset($posted->search) ? $posted->search : '';
-		$referer = isset($posted->referer) ? $posted->referer : '';
-
-		$this->model('log')->writeMatterRead($mpid, $logUser, $logMatter, $logClient, $shareby, $search, $referer);
+		$this->logRead($mpid, $user, $id, $type, $title, $shareby = '');
 
 		return new \ResponseData('ok');
 	}
@@ -220,7 +204,6 @@ class matter extends \member_base {
 			} else if ($shareto === 'T') {
 				$this->model()->update("update $table set share_timeline_num=share_timeline_num+1 where id='$id'");
 			}
-
 		}
 
 		$user = $this->getUser($mpid, array('verbose' => array('fan' => 'Y')));

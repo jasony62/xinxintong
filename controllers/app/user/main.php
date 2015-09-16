@@ -31,11 +31,32 @@ class main extends \member_base {
 
 		$user = $this->getUser($mpid, array('verbose' => array('fan' => 'Y', 'member' => 'Y')));
 
+		$q = array(
+			'count(*)',
+			'xxt_log_user_matter',
+			"mpid='$mpid' and matter_type='article' and openid='$user->openid'",
+		);
+		$articleReadNum = $this->model()->query_val_ss($q);
+
+		$q = array(
+			'count(*)',
+			'xxt_article_score',
+			"mpid='$mpid' and vid='$user->vid'",
+		);
+		$articleLikeNum = $this->model()->query_val_ss($q);
+
+		$q = array(
+			'count(distinct article_id)',
+			'xxt_article_remark',
+			"mpid='$mpid' and openid='$user->openid'",
+		);
+		$articleRemarkNum = $this->model()->query_val_ss($q);
+
 		$stat = new \stdClass;
 		$article = new \stdClass;
-		$article->read_num = 1;
-		$article->like_num = 2;
-		$article->remark_num = 3;
+		$article->read_num = $articleReadNum;
+		$article->like_num = $articleLikeNum;
+		$article->remark_num = $articleRemarkNum;
 		$stat->article = &$article;
 
 		$result->user = &$user;

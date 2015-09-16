@@ -245,9 +245,6 @@ angular.module('xxt', ["ngSanitize"]).controller('ctrl', ['$scope', '$http', '$t
             };
             $scope.newRemark = '';
             $scope.article.remarks === false ? $scope.article.remarks = [rsp.data] : $scope.article.remarks.splice(0, 0, rsp.data);
-            $timeout(function() {
-                document.querySelector('#gotoRemarksHeader').click();
-            });
         });
     };
     $scope.reply = function(remark) {

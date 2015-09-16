@@ -41,7 +41,6 @@ class TMS_DB {
 			$sql .= '` (' . implode(', ', array_keys($insert_data));
 			$sql .= ') VALUES (' . implode(', ', $insert_data) . ')';
 		}
-
 		global $mysqli_w;
 
 		($mysqli_w->query($sql)) || $this->show_error('database error:' . $sql . ';' . $mysqli_w->error);
@@ -57,8 +56,6 @@ class TMS_DB {
 	 *
 	 */
 	public function update($table, $data = null, $where = '') {
-		global $mysqli_w;
-
 		if (stripos($table, 'update') === 0) {
 			$sql = $table;
 		} else {
@@ -72,6 +69,7 @@ class TMS_DB {
 			$sql .= '` SET ' . implode(', ', $update_string);
 			$sql .= ' WHERE ' . $where;
 		}
+		global $mysqli_w;
 
 		if (!$mysqli_w->query($sql)) {
 			throw new Exception("database error(update $table):" . $sql . ';' . $mysqli_w->error);

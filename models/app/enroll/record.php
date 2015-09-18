@@ -84,7 +84,7 @@ class record_model extends \TMS_MODEL {
 				$kw && $w .= " and mobile like '%$kw%'";
 				break;
 			case 'nickname':
-				$kw && $w .= " and nickname like '%$kw%'";
+				$kw && $w .= " and f.nickname like '%$kw%'";
 				break;
 			}
 		}

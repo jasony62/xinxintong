@@ -33,6 +33,20 @@ xxtApp.config(['$routeProvider', function($rp) {
     }).when('/rest/mp/app/merchant/group', {
         templateUrl: '/views/default/mp/app/merchant/group.html',
         controller: 'groupCtrl'
+    }).when('/rest/mp/app/merchant/page', {
+        templateUrl: '/views/default/mp/app/merchant/page.html',
+        controller: 'pageCtrl',
+        resolve: {
+            load: function($q) {
+                var defer = $q.defer();
+                (function() {
+                    $.getScript('/views/default/mp/app/merchant/page.js?_=1', function() {
+                        defer.resolve();
+                    });
+                })();
+                return defer.promise;
+            }
+        }
     }).when('/rest/mp/app/merchant/order', {
         templateUrl: '/views/default/mp/app/merchant/order.html',
         controller: 'orderCtrl'
@@ -57,7 +71,7 @@ xxtApp.controller('settingCtrl', ['$scope', 'http2', function($scope, http2) {
     };
     http2.get('/rest/mp/app/merchant/shop/get?id=' + $scope.shopId, function(rsp) {
         $scope.editing = rsp.data;
-        $scope.editing.canSetSupporter = 'Y';  
+        $scope.editing.canSetSupporter = 'Y';
     });
 }]);
 xxtApp.controller('groupCtrl', ['$scope', 'http2', function($scope, http2) {

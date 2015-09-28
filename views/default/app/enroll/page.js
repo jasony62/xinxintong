@@ -217,7 +217,7 @@ app.factory('Schema', ['$http', '$q', function($http, $q) {
     };
     return Schema;
 }]);
-app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 'Statistic', function($scope, $http, $timeout, $q, Round, Record, Statistic) {
+app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 'Statistic', 'Schema', function($scope, $http, $timeout, $q, Round, Record, Statistic, Schema) {
     var LS = (function() {
         function locationSearch() {
             var ls, search;
@@ -612,9 +612,9 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 
         location.replace(url);
     };
     $scope.addRecord = function(event) {
-        var first;
-        if (page === undefined && (first = PG.firstInput()))
-            page = first.name;
+        var first, page;
+        first = PG.firstInput();
+        page = first.name;
         page ? $scope.gotoPage(event, page) : alert('当前活动没有包含数据登记页');
     };
     $scope.editRecord = function(event, page) {
@@ -672,6 +672,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 
             tasksOfOnReady.push(task);
         }
     };
+    (new Schema()).get().then(function(data) {});
     $http.get(LS.j('get', 'mpid', 'aid', 'rid', 'page', 'ek')).success(function(rsp) {
         if (rsp.err_code !== 0) {
             $scope.errmsg = rsp.err_msg;

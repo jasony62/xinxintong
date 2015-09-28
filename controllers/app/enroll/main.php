@@ -145,7 +145,8 @@ class main extends base {
 		/**
 		 * 页面
 		 */
-		empty($page) && $page = $this->defaultPage($mpid, $act, $user, false);
+		$hasEnrolled = $modelApp->hasEnrolled($mpid, $act->id, $user->openid);
+		empty($page) && $page = $this->defaultPage($mpid, $act, $user, $hasEnrolled);
 		foreach ($act->pages as $p) {
 			if ($p->name === $page) {
 				$oPage = $p;
@@ -157,7 +158,6 @@ class main extends base {
 		}
 		$params['page'] = $oPage;
 		/* 自动登记 */
-		$hasEnrolled = $modelApp->hasEnrolled($mpid, $act->id, $user->openid);
 		if (!$hasEnrolled && $act->can_autoenroll === 'Y' && $oPage->autoenroll_onenter === 'Y') {
 			$modelRec = $this->model('app\enroll\record');
 			$modelRec->add($mpid, $act, $user, (empty($posted->referrer) ? '' : $posted->referrer));
@@ -166,14 +166,16 @@ class main extends base {
 		 * 设置页面登记数据
 		 */
 		$newForm = false;
-		if ($oPage->type === 'I') {
-			if ($act->open_lastroll === 'N' && empty($ek)) {
+		if ($oPage->type === 'I' && empty($ek)) {
+			if ($act->open_lastroll === 'N' || (!empty($page) && $page === $oPage->name)) {
 				$newForm = true;
 			}
 		}
 		list($openedek, $record, $statdata) = $this->getRecord($mpid, $act, $rid, $ek, $user->openid, $page, $newForm);
-		$params['enrollKey'] = $openedek;
-		$params['record'] = $record;
+		if ($newForm === false) {
+			$params['enrollKey'] = $openedek;
+			$params['record'] = $record;
+		}
 		$params['statdata'] = $statdata;
 
 		return new \ResponseData($params);

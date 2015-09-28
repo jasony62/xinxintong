@@ -102,9 +102,14 @@ class record_model extends \TMS_MODEL {
 				$w,
 			);
 		} else {
+			/*$q = array(
+			'e.enroll_key,e.enroll_at,e.signin_at,e.tags,e.follower_num,e.score,s.score myscore,e.remark_num,f.fid,f.nickname,f.openid,f.headimgurl',
+			"xxt_enroll_record e left join xxt_fans f on e.mpid=f.mpid and e.openid=f.openid left join xxt_enroll_record_score s on s.enroll_key=e.enroll_key and s.openid='$visitor'",
+			$w,
+			);*/
 			$q = array(
-				'e.enroll_key,e.enroll_at,e.signin_at,e.tags,e.follower_num,e.score,s.score myscore,e.remark_num,f.fid,f.nickname,f.openid,f.headimgurl',
-				"xxt_enroll_record e left join xxt_fans f on e.mpid=f.mpid and e.openid=f.openid left join xxt_enroll_record_score s on s.enroll_key=e.enroll_key and s.openid='$visitor'",
+				'e.enroll_key,e.enroll_at,e.signin_at,e.tags,e.follower_num,e.score,e.remark_num,f.fid,f.nickname,f.openid,f.headimgurl',
+				"xxt_enroll_record e left join xxt_fans f on e.mpid=f.mpid and e.openid=f.openid",
 				$w,
 			);
 		}

@@ -23,7 +23,7 @@ class browser extends uploader {
 
         if (isset($this->post['dir'])) {
             $dir = $this->checkInputDir($this->post['dir'], true, false);
-            if ($dir === false) unset($this->post['dir']);
+            if ($dir === false) unset($this->post['dir']);f
             $this->post['dir'] = $dir;
         }
 

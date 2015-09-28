@@ -108,6 +108,10 @@ class product_model extends \TMS_MODEL {
 		}
 		$cascaded->propValue2 = $propValue2;
 		/**
+		 *
+		 */
+		$catelog->orderProperties = $cateCascaded->orderProperties;
+		/**
 		 * sku
 		 */
 		$q = array(

@@ -3,10 +3,10 @@ app.controller('merchantCtrl', ['$scope', '$http', function($scope, $http) {
 	var search, mpid, productid, orderid;
 	search = location.search;
 	mpid = search.match(/[\?&]mpid=(.+?)(&|$)/)[1];
-	productid = search.match(/[\?&]product=(.+?)(&|$)/)[1];
+	productid = search.match(/[\?&]product=(.+?)(&|$)/) ? search.match(/[\?&]product=(.+?)(&|$)/)[1] : '';
 	orderid = search.match(/[\?&]order=(.+?)(&|$)/) ? search.match(/[\?&]order=(.+?)(&|$)/)[1] : '';
 	$scope.orderInfo = {
-		product_count: 1
+		product_count: 1,
 	};
 	$scope.buy = function() {
 		if (!$scope.orderInfo.receiver_name) {
@@ -46,6 +46,7 @@ app.controller('merchantCtrl', ['$scope', '$http', function($scope, $http) {
 				alert(rsp.err_msg);
 				return;
 			}
+			$scope.orderInfo.extPropValues = JSON.parse(rsp.data.ext_prop_value);
 			$scope.orderInfo.receiver_name = rsp.data.receiver_name;
 			$scope.orderInfo.receiver_mobile = rsp.data.receiver_mobile;
 			productGet(rsp.data.product_id);

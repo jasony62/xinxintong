@@ -28,6 +28,22 @@
                 </li>
             </ul>
         </div>
+        <div class='form-group'>
+            <div>
+                <label>定单属性</label>
+                <button class='btn btn-default btn-xs' ng-click="addOrderProp()">
+                    <span class='glyphicon glyphicon-plus'></span>
+                </button>
+            </div>
+            <ul class='list-group'>
+                <li class='list-group-item' ng-repeat='p in editing.orderProperties'>
+                    <span ng-bind='p.name'></span>
+                    <button class='btn btn-default btn-xs pull-right' ng-click="editOrderProp(p, $index)">
+                        <span class='glyphicon glyphicon-edit'></span>
+                    </button>
+                </li>
+            </ul>
+        </div>
     </div>
     <script type="text/ng-template" id="propEditor.html">
         <div class="modal-header">

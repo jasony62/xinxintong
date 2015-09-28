@@ -20,13 +20,9 @@
         </div>
     </div>
     <div id='customer'>
-        <div class='form-group'>
-            <label>患者姓名</label>
-            <input type='text' class='form-control input-lg'>
-        </div>
-        <div class='form-group'>
-            <label>患者身份证</label>
-            <input type='text' class='form-control input-lg'>
+        <div class='form-group prop' ng-repeat='p in catelog.orderProperties'>
+            <label ng-bind='p.name'></label>
+            <input type='text' class='form-control input-lg' ng-model='orderInfo.extPropValues[p.id]'>
         </div>
     </div>
     <div id='customer'>

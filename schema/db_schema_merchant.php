@@ -23,13 +23,13 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 登记信息通知接收人
+ * 客服人员
  */
 $sql = "create table if not exists xxt_merchant_staff(";
 $sql .= 'id int not null auto_increment';
 $sql .= ',mpid varchar(32) not null';
-$sql .= ',shopid varchar(40) not null'; // contribute's id
-$sql .= ',role char(1) not null'; // Initiator|Reviewer|Typesetter
+$sql .= ',shopid varchar(40) not null';
+$sql .= ',role char(1) not null';
 $sql .= ',identity varchar(100) not null';
 $sql .= ",idsrc char(2) not null default ''";
 $sql .= ",label varchar(255) not null default ''";

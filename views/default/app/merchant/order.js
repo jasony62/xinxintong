@@ -10,11 +10,11 @@ app.controller('merchantCtrl', ['$scope', '$http', function($scope, $http) {
 	};
 	$scope.buy = function() {
 		if (!$scope.orderInfo.receiver_name) {
-			alert('请填写姓名');
+			alert('请填写联系人姓名');
 			return;
 		}
 		if (!$scope.orderInfo.receiver_mobile) {
-			alert('请填写电话');
+			alert('请填写联系人电话');
 			return;
 		}
 		$http.post('/rest/app/merchant/order/buy?mpid=' + mpid + '&sku=' + $scope.sku.id, $scope.orderInfo).success(function(rsp) {

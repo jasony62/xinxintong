@@ -392,6 +392,7 @@ class browser_alioss extends browser {
 
 		return $dirs;
 	}
+
 	protected function getDirInfo($dir, $removable = false, $skipEncoding = false) {
 		$info = array(
 			'name' => stripslashes($this->my_basename($dir)),

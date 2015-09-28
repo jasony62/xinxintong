@@ -1,0 +1,13 @@
+<div ng-app='app' ng-controller='productCtrl' class='container-fluid'>
+	<div class='row'>
+		<div class='col-xs-6' ng-repeat='p in products'>
+			<div class='thumbnail' ng-click='gotoOrder(p)'>
+				<div class='profile'>
+					<div class='product-img'><img ng-src='{{p.main_img}}'></div>
+					<div class='product-name' ng-bind='p.name'></div>
+				</div>
+				<div class='product-detail_text' ng-bind='p.detail_text'></div>
+			</div>
+		</div>
+	</div>
+</div>

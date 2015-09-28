@@ -1,6 +1,9 @@
 xxtApp.controller('productCtrl', ['$scope', '$location', '$modal', 'http2', function($scope, $location, $modal, http2) {
     $scope.shopId = $location.search().shopId;
     $scope.id = $location.search().id;
+    http2.get('/rest/mp/mpaccount/get', function(rsp) {
+        $scope.mpaccount = rsp.data;
+    });
     http2.get('/rest/mp/app/merchant/product/get?id=' + $scope.id, function(rsp) {
         $scope.editing = rsp.data;
     });
@@ -8,6 +11,19 @@ xxtApp.controller('productCtrl', ['$scope', '$location', '$modal', 'http2', func
         var nv = {};
         nv[name] = $scope.editing[name];
         http2.post('/rest/mp/app/merchant/product/update?id=' + $scope.editing.id, nv, function(rsp) {});
+    };
+    $scope.setPic = function() {
+        var options = {
+            callback: function(url) {
+                $scope.editing.main_img = url + '?_=' + (new Date()) * 1;
+                $scope.update('main_img');
+            }
+        };
+        $scope.$broadcast('mediagallery.open', options);
+    };
+    $scope.removePic = function() {
+        $scope.editing.main_img = '';
+        $scope.update('main_img');
     };
     $scope.setPropValue = function(prop) {
         $modal.open({

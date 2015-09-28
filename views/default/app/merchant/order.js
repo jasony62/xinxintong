@@ -1,11 +1,10 @@
 var app = angular.module('app', []);
-app.config(['$locationProvider', function($locationProvider) {
-	$locationProvider.html5Mode(true);
-}]);
-app.controller('merchantCtrl', ['$scope', '$http', '$location', function($scope, $http, $location) {
-	var mpid = $location.search().mpid,
-		productId = $location.search().product,
-		orderId = $location.search().order;
+app.controller('merchantCtrl', ['$scope', '$http', function($scope, $http) {
+	var search, mpid, productid, orderid;
+	search = location.search;
+	mpid = search.match(/[\?&]mpid=(.+?)(&|$)/)[1];
+	productid = search.match(/[\?&]product=(.+?)(&|$)/)[1];
+	orderid = search.match(/[\?&]order=(.+?)(&|$)/) ? search.match(/[\?&]order=(.+?)(&|$)/)[1] : '';
 	$scope.orderInfo = {
 		product_count: 1
 	};
@@ -23,7 +22,7 @@ app.controller('merchantCtrl', ['$scope', '$http', '$location', function($scope,
 				alert(rsp.err_msg);
 				return;
 			}
-			alert('提交成功');
+			location.href = '/rest/app/merchant/pay?mpid=' + mpid + '&order=' + rsp.data;
 		});
 	};
 	var productGet = function(id) {
@@ -39,10 +38,10 @@ app.controller('merchantCtrl', ['$scope', '$http', '$location', function($scope,
 			$scope.propValues = rsp.data.propValue2;
 		});
 	};
-	if (productId) {
-		productGet(productId);
-	} else if (orderId) {
-		$http.get('/rest/app/merchant/order/get?mpid=' + mpid + '&order=' + orderId).success(function(rsp) {
+	if (productid) {
+		productGet(productid);
+	} else if (orderid) {
+		$http.get('/rest/app/merchant/order/get?mpid=' + mpid + '&order=' + orderid).success(function(rsp) {
 			if (rsp.err_code !== 0) {
 				alert(rsp.err_msg);
 				return;

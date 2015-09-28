@@ -80,7 +80,7 @@ class order extends \member_base {
 
 		$this->notify($mpid, $order);
 
-		return new \ResponseData('ok');
+		return new \ResponseData($order->id);
 	}
 	/**
 	 * 通知客服有新订单

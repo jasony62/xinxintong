@@ -128,6 +128,40 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', function($scope, $mo
             });
         }
     };
+    $scope.selectTemplate = function() {
+        $modal.open({
+            templateUrl: 'templateShop.html',
+            controller: ['$modalInstance', '$scope', function($mi, $scope2) {
+                $scope2.data = {
+                    choose: -1
+                };
+                http2.get('/rest/shop/shelf/list?mattertype=article', function(rsp) {
+                    $scope2.templates = rsp.data;
+                });
+                $scope2.cancel = function() {
+                    $mi.dismiss()
+                };
+                $scope2.ok = function() {
+                    if ($scope2.templates.length && $scope2.data.choose >= 0) {
+                        $mi.close($scope2.templates[$scope2.data.choose]);
+                    } else {
+                        $mi.dismiss();
+                    }
+                };
+            }],
+            backdrop: 'static',
+        }).result.then(function(data) {
+            http2.get('/rest/mp/matter/article/pageByTemplate?id=' + $scope.editing.id + '&template=' + data.id, function(rsp) {
+                $scope.editing.page_id = rsp.data.id;
+                location.href = '/rest/code?pid=' + rsp.data.id;
+            });
+        });
+    };
+    $scope.saveAsTemplate = function() {
+        http2.get('/rest/mp/matter/article/saveAsTemplate?id=' + $scope.editing.id, function(rsp) {
+
+        });
+    };
     $scope.embedMatter = function() {
         $scope.$broadcast('mattersgallery.open', function(matters, type) {
             var editor, dom, i, matter, mtype, fn;

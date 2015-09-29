@@ -96,6 +96,8 @@
             <label class='col-md-2 control-label'>正文</label>
             <div class='col-md-10'>
                 <button class='btn btn-success' ng-click='gotoCode()'>编辑页面</button>
+                <button class='btn btn-success' ng-click='selectTemplate()'>选择模板</button>
+                <button class='btn btn-success' ng-click='saveAsTemplate()'>作为模板</button>
                 <label class='checkbox-inline'>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.custom_body' ng-change="update('custom_body');">定制页面</label>
             </div>
@@ -176,6 +178,20 @@
             <div class="form-group">
                 <label>地址（URL）</label>
                 <textarea class="form-control" ng-model='data.url' rows=6></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" ng-click="ok()">确定</button>
+        </div>
+    </script>
+    <script type="text/ng-template" id="templateShop.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title">模板</h5>
+        </div>
+        <div class="modal-body">
+            <div class='list-group' ng-repeat='t in templates'>
+                <div class='list-group-item'><input type='radio' value='{{$index}}' ng-model='data.choose' ng-change='choose(t)'><div ng-bind='t.title'></div></div>
             </div>
         </div>
         <div class="modal-footer">

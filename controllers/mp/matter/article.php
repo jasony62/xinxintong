@@ -718,6 +718,36 @@ class article extends matter_ctrl {
 	/**
 	 *
 	 */
+	public function saveAsTemplate_action($id) {
+		$account = \TMS_CLIENT::account();
+		if ($account === false) {
+			return new \ResponseError('长时间未操作，请重新登陆！');
+		}
+		$current = time();
+		$uid = \TMS_CLIENT::get_client_uid();
+		$uname = $account->nickname;
+		$modelArt = $this->model('matter\article');
+		$article = $modelArt->byId($id);
+
+		$template = array(
+			'creater' => $uid,
+			'creater_name' => $uname,
+			'put_at' => $current,
+			'mpid' => $this->mpid,
+			'matter_type' => 'article',
+			'matter_id' => $id,
+			'title' => $article->title,
+			'summary' => $article->summary,
+			'pic' => $article->pic,
+		);
+
+		$modelArt->insert('xxt_shop_matter', $template, false);
+
+		return new \ResponseData('ok');
+	}
+	/**
+	 *
+	 */
 	protected function getMatterType() {
 		return 'article';
 	}

@@ -47,7 +47,6 @@ class article extends \member_base {
 		if (isset($article->access_control) && $article->access_control === 'Y') {
 			$this->accessControl($mpid, $id, $article->authapis, $user->openid, $article, false);
 		}
-
 		$article->remarks = $article->remark_num > 0 ? $modelArticle->remarks($id) : false;
 		$article->praised = $modelArticle->praised($user, $id);
 		$article->channels = $this->model('matter\channel')->byMatter($id, 'article');
@@ -61,10 +60,17 @@ class article extends \member_base {
 				)
 			);
 		}
-
+		/**
+		 * 定制页面内容
+		 */
+		if ($article->custom_body === 'Y' && $article->page_id) {
+			$article->page = $this->model('code/page')->byId($article->page_id);
+		}
 		$data['article'] = $article;
 		$data['user'] = $user;
-
+		/**
+		 * 公众号信息
+		 */
 		$mpaccount = $this->getMpSetting($mpid);
 		$user_agent = $_SERVER['HTTP_USER_AGENT'];
 		if (preg_match('/yixin/i', $user_agent)) {

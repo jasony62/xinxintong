@@ -177,6 +177,18 @@ class main extends base {
 			$params['record'] = $record;
 		}
 		$params['statdata'] = $statdata;
+		/**
+		 * 公众号信息
+		 */
+		$mpaccount = $this->getMpSetting($mpid);
+		$user_agent = $_SERVER['HTTP_USER_AGENT'];
+		if (preg_match('/yixin/i', $user_agent)) {
+			$modelMpa = $this->model('mp\mpaccount');
+			$mpa = $modelMpa->byId($mpid, 'yx_cardname,yx_cardid');
+			$mpaccount->yx_cardname = $mpa->yx_cardname;
+			$mpaccount->yx_cardid = $mpa->yx_cardid;
+		}
+		$params['mpaccount'] = $mpaccount;
 
 		return new \ResponseData($params);
 	}

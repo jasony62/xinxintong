@@ -62,12 +62,14 @@ class matter extends \member_base {
 		 */
 		switch ($type) {
 		case 'article':
-			if (isset($_GET['tpl']) && $_GET['tpl'] === 'std') {
-				\TPL::output('article');
+			if (isset($_GET['tpl']) && $_GET['tpl'] === 'cus') {
+				\TPL::output('custom');
 				exit;
 			} else {
-				require_once dirname(__FILE__) . '/page_article.php';
-				$page = new page_article($id, $ooid, $shareby);
+				//require_once dirname(__FILE__) . '/page_article.php';
+				//$page = new page_article($id, $ooid, $shareby);
+				\TPL::output('article');
+				exit;
 			}
 			break;
 		case 'news':

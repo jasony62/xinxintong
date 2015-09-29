@@ -124,14 +124,22 @@ browser.selectFile = function(file, e) {
             if (files.length > 1)
                 $('#fileinfo').html(files.length + ' ' + this.label("selected files") + ' (' + size + ')');
             else {
-                var data = $(files[0]).data();
+                var data, fileURL;
+                data = file.data();
+                fileURL = file.substr ? file : browser.uploadURL + '/' + browser.dir + '/' + file.data('name');
+                fileURL = _.escapeDirs(fileURL);
+                window.parent.kcactSelectFile && window.parent.kcactSelectFile(fileURL);
                 $('#fileinfo').html(data.name + ' (' + this.humanSize(data.size) + ', ' + data.date + ')');
             }
         }
     } else {
-        var data = file.data();
+        var data, fileURL;
+        data = file.data();
+        fileURL = file.substr ? file : browser.uploadURL + '/' + browser.dir + '/' + file.data('name');
+        fileURL = _.escapeDirs(fileURL);
         $('.file').removeClass('selected');
         file.addClass('selected');
+        window.parent.kcactSelectFile && window.parent.kcactSelectFile(fileURL);
         $('#fileinfo').html(data.name + ' (' + this.humanSize(data.size) + ', ' + data.date + ')');
     }
 };
@@ -266,8 +274,8 @@ browser.menuFile = function(file, e) {
             html += (html.length ? '<div class="delimiter"></div>' : '');
             if (data.thumb || data.smallThumb)
                 html +='<a href="kcact:view">' + this.label("View") + '</a>';
-            if (this.support.zip) html += (html.length ? '<div class="delimiter"></div>' : '') +
-                '<a href="kcact:download">' + this.label("Download") + '</a>';
+            //if (this.support.zip) html += (html.length ? '<div class="delimiter"></div>' : '') +
+            //    '<a href="kcact:download">' + this.label("Download") + '</a>';
         }
 
         if (this.access.files.copy || this.access.files.move)
@@ -403,8 +411,8 @@ browser.menuFile = function(file, e) {
         if (data.thumb || data.smallThumb)
             html +='<a href="kcact:view">' + this.label("View") + '</a>';
 
-        html +=
-            '<a href="kcact:download">' + this.label("Download") + '</a>';
+        //html +=
+        //    '<a href="kcact:download">' + this.label("Download") + '</a>';
 
         if (this.access.files.copy || this.access.files.move)
             html += '<div class="delimiter"></div>' +

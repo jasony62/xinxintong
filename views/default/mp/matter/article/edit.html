@@ -100,7 +100,7 @@
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.custom_body' ng-change="update('custom_body');">定制页面</label>
             </div>
         </div>
-        <div class='form-group'>
+        <div class='form-group' ng-if="editing.custom_body==='N'">
             <label class='col-md-2 control-label'>原文链接(可选)</label>
             <div class='col-md-10'>
                 <textarea class='form-control' ng-model='editing.url' tms-auto-update tms-wait=1000 tms-update="update('url');"></textarea>

@@ -662,6 +662,15 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 
             }
         });
     };
+    $scope.followMp = function(event, page) {
+        if (/YiXin/i.test(navigator.userAgent)) {
+            location.href = 'yixin://opencard?pid=' + $scope.mpa.yx_cardid;
+        } else if (page !== undefined && page.length) {
+            $scope.gotoPage(event, page);
+        } else {
+            alert('请在易信中打开页面');
+        }
+    };
     $scope.$watch('data.member.authid', function(nv) {
         if (nv && nv.length) PG.setMember();
     });
@@ -682,6 +691,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 
         params = rsp.data;
         params.record && params.record.data && params.record.data.member && (params.record.data.member = JSON.parse(params.record.data.member));
         $scope.params = params;
+        $scope.mpa = params.mpaccount;
         $scope.App = params.enroll;
         $scope.Page = params.page;
         $scope.User = params.user;

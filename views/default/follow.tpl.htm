@@ -19,6 +19,17 @@
     
     <body>
         <?php echo TPL::val( 'follow_ele');?>
+        <script type="text/javascript">
+            window.followMp = function(yx_cardid, page) {
+                if (/YiXin/i.test(navigator.userAgent)) {
+                    location.href = 'yixin://opencard?pid=' + yx_cardid;
+                } else if (page !== undefined && page.length) {
+                    location.href = page;
+                } else {
+                    alert('请在易信中打开页面');
+                }
+            };
+        </script>
         <?php if (defined( 'SAE_MYSQL_HOST_M')) { ?>
             <script type="text/javascript">
                 var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");

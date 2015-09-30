@@ -367,27 +367,11 @@ class article extends matter_ctrl {
 	 * $nv pair of name and value
 	 */
 	public function update_action($id) {
-		$account = \TMS_CLIENT::account();
-		if ($account === false) {
-			return new \ResponseError('长时间未操作，请重新登陆！');
-		}
-
-		$pmpid = $this->getParentMpid();
-
 		$nv = (array) $this->getPostJson();
 
 		isset($nv['body']) && $nv['body'] = $this->model()->escape(urldecode($nv['body']));
 
-		$nv['modifier'] = \TMS_CLIENT::get_client_uid();
-		$nv['modifier_src'] = 'A';
-		$nv['modifier_name'] = $account->nickname;
-		$nv['modify_at'] = time();
-
-		$rst = $this->model()->update(
-			'xxt_article',
-			$nv,
-			"(mpid='$this->mpid' or mpid='$pmpid') and id='$id'"
-		);
+		$rst = $this->update($id, $nv);
 
 		return new \ResponseData($rst);
 	}
@@ -716,39 +700,72 @@ class article extends matter_ctrl {
 		return new \ResponseData('success');
 	}
 	/**
-	 *
+	 * 将图文的页面保存为模板
 	 */
 	public function saveAsTemplate_action($id) {
-		$account = \TMS_CLIENT::account();
-		if ($account === false) {
-			return new \ResponseError('长时间未操作，请重新登陆！');
-		}
-		$current = time();
-		$uid = \TMS_CLIENT::get_client_uid();
-		$uname = $account->nickname;
 		$modelArt = $this->model('matter\article');
 		$article = $modelArt->byId($id);
+		$matter = new \stdClass;
+		$matter->matter_type = 'article';
+		$matter->matter_id = $article->id;
+		$matter->title = $article->title;
+		$matter->summary = $article->summary;
+		$matter->pic = $article->pic;
 
-		$template = array(
-			'creater' => $uid,
-			'creater_name' => $uname,
-			'put_at' => $current,
-			'mpid' => $this->mpid,
-			'matter_type' => 'article',
-			'matter_id' => $id,
-			'title' => $article->title,
-			'summary' => $article->summary,
-			'pic' => $article->pic,
-		);
-
-		$modelArt->insert('xxt_shop_matter', $template, false);
+		$this->model('shop\shelf')->putMatter($this->mpid, $matter);
 
 		return new \ResponseData('ok');
+	}
+	/**
+	 * 用指定的模板替换定制页面内容
+	 */
+	public function pageByTemplate_action($id, $template) {
+		$uid = \TMS_CLIENT::get_client_uid();
+
+		$modelTemplate = $this->model('shop\shelf');
+		$template = $modelTemplate->byId($template);
+
+		$modelArt = $this->model('matter\article');
+		$copied = $modelArt->byId($template->matter_id);
+		$target = $modelArt->byId($id);
+
+		$modelPage = $this->model('code/page');
+		$pageid = $modelPage->copy($uid, $copied->page_id, $target->page_id);
+
+		if ($target->page_id === 0) {
+			$this->update($id, array('page_id' => $pageid));
+		}
+
+		return new \ResponseData($pageid);
 	}
 	/**
 	 *
 	 */
 	protected function getMatterType() {
 		return 'article';
+	}
+	/**
+	 *
+	 */
+	private function update($id, $nv) {
+		$account = \TMS_CLIENT::account();
+		if ($account === false) {
+			return new \ResponseError('长时间未操作，请重新登陆！');
+		}
+
+		$pmpid = $this->getParentMpid();
+
+		$nv['modifier'] = \TMS_CLIENT::get_client_uid();
+		$nv['modifier_src'] = 'A';
+		$nv['modifier_name'] = $account->nickname;
+		$nv['modify_at'] = time();
+
+		$rst = $this->model()->update(
+			'xxt_article',
+			$nv,
+			"(mpid='$this->mpid' or mpid='$pmpid') and id='$id'"
+		);
+
+		return $rst;
 	}
 }

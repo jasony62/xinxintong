@@ -152,8 +152,8 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', function($scope, $mo
             backdrop: 'static',
         }).result.then(function(data) {
             http2.get('/rest/mp/matter/article/pageByTemplate?id=' + $scope.editing.id + '&template=' + data.id, function(rsp) {
-                $scope.editing.page_id = rsp.data.id;
-                location.href = '/rest/code?pid=' + rsp.data.id;
+                $scope.editing.page_id = rsp.data;
+                location.href = '/rest/code?pid=' + rsp.data;
             });
         });
     };

@@ -28,7 +28,6 @@ class page_model extends TMS_MODEL {
 				} else if ($ext->type === 'C') {
 					$p->ext_css[] = $ext;
 				}
-
 			}
 		}
 
@@ -69,6 +68,36 @@ class page_model extends TMS_MODEL {
 	/**
 	 *
 	 */
+	public function copy($creater, $src, $target) {
+		$page = $this->byId($src);
+		if ($target === 0) {
+			$newone = $this->create($creater);
+			$target = $newone->id;
+			$this->delete('xxt_code_external', "code_id=$target");
+		}
+		$data = array(
+			'html' => $this->escape($page->html),
+			'css' => $this->escape($page->css),
+			'js' => $this->escape($page->js),
+		);
+		$this->update('xxt_code_page', $data, "id=$target");
+
+		if (!empty($page->ext_js)) {
+			foreach ($page->ext_js as $js) {
+				$this->insert('xxt_code_external', array('code_id' => $target, 'type' => 'J', 'url' => $js->url), false);
+			}
+		}
+		if (!empty($page->ext_css)) {
+			foreach ($page->ext_css as $css) {
+				$this->insert('xxt_code_external', array('code_id' => $target, 'type' => 'C', 'url' => $css->url), false);
+			}
+		}
+
+		return $target;
+	}
+	/**
+	 *
+	 */
 	public function remove($id) {
 		$rst = $this->delete('xxt_code_page', "id=$id");
 
@@ -83,7 +112,6 @@ class page_model extends TMS_MODEL {
 			if (in_array($n, array('css', 'html', 'js'))) {
 				$data[$n] = $this->escape($v);
 			}
-
 		}
 
 		$rst = $this->update('xxt_code_page', $data, "id=$id");

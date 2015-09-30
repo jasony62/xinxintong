@@ -85,7 +85,7 @@ app.factory('Record', function($http) {
                 url += 'myFollowers';
                 break;
             default:
-                alert('没有指定要获得的登记记录类型');
+                alert('没有指定要获得的登记记录类型（' + ins.owner + '）');
                 return;
         }
         url += '?mpid=' + ins.mpid;
@@ -580,18 +580,11 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 
             el.height = body.clientHeight;
             body.scrollTop = 0;
             body.appendChild(el);
-            if (content.indexOf('http') === 0) {
-                window.closeAskFollow = function() {
-                    el.style.display = 'none';
-                };
-                el.setAttribute('src', content);
-                el.style.display = 'block';
-            } else {
-                if (el.contentDocument && el.contentDocument.body) {
-                    el.contentDocument.body.innerHTML = content;
-                    el.style.display = 'block';
-                }
-            }
+            window.closeAskFollow = function() {
+                el.style.display = 'none';
+            };
+            el.setAttribute('src', '/rest/app/enroll/askFollow?mpid=' + LS.p.mpid);
+            el.style.display = 'block';
         });
     };
     $scope.gotoPage = function(event, page, ek, rid, fansOnly) {

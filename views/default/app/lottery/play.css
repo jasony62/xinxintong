@@ -1,6 +1,7 @@
 .ng-cloak{display:none}
 *,*:before,*:after{box-sizing:border-box}
 *{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
+html,body{height: 100%}
 body{font-family:Microsoft Yahei,Arial;background:#f8f8f8}
 table{width:100%;border:1px solid #ddd;border-collapse:collapse;border-spacing:0}
 th,td{border:1px solid #ddd;padding:.5em}
@@ -20,5 +21,5 @@ th:first-child{width:7em}
 #scroller{position:absolute;z-index:1;-webkit-tap-highlight-color:rgba(0,0,0,0);width:1600px;height:100%;-webkit-transform:translateZ(0);-moz-transform:translateZ(0);-ms-transform:translateZ(0);-o-transform:translateZ(0);transform:translateZ(0);-webkit-touch-callout:none;-webkit-text-size-adjust:none;-moz-text-size-adjust:none;-ms-text-size-adjust:none;-o-text-size-adjust:none;text-size-adjust:none;}
 #scroller ul{list-style:none;padding:0;margin:0;width:100%;height:100%;text-align:center}
 #scroller li{display:block;float:left;width:159px;height:100%;border-right:1px solid #ccc;font-size:14px}
-#frmAuth{display:none;position:absolute;top:0;left:0;right:0;border:none;width:100%;z-index:999}
+#frmPopup{display:none;position:absolute;top:0;left:0;right:0;border:none;width:100%;z-index:999;box-sizing:border-box;}
 #debug{position:absolute;display:none;top:0;right:0}

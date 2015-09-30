@@ -69,12 +69,6 @@ class main extends \member_base {
 		 */
 		$user = $this->getUser($mpid);
 		/**
-		 * 要求先关注再参与
-		 */
-		if ($lot->fans_enter_only === 'Y') {
-			$this->askFollow($mpid, $user->openid);
-		}
-		/**
 		 * 访问控制
 		 */
 		if ($lot->access_control === 'Y') {
@@ -96,7 +90,6 @@ class main extends \member_base {
 		}
 
 		\TPL::output('/app/lottery/play');
-
 		exit;
 	}
 	/**

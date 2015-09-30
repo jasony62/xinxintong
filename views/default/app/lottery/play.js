@@ -53,12 +53,32 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
             this.msg = msg;
         },
     };
+    var openAskFollow = function() {
+        $http.get('/rest/app/enroll/askFollow?mpid=' + mpid).error(function(content) {
+            var body, el;;
+            body = document.body;
+            el = document.createElement('iframe');
+            el.setAttribute('id', 'frmPopup');
+            el.height = body.clientHeight;
+            body.scrollTop = 0;
+            body.appendChild(el);
+            window.closeAskFollow = function() {
+                el.style.display = 'none';
+            };
+            el.setAttribute('src', '/rest/app/enroll/askFollow?mpid=' + mpid);
+            el.style.display = 'block';
+        });
+    };
     $scope.awards = {};
     $scope.greeting = null;
     $http.get('/rest/app/lottery/get?mpid=' + mpid + '&lid=' + lid).success(function(rsp) {
         var lot, i, l, award, params, awards, sharelink;
         params = rsp.data;
         lot = params.lottery;
+        if (lot.fans_enter_only === 'Y' && params.user.openid.length === 0) {
+            openAskFollow();
+            return;
+        }
         $scope.lot = lot;
         awards = lot.awards;
         for (i = 0, l = awards.length; i < l; i++) {
@@ -148,7 +168,7 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
         }).error(function(content, httpCode) {
             if (httpCode === 401) {
                 var el = document.createElement('iframe');
-                el.setAttribute('id', 'frmAuth');
+                el.setAttribute('id', 'frmPopup');
                 el.onload = function() {
                     this.height = document.documentElement.clientHeight;
                 };

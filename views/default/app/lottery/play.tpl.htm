@@ -8,7 +8,7 @@
         <style ng-if="params.page.css" ng-bind='params.page.css'></style>
     </head>
     <body>
-        <div>
+        <div ng-show='lot'>
             <div id='alert' class="{{alert.type}}" ng-class="{'active':alert.msg}" ng-click="clickAlert($event)" dynamic-html="alert.msg"></div>
             <div id='greeting' ng-show="greeting">
                 <div>
@@ -69,7 +69,7 @@
         document.write("<script src='\/rest\/mi\/matter\/wxjssdksignpackage?mpid="+mpid+"&url="+encodeURIComponent(location.href.split('#')[0])+"'><\/script>");
         }
         </script>
-        <script src="/views/default/app/lottery/play.js?_=1"></script>
+        <script src="/views/default/app/lottery/play.js?_=2"></script>
         <script type="text/javascript">
         if (document.location.host === 'xinxintong.sinaapp.com') {
         var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");

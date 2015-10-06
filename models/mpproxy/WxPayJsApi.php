@@ -138,10 +138,11 @@ class WxPayJsApi_model {
 	 *
 	 * @return 获取共享收货地址js函数需要的参数，json格式可以直接做参数使用
 	 */
-	public function GetEditAddressParameters() {
+	public function GetEditAddressParameters($mpid) {
+		$wxPayConfig = new WxPayConfig($mpid);
 		$getData = $this->data;
 		$data = array();
-		$data["appid"] = WxPayConfig::APPID;
+		$data["appid"] = $wxPayConfig->APPID;
 		$data["url"] = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 		$time = time();
 		$data["timestamp"] = "$time";
@@ -155,7 +156,7 @@ class WxPayJsApi_model {
 			"addrSign" => $addrSign,
 			"signType" => "sha1",
 			"scope" => "jsapi_address",
-			"appId" => WxPayConfig::APPID,
+			"appId" => $wxPayConfig->APPID,
 			"timeStamp" => $data["timestamp"],
 			"nonceStr" => $data["noncestr"],
 		);

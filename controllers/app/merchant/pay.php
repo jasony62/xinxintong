@@ -69,7 +69,7 @@ class pay extends \member_base {
 		$jsApiParameters = $tools->GetJsApiParameters($mpid, $order);
 
 		//获取共享收货地址js函数参数
-		$editAddress = $tools->GetEditAddressParameters();
+		$editAddress = $tools->GetEditAddressParameters($mpid);
 
 		$rsp = array(
 			'jsApiParameters' => $jsApiParameters,

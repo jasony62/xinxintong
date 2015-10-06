@@ -52,10 +52,12 @@ class pay extends \member_base {
 
 		$tools = $this->model('mpproxy/WxPayJsApi');
 
+		$wxPayConfig = new \WxPayConfig($mpid);
 		$input = new \WxPayUnifiedOrder();
+
 		$input->SetBody("test");
 		$input->SetAttach("test");
-		$input->SetOut_trade_no(\WxPayConfig::MCHID . date("YmdHis"));
+		$input->SetOut_trade_no($wxPayConfig->MCHID . date("YmdHis"));
 		$input->SetTotal_fee($order->order_total_price);
 		$input->SetTime_start(date("YmdHis"));
 		$input->SetTime_expire(date("YmdHis", time() + 600));
@@ -63,8 +65,8 @@ class pay extends \member_base {
 		$input->SetNotify_url("http://paysdk.weixin.qq.com/example/notify.php");
 		$input->SetTrade_type("JSAPI");
 		$input->SetOpenid($user->openid);
-		$order = \WxPayApi::unifiedOrder($input);
-		$jsApiParameters = $tools->GetJsApiParameters($order);
+		$order = \WxPayApi::unifiedOrder($mpid, $input);
+		$jsApiParameters = $tools->GetJsApiParameters($mpid, $order);
 
 		//获取共享收货地址js函数参数
 		$editAddress = $tools->GetEditAddressParameters();

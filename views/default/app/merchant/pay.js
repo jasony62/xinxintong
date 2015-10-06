@@ -4,7 +4,7 @@ app.controller('merchantCtrl', ['$scope', '$http', function($scope, $http) {
 	search = location.search;
 	mpid = search.match(/[\?&]mpid=(.+?)(&|$)/)[1];
 	orderid = search.match(/[\?&]order=(.+?)(&|$)/)[1];
-	if (/MicroMessenger/i.test(navigator.userAgent)) {
+	//if (/MicroMessenger/i.test(navigator.userAgent)) {
 		//调用微信JS api 支付
 		function jsApiCall() {
 			WeixinJSBridge.invoke(
@@ -40,5 +40,5 @@ app.controller('merchantCtrl', ['$scope', '$http', function($scope, $http) {
 		$scope.callpay = function() {
 			callpay();
 		};
-	}
+	//}
 }]);

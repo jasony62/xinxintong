@@ -61,7 +61,7 @@ class WxPayJsApi_model {
 	 *
 	 * @return json数据，可直接填入js函数作为参数
 	 */
-	public function GetJsApiParameters($UnifiedOrderResult) {
+	public function GetJsApiParameters($mpid, $UnifiedOrderResult) {
 		if (!array_key_exists("appid", $UnifiedOrderResult)
 			|| !array_key_exists("prepay_id", $UnifiedOrderResult)
 			|| $UnifiedOrderResult['prepay_id'] == "") {
@@ -74,7 +74,7 @@ class WxPayJsApi_model {
 		$jsapi->SetNonceStr(WxPayApi::getNonceStr());
 		$jsapi->SetPackage("prepay_id=" . $UnifiedOrderResult['prepay_id']);
 		$jsapi->SetSignType("MD5");
-		$jsapi->SetPaySign($jsapi->MakeSign());
+		$jsapi->SetPaySign($jsapi->MakeSign($mpid));
 		//$parameters = json_encode($jsapi->GetValues());
 		$parameters = $jsapi->GetValues();
 		return $parameters;

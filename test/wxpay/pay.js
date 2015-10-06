@@ -1,37 +1,37 @@
 app.module('app', []);
 app.controller('ctrl', ['$scope', '$http', function($scope, $http) {
+	var mpid, jsApiParameters;
+	mpid = location.search.march(/mpid=[^&]*/)[1];
 	if (/MicroMessenger/i.test(navigator.userAgent)) {
-		function onBridgeReady() {
-			WeixinJSBridge.invoke('getBrandWCPayRequest', {
-				'appId': '',
-				'timeStamp': '',
-				'nonceStr': '',
-				'package': '',
-				'signType': 'MD5',
-				'paySign': ''
-			}, function success(res) {
-				if (res.err_msg === 'get_brand_wcpay_request: ok') {
-
+		//调用微信JS api 支付
+		function jsApiCall() {
+			WeixinJSBridge.invoke(
+				'getBrandWCPayRequest', jsApiParameters,
+				function(res) {
+					WeixinJSBridge.log(res.err_msg);
+					alert(res.err_code + res.err_desc + res.err_msg);
 				}
-			});
-		};
-		if (typeof WeixinJSBridge === 'undefined') {
-			if (document.addEventListener) {
-				document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
-			} else if (document.attachEvent) {
-				document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
-				document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+			);
+		}
+
+		function callpay() {
+			if (typeof WeixinJSBridge === "undefined") {
+				if (document.addEventListener) {
+					document.addEventListener('WeixinJSBridgeReady', jsApiCall, false);
+				} else if (document.attachEvent) {
+					document.attachEvent('WeixinJSBridgeReady', jsApiCall);
+					document.attachEvent('onWeixinJSBridgeReady', jsApiCall);
+				}
+			} else {
+				jsApiCall();
 			}
 		}
-	}
-	$scope.pay = function() {
-		wx.chooseWXPay({
-			timestamp: 0,
-			nonceStr: '',
-			package: '',
-			signType: 'MD5',
-			paySign: '',
-			success: function(res) {}
+		$http.get('/rest/app/merchant/pay/jsApiParametersGet?mpid=' + mpid, function(rsp) {
+			if (typeof rsp === 'string') {
+				alert(rsp);
+				return;
+			}
+			jsApiParameters = rsp.data.jsApiParameters;
 		});
-	};
+	}
 }]);

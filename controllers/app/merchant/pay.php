@@ -36,6 +36,39 @@ class pay extends \member_base {
 	 * 返回页面
 	 */
 	public function afterOAuth($mpid, $orderId, $openid) {
+
 		$this->view_action('/app/merchant/pay');
+	}
+	/**
+	 *
+	 */
+	public function jsApiParametersGet_action($mpid) {
+		$user = $this->getUser($mpid);
+
+		$tools = $this->model('mpproxy/WxPayJsApi');
+
+		$input = new \WxPayUnifiedOrder();
+		$input->SetBody("test");
+		$input->SetAttach("test");
+		$input->SetOut_trade_no(\WxPayConfig::MCHID . date("YmdHis"));
+		$input->SetTotal_fee("1");
+		$input->SetTime_start(date("YmdHis"));
+		$input->SetTime_expire(date("YmdHis", time() + 600));
+		$input->SetGoods_tag("test");
+		$input->SetNotify_url("http://paysdk.weixin.qq.com/example/notify.php");
+		$input->SetTrade_type("JSAPI");
+		$input->SetOpenid($user->openid);
+		$order = \WxPayApi::unifiedOrder($input);
+		$jsApiParameters = $tools->GetJsApiParameters($order);
+
+		//获取共享收货地址js函数参数
+		$editAddress = $tools->GetEditAddressParameters();
+
+		$rsp = array(
+			'jsApiParameters' => $jsApiParameters,
+			'editAddress' => $editAddress,
+		);
+
+		return new \ResponseData($rsp);
 	}
 }

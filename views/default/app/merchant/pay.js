@@ -34,6 +34,7 @@ app.controller('merchantCtrl', ['$scope', '$http', function($scope, $http) {
 				return;
 			}
 			jsApiParameters = rsp.data.jsApiParameters;
+			alert(JSON.stringify(jsApiParameters));
 		}).error(function(rsp, code) {
 			alert('[' + code + ']' + rsp);
 		});

@@ -75,7 +75,8 @@ class WxPayJsApi_model {
 		$jsapi->SetPackage("prepay_id=" . $UnifiedOrderResult['prepay_id']);
 		$jsapi->SetSignType("MD5");
 		$jsapi->SetPaySign($jsapi->MakeSign());
-		$parameters = json_encode($jsapi->GetValues());
+		//$parameters = json_encode($jsapi->GetValues());
+		$parameters = $jsapi->GetValues();
 		return $parameters;
 	}
 
@@ -158,7 +159,8 @@ class WxPayJsApi_model {
 			"timeStamp" => $data["timestamp"],
 			"nonceStr" => $data["noncestr"],
 		);
-		$parameters = json_encode($afterData);
+		//$parameters = json_encode($afterData);
+		$parameters = $afterData;
 		return $parameters;
 	}
 

@@ -30,10 +30,11 @@ class WxPayConfig {
 
 	public function __construct($mpid) {
 		if (empty(self::$data)) {
-			self::$data['APPID'] = 'wxa65da7f5b845c24f';
+			$mpa = \TMS_APP::M('mp\mpaccount')->byId($mpid, 'wx_appid,wx_appsecret');
+			self::$data['APPID'] = $mpa->wx_appid;
 			self::$data['MCHID'] = '1272148201';
 			self::$data['KEY'] = $mpid;
-			self::$data['APPSECRET'] = '74de830c5ee9ddc931617eb04538b357';
+			self::$data['APPSECRET'] = $mpa->wx_appsecret;
 		}
 	}
 

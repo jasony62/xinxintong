@@ -42,8 +42,13 @@ class pay extends \member_base {
 	/**
 	 *
 	 */
-	public function jsApiParametersGet_action($mpid) {
+	public function jsApiParametersGet_action($mpid, $order) {
 		$user = $this->getUser($mpid);
+
+		$order = $this->model('app\merchant\order')->byId($order);
+		if (false === $order) {
+			return new \ResponseError('订单不存在');
+		}
 
 		$tools = $this->model('mpproxy/WxPayJsApi');
 
@@ -51,7 +56,7 @@ class pay extends \member_base {
 		$input->SetBody("test");
 		$input->SetAttach("test");
 		$input->SetOut_trade_no(\WxPayConfig::MCHID . date("YmdHis"));
-		$input->SetTotal_fee("1");
+		$input->SetTotal_fee($order->product_price);
 		$input->SetTime_start(date("YmdHis"));
 		$input->SetTime_expire(date("YmdHis", time() + 600));
 		$input->SetGoods_tag("test");

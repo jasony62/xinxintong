@@ -28,13 +28,12 @@ app.controller('merchantCtrl', ['$scope', '$http', function($scope, $http) {
 				jsApiCall();
 			}
 		}
-		$http.get('/rest/app/merchant/pay/jsApiParametersGet?mpid=' + mpid).success(function(rsp) {
+		$http.get('/rest/app/merchant/pay/jsApiParametersGet?mpid=' + mpid + '&order=' + orderid).success(function(rsp) {
 			if (typeof rsp === 'string') {
 				alert(rsp);
 				return;
 			}
 			jsApiParameters = rsp.data.jsApiParameters;
-			alert(JSON.stringify(jsApiParameters));
 		}).error(function(rsp, code) {
 			alert('[' + code + ']' + rsp);
 		});

@@ -56,7 +56,7 @@ class pay extends \member_base {
 		$input->SetBody("test");
 		$input->SetAttach("test");
 		$input->SetOut_trade_no(\WxPayConfig::MCHID . date("YmdHis"));
-		$input->SetTotal_fee($order->product_price);
+		$input->SetTotal_fee($order->order_total_price);
 		$input->SetTime_start(date("YmdHis"));
 		$input->SetTime_expire(date("YmdHis", time() + 600));
 		$input->SetGoods_tag("test");

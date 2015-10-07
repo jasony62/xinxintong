@@ -21,6 +21,7 @@ class PayNotifyCallBack extends \WxPayNotify {
 			&& $result["result_code"] == "SUCCESS") {
 			return true;
 		}
+		\TMS_APP::M('log')->log('debug', 'pay-Queryorder', 'ok');
 		return false;
 	}
 

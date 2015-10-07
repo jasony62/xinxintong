@@ -90,7 +90,9 @@ class WxPayApi {
 
 		$startTimeStamp = self::getMillisecond(); //请求开始时间
 		$response = self::postXmlCurl($xml, $url, false, $timeOut);
+		\TMS_APP::M('log')->log('debug', 'pay-oq', '1');
 		$result = WxPayResults::Init($mpid, $response);
+		\TMS_APP::M('log')->log('debug', 'pay-oq', '2');
 		self::reportCostTime($url, $startTimeStamp, $result); //上报请求花费时间
 
 		return $result;

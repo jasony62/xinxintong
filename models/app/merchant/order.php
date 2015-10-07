@@ -19,6 +19,20 @@ class order_model extends \TMS_MODEL {
 		return $order;
 	}
 	/**
+	 * @param string $tradeNo
+	 */
+	public function &byTradeNo($tradeNo) {
+		$q = array(
+			'*',
+			'xxt_merchant_order',
+			"trade_no='$tradeNo'",
+		);
+
+		$order = $this->query_obj_ss($q);
+
+		return $order;
+	}
+	/**
 	 * $id
 	 */
 	public function &byShopid($shopId, $openid = null) {

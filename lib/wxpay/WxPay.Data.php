@@ -183,14 +183,18 @@ class WxPayResults extends WxPayDataBase {
 	 * @param string $xml
 	 * @throws WxPayException
 	 */
-	public static function Init($mpid, $xml) {
+	public static function Init($xml) {
 		$obj = new self();
 		$obj->FromXml($xml);
 		//fix bug 2015-06-29
 		if ($obj->values['return_code'] != 'SUCCESS') {
 			return $obj->GetValues();
 		}
-		$obj->CheckSign($mpid);
+		//
+		$trade_no = $obj->values['out_trade_no'];
+		$order = \TMS_APP::M('app\merchant\order')->byTradeNo($trade_no);
+		$obj->CheckSign($order->mpid);
+
 		return $obj->GetValues();
 	}
 }

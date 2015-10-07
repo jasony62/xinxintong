@@ -68,9 +68,8 @@ class pay extends \TMS_CONTROLLER {
 	/**
 	 * 支付通知
 	 */
-	public function notify_action($mpid = 'test') {
-		$this->model('log')->log($mpid, 'POST', 'wx-pag-notify');
+	public function notify_action() {
 		$notify = new PayNotifyCallBack();
-		$notify->Handle($mpid, false);
+		$notify->Handle(false);
 	}
 }

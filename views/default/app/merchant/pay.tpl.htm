@@ -10,5 +10,5 @@
         <p>用户若要修改订单，需要提前与平台客服联系，则不收取任何违约费用。</p>
         <p>就诊当天忘记携带或丢失身份证及社保卡原件，患者未能及时就诊，产生的后果全部由患者承担。</p>
     </div>
-    <button class='btn btn-success btn-lg btn-block' ng-disabled='!ready' ng-click='callpay()'>同意并付款</button>
+    <button class='btn btn-lg btn-block' ng-disabled='!ready' ng-class="{ready?'btn-success':'btn-default'}" ng-click='callpay()'>同意并付款</button>
 </div>

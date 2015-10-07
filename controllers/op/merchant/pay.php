@@ -23,6 +23,8 @@ class PayNotifyCallBack extends \WxPayNotify {
 
 	//重写回调处理函数
 	public function NotifyProcess($data, &$msg) {
+		\TMS_APP::M('log')->log('test', 'test', 'test0');
+
 		$notfiyOutput = array();
 
 		if (!array_key_exists("transaction_id", $data)) {
@@ -58,6 +60,9 @@ class PayNotifyCallBack extends \WxPayNotify {
 	public function getMpid($data) {
 		$tradeNo = $data['out_trade_no'];
 		$order = \TMS_APP::M('app\merchant\order')->byTradeNo($tradeNo);
+		if ($order === false) {
+			throw new \WxPayException('订单不存在');
+		}
 
 		return $order->mpid;
 	}

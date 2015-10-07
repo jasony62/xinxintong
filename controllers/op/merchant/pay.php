@@ -11,7 +11,9 @@ class PayNotifyCallBack extends \WxPayNotify {
 	public function Queryorder($transaction_id) {
 		$input = new \WxPayOrderQuery();
 		$input->SetTransaction_id($transaction_id);
-		$result = WxPayApi::orderQuery($input);
+		\TMS_APP::M('log')->log('debug', 'pay-Queryorder', '1');
+		$result = \WxPayApi::orderQuery($input);
+		\TMS_APP::M('log')->log('debug', 'pay-Queryorder', '2');
 		if (array_key_exists("return_code", $result)
 			&& array_key_exists("result_code", $result)
 			&& $result["return_code"] == "SUCCESS"
@@ -23,7 +25,7 @@ class PayNotifyCallBack extends \WxPayNotify {
 
 	//重写回调处理函数
 	public function NotifyProcess($data, &$msg) {
-		\TMS_APP::M('log')->log('debug', 'pay-notify', 'test0');
+		\TMS_APP::M('log')->log('debug', 'pay-notify', 'begin');
 
 		$notfiyOutput = array();
 

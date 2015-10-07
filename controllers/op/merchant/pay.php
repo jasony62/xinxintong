@@ -51,6 +51,13 @@ class PayNotifyCallBack extends \WxPayNotify {
 
 		return true;
 	}
+	//
+	public function getMpid($data) {
+		$tradeNo = $data['out_trade_no'];
+		$order = \TMS_APP::M('app\merchant\order')->byTradeNo($tradeNo);
+
+		return $order->mpid;
+	}
 }
 /**
  * 支付
@@ -70,6 +77,6 @@ class pay extends \TMS_CONTROLLER {
 	 */
 	public function notify_action() {
 		$notify = new PayNotifyCallBack();
-		$notify->Handle(false);
+		$notify->Handle(false, false, array($notify, 'getMpid'));
 	}
 }

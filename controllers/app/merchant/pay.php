@@ -70,11 +70,10 @@ class pay extends \member_base {
 		$input->SetTrade_type("JSAPI");
 		$input->SetOpenid($user->openid);
 		$order = \WxPayApi::unifiedOrder($mpid, $input);
-		try {
-			$jsApiParameters = $tools->GetJsApiParameters($mpid, $order);
-		} catch (\WxPayException $e) {
-			return new \ResponseError($e->getMessage());
+		if ($order['result_code'] === 'FAIL') {
+			return new \ResponseError($order['err_code_des']);
 		}
+		$jsApiParameters = $tools->GetJsApiParameters($mpid, $order);
 
 		//获取共享收货地址js函数参数
 		$editAddress = $tools->GetEditAddressParameters($mpid);

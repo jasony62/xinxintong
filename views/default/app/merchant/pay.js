@@ -4,6 +4,7 @@ app.controller('merchantCtrl', ['$scope', '$http', function($scope, $http) {
 	search = location.search;
 	mpid = search.match(/[\?&]mpid=(.+?)(&|$)/)[1];
 	orderid = search.match(/[\?&]order=(.+?)(&|$)/)[1];
+	$scope.ready = false;
 	//if (/MicroMessenger/i.test(navigator.userAgent)) {
 	//调用微信JS api 支付
 	function jsApiCall() {
@@ -38,6 +39,7 @@ app.controller('merchantCtrl', ['$scope', '$http', function($scope, $http) {
 			return;
 		}
 		jsApiParameters = rsp.data.jsApiParameters;
+		$scope.ready = true;
 	}).error(function(rsp, code) {
 		alert('[' + code + ']' + rsp);
 	});

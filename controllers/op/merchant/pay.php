@@ -8,11 +8,11 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/wxpay/WxPay.Notify.php';
  */
 class PayNotifyCallBack extends \WxPayNotify {
 	//查询订单
-	public function Queryorder($transaction_id) {
+	public function Queryorder($mpid, $transaction_id) {
+		\TMS_APP::M('log')->log('debug', 'pay-Queryorder', '0');
 		$input = new \WxPayOrderQuery();
 		$input->SetTransaction_id($transaction_id);
-		\TMS_APP::M('log')->log('debug', 'pay-Queryorder', '1');
-		$result = \WxPayApi::orderQuery($input);
+		$result = \WxPayApi::orderQuery($mpid, $input);
 		\TMS_APP::M('log')->log('debug', 'pay-Queryorder', '2');
 		if (array_key_exists("return_code", $result)
 			&& array_key_exists("result_code", $result)
@@ -25,7 +25,7 @@ class PayNotifyCallBack extends \WxPayNotify {
 
 	//重写回调处理函数
 	public function NotifyProcess($data, &$msg) {
-		\TMS_APP::M('log')->log('debug', 'pay-notify', 'begin');
+		\TMS_APP::M('log')->log('debug', 'pay-notify', '0');
 
 		$notfiyOutput = array();
 
@@ -35,7 +35,8 @@ class PayNotifyCallBack extends \WxPayNotify {
 			return false;
 		}
 		//查询订单，判断订单真实性
-		if (!$this->Queryorder($data["transaction_id"])) {
+		$mpid = $this->getMpid($data);
+		if (!$this->Queryorder($mpid, $data["transaction_id"])) {
 			$msg = "订单查询失败";
 			\TMS_APP::M('log')->log('debug', 'pay-notify', $msg);
 			return false;

@@ -75,7 +75,7 @@ class WxPayApi {
 	 * @throws WxPayException
 	 * @return 成功时返回，其他抛异常
 	 */
-	public static function orderQuery($inputObj, $timeOut = 6) {
+	public static function orderQuery($mpid, $inputObj, $timeOut = 6) {
 		$url = "https://api.mch.weixin.qq.com/pay/orderquery";
 		//检测必填参数
 		if (!$inputObj->IsOut_trade_noSet() && !$inputObj->IsTransaction_idSet()) {
@@ -90,7 +90,7 @@ class WxPayApi {
 
 		$startTimeStamp = self::getMillisecond(); //请求开始时间
 		$response = self::postXmlCurl($xml, $url, false, $timeOut);
-		$result = WxPayResults::Init($response);
+		$result = WxPayResults::Init($mpid, $response);
 		self::reportCostTime($url, $startTimeStamp, $result); //上报请求花费时间
 
 		return $result;

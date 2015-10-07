@@ -76,7 +76,6 @@ class WxPayApi {
 	 * @return 成功时返回，其他抛异常
 	 */
 	public static function orderQuery($mpid, $inputObj, $timeOut = 6) {
-		\TMS_APP::M('log')->log('debug', 'pay-oq', '0');
 		$wxPayConfig = new \WxPayConfig($mpid);
 		$url = "https://api.mch.weixin.qq.com/pay/orderquery";
 		//检测必填参数
@@ -92,9 +91,7 @@ class WxPayApi {
 
 		$startTimeStamp = self::getMillisecond(); //请求开始时间
 		$response = self::postXmlCurl($xml, $url, false, $timeOut);
-		\TMS_APP::M('log')->log('debug', 'pay-oq', '1');
 		$result = WxPayResults::Init($mpid, $response);
-		\TMS_APP::M('log')->log('debug', 'pay-oq', '2');
 		self::reportCostTime($url, $startTimeStamp, $result); //上报请求花费时间
 
 		return $result;

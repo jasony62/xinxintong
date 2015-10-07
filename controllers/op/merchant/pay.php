@@ -7,13 +7,14 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/wxpay/WxPay.Notify.php';
  *
  */
 class PayNotifyCallBack extends \WxPayNotify {
+	//公众平台ID
+	protected $mpid = false;
 	//查询订单
 	public function Queryorder($mpid, $transaction_id) {
 		\TMS_APP::M('log')->log('debug', 'pay-Queryorder', '0');
 		$input = new \WxPayOrderQuery();
 		$input->SetTransaction_id($transaction_id);
 		$result = \WxPayApi::orderQuery($mpid, $input);
-		\TMS_APP::M('log')->log('debug', 'pay-Queryorder', '2');
 		if (array_key_exists("return_code", $result)
 			&& array_key_exists("result_code", $result)
 			&& $result["return_code"] == "SUCCESS"
@@ -41,7 +42,6 @@ class PayNotifyCallBack extends \WxPayNotify {
 			\TMS_APP::M('log')->log('debug', 'pay-notify', $msg);
 			return false;
 		}
-		\TMS_APP::M('log')->log('test', 'test', 'test1');
 		//更新订单支付信息
 		$trans_id = $data['transaction_id'];
 		$trade_no = $data['out_trade_no'];
@@ -57,19 +57,25 @@ class PayNotifyCallBack extends \WxPayNotify {
 			return false;
 		}
 
-		\TMS_APP::M('log')->log('test', 'test', 'test2');
+		\TMS_APP::M('log')->log('debug', 'pay-notify', 'ok');
 
 		return true;
 	}
 	//
 	public function getMpid($data) {
+		if (!empty($this->mpid)) {
+			return $this->mpid;
+		}
+
 		$tradeNo = $data['out_trade_no'];
 		$order = \TMS_APP::M('app\merchant\order')->byTradeNo($tradeNo);
 		if ($order === false) {
 			throw new \WxPayException('订单不存在');
 		}
 
-		return $order->mpid;
+		$mpid = $order->mpid;
+
+		return $mpid;
 	}
 }
 /**

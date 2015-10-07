@@ -77,6 +77,6 @@ class pay extends \TMS_CONTROLLER {
 	 */
 	public function notify_action() {
 		$notify = new PayNotifyCallBack();
-		$notify->Handle(false, false, array($notify, 'getMpid'));
+		$notify->Handle(false);
 	}
 }

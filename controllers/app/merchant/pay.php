@@ -59,13 +59,13 @@ class pay extends \member_base {
 		$wxPayConfig = new \WxPayConfig($mpid);
 		$input = new \WxPayUnifiedOrder();
 
-		$input->SetBody("test");
-		$input->SetAttach("test");
+		$input->SetBody("测试商品说明");
+		$input->SetAttach("测试附加信息");
 		$input->SetOut_trade_no($order->trade_no);
 		$input->SetTotal_fee($order->order_total_price);
 		$input->SetTime_start(date("YmdHis"));
 		$input->SetTime_expire(date("YmdHis", time() + 600));
-		$input->SetGoods_tag("test");
+		$input->SetGoods_tag("测试标签");
 		$input->SetNotify_url($notifyUrl);
 		$input->SetTrade_type("JSAPI");
 		$input->SetOpenid($user->openid);

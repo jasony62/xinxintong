@@ -72,7 +72,7 @@ class pay extends \member_base {
 		$order = \WxPayApi::unifiedOrder($mpid, $input);
 		try {
 			$jsApiParameters = $tools->GetJsApiParameters($mpid, $order);
-		} catch (WxPayException $e) {
+		} catch (\WxPayException $e) {
 			return new \ResponseError($e->getMessage());
 		}
 

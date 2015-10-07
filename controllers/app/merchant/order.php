@@ -66,9 +66,9 @@ class order extends \member_base {
 		}
 	}
 	/**
-	 * 下订单
+	 * 创建订单
 	 */
-	public function buy_action($mpid, $sku = null) {
+	public function create_action($mpid, $sku = null) {
 		$user = $this->getUser($mpid, array('verbose' => array('fan' => 'Y')));
 		if (empty($user->openid)) {
 			return new \ResponseError('无法获得当前用户身份信息');

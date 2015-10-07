@@ -41,6 +41,9 @@ class order_model extends \TMS_MODEL {
 	 * 创建订单
 	 */
 	public function create($skuId, $user, $info) {
+		// 订单号
+		$trade_no = date('YmdHis') . mt_rand(100000, 999999);
+
 		$sku = \TMS_APP::M('app\merchant\sku')->byId($skuId);
 
 		if (empty($info->extPropValues)) {
@@ -54,6 +57,7 @@ class order_model extends \TMS_MODEL {
 		}
 
 		$order = array(
+			'trade_no' => $trade_no,
 			'mpid' => $sku->mpid,
 			'sid' => $sku->sid,
 			'order_status' => 1,

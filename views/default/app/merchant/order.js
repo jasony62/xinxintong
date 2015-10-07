@@ -8,7 +8,7 @@ app.controller('merchantCtrl', ['$scope', '$http', function($scope, $http) {
 	$scope.orderInfo = {
 		product_count: 1,
 	};
-	$scope.buy = function() {
+	$scope.create = function() {
 		if (!$scope.orderInfo.receiver_name) {
 			alert('请填写联系人姓名');
 			return;
@@ -17,7 +17,7 @@ app.controller('merchantCtrl', ['$scope', '$http', function($scope, $http) {
 			alert('请填写联系人电话');
 			return;
 		}
-		$http.post('/rest/app/merchant/order/buy?mpid=' + mpid + '&sku=' + $scope.sku.id, $scope.orderInfo).success(function(rsp) {
+		$http.post('/rest/app/merchant/order/create?mpid=' + mpid + '&sku=' + $scope.sku.id, $scope.orderInfo).success(function(rsp) {
 			if (rsp.err_code !== 0) {
 				alert(rsp.err_msg);
 				return;

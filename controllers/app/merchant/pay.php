@@ -50,6 +50,10 @@ class pay extends \member_base {
 			return new \ResponseError('订单不存在');
 		}
 
+		$notifyUrl = "http://" . $_SERVER['HTTP_HOST'];
+		$notifyUrl .= "/rest/op/merchant/pay/notify";
+		$notifyUrl .= "?mpid=$mpid";
+
 		$tools = $this->model('mpproxy/WxPayJsApi');
 
 		$wxPayConfig = new \WxPayConfig($mpid);
@@ -57,12 +61,12 @@ class pay extends \member_base {
 
 		$input->SetBody("test");
 		$input->SetAttach("test");
-		$input->SetOut_trade_no($wxPayConfig->MCHID . date("YmdHis"));
+		$input->SetOut_trade_no($order->trade_no);
 		$input->SetTotal_fee($order->order_total_price);
 		$input->SetTime_start(date("YmdHis"));
 		$input->SetTime_expire(date("YmdHis", time() + 600));
 		$input->SetGoods_tag("test");
-		$input->SetNotify_url("http://paysdk.weixin.qq.com/example/notify.php");
+		$input->SetNotify_url($notifyUrl);
 		$input->SetTrade_type("JSAPI");
 		$input->SetOpenid($user->openid);
 		$order = \WxPayApi::unifiedOrder($mpid, $input);

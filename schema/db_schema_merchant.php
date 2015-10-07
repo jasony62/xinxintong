@@ -241,6 +241,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = 'create table if not exists xxt_merchant_order(';
 $sql .= 'id int not null auto_increment';
+$sql .= ',trade_no varchar(32) not null'; // 订单号
 $sql .= ',mpid varchar(32) not null';
 $sql .= ',sid varchar(32) not null';
 $sql .= ',order_status int not null'; // 2-待发货, 3-已发货, 5-已完成, 8-维权中

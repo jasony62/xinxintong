@@ -54,6 +54,8 @@ class pay extends \member_base {
 		$notifyUrl .= "/rest/op/merchant/pay/notify";
 		$notifyUrl .= "?mpid=$mpid";
 
+		die('nnn:' . $notifyUrl);
+
 		$tools = $this->model('mpproxy/WxPayJsApi');
 
 		$wxPayConfig = new \WxPayConfig($mpid);

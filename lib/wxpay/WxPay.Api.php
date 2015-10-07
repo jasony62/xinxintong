@@ -76,13 +76,15 @@ class WxPayApi {
 	 * @return 成功时返回，其他抛异常
 	 */
 	public static function orderQuery($mpid, $inputObj, $timeOut = 6) {
+		\TMS_APP::M('log')->log('debug', 'pay-oq', '0');
+		$wxPayConfig = new \WxPayConfig($mpid);
 		$url = "https://api.mch.weixin.qq.com/pay/orderquery";
 		//检测必填参数
 		if (!$inputObj->IsOut_trade_noSet() && !$inputObj->IsTransaction_idSet()) {
 			throw new WxPayException("订单查询接口中，out_trade_no、transaction_id至少填一个！");
 		}
-		$inputObj->SetAppid(WxPayConfig::APPID); //公众账号ID
-		$inputObj->SetMch_id(WxPayConfig::MCHID); //商户号
+		$inputObj->SetAppid($wxPayConfig->APPID); //公众账号ID
+		$inputObj->SetMch_id($wxPayConfig->MCHID); //商户号
 		$inputObj->SetNonce_str(self::getNonceStr()); //随机字符串
 
 		$inputObj->SetSign(); //签名

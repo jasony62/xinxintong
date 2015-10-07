@@ -16,19 +16,22 @@ ini_set('default_charset', 'utf-8');
  * error and exception handle
  */
 function show_error($message) {
+	require_once 'tms/tms_app.php';
 	header("HTTP/1.1 500 Internal Server Error");
 	header('Content-Type: text/plain; charset=utf-8');
 	if ($message instanceof Exception) {
-		echo $message->getMessage() . "\n";
+		$msg = $message->getMessage() . "\n";
 		$trace = $message->getTrace();
 		foreach ($trace as $t) {
 			foreach ($t as $k => $v) {
-				echo $k . ':' . json_encode($v) . "\n";
+				$msg .= $k . ':' . json_encode($v) . "\n";
 			}
 		}
 	} else {
-		echo $message;
+		$msg = $message;
 	}
+	echo $msg;
+	TMS_APP::M('log')->log('error', 'error', $msg);
 	exit;
 }
 

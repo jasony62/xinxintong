@@ -285,6 +285,7 @@ $sql .= ',product_img text';
 $sql .= ",delivery_id int not null default 0";
 $sql .= ",delivery_company varchar(255) not null default ''";
 $sql .= ",trans_id varchar(255) not null default ''";
+$sql .= ",feedback text"; //反馈信息
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

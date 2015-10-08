@@ -72,4 +72,54 @@ class order extends \member_base {
 
 		return new \ResponseData(array('order' => $order, 'sku' => $sku, 'product' => $prod, 'catelog' => $cascaded->catelog, 'propValues' => $cascaded->propValue2));
 	}
+	/**
+	 * 保存订单反馈信息并通知用户
+	 */
+	public function feedback_action($mpid, $shop, $order) {
+		$order = $this->model('app\merchant\order')->byId($order);
+
+		$feedback = $this->getPostJson();
+
+		if (empty($feedback)) {
+			$pv = '{}';
+		} else {
+			$pv = new \stdClass;
+			foreach ($feedback as $k => $v) {
+				$pv->{$k} = urlencode($v);
+			}
+			$pv = urldecode(json_encode($pv));
+		}
+		$rst = $this->model()->update(
+			'xxt_merchant_order',
+			array('feedback' => $pv),
+			"id=$order->id"
+		);
+
+		$this->notify($mpid, $order);
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 通知客服有新订单
+	 */
+	public function notify($mpid, $order) {
+		$url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/merchant/order";
+		$url .= "?mpid=" . $mpid;
+		$url .= "&shop=" . $order->sid;
+		$url .= "&order=" . $order->id;
+
+		$txt = urlencode("订单通知，");
+		$txt .= "<a href=\"$url\">";
+		$txt .= urlencode("请查看");
+		$txt .= "</a>";
+		$message = array(
+			"msgtype" => "text",
+			"text" => array(
+				"content" => $txt,
+			),
+		);
+		$this->sendByOpenid($mpid, $order->buyer_openid, $message);
+
+		return true;
+	}
 }

@@ -26,4 +26,10 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $h
         }
         return val;
     };
+    $scope.finish = function() {
+
+    };
+    $scope.cancel = function() {
+
+    };
 }]);

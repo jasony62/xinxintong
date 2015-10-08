@@ -35,7 +35,7 @@
             <input type='text' class='form-control input-lg' ng-model='orderInfo.receiver_mobile'>
         </div>
     </div>
-    <div id="feedback" class='form-group'>
+    <div id="feedback" class='form-group' ng-if="orderId">
         <div class='form-group prop'>
             <label ng-bind="''"></label>
             <p class='form-control input-lg' ng-bind="orderInfo.feedback['1']"></p>

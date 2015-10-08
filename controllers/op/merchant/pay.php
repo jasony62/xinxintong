@@ -1,6 +1,7 @@
 <?php
 namespace op\merchant;
 
+require_once dirname(dirname(dirname(__FILE__))) . '/xxt_base.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . "/lib/wxpay/WxPay.Api.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/wxpay/WxPay.Notify.php';
 /**
@@ -92,7 +93,7 @@ class PayNotifyCallBack extends \WxPayNotify {
 /**
  * 支付
  */
-class pay extends \TMS_CONTROLLER {
+class pay extends \xxt_base {
 	/**
 	 *
 	 */

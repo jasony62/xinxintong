@@ -47,6 +47,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $h
                 jsApiCall();
             }
         }
+        alert('oid:' + $scope.orderId);
         $http.get('/rest/app/merchant/pay/jsApiParametersGet?mpid=' + $scope.mpid + '&order=' + $scope.orderId).success(function(rsp) {
             if (typeof rsp === 'string') {
                 alert(rsp);

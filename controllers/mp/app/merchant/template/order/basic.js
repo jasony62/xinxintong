@@ -31,6 +31,9 @@ app.register.controller('merchantCtrl', ['$scope', '$http', 'Product', 'Order', 
 		productGet($scope.$parent.productId);
 	} else if ($scope.$parent.orderId) {
 		facOrder.get($scope.$parent.orderId).then(function(data) {
+			var feedback;
+			feedback = data.feedback;
+			$scope.orderInfo.feedback = (feedback && feedback.length) ? JSON.parse(feedback) : {};
 			$scope.orderInfo.extPropValues = JSON.parse(data.ext_prop_value);
 			$scope.orderInfo.receiver_name = data.receiver_name;
 			$scope.orderInfo.receiver_mobile = data.receiver_mobile;

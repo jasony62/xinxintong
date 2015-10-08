@@ -29,15 +29,34 @@ class pay extends \member_base {
 		 * 获得当前访问用户
 		 */
 		$openid = $this->doAuth($mpid, $code, $mocker);
-
 		$this->afterOAuth($mpid, $order, $openid);
 	}
 	/**
 	 * 返回页面
 	 */
 	public function afterOAuth($mpid, $orderId, $openid) {
+		\TPL::output('/app/merchant/pay');
+		exit;
+	}
+	/**
+	 *
+	 */
+	public function pageGet_action($mpid, $shop) {
+		// current visitor
+		$user = $this->getUser($mpid);
+		// page
+		$page = $this->model('app\merchant\page')->byType($shop, 'pay');
+		if (empty($page)) {
+			return new \ResponseError('没有获得订单页定义');
+		}
+		$page = $page[0];
 
-		$this->view_action('/app/merchant/pay');
+		$params = array(
+			'user' => $user,
+			'page' => $page,
+		);
+
+		return new \ResponseData($params);
 	}
 	/**
 	 *

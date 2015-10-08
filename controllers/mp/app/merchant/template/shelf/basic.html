@@ -1,4 +1,9 @@
-<div ng-app='app' ng-controller='productCtrl' class='container-fluid'>
+<div ng-controller='shelfCtrl'>
+	<div class='row' ng-hide='catelogs.length<=1'>
+		<div class='form-group'>
+			<select class='form-control' ng-model='selectedCatelog' ng-options='c.name for c in catelogs' ng-change='listProduct()'></select>
+		</div>
+	</div>
 	<div class='row'>
 		<div class='col-xs-6' ng-repeat='p in products'>
 			<div class='thumbnail' ng-click='gotoOrder(p)'>

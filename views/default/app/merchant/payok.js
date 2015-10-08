@@ -4,7 +4,8 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $h
     $scope.mpid = ls.match(/mpid=([^&]*)/)[1];
     $scope.shopId = ls.match(/shop=([^&]*)/)[1];
     $scope.errmsg = '';
-    $http.get('/rest/op/merchant/orderlist/pageGet?mpid=' + $scope.mpid + '&shop=' + $scope.shopId).success(function(rsp) {
+    $scope.ready = false;
+    $http.get('/rest/app/merchant/payok/pageGet?mpid=' + $scope.mpid + '&shop=' + $scope.shopId).success(function(rsp) {
         if (rsp.err_code !== 0) {
             $scope.errmsg = rsp.err_msg;
             return;
@@ -18,7 +19,14 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $h
             $scope.$broadcast('xxt.app.merchant.ready');
         });
     });
-    $scope.open = function(order) {
-        location.href = '/rest/op/merchant/order?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&order=' + order.id;
+    $scope.closeWindow = function() {
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+            window.wx.closeWindow();
+        } else if (/YiXin/i.test(navigator.userAgent)) {
+            window.YixinJSBridge.call('closeWebView');
+        }
+    };
+    $scope.gotoOrderlist = function() {
+        location.href = '/rest/app/merchant/orderlist?mpid=' + $scope.mpid + '&shop=' + $scope.shopId;
     };
 }]);

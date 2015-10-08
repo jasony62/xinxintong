@@ -24,46 +24,47 @@ class order extends \member_base {
 	 * $shop shop'id
 	 * $sku sku'id
 	 */
-	public function index_action($mpid, $shop, $product = null, $sku = null, $order = null, $mocker = null, $code = null) {
+	public function index_action($mpid, $product = null, $sku = null, $order = null, $mocker = null, $code = null) {
 		/**
 		 * 获得当前访问用户
 		 */
 		$openid = $this->doAuth($mpid, $code, $mocker);
 
-		$this->afterOAuth($mpid, $shop, $product, $sku, $order, $openid);
+		$this->afterOAuth($mpid, $product, $sku, $order, $openid);
 	}
 	/**
 	 * 返回页面
 	 */
-	public function afterOAuth($mpid, $shopId, $productId, $skuId, $orderId, $openid) {
-		if (!empty($orderId)) {
-			/* 打开已有订单 */
-			$this->view_action('/app/merchant/order');
-		} else if (!empty($skuId)) {
-			/* 创建新订单 */
-			$this->view_action('/app/merchant/order');
-		} else if (!empty($productId)) {
-			/* 创建新订单 */
-			$this->view_action('/app/merchant/order');
-		} else {
-			/* 订单列表 */
-			$this->view_action('/app/merchant/orderlist');
+	public function afterOAuth($mpid, $productId, $skuId, $orderId, $openid) {
+		\TPL::output('/app/merchant/order');
+		exit;
+	}
+	/**
+	 *
+	 */
+	public function pageGet_action($mpid, $shop) {
+		// current visitor
+		$user = $this->getUser($mpid);
+		// page
+		$page = $this->model('app\merchant\page')->byType($shop, 'order');
+		if (empty($page)) {
+			return new \ResponseError('没有获得订单页定义');
 		}
+		$page = $page[0];
+
+		$params = array(
+			'user' => $user,
+			'page' => $page,
+		);
+
+		return new \ResponseData($params);
 	}
 	/**
 	 *
 	 */
 	public function get_action($mpid, $order = null, $shop = null, $sku = null) {
-		$user = $this->getUser($mpid);
-		if (empty($order)) {
-			$orders = $this->model('app\merchant\order')->byShopid($shop, $user->openid);
-
-			return new \ResponseData($orders);
-		} else {
-			$order = $this->model('app\merchant\order')->byId($order);
-
-			return new \ResponseData($order);
-		}
+		$order = $this->model('app\merchant\order')->byId($order);
+		return new \ResponseData($order);
 	}
 	/**
 	 * 创建订单

@@ -1,13 +1,23 @@
 <div id='page-view'>
-
-    search criteria page
-        catelog
-        一个商店可以有多个产品检索页
-    exhibit page
-        product
-        which catelog
-        属性的值
-        定义页面的入口url
-        1个商店可以有多个产品入口页
-
+	<table class='table table-bordered'>
+		<thead>
+			<tr>
+				<th style='width:80px'>ID</th>
+				<th>页面</th>
+				<th>URL</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="p in pages">
+				<td ng-bind="p.id"></td>
+				<td ng-bind="p.title"></td>
+				<td></td>
+				<td>
+					<a href="javascript:void(0)" ng-click="gotoCode(p)">编辑</a>
+					<a href="javascript:void(0)" ng-click="resetCode(p)">重置</a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
 </div>

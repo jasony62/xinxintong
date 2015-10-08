@@ -1,18 +1,43 @@
-<div ng-app='app' ng-controller='orderListCtrl' ng-cloak class='ng-cloak container-fluid'>
-    <table class='table table-bordered'>
-        <thead>
-            <tr>
-                <th>姓名</th>
-                <th>手机</th>
-                <th>下单日期</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr ng-repeat='o in orders' ng-click='open(o)'>
-                <td data-th="姓名" ng-bind='o.receiver_name'></td>
-                <td data-th="手机" ng-bind='o.receiver_mobile'></td>
-                <td data-th="下单日期" ng-bind="o.order_create_time*1000|date:'yy-MM-dd HH:mm'"></td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+<!DOCTYPE html>
+<html ng-app='app' ng-controller='ctrl'>
+    
+    <head>
+        <meta charset="utf-8">
+        <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+        <base href="/" />
+        <title>订单列表</title>
+        <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link href="//libs.useso.com/js/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
+        <link href="/views/default/op/merchant/orderlist.css?_=1" rel="stylesheet">
+        <style ng-if="Page.css" ng-bind='Page.css'></style>
+    </head>
+    
+    <body ng-cloak class='ng-cloak'>
+        <div id='mask' ng-if="loading">
+            <div>
+                <i class='fa fa-spinner fa-5x fa-pulse'></i>
+            </div>
+        </div>
+        <div class="app">
+            <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
+            <div class='container'>
+                <div class='row'>
+                    <div name='page' novalidate dynamic-html="Page.html">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript">
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+        var mpid = location.search.match(/mpid=([^&]*)/)[1];
+        document.write("<script src='http:\/\/res.wx.qq.com\/open\/js\/jweixin-1.0.0.js'><\/script>");
+        document.write("<script src='\/rest\/mi\/matter\/wxjssdksignpackage?mpid="+mpid+"&url="+encodeURIComponent(location.href.split('#')[0])+"'><\/script>");
+        }
+        </script>
+        <script src="/static/js/jquery.min.js"></script>
+        <script src="/static/js/angular.min.js "></script>
+        <script src="/static/js/angular-sanitize.min.js "></script>
+        <script src="/views/default/op/merchant/base.js?_=1"></script>
+        <script src="/views/default/op/merchant/orderlist.js?_=1"></script>
+    </body>
+</html>

@@ -42,10 +42,10 @@ class product extends \member_base {
 	 * $assoPropId 关联的属性ID
 	 * $assoPropVid 关联的属性ID
 	 */
-	public function getByPropValue_action($cateId, $vids = '', $cascaded = 'N') {
+	public function getByPropValue_action($catelog, $vids = '', $cascaded = 'N') {
 		$vids = empty($vids) ? array() : explode(',', $vids);
 
-		$products = $this->model('app\merchant\product')->byPropValue($cateId, $vids, $cascaded);
+		$products = $this->model('app\merchant\product')->byPropValue($catelog, $vids, $cascaded);
 
 		return new \ResponseData($products);
 	}

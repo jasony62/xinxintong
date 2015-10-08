@@ -1,9 +1,4 @@
-html,body{width:100%;height:100%}
-body{font-size:15px}
-.container-fluid{padding:1em;}
-#order .form-group{display:table;width:100%;margin-bottom:0;border-bottom:1px dotted #ddd}
-#order .form-group:last-child{border-bottom:0}
-#order .form-group>*{display:table-cell;}
-#order .form-group>label{width:6em;white-space:normal;word-wrap:break-word;word-break:break-all;background:#eee;padding-left:.5em}
-#order .form-group>div{padding-left:1em}
-#dispose{position:fixed;left:1em;right:1em;bottom:1em;text-align:right}
+.ng-cloak{display:none;}
+body{padding:15px;font-size:16px;font-family:Microsoft Yahei,Arial}
+#errmsg{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:0;left:50%;margin:0 0 0 -150px;text-align:center;transition:opacity 1s;z-index:-1;word-break:break-all}
+#errmsg.active{opacity:1;height:auto;z-index:999}

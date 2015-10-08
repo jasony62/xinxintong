@@ -1,0 +1,7 @@
+#product{margin-bottom:2em;}
+#product .form-group{display:table;width:100%;margin-bottom:0;border-bottom:1px dotted #ddd}
+#product .form-group:last-child{border-bottom:0}
+#product .form-group>*{display:table-cell;}
+#product .form-group>label{width:6em;white-space:normal;word-wrap:break-word;word-break:break-all;background:#eee;padding-left:.5em}
+#product .form-group>div{padding-left:1em}
+#product .detail_text{max-height: 180px;overflow: auto}

@@ -1,31 +1,43 @@
-<div ng-app='app' ng-controller='notifyCtrl' ng-cloak class='container-fluid ng-cloak'>
-    <div id="order">
-        <div class='form-group'>
-            <label>联系人姓名</label>
-            <div class='form-control-static' ng-bind='order.receiver_name'></div>
+<!DOCTYPE html>
+<html ng-app='app' ng-controller='ctrl'>
+    
+    <head>
+        <meta charset="utf-8">
+        <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+        <base href="/" />
+        <title>订单</title>
+        <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link href="//libs.useso.com/js/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
+        <link href="/views/default/op/merchant/order.css?_=1" rel="stylesheet">
+        <style ng-if="Page.css" ng-bind='Page.css'></style>
+    </head>
+    
+    <body ng-cloak class='ng-cloak'>
+        <div id='mask' ng-if="loading">
+            <div>
+                <i class='fa fa-spinner fa-5x fa-pulse'></i>
+            </div>
         </div>
-        <div class='form-group'>
-            <label>联系人电话</label>
-            <div class='form-control-static' ng-bind='order.receiver_mobile'></div>
+        <div class="app">
+            <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
+            <div class='container'>
+                <div class='row'>
+                    <div name='page' novalidate dynamic-html="Page.html">
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class='form-group' ng-repeat='oep in cate.orderProperties'>
-            <label ng-bind='oep.name'></label>
-            <div class='form-control-static' ng-bind="orderExtPropValue(oep)"></div>
-        </div>
-        <div class='form-group'>
-            <label>下单时间</label>
-            <div class='form-control-static' ng-bind="order.order_create_time*1000|date:'yy-MM-dd HH:mm'"></div>
-        </div>
-        <div class='form-group'>
-            <label>商品</label>
-            <div class='form-control-static' ng-bind='product.name'></div>
-        </div>
-        <div class='form-group' ng-repeat='pv in product.propValues'>
-            <label ng-bind='pv.name'></label>
-            <div class='form-control-static' ng-bind="pv.value||'&nbsp;'"></div>
-        </div>
-    </div>
-    <div id="dispose">
-        <button class="btn btn-success btn-lg" ng-click="call()">电话</button>
-    </div>
-</div>
+        <script type="text/javascript">
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+        var mpid = location.search.match(/mpid=([^&]*)/)[1];
+        document.write("<script src='http:\/\/res.wx.qq.com\/open\/js\/jweixin-1.0.0.js'><\/script>");
+        document.write("<script src='\/rest\/mi\/matter\/wxjssdksignpackage?mpid="+mpid+"&url="+encodeURIComponent(location.href.split('#')[0])+"'><\/script>");
+        }
+        </script>
+        <script src="/static/js/jquery.min.js"></script>
+        <script src="/static/js/angular.min.js "></script>
+        <script src="/static/js/angular-sanitize.min.js "></script>
+        <script src="/views/default/op/merchant/base.js?_=1"></script>
+        <script src="/views/default/op/merchant/order.js?_=1"></script>
+    </body>
+</html>

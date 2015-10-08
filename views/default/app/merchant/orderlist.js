@@ -1,18 +1,24 @@
-var app = angular.module('app', []);
-app.config(['$locationProvider', function($locationProvider) {
-	$locationProvider.html5Mode(true);
-}]);
-app.controller('merchantCtrl', ['$scope', '$http', '$location', function($scope, $http, $location) {
-	var mpid = $location.search().mpid,
-		shopId = $location.search().shop;
-	$scope.open = function(order) {
-		location.href = '/rest/app/merchant/order?mpid=' + mpid + '&shop=' + shopId + '&order=' + order.id;
-	};
-	$http.get('/rest/app/merchant/order/get?mpid=' + mpid + '&shop=' + shopId).success(function(rsp) {
-		if (rsp.err_code !== 0) {
-			alert(rsp.err_msg);
-			return;
-		}
-		$scope.orders = rsp.data;
-	});
+app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
+    var ls;
+    ls = location.search;
+    $scope.mpid = ls.match(/mpid=([^&]*)/)[1];
+    $scope.shopId = ls.match(/shop=([^&]*)/)[1];
+    $scope.errmsg = '';
+    $http.get('/rest/app/merchant/orderlist/pageGet?mpid=' + $scope.mpid + '&shop=' + $scope.shopId).success(function(rsp) {
+        if (rsp.err_code !== 0) {
+            $scope.errmsg = rsp.err_msg;
+            return;
+        }
+        var params;
+        params = rsp.data;
+        $scope.User = params.user;
+        $scope.Page = params.page;
+        window.setPage(params.page);
+        $timeout(function() {
+            $scope.$broadcast('xxt.app.merchant.ready');
+        });
+    });
+    $scope.open = function(order) {
+        location.href = '/rest/app/merchant/order?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&order=' + order.id;
+    };
 }]);

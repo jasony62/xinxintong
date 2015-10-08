@@ -1,10 +1,11 @@
-app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
-    var ls;
+app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
+    var ls, pageId;
     ls = location.search;
     $scope.mpid = ls.match(/mpid=([^&]*)/)[1];
     $scope.shopId = ls.match(/shop=([^&]*)/)[1];
+    pageId = ls.match(/page=([^&]*)/)[1];
     $scope.errmsg = '';
-    $http.get('/rest/op/merchant/orderlist/pageGet?mpid=' + $scope.mpid + '&shop=' + $scope.shopId).success(function(rsp) {
+    $http.get('/rest/app/merchant/shelf/get?mpid=' + $scope.mpid + '&page=' + pageId).success(function(rsp) {
         if (rsp.err_code !== 0) {
             $scope.errmsg = rsp.err_msg;
             return;
@@ -18,7 +19,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $h
             $scope.$broadcast('xxt.app.merchant.ready');
         });
     });
-    $scope.open = function(order) {
-        location.href = '/rest/op/merchant/order?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&order=' + order.id;
+    $scope.gotoOrder = function(product) {
+        location.href = '/rest/app/merchant/order?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&product=' + product.id;
     };
 }]);

@@ -32,6 +32,12 @@
                 <input type='text' class='form-control' ng-disabled="mpa.wx_joined==='N'" ng-model='mpa.wx_appsecret' tms-auto-update tms-wait=1000 tms-update="update('wx_appsecret')">
             </div>
         </div>
+        <div class='form-group' ng-hide="mpapis.wx_pay==='N'">
+            <label class='col-md-2 control-label'>商户号</label>
+            <div class='col-md-10'>
+                <input type='text' class='form-control' ng-model='mpa.wx_mchid' tms-auto-update tms-wait=1000 tms-update="update('wx_mchid')">
+            </div>
+        </div>
     </div>
 </div>
 <div ng-if="mpa.asparent==='N'" class='form-horizontal'>
@@ -83,6 +89,10 @@
                     <tr>
                         <td>网页授权（OAuth2.0）</td>
                         <td><input type='checkbox' ng-model='mpapis.wx_oauth' ng-true-value="'Y'" ng-false-value="'N'" ng-change="updateApi('wx_oauth')"></td>
+                    </tr>
+                    <tr>
+                        <td>微信支付</td>
+                        <td><input type='checkbox' ng-model='mpapis.wx_pay' ng-true-value="'Y'" ng-false-value="'N'" ng-change="updateApi('wx_pay')"></td>
                     </tr>
                 </tbody>
             </table>

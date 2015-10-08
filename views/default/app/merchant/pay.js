@@ -3,7 +3,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $h
     ls = location.search;
     $scope.mpid = ls.match(/mpid=([^&]*)/)[1];
     $scope.shopId = ls.match(/shop=([^&]*)/)[1];
-    $scope.orderId = ls.match(/[\?&]order=([^&])/)[1];
+    $scope.orderId = ls.match(/[\?&]order=([^&]*)/)[1];
     $scope.errmsg = '';
     $scope.ready = false;
     $http.get('/rest/app/merchant/pay/pageGet?mpid=' + $scope.mpid + '&shop=' + $scope.shopId).success(function(rsp) {
@@ -47,7 +47,6 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $h
                 jsApiCall();
             }
         }
-        alert('oid:' + $scope.orderId);
         $http.get('/rest/app/merchant/pay/jsApiParametersGet?mpid=' + $scope.mpid + '&order=' + $scope.orderId).success(function(rsp) {
             if (typeof rsp === 'string') {
                 alert(rsp);

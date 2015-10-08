@@ -19,13 +19,6 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $h
             $scope.$broadcast('xxt.app.merchant.ready');
         });
     });
-    $scope.orderExtPropValue = function(ope) {
-        var val = '';
-        if ($scope.order.extPropValues[ope.id]) {
-            val = $scope.order.extPropValues[ope.id];
-        }
-        return val;
-    };
     $scope.finish = function() {
 
     };

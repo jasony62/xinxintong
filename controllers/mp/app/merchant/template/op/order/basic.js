@@ -10,6 +10,13 @@ app.register.controller('notifyCtrl', ['$scope', '$http', 'Order', function($sco
 		$scope.product = data.product;
 		$scope.catelog = data.catelog;
 	});
+	$scope.orderExtPropValue = function(ope) {
+        var val = '';
+        if ($scope.order.extPropValues[ope.id]) {
+            val = $scope.order.extPropValues[ope.id];
+        }
+        return val;
+    };
 	$scope.call = function() {
 		var ele = document.createElement('a');
 		ele.setAttribute('href', 'tel://' + $scope.order.receiver_mobile);

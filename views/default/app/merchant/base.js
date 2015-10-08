@@ -179,7 +179,7 @@ app.factory('Order', function($http, $q) {
                 return;
             }
             if (rsp.err_code != 0) {
-                alert(rsp.data);
+                alert(rsp.err_msg);
                 return;
             }
             deferred.resolve(rsp.data);

@@ -60,6 +60,8 @@ class order_model extends \TMS_MODEL {
 
 		$sku = \TMS_APP::M('app\merchant\sku')->byId($skuId);
 
+		$product = \TMS_APP::M('app\merchant\product')->byId($sku->prod_id);
+
 		if (empty($info->extPropValues)) {
 			$epv = '{}';
 		} else {
@@ -84,8 +86,8 @@ class order_model extends \TMS_MODEL {
 			'receiver_name' => $info->receiver_name,
 			'receiver_mobile' => $info->receiver_mobile,
 			'product_id' => $sku->prod_id,
-			'product_name' => '',
-			'product_img' => '',
+			'product_name' => $product->name,
+			'product_img' => $product->main_img,
 			'product_sku' => $skuId,
 			'product_price' => $sku->price,
 			'product_count' => $info->product_count,

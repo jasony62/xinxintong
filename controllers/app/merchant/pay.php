@@ -78,7 +78,7 @@ class pay extends \member_base {
 		$wxPayConfig = new \WxPayConfig($mpid);
 		$input = new \WxPayUnifiedOrder();
 
-		$input->SetBody("测试商品说明");
+		$input->SetBody($order->product_name);
 		$input->SetAttach("测试附加信息");
 		$input->SetOut_trade_no($order->trade_no);
 		$input->SetTotal_fee($order->order_total_price);

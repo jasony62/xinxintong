@@ -36,6 +36,7 @@ class catelog_model extends \TMS_MODEL {
 			$cate->properties = $cascaded->properties;
 			$cate->propValues = isset($cascaded->propValues) ? $cascaded->propValues : array();
 			$cate->orderProperties = isset($cascaded->orderProperties) ? $cascaded->orderProperties : array();
+			$cate->feedbackProperties = isset($cascaded->feedbackProperties) ? $cascaded->feedbackProperties : array();
 		}
 
 		return $catelogs;
@@ -86,6 +87,17 @@ class catelog_model extends \TMS_MODEL {
 		$orderProperties = $this->query_objs_ss($q);
 
 		$cascaded->orderProperties = $orderProperties;
+		/**
+		 * feedback properties
+		 */
+		$q = array(
+			'*',
+			'xxt_merchant_order_feedback_property',
+			"cate_id=$id",
+		);
+		$properties = $this->query_objs_ss($q);
+
+		$cascaded->feedbackProperties = $properties;
 
 		return $cascaded;
 	}

@@ -170,6 +170,53 @@ class catelog extends \mp\app\app_base {
 		return new \ResponseData($rst);
 	}
 	/**
+	 * 添加属性
+	 *
+	 * $id catelog's id
+	 */
+	public function feedbackPropCreate_action($id) {
+		$cate = $this->model('app\merchant\catelog')->byId($id);
+		if (false === $cate) {
+			return new \ResponseError('指定的分类不存在，无法添加属性');
+		}
+
+		$creater = \TMS_CLIENT::get_client_uid();
+
+		$prop = array(
+			'mpid' => $this->mpid,
+			'sid' => $cate->sid,
+			'cate_id' => $id,
+			'create_at' => time(),
+			'creater' => $creater,
+			'name' => '新属性',
+		);
+
+		$prop['id'] = $this->model()->insert('xxt_merchant_order_feedback_property', $prop, true);
+
+		return new \ResponseData($prop);
+	}
+	/**
+	 *
+	 */
+	public function feedbackPropUpdate_action() {
+		$updated = $this->getPostJson();
+
+		$data = array();
+		$data['name'] = $updated->name;
+
+		$rst = $this->model()->update('xxt_merchant_order_feedback_property', $data, "id=$updated->id");
+
+		return new \ResponseData($data);
+	}
+	/**
+	 *
+	 */
+	public function feedbackPropRemove_action($id) {
+		$rst = $this->model()->delete('xxt_merchant_order_feedback_property', "id=$id");
+
+		return new \ResponseData($rst);
+	}
+	/**
 	 *
 	 */
 	public function skuGet_action() {

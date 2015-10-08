@@ -24,8 +24,6 @@
             <label ng-bind='p.name'></label>
             <input type='text' class='form-control input-lg' ng-model='orderInfo.extPropValues[p.id]'>
         </div>
-    </div>
-    <div id='customer'>
         <div class='form-group'>
             <label>联系人姓名</label>
             <input type='text' class='form-control input-lg' ng-model='orderInfo.receiver_name'>
@@ -36,9 +34,9 @@
         </div>
     </div>
     <div id="feedback" class='form-group' ng-if="orderId">
-        <div class='form-group prop'>
-            <label ng-bind="''"></label>
-            <p class='form-control input-lg' ng-bind="orderInfo.feedback['1']"></p>
+        <div class='form-group prop' ng-repeat='p in catelog.feedbackProperties'>
+            <label ng-bind='p.name'></label>
+            <p class='form-control input-lg' ng-bind="orderInfo.feedback[p.id]"></p>
         </div>
     </div>
     <button class='btn btn-success btn-lg btn-block' ng-click='create()'>提交</button>

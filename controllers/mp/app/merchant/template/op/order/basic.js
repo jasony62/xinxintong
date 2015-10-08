@@ -11,12 +11,12 @@ app.register.controller('notifyCtrl', ['$scope', '$http', 'Order', function($sco
 		$scope.catelog = data.catelog;
 	});
 	$scope.orderExtPropValue = function(ope) {
-        var val = '';
-        if ($scope.order.extPropValues[ope.id]) {
-            val = $scope.order.extPropValues[ope.id];
-        }
-        return val;
-    };
+		var val = '';
+		if ($scope.order.extPropValues[ope.id]) {
+			val = $scope.order.extPropValues[ope.id];
+		}
+		return val;
+	};
 	$scope.call = function() {
 		var ele = document.createElement('a');
 		ele.setAttribute('href', 'tel://' + $scope.order.receiver_mobile);
@@ -26,7 +26,7 @@ app.register.controller('notifyCtrl', ['$scope', '$http', 'Order', function($sco
 		var url;
 		url = '/rest/op/merchant/order/feedback?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&order=' + $scope.orderId;
 		$http.post(url, $scope.order.feedback).success(function(rsp) {
-
+			alert('ok');
 		});
 	};
 }]);

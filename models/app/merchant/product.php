@@ -104,13 +104,13 @@ class product_model extends \TMS_MODEL {
 			} else {
 				$propValue2->{$prop->id} = '';
 			}
-
 		}
 		$cascaded->propValue2 = $propValue2;
 		/**
-		 *
+		 * order properties
 		 */
 		$catelog->orderProperties = $cateCascaded->orderProperties;
+		$catelog->feedbackProperties = $cateCascaded->feedbackProperties;
 		/**
 		 * sku
 		 */

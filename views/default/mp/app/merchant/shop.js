@@ -33,6 +33,20 @@ xxtApp.config(['$routeProvider', function($rp) {
     }).when('/rest/mp/app/merchant/group', {
         templateUrl: '/views/default/mp/app/merchant/group.html',
         controller: 'groupCtrl'
+    }).when('/rest/mp/app/merchant/tmplmsg', {
+        templateUrl: '/views/default/mp/app/merchant/tmplmsg.html',
+        controller: 'tmplmsgCtrl',
+        resolve: {
+            load: function($q) {
+                var defer = $q.defer();
+                (function() {
+                    $.getScript('/views/default/mp/app/merchant/tmplmsg.js?_=1', function() {
+                        defer.resolve();
+                    });
+                })();
+                return defer.promise;
+            }
+        }
     }).when('/rest/mp/app/merchant/page', {
         templateUrl: '/views/default/mp/app/merchant/page.html',
         controller: 'pageCtrl',

@@ -393,6 +393,18 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
+ * 模板消息映射关系
+ */
+$sql = "create table if not exists xxt_tmplmsg_mapping(";
+$sql .= 'id int not null auto_increment';
+$sql .= ',msgid int not null';
+$sql .= ',mapping text';
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
  * 回复访问控制列表
  */
 $sql = "create table if not exists xxt_matter_acl(";

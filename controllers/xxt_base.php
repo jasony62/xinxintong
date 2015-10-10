@@ -287,7 +287,7 @@ class xxt_base extends TMS_CONTROLLER {
 		}
 		/*记录日志*/
 		$log = array(
-			'mpid' => $this->mpid,
+			'mpid' => $mpid,
 			'openid' => $openid,
 			'tmplmsg_id' => $tmplmsgId,
 			'template_id' => $msg['template_id'],

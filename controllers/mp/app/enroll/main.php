@@ -234,38 +234,27 @@ class main extends \mp\app\app_base {
 			$newact['failure_matter_type'] = $copied->failure_matter_type;
 			$newact['failure_matter_id'] = $copied->failure_matter_id;
 		}
-		/**
-		 * 复制固定页面
-		 */
-		$code = $codeModel->create($uid);
-		$copiedCode = $codeModel->byId($copied->form_code_id);
-		$data = array(
-			'html' => $copiedCode->html,
-			'css' => $copiedCode->css,
-			'js' => $copiedCode->js,
-		);
-		$codeModel->modify($code->id, $data);
-		$newact['form_code_id'] = $code->id;
-
 		$this->model()->insert('xxt_enroll', $newact, false);
 		/**
 		 * 复制自定义页面
 		 */
-		$extraPages = $enrollModel->getPages($aid);
-		foreach ($extraPages as $ep) {
-			$newPage = $enrollModel->addPage($this->mpid, $newaid);
-			$rst = $this->model()->update(
-				'xxt_enroll_page',
-				array('title' => $ep->title, 'name' => $ep->name),
-				"aid='$newaid' and id=$newPage->id"
-			);
-			$data = array(
-				'title' => $ep->title,
-				'html' => $ep->html,
-				'css' => $ep->css,
-				'js' => $ep->js,
-			);
-			$codeModel->modify($newPage->code_id, $data);
+		if ($copied->pages) {
+			$modelPage = $this->model('app\enroll\page');
+			foreach ($copied->pages as $ep) {
+				$newPage = $modelPage->add($this->mpid, $newaid);
+				$rst = $modelPage->update(
+					'xxt_enroll_page',
+					array('title' => $ep->title, 'name' => $ep->name),
+					"aid='$newaid' and id=$newPage->id"
+				);
+				$data = array(
+					'title' => $ep->title,
+					'html' => $ep->html,
+					'css' => $ep->css,
+					'js' => $ep->js,
+				);
+				$codeModel->modify($newPage->code_id, $data);
+			}
 		}
 		if ($copied->mpid === $this->mpid) {
 			/**

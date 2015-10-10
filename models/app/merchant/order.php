@@ -63,6 +63,7 @@ class order_model extends \TMS_MODEL {
 		$product = \TMS_APP::M('app\merchant\product')->byId($sku->prod_id);
 
 		if (empty($info->extPropValues)) {
+			$info->extPropValues = new \stdClass;
 			$epv = '{}';
 		} else {
 			$epv = new \stdClass;

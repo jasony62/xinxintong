@@ -94,7 +94,8 @@ class order extends \member_base {
 			array('feedback' => $pv),
 			"id=$order->id"
 		);
-
+		/*发通知*/
+		$order->feedback = json_decode($pv);
 		$this->notify($mpid, $order);
 
 		return new \ResponseData($rst);
@@ -103,22 +104,52 @@ class order extends \member_base {
 	 * 通知客服有新订单
 	 */
 	public function notify($mpid, $order) {
+		/**/
+		$product = $this->model('app\merchant\product')->byId($order->product_id, 'Y');
+		$modelTmpl = $this->model('matter\tmplmsg');
+		$mapping = $modelTmpl->mappingById($product->catelog->feedback_order_tmplmsg);
+		if (false === $mapping) {
+			return false;
+		}
+		/**/
+		$tmplmsg = $modelTmpl->byId($mapping->msgid, 'Y');
+		if (empty($tmplmsg->params)) {
+			return false;
+		}
+		/*构造消息数据*/
+		$data = array();
+		foreach ($mapping->mapping as $k => $p) {
+			$v = '';
+			switch ($p->src) {
+			case 'product':
+				if ($p->id === '__productName') {
+					$v = $product->name;
+				} else {
+					$v = $product->propValue2->{$p->id}->name;
+				}
+				break;
+			case 'order':
+				if ($p->id === '__orderSn') {
+					$v = $order->trade_no;
+				} else if ($p->id === '__orderState') {
+					$v = '未付款';
+				} else {
+					$v = $order->extPropValue->{$p->id};
+				}
+				break;
+			case 'feedback':
+				$v = $order->feedback->{$p->id};
+				break;
+			}
+			$data[$k] = $v;
+		}
+		/**/
 		$url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/merchant/order";
 		$url .= "?mpid=" . $mpid;
 		$url .= "&shop=" . $order->sid;
 		$url .= "&order=" . $order->id;
-
-		$txt = urlencode("订单通知，");
-		$txt .= "<a href=\"$url\">";
-		$txt .= urlencode("请查看");
-		$txt .= "</a>";
-		$message = array(
-			"msgtype" => "text",
-			"text" => array(
-				"content" => $txt,
-			),
-		);
-		$this->sendByOpenid($mpid, $order->buyer_openid, $message);
+		/**/
+		$this->tmplmsgSendByOpenid($mpid, $tmplmsg->id, $order->buyer_openid, $data, $url);
 
 		return true;
 	}

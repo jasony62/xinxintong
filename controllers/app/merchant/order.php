@@ -110,7 +110,11 @@ class order extends \member_base {
 			$v = '';
 			switch ($p->src) {
 			case 'product':
-				$v = $product->propValue2->{$p->id}->name;
+				if ($p->id === '__productName') {
+					$v = $product->name;
+				} else {
+					$v = $product->propValue2->{$p->id}->name;
+				}
 				break;
 			case 'order':
 				if ($p->id === '__orderSn') {

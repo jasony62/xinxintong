@@ -44,12 +44,19 @@
                         o = def.mapping[i];
                         switch (o.src) {
                             case 'product':
-                                $scope.selectedCatelog.properties.forEach(function(v) {
-                                    if (v.id == o.id) {
-                                        prop = v;
-                                        return false;
-                                    }
-                                });
+                                if (o.id === '__productName') {
+                                    prop = {
+                                        id: '__productName',
+                                        name: '名称'
+                                    };
+                                } else {
+                                    $scope.selectedCatelog.properties.forEach(function(v) {
+                                        if (v.id == o.id) {
+                                            prop = v;
+                                            return false;
+                                        }
+                                    });
+                                }
                                 break;
                             case 'order':
                                 if (o.id === '__orderSn') {
@@ -127,6 +134,11 @@
                 },
                 controller: ['$modalInstance', '$scope', 'catelog', function($mi, $scope2, catelog) {
                     $scope2.catelog = catelog;
+                    $scope2.properties = angular.copy(catelog.properties);
+                    $scope2.properties.push({
+                        id: '__productName',
+                        name: '名称'
+                    });
                     $scope2.orderProperties = angular.copy(catelog.orderProperties);
                     $scope2.orderProperties.push({
                         id: '__orderSn',

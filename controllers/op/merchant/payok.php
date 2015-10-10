@@ -122,7 +122,7 @@ class payok extends \xxt_base {
 		/**/
 		$product = $this->model('app\merchant\product')->byId($order->product_id, 'Y');
 		$modelTmpl = $this->model('matter\tmplmsg');
-		$mapping = $modelTmpl->mappingById($product->catelog->submit_order_tmplmsg);
+		$mapping = $modelTmpl->mappingById($product->catelog->pay_order_tmplmsg);
 		if (false === $mapping) {
 			return false;
 		}
@@ -137,7 +137,11 @@ class payok extends \xxt_base {
 			$v = '';
 			switch ($p->src) {
 			case 'product':
-				$v = $product->propValue2->{$p->id}->name;
+				if ($p->id === '__productName') {
+					$v = $product->name;
+				} else {
+					$v = $product->propValue2->{$p->id}->name;
+				}
 				break;
 			case 'order':
 				if ($p->id === '__orderSn') {

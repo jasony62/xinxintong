@@ -276,13 +276,10 @@ class xxt_base extends TMS_CONTROLLER {
 		if ($tmpl->params) {
 			foreach ($tmpl->params as $p) {
 				$value = isset($data[$p->pname]) ? $data[$p->pname] : (isset($data[$p->id]) ? $data[$p->id] : '');
-				$msg['data'][$p->pname] = array('value' => $vaule, 'color' => '#173177');
+				$msg['data'][$p->pname] = array('value' => $value, 'color' => '#173177');
 			}
 		}
-		//foreach ($data as $k => $v) {
-		//	$msg['data'][$k] = array('value' => $v, 'color' => '#173177');
-		//}
-
+		/*发送消息*/
 		$mpproxy = $this->model('mpproxy/wx', $mpid);
 		$rst = $mpproxy->messageTemplateSend($msg);
 		if ($rst[0] === false) {

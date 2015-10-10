@@ -87,35 +87,55 @@ class order extends \member_base {
 	 * 通知客服有新订单
 	 */
 	private function notify($mpid, $order) {
-		/* 客服员工 */
+		/*客服员工*/
 		$staffs = $this->model('app\merchant\shop')->staffAcls($mpid, $order->sid, 'c');
 		if (empty($staffs)) {
 			return false;
 		}
-		/**
-		 * 如果设置了客户人员，向客服人员发消息
-		 */
+		/**/
+		$product = $this->model('app\merchant\product')->byId($order->product_id, 'Y');
+		$modelTmpl = $this->model('matter\tmplmsg');
+		$mapping = $modelTmpl->mappingById($product->catelog->submit_order_tmplmsg);
+		if (false === $mapping) {
+			return false;
+		}
+		/**/
+		$tmplmsg = $modelTmpl->byId($mapping->msgid, 'Y');
+		if (empty($tmplmsg->params)) {
+			return false;
+		}
+		/*构造消息数据*/
+		$data = array();
+		foreach ($mapping->mapping as $k => $p) {
+			$v = '';
+			switch ($p->src) {
+			case 'product':
+				$v = $product->propValue2->{$p->id}->name;
+				break;
+			case 'order':
+				if ($p->id === '__orderSn') {
+					$v = $order->trade_no;
+				} else if ($p->id === '__orderState') {
+					$v = '未付款';
+				} else {
+					$v = $order->extPropValue->{$p->id};
+				}
+				break;
+			}
+			$data[$k] = $v;
+		}
+		/*订单访问地址*/
 		$url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/op/merchant/order";
 		$url .= "?mpid=" . $mpid;
 		$url .= "&shop=" . $order->sid;
 		$url .= "&order=" . $order->id;
-
-		$txt = urlencode("有新订单，");
-		$txt .= "<a href=\"$url\">";
-		$txt .= urlencode("请处理");
-		$txt .= "</a>";
-		$message = array(
-			"msgtype" => "text",
-			"text" => array(
-				"content" => $txt,
-			),
-		);
+		/*发送模版消息*/
 		$modelFan = $this->model('user/fans');
 		foreach ($staffs as $staff) {
 			switch ($staff->idsrc) {
 			case 'M':
 				$fan = $modelFan->byMid($staff->identity);
-				$this->sendByOpenid($mpid, $fan->openid, $message);
+				$this->tmplmsgSendByOpenid($mpid, $tmplmsg->id, $fan->openid, $data, $url);
 				break;
 			}
 		}

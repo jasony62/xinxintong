@@ -94,6 +94,7 @@ class order_model extends \TMS_MODEL {
 		);
 
 		$order['id'] = $this->insert('xxt_merchant_order', $order, true);
+		$order['extPropValue'] = $info->extPropValues;
 
 		return (object) $order;
 	}

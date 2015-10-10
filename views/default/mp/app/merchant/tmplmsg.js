@@ -43,7 +43,7 @@
                     for (i in def.mapping) {
                         o = def.mapping[i];
                         switch (o.src) {
-                            case 'catelog':
+                            case 'product':
                                 $scope.selectedCatelog.properties.forEach(function(v) {
                                     if (v.id == o.id) {
                                         prop = v;
@@ -52,12 +52,24 @@
                                 });
                                 break;
                             case 'order':
-                                $scope.selectedCatelog.orderProperties.forEach(function(v) {
-                                    if (v.id == o.id) {
-                                        prop = v;
-                                        return false;
-                                    }
-                                });
+                                if (o.id === '__orderSn') {
+                                    prop = {
+                                        id: '__orderSn',
+                                        name: '订单号'
+                                    };
+                                } else if (o.id === '__orderState') {
+                                    prop = {
+                                        id: '__orderState',
+                                        name: '订单状态'
+                                    };
+                                } else {
+                                    $scope.selectedCatelog.orderProperties.forEach(function(v) {
+                                        if (v.id == o.id) {
+                                            prop = v;
+                                            return false;
+                                        }
+                                    });
+                                }
                                 break;
                             case 'feedback':
                                 $scope.selectedCatelog.feedbackProperties.forEach(function(v) {
@@ -74,6 +86,7 @@
                         }
                     }
                     orderEvt.mapping = def.mapping;
+                    console.log('om', orderEvt.mapping);
                 } else {
                     orderEvt.mapping = {};
                 }
@@ -114,8 +127,17 @@
                 },
                 controller: ['$modalInstance', '$scope', 'catelog', function($mi, $scope2, catelog) {
                     $scope2.catelog = catelog;
+                    $scope2.orderProperties = angular.copy(catelog.orderProperties);
+                    $scope2.orderProperties.push({
+                        id: '__orderSn',
+                        name: '订单号'
+                    });
+                    $scope2.orderProperties.push({
+                        id: '__orderState',
+                        name: '订单状态'
+                    });
                     $scope2.data = {
-                        srcProp: 'catelog'
+                        srcProp: 'product'
                     };
                     $scope2.close = function() {
                         $mi.dismiss();

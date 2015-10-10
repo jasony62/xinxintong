@@ -12,9 +12,9 @@ class tmplmsg_model extends \TMS_MODEL {
 		$q = array(
 			'*',
 			'xxt_tmplmsg',
-			"id=$tmplmsgId",
+			"id=$id",
 		);
-		$tmpl = $this->model()->query_obj_ss($q);
+		$tmpl = $this->query_obj_ss($q);
 		/*参数*/
 		if ($tmpl && $cascaded === 'Y') {
 			$q = array(
@@ -22,7 +22,7 @@ class tmplmsg_model extends \TMS_MODEL {
 				'xxt_tmplmsg_param',
 				"tmplmsg_id=$id",
 			);
-			$tmpl->params = $this->model()->query_obj_ss($q);
+			$tmpl->params = $this->query_objs_ss($q);
 		}
 
 		return $tmpl;

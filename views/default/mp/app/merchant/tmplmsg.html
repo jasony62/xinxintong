@@ -66,18 +66,18 @@
         <div class='form-group'>
             <label>属性来源</label>
             <select class='form-control' ng-model='data.srcProp'>
-                <option value='catelog'>分类</option>
+                <option value='product'>商品</option>
                 <option value='order'>订单</option>
                 <option value='feedback'>订单反馈</option>
             </select>
         </div>
-        <div class='form-group' ng-show="data.srcProp==='catelog'">
+        <div class='form-group' ng-show="data.srcProp==='product'">
             <label>分类属性</label>
             <select class='form-control' ng-model='data.selected' ng-options='p.name for p in catelog.properties'></select>
         </div>
         <div class='form-group' ng-show="data.srcProp==='order'">
             <label>订单属性</label>
-            <select class='form-control' ng-model='data.selected' ng-options='p.name for p in catelog.orderProperties'></select>
+            <select class='form-control' ng-model='data.selected' ng-options='p.name for p in orderProperties'></select>
         </div>
         <div class='form-group' ng-show="data.srcProp==='feedback'">
             <label>订单反馈属性</label>

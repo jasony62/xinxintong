@@ -11,16 +11,16 @@ class tmplmsg_model extends \TMS_MODEL {
 		//
 		$mappings = new \stdClass;
 		//
-		$fields = $eventName === null ? array('submit_order,pay_order,feedback_order' : array($eventName);
+		$fields = $eventName === null ? array('submit_order', 'pay_order', 'feedback_order') : array($eventName);
 		$q = array(
-			implode('_tmplmsg,', $fields),
+			implode('_tmplmsg,', $fields) . '_tmplmsg',
 			'xxt_merchant_catelog',
 			"id=$catelogId",
 		);
 		$catelog = $this->query_obj_ss($q);
 		if ($catelog) {
 			foreach ($fields as $eventName) {
-				$mapping = \TMS_MODEL::M('matter\tmplmsg')->mappingById($catelog->{$eventName.'_tmplmsg'});
+				$mapping = \TMS_MODEL::M('matter\tmplmsg')->mappingById($catelog->{$eventName . '_tmplmsg'});
 				$mappings->{$eventName} = $mapping;
 			}
 		}

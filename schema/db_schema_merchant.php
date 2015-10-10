@@ -69,6 +69,9 @@ $sql .= ',reviser varchar(40) not null';
 $sql .= ",modify_at int not null";
 $sql .= ",parent_cate_id int not null default 0"; // 父分类ID
 $sql .= ",name varchar(70) not null";
+$sql .= ",submit_order_tmplmsg int not null default 0";
+$sql .= ",pay_order_tmplmsg int not null default 0";
+$sql .= ",feedback_order_tmplmsg int not null default 0";
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

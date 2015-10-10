@@ -69,6 +69,14 @@ class tmplmsg extends matter_ctrl {
 		return new \ResponseData($tmplmsgs);
 	}
 	/**
+	 *
+	 */
+	public function mappingGet_action($id) {
+		$mapping = $this->model('matter\tmplmsg')->mappingById($id);
+
+		return new \ResponseData($mapping);
+	}
+	/**
 	 * 创建模板消息
 	 */
 	public function create_action($title = '新模板消息') {

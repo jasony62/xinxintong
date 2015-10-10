@@ -22,7 +22,63 @@
         });
         $scope.selectCatelog = function() {};
         $scope.choose = function(orderEvt) {
-            $scope.selectedOrderEvt = orderEvt;
+            var url;
+            url = '/rest/mp/matter/tmplmsg/mappingGet';
+            url += '?id=' + $scope.selectedCatelog[orderEvt.id + '_tmplmsg'];
+            http2.get(url, function(rsp) {
+                var def, i, l, o, prop;
+                def = rsp.data;
+                if (def.msgid) {
+                    for (i = 0, l = $scope.tmplmsgs.length; i < l; i++) {
+                        o = $scope.tmplmsgs[i];
+                        if (o.id === def.msgid) {
+                            orderEvt.tmplmsg = o;
+                            break;
+                        }
+                    }
+                } else {
+                    orderEvt.tmplmsg = null;
+                }
+                if (def.mapping) {
+                    for (i in def.mapping) {
+                        o = def.mapping[i];
+                        switch (o.src) {
+                            case 'catelog':
+                                $scope.selectedCatelog.properties.forEach(function(v) {
+                                    if (v.id == o.id) {
+                                        prop = v;
+                                        return false;
+                                    }
+                                });
+                                break;
+                            case 'order':
+                                $scope.selectedCatelog.orderProperties.forEach(function(v) {
+                                    if (v.id == o.id) {
+                                        prop = v;
+                                        return false;
+                                    }
+                                });
+                                break;
+                            case 'feedback':
+                                $scope.selectedCatelog.feedbackProperties.forEach(function(v) {
+                                    if (v.id == o.id) {
+                                        prop = v;
+                                        return false;
+                                    }
+                                });
+                                break;
+                        }
+                        if (prop) {
+                            def.mapping[i] = prop;
+                            def.mapping[i].src = o.src;
+                        }
+                    }
+                    orderEvt.mapping = def.mapping;
+                } else {
+                    orderEvt.mapping = {};
+                }
+                $scope.selectedOrderEvt = orderEvt;
+            });
         };
         $scope.selectTmplmsg = function() {
             $modal.open({
@@ -58,7 +114,9 @@
                 },
                 controller: ['$modalInstance', '$scope', 'catelog', function($mi, $scope2, catelog) {
                     $scope2.catelog = catelog;
-                    $scope2.data = {};
+                    $scope2.data = {
+                        srcProp: 'catelog'
+                    };
                     $scope2.close = function() {
                         $mi.dismiss();
                     };
@@ -67,11 +125,31 @@
                     };
                 }]
             }).result.then(function(data) {
-                //$scope.selectedOrderEvt.mapping[tmplmsgProp.id] = data.selected;
+                data.selected.src = data.srcProp;
+                $scope.selectedOrderEvt.mapping[tmplmsgProp.id] = data.selected;
             });
         };
         $scope.save = function() {
-
+            var sov, i, m, posted, url;
+            sov = $scope.selectedOrderEvt;
+            posted = {
+                evt: sov.id,
+                msgid: sov.tmplmsg.id,
+                mapping: {}
+            };
+            for (i in sov.mapping) {
+                m = sov.mapping[i];
+                posted.mapping[i] = {
+                    src: m.src,
+                    id: m.id
+                }
+            }
+            url = '/rest/mp/app/merchant/tmplmsg/setup';
+            url += '?catelog=' + $scope.selectedCatelog.id;
+            url += '&mappingid=' + $scope.selectedCatelog[sov.id + '_tmplmsg'];
+            http2.post(url, posted, function(rsp) {
+                alert(rsp.data);
+            });
         };
     }]);
 })();

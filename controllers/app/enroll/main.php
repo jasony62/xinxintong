@@ -138,11 +138,6 @@ class main extends base {
 		);
 		$params['user'] = $user;
 		/**
-		 * 登记活动管理员
-		 */
-		$admins = \TMS_APP::model('acl')->enrollReceivers($mpid, $aid);
-		$params['admins'] = $admins;
-		/**
 		 * 页面
 		 */
 		$hasEnrolled = $modelApp->hasEnrolled($mpid, $act->id, $user->openid);
@@ -157,6 +152,11 @@ class main extends base {
 			return new \ResponseError('指定的页面[' . $page . ']不存在');
 		}
 		$params['page'] = $oPage;
+		/**
+		 * 登记活动管理员
+		 */
+		$admins = \TMS_APP::model('acl')->enrollReceivers($mpid, $aid);
+		$params['admins'] = $admins;
 		/* 自动登记 */
 		if (!$hasEnrolled && $act->can_autoenroll === 'Y' && $oPage->autoenroll_onenter === 'Y') {
 			$modelRec = $this->model('app\enroll\record');

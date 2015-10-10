@@ -69,7 +69,7 @@ class base extends \member_base {
 			break;
 		case '$authapi_auth':
 			$actAuthapis = explode(',', $act->authapis);
-			$this->gotoAuth($mpid, $actAuthapis, $user->openid);
+			$this->gotoAuth($mpid, $actAuthapis, $user->openid, false);
 			break;
 		case '$mp_follow':
 			$this->askFollow($mpid, $user->openid);

@@ -797,7 +797,31 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 
         $timeout(function() {
             $scope.$broadcast('xxt.app.enroll.ready', params);
         });
-    });
+    }).error(function(content, httpCode) {
+        if (httpCode === 401) {
+            var el = document.createElement('iframe');
+            el.setAttribute('id', 'frmPopup');
+            el.onload = function() {
+                this.height = document.querySelector('body').clientHeight;
+            };
+            document.body.appendChild(el);
+            if (content.indexOf('http') === 0) {
+                window.onAuthSuccess = function() {
+                    el.style.display = 'none';
+                    btnSubmit && btnSubmit.removeAttribute('disabled');
+                };
+                el.setAttribute('src', content);
+                el.style.display = 'block';
+            } else {
+                if (el.contentDocument && el.contentDocument.body) {
+                    el.contentDocument.body.innerHTML = content;
+                    el.style.display = 'block';
+                }
+            }
+        } else {
+            $scope.errmsg = content;
+        }
+    });;
 }]);
 app.filter('value2Label', ['Schema', function(Schema) {
     var schemas;

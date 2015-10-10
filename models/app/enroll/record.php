@@ -167,8 +167,8 @@ class record_model extends \TMS_MODEL {
 			'xxt_enroll_record',
 			"state=1 and mpid='$mpid' and aid='$aid' and openid='$openid'",
 		);
-		if ($rid === null) {
-			$modelRun = $this->model('app\enroll\round');
+		if (empty($rid)) {
+			$modelRun = \TMS_APP::M('app\enroll\round');
 			if ($activeRound = $modelRun->getActive($mpid, $aid)) {
 				$q[2] .= " and rid='$activeRound->rid'";
 			}

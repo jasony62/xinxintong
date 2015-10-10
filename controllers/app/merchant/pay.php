@@ -70,7 +70,7 @@ class pay extends \member_base {
 		}
 
 		$notifyUrl = "http://" . $_SERVER['HTTP_HOST'];
-		$notifyUrl .= "/rest/op/merchant/pay/notify";
+		$notifyUrl .= "/rest/op/merchant/payok/notify";
 
 		$tools = $this->model('mpproxy/WxPayJsApi');
 

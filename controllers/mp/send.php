@@ -268,7 +268,7 @@ class send extends mp_controller {
 		$openids = $rst[1];
 
 		foreach ($openids as $openid) {
-			$rst = $this->send_tmplmsg($this->mpid, $tid, $openid, $data, $url);
+			$rst = $this->tmplmsgSendByOpenid($this->mpid, $tid, $openid, $data, $url);
 			if ($rst[0] === false) {
 				return new \ResponseError($rst[1]);
 			}
@@ -276,50 +276,6 @@ class send extends mp_controller {
 		}
 
 		return new \ResponseData('success');
-	}
-	/**
-	 * 发送模板消息页面
-	 *
-	 * $mpid
-	 * $tmplmsgId
-	 * $openid
-	 */
-	public function send_tmplmsg($mpid, $tmplmsgId, $openid, $data, $url) {
-		$q = array('*', 'xxt_tmplmsg', "id=$tmplmsgId");
-		$tmpl = $this->model()->query_obj_ss($q);
-
-		$msg = array(
-			'touser' => $openid,
-			'template_id' => $tmpl->templateid,
-			'url' => $url,
-			'topcolor' => '#FF0000',
-		);
-
-		foreach ($data as $k => $v) {
-			$msg['data'][$k] = array('value' => $v, 'color' => '#173177');
-		}
-
-		$mpproxy = $this->model('mpproxy/wx', $mpid);
-		$rst = $mpproxy->messageTemplateSend($msg);
-		if ($rst[0] === false) {
-			return $rst;
-		}
-
-		/**
-		 * 记录日志
-		 */
-		$log = array(
-			'mpid' => $this->mpid,
-			'openid' => $openid,
-			'tmplmsg_id' => $tmplmsgId,
-			'template_id' => $msg['template_id'],
-			'data' => json_encode($msg),
-			'create_at' => time(),
-			'msgid' => $rst[1]->msgid,
-		);
-		$this->model()->insert('xxt_log_tmplmsg', $log, false);
-
-		return array(true);
 	}
 	/**
 	 *

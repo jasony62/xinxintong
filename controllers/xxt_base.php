@@ -259,6 +259,50 @@ class xxt_base extends TMS_CONTROLLER {
 		return $rst;
 	}
 	/**
+	 * 发送模板消息页面
+	 *
+	 * $mpid
+	 * $tmplmsgId
+	 * $openid
+	 */
+	public function tmplmsgSendByOpenid($mpid, $tmplmsgId, $openid, $data, $url) {
+		$tmpl = $this->model('matter\tmplmsg')->byId($tmplmsgId, 'Y');
+
+		$msg = array(
+			'touser' => $openid,
+			'template_id' => $tmpl->templateid,
+			'url' => $url,
+		);
+		if ($tmpl->params) {
+			foreach ($tmpl->params as $p) {
+				$value = isset($data[$p->pname]) ? $data[$p->pname] : (isset($data[$p->id]) ? $data[$p->id] : '');
+				$msg['data'][$p->pname] = array('value' => $vaule, 'color' => '#173177');
+			}
+		}
+		//foreach ($data as $k => $v) {
+		//	$msg['data'][$k] = array('value' => $v, 'color' => '#173177');
+		//}
+
+		$mpproxy = $this->model('mpproxy/wx', $mpid);
+		$rst = $mpproxy->messageTemplateSend($msg);
+		if ($rst[0] === false) {
+			return $rst;
+		}
+		/*记录日志*/
+		$log = array(
+			'mpid' => $this->mpid,
+			'openid' => $openid,
+			'tmplmsg_id' => $tmplmsgId,
+			'template_id' => $msg['template_id'],
+			'data' => json_encode($msg),
+			'create_at' => time(),
+			'msgid' => $rst[1]->msgid,
+		);
+		$this->model()->insert('xxt_log_tmplmsg', $log, false);
+
+		return array(true);
+	}
+	/**
 	 * 向企业号用户发送消息
 	 *
 	 * $mpid

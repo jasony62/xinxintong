@@ -152,6 +152,7 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_log_tmplmsg(";
 $sql .= 'id int not null auto_increment';
 $sql .= ',mpid varchar(32) not null';
+$sql .= ',tmplmsg_id int not null'; // 模板ID
 $sql .= ',template_id varchar(255) not null'; // 模板ID
 $sql .= ',msgid varchar(50) not null'; // 消息ID
 $sql .= ',openid varchar(255) not null';

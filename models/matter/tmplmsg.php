@@ -7,6 +7,29 @@ class tmplmsg_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
+	public function &byId($id, $cascaded = 'N') {
+		/**/
+		$q = array(
+			'*',
+			'xxt_tmplmsg',
+			"id=$tmplmsgId",
+		);
+		$tmpl = $this->model()->query_obj_ss($q);
+		/*参数*/
+		if ($tmpl && $cascaded === 'Y') {
+			$q = array(
+				"id,pname,plabel",
+				'xxt_tmplmsg_param',
+				"tmplmsg_id=$id",
+			);
+			$tmpl->params = $this->model()->query_obj_ss($q);
+		}
+
+		return $tmpl;
+	}
+	/**
+	 *
+	 */
 	public function &mappingById($id) {
 		$q = array(
 			'msgid,mapping',

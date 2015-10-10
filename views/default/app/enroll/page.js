@@ -461,6 +461,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 
         if (!validate()) return;
         if (document.querySelectorAll('.ng-invalid-required').length) {
             $scope.errmsg = '请填写必填项';
+            console.log('ng-invalid-required', document.querySelectorAll('.ng-invalid-required'));
             return;
         }
         if (r.files && r.files.length) {

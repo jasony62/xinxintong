@@ -77,6 +77,7 @@ class order extends \member_base {
 	 */
 	public function feedback_action($mpid, $shop, $order) {
 		$order = $this->model('app\merchant\order')->byId($order);
+		$order->extPropValue = json_decode($order->ext_prop_value);
 
 		$feedback = $this->getPostJson();
 

@@ -141,6 +141,9 @@ class order extends \member_base {
 			case 'feedback':
 				$v = $order->feedback->{$p->id};
 				break;
+			case 'text':
+				$v = $p->id;
+				break;
 			}
 			$data[$k] = $v;
 		}

@@ -65,10 +65,11 @@
     <div class="modal-body">
         <div class='form-group'>
             <label>属性来源</label>
-            <select class='form-control' ng-model='data.srcProp'>
+            <select class='form-control' ng-model='data.srcProp' ng-change='changeSrcProp()'>
                 <option value='product'>商品</option>
                 <option value='order'>订单</option>
                 <option value='feedback'>订单反馈</option>
+                <option value='text'>自定义文本</option>
             </select>
         </div>
         <div class='form-group' ng-show="data.srcProp==='product'">
@@ -82,6 +83,10 @@
         <div class='form-group' ng-show="data.srcProp==='feedback'">
             <label>订单反馈属性</label>
             <select class='form-control' ng-model='data.selected' ng-options='p.name for p in catelog.feedbackProperties'></select>
+        </div>
+        <div class='form-group' ng-show="data.srcProp==='text'">
+            <label>自定义文本</label>
+            <textarea class='form-control' rows=5 ng-model='data.selected.name'></textarea>
         </div>
     </div>
     <div class="modal-footer">

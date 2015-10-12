@@ -86,6 +86,11 @@
                                     }
                                 });
                                 break;
+                            case 'text':
+                                prop = {
+                                    name: o.id
+                                };
+                                break;
                         }
                         if (prop) {
                             def.mapping[i] = prop;
@@ -93,7 +98,6 @@
                         }
                     }
                     orderEvt.mapping = def.mapping;
-                    console.log('om', orderEvt.mapping);
                 } else {
                     orderEvt.mapping = {};
                 }
@@ -151,6 +155,13 @@
                     $scope2.data = {
                         srcProp: 'product'
                     };
+                    $scope2.changeSrcProp = function() {
+                        if ($scope2.data.srcProp === 'text') {
+                            $scope2.data.selected = {
+                                name: ''
+                            };
+                        }
+                    };
                     $scope2.close = function() {
                         $mi.dismiss();
                     };
@@ -160,6 +171,9 @@
                 }]
             }).result.then(function(data) {
                 data.selected.src = data.srcProp;
+                if (data.srcProp === 'text') {
+                    data.selected.id = data.selected.name;
+                }
                 $scope.selectedOrderEvt.mapping[tmplmsgProp.id] = data.selected;
             });
         };

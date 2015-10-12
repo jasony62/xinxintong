@@ -21,6 +21,7 @@ class page extends \mp\app\app_base {
 		if (empty($pages)) {
 			/* shelf page */
 			$page = array(
+				'name' => '用户.商品列表页',
 				'title' => '商品列表页',
 				'type' => 'shelf',
 			);
@@ -38,6 +39,7 @@ class page extends \mp\app\app_base {
 		$orderPage = $modelPage->byType($shop, 'order');
 		if (empty($orderPage)) {
 			$page = array(
+				'name' => '用户.订单页',
 				'title' => '订单页',
 				'type' => 'order',
 			);
@@ -55,6 +57,7 @@ class page extends \mp\app\app_base {
 		$payPage = $modelPage->byType($shop, 'pay');
 		if (empty($payPage)) {
 			$page = array(
+				'name' => '用户.支付页',
 				'title' => '支付页',
 				'type' => 'pay',
 			);
@@ -72,6 +75,7 @@ class page extends \mp\app\app_base {
 		$orderlistPage = $modelPage->byType($shop, 'orderlist');
 		if (empty($orderlistPage)) {
 			$page = array(
+				'name' => '用户.订单列表页',
 				'title' => '订单列表页',
 				'type' => 'orderlist',
 			);
@@ -89,6 +93,7 @@ class page extends \mp\app\app_base {
 		$payokPage = $modelPage->byType($shop, 'payok');
 		if (empty($payokPage)) {
 			$page = array(
+				'name' => '用户.支付完成页',
 				'title' => '支付完成页',
 				'type' => 'payok',
 			);
@@ -106,7 +111,8 @@ class page extends \mp\app\app_base {
 		$opOrderPage = $modelPage->byType($shop, 'op.order');
 		if (empty($opOrderPage)) {
 			$page = array(
-				'title' => '客服.订单',
+				'name' => '客服.订单页',
+				'title' => '订单页',
 				'type' => 'op.order',
 			);
 			$page = $this->model('app\merchant\page')->add($this->mpid, $shop, $page);
@@ -123,7 +129,8 @@ class page extends \mp\app\app_base {
 		$opOrderlistPage = $modelPage->byType($shop, 'op.orderlist');
 		if (empty($opOrderlistPage)) {
 			$page = array(
-				'title' => '客服.订单列表页',
+				'name' => '客服.订单列表页',
+				'title' => '订单列表页',
 				'type' => 'op.orderlist',
 			);
 			$page = $this->model('app\merchant\page')->add($this->mpid, $shop, $page);

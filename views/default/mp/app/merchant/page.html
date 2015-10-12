@@ -3,7 +3,8 @@
 		<thead>
 			<tr>
 				<th style='width:80px'>ID</th>
-				<th>页面</th>
+				<th>类型</th>
+				<th>标题</th>
 				<th>URL</th>
 				<th>操作</th>
 			</tr>
@@ -11,6 +12,7 @@
 		<tbody>
 			<tr ng-repeat="p in pages">
 				<td ng-bind="p.id"></td>
+				<td ng-bind="p.name"></td>
 				<td ng-bind="p.title"></td>
 				<td></td>
 				<td>

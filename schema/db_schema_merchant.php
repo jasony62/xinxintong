@@ -33,6 +33,7 @@ $sql .= ",creater varchar(40) not null default ''";
 $sql .= ",create_at int not null";
 $sql .= ",type varchar(12) not null"; //shelf,order,orderlist,pay,payok,op.order,op.orderlist
 $sql .= ",title varchar(70) not null default ''";
+$sql .= ",summary varchar(240) not null default ''";
 $sql .= ',code_id int not null default 0'; // from xxt_code_page
 $sql .= ",seq int not null";
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';

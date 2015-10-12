@@ -125,6 +125,9 @@ class order extends \member_base {
 					$v = $order->extPropValue->{$p->id};
 				}
 				break;
+			case 'text':
+				$v = $p->id;
+				break;
 			}
 			$data[$k] = $v;
 		}

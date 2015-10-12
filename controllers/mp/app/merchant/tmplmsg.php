@@ -18,13 +18,18 @@ class tmplmsg extends \mp\app\app_base {
 	public function setup_action($catelog, $mappingid = 0) {
 		$posted = $this->getPostJson();
 		$model = $this->model();
+		foreach ($posted->mapping as &$prop) {
+			if ($prop->src === 'text') {
+				$prop->id = urlencode($prop->id);
+			}
+		}
 		if ($mappingid == 0) {
 			/*建立影射关系*/
 			$mappingid = $model->insert(
 				'xxt_tmplmsg_mapping',
 				array(
 					'msgid' => $posted->msgid,
-					'mapping' => json_encode($posted->mapping),
+					'mapping' => urldecode(json_encode($posted->mapping)),
 				),
 				true
 			);
@@ -42,7 +47,7 @@ class tmplmsg extends \mp\app\app_base {
 				'xxt_tmplmsg_mapping',
 				array(
 					'msgid' => $posted->msgid,
-					'mapping' => json_encode($posted->mapping),
+					'mapping' => urldecode(json_encode($posted->mapping)),
 				),
 				"id=$mappingid"
 			);

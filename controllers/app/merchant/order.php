@@ -120,7 +120,7 @@ class order extends \member_base {
 				if ($p->id === '__orderSn') {
 					$v = $order->trade_no;
 				} else if ($p->id === '__orderState') {
-					$v = '未付款';
+					$v = '待付款';
 				} else {
 					$v = $order->extPropValue->{$p->id};
 				}

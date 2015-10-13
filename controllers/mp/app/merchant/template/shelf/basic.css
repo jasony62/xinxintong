@@ -1,5 +1,5 @@
 body{background-color:#ddd;}
-.thumbnail{position:relative;height:156px;padding:8px;}
+.thumbnail{position:relative;padding:8px;}
 .thumbnail .profile{height:64px;display: table}
 .thumbnail .product-img{display:table-cell;height: 64px;width: 64px;}
 .thumbnail .product-img img{width: 100%;height: 100%}

@@ -33,6 +33,8 @@ class shelf extends \member_base {
 	 * 返回页面
 	 */
 	public function afterOAuth($mpid, $page, $openid) {
+		$page = $this->model('app\merchant\page')->byId($page);
+		\TPL::assign('title', $page->title);
 		\TPL::output('/app/merchant/shelf');
 		exit;
 	}

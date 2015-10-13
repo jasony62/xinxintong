@@ -45,6 +45,10 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $h
             var params, page, jslength;
             params = rsp.data;
             $scope.article = params.article;
+            $http.post('/rest/mi/matter/logAccess?mpid=' + mpid + '&id=' + id + '&type=article&title=' + $scope.article.title + '&shareby=' + shareby, {
+                search: location.search.replace('?', ''),
+                referer: document.referrer
+            });
             page = params.article.page;
             $scope.user = params.user;
             $scope.mpa = params.mpaccount;

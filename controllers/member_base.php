@@ -347,7 +347,8 @@ class member_base extends xxt_base {
 	protected function doAuth($mpid, $code, $mocker = '') {
 		$fan = $this->getCookieOAuthUser($mpid);
 		if (empty($fan->openid)) {
-			if ($code !== null) {
+			if ($code !== null && $this->myGetcookie("_{$mpid}_oauthpending") === 'Y') {
+				$this->mySetcookie("_{$mpid}_oauthpending", '', time() - 86400);
 				$openid = $this->getOAuthUserByCode($mpid, $code);
 			} else {
 				if (!empty($mocker)) {
@@ -419,6 +420,8 @@ class member_base extends xxt_base {
 		}
 		if (isset($mpproxy)) {
 			$oauthUrl = $mpproxy->oauthUrl($mpid, $ruri);
+			/**/
+			$this->mySetcookie("_{$mpid}_oauthpending", 'Y');
 			$this->redirect($oauthUrl);
 		}
 

@@ -6,6 +6,11 @@ if (/MicroMessenger/.test(navigator.userAgent)) {
     }
 }
 app = angular.module('xxt', ["ngSanitize"]);
+app.config(['$controllerProvider', function($cp) {
+    app.register = {
+        controller: $cp.register
+    };
+}]);
 app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
     var ls, mpid, id, shareby;
     ls = location.search;

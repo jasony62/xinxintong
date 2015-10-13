@@ -11,6 +11,7 @@
 					<div class='product-img'><img ng-src='{{p.main_img}}'></div>
 					<div class='product properties'>
 					    <div class='product-name' ng-bind='p.name'></div>
+					    <div class='property-ext'><span ng-repeat='ep in p.propValue2'>{{ep.name}}</span></div>
 					</div>
 				</div>
 				<div class='product-detail_text' ng-bind='p.detail_text'></div>

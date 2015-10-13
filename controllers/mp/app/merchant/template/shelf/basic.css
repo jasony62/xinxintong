@@ -3,6 +3,7 @@ body{background-color:#ddd;}
 .thumbnail .profile{height:64px;display: table}
 .thumbnail .product-img{display:table-cell;height: 64px;width: 64px;}
 .thumbnail .product-img img{width: 100%;height: 100%}
-.thumbnail .product.properties{display:table-cell;padding-left: 15px}
+.thumbnail .product.properties{display:table-cell;padding-left: 15px;vertical-align:middle}
+.thumbnail .property-ext span{display:inline-block;margin-right:4px;}
 .thumbnail .product-detail_text{height:64px;margin-top:4px;overflow-y: auto}
 @media screen and (max-width:750px) {.row{overflow-x:hidden;}.thumbnail{border-radius:0;margin-bottom:8px;}}

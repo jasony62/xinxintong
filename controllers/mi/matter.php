@@ -62,12 +62,14 @@ class matter extends \member_base {
 		 */
 		switch ($type) {
 		case 'article':
+			$modelArticle = $this->model('matter\article');
+			$article = $modelArticle->byId($id);
 			if (isset($_GET['tpl']) && $_GET['tpl'] === 'cus') {
+				\TPL::assign('title', $article->title);
 				\TPL::output('custom');
 				exit;
 			} else {
-				//require_once dirname(__FILE__) . '/page_article.php';
-				//$page = new page_article($id, $ooid, $shareby);
+				\TPL::assign('title', $article->title);
 				\TPL::output('article');
 				exit;
 			}

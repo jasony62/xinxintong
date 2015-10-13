@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
-        <title ng-bind="lot.title||'抽奖'"></title>
+        <title><?php TPL::pt('title');?></title>
         <link href="/views/default/app/lottery/play.css?_=1" rel="stylesheet">
         <style ng-if="params.page.css" ng-bind='params.page.css'></style>
     </head>

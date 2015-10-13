@@ -89,6 +89,7 @@ class main extends \member_base {
 			$this->logRead($mpid, $user, $lot->id, 'lottery', $lot->title, $shareby);
 		}
 
+		\TPL::assign('title', $lot->title);
 		\TPL::output('/app/lottery/play');
 		exit;
 	}

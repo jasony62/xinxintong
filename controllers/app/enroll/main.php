@@ -103,6 +103,7 @@ class main extends base {
 		$this->model()->update("update xxt_enroll set read_num=read_num+1 where id='$act->id'");
 		$this->logRead($mpid, $user, $act->id, 'enroll', $act->title, $shareby);
 
+		\TPL::assign('title', $act->title);
 		\TPL::output('/app/enroll/page');
 		exit;
 	}

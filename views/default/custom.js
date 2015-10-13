@@ -31,11 +31,12 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $h
             url += "&shareby=" + shareby;
             $http.get(url);
         };
-        sharelink = location.href;
-        if (/shareby=/.test(sharelink))
-            sharelink = sharelink.replace(/shareby=[^&]*/, 'shareby=' + shareid);
-        else
-            sharelink += "&shareby=" + shareid;
+        sharelink = 'http://' + location.hostname + '/rest/mi/matter';
+        sharelink += '?mpid=' + mpid;
+        sharelink += '&type=article';
+        sharelink += '&id=' + id;
+        sharelink += '&tpl=cus';
+        sharelink += "&shareby=" + shareid;
         window.xxt.share.set($scope.article.title, sharelink, $scope.article.summary, $scope.article.pic);
     };
     var getArticle = function() {

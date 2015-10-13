@@ -5,7 +5,7 @@
         <meta charset="utf-8">
         <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
         <base href="." />
-        <title ng-bind="article.title||'文章'"></title>
+        <title><?php TPL::pt('title');?></title>
         <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
         <link href="//libs.useso.com/js/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
         <link href="/views/default/article.css?_=1" rel="stylesheet">
@@ -92,7 +92,7 @@
         <script src="/static/js/angular.min.js"></script>
         <script src="/static/js/angular-sanitize.min.js"></script>
         <script src="/static/js/xxt.share.js?_=1"></script>
-        <script src="/views/default/article.js?_=6"></script>
+        <script src="/views/default/article.js?_=8"></script>
         <script type="text/javascript">
             if (document.location.host === 'xinxintong.sinaapp.com') {
                 var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");

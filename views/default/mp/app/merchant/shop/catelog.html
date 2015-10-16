@@ -1,0 +1,15 @@
+<div id='catelog-view'>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>名称</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat='c in catelogs' ng-click='open(c)'>
+                <td ng-bind='c.name'></td>
+            </tr>
+        </tbody>
+    </table>
+    <button class='btn btn-success' ng-click='create()'>添加</button>
+</div>

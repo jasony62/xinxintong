@@ -7,10 +7,28 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class shop extends \mp\app\app_base {
 	/**
-	 * 商店列表
+	 *
 	 */
-	public function index_action($id) {
-		$this->view_action('/mp/app/merchant/shop');
+	public function index_action($shop) {
+		$this->view_action('/mp/app/merchant/shop/base');
+	}
+	/**
+	 *
+	 */
+	public function catelog_action($shop) {
+		$this->view_action('/mp/app/merchant/shop/base');
+	}
+	/**
+	 *
+	 */
+	public function product_action($shop) {
+		$this->view_action('/mp/app/merchant/shop/base');
+	}
+	/**
+	 *
+	 */
+	public function order_action($shop) {
+		$this->view_action('/mp/app/merchant/shop/base');
 	}
 	/**
 	 * 商店

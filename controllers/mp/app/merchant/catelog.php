@@ -7,16 +7,36 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class catelog extends \mp\app\app_base {
 	/**
-	 * 打开订购商品管理页面
+	 * 打开商品分类管理页面
 	 */
 	public function index_action() {
-		$this->view_action('/mp/app/merchant/shop');
+		$this->view_action('/mp/app/merchant/catelog/base');
 	}
 	/**
-	 * $shopId
+	 *
 	 */
-	public function get_action($shopId) {
-		$catelogs = $this->model('app\merchant\catelog')->byShopId($shopId);
+	public function product_action() {
+		$this->view_action('/mp/app/merchant/catelog/base');
+	}
+	/**
+	 *
+	 */
+	public function order_action() {
+		$this->view_action('/mp/app/merchant/catelog/base');
+	}
+	/**
+	 * @param string $catelog
+	 */
+	public function get_action($catelog, $cascaded = 'Y') {
+		$catelog = $this->model('app\merchant\catelog')->byId($catelog, $cascaded);
+
+		return new \ResponseData($catelog);
+	}
+	/**
+	 * @param string $shop
+	 */
+	public function list_action($shop) {
+		$catelogs = $this->model('app\merchant\catelog')->byShopId($shop);
 
 		return new \ResponseData($catelogs);
 	}

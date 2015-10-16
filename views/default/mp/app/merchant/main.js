@@ -9,11 +9,11 @@ xxtApp.controller('shopCtrl', ['$scope', 'http2', function($scope, http2) {
         });
     };
     $scope.open = function(shop) {
-        location.href = '/rest/mp/app/merchant/shop?shopId=' + shop.id;
+        location.href = '/rest/mp/app/merchant/shop?shop=' + shop.id;
     };
     $scope.create = function() {
         http2.get('/rest/mp/app/merchant/shop/create', function(rsp) {
-            location.href = '/rest/mp/app/merchant/shop?shopId=' + rsp.data;
+            location.href = '/rest/mp/app/merchant/shop?shop=' + rsp.data;
         });
     };
     http2.get('/rest/mp/mpaccount/get', function(rsp) {

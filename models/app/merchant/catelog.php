@@ -5,16 +5,22 @@ namespace app\merchant;
  */
 class catelog_model extends \TMS_MODEL {
 	/**
-	 * $id
+	 * @param string $id
 	 */
-	public function &byId($id) {
+	public function &byId($id, $cascaded = "N") {
 		$q = array(
 			'*',
 			'xxt_merchant_catelog c',
 			"id=$id",
 		);
-
 		$cate = $this->query_obj_ss($q);
+		if ($cate && $cascaded === 'Y') {
+			$cascaded = $this->cascaded($id);
+			$cate->properties = $cascaded->properties;
+			$cate->propValues = isset($cascaded->propValues) ? $cascaded->propValues : array();
+			$cate->orderProperties = isset($cascaded->orderProperties) ? $cascaded->orderProperties : array();
+			$cate->feedbackProperties = isset($cascaded->feedbackProperties) ? $cascaded->feedbackProperties : array();
+		}
 
 		return $cate;
 	}

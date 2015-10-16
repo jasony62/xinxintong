@@ -10,13 +10,7 @@ class product extends \mp\app\app_base {
 	 * 打开订购商品管理页面
 	 */
 	public function index_action() {
-		$this->view_action('/mp/app/merchant/shop');
-	}
-	/**
-	 * 单个产品编辑页面
-	 */
-	public function edit_action() {
-		$this->view_action('/mp/app/merchant/product/edit');
+		$this->view_action('/mp/app/merchant/product/base');
 	}
 	/**
 	 * 获得商品
@@ -28,10 +22,13 @@ class product extends \mp\app\app_base {
 	}
 	/**
 	 * 获得商品列表
+	 *
+	 * @param string $shop
+	 * @param string $catelog
 	 */
-	public function list_action($shopId, $cateId) {
+	public function list_action($shop, $catelog) {
 		$model = $this->model('app\merchant\product');
-		$products = $model->byShopId($shopId, $cateId);
+		$products = $model->byShopId($shop, $catelog);
 		foreach ($products as &$prod) {
 			$cascaded = $model->cascaded($prod->id);
 			$prod->propValue2 = $cascaded->propValue2;

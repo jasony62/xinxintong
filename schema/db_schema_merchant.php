@@ -79,7 +79,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /*
- * 产品分类属性定义
+ * 产品分类属性定义。定义商品的属性
  */
 $sql = 'create table if not exists xxt_merchant_catelog_property(';
 $sql .= "id int not null auto_increment";
@@ -118,18 +118,19 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /*
- * 产品分类sku定义
+ * 产品分类sku定义。定义sku的属性
  */
 $sql = 'create table if not exists xxt_merchant_catelog_sku(';
 $sql .= "id int not null auto_increment";
 $sql .= ",mpid varchar(32) not null";
 $sql .= ',sid int not null'; // shop id
-$sql .= ',cate_id int not null';
+$sql .= ',cate_id int not null'; // catelog id
 $sql .= ",creater varchar(40) not null";
 $sql .= ",create_at int not null";
 $sql .= ",reviser varchar(40) not null";
 $sql .= ",modify_at int not null";
 $sql .= ",name varchar(255) not null";
+$sql .= ",has_validity char(1) not null default 'N'";
 $sql .= ",seq int not null default 0";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
@@ -143,7 +144,7 @@ $sql = 'create table if not exists xxt_merchant_catelog_sku_value(';
 $sql .= "id int not null auto_increment";
 $sql .= ",mpid varchar(32) not null";
 $sql .= ',sid int not null'; // shop id
-$sql .= ',cate_id int not null';
+$sql .= ',cate_id int not null'; // catelog id
 $sql .= ',sku_id int not null';
 $sql .= ",creater varchar(40) not null";
 $sql .= ",create_at int not null";
@@ -200,6 +201,8 @@ $sql .= ",ori_price int not null default 0";
 $sql .= ",price int not null default 0";
 $sql .= ",icon_url text";
 $sql .= ",quantity int not null default 0";
+$sql .= ",validity_begin_at int not null default 0";
+$sql .= ",validity_end_at int not null default 0";
 $sql .= ",product_code varchar(255) not null default ''";
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {

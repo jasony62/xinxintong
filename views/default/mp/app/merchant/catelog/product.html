@@ -1,0 +1,40 @@
+<div id='product-view'>
+    <div class='form-inline form-group'>
+        <button class='btn btn-success' ng-click='create()'>添加</button>
+    </div>
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <td>名称</td>
+                <td>介绍</td>
+                <td ng-repeat="prop in selectedCatelog.properties" ng-bind='prop.name'></td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat='prod in products'>
+                <td ng-bind='prod.name' ng-click="open(prod)">名称</td>
+                <td ng-bind='prod.detail_text'>介绍</td>
+                <td ng-repeat="prop in selectedCatelog.properties" ng-bind="prod.propValue2[prop.id].name"></td>
+            </tr>
+        </tbody>
+    </table>
+    <script type="text/ng-template " id="catelogSelector.html ">
+        <div class="modal-header ">
+            <button class="close " type="button " ng-click="close() ">×</button>
+            <h5 class="modal-title ">选择分类</h5>
+        </div>
+        <div class="modal-body ">
+            <form class="form-horizontal">
+                <div class="form-group ">
+                    <label class="col-md-2 control-label ">名称</label>
+                    <div class="col-md-10 ">
+                        <select class='form-control' ng-model='data.selected' ng-options='c.name for c in catelogs'></select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-success" ng-disabled='!data.selected' ng-click="ok() ">确定</button>
+        </div>
+    </script>
+</div>

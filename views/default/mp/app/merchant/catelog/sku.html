@@ -1,0 +1,19 @@
+<div id='setting-view'>
+	<div class='form-horizontal list-group-item' ng-repeat='s in skus'>
+		<button class="btn btn-default" ng-click='removeSku($index, s)'><i class='fa fa-remove'></i></button>
+		<div class='price form-group'>
+			<label class='col-md-2 control-label'>名称</label>
+			<div class='col-md-10'>
+				<input class='form-control' ng-model='s.name' tms-auto-update tms-wait=1000 tms-update="updateSku(s, 'name')">
+			</div>
+		</div>
+		<div class='feature form-group'>
+			<label class='col-md-2 control-label'>特性</label>
+			<div class='col-md-10'>
+				<label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="s.has_validity" ng-change="updateSku(s, 'has_validity')">包含有效期</label>
+				<label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="s.require_pay" ng-change="updateSku(s, 'require_pay')">需要支付</label>
+			</div>
+		</div>
+	</div>
+	<button class='btn btn-default' ng-click='addSku()'><span class='glyphicon glyphicon-plus'>添加</span></button>
+</div>

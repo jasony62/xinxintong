@@ -2,18 +2,21 @@
     <nav class="navbar navbar-default">
         <ul class="nav navbar-nav">
             <li>
-                <a href='/rest/mp/app/merchant/shop/catelog?shop={{shopId}}' target='_self'>
+                <a href='javascript:void(0)' ng-click='back($event)' target='_self'>
                     <span class='glyphicon glyphicon-chevron-left'></span>
                 </a>
             </li>
             <li ng-class="{'active':subView=='setting'}">
-                <a href='/rest/mp/app/merchant/catelog?shop={{shopId}}&catelog={{catelogId}}'>基本信息</a>
+                <a href='/rest/mp/app/merchant/catelog?shop={{shopId}}&catelog={{catelogId}}'>分类定义</a>
+            </li>
+            <li ng-class="{'active':subView=='sku'}">
+                <a href='/rest/mp/app/merchant/catelog/sku?shop={{shopId}}&catelog={{catelogId}}'>库存定义</a>
             </li>
             <li ng-class="{'active':subView=='product'}">
-                <a href='/rest/mp/app/merchant/catelog/product?shop={{shopId}}&catelog={{catelogId}}'>商品</a>
+                <a href='/rest/mp/app/merchant/catelog/product?shop={{shopId}}&catelog={{catelogId}}'>已有商品</a>
             </li>
             <li ng-class="{'active':subView=='order'}">
-                <a href='/rest/mp/app/merchant/catelog/order?shop={{shopId}}&catelog={{catelogId}}'>订单</a>
+                <a href='/rest/mp/app/merchant/catelog/order?shop={{shopId}}&catelog={{catelogId}}'>已有订单</a>
             </li>
         </ul>
     </nav>

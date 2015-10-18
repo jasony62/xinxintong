@@ -52,6 +52,10 @@ xxtApp.config(['$routeProvider', function($rp) {
 xxtApp.controller('shopCtrl', ['$scope', 'http2', '$location', function($scope, http2, $location) {
     $scope.shopId = $location.search().shop;
     $scope.subView = '';
+    $scope.back = function(event) {
+        event.preventDefault();
+        history.back();
+    };
     http2.get('/rest/mp/mpaccount/get', function(rsp) {
         $scope.mpaccount = rsp.data;
     });
@@ -61,15 +65,12 @@ xxtApp.controller('settingCtrl', ['$scope', 'http2', function($scope, http2) {
     $scope.update = function(name) {
         var nv = {};
         nv[name] = $scope.editing[name];
-        http2.post('/rest/mp/app/merchant/shop/update?id=' + $scope.shopId, nv, function(rsp) {});
+        http2.post('/rest/mp/app/merchant/shop/update?shop=' + $scope.shopId, nv, function(rsp) {});
     };
-    http2.get('/rest/mp/app/merchant/shop/get?id=' + $scope.shopId, function(rsp) {
+    http2.get('/rest/mp/app/merchant/shop/get?shop=' + $scope.shopId, function(rsp) {
         $scope.editing = rsp.data;
         $scope.editing.canSetSupporter = 'Y';
     });
-}]);
-xxtApp.controller('groupCtrl', ['$scope', 'http2', function($scope, http2) {
-    $scope.$parent.subView = 'group';
 }]);
 xxtApp.controller('orderCtrl', ['$scope', 'http2', function($scope, http2) {
     $scope.$parent.subView = 'order';

@@ -1,5 +1,19 @@
 xxtApp.config(['$routeProvider', function($rp) {
-    $rp.when('/rest/mp/app/merchant/catelog/product', {
+    $rp.when('/rest/mp/app/merchant/catelog/sku', {
+        templateUrl: '/views/default/mp/app/merchant/catelog/sku.html',
+        controller: 'skuCtrl',
+        resolve: {
+            load: function($q) {
+                var defer = $q.defer();
+                (function() {
+                    $.getScript('/views/default/mp/app/merchant/catelog/sku.js?_=2', function() {
+                        defer.resolve();
+                    });
+                })();
+                return defer.promise;
+            }
+        }
+    }).when('/rest/mp/app/merchant/catelog/product', {
         templateUrl: '/views/default/mp/app/merchant/catelog/product.html',
         controller: 'productCtrl',
         resolve: {
@@ -36,6 +50,10 @@ xxtApp.controller('catelogCtrl', ['$scope', 'http2', '$location', function($scop
     $scope.shopId = $location.search().shop;
     $scope.catelogId = $location.search().catelog;
     $scope.subView = '';
+    $scope.back = function(event) {
+        event.preventDefault();
+        history.back();
+    };
     $scope.get = function() {
         http2.get('/rest/mp/app/merchant/catelog/get?catelog=' + $scope.catelogId, function(rsp) {
             $scope.editing = rsp.data;

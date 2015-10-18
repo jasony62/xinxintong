@@ -20,7 +20,6 @@ class product_model extends \TMS_MODEL {
 			$cascaded = $this->cascaded($id);
 			$prod->catelog = $cascaded->catelog;
 			$prod->propValue2 = $cascaded->propValue2;
-			$prod->skus = $cascaded->skus;
 		}
 
 		return $prod;
@@ -111,16 +110,6 @@ class product_model extends \TMS_MODEL {
 		 */
 		$catelog->orderProperties = $cateCascaded->orderProperties;
 		$catelog->feedbackProperties = $cateCascaded->feedbackProperties;
-		/**
-		 * sku
-		 */
-		$q = array(
-			'*',
-			'xxt_merchant_product_sku',
-			"prod_id=$id",
-		);
-		$skus = $this->query_objs_ss($q);
-		$cascaded->skus = $skus;
 
 		return $cascaded;
 	}

@@ -1,13 +1,4 @@
-<div ng-controller='settingCtrl'>
-    <nav class="navbar navbar-default">
-        <ul class="nav navbar-nav">
-            <li>
-                <a ng-href='/rest/mp/app/merchant/shop/product?shop={{shopId}}' target='_self'>
-                    <span class='glyphicon glyphicon-chevron-left'></span>
-                </a>
-            </li>
-        </ul>
-    </nav>
+<div id='setting-view'>
     <div class="form-horizontal">
         <div class='form-group'>
             <label class="col-md-2 control-label">名称</label>
@@ -45,24 +36,6 @@
             <label class="col-md-2 control-label" ng-bind='p.name'></label>
             <div class="col-md-10">
                 <p class='form-control' ng-bind="editing.propValue2[p.id].name" ng-click='setPropValue(p)'></p>
-            </div>
-        </div>
-        <div class='form-group'>
-            <label class="col-md-2 control-label">SKU</label>
-            <div class="col-md-10">
-                <button class='btn btn-default' ng-click='addSKU()'>
-                <span class='glyphicon glyphicon-plus'></span>
-                </button>
-                <div class='form-group skus' ng-repeat='s in editing.skus' style="margin-left:0">
-                    <div class='price form-group' style="margin-left:0">
-                        <label>价格（分）</label>
-                        <input class='form-control' ng-model='s.price' tms-auto-update tms-wait=1000 tms-update="updateSku(s, 'price')">
-                    </div>
-                    <div class='quantity form-group' style="margin-left:0">
-                        <label>数量</label>
-                        <input class='form-control' ng-model='s.quantity' tms-auto-update tms-wait=1000 tms-update="updateSku(s, 'quantity')">
-                    </div>
-                </div>
             </div>
         </div>
         <mediagallery box-id='{{mpaccount.mpid}}' />

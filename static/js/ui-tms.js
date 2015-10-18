@@ -1,11 +1,13 @@
-angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function ($rootScope, $http) {
-    this.get = function (url, callback, options) {
+angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function($rootScope, $http) {
+    this.get = function(url, callback, options) {
         options = angular.extend({
-            'headers': { 'accept': 'application/json' },
+            'headers': {
+                'accept': 'application/json'
+            },
             'autoBreak': true,
             'autoNotice': true,
         }, options);
-        $http.get(url, options).success(function (rsp) {
+        $http.get(url, options).success(function(rsp) {
             if (angular.isString(rsp)) {
                 if (options.autoNotice) $rootScope.errmsg = rsp;
                 return;
@@ -15,17 +17,19 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
                 if (options.autoBreak) return;
             }
             if (callback) callback(rsp);
-        }).error(function (data, status) {
+        }).error(function(data, status) {
             $rootScope.errmsg = data;
         });
     };
-    this.post = function (url, posted, callback, options) {
+    this.post = function(url, posted, callback, options) {
         options = angular.extend({
-            'headers': { 'accept': 'application/json' },
+            'headers': {
+                'accept': 'application/json'
+            },
             'autoBreak': true,
             'autoNotice': true,
         }, options);
-        $http.post(url, posted, options).success(function (rsp) {
+        $http.post(url, posted, options).success(function(rsp) {
             if (angular.isString(rsp)) {
                 if (options.autoNotice) $rootScope.errmsg = rsp;
                 return;
@@ -35,17 +39,17 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
                 if (options.autoBreak) return;
             }
             if (callback) callback(rsp);
-        }).error(function (data, status) {
+        }).error(function(data, status) {
             $rootScope.errmsg = data;
         });
     };
-}]).controller('ComboxController', ['$scope', function ($scope) {
+}]).controller('ComboxController', ['$scope', function($scope) {
     $scope.aChecked = [];
     if ($scope.evtPrefix === undefined)
         $scope.evt = 'xxt.combox.';
     else
         $scope.evt = $scope.evtPrefix + '.xxt.combox.';
-    $scope.toggle = function (o) {
+    $scope.toggle = function(o) {
         var i = $scope.aChecked.indexOf(o);
         if (i !== -1) {
             $scope.aChecked.splice(i, 1);
@@ -53,15 +57,15 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
             $scope.aChecked.push(o);
         }
     };
-    $scope.empty = function () {
+    $scope.empty = function() {
         $scope.aChecked = [];
     };
-    $scope.done = function (event) {
+    $scope.done = function(event) {
         if (event && event.target)
             $(event.target).parents('.dropdown-menu').dropdown('toggle');
         $scope.$emit($scope.evt + 'done', $scope.aChecked, $scope.state);
     };
-    $scope.keydown = function (event) {
+    $scope.keydown = function(event) {
         switch (event.which) {
             case 32: //white space
             case 188: //','
@@ -80,44 +84,56 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
                 break;
         }
     };
-    $scope.blur = function (event) {
+    $scope.blur = function(event) {
         var val = $scope.input;
         if (val && val.length > 0) {
             $scope.input = '';
             $scope.$emit($scope.evt + 'add', val, $scope.state);
         }
     };
-    $scope.removeOne = function (e) {
+    $scope.removeOne = function(e) {
         $scope.$emit($scope.evt + 'del', e, $scope.state);
     };
-}]).directive('combox', function () {
+}]).directive('combox', function() {
     return {
         restrict: 'EA',
-        scope: { disabled: '@', readonly: '@', retainState: '@', evtPrefix: '@', prop: '@', existing: '=', options: '=', state: '@' },
+        scope: {
+            disabled: '@',
+            readonly: '@',
+            retainState: '@',
+            evtPrefix: '@',
+            prop: '@',
+            existing: '=',
+            options: '=',
+            state: '@'
+        },
         controller: 'ComboxController',
-        templateUrl: function () {
+        templateUrl: function() {
             return '/static/template/combox.html?_=2';
         },
         replace: true,
-        link: function (scope, elem, attrs) {
-            $(elem).find('.dropdown-toggle').click(function (e) {
+        link: function(scope, elem, attrs) {
+            $(elem).find('.dropdown-toggle').click(function(e) {
                 if (!$(this).parent().hasClass('open') && !scope.retainState) {
                     scope.empty();
                     scope.$apply();
                 }
             });
-            $(elem).find('.dropdown-menu *').click(function (e) {
+            $(elem).find('.dropdown-menu *').click(function(e) {
                 e.stopPropagation();
             });
         }
     }
-}).directive('editable', ['$timeout', function ($timeout) {
+}).directive('editable', ['$timeout', function($timeout) {
     return {
         restrict: 'A',
-        scope: { prop: '@', obj: '=' },
+        scope: {
+            prop: '@',
+            obj: '='
+        },
         templateUrl: '/static/template/editable.html?_=1',
-        link: function (scope, elem, attrs) {
-            var onBlur = function () {
+        link: function(scope, elem, attrs) {
+            var onBlur = function() {
                 delete scope.focus;
                 scope.$apply();
                 if (scope.obj[scope.prop].length == 0)
@@ -125,31 +141,31 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
                 else if (scope.oldVal !== scope.obj[scope.prop])
                     scope.$emit('xxt.editable.changed', scope.obj);
             };
-            $(elem).on('click', function (event) {
+            $(elem).on('click', function(event) {
                 delete scope.enter;
                 scope.focus = true;
                 scope.$apply();
-            }).mouseenter(function (event) {
+            }).mouseenter(function(event) {
                 if (!scope.focus) {
                     scope.enter = true;
                     scope.$apply();
                 }
-            }).mouseleave(function (event) {
+            }).mouseleave(function(event) {
                 delete scope.enter;
                 scope.$apply();
             });
-            scope.remove = function (event) {
+            scope.remove = function(event) {
                 if (event) {
                     event.preventDefault();
                     event.stopPropagation();
                 }
                 scope.$emit('xxt.editable.remove', scope.obj);
             };
-            scope.$on('xxt.editable.add', function (event, newObj) {
+            scope.$on('xxt.editable.add', function(event, newObj) {
                 if (newObj === scope.obj)
                     scope.focus = true;
             });
-            scope.$watch('focus', function (nv, ov) {
+            scope.$watch('focus', function(nv, ov) {
                 if (nv) {
                     scope.oldVal = scope.obj[scope.prop];
                     $(elem).find('input').on('blur', onBlur).focus();
@@ -157,8 +173,8 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
             }, true);
         }
     }
-}]).controller('NoticeBoxController', ['$scope', '$timeout', function ($scope, $timeout) {
-    $scope.closeBox = function () {
+}]).controller('NoticeBoxController', ['$scope', '$timeout', function($scope, $timeout) {
+    $scope.closeBox = function() {
         var msgType = '';
         if ($scope.err && $scope.err.length) {
             $scope.err = '';
@@ -172,46 +188,60 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
         }
         $scope.$emit('xxt.notice-box.timeout', msgType);
     };
-    $scope.$watch('info', function (nv) {
+    $scope.$watch('info', function(nv) {
         if (nv && nv.length > 0) {
             $scope.err = $scope.prog = '';
-            $timeout(function () {
+            $timeout(function() {
                 $scope.info = '';
                 $scope.$emit('xxt.notice-box.timeout', 'info');
             }, $scope.delay || 2000);
         }
     });
-    $scope.$watch('err', function (nv) {
+    $scope.$watch('err', function(nv) {
         if (nv && nv.length > 0) {
             $scope.prog && ($scope.prog = '');
             $scope.info && ($scope.info = '');
         }
     });
-    $scope.$watch('prog', function (nv) {
+    $scope.$watch('prog', function(nv) {
         if (nv && nv.length > 0) {
             $scope.err && ($scope.err = '');
             $scope.info && ($scope.info = '');
         }
     });
-}]).directive('noticeBox', ['$timeout', function ($timeout) {
+}]).directive('noticeBox', ['$timeout', function($timeout) {
     return {
         restrict: 'EA',
-        scope: { err: '=', info: '=', prog: '=', delay: '@' },
+        scope: {
+            err: '=',
+            info: '=',
+            prog: '=',
+            delay: '@'
+        },
         templateUrl: '/static/template/noticebox.html?_=3',
         controller: 'NoticeBoxController',
         replace: true
     };
-}]).directive('tmsDatepicker', function () {
+}]).directive('tmsDatepicker', function() {
     return {
         restrict: 'EA',
-        scope: { date: '=tmsDate', title: '@tmsTitle', state: '@tmsState' },
+        scope: {
+            date: '=tmsDate',
+            title: '@tmsTitle',
+            state: '@tmsState',
+            obj: '=tmsObj'
+        },
         templateUrl: '/static/template/datepicker.html?_=2',
-        controller: ['$scope', '$modal', function ($scope, $modal) {
-            $scope.open = function () {
+        controller: ['$scope', '$modal', function($scope, $modal) {
+            $scope.open = function() {
                 $modal.open({
                     templateUrl: 'tmsModalDatepicker.html',
-                    controller: ['$scope', '$modalInstance', 'date', function ($scope, $mi, date) {
-                        date = (function () { var d = new Date(); d.setTime(date == 0 ? d.getTime() : date * 1000); return d; })();
+                    controller: ['$scope', '$modalInstance', 'date', function($scope, $mi, date) {
+                        date = (function() {
+                            var d = new Date();
+                            d.setTime(date == 0 ? d.getTime() : date * 1000);
+                            return d;
+                        })();
                         $scope.years = [2015, 2016, 2017];
                         $scope.months = [];
                         $scope.days = [];
@@ -232,32 +262,44 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
                             $scope.hours.push(i);
                         for (var i = 0; i <= 59; i++)
                             $scope.minutes.push(i);
-                        $scope.ok = function () { $mi.close($scope.date); };
-                        $scope.empty = function () { $mi.close(null); };
-                        $scope.cancel = function () { $mi.dismiss('cancel'); };
+                        $scope.ok = function() {
+                            $mi.close($scope.date);
+                        };
+                        $scope.empty = function() {
+                            $mi.close(null);
+                        };
+                        $scope.cancel = function() {
+                            $mi.dismiss('cancel');
+                        };
                     }],
                     backdrop: 'static',
                     size: 'sm',
                     resolve: {
-                        date: function () { return $scope.date; }
+                        date: function() {
+                            return $scope.date;
+                        }
                     }
-                }).result.then(function (result) {
+                }).result.then(function(result) {
                     var d;
                     d = result === null ? 0 : Date.parse(result.year + '/' + result.month + '/' + result.mday + ' ' + result.hour + ':' + result.minute) / 1000;
                     $scope.date = d;
-                    $scope.$emit('xxt.tms-datepicker.change', { state: $scope.state, value: d });
+                    $scope.$emit('xxt.tms-datepicker.change', {
+                        obj: $scope.obj,
+                        state: $scope.state,
+                        value: d
+                    });
                 });
             };
         }],
         replace: true
     };
-}).directive('tmsAutoUpdate', function () {
-    var link = function (scope, element, attrs) {
+}).directive('tmsAutoUpdate', function() {
+    var link = function(scope, element, attrs) {
         var fnPending = null;
-        var onInput = function () {
+        var onInput = function() {
             scope.tmsUpdate();
         };
-        element.on('input', function () {
+        element.on('input', function() {
             fnPending && clearTimeout(fnPending);
             fnPending = setTimeout(onInput, scope.tmsWait);
         });
@@ -269,24 +311,24 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
         },
         link: link,
     };
-}).directive('dndList', function () {
-    var link = function (scope, element, attrs) {
+}).directive('dndList', function() {
+    var link = function(scope, element, attrs) {
         var dndableOffset = attrs.dndableOffset || 0,
             connectWith = attrs.connectWith,
             savedNodes;
-        var dndstart = function (event, ui) {
+        var dndstart = function(event, ui) {
             ui.item.sortable = {
                 index: ui.item.index(),
-                cancel: function () {
+                cancel: function() {
                     ui.item.sortable._isCanceled = true;
                 },
-                isCanceled: function () {
+                isCanceled: function() {
                     return ui.item.sortable._isCanceled;
                 },
                 _isCanceled: false
             };
         };
-        var dndactivate = function () {
+        var dndactivate = function() {
             savedNodes = element.contents();
             var placeholder = element.sortable('option', 'placeholder');
             if (placeholder && placeholder.element && typeof placeholder.element === 'function') {
@@ -296,7 +338,7 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
                 savedNodes = savedNodes.not(excludes);
             }
         };
-        var dndupdate = function (event, ui) {
+        var dndupdate = function(event, ui) {
             if (!ui.item.sortable.received) {
                 ui.item.sortable.dropindex = ui.item.index();
                 ui.item.sortable.droptarget = ui.item.parent();
@@ -307,30 +349,30 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
             }
             savedNodes.appendTo(element);
             if (ui.item.sortable.received && !ui.item.sortable.isCanceled()) {
-                scope.$apply(function () {
+                scope.$apply(function() {
                     scope.dataset.splice(ui.item.sortable.dropindex - dndableOffset, 0, ui.item.sortable.moved);
                     scope.$emit('orderChanged', ui.item.sortable.moved);
                 });
             }
         };
-        var dndremove = function (event, ui) {
+        var dndremove = function(event, ui) {
             if (!ui.item.sortable.isCanceled()) {
-                scope.$apply(function () {
+                scope.$apply(function() {
                     ui.item.sortable.moved = scope.dataset.splice(ui.item.sortable.index - dndableOffset, 1)[0];
                 });
             }
         };
-        var dndreceive = function (event, ui) {
+        var dndreceive = function(event, ui) {
             ui.item.sortable.received = true;
         };
-        var dndstop = function (event, ui) {
+        var dndstop = function(event, ui) {
             if (!ui.item.sortable.received && ('dropindex' in ui.item.sortable) && !ui.item.sortable.isCanceled()) {
-                scope.$apply(function () {
+                scope.$apply(function() {
                     var movedObj = scope.dataset[ui.item.sortable.index - dndableOffset];
                     scope.dataset.splice(
                         ui.item.sortable.dropindex - dndableOffset, 0,
                         scope.dataset.splice(ui.item.sortable.index - dndableOffset, 1)[0]
-                        );
+                    );
                     scope.$emit('orderChanged', movedObj);
                 });
             } else {
@@ -350,7 +392,9 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
             axis: 'y'
         };
         if (connectWith) {
-            element.sortable(angular.extend({ connectWith: connectWith }, ops));
+            element.sortable(angular.extend({
+                connectWith: connectWith
+            }, ops));
         } else {
             element.sortable(ops);
         }
@@ -361,13 +405,13 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
         },
         link: link,
     };
-}).directive('tmsTree', function () {
+}).directive('tmsTree', function() {
     return {
         restrict: 'A',
         transclude: 'element',
         priority: 1000,
         terminal: true,
-        compile: function (tElement, tAttrs, transclude) {
+        compile: function(tElement, tAttrs, transclude) {
             var repeatExpr, childExpr, rootExpr, childrenExpr;
             repeatExpr = tAttrs.tmsTree.match(/^(.*) in ((?:.*\.)?(.*)) at (.*)$/);
             childExpr = repeatExpr[1];
@@ -384,7 +428,7 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
                         if (cache[i].scope[childExpr] === child)
                             return cache.splice(i, 1)[0];
                 }
-                scope.$watch(rootExpr, function (root) {
+                scope.$watch(rootExpr, function(root) {
                     var currentCache = [];
                     // Recurse the data structure
                     (function walk(children, parentNode, parentScope, depth) {
@@ -418,7 +462,7 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
                             // We also cache a reference to its branch node which will
                             // be used as the parentNode in the next level of recursion
                             if (!cached) {
-                                transclude(parentScope.$new(), function (clone, childScope) {
+                                transclude(parentScope.$new(), function(clone, childScope) {
                                     childScope[childExpr] = child;
                                     cached = {
                                         scope: childScope,
@@ -469,19 +513,21 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function (
             };
         }
     };
-}).directive('runningButton', function () {
+}).directive('runningButton', function() {
     return {
         restrict: 'EA',
         template: "<button ng-class=\"isRunning?'btn-default':'btn-primary'\" ng-disabled='isRunning' ng-transclude></button>",
-        scope: { isRunning: '=' },
+        scope: {
+            isRunning: '='
+        },
         replace: true,
         transclude: true
     }
-}).directive('tmsAutoFocus', function ($timeout) {
+}).directive('tmsAutoFocus', function($timeout) {
     return {
         restrict: 'A',
-        link: function (_scope, _element) {
-            $timeout(function () {
+        link: function(_scope, _element) {
+            $timeout(function() {
                 _element[0].focus();
             });
         }

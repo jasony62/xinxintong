@@ -154,4 +154,106 @@ class catelog_model extends \TMS_MODEL {
 
 		return $values;
 	}
+	/**
+	 * @param int $skuId
+	 */
+	public function &skuById($skuId) {
+		$q = array(
+			'*',
+			'xxt_merchant_catelog_sku s',
+			"id=$skuId",
+		);
+
+		$sku = $this->query_obj_ss($q);
+
+		return $sku;
+	}
+	/**
+	 * @param string $catelogId
+	 */
+	public function &skus($catelogId) {
+		$q = array(
+			'*',
+			'xxt_merchant_catelog_sku s',
+			"cate_id=$catelogId",
+		);
+		$q[2] .= " and disabled<>'Y'";
+		$q2 = array(
+			'o' => 'seq',
+		);
+
+		$skus = $this->query_objs_ss($q, $q2);
+
+		return $skus;
+	}
+	/**
+	 * 定义分类下的sku
+	 *
+	 * @param string @mpid
+	 * @param string @shopId
+	 * @param string @catelogId
+	 * @param object @data
+	 */
+	public function &defineSku($mpid, $shopId, $catelogId, $data) {
+		$sku = new \stdClass;
+
+		$current = time();
+		$uid = \TMS_CLIENT::get_client_uid();
+		$lastSeq = $this->getSkuLastSeq($catelogId);
+		empty($lastSeq) && $lastSeq = -1;
+
+		$sku->mpid = $mpid;
+		$sku->sid = $shopId;
+		$sku->cate_id = $catelogId;
+		$sku->creater = $uid;
+		$sku->create_at = $current;
+		$sku->reviser = $uid;
+		$sku->modify_at = $current;
+		$sku->name = $data->name;
+		$sku->has_validity = $data->has_validity;
+		$sku->seq = $lastSeq + 1;
+
+		$sku->id = $this->insert('xxt_merchant_catelog_sku', (array) $sku, true);
+
+		return $sku;
+	}
+	/**
+	 * @param int $skuId
+	 */
+	public function removeSku($skuId) {
+		$sku = $this->skuById($skuId);
+		if ($sku->used === 'Y') {
+			$rst = $this->update('xxt_merchant_catelog_sku', array('disabled' => 'Y'), "id=$skuId");
+		} else {
+			$rst = $this->delete('xxt_merchant_catelog_sku', "id=$skuId");
+		}
+
+		return $rst;
+	}
+	/**
+	 *
+	 * @param int $skuId
+	 */
+	public function useSku($skuId) {
+		$rst = $this->update(
+			'xxt_merchant_catelog_sku',
+			array('used' => 'Y'),
+			"id=$skuId"
+		);
+
+		return $rst;
+	}
+	/**
+	 *
+	 */
+	private function getSkuLastSeq($catelogId) {
+		$q = array(
+			'max(seq)',
+			'xxt_merchant_catelog_sku',
+			"cate_id=$catelogId",
+		);
+		$seq = $this->query_val_ss($q);
+
+		return $seq;
+	}
 }

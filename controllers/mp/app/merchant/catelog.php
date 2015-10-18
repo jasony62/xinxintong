@@ -15,6 +15,12 @@ class catelog extends \mp\app\app_base {
 	/**
 	 *
 	 */
+	public function sku_action() {
+		$this->view_action('/mp/app/merchant/catelog/base');
+	}
+	/**
+	 *
+	 */
 	public function product_action() {
 		$this->view_action('/mp/app/merchant/catelog/base');
 	}
@@ -239,25 +245,55 @@ class catelog extends \mp\app\app_base {
 	/**
 	 *
 	 */
-	public function skuGet_action() {
-		return new \ResponseData('ok');
+	public function skuGet_action($sku) {
+		$sku = new \stdClass;
+		return new \ResponseData($sku);
 	}
 	/**
 	 *
 	 */
-	public function skuCreate_action() {
-		return new \ResponseData('ok');
+	public function skuList_action($shop, $catelog) {
+		$modelCate = $this->model('app\merchant\catelog');
+
+		$skus = $modelCate->skus($catelog);
+
+		return new \ResponseData($skus);
+	}
+	/**
+	 * @param int $shop
+	 * @param int $catelog
+	 */
+	public function skuCreate_action($shop, $catelog) {
+		$data = new \stdClass;
+		$data->name = '新库存定义';
+		$data->has_validity = 'N';
+
+		$sku = $this->model('app\merchant\catelog')->defineSku($this->mpid, $shop, $catelog, $data);
+
+		return new \ResponseData($sku);
 	}
 	/**
 	 *
 	 */
-	public function skuUpdate_action() {
-		return new \ResponseData('ok');
+	public function skuUpdate_action($sku) {
+		$posted = $this->getPostJson();
+
+		$data = $posted;
+		$data->modify_at = time();
+		$data->reviser = \TMS_CLIENT::get_client_uid();
+
+		$rst = $this->model()->update('xxt_merchant_catelog_sku', (array) $data, "id=$sku");
+
+		return new \ResponseData($rst);
 	}
 	/**
-	 *
+	 * @param int $sku
 	 */
-	public function skuRemove_action() {
-		return new \ResponseData('ok');
+	public function skuRemove_action($sku) {
+		$modelCate = $this->model('app\merchant\catelog');
+
+		$rst = $modelCate->removeSku($sku);
+
+		return new \ResponseData($rst);
 	}
 }

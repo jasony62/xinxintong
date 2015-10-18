@@ -11,7 +11,7 @@
             });
         };
         $scope.open = function(product) {
-            location.href = "/rest/mp/app/merchant/product/edit?shopId=" + $scope.shopId + "&id=" + product.id;
+            location.href = "/rest/mp/app/merchant/product?shop=" + $scope.shopId + "&product=" + product.id;
         };
         $scope.create = function() {
             $modal.open({

@@ -84,7 +84,7 @@ app.factory('Product', function($http, $q) {
         promise = deferred.promise;
         url = '/rest/app/merchant/product/get';
         url += '?mpid=' + this.mpid;
-        url += '&shop=' + this.shop;
+        url += '&shop=' + this.shopId;
         url += '&id=' + id;
         $http.get(url).success(function(rsp) {
             if (typeof rsp === 'undefined') {
@@ -119,6 +119,35 @@ app.factory('Product', function($http, $q) {
         return promise;
     };
     return Product;
+});
+app.factory('Sku', function($http, $q) {
+    var Sku = function(mpid, shopId, productId) {
+        this.mpid = mpid;
+        this.shopId = shopId;
+        this.productId = productId;
+    };
+    Sku.prototype.get = function() {
+        var deferred, promise, url;
+        deferred = $q.defer();
+        promise = deferred.promise;
+        url = '/rest/app/merchant/sku/byProduct';
+        url += '?mpid=' + this.mpid;
+        url += '&shop=' + this.shopId;
+        url += '&product=' + this.productId;
+        $http.get(url).success(function(rsp) {
+            if (typeof rsp === 'undefined') {
+                alert(rsp);
+                return;
+            }
+            if (rsp.err_code != 0) {
+                alert(rsp.data);
+                return;
+            }
+            deferred.resolve(rsp.data);
+        });
+        return promise;
+    };
+    return Sku;
 });
 app.factory('Order', function($http, $q) {
     var Order = function(mpid, shopId) {

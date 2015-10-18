@@ -47,7 +47,7 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_merchant_staff(";
 $sql .= 'id int not null auto_increment';
 $sql .= ',mpid varchar(32) not null';
-$sql .= ',shopid varchar(40) not null';
+$sql .= ',sid int not null';
 $sql .= ',role char(1) not null';
 $sql .= ',identity varchar(100) not null';
 $sql .= ",idsrc char(2) not null default ''";
@@ -130,8 +130,11 @@ $sql .= ",create_at int not null";
 $sql .= ",reviser varchar(40) not null";
 $sql .= ",modify_at int not null";
 $sql .= ",name varchar(255) not null";
-$sql .= ",has_validity char(1) not null default 'N'";
+$sql .= ",has_validity char(1) not null default 'N'"; //是否有有效期
+$sql .= ",require_pay char(1) not null default 'N'"; //是否需要进行支付
 $sql .= ",seq int not null default 0";
+$sql .= ",used char(1) not null default 'N'"; //是否已经使用过
+$sql .= ",disabled char(1) not null default 'N'"; //被禁用
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -192,6 +195,7 @@ $sql .= ',mpid varchar(32) not null';
 $sql .= ',sid int not null'; // shop id
 $sql .= ',cate_id int not null'; // 所属分类ID
 $sql .= ',prod_id int not null'; // 所属商品
+$sql .= ',cate_sku_id int not null'; // 分类sku定义
 $sql .= ',creater varchar(40) not null';
 $sql .= ",create_at int not null";
 $sql .= ',reviser varchar(40) not null';

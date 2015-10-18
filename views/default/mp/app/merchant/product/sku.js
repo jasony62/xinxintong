@@ -1,0 +1,48 @@
+(function() {
+    xxtApp.register.controller('skuCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+        $scope.$parent.subView = 'sku';
+        $scope.addSKU = function() {
+            $modal.open({
+                templateUrl: 'cateSkuSelector.html',
+                backdrop: 'static',
+                controller: ['$modalInstance', '$scope', function($mi, $scope2) {
+                    $scope2.cateSkus = $scope.cateSkus;
+                    $scope2.data = {
+                        selected: null
+                    };
+                    $scope2.close = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        $mi.close($scope2.data);
+                    };
+                }]
+            }).result.then(function(data) {
+                if (data && data.selected) {
+                    http2.get('/rest/mp/app/merchant/product/skuCreate?product=' + $scope.productId + '&cateSku=' + data.selected.id, function(rsp) {
+                        $scope.skus.push(rsp.data);
+                    });
+                }
+            });
+        };
+        $scope.updateSku = function(sku, prop) {
+            var nv = {};
+            nv[prop] = sku[prop];
+            http2.post('/rest/mp/app/merchant/product/skuUpdate?id=' + sku.id, nv);
+        };
+        $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+            data.obj[data.state] = data.value;
+            $scope.updateSku(data.obj, data.state);
+        });
+        http2.get('/rest/mp/app/merchant/product/skuList?product=' + $scope.productId, function(rsp) {
+            $scope.skus = rsp.data;
+        });
+        $scope.$watch('editing', function(nv) {
+            if (nv) {
+                http2.get('/rest/mp/app/merchant/catelog/skuList?catelog=' + $scope.editing.cate_id, function(rsp) {
+                    $scope.cateSkus = rsp.data;
+                });
+            }
+        });
+    }]);
+})();

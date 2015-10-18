@@ -12,12 +12,24 @@ class product extends \mp\app\app_base {
 	public function index_action() {
 		$this->view_action('/mp/app/merchant/product/base');
 	}
+	/*
+	 *
+	 */
+	public function sku_action() {
+		$this->view_action('/mp/app/merchant/product/base');
+	}
+	/*
+	 *
+	 */
+	public function order_action() {
+		$this->view_action('/mp/app/merchant/product/base');
+	}
 	/**
 	 * 获得商品
 	 */
-	public function get_action($id) {
+	public function get_action($product) {
 		$model = $this->model('app\merchant\product');
-		$prod = $model->byId($id, 'Y');
+		$prod = $model->byId($product, 'Y');
 		return new \ResponseData($prod);
 	}
 	/**
@@ -32,7 +44,6 @@ class product extends \mp\app\app_base {
 		foreach ($products as &$prod) {
 			$cascaded = $model->cascaded($prod->id);
 			$prod->propValue2 = $cascaded->propValue2;
-			$prod->skus = $cascaded->skus;
 		}
 		return new \ResponseData($products);
 	}
@@ -72,7 +83,6 @@ class product extends \mp\app\app_base {
 		$cascaded = $this->model('app\merchant\product')->cascaded($product['id']);
 		$product['catelog'] = $cascaded->catelog;
 		$product['propValue2'] = $cascaded->propValue2;
-		$product['skus'] = $cascaded->skus;
 
 		return new \ResponseData($product);
 	}
@@ -173,12 +183,23 @@ class product extends \mp\app\app_base {
 		return new \ResponseData('ok');
 	}
 	/**
+	 *
+	 */
+	public function skuList_action($product) {
+		$modelSku = $this->model('app\merchant\sku');
+
+		$skus = $modelSku->byProduct($product);
+
+		return new \ResponseData($skus);
+	}
+	/**
 	 * 添加产品的sku
 	 *
-	 * $id product's id
+	 * @param int $product product's id
+	 * @param int $cateSku catelog sku's id
 	 */
-	public function skuCreate_action($id) {
-		$prod = $this->model('app\merchant\product')->byId($id);
+	public function skuCreate_action($product, $cateSku) {
+		$prod = $this->model('app\merchant\product')->byId($product);
 
 		$creater = \TMS_CLIENT::get_client_uid();
 
@@ -186,6 +207,7 @@ class product extends \mp\app\app_base {
 			'mpid' => $prod->mpid,
 			'sid' => $prod->sid,
 			'cate_id' => $prod->cate_id,
+			'cate_sku_id' => $cateSku,
 			'prod_id' => $prod->id,
 			'create_at' => time(),
 			'creater' => $creater,
@@ -197,6 +219,9 @@ class product extends \mp\app\app_base {
 		);
 
 		$sku['id'] = $this->model()->insert('xxt_merchant_product_sku', $sku, true);
+
+		/*更新catelog sku状态*/
+		$this->model('app\merchant\catelog')->useSku($cateSku);
 
 		return new \ResponseData($sku);
 	}

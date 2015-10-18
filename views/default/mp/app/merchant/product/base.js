@@ -6,14 +6,14 @@ xxtApp.config(['$routeProvider', function($rp) {
             load: function($q) {
                 var defer = $q.defer();
                 (function() {
-                    $.getScript('/views/default/mp/app/merchant/product/sku.js?_=2', function() {
+                    $.getScript('/views/default/mp/app/merchant/product/sku.js', function() {
                         defer.resolve();
                     });
                 })();
                 return defer.promise;
             }
         }
-    }).when('/rest/mp/app/merchant/catelog/order', {
+    }).when('/rest/mp/app/merchant/product/order', {
         templateUrl: '/views/default/mp/app/merchant/product/order.html',
         controller: 'orderCtrl'
     }).otherwise({
@@ -23,7 +23,7 @@ xxtApp.config(['$routeProvider', function($rp) {
             load: function($q) {
                 var defer = $q.defer();
                 (function() {
-                    $.getScript('/views/default/mp/app/merchant/catelog/setting.js?_=1', function() {
+                    $.getScript('/views/default/mp/app/merchant/product/setting.js?_=1', function() {
                         defer.resolve();
                     });
                 })();
@@ -37,6 +37,10 @@ xxtApp.controller('productCtrl', ['$scope', 'http2', '$location', function($scop
     $scope.catelogId = $location.search().catelog;
     $scope.productId = $location.search().product;
     $scope.subView = '';
+    $scope.back = function(event) {
+        event.preventDefault();
+        history.back();
+    };
     $scope.get = function() {
         http2.get('/rest/mp/app/merchant/product/get?product=' + $scope.productId, function(rsp) {
             $scope.editing = rsp.data;

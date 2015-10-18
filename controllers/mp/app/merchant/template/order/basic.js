@@ -1,16 +1,23 @@
-app.register.controller('merchantCtrl', ['$scope', '$http', 'Product', 'Order', function($scope, $http, Product, Order) {
-	var facProduct, facOrder;
+app.register.controller('merchantCtrl', ['$scope', '$http', 'Product', 'Sku', 'Order', function($scope, $http, Product, Sku, Order) {
+	var facProduct, facSku, facOrder;
 	facProduct = new Product($scope.$parent.mpid, $scope.$parent.shopId);
 	facOrder = new Order($scope.$parent.mpid, $scope.$parent.shopId);
 	var productGet = function(id) {
 		facProduct.get(id).then(function(data) {
 			var propValue;
-			$scope.sku = data.skus[0];
 			$scope.product = data;
 			$scope.catelog = data.catelog;
 			$scope.propValues = data.propValue2;
+			facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId, id);
+			facSku.get().then(function(data) {
+				$scope.skus = data;
+				if (data.length) {
+					$scope.selectedSku = data[0];
+				}
+			})
 		});
 	};
+	$scope.selectedSku = null;
 	$scope.orderInfo = {
 		product_count: 1,
 	};
@@ -23,8 +30,12 @@ app.register.controller('merchantCtrl', ['$scope', '$http', 'Product', 'Order', 
 			alert('请填写联系人电话');
 			return;
 		}
-		facOrder.create($scope.sku.id, $scope.orderInfo).then(function(orderId) {
-			location.href = '/rest/app/merchant/pay?mpid=' + $scope.$parent.mpid + '&shop=' + $scope.$parent.shopId + '&order=' + orderId;
+		facOrder.create($scope.selectedSku.id, $scope.orderInfo).then(function(orderId) {
+			if ($scope.selectedSku.cateSku.require_pay === 'Y') {
+				location.href = '/rest/app/merchant/pay?mpid=' + $scope.$parent.mpid + '&shop=' + $scope.$parent.shopId + '&order=' + orderId;
+			} else {
+				location.href = '/rest/app/merchant/payok?mpid=' + $scope.$parent.mpid + '&shop=' + $scope.$parent.shopId + '&order=' + orderId;
+			}
 		});
 	};
 	if ($scope.$parent.productId) {

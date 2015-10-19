@@ -45,6 +45,19 @@ class property_model extends \TMS_MODEL {
 	 *
 	 * @param int $id
 	 */
+	public function referByCatelog($catelogId) {
+		$rst = $this->update(
+			'xxt_merchant_catelog_property',
+			array('used' => 'Y'),
+			"cate_id=$catelogId"
+		);
+
+		return $rst;
+	}
+	/**
+	 *
+	 * @param int $id
+	 */
 	public function disable($id) {
 		$rst = $this->update(
 			'xxt_merchant_catelog_property',
@@ -148,6 +161,19 @@ class property_model extends \TMS_MODEL {
 			'xxt_merchant_order_feedback_property',
 			array('used' => 'Y'),
 			"id=$id"
+		);
+
+		return $rst;
+	}
+	/**
+	 *
+	 * @param int $id
+	 */
+	public function referFeedbackByCatelog($catelogId) {
+		$rst = $this->update(
+			'xxt_merchant_order_feedback_property',
+			array('used' => 'Y'),
+			"cate_id=$catelogId"
 		);
 
 		return $rst;

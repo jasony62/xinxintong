@@ -69,8 +69,9 @@ class product extends \mp\app\app_base {
 		if (false === $catelog) {
 			return new \ResponseError('指定的分类不存在，无法创建产品');
 		}
-		/*更新分类状态*/
+		/*更新分类和商品属性的状态*/
 		$modelCate->refer($catelog->id);
+		$this->model('app\merchant\property')->referByCatelog($catelog->id);
 		/*创建商品*/
 		$creater = \TMS_CLIENT::get_client_uid();
 		$product = array(

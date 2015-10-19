@@ -129,7 +129,6 @@ class order_model extends \TMS_MODEL {
 		/*更新商品定义状态*/
 		if ($product->used === 'N') {
 			\TMS_APP::M('app\merchant\product')->refer($product->id);
-			\TMS_APP::M('app\merchant\property')->referOrderByCatelog($product->cate_id);
 		}
 
 		return $order;

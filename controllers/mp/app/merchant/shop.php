@@ -3,7 +3,7 @@ namespace mp\app\merchant;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
- * 商店管理
+ * 店铺
  */
 class shop extends \mp\app\app_base {
 	/**

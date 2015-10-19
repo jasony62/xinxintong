@@ -30,6 +30,11 @@
             nv[prop] = sku[prop];
             http2.post('/rest/mp/app/merchant/product/skuUpdate?id=' + sku.id, nv);
         };
+        $scope.removeSku = function(index, sku) {
+            http2.get('/rest/mp/app/merchant/product/skuRemove?sku=' + sku.id, function(rsp) {
+                $scope.skus.splice(index, 1);
+            });
+        };
         $scope.$on('xxt.tms-datepicker.change', function(event, data) {
             data.obj[data.state] = data.value;
             $scope.updateSku(data.obj, data.state);

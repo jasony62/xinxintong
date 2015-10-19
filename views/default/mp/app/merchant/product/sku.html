@@ -1,5 +1,6 @@
 <div id='setting-view'>
     <div class='form-horizontal list-group-item' ng-repeat='s in skus'>
+        <button class="btn btn-default" ng-click='removeSku($index, s)'><i class='fa fa-remove'></i></button>
         <div class='price form-group'>
             <label class='col-md-2 control-label'>定义名称</label>
             <div class='col-md-10'>

@@ -3,23 +3,35 @@ app.register.controller('merchantCtrl', ['$scope', '$http', 'Product', 'Sku', 'O
 	facProduct = new Product($scope.$parent.mpid, $scope.$parent.shopId);
 	facOrder = new Order($scope.$parent.mpid, $scope.$parent.shopId);
 	var productGet = function(id) {
-		facProduct.get(id).then(function(data) {
+		facProduct.get(id).then(function(product) {
 			var propValue;
-			$scope.product = data;
-			$scope.catelog = data.catelog;
-			$scope.propValues = data.propValue2;
+			$scope.product = product;
+			$scope.catelog = product.catelog;
+			$scope.propValues = product.propValue2;
 			facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId, id);
-			facSku.get().then(function(data) {
-				$scope.skus = data;
-				if (data.length) {
-					$scope.selectedSku = data[0];
+			facSku.get().then(function(skus) {
+				$scope.skus = skus;
+				if ($scope.$parent.orderId) {
+					angular.forEach($scope.skus, function(v) {
+						if (typeof $scope.orderInfo.skus[v.id] === 'object') {
+							v.selected = true;
+						}
+					});
+				} else if (skus.length) {
+					$scope.chooseSku(skus[0]);
 				}
 			})
 		});
 	};
-	$scope.selectedSku = null;
-	$scope.orderInfo = {
-		product_count: 1,
+	$scope.chooseSku = function(sku) {
+		sku.selected = !sku.selected;
+		if (sku.selected) {
+			$scope.orderInfo.skus[sku.id] = {
+				count: 1
+			};
+		} else {
+			delete $scope.orderInfo.skus[sku.id];
+		}
 	};
 	$scope.create = function() {
 		if (!$scope.orderInfo.receiver_name) {
@@ -30,25 +42,43 @@ app.register.controller('merchantCtrl', ['$scope', '$http', 'Product', 'Sku', 'O
 			alert('请填写联系人电话');
 			return;
 		}
-		facOrder.create($scope.selectedSku.id, $scope.orderInfo).then(function(orderId) {
-			if ($scope.selectedSku.cateSku.require_pay === 'Y') {
+		facOrder.create($scope.orderInfo).then(function(orderId) {
+			var requirePay = false;
+			angular.forEach($scope.skus, function(v) {
+				if (typeof $scope.orderInfo.skus[v.id] === 'object' && v.cateSku.require_pay === 'Y') {
+					requirePay = true;
+					return false;
+				}
+			});
+			if (requirePay) {
 				location.href = '/rest/app/merchant/pay?mpid=' + $scope.$parent.mpid + '&shop=' + $scope.$parent.shopId + '&order=' + orderId;
 			} else {
 				location.href = '/rest/app/merchant/payok?mpid=' + $scope.$parent.mpid + '&shop=' + $scope.$parent.shopId + '&order=' + orderId;
 			}
 		});
 	};
-	if ($scope.$parent.productId) {
-		productGet($scope.$parent.productId);
-	} else if ($scope.$parent.orderId) {
-		facOrder.get($scope.$parent.orderId).then(function(data) {
+	$scope.orderInfo = {
+		skus: {}
+	};
+	if ($scope.$parent.orderId) {
+		$scope.orderInfo = {
+			skus: {}
+		};
+		facOrder.get($scope.$parent.orderId).then(function(order) {
 			var feedback;
-			feedback = data.feedback;
+			feedback = order.feedback;
 			$scope.orderInfo.feedback = (feedback && feedback.length) ? JSON.parse(feedback) : {};
-			$scope.orderInfo.extPropValues = JSON.parse(data.ext_prop_value);
-			$scope.orderInfo.receiver_name = data.receiver_name;
-			$scope.orderInfo.receiver_mobile = data.receiver_mobile;
-			productGet(data.product_id);
+			$scope.orderInfo.extPropValues = JSON.parse(order.ext_prop_value);
+			$scope.orderInfo.receiver_name = order.receiver_name;
+			$scope.orderInfo.receiver_mobile = order.receiver_mobile;
+			angular.forEach(order.skus, function(v) {
+				$scope.orderInfo.skus[v.sku_id] = {
+					count: v.sku_count
+				};
+			});
+			productGet(order.product_id);
 		});
+	} else if ($scope.$parent.productId) {
+		productGet($scope.$parent.productId);
 	}
 }]);

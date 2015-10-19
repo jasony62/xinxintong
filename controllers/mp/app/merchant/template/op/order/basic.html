@@ -25,7 +25,9 @@
             <div class='form-control-static' ng-bind="pv.value||'&nbsp;'"></div>
         </div>
     </div>
-    <div id="feedback" class='form-group'>
+    <div id='skus'>
+    </div>
+    <div id="feedback" class='form-group' ng-if="catelog.feedbackProperties.length">
         <div class='form-group' ng-repeat='ofp in catelog.feedbackProperties'>
             <label class='form-control-static' ng-bind='ofp.name'></label>
             <input type='text' class='form-control input-lg' ng-model="order.feedback[ofp.id]">

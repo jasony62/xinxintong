@@ -40,7 +40,8 @@ class product extends \mp\app\app_base {
 	 */
 	public function list_action($shop, $catelog) {
 		$model = $this->model('app\merchant\product');
-		$products = $model->byShopId($shop, $catelog);
+		$state = array('disabled' => 'N');
+		$products = $model->byShopId($shop, $catelog, $state);
 		foreach ($products as &$prod) {
 			$cascaded = $model->cascaded($prod->id);
 			$prod->propValue2 = $cascaded->propValue2;
@@ -50,34 +51,36 @@ class product extends \mp\app\app_base {
 	/**
 	 * 关联的数据
 	 *
-	 * $id
+	 * @param int $product
 	 */
-	public function cascaded_action($id) {
-		$cascaded = $this->model('app\merchant\product')->cascaded($id);
+	public function cascaded_action($product) {
+		$cascaded = $this->model('app\merchant\product')->cascaded($product);
 
 		return new \ResponseData($cascaded);
 	}
 	/**
+	 * 在指定分类下创建商品
 	 *
-	 * $cateId
+	 * @param int $catelog
 	 */
-	public function create_action($cateId) {
-		$cate = $this->model('app\merchant\catelog')->byId($cateId);
-		if (false === $cate) {
+	public function create_action($catelog) {
+		$modelCate = $this->model('app\merchant\catelog');
+		$catelog = $modelCate->byId($catelog);
+		if (false === $catelog) {
 			return new \ResponseError('指定的分类不存在，无法创建产品');
 		}
-
+		/*更新分类状态*/
+		$modelCate->refer($catelog->id);
+		/*创建商品*/
 		$creater = \TMS_CLIENT::get_client_uid();
-
 		$product = array(
 			'mpid' => $this->mpid,
-			'sid' => $cate->sid,
-			'cate_id' => $cate->id,
+			'sid' => $catelog->sid,
+			'cate_id' => $catelog->id,
 			'create_at' => time(),
 			'creater' => $creater,
-			'name' => '新产品',
+			'name' => '新商品',
 		);
-
 		$product['id'] = $this->model()->insert('xxt_merchant_product', $product, true);
 
 		$cascaded = $this->model('app\merchant\product')->cascaded($product['id']);
@@ -89,7 +92,7 @@ class product extends \mp\app\app_base {
 	/**
 	 *
 	 */
-	public function update_action($id) {
+	public function update_action($product) {
 		$reviser = \TMS_CLIENT::get_client_uid();
 
 		$nv = $this->getPostJson();
@@ -97,7 +100,7 @@ class product extends \mp\app\app_base {
 		$nv->reviser = $reviser;
 		$nv->modify_at = time();
 
-		$rst = $this->model()->update('xxt_merchant_product', (array) $nv, "id='$id'");
+		$rst = $this->model()->update('xxt_merchant_product', (array) $nv, "id='$product'");
 
 		return new \ResponseData($rst);
 	}
@@ -131,14 +134,13 @@ class product extends \mp\app\app_base {
 	 *
 	 * $id product's id
 	 */
-	public function propUpdate_action($id) {
+	public function propUpdate_action($product) {
 		$posted = $this->getPostJson();
-
 		if (empty($posted->name)) {
 			return new \ResponseError('属性值为空');
 		}
 
-		$prod = $this->model('app\merchant\product')->byId($id);
+		$product = $this->model('app\merchant\product')->byId($product);
 		/**
 		 * 获得属性值ID
 		 */
@@ -148,12 +150,12 @@ class product extends \mp\app\app_base {
 			"prop_id=$posted->prop_id and name='$posted->name'",
 		);
 		$vid = $this->model()->query_val_ss($q);
-		$vid === false && $vid = $this->propValueCreate($prod->cate_id, $posted->prop_id, $posted->name);
+		$vid === false && $vid = $this->propValueCreate($product->cate_id, $posted->prop_id, $posted->name);
 		/**
 		 * 更新产品的属性值
 		 */
-		if ($prod->prop_value) {
-			$propValue = json_decode($prod->prop_value);
+		if ($product->prop_value) {
+			$propValue = json_decode($product->prop_value);
 		} else {
 			$propValue = new \stdClass;
 		}
@@ -166,15 +168,28 @@ class product extends \mp\app\app_base {
 		$nv->modify_at = time();
 		$nv->prop_value = json_encode($propValue);
 
-		$rst = $this->model()->update('xxt_merchant_product', (array) $nv, "id='$id'");
+		$rst = $this->model()->update(
+			'xxt_merchant_product',
+			(array) $nv,
+			"id='$product->id'"
+		);
 
 		return new \ResponseData(array('id' => $vid, 'name' => $posted->name));
 	}
 	/**
 	 *
+	 * @param int $product
 	 */
-	public function remove_action() {
-		return new \ResponseData('ok');
+	public function remove_action($product) {
+		$modelProd = $this->model('app\merchant\product');
+		$product = $modelProd->byId($product);
+		if ($product->used === 'N') {
+			$rst = $modelProd->remove($product->id);
+		} else {
+			$rst = $modelProd->disable($product->id);
+		}
+
+		return new \ResponseData($rst);
 	}
 	/**
 	 * $id product's id
@@ -217,8 +232,8 @@ class product extends \mp\app\app_base {
 			'quantity' => 1,
 			'product_code' => '',
 		);
-
-		$sku['id'] = $this->model()->insert('xxt_merchant_product_sku', $sku, true);
+		$skuId = $this->model()->insert('xxt_merchant_product_sku', $sku, true);
+		$sku = $this->model('app\merchant\sku')->byId($skuId);
 
 		/*更新catelog sku状态*/
 		$this->model('app\merchant\catelog')->useSku($cateSku);
@@ -243,9 +258,13 @@ class product extends \mp\app\app_base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 *
+	 * @param int $sku
 	 */
-	public function skuRemove_action() {
-		return new \ResponseData('ok');
+	public function skuRemove_action($sku) {
+		$modelSku = $this->model('app\merchant\sku');
+
+		$rst = $modelSku->remove($sku);
+
+		return new \ResponseData($rst);
 	}
 }

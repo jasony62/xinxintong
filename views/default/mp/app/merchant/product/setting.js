@@ -4,7 +4,7 @@
         $scope.update = function(name) {
             var nv = {};
             nv[name] = $scope.editing[name];
-            http2.post('/rest/mp/app/merchant/product/update?id=' + $scope.editing.id, nv, function(rsp) {});
+            http2.post('/rest/mp/app/merchant/product/update?product=' + $scope.editing.id, nv, function(rsp) {});
         };
         $scope.setPic = function() {
             var options = {
@@ -40,11 +40,20 @@
                 }]
             }).result.then(function(data) {
                 var url;
-                url = '/rest/mp/app/merchant/product/propUpdate?id=' + $scope.editing.id;
+                url = '/rest/mp/app/merchant/product/propUpdate?product=' + $scope.editing.id;
                 data.prop_id = prop.id;
                 http2.post(url, data, function(rsp) {
                     $scope.editing.propValue2[prop.id] = rsp.data;
                 });
+            });
+        };
+        $scope.remove = function() {
+            http2.get('/rest/mp/app/merchant/product/remove?product=' + $scope.editing.id, function(rsp) {
+                if ($scope.$parent.catelogId) {
+                    location.href = '/rest/mp/app/merchant/catelog/product?shop=' + $scope.$parent.shopId + '&catelog=' + $scope.$parent.catelogId;
+                } else {
+                    location.href = '/rest/mp/app/merchant/shop/product?shop=' + $scope.$parent.shopId;
+                }
             });
         };
     }]);

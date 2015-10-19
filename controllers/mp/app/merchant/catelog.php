@@ -42,7 +42,8 @@ class catelog extends \mp\app\app_base {
 	 * @param string $shop
 	 */
 	public function list_action($shop) {
-		$catelogs = $this->model('app\merchant\catelog')->byShopId($shop);
+		$state = array('disabled' => 'N');
+		$catelogs = $this->model('app\merchant\catelog')->byShopId($shop, $state);
 
 		return new \ResponseData($catelogs);
 	}
@@ -57,27 +58,35 @@ class catelog extends \mp\app\app_base {
 		return new \ResponseData($cascaded);
 	}
 	/**
-	 * $shopId
+	 * 在指定商铺下创建分类
+	 *
+	 * @param int $shop
 	 */
-	public function create_action($shopId) {
+	public function create_action($shop) {
 		$creater = \TMS_CLIENT::get_client_uid();
-
+		$current = time();
+		/*商品分类*/
 		$cate = array(
 			'mpid' => $this->mpid,
-			'sid' => $shopId,
+			'sid' => $shop,
 			'create_at' => time(),
 			'creater' => $creater,
 			'name' => '新分类',
 		);
-
 		$cate['id'] = $this->model()->insert('xxt_merchant_catelog', $cate, true);
+		/*分类的sku*/
+		$sku = new \stdClass;
+		$sku->name = '新库存定义';
+		$sku = $this->model('app\merchant\catelog')->defineSku($this->mpid, $shop, $cate['id'], $sku);
 
 		return new \ResponseData($cate);
 	}
 	/**
 	 * 更新分类的基础信息
+	 *
+	 * @param int $catelog
 	 */
-	public function update_action($id) {
+	public function update_action($catelog) {
 		$reviser = \TMS_CLIENT::get_client_uid();
 
 		$nv = $this->getPostJson();
@@ -85,21 +94,25 @@ class catelog extends \mp\app\app_base {
 		$nv->reviser = $reviser;
 		$nv->modify_at = time();
 
-		$rst = $this->model()->update('xxt_merchant_catelog', (array) $nv, "id='$id'");
+		$rst = $this->model()->update('xxt_merchant_catelog', (array) $nv, "id='$catelog'");
 
 		return new \ResponseData($rst);
 	}
 	/**
+	 * 删除分类
 	 *
+	 * @param int $catelog
 	 */
-	public function remove_action() {
-		return new \ResponseData('ok');
-	}
-	/**
-	 *
-	 */
-	public function propertyGet_action() {
-		return new \ResponseData('ok');
+	public function remove_action($catelog) {
+		$modelCate = $this->model('app\merchant\catelog');
+		$catelog = $modelCate->byId($catelog);
+		if ($catelog->used === 'N') {
+			$rst = $modelCate->remove($catelog->id);
+		} else {
+			$rst = $modelCate->disable($catelog->id);
+		}
+
+		return new \ResponseData($rst);
 	}
 	/**
 	 * 添加属性
@@ -142,9 +155,16 @@ class catelog extends \mp\app\app_base {
 	}
 	/**
 	 *
+	 * @param int $property
 	 */
-	public function propRemove_action($id) {
-		$rst = $this->model()->delete('xxt_merchant_catelog_property', "id=$id");
+	public function propRemove_action($property) {
+		$modelProp = $this->model('app\merchant\property');
+		$property = $modelProp->byId($property);
+		if ($property->used === 'N') {
+			$rst = $modelProp->remove($property->id);
+		} else {
+			$rst = $modelProp->disable($property->id);
+		}
 
 		return new \ResponseData($rst);
 	}
@@ -191,7 +211,13 @@ class catelog extends \mp\app\app_base {
 	 *
 	 */
 	public function orderPropRemove_action($id) {
-		$rst = $this->model()->delete('xxt_merchant_order_property', "id=$id");
+		$modelProp = $this->model('app\merchant\property');
+		$property = $modelProp->orderById($id);
+		if ($property->used === 'N') {
+			$rst = $modelProp->orderRemove($property->id);
+		} else {
+			$rst = $modelProp->orderDisable($property->id);
+		}
 
 		return new \ResponseData($rst);
 	}
@@ -238,7 +264,13 @@ class catelog extends \mp\app\app_base {
 	 *
 	 */
 	public function feedbackPropRemove_action($id) {
-		$rst = $this->model()->delete('xxt_merchant_order_feedback_property', "id=$id");
+		$modelProp = $this->model('app\merchant\property');
+		$property = $modelProp->feedbackById($id);
+		if ($property->used === 'N') {
+			$rst = $modelProp->feedbackRemove($property->id);
+		} else {
+			$rst = $modelProp->feedbackDisable($property->id);
+		}
 
 		return new \ResponseData($rst);
 	}

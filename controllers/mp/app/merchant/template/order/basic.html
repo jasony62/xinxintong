@@ -16,7 +16,7 @@
         </div>
     </div>
     <div id='skus'>
-        <div class='sku' ng-repeat='s in skus'>
+        <div class='sku' ng-class="{'selected':s.selected}" ng-repeat='s in skus' ng-click='chooseSku(s)'>
             <div class='form-group' ng-if="s.cateSku.require_pay==='Y'">
                 <label class='form-control-static'>价格（元）</label>
                 <div class='form-control-static' ng-bind="(s.price/100)||'&nbsp;'"></div>

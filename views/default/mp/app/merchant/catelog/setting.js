@@ -11,10 +11,10 @@
                 $scope.editing = catelog;
         };
         $scope.update = function(name) {
-        var nv = {};
-        nv[name] = $scope.editing[name];
-        http2.post('/rest/mp/app/merchant/shop/update?id=' + $scope.shopId, nv, function(rsp) {});
-    };
+            var nv = {};
+            nv[name] = $scope.editing[name];
+            http2.post('/rest/mp/app/merchant/shop/update?id=' + $scope.shopId, nv, function(rsp) {});
+        };
         $scope.create = function() {
             http2.get('/rest/mp/app/merchant/catelog/create?shopId=' + $scope.shopId, function(rsp) {
                 $scope.catelogs.push(rsp.data);
@@ -54,7 +54,7 @@
                         prop.name = rsp.data.name;
                     });
                 else if (action.name === 'remove')
-                    http2.get('/rest/mp/app/merchant/catelog/propRemove?id=' + prop.id, function(rsp) {
+                    http2.get('/rest/mp/app/merchant/catelog/propRemove?property=' + prop.id, function(rsp) {
                         $scope.editing.properties.splice(index, 1);
                     });
             });
@@ -138,12 +138,14 @@
             });
         };
         $scope.remove = function() {
-
+            http2.get('/rest/mp/app/merchant/catelog/remove?catelog=' + $scope.editing.id, function(rsp) {
+                location.href = '/rest/mp/app/merchant/shop/catelog?shop=' + $scope.$parent.shopId;
+            });
         };
         $scope.update = function(name) {
             var nv = {};
             nv[name] = $scope.editing[name];
-            http2.post('/rest/mp/app/merchant/catelog/update?id=' + $scope.editing.id, nv, function(rsp) {});
+            http2.post('/rest/mp/app/merchant/catelog/update?catelog=' + $scope.editing.id, nv, function(rsp) {});
         };
         $scope.get();
     }]);

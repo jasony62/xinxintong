@@ -51,14 +51,9 @@ class order extends \member_base {
 		//    return new \ResponseError('无法获得当前用户身份信息');
 		//
 		$order = $this->model('app\merchant\order')->byId($order);
-		//
-		$sku = $this->model('app\merchant\sku')->byId($order->product_sku);
-		if ($sku === false) {
-			return new \ResponseError('指定的库存不存在');
-		}
 
 		$modelProd = $this->model('app\merchant\product');
-		$prod = $modelProd->byId($sku->prod_id);
+		$prod = $modelProd->byId($order->product_id);
 		$cascaded = $modelProd->cascaded($prod->id);
 
 		$prodPropValues = array();
@@ -70,7 +65,7 @@ class order extends \member_base {
 		}
 		$prod->propValues = $prodPropValues;
 
-		return new \ResponseData(array('order' => $order, 'sku' => $sku, 'product' => $prod, 'catelog' => $cascaded->catelog, 'propValues' => $cascaded->propValue2));
+		return new \ResponseData(array('order' => $order, 'product' => $prod, 'catelog' => $cascaded->catelog, 'propValues' => $cascaded->propValue2));
 	}
 	/**
 	 * 保存订单反馈信息并通知用户

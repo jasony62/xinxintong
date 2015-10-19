@@ -26,15 +26,21 @@ class product_model extends \TMS_MODEL {
 	}
 	/**
 	 *
-	 * $shopId
-	 * $cateId
+	 *
+	 * @param int $shopId
+	 * @param int $cateId
+	 * @param array $state
+	 *
 	 */
-	public function &byShopId($shopId, $cateId) {
+	public function &byShopId($shopId, $cateId, $state = array()) {
 		$q = array(
 			'*',
 			'xxt_merchant_product p',
 			"sid=$shopId and cate_id=$cateId",
 		);
+		isset($state['disabled']) && $q[2] .= " and disabled='" . $state['disabled'] . "'";
+		isset($state['active']) && $q[2] .= " and active='" . $state['active'] . "'";
+
 		$q2 = array('o' => 'create_at desc');
 
 		$products = $this->query_objs_ss($q, $q2);
@@ -112,5 +118,42 @@ class product_model extends \TMS_MODEL {
 		$catelog->feedbackProperties = $cateCascaded->feedbackProperties;
 
 		return $cascaded;
+	}
+	/**
+	 *
+	 * @param int $productId
+	 */
+	public function remove($productId) {
+		/**/
+		$rst = $this->delete('xxt_merchant_product_sku', "prod_id=$productId");
+		$rst = $this->delete('xxt_merchant_product', "id=$productId");
+
+		return $rst;
+	}
+	/**
+	 *
+	 * @param int @catelogId
+	 */
+	public function refer($productId) {
+		$rst = $this->update(
+			'xxt_merchant_product',
+			array('used' => 'Y'),
+			"id=$productId"
+		);
+
+		return $rst;
+	}
+	/**
+	 *
+	 * @param int @catelogId
+	 */
+	public function disable($productId) {
+		$rst = $this->update(
+			'xxt_merchant_product',
+			array('disabled' => 'Y', 'active' => 'N'),
+			"id=$productId"
+		);
+
+		return $rst;
 	}
 }

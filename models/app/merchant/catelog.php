@@ -25,14 +25,19 @@ class catelog_model extends \TMS_MODEL {
 		return $cate;
 	}
 	/**
-	 * $mpid
+	 * 指定商铺下的所有分类
+	 *
+	 * @param int $shopId
 	 */
-	public function &byShopId($shopId) {
+	public function &byShopId($shopId, $state = array()) {
 		$q = array(
 			'*',
 			'xxt_merchant_catelog c',
 			"sid=$shopId",
 		);
+		isset($state['disabled']) && $q[2] .= " and disabled='" . $state['disabled'] . "'";
+		isset($state['active']) && $q[2] .= " and active='" . $state['active'] . "'";
+
 		$q2 = array('o' => 'create_at desc');
 
 		$catelogs = $this->query_objs_ss($q, $q2);
@@ -49,6 +54,7 @@ class catelog_model extends \TMS_MODEL {
 	}
 	/**
 	 *
+	 * @param int $productId
 	 */
 	public function &byProductId($productId) {
 		$q = array(
@@ -57,8 +63,7 @@ class catelog_model extends \TMS_MODEL {
 			"exists(select 1 from xxt_merchant_product p where p.id=$productId and p.cate_id=c.id)",
 		);
 
-		$catelog = $this->query_obj_ss($q);
-		if ($catelog) {
+		if ($catelog = $this->query_obj_ss($q)) {
 			$cascaded = $this->cascaded($catelog->id);
 			$catelog->properties = $cascaded->properties;
 			$catelog->propValues = isset($cascaded->propValues) ? $cascaded->propValues : array();
@@ -210,7 +215,8 @@ class catelog_model extends \TMS_MODEL {
 		$sku->reviser = $uid;
 		$sku->modify_at = $current;
 		$sku->name = $data->name;
-		$sku->has_validity = $data->has_validity;
+		$sku->has_validity = isset($data->has_validity) ? $data->has_validity : 'N';
+		$sku->require_pay = isset($data->require_pay) ? $data->require_pay : 'N';
 		$sku->seq = $lastSeq + 1;
 
 		$sku->id = $this->insert('xxt_merchant_catelog_sku', (array) $sku, true);
@@ -255,5 +261,51 @@ class catelog_model extends \TMS_MODEL {
 		$seq = $this->query_val_ss($q);
 
 		return $seq;
+	}
+	/**
+	 *
+	 * @param int @catelogId
+	 */
+	public function remove($catelogId) {
+		/*properties*/
+		$this->delete('xxt_merchant_catelog_property_value', "cate_id=$catelogId");
+		$this->delete('xxt_merchant_catelog_property', "cate_id=$catelogId");
+		/*skus*/
+		$this->delete('xxt_merchant_catelog_sku_value', "cate_id=$catelogId");
+		$this->delete('xxt_merchant_catelog_sku', "cate_id=$catelogId");
+		/*order properties*/
+		$this->delete('xxt_merchant_order_property', "cate_id=$catelogId");
+		/*order feedback properties*/
+		$this->delete('xxt_merchant_order_feedback_property', "cate_id=$catelogId");
+		/**/
+		$rst = $this->delete('xxt_merchant_catelog', "id=$catelogId");
+
+		return $rst;
+	}
+	/**
+	 *
+	 * @param int @catelogId
+	 */
+	public function refer($catelogId) {
+		$rst = $this->update(
+			'xxt_merchant_catelog',
+			array('used' => 'Y'),
+			"id=$catelogId"
+		);
+
+		return $rst;
+	}
+	/**
+	 *
+	 * @param int @catelogId
+	 */
+	public function disable($catelogId) {
+		$rst = $this->update(
+			'xxt_merchant_catelog',
+			array('disabled' => 'Y', 'active' => 'N'),
+			"id=$catelogId"
+		);
+
+		return $rst;
 	}
 }

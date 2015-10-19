@@ -195,14 +195,13 @@ app.factory('Order', function($http, $q) {
         });
         return promise;
     };
-    Order.prototype.create = function(skuId, orderInfo) {
+    Order.prototype.create = function(orderInfo) {
         var deferred, promise, url;
         deferred = $q.defer();
         promise = deferred.promise;
         url = '/rest/app/merchant/order/create';
         url += '?mpid=' + this.mpid;
         url += '&shop=' + this.shopId;
-        url += '&sku=' + skuId;
         $http.post(url, orderInfo).success(function(rsp) {
             if (typeof rsp === 'undefined') {
                 alert(rsp);

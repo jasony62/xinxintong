@@ -14,33 +14,14 @@
             location.href = "/rest/mp/app/merchant/product?shop=" + $scope.shopId + "&product=" + product.id;
         };
         $scope.create = function() {
-            $modal.open({
-                templateUrl: 'catelogSelector.html',
-                backdrop: 'static',
-                controller: ['$modalInstance', '$scope', function($mi, $scope2) {
-                    $scope2.catelogs = $scope.catelogs;
-                    $scope2.data = {
-                        selected: $scope.selectedCatelog
-                    };
-                    $scope2.close = function() {
-                        $mi.dismiss();
-                    };
-                    $scope2.ok = function() {
-                        $mi.close($scope2.data.selected);
-                    };
-                }]
-            }).result.then(function(catelog) {
-                if (catelog !== null) {
-                    var url = '/rest/mp/app/merchant/product/create';
-                    url += '?cateId=' + catelog.id;
-                    http2.get(url, function(rsp) {
-                        var prod = rsp.data;
-                        $scope.open(prod);
-                        prod.prop_value2 = rsp.data.propValue2;
-                        $scope.products.push(prod);
-                        $scope.open(prod);
-                    });
-                }
+            var url = '/rest/mp/app/merchant/product/create';
+            url += '?catelog=' + $scope.$parent.catelogId;
+            http2.get(url, function(rsp) {
+                var prod = rsp.data;
+                $scope.open(prod);
+                prod.prop_value2 = rsp.data.propValue2;
+                $scope.products.push(prod);
+                $scope.open(prod);
             });
         };
         $scope.search();

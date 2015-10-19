@@ -5,16 +5,20 @@ namespace app\merchant;
  */
 class sku_model extends \TMS_MODEL {
 	/**
+	 *
 	 * @param string $id
 	 */
-	public function &byId($id) {
+	public function &byId($id, $cascaded = 'Y') {
 		$q = array(
 			'*',
 			'xxt_merchant_product_sku s',
 			"id=$id",
 		);
-
 		$sku = $this->query_obj_ss($q);
+		if ($sku && $cascaded === 'Y') {
+			$modelCate = \TMS_MODEL::M('app\merchant\catelog');
+			$sku->cateSku = $modelCate->skuById($sku->cate_sku_id);
+		}
 
 		return $sku;
 	}
@@ -40,5 +44,33 @@ class sku_model extends \TMS_MODEL {
 		}
 
 		return $skus;
+	}
+	/**
+	 * 删除库存
+	 *
+	 * @param int $skuId
+	 */
+	public function remove($skuId) {
+		$sku = $this->byId($skuId, 'N');
+		if ($sku->used === 'Y') {
+			$rst = $this->update('xxt_merchant_product_sku', array('disabled' => 'Y'), "id=$skuId");
+		} else {
+			$rst = $this->delete('xxt_merchant_product_sku', "id=$skuId");
+		}
+
+		return $rst;
+	}
+	/**
+	 *
+	 * @param int $skuId
+	 */
+	public function refer($skuId) {
+		$rst = $this->update(
+			'xxt_merchant_product_sku',
+			array('used' => 'Y'),
+			"id=$skuId"
+		);
+
+		return $rst;
 	}
 }

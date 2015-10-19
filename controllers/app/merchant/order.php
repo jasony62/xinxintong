@@ -60,7 +60,8 @@ class order extends \member_base {
 		return new \ResponseData($params);
 	}
 	/**
-	 *
+	 * @param string $mpid
+	 * @param int $order
 	 */
 	public function get_action($mpid, $order = null, $shop = null, $sku = null) {
 		$order = $this->model('app\merchant\order')->byId($order);
@@ -68,8 +69,12 @@ class order extends \member_base {
 	}
 	/**
 	 * 创建订单
+	 *
+	 * @param string $mpid
+	 *
+	 * @return int
 	 */
-	public function create_action($mpid, $sku = null) {
+	public function create_action($mpid) {
 		$user = $this->getUser($mpid, array('verbose' => array('fan' => 'Y')));
 		if (empty($user->openid)) {
 			return new \ResponseError('无法获得当前用户身份信息');
@@ -77,7 +82,7 @@ class order extends \member_base {
 
 		$orderInfo = $this->getPostJson();
 
-		$order = $this->model('app\merchant\order')->create($sku, $user, $orderInfo);
+		$order = $this->model('app\merchant\order')->create($mpid, $user, $orderInfo);
 
 		$this->notify($mpid, $order);
 

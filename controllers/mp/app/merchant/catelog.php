@@ -87,30 +87,34 @@ class catelog extends \mp\app\app_base {
 	 * @param int $catelog
 	 */
 	public function update_action($catelog) {
-		$reviser = \TMS_CLIENT::get_client_uid();
-
 		$nv = $this->getPostJson();
-
-		$nv->reviser = $reviser;
-		$nv->modify_at = time();
-
-		$rst = $this->model()->update('xxt_merchant_catelog', (array) $nv, "id='$catelog'");
+		$rst = $this->_update($catelog, $nv);
 
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 删除分类
 	 *
 	 * @param int $catelog
 	 */
-	public function remove_action($catelog) {
-		$modelCate = $this->model('app\merchant\catelog');
-		$catelog = $modelCate->byId($catelog);
-		if ($catelog->used === 'N') {
-			$rst = $modelCate->remove($catelog->id);
-		} else {
-			$rst = $modelCate->disable($catelog->id);
-		}
+	public function activate_action($catelog) {
+		$modelProp = $this->model('app\merchant\property');
+		$modelProp->referOrderByCatelog($catelog);
+		$modelProp->referFeedbackByCatelog($catelog);
+
+		$updated = new \stdClass;
+		$updated->active = 'Y';
+		$rst = $this->_update($catelog, $updated);
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 *
+	 * @param int $catelog
+	 */
+	public function deactivate_action($catelog) {
+		$updated = new \stdClass;
+		$updated->active = 'N';
+		$rst = $this->_update($catelog, $updated);
 
 		return new \ResponseData($rst);
 	}
@@ -325,6 +329,25 @@ class catelog extends \mp\app\app_base {
 		$modelCate = $this->model('app\merchant\catelog');
 
 		$rst = $modelCate->removeSku($sku);
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 更新分类的基础信息
+	 *
+	 * @param int $catelog
+	 */
+	private function _update($catelogId, $data) {
+		$reviser = \TMS_CLIENT::get_client_uid();
+
+		$data->reviser = $reviser;
+		$data->modify_at = time();
+
+		$rst = $this->model()->update(
+			'xxt_merchant_catelog',
+			(array) $data,
+			"id=$catelogId"
+		);
 
 		return new \ResponseData($rst);
 	}

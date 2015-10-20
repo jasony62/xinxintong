@@ -1,7 +1,7 @@
 (function() {
     xxtApp.register.controller('skuCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
         $scope.$parent.subView = 'sku';
-        $scope.addSKU = function() {
+        $scope.addSku = function() {
             $modal.open({
                 templateUrl: 'cateSkuSelector.html',
                 backdrop: 'static',
@@ -28,7 +28,17 @@
         $scope.updateSku = function(sku, prop) {
             var nv = {};
             nv[prop] = sku[prop];
-            http2.post('/rest/mp/app/merchant/product/skuUpdate?id=' + sku.id, nv);
+            http2.post('/rest/mp/app/merchant/product/skuUpdate?sku=' + sku.id, nv);
+        };
+        $scope.activateSku = function(sku) {
+            http2.get('/rest/mp/app/merchant/product/skuActivate?sku=' + sku.id, function(rsp) {
+                sku.active = 'Y';
+            });
+        };
+        $scope.deactivateSku = function(sku) {
+            http2.get('/rest/mp/app/merchant/product/skuDeactivate?sku=' + sku.id, function(rsp) {
+                sku.active = 'N';
+            });
         };
         $scope.removeSku = function(index, sku) {
             http2.get('/rest/mp/app/merchant/product/skuRemove?sku=' + sku.id, function(rsp) {

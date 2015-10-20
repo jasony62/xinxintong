@@ -78,6 +78,11 @@ class order_model extends \TMS_MODEL {
 		}
 		//商品信息
 		$product = \TMS_APP::M('app\merchant\product')->byId($sku->prod_id);
+		/*更新商品定义状态*/
+		if ($product->used === 'N') {
+			\TMS_APP::M('app\merchant\product')->refer($product->id);
+		}
+		/*创建订单*/
 		if (empty($info->extPropValues)) {
 			$info->extPropValues = new \stdClass;
 			$epv = '{}';
@@ -111,8 +116,7 @@ class order_model extends \TMS_MODEL {
 		$order['id'] = $this->insert('xxt_merchant_order', $order, true);
 		$order['extPropValue'] = $info->extPropValues;
 		$order = (object) $order;
-
-		//订单的库存
+		//订单包含的库存
 		foreach ($skus as $sku) {
 			$orderSku = array(
 				'mpid' => $mpid,
@@ -125,10 +129,6 @@ class order_model extends \TMS_MODEL {
 			$orderSku['id'] = $this->insert('xxt_merchant_order_sku', $orderSku, true);
 			/*更新商品sku状态*/
 			\TMS_APP::M('app\merchant\sku')->refer($sku->id);
-		}
-		/*更新商品定义状态*/
-		if ($product->used === 'N') {
-			\TMS_APP::M('app\merchant\product')->refer($product->id);
 		}
 
 		return $order;

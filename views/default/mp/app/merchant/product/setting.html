@@ -40,6 +40,8 @@
         </div>
         <mediagallery box-id='{{mpaccount.mpid}}' />
         <button class='btn btn-danger' ng-click='remove()'>删除</button>
+        <button class='btn btn-success' ng-show="editing.active==='N'"  ng-click='activate()'>上线</button>
+        <button class='btn btn-success' ng-show="editing.active==='Y'" ng-click='deactivate()'>下线</button>
     </div>
     <script type="text/ng-template" id="propValueSetter.html">
         <div class="modal-header">

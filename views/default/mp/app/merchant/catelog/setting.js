@@ -137,6 +137,16 @@
                     });
             });
         };
+        $scope.activate = function() {
+            http2.get('/rest/mp/app/merchant/catelog/activate?catelog=' + $scope.editing.id, function(rsp) {
+                $scope.editing.active = 'Y';
+            });
+        };
+        $scope.deactivate = function() {
+            http2.get('/rest/mp/app/merchant/catelog/deactivate?catelog=' + $scope.editing.id, function(rsp) {
+                $scope.editing.active = 'N';
+            });
+        };
         $scope.remove = function() {
             http2.get('/rest/mp/app/merchant/catelog/remove?catelog=' + $scope.editing.id, function(rsp) {
                 location.href = '/rest/mp/app/merchant/shop/catelog?shop=' + $scope.$parent.shopId;

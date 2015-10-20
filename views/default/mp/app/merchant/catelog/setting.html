@@ -55,6 +55,8 @@
         <p class='help-block'>定义确认订单时需客服填写的信息</p>
     </div>
     <button class='btn btn-danger' ng-click='remove()'>删除</button>
+    <button class='btn btn-success' ng-show="editing.active==='N'"  ng-click='activate()'>上线</button>
+    <button class='btn btn-success' ng-show="editing.active==='Y'" ng-click='deactivate()'>下线</button>
     <script type="text/ng-template" id="propEditor.html">
     <div class="modal-header">
         <button class="close" type="button" ng-click="close()">×</button>

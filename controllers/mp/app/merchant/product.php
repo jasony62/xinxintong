@@ -94,14 +94,33 @@ class product extends \mp\app\app_base {
 	 *
 	 */
 	public function update_action($product) {
-		$reviser = \TMS_CLIENT::get_client_uid();
-
 		$nv = $this->getPostJson();
+		$rst = $this->_update($product, $nv);
 
-		$nv->reviser = $reviser;
-		$nv->modify_at = time();
+		return new \ResponseData($rst);
+	}
+	/**
+	 *
+	 * @param int $catelog
+	 */
+	public function activate_action($product) {
+		$modelProp = $this->model('app\merchant\property');
+		$modelProp->referByCatelog($product);
 
-		$rst = $this->model()->update('xxt_merchant_product', (array) $nv, "id='$product'");
+		$updated = new \stdClass;
+		$updated->active = 'Y';
+		$rst = $this->_update($product, $updated);
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 *
+	 * @param int $catelog
+	 */
+	public function deactivate_action($product) {
+		$updated = new \stdClass;
+		$updated->active = 'N';
+		$rst = $this->_update($product, $updated);
 
 		return new \ResponseData($rst);
 	}
@@ -193,12 +212,6 @@ class product extends \mp\app\app_base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * $id product's id
-	 */
-	public function skuGet_action($id) {
-		return new \ResponseData('ok');
-	}
-	/**
 	 *
 	 */
 	public function skuList_action($product) {
@@ -244,17 +257,33 @@ class product extends \mp\app\app_base {
 	/**
 	 * 更改sku基本信息
 	 *
-	 * $id product sku's id
+	 * @param int $sku product sku's id
 	 */
-	public function skuUpdate_action($id) {
-		$reviser = \TMS_CLIENT::get_client_uid();
-
+	public function skuUpdate_action($sku) {
 		$nv = $this->getPostJson();
+		$rst = $this->_skuUpdate($sku, $nv);
 
-		$nv->reviser = $reviser;
-		$nv->modify_at = time();
+		return new \ResponseData($rst);
+	}
+	/**
+	 *
+	 * @param int $catelog
+	 */
+	public function skuActivate_action($sku) {
+		$updated = new \stdClass;
+		$updated->active = 'Y';
+		$rst = $this->_update($sku, $updated);
 
-		$rst = $this->model()->update('xxt_merchant_product_sku', (array) $nv, "id='$id'");
+		return new \ResponseData($rst);
+	}
+	/**
+	 *
+	 * @param int $catelog
+	 */
+	public function skuDeactivate_action($sku) {
+		$updated = new \stdClass;
+		$updated->active = 'N';
+		$rst = $this->_update($sku, $updated);
 
 		return new \ResponseData($rst);
 	}
@@ -265,6 +294,44 @@ class product extends \mp\app\app_base {
 		$modelSku = $this->model('app\merchant\sku');
 
 		$rst = $modelSku->remove($sku);
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * @param int $product
+	 * @param object $data
+	 */
+	private function _update($product, $data) {
+		$reviser = \TMS_CLIENT::get_client_uid();
+
+		$data->reviser = $reviser;
+		$data->modify_at = time();
+
+		$rst = $this->model()->update(
+			'xxt_merchant_product',
+			(array) $data,
+			"id='$product'"
+		);
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 更改sku基本信息
+	 *
+	 * @param int $sku product sku's id
+	 * @param object $data
+	 */
+	private function _skuUpdate($sku, $data) {
+		$reviser = \TMS_CLIENT::get_client_uid();
+
+		$data->reviser = $reviser;
+		$data->modify_at = time();
+
+		$rst = $this->model()->update(
+			'xxt_merchant_product_sku',
+			(array) $data,
+			"id=$sku"
+		);
 
 		return new \ResponseData($rst);
 	}

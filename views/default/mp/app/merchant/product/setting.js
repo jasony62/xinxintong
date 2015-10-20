@@ -47,6 +47,16 @@
                 });
             });
         };
+        $scope.activate = function() {
+            http2.get('/rest/mp/app/merchant/product/activate?product=' + $scope.editing.id, function(rsp) {
+                $scope.editing.active = 'Y';
+            });
+        };
+        $scope.deactivate = function() {
+            http2.get('/rest/mp/app/merchant/product/deactivate?product=' + $scope.editing.id, function(rsp) {
+                $scope.editing.active = 'N';
+            });
+        };
         $scope.remove = function() {
             http2.get('/rest/mp/app/merchant/product/remove?product=' + $scope.editing.id, function(rsp) {
                 if ($scope.$parent.catelogId) {

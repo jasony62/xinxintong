@@ -662,6 +662,13 @@ class auth extends \member_base {
 			"authid=$authid"
 		);
 
-		return new \ResponseData(array(count($rdepts), count($users), count($tags), $timestamp));
+		$rst = array(
+			isset($rdepts) ? count($rdepts) : 0,
+			isset($users) ? count($users) : 0,
+			isset($tags) ? count($tags) : 0,
+			$timestamp,
+		);
+
+		return new \ResponseData($rst);
 	}
 }

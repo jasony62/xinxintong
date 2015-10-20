@@ -119,6 +119,21 @@ class catelog extends \mp\app\app_base {
 		return new \ResponseData($rst);
 	}
 	/**
+	 *
+	 * @param int $product
+	 */
+	public function remove_action($catelog) {
+		$modelCate = $this->model('app\merchant\catelog');
+		$catelog = $modelCate->byId($catelog);
+		if ($catelog->used === 'N') {
+			$rst = $modelCate->remove($catelog->id);
+		} else {
+			$rst = $modelCate->disable($catelog->id);
+		}
+
+		return new \ResponseData($rst);
+	}
+	/**
 	 * 添加属性
 	 *
 	 * $id catelog's id

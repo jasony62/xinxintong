@@ -50,7 +50,7 @@ class product_model extends \TMS_MODEL {
 	/**
 	 * 根据属性值获得产品列表
 	 */
-	public function &byPropValue($cateId, $vids, $cascaded = 'Y') {
+	public function &byPropValue($cateId, $vids, $cascaded = 'Y', $state = array()) {
 		$q = array(
 			'*',
 			'xxt_merchant_product p',
@@ -59,6 +59,8 @@ class product_model extends \TMS_MODEL {
 		foreach ($vids as $vid) {
 			$q[2] .= " and prop_value like '%:\"$vid\"%'";
 		}
+		isset($state['disabled']) && $q[2] .= " and disabled='" . $state['disabled'] . "'";
+		isset($state['active']) && $q[2] .= " and active='" . $state['active'] . "'";
 
 		$products = $this->query_objs_ss($q);
 

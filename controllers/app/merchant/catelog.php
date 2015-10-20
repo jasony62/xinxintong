@@ -3,7 +3,7 @@ namespace app\merchant;
 
 require_once dirname(dirname(dirname(__FILE__))) . '/xxt_base.php';
 /**
- * 讨论组
+ * 商品分类
  */
 class catelog extends \xxt_base {
 	/**
@@ -16,12 +16,18 @@ class catelog extends \xxt_base {
 		return $rule_action;
 	}
 	/**
+	 * 获得已经上线的可用的分类
 	 *
 	 * @param string $mpid
 	 * @param int $shop
+	 *
 	 */
 	public function list_action($mpid, $shop) {
-		$catelogs = $this->model('app\merchant\catelog')->byShopId($shop);
+		$state = array(
+			'disabled' => 'N',
+			'active' => 'Y',
+		);
+		$catelogs = $this->model('app\merchant\catelog')->byShopId($shop, $state);
 
 		return new \ResponseData($catelogs);
 	}

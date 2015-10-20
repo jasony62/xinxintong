@@ -38,14 +38,17 @@ class product extends \member_base {
 	/**
 	 * 获得属性的可选值
 	 *
-	 * $propId 属性ID
-	 * $assoPropId 关联的属性ID
-	 * $assoPropVid 关联的属性ID
+	 * @param int $catelog
+	 * @param string 逗号分隔的属性值
 	 */
 	public function getByPropValue_action($catelog, $vids = '', $cascaded = 'N') {
 		$vids = empty($vids) ? array() : explode(',', $vids);
 
-		$products = $this->model('app\merchant\product')->byPropValue($catelog, $vids, $cascaded);
+		$state = array(
+			'disabled' => 'N',
+			'active' => 'Y',
+		);
+		$products = $this->model('app\merchant\product')->byPropValue($catelog, $vids, $cascaded, $state);
 
 		return new \ResponseData($products);
 	}

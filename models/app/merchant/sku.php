@@ -23,9 +23,11 @@ class sku_model extends \TMS_MODEL {
 		return $sku;
 	}
 	/**
+	 *
 	 * @param int $product
+	 *
 	 */
-	public function &byProduct($product) {
+	public function &byProduct($product, $state = array()) {
 		/**
 		 * sku
 		 */
@@ -34,6 +36,9 @@ class sku_model extends \TMS_MODEL {
 			'xxt_merchant_product_sku',
 			"prod_id=$product",
 		);
+		isset($state['disabled']) && $q[2] .= " and disabled='" . $state['disabled'] . "'";
+		isset($state['active']) && $q[2] .= " and active='" . $state['active'] . "'";
+
 		$skus = $this->query_objs_ss($q);
 
 		if (!empty($skus)) {

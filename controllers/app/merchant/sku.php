@@ -21,13 +21,19 @@ class sku extends \member_base {
 	public function get_action($sku) {
 		return new \ResponseData('building');
 	}
-	/*
+	/**
 	 *
+	 * @param int $product
 	 */
 	public function byProduct_action($product) {
 		$modelSku = $this->model('app\merchant\sku');
 
-		$skus = $modelSku->byProduct($product);
+		$state = array(
+			'disabled' => 'N',
+			'active' => 'Y',
+		);
+
+		$skus = $modelSku->byProduct($product, $state);
 
 		return new \ResponseData($skus);
 	}

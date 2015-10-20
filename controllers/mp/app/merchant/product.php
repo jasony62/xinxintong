@@ -216,8 +216,10 @@ class product extends \mp\app\app_base {
 	 */
 	public function skuList_action($product) {
 		$modelSku = $this->model('app\merchant\sku');
-
-		$skus = $modelSku->byProduct($product);
+		$state = array(
+			'disabled' => 'N',
+		);
+		$skus = $modelSku->byProduct($product, $state);
 
 		return new \ResponseData($skus);
 	}
@@ -272,7 +274,7 @@ class product extends \mp\app\app_base {
 	public function skuActivate_action($sku) {
 		$updated = new \stdClass;
 		$updated->active = 'Y';
-		$rst = $this->_update($sku, $updated);
+		$rst = $this->_skuUpdate($sku, $updated);
 
 		return new \ResponseData($rst);
 	}
@@ -283,7 +285,7 @@ class product extends \mp\app\app_base {
 	public function skuDeactivate_action($sku) {
 		$updated = new \stdClass;
 		$updated->active = 'N';
-		$rst = $this->_update($sku, $updated);
+		$rst = $this->_skuUpdate($sku, $updated);
 
 		return new \ResponseData($rst);
 	}

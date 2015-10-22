@@ -87,13 +87,18 @@ class sku extends \member_base {
 	private function _autogenByCateSku($cateSku, $beginAt, $endAt, $skus) {
 		$rules = $cateSku->autogen_rule;
 		$rules = json_decode($rules);
-		$first = $this->_earliestCron($beginAt, $rules->crontab);
-		die('f:' . date('Ymd H:i', $first));
+		$first = $this->_cronNextPoint($beginAt, $rules->crontab);
+		$next = $this->_cronNextPoint($first + 60, $rules->crontab);
+		$step = $next - $first;
+		$last = $this->_cronLastPoint($endAt, $rules->crontab);
+		echo ('f:' . $first . ',' . date('Ymd H:i', $first));
+		echo 's:' . $step;
+		die(',l:' . $last . ',' . date('Ymd H:i', $last));
 	}
 	/**
-	 *
+	 * 获得与指定时间点最近的sku生成时间
 	 */
-	private function _earliestCron($time, $cron, $delimiter = '_') {
+	private function _cronNextPoint($time, $cron, $delimiter = '_') {
 		$earliest = $time - intval(date('s', $time));
 
 		$cron_parts = explode($delimiter, $cron);
@@ -103,7 +108,7 @@ class sku extends \member_base {
 
 		list($min, $hour, $day, $mon, $week) = explode($delimiter, $cron);
 
-		$to_check = array('min' => 'i', 'hour' => 'G', 'day' => 'j', 'mon' => 'n', 'week' => 'w');
+		$to_check = array('week' => 'w', 'hour' => 'G', 'min' => 'i', 'day' => 'j', 'mon' => 'n');
 
 		$ranges = array(
 			'min' => '0-59',
@@ -115,9 +120,8 @@ class sku extends \member_base {
 
 		foreach ($to_check as $part => $f) {
 			$val = $$part;
-			$currentPart = intval(date($f, $time));
+			$currentPart = intval(date($f, $earliest));
 			$earliestPart = false;
-			$values = array();
 			/*
 			For patters like 0-23/2
 			 */
@@ -130,7 +134,7 @@ class sku extends \member_base {
 				}
 				list($start, $stop) = explode('-', $range);
 				for ($i = $start; $i <= $stop; $i = $i + $steps) {
-					if ($i > $currentPart) {
+					if ($i >= $currentPart) {
 						$earliestPart = $i;
 						break;
 					}
@@ -149,31 +153,138 @@ class sku extends \member_base {
 					if (strpos($v, '-') !== false) {
 						list($start, $stop) = explode('-', $v);
 						for ($i = $start; $i <= $stop; $i++) {
-							if ($i > $currentPart) {
+							if ($i >= $currentPart) {
 								$earliestPart = $i;
 								break;
 							}
 						}
 						$earliestPart === false && ($earliestPart = $start);
 					} else {
-						$values[] = $v;
+						$earliestPart = $v;
 					}
 				}
 			}
 			switch ($f) {
-			case 'i':
-				$offset = ($earliestPart - $currentPart + ($earliestPart < $currentPart ? 60 : 0)) * 60;
-				$earliest += $offset;
-				break;
-			case 'G':
-				$offset = ($earliestPart - $currentPart + ($earliestPart < $currentPart ? 60 : 0)) * 3600;
-				$earliest += $offset;
-				break;
 			case 'j':
 				break;
 			case 'n':
 				break;
 			case 'w':
+				$offset = ($earliestPart - $currentPart + ($earliestPart < $currentPart ? 7 : 0)) * 86400;
+				if ($offset) {
+					$earliest += $offset;
+					$earliest = $earliest - (intval(date('G', $earliest)) * 3600) - (intval(date('i', $earliest)) * 60);
+				}
+				break;
+			case 'G':
+				$offset = ($earliestPart - $currentPart + ($earliestPart < $currentPart ? 24 : 0)) * 3600;
+				if ($offset) {
+					$earliest += $offset;
+					$earliest = $earliest - (intval(date('i', $earliest)) * 60);
+				}
+				break;
+			case 'i':
+				$offset = ($earliestPart - $currentPart + ($earliestPart < $currentPart ? 60 : 0)) * 60;
+				$earliest += $offset;
+				break;
+			}
+		}
+
+		return $earliest;
+	}
+	/**
+	 * 获得与指定时间点最近的sku生成时间
+	 */
+	private function _cronLastPoint($time, $cron, $delimiter = '_') {
+		$earliest = $time - intval(date('s', $time));
+
+		$cron_parts = explode($delimiter, $cron);
+		if (count($cron_parts) != 5) {
+			return false;
+		}
+
+		list($min, $hour, $day, $mon, $week) = explode($delimiter, $cron);
+
+		$to_check = array('week' => 'w', 'hour' => 'G', 'min' => 'i', 'day' => 'j', 'mon' => 'n');
+
+		$ranges = array(
+			'min' => '0-59',
+			'hour' => '0-23',
+			'day' => '1-31',
+			'mon' => '1-12',
+			'week' => '0-6',
+		);
+
+		foreach ($to_check as $part => $f) {
+			$val = $$part;
+			$currentPart = intval(date($f, $earliest));
+			$earliestPart = false;
+			/*
+			For patters like 0-23/2
+			 */
+			if (strpos($val, '/') !== false) {
+				//Get the range and step
+				list($range, $steps) = explode('/', $val);
+				//Now get the start and stop
+				if ($range == '*') {
+					$range = $ranges[$part];
+				}
+				list($start, $stop) = explode('-', $range);
+				for ($i = $start; $i <= $stop; $i = $i + $steps) {
+					if ($i <= $currentPart) {
+						$earliestPart = $i;
+					} else {
+						break;
+					}
+				}
+				$earliestPart === false && ($earliestPart = $stop);
+			}
+			/*
+			For patters like :
+			2
+			2,5,8
+			2-23
+			 */
+			else {
+				$k = explode(',', $val);
+				foreach ($k as $v) {
+					if (strpos($v, '-') !== false) {
+						list($start, $stop) = explode('-', $v);
+						for ($i = $start; $i <= $stop; $i++) {
+							if ($i <= $currentPart) {
+								$earliestPart = $i;
+							} else {
+								break;
+							}
+						}
+						$earliestPart === false && ($earliestPart = $stop);
+					} else {
+						$earliestPart = $v;
+					}
+				}
+			}
+			switch ($f) {
+			case 'j':
+				break;
+			case 'n':
+				break;
+			case 'w':
+				$offset = ($currentPart - $earliestPart + ($currentPart < $earliestPart ? 7 : 0)) * 86400;
+				if ($offset) {
+					$earliest -= $offset;
+					$earliest = $earliest - (intval(date('G', $earliest)) * 3600) - (intval(date('i', $earliest)) * 60);
+				}
+				break;
+			case 'G':
+				$offset = ($currentPart - $earliestPart + ($currentPart < $earliestPart ? 24 : 0)) * 3600;
+				if ($offset) {
+					$earliest -= $offset;
+					$earliest = $earliest - (intval(date('i', $earliest)) * 60) + 3599;
+				}
+				break;
+			case 'i':
+				$offset = ($currentPart - $earliestPart + ($currentPart < $earliestPart ? 60 : 0)) * 60;
+				$earliest -= $offset;
 				break;
 			}
 		}

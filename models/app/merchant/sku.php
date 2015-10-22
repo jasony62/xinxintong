@@ -25,9 +25,10 @@ class sku_model extends \TMS_MODEL {
 	/**
 	 *
 	 * @param int $product
+	 * @param array options
 	 *
 	 */
-	public function &byProduct($product, $state = array()) {
+	public function &byProduct($product, $options = array()) {
 		/**
 		 * sku
 		 */
@@ -36,11 +37,21 @@ class sku_model extends \TMS_MODEL {
 			'xxt_merchant_product_sku',
 			"prod_id=$product",
 		);
-		isset($state['disabled']) && $q[2] .= " and disabled='" . $state['disabled'] . "'";
-		isset($state['active']) && $q[2] .= " and active='" . $state['active'] . "'";
+		/*根据sku的状态*/
+		if (isset($options['state'])) {
+			$state = $options['state'];
+			isset($state['disabled']) && $q[2] .= " and disabled='" . $state['disabled'] . "'";
+			isset($state['active']) && $q[2] .= " and active='" . $state['active'] . "'";
+		}
+		/*根据sku的有效期*/
+		if (isset($options['beginAt']) && $options['beginAt']) {
+			$q[2] .= " and validity_begin_at>=" . $options['beginAt'];
+		}
+		if (isset($options['endAt']) && $options['endAt']) {
+			$q[2] .= " and validity_end_at>=" . $options['endAt'];
+		}
 
 		$skus = $this->query_objs_ss($q);
-
 		if (!empty($skus)) {
 			$modelCate = \TMS_MODEL::M('app\merchant\catelog');
 			foreach ($skus as &$sku) {

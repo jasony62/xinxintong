@@ -55,15 +55,17 @@ class catelog_model extends \TMS_MODEL {
 	/**
 	 *
 	 * @param int $productId
+	 * @param int $cascaded
+	 *
 	 */
-	public function &byProductId($productId) {
+	public function &byProductId($productId, $cascaded = 'Y') {
 		$q = array(
 			'*',
 			'xxt_merchant_catelog c',
 			"exists(select 1 from xxt_merchant_product p where p.id=$productId and p.cate_id=c.id)",
 		);
-
-		if ($catelog = $this->query_obj_ss($q)) {
+		$catelog = $this->query_obj_ss($q);
+		if ($catelog && $cascaded === 'Y') {
 			$cascaded = $this->cascaded($catelog->id);
 			$catelog->properties = $cascaded->properties;
 			$catelog->propValues = isset($cascaded->propValues) ? $cascaded->propValues : array();

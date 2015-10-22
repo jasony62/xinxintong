@@ -1,5 +1,5 @@
 (function() {
-	xxtApp.register.controller('skuCtrl', ['$scope', 'http2', function($scope, http2) {
+	xxtApp.register.controller('skuCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
 		$scope.$parent.subView = 'sku';
 		$scope.updateSku = function(sku, prop) {
 			var nv = {};
@@ -14,6 +14,26 @@
 		$scope.removeSku = function(index, sku) {
 			http2.get('/rest/mp/app/merchant/catelog/skuRemove?sku=' + sku.id, function(rsp) {
 				$scope.skus.splice(index, 1);
+			});
+		};
+		$scope.setCrontab = function(sku) {
+			$modal.open({
+				templateUrl: 'crontabEditor.html',
+				backdrop: 'static',
+				controller: ['$modalInstance', '$scope', function($mi, $scope2) {
+					var crontab;
+					crontab = sku.autogen_rule.crontab || '*_*_*_*_*';
+					$scope2.data = crontab.split('_');
+					$scope2.close = function() {
+						$mi.dismiss();
+					};
+					$scope2.ok = function() {
+						$mi.close($scope2.data);
+					};
+				}]
+			}).result.then(function(data) {
+				sku.autogen_rule.crontab = data.join('_');
+				$scope.updateSku(sku, 'autogen_rule');
 			});
 		};
 		http2.get('/rest/mp/app/merchant/catelog/skuList?shop=' + $scope.shopId + '&catelog=' + $scope.catelogId, function(rsp) {

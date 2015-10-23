@@ -24,7 +24,8 @@ class sku extends \member_base {
 	 * @param string $autogen 是否自动生成
 	 *
 	 */
-	public function byProduct_action($product, $beginAt = 0, $endAt = 0, $autogen = 'N') {
+	public function byProduct_action($mpid, $product, $beginAt = 0, $endAt = 0, $autogen = 'N') {
+		$user = $this->getUser($mpid);
 		$modelSku = $this->model('app\merchant\sku');
 
 		$state = array(
@@ -41,7 +42,7 @@ class sku extends \member_base {
 		$skus = $modelSku->byProduct($product, $options);
 
 		if ($autogen === 'Y' && $beginAt != 0 && $endAt != 0) {
-			$skus = $this->_autogen($product, $beginAt, $endAt, $skus);
+			$skus = $this->_autogen($user->openid, $product, $beginAt, $endAt, $skus);
 		}
 
 		return new \ResponseData($skus);
@@ -55,25 +56,55 @@ class sku extends \member_base {
 	 * @param string $autogen 是否自动生成
 	 *
 	 */
-	private function &_autogen($productId, $beginAt, $endAt, $skus) {
+	private function &_autogen($creater, $productId, $beginAt, $endAt, $existedSkus) {
 		$modelCate = $this->model('app\merchant\catelog');
 
-		$newSkus = array();
+		$merged = $existedSkus;
 		$catelog = $modelCate->byProductId($productId);
 		$cateSkus = $modelCate->skus($catelog->id);
 		foreach ($cateSkus as $cs) {
 			if ($cs->can_autogen === 'Y') {
-				$newSkus[] = $this->_autogenByCateSku($cs, $beginAt, $endAt, $skus);
-			}
-		}
-		/*合并*/
-		if (!empty($newSkus)) {
-			foreach ($newSkus as $ns) {
-				$skus = array_merge($skus, $ns);
+				$newSkus = $this->_autogenByCateSku($cs, $beginAt, $endAt);
+				foreach ($newSkus as $ns) {
+					if (!$this->isSkuExisted($existedSkus, $ns)) {
+						$gened = array(
+							'mpid' => $cs->mpid,
+							'sid' => $cs->sid,
+							'cate_id' => $cs->cate_id,
+							'cate_sku_id' => $cs->id,
+							'prod_id' => $productId,
+							'create_at' => time(),
+							'creater' => $creater,
+							'creater_src' => 'F',
+							'sku_value' => '{}',
+							'ori_price' => $ns->price,
+							'price' => $ns->price,
+							'quantity' => $ns->quantity,
+							'validity_begin_at' => $ns->validity_begin_at,
+							'validity_end_at' => $ns->validity_end_at,
+							'product_code' => '',
+							'used' => 'Y',
+							'active' => 'Y',
+						);
+						$skuId = $this->model()->insert('xxt_merchant_product_sku', $gened, true);
+						$merged[] = $this->model('app\merchant\sku')->byId($skuId);
+					}
+				}
 			}
 		}
 
-		return $skus;
+		return $merged;
+	}
+	/**
+	 * 检查sku是否已经存在
+	 */
+	private function isSkuExisted($existedSkus, $checkedSku) {
+		foreach ($existedSkus as $existed) {
+			if ($existed->validity_begin_at == $checkedSku->validity_begin_at && $existed->validity_end_at == $checkedSku->validity_end_at) {
+				return true;
+			}
+		}
+		return false;
 	}
 	/**
 	 * 自动生成指定分类sku下的sku
@@ -81,19 +112,31 @@ class sku extends \member_base {
 	 * @param object $cateSku
 	 * @param int $beginAt 有效期开始时间
 	 * @param int $endAt 有效期结束时间
-	 * @param array $skus
 	 *
 	 */
-	private function _autogenByCateSku($cateSku, $beginAt, $endAt, $skus) {
+	private function &_autogenByCateSku($cateSku, $beginAt, $endAt) {
+		/*计算生成规则*/
 		$rules = $cateSku->autogen_rule;
 		$rules = json_decode($rules);
 		$first = $this->_cronNextPoint($beginAt, $rules->crontab);
 		$next = $this->_cronNextPoint($first + 60, $rules->crontab);
 		$step = $next - $first;
 		$last = $this->_cronLastPoint($endAt, $rules->crontab);
-		echo ('f:' . $first . ',' . date('Ymd H:i', $first));
-		echo 's:' . $step;
-		die(',l:' . $last . ',' . date('Ymd H:i', $last));
+		//die('f:' . $first . ':' . date('ymd H:i', $first) . ',s:' . $step . ',l:' . $last . ':' . date('ymd H:i', $last));
+		/*生成sku*/
+		$skus = array();
+		$start = $first;
+		while ($start <= $last) {
+			$sku = new \stdClass;
+			$sku->quantity = isset($rules->count) ? $rules->count : 1;
+			$sku->validity_begin_at = $start;
+			$sku->validity_end_at = $start + (isset($rules->duration) ? $rules->duration * 60 : 1);
+			$sku->price = isset($rules->price) ? $rules->price : 1;
+			$skus[] = $sku;
+			$start += $step;
+		}
+
+		return $skus;
 	}
 	/**
 	 * 获得与指定时间点最近的sku生成时间
@@ -272,19 +315,22 @@ class sku extends \member_base {
 				$offset = ($currentPart - $earliestPart + ($currentPart < $earliestPart ? 7 : 0)) * 86400;
 				if ($offset) {
 					$earliest -= $offset;
-					$earliest = $earliest - (intval(date('G', $earliest)) * 3600) - (intval(date('i', $earliest)) * 60);
+					$earliest = $earliest - (intval(date('G', $earliest)) * 3600) - (intval(date('i', $earliest)) * 60) - intval(date('s', $earliest)) + 86399;
 				}
 				break;
 			case 'G':
 				$offset = ($currentPart - $earliestPart + ($currentPart < $earliestPart ? 24 : 0)) * 3600;
 				if ($offset) {
 					$earliest -= $offset;
-					$earliest = $earliest - (intval(date('i', $earliest)) * 60) + 3599;
+					$earliest = $earliest - (intval(date('i', $earliest)) * 60) - intval(date('s', $earliest)) + 3599;
 				}
 				break;
 			case 'i':
 				$offset = ($currentPart - $earliestPart + ($currentPart < $earliestPart ? 60 : 0)) * 60;
-				$earliest -= $offset;
+				if ($offset) {
+					$earliest = $earliest - $offset - intval(date('s', $earliest)) + 59;
+				}
+
 				break;
 			}
 		}

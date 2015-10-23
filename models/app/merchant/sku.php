@@ -23,6 +23,7 @@ class sku_model extends \TMS_MODEL {
 		return $sku;
 	}
 	/**
+	 * 获得指定产品下符合条件的sku
 	 *
 	 * @param int $product
 	 * @param array options
@@ -48,7 +49,7 @@ class sku_model extends \TMS_MODEL {
 			$q[2] .= " and validity_begin_at>=" . $options['beginAt'];
 		}
 		if (isset($options['endAt']) && $options['endAt']) {
-			$q[2] .= " and validity_end_at>=" . $options['endAt'];
+			$q[2] .= " and validity_begin_at<=" . $options['endAt'];
 		}
 
 		$skus = $this->query_objs_ss($q);

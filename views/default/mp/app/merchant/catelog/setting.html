@@ -1,4 +1,7 @@
 <div id='catelog-view'>
+    <div class='alert alert-info'>
+        <span>ID:<span ng-bind='editing.id'></span></span>
+    </div>
     <div class='form-group'>
         <label>名称</label>
         <input class='form-control' ng-model='editing.name' tms-auto-update tms-wait=1000 tms-update="update('name')">

@@ -1,4 +1,8 @@
 <div id='setting-view'>
+    <div class='alert alert-info'>
+        <span>ID：<span ng-bind='editing.id'></span></span>
+        <span>，分类：<a href='javascript:void(0)' ng-bind='editing.catelog.name' ng-click='gotoCatelog()'></a></span>
+    </div>
     <div class="form-horizontal">
         <div class='form-group'>
             <label class="col-md-2 control-label">名称</label>

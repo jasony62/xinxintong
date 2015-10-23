@@ -126,7 +126,7 @@ app.factory('Sku', function($http, $q) {
         this.shopId = shopId;
         this.productId = productId;
     };
-    Sku.prototype.get = function() {
+    Sku.prototype.get = function(options) {
         var deferred, promise, url;
         deferred = $q.defer();
         promise = deferred.promise;
@@ -134,6 +134,17 @@ app.factory('Sku', function($http, $q) {
         url += '?mpid=' + this.mpid;
         url += '&shop=' + this.shopId;
         url += '&product=' + this.productId;
+        if (options) {
+            if (options.autogen && options.autogen === 'Y') {
+                url += '&autogen=Y';
+            }
+            if (options.beginAt) {
+                url += '&beginAt=' + options.beginAt;
+            }
+            if (options.endAt) {
+                url += '&endAt=' + options.endAt;
+            }
+        }
         $http.get(url).success(function(rsp) {
             if (typeof rsp === 'undefined') {
                 alert(rsp);

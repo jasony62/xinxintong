@@ -28,15 +28,15 @@
 					<p class='help-block'>生成时间</p>
 				</div>
 				<div class='rule form-group'>
-					<input class='form-control' ng-model='s.autogen_rule.count'>
+					<input class='form-control' ng-model='s.autogen_rule.count' tms-auto-update tms-wait=1000 tms-update="updateSku(s, 'autogen_rule')">
 					<p class='help-block'>库存数量</p>
 				</div>
 				<div class='rule form-group'>
-					<input class='form-control' ng-model='s.autogen_rule.duration'>
+					<input class='form-control' ng-model='s.autogen_rule.duration' tms-auto-update tms-wait=1000 tms-update="updateSku(s, 'autogen_rule')">
 					<p class='help-block'>时长，单位：分钟</p>
 				</div>
 				<div class='rule form-group'>
-					<input class='form-control' ng-model='s.autogen_rule.price'>
+					<input class='form-control' ng-model='s.autogen_rule.price' tms-auto-update tms-wait=1000 tms-update="updateSku(s, 'autogen_rule')">
 					<p class='help-block'>价格，单位：分</p>
 				</div>
 			</div>

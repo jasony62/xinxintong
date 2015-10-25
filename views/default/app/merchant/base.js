@@ -158,6 +158,27 @@ app.factory('Sku', function($http, $q) {
         });
         return promise;
     };
+    Sku.prototype.list = function(ids) {
+        var deferred, promise, url;
+        deferred = $q.defer();
+        promise = deferred.promise;
+        url = '/rest/app/merchant/sku/list';
+        url += '?mpid=' + this.mpid;
+        url += '&shop=' + this.shopId;
+        url += '&ids=' + ids;
+        $http.get(url).success(function(rsp) {
+            if (typeof rsp === 'undefined') {
+                alert(rsp);
+                return;
+            }
+            if (rsp.err_code != 0) {
+                alert(rsp.data);
+                return;
+            }
+            deferred.resolve(rsp.data);
+        });
+        return promise;
+    };
     return Sku;
 });
 app.factory('Order', function($http, $q) {

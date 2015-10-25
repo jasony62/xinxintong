@@ -1,28 +1,66 @@
 <?php
 namespace app\merchant;
 /**
- *
+ * 商品
  */
 class product_model extends \TMS_MODEL {
 	/**
-	 * $id
+	 * @param int $id
 	 */
-	public function &byId($id, $cascaded = 'N') {
+	public function &byId($id, $options = array()) {
+		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'N';
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$catelog = isset($options['catelog']) ? $options['catelog'] : false;
+
 		$q = array(
-			'*',
+			$fields,
 			'xxt_merchant_product p',
 			"id=$id",
 		);
 
-		$prod = $this->query_obj_ss($q);
-
-		if ($cascaded === 'Y') {
-			$cascaded = $this->cascaded($id);
-			$prod->catelog = $cascaded->catelog;
-			$prod->propValue2 = $cascaded->propValue2;
+		if ($prod = $this->query_obj_ss($q)) {
+			if ($cascaded === 'Y') {
+				if ($catelog === false) {
+					$cateFields = 'id,sid,name';
+					$catelog = \TMS_APP::M('app\merchant\catelog')->byId($prod->cate_id, array('fields' => $cateFields, 'cascaded' => 'Y'));
+				}
+				$prod->catelog = $catelog;
+			}
+			if ($catelog) {
+				$prod->propValue = $this->_fillPropValue($prod->prop_value, $catelog);
+			}
 		}
 
 		return $prod;
+	}
+	/**
+	 *
+	 * @param string oriPropValue
+	 * @param object $catelog
+	 */
+	private function &_fillPropValue($oriPropValue, $catelog) {
+		$fullPropValue = new \stdClass;
+		$oriPropValue = $oriPropValue ? json_decode($oriPropValue) : (new \stdClass);
+		$cateProperties = $catelog->properties;
+		$catePropValues = $catelog->propValues;
+		foreach ($cateProperties as $prop) {
+			if (isset($catePropValues) && isset($catePropValues->{$prop->id})) {
+				$pvs = $catePropValues->{$prop->id};
+				foreach ($pvs as $pv) {
+					if (isset($oriPropValue->{$prop->id}) && $pv->id === $oriPropValue->{$prop->id}) {
+						$spv = new \stdClass;
+						$spv->id = $pv->id;
+						$spv->name = $pv->name;
+						$fullPropValue->{$prop->id} = $spv;
+						break;
+					}
+				}
+			} else {
+				$propValue2->{$prop->id} = '';
+			}
+		}
+
+		return $fullPropValue;
 	}
 	/**
 	 *
@@ -76,9 +114,9 @@ class product_model extends \TMS_MODEL {
 		return $products;
 	}
 	/**
-	 * $id catelog's id
+	 * @param int $id catelog's id
 	 */
-	public function &cascaded($id) {
+	private function &cascaded($id) {
 		$cascaded = new \stdClass;
 
 		$prod = $this->byId($id);
@@ -94,25 +132,25 @@ class product_model extends \TMS_MODEL {
 		/**
 		 * 分类属性
 		 */
-		$propValue2 = new \stdClass;
+		/*$propValue2 = new \stdClass;
 		$propValue = $prod->prop_value ? json_decode($prod->prop_value) : (new \stdClass);
 		foreach ($catelog->properties as $prop) {
-			if (isset($catelog->propValues) && isset($catelog->propValues->{$prop->id})) {
-				$pvs = $catelog->propValues->{$prop->id};
-				foreach ($pvs as $pv) {
-					if (isset($propValue->{$prop->id}) && $pv->id === $propValue->{$prop->id}) {
-						$spv = new \stdClass;
-						$spv->id = $pv->id;
-						$spv->name = $pv->name;
-						$propValue2->{$prop->id} = $spv;
-						break;
-					}
-				}
-			} else {
-				$propValue2->{$prop->id} = '';
-			}
+		if (isset($catelog->propValues) && isset($catelog->propValues->{$prop->id})) {
+		$pvs = $catelog->propValues->{$prop->id};
+		foreach ($pvs as $pv) {
+		if (isset($propValue->{$prop->id}) && $pv->id === $propValue->{$prop->id}) {
+		$spv = new \stdClass;
+		$spv->id = $pv->id;
+		$spv->name = $pv->name;
+		$propValue2->{$prop->id} = $spv;
+		break;
 		}
-		$cascaded->propValue2 = $propValue2;
+		}
+		} else {
+		$propValue2->{$prop->id} = '';
+		}
+		}*/
+		$cascaded->propValue2 = $this->_fillPropValue($prod->prop_value, $catelog);
 		/**
 		 * order properties
 		 */

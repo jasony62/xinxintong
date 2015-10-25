@@ -3,7 +3,7 @@ namespace app\merchant;
 
 require_once dirname(dirname(dirname(__FILE__))) . '/member_base.php';
 /**
- * 库存
+ * 商品库存
  */
 class sku extends \member_base {
 	/**
@@ -35,7 +35,7 @@ class sku extends \member_base {
 
 		$options = array(
 			'state' => $state,
-			'beiginAt' => $beginAt,
+			'beginAt' => $beginAt,
 			'endAt' => $endAt,
 		);
 
@@ -46,6 +46,50 @@ class sku extends \member_base {
 		}
 
 		return new \ResponseData($skus);
+	}
+	/**
+	 *
+	 * @param string $mpid
+	 * @param string $ids splited by comma
+	 *
+	 * @return
+	 */
+	public function list_action($mpid, $ids) {
+		$modelSku = $this->model('app\merchant\sku');
+		$skus = $modelSku->byIds($ids);
+
+		/*按分类和商品进行分组*/
+		$catelogs = array();
+		if (!empty($skus)) {
+			$modelCate = $this->model('app\merchant\catelog');
+			$modelProd = $this->model('app\merchant\product');
+			$cateFields = 'id,sid,name';
+			$prodFields = 'id,sid,cate_id,name,main_img,img,detail_text,detail_text,prop_value,buy_limit,sku_info';
+			foreach ($skus as &$sku) {
+				if (!isset($catelogs[$sku->cate_id])) {
+					/*catelog*/
+					$catelog = $modelCate->byId($sku->cate_id, array('fields' => $cateFields, 'cascaded' => 'Y'));
+					$catelog->products = array();
+					$catelogs[$catelog->id] = &$catelog;
+					/*product*/
+					$product = $modelProd->byId($sku->prod_id, array('cascaded' => 'N', 'fields' => $prodFields, 'catelog' => $catelog));
+					$product->skus = array();
+					$catelog->products[$product->id] = &$product;
+				} else {
+					$catelog = &$catelogs[$sku->cate_id];
+					if (!isset($catelog->products[$sku->prod_id])) {
+						$product = $modelProd->byId($sku->prod_id, array('cascaded' => 'N', 'fields' => $prodFields, 'catelog' => $catelog));
+						$product->skus = array();
+						$catelog->products[$product->id] = &$product;
+					} else {
+						$product = $catelog->products[$sku->prod_id];
+					}
+				}
+				$product->skus[] = $sku;
+			}
+		}
+
+		return new \ResponseData($catelogs);
 	}
 	/**
 	 * 自动生成指定商品下的sku

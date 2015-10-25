@@ -1,6 +1,9 @@
 (function() {
     xxtApp.register.controller('settingCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
         $scope.$parent.subView = 'setting';
+        $scope.gotoShop = function() {
+            location.href = '/rest/mp/app/merchant/shop?shop=' + $scope.$parent.shopId;
+        };
         $scope.open = function(catelog) {
             if (catelog.properties === undefined) {
                 http2.get('/rest/mp/app/merchant/catelog/cascaded?id=' + catelog.id, function(rsp) {

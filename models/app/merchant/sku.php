@@ -23,20 +23,48 @@ class sku_model extends \TMS_MODEL {
 		return $sku;
 	}
 	/**
+	 * 根据ID获得sku的列表
+	 *
+	 * @param string $ids
+	 */
+	public function byIds($ids, $options = array()) {
+		$fields = isset($options['fields']) ? $options['fields'] : 'id,sid,cate_id,cate_sku_id,icon_url,ori_price,price,prod_id,product_code,quantity,sku_value,validity_begin_at,validity_end_at';
+		$q = array(
+			$fields,
+			'xxt_merchant_product_sku s',
+			"id in ($ids)",
+		);
+		$q2 = array('o' => 'validity_begin_at');
+
+		$skus = $this->query_objs_ss($q, $q2);
+		if (!empty($skus)) {
+			$cateSkus = array();
+			$modelCate = \TMS_MODEL::M('app\merchant\catelog');
+			foreach ($skus as &$sku) {
+				if (!isset($cateSkus[$sku->cate_sku_id])) {
+					$cateSkus[$sku->cate_sku_id] = $modelCate->skuById($sku->cate_sku_id);
+				}
+				$sku->cateSku = $cateSkus[$sku->cate_sku_id];
+			}
+		}
+
+		return $skus;
+	}
+	/**
 	 * 获得指定产品下符合条件的sku
 	 *
-	 * @param int $product
+	 * @param int $productId
 	 * @param array options
 	 *
 	 */
-	public function &byProduct($product, $options = array()) {
+	public function &byProduct($productId, $options = array()) {
 		/**
 		 * sku
 		 */
 		$q = array(
 			'*',
 			'xxt_merchant_product_sku',
-			"prod_id=$product",
+			"prod_id=$productId",
 		);
 		/*根据sku的状态*/
 		if (isset($options['state'])) {
@@ -51,8 +79,9 @@ class sku_model extends \TMS_MODEL {
 		if (isset($options['endAt']) && $options['endAt']) {
 			$q[2] .= " and validity_begin_at<=" . $options['endAt'];
 		}
+		$q2 = array('o' => 'validity_begin_at');
 
-		$skus = $this->query_objs_ss($q);
+		$skus = $this->query_objs_ss($q, $q2);
 		if (!empty($skus)) {
 			$modelCate = \TMS_MODEL::M('app\merchant\catelog');
 			foreach ($skus as &$sku) {
@@ -78,15 +107,17 @@ class sku_model extends \TMS_MODEL {
 		return $rst;
 	}
 	/**
+	 * 订购sku
 	 *
 	 * @param int $skuId
+	 * @param int $count
 	 */
-	public function refer($skuId) {
-		$rst = $this->update(
-			'xxt_merchant_product_sku',
-			array('used' => 'Y'),
-			"id=$skuId"
-		);
+	public function order($skuId, $count) {
+		$sql = 'update xxt_merchant_product_sku';
+		$sql .= " set used='Y',quantity=quantity-$count";
+		$sql .= " where id=$skuId";
+
+		$rst = $this->update($sql);
 
 		return $rst;
 	}

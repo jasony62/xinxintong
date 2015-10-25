@@ -86,6 +86,7 @@ class page_model extends \TMS_MODEL {
 			'creater' => $uid,
 			'create_at' => time(),
 			'type' => $data['type'],
+			'name' => isset($data['name']) ? $data['name'] : '新页面',
 			'title' => isset($data['title']) ? $data['title'] : '新页面',
 			'code_id' => $code->id,
 		);

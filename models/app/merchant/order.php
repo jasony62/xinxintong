@@ -68,19 +68,32 @@ class order_model extends \TMS_MODEL {
 		//订单号
 		$trade_no = date('YmdHis') . mt_rand(100000, 999999);
 		//库存信息
+		$productIds = array();
 		$skus = array();
 		$totalPrice = 0;
+		$modelSku = \TMS_APP::M('app\merchant\sku');
 		foreach ($info->skus as $skuId => $skuInfo) {
-			$sku = \TMS_APP::M('app\merchant\sku')->byId($skuId);
+			$sku = $modelSku->byId($skuId);
 			$sku->__count = $skuInfo->count;
 			$totalPrice += $skuInfo->count * $sku->price;
 			$skus[] = $sku;
+			$productIds[$sku->prod_id] = 1;
 		}
 		//商品信息
-		$product = \TMS_APP::M('app\merchant\product')->byId($sku->prod_id);
-		/*更新商品定义状态*/
-		if ($product->used === 'N') {
-			\TMS_APP::M('app\merchant\product')->refer($product->id);
+		$products = array();
+		$modelProd = \TMS_APP::M('app\merchant\product');
+		foreach ($productIds as $prodId => $v) {
+			$product = $modelProd->byId($prodId);
+			$products[] = array(
+				'id' => $product->id,
+				'cate_id' => $product->cate_id,
+				'name' => urlencode($product->name),
+				'main_img' => $product->main_img,
+			);
+			/*更新商品定义状态*/
+			if ($product->used === 'N') {
+				$modelProd->refer($product->id);
+			}
 		}
 		/*创建订单*/
 		if (empty($info->extPropValues)) {
@@ -97,6 +110,7 @@ class order_model extends \TMS_MODEL {
 			'trade_no' => $trade_no,
 			'mpid' => $mpid,
 			'sid' => $sku->sid,
+			'products' => urldecode(json_encode($products)),
 			'order_status' => 1,
 			'order_total_price' => $totalPrice,
 			'order_create_time' => time(),
@@ -106,12 +120,6 @@ class order_model extends \TMS_MODEL {
 			'buyer_nick' => $user->fan->nickname,
 			'receiver_name' => $info->receiver_name,
 			'receiver_mobile' => $info->receiver_mobile,
-			'product_id' => $sku->prod_id,
-			'product_name' => $product->name,
-			'product_img' => $product->main_img,
-			//'product_sku' => $skuId,
-			//'product_price' => $sku->price,
-			//'product_count' => $info->product_count,
 		);
 		$order['id'] = $this->insert('xxt_merchant_order', $order, true);
 		$order['extPropValue'] = $info->extPropValues;
@@ -122,13 +130,14 @@ class order_model extends \TMS_MODEL {
 				'mpid' => $mpid,
 				'sid' => $sku->sid,
 				'oid' => $order->id,
+				'product_id' => $sku->prod_id,
 				'sku_id' => $sku->id,
 				'sku_price' => $sku->price,
 				'sku_count' => $sku->__count,
 			);
 			$orderSku['id'] = $this->insert('xxt_merchant_order_sku', $orderSku, true);
 			/*更新商品sku状态*/
-			\TMS_APP::M('app\merchant\sku')->refer($sku->id);
+			$modelSku->order($sku->id, $sku->__count);
 		}
 
 		return $order;

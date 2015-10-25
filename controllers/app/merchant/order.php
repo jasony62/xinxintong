@@ -18,11 +18,12 @@ class order extends \member_base {
 	/**
 	 * 进入发起订单页
 	 *
-	 * 要求当前用户必须是认证用户
+	 * 要求当前用户必须是关注用户
 	 *
-	 * $mpid mpid'id
-	 * $shop shop'id
-	 * $sku sku'id
+	 * @param string $mpid mpid'id
+	 * @param int $product
+	 * @param int $sku
+	 *
 	 */
 	public function index_action($mpid, $product = null, $sku = null, $order = null, $mocker = null, $code = null) {
 		/**
@@ -72,7 +73,7 @@ class order extends \member_base {
 	 *
 	 * @param string $mpid
 	 *
-	 * @return int
+	 * @return int order's id
 	 */
 	public function create_action($mpid) {
 		$user = $this->getUser($mpid, array('verbose' => array('fan' => 'Y')));
@@ -98,7 +99,9 @@ class order extends \member_base {
 			return false;
 		}
 		/**/
-		$product = $this->model('app\merchant\product')->byId($order->product_id, 'Y');
+		$products = json_decode($order->products);
+		$product = $products[0];
+		$product = $this->model('app\merchant\product')->byId($product->id, 'Y');
 		$modelTmpl = $this->model('matter\tmplmsg');
 		$mapping = $modelTmpl->mappingById($product->catelog->submit_order_tmplmsg);
 		if (false === $mapping) {

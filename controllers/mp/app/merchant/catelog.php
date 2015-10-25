@@ -31,10 +31,12 @@ class catelog extends \mp\app\app_base {
 		$this->view_action('/mp/app/merchant/catelog/base');
 	}
 	/**
-	 * @param string $catelog
+	 *
+	 * @param int $catelog
 	 */
 	public function get_action($catelog, $cascaded = 'Y') {
 		$catelog = $this->model('app\merchant\catelog')->byId($catelog, $cascaded);
+		$catelog->shop = $this->model('app\merchant\shop')->byId($catelog->id);
 
 		return new \ResponseData($catelog);
 	}

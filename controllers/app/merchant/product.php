@@ -33,7 +33,28 @@ class product extends \member_base {
 	 * 返回页面
 	 */
 	public function afterOAuth($mpid, $shopId, $openid) {
-		$this->view_action('/app/merchant/products');
+		\TPL::output('/app/merchant/product');
+		exit;
+	}
+	/**
+	 *
+	 */
+	public function pageGet_action($mpid, $shop) {
+		// current visitor
+		$user = $this->getUser($mpid);
+		// page
+		$page = $this->model('app\merchant\page')->byType($shop, 'product');
+		if (empty($page)) {
+			return new \ResponseError('没有获得商品页定义');
+		}
+		$page = $page[0];
+
+		$params = array(
+			'user' => $user,
+			'page' => $page,
+		);
+
+		return new \ResponseData($params);
 	}
 	/**
 	 * 获得属性的可选值

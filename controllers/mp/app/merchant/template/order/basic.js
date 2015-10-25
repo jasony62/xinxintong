@@ -1,38 +1,6 @@
-app.register.controller('merchantCtrl', ['$scope', '$http', 'Product', 'Sku', 'Order', function($scope, $http, Product, Sku, Order) {
-	var facProduct, facSku, facOrder;
-	facProduct = new Product($scope.$parent.mpid, $scope.$parent.shopId);
+app.register.controller('orderCtrl', ['$scope', '$http', 'Sku', 'Order', function($scope, $http, Sku, Order) {
+	var facSku, facOrder;
 	facOrder = new Order($scope.$parent.mpid, $scope.$parent.shopId);
-	var productGet = function(id) {
-		facProduct.get(id).then(function(product) {
-			var propValue;
-			$scope.product = product;
-			$scope.catelog = product.catelog;
-			$scope.propValues = product.propValue2;
-			facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId, id);
-			facSku.get().then(function(skus) {
-				$scope.skus = skus;
-				if ($scope.$parent.orderId) {
-					angular.forEach($scope.skus, function(v) {
-						if (typeof $scope.orderInfo.skus[v.id] === 'object') {
-							v.selected = true;
-						}
-					});
-				} else if (skus.length) {
-					$scope.chooseSku(skus[0]);
-				}
-			})
-		});
-	};
-	$scope.chooseSku = function(sku) {
-		sku.selected = !sku.selected;
-		if (sku.selected) {
-			$scope.orderInfo.skus[sku.id] = {
-				count: 1
-			};
-		} else {
-			delete $scope.orderInfo.skus[sku.id];
-		}
-	};
 	$scope.create = function() {
 		if (!$scope.orderInfo.receiver_name) {
 			alert('请填写联系人姓名');
@@ -61,9 +29,7 @@ app.register.controller('merchantCtrl', ['$scope', '$http', 'Product', 'Sku', 'O
 		skus: {}
 	};
 	if ($scope.$parent.orderId) {
-		$scope.orderInfo = {
-			skus: {}
-		};
+		$scope.catelogs = [];
 		facOrder.get($scope.$parent.orderId).then(function(order) {
 			var feedback;
 			feedback = order.feedback;
@@ -76,9 +42,24 @@ app.register.controller('merchantCtrl', ['$scope', '$http', 'Product', 'Sku', 'O
 					count: v.sku_count
 				};
 			});
-			productGet(order.product_id);
+			//productGet(order.product_id);
 		});
-	} else if ($scope.$parent.productId) {
-		productGet($scope.$parent.productId);
+	} else if ($scope.$parent.skuIds) {
+		facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId);
+		facSku.list($scope.$parent.skuIds).then(function(data) {
+			$scope.catelogs = data;
+			var i, j, catelog, product;
+			for (i in data) {
+				catelog = data[i];
+				for (j in catelog.products) {
+					product = catelog.products[j];
+					angular.forEach(product.skus, function(v) {
+						$scope.orderInfo.skus[v.id] = {
+							count: 1
+						};
+					});
+				}
+			}
+		});
 	}
 }]);

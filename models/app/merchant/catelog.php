@@ -7,9 +7,12 @@ class catelog_model extends \TMS_MODEL {
 	/**
 	 * @param string $id
 	 */
-	public function &byId($id, $cascaded = "N") {
+	public function &byId($id, $options = array()) {
+		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'N';
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+
 		$q = array(
-			'*',
+			$fields,
 			'xxt_merchant_catelog c',
 			"id=$id",
 		);
@@ -164,9 +167,11 @@ class catelog_model extends \TMS_MODEL {
 	/**
 	 * @param int $skuId
 	 */
-	public function &skuById($skuId) {
+	public function &skuById($skuId, $options = array()) {
+		$fields = isset($options['fields']) ? $options['fields'] : 'id,sid,cate_id,name,can_autogen,autogen_rule,has_validity,require_pay,seq';
+
 		$q = array(
-			'*',
+			$fields,
 			'xxt_merchant_catelog_sku s',
 			"id=$skuId",
 		);

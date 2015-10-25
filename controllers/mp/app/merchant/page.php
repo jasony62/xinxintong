@@ -36,6 +36,42 @@ class page extends \mp\app\app_base {
 			$codeModel->modify($page->code_id, $data);
 			$pages[] = $page;
 		}
+		$productPage = $modelPage->byType($shop, 'product');
+		if (empty($productPage)) {
+			$page = array(
+				'name' => '用户.商品',
+				'title' => '商品页',
+				'type' => 'product',
+			);
+			$page = $this->model('app\merchant\page')->add($this->mpid, $shop, $page);
+			//
+			$codeModel = $this->model('code/page');
+			$data = array(
+				'html' => file_get_contents(dirname(__FILE__) . '/template/product/basic.html'),
+				'css' => file_get_contents(dirname(__FILE__) . '/template/product/basic.css'),
+				'js' => file_get_contents(dirname(__FILE__) . '/template/product/basic.js'),
+			);
+			$codeModel->modify($page->code_id, $data);
+			$pages[] = $page;
+		}
+		$cartPage = $modelPage->byType($shop, 'cart');
+		if (empty($cartPage)) {
+			$page = array(
+				'name' => '用户.购物车',
+				'title' => '购物车',
+				'type' => 'cart',
+			);
+			$page = $this->model('app\merchant\page')->add($this->mpid, $shop, $page);
+			//
+			$codeModel = $this->model('code/page');
+			$data = array(
+				'html' => file_get_contents(dirname(__FILE__) . '/template/cart/basic.html'),
+				'css' => file_get_contents(dirname(__FILE__) . '/template/cart/basic.css'),
+				'js' => file_get_contents(dirname(__FILE__) . '/template/cart/basic.js'),
+			);
+			$codeModel->modify($page->code_id, $data);
+			$pages[] = $page;
+		}
 		$orderPage = $modelPage->byType($shop, 'order');
 		if (empty($orderPage)) {
 			$page = array(
@@ -156,6 +192,8 @@ class page extends \mp\app\app_base {
 		/*用标准模版替换*/
 		switch ($page->type) {
 		case 'shelf':
+		case 'product':
+		case 'cart':
 		case 'order':
 		case 'orderlist':
 		case 'pay':

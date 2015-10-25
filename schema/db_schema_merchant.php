@@ -310,6 +310,7 @@ $sql .= 'id int not null auto_increment';
 $sql .= ',trade_no varchar(32) not null'; // 订单号
 $sql .= ',mpid varchar(32) not null';
 $sql .= ',sid varchar(32) not null';
+$sql .= ",products text"; //订单包含的产品信息
 $sql .= ',order_status int not null'; // 2-待发货, 3-已发货, 5-已完成, 8-维权中
 $sql .= ",order_total_price int not null";
 $sql .= ',order_create_time int not null';
@@ -324,17 +325,27 @@ $sql .= ',receiver_zone varchar(40) not null';
 $sql .= ',receiver_addresss varchar(255) not null';
 $sql .= ',receiver_mobile varchar(20) not null';
 $sql .= ',receiver_phone varchar(20) not null';
-$sql .= ',product_id int not null';
-$sql .= ',product_name varchar(70) not null';
-//$sql .= ',product_price int not null';
-//$sql .= ',product_sku int not null';
-//$sql .= ',product_count int not null';
-$sql .= ',product_img text';
 $sql .= ",delivery_id int not null default 0";
 $sql .= ",delivery_company varchar(255) not null default ''";
 $sql .= ",trans_id varchar(255) not null default ''";
 $sql .= ",feedback text"; //反馈信息
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 订单包含的产品
+ */
+$sql = "create table if not exists xxt_merchant_order_product(";
+$sql .= "id int not null auto_increment";
+$sql .= ",mpid varchar(32) not null";
+$sql .= ",sid varchar(32) not null"; //商铺号
+$sql .= ",oid int not null"; //订单号
+$sql .= ",product_id int not null";
+$sql .= ",product_name varchar(70) not null";
+$sql .= ",product_img text";
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;
@@ -347,6 +358,7 @@ $sql .= "id int not null auto_increment";
 $sql .= ",mpid varchar(32) not null";
 $sql .= ",sid varchar(32) not null"; //商铺号
 $sql .= ",oid int not null"; //订单号
+$sql .= ",product_id int not null";
 $sql .= ",sku_id int not null";
 $sql .= ",sku_price int not null default 0";
 $sql .= ",sku_count int not null default 1";

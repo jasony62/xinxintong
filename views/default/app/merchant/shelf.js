@@ -19,6 +19,9 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
             $scope.$broadcast('xxt.app.merchant.ready');
         });
     });
+    $scope.gotoProduct = function(product) {
+        location.href = '/rest/app/merchant/product?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&product=' + product.id;
+    };
     $scope.gotoOrder = function(product) {
         location.href = '/rest/app/merchant/order?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&product=' + product.id;
     };

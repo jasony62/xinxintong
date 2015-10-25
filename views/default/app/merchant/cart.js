@@ -1,13 +1,13 @@
 app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
-    var ls;
+    var ls, skuIds;
     ls = location.search;
     $scope.mpid = ls.match(/mpid=([^&]*)/)[1];
     $scope.shopId = ls.match(/shop=([^&]*)/)[1];
     $scope.productId = ls.match(/[\?&]product=(.+?)(&|$)/) ? ls.match(/[\?&]product=(.+?)(&|$)/)[1] : '';
-    $scope.skuIds = ls.match(/[\?&]skus=(.+?)(&|$)/) ? ls.match(/[\?&]skus=(.+?)(&|$)/)[1] : '';
-    $scope.orderId = ls.match(/[\?&]order=(.+?)(&|$)/) ? ls.match(/[\?&]order=(.+?)(&|$)/)[1] : '';
+    skuIds = Cookies.get('xxt.app.merchant.cart.skus');
+    $scope.skuIds = skuIds;
     $scope.errmsg = '';
-    $http.get('/rest/app/merchant/order/pageGet?mpid=' + $scope.mpid + '&shop=' + $scope.shopId).success(function(rsp) {
+    $http.get('/rest/app/merchant/cart/pageGet?mpid=' + $scope.mpid + '&shop=' + $scope.shopId).success(function(rsp) {
         if (rsp.err_code !== 0) {
             $scope.errmsg = rsp.err_msg;
             return;
@@ -21,4 +21,19 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
             $scope.$broadcast('xxt.app.merchant.ready');
         });
     });
+    /*生成订单*/
+    $scope.gotoOrder = function(skus) {
+        if (!skus) return;
+        var url, i, skuIds;
+        skuIds = [];
+        for (i in skus) {
+            skuIds.push(i);
+        }
+        if (skuIds.length === 0) return;
+
+        url = '/rest/app/merchant/order?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&product=' + $scope.productId;
+        url += '&skus=' + skuIds.join(',');
+
+        location.href = url;
+    };
 }]);

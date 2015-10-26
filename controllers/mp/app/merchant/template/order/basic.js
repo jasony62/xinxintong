@@ -17,7 +17,6 @@ app.register.controller('orderCtrl', ['$scope', '$http', 'Sku', 'Order', functio
 	};
 	facOrder = new Order($scope.$parent.mpid, $scope.$parent.shopId);
 	if ($scope.$parent.orderId) {
-		$scope.catelogs = [];
 		facOrder.get($scope.$parent.orderId).then(function(data) {
 			var feedback, order;
 			order = data.order;

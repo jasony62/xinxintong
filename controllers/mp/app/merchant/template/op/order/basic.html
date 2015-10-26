@@ -1,39 +1,63 @@
 <div ng-controller='notifyCtrl'>
+    <div class='catelog' ng-repeat="cate in catelogs">
+        <div class='products'>
+            <div class='product' ng-repeat="p in cate.products">
+                <div class='form-group'>
+                    <label class='form-control-static'>名称</label>
+                    <div class='form-control-static' ng-bind='p.name'></div>
+                </div>
+                <div class='form-group'>
+                    <label class='form-control-static'>介绍</label>
+                    <div class='form-control-static detail_text' ng-bind="p.detail_text||'&nbsp;'"></div>
+                </div>
+                <div class='form-group prop' ng-repeat='cp in cate.properties'>
+                    <label class='form-control-static' ng-bind='cp.name'></label>
+                    <div class='form-control-static' ng-bind="p.propValue[cp.id].name||'&nbsp;'"></div>
+                </div>
+                <div class='skus'>
+                    <div class='sku' ng-class="{'selected':s.selected}" ng-repeat='s in p.skus' ng-click='chooseSku(s)'>
+                        <div class='price form-group' ng-if="s.cateSku.require_pay==='Y'">
+                            <label class='form-control-static'>价格（元）</label>
+                            <div class='form-control-static' ng-bind="(s.price/100)||'&nbsp;'"></div>
+                        </div>
+                        <div class='beginAt form-group' ng-if="s.cateSku.has_validity==='Y'">
+                            <label class='form-control-static'>有效期</label>
+                            <div class='form-control-static' ng-bind="s.validity_begin_at*1000|date:'yy/MM/dd hh:mm'"></div>
+                            <div class='form-control-static' ng-bind="s.validity_end_at*1000|date:'yy/MM/dd hh:mm'"></div>
+                        </div>
+                        <div class='price form-group'>
+                            <label class='form-control-static'>剩余数量</label>
+                            <div class='form-control-static' ng-bind="s.quantity"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='customer'>
+            <div class='form-group prop' ng-repeat='p in cate.orderProperties'>
+                <label class='form-control-static' ng-bind='p.name'></label>
+                <div class='form-control-static' ng-bind='order.extPropValues[p.id]'></div>
+            </div>
+            <div class='form-group'>
+                <label class='form-control-static'>联系人姓名</label>
+                <div class='form-control-static' ng-bind='order.receiver_name'></div>
+            </div>
+            <div class='form-group'>
+                <label class='form-control-static'>联系人电话</label>
+                <div class='form-control-static' ng-bind='order.receiver_mobile'></div>
+            </div>
+        </div>
+        <div class="feedback" class='form-group'>
+            <div class='form-group prop' ng-repeat='p in cate.feedbackProperties'>
+                <label class='form-control-static' ng-bind='p.name'></label>
+                <p class='form-control input-lg' ng-bind="order.feedback[p.id]"></p>
+            </div>
+        </div>
+    </div>
     <div id="order" class='form-group'>
-        <div class='form-group'>
-            <label class='form-control-static'>联系人姓名</label>
-            <div class='form-control-static' ng-bind='order.receiver_name'></div>
-        </div>
-        <div class='form-group'>
-            <label class='form-control-static'>联系人电话</label>
-            <div class='form-control-static' ng-bind='order.receiver_mobile'></div>
-        </div>
-        <div class='form-group' ng-repeat='oep in catelog.orderProperties'>
-            <label class='form-control-static' ng-bind='oep.name'></label>
-            <div class='form-control-static' ng-bind="orderExtPropValue(oep)"></div>
-        </div>
         <div class='form-group'>
             <label class='form-control-static'>下单时间</label>
             <div class='form-control-static' ng-bind="order.order_create_time*1000|date:'yy-MM-dd HH:mm'"></div>
-        </div>
-        <div class='form-group'>
-            <label class='form-control-static'>商品</label>
-            <div class='form-control-static' ng-bind='product.name'></div>
-        </div>
-        <div class='form-group' ng-repeat='pv in product.propValues'>
-            <label class='form-control-static' ng-bind='pv.name'></label>
-            <div class='form-control-static' ng-bind="pv.value||'&nbsp;'"></div>
-        </div>
-    </div>
-    <div id='skus'>
-    </div>
-    <div id="feedback" class='form-group' ng-if="catelog.feedbackProperties.length">
-        <div class='form-group' ng-repeat='ofp in catelog.feedbackProperties'>
-            <label class='form-control-static' ng-bind='ofp.name'></label>
-            <input type='text' class='form-control input-lg' ng-model="order.feedback[ofp.id]">
-        </div>
-        <div class='form-group'>
-            <button class="btn btn-success btn-lg btn-block" ng-click="feedback()">保存并通知</button>
         </div>
     </div>
     <div id="dispose" class='form-group'>

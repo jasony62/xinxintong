@@ -21,7 +21,7 @@ class product_model extends \TMS_MODEL {
 		if ($prod = $this->query_obj_ss($q)) {
 			if ($cascaded === 'Y') {
 				if ($catelog === false) {
-					$cateFields = 'id,sid,name';
+					$cateFields = 'id,sid,name,submit_order_tmplmsg,pay_order_tmplmsg,feedback_order_tmplmsg';
 					$catelog = \TMS_APP::M('app\merchant\catelog')->byId($prod->cate_id, array('fields' => $cateFields, 'cascaded' => 'Y'));
 				}
 				$prod->catelog = $catelog;

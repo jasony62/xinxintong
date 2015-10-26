@@ -38,10 +38,21 @@ class sku_model extends \TMS_MODEL {
 	 */
 	public function byIds($ids, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : 'id,sid,cate_id,cate_sku_id,icon_url,ori_price,price,prod_id,product_code,quantity,sku_value,validity_begin_at,validity_end_at';
+		/*check parameters*/
+		$checkedIds = array();
+		$ids = explode(',', $ids);
+		foreach ($ids as $skuId) {
+			!empty($skuId) && $checkedIds[] = $skuId;
+		}
+		if (empty($checkedIds)) {
+			return array();
+		}
+		$checkedIds = implode(',', $checkedIds);
+		/*query*/
 		$q = array(
 			$fields,
-			'xxt_merchant_product_sku s',
-			"id in ($ids)",
+			'xxt_merchant_product_sku',
+			"id in ($checkedIds)",
 		);
 		$q2 = array('o' => 'validity_begin_at');
 

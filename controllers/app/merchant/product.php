@@ -69,7 +69,12 @@ class product extends \member_base {
 			'disabled' => 'N',
 			'active' => 'Y',
 		);
-		$products = $this->model('app\merchant\product')->byPropValue($catelog, $vids, $cascaded, $state);
+		$options = array(
+			'fields' => 'id,cate_id,name,main_img,img,detail_img,detail_text,prop_value,sku_info',
+			'state' => $state,
+			'cascaded' => $cascaded,
+		);
+		$products = $this->model('app\merchant\product')->byPropValue($catelog, $vids, $options);
 
 		return new \ResponseData($products);
 	}

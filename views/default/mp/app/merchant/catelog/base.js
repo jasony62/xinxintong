@@ -27,6 +27,20 @@ xxtApp.config(['$routeProvider', function($rp) {
                 return defer.promise;
             }
         }
+    }).when('/rest/mp/app/merchant/catelog/tmplmsg', {
+        templateUrl: '/views/default/mp/app/merchant/catelog/tmplmsg.html',
+        controller: 'tmplmsgCtrl',
+        resolve: {
+            load: function($q) {
+                var defer = $q.defer();
+                (function() {
+                    $.getScript('/views/default/mp/app/merchant/catelog/tmplmsg.js?_=2', function() {
+                        defer.resolve();
+                    });
+                })();
+                return defer.promise;
+            }
+        }
     }).when('/rest/mp/app/merchant/catelog/order', {
         templateUrl: '/views/default/mp/app/merchant/catelog/order.html',
         controller: 'orderCtrl'

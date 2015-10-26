@@ -22,7 +22,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
     $scope.gotoCart = function(skus) {
         var url, i, skuIds;
         skuIds = Cookies.get('xxt.app.merchant.cart.skus');
-        if (skuIds === undefined) {
+        if (skuIds === undefined || skuIds.length === 0) {
             skuIds = [];
         } else {
             skuIds = skuIds.split(',');
@@ -32,7 +32,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
         }
         Cookies.set('xxt.app.merchant.cart.skus', skuIds.join(','));
 
-        url = '/rest/app/merchant/cart?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&product=' + $scope.productId;
+        url = '/rest/app/merchant/cart?mpid=' + $scope.mpid + '&shop=' + $scope.shopId;
         url += '&skus=' + skuIds.join(',');
 
         location.href = url;
@@ -46,7 +46,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
         }
         if (skuIds.length === 0) return;
 
-        url = '/rest/app/merchant/order?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&product=' + $scope.productId;
+        url = '/rest/app/merchant/order?mpid=' + $scope.mpid + '&shop=' + $scope.shopId;
         url += '&skus=' + skuIds.join(',');
 
         location.href = url;

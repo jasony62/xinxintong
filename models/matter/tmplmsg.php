@@ -7,10 +7,12 @@ class tmplmsg_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function &byId($id, $cascaded = 'N') {
+	public function &byId($id, $options = array()) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'N';
 		/**/
 		$q = array(
-			'*',
+			$fields,
 			'xxt_tmplmsg',
 			"id=$id",
 		);

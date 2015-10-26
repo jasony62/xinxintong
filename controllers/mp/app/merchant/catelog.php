@@ -27,6 +27,12 @@ class catelog extends \mp\app\app_base {
 	/**
 	 *
 	 */
+	public function tmplmsg_action() {
+		$this->view_action('/mp/app/merchant/catelog/base');
+	}
+	/**
+	 *
+	 */
 	public function order_action() {
 		$this->view_action('/mp/app/merchant/catelog/base');
 	}
@@ -35,8 +41,13 @@ class catelog extends \mp\app\app_base {
 	 * @param int $catelog
 	 */
 	public function get_action($catelog, $cascaded = 'Y') {
-		$catelog = $this->model('app\merchant\catelog')->byId($catelog, $cascaded);
-		$catelog->shop = $this->model('app\merchant\shop')->byId($catelog->id);
+		$options = array(
+			'fields' => '*',
+			'cascaded' => $cascaded,
+		);
+		if ($catelog = $this->model('app\merchant\catelog')->byId($catelog, $options)) {
+			$catelog->shop = $this->model('app\merchant\shop')->byId($catelog->sid);
+		}
 
 		return new \ResponseData($catelog);
 	}

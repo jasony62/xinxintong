@@ -68,7 +68,7 @@ class order extends \member_base {
 	 *
 	 * @return
 	 */
-	public function get_action($mpid, $order = null, $shop = null) {
+	public function get_action($mpid, $order = null) {
 		$order = $this->model('app\merchant\order')->byId($order);
 		$skus = $order->skus;
 
@@ -131,7 +131,7 @@ class order extends \member_base {
 
 		$order = $this->model('app\merchant\order')->create($mpid, $user, $orderInfo);
 
-		//$this->notify($mpid, $order);
+		$this->notify($mpid, $order);
 
 		return new \ResponseData($order->id);
 	}
@@ -144,60 +144,62 @@ class order extends \member_base {
 		if (empty($staffs)) {
 			return false;
 		}
-		/**/
-		$products = json_decode($order->products);
-		$product = $products[0];
-		$product = $this->model('app\merchant\product')->byId($product->id, 'Y');
+		/*每个产品独立发通知*/
+		$modelProd = $this->model('app\merchant\product');
 		$modelTmpl = $this->model('matter\tmplmsg');
-		$mapping = $modelTmpl->mappingById($product->catelog->submit_order_tmplmsg);
-		if (false === $mapping) {
-			return false;
-		}
-		/**/
-		$tmplmsg = $modelTmpl->byId($mapping->msgid, 'Y');
-		if (empty($tmplmsg->params)) {
-			return false;
-		}
-		/*构造消息数据*/
-		$data = array();
-		foreach ($mapping->mapping as $k => $p) {
-			$v = '';
-			switch ($p->src) {
-			case 'product':
-				if ($p->id === '__productName') {
-					$v = $product->name;
-				} else {
-					$v = $product->propValue2->{$p->id}->name;
-				}
-				break;
-			case 'order':
-				if ($p->id === '__orderSn') {
-					$v = $order->trade_no;
-				} else if ($p->id === '__orderState') {
-					$v = '待付款';
-				} else {
-					$v = $order->extPropValue->{$p->id};
-				}
-				break;
-			case 'text':
-				$v = $p->id;
-				break;
-			}
-			$data[$k] = $v;
-		}
-		/*订单访问地址*/
-		$url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/op/merchant/order";
-		$url .= "?mpid=" . $mpid;
-		$url .= "&shop=" . $order->sid;
-		$url .= "&order=" . $order->id;
-		/*发送模版消息*/
 		$modelFan = $this->model('user/fans');
-		foreach ($staffs as $staff) {
-			switch ($staff->idsrc) {
-			case 'M':
-				$fan = $modelFan->byMid($staff->identity);
-				$this->tmplmsgSendByOpenid($mpid, $tmplmsg->id, $fan->openid, $data, $url);
-				break;
+		$products = json_decode($order->products);
+		foreach ($products as $product) {
+			$product = $modelProd->byId($product->id, array('cascaded' => 'Y'));
+			$mapping = $modelTmpl->mappingById($product->catelog->submit_order_tmplmsg);
+			if (false === $mapping) {
+				continue;
+			}
+			/*获得模板消息定义*/
+			$tmplmsg = $modelTmpl->byId($mapping->msgid, array('cascaded' => 'N'));
+			if (empty($tmplmsg->params)) {
+				continue;
+			}
+			/*构造消息数据*/
+			$data = array();
+			foreach ($mapping->mapping as $k => $p) {
+				$v = '';
+				switch ($p->src) {
+				case 'product':
+					if ($p->id === '__productName') {
+						$v = $product->name;
+					} else {
+						$v = $product->propValue2->{$p->id}->name;
+					}
+					break;
+				case 'order':
+					if ($p->id === '__orderSn') {
+						$v = $order->trade_no;
+					} else if ($p->id === '__orderState') {
+						$v = '待付款';
+					} else {
+						$v = $order->extPropValue->{$p->id};
+					}
+					break;
+				case 'text':
+					$v = $p->id;
+					break;
+				}
+				$data[$k] = $v;
+			}
+			/*订单访问地址*/
+			$url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/op/merchant/order";
+			$url .= "?mpid=" . $mpid;
+			$url .= "&shop=" . $order->sid;
+			$url .= "&order=" . $order->id;
+			/*发送模版消息*/
+			foreach ($staffs as $staff) {
+				switch ($staff->idsrc) {
+				case 'M':
+					$fan = $modelFan->byMid($staff->identity);
+					$this->tmplmsgSendByOpenid($mpid, $tmplmsg->id, $fan->openid, $data, $url);
+					break;
+				}
 			}
 		}
 

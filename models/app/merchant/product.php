@@ -88,10 +88,14 @@ class product_model extends \TMS_MODEL {
 	/**
 	 * 根据属性值获得产品列表
 	 */
-	public function &byPropValue($cateId, $vids, $cascaded = 'Y', $state = array()) {
+	public function &byPropValue($cateId, $vids, $options = array()) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
+		$state = isset($options['state']) ? $options['state'] : array();
+
 		$q = array(
-			'*',
-			'xxt_merchant_product p',
+			$fields,
+			'xxt_merchant_product',
 			"cate_id=$cateId",
 		);
 		foreach ($vids as $vid) {
@@ -102,62 +106,16 @@ class product_model extends \TMS_MODEL {
 
 		$products = $this->query_objs_ss($q);
 
-		if ($cascaded === 'Y') {
+		if (!empty($products) && $cascaded === 'Y') {
+			$cateFields = 'id,sid,name';
+			$catelog = \TMS_APP::M('app\merchant\catelog')->byId($cateId, array('fields' => $cateFields, 'cascaded' => 'Y'));
 			foreach ($products as &$prod) {
-				$cascaded = $this->cascaded($prod->id);
-				foreach ($cascaded as $k => $v) {
-					$prod->{$k} = $v;
-				}
+				$prod->catelog = $catelog;
+				$prod->propValue = $this->_fillPropValue($prod->prop_value, $catelog);
 			}
 		}
 
 		return $products;
-	}
-	/**
-	 * @param int $id catelog's id
-	 */
-	private function &cascaded($id) {
-		$cascaded = new \stdClass;
-
-		$prod = $this->byId($id);
-		/**
-		 * 分类
-		 */
-		$catelog = \TMS_APP::M('app\merchant\catelog')->byId($prod->cate_id);
-		$cateCascaded = \TMS_APP::M('app\merchant\catelog')->cascaded($prod->cate_id);
-		$catelog->properties = $cateCascaded->properties;
-		isset($cateCascaded->propValues) && $catelog->propValues = $cateCascaded->propValues;
-
-		$cascaded->catelog = $catelog;
-		/**
-		 * 分类属性
-		 */
-		/*$propValue2 = new \stdClass;
-		$propValue = $prod->prop_value ? json_decode($prod->prop_value) : (new \stdClass);
-		foreach ($catelog->properties as $prop) {
-		if (isset($catelog->propValues) && isset($catelog->propValues->{$prop->id})) {
-		$pvs = $catelog->propValues->{$prop->id};
-		foreach ($pvs as $pv) {
-		if (isset($propValue->{$prop->id}) && $pv->id === $propValue->{$prop->id}) {
-		$spv = new \stdClass;
-		$spv->id = $pv->id;
-		$spv->name = $pv->name;
-		$propValue2->{$prop->id} = $spv;
-		break;
-		}
-		}
-		} else {
-		$propValue2->{$prop->id} = '';
-		}
-		}*/
-		$cascaded->propValue2 = $this->_fillPropValue($prod->prop_value, $catelog);
-		/**
-		 * order properties
-		 */
-		$catelog->orderProperties = $cateCascaded->orderProperties;
-		$catelog->feedbackProperties = $cateCascaded->feedbackProperties;
-
-		return $cascaded;
 	}
 	/**
 	 *

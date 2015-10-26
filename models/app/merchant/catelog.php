@@ -32,10 +32,13 @@ class catelog_model extends \TMS_MODEL {
 	 *
 	 * @param int $shopId
 	 */
-	public function &byShopId($shopId, $state = array()) {
+	public function &byShopId($shopId, $options = array()) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$state = isset($options['state']) ? $options['state'] : array();
+
 		$q = array(
-			'*',
-			'xxt_merchant_catelog c',
+			$fields,
+			'xxt_merchant_catelog',
 			"sid=$shopId",
 		);
 		isset($state['disabled']) && $q[2] .= " and disabled='" . $state['disabled'] . "'";

@@ -7,13 +7,7 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class tmplmsg extends \mp\app\app_base {
 	/**
-	 * 打开订购商品管理页面
-	 */
-	public function index_action() {
-		$this->view_action('/mp/app/merchant/shop');
-	}
-	/**
-	 * 建立映射关系ß
+	 * 建立映射关系
 	 */
 	public function setup_action($catelog, $mappingid = 0) {
 		$posted = $this->getPostJson();

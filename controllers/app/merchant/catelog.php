@@ -27,7 +27,12 @@ class catelog extends \xxt_base {
 			'disabled' => 'N',
 			'active' => 'Y',
 		);
-		$catelogs = $this->model('app\merchant\catelog')->byShopId($shop, $state);
+		$fields = 'id,name';
+		$options = array(
+			'state' => $state,
+			'fields' => $fields,
+		);
+		$catelogs = $this->model('app\merchant\catelog')->byShopId($shop, $options);
 
 		return new \ResponseData($catelogs);
 	}

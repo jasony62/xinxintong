@@ -1,23 +1,32 @@
 <?php
 namespace app\merchant;
 /**
- *
+ * 库存
  */
 class sku_model extends \TMS_MODEL {
 	/**
 	 *
 	 * @param string $id
 	 */
-	public function &byId($id, $cascaded = 'Y') {
+	public function &byId($id, $options = array()) {
+		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$cateSku = isset($options['cateSku']) ? $options['cateSku'] : false;
+
 		$q = array(
-			'*',
-			'xxt_merchant_product_sku s',
+			$fields,
+			'xxt_merchant_product_sku',
 			"id=$id",
 		);
 		$sku = $this->query_obj_ss($q);
-		if ($sku && $cascaded === 'Y') {
-			$modelCate = \TMS_MODEL::M('app\merchant\catelog');
-			$sku->cateSku = $modelCate->skuById($sku->cate_sku_id);
+		if ($sku) {
+			if ($cascaded === 'Y') {
+				if ($cateSku === false) {
+					$modelCate = \TMS_MODEL::M('app\merchant\catelog');
+					$cateSku = $modelCate->skuById($sku->cate_sku_id);
+				}
+				$sku->cateSku = $cateSku;
+			}
 		}
 
 		return $sku;

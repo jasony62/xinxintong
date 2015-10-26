@@ -61,12 +61,58 @@ class order extends \member_base {
 		return new \ResponseData($params);
 	}
 	/**
+	 * 获得指定订单的完整信息
+	 *
 	 * @param string $mpid
 	 * @param int $order
+	 *
+	 * @return
 	 */
-	public function get_action($mpid, $order = null, $shop = null, $sku = null) {
+	public function get_action($mpid, $order = null, $shop = null) {
 		$order = $this->model('app\merchant\order')->byId($order);
-		return new \ResponseData($order);
+		$skus = $order->skus;
+
+		/*按分类和商品对sku进行分组*/
+		$catelogs = array();
+		if (!empty($skus)) {
+			$cateSkus = array();
+			$modelCate = $this->model('app\merchant\catelog');
+			$modelProd = $this->model('app\merchant\product');
+			$modelSku = $this->model('app\merchant\sku');
+			$cateFields = 'id,sid,name';
+			$prodFields = 'id,sid,cate_id,name,main_img,img,detail_text,detail_text,prop_value,buy_limit,sku_info';
+			$skuFields = 'id,sid,cate_id,cate_sku_id,icon_url,price,ori_price,quantity,validity_begin_at,validity_end_at,sku_value';
+			foreach ($skus as &$sku) {
+				if (!isset($catelogs[$sku->cate_id])) {
+					/*catelog*/
+					$catelog = $modelCate->byId($sku->cate_id, array('fields' => $cateFields, 'cascaded' => 'Y'));
+					$catelog->products = array();
+					$catelogs[$catelog->id] = &$catelog;
+					/*product*/
+					$product = $modelProd->byId($sku->prod_id, array('cascaded' => 'N', 'fields' => $prodFields, 'catelog' => $catelog));
+					$product->skus = array();
+					$catelog->products[$product->id] = &$product;
+				} else {
+					$catelog = &$catelogs[$sku->cate_id];
+					if (!isset($catelog->products[$sku->prod_id])) {
+						$product = $modelProd->byId($sku->prod_id, array('cascaded' => 'N', 'fields' => $prodFields, 'catelog' => $catelog));
+						$product->skus = array();
+						$catelog->products[$product->id] = &$product;
+					} else {
+						$product = $catelog->products[$sku->prod_id];
+					}
+				}
+				if (isset($cateSkus[$sku->cate_sku_id])) {
+					$cateSku = $cateSkus[$sku->cate_sku_id];
+				} else {
+					$cateSku = $modelCate->skuById($sku->cate_sku_id);
+					$cateSkus[$sku->cate_sku_id] = $cateSku;
+				}
+				$product->skus[] = $modelSku->byId($sku->sku_id, array('cascaded' => 'Y', 'fields' => $skuFields, 'cateSku' => $cateSku));
+			}
+		}
+
+		return new \ResponseData(array('order' => $order, 'catelogs' => $catelogs));
 	}
 	/**
 	 * 创建订单
@@ -85,7 +131,7 @@ class order extends \member_base {
 
 		$order = $this->model('app\merchant\order')->create($mpid, $user, $orderInfo);
 
-		$this->notify($mpid, $order);
+		//$this->notify($mpid, $order);
 
 		return new \ResponseData($order->id);
 	}

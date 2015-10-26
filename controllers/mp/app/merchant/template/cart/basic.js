@@ -1,15 +1,19 @@
-app.register.controller('cartCtrl', ['$scope', '$http', 'Product', 'Sku', function($scope, $http, Product, Sku) {
-	var facProduct, facSku;
-	facProduct = new Product($scope.$parent.mpid, $scope.$parent.shopId);
-	var productGet = function(id) {
-		facProduct.get(id).then(function(product) {
-			var propValue;
-			$scope.products.push(product);
-			$scope.catelog = product.catelog;
-			$scope.propValues = product.propValue2;
-		});
+app.register.controller('cartCtrl', ['$scope', '$http', 'Sku', function($scope, $http, Sku) {
+	var facSku;
+	var setSkus = function(catelogs) {
+		var i, j, catelog, product;
+		for (i in catelogs) {
+			catelog = catelogs[i];
+			for (j in catelog.products) {
+				product = catelog.products[j];
+				angular.forEach(product.skus, function(v) {
+					$scope.orderInfo.skus[v.id] = {
+						count: 1
+					};
+				});
+			}
+		}
 	};
-	$scope.products = [];
 	$scope.orderInfo = {
 		skus: {}
 	};
@@ -24,14 +28,9 @@ app.register.controller('cartCtrl', ['$scope', '$http', 'Product', 'Sku', functi
 			delete $scope.orderInfo.skus[sku.id];
 		}
 	};
-	productGet($scope.$parent.productId);
-	facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId, $scope.$parent.productId);
-	facSku.list($scope.$parent.skuIds).then(function(skus) {
-		$scope.skus = skus;
-		angular.forEach(skus, function(v) {
-			$scope.orderInfo.skus[v.id] = {
-				count: 1
-			};
-		});
+	facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId);
+	facSku.list($scope.$parent.skuIds).then(function(data) {
+		$scope.catelogs = data;
+		setSkus(data);
 	});
 }]);

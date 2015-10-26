@@ -112,6 +112,8 @@ class catelog_model extends \TMS_MODEL {
 			}
 
 			$cascaded->propValues = $propValues;
+		} else {
+			$cascaded->propValues = array();
 		}
 		/**
 		 * order properties

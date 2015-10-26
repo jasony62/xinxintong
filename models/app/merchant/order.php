@@ -130,7 +130,9 @@ class order_model extends \TMS_MODEL {
 				'mpid' => $mpid,
 				'sid' => $sku->sid,
 				'oid' => $order->id,
-				'product_id' => $sku->prod_id,
+				'cate_id' => $sku->cate_id,
+				'cate_sku_id' => $sku->cate_sku_id,
+				'prod_id' => $sku->prod_id,
 				'sku_id' => $sku->id,
 				'sku_price' => $sku->price,
 				'sku_count' => $sku->__count,
@@ -146,19 +148,13 @@ class order_model extends \TMS_MODEL {
 	 * @param int $orderId
 	 */
 	private function &skus($orderId) {
-		$fields = 'id,sku_id,sku_price,sku_count';
+		$fields = 'id,cate_id,cate_sku_id,prod_id,sku_id,sku_price,sku_count';
 		$q = array(
 			$fields,
 			'xxt_merchant_order_sku',
 			"oid=$orderId",
 		);
 		$skus = $this->query_objs_ss($q);
-		if (!empty($skus)) {
-			$modelCate = \TMS_APP::M('app\merchant\catelog');
-			foreach ($skus as &$sku) {
-				$sku->cateSku = $modelCate->skuById($sku->sku_id);
-			}
-		}
 
 		return $skus;
 	}

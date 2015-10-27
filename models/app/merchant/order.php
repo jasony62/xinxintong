@@ -98,14 +98,9 @@ class order_model extends \TMS_MODEL {
 		/*创建订单*/
 		if (empty($info->extPropValues)) {
 			$info->extPropValues = new \stdClass;
-			$epv = '{}';
-		} else {
-			$epv = new \stdClass;
-			foreach ($info->extPropValues as $k => $v) {
-				$epv->{$k} = urlencode($v);
-			}
-			$epv = urldecode(json_encode($epv));
 		}
+		$epv = self::toJson($info->extPropValues);
+
 		$order = array(
 			'trade_no' => $trade_no,
 			'mpid' => $mpid,

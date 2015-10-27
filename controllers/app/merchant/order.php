@@ -70,9 +70,11 @@ class order extends \member_base {
 	 */
 	public function get_action($mpid, $order = null) {
 		$order = $this->model('app\merchant\order')->byId($order);
-		$skus = $order->skus;
+		$order->extPropValues = empty($order->ext_prop_value) ? new \stdClass : json_decode($order->ext_prop_value);
+		$order->feedback = empty($order->feedback) ? new \stdClass : json_decode($order->feedback);
 
 		/*按分类和商品对sku进行分组*/
+		$skus = $order->skus;
 		$catelogs = array();
 		if (!empty($skus)) {
 			$cateSkus = array();

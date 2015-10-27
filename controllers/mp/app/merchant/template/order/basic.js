@@ -18,11 +18,10 @@ app.register.controller('orderCtrl', ['$scope', '$http', 'Sku', 'Order', functio
 	facOrder = new Order($scope.$parent.mpid, $scope.$parent.shopId);
 	if ($scope.$parent.orderId) {
 		facOrder.get($scope.$parent.orderId).then(function(data) {
-			var feedback, order;
+			var order;
 			order = data.order;
-			feedback = order.feedback;
-			$scope.orderInfo.feedback = (feedback && feedback.length) ? JSON.parse(feedback) : {};
-			$scope.orderInfo.extPropValues = JSON.parse(order.ext_prop_value);
+			$scope.orderInfo.extPropValues = order.extPropValues;
+			$scope.orderInfo.feedback = order.feedback;
 			$scope.orderInfo.receiver_name = order.receiver_name;
 			$scope.orderInfo.receiver_mobile = order.receiver_mobile;
 			$scope.catelogs = data.catelogs;

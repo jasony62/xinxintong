@@ -16,6 +16,17 @@
         </div>
     </div>
     <div id='skus'>
+        <div class='sku-filter form-group'>
+            <div class='date input-group'>
+                <span class='input-group-btn'>
+                    <button class='btn btn-default' ng-click='prevDay()'>上一天</button>
+                </span>
+                <p class='form-control' ng-bind="skuFilter.time.begin*1000|date:'yy/MM/dd'"></p>
+                <span class='input-group-btn'>
+                    <button class='btn btn-default' ng-click='nextDay()'>下一天</button>
+                </span>
+            </div>
+        </div>
         <div class='sku' ng-class="{'selected':s.selected}" ng-repeat='s in skus' ng-click='chooseSku(s)'>
             <div class='price form-group' ng-if="s.cateSku.require_pay==='Y'">
                 <label class='form-control-static'>价格（元）</label>

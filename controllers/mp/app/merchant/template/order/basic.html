@@ -35,25 +35,25 @@
                 </div>
             </div>
         </div>
-        <div class='customer'>
-            <div class='form-group prop' ng-repeat='p in cate.orderProperties'>
-                <label class='form-control-static' ng-bind='p.name'></label>
-                <input type='text' class='form-control input-lg' ng-model='orderInfo.extPropValues[p.id]'>
-            </div>
-            <div class='form-group'>
-                <label class='form-control-static'>联系人姓名</label>
-                <input type='text' class='form-control input-lg' ng-model='orderInfo.receiver_name'>
-            </div>
-            <div class='form-group'>
-                <label class='form-control-static'>联系人电话</label>
-                <input type='text' class='form-control input-lg' ng-model='orderInfo.receiver_mobile'>
-            </div>
+        <div class='order-property form-group' ng-repeat='p in cate.orderProperties'>
+            <label class='form-control-static' ng-bind='p.name'></label>
+            <input type='text' class='form-control input-lg' ng-model='orderInfo.extPropValues[cate.id][p.id]'>
         </div>
-        <div class="feedback" class='form-group' ng-if="orderId">
+        <div class='feedback-property form-group' ng-if="orderId">
             <div class='form-group prop' ng-repeat='p in cate.feedbackProperties'>
                 <label class='form-control-static' ng-bind='p.name'></label>
-                <p class='form-control input-lg' ng-bind="orderInfo.feedback[p.id]"></p>
+                <p class='form-control input-lg' ng-bind="orderInfo.feedback[cate.id][p.id]"></p>
             </div>
+        </div>
+    </div>
+    <div class='contact'>
+        <div class='form-group'>
+            <label class='form-control-static'>联系人姓名</label>
+            <input type='text' class='form-control input-lg' ng-model='orderInfo.receiver_name'>
+        </div>
+        <div class='form-group'>
+            <label class='form-control-static'>联系人电话</label>
+            <input type='text' class='form-control input-lg' ng-model='orderInfo.receiver_mobile'>
         </div>
     </div>
     <button class='btn btn-success btn-lg btn-block' ng-click='create()'>提交</button>

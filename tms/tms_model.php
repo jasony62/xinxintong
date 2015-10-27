@@ -241,4 +241,33 @@ class TMS_MODEL {
 	public function &M($model_path) {
 		return TMS_APP::M($model_path);
 	}
+	/**
+	 *
+	 */
+	public static function urlencodeObj($obj) {
+		if (is_object($obj)) {
+			$newObj = new \stdClass;
+			foreach ($obj as $k => $v) {
+				$newObj->{urlencode($k)} = self::urlencodeObj($v);
+			}
+		} else if (is_array($obj)) {
+			$newObj = array();
+			foreach ($obj as $k => $v) {
+				$newObj[urlencode($k)] = self::urlencodeObj($v);
+			}
+		} else {
+			$newObj = urlencode($obj);
+		}
+
+		return $newObj;
+	}
+	/**
+	 *
+	 */
+	public static function toJson($obj) {
+		$obj = self::urlencodeObj($obj);
+		$json = urldecode(json_encode($obj));
+
+		return $json;
+	}
 }

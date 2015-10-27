@@ -1,5 +1,5 @@
 app.register.controller('productCtrl', ['$scope', '$http', 'Product', 'Sku', function($scope, $http, Product, Sku) {
-	var facProduct, facSku;
+	var facProduct, facSku, today;
 	facProduct = new Product($scope.$parent.mpid, $scope.$parent.shopId);
 	var productGet = function(id) {
 		facProduct.get(id).then(function(product) {
@@ -8,12 +8,9 @@ app.register.controller('productCtrl', ['$scope', '$http', 'Product', 'Sku', fun
 			$scope.catelog = product.catelog;
 			$scope.propValues = product.propValue2;
 			facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId, id);
-			today = new Date();
-			today.setHours(0, 0, 0, 0);
-			today = today.getTime() / 1000;
 			options = {
-				beginAt: today,
-				endAt: today + 86399,
+				beginAt: $scope.skuFilter.time.begin,
+				endAt: $scope.skuFilter.time.end,
 				autogen: 'Y'
 			};
 			facSku.get(options).then(function(skus) {
@@ -30,6 +27,28 @@ app.register.controller('productCtrl', ['$scope', '$http', 'Product', 'Sku', fun
 			})
 		});
 	};
+	today = new Date();
+	today.setHours(0, 0, 0, 0);
+	today = today.getTime() / 1000;
+	$scope.orderInfo = {
+		skus: {}
+	};
+	$scope.skuFilter = {
+		time: {
+			begin: today,
+			end: today + 86399
+		}
+	};
+	$scope.prevDay = function() {
+		$scope.skuFilter.time.begin -= 86400;
+		$scope.skuFilter.time.end -= 86400;
+		productGet($scope.$parent.productId);
+	};
+	$scope.nextDay = function() {
+		$scope.skuFilter.time.begin += 86400;
+		$scope.skuFilter.time.end += 86400;
+		productGet($scope.$parent.productId);
+	};
 	$scope.chooseSku = function(sku) {
 		if (sku.quantity == 0) return;
 		sku.selected = !sku.selected;
@@ -40,9 +59,6 @@ app.register.controller('productCtrl', ['$scope', '$http', 'Product', 'Sku', fun
 		} else {
 			delete $scope.orderInfo.skus[sku.id];
 		}
-	};
-	$scope.orderInfo = {
-		skus: {}
 	};
 	productGet($scope.$parent.productId);
 }]);

@@ -33,28 +33,27 @@
                 </div>
             </div>
         </div>
-        <div class='customer'>
-            <div class='form-group prop' ng-repeat='p in cate.orderProperties'>
-                <label class='form-control-static' ng-bind='p.name'></label>
-                <div class='form-control-static' ng-bind='order.extPropValues[p.id]'></div>
-            </div>
-            <div class='form-group'>
-                <label class='form-control-static'>联系人姓名</label>
-                <div class='form-control-static' ng-bind='order.receiver_name'></div>
-            </div>
-            <div class='form-group'>
-                <label class='form-control-static'>联系人电话</label>
-                <div class='form-control-static' ng-bind='order.receiver_mobile'></div>
-            </div>
+        <div class='order-property form-group' ng-repeat='p in cate.orderProperties'>
+            <label class='form-control-static' ng-bind='p.name'></label>
+            <div class='form-control-static' ng-bind='order.extPropValues[cate.id][p.id]'></div>
         </div>
-        <div class="feedback" class='form-group'>
-            <div class='form-group prop' ng-repeat='p in cate.feedbackProperties'>
-                <label class='form-control-static' ng-bind='p.name'></label>
-                <p class='form-control input-lg' ng-bind="order.feedback[p.id]"></p>
-            </div>
+        <div class='feedback form-group' ng-repeat='p in cate.feedbackProperties'>
+            <label class='form-control-static' ng-bind='p.name'></label>
+            <input type='text' class='form-control input-lg' ng-model="order.feedback[cate.id][p.id]">
+        </div>
+        <div class='form-group'>
+            <button class="btn btn-success btn-lg btn-block" ng-click="feedback()">保存反馈信息并通知</button>
         </div>
     </div>
     <div id="order" class='form-group'>
+        <div class='form-group'>
+            <label class='form-control-static'>联系人姓名</label>
+            <div class='form-control-static' ng-bind='order.receiver_name'></div>
+        </div>
+        <div class='form-group'>
+            <label class='form-control-static'>联系人电话</label>
+            <div class='form-control-static' ng-bind='order.receiver_mobile'></div>
+        </div>
         <div class='form-group'>
             <label class='form-control-static'>下单时间</label>
             <div class='form-control-static' ng-bind="order.order_create_time*1000|date:'yy-MM-dd HH:mm'"></div>

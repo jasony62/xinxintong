@@ -17,6 +17,16 @@ app.register.controller('cartCtrl', ['$scope', '$http', 'Sku', function($scope, 
 	$scope.orderInfo = {
 		skus: {}
 	};
+	$scope.removeSku = function(product, sku, index) {
+		var skuIds;
+		skuIds = Cookies.get('xxt.app.merchant.cart.skus');
+		skuIds = skuIds.split(',');
+		skuIds.splice(skuIds.indexOf(sku.id), 1);
+		skuIds = skuIds.join(',');
+		Cookies.set('xxt.app.merchant.cart.skus', skuIds);
+		product.skus.splice(index, 1);
+		delete $scope.orderInfo.skus[sku.id];
+	};
 	$scope.chooseSku = function(sku) {
 		if (sku.quantity == 0) return;
 		sku.selected = !sku.selected;

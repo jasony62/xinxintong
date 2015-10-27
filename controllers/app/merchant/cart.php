@@ -47,7 +47,7 @@ class cart extends \member_base {
 		// current visitor
 		$user = $this->getUser($mpid);
 		// page
-		$page = $this->model('app\merchant\page')->byType($shop, 'cart');
+		$page = $this->model('app\merchant\page')->byType('cart', $shop);
 		if (empty($page)) {
 			return new \ResponseError('没有获得购物车页定义');
 		}

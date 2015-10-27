@@ -1,7 +1,7 @@
 (function() {
-	xxtApp.register.controller('pageCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+	xxtApp.register.controller('pageCtrl', ['$scope', 'http2', function($scope, http2) {
 		$scope.$parent.subView = 'page';
-		http2.get('/rest/mp/app/merchant/page/byShop?shop=' + $scope.$parent.shopId, function(rsp) {
+		http2.get('/rest/mp/app/merchant/page/byCatelog?catelog=' + $scope.$parent.catelogId, function(rsp) {
 			$scope.pages = rsp.data;
 		});
 		$scope.gotoCode = function(page) {

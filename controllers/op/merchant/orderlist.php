@@ -29,7 +29,7 @@ class orderlist extends \member_base {
 		// current visitor
 		$user = $this->getUser($mpid);
 		// page
-		$page = $this->model('app\merchant\page')->byType($shop, 'op.orderlist');
+		$page = $this->model('app\merchant\page')->byType('op.orderlist', $shop);
 		if (empty($page)) {
 			return new \ResponseError('没有获得订单页定义');
 		}

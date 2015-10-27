@@ -45,7 +45,7 @@ class pay extends \member_base {
 		// current visitor
 		$user = $this->getUser($mpid);
 		// page
-		$page = $this->model('app\merchant\page')->byType($shop, 'pay');
+		$page = $this->model('app\merchant\page')->byType('pay', $shop);
 		if (empty($page)) {
 			return new \ResponseError('没有获得订单页定义');
 		}

@@ -42,10 +42,7 @@ class product extends \mp\app\app_base {
 		$model = $this->model('app\merchant\product');
 		$state = array('disabled' => 'N');
 		$products = $model->byShopId($shop, $catelog, $state);
-		foreach ($products as &$prod) {
-			$cascaded = $model->cascaded($prod->id);
-			$prod->propValue2 = $cascaded->propValue2;
-		}
+
 		return new \ResponseData($products);
 	}
 	/**

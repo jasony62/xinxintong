@@ -12,6 +12,9 @@
             <li ng-class="{'active':subView=='sku'}">
                 <a href='/rest/mp/app/merchant/catelog/sku?shop={{shopId}}&catelog={{catelogId}}'>库存定义</a>
             </li>
+            <li ng-class="{'active':subView=='page'}">
+                <a href='/rest/mp/app/merchant/catelog/page?shop={{shopId}}&catelog={{catelogId}}'>页面定制</a>
+            </li>
             <li ng-class="{'active':subView=='product'}">
                 <a href='/rest/mp/app/merchant/catelog/product?shop={{shopId}}&catelog={{catelogId}}'>已有商品</a>
             </li>
@@ -23,5 +26,9 @@
             </li>
         </ul>
     </nav>
+    <div class='alert alert-info'>
+        <span>ID：<span ng-bind='editing.id'></span></span>
+        <span>，商店：<a href='javascript:void(0)' ng-click='gotoShop()' ng-bind="editing.shop.title"></a></span>
+    </div>
     <div ng-view></div>
 </div>

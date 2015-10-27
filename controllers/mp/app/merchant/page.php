@@ -3,214 +3,157 @@ namespace mp\app\merchant;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
- * 商品
+ * 定制页面
  */
 class page extends \mp\app\app_base {
 	/**
 	 *
 	 */
-	public function index_action() {
-		$this->view_action('/mp/app/merchant/shop');
-	}
-	/**
-	 *
-	 */
-	public function list_action($shop) {
+	public function byShop_action($shop) {
 		$modelPage = $this->model('app\merchant\page');
-		$pages = $modelPage->byShopId($shop);
-		if (empty($pages)) {
-			/* shelf page */
-			$page = array(
+		$modelCode = $this->model('code/page');
+
+		$shopPages = array(
+			array(
 				'name' => '用户.商品列表页',
 				'title' => '商品列表页',
 				'type' => 'shelf',
-			);
-			$page = $this->model('app\merchant\page')->add($this->mpid, $shop, $page);
-			//
-			$codeModel = $this->model('code/page');
-			$data = array(
-				'html' => file_get_contents(dirname(__FILE__) . '/template/shelf/basic.html'),
-				'css' => file_get_contents(dirname(__FILE__) . '/template/shelf/basic.css'),
-				'js' => file_get_contents(dirname(__FILE__) . '/template/shelf/basic.js'),
-			);
-			$codeModel->modify($page->code_id, $data);
-			$pages[] = $page;
-		}
-		$productPage = $modelPage->byType($shop, 'product');
-		if (empty($productPage)) {
-			$page = array(
+				'seq' => 1,
+			),
+			array(
 				'name' => '用户.商品',
 				'title' => '商品页',
 				'type' => 'product',
-			);
-			$page = $this->model('app\merchant\page')->add($this->mpid, $shop, $page);
-			//
-			$codeModel = $this->model('code/page');
-			$data = array(
-				'html' => file_get_contents(dirname(__FILE__) . '/template/product/basic.html'),
-				'css' => file_get_contents(dirname(__FILE__) . '/template/product/basic.css'),
-				'js' => file_get_contents(dirname(__FILE__) . '/template/product/basic.js'),
-			);
-			$codeModel->modify($page->code_id, $data);
-			$pages[] = $page;
-		}
-		$cartPage = $modelPage->byType($shop, 'cart');
-		if (empty($cartPage)) {
-			$page = array(
+				'seq' => 2,
+			),
+			array(
 				'name' => '用户.购物车',
 				'title' => '购物车',
 				'type' => 'cart',
-			);
-			$page = $this->model('app\merchant\page')->add($this->mpid, $shop, $page);
-			//
-			$codeModel = $this->model('code/page');
-			$data = array(
-				'html' => file_get_contents(dirname(__FILE__) . '/template/cart/basic.html'),
-				'css' => file_get_contents(dirname(__FILE__) . '/template/cart/basic.css'),
-				'js' => file_get_contents(dirname(__FILE__) . '/template/cart/basic.js'),
-			);
-			$codeModel->modify($page->code_id, $data);
-			$pages[] = $page;
-		}
-		$orderPage = $modelPage->byType($shop, 'order');
-		if (empty($orderPage)) {
-			$page = array(
+				'seq' => 3,
+			),
+			array(
 				'name' => '用户.订单页',
 				'title' => '订单页',
 				'type' => 'order',
-			);
-			$page = $this->model('app\merchant\page')->add($this->mpid, $shop, $page);
-			//
-			$codeModel = $this->model('code/page');
-			$data = array(
-				'html' => file_get_contents(dirname(__FILE__) . '/template/order/basic.html'),
-				'css' => file_get_contents(dirname(__FILE__) . '/template/order/basic.css'),
-				'js' => file_get_contents(dirname(__FILE__) . '/template/order/basic.js'),
-			);
-			$codeModel->modify($page->code_id, $data);
-			$pages[] = $page;
-		}
-		$payPage = $modelPage->byType($shop, 'pay');
-		if (empty($payPage)) {
-			$page = array(
-				'name' => '用户.支付页',
-				'title' => '支付页',
-				'type' => 'pay',
-			);
-			$page = $this->model('app\merchant\page')->add($this->mpid, $shop, $page);
-			//
-			$codeModel = $this->model('code/page');
-			$data = array(
-				'html' => file_get_contents(dirname(__FILE__) . '/template/pay/basic.html'),
-				'css' => file_get_contents(dirname(__FILE__) . '/template/pay/basic.css'),
-				'js' => file_get_contents(dirname(__FILE__) . '/template/pay/basic.js'),
-			);
-			$codeModel->modify($page->code_id, $data);
-			$pages[] = $page;
-		}
-		$orderlistPage = $modelPage->byType($shop, 'orderlist');
-		if (empty($orderlistPage)) {
-			$page = array(
+				'seq' => 4,
+			),
+			array(
 				'name' => '用户.订单列表页',
 				'title' => '订单列表页',
 				'type' => 'orderlist',
-			);
-			$page = $this->model('app\merchant\page')->add($this->mpid, $shop, $page);
-			//
-			$codeModel = $this->model('code/page');
-			$data = array(
-				'html' => file_get_contents(dirname(__FILE__) . '/template/orderlist/basic.html'),
-				'css' => file_get_contents(dirname(__FILE__) . '/template/orderlist/basic.css'),
-				'js' => file_get_contents(dirname(__FILE__) . '/template/orderlist/basic.js'),
-			);
-			$codeModel->modify($page->code_id, $data);
-			$pages[] = $page;
-		}
-		$payokPage = $modelPage->byType($shop, 'payok');
-		if (empty($payokPage)) {
-			$page = array(
+				'seq' => 5,
+			),
+			array(
+				'name' => '用户.支付页',
+				'title' => '支付页',
+				'type' => 'pay',
+				'seq' => 6,
+			),
+			array(
 				'name' => '用户.支付完成页',
 				'title' => '支付完成页',
 				'type' => 'payok',
-			);
-			$page = $this->model('app\merchant\page')->add($this->mpid, $shop, $page);
-			//
-			$codeModel = $this->model('code/page');
-			$data = array(
-				'html' => file_get_contents(dirname(__FILE__) . '/template/payok/basic.html'),
-				'css' => file_get_contents(dirname(__FILE__) . '/template/payok/basic.css'),
-				'js' => file_get_contents(dirname(__FILE__) . '/template/payok/basic.js'),
-			);
-			$codeModel->modify($page->code_id, $data);
-			$pages[] = $page;
-		}
-		$opOrderPage = $modelPage->byType($shop, 'op.order');
-		if (empty($opOrderPage)) {
-			$page = array(
+				'seq' => 7,
+			),
+			array(
 				'name' => '客服.订单页',
 				'title' => '订单页',
 				'type' => 'op.order',
-			);
-			$page = $this->model('app\merchant\page')->add($this->mpid, $shop, $page);
-			//
-			$codeModel = $this->model('code/page');
-			$data = array(
-				'html' => file_get_contents(dirname(__FILE__) . '/template/op/order/basic.html'),
-				'css' => file_get_contents(dirname(__FILE__) . '/template/op/order/basic.css'),
-				'js' => file_get_contents(dirname(__FILE__) . '/template/op/order/basic.js'),
-			);
-			$codeModel->modify($page->code_id, $data);
-			$pages[] = $page;
-		}
-		$opOrderlistPage = $modelPage->byType($shop, 'op.orderlist');
-		if (empty($opOrderlistPage)) {
-			$page = array(
+				'seq' => 101,
+			),
+			array(
 				'name' => '客服.订单列表页',
 				'title' => '订单列表页',
 				'type' => 'op.orderlist',
-			);
-			$page = $this->model('app\merchant\page')->add($this->mpid, $shop, $page);
-			//
-			$codeModel = $this->model('code/page');
-			$data = array(
-				'html' => file_get_contents(dirname(__FILE__) . '/template/op/orderlist/basic.html'),
-				'css' => file_get_contents(dirname(__FILE__) . '/template/op/orderlist/basic.css'),
-				'js' => file_get_contents(dirname(__FILE__) . '/template/op/orderlist/basic.js'),
-			);
-			$codeModel->modify($page->code_id, $data);
-			$pages[] = $page;
+				'seq' => 102,
+			),
+		);
+		$pages = array();
+		foreach ($shopPages as $sp) {
+			$page = $modelPage->byType($sp['type'], $shop);
+			if (empty($page)) {
+				$page = $modelPage->add($this->mpid, $sp, $shop);
+				$tmplateDir = dirname(__FILE__) . '/template/' . str_replace('.', '/', $sp['type']) . '/';
+				$data = array(
+					'html' => file_get_contents($dir . 'basic.html'),
+					'css' => file_get_contents($dir . 'basic.css'),
+					'js' => file_get_contents($dir . 'basic.js'),
+				);
+				$modelCode->modify($page->code_id, $data);
+			}
+			if (is_array($page)) {
+				$pages = array_merge($pages, $page);
+			} else {
+				$pages[] = $page;
+			}
 		}
 
 		return new \ResponseData($pages);
 	}
 	/**
-	 *
+	 * 获得分类下定制的页面
+	 */
+	public function byCatelog_action($catelog) {
+		$modelCate = $this->model('app\merchant\catelog');
+		$modelPage = $this->model('app\merchant\page');
+		$modelCode = $this->model('code/page');
+
+		$catelog = $modelCate->byId($catelog);
+		$catePages = array(
+			array(
+				'name' => '用户.商品',
+				'title' => '商品页',
+				'type' => 'product',
+				'seq' => 2,
+			),
+		);
+		$pattern = $catelog->pattern;
+		$pages = array();
+		foreach ($catePages as $cp) {
+			$page = $modelPage->byType($cp['type'], $catelog->sid, $catelog->id);
+			if (empty($page)) {
+				$cp['sid'] = $catelog->sid;
+				$cp['cate_id'] = $catelog->id;
+				$page = $modelPage->add($this->mpid, $cp, $catelog->sid, $catelog->id);
+				/*根据模板设置页面内容*/
+				$tmplateDir = dirname(__FILE__) . '/template/' . str_replace('.', '/', $cp['type']) . '/';
+				$code = array(
+					'html' => file_get_contents($tmplateDir . $pattern . '.html'),
+					'css' => file_get_contents($tmplateDir . $pattern . '.css'),
+					'js' => file_get_contents($tmplateDir . $pattern . '.js'),
+				);
+				$modelCode->modify($page->code_id, $code);
+			}
+			if (is_array($page)) {
+				$pages = array_merge($pages, $page);
+			} else {
+				$pages[] = $page;
+			}
+		}
+
+		return new \ResponseData($pages);
+	}
+	/**
+	 * 用模板重置页面
 	 */
 	public function reset_action($page) {
-		//
 		$page = $this->model('app\merchant\page')->byId($page);
-		/*用标准模版替换*/
-		switch ($page->type) {
-		case 'shelf':
-		case 'product':
-		case 'cart':
-		case 'order':
-		case 'orderlist':
-		case 'pay':
-		case 'payok':
-			$dir = $page->type;
-			break;
-		case 'op.order':
-		case 'op.orderlist':
-			$dir = str_replace('.', '/', $page->type);
-		}
-		//
 		$modelCode = $this->model('code/page');
-		$templateDir = dirname(__FILE__) . '/template/' . $dir;
+
+		if ($page->cate_id != 0) {
+			$modelCate = $this->model('app\merchant\catelog');
+			$catelog = $modelCate->byId($page->cate_id);
+			$pattern = $catelog->pattern;
+		} else {
+			$pattern = 'basic';
+		}
+		$dir = str_replace('.', '/', $page->type);
+		$templateDir = dirname(__FILE__) . '/template/' . $dir . '/';
 		$data = array(
-			'html' => file_get_contents($templateDir . '/basic.html'),
-			'css' => file_get_contents($templateDir . '/basic.css'),
-			'js' => file_get_contents($templateDir . '/basic.js'),
+			'html' => file_get_contents($templateDir . $pattern . '.html'),
+			'css' => file_get_contents($templateDir . $pattern . '.css'),
+			'js' => file_get_contents($templateDir . $pattern . '.js'),
 		);
 		$modelCode->modify($page->code_id, $data);
 

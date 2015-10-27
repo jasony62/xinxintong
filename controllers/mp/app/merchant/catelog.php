@@ -21,6 +21,12 @@ class catelog extends \mp\app\app_base {
 	/**
 	 *
 	 */
+	public function page_action() {
+		$this->view_action('/mp/app/merchant/catelog/base');
+	}
+	/**
+	 *
+	 */
 	public function product_action() {
 		$this->view_action('/mp/app/merchant/catelog/base');
 	}

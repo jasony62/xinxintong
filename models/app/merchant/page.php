@@ -47,11 +47,11 @@ class page_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function &byType($shopId, $type) {
+	public function &byType($type, $shopId, $catelogId = 0, $productId = 0) {
 		$q = array(
 			'*',
 			'xxt_merchant_page',
-			"sid=$shopId and type='$type'",
+			"sid=$shopId and cate_id=$catelogId and prod_id=$productId and type='$type'",
 		);
 		$q2 = array(
 			'o' => 'seq',
@@ -75,7 +75,7 @@ class page_model extends \TMS_MODEL {
 	/**
 	 * 创建页面
 	 */
-	public function add($mpid, $shopId, $data) {
+	public function add($mpid, $data, $shopId, $catelogId = 0, $productId = 0) {
 		$uid = \TMS_CLIENT::get_client_uid();
 
 		$code = \TMS_APP::model('code/page')->create($uid);
@@ -83,11 +83,14 @@ class page_model extends \TMS_MODEL {
 		$newPage = array(
 			'mpid' => $mpid,
 			'sid' => $shopId,
+			'cate_id' => $catelogId,
+			'prod_id' => $productId,
 			'creater' => $uid,
 			'create_at' => time(),
 			'type' => $data['type'],
 			'name' => isset($data['name']) ? $data['name'] : '新页面',
 			'title' => isset($data['title']) ? $data['title'] : '新页面',
+			'seq' => $data['seq'],
 			'code_id' => $code->id,
 		);
 

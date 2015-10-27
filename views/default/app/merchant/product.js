@@ -1,11 +1,16 @@
 app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
-    var ls;
+    var ls, url;
     ls = location.search;
     $scope.mpid = ls.match(/mpid=([^&]*)/)[1];
     $scope.shopId = ls.match(/shop=([^&]*)/)[1];
+    $scope.catelogId = ls.match(/[\?&]catelog=(.+?)(&|$)/) ? ls.match(/[\?&]catelog=(.+?)(&|$)/)[1] : '';
     $scope.productId = ls.match(/[\?&]product=(.+?)(&|$)/) ? ls.match(/[\?&]product=(.+?)(&|$)/)[1] : '';
     $scope.errmsg = '';
-    $http.get('/rest/app/merchant/product/pageGet?mpid=' + $scope.mpid + '&shop=' + $scope.shopId).success(function(rsp) {
+    url = '/rest/app/merchant/product/pageGet?mpid=' + $scope.mpid
+    url += '&shop=' + $scope.shopId;
+    url += '&catelog=' + $scope.catelogId;
+    url += '&product=' + $scope.productId;
+    $http.get(url).success(function(rsp) {
         if (rsp.err_code !== 0) {
             $scope.errmsg = rsp.err_msg;
             return;

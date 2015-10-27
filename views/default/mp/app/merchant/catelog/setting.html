@@ -1,11 +1,15 @@
 <div id='catelog-view'>
-    <div class='alert alert-info'>
-        <span>ID：<span ng-bind='editing.id'></span></span>
-        <span>，商店：<a href='javascript:void(0)' ng-click='gotoShop()' ng-bind="editing.shop.title"></a></span>
+    <div class='form-group'>
+        <label>分类名称</label>
+        <input class='form-control' ng-model='editing.name' tms-auto-update tms-wait=1000 tms-update="update('name')">
     </div>
     <div class='form-group'>
-        <label>名称</label>
-        <input class='form-control' ng-model='editing.name' tms-auto-update tms-wait=1000 tms-update="update('name')">
+        <label>商品类型</label>
+        <select class='form-control' ng-model='editing.pattern' ng-change="update('pattern')">
+            <option value='basic'>实物</option>
+            <option value='place'>场所</option>
+            <option value='service'>服务</option>
+        </select>
     </div>
     <div class='form-group'>
         <div>

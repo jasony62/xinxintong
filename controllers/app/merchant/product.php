@@ -3,7 +3,7 @@ namespace app\merchant;
 
 require_once dirname(dirname(dirname(__FILE__))) . '/member_base.php';
 /**
- * 产品
+ * 商品
  */
 class product extends \member_base {
 	/**
@@ -37,13 +37,13 @@ class product extends \member_base {
 		exit;
 	}
 	/**
-	 *
+	 * 获得商品的页面定义
 	 */
-	public function pageGet_action($mpid, $shop) {
+	public function pageGet_action($mpid, $shop, $catelog, $product) {
 		// current visitor
 		$user = $this->getUser($mpid);
 		// page
-		$page = $this->model('app\merchant\page')->byType($shop, 'product');
+		$page = $this->model('app\merchant\page')->byType('product', $shop, $catelog);
 		if (empty($page)) {
 			return new \ResponseError('没有获得商品页定义');
 		}

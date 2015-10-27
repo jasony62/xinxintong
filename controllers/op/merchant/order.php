@@ -29,7 +29,7 @@ class order extends \member_base {
 		// current visitor
 		$user = $this->getUser($mpid);
 		// page
-		$page = $this->model('app\merchant\page')->byType($shop, 'op.order');
+		$page = $this->model('app\merchant\page')->byType('op.order', $shop);
 		if (empty($page)) {
 			return new \ResponseError('没有获得订单页定义');
 		}
@@ -125,7 +125,7 @@ class order extends \member_base {
 		$products = json_decode($order->products);
 		foreach ($products as $product) {
 			/**/
-			$product = $modelProd->byId($product->id, , array('cascaded' => 'Y'));
+			$product = $modelProd->byId($product->id, array('cascaded' => 'Y'));
 			$mapping = $modelTmpl->mappingById($product->catelog->feedback_order_tmplmsg);
 			if (false === $mapping) {
 				return false;

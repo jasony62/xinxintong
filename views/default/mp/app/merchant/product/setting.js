@@ -1,9 +1,6 @@
 (function() {
     xxtApp.register.controller('settingCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
         $scope.$parent.subView = 'setting';
-        $scope.gotoCatelog = function() {
-            location.href = '/rest/mp/app/merchant/catelog?shop=' + $scope.$parent.shopId + '&catelog=' + $scope.editing.catelog.id;
-        };
         $scope.update = function(name) {
             var nv = {};
             nv[name] = $scope.editing[name];

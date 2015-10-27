@@ -83,7 +83,7 @@ xxtApp.controller('catelogCtrl', ['$scope', 'http2', '$location', function($scop
         history.back();
     };
     $scope.gotoShop = function() {
-        location.href = '/rest/mp/app/merchant/shop?shop=' + $scope.shopId;
+        location.href = '/rest/mp/app/merchant/shop?shop=' + $scope.editing.shop.id;
     };
     $scope.get = function() {
         http2.get('/rest/mp/app/merchant/catelog/get?catelog=' + $scope.catelogId, function(rsp) {

@@ -29,12 +29,7 @@ class payok extends \member_base {
 		 * 获得当前访问用户
 		 */
 		$openid = $this->doAuth($mpid, $code, $mocker);
-		$this->afterOAuth($mpid, $openid);
-	}
-	/**
-	 * 返回页面
-	 */
-	public function afterOAuth($mpid, $openid) {
+
 		\TPL::output('/app/merchant/payok');
 		exit;
 	}
@@ -45,7 +40,7 @@ class payok extends \member_base {
 		// current visitor
 		$user = $this->getUser($mpid);
 		// page
-		$page = $this->model('app\merchant\page')->byType($shop, 'payok');
+		$page = $this->model('app\merchant\page')->byType('payok', $shop);
 		if (empty($page)) {
 			return new \ResponseError('没有获得订单页定义');
 		}

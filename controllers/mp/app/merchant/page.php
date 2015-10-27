@@ -76,9 +76,9 @@ class page extends \mp\app\app_base {
 				$page = $modelPage->add($this->mpid, $sp, $shop);
 				$tmplateDir = dirname(__FILE__) . '/template/' . str_replace('.', '/', $sp['type']) . '/';
 				$data = array(
-					'html' => file_get_contents($dir . 'basic.html'),
-					'css' => file_get_contents($dir . 'basic.css'),
-					'js' => file_get_contents($dir . 'basic.js'),
+					'html' => file_get_contents($tmplateDir . 'basic.html'),
+					'css' => file_get_contents($tmplateDir . 'basic.css'),
+					'js' => file_get_contents($tmplateDir . 'basic.js'),
 				);
 				$modelCode->modify($page->code_id, $data);
 			}

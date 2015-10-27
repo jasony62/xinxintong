@@ -17,19 +17,17 @@
                     <div class='form-control-static' ng-bind="p.propValue[cp.id].name||'&nbsp;'"></div>
                 </div>
                 <div class='skus'>
-                    <div class='sku' ng-class="{'selected':s.selected}" ng-repeat='s in p.skus' ng-click='chooseSku(s)'>
-                        <div class='price form-group' ng-if="s.cateSku.require_pay==='Y'">
-                            <label class='form-control-static'>价格（元）</label>
-                            <div class='form-control-static' ng-bind="(s.price/100)||'&nbsp;'"></div>
+                    <div class='sku' ng-class="{'selected':s.selected,'unavailable':(s.quantity==0&&!orderId)}" ng-repeat='s in p.skus' ng-click='chooseSku(s)'>
+                        <div>
+                            <div class='summary'>
+                                <div ng-bind="summarySku(cate,p,s)"></div>
+                            </div>
+                            <div class='price' ng-if="s.cateSku.require_pay==='Y'">
+                                <div ng-bind="(s.price/100)||'&nbsp;'"></div>
+                            </div>
                         </div>
-                        <div class='beginAt form-group' ng-if="s.cateSku.has_validity==='Y'">
-                            <label class='form-control-static'>有效期</label>
-                            <div class='form-control-static' ng-bind="s.validity_begin_at*1000|date:'yy/MM/dd hh:mm'"></div>
-                            <div class='form-control-static' ng-bind="s.validity_end_at*1000|date:'yy/MM/dd hh:mm'"></div>
-                        </div>
-                        <div class='price form-group'>
-                            <label class='form-control-static'>剩余数量</label>
-                            <div class='form-control-static' ng-bind="s.quantity"></div>
+                        <div>
+                            <button class='btn btn-danger btn-sm' ng-if="!orderId" ng-click='removeSku(p, s, $index)'>删除</button>
                         </div>
                     </div>
                 </div>
@@ -56,5 +54,7 @@
             <input type='text' class='form-control input-lg' ng-model='orderInfo.receiver_mobile'>
         </div>
     </div>
-    <button class='btn btn-success btn-lg btn-block' ng-click='create()'>提交</button>
+    <footer>
+        <button ng-click='create()'>提交订单</button>
+    <footer>
 </div>

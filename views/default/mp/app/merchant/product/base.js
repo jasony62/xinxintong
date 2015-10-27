@@ -34,9 +34,11 @@ xxtApp.config(['$routeProvider', function($rp) {
 }]);
 xxtApp.controller('productCtrl', ['$scope', 'http2', '$location', function($scope, http2, $location) {
     $scope.shopId = $location.search().shop;
-    $scope.catelogId = $location.search().catelog;
     $scope.productId = $location.search().product;
     $scope.subView = '';
+    $scope.gotoCatelog = function() {
+        location.href = '/rest/mp/app/merchant/catelog?shop=' + $scope.shopId + '&catelog=' + $scope.editing.catelog.id;
+    };
     $scope.back = function(event) {
         event.preventDefault();
         history.back();

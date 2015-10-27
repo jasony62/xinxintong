@@ -33,7 +33,7 @@
             }).result.then(function(catelog) {
                 if (catelog !== null) {
                     var url = '/rest/mp/app/merchant/product/create';
-                    url += '?cateId=' + catelog.id;
+                    url += '?catelog=' + catelog.id;
                     http2.get(url, function(rsp) {
                         var prod = rsp.data;
                         $scope.open(prod);

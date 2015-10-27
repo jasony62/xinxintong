@@ -29,7 +29,10 @@ class product extends \mp\app\app_base {
 	 */
 	public function get_action($product) {
 		$model = $this->model('app\merchant\product');
-		$prod = $model->byId($product, 'Y');
+		$options = array(
+			'cascaded' => 'Y',
+		);
+		$prod = $model->byId($product, $options);
 		return new \ResponseData($prod);
 	}
 	/**

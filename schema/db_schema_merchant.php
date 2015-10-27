@@ -214,6 +214,7 @@ $sql .= ',creater varchar(40) not null';
 $sql .= ",create_at int not null";
 $sql .= ',reviser varchar(40) not null';
 $sql .= ",modify_at int not null";
+$sql .= ",summary text";
 $sql .= ',sku_value text';
 $sql .= ",ori_price int not null default 0";
 $sql .= ",price int not null default 0";

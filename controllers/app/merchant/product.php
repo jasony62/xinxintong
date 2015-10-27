@@ -16,23 +16,28 @@ class product extends \member_base {
 		return $rule_action;
 	}
 	/**
-	 * 进入产品展示页
+	 * 进入商品展示页
 	 *
-	 * $mpid mpid'id
-	 * $shop shop'id
+	 * @param string $mpid mpid'id
+	 * @param int $shop shop'id
+	 * @param int $catelog
+	 * @param int $product
+	 *
+	 * @return
 	 */
-	public function index_action($mpid, $shop, $mocker = null, $code = null) {
+	public function index_action($mpid, $shop, $catelog, $product, $mocker = null, $code = null) {
 		/**
 		 * 获得当前访问用户
 		 */
 		$openid = $this->doAuth($mpid, $code, $mocker);
+		$options = array(
+			'fields' => 'title',
+			'cascaded' => 'N',
+		);
+		$page = $this->model('app\merchant\page')->byType('product', $shop, $catelog, 0, $options);
+		$page = $page[0];
 
-		$this->afterOAuth($mpid, $shop, $openid);
-	}
-	/**
-	 * 返回页面
-	 */
-	public function afterOAuth($mpid, $shopId, $openid) {
+		\TPL::assign('title', $page->title);
 		\TPL::output('/app/merchant/product');
 		exit;
 	}

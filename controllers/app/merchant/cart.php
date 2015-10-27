@@ -25,18 +25,19 @@ class cart extends \member_base {
 	 * @param int $sku
 	 *
 	 */
-	public function index_action($mpid, $product = null, $skus = null, $mocker = null, $code = null) {
+	public function index_action($mpid, $shop, $mocker = null, $code = null) {
 		/**
 		 * 获得当前访问用户
 		 */
 		$openid = $this->doAuth($mpid, $code, $mocker);
+		$options = array(
+			'fields' => 'title',
+			'cascaded' => 'N',
+		);
+		$page = $this->model('app\merchant\page')->byType('cart', $shop, 0, 0, $options);
+		$page = $page[0];
 
-		$this->afterOAuth($mpid, $product, $skus, $openid);
-	}
-	/**
-	 * 返回页面
-	 */
-	public function afterOAuth($mpid, $productId, $skuIds, $openid) {
+		\TPL::assign('title', $page->title);
 		\TPL::output('/app/merchant/cart');
 		exit;
 	}

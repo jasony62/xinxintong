@@ -1,7 +1,7 @@
 <?php
 namespace app\merchant;
 /**
- *
+ * 定制页面
  */
 class page_model extends \TMS_MODEL {
 	/**
@@ -47,9 +47,12 @@ class page_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function &byType($type, $shopId, $catelogId = 0, $productId = 0) {
+	public function &byType($type, $shopId, $catelogId = 0, $productId = 0, $options = array()) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
+
 		$q = array(
-			'*',
+			$fields,
 			'xxt_merchant_page',
 			"sid=$shopId and cate_id=$catelogId and prod_id=$productId and type='$type'",
 		);
@@ -58,7 +61,7 @@ class page_model extends \TMS_MODEL {
 		);
 
 		$pages = $this->query_objs_ss($q, $q2);
-		if (count($pages)) {
+		if (count($pages) && $cascaded === 'Y') {
 			$modelCode = \TMS_APP::M('code/page');
 			foreach ($pages as &$page) {
 				$code = $modelCode->byId($page->code_id);

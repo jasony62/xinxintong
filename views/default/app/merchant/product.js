@@ -24,6 +24,21 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
             $scope.$broadcast('xxt.app.merchant.ready');
         });
     });
+    /*保存现有的选择，继续选择其他商品*/
+    $scope.addOther = function(skus) {
+        var url, i, skuIds;
+        skuIds = Cookies.get('xxt.app.merchant.cart.skus');
+        if (skuIds === undefined || skuIds.length === 0) {
+            skuIds = [];
+        } else {
+            skuIds = skuIds.split(',');
+        }
+        for (i in skus) {
+            skuIds.push(i);
+        }
+        Cookies.set('xxt.app.merchant.cart.skus', skuIds.join(','));
+        history.back();
+    };
     $scope.gotoCart = function(skus) {
         var url, i, skuIds;
         skuIds = Cookies.get('xxt.app.merchant.cart.skus');
@@ -38,8 +53,6 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
         Cookies.set('xxt.app.merchant.cart.skus', skuIds.join(','));
 
         url = '/rest/app/merchant/cart?mpid=' + $scope.mpid + '&shop=' + $scope.shopId;
-        url += '&skus=' + skuIds.join(',');
-
         location.href = url;
     };
     $scope.gotoOrder = function(skus) {

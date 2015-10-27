@@ -63,7 +63,7 @@ class sku extends \member_base {
 		if (!empty($skus)) {
 			$modelCate = $this->model('app\merchant\catelog');
 			$modelProd = $this->model('app\merchant\product');
-			$cateFields = 'id,sid,name';
+			$cateFields = 'id,sid,name,pattern';
 			$prodFields = 'id,sid,cate_id,name,main_img,img,detail_text,detail_text,prop_value,buy_limit,sku_info';
 			foreach ($skus as &$sku) {
 				if (!isset($catelogs[$sku->cate_id])) {
@@ -74,13 +74,13 @@ class sku extends \member_base {
 					/*product*/
 					$product = $modelProd->byId($sku->prod_id, array('cascaded' => 'N', 'fields' => $prodFields, 'catelog' => $catelog));
 					$product->skus = array();
-					$catelog->products[$product->id] = &$product;
+					$catelog->products[$product->id] = $product;
 				} else {
 					$catelog = &$catelogs[$sku->cate_id];
 					if (!isset($catelog->products[$sku->prod_id])) {
 						$product = $modelProd->byId($sku->prod_id, array('cascaded' => 'N', 'fields' => $prodFields, 'catelog' => $catelog));
 						$product->skus = array();
-						$catelog->products[$product->id] = &$product;
+						$catelog->products[$product->id] = $product;
 					} else {
 						$product = $catelog->products[$sku->prod_id];
 					}

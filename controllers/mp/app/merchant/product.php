@@ -81,9 +81,9 @@ class product extends \mp\app\app_base {
 		);
 		$product['id'] = $this->model()->insert('xxt_merchant_product', $product, true);
 
-		$cascaded = $this->model('app\merchant\product')->cascaded($product['id']);
-		$product['catelog'] = $cascaded->catelog;
-		$product['propValue2'] = $cascaded->propValue2;
+		//$cascaded = $this->model('app\merchant\product')->cascaded($product['id']);
+		//$product['catelog'] = $cascaded->catelog;
+		//$product['propValue2'] = $cascaded->propValue2;
 
 		return new \ResponseData($product);
 	}

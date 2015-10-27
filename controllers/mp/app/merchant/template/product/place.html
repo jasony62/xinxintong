@@ -27,22 +27,16 @@
                 </span>
             </div>
         </div>
-        <div class='sku' ng-class="{'selected':s.selected}" ng-repeat='s in skus' ng-click='chooseSku(s)'>
-            <div class='price form-group' ng-if="s.cateSku.require_pay==='Y'">
-                <label class='form-control-static'>价格（元）</label>
-                <div class='form-control-static' ng-bind="(s.price/100)||'&nbsp;'"></div>
-            </div>
-            <div class='beginAt form-group' ng-if="s.cateSku.has_validity==='Y'">
-                <label class='form-control-static'>有效期</label>
-                <div class='form-control-static' ng-bind="s.validity_begin_at*1000|date:'yy/MM/dd hh:mm'"></div>
-                <div class='form-control-static' ng-bind="s.validity_end_at*1000|date:'yy/MM/dd hh:mm'"></div>
-            </div>
-            <div class='price form-group'>
-                <label class='form-control-static'>剩余数量</label>
-                <div class='form-control-static' ng-bind="s.quantity"></div>
+        <div class='sku-grid'>
+            <div class='sku' ng-class="{'selected':s.selected,'unavailable':s.quantity==0}" ng-repeat='s in skus' ng-click='chooseSku(s)'>
+                <div class='beginAt' ng-bind="s.validity_begin_at*1000|date:'hh:mm'"></div>
+                <div class='endAt' ng-bind="s.validity_end_at*1000|date:'hh:mm'"></div>
             </div>
         </div>
     </div>
-    <button class='btn btn-success btn-lg btn-block' ng-click='gotoCart(orderInfo.skus)'>购物车</button>
-    <button class='btn btn-success btn-lg btn-block' ng-click='gotoOrder(orderInfo.skus)'>订购</button>
+    <footer>
+        <button ng-click='addOther(orderInfo.skus)'>添加其他</button>
+        <button ng-click='gotoCart(orderInfo.skus)'>查看所有</button>
+        <button ng-click='gotoOrder(orderInfo.skus)'>完成选择</button>
+    </footer>
 </div>

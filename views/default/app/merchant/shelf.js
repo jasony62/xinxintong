@@ -25,4 +25,8 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
     $scope.gotoOrder = function(product) {
         location.href = '/rest/app/merchant/order?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&catelog=' + product.cate_id + '&product=' + product.id;
     };
+    $scope.gotoCart = function() {
+        url = '/rest/app/merchant/cart?mpid=' + $scope.mpid + '&shop=' + $scope.shopId;
+        location.href = url;
+    };
 }]);

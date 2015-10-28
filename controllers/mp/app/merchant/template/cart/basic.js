@@ -45,19 +45,21 @@ app.register.controller('cartCtrl', ['$scope', '$http', 'Sku', function($scope, 
 		skuIds.splice(skuIds.indexOf(sku.id), 1);
 		skuIds = skuIds.join(',');
 		Cookies.set('xxt.app.merchant.cart.skus', skuIds);
-		product.skus.splice(index, 1);
+		sku.removed = true;
 		delete $scope.orderInfo.skus[sku.id];
 	};
-	$scope.chooseSku = function(sku) {
-		if (sku.quantity == 0) return;
-		sku.selected = !sku.selected;
-		if (sku.selected) {
-			$scope.orderInfo.skus[sku.id] = {
-				count: 1
-			};
-		} else {
-			delete $scope.orderInfo.skus[sku.id];
-		}
+	$scope.restoreSku = function(product, sku, index) {
+		if (!sku.removed || sku.quantity == 0) return;
+		var skuIds;
+		skuIds = Cookies.get('xxt.app.merchant.cart.skus');
+		skuIds = (skuIds && skuIds.length) ? skuIds.split(',') : [];
+		skuIds.push(sku.id);
+		skuIds = skuIds.join(',');
+		Cookies.set('xxt.app.merchant.cart.skus', skuIds);
+		$scope.orderInfo.skus[sku.id] = {
+			count: 1
+		};
+		delete sku.removed;
 	};
 	facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId);
 	facSku.list($scope.$parent.skuIds).then(function(data) {

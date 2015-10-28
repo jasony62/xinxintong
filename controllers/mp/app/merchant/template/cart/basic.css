@@ -12,6 +12,7 @@
 .sku>div{display:table-cell;}
 .sku>div:last-child{width:80px;text-align: center}
 .sku.unavailable{background: #ccc;}
+.sku.removed{text-decoration: line-through;color:#999;}
 
 /*footer*/
 body{margin-bottom:64px;}

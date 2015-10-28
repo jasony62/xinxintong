@@ -17,7 +17,7 @@
                     <div class='form-control-static' ng-bind="p.propValue[cp.id].name||'&nbsp;'"></div>
                 </div>
                 <div class='skus'>
-                    <div class='sku' ng-class="{'selected':s.selected,'unavailable':s.quantity==0}" ng-repeat='s in p.skus' ng-click='chooseSku(s)'>
+                    <div class='sku' ng-class="{'selected':s.selected,'unavailable':s.quantity==0,'removed':s.removed}" ng-repeat='s in p.skus'>
                         <div>
                             <div class='summary'>
                                 <div ng-bind="summarySku(cate,p,s)"></div>
@@ -27,7 +27,8 @@
                             </div>
                         </div>
                         <div>
-                            <button class='btn btn-danger btn-sm' ng-click='removeSku(p, s, $index)'>删除</button>
+                            <button class='btn btn-danger btn-sm' ng-show='!s.removed' ng-click='removeSku(p, s, $index)'>删除</button>
+                            <button class='btn btn-success btn-sm' ng-show='s.removed&&s.quantity>0' ng-click='restoreSku(p, s, $index)'>恢复</button>
                         </div>
                     </div>
                 </div>

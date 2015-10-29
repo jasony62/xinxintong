@@ -27,16 +27,19 @@
                 </span>
             </div>
         </div>
-        <div class='sku-grid'>
+        <div class='sku-grid' ng-show='skus.length'>
             <div class='sku' ng-class="{'selected':s.selected,'unavailable':s.quantity==0}" ng-repeat='s in skus' ng-click='chooseSku(s)'>
                 <div class='beginAt' ng-bind="s.validity_begin_at*1000|date:'hh:mm'"></div>
                 <div class='endAt' ng-bind="s.validity_end_at*1000|date:'hh:mm'"></div>
             </div>
         </div>
+        <div class='sku-grid' ng-show='!skus.length'>
+            没有可以选择的内容
+        </div>
     </div>
     <footer>
         <button ng-click='addOther(orderInfo.skus)'>添加其他</button>
-        <button ng-click='gotoCart(orderInfo.skus)'>查看所有</button>
+        <button ng-click='gotoCart(orderInfo.skus)'>所有已选</button>
         <button ng-click='gotoOrder(orderInfo.skus)'>完成选择</button>
     </footer>
 </div>

@@ -249,5 +249,26 @@ app.factory('Order', function($http, $q) {
         });
         return promise;
     };
+    Order.prototype.modify = function(orderId, orderInfo) {
+        var deferred, promise, url;
+        deferred = $q.defer();
+        promise = deferred.promise;
+        url = '/rest/app/merchant/order/modify';
+        url += '?mpid=' + this.mpid;
+        url += '&shop=' + this.shopId;
+        url += '&order=' + orderId;
+        $http.post(url, orderInfo).success(function(rsp) {
+            if (typeof rsp === 'undefined') {
+                alert(rsp);
+                return;
+            }
+            if (rsp.err_code != 0) {
+                alert(rsp.err_msg);
+                return;
+            }
+            deferred.resolve(rsp.data);
+        });
+        return promise;
+    };
     return Order;
 });

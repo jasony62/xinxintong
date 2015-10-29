@@ -140,6 +140,25 @@ class order_model extends \TMS_MODEL {
 		return $order;
 	}
 	/**
+	 * 创建订单
+	 *
+	 * @param string $mpid
+	 * @param object $user
+	 * @param int $orderId
+	 * @param object $info
+	 *
+	 * @return object $order
+	 */
+	public function &modify($mpid, $user, $orderId, $info) {
+		$order = array(
+			'receiver_name' => $info->receiver_name,
+			'receiver_mobile' => $info->receiver_mobile,
+		);
+		$rst = $this->update('xxt_merchant_order', $order, "id=$orderId");
+
+		return $rst;
+	}
+	/**
 	 * @param int $orderId
 	 */
 	private function &skus($orderId) {

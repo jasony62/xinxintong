@@ -67,4 +67,9 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Order', function($scope,
             }
         });
     };
+    $scope.modify = function() {
+        facOrder.modify($scope.orderId, $scope.orderInfo).then(function() {
+            alert('ok');
+        });
+    };
 }]);

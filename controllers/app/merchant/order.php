@@ -146,6 +146,28 @@ class order extends \member_base {
 		return new \ResponseData($order->id);
 	}
 	/**
+	 * 修改订单
+	 *
+	 * @param string $mpid
+	 * @param int $order
+	 *
+	 * @return int order's id
+	 */
+	public function modify_action($mpid, $order) {
+		$user = $this->getUser($mpid, array('verbose' => array('fan' => 'Y')));
+		if (empty($user->openid)) {
+			return new \ResponseError('无法获得当前用户身份信息');
+		}
+
+		$orderInfo = $this->getPostJson();
+
+		$rst = $this->model('app\merchant\order')->modify($mpid, $user, $order, $orderInfo);
+
+		//$this->notify($mpid, $order);
+
+		return new \ResponseData($rst);
+	}
+	/**
 	 * 通知客服有新订单
 	 */
 	private function notify($mpid, $order) {

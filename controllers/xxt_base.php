@@ -266,7 +266,7 @@ class xxt_base extends TMS_CONTROLLER {
 	 * $openid
 	 */
 	public function tmplmsgSendByOpenid($mpid, $tmplmsgId, $openid, $data, $url) {
-		$tmpl = $this->model('matter\tmplmsg')->byId($tmplmsgId, 'Y');
+		$tmpl = $this->model('matter\tmplmsg')->byId($tmplmsgId, array('cascaded' => 'Y'));
 
 		$msg = array(
 			'touser' => $openid,

@@ -166,7 +166,7 @@ class order extends \member_base {
 				continue;
 			}
 			/*获得模板消息定义*/
-			$tmplmsg = $modelTmpl->byId($mapping->msgid, array('cascaded' => 'N'));
+			$tmplmsg = $modelTmpl->byId($mapping->msgid, array('cascaded' => 'Y'));
 			if (empty($tmplmsg->params)) {
 				continue;
 			}

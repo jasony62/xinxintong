@@ -83,21 +83,16 @@ class product extends \member_base {
 
 		return new \ResponseData($products);
 	}
-	/*
+	/**
 	 *
+	 * @param int $product
 	 */
-	public function get_action($id) {
+	public function get_action($product) {
 		$modelProd = $this->model('app\merchant\product');
-		$prod = $modelProd->byId($id, 'Y');
-
-		/*$prodPropValues = array();
-		foreach ($prod->catelog->properties as $prop) {
-		$prodPropValues[] = array(
-		'name' => $prop->name,
-		'value' => $prod->propValue2->{$prop->id}->name,
+		$options = array(
+			'cascaded' => 'Y',
 		);
-		}*/
-		//$prod->propValues = $prodPropValues;
+		$prod = $modelProd->byId($product, $options);
 
 		return new \ResponseData($prod);
 	}

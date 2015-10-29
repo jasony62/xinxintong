@@ -85,7 +85,7 @@ app.factory('Product', function($http, $q) {
         url = '/rest/app/merchant/product/get';
         url += '?mpid=' + this.mpid;
         url += '&shop=' + this.shopId;
-        url += '&id=' + id;
+        url += '&product=' + id;
         $http.get(url).success(function(rsp) {
             if (typeof rsp === 'undefined') {
                 alert(rsp);

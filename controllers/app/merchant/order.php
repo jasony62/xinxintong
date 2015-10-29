@@ -25,23 +25,37 @@ class order extends \member_base {
 	 * @param int $sku
 	 *
 	 */
-	public function index_action($mpid, $product = null, $sku = null, $order = null, $mocker = null, $code = null) {
+	public function index_action($mpid, $shop, $order = '', $mocker = null, $code = null) {
 		/**
 		 * 获得当前访问用户
 		 */
 		$openid = $this->doAuth($mpid, $code, $mocker);
+		// page
+		$options = array(
+			'cascaded' => 'N',
+			'fields' => 'title',
+		);
+		$pageType = empty($order) ? 'ordernew' : 'order';
+		$page = $this->model('app\merchant\page')->byType($pageType, $shop, 0, 0, $options);
+		$page = $page[0];
 
+		\TPL::assign('title', $page->title);
 		\TPL::output('/app/merchant/order');
 		exit;
 	}
 	/**
+	 * 获得订单页面定义
 	 *
+	 * @param string mpid
+	 * @param int mpid
+	 * @param int order
 	 */
-	public function pageGet_action($mpid, $shop) {
+	public function pageGet_action($mpid, $shop, $order = '') {
 		// current visitor
 		$user = $this->getUser($mpid);
 		// page
-		$page = $this->model('app\merchant\page')->byType('order', $shop);
+		$pageType = empty($order) ? 'ordernew' : 'order';
+		$page = $this->model('app\merchant\page')->byType($pageType, $shop);
 		if (empty($page)) {
 			return new \ResponseError('没有获得订单页定义');
 		}

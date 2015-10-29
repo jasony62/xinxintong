@@ -5,7 +5,7 @@ namespace app\merchant;
  */
 class page_model extends \TMS_MODEL {
 	/**
-	 * $id
+	 * @param int $id
 	 */
 	public function &byId($id) {
 		$q = array(
@@ -28,7 +28,7 @@ class page_model extends \TMS_MODEL {
 		return $page;
 	}
 	/**
-	 *
+	 * @param int $shopId
 	 */
 	public function &byShopId($shopId) {
 		$q = array(
@@ -46,6 +46,11 @@ class page_model extends \TMS_MODEL {
 	}
 	/**
 	 *
+	 * @param string $type
+	 * @param int $shopId
+	 * @param int $catelogId
+	 * @param int $productId
+	 * @param array $options
 	 */
 	public function &byType($type, $shopId, $catelogId = 0, $productId = 0, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';

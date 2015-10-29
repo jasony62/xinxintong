@@ -14,15 +14,6 @@ app.register.controller('productCtrl', ['$scope', '$http', 'Product', 'Sku', fun
 			options = {};
 			facSku.get(options).then(function(skus) {
 				$scope.skus = skus;
-				if ($scope.$parent.orderId) {
-					angular.forEach($scope.skus, function(v) {
-						if (typeof $scope.orderInfo.skus[v.id] === 'object') {
-							v.selected = true;
-						}
-					});
-				} else if (skus.length) {
-					$scope.chooseSku(skus[0]);
-				}
 			})
 		});
 	};

@@ -17,7 +17,7 @@
                     <div class='form-control-static' ng-bind="p.propValue[cp.id].name||'&nbsp;'"></div>
                 </div>
                 <div class='skus'>
-                    <div class='sku' ng-class="{'selected':s.selected,'unavailable':(s.quantity==0&&!orderId)}" ng-repeat='s in p.skus' ng-click='chooseSku(s)'>
+                    <div class='sku' ng-repeat='s in p.skus'>
                         <div>
                             <div class='summary'>
                                 <div ng-bind="summarySku(cate,p,s)"></div>
@@ -26,19 +26,18 @@
                                 <div ng-bind="(s.price/100)||'&nbsp;'"></div>
                             </div>
                         </div>
-                        <div>
-                            <button class='btn btn-danger btn-sm' ng-if="!orderId" ng-click='removeSku(p, s, $index)'>删除</button>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class='order-property form-group' ng-repeat='p in cate.orderProperties'>
-            <label class='form-control-static' ng-bind='p.name'></label>
-            <input type='text' class='form-control input-lg' ng-model='orderInfo.extPropValues[cate.id][p.id]'>
+        <div class='order-properties'>
+            <div class='order-property form-group' ng-repeat='p in cate.orderProperties'>
+                <label class='form-control-static' ng-bind='p.name'></label>
+                <input type='text' class='form-control input-lg' ng-model='orderInfo.extPropValues[cate.id][p.id]'>
+            </div>
         </div>
-        <div class='feedback-property form-group' ng-if="orderId">
-            <div class='form-group prop' ng-repeat='p in cate.feedbackProperties'>
+        <div class='feedback-properties'>
+            <div class='feedback-property form-group' ng-repeat='p in cate.feedbackProperties'>
                 <label class='form-control-static' ng-bind='p.name'></label>
                 <p class='form-control input-lg' ng-bind="orderInfo.feedback[cate.id][p.id]"></p>
             </div>
@@ -56,5 +55,5 @@
     </div>
     <footer>
         <button ng-click='create()'>提交订单</button>
-    <footer>
+    </footer>
 </div>

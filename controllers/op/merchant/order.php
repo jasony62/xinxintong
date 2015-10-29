@@ -60,7 +60,7 @@ class order extends \member_base {
 			$modelCate = $this->model('app\merchant\catelog');
 			$modelProd = $this->model('app\merchant\product');
 			$modelSku = $this->model('app\merchant\sku');
-			$cateFields = 'id,sid,name';
+			$cateFields = 'id,sid,name,pattern';
 			$prodFields = 'id,sid,cate_id,name,main_img,img,detail_text,detail_text,prop_value,buy_limit,sku_info';
 			$skuFields = 'id,sid,cate_id,cate_sku_id,icon_url,price,ori_price,quantity,validity_begin_at,validity_end_at,sku_value';
 			foreach ($skus as &$sku) {

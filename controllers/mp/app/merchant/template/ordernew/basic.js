@@ -16,15 +16,10 @@ app.register.controller('orderCtrl', ['$scope', '$http', 'Sku', 'Order', functio
 		}
 	};
 	facOrder = new Order($scope.$parent.mpid, $scope.$parent.shopId);
-	facOrder.get($scope.$parent.orderId).then(function(data) {
-		var order;
-		order = data.order;
-		$scope.orderInfo.extPropValues = order.extPropValues;
-		$scope.orderInfo.feedback = order.feedback;
-		$scope.orderInfo.receiver_name = order.receiver_name;
-		$scope.orderInfo.receiver_mobile = order.receiver_mobile;
-		$scope.catelogs = data.catelogs;
-		setSkus(data.catelogs);
+	facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId);
+	facSku.list($scope.$parent.skuIds).then(function(data) {
+		$scope.catelogs = data;
+		setSkus(data);
 	});
 	$scope.summarySku = function(catelog, product, sku) {
 		if (sku.summary && sku.summary.length) {
@@ -46,5 +41,16 @@ app.register.controller('orderCtrl', ['$scope', '$http', 'Sku', 'Order', functio
 			return begin + '-' + end;
 		}
 		return '';
+	};
+	$scope.removeSku = function(product, sku, index) {
+		sku.removed = true;
+		delete $scope.orderInfo.skus[sku.id];
+	};
+	$scope.restoreSku = function(product, sku, index) {
+		if (!sku.removed || sku.quantity == 0) return;
+		$scope.orderInfo.skus[sku.id] = {
+			count: 1
+		};
+		delete sku.removed;
 	};
 }]);

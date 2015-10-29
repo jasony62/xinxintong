@@ -150,7 +150,12 @@ class order_model extends \TMS_MODEL {
 	 * @return object $order
 	 */
 	public function &modify($mpid, $user, $orderId, $info) {
+		if (empty($info->extPropValues)) {
+			$info->extPropValues = new \stdClass;
+		}
+		$epv = self::toJson($info->extPropValues);
 		$order = array(
+			'ext_prop_value' => $epv,
 			'receiver_name' => $info->receiver_name,
 			'receiver_mobile' => $info->receiver_mobile,
 		);

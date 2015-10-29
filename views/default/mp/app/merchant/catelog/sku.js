@@ -17,6 +17,9 @@
 			});
 		};
 		$scope.setCrontab = function(sku) {
+			if (!sku.autogen_rule) {
+				sku.autogen_rule = {};
+			}
 			$modal.open({
 				templateUrl: 'crontabEditor.html',
 				backdrop: 'static',

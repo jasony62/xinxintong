@@ -46,7 +46,7 @@
 	<script type="text/ng-template" id="crontabEditor.html">
     <div class="modal-header">
         <button class="close" type="button" ng-click="close()">×</button>
-        <h5 class="modal-title">编辑属性</h5>
+        <h5 class="modal-title">指定规则</h5>
     </div>
 	<div class="modal-body">
 		<div class='form-group'>
@@ -58,11 +58,11 @@
 			<p class='help-block'>小时1-23，0表示0点</p>
 		</div>
 		<div class='form-group'>
-			<input class='form-control' ng-model='data[2]'>
+			<input disabled class='form-control' ng-model='data[2]'>
 			<p class='help-block'>日期1-31</p>
 		</div>
 		<div class='form-group'>
-			<input class='form-control' ng-model='data[3]'>
+			<input disabled class='form-control' ng-model='data[3]'>
 			<p class='help-block'>月1-12</p>
 		</div>
 		<div class='form-group'>

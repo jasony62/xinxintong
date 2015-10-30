@@ -164,6 +164,28 @@ class order_model extends \TMS_MODEL {
 		return $rst;
 	}
 	/**
+	 * 完成订单
+	 */
+	public function finish($order) {
+		$updated = array(
+			'order_status' => 5,
+		);
+		$rst = $this->update('xxt_merchant_order', $updated, "id=$order");
+
+		return $rst;
+	}
+	/**
+	 * 取消订单
+	 */
+	public function cancel($order) {
+		$updated = array(
+			'order_status' => -1,
+		);
+		$rst = $this->update('xxt_merchant_order', $updated, "id=$order");
+
+		return $rst;
+	}
+	/**
 	 * @param int $orderId
 	 */
 	private function &skus($orderId) {

@@ -19,6 +19,7 @@ app.register.controller('orderCtrl', ['$scope', '$http', 'Sku', 'Order', functio
 	facOrder.get($scope.$parent.orderId).then(function(data) {
 		var order;
 		order = data.order;
+		$scope.order = order;
 		$scope.orderInfo.extPropValues = order.extPropValues;
 		$scope.orderInfo.feedback = order.feedback;
 		$scope.orderInfo.receiver_name = order.receiver_name;

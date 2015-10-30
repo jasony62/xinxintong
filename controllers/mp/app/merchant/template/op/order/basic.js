@@ -45,12 +45,6 @@ app.register.controller('notifyCtrl', ['$scope', '$http', 'Order', function($sco
 		}
 		return '';
 	};
-	$scope.finish = function() {
-		alert('功能开发中');
-	};
-	$scope.cancel = function() {
-		alert('功能开发中');
-	};
 	$scope.call = function() {
 		var ele = document.createElement('a');
 		ele.setAttribute('href', 'tel://' + $scope.order.receiver_mobile);

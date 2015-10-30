@@ -33,27 +33,27 @@
         <div class='order-properties'>
             <div class='order-property form-group' ng-repeat='p in cate.orderProperties'>
                 <label class='form-control-static' ng-bind='p.name'></label>
-                <input type='text' class='form-control input-lg' ng-model='orderInfo.extPropValues[cate.id][p.id]'>
+                <input type='text' class='form-control input-lg' ng-readonly="order.order_status!=='1'" ng-model='orderInfo.extPropValues[cate.id][p.id]'>
             </div>
         </div>
         <div class='feedback-properties'>
             <div class='feedback-property form-group' ng-repeat='p in cate.feedbackProperties'>
                 <label class='form-control-static' ng-bind='p.name'></label>
-                <p class='form-control input-lg' ng-bind="orderInfo.feedback[cate.id][p.id]"></p>
+                <input type='text' class='form-control input-lg' readonly ng-model='orderInfo.extPropValues[cate.id][p.id]'>
             </div>
         </div>
     </div>
     <div class='contact'>
         <div class='form-group'>
             <label class='form-control-static'>联系人姓名</label>
-            <input type='text' class='form-control input-lg' ng-model='orderInfo.receiver_name'>
+            <input type='text' class='form-control input-lg' ng-readonly="order.order_status!=='1'" ng-model='orderInfo.receiver_name'>
         </div>
         <div class='form-group'>
             <label class='form-control-static'>联系人电话</label>
-            <input type='text' class='form-control input-lg' ng-model='orderInfo.receiver_mobile'>
+            <input type='text' class='form-control input-lg' ng-readonly="order.order_status!=='1'" ng-model='orderInfo.receiver_mobile'>
         </div>
     </div>
     <footer>
-        <button ng-click='modify()'>提交订单</button>
+        <button ng-click='modify()'>修改订单</button>
     </footer>
 </div>

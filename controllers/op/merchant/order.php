@@ -117,6 +117,24 @@ class order extends \member_base {
 		return new \ResponseData($rst);
 	}
 	/**
+	 *
+	 */
+	public function finish_action($mpid, $order) {
+		$modelOrd = $this->model('app\merchant\order');
+		$rst = $modelOrd->finish($order);
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 *
+	 */
+	public function cancel_action($mpid, $order) {
+		$modelOrd = $this->model('app\merchant\order');
+		$rst = $modelOrd->cancel($order);
+
+		return new \ResponseData($rst);
+	}
+	/**
 	 * 通知客服有新订单
 	 */
 	public function notify($mpid, $order) {

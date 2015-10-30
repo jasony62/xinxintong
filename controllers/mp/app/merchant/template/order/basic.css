@@ -11,13 +11,16 @@
 .sku{display:table;width:100%;margin-bottom:0;border-bottom:1px dotted #ddd;padding:.5em;}
 .sku>div{display:table-cell;}
 
+/*properties*/
+input.form-control[readonly]{border:0;border-bottom:1px solid #ccc;border-radius:0;box-shadow:none;background:#fff}
+
 /*order properties*/
 .order-properties{margin:0 .5em;}
 .order-property input.form-control{border-radius:0}
 
 /*order properties*/
 .feedback-properties{margin:0 .5em}
-.feedback-property .form-control{border-radius:0;background:#fcfcfc}
+.feedback-property .form-control{border-radius:0;background:#fcfcfc;box-shadow:none}
 
 /*contact*/
 .contact{margin:0 .5em;}

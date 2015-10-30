@@ -177,11 +177,18 @@ class order_model extends \TMS_MODEL {
 	/**
 	 * 取消订单
 	 */
-	public function cancel($order) {
+	public function cancel($orderId) {
 		$updated = array(
 			'order_status' => -1,
 		);
-		$rst = $this->update('xxt_merchant_order', $updated, "id=$order");
+		$rst = $this->update('xxt_merchant_order', $updated, "id=$orderId");
+		/*取消对库存的占用*/
+		if ($rst) {
+			$skus = $this->skus($orderId);
+			foreach ($skus as $sku) {
+				$this->update("update xxt_merchant_product_sku set quantity=quantity+1 where id=$sku->sku_id");
+			}
+		}
 
 		return $rst;
 	}

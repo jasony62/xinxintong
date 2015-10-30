@@ -37,9 +37,9 @@
         <div class='feedback-properties' ng-if='cate.feedbackProperties.length'>
             <div class='feedback form-group' ng-repeat='p in cate.feedbackProperties'>
                 <label class='form-control-static' ng-bind='p.name'></label>
-                <input type='text' class='form-control input-lg' ng-model="order.feedback[cate.id][p.id]">
+                <input type='text' class='form-control input-lg' ng-readonly="order.order_status!=='1'" ng-model="order.feedback[cate.id][p.id]">
             </div>
-            <div class='form-group'>
+            <div class='form-group' ng-if="order.order_status=='1'">
                 <button class="btn btn-success btn-lg btn-block" ng-click="feedback()">保存反馈信息并通知用户</button>
             </div>
         </div>
@@ -59,8 +59,8 @@
         </div>
     </div>
     <footer>
-        <button ng-click="finish()">完成</button>
-        <button ng-click="cancel()">取消</button>
+        <button ng-if="order.order_status==='1'" ng-click="finish()">完成</button>
+        <button ng-if="order.order_status==='1'" ng-click="cancel()">取消</button>
         <button ng-click="call()">电话</button>
     </footer>
 </div>

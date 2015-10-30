@@ -10,6 +10,8 @@
 .skus{margin-bottom:2em;}
 .sku{display:table;width:100%;margin-bottom:0;border-bottom:1px dotted #ddd;padding:.5em;}
 .sku>div{display:table-cell;}
+/*properties*/
+input.form-control[readonly]{border:0;border-bottom:1px solid #ccc;border-radius:0;box-shadow:none;background:#fff}
 
 /*order properties*/
 .order-properties{margin-bottom:1em;}

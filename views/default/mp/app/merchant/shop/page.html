@@ -3,14 +3,45 @@
 	<table class='table table-bordered'>
 		<thead>
 			<tr>
-				<th style='width:80px'>ID</th>
+				<th style='width:60px'>ID</th>
+				<th>类型</th>
+				<th>标题</th>
+				<th>URL</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="p in shelfs">
+				<td ng-bind="p.id"></td>
+				<td ng-bind="p.name"></td>
+				<td ng-bind="p.title"></td>
+				<td ng-bind="p._url"></td>
+				<td>
+					<a href="javascript:void(0)" ng-click="gotoCode(p)">编辑</a>
+					<a href="javascript:void(0)" ng-click="resetCode(p)">重置</a>
+					<a href="javascript:void(0)" ng-click="removeShelf(p, $index)">清除</a>
+				</td>
+			</tr>
+		</tbody>
+		<tfoot>
+		<tr>
+			<td colspan="5">
+				<button class="btn btn-success" ng-click='createShelf()'>添加</button>
+			</td>
+		</tr>
+		</tfoot>
+	</table>
+	<table class='table table-bordered'>
+		<thead>
+			<tr>
+				<th style='width:60px'>ID</th>
 				<th>类型</th>
 				<th>标题</th>
 				<th>操作</th>
 			</tr>
 		</thead>
 		<tbody>
-			<tr ng-repeat="p in pages">
+			<tr ng-repeat="p in others">
 				<td ng-bind="p.id"></td>
 				<td ng-bind="p.name"></td>
 				<td ng-bind="p.title"></td>

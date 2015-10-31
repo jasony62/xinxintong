@@ -7,16 +7,19 @@ class page_model extends \TMS_MODEL {
 	/**
 	 * @param int $id
 	 */
-	public function &byId($id) {
+	public function &byId($id, $options = array()) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
+
 		$q = array(
-			'*',
+			$fields,
 			'xxt_merchant_page',
 			"id=$id",
 		);
 
 		$page = $this->query_obj_ss($q);
 
-		if ($page) {
+		if ($page && $cascaded === 'Y') {
 			$code = \TMS_APP::M('code/page')->byId($page->code_id);
 			$page->html = $code->html;
 			$page->css = $code->css;
@@ -107,5 +110,15 @@ class page_model extends \TMS_MODEL {
 		$newPage['id'] = $apid;
 
 		return (object) $newPage;
+	}
+	/**
+	 *
+	 */
+	public function remove($pageId) {
+		$page = $this->byId($pageId, array('cascaded' => 'N'));
+		\TMS_APP::model('code/page')->remove($page->code_id);
+		$rst = $this->delete('xxt_merchant_page', "id=$pageId");
+
+		return $rst;
 	}
 }

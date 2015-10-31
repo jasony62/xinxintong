@@ -373,6 +373,13 @@ class catelog extends \mp\app\app_base {
 		return new \ResponseData($rst);
 	}
 	/**
+	 * @param int $catelog
+	 * @param string $type
+	 */
+	public function pageCreate_action($catelog, $type) {
+		return new \ResponseData($page);
+	}
+	/**
 	 * 更新分类的基础信息
 	 *
 	 * @param int $catelog

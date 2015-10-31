@@ -69,6 +69,28 @@ class order extends \member_base {
 		return new \ResponseData($params);
 	}
 	/**
+	 *
+	 * 获得订单页中指定组件的定制信息
+	 *
+	 * @param string $page order|ordernew
+	 * @param string $comp skus
+	 * @param int $shop
+	 * @param int $catelog
+	 * @param int $product
+	 */
+	public function componentGet_action($page, $comp, $shop, $catelog = 0, $product = 0) {
+		// page
+		$pageType = $page . '.' . $comp;
+		$page = $this->model('app\merchant\page')->byType($pageType, $shop, $catelog, 0);
+		if (empty($page)) {
+			$page = array('html' => '', 'css' => '', 'js' => '');
+		} else {
+			$page = $page[0];
+		}
+
+		return new \ResponseData($page);
+	}
+	/**
 	 * 获得指定订单的完整信息
 	 *
 	 * @param string $mpid
@@ -89,13 +111,14 @@ class order extends \member_base {
 			$modelCate = $this->model('app\merchant\catelog');
 			$modelProd = $this->model('app\merchant\product');
 			$modelSku = $this->model('app\merchant\sku');
-			$cateFields = 'id,sid,name,pattern';
+			$cateFields = 'id,sid,name,pattern,pages';
 			$prodFields = 'id,sid,cate_id,name,main_img,img,detail_text,detail_text,prop_value,buy_limit,sku_info';
 			$skuFields = 'id,sid,cate_id,cate_sku_id,icon_url,price,ori_price,quantity,validity_begin_at,validity_end_at,sku_value';
 			foreach ($skus as &$sku) {
 				if (!isset($catelogs[$sku->cate_id])) {
 					/*catelog*/
 					$catelog = $modelCate->byId($sku->cate_id, array('fields' => $cateFields, 'cascaded' => 'Y'));
+					$catelog->pages = isset($catelog->pages) ? json_encode($catelog->pages) : new \stdClass;
 					$catelog->products = array();
 					$catelogs[$catelog->id] = &$catelog;
 					/*product*/

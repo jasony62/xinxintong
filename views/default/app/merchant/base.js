@@ -46,6 +46,48 @@ app.directive('dynamicHtml', function($compile) {
         }
     };
 });
+app.directive('dynaComponent', ['$compile', '$http', function($compile, $http) {
+    return {
+        restrict: 'EA',
+        replace: true,
+        compile: function(ele, attrs) {
+            var html = ele.html();
+            ele.html('');
+            return {
+                post:function(scope, ele, attrs) {
+                    scope.$watch(attrs.url, function(url){
+                        if (url && url.length) {
+                            $http.get(url).success(function(rsp) {
+                                component = rsp.data;
+                                if (component.css && component.css.length) {
+                                    var style = document.createElement('style');
+                                    style.type = 'text/css';
+                                    style.innerHTML = component.css;
+                                    document.querySelector('head').appendChild(style);
+                                }
+                                if (component.js && component.js.length) {
+                                    (function loadjs() {
+                                        eval(component.js);
+                                    })();
+                                }
+                                if (component.html && component.html.length) {
+                                    ele.html(component.html);
+                                    $compile(ele.contents())(scope);
+                                } else {
+                                    ele.html(html);
+                                    $compile(ele.contents())(scope);
+                                }
+                            });
+                        } else {
+                            ele.html(html);
+                            $compile(ele.contents())(scope);
+                        }
+                    });
+                }
+            }
+        }
+    };
+}]);
 app.factory('Catelog', function($http, $q) {
     var Catelog = function(mpid, shopId) {
         this.mpid = mpid;

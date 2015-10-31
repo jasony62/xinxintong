@@ -33,7 +33,7 @@ $sql .= ",cate_id int not null default 0"; //catelog
 $sql .= ",prod_id int not null default 0"; //product
 $sql .= ",creater varchar(40) not null default ''";
 $sql .= ",create_at int not null";
-$sql .= ",type varchar(12) not null"; //shelf,order,orderlist,pay,payok,op.order,op.orderlist
+$sql .= ",type varchar(30) not null"; //shelf,order,orderlist,pay,payok,op.order,op.orderlist
 $sql .= ",title varchar(70) not null default ''";
 $sql .= ",summary varchar(240) not null default ''";
 $sql .= ',code_id int not null default 0'; // from xxt_code_page
@@ -79,6 +79,7 @@ $sql .= ",feedback_order_tmplmsg int not null default 0";
 $sql .= ",used char(1) not null default 'N'"; //是否已经使用过
 $sql .= ",disabled char(1) not null default 'N'"; //被禁用
 $sql .= ",active char(1) not null default 'N'"; //是否已激活
+$sql .= ",pages text"; //定制页配置状态
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -140,7 +141,7 @@ $sql .= ",modify_at int not null";
 $sql .= ",name varchar(255) not null";
 $sql .= ",has_validity char(1) not null default 'N'"; //是否有有效期
 $sql .= ",require_pay char(1) not null default 'N'"; //是否需要进行支付
-$sql .= ",can_autogen char(1) not null default 'N'" //支持自动生成
+$sql .= ",can_autogen char(1) not null default 'N'"; //支持自动生成
 $sql .= ",autogen_rule text"; //自动生成规则
 $sql .= ",seq int not null default 0";
 $sql .= ",used char(1) not null default 'N'"; //是否已经使用过

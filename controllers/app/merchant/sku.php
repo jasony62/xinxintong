@@ -63,12 +63,13 @@ class sku extends \member_base {
 		if (!empty($skus)) {
 			$modelCate = $this->model('app\merchant\catelog');
 			$modelProd = $this->model('app\merchant\product');
-			$cateFields = 'id,sid,name,pattern';
+			$cateFields = 'id,sid,name,pattern,pages';
 			$prodFields = 'id,sid,cate_id,name,main_img,img,detail_text,detail_text,prop_value,buy_limit,sku_info';
 			foreach ($skus as &$sku) {
 				if (!isset($catelogs[$sku->cate_id])) {
 					/*catelog*/
 					$catelog = $modelCate->byId($sku->cate_id, array('fields' => $cateFields, 'cascaded' => 'Y'));
+					$catelog->pages = isset($catelog->pages) ? json_decode($catelog->pages) : new \stdClass;
 					$catelog->products = array();
 					$catelogs[$catelog->id] = &$catelog;
 					/*product*/

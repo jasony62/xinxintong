@@ -15,8 +15,8 @@ class page extends \mp\app\app_base {
 
 		$shopPages = array(
 			array(
-				'name' => '用户.商品列表页',
-				'title' => '商品列表页',
+				'name' => '用户.商品列表',
+				'title' => '商品列表',
 				'type' => 'shelf',
 				'seq' => 1,
 			),
@@ -33,44 +33,44 @@ class page extends \mp\app\app_base {
 				'seq' => 3,
 			),
 			array(
-				'name' => '用户.新建订单页',
-				'title' => '新建订单页',
+				'name' => '用户.新建订单',
+				'title' => '新建订单',
 				'type' => 'ordernew',
 				'seq' => 4,
 			),
 			array(
-				'name' => '用户.查看订单页',
-				'title' => '查看订单页',
+				'name' => '用户.查看订单',
+				'title' => '查看订单',
 				'type' => 'order',
 				'seq' => 5,
 			),
 			array(
-				'name' => '用户.订单列表页',
-				'title' => '订单列表页',
+				'name' => '用户.订单列表',
+				'title' => '订单列表',
 				'type' => 'orderlist',
 				'seq' => 6,
 			),
 			array(
-				'name' => '用户.支付页',
-				'title' => '支付页',
+				'name' => '用户.支付',
+				'title' => '支付',
 				'type' => 'pay',
 				'seq' => 7,
 			),
 			array(
-				'name' => '用户.支付完成页',
-				'title' => '支付完成页',
+				'name' => '用户.支付完成',
+				'title' => '支付完成',
 				'type' => 'payok',
 				'seq' => 8,
 			),
 			array(
-				'name' => '客服.订单页',
-				'title' => '订单页',
+				'name' => '客服.订单',
+				'title' => '订单',
 				'type' => 'op.order',
 				'seq' => 101,
 			),
 			array(
-				'name' => '客服.订单列表页',
-				'title' => '订单列表页',
+				'name' => '客服.订单列表',
+				'title' => '订单列表',
 				'type' => 'op.orderlist',
 				'seq' => 102,
 			),
@@ -98,47 +98,107 @@ class page extends \mp\app\app_base {
 		return new \ResponseData($pages);
 	}
 	/**
+	 * 创建店铺下的定制页面
+	 */
+	public function createByShop_action($shop, $type) {
+		$modelPage = $this->model('app\merchant\page');
+		$modelCode = $this->model('code/page');
+
+		$shopPages = array(
+			'shelf' => array(
+				'name' => '用户.商品列表',
+				'title' => '商品列表',
+				'type' => 'shelf',
+				'seq' => 1,
+			),
+		);
+
+		$sp = $shopPages[$type];
+		$page = $modelPage->add($this->mpid, $sp, $shop);
+		$tmplateDir = dirname(__FILE__) . '/template/' . str_replace('.', '/', $type) . '/';
+		$data = array(
+			'html' => file_get_contents($tmplateDir . 'basic.html'),
+			'css' => file_get_contents($tmplateDir . 'basic.css'),
+			'js' => file_get_contents($tmplateDir . 'basic.js'),
+		);
+		$modelCode->modify($page->code_id, $data);
+
+		return new \ResponseData($page);
+	}
+	/**
 	 * 获得分类下定制的页面
 	 */
 	public function byCatelog_action($catelog) {
 		$modelCate = $this->model('app\merchant\catelog');
 		$modelPage = $this->model('app\merchant\page');
-		$modelCode = $this->model('code/page');
 
 		$catelog = $modelCate->byId($catelog);
 		$catePages = array(
-			array(
-				'name' => '用户.商品',
-				'title' => '商品页',
-				'type' => 'product',
-				'seq' => 2,
-			),
+			'product',
+			'ordernew.skus',
 		);
-		$pattern = $catelog->pattern;
 		$pages = array();
 		foreach ($catePages as $cp) {
-			$page = $modelPage->byType($cp['type'], $catelog->sid, $catelog->id);
-			if (empty($page)) {
-				$cp['sid'] = $catelog->sid;
-				$cp['cate_id'] = $catelog->id;
-				$page = $modelPage->add($this->mpid, $cp, $catelog->sid, $catelog->id);
-				/*根据模板设置页面内容*/
-				$tmplateDir = dirname(__FILE__) . '/template/' . str_replace('.', '/', $cp['type']) . '/';
-				$code = array(
-					'html' => file_get_contents($tmplateDir . $pattern . '.html'),
-					'css' => file_get_contents($tmplateDir . $pattern . '.css'),
-					'js' => file_get_contents($tmplateDir . $pattern . '.js'),
-				);
-				$modelCode->modify($page->code_id, $code);
-			}
-			if (is_array($page)) {
-				$pages = array_merge($pages, $page);
-			} else {
-				$pages[] = $page;
+			$page = $modelPage->byType($cp, $catelog->sid, $catelog->id);
+			if (!empty($page)) {
+				if (is_array($page)) {
+					$pages = array_merge($pages, $page);
+				} else {
+					$pages[] = $page;
+				}
 			}
 		}
 
 		return new \ResponseData($pages);
+	}
+	/**
+	 * 创建分类下的定制页面
+	 */
+	public function createByCatelog_action($catelog, $type) {
+		$modelCate = $this->model('app\merchant\catelog');
+		$modelPage = $this->model('app\merchant\page');
+		$modelCode = $this->model('code/page');
+
+		$catePages = array(
+			'product' => array(
+				'name' => '用户.商品',
+				'title' => '商品',
+				'type' => 'product',
+				'seq' => 2,
+			),
+			'ordernew.skus' => array(
+				'name' => '用户.新建订单.库存',
+				'title' => '新建订单.库存',
+				'type' => 'ordernew.skus',
+				'seq' => 3,
+			),
+		);
+		$catelog = $modelCate->byId($catelog);
+		$pattern = $catelog->pattern;
+
+		$cp = $catePages[$type];
+		$cp['sid'] = $catelog->sid;
+		$cp['cate_id'] = $catelog->id;
+		$page = $modelPage->add($this->mpid, $cp, $catelog->sid, $catelog->id);
+		/*根据模板设置页面内容*/
+		$tmplateDir = dirname(__FILE__) . '/template/' . str_replace('.', '/', $type) . '/';
+		$code = array(
+			'html' => file_get_contents($tmplateDir . $pattern . '.html'),
+			'css' => file_get_contents($tmplateDir . $pattern . '.css'),
+			'js' => file_get_contents($tmplateDir . $pattern . '.js'),
+		);
+		$modelCode->modify($page->code_id, $code);
+		/*记录状态*/
+		if (isset($catelog->pages)) {
+			$catelog->pages = json_decode($catelog->pages);
+		} else {
+			$catelog->pages = new \stdClass;
+		}
+		$catelog->pages->{$type} = 'Y';
+		$catelog->pages = json_encode($catelog->pages);
+		$modelCate->update('xxt_merchant_catelog', array('pages' => $catelog->pages), "id=$catelog->id");
+
+		return new \ResponseData($page);
 	}
 	/**
 	 * 用模板重置页面
@@ -164,5 +224,31 @@ class page extends \mp\app\app_base {
 		$modelCode->modify($page->code_id, $data);
 
 		return new \ResponseData('ok');
+	}
+	/**
+	 * 删除定制页面
+	 *
+	 * @param int $page
+	 */
+	public function remove_action($page) {
+		$modelPage = $this->model('app\merchant\page');
+		$page = $modelPage->byId($page, array('cascaded' => 'N'));
+		if ($page->cate_id && $page->prod_id === '0') {
+			$modelCate = $this->model('app\merchant\catelog');
+			$catelog = $modelCate->byId($page->cate_id);
+			if (isset($catelog->pages)) {
+				$catelog->pages = json_decode($catelog->pages);
+			} else {
+				$catelog->pages = new \stdClass;
+			}
+			$catelog->pages->{$page->type} = 'N';
+			$catelog->pages = json_encode($catelog->pages);
+			$modelCate->update('xxt_merchant_catelog', array('pages' => $catelog->pages), "id=$catelog->id");
+		}
+
+		$this->model('code/page')->remove($page->code_id);
+		$rst = $modelPage->delete('xxt_merchant_page', "id=$page->id");
+
+		return new \ResponseData($rst);
 	}
 }

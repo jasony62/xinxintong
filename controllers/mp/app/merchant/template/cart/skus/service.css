@@ -1,0 +1,7 @@
+/*skus*/
+.skus{margin-bottom:2em;}
+.sku{display:table;width:100%;margin-bottom:0;border-bottom:1px dotted #ddd;padding:.5em;}
+.sku>div{display:table-cell;}
+.sku>div:last-child{width:80px;text-align:center}
+.sku.unavailable{background:#ccc;}
+.sku.removed{text-decoration: line-through;color:#999;}

@@ -1,0 +1,16 @@
+<div ng-controller='skusCtrl'>
+    <div class='sku' ng-class="{'selected':sku.selected,'unavailable':(sku.quantity==0&&!orderId),'removed':sku.removed}" ng-repeat='sku in prod.skus'>
+        <div>
+            <div class='summary'>
+                <div ng-bind="summarySku(cate,prod,sku)"></div>
+            </div>
+            <div class='price' ng-if="sku.cateSku.require_pay==='Y'">
+                <div ng-bind="(sku.price/100)||'&nbsp;'"></div>
+            </div>
+        </div>
+        <div class='actions'>
+            <button class='btn btn-danger btn-sm' ng-show='!sku.removed' ng-click='removeSku(prod, sku, $index)'>删除</button>
+            <button class='btn btn-success btn-sm' ng-show='sku.removed&&s.quantity>0' ng-click='restoreSku(prod, sku, $index)'>恢复</button>
+        </div>
+    </div>
+</div>

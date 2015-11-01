@@ -32,6 +32,31 @@
 				});
 			}
 		};
+		$scope.config = function(page) {
+			$modal.open({
+				templateUrl: 'pageEditor.html',
+				backdrop: 'static',
+				controller: ['$modalInstance', '$scope', function($mi, $scope2) {
+					$scope2.page = {
+						title: page.title
+					};
+					$scope2.close = function() {
+						$mi.dismiss();
+					};
+					$scope2.ok = function() {
+						$mi.close($scope2.page);
+					};
+				}]
+			}).result.then(function(newPage) {
+				var url;
+				url = '/rest/mp/app/merchant/page/update';
+				url += '?shop=' + $scope.$parent.shopId;
+				url += '&page=' + page.id;
+				http2.post(url, newPage, function(rsp) {
+					page.title = newPage.title;
+				});
+			});
+		};
 		$scope.gotoCode = function(page) {
 			window.open('/rest/code?pid=' + page.code_id, '_self');
 		};

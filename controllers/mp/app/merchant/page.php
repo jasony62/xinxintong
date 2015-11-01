@@ -136,6 +136,9 @@ class page extends \mp\app\app_base {
 		$catePages = array(
 			'product',
 			'ordernew.skus',
+			'order.skus',
+			'cart.skus',
+			'op.order.skus',
 		);
 		$pages = array();
 		foreach ($catePages as $cp) {
@@ -172,6 +175,24 @@ class page extends \mp\app\app_base {
 				'type' => 'ordernew.skus',
 				'seq' => 3,
 			),
+			'order.skus' => array(
+				'name' => '用户.查看订单.库存',
+				'title' => '查看订单.库存',
+				'type' => 'order.skus',
+				'seq' => 4,
+			),
+			'cart.skus' => array(
+				'name' => '用户.购物车.库存',
+				'title' => '购物车.库存',
+				'type' => 'cart.skus',
+				'seq' => 5,
+			),
+			'op.order.skus' => array(
+				'name' => '客服.查看订单.库存',
+				'title' => '查看订单.库存',
+				'type' => 'op.order.skus',
+				'seq' => 101,
+			),
 		);
 		$catelog = $modelCate->byId($catelog);
 		$pattern = $catelog->pattern;
@@ -196,7 +217,11 @@ class page extends \mp\app\app_base {
 		}
 		$catelog->pages->{$type} = 'Y';
 		$catelog->pages = json_encode($catelog->pages);
-		$modelCate->update('xxt_merchant_catelog', array('pages' => $catelog->pages), "id=$catelog->id");
+		$modelCate->update(
+			'xxt_merchant_catelog',
+			array('pages' => $catelog->pages),
+			"id=$catelog->id"
+		);
 
 		return new \ResponseData($page);
 	}
@@ -248,6 +273,23 @@ class page extends \mp\app\app_base {
 
 		$this->model('code/page')->remove($page->code_id);
 		$rst = $modelPage->delete('xxt_merchant_page', "id=$page->id");
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 *
+	 */
+	public function update_action($shop, $page) {
+		$posted = $this->getPostJson();
+
+		$updated = array(
+			'title' => $posted->title,
+		);
+		$rst = $this->model()->update(
+			'xxt_merchant_page',
+			$updated,
+			"sid=$shop and id=$page"
+		);
 
 		return new \ResponseData($rst);
 	}

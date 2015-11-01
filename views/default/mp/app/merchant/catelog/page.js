@@ -1,5 +1,5 @@
 (function() {
-	xxtApp.register.controller('pageCtrl', ['$scope', 'http2', function($scope, http2) {
+	xxtApp.register.controller('pageCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
 		$scope.$parent.subView = 'page';
 		$scope.pageTypes = [{
 			type: 'product',
@@ -7,6 +7,15 @@
 		}, {
 			type: 'ordernew.skus',
 			name: '用户.新建订单.库存'
+		}, {
+			type: 'order.skus',
+			name: '用户.查看订单.库存'
+		}, {
+			type: 'cart.skus',
+			name: '用户.购物车.库存'
+		}, {
+			type: 'op.order.skus',
+			name: '客服.查看订单.库存'
 		}];
 		http2.get('/rest/mp/app/merchant/page/byCatelog?catelog=' + $scope.$parent.catelogId, function(rsp) {
 			$scope.pages = {};
@@ -30,6 +39,31 @@
 					delete $scope.pages[page.type];
 				});
 			}
+		};
+		$scope.config = function(page) {
+			$modal.open({
+				templateUrl: 'pageEditor.html',
+				backdrop: 'static',
+				controller: ['$modalInstance', '$scope', function($mi, $scope2) {
+					$scope2.page = {
+						title: page.title
+					};
+					$scope2.close = function() {
+						$mi.dismiss();
+					};
+					$scope2.ok = function() {
+						$mi.close($scope2.page);
+					};
+				}]
+			}).result.then(function(newPage) {
+				var url;
+				url = '/rest/mp/app/merchant/page/update';
+				url += '?shop=' + $scope.$parent.shopId;
+				url += '&page=' + page.id;
+				http2.post(url, newPage, function(rsp) {
+					page.title = newPage.title;
+				});
+			});
 		};
 		$scope.gotoCode = function(page) {
 			window.open('/rest/code?pid=' + page.code_id, '_self');

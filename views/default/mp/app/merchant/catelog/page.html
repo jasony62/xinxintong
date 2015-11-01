@@ -18,7 +18,8 @@
 						<a href="javascript:void(0)" ng-click="createCode(pt.type)">设置</a>
 					</span>
 					<span ng-show='pages[pt.type]'>
-						<a href="javascript:void(0)" ng-click="gotoCode(pages[pt.type])">编辑</a>
+						<a href="javascript:void(0)" ng-click="config(pages[pt.type])">配置</a>
+						<a href="javascript:void(0)" ng-click="gotoCode(pages[pt.type])">代码</a>
 						<a href="javascript:void(0)" ng-click="resetCode(pages[pt.type])">重置</a>
 						<a href="javascript:void(0)" ng-click="removeCode(pages[pt.type])">清除</a>
 					</span>
@@ -26,4 +27,23 @@
 			</tr>
 		</tbody>
 	</table>
+	<script type='text/ng-template' id='pageEditor.html'>
+	<div class="modal-header">
+        <button class="close" type="button" ng-click="close()">×</button>
+        <h5 class="modal-title">配置页面</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="col-md-2 control-label">标题</label>
+                <div class="col-md-10">
+                    <input type='text' class='form-control' ng-model='page.title'>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="ok()">保存</button>
+    </div>
+	</script>
 </div>

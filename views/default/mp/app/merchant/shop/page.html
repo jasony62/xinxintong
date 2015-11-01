@@ -17,7 +17,8 @@
 				<td ng-bind="p.title"></td>
 				<td ng-bind="p._url"></td>
 				<td>
-					<a href="javascript:void(0)" ng-click="gotoCode(p)">编辑</a>
+					<a href="javascript:void(0)" ng-click="config(p)">配置</a>
+					<a href="javascript:void(0)" ng-click="gotoCode(p)">代码</a>
 					<a href="javascript:void(0)" ng-click="resetCode(p)">重置</a>
 					<a href="javascript:void(0)" ng-click="removeShelf(p, $index)">清除</a>
 				</td>
@@ -46,10 +47,30 @@
 				<td ng-bind="p.name"></td>
 				<td ng-bind="p.title"></td>
 				<td>
-					<a href="javascript:void(0)" ng-click="gotoCode(p)">编辑</a>
+					<a href="javascript:void(0)" ng-click="config(p)">配置</a>
+					<a href="javascript:void(0)" ng-click="gotoCode(p)">代码</a>
 					<a href="javascript:void(0)" ng-click="resetCode(p)">重置</a>
 				</td>
 			</tr>
 		</tbody>
 	</table>
+	<script type='text/ng-template' id='pageEditor.html'>
+	<div class="modal-header">
+        <button class="close" type="button" ng-click="close()">×</button>
+        <h5 class="modal-title">配置页面</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="col-md-2 control-label">标题</label>
+                <div class="col-md-10">
+                    <input type='text' class='form-control' ng-model='page.title'>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="ok()">保存</button>
+    </div>
+	</script>
 </div>

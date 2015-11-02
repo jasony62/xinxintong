@@ -1,5 +1,5 @@
-app.register.controller('orderCtrl', ['$scope', '$http', 'Sku', 'Order', function($scope, $http, Sku, Order) {
-	var facSku, facOrder;
+app.register.controller('orderCtrl', ['$scope', '$http', 'Sku', function($scope, $http, Sku) {
+	var facSku;
 	var setSkus = function(catelogs) {
 		var i, j, catelog, product;
 		for (i in catelogs) {
@@ -15,7 +15,6 @@ app.register.controller('orderCtrl', ['$scope', '$http', 'Sku', 'Order', functio
 			}
 		}
 	};
-	facOrder = new Order($scope.$parent.mpid, $scope.$parent.shopId);
 	facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId);
 	facSku.list($scope.$parent.skuIds).then(function(data) {
 		$scope.catelogs = data;

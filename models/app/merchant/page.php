@@ -69,7 +69,15 @@ class page_model extends \TMS_MODEL {
 		);
 
 		$pages = $this->query_objs_ss($q, $q2);
-		if (count($pages) && $cascaded === 'Y') {
+		/*如果找不到定义，就从父资源中找定义*/
+		if (count($pages) === 0) {
+			if ($productId != 0) {
+				$pages = $this->byType($type, $shopId, $catelogId, 0, $options);
+			} else if ($catelogId != 0) {
+				$pages = $this->byType($type, $shopId, 0, 0, $options);
+			}
+		}
+		if (count($pages) > 0 && $cascaded === 'Y') {
 			$modelCode = \TMS_APP::M('code/page');
 			foreach ($pages as &$page) {
 				$code = $modelCode->byId($page->code_id);

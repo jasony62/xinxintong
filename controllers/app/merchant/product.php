@@ -26,20 +26,20 @@ class product extends \member_base {
 	 * @return
 	 */
 	public function index_action($mpid, $shop, $catelog, $product, $mocker = null, $code = null) {
-		/**
-		 * 获得当前访问用户
-		 */
-		$openid = $this->doAuth($mpid, $code, $mocker);
+		//$openid = $this->doAuth($mpid, $code, $mocker);
 		$options = array(
 			'fields' => 'title',
 			'cascaded' => 'N',
 		);
 		$page = $this->model('app\merchant\page')->byType('product', $shop, $catelog, 0, $options);
-		$page = $page[0];
-
-		\TPL::assign('title', $page->title);
-		\TPL::output('/app/merchant/product');
-		exit;
+		if (empty($page)) {
+			$this->outputError('指定的页面不存在');
+		} else {
+			$page = $page[0];
+			\TPL::assign('title', $page->title);
+			\TPL::output('/app/merchant/product');
+			exit;
+		}
 	}
 	/**
 	 * 获得商品的页面定义

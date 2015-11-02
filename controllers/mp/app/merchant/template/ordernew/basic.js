@@ -11,6 +11,7 @@ app.register.controller('orderCtrl', ['$scope', '$http', 'Sku', function($scope,
 					$scope.orderInfo.skus[v.id] = {
 						count: 1
 					};
+					$scope.orderInfo.counter++;
 				});
 			}
 		}

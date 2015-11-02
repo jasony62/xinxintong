@@ -75,6 +75,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Order', function($scope,
     };
     $scope.removeSku = function(product, sku, index) {
         sku.removed = true;
+        $scope.orderInfo.counter--;
         delete $scope.orderInfo.skus[sku.id];
     };
     $scope.restoreSku = function(product, sku, index) {
@@ -82,6 +83,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Order', function($scope,
         $scope.orderInfo.skus[sku.id] = {
             count: 1
         };
+        $scope.orderInfo.counter++;
         delete sku.removed;
     };
 }]);

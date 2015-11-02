@@ -53,6 +53,6 @@
         </div>
     </div>
     <footer>
-        <button ng-disabled="orderInfo.skus" ng-click='create()'>提交订单</button>
+        <button ng-disabled="orderInfo.skus.counter===0" ng-click='create()'>提交订单</button>
     </footer>
 </div>

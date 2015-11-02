@@ -17,7 +17,7 @@
 .sku .price:last-child{border-bottom:0}
 .sku .price>*{display:table-cell;}
 .sku .price>label{width:6em;white-space:normal;word-wrap:break-word;word-break:break-all;background:#eee;padding-left:.5em}
-.sku .price>div{padding-left:1em}
+.sku .price>div{padding-left:1em;color:red;}
 
 /*order properties*/
 .order-properties{margin:0 .5em;}

@@ -4,12 +4,14 @@
             <tr>
                 <th style='width:60px'>ID</th>
                 <th>名称</th>
+                <th style='width:60px'>已上线</th>
             </tr>
         </thead>
         <tbody>
             <tr ng-repeat='c in catelogs' ng-click='open(c)'>
                 <td ng-bind='c.id'></td>
                 <td ng-bind='c.name'></td>
+                <td ng-bind='c.active'></td>
             </tr>
         </tbody>
     </table>

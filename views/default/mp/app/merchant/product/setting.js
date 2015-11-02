@@ -25,8 +25,8 @@
                 backdrop: 'static',
                 controller: ['$modalInstance', '$scope', function($mi, $scope2) {
                     $scope2.prop = prop;
-                    if ($scope.editing.propValue2[prop.id]) {
-                        $scope2.data = angular.copy($scope.editing.propValue2[prop.id]);
+                    if ($scope.editing.propValue[prop.id]) {
+                        $scope2.data = angular.copy($scope.editing.propValue[prop.id]);
                     } else {
                         $scope2.data = {};
                     }
@@ -43,7 +43,7 @@
                 url = '/rest/mp/app/merchant/product/propUpdate?product=' + $scope.editing.id;
                 data.prop_id = prop.id;
                 http2.post(url, data, function(rsp) {
-                    $scope.editing.propValue2[prop.id] = rsp.data;
+                    $scope.editing.propValue[prop.id] = rsp.data;
                 });
             });
         };

@@ -35,14 +35,14 @@
         <div class='form-group' ng-repeat='p in editing.catelog.properties'>
             <label class="col-md-2 control-label" ng-bind='p.name'></label>
             <div class="col-md-10">
-                <p class='form-control' ng-bind="editing.propValue2[p.id].name" ng-click='setPropValue(p)'></p>
+                <p class='form-control' ng-bind="editing.propValue[p.id].name" ng-click='setPropValue(p)'></p>
             </div>
         </div>
-        <mediagallery box-id='{{mpaccount.mpid}}' />
         <button class='btn btn-danger' ng-click='remove()'>删除</button>
         <button class='btn btn-success' ng-show="editing.active==='N'"  ng-click='activate()'>上线</button>
         <button class='btn btn-success' ng-show="editing.active==='Y'" ng-click='deactivate()'>下线</button>
     </div>
+    <mediagallery box-id='{{mpaccount.mpid}}' />
     <script type="text/ng-template" id="propValueSetter.html">
         <div class="modal-header">
             <button class="close" type="button" ng-click="close()">×</button>

@@ -7,7 +7,7 @@ app.register.controller('productCtrl', ['$scope', '$http', '$timeout', 'Product'
 			var propValue, today, options;
 			$scope.product = product;
 			$scope.catelog = product.catelog;
-			$scope.propValues = product.propValue2;
+			$scope.propValues = product.propValue;
 			facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId, id);
 			options = {
 				beginAt: $scope.skuFilter.time.begin,

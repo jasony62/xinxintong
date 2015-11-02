@@ -6,16 +6,18 @@
     <table class='table table-bordered'>
         <thead>
             <tr>
-                <td style='width:60px'>ID</td>
-                <td>名称</td>
-                <td>介绍</td>
-                <td ng-repeat="prop in selectedCatelog.properties" ng-bind='prop.name'></td>
+                <th style='width:60px'>ID</th>
+                <th>名称</th>
+                <th style='width:60px'>已上线</th>
+                <th>介绍</th>
+                <th ng-repeat="prop in selectedCatelog.properties" ng-bind='prop.name'></th>
             </tr>
         </thead>
         <tbody>
             <tr ng-repeat='prod in products'>
                 <td ng-bind='prod.id'></td>
                 <td ng-bind='prod.name' ng-click="open(prod)"></td>
+                <td ng-bind='prod.active'></td>
                 <td ng-bind='prod.detail_text'></td>
                 <td ng-repeat="prop in selectedCatelog.properties" ng-bind="prod.propValue2[prop.id].name"></td>
             </tr>

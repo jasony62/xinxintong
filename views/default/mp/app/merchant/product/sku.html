@@ -27,10 +27,26 @@
                 <input class='form-control' ng-model='s.price' tms-auto-update tms-wait=1000 tms-update="updateSku(s, 'price')">
             </div>
         </div>
-        <div class='quantity form-group'>
+        <div class='unlimited-quantity form-group'>
+            <label class='col-md-2 control-label'>无数量限制</label>
+            <div class='col-md-10'>
+            <label class='checkbox-inline'>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='s.unlimited_quantity' ng-change="updateSku(s, 'unlimited_quantity')">
+            是</label>
+            </div>
+        </div>
+        <div class='quantity form-group' ng-show="s.unlimited_quantity==='N'">
             <label class='col-md-2 control-label'>数量</label>
             <div class='col-md-10'>
                 <input class='form-control' ng-model='s.quantity' tms-auto-update tms-wait=1000 tms-update="updateSku(s, 'quantity')">
+            </div>
+        </div>
+        <div class='required form-group'>
+            <label class='col-md-2 control-label'>必选项</label>
+            <div class='col-md-10'>
+            <label class='checkbox-inline'>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='s.required' ng-change="updateSku(s, 'required')">
+            是</label>
             </div>
         </div>
     </div>

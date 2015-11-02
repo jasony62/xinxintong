@@ -34,7 +34,8 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Order', function($scope,
     $scope.orderInfo = {
         skus: {},
         extPropValues: {}, // 客户填写的补充信息
-        feedback: {} // 客服填写的反馈信息
+        feedback: {}, // 客服填写的反馈信息
+        counter: 0
     };
     /*创建订单*/
     $scope.create = function() {
@@ -71,5 +72,16 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Order', function($scope,
         facOrder.modify($scope.orderId, $scope.orderInfo).then(function() {
             alert('ok');
         });
+    };
+    $scope.removeSku = function(product, sku, index) {
+        sku.removed = true;
+        delete $scope.orderInfo.skus[sku.id];
+    };
+    $scope.restoreSku = function(product, sku, index) {
+        if (!sku.removed || sku.quantity == 0) return;
+        $scope.orderInfo.skus[sku.id] = {
+            count: 1
+        };
+        delete sku.removed;
     };
 }]);

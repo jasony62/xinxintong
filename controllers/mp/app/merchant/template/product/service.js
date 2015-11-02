@@ -10,9 +10,11 @@ app.register.controller('productCtrl', ['$scope', '$http', 'Product', 'Sku', fun
 			facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId, id);
 			options = {};
 			facSku.get(options).then(function(skus) {
-				if (skus && skus.length === 1) {
-					$scope.chooseSku(skus[0]);
-				}
+				angular.forEach(skus, function(sku) {
+					if (sku.required) {
+						$scope.chooseSku(sku);
+					}
+				});
 				$scope.skus = skus;
 			})
 		});
@@ -21,7 +23,8 @@ app.register.controller('productCtrl', ['$scope', '$http', 'Product', 'Sku', fun
 		skus: {}
 	};
 	$scope.chooseSku = function(sku) {
-		if (sku.quantity == 0) return;
+		if (sku.selected && sku.required === 'Y') return;
+		if (sku.unlimited_quantity === 'Y' && sku.quantity == 0) return;
 		sku.selected = !sku.selected;
 		if (sku.selected) {
 			$scope.orderInfo.skus[sku.id] = {

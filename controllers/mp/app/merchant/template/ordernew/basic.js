@@ -41,15 +41,4 @@ app.register.controller('orderCtrl', ['$scope', '$http', 'Sku', function($scope,
 		}
 		return '';
 	};
-	$scope.removeSku = function(product, sku, index) {
-		sku.removed = true;
-		delete $scope.orderInfo.skus[sku.id];
-	};
-	$scope.restoreSku = function(product, sku, index) {
-		if (!sku.removed || sku.quantity == 0) return;
-		$scope.orderInfo.skus[sku.id] = {
-			count: 1
-		};
-		delete sku.removed;
-	};
 }]);

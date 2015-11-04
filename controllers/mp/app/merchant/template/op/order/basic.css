@@ -7,9 +7,15 @@
 .product .detail_text{max-height:180px;overflow:auto}
 
 /*skus*/
-.skus{margin-bottom:2em;}
-.sku{display:table;width:100%;margin-bottom:0;border-bottom:1px dotted #ddd;padding:.5em;}
-.sku>div{display:table-cell;}
+.skus{margin:1em 0;}
+.sku{width:100%;border-bottom:1px dotted #ddd;padding-left:.5em;}
+.sku>div{padding:.5em 0;border-bottom:1px dotted #ddd;}
+.sku>div:last-child{border-bottom:0}
+.sku .price{display:table;width:100%;}
+.sku .price>*{display:table-cell;}
+.sku .price>label{width:6em;white-space:normal;word-wrap:break-word;word-break:break-all;background:#eee;padding-left:.5em}
+.sku .price>div{padding-left:1em;color:red;}
+
 /*properties*/
 input.form-control[readonly]{border:0;border-bottom:1px solid #ccc;border-radius:0;box-shadow:none;background:#fff}
 

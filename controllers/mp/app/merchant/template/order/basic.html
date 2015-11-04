@@ -16,12 +16,13 @@
                     <label class='form-control-static' ng-bind='cp.name'></label>
                     <div class='form-control-static' ng-bind="prod.propValue[cp.id].name||'&nbsp;'"></div>
                 </div>
-                <div class='skus' dyna-component url="'/rest/app/merchant/order/component?catelog=+'cate.id+'&product='+prod.id+'&page=view'">
+                <div class='skus' dyna-component url="cate.pages['ordernew.skus']==='Y'?'/rest/app/merchant/order/componentGet?page=order&comp=skus&shop='+shopId+'&catelog='+cate.id+'&product='+prod.id:''">
                     <div class='sku' ng-repeat='sku in prod.skus'>
-                        <div class='summary'>
-                            <div ng-bind="summarySku(cate,prod,sku)"></div>
+                        <div class='summary' ng-if="sku._summary">
+                            <div ng-bind="sku._summary"></div>
                         </div>
                         <div class='price' ng-if="sku.cateSku.require_pay==='Y'">
+                            <label class='form-control-static'>价格（元）</label>
                             <div ng-bind="(sku.price/100)||'&nbsp;'"></div>
                         </div>
                     </div>
@@ -52,6 +53,6 @@
         </div>
     </div>
     <footer>
-        <button ng-click='modify()'>修改订单</button>
+        <button ng-disabled="orderInfo.skus.counter===0" ng-click='modify()'>修改订单</button>
     </footer>
 </div>

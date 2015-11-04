@@ -17,10 +17,10 @@
                     <div class='form-control-static' ng-bind="prod.propValue[cp.id].name||'&nbsp;'"></div>
                 </div>
                 <div class='skus' dyna-component url="cate.pages['ordernew.skus']==='Y'?'/rest/app/merchant/order/componentGet?page=ordernew&comp=skus&shop='+shopId+'&catelog='+cate.id+'&product='+prod.id:''">
-                    <div class='sku' ng-class="{'selected':sku.selected,'unavailable':(sku.quantity==0&&!orderId),'removed':sku.removed}" ng-repeat='sku in prod.skus'>
+                    <div class='sku' ng-class="{'selected':sku.selected,'unavailable':!sku._available,'removed':sku.removed}" ng-repeat='sku in prod.skus'>
                         <div class='content'>
-                            <div class='summary'>
-                                <div ng-bind="summarySku(cate,prod,sku)"></div>
+                            <div class='summary' ng-if='sku._summary'>
+                                <div ng-bind="sku._summary"></div>
                             </div>
                             <div class='price' ng-if="sku.cateSku.require_pay==='Y'">
                                 <label class='form-control-static'>价格（元）</label>

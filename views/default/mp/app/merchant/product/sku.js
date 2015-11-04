@@ -41,9 +41,11 @@
             });
         };
         $scope.removeSku = function(index, sku) {
-            http2.get('/rest/mp/app/merchant/product/skuRemove?sku=' + sku.id, function(rsp) {
-                $scope.skus.splice(index, 1);
-            });
+            if (window.confirm("确定删除？")) {
+                http2.get('/rest/mp/app/merchant/product/skuRemove?sku=' + sku.id, function(rsp) {
+                    $scope.skus.splice(index, 1);
+                });
+            }
         };
         $scope.$on('xxt.tms-datepicker.change', function(event, data) {
             data.obj[data.state] = data.value;

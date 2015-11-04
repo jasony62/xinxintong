@@ -37,7 +37,7 @@ class sku_model extends \TMS_MODEL {
 	 * @param string $ids
 	 */
 	public function byIds($ids, $options = array()) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'id,sid,cate_id,cate_sku_id,icon_url,ori_price,price,prod_id,product_code,quantity,sku_value,validity_begin_at,validity_end_at';
+		$fields = isset($options['fields']) ? $options['fields'] : 'id,sid,cate_id,cate_sku_id,icon_url,ori_price,price,prod_id,product_code,unlimited_quantity,quantity,sku_value,validity_begin_at,validity_end_at,required';
 		/*check parameters*/
 		$checkedIds = array();
 		$ids = explode(',', $ids);

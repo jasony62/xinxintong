@@ -67,8 +67,11 @@ class product extends \member_base {
 	 * @param int $catelog
 	 * @param string 逗号分隔的属性值
 	 */
-	public function getByPropValue_action($catelog, $vids = '', $cascaded = 'N') {
+	public function list_action($catelog, $vids = '', $cascaded = 'N') {
 		$vids = empty($vids) ? array() : explode(',', $vids);
+
+		$cateFields = 'id,sid,name,pattern,pages';
+		$catelog = $this->model('app\merchant\catelog')->byId($catelog, array('fields' => $cateFields, 'cascaded' => 'Y'));
 
 		$state = array(
 			'disabled' => 'N',
@@ -81,7 +84,7 @@ class product extends \member_base {
 		);
 		$products = $this->model('app\merchant\product')->byPropValue($catelog, $vids, $options);
 
-		return new \ResponseData($products);
+		return new \ResponseData(array('products' => $products, 'catelog' => $catelog));
 	}
 	/**
 	 *
@@ -95,30 +98,5 @@ class product extends \member_base {
 		$prod = $modelProd->byId($product, $options);
 
 		return new \ResponseData($prod);
-	}
-	/**
-	 *
-	 */
-	public function skuGet_action($id) {
-		$sku = $this->model('app\merchant\sku')->byId($id);
-
-		if ($sku === false) {
-			return new \ResponseError('指定的库存不存在');
-		}
-
-		$modelProd = $this->model('app\merchant\product');
-		$prod = $modelProd->byId($sku->prod_id);
-		$cascaded = $modelProd->cascaded($prod->id);
-
-		$prodPropValues = array();
-		foreach ($cascaded->catelog->properties as $prop) {
-			$prodPropValues[] = array(
-				'name' => $prop->name,
-				'value' => $cascaded->propValue2->{$prop->id}->name,
-			);
-		}
-		$prod->propValues = $prodPropValues;
-
-		return new \ResponseData(array('sku' => $sku, 'prod' => $prod, 'cate' => $cascaded->catelog, 'propValues' => $cascaded->propValue2));
 	}
 }

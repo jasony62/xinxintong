@@ -1,24 +1,39 @@
 <div ng-controller='shelfCtrl'>
-	<div class='row' ng-hide='catelogs.length<=1'>
-		<div class='form-group'>
-		<select class='form-control' ng-model='selectedCatelog' ng-options='c.name for c in catelogs' ng-change='listProduct()'></select>
+	<div ng-show='filterOpened'>
+		<div id='filter'>
+			<div class='form-group' ng-hide='catelogs.length<=1'>
+				<select class='form-control' ng-model='selectedCatelog' ng-options='c.name for c in catelogs' ng-change='listProduct()'></select>
+			</div>
+			<div class='form-group' ng-repeat='p in selectedCatelog.properties'>
+				<div class='name' ng-bind='p.name'></div>
+				<div class='options'>
+					<span class='option' ng-class="{'selected':v._selected}"ng-repeat="v in selectedCatelog.propValues[p.id]" ng-bind='v.name' ng-click='clickOption(p,v)'></span>
+				</div>
+			</div>
+			<footer>
+				<button ng-click='toggleFilter()'>取消</button>
+				<button ng-click='listProduct()'>确定</button>
+			</footer>
 		</div>
 	</div>
-	<div class='row'>
-		<div class='col-sm-6' ng-repeat='p in products'>
-			<div class='thumbnail' ng-click='gotoProduct(p)'>
-				<div class='profile'>
-					<div class='product-img'><img ng-src='{{p.main_img}}'></div>
-					<div class='product properties'>
-						<div class='product-name' ng-bind='p.name'></div>
-						<div class='property-ext'><span ng-repeat='ep in p.propValue2'>{{ep.name}}</span></div>
+	<div ng-show='!filterOpened'>
+		<div id='products' class='row'>
+			<div class='col-sm-6' ng-repeat='p in products'>
+				<div class='thumbnail' ng-click='gotoProduct(p)'>
+					<div class='profile'>
+						<div class='product-img'><img ng-src='{{p.main_img}}'></div>
+						<div class='product properties'>
+							<div class='product-name' ng-bind='p.name'></div>
+							<div class='property-ext'><span ng-repeat='ep in p.propValue2'>{{ep.name}}</span></div>
+						</div>
 					</div>
+					<div class='product-detail_text' ng-bind='p.detail_text'></div>
 				</div>
-				<div class='product-detail_text' ng-bind='p.detail_text'></div>
 			</div>
 		</div>
+		<footer>
+			<button ng-click='gotoCart()'>所有已选</button>
+			<button ng-click='toggleFilter()'>筛选</button>
+		</footer>
 	</div>
-	<footer>
-        <button ng-click='gotoCart()'>所有已选</button>
-    </footer>
 </div>

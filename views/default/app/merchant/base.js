@@ -54,8 +54,8 @@ app.directive('dynaComponent', ['$compile', '$http', function($compile, $http) {
             var html = ele.html();
             ele.html('');
             return {
-                post:function(scope, ele, attrs) {
-                    scope.$watch(attrs.url, function(url){
+                post: function(scope, ele, attrs) {
+                    scope.$watch(attrs.url, function(url) {
                         if (url && url.length) {
                             $http.get(url).success(function(rsp) {
                                 component = rsp.data;
@@ -141,11 +141,12 @@ app.factory('Product', function($http, $q) {
         });
         return promise;
     };
-    Product.prototype.list = function(catelogId) {
+    Product.prototype.list = function(catelogId, propValues) {
         var deferred, promise, url;
         deferred = $q.defer();
         promise = deferred.promise;
-        url = '/rest/app/merchant/product/getByPropValue?catelog=' + catelogId;
+        url = '/rest/app/merchant/product/list?catelog=' + catelogId;
+        propValues && propValues.length && (url += '&vids=' + propValues);
         url += '&cascaded=Y';
         $http.get(url).success(function(rsp) {
             if (typeof rsp === 'undefined') {

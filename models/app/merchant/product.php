@@ -88,7 +88,7 @@ class product_model extends \TMS_MODEL {
 	/**
 	 * 根据属性值获得产品列表
 	 */
-	public function &byPropValue($cateId, $vids, $options = array()) {
+	public function &byPropValue($catelog, $vids, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
 		$state = isset($options['state']) ? $options['state'] : array();
@@ -96,7 +96,7 @@ class product_model extends \TMS_MODEL {
 		$q = array(
 			$fields,
 			'xxt_merchant_product',
-			"cate_id=$cateId",
+			"cate_id=$catelog->id",
 		);
 		foreach ($vids as $vid) {
 			$q[2] .= " and prop_value like '%:\"$vid\"%'";
@@ -107,10 +107,7 @@ class product_model extends \TMS_MODEL {
 		$products = $this->query_objs_ss($q);
 
 		if (!empty($products) && $cascaded === 'Y') {
-			$cateFields = 'id,sid,name';
-			$catelog = \TMS_APP::M('app\merchant\catelog')->byId($cateId, array('fields' => $cateFields, 'cascaded' => 'Y'));
 			foreach ($products as &$prod) {
-				$prod->catelog = $catelog;
 				$prod->propValue = $this->_fillPropValue($prod->prop_value, $catelog);
 			}
 		}

@@ -1,4 +1,12 @@
 body{background-color:#ddd;}
+
+/*filter*/
+#filter{background:white;padding:1em;}
+.name{margin-bottom:.25em;}
+.option{display:inline-block;border:1px solid green;padding:.25em;margin-right:.5em;}
+.option.selected{background:green;}
+
+/*products*/
 .thumbnail{position:relative;padding:8px;}
 .thumbnail .profile{height:64px;display:table}
 .thumbnail .product-img{display:table-cell;height:64px;width:64px;}

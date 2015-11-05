@@ -7,9 +7,12 @@ class order_model extends \TMS_MODEL {
 	/**
 	 * @param int $id
 	 */
-	public function &byId($id, $cascaded = 'Y') {
+	public function &byId($id, $options = array()) {
+		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+
 		$q = array(
-			'*',
+			$fields,
 			'xxt_merchant_order',
 			"id=$id",
 		);
@@ -23,9 +26,11 @@ class order_model extends \TMS_MODEL {
 	/**
 	 * @param string $tradeNo
 	 */
-	public function &byTradeNo($tradeNo) {
+	public function &byTradeNo($tradeNo, $options = array()) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+
 		$q = array(
-			'*',
+			$fields,
 			'xxt_merchant_order',
 			"trade_no='$tradeNo'",
 		);
@@ -40,6 +45,9 @@ class order_model extends \TMS_MODEL {
 	 * @param int $shopId
 	 */
 	public function &byShopid($shopId, $openid = null) {
+		$openid = isset($options['openid']) ? $options['openid'] : null;
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+
 		$q = array(
 			'*',
 			'xxt_merchant_order',

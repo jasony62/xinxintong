@@ -61,12 +61,16 @@ class orderlist extends \member_base {
 		return new \ResponseData($params);
 	}
 	/**
-	 *
+	 * @param string $mpid
+	 * @param int $order
+	 * @param int shop
 	 */
-	public function get_action($mpid, $order = null, $shop = null, $sku = null) {
+	public function get_action($mpid, $shop) {
 		$user = $this->getUser($mpid);
-
-		$orders = $this->model('app\merchant\order')->byShopid($shop, $user->openid);
+		$options = array(
+			'openid' => $user->openid,
+		);
+		$orders = $this->model('app\merchant\order')->byShopid($shop, $options);
 
 		return new \ResponseData($orders);
 	}

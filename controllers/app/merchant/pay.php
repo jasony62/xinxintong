@@ -68,6 +68,12 @@ class pay extends \member_base {
 		if (false === $order) {
 			return new \ResponseError('订单不存在');
 		}
+		$products = array();
+		$order->products = json_decode($order->products);
+		foreach ($order->products as $prod) {
+			$products[] = $prod->name;
+		}
+		$products = implode(',', $products);
 
 		$notifyUrl = "http://" . $_SERVER['HTTP_HOST'];
 		$notifyUrl .= "/rest/op/merchant/payok/notify";
@@ -77,7 +83,7 @@ class pay extends \member_base {
 		$wxPayConfig = new \WxPayConfig($mpid);
 		$input = new \WxPayUnifiedOrder();
 
-		$input->SetBody($order->product_name);
+		$input->SetBody($products);
 		$input->SetAttach("测试附加信息");
 		$input->SetOut_trade_no($order->trade_no);
 		$input->SetTotal_fee($order->order_total_price);

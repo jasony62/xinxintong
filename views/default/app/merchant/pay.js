@@ -29,7 +29,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $h
                     if (res.err_msg === 'get_brand_wcpay_request:ok') {
                         location.href = '/rest/app/merchant/payok?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&order=' + $scope.orderId;
                     } else {
-                        alert(res.err_code + res.err_desc + res.err_msg);
+                        alert('付款未成功');
                     }
                 }
             );

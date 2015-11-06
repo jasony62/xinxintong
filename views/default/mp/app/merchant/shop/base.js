@@ -91,12 +91,11 @@ xxtApp.controller('orderCtrl', ['$scope', '$modal', 'http2', function($scope, $m
                     $scope2.order._order_status = OrderStatus[$scope2.order.order_status];
                     $scope2.catelogs = rsp.data.catelogs;
                 });
-                $scope2.feedback = {};
                 $scope2.sendFeedback = function() {
                     var url, feedback;
                     url = '/rest/mp/app/merchant/order/feedback';
                     url += '?order=' + $scope2.order.id;
-                    http2.post(url, $scope2.feedback, function(rsp) {
+                    http2.post(url, $scope2.order.feedback, function(rsp) {
                         alert('ok');
                     });
                 };

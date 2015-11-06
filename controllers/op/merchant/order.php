@@ -188,6 +188,7 @@ class order extends \member_base {
 			$url .= "?mpid=" . $mpid;
 			$url .= "&shop=" . $order->sid;
 			$url .= "&order=" . $order->id;
+			die('xxxxx');
 			/**/
 			$this->tmplmsgSendByOpenid($mpid, $tmplmsg->id, $order->buyer_openid, $data, $url);
 		}

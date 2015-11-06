@@ -2,6 +2,7 @@
 	<table class='table table-bordered'>
 		<thead>
 			<tr>
+				<th>ID</th>
 				<th>订单号</th>
 				<th>下单时间</th>
 				<th>状态</th>
@@ -11,6 +12,7 @@
 		</thead>
 		<tbody>
 			<tr ng-repeat='o in orders'>
+				<td ng-bind='o.id'></td>
 				<td ng-bind='o.trade_no'></td>
 				<td ng-bind="o.order_create_time*1000|date:'yy/MM/dd HH:mm'"></td>
 				<td ng-bind='o._order_status'></td>

@@ -143,7 +143,7 @@ class order extends \member_base {
 		$products = json_decode($order->products);
 		echo '111111';
 		foreach ($products as $product) {
-			echo '2222222'
+			echo '2222222';
 			/**/
 			$product = $modelProd->byId($product->id, array('cascaded' => 'Y'));
 			$mapping = $modelTmpl->mappingById($product->catelog->feedback_order_tmplmsg);

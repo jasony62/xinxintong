@@ -161,9 +161,9 @@ class order extends \member_base {
 		}
 
 		$orderInfo = $this->getPostJson();
-		if (empty((array) $orderInfo->skus)) {
-			return new \ResponseError('没有选择商品库存，无法创建订单');
-		}
+		//if (empty((array) $orderInfo->skus)) {
+		//	return new \ResponseError('没有选择商品库存，无法创建订单');
+		//}
 
 		$order = $this->model('app\merchant\order')->create($mpid, $user, $orderInfo);
 

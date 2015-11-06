@@ -24,7 +24,7 @@ app.register.controller('productCtrl', ['$scope', '$http', 'Product', 'Sku', fun
 	};
 	$scope.chooseSku = function(sku) {
 		if (sku.selected && sku.required === 'Y') return;
-		if (sku.unlimited_quantity === 'Y' && sku.quantity == 0) return;
+		if (sku.unlimited_quantity === 'N' && sku.quantity == 0) return;
 		sku.selected = !sku.selected;
 		if (sku.selected) {
 			$scope.orderInfo.skus[sku.id] = {

@@ -44,7 +44,7 @@ class order_model extends \TMS_MODEL {
 	 *
 	 * @param int $shopId
 	 */
-	public function &byShopid($shopId, $openid = null) {
+	public function &byShopid($shopId, $options = array()) {
 		$openid = isset($options['openid']) ? $options['openid'] : null;
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 

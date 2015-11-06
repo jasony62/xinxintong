@@ -171,11 +171,11 @@ class order extends \member_base {
 					} else if ($p->id === '__orderState') {
 						$v = '未付款';
 					} else {
-						$v = $order->extPropValue->{$p->id};
+						$v = $order->extPropValue->{$product->catelog->id}->{$p->id};
 					}
 					break;
 				case 'feedback':
-					$v = $order->feedback->{$p->id};
+					$v = $order->feedback->{$product->catelog->id}->{$p->id};
 					break;
 				case 'text':
 					$v = $p->id;

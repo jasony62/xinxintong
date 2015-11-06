@@ -38,7 +38,7 @@
         <div class='feedback-properties'>
             <div class='feedback-property form-group' ng-repeat='p in cate.feedbackProperties'>
                 <label class='form-control-static' ng-bind='p.name'></label>
-                <input type='text' class='form-control input-lg' readonly ng-model='orderInfo.extPropValues[cate.id][p.id]'>
+                <input type='text' class='form-control input-lg' readonly ng-model='orderInfo.feedback[cate.id][p.id]'>
             </div>
         </div>
     </div>

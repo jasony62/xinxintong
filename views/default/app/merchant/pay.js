@@ -1,3 +1,11 @@
+if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage !== undefined) {
+    signPackage.jsApiList = ['hideOptionMenu'];
+    signPackage.debug = false;
+    wx.config(signPackage);
+    wx.ready(function() {
+        wx.hideOptionMenu();
+    });
+}
 app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
     var ls;
     ls = location.search;

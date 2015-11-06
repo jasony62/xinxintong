@@ -149,13 +149,10 @@ class order extends \member_base {
 				return false;
 			}
 			/**/
-			$tmplmsg = $modelTmpl->byId($mapping->msgid, 'Y');
-			echo '111111:' . json_encode($tmplmsg);
-
+			$tmplmsg = $modelTmpl->byId($mapping->msgid, array('cascaded' => 'Y'));
 			if (empty($tmplmsg->params)) {
 				return false;
 			}
-			echo '22222';
 			/*构造消息数据*/
 			$data = array();
 			foreach ($mapping->mapping as $k => $p) {

@@ -56,7 +56,7 @@ class product_model extends \TMS_MODEL {
 					}
 				}
 			} else {
-				$propValue2->{$prop->id} = '';
+				$fullPropValue->{$prop->id} = '';
 			}
 		}
 

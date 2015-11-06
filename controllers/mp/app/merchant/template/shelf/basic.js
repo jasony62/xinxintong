@@ -24,12 +24,15 @@ app.register.controller('shelfCtrl', ['$scope', '$http', 'Catelog', 'Product', f
 			options.propValues.splice(options.propValues.indexOf(propValue.id), 1);
 		}
 	};
+	$scope.doFilter = function() {
+		$scope.listProduct();
+		$scope.toggleFilter();
+	};
 	$scope.listProduct = function() {
 		var vids;
 		vids = options.propValues.join(',');
 		facProduct.list($scope.selectedCatelog.id, vids).then(function(data) {
 			$scope.products = data.products;
-			$scope.toggleFilter();
 		});
 	};
 }]);

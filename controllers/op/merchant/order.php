@@ -98,7 +98,7 @@ class order extends \member_base {
 	/**
 	 * 保存订单反馈信息并通知用户
 	 */
-	public function feedback_action($mpid, $shop, $order) {
+	public function feedback_action($mpid, $order) {
 		$order = $this->model('app\merchant\order')->byId($order);
 		$order->extPropValue = json_decode($order->ext_prop_value);
 

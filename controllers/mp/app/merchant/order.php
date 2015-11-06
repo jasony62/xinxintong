@@ -78,9 +78,83 @@ class order extends \mp\app\app_base {
 		return new \ResponseData($result);
 	}
 	/**
-	 *
+	 * 保存订单反馈信息并通知用户
 	 */
-	public function update_action() {
-		return new \ResponseData('ok');
+	public function feedback_action($order) {
+		$order = $this->model('app\merchant\order')->byId($order);
+		$order->extPropValue = json_decode($order->ext_prop_value);
+
+		$feedback = $this->getPostJson();
+		$pv = empty($feedback) ? '{}' : \TMS_MODEL::toJson($feedback);
+
+		$rst = $this->model()->update(
+			'xxt_merchant_order',
+			array('feedback' => $pv),
+			"id=$order->id"
+		);
+		/*发通知*/
+		$order->feedback = json_decode($pv);
+		$this->_notify($this->mpid, $order);
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 通知客服有新订单
+	 */
+	private function _notify($mpid, $order) {
+		$modelProd = $this->model('app\merchant\product');
+		$modelTmpl = $this->model('matter\tmplmsg');
+		$products = json_decode($order->products);
+		foreach ($products as $product) {
+			/**/
+			$product = $modelProd->byId($product->id, array('cascaded' => 'Y'));
+			$mapping = $modelTmpl->mappingById($product->catelog->feedback_order_tmplmsg);
+			if (false === $mapping) {
+				return false;
+			}
+			/**/
+			$tmplmsg = $modelTmpl->byId($mapping->msgid, array('cascaded' => 'Y'));
+			if (empty($tmplmsg->params)) {
+				return false;
+			}
+			/*构造消息数据*/
+			$data = array();
+			foreach ($mapping->mapping as $k => $p) {
+				$v = '';
+				switch ($p->src) {
+				case 'product':
+					if ($p->id === '__productName') {
+						$v = $product->name;
+					} else {
+						$v = $product->propValue->{$p->id}->name;
+					}
+					break;
+				case 'order':
+					if ($p->id === '__orderSn') {
+						$v = $order->trade_no;
+					} else if ($p->id === '__orderState') {
+						$v = '未付款';
+					} else {
+						$v = $order->extPropValue->{$p->id};
+					}
+					break;
+				case 'feedback':
+					$v = $order->feedback->{$p->id};
+					break;
+				case 'text':
+					$v = $p->id;
+					break;
+				}
+				$data[$k] = $v;
+			}
+			/**/
+			$url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/merchant/order";
+			$url .= "?mpid=" . $mpid;
+			$url .= "&shop=" . $order->sid;
+			$url .= "&order=" . $order->id;
+			/**/
+			$this->tmplmsgSendByOpenid($mpid, $tmplmsg->id, $order->buyer_openid, $data, $url);
+		}
+		return true;
 	}
 }

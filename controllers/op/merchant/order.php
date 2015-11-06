@@ -141,7 +141,9 @@ class order extends \member_base {
 		$modelProd = $this->model('app\merchant\product');
 		$modelTmpl = $this->model('matter\tmplmsg');
 		$products = json_decode($order->products);
+		echo '111111';
 		foreach ($products as $product) {
+			echo '2222222'
 			/**/
 			$product = $modelProd->byId($product->id, array('cascaded' => 'Y'));
 			$mapping = $modelTmpl->mappingById($product->catelog->feedback_order_tmplmsg);
@@ -188,7 +190,7 @@ class order extends \member_base {
 			$url .= "?mpid=" . $mpid;
 			$url .= "&shop=" . $order->sid;
 			$url .= "&order=" . $order->id;
-			die('xxxxx');
+			echo '333333';
 			/**/
 			$this->tmplmsgSendByOpenid($mpid, $tmplmsg->id, $order->buyer_openid, $data, $url);
 		}

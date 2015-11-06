@@ -147,6 +147,8 @@ class order extends \mp\app\app_base {
 				}
 				$data[$k] = $v;
 			}
+			echo 'oooo:' . (json_encode($order));
+			echo 'dddd:' . (json_encode($data));
 			/**/
 			$url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/merchant/order";
 			$url .= "?mpid=" . $mpid;

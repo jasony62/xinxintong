@@ -144,12 +144,11 @@ class order extends \member_base {
 		foreach ($products as $product) {
 			/**/
 			$product = $modelProd->byId($product->id, array('cascaded' => 'Y'));
-			echo 'oooo:' . json_encode($product);
 			$mapping = $modelTmpl->mappingById($product->catelog->feedback_order_tmplmsg);
 			if (false === $mapping) {
 				return false;
 			}
-			echo '111111';
+			echo '111111:' . json_encode($mapping);
 			/**/
 			$tmplmsg = $modelTmpl->byId($mapping->msgid, 'Y');
 			if (empty($tmplmsg->params)) {

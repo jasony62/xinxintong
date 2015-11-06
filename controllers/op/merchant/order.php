@@ -148,9 +148,10 @@ class order extends \member_base {
 			if (false === $mapping) {
 				return false;
 			}
-			echo '111111:' . json_encode($mapping);
 			/**/
 			$tmplmsg = $modelTmpl->byId($mapping->msgid, 'Y');
+			echo '111111:' . json_encode($tmplmsg);
+
 			if (empty($tmplmsg->params)) {
 				return false;
 			}

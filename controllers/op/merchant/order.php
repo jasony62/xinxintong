@@ -141,20 +141,21 @@ class order extends \member_base {
 		$modelProd = $this->model('app\merchant\product');
 		$modelTmpl = $this->model('matter\tmplmsg');
 		$products = json_decode($order->products);
-		echo '111111';
 		foreach ($products as $product) {
-			echo '2222222';
 			/**/
 			$product = $modelProd->byId($product->id, array('cascaded' => 'Y'));
+			echo 'oooo:' . json_encode($product);
 			$mapping = $modelTmpl->mappingById($product->catelog->feedback_order_tmplmsg);
 			if (false === $mapping) {
 				return false;
 			}
+			echo '111111';
 			/**/
 			$tmplmsg = $modelTmpl->byId($mapping->msgid, 'Y');
 			if (empty($tmplmsg->params)) {
 				return false;
 			}
+			echo '22222';
 			/*构造消息数据*/
 			$data = array();
 			foreach ($mapping->mapping as $k => $p) {
@@ -190,7 +191,6 @@ class order extends \member_base {
 			$url .= "?mpid=" . $mpid;
 			$url .= "&shop=" . $order->sid;
 			$url .= "&order=" . $order->id;
-			echo '333333';
 			/**/
 			$this->tmplmsgSendByOpenid($mpid, $tmplmsg->id, $order->buyer_openid, $data, $url);
 		}

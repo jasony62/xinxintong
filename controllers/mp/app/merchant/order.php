@@ -135,11 +135,11 @@ class order extends \mp\app\app_base {
 					} else if ($p->id === '__orderState') {
 						$v = '未付款';
 					} else {
-						$v = $order->extPropValue->{$p->id};
+						$v = $order->extPropValue->{$product->catelog->id}->{$p->id};
 					}
 					break;
 				case 'feedback':
-					$v = $order->feedback->{$p->id};
+					$v = $order->feedback->{$product->catelog->id}->{$p->id};
 					break;
 				case 'text':
 					$v = $p->id;
@@ -147,7 +147,6 @@ class order extends \mp\app\app_base {
 				}
 				$data[$k] = $v;
 			}
-			echo 'oooo:' . (json_encode($order));
 			echo 'dddd:' . (json_encode($data));
 			/**/
 			$url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/merchant/order";

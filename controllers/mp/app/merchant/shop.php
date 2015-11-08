@@ -42,6 +42,7 @@ class shop extends \mp\app\app_base {
 	public function get_action($shop) {
 		$shop = $this->model('app\merchant\shop')->byId($shop);
 
+		$shop->buyer_api = empty($shop->buyer_api) ? new \stdClass : json_decode($shop->buyer_api);
 		$shop->staffs = $this->model('app\merchant\shop')->staffAcls($this->mpid, $shop->id, 'c');
 
 		return new \ResponseData($shop);
@@ -82,10 +83,14 @@ class shop extends \mp\app\app_base {
 	}
 	/**
 	 * 更新商店的属性信息
+	 *
+	 * @param int $shop
 	 */
 	public function update_action($shop) {
 		$nv = (array) $this->getPostJson();
-
+		if (isset($nv['buyer_api'])) {
+			$nv['buyer_api'] = \TMS_MODEL::toJson($nv['buyer_api']);
+		}
 		$rst = $this->model()->update('xxt_merchant_shop', $nv, "id='$shop'");
 
 		return new \ResponseData($rst);

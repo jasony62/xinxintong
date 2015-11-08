@@ -19,6 +19,10 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Order', function($scope,
         params = rsp.data;
         $scope.User = params.user;
         $scope.Page = params.page;
+        if (params.orderInfo) {
+            $scope.orderInfo.receiver_name = params.orderInfo.receiver_name;
+            $scope.orderInfo.receiver_mobile = params.orderInfo.receiver_mobile;
+        }
         window.setPage(params.page);
         $timeout(function() {
             $scope.$broadcast('xxt.app.merchant.ready');

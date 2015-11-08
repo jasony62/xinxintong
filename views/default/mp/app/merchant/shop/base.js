@@ -60,8 +60,16 @@ xxtApp.controller('shopCtrl', ['$scope', 'http2', '$location', function($scope, 
         $scope.mpaccount = rsp.data;
     });
 }]);
-xxtApp.controller('settingCtrl', ['$scope', 'http2', function($scope, http2) {
+xxtApp.controller('settingCtrl', ['$scope', 'http2', 'Authapi', function($scope, http2, Authapi) {
     $scope.$parent.subView = 'setting';
+    $scope.authapis = [];
+    (new Authapi()).get('N').then(function(data) {
+        var i, l, authapi;
+        for (i = 0, l = data.length; i < l; i++) {
+            authapi = data[i];
+            authapi.valid === 'Y' && $scope.authapis.push(authapi);
+        }
+    });
     $scope.update = function(name) {
         var nv = {};
         nv[name] = $scope.editing[name];

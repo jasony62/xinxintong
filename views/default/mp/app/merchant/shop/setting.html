@@ -6,6 +6,15 @@
 			<div class='help-block'>最多35个汉字，70个英文字符</div>
 		</div>
 	</div>
+	<div class='form-group'>
+		<label class='col-md-2 control-label'>客户信息</label>
+		<div class='col-md-10'>
+			<select class="form-control" ng-model='editing.buyer_api.authid' ng-change="update('buyer_api')" ng-options='a.authid as a.name for a in authapis'>
+				<option value=''></option>
+			</select>
+			<div class='help-block'>指定记录客户信息接口</div>
+		</div>
+	</div>
 	<accesscontrol mpid='{{mpaccount.mpid}}' obj='editing' prop-access='canSetSupporter' prop-acl='staffs' label-of-list='指定客服'
 		change-acl-url='/rest/mp/app/merchant/shop/setStaff?shop={{editing.id}}&role=c' remove-acl-url='/rest/mp/app/merchant/shop/delStaff'
 		label-span='2' control-span='10' hide-access-control=true update-access-control=false>

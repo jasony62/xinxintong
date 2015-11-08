@@ -65,6 +65,19 @@ class order extends \member_base {
 			'user' => $user,
 			'page' => $page,
 		);
+		/*联系人信息*/
+		$shop = $this->model('app\merchant\shop')->byId($shop);
+		if (!empty($shop->buyer_api)) {
+			$buyerApi = json_decode($shop->buyer_api);
+			$authid = $buyerApi->authid;
+			$modelMemb = $this->model('user/member');
+			if ($existentMember = $modelMemb->byOpenid($mpid, $user->openid, 'name,mobile', $authid)) {
+				$params['orderInfo'] = array(
+					'receiver_name' => $existentMember->name,
+					'receiver_mobile' => $existentMember->mobile,
+				);
+			}
+		}
 
 		return new \ResponseData($params);
 	}
@@ -154,21 +167,34 @@ class order extends \member_base {
 	 *
 	 * @return int order's id
 	 */
-	public function create_action($mpid) {
+	public function create_action($mpid, $shop) {
 		$user = $this->getUser($mpid, array('verbose' => array('fan' => 'Y')));
 		if (empty($user->openid)) {
 			return new \ResponseError('无法获得当前用户身份信息');
 		}
-
 		$orderInfo = $this->getPostJson();
 		//if (empty((array) $orderInfo->skus)) {
 		//	return new \ResponseError('没有选择商品库存，无法创建订单');
 		//}
 
 		$order = $this->model('app\merchant\order')->create($mpid, $user, $orderInfo);
-
 		$this->_notify($mpid, $order);
 
+		/*保留联系人信息*/
+		$shop = $this->model('app\merchant\shop')->byId($shop);
+		if (!empty($shop->buyer_api)) {
+			$buyerApi = json_decode($shop->buyer_api);
+			$authid = $buyerApi->authid;
+			$modelMemb = $this->model('user/member');
+			$member = new \stdClass;
+			$member->name = $orderInfo->receiver_name;
+			$member->mobile = $orderInfo->receiver_mobile;
+			if ($existentMember = $modelMemb->byOpenid($mpid, $user->openid, 'mid', $authid)) {
+				$rst = $modelMemb->modify($mpid, $authid, $existentMember->mid, $member);
+			} else {
+				$rst = $modelMemb->create2($mpid, $authid, $user->fan->fid, $member);
+			}
+		}
 		return new \ResponseData($order->id);
 	}
 	/**

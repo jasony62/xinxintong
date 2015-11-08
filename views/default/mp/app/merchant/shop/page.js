@@ -2,14 +2,27 @@
 	xxtApp.register.controller('pageCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
 		$scope.$parent.subView = 'page';
 		$scope.shelfs = [];
+		$scope.orderlists = [];
+		$scope.opOrderlists = [];
+		$scope.shelfs = [];
 		$scope.others = [];
 		http2.get('/rest/mp/app/merchant/page/byShop?shop=' + $scope.$parent.shopId, function(rsp) {
 			angular.forEach(rsp.data, function(page) {
-				if (page.type === 'shelf') {
-					$scope.shelfs.push(page)
-					page._url = 'http://' + location.host + '/rest/app/merchant/shelf?mpid=' + page.mpid + '&shop=' + $scope.$parent.shopId + '&page=' + page.id;
-				} else {
-					$scope.others.push(page);
+				switch (page.type) {
+					case 'shelf':
+						$scope.shelfs.push(page)
+						page._url = 'http://' + location.host + '/rest/app/merchant/shelf?mpid=' + page.mpid + '&shop=' + $scope.$parent.shopId + '&page=' + page.id;
+						break;
+					case 'orderlist':
+						$scope.orderlists.push(page)
+						page._url = 'http://' + location.host + '/rest/app/merchant/orderlist?mpid=' + page.mpid + '&shop=' + $scope.$parent.shopId;
+						break;
+					case 'op.orderlist':
+						$scope.opOrderlists.push(page)
+						page._url = 'http://' + location.host + '/rest/op/merchant/orderlist?mpid=' + page.mpid + '&shop=' + $scope.$parent.shopId;
+						break;
+					default:
+						$scope.others.push(page);
 				}
 			})
 		});

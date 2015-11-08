@@ -167,7 +167,7 @@ class order extends \member_base {
 
 		$order = $this->model('app\merchant\order')->create($mpid, $user, $orderInfo);
 
-		$this->notify($mpid, $order);
+		$this->_notify($mpid, $order);
 
 		return new \ResponseData($order->id);
 	}
@@ -189,14 +189,26 @@ class order extends \member_base {
 
 		$rst = $this->model('app\merchant\order')->modify($mpid, $user, $order, $orderInfo);
 
-		//$this->notify($mpid, $order);
+		//$this->_notify($mpid, $order);
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 取消订单
+	 *
+	 * @param string $mpid
+	 * @param int $order
+	 */
+	public function cancel_action($mpid, $order) {
+		$modelOrd = $this->model('app\merchant\order');
+		$rst = $modelOrd->cancelByBuyer($order);
 
 		return new \ResponseData($rst);
 	}
 	/**
 	 * 通知客服有新订单
 	 */
-	private function notify($mpid, $order) {
+	private function _notify($mpid, $order) {
 		/*客服员工*/
 		$staffs = $this->model('app\merchant\shop')->staffAcls($mpid, $order->sid, 'c');
 		if (empty($staffs)) {

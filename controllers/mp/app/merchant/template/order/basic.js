@@ -54,6 +54,7 @@ app.register.controller('orderCtrl', ['$scope', '$http', 'Sku', 'Order', functio
 		var order;
 		order = data.order;
 		$scope.order = order;
+		$scope.orderInfo.status = order.order_status;
 		$scope.orderInfo.extPropValues = order.extPropValues;
 		$scope.orderInfo.feedback = order.feedback;
 		$scope.orderInfo.receiver_name = order.receiver_name;

@@ -107,7 +107,10 @@ class order extends \member_base {
 
 		$rst = $this->model()->update(
 			'xxt_merchant_order',
-			array('feedback' => $pv),
+			array(
+				'feedback' => $pv,
+				'order_status' => 3, // 已确认
+			),
 			"id=$order->id"
 		);
 		/*发通知*/
@@ -122,6 +125,7 @@ class order extends \member_base {
 	public function finish_action($mpid, $order) {
 		$modelOrd = $this->model('app\merchant\order');
 		$rst = $modelOrd->finish($order);
+		// notify
 
 		return new \ResponseData($rst);
 	}
@@ -131,6 +135,7 @@ class order extends \member_base {
 	public function cancel_action($mpid, $order) {
 		$modelOrd = $this->model('app\merchant\order');
 		$rst = $modelOrd->cancel($order);
+		// notify
 
 		return new \ResponseData($rst);
 	}

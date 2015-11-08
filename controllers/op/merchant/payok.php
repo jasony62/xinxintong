@@ -49,23 +49,24 @@ class PayNotifyCallBack extends \WxPayNotify {
 			\TMS_APP::M('log')->log('debug', 'pay-notify', $msg);
 			return false;
 		}
-		//更新订单支付信息
+		/*更新订单支付信息*/
 		$trans_id = $data['transaction_id'];
 		$trade_no = $data['out_trade_no'];
 
 		$model = \TMS_APP::model();
 		$rst = $model->update(
 			'xxt_merchant_order',
-			array('trans_id' => $trans_id),
+			array(
+				'trans_id' => $trans_id,
+				'order_status' => '2', // 已支付
+			),
 			"trade_no='$trade_no'"
 		);
 		if ($rst != 1) {
 			$msg = "更新订单信息失败";
 			return false;
 		}
-
 		//\TMS_APP::M('log')->log('debug', 'pay-notify', 'ok');
-
 		//通知客服
 		$mpid = $this->getMpid($data);
 		$order = \TMS_APP::model('app\merchant\order')->byTradeNo($trade_no);

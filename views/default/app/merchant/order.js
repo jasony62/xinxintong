@@ -35,7 +35,8 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Order', function($scope,
         skus: {},
         extPropValues: {}, // 客户填写的补充信息
         feedback: {}, // 客服填写的反馈信息
-        counter: 0
+        counter: 0,
+        status: 0,
     };
     /*创建订单*/
     $scope.create = function() {
@@ -72,6 +73,23 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Order', function($scope,
         facOrder.modify($scope.orderId, $scope.orderInfo).then(function() {
             alert('ok');
         });
+    };
+    $scope.cancel = function() {
+        if ($scope.orderInfo.status === '2') {
+            if (window.confirm('取消已支付订单将产生手续费，确定取消？')) {
+                facOrder.cancel($scope.orderId).then(function() {
+                    alert('ok');
+                    $scope.orderInfo.status = '-2';
+                });
+            }
+        } else {
+            if (window.confirm('确定取消？')) {
+                facOrder.cancel($scope.orderId).then(function() {
+                    alert('ok');
+                    $scope.orderInfo.status = '-2';
+                });
+            }
+        }
     };
     $scope.removeSku = function(product, sku, index) {
         sku.removed = true;

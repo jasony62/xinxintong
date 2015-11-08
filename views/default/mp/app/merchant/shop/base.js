@@ -75,11 +75,13 @@ xxtApp.controller('settingCtrl', ['$scope', 'http2', function($scope, http2) {
 xxtApp.controller('orderCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
     var OrderStatus;
     OrderStatus = {
-        '1': '新建',
-        '5': '完成',
-        '-1': '取消',
-        '-2': '取消',
-    }
+        '1': '未付款',
+        '2': '已付款',
+        '3': '已确认',
+        '5': '已完成',
+        '-1': '已取消',
+        '-2': '已取消',
+    };
     $scope.$parent.subView = 'order';
     $scope.open = function(order) {
         $modal.open({

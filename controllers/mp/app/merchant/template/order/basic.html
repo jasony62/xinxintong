@@ -32,7 +32,7 @@
         <div class='order-properties'>
             <div class='order-property form-group' ng-repeat='p in cate.orderProperties'>
                 <label class='form-control-static' ng-bind='p.name'></label>
-                <input type='text' class='form-control input-lg' ng-readonly="order.order_status!=='1'" ng-model='orderInfo.extPropValues[cate.id][p.id]'>
+                <input type='text' class='form-control input-lg' ng-readonly="orderInfo.status!=='1'" ng-model='orderInfo.extPropValues[cate.id][p.id]'>
             </div>
         </div>
         <div class='feedback-properties'>
@@ -45,14 +45,15 @@
     <div class='contact'>
         <div class='form-group'>
             <label class='form-control-static'>联系人姓名</label>
-            <input type='text' class='form-control input-lg' ng-readonly="order.order_status!=='1'" ng-model='orderInfo.receiver_name'>
+            <input type='text' class='form-control input-lg' ng-readonly="orderInfo.status!=='1'" ng-model='orderInfo.receiver_name'>
         </div>
         <div class='form-group'>
             <label class='form-control-static'>联系人电话</label>
-            <input type='text' class='form-control input-lg' ng-readonly="order.order_status!=='1'" ng-model='orderInfo.receiver_mobile'>
+            <input type='text' class='form-control input-lg' ng-readonly="orderInfo.status!=='1'" ng-model='orderInfo.receiver_mobile'>
         </div>
     </div>
-    <footer>
-        <button ng-disabled="orderInfo.skus.counter===0" ng-click='modify()'>修改订单</button>
+    <footer ng-if="orderInfo.status==='1'||orderInfo.status==='2'||orderInfo.status==='3'">
+        <button ng-click='cancel()'>取消订单</button>
+        <button ng-if="orderInfo.status==='1'" ng-disabled="orderInfo.skus.counter===0" ng-click='modify()'>修改订单</button>
     </footer>
 </div>

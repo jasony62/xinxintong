@@ -46,6 +46,7 @@ app.register.controller('notifyCtrl', ['$scope', '$http', 'Order', function($sco
 	facOrder.get($scope.$parent.orderId).then(function(data) {
 		var feedback, order;
 		order = data.order;
+		order._canFeedback = (['5', '-1', '-2'].indexOf(order.order_status) === -1);
 		feedback = order.feedback;
 		order.feedback = (feedback && feedback.length) ? JSON.parse(feedback) : {};
 		order.extPropValues = JSON.parse(order.ext_prop_value);

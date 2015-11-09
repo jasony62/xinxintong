@@ -38,9 +38,9 @@
         <div class='feedback-properties' ng-if='cate.feedbackProperties.length'>
             <div class='feedback form-group' ng-repeat='p in cate.feedbackProperties'>
                 <label class='form-control-static' ng-bind='p.name'></label>
-                <input type='text' class='form-control input-lg' ng-readonly="order.order_status!=='1'" ng-model="order.feedback[cate.id][p.id]">
+                <input type='text' class='form-control input-lg' ng-readonly="!order._canFeedback" ng-model="order.feedback[cate.id][p.id]">
             </div>
-            <div class='form-group' ng-if="order.order_status=='1'">
+            <div class='form-group' ng-if="order._canFeedback">
                 <button class="btn btn-success btn-lg btn-block" ng-click="feedback()">保存反馈信息并通知用户</button>
             </div>
         </div>

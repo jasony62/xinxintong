@@ -5,6 +5,7 @@
                 <th>姓名</th>
                 <th>手机</th>
                 <th>下单日期</th>
+                <th>订单状态</th>
             </tr>
         </thead>
         <tbody>
@@ -12,6 +13,7 @@
                 <td data-th="姓名" ng-bind='o.receiver_name'></td>
                 <td data-th="手机" ng-bind='o.receiver_mobile'></td>
                 <td data-th="下单日期" ng-bind="o.order_create_time*1000|date:'yy-MM-dd HH:mm'"></td>
+                 <td data-th="状态" ng-bind="o._order_status"></td>
             </tr>
         </tbody>
     </table>

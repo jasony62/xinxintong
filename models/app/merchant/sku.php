@@ -38,6 +38,8 @@ class sku_model extends \TMS_MODEL {
 	 */
 	public function byIds($ids, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : 'id,sid,cate_id,cate_sku_id,icon_url,ori_price,price,prod_id,product_code,unlimited_quantity,quantity,sku_value,validity_begin_at,validity_end_at,required';
+		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'N';
+
 		/*check parameters*/
 		$checkedIds = array();
 		$ids = explode(',', $ids);
@@ -57,7 +59,7 @@ class sku_model extends \TMS_MODEL {
 		$q2 = array('o' => 'validity_begin_at');
 
 		$skus = $this->query_objs_ss($q, $q2);
-		if (!empty($skus)) {
+		if (!empty($skus) && $cascaded === 'Y') {
 			$cateSkus = array();
 			$modelCate = \TMS_MODEL::M('app\merchant\catelog');
 			foreach ($skus as &$sku) {
@@ -78,11 +80,10 @@ class sku_model extends \TMS_MODEL {
 	 *
 	 */
 	public function &byProduct($productId, $options = array()) {
-		/**
-		 * sku
-		 */
+		$fields = isset($options['fields']) ? $options['fields'] : 'id,cate_sku_id,icon_url,ori_price,price,product_code,unlimited_quantity,quantity,sku_value,validity_begin_at,validity_end_at,required';
+
 		$q = array(
-			'*',
+			$fields,
 			'xxt_merchant_product_sku',
 			"prod_id=$productId",
 		);
@@ -102,14 +103,26 @@ class sku_model extends \TMS_MODEL {
 		$q2 = array('o' => 'validity_begin_at');
 
 		$skus = $this->query_objs_ss($q, $q2);
+		/*sku的分类信息*/
+		$cateSkus = array();
 		if (!empty($skus)) {
 			$modelCate = \TMS_MODEL::M('app\merchant\catelog');
+			$cateSkuOptions = array(
+				'fields' => 'id,name,has_validity,require_pay',
+			);
 			foreach ($skus as &$sku) {
-				$sku->cateSku = $modelCate->skuById($sku->cate_sku_id);
+				if (isset($cateSkus[$sku->cate_sku_id])) {
+					$cateSkus[$sku->cate_sku_id]->skus[] = $sku;
+				} else {
+					$cateSku = $modelCate->skuById($sku->cate_sku_id, $cateSkuOptions);
+					$cateSku->skus = array($sku);
+					$cateSkus[$sku->cate_sku_id] = $cateSku;
+				}
+				unset($sku->cate_sku_id);
 			}
 		}
 
-		return $skus;
+		return $cateSkus;
 	}
 	/**
 	 * 删除库存

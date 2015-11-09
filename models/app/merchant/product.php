@@ -87,28 +87,43 @@ class product_model extends \TMS_MODEL {
 	}
 	/**
 	 * 根据属性值获得产品列表
+	 *
+	 * @param object $catelog 商品所属的分类
+	 * @param string $pvids 逗号分隔的商品属性值
+	 * @param array $options
 	 */
-	public function &byPropValue($catelog, $vids, $options = array()) {
+	public function &byPropValue($catelog, $pvids, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
 		$state = isset($options['state']) ? $options['state'] : array();
+		$beginAt = isset($options['beginAt']) ? $options['beginAt'] : 0;
+		$endAt = isset($options['endAt']) ? $options['endAt'] : 0;
 
 		$q = array(
 			$fields,
 			'xxt_merchant_product',
 			"cate_id=$catelog->id",
 		);
-		foreach ($vids as $vid) {
-			$q[2] .= " and prop_value like '%:\"$vid\"%'";
+		foreach ($pvids as $pvid) {
+			$q[2] .= " and prop_value like '%:\"$pvid\"%'";
 		}
 		isset($state['disabled']) && $q[2] .= " and disabled='" . $state['disabled'] . "'";
 		isset($state['active']) && $q[2] .= " and active='" . $state['active'] . "'";
 
 		$products = $this->query_objs_ss($q);
-
+		/*填充详细信息*/
 		if (!empty($products) && $cascaded === 'Y') {
+			$modelSku = \TMS_APP::M('app\merchant\sku');
+			$skuOptions = array(
+				'state' => array(
+					'disabled' => 'N',
+				),
+				'beginAt' => $beginAt,
+				'endAt' => $endAt,
+			);
 			foreach ($products as &$prod) {
 				$prod->propValue = $this->_fillPropValue($prod->prop_value, $catelog);
+				$prod->cateSkus = $modelSku->byProduct($prod->id, $skuOptions);
 			}
 		}
 

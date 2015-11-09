@@ -62,27 +62,38 @@ class product extends \member_base {
 		return new \ResponseData($params);
 	}
 	/**
-	 * 获得属性的可选值
+	 * 获得符合条件的商品
 	 *
-	 * @param int $catelog
-	 * @param string 逗号分隔的属性值
+	 * @param int $catelog 商品所属的分类
+	 * @param string $pvids 逗号分隔的商品属性值
+	 * @param int $beginAt 商品的sku的有效期开始时间
+	 * @param int $endAt 商品的sku的有效期结束时间
+	 *
 	 */
-	public function list_action($catelog, $vids = '', $cascaded = 'N') {
-		$vids = empty($vids) ? array() : explode(',', $vids);
-
+	public function list_action($catelog, $pvids = '', $beginAt = 0, $endAt = 0, $cascaded = 'N') {
+		/*分类*/
 		$cateFields = 'id,sid,name,pattern,pages';
 		$catelog = $this->model('app\merchant\catelog')->byId($catelog, array('fields' => $cateFields, 'cascaded' => 'Y'));
-
+		/*商品属性*/
+		$pvids = empty($pvids) ? array() : explode(',', $pvids);
+		/*商品状态*/
 		$state = array(
 			'disabled' => 'N',
 			'active' => 'Y',
 		);
+		/*有效期，缺省为当天*/
+		$beginAt === 0 && ($beginAt = mktime(0, 0, 0));
+		$endAt === 0 && ($endAt = mktime(23, 59, 59));
+
 		$options = array(
 			'fields' => 'id,cate_id,name,main_img,img,detail_img,detail_text,prop_value,sku_info',
 			'state' => $state,
 			'cascaded' => $cascaded,
+			'beginAt' => $beginAt,
+			'endAt' => $endAt,
 		);
-		$products = $this->model('app\merchant\product')->byPropValue($catelog, $vids, $options);
+		$modelProd = $this->model('app\merchant\product');
+		$products = $modelProd->byPropValue($catelog, $pvids, $options);
 
 		return new \ResponseData(array('products' => $products, 'catelog' => $catelog));
 	}

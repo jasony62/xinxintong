@@ -146,7 +146,7 @@ app.factory('Product', function($http, $q) {
         deferred = $q.defer();
         promise = deferred.promise;
         url = '/rest/app/merchant/product/list?catelog=' + catelogId;
-        propValues && propValues.length && (url += '&vids=' + propValues);
+        propValues && propValues.length && (url += '&pvids=' + propValues);
         url += '&cascaded=Y';
         $http.get(url).success(function(rsp) {
             if (typeof rsp === 'undefined') {

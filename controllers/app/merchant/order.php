@@ -120,41 +120,58 @@ class order extends \member_base {
 		$skus = $order->skus;
 		$catelogs = array();
 		if (!empty($skus)) {
-			$cateSkus = array();
 			$modelCate = $this->model('app\merchant\catelog');
 			$modelProd = $this->model('app\merchant\product');
 			$modelSku = $this->model('app\merchant\sku');
-			$cateFields = 'id,sid,name,pattern,pages';
-			$prodFields = 'id,sid,cate_id,name,main_img,img,detail_text,detail_text,prop_value,buy_limit,sku_info';
-			$skuFields = 'id,sid,cate_id,cate_sku_id,icon_url,price,ori_price,quantity,validity_begin_at,validity_end_at,sku_value';
+			$cateFields = 'id,name,pattern,pages';
+			$prodFields = 'id,name,main_img,img,detail_text,detail_text,prop_value,buy_limit,sku_info';
+			$cateSkuOptions = array(
+				'fields' => 'id,name,has_validity,require_pay',
+			);
+			$skuOptions = array(
+				'cascaded' => 'N',
+				'fields' => 'id,cate_id,cate_sku_id,prod_id,icon_url,price,ori_price,quantity,validity_begin_at,validity_end_at,sku_value',
+			);
 			foreach ($skus as &$sku) {
+				$sku = $modelSku->byId($sku->sku_id, $skuOptions);
 				if (!isset($catelogs[$sku->cate_id])) {
 					/*catelog*/
 					$catelog = $modelCate->byId($sku->cate_id, array('fields' => $cateFields, 'cascaded' => 'Y'));
-					$catelog->pages = isset($catelog->pages) ? json_encode($catelog->pages) : new \stdClass;
+					$catelog->pages = isset($catelog->pages) ? json_decode($catelog->pages) : new \stdClass;
 					$catelog->products = array();
 					$catelogs[$catelog->id] = &$catelog;
 					/*product*/
 					$product = $modelProd->byId($sku->prod_id, array('cascaded' => 'N', 'fields' => $prodFields, 'catelog' => $catelog));
-					$product->skus = array();
-					$catelog->products[$product->id] = &$product;
+					$product->cateSkus = array();
+					/*catelog sku*/
+					$cateSku = $modelCate->skuById($sku->cate_sku_id, $cateSkuOptions);
+					$cateSku->skus = array($sku);
+					$product->cateSkus[$cateSku->id] = $cateSku;
+					$catelog->products[$product->id] = $product;
 				} else {
 					$catelog = &$catelogs[$sku->cate_id];
 					if (!isset($catelog->products[$sku->prod_id])) {
 						$product = $modelProd->byId($sku->prod_id, array('cascaded' => 'N', 'fields' => $prodFields, 'catelog' => $catelog));
-						$product->skus = array();
-						$catelog->products[$product->id] = &$product;
+						$product->cateSkus = array();
+						/*catelog sku*/
+						$cateSku = $modelCate->skuById($sku->cate_sku_id, $cateSkuOptions);
+						$cateSku->skus = array($sku);
+						$product->cateSkus[$cateSku->id] = $cateSku;
 					} else {
 						$product = $catelog->products[$sku->prod_id];
+						if (!isset($product->cateSkus[$sku->cate_sku_id])) {
+							/*catelog sku*/
+							$cateSku = $modelCate->skuById($sku->cate_sku_id, $cateSkuOptions);
+							$cateSku->skus = array($sku);
+							$product->cateSkus[$cateSku->id] = $cateSku;
+						} else {
+							$product->cateSkus[$sku->cate_sku_id]->skus[] = $sku;
+						}
 					}
 				}
-				if (isset($cateSkus[$sku->cate_sku_id])) {
-					$cateSku = $cateSkus[$sku->cate_sku_id];
-				} else {
-					$cateSku = $modelCate->skuById($sku->cate_sku_id);
-					$cateSkus[$sku->cate_sku_id] = $cateSku;
-				}
-				$product->skus[] = $modelSku->byId($sku->sku_id, array('cascaded' => 'Y', 'fields' => $skuFields, 'cateSku' => $cateSku));
+				unset($sku->cate_id);
+				unset($sku->cate_sku_id);
+				unset($sku->prod_id);
 			}
 		}
 

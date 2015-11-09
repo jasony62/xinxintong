@@ -29,9 +29,9 @@ app.register.controller('shelfCtrl', ['$scope', '$http', 'Catelog', 'Product', f
 		$scope.toggleFilter();
 	};
 	$scope.listProduct = function() {
-		var vids;
-		vids = options.propValues.join(',');
-		facProduct.list($scope.selectedCatelog.id, vids).then(function(data) {
+		var pvids;
+		pvids = options.propValues.join(',');
+		facProduct.list($scope.selectedCatelog.id, pvids).then(function(data) {
 			$scope.products = data.products;
 		});
 	};

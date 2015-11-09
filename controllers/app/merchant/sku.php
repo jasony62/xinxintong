@@ -28,6 +28,10 @@ class sku extends \member_base {
 		$user = $this->getUser($mpid);
 		$modelSku = $this->model('app\merchant\sku');
 
+		/*有效期，缺省为当天*/
+		$beginAt === 0 && ($beginAt = mktime(0, 0, 0));
+		$endAt === 0 && ($endAt = mktime(23, 59, 59));
+		/*sku状态*/
 		$state = array(
 			'disabled' => 'N',
 			'active' => 'Y',
@@ -39,13 +43,13 @@ class sku extends \member_base {
 			'endAt' => $endAt,
 		);
 
-		$skus = $modelSku->byProduct($product, $options);
+		$cateSkus = $modelSku->byProduct($product, $options);
 
 		if ($autogen === 'Y' && $beginAt != 0 && $endAt != 0) {
-			$skus = $this->_autogen($user->openid, $product, $beginAt, $endAt, $skus);
+			$cateSkus = $this->_autogen($user->openid, $product, $beginAt, $endAt, $cateSkus);
 		}
 
-		return new \ResponseData($skus);
+		return new \ResponseData($cateSkus);
 	}
 	/**
 	 *
@@ -65,6 +69,9 @@ class sku extends \member_base {
 			$modelProd = $this->model('app\merchant\product');
 			$cateFields = 'id,sid,name,pattern,pages';
 			$prodFields = 'id,sid,cate_id,name,main_img,img,detail_text,detail_text,prop_value,buy_limit,sku_info';
+			$cateSkuOptions = array(
+				'fields' => 'id,name,has_validity,require_pay',
+			);
 			foreach ($skus as &$sku) {
 				if (!isset($catelogs[$sku->cate_id])) {
 					/*catelog*/
@@ -74,19 +81,33 @@ class sku extends \member_base {
 					$catelogs[$catelog->id] = &$catelog;
 					/*product*/
 					$product = $modelProd->byId($sku->prod_id, array('cascaded' => 'N', 'fields' => $prodFields, 'catelog' => $catelog));
-					$product->skus = array();
+					$product->cateSkus = array();
+					/*catelog sku*/
+					$cateSku = $modelCate->skuById($sku->cate_sku_id, $cateSkuOptions);
+					$cateSku->skus = array($sku);
+					$product->cateSkus[$cateSku->id] = $cateSku;
 					$catelog->products[$product->id] = $product;
 				} else {
 					$catelog = &$catelogs[$sku->cate_id];
 					if (!isset($catelog->products[$sku->prod_id])) {
 						$product = $modelProd->byId($sku->prod_id, array('cascaded' => 'N', 'fields' => $prodFields, 'catelog' => $catelog));
-						$product->skus = array();
-						$catelog->products[$product->id] = $product;
+						$product->cateSkus = array();
+						/*catelog sku*/
+						$cateSku = $modelCate->skuById($sku->cate_sku_id, $cateSkuOptions);
+						$cateSku->skus = array($sku);
+						$product->cateSkus[$cateSku->id] = $cateSku;
 					} else {
 						$product = $catelog->products[$sku->prod_id];
+						if (!isset($product->cateSkus[$sku->cate_sku_id])) {
+							/*catelog sku*/
+							$cateSku = $modelCate->skuById($sku->cate_sku_id, $cateSkuOptions);
+							$cateSku->skus = array($sku);
+							$product->cateSkus[$cateSku->id] = $cateSku;
+						} else {
+							$product->cateSkus[$sku->cate_sku_id]->skus[] = $sku;
+						}
 					}
 				}
-				$product->skus[] = $sku;
 			}
 		}
 
@@ -103,6 +124,7 @@ class sku extends \member_base {
 	 */
 	private function &_autogen($creater, $productId, $beginAt, $endAt, $existedSkus) {
 		$modelCate = $this->model('app\merchant\catelog');
+		$modelSku = $this->model('app\merchant\sku');
 
 		$merged = $existedSkus;
 		$catelog = $modelCate->byProductId($productId);
@@ -132,7 +154,7 @@ class sku extends \member_base {
 							'active' => 'Y',
 						);
 						$skuId = $this->model()->insert('xxt_merchant_product_sku', $gened, true);
-						$merged[] = $this->model('app\merchant\sku')->byId($skuId);
+						$merged[] = $modelSku->byId($skuId);
 					}
 				}
 			}
@@ -144,9 +166,11 @@ class sku extends \member_base {
 	 * 检查sku是否已经存在
 	 */
 	private function isSkuExisted($existedSkus, $checkedSku) {
-		foreach ($existedSkus as $existed) {
-			if ($existed->validity_begin_at == $checkedSku->validity_begin_at && $existed->validity_end_at == $checkedSku->validity_end_at) {
-				return true;
+		foreach ($existedSkus as $existedCateSku) {
+			foreach ($existedCateSku->skus as $existed) {
+				if ($existed->validity_begin_at == $checkedSku->validity_begin_at && $existed->validity_end_at == $checkedSku->validity_end_at) {
+					return true;
+				}
 			}
 		}
 		return false;

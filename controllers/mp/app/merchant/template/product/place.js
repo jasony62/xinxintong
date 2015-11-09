@@ -15,7 +15,7 @@ app.register.controller('productCtrl', ['$scope', '$http', '$timeout', 'Product'
 				autogen: 'Y'
 			};
 			facSku.get(options).then(function(skus) {
-				$scope.skus = skus;
+				$scope.cateSkus = skus;
 				$scope.skuLoading = false;
 			})
 		});
@@ -43,14 +43,14 @@ app.register.controller('productCtrl', ['$scope', '$http', '$timeout', 'Product'
 		$scope.skuFilter.time.end += 86400;
 		productGet($scope.$parent.productId);
 	};
-	var chooseSkuSegment = function(start, end) {
+	var chooseSkuSegment = function(cateSku, start, end) {
 		var seg, i, sku;
 		seg = new Array(2);
-		seg[0] = $scope.skus.indexOf(start);
-		seg[1] = $scope.skus.indexOf(end);
+		seg[0] = cateSku.skus.indexOf(start);
+		seg[1] = cateSku.skus.indexOf(end);
 		seg[0] > seg[1] && seg.reverse();
 		for (i = seg[0] + 1; i < seg[1]; i++) {
-			sku = $scope.skus[i];
+			sku = cateSku.skus[i];
 			if (!sku.selected) {
 				sku.selected = true;
 				$scope.orderInfo.skus[sku.id] = {
@@ -59,7 +59,7 @@ app.register.controller('productCtrl', ['$scope', '$http', '$timeout', 'Product'
 			}
 		}
 	};
-	$scope.chooseSku = function(sku) {
+	$scope.chooseSku = function(cateSku, sku) {
 		if (sku.quantity == 0) return;
 		sku.selected = !sku.selected;
 		if (sku.selected) {
@@ -69,7 +69,7 @@ app.register.controller('productCtrl', ['$scope', '$http', '$timeout', 'Product'
 			if (startSku === null) {
 				startSku = sku;
 			} else {
-				chooseSkuSegment(startSku, sku);
+				chooseSkuSegment(cateSku, startSku, sku);
 				startSku = null;
 			}
 		} else {

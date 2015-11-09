@@ -1,9 +1,9 @@
 app.register.controller('notifyCtrl', ['$scope', '$http', 'Order', function($scope, $http, Order) {
 	var facOrder;
-	var summarySku = function(catelog, product, sku) {
+	var summarySku = function(catelog, product, cateSku, sku) {
 		if (sku.summary && sku.summary.length) {
 			return sku.summary;
-		} else if (catelog.pattern === 'place' && sku.cateSku.has_validity === 'Y') {
+		} else if (catelog.pattern === 'place' && cateSku.has_validity === 'Y') {
 			var begin, end, hour, min;
 			begin = new Date();
 			begin.setTime(sku.validity_begin_at * 1000);
@@ -18,18 +18,22 @@ app.register.controller('notifyCtrl', ['$scope', '$http', 'Order', function($sco
 
 			return begin + '-' + end;
 		} else {
-			return sku.cateSku.name;
+			return cateSku.name;
 		}
 	};
 	var setSkus = function(catelogs) {
-		var i, j, k, catelog, product, sku;
+		var i, j, k, l, catelog, product, cateSku, sku;
 		for (i in catelogs) {
 			catelog = catelogs[i];
 			for (j in catelog.products) {
 				product = catelog.products[j];
-				for (k in product.skus) {
-					sku = product.skus[k];
-					sku._summary = summarySku(catelog, product, sku);
+				for (k in product.cateSkus) {
+					cateSku = product.cateSkus[k];
+					for (l in cateSku.skus) {
+						sku = cateSku.skus[l];
+						sku.cateSku = cateSku;
+						sku._summary = summarySku(catelog, product, cateSku, sku);
+					}
 				}
 			}
 		}

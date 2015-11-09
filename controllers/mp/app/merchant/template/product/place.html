@@ -16,25 +16,24 @@
         </div>
     </div>
     <div id='skus'>
-        <div class='sku-filter form-group'>
-            <div class='date input-group'>
-                <span class='input-group-btn'>
-                    <button class='btn btn-default' ng-click='prevDay()'>上一天</button>
-                </span>
-                <p class='form-control' ng-bind="skuFilter.time.begin*1000|date:'yy/MM/dd'"></p>
-                <span class='input-group-btn'>
-                    <button class='btn btn-default' ng-click='nextDay()'>下一天</button>
-                </span>
+        <div ng-repeat='cateSku in cateSkus'>
+            <div class='sku-filter form-group'>
+                <div class='date input-group'>
+                    <span class='input-group-btn'>
+                        <button class='btn btn-default' ng-click='prevDay()'>上一天</button>
+                    </span>
+                    <p class='form-control' ng-bind="skuFilter.time.begin*1000|date:'yy/MM/dd'"></p>
+                    <span class='input-group-btn'>
+                        <button class='btn btn-default' ng-click='nextDay()'>下一天</button>
+                    </span>
+                </div>
             </div>
-        </div>
-        <div class='sku-grid' ng-show='skus.length'>
-            <div class='sku' ng-class="{'selected':s.selected,'unavailable':s.quantity==0}" ng-repeat='s in skus' ng-click='chooseSku(s)'>
-                <div class='beginAt' ng-bind="s.validity_begin_at*1000|date:'hh:mm'"></div>
-                <div class='endAt' ng-bind="s.validity_end_at*1000|date:'hh:mm'"></div>
+            <div class='sku-grid clearfix' ng-show='cateSku.skus.length'>
+                <div class='sku' ng-class="{'selected':sku.selected,'unavailable':sku.quantity==0}" ng-repeat='sku in cateSku.skus' ng-click='chooseSku(cateSku,sku)'>
+                    <div class='beginAt' ng-bind="sku.validity_begin_at*1000|date:'hh:mm'"></div>
+                    <div class='endAt' ng-bind="sku.validity_end_at*1000|date:'hh:mm'"></div>
+                </div>
             </div>
-        </div>
-        <div class='sku-grid' ng-show='!skus.length'>
-            没有可以选择的内容
         </div>
     </div>
     <footer>

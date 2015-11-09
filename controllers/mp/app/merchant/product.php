@@ -212,14 +212,14 @@ class product extends \mp\app\app_base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 *
+	 * @param int $product
 	 */
 	public function skuList_action($product) {
 		$modelSku = $this->model('app\merchant\sku');
-		$state = array(
+		$options = array(
 			'disabled' => 'N',
 		);
-		$skus = $modelSku->byProduct($product, $state);
+		$skus = $modelSku->byProduct($product, $options);
 
 		return new \ResponseData($skus);
 	}

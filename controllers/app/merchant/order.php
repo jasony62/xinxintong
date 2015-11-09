@@ -206,6 +206,7 @@ class order extends \member_base {
 			$member = new \stdClass;
 			$member->name = $orderInfo->receiver_name;
 			$member->mobile = $orderInfo->receiver_mobile;
+			die('xxxxxxx');
 			if ($existentMember = $modelMemb->byOpenid($mpid, $user->openid, 'mid', $authid)) {
 				$rst = $modelMemb->modify($mpid, $authid, $existentMember->mid, $member);
 			} else {

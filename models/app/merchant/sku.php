@@ -81,6 +81,8 @@ class sku_model extends \TMS_MODEL {
 	 */
 	public function &byProduct($productId, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : 'id,cate_sku_id,icon_url,ori_price,price,product_code,unlimited_quantity,quantity,sku_value,validity_begin_at,validity_end_at,required';
+		$beginAt = isset($options['beginAt']) ? $options['beginAt'] : 0;
+		$endAt = isset($options['endAt']) ? $options['endAt'] : 0;
 
 		$q = array(
 			$fields,
@@ -94,11 +96,11 @@ class sku_model extends \TMS_MODEL {
 			isset($state['active']) && $q[2] .= " and active='" . $state['active'] . "'";
 		}
 		/*根据sku的有效期*/
-		if (isset($options['beginAt']) && $options['beginAt']) {
-			$q[2] .= " and validity_begin_at>=" . $options['beginAt'];
-		}
-		if (isset($options['endAt']) && $options['endAt']) {
-			$q[2] .= " and validity_begin_at<=" . $options['endAt'];
+		if ($beginAt || $endAt) {
+			$q[2] .= " and (has_validity='N' or (has_validity>='Y'";
+			$beginAt && $q[2] .= " and validity_begin_at>=$beginAt";
+			$endAt && $q[2] .= " and validity_begin_at<=$endAt";
+			$q[2] .= "))";
 		}
 		$q2 = array('o' => 'validity_begin_at');
 

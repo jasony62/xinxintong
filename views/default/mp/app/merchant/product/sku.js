@@ -52,7 +52,18 @@
             $scope.updateSku(data.obj, data.state);
         });
         http2.get('/rest/mp/app/merchant/product/skuList?product=' + $scope.productId, function(rsp) {
-            $scope.skus = rsp.data;
+            var i, j, cateSkus, cateSku, sku, skus;
+            cateSkus = rsp.data;
+            skus = [];
+            for (i in cateSkus) {
+                cateSku = cateSkus[i];
+                for (j in cateSku.skus) {
+                    sku = cateSku.skus[j];
+                    sku.cateSku = cateSku;
+                    skus.push(sku);
+                }
+            }
+            $scope.skus = skus;
         });
         $scope.$watch('editing', function(nv) {
             if (nv) {

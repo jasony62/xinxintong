@@ -355,10 +355,18 @@ class catelog extends \mp\app\app_base {
 		if (isset($data->autogen_rule)) {
 			$data->autogen_rule = json_encode($data->autogen_rule);
 		}
+
 		$data->modify_at = time();
 		$data->reviser = \TMS_CLIENT::get_client_uid();
 
 		$rst = $this->model()->update('xxt_merchant_catelog_sku', (array) $data, "id=$sku");
+		if ($rst && isset($data->has_validity)) {
+			$this->model()->update(
+				'xxt_merchant_product_sku',
+				array('has_validity' => $data->has_validity),
+				"cate_sku_id=$sku"
+			);
+		}
 
 		return new \ResponseData($rst);
 	}

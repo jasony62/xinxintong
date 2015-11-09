@@ -223,6 +223,7 @@ $sql .= ",price int not null default 0";
 $sql .= ",icon_url text";
 $sql .= ",unlimited_quantity char(1) not null default 'N'"; //没有数量限制
 $sql .= ",quantity int not null default 0";
+$sql .= ",has_validity char(1) not null default 'N'"; //是否有有效期
 $sql .= ",validity_begin_at int not null default 0";
 $sql .= ",validity_end_at int not null default 0";
 $sql .= ",product_code varchar(255) not null default ''";

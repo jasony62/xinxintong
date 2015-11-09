@@ -147,6 +147,7 @@ class sku extends \member_base {
 							'ori_price' => $ns->price,
 							'price' => $ns->price,
 							'quantity' => $ns->quantity,
+							'has_validity' => $cs->has_validity,
 							'validity_begin_at' => $ns->validity_begin_at,
 							'validity_end_at' => $ns->validity_end_at,
 							'product_code' => '',

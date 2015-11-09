@@ -239,7 +239,10 @@ class catelog_model extends \TMS_MODEL {
 	 * @param int $skuId
 	 */
 	public function removeSku($skuId) {
-		$sku = $this->skuById($skuId);
+		$options = array(
+			'fields' => 'used',
+		);
+		$sku = $this->skuById($skuId, $options);
 		if ($sku->used === 'Y') {
 			$rst = $this->update('xxt_merchant_catelog_sku', array('disabled' => 'Y'), "id=$skuId");
 		} else {

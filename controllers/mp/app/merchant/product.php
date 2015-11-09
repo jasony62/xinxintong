@@ -231,6 +231,7 @@ class product extends \mp\app\app_base {
 	 */
 	public function skuCreate_action($product, $cateSku) {
 		$prod = $this->model('app\merchant\product')->byId($product);
+		$cateSku = $this->model('app\merchant\catelog')->skuById($cateSku);
 
 		$creater = \TMS_CLIENT::get_client_uid();
 
@@ -238,7 +239,7 @@ class product extends \mp\app\app_base {
 			'mpid' => $prod->mpid,
 			'sid' => $prod->sid,
 			'cate_id' => $prod->cate_id,
-			'cate_sku_id' => $cateSku,
+			'cate_sku_id' => $cateSku->id,
 			'prod_id' => $prod->id,
 			'create_at' => time(),
 			'creater' => $creater,
@@ -246,13 +247,14 @@ class product extends \mp\app\app_base {
 			'ori_price' => 0,
 			'price' => 0,
 			'quantity' => 1,
+			'has_validity' => $cateSku->has_validity,
 			'product_code' => '',
 		);
 		$skuId = $this->model()->insert('xxt_merchant_product_sku', $sku, true);
 		$sku = $this->model('app\merchant\sku')->byId($skuId);
 
 		/*更新catelog sku状态*/
-		$this->model('app\merchant\catelog')->useSku($cateSku);
+		$this->model('app\merchant\catelog')->useSku($cateSku->id);
 
 		return new \ResponseData($sku);
 	}

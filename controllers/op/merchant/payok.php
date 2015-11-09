@@ -112,6 +112,15 @@ class payok extends \xxt_base {
 		$notify->Handle(false);
 	}
 	/**
+	 *
+	 */
+	public function test_action($mpid, $order) {
+		$order = \TMS_APP::model('app\merchant\order')->byId($order);
+		$this->notify($mpid, $order);
+
+		return new \ResponseData('ok');
+	}
+	/**
 	 * 通知客服有新订单
 	 */
 	public function notify($mpid, $order) {
@@ -131,7 +140,7 @@ class payok extends \xxt_base {
 				return false;
 			}
 			/**/
-			$tmplmsg = $modelTmpl->byId($mapping->msgid, , array('cascaded' => 'Y'));
+			$tmplmsg = $modelTmpl->byId($mapping->msgid, array('cascaded' => 'Y'));
 			if (empty($tmplmsg->params)) {
 				return false;
 			}

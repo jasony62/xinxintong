@@ -9,13 +9,15 @@ app.register.controller('productCtrl', ['$scope', '$http', 'Product', 'Sku', fun
 			$scope.propValues = product.propValue;
 			facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId, id);
 			options = {};
-			facSku.get(options).then(function(skus) {
-				angular.forEach(skus, function(sku) {
-					if (sku.required) {
-						$scope.chooseSku(sku);
-					}
+			facSku.get(options).then(function(cateSkus) {
+				angular.forEach(cateSkus, function(cateSku) {
+					angular.forEach(cateSku.skus, function(sku) {
+						if (sku.required) {
+							$scope.chooseSku(sku);
+						}
+					});
 				});
-				$scope.skus = skus;
+				$scope.cateSkus = cateSkus;
 			})
 		});
 	};

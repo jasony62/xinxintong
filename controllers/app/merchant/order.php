@@ -206,11 +206,13 @@ class order extends \member_base {
 			$member = new \stdClass;
 			$member->name = $orderInfo->receiver_name;
 			$member->mobile = $orderInfo->receiver_mobile;
-			die('xxxxxxx');
 			if ($existentMember = $modelMemb->byOpenid($mpid, $user->openid, 'mid', $authid)) {
 				$rst = $modelMemb->modify($mpid, $authid, $existentMember->mid, $member);
 			} else {
 				$rst = $modelMemb->create2($mpid, $authid, $user->fan->fid, $member);
+			}
+			if (false === $rst[0]) {
+				return new \ResponseError($rst[1]);
 			}
 		}
 		return new \ResponseData($order->id);

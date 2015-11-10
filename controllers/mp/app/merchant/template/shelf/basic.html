@@ -7,9 +7,18 @@
 			<div class='form-group' ng-repeat='p in selectedCatelog.properties'>
 				<div class='name' ng-bind='p.name'></div>
 				<div class='options'>
-					<span class='option' ng-class="{'selected':v._selected}"ng-repeat="v in selectedCatelog.propValues[p.id]" ng-bind='v.name' ng-click='clickOption(p,v)'></span>
+					<span class='option' ng-class="{'selected':v._selected}" ng-repeat="v in selectedCatelog.propValues[p.id]" ng-bind='v.name' ng-click='clickOption(p,v)'></span>
 				</div>
 			</div>
+			<div class='date input-group' ng-if="selectedCatelog.has_validity='Y'">
+                <span class='input-group-btn'>
+                    <button class='btn btn-default' ng-click='prevDay()'>上一天</button>
+                </span>
+                <p class='form-control' ng-bind="options.time.begin*1000|date:'yy/MM/dd'"></p>
+                <span class='input-group-btn'>
+                    <button class='btn btn-default' ng-click='nextDay()'>下一天</button>
+                </span>
+            </div>
 			<footer>
 				<button ng-click='toggleFilter()'>取消</button>
 				<button ng-click='doFilter()'>确定</button>
@@ -40,7 +49,7 @@
 			</div>
 		</div>
 		<footer>
-			<button ng-click='gotoCart()'>所有已选</button>
+			<button class='cart' ng-click='gotoCart()'><span>已选</span><div class='status' ng-bind='Cart.countOfProducts'></div></button>
 			<button ng-click='toggleFilter()'>筛选</button>
 		</footer>
 	</div>

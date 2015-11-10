@@ -1,27 +1,9 @@
 app.register.controller('cartCtrl', ['$scope', '$http', 'Sku', function($scope, $http, Sku) {
 	var facSku;
-	var setSkus = function(catelogs) {
-		var i, j, catelog, product;
-		for (i in catelogs) {
-			catelog = catelogs[i];
-			for (j in catelog.products) {
-				product = catelog.products[j];
-				angular.forEach(product.skus, function(v) {
-					$scope.orderInfo.skus[v.id] = {
-						count: 1
-					};
-				});
-			}
-		}
-	};
-	$scope.orderInfo = {
-		skus: {}
-	};
-	$scope.summarySku = function(catelog, product, sku) {
+	var summarySku = function(catelog, product, cateSku, sku) {
 		if (sku.summary && sku.summary.length) {
 			return sku.summary;
-		}
-		if (catelog.pattern === 'place' && sku.cateSku.has_validity === 'Y') {
+		} else if (catelog.pattern === 'place' && cateSku.has_validity === 'Y') {
 			var begin, end, hour, min;
 			begin = new Date();
 			begin.setTime(sku.validity_begin_at * 1000);
@@ -35,10 +17,46 @@ app.register.controller('cartCtrl', ['$scope', '$http', 'Sku', function($scope, 
 			end = hour + ':' + min;
 
 			return begin + '-' + end;
+		} else {
+			return cateSku.name;
 		}
-		return '';
 	};
-	$scope.removeSku = function(product, sku, index) {
+	var isAvailable = function(sku) {
+		if (sku.unlimited_quantity === 'Y') {
+			return true;
+		}
+		if (sku.quantity > 0) {
+			return true;
+		}
+		return false;
+	};
+	var setSkus = function(catelogs) {
+		var i, j, k, l, catelog, product, cateSku, sku;
+		for (i in catelogs) {
+			catelog = catelogs[i];
+			for (j in catelog.products) {
+				product = catelog.products[j];
+				for (k in product.cateSkus) {
+					cateSku = product.cateSkus[k];
+					for (l in cateSku.skus) {
+						sku = cateSku.skus[l];
+						sku.cateSku = cateSku;
+						sku._summary = summarySku(catelog, product, cateSku, sku);
+						sku._available = isAvailable(sku);
+						$scope.orderInfo.skus[sku.id] = {
+							count: 1
+						};
+						$scope.orderInfo.counter++;
+					}
+				}
+			}
+		}
+	};
+	$scope.orderInfo = {
+		skus: {},
+		counter: 0
+	};
+	$scope.removeSku = function(sku, index) {
 		var skuIds;
 		skuIds = Cookies.get('xxt.app.merchant.cart.skus');
 		skuIds = skuIds.split(',');
@@ -48,7 +66,7 @@ app.register.controller('cartCtrl', ['$scope', '$http', 'Sku', function($scope, 
 		sku.removed = true;
 		delete $scope.orderInfo.skus[sku.id];
 	};
-	$scope.restoreSku = function(product, sku, index) {
+	$scope.restoreSku = function(sku, index) {
 		if (!sku.removed || sku.quantity == 0) return;
 		var skuIds;
 		skuIds = Cookies.get('xxt.app.merchant.cart.skus');
@@ -61,9 +79,17 @@ app.register.controller('cartCtrl', ['$scope', '$http', 'Sku', function($scope, 
 		};
 		delete sku.removed;
 	};
+	$scope.emptyCart = function() {
+		if (window.confirm('确定清空？')) {
+			Cookies.set('xxt.app.merchant.cart.products', '');
+			Cookies.set('xxt.app.merchant.cart.skus', '');
+			$scope.orderInfo.skus = [];
+			history.back();
+		}
+	};
 	facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId);
 	facSku.list($scope.$parent.skuIds).then(function(data) {
-		$scope.catelogs = data;
 		setSkus(data);
+		$scope.catelogs = data;
 	});
 }]);

@@ -29,7 +29,7 @@
                 </div>
             </div>
             <div class='sku-grid clearfix' ng-show='cateSku.skus.length'>
-                <div class='sku' ng-class="{'selected':sku.selected,'unavailable':sku.quantity==0}" ng-repeat='sku in cateSku.skus' ng-click='chooseSku(cateSku,sku)'>
+                <div class='sku' ng-class="{'selected':sku.selected,'unavailable':sku.quantity<=0}" ng-repeat='sku in cateSku.skus' ng-click='chooseSku(cateSku,sku)'>
                     <div class='beginAt' ng-bind="sku.validity_begin_at*1000|date:'hh:mm'"></div>
                     <div class='endAt' ng-bind="sku.validity_end_at*1000|date:'hh:mm'"></div>
                 </div>
@@ -37,8 +37,8 @@
         </div>
     </div>
     <footer>
-        <button ng-click='addOther(orderInfo.skus)'>添加其他</button>
-        <button ng-click='gotoCart(orderInfo.skus)'>所有已选</button>
-        <button ng-click='gotoOrder(orderInfo.skus)'>完成选择</button>
+        <button ng-click='addOther(product,orderInfo.skus)'>继续选择</button>
+        <button class='cart' ng-click='gotoCart(product,orderInfo.skus)'><span>已选</span><div class='status' ng-bind='Cart.countOfProducts'></div></button>
+        <button ng-click='gotoOrder(product,orderInfo.skus)'>完成选择</button>
     </footer>
 </div>

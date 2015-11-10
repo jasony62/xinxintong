@@ -23,7 +23,6 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
     });
     /*生成订单*/
     $scope.gotoOrder = function(skus) {
-        if (!skus) return;
         var url, i, skuIds;
         skuIds = [];
         for (i in skus) {

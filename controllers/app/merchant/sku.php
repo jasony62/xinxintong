@@ -61,7 +61,6 @@ class sku extends \member_base {
 	public function list_action($mpid, $ids) {
 		$modelSku = $this->model('app\merchant\sku');
 		$skus = $modelSku->byIds($ids);
-
 		/*按分类和商品进行分组*/
 		$catelogs = array();
 		if (!empty($skus)) {
@@ -96,6 +95,7 @@ class sku extends \member_base {
 						$cateSku = $modelCate->skuById($sku->cate_sku_id, $cateSkuOptions);
 						$cateSku->skus = array($sku);
 						$product->cateSkus[$cateSku->id] = $cateSku;
+						$catelog->products[$product->id] = $product;
 					} else {
 						$product = $catelog->products[$sku->prod_id];
 						if (!isset($product->cateSkus[$sku->cate_sku_id])) {

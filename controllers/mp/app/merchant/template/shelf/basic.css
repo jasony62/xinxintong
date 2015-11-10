@@ -25,6 +25,9 @@ body{background-color:#ddd;}
 .sku.unavailable{background:#ccc;text-decoration:line-through;color:#999;}
 .empty-sku{display:inline-block;border:1px solid #efefef;border-radius:2px;padding:.25em;margin-top:.5em;}
 
+/*cart*/
+.cart .status{display:inline-block;color:white;background:red;font-size:12px;padding:.25em .8em;border-radius:1em;margin-left:.5em}
+
 /*footer*/
 body{padding-bottom:64px;}
 footer{display:-webkit-box;position:fixed;bottom:0;left:0;right:0;border-top:1px solid #ddd;}

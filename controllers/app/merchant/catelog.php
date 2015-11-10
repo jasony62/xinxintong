@@ -27,7 +27,7 @@ class catelog extends \xxt_base {
 			'disabled' => 'N',
 			'active' => 'Y',
 		);
-		$fields = 'id,name';
+		$fields = 'id,name,has_validity';
 		$options = array(
 			'state' => $state,
 			'fields' => $fields,

@@ -74,6 +74,7 @@ $sql .= ",modify_at int not null";
 $sql .= ",parent_cate_id int not null default 0"; // 父分类ID
 $sql .= ",pattern varchar(20) not null default 'basic'"; //basic:实物，place:场所，servie:服务
 $sql .= ",name varchar(70) not null";
+$sql .= ",has_validity char(1) not null default 'N'"; //是否有有效期
 $sql .= ",submit_order_tmplmsg int not null default 0";
 $sql .= ",pay_order_tmplmsg int not null default 0";
 $sql .= ",feedback_order_tmplmsg int not null default 0";

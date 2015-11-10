@@ -110,6 +110,19 @@ class catelog extends \mp\app\app_base {
 		$nv = $this->getPostJson();
 		$rst = $this->_update($catelog, $nv);
 
+		if (isset($nv->has_validity) && $nv->has_validity === 'Y') {
+			$this->model()->update(
+				'xxt_merchant_catelog_sku',
+				array('has_validity' => 'Y'),
+				"cate_id=$catelog"
+			);
+			$this->model()->update(
+				'xxt_merchant_product_sku',
+				array('has_validity' => 'Y'),
+				"cate_id=$catelog"
+			);
+		}
+
 		return new \ResponseData($rst);
 	}
 	/**

@@ -141,12 +141,14 @@ app.factory('Product', function($http, $q) {
         });
         return promise;
     };
-    Product.prototype.list = function(catelogId, propValues) {
+    Product.prototype.list = function(catelogId, propValues, beginAt, endAt) {
         var deferred, promise, url;
         deferred = $q.defer();
         promise = deferred.promise;
         url = '/rest/app/merchant/product/list?catelog=' + catelogId;
         propValues && propValues.length && (url += '&pvids=' + propValues);
+        beginAt && (url += '&beginAt=' + beginAt);
+        endAt && (url += '&endAt=' + endAt);
         url += '&cascaded=Y';
         $http.get(url).success(function(rsp) {
             if (typeof rsp === 'undefined') {

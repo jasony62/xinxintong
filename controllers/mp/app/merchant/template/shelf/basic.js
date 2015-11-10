@@ -1,5 +1,5 @@
 app.register.controller('shelfCtrl', ['$scope', '$http', 'Catelog', 'Product', function($scope, $http, Catelog, Product) {
-	var facCatelog, facProduct, options;
+	var facCatelog, facProduct;
 	var summarySku = function(product, cateSku, sku) {
 		if (sku.summary && sku.summary.length) {
 			return sku.summary;
@@ -49,8 +49,13 @@ app.register.controller('shelfCtrl', ['$scope', '$http', 'Catelog', 'Product', f
 	};
 	facCatelog = new Catelog($scope.$parent.mpid, $scope.$parent.shopId);
 	facProduct = new Product($scope.$parent.mpid, $scope.$parent.shopId);
-	options = {
-		propValues: []
+	$scope.prevDay = function() {
+		$scope.options.time.begin -= 86400;
+		$scope.options.time.end -= 86400;
+	};
+	$scope.nextDay = function() {
+		$scope.options.time.begin += 86400;
+		$scope.options.time.end += 86400;
 	};
 	facCatelog.get().then(function(catelogs) {
 		$scope.catelogs = catelogs;
@@ -61,14 +66,24 @@ app.register.controller('shelfCtrl', ['$scope', '$http', 'Catelog', 'Product', f
 	});
 	$scope.filterOpened = false;
 	$scope.toggleFilter = function() {
+		var today;
 		$scope.filterOpened = !$scope.filterOpened;
+		if ($scope.selectedCatelog.has_validity === 'Y' && $scope.filterOpened && $scope.options.time === undefined) {
+			today = new Date();
+			today.setHours(0, 0, 0, 0);
+			today = today.getTime() / 1000;
+			$scope.options.time = {
+				begin: today,
+				end: today + 86399
+			};
+		}
 	};
 	$scope.clickOption = function(prop, propValue) {
 		propValue._selected = !propValue._selected;
 		if (propValue._selected) {
-			options.propValues.push(propValue.id);
+			$scope.options.propValues.push(propValue.id);
 		} else {
-			options.propValues.splice(options.propValues.indexOf(propValue.id), 1);
+			$scope.options.propValues.splice($scope.options.propValues.indexOf(propValue.id), 1);
 		}
 	};
 	$scope.doFilter = function() {
@@ -76,9 +91,15 @@ app.register.controller('shelfCtrl', ['$scope', '$http', 'Catelog', 'Product', f
 		$scope.toggleFilter();
 	};
 	$scope.listProduct = function() {
-		var pvids;
-		pvids = options.propValues.join(',');
-		facProduct.list($scope.selectedCatelog.id, pvids).then(function(data) {
+		var pvids, beginAt, endAt;
+		pvids = $scope.options.propValues.join(',');
+		if ($scope.options.time) {
+			beginAt = $scope.options.time.begin;
+			endAt = $scope.options.time.end;
+		} else {
+			beginAt = endAt = undefined;
+		}
+		facProduct.list($scope.selectedCatelog.id, pvids, beginAt, endAt).then(function(data) {
 			setSku(data.products);
 			$scope.products = data.products;
 		});

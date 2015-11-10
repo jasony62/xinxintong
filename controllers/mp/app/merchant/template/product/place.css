@@ -14,6 +14,9 @@
 .sku.selected{background:#6c6;color:white;}
 .sku.unavailable{background:#ccc;}
 
+/*cart*/
+.cart .status{display:inline-block;color:white;background:red;font-size:12px;padding:.25em .8em;border-radius:1em;margin-left:.5em}
+
 /*footer*/
 body{padding-bottom:64px;}
 footer{display:-webkit-box;position:fixed;bottom:0;left:0;right:0;border-top:1px solid #ddd;}

@@ -47,25 +47,14 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Order', function($scope,
         facOrder.create($scope.orderInfo).then(function(orderId) {
             var requirePay, cartSkuIds, cartModified;
             requirePay = false;
-            cartModified = false;
-            cartSkuIds = Cookies.get('xxt.app.merchant.cart.skus');
-            cartSkuIds = (cartSkuIds && cartSkuIds.length) ? cartSkuIds.split(',') : [];
             angular.forEach($scope.skus, function(sku) {
-                /*更新购物车*/
-                var indexOfCart;
-                indexOfCart = cartSkuIds.indexOf(sku.id);
-                if (indexOfCart !== -1) {
-                    cartSkuIds.splice(indexOfCart, 1);
-                    cartModified = true;
-                }
                 if (requirePay === false && sku.cateSku.require_pay === 'Y') {
                     requirePay = true;
+                    return false;
                 }
             });
-            if (cartModified === true) {
-                cartSkuIds = cartSkuIds.join(',');
-                Cookies.set('xxt.app.merchant.cart.skus', cartSkuIds);
-            }
+            Cookies.set('xxt.app.merchant.cart.products', '');
+            Cookies.set('xxt.app.merchant.cart.skus', '');
             if (requirePay) {
                 location.href = '/rest/app/merchant/pay?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&order=' + orderId;
             } else {

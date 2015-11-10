@@ -29,8 +29,8 @@ app.register.controller('productCtrl', ['$scope', '$http', '$timeout', 'Product'
 	$scope.skuLoading = false;
 	$scope.skuFilter = {
 		time: {
-			begin: today,
-			end: today + 86399
+			begin: $scope.beginAt || today,
+			end: $scope.endAt || (today + 86399)
 		}
 	};
 	$scope.prevDay = function() {

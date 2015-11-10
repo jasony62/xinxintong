@@ -1,10 +1,12 @@
 app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
-    var ls, url;
+    var ls, url, Cart;
     ls = location.search;
     $scope.mpid = ls.match(/mpid=([^&]*)/)[1];
     $scope.shopId = ls.match(/shop=([^&]*)/)[1];
     $scope.catelogId = ls.match(/[\?&]catelog=(.+?)(&|$)/) ? ls.match(/[\?&]catelog=(.+?)(&|$)/)[1] : '';
     $scope.productId = ls.match(/[\?&]product=(.+?)(&|$)/) ? ls.match(/[\?&]product=(.+?)(&|$)/)[1] : '';
+    $scope.beginAt = ls.match(/[\?&]beginAt=(.+?)(&|$)/) ? ls.match(/[\?&]beginAt=(.+?)(&|$)/)[1] : false;
+    $scope.endAt = ls.match(/[\?&]endAt=(.+?)(&|$)/) ? ls.match(/[\?&]endAt=(.+?)(&|$)/)[1] : false;
     $scope.errmsg = '';
     url = '/rest/app/merchant/product/pageGet?mpid=' + $scope.mpid
     url += '&shop=' + $scope.shopId;
@@ -24,9 +26,31 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
             $scope.$broadcast('xxt.app.merchant.ready');
         });
     });
+    $scope.Cart = (function() {
+        var products;
+        products = Cookies.get('xxt.app.merchant.cart.products');
+        if (products && products.length) {
+            products = products.split(',').length;
+        } else {
+            products = 0;
+        }
+        return {
+            countOfProducts: products
+        };
+    })();
     /*保存现有的选择，继续选择其他商品*/
-    $scope.addOther = function(skus) {
-        var url, i, skuIds;
+    $scope.addOther = function(product, skus) {
+        var url, i, prodIds, skuIds;
+        /*products*/
+        prodIds = Cookies.get('xxt.app.merchant.cart.products');
+        if (prodIds === undefined || prodIds.length === 0) {
+            prodIds = [];
+        } else {
+            prodIds = prodIds.split(',');
+        }
+        prodIds.indexOf(product.id) === -1 && prodIds.push(product.id);
+        Cookies.set('xxt.app.merchant.cart.products', prodIds.join(','));
+        /*skus*/
         skuIds = Cookies.get('xxt.app.merchant.cart.skus');
         if (skuIds === undefined || skuIds.length === 0) {
             skuIds = [];
@@ -34,13 +58,23 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
             skuIds = skuIds.split(',');
         }
         for (i in skus) {
-            skuIds.push(i);
+            skuIds.indexOf(i) === -1 && skuIds.push(i);
         }
         Cookies.set('xxt.app.merchant.cart.skus', skuIds.join(','));
         history.back();
     };
-    $scope.gotoCart = function(skus) {
-        var url, i, skuIds;
+    $scope.gotoCart = function(product, skus) {
+        var url, i, prodIds, skuIds;
+        /*products*/
+        prodIds = Cookies.get('xxt.app.merchant.cart.products');
+        if (prodIds === undefined || prodIds.length === 0) {
+            prodIds = [];
+        } else {
+            prodIds = prodIds.split(',');
+        }
+        prodIds.indexOf(product.id) === -1 && prodIds.push(product.id);
+        Cookies.set('xxt.app.merchant.cart.products', prodIds.join(','));
+        /*skus*/
         skuIds = Cookies.get('xxt.app.merchant.cart.skus');
         if (skuIds === undefined || skuIds.length === 0) {
             skuIds = [];
@@ -48,14 +82,14 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
             skuIds = skuIds.split(',');
         }
         for (i in skus) {
-            skuIds.push(i);
+            skuIds.indexOf(i) === -1 && skuIds.push(i);
         }
         Cookies.set('xxt.app.merchant.cart.skus', skuIds.join(','));
 
         url = '/rest/app/merchant/cart?mpid=' + $scope.mpid + '&shop=' + $scope.shopId;
         location.href = url;
     };
-    $scope.gotoOrder = function(skus) {
+    $scope.gotoOrder = function(product, skus) {
         if (!skus) return;
         var url, i, skuIds;
         skuIds = [];

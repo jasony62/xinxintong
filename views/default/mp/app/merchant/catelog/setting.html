@@ -12,6 +12,13 @@
         </select>
     </div>
     <div class='form-group'>
+        <label>需要有效期</label>
+        <select class='form-control' ng-model='editing.has_validity' ng-change="update('has_validity')">
+            <option value='N'>否</option>
+            <option value='Y'>是</option>
+        </select>
+    </div>
+    <div class='form-group'>
         <div>
             <label>商品属性</label>
             <button class='btn btn-default btn-xs' ng-click="addProp()">

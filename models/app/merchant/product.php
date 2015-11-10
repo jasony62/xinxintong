@@ -91,6 +91,7 @@ class product_model extends \TMS_MODEL {
 	 * @param object $catelog 商品所属的分类
 	 * @param string $pvids 逗号分隔的商品属性值
 	 * @param array $options
+	 *
 	 */
 	public function &byPropValue($catelog, $pvids, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
@@ -122,7 +123,10 @@ class product_model extends \TMS_MODEL {
 				'endAt' => $endAt,
 			);
 			foreach ($products as &$prod) {
-				$prod->propValue = $this->_fillPropValue($prod->prop_value, $catelog);
+				if (isset($prod->prop_value)) {
+					$prod->propValue = $this->_fillPropValue($prod->prop_value, $catelog);
+					unset($prod->prop_value);
+				}
 				$prod->cateSkus = $modelSku->byProduct($prod->id, $skuOptions);
 			}
 		}

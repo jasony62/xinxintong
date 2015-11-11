@@ -4,12 +4,12 @@ app.register.controller('productCtrl', ['$scope', '$http', 'Product', 'Sku', fun
 	var productGet = function(id) {
 		facProduct.get(id).then(function(product) {
 			var propValue, options;
+			facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId);
 			$scope.product = product;
 			$scope.catelog = product.catelog;
 			$scope.propValues = product.propValue;
-			facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId, id);
 			options = {};
-			facSku.get(options).then(function(cateSkus) {
+			facSku.get(product.catelog.id, id, options).then(function(cateSkus) {
 				angular.forEach(cateSkus, function(cateSku) {
 					angular.forEach(cateSku.skus, function(sku) {
 						if (sku.required) {

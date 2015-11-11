@@ -59,29 +59,6 @@ class catelog_model extends \TMS_MODEL {
 		return $catelogs;
 	}
 	/**
-	 *
-	 * @param int $productId
-	 * @param int $cascaded
-	 *
-	 */
-	public function &byProductId($productId, $cascaded = 'Y') {
-		$q = array(
-			'*',
-			'xxt_merchant_catelog c',
-			"exists(select 1 from xxt_merchant_product p where p.id=$productId and p.cate_id=c.id)",
-		);
-		$catelog = $this->query_obj_ss($q);
-		if ($catelog && $cascaded === 'Y') {
-			$cascaded = $this->cascaded($catelog->id);
-			$catelog->properties = $cascaded->properties;
-			$catelog->propValues = isset($cascaded->propValues) ? $cascaded->propValues : array();
-			$catelog->orderProperties = isset($cascaded->orderProperties) ? $cascaded->orderProperties : array();
-			$catelog->feedbackProperties = isset($cascaded->feedbackProperties) ? $cascaded->feedbackProperties : array();
-		}
-
-		return $catelog;
-	}
-	/**
 	 * $id catelog's id
 	 */
 	public function &cascaded($id) {

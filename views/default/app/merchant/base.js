@@ -166,19 +166,19 @@ app.factory('Product', function($http, $q) {
     return Product;
 });
 app.factory('Sku', function($http, $q) {
-    var Sku = function(mpid, shopId, productId) {
+    var Sku = function(mpid, shopId) {
         this.mpid = mpid;
         this.shopId = shopId;
-        this.productId = productId;
     };
-    Sku.prototype.get = function(options) {
+    Sku.prototype.get = function(catelogId, productId, options) {
         var deferred, promise, url;
         deferred = $q.defer();
         promise = deferred.promise;
         url = '/rest/app/merchant/sku/byProduct';
         url += '?mpid=' + this.mpid;
         url += '&shop=' + this.shopId;
-        url += '&product=' + this.productId;
+        url += '&catelog=' + catelogId;
+        url += '&product=' + productId;
         if (options) {
             if (options.autogen && options.autogen === 'Y') {
                 url += '&autogen=Y';

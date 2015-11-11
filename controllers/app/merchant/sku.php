@@ -18,15 +18,16 @@ class sku extends \member_base {
 	/**
 	 * 获得指定商品下的sku
 	 *
-	 * @param int $product
+	 * @param int $shop id
+	 * @param int $catelog id
+	 * @param int $product id
 	 * @param int $beginAt 有效期开始时间
 	 * @param int $endAt 有效期结束时间
 	 * @param string $autogen 是否自动生成
 	 *
 	 */
-	public function byProduct_action($mpid, $product, $beginAt = 0, $endAt = 0, $autogen = 'N') {
+	public function byProduct_action($mpid, $shop, $catelog, $product, $beginAt = 0, $endAt = 0, $autogen = 'N') {
 		$user = $this->getUser($mpid);
-		$modelSku = $this->model('app\merchant\sku');
 
 		/*有效期，缺省为当天*/
 		$beginAt === 0 && ($beginAt = mktime(0, 0, 0));
@@ -43,10 +44,32 @@ class sku extends \member_base {
 			'endAt' => $endAt,
 		);
 
+		$modelSku = $this->model('app\merchant\sku');
 		$cateSkus = $modelSku->byProduct($product, $options);
 
 		if ($autogen === 'Y' && $beginAt != 0 && $endAt != 0) {
-			$cateSkus = $this->_autogen($user->openid, $product, $beginAt, $endAt, $cateSkus);
+			$q = array(
+				'1',
+				'xxt_merchant_product_gensku_log',
+				"prod_id=$product and begin_at=$beginAt and end_at=$endAt",
+			);
+			if ('1' !== $modelSku->query_val_ss($q)) {
+				$this->_autogen($user->openid, $catelog, $product, $beginAt, $endAt, $cateSkus);
+				$modelSku->insert(
+					'xxt_merchant_product_gensku_log',
+					array(
+						'mpid' => $mpid,
+						'sid' => $shop,
+						'cate_id' => $catelog,
+						'prod_id' => $product,
+						'creater' => $user->openid,
+						'create_at' => time(),
+						'begin_at' => $beginAt,
+						'end_at' => $endAt,
+					),
+					false
+				);
+			}
 		}
 
 		return new \ResponseData($cateSkus);
@@ -116,24 +139,27 @@ class sku extends \member_base {
 	/**
 	 * 自动生成指定商品下的sku
 	 *
-	 * @param int $product
+	 * @param int $catelogId
+	 * @param int $productId
 	 * @param int $beginAt 有效期开始时间
 	 * @param int $endAt 有效期结束时间
 	 * @param string $autogen 是否自动生成
 	 *
 	 */
-	private function &_autogen($creater, $productId, $beginAt, $endAt, $existedSkus) {
+	private function _autogen($creater, $catelogId, $productId, $beginAt, $endAt, &$existedCateSkus) {
 		$modelCate = $this->model('app\merchant\catelog');
 		$modelSku = $this->model('app\merchant\sku');
-
-		$merged = $existedSkus;
-		$catelog = $modelCate->byProductId($productId);
-		$cateSkus = $modelCate->skus($catelog->id);
+		$cateSkuOptions = array(
+			'fields' => 'id,name,has_validity,require_pay,can_autogen',
+		);
+		$cateSkus = $modelCate->skus($catelogId, $cateSkuOptions);
 		foreach ($cateSkus as $cs) {
 			if ($cs->can_autogen === 'Y') {
+				$merged = array();
+				$existedCateSku = empty($existedCateSkus[$cs->id]) ? false : $existedCateSkus[$cs->id];
 				$newSkus = $this->_autogenByCateSku($cs, $beginAt, $endAt);
 				foreach ($newSkus as $ns) {
-					if (!$this->isSkuExisted($existedSkus, $ns)) {
+					if (false === $existedCateSku || !$this->_isSkuExisted($existedCateSku, $ns)) {
 						$gened = array(
 							'mpid' => $cs->mpid,
 							'sid' => $cs->sid,
@@ -158,20 +184,27 @@ class sku extends \member_base {
 						$merged[] = $modelSku->byId($skuId);
 					}
 				}
+				if (!empty($merged)) {
+					if ($existedCateSku) {
+						$existedCateSku->skus = array_merge($ecs->skus, $merge);
+					} else {
+						$cs->skus = $merged;
+						unset($cs->can_autogen);
+						$existedCateSkus[$cs->id] = $cs;
+					}
+				}
 			}
 		}
 
-		return $merged;
+		return true;
 	}
 	/**
 	 * 检查sku是否已经存在
 	 */
-	private function isSkuExisted($existedSkus, $checkedSku) {
-		foreach ($existedSkus as $existedCateSku) {
-			foreach ($existedCateSku->skus as $existed) {
-				if ($existed->validity_begin_at == $checkedSku->validity_begin_at && $existed->validity_end_at == $checkedSku->validity_end_at) {
-					return true;
-				}
+	private function _isSkuExisted($existedCateSku, $checkedSku) {
+		foreach ($existedCateSku->skus as $existed) {
+			if ($existed->validity_begin_at == $checkedSku->validity_begin_at && $existed->validity_end_at == $checkedSku->validity_end_at) {
+				return true;
 			}
 		}
 		return false;
@@ -192,7 +225,6 @@ class sku extends \member_base {
 		$next = $this->_cronNextPoint($first + 60, $rules->crontab);
 		$step = $next - $first;
 		$last = $this->_cronLastPoint($endAt, $rules->crontab);
-		//die('f:' . $first . ':' . date('ymd H:i', $first) . ',s:' . $step . ',l:' . $last . ':' . date('ymd H:i', $last));
 		/*生成sku*/
 		$skus = array();
 		$start = $first;

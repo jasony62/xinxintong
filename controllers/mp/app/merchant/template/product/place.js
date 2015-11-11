@@ -2,21 +2,19 @@ app.register.controller('productCtrl', ['$scope', '$http', '$timeout', 'Product'
 	var facProduct, facSku, today, startSku = null;
 	facProduct = new Product($scope.$parent.mpid, $scope.$parent.shopId);
 	var productGet = function(id) {
-		$scope.skuLoading = true;
 		facProduct.get(id).then(function(product) {
 			var propValue, today, options;
 			$scope.product = product;
 			$scope.catelog = product.catelog;
 			$scope.propValues = product.propValue;
-			facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId, id);
+			facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId);
 			options = {
 				beginAt: $scope.skuFilter.time.begin,
 				endAt: $scope.skuFilter.time.end,
 				autogen: 'Y'
 			};
-			facSku.get(options).then(function(skus) {
+			facSku.get(product.catelog.id, id, options).then(function(skus) {
 				$scope.cateSkus = skus;
-				$scope.skuLoading = false;
 			})
 		});
 	};

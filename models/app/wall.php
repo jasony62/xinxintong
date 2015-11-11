@@ -51,7 +51,7 @@ class wall_model extends \matter\wall_model {
 	 * $openid
 	 * $remark 加入信息墙时输入的事件数据
 	 */
-	public function join($runningMpid, $wid, $openid, $remark = null) {
+	public function join($runningMpid, $wid, $openid, $remark = '') {
 		/**
 		 * 加入一个信息墙需要从其他的墙退出
 		 */
@@ -139,7 +139,6 @@ class wall_model extends \matter\wall_model {
 		} else {
 			return false;
 		}
-
 	}
 	/**
 	 * 获得消息列表

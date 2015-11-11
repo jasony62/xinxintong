@@ -98,35 +98,33 @@ class wall extends \member_base {
 	/**
 	 * 用户进入讨论组
 	 *
-	 * $wid
+	 * @param string $wid
+	 * @param string $mpid
+	 *
 	 */
-	public function join_action($wid) {
+	public function join_action($wid, $mpid = '') {
 		if (empty($wid)) {
 			return new \ResponseError('参数错误');
 		}
-
-		$model = $this->model('app\wall');
-		$wall = $model->byId($wid, 'mpid');
-
-		if (false === ($fan = $this->myGetcookie("_{$wall->mpid}_oauth"))) {
+		if (empty($mpid)) {
+			$model = $this->model('app\wall');
+			$wall = $model->byId($wid, 'mpid,join_reply');
+			$mpid = $wall->mpid;
+		}
+		$user = $this->getUser($mpid);
+		if (empty($user->openid)) {
 			return new \ResponseError('无法获得用户身份');
 		}
-
-		$fan = $this->getCookieOAuthUser($mpid);
-
-		$reply = $model->join($wall->mpid, $wid, $ooid);
-
+		$reply = $model->join($mpid, $wid, $user->openid);
 		$message = array(
-			"touser" => $fan->openid,
 			"msgtype" => "text",
 			"text" => array(
 				"content" => urlencode($reply),
 			),
 		);
-		// todo ???
-		$this->send_to_qyuser($wall->mpid, $message);
+		$this->sendByOpenid($mpid, $suer->openid, $message);
 
-		return new \ResponseData('success');
+		return new \ResponseData('ok');
 	}
 	/**
 	 * 用户退出讨论组

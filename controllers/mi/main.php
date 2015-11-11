@@ -538,7 +538,7 @@ class main extends \member_base {
 							$message = array(
 								"msgtype" => "text",
 								"text" => array(
-									"content" => urlencode($tip),
+									"content" => $tip,
 								),
 							);
 						}
@@ -547,13 +547,13 @@ class main extends \member_base {
 					}
 					break;
 				case 'joinwall': // 加入信息墙
-					$r = new $this->model('reply\joinwall', $call, $reply->matter_id);
+					$r = $this->model('reply\joinwall', $call, $reply->matter_id);
 					$tip = $r->exec(false);
 					if (!empty($tip)) {
 						$message = array(
 							"msgtype" => "text",
 							"text" => array(
-								"content" => urlencode($tip),
+								"content" => $tip,
 							),
 						);
 					}

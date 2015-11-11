@@ -521,16 +521,12 @@ class main extends \member_base {
 				$r = $this->model('reply\\' . $reply->matter_type, $call, $reply->matter_id);
 				$r->exec();
 			} else {
-				/**
-				 * 易信，发送客服消息
-				 */
 				$setting = $this->model('mp\mpaccount')->getSetting($mpid, 'yx_custom_push');
 				if ($setting->yx_custom_push === 'N') {
 					return;
 				}
-
 				switch ($reply->matter_type) {
-				case 'enrollsignin':
+				case 'enrollsignin': // 登记活动签到
 					$r = $this->model('reply\enrollsignin', $call, $reply->matter_id, false);
 					$r2 = $r->exec();
 					if ($r2['matter_type'] === 'enroll') {
@@ -546,12 +542,11 @@ class main extends \member_base {
 								),
 							);
 						}
-
 					} else {
 						$message = $this->model('matter\\' . $r2['matter_type'])->forCustomPush($mpid, $r2['matter_id']);
 					}
 					break;
-				case 'joinwall':
+				case 'joinwall': // 加入信息墙
 					$r = new $this->model('reply\joinwall', $call, $reply->matter_id);
 					$tip = $r->exec(false);
 					if (!empty($tip)) {
@@ -562,7 +557,6 @@ class main extends \member_base {
 							),
 						);
 					}
-
 					break;
 				default:
 					$message = $this->model('matter\\' . $reply->matter_type)->forCustomPush($mpid, $reply->matter_id);

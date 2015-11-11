@@ -1,6 +1,6 @@
 .header{font-size:40px;}
 .wall{list-style-type:none;margin:0 auto;padding:0}
-.message{display:inline;list-style-type:none}
-.wall li .avatar{float:left}
-.wall li .avatar img{}
-.wall li .content{float: left;font-size:40px}
+.message{display:inline-block;list-style-type:none;position:relative;min-height:100px;}
+.wall li .avatar{position:absolute;top:0;left:0;}
+.wall li .avatar img{width:100px;height:100px;}
+.wall li .content{margin-left:101px;font-size:40px}

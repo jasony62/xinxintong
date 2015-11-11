@@ -93,23 +93,34 @@ class enroll_model extends \matter\enroll_model {
 	 * 如果用户没有做个活动登记，那么要先产生一条登记记录，并记录签到时间
 	 */
 	public function signin($mpid, $aid, $openid) {
-		$modelRec = $this->model('app\enroll\record');
+		$modelRec = \TMS_APP::M('app\enroll\record');
 		if ($ek = $modelRec->getLastKey($mpid, $aid, $openid)) {
-			$rst = $this->update(
-				'xxt_enroll_record',
-				array('signin_at' => time()),
-				"mpid='$mpid' and aid='$aid' and enroll_key='$ek'"
-			);
-			return true;
+			$enrolled = true;
 		} else {
-			$ek = $this->enroll($mpid, (object) array('id' => $aid), $openid);
-			$rst = $this->update(
-				'xxt_enroll_record',
-				array('signin_at' => time()),
-				"mpid='$mpid' and aid='$aid' and enroll_key='$ek'"
-			);
-			return false;
+			$enrolled = false;
+			$act = new \stdClass;
+			$act->id = $aid;
+			$ek = $this->enroll($mpid, $act, $openid);
 		}
+		/*更新状态*/
+		$signinAt = time();
+		$sql = "update xxt_enroll_record set signin_at=$signinAt,signin_num=signin_num+1";
+		$sql .= " where mpid='$mpid' and aid='$aid' and enroll_key='$ek'";
+		$rst = $this->update($sql);
+		/*记录日志*/
+		$this->insert(
+			'xxt_enroll_signin_log',
+			array(
+				'mpid' => $mpid,
+				'aid' => $aid,
+				'enroll_key' => $ek,
+				'openid' => $openid,
+				'signin_at' => $signinAt,
+			),
+			false
+		);
+
+		return $enrolled;
 	}
 	/**
 	 * 活动报名名单

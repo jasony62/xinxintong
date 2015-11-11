@@ -109,7 +109,6 @@ if (!$mysqli->query($sql)) {
 }
 /**
  * 活动登记记录
- * enroll_key mpid+uniqid+name
  */
 $sql = 'create table if not exists xxt_enroll_record(';
 $sql .= 'id int not null auto_increment';
@@ -118,9 +117,9 @@ $sql .= ',mpid varchar(32) not null';
 $sql .= ",rid varchar(13) not null default ''";
 $sql .= ",openid varchar(255) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
-$sql .= ",enroll_key varchar(32) not null";
 $sql .= ",enroll_at int not null"; // 填写报名信息时间
 $sql .= ",signin_at int not null default 0"; // 签到时间
+$sql .= ",signin_num int not null default 0"; // 签到次数
 $sql .= ",tags text";
 $sql .= ",comment text";
 $sql .= ',vid varchar(32)';
@@ -130,6 +129,21 @@ $sql .= ",remark_num int not null default 0"; // 评论数
 $sql .= ",follower_num int not null default 0"; // 接收邀请的下家
 $sql .= ',state tinyint not null default 1'; //0:remove,1:normal
 $sql .= ",referrer text"; //
+$sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 登记活动签到记录
+ */
+$sql = 'create table if not exists xxt_enroll_signin_log(';
+$sql .= 'id int not null auto_increment';
+$sql .= ',mpid varchar(32) not null';
+$sql .= ',aid varchar(40) not null';
+$sql .= ",enroll_key varchar(32) not null";
+$sql .= ",openid varchar(255) not null default ''";
+$sql .= ",signin_at int not null default 0"; // 签到时间
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

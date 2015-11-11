@@ -4,15 +4,15 @@
             <div class='header'><?php TPL::pt('title');?></div>
             <div class='logo'></div>
             <ul class='wall'>
-                <li style="display:list-item" class='message clearfix' ng-repeat='m in messages'>
-                <div class="avatar">
-                    <img ng-src="m.headimgurl" width="100" height="100">
-                </div>
-                <div class="content">
-                    <span class='nickname'>{{m.nickname}}</span>
-                    <span>：</span>
-                    <span class='data'>{{m.data}}</span>
-                </div>
+                <li class='message' ng-repeat='m in messages'>
+                    <div class="avatar">
+                        <img ng-src="{{m.headimgurl}}">
+                    </div>
+                    <div class="content">
+                        <span class='nickname' ng-bind="m.nickname"></span>
+                        <span>：</span>
+                        <span class='data' ng-bind="m.data"></span>
+                    </div>
                 </li>
             </ul>
             <button class='btn btn-success' ng-click='stop()' style='display:none'>暂停</button>

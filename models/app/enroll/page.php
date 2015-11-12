@@ -228,10 +228,12 @@ class page_model extends \TMS_MODEL {
 		$schema = array();
 
 		$pages = $this->byEnroll($id);
-		foreach ($pages as $p) {
-			if ($p->type === 'I') {
-				$defs = $this->schemaByHtml($p->html);
-				$schema = array_merge($schema, $defs);
+		if (!empty($pages)) {
+			foreach ($pages as $p) {
+				if ($p->type === 'I') {
+					$defs = $this->schemaByHtml($p->html);
+					$schema = array_merge($schema, $defs);
+				}
 			}
 		}
 

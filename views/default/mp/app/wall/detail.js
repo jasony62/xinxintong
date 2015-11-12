@@ -131,6 +131,45 @@ xxtApp.controller('usersCtrl', ['$scope', '$modal', 'http2', function($scope, $m
         }).result.then(function(app) {
             http2.get('/rest/mp/app/wall/importUser?wall=' + $scope.wid + '&app=' + app.id, function(rsp) {
                 $scope.$root.infomsg = '导入用户数：' + rsp.data;
+                $scope.doSearch();
+            });
+        });
+    };
+    $scope.exportUser = function() {
+        $modal.open({
+            templateUrl: 'exportUser.html',
+            windowClass: 'auto-height',
+            controller: ['$scope', '$modalInstance', function($scope2, $mi) {
+                $scope2.options = {
+                    onlySpeaker: 'N'
+                };
+                $scope2.chooseApp = function(app) {
+                    $scope2.selectedApp = app;
+                };
+                $scope2.close = function() {
+                    $mi.dismiss();
+                };
+                $scope2.ok = function() {
+                    if ($scope2.selectedApp) {
+                        $mi.close({
+                            app: $scope2.selectedApp,
+                            options: $scope2.options
+                        });
+                    } else {
+                        $mi.dismiss();
+                    }
+                };
+                http2.get('/rest/mp/app/enroll/get?page=1&size=999', function(rsp) {
+                    $scope2.apps = rsp.data[0];
+                });
+            }]
+        }).result.then(function(params) {
+            var url;
+            url = '/rest/mp/app/wall/exportUser?wall=' + $scope.wid;
+            url += '&app=' + params.app.id;
+            url += '&onlySpeaker=' + params.options.onlySpeaker;
+            http2.get(url, function(rsp) {
+                $scope.$root.infomsg = '导出用户数：' + rsp.data;
             });
         });
     };

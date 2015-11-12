@@ -97,7 +97,7 @@ class record_model extends \TMS_MODEL {
 		}
 		if ($act->access_control === 'Y') {
 			$q = array(
-				'e.enroll_key,e.enroll_at,e.signin_at,e.tags,e.follower_num,e.score,e.remark_num,m.mid,m.name,m.mobile,m.email,m.nickname,m.openid',
+				'e.enroll_key,e.enroll_at,e.signin_at,e.tags,e.follower_num,e.score,e.remark_num,e.nickname,e.openid,m.mid,m.name,m.mobile,m.email',
 				"xxt_enroll_record e left join xxt_member m on m.forbidden='N' and e.mid=m.mid",
 				$w,
 			);

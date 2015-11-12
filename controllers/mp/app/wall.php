@@ -142,6 +142,34 @@ class wall extends app_base {
 		return new \ResponseData($rows);
 	}
 	/**
+	 * 从登记活动导入用户
+	 *
+	 * @param string $wall
+	 * @param string $app
+	 */
+	public function exportUser_action($wall, $app, $onlySpeaker = 'N') {
+		$q = array(
+			'e.openid,f.nickname',
+			'xxt_wall_enroll e,xxt_fans f',
+			"e.mpid='$this->mpid' and e.wid='$wall' and e.close_at=0 and e.mpid=f.mpid and e.openid=f.openid",
+		);
+		if ($onlySpeaker === 'Y') {
+			$q[2] .= ' and e.last_msg_at<>0';
+		}
+		$users = $this->model()->query_objs_ss($q);
+		if (count($users)) {
+			$objApp = new \stdClass;
+			$objApp->id = $app;
+			$modelRec = $this->model('app\enroll\record');
+			foreach ($users as $user) {
+				$user->vid = '';
+				$modelRec->add($this->mpid, $objApp, $user);
+			}
+		}
+
+		return new \ResponseData(count($users));
+	}
+	/**
 	 * 将所有用户退出信息墙
 	 */
 	public function quitWall_action($wid) {

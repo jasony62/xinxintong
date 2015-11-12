@@ -11,8 +11,8 @@
                 </span>
             </div>
             <div class='list-group-item' ng-repeat='w in winners'>
-                <span class='name' ng-bind="w.name"></span>
-                <span class='mobile' ng-bind="w.mobile|maskmobile"></span>
+                <span class='name' ng-bind="w.name||w.nickname"></span>
+                <span class='mobile' ng-show='w.mobile' ng-bind="w.mobile|maskmobile"></span>
             </div>
         </div>
         <div class='lottery-box'>

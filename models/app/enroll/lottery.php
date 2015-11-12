@@ -5,9 +5,8 @@ class lottery_model extends \TMS_MODEL {
 	/**
 	 * 参加抽奖活动的人
 	 */
-	public function players($aid, $rid) {
+	public function players($aid, $rid, $hasData = 'N') {
 		$result = array(array(), array());
-
 		$w = "e.aid='$aid'";
 		$w .= " and not exists(select 1 from xxt_enroll_lottery l where e.enroll_key=l.enroll_key)";
 		$q = array(
@@ -33,21 +32,23 @@ class lottery_model extends \TMS_MODEL {
 				foreach ($cds as $cd) {
 					$player->{$cd->name} = $cd->value;
 				}
-
 			}
 			/**
 			 * 删除没有填写报名信息数据
 			 */
-			$players2 = array();
-			foreach ($players as $player2) {
-				if (empty($player2->name) && empty($player2->mobile)) {
-					continue;
+			if ($hasData === 'Y') {
+				$players2 = array();
+				foreach ($players as $player2) {
+					if (empty($player2->name) && empty($player2->mobile)) {
+						continue;
+					}
+					//$player2->tags = explode(',', $player2->tags);
+					$players2[] = $player2;
 				}
-
-				//$player2->tags = explode(',', $player2->tags);
-				$players2[] = $player2;
+				$result[0] = $players2;
+			} else {
+				$result[0] = $players;
 			}
-			$result[0] = $players2;
 		}
 		/**
 		 * 已经抽中的人

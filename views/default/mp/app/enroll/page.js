@@ -866,7 +866,7 @@
                         'wrap': 'link',
                         'class': 'matter-link'
                     }, dom.createHTML('a', {
-                        href: '#',
+                        href: 'javascript:void(0)',
                         "ng-click": fn,
                     }, dom.encode(matter.title))));
                 }

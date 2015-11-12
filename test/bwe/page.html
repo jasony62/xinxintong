@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html ng-app='app' ng-controller='ctrl'>
+    
+    <head>
+        <meta charset="utf-8">
+        <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+        <base href="/test/bwe/"/>
+        <title>BWE</title>
+        <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    
+    <body ng-cloak class='ng-cloak'>
+        <div id='container'>
+            <p class='immutable'>immutable</p>
+            <p class='mutable mutable-text'>hello</p>
+            <div class='mutable mutable-options'>
+                <button class='mutable-option'>button1</button>
+                <button class='mutable-option'>button2</button>
+                <button class='mutable-option'>button3</button>
+            </div>
+            <div class='mutable mutable-arbitrary'>
+                <div>default</div>
+            </div>
+        </div>
+        <script src="/static/js/angular.min.js"></script>
+        <script src="/static/js/angular-sanitize.min.js"></script>
+        <script src="page.js"></script>
+    </body>
+</html>

@@ -3,7 +3,7 @@
         <button class='btn btn-danger' ng-click='quitWall()'>将所有用户退出信息墙</button>
         <button class='btn btn-default' ng-click='importUser()'>导入用户</button>
         <button class='btn btn-default pull-right' ng-click='doSearch()'>
-            <span class='glyphicon glyphicon-refresh'></span>
+        <span class='glyphicon glyphicon-refresh'></span>
         </button>
     </div>
     <table class='table table-bordered'>
@@ -24,4 +24,22 @@
             </tr>
         </tbody>
     </table>
+    <script type="text/ng-template" id="importUser.html">
+        <div class="modal-header">
+            <button class="close" ng-click="close()">×</button>
+            <h5 class="modal-title">导入用户</h5>
+        </div>
+        <div class="modal-body">
+            <ul class='list-group'>
+                <li class='list-group-item' ng-repeat='a in apps'>
+                    <div class='radio'>
+                        <label><input type='radio' name='act' ng-click='chooseApp(a)'>{{a.title}}</label>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">确定</button>
+        </div>
+    </script>
 </div>

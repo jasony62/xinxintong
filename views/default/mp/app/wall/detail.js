@@ -16,7 +16,8 @@ xxtApp.filter('transState', function() {
         }
         return out;
     }
-}).controller('wallCtrl', ['$scope', '$http', '$location', 'http2', function($scope, $http, $location, http2) {
+});
+xxtApp.controller('wallCtrl', ['$scope', '$http', '$location', 'http2', function($scope, $http, $location, http2) {
     $scope.wid = $location.search().wid;
     $scope.subPage = 'setting';
     $scope.back = function() {
@@ -31,7 +32,8 @@ xxtApp.filter('transState', function() {
             $scope.wall = rsp.data;
         });
     });
-}]).controller('settingCtrl', ['$scope', 'http2', function($scope, http2) {
+}]);
+xxtApp.controller('settingCtrl', ['$scope', 'http2', function($scope, http2) {
     $scope.update = function(name) {
         var nv = {};
         nv[name] = $scope.wall[name];
@@ -58,7 +60,8 @@ xxtApp.filter('transState', function() {
         $scope.wall.active = 'N';
         $scope.update('active');
     };
-}]).controller('ApproveCtrl', ['$scope', 'http2', function($scope, http2) {
+}]);
+xxtApp.controller('ApproveCtrl', ['$scope', 'http2', function($scope, http2) {
     var inlist = function(id) {
         for (var i in $scope.messages) {
             if ($scope.messages[i].id == id)
@@ -96,14 +99,40 @@ xxtApp.filter('transState', function() {
     $scope.$on('changeSubPage', function() {
         worker.terminate();
     });
-}]).controller('usersCtrl', ['$rootScope', '$scope', '$modal', 'http2', function($rootScope, $scope, $modal, http2) {
+}]);
+xxtApp.controller('usersCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
     $scope.doSearch = function() {
         http2.get('/rest/mp/app/wall/users?wid=' + $scope.wid, function(rsp) {
             $scope.users = rsp.data;
         });
     };
     $scope.importUser = function() {
-
+        $modal.open({
+            templateUrl: 'importUser.html',
+            windowClass: 'auto-height',
+            controller: ['$scope', '$modalInstance', function($scope2, $mi) {
+                http2.get('/rest/mp/app/enroll/get?page=1&size=999', function(rsp) {
+                    $scope2.apps = rsp.data[0];
+                });
+                $scope2.chooseApp = function(app) {
+                    $scope2.selectedApp = app;
+                };
+                $scope2.close = function() {
+                    $mi.dismiss();
+                };
+                $scope2.ok = function() {
+                    if ($scope2.selectedApp) {
+                        $mi.close($scope2.selectedApp);
+                    } else {
+                        $mi.dismiss();
+                    }
+                };
+            }]
+        }).result.then(function(app) {
+            http2.get('/rest/mp/app/wall/importUser?wall=' + $scope.wid + '&app=' + app.id, function(rsp) {
+                $scope.$root.infomsg = '导入用户数：' + rsp.data;
+            });
+        });
     };
     $scope.quitWall = function() {
         var vcode;
@@ -111,12 +140,13 @@ xxtApp.filter('transState', function() {
         if (vcode === $scope.wall.title) {
             http2.get('/rest/mp/app/wall/quitWall?wid=' + $scope.wid, function(rsp) {
                 $scope.users = null;
-                $rootScope.infomsg = '操作完成';
+                $scope.$root.infomsg = '操作完成';
             });
         }
     };
     $scope.doSearch();
-}]).controller('msgCtrl', ['$scope', 'http2', function($scope, http2) {
+}]);
+xxtApp.controller('msgCtrl', ['$scope', 'http2', function($scope, http2) {
     $scope.page = {
         at: 1,
         size: 30

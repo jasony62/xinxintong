@@ -142,7 +142,7 @@ class wall extends app_base {
 		return new \ResponseData($rows);
 	}
 	/**
-	 * 从登记活动导入用户
+	 * 用户导出到登记活动
 	 *
 	 * @param string $wall
 	 * @param string $app

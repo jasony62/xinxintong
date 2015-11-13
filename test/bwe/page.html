@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app='app' ng-controller='ctrl'>
+<html ng-app='app' ng-controller='ctrl' ng-init='mutableConfigs={"param1":"abc","param2":"xyz"}'>
     
     <head>
         <meta charset="utf-8">
@@ -18,12 +18,12 @@
                 <button class='mutable-option'>button2</button>
                 <button class='mutable-option'>button3</button>
             </div>
-            <div class='mutable mutable-arbitrary'>
+            <div id='m001' class='mutable mutable-arbitrary'>
                 <div>default</div>
             </div>
         </div>
         <script src="/static/js/angular.min.js"></script>
         <script src="/static/js/angular-sanitize.min.js"></script>
-        <script src="page.js"></script>
+        <script src="page.js?_1"></script>
     </body>
 </html>

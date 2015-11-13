@@ -24,13 +24,14 @@
 		} else if (elClasses.contains('mutable-options')) {
 			if (mutableEditor.options) {
 				var options = elMutable.querySelectorAll('.mutable-option');
-				console.log('xxx', options);
 				mutableEditor.options(elMutable, options);
 			}
 		} else if (elClasses.contains('mutable-arbitrary')) {
-			elMutable.innerHTML = "<button id='button4'>button4</button>";
+			elMutable.innerHTML = "welcome";
 			var elStyle = document.createElement('style');
-			
+			elStyle.type = 'text/css';
+			elStyle.innerHTML = '#m001{color:red}';
+			document.querySelector('head').appendChild(elStyle);
 		}
 	};
 	var elMutables, i, j, elMutable;
@@ -39,4 +40,14 @@
 		elMutable = elMutables[i];
 		elMutable.onclick = clickMutable;
 	}
+	window.mutableHelper = {
+		changeMutableConfigs: function(data) {
+			var elHtml, elNgInit;
+			elHtml = document.querySelector('html');
+			if (elNgInit = elHtml.getAttribute('ng-init')) {
+				elHtml.setAttribute('ng-init', 'mutableConfigs=' + JSON.stringify(data));
+				alert('need save and fresh');
+			}
+		}
+	};
 })();

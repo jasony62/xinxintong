@@ -1,5 +1,3 @@
-app = angular.module('app', ['ngSanitize']);
-app.controller('ctrl', ['$scope', '$http', function($scope, $http) {}]);
 var elSimulator = document.querySelector('#simulator');
 elSimulator.onload = function() {
 	console.log('iframe onload');

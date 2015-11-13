@@ -1,0 +1,75 @@
+<div class='form-horizontal'>
+    <div class='form-group text-right'>
+        <div class='col-md-12'>
+            <button class='btn btn-success' ng-click='start()' ng-if="wall.active==='N'">启用</button>
+            <button class='btn btn-default' ng-click='end()' ng-if="wall.active==='Y'">停用</button>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>名称</label>
+        <div class='col-md-10'>
+            <input type="text" class="form-control" ng-model='wall.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>头图</label>
+        <div class='col-md-10'>
+            <div style="width:182px;border:1px solid #CCC">
+                <div style="height:100px;text-align:center;padding-top:32px" ng-if="!wall.pic">
+                    <button class='btn btn-default' ng-click='setPic();'>
+                        <span class='glyphicon glyphicon-picture'></span> 选择图片
+                    </button>
+                </div>
+                <div style='position:relative' ng-if="wall.pic" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                    <img name='pic' ng-src='{{wall.pic}}' width='180px'/>
+                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                        <span class='glyphicon glyphicon-picture'></span>
+                    </button>
+                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                        <span class='glyphicon glyphicon-trash'></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>摘要</label>
+        <div class='col-md-10'>
+            <textarea class='form-control' ng-model='wall.summary' tms-auto-update tms-wait=1000 tms-update="update('summary');" rows='3'></textarea>
+            <p class='help-block'>最多120个汉字，240个英文字符</p>
+        </div>
+    </div>
+    <accesscontrol title='指定成员' mpid='{{mpid}}' obj='wall' prop-acl='acl' prop-access='access_control' prop-apis='authapis' update-access-control="update('access_control')" update-authapis="update('authapis')" change-acl-url='/rest/mp/app/wall/setAcl?id={{wid}}' remove-acl-url='/rest/mp/app/wall/removeAcl' label-span='2' control-span='10'></accesscontrol>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>用户URL</label>
+        <div class='col-md-10'>
+            <input class="form-control" ng-model='wall.user_url' tms-auto-update tms-wait=1000 tms-update="update('user_url')">
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>加入提示</label>
+        <div class='col-md-10'>
+            <textarea class="form-control" ng-model='wall.join_reply' tms-auto-update tms-wait=1000 tms-update="update('join_reply')"></textarea>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>退出提示</label>
+        <div class='col-md-10'>
+            <textarea class="form-control" ng-model='wall.quit_reply' tms-auto-update tms-wait=1000 tms-update="update('quit_reply')"></textarea>
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>退出关键字</label>
+        <div class='col-md-10'>
+            <input type="text" class="form-control" ng-model='wall.quit_cmd' tms-auto-update tms-wait=1000 tms-update="update('quit_cmd')">
+        </div>
+    </div>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>消息处理</label>
+        <div class='col-md-10'>
+            <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='wall.skip_approve' ng-change="update('skip_approve')">跳过审核</label>
+            <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='wall.push_others' ng-change="update('push_others')">推送消息</label>
+        </div>
+    </div>
+    <mediagallery box-id="{{mpaccount.mpid}}" />
+</div>

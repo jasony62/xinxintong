@@ -35,9 +35,6 @@ class main extends \mp\app\app_base {
 	 */
 	public function get_action($wall = null, $src = null) {
 		$w = $this->model('app\wall')->byId($wall, '*');
-		$w->wallUrl = "http://";
-		$w->wallUrl .= $_SERVER['HTTP_HOST'];
-		$w->wallUrl .= "/rest/app/wall/wall?mpid=$w->mpid&wid=$wall";
 		/**
 		 * acl
 		 */

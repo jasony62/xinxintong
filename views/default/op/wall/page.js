@@ -77,7 +77,7 @@ app.controller('wallCtrl', ['$scope', '$http', function($scope, $http) {
             };
             worker.postMessage({
                 mpid: $scope.mpid,
-                wid: $scope.wid,
+                wid: $scope.wallId,
                 last: last
             });
             $scope.stop = function() {

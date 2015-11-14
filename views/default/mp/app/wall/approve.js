@@ -25,13 +25,13 @@
             last: 0
         });
         $scope.approve = function(msg) {
-            http2.get('/rest/mp/app/wall/messageApprove?wall=' + $scope.wid + '&id=' + msg.id, function(rsp) {
+            http2.get('/rest/mp/app/wall/message/approve?wall=' + $scope.wid + '&id=' + msg.id, function(rsp) {
                 var i = $scope.messages.indexOf(msg);
                 $scope.messages.splice(i, 1);
             });
         };
         $scope.reject = function(msg) {
-            http2.get('/rest/mp/app/wall/messageReject?wall=' + $scope.wid + '&id=' + msg.id, function(rsp) {
+            http2.get('/rest/mp/app/wall/message/reject?wall=' + $scope.wid + '&id=' + msg.id, function(rsp) {
                 var i = $scope.messages.indexOf(msg);
                 $scope.messages.splice(i, 1);
             });

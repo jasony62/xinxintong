@@ -1,11 +1,11 @@
 onmessage = function(event) {
     var wid = event.data.wid,
         last = event.data.last;
-    doAjax('GET', '/rest/mp/app/wall/pendingMessages?wall=' + wid + '&last=' + last, null, function(rsp) {
+    doAjax('GET', '/rest/mp/app/wall/message/pendingList?wall=' + wid + '&last=' + last, null, function(rsp) {
         postMessage(rsp.data[0]);
         last = rsp.data[1];
         setInterval(function() {
-            doAjax('GET', '/rest/mp/app/wall/pendingMessages?wall=' + wid + '&last=' + last, null, function(rsp) {
+            doAjax('GET', '/rest/mp/app/wall/message/pendingList?wall=' + wid + '&last=' + last, null, function(rsp) {
                 postMessage(rsp.data[0]);
                 last = rsp.data[1];
             });

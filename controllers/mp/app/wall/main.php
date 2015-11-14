@@ -33,12 +33,6 @@ class main extends \mp\app\app_base {
 	/**
 	 *
 	 */
-	public function page_action() {
-		$this->view_action('/mp/app/wall/detail');
-	}
-	/**
-	 *
-	 */
 	public function get_action($wall = null, $src = null) {
 		$w = $this->model('app\wall')->byId($wall, '*');
 		$w->wallUrl = "http://";

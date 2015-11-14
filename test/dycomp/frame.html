@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html ng-app='app' ng-controller='ctrl'>
+	
+	<head>
+		<meta charset="utf-8">
+		<base href="/" />
+		<title>动态加载</title>
+		<style>
+		.ng-cloak{display:none;}
+		</style>
+	</head>
+	
+	<body ng-cloak class='ng-cloak'>
+		<div dyna-component url="'/test/dycomp/code.php'"><div ng-bind='test()'></div></div>
+		<script src="/static/js/jquery.min.js"></script>
+		<script src="/static/js/angular.min.js "></script>
+		<script src="/static/js/angular-sanitize.min.js "></script>
+		<script src='/test/dycomp/frame.js?_=1'></script>
+	</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html ng-app='app' ng-controller='wallCtrl' ng-init="jsonParams='<?php echo urlencode(json_encode(TPL::val('params')));?>'">
+    
+    <head>
+        <meta charset="utf-8">
+        <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+        <base href="/" />
+        <title><?php TPL::pt('title');?></title>
+        <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/views/default/op/wall/page.css?_=1" rel="stylesheet">
+        <style ng-if="Page.css" ng-bind='Page.css'></style>
+    </head>
+    
+    <body ng-cloak class='ng-cloak'>
+        <div dynamic-html="Page.html">
+        </div>
+        <script src="/static/js/jquery.min.js"></script>
+        <script src="/static/js/angular.min.js "></script>
+        <script src="/static/js/angular-sanitize.min.js "></script>
+        <script src="/views/default/op/wall/page.js?_=1"></script>
+    </body>
+
+</html>

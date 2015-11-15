@@ -185,7 +185,16 @@ class main extends \mp\app\app_base {
 	 */
 	public function pageSet_action($lid, $pageid, $pattern) {
 		$codeModel = $this->model('code/page');
-		$page = $codeModel->byId($pageid);
+		if ($pageid) {
+			$page = $codeModel->byId($pageid);
+		} else {
+			/**
+			 * 创建定制页
+			 */
+			$uid = \TMS_CLIENT::get_client_uid();
+			$page = $codeModel->create($uid);
+			$this->model()->update('xxt_lottery', array('page_id' => $page->id), "id='$lid'");
+		}
 		$data = array(
 			'html' => file_get_contents(dirname(__FILE__) . '/pattern/' . $pattern . '.html'),
 			'css' => file_get_contents(dirname(__FILE__) . '/pattern/' . $pattern . '.css'),

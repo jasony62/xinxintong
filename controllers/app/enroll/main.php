@@ -232,9 +232,7 @@ class main extends base {
 		 * 互动数据
 		 */
 		if (!empty($openedek)) {
-			/**
-			 * 登记人信息
-			 */
+			/*登记人信息*/
 			if (!empty($record->openid)) {
 				$options = array(
 					'openid' => $record->openid,
@@ -248,10 +246,23 @@ class main extends base {
 					}
 				}
 			}
-			/**
-			 * 评论数据
-			 */
+			/*评论数据*/
 			$record->remarks = $modelRec->remarks($openedek);
+			/*抽奖数据*/
+			/*获得关联抽奖活动记录*/
+			$ql = array(
+				'award_title',
+				'xxt_lottery_log',
+				"enroll_key='$openedek'",
+			);
+			$lotteryResult = $this->model()->query_objs_ss($ql);
+			if (!empty($lotteryResult)) {
+				$lrs = array();
+				foreach ($lotteryResult as $lr) {
+					$lrs[] = $lr->award_title;
+				}
+				$record->data['lotteryResult'] = implode(',', $lrs);
+			}
 		}
 		/**
 		 * 统计数据

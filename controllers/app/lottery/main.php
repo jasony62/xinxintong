@@ -337,6 +337,7 @@ class main extends \member_base {
 			$pos = 0;
 			foreach ($awards as $k => &$a) {
 				$a['pos'] = array($pos);
+				$lot->plate->{"a$pos"} = $a['aid'];
 				$pos++;
 			}
 		}

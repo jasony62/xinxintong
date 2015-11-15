@@ -827,7 +827,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 
         } else {
             $scope.errmsg = content;
         }
-    });;
+    });
 }]);
 app.filter('value2Label', ['Schema', function(Schema) {
     var schemas;

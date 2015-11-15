@@ -628,6 +628,11 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 
     $scope.openMatter = function(id, type) {
         location.replace('/rest/mi/matter?mpid=' + LS.p.mpid + '&id=' + id + '&type=' + type);
     };
+    $scope.gotoLottery = function(event, lottery, ek) {
+        event.preventDefault();
+        event.stopPropagation();
+        location.replace('/rest/app/lottery?mpid=' + LS.p.mpid + '&lottery=' + lottery + '&enrollKey=' + ek);
+    };
     $scope.acceptInvite = function(event, nextAction) {
         var inviter, url;
         if (!$scope.Record.current) {

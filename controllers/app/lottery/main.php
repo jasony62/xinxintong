@@ -140,21 +140,24 @@ class main extends \member_base {
 	}
 	/**
 	 * 进行抽奖
+	 * @param string $mpid
+	 * @param string $lottery 抽奖互动
+	 * @param string $enrollKey 关联的登记活动的登记记录
 	 */
-	public function play_action($mpid, $lottery) {
+	public function play_action($mpid, $lottery, $enrollKey = null) {
+		$user = $this->getUser($mpid);
 		$model = $this->model('app\lottery');
 		/**
 		 * define data.
 		 */
-		$r = $model->byId($lottery, '*', array('award', 'plate'));
+		$lot = $model->byId($lottery, '*', array('award', 'plate'));
 		/**
 		 * 如果仅限关注用户参与，获得openid
 		 */
-		$openid = $this->getCookieOAuthUser($mpid)->openid;
-
-		if ($r->fans_only === 'Y') {
+		$openid = $user->openid;
+		if ($lot->fans_only === 'Y') {
 			if (empty($openid)) {
-				return new \ResponseData(null, 302, $r->nonfans_alert);
+				return new \ResponseData(null, 302, $lot->nonfans_alert);
 			}
 			$q = array(
 				'count(*)',
@@ -162,18 +165,8 @@ class main extends \member_base {
 				"mpid='$mpid' and openid='$openid' and unsubscribe_at=0",
 			);
 			if (1 !== (int) $this->model()->query_val_ss($q)) {
-				return new \ResponseData(null, 302, $r->nonfans_alert);
+				return new \ResponseData(null, 302, $lot->nonfans_alert);
 			}
-		}
-		/**
-		 * 如果仅限会员参与，获得用户身份信息
-		 */
-		if ($r->access_control === 'Y') {
-			$aAuthapis = explode(',', $r->authapis);
-			$members = $this->authenticate($mpid, $aAuthapis, false);
-			$mid = $members[0]->mid;
-		} else {
-			$mid = null;
 		}
 		/**
 		 * 如果不能获得一个确定的身份信息，就无法将抽奖结果和用户关联
@@ -181,6 +174,16 @@ class main extends \member_base {
 		 */
 		if (empty($openid) && empty($mid)) {
 			return new \ComplianceError('无法确定您的身份信息，不能参与抽奖！');
+		}
+		/**
+		 * 如果仅限会员参与，获得用户身份信息
+		 */
+		if ($lot->access_control === 'Y') {
+			$aAuthapis = explode(',', $lot->authapis);
+			$members = $this->authenticate($mpid, $aAuthapis, false);
+			$mid = $members[0]->mid;
+		} else {
+			$mid = null;
 		}
 		/**
 		 * 是否完成了指定内置任务
@@ -192,13 +195,12 @@ class main extends \member_base {
 		 * 还有参加抽奖的机会吗？
 		 */
 		if (false === $model->canPlay($lottery, $mid, $openid, true)) {
-			return new \ResponseData(null, 301, $r->nochance_alert);
+			return new \ResponseData(null, 301, $lot->nochance_alert);
 		}
-
 		/**
 		 * 抽奖
 		 */
-		list($selectedSlot, $selectedAwardID, $myAward) = $this->_drawAward($r);
+		list($selectedSlot, $selectedAwardID, $myAward) = $this->_drawAward($lot);
 
 		if (empty($myAward)) {
 			return new \ResponseData(null, 301, '对不起，没有奖品了！');
@@ -212,7 +214,7 @@ class main extends \member_base {
 		/**
 		 * 返回奖项信息
 		 */
-		foreach ($r->awards as $a) {
+		foreach ($lot->awards as $a) {
 			if ($a->aid === $myAward['aid']) {
 				$myAward2 = $a;
 				break;
@@ -222,11 +224,11 @@ class main extends \member_base {
 		 * record result
 		 */
 		$modelLog = $this->model('app\lottery\log');
-		$log = $modelLog->add($mpid, $lottery, $openid, $myAward2);
+		$log = $modelLog->add($mpid, $lottery, $openid, $myAward2, $enrollKey);
 		/**
 		 * 检查剩余的机会
 		 */
-		$chance = $model->getChance($r->id, $mid, $openid);
+		$chance = $model->getChance($lot->id, $mid, $openid);
 		/**
 		 * 清理冗余数据
 		 */

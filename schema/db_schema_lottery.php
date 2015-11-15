@@ -115,10 +115,12 @@ $sql .= ',lid varchar(40) not null'; // 轮盘抽奖活动的ID
 $sql .= ",openid varchar(255) not null default ''";
 $sql .= ',draw_at int not null'; // 抽奖的时间
 $sql .= ',aid varchar(40) not null'; // 奖品的ID
+$sql .= ',award_title varchar(20) not null';
 $sql .= ",times_accumulated int not null default 1"; //有效时段内，累积的次数
 $sql .= ",last char(1) not null default 'Y'"; // 最后一次抽奖记录。每一次抽奖动作都记录，记录最后一条便于计算。
 $sql .= ",takeaway char(1) not null default 'N'"; // 奖品是否已经领取。只对非实物奖品有效。
-$sql .= ",prize_url text"; // 兑奖的地址
+$sql .= ",prize_url text"; //兑奖的地址
+$sql .= ",enroll_key varchar(32) not null default ''"; //抽奖结果对应的登记活动的登记记录
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

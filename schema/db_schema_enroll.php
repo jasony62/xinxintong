@@ -117,6 +117,7 @@ $sql .= ',mpid varchar(32) not null';
 $sql .= ",rid varchar(13) not null default ''";
 $sql .= ",openid varchar(255) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
+$sql .= ",enroll_key varchar(32) not null";
 $sql .= ",enroll_at int not null"; // 填写报名信息时间
 $sql .= ",signin_at int not null default 0"; // 签到时间
 $sql .= ",signin_num int not null default 0"; // 签到次数

@@ -24,7 +24,7 @@ class log_model extends \matter\lottery_model {
 	 * 在已有记录上进行累加和更新，不进行逻辑判断
 	 * 逻辑判断可单独进行，如果需要可事先更新数据状态
 	 */
-	public function add($mpid, $lid, $openid, $award) {
+	public function add($mpid, $lid, $openid, $award, $enrollKey = null) {
 		if (empty($mpid)) {
 			$mpid = $this->query_value('mpid', 'xxt_lottery', "id='$lid'");
 		}
@@ -56,7 +56,9 @@ class log_model extends \matter\lottery_model {
 		$i['openid'] = $openid;
 		$i['draw_at'] = $current;
 		$i['aid'] = $award->aid;
+		$i['award_title'] = $award->title;
 		$i['times_accumulated'] = $times;
+		$i['enroll_key'] = $enrollKey;
 
 		$id = $this->insert('xxt_lottery_log', $i, true);
 

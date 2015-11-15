@@ -155,6 +155,20 @@ class record_model extends \TMS_MODEL {
 				);
 				$qs2 = array('o' => 'signin_at desc');
 				$r->signinLogs = $this->query_objs_ss($qs, $qs2);
+				/*获得关联抽奖活动记录*/
+				$ql = array(
+					'award_title',
+					'xxt_lottery_log',
+					"enroll_key='$r->enroll_key'",
+				);
+				$lotteryResult = $this->query_objs_ss($ql);
+				if (!empty($lotteryResult)) {
+					$lrs = array();
+					foreach ($lotteryResult as $lr) {
+						$lrs[] = $lr->award_title;
+					}
+					$r->data->lotteryResult = implode(',', $lrs);
+				}
 			}
 			$result->records = $records;
 			/* total */

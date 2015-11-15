@@ -26,9 +26,11 @@ directive('dynamicHtml', function($compile) {
     };
 }).
 controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
-    var mpid, lid;
-    mpid = location.search.match(/mpid=([^&]*)/)[1];
-    lid = location.search.match(/lottery=([^&]*)/)[1];
+    var ls, mpid, lid, ek;
+    ls = location.search;
+    mpid = ls.match(/mpid=([^&]*)/)[1];
+    lid = ls.match(/lottery=([^&]*)/)[1];
+    ek = ls.match(/enrollKey=([^&]*)/) ? ls.match(/enrollKey=([^&]*)/)[1] : '';
     $scope.alert = {
         type: '',
         msg: '',
@@ -138,8 +140,13 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
         }
     };
     $scope.play = function(cbSuccess, cbError) {
+        var url;
         $scope.alert.empty();
-        $http.get('/rest/app/lottery/play?mpid=' + mpid + '&lottery=' + lid).success(function(rsp) {
+        url = '/rest/app/lottery/play?mpid=' + mpid + '&lottery=' + lid;
+        if (ek && ek.length) {
+            url += '&enrollKey=' + ek;
+        }
+        $http.get(url).success(function(rsp) {
             if (angular.isString(rsp)) {
                 $scope.alert.error(rsp);
                 return;

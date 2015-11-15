@@ -19,10 +19,10 @@ class record extends base {
 	/**
 	 * 报名登记页，记录登记信息
 	 *
-	 * $mpid
-	 * $aid
-	 * $ek enrollKey 如果要更新之前已经提交的数据，需要指定
-	 * $submitkey
+	 * @param string $mpid
+	 * @param string $aid
+	 * @param string $ek enrollKey 如果要更新之前已经提交的数据，需要指定
+	 * @param string $submitkey 支持文件分段上传
 	 */
 	public function submit_action($mpid, $aid, $ek = null, $submitkey = '') {
 		/* support CORS */
@@ -179,7 +179,12 @@ class record extends base {
 		return new \ResponseData('ok');
 	}
 	/**
-	 * 给当前用户产生一条空的登记记录，并返回这条记录
+	 * 给当前用户产生一条空的登记记录，记录传递的数据，并返回这条记录
+	 * 适用于抽奖后记录兑奖信息
+	 *
+	 * @param string $mpid
+	 * @param string $aid
+	 * @param string $once 如果已经有登记记录，不生成新的登记记录
 	 */
 	public function emptyGet_action($mpid, $aid, $once = 'N') {
 		$posted = $this->getPostJson();
@@ -220,9 +225,7 @@ class record extends base {
 				}
 			}
 		}
-		/**
-		 * 登记记录的URL
-		 */
+		/*登记记录的URL*/
 		$url = '/rest/app/enroll';
 		$url .= '?mpid=' . $mpid;
 		$url .= '&aid=' . $aid;

@@ -41,7 +41,7 @@ class award extends \mp\app\app_base {
 		$option = $this->getPostJson();
 		$awards = array();
 		$title = empty($option->award->title) ? '' : $option->award->title;
-		for ($i = 0, $l = $option->quantity; $i <= $l; $i++) {
+		for ($i = 1, $l = $option->quantity; $i <= $l; $i++) {
 			$a = array(
 				'mpid' => $mpid,
 				'lid' => $lottery,

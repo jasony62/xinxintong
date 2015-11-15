@@ -1,15 +1,16 @@
-<div ng-controller='PlateCtrl'>
+<div>
     <div class='form-group'>
-        <label>转盘格数</label>
+        <label>位置数量</label>
         <select class="form-control" ng-model='plate.size' ng-change="update('size')">
+            <option value='0'>0</option>
             <option value='6'>6</option>
             <option value='8'>8</option>
             <option value='12'>12</option>
         </select>
     </div>
-    <div class='form-group'>
+    <div class='form-group' ng-show='plate.size>0'>
         <label>奖项设置</label>
-        <div>
+        <div class='clearfix' style='margin:0'>
             <div class='col-md-4'>
                 <select class='form-control' ng-model='plate.a0' ng-options='a.aid as a.title for a in lottery.awards' ng-change="update('a0')">
                 </select>

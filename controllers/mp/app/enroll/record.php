@@ -63,11 +63,13 @@ class record extends \mp\app\app_base {
 	 * [1] 数据总条数
 	 * [2] 数据项的定义
 	 */
-	public function get_action($aid, $page = 1, $size = 30, $tags = null, $rid = null, $kw = null, $by = null, $orderby = null, $contain = null) {
+	public function get_action($aid, $page = 1, $size = 30, $signinStartAt = null, $signinEndAt = null, $tags = null, $rid = null, $kw = null, $by = null, $orderby = null, $contain = null) {
 		$options = array(
 			'page' => $page,
 			'size' => $size,
 			'tags' => $tags,
+			'signinStartAt' => $signinStartAt,
+			'signinEndAt' => $signinEndAt,
 			'rid' => $rid,
 			'kw' => $kw,
 			'by' => $by,

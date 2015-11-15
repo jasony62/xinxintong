@@ -27,6 +27,10 @@
             page && ($scope.page.at = page);
             url = '/rest/mp/app/enroll/record/get';
             url += '?aid=' + $scope.aid;
+            if ($scope.editing.can_signin === 'Y') {
+                url += '&signinStartAt=' + $scope.signinStartAt;
+                url += '&signinEndAt=' + $scope.signinEndAt;
+            }
             url += '&tags=' + $scope.page.tags.join(',');
             url += $scope.page.joinParams();
             http2.get(url, function(rsp) {
@@ -79,8 +83,34 @@
             n: '评论数',
             v: 'remark'
         }];
+        var current, startAt, endAt;
+        current = new Date();
+        startAt = {
+            year: current.getFullYear(),
+            month: current.getMonth() + 1,
+            mday: current.getDate(),
+            getTime: function() {
+                var d = new Date(this.year, this.month - 1, this.mday, 0, 0, 0, 0);
+                return d.getTime();
+            }
+        };
+        endAt = {
+            year: current.getFullYear(),
+            month: current.getMonth() + 1,
+            mday: current.getDate(),
+            getTime: function() {
+                var d = new Date(this.year, this.month - 1, this.mday, 23, 59, 59, 0);
+                return d.getTime();
+            }
+        };
+        $scope.signinStartAt = startAt.getTime() / 1000;
+        $scope.signinEndAt = endAt.getTime() / 1000;
         $scope.selected = {};
         $scope.selectAll;
+        $scope.$on('xxt.tms-datepicker.change', function(evt, data) {
+            $scope[data.state] = data.value;
+            $scope.doSearch(1);
+        });
         $scope.$on('search-tag.xxt.combox.done', function(event, aSelected) {
             $scope.page.tags = $scope.page.tags.concat(aSelected);
             $scope.doSearch();
@@ -297,7 +327,11 @@
                     $scope.selected[i] = nv;
                 }
         });
-        $scope.doSearch();
+        $scope.$watch('editing', function(nv) {
+            if (nv) {
+                $scope.doSearch();
+            }
+        });
     }]);
     xxtApp.register.controller('importAppCtrl', ['$scope', 'http2', '$modalInstance', function($scope, http2, $modalInstance) {
         $scope.param = {

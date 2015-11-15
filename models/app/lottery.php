@@ -2,7 +2,9 @@
 namespace app;
 
 require_once dirname(dirname(__FILE__)) . '/matter/lottery.php';
-
+/**
+ * 抽奖活动
+ */
 class lottery_model extends \matter\lottery_model {
 	/**
 	 * 获得抽奖的定义
@@ -12,15 +14,13 @@ class lottery_model extends \matter\lottery_model {
 	 */
 	public function &byId($lid, $fields = '*', $cascaded = array()) {
 		$q = array($fields, 'xxt_lottery', "id='$lid'");
-		if ($r = $this->query_obj_ss($q)) {
+		if ($lot = $this->query_obj_ss($q)) {
 			if (in_array('award', $cascaded)) {
-				$r->awards = $this->getAwards($lid);
+				$lot->awards = $this->getAwards($lid);
 			}
-
 			if (in_array('task', $cascaded)) {
-				$r->tasks = $this->getTasks($lid);
+				$lot->tasks = $this->getTasks($lid);
 			}
-
 			if (in_array('plate', $cascaded)) {
 				$q = array(
 					'size,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11',
@@ -28,12 +28,11 @@ class lottery_model extends \matter\lottery_model {
 					"lid='$lid'",
 				);
 				if ($plate = parent::query_obj_ss($q)) {
-					$r->plate = $plate;
+					$lot->plate = $plate;
 				}
-
 			}
 		}
-		return $r;
+		return $lot;
 	}
 	/**
 	 * 获得奖品的定义
@@ -97,11 +96,10 @@ class lottery_model extends \matter\lottery_model {
 			$q[2] = "lid='$lid' and openid='$openid' and last='Y'";
 		}
 
-		if (!($last = $this->query_obj_ss($q)))
-		/**
-		 * 没有进行过抽奖，可以进行抽奖
-		 */
-		{
+		if (!($last = $this->query_obj_ss($q))) {
+			/**
+			 * 没有进行过抽奖，可以进行抽奖
+			 */
 			return $times_threshold;
 		}
 

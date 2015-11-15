@@ -1,4 +1,4 @@
-<div ng-controller='SettingCtrl'>
+<div>
     <div class='form-inline form-group' style='text-align:right'>
         <div class='form-group'>
             <pushmatter class='btn btn-primary' matter-id={{lottery.id}} matter-type='lottery'>发送给指定用户</pushmatter>
@@ -7,11 +7,11 @@
             <button class='btn btn-primary' data-toggle="popover" data-placement='left' ng-click="qrcode({type:'lottery',id:lottery.id},$event)">发送给我</button>
         </div>
     </div>
-    <div class='form-horizontal' ng-controller='SettingCtrl'>
+    <div class='form-horizontal'>
         <div class='form-group'>
             <label class='col-md-2 control-label'>URL</label>
             <div class='col-md-10'>
-                <p class="form-control-static" style='height:auto'>{{lottery.url}}</p>
+                <p class="form-control-static" style='height:auto' ng-bind='lottery._url'></p>
             </div>
         </div>
         <div class='form-group'>
@@ -107,7 +107,7 @@
         <div class='form-group' ng-if="lottery.pretask==='Y'">
             <label class='col-md-2 control-label'>前置活动完成URL</label>
             <div class='col-md-10'>
-                <div class="form-control" style='height:auto'>{{lottery.pretaskdone_url}}</div>
+                <div class="form-control" style='height:auto' ng-bind="lottery._pretaskdoneUrl"></div>
             </div>
         </div>
         <div class='form-group' ng-if="lottery.pretask==='Y'">

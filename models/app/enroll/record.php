@@ -58,6 +58,8 @@ class record_model extends \TMS_MODEL {
 			} else if ($activeRound = $this->M('app\enroll\round')->getActive($mpid, $aid)) {
 				$rid = $activeRound->rid;
 			}
+			$signinStartAt = isset($options->signinStartAt) ? $options->signinStartAt : null;
+			$signinEndAt = isset($options->signinEndAt) ? $options->signinEndAt : null;
 			$kw = isset($options->kw) ? $options->kw : null;
 			$by = isset($options->by) ? $options->by : null;
 		}
@@ -88,7 +90,13 @@ class record_model extends \TMS_MODEL {
 				break;
 			}
 		}
-		// tags
+		/*签到时间*/
+		if (!empty($signinStartAt) && !empty($signinEndAt)) {
+			$w .= " and exists(select 1 from xxt_enroll_signin_log l";
+			$w .= " where l.signin_at>=$signinStartAt and l.signin_at<=$signinEndAt and l.enroll_key=e.enroll_key";
+			$w .= ")";
+		}
+		/*tags*/
 		if (!empty($options->tags)) {
 			$aTags = explode(',', $options->tags);
 			foreach ($aTags as $tag) {
@@ -102,11 +110,6 @@ class record_model extends \TMS_MODEL {
 				$w,
 			);
 		} else {
-			/*$q = array(
-			'e.enroll_key,e.enroll_at,e.signin_at,e.tags,e.follower_num,e.score,s.score myscore,e.remark_num,f.fid,f.nickname,f.openid,f.headimgurl',
-			"xxt_enroll_record e left join xxt_fans f on e.mpid=f.mpid and e.openid=f.openid left join xxt_enroll_record_score s on s.enroll_key=e.enroll_key and s.openid='$visitor'",
-			$w,
-			);*/
 			$q = array(
 				'e.enroll_key,e.enroll_at,e.signin_at,e.tags,e.follower_num,e.score,e.remark_num,f.fid,f.nickname,f.openid,f.headimgurl',
 				"xxt_enroll_record e left join xxt_fans f on e.mpid=f.mpid and e.openid=f.openid",
@@ -131,9 +134,9 @@ class record_model extends \TMS_MODEL {
 		default:
 			$q2['o'] = 'e.enroll_at desc';
 		}
-		/* 获得填写的登记数据 */
 		if ($records = $this->query_objs_ss($q, $q2)) {
 			foreach ($records as &$r) {
+				/* 获得填写的登记数据 */
 				$qc = array(
 					'name,value',
 					'xxt_enroll_record_data',
@@ -144,6 +147,14 @@ class record_model extends \TMS_MODEL {
 				foreach ($cds as $cd) {
 					$r->data->{$cd->name} = $cd->value;
 				}
+				/*获得签到记录*/
+				$qs = array(
+					'signin_at',
+					'xxt_enroll_signin_log',
+					"enroll_key='$r->enroll_key'",
+				);
+				$qs2 = array('o' => 'signin_at desc');
+				$r->signinLogs = $this->query_objs_ss($qs, $qs2);
 			}
 			$result->records = $records;
 			/* total */

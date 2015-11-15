@@ -22,7 +22,7 @@
         <div class='form-group'>
             <combox title='标签' evt-prefix='search-tag' readonly='true' existing='page.tags' options='editing.tags'></combox>
         </div>
-        <div class='form-group pull-right' style='width:120px'>
+        <div class='form-group pull-right' style='width:90px'>
             <div class='input-group'>
                 <input class='form-control' ng-model='page.size' title='每页条数' placeholder='每页条数'>
                 <span class='input-group-btn'>
@@ -35,6 +35,12 @@
         <div class='form-group'>
             <select class='form-control' title="排序条件" ng-model='page.orderBy' ng-options='o.v as o.n for o in orderBys' ng-change='doSearch(1)'></select>
         </div>
+        <div class='form-group' ng-if="editing.can_signin==='Y'" style='width:180px'>
+            <tms-datepicker tms-title='签到范围开始日期' tms-date='signinStartAt' tms-state='signinStartAt'></tms-datepicker>
+        </div>
+        <div class='form-group' ng-if="editing.can_signin==='Y'" style='width:180px'>
+            <tms-datepicker tms-title='签到范围结束日期' tms-date='signinEndAt' tms-state='signinEndAt'></tms-datepicker>
+        </div>
     </div>
     <div id='records'>
         <table class='table table-bordered'>
@@ -46,7 +52,8 @@
                     <th style='width:100px'>登记时间</th>
                     <th style='width:100px'>昵称</th>
                     <th class='custom-col' ng-repeat="c in cols" title="{{c.ops}}">{{c.title}}</th>
-                    <th style='width:100px' ng-if="editing.can_signin==='Y'">签到时间</th>
+                    <th style='width:100px' ng-if="editing.can_signin==='Y'">最近签到时间</th>
+                    <th style='width:80px' ng-if="editing.can_signin==='Y'">签到次数</th>
                     <th style='width:140px'>标签</th>
                     <th style='width:60px' ng-if="editing.can_invite==='Y'">邀请</th>
                     <th style='width:60px' ng-if="editing.can_like_record==='Y'">点赞</th>
@@ -73,7 +80,8 @@
                             <span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                         </span>
                     </td>
-                    <td ng-if="editing.can_signin==='Y'">{{r.signin_at>0 ? ((r.signin_at*1000)|date:'yyyy-MM-dd HH:mm') : ''}}</td>
+                    <td ng-if="editing.can_signin==='Y'">{{r.signin_at>0 ? ((r.signin_at*1000)|date:'MM-dd HH:mm') : ''}}</td>
+                    <td ng-if="editing.can_signin==='Y'">{{r.signinLogs.length}}</td>
                     <td>{{r.tags}}</td>
                     <td ng-if="editing.can_invite==='Y'">{{r.follower_num}}</td>
                     <td ng-if="editing.can_like_record==='Y'">{{r.score}}</td>
@@ -149,7 +157,9 @@
                 <div class="form-group" ng-if="enroll.can_signin==='Y'&&record.enroll_at">
                     <label class="col-md-2 control-label">签到时间</label>
                     <div class="col-md-10">
-                        <p class="form-control-static" ng-if='record.signin_at>0'>{{record.signin_at*1000|date:'yyyy-MM-dd hh:mm'}}</p>
+                        <ul class='list-group' style='margin-bottom:0'>
+                            <li class='list-group-item' ng-repeat="l in record.signinLogs">{{l.signin_at*1000|date:'yyyy-MM-dd hh:mm'}}</li>
+                        </ul>
                         <button class="btn btn-primary" ng-if='record.signin_at==0' ng-click="signin()">签到</button>
                     </div>
                 </div>

@@ -7,21 +7,21 @@
                 </a>
             </li>
             <li ng-class="{'active':subView=='setting'}">
-                <a href='javascript:void(0);' ng-click="subView='setting'">活动设置</a>
+                <a href="/rest/mp/app/lottery/detail?lottery={{lid}}">活动设置</a>
             </li>
             <li ng-class="{'active':subView=='award'}">
-                <a href='javascript:void(0);' ng-click="subView='award'">奖项设置</a>
+                <a href="/rest/mp/app/lottery/award?lottery={{lid}}">奖项设置</a>
             </li>
             <li ng-class="{'active':subView=='plate'}">
-                <a href='javascript:void(0);' ng-click="subView='plate'">奖项位置</a>
+                <a href="/rest/mp/app/lottery/plate?lottery={{lid}}">奖项位置</a>
             </li>
             <li ng-class="{'active':subView=='page'}">
-                <a href='javascript:void(0);' ng-click="subView='page'">页面定制</a>
+                <a href="/rest/mp/app/lottery/page?lottery={{lid}}">页面定制</a>
             </li>
             <li ng-class="{'active':subView=='result'}">
-                <a href='javascript:void(0);' ng-click="subView='result'">抽奖结果</a>
+                <a href="/rest/mp/app/lottery/result?lottery={{lid}}">抽奖结果</a>
             </li>
         </ul>
     </nav>
-    <div ng-init="subView='setting'" ng-include="'/page/mp/app/lottery/'+subView"></div>
+    <div ng-view></div>
 </div>

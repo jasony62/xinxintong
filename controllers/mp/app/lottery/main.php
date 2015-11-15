@@ -19,46 +19,63 @@ class main extends \mp\app\app_base {
 		$this->view_action('/mp/app/lottery');
 	}
 	/**
+	 *
+	 */
+	public function detail_action() {
+		$this->view_action('/mp/app/lottery/detail');
+	}
+	/**
+	 *
+	 */
+	public function plate_action() {
+		$this->view_action('/mp/app/lottery/detail');
+	}
+	/**
+	 *
+	 */
+	public function page_action() {
+		$this->view_action('/mp/app/lottery/detail');
+	}
+	/**
+	 *
+	 */
+	public function result_action() {
+		$this->view_action('/mp/app/lottery/detail');
+	}
+	/**
+	 * 返回转盘抽奖活动数据
+	 *
+	 * @param string $lottery ID
+	 */
+	public function get_action($lottery) {
+		$lot = $this->model('app\lottery')->byId($lottery, '*', array('award', 'task'));
+		/*acl*/
+		$lot->acl = $this->model('acl')->byMatter($this->mpid, 'lottery', $lottery);
+
+		return new \ResponseData($lot);
+	}
+	/**
 	 * 返回转盘抽奖活动数据
 	 */
-	public function get_action($lid = null, $src = null) {
-		$uid = \TMS_CLIENT::get_client_uid();
-		if ($lid) {
-			/**
-			 * one
-			 */
-			$r = $this->model('app\lottery')->byId($lid, '*', array('award', 'task'));
-			$r->url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/lottery?mpid=$r->mpid&lid=$lid";
-			$r->pretaskdone_url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/lottery?mpid=$r->mpid&lid=$lid&pretaskdone=Y";
-			/**
-			 * acl
-			 */
-			$r->acl = $this->model('acl')->byMatter($this->mpid, 'lottery', $lid);
-
-			return new \ResponseData($r);
+	public function list_action($src = null) {
+		$q = array('*', 'xxt_lottery');
+		if ($src === 'p') {
+			$pmpid = $this->getParentMpid();
+			$q[2] = "mpid='$pmpid'";
 		} else {
-			/**
-			 * list
-			 */
-			$q = array('*', 'xxt_lottery');
-			if ($src === 'p') {
-				$pmpid = $this->getParentMpid();
-				$q[2] = "mpid='$pmpid'";
-			} else {
-				$q[2] = "mpid='$this->mpid'";
-			}
-
-			$q2['o'] = 'create_at desc';
-
-			$r = $this->model()->query_objs_ss($q, $q2);
-
-			return new \ResponseData($r);
+			$q[2] = "mpid='$this->mpid'";
 		}
+
+		$q2['o'] = 'create_at desc';
+
+		$r = $this->model()->query_objs_ss($q, $q2);
+
+		return new \ResponseData($r);
 	}
 	/**
 	 * 获得转盘设置信息
 	 */
-	public function plate_action($lid) {
+	public function plateGet_action($lid) {
 		$q = array(
 			'*',
 			'xxt_lottery_plate',
@@ -132,8 +149,10 @@ class main extends \mp\app\app_base {
 	}
 	/**
 	 * 更新轮盘抽奖的基本设置信息
+	 *
+	 * @param string $lottery ID
 	 */
-	public function update_action($lid) {
+	public function update_action($lottery) {
 		$nv = (array) $this->getPostJson();
 
 		$keys = array_keys($nv);
@@ -143,66 +162,7 @@ class main extends \mp\app\app_base {
 			}
 
 		}
-		$rst = $this->model()->update('xxt_lottery', $nv, "id='$lid'");
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 * 添加奖项
-	 */
-	public function addAward_action($lid, $mpid) {
-		$a = array(
-			'mpid' => $mpid,
-			'lid' => $lid,
-			'aid' => uniqid(),
-			'title' => '新增奖项',
-			'pic' => '',
-			'type' => 0,
-			'quantity' => 0,
-			'prob' => 0,
-		);
-		$this->model()->insert('xxt_lottery_award', $a, false);
-
-		return new \ResponseData($a);
-	}
-	/**
-	 * 设置奖项的属性
-	 *
-	 * $aid award's id.
-	 */
-	public function setAward_action($aid) {
-		$nv = $this->getPostJson();
-
-		if (isset($nv->description)) {
-			$nv->description = $this->model()->escape($nv->description);
-		} else if (isset($nv->greeting)) {
-			$nv->greeting = $this->model()->escape($nv->greeting);
-		}
-
-		$rst = $this->model()->update('xxt_lottery_award', (array) $nv, "aid='$aid'");
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 * 删除奖项
-	 *
-	 * 如果已经有人中奖，就不允许删除奖项
-	 */
-	public function delAward_action($aid) {
-		/**
-		 * 检查是否已经有中奖记录
-		 */
-		$q = array(
-			'count(*)',
-			'xxt_lottery_log',
-			"aid='$aid'",
-		);
-		$cnt = $this->model()->query_val_ss($q);
-		if ($cnt > 0) {
-			return new \ComplianceError('已经有中奖记录，奖项不允许被删除！');
-		}
-
-		$rst = $this->model()->delete('xxt_lottery_award', "aid='$aid'");
+		$rst = $this->model()->update('xxt_lottery', $nv, "id='$lottery'");
 
 		return new \ResponseData($rst);
 	}

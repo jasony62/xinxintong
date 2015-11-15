@@ -1,0 +1,214 @@
+<div>
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <th style='width:48px'>序号</th>
+                <th>名称</th>
+                <th>类型</th>
+                <th>计数周期</th>
+                <th>数量</th>
+                <th>中奖概率</th>
+                <th>已领数量</th>
+                <th>奖项描述</th>
+                <th>中奖词</th>
+                <th style='width:80px'>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat='award in lottery.awards'>
+                <td ng-bind='$index+1'></td>
+                <td ng-bind='award.title'></td>
+                <td ng-bind='award._type' ></td>
+                <td ng-bind='award._period'></td>
+                <td ng-bind='award.quantity'></td>
+                <td ng-bind='award.prob'></td>
+                <td ng-bind='award.takeaway'></td>
+                <td ng-bind='award.description'></td>
+                <td ng-bind='award.greeting'></td>
+                <td>
+                    <a href='javascript:void(0)' ng-click='openAward(award)'>修改</a>
+                    <a href='javascript:void(0)' ng-click='removeAward(award)'>删除</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <button class='btn btn-success' ng-click='addAward()'>添加奖项</button>
+    <button class='btn btn-success' ng-click='batchAward()'>批量生成奖项</button>
+    <script type="text/ng-template" id="awardEditor.html">
+        <div class="modal-header">
+            <button class="close" ng-click="close()">×</button>
+            <h5 class="modal-title">编辑奖项</h5>
+        </div>
+        <div class="modal-body">
+            <div class='form-horizontal'>
+                <div class='form-group'>
+                    <label class="col-md-2 control-label">奖品名称</label>
+                    <div class='col-md-10'>
+                        <input type='text' class='form-control' ng-model='award.title'>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class="col-md-2 control-label">奖品类型</label>
+                    <div class='col-md-10'>
+                        <select class='form-control' ng-model='award.type'>
+                            <option value='0'>未中奖</option>
+                            <option value='1'>应用积分</option>
+                            <option value='2'>奖励重玩</option>
+                            <option value='3'>完成任务</option>
+                            <option value='99'>实体奖品</option>
+                        </select>
+                    </div>
+                </div>
+                <div class='form-group' ng-if="award.type==3">
+                    <label class="col-md-2 control-label">完成任务</label>
+                    <div class='col-md-10'>
+                        <select class='form-control' ng-model='award.taskid' ng-options='t.tid as t.title for t in lottery.tasks'>
+                            <option value=''></option>
+                        </select>
+                    </div>
+                </div>
+                <div class='form-group' ng-if='award.type!=0'>
+                    <label class="col-md-2 control-label">计数周期</label>
+                    <div class='col-md-10'>
+                        <select class='form-control' ng-model='award.period'>
+                            <option value='A'>总计</option>
+                            <option value='D'>每天</option>
+                        </select>
+                    </div>
+                </div>
+                <div class='form-group' ng-if='award.type!=0'>
+                    <label class="col-md-2 control-label">奖品数量</label>
+                    <div class='col-md-10'>
+                        <input type='text' class='form-control' ng-model='award.quantity'>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class="col-md-2 control-label">中奖概率</label>
+                    <div class='col-md-10'>
+                        <div class='input-group'>
+                            <input type='text' class='form-control' ng-model='award.prob'>
+                            <span class="input-group-addon">%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class="col-md-2 control-label">奖品描述</label>
+                    <div class='col-md-10'>
+                        <textarea class='form-control' ng-model='award.description'></textarea>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class="col-md-2 control-label">中奖词</label>
+                    <div class='col-md-10'>
+                        <textarea class='form-control' ng-model='award.greeting'></textarea>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class="col-md-2 control-label">奖项图片</label>
+                    <div class='col-md-10'>
+                        <div style="height:10em;border:1px solid #CCC">
+                            <div style="height:100%;text-align:center;padding-top:3em" ng-if="award.pic==''">
+                                <button class='btn btn-default' ng-click='setPic(award);'>
+                                <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                            </div>
+                            <div style='height:100%;position:relative' ng-if="award.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                                <img name='pic' ng-src="{{award.pic}}" width='100%' height='100%' />
+                                <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic(award)'>
+                                <span class='glyphicon glyphicon-picture'></span>
+                                </button>
+                                <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic(award)'>
+                                <span class='glyphicon glyphicon-trash'></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='form-group' ng-if="award.type==99&&award.period==='A'">
+                    <label class="col-md-2 control-label">已领数量</label>
+                    <div class='col-md-10'>
+                        <input type='text' class='form-control' ng-model='award.takeaway'>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class="col-md-2 control-label">兑奖URL</label>
+                    <div class='col-md-10'>
+                        <textarea class="form-control" ng-model="award.get_prize_url"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">确定</button>
+        </div>
+    </script>
+    <script type="text/ng-template" id="batchAward.html">
+        <div class="modal-header">
+            <button class="close" ng-click="close()">×</button>
+            <h5 class="modal-title">批量生成奖项</h5>
+        </div>
+        <div class="modal-body">
+            <div class='form-horizontal'>
+                <div class='form-group'>
+                    <label class="col-md-2 control-label">生成数量</label>
+                    <div class='col-md-10'>
+                        <input type='text' class='form-control' ng-model='option.quantity'>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class="col-md-2 control-label">奖品名称</label>
+                    <div class='col-md-10'>
+                        <input type='text' class='form-control' ng-model='option.award.title'>
+                        <p class='help-block' style='margin-bottom:0'>
+                            <span>结果示例：</span>
+                            <span><em ng-bind='option.award.title'></em><em>1</em></span>，
+                            <span><em ng-bind='option.award.title'></em><em>2</em></span>...
+                        </p>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class="col-md-2 control-label">奖品类型</label>
+                    <div class='col-md-10'>
+                        <select class='form-control' ng-model='option.award.type'>
+                            <option value='0'>未中奖</option>
+                            <option value='1'>应用积分</option>
+                            <option value='2'>奖励重玩</option>
+                            <option value='3'>完成任务</option>
+                            <option value='99'>实体奖品</option>
+                        </select>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class="col-md-2 control-label">奖品概率</label>
+                    <div class='col-md-10'>
+                        <input type='text' class='form-control' ng-model='option.award.prob'>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class="col-md-2 control-label">奖品数量</label>
+                    <div class='col-md-10'>
+                        <input type='text' class='form-control' ng-model='option.award.quantity'>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class="col-md-2 control-label">计数周期</label>
+                    <div class='col-md-10'>
+                        <select class='form-control' ng-model='option.award.period'>
+                            <option value='A'>总计</option>
+                            <option value='D'>每天</option>
+                        </select>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class="col-md-2 control-label">中奖词</label>
+                    <div class='col-md-10'>
+                        <textarea class='form-control' ng-model='option.award.greeting'></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">确定</button>
+        </div>
+    </script>
+    <mediagallery box-id="{{mpaccount.mpid}}" />
+</div>

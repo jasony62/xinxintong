@@ -28,7 +28,7 @@ directive('dynamicHtml', function($compile) {
 controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
     var mpid, lid;
     mpid = location.search.match(/mpid=([^&]*)/)[1];
-    lid = location.search.match(/lid=([^&]*)/)[1];
+    lid = location.search.match(/lottery=([^&]*)/)[1];
     $scope.alert = {
         type: '',
         msg: '',
@@ -71,7 +71,7 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
     };
     $scope.awards = {};
     $scope.greeting = null;
-    $http.get('/rest/app/lottery/get?mpid=' + mpid + '&lid=' + lid).success(function(rsp) {
+    $http.get('/rest/app/lottery/get?mpid=' + mpid + '&lottery=' + lid).success(function(rsp) {
         var lot, i, l, award, params, awards, sharelink;
         params = rsp.data;
         lot = params.lottery;
@@ -86,7 +86,7 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
             $scope.awards[award.aid] = award;
         }
         if (lot.show_winners === 'Y') {
-            $http.get('/rest/app/lottery/winnersList?lid=' + lid).success(function(rsp) {
+            $http.get('/rest/app/lottery/winnersList?lottery=' + lid).success(function(rsp) {
                 $scope.winners = rsp.data;
             });
         }
@@ -103,7 +103,7 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
          */
         sharelink = 'http://' + location.hostname + "/rest/app/lottery";
         sharelink += "?mpid=" + mpid;
-        sharelink += "&lid=" + lid;
+        sharelink += "&lottery=" + lid;
         window.shareid = params.user.vid + (new Date()).getTime();
         sharelink += "&shareby=" + window.shareid;
         window.xxt.share.set(lot.title, sharelink, lot.summary, lot.pic);
@@ -139,7 +139,7 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
     };
     $scope.play = function(cbSuccess, cbError) {
         $scope.alert.empty();
-        $http.get('/rest/app/lottery/play?mpid=' + mpid + '&lid=' + lid).success(function(rsp) {
+        $http.get('/rest/app/lottery/play?mpid=' + mpid + '&lottery=' + lid).success(function(rsp) {
             if (angular.isString(rsp)) {
                 $scope.alert.error(rsp);
                 return;

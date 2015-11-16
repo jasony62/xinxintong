@@ -39,7 +39,7 @@ class users extends \mp\app\app_base {
 		$sql .= " '$this->mpid','$wall'," . time();
 		$sql .= ',openid';
 		$sql .= " from xxt_enroll_record";
-		$sql .= " where aid='$app'";
+		$sql .= " where aid='$app' and state=1";
 
 		$this->model()->insert($sql);
 

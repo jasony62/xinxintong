@@ -210,16 +210,16 @@ class record_model extends \TMS_MODEL {
 	 * 获得指定用户最后一次登记记录
 	 * 如果设置轮次，只返回当前轮次的情况
 	 */
-	public function getLast($mpid, $aid, $openid) {
+	public function getLast($mpid, $aid, $openid, $options = array()) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$q = array(
-			'*',
+			$fields,
 			'xxt_enroll_record',
 			"state=1 and mpid='$mpid' and aid='$aid' and openid='$openid'",
 		);
 		if ($activeRound = \TMS_APP::M('app\enroll\round')->getActive($mpid, $aid)) {
 			$q[2] .= " and rid='$activeRound->rid'";
 		}
-
 		$q2 = array(
 			'o' => 'enroll_at desc',
 			'r' => array('o' => 0, 'l' => 1),
@@ -274,8 +274,8 @@ class record_model extends \TMS_MODEL {
 		return $remarks;
 	}
 	/*
-	 * 所有发表过评论的用户
-	 */
+		 * 所有发表过评论的用户
+	*/
 	public function &remarkers($ek) {
 		$q = array(
 			'distinct openid',

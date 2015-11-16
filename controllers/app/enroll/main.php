@@ -97,9 +97,9 @@ class main extends base {
 		exit;
 	}
 	/**
-	 *
+	 * 当前用户的缺省页面
 	 */
-	private function defaultPage($mpid, $app, $user, $hasEnrolled = false) {
+	private function _defaultPage($mpid, $app, $user, $hasEnrolled = false) {
 		if ($hasEnrolled && !empty($app->enrolled_entry_page)) {
 			$page = $app->enrolled_entry_page;
 		} else {
@@ -108,7 +108,14 @@ class main extends base {
 		return $page;
 	}
 	/**
-	 * 返回活动数据
+	 * 返回登记记录
+	 *
+	 * @param string $mpid
+	 * @param string $aid
+	 * @param string $rid round's id
+	 * @param string $page page's name
+	 * @param string $ek record's enroll key
+	 * @param string $newRecord
 	 */
 	public function get_action($mpid, $aid, $rid = null, $page = null, $ek = null, $newRecord = null) {
 		$params = array();
@@ -116,9 +123,7 @@ class main extends base {
 		$modelApp = $this->model('app\enroll');
 		$app = $modelApp->byId($aid);
 		$params['enroll'] = $app;
-		/**
-		 * 当前访问用户的基本信息
-		 */
+		/*当前访问用户的基本信息*/
 		$user = $this->getUser($mpid,
 			array(
 				'authapis' => $app->authapis,
@@ -127,11 +132,9 @@ class main extends base {
 			)
 		);
 		$params['user'] = $user;
-		/**
-		 * 页面
-		 */
+		/*打开页面*/
 		$hasEnrolled = $modelApp->hasEnrolled($mpid, $app->id, $user->openid);
-		empty($page) && $page = $this->defaultPage($mpid, $app, $user, $hasEnrolled);
+		empty($page) && $page = $this->_defaultPage($mpid, $app, $user, $hasEnrolled);
 		foreach ($app->pages as $p) {
 			if ($p->name === $page) {
 				$oPage = $p;
@@ -142,34 +145,41 @@ class main extends base {
 			return new \ResponseError('指定的页面[' . $page . ']不存在');
 		}
 		$params['page'] = $oPage;
-		/**
-		 * 登记活动管理员
-		 */
-		$admins = \TMS_APP::model('acl')->enrollReceivers($mpid, $aid);
-		$params['admins'] = $admins;
 		/* 自动登记 */
 		if (!$hasEnrolled && $app->can_autoenroll === 'Y' && $oPage->autoenroll_onenter === 'Y') {
 			$modelRec = $this->model('app\enroll\record');
-			$modelRec->add($mpid, $app, $user, (empty($posted->referrer) ? '' : $posted->referrer));
-		}
-		/**
-		 * 设置页面登记数据
-		 */
-		$newForm = false;
-		if ($oPage->type === 'I' && empty($ek)) {
-			if ($app->open_lastroll === 'N' || (!empty($page) && $page === $oPage->name)) {
-				$newForm = true;
+			$options = array(
+				'fields' => 'enroll_key,enroll_at',
+			);
+			$lastRecord = $modelRec->getLast($mpid, $aid, $user->openid, $options);
+			if (false === $lastRecord) {
+				$modelRec->add($mpid, $app, $user, (empty($posted->referrer) ? '' : $posted->referrer));
+			} else if ($lastRecord->enroll_at === '0') {
+				$updated = array(
+					'enroll_at' => time(),
+				);
+				!empty($posted->referrer) && $updated['referrer'] = $posted->referrer;
+				$modelRec->update('xxt_enroll_record', $updated, "enroll_key='$lastRecord->enroll_key'");
 			}
 		}
-		list($openedek, $record, $statdata) = $this->getRecord($mpid, $app, $rid, $ek, $user->openid, $page, $newForm);
+		/*登记记录*/
+		$newForm = false;
+		if ($oPage->type === 'I') {
+			if ($newRecord === 'Y') {
+				$newForm = true;
+			} else if (empty($ek)) {
+				if ($app->open_lastroll === 'N') {
+					$newForm = true;
+				}
+			}
+		}
+		list($openedek, $record, $statdata) = $this->_getRecord($mpid, $app, $rid, $ek, $user->openid, $page, $newForm);
 		if ($newForm === false) {
 			$params['enrollKey'] = $openedek;
 			$params['record'] = $record;
 		}
 		$params['statdata'] = $statdata;
-		/**
-		 * 公众号信息
-		 */
+		/*公众号信息*/
 		$mpaccount = $this->getMpSetting($mpid);
 		$user_agent = $_SERVER['HTTP_USER_AGENT'];
 		if (preg_match('/yixin/i', $user_agent)) {
@@ -192,7 +202,7 @@ class main extends base {
 	 * $newForm
 	 *
 	 */
-	private function getRecord($mpid, $app, $rid, $ek, $openid, $page, $newForm = false) {
+	private function _getRecord($mpid, $app, $rid, $ek, $openid, $page, $newForm = false) {
 		$openedek = $ek;
 		$record = null;
 		$modelRec = $this->model('app\enroll\record');
@@ -201,20 +211,20 @@ class main extends base {
 		 */
 		if (empty($openedek)) {
 			if (!$newForm) {
-				/**
-				 * 获得最后一条登记数据
-				 */
-				$myRecords = $modelRec->byUser($mpid, $app->id, $openid, $rid);
-				if (!empty($myRecords)) {
-					$record = $myRecords[0];
+				/*获得最后一条登记数据。登记记录有可能未进行过登记*/
+				$options = array(
+					'fields' => '*',
+				);
+				$record = $modelRec->getLast($mpid, $app->id, $openid, $options);
+				if ($record) {
 					$openedek = $record->enroll_key;
-					$record->data = $modelRec->dataById($openedek);
+					if ($record->enroll_at) {
+						$record->data = $modelRec->dataById($openedek);
+					}
 				}
 			}
 		} else {
-			/**
-			 * 打开指定的登记记录
-			 */
+			/*打开指定的登记记录*/
 			$record = $modelRec->byId($openedek);
 		}
 		/**
@@ -237,7 +247,6 @@ class main extends base {
 			}
 			/*评论数据*/
 			$record->remarks = $modelRec->remarks($openedek);
-			/*抽奖数据*/
 			/*获得关联抽奖活动记录*/
 			$ql = array(
 				'award_title',

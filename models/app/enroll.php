@@ -39,14 +39,14 @@ class enroll_model extends \matter\enroll_model {
 	 * $vid
 	 * $mid
 	 */
-	public function enroll($mpid, $act, $openid, $vid = '', $mid = '') {
+	public function enroll($mpid, $act, $openid, $vid = '', $mid = '', $enroll_at = null) {
 		$fan = \TMS_APP::M('user/fans')->byOpenid($mpid, $openid);
 		$modelRec = \TMS_APP::M('app\enroll\record');
 		$ek = $modelRec->genKey($mpid, $act->id);
 		$i = array(
 			'aid' => $act->id,
 			'mpid' => $mpid,
-			'enroll_at' => time(),
+			'enroll_at' => $enroll_at === null ? time() : $enroll_at,
 			'enroll_key' => $ek,
 			'openid' => $openid,
 			'nickname' => !empty($fan) ? $fan->nickname : '',
@@ -71,23 +71,21 @@ class enroll_model extends \matter\enroll_model {
 		if (empty($mpid) || empty($aid) || empty($openid)) {
 			return false;
 		}
-
 		$q = array(
 			'count(*)',
 			'xxt_enroll_record',
-			"state=1 and mpid='$mpid' and aid='$aid' and openid='$openid'",
+			"state=1 and enroll_at>0 and mpid='$mpid' and aid='$aid' and openid='$openid'",
 		);
 		$modelRun = \TMS_APP::M('app\enroll\round');
 		if ($activeRound = $modelRun->getActive($mpid, $aid)) {
 			$q[2] .= " and rid='$activeRound->rid'";
 		}
-
 		$rst = (int) $this->query_val_ss($q);
 
 		return $rst > 0;
 	}
 	/**
-	 * 活动签到
+	 * 登记活动签到
 	 *
 	 * 如果用户已经做过活动登记，那么设置签到时间
 	 * 如果用户没有做个活动登记，那么要先产生一条登记记录，并记录签到时间
@@ -100,7 +98,7 @@ class enroll_model extends \matter\enroll_model {
 			$enrolled = false;
 			$act = new \stdClass;
 			$act->id = $aid;
-			$ek = $this->enroll($mpid, $act, $openid);
+			$ek = $this->enroll($mpid, $act, $openid, '', '', 0);
 		}
 		/*更新状态*/
 		$signinAt = time();

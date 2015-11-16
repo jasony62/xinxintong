@@ -121,7 +121,7 @@ class lottery_model extends \TMS_MODEL {
 		 * 已经抽中的人
 		 */
 		$q = array(
-			'l.*,r.title,e.enroll_key',
+			'l.*,r.title,e.enroll_key,e.nickname',
 			'xxt_enroll_lottery l,xxt_enroll_lottery_round r,xxt_enroll_record e',
 			"l.aid='$aid' and l.round_id=r.round_id and l.aid=e.aid and l.enroll_key=e.enroll_key",
 		);

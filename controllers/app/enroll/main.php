@@ -110,7 +110,7 @@ class main extends base {
 	/**
 	 * 返回活动数据
 	 */
-	public function get_action($mpid, $aid, $rid = null, $page = null, $ek = null) {
+	public function get_action($mpid, $aid, $rid = null, $page = null, $ek = null, $newRecord = null) {
 		$params = array();
 
 		$modelApp = $this->model('app\enroll');

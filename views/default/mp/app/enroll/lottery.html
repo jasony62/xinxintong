@@ -79,6 +79,7 @@
                 <thead>
                     <tr>
                         <th ng-if='!editingRound'>轮次</th>
+                        <th>昵称</th>
                         <th>姓名</th>
                         <th>手机号</th>
                     </tr>
@@ -86,6 +87,7 @@
                 <tbody>
                     <tr ng-repeat="w in winners">
                         <td ng-if='!editingRound'>{{w.title}}</td>
+                        <td>{{w.nickname}}</td>
                         <td>{{w.name}}</td>
                         <td>{{w.mobile}}</td>
                     </tr>

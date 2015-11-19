@@ -223,7 +223,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 
             var ls, search;
             ls = location.search;
             search = {};
-            angular.forEach(['mpid', 'aid', 'rid', 'page', 'ek', 'preview'], function(q) {
+            angular.forEach(['mpid', 'aid', 'rid', 'page', 'ek', 'preview', 'newRecord'], function(q) {
                 var match, pattern;
                 pattern = new RegExp(q + '=([^&]*)');
                 match = ls.match(pattern);
@@ -489,7 +489,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 
         var submitWhole = function() {
             var url, d, d2, posted = angular.copy($scope.data);
             url = '/rest/app/enroll/record/submit?mpid=' + LS.p.mpid + '&aid=' + LS.p.aid;
-            if (!$scope.isNew && $scope.params.enrollKey && $scope.params.enrollKey.length)
+            if (LS.p.newRecord !== 'Y' && $scope.params.enrollKey && $scope.params.enrollKey.length)
                 url += '&ek=' + $scope.params.enrollKey;
             for (var i in posted) {
                 d = posted[i];
@@ -588,7 +588,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 
             el.style.display = 'block';
         });
     };
-    $scope.gotoPage = function(event, page, ek, rid, fansOnly) {
+    $scope.gotoPage = function(event, page, ek, rid, fansOnly, newRecord) {
         event.preventDefault();
         event.stopPropagation();
         if (fansOnly && !$scope.User.fan) {
@@ -603,13 +603,14 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 
         }
         rid !== undefined && rid !== null && rid.length && (url += '&rid=' + rid);
         page !== undefined && page !== null && page.length && (url += '&page=' + page);
+        newRecord !== undefined && newRecord === 'Y' && (url += '&newRecord=Y');
         location.replace(url);
     };
     $scope.addRecord = function(event) {
         var first, page;
         first = PG.firstInput();
         page = first.name;
-        page ? $scope.gotoPage(event, page) : alert('当前活动没有包含数据登记页');
+        page ? $scope.gotoPage(event, page, null, null, false, 'Y') : alert('当前活动没有包含数据登记页');
     };
     $scope.editRecord = function(event, page) {
         var first;
@@ -681,7 +682,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 
         }
     };
     (new Schema()).get().then(function(data) {});
-    $http.get(LS.j('get', 'mpid', 'aid', 'rid', 'page', 'ek')).success(function(rsp) {
+    $http.get(LS.j('get', 'mpid', 'aid', 'rid', 'page', 'ek', 'newRecord')).success(function(rsp) {
         if (rsp.err_code !== 0) {
             $scope.errmsg = rsp.err_msg;
             return;

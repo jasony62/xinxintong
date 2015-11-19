@@ -113,6 +113,17 @@ xxtApp.controller('enrollCtrl', ['$scope', '$location', 'http2', function($scope
             });
         }
     };
+    $scope.isInputPage = function(pageName) {
+        if (!$scope.editing) {
+            return false;
+        }
+        for (var i in $scope.editing.pages) {
+            if ($scope.editing.pages[i].name === pageName && $scope.editing.pages[i].type === 'I') {
+                return true;
+            }
+        }
+        return false;
+    };
     $scope.$on('xxt.float-toolbar.shop.open', function(event) {
         $scope.$emit('mattershop.new', $scope.mpid, $scope.editing);
     });

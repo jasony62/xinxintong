@@ -15,10 +15,11 @@
         for (var i = 0; i <= 59; i++)
             $scope.minutes.push(i);
         $scope.updateTime = function(name) {
-            var time = $scope[name].getTime();
-            var p = {};
+            var time, p;
+            time = $scope[name].getTime();
+            p = {};
             p[name] = time / 1000;
-            http2.post('/rest/mp/app/lottery/update?lid=' + $scope.lid, p);
+            http2.post('/rest/mp/app/lottery/update?lottery=' + $scope.lid, p);
         };
         $scope.setPic = function() {
             var options = {

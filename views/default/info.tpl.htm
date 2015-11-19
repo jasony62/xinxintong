@@ -7,6 +7,11 @@
         <style>
             body{height:100%;font-family:Microsoft Yahei,Arial}
         </style> 
+        <?php $css=TPL::val('css'); if (!empty($css)) {?>
+        <style>
+            <?php echo $css;?>
+        </style>
+        <?php }?>
     </head>
     <body>
         <?php echo TPL::val('body');?>
@@ -14,6 +19,11 @@
         <script type="text/javascript">
             var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
             document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F40ec59c933400d729f57930675635edb' type='text/javascript'%3E%3C/script%3E"));
+        </script>
+        <?php }?>
+        <?php $js=TPL::val('js'); if (!empty($js)) {?>
+        <script>
+            <?php echo $js;?>
         </script>
         <?php }?>
     </body>

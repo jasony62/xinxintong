@@ -65,7 +65,7 @@
                 <label class='col-md-2 control-label'>开始时间（可选）</label>
                 <div class='col-md-10 form-inline'>
                     <tms-datepicker tms-title='开始时间' tms-date='editing.start_at' tms-state='start_at'></tms-datepicker>
-                    <select title='进入页面' class='form-control' ng-model='editing.before_start_page' ng-options='pname as page.title for (pname, page) in editing.pages'
+                    <select title='进入页面' class='form-control' ng-model='editing.before_start_page' ng-options='page.name as page.title for page in editing.pages'
                     ng-change="update('before_start_page')">
                         <option value=''></option>
                     </select>
@@ -75,7 +75,7 @@
                 <label class='col-md-2 control-label'>结束时间（可选）</label>
                 <div class='col-md-10 form-inline'>
                     <tms-datepicker tms-title='结束时间' tms-date='editing.end_at' tms-state='end_at'></tms-datepicker>
-                    <select title='进入页面' class='form-control' ng-model='editing.after_end_page' ng-options='pname as page.title for (pname, page) in editing.pages'
+                    <select title='进入页面' class='form-control' ng-model='editing.after_end_page' ng-options='page.name as page.title for page in editing.pages'
                     ng-change="update('after_end_page')">
                         <option value=''></option>
                     </select>
@@ -239,19 +239,14 @@
                 </div>
             </div>
             <div class='form-group'>
-                <label class='col-md-2 control-label'>已登记过时</label>
-                <div class='col-md-10'>
-                    <label class='checkbox-inline'>
-                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.open_lastroll' ng-change="update('open_lastroll')">显示已登记记录</label>
-                </div>
-            </div>
-            <div class='form-group'>
                 <label class='col-md-2 control-label'>已登记过时进入</label>
                 <div class='col-md-10'>
                     <select class='form-control' ng-model='editing.enrolled_entry_page' ng-options='page.name as page.title for page in editing.pages'
                     ng-change="update('enrolled_entry_page')">
                         <option value=''></option>
                     </select>
+                    <label class='checkbox-inline' ng-show='isInputPage(editing.enrolled_entry_page)'>
+                        <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.open_lastroll' ng-change="update('open_lastroll')">登记页中自动打开已登记记录</label>
                 </div>
             </div>
             <accesscontrol mpid='{{mpaccount.mpid}}' obj='editing' prop-access='canSetReceiver' update-access-control=false prop-acl='receiver'

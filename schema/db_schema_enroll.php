@@ -68,6 +68,7 @@ $sql .= ",share_page char(1) not null default 'N'"; // 分享时分享当前页�
 $sql .= ",share_summary varchar(240)"; // 分享时的摘要字段
 $sql .= ",autoenroll_onenter char(1) not null default 'N'"; // 进入时自动登记
 $sql .= ",autoenroll_onshare char(1) not null default 'N'"; // 分享时自动登记
+$sql .= ",seq int not null"; //页面序号
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

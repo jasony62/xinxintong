@@ -3,7 +3,7 @@
         <button class='btn btn-success' ng-click='create()' title='新建通讯录'>新建</button>
     </div>
     <div style='margin:0 -15px'>
-        <div class='col-md-4' ng-repeat='a in addressbooks'>
+        <div class='col-md-3' ng-repeat='a in addressbooks'>
             <div class='thumbnail' ng-mouseenter='enter=true' ng-mouseleave='enter=false' ng-click='edit(a)'>
                 <div>
                     <h4>{{a.title}}</h4>

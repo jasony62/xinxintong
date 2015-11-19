@@ -3,7 +3,7 @@
         <button class='btn btn-success' ng-click='create()' title='新建通讯录'>新建</button>
     </div>
     <div style='margin:0 -15px'>
-        <div class='col-md-4' ng-repeat='a in apps'>
+        <div class='col-md-3' ng-repeat='a in apps'>
             <div class='thumbnail' ng-mouseenter='enter=true' ng-mouseleave='enter=false' ng-click='edit(a)'>
                 <div>
                     <h4>{{a.title}}</h4>
@@ -13,7 +13,7 @@
                     <span class='modify_at'>{{a.create_at*1000|date:'yyyy-MM-dd'}}</span>
                 </div>
                 <button class='btn btn-default btn-sm remove' ng-click='remove($event,a,$index)'>
-                    <span class='glyphicon glyphicon-trash'></span>
+                <span class='glyphicon glyphicon-trash'></span>
                 </button>
             </div>
         </div>

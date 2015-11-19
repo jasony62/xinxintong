@@ -91,9 +91,6 @@ xxtApp.controller('enrollCtrl', ['$scope', '$location', 'http2', function($scope
     $scope.aid = $location.search().aid;
     $scope.subView = '';
     $scope.taskCodeEntryUrl = 'http://' + location.host + '/rest/q';
-    $scope.$root.floatToolbar = {
-        matterShop: true
-    };
     $scope.canRounds = function() {
         $scope.editing.multi_rounds = 'Y';
         $scope.editing.rounds = [];
@@ -124,9 +121,6 @@ xxtApp.controller('enrollCtrl', ['$scope', '$location', 'http2', function($scope
         }
         return false;
     };
-    $scope.$on('xxt.float-toolbar.shop.open', function(event) {
-        $scope.$emit('mattershop.new', $scope.mpid, $scope.editing);
-    });
     http2.get('/rest/mp/app/enroll/get?aid=' + $scope.aid, function(rsp) {
         $scope.editing = rsp.data;
         $scope.editing.tags = (!$scope.editing.tags || $scope.editing.tags.length === 0) ? [] : $scope.editing.tags.split(',');

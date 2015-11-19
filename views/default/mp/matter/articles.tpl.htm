@@ -24,7 +24,7 @@
         <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='fromParent' ng-change='doSearch()'>来源于父账号</label>
     </div>
     <div class='clearfix' style='margin:0 -15px'>
-        <div class='col-md-4' ng-repeat='a in articles'>
+        <div class='col-md-3' ng-repeat='a in articles'>
             <div class='thumbnail' ng-class="{'contribution':!a.creater}" ng-mouseenter='enter=true' ng-mouseleave='enter=false' ng-click='edit(a)'>
                 <div>
                     <h4 ng-bind='a.title'></h4>
@@ -57,21 +57,20 @@
     </div>
     <div class='status-bar form-group clearfix'>
         <span ng-show='page.total>0'>总数：{{page.total}}</span>
-        <pagination class='' ng-show='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;"
-        next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
+        <pagination class='' ng-show='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
     </div>
     <script type="text/ng-template" id="uploadArticle.html">
-    <div class="modal-header">
-        <button class="close" type="button" ng-click="cancel()">×</button>
-        <h5 class="modal-title">上传</h5>
-    </div>
-    <div class="modal-body">
-        <div class="form-group">
-            <input id='fileUpload' type='file' class='form-control'>
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title">上传</h5>
         </div>
-    </div>
-    <div class="modal-footer">
-        <button class="btn btn-success" ng-click="ok()"><i ng-class="{'fa fa-spinner fa-spin':uploading}"></i>&nbsp;确定&nbsp;</button>
-    </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <input id='fileUpload' type='file' class='form-control'>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-success" ng-click="ok()"><i ng-class="{'fa fa-spinner fa-spin':uploading}"></i>&nbsp;确定&nbsp;</button>
+        </div>
     </script>
 </div>

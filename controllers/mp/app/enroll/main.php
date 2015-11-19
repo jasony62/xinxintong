@@ -27,18 +27,6 @@ class main extends \mp\app\app_base {
 	/**
 	 *
 	 */
-	public function page_action() {
-		$this->view_action('/mp/app/enroll/detail');
-	}
-	/**
-	 *
-	 */
-	public function record_action() {
-		$this->view_action('/mp/app/enroll/detail');
-	}
-	/**
-	 *
-	 */
 	public function stat_action() {
 		$this->view_action('/mp/app/enroll/detail');
 	}
@@ -50,86 +38,79 @@ class main extends \mp\app\app_base {
 	}
 	/**
 	 * 返回一个活动，或者活动列表
+	 */
+	public function get_action($aid) {
+		$uid = \TMS_CLIENT::get_client_uid();
+		$a = $this->model('app\enroll')->byId($aid);
+		$a->uid = $uid;
+		$a->url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/enroll?mpid=$this->mpid&aid=$aid";
+		/**
+		 * 活动签到回复消息
+		 */
+		if ($a->success_matter_type && $a->success_matter_id) {
+			$m = $this->model('matter\base')->getMatterInfoById($a->success_matter_type, $a->success_matter_id);
+			$a->successMatter = $m;
+		}
+		if ($a->failure_matter_type && $a->failure_matter_id) {
+			$m = $this->model('matter\base')->getMatterInfoById($a->failure_matter_type, $a->failure_matter_id);
+			$a->failureMatter = $m;
+		}
+		/* channels */
+		$a->channels = $this->model('matter\channel')->byMatter($aid, 'enroll');
+		/* acl */
+		$a->acl = $this->model('acl')->byMatter($this->mpid, 'enroll', $aid);
+		/* 登记通知接收人 */
+		$a->receiver = $this->model('acl')->enrollReceiver($this->mpid, $aid);
+		/* 获得的轮次 */
+		if ($rounds = $this->model('app\enroll\round')->byEnroll($this->mpid, $aid)) {
+			!empty($rounds) && $a->rounds = $rounds;
+		}
+
+		return new \ResponseData($a);
+	}
+	/**
+	 * 返回登记活动列表
 	 *
 	 * $src 是否来源于父账号，=p
 	 */
-	public function get_action($src = null, $aid = null, $page = 1, $size = 30, $contain = null) {
+	public function list_action($src = null, $page = 1, $size = 30) {
 		$uid = \TMS_CLIENT::get_client_uid();
-		if ($aid) {
-			$a = $this->model('app\enroll')->byId($aid);
-			$a->uid = $uid;
-			$a->url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/enroll?mpid=$this->mpid&aid=$aid";
-			/**
-			 * 活动签到回复消息
-			 */
-			if ($a->success_matter_type && $a->success_matter_id) {
-				$m = $this->model('matter\base')->getMatterInfoById($a->success_matter_type, $a->success_matter_id);
-				$a->successMatter = $m;
-			}
-			if ($a->failure_matter_type && $a->failure_matter_id) {
-				$m = $this->model('matter\base')->getMatterInfoById($a->failure_matter_type, $a->failure_matter_id);
-				$a->failureMatter = $m;
-			}
-			/**
-			 * channels
-			 */
-			$a->channels = $this->model('matter\channel')->byMatter($aid, 'enroll');
-			/**
-			 * acl
-			 */
-			$a->acl = $this->model('acl')->byMatter($this->mpid, 'enroll', $aid);
-			/**
-			 * 登记通知接收人
-			 */
-			$a->receiver = $this->model('acl')->enrollReceiver($this->mpid, $aid);
-			/**
-			 * 获得的轮次
-			 */
-			if ($rounds = $this->model('app\enroll\round')->byEnroll($this->mpid, $aid)) {
-				!empty($rounds) && $a->rounds = $rounds;
-			}
-
-			return new \ResponseData($a);
+		$q = array('a.*', 'xxt_enroll a');
+		if ($src === 'p') {
+			$pmpid = $this->getParentMpid();
+			$q[2] = "mpid='$pmpid' and state=1";
 		} else {
-			$contain = isset($contain) ? explode(',', $contain) : array();
-			$q = array('a.*', 'xxt_enroll a');
-			if ($src === 'p') {
-				$pmpid = $this->getParentMpid();
-				$q[2] = "mpid='$pmpid' and state=1";
-			} else {
-				$q[2] = "mpid='$this->mpid' and state=1";
-			}
-
-			/**
-			 * 限作者和管理员
-			 */
-			if (!$this->model('mp\permission')->isAdmin($this->mpid, $uid, true)) {
-				$limit = $this->model()->query_value('matter_visible_to_creater', 'xxt_mpsetting', "mpid='$this->mpid'");
-				if ($limit === 'Y') {
-					$q[2] .= " and (a.creater='$uid' or a.public_visible='Y')";
-				}
-
-			}
-
-			$q2['o'] = 'a.create_at desc';
-			$q2['r']['o'] = ($page - 1) * $size;
-			$q2['r']['l'] = $size;
-			if ($a = $this->model()->query_objs_ss($q, $q2)) {
-				$result[] = $a;
-				//if (in_array('total', $contain)) {
-				$q[0] = 'count(*)';
-				$total = (int) $this->model()->query_val_ss($q);
-				$result[] = $total;
-				//}
-				return new \ResponseData($result);
-			}
-			return new \ResponseData(array());
+			$q[2] = "mpid='$this->mpid' and state=1";
 		}
+		/**
+		 * 限作者和管理员
+		 */
+		if (!$this->model('mp\permission')->isAdmin($this->mpid, $uid, true)) {
+			$limit = $this->model()->query_value('matter_visible_to_creater', 'xxt_mpsetting', "mpid='$this->mpid'");
+			if ($limit === 'Y') {
+				$q[2] .= " and (a.creater='$uid' or a.public_visible='Y')";
+			}
+
+		}
+		$q2['o'] = 'a.create_at desc';
+		$q2['r']['o'] = ($page - 1) * $size;
+		$q2['r']['l'] = $size;
+		if ($a = $this->model()->query_objs_ss($q, $q2)) {
+			$result[] = $a;
+			$q[0] = 'count(*)';
+			$total = (int) $this->model()->query_val_ss($q);
+			$result[] = $total;
+			return new \ResponseData($result);
+		}
+		return new \ResponseData(array());
 	}
 	/**
 	 * 创建一个空的登记活动
+	 *
+	 * @param string $scenario scenario's name
+	 * @param string $template template's name
 	 */
-	public function create_action() {
+	public function create_action($scenario = null, $template = null) {
 		$account = \TMS_CLIENT::account();
 		if ($account === false) {
 			return new \ResponseError('长时间未操作，请重新登陆！');
@@ -138,45 +119,99 @@ class main extends \mp\app\app_base {
 		$current = time();
 		$uid = \TMS_CLIENT::get_client_uid();
 		$mpa = $this->model('mp\mpaccount')->getFeatures($this->mpid, 'heading_pic');
-		/**
-		 * 获得的基本信息
-		 */
+
+		$newapp = array();
 		$aid = uniqid();
-		$newone['mpid'] = $this->mpid;
-		$newone['id'] = $aid;
-		$newone['title'] = '新登记活动';
-		$newone['pic'] = $mpa->heading_pic;
-		$newone['creater'] = $uid;
-		$newone['creater_src'] = 'A';
-		$newone['creater_name'] = $account->nickname;
-		$newone['create_at'] = time();
+		/*pages*/
+		if (!empty($scenario) && !empty($template)) {
+			$config = $this->_addPageByTemplate($aid, $scenario, $template);
+			$entryRule = $config->entryRule;
+			if (isset($config->enrolled_entry_page)) {
+				$newapp['enrolled_entry_page'] = $config->enrolled_entry_page;
+			}
+		} else {
+			$entryRule = $this->_addBlankPage($aid);
+		}
+		if (empty($entryRule)) {
+			return new \ResponseError('没有获得页面进入规则');
+		}
+		/*create app*/
+		$newapp['mpid'] = $this->mpid;
+		$newapp['id'] = $aid;
+		$newapp['title'] = '新登记活动';
+		$newapp['pic'] = $mpa->heading_pic;
+		$newapp['creater'] = $uid;
+		$newapp['creater_src'] = 'A';
+		$newapp['creater_name'] = $account->nickname;
+		$newapp['create_at'] = time();
+		$newapp['entry_rule'] = json_encode($entryRule);
+		$this->model()->insert('xxt_enroll', $newapp, false);
+
+		$app = $this->model('app\enroll')->byId($aid);
+
+		return new \ResponseData($app);
+	}
+	/**
+	 * 根据模板生成页面
+	 *
+	 * @param string $aid
+	 * @param string $scenario scenario's name
+	 * @param string $template template's name
+	 */
+	private function _addPageByTemplate($aid, $scenario, $template) {
+		$templateDir = dirname(__FILE__) . '/scenario/' . $scenario . '/templates/' . $template;
+		$config = file_get_contents($templateDir . '/config.js');
+		$config = preg_replace('/\t|\r|\n/', '', $config);
+		$config = json_decode($config);
+		$pages = $config->pages;
+		if (empty($pages)) {
+			return false;
+		}
+
+		$modelPage = $this->model('app\enroll\page');
+		$modelCode = $this->model('code/page');
+		foreach ($pages as $page) {
+			$ap = $modelPage->add($this->mpid, $aid, (array) $page);
+			$data = array(
+				'html' => file_get_contents($templateDir . '/' . $page->name . '.html'),
+				'css' => file_get_contents($templateDir . '/' . $page->name . '.css'),
+				'js' => file_get_contents($templateDir . '/' . $page->name . '.js'),
+			);
+			$modelCode->modify($ap->code_id, $data);
+		}
+
+		return $config;
+	}
+	/**
+	 * 添加空页面
+	 */
+	private function _addBlankPage($aid) {
+		$current = time();
+		$modelPage = $this->model('app\enroll\page');
 		/* form page */
 		$page = array(
 			'title' => '登记信息页',
 			'type' => 'I',
 			'name' => 'z' . $current,
 		);
-		$page = $this->model('app\enroll\page')->add($this->mpid, $aid, $page);
-		$newone['entry_rule'] = json_encode(array(
+		$page = $modelPage->add($this->mpid, $aid, $page);
+		/*entry rules*/
+		$entryRule = array(
 			'otherwise' => array('entry' => $page->name),
 			'member' => array('entry' => $page->name, 'enroll' => 'Y', 'remark' => 'Y'),
 			'member_outacl' => array('entry' => $page->name, 'enroll' => 'Y', 'remark' => 'Y'),
 			'fan' => array('entry' => $page->name, 'enroll' => 'Y', 'remark' => 'Y'),
 			'nonfan' => array('entry' => '$mp_follow', 'enroll' => '$mp_follow'),
-		));
+		);
 		/* result page */
 		$page = array(
 			'title' => '查看结果页',
 			'type' => 'V',
 			'name' => 'z' . ($current + 1),
 		);
-		$this->model('app\enroll\page')->add($this->mpid, $aid, $page);
+		$modelPage->add($this->mpid, $aid, $page);
 
-		$this->model()->insert('xxt_enroll', $newone, false);
-
-		$act = $this->model('app\enroll')->byId($aid);
-
-		return new \ResponseData($act);
+		return $entryRule;
 	}
 	/**
 	 * 复制一个登记活动
@@ -289,6 +324,9 @@ class main extends \mp\app\app_base {
 	}
 	/**
 	 * 更新活动的属性信息
+	 *
+	 * @param string $aid
+	 *
 	 */
 	public function update_action($aid) {
 		$nv = (array) $this->getPostJson();
@@ -303,164 +341,12 @@ class main extends \mp\app\app_base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 添加活动页面
-	 *
-	 * $aid 获动的id
-	 */
-	public function addPage_action($aid) {
-		$newPage = $this->model('app\enroll\page')->add($this->mpid, $aid);
-
-		return new \ResponseData($newPage);
-	}
-	/**
-	 * 更新活动的页面的属性信息
-	 *
-	 * $aid 活动的id
-	 * $pid 页面的id，如果id==0，是固定页面
-	 * $pname 页面的名称
-	 * $cid 页面对应code page id
-	 */
-	public function updPage_action($aid, $pid, $pname, $cid) {
-		$nv = $this->getPostJson();
-
-		$rst = 0;
-		if (isset($nv->html)) {
-			$data = array(
-				'html' => urldecode($nv->html),
-			);
-			$rst = $this->model('code/page')->modify($cid, $data);
-		} else if (isset($nv->js)) {
-			$data = array(
-				'js' => urldecode($nv->js),
-			);
-			$rst = $this->model('code/page')->modify($cid, $data);
-		} else {
-			if ($pid != 0) {
-				$rst = $this->model()->update(
-					'xxt_enroll_page',
-					(array) $nv,
-					"aid='$aid' and id=$pid"
-				);
-			}
-		}
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 * 删除活动的页面
-	 *
-	 * $aid
-	 * $pid
-	 */
-	public function delPage_action($aid, $pid) {
-		$page = $this->model('app\enroll\page')->byId($aid, $pid);
-
-		$this->model('code/page')->remove($page->code_id);
-
-		$rst = $this->model()->delete('xxt_enroll_page', "aid='$aid' and id=$pid");
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 * 添加轮次
-	 *
-	 * $aid
-	 */
-	public function addRound_action($aid) {
-		$modelRun = $this->model('app\enroll');
-		if ($lastRound = $modelRun->getLast($this->mpid, $aid)) {
-			/**
-			 * 检查或更新上一轮状态
-			 */
-			if ((int) $lastRound->state === 0) {
-				return new \ResponseError("最近一个轮次（$lastRound->title）是新建状态，不允许创建新轮次");
-			}
-
-			if ((int) $lastRound->state === 1) {
-				$this->model()->update(
-					'xxt_enroll_round',
-					array('state' => 2),
-					"mpid='$this->mpid' and aid='$aid' and rid='$lastRound->rid'"
-				);
-			}
-
-		}
-		$posted = $this->getPostJson();
-
-		$roundId = uniqid();
-		$round = array(
-			'mpid' => $this->mpid,
-			'aid' => $aid,
-			'rid' => $roundId,
-			'creater' => \TMS_CLIENT::get_client_uid(),
-			'create_at' => time(),
-			'title' => $posted->title,
-			'state' => $posted->state,
-		);
-
-		$this->model()->insert('xxt_enroll_round', $round, false);
-
-		$q = array(
-			'*',
-			'xxt_enroll_round',
-			"mpid='$this->mpid' and aid='$aid' and rid='$roundId'",
-		);
-		$round = $this->model()->query_obj_ss($q);
-
-		return new \ResponseData($round);
-	}
-	/**
-	 * 更新轮次
-	 *
-	 * $aid
-	 * $rid
-	 */
-	public function updateRound_action($aid, $rid) {
-		$posted = $this->getPostJson();
-
-		if (isset($posted->state) && (int) $posted->state === 1) {
-			/**
-			 * 启用一个轮次，要停用上一个轮次
-			 */
-			$modelRun = $this->model('app\enroll');
-			if ($lastRound = $modelRun->getLast($this->mpid, $aid)) {
-				if ((int) $lastRound->state !== 2) {
-					$this->model()->update(
-						'xxt_enroll_round',
-						array('state' => 2),
-						"mpid='$this->mpid' and aid='$aid' and rid='$lastRound->rid'"
-					);
-				}
-			}
-		}
-
-		$rst = $this->model()->update(
-			'xxt_enroll_round',
-			$posted,
-			"mpid='$this->mpid' and aid='$aid' and rid='$rid'"
-		);
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 * 删除轮次
-	 *
-	 * $aid
-	 * $rid
-	 */
-	public function removeRound_action($aid, $rid) {
-		$rst = $this->model()->delete(
-			'xxt_enroll_round',
-			"mpid='$this->mpid' and aid='$aid' and rid='$rid'"
-		);
-
-		return new \ResponseData($rst);
-	}
-	/**
 	 * 删除一个活动
 	 *
 	 * 如果没有报名数据，就将活动彻底删除
 	 * 否则只是打标记
+	 *
+	 * @param string $aid
 	 */
 	public function remove_action($aid) {
 		$q = array(
@@ -475,6 +361,30 @@ class main extends \mp\app\app_base {
 				"mpid='$this->mpid' and id='$aid'"
 			);
 		} else {
+			$this->model()->delete(
+				'xxt_enroll_lottery',
+				"aid='$aid'"
+			);
+			$this->model()->delete(
+				'xxt_enroll_lottery_round',
+				"aid='$aid'"
+			);
+			$this->model()->delete(
+				'xxt_enroll_receiver',
+				"mpid='$this->mpid' and id='$aid'"
+			);
+			$this->model()->delete(
+				'xxt_enroll_round',
+				"mpid='$this->mpid' and id='$aid'"
+			);
+			$this->model()->delete(
+				'xxt_code_page',
+				"id in (select code_id from xxt_enroll_page where aid='$aid')"
+			);
+			$this->model()->delete(
+				'xxt_enroll_page',
+				"aid='$aid'"
+			);
 			$rst = $this->model()->delete(
 				'xxt_enroll',
 				"mpid='$this->mpid' and id='$aid'"

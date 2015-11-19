@@ -11,24 +11,23 @@ class enroll_model extends \matter\enroll_model {
 	 * $aid string
 	 * $cascaded array []
 	 */
-	public function &byId($aid, $fields = '*', $cascaded = 'Y') {
+	public function &byId($aid, $options = array()) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
 		$q = array(
 			$fields,
 			'xxt_enroll',
 			"id='$aid'",
 		);
-		if ($e = $this->query_obj_ss($q)) {
-			$e->entry_rule = json_decode($e->entry_rule);
-			/**
-			 * 页面内容
-			 */
+		if ($app = $this->query_obj_ss($q)) {
+			$app->entry_rule = json_decode($app->entry_rule);
 			if ($cascaded === 'Y') {
 				$modelPage = \TMS_APP::M('app\enroll\page');
-				$e->pages = $modelPage->byEnroll($aid);
+				$app->pages = $modelPage->byEnroll($aid);
 			}
 		}
 
-		return $e;
+		return $app;
 	}
 	/**
 	 * 活动登记（不包括登记数据）

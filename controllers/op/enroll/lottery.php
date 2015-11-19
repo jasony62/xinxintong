@@ -17,12 +17,9 @@ class lottery extends \member_base {
 	 * 走马灯抽奖页面
 	 */
 	public function index_action($aid) {
-		/**
-		 * 获得活动的定义
-		 */
-		$act = $this->model('app\enroll')->byId($aid);
+		$app = $this->model('app\enroll')->byId($aid);
 
-		\TPL::assign('enroll', $act);
+		\TPL::assign('enroll', $app);
 
 		$this->view_action('/op/enroll/carousel');
 	}

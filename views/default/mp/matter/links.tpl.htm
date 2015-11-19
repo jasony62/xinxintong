@@ -4,7 +4,7 @@
         <label class="checkbox-inline" ng-show="hasParent==='Y'"><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='fromParent' ng-change='doSearch()'>来源于父账号</label>
     </div>
     <div style='margin:0 -15px'>
-        <div class='col-md-4' ng-repeat='l in links'>
+        <div class='col-md-3' ng-repeat='l in links'>
             <div class='thumbnail' ng-mouseenter='enter=true' ng-mouseleave='enter=false' ng-click='edit(l)'>
                 <div>
                     <h4>{{l.title}}</h4>
@@ -15,7 +15,7 @@
                     <span class='create_at'>{{l.create_at*1000|date:'yyyy-MM-dd'}}</span>
                 </div>
                 <button class='btn btn-default btn-sm remove' ng-click='remove($event,l)' ng-if='enter'>
-                    <span class='glyphicon glyphicon-trash'></span>
+                <span class='glyphicon glyphicon-trash'></span>
                 </button>
             </div>
         </div>

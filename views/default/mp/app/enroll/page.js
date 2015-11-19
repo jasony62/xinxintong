@@ -1020,7 +1020,7 @@
             $scope.$broadcast('mediagallery.open', options);
         });
         $scope.addPage = function() {
-            http2.get('/rest/mp/app/enroll/addPage?aid=' + $scope.aid, function(rsp) {
+            http2.get('/rest/mp/app/enroll/page/add?aid=' + $scope.aid, function(rsp) {
                 var page = rsp.data;
                 $scope.editing.pages.push(page);
                 $timeout(function() {
@@ -1051,7 +1051,7 @@
                 $scope.$root.progmsg = '正在保存页面...';
                 var url, p = {};
                 p[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
-                url = '/rest/mp/app/enroll/updPage';
+                url = '/rest/mp/app/enroll/page/update';
                 url += '?aid=' + $scope.aid;
                 url += '&pid=' + page.id;
                 url += '&pname=' + page.name;
@@ -1064,7 +1064,7 @@
             }
         };
         $scope.delPage = function(index, page) {
-            var url = '/rest/mp/app/enroll/delPage';
+            var url = '/rest/mp/app/enroll/page/remove';
             url += '?aid=' + $scope.aid;
             url += '&pid=' + page.id;
             http2.get(url, function(rsp) {

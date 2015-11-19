@@ -3,7 +3,7 @@
         <button class='btn btn-success' ng-click='create()' title='新建链接'>新建</button>
     </div>
     <div style='margin:0 -15px'>
-        <div class='col-md-4' ng-repeat='t in tmplmsgs'>
+        <div class='col-md-3' ng-repeat='t in tmplmsgs'>
             <div class='thumbnail' ng-mouseenter='enter=true' ng-mouseleave='enter=false' ng-click='edit(t)'>
                 <div>
                     <h4>{{t.title}}</h4>
@@ -14,7 +14,7 @@
                     <span class='create_at'>{{t.create_at*1000|date:'yyyy-MM-dd'}}</span>
                 </div>
                 <button class='btn btn-default btn-sm remove' ng-click='remove($event,t)' ng-if='enter'>
-                    <span class='glyphicon glyphicon-trash'></span>
+                <span class='glyphicon glyphicon-trash'></span>
                 </button>
             </div>
         </div>

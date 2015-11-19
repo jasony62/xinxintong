@@ -37,9 +37,6 @@ xxtApp.controller('enrollCtrl', ['$rootScope', '$scope', '$location', 'http2', f
         $scope.editing.canSetReceiver = 'Y';
         $scope.persisted = angular.copy($scope.editing);
     });
-    $scope.$on('xxt.float-toolbar.shop.open', function (event) {
-        $scope.$emit('mattershop.new', $scope.mpid, $scope.editing);
-    });
 }]).controller('settingCtrl', ['$scope', 'http2', function ($scope, http2, $modal) {
     var openPickImageFrom = function () {
         var st = (document.body && document.body.scrollTop) ? document.body.scrollTop : document.documentElement.scrollTop;

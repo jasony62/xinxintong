@@ -8,12 +8,12 @@ include_once dirname(__FILE__) . '/base.php';
 class round extends base {
 	/**
 	 *
-	 * $mpid
-	 * $aid
+	 * @param string $mpid
+	 * @param string $aid
 	 */
 	public function list_action($mpid, $aid) {
 		$modelRun = $this->model('app\enroll\round');
-		$rounds = $modelRun->byEnroll($mpid, $aid);
+		$rounds = $modelRun->byApp($mpid, $aid);
 
 		return new \ResponseData($rounds);
 	}

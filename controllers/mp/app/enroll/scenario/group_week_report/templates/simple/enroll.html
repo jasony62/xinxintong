@@ -1,0 +1,6 @@
+<div wrap="static" class="form-group">{{User.fan.nickname}}：<span>你好！</span></div>
+<div wrap="input" class="form-group form-group-lg"><label>项目名称</label><input type="text" ng-model="data.c1" title="任务名称" class="form-control"/></div>
+<div wrap="input" class="form-group form-group-lg"><label>本周情况</label><textarea ng-model="data.c2" title="本周情况" class="form-control" rows="3"></textarea></div>
+<div wrap="input" class="form-group form-group-lg"><label>下周计划</label><textarea ng-model="data.c3" title="下周计划" class="form-control" rows="3"></textarea></div>
+<div wrap="button" class="form-group"><button id="btnSubmit" class="btn btn-primary btn-block btn-lg" ng-click="submit($event,'list')"><span>提交记录</span></button></div>
+<div wrap="button" class="form-group"><button id="btnGotoPage_list" class="btn btn-primary btn-block btn-lg" ng-click="gotoPage($event,'list')"><span>已有记录</span></button></div>

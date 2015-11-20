@@ -4,10 +4,10 @@ namespace app\enroll;
 class round_model extends \TMS_MODEL {
 	/**
 	 *
-	 * $mpid
-	 * $aid
+	 * @param string $mpid
+	 * @param string $aid
 	 */
-	public function &byEnroll($mpid, $aid) {
+	public function &byApp($mpid, $aid) {
 		$q = array(
 			'*',
 			'xxt_enroll_round',

@@ -15,6 +15,7 @@ xxtApp.controller('enrollCtrl', ['$scope', '$modal', 'http2', function($scope, $
         $modal.open({
             templateUrl: 'templatePicker.html',
             size: 'lg',
+            backdrop: 'static',
             windowClass: 'auto-height',
             controller: ['$scope', '$modalInstance', function($scope2, $mi) {
                 $scope2.data = {};

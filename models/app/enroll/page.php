@@ -24,16 +24,16 @@ class page_model extends \TMS_MODEL {
 		return $ep;
 	}
 	/**
-	 * 根据活动
+	 * 返回指定登记活动的页面
 	 */
-	public function &byEnroll($id, $fields = null) {
-		$fields === null && $fields = 'id,name,type,title,code_id,autoenroll_onenter,autoenroll_onshare,check_entry_rule,share_page,share_summary';
+	public function &byApp($aid, $fields = null) {
+		$fields === null && $fields = 'id,name,type,title,code_id,autoenroll_onenter,autoenroll_onshare,check_entry_rule,share_page,share_summary,seq';
 		$q = array(
 			$fields,
 			'xxt_enroll_page',
-			"aid='$id'",
+			"aid='$aid'",
 		);
-		$q2 = array('o' => 'create_at');
+		$q2 = array('o' => 'seq,create_at');
 		$eps = $this->query_objs_ss($q, $q2);
 		foreach ($eps as &$ep) {
 			$code = \TMS_APP::model('code/page')->byId($ep->code_id);
@@ -224,10 +224,10 @@ class page_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function &schemaByEnroll($id) {
+	public function &schemaByApp($aid) {
 		$schema = array();
 
-		$pages = $this->byEnroll($id);
+		$pages = $this->byApp($aid);
 		if (!empty($pages)) {
 			foreach ($pages as $p) {
 				if ($p->type === 'I') {
@@ -247,6 +247,17 @@ class page_model extends \TMS_MODEL {
 
 		$code = \TMS_APP::model('code/page')->create($uid);
 
+		if (empty($data['seq'])) {
+			$q = array(
+				'max(seq)',
+				'xxt_enroll_page',
+				"aid='$aid'",
+			);
+			$seq = $this->query_val_ss($q);
+			$seq = empty($seq) ? 1 : $seq + 1;
+		} else {
+			$seq = $data['seq'];
+		}
 		$newPage = array(
 			'mpid' => $mpid,
 			'aid' => $aid,
@@ -256,6 +267,7 @@ class page_model extends \TMS_MODEL {
 			'title' => isset($data['title']) ? $data['title'] : '新页面',
 			'name' => isset($data['name']) ? $data['name'] : 'z' . time(),
 			'code_id' => $code->id,
+			'seq' => $seq,
 		);
 
 		$apid = $this->insert('xxt_enroll_page', $newPage, true);

@@ -70,7 +70,7 @@ class record_model extends \TMS_MODEL {
 		$result->total = 0;
 		/* 获得数据项定义 */
 		$modelPage = $this->M('app\enroll\page');
-		$result->schema = $modelPage->schemaByEnroll($aid);
+		$result->schema = $modelPage->schemaByApp($aid);
 		/* 获得登记数据 */
 		$w = "e.state=1 and e.mpid='$mpid' and aid='$aid'";
 		if (!empty($creater)) {

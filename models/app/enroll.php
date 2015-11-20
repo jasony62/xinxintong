@@ -23,7 +23,7 @@ class enroll_model extends \matter\enroll_model {
 			$app->entry_rule = json_decode($app->entry_rule);
 			if ($cascaded === 'Y') {
 				$modelPage = \TMS_APP::M('app\enroll\page');
-				$app->pages = $modelPage->byEnroll($aid);
+				$app->pages = $modelPage->byApp($aid);
 			}
 		}
 

@@ -62,7 +62,7 @@ class main extends \mp\app\app_base {
 		/* 登记通知接收人 */
 		$a->receiver = $this->model('acl')->enrollReceiver($this->mpid, $aid);
 		/* 获得的轮次 */
-		if ($rounds = $this->model('app\enroll\round')->byEnroll($this->mpid, $aid)) {
+		if ($rounds = $this->model('app\enroll\round')->byApp($this->mpid, $aid)) {
 			!empty($rounds) && $a->rounds = $rounds;
 		}
 

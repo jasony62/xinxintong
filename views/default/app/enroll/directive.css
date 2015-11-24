@@ -1,0 +1,3 @@
+div[wrap=filter] .detail{background:#ccc}
+div[wrap=filter] .detail .options .label{display:inline-block;margin:.5em;padding-top:.3em;font-size:100%;}
+div[wrap=filter] .detail .actions .btn{border-radius:0}

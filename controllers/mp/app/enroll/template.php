@@ -21,7 +21,7 @@ class template extends \mp\app\app_base {
 	 */
 	public function pageList_action($scenario, $template) {
 		$templateDir = $_SERVER['DOCUMENT_ROOT'] . '/controllers/mp/app/enroll/scenario/' . $scenario . '/templates/' . $template;
-		$config = file_get_contents($templateDir . '/config.js');
+		$config = file_get_contents($templateDir . '/config.json');
 		$config = preg_replace('/\t|\r|\n/', '', $config);
 		$config = json_decode($config);
 		$pages = $config->pages;

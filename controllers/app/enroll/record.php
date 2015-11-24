@@ -291,7 +291,7 @@ class record extends base {
 	 *
 	 * $mpid
 	 * $aid
-	 * $orderby
+	 * $orderby time|remark|score|follower
 	 * $openid
 	 * $page
 	 * $size

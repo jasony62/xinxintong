@@ -7,12 +7,17 @@ class round_model extends \TMS_MODEL {
 	 * @param string $mpid
 	 * @param string $aid
 	 */
-	public function &byApp($mpid, $aid) {
+	public function &byApp($mpid, $aid, $options = array()) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$state = isset($options['state']) ? $options['state'] : false;
+
 		$q = array(
-			'*',
+			$fields,
 			'xxt_enroll_round',
 			"mpid='$mpid' and aid='$aid'",
 		);
+		$state && $q[2] .= " and state in($state)";
+
 		$q2 = array('o' => 'create_at desc');
 
 		$rounds = $this->query_objs_ss($q, $q2);

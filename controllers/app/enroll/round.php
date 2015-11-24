@@ -13,7 +13,11 @@ class round extends base {
 	 */
 	public function list_action($mpid, $aid) {
 		$modelRun = $this->model('app\enroll\round');
-		$rounds = $modelRun->byApp($mpid, $aid);
+		$options = array(
+			'fields' => 'id,rid,title',
+			'state' => '1,2',
+		);
+		$rounds = $modelRun->byApp($mpid, $aid, $options);
 
 		return new \ResponseData($rounds);
 	}

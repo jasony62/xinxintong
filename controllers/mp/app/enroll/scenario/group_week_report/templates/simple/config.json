@@ -6,7 +6,7 @@
 	}, {
 		"name": "list",
 		"title": "登记清单页",
-		"type": "I"
+		"type": "V"
 	}],
 	"entryRule": {
 		"otherwise": {
@@ -32,5 +32,6 @@
 			"enroll": "$mp_follow"
 		}
 	},
+	"multi_rounds": "Y",
 	"enrolled_entry_page": "enroll"
 }

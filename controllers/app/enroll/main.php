@@ -276,17 +276,16 @@ class main extends base {
 	 * 没有指定位置信息时通过日志获取当前用户最后一次发送的位置
 	 */
 	public function locationGet_action($mpid, $lat = '', $lng = '') {
-		$fan = $this->getCookieOAuthUser($mpid);
-		if (empty($fan->openid)) {
-			return new \ResponseError('无法获得身份信息');
-		}
-
 		$geo = array();
 		if (empty($lat) || empty($lat)) {
+			$user = $this->getUser($mpid);
+			if (empty($user->openid)) {
+				return new \ResponseError('无法获得身份信息');
+			}
 			$q = array(
 				'max(id)',
 				'xxt_log_mpreceive',
-				"mpid='$mpid' and openid='$fan->openid' and type='event' and data like '%LOCATION%'",
+				"mpid='$mpid' and openid='$user->openid' and type='event' and data like '%LOCATION%'",
 			);
 			if ($lastid = $this->model()->query_val_ss($q)) {
 				$q = array(

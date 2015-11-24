@@ -10,7 +10,7 @@ class template extends \mp\app\app_base {
 	 * 返回登记活动模板
 	 */
 	public function list_action() {
-		$templates = file_get_contents(dirname(__FILE__) . '/scenario/manifest.js');
+		$templates = file_get_contents(dirname(__FILE__) . '/scenario/manifest.json');
 		$templates = preg_replace('/\t|\r|\n/', '', $templates);
 		$templates = json_decode($templates);
 

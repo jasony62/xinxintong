@@ -16,26 +16,29 @@ app.config(['$controllerProvider', function($cp) {
         controller: $cp.register
     };
 }]);
-app.directive('tmsExec', ['$rootScope', '$timeout', function($rootScope, $timeout) {
-    return {
-        restrict: 'A',
-        link: function(scope, elem, attrs) {
-            $timeout(function() {
-                if ($rootScope.$$phase) {
-                    return scope.$eval(attrs.tmsExec);
-                } else {
-                    return scope.$apply(attrs.tmsExec);
-                }
-            }, 0);
-        }
-    };
-}]);
-app.factory('Round', function($http) {
+app.factory('Round', ['$http', '$q', function($http, $q) {
     var Round = function(mpid, aid, current) {
         this.mpid = mpid;
         this.aid = aid;
         this.current = current;
         this.list = [];
+    };
+    Round.prototype.list2 = function() {
+        var _this, deferred, promise, url;
+        _this = this;
+        deferred = $q.defer();
+        promise = deferred.promise;
+        url = '/rest/app/enroll/round/list';
+        url += '?mpid=' + _this.mpid;
+        url += '&aid=' + _this.aid;
+        $http.get(url).success(function(rsp) {
+            if (rsp.err_code != 0) {
+                alert(rsp.data);
+                return;
+            }
+            deferred.resolve(rsp.data);
+        });
+        return promise;
     };
     Round.prototype.nextPage = function() {
         var _this = this,
@@ -52,8 +55,8 @@ app.factory('Round', function($http) {
         });
     };
     return Round;
-});
-app.factory('Record', function($http) {
+}]);
+app.factory('Record', ['$http', '$q', function($http, $q) {
     var Record = function(mpid, aid, rid, current, $scope) {
         this.mpid = mpid;
         this.aid = aid;
@@ -127,6 +130,44 @@ app.factory('Record', function($http) {
         } else
             listGet(this);
     };
+    Record.prototype.list2 = function(owner, rid) {
+        var _this, url, deferred, promise;
+        _this = this;
+        deferred = $q.defer();
+        promise = deferred.promise;
+        url = '/rest/app/enroll/record/';
+        switch (owner) {
+            case 'A':
+                url += 'list';
+                break;
+            case 'U':
+                url += 'mine';
+                break;
+            case 'I':
+                url += 'myFollowers';
+                break;
+            default:
+                alert('没有指定要获得的登记记录类型（' + owner + '）');
+                return;
+        }
+        url += '?mpid=' + _this.mpid;
+        url += '&aid=' + _this.aid;
+        rid !== undefined && rid.length && (url += '&rid=' + rid);
+        $http.get(url).success(function(rsp) {
+            var records, record;
+            if (rsp.err_code == 0) {
+                records = rsp.data.records;
+                if (records && records.length) {
+                    for (var i = 0; i < records.length; i++) {
+                        record = records[i];
+                        record.data.member && (record.data.member = JSON.parse(record.data.member));
+                    }
+                }
+                deferred.resolve(records);
+            }
+        });
+        return promise;
+    };
     Record.prototype.like = function(event, record) {
         event.preventDefault();
         event.stopPropagation();
@@ -175,7 +216,7 @@ app.factory('Record', function($http) {
         return true;
     };
     return Record;
-});
+}]);
 app.factory('Statistic', ['$http', function($http) {
     var Stat = function(mpid, aid, data) {
         this.mpid = mpid;
@@ -217,96 +258,151 @@ app.factory('Schema', ['$http', '$q', function($http, $q) {
     };
     return Schema;
 }]);
-app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 'Statistic', 'Schema', function($scope, $http, $timeout, $q, Round, Record, Statistic, Schema) {
-    var LS = (function() {
-        function locationSearch() {
-            var ls, search;
-            ls = location.search;
-            search = {};
-            angular.forEach(['mpid', 'aid', 'rid', 'page', 'ek', 'preview', 'newRecord'], function(q) {
-                var match, pattern;
-                pattern = new RegExp(q + '=([^&]*)');
-                match = ls.match(pattern);
-                search[q] = match ? match[1] : '';
-            });
-            return search;
-        };
-        /*join search*/
-        function j(method) {
-            var j, l, url = '/rest/app/enroll',
-                _this = this,
-                search = [];
-            method && method.length && (url += '/' + method);
-            if (arguments.length > 1) {
-                for (i = 1, l = arguments.length; i < l; i++) {
-                    search.push(arguments[i] + '=' + _this.p[arguments[i]]);
-                };
-                url += '?' + search.join('&');
-            }
-            return url;
-        };
-        return {
-            p: locationSearch(),
-            j: j
-        };
-    })();
-    var PG = (function() {
-        return {
-            exec: function(task) {
-                var obj, fn, args, valid;
-                valid = true;
-                obj = $scope;
-                args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
-                angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
-                    if (fn) obj = fn;
-                    if (!obj[attr]) {
-                        valid = false;
-                        return;
-                    }
-                    fn = obj[attr];
-                });
-                if (valid) {
-                    fn.apply(obj, args);
+var LS = (function(fields) {
+    function locationSearch() {
+        var ls, search;
+        ls = location.search;
+        search = {};
+        angular.forEach(fields, function(q) {
+            var match, pattern;
+            pattern = new RegExp(q + '=([^&]*)');
+            match = ls.match(pattern);
+            search[q] = match ? match[1] : '';
+        });
+        return search;
+    };
+    /*join search*/
+    function j(method) {
+        var j, l, url = '/rest/app/enroll',
+            _this = this,
+            search = [];
+        method && method.length && (url += '/' + method);
+        if (arguments.length > 1) {
+            for (i = 1, l = arguments.length; i < l; i++) {
+                search.push(arguments[i] + '=' + _this.p[arguments[i]]);
+            };
+            url += '?' + search.join('&');
+        }
+        return url;
+    };
+    return {
+        p: locationSearch(),
+        j: j
+    };
+})(['mpid', 'aid', 'rid', 'page', 'ek', 'preview', 'newRecord']);
+var PG = (function() {
+    return {
+        exec: function(task) {
+            var obj, fn, args, valid;
+            valid = true;
+            obj = $scope;
+            args = task.match(/\((.*?)\)/)[1].replace(/'|"/g, "").split(',');
+            angular.forEach(task.replace(/\(.*?\)/, '').split('.'), function(attr) {
+                if (fn) obj = fn;
+                if (!obj[attr]) {
+                    valid = false;
+                    return;
                 }
-            },
-            setMember: function() {
-                var params;
-                if ($scope.params) {
-                    params = $scope.params;
-                    if ($scope.data.member && $scope.data.member.authid && params.user.members && params.user.members.length) {
-                        angular.forEach(params.user.members, function(member) {
-                            if (member.authapi_id == $scope.data.member.authid) {
-                                $("[ng-model^='data.member']").each(function() {
-                                    var attr;
-                                    attr = $(this).attr('ng-model');
-                                    attr = attr.replace('data.member.', '');
-                                    attr = attr.split('.');
-                                    if (attr.length == 2) {
-                                        !$scope.data.member.extattr && ($scope.data.member.extattr = {});
-                                        $scope.data.member.extattr[attr[1]] = member.extattr[attr[1]];
-                                    } else {
-                                        $scope.data.member[attr[0]] = member[attr[0]];
-                                    }
-                                });
+                fn = obj[attr];
+            });
+            if (valid) {
+                fn.apply(obj, args);
+            }
+        },
+        setMember: function(params, member) {
+            if (params && member && member.authid && params.user.members && params.user.members.length) {
+                angular.forEach(params.user.members, function(member2) {
+                    if (member2.authapi_id == member.authid) {
+                        $("[ng-model^='data.member']").each(function() {
+                            var attr;
+                            attr = $(this).attr('ng-model');
+                            attr = attr.replace('data.member.', '');
+                            attr = attr.split('.');
+                            if (attr.length == 2) {
+                                !member.extattr && (member.extattr = {});
+                                member.extattr[attr[1]] = member2.extattr[attr[1]];
+                            } else {
+                                member[attr[0]] = member2[attr[0]];
                             }
                         });
                     }
-                }
-            },
-            firstInput: function() {
-                var first;
-                $scope.params.enroll.pages.some(function(oPage) {
-                    if (oPage.type === 'I') {
-                        first = oPage;
-                        return true;
-                    } else {
-                        return false;
-                    }
                 });
-                return first;
             }
-        };
-    })();
+        },
+        firstInput: function(pages) {
+            var first;
+            pages.some(function(oPage) {
+                if (oPage.type === 'I') {
+                    first = oPage;
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+            return first;
+        }
+    };
+})();
+app.controller('ctrlRounds', ['$scope', 'Round', function($scope, Round) {
+    var facRound;
+    facRound = new Round(LS.p.mpid, LS.p.aid);
+    facRound.list2().then(function(rounds) {
+        $scope.rounds = rounds;
+    });
+}]);
+app.controller('ctrlRecords', ['$scope', 'Record', function($scope, Record) {
+    var facRecord, options, fnFetch;
+    facRecord = new Record(LS.p.mpid, LS.p.aid, LS.p.rid);
+    options = {
+        owner: 'A',
+        rid: LS.p.rid
+    };
+    fnFetch = function() {
+        facRecord.list2(options.owner, options.rid).then(function(records) {
+            $scope.records = records;
+        });
+    };
+    $scope.$on('xxt.app.enroll.filter.rounds', function(event, data) {
+        options.rid = data[0].rid;
+        fnFetch();
+    });
+    $scope.$on('xxt.app.enroll.filter.owner', function(event, data) {
+        options.owner = data[0].id;
+        fnFetch();
+    });
+    fnFetch();
+}]);
+app.controller('ctrlOptions', ['$scope', function($scope) {
+    $scope.owners = {
+        'A': {
+            id: 'A',
+            label: '全部'
+        },
+        'U': {
+            'id': 'U',
+            label: '我的'
+        }
+    };
+    $scope.orderbys = {
+        'time': {
+            id: 'time',
+            label: '最新'
+        },
+        'score': {
+            id: 'score',
+            label: '点赞'
+        },
+        'remark': {
+            id: 'remark',
+            label: '评论'
+        }
+    }
+    $scope.options = {
+        owner: 'U',
+        orderby: 'time'
+    };
+}]);
+app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 'Statistic', 'Schema', function($scope, $http, $timeout, $q, Round, Record, Statistic, Schema) {
     var openPickImageFrom = function() {
         var st, ch, cw, $dlg;
         st = (document.body && document.body.scrollTop) ? document.body.scrollTop : document.documentElement.scrollTop;
@@ -608,13 +704,13 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 
     };
     $scope.addRecord = function(event) {
         var first, page;
-        first = PG.firstInput();
+        first = PG.firstInput($scope.params.enroll.pages);
         page = first.name;
         page ? $scope.gotoPage(event, page, null, null, false, 'Y') : alert('当前活动没有包含数据登记页');
     };
     $scope.editRecord = function(event, page) {
         var first;
-        if (page === undefined && (first = PG.firstInput()))
+        if (page === undefined && (first = PG.firstInput($scope.params.enroll.pages)))
             page = first.name;
         page ? $scope.gotoPage(event, page, $scope.Record.current.enroll_key) : alert('当前活动没有包含数据登记页');
     };
@@ -672,7 +768,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 
         }
     };
     $scope.$watch('data.member.authid', function(nv) {
-        if (nv && nv.length) PG.setMember();
+        if (nv && nv.length) PG.setMember($scope.params, $scope.data.member);
     });
     $scope.onReady = function(task) {
         if ($scope.params) {
@@ -681,6 +777,16 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 
             tasksOfOnReady.push(task);
         }
     };
+    $scope.$on('xxt.app.enroll.filter.rounds', function(event, data) {
+        if (event.targetScope !== $scope) {
+            $scope.$broadcast('xxt.app.enroll.filter.rounds', data);
+        }
+    });
+    $scope.$on('xxt.app.enroll.filter.owner', function(event, data) {
+        if (event.targetScope !== $scope) {
+            $scope.$broadcast('xxt.app.enroll.filter.owner', data);
+        }
+    });
     (new Schema()).get().then(function(data) {});
     $http.get(LS.j('get', 'mpid', 'aid', 'rid', 'page', 'ek', 'newRecord')).success(function(rsp) {
         if (rsp.err_code !== 0) {
@@ -794,7 +900,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 
                         }
                     }
                     /* 无论是否有登记记录都自动填写用户认证信息 */
-                    PG.setMember();
+                    PG.setMember($scope.params, $scope.data.member);
                 });
             }
         })(params.page);
@@ -856,61 +962,3 @@ app.filter('value2Label', ['Schema', function(Schema) {
         return val;
     };
 }]);
-app.directive('runningButton', function() {
-    return {
-        restrict: 'EA',
-        template: "<button ng-class=\"isRunning?'btn-default':'btn-primary'\" ng-disabled='isRunning' ng-transclude></button>",
-        scope: {
-            isRunning: '='
-        },
-        replace: true,
-        transclude: true
-    }
-});
-app.directive('flexImg', function() {
-    return {
-        restrict: 'A',
-        replace: true,
-        template: "<img src='{{img.imgSrc}}'>",
-        link: function(scope, elem, attrs) {
-            $(elem).on('load', function() {
-                var w = $(this).width(),
-                    h = $(this).height(),
-                    sw, sh;
-                if (w > h) {
-                    sw = w / h * 72;
-                    $(this).css({
-                        'height': '100%',
-                        'width': sw + 'px',
-                        'top': '0',
-                        'left': '50%',
-                        'margin-left': (-1 * sw / 2) + 'px'
-                    });
-                } else {
-                    sh = h / w * 72;
-                    $(this).css({
-                        'width': '100%',
-                        'height': sh + 'px',
-                        'left': '0',
-                        'top': '50%',
-                        'margin-top': (-1 * sh / 2) + 'px'
-                    });
-                }
-            })
-        }
-    }
-});
-app.directive('dynamicHtml', function($compile) {
-    return {
-        restrict: 'EA',
-        replace: true,
-        link: function(scope, ele, attrs) {
-            scope.$watch(attrs.dynamicHtml, function(html) {
-                if (html && html.length) {
-                    ele.html(html);
-                    $compile(ele.contents())(scope);
-                }
-            });
-        }
-    };
-});

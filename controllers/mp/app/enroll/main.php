@@ -126,6 +126,10 @@ class main extends \mp\app\app_base {
 		if (!empty($scenario) && !empty($template)) {
 			$config = $this->_addPageByTemplate($aid, $scenario, $template);
 			$entryRule = $config->entryRule;
+			if (isset($config->multi_rounds)) {
+				$this->_createRound($aid);
+				$newapp['multi_rounds'] = 'Y';
+			}
 			if (isset($config->enrolled_entry_page)) {
 				$newapp['enrolled_entry_page'] = $config->enrolled_entry_page;
 			}
@@ -152,6 +156,25 @@ class main extends \mp\app\app_base {
 		return new \ResponseData($app);
 	}
 	/**
+	 *
+	 */
+	private function _createRound($aid) {
+		$roundId = uniqid();
+		$round = array(
+			'mpid' => $this->mpid,
+			'aid' => $aid,
+			'rid' => $roundId,
+			'creater' => \TMS_CLIENT::get_client_uid(),
+			'create_at' => time(),
+			'title' => '轮次1',
+			'state' => 1,
+		);
+
+		$this->model()->insert('xxt_enroll_round', $round, false);
+
+		return true;
+	}
+	/**
 	 * 根据模板生成页面
 	 *
 	 * @param string $aid
@@ -160,7 +183,7 @@ class main extends \mp\app\app_base {
 	 */
 	private function _addPageByTemplate($aid, $scenario, $template) {
 		$templateDir = dirname(__FILE__) . '/scenario/' . $scenario . '/templates/' . $template;
-		$config = file_get_contents($templateDir . '/config.js');
+		$config = file_get_contents($templateDir . '/config.json');
 		$config = preg_replace('/\t|\r|\n/', '', $config);
 		$config = json_decode($config);
 		$pages = $config->pages;

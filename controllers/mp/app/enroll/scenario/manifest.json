@@ -10,5 +10,17 @@
 				"description": "简单快速"
 			}
 		}
+	},
+	"registration": {
+		"title": "登记报名",
+		"name": "registration",
+		"description": "报名信息收集",
+		"templates": {
+			"simple": {
+				"title": "简单",
+				"name": "simple",
+				"description": "简单快速"
+			}
+		}
 	}
 }

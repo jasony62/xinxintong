@@ -28,42 +28,6 @@ app.factory('Round', ['$http', '$q', function($http, $q) {
     };
     return Round;
 }]);
-app.factory('Record', ['$http', '$q', function($http, $q) {
-    var Record = function(scenario, template, rid, current) {
-        this.scenario = scenario;
-        this.template = template;
-        this.rid = rid;
-        this.current = current;
-        this.orderBy = 'time';
-        this.total = -1;
-    };
-    Record.prototype.list = function(owner, rid) {
-        var _this, url, deferred, promise;
-        _this = this;
-        deferred = $q.defer();
-        promise = deferred.promise;
-        url = '/rest/app/enroll/template/record/list';
-        url += '?scenario=' + _this.scenario;
-        url += '&template=' + _this.template;
-        rid !== undefined && rid.length && (url += '&rid=' + rid);
-        owner !== undefined && owner.length && (url += '&owner=' + owner);
-        $http.get(url).success(function(rsp) {
-            var records, record;
-            if (rsp.err_code == 0) {
-                records = rsp.data.records;
-                if (records && records.length) {
-                    for (var i = 0; i < records.length; i++) {
-                        record = records[i];
-                        record.data.member && (record.data.member = JSON.parse(record.data.member));
-                    }
-                }
-                deferred.resolve(records);
-            }
-        });
-        return promise;
-    };
-    return Record;
-}]);
 var LS = (function() {
     function locationSearch() {
         var ls, search;
@@ -120,6 +84,77 @@ app.controller('ctrlRounds', ['$scope', 'Round', function($scope, Round) {
         return false;
     };
 }]);
+app.factory('Record', ['$http', '$q', function($http, $q) {
+    var _ins, _running, Record;
+    Record = function(scenario, template) {
+        this.scenario = scenario;
+        this.template = template;
+        this.current = {
+            data: {},
+            enroll_at: 0
+        };
+    };
+    _running = false;
+    Record.prototype.get = function() {
+        if (_running) return false;
+        _running = true;
+        var _this, url, deferred;
+        _this = this;
+        deferred = $q.defer();
+        url = '/rest/app/enroll/template/record/get';
+        url += '?scenario=' + _this.scenario;
+        url += '&template=' + _this.template;
+        $http.get(url).success(function(rsp) {
+            var record;
+            record = rsp.data;
+            if (rsp.err_code == 0) {
+                _this.current = record;
+                deferred.resolve(record);
+            }
+            _running = false;
+        });
+        return deferred.promise;
+    };
+    Record.prototype.list = function(owner, rid) {
+        var _this, url, deferred;
+        _this = this;
+        deferred = $q.defer();
+        url = '/rest/app/enroll/template/record/list';
+        url += '?scenario=' + _this.scenario;
+        url += '&template=' + _this.template;
+        rid !== undefined && rid.length && (url += '&rid=' + rid);
+        owner !== undefined && owner.length && (url += '&owner=' + owner);
+        $http.get(url).success(function(rsp) {
+            var records, record;
+            if (rsp.err_code == 0) {
+                records = rsp.data.records;
+                if (records && records.length) {
+                    for (var i = 0; i < records.length; i++) {
+                        record = records[i];
+                        record.data.member && (record.data.member = JSON.parse(record.data.member));
+                    }
+                }
+                deferred.resolve(records);
+            }
+        });
+        return deferred.promise;
+    };
+    return {
+        ins: function(scenario, template) {
+            if (_ins) {
+                return _ins;
+            }
+            _ins = new Record(scenario, template);
+            return _ins;
+        }
+    };
+}]);
+app.controller('ctrlRecord', ['$scope', 'Record', function($scope, Record) {
+    var facRecord;
+    facRecord = Record.ins(LS.p.scenario, LS.p.template);
+    facRecord.get();
+    $scope.Record = facRecord;
+}]);
 app.controller('ctrlRecords', ['$scope', 'Record', function($scope, Record) {
     var facRecord, options, fnFetch, rid;
     if (LS.p.rid === '' && $scope.$parent.ActiveRound) {
@@ -127,7 +162,7 @@ app.controller('ctrlRecords', ['$scope', 'Record', function($scope, Record) {
     } else {
         rid = LS.p.rid;
     }
-    facRecord = new Record(LS.p.scenario, LS.p.template, rid);
+    facRecord = new Record(LS.p.scenario, LS.p.template);
     options = {
         owner: 'A',
         rid: rid

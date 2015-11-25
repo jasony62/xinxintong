@@ -23,7 +23,7 @@ ul.img-tiles li.img-picker button span{font-size:36px}
 form input.ng-invalid{border:1px solid red}
 
 /* default form style*/
-div[wrap].wrap-splitline{padding-bottom:0.5em;border-bottom:1px solid #eee;}
+div[wrap].wrap-splitline{padding-bottom:0.5em;border-bottom:1px solid #fff;}
 div[wrap].wrap-inline>*{display:inline-block;vertical-align:middle;margin:0 1em 0 0;}
 div[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
 

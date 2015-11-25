@@ -7,6 +7,23 @@ require_once dirname(__FILE__) . '/base.php';
  */
 class record extends base {
 	/**
+	 * 返回登记记录
+	 *
+	 * @param string $scenario
+	 * @param string $templte
+	 *
+	 * @return
+	 *
+	 */
+	public function get_action($scenario, $template) {
+		$templateDir = $this->getTemplateDir($scenario, $template);
+		$data = $this->getData($templateDir);
+
+		$result = $data->records[0];
+
+		return new \ResponseData($result);
+	}
+	/**
 	 * 返回登记记录列表
 	 *
 	 * @param string $scenario

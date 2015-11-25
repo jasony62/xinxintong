@@ -37,7 +37,7 @@ class main extends \mp\app\app_base {
 		$this->view_action('/mp/app/enroll/detail');
 	}
 	/**
-	 * 返回一个活动，或者活动列表
+	 * 返回一个登记活动
 	 */
 	public function get_action($aid) {
 		$uid = \TMS_CLIENT::get_client_uid();
@@ -82,16 +82,6 @@ class main extends \mp\app\app_base {
 		} else {
 			$q[2] = "mpid='$this->mpid' and state=1";
 		}
-		/**
-		 * 限作者和管理员
-		 */
-		if (!$this->model('mp\permission')->isAdmin($this->mpid, $uid, true)) {
-			$limit = $this->model()->query_value('matter_visible_to_creater', 'xxt_mpsetting', "mpid='$this->mpid'");
-			if ($limit === 'Y') {
-				$q[2] .= " and (a.creater='$uid' or a.public_visible='Y')";
-			}
-
-		}
 		$q2['o'] = 'a.create_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
@@ -126,7 +116,7 @@ class main extends \mp\app\app_base {
 		if (!empty($scenario) && !empty($template)) {
 			$config = $this->_addPageByTemplate($aid, $scenario, $template);
 			$entryRule = $config->entryRule;
-			if (isset($config->multi_rounds)) {
+			if (isset($config->multi_rounds) && $config->multi_rounds === 'Y') {
 				$this->_createRound($aid);
 				$newapp['multi_rounds'] = 'Y';
 			}

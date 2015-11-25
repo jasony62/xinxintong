@@ -1,0 +1,37 @@
+{
+	"pages": [{
+		"name": "enroll",
+		"title": "登记页",
+		"type": "I"
+	}, {
+		"name": "result",
+		"title": "登记结果页",
+		"type": "V"
+	}],
+	"entryRule": {
+		"otherwise": {
+			"entry": "enroll"
+		},
+		"member": {
+			"entry": "enroll",
+			"enroll": "Y",
+			"remark": "Y"
+		},
+		"member_outacl": {
+			"entry": "enroll",
+			"enroll": "Y",
+			"remark": "Y"
+		},
+		"fan": {
+			"entry": "enroll",
+			"enroll": "Y",
+			"remark": "Y"
+		},
+		"nonfan": {
+			"entry": "$mp_follow",
+			"enroll": "$mp_follow"
+		}
+	},
+	"multi_rounds": "N",
+	"enrolled_entry_page": "result"
+}

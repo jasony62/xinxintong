@@ -3,10 +3,10 @@
 .roll-editor img{max-width:100%}
 .list-group-item.slim{padding-top:0;padding-bottom:7px}
 .editor{position:relative}
-.editor .mce-tinymce{margin-right:48px!important}
-.editor .sidebar{width:44px;background:transparent;position:absolute;top:34px;right:0}
+.editor .mce-tinymce{margin-right:44px!important}
+.editor .sidebar{width:44px;background:transparent;position:absolute;top:34px;right:15px}
 .editor .sidebar button{color:black;border-radius:0;margin-bottom:-1px}
-.editor .sidebar button:disabled{color:grey}
+.editor .sidebar button:disabled{color:gray}
 
 /*records*/
 #records{width:100%;overflow:auto;}

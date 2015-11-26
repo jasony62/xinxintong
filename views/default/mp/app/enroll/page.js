@@ -1064,16 +1064,18 @@
             }
         };
         $scope.delPage = function(index, page) {
-            var url = '/rest/mp/app/enroll/page/remove';
-            url += '?aid=' + $scope.aid;
-            url += '&pid=' + page.id;
-            http2.get(url, function(rsp) {
-                tinymce.remove('#' + page.name);
-                $scope.editing.pages.splice(index, 1);
-                $timeout(function() {
-                    $($('a[href^=#tab_]')[0]).tab('show');
+            if (window.confirm('确定删除？')) {
+                var url = '/rest/mp/app/enroll/page/remove';
+                url += '?aid=' + $scope.aid;
+                url += '&pid=' + page.id;
+                http2.get(url, function(rsp) {
+                    tinymce.remove('#' + page.name);
+                    $scope.editing.pages.splice(index, 1);
+                    $timeout(function() {
+                        $($('a[href^=#tab_]')[0]).tab('show');
+                    });
                 });
-            });
+            }
         };
         $scope.shiftPage = function(event) {
             event.preventDefault();

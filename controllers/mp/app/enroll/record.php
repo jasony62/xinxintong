@@ -178,7 +178,7 @@ class record extends \mp\app\app_base {
 
 		$current = time();
 		$modelRec = $this->model('app\enroll\record');
-		$enroll_key = $mddelRec->genKey($this->mpid, $aid);
+		$enroll_key = $modelRec->genKey($this->mpid, $aid);
 		$r = array();
 		$r['aid'] = $aid;
 		$r['mpid'] = $this->mpid;

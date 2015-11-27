@@ -32,6 +32,7 @@ $sql .= ",enrolled_entry_page varchar(20) not null default ''";
 $sql .= ",receiver_page varchar(20) not null default ''";
 $sql .= ",remark_notice_page varchar(20) not null default ''";
 $sql .= ',form_code_id int not null default 0'; // 表单页
+$sql .= ',lottery_page_id int not null default 0'; // 抽奖页
 $sql .= ",open_lastroll char(1) not null default 'Y'"; // 打开最后一条登记记录，还是编辑新的
 $sql .= ",multi_rounds char(1) not null default 'N'"; // 支持轮次
 $sql .= ",can_like_record char(1) not null default 'N'"; // 支持对登记记录点赞

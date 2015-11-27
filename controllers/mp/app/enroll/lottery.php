@@ -13,6 +13,44 @@ class lottery extends \mp\app\app_base {
 		$this->view_action('/mp/app/enroll/detail');
 	}
 	/**
+	 * 创建抽奖页面
+	 *
+	 * @param string $aid
+	 * @param string $type
+	 */
+	public function pageCreate_action($aid, $type = 'carousel') {
+		$uid = \TMS_CLIENT::get_client_uid();
+		$modelCode = $this->model('code/page');
+		$code = $modelCode->create($uid);
+
+		$this->model()->update('xxt_enroll', array('lottery_page_id' => $code->id), "id='$aid'");
+
+		$template = dirname(__FILE__) . '/template/lottery/' . $type;
+		/*page*/
+		$data = array(
+			'html' => file_get_contents($template . '.html'),
+			'css' => file_get_contents($template . '.css'),
+			'js' => file_get_contents($template . '.js'),
+		);
+		$modelCode->modify($code->id, $data);
+		/*config*/
+		$config = file_get_contents($template . '.json');
+		$config = preg_replace('/\t|\r|\n/', '', $config);
+		$config = json_decode($config);
+		if (!empty($config->extjs)) {
+			foreach ($config->extjs as $js) {
+				$modelCode->insert('xxt_code_external', array('code_id' => $code->id, 'type' => 'J', 'url' => $js), false);
+			}
+		}
+		if (!empty($config->extcss)) {
+			foreach ($config->extcss as $css) {
+				$modelCode->insert('xxt_code_external', array('code_id' => $code->id, 'type' => 'C', 'url' => $css), false);
+			}
+		}
+
+		return new \ResponseData($code->id);
+	}
+	/**
 	 * 抽奖的轮次
 	 */
 	public function roundsGet_action($aid) {

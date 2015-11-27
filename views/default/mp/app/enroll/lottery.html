@@ -1,13 +1,22 @@
-<div>
+<div id="lottery-view">
     <div class='col-md-12'>
-        <div class='form-horizontal'>
-            <div class='form-group'>
-                <label class='col-md-1 control-label'>URL</label>
-                <div class='col-md-11'>
-                    <p class="form-control-static" ng-bind="lotteryUrl"></p>
-                </div>
-            </div>
-        </div>
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th>URL</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td ng-bind="lotteryUrl"></td>
+                    <td>
+                        <a href="javascript:void(0)" ng-click="gotoCode()">编辑代码</a>
+                        <a href="javascript:void(0)" ng-click="resetCode()">重置代码</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
     <div class='col-md-3'>
         <div class='list-group'>

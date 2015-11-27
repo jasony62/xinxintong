@@ -20,8 +20,22 @@ class lottery extends \member_base {
 		$app = $this->model('app\enroll')->byId($aid);
 
 		\TPL::assign('enroll', $app);
+		\TPL::output('/op/enroll/lottery');
+		exit;
+	}
+	/**
+	 *
+	 */
+	public function pageGet_action($aid) {
+		$option = array('fields' => 'lottery_page_id', 'cascaded' => 'N');
+		$app = $this->model('app\enroll')->byId($aid, $option);
+		$page = $this->model('code/page')->byId($app->lottery_page_id);
 
-		$this->view_action('/op/enroll/carousel');
+		$params = array(
+			'page' => $page,
+		);
+
+		return new \ResponseData($params);
 	}
 	/**
 	 * 抽奖的轮次

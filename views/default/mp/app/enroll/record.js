@@ -229,11 +229,12 @@
                     }
                 }
             }).result.then(function(updated) {
-                var p = updated[0],
+                var p, tags;
+                p = updated[0];
+                http2.post('/rest/mp/app/enroll/record/update?aid=' + $scope.aid + '&ek=' + record.enroll_key, p, function(rsp) {
                     tags = updated[1];
-                $scope.editing.tags = tags;
-                $scope.update('tags');
-                http2.post('/rest/mp/app/enroll/record/update?aid=' + $scope.aid + '&ek=' + record.enroll_key, p);
+                    $scope.editing.tags = tags;
+                });
             });
         };
         $scope.addRecord = function() {
@@ -256,13 +257,11 @@
                     }
                 }
             }).result.then(function(updated) {
-                var p = updated[0],
-                    tags = updated[1];
-                if ($scope.editing.tags.length !== tags.length) {
-                    $scope.editing.tags = tags;
-                    $scope.update('tags');
-                }
+                var p, tags;
+                p = updated[0];
+                tags = updated[1];
                 http2.post('/rest/mp/app/enroll/record/add?aid=' + $scope.aid, p, function(rsp) {
+                    $scope.editing.tags = tags;
                     $scope.records.splice(0, 0, rsp.data);
                 });
             });
@@ -288,18 +287,6 @@
                             $scope.records.splice(0, 0, rsp.data[i]);
                     });
                 }
-            });
-        };
-        $scope.importApp = function() {
-            $modal.open({
-                templateUrl: 'importApp.html',
-                controller: 'importAppCtrl',
-                backdrop: 'static',
-                size: 'lg'
-            }).result.then(function(param) {
-                http2.post('/rest/mp/app/enroll/record/importApp?aid=' + $scope.aid, param, function(rsp) {
-                    $scope.doSearch(1);
-                });
             });
         };
         $scope.removeRecord = function(record) {
@@ -331,40 +318,6 @@
             if (nv) {
                 $scope.doSearch();
             }
-        });
-    }]);
-    xxtApp.register.controller('importAppCtrl', ['$scope', 'http2', '$modalInstance', function($scope, http2, $modalInstance) {
-        $scope.param = {
-            checkedActs: [],
-            checkedWalls: [],
-            wallUserState: 'active',
-            alg: 'inter'
-        };
-        $scope.changeAct = function(act) {
-            var i = $scope.param.checkedActs.indexOf(act.aid);
-            if (i === -1)
-                $scope.param.checkedActs.push(act.aid);
-            else
-                $scope.param.checkedActs.splice(i, 1);
-        };
-        $scope.changeWall = function(wall) {
-            var i = $scope.param.checkedWalls.indexOf(wall.wid);
-            if (i === -1)
-                $scope.param.checkedWalls.push(wall.wid);
-            else
-                $scope.param.checkedWalls.splice(i, 1);
-        };
-        $scope.cancel = function() {
-            $modalInstance.dismiss();
-        };
-        $scope.ok = function() {
-            $modalInstance.close($scope.param);
-        };
-        http2.get('/rest/mp/app/enroll/get?page=1&size=999', function(rsp) {
-            $scope.activities = rsp.data[0];
-        });
-        http2.get('/rest/mp/app/wall/get', function(rsp) {
-            $scope.walls = rsp.data;
         });
     }]);
     xxtApp.register.controller('editorCtrl', ['$scope', '$modalInstance', 'enroll', 'record', 'cols', function($scope, $modalInstance, enroll, record, cols) {

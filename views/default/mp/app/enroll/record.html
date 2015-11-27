@@ -105,15 +105,12 @@
             <button type="button" class="btn btn-default">添加用户记录</button>
             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
             aria-expanded="false">
-                <span class="caret"></span>
-                <span class="sr-only">Toggle Dropdown</span>
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
             </button>
             <ul class="dropdown-menu">
                 <li>
                     <a href="javascript:void(0)" ng-click='importUser()'>认证用户</a>
-                </li>
-                <li>
-                    <a href="javascript:void(0)" ng-click='importApp()'>其他活动</a>
                 </li>
                 <li>
                     <a href="javascript:void(0)" ng-click='addRecord()'>手工添加</a>
@@ -169,12 +166,6 @@
                         <combox evt-prefix='tag' existing='record.aTags' options='aTags'></combox>
                     </div>
                 </div>
-                <div class="form-group" style='display:none'>
-                    <label class="col-md-2 control-label">备注</label>
-                    <div class="col-md-10">
-                        <textarea class='form-control' ng-model='record.comment'></textarea>
-                    </div>
-                </div>
             </form>
         </div>
         <div class="modal-footer">
@@ -191,51 +182,6 @@
         </div>
         <div class="modal-footer">
             <button class="btn btn-primary" ng-click="ok()">确定</button>
-        </div>
-    </script>
-    <script type="text/ng-template" id="importApp.html">
-        <div class="modal-header">
-            <button class="close" type="button" ng-click="cancel()">×</button>
-            <h5 class="modal-title">导入用户</h5>
-        </div>
-        <div class="modal-body clearfix">
-            <div class='col-md-6'>
-                <ul class='list-group'>
-                    <li class='list-group-item' ng-repeat='a in activities'>
-                    <div class='radio' style='margin:0'>
-                        <label><input type='radio' name='act' ng-click='changeAct(a)'>{{a.title}}</label>
-                    </div>
-                    </li>
-                </ul>
-            </div>
-            <div class='col-md-6'>
-                <ul class='list-group'>
-                    <li class='list-group-item' ng-repeat='w in walls'>
-                    <div class='radio' style='margin:0'>
-                        <label><input type='radio' name='wall' ng-click='changeWall(w)'>{{w.title}}</label>
-                    </div>
-                    </li>
-                </ul>
-                <div class='form-inline'>
-                    <div class="radio">
-                        <label><input type='radio' value='online' disabled ng-model='param.wallUserState'> 在线用户</label>
-                    </div>
-                    <div class="radio">
-                        <label><input type='radio' value='active' disabled ng-model='param.wallUserState'> 已发言用户</label>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <div class='form-inline'>
-                <div class="radio">
-                    <label><input type='radio' value='inter' disabled ng-model='param.alg'> 交集</label>
-                </div>
-                <div class="radio">
-                    <label><input type='radio' value='union' disabled ng-model='param.alg'> 并集</label>
-                </div>
-                <button class="btn btn-primary" ng-click="ok()">确定</button>
-            </div>
         </div>
     </script>
 </div>

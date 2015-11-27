@@ -6,13 +6,13 @@
     <div id='frame'>
         <div class='winners list-group'>
             <div class='list-group-item'>
-                <span>获奖人数
+                <span>已抽取：
                     <span ng-bind="winners.length"></span>
                 </span>
             </div>
-            <div class='list-group-item' ng-repeat='w in winners'>
-                <span class='name' ng-bind="w.name||w.nickname"></span>
-                <span class='mobile' ng-show='w.mobile' ng-bind="w.mobile|maskmobile"></span>
+            <div class='list-group-item winner' ng-repeat='w in winners'>
+                <div class='name' ng-bind="w.name||w.nickname"></div>
+                <div class='mobile' ng-show='w.mobile' ng-bind="w.mobile"></div>
             </div>
         </div>
         <div class='lottery-box'>
@@ -20,7 +20,7 @@
                 <div class='swiper-wrapper'>
                     <div class='swiper-slide' ng-repeat='p in persons'>
                         <div class='name' ng-bind="p.name||p.nickname"></div>
-                        <div class='mobile' ng-show='p.mobile' ng-bind="p.mobile|maskmobile"></div>
+                        <div class='mobile' ng-show='p.mobile' ng-bind="p.mobile"></div>
                     </div>
                 </div>
             </div>

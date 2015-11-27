@@ -20,7 +20,10 @@ class enroll_model extends \matter\enroll_model {
 			"id='$aid'",
 		);
 		if ($app = $this->query_obj_ss($q)) {
-			$app->entry_rule = json_decode($app->entry_rule);
+			if (isset($app->entry_rule)) {
+				$app->entry_rule = json_decode($app->entry_rule);
+			}
+
 			if ($cascaded === 'Y') {
 				$modelPage = \TMS_APP::M('app\enroll\page');
 				$app->pages = $modelPage->byApp($aid);
@@ -28,6 +31,35 @@ class enroll_model extends \matter\enroll_model {
 		}
 
 		return $app;
+	}
+	/**
+	 * 更新登记活动标签
+	 */
+	public function updateTags($aid, $tags) {
+		if (empty($tags)) {
+			return false;
+		}
+
+		$options = array('fields' => 'tags', 'cascaded' => 'N');
+		$app = $this->byId($aid, $options);
+		if (empty($app->tags)) {
+			$this->update('xxt_enroll', array('tags' => $tags), "id='$aid'");
+		} else {
+			$existent = explode(',', $app->tags);
+			$checked = explode(',', $tags);
+			$updated = array();
+			foreach ($checked as $c) {
+				if (!in_array($c, $existent)) {
+					$updated[] = $c;
+				}
+			}
+			if (count($updated)) {
+				$updated = array_merge($existent, $updated);
+				$updated = implode(',', $updated);
+				$this->update('xxt_enroll', array('tags' => $updated), "id='$aid'");
+			}
+		}
+		return true;
 	}
 	/**
 	 * 活动登记（不包括登记数据）

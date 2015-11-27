@@ -98,20 +98,25 @@ class record extends \mp\app\app_base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 更新报名信息
+	 * 更新登记记录
 	 *
-	 * $ek enroll_key
+	 * @param string $aid
+	 * @param $ek enroll_key
 	 */
 	public function update_action($aid, $ek) {
-		$roll = $this->getPostJson();
+		$record = $this->getPostJson();
+		$model = $this->model();
 
-		foreach ($roll as $k => $v) {
+		foreach ($record as $k => $v) {
 			if (in_array($k, array('signin_at', 'tags', 'comment'))) {
-				$this->model()->update(
+				$model->update(
 					'xxt_enroll_record',
 					array($k => $v),
 					"enroll_key='$ek'"
 				);
+				if ($k === 'tags') {
+					$this->model('app\enroll')->updateTags($aid, $v);
+				}
 			} else if ($k === 'data' and is_object($v)) {
 				foreach ($v as $cn => $cv) {
 					/**
@@ -122,8 +127,8 @@ class record extends \mp\app\app_base {
 						'xxt_enroll_record_data',
 						"enroll_key='$ek' and name='$cn'",
 					);
-					if (1 === (int) $this->model()->query_val_ss($q)) {
-						$this->model()->update(
+					if (1 === (int) $model->query_val_ss($q)) {
+						$model->update(
 							'xxt_enroll_record_data',
 							array('value' => $cv),
 							"enroll_key='$ek' and name='$cn'"
@@ -135,10 +140,7 @@ class record extends \mp\app\app_base {
 							'name' => $cn,
 							'value' => $cv,
 						);
-						$this->model()->insert(
-							'xxt_enroll_record_data',
-							$cd
-						);
+						$model->insert('xxt_enroll_record_data', $cd, false);
 					}
 				}
 			}
@@ -172,46 +174,43 @@ class record extends \mp\app\app_base {
 	}
 	/**
 	 * 手工添加登记信息
+	 *
+	 * @param string $aid
 	 */
 	public function add_action($aid) {
-		$posted = (array) $this->getPostJson();
+		$posted = $this->getPostJson();
 
 		$current = time();
 		$modelRec = $this->model('app\enroll\record');
-		$enroll_key = $modelRec->genKey($this->mpid, $aid);
+		$enrollKey = $modelRec->genKey($this->mpid, $aid);
 		$r = array();
 		$r['aid'] = $aid;
 		$r['mpid'] = $this->mpid;
-		$r['enroll_key'] = $enroll_key;
+		$r['enroll_key'] = $enrollKey;
 		$r['enroll_at'] = $current;
 		$r['signin_at'] = $current;
-		if (isset($posted['tags'])) {
-			$r['tags'] = $posted['tags'];
+		if (isset($posted->tags)) {
+			$r['tags'] = $posted->tags;
+			$this->model('app\enroll')->updateTags($aid, $posted->tags);
 		}
-
-		$id = $this->model()->insert('xxt_enroll_record', $r, true);
-
+		$id = $modelRec->insert('xxt_enroll_record', $r, true);
 		$r['id'] = $id;
 		/**
-		 * 登记信息
+		 * 登记数据
 		 */
-		if (!empty($posted->data)) {
+		if (isset($posted->data)) {
 			foreach ($posted->data as $n => $v) {
 				if (in_array($n, array('signin_at', 'comment'))) {
 					continue;
 				}
-
 				$cd = array(
 					'aid' => $aid,
-					'enroll_key' => $enroll_key,
+					'enroll_key' => $enrollKey,
 					'name' => $n,
 					'value' => $v,
 				);
-				$this->model()->insert(
-					'xxt_enroll_record_data',
-					$cd
-				);
-				$r[$n] = $v;
+				$modelRec->insert('xxt_enroll_record_data', $cd, false);
+				$r['data'][$n] = $v;
 			}
 		}
 
@@ -257,7 +256,7 @@ class record extends \mp\app\app_base {
 		return new \ResponseData($rolls);
 	}
 	/**
-	 * 通过已有的活动导入用户
+	 * 通过已有的活动导入用户???
 	 *
 	 * 目前支持指定的活动包括通用活动和讨论组活动
 	 * 目前仅支持指定一个通用活动和一个讨论组活动
@@ -316,6 +315,5 @@ class record extends \mp\app\app_base {
 		}
 
 		return new \ResponseData(count($fans));
-
 	}
 }

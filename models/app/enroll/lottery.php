@@ -7,7 +7,7 @@ class lottery_model extends \TMS_MODEL {
 	 */
 	public function players($aid, $rid, $hasData = 'N') {
 		$result = array(array(), array());
-		$w = "e.aid='$aid'";
+		$w = "e.aid='$aid' and e.state=1";
 		$w .= " and not exists(select 1 from xxt_enroll_lottery l where e.enroll_key=l.enroll_key)";
 		$q = array(
 			'e.id,e.enroll_key,e.nickname,e.openid,e.enroll_at,signin_at,e.tags',

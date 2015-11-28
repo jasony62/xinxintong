@@ -45,7 +45,7 @@ var LS = (function(fields) {
     };
     /*join search*/
     function j(method) {
-        var j, l, url = '/rest/app/enroll',
+        var j, l, url = '/rest/op/enroll/lottery',
             _this = this,
             search = [];
         method && method.length && (url += '/' + method);
@@ -69,12 +69,78 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$interval', function($sc
     $scope.stopping = false;
     $scope.winners = [];
     $scope.currentRound = null;
+    var removePlayer = function() {
+        $scope.players.splice(winnerIndex - 1, 1);
+        mySwiper.removeSlide(winnerIndex - 1);
+        mySwiper.updateSlidesSize();
+        winnerIndex = -1;
+    };
+    var activePlayer = function() {
+        var ai, player;
+        ai = mySwiper.activeIndex;
+        ai > $scope.players.length && (ai = 1);
+        player = $scope.players[ai - 1];
+        return player;
+    };
+    var setWinner = function() {
+        var winner;
+        winnerIndex = mySwiper.activeIndex;
+        winnerIndex > $scope.players.length && (winnerIndex = 1);
+        winner = $scope.players[winnerIndex - 1];
+        if (winner) {
+            $scope.winners.push(winner);
+            $http.post(LS.j('/done', 'aid', 'rid') + '&ek=' + winner.enroll_key, {
+                openid: winner.openid
+            });
+        }
+        $scope.stopping = false;
+        $scope.running = false;
+        $scope.times++;
+        if ($scope.winners.length == $scope.currentRound.times) {
+            removePlayer();
+            return;
+        }
+        if ($scope.currentRound.autoplay === 'Y' && $scope.times < $scope.currentRound.times)
+            $scope.start();
+    };
+    $scope.init = function() {
+        mySwiper = new Swiper('.swiper-container', {
+            slidesPerView: 1,
+            mode: 'horizontal',
+            loop: true,
+            speed: $scope.speed
+        });
+    };
+    $scope.getUsers = function(callback) {
+        $http.get(LS.j('/playersGet', 'aid', 'rid') + '&hasData=N').success(function(rsp) {
+            $scope.players = rsp.data[0];
+            $scope.winners = rsp.data[1];
+            callback && $timeout(callback);
+        });
+    };
+    $scope.matched = function(candidate, target) {
+        var ctags, i, j;
+        if (!candidate) return false;
+        if (!target.tags || target.tags.length === 0) return true;
+        ctags = candidate.tags;
+        if (!ctags || ctags.length === 0) return false;
+        ctags = ctags.split(',');
+        for (i = 0, j = ctags.length; i < j; i++) {
+            if (target.tags.indexOf(ctags[i]) !== -1) return true;
+        }
+        return false;
+    };
     $scope.start = function() {
         if (winnerIndex !== -1) {
-            $scope.persons.splice(winnerIndex - 1, 1);
-            mySwiper.removeSlide(winnerIndex);
-            mySwiper.updateSlidesSize();
-            winnerIndex = -1;
+            removePlayer();
+        }
+        if ($scope.winners.length == $scope.currentRound.times) {
+            alert('抽取次数已经用完');
+            return;
+        }
+        if ($scope.players.length === 0) {
+            alert('已经没有等待抽取的用户');
+            return;
         }
         $scope.running = true;
         timer = $interval(function() {
@@ -86,101 +152,69 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$interval', function($sc
             }, 1000);
     };
     $scope.stop = function() {
-        var getWinner = function() {
-            var winner;
-            winnerIndex = mySwiper.activeIndex;
-            winnerIndex > $scope.persons.length && (winnerIndex = 1);
-            winner = $scope.persons[winnerIndex - 1];
-            if (winner) {
-                $scope.winners.push(winner);
-                $http.post('/rest/op/enroll/lottery/done?aid=' + LS.p.aid + '&rid=' + LS.p.rid + '&ek=' + winner.enroll_key, {
-                    openid: winner.openid
-                });
-            }
-            $scope.stopping = false;
-            $scope.running = false;
-            $scope.times++;
-            if ($scope.currentRound.autoplay === 'Y' && $scope.times < $scope.currentRound.times)
-                $scope.start();
-        };
+        var timer2, step, steps;
         $scope.stopping = true;
         $interval.cancel(timer);
-        var timer2, i = 0,
-            steps = Math.round(Math.random() * 10);
-        timer2 = $interval(function() {
+        step = 0;
+        steps = Math.round(Math.random() * 10); //随机移动的步数
+        timer2 = $interval(function calcWinner() {
+            var currentRound, target;
             mySwiper.slideNext();
-            if (i === steps) {
+            if (step === steps) {
                 $interval.cancel(timer2);
-                if ($scope.currentRound.aTargets && $scope.currentRound.aTargets.length > 0) {
-                    var target = $scope.currentRound.aTargets[$scope.times % $scope.currentRound.aTargets.length];
+                currentRound = $scope.currentRound;
+                if (currentRound.targets && currentRound.targets.length > 0) {
+                    target = currentRound.targets[$scope.times % currentRound.targets.length];
                     if (target.tags && target.tags.length > 0) {
-                        var candidate;
-                        candidate = $scope.persons[mySwiper.activeIndex];
-                        if (candidate && target.tags.indexOf(candidate.tags) === -1) {
-                            var j = [],
-                                timer3;
+                        /**
+                         * 检查规则
+                         */
+                        var candidate, checked, timer3;
+                        candidate = activePlayer();
+                        if (!$scope.matched(candidate, target)) {
+                            /**
+                             * 不匹配，继续找。有可能所有的候选人都不匹配。
+                             */
+                            checked = []; //已经匹配过的候选人
                             timer3 = $interval(function() {
-                                candidate = $scope.persons[mySwiper.activeIndex];
-                                if (candidate && target.tags.indexOf(candidate.tags) !== -1 || j.length === $scope.persons.length) {
+                                candidate = activePlayer();
+                                if ($scope.matched(candidate, target) || checked.length === $scope.players.length) {
+                                    /**
+                                     * 匹配了，或者所有的候选人都已经检查过。
+                                     */
                                     $interval.cancel(timer3);
-                                    getWinner();
+                                    setWinner();
                                 } else {
                                     mySwiper.slideNext();
-                                    if (j.indexOf(mySwiper.activeIndex) === -1)
-                                        j.push(mySwiper.activeIndex);
+                                    if (checked.indexOf(mySwiper.activeIndex) === -1)
+                                        checked.push(mySwiper.activeIndex);
                                 }
                             }, $scope.speed);
                         } else {
-                            getWinner();
+                            setWinner();
                         }
                     } else {
-                        getWinner();
+                        setWinner();
                     }
                 } else {
-                    getWinner();
+                    setWinner();
                 }
             }
-            i++;
+            step++;
         }, $scope.speed);
     };
-    $scope.getPersons = function() {
-        $http.get('/rest/op/enroll/lottery/playersGet?aid=' + LS.p.aid + '&rid=' + LS.p.rid + '&hasData=N').
-        success(function(rsp) {
-            $scope.persons = rsp.data[0];
-            $scope.winners = rsp.data[1];
-            $timeout(function() {
-                $scope.stopping = false;
-                $scope.running = true;
-                mySwiper = new Swiper('.swiper-container', {
-                    slidesPerView: 1,
-                    mode: 'horizontal',
-                    loop: true,
-                    speed: $scope.speed
-                });
-                timer = $interval(function() {
-                    mySwiper.slideNext();
-                }, $scope.speed);
-                if ($scope.currentRound.autoplay === 'Y')
-                    $timeout(function() {
-                        $scope.stop()
-                    }, 1000);
-            });
-        });
-    };
     $scope.empty = function() {
-        $http.get('/rest/op/enroll/lottery/empty?aid=' + LS.p.aid + '&rid=' + LS.p.rid).
-        success(function(rsp) {
+        $http.get(LS.j('/empty', 'aid', 'rid')).success(function(rsp) {
             location.reload();
         });
     };
-    $http.get('/rest/op/enroll/lottery/pageGet?aid=' + LS.p.aid).success(function(rsp) {
+    $http.get(LS.j('/pageGet', 'aid')).success(function(rsp) {
         if (rsp.err_code !== 0) {
             $scope.errmsg = rsp.err_msg;
             return;
         }
         var params;
         params = rsp.data;
-        $scope.Page = params.page;
         (function setPage(page) {
             if (page.ext_css && page.ext_css.length) {
                 angular.forEach(page.ext_css, function(css) {
@@ -194,37 +228,23 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$interval', function($sc
             }
             if (page.ext_js && page.ext_js.length) {
                 angular.forEach(page.ext_js, function(js) {
-                    $.getScript(js.url);
+                    $.getScript(js.url, function() {
+                        if (page.js && page.js.length) {
+                            $scope.$apply(
+                                function dynamicjs() {
+                                    eval(page.js);
+                                    $scope.Page = params.page;
+                                }
+                            );
+                        }
+                    });
                 });
-            }
-            if (page.js && page.js.length) {
+            } else if (page.js && page.js.length) {
                 (function dynamicjs() {
                     eval(page.js);
+                    $scope.Page = params.page;
                 })();
             }
         })(params.page);
-
-    });
-}]);
-app.controller('ctrlRounds', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
-    $scope.round = '';
-    $scope.shiftRound = function() {
-        var url = '/rest/op/enroll/lottery?aid=' + LS.p.aid + '&_=' + (new Date()).getTime();
-        if ($scope.round && $scope.round.length > 0) url += '&rid=' + $scope.round;
-        location.href = url;
-    };
-    $http.get('/rest/op/enroll/lottery/roundsGet?aid=' + LS.p.aid).success(function(rsp) {
-        $scope.rounds = rsp.data;
-        for (var i in $scope.rounds) {
-            if (LS.p.rid === $scope.rounds[i].round_id) {
-                $scope.round = $scope.rounds[i].round_id;
-                $scope.$parent.currentRound = $scope.rounds[i];
-                $scope.$parent.currentRound.aTargets = eval($scope.$parent.currentRound.targets);
-                $timeout(function() {
-                    $scope.$parent.getPersons();
-                });
-                break;
-            }
-        }
     });
 }]);

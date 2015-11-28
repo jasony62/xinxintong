@@ -41,17 +41,23 @@ class lottery extends \member_base {
 	 * 抽奖的轮次
 	 */
 	public function roundsGet_action($aid) {
-		$result = $this->model('app\enroll\lottery')->rounds($aid);
+		$options = array(
+			'fields' => 'round_id,title,autoplay,targets,times',
+		);
+		$rounds = $this->model('app\enroll\lottery')->rounds($aid, $options);
+		foreach ($rounds as &$round) {
+			$round->targets = json_decode($round->targets);
+		}
 
-		return new \ResponseData($result);
+		return new \ResponseData($rounds);
 	}
 	/**
 	 * 参与抽奖的人
 	 */
 	public function playersGet_action($aid, $rid, $hasData = 'Y') {
-		$result = $this->model('app\enroll\lottery')->players($aid, $rid, $hasData);
+		$players = $this->model('app\enroll\lottery')->players($aid, $rid, $hasData);
 
-		return new \ResponseData($result);
+		return new \ResponseData($players);
 	}
 	/**
 	 * 清空参与抽奖的人

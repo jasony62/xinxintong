@@ -10,7 +10,8 @@ xxtApp.register.controller('lotteryCtrl', ['$scope', 'http2', function($scope, h
     };
     $scope.aTargets = null;
     $scope.gotoCode = function() {
-        var app = $scope.$parent.editing;
+        var app, url;
+        app = $scope.$parent.editing;
         if (app.lottery_page_id != 0) {
             window.open('/rest/code?pid=' + app.lottery_page_id, '_self');
         } else {
@@ -23,7 +24,12 @@ xxtApp.register.controller('lotteryCtrl', ['$scope', 'http2', function($scope, h
         }
     };
     $scope.resetCode = function() {
-
+        var app, url;
+        app = $scope.$parent.editing;
+        url = '/rest/mp/app/enroll/lottery/pageReset?aid=' + app.id;
+        http2.get(url, function(rsp) {
+            window.open('/rest/code?pid=' + app.lottery_page_id, '_self');
+        });
     };
     $scope.addRound = function() {
         http2.post('/rest/mp/app/enroll/lottery/roundAdd?aid=' + $scope.aid, null, function(rsp) {

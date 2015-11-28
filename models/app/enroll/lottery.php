@@ -5,7 +5,7 @@ class lottery_model extends \TMS_MODEL {
 	/**
 	 * 参加抽奖活动的人
 	 */
-	public function players($aid, $rid, $hasData = 'N') {
+	public function &players($aid, $rid, $hasData = 'N') {
 		$result = array(array(), array());
 		$w = "e.aid='$aid' and e.state=1";
 		$w .= " and not exists(select 1 from xxt_enroll_lottery l where e.enroll_key=l.enroll_key)";
@@ -38,12 +38,11 @@ class lottery_model extends \TMS_MODEL {
 			 */
 			if ($hasData === 'Y') {
 				$players2 = array();
-				foreach ($players as $player2) {
-					if (empty($player2->name) && empty($player2->mobile)) {
+				foreach ($players as $p2) {
+					if (empty($p2->name) && empty($p2->mobile)) {
 						continue;
 					}
-					//$player2->tags = explode(',', $player2->tags);
-					$players2[] = $player2;
+					$players2[] = $p2;
 				}
 				$result[0] = $players2;
 			} else {
@@ -80,23 +79,14 @@ class lottery_model extends \TMS_MODEL {
 		return $result;
 	}
 	/**
-	 *
+	 * 获得抽奖的轮次
+	 * @param string $aid
+	 * @param array $options
 	 */
-	public function rounds($aid) {
-		/**
-		 * 获得活动的定义
-		 */
+	public function &rounds($aid, $options = array()) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$q = array(
-			'access_control',
-			'xxt_enroll',
-			"id='$aid'",
-		);
-		$act = $this->query_obj_ss($q);
-		/**
-		 * 获得抽奖的轮次
-		 */
-		$q = array(
-			'*',
+			$fields,
 			'xxt_enroll_lottery_round',
 			"aid='$aid'",
 		);
@@ -107,7 +97,7 @@ class lottery_model extends \TMS_MODEL {
 	/**
 	 * 活动中奖名单
 	 */
-	public function winners($aid, $rid = null) {
+	public function &winners($aid, $rid = null) {
 		/**
 		 * 获得活动的定义
 		 */

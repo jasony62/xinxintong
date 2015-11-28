@@ -98,6 +98,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$interval', function($sc
         $scope.times++;
         if ($scope.winners.length == $scope.currentRound.times) {
             removePlayer();
+            $scope.$broadcast('xxt.app.enroll.lottery.round-finish');
             return;
         }
         if ($scope.currentRound.autoplay === 'Y' && $scope.times < $scope.currentRound.times)
@@ -135,11 +136,11 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$interval', function($sc
             removePlayer();
         }
         if ($scope.winners.length == $scope.currentRound.times) {
-            alert('抽取次数已经用完');
+            $scope.$broadcast('xxt.app.enroll.lottery.round-finished');
             return;
         }
         if ($scope.players.length === 0) {
-            alert('已经没有等待抽取的用户');
+            $scope.$broadcast('xxt.app.enroll.lottery.players-empty');
             return;
         }
         $scope.running = true;

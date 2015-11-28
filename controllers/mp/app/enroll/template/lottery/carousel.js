@@ -8,6 +8,9 @@
 			if ($scope.round && $scope.round.length > 0) url += '&rid=' + $scope.round;
 			location.href = url;
 		};
+		/*完成一个轮次的抽奖*/
+		$scope.$on('xxt.app.enroll.lottery.round-finish', function() {
+		});
 		$http.get(LS.j('/roundsGet', 'aid')).success(function(rsp) {
 			var i, round, rounds;
 			rounds = rsp.data;

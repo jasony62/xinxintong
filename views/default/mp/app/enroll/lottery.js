@@ -25,11 +25,13 @@ xxtApp.register.controller('lotteryCtrl', ['$scope', 'http2', function($scope, h
     };
     $scope.resetCode = function() {
         var app, url;
-        app = $scope.$parent.editing;
-        url = '/rest/mp/app/enroll/lottery/pageReset?aid=' + app.id;
-        http2.get(url, function(rsp) {
-            window.open('/rest/code?pid=' + app.lottery_page_id, '_self');
-        });
+        if (window.confirm('重置操作将丢失已做修改，确定？')) {
+            app = $scope.$parent.editing;
+            url = '/rest/mp/app/enroll/lottery/pageReset?aid=' + app.id;
+            http2.get(url, function(rsp) {
+                window.open('/rest/code?pid=' + app.lottery_page_id, '_self');
+            });
+        }
     };
     $scope.addRound = function() {
         http2.post('/rest/mp/app/enroll/lottery/roundAdd?aid=' + $scope.aid, null, function(rsp) {

@@ -204,9 +204,16 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$interval', function($sc
             step++;
         }, $scope.speed);
     };
-    $scope.empty = function() {
-        $http.get(LS.j('/empty', 'aid', 'rid')).success(function(rsp) {
-            location.reload();
+    $scope.empty = function(fromBegin) {
+        $http.get(LS.j('/empty', 'aid')).success(function(rsp) {
+            if (fromBegin && fromBegin === 'Y') {
+                var url, t;
+                t = (new Date()).getTime();
+                url = '/rest/op/enroll/lottery?aid=' + LS.p.aid + '&_=' + t;
+                location.href = url;
+            } else {
+                location.reload();
+            }
         });
     };
     $http.get(LS.j('/pageGet', 'aid')).success(function(rsp) {

@@ -162,7 +162,7 @@ app.controller('ctrlRecords', ['$scope', 'Record', function($scope, Record) {
     } else {
         rid = LS.p.rid;
     }
-    facRecord = new Record(LS.p.scenario, LS.p.template);
+    facRecord = Record.ins(LS.p.scenario, LS.p.template);
     options = {
         owner: 'A',
         rid: rid

@@ -71,7 +71,7 @@ app.directive('tmsFilter', function() {
                     defaultItem = defaultItem[path[i]];
                     i++;
                 }
-                defaultItem = scope.match(defaultItem);
+                defaultItem && (defaultItem = scope.match(defaultItem));
                 return defaultItem;
             };
             fnSelectItem = function(item) {

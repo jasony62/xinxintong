@@ -21,10 +21,10 @@ class page extends \member_base {
 	 * $pageid
 	 * $size
 	 */
-	public function schemaGet_action($mpid, $id, $pageid = null, $size = null, $byPage = 'Y') {
+	public function schemaGet_action($mpid, $aid, $pageid = null, $size = null, $byPage = 'Y') {
 		$modelPage = $this->model('app\enroll\page');
 
-		$pages = $modelPage->byApp($id);
+		$pages = $modelPage->byApp($aid);
 
 		if ($byPage === 'Y') {
 			/**

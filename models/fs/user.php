@@ -122,7 +122,7 @@ class user_model {
 		$matches = array();
 		$rst = preg_match('/data:image\/(.+?);base64\,/', $data, $matches);
 		if (1 !== $rst) {
-			return array(false, '数据格式错误' . $rst);
+			return array(false, '图片数据格式错误' . $rst);
 		}
 
 		list($header, $ext) = $matches;
@@ -145,14 +145,10 @@ class user_model {
 	 */
 	public function storeImg($img) {
 		if (empty($img->imgSrc) && !isset($img->serverId)) {
-			return array(false, '数据为空');
+			return array(false, '图片数据为空');
 		}
 
-		if (isset($img->imgSrc) && 0 === strpos($img->imgSrc, 'http'))
-		/**
-		 * url
-		 */
-		{
+		if (isset($img->imgSrc) && 0 === strpos($img->imgSrc, 'http')) {
 			$rst = $this->storeUrl($img->imgSrc);
 		} else if (isset($img->imgSrc) && 1 === preg_match('/data:image(.+?);base64/', $img->imgSrc)) {
 			/**
@@ -170,7 +166,7 @@ class user_model {
 
 			$rst = $this->storeUrl($rst[1]);
 		} else {
-			return array(false, '数据格式错误');
+			return array(false, '图片数据格式错误');
 		}
 
 		return $rst;
@@ -183,7 +179,7 @@ class user_model {
 
 		$rst = preg_match('/data:(.+?);base64\,/', $content, $matches);
 		if (1 !== $rst) {
-			return array(false, '数据格式错误' . $rst);
+			return array(false, '图片数据格式错误' . $rst);
 		}
 
 		$header = $matches[0];

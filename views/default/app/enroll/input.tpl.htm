@@ -8,7 +8,7 @@
         <title><?php TPL::pt('title');?></title>
         <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
         <link href="//libs.useso.com/js/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
-        <link href="/views/default/app/enroll/page.css?_=2" rel="stylesheet">
+        <link href="/views/default/app/enroll/input.css?_=2" rel="stylesheet">
         <link href="/views/default/app/enroll/directive.css?_=1" rel="stylesheet">
         <style ng-if="Page.css" ng-bind='Page.css'></style>
     </head>
@@ -18,9 +18,17 @@
         <div class="app">
             <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
             <div class='container'>
-                <div class='row' ng-controller='ctrlView'>
+                <div class='row' ng-controller='ctrlInput'>
                     <form name='page' novalidate dynamic-html="Page.html">
                     </form>
+                </div>
+            </div>
+            <div id='pickImageFrom'>
+                <div class='form-group'>
+                    <button class='btn btn-default btn-lg btn-block' ng-click="chooseImage(null,null,'camera')">拍照</button>
+                </div>
+                <div class='form-group'>
+                    <button class='btn btn-default btn-lg btn-block' ng-click="chooseImage(null,null,'album')">相册</button>
                 </div>
             </div>
         </div>
@@ -35,9 +43,12 @@
         <script src="/static/js/angular.min.js "></script>
         <script src="/static/js/angular-sanitize.min.js "></script>
         <script src="/static/js/ng-infinite-scroll.min.js "></script>
+        <script src="/static/js/resumable.js "></script>
         <script src="/static/js/xxt.share.js?_=1"></script>
+        <script src="/static/js/xxt.image.js?_=1"></script>
+        <script src="/static/js/xxt.geo.js?_=2"></script>
         <script src="/views/default/app/enroll/common.js?_=1"></script>
-        <script src="/views/default/app/enroll/page.js?_=17"></script>
+        <script src="/views/default/app/enroll/input.js?_=17"></script>
         <script src="/views/default/app/enroll/directive.js?_=1"></script>
     </body>
 

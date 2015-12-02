@@ -326,7 +326,6 @@ class record_model extends \TMS_MODEL {
 					if (false === $rst[0]) {
 						return $rst;
 					}
-
 					$vv[] = $rst[1];
 				}
 				$vv = implode(',', $vv);

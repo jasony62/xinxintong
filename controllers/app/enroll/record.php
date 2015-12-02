@@ -87,7 +87,7 @@ class record extends base {
 			$rst = \TMS_APP::M('app\enroll\record')->setData($user, $mpid, $aid, $ek, $posted, $submitkey);
 		}
 		if (false === $rst[0]) {
-			return new ResponseError($rst[1]);
+			return new \ResponseError($rst[1]);
 		}
 		/**
 		 * 通知登记活动的管理员
@@ -285,6 +285,80 @@ class record extends base {
 		$rsp->ek = $ek;
 
 		return new \ResponseData($rsp);
+	}
+	/**
+	 * 返回指定记录或最后一条记录
+	 * @param string $mpid
+	 * @param string $aid
+	 * @param string $ek
+	 */
+	public function get_action($mpid, $aid, $ek = '') {
+		$modelApp = $this->model('app\enroll');
+		$modelRec = $this->model('app\enroll\record');
+		$openedek = $ek;
+		$record = null;
+		$options = array('cascaded' => 'N');
+		$app = $modelApp->byId($aid, $options);
+		/*当前访问用户的基本信息*/
+		$user = $this->getUser($mpid,
+			array(
+				'authapis' => $app->authapis,
+				'matter' => $app,
+				'verbose' => array('member' => 'Y', 'fan' => 'Y'),
+			)
+		);
+		/**登记数据*/
+		if (empty($openedek)) {
+			/*获得最后一条登记数据。登记记录有可能未进行过登记*/
+			$options = array(
+				'fields' => '*',
+			);
+			$record = $modelRec->getLast($mpid, $aid, $user->openid, $options);
+			if ($record) {
+				$openedek = $record->enroll_key;
+				if ($record->enroll_at) {
+					$record->data = $modelRec->dataById($openedek);
+				}
+			}
+		} else {
+			/*打开指定的登记记录*/
+			$record = $modelRec->byId($openedek);
+		}
+		/**互动数据*/
+		if (!empty($openedek)) {
+			/*登记人信息*/
+			if (!empty($record->openid)) {
+				$options = array(
+					'openid' => $record->openid,
+					'verbose' => array('fan' => 'Y', 'member' => 'Y'),
+				);
+				$record->enroller = $this->getUser($mpid, $options);
+			} else {
+				$record->enroller = $user;
+			}
+			/*评论数据*/
+			if ($app->can_remark_record === 'Y') {
+				$record->remarks = $modelRec->remarks($openedek);
+			}
+			/*获得关联抽奖活动记录*/
+			if ($app->can_lottery === 'Y') {
+				$ql = array(
+					'award_title',
+					'xxt_lottery_log',
+					"enroll_key='$openedek'",
+				);
+				$lotteryResult = $this->model()->query_objs_ss($ql);
+				if (!empty($lotteryResult)) {
+					$lrs = array();
+					foreach ($lotteryResult as $lr) {
+						$lrs[] = $lr->award_title;
+					}
+					$record->data['lotteryResult'] = implode(',', $lrs);
+				}
+			}
+		}
+
+		return new \ResponseData($record);
 	}
 	/**
 	 * 列出所有的登记记录

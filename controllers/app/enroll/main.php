@@ -30,10 +30,8 @@ class main extends base {
 		$modelApp = $this->model('app\enroll');
 		$app = $modelApp->byId($aid);
 
+		/** 判断活动的开始结束时间 */
 		$tipPage = false;
-		/**
-		 * 判断活动的开始结束时间
-		 */
 		$current = time();
 		if ($app->start_at != 0 && !empty($app->before_start_page) && $current < $app->start_at) {
 			$tipPage = $app->before_start_page;
@@ -53,23 +51,25 @@ class main extends base {
 			\TPL::output('info');
 			exit;
 		}
-		/**
-		 * 获得当前访问用户
-		 */
-		$openid = $this->doAuth($mpid, $code, $mocker);
+		/**获得当前访问用户*/
+		$this->doAuth($mpid, $code, $mocker);
 
-		$this->afterOAuth($mpid, $aid, $ek, $page, $shareby, $openid);
-	}
-	/**
-	 * 返回活动页面
-	 */
-	private function afterOAuth($mpid, $aid, $ek, $page, $shareby, $openid = null) {
-		$modelApp = $this->model('app\enroll');
-		$app = $modelApp->byId($aid);
-		/**
-		 * 当前访问用户的基本信息
-		 */
+		/**当前访问用户的基本信息 */
 		$user = $this->getUser($mpid);
+		/*打开页面*/
+		$oPage = null;
+		$hasEnrolled = $modelApp->hasEnrolled($mpid, $aid, $user->openid);
+		empty($page) && $page = $this->_defaultPage($mpid, $app, $user, $hasEnrolled);
+		foreach ($app->pages as $p) {
+			if ($p->name === $page) {
+				$oPage = $p;
+				break;
+			}
+		}
+		if (empty($oPage)) {
+			$this->outputError('指定的页面[' . $page . ']不存在');
+			exit;
+		}
 		/* 提示在PC端完成 */
 		if (isset($user->fan) && $this->getClientSrc() && isset($app->shift2pc) && $app->shift2pc === 'Y') {
 			$fea = $this->model('mp\mpaccount')->getFeatures($mpid, 'shift2pc_page_id');
@@ -86,14 +86,16 @@ class main extends base {
 			}
 			//\TPL::assign('shift2pcAlert', $pageOfShift2Pc);
 		}
-		/**
-		 * 记录日志，完成前置活动再次进入的情况不算
-		 */
+		/**记录日志，完成前置活动再次进入的情况不算 */
 		$this->model()->update("update xxt_enroll set read_num=read_num+1 where id='$app->id'");
 		$this->logRead($mpid, $user, $app->id, 'enroll', $app->title, $shareby);
 
 		\TPL::assign('title', $app->title);
-		\TPL::output('/app/enroll/page');
+		if ($oPage->type === 'I') {
+			\TPL::output('/app/enroll/input');
+		} else {
+			\TPL::output('/app/enroll/page');
+		}
 		exit;
 	}
 	/**
@@ -122,7 +124,7 @@ class main extends base {
 
 		$modelApp = $this->model('app\enroll');
 		$app = $modelApp->byId($aid);
-		$params['enroll'] = $app;
+		$params['app'] = $app;
 		/*当前访问用户的基本信息*/
 		$user = $this->getUser($mpid,
 			array(
@@ -162,6 +164,9 @@ class main extends base {
 				$modelRec->update('xxt_enroll_record', $updated, "enroll_key='$lastRecord->enroll_key'");
 			}
 		}
+		if ($app->multi_rounds === 'Y') {
+			$params['activeRound'] = $this->model('app\enroll\round')->getLast($mpid, $aid);
+		}
 		/*登记记录*/
 		$newForm = false;
 		if ($oPage->type === 'I') {
@@ -173,12 +178,12 @@ class main extends base {
 				}
 			}
 		}
-		list($openedek, $record, $statdata) = $this->_getRecord($mpid, $app, $rid, $ek, $user->openid, $page, $newForm);
-		if ($newForm === false) {
-			$params['enrollKey'] = $openedek;
-			$params['record'] = $record;
-		}
-		$params['statdata'] = $statdata;
+		/*list($openedek, $record, $statdata) = $this->_getRecord($mpid, $app, $rid, $ek, $user->openid, $page, $newForm);
+			if ($newForm === false) {
+				$params['enrollKey'] = $openedek;
+				$params['record'] = $record;
+			}
+		*/
 		/*公众号信息*/
 		$mpaccount = $this->getMpSetting($mpid);
 		$user_agent = $_SERVER['HTTP_USER_AGENT'];

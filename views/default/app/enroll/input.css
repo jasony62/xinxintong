@@ -12,8 +12,15 @@ ul.img-tiles li.img-picker button{position:auto;width:100%;height:100%}
 ul.img-tiles li.img-picker button span{font-size:36px}
 
 /* dialog */
+#pickImageFrom{display:none;z-index:1099;background-color:white;position:absolute;box-sizing:border-box;-moz-box-sizing:border-box;padding:15px;width:400px;margin:auto;webkit-box-shadow:0 3px 9px rgba(0,0,0,0.5);box-shadow:0 3px 9px rgba(0,0,0,0.5)}
+#pickImageFrom:before,#dlg:after{content:" ";display:table}
+#pickImageFrom:after{clear:both}
 #tipPreview{z-index:9999;position:fixed;bottom:4px;left:4px;right:4px;height:48px;background:rgba(0,0,0,0.5);border-radius:4px;text-align:center;line-height:48px;color:#FFF;font-size:14px}
 #tipPreview button{float:auto;position:absolute;top:12px;right:8px}
+@media screen and (max-width:360px){
+	#pickImageFrom{width:324px}
+}
+form input.ng-invalid{border:1px solid red}
 
 /* default form style*/
 div[wrap].wrap-splitline{padding-bottom:0.5em;border-bottom:1px solid #fff;}

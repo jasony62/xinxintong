@@ -25,16 +25,16 @@ class lottery extends \mp\app\app_base {
 
 		$this->model()->update('xxt_enroll', array('lottery_page_id' => $code->id), "id='$aid'");
 
-		$template = dirname(__FILE__) . '/template/lottery/' . $type;
+		$module = dirname(__FILE__) . '/module/lottery/' . $type;
 		/*page*/
 		$data = array(
-			'html' => file_get_contents($template . '.html'),
-			'css' => file_get_contents($template . '.css'),
-			'js' => file_get_contents($template . '.js'),
+			'html' => file_get_contents($module . '.html'),
+			'css' => file_get_contents($module . '.css'),
+			'js' => file_get_contents($module . '.js'),
 		);
 		$modelCode->modify($code->id, $data);
 		/*config*/
-		$config = file_get_contents($template . '.json');
+		$config = file_get_contents($module . '.json');
 		$config = preg_replace('/\t|\r|\n/', '', $config);
 		$config = json_decode($config);
 		if (!empty($config->extjs)) {
@@ -62,17 +62,17 @@ class lottery extends \mp\app\app_base {
 		$options = array('fields' => 'lottery_page_id', 'cascaded' => 'N');
 		$app = $this->model('app\enroll')->byId($aid, $options);
 
-		$template = dirname(__FILE__) . '/template/lottery/' . $type;
+		$module = dirname(__FILE__) . '/module/lottery/' . $type;
 		/*page*/
 		$data = array(
-			'html' => file_get_contents($template . '.html'),
-			'css' => file_get_contents($template . '.css'),
-			'js' => file_get_contents($template . '.js'),
+			'html' => file_get_contents($module . '.html'),
+			'css' => file_get_contents($module . '.css'),
+			'js' => file_get_contents($module . '.js'),
 		);
 		$modelCode->modify($app->lottery_page_id, $data);
 		/*config*/
 		$modelCode->delete('xxt_code_external', "code_id=$app->lottery_page_id");
-		$config = file_get_contents($template . '.json');
+		$config = file_get_contents($module . '.json');
 		$config = preg_replace('/\t|\r|\n/', '', $config);
 		$config = json_decode($config);
 		if (!empty($config->extjs)) {

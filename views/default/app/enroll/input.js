@@ -196,43 +196,45 @@ app.factory('Input', function($http, $q, $timeout) {
 });
 app.controller('ctrlInput', ['$scope', '$http', '$timeout', '$q', 'Input', 'Record', function($scope, $http, $timeout, $q, Input, Record) {
     var facRecord, facInput, record, modifiedImgFields, tasksOfOnReady;
+    facInput = Input.ins();
     $scope.data = {
         member: {}
     };
-    if (LS.p.ek.length || $scope.App.open_lastroll) {
-        facRecord = Record.ins();
-        facRecord.get(LS.p.ek).then(function(record) {
-            var p, type, dataOfRecord, value;
-            dataOfRecord = record.data;
-            for (p in dataOfRecord) {
-                if (p === 'member') {
-                    $scope.data.member = dataOfRecord.member;
-                } else if ($('[name=' + p + ']').hasClass('img-tiles')) {
-                    if (dataOfRecord[p] && dataOfRecord[p].length) {
-                        value = dataOfRecord[p].split(',');
-                        $scope.data[p] = [];
-                        for (var i in value) $scope.data[p].push({
-                            imgSrc: value[i]
-                        });
-                    }
-                } else {
-                    type = $('[name=' + p + ']').attr('type');
-                    if (type === 'checkbox') {
+    $scope.$on('xxt.app.enroll.ready', function() {
+        if (LS.p.ek.length || (LS.p.newRecord !== 'Y' && $scope.App.open_lastroll)) {
+            facRecord = Record.ins();
+            facRecord.get(LS.p.ek).then(function(record) {
+                var p, type, dataOfRecord, value;
+                dataOfRecord = record.data;
+                for (p in dataOfRecord) {
+                    if (p === 'member') {
+                        $scope.data.member = dataOfRecord.member;
+                    } else if ($('[name=' + p + ']').hasClass('img-tiles')) {
                         if (dataOfRecord[p] && dataOfRecord[p].length) {
                             value = dataOfRecord[p].split(',');
-                            $scope.data[p] = {};
-                            for (var i in value) $scope.data[p][value[i]] = true;
+                            $scope.data[p] = [];
+                            for (var i in value) $scope.data[p].push({
+                                imgSrc: value[i]
+                            });
                         }
                     } else {
-                        $scope.data[p] = dataOfRecord[p];
+                        type = $('[name=' + p + ']').attr('type');
+                        if (type === 'checkbox') {
+                            if (dataOfRecord[p] && dataOfRecord[p].length) {
+                                value = dataOfRecord[p].split(',');
+                                $scope.data[p] = {};
+                                for (var i in value) $scope.data[p][value[i]] = true;
+                            }
+                        } else {
+                            $scope.data[p] = dataOfRecord[p];
+                        }
                     }
                 }
-            }
-            /* 无论是否有登记记录都自动填写用户认证信息 */
-            PG.setMember($scope.params, $scope.data.member);
-        });
-    }
-    facInput = Input.ins();
+                /* 无论是否有登记记录都自动填写用户认证信息 */
+                PG.setMember($scope.params, $scope.data.member);
+            });
+        }
+    });
     $scope.submit = function(event, nextAction) {
         var ek, url, btnSubmit;
         btnSubmit = document.querySelector('#btnSubmit');

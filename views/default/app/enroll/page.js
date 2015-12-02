@@ -326,9 +326,9 @@ app.factory('Schema', ['$http', '$q', function($http, $q) {
 }]);
 app.controller('ctrlRecords', ['$scope', 'Record', function($scope, Record) {
     var facRecord, options, fnFetch;
-    facRecord = new Record(LS.p.mpid, LS.p.aid, LS.p.rid);
+    facRecord = Record.ins(LS.p.mpid, LS.p.aid, LS.p.rid);
     options = {
-        owner: 'A',
+        owner: 'U',
         rid: LS.p.rid
     };
     fnFetch = function() {
@@ -337,13 +337,20 @@ app.controller('ctrlRecords', ['$scope', 'Record', function($scope, Record) {
         });
     };
     $scope.$on('xxt.app.enroll.filter.rounds', function(event, data) {
-        options.rid = data[0].rid;
-        fnFetch();
+        if (options.rid !== data[0].rid) {
+            options.rid = data[0].rid;
+            fnFetch();
+        }
     });
     $scope.$on('xxt.app.enroll.filter.owner', function(event, data) {
-        options.owner = data[0].id;
-        fnFetch();
+        if (options.owner !== data[0].id) {
+            options.owner = data[0].id;
+            fnFetch();
+        }
     });
+    $scope.$watch('options', function(nv) {
+        $scope.fetch();
+    }, true);
     $scope.fetch = fnFetch;
     $scope.options = options;
 }]);

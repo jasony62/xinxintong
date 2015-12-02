@@ -22,7 +22,7 @@ class base extends \member_base {
 	/**
 	 * 检查进入活动规则
 	 */
-	protected function checkEntryRule($mpid, $act, $user) {
+	protected function checkEntryRule($mpid, $act, $user, $redirect = false) {
 		if (!$this->getClientSrc() && empty($user->openid)) {
 			/**
 			 * 非易信、微信公众号打开，无法获得openid
@@ -69,7 +69,7 @@ class base extends \member_base {
 			break;
 		case '$authapi_auth':
 			$actAuthapis = explode(',', $act->authapis);
-			$this->gotoAuth($mpid, $actAuthapis, $user->openid, false);
+			$this->gotoAuth($mpid, $actAuthapis, $user->openid, $redirect ? null : false);
 			break;
 		case '$mp_follow':
 			$this->askFollow($mpid, $user->openid);

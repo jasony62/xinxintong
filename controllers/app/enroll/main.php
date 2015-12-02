@@ -53,13 +53,16 @@ class main extends base {
 		}
 		/**获得当前访问用户*/
 		$this->doAuth($mpid, $code, $mocker);
-
 		/**当前访问用户的基本信息 */
-		$user = $this->getUser($mpid);
+		$user = $this->getUser($mpid, array(
+			'authapis' => $app->authapis,
+			'matter' => $app,
+			'verbose' => array('member' => 'Y', 'fan' => 'Y'),
+		));
 		/*打开页面*/
 		$oPage = null;
 		$hasEnrolled = $modelApp->hasEnrolled($mpid, $aid, $user->openid);
-		empty($page) && $page = $this->_defaultPage($mpid, $app, $user, $hasEnrolled);
+		empty($page) && $page = $this->_defaultPage($mpid, $app, $user, $hasEnrolled, true);
 		foreach ($app->pages as $p) {
 			if ($p->name === $page) {
 				$oPage = $p;
@@ -101,11 +104,11 @@ class main extends base {
 	/**
 	 * 当前用户的缺省页面
 	 */
-	private function _defaultPage($mpid, $app, $user, $hasEnrolled = false) {
+	private function _defaultPage($mpid, $app, $user, $hasEnrolled = false, $redirect = false) {
 		if ($hasEnrolled && !empty($app->enrolled_entry_page)) {
 			$page = $app->enrolled_entry_page;
 		} else {
-			$page = $this->checkEntryRule($mpid, $app, $user);
+			$page = $this->checkEntryRule($mpid, $app, $user, $redirect);
 		}
 		return $page;
 	}

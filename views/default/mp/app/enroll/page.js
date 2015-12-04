@@ -294,70 +294,58 @@
     };
     WrapLib.prototype.embedRecord = function(page, def) {
         if (def.schema === undefined) return;
-        var i, s, c, html;
+        var c, htmls, _this;
+        _this = this;
+        htmls = [];
         c = 'form-group';
         def.inline && (c += ' wrap-inline');
         def.splitLine && (c += ' wrap-splitline');
-        for (i in def.schema) {
-            s = def.schema[i];
-            if (!s.checked) continue;
-            switch (s.type) {
-                case 'input':
-                    this.addWrap(page, 'div', {
-                        wrap: 'static',
-                        class: c
-                    }, '<label>' + s.title + '</label><div>{{Record.current.data.' + s.id + '}}</div>');
-                    break;
-                case 'radio':
-                case 'checkbox':
-                case 'option':
-                    this.addWrap(page, 'div', {
-                        wrap: 'static',
-                        class: c
-                    }, '<label>' + s.title + '</label><div>{{Record.current.data.' + s.id + '|value2Label:"' + s.id + '"}}</div>');
-                    break;
-                case 'img':
-                    this.addWrap(page, 'div', {
-                        wrap: 'static',
-                        class: c
-                    }, '<label>' + s.title + '</label><ul><li ng-repeat="img in Record.current.data.' + s.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul>');
-                    break;
+        angular.forEach(def.schema, function(s) {
+            if (s.checked) {
+                switch (s.type) {
+                    case 'input':
+                        html = '<label>' + s.title + '</label><div>{{Record.current.data.' + s.id + '}}</div>';
+                        break;
+                    case 'radio':
+                    case 'checkbox':
+                    case 'option':
+                        hmtl = '<label>' + s.title + '</label><div>{{Record.current.data.' + s.id + '|value2Label:"' + s.id + '"}}</div>';
+                        break;
+                    case 'img':
+                        html = '<label>' + s.title + '</label><ul><li ng-repeat="img in Record.current.data.' + s.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul>';
+                        break;
+                }
+                htmls.push(html);
             }
-        }
+        });
         if (def.addEnrollAt) {
-            html = "<label>登记时间</label><div>{{Record.current.enroll_at*1000|date:'yyyy-MM-dd HH:mm'}}</div>";
-            this.addWrap(page, 'div', {
-                wrap: 'static',
-                class: c
-            }, html);
+            html = "<label>登记时间</label><div>{{Record.current.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>";
+            htmls.push(html);
         }
         if (def.addNickname) {
             html = "<label>昵称</label><div>{{Record.current.enroller.nickname}}</div>";
-            this.addWrap(page, 'div', {
-                wrap: 'static',
-                class: c
-            }, html);
+            htmls.push(html);
         }
         if (def.addHeadpic) {
             html = "<label>头像</label><div><img ng-src='{{Record.current.enroller.fan.headimgurl}}'></div>";
-            this.addWrap(page, 'div', {
+            htmls.push(html);
+        }
+        angular.forEach(htmls, function(h) {
+            _this.addWrap(page, 'div', {
+                'ng-controller': 'ctrlRecord',
                 wrap: 'static',
                 class: c
-            }, html);
-        }
+            }, h);
+        });
     };
     WrapLib.prototype.embedList = function(page, def) {
-        var dataApi, dataApi2, autoload, onclick, html;
-        dataApi = "Record.nextPage(\\'" + def.dataScope + "\\')";
-        dataApi2 = "Record.nextPage('" + def.dataScope + "')";
-        def.autoload === 'Y' && (autoload = 'infinite-scroll="' + dataApi2 + '" infinite-scroll-disabled="Record.busy" infinite-scroll-distance="1"');
+        var onclick, html;
         onclick = def.onclick.length ? " ng-click=\"gotoPage($event,'" + def.onclick + "',r.enroll_key)\"" : '';
-        html = '<ul class="list-group" tms-exec="onReady(\'' + dataApi + '\')"';
-        def.autoload === 'Y' && (html += autoload);
-        html += '>';
-        html += '<li class="list-group-item" ng-repeat="r in Record.list"' + onclick + '>';
+        html = '<ul class="list-group">';
+        console.log('hhh', html);
+        html += '<li class="list-group-item" ng-repeat="r in records"' + onclick + '>';
         if (def.addEnrollAt)
-            html += "<div wrap='static' class='wrap-inline'><label>登记时间</label><div>{{r.enroll_at*1000|date:'yyyy-MM-dd HH:mm'}}</div></div>";
+            html += "<div wrap='static' class='wrap-inline'><label>登记时间</label><div>{{r.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div></div>";
         if (def.addNickname)
             html += "<div wrap='static' class='wrap-inline'><label>昵称</label><div>{{r.nickname}}</div></div>";
         if (def.addHeadpic)
@@ -387,14 +375,19 @@
         }
         html += "</li></ul>";
         this.addWrap(page, 'div', {
-            wrap: 'list'
+            'ng-controller': 'ctrlRecords',
+            'enroll-records': 'Y',
+            'enroll-records-owner': def.dataScope,
+            wrap: 'list',
+            class: 'form-group'
         }, html);
     };
     WrapLib.prototype.embedRounds = function(page, def) {
         var onclick, html;
         onclick = def.onclick.length ? " ng-click=\"gotoPage($event,'" + def.onclick + "',null,r.rid)\"" : '';
-        html = "<ul class='list-group' tms-exec='Round.nextPage()'><li class='list-group-item' ng-repeat='r in Round.list'" + onclick + "><div>{{r.title}}</div></li></ul>";
+        html = "<ul class='list-group'><li class='list-group-item' ng-repeat='r in rounds'" + onclick + "><div>{{r.title}}</div></li></ul>";
         this.addWrap(page, 'div', {
+            'ng-controller': 'ctrlRounds',
             wrap: 'list',
             class: 'form-group'
         }, html);
@@ -502,7 +495,7 @@
                 return 'btnAcceptInvite_' + def.next;
             },
             act: function(def) {
-                return 'acceptInvite' + EmbedButtonSchema._args(def);
+                return 'accept' + EmbedButtonSchema._args(def);
             }
         },
         gotoPage: {
@@ -531,21 +524,33 @@
         }
     };
     WrapLib.prototype.embedButton = function(page, def) {
-        var attrs = {
-                wrap: 'button',
-                class: 'form-group'
-            },
-            tmplBtn = function(id, action, label) {
-                return '<button id="' + id + '" class="btn btn-primary btn-block btn-lg" ng-click="' + action + '"><span>' + label + '</span></button>';
-            },
-            schema, id, action;
-
+        var attrs, tmplBtn, schema, id, action;
+        attrs = {
+            wrap: 'button',
+            class: 'form-group'
+        };
+        tmplBtn = function(id, action, label) {
+            return '<button id="' + id + '" class="btn btn-primary btn-block btn-lg" ng-click="' + action + '"><span>' + label + '</span></button>';
+        };
         if (schema = EmbedButtonSchema[def.type]) {
             id = schema.id;
             angular.isFunction(id) && (id = id(def));
             action = schema.act;
             angular.isFunction(action) && (action = action(def));
+            if (def.type === 'acceptInvite') {
+                attrs['ng-controller'] = 'ctrlInvite';
+            }
             this.addWrap(page, 'div', attrs, tmplBtn(id, action, def.label));
+        } else if (def.type === 'sendInvite') {
+            var html = '<input type="text" class="form-control" placeholder="认证用户标识" ng-model="invitee">';
+            html += '<span class="input-group-btn">';
+            html += '<button class="btn btn-success" type="button" ng-click="send($event)"><span>邀请</span></button>';
+            html += '</span>';
+            this.addWrap(page, 'div', {
+                'ng-controller': 'ctrlInvite',
+                wrap: 'button',
+                class: 'form-group input-group input-group-lg'
+            }, html);
         } else if (def.type === 'remarkRecord') {
             var html = '<input type="text" class="form-control" placeholder="评论" ng-model="newRemark">';
             html += '<span class="input-group-btn">';
@@ -721,6 +726,9 @@
                 },
                 editRecord: {
                     l: '修改登记'
+                },
+                sendInvite: {
+                    l: '发出邀请'
                 },
                 acceptInvite: {
                     l: '接受邀请'

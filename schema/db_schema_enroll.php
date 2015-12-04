@@ -130,7 +130,7 @@ $sql .= ',mid varchar(32)';
 $sql .= ',score int not null default 0'; // 点赞数
 $sql .= ",remark_num int not null default 0"; // 评论数
 $sql .= ",follower_num int not null default 0"; // 接收邀请的下家
-$sql .= ',state tinyint not null default 1'; //0:remove,1:normal
+$sql .= ',state tinyint not null default 1'; //0:remove,1:normal,2:as invite log
 $sql .= ",referrer text"; //
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
@@ -181,13 +181,14 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 活动报名自定义信息
+ * 自定义信息
  */
 $sql = 'create table if not exists xxt_enroll_record_data(';
 $sql .= 'aid varchar(40) not null';
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ',name varchar(40) not null';
 $sql .= ',value text';
+$sql .= ',state tinyint not null default 1'; //0:remove,1:normal
 $sql .= ',primary key(aid,enroll_key,name)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

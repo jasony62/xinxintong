@@ -238,36 +238,74 @@ class record extends base {
 		return new \ResponseData($rsp);
 	}
 	/**
-	 * 记录参加登记活动的用户之间的邀请关系
+	 * 发出邀请
 	 *
+	 * @param string $mpid
+	 * @param string $aid
+	 * @param string $invitee
+	 * @param string $page
+	 */
+	public function inviteSend_action($mpid, $aid, $ek, $invitee, $page = '') {
+		/*获得被邀请人的信息*/
+		$options = array('fields' => 'openid');
+		$members = $this->model('user/member')->search($mpid, $invitee, $options);
+		if (empty($members)) {
+			return new \ResponseError("指定的用户不存在");
+		}
+		$openid = $members[0]->openid;
+
+		/*给邀请人发消息*/
+		$message = \TMS_APP::M('matter\enroll')->forCustomPush($mpid, $aid);
+		$url = $message['news']['articles'][0]['url'];
+		$url .= "&ek=$ek";
+		!empty($page) && $url .= "&page=$page";
+		$message['news']['articles'][0]['url'] = $url;
+		$rst = $this->sendByOpenid($mpid, $openid, $message);
+		if ($rst[0] === false) {
+			return new \ResponseError($rst[1]);
+		}
+
+		return new \ResponseData($members);
+	}
+	/**
+	 * 记录参加登记活动的用户之间的邀请关系
 	 * 邀请必须依赖于某条已经存在的登记记录
 	 *
 	 * $param inviter enroll_key
 	 */
-	public function acceptInvite_action($mpid, $aid, $inviter) {
+	public function acceptInvite_action($mpid, $aid, $inviter, $state = '1') {
 		$model = $this->model('app\enroll');
-		if (false === ($act = $model->byId($aid))) {
+		if (false === ($app = $model->byId($aid))) {
 			return new \ParameterError("指定的活动（$aid）不存在");
 		}
-		/**
-		 * 当前访问用户的基本信息
-		 */
+		/* 当前访问用户的基本信息 */
 		$user = $this->getUser($mpid,
 			array(
-				'authapis' => $act->authapis,
-				'matter' => $act,
+				'authapis' => $app->authapis,
+				'matter' => $app,
 				'verbose' => array('member' => 'Y', 'fan' => 'Y'),
 			)
 		);
 		/* 如果已经有登记记录则不登记 */
 		$modelRec = $this->model('app\enroll\record');
-		$ek = $modelRec->getLastKey($mpid, $aid, $user->openid);
-		/* 创建登记记录*/
-		if (empty($ek)) {
-			$ek = $modelRec->add($mpid, $act, $user, 'ek:' . $inviter);
-			/**
-			 * 处理提交数据
-			 */
+		if ($state === '1') {
+			$ek = $modelRec->getLastKey($mpid, $aid, $user->openid);
+			if (!empty($ek)) {
+				$rsp = new \stdClass;
+				$rsp->ek = $ek;
+				return new \ResponseData($rsp);
+			}
+		} else {
+			$ek = $modelRec->hasAcceptedInvite($aid, $user->openid, $inviter);
+		}
+		if (false === $ek) {
+			/* 创建登记记录*/
+			$ek = $modelRec->add($mpid, $app, $user, 'ek:' . $inviter);
+			if ($state !== '1') {
+				/*不作为独立的记录，只是接收邀请的日志*/
+				$modelRec->modify($ek, array('state' => 2));
+			}
+			/** 处理提交数据 */
 			$data = $_GET;
 			unset($data['mpid']);
 			unset($data['aid']);
@@ -341,20 +379,18 @@ class record extends base {
 				$record->remarks = $modelRec->remarks($openedek);
 			}
 			/*获得关联抽奖活动记录*/
-			if ($app->can_lottery === 'Y') {
-				$ql = array(
-					'award_title',
-					'xxt_lottery_log',
-					"enroll_key='$openedek'",
-				);
-				$lotteryResult = $this->model()->query_objs_ss($ql);
-				if (!empty($lotteryResult)) {
-					$lrs = array();
-					foreach ($lotteryResult as $lr) {
-						$lrs[] = $lr->award_title;
-					}
-					$record->data['lotteryResult'] = implode(',', $lrs);
+			$ql = array(
+				'award_title',
+				'xxt_lottery_log',
+				"enroll_key='$openedek'",
+			);
+			$lotteryResult = $this->model()->query_objs_ss($ql);
+			if (!empty($lotteryResult)) {
+				$lrs = array();
+				foreach ($lotteryResult as $lr) {
+					$lrs[] = $lr->award_title;
 				}
+				$record->data['lotteryResult'] = implode(',', $lrs);
 			}
 		}
 

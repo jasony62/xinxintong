@@ -238,6 +238,22 @@ class record_model extends \TMS_MODEL {
 		return $last ? $last->enroll_key : false;
 	}
 	/**
+	 *
+	 */
+	public function hasAcceptedInvite($aid, $openid, $ek) {
+		$q = array(
+			'enroll_key',
+			'xxt_enroll_record',
+			"aid='$aid' and openid='$openid' and referrer='ek:$ek'",
+		);
+		$records = $this->query_objs_ss($q);
+		if (empty($records)) {
+			return false;
+		} else {
+			return $records[0]->enroll_key;
+		}
+	}
+	/**
 	 * 获得一条登记记录的数据
 	 */
 	public function dataById($ek) {
@@ -410,21 +426,45 @@ class record_model extends \TMS_MODEL {
 		return $ek;
 	}
 	/**
-	 * 清除一条活动报名名单
+	 *
 	 */
-	public function remove($aid, $key) {
+	public function modify($ek, $data) {
+		$rst = $this->update(
+			'xxt_enroll_record',
+			$data,
+			"enroll_key='$ek'"
+		);
+		return $rst;
+	}
+	/**
+	 * 清除一条登记记录
+	 * @param string $aid
+	 * @param string $ek
+	 */
+	public function remove($aid, $ek) {
+		$rst = $this->update(
+			'xxt_enroll_record_data',
+			array('state' => 0),
+			"aid='$aid' and enroll_key='$ek'"
+		);
 		$rst = $this->update(
 			'xxt_enroll_record',
 			array('state' => 0),
-			"aid='$aid' and enroll_key='$key'"
+			"aid='$aid' and enroll_key='$ek'"
 		);
 
 		return $rst;
 	}
 	/**
-	 * 清除活动报名名单
+	 * 清除登记记录
+	 * @param string $aid
 	 */
 	public function clean($aid) {
+		$rst = $this->update(
+			'xxt_enroll_record_data',
+			array('state' => 0),
+			"aid='$aid'"
+		);
 		$rst = $this->update(
 			'xxt_enroll_record',
 			array('state' => 0),

@@ -1,18 +1,12 @@
 app.factory('Round', ['$http', '$q', function($http, $q) {
-    var Round = function(mpid, aid, current) {
-        this.mpid = mpid;
-        this.aid = aid;
-        this.current = current;
-        this.list = [];
-    };
-    Round.prototype.list2 = function() {
+    var Round, _ins;
+    Round = function() {};
+    Round.prototype.list = function() {
         var _this, deferred, promise, url;
         _this = this;
         deferred = $q.defer();
         promise = deferred.promise;
-        url = '/rest/app/enroll/round/list';
-        url += '?mpid=' + _this.mpid;
-        url += '&aid=' + _this.aid;
+        url = LS.j('round/list', 'mpid', 'aid');
         $http.get(url).success(function(rsp) {
             if (rsp.err_code != 0) {
                 alert(rsp.data);
@@ -22,26 +16,17 @@ app.factory('Round', ['$http', '$q', function($http, $q) {
         });
         return promise;
     };
-    Round.prototype.nextPage = function() {
-        var _this = this,
-            url;
-        url = '/rest/app/enroll/round/list';
-        url += '?mpid=' + _this.mpid;
-        url += '&aid=' + _this.aid;
-        $http.get(url).success(function(rsp) {
-            if (rsp.err_code != 0) {
-                alert(rsp.data);
-                return;
-            }
-            _this.list = rsp.data;
-        });
+    return {
+        ins: function() {
+            _ins = _ins ? _ins : new Round();
+            return _ins;
+        }
     };
-    return Round;
 }]);
 app.controller('ctrlRounds', ['$scope', 'Round', function($scope, Round) {
     var facRound, onDataReadyCallbacks;
-    facRound = new Round(LS.p.mpid, LS.p.aid);
-    facRound.list2().then(function(rounds) {
+    facRound = Round.ins();
+    facRound.list().then(function(rounds) {
         $scope.rounds = rounds;
         angular.forEach(onDataReadyCallbacks, function(cb) {
             cb(rounds);
@@ -351,8 +336,8 @@ app.controller('ctrlRecords', ['$scope', 'Record', function($scope, Record) {
     $scope.$watch('options', function(nv) {
         $scope.fetch();
     }, true);
-    $scope.fetch = fnFetch;
     $scope.options = options;
+    $scope.fetch = fnFetch;
 }]);
 app.controller('ctrlRecord', ['$scope', 'Record', function($scope, Record) {
     var facRecord;
@@ -361,6 +346,57 @@ app.controller('ctrlRecord', ['$scope', 'Record', function($scope, Record) {
         if (page === undefined && (first = PG.firstInput($scope.params.app.pages)))
             page = first.name;
         page ? $scope.gotoPage(event, page, $scope.Record.current.enroll_key) : alert('当前活动没有包含数据登记页');
+    };
+    facRecord = Record.ins(LS.p.mpid, LS.p.aid);
+    facRecord.get(LS.p.ek);
+    $scope.Record = facRecord;
+}]);
+app.controller('ctrlInvite', ['$scope', '$http', 'Record', function($scope, $http, Record) {
+    var facRecord;
+    $scope.options = {
+        genRecordWhenAccept: 'Y'
+    };
+    $scope.invitee = '';
+    $scope.send = function(event, nextAction) {
+        event.preventDefault();
+        event.stopPropagation();
+        var url;
+        url = LS.j('record/inviteSend', 'mpid', 'aid');
+        url += '&ek=' + $scope.Record.current.enroll_key;
+        url += '&invitee=' + $scope.invitee;
+        url += '&page=' + nextAction;
+        $http.get(url).success(function(rsp) {
+            if (rsp.err_code != 0) {
+                alert(rsp.err_msg);
+            } else {
+                alert('ok');
+            }
+        });
+    };
+    $scope.accept = function(event, nextAction) {
+        var inviter, url;
+        if (!$scope.Record.current) {
+            alert('未进行登记，无效的邀请');
+            return;
+        }
+        if ($scope.Record.current.openid === $scope.User.fan.openid) {
+            alert('不能自己邀请自己');
+            return;
+        }
+        inviter = $scope.Record.current.enroll_key;
+        url = LS.j('record/acceptInvite', 'mpid', 'aid');
+        url += '&inviter=' + inviter;
+        $scope.options.genRecordWhenAccept === 'N' && (url += '&state=2');
+        $http.get(url).success(function(rsp) {
+            if (nextAction === 'closeWindow') {
+                $scope.closeWindow();
+            } else if (nextAction !== undefined && nextAction.length) {
+                var url = LS('', 'mpid', 'aid');
+                url += '&ek=' + rsp.data.ek;
+                url += '&page=' + nextAction;
+                location.replace(url);
+            }
+        });
     };
     facRecord = Record.ins(LS.p.mpid, LS.p.aid);
     facRecord.get(LS.p.ek);
@@ -375,30 +411,6 @@ app.controller('ctrlView', ['$scope', '$http', '$timeout', '$q', 'Round', 'Recor
         if ($scope.Record.remark(event, $scope.newRemark))
             $scope.newRemark = '';
     };
-    $scope.acceptInvite = function(event, nextAction) {
-        var inviter, url;
-        if (!$scope.Record.current) {
-            alert('未进行登记，无效的邀请');
-            return;
-        }
-        if ($scope.Record.current.openid === $scope.User.fan.openid) {
-            alert('不能自己邀请自己');
-            return;
-        }
-        inviter = $scope.Record.current.enroll_key;
-        url = LS.j('record/acceptInvite', 'mpid', 'aid');
-        url += '&inviter=' + inviter;
-        $http.get(url).success(function(rsp) {
-            if (nextAction === 'closeWindow') {
-                $scope.closeWindow();
-            } else if (nextAction !== undefined && nextAction.length) {
-                var url = LS('', 'mpid', 'aid');
-                url += '&ek=' + rsp.data.ek;
-                url += '&page=' + nextAction;
-                location.replace(url);
-            }
-        });
-    };
     $scope.$on('xxt.app.enroll.filter.owner', function(event, data) {
         if (event.targetScope !== $scope) {
             $scope.$broadcast('xxt.app.enroll.filter.owner', data);
@@ -412,7 +424,6 @@ app.filter('value2Label', ['Schema', function(Schema) {
     });
     return function(val, key) {
         var i, j, s, aVal, aLab = [];
-        console.log('xxxx', val);
         if (val === undefined) return '';
         //if (!schemas) return '';
         for (i = 0, j = schemas.length; i < j; i++) {

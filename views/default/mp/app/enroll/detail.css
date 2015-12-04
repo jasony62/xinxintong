@@ -1,10 +1,11 @@
 .qrcode .popover img{width:150px;height:150px}
 .modal.mattersgallery .modal-dialog .modal-content .modal-body{overflow:auto}
-.roll-editor img{max-width:100%}
 .list-group-item.slim{padding-top:0;padding-bottom:7px}
-.editor{position:relative}
+
+/*pages*/
+.editor{position:relative;float:left;width:574px;}
 .editor .mce-tinymce{margin-right:44px!important}
-.editor .sidebar{width:44px;background:transparent;position:absolute;top:34px;right:15px}
+.editor .sidebar{width:44px;background:transparent;position:absolute;top:34px;right:0}
 .editor .sidebar button{color:black;border-radius:0;margin-bottom:-1px}
 .editor .sidebar button:disabled{color:gray}
 
@@ -15,3 +16,4 @@
 #records .table th.custom-col{width:140px;}
 #records .table a{word-break:break-all;}
 #records .record td img{max-width:64px;max-height:64px}
+.record-editor img{max-width:100%}

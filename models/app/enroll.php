@@ -237,15 +237,14 @@ class enroll_model extends \matter\enroll_model {
 	 *
 	 */
 	public function getStat($aid) {
-		/**
-		 * 获得活动的定义
-		 */
-		$q = array(
-			'p.html form_html',
-			'xxt_enroll a,xxt_code_page p',
-			"a.id='$aid' and a.form_code_id=p.id",
-		);
-		$act = $this->query_obj_ss($q);
+		$modelPage = \TMS_APP::M('app\enroll\page');
+		$pages = $modelPage->byApp($aid);
+		foreach ($pages as $page) {
+			if ($page->type === 'I') {
+				$html = $page->html;
+				break;
+			}
+		}
 		// 记录返回的结果
 		$defsAndCnt = array();
 		/**
@@ -255,9 +254,9 @@ class enroll_model extends \matter\enroll_model {
 		 * 定义数据项都是input，所以首先应该将页面中所有input元素提取出来
 		 * 每一个元素中都有ng-model和title属相，ng-model包含了id，title是名称
 		 */
-		if (!empty($act->form_html)) {
+		if (!empty($html)) {
 			$wraps = array();
-			if (preg_match_all("/<div.+?wrap=.+?>.+?<\/div/i", $act->form_html, $wraps)) {
+			if (preg_match_all("/<div.+?wrap=.+?>.+?<\/div/i", $html, $wraps)) {
 				$wraps = $wraps[0];
 				foreach ($wraps as $wrap) {
 					$def = array();
@@ -308,7 +307,7 @@ class enroll_model extends \matter\enroll_model {
 						$q = array(
 							'count(*)',
 							'xxt_enroll_record_data',
-							"name='$id' and value='{$op['v']}'",
+							"aid='$aid' and state=1 and name='$id' and value='{$op['v']}'",
 						);
 						$op['c'] = $this->query_val_ss($q);
 
@@ -343,7 +342,7 @@ class enroll_model extends \matter\enroll_model {
 						$q = array(
 							'count(*)',
 							'xxt_enroll_record_data',
-							"name='$id' and FIND_IN_SET('$opval', value)",
+							"aid='$aid' and state=1 and name='$id' and FIND_IN_SET('$opval', value)",
 						);
 						$op['c'] = $this->query_val_ss($q);
 						//

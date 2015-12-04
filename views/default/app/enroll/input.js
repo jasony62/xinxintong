@@ -45,18 +45,6 @@ app.factory('Input', function($http, $q, $timeout) {
         }
         return true;
     };
-    var openPickImageFrom = function() {
-        var st, ch, cw, $dlg;
-        st = (document.body && document.body.scrollTop) ? document.body.scrollTop : document.documentElement.scrollTop;
-        ch = document.documentElement.clientHeight;
-        cw = document.documentElement.clientWidth;
-        $dlg = $('#pickImageFrom');
-        $dlg.css({
-            'display': 'block',
-            'top': (st + (ch - $dlg.height() - 30) / 2) + 'px',
-            'left': ((cw - $dlg.width() - 30) / 2) + 'px'
-        });
-    };
     var r = new Resumable({
         target: '/rest/app/enroll/record/uploadFile?mpid=' + LS.p.mpid + '&aid=' + LS.p.aid,
         testChunks: false,
@@ -201,7 +189,7 @@ app.controller('ctrlInput', ['$scope', '$http', '$timeout', '$q', 'Input', 'Reco
         member: {}
     };
     $scope.$on('xxt.app.enroll.ready', function() {
-        if (LS.p.ek.length || (LS.p.newRecord !== 'Y' && $scope.App.open_lastroll)) {
+        if (LS.p.ek.length || (LS.p.newRecord !== 'Y' && $scope.App.open_lastroll === 'Y')) {
             facRecord = Record.ins();
             facRecord.get(LS.p.ek).then(function(record) {
                 var p, type, dataOfRecord, value;

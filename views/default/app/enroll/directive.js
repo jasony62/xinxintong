@@ -144,7 +144,6 @@ app.directive('enrollRecords', function() {
             if (attrs.enrollRecordsOwner && attrs.enrollRecordsOwner.length) {
                 scope.options.owner = attrs.enrollRecordsOwner;
             }
-            scope.fetch();
         }
     }
 });

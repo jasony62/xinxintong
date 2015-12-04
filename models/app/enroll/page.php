@@ -5,7 +5,7 @@ class page_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function byId($aid, $apid) {
+	public function &byId($aid, $apid) {
 		$select = 'ap.*,cp.html,cp.css,cp.js';
 		$from = 'xxt_enroll_page ap,xxt_code_page cp';
 		$where = "ap.aid='$aid' and ap.id=$apid and ap.code_id=cp.id";
@@ -22,6 +22,28 @@ class page_model extends \TMS_MODEL {
 		$ep->ext_css = $code->ext_css;
 
 		return $ep;
+	}
+	/**
+	 *
+	 */
+	public function byName($aid, $name) {
+		$select = 'ep.*,cp.html,cp.css,cp.js';
+		$from = 'xxt_enroll_page ep,xxt_code_page cp';
+		$where = "ep.aid='$aid' and ep.name='$name' and ep.code_id=cp.id";
+
+		$q = array($select, $from, $where);
+
+		if ($ep = $this->query_obj_ss($q)) {
+			$code = \TMS_APP::model('code/page')->byId($ep->code_id);
+			$ep->html = $code->html;
+			$ep->css = $code->css;
+			$ep->js = $code->js;
+			$ep->ext_js = $code->ext_js;
+			$ep->ext_css = $code->ext_css;
+			return $ep;
+		} else {
+			return false;
+		}
 	}
 	/**
 	 * 返回指定登记活动的页面

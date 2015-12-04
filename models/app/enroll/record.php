@@ -65,7 +65,7 @@ class record_model extends \TMS_MODEL {
 		}
 		$modelApp = $this->M('app\enroll');
 		/* 获得活动的定义 */
-		$act = $modelApp->byId($aid);
+		$app = $modelApp->byId($aid);
 		$result = new \stdClass; // 返回的结果
 		$result->total = 0;
 		/* 获得数据项定义 */
@@ -103,7 +103,7 @@ class record_model extends \TMS_MODEL {
 				$w .= "and concat(',',e.tags,',') like '%,$tag,%'";
 			}
 		}
-		if ($act->access_control === 'Y') {
+		if ($app->access_control === 'Y') {
 			$q = array(
 				'e.enroll_key,e.enroll_at,e.signin_at,e.tags,e.follower_num,e.score,e.remark_num,e.nickname,e.openid,m.mid,m.name,m.mobile,m.email',
 				"xxt_enroll_record e left join xxt_member m on m.forbidden='N' and e.mid=m.mid",
@@ -148,13 +148,25 @@ class record_model extends \TMS_MODEL {
 					$r->data->{$cd->name} = $cd->value;
 				}
 				/*获得签到记录*/
-				$qs = array(
-					'signin_at',
-					'xxt_enroll_signin_log',
-					"enroll_key='$r->enroll_key'",
-				);
-				$qs2 = array('o' => 'signin_at desc');
-				$r->signinLogs = $this->query_objs_ss($qs, $qs2);
+				if ($app->can_signin === 'Y') {
+					$qs = array(
+						'signin_at',
+						'xxt_enroll_signin_log',
+						"enroll_key='$r->enroll_key'",
+					);
+					$qs2 = array('o' => 'signin_at desc');
+					$r->signinLogs = $this->query_objs_ss($qs, $qs2);
+				}
+				/*获得邀请数据*/
+				if ($app->can_invite === 'Y') {
+					$qf = array(
+						'id,enroll_key,enroll_at,openid,nickname',
+						'xxt_enroll_record',
+						"aid='$aid' and referrer='ek:$r->enroll_key'",
+					);
+					$qf2 = array('o' => 'enroll_at');
+					$r->followers = $this->query_objs_ss($qf, $qf2);
+				}
 				/*获得关联抽奖活动记录*/
 				$ql = array(
 					'award_title',

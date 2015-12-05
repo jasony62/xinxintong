@@ -84,7 +84,7 @@ class page_model extends \TMS_MODEL {
 			return $defs;
 		}
 
-		if (preg_match_all('/<(div|li|option).+?wrap=.+?>.+?<\/(div|li|option)/i', $html, $wraps)) {
+		if (preg_match_all('/<(div|li|option).+?wrap=.+?>.*?<\/(div|li|option)/i', $html, $wraps)) {
 			$wraps = $wraps[0];
 			foreach ($wraps as $wrap) {
 				$def = array();
@@ -93,7 +93,7 @@ class page_model extends \TMS_MODEL {
 				$ngmodel = array();
 				$opval = array();
 				$optit = array();
-				if (!preg_match('/<input.+?>/', $wrap, $inp) && !preg_match('/<option.+?>/', $wrap, $inp) && !preg_match('/<textarea.+?>/', $wrap, $inp) && !preg_match('/wrap="img".+?>/', $wrap, $inp) && !preg_match('/wrap="file".+?>/', $wrap, $inp)) {
+				if (!preg_match('/<input.+?>/', $wrap, $inp) && !preg_match('/<option.+?>/', $wrap, $inp) && !preg_match('/<textarea.+?>/', $wrap, $inp) && !preg_match('/wrap="datetime".+?>/', $wrap, $inp) && !preg_match('/wrap="img".+?>/', $wrap, $inp) && !preg_match('/wrap="file".+?>/', $wrap, $inp)) {
 					continue;
 				}
 
@@ -171,25 +171,19 @@ class page_model extends \TMS_MODEL {
 					}
 					$d['ops'][] = $op;
 				} else if (preg_match('/type="checkbox"/', $inp)) {
-					/**
-					 * for checkbox group.
-					 */
 					if (preg_match('/ng-model="data\.(.+?)\.(.+?)"/', $inp, $ngmodel)) {
 						$id = $ngmodel[1];
 						$opval = $ngmodel[2];
 					}
-
 					if (empty($id) || !isset($opval)) {
 						continue;
 					}
-
 					$existing = false;
 					foreach ($defs as &$d) {
 						if ($existing = ($d['id'] === $id)) {
 							break;
 						}
 					}
-
 					if (!$existing) {
 						$defs[] = array('title' => $title, 'id' => $id, 'ops' => array());
 						$d = &$defs[count($defs) - 1];
@@ -208,6 +202,9 @@ class page_model extends \TMS_MODEL {
 				} else if (preg_match('/ng-repeat="file in data\.(.+?)"/', $inp, $ngrepeat)) {
 					$id = $ngrepeat[1];
 					$defs[] = array('title' => $title, 'id' => $id, 'type' => 'file');
+				} else if (preg_match('/ng-bind="data\.(.+?)\|/', $inp, $ngmodel)) {
+					$id = $ngmodel[1];
+					$defs[] = array('title' => $title, 'id' => $id, 'type' => 'datetime');
 				} else {
 					/**
 					 * for text input/textarea.

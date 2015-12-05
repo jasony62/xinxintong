@@ -302,8 +302,8 @@ class record_model extends \TMS_MODEL {
 		return $remarks;
 	}
 	/*
-		 * 所有发表过评论的用户
-	*/
+	 * 所有发表过评论的用户
+	 */
 	public function &remarkers($ek) {
 		$q = array(
 			'distinct openid',
@@ -376,10 +376,13 @@ class record_model extends \TMS_MODEL {
 				}
 				$vv = json_encode($vv);
 			} else {
-				/**
-				 * 文本和选择题
-				 */
-				$vv = is_string($v) ? $this->escape($v) : implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
+				if (is_string($v)) {
+					$vv = $this->escape($v);
+				} else if (is_object($v) || is_array($v)) {
+					$vv = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
+				} else {
+					$vv = $v;
+				}
 			}
 			if (!empty($fields) && in_array($n, $fields)) {
 				$this->update(

@@ -23,7 +23,7 @@
         def.name = $label.html();
         def.showname = $label.hasClass('sr-only') ? 'placeholder' : 'label';
         $input = $(wrap).find('input,select');
-        model = $input.attr('ng-model');
+        model = $input.attr('ng-model') || $input.attr('ng-bind');
         def.key = model.split('.')[1];
         return def;
     };
@@ -79,7 +79,7 @@
         };
         var defs, i, schemas, schema, type, title, modelId;
         defs = {};
-        schemas = html.match(/<(div|li|option).+?wrap=(.+?)>.+?<\/(div|li|option)>/ig);
+        schemas = html.match(/<(div|li|option).+?wrap=(.+?)>.*?<\/(div|li|option)>/ig);
         for (i in schemas) {
             schema = schemas[i];
             type = schema.match(/wrap=\".+?\"/).pop().replace('wrap=', '').replace(/\"/g, '');
@@ -139,6 +139,17 @@
                         defs[modelId].op.push(extractSelectModelOp(schema));
                     }
                     break;
+                case 'datetime':
+                    title = schema.match(/title=\".*?\"/).pop().replace('title=', '').replace(/\"/g, '');
+                    if (modelId = schema.match(/ng-bind=\"data\.(.+?)\|/)) {
+                        modelId = modelId[1];
+                        defs[modelId] = {
+                            id: modelId,
+                            title: title,
+                            type: 'datetime'
+                        };
+                    }
+                    break;
                 case 'img':
                     title = schema.match(/title=\".*?\"/).pop().replace('title=', '').replace(/\"/g, '');
                     if (modelId = schema.match(/ng-repeat=\"img in data\.(.+?)\"/)) {
@@ -190,10 +201,10 @@
         };
         html += '<label' + (def.showname === 'label' ? '' : ' class="sr-only"') + '>' + def.name + '</label>';
         switch (def.type) {
-            case '0':
-            case '1':
-            case '2':
-            case '3':
+            case 'name':
+            case 'mobile':
+            case 'email':
+            case 'shorttext':
             case 'auth':
                 html += '<input type="text" ng-model="data.' + key + '" title="' + def.name + '"';
                 def.showname === 'placeholder' && (html += ' placeholder="' + def.name + '"');
@@ -201,7 +212,16 @@
                 def.type === 'auth' && (html += 'ng-init="data.member.authid=' + def.auth.authid + '"');
                 html += ' class="form-control">';
                 break;
-            case '4':
+            case 'datetime':
+                inpAttrs['tms-datetime'] = 'Y';
+                inpAttrs['tms-datetime-value'] = 'data.' + key;
+                html += '<div ng-bind="data.' + key + '|date:\'yy-MM-dd HH:mm\'"';
+                html += ' title="' + def.name + '"';
+                html += ' placeholder="' + def.name + '"';
+                def.required == 1 && (html += 'required=""');
+                html += ' class="form-control"></div>';
+                break;
+            case 'longtext':
                 html += '<textarea style="height:auto" ng-model="data.' + key + '" title="' + def.name + '"';
                 def.showname === 'placeholder' && (html += ' placeholder="' + def.name + '"');
                 def.required == 1 && (html += 'required=""');
@@ -276,7 +296,7 @@
                 html += '</li>';
                 html += '</ul>';
                 break;
-            case '8':
+            case 'location':
                 html += '<div class="input-group input-group-lg">';
                 html += '<input type="text" ng-model="data.' + key + '"';
                 html += ' title="' + def.name + '"';
@@ -540,7 +560,7 @@
             angular.isFunction(action) && (action = action(def));
             if (def.type === 'acceptInvite') {
                 attrs['ng-controller'] = 'ctrlInvite';
-            } else if (def.type === 'likeRecord') {
+            } else if (def.type === 'editRecord' || def.type === 'likeRecord') {
                 attrs['ng-controller'] = 'ctrlRecord';
             }
             this.addWrap(page, 'div', attrs, tmplBtn(id, action, def.label));

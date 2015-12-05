@@ -1,16 +1,88 @@
-app.directive('tmsExec', ['$rootScope', '$timeout', function($rootScope, $timeout) {
+var __util = {};
+__util.makeDialog = function(id, html) {
+    var dlg;
+    dlg = "<div class='dialog mask'><div class='dialog dlg'>";
+    html.header && html.header.length && (dlg += "<div class='dlg-header'>" + html.header + "</div>");
+    dlg += "<div class='dlg-body'>" + html.body + "</div>";
+    dlg += "<div class='dlg-footer'>" + html.footer + "</div>";
+    dlg += "</div></div>";
+    dlg = $(dlg).attr('id', id);
+    $('body').append(dlg);
+    return dlg.contents();
+};
+app.directive('tmsDatetime', ['$compile', function($compile) {
     return {
         restrict: 'A',
+        scope: {
+            value: '=tmsDatetimeValue'
+        },
+        controller: function($scope) {
+            $scope.close = function() {
+                $scope.opened = false;
+                $('#' + $scope.dialogID).remove();
+            };
+            $scope.ok = function() {
+                var dtObject;
+                dtObject = new Date();
+                dtObject.setTime(0);
+                dtObject.setFullYear($scope.data.year);
+                dtObject.setMonth($scope.data.month - 1);
+                dtObject.setDate($scope.data.date);
+                dtObject.setHours($scope.data.hour);
+                dtObject.setMinutes($scope.data.minute);
+                $scope.value = dtObject.getTime();
+                $scope.close();
+            };
+        },
         link: function(scope, elem, attrs) {
-            $timeout(function() {
-                if ($rootScope.$$phase) {
-                    return scope.$eval(attrs.tmsExec);
-                } else {
-                    return scope.$apply(attrs.tmsExec);
-                }
-            }, 0);
+            var fnOpenPicker, dtObject, dtMinute, htmlBody;
+            scope.value === undefined && (scope.value = new Date().getTime());
+            dtObject = new Date();
+            dtObject.setTime(scope.value);
+            scope.options = {
+                years: [2014, 2015, 2016, 2017],
+                months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                dates: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
+                hours: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+                minutes: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
+            };
+            dtMinute = Math.round(dtObject.getMinutes() / 5) * 5;
+            scope.data = {
+                year: dtObject.getFullYear(),
+                month: dtObject.getMonth() + 1,
+                date: dtObject.getDate(),
+                hour: dtObject.getHours(),
+                minute: dtMinute
+            };
+            scope.options.minutes.indexOf(dtMinute) === -1 && scope.options.minutes.push(dtMinute);
+            htmlBody = '<div class="form-inline form-group">';
+            htmlBody += '<div class="form-group" style="width:33.33%"><select style="width:100%" class="form-control" ng-model="data.year" ng-options="y for y in options.years"></select></div>';
+            htmlBody += '<div class="form-group" style="width:33.33%"><select style="width:100%" class="form-control" ng-model="data.month" ng-options="m for m in options.months"></select></div>';
+            htmlBody += '<div class="form-group" style="width:33.33%"><select style="width:100%" class="form-control" ng-model="data.date" ng-options="d for d in options.dates"></select></div>';
+            htmlBody += '</div>';
+            htmlBody += '<div class="form-inline form-group">';
+            htmlBody += '<div class="form-group" style="width:50%"><select style="width:100%" class="form-control" ng-model="data.hour" ng-options="h for h in options.hours"></select></div>';
+            htmlBody += '<div class="form-group" style="width:50%"><select style="width:100%" class="form-control" ng-model="data.minute" ng-options="mi for mi in options.minutes"></select></div>';
+            htmlBody += '</div>';
+            fnOpenPicker = function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                if (scope.opened) return;
+                var html, id;
+                id = '_dlg-' + (new Date()).getTime();
+                html = {
+                    header: '',
+                    body: htmlBody,
+                    footer: '<button class="btn btn-default" ng-click="close()">关闭</button><button class="btn btn-success" ng-click="ok()">确定</button>'
+                };
+                html = __util.makeDialog(id, html);
+                scope.opened = true;
+                scope.dialogID = id;
+                $compile(html)(scope);
+            };
+            $(elem).find('[ng-bind]').click(fnOpenPicker);
         }
-    };
+    }
 }]);
 app.directive('runningButton', function() {
     return {

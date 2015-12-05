@@ -94,16 +94,17 @@
                     <label class="col-md-2 control-label">类型</label>
                     <div class="col-md-10">
                         <select class='form-control' ng-model='def.type' ng-change="changeType()">
-                            <option value='0'>姓名</option>
-                            <option value='1'>手机</option>
-                            <option value='2'>邮箱</option>
-                            <option value='3'>短文本</option>
-                            <option value='4'>长文本</option>
+                            <option value='name'>姓名</option>
+                            <option value='mobile'>手机</option>
+                            <option value='email'>邮箱</option>
+                            <option value='datetime'>时间</option>
+                            <option value='shorttext'>短文本</option>
+                            <option value='longtext'>长文本</option>
                             <option value='5'>单选项</option>
                             <option value='6'>多选项</option>
                             <option value='7'>图片</option>
                             <option value='file'>文件上传</option>
-                            <option value='8'>位置</option>
+                            <option value='location'>位置</option>
                             <option value='auth'>用户认证信息</option>
                         </select>
                     </div>

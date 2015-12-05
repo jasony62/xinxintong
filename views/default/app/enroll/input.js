@@ -220,6 +220,8 @@ app.controller('ctrlInput', ['$scope', '$http', '$timeout', '$q', 'Input', 'Reco
                 }
                 /* 无论是否有登记记录都自动填写用户认证信息 */
                 PG.setMember($scope.params, $scope.data.member);
+                /**/
+                $scope.record = record;
             });
         }
     });
@@ -227,7 +229,7 @@ app.controller('ctrlInput', ['$scope', '$http', '$timeout', '$q', 'Input', 'Reco
         var ek, url, btnSubmit;
         btnSubmit = document.querySelector('#btnSubmit');
         btnSubmit && btnSubmit.setAttribute('disabled', true);
-        ek = record ? record.enroll_key : undefined;
+        ek = $scope.record ? $scope.record.enroll_key : undefined;
         facInput.submit($scope.data, ek, modifiedImgFields).then(function(rsp) {
             if (nextAction === 'closeWindow') {
                 $scope.closeWindow();
@@ -238,6 +240,11 @@ app.controller('ctrlInput', ['$scope', '$http', '$timeout', '$q', 'Input', 'Reco
                 location.replace(url);
             } else {
                 btnSubmit && btnSubmit.removeAttribute('disabled');
+                if (ek === undefined) {
+                    $scope.record = {
+                        enroll_key: rsp.data
+                    }
+                }
             }
         }, function(reason) {
             btnSubmit && btnSubmit.removeAttribute('disabled');

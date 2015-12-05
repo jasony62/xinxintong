@@ -3,7 +3,7 @@
 .list-group-item.slim{padding-top:0;padding-bottom:7px}
 
 /*pages*/
-.editor{position:relative;float:left;width:574px;}
+.editor{position:relative;float:left;width:572px;}
 .editor .mce-tinymce{margin-right:44px!important}
 .editor .sidebar{width:44px;background:transparent;position:absolute;top:34px;right:0}
 .editor .sidebar button{color:black;border-radius:0;margin-bottom:-1px}

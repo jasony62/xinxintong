@@ -412,83 +412,33 @@ class record extends base {
 	 * [2] 数据项的定义
 	 *
 	 */
-	public function list_action($mpid, $aid, $rid = '', $orderby = 'time', $openid = null, $page = 1, $size = 10) {
+	public function list_action($mpid, $aid, $owner = 'U', $rid = '', $orderby = 'time', $openid = null, $page = 1, $size = 30) {
 		$user = $this->getUser($mpid);
-
-		$options = array(
-			'creater' => $openid,
-			'visitor' => $user->openid,
-			'rid' => $rid,
-			'page' => $page,
-			'size' => $size,
-			'orderby' => $orderby,
-		);
+		switch ($owner) {
+		case 'U':
+			$options = array(
+				'creater' => $user->openid,
+				'visitor' => $user->openid,
+			);
+			break;
+		case 'I':
+			$options = array(
+				'inviter' => $user->openid,
+			);
+			break;
+		default:
+			$options = array(
+				'creater' => $openid,
+				'visitor' => $user->openid,
+			);
+			break;
+		}
+		$options['rid'] = $rid;
+		$options['page'] = $page;
+		$options['size'] = $size;
+		$options['orderby'] = $orderby;
 
 		$modelRec = $this->model('app\enroll\record');
-		$rst = $modelRec->find($mpid, $aid, $options);
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 * 列出当前访问用户所有的登记记录
-	 *
-	 * $mpid
-	 * $aid
-	 * $orderby
-	 * $page
-	 * $size
-	 *
-	 * return
-	 * [0] 数据列表
-	 * [1] 数据总条数
-	 * [2] 数据项的定义
-	 *
-	 */
-	public function mine_action($mpid, $aid, $rid = '', $orderby = 'time', $page = 1, $size = 10) {
-		$user = $this->getUser($mpid);
-
-		$options = array(
-			'creater' => $user->openid,
-			'visitor' => $user->openid,
-			'rid' => $rid,
-			'page' => $page,
-			'size' => $size,
-			'orderby' => $orderby,
-		);
-
-		$modelRec = $this->model('app\enroll\record');
-		$rst = $modelRec->find($mpid, $aid, $options);
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 * 列出当前访问用户所有的登记记录
-	 *
-	 * $mpid
-	 * $aid
-	 * $orderby
-	 * $page
-	 * $size
-	 *
-	 * return
-	 * [0] 数据列表
-	 * [1] 数据总条数
-	 * [2] 数据项的定义
-	 *
-	 */
-	public function myFollowers_action($mpid, $aid, $rid = '', $orderby = 'time', $page = 1, $size = 10) {
-		$modelRec = $this->model('app\enroll\record');
-
-		$user = $this->getUser($mpid);
-
-		$options = array(
-			'inviter' => $user->openid,
-			'rid' => $rid,
-			'page' => $page,
-			'size' => $size,
-			'orderby' => $orderby,
-		);
-
 		$rst = $modelRec->find($mpid, $aid, $options);
 
 		return new \ResponseData($rst);
@@ -500,21 +450,14 @@ class record extends base {
 	 * $ek
 	 */
 	public function score_action($mpid, $ek) {
-		$modelEnroll = $this->model('app\enroll');
-		/**
-		 * 当前活动
-		 */
-		$q = array('aid', 'xxt_enroll_record', "enroll_key='$ek'");
-		$aid = $this->model()->query_val_ss($q);
-		$act = $modelEnroll->byId($aid);
-		/**
-		 * 当前用户
-		 */
+		/** 当前用户 */
 		$user = $this->getUser($mpid);
-		$modelRec = $this->M('app\model\record');
-		if ($modelRec->hasScored($user->openid, $ek)) {
+		$openid = $user->openid;
+
+		$modelRec = $this->model('app\enroll\record');
+		if ($modelRec->hasScored($openid, $ek)) {
 			/**
-			 * 点了赞，再次点击，取消赞
+			 * 点过赞，再次点击，取消赞
 			 */
 			$this->model()->delete(
 				'xxt_enroll_record_score',
@@ -540,7 +483,7 @@ class record extends base {
 		$score = $modelRec->score($ek);
 		$this->model()->update('xxt_enroll_record', array('score' => $score), "enroll_key='$ek'");
 
-		return new \ResponseData(array($myScore, $score));
+		return new \ResponseData(array('myScore' => $myScore, 'score' => $score));
 	}
 	/**
 	 * 针对登记记录发表评论

@@ -79,62 +79,11 @@ app.controller('ctrlOrderbyOptions', ['$scope', function($scope) {
     };
 }]);
 app.factory('Record', ['$http', '$q', function($http, $q) {
-    var _ins, _running;
-    var Record = function(mpid, aid, rid, current, $scope) {
-        this.mpid = mpid;
-        this.aid = aid;
-        this.rid = rid;
-        this.current = current;
-        this.list = [];
-        this.busy = false;
-        this.page = 1;
-        this.size = 10;
-        this.orderBy = 'time';
-        this.owner = 'all';
-        this.total = -1;
-        this.$scope = $scope;
-    };
-    var listGet = function(ins) {
-        if (ins.busy) return;
-        if (ins.total !== -1 && ins.total <= (ins.page - 1) * ins.size) return;
-        ins.busy = true;
-        var url;
-        url = '/rest/app/enroll/record/';
-        switch (ins.owner) {
-            case 'A':
-                url += 'list';
-                break;
-            case 'U':
-                url += 'mine';
-                break;
-            case 'I':
-                url += 'myFollowers';
-                break;
-            default:
-                alert('没有指定要获得的登记记录类型（' + ins.owner + '）');
-                return;
-        }
-        url += '?mpid=' + ins.mpid;
-        url += '&aid=' + ins.aid;
-        ins.rid !== undefined && ins.rid.length && (url += '&rid=' + ins.rid);
-        url += '&orderby=' + ins.orderBy;
-        url += '&page=' + ins.page;
-        url += '&size=' + ins.size;
-        $http.get(url).success(function(rsp) {
-            var record;
-            if (rsp.err_code == 0) {
-                ins.total = rsp.data.total;
-                if (rsp.data.records && rsp.data.records.length) {
-                    for (var i = 0; i < rsp.data.records.length; i++) {
-                        record = rsp.data.records[i];
-                        record.data.member && (record.data.member = JSON.parse(record.data.member));
-                        ins.list.push(record);
-                    }
-                    ins.page++;
-                }
-            }
-            ins.busy = false;
-        });
+    var Record, _ins, _running;
+    Record = function() {
+        this.current = {
+            enroll_at: 0
+        };
     };
     _running = false;
     Record.prototype.get = function(ek) {
@@ -143,9 +92,7 @@ app.factory('Record', ['$http', '$q', function($http, $q) {
         var _this, url, deferred;
         _this = this;
         deferred = $q.defer();
-        url = '/rest/app/enroll/record/get';
-        url += '?mpid=' + _this.mpid;
-        url += '&aid=' + _this.aid;
+        url = LS.j('record/get', 'mpid', 'aid');
         ek && (url += '&ek=' + ek);
         $http.get(url).success(function(rsp) {
             var record;
@@ -158,52 +105,18 @@ app.factory('Record', ['$http', '$q', function($http, $q) {
         });
         return deferred.promise;
     };
-    Record.prototype.changeOrderBy = function(orderBy) {
-        this.orderBy = orderBy;
-        this.reset();
-    };
-    Record.prototype.reset = function() {
-        this.list = [];
-        this.busy = false;
-        this.page = 1;
-        this.nextPage();
-    };
-    Record.prototype.nextPage = function(owner) {
-        if (owner && this.owner !== owner) {
-            this.owner = owner;
-            this.reset();
-        } else
-            listGet(this);
-    };
-    Record.prototype.list2 = function(owner, rid) {
-        var _this, url, deferred, promise;
-        _this = this;
+    Record.prototype.list = function(owner, rid) {
+        var url, deferred;
         deferred = $q.defer();
-        promise = deferred.promise;
-        url = '/rest/app/enroll/record/';
-        switch (owner) {
-            case 'A':
-                url += 'list';
-                break;
-            case 'U':
-                url += 'mine';
-                break;
-            case 'I':
-                url += 'myFollowers';
-                break;
-            default:
-                alert('没有指定要获得的登记记录类型（' + owner + '）');
-                return;
-        }
-        url += '?mpid=' + _this.mpid;
-        url += '&aid=' + _this.aid;
-        rid !== undefined && rid.length && (url += '&rid=' + rid);
+        url = LS.j('record/list', 'mpid', 'aid');
+        url += '&owner=' + owner;
+        rid && rid.length && (url += '&rid=' + rid);
         $http.get(url).success(function(rsp) {
-            var records, record;
+            var records, record, i, l;
             if (rsp.err_code == 0) {
                 records = rsp.data.records;
                 if (records && records.length) {
-                    for (var i = 0; i < records.length; i++) {
+                    for (i = 0, l = records.length; i < l; i++) {
                         record = records[i];
                         record.data.member && (record.data.member = JSON.parse(record.data.member));
                     }
@@ -211,40 +124,25 @@ app.factory('Record', ['$http', '$q', function($http, $q) {
                 deferred.resolve(records);
             }
         });
-        return promise;
+        return deferred.promise;
     };
-    Record.prototype.like = function(event, record) {
-        event.preventDefault();
-        event.stopPropagation();
-        if (!record && !this.current) {
-            alert('没有指定要点赞的登记记录');
-            return;
-        }
-        var url = '/rest/app/enroll/record/score';
-        url += '?mpid=' + this.mpid;
-        url += '&ek=';
-        record === undefined && (record = this.current);
-        url += record.enroll_key;
+    Record.prototype.like = function(record) {
+        var url;
+        deferred = $q.defer();
+        url = LS.j('record/score', 'mpid');
+        url += '&ek=' + record.enroll_key;
         $http.get(url).success(function(rsp) {
-            record.myscore = rsp.data[0];
-            record.score = rsp.data[1];
+            record.myscore = rsp.data.myScore;
+            record.score = rsp.data.score;
+            deferred.resolve(rsp.data);
         });
+        return deferred.promise;
     };
-    Record.prototype.remark = function(event, newRemark) {
-        event.preventDefault();
-        event.stopPropagation();
-        if (!newRemark || newRemark.length === 0) {
-            alert('评论内容不允许为空');
-            return false;
-        }
-        var _this = this;
-        if (this.current.enroll_key === undefined) {
-            alert('没有指定要评论的登记记录');
-            return false;
-        }
-        var url = '/rest/app/enroll/record/remark';
-        url += '?mpid=' + this.mpid;
-        url += '&ek=' + this.current.enroll_key;
+    Record.prototype.remark = function(record, newRemark) {
+        var url, deferred;
+        deferred = $q.defer();
+        url = LS.j('record/remark', 'mpid');
+        url += '&ek=' + record.enroll_key;
         $http.post(url, {
             remark: newRemark
         }).success(function(rsp) {
@@ -256,16 +154,17 @@ app.factory('Record', ['$http', '$q', function($http, $q) {
                 alert(rsp.err_msg);
                 return;
             }
-            _this.current.remarks.push(rsp.data);
+            record.remarks.push(rsp.data);
+            deferred.resolve(rsp.data);
         });
-        return true;
+        return deferred.promise;
     };
     return {
-        ins: function(mpid, aid, rid, current, $scope) {
+        ins: function(mpid, aid, rid, $scope) {
             if (_ins) {
                 return _ins;
             }
-            _ins = new Record(mpid, aid, rid, current, $scope);
+            _ins = new Record(mpid, aid, rid, $scope);
             return _ins;
         }
     };
@@ -294,9 +193,8 @@ app.factory('Schema', ['$http', '$q', function($http, $q) {
     schema = null;
     Schema = function() {};
     Schema.prototype.get = function() {
-        var deferred, promise;
+        var deferred;
         deferred = $q.defer();
-        promise = deferred.promise;
         if (schema !== null)
             deferred.resolve(schema);
         else {
@@ -305,7 +203,7 @@ app.factory('Schema', ['$http', '$q', function($http, $q) {
                 deferred.resolve(schema);
             });
         }
-        return promise;
+        return deferred.promise;
     };
     return Schema;
 }]);
@@ -317,9 +215,14 @@ app.controller('ctrlRecords', ['$scope', 'Record', function($scope, Record) {
         rid: LS.p.rid
     };
     fnFetch = function() {
-        facRecord.list2(options.owner, options.rid).then(function(records) {
+        facRecord.list(options.owner, options.rid).then(function(records) {
             $scope.records = records;
         });
+    };
+    $scope.like = function(event, record) {
+        event.preventDefault();
+        event.stopPropagation();
+        facRecord.like(record).then(function(rsp) {});
     };
     $scope.$on('xxt.app.enroll.filter.rounds', function(event, data) {
         if (options.rid !== data[0].rid) {
@@ -347,7 +250,34 @@ app.controller('ctrlRecord', ['$scope', 'Record', function($scope, Record) {
             page = first.name;
         page ? $scope.gotoPage(event, page, $scope.Record.current.enroll_key) : alert('当前活动没有包含数据登记页');
     };
-    facRecord = Record.ins(LS.p.mpid, LS.p.aid);
+    $scope.like = function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        facRecord.like(facRecord.current).then(function(rsp) {});
+    };
+    facRecord = Record.ins();
+    facRecord.get(LS.p.ek);
+    $scope.Record = facRecord;
+}]);
+app.controller('ctrlRemark', ['$scope', '$http', 'Record', function($scope, $http, Record) {
+    var facRecord;
+    $scope.newRemark = '';
+    $scope.remark = function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if ($scope.newRemark.length === 0) {
+            alert('评论内容不允许为空');
+            return false;
+        }
+        if (facRecord.current.enroll_key === undefined) {
+            alert('没有指定要评论的登记记录');
+            return false;
+        }
+        facRecord.remark(facRecord.current, $scope.newRemark).then(function(rsp) {
+            $scope.newRemark = '';
+        });
+    };
+    facRecord = Record.ins();
     facRecord.get(LS.p.ek);
     $scope.Record = facRecord;
 }]);
@@ -398,19 +328,11 @@ app.controller('ctrlInvite', ['$scope', '$http', 'Record', function($scope, $htt
             }
         });
     };
-    facRecord = Record.ins(LS.p.mpid, LS.p.aid);
+    facRecord = Record.ins();
     facRecord.get(LS.p.ek);
     $scope.Record = facRecord;
 }]);
-app.controller('ctrlView', ['$scope', '$http', '$timeout', '$q', 'Round', 'Record', 'Statistic', 'Schema', function($scope, $http, $timeout, $q, Round, Record, Statistic, Schema) {
-    $scope.likeRecord = function(event) {
-        $scope.Record.like(event);
-    };
-    $scope.newRemark = '';
-    $scope.remarkRecord = function(event) {
-        if ($scope.Record.remark(event, $scope.newRemark))
-            $scope.newRemark = '';
-    };
+app.controller('ctrlView', ['$scope', function($scope) {
     $scope.$on('xxt.app.enroll.filter.owner', function(event, data) {
         if (event.targetScope !== $scope) {
             $scope.$broadcast('xxt.app.enroll.filter.owner', data);
@@ -425,7 +347,6 @@ app.filter('value2Label', ['Schema', function(Schema) {
     return function(val, key) {
         var i, j, s, aVal, aLab = [];
         if (val === undefined) return '';
-        //if (!schemas) return '';
         for (i = 0, j = schemas.length; i < j; i++) {
             s = schemas[i];
             if (schemas[i].id === key) {

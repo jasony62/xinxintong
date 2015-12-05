@@ -77,8 +77,8 @@
                 l: l
             };
         };
-        var defs = {},
-            i, schemas, schema, type, title, modelId;
+        var defs, i, schemas, schema, type, title, modelId;
+        defs = {};
         schemas = html.match(/<(div|li|option).+?wrap=(.+?)>.+?<\/(div|li|option)>/ig);
         for (i in schemas) {
             schema = schemas[i];
@@ -370,7 +370,7 @@
         }
         if (def.canLike === 'Y') {
             html += '<div wrap="static" class="wrap-inline"><label>总赞数</label><div>{{r.score}}</div></div>';
-            html += "<div wrap='static' ng-if='!r.myscore'><a href='javascript:void(0)' ng-click='Record.like($event,r)'>赞</a></div>";
+            html += "<div wrap='static' ng-if='!r.myscore'><a href='javascript:void(0)' ng-click='like($event,r)'>赞</a></div>";
             html += "<div wrap='static' ng-if='r.myscore==1'>已赞</div>";
         }
         html += "</li></ul>";
@@ -398,10 +398,11 @@
         html += "<li class='list-group-item' ng-repeat='r in Record.current.remarks'>";
         html += "<div wrap='static'>{{r.remark}}</div>";
         html += "<div wrap='static'>{{r.nickname}}</div>";
-        html += "<div wrap='static'>{{(r.create_at*1000)|date:'yyyy-MM-dd HH:mm'}}</div>";
+        html += "<div wrap='static'>{{(r.create_at*1000)|date:'yy-MM-dd HH:mm'}}</div>";
         html += "</li>";
         html += "</ul>";
         this.addWrap(page, 'div', {
+            'ng-controller': 'ctrlRemark',
             wrap: 'list',
             class: 'form-group'
         }, html);
@@ -488,7 +489,7 @@
         },
         likeRecord: {
             id: 'btnLikeRecord',
-            act: "likeRecord($event)"
+            act: "like($event)"
         },
         acceptInvite: {
             id: function(def) {
@@ -539,6 +540,8 @@
             angular.isFunction(action) && (action = action(def));
             if (def.type === 'acceptInvite') {
                 attrs['ng-controller'] = 'ctrlInvite';
+            } else if (def.type === 'likeRecord') {
+                attrs['ng-controller'] = 'ctrlRecord';
             }
             this.addWrap(page, 'div', attrs, tmplBtn(id, action, def.label));
         } else if (def.type === 'sendInvite') {
@@ -554,9 +557,10 @@
         } else if (def.type === 'remarkRecord') {
             var html = '<input type="text" class="form-control" placeholder="评论" ng-model="newRemark">';
             html += '<span class="input-group-btn">';
-            html += '<button class="btn btn-success" type="button" ng-click="remarkRecord($event)"><span>发送</span></button>';
+            html += '<button class="btn btn-success" type="button" ng-click="remark($event)"><span>发送</span></button>';
             html += '</span>';
             this.addWrap(page, 'div', {
+                'ng-controller': 'ctrlRemark',
                 wrap: 'button',
                 class: 'form-group input-group input-group-lg'
             }, html);
@@ -740,7 +744,7 @@
                     l: '关闭页面'
                 },
             };
-            enroll.can_like_record === 'Y' && ($scope.buttons.likeReocrd = {
+            enroll.can_like_record === 'Y' && ($scope.buttons.likeRecord = {
                 l: '点赞'
             });
             enroll.can_remark_record === 'Y' && ($scope.buttons.remarkRecord = {

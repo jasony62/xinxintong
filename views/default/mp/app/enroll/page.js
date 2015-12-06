@@ -491,25 +491,27 @@
         _args: function(def) {
             return def.next ? "($event,'" + def.next + "')" : "($event)"
         },
+        addRecord: {
+            id: function(def) {
+                return 'btnNewRecord_' + def.next;
+            },
+            act: function(def) {
+                return 'addRecord' + EmbedButtonSchema._args(def);
+            }
+        },
+        editRecord: {
+            id: function(def) {
+                return 'btnEditRecord_' + def.next;
+            },
+            act: function(def) {
+                return 'editRecord' + EmbedButtonSchema._args(def);
+            }
+        },
         submit: {
             id: 'btnSubmit',
             act: function(def) {
                 return 'submit' + EmbedButtonSchema._args(def);
             }
-        },
-        addRecord: {
-            id: 'btnNewRecord',
-            act: function(def) {
-                return 'addRecord($event)'
-            }
-        },
-        editRecord: {
-            id: 'btnEditRecord',
-            act: "editRecord($event)"
-        },
-        likeRecord: {
-            id: 'btnLikeRecord',
-            act: "like($event)"
         },
         acceptInvite: {
             id: function(def) {
@@ -526,6 +528,10 @@
             act: function(def) {
                 return 'gotoPage' + EmbedButtonSchema._args(def);
             }
+        },
+        likeRecord: {
+            id: 'btnLikeRecord',
+            act: "like($event)"
         },
         closeWindow: {
             id: 'btnCloseWindow',
@@ -565,9 +571,13 @@
             }
             this.addWrap(page, 'div', attrs, tmplBtn(id, action, def.label));
         } else if (def.type === 'sendInvite') {
-            var html = '<input type="text" class="form-control" placeholder="认证用户标识" ng-model="invitee">';
+            var html, action;
+            action = "send($event,'" + def.accept + "'";
+            def.next && (action += ",'" + def.next + "'");
+            action += ")";
+            html = '<input type="text" class="form-control" placeholder="认证用户标识" ng-model="invitee">';
             html += '<span class="input-group-btn">';
-            html += '<button class="btn btn-success" type="button" ng-click="send($event)"><span>邀请</span></button>';
+            html += '<button class="btn btn-success" type="button" ng-click="' + action + '"><span>邀请</span></button>';
             html += '</span>';
             this.addWrap(page, 'div', {
                 'ng-controller': 'ctrlInvite',
@@ -740,7 +750,9 @@
             });
         };
         var embedButtonCtrl = ['$scope', '$modalInstance', 'enroll', 'def', function($scope, $mi, enroll, def) {
-            var page, targetPages = {};
+            var page, targetPages, inputPages;
+            targetPages = {};
+            inputPages = {};
             $scope.buttons = {
                 submit: {
                     l: '提交信息'
@@ -775,12 +787,31 @@
                 targetPages[page.name] = {
                     l: page.title
                 };
+                if (page.type === 'I') {
+                    inputPages[page.name] = {
+                        l: page.title
+                    };
+                }
             }
             targetPages.closeWindow = {
                 l: '关闭页面'
             };
             $scope.pages = targetPages;
+            $scope.inputPages = inputPages;
             $scope.def = def;
+            $scope.selectButton = function() {
+                var names;
+                def.label = $scope.buttons[def.type].l;
+                def.next = '';
+                if (['addRecord', 'editRecord'].indexOf(def.type) !== -1) {
+                    names = Object.keys(inputPages);
+                    if (names.length === 0) {
+                        alert('没有类型为“登记页”的页面');
+                    } else {
+                        def.next = names[0];
+                    }
+                }
+            };
             $scope.ok = function() {
                 $mi.close($scope.def);
             };

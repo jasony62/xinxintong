@@ -80,18 +80,6 @@ var PG = (function() {
                     }
                 });
             }
-        },
-        firstInput: function(pages) {
-            var first;
-            pages.some(function(oPage) {
-                if (oPage.type === 'I') {
-                    first = oPage;
-                    return true;
-                } else {
-                    return false;
-                }
-            });
-            return first;
         }
     };
 })();
@@ -181,13 +169,6 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
     $scope.closePreviewTip = function() {
         $scope.preview = 'N';
     };
-    $scope.closeWindow = function() {
-        if (/MicroMessenger/i.test(navigator.userAgent)) {
-            window.wx.closeWindow();
-        } else if (/YiXin/i.test(navigator.userAgent)) {
-            window.YixinJSBridge.call('closeWebView');
-        }
-    };
     var openAskFollow = function() {
         $http.get('/rest/app/enroll/askFollow?mpid=' + LS.p.mpid).error(function(content) {
             var body, el;;
@@ -204,6 +185,16 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
             el.style.display = 'block';
         });
     };
+    $scope.closeWindow = function() {
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+            window.wx.closeWindow();
+        } else if (/YiXin/i.test(navigator.userAgent)) {
+            window.YixinJSBridge.call('closeWebView');
+        }
+    };
+    $scope.addRecord = function(event, page) {
+        page ? $scope.gotoPage(event, page, null, null, false, 'Y') : alert('没有指定登记编辑页');
+    };
     $scope.gotoPage = function(event, page, ek, rid, fansOnly, newRecord) {
         event.preventDefault();
         event.stopPropagation();
@@ -219,12 +210,6 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
         page !== undefined && page !== null && page.length && (url += '&page=' + page);
         newRecord !== undefined && newRecord === 'Y' && (url += '&newRecord=Y');
         location.replace(url);
-    };
-    $scope.addRecord = function(event) {
-        var first, page;
-        first = PG.firstInput($scope.params.app.pages);
-        page = first.name;
-        page ? $scope.gotoPage(event, page, null, null, false, 'Y') : alert('当前活动没有包含数据登记页');
     };
     $scope.openMatter = function(id, type) {
         location.replace('/rest/mi/matter?mpid=' + LS.p.mpid + '&id=' + id + '&type=' + type);
@@ -250,7 +235,6 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
             tasksOfOnReady.push(task);
         }
     };
-
     $http.get(LS.j('get', 'mpid', 'aid', 'rid', 'page', 'ek', 'newRecord')).success(function(rsp) {
         if (rsp.err_code !== 0) {
             $scope.errmsg = rsp.err_msg;

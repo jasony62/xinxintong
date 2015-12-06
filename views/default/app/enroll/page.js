@@ -245,10 +245,7 @@ app.controller('ctrlRecords', ['$scope', 'Record', function($scope, Record) {
 app.controller('ctrlRecord', ['$scope', 'Record', function($scope, Record) {
     var facRecord;
     $scope.editRecord = function(event, page) {
-        var first;
-        if (page === undefined && (first = PG.firstInput($scope.params.app.pages)))
-            page = first.name;
-        page ? $scope.gotoPage(event, page, $scope.Record.current.enroll_key) : alert('当前活动没有包含数据登记页');
+        page ? $scope.gotoPage(event, page, facRecord.current.enroll_key) : alert('没有指定登记编辑页');
     };
     $scope.like = function(event) {
         event.preventDefault();
@@ -287,19 +284,26 @@ app.controller('ctrlInvite', ['$scope', '$http', 'Record', function($scope, $htt
         genRecordWhenAccept: 'Y'
     };
     $scope.invitee = '';
-    $scope.send = function(event, nextAction) {
+    $scope.send = function(event, invitePage, nextAction) {
         event.preventDefault();
         event.stopPropagation();
         var url;
         url = LS.j('record/inviteSend', 'mpid', 'aid');
         url += '&ek=' + $scope.Record.current.enroll_key;
         url += '&invitee=' + $scope.invitee;
-        url += '&page=' + nextAction;
+        url += '&page=' + invitePage;
         $http.get(url).success(function(rsp) {
             if (rsp.err_code != 0) {
                 alert(rsp.err_msg);
-            } else {
-                alert('ok');
+                return;
+            }
+            if (nextAction === 'closeWindow') {
+                $scope.closeWindow();
+            } else if (nextAction !== undefined && nextAction.length) {
+                var url = LS('', 'mpid', 'aid');
+                url += '&ek=' + rsp.data.ek;
+                url += '&page=' + nextAction;
+                location.replace(url);
             }
         });
     };

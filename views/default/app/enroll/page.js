@@ -4,7 +4,6 @@ app.factory('Round', ['$http', '$q', function($http, $q) {
     Round.prototype.list = function() {
         var deferred, url;
         deferred = $q.defer();
-        promise = deferred.promise;
         url = LS.j('round/list', 'mpid', 'aid');
         $http.get(url).success(function(rsp) {
             if (rsp.err_code != 0) {

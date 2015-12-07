@@ -85,8 +85,8 @@ app.factory('Round', ['$http', '$q', function($http, $q) {
     Round = function() {};
     Round.prototype.list = function() {
         var deferred, url;
-        deferred = $q.defer();
-        promise = deferred.promise;
+        deferred = $q.defer(); << << << < HEAD
+        promise = deferred.promise; === === = >>> >>> > origin / master
         url = LS.j('round/list', 'mpid', 'aid');
         $http.get(url).success(function(rsp) {
             if (rsp.err_code != 0) {
@@ -189,7 +189,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
             tasksOfOnReady.push(task);
         }
     };
-    $http.get(LS.j('pageGet', 'aid', 'page')).success(function(rsp) {
+    $http.get(LS.j('pageGet', 'mpid', 'aid', 'page')).success(function(rsp) {
         if (rsp.err_code !== 0) {
             $scope.errmsg = rsp.err_msg;
             return;

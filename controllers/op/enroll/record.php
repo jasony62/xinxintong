@@ -16,10 +16,12 @@ class record extends \member_base {
 	/**
 	 *
 	 */
-	public function list_action($mpid, $aid) {
+	public function list_action($mpid, $aid, $rid = '', $enroller = '') {
 		$options = array(
 			'page' => 1,
 			'size' => 30,
+			'rid' => $rid,
+			'creater' => $enroller,
 		);
 		$mdoelRec = $this->model('app\enroll\record');
 		$result = $mdoelRec->find($mpid, $aid, $options);
@@ -29,9 +31,9 @@ class record extends \member_base {
 	/**
 	 *
 	 */
-	public function enrollerList_action($mpid, $aid) {
+	public function enrollerList_action($mpid, $aid, $rid = '') {
 		$mdoelRec = $this->model('app\enroll\record');
-		$result = $mdoelRec->enrollers($aid);
+		$result = $mdoelRec->enrollers($aid, $rid);
 
 		return new \ResponseData($result);
 	}

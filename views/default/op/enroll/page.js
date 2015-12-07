@@ -85,8 +85,7 @@ app.factory('Round', ['$http', '$q', function($http, $q) {
     Round = function() {};
     Round.prototype.list = function() {
         var deferred, url;
-        deferred = $q.defer(); << << << < HEAD
-        promise = deferred.promise; === === = >>> >>> > origin / master
+        deferred = $q.defer();
         url = LS.j('round/list', 'mpid', 'aid');
         $http.get(url).success(function(rsp) {
             if (rsp.err_code != 0) {
@@ -131,11 +130,12 @@ app.controller('ctrlRounds', ['$scope', 'Round', function($scope, Round) {
 app.factory('Record', ['$http', '$q', function($http, $q) {
     var Record, _ins, _running;
     Record = function() {};
-    Record.prototype.list = function(rid) {
+    Record.prototype.list = function(options) {
         var url, deferred;
         deferred = $q.defer();
         url = LS.j('record/list', 'mpid', 'aid');
-        rid !== undefined && rid.length && (url += '&rid=' + rid);
+        options.rid !== undefined && options.rid.length && (url += '&rid=' + options.rid);
+        options.enroller !== undefined && options.enroller.length && (url += '&enroller=' + options.enroller);
         $http.get(url).success(function(rsp) {
             var records, record;
             if (rsp.err_code == 0) {
@@ -162,13 +162,20 @@ app.controller('ctrlRecords', ['$scope', 'Record', function($scope, Record) {
     var facRecord, options, fnFetch;
     facRecord = Record.ins();
     options = {
-        rid: LS.p.rid
+        rid: LS.p.rid,
+        enroller: ''
     };
     fnFetch = function() {
-        facRecord.list(options.rid).then(function(data) {
+        facRecord.list(options).then(function(data) {
             $scope.records = data.records;
         });
     };
+    $scope.$on('xxt.app.enroll.filter.enrollers', function(event, data) {
+        if (options.enroller !== data[0].openid) {
+            options.enroller = data[0].openid;
+            fnFetch();
+        }
+    });
     $scope.$on('xxt.app.enroll.filter.rounds', function(event, data) {
         if (options.rid !== data[0].rid) {
             options.rid = data[0].rid;
@@ -197,6 +204,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
         var params;
         params = rsp.data;
         $scope.Page = params.page;
+        $scope.ActiveRound = params.activeRound;
         setPage($scope, params.page);
         if (tasksOfOnReady.length) {
             angular.forEach(tasksOfOnReady, PG.exec);

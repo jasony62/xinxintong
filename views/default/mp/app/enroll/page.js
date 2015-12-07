@@ -85,6 +85,7 @@
             type = schema.match(/wrap=\".+?\"/).pop().replace('wrap=', '').replace(/\"/g, '');
             switch (type) {
                 case 'input':
+                case 'location':
                 case 'radio':
                 case 'checkbox':
                     title = schema.match(/\btitle=\".*?\"/);
@@ -210,16 +211,16 @@
                 def.showname === 'placeholder' && (html += ' placeholder="' + def.name + '"');
                 def.required == 1 && (html += 'required=""');
                 def.type === 'auth' && (html += 'ng-init="data.member.authid=' + def.auth.authid + '"');
-                html += ' class="form-control">';
+                html += ' class="form-control input-lg">';
                 break;
             case 'datetime':
                 inpAttrs['tms-datetime'] = 'Y';
                 inpAttrs['tms-datetime-value'] = 'data.' + key;
-                html += '<div ng-bind="data.' + key + '|date:\'yy-MM-dd HH:mm\'"';
+                html += '<div wrap="datetime" ng-bind="data.' + key + '|date:\'yy-MM-dd HH:mm\'"';
                 html += ' title="' + def.name + '"';
                 html += ' placeholder="' + def.name + '"';
                 def.required == 1 && (html += 'required=""');
-                html += ' class="form-control"></div>';
+                html += ' class="form-control input-lg"></div>';
                 break;
             case 'longtext':
                 html += '<textarea style="height:auto" ng-model="data.' + key + '" title="' + def.name + '"';
@@ -297,7 +298,7 @@
                 html += '</ul>';
                 break;
             case 'location':
-                html += '<div class="input-group input-group-lg">';
+                html += '<div wrap="location" class="input-group input-group-lg">';
                 html += '<input type="text" ng-model="data.' + key + '"';
                 html += ' title="' + def.name + '"';
                 html += ' placeholder="' + def.name + '"';
@@ -314,8 +315,7 @@
     };
     WrapLib.prototype.embedRecord = function(page, def) {
         if (def.schema === undefined) return;
-        var c, htmls, _this;
-        _this = this;
+        var c, html, htmls, _this;
         htmls = [];
         c = 'form-group';
         def.inline && (c += ' wrap-inline');
@@ -329,13 +329,16 @@
                     case 'radio':
                     case 'checkbox':
                     case 'option':
-                        hmtl = '<label>' + s.title + '</label><div>{{Record.current.data.' + s.id + '|value2Label:"' + s.id + '"}}</div>';
+                        html = '<label>' + s.title + '</label><div>{{Record.current.data.' + s.id + '|value2Label:"' + s.id + '"}}</div>';
+                        break;
+                    case 'datetime':
+                        html = "<label>" + s.title + "</label><div>{{Record.current.data." + s.id + "|date:'yy-MM-dd HH:mm'}}</div>";
                         break;
                     case 'img':
                         html = '<label>' + s.title + '</label><ul><li ng-repeat="img in Record.current.data.' + s.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul>';
                         break;
                 }
-                htmls.push(html);
+                html ? htmls.push(html) : console.log('embedRecord schema error', s);
             }
         });
         if (def.addEnrollAt) {
@@ -350,6 +353,7 @@
             html = "<label>头像</label><div><img ng-src='{{Record.current.enroller.fan.headimgurl}}'></div>";
             htmls.push(html);
         }
+        _this = this;
         angular.forEach(htmls, function(h) {
             _this.addWrap(page, 'div', {
                 'ng-controller': 'ctrlRecord',
@@ -427,6 +431,15 @@
             class: 'form-group'
         }, html);
     };
+    WrapLib.prototype.embedLikers = function(page, def) {
+        var html;
+        html = "<ul class='list-group'><li class='list-group-item' ng-repeat='l in Record.current.likers'><div>{{l.nickname}}</div></li></ul>";
+        this.addWrap(page, 'div', {
+            'ng-controller': 'ctrlRecord',
+            wrap: 'list',
+            class: 'form-group'
+        }, html);
+    };
     WrapLib.prototype.embedShow = function(page, def) {
         switch (def.type) {
             case 'record':
@@ -440,6 +453,9 @@
                 break;
             case 'remarks':
                 this.embedRemarks(page, def);
+                break;
+            case 'likers':
+                this.embedLikers(page, def);
                 break;
         }
     };
@@ -866,6 +882,9 @@
                     });
                     enroll.can_remark_record === 'Y' && ($scope.options.remarks = {
                         l: '评论清单'
+                    });
+                    enroll.can_like_record === 'Y' && ($scope.options.likers = {
+                        l: '点赞人清单'
                     });
                     $scope.pages = enroll.pages;
                     $scope.def = {

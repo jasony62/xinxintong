@@ -37,7 +37,7 @@ class record extends base {
 		empty($aid) && die('aid is empty.');
 
 		$model = $this->model('app\enroll');
-		if (false === ($act = $model->byId($aid))) {
+		if (false === ($app = $model->byId($aid))) {
 			die('活动不存在');
 		}
 		/**
@@ -45,15 +45,15 @@ class record extends base {
 		 */
 		$user = $this->getUser($mpid,
 			array(
-				'authapis' => $act->authapis,
-				'matter' => $act,
+				'authapis' => $app->authapis,
+				'matter' => $app,
 				'verbose' => array('member' => 'Y', 'fan' => 'Y'),
 			)
 		);
 		/**
 		 * 当前用户是否可以进行提交操作
 		 */
-		$this->checkActionRule($mpid, $act, $user);
+		$this->checkActionRule($mpid, $app, $user);
 		/**
 		 * 处理提交数据
 		 */
@@ -74,7 +74,7 @@ class record extends base {
 		 */
 		if (empty($ek)) {
 			/* 插入报名数据 */
-			$ek = $model->enroll($mpid, $act, $user->openid, $user->vid, $mid);
+			$ek = $model->enroll($mpid, $app, $user->openid, $user->vid, $mid);
 			/* 处理自定义信息 */
 			$rst = \TMS_APP::M('app\enroll\record')->setData($user, $mpid, $aid, $ek, $posted, $submitkey);
 		} else {
@@ -92,7 +92,7 @@ class record extends base {
 		/**
 		 * 通知登记活动的管理员
 		 */
-		!empty($act->receiver_page) && $this->notifyAdmin($mpid, $act, $ek, $user);
+		!empty($app->receiver_page) && $this->notifyAdmin($mpid, $app, $ek, $user);
 
 		return new \ResponseData($ek);
 	}
@@ -119,16 +119,16 @@ class record extends base {
 	/**
 	 * 通知活动管理员
 	 */
-	private function notifyAdmin($mpid, $act, $ek, $user) {
-		$admins = \TMS_APP::model('acl')->enrollReceivers($mpid, $act->id);
+	private function notifyAdmin($mpid, $app, $ek, $user) {
+		$admins = \TMS_APP::model('acl')->enrollReceivers($mpid, $app->id);
 		if (false !== ($key = array_search($user->openid, $admins))) {
 			/* 管理员是登记人，不再通知 */
 			unset($admins[$key]);
 		}
 
 		if (!empty($admins)) {
-			$url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/enroll?mpid=$mpid&aid=$act->id&ek=$ek&page=$act->receiver_page";
-			$txt = urlencode("【" . $act->title . "】有新登记数据，");
+			$url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/enroll?mpid=$mpid&aid=$app->id&ek=$ek&page=$app->receiver_page";
+			$txt = urlencode("【" . $app->title . "】有新登记数据，");
 			$txt .= "<a href=\"$url\">";
 			$txt .= urlencode("请处理");
 			$txt .= "</a>";
@@ -190,7 +190,7 @@ class record extends base {
 		$posted = $this->getPostJson();
 
 		$model = $this->model('app\enroll');
-		if (false === ($act = $model->byId($aid))) {
+		if (false === ($app = $model->byId($aid))) {
 			return new \ParameterError("指定的活动（$aid）不存在");
 		}
 		/**
@@ -198,8 +198,8 @@ class record extends base {
 		 */
 		$user = $this->getUser($mpid,
 			array(
-				'authapis' => $act->authapis,
-				'matter' => $act,
+				'authapis' => $app->authapis,
+				'matter' => $app,
 				'verbose' => array('member' => 'Y', 'fan' => 'Y'),
 			)
 		);
@@ -210,7 +210,7 @@ class record extends base {
 		}
 		/* 创建登记记录*/
 		if (empty($ek)) {
-			$ek = $modelRec->add($mpid, $act, $user, (empty($posted->referrer) ? '' : $posted->referrer));
+			$ek = $modelRec->add($mpid, $app, $user, (empty($posted->referrer) ? '' : $posted->referrer));
 			/**
 			 * 处理提交数据
 			 */
@@ -375,6 +375,10 @@ class record extends base {
 				$record->enroller = $user;
 			}
 			/*评论数据*/
+			if ($app->can_like_record === 'Y') {
+				$record->likers = $modelRec->likers($openedek);
+			}
+			/*评论数据*/
 			if ($app->can_remark_record === 'Y') {
 				$record->remarks = $modelRec->remarks($openedek);
 			}
@@ -470,6 +474,7 @@ class record extends base {
 			 */
 			$i = array(
 				'openid' => $openid,
+				'nickname' => $user->nickname,
 				'enroll_key' => $ek,
 				'create_at' => time(),
 				'score' => 1,
@@ -484,6 +489,16 @@ class record extends base {
 		$this->model()->update('xxt_enroll_record', array('score' => $score), "enroll_key='$ek'");
 
 		return new \ResponseData(array('myScore' => $myScore, 'score' => $score));
+	}
+	/**
+	 * 返回对指定记录点赞的人
+	 * @param string $mpid
+	 * @param string $ek
+	 */
+	public function likerList_action($mpid, $ek, $page = 1, $size = 10) {
+		$likers = $this->model('app\enroll\record')->likers($ek);
+
+		return new \ResponseData(array('likers' => $likers));
 	}
 	/**
 	 * 针对登记记录发表评论
@@ -504,7 +519,7 @@ class record extends base {
 		$q = array('aid,openid', 'xxt_enroll_record', "enroll_key='$ek'");
 		$record = $this->model()->query_obj_ss($q);
 		$aid = $record->aid;
-		$act = $modelEnroll->byId($aid);
+		$app = $modelEnroll->byId($aid);
 		/**
 		 * 发表评论的用户
 		 */
@@ -515,6 +530,7 @@ class record extends base {
 
 		$remark = array(
 			'openid' => $user->openid,
+			'nickname' => $user->nickname,
 			'enroll_key' => $ek,
 			'create_at' => time(),
 			'remark' => $this->model()->escape($data->remark),
@@ -525,16 +541,16 @@ class record extends base {
 		/**
 		 * 通知登记人有评论
 		 */
-		if ($act->remark_notice === 'Y' && !empty($act->remark_notice_page)) {
+		if ($app->remark_notice === 'Y' && !empty($app->remark_notice_page)) {
 			$apis = $this->model('mp\mpaccount')->getApis($mpid);
 			if ($apis && $apis->{$apis->mpsrc . '_custom_push'} === 'Y') {
 				/**
 				 * 发送评论提醒
 				 */
-				$url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/enroll?mpid=$mpid&aid=$aid&ek=$ek&page=$act->remark_notice_page";
+				$url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/enroll?mpid=$mpid&aid=$aid&ek=$ek&page=$app->remark_notice_page";
 				$text = urlencode($remark['nickname'] . '对【');
 				$text .= '<a href="' . $url . '">';
-				$text .= urlencode($act->title);
+				$text .= urlencode($app->title);
 				$text .= '</a>';
 				$text .= urlencode('】发表了评论：' . $remark['remark']);
 				$message = array(

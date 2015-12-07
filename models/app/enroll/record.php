@@ -86,7 +86,7 @@ class record_model extends \TMS_MODEL {
 				$kw && $w .= " and mobile like '%$kw%'";
 				break;
 			case 'nickname':
-				$kw && $w .= " and f.nickname like '%$kw%'";
+				$kw && $w .= " and nickname like '%$kw%'";
 				break;
 			}
 		}
@@ -111,13 +111,14 @@ class record_model extends \TMS_MODEL {
 			);
 		} else {
 			$q = array(
-				'e.enroll_key,e.enroll_at,e.signin_at,e.tags,e.follower_num,e.score,e.remark_num,f.fid,f.nickname,f.openid,f.headimgurl',
-				"xxt_enroll_record e left join xxt_fans f on e.mpid=f.mpid and e.openid=f.openid",
+				'e.enroll_key,e.enroll_at,e.signin_at,e.tags,e.follower_num,e.score,e.remark_num,e.nickname,e.openid',
+				"xxt_enroll_record e",
 				$w,
 			);
 		}
-		$q2['r']['o'] = ($page - 1) * $size;
-		$q2['r']['l'] = $size;
+		$q2 = array(
+			'r' => array('o' => ($page - 1) * $size, 'l' => $size),
+		);
 		switch ($orderby) {
 		case 'time':
 			$q2['o'] = 'e.enroll_at desc';
@@ -288,9 +289,9 @@ class record_model extends \TMS_MODEL {
 	 */
 	public function &remarks($ek, $page = 1, $size = 30) {
 		$q = array(
-			'r.*,f.nickname',
-			'xxt_enroll_record e, xxt_enroll_record_remark r, xxt_fans f',
-			"e.enroll_key='$ek' and e.enroll_key=r.enroll_key and e.mpid=f.mpid and r.openid=f.openid",
+			'r.*',
+			'xxt_enroll_record_remark r',
+			"r.enroll_key='$ek'",
 		);
 		$q2 = array(
 			'o' => 'r.create_at',
@@ -302,8 +303,9 @@ class record_model extends \TMS_MODEL {
 		return $remarks;
 	}
 	/*
-	 * 所有发表过评论的用户
-	 */
+			* 所有发表过评论的用户
+		 * @param string $ek
+	*/
 	public function &remarkers($ek) {
 		$q = array(
 			'distinct openid',
@@ -313,6 +315,43 @@ class record_model extends \TMS_MODEL {
 		$remarkers = $this->query_objs_ss($q);
 
 		return $remarkers;
+	}
+	/**
+	 * 返回对指定记录点赞的人
+	 * @param string $ek
+	 */
+	public function &likers($ek, $page = 1, $size = 10) {
+		$q = array(
+			'openid,nickname,score',
+			'xxt_enroll_record_score',
+			"enroll_key='$ek'",
+		);
+		$q2 = array(
+			'o' => 'create_at',
+			'r' => array('o' => ($page - 1) * $size, 'l' => $size),
+		);
+		$likers = $this->query_objs_ss($q, $q2);
+
+		return $likers;
+	}
+	/**
+	 * 返回登记人
+	 */
+	public function &enrollers($aid, $rid = '', $size = 1, $size = 30) {
+		$w = "aid='$aid' and state=1";
+		!empty($rid) && $w .= " and rid='$rid'";
+		$q = array(
+			'distinct openid,nickname',
+			'xxt_enroll_record',
+			$w,
+		);
+		$enrollers = $this->query_objs_ss($q);
+
+		$result = array(
+			'enrollers' => $enrollers,
+		);
+
+		return $result;
 	}
 	/**
 	 * 保存登记的数据

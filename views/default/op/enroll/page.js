@@ -80,14 +80,60 @@ app.directive('dynamicHtml', function($compile) {
         }
     };
 });
+app.factory('Round', ['$http', '$q', function($http, $q) {
+    var Round, _ins;
+    Round = function() {};
+    Round.prototype.list = function() {
+        var deferred, url;
+        deferred = $q.defer();
+        promise = deferred.promise;
+        url = LS.j('round/list', 'mpid', 'aid');
+        $http.get(url).success(function(rsp) {
+            if (rsp.err_code != 0) {
+                alert(rsp.data);
+                return;
+            }
+            deferred.resolve(rsp.data);
+        });
+        return deferred.promise;
+    };
+    return {
+        ins: function() {
+            _ins = _ins ? _ins : new Round();
+            return _ins;
+        }
+    };
+}]);
+app.controller('ctrlRounds', ['$scope', 'Round', function($scope, Round) {
+    var facRound, onDataReadyCallbacks;
+    facRound = Round.ins();
+    facRound.list().then(function(rounds) {
+        $scope.rounds = rounds;
+        angular.forEach(onDataReadyCallbacks, function(cb) {
+            cb(rounds);
+        });
+    });
+    onDataReadyCallbacks = [];
+    $scope.onDataReady = function(callback) {
+        onDataReadyCallbacks.push(callback);
+    };
+    $scope.match = function(matched) {
+        var i, l, round;
+        for (i = 0, l = $scope.rounds.length; i < l; i++) {
+            round = $scope.rounds[i];
+            if (matched.rid === $scope.rounds[i].rid) {
+                return $scope.rounds[i];
+            }
+        }
+        return false;
+    };
+}]);
 app.factory('Record', ['$http', '$q', function($http, $q) {
     var Record, _ins, _running;
     Record = function() {};
     Record.prototype.list = function(rid) {
-        var _this, url, deferred, promise;
-        _this = this;
+        var url, deferred;
         deferred = $q.defer();
-        promise = deferred.promise;
         url = LS.j('record/list', 'mpid', 'aid');
         rid !== undefined && rid.length && (url += '&rid=' + rid);
         $http.get(url).success(function(rsp) {
@@ -100,10 +146,10 @@ app.factory('Record', ['$http', '$q', function($http, $q) {
                         record.data.member && (record.data.member = JSON.parse(record.data.member));
                     }
                 }
-                deferred.resolve(records);
+                deferred.resolve(rsp.data);
             }
         });
-        return promise;
+        return deferred.promise;
     };
     return {
         ins: function() {
@@ -112,12 +158,26 @@ app.factory('Record', ['$http', '$q', function($http, $q) {
         }
     };
 }]);
-app.controller('ctrlRecords', ['$scope', '$http', 'Record', function($scope, $http, Record) {
-    var facRecord;
+app.controller('ctrlRecords', ['$scope', 'Record', function($scope, Record) {
+    var facRecord, options, fnFetch;
     facRecord = Record.ins();
-    facRecord.list().then(function(rsp) {
-        $scope.records = rsp.records;
+    options = {
+        rid: LS.p.rid
+    };
+    fnFetch = function() {
+        facRecord.list(options.rid).then(function(data) {
+            $scope.records = data.records;
+        });
+    };
+    $scope.$on('xxt.app.enroll.filter.rounds', function(event, data) {
+        if (options.rid !== data[0].rid) {
+            options.rid = data[0].rid;
+            fnFetch();
+        }
     });
+    $scope.$watch('options', function(nv) {
+        fnFetch();
+    }, true);
 }]);
 app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
     var tasksOfOnReady = [];
@@ -129,7 +189,6 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
             tasksOfOnReady.push(task);
         }
     };
-
     $http.get(LS.j('pageGet', 'aid', 'page')).success(function(rsp) {
         if (rsp.err_code !== 0) {
             $scope.errmsg = rsp.err_msg;

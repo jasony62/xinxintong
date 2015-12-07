@@ -2,8 +2,7 @@ app.factory('Round', ['$http', '$q', function($http, $q) {
     var Round, _ins;
     Round = function() {};
     Round.prototype.list = function() {
-        var _this, deferred, promise, url;
-        _this = this;
+        var deferred, url;
         deferred = $q.defer();
         promise = deferred.promise;
         url = LS.j('round/list', 'mpid', 'aid');
@@ -14,7 +13,7 @@ app.factory('Round', ['$http', '$q', function($http, $q) {
             }
             deferred.resolve(rsp.data);
         });
-        return promise;
+        return deferred.promise;
     };
     return {
         ins: function() {
@@ -138,6 +137,16 @@ app.factory('Record', ['$http', '$q', function($http, $q) {
         });
         return deferred.promise;
     };
+    Record.prototype.likerList = function(record) {
+        var url;
+        deferred = $q.defer();
+        url = LS.j('record/likerList', 'mpid');
+        url += '&ek=' + record.enroll_key;
+        $http.get(url).success(function(rsp) {
+            deferred.resolve(rsp.data);
+        });
+        return deferred.promise;
+    };
     Record.prototype.remark = function(record, newRemark) {
         var url, deferred;
         deferred = $q.defer();
@@ -250,7 +259,12 @@ app.controller('ctrlRecord', ['$scope', 'Record', function($scope, Record) {
     $scope.like = function(event) {
         event.preventDefault();
         event.stopPropagation();
-        facRecord.like(facRecord.current).then(function(rsp) {});
+        facRecord.like(facRecord.current);
+    };
+    $scope.likers = function(event) {
+        facRecord.likerList(facRecord.current).then(function(data) {
+            $scope.likers = data.likers;
+        });
     };
     facRecord = Record.ins();
     facRecord.get(LS.p.ek);
@@ -304,6 +318,8 @@ app.controller('ctrlInvite', ['$scope', '$http', 'Record', function($scope, $htt
                 url += '&ek=' + rsp.data.ek;
                 url += '&page=' + nextAction;
                 location.replace(url);
+            } else {
+                alert('操作成功');
             }
         });
     };

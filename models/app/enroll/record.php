@@ -148,6 +148,8 @@ class record_model extends \TMS_MODEL {
 				foreach ($cds as $cd) {
 					$r->data->{$cd->name} = $cd->value;
 				}
+				/*获得点赞记录*/
+				$app->can_like_record === 'Y' && $r->likers = $this->likers($r->enroll_key, 1, 3);
 				/*获得签到记录*/
 				if ($app->can_signin === 'Y') {
 					$qs = array(

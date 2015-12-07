@@ -1,6 +1,6 @@
 var __util = {};
 __util.makeDialog = function(id, html) {
-    var dlg, $dlg, height, wHeight, yOffset;
+    var dlg, $dlg;
     dlg = "<div class='dialog mask'><div class='dialog dlg'>";
     html.header && html.header.length && (dlg += "<div class='dlg-header'>" + html.header + "</div>");
     dlg += "<div class='dlg-body'>" + html.body + "</div>";
@@ -8,14 +8,6 @@ __util.makeDialog = function(id, html) {
     dlg += "</div></div>";
     $dlg = $(dlg).attr('id', id);
     $('body').append($dlg);
-    height = $dlg.height();
-    wHeight = window.innerHeight;
-    if (height > wHeight) {
-        yOffset = window.pageYOffset || 0;
-        $('.dialog.dlg').css('bottom', height - wHeight - yOffset);
-    } else {
-        $('.dialog.dlg').css('bottom', 0);
-    }
     return $dlg.contents();
 };
 app.directive('tmsDatetime', ['$compile', function($compile) {

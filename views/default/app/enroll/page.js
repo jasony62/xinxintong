@@ -255,7 +255,7 @@ app.controller('ctrlRecord', ['$scope', 'Record', function($scope, Record) {
     $scope.editRecord = function(event, page) {
         page ? $scope.gotoPage(event, page, facRecord.current.enroll_key) : alert('没有指定登记编辑页');
     };
-    $scope.like = function(event) {
+    $scope.like = function(event, nextAction) {
         event.preventDefault();
         event.stopPropagation();
         facRecord.like(facRecord.current).then(function(data) {
@@ -313,7 +313,7 @@ app.controller('ctrlInvite', ['$scope', '$http', 'Record', function($scope, $htt
         event.stopPropagation();
         var url;
         url = LS.j('record/inviteSend', 'mpid', 'aid');
-        url += '&ek=' + $scope.Record.current.enroll_key;
+        url += '&ek=' + facRecord.current.enroll_key;
         url += '&invitee=' + $scope.invitee;
         url += '&page=' + invitePage;
         $http.get(url).success(function(rsp) {
@@ -325,7 +325,7 @@ app.controller('ctrlInvite', ['$scope', '$http', 'Record', function($scope, $htt
                 $scope.closeWindow();
             } else if (nextAction !== undefined && nextAction.length) {
                 var url = LS.j('', 'mpid', 'aid');
-                url += '&ek=' + rsp.data.ek;
+                url += '&ek=' + facRecord.current.enroll_key;
                 url += '&page=' + nextAction;
                 location.replace(url);
             } else {

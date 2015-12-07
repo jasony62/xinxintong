@@ -346,7 +346,7 @@
                         <input type='text' class='form-control' ng-model='def.label'>
                     </div>
                 </div>
-                <div class="form-group" ng-show="['likeRecord','closeWindow','addRecord','editRecord'].indexOf(def.type)===-1">
+                <div class="form-group" ng-show="['closeWindow','addRecord','editRecord'].indexOf(def.type)===-1">
                     <label class="col-md-3 control-label">操作后</label>
                     <div class="col-md-9">
                         <select class='form-control' ng-model='def.next' ng-options='k as v.l for (k,v) in pages'>

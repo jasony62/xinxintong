@@ -258,7 +258,18 @@ app.controller('ctrlRecord', ['$scope', 'Record', function($scope, Record) {
     $scope.like = function(event) {
         event.preventDefault();
         event.stopPropagation();
-        facRecord.like(facRecord.current);
+        facRecord.like(facRecord.current).then(function(data) {
+            if (nextAction === 'closeWindow') {
+                $scope.closeWindow();
+            } else if (nextAction !== undefined && nextAction.length) {
+                var url = LS.j('', 'mpid', 'aid');
+                url += '&ek=' + facRecord.current.enroll_key;
+                url += '&page=' + nextAction;
+                location.replace(url);
+            } else {
+                alert('操作成功');
+            }
+        });
     };
     $scope.likers = function(event) {
         facRecord.likerList(facRecord.current).then(function(data) {
@@ -313,7 +324,7 @@ app.controller('ctrlInvite', ['$scope', '$http', 'Record', function($scope, $htt
             if (nextAction === 'closeWindow') {
                 $scope.closeWindow();
             } else if (nextAction !== undefined && nextAction.length) {
-                var url = LS('', 'mpid', 'aid');
+                var url = LS.j('', 'mpid', 'aid');
                 url += '&ek=' + rsp.data.ek;
                 url += '&page=' + nextAction;
                 location.replace(url);

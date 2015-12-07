@@ -546,8 +546,12 @@
             }
         },
         likeRecord: {
-            id: 'btnLikeRecord',
-            act: "like($event)"
+            id: function(def) {
+                return 'btnLikeRecord_' + def.next;
+            },
+            act: function(def) {
+                return 'like' + EmbedButtonSchema._args(def);
+            }
         },
         closeWindow: {
             id: 'btnCloseWindow',
@@ -593,7 +597,7 @@
             action += ")";
             html = '<input type="text" class="form-control" placeholder="认证用户标识" ng-model="invitee">';
             html += '<span class="input-group-btn">';
-            html += '<button class="btn btn-success" type="button" ng-click="' + action + '"><span>邀请</span></button>';
+            html += '<button class="btn btn-success" type="button" ng-click="' + action + '"><span>' + label + '</span></button>';
             html += '</span>';
             this.addWrap(page, 'div', {
                 'ng-controller': 'ctrlInvite',

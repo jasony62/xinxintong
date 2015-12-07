@@ -27,11 +27,18 @@ class main extends \member_base {
 	/**
 	 *
 	 */
-	public function pageGet_action($aid, $page) {
+	public function pageGet_action($mpid, $aid, $page) {
+		$options = array('cascaded' => 'N');
+		$app = $this->model('app\enroll')->byId($aid, $options);
+
 		$page = $this->model('app\enroll\page')->byName($aid, $page);
 		$params = array(
 			'page' => $page,
 		);
+		if ($app->multi_rounds === 'Y') {
+			$params['activeRound'] = $this->model('app\enroll\round')->getLast($mpid, $aid);
+		}
+
 		return new \ResponseData($params);
 	}
 }

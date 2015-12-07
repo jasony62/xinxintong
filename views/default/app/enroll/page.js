@@ -2,10 +2,8 @@ app.factory('Round', ['$http', '$q', function($http, $q) {
     var Round, _ins;
     Round = function() {};
     Round.prototype.list = function() {
-        var _this, deferred, promise, url;
-        _this = this;
+        var deferred, url;
         deferred = $q.defer();
-        promise = deferred.promise;
         url = LS.j('round/list', 'mpid', 'aid');
         $http.get(url).success(function(rsp) {
             if (rsp.err_code != 0) {
@@ -14,7 +12,7 @@ app.factory('Round', ['$http', '$q', function($http, $q) {
             }
             deferred.resolve(rsp.data);
         });
-        return promise;
+        return deferred.promise;
     };
     return {
         ins: function() {

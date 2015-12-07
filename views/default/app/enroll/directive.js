@@ -55,15 +55,11 @@ app.directive('tmsDatetime', ['$compile', function($compile) {
                 minute: dtMinute
             };
             scope.options.minutes.indexOf(dtMinute) === -1 && scope.options.minutes.push(dtMinute);
-            htmlBody = '<div class="form-inline form-group">';
-            htmlBody += '<div class="form-group" style="width:33.33%"><select style="width:100%" class="form-control" ng-model="data.year" ng-options="y for y in options.years"></select></div>';
-            htmlBody += '<div class="form-group" style="width:33.33%"><select style="width:100%" class="form-control" ng-model="data.month" ng-options="m for m in options.months"></select></div>';
-            htmlBody += '<div class="form-group" style="width:33.33%"><select style="width:100%" class="form-control" ng-model="data.date" ng-options="d for d in options.dates"></select></div>';
-            htmlBody += '</div>';
-            htmlBody += '<div class="form-inline form-group">';
-            htmlBody += '<div class="form-group" style="width:50%"><select style="width:100%" class="form-control" ng-model="data.hour" ng-options="h for h in options.hours"></select></div>';
-            htmlBody += '<div class="form-group" style="width:50%"><select style="width:100%" class="form-control" ng-model="data.minute" ng-options="mi for mi in options.minutes"></select></div>';
-            htmlBody += '</div>';
+            htmlBody = '<div class="form-group"><select class="form-control" ng-model="data.year" ng-options="y for y in options.years"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.month" ng-options="m for m in options.months"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.date" ng-options="d for d in options.dates"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.hour" ng-options="h for h in options.hours"></select></div>';
+            htmlBody += '<div class="form-group"><select class="form-control" ng-model="data.minute" ng-options="mi for mi in options.minutes"></select></div>';
             fnOpenPicker = function(event) {
                 event.preventDefault();
                 event.stopPropagation();

@@ -47,35 +47,43 @@ app.register.controller('shelfCtrl', ['$scope', '$http', 'Catelog', 'Product', f
 			}
 		}
 	};
+	var setPropOptions = function() {
+		if ($scope.options.propValues.length === 0) return;
+		var i, k, l, p, v;
+		for (i in $scope.selectedCatelog.propValues) {
+			p = $scope.selectedCatelog.propValues[i];
+			for (k = 0, l = p.length; k < l; k++) {
+				v = p[k];
+				if ($scope.options.propValues.indexOf(v.id) !== -1) {
+					v._selected = true;
+				}
+			}
+		}
+	};
 	facCatelog = new Catelog($scope.$parent.mpid, $scope.$parent.shopId);
 	facProduct = new Product($scope.$parent.mpid, $scope.$parent.shopId);
 	$scope.prevDay = function() {
-		$scope.options.time.begin -= 86400;
-		$scope.options.time.end -= 86400;
+		$scope.options.time.begin -= 86400000;
+		$scope.options.time.end -= 86400000;
 	};
 	$scope.nextDay = function() {
-		$scope.options.time.begin += 86400;
-		$scope.options.time.end += 86400;
+		$scope.options.time.begin += 86400000;
+		$scope.options.time.end += 86400000;
 	};
-	facCatelog.get().then(function(catelogs) {
-		$scope.catelogs = catelogs;
-		if (catelogs.length) {
-			$scope.selectedCatelog = catelogs[0];
-			$scope.listProduct();
-		}
-	});
 	$scope.filterOpened = false;
 	$scope.toggleFilter = function() {
 		var today;
 		$scope.filterOpened = !$scope.filterOpened;
-		if ($scope.selectedCatelog.has_validity === 'Y' && $scope.filterOpened && $scope.options.time === undefined) {
-			today = new Date();
-			today.setHours(0, 0, 0, 0);
-			today = today.getTime() / 1000;
-			$scope.options.time = {
-				begin: today,
-				end: today + 86399
-			};
+		if ($scope.selectedCatelog.has_validity === 'Y' && $scope.filterOpened) {
+			if ($scope.options.time === undefined) {
+				today = new Date();
+				today.setHours(0, 0, 0, 0);
+				today = today.getTime() + (86400000 * 2);
+				$scope.options.time = {
+					begin: today,
+					end: today + 86399000
+				};
+			}
 		}
 	};
 	$scope.clickOption = function(prop, propValue) {
@@ -94,8 +102,8 @@ app.register.controller('shelfCtrl', ['$scope', '$http', 'Catelog', 'Product', f
 		var pvids, beginAt, endAt;
 		pvids = $scope.options.propValues.join(',');
 		if ($scope.options.time) {
-			beginAt = $scope.options.time.begin;
-			endAt = $scope.options.time.end;
+			beginAt = Math.round($scope.options.time.begin / 1000);
+			endAt = Math.round($scope.options.time.end / 1000);
 		} else {
 			beginAt = endAt = undefined;
 		}
@@ -104,4 +112,12 @@ app.register.controller('shelfCtrl', ['$scope', '$http', 'Catelog', 'Product', f
 			$scope.products = data.products;
 		});
 	};
+	facCatelog.get().then(function(catelogs) {
+		$scope.catelogs = catelogs;
+		if (catelogs.length) {
+			$scope.selectedCatelog = catelogs[0];
+			setPropOptions();
+			$scope.listProduct();
+		}
+	});
 }]);

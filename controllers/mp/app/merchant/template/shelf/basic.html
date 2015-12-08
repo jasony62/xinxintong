@@ -10,11 +10,11 @@
 					<span class='option' ng-class="{'selected':v._selected}" ng-repeat="v in selectedCatelog.propValues[p.id]" ng-bind='v.name' ng-click='clickOption(p,v)'></span>
 				</div>
 			</div>
-			<div class='date input-group' ng-if="selectedCatelog.has_validity='Y'">
+			<div class='date input-group' tms-datetime tms-datetime-value="options.time.begin" tms-datetime-items="yMd" tms-datetime-auto-now="N" ng-if="selectedCatelog.has_validity='Y'">
                 <span class='input-group-btn'>
                     <button class='btn btn-default' ng-click='prevDay()'>上一天</button>
                 </span>
-                <p class='form-control' ng-bind="options.time.begin*1000|date:'yy/MM/dd'"></p>
+                <p class='form-control' ng-bind="options.time.begin|date:'yy/MM/dd'"></p>
                 <span class='input-group-btn'>
                     <button class='btn btn-default' ng-click='nextDay()'>下一天</button>
                 </span>

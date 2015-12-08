@@ -5,6 +5,7 @@ body{background-color:#ddd;}
 .name{margin-bottom:.25em;}
 .option{display:inline-block;border:1px solid green;padding:.25em;margin-right:.5em;}
 .option.selected{background:green;}
+#filter .date .form-control{text-align:center}
 
 /*products*/
 .thumbnail{position:relative;padding:8px;}

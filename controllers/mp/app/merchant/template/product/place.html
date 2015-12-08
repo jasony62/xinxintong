@@ -18,11 +18,11 @@
     <div id='skus'>
         <div ng-repeat='cateSku in cateSkus'>
             <div class='sku-filter form-group'>
-                <div class='date input-group'>
+                <div class='date input-group' tms-datetime tms-datetime-value="skuFilter.time.begin" tms-datetime-items="yMd" tms-datetime-auto-now="N">
                     <span class='input-group-btn'>
                         <button class='btn btn-default' ng-click='prevDay()'>上一天</button>
                     </span>
-                    <p class='form-control' ng-bind="skuFilter.time.begin*1000|date:'yy/MM/dd'"></p>
+                    <p class='form-control' ng-bind="skuFilter.time.begin|date:'yy/MM/dd'"></p>
                     <span class='input-group-btn'>
                         <button class='btn btn-default' ng-click='nextDay()'>下一天</button>
                     </span>

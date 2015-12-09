@@ -286,6 +286,7 @@ class xxt_base extends TMS_CONTROLLER {
 			return $rst;
 		}
 		/*记录日志*/
+		$msgid = $rst[1]->msgid;
 		$log = array(
 			'mpid' => $mpid,
 			'openid' => $openid,
@@ -293,7 +294,7 @@ class xxt_base extends TMS_CONTROLLER {
 			'template_id' => $msg['template_id'],
 			'data' => json_encode($msg),
 			'create_at' => time(),
-			'msgid' => $rst[1]->msgid,
+			'msgid' => $msgid,
 		);
 		$this->model()->insert('xxt_log_tmplmsg', $log, false);
 

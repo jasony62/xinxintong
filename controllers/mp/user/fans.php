@@ -182,10 +182,13 @@ class fans extends \mp\mp_controller {
 			if (false === $rst[0]) {
 				return new \ResponseError($rst[1]);
 			}
-
-			$total = $rst[1]->total; // 所有粉丝的数量
-			$openids = $rst[1]->data->openid; // 本次获得的粉丝id数组
-			$nextOpenid = $rst[1]->next_openid !== $openids[count($openids) - 1] ? $rst[1]->next_openid : '';
+			if (!is_object($rst[1])) {
+				return new \ResponseError($rst[1]);
+			}
+			$userSet = $rst[1];
+			$total = $userSet->total; // 所有粉丝的数量
+			$openids = $userSet->data->openid; // 本次获得的粉丝id数组
+			$nextOpenid = $userSet->next_openid !== $openids[count($openids) - 1] ? $userSet->next_openid : '';
 		} else {
 			$stack = $_SESSION['fans_refreshAll_stack'];
 			$mpa = $stack['mpa'];

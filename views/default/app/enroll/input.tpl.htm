@@ -7,7 +7,6 @@
         <base href="/" />
         <title><?php TPL::pt('title');?></title>
         <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
-        <link href="//libs.useso.com/js/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
         <link href="/views/default/app/enroll/input.css?_=2" rel="stylesheet">
         <link href="/views/default/app/enroll/directive.css?_=2" rel="stylesheet">
         <style ng-if="Page.css" ng-bind='Page.css'></style>
@@ -21,14 +20,6 @@
                 <div class='row' ng-controller='ctrlInput'>
                     <form name='page' novalidate dynamic-html="Page.html">
                     </form>
-                </div>
-            </div>
-            <div id='pickImageFrom'>
-                <div class='form-group'>
-                    <button class='btn btn-default btn-lg btn-block' ng-click="chooseImage(null,null,'camera')">拍照</button>
-                </div>
-                <div class='form-group'>
-                    <button class='btn btn-default btn-lg btn-block' ng-click="chooseImage(null,null,'album')">相册</button>
                 </div>
             </div>
         </div>
@@ -51,5 +42,4 @@
         <script src="/views/default/app/enroll/input.js?_=17"></script>
         <script src="/views/default/app/enroll/directive.js?_=1"></script>
     </body>
-
 </html>

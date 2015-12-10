@@ -4,7 +4,7 @@ __util.makeDialog = function(id, html) {
     dlg = "<div class='dialog mask'><div class='dialog dlg'>";
     html.header && html.header.length && (dlg += "<div class='dlg-header'>" + html.header + "</div>");
     dlg += "<div class='dlg-body'>" + html.body + "</div>";
-    dlg += "<div class='dlg-footer'>" + html.footer + "</div>";
+    html.footer && html.fotter.length && (dlg += "<div class='dlg-footer'>" + html.footer + "</div>");
     dlg += "</div></div>";
     $dlg = $(dlg).attr('id', id);
     $('body').append($dlg);

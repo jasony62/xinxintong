@@ -228,7 +228,7 @@
                 def.required == 1 && (html += 'required=""');
                 html += ' class="form-control" rows="3"></textarea>';
                 break;
-            case '5':
+            case 'single':
                 if (def.ops && def.ops.length > 0) {
                     if (def.component === 'R') {
                         html += '<ul>', cls = 'radio';
@@ -258,7 +258,7 @@
                     }
                 }
                 break;
-            case '6':
+            case 'multiple':
                 if (def.ops && def.ops.length > 0) {
                     var cls;
                     html += '<ul>';
@@ -275,7 +275,8 @@
                     html += '</ul>';
                 }
                 break;
-            case '7':
+            case 'image':
+                inpAttrs['tms-image-input'] = 'Y';
                 html += '<ul class="img-tiles clearfix" name="' + key + '">';
                 html += '<li wrap="img" ng-repeat="img in data.' + key + '" class="img-thumbnail" title="' + def.name + '">';
                 html += '<img flex-img>';
@@ -287,6 +288,7 @@
                 html += '</ul>';
                 break;
             case 'file':
+                inpAttrs['tms-file-input'] = 'Y';
                 html += '<ul class="list-group" name="' + key + '">';
                 html += '<li class="list-group-item" ng-show="progressOfUploadFile"><div class="progressOfUploadFile" ng-bind="progressOfUploadFile"></li>';
                 html += '<li wrap="file" ng-repeat="file in data.' + key + '" class="list-group-item" title="' + def.name + '">';

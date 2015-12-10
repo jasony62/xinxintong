@@ -45,26 +45,22 @@ app.factory('Input', function($http, $q, $timeout) {
         }
         return true;
     };
-    var r = new Resumable({
-        target: '/rest/app/enroll/record/uploadFile?mpid=' + LS.p.mpid + '&aid=' + LS.p.aid,
-        testChunks: false,
-        chunkSize: 512 * 1024
-    });
-    r.on('progress', function() {
-        var phase, p;
-        p = r.progress();
-        console.log('progress', p);
-        var phase = $scope.$root.$$phase;
-        if (phase === '$digest' || phase === '$apply') {
-            $scope.progressOfUploadFile = Math.ceil(p * 100);
-        } else {
-            $scope.$apply(function() {
-                $scope.progressOfUploadFile = Math.ceil(p * 100);
-            });
+    Input = function() {};
+    Input.prototype.check = function(data) {
+        var reason;
+        reason = validate(data);
+        if (true !== reason) {
+            return reason;
         }
-    });
-    var submitWhole = function(defer, data, ek) {
-        var url, d, d2, posted = angular.copy(data);
+        if (document.querySelectorAll('.ng-invalid-required').length) {
+            return '请填写必填项';
+        }
+        return true;
+    };
+    Input.prototype.submit = function(data, ek) {
+        var defer, url, d, d2, posted;
+        defer = $q.defer();
+        posted = angular.copy(data);
         url = '/rest/app/enroll/record/submit?mpid=' + LS.p.mpid + '&aid=' + LS.p.aid;
         ek && ek.length && (url += '&ek=' + ek);
         for (var i in posted) {
@@ -96,7 +92,6 @@ app.factory('Input', function($http, $q, $timeout) {
                 if (content.indexOf('http') === 0) {
                     window.onAuthSuccess = function() {
                         el.style.display = 'none';
-                        //btnSubmit && btnSubmit.removeAttribute('disabled');
                     };
                     el.setAttribute('src', content);
                     el.style.display = 'block';
@@ -106,50 +101,40 @@ app.factory('Input', function($http, $q, $timeout) {
                         el.style.display = 'block';
                     }
                 }
-                deferred2.notify(httpCode);
+                defer.notify(httpCode);
             } else {
-                deferred2.reject(content);
+                defer.reject(content);
             }
         });
+        return defer.promise;
     };
-    Input = function() {};
-    Input.prototype.submit = function(data, ek, modifiedImgFields) {
-        var reason, btnSubmit, deferred2, promise2;
-        deferred2 = $q.defer();
-        promise2 = deferred2.promise;
-        reason = validate(data);
-        if (true !== reason) {
-            $timeout(function() {
-                deferred2.reject(reason);
-            });
-            return promise2;
+    return {
+        ins: function() {
+            if (!_ins) {
+                _ins = new Input();
+            }
+            return _ins;
         }
-        if (document.querySelectorAll('.ng-invalid-required').length) {
-            $timeout(function() {
-                deferred2.reject('请填写必填项');
-            });
-            return promise2;
-        }
-        if (r.files && r.files.length) {
-            r.on('complete', function() {
-                var phase = $scope.$root.$$phase;
-                if (phase === '$digest' || phase === '$apply') {
-                    $scope.progressOfUploadFile = '完成';
-                } else {
-                    $scope.$apply(function() {
-                        $scope.progressOfUploadFile = '完成';
-                    });
-                }
-                r.cancel();
-                $scope.submit(deferred2, event, nextAction);
-            });
-            r.upload();
-            return;
-        }
+    }
+});
+app.directive('tmsImageInput', function($compile, $q) {
+    var modifiedImgFields, openPickFrom, onSubmit;
+    modifiedImgFields = [];
+    openPickFrom = function(scope) {
+        var html;
+        html = "<div class='form-group'><button class='btn btn-default btn-lg btn-block' ng-click=\"chooseImage(null,null,'camera')\">拍照</button></div>";
+        html += "<div class='form-group'><button class='btn btn-default btn-lg btn-block' ng-click=\"chooseImage(null,null,'album')\">相册</button></div>";
+        html = __util.makeDialog('pickImageFrom', {
+            body: html
+        });
+        $compile(html)(scope);
+    };
+    onSubmit = function(data) {
+        var defer;
+        defer = $q.defer();
         if (window.wx !== undefined && modifiedImgFields.length) {
             var i, j, nextWxImage;
-            i = 0;
-            j = 0;
+            i = j = 0;
             nextWxImage = function() {
                 var imgField, img;
                 imgField = data[modifiedImgFields[i]];
@@ -161,32 +146,149 @@ app.factory('Input', function($http, $q, $timeout) {
                         j = 0;
                         i++;
                     } else {
-                        submitWhole(data, ek);
-                        return true;
+                        defer.resolve('ok');
                     }
                     nextWxImage();
                 });
             };
             nextWxImage();
         } else {
-            submitWhole(deferred2, data, ek);
+            defer.resolve('ok');
         }
-        return promise2;
+        return defer.promise;
     };
     return {
-        ins: function() {
-            if (!_ins) {
-                _ins = new Input();
+        restrict: 'A',
+        controller: function($scope) {
+            $scope.beforeSubmit(function() {
+                return onSubmit($scope.data);
+            });
+            $scope.chooseImage = function(imgFieldName, count, from) {
+                if (imgFieldName !== null) {
+                    modifiedImgFields.indexOf(imgFieldName) === -1 && modifiedImgFields.push(imgFieldName);
+                    $scope.data[imgFieldName] === undefined && ($scope.data[imgFieldName] = []);
+                    if (count !== null && $scope.data[imgFieldName].length === count) {
+                        $scope.$parent.errmsg = '最多允许上传' + count + '张图片';
+                        return;
+                    }
+                }
+                if (window.YixinJSBridge) {
+                    if (from === undefined) {
+                        $scope.cachedImgFieldName = imgFieldName;
+                        openPickFrom($scope);
+                        return;
+                    }
+                    imgFieldName = $scope.cachedImgFieldName;
+                    $scope.cachedImgFieldName = null;
+                    $('#pickImageFrom').remove();
+                }
+                window.xxt.image.choose($q.defer(), from).then(function(imgs) {
+                    var phase, i, j, img;
+                    phase = $scope.$root.$$phase;
+                    if (phase === '$digest' || phase === '$apply') {
+                        $scope.data[imgFieldName] = $scope.data[imgFieldName].concat(imgs);
+                    } else {
+                        $scope.$apply(function() {
+                            $scope.data[imgFieldName] = $scope.data[imgFieldName].concat(imgs);
+                        });
+                    }
+                    for (i = 0, j = imgs.length; i < j; i++) {
+                        img = imgs[i];
+                        (window.wx !== undefined) && $('ul[name="' + imgFieldName + '"] li:nth-last-child(2) img').attr('src', img.imgSrc);
+                    }
+                    $scope.$broadcast('xxt.enroll.image.choose.done', imgFieldName);
+                });
+            };
+            $scope.removeImage = function(imgField, index) {
+                imgField.splice(index, 1);
+            };
+        }
+    }
+});
+app.directive('tmsFileInput', function($q) {
+    var r, onSubmit;
+    r = new Resumable({
+        target: '/rest/app/enroll/record/uploadFile?mpid=' + LS.p.mpid + '&aid=' + LS.p.aid,
+        testChunks: false,
+        chunkSize: 512 * 1024
+    });
+    onSubmit = function($scope) {
+        var defer;
+        defer = $q.defer();
+        if (!r.files || r.files.length === 0)
+            defer.resolve('empty');
+        r.on('progress', function() {
+            var phase, p;
+            p = r.progress();
+            var phase = $scope.$root.$$phase;
+            if (phase === '$digest' || phase === '$apply') {
+                $scope.progressOfUploadFile = Math.ceil(p * 100);
+            } else {
+                $scope.$apply(function() {
+                    $scope.progressOfUploadFile = Math.ceil(p * 100);
+                });
             }
-            return _ins;
+        });
+        r.on('complete', function() {
+            var phase = $scope.$root.$$phase;
+            if (phase === '$digest' || phase === '$apply') {
+                $scope.progressOfUploadFile = '完成';
+            } else {
+                $scope.$apply(function() {
+                    $scope.progressOfUploadFile = '完成';
+                });
+            }
+            r.cancel();
+            defer.resolve('ok');
+        });
+        r.upload();
+        return defer.promise;
+    };
+    return {
+        restrict: 'A',
+        controller: function($scope) {
+            $scope.progressOfUploadFile = 0;
+            $scope.beforeSubmit(function() {
+                return onSubmit($scope);
+            });
+            $scope.chooseFile = function(fileFieldName, count, accept) {
+                var ele = document.createElement('input');
+                ele.setAttribute('type', 'file');
+                accept !== undefined && ele.setAttribute('accept', accept);
+                ele.addEventListener('change', function(evt) {
+                    var i, cnt, f;
+                    cnt = evt.target.files.length;
+                    for (i = 0; i < cnt; i++) {
+                        f = evt.target.files[i];
+                        r.addFile(f);
+                        $scope.data[fileFieldName] === undefined && ($scope.data[fileFieldName] = []);
+                        $scope.data[fileFieldName].push({
+                            uniqueIdentifier: r.files[0].uniqueIdentifier,
+                            name: f.name,
+                            size: f.size,
+                            type: f.type,
+                            url: ''
+                        });
+                    }
+                    $scope.$apply('data.' + fileFieldName);
+                    $scope.$broadcast('xxt.enroll.file.choose.done', fileFieldName);
+                }, false);
+                ele.click();
+            };
         }
     }
 });
 app.controller('ctrlInput', ['$scope', '$http', '$timeout', '$q', 'Input', 'Record', function($scope, $http, $timeout, $q, Input, Record) {
-    var facRecord, facInput, record, modifiedImgFields, tasksOfOnReady;
+    var facRecord, facInput, record, tasksOfOnReady, tasksOfBeforeSubmit;
+    tasksOfBeforeSubmit = [];
     facInput = Input.ins();
     $scope.data = {
         member: {}
+    };
+    $scope.beforeSubmit = function(fn) {
+        if (tasksOfBeforeSubmit.indexOf(fn) === -1) {
+            tasksOfBeforeSubmit.push(fn);
+        }
     };
     $scope.$on('xxt.app.enroll.ready', function() {
         if (LS.p.ek.length || (LS.p.newRecord !== 'Y' && $scope.App.open_lastroll === 'Y')) {
@@ -225,12 +327,13 @@ app.controller('ctrlInput', ['$scope', '$http', '$timeout', '$q', 'Input', 'Reco
             });
         }
     });
-    $scope.submit = function(event, nextAction) {
-        var ek, url, btnSubmit;
+    var doSubmit = function(nextAction) {
+        var ek, btnSubmit;
         btnSubmit = document.querySelector('#btnSubmit');
         btnSubmit && btnSubmit.setAttribute('disabled', true);
         ek = $scope.record ? $scope.record.enroll_key : undefined;
-        facInput.submit($scope.data, ek, modifiedImgFields).then(function(rsp) {
+        facInput.submit($scope.data, ek).then(function(rsp) {
+            var url;
             if (nextAction === 'closeWindow') {
                 $scope.closeWindow();
             } else if (nextAction !== undefined && nextAction.length) {
@@ -251,6 +354,21 @@ app.controller('ctrlInput', ['$scope', '$http', '$timeout', '$q', 'Input', 'Reco
             $scope.$parent.errmsg = reason;
         });
     };
+    var doTask = function(seq, nextAction) {
+        task = tasksOfBeforeSubmit[seq];
+        task().then(function(rsp) {
+            seq++;
+            seq < tasksOfBeforeSubmit.length ? doTask(seq, nextAction) : doSubmit(nextAction);
+        });
+    };
+    $scope.submit = function(event, nextAction) {
+        var checkResult, task, seq;
+        if (true === (checkResult = facInput.check($scope.data))) {
+            tasksOfBeforeSubmit.length ? doTask(0, nextAction) : doSubmit(nextAction);
+        } else {
+            $scope.errmsg = data.errmsg;
+        }
+    };
     $scope.getMyLocation = function(prop) {
         window.xxt.geo.getAddress($http, $q.defer(), $scope.mpid).then(function(data) {
             if (data.errmsg === 'ok')
@@ -258,71 +376,6 @@ app.controller('ctrlInput', ['$scope', '$http', '$timeout', '$q', 'Input', 'Reco
             else
                 $scope.errmsg = data.errmsg;
         });
-    };
-    modifiedImgFields = [];
-    $scope.chooseImage = function(imgFieldName, count, from) {
-        if (imgFieldName !== null) {
-            modifiedImgFields.indexOf(imgFieldName) === -1 && modifiedImgFields.push(imgFieldName);
-            $scope.data[imgFieldName] === undefined && ($scope.data[imgFieldName] = []);
-            if (count !== null && $scope.data[imgFieldName].length === count) {
-                $scope.$parent.errmsg = '最多允许上传' + count + '张图片';
-                return;
-            }
-        }
-        if (window.YixinJSBridge) {
-            if (from === undefined) {
-                $scope.cachedImgFieldName = imgFieldName;
-                openPickImageFrom();
-                return;
-            }
-            imgFieldName = $scope.cachedImgFieldName;
-            $scope.cachedImgFieldName = null;
-            $('#pickImageFrom').hide();
-        }
-        window.xxt.image.choose($q.defer(), from).then(function(imgs) {
-            var phase, i, j, img;
-            phase = $scope.$root.$$phase;
-            if (phase === '$digest' || phase === '$apply') {
-                $scope.data[imgFieldName] = $scope.data[imgFieldName].concat(imgs);
-            } else {
-                $scope.$apply(function() {
-                    $scope.data[imgFieldName] = $scope.data[imgFieldName].concat(imgs);
-                });
-            }
-            for (i = 0, j = imgs.length; i < j; i++) {
-                img = imgs[i];
-                (window.wx !== undefined) && $('ul[name="' + imgFieldName + '"] li:nth-last-child(2) img').attr('src', img.imgSrc);
-            }
-            $scope.$broadcast('xxt.enroll.image.choose.done', imgFieldName);
-        });
-    };
-    $scope.removeImage = function(imgField, index) {
-        imgField.splice(index, 1);
-    };
-    $scope.progressOfUploadFile = 0;
-    $scope.chooseFile = function(fileFieldName, count, accept) {
-        var ele = document.createElement('input');
-        ele.setAttribute('type', 'file');
-        accept !== undefined && ele.setAttribute('accept', accept);
-        ele.addEventListener('change', function(evt) {
-            var i, cnt, f;
-            cnt = evt.target.files.length;
-            for (i = 0; i < cnt; i++) {
-                f = evt.target.files[i];
-                r.addFile(f);
-                $scope.data[fileFieldName] === undefined && ($scope.data[fileFieldName] = []);
-                $scope.data[fileFieldName].push({
-                    uniqueIdentifier: r.files[0].uniqueIdentifier,
-                    name: f.name,
-                    size: f.size,
-                    type: f.type,
-                    url: ''
-                });
-            }
-            $scope.$apply('data.' + fileFieldName);
-            $scope.$broadcast('xxt.enroll.file.choose.done', fileFieldName);
-        }, false);
-        ele.click();
     };
     $scope.$watch('data.member.authid', function(nv) {
         if (nv && nv.length) PG.setMember($scope.params, $scope.data.member);

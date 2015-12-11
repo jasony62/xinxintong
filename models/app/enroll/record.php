@@ -402,7 +402,7 @@ class record_model extends \TMS_MODEL {
 				/* 上传文件 */
 				$modelFs2 = \TMS_APP::M('fs/local', $runningMpid, '_user');
 				$modelFs = \TMS_APP::M('fs/local', $runningMpid, '_resumable');
-				$vv = array();
+				$git vv = array();
 				$fsuser = \TMS_APP::model('fs/user', $runningMpid);
 				foreach ($v as $file) {
 					$fileUploaded = $modelFs->rootDir . '/' . $submitkey . '_' . $file->uniqueIdentifier;

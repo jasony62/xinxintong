@@ -320,7 +320,18 @@
             }
         });
     }]);
-    xxtApp.register.controller('editorCtrl', ['$scope', '$modalInstance', 'enroll', 'record', 'cols', function($scope, $modalInstance, enroll, record, cols) {
+    xxtApp.register.controller('editorCtrl', ['$scope', '$modalInstance', '$sce', 'enroll', 'record', 'cols', function($scope, $modalInstance, $sce, enroll, record, cols) {
+        var p, col, files;
+        for (p in cols) {
+            col = cols[p];
+            if (col.type === 'file') {
+                files = JSON.parse(record.data[col.id]);
+                angular.forEach(files, function(file) {
+                    file.url = $sce.trustAsResourceUrl(file.url);
+                });
+                record.data[col.id] = files;
+            }
+        }
         $scope.enroll = enroll;
         $scope.record = record;
         $scope.record.aTags = (!record.tags || record.tags.length === 0) ? [] : record.tags.split(',');

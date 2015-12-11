@@ -400,16 +400,21 @@ class record_model extends \TMS_MODEL {
 				$vv = implode(',', $vv);
 			} else if (is_array($v) && isset($v[0]->uniqueIdentifier)) {
 				/* 上传文件 */
-				$modelFs2 = \TMS_APP::M('fs/local', $runningMpid, '_user');
-				$modelFs = \TMS_APP::M('fs/local', $runningMpid, '_resumable');
-				$git vv = array();
-				$fsuser = \TMS_APP::model('fs/user', $runningMpid);
+				$fsUser = \TMS_APP::M('fs/local', $runningMpid, '_user');
+				$fsResum = \TMS_APP::M('fs/local', $runningMpid, '_resumable');
+				$fsAli = \TMS_APP::M('fs/alioss', $runningMpid);
+				$vv = array();
 				foreach ($v as $file) {
-					$fileUploaded = $modelFs->rootDir . '/' . $submitkey . '_' . $file->uniqueIdentifier;
-					!file_exists($modelFs2->rootDir . '/' . $submitkey) && mkdir($modelFs2->rootDir . '/' . $submitkey, 0777, true);
-					$fileUploaded2 = $modelFs2->rootDir . '/' . $submitkey . '/' . $file->name;
-					if (false === rename($fileUploaded, $fileUploaded2)) {
-						return array(false, '移动上传文件失败');
+					if (defined('SAE_TMP_PATH')) {
+						$dest = '/' . $aid . '/' . $submitkey . '_' . $file->name;
+						$fileUploaded2 = $fsAli->getBaseURL() . $dest;
+					} else {
+						$fileUploaded = $fsResum->rootDir . '/' . $submitkey . '_' . $file->uniqueIdentifier;
+						!file_exists($fsUser->rootDir . '/' . $submitkey) && mkdir($fsUser->rootDir . '/' . $submitkey, 0777, true);
+						$fileUploaded2 = $fsUser->rootDir . '/' . $submitkey . '/' . $file->name;
+						if (false === rename($fileUploaded, $fileUploaded2)) {
+							return array(false, '移动上传文件失败');
+						}
 					}
 					unset($file->uniqueIdentifier);
 					$file->url = $fileUploaded2;

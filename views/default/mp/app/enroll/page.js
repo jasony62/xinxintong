@@ -289,7 +289,7 @@
                 break;
             case 'file':
                 inpAttrs['tms-file-input'] = 'Y';
-                html += '<ul class="list-group" name="' + key + '">';
+                html += '<ul class="list-group file" name="' + key + '">';
                 html += '<li class="list-group-item" ng-show="progressOfUploadFile"><div class="progressOfUploadFile" ng-bind="progressOfUploadFile"></li>';
                 html += '<li wrap="file" ng-repeat="file in data.' + key + '" class="list-group-item" title="' + def.name + '">';
                 html += '<span class="file-name" ng-bind="file.name"></span>';

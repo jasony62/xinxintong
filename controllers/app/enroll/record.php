@@ -3,6 +3,78 @@ namespace app\enroll;
 
 include_once dirname(__FILE__) . '/base.php';
 /**
+ *
+ */
+class resumableAliOss {
+
+	private $mpid;
+
+	private $articleid;
+
+	public function __construct($mpid, $dest, $domain = '_user') {
+
+		$this->mpid = $mpid;
+
+		$this->dest = $dest;
+
+		$this->domain = $domain;
+	}
+	/**
+	 *
+	 * Check if all the parts exist, and
+	 * gather all the parts of the file together
+	 *
+	 * @param string $temp_dir - the temporary directory holding all the parts of the file
+	 * @param string $fileName - the original file name
+	 * @param string $chunkSize - each chunk size (in bytes)
+	 * @param string $totalSize - original file size (in bytes)
+	 */
+	private function createFileFromChunks($temp_dir, $fileName, $chunkSize, $totalSize) {
+		/*检查文件是否都已经上传*/
+		$fs = \TMS_APP::M('fs/saestore', $this->mpid);
+		$total_files = 0;
+		$rst = $fs->getListByPath($temp_dir);
+		foreach ($rst['files'] as $file) {
+			if (stripos($file['Name'], $fileName) !== false) {
+				$total_files++;
+			}
+		}
+		/*如果都已经上传，合并分块文件*/
+		if ($total_files * $chunkSize >= ($totalSize - $chunkSize + 1)) {
+			$fsAli = \TMS_APP::M('fs/alioss', $this->mpid, 'xinxintong', $this->domain);
+			// 合并后的临时文件
+			$tmpfname = tempnam(sys_get_temp_dir(), 'xxt');
+			$handle = fopen($tmpfname, "w");
+			for ($i = 1; $i <= $total_files; $i++) {
+				$content = $fs->read($temp_dir . '/' . $fileName . '.part' . $i);
+				fwrite($handle, $content);
+				$fs->delete($temp_dir . '/' . $fileName . '.part' . $i);
+			}
+			fclose($handle);
+			/*将文件上传到alioss*/
+			$aliURL = $fsAli->getRootDir() . $this->dest;
+			$rsp = $fsAli->create_mpu_object($aliURL, $tmpfname);
+			echo (json_encode($rsp));
+		}
+	}
+	/**
+	 * 将接收到的分块数据存储在sae的存储中
+	 * 检查是否所有的分块数据都已经上传完成
+	 */
+	public function handleRequest() {
+		$temp_dir = $_POST['resumableIdentifier'];
+		$dest_file = $temp_dir . '/' . $_POST['resumableFilename'] . '.part' . $_POST['resumableChunkNumber'];
+		$content = base64_decode(preg_replace('/data:(.*?)base64\,/', '', $_POST['resumableChunkContent']));
+		$fsSae = \TMS_APP::M('fs/saestore', $this->mpid);
+		if (!$fsSae->write($dest_file, $content)) {
+			return array(false, 'Error saving (move_uploaded_file) chunk ' . $_POST['resumableChunkNumber'] . ' for file ' . $_POST['resumableFilename']);
+		} else {
+			$this->createFileFromChunks($temp_dir, $_POST['resumableFilename'], $_POST['resumableChunkSize'], $_POST['resumableTotalSize']);
+			return array(true);
+		}
+	}
+}
+/**
  * 登记活动
  */
 class record extends base {
@@ -155,6 +227,9 @@ class record extends base {
 	}
 	/**
 	 * 分段上传文件
+	 * @param string $mpid
+	 * @param string $aid
+	 * @param string $submitKey
 	 */
 	public function uploadFile_action($mpid, $aid, $submitkey = '') {
 		/* support CORS */
@@ -163,18 +238,21 @@ class record extends base {
 		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 			exit;
 		}
-
 		if (empty($submitkey)) {
 			$user = $this->getUser($mpid);
 			$submitkey = $user->vid;
 		}
-		/**
-		 * 分块上传文件
-		 */
-		$modelFs = \TMS_APP::M('fs/local', $mpid, '_resumable');
-		$dest = $submitkey . '_' . $_POST['resumableIdentifier'];
-		$resumable = \TMS_APP::M('fs/resumable', $mpid, $dest, $modelFs);
-		$resumable->handleRequest($_POST);
+		/** 分块上传文件 */
+		if (defined('SAE_TMP_PATH')) {
+			$dest = '/' . $aid . '/' . $submitkey . '_' . $_POST['resumableFilename'];
+			$resumable = new resumableAliOss($mpid, $dest);
+			$resumable->handleRequest();
+		} else {
+			$modelFs = \TMS_APP::M('fs/local', $mpid, '_resumable');
+			$dest = $submitkey . '_' . $_POST['resumableIdentifier'];
+			$resumable = \TMS_APP::M('fs/resumable', $mpid, $dest, $modelFs);
+			$resumable->handleRequest($_POST);
+		}
 
 		return new \ResponseData('ok');
 	}

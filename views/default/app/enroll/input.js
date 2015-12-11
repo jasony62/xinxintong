@@ -307,6 +307,11 @@ app.controller('ctrlInput', ['$scope', '$http', '$timeout', '$q', 'Input', 'Reco
                                 imgSrc: value[i]
                             });
                         }
+                    } else if ($('[name=' + p + ']').hasClass('file')) {
+                        if (dataOfRecord[p] && dataOfRecord[p].length) {
+                            value = JSON.parse(dataOfRecord[p]);
+                            $scope.data[p] = value;
+                        }
                     } else {
                         type = $('[name=' + p + ']').attr('type');
                         if (type === 'checkbox') {

@@ -214,6 +214,15 @@ app.controller('ctrlOrderbyOptions', ['$scope', function($scope) {
         }
     };
 }]);
+app.controller('ctrlStatistic', ['$scope', '$http', function($scope, $http) {
+    var fnFetch;
+    fnFetch = function() {
+        $http.get(LS.j('statGet', 'scenario', 'template')).success(function(rsp) {
+            $scope.statistic = rsp.data;
+        });
+    };
+    fnFetch();
+}]);
 app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
     $scope.data = {
         member: {}
@@ -269,4 +278,48 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $h
             }
         })(params.page);
     });
+}]);
+app.factory('Schema', ['$http', '$q', function($http, $q) {
+    var schema, Schema;
+    schema = null;
+    Schema = function() {};
+    Schema.prototype.get = function() {
+        var deferred;
+        deferred = $q.defer();
+        if (schema !== null)
+            deferred.resolve(schema);
+        else {
+            $http.get(LS.j('page/schemaGet', 'scenario', 'template')).success(function(rsp) {
+                schema = rsp.data;
+                deferred.resolve(schema);
+            });
+        }
+        return deferred.promise;
+    };
+    return Schema;
+}]);
+app.filter('value2Label', ['Schema', function(Schema) {
+    var schemas;
+    (new Schema()).get().then(function(data) {
+        schemas = data;
+    });
+    return function(val, key) {
+        var i, j, s, aVal, aLab = [];
+        if (val === undefined) return '';
+        for (i = 0, j = schemas.length; i < j; i++) {
+            s = schemas[i];
+            if (schemas[i].id === key) {
+                s = schemas[i];
+                break;
+            }
+        }
+        if (s && s.ops && s.ops.length) {
+            aVal = val.split(',');
+            for (i = 0, j = s.ops.length; i < j; i++) {
+                aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].label);
+            }
+            if (aLab.length) return aLab.join(',');
+        }
+        return val;
+    };
 }]);

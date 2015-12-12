@@ -1,4 +1,4 @@
-angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function($rootScope, $http) {
+angular.module('ui.tms', ['ngSanitize']).service('http2', ['$rootScope', '$http', '$sce', function($rootScope, $http, $sce) {
     this.get = function(url, callback, options) {
         options = angular.extend({
             'headers': {
@@ -9,16 +9,16 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function($
         }, options);
         $http.get(url, options).success(function(rsp) {
             if (angular.isString(rsp)) {
-                if (options.autoNotice) $rootScope.errmsg = rsp;
+                if (options.autoNotice) $rootScope.errmsg = $sce.trustAsHtml(rsp);
                 return;
             }
             if (rsp.err_code != 0) {
-                if (options.autoNotice) $rootScope.errmsg = rsp.err_msg;
+                if (options.autoNotice) $rootScope.errmsg = $sce.trustAsHtml(rsp.err_msg);
                 if (options.autoBreak) return;
             }
             if (callback) callback(rsp);
         }).error(function(data, status) {
-            $rootScope.errmsg = data;
+            $rootScope.errmsg = $sce.trustAsHtml(data);
         });
     };
     this.post = function(url, posted, callback, options) {
@@ -31,16 +31,16 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function($
         }, options);
         $http.post(url, posted, options).success(function(rsp) {
             if (angular.isString(rsp)) {
-                if (options.autoNotice) $rootScope.errmsg = rsp;
+                if (options.autoNotice) $rootScope.errmsg = $sce.trustAsHtml(rsp);
                 return;
             }
             if (rsp.err_code != 0) {
-                if (options.autoNotice) $rootScope.errmsg = rsp.err_msg;
+                if (options.autoNotice) $rootScope.errmsg = $sce.trustAsHtml(rsp.err_msg);
                 if (options.autoBreak) return;
             }
             if (callback) callback(rsp);
         }).error(function(data, status) {
-            $rootScope.errmsg = data;
+            $rootScope.errmsg = $sce.trustAsHtml(data);
         });
     };
 }]).controller('ComboxController', ['$scope', function($scope) {
@@ -218,7 +218,7 @@ angular.module('ui.tms', []).service('http2', ['$rootScope', '$http', function($
             prog: '=',
             delay: '@'
         },
-        templateUrl: '/static/template/noticebox.html?_=3',
+        templateUrl: '/static/template/noticebox.html?_=5',
         controller: 'NoticeBoxController',
         replace: true
     };

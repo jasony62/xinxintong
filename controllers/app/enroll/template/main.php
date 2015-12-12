@@ -36,4 +36,21 @@ class main extends base {
 
 		return new \ResponseData($params);
 	}
+	/**
+	 * 统计登记信息
+	 *
+	 * 只统计radio/checkbox类型的数据项
+	 *
+	 * return
+	 * name => array(l=>label,c=>count)
+	 *
+	 */
+	public function statGet_action($scenario, $template) {
+		$templateDir = $this->getTemplateDir($scenario, $template);
+		$data = $this->getData($templateDir);
+
+		$statistic = $data->statistic;
+
+		return new \ResponseData($statistic);
+	}
 }

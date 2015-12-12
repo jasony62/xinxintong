@@ -1,24 +1,67 @@
 var xxtMatters = angular.module('matters.xxt', ['ui.bootstrap']);
-xxtMatters.constant('matterTypes', [
-    { value: 'text', title: '文本', url: '/rest/mp/matter' },
-    { value: 'article', title: '单图文', url: '/rest/mp/matter' },
-    { value: 'news', title: '多图文', url: '/rest/mp/matter' },
-    { value: 'channel', title: '频道', url: '/rest/mp/matter' },
-    { value: 'link', title: '链接', url: '/rest/mp/matter' },
-    { value: 'addressbook', title: '通讯录', url: '/rest/mp/matter' },
-    { value: 'enroll', title: '登记活动', url: '/rest/mp/matter' },
-    { value: 'enrollsignin', title: '登记活动签到', url: '/rest/mp/matter' },
-    { value: 'lottery', title: '抽奖活动', url: '/rest/mp/matter' },
-    { value: 'wall', title: '讨论组', url: '/rest/mp/matter' },
-    { value: 'joinwall', title: '加入讨论组', url: '/rest/mp/matter' },
-    { value: 'contribute', title: '投稿活动', url: '/rest/mp/app' },
-    { value: 'inner', title: '内置回复', url: '/rest/mp/matter' },
-    { value: 'relay', title: '转发消息', url: '/rest/mp/matter' },
-]);
-xxtMatters.service('userSetAsParam', [function () {
-    this.convert = function (userSet) {
+xxtMatters.constant('matterTypes', [{
+    value: 'text',
+    title: '文本',
+    url: '/rest/mp/matter'
+}, {
+    value: 'article',
+    title: '单图文',
+    url: '/rest/mp/matter'
+}, {
+    value: 'news',
+    title: '多图文',
+    url: '/rest/mp/matter'
+}, {
+    value: 'channel',
+    title: '频道',
+    url: '/rest/mp/matter'
+}, {
+    value: 'link',
+    title: '链接',
+    url: '/rest/mp/matter'
+}, {
+    value: 'addressbook',
+    title: '通讯录',
+    url: '/rest/mp/matter'
+}, {
+    value: 'enroll',
+    title: '登记活动',
+    url: '/rest/mp/matter'
+}, {
+    value: 'enrollsignin',
+    title: '登记活动签到',
+    url: '/rest/mp/matter'
+}, {
+    value: 'lottery',
+    title: '抽奖活动',
+    url: '/rest/mp/matter'
+}, {
+    value: 'wall',
+    title: '讨论组',
+    url: '/rest/mp/matter'
+}, {
+    value: 'joinwall',
+    title: '加入讨论组',
+    url: '/rest/mp/matter'
+}, {
+    value: 'contribute',
+    title: '投稿活动',
+    url: '/rest/mp/app'
+}, {
+    value: 'inner',
+    title: '内置回复',
+    url: '/rest/mp/matter'
+}, {
+    value: 'relay',
+    title: '转发消息',
+    url: '/rest/mp/matter'
+}, ]);
+xxtMatters.service('userSetAsParam', [function() {
+    this.convert = function(userSet) {
         if (userSet.userScope === '') return [];
-        var params = [], i, dept, tagIds = [], tagNames = [];
+        var params = [],
+            i, dept, tagIds = [],
+            tagNames = [];
         switch (userSet.userScope) {
             case 'a':
                 var newUs = {
@@ -80,8 +123,8 @@ xxtMatters.service('userSetAsParam', [function () {
         return params;
     };
 }]);
-xxtMatters.filter('typetitle', ['matterTypes', function (matterTypes) {
-    return function (type) {
+xxtMatters.filter('typetitle', ['matterTypes', function(matterTypes) {
+    return function(type) {
         for (var i in matterTypes) {
             if (type && type.toLowerCase() === matterTypes[i].value)
                 return matterTypes[i].title;
@@ -89,14 +132,21 @@ xxtMatters.filter('typetitle', ['matterTypes', function (matterTypes) {
         return '';
     }
 }]);
-xxtMatters.directive('tinymce', function ($timeout) {
+xxtMatters.directive('tinymce', function($timeout) {
     return {
         restrict: 'EA',
-        scope: { id: '@', height: '=', content: '=', contenteditable: '=', update: '&', change: '&' },
+        scope: {
+            id: '@',
+            height: '=',
+            content: '=',
+            contenteditable: '=',
+            update: '&',
+            change: '&'
+        },
         replace: true,
         template: '<textarea></textarea>',
-        link: function (scope, elem, attrs) {
-            setTimeout(function () {
+        link: function(scope, elem, attrs) {
+            setTimeout(function() {
                 tinymce.init({
                     selector: '#' + scope.id,
                     language: 'zh_CN',
@@ -109,8 +159,8 @@ xxtMatters.directive('tinymce', function ($timeout) {
                     height: scope.height ? scope.height : 300,
                     valid_elements: "*[*]",
                     relative_urls: false,
-                    setup: function (editor) {
-                        editor.on('click', function (e) {
+                    setup: function(editor) {
+                        editor.on('click', function(e) {
                             var wrap;
                             wrap = e.target;
                             if (wrap.tagName !== 'HTML') {
@@ -125,7 +175,7 @@ xxtMatters.directive('tinymce', function ($timeout) {
                                 scope.$emit('tinymce.wrap.select', editor.getBody());
                             }
                         });
-                        editor.on('keydown', function (evt) {
+                        editor.on('keydown', function(evt) {
                             if (evt.keyCode == 13) {
                                 /**
                                  * 检查组件元素，如果是，在结尾回车时不进行元素的复制，而是添加空行
@@ -141,7 +191,10 @@ xxtMatters.directive('tinymce', function ($timeout) {
                                         }
                                         if (wrap.hasAttribute('wrap') && wrap.getAttribute('wrap') !== 'text') {
                                             evt.preventDefault();
-                                            var newWrap = dom.create('div', { wrap: 'text', class: 'form-group' }, '&nbsp;');
+                                            var newWrap = dom.create('div', {
+                                                wrap: 'text',
+                                                class: 'form-group'
+                                            }, '&nbsp;');
                                             dom.insertAfter(newWrap, wrap);
                                             selection.setCursorLocation(newWrap, 0);
                                             editor.focus();
@@ -150,7 +203,7 @@ xxtMatters.directive('tinymce', function ($timeout) {
                                 }
                             }
                         });
-                        editor.on('change', function (e) {
+                        editor.on('change', function(e) {
                             var content, phase;
                             content = tinymce.get(scope.id).getContent();
                             if (scope.content !== content) {
@@ -158,32 +211,32 @@ xxtMatters.directive('tinymce', function ($timeout) {
                                 if (phase === '$digest' || phase === '$apply') {
                                     scope.content = content;
                                 } else {
-                                    scope.$apply(function () {
+                                    scope.$apply(function() {
                                         scope.content = content;
                                     });
                                 }
-                                $timeout(function () {
+                                $timeout(function() {
                                     scope.change && scope.change();
                                 });
                             }
                         });
-                        editor.on('blur', function (e) {
+                        editor.on('blur', function(e) {
                             var content = tinymce.get(scope.id).getContent();
                             if (scope.content !== content) {
                                 var phase = scope.$root.$$phase;
                                 if (phase === '$digest' || phase === '$apply') {
                                     scope.content = content;
                                 } else {
-                                    scope.$apply(function () {
+                                    scope.$apply(function() {
                                         scope.content = content;
                                     });
                                 }
-                                $timeout(function () {
+                                $timeout(function() {
                                     scope.update && scope.update();
                                 });
                             }
                         });
-                        editor.on('BeforeSetContent', function (e) {
+                        editor.on('BeforeSetContent', function(e) {
                             if (e.content && e.content.length) {
                                 var c = e.content;
                                 c = c.replace(/\n|\r/g, '').replace(/\s*/, ''); // trim
@@ -192,7 +245,9 @@ xxtMatters.directive('tinymce', function ($timeout) {
                                 } else if (/^<a.*<\/a>/i.test(c) && /link2email/.test(c) === false) {
                                     var $a = $(c);
                                     if ($a.attr('target') == '_email') {
-                                        var href = $a.attr('href'), code = $a.attr('code'), html = $a.html();
+                                        var href = $a.attr('href'),
+                                            code = $a.attr('code'),
+                                            html = $a.html();
                                         href += (href.indexOf('?') == -1 ? '?' : '&');
                                         href += 'code=' + code;
                                         href += '&text=' + html;
@@ -201,10 +256,11 @@ xxtMatters.directive('tinymce', function ($timeout) {
                                 }
                             }
                         });
-                        editor.on('ExecCommand', function (e) {
+                        editor.on('ExecCommand', function(e) {
                             switch (e.command) {
                                 case 'mceTableDelete':
-                                    var c = this.getContent(), patt = /<div class="tablewrap">&nbsp;<\/div>/;
+                                    var c = this.getContent(),
+                                        patt = /<div class="tablewrap">&nbsp;<\/div>/;
                                     if (patt.test(c)) {
                                         c = c.replace(patt, '');
                                         this.setContent(c);
@@ -215,7 +271,7 @@ xxtMatters.directive('tinymce', function ($timeout) {
                         editor.addButton('multipleimage', {
                             tooltip: '插入图片',
                             icon: 'image',
-                            onclick: function () {
+                            onclick: function() {
                                 var selectedNode, selectedId, tmpId = false;
                                 selectedNode = editor.selection.getNode();
                                 selectedId = editor.dom.getAttrib(selectedNode, 'id');
@@ -224,19 +280,23 @@ xxtMatters.directive('tinymce', function ($timeout) {
                                     selectedId = '__mcenew' + (new Date).getTime();
                                     editor.dom.setAttrib(selectedNode, 'id', selectedId);
                                 }
-                                scope.$emit('tinymce.multipleimage.open', function (urls, isShowName) {
+                                scope.$emit('tinymce.multipleimage.open', function(urls, isShowName) {
                                     var i, t, url, data, dom, pElm;
                                     t = (new Date()).getTime();
                                     dom = editor.dom;
                                     for (i in urls) {
                                         url = urls[i] + '?_=' + t,
-                                        data = { src: url},
-                                        pElm = dom.add(selectedId, 'p');
+                                            data = {
+                                                src: url
+                                            },
+                                            pElm = dom.add(selectedId, 'p');
                                         dom.add(pElm, 'img', data);
                                         if (isShowName === 'Y') {
                                             var picname = decodeURI(urls[i]).split('/').pop();
                                             picname = picname.split('.').shift();
-                                            dom.add(pElm, 'span', { style: 'display:block' }, picname);
+                                            dom.add(pElm, 'span', {
+                                                style: 'display:block'
+                                            }, picname);
                                         }
                                     }
                                     if (tmpId) {
@@ -248,7 +308,7 @@ xxtMatters.directive('tinymce', function ($timeout) {
                             }
                         });
                     },
-                    init_instance_callback: function () {
+                    init_instance_callback: function() {
                         scope.initialized = true;
                         if (scope.content !== undefined) {
                             tinymce.get(scope.id).setContent(scope.content);
@@ -261,13 +321,13 @@ xxtMatters.directive('tinymce', function ($timeout) {
                 });
             }, 1);
             scope.setContentDone = false;
-            scope.$watch('content', function (nv) {
+            scope.$watch('content', function(nv) {
                 if (!scope.setContentDone && nv && nv.length && scope.initialized) {
                     tinymce.get(scope.id).setContent(nv);
                     scope.setContentDone = true;
                 }
             });
-            scope.$on('$destroy', function () {
+            scope.$on('$destroy', function() {
                 var tinyInstance;
                 if (tinyInstance = tinymce.get(scope.id)) {
                     tinyInstance.remove();
@@ -277,7 +337,7 @@ xxtMatters.directive('tinymce', function ($timeout) {
         }
     }
 });
-xxtMatters.controller('MattersGalleryModalInstCtrl', ['$scope', '$http', '$modalInstance', 'matterTypes', 'singleMatter', 'hasParent', function ($scope, $http, $modalInstance, matterTypes, singleMatter, hasParent) {
+xxtMatters.controller('MattersGalleryModalInstCtrl', ['$scope', '$http', '$modalInstance', 'matterTypes', 'singleMatter', 'hasParent', function($scope, $http, $modalInstance, matterTypes, singleMatter, hasParent) {
     $scope.matterTypes = matterTypes;
     $scope.singleMatter = singleMatter;
     $scope.hasParent = hasParent;
@@ -286,9 +346,12 @@ xxtMatters.controller('MattersGalleryModalInstCtrl', ['$scope', '$http', '$modal
         $scope.p.matterType = $scope.matterTypes[0];
 
     var fields = ['id', 'title'];
-    $scope.page = { current: 1, size: 10 };
+    $scope.page = {
+        current: 1,
+        size: 10
+    };
     $scope.aChecked = [];
-    $scope.doCheck = function (matter) {
+    $scope.doCheck = function(matter) {
         if ($scope.singleMatter) {
             $scope.aChecked = [matter];
         } else {
@@ -299,14 +362,14 @@ xxtMatters.controller('MattersGalleryModalInstCtrl', ['$scope', '$http', '$modal
                 $scope.aChecked.splice(i, 1);
         }
     };
-    $scope.doSearch = function () {
+    $scope.doSearch = function() {
         if (!$scope.p.matterType) return;
         var url, params = {};
         url = $scope.p.matterType.url;
         url += '/' + $scope.p.matterType.value;
         url += '/get?page=' + $scope.page.current + '&size=' + $scope.page.size + '&fields=' + fields;
         $scope.p.fromParent && $scope.p.fromParent == 1 && (params.src = 'p');
-        $http.post(url, params).success(function (rsp) {
+        $http.post(url, params).success(function(rsp) {
             if (/article|contribute/.test($scope.p.matterType.value)) {
                 $scope.matters = rsp.data[0];
                 rsp.data[1] && ($scope.page.total = rsp.data[1]);
@@ -316,18 +379,18 @@ xxtMatters.controller('MattersGalleryModalInstCtrl', ['$scope', '$http', '$modal
             }
         });
     };
-    $scope.ok = function () {
+    $scope.ok = function() {
         $modalInstance.close([$scope.aChecked, $scope.p.matterType ? $scope.p.matterType.value : 'article']);
     };
-    $scope.cancel = function () {
+    $scope.cancel = function() {
         $modalInstance.dismiss('cancel');
     };
-    $scope.$watch('p.matterType', function (nv) {
+    $scope.$watch('p.matterType', function(nv) {
         $scope.doSearch();
     });
 }]);
-xxtMatters.controller('MattersController', ['$scope', '$http', '$modal', function ($scope, $http, $modal) {
-    var open = function () {
+xxtMatters.controller('MattersController', ['$scope', '$http', '$modal', function($scope, $http, $modal) {
+    var open = function() {
         $modal.open({
             templateUrl: 'modalMattersGalllery.html',
             controller: 'MattersGalleryModalInstCtrl',
@@ -335,95 +398,118 @@ xxtMatters.controller('MattersController', ['$scope', '$http', '$modal', functio
             backdrop: 'static',
             windowClass: 'auto-height mattersgallery',
             resolve: {
-                singleMatter: function () {
+                singleMatter: function() {
                     return $scope.singleMatter ? $scope.singleMatter : false;
                 },
-                hasParent: function () {
+                hasParent: function() {
                     return $scope.hasParent ? $scope.hasParent : false;
                 },
-                matterTypes: function () {
+                matterTypes: function() {
                     return $scope.matterTypes;
                 }
             }
-        }).result.then(function (result) {
+        }).result.then(function(result) {
             if ($scope.callback) {
                 $scope.callback(result[0], result[1]);
             }
             $scope.$emit('mattersgallery.done', result[0]);
         });
     };
-    $scope.$on('mattersgallery.open', function (event, callback) {
+    $scope.$on('mattersgallery.open', function(event, callback) {
         $scope.callback = callback;
         open();
     });
 }]);
-xxtMatters.directive('mattersgallery', function () {
+xxtMatters.directive('mattersgallery', function() {
     return {
         restrict: 'EA',
-        scope: { singleMatter: '@', hasParent: '@', matterTypes: '=' },
+        scope: {
+            singleMatter: '@',
+            hasParent: '@',
+            matterTypes: '='
+        },
         controller: 'MattersController',
         templateUrl: '/static/template/mattersgallery.html?v=3',
     }
 });
-xxtMatters.directive('mediagallery', function () {
+xxtMatters.directive('mediagallery', function() {
     return {
         restrict: 'EA',
-        scope: { boxId: '@boxId' },
-        controller: ['$scope', '$http', '$modal', function ($scope, $http, $modal) {
+        scope: {
+            boxId: '@boxId'
+        },
+        controller: ['$scope', '$http', '$modal', function($scope, $http, $modal) {
             var modalInstance, open;
-            open = function (options) {
+            open = function(options) {
                 modalInstance = $modal.open({
                     templateUrl: 'modalMediaGalllery.html',
-                    controller: ['$scope', '$modalInstance', 'url', function ($scope2, $mi, url) {
+                    controller: ['$scope', '$modalInstance', 'url', function($scope2, $mi, url) {
                         $scope2.title = options.mediaType;
                         $scope2.url = url;
                         $scope2.setshowname = options.setshowname;
-                        $scope2.setting = { isShowName: 'N' };
-                        $scope2.cancel = function () { $mi.dismiss('cancel'); };
-                        $scope2.$watch('setting.isShowName', function (nv) { $mi.isShowName = nv; });
+                        $scope2.setting = {
+                            isShowName: 'N'
+                        };
+                        $scope2.cancel = function() {
+                            $mi.dismiss('cancel');
+                        };
+                        $scope2.$watch('setting.isShowName', function(nv) {
+                            $mi.isShowName = nv;
+                        });
                     }],
                     backdrop: 'static',
                     size: 'lg',
                     windowClass: 'auto-height media-gallery',
                     resolve: {
-                        url: function () {
+                        url: function() {
                             return "/kcfinder/browse.php?lang=zh-cn&type=" + options.mediaType + "&mpid=" + $scope.boxId;
                         },
                     }
                 });
             };
-            $scope.$on('mediagallery.open', function (event, options) {
-                options = angular.extend({ mediaType: "图片", callback: null, multiple: false, setshowname: false }, options);
-                var kcfCallBack = function (url) {
+            $scope.$on('mediagallery.open', function(event, options) {
+                options = angular.extend({
+                    mediaType: "图片",
+                    callback: null,
+                    multiple: false,
+                    setshowname: false
+                }, options);
+                var kcfCallBack = function(url) {
                     window.KCFinder = null;
                     options.callback && options.callback(url, modalInstance.isShowName);
                     modalInstance.close();
                 };
                 if (options.multiple)
-                    window.KCFinder = { callBackMultiple: kcfCallBack };
+                    window.KCFinder = {
+                        callBackMultiple: kcfCallBack
+                    };
                 else
-                    window.KCFinder = { callBack: kcfCallBack };
+                    window.KCFinder = {
+                        callBack: kcfCallBack
+                    };
                 open(options);
             });
         }],
         templateUrl: '/static/template/mediagallery.html?_=1',
     }
 });
-xxtMatters.controller('AccessControllerUserPickerController', ['$scope', '$modalInstance', 'userSetAsParam', function ($scope, $mi, userSetAsParam) {
-    $scope.userConfig = { userScope: ['M'] };
+xxtMatters.controller('AccessControllerUserPickerController', ['$scope', '$modalInstance', 'userSetAsParam', function($scope, $mi, userSetAsParam) {
+    $scope.userConfig = {
+        userScope: ['M']
+    };
     $scope.userSet = {};
-    $scope.cancel = function () {
+    $scope.cancel = function() {
         $mi.dismiss();
     };
-    $scope.ok = function () {
+    $scope.ok = function() {
         var data = {};
         data.userScope = $scope.userSet.userScope;
         data.userSet = userSetAsParam.convert($scope.userSet);
         $mi.close(data);
     };
 }]);
-xxtMatters.controller('AccessControlController', ['$rootScope', '$scope', 'http2', '$timeout', '$modal', function ($rootScope, $scope, http2, $timeout, $modal) {
-    var objAuthapis = function () {
+xxtMatters.controller('AccessControlController', ['$rootScope', '$scope', 'http2', '$timeout', '$modal', function($rootScope, $scope, http2, $timeout, $modal) {
+    var objAuthapis = function() {
         $scope.objAuthapis = angular.copy($scope.authapis);
         var aAuthapis = $scope.obj[$scope.propApis] ? $scope.obj[$scope.propApis].trim() : '';
         aAuthapis = aAuthapis.length === 0 ? [] : aAuthapis.split(',');
@@ -431,7 +517,7 @@ xxtMatters.controller('AccessControlController', ['$rootScope', '$scope', 'http2
             $scope.objAuthapis[i].checked = aAuthapis.indexOf($scope.objAuthapis[i].authid) !== -1 ? 'Y' : 'N';
         }
     };
-    $scope.setAccessControl = function () {
+    $scope.setAccessControl = function() {
         $scope.updateAccessControl();
         if ($scope.authapis.length === 1) {
             $scope.obj[$scope.propApis] = $scope.obj[$scope.propAccess] === 'Y' ? $scope.authapis[0].authid : '';
@@ -439,7 +525,7 @@ xxtMatters.controller('AccessControlController', ['$rootScope', '$scope', 'http2
             $scope.updateAuthapis();
         }
     };
-    $scope.setAuthapi = function (api) {
+    $scope.setAuthapi = function(api) {
         var eapis, p = {};
         eapis = $scope.obj[$scope.propApis] ? $scope.obj[$scope.propApis].trim() : '';
         eapis = eapis.length === 0 ? [] : eapis.split(',');
@@ -459,21 +545,26 @@ xxtMatters.controller('AccessControlController', ['$rootScope', '$scope', 'http2
             }
         }
     };
-    $scope.addAcl = function () {
-        var newAcl = { identity: '', idsrc: '' };
+    $scope.addAcl = function() {
+        var newAcl = {
+            identity: '',
+            idsrc: ''
+        };
         $scope.obj[$scope.propAcl].push(newAcl);
-        $timeout(function () { $('ul.acls li:last-child input').focus(); }, 10);
+        $timeout(function() {
+            $('ul.acls li:last-child input').focus();
+        }, 10);
     };
-    $scope.openAclSelector = function () {
+    $scope.openAclSelector = function() {
         $modal.open({
             templateUrl: '/static/template/userpicker.html?_=2',
             controller: 'AccessControllerUserPickerController',
             backdrop: 'static',
             size: 'lg',
             windowClass: 'auto-height'
-        }).result.then(function (data) {
+        }).result.then(function(data) {
             var i, newAcl, addAcl;
-            addAcl = function (rsp) {
+            addAcl = function(rsp) {
                 $scope.obj[$scope.propAcl].push(rsp.data);
             };
             for (i in data.userSet) {
@@ -482,58 +573,81 @@ xxtMatters.controller('AccessControlController', ['$rootScope', '$scope', 'http2
             }
         });
     };
-    $scope.clickAcl = function (acl, state, event) {
+    $scope.clickAcl = function(acl, state, event) {
         if (acl.idsrc.length === 0) {
             state.editing = true;
             var i = $scope.obj[$scope.propAcl].indexOf(acl) + 1;
-            $timeout(function () { $('ul.acls li:nth-child(' + i + ') input').focus(); }, 10);
+            $timeout(function() {
+                $('ul.acls li:nth-child(' + i + ') input').focus();
+            }, 10);
         }
     };
-    $scope.changeAcl = function (newAcl, state) {
-        http2.post($scope.changeAclUrl, newAcl, function (rsp) {
+    $scope.changeAcl = function(newAcl, state) {
+        http2.post($scope.changeAclUrl, newAcl, function(rsp) {
             if (newAcl.id === undefined)
                 newAcl.id = rsp.data.id;
             if (newAcl.idsrc === '') newAcl.label = newAcl.identity;
             state.editing = false;
         });
     };
-    $scope.removeAcl = function (acl, event) {
+    $scope.removeAcl = function(acl, event) {
         event.preventDefault();
         event.stopPropagation();
         var i = $scope.obj[$scope.propAcl].indexOf(acl);
         if (acl.id === undefined)
             $scope.obj[$scope.propAcl].splice(i, 1);
         else {
-            http2.get($scope.removeAclUrl + '?acl=' + acl.id, function (rsp) {
+            http2.get($scope.removeAclUrl + '?acl=' + acl.id, function(rsp) {
                 $scope.obj[$scope.propAcl].splice(i, 1);
             });
         }
     };
-    $scope.$watch('obj', function (obj) {
+    $scope.$watch('obj', function(obj) {
         if (obj && $scope.authapis) objAuthapis();
     });
-    http2.get('/rest/mp/authapi/get?valid=Y', function (rsp) {
+    http2.get('/rest/mp/authapi/get?valid=Y', function(rsp) {
         $scope.authapis = rsp.data;
         if ($scope.obj) objAuthapis();
     });
 }]);
-xxtMatters.directive('accesscontrol', function () {
+xxtMatters.directive('accesscontrol', function() {
     return {
         restrict: 'EA',
-        scope: { title: '@', label: '@', mpid: '@', obj: '=', propAcl: '@', labelOfList: '@', propAccess: '@', propApis: '@', changeAclUrl: '@', removeAclUrl: '@', updateAccessControl: '&', updateAuthapis: '&', labelSpan: '@', controlSpan: '@', disabled: '@', hideAccessControl: '@' },
+        scope: {
+            title: '@',
+            label: '@',
+            mpid: '@',
+            obj: '=',
+            propAcl: '@',
+            labelOfList: '@',
+            propAccess: '@',
+            propApis: '@',
+            changeAclUrl: '@',
+            removeAclUrl: '@',
+            updateAccessControl: '&',
+            updateAuthapis: '&',
+            labelSpan: '@',
+            controlSpan: '@',
+            disabled: '@',
+            hideAccessControl: '@'
+        },
         controller: 'AccessControlController',
         templateUrl: '/static/template/accesscontrol.html?_=7',
     }
 });
-xxtMatters.directive('userpopover', ['http2', function (http2) {
+xxtMatters.directive('userpopover', ['http2', function(http2) {
     return {
         restrict: 'A',
-        scope: { xxtFid: '@' },
-        link: function (scope, elem, attrs) {
-            $(elem).on('mouseenter', function (event) {
+        scope: {
+            xxtFid: '@'
+        },
+        link: function(scope, elem, attrs) {
+            $(elem).on('mouseenter', function(event) {
                 if (!$(elem).attr('loaded')) {
-                    http2.get('/rest/mp/user/fans/fan?fid=' + scope.xxtFid, function (rsp) {
-                        var member, tags = [], depts = [], detail = '';
+                    http2.get('/rest/mp/user/fans/fan?fid=' + scope.xxtFid, function(rsp) {
+                        var member, tags = [],
+                            depts = [],
+                            detail = '';
                         if (rsp.data.members) {
                             member = rsp.data.members[0];
                             if (member.depts && member.depts.length) {
@@ -565,22 +679,22 @@ xxtMatters.directive('userpopover', ['http2', function (http2) {
         }
     };
 }]);
-xxtMatters.controller('SendmeController', ['$scope', 'http2', function ($scope, http2) {
+xxtMatters.controller('SendmeController', ['$scope', 'http2', function($scope, http2) {
     $scope.qrcodeShown = false;
-    $scope.qrcode = function (matter, event) {
+    $scope.qrcode = function(matter, event) {
         if (!$scope.qrcodeShown) {
             var url = '/rest/mp/call/qrcode/createOneOff';
             url += '?matter_type=' + matter.type;
             url += '&matter_id=' + matter.id;
             if (matter.mpid !== undefined) url += '&mpid=' + matter.mpid;
-            http2.get(url, function (rsp) {
+            http2.get(url, function(rsp) {
                 $popover = $(event.target);
                 $popover.popover({
                     html: true,
                     title: '<span>扫描发送到手机</span><button class="close" onclick="$popover.popover(\'destroy\')"><span>&times;</span></button>',
                     content: "<div><img src='" + rsp.data.pic + "'></div>"
                 });
-                $popover.on('hidden.bs.popover', function () {
+                $popover.on('hidden.bs.popover', function() {
                     $popover.popover('destroy');
                     $scope.qrcodeShown = false;
                 })
@@ -590,8 +704,8 @@ xxtMatters.controller('SendmeController', ['$scope', 'http2', function ($scope, 
         }
     };
 }]);
-xxtMatters.controller('UserPickerController', ['http2', '$scope', function (http2, $scope) {
-    var getPickedAuthapi = function () {
+xxtMatters.controller('UserPickerController', ['http2', '$scope', function(http2, $scope) {
+    var getPickedAuthapi = function() {
         var authid = $scope.userSet.userScope.split('_').pop();
         for (var i in $scope.authapis) {
             if (authid === $scope.authapis[i].authid)
@@ -600,43 +714,43 @@ xxtMatters.controller('UserPickerController', ['http2', '$scope', function (http
     };
     $scope.showPickSingleMember = false;
     $scope.isPickSingleMember = 'N';
-    $scope.isPickMember = function () {
+    $scope.isPickMember = function() {
         return /authid_\d+/.test($scope.userSet.userScope);
     };
-    $scope.canGroup = function () {
+    $scope.canGroup = function() {
         return !$scope.userConfig || $scope.userConfig.userScope.indexOf('G') !== -1;
     };
-    $scope.canMember = function () {
+    $scope.canMember = function() {
         return !$scope.userConfig || $scope.userConfig.userScope.indexOf('M') !== -1;
     };
-    $scope.pickMp = function (mp) {
+    $scope.pickMp = function(mp) {
         !$scope.userSet.childmps && ($scope.userSet.childmps = []);
         if (mp.checked === 'Y')
             $scope.userSet.childmps.push(mp);
         else
             $scope.userSet.childmps.splice($scope.userSet.childmps.indexOf(mp), 1);
     };
-    $scope.pickGroup = function (g) {
+    $scope.pickGroup = function(g) {
         !$scope.userSet.fansGroup && ($scope.userSet.fansGroup = []);
         if (g.checked === 'Y')
             $scope.userSet.fansGroup.push(g);
         else
             $scope.userSet.fansGroup.splice($scope.userSet.fansGroup.indexOf(g), 1);
     };
-    $scope.$watch('userSet.userScope', function (nv) {
+    $scope.$watch('userSet.userScope', function(nv) {
         if (nv && nv.length) {
             if (nv === 'mp') {
-                http2.get('/rest/mp/mpaccount/childmps', function (rsp) {
+                http2.get('/rest/mp/mpaccount/childmps', function(rsp) {
                     $scope.childmps = rsp.data;
                 });
             } else if (nv === 'g' && $scope.groups === undefined) {
-                http2.get('/rest/mp/user/fans/group', function (rsp) {
+                http2.get('/rest/mp/user/fans/group', function(rsp) {
                     $scope.groups = rsp.data;
                 });
             } else if (/authid_\d+/.test(nv)) {
                 $scope.authapi = getPickedAuthapi();
-                http2.get($scope.authapi.url + '/memberSelector?authid=' + $scope.authapi.authid, function (rsp) {
-                    $.getScript(rsp.data.js, function () {
+                http2.get($scope.authapi.url + '/memberSelector?authid=' + $scope.authapi.authid, function(rsp) {
+                    $.getScript(rsp.data.js, function() {
                         $scope.memberViewUrl = rsp.data.view;
                         $scope.$apply('memberViewUrl');
                     });
@@ -644,57 +758,62 @@ xxtMatters.controller('UserPickerController', ['http2', '$scope', function (http
             }
         }
     });
-    $scope.$on('init.member.selector', function (event, config) {
+    $scope.$on('init.member.selector', function(event, config) {
         if (config && config.showPickSingleMember !== undefined)
             $scope.showPickSingleMember = config.showPickSingleMember;
     });
-    $scope.$on('add.dept.member.selector', function (event, dept) {
+    $scope.$on('add.dept.member.selector', function(event, dept) {
         !$scope.userSet.depts && ($scope.userSet.depts = []);
         $scope.userSet.depts.push(dept);
     });
-    $scope.$on('remove.dept.member.selector', function (event, dept) {
+    $scope.$on('remove.dept.member.selector', function(event, dept) {
         !$scope.userSet.depts && ($scope.userSet.depts = []);
         $scope.userSet.depts.splice($scope.userSet.depts.indexOf(dept), 1);
     });
-    $scope.$on('add.tag.member.selector', function (event, tag) {
+    $scope.$on('add.tag.member.selector', function(event, tag) {
         !$scope.userSet.tags && ($scope.userSet.tags = []);
         $scope.userSet.tags.push(tag);
     });
-    $scope.$on('remove.tag.member.selector', function (event, tag) {
+    $scope.$on('remove.tag.member.selector', function(event, tag) {
         !$scope.userSet.tags && ($scope.userSet.tags = []);
         $scope.userSet.tags.splice($scope.userSet.tags.indexOf(tag), 1);
     });
-    $scope.$on('add.member.member.selector', function (event, member) {
+    $scope.$on('add.member.member.selector', function(event, member) {
         !$scope.userSet.members && ($scope.userSet.members = []);
         $scope.userSet.members.push(member);
     });
-    $scope.$on('remove.member.member.selector', function (event, member) {
+    $scope.$on('remove.member.member.selector', function(event, member) {
         !$scope.userSet.members && ($scope.userSet.members = []);
         $scope.userSet.members.splice($scope.userSet.members.indexOf(member), 1);
     });
     if ($scope.canMember()) {
-        http2.get('/rest/member/authapis', function (rsp) {
+        http2.get('/rest/member/authapis', function(rsp) {
             $scope.authapis = rsp.data;
         });
     }
 }]);
-xxtMatters.directive('userpicker', ['http2', function (http2) {
+xxtMatters.directive('userpicker', ['http2', function(http2) {
     return {
         restrict: 'EA',
-        scope: { userSet: '=', userConfig: '=' },
+        scope: {
+            userSet: '=',
+            userConfig: '='
+        },
         controller: 'UserPickerController',
-        templateUrl: function () {
+        templateUrl: function() {
             return '/rest/mp/user/picker';
         },
     };
 }]);
-xxtMatters.controller('PushMatterController', ['http2', '$scope', '$modalInstance', 'userSetAsParam', function (http2, $scope, $modalInstance, userSetAsParam) {
-    $scope.userConfig = { userScope: ['M'] };
+xxtMatters.controller('PushMatterController', ['http2', '$scope', '$modalInstance', 'userSetAsParam', function(http2, $scope, $modalInstance, userSetAsParam) {
+    $scope.userConfig = {
+        userScope: ['M']
+    };
     $scope.userSet = {};
-    $scope.cancel = function () {
+    $scope.cancel = function() {
         $modalInstance.dismiss();
     };
-    $scope.ok = function () {
+    $scope.ok = function() {
         var targetUser, data;
         targetUser = /authid_\d+/.test($scope.userSet.userScope) ? 'M' : 'F';
         data = {
@@ -712,37 +831,41 @@ xxtMatters.controller('PushMatterController', ['http2', '$scope', '$modalInstanc
 
         $modalInstance.close(data);
     };
-    http2.get('/rest/mp/mpaccount/apis', function (rsp) {
+    http2.get('/rest/mp/mpaccount/apis', function(rsp) {
         if (rsp.data.mpsrc === 'qy' || (rsp.data.mpsrc === 'yx' && rsp.data.yx_p2p))
             $scope.userConfig.userScope.push('M');
     });
 }]);
-xxtMatters.directive('pushmatter', function () {
+xxtMatters.directive('pushmatter', function() {
     return {
         restrict: 'E',
-        scope: { matterId: '@', matterType: '@' },
-        controller: ['$rootScope', '$scope', '$modal', 'http2', function ($rootScope, $scope, $modal, http2) {
-            $scope.open = function () {
+        scope: {
+            matterId: '@',
+            matterType: '@'
+        },
+        controller: ['$rootScope', '$scope', '$modal', 'http2', function($rootScope, $scope, $modal, http2) {
+            $scope.open = function() {
                 $modal.open({
                     templateUrl: '/static/template/pushmatter.html?_=4',
                     controller: 'PushMatterController',
                     backdrop: 'static',
                     size: 'lg',
                     windowClass: 'auto-height'
-                }).result.then(function (data) {
+                }).result.then(function(data) {
                     data.id = $scope.matterId;
                     data.type = $scope.matterType;
                     if (data.mps !== undefined) {
-                        var i = 0, mps = [];
+                        var i = 0,
+                            mps = [];
                         for (i; i < data.mps.length; i++) {
                             mps.push(data.mps[i].mpid);
                         }
                         data.mps = mps;
-                        http2.post('/rest/mp/send/mass2mps', data, function (rsp) {
+                        http2.post('/rest/mp/send/mass2mps', data, function(rsp) {
                             $rootScope.infomsg = '发送完成';
                         });
                     } else {
-                        http2.post('/rest/mp/send/mass', data, function (rsp) {
+                        http2.post('/rest/mp/send/mass', data, function(rsp) {
                             $rootScope.infomsg = '发送完成';
                         });
                     }
@@ -754,14 +877,17 @@ xxtMatters.directive('pushmatter', function () {
         template: "<button ng-click='open()' ng-transclude></button>",
     };
 });
-xxtMatters.controller('PushNotifyController', ['http2', '$scope', '$modalInstance', 'options', function (http2, $scope, $mi, options) {
+xxtMatters.controller('PushNotifyController', ['http2', '$scope', '$modalInstance', 'options', function(http2, $scope, $mi, options) {
     $scope.options = options;
     $scope.p = {};
     options.matterTypes && options.matterTypes.length && ($scope.p.matterType = options.matterTypes[0]);
     var fields = ['id', 'title'];
-    $scope.page = { current: 1, size: 10 };
+    $scope.page = {
+        current: 1,
+        size: 10
+    };
     $scope.aChecked = [];
-    $scope.doCheck = function (matter) {
+    $scope.doCheck = function(matter) {
         if (options.singleMatter === 'Y') {
             $scope.aChecked = [matter];
         } else {
@@ -769,14 +895,14 @@ xxtMatters.controller('PushNotifyController', ['http2', '$scope', '$modalInstanc
             i === -1 ? $scope.aChecked.push(matter) : $scope.aChecked.splice(i, 1);
         }
     };
-    $scope.doSearch = function () {
+    $scope.doSearch = function() {
         if (!$scope.p.matterType) return;
         var url, params = {};
         url = $scope.p.matterType.url;
         url += '/' + $scope.p.matterType.value;
         url += '/get?page=' + $scope.page.current + '&size=' + $scope.page.size + '&fields=' + fields;
         $scope.p.fromParent && $scope.p.fromParent == 1 && (params.src = 'p');
-        http2.post(url, params, function (rsp) {
+        http2.post(url, params, function(rsp) {
             if (/article|contribute|enroll/.test($scope.p.matterType.value)) {
                 $scope.matters = rsp.data[0];
                 rsp.data[1] && ($scope.page.total = rsp.data[1]);
@@ -784,29 +910,37 @@ xxtMatters.controller('PushNotifyController', ['http2', '$scope', '$modalInstanc
                 $scope.matters = rsp.data;
                 $scope.page.total = $scope.matters.length;
             }
-        }, { headers: { 'ACCEPT': 'application/json' } });
+        }, {
+            headers: {
+                'ACCEPT': 'application/json'
+            }
+        });
     };
-    $scope.ok = function () {
+    $scope.ok = function() {
         $mi.close([$scope.aChecked, $scope.p.matterType ? $scope.p.matterType.value : 'article']);
     };
-    $scope.cancel = function () {
+    $scope.cancel = function() {
         $mi.dismiss('cancel');
     };
-    $scope.$watch('p.matterType', function (nv) {
+    $scope.$watch('p.matterType', function(nv) {
         $scope.doSearch();
     });
 }]);
-xxtMatters.directive('pushnotify', function () {
+xxtMatters.directive('pushnotify', function() {
     return {
         restrict: 'E',
-        scope: { singleMatter: '@', matterTypes: '=', canFromParentMp: '@' },
-        controller: ['$scope', '$modal', 'http2', function ($scope, $modal, http2) {
-            $scope.open = function () {
+        scope: {
+            singleMatter: '@',
+            matterTypes: '=',
+            canFromParentMp: '@'
+        },
+        controller: ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+            $scope.open = function() {
                 $modal.open({
                     templateUrl: '/static/template/pushnotify.html?_=0',
                     controller: 'PushNotifyController',
                     resolve: {
-                        options: function () {
+                        options: function() {
                             return {
                                 singleMatter: $scope.singleMatter ? $scope.singleMatter : 'N',
                                 canFromParent: $scope.canFromParent ? $scope.canFromParent : 'N',
@@ -817,7 +951,7 @@ xxtMatters.directive('pushnotify', function () {
                     backdrop: 'static',
                     size: 'lg',
                     windowClass: 'auto-height'
-                }).result.then(function (data) {
+                }).result.then(function(data) {
                     $scope.$emit('pushnotify.xxt.done', data);
                 });
             };

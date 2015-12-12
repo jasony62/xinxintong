@@ -256,7 +256,7 @@ class enroll_model extends \matter\enroll_model {
 		 */
 		if (!empty($html)) {
 			$wraps = array();
-			if (preg_match_all("/<div.+?wrap=.+?>.+?<\/div/i", $html, $wraps)) {
+			if (preg_match_all('/<(div|li|option).+?wrap=.+?>.*?<\/(div|li|option)/i', $html, $wraps)) {
 				$wraps = $wraps[0];
 				foreach ($wraps as $wrap) {
 					$def = array();
@@ -268,7 +268,6 @@ class enroll_model extends \matter\enroll_model {
 					if (!preg_match('/<input.+?>/', $wrap, $inp)) {
 						continue;
 					}
-
 					$inp = $inp[0];
 					if (preg_match('/title="(.*?)"/', $inp, $title)) {
 						$title = $title[1];

@@ -22,9 +22,8 @@ class mp_controller extends \xxt_base {
 	public function __construct() {
 		if (isset($_GET['mpid']) && ($mpid = $_GET['mpid'])) {
 			$_SESSION['mpid'] = $mpid;
-		}
-		if (!isset($_SESSION['mpid']) || !($mpid = $_SESSION['mpid'])) {
-			throw new \Exception('can not get valid mpid in sesssion.');
+		} else if (!isset($_SESSION['mpid']) || !($mpid = $_SESSION['mpid'])) {
+			$this->redirect('');
 		}
 		$this->mpid = $mpid;
 		/**

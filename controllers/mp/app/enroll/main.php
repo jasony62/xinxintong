@@ -103,9 +103,8 @@ class main extends \mp\app\app_base {
 	public function create_action($scenario = null, $template = null) {
 		$account = \TMS_CLIENT::account();
 		if ($account === false) {
-			return new \ResponseError('长时间未操作，请重新登陆！');
+			return new \ResponseTimeout();
 		}
-
 		$current = time();
 		$uid = \TMS_CLIENT::get_client_uid();
 		$mpa = $this->model('mp\mpaccount')->getFeatures($this->mpid, 'heading_pic');

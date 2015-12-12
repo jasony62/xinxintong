@@ -132,7 +132,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group" ng-show="['7'].indexOf(def.type)===-1">
+                <div class="form-group" ng-show="['image'].indexOf(def.type)===-1">
                     <label class="col-md-2 control-label">必填</label>
                     <div class="col-md-10">
                         <div class="checkbox">
@@ -140,21 +140,21 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group" ng-if='def.type==5'>
+                <div class="form-group" ng-if="def.type==='single'">
                     <label class="col-md-2 control-label">形式</label>
                     <div class="col-md-10">
                         <label class="radio-inline"><input type='radio' name='component' value='R' ng-model='def.component'>单选钮</label>
                         <label class="radio-inline"><input type='radio' name='component' value='S' ng-model='def.component'>下拉框</label>
                     </div>
                 </div>
-                <div class="form-group" ng-if="(def.type==5&&def.component==='R')||def.type==6">
+                <div class="form-group" ng-if="(def.type==='single'&&def.component==='R')||def.type==='multiple'">
                     <label class="col-md-2 control-label">排列方向</label>
                     <div class="col-md-10">
                         <label class="radio-inline"><input type='radio' name='align' value='V' ng-model='def.align'>垂直</label>
                         <label class="radio-inline"><input type='radio' name='align' value='H' ng-model='def.align'>水平</label>
                     </div>
                 </div>
-                <div class="form-group" ng-if='def.type==5||def.type==6'>
+                <div class="form-group" ng-if="def.type==='single'||def.type==='multiple'">
                     <label class="col-md-2 control-label">选项</label>
                     <div class="col-md-10">
                         <button class="btn btn-default btn-sm" ng-click='addOption()'>添加</button>
@@ -163,7 +163,7 @@
                         </ul>
                     </div>
                 </div>
-                <div class="form-group" ng-if="def.type==7||def.type==='file'">
+                <div class="form-group" ng-if="def.type=='image'||def.type==='file'">
                     <label class="col-md-2 control-label">数量</label>
                     <div class="col-md-10">
                         <input type='text' class='form-control' ng-model='def.count'>

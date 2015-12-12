@@ -1,0 +1,37 @@
+{
+	"pages": [{
+		"name": "voting",
+		"title": "投票页",
+		"type": "I"
+	}, {
+		"name": "result",
+		"title": "投票结果页",
+		"type": "V"
+	}],
+	"entryRule": {
+		"otherwise": {
+			"entry": "voting"
+		},
+		"member": {
+			"entry": "voting",
+			"enroll": "Y",
+			"remark": "Y"
+		},
+		"member_outacl": {
+			"entry": "voting",
+			"enroll": "Y",
+			"remark": "Y"
+		},
+		"fan": {
+			"entry": "voting",
+			"enroll": "Y",
+			"remark": "Y"
+		},
+		"nonfan": {
+			"entry": "$mp_follow",
+			"enroll": "$mp_follow"
+		}
+	},
+	"multi_rounds": "N",
+	"enrolled_entry_page": "result"
+}

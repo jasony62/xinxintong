@@ -1,0 +1,26 @@
+<p></p>
+<div ng-controller="ctrlStatistic" wrap="statistic" class="form-group">
+<table ng-if="statistic.length" class="table table-bordered" ng-repeat="s in statistic"><caption>{{s.title}}</caption>
+<thead>
+<tr><th>选项</th><th>数量</th></tr>
+</thead>
+<tbody>
+<tr ng-repeat="op in s.ops">
+<td>{{op.l}}</td>
+<td>{{op.c}}</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p></p>
+<div ng-controller="ctrlRecord" wrap="static" class="form-group wrap-inline wrap-splitline"><label>投票项1</label>
+<div>{{Record.current.data.c1|value2Label:"c1"}}</div>
+</div>
+<div ng-controller="ctrlRecord" wrap="static" class="form-group wrap-inline wrap-splitline"><label>投票项2</label>
+<div>{{Record.current.data.c2|value2Label:"c2"}}</div>
+</div>
+<div ng-controller="ctrlRecord" wrap="static" class="form-group wrap-inline wrap-splitline"><label>投票时间</label>
+<div>{{Record.current.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+</div>
+<p></p>
+<div wrap="button" class="form-group" ng-controller="ctrlRecord"><button id="btnEditRecord_enroll" class="btn btn-primary btn-block btn-lg" ng-click="editRecord($event,'voting')"><span>修改投票</span></button></div>

@@ -22,5 +22,17 @@
 				"description": "简单快速"
 			}
 		}
+	},
+	"voting": {
+		"title": "投票",
+		"name": "voting",
+		"description": "投票信息收集",
+		"templates": {
+			"simple": {
+				"title": "简单",
+				"name": "simple",
+				"description": "简单快速"
+			}
+		}
 	}
 }

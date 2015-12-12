@@ -362,6 +362,15 @@ app.controller('ctrlInvite', ['$scope', '$http', 'Record', function($scope, $htt
     facRecord.get(LS.p.ek);
     $scope.Record = facRecord;
 }]);
+app.controller('ctrlStatistic', ['$scope', '$http', function($scope, $http) {
+    var fnFetch;
+    fnFetch = function() {
+        $http.get(LS.j('statGet', 'mpid', 'aid')).success(function(rsp) {
+            $scope.statistic = rsp.data;
+        });
+    };
+    fnFetch();
+}]);
 app.controller('ctrlView', ['$scope', function($scope) {
     $scope.$on('xxt.app.enroll.filter.owner', function(event, data) {
         if (event.targetScope !== $scope) {

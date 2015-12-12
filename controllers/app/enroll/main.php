@@ -181,12 +181,6 @@ class main extends base {
 				}
 			}
 		}
-		/*list($openedek, $record, $statdata) = $this->_getRecord($mpid, $app, $rid, $ek, $user->openid, $page, $newForm);
-			if ($newForm === false) {
-				$params['enrollKey'] = $openedek;
-				$params['record'] = $record;
-			}
-		*/
 		/*公众号信息*/
 		$mpaccount = $this->getMpSetting($mpid);
 		$user_agent = $_SERVER['HTTP_USER_AGENT'];
@@ -331,5 +325,19 @@ class main extends base {
 		$rank = $modelApp->rankByFollower($mpid, $aid, $user->openid);
 
 		return new \ResponseData(array('rank' => $rank));
+	}
+	/**
+	 * 统计登记信息
+	 *
+	 * 只统计radio/checkbox类型的数据项
+	 *
+	 * return
+	 * name => array(l=>label,c=>count)
+	 *
+	 */
+	public function statGet_action($mpid, $aid) {
+		$result = $this->model('app\enroll')->getStat($aid);
+
+		return new \ResponseData($result);
 	}
 }

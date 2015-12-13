@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html ng-app='app' ng-controller='ctrl'>
+    
+    <head>
+        <meta charset="utf-8">
+        <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+        <base href="/" />
+        <title>导出数据</title>
+        <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    
+    <body ng-cloak class='ng-cloak'>
+        <div class="app">
+            <div class='container'>
+                <div class='row'>
+                    <button class='btn btn-default' ng-click="export()">export</button>
+                </div>
+            </div>
+        </div>
+        <script src="/static/js/jquery.min.js"></script>
+        <script src="/static/js/angular.min.js "></script>
+        <script src="/static/js/FileSaver.min.js "></script>
+        <script src="/test/export/export.js?_=1"></script>
+    </body>
+</html>

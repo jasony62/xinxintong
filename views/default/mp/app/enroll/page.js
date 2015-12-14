@@ -193,8 +193,8 @@
         tinymce.get(page.name).save();
     };
     WrapLib.prototype.embedInput = function(page, def) {
-        var key, inpAttrs, html = '',
-            fn;
+        var key, inpAttrs, html, fn;
+        html = '';
         key = def.key;
         inpAttrs = {
             wrap: 'input',

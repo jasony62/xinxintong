@@ -151,7 +151,8 @@ class auth extends \member_base {
 
 				$rst = $this->model('mpproxy/yx', $mpid)->mobile2Openid($mobile);
 				if ($rst[0] === false) {
-					return new \ResponseError("验证手机号失败【{$rst[1]}】");
+					//return new \ResponseError("验证手机号失败【{$rst[1]}】");
+					return new \ResponseError("请输入注册易信时使用的手机号码");
 				}
 
 				if ($fan->openid !== $rst[1]->openid) {

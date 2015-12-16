@@ -78,7 +78,7 @@ app.register.controller('shelfCtrl', ['$scope', '$http', 'Catelog', 'Product', f
 			if ($scope.options.time === undefined) {
 				today = new Date();
 				today.setHours(0, 0, 0, 0);
-				today = today.getTime() + (86400000 * 2);
+				today = today.getTime();
 				$scope.options.time = {
 					begin: today,
 					end: today + 86399000

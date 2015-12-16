@@ -1,4 +1,4 @@
-app.register.controller('shelfCtrl', ['$scope', '$http', 'Catelog', 'Product', function($scope, $http, Catelog, Product) {
+app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', 'Catelog', 'Product', function($scope, $http, $filter, Catelog, Product) {
 	var facCatelog, facProduct;
 	var summarySku = function(product, cateSku, sku) {
 		if (sku.summary && sku.summary.length) {
@@ -60,6 +60,25 @@ app.register.controller('shelfCtrl', ['$scope', '$http', 'Catelog', 'Product', f
 			}
 		}
 	};
+	var setFilterSummary = function() {
+		var summary, mapOfPv;
+		summary = [];
+		if ($scope.selectedCatelog) {
+			if ($scope.selectedCatelog.has_validity === 'Y' && $scope.options.time) {
+				summary.push($filter('date')($scope.options.time.begin, 'yyyy-MM-dd'));
+			}
+			mapOfPv = {};
+			angular.forEach($scope.selectedCatelog.propValues, function(pvs) {
+				angular.forEach(pvs, function(pv) {
+					mapOfPv[pv.id] = pv;
+				});
+			});
+			angular.forEach($scope.options.propValues, function(pv) {
+				summary.push(mapOfPv[pv].name);
+			});
+		}
+		$scope.filterSummary = summary.join(',');
+	};
 	facCatelog = new Catelog($scope.$parent.mpid, $scope.$parent.shopId);
 	facProduct = new Product($scope.$parent.mpid, $scope.$parent.shopId);
 	$scope.prevDay = function() {
@@ -97,6 +116,7 @@ app.register.controller('shelfCtrl', ['$scope', '$http', 'Catelog', 'Product', f
 	$scope.doFilter = function() {
 		$scope.listProduct();
 		$scope.toggleFilter();
+		setFilterSummary();
 	};
 	$scope.listProduct = function() {
 		var pvids, beginAt, endAt;
@@ -112,6 +132,9 @@ app.register.controller('shelfCtrl', ['$scope', '$http', 'Catelog', 'Product', f
 			$scope.products = data.products;
 		});
 	};
+	$scope.$watch('selectedCatelog', function(nv) {
+		nv && setFilterSummary();
+	});
 	facCatelog.get().then(function(catelogs) {
 		$scope.catelogs = catelogs;
 		if (catelogs.length) {

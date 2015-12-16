@@ -122,8 +122,17 @@ class sku_model extends \TMS_MODEL {
 				}
 				unset($sku->cate_sku_id);
 			}
+		} else {
+			/*检查是否生成过sku*/
+			$q = array(
+				'1',
+				'xxt_merchant_product_gensku_log',
+				"prod_id=$productId and begin_at=$beginAt and end_at=$endAt",
+			);
+			if ('1' !== $this->query_val_ss($q)) {
+				$cateSkus = false;
+			}
 		}
-
 		return $cateSkus;
 	}
 	/**

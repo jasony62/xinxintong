@@ -30,7 +30,7 @@ class log_model extends TMS_MODEL {
 		$r['msgid'] = $msg['msgid'];
 		$r['to_user'] = $msg['to_user'];
 		$r['openid'] = $openid;
-		$r['nickname'] = !empty($fan) ? $fan->nickname : '';
+		$r['nickname'] = !empty($fan) ? $this->escape($fan->nickname) : '';
 		$r['create_at'] = $createAt;
 		$r['type'] = $msg['type'];
 		if (is_array($msg['data'])) {
@@ -38,7 +38,6 @@ class log_model extends TMS_MODEL {
 			foreach ($msg['data'] as $d) {
 				$data[] = urlencode($d);
 			}
-
 			$r['data'] = $this->escape(urldecode(json_encode($data)));
 		} else {
 			$r['data'] = $this->escape($msg['data']);

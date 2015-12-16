@@ -12,6 +12,7 @@ app.register.controller('orderlistCtrl', ['$scope', '$http', 'Order', function($
 	facOrder.list().then(function(orders) {
 		angular.forEach(orders, function(order) {
 			order.products = JSON.parse(order.products);
+			order.extPropValue = (order.ext_prop_value && order.ext_prop_value.length) ? JSON.parse(order.ext_prop_value) : {};
 			order._order_status = OrderStatus[order.order_status];
 		});
 		$scope.orders = orders;

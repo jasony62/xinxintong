@@ -69,7 +69,7 @@ class catelog_model extends \TMS_MODEL {
 		$q = array(
 			'*',
 			'xxt_merchant_catelog_property',
-			"cate_id=$id",
+			"cate_id=$id and disabled='N'",
 		);
 		$properties = $this->query_objs_ss($q);
 
@@ -101,7 +101,7 @@ class catelog_model extends \TMS_MODEL {
 		$q = array(
 			'*',
 			'xxt_merchant_order_property',
-			"cate_id=$id",
+			"cate_id=$id and disabled='N'",
 		);
 		$orderProperties = $this->query_objs_ss($q);
 

@@ -53,6 +53,10 @@
             <label class='form-control-static'>联系人电话</label>
             <input type='text' class='form-control input-lg' ng-model='orderInfo.receiver_mobile'>
         </div>
+        <div class='form-group'>
+            <label class='form-control-static'>联系人邮箱</label>
+            <input type='text' class='form-control input-lg' ng-model='orderInfo.receiver_email'>
+        </div>
     </div>
     <footer>
         <button ng-disabled="orderInfo.skus.counter===0" ng-click='create()'>提交订单</button>

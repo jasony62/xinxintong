@@ -50,6 +50,9 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Catelog', 'Product', fun
         }
         location.href = url;
     };
+    $scope.gotoOrderlist = function() {
+        location.href = '/rest/app/merchant/orderlist?mpid=' + $scope.mpid + '&shop=' + $scope.shopId;
+    };
     $scope.gotoOrder = function(product) {
         location.href = '/rest/app/merchant/order?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&catelog=' + product.cate_id + '&product=' + product.id;
     };

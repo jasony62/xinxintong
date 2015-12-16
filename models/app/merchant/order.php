@@ -123,6 +123,7 @@ class order_model extends \TMS_MODEL {
 			'buyer_nick' => $user->fan->nickname,
 			'receiver_name' => $info->receiver_name,
 			'receiver_mobile' => $info->receiver_mobile,
+			'receiver_email' => $info->receiver_email,
 		);
 		$order['id'] = $this->insert('xxt_merchant_order', $order, true);
 		$order['extPropValue'] = $info->extPropValues;
@@ -166,6 +167,7 @@ class order_model extends \TMS_MODEL {
 			'ext_prop_value' => $epv,
 			'receiver_name' => $info->receiver_name,
 			'receiver_mobile' => $info->receiver_mobile,
+			'receiver_email' => $info->receiver_email,
 		);
 		$rst = $this->update('xxt_merchant_order', $order, "id=$orderId");
 

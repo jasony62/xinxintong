@@ -22,6 +22,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Order', function($scope,
         if (params.orderInfo) {
             $scope.orderInfo.receiver_name = params.orderInfo.receiver_name;
             $scope.orderInfo.receiver_mobile = params.orderInfo.receiver_mobile;
+            $scope.orderInfo.receiver_email = params.orderInfo.receiver_email;
         }
         window.setPage(params.page);
         $timeout(function() {

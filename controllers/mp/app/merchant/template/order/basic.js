@@ -43,7 +43,6 @@ app.register.controller('orderCtrl', ['$scope', '$http', 'Sku', 'Order', functio
 						sku._summary = summarySku(catelog, product, cateSku, sku);
 						sku._available = isAvailable(sku);
 						sku.cateSku = cateSku;
-						console.log('sku', sku);
 						$scope.skus.push(sku);
 						$scope.orderInfo.skus[sku.id] = {
 							count: 1
@@ -64,6 +63,7 @@ app.register.controller('orderCtrl', ['$scope', '$http', 'Sku', 'Order', functio
 		$scope.orderInfo.feedback = order.feedback;
 		$scope.orderInfo.receiver_name = order.receiver_name;
 		$scope.orderInfo.receiver_mobile = order.receiver_mobile;
+		$scope.orderInfo.receiver_email = order.receiver_email;
 		$scope.catelogs = data.catelogs;
 		setSkus(data.catelogs);
 	});

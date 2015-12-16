@@ -53,6 +53,10 @@
             <label class='form-control-static'>联系人电话</label>
             <input type='text' class='form-control input-lg' ng-readonly="orderInfo.status!=='1'" ng-model='orderInfo.receiver_mobile'>
         </div>
+        <div class='form-group'>
+            <label class='form-control-static'>联系人邮箱</label>
+            <input type='text' class='form-control input-lg' ng-readonly="orderInfo.status!=='1'" ng-model='orderInfo.receiver_email'>
+        </div>
     </div>
     <footer ng-if="orderInfo.status==='1'||orderInfo.status==='2'||orderInfo.status==='3'">
         <button ng-click='cancel()'>取消订单</button>

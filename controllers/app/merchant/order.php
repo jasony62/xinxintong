@@ -71,10 +71,11 @@ class order extends \member_base {
 			$buyerApi = json_decode($shop->buyer_api);
 			$authid = $buyerApi->authid;
 			$modelMemb = $this->model('user/member');
-			if ($existentMember = $modelMemb->byOpenid($mpid, $user->openid, 'name,mobile', $authid)) {
+			if ($existentMember = $modelMemb->byOpenid($mpid, $user->openid, 'name,mobile,email', $authid)) {
 				$params['orderInfo'] = array(
 					'receiver_name' => $existentMember->name,
 					'receiver_mobile' => $existentMember->mobile,
+					'receiver_email' => $existentMember->email,
 				);
 			}
 		}
@@ -206,6 +207,7 @@ class order extends \member_base {
 			$member = new \stdClass;
 			$member->name = $orderInfo->receiver_name;
 			$member->mobile = $orderInfo->receiver_mobile;
+			$member->email = $orderInfo->receiver_email;
 			if ($existentMember = $modelMemb->byOpenid($mpid, $user->openid, 'mid', $authid)) {
 				$rst = $modelMemb->modify($mpid, $authid, $existentMember->mid, $member);
 			} else {

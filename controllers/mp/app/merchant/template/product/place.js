@@ -20,7 +20,7 @@ app.register.controller('productCtrl', ['$scope', '$http', '$timeout', 'Product'
 	};
 	today = new Date();
 	today.setHours(0, 0, 0, 0);
-	today = today.getTime() / 1000;
+	today = today.getTime();
 	$scope.orderInfo = {
 		skus: {}
 	};
@@ -28,17 +28,17 @@ app.register.controller('productCtrl', ['$scope', '$http', '$timeout', 'Product'
 	$scope.skuFilter = {
 		time: {
 			begin: $scope.beginAt || today,
-			end: $scope.endAt || (today + 86399)
+			end: $scope.endAt || (today + 86399000)
 		}
 	};
 	$scope.prevDay = function() {
-		$scope.skuFilter.time.begin -= 86400;
-		$scope.skuFilter.time.end -= 86400;
+		$scope.skuFilter.time.begin -= 86400000;
+		$scope.skuFilter.time.end -= 86400000;
 		productGet($scope.$parent.productId);
 	};
 	$scope.nextDay = function() {
-		$scope.skuFilter.time.begin += 86400;
-		$scope.skuFilter.time.end += 86400;
+		$scope.skuFilter.time.begin += 86400000;
+		$scope.skuFilter.time.end += 86400000;
 		productGet($scope.$parent.productId);
 	};
 	var chooseSkuSegment = function(cateSku, start, end) {

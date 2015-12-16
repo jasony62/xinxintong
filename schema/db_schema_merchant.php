@@ -354,6 +354,7 @@ $sql .= ',receiver_zone varchar(40) not null';
 $sql .= ',receiver_addresss varchar(255) not null';
 $sql .= ',receiver_mobile varchar(20) not null';
 $sql .= ',receiver_phone varchar(20) not null';
+$sql .= ",receiver_email varchar(255) not null";
 $sql .= ",delivery_id int not null default 0";
 $sql .= ",delivery_company varchar(255) not null default ''";
 $sql .= ",trans_id varchar(255) not null default ''";

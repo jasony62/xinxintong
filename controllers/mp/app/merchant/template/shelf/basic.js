@@ -86,8 +86,8 @@ app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', 'Catelog', '
 		$scope.options.time.end -= 86400000;
 	};
 	$scope.nextDay = function() {
-		$scope.options.time.begin += 86400000;
-		$scope.options.time.end += 86400000;
+		$scope.options.time.begin = parseInt($scope.options.time.begin) + parseInt(86400000);
+		$scope.options.time.end = parseInt($scope.options.time.end) + parseInt(86400000);
 	};
 	$scope.filterOpened = false;
 	$scope.toggleFilter = function() {
@@ -100,7 +100,7 @@ app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', 'Catelog', '
 				today = today.getTime();
 				$scope.options.time = {
 					begin: today,
-					end: today + 86399000
+					end: parseInt(today) + parseInt(86399000)
 				};
 			}
 		}

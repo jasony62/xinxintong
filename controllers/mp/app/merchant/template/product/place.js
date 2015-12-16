@@ -9,8 +9,8 @@ app.register.controller('productCtrl', ['$scope', '$http', '$timeout', 'Product'
 			$scope.propValues = product.propValue;
 			facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId);
 			options = {
-				beginAt: $scope.skuFilter.time.begin,
-				endAt: $scope.skuFilter.time.end,
+				beginAt: $scope.skuFilter.time.begin / 1000,
+				endAt: $scope.skuFilter.time.end / 1000,
 				autogen: 'Y'
 			};
 			facSku.get(product.catelog.id, id, options).then(function(skus) {
@@ -28,7 +28,7 @@ app.register.controller('productCtrl', ['$scope', '$http', '$timeout', 'Product'
 	$scope.skuFilter = {
 		time: {
 			begin: $scope.beginAt || today,
-			end: $scope.endAt || (today + 86399000)
+			end: $scope.endAt || (parseInt(today) + parseInt(86399000))
 		}
 	};
 	$scope.prevDay = function() {
@@ -37,8 +37,8 @@ app.register.controller('productCtrl', ['$scope', '$http', '$timeout', 'Product'
 		productGet($scope.$parent.productId);
 	};
 	$scope.nextDay = function() {
-		$scope.skuFilter.time.begin += 86400000;
-		$scope.skuFilter.time.end += 86400000;
+		$scope.skuFilter.time.begin = parseInt($scope.skuFilter.time.begin) + parseInt(86400000);
+		$scope.skuFilter.time.end = parseInt($scope.skuFilter.time.end) + parseInt(86400000);
 		productGet($scope.$parent.productId);
 	};
 	var chooseSkuSegment = function(cateSku, start, end) {

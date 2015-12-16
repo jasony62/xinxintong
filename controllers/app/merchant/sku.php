@@ -268,8 +268,8 @@ class sku extends \member_base {
 			$currentPart = intval(date($f, $earliest));
 			$earliestPart = false;
 			/*
-			For patters like 0-23/2
-			 */
+				For patters like 0-23/2
+			*/
 			if (strpos($val, '/') !== false) {
 				//Get the range and step
 				list($range, $steps) = explode('/', $val);
@@ -287,11 +287,11 @@ class sku extends \member_base {
 				$earliestPart === false && ($earliestPart = $start);
 			}
 			/*
-			For patters like :
-			2
-			2,5,8
-			2-23
-			 */
+				For patters like :
+				2
+				2,5,8
+				2-23
+			*/
 			else {
 				$k = explode(',', $val);
 				foreach ($k as $v) {
@@ -365,8 +365,8 @@ class sku extends \member_base {
 			$currentPart = intval(date($f, $earliest));
 			$earliestPart = false;
 			/*
-			For patters like 0-23/2
-			 */
+				For patters like 0-23/2
+			*/
 			if (strpos($val, '/') !== false) {
 				//Get the range and step
 				list($range, $steps) = explode('/', $val);
@@ -385,11 +385,11 @@ class sku extends \member_base {
 				$earliestPart === false && ($earliestPart = $stop);
 			}
 			/*
-			For patters like :
-			2
-			2,5,8
-			2-23
-			 */
+				For patters like :
+				2
+				2,5,8
+				2-23
+			*/
 			else {
 				$k = explode(',', $val);
 				foreach ($k as $v) {
@@ -464,8 +464,8 @@ class sku extends \member_base {
 			$val = $$part;
 			$values = array();
 			/*
-			For patters like 0-23/2
-			 */
+				For patters like 0-23/2
+			*/
 			if (strpos($val, '/') !== false) {
 				//Get the range and step
 				list($range, $steps) = explode('/', $val);
@@ -480,11 +480,11 @@ class sku extends \member_base {
 				}
 			}
 			/*
-			For patters like :
-			2
-			2,5,8
-			2-23
-			 */
+				For patters like :
+				2
+				2,5,8
+				2-23
+			*/
 			else {
 				$k = explode(',', $val);
 				foreach ($k as $v) {

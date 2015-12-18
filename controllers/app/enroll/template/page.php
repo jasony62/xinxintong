@@ -18,7 +18,7 @@ class page extends base {
 	 */
 	public function schemaGet_action($scenario, $template) {
 		$templateDir = $this->getTemplateDir($scenario, $template);
-		$data = $this->getData($templateDir);
+		$data = $this->getConfig($templateDir);
 
 		$schema = $data->schema;
 

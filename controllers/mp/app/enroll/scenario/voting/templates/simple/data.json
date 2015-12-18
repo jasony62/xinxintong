@@ -2,6 +2,7 @@
 	"schema": [{
 		"id": "c1",
 		"title": "投票项1",
+		"type": "multiple",
 		"ops": [{
 			"v": "v0",
 			"label": "选项1"
@@ -18,6 +19,7 @@
 	}, {
 		"id": "c2",
 		"title": "投票项2",
+		"type": "multiple",
 		"ops": [{
 			"v": "v0",
 			"label": "选项1"

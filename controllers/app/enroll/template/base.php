@@ -22,6 +22,16 @@ class base extends \TMS_CONTROLLER {
 		return $config;
 	}
 	/**
+	 *
+	 */
+	protected function &getData($templateDir) {
+		$data = file_get_contents($templateDir . '/data.json');
+		$data = preg_replace('/\t|\r|\n/', '', $data);
+		$data = json_decode($data);
+
+		return $data;
+	}
+	/**
 	 * 从模板中获得定义
 	 */
 	protected function &getPage($templateDir, &$config, $name) {
@@ -42,16 +52,18 @@ class base extends \TMS_CONTROLLER {
 		$target->css = file_get_contents($templateDir . '/' . $target->name . '.css');
 		$target->js = file_get_contents($templateDir . '/' . $target->name . '.js');
 
+		/*填充页面*/
+		$matched = [];
+		$pattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
+		if (preg_match($pattern, $target->html, $matched)) {
+			$modelPage = $this->model('app\enroll\page');
+			if (isset($config->simpleSchema)) {
+				$html = $modelPage->htmlBySimpleSchema($config->simpleSchema);
+			} else {
+				$html = $modelPage->htmlBySchema($config->schema);
+			}
+			$target->html = preg_replace($pattern, $html, $target->html);
+		}
 		return $target;
-	}
-	/**
-	 *
-	 */
-	protected function &getData($templateDir) {
-		$data = file_get_contents($templateDir . '/data.json');
-		$data = preg_replace('/\t|\r|\n/', '', $data);
-		$data = json_decode($data);
-
-		return $data;
 	}
 }

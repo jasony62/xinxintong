@@ -179,7 +179,6 @@ class main extends \mp\app\app_base {
 		if (empty($pages)) {
 			return false;
 		}
-
 		$modelPage = $this->model('app\enroll\page');
 		$modelCode = $this->model('code/page');
 		foreach ($pages as $page) {
@@ -189,6 +188,19 @@ class main extends \mp\app\app_base {
 				'css' => file_get_contents($templateDir . '/' . $page->name . '.css'),
 				'js' => file_get_contents($templateDir . '/' . $page->name . '.js'),
 			);
+			if ($page->type === 'I') {
+				/*填充页面*/
+				$matched = [];
+				$pattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
+				if (preg_match($pattern, $data['html'], $matched)) {
+					if (isset($config->simpleSchema)) {
+						$html = $modelPage->htmlBySimpleSchema($config->simpleSchema);
+					} else {
+						$html = $modelPage->htmlBySchema($config->schema);
+					}
+					$data['html'] = preg_replace($pattern, $html, $data['html']);
+				}
+			}
 			$modelCode->modify($ap->code_id, $data);
 		}
 

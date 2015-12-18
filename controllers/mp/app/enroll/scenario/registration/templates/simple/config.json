@@ -8,6 +8,22 @@
 		"title": "登记结果页",
 		"type": "V"
 	}],
+	"schema": [{
+		"id": "name",
+		"title": "名称"
+	}, {
+		"id": "mobile",
+		"title": "手机"
+	}, {
+		"id": "email",
+		"title": "邮箱"
+	}, {
+		"id": "c1",
+		"title": "登记信息1"
+	}, {
+		"id": "c2",
+		"title": "登记信息2"
+	}],
 	"entryRule": {
 		"otherwise": {
 			"entry": "enroll"

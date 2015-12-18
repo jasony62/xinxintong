@@ -29,17 +29,20 @@ xxtApp.controller('enrollCtrl', ['$scope', '$modal', 'http2', function($scope, $
                 $scope2.ok = function() {
                     $mi.close($scope2.selected);
                 };
+                $scope2.chooseScenario = function() {};
                 $scope2.chooseTemplate = function() {
+                    if (!$scope2.selected.template) return;
                     var url;
-                    url = '/rest/mp/app/enroll/template/pageList';
+                    url = '/rest/mp/app/enroll/template/config';
                     url += '?scenario=' + $scope2.selected.scenario.name;
                     url += '&template=' + $scope2.selected.template.name;
                     http2.get(url, function(rsp) {
                         var first;
-                        $scope2.pages = rsp.data;
-                        $scope2.data.selectedPage = rsp.data[0];
+                        rsp.data.simpleSchema && ($scope2.data.simpleSchema = rsp.data.simpleSchema);
+                        $scope2.pages = rsp.data.pages;
+                        $scope2.data.selectedPage = rsp.data.pages[0];
                         $scope2.choosePage();
-                    });
+                    }); 
                 };
                 $scope2.choosePage = function() {
                     var elSimulator, url, name;

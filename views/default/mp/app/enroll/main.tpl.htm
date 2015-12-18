@@ -44,11 +44,11 @@
                 <li class='list-group-item'>
                     <button class="btn btn-success" ng-click="blank()">从头创建</button>
                 </li>
-                <li class='list-group-item clearfix'>
-                    <div class='col-md-4' style='margin:0 -15px'>
+                <li class='list-group-item clearfix template'>
+                    <div class='options'>
                         <div class='form-group'>
                             <label>场景</label>
-                            <select class='form-control' ng-model='selected.scenario' ng-options='s as s.title for s in templates'></select>
+                            <select class='form-control' ng-model='selected.scenario' ng-options='s as s.title for s in templates' ng-change='chooseScenario()'></select>
                         </div>
                         <div class='form-group'>
                             <label>模板</label>
@@ -58,12 +58,21 @@
                             <button class="btn" ng-class="{'btn-default':!selected.template,'btn-success':selected.template}" ng-click="ok()" ng-disabled='!selected.template'>从模板创建</button>
                         </div>
                     </div>
-                    <div class='col-md-8'>
+                    <div class='pages'>
                         <div class='form-group'>
                             <select id='selectedPage' class='form-control' ng-model='data.selectedPage' ng-options='p.title for p in pages' ng-change='choosePage()'></select>
                         </div>
                         <div class='form-group'>
                             <iframe id='simulator' src=""></iframe>
+                        </div>
+                    </div>
+                    <div class='schema' ng-if="selected.scenario.name==='voting'&&data.selectedPage.type==='I'">
+                        <div class='form-group'>
+                            <button class='btn btn-default'>刷新</button>
+                            <button class='btn btn-default'>导入</button>
+                        </div>
+                        <div class='form-group'>
+                            <textarea id='schemaData' ng-bind="data.simpleSchema"></textarea>
                         </div>
                     </div>
                 </li>

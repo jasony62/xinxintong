@@ -298,4 +298,61 @@ class page_model extends \TMS_MODEL {
 
 		return (object) $newPage;
 	}
+	/**
+	 *
+	 */
+	public function &htmlBySimpleSchema(&$simpleSchema) {
+		$schema = array();
+		$id = 0;
+		$lines = preg_split('/\r\n/', $simpleSchema);
+		foreach ($lines as $i => $line) {
+			if (count($schema) === 0 || empty($line)) {
+				$schema[] = new \stdClass;
+			}
+			if (empty($line)) {
+				continue;
+			}
+			$def = &$schema[count($schema) - 1];
+
+			if (!isset($def->id)) {
+				$def->id = 'c' . (++$id);
+				$def->title = $line;
+				$def->type = 'multiple';
+				$def->ops = array();
+			} else {
+				$op = new \stdClass;
+				$op->v = 'v' . count($def->ops);
+				$op->l = $line;
+				$def->ops[] = $op;
+			}
+		}
+		return $this->htmlBySchema($schema);
+	}
+	/**
+	 *
+	 */
+	public function &htmlBySchema(&$schema) {
+		$html = '';
+		foreach ($schema as $def) {
+			switch ($def->type) {
+			case 'multiple':
+				$html .= '<div wrap="input" class="form-group form-group-lg">';
+				$html .= '<label>' . $def->title . '</label>';
+				$html .= '<ul>';
+				foreach ($def->ops as $i => $op) {
+					$html .= '<li class="checkbox" wrap="checkbox"><label>';
+					$html .= '<input type="checkbox" name="' . $def->id . '"';
+					$html .= ' required=""';
+					$html .= ' ng-model="data.' . $def->id . '.' . $op->v . '"';
+					$html .= ' title="' . $def->title . '" data-label="' . $op->l . '">';
+					$html .= '<span>' . $op->l . '</span></label></li>';
+					$html .= '</label></li>';
+				}
+				$html .= '</ul>';
+				$html .= '</div>';
+				break;
+			}
+		}
+		return $html;
+	}
 }

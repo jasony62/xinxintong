@@ -42,7 +42,7 @@ xxtApp.controller('enrollCtrl', ['$scope', '$modal', 'http2', function($scope, $
                         $scope2.pages = rsp.data.pages;
                         $scope2.data.selectedPage = rsp.data.pages[0];
                         $scope2.choosePage();
-                    }); 
+                    });
                 };
                 $scope2.choosePage = function() {
                     var elSimulator, url, name;
@@ -55,6 +55,18 @@ xxtApp.controller('enrollCtrl', ['$scope', '$modal', 'http2', function($scope, $
                     url += '&page=' + name;
                     url += '&_=' + (new Date()).getTime();
                     elSimulator.src = url;
+                };
+                $scope2.renewPage = function() {
+                    var url, page, simpleSchema;
+                    page = $scope2.data.selectedPage.name;
+                    url = '/rest/mp/app/enroll/template/renew';
+                    url += '?scenario=' + $scope2.selected.scenario.name;
+                    url += '&template=' + $scope2.selected.template.name;
+                    url += '&page=' + page;
+                    config = {
+                        simpleSchema: $scope2.data.simpleSchema
+                    };
+                    http2.post(url, config, function(rsp) {});
                 };
                 http2.get('/rest/mp/app/enroll/template/list', function(rsp) {
                     $scope2.templates = rsp.data;

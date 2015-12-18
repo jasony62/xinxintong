@@ -68,11 +68,10 @@
                     </div>
                     <div class='schema' ng-if="selected.scenario.name==='voting'&&data.selectedPage.type==='I'">
                         <div class='form-group'>
-                            <button class='btn btn-default'>刷新</button>
-                            <button class='btn btn-default'>导入</button>
+                            <button class='btn btn-default' ng-click='renewPage()'>重新生成页面</button>
                         </div>
                         <div class='form-group'>
-                            <textarea id='schemaData' ng-bind="data.simpleSchema"></textarea>
+                            <textarea id='schemaData' ng-model="data.simpleSchema"></textarea>
                         </div>
                     </div>
                 </li>

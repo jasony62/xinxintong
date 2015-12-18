@@ -190,7 +190,7 @@ class main extends \mp\app\app_base {
 			);
 			if ($page->type === 'I') {
 				/*填充页面*/
-				$matched = [];
+				$matched = array();
 				$pattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
 				if (preg_match($pattern, $data['html'], $matched)) {
 					if (isset($config->simpleSchema)) {

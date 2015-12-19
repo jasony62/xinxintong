@@ -19,7 +19,6 @@ xxtApp.controller('enrollCtrl', ['$scope', '$modal', 'http2', function($scope, $
             windowClass: 'auto-height',
             controller: ['$scope', '$modalInstance', function($scope2, $mi) {
                 $scope2.data = {};
-                $scope2.selected = {};
                 $scope2.cancel = function() {
                     $mi.dismiss();
                 };
@@ -27,59 +26,57 @@ xxtApp.controller('enrollCtrl', ['$scope', '$modal', 'http2', function($scope, $
                     $mi.close();
                 };
                 $scope2.ok = function() {
-                    $mi.close($scope2.selected);
+                    $mi.close($scope2.data);
                 };
                 $scope2.chooseScenario = function() {};
                 $scope2.chooseTemplate = function() {
-                    if (!$scope2.selected.template) return;
+                    if (!$scope2.data.template) return;
                     var url;
                     url = '/rest/mp/app/enroll/template/config';
-                    url += '?scenario=' + $scope2.selected.scenario.name;
-                    url += '&template=' + $scope2.selected.template.name;
+                    url += '?scenario=' + $scope2.data.scenario.name;
+                    url += '&template=' + $scope2.data.template.name;
                     http2.get(url, function(rsp) {
-                        var first;
-                        rsp.data.simpleSchema && ($scope2.data.simpleSchema = rsp.data.simpleSchema);
+                        var elSimulator, url;
+                        $scope2.data.simpleSchema = rsp.data.simpleSchema ? rsp.data.simpleSchema : '';
                         $scope2.pages = rsp.data.pages;
-                        $scope2.data.selectedPage = rsp.data.pages[0];
-                        $scope2.choosePage();
+                        $scope2.data.selectedPage = $scope2.pages[0];
+                        elSimulator = document.querySelector('#simulator');
+                        url = 'http://' + location.host;
+                        url += '/rest/app/enroll/template';
+                        url += '?scenario=' + $scope2.data.scenario.name;
+                        url += '&template=' + $scope2.data.template.name;
+                        url += '&_=' + (new Date()).getTime();
+                        elSimulator.src = url;
+                        elSimulator.onload = function() {
+                            $scope.$apply(function() {
+                                $scope2.choosePage();
+                            });
+                        };
                     });
                 };
                 $scope2.choosePage = function() {
-                    var elSimulator, url, name;
-                    name = $scope2.data.selectedPage.name;
+                    var elSimulator, page;
                     elSimulator = document.querySelector('#simulator');
-                    url = 'http://' + location.host;
-                    url += '/rest/app/enroll/template';
-                    url += '?scenario=' + $scope2.selected.scenario.name;
-                    url += '&template=' + $scope2.selected.template.name;
-                    url += '&page=' + name;
-                    url += '&_=' + (new Date()).getTime();
-                    elSimulator.src = url;
-                };
-                $scope2.renewPage = function() {
-                    var url, page, simpleSchema;
-                    page = $scope2.data.selectedPage.name;
-                    url = '/rest/mp/app/enroll/template/renew';
-                    url += '?scenario=' + $scope2.selected.scenario.name;
-                    url += '&template=' + $scope2.selected.template.name;
-                    url += '&page=' + page;
                     config = {
                         simpleSchema: $scope2.data.simpleSchema
                     };
-                    http2.post(url, config, function(rsp) {});
+                    page = $scope2.data.selectedPage.name;
+                    elSimulator.contentWindow.renew(page, config);
                 };
                 http2.get('/rest/mp/app/enroll/template/list', function(rsp) {
                     $scope2.templates = rsp.data;
                 });
             }]
-        }).result.then(function(selected) {
-            console.log('sss', selected);
-            var url = '/rest/mp/app/enroll/create';
-            if (selected) {
-                url += '?scenario=' + selected.scenario.name;
-                url += '&template=' + selected.template.name;
+        }).result.then(function(data) {
+            var url, config;
+            url = '/rest/mp/app/enroll/create';
+            url += '?scenario=' + data.scenario.name;
+            url += '&template=' + data.template.name;
+            config = {};
+            if (data.simpleSchema && data.simpleSchema.length) {
+                config.simpleSchema = data.simpleSchema;
             }
-            http2.get(url, function(rsp) {
+            http2.post(url, config, function(rsp) {
                 location.href = '/rest/mp/app/enroll/detail?aid=' + rsp.data.id;
             });
         })

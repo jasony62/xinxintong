@@ -51,16 +51,15 @@ class base extends \TMS_CONTROLLER {
 		$target->html = file_get_contents($templateDir . '/' . $target->name . '.html');
 		$target->css = file_get_contents($templateDir . '/' . $target->name . '.css');
 		$target->js = file_get_contents($templateDir . '/' . $target->name . '.js');
-
 		/*填充页面*/
-		$matched = [];
+		$matched = array();
 		$pattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
 		if (preg_match($pattern, $target->html, $matched)) {
 			$modelPage = $this->model('app\enroll\page');
 			if (isset($config->simpleSchema)) {
-				$html = $modelPage->htmlBySimpleSchema($config->simpleSchema);
+				$html = $modelPage->htmlBySimpleSchema($config->simpleSchema, $matched[0]);
 			} else {
-				$html = $modelPage->htmlBySchema($config->schema);
+				$html = $modelPage->htmlBySchema($config->schema, $matched[0]);
 			}
 			$target->html = preg_replace($pattern, $html, $target->html);
 		}

@@ -28,7 +28,7 @@ app.factory('Round', ['$http', '$q', function($http, $q) {
     };
     return Round;
 }]);
-var LS = (function() {
+LS = (function() {
     function locationSearch() {
         var ls, search;
         ls = location.search;
@@ -95,7 +95,7 @@ app.factory('Record', ['$http', '$q', function($http, $q) {
         };
     };
     _running = false;
-    Record.prototype.get = function() {
+    Record.prototype.get = function(config) {
         if (_running) return false;
         _running = true;
         var _this, url, deferred;
@@ -104,7 +104,7 @@ app.factory('Record', ['$http', '$q', function($http, $q) {
         url = '/rest/app/enroll/template/record/get';
         url += '?scenario=' + _this.scenario;
         url += '&template=' + _this.template;
-        $http.get(url).success(function(rsp) {
+        $http.post(url, config).success(function(rsp) {
             var record;
             record = rsp.data;
             if (rsp.err_code == 0) {
@@ -152,7 +152,7 @@ app.factory('Record', ['$http', '$q', function($http, $q) {
 app.controller('ctrlRecord', ['$scope', 'Record', function($scope, Record) {
     var facRecord;
     facRecord = Record.ins(LS.p.scenario, LS.p.template);
-    facRecord.get();
+    facRecord.get($scope.CustomConfig);
     $scope.Record = facRecord;
 }]);
 app.controller('ctrlRecords', ['$scope', 'Record', function($scope, Record) {
@@ -217,17 +217,57 @@ app.controller('ctrlOrderbyOptions', ['$scope', function($scope) {
 app.controller('ctrlStatistic', ['$scope', '$http', function($scope, $http) {
     var fnFetch;
     fnFetch = function() {
-        $http.get(LS.j('statGet', 'scenario', 'template')).success(function(rsp) {
+        $http.post(LS.j('statGet', 'scenario', 'template'), $scope.CustomConfig).success(function(rsp) {
             $scope.statistic = rsp.data;
         });
     };
     fnFetch();
 }]);
 app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
+    window.renew = function(page, config) {
+        $scope.$apply(function() {
+            $scope.CustomConfig = config;
+            $http.post(LS.j('pageGet', 'scenario', 'template') + '&page=' + page, config).success(function(rsp) {
+                var params;
+                if (rsp.err_code !== 0) {
+                    $scope.errmsg = rsp.err_msg;
+                    return;
+                }
+                params = rsp.data;
+                $scope.params = params;
+                $scope.Page = params.page;
+                $scope.User = params.user;
+                $scope.ActiveRound = params.activeRound;
+                (function setPage(page) {
+                    if (page.ext_css && page.ext_css.length) {
+                        angular.forEach(page.ext_css, function(css) {
+                            var link, head;
+                            link = document.createElement('link');
+                            link.href = css.url;
+                            link.rel = 'stylesheet';
+                            head = document.querySelector('head');
+                            head.appendChild(link);
+                        });
+                    }
+                    if (page.ext_js && page.ext_js.length) {
+                        angular.forEach(page.ext_js, function(js) {
+                            $.getScript(js.url);
+                        });
+                    }
+                    if (page.js && page.js.length) {
+                        (function dynamicjs() {
+                            eval(page.js);
+                        })();
+                    }
+                })(params.page);
+            });
+        });
+    };
+    $scope.errmsg = '';
     $scope.data = {
         member: {}
     };
-    $scope.errmsg = '';
+    $scope.CustomConfig = {};
     $scope.gotoPage = function(event, page, ek, rid, fansOnly, newRecord) {};
     $scope.addRecord = function(event) {};
     $scope.editRecord = function(event, page) {};
@@ -243,40 +283,6 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $h
         if (event.targetScope !== $scope) {
             $scope.$broadcast('xxt.app.enroll.filter.owner', data);
         }
-    });
-    $http.get(LS.j('pageGet', 'scenario', 'template', 'page')).success(function(rsp) {
-        var params;
-        if (rsp.err_code !== 0) {
-            $scope.errmsg = rsp.err_msg;
-            return;
-        }
-        params = rsp.data;
-        $scope.params = params;
-        $scope.Page = params.page;
-        $scope.User = params.user;
-        $scope.ActiveRound = params.activeRound;
-        (function setPage(page) {
-            if (page.ext_css && page.ext_css.length) {
-                angular.forEach(page.ext_css, function(css) {
-                    var link, head;
-                    link = document.createElement('link');
-                    link.href = css.url;
-                    link.rel = 'stylesheet';
-                    head = document.querySelector('head');
-                    head.appendChild(link);
-                });
-            }
-            if (page.ext_js && page.ext_js.length) {
-                angular.forEach(page.ext_js, function(js) {
-                    $.getScript(js.url);
-                });
-            }
-            if (page.js && page.js.length) {
-                (function dynamicjs() {
-                    eval(page.js);
-                })();
-            }
-        })(params.page);
     });
 }]);
 app.factory('Schema', ['$http', '$q', function($http, $q) {
@@ -316,7 +322,7 @@ app.filter('value2Label', ['Schema', function(Schema) {
         if (s && s.ops && s.ops.length) {
             aVal = val.split(',');
             for (i = 0, j = s.ops.length; i < j; i++) {
-                aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].label);
+                aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
             }
             if (aLab.length) return aLab.join(',');
         }

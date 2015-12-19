@@ -16,12 +16,41 @@ class record extends base {
 	 *
 	 */
 	public function get_action($scenario, $template) {
-		$templateDir = $this->getTemplateDir($scenario, $template);
-		$data = $this->getData($templateDir);
+		$customConfig = $this->getPostJson();
+		if (!empty($customConfig->simpleSchema)) {
+			$schema = $this->model('app\enroll\page')->schemaByText($customConfig->simpleSchema);
+			$record = new \stdClass;
+			$record->rid = "";
+			$record->enroll_key = "ek2";
+			$record->enroll_at = time();
+			$record->signin_at = "0";
+			$record->tags = null;
+			$record->follower_num = "0";
+			$record->score = null;
+			$record->remark_num = "0";
+			$record->fid = "fid1";
+			$record->nickname = "用户1";
+			$record->openid = "user1";
+			$record->headimgurl = "";
+			$data = new \stdClass;
+			$data->member = new \stdClass;
+			foreach ($schema as $def) {
+				if (!empty($def->ops)) {
+					$i = mt_rand(0, count($def->ops) - 1);
+					$data->{$def->id} = $def->ops[$i]->v;
+				} else {
+					$data->{$def->id} = '';
+				}
+			}
+			$record->data = $data;
+			$record->signinLogs = array();
+		} else {
+			$templateDir = $this->getTemplateDir($scenario, $template);
+			$data = $this->getData($templateDir);
+			$record = $data->records[0];
+		}
 
-		$result = $data->records[0];
-
-		return new \ResponseData($result);
+		return new \ResponseData($record);
 	}
 	/**
 	 * 返回登记记录列表

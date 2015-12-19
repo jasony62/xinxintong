@@ -301,10 +301,11 @@ class page_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function &htmlBySimpleSchema(&$simpleSchema) {
+	public function &schemaByText(&$simpleSchema) {
 		$schema = array();
 		$id = 0;
-		$lines = preg_split('/\r\n/', $simpleSchema);
+		$simpleSchema = preg_replace('/\r/', '', $simpleSchema);
+		$lines = preg_split('/\n/', $simpleSchema);
 		foreach ($lines as $i => $line) {
 			if (count($schema) === 0 || empty($line)) {
 				$schema[] = new \stdClass;
@@ -326,33 +327,28 @@ class page_model extends \TMS_MODEL {
 				$def->ops[] = $op;
 			}
 		}
-		return $this->htmlBySchema($schema);
+		return $schema;
 	}
 	/**
 	 *
 	 */
-	public function &htmlBySchema(&$schema) {
-		$html = '';
-		foreach ($schema as $def) {
-			switch ($def->type) {
-			case 'multiple':
-				$html .= '<div wrap="input" class="form-group form-group-lg">';
-				$html .= '<label>' . $def->title . '</label>';
-				$html .= '<ul>';
-				foreach ($def->ops as $i => $op) {
-					$html .= '<li class="checkbox" wrap="checkbox"><label>';
-					$html .= '<input type="checkbox" name="' . $def->id . '"';
-					$html .= ' required=""';
-					$html .= ' ng-model="data.' . $def->id . '.' . $op->v . '"';
-					$html .= ' title="' . $def->title . '" data-label="' . $op->l . '">';
-					$html .= '<span>' . $op->l . '</span></label></li>';
-					$html .= '</label></li>';
-				}
-				$html .= '</ul>';
-				$html .= '</div>';
-				break;
-			}
-		}
+	public function &htmlBySimpleSchema(&$simpleSchema, $template) {
+		$schema = $this->schemaByText($simpleSchema);
+		return $this->htmlBySchema($schema, $template);
+	}
+	/**
+	 *
+	 */
+	public function &htmlBySchema(&$schema, $template) {
+		$tmpfname = tempnam("/tmp", "template");
+		$handle = fopen($tmpfname, "w");
+		fwrite($handle, $template);
+		fclose($handle);
+		$s = new \Savant3(array('template' => $tmpfname, 'template_path' => ''));
+		$s->assign('schema', $schema);
+		$html = $s->getOutput();
+		unlink($tmpfname);
+
 		return $html;
 	}
 }

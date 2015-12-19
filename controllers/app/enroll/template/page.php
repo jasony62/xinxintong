@@ -18,9 +18,9 @@ class page extends base {
 	 */
 	public function schemaGet_action($scenario, $template) {
 		$templateDir = $this->getTemplateDir($scenario, $template);
-		$data = $this->getConfig($templateDir);
+		$config = $this->getConfig($templateDir);
 
-		$schema = $data->schema;
+		$schema = $this->model('app\enroll\page')->schemaByText($config->simpleSchema);
 
 		return new \ResponseData($schema);
 	}

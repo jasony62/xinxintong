@@ -15,21 +15,23 @@ class main extends base {
 		exit;
 	}
 	/**
-	 *
+	 * 获得指定页面的数据
 	 */
 	public function pageGet_action($scenario, $template, $page = '') {
+		$customConfig = $this->getPostJson();
 		$params = array();
 		/*模版配置信息*/
 		$templateDir = $this->getTemplateDir($scenario, $template);
-		$config = $this->getConfig($templateDir);
+		$initialConfig = $this->getConfig($templateDir);
+		!(empty($customConfig->simpleSchema)) && $initialConfig->simpleSchema = $customConfig->simpleSchema;
 		/*当前访问用户的基本信息*/
 		$user = new \stdClass;
 		$user->fan = new \stdClass;
 		$user->fan->nickname = '演示用户';
 		$params['user'] = $user;
 		/*打开页面*/
-		$params['page'] = $this->getPage($templateDir, $config, $page);
-		if ($config->multi_rounds === 'Y') {
+		$params['page'] = $this->getPage($templateDir, $initialConfig, $page);
+		if ($initialConfig->multi_rounds === 'Y') {
 			$data = $this->getData($templateDir);
 			$params['activeRound'] = $data->activeRound;
 		}
@@ -46,10 +48,21 @@ class main extends base {
 	 *
 	 */
 	public function statGet_action($scenario, $template) {
-		$templateDir = $this->getTemplateDir($scenario, $template);
-		$data = $this->getData($templateDir);
+		$customConfig = $this->getPostJson();
+		if (!empty($customConfig->simpleSchema)) {
+			$schema = $this->model('app\enroll\page')->schemaByText($customConfig->simpleSchema);
+			$statistic = $schema;
+			foreach ($statistic as &$def) {
+				foreach ($def->ops as &$op) {
+					$op->c = mt_rand(0, 10);
+				}
+			}
+		} else {
+			$templateDir = $this->getTemplateDir($scenario, $template);
+			$data = $this->getData($templateDir);
 
-		$statistic = $data->statistic;
+			$statistic = $data->statistic;
+		}
 
 		return new \ResponseData($statistic);
 	}

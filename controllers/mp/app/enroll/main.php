@@ -113,7 +113,8 @@ class main extends \mp\app\app_base {
 		$aid = uniqid();
 		/*pages*/
 		if (!empty($scenario) && !empty($template)) {
-			$config = $this->_addPageByTemplate($aid, $scenario, $template);
+			$customConfig = $this->getPostJson();
+			$config = $this->_addPageByTemplate($aid, $scenario, $template, $customConfig);
 			$entryRule = $config->entryRule;
 			if (isset($config->multi_rounds) && $config->multi_rounds === 'Y') {
 				$this->_createRound($aid);
@@ -170,7 +171,7 @@ class main extends \mp\app\app_base {
 	 * @param string $scenario scenario's name
 	 * @param string $template template's name
 	 */
-	private function _addPageByTemplate($aid, $scenario, $template) {
+	private function _addPageByTemplate($aid, $scenario, $template, $customConfig) {
 		$templateDir = dirname(__FILE__) . '/scenario/' . $scenario . '/templates/' . $template;
 		$config = file_get_contents($templateDir . '/config.json');
 		$config = preg_replace('/\t|\r|\n/', '', $config);
@@ -188,19 +189,19 @@ class main extends \mp\app\app_base {
 				'css' => file_get_contents($templateDir . '/' . $page->name . '.css'),
 				'js' => file_get_contents($templateDir . '/' . $page->name . '.js'),
 			);
-			if ($page->type === 'I') {
-				/*填充页面*/
-				$matched = array();
-				$pattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
-				if (preg_match($pattern, $data['html'], $matched)) {
-					if (isset($config->simpleSchema)) {
-						$html = $modelPage->htmlBySimpleSchema($config->simpleSchema);
-					} else {
-						$html = $modelPage->htmlBySchema($config->schema);
-					}
-					$data['html'] = preg_replace($pattern, $html, $data['html']);
+			//if ($page->type === 'I') {
+			/*填充页面*/
+			$matched = array();
+			$pattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
+			if (preg_match($pattern, $data['html'], $matched)) {
+				if (isset($customConfig->simpleSchema)) {
+					$html = $modelPage->htmlBySimpleSchema($customConfig->simpleSchema, $matched[0]);
+				} else {
+					$html = $modelPage->htmlBySchema($config->schema, $matched[0]);
 				}
+				$data['html'] = preg_replace($pattern, $html, $data['html']);
 			}
+			//}
 			$modelCode->modify($ap->code_id, $data);
 		}
 

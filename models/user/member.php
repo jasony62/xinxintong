@@ -445,7 +445,7 @@ class member_model extends TMS_MODEL {
 	 * $items array 用户认证信息定义
 	 * 0:hidden,1:mandatory,2:unique,3:immuatable,4:verification,5:identity
 	 */
-	public function findMember($member, $attrs) {
+	public function findMember($member, $attrs, $checkPassword = true) {
 		if (isset($member->mobile) && $attrs->attr_mobile[5] === '1') {
 			/**
 			 * 手机号唯一
@@ -465,7 +465,7 @@ class member_model extends TMS_MODEL {
 			);
 			$found = $this->query_obj_ss($q);
 			if (!empty($found)) {
-				if ($attrs->attr_password[0] === '0') {
+				if ($checkPassword && $attrs->attr_password[0] === '0') {
 					/**
 					 * 检查口令
 					 */

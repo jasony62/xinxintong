@@ -4,7 +4,7 @@
         <div class="panel-body">
             <div class='list-group'>
                 <div class='list-group-item'>
-                    <div class='form-inline'>
+                    <div class='form-inline form-group'>
                         <div class='form-group'>
                             <div class='input-group'>
                                 <span class='input-group-addon'>
@@ -18,8 +18,9 @@
                             <select class='form-control' title='认证结果有效期' ng-model='ia.validity' ng-options='d.v as d.n for d in days' ng-change="updAuthapi(ia,'validity')"></select>
                         </div>
                         <div class='form-group' ng-show="ia.valid==='Y'">
-                            <button class='btn btn-success' ng-click='addExtattr(ia)'>增加信息项</button>
-                            <button class='btn btn-success' ng-click='gotoCode(ia)'>定制认证页面</button>
+                            <button class='btn btn-default' ng-click='addExtattr(ia)'>增加信息项</button>
+                            <button class='btn btn-default' ng-click='gotoCode(ia)'>定制认证页面</button>
+                            <button class='btn btn-default' ng-click='resetCode(ia)'>重置认证页面</button>
                         </div>
                     </div>
                     <div ng-show="ia.valid==='Y'">

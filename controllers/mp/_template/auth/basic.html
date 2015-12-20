@@ -1,0 +1,30 @@
+<div class='form-group h4' ng-if="authedMember">
+    <p><span ng-bind="authedTitle"></span>，您好！您已经通过认证，不需要再次认证。</p>
+</div>
+<div>
+    <div class='form-group' ng-if="attrs.name">
+        <input type='text' required="" ng-model='member.name' placeholder='姓名' class='form-control input-lg'>
+    </div>
+    <div class='form-group' ng-if="attrs.mobile">
+        <input type='text' required="" ng-model='member.mobile' placeholder='手机号' class='form-control input-lg'>
+    </div>
+    <div class='form-group' ng-if="attrs.email">
+        <input type='text' required="" ng-model='member.email' placeholder='邮箱' class='form-control input-lg'>
+    </div>
+    <div class='form-group' ng-if="attrs.password">
+        <input type='password' ng-model='member.password' placeholder='访问密码' class='form-control input-lg'>
+        <p class='help-block'>访问您私有数据时需要的密码。长度不小于6位。</p>
+    </div>
+    <div class='form-group' ng-if="clientSrc">
+        <input type='password' ng-model='member.password2' placeholder='重复访问密码' class='form-control input-lg'>
+    </div>
+    <div class='form-group' ng-if="clientSrc" ng-repeat="ea in attrs.extattrs">
+        <input type='text' required="" ng-model='member[ea.id]' placeholder='{{ea.label}}' class='form-control input-lg'>
+    </div>
+    <div class='form-group' ng-if="clientSrc">
+        <button class='btn btn-lg btn-block' ng-class="posting ? 'btn-default':'btn-primary'" ng-disabled='posting' ng-click='doAuth()'>进行验证</button>
+    </div>
+    <div class='form-group'>
+        <button class='btn btn-lg btn-block' ng-class="posting ? 'btn-default':'btn-primary'" ng-disabled='posting' ng-click='doReauth()'>重新验证</button>
+    </div>
+</div>

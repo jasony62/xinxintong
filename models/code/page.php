@@ -49,16 +49,16 @@ class page_model extends TMS_MODEL {
 	/**
 	 * 创建一个空页面
 	 */
-	public function create($creater) {
+	public function create($creater, $data = array()) {
 		$current = time();
 		$page = array(
 			'creater' => $creater,
 			'create_at' => $current,
 			'modify_at' => $current,
 			'title' => '新页面',
-			'html' => '',
-			'css' => '',
-			'js' => '',
+			'html' => isset($data['html']) ? $data['html'] : '',
+			'css' => isset($data['css']) ? $data['css'] : '',
+			'js' => isset($data['js']) ? $data['js'] : '',
 		);
 
 		$page['id'] = $this->insert('xxt_code_page', $page, true);

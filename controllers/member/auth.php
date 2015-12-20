@@ -34,59 +34,36 @@ class auth extends \member_base {
 	 * 所以只有在无法获得之前页面取得OAuth时，认证页面才做OAuth
 	 *
 	 */
-	public function index_action($mpid, $authid, $openid = null, $code = null) {
-		if ($code != null) {
-			$who = $this->getOAuthUserByCode($mpid, $code);
-		} else {
-			$who = $this->doAuth($mpid, $code, $openid);
-		}
-
-		$this->afterOAuth($mpid, $authid, $who);
+	public function index_action($mpid, $authid, $openid = '', $code = null) {
+		$this->doAuth($mpid, $code, $openid);
+		\TPL::output('/member/auth');
+		exit;
 	}
 	/**
 	 *
 	 */
-	protected function afterOAuth($mpid, $authid, $who = null) {
-		\TPL::assign('mpid', $mpid);
-		\TPL::assign('authid', $authid);
-		\TPL::assign('clientSrc', $this->getClientSrc());
-		/**
-		 * 页面背景设置
-		 */
-		$mpsetting = $this->getMpSetting($mpid);
-		\TPL::assign('body_ele', $mpsetting->body_ele);
-		\TPL::assign('body_css', $mpsetting->body_css);
-		/**
-		 * 内置用户身份认证认证的规则定义数据
-		 */
-		$authSetting = $this->model('user/authapi')->byId($authid);
-		$attrs = array(
-			'mobile' => $authSetting->attr_mobile,
-			'email' => $authSetting->attr_email,
-			'name' => $authSetting->attr_name,
-			'password' => $authSetting->attr_password,
-			'extattr' => $authSetting->extattr,
-		);
-		\TPL::assign('attrs', $attrs);
+	public function pageGet_action($mpid, $authid) {
+		$params = array();
 
-		!empty($authSetting->auth_css) && \TPL::assign('extra_css', $authSetting->auth_css);
-		!empty($authSetting->auth_html) && \TPL::assign('extra_ele', $authSetting->auth_html);
-		!empty($authSetting->auth_js) && \TPL::assign('extra_js', $authSetting->auth_js);
-		/**
-		 * 成功后的回调地址
-		 * 将身份验证和用户身份绑定分开
-		 */
-		\TPL::assign('callback', urlencode("/rest/member/auth/passed?mpid=$mpid&authid=$authid"));
-		/**
-		 * 已经认证过的用户身份
-		 */
-		$openid = empty($who) ? $this->getCookieOAuthUser($mpid)->openid : $who;
-		if (!empty($openid)) {
-			$member = $this->model('user/member')->byOpenid($mpid, $openid, '*', $authid);
-			\TPL::assign('authedMember', $member);
+		$api = $this->model('user/authapi')->byId($authid);
+		$params['api'] = $api;
+		/*属性信息*/
+		$attrs = array(
+			'mobile' => $api->attr_mobile,
+			'email' => $api->attr_email,
+			'name' => $api->attr_name,
+			'password' => $api->attr_password,
+			'extattrs' => $api->extattr,
+		);
+		$params['attrs'] = $attrs;
+		/*已经认证过的用户身份*/
+		$user = $this->getUser($mpid);
+		if (!empty($user->openid)) {
+			$member = $this->model('user/member')->byOpenid($mpid, $user->openid, '*', $authid);
+			$params['authedMember'] = $member;
 		}
 
-		$this->view_action('/member/auth');
+		return new \ResponseData($params);
 	}
 	/**
 	 * 提交用户身份认证信息
@@ -112,8 +89,6 @@ class auth extends \member_base {
 		if (isset($member->password2)) {
 			unset($member->password2);
 		}
-		// 冗余字段，用于前端验证
-
 		$member->mpid = $mpid;
 		$member->authapi_id = $authid;
 		/**
@@ -126,7 +101,6 @@ class auth extends \member_base {
 		if ($err_msg = $this->model('user/member')->rejectAuth($member, $attrs)) {
 			return new \ParameterError($err_msg);
 		}
-
 		/**
 		 * 用户的邮箱需要验证，将状态设置为等待验证的状态
 		 */
@@ -148,29 +122,24 @@ class auth extends \member_base {
 				if ('N' == $mpa->yx_checkmobile) {
 					return new \ResponseError('仅支持在开通了手机验证接口的公众号中验证手机号');
 				}
-
 				$rst = $this->model('mpproxy/yx', $mpid)->mobile2Openid($mobile);
 				if ($rst[0] === false) {
 					//return new \ResponseError("验证手机号失败【{$rst[1]}】");
 					return new \ResponseError("请输入注册易信时使用的手机号码");
 				}
-
 				if ($fan->openid !== $rst[1]->openid) {
 					return new \ResponseError("您输入的手机号与注册易信用户时的提供手机号不一致");
 				}
-
 			}
 			$member->authed_identity = $member->mobile;
-		} else if ($attrs->attr_email[5] === '1' && isset($member->email))
-		/**
-		 * 邮箱作为唯一标识
-		 */
-		{
+		} else if ($attrs->attr_email[5] === '1' && isset($member->email)) {
+			/**
+			 * 邮箱作为唯一标识
+			 */
 			$member->authed_identity = $member->email;
 		} else {
 			return new \ResponseError('无法获得身份标识信息');
 		}
-
 		/**
 		 * 添加新的认证用户
 		 */
@@ -181,9 +150,7 @@ class auth extends \member_base {
 
 		$mid = $rst[1];
 		// log
-
 		$this->model('log')->writeMemberAuth($mpid, $user->openid, $mid);
-
 		/**
 		 * 验证邮箱真实性
 		 */
@@ -218,7 +185,6 @@ class auth extends \member_base {
 		if (false === ($mid = $this->model('user/member')->findMember($member, $attrs))) {
 			return new \ParameterError('找不到匹配的认证用户');
 		}
-
 		/**
 		 * 是否需要进行验证
 		 * 目前仅支持邮箱验证

@@ -155,6 +155,25 @@ xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Autha
             });
         }
     };
+    $scope.resetCode = function(authapi) {
+        if (authapi.auth_code_id === '0') {
+            http2.get('/rest/code/create', function(rsp) {
+                var nv = {
+                    'auth_code_id': rsp.data.id
+                };
+                service.authapi.update(authapi, nv).then(function(rsp) {
+                    authapi.auth_code_id = nv.auth_code_id;
+                    location.href = '/rest/code?pid=' + nv.auth_code_id;
+                });
+            });
+        } else {
+            if (window.confirm('重置操作将覆盖已经做出的修改，确定重置？')) {
+                http2.get('/rest/mp/authapi/pageReset?codeId=' + authapi.auth_code_id, function(rsp) {
+                    location.href = '/rest/code?pid=' + authapi.auth_code_id;
+                });
+            }
+        }
+    };
     $scope.import2QyRunning = false;
     $scope.import2Qy = function(authapi) {
         var url = authapi.url + '/import2Qy';
@@ -176,7 +195,7 @@ xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Autha
                     if (rsp.data.param.next)
                         doImport(rsp.data.param);
                 } else {
-                    if (rsp.data.warning !== undefined && rsp.data.warning.length) 
+                    if (rsp.data.warning !== undefined && rsp.data.warning.length)
                         $scope.$root.errmsg = JSON.stringify(rsp.data.warning);
                     else
                         $scope.$root.progmsg = '同步操作完成';

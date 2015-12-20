@@ -340,7 +340,11 @@ class page_model extends \TMS_MODEL {
 	 *
 	 */
 	public function &htmlBySchema(&$schema, $template) {
-		$tmpfname = tempnam(sys_get_temp_dir(), "template");
+		if (defined('SAE_TMP_PATH')) {
+			$tmpfname = tempnam(SAE_TMP_PATH, "template");
+		} else {
+			$tmpfname = tempnam(sys_get_temp_dir(), "template");
+		}
 		$handle = fopen($tmpfname, "w");
 		fwrite($handle, $template);
 		fclose($handle);

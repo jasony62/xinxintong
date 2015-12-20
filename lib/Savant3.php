@@ -777,8 +777,13 @@ class Savant3 {
 				// system. Suggested by Ian Eure, initially
 				// rejected, but then adopted when the secure
 				// compiler was added.
-				$path = realpath($path); // needed for substr() later
-				$fullname = realpath($fullname);
+				if (defined('SAE_TMP_PATH')) {
+					$path = $path;
+					$fullname = $fullname;
+				} else {
+					$path = realpath($path); // needed for substr() later
+					$fullname = realpath($fullname);
+				}
 			}
 
 			// the substr() check added by Ian Eure to make sure

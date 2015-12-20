@@ -261,7 +261,11 @@
             case 'multiple':
                 if (def.ops && def.ops.length > 0) {
                     var cls;
-                    html += '<ul>';
+                    html += '<ul';
+                    if (def.setUpper === 'Y') {
+                        html += ' tms-checkbox-group="' + key + '" tms-checkbox-group-model="data" tms-checkbox-group-upper="' + def.upper + '"';
+                    }
+                    html += '>';
                     cls = 'checkbox';
                     if (def.align === 'H') cls += '-inline';
                     for (var i in def.ops) {
@@ -672,7 +676,8 @@
                         showname: 'placeholder',
                         component: 'R',
                         align: 'V',
-                        count: 1
+                        count: 1,
+                        setUpper: 'N'
                     };
                     $scope.addOption = function() {
                         if ($scope.def.ops === undefined)
@@ -772,6 +777,11 @@
                     $scope.cancel = function() {
                         $mi.dismiss();
                     };
+                    $scope.$watch('def.setUpper', function(nv) {
+                        if (nv === 'Y') {
+                            $scope.def.upper = $scope.def.ops ? $scope.def.ops.length : 0;
+                        }
+                    });
                 }],
             }).result.then(function(def) {
                 wrapLib.embedInput(page, def);

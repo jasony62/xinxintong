@@ -80,6 +80,36 @@ app.directive('tmsDatetime', ['$compile', function($compile) {
         }
     }
 }]);
+app.directive('tmsCheckboxGroup', function() {
+    return {
+        restrict: 'A',
+        link: function(scope, elem, attrs) {
+            var groupName, model, options, upper;
+            if (attrs.tmsCheckboxGroup && attrs.tmsCheckboxGroup.length) {
+                groupName = attrs.tmsCheckboxGroup;
+                if (attrs.tmsCheckboxGroupModel && attrs.tmsCheckboxGroupModel.length) {
+                    model = attrs.tmsCheckboxGroupModel;
+                    if (attrs.tmsCheckboxGroupUpper && attrs.tmsCheckboxGroupUpper.length) {
+                        upper = attrs.tmsCheckboxGroupUpper;
+                        options = document.querySelectorAll('[name=' + groupName + ']');
+                        scope.$watch(model + '.' + groupName, function(data) {
+                            var checked = document.querySelectorAll('[name=' + groupName + ']:checked');
+                            if (checked.length >= upper) {
+                                [].forEach.call(options, function(el) {
+                                    if (!el.checked) el.disabled = true;
+                                });
+                            } else {
+                                [].forEach.call(options, function(el) {
+                                    el.disabled = false;
+                                });
+                            }
+                        }, true);
+                    }
+                }
+            }
+        }
+    };
+});
 app.directive('runningButton', function() {
     return {
         restrict: 'EA',
@@ -89,7 +119,7 @@ app.directive('runningButton', function() {
         },
         replace: true,
         transclude: true
-    }
+    };
 });
 app.directive('flexImg', function() {
     return {

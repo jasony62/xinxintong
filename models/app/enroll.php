@@ -272,7 +272,6 @@ class enroll_model extends \matter\enroll_model {
 					if (preg_match('/title="(.*?)"/', $inp, $title)) {
 						$title = $title[1];
 					}
-
 					if (preg_match('/type="radio"/', $inp)) {
 						/**
 						 * for radio group.
@@ -280,26 +279,16 @@ class enroll_model extends \matter\enroll_model {
 						if (preg_match('/ng-model="data\.(.+?)"/', $inp, $ngmodel)) {
 							$id = $ngmodel[1];
 						}
-
-						$existing = false;
-						foreach ($defsAndCnt as &$d) {
-							if ($existing = ($d['id'] === $id)) {
-								break;
-							}
+						if (!isset($defsAndCnt[$id])) {
+							$defsAndCnt[$id] = array('title' => $title, 'id' => $id, 'ops' => array());
 						}
-
-						if (!$existing) {
-							$defsAndCnt[] = array('title' => $title, 'id' => $id, 'ops' => array());
-							$d = &$defsAndCnt[count($defsAndCnt) - 1];
-						}
+						$d = &$defsAndCnt[$id];
 						if (preg_match('/value="(.+?)"/', $wrap, $opval)) {
 							$op['v'] = $opval[1];
 						}
-
 						if (preg_match('/data-label="(.+?)"/', $wrap, $optit)) {
 							$op['l'] = $optit[1];
 						}
-
 						/**
 						 * 获取数据
 						 */
@@ -309,7 +298,6 @@ class enroll_model extends \matter\enroll_model {
 							"aid='$aid' and state=1 and name='$id' and value='{$op['v']}'",
 						);
 						$op['c'] = $this->query_val_ss($q);
-
 						$d['ops'][] = $op;
 					} else if (preg_match('/type="checkbox"/', $wrap)) {
 						/**
@@ -319,22 +307,14 @@ class enroll_model extends \matter\enroll_model {
 							$id = $ngmodel[1];
 							$opval = $ngmodel[2];
 						}
-						$existing = false;
-						foreach ($defsAndCnt as &$d) {
-							if ($existing = ($d['id'] === $id)) {
-								break;
-							}
+						if (!isset($defsAndCnt[$id])) {
+							$defsAndCnt[$id] = array('title' => $title, 'id' => $id, 'ops' => array());
 						}
-
-						if (!$existing) {
-							$defsAndCnt[] = array('title' => $title, 'id' => $id, 'ops' => array());
-							$d = &$defsAndCnt[count($defsAndCnt) - 1];
-						}
+						$d = &$defsAndCnt[$id];
 						$op['v'] = $opval;
 						if (preg_match('/data-label="(.+?)"/', $wrap, $optit)) {
 							$op['l'] = $optit[1];
 						}
-
 						/**
 						 * 获取数据
 						 */

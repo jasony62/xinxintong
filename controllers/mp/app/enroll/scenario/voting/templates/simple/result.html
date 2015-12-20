@@ -1,17 +1,19 @@
 <p></p>
 <div ng-controller="ctrlStatistic" wrap="statistic" class="form-group">
 <!-- begin: generate by schema -->
-<table ng-if="statistic.length" class="table table-bordered" ng-repeat="s in statistic"><caption>{{s.title}}</caption>
+<?php foreach ($this->schema as $def) { if ($def->type && ($def->type==='multiple' || $def->type==='single')) { ?> 
+<table class="table table-bordered"><caption><?php echo $def->title;?></caption>
 <thead>
 <tr><th>选项</th><th>数量</th></tr>
 </thead>
 <tbody>
-<tr ng-repeat="op in s.ops">
+<tr ng-repeat="op in statistic.<?php echo $def->id; ?>.ops">
 <td>{{op.l}}</td>
 <td>{{op.c}}</td>
 </tr>
 </tbody>
 </table>
+<?php }} ?>
 </div>
 <p></p>
 <?php foreach ($this->schema as $def) { ?>

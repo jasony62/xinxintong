@@ -340,7 +340,8 @@ class page_model extends \TMS_MODEL {
 	 *
 	 */
 	public function &htmlBySchema(&$schema, $template) {
-		$tmpfname = tempnam("/tmp", "template");
+		$dir = TMS_UPLOAD_DIR . '_runtime/tmp';
+		$tmpfname = tempnam($dir, "template");
 		$handle = fopen($tmpfname, "w");
 		fwrite($handle, $template);
 		fclose($handle);

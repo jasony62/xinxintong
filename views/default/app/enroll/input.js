@@ -371,7 +371,7 @@ app.controller('ctrlInput', ['$scope', '$http', '$timeout', '$q', 'Input', 'Reco
         if (true === (checkResult = facInput.check($scope.data))) {
             tasksOfBeforeSubmit.length ? doTask(0, nextAction) : doSubmit(nextAction);
         } else {
-            $scope.errmsg = data.errmsg;
+            $scope.$parent.errmsg = checkResult;
         }
     };
     $scope.getMyLocation = function(prop) {
@@ -379,7 +379,7 @@ app.controller('ctrlInput', ['$scope', '$http', '$timeout', '$q', 'Input', 'Reco
             if (data.errmsg === 'ok')
                 $scope.data[prop] = data.address;
             else
-                $scope.errmsg = data.errmsg;
+                $scope.$parent.errmsg = data.errmsg;
         });
     };
     $scope.$watch('data.member.authid', function(nv) {

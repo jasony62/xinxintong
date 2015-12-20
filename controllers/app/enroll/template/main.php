@@ -51,10 +51,13 @@ class main extends base {
 		$customConfig = $this->getPostJson();
 		if (!empty($customConfig->simpleSchema)) {
 			$schema = $this->model('app\enroll\page')->schemaByText($customConfig->simpleSchema);
-			$statistic = $schema;
-			foreach ($statistic as &$def) {
-				foreach ($def->ops as &$op) {
-					$op->c = mt_rand(0, 10);
+			$statistic = new \stdClass;
+			foreach ($schema as &$def) {
+				if ($def->type === 'single' || $def->type === 'multiple') {
+					foreach ($def->ops as &$op) {
+						$op->c = mt_rand(0, 10);
+					}
+					$statistic->{$def->id} = $def;
 				}
 			}
 		} else {

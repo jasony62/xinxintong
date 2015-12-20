@@ -70,6 +70,7 @@ class record extends base {
 	public function list_action($scenario, $template, $rid = null, $owner = null, $orderby = 'time') {
 		$templateDir = $this->getTemplateDir($scenario, $template);
 		$data = $this->getData($templateDir);
+		$config = $this->getConfig($templateDir);
 
 		$records = array();
 		foreach ($data->records as $record) {
@@ -79,7 +80,7 @@ class record extends base {
 		}
 		$result = array(
 			"total" => count($records),
-			"schema" => $data->schema,
+			"schema" => $config->schema,
 			"records" => $records,
 		);
 

@@ -452,6 +452,11 @@ class record extends base {
 			} else {
 				$record->enroller = $user;
 			}
+			if (!empty($record->data['member'])) {
+				$record->data['member'] = json_decode($record->data['member']);
+			} else if (isset($record->data['member'])) {
+				$record->data['member'] = new \stdClass;
+			}
 			/*评论数据*/
 			if ($app->can_like_record === 'Y') {
 				$record->likers = $modelRec->likers($openedek);

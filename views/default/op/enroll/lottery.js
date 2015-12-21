@@ -90,7 +90,8 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$interval', function($sc
         if (winner) {
             $scope.winners.push(winner);
             $http.post(LS.j('/done', 'aid', 'rid') + '&ek=' + winner.enroll_key, {
-                openid: winner.openid
+                openid: winner.openid,
+                nickname: winner.nickname
             });
         }
         $scope.stopping = false;

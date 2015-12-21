@@ -19,7 +19,7 @@ class lottery extends \member_base {
 	public function index_action($aid) {
 		$app = $this->model('app\enroll')->byId($aid);
 
-		\TPL::assign('enroll', $app);
+		\TPL::assign('title', $app->title);
 		\TPL::output('/op/enroll/lottery');
 		exit;
 	}
@@ -78,6 +78,7 @@ class lottery extends \member_base {
 			'round_id' => $rid,
 			'enroll_key' => $ek,
 			'openid' => $fans->openid,
+			'nickname' => $fans->nickname,
 			'draw_at' => time(),
 		);
 

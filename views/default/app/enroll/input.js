@@ -298,7 +298,7 @@ app.controller('ctrlInput', ['$scope', '$http', '$timeout', '$q', 'Input', 'Reco
                 dataOfRecord = record.data;
                 for (p in dataOfRecord) {
                     if (p === 'member') {
-                        $scope.data.member = dataOfRecord.member;
+                        $scope.data.member = angular.extend($scope.data.member, dataOfRecord.member);
                     } else if ($('[name=' + p + ']').hasClass('img-tiles')) {
                         if (dataOfRecord[p] && dataOfRecord[p].length) {
                             value = dataOfRecord[p].split(',');

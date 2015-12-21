@@ -11,16 +11,14 @@
                 </span>
             </div>
             <div class='list-group-item winner' ng-repeat='w in winners'>
-                <div class='name' ng-bind="w.name||w.nickname"></div>
-                <div class='mobile' ng-show='w.mobile' ng-bind="w.mobile"></div>
+                <div class='name' ng-bind="w.nickname"></div>
             </div>
         </div>
         <div class='lottery-box'>
             <div class='swiper-container'>
                 <div class='swiper-wrapper'>
                     <div class='swiper-slide' ng-repeat='p in players'>
-                        <div class='name' ng-bind="p.name||p.nickname"></div>
-                        <div class='mobile' ng-show='p.mobile' ng-bind="p.mobile"></div>
+                        <div class='name' ng-bind="p.nickname"></div>
                     </div>
                 </div>
             </div>

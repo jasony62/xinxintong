@@ -176,15 +176,12 @@ class member_model extends TMS_MODEL {
 		if (empty($mpid)) {
 			return array(false, '没有指定MPID');
 		}
-
 		if (empty($authid)) {
 			return array(false, '没有指定用户认证接口ID');
 		}
-
 		if (empty($mid)) {
 			return array(false, '没有指定认证用户MID');
 		}
-
 		$member->mid = $mid;
 		$member->mpid = $mpid;
 		$member->authapi_id = $authid;
@@ -209,29 +206,24 @@ class member_model extends TMS_MODEL {
 				if ('yx' !== $mpa->mpsrc) {
 					return array(false, '目前仅支持在易信客户端中验证手机号');
 				}
-
 				if ('N' == $mpa->yx_checkmobile) {
 					return array(false, '仅支持在开通了手机验证接口的公众号中验证手机号');
 				}
-
 				$rst = \TMS_APP::M('mpproxy/yx', $mpid)->mobile2Openid($mobile);
 				if ($rst[0] === false) {
 					return array(false, "验证手机号失败【{$rst[1]}】");
 				}
-
 				$fan = \TMS_APP::M('user/fans')->byMid($mid);
 				if ($fan->openid !== $rst[1]->openid) {
 					return array(false, "您输入的手机号与注册易信用户时的提供手机号不一致");
 				}
-
 			}
 			$member->authed_identity = $member->mobile;
 		} else if ($attrs->attr_email[5] === '1' && isset($member->email)) {
 			$member->authed_identity = $member->email;
-		} else {
-			return array(false, '无法获得用户身份标识信息');
+			//} else {
+			//return array(false, '无法获得用户身份标识信息');
 		}
-
 		/**
 		 * 处理访问口令
 		 */

@@ -221,6 +221,7 @@ $sql .= ",round_id varchar(32) not null";
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",draw_at int not null";
 $sql .= ",openid varchar(255) not null default ''";
+$sql .= ",nickname varchar(255) not null default ''";
 $sql .= ',primary key(aid,round_id,enroll_key)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

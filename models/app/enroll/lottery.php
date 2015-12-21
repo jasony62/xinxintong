@@ -30,7 +30,11 @@ class lottery_model extends \TMS_MODEL {
 				);
 				$cds = $this->query_objs_ss($qc);
 				foreach ($cds as $cd) {
-					$player->{$cd->name} = $cd->value;
+					if ($cd->name === 'member') {
+						$player->{$cd->name} = json_decode($cd->value);
+					} else {
+						$player->{$cd->name} = $cd->value;
+					}
 				}
 			}
 			/**
@@ -53,9 +57,9 @@ class lottery_model extends \TMS_MODEL {
 		 * 已经抽中的人
 		 */
 		$q = array(
-			'l.*,e.enroll_key',
-			'xxt_enroll_lottery l,xxt_enroll_record e',
-			"l.aid='$aid' and l.aid=e.aid and l.enroll_key=e.enroll_key and round_id='$rid'",
+			'l.*',
+			'xxt_enroll_lottery l',
+			"l.aid='$aid' and round_id='$rid'",
 		);
 		$q2 = array('o' => 'draw_at');
 		if ($winners = $this->query_objs_ss($q, $q2)) {
@@ -70,7 +74,11 @@ class lottery_model extends \TMS_MODEL {
 				);
 				$cds = $this->query_objs_ss($qc);
 				foreach ($cds as $cd) {
-					$w->{$cd->name} = $cd->value;
+					if ($cd->name === 'member') {
+						$w->{$cd->name} = json_decode($cd->value);
+					} else {
+						$w->{$cd->name} = $cd->value;
+					}
 				}
 			}
 			$result[1] = $winners;
@@ -99,21 +107,12 @@ class lottery_model extends \TMS_MODEL {
 	 */
 	public function &winners($aid, $rid = null) {
 		/**
-		 * 获得活动的定义
-		 */
-		$q = array(
-			'access_control',
-			'xxt_enroll',
-			"id='$aid'",
-		);
-		$act = $this->query_obj_ss($q);
-		/**
 		 * 已经抽中的人
 		 */
 		$q = array(
-			'l.*,r.title,e.enroll_key,e.nickname',
-			'xxt_enroll_lottery l,xxt_enroll_lottery_round r,xxt_enroll_record e',
-			"l.aid='$aid' and l.round_id=r.round_id and l.aid=e.aid and l.enroll_key=e.enroll_key",
+			'l.*,r.title',
+			'xxt_enroll_lottery l,xxt_enroll_lottery_round r',
+			"l.aid='$aid' and l.round_id=r.round_id",
 		);
 		if (!empty($rid)) {
 			$q[2] .= " and l.round_id='$rid'";
@@ -132,9 +131,12 @@ class lottery_model extends \TMS_MODEL {
 				);
 				$cds = $this->query_objs_ss($qc);
 				foreach ($cds as $cd) {
-					$w->{$cd->name} = $cd->value;
+					if ($cd->name === 'member') {
+						$w->{$cd->name} = json_decode($cd->value);
+					} else {
+						$w->{$cd->name} = $cd->value;
+					}
 				}
-
 			}
 		}
 

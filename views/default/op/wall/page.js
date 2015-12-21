@@ -33,13 +33,33 @@ app.controller('wallCtrl', ['$scope', '$http', function($scope, $http) {
             });
         }
         if (page.ext_js && page.ext_js.length) {
-            angular.forEach(page.ext_js, function(js) {
-                $.getScript(js.url);
-            });
-        }
-        if (page.js && page.js.length) {
+            var i, l, loadJs;
+            i = 0;
+            l = page.ext_js.length;
+            loadJs = function() {
+                var js;
+                js = page.ext_js[i];
+                $.getScript(js.url, function() {
+                    i++;
+                    if (i === l) {
+                        if (page.js && page.js.length) {
+                            $scope.$apply(
+                                function dynamicjs() {
+                                    eval(page.js);
+                                    $scope.Page = params.page;
+                                }
+                            );
+                        }
+                    } else {
+                        loadJs();
+                    }
+                });
+            };
+            loadJs();
+        } else if (page.js && page.js.length) {
             (function dynamicjs() {
                 eval(page.js);
+                $scope.Page = params.page;
             })();
         }
     };
@@ -56,7 +76,7 @@ app.controller('wallCtrl', ['$scope', '$http', function($scope, $http) {
         var params;
         params = rsp.data;
         $scope.Wall = params.wall;
-        $scope.Page = params.page;
+        //$scope.Page = params.page;
         setPage(params.page);
         $http.get('/rest/op/wall/messageList?mpid=' + $scope.mpid + '&wall=' + $scope.wallId + '&_=' + (new Date()).getTime(), {
             headers: {

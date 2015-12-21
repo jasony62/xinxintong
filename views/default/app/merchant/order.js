@@ -18,13 +18,12 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Order', function($scope,
         var params;
         params = rsp.data;
         $scope.User = params.user;
-        $scope.Page = params.page;
         if (params.orderInfo) {
             $scope.orderInfo.receiver_name = params.orderInfo.receiver_name;
             $scope.orderInfo.receiver_mobile = params.orderInfo.receiver_mobile;
             $scope.orderInfo.receiver_email = params.orderInfo.receiver_email;
         }
-        window.setPage(params.page);
+        window.setPage($scope, params.page);
         $timeout(function() {
             $scope.$broadcast('xxt.app.merchant.ready');
         });

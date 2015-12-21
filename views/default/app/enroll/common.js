@@ -83,7 +83,7 @@ var PG = (function() {
         }
     };
 })();
-var setPage = function(scope, page) {
+var setPage = function($scope, page) {
     if (page.ext_css && page.ext_css.length) {
         angular.forEach(page.ext_css, function(css) {
             var link, head;
@@ -95,22 +95,36 @@ var setPage = function(scope, page) {
         });
     }
     if (page.ext_js && page.ext_js.length) {
-        angular.forEach(page.ext_js, function(js) {
+        var i, l, loadJs;
+        i = 0;
+        l = page.ext_js.length;
+        loadJs = function() {
+            var js;
+            js = page.ext_js[i];
             $.getScript(js.url, function() {
-                if (page.js && page.js.length) {
-                    scope.$apply(
-                        function dynamicjs() {
-                            eval(page.js);
-                            scope.Page = params.page;
-                        }
-                    );
+                i++;
+                if (i === l) {
+                    if (page.js && page.js.length) {
+                        $scope.$apply(
+                            function dynamicjs() {
+                                eval(page.js);
+                                $scope.Page = page;
+                            }
+                        );
+                    }
+                } else {
+                    loadJs();
                 }
             });
-        });
+        };
+        loadJs();
     } else if (page.js && page.js.length) {
         (function dynamicjs() {
             eval(page.js);
+            $scope.Page = page;
         })();
+    } else {
+        $scope.Page = page;
     }
 };
 var setShareData = function(scope, params, $http) {
@@ -245,7 +259,6 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
         $scope.params = params;
         $scope.mpa = params.mpaccount;
         $scope.App = params.app;
-        $scope.Page = params.page;
         $scope.User = params.user;
         if (params.app.multi_rounds === 'Y') {
             $scope.ActiveRound = params.activeRound;

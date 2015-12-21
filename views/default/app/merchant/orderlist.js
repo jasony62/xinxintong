@@ -12,8 +12,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $h
         var params;
         params = rsp.data;
         $scope.User = params.user;
-        $scope.Page = params.page;
-        window.setPage(params.page);
+        window.setPage($scope, params.page);
         $timeout(function() {
             $scope.$broadcast('xxt.app.merchant.ready');
         });

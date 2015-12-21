@@ -3,7 +3,7 @@ if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage !== undefi
     signPackage.debug = false;
     wx.config(signPackage);
 }
-window.setPage = function(page) {
+window.setPage = function($scope, page) {
     if (page.ext_css && page.ext_css.length) {
         angular.forEach(page.ext_css, function(css) {
             var link, head;
@@ -15,14 +15,36 @@ window.setPage = function(page) {
         });
     }
     if (page.ext_js && page.ext_js.length) {
-        angular.forEach(page.ext_js, function(js) {
-            $.getScript(js.url);
-        });
-    }
-    if (page.js && page.js.length) {
+        var i, l, loadJs;
+        i = 0;
+        l = page.ext_js.length;
+        loadJs = function() {
+            var js;
+            js = page.ext_js[i];
+            $.getScript(js.url, function() {
+                i++;
+                if (i === l) {
+                    if (page.js && page.js.length) {
+                        $scope.$apply(
+                            function dynamicjs() {
+                                eval(page.js);
+                                $scope.Page = page;
+                            }
+                        );
+                    }
+                } else {
+                    loadJs();
+                }
+            });
+        };
+        loadJs();
+    } else if (page.js && page.js.length) {
         (function dynamicjs() {
             eval(page.js);
+            $scope.Page = page;
         })();
+    } else {
+        $scope.Page = page;
     }
 };
 app = angular.module('app', ['ngSanitize']);

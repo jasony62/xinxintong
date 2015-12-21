@@ -72,7 +72,7 @@ class record_model extends \TMS_MODEL {
 		$modelPage = $this->M('app\enroll\page');
 		$result->schema = $modelPage->schemaByApp($aid);
 		/* 获得登记数据 */
-		$w = "e.state=1 and e.mpid='$mpid' and aid='$aid'";
+		$w = "e.state=1 and e.mpid='$mpid' and e.aid='$aid'";
 		if (!empty($creater)) {
 			$w .= " and e.openid='$creater'";
 		} else if (!empty($inviter)) {
@@ -83,19 +83,19 @@ class record_model extends \TMS_MODEL {
 		if (!empty($kw) && !empty($by)) {
 			switch ($by) {
 			case 'mobile':
-				$kw && $w .= " and mobile like '%$kw%'";
+				$kw && $w .= " and m.mobile like '%$kw%'";
 				break;
 			case 'nickname':
-				$kw && $w .= " and nickname like '%$kw%'";
+				$kw && $w .= " and e.nickname like '%$kw%'";
 				break;
 			}
 		}
 		/*签到时间*/
-		if (!empty($signinStartAt) && !empty($signinEndAt)) {
-			$w .= " and exists(select 1 from xxt_enroll_signin_log l";
-			$w .= " where l.signin_at>=$signinStartAt and l.signin_at<=$signinEndAt and l.enroll_key=e.enroll_key";
-			$w .= ")";
-		}
+		//if (!empty($signinStartAt) && !empty($signinEndAt)) {
+		//	$w .= " and exists(select 1 from xxt_enroll_signin_log l";
+		//	$w .= " where l.signin_at>=$signinStartAt and l.signin_at<=$signinEndAt and l.enroll_key=e.enroll_key";
+		//	$w .= ")";
+		//}
 		/*tags*/
 		if (!empty($options->tags)) {
 			$aTags = explode(',', $options->tags);

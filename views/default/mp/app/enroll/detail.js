@@ -60,7 +60,7 @@ xxtApp.config(['$routeProvider', function($routeProvider) {
             }
         }
     }).when('/rest/mp/app/enroll/record', {
-        templateUrl: '/views/default/mp/app/enroll/record.html',
+        templateUrl: '/views/default/mp/app/enroll/record.html?_=1',
         controller: 'recordCtrl',
         resolve: {
             load: function($q) {

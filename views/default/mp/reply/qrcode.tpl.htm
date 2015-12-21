@@ -11,6 +11,12 @@
         </div>
         <div class='col-md-7 form-horizontal' ng-show='editing'>
             <div class='form-group'>
+                <label class='col-md-3 control-label'>ID</label>
+                <div class='col-md-9'>
+                    <p class='form-control-static' ng-bind='editing.scene_id'></p>
+                </div>
+            </div>
+            <div class='form-group'>
                 <label class='col-md-3 control-label'>名称</label>
                 <div class='col-md-9'>
                     <input type='text' class='form-control' ng-model='editing.name' tms-auto-update tms-wait=1000 tms-update="update('name')">
@@ -20,13 +26,8 @@
                 <label class='col-md-3 control-label'>二维码</label>
                 <div class='col-md-9'>
                     <div style="width:182px;border:1px solid #CCC">
-                        <div style="height:100px;text-align:center;padding-top:32px" ng-if="editing.pic==''">
-                            <button class='btn btn-default' ng-click='setPic();'>
-                                <span class='glyphicon glyphicon-picture'></span> 选择图片
-                            </button>
-                        </div>
-                        <div style='position:relative' ng-if="editing.pic!=''">
-                            <img name='pic' src="{{editing.pic}}" width='180px'/>
+                        <div style='position:relative'>
+                            <img name='pic' ng-src="{{editing.pic}}" width='180px'/>
                         </div>
                     </div>
                 </div>

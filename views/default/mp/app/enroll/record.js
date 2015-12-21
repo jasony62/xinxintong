@@ -21,7 +21,7 @@
             value: 'enroll',
             title: '登记活动',
             url: '/rest/mp/app'
-        }, ];
+        }];
         $scope.doSearch = function(page) {
             var url;
             page && ($scope.page.at = page);
@@ -38,7 +38,7 @@
                 if (rsp.data) {
                     $scope.records = rsp.data.records ? rsp.data.records : [];
                     rsp.data.total && ($scope.page.total = rsp.data.total);
-                    rsp.data.schema && ($scope.cols = rsp.data.schema);
+                    rsp.data.schema && ($scope.schema = rsp.data.schema);
                 } else
                     $scope.records = [];
                 for (i = 0, j = $scope.records.length; i < j; i++) {
@@ -47,6 +47,7 @@
                 }
             });
         };
+        $scope.filterByData = {};
         $scope.page = {
             at: 1,
             size: 30,
@@ -107,6 +108,30 @@
         $scope.signinEndAt = endAt.getTime() / 1000;
         $scope.selected = {};
         $scope.selectAll;
+        $scope.setFilterByData = function() {
+            $modal.open({
+                templateUrl: 'recordFilter.html',
+                controller: ['$scope', '$modalInstance', function($scope2, $mi) {
+                    $scope2.filter = angular.copy($scope.filter);
+                    $scope2.schema = [];
+                    angular.forEach($scope.schema, function(def) {
+                        if (['img', 'file', 'datetime'].indexOf(def.type) === -1) {
+                            $scope2.schema.push(def);
+                        }
+                    });
+                    console.log('sss', $scope2.schema);
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        $mi.close($scope2.filter);
+                    };
+                }],
+                backdrop: 'static'
+            }).result.then(function(data) {
+                $scope.filter = data;
+            });
+        };
         $scope.$on('xxt.tms-datepicker.change', function(evt, data) {
             $scope[data.state] = data.value;
             $scope.doSearch(1);
@@ -121,9 +146,9 @@
             $scope.doSearch();
         });
         $scope.$on('batch-tag.xxt.combox.done', function(event, aSelected) {
-            var i, record, records = [],
-                eks = [],
-                posted;
+            var i, record, records, eks, posted;
+            records = [];
+            eks = [];
             for (i in $scope.selected) {
                 if ($scope.selected) {
                     record = $scope.records[i];
@@ -143,11 +168,12 @@
                         record = records[i];
                         if (!record.tags || record.length === 0) {
                             record.tags = aSelected.join(',');
-                        } else
+                        } else {
                             for (m = 0; m < n; m++) {
                                 newTag = aSelected[m];
                                 (',' + record.tags + ',').indexOf(newTag) === -1 && (record.tags += ',' + newTag);
                             }
+                        }
                     }
                 });
             }
@@ -187,10 +213,10 @@
         $scope.value2Label = function(val, key) {
             var i, j, s, aVal, aLab = [];
             if (val === undefined) return '';
-            for (i = 0, j = $scope.cols.length; i < j; i++) {
-                s = $scope.cols[i];
-                if ($scope.cols[i].id === key) {
-                    s = $scope.cols[i];
+            for (i = 0, j = $scope.schema.length; i < j; i++) {
+                s = $scope.schema[i];
+                if ($scope.schema[i].id === key) {
+                    s = $scope.schema[i];
                     break;
                 }
             }
@@ -224,8 +250,8 @@
                         record.aid = $scope.aid;
                         return record;
                     },
-                    cols: function() {
-                        return $scope.cols;
+                    schema: function() {
+                        return $scope.schema;
                     }
                 }
             }).result.then(function(updated) {
@@ -252,8 +278,8 @@
                             tags: ''
                         };
                     },
-                    cols: function() {
-                        return $scope.cols;
+                    schema: function() {
+                        return $scope.schema;
                     }
                 }
             }).result.then(function(updated) {
@@ -320,10 +346,10 @@
             }
         });
     }]);
-    xxtApp.register.controller('editorCtrl', ['$scope', '$modalInstance', '$sce', 'enroll', 'record', 'cols', function($scope, $modalInstance, $sce, enroll, record, cols) {
+    xxtApp.register.controller('editorCtrl', ['$scope', '$modalInstance', '$sce', 'enroll', 'record', 'schema', function($scope, $modalInstance, $sce, enroll, record, schema) {
         var p, col, files;
-        for (p in cols) {
-            col = cols[p];
+        for (p in schema) {
+            col = schema[p];
             if (col.type === 'file') {
                 files = JSON.parse(record.data[col.id]);
                 angular.forEach(files, function(file) {
@@ -336,7 +362,7 @@
         $scope.record = record;
         $scope.record.aTags = (!record.tags || record.tags.length === 0) ? [] : record.tags.split(',');
         $scope.aTags = enroll.tags;
-        $scope.cols = cols;
+        $scope.schema = schema;
         $scope.json2Obj = function(json) {
             if (json && json.length) {
                 obj = JSON.parse(json);
@@ -357,8 +383,8 @@
             $scope.record.tags = p.tags;
             if ($scope.record.id)
                 p.signin_at = $scope.record.signin_at;
-            for (var c in $scope.cols) {
-                col = $scope.cols[c];
+            for (var c in $scope.schema) {
+                col = $scope.schema[c];
                 p.data[col.id] = $scope.record.data[col.id];
             }
             $modalInstance.close([p, $scope.aTags]);

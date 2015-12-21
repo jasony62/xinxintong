@@ -96,12 +96,10 @@ class page_model extends \TMS_MODEL {
 				if (!preg_match('/<input.+?>/', $wrap, $inp) && !preg_match('/<option.+?>/', $wrap, $inp) && !preg_match('/<textarea.+?>/', $wrap, $inp) && !preg_match('/wrap="datetime".+?>/', $wrap, $inp) && !preg_match('/wrap="img".+?>/', $wrap, $inp) && !preg_match('/wrap="file".+?>/', $wrap, $inp)) {
 					continue;
 				}
-
 				$inp = $inp[0];
 				if (preg_match('/title="(.*?)"/', $inp, $title)) {
 					$title = $title[1];
 				}
-
 				if (preg_match('/type="radio"/', $inp)) {
 					/**
 					 * for radio group.
@@ -109,27 +107,23 @@ class page_model extends \TMS_MODEL {
 					if (preg_match('/ng-model="data\.(.+?)"/', $inp, $ngmodel)) {
 						$id = $ngmodel[1];
 					}
-
 					if (empty($id)) {
 						continue;
 					}
-
 					$existing = false;
 					foreach ($defs as &$d) {
 						if ($existing = ($d['id'] === $id)) {
 							break;
 						}
 					}
-
 					if (!$existing) {
-						$defs[] = array('title' => $title, 'id' => $id, 'ops' => array());
+						$defs[] = array('title' => $title, 'id' => $id, 'type' => 'single', 'ops' => array());
 						$d = &$defs[count($defs) - 1];
 					}
 					$op = array();
 					if (preg_match('/value="(.+?)"/', $inp, $opval)) {
 						$op['v'] = $opval[1];
 					}
-
 					if (preg_match_all('/data-(.+?)="(.+?)"/', $wrap, $opAttrs)) {
 						for ($i = 0, $l = count($opAttrs[0]); $i < $l; $i++) {
 							$op[$opAttrs[1][$i]] = $opAttrs[2][$i];
@@ -143,27 +137,23 @@ class page_model extends \TMS_MODEL {
 					if (preg_match('/name="data\.(.+?)"/', $inp, $ngmodel)) {
 						$id = $ngmodel[1];
 					}
-
 					if (empty($id)) {
 						continue;
 					}
-
 					$existing = false;
 					foreach ($defs as &$d) {
 						if ($existing = ($d['id'] === $id)) {
 							break;
 						}
 					}
-
 					if (!$existing) {
-						$defs[] = array('title' => $title, 'id' => $id, 'ops' => array());
+						$defs[] = array('title' => $title, 'id' => $id, 'type' => 'single', 'ops' => array());
 						$d = &$defs[count($defs) - 1];
 					}
 					$op = array();
 					if (preg_match('/value="(.+?)"/', $inp, $opval)) {
 						$op['v'] = $opval[1];
 					}
-
 					if (preg_match_all('/data-(.+?)="(.+?)"/', $wrap, $opAttrs)) {
 						for ($i = 0, $l = count($opAttrs[0]); $i < $l; $i++) {
 							$op[$opAttrs[1][$i]] = $opAttrs[2][$i];
@@ -185,7 +175,7 @@ class page_model extends \TMS_MODEL {
 						}
 					}
 					if (!$existing) {
-						$defs[] = array('title' => $title, 'id' => $id, 'ops' => array());
+						$defs[] = array('title' => $title, 'id' => $id, 'type' => 'multiple', 'ops' => array());
 						$d = &$defs[count($defs) - 1];
 					}
 					$op = array();
@@ -207,16 +197,14 @@ class page_model extends \TMS_MODEL {
 					$defs[] = array('title' => $title, 'id' => $id, 'type' => 'datetime');
 				} else {
 					/**
-					 * for text input/textarea.
+					 * for text input/textarea/location.
 					 */
 					if (preg_match('/ng-model="data\.(.+?)"/', $inp, $ngmodel)) {
 						$id = $ngmodel[1];
 					}
-
 					if (empty($id)) {
 						continue;
 					}
-
 					$defs[] = array('title' => $title, 'id' => $id);
 				}
 			}

@@ -173,6 +173,47 @@ class record extends \mp\app\app_base {
 		return new \ResponseData('ok');
 	}
 	/**
+	 *
+	 */
+	public function tagByData_action($aid) {
+		$posted = $this->getPostJson();
+		$filter = $posted->filter;
+		$aTags = explode(',', $posted->tag);
+		$modelRec = $this->model('app\enroll\record');
+
+		$q = array(
+			'distinct enroll_key',
+			'xxt_enroll_record_data',
+			"aid='$aid' and state=1",
+		);
+		$eks = null;
+		foreach ($filter as $k => $v) {
+			$w = "(name='$k' and ";
+			$w .= "concat(',',value,',') like '%,$v,%'";
+			$w .= ')';
+			$q2 = $q;
+			$q2[2] .= ' and ' . $w;
+			$eks2 = $modelRec->query_vals_ss($q2);
+			$eks = ($eks === null) ? $eks2 : array_intersect($eks, $eks2);
+		}
+		if (!empty($eks) && !empty($aTags)) {
+			foreach ($eks as $ek) {
+				$record = $modelRec->byId($ek, 'N');
+				$existent = $record->tags;
+				if (empty($existent)) {
+					$aNew = $aTags;
+				} else {
+					$aExistent = explode(',', $existent);
+					$aNew = array_unique(array_merge($aExistent, $aTags));
+				}
+				$newTags = implode(',', $aNew);
+				$modelRec->update('xxt_enroll_record', array('tags' => $newTags), "enroll_key='$ek'");
+			}
+		}
+
+		return new \ResponseData('ok');
+	}
+	/**
 	 * 手工添加登记信息
 	 *
 	 * @param string $aid

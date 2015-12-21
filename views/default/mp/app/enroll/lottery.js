@@ -40,7 +40,7 @@ xxtApp.register.controller('lotteryCtrl', ['$scope', 'http2', function($scope, h
     };
     $scope.open = function(round) {
         $scope.editingRound = round;
-        $scope.aTargets = $scope.editingRound.targets.length === 0 ? [] : eval($scope.editingRound.targets);
+        $scope.aTargets = (!round || round.targets.length === 0) ? [] : eval(round.targets);
         getWinners();
     };
     $scope.updateRound = function(name) {

@@ -41,8 +41,8 @@
         <div class='form-group' ng-if="editing.can_signin==='Y'" style='width:180px'>
             <tms-datepicker tms-title='签到范围结束日期' tms-date='signinEndAt' tms-state='signinEndAt'></tms-datepicker>
         </div>
-        <div class='form-group' style='display:none'>
-            <button class='btn btn-default' ng-click='setFilterByData()'>根据数据筛选</button>
+        <div class='form-group'>
+            <button class='btn btn-default' ng-click='tagByData()'>打标签</button>
         </div>
     </div>
     <div id='records'>
@@ -126,7 +126,7 @@
         boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at"
         previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
     </div>
-    <script type="text/ng-template" id="recordFilter.html">
+    <script type="text/ng-template" id="tagByData.html">
         <div class="modal-header">
             <button class="close" type="button" ng-click="cancel()">×</button>
             <h5 class="modal-title">筛选条件</h5>
@@ -136,12 +136,18 @@
                 <div class="form-group" ng-repeat="def in schema" ng-if="def.id.indexOf('member')!==0">
                     <label class="col-md-3 control-label">{{def.title}}</label>
                     <div class="col-md-9" ng-if="def.type!=='single'&&def.type!=='multiple'">
-                        <input type='text' class='form-control' ng-model="filter[def.id]">
+                        <input type='text' class='form-control' ng-model="data.filter[def.id]">
                     </div>
-                    <div class="col-md-9" ng-if="def.type==='single'">
-                        <select class='form-control' ng-model="filter[def.id]" ng-options="op.v as op.label for op in def.ops">
+                    <div class="col-md-9" ng-if="def.type==='single'||def.type==='multiple'">
+                        <select class='form-control' ng-model="data.filter[def.id]" ng-options="op.v as op.label for op in def.ops">
                             <option></option>
                         </select>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class="col-md-3 control-label">标签</label>
+                    <div class="col-md-9">
+                        <input type='text' class='form-control' ng-model="data.tag">
                     </div>
                 </div>
             </form>

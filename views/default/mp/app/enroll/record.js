@@ -47,7 +47,6 @@
                 }
             });
         };
-        $scope.filterByData = {};
         $scope.page = {
             at: 1,
             size: 30,
@@ -108,28 +107,32 @@
         $scope.signinEndAt = endAt.getTime() / 1000;
         $scope.selected = {};
         $scope.selectAll;
-        $scope.setFilterByData = function() {
+        $scope.tagByData = function() {
             $modal.open({
-                templateUrl: 'recordFilter.html',
+                templateUrl: 'tagByData.html',
                 controller: ['$scope', '$modalInstance', function($scope2, $mi) {
-                    $scope2.filter = angular.copy($scope.filter);
+                    $scope2.data = {
+                        filter: {},
+                        tag: ''
+                    };
                     $scope2.schema = [];
                     angular.forEach($scope.schema, function(def) {
                         if (['img', 'file', 'datetime'].indexOf(def.type) === -1) {
                             $scope2.schema.push(def);
                         }
                     });
-                    console.log('sss', $scope2.schema);
                     $scope2.cancel = function() {
                         $mi.dismiss();
                     };
                     $scope2.ok = function() {
-                        $mi.close($scope2.filter);
+                        $mi.close($scope2.data);
                     };
                 }],
                 backdrop: 'static'
             }).result.then(function(data) {
-                $scope.filter = data;
+                http2.post('/rest/mp/app/enroll/record/tagByData?aid=' + $scope.aid, data, function(rsp) {
+                    $scope.doSearch();
+                });
             });
         };
         $scope.$on('xxt.tms-datepicker.change', function(evt, data) {

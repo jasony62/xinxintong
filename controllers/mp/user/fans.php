@@ -225,7 +225,7 @@ class fans extends \mp\mp_controller {
 				unset($openids[$index]);
 
 				$lfan = $this->model('user/fans')->byOpenid($this->mpid, $openid);
-				if ($lfan && $lfan->sync_at + 3600 > $current) {
+				if ($lfan && $lfan->sync_at + 43200 > $current) {
 					/* 一小时之内不同步 */
 					continue;
 				}

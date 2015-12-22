@@ -93,7 +93,6 @@ xxtApp.controller('mainCtrl', ['$rootScope', '$scope', 'http2', '$timeout', func
         if (nv && nv.length) {
             var params = JSON.parse(decodeURIComponent(nv.replace(/\+/g, '%20')));
             $scope.mpa = params.mpaccount;
-            console.log('mpa', $scope.mpa);
             $scope.mpapis = params.apis;
         }
     });

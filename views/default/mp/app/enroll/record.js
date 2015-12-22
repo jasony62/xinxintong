@@ -130,9 +130,16 @@
                 }],
                 backdrop: 'static'
             }).result.then(function(data) {
-                http2.post('/rest/mp/app/enroll/record/tagByData?aid=' + $scope.aid, data, function(rsp) {
-                    $scope.doSearch();
-                });
+                if (data.tag && data.tag.length) {
+                    http2.post('/rest/mp/app/enroll/record/tagByData?aid=' + $scope.aid, data, function(rsp) {
+                        var aAssigned;
+                        $scope.doSearch();
+                        aAssigned = data.tag.split(',');
+                        angular.forEach(aAssigned, function(newTag) {
+                            $scope.editing.tags.indexOf(newTag) === -1 && $scope.editing.tags.push(newTag);
+                        });
+                    });
+                }
             });
         };
         $scope.$on('xxt.tms-datepicker.change', function(evt, data) {

@@ -1,4 +1,48 @@
-var app = angular.module('app', ['ngSanitize']);
+var setPage = function($scope, page) {
+    if (page.ext_css && page.ext_css.length) {
+        angular.forEach(page.ext_css, function(css) {
+            var link, head;
+            link = document.createElement('link');
+            link.href = css.url;
+            link.rel = 'stylesheet';
+            head = document.querySelector('head');
+            head.appendChild(link);
+        });
+    }
+    if (page.ext_js && page.ext_js.length) {
+        var i, l, loadJs;
+        i = 0;
+        l = page.ext_js.length;
+        loadJs = function() {
+            var js;
+            js = page.ext_js[i];
+            $.getScript(js.url, function() {
+                i++;
+                if (i === l) {
+                    if (page.js && page.js.length) {
+                        $scope.$apply(
+                            function dynamicjs() {
+                                eval(page.js);
+                                $scope.Page = page;
+                            }
+                        );
+                    }
+                } else {
+                    loadJs();
+                }
+            });
+        };
+        loadJs();
+    } else if (page.js && page.js.length) {
+        (function dynamicjs() {
+            eval(page.js);
+            $scope.Page = page;
+        })();
+    } else {
+        $scope.Page = page;
+    }
+};
+app = angular.module('app', ['ngSanitize']);
 app.directive('dynamicHtml', function($compile) {
     return {
         restrict: 'EA',
@@ -21,48 +65,6 @@ app.controller('wallCtrl', ['$scope', '$http', function($scope, $http) {
         }
         return false;
     };
-    var setPage = function(page) {
-        if (page.ext_css && page.ext_css.length) {
-            angular.forEach(page.ext_css, function(css) {
-                var link, head;
-                link = document.createElement('link');
-                link.href = css.url;
-                link.rel = 'stylesheet';
-                head = document.querySelector('head');
-                head.appendChild(link);
-            });
-        }
-        if (page.ext_js && page.ext_js.length) {
-            var i, l, loadJs;
-            i = 0;
-            l = page.ext_js.length;
-            loadJs = function() {
-                var js;
-                js = page.ext_js[i];
-                $.getScript(js.url, function() {
-                    i++;
-                    if (i === l) {
-                        if (page.js && page.js.length) {
-                            $scope.$apply(
-                                function dynamicjs() {
-                                    eval(page.js);
-                                    $scope.Page = params.page;
-                                }
-                            );
-                        }
-                    } else {
-                        loadJs();
-                    }
-                });
-            };
-            loadJs();
-        } else if (page.js && page.js.length) {
-            (function dynamicjs() {
-                eval(page.js);
-                $scope.Page = params.page;
-            })();
-        }
-    };
     var ls;
     ls = location.search;
     $scope.mpid = ls.match(/mpid=([^&]*)/)[1];
@@ -76,8 +78,7 @@ app.controller('wallCtrl', ['$scope', '$http', function($scope, $http) {
         var params;
         params = rsp.data;
         $scope.Wall = params.wall;
-        //$scope.Page = params.page;
-        setPage(params.page);
+        setPage($scope, params.page);
         $http.get('/rest/op/wall/messageList?mpid=' + $scope.mpid + '&wall=' + $scope.wallId + '&_=' + (new Date()).getTime(), {
             headers: {
                 'Accept': 'application/json'

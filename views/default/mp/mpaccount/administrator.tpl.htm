@@ -1,17 +1,17 @@
 <div ng-controller='adminCtrl' ng-init='jsonParams="<?php echo urlencode(json_encode(TPL::val('params')));?>";'>
-    <div class='col-md-4'> 
+    <div class='col-md-4'>
         <div class='form-group'>
             <div class='input-group'>
                 <input type="text" class="form-control" placeholder='请输入用户的账号' ng-model='authedid'>
                 <span class='input-group-btn'>
                     <button class='btn btn-primary' ng-click='add()'>
-                        <span class='glyphicon glyphicon-plus'></span>
+                    <span class='glyphicon glyphicon-plus'></span>
                     </button>
                 </span>
             </div>
         </div>
         <div class='list-group'>
-            <a href='#' class='list-group-item' ng-class='{active:selectedAdmin===a}' ng-repeat="a in admins" ng-click='select(a)'>
+            <a href='javascript:void(0)' class='list-group-item' ng-class='{active:selectedAdmin===a}' ng-repeat="a in admins" ng-click='select(a)'>
                 <span>{{a.authed_id}}</span>
                 <button class='btn btn-default btn-xs pull-right' ng-show='selectedAdmin===a' ng-click='remove()'><span class='glyphicon glyphicon-remove'></span></button>
             </a>

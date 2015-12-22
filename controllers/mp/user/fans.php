@@ -260,7 +260,7 @@ class fans extends \mp\mp_controller {
 						);
 						$fansCount++;
 					}
-				} else {
+				} else if ($rfan->subscribe != 0) {
 					/**
 					 * 新粉丝
 					 */

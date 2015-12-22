@@ -7,17 +7,11 @@
         <base href="/" />
         <title ng-bind="Page.title||'订单列表'"></title>
         <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
-        <link href="//libs.useso.com/js/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
         <link href="/views/default/op/merchant/orderlist.css?_=1" rel="stylesheet">
         <style ng-if="Page.css" ng-bind='Page.css'></style>
     </head>
     
     <body ng-cloak class='ng-cloak'>
-        <div id='mask' ng-if="loading">
-            <div>
-                <i class='fa fa-spinner fa-5x fa-pulse'></i>
-            </div>
-        </div>
         <div class="app">
             <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
             <div class='container'>
@@ -37,7 +31,7 @@
         <script src="/static/js/jquery.min.js"></script>
         <script src="/static/js/angular.min.js "></script>
         <script src="/static/js/angular-sanitize.min.js "></script>
-        <script src="/views/default/op/merchant/base.js?_=1"></script>
-        <script src="/views/default/op/merchant/orderlist.js?_=2"></script>
+        <script src="/views/default/op/merchant/base.js?_=2"></script>
+        <script src="/views/default/op/merchant/orderlist.js?_=3"></script>
     </body>
 </html>

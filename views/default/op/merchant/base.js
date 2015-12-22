@@ -3,7 +3,7 @@ if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage !== undefi
     signPackage.debug = false;
     wx.config(signPackage);
 }
-window.setPage = function(page) {
+window.setPage = function($scope, page) {
     if (page.ext_css && page.ext_css.length) {
         angular.forEach(page.ext_css, function(css) {
             var link, head;
@@ -28,7 +28,7 @@ window.setPage = function(page) {
                         $scope.$apply(
                             function dynamicjs() {
                                 eval(page.js);
-                                $scope.Page = params.page;
+                                $scope.Page = page;
                             }
                         );
                     }
@@ -41,8 +41,10 @@ window.setPage = function(page) {
     } else if (page.js && page.js.length) {
         (function dynamicjs() {
             eval(page.js);
-            $scope.Page = params.page;
+            $scope.Page = page;
         })();
+    } else {
+        $scope.Page = page;
     }
 };
 app = angular.module('app', ['ngSanitize']);

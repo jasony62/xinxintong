@@ -49,18 +49,17 @@ class mpproxy_base {
 		}
 		curl_close($ch);
 
+		$response = preg_replace("#(/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/)|([\s\t]//.*)|(^//.*)#", '', $response);
 		$result = json_decode($response);
 		if (isset($result->errcode)) {
 			if ($result->errcode == 40014) {
 				return $this->httpGet($cmd, $params, true);
 			}
-
 			if ($result->errcode !== 0) {
 				return array(false, $result->errmsg . "($result->errcode)");
 			}
-
 		} else if (empty($result)) {
-			return array(false, $response);
+			return array(false, 'json failed:' . $response);
 		}
 
 		return array(true, $result);
@@ -93,6 +92,7 @@ class mpproxy_base {
 		}
 		curl_close($ch);
 
+		$response = preg_replace("#(/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/)|([\s\t]//.*)|(^//.*)#", '', $response);
 		$rst = json_decode($response);
 		if (isset($rst->errcode)) {
 			if ($rst->errcode == 40014) {
@@ -102,7 +102,7 @@ class mpproxy_base {
 				return array(false, $rst->errmsg . "($rst->errcode)");
 			}
 		} else if (empty($rst)) {
-			return array(false, $response);
+			return array(false, 'json failed:' . $response);
 		}
 
 		return array(true, $rst);

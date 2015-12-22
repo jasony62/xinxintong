@@ -188,7 +188,7 @@ class fans extends \mp\mp_controller {
 			$userSet = $rst[1];
 			$total = $userSet->total; // 所有粉丝的数量
 			$openids = $userSet->data->openid; // 本次获得的粉丝id数组
-			$nextOpenid = $userSet->next_openid !== $openids[count($openids) - 1] ? $userSet->next_openid : '';
+			$nextOpenid = $userSet->count == 10000 ? $userSet->next_openid : '';
 		} else {
 			$stack = $_SESSION['fans_refreshAll_stack'];
 			$mpa = $stack['mpa'];
@@ -234,7 +234,9 @@ class fans extends \mp\mp_controller {
 				 */
 				$info = $proxy->userInfo($openid, true);
 				if ($info[0] == false) {
-					return new \ResponseError($info[1]);
+					$fansCount++;
+					continue;
+					//return new \ResponseError($info[1]);
 				}
 				$rfan = $info[1];
 				if ($lfan) {
@@ -260,7 +262,7 @@ class fans extends \mp\mp_controller {
 						);
 						$fansCount++;
 					}
-				} else if ($rfan->subscribe != 0) {
+				} else if ($rfan && $rfan->subscribe != 0) {
 					/**
 					 * 新粉丝
 					 */

@@ -56,9 +56,9 @@ class page_model extends TMS_MODEL {
 			'create_at' => $current,
 			'modify_at' => $current,
 			'title' => '新页面',
-			'html' => isset($data['html']) ? $data['html'] : '',
-			'css' => isset($data['css']) ? $data['css'] : '',
-			'js' => isset($data['js']) ? $data['js'] : '',
+			'html' => isset($data['html']) ? $this->escape($data['html']) : '',
+			'css' => isset($data['css']) ? $this->escape($data['css']) : '',
+			'js' => isset($data['js']) ? $this->escape($data['js']) : '',
 		);
 
 		$page['id'] = $this->insert('xxt_code_page', $page, true);

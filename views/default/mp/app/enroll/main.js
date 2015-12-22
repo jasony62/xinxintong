@@ -70,11 +70,13 @@ xxtApp.controller('enrollCtrl', ['$scope', '$modal', 'http2', function($scope, $
         }).result.then(function(data) {
             var url, config;
             url = '/rest/mp/app/enroll/create';
-            url += '?scenario=' + data.scenario.name;
-            url += '&template=' + data.template.name;
             config = {};
-            if (data.simpleSchema && data.simpleSchema.length) {
-                config.simpleSchema = data.simpleSchema;
+            if (data) {
+                url += '?scenario=' + data.scenario.name;
+                url += '&template=' + data.template.name;
+                if (data.simpleSchema && data.simpleSchema.length) {
+                    config.simpleSchema = data.simpleSchema;
+                }
             }
             http2.post(url, config, function(rsp) {
                 location.href = '/rest/mp/app/enroll/detail?aid=' + rsp.data.id;

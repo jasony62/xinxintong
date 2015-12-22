@@ -93,6 +93,7 @@ class order extends \member_base {
 						$cateSku = $modelCate->skuById($sku->cate_sku_id, $cateSkuOptions);
 						$cateSku->skus = array($sku);
 						$product->cateSkus[$cateSku->id] = $cateSku;
+						$catelog->products[$product->id] = $product;
 					} else {
 						$product = $catelog->products[$sku->prod_id];
 						if (!isset($product->cateSkus[$sku->cate_sku_id])) {

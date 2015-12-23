@@ -43,6 +43,7 @@
         </div>
         <div class='form-group'>
             <button class='btn btn-default' ng-click='tagByData()'>打标签</button>
+            <button class='btn btn-default' ng-click='exportByData()'>导出记录</button>
         </div>
     </div>
     <div id='records'>
@@ -144,10 +145,50 @@
                         </select>
                     </div>
                 </div>
+                <hr>
                 <div class='form-group'>
                     <label class="col-md-3 control-label">标签</label>
                     <div class="col-md-9">
                         <input type='text' class='form-control' ng-model="data.tag">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">确定</button>
+        </div>
+    </script>
+    <script type="text/ng-template" id="exportByData.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title">筛选条件</h5>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal record-editor">
+                <div class="form-group" ng-repeat="def in schema" ng-if="def.id.indexOf('member')!==0">
+                    <label class="col-md-3 control-label">{{def.title}}</label>
+                    <div class="col-md-9" ng-if="def.type!=='single'&&def.type!=='multiple'">
+                        <input type='text' class='form-control' ng-model="data.filter[def.id]">
+                    </div>
+                    <div class="col-md-9" ng-if="def.type==='single'||def.type==='multiple'">
+                        <select class='form-control' ng-model="data.filter[def.id]" ng-options="op.v as op.label for op in def.ops">
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+                <hr>
+                <div class='form-group'>
+                    <label class="col-md-3 control-label">目标登记活动</label>
+                    <div class="col-md-9">
+                        <select class="form-control" ng-model="data.target" ng-options="app.id as app.title for app in apps"></select>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class="col-md-3 control-label">包含数据</label>
+                    <div class="col-md-9">
+                        <div class='checkbox'>
+                            <label><input type="checkbox" ng-model="data.includeData" ng-true-value="'Y'" ng-false=value="N">是</label>
+                        </div>
                     </div>
                 </div>
             </form>

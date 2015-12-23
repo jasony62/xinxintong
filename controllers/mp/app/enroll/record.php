@@ -202,8 +202,9 @@ class record extends \mp\app\app_base {
 				$eks = ($eks === null) ? $eks2 : array_intersect($eks, $eks2);
 			}
 			if (!empty($eks)) {
+				$options = array('cascaded' => 'N');
 				foreach ($eks as $ek) {
-					$record = $modelRec->byId($ek, 'N');
+					$record = $modelRec->byId($ek, $options);
 					$existent = $record->tags;
 					if (empty($existent)) {
 						$aNew = $aTags;
@@ -213,6 +214,54 @@ class record extends \mp\app\app_base {
 					}
 					$newTags = implode(',', $aNew);
 					$modelRec->update('xxt_enroll_record', array('tags' => $newTags), "enroll_key='$ek'");
+				}
+			}
+		}
+
+		return new \ResponseData('ok');
+	}
+	/**
+	 * 给符合条件的登记记录打标签
+	 */
+	public function exportByData_action($aid) {
+		$posted = $this->getPostJson();
+		$filter = $posted->filter;
+		$target = $posted->target;
+		$includeData = isset($posted->includeData) ? $posted->includeData : 'N';
+
+		if (!empty($target)) {
+			/*更新应用标签*/
+			$modelApp = $this->model('app\enroll');
+			/*给符合条件的记录打标签*/
+			$modelRec = $this->model('app\enroll\record');
+			$q = array(
+				'distinct enroll_key',
+				'xxt_enroll_record_data',
+				"aid='$aid' and state=1",
+			);
+			$eks = null;
+			foreach ($filter as $k => $v) {
+				$w = "(name='$k' and ";
+				$w .= "concat(',',value,',') like '%,$v,%'";
+				$w .= ')';
+				$q2 = $q;
+				$q2[2] .= ' and ' . $w;
+				$eks2 = $modelRec->query_vals_ss($q2);
+				$eks = ($eks === null) ? $eks2 : array_intersect($eks, $eks2);
+			}
+			if (!empty($eks)) {
+				$objApp = $modelApp->byId($target, array('cascaded' => 'N'));
+				$options = array('cascaded' => $includeData);
+				foreach ($eks as $ek) {
+					$record = $modelRec->byId($ek, $options);
+					$user = new \stdClass;
+					$user->openid = $record->openid;
+					$user->nickname = $record->nickname;
+					$user->vid = '';
+					$newek = $modelRec->add($this->mpid, $objApp, $user);
+					if ($includeData === 'Y') {
+						$modelRec->setData($user, $objApp->mpid, $objApp->id, $newek, $record->data);
+					}
 				}
 			}
 		}

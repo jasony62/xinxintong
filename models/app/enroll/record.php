@@ -5,15 +5,19 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 根据ID返回登记记录
 	 */
-	public function byId($ek, $cascaded = 'Y') {
+	public function byId($ek, $options = array()) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
+
 		$q = array(
-			'e.*',
-			'xxt_enroll_record e',
-			"e.enroll_key='$ek'",
+			$fields,
+			'xxt_enroll_record',
+			"enroll_key='$ek'",
 		);
 		if (($record = $this->query_obj_ss($q)) && $cascaded === 'Y') {
 			$record->data = $this->dataById($ek);
 		}
+
 		return $record;
 	}
 	/**

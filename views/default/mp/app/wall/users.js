@@ -11,7 +11,7 @@
                 templateUrl: 'importUser.html',
                 windowClass: 'auto-height',
                 controller: ['$scope', '$modalInstance', function($scope2, $mi) {
-                    http2.get('/rest/mp/app/enroll/get?page=1&size=999', function(rsp) {
+                    http2.get('/rest/mp/app/enroll/list?page=1&size=999', function(rsp) {
                         $scope2.apps = rsp.data[0];
                     });
                     $scope2.chooseApp = function(app) {
@@ -59,7 +59,7 @@
                             $mi.dismiss();
                         }
                     };
-                    http2.get('/rest/mp/app/enroll/get?page=1&size=999', function(rsp) {
+                    http2.get('/rest/mp/app/enroll/list?page=1&size=999', function(rsp) {
                         $scope2.apps = rsp.data[0];
                     });
                 }]

@@ -142,6 +142,38 @@
                 }
             });
         };
+        $scope.exportByData = function() {
+            $modal.open({
+                templateUrl: 'exportByData.html',
+                controller: ['$scope', '$modalInstance', function($scope2, $mi) {
+                    $scope2.data = {
+                        filter: {},
+                        target: '',
+                        includeData: 'N'
+                    };
+                    $scope2.schema = [];
+                    angular.forEach($scope.schema, function(def) {
+                        if (['img', 'file', 'datetime'].indexOf(def.type) === -1) {
+                            $scope2.schema.push(def);
+                        }
+                    });
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        $mi.close($scope2.data);
+                    };
+                    http2.get('/rest/mp/app/enroll/list?page=1&size=999', function(rsp) {
+                        $scope2.apps = rsp.data[0];
+                    });
+                }],
+                backdrop: 'static'
+            }).result.then(function(data) {
+                if (data.target && data.target.length) {
+                    http2.post('/rest/mp/app/enroll/record/exportByData?aid=' + $scope.aid, data, function(rsp) {});
+                }
+            });
+        };
         $scope.$on('xxt.tms-datepicker.change', function(evt, data) {
             $scope[data.state] = data.value;
             $scope.doSearch(1);

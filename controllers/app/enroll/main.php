@@ -53,13 +53,35 @@ class main extends base {
 		}
 		/**获得当前访问用户*/
 		$this->doAuth($mpid, $code, $mocker);
-		/**当前访问用户的基本信息 */
-		$user = $this->getUser($mpid, array(
-			'authapis' => $app->authapis,
-			'matter' => $app,
-			'verbose' => array('member' => 'Y', 'fan' => 'Y'),
-		));
-		/*打开页面*/
+		/* 提示在PC端完成 */
+		if ($this->getClientSrc() && isset($app->shift2pc) && $app->shift2pc === 'Y') {
+			$user = $this->getUser($mpid, array(
+				'authapis' => $app->authapis,
+				'matter' => $app,
+				'verbose' => array('member' => 'Y', 'fan' => 'Y'),
+			));
+			if (isset($user->fan)) {
+				$fea = $this->model('mp\mpaccount')->getFeatures($mpid, 'shift2pc_page_id');
+				$pageOfShift2Pc = $this->model('code/page')->byId($fea->shift2pc_page_id, 'html,css,js');
+				/**任务码*/
+				if ($app->can_taskcode && $app->can_taskcode === 'Y') {
+					$httpHost = $_SERVER['HTTP_HOST'];
+					$httpHost = str_replace('www.', '', $_SERVER['HTTP_HOST']);
+					$myUrl = "http://$httpHost" . $_SERVER['REQUEST_URI'];
+					$taskCode = $this->model('task')->addTask($mpid, $user->fan->fid, $myUrl);
+					$pageOfShift2Pc->html = str_replace('{{taskCode}}', $taskCode, $pageOfShift2Pc->html);
+				}
+				//\TPL::assign('shift2pcAlert', $pageOfShift2Pc);
+			}
+		} else {
+			$options = array('verbose' => array('fan' => 'Y'));
+			!empty($mocker) && $options['openid'] = $mocker;
+			$user = $this->getUser($mpid, $options);
+		}
+		/**记录日志，完成前置活动再次进入的情况不算 */
+		$this->model()->update("update xxt_enroll set read_num=read_num+1 where id='$app->id'");
+		$this->logRead($mpid, $user, $app->id, 'enroll', $app->title, $shareby);
+		/*根据要打开的页面确定使用的模板*/
 		$oPage = null;
 		$hasEnrolled = $modelApp->hasEnrolled($mpid, $aid, $user->openid);
 		empty($page) && $page = $this->_defaultPage($mpid, $app, $user, $hasEnrolled, true);
@@ -73,26 +95,6 @@ class main extends base {
 			$this->outputError('指定的页面[' . $page . ']不存在');
 			exit;
 		}
-		/* 提示在PC端完成 */
-		if (isset($user->fan) && $this->getClientSrc() && isset($app->shift2pc) && $app->shift2pc === 'Y') {
-			$fea = $this->model('mp\mpaccount')->getFeatures($mpid, 'shift2pc_page_id');
-			$pageOfShift2Pc = $this->model('code/page')->byId($fea->shift2pc_page_id, 'html,css,js');
-			/**
-			 * 任务码
-			 */
-			if ($app->can_taskcode && $app->can_taskcode === 'Y') {
-				$httpHost = $_SERVER['HTTP_HOST'];
-				$httpHost = str_replace('www.', '', $_SERVER['HTTP_HOST']);
-				$myUrl = "http://$httpHost" . $_SERVER['REQUEST_URI'];
-				$taskCode = $this->model('task')->addTask($mpid, $user->fan->fid, $myUrl);
-				$pageOfShift2Pc->html = str_replace('{{taskCode}}', $taskCode, $pageOfShift2Pc->html);
-			}
-			//\TPL::assign('shift2pcAlert', $pageOfShift2Pc);
-		}
-		/**记录日志，完成前置活动再次进入的情况不算 */
-		$this->model()->update("update xxt_enroll set read_num=read_num+1 where id='$app->id'");
-		$this->logRead($mpid, $user, $app->id, 'enroll', $app->title, $shareby);
-
 		\TPL::assign('title', $app->title);
 		if ($oPage->type === 'I') {
 			\TPL::output('/app/enroll/input');

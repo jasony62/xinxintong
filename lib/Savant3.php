@@ -718,10 +718,8 @@ class Savant3 {
 			$path = array_reverse($path);
 
 		} else {
-
 			// just force to array
 			settype($path, 'array');
-
 		}
 
 		// loop through the path directories
@@ -759,43 +757,43 @@ class Savant3 {
 	 * or boolean false if the file is not found in any of the paths.
 	 *
 	 */
-
 	protected function findFile($type, $file) {
-		// get the set of paths
-		$set = $this->__config[$type . '_path'];
+		if (file_exists($file) && is_readable($file)) {
+			return $file;
+		} else {
+			// get the set of paths
+			$set = $this->__config[$type . '_path'];
+			// start looping through the path set
+			foreach ($set as $path) {
 
-		// start looping through the path set
-		foreach ($set as $path) {
+				// get the path to the file
+				$fullname = $path . $file;
 
-			// get the path to the file
-			$fullname = $path . $file;
-
-			// is the path based on a stream?
-			if (strpos($path, '://') === false) {
-				// not a stream, so do a realpath() to avoid
-				// directory traversal attempts on the local file
-				// system. Suggested by Ian Eure, initially
-				// rejected, but then adopted when the secure
-				// compiler was added.
-				if (defined('SAE_TMP_PATH')) {
-					$path = $path;
-					$fullname = $fullname;
-				} else {
-					$path = realpath($path); // needed for substr() later
-					$fullname = realpath($fullname);
+				// is the path based on a stream?
+				if (strpos($path, '://') === false) {
+					// not a stream, so do a realpath() to avoid
+					// directory traversal attempts on the local file
+					// system. Suggested by Ian Eure, initially
+					// rejected, but then adopted when the secure
+					// compiler was added.
+					if (defined('SAE_TMP_PATH')) {
+						$path = $path;
+						$fullname = $fullname;
+					} else {
+						$path = realpath($path); // needed for substr() later
+						$fullname = realpath($fullname);
+					}
+				}
+				// the substr() check added by Ian Eure to make sure
+				// that the realpath() results in a directory registered
+				// with Savant so that non-registered directores are not
+				// accessible via directory traversal attempts.
+				if (file_exists($fullname) && is_readable($fullname) &&
+					substr($fullname, 0, strlen($path)) == $path) {
+					return $fullname;
 				}
 			}
-
-			// the substr() check added by Ian Eure to make sure
-			// that the realpath() results in a directory registered
-			// with Savant so that non-registered directores are not
-			// accessible via directory traversal attempts.
-			if (file_exists($fullname) && is_readable($fullname) &&
-				substr($fullname, 0, strlen($path)) == $path) {
-				return $fullname;
-			}
 		}
-
 		// could not find the file in the set of paths
 		return false;
 	}
@@ -1258,4 +1256,3 @@ class Savant3 {
 		}
 	}
 }
-?>

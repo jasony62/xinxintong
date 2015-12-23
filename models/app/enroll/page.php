@@ -336,7 +336,7 @@ class page_model extends \TMS_MODEL {
 		$handle = fopen($tmpfname, "w");
 		fwrite($handle, $template);
 		fclose($handle);
-		$s = new \Savant3(array('template' => $tmpfname, 'template_path' => ''));
+		$s = new \Savant3(array('template' => $tmpfname, 'exceptions' => true));
 		$s->assign('schema', $schema);
 		$html = $s->getOutput();
 		unlink($tmpfname);

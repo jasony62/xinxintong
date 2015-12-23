@@ -340,9 +340,10 @@ class member_base extends xxt_base {
 	}
 	/**
 	 *
-	 * $mpid
-	 * $code
-	 * $mocker
+	 *
+	 * @param string $mpid
+	 * @param string $code
+	 * @param string $mocker
 	 */
 	protected function doAuth($mpid, $code, $mocker = '') {
 		$fan = $this->getCookieOAuthUser($mpid);
@@ -522,8 +523,8 @@ class member_base extends xxt_base {
 	 *
 	 * 要求关注
 	 *
-	 * $runningMpid
-	 * $openid
+	 * @param string $runningMpid
+	 * @param string $openid
 	 *
 	 */
 	protected function askFollow($runningMpid, $openid = false) {
@@ -543,6 +544,9 @@ class member_base extends xxt_base {
 			}
 			$protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
 			header($protocol . ' 401 Unauthorized');
+			header('Cache-Control:no-cache,must-revalidate,no-store');
+			header('Pragma:no-cache');
+			header("Expires:-1");
 			TPL::assign('follow_ele', $fea->follow_ele);
 			TPL::assign('follow_css', $fea->follow_css);
 			TPL::output('follow');

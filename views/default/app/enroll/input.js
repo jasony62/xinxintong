@@ -279,7 +279,7 @@ app.directive('tmsFileInput', function($q) {
     }
 });
 app.controller('ctrlInput', ['$scope', '$http', '$timeout', '$q', 'Input', 'Record', function($scope, $http, $timeout, $q, Input, Record) {
-    var facRecord, facInput, record, tasksOfOnReady, tasksOfBeforeSubmit;
+    var facInput, tasksOfOnReady, tasksOfBeforeSubmit;
     tasksOfBeforeSubmit = [];
     facInput = Input.ins();
     $scope.data = {
@@ -291,35 +291,33 @@ app.controller('ctrlInput', ['$scope', '$http', '$timeout', '$q', 'Input', 'Reco
         }
     };
     $scope.$on('xxt.app.enroll.ready', function() {
+        var facRecord;
         if (LS.p.ek.length || (LS.p.newRecord !== 'Y' && $scope.App.open_lastroll === 'Y')) {
             facRecord = Record.ins();
             facRecord.get(LS.p.ek).then(function(record) {
-                var p, type, dataOfRecord, value;
+                var mapSchema, p, dataOfRecord, value;
+                mapSchema = {};
+                angular.forEach($scope.Schema, function(def) {
+                    mapSchema[def.id] = def;
+                });
                 dataOfRecord = record.data;
                 for (p in dataOfRecord) {
                     if (p === 'member') {
                         $scope.data.member = angular.extend($scope.data.member, dataOfRecord.member);
-                    } else if ($('[name=' + p + ']').hasClass('img-tiles')) {
-                        if (dataOfRecord[p] && dataOfRecord[p].length) {
+                    } else if (dataOfRecord[p].length) {
+                        if (mapSchema[p].type === 'img') {
                             value = dataOfRecord[p].split(',');
                             $scope.data[p] = [];
                             for (var i in value) $scope.data[p].push({
                                 imgSrc: value[i]
                             });
-                        }
-                    } else if ($('[name=' + p + ']').hasClass('file')) {
-                        if (dataOfRecord[p] && dataOfRecord[p].length) {
+                        } else if (mapSchema[p].type === 'file') {
                             value = JSON.parse(dataOfRecord[p]);
                             $scope.data[p] = value;
-                        }
-                    } else {
-                        type = $('[name=' + p + ']').attr('type');
-                        if (type === 'checkbox') {
-                            if (dataOfRecord[p] && dataOfRecord[p].length) {
-                                value = dataOfRecord[p].split(',');
-                                $scope.data[p] = {};
-                                for (var i in value) $scope.data[p][value[i]] = true;
-                            }
+                        } else if (mapSchema[p].type === 'multiple') {
+                            value = dataOfRecord[p].split(',');
+                            $scope.data[p] = {};
+                            for (var i in value) $scope.data[p][value[i]] = true;
                         } else {
                             $scope.data[p] = dataOfRecord[p];
                         }

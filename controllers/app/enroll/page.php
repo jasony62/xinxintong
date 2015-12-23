@@ -16,51 +16,12 @@ class page extends \member_base {
 	/**
 	 * 获得登记项定义
 	 *
-	 * $mpid
-	 * $id enroll's id
-	 * $pageid
-	 * $size
+	 * @param string $mpid
+	 * @param string $aid
 	 */
-	public function schemaGet_action($mpid, $aid, $pageid = null, $size = null, $byPage = 'Y') {
-		$modelPage = $this->model('app\enroll\page');
+	public function schemaGet_action($mpid, $aid) {
+		$schema = $this->model('app\enroll\page')->schemaByApp($aid);
 
-		$pages = $modelPage->byApp($aid);
-
-		if ($byPage === 'Y') {
-			/**
-			 * 按页返回
-			 */
-			$defs = array();
-			foreach ($pages as $page) {
-				$page->type === 'I' && $defs[$page->name] = $modelPage->schemaByHtml($page->html, $size);
-			}
-		} else {
-			/**
-			 * 按活动返回
-			 */
-			$defs = array();
-			foreach ($pages as $page) {
-				if ($page->type === 'I') {
-					$pageDefs = $modelPage->schemaByHtml($page->html);
-					$defs = array_merge($defs, $pageDefs);
-				}
-			}
-			if ($size !== null && $size > 0 && $size < count($defs)) {
-				/**
-				 * 随机获得指定数量的登记项
-				 */
-				$randomDefs = array();
-				$upper = count($defs) - 1;
-				for ($i = 0; $i < $size; $i++) {
-					$random = mt_rand(0, $upper);
-					$randomDefs[] = $defs[$random];
-					array_splice($defs, $random, 1);
-					$upper--;
-				}
-				$defs = $randomDefs;
-			}
-		}
-
-		return new \ResponseData($defs);
+		return new \ResponseData($schema);
 	}
 }

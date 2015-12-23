@@ -203,10 +203,10 @@ app.factory('Schema', ['$http', '$q', function($http, $q) {
     Schema.prototype.get = function() {
         var deferred;
         deferred = $q.defer();
-        if (schema !== null)
+        if (schema !== null) {
             deferred.resolve(schema);
-        else {
-            $http.get(LS.j('page/schemaGet', 'mpid', 'aid') + '&byPage=N').success(function(rsp) {
+        } else {
+            $http.get(LS.j('page/schemaGet', 'mpid', 'aid')).success(function(rsp) {
                 schema = rsp.data;
                 deferred.resolve(schema);
             });

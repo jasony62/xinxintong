@@ -260,6 +260,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
         $scope.mpa = params.mpaccount;
         $scope.App = params.app;
         $scope.User = params.user;
+        $scope.Schema = params.schema;
         if (params.app.multi_rounds === 'Y') {
             $scope.ActiveRound = params.activeRound;
         }

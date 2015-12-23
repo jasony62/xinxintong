@@ -183,6 +183,9 @@ class main extends base {
 				}
 			}
 		}
+		/*schema*/
+		$schema = $this->model('app\enroll\page')->schemaByApp($aid);
+		$params['schema'] = $schema;
 		/*公众号信息*/
 		$mpaccount = $this->getMpSetting($mpid);
 		$user_agent = $_SERVER['HTTP_USER_AGENT'];

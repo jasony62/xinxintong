@@ -32,6 +32,11 @@
 				"title": "简单",
 				"name": "simple",
 				"description": "简单快速"
+			},
+			"custom": {
+				"title": "定制",
+				"name": "custom",
+				"description": "自有定制展示内容"
 			}
 		}
 	}

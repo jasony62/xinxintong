@@ -12,9 +12,8 @@
     <div class="tab-content">
         <div id='tab_{{ep.name}}' class='tab-pane' style="padding-top:15px" ng-repeat="ep in editing.pages">
             <div class='col-md-3'>
-                <div class='form-group'>
-                    <label>ID</label>
-                    <p class='form-control-static'>{{ep.name}}</p>
+                <div class='form-group form-inline'>
+                    <label>ID:&nbsp;<span style='font-weight:normal' ng-bind="ep.name"></span></label>
                 </div>
                 <div class='form-group'>
                     <label>页面类型</label>

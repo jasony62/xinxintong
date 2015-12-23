@@ -1,0 +1,12 @@
+<!-- begin: generate by schema -->
+<?php foreach ($this->schema as $def) { ?>
+<div wrap="input" class="form-group form-group-lg">
+<label><?php echo $def->title; ?></label>
+<ul tms-checkbox-group="<?php echo $def->id; ?>" tms-checkbox-group-model="data" tms-checkbox-group-upper="<?php echo count($def->ops); ?>">
+<?php foreach ($def->ops as $op) {?>
+<li class="checkbox" wrap="checkbox"><label><input type="checkbox" name="<?php echo $def->id; ?>" ng-model="data.<?php echo $def->id . '.' . $op->v; ?>" title="<?php echo $def->title; ?>" data-label="<?php echo $op->l; ?>"><span><?php echo $op->l; ?></span></label></li>
+<?php } ?>
+</ul>
+</div>
+<?php } ?>
+<!-- end: generate by schema -->

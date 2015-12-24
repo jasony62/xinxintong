@@ -53,13 +53,14 @@ class main extends base {
 		}
 		/**获得当前访问用户*/
 		$this->doAuth($mpid, $code, $mocker);
+		$options = array(
+			'authapis' => $app->authapis,
+			'matter' => $app,
+			'verbose' => array('member' => 'Y', 'fan' => 'Y'),
+		);
+		!empty($mocker) && $options['openid'] = $mocker;
 		/* 提示在PC端完成 */
 		if ($this->getClientSrc() && isset($app->shift2pc) && $app->shift2pc === 'Y') {
-			$user = $this->getUser($mpid, array(
-				'authapis' => $app->authapis,
-				'matter' => $app,
-				'verbose' => array('member' => 'Y', 'fan' => 'Y'),
-			));
 			if (isset($user->fan)) {
 				$fea = $this->model('mp\mpaccount')->getFeatures($mpid, 'shift2pc_page_id');
 				$pageOfShift2Pc = $this->model('code/page')->byId($fea->shift2pc_page_id, 'html,css,js');
@@ -74,12 +75,6 @@ class main extends base {
 				//\TPL::assign('shift2pcAlert', $pageOfShift2Pc);
 			}
 		} else {
-			$options = array(
-				'authapis' => $app->authapis,
-				'matter' => $app,
-				'verbose' => array('member' => 'Y', 'fan' => 'Y'),
-			);
-			!empty($mocker) && $options['openid'] = $mocker;
 			$user = $this->getUser($mpid, $options);
 		}
 		/**记录日志，完成前置活动再次进入的情况不算 */

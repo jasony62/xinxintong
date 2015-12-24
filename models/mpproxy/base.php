@@ -49,7 +49,7 @@ class mpproxy_base {
 		}
 		curl_close($ch);
 
-		$response = preg_replace("#(/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/)|([\s\t]//.*)|(^//.*)#", '', $response);
+		$response = preg_replace("/\\\\\w|\x{000f}/", '', $response);
 		$result = json_decode($response);
 		if (isset($result->errcode)) {
 			if ($result->errcode == 40014) {
@@ -92,7 +92,7 @@ class mpproxy_base {
 		}
 		curl_close($ch);
 
-		$response = preg_replace("#(/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/)|([\s\t]//.*)|(^//.*)#", '', $response);
+		$response = preg_replace("/\\\\\w|\x{000f}/", '', $response);
 		$rst = json_decode($response);
 		if (isset($rst->errcode)) {
 			if ($rst->errcode == 40014) {

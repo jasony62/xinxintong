@@ -234,16 +234,16 @@ class fans extends \mp\mp_controller {
 				 */
 				$info = $proxy->userInfo($openid, true);
 				if ($info[0] == false) {
-					$fansCount++;
-					continue;
-					//return new \ResponseError($info[1]);
+					//$fansCount++;
+					//continue;
+					return new \ResponseError($info[1]);
 				}
 				$rfan = $info[1];
-				if ($lfan) {
-					/**
-					 * 更新关注状态粉丝信息
-					 */
-					if ($rfan->subscribe !== 0) {
+				if ($rfan->subscribe != 0) {
+					if ($lfan) {
+						/**
+						 * 更新关注状态粉丝信息
+						 */
 						$upd = array(
 							'nickname' => $this->model()->escape($rfan->nickname),
 							'sex' => $rfan->sex,
@@ -261,25 +261,25 @@ class fans extends \mp\mp_controller {
 							"mpid='$this->mpid' and openid='$openid'"
 						);
 						$fansCount++;
-					}
-				} else if ($rfan && $rfan->subscribe != 0) {
-					/**
-					 * 新粉丝
-					 */
-					$ins['fid'] = $this->model('user/fans')->calcId($this->mpid, $openid);
-					$ins['openid'] = $openid;
-					if ($info[0]) {
-						$ins['groupid'] = $rfan->groupid;
-						$ins['nickname'] = $this->model()->escape($rfan->nickname);
-						$ins['sex'] = $rfan->sex;
-						$ins['city'] = $rfan->city;
-						isset($rfan->subscribe_time) && $ins['subscribe_at'] = $rfan->subscribe_time;
-						isset($rfan->icon) && $ins['headimgurl'] = $rfan->icon;
-						isset($rfan->headimgurl) && $ins['headimgurl'] = $rfan->headimgurl;
-						isset($rfan->province) && $ins['province'] = $rfan->province;
-						isset($rfan->country) && $ins['country'] = $rfan->country;
-						$this->model()->insert('xxt_fans', $ins, false);
-						$fansCount++;
+					} else {
+						/**
+						 * 新粉丝
+						 */
+						$ins['fid'] = $this->model('user/fans')->calcId($this->mpid, $openid);
+						$ins['openid'] = $openid;
+						if ($info[0]) {
+							$ins['groupid'] = $rfan->groupid;
+							$ins['nickname'] = $this->model()->escape($rfan->nickname);
+							$ins['sex'] = $rfan->sex;
+							$ins['city'] = $rfan->city;
+							isset($rfan->subscribe_time) && $ins['subscribe_at'] = $rfan->subscribe_time;
+							isset($rfan->icon) && $ins['headimgurl'] = $rfan->icon;
+							isset($rfan->headimgurl) && $ins['headimgurl'] = $rfan->headimgurl;
+							isset($rfan->province) && $ins['province'] = $rfan->province;
+							isset($rfan->country) && $ins['country'] = $rfan->country;
+							$this->model()->insert('xxt_fans', $ins, false);
+							$fansCount++;
+						}
 					}
 				}
 			}
@@ -317,30 +317,32 @@ class fans extends \mp\mp_controller {
 			return new \ResponseData($fan);
 		} else {
 			$info = $this->getFanInfo($this->mpid, $openid, true);
-			if ($info[0] && $info[1]->subscribe !== 0) {
-				/**
-				 * 更新数据
-				 */
-				$nickname = trim($this->model()->escape($info[1]->nickname));
-				$u = array(
-					'nickname' => empty($nickname) ? '未知' : $nickname,
-					'sex' => $info[1]->sex,
-					'city' => $info[1]->city,
-					'groupid' => $info[1]->groupid,
-				);
-				isset($info[1]->headimgurl) && $u['headimgurl'] = $info[1]->headimgurl;
-				isset($info[1]->icon) && $u['headimgurl'] = $info[1]->icon;
-				isset($info[1]->province) && $u['province'] = $info[1]->province;
-				isset($info[1]->country) && $u['country'] = $info[1]->country;
-				$this->model()->update(
-					'xxt_fans',
-					$u,
-					"mpid='$this->mpid' and openid='$openid'"
-				);
-				return new \ResponseData($info[1]);
+			if ($info[0] === false) {
+				return new \ResponseError($info[1]);
 			}
+			if ($info[1]->subscribe != 1) {
+				return new \ResponseError('指定用户未关注公众号，无法获取用户信息');
+			}
+			/**更新数据 */
+			$model = $this->model();
+			$nickname = trim($model->escape($info[1]->nickname));
+			$u = array(
+				'nickname' => empty($nickname) ? '未知' : $nickname,
+				'sex' => $info[1]->sex,
+				'city' => $info[1]->city,
+				'groupid' => $info[1]->groupid,
+			);
+			isset($info[1]->headimgurl) && $u['headimgurl'] = $info[1]->headimgurl;
+			isset($info[1]->icon) && $u['headimgurl'] = $info[1]->icon;
+			isset($info[1]->province) && $u['province'] = $info[1]->province;
+			isset($info[1]->country) && $u['country'] = $info[1]->country;
+			$model->update(
+				'xxt_fans',
+				$u,
+				"mpid='$this->mpid' and openid='$openid'"
+			);
+			return new \ResponseData($info[1]);
 		}
-		return new \ResponseError('用户未关注公众号！');
 	}
 	/**
 	 * 从公众平台更新粉丝分组信息

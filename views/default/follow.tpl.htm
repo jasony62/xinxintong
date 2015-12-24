@@ -20,7 +20,6 @@
     <body>
         <?php echo TPL::val( 'follow_ele');?>
         <script type="text/javascript">
-            console.log('xxxxxx');
             window.followMp = function(yx_cardid, page) {
                 if (/YiXin/i.test(navigator.userAgent)) {
                     location.href = 'yixin://opencard?pid=' + yx_cardid;

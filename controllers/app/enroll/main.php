@@ -51,20 +51,25 @@ class main extends base {
 			\TPL::output('info');
 			exit;
 		}
-		/**获得当前访问用户*/
-		$this->doAuth($mpid, $code, $mocker);
-		$options = array(
-			'authapis' => $app->authapis,
-			'matter' => $app,
-			'verbose' => array('member' => 'Y', 'fan' => 'Y'),
-		);
-		!empty($mocker) && $options['openid'] = $mocker;
-		/* 提示在PC端完成 */
+		/*获得当前访问用户的信息*/
+		$openid = $this->doAuth($mpid, $code, $mocker);
+		$options = array('verbose' => array('fan' => 'Y'));
+		if (!empty($openid)) {
+			$options['openid'] = $openid;
+		} else if (!empty($mocker)) {
+			$options['openid'] = $mocker;
+		}
+		if (!empty($app->authapis)) {
+			$options['authapis'] = $app->authapis;
+			$options['matter'] = $app;
+			$options['verbose']['member'] = 'Y';
+		}
+		/*提示用户在PC端完成操作*/
 		if ($this->getClientSrc() && isset($app->shift2pc) && $app->shift2pc === 'Y') {
 			if (isset($user->fan)) {
 				$fea = $this->model('mp\mpaccount')->getFeatures($mpid, 'shift2pc_page_id');
 				$pageOfShift2Pc = $this->model('code/page')->byId($fea->shift2pc_page_id, 'html,css,js');
-				/**任务码*/
+				/*任务码*/
 				if ($app->can_taskcode && $app->can_taskcode === 'Y') {
 					$httpHost = $_SERVER['HTTP_HOST'];
 					$httpHost = str_replace('www.', '', $_SERVER['HTTP_HOST']);

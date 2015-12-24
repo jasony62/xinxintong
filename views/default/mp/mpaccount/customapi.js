@@ -183,7 +183,7 @@ xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Autha
             $scope.import2QyRunning = true;
             var url2 = url;
             param && (url2 += '&next=' + param.next);
-            param && param.step && (url2 += '&step=' + param.step);
+            param && param.step !== undefined && (url2 += '&step=' + param.step);
             $http.get(url2).success(function(rsp) {
                 $scope.import2QyRunning = false;
                 if (angular.isString(rsp))

@@ -234,9 +234,9 @@ class fans extends \mp\mp_controller {
 				 */
 				$info = $proxy->userInfo($openid, true);
 				if ($info[0] == false) {
-					//$fansCount++;
-					//continue;
-					return new \ResponseError($info[1]);
+					$fansCount++;
+					continue;
+					//return new \ResponseError($info[1]);
 				}
 				$rfan = $info[1];
 				if ($rfan->subscribe != 0) {

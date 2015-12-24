@@ -74,7 +74,11 @@ class main extends base {
 				//\TPL::assign('shift2pcAlert', $pageOfShift2Pc);
 			}
 		} else {
-			$options = array('verbose' => array('fan' => 'Y'));
+			$options = array(
+				'authapis' => $app->authapis,
+				'matter' => $app,
+				'verbose' => array('member' => 'Y', 'fan' => 'Y'),
+			);
 			!empty($mocker) && $options['openid'] = $mocker;
 			$user = $this->getUser($mpid, $options);
 		}

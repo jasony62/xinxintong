@@ -59,7 +59,11 @@ class mpproxy_base {
 				return array(false, $result->errmsg . "($result->errcode)");
 			}
 		} else if (empty($result)) {
-			return array(false, 'json failed:' . $response);
+			if (strpos($response, '{') === 0) {
+				return array(false, 'json failed:' . $response);
+			} else {
+				return array(false, $response);
+			}
 		}
 
 		return array(true, $result);
@@ -102,7 +106,11 @@ class mpproxy_base {
 				return array(false, $rst->errmsg . "($rst->errcode)");
 			}
 		} else if (empty($rst)) {
-			return array(false, 'json failed:' . $response);
+			if (strpos($response, '{') === 0) {
+				return array(false, 'json failed:' . $response);
+			} else {
+				return array(false, $response);
+			}
 		}
 
 		return array(true, $rst);

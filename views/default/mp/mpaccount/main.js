@@ -101,6 +101,19 @@ xxtApp.controller('mainCtrl', ['$rootScope', '$scope', 'http2', '$timeout', func
             });
         }
     };
+    $scope.setPic = function() {
+        var options = {
+            callback: function(url) {
+                $scope.mpa.qrcode = url + '?_=' + (new Date()) * 1;
+                $scope.update('qrcode');
+            }
+        };
+        $scope.$broadcast('mediagallery.open', options);
+    };
+    $scope.removePic = function() {
+        $scope.mpa.qrcode = '';
+        $scope.update('qrcode');
+    };
     $scope.$watch('jsonParams', function(nv) {
         if (nv && nv.length) {
             var params = JSON.parse(decodeURIComponent(nv.replace(/\+/g, '%20')));

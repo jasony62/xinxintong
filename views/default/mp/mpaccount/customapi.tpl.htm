@@ -1,100 +1,10 @@
 <div ng-controller='apiCtrl'>
     <div class="panel panel-default">
-        <div class="panel-heading">用户认证服务</div>
+        <div class="panel-heading">用户认证接口</div>
         <div class="panel-body">
             <div class='list-group'>
-                <div class='list-group-item'>
-                    <div class='form-inline form-group'>
-                        <div class='form-group'>
-                            <div class='input-group'>
-                                <span class='input-group-addon'>
-                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='ia.valid' ng-change="updAuthapi(ia,'valid')">
-                                </span>
-                                <input type='text' class='form-control' style='width:200px' ng-model='ia.name' placeholder='输入名称' tms-auto-update tms-wait=1000
-                                tms-update="updAuthapi(ia,'name')">
-                            </div>
-                        </div>
-                        <div class='form-group'>
-                            <select class='form-control' title='认证结果有效期' ng-model='ia.validity' ng-options='d.v as d.n for d in days' ng-change="updAuthapi(ia,'validity')"></select>
-                        </div>
-                        <div class='form-group' ng-show="ia.valid==='Y'">
-                            <button class='btn btn-default' ng-click='addExtattr(ia)'>增加信息项</button>
-                            <button class='btn btn-default' ng-click='gotoCode(ia)'>定制认证页面</button>
-                            <button class='btn btn-default' ng-click='resetCode(ia)'>重置认证页面</button>
-                        </div>
-                    </div>
-                    <div ng-show="ia.valid==='Y'">
-                        <div class='form-group'>
-                            <table class='table table-bordered'>
-                                <thead>
-                                    <tr>
-                                        <th style='width:96px'>信息项</th>
-                                        <th style='width:96px'>隐藏</th>
-                                        <th style='width:96px'>必填</th>
-                                        <th style='width:96px'>唯一</th>
-                                        <th style='width:96px'>不可更改</th>
-                                        <th style='width:96px'>需要验证</th>
-                                        <th style='width:96px'>身份标识</th>
-                                        <th style='width:96px'>操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat='attr in authAttrOps'>
-                                        <td>{{attr[0]}}</td>
-                                        <td ng-repeat='op in attr[2]'>
-                                            <input type='checkbox' ng-show='op===$index' ng-disabled="ia.attrs[attr[1]][5]==='1'&&($index===0||$index===1||$index===2||$index===3)"
-                                            ng-true-value="'1'" ng-false-value="'0'" ng-model="ia.attrs[attr[1]][$index]" ng-change="updAuthAttr(ia,attr[1])">
-                                        </td>
-                                        <td></td>
-                                    </tr>
-                                    <tr ng-repeat='ea in ia.extattr'>
-                                        <td>{{ea.label}}</td>
-                                        <td></td>
-                                        <td>
-                                            <input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model="ea.cfg2[1]" ng-change="updAuthExtattr(ia,ea)">
-                                        </td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td>
-                                            <a href='javascript:void(0)' ng-click='editExtattr(ia,ea)'>修改</a>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div class='alert alert-danger' ng-show="ia.attrs['mobile'][5]==='0'&&ia.attrs['email'][5]==='0'">至少指定一个字段作为身份标识</div>
-                        </div>
-                        <div class='form-group'>
-                            <label>认证页面地址</label>
-                            <div class='form-control-static'>{{ia.url2}}</div>
-                        </div>
-                        <div class='form-group'>
-                            <label>进入认证页面前提示</label>
-                            <textarea class='form-control' title='进入前提示' ng-model='ia.entry_statement' placeholder='进入前提示' tms-auto-update
-                            tms-wait=1000 tms-update="updAuthapi(ia,'entry_statement')"></textarea>
-                        </div>
-                        <div class='form-group'>
-                            <label>不在白名单中提示</label>
-                            <textarea class='form-control' title='不在白名单中提示' ng-model='ia.acl_statement' placeholder='不在白名单中提示' tms-auto-update
-                            tms-wait=1000 tms-update="updAuthapi(ia,'acl_statement')"></textarea>
-                        </div>
-                        <div class='form-group'>
-                            <label>验证未通过提示</label>
-                            <textarea class='form-control' title='验证未通过提示' ng-model='ia.notpass_statement' placeholder='验证未通过提示' tms-auto-update
-                            tms-wait=1000 tms-update="updAuthapi(ia,'notpass_statement')"></textarea>
-                        </div>
-                    </div>
-                    <div class='alert alert-info' ng-show="ia.valid==='Y'" ng-if="mpaccount.mpsrc==='qy'">
-                        <button class='btn btn-primary' ng-disabled='taskRunning' ng-click='syncFromQy(ia)'>
-                            <span>
-                                <i class='fa fa-refresh' ng-class="{'fa-spin':taskRunning}"></i>&nbsp;从企业号同步</span>
-                        </button>
-                        <span ng-show='ia.sync_from_qy_at>0'>上次从企业号通讯录同步时间：{{ia.sync_from_qy_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
-                    </div>
-                </div>
                 <div class='list-group-item' ng-repeat='a in authapis'>
-                    <div class='form-inline'>
+                    <div class='form-inline form-group'>
                         <div class='form-group'>
                             <div class='input-group'>
                                 <span class='input-group-addon'>
@@ -110,10 +20,18 @@
                             </div>
                         </div>
                         <div class='form-group'>
+                            <select class='form-control' title='类型' ng-model='a.type' ng-change="updAuthapi(a,'type')">
+                                <option value='inner'>内置</option>
+                                <option value='cus'>自定义</option>
+                            </select>
+                        </div>
+                        <div class='form-group' ng-show="a.valid==='Y'">
                             <select class='form-control' title='认证结果有效期' ng-model='a.validity' ng-options='d.v as d.n for d in days' ng-change="updAuthapi(a,'validity')"></select>
                         </div>
                         <div class='form-group' ng-show="a.valid==='Y'">
                             <button class='btn btn-success' ng-click='addExtattr(a)'>增加信息项</button>
+                            <button class='btn btn-default' ng-if="a.type==='inner'" ng-click='gotoCode(ia)'>定制认证页面</button>
+                            <button class='btn btn-default' ng-if="a.type==='inner'" ng-click='resetCode(ia)'>重置认证页面</button>
                         </div>
                     </div>
                     <div ng-show="a.valid==='Y'">
@@ -142,12 +60,8 @@
                                     </tr>
                                     <tr ng-repeat='ea in a.extattr'>
                                         <td>{{ea.label}}</td>
-                                        <td>
-                                            <input type='checkbox' disabled ng-true-value="'1'" ng-false-value="'0'" ng-model="ea.cfg[0]" ng-change="updAuthExtattr(a,ea)">
-                                        </td>
-                                        <td>
-                                            <input type='checkbox' disabled ng-true-value="'1'" ng-false-value="'0'" ng-model="ea.cfg[1]" ng-change="updAuthExtattr(a,ea)">
-                                        </td>
+                                        <td></td>
+                                        <td></td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
@@ -160,42 +74,47 @@
                             </table>
                         </div>
                         <div class='form-group'>
-                            <label>认证页面地址</label>
-                            <input type='text' class='form-control' ng-model='a.url' placeholder='输入URL' tms-auto-update tms-wait=1000
-                            tms-update="updAuthapi(a,'url')">
-                            <div class='form-control-static'>{{fullAuthUrl(a)}}</div>
-                        </div>
-                        <div class='form-group'>
-                            <label>进入认证页面前提示</label>
-                            <textarea class='form-control' title='进入前说明' ng-model='a.entry_statement' placeholder='进入前说明' tms-auto-update
-                            tms-wait=1000 tms-update="updAuthapi(a,'entry_statement')"></textarea>
-                        </div>
-                        <div class='form-group'>
-                            <label>不在白名单中说明</label>
-                            <textarea class='form-control' title='不在白名单中说明' ng-model='a.acl_statement' placeholder='不在白名单中说明' tms-auto-update
-                            tms-wait=1000 tms-update="updAuthapi(a,'acl_statement')"></textarea>
-                        </div>
-                        <div class='form-group'>
-                            <label>验证未通过说明</label>
-                            <textarea class='form-control' title='验证未通过说明' ng-model='a.notpass_statement' placeholder='验证未通过说明' tms-auto-update
-                            tms-wait=1000 tms-update="updAuthapi(a,'notpass_statement')"></textarea>
+                            <table class='table table-bordered'>
+                                <tr>
+                                    <td><label>认证页面地址</label></td>
+                                    <td>
+                                        <input type='text' ng-show="a.type==='cus'" class='form-control' ng-model='a.url' placeholder='输入URL' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'url')">
+                                        <div class='form-control-static'>{{fullAuthUrl(a)}}</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label>进入认证页面前提示</label></td>
+                                    <td>
+                                        <textarea class='form-control' title='进入前说明' ng-model='a.entry_statement' placeholder='进入前说明' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'entry_statement')"></textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label>不在白名单中说明</label></td>
+                                    <td>
+                                        <textarea class='form-control' title='不在白名单中说明' ng-model='a.acl_statement' placeholder='不在白名单中说明' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'acl_statement')"></textarea>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label>验证未通过说明</label></td>
+                                    <td>
+                                        <textarea class='form-control' title='不在白名单中说明' ng-model='a.acl_statement' placeholder='不在白名单中说明' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'acl_statement')"></textarea>
+                                    </td>
+                                </tr>
+                            </table>
                         </div>
                     </div>
-                    <div class='alert alert-info' ng-show="a.valid==='Y'" ng-if="mpaccount.mpsrc==='qy'">
+                    <div class='alert alert-info' ng-show="canImport2Qy(a)">
                         <button class='btn btn-primary' ng-disabled='import2QyRunning' ng-click='import2Qy(a)'>
-                            <span>
-                                <i class='fa fa-refresh' ng-class="{'fa-spin':import2QyRunning}"></i>&nbsp;全量导入到企业号</span>
+                        <span><i class='fa fa-refresh' ng-class="{'fa-spin':import2QyRunning}"></i>&nbsp;全量导入到企业号</span>
                         </button>
                         <button class='btn btn-primary' ng-disabled='taskRunning' ng-click='sync2Qy(a)'>
-                            <span>
-                                <i class='fa fa-refresh' ng-class="{'fa-spin':taskRunning}"></i>&nbsp;增量同步到企业号</span>
+                        <span><i class='fa fa-refresh' ng-class="{'fa-spin':taskRunning}"></i>&nbsp;增量同步到企业号</span>
                         </button>
                         <span ng-show='a.sync_to_qy_at>0'>上次同步到企业号通讯录时间：{{a.sync_to_qy_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
                     </div>
-                    <div class='alert alert-info' ng-show="a.valid==='Y'" ng-if="mpaccount.mpsrc==='qy'">
+                    <div class='alert alert-info' ng-show="canSyncFromQy(a)">
                         <button class='btn btn-primary' ng-disabled='taskRunning' ng-click='syncFromQy(a)'>
-                            <span>
-                                <i class='fa fa-refresh' ng-class="{'fa-spin':taskRunning}"></i>&nbsp;从企业号同步</span>
+                        <span><i class='fa fa-refresh' ng-class="{'fa-spin':taskRunning}"></i>&nbsp;从企业号同步</span>
                         </button>
                         <span ng-show='a.sync_from_qy_at>0'>上次从企业号通讯录同步时间：{{a.sync_from_qy_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
                     </div>

@@ -6,7 +6,7 @@ xxtApp.factory('Authapi', function($q, http2) {
         var deferred, url;
         deferred = $q.defer();
         own === undefined && (own === 'N');
-        url = this.baseUrl + 'get?own=' + own;
+        url = this.baseUrl + 'list?own=' + own;
         http2.get(url, function(rsp) {
             deferred.resolve(rsp.data);
         });

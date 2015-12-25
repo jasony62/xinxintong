@@ -2,6 +2,29 @@ xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Autha
     var service = {};
     service.mp = new Mp();
     service.authapi = new Authapi();
+    var shiftAuthapiAttr = function(authapi) {
+        authapi.attrs = {
+            mobile: [],
+            email: [],
+            name: [],
+            password: []
+        };
+        var k, j, item, setting;
+        for (k in authapi.attrs) {
+            item = authapi.attrs[k];
+            setting = authapi['attr_' + k];
+            for (j = 0; j < 6; j++)
+                item.push(setting.charAt(j));
+        }
+        var ea;
+        for (k in authapi.extattr) {
+            ea = authapi.extattr[k];
+            ea.cfg2 = [];
+            for (j = 0; j < 6; j++) {
+                ea.cfg2.push(ea.cfg.charAt(j));
+            }
+        }
+    };
     $scope.days = [{
         n: '会话',
         v: '0'
@@ -30,10 +53,11 @@ xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Autha
         !/^http/.test(authapi.url) && (url = 'http://' + location.host);
         return url + authapi.url + '?mpid=' + $scope.mpaccount.mpid + '&authid=' + authapi.authid;
     };
-    $scope.update = function(name) {
-        var p = {};
-        p[name] = $scope.features[name];
-        http2.post('/rest/mp/mpaccount/updateFeature', p);
+    $scope.canImport2Qy = function(authapi) {
+        return $scope.mpaccount.mpsrc === 'qy' && authapi.valid === 'Y' && authapi.type === 'cus';
+    };
+    $scope.canSyncFromQy = function(authapi) {
+        return $scope.mpaccount.mpsrc === 'qy' && authapi.valid === 'Y';
     };
     $scope.addAuthapi = function() {
         var url = '/rest/mp/authapi/create';
@@ -49,18 +73,14 @@ xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Autha
         });
     };
     $scope.updAuthapi = function(api, field) {
-        var url = '/rest/mp/authapi/update?type=' + api.type;
-        if (api.authid) url += '&id=' + api.authid;
-        var p = {};
-        if (/entry_statement|acl_statement|notpass_statement/.test(field))
-            p[field] = encodeURIComponent(api[field]);
-        else
-            p[field] = api[field];
-        http2.post(url, p, function(rsp) {
-            if (api === $scope.ia) {
-                rsp.data.url2 = 'http://' + location.host + rsp.data.url + '?mpid=' + $scope.mpaccount.mpid + '&authid=' + rsp.data.authid;
-                shiftAuthapiAttr(rsp.data);
-                $scope.ia = rsp.data;
+        var url, pv;
+        url = '/rest/mp/authapi/update?type=' + api.type;
+        api.authid && (url += '&id=' + api.authid);
+        pv = {};
+        pv[field] = (/entry_statement|acl_statement|notpass_statement/.test(field)) ? encodeURIComponent(api[field]) : api[field];
+        http2.post(url, pv, function(rsp) {
+            if (field === 'type') {
+                api.url = rsp.data.url;
             }
         });
     };
@@ -222,28 +242,6 @@ xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Autha
             $scope.taskRunning = false;
         });
     };
-    var shiftAuthapiAttr = function(authapi) {
-        authapi.attrs = {
-            mobile: [],
-            email: [],
-            name: [],
-            password: []
-        };
-        var k, j, item, setting;
-        for (k in authapi.attrs) {
-            item = authapi.attrs[k];
-            setting = authapi['attr_' + k];
-            for (j = 0; j < 6; j++)
-                item.push(setting.charAt(j));
-        }
-        var ea;
-        for (k in authapi.extattr) {
-            ea = authapi.extattr[k];
-            ea.cfg2 = [];
-            for (j = 0; j < 6; j++)
-                ea.cfg2.push(ea.cfg.charAt(j));
-        }
-    };
     $scope.addRelay = function() {
         http2.get('/rest/mp/relay/add', function(rsp) {
             $scope.relays.push(rsp.data);
@@ -268,19 +266,16 @@ xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Autha
         $scope.mpaccount = data;
         service.authapi.get('Y').then(function(data) {
             var i, l, authapi;
-            if (data.length > 0)
-                for (i = 0, l = data.length; i < l; i++) {
-                    authapi = data[i];
-                    if (authapi.type === 'inner') {
-                        $scope.ia = authapi;
-                        $scope.ia.url2 = 'http://' + location.host + $scope.ia.url + '?mpid=' + $scope.mpaccount.mpid + '&authid=' + $scope.ia.authid;
-                    } else
-                        $scope.authapis.push(authapi);
-                    shiftAuthapiAttr(authapi);
-                }!$scope.ia && ($scope.ia = {
+            angular.forEach(data, function(authapi) {
+                shiftAuthapiAttr(authapi);
+                $scope.authapis.push(authapi);
+            });
+            if ($scope.authapis.length === 0) {
+                $scope.authapis.push({
                     type: 'inner',
                     valid: 'N'
                 });
+            }
         });
     });
 }]);

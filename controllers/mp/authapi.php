@@ -32,6 +32,22 @@ class authapi extends mp_controller {
 		return new \ResponseData($apis);
 	}
 	/**
+	 * 获得定义的认证接口
+	 *
+	 * 返回当前公众号和它的父账号的
+	 *
+	 * $own
+	 * $valid
+	 * $cascaded
+	 */
+	public function list_action($own = 'N', $valid = null) {
+		$modelAuth = $this->model('user/authapi');
+
+		$apis = $modelAuth->byMpid($this->mpid, $valid, 'N');
+
+		return new \ResponseData($apis);
+	}
+	/**
 	 *
 	 */
 	public function update_action($type, $id = null) {
@@ -39,7 +55,7 @@ class authapi extends mp_controller {
 
 		$nv = $this->getPostJson();
 
-		if (empty($id) && $type === 'inner') {
+		if (empty($id)) {
 			/**
 			 * 如果是首次使用内置接口，就创建新的接口定义
 			 */
@@ -75,8 +91,9 @@ class authapi extends mp_controller {
 					$attr->label = urlencode($attr->label);
 				}
 				$nv->extattr = urldecode(json_encode($nv->extattr));
+			} else if (isset($nv->type) && $nv->type === 'inner') {
+				$nv->url = TMS_APP_API_PREFIX . "/member/auth";
 			}
-
 			$rst = $this->model()->update(
 				'xxt_member_authapi',
 				(array) $nv,
@@ -98,14 +115,14 @@ class authapi extends mp_controller {
 		$i = array(
 			'mpid' => $this->mpid,
 			'name' => '',
-			'type' => 'cus',
+			'type' => 'inner',
 			'valid' => 'N',
 			'creater' => $uid,
 			'create_at' => time(),
 			'entry_statement' => '无法确认您是否有权限进行该操作，请先完成【<a href="{{authapi}}">用户身份确认</a>】。',
 			'acl_statement' => '您的身份识别信息没有放入白名单中，请与系统管理员联系。',
 			'notpass_statement' => '您的邮箱还没有验证通过，若未收到验证邮件请联系系统管理员。若需要重发验证邮件，请先完成【<a href="{{authapi}}">用户身份确认</a>】。',
-			'url' => '',
+			'url' => TMS_APP_API_PREFIX . "/member/auth",
 		);
 		$id = $this->model()->insert('xxt_member_authapi', $i, true);
 

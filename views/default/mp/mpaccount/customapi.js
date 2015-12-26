@@ -222,26 +222,26 @@ xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Autha
         url += '&authid=' + authapi.authid;
         $scope.sync2QyRunning = true;
         http2.get(url, function(rsp) {
-            if (rsp.err_code != 0) {
-                $scope.$root.errmsg = rsp.err_msg;
-            } else {
+            if (rsp.err_code === 0) {
                 $scope.$root.progmsg = "完成";
             }
             $scope.sync2QyRunning = false;
+        }, {
+            autoBreak: false
         });
     };
     $scope.syncFromQy = function(authapi) {
-        $scope.syncFromQyRunning = true;
         var url = authapi.url + '/syncFromQy';
         url += '?mpid=' + $scope.mpaccount.mpid;
         url += '&authid=' + authapi.authid;
+        $scope.syncFromQyRunning = true;
         http2.get(url, function(rsp) {
-            if (rsp.err_code != 0) {
-                $scope.$root.errmsg = rsp.err_msg;
-            } else {
+            if (rsp.err_code === 0) {
                 $scope.$root.progmsg = "同步" + rsp.data[0] + "个部门，" + rsp.data[1] + "个用户，" + rsp.data[2] + "个标签";
             }
             $scope.syncFromQyRunning = false;
+        }, {
+            autoBreak: false
         });
     };
     $scope.addRelay = function() {

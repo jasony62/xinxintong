@@ -1,29 +1,18 @@
 xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Authapi', function($scope, http2, $http, $modal, Mp, Authapi) {
-    var service = {};
-    service.mp = new Mp();
-    service.authapi = new Authapi();
+    var service = {
+        mp: new Mp(),
+        authapi: new Authapi()
+    };
     var shiftAuthapiAttr = function(authapi) {
         authapi.attrs = {
-            mobile: [],
-            email: [],
-            name: [],
-            password: []
+            mobile: authapi.attr_mobile.split(''),
+            email: authapi.attr_email.split(''),
+            name: authapi.attr_name.split(''),
+            password: authapi.attr_password.split('')
         };
-        var k, j, item, setting;
-        for (k in authapi.attrs) {
-            item = authapi.attrs[k];
-            setting = authapi['attr_' + k];
-            for (j = 0; j < 6; j++)
-                item.push(setting.charAt(j));
-        }
-        var ea;
-        for (k in authapi.extattr) {
-            ea = authapi.extattr[k];
-            ea.cfg2 = [];
-            for (j = 0; j < 6; j++) {
-                ea.cfg2.push(ea.cfg.charAt(j));
-            }
-        }
+        angular.forEach(authapi.extattr, function(ea) {
+            ea.cfg2 = ea.cfg.split('');
+        });
     };
     $scope.days = [{
         n: '会话',
@@ -42,6 +31,7 @@ xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Autha
         v: '365'
     }];
     $scope.authapis = [];
+    $scope.pAuthapis = [];
     $scope.authAttrOps = [
         ['手机', 'mobile', [0, 1, 2, 3, 4, 5]],
         ['邮箱', 'email', [0, 1, 2, 3, 4, 5]],
@@ -264,11 +254,15 @@ xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Autha
     });
     service.mp.get().then(function(data) {
         $scope.mpaccount = data;
-        service.authapi.get('Y').then(function(data) {
+        service.authapi.get('N').then(function(data) {
             var i, l, authapi;
             angular.forEach(data, function(authapi) {
                 shiftAuthapiAttr(authapi);
-                $scope.authapis.push(authapi);
+                if ($scope.mpaccount.mpid === authapi.mpid) {
+                    $scope.authapis.push(authapi);
+                } else {
+                    $scope.pAuthapis.push(authapi);
+                }
             });
             if ($scope.authapis.length === 0) {
                 $scope.authapis.push({

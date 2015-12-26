@@ -1,4 +1,85 @@
 <div ng-controller='apiCtrl'>
+    <div class="panel panel-default" ng-if="pAuthapis.length">
+        <div class="panel-heading">父账号用户认证接口</div>
+        <div class="panel-body">
+            <div class='list-group'>
+                <div class='list-group-item' ng-if="a.valid==='Y'" ng-repeat='a in pAuthapis'>
+                    <div class='form-inline form-group'>
+                        <div class='form-group'>
+                            <input class='form-control' readonly ng-model='a.name'>
+                        </div>
+                        <div class='form-group'>
+                            <select class='form-control' disabled title='类型' ng-model='a.type'>
+                                <option value='inner'>内置</option>
+                                <option value='cus'>自定义</option>
+                            </select>
+                        </div>
+                        <div class='form-group'>
+                            <select class='form-control' disabled title='认证结果有效期' ng-model='a.validity' ng-options='d.v as d.n for d in days'></select>
+                        </div>
+                    </div>
+                    <div ng-show="a.valid==='Y'">
+                        <div class='form-group'>
+                            <table class='table table-bordered'>
+                                <thead>
+                                    <tr>
+                                        <th style='width:96px'>信息项</th>
+                                        <th style='width:96px'>隐藏</th>
+                                        <th style='width:96px'>必填</th>
+                                        <th style='width:96px'>唯一</th>
+                                        <th style='width:96px'>不可更改</th>
+                                        <th style='width:96px'>需要验证</th>
+                                        <th style='width:96px'>身份标识</th>
+                                        <th style='width:96px'>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat='attr in authAttrOps'>
+                                        <td>{{attr[0]}}</td>
+                                        <td ng-repeat='op in attr[2]'>
+                                            <input type='checkbox' disabled ng-if='op===$index' ng-true-value="'1'" ng-false-value="'0'" ng-model="a.attrs[attr[1]][$index]">
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                    <tr ng-repeat='ea in a.extattr'>
+                                        <td>{{ea.label}}</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class='form-group'>
+                            <table class='table table-bordered'>
+                                <tr>
+                                    <td><label>认证页面地址</label></td>
+                                    <td ng-bind="fullAuthUrl(a)">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label>进入认证页面前提示</label></td>
+                                    <td ng-bind="a.entry_statement"></td>
+                                </tr>
+                                <tr>
+                                    <td><label>不在白名单中说明</label></td>
+                                    <td ng-bind="a.acl_statement"</td>
+                                </tr>
+                                <tr>
+                                    <td><label>验证未通过说明</label></td>
+                                    <td ng-bind="a.notpass_statement"></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="panel panel-default">
         <div class="panel-heading">用户认证接口</div>
         <div class="panel-body">
@@ -97,7 +178,7 @@
                                 <tr>
                                     <td><label>验证未通过说明</label></td>
                                     <td>
-                                        <textarea class='form-control' title='不在白名单中说明' ng-model='a.acl_statement' placeholder='不在白名单中说明' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'acl_statement')"></textarea>
+                                        <textarea class='form-control' title='不在白名单中说明' ng-model='a.notpass_statement' placeholder='不在白名单中说明' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'notpass_statement')"></textarea>
                                     </td>
                                 </tr>
                             </table>

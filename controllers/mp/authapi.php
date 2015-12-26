@@ -43,7 +43,7 @@ class authapi extends mp_controller {
 	public function list_action($own = 'N', $valid = null) {
 		$modelAuth = $this->model('user/authapi');
 
-		$apis = $modelAuth->byMpid($this->mpid, $valid, 'N');
+		$apis = $modelAuth->byMpid($this->mpid, $valid, $own);
 
 		return new \ResponseData($apis);
 	}

@@ -232,8 +232,8 @@ xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Autha
         url += '?mpid=' + $scope.mpaccount.mpid;
         url += '&authid=' + authapi.authid;
         http2.get(url, function(rsp) {
-            if (rsp.err_code == 0) {
-
+            if (rsp.err_code != 0) {
+                $scope.$root.errmsg = rsp.err_msg;
             } else {
                 $scope.$root.progmsg = "同步" + rsp.data[0] + "个部门，" + rsp.data[1] + "个用户，" + rsp.data[2] + "个标签";
                 $scope.syncFromQyRunning = false;

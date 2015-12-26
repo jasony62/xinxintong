@@ -222,7 +222,11 @@ xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Autha
         url += '&authid=' + authapi.authid;
         $scope.sync2QyRunning = true;
         http2.get(url, function(rsp) {
-            $scope.$root.infomsg = rsp.data;
+            if (rsp.err_code != 0) {
+                $scope.$root.errmsg = rsp.err_msg;
+            } else {
+                $scope.$root.progmsg = "完成";
+            }
             $scope.sync2QyRunning = false;
         });
     };
@@ -236,8 +240,8 @@ xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Autha
                 $scope.$root.errmsg = rsp.err_msg;
             } else {
                 $scope.$root.progmsg = "同步" + rsp.data[0] + "个部门，" + rsp.data[1] + "个用户，" + rsp.data[2] + "个标签";
-                $scope.syncFromQyRunning = false;
             }
+            $scope.syncFromQyRunning = false;
         });
     };
     $scope.addRelay = function() {

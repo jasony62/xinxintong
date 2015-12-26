@@ -154,7 +154,7 @@ class auth extends \member_base {
 		/**
 		 * 验证邮箱真实性
 		 */
-		$attrs->attr_email[4] === '1' && $this->send_verify_email($mpid, $member->email);
+		$attrs->attr_email[4] === '1' && $this->_sendVerifyEmail($mpid, $member->email);
 		/**
 		 * 在cookie中记录认证用户的身份信息
 		 */
@@ -195,7 +195,7 @@ class auth extends \member_base {
 				array('verified' => 'N', 'email_verified' => 'N'),
 				"mid='$mid'"
 			);
-			$this->send_verify_email($mpid, $member->email);
+			$this->_sendVerifyEmail($mpid, $member->email);
 		}
 		if ($attrs->attr_mobile[4] === '1') {
 			$this->model()->update(
@@ -245,7 +245,7 @@ class auth extends \member_base {
 	 *
 	 * $email 在一个公众账号内是唯一的
 	 */
-	private function send_verify_email($mpid, $email) {
+	private function _sendVerifyEmail($mpid, $email) {
 		$mp = $this->model('mp\mpaccount')->byId($mpid, 'name');
 		$subject = $mp->name . "用户身份验证";
 
@@ -325,7 +325,7 @@ class auth extends \member_base {
 		//$member = $this->model('user/member')->byId($mid, 'email');
 		$member = $members[0];
 
-		$this->send_verify_email($mpid, $member->authed_identity);
+		$this->_sendVerifyEmail($mpid, $member->authed_identity);
 
 		return new \ResponseData('success');
 	}
@@ -458,12 +458,14 @@ class auth extends \member_base {
 		if (!$mp && $mp->qy_joined !== 'Y') {
 			return new \ResponseError('未与企业号连接，无法同步通讯录');
 		}
-
 		$timestamp = time(); // 进行同步操作的时间戳
+		$interval = 600;
+		$qyproxy = $this->model('mpproxy/qy', $mpid);
+		$model = $this->model();
+		$modelDept = $this->model('user/department');
 		/**
 		 * 同步部门数据
 		 */
-		$qyproxy = $this->model('mpproxy/qy', $mpid);
 		$mapDeptR2L = array(); // 部门的远程ID和本地ID的映射
 		$result = $qyproxy->departmentList($pdid);
 		if ($result[0] === false) {
@@ -477,31 +479,30 @@ class auth extends \member_base {
 			if ($pid === 0) {
 				$rootDepts[] = $rdept;
 			}
-
 			$rdeptName = $rdept->name;
 			unset($rdept->name);
 			/**
 			 * 如果已经同步过，更新数据和时间戳；否则创建新本地数据
 			 */
 			$q = array(
-				'id,fullpath',
+				'id,fullpath,sync_at',
 				'xxt_member_department',
 				"mpid='$mpid' and extattr like '%\"id\":$rdept->id,%'",
 			);
-			if (!($ldept = $this->model()->query_obj_ss($q))) {
-				$ldept = $this->model('user/department')->create($mpid, $authid, $pid, null);
+			if (!($ldept = $model->query_obj_ss($q))) {
+				$ldept = $modelDept->create($mpid, $authid, $pid, null);
+			} else if ($ldept->sync_at < $timestamp - $interval) {
+				$model->update(
+					'xxt_member_department',
+					array(
+						'pid' => $pid,
+						'sync_at' => $timestamp,
+						'name' => $rdeptName,
+						'extattr' => json_encode($rdept),
+					),
+					"mpid='$mpid' and id=$ldept->id"
+				);
 			}
-
-			$this->model()->update(
-				'xxt_member_department',
-				array(
-					'pid' => $pid,
-					'sync_at' => $timestamp,
-					'name' => $rdeptName,
-					'extattr' => json_encode($rdept),
-				),
-				"mpid='$mpid' and id=$ldept->id"
-			);
 			$mapDeptR2L[$rdept->id] = array('id' => $ldept->id, 'path' => $ldept->fullpath);
 		}
 		/**
@@ -509,27 +510,26 @@ class auth extends \member_base {
 		 */
 		$this->model()->delete(
 			'xxt_member_department',
-			"mpid='$mpid' and sync_at<$timestamp"
+			"mpid='$mpid' and sync_at<" . ($timestamp - $interval)
 		);
+		/**
+		 * 同步部门下的用户
+		 */
 		foreach ($rootDepts as $rootDept) {
-			/**
-			 * 获得根部门下的所有成员
-			 */
 			$result = $qyproxy->userList($rootDept->id, 1);
 			if ($result[0] === false) {
 				return new \ResponseError($result[1]);
 			}
-
 			$users = $result[1]->userlist;
 			foreach ($users as $user) {
 				$q = array(
-					'mid,fid',
+					'mid,fid,sync_at',
 					'xxt_member',
 					"mpid='$mpid' and openid='$user->userid'",
 				);
-				if (!($luser = $this->model()->query_obj_ss($q))) {
+				if (!($luser = $model->query_obj_ss($q))) {
 					$this->createQyFan($mpid, $user, $authid, $timestamp, $mapDeptR2L);
-				} else {
+				} else if ($luser->sync_at < $timestamp - $interval) {
 					$this->updateQyFan($mpid, $luser->fid, $user, $authid, $timestamp, $mapDeptR2L);
 				}
 			}
@@ -537,16 +537,16 @@ class auth extends \member_base {
 		/**
 		 * 清空没有同步的粉丝数据
 		 */
-		$this->model()->delete(
+		$model->delete(
 			'xxt_fans',
-			"mpid='$mpid' and fid in (select fid from xxt_member where mpid='$mpid' and sync_at<$timestamp)"
+			"mpid='$mpid' and fid in (select fid from xxt_member where mpid='$mpid' and sync_at<" . ($timestamp - $interval) . ")"
 		);
 		/**
 		 * 清空没有同步的成员数据
 		 */
-		$this->model()->delete(
+		$model->delete(
 			'xxt_member',
-			"mpid='$mpid' and sync_at<$timestamp"
+			"mpid='$mpid' and sync_at<" . ($timestamp - $interval)
 		);
 		/**
 		 * 同步标签
@@ -555,15 +555,23 @@ class auth extends \member_base {
 		if ($result[0] === false) {
 			return new \ResponseError($result[1]);
 		}
-
 		$tags = $result[1]->taglist;
 		foreach ($tags as $tag) {
 			$q = array(
-				'id',
+				'id,sync_at',
 				'xxt_member_tag',
 				"mpid='$mpid' and extattr like '{\"tagid\":$tag->tagid}%'",
 			);
-			if ($ltag = $this->model()->query_obj_ss($q)) {
+			if (!($ltag = $model->query_obj_ss($q))) {
+				$t = array(
+					'mpid' => $mpid,
+					'sync_at' => $timestamp,
+					'name' => $tag->tagname,
+					'authapi_id' => $authid,
+					'extattr' => json_encode(array('tagid' => $tag->tagid)),
+				);
+				$memberTagId = $model->insert('xxt_member_tag', $t, true);
+			} else {
 				$memberTagId = $ltag->id;
 				$t = array(
 					'sync_at' => $timestamp,
@@ -574,15 +582,6 @@ class auth extends \member_base {
 					$t,
 					"mpid='$mpid' and id=$ltag->id"
 				);
-			} else {
-				$t = array(
-					'mpid' => $mpid,
-					'sync_at' => $timestamp,
-					'name' => $tag->tagname,
-					'authapi_id' => $authid,
-					'extattr' => json_encode(array('tagid' => $tag->tagid)),
-				);
-				$memberTagId = $this->model()->insert('xxt_member_tag', $t, true);
 			}
 			/**
 			 * 建立标签和成员、部门的关联
@@ -591,41 +590,37 @@ class auth extends \member_base {
 			if ($result[0] === false) {
 				return new \ResponseError($result[1]);
 			}
-
 			$tagUsers = $result[1]->userlist;
 			foreach ($tagUsers as $user) {
 				$q = array(
-					'tags',
+					'sync_at,tags',
 					'xxt_member',
 					"mpid='$mpid' and openid='$user->userid'",
 				);
-				$memeberTags = $this->model()->query_val_ss($q);
-				if (empty($memeberTags)) {
-					$memeberTags = $memberTagId;
+				$memeber = $model->query_obj_ss($q);
+				if (empty($memeber->tags)) {
+					$memeber->tags = $memberTagId;
 				} else {
-					$memeberTags .= ',' . $memberTagId;
+					$memeber->tags .= ',' . $memberTagId;
 				}
-
-				$this->model()->update(
+				$model->update(
 					'xxt_member',
-					array('tags' => $memeberTags),
+					array('tags' => $memeber->tags),
 					"mpid='$mpid' and openid='$user->userid'"
 				);
-
 			}
 		}
 		/**
 		 * 清空已有标签
 		 */
-		$this->model()->delete(
+		$model->delete(
 			'xxt_member_tag',
-			"mpid='$mpid' and sync_at<$timestamp"
+			"mpid='$mpid' and sync_at<" . ($timestamp - $interval)
 		);
 
-		$timestamp = time();
-		$this->model()->update(
+		$model->update(
 			'xxt_member_authapi',
-			array('sync_from_qy_at' => $timestamp),
+			array('sync_from_qy_at' => time()),
 			"authid=$authid"
 		);
 

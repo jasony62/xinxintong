@@ -166,19 +166,19 @@
                                 <tr>
                                     <td><label>进入认证页面前提示</label></td>
                                     <td>
-                                        <textarea class='form-control' title='进入前说明' ng-model='a.entry_statement' placeholder='进入前说明' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'entry_statement')"></textarea>
+                                        <textarea class='form-control' ng-model='a.entry_statement' placeholder='进入前说明' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'entry_statement')"></textarea>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label>不在白名单中说明</label></td>
                                     <td>
-                                        <textarea class='form-control' title='不在白名单中说明' ng-model='a.acl_statement' placeholder='不在白名单中说明' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'acl_statement')"></textarea>
+                                        <textarea class='form-control' ng-model='a.acl_statement' placeholder='不在白名单中说明' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'acl_statement')"></textarea>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label>验证未通过说明</label></td>
                                     <td>
-                                        <textarea class='form-control' title='不在白名单中说明' ng-model='a.notpass_statement' placeholder='不在白名单中说明' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'notpass_statement')"></textarea>
+                                        <textarea class='form-control' ng-model='a.notpass_statement' placeholder='验证未通过说明' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'notpass_statement')"></textarea>
                                     </td>
                                 </tr>
                             </table>

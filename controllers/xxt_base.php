@@ -144,6 +144,7 @@ class xxt_base extends TMS_CONTROLLER {
 	 * 更新企业号用户信息
 	 */
 	protected function updateQyFan($mpid, $fid, $user, $authid, $timestamp = null, $mapDeptR2L = null) {
+		$model = $this->model();
 		empty($timestamp) && $timestamp = time();
 
 		$aMember = array();
@@ -180,7 +181,7 @@ class xxt_base extends TMS_CONTROLLER {
 					'xxt_member_department',
 					"mpid='$mpid' and extattr like '%\"id\":$ud,%'",
 				);
-				$fullpath = $this->model()->query_val_ss($q);
+				$fullpath = $model->query_val_ss($q);
 				$udepts[] = explode(',', $fullpath);
 			} else {
 				isset($mapDeptR2L[$ud]) && $udepts[] = explode(',', $mapDeptR2L[$ud]['path']);
@@ -189,7 +190,7 @@ class xxt_base extends TMS_CONTROLLER {
 		}
 
 		$aMember['depts'] = json_encode($udepts);
-		$this->model()->update(
+		$model->update(
 			'xxt_member',
 			$aMember,
 			"mpid='$mpid' and openid='$user->userid'"
@@ -209,7 +210,7 @@ class xxt_base extends TMS_CONTROLLER {
 				$fan['unsubscribe_at'] = $timestamp;
 			}
 
-			$this->model()->update(
+			$model->update(
 				'xxt_fans',
 				$fan,
 				"mpid='$mpid' and fid='$fid'"
@@ -222,7 +223,7 @@ class xxt_base extends TMS_CONTROLLER {
 			$fan['nickname'] = $user->name;
 			isset($user->avatar) && $fan['headimgurl'] = $user->avatar;
 			$user->status == 1 && $fan['subscribe_at'] = $timestamp;
-			$this->model()->insert('xxt_fans', $fan, false);
+			$model->insert('xxt_fans', $fan, false);
 		}
 
 		return true;

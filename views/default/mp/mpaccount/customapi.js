@@ -185,6 +185,8 @@ xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Autha
         }
     };
     $scope.import2QyRunning = false;
+    $scope.sync2QyRunning = false;
+    $scope.syncFromQyRunning = false;
     $scope.import2Qy = function(authapi) {
         var url = authapi.url + '/import2Qy';
         url += '?mpid=' + $scope.mpaccount.mpid;
@@ -218,18 +220,24 @@ xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Autha
         var url = authapi.url + '/sync2Qy';
         url += '?mpid=' + $scope.mpaccount.mpid;
         url += '&authid=' + authapi.authid;
+        $scope.sync2QyRunning = true;
         http2.get(url, function(rsp) {
             $scope.$root.infomsg = rsp.data;
+            $scope.sync2QyRunning = false;
         });
     };
     $scope.syncFromQy = function(authapi) {
-        $scope.taskRunning = true;
+        $scope.syncFromQyRunning = true;
         var url = authapi.url + '/syncFromQy';
         url += '?mpid=' + $scope.mpaccount.mpid;
         url += '&authid=' + authapi.authid;
         http2.get(url, function(rsp) {
-            $scope.$root.progmsg = "同步" + rsp.data[0] + "个部门，" + rsp.data[1] + "个用户，" + rsp.data[2] + "个标签";
-            $scope.taskRunning = false;
+            if (rsp.err_code == 0) {
+
+            } else {
+                $scope.$root.progmsg = "同步" + rsp.data[0] + "个部门，" + rsp.data[1] + "个用户，" + rsp.data[2] + "个标签";
+                $scope.syncFromQyRunning = false;
+            }
         });
     };
     $scope.addRelay = function() {

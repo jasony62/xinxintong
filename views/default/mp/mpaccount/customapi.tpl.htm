@@ -188,16 +188,16 @@
                         <button class='btn btn-primary' ng-disabled='import2QyRunning' ng-click='import2Qy(a)'>
                         <span><i class='fa fa-refresh' ng-class="{'fa-spin':import2QyRunning}"></i>&nbsp;全量导入到企业号</span>
                         </button>
-                        <button class='btn btn-primary' ng-disabled='taskRunning' ng-click='sync2Qy(a)'>
-                        <span><i class='fa fa-refresh' ng-class="{'fa-spin':taskRunning}"></i>&nbsp;增量同步到企业号</span>
+                        <button class='btn btn-primary' ng-disabled='sync2QyRunning' ng-click='sync2Qy(a)'>
+                        <span><i class='fa fa-refresh' ng-class="{'fa-spin':sync2QyRunning}"></i>&nbsp;增量同步到企业号</span>
                         </button>
-                        <span ng-show='a.sync_to_qy_at>0'>上次同步到企业号通讯录时间：{{a.sync_to_qy_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
+                        <span ng-show='a.sync_to_qy_at>0'>上次同步到企业号通讯录时间：{{a.sync_to_qy_at*1000|date:'yy-MM-dd HH:mm'}}</span>
                     </div>
                     <div class='alert alert-info' ng-show="canSyncFromQy(a)">
-                        <button class='btn btn-primary' ng-disabled='taskRunning' ng-click='syncFromQy(a)'>
-                        <span><i class='fa fa-refresh' ng-class="{'fa-spin':taskRunning}"></i>&nbsp;从企业号同步</span>
+                        <button class='btn btn-primary' ng-disabled='syncFromQyRunning' ng-click='syncFromQy(a)'>
+                        <span><i class='fa fa-refresh' ng-class="{'fa-spin':syncFromQyRunning}"></i>&nbsp;从企业号同步</span>
                         </button>
-                        <span ng-show='a.sync_from_qy_at>0'>上次从企业号通讯录同步时间：{{a.sync_from_qy_at*1000|date:'yyyy-MM-dd HH:mm'}}</span>
+                        <span ng-show='a.sync_from_qy_at>0'>上次从企业号通讯录同步时间：{{a.sync_from_qy_at*1000|date:'yy-MM-dd HH:mm'}}</span>
                     </div>
                 </div>
             </div>

@@ -13,9 +13,6 @@
         <div class='form-group' style='width:180px'>
             <tms-datepicker tms-title='结束日期' tms-date='endAt' tms-state='endAt'></tms-datepicker>
         </div>
-        <pagination ng-show='page.total>page.size' class='pull-right' style='cursor:pointer;margin:0;vertical-align:middle' boundary-links="true"
-            total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.current" class="pagination"
-        previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getData()"></pagination>
     </div>
     <div>
         <table class='table table-bordered'>
@@ -41,5 +38,9 @@
                 </tr>
             </tbody>
         </table>
+        <div class='form-group clearfix'>
+            <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+            <pagination ng-show='page.total>page.size' class='pull-right' style='cursor:pointer;margin:0;vertical-align:middle' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" class="pagination" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="fetch()"></pagination>
+        </div>
     </div>
 </div>

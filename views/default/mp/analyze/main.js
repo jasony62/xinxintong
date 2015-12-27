@@ -46,41 +46,53 @@ xxtApp.controller('analyzeCtrl', ['$scope', function($scope) {
 xxtApp.controller('mpCtrl', ['$scope', 'http2', function($scope, http2) {
     $scope.$parent.subView = 'mp';
     $scope.page = {
-        size: 30
+        at: 1,
+        size: 30,
+        total: 0,
+        param: function() {
+            return 'page=' + this.at + '&size=' + this.size;
+        }
     };
-    $scope.getData = function(page) {
-        if (page) $scope.page.current = page;
-        var url = '/rest/mp/analyze/mpActions';
+    $scope.fetch = function(page) {
+        var url;
+        page && ($scope.page.at = page);
+        url = '/rest/mp/analyze/mpActions';
         url += '?startAt=' + $scope.startAt;
         url += '&endAt=' + $scope.endAt;
+        url += '&' + $scope.page.param();
         http2.get(url, function(rsp) {
-            $scope.logs = rsp.data[0];
-            $scope.page.total = rsp.data[1];
+            $scope.logs = rsp.data.logs;
+            $scope.page.total = rsp.data.total;
         });
     };
     $scope.$on('xxt.tms-datepicker.change', function(event, data) {
         $scope[data.state] = data.value;
-        $scope.getData(1);
+        $scope.fetch(1);
     });
-    $scope.getData(1);
+    $scope.fetch(1);
 }]);
 xxtApp.controller('userCtrl', ['$scope', 'http2', function($scope, http2) {
     $scope.$parent.subView = 'user';
     $scope.page = {
-        size: 30
+        at: 1,
+        size: 30,
+        total: 0,
+        param: function() {
+            return 'page=' + this.at + '&size=' + this.size;
+        }
     };
     $scope.orderby = 'read';
-    $scope.getData = function(page) {
-        if (page) $scope.page.current = page;
-        var url = '/rest/mp/analyze/userActions';
+    $scope.fetch = function(page) {
+        var url;
+        page && ($scope.page.at = page);
+        url = '/rest/mp/analyze/userActions';
         url += '?orderby=' + $scope.orderby;
         url += '&startAt=' + $scope.startAt;
         url += '&endAt=' + $scope.endAt;
-        url += '&page=' + $scope.page.current;
-        url += '&size=' + $scope.page.size;
+        url += '&' + $scope.page.param();
         http2.get(url, function(rsp) {
-            $scope.users = rsp.data[0];
-            $scope.page.total = rsp.data[1];
+            $scope.users = rsp.data.users;
+            $scope.page.total = rsp.data.total;
         });
     };
     $scope.viewUser = function(openid) {
@@ -88,32 +100,37 @@ xxtApp.controller('userCtrl', ['$scope', 'http2', function($scope, http2) {
     };
     $scope.$on('xxt.tms-datepicker.change', function(event, data) {
         $scope[data.state] = data.value;
-        $scope.getData(1);
+        $scope.fetch(1);
     });
-    $scope.getData(1);
+    $scope.fetch(1);
 }]);
 xxtApp.controller('matterCtrl', ['$scope', 'http2', function($scope, http2) {
     $scope.$parent.subView = 'matter';
     $scope.page = {
-        size: 30
+        at: 1,
+        size: 30,
+        total: 0,
+        param: function() {
+            return 'page=' + this.at + '&size=' + this.size;
+        }
     };
     $scope.orderby = 'read';
-    $scope.getData = function(page) {
-        if (page) $scope.page.current = page;
-        var url = '/rest/mp/analyze/matterActions';
+    $scope.fetch = function(page) {
+        var url;
+        page && ($scope.page.at = page);
+        url = '/rest/mp/analyze/matterActions';
         url += '?orderby=' + $scope.orderby;
         url += '&startAt=' + $scope.startAt;
         url += '&endAt=' + $scope.endAt;
-        url += '&page=' + $scope.page.current;
-        url += '&size=' + $scope.page.size;
+        url += '&' + $scope.page.param();
         http2.get(url, function(rsp) {
-            $scope.matters = rsp.data[0];
-            $scope.page.total = rsp.data[1];
+            $scope.matters = rsp.data.matters;
+            $scope.page.total = rsp.data.total;
         });
     };
     $scope.$on('xxt.tms-datepicker.change', function(event, data) {
         $scope[data.state] = data.value;
-        $scope.getData(1);
+        $scope.fetch(1);
     });
-    $scope.getData(1);
+    $scope.fetch(1);
 }]);

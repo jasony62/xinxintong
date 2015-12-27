@@ -20,24 +20,25 @@ class analyze extends mp_controller {
 			"mpid='$this->mpid'",
 		);
 		$q2 = array(
-			'l' => array('o' => ($page - 1) * $size, 's' => $size),
+			'o' => 'year desc,month desc,day desc',
+			'r' => array('o' => ($page - 1) * $size, 'l' => $size),
 		);
-		$logs = $this->model()->query_objs_ss($q, $q2);
-		/**
-		 * 总数
-		 */
-		$q[0] = 'count(*)';
-		$cnt = $this->model()->query_val_ss($q);
+		if ($logs = $this->model()->query_objs_ss($q, $q2)) {
+			/**
+			 * 总数
+			 */
+			$q[0] = 'count(*)';
+			$cnt = $this->model()->query_val_ss($q);
+		} else {
+			$cnt = 0;
+		}
 
-		return new \ResponseData(array($logs, $cnt));
+		return new \ResponseData(array('logs' => $logs, 'total' => $cnt));
 	}
 	/**
 	 * 用户行为统计数据
 	 */
 	public function userActions_action($orderby, $startAt, $endAt, $page = 1, $size = 30) {
-		/**
-		 * 分页数据
-		 */
 		$q = array();
 		$s = 'l.openid,l.nickname';
 		$s .= ',sum(l.act_read) read_num';
@@ -53,18 +54,18 @@ class analyze extends mp_controller {
 			'o' => $orderby . '_num',
 			'r' => array('o' => ($page - 1) * $size, 'l' => $size),
 		);
-		$stat = $this->model()->query_objs_ss($q, $q2);
-		/**
-		 * 总数
-		 */
-		$q = array(
-			'count(distinct openid)',
-			'xxt_log_user_action',
-			"mpid='$this->mpid' and action_at>=$startAt and action_at<=$endAt",
-		);
-		$cnt = $this->model()->query_val_ss($q);
+		if ($stat = $this->model()->query_objs_ss($q, $q2)) {
+			$q = array(
+				'count(distinct openid)',
+				'xxt_log_user_action',
+				"mpid='$this->mpid' and action_at>=$startAt and action_at<=$endAt",
+			);
+			$cnt = $this->model()->query_val_ss($q);
+		} else {
+			$cnt = 0;
+		}
 
-		return new \ResponseData(array($stat, $cnt));
+		return new \ResponseData(array('users' => $stat, 'total' => $cnt));
 	}
 	/**
 	 * 素材行为统计数据
@@ -84,18 +85,18 @@ class analyze extends mp_controller {
 			'o' => $orderby . '_num desc',
 			'r' => array('o' => ($page - 1) * $size, 'l' => $size),
 		);
-		$stat = $this->model()->query_objs_ss($q, $q2);
-		/**
-		 * 总数
-		 */
-		$q = array(
-			'count(distinct matter_type,matter_id)',
-			'xxt_log_matter_action',
-			"mpid='$this->mpid' and action_at>=$startAt and action_at<=$endAt",
-		);
-		$cnt = $this->model()->query_val_ss($q);
+		if ($stat = $this->model()->query_objs_ss($q, $q2)) {
+			$q = array(
+				'count(distinct matter_type,matter_id)',
+				'xxt_log_matter_action',
+				"mpid='$this->mpid' and action_at>=$startAt and action_at<=$endAt",
+			);
+			$cnt = $this->model()->query_val_ss($q);
+		} else {
+			$cnt = 0;
+		}
 
-		return new \ResponseData(array($stat, $cnt));
+		return new \ResponseData(array('matters' => $stat, 'total' => $cnt));
 	}
 	/**
 	 * 群发消息事件统计

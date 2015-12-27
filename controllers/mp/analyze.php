@@ -51,7 +51,7 @@ class analyze extends mp_controller {
 		$q[] = $w;
 		$q2 = array(
 			'g' => 'openid',
-			'o' => $orderby . '_num',
+			'o' => $orderby . '_num desc',
 			'r' => array('o' => ($page - 1) * $size, 'l' => $size),
 		);
 		if ($stat = $this->model()->query_objs_ss($q, $q2)) {

@@ -459,7 +459,6 @@ class auth extends \member_base {
 			return new \ResponseError('未与企业号连接，无法同步通讯录');
 		}
 		$timestamp = time(); // 进行同步操作的时间戳
-		$interval = 600;
 		$qyproxy = $this->model('mpproxy/qy', $mpid);
 		$model = $this->model();
 		$modelDept = $this->model('user/department');
@@ -491,18 +490,17 @@ class auth extends \member_base {
 			);
 			if (!($ldept = $model->query_obj_ss($q))) {
 				$ldept = $modelDept->create($mpid, $authid, $pid, null);
-			} else if ($ldept->sync_at < $timestamp - $interval) {
-				$model->update(
-					'xxt_member_department',
-					array(
-						'pid' => $pid,
-						'sync_at' => $timestamp,
-						'name' => $rdeptName,
-						'extattr' => json_encode($rdept),
-					),
-					"mpid='$mpid' and id=$ldept->id"
-				);
 			}
+			$model->update(
+				'xxt_member_department',
+				array(
+					'pid' => $pid,
+					'sync_at' => $timestamp,
+					'name' => $rdeptName,
+					'extattr' => json_encode($rdept),
+				),
+				"mpid='$mpid' and id=$ldept->id"
+			);
 			$mapDeptR2L[$rdept->id] = array('id' => $ldept->id, 'path' => $ldept->fullpath);
 		}
 		/**
@@ -510,7 +508,7 @@ class auth extends \member_base {
 		 */
 		$this->model()->delete(
 			'xxt_member_department',
-			"mpid='$mpid' and sync_at<" . ($timestamp - $interval)
+			"mpid='$mpid' and sync_at<" . $timestamp
 		);
 		/**
 		 * 同步部门下的用户
@@ -529,7 +527,7 @@ class auth extends \member_base {
 				);
 				if (!($luser = $model->query_obj_ss($q))) {
 					$this->createQyFan($mpid, $user, $authid, $timestamp, $mapDeptR2L);
-				} else if ($luser->sync_at < $timestamp - $interval) {
+				} else if ($luser->sync_at < $timestamp) {
 					$this->updateQyFan($mpid, $luser->fid, $user, $authid, $timestamp, $mapDeptR2L);
 				}
 			}
@@ -539,14 +537,14 @@ class auth extends \member_base {
 		 */
 		$model->delete(
 			'xxt_fans',
-			"mpid='$mpid' and fid in (select fid from xxt_member where mpid='$mpid' and sync_at<" . ($timestamp - $interval) . ")"
+			"mpid='$mpid' and fid in (select fid from xxt_member where mpid='$mpid' and sync_at<" . $timestamp . ")"
 		);
 		/**
 		 * 清空没有同步的成员数据
 		 */
 		$model->delete(
 			'xxt_member',
-			"mpid='$mpid' and sync_at<" . ($timestamp - $interval)
+			"mpid='$mpid' and sync_at<" . $timestamp
 		);
 		/**
 		 * 同步标签
@@ -615,7 +613,7 @@ class auth extends \member_base {
 		 */
 		$model->delete(
 			'xxt_member_tag',
-			"mpid='$mpid' and sync_at<" . ($timestamp - $interval)
+			"mpid='$mpid' and sync_at<" . $timestamp
 		);
 
 		$model->update(

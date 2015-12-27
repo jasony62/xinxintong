@@ -1,0 +1,18 @@
+<div ng-controller='ctrlSyslog'>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>日期</th>
+                <th>操作</th>
+                <th>数据</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="l in logs">
+                <td ng-bind="l.create_at*1000|date:'yy-MM-dd HH:mm'"></td>
+                <td ng-bind="l.method"></td>
+                <td ng-bind="l.data"></td>
+            </tr>
+        </tbody>
+    </table>
+</div>

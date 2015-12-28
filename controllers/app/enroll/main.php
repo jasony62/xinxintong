@@ -67,7 +67,7 @@ class main extends base {
 		/*提示用户在PC端完成操作*/
 		if ($this->getClientSrc() && isset($app->shift2pc) && $app->shift2pc === 'Y') {
 			if (isset($user->fan)) {
-				$fea = $this->model('mp\mpaccount')->getSetting($mpid, 'shift2pc_page_id');
+				$fea = $this->model('mp\mpaccount')->getFeature($mpid, 'shift2pc_page_id');
 				$pageOfShift2Pc = $this->model('code/page')->byId($fea->shift2pc_page_id, 'html,css,js');
 				/*任务码*/
 				if ($app->can_taskcode && $app->can_taskcode === 'Y') {

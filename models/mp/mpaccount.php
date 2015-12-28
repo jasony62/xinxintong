@@ -120,7 +120,7 @@ class mpaccount_model extends \TMS_MODEL {
 	/**
 	 * 获得公众号设置信息
 	 */
-	public function &getSetting($mpid, $fields = '*') {
+	public function &getFeature($mpid, $fields = '*') {
 		$q = array(
 			$fields,
 			'xxt_mpsetting',

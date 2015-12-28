@@ -153,26 +153,12 @@ class mpaccount extends mp_controller {
 	/**
 	 *
 	 */
-	public function feature_action($fields = '*') {
-		$modelMpa = $this->model('mp\mpaccount');
-
-		$features = $modelMpa->getSetting($this->mpid, $fields);
-
-		if ($_SERVER['HTTP_ACCEPT'] === 'application/json') {
-			return new \ResponseData($features);
+	public function feature_action() {
+		$perms = $this->getUserPermissions();
+		if ($perms === true || $perms['mpsetting_feature']['update_p'] === 'Y') {
+			$this->view_action('/mp/mpaccount/feature');
 		} else {
-			$perms = $this->getUserPermissions();
-			$params = array(
-				'features' => $features,
-			);
-
-			\TPL::assign('params', $params);
-			if ($perms === true || $perms['mpsetting_feature']['update_p'] === 'Y') {
-				$this->view_action('/mp/mpaccount/feature');
-			} else {
-				$this->view_action('/mp/mpaccount/read/feature');
-			}
-
+			$this->view_action('/mp/mpaccount/read/feature');
 		}
 	}
 	/**
@@ -186,7 +172,6 @@ class mpaccount extends mp_controller {
 		} else {
 			$this->view_action('/mp/mpaccount/read/customapi');
 		}
-
 	}
 	/**
 	 *
@@ -199,7 +184,6 @@ class mpaccount extends mp_controller {
 		} else {
 			$this->view_action('/mp/mpaccount/read/permission');
 		}
-
 	}
 	/**
 	 *
@@ -232,7 +216,6 @@ class mpaccount extends mp_controller {
 		} else {
 			$this->view_action('/mp/mpaccount/read/administrator');
 		}
-
 	}
 	/**
 	 * 更新账号配置信息
@@ -299,42 +282,6 @@ class mpaccount extends mp_controller {
 		return new \ResponseData($rst);
 	}
 	/**
-	 *
-	 */
-	public function updateFeature_action() {
-		$nv = $this->getPostJson();
-
-		if (isset($nv->admin_email_pwd)) {
-			/**
-			 * 邮箱口令要加密处理
-			 */
-			$pwd = $this->model()->encrypt($nv->admin_email_pwd, 'ENCODE', $this->mpid);
-			$rst = $this->model()->update(
-				'xxt_mpsetting',
-				array('admin_email_pwd' => $pwd),
-				"mpid='$this->mpid'"
-			);
-		} else {
-			if (isset($nv->body_ele)) {
-				$nv->body_ele = $this->model()->escape($nv->body_ele);
-			} else if (isset($nv->body_css)) {
-				$nv->body_css = $this->model()->escape($nv->body_css);
-			} else if (isset($nv->follow_ele)) {
-				$nv->follow_ele = $this->model()->escape($nv->follow_ele);
-			} else if (isset($nv->follow_css)) {
-				$nv->follow_css = $this->model()->escape($nv->follow_css);
-			}
-
-			$rst = $this->model()->update(
-				'xxt_mpsetting',
-				(array) $nv,
-				"mpid='$this->mpid'"
-			);
-		}
-
-		return new \ResponseData($rst);
-	}
-	/**
 	 * 设置的系统管理员
 	 */
 	public function admins_action() {
@@ -370,7 +317,6 @@ class mpaccount extends mp_controller {
 				$account = $model->authed_from($authedid, $authapp, '0.0.0.0', $authedid);
 			}
 		}
-
 		/**
 		 * exist?
 		 */

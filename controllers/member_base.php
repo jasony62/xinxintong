@@ -533,7 +533,7 @@ class member_base extends xxt_base {
 		}
 		if (!$isfollow) {
 			$modelMpa = $this->model('mp\mpaccount');
-			$fea = $modelMpa->getSetting($runningMpid);
+			$fea = $modelMpa->getFeature($runningMpid);
 			if ($fea->follow_page_id === '0') {
 				$mpa = $this->model('mp\mpaccount')->byId($runningMpid);
 				$html = '请关注公众号：' . $mpa->title;

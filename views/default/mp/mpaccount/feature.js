@@ -1,8 +1,10 @@
-xxtApp.controller('feaCtrl', ['$scope', 'http2', function($scope, http2) {
-    $scope.update = function(name) {
+xxtApp.controller('ctrlFeature', ['$scope', 'http2', function($scope, http2) {
+    $scope.update = function(name, callback) {
         var p = {};
         p[name] = $scope.features[name];
-        http2.post('/rest/mp/mpaccount/updateFeature', p);
+        http2.post('/rest/mp/feature/update', p, function() {
+            callback && callback();
+        });
     };
     $scope.setPic = function() {
         var options = {
@@ -22,22 +24,32 @@ xxtApp.controller('feaCtrl', ['$scope', 'http2', function($scope, http2) {
         event.stopPropagation();
         var pageid = $scope.features[prop];
         if (pageid === '0') {
-            http2.get('/rest/code/create', function(rsp) {
-                $scope.features[prop] = rsp.data.id;
-                $scope.update(prop);
-                window.open('/rest/code?pid=' + rsp.data.id);
+            http2.get('/rest/mp/feature/pageCreate', function(rsp) {
+                $scope.features[prop] = new String(rsp.data);
+                location.href = '/rest/code?pid=' + rsp.data;
             })
         } else {
-            window.open('/rest/code?pid=' + pageid);
+            location.href = '/rest/code?pid=' + pageid;
         }
     };
-    http2.get('/rest/mp/mpaccount/get', function(rsp) {
-        $scope.mpaccount = rsp.data;
-    });
-    $scope.$watch('jsonParams', function(nv) {
-        if (nv && nv.length) {
-            var params = JSON.parse(decodeURIComponent(nv.replace(/\+/g, '%20')));
-            $scope.features = params.features;
+    $scope.resetPage = function(event, prop) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (window.confirm('重置操作将覆盖已经做出的修改，确定重置？')) {
+            var pageid = $scope.features[prop];
+            if (pageid === '0') {
+                http2.get('/rest/mp/feature/pageCreate', function(rsp) {
+                    $scope.features[prop] = new String(rsp.data.id);
+                    location.href = '/rest/code?pid=' + rsp.data.id;
+                })
+            } else {
+                http2.get('/rest/mp/feature/pageReset?codeId=' + pageid, function(rsp) {
+                    location.href = '/rest/code?pid=' + pageid;
+                })
+            }
         }
+    };
+    http2.get('/rest/mp/feature/get', function(rsp) {
+        $scope.features = rsp.data;
     });
 }]);

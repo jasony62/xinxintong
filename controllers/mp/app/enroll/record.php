@@ -25,7 +25,7 @@ class record extends \mp\app\app_base {
 			return new \ResponseError('目前仅支持向易信用户发送通知消息！');
 		}
 
-		$setting = $modelMpa->getSetting($this->mpid, 'yx_p2p');
+		$setting = $modelMpa->getFeature($this->mpid, 'yx_p2p');
 		if ($setting->yx_p2p !== 'Y') {
 			return new \ResponseError('目前仅支持向开通了点对点消息接口的公众号发送消息！');
 		}

@@ -22,7 +22,7 @@ class send extends mp_controller {
 		 * 检查是否开通了群发接口
 		 */
 		if ($mpa->mpsrc === 'wx' || $mpa->mpsrc === 'yx') {
-			$setting = $this->model('mp\mpaccount')->getSetting($this->mpid, $mpa->mpsrc . '_custom_push');
+			$setting = $this->model('mp\mpaccount')->getFeature($this->mpid, $mpa->mpsrc . '_custom_push');
 			if ($setting->{$mpa->mpsrc . '_custom_push'} === 'N') {
 				return new \ResponseError('未开通群发高级接口，请检查！');
 			}

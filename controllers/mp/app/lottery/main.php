@@ -93,7 +93,7 @@ class main extends \mp\app\app_base {
 	 */
 	public function create_action() {
 		$uid = \TMS_CLIENT::get_client_uid();
-		$mpa = $this->model('mp\mpaccount')->getSetting($this->mpid, 'heading_pic');
+		$mpa = $this->model('mp\mpaccount')->getFeature($this->mpid, 'heading_pic');
 
 		$lid = uniqid();
 		$current = time();

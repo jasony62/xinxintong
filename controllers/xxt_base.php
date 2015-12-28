@@ -484,7 +484,7 @@ class xxt_base extends TMS_CONTROLLER {
 	 * $to 收件人的邮箱
 	 */
 	protected function send_email($mpid, $subject, $content, $to) {
-		$features = $this->model('mp\mpaccount')->getSetting($mpid);
+		$features = $this->model('mp\mpaccount')->getFeature($mpid);
 		if (!empty($features->admin_email) && !empty($features->admin_email_pwd) && !empty($features->admin_email_smtp)) {
 			$smtp = $features->admin_email_smtp;
 			$port = $features->admin_email_port;

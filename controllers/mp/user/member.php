@@ -17,7 +17,7 @@ class member extends \mp\mp_controller {
 	 * 设置页面参数
 	 */
 	public function view_action($path) {
-		$features = $this->model('mp\mpaccount')->getSetting($this->mpid);
+		$features = $this->model('mp\mpaccount')->getFeature($this->mpid);
 		\TPL::assign('can_member_card', $features->can_member_card);
 		\TPL::assign('can_member_checkin', $features->can_member_checkin);
 		parent::view_action($path);
@@ -83,7 +83,7 @@ class member extends \mp\mp_controller {
 				/**
 				 * 注册用户的其他属性，例如：会员卡号，会员积分
 				 */
-				//$features = $this->model('mp\mpaccount')->getSetting($this->mpid);
+				//$features = $this->model('mp\mpaccount')->getFeature($this->mpid);
 				//$setting->can_member_card = $features->can_member_card;
 				//$setting->can_member_credits = $features->can_member_credits;
 				/**

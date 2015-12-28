@@ -438,7 +438,7 @@ class main extends \member_base {
 			$this->model('reply\text', $call, $data[2], false);
 			$tr->exec();
 		} else {
-			$this->model('reply\text', '未开通语音识别接口', false);
+			$this->model('reply\text', $call, '未开通语音识别接口', false);
 			$tr->exec();
 		}
 	}
@@ -521,7 +521,7 @@ class main extends \member_base {
 				$r = $this->model('reply\\' . $reply->matter_type, $call, $reply->matter_id);
 				$r->exec();
 			} else {
-				$setting = $this->model('mp\mpaccount')->getSetting($mpid, 'yx_custom_push');
+				$setting = $this->model('mp\mpaccount')->getFeature($mpid, 'yx_custom_push');
 				if ($setting->yx_custom_push === 'N') {
 					return;
 				}

@@ -57,7 +57,7 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', function($scope, $mo
         http2.get('/rest/mp/matter/tag?resType=article', function(rsp) {
             $scope.tags = rsp.data;
         });
-        http2.get('/rest/mp/mpaccount/feature?fields=matter_visible_to_creater', function(rsp) {
+        http2.get('/rest/mp/feature/get?fields=matter_visible_to_creater', function(rsp) {
             $scope.features = rsp.data;
         });
     };

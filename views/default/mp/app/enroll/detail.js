@@ -142,7 +142,7 @@ xxtApp.controller('enrollCtrl', ['$scope', '$location', 'http2', function($scope
         $scope.mpaccount = rsp.data;
         $scope.hasParent = $scope.mpaccount.parent_mpid && $scope.mpaccount.parent_mpid.length;
     });
-    http2.get('/rest/mp/mpaccount/feature?fields=matter_visible_to_creater', function(rsp) {
+    http2.get('/rest/mp/feature/get?fields=matter_visible_to_creater', function(rsp) {
         $scope.features = rsp.data;
     });
 }]);

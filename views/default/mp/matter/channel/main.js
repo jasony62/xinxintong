@@ -102,7 +102,7 @@ xxtApp.controller('editCtrl', ['$scope', 'http2', function ($scope, http2) {
             arrangeMatters();
         });
     };
-    http2.get('/rest/mp/mpaccount/feature?fields=matter_visible_to_creater', function (rsp) {
+    http2.get('/rest/mp/feature/get?fields=matter_visible_to_creater', function (rsp) {
         $scope.features = rsp.data;
     });
     $scope.$parent.$watch('editing', function (nv) {

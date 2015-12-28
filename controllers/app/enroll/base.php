@@ -27,7 +27,7 @@ class base extends \member_base {
 			/**
 			 * 非易信、微信公众号打开，无法获得openid
 			 */
-			if (!empty($act->authapis)) {
+			if ($act->access_control === 'Y' && !empty($act->authapis)) {
 				/**
 				 * 如果活动限认证用户访问
 				 */

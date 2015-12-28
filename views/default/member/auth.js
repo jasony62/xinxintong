@@ -125,9 +125,9 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
             location.href = LS.j('passed', 'mpid', 'authid') + '&mid=' + rsp.data;
         });
     };
-    if (/MicroMessenger/.test(navigator.userAgent)) {
+    if (/MicroMessenger/i.test(navigator.userAgent)) {
         $scope.clientSrc = 'wx';
-    } else if (/YiXin/.test(navigator.userAgent)) {
+    } else if (/YiXin/i.test(navigator.userAgent)) {
         $scope.clientSrc = 'yx';
     }
     $scope.posting = false;
@@ -156,9 +156,9 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
     $scope.$watch('callback', function(nv) {
         nv && nv.length && ($scope.callback = decodeURIComponent(nv));
     });
-    $scope.$watch('jsonAuthedMember', function(nv) {
-        nv && nv.length && ($scope.authedMember = JSON.parse(decodeURIComponent(nv)));
-    });
+    //$scope.$watch('jsonAuthedMember', function(nv) {
+    //    nv && nv.length && ($scope.authedMember = JSON.parse(decodeURIComponent(nv)));
+    //});
     $http.get(LS.j('pageGet', 'mpid', 'authid')).success(function(rsp) {
         if (rsp.err_code !== 0) {
             $scope.errmsg = rsp.err_msg;
@@ -171,7 +171,9 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
         angular.forEach(params.attrs, function(attr, name) {
             if (attr[5] === '1' || name === 'password' || ($scope.clientSrc && attr[0] === '0')) {
                 $scope.attrs[name] = true;
-            } else if (name !== 'extattrs') {
+            } else if (name === 'extattrs') {
+                $scope.attrs['extattrs'] = attr;
+            } else {
                 $scope.attrs[name] = false;
             }
         });

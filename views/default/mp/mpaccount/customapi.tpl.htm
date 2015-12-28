@@ -111,8 +111,8 @@
                         </div>
                         <div class='form-group' ng-show="a.valid==='Y'">
                             <button class='btn btn-success' ng-click='addExtattr(a)'>增加信息项</button>
-                            <button class='btn btn-default' ng-if="a.type==='inner'" ng-click='gotoCode(ia)'>定制认证页面</button>
-                            <button class='btn btn-default' ng-if="a.type==='inner'" ng-click='resetCode(ia)'>重置认证页面</button>
+                            <button class='btn btn-default' ng-if="a.type==='inner'" ng-click='gotoCode(a)'>定制认证页面</button>
+                            <button class='btn btn-default' ng-if="a.type==='inner'" ng-click='resetCode(a)'>重置认证页面</button>
                         </div>
                     </div>
                     <div ng-show="a.valid==='Y'">

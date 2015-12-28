@@ -23,12 +23,13 @@ class syslog extends mp_controller {
 			"mpid='$this->mpid'",
 		);
 		$q2 = array(
+			'o' => 'create_at desc',
 			'r' => array(
 				'o' => ($page - 1) * $size,
 				'l' => $size,
 			),
 		);
-		if ($logs = $model->query_objs_ss($q)) {
+		if ($logs = $model->query_objs_ss($q, $q2)) {
 			$q[0] = 'count(*)';
 			$total = $model->query_val_ss($q);
 		} else {

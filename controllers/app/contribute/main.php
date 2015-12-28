@@ -170,7 +170,7 @@ class main extends \member_base {
 			/**
 			 * 提示在PC端完成
 			 */
-			$fea = $this->model('mp\mpaccount')->getFeatures($mpid, 'shift2pc_page_id');
+			$fea = $this->model('mp\mpaccount')->getSetting($mpid, 'shift2pc_page_id');
 			$page = $this->model('code/page')->byId($fea->shift2pc_page_id, 'html,css,js');
 			/**
 			 * 任务码

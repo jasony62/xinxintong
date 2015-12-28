@@ -53,12 +53,6 @@ class page_article extends matter_page_base {
 		\TPL::assign('yx_cardid', empty($yx_cardid) ? false : $yx_cardid);
 		\TPL::assign('yx_cardname', empty($yx_cardname) ? false : $yx_cardname);
 		/**
-		 * 页面背景设置
-		 */
-		$mpsetting = $ctrl->getMpSetting($runningMpid);
-		\TPL::assign('body_ele', $mpsetting->body_ele);
-		\TPL::assign('body_css', $mpsetting->body_css);
-		/**
 		 * 补充数据
 		 */
 		$model = \TMS_APP::model('matter\article');

@@ -149,7 +149,7 @@ class article extends matter_ctrl {
 			 * 限作者和管理员
 			 */
 			if (!$this->model('mp\permission')->isAdmin($mpid, $uid, true)) {
-				$fea = $this->model('mp\mpaccount')->getFeatures($mpid, 'matter_visible_to_creater');
+				$fea = $this->model('mp\mpaccount')->getSetting($mpid, 'matter_visible_to_creater');
 				if ($fea->matter_visible_to_creater === 'Y') {
 					$w .= " and (a.creater='$uid' or a.public_visible='Y')";
 				}

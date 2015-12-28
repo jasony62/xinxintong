@@ -213,7 +213,7 @@ class initiate extends base {
 	 * $entry
 	 */
 	public function articleCreate_action($mpid, $entry) {
-		$mpa = $this->model('mp\mpaccount')->getFeatures($mpid, 'heading_pic');
+		$mpa = $this->model('mp\mpaccount')->getSetting($mpid, 'heading_pic');
 
 		$current = time();
 

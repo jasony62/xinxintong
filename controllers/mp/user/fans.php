@@ -38,7 +38,7 @@ class fans extends \mp\mp_controller {
 				/**
 				 * 注册用户的其他属性，例如：会员卡号，会员积分
 				 */
-				//$features = $this->model('mp\mpaccount')->getFeatures($this->mpid);
+				//$features = $this->model('mp\mpaccount')->getSetting($this->mpid);
 				//$setting->can_member_card = $features->can_member_card;
 				//$setting->can_member_credits = $features->can_member_credits;
 			}

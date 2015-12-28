@@ -98,7 +98,7 @@ class matter extends \member_base {
 					/**
 					 * 不是关注用户引导用户进行关注
 					 */
-					$fea = $this->model('mp\mpaccount')->getFeatures($mpid);
+					$fea = $this->model('mp\mpaccount')->getSetting($mpid);
 					\TPL::assign('follow_ele', $fea->follow_ele);
 					\TPL::assign('follow_css', $fea->follow_css);
 					\TPL::output('follow');

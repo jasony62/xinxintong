@@ -474,7 +474,6 @@ class member_base extends xxt_base {
 			$this->mySetcookie("_{$mpid}_oauth", '', time() - 86400);
 			return true;
 		}
-
 		if (empty($nickname)) {
 			if ($fan = $this->model('user/fans')->byOpenid($mpid, $openid, 'nickname', 'Y')) {
 				$fan->openid = $openid;
@@ -532,23 +531,25 @@ class member_base extends xxt_base {
 		if ($openid !== false) {
 			$isfollow = $this->model('user/fans')->isFollow($runningMpid, $openid);
 		}
-
 		if (!$isfollow) {
-			$fea = $this->model('mp\mpaccount')->getFeatures($runningMpid);
-
-			$mp = $this->model('mp\mpaccount')->byId($runningMpid, 'parent_mpid');
-			if (!empty($mp->parent_mpid)) {
-				$pfea = $this->model('mp\mpaccount')->getFeatures($mp->parent_mpid);
-				empty($fea->follow_ele) && !empty($pfea->follow_ele) && $fea->follow_ele = $pfea->follow_ele;
-				empty($fea->follow_css) && !empty($pfea->follow_css) && $fea->follow_css = $pfea->follow_css;
+			$modelMpa = $this->model('mp\mpaccount');
+			$fea = $modelMpa->getSetting($runningMpid);
+			if ($fea->follow_page_id === '0') {
+				$mpa = $this->model('mp\mpaccount')->byId($runningMpid);
+				$html = '请关注公众号：' . $mpa->title;
+			} else {
+				$page = $this->model('code/page')->byId($fea->follow_page_id);
+				$html = $page->html;
+				$css = $page->css;
+				$js = $page->js;
 			}
 			$protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
 			header($protocol . ' 401 Unauthorized');
 			header('Cache-Control:no-cache,must-revalidate,no-store');
 			header('Pragma:no-cache');
 			header("Expires:-1");
-			TPL::assign('follow_ele', $fea->follow_ele);
-			TPL::assign('follow_css', $fea->follow_css);
+			TPL::assign('follow_ele', $html);
+			TPL::assign('follow_css', empty($css) ? '' : $css);
 			TPL::output('follow');
 			exit;
 		}

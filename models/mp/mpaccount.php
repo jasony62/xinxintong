@@ -22,7 +22,7 @@ class mpaccount_model extends \TMS_MODEL {
 		 */
 		$setting = array(
 			'mpid' => $mpid,
-			'follow_ele' => '请关注公众号！',
+			//'follow_ele' => '请关注公众号！',
 		);
 		$this->insert('xxt_mpsetting', $setting, false);
 
@@ -118,7 +118,7 @@ class mpaccount_model extends \TMS_MODEL {
 		return $contact;
 	}
 	/**
-	 *
+	 * 获得公众号设置信息
 	 */
 	public function &getSetting($mpid, $fields = '*') {
 		$q = array(
@@ -148,20 +148,6 @@ class mpaccount_model extends \TMS_MODEL {
 			$names,
 			'xxt_mpaccount a,xxt_mpsetting s',
 			"s.mpid='$mpid' and a.mpid=s.mpid",
-		);
-
-		$mpsetting = $this->query_obj_ss($q);
-
-		return $mpsetting;
-	}
-	/**
-	 *
-	 */
-	public function &getFeatures($mpid, $fields = '*') {
-		$q = array(
-			$fields,
-			'xxt_mpsetting s',
-			"s.mpid='$mpid'",
 		);
 
 		$mpsetting = $this->query_obj_ss($q);

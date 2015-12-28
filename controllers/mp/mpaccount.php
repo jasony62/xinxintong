@@ -156,7 +156,7 @@ class mpaccount extends mp_controller {
 	public function feature_action($fields = '*') {
 		$modelMpa = $this->model('mp\mpaccount');
 
-		$features = $modelMpa->getFeatures($this->mpid, $fields);
+		$features = $modelMpa->getSetting($this->mpid, $fields);
 
 		if ($_SERVER['HTTP_ACCEPT'] === 'application/json') {
 			return new \ResponseData($features);

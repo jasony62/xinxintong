@@ -159,7 +159,6 @@ class xxt_base extends TMS_CONTROLLER {
 			foreach ($user->extattr->attrs as $ea) {
 				$extattr[urlencode($ea->name)] = urlencode($ea->value);
 			}
-
 		}
 		$aMember['tags'] = ''; // 先将成员的标签清空，标签同步的阶段会重新更新
 		/**
@@ -168,7 +167,6 @@ class xxt_base extends TMS_CONTROLLER {
 		if (!empty($user->position)) {
 			$extattr['position'] = urlencode($user->position);
 		}
-
 		$aMember['extattr'] = urldecode(json_encode($extattr));
 		/**
 		 * 建立成员和部门之间的关系
@@ -186,9 +184,7 @@ class xxt_base extends TMS_CONTROLLER {
 			} else {
 				isset($mapDeptR2L[$ud]) && $udepts[] = explode(',', $mapDeptR2L[$ud]['path']);
 			}
-
 		}
-
 		$aMember['depts'] = json_encode($udepts);
 		$model->update(
 			'xxt_member',
@@ -209,7 +205,6 @@ class xxt_base extends TMS_CONTROLLER {
 			} else if ($user->status == 4 && $old->unsubscribe_at == 0) {
 				$fan['unsubscribe_at'] = $timestamp;
 			}
-
 			$model->update(
 				'xxt_fans',
 				$fan,
@@ -489,7 +484,7 @@ class xxt_base extends TMS_CONTROLLER {
 	 * $to 收件人的邮箱
 	 */
 	protected function send_email($mpid, $subject, $content, $to) {
-		$features = $this->model('mp\mpaccount')->getFeatures($mpid);
+		$features = $this->model('mp\mpaccount')->getSetting($mpid);
 		if (!empty($features->admin_email) && !empty($features->admin_email_pwd) && !empty($features->admin_email_smtp)) {
 			$smtp = $features->admin_email_smtp;
 			$port = $features->admin_email_port;
@@ -556,9 +551,8 @@ class xxt_base extends TMS_CONTROLLER {
 	 * $runningMpid 当前正在运行的公众号
 	 */
 	public function getMpSetting($runningMpid) {
-
 		$q = array(
-			'body_ele,body_css,can_article_remark,header_page_id,footer_page_id',
+			'can_article_remark,header_page_id,footer_page_id',
 			'xxt_mpsetting',
 			"mpid='$runningMpid'",
 		);
@@ -567,16 +561,13 @@ class xxt_base extends TMS_CONTROLLER {
 		$mp = $this->model('mp\mpaccount')->byId($runningMpid, 'parent_mpid');
 		if (!empty($mp->parent_mpid)) {
 			$q = array(
-				'body_ele,body_css,can_article_remark,header_page_id,footer_page_id',
+				'can_article_remark,header_page_id,footer_page_id',
 				'xxt_mpsetting',
 				"mpid='$mp->parent_mpid'",
 			);
 			$psetting = $this->model()->query_obj_ss($q);
-
 			$setting->header_page_id === '0' && $psetting->header_page_id !== '0' && $setting->header_page_id = $psetting->header_page_id;
 			$setting->footer_page_id === '0' && $psetting->footer_page_id !== '0' && $setting->footer_page_id = $psetting->footer_page_id;
-			empty($setting->body_ele) && !empty($psetting->body_ele) && $setting->body_ele = $psetting->body_ele;
-			empty($setting->body_css) && !empty($psetting->body_css) && $setting->body_css = $psetting->body_css;
 			$setting->can_article_remark === 'N' && $psetting->can_article_remark === 'Y' && $setting->can_article_remark = 'Y';
 		}
 

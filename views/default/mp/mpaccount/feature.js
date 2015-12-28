@@ -1,4 +1,4 @@
-xxtApp.controller('ctrlFeature', ['$scope', 'http2', function($scope, http2) {
+xxtApp.controller('ctrlFeature', ['$scope', 'http2', '$modal', function($scope, http2, $modal) {
     $scope.update = function(name, callback) {
         var p = {};
         p[name] = $scope.features[name];
@@ -48,6 +48,21 @@ xxtApp.controller('ctrlFeature', ['$scope', 'http2', function($scope, http2) {
                 })
             }
         }
+    };
+    $scope.previewFollow = function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        $modal.open({
+            templateUrl: 'preview.html',
+            controller: ['$scope', '$modalInstance', function($scope2, $mi) {
+                $scope2.page = {
+                    src: '/rest/mp/feature/askFollow?mpid=' + $scope.features.mpid
+                };
+                $scope2.close = function() {
+                    $mi.dismiss();
+                };
+            }]
+        });
     };
     http2.get('/rest/mp/feature/get', function(rsp) {
         $scope.features = rsp.data;

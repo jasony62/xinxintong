@@ -52,6 +52,7 @@
                     <td>
                         <a href='javascript:void(0)' ng-click="editPage($event,'follow_page_id')">编辑页面</a>
                         <a href='javascript:void(0)' ng-click="resetPage($event,'follow_page_id')" ng-show="features.follow_page_id!=='0'">重置页面</a>
+                        <a href='javascript:void(0)' ng-click="previewFollow($event)" ng-show="features.follow_page_id!=='0'">预览</a>
                     </td>
                 </tr>
                 <tr>
@@ -158,5 +159,17 @@
             </div>
         </div>
     </div>
-    <mediagallery box-id="{{features.mpid}}" />
+    <script type="text/ng-template" id="preview.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="close()">×</button>
+            <h5 class="modal-title">预览</h5>
+        </div>
+        <div class="modal-body" style="text-align:center">
+            <iframe ng-src="{{page.src}}" style="border:1px solid #ccc;width:375px;height:667px"></iframe>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" ng-click="close()">关闭</button>
+        </div>
+    </script>
+    <mediagallery box-id="{{features.mpid}}"></mediagallery>
 </div>

@@ -519,50 +519,6 @@ class member_base extends xxt_base {
 		return $fan;
 	}
 	/**
-	 *
-	 * 要求关注
-	 *
-	 * @param string $runningMpid
-	 * @param string $openid
-	 *
-	 */
-	protected function askFollow($runningMpid, $openid = false) {
-		$isfollow = false;
-		if ($openid !== false) {
-			$isfollow = $this->model('user/fans')->isFollow($runningMpid, $openid);
-		}
-		if (!$isfollow) {
-			$modelMpa = $this->model('mp\mpaccount');
-			$fea = $modelMpa->getFeature($runningMpid);
-			if ($fea->follow_page_id === '0') {
-				$mpa = $this->model('mp\mpaccount')->byId($runningMpid);
-				$html = '请关注公众号：' . $mpa->title;
-			} else {
-				$page = $this->model('code/page')->byId($fea->follow_page_id);
-				$html = $page->html;
-				$css = $page->css;
-				$js = $page->js;
-			}
-			$protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
-			header($protocol . ' 401 Unauthorized');
-			header('Cache-Control:no-cache,must-revalidate,no-store');
-			header('Pragma:no-cache');
-			header("Expires:-1");
-			TPL::assign('follow_ele', $html);
-			TPL::assign('follow_css', empty($css) ? '' : $css);
-			TPL::output('follow');
-			exit;
-		}
-
-		return true;
-	}
-	/**
-	 * 返回全局的邀请关注页面
-	 */
-	public function askFollow_action($mpid) {
-		$this->askFollow($mpid);
-	}
-	/**
 	 * 微信jssdk包
 	 *
 	 * $mpid

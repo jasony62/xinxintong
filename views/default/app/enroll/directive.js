@@ -93,14 +93,26 @@ app.directive('tmsCheckboxGroup', function() {
                         upper = attrs.tmsCheckboxGroupUpper;
                         options = document.querySelectorAll('[name=' + groupName + ']');
                         scope.$watch(model + '.' + groupName, function(data) {
-                            var checked = document.querySelectorAll('[name=' + groupName + ']:checked');
-                            if (checked.length >= upper) {
+                            var cnt;
+                            cnt = 0;
+                            angular.forEach(data, function(v, p) {
+                                v && cnt++;
+                            });
+                            if (cnt >= upper) {
                                 [].forEach.call(options, function(el) {
-                                    if (!el.checked) el.disabled = true;
+                                    if (el.checked === undefined) {
+                                        !el.classList.contains('checked') && el.setAttribute('disabled', true);
+                                    } else {
+                                        !el.checked && (el.disabled = true);
+                                    }
                                 });
                             } else {
                                 [].forEach.call(options, function(el) {
-                                    el.disabled = false;
+                                    if (el.checked === undefined) {
+                                        el.removeAttribute('disabled');
+                                    } else {
+                                        el.disabled = false;
+                                    }
                                 });
                             }
                         }, true);

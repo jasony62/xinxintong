@@ -365,22 +365,6 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 订单包含的产品
- */
-$sql = "create table if not exists xxt_merchant_order_product(";
-$sql .= "id int not null auto_increment";
-$sql .= ",mpid varchar(32) not null";
-$sql .= ",sid varchar(32) not null"; //商铺号
-$sql .= ",oid int not null"; //订单号
-$sql .= ",product_id int not null";
-$sql .= ",product_name varchar(70) not null";
-$sql .= ",product_img text";
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
-}
-/**
  * 订单包含的库存
  */
 $sql = "create table if not exists xxt_merchant_order_sku(";

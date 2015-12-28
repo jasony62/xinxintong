@@ -1,9 +1,5 @@
 {
 	"pages": [{
-		"name": "schema",
-		"title": "数据页",
-		"type": "I"
-	}, {
 		"name": "voting",
 		"title": "投票页",
 		"type": "I"
@@ -11,6 +7,10 @@
 		"name": "result",
 		"title": "投票结果页",
 		"type": "V"
+	}, {
+		"name": "schema",
+		"title": "数据页",
+		"type": "I"
 	}],
 	"simpleSchema": "投票项1\n选项1\n选项2\n选项3\n选项4",
 	"entryRule": {

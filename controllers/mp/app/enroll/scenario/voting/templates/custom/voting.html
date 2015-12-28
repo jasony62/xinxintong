@@ -4,13 +4,15 @@
 <?php foreach ($this->schema as $def) { ?>
 <h4><?php echo $def->title; ?></h4>
 <div class="container">
-<div class="row">
-<?php foreach ($def->ops as $op) {?>
-<div class="thumbnail col-xs-6" ng-class="{'selected':data.<?php echo $def->id; ?>.<?php echo $op->v; ?>}" ng-click="chooseOption('<?php echo $def->id; ?>','<?php echo $op->v; ?>')">
-<div><?php echo $op->l; ?></div>
-</div>
-<?php } ?>
-</div>
+	<div class="row" tms-checkbox-group="<?php echo $def->id; ?>" tms-checkbox-group-model="data" tms-checkbox-group-upper="<?php echo count($def->ops);?>">
+		<?php foreach ($def->ops as $op) {?>
+		<div class="col-xs-6" name="<?php echo $def->id; ?>" ng-click="chooseOption($event,'<?php echo $def->id; ?>','<?php echo $op->v; ?>')">
+			<div class="thumbnail">
+				<div><?php echo $op->l; ?></div>
+			</div>
+		</div>
+		<?php } ?>
+	</div>
 </div>
 <?php } ?>
 <!-- end: generate by schema -->

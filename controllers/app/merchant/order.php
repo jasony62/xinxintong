@@ -191,6 +191,9 @@ class order extends \member_base {
 		if (empty($user->openid)) {
 			return new \ResponseError('无法获得当前用户身份信息');
 		}
+		if (empty($user->fan)) {
+			return new \ResponseError("无法获得当前用户【" . $user->openid . "】身份信息");
+		}
 		$orderInfo = $this->getPostJson();
 		//if (empty((array) $orderInfo->skus)) {
 		//	return new \ResponseError('没有选择商品库存，无法创建订单');
@@ -206,9 +209,9 @@ class order extends \member_base {
 			$authid = $buyerApi->authid;
 			$modelMemb = $this->model('user/member');
 			$member = new \stdClass;
-			$member->name = $orderInfo->receiver_name;
-			$member->mobile = $orderInfo->receiver_mobile;
-			$member->email = $orderInfo->receiver_email;
+			$member->name = isset($orderInfo->receiver_name) ? $orderInfo->receiver_name : '';
+			$member->mobile = isset($orderInfo->receiver_mobile) ? $orderInfo->receiver_mobile : '';
+			$member->email = isset($orderInfo->receiver_email) ? $orderInfo->receiver_email : '';
 			if ($existentMember = $modelMemb->byOpenid($mpid, $user->openid, 'mid', $authid)) {
 				$rst = $modelMemb->modify($mpid, $authid, $existentMember->mid, $member);
 			} else {

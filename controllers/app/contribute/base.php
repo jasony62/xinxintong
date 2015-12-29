@@ -237,19 +237,7 @@ class base extends \member_base {
 	 * $phase 处理的阶段
 	 */
 	public function notify($mpid, $openid, $message) {
-		$mpa = $this->model('mp\mpaccount')->byId($mpid);
-
-		switch ($mpa->mpsrc) {
-		case 'wx':
-			$rst = $this->send_to_wxuser_by_preview($mpid, $message, $openid);
-			break;
-		case 'yx':
-			$rst = $this->send_to_yxuser_byp2p($mpid, $message, $openid);
-			break;
-		case 'qy':
-			$rst = $this->send_to_user($mpid, $openid, $message);
-			break;
-		}
+		$rst = $this->sendByOpenid($mpid, $openid, $message);
 
 		return $rst;
 	}
@@ -321,17 +309,12 @@ class base extends \member_base {
 		 */
 		$mpa = $this->model('mp\mpaccount')->byId($mpid);
 		$fan = $this->model('user/fans')->byMid($mid);
-
 		if ($mpa->mpsrc === 'wx') {
 			$message = $model->forWxGroupPush($mpid, $id);
-			$rst = $this->send_to_wxuser_by_preview($mpid, $message, $fan->openid);
-		} else if ($mpa->mpsrc === 'yx') {
+		} else if ($mpa->mpsrc === 'yx' || $mpa->mpsrc === 'qy') {
 			$message = $model->forCustomPush($mpid, $id);
-			$rst = $this->sent_to_yxuser_byp2p($mpid, $message, $fan->openid);
-		} else if ($mpa->mpsrc === 'qy') {
-			$message = $model->forCustomPush($mpid, $id);
-			$rst = $this->send_to_user($mpid, $fan->openid, $message);
 		}
+		$rst = $this->sendByOpenid($mpid, $fan->openid, $message);
 
 		return new \ResponseData('ok');
 	}

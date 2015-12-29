@@ -136,7 +136,6 @@ class wall extends \member_base {
 		if (empty($mpid)) {
 			return new \ResponseError('mpid为空');
 		}
-
 		if (empty($wid)) {
 			return new \ResponseError('wid为空');
 		}
@@ -150,14 +149,12 @@ class wall extends \member_base {
 		$reply = $model->unjoin($mpid, $wid, $fan->openid);
 
 		$message = array(
-			"touser" => $fan->openid,
 			"msgtype" => "text",
 			"text" => array(
-				"content" => urlencode($reply),
+				"content" => $reply,
 			),
 		);
-		// todo ???
-		$this->send_to_qyuser($mpid, $message);
+		$this->sendByOpenid($mpid, $fan->openid, $message);
 
 		return new \ResponseData('success');
 	}

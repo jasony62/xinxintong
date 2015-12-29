@@ -152,7 +152,7 @@ class send extends mp_controller {
 			/**
 			 * 发送给认证用户
 			 */
-			$rst = $this->send_to_member($mpaccount, $matter->userSet, $matter);
+			$rst = $this->send2Member($mpaccount, $matter->userSet, $matter);
 			if ($rst[0] === false) {
 				is_array($rst[1]) ? $warning = $rst[1] : $warning[] = $rst[1];
 			}
@@ -183,23 +183,20 @@ class send extends mp_controller {
 				 */
 				$message = $model->forWxGroupPush($this->mpid, $matterId);
 			}
-			$rst = $this->send_to_wxuser_by_preview($this->mpid, $message, $openids);
+			$rst = $this->send2WxuserByPreview($this->mpid, $message, $openids);
 		} else if ($mpaccount->mpsrc === 'yx') {
 			$message = $this->assemble_custom_message($matter);
-			$rst = $this->sent_to_yxuser_byp2p($this->mpid, $message, $openids);
+			$rst = $this->sent2YxUserByp2p($this->mpid, $message, $openids);
 		} else if ($mpaccount->mpsrc === 'qy') {
 		}
-
 		if (empty($message)) {
 			return new \ResponseError('指定的素材无法向用户群发！');
 		}
-
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		} else {
 			return new \ResponseData('ok');
 		}
-
 	}
 	/**
 	 * 群发消息到子公众号

@@ -366,7 +366,7 @@ class wall_model extends \matter\wall_model {
 			$message = array(
 				"msgtype" => "text",
 				"text" => array(
-					"content" => urlencode($txt),
+					"content" => $txt,
 				),
 			);
 			break;
@@ -434,7 +434,7 @@ class wall_model extends \matter\wall_model {
 				}
 				if (!empty($joinedGroupUsers)) {
 					$message['touser'] = implode('|', $joinedGroupUsers);
-					$ctrl->send_to_qyuser($mpid, $message);
+					$ctrl->send2Qyuser($mpid, $message);
 				}
 				/**
 				 * 推送给未加入讨论组的用户
@@ -443,9 +443,9 @@ class wall_model extends \matter\wall_model {
 					$message['touser'] = implode('|', $groupUsers);
 					if ($msg['type'] === 'text') {
 						$joinUrl = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/wall?wid=$wid";
-						$message['text']['content'] = urlencode($txt . "（<a href='$joinUrl'>参与讨论</a>）");
+						$message['text']['content'] = $txt . "（<a href='$joinUrl'>参与讨论</a>）";
 					}
-					$ctrl->send_to_qyuser($mpid, $message);
+					$ctrl->send2Qyuser($mpid, $message);
 				}
 				$finished = true;
 			}

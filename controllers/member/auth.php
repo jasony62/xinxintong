@@ -267,7 +267,7 @@ class auth extends \member_base {
 		$content .= "<p></p>";
 		$content .= "<p><a href='$url'>完成身份验证</a></p>";
 
-		if (true !== ($msg = $this->send_email($mpid, $subject, $content, $email))) {
+		if (true !== ($msg = $this->sendEmail($mpid, $subject, $content, $email))) {
 			return $msg;
 		}
 

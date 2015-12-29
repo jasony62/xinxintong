@@ -334,7 +334,7 @@ class xxt_base extends TMS_CONTROLLER {
 	 * $mpid
 	 * $message
 	 */
-	public function send_to_qyuser($mpid, $message, $encoded = false) {
+	public function send2Qyuser($mpid, $message, $encoded = false) {
 		$mpproxy = $this->model('mpproxy/qy', $mpid);
 
 		$rst = $mpproxy->messageSend($message, $encoded);
@@ -348,7 +348,7 @@ class xxt_base extends TMS_CONTROLLER {
 	 * $message
 	 * $openids
 	 */
-	public function send_to_yxuser_byp2p($mpid, $message, $openids) {
+	public function send2YxUserByP2p($mpid, $message, $openids) {
 		$mpproxy = $this->model('mpproxy/yx', $mpid);
 
 		$rst = $mpproxy->messageSend($message, $openids);
@@ -358,7 +358,7 @@ class xxt_base extends TMS_CONTROLLER {
 	/**
 	 * 通过微信
 	 */
-	public function send_to_wxuser_by_preview($mpid, $message, $openid) {
+	public function send2WxuserByPreview($mpid, $message, $openid) {
 		$mpproxy = $this->model('mpproxy/wx', $mpid);
 
 		$rst = $mpproxy->messageMassPreview($message, $openid);
@@ -372,7 +372,7 @@ class xxt_base extends TMS_CONTROLLER {
 	 * $userSet
 	 * $message
 	 */
-	public function send_to_member($mpaccount, $userSet, $matter) {
+	public function send2Member($mpaccount, $userSet, $matter) {
 		is_string($mpaccount) && $mpaccount = $this->model('mp\mpaccount')->byId($mpaccount, 'mpid,mpsrc,qy_agentid');
 		/**
 		 * 消息内容
@@ -437,7 +437,7 @@ class xxt_base extends TMS_CONTROLLER {
 			/**
 			 * 发送消息
 			 */
-			$this->send_to_qyuser($mpaccount->mpid, $message);
+			$this->send2Qyuser($mpaccount->mpid, $message);
 		} else if ($mpaccount->mpsrc === 'yx') {
 			/**
 			 * 发送给开通了点对点接口的易信用户
@@ -446,9 +446,8 @@ class xxt_base extends TMS_CONTROLLER {
 			if ($rst[0] === false) {
 				return $rst;
 			}
-
 			$openids = $rst[1];
-			$rst = $this->send_to_yxuser_byp2p($this->mpid, $message, $openids);
+			$rst = $this->send2YxUserByP2p($this->mpid, $message, $openids);
 			if (false === $rst[0]) {
 				return array(false, $rst[1]);
 			}
@@ -510,7 +509,7 @@ class xxt_base extends TMS_CONTROLLER {
 	 * $content string HTML格式
 	 * $to 收件人的邮箱
 	 */
-	protected function send_email($mpid, $subject, $content, $to) {
+	protected function sendEmail($mpid, $subject, $content, $to) {
 		$features = $this->model('mp\mpaccount')->getFeature($mpid);
 		if (!empty($features->admin_email) && !empty($features->admin_email_pwd) && !empty($features->admin_email_smtp)) {
 			$smtp = $features->admin_email_smtp;

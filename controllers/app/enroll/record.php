@@ -197,12 +197,16 @@ class record extends base {
 			/* 管理员是登记人，不再通知 */
 			unset($admins[$key]);
 		}
-
 		if (!empty($admins)) {
+			$mpa = $this->model('mp\mpaccount')->byId($mpid, 'mpsrc');
 			$url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/enroll?mpid=$mpid&aid=$app->id&ek=$ek&page=$app->receiver_page";
-			$txt = urlencode("【" . $app->title . "】有新登记数据，");
-			$txt .= "<a href=\"$url\">";
-			$txt .= urlencode("请处理");
+			$txt = "【" . $app->title . "】有新登记数据，";
+			if ($mpa->mpsrc === 'yx') {
+				$txt .= '<a href="$url">';
+			} else {
+				$txt .= "<a href='$url'>";
+			}
+			$txt .= "请处理";
 			$txt .= "</a>";
 			$message = array(
 				"msgtype" => "text",
@@ -210,16 +214,8 @@ class record extends base {
 					"content" => $txt,
 				),
 			);
-			$mpa = $this->model('mp\mpaccount')->getApis($mpid);
-			if ($mpa->mpsrc === 'qy') {
-				$message['touser'] = implode('|', $admins);
-				$this->send_to_qyuser($mpid, $message);
-			} else if ($mpa->mpsrc === 'yx' && $mpa->yx_p2p === 'Y') {
-				$this->send_to_yxuser_byp2p($mpid, $message, $admins);
-			} else {
-				foreach ($admins as $admin) {
-					$this->sendByOpenid($mpid, $admin, $message);
-				}
+			foreach ($admins as $admin) {
+				$this->sendByOpenid($mpid, $admin, $message);
 			}
 		}
 
@@ -647,7 +643,7 @@ class record extends base {
 				 */
 				if ($this->model('log')->canReceivePush($mpid, $record->openid)) {
 					if ($record->openid !== $user->openid) {
-						$this->send_to_user($mpid, $record->openid, $message);
+						$this->sendByOpenid($mpid, $record->openid, $message);
 					}
 				}
 				/**
@@ -659,7 +655,7 @@ class record extends base {
 					if ($other->openid === $record->openid || $other->openid === $remarker->openid) {
 						continue;
 					}
-					$this->send_to_user($mpid, $other->openid, $message);
+					$this->sendByOpenid($mpid, $other->openid, $message);
 				}
 			}
 		}

@@ -287,6 +287,7 @@ class xxt_base extends TMS_CONTROLLER {
 			$msgid = $rst[1]->msgid;
 		} else {
 			/*如果不是微信号，将模板消息转换文本消息*/
+			$mpa = $this->model('mp\mpaccount')->byId($mpid, 'mpsrc');
 			$txt = array();
 			$txt[] = $tmpl->title;
 			if ($tmpl->params) {
@@ -295,7 +296,13 @@ class xxt_base extends TMS_CONTROLLER {
 					$txt[] = $p->plabel . '：' . $value;
 				}
 			}
-			!empty($url) && $txt[] = '<a href="' . $url . '">详情</a>';
+			if (!empty($url)) {
+				if ($mpa->mpsrc === 'yx') {
+					$txt[] = ' <a href="' . $url . '">查看详情</a>';
+				} else {
+					$txt[] = " <a href='" . $url . "'>查看详情</a>";
+				}
+			}
 			$txt = implode("\n", $txt);
 			$msg = array(
 				"msgtype" => "text",

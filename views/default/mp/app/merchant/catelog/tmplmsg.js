@@ -171,6 +171,21 @@
                 $scope.selectedOrderEvt.mapping[tmplmsgProp.id] = data.selected;
             });
         };
+        $scope.clean = function() {
+            if (window.confirm('确定清除？')) {
+                var url, sov, catelog;
+                catelog = $scope.$parent.editing;
+                sov = $scope.selectedOrderEvt;
+                url = '/rest/mp/app/merchant/tmplmsg/clean';
+                url += '?catelog=' + catelog.id;
+                url += '&mappingid=' + catelog[sov.id + '_tmplmsg'];
+                url += '&event=' + sov.id;
+                http2.get(url, function(rsp) {
+                    catelog[sov.id + '_tmplmsg'] = 0;
+                    sov.mapping = {};
+                });
+            }
+        };
         $scope.save = function() {
             var sov, i, m, posted, url;
             sov = $scope.selectedOrderEvt;

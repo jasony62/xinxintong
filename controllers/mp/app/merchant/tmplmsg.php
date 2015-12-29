@@ -49,4 +49,18 @@ class tmplmsg extends \mp\app\app_base {
 
 		return new \ResponseData('ok');
 	}
+	/**
+	 * 清除映射关系
+	 */
+	public function clean_action($catelog, $mappingid, $event) {
+		$this->model()->delete('xxt_tmplmsg_mapping', "id=$mappingid");
+
+		$this->model()->update(
+			'xxt_merchant_catelog',
+			array($event . '_tmplmsg' => 0),
+			"id=$catelog"
+		);
+
+		return new \ResponseData('ok');
+	}
 }

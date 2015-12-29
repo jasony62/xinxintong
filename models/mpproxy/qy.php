@@ -560,7 +560,7 @@ class qy_model extends mpproxy_base {
 		$cmd = 'https://qyapi.weixin.qq.com/cgi-bin/message/send';
 		$message['agentid'] = $mpa->qy_agentid;
 
-		$posted = $encoded ? json_encode($message) : urldecode(json_encode($message));
+		$posted = TMS_MODEL::toJson($message);
 
 		$rst = $this->httpPost($cmd, $posted);
 

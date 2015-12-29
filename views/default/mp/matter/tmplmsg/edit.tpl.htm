@@ -1,6 +1,6 @@
 <div ng-controller='editCtrl'>
     <div class='form-horizontal'>
-        <div class='form-group'>
+        <div class='form-group' ng-if="mpa.mpsrc==='wx'">
             <label class='col-md-2 control-label' for='title'>模板ID</label>
             <div class='col-md-10'>
                 <input type='text' class='form-control' ng-model='editing.templateid' tms-auto-update tms-wait=1000 tms-update="update('templateid')">

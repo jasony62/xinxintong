@@ -7,63 +7,45 @@ class tmplmsg extends matter_ctrl {
 	/**
 	 *
 	 */
-	public function index_action($id = null) {
-		$uid = \TMS_CLIENT::get_client_uid();
-
-		if (!empty($id)) {
-			$q = array(
-				"t.*,a.nickname creater_name,'$uid' uid",
-				'xxt_tmplmsg t,account a',
-				"t.mpid='$this->mpid' and t.id='$id' and t.state=1 and t.creater=a.uid",
-			);
-			$tmplmsg = $this->model()->query_obj_ss($q);
-			$q = array(
-				"*",
-				'xxt_tmplmsg_param',
-				"tmplmsg_id=$id",
-			);
-			$tmplmsg->params = $this->model()->query_objs_ss($q);
-
-			if ($_SERVER['HTTP_ACCEPT'] === 'application/json') {
-				return new \ResponseData($tmplmsg);
-			} else {
-				$param = array();
-				$param['tmplmsg'] = $tmplmsg;
-				\TPL::assign('param', $param);
-				$this->view_action('/mp/matter/tmplmsg/main');
+	public function index_action() {
+		$this->view_action('/mp/matter/tmplmsg/main');
+	}
+	/**
+	 * @param int $id
+	 */
+	public function get_action($id) {
+		$modelTmpl = $this->model('matter\tmplmsg');
+		if ($tmplmsg = $modelTmpl->byId($id, array('cascaded' => 'Y'))) {
+			$tmplmsg->uid = \TMS_CLIENT::get_client_uid();
+			if ($creater = $this->model('account')->byId($tmplmsg->creater)) {
+				$tmplmsg->creater_name = $creater->nickname;
 			}
-		} else {
-			$q = array(
-				"t.*,a.nickname creater_name,'$uid' uid",
-				'xxt_tmplmsg t,account a',
-				"t.mpid='$this->mpid' and t.state=1 and t.creater=a.uid",
-			);
-			$q2['o'] = 't.create_at desc';
-			$tmplmsgs = $this->model()->query_objs_ss($q, $q2);
-
-			return new \ResponseData($tmplmsgs);
 		}
+		return new \ResponseData($tmplmsg);
 	}
 	/**
 	 *
 	 */
-	public function list_action() {
+	public function list_action($cascaded = 'N') {
+		$uid = \TMS_CLIENT::get_client_uid();
 		$model = $this->model();
 		/**/
 		$q = array(
-			"t.*",
-			'xxt_tmplmsg t',
-			"t.mpid='$this->mpid'",
+			"t.*,a.nickname creater_name,'$uid' uid",
+			'xxt_tmplmsg t,account a',
+			"t.mpid='$this->mpid' and t.state=1 and t.creater=a.uid",
 		);
-		$tmplmsgs = $model->query_objs_ss($q);
-		/**/
-		$q = array(
-			"id,pname,plabel",
-			'xxt_tmplmsg_param',
-		);
-		foreach ($tmplmsgs as &$tmplmsg) {
-			$q[2] = "tmplmsg_id=$tmplmsg->id";
-			$tmplmsg->params = $model->query_objs_ss($q);
+		$q2['o'] = 't.create_at desc';
+		$tmplmsgs = $model->query_objs_ss($q, $q2);
+		if ($cascaded === 'Y' && !empty($tmplmsgs)) {
+			$q = array(
+				"id,pname,plabel",
+				'xxt_tmplmsg_param',
+			);
+			foreach ($tmplmsgs as &$tmpl) {
+				$q[2] = "tmplmsg_id=$tmpl->id";
+				$tmpl->params = $model->query_objs_ss($q);
+			}
 		}
 
 		return new \ResponseData($tmplmsgs);

@@ -135,7 +135,7 @@ class mpaccount_model extends \TMS_MODEL {
 	 * 公众号的接口开放情况
 	 */
 	public function &getApis($mpid) {
-		$names = 'a.mpsrc,a.asparent,a.yx_joined,a.wx_joined,a.qy_joined';
+		$names = 'a.mpsrc,a.asparent,a.yx_joined,a.wx_joined,a.qy_joined,a.qy_agentid';
 		$names .= ',s.yx_menu,s.wx_menu';
 		$names .= ',s.yx_group_push,s.wx_group_push,s.yx_custom_push,s.wx_custom_push';
 		$names .= ',s.yx_fans,s.wx_fans,s.yx_fansgroup,s.wx_fansgroup';

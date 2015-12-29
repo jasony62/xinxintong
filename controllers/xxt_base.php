@@ -230,16 +230,16 @@ class xxt_base extends TMS_CONTROLLER {
 	 * $openid
 	 * $message
 	 */
-	public function sendByOpenid($mpid, $openid, $message) {
+	public function sendByOpenid($mpid, $openid, $message, $urlencode = false) {
 		$mpa = $this->model('mp\mpaccount')->getApis($mpid);
 		$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $mpid);
 
 		switch ($mpa->mpsrc) {
 		case 'yx':
 			if ($mpa->mpsrc === 'yx' && $mpa->yx_p2p === 'Y') {
-				$rst = $mpproxy->messageSend($message, array($openid));
+				$rst = $mpproxy->messageSend($message, array($openid), $urlencode);
 			} else {
-				$rst = $mpproxy->messageCustomSend($message, $openid);
+				$rst = $mpproxy->messageCustomSend($message, $openid, $urlencode);
 			}
 			break;
 		case 'wx':
@@ -262,33 +262,58 @@ class xxt_base extends TMS_CONTROLLER {
 	 * $openid
 	 */
 	public function tmplmsgSendByOpenid($mpid, $tmplmsgId, $openid, $data, $url) {
-		$tmpl = $this->model('matter\tmplmsg')->byId($tmplmsgId, array('cascaded' => 'Y'));
+		/*模板定义*/
 		is_object($data) && $data = (array) $data;
-		$msg = array(
-			'touser' => $openid,
-			'template_id' => $tmpl->templateid,
-			'url' => $url,
-		);
-		if ($tmpl->params) {
-			foreach ($tmpl->params as $p) {
-				$value = isset($data[$p->pname]) ? $data[$p->pname] : (isset($data[$p->id]) ? $data[$p->id] : '');
-				$msg['data'][$p->pname] = array('value' => $value, 'color' => '#173177');
-			}
-		}
+		$tmpl = $this->model('matter\tmplmsg')->byId($tmplmsgId, array('cascaded' => 'Y'));
 		/*发送消息*/
-		$mpproxy = $this->model('mpproxy/wx', $mpid);
-		$rst = $mpproxy->messageTemplateSend($msg);
-		if ($rst[0] === false) {
-			return $rst;
+		if (!empty($tmpl->templateid)) {
+			/*只有微信号才有模板消息ID*/
+			$msg = array(
+				'touser' => $openid,
+				'template_id' => $tmpl->templateid,
+				'url' => $url,
+			);
+			if ($tmpl->params) {
+				foreach ($tmpl->params as $p) {
+					$value = isset($data[$p->pname]) ? $data[$p->pname] : (isset($data[$p->id]) ? $data[$p->id] : '');
+					$msg['data'][$p->pname] = array('value' => $value, 'color' => '#173177');
+				}
+			}
+			$mpproxy = $this->model('mpproxy/wx', $mpid);
+			$rst = $mpproxy->messageTemplateSend($msg);
+			if ($rst[0] === false) {
+				return $rst;
+			}
+			$msgid = $rst[1]->msgid;
+		} else {
+			/*如果不是微信号，将模板消息转换文本消息*/
+			$txt = array();
+			$txt[] = $tmpl->title;
+			if ($tmpl->params) {
+				foreach ($tmpl->params as $p) {
+					$value = isset($data[$p->pname]) ? $data[$p->pname] : (isset($data[$p->id]) ? $data[$p->id] : '');
+					$txt[] = $p->plabel . '：' . $value;
+				}
+			}
+			!empty($url) && $txt[] = '<a href="' . $url . '">详情</a>';
+			$txt = implode("\n", $txt);
+			$msg = array(
+				"msgtype" => "text",
+				"text" => array(
+					"content" => $txt,
+				),
+			);
+			$this->sendByOpenid($mpid, $openid, $msg);
+			$msg['template_id'] = 0;
+			$msgid = 0;
 		}
 		/*记录日志*/
-		$msgid = $rst[1]->msgid;
 		$log = array(
 			'mpid' => $mpid,
 			'openid' => $openid,
 			'tmplmsg_id' => $tmplmsgId,
 			'template_id' => $msg['template_id'],
-			'data' => json_encode($msg),
+			'data' => $this->model()->escape(json_encode($msg)),
 			'create_at' => time(),
 			'msgid' => $msgid,
 		);
@@ -393,19 +418,15 @@ class xxt_base extends TMS_CONTROLLER {
 			if (empty($parties) && empty($tags) && empty($users)) {
 				return array(false, '没有获得接收消息的用户');
 			}
-
 			if (!empty($parties)) {
 				$message['toparty'] = implode('|', $parties);
 			}
-
 			if (!empty($tags)) {
 				$message['totag'] = implode('|', $tags);
 			}
-
 			if (!empty($users)) {
 				$message['touser'] = implode('|', $users);
 			}
-
 			/**
 			 * 发送消息
 			 */
@@ -424,7 +445,6 @@ class xxt_base extends TMS_CONTROLLER {
 			if (false === $rst[0]) {
 				return array(false, $rst[1]);
 			}
-
 		}
 	}
 	/**

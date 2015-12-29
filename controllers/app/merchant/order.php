@@ -288,7 +288,7 @@ class order extends \member_base {
 					if ($p->id === '__productName') {
 						$v = $product->name;
 					} else {
-						$v = $product->propValue2->{$p->id}->name;
+						$v = $product->propValue->{$p->id}->name;
 					}
 					break;
 				case 'order':

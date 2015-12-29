@@ -16,7 +16,7 @@ xxtApp.controller('tmplmsgCtrl',['$scope','http2',function($scope,http2){
         });
     };
     $scope.doSearch = function() {
-        var url = '/rest/mp/matter/tmplmsg';
+        var url = '/rest/mp/matter/tmplmsg/list';
         http2.get(url, function(rsp) {
             $scope.tmplmsgs = rsp.data;
         });

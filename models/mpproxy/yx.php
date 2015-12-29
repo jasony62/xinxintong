@@ -355,10 +355,11 @@ class yx_model extends mpproxy_base {
 	 * $message
 	 * $openid
 	 */
-	public function messageCustomSend($message, $openid) {
+	public function messageCustomSend($message, $openid, $urlencode = true) {
 		$message['touser'] = $openid;
 		$cmd = 'https://api.yixin.im/cgi-bin/message/custom/send';
-		$posted = urldecode(json_encode($message));
+
+		$posted = $urlencode ? \TMS_MODEL::toJson($message) : $message;
 
 		$rst = $this->httpPost($cmd, $posted);
 
@@ -371,7 +372,7 @@ class yx_model extends mpproxy_base {
 	 * $message
 	 * $openids
 	 */
-	public function messageSend($message, $openids) {
+	public function messageSend($message, $openids, $urlencode = true) {
 		is_string($openids) && $openids = array($openids);
 		/**
 		 * 发送消息
@@ -381,7 +382,7 @@ class yx_model extends mpproxy_base {
 		foreach ($openids as $openid) {
 			$message['touser'] = $openid;
 
-			$posted = urldecode(json_encode($message));
+			$posted = $urlencode ? \TMS_MODEL::toJson($message) : json_encode($message);
 
 			$rst = $this->httpPost($cmd, $posted);
 
@@ -443,7 +444,7 @@ class yx_model extends mpproxy_base {
 	 * 向易信用户群发消息
 	 */
 	public function send2group($message) {
-		$message = urldecode(json_encode($message));
+		$message = \TMS_MODEL::toJson($message);
 		$rst = $this->messageGroupSend($message);
 
 		return $rst;

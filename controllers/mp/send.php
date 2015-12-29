@@ -26,7 +26,6 @@ class send extends mp_controller {
 			if ($setting->{$mpa->mpsrc . '_custom_push'} === 'N') {
 				return new \ResponseError('未开通群发高级接口，请检查！');
 			}
-
 		}
 		/**
 		 * get matter.
@@ -38,7 +37,7 @@ class send extends mp_controller {
 			$message = array(
 				"msgtype" => "text",
 				"text" => array(
-					"content" => urlencode($matter->text),
+					"content" => $matter->text,
 				),
 			);
 		}
@@ -49,7 +48,6 @@ class send extends mp_controller {
 		if (false === $rst[0]) {
 			return new \ResponseError($rst[1]);
 		}
-
 		/**
 		 * 记录日志
 		 */
@@ -95,7 +93,6 @@ class send extends mp_controller {
 		if (empty($matter->targetUser) || empty($matter->userSet)) {
 			return new \ResponseError('请指定接收消息的用户');
 		}
-
 		// 要接收的用户
 		$userSet = $matter->userSet;
 		/**
@@ -122,11 +119,9 @@ class send extends mp_controller {
 			if (empty($message)) {
 				return new \ResponseError('指定的素材无法向微信用户群发！');
 			}
-
 			/**
 			 * send
 			 */
-
 			if ($userSet[0]->identity === -1) {
 				/**
 				 * 发给所有用户
@@ -161,15 +156,12 @@ class send extends mp_controller {
 			if ($rst[0] === false) {
 				is_array($rst[1]) ? $warning = $rst[1] : $warning[] = $rst[1];
 			}
-
 		}
-
 		if (!empty($warning)) {
 			return new \ResponseError(implode(';', $warning));
 		} else {
 			return new \ResponseData('success');
 		}
-
 	}
 	/**
 	 * 预览消息
@@ -281,8 +273,9 @@ class send extends mp_controller {
 	 *
 	 */
 	public function tmplmsglog_action($tid, $page, $size) {
+		$model = $this->model();
 		$q = array(
-			'*',
+			'id,template_id,msgid,openid,data,create_at,status',
 			'xxt_log_tmplmsg',
 			"mpid='$this->mpid' and tmplmsg_id=$tid",
 		);
@@ -292,9 +285,14 @@ class send extends mp_controller {
 				'l' => $size,
 			),
 		);
-		$logs = $this->model()->query_objs_ss($q, $q2);
+		if ($logs = $model->query_objs_ss($q, $q2)) {
+			$q[0] = 'count(*)';
+			$total = $model->query_val_ss($q);
+		} else {
+			$total = 0;
+		}
 
-		return new \ResponseData($logs);
+		return new \ResponseData(array('logs' => $logs, 'total' => $total));
 	}
 	/**
 	 * 测试上传媒体文件接口
@@ -309,6 +307,5 @@ class send extends mp_controller {
 		} else {
 			return new \ResponseData($media[1]);
 		}
-
 	}
 }

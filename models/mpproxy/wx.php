@@ -671,11 +671,11 @@ class wx_model extends mpproxy_base {
 		 * 发送消息
 		 */
 		$message['touser'] = $openid;
-		$message = urldecode(json_encode($message));
+		$posted = \TMS_MODEL::toJson($message);
 
 		$cmd = 'https://api.weixin.qq.com/cgi-bin/message/mass/preview';
 
-		$rst = $this->httpPost($cmd, $message);
+		$rst = $this->httpPost($cmd, $posted);
 
 		return $rst;
 	}
@@ -688,7 +688,8 @@ class wx_model extends mpproxy_base {
 	public function messageCustomSend($message, $openid) {
 		$message['touser'] = $openid;
 		$cmd = 'https://api.weixin.qq.com/cgi-bin/message/custom/send';
-		$posted = urldecode(json_encode($message));
+
+		$posted = \TMS_MODEL::toJson($message);
 
 		$rst = $this->httpPost($cmd, $posted);
 
@@ -764,7 +765,7 @@ class wx_model extends mpproxy_base {
 		/**
 		 * 发送消息
 		 */
-		$message = urldecode(json_encode($message));
+		$message = \TMS_MODEL::toJson($message);
 		$rst = $this->messageMassSendall($message);
 
 		return $rst;

@@ -1,0 +1,14 @@
+<div class="modal-header">
+    <button class="close" type="button" ng-click="cancel()">×</button>
+    <h5 class="modal-title">选择模板</h5>
+</div>
+<div class="modal-body">
+    <div class='list-group'>
+        <div class='list-group-item' ng-repeat='t in templates'>
+            <label class='radio-inline'><input type='radio' value='{{$index}}' ng-model='data.choose' ng-change='choose(t)'><span ng-bind='t.title'></span><label>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="ok()">确定</button>
+</div>

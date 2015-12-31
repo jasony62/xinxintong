@@ -64,6 +64,8 @@ app.register.controller('notifyCtrl', ['$scope', '$http', 'Order', function($sco
 		url = '/rest/op/merchant/order/feedback?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&order=' + $scope.orderId;
 		$http.post(url, $scope.order.feedback).success(function(rsp) {
 			alert('ok');
-		});
+		}).error(function(data) {
+            alert('error:' + data);
+        });
 	};
 }]);

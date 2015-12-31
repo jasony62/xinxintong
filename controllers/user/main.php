@@ -29,8 +29,8 @@ class main extends \TMS_CONTROLLER {
 		$nickname = str_replace(strstr($email, '@'), '', $email);
 		$fromip = $this->client_ip();
 		/*
-		 * check
-		 */
+			 * check
+		*/
 		if (strlen($email) == 0 || strlen($nickname) == 0 || strlen($password) == 0) {
 			return new \ParameterError("注册失败，参数不完整。");
 		}
@@ -82,7 +82,7 @@ class main extends \TMS_CONTROLLER {
 	public function changePwd_action() {
 		$account = \TMS_CLIENT::account();
 		if ($account === false) {
-			return new \ResponseError('长时间未操作，请重新登陆！');
+			return new \ResponseTimeout();
 		}
 
 		$data = $this->getPostJson();

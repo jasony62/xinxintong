@@ -20,6 +20,10 @@ class mp_controller extends \xxt_base {
 	 *
 	 */
 	public function __construct() {
+		$account = \TMS_CLIENT::account();
+		if ($account === false) {
+			return new \ResponseTimeout();
+		}
 		if (isset($_GET['mpid']) && ($mpid = $_GET['mpid'])) {
 			$_SESSION['mpid'] = $mpid;
 		} else if (!isset($_SESSION['mpid']) || !($mpid = $_SESSION['mpid'])) {

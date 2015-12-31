@@ -60,12 +60,8 @@ class shop extends \mp\app\app_base {
 	 */
 	public function create_action() {
 		$account = \TMS_CLIENT::account();
-		if ($account === false) {
-			return new \ResponseError('长时间未操作，请重新登陆！');
-		}
-
-		$creater = \TMS_CLIENT::get_client_uid();
 		$creater_name = $account->nickname;
+		$creater = \TMS_CLIENT::get_client_uid();
 
 		$shop = array(
 			'mpid' => $this->mpid,

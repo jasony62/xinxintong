@@ -142,7 +142,7 @@ class mpaccount extends mp_controller {
 		$q = array(
 			'mpid,name,mpsrc,create_at,yx_joined,wx_joined,qy_joined',
 			'xxt_mpaccount a',
-			"parent_mpid='$this->mpid'",
+			"parent_mpid='$this->mpid' and state=1",
 		);
 		$q2 = array('o' => 'name');
 

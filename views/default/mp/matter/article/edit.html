@@ -184,18 +184,4 @@
             <button class="btn btn-default" ng-click="ok()">确定</button>
         </div>
     </script>
-    <script type="text/ng-template" id="templateShop.html">
-        <div class="modal-header">
-            <button class="close" type="button" ng-click="cancel()">×</button>
-            <h5 class="modal-title">模板</h5>
-        </div>
-        <div class="modal-body">
-            <div class='list-group' ng-repeat='t in templates'>
-                <div class='list-group-item'><input type='radio' value='{{$index}}' ng-model='data.choose' ng-change='choose(t)'><div ng-bind='t.title'></div></div>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-default" ng-click="ok()">确定</button>
-        </div>
-    </script>
 </div>

@@ -300,7 +300,13 @@ class order extends \member_base {
 					} else if ($p->id === '__orderState') {
 						$v = '待付款';
 					} else {
-						$v = $order->extPropValue->{$p->id};
+						$v = '';
+						if (!empty($order->extPropValue->{$product->cate_id})) {
+							$epv = $order->extPropValue->{$product->cate_id};
+							if (!empty($epv->{$p->id})) {
+								$v = $epv->{$p->id};
+							}
+						}
 					}
 					break;
 				case 'text':

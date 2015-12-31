@@ -90,6 +90,8 @@ app.factory('Order', function($http, $q) {
                 return;
             }
             deferred.resolve(rsp.data);
+        }).error(function(data) {
+            alert('error:' + data);
         });
         return promise;
     };
@@ -110,6 +112,8 @@ app.factory('Order', function($http, $q) {
                 return;
             }
             deferred.resolve(rsp.data);
+        }).error(function(data) {
+            alert('error:' + data);
         });
         return promise;
     };
@@ -131,6 +135,8 @@ app.factory('Order', function($http, $q) {
                 return;
             }
             deferred.resolve(rsp.data);
+        }).error(function(data) {
+            alert('error:' + data);
         });
         return promise;
     };
@@ -152,6 +158,8 @@ app.factory('Order', function($http, $q) {
                 return;
             }
             deferred.resolve(rsp.data);
+        }).error(function(data) {
+            alert('error:' + data);
         });
         return promise;
     };

@@ -335,10 +335,6 @@ class article extends matter_ctrl {
 	 */
 	public function create_action() {
 		$account = \TMS_CLIENT::account();
-		if ($account === false) {
-			return new \ResponseError('长时间未操作，请重新登陆！');
-		}
-
 		$current = time();
 		$d['mpid'] = $this->mpid;
 		$d['creater'] = \TMS_CLIENT::get_client_uid();
@@ -371,7 +367,7 @@ class article extends matter_ctrl {
 
 		isset($nv['body']) && $nv['body'] = $this->model()->escape(urldecode($nv['body']));
 
-		$rst = $this->update($id, $nv);
+		$rst = $this->_update($id, $nv);
 
 		return new \ResponseData($rst);
 	}
@@ -549,10 +545,6 @@ class article extends matter_ctrl {
 	public function uploadAndCreate_action($state = null) {
 		if ($state === 'done') {
 			$account = \TMS_CLIENT::account();
-			if ($account === false) {
-				return new \ResponseError('长时间未操作，请重新登陆！');
-			}
-
 			$posted = $this->getPostJson();
 			$file = $posted->file;
 
@@ -700,24 +692,9 @@ class article extends matter_ctrl {
 		return new \ResponseData('success');
 	}
 	/**
-	 * 将图文的页面保存为模板
-	 */
-	public function saveAsTemplate_action($id) {
-		$modelArt = $this->model('matter\article');
-		$article = $modelArt->byId($id);
-		$matter = new \stdClass;
-		$matter->matter_type = 'article';
-		$matter->matter_id = $article->id;
-		$matter->title = $article->title;
-		$matter->summary = $article->summary;
-		$matter->pic = $article->pic;
-
-		$this->model('shop\shelf')->putMatter($this->mpid, $matter);
-
-		return new \ResponseData('ok');
-	}
-	/**
 	 * 用指定的模板替换定制页面内容
+	 * @param int $id article'id
+	 *
 	 */
 	public function pageByTemplate_action($id, $template) {
 		$uid = \TMS_CLIENT::get_client_uid();
@@ -733,7 +710,7 @@ class article extends matter_ctrl {
 		$pageid = $modelPage->copy($uid, $copied->page_id, $target->page_id);
 
 		if ($target->page_id === 0) {
-			$this->update($id, array('page_id' => $pageid));
+			$this->_update($id, array('page_id' => $pageid));
 		}
 
 		return new \ResponseData($pageid);
@@ -747,12 +724,8 @@ class article extends matter_ctrl {
 	/**
 	 *
 	 */
-	private function update($id, $nv) {
+	private function _update($id, $nv) {
 		$account = \TMS_CLIENT::account();
-		if ($account === false) {
-			return new \ResponseError('长时间未操作，请重新登陆！');
-		}
-
 		$pmpid = $this->getParentMpid();
 
 		$nv['modifier'] = \TMS_CLIENT::get_client_uid();

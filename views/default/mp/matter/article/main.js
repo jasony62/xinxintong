@@ -38,7 +38,7 @@ xxtApp.controller('articleCtrl', ['$scope', '$location', 'http2', function($scop
         });
     });
 }]);
-xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', 'templateShop', function($scope, $modal, http2, templateShop) {
     $scope.$parent.subView = 'edit';
     $scope.innerlinkTypes = [{
         value: 'article',
@@ -129,28 +129,7 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', function($scope, $mo
         }
     };
     $scope.selectTemplate = function() {
-        $modal.open({
-            templateUrl: 'templateShop.html',
-            controller: ['$modalInstance', '$scope', function($mi, $scope2) {
-                $scope2.data = {
-                    choose: -1
-                };
-                http2.get('/rest/shop/shelf/list?mattertype=article', function(rsp) {
-                    $scope2.templates = rsp.data;
-                });
-                $scope2.cancel = function() {
-                    $mi.dismiss()
-                };
-                $scope2.ok = function() {
-                    if ($scope2.templates.length && $scope2.data.choose >= 0) {
-                        $mi.close($scope2.templates[$scope2.data.choose]);
-                    } else {
-                        $mi.dismiss();
-                    }
-                };
-            }],
-            backdrop: 'static',
-        }).result.then(function(data) {
+        templateShop.choose('article').then(function(data) {
             http2.get('/rest/mp/matter/article/pageByTemplate?id=' + $scope.editing.id + '&template=' + data.id, function(rsp) {
                 $scope.editing.page_id = rsp.data;
                 location.href = '/rest/code?pid=' + rsp.data;
@@ -158,8 +137,17 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', function($scope, $mo
         });
     };
     $scope.saveAsTemplate = function() {
-        http2.get('/rest/mp/matter/article/saveAsTemplate?id=' + $scope.editing.id, function(rsp) {
-
+        var matter, editing;
+        editing = $scope.editing;
+        matter = {
+            id: editing.id,
+            type: 'article',
+            title: editing.title,
+            pic: editing.pic,
+            summary: editing.summary
+        };
+        templateShop.share($scope.mpaccount.mpid, matter).then(function() {
+            $scope.$root.infomsg = '成功';
         });
     };
     $scope.embedMatter = function() {

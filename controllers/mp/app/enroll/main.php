@@ -102,9 +102,6 @@ class main extends \mp\app\app_base {
 	 */
 	public function create_action($scenario = null, $template = null) {
 		$account = \TMS_CLIENT::account();
-		if ($account === false) {
-			return new \ResponseTimeout();
-		}
 		$current = time();
 		$uid = \TMS_CLIENT::get_client_uid();
 		$mpa = $this->model('mp\mpaccount')->getFeature($this->mpid, 'heading_pic');
@@ -243,10 +240,6 @@ class main extends \mp\app\app_base {
 	 */
 	public function copy_action($aid = null, $shopid = null) {
 		$account = \TMS_CLIENT::account();
-		if ($account === false) {
-			return new \ResponseError('长时间未操作，请重新登陆！');
-		}
-
 		$uid = \TMS_CLIENT::get_client_uid();
 		$uname = $account->nickname;
 		$current = time();

@@ -132,6 +132,72 @@ xxtMatters.filter('typetitle', ['matterTypes', function(matterTypes) {
         return '';
     }
 }]);
+xxtMatters.service('templateShop', ['$modal', 'http2', '$q', function($modal, http2, $q) {
+    this.choose = function(type, callback) {
+        var deferred;
+        deferred = $q.defer();
+        $modal.open({
+            templateUrl: '/static/template/templateShop.html?v=2',
+            controller: ['$scope', '$modalInstance', function($scope, $mi) {
+                $scope.page = {
+                    size: 10,
+                    at: 1,
+                    total: 0
+                }
+                $scope.data = {
+                    choose: -1
+                };
+                http2.get('/rest/shop/shelf/list?matterType=' + type, function(rsp) {
+                    $scope.templates = rsp.data.templates;
+                    $scope.page.total = rsp.data.total;
+                });
+                $scope.cancel = function() {
+                    $mi.dismiss();
+                };
+                $scope.ok = function() {
+                    if ($scope.templates.length && $scope.data.choose >= 0) {
+                        $mi.close($scope.templates[$scope.data.choose]);
+                    } else {
+                        $mi.dismiss();
+                    }
+                };
+            }],
+            backdrop: 'static'
+        }).result.then(function(data) {
+            deferred.resolve(data);
+        });
+        return deferred.promise;
+    };
+    this.share = function(mpid, matter) {
+        var deferred;
+        deferred = $q.defer();
+        $modal.open({
+            templateUrl: '/static/template/templateShare.html?v=1',
+            controller: ['$scope', '$modalInstance', function($scope, $mi) {
+                $scope.data = {
+                    scope: 'U'
+                };
+                $scope.cancel = function() {
+                    $mi.dismiss();
+                };
+                $scope.ok = function() {
+                    $mi.close($scope.data);
+                };
+                http2.get('/rest/shop/shelf/get?matterType=' + matter.type + '&matterId=' + matter.id, function(rsp) {
+                    if (rsp.data) {
+                        $scope.data.scope = rsp.data.visible_scope;
+                    }
+                });
+            }],
+            backdrop: 'static'
+        }).result.then(function(data) {
+            http2.post('/rest/shop/shelf/put?mpid=' + mpid + '&scope=' + data.scope, matter, function(rsp) {
+                deferred.resolve(rsp.data);
+            });
+        });
+        return deferred.promise;
+    };
+}]);
 xxtMatters.directive('tinymce', function($timeout) {
     return {
         restrict: 'EA',

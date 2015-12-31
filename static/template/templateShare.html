@@ -1,0 +1,13 @@
+<div class="modal-header">
+	<button class="close" type="button" ng-click="cancel()">×</button>
+	<h5 class="modal-title">共享模板</h5>
+</div>
+<div class="modal-body">
+	<div class="form-group">
+		<label class="radio-inline"><input type="radio" name="scope" ng-model="data.scope" value="U">跨账号共享给自己</label>
+		<label class="radio-inline"><input type="radio" name="scope" ng-model="data.scope" value="A">共享给所有人</label>
+	</div>
+</div>
+<div class="modal-footer">
+	<button class="btn btn-default" ng-click="ok()">确定</button>
+</div>

@@ -80,7 +80,9 @@ class record_model extends \TMS_MODEL {
 		if (!empty($creater)) {
 			$w .= " and e.openid='$creater'";
 		} else if (!empty($inviter)) {
-			$inviterek = $this->getLastKey($mpid, $aid, $inviter);
+			$user = new \stdClass;
+			$user->openid = $inviter;
+			$inviterek = $this->getLastKey($mpid, $aid, $user);
 			$w .= " and e.referrer='ek:$inviterek'";
 		}
 		!empty($rid) && $w .= " and e.rid='$rid'";
@@ -109,13 +111,13 @@ class record_model extends \TMS_MODEL {
 		}
 		if ($app->access_control === 'Y') {
 			$q = array(
-				'e.enroll_key,e.enroll_at,e.signin_at,e.tags,e.follower_num,e.score,e.remark_num,e.nickname,e.openid,m.mid,m.name,m.mobile,m.email',
+				'e.enroll_key,e.enroll_at,e.signin_at,e.tags,e.follower_num,e.score,e.remark_num,e.nickname,e.openid,e.vid,m.mid,m.name,m.mobile,m.email',
 				"xxt_enroll_record e left join xxt_member m on m.forbidden='N' and e.mid=m.mid",
 				$w,
 			);
 		} else {
 			$q = array(
-				'e.enroll_key,e.enroll_at,e.signin_at,e.tags,e.follower_num,e.score,e.remark_num,e.nickname,e.openid',
+				'e.enroll_key,e.enroll_at,e.signin_at,e.tags,e.follower_num,e.score,e.remark_num,e.nickname,e.openid,e.vid',
 				"xxt_enroll_record e",
 				$w,
 			);
@@ -229,13 +231,20 @@ class record_model extends \TMS_MODEL {
 	 * 获得指定用户最后一次登记记录
 	 * 如果设置轮次，只返回当前轮次的情况
 	 */
-	public function getLast($mpid, $aid, $openid, $options = array()) {
+	public function getLast($mpid, $aid, $user, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$q = array(
 			$fields,
 			'xxt_enroll_record',
-			"state=1 and mpid='$mpid' and aid='$aid' and openid='$openid'",
+			"state=1 and mpid='$mpid' and aid='$aid' and state=1",
 		);
+		if (!empty($user->openid)) {
+			$q[2] .= " and openid='$user->openid'";
+		} else if (!empty($user->vid)) {
+			$q[2] .= " and vid='$user->vid'";
+		} else {
+			return false;
+		}
 		if ($activeRound = \TMS_APP::M('app\enroll\round')->getActive($mpid, $aid)) {
 			$q[2] .= " and rid='$activeRound->rid'";
 		}
@@ -251,8 +260,8 @@ class record_model extends \TMS_MODEL {
 	 * 获得指定用户最后一次登记的key
 	 * 如果设置轮次，只坚持当前轮次的情况
 	 */
-	public function getLastKey($mpid, $aid, $openid) {
-		$last = $this->getLast($mpid, $aid, $openid);
+	public function getLastKey($mpid, $aid, $user) {
+		$last = $this->getLast($mpid, $aid, $user);
 
 		return $last ? $last->enroll_key : false;
 	}

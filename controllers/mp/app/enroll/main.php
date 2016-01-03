@@ -420,8 +420,27 @@ class main extends \mp\app\app_base {
 	 * name => array(l=>label,c=>count)
 	 *
 	 */
-	public function statGet_action($aid) {
+	public function statGet_action($aid, $renewCache = 'N') {
 		$result = $this->model('app\enroll')->getStat($aid);
+		if ($renewCache === 'Y') {
+			$model = $this->model();
+			$model->delete('xxt_enroll_record_stat', "aid='$aid'");
+			$current = time();
+			foreach ($result as $id => $stat) {
+				foreach ($stat['ops'] as $op) {
+					$r = array(
+						'aid' => $aid,
+						'create_at' => $current,
+						'id' => $id,
+						'title' => $stat['title'],
+						'v' => $op['v'],
+						'l' => $op['l'],
+						'c' => $op['c'],
+					);
+					$model->insert('xxt_enroll_record_stat', $r);
+				}
+			}
+		}
 
 		return new \ResponseData($result);
 	}

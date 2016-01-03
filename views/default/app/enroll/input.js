@@ -61,6 +61,9 @@ app.factory('Input', function($http, $q, $timeout) {
         var defer, url, d, d2, posted;
         defer = $q.defer();
         posted = angular.copy(data);
+        if (Object.keys && Object.keys(posted.member).length === 0) {
+            delete posted.member;
+        }
         url = '/rest/app/enroll/record/submit?mpid=' + LS.p.mpid + '&aid=' + LS.p.aid;
         ek && ek.length && (url += '&ek=' + ek);
         for (var i in posted) {
@@ -278,7 +281,7 @@ app.directive('tmsFileInput', function($q) {
         }
     }
 });
-app.controller('ctrlInput', ['$scope', '$http', '$timeout', '$q', 'Input', 'Record', function($scope, $http, $timeout, $q, Input, Record) {
+app.controller('ctrlInput', ['$scope', '$http', 'Input', 'Schema', function($scope, $http, Input, Schema) {
     var facInput, tasksOfOnReady, tasksOfBeforeSubmit;
     tasksOfBeforeSubmit = [];
     facInput = Input.ins();
@@ -290,45 +293,40 @@ app.controller('ctrlInput', ['$scope', '$http', '$timeout', '$q', 'Input', 'Reco
             tasksOfBeforeSubmit.push(fn);
         }
     };
-    $scope.$on('xxt.app.enroll.ready', function() {
-        var facRecord;
-        if (LS.p.ek.length || (LS.p.newRecord !== 'Y' && $scope.App.open_lastroll === 'Y')) {
-            facRecord = Record.ins();
-            facRecord.get(LS.p.ek).then(function(record) {
-                var mapSchema, p, dataOfRecord, value;
-                mapSchema = {};
-                angular.forEach($scope.Schema, function(def) {
-                    mapSchema[def.id] = def;
-                });
-                dataOfRecord = record.data;
-                for (p in dataOfRecord) {
-                    if (p === 'member') {
-                        $scope.data.member = angular.extend($scope.data.member, dataOfRecord.member);
-                    } else if (dataOfRecord[p].length) {
-                        if (mapSchema[p].type === 'img') {
-                            value = dataOfRecord[p].split(',');
-                            $scope.data[p] = [];
-                            for (var i in value) $scope.data[p].push({
-                                imgSrc: value[i]
-                            });
-                        } else if (mapSchema[p].type === 'file') {
-                            value = JSON.parse(dataOfRecord[p]);
-                            $scope.data[p] = value;
-                        } else if (mapSchema[p].type === 'multiple') {
-                            value = dataOfRecord[p].split(',');
-                            $scope.data[p] = {};
-                            for (var i in value) $scope.data[p][value[i]] = true;
-                        } else {
-                            $scope.data[p] = dataOfRecord[p];
-                        }
+    $scope.$on('xxt.app.enroll.ready', function(event, params) {
+        if (params.record) {
+            var mapSchema, p, dataOfRecord, value;
+            mapSchema = {};
+            angular.forEach(params.schema, function(def) {
+                mapSchema[def.id] = def;
+            });
+            dataOfRecord = params.record.data;
+            for (p in dataOfRecord) {
+                if (p === 'member') {
+                    $scope.data.member = angular.extend($scope.data.member, dataOfRecord.member);
+                } else if (dataOfRecord[p].length) {
+                    if (mapSchema[p].type === 'img') {
+                        value = dataOfRecord[p].split(',');
+                        $scope.data[p] = [];
+                        for (var i in value) $scope.data[p].push({
+                            imgSrc: value[i]
+                        });
+                    } else if (mapSchema[p].type === 'file') {
+                        value = JSON.parse(dataOfRecord[p]);
+                        $scope.data[p] = value;
+                    } else if (mapSchema[p].type === 'multiple') {
+                        value = dataOfRecord[p].split(',');
+                        $scope.data[p] = {};
+                        for (var i in value) $scope.data[p][value[i]] = true;
+                    } else {
+                        $scope.data[p] = dataOfRecord[p];
                     }
                 }
-                /* 无论是否有登记记录都自动填写用户认证信息 */
-                PG.setMember($scope.params, $scope.data.member);
-                /**/
-                $scope.record = record;
-            });
+            }
+            $scope.record = params.record;
         }
+        /* 无论是否有登记记录都自动填写用户认证信息 */
+        PG.setMember(params.user, $scope.data.member);
     });
     var doSubmit = function(nextAction) {
         var ek, btnSubmit;
@@ -351,6 +349,7 @@ app.controller('ctrlInput', ['$scope', '$http', '$timeout', '$q', 'Input', 'Reco
                         enroll_key: rsp.data
                     }
                 }
+                $scope.$broadcast('xxt.app.enroll.submit.done', rsp.data);
             }
         }, function(reason) {
             btnSubmit && btnSubmit.removeAttribute('disabled');

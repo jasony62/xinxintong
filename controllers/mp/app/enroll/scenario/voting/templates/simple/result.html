@@ -1,5 +1,5 @@
-git <p></p>
-<div ng-controller="ctrlStatistic" wrap="statistic" class="form-group">
+<p></p>
+<div ng-controller="ctrlStatistic" enroll-statistic="fromCache=Y;interval=600" wrap="statistic" class="form-group">
 <!-- begin: generate by schema -->
 <?php foreach ($this->schema as $def) { if ($def->type && ($def->type==='multiple' || $def->type==='single')) { ?> 
 <table class="table table-bordered"><caption><?php echo $def->title;?></caption>
@@ -17,8 +17,8 @@ git <p></p>
 </div>
 <p></p>
 <?php foreach ($this->schema as $def) { ?>
-<div ng-controller="ctrlRecord" wrap="static" class="form-group wrap-inline wrap-splitline"><label><?php echo $def->title; ?></label>
-<div>{{Record.current.data.<?php echo $def->id; ?>|value2Label:"<?php echo $def->id; ?>"}}</div>
+<div ng-controller="ctrlRecord" enroll-schema="fromCache=Y;interval=600" wrap="static" class="form-group wrap-inline wrap-splitline"><label><?php echo $def->title; ?></label>
+<div>{{value2Label("<?php echo $def->id; ?>")}}</div>
 </div>
 <?php } ?>
 <div ng-controller="ctrlRecord" wrap="static" class="form-group wrap-inline wrap-splitline"><label>投票时间</label>

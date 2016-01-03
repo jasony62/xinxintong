@@ -23,33 +23,37 @@ class main extends base {
 	 * $code OAuth返回的code
 	 *
 	 */
-	public function index_action($mpid, $aid, $shareby = '', $page = '', $ek = '', $mocker = '', $code = null) {
+	public function index_action($mpid, $aid, $shareby = '', $page = '', $ek = '', $mocker = '', $code = null, $ignoretime = 'N') {
 		empty($mpid) && $this->outputError('没有指定当前公众号的ID');
 		empty($aid) && $this->outputError('登记活动ID为空');
 
 		$modelApp = $this->model('app\enroll');
-		$app = $modelApp->byId($aid);
-
+		$modelPage = $this->model('app\enroll\page');
+		$app = $modelApp->byId($aid, array('cascaded' => 'N'));
+		$app->pages = $modelPage->byApp($aid, array('cascaded' => 'N'));
 		/** 判断活动的开始结束时间 */
-		$tipPage = false;
-		$current = time();
-		if ($app->start_at != 0 && !empty($app->before_start_page) && $current < $app->start_at) {
-			$tipPage = $app->before_start_page;
-		} else if ($app->end_at != 0 && !empty($app->after_end_page) && $current > $app->end_at) {
-			$tipPage = $app->after_end_page;
-		}
-		if ($tipPage !== false) {
-			$mapPages = array();
-			foreach ($app->pages as &$p) {
-				$mapPages[$p->name] = $p;
+		if ($ignoretime === 'N') {
+			$tipPage = false;
+			$current = time();
+			if ($app->start_at != 0 && !empty($app->before_start_page) && $current < $app->start_at) {
+				$tipPage = $app->before_start_page;
+			} else if ($app->end_at != 0 && !empty($app->after_end_page) && $current > $app->end_at) {
+				$tipPage = $app->after_end_page;
 			}
-			$oPage = $mapPages[$tipPage];
-			!empty($oPage->html) && \TPL::assign('body', $oPage->html);
-			!empty($oPage->css) && \TPL::assign('css', $oPage->css);
-			!empty($oPage->js) && \TPL::assign('js', $oPage->js);
-			\TPL::assign('title', $app->title);
-			\TPL::output('info');
-			exit;
+			if ($tipPage !== false) {
+				$mapPages = array();
+				foreach ($app->pages as &$p) {
+					$mapPages[$p->name] = $p;
+				}
+				$oPage = $mapPages[$tipPage];
+				$oPage = $modelPage->byId($aid, $oPage->id);
+				!empty($oPage->html) && \TPL::assign('body', $oPage->html);
+				!empty($oPage->css) && \TPL::assign('css', $oPage->css);
+				!empty($oPage->js) && \TPL::assign('js', $oPage->js);
+				\TPL::assign('title', $app->title);
+				\TPL::output('info');
+				exit;
+			}
 		}
 		/*获得当前访问用户的信息*/
 		$openid = $this->doAuth($mpid, $code, $mocker);
@@ -87,7 +91,7 @@ class main extends base {
 		$this->logRead($mpid, $user, $app->id, 'enroll', $app->title, $shareby);
 		/*根据要打开的页面确定使用的模板*/
 		$oPage = null;
-		$hasEnrolled = $modelApp->hasEnrolled($mpid, $aid, $user->openid);
+		$hasEnrolled = $modelApp->hasEnrolled($mpid, $aid, $user);
 		empty($page) && $page = $this->_defaultPage($mpid, $app, $user, $hasEnrolled, true);
 		foreach ($app->pages as $p) {
 			if ($p->name === $page) {
@@ -132,7 +136,9 @@ class main extends base {
 		$params = array();
 
 		$modelApp = $this->model('app\enroll');
-		$app = $modelApp->byId($aid);
+		$modelPage = $this->model('app\enroll\page');
+		$app = $modelApp->byId($aid, array('cascaded' => 'N'));
+		/*登记活动定义*/
 		$params['app'] = $app;
 		/*当前访问用户的基本信息*/
 		$user = $this->getUser($mpid,
@@ -144,7 +150,8 @@ class main extends base {
 		);
 		$params['user'] = $user;
 		/*打开页面*/
-		$hasEnrolled = $modelApp->hasEnrolled($mpid, $app->id, $user->openid);
+		$app->pages = $modelPage->byApp($aid, array('cascaded' => 'N'));
+		$hasEnrolled = $modelApp->hasEnrolled($mpid, $app->id, $user);
 		empty($page) && $page = $this->_defaultPage($mpid, $app, $user, $hasEnrolled);
 		foreach ($app->pages as $p) {
 			if ($p->name === $page) {
@@ -155,6 +162,7 @@ class main extends base {
 		if (!isset($oPage)) {
 			return new \ResponseError('指定的页面[' . $page . ']不存在');
 		}
+		$oPage = $modelPage->byId($aid, $oPage->id);
 		$params['page'] = $oPage;
 		/* 自动登记 */
 		if (!$hasEnrolled && $app->can_autoenroll === 'Y' && $oPage->autoenroll_onenter === 'Y') {
@@ -162,7 +170,7 @@ class main extends base {
 			$options = array(
 				'fields' => 'enroll_key,enroll_at',
 			);
-			$lastRecord = $modelRec->getLast($mpid, $aid, $user->openid, $options);
+			$lastRecord = $modelRec->getLast($mpid, $aid, $user, $options);
 			if (false === $lastRecord) {
 				$modelRec->add($mpid, $app, $user, (empty($posted->referrer) ? '' : $posted->referrer));
 			} else if ($lastRecord->enroll_at === '0') {
@@ -186,100 +194,26 @@ class main extends base {
 					$newForm = true;
 				}
 			}
-		}
-		/*schema*/
-		$schema = $this->model('app\enroll\page')->schemaByApp($aid);
-		$params['schema'] = $schema;
-		/*公众号信息*/
-		$mpaccount = $this->getMpSetting($mpid);
-		$user_agent = $_SERVER['HTTP_USER_AGENT'];
-		if (preg_match('/yixin/i', $user_agent)) {
-			$modelMpa = $this->model('mp\mpaccount');
-			$mpa = $modelMpa->byId($mpid, 'yx_cardname,yx_cardid');
-			$mpaccount->yx_cardname = $mpa->yx_cardname;
-			$mpaccount->yx_cardid = $mpa->yx_cardid;
-		}
-		$params['mpaccount'] = $mpaccount;
-
-		return new \ResponseData($params);
-	}
-	/**
-	 *
-	 * $mpid
-	 * $app
-	 * $ek
-	 * $openid
-	 * $page
-	 * $newForm
-	 *
-	 */
-	private function _getRecord($mpid, $app, $rid, $ek, $openid, $page, $newForm = false) {
-		$openedek = $ek;
-		$record = null;
-		$modelRec = $this->model('app\enroll\record');
-		/**
-		 * 登记数据
-		 */
-		if (empty($openedek)) {
-			if (!$newForm) {
+			if ($newForm === false) {
 				/*获得最后一条登记数据。登记记录有可能未进行过登记*/
 				$options = array(
 					'fields' => '*',
 				);
-				$record = $modelRec->getLast($mpid, $app->id, $openid, $options);
-				if ($record) {
-					$openedek = $record->enroll_key;
-					if ($record->enroll_at) {
-						$record->data = $modelRec->dataById($openedek);
+				$modelRec = $this->model('app\enroll\record');
+				$lastRecord = $modelRec->getLast($mpid, $aid, $user, $options);
+				if ($lastRecord) {
+					if ($lastRecord->enroll_at) {
+						$lastRecord->data = $modelRec->dataById($lastRecord->enroll_key);
 					}
 				}
-			}
-		} else {
-			/*打开指定的登记记录*/
-			$record = $modelRec->byId($openedek);
-		}
-		/**
-		 * 互动数据
-		 */
-		if (!empty($openedek)) {
-			/*登记人信息*/
-			if (!empty($record->openid)) {
-				$options = array(
-					'openid' => $record->openid,
-					'verbose' => array('fan' => 'Y', 'member' => 'Y'),
-				);
-				$record->enroller = $this->getUser($mpid, $options);
-				if (!empty($record->enroller->fan)) {
-					if ($record->nickname !== $record->enroller->fan->nickname) {
-						$record->nickname = $record->enroller->fan->nickname;
-						$this->model()->update('xxt_enroll_record', array('nickname' => $record->nickname), "enroll_key='$record->enroll_key'");
-					}
-				}
-			}
-			/*评论数据*/
-			$record->remarks = $modelRec->remarks($openedek);
-			/*获得关联抽奖活动记录*/
-			$ql = array(
-				'award_title',
-				'xxt_lottery_log',
-				"enroll_key='$openedek'",
-			);
-			$lotteryResult = $this->model()->query_objs_ss($ql);
-			if (!empty($lotteryResult)) {
-				$lrs = array();
-				foreach ($lotteryResult as $lr) {
-					$lrs[] = $lr->award_title;
-				}
-				$record->data['lotteryResult'] = implode(',', $lrs);
+				$params['record'] = $lastRecord;
+				/*数据定义*/
+				$schema = $this->model('app\enroll\page')->schemaByApp($aid);
+				$params['schema'] = $schema;
 			}
 		}
-		/**
-		 * 统计数据
-		 */
-		$modelEnroll = $this->model('app\enroll');
-		$statdata = $modelEnroll->getStat($app->id);
 
-		return array($openedek, $record, $statdata);
+		return new \ResponseData($params);
 	}
 	/**
 	 * 获得指定坐标对应的地址名称
@@ -344,8 +278,60 @@ class main extends base {
 	 * name => array(l=>label,c=>count)
 	 *
 	 */
-	public function statGet_action($mpid, $aid) {
-		$result = $this->model('app\enroll')->getStat($aid);
+	public function statGet_action($mpid, $aid, $fromCache = 'N', $interval = 600) {
+		if ($fromCache === 'Y') {
+			$current = time();
+			$model = $this->model();
+			$q = array(
+				'create_at,id,title,v,l,c',
+				'xxt_enroll_record_stat',
+				"aid='$aid'",
+			);
+			$cached = $model->query_objs_ss($q);
+			if (count($cached) && $cached[0]->create_at >= $current - $interval) {
+				/*从缓存中获取统计数据*/
+				$result = array();
+				foreach ($cached as $data) {
+					if (isset($result[$data->id])) {
+						$item = &$result[$data->id];
+					} else {
+						$item = array(
+							'id' => $data->id,
+							'title' => $data->title,
+							'ops' => array(),
+						);
+						$result[$data->id] = &$item;
+					}
+					$op = array(
+						'v' => $data->v,
+						'l' => $data->l,
+						'c' => $data->c,
+					);
+					$item['ops'][] = $op;
+				}
+			} else {
+				$result = $this->model('app\enroll')->getStat($aid);
+				/*更新缓存的统计数据*/
+				$model->delete('xxt_enroll_record_stat', "aid='$aid'");
+				foreach ($result as $id => $stat) {
+					foreach ($stat['ops'] as $op) {
+						$r = array(
+							'aid' => $aid,
+							'create_at' => $current,
+							'id' => $id,
+							'title' => $stat['title'],
+							'v' => $op['v'],
+							'l' => $op['l'],
+							'c' => $op['c'],
+						);
+						$model->insert('xxt_enroll_record_stat', $r);
+					}
+				}
+			}
+		} else {
+			/*直接获取统计数据*/
+			$result = $this->model('app\enroll')->getStat($aid);
+		}
 
 		return new \ResponseData($result);
 	}

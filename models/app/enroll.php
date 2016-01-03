@@ -98,15 +98,22 @@ class enroll_model extends \matter\enroll_model {
 	 *
 	 * 如果设置轮次，只坚持当前轮次是否已经登记
 	 */
-	public function hasEnrolled($mpid, $aid, $openid) {
-		if (empty($mpid) || empty($aid) || empty($openid)) {
+	public function hasEnrolled($mpid, $aid, $user) {
+		if (empty($mpid) || empty($aid) || (empty($user->openid) && empty($user->vid))) {
 			return false;
 		}
 		$q = array(
 			'count(*)',
 			'xxt_enroll_record',
-			"state=1 and enroll_at>0 and mpid='$mpid' and aid='$aid' and openid='$openid'",
+			"state=1 and enroll_at>0 and mpid='$mpid' and aid='$aid'",
 		);
+		if (!empty($user->openid)) {
+			$q[2] .= " and openid='$user->openid'";
+		} else if (!empty($user->vid)) {
+			$q[2] .= " and vid='$user->vid'";
+		} else {
+			return false;
+		}
 		$modelRun = \TMS_APP::M('app\enroll\round');
 		if ($activeRound = $modelRun->getActive($mpid, $aid)) {
 			$q[2] .= " and rid='$activeRound->rid'";
@@ -123,7 +130,9 @@ class enroll_model extends \matter\enroll_model {
 	 */
 	public function signin($mpid, $aid, $openid) {
 		$modelRec = \TMS_APP::M('app\enroll\record');
-		if ($ek = $modelRec->getLastKey($mpid, $aid, $openid)) {
+		$user = new \stdClass;
+		$user->openid = $openid;
+		if ($ek = $modelRec->getLastKey($mpid, $aid, $user)) {
 			$enrolled = true;
 		} else {
 			$enrolled = false;
@@ -338,7 +347,9 @@ class enroll_model extends \matter\enroll_model {
 	 */
 	public function rankByFollower($mpid, $aid, $openid) {
 		$modelRec = \TMS_APP::M('app\enroll\record');
-		$last = $modelRec->getLast($mpid, $aid, $openid);
+		$user = new \stdClass;
+		$user->openid = $openid;
+		$last = $modelRec->getLast($mpid, $aid, $user);
 
 		$q = array(
 			'count(*)',

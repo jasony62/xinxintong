@@ -76,6 +76,22 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
+ * schema cache
+ */
+$sql = 'create table if not exists xxt_enroll_record_schema(';
+$sql .= 'aid varchar(40) not null';
+$sql .= ',create_at int not null';
+$sql .= ',id varchar(40) not null';
+$sql .= ',title varchar(255) not null';
+$sql .= ',type varchar(255) not null';
+$sql .= ',v varchar(40) not null';
+$sql .= ',l varchar(255) not null';
+$sql .= ',primary key(aid,id,v)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
  * 活动轮次
  */
 $sql = 'create table if not exists xxt_enroll_round(';
@@ -183,7 +199,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 自定义信息
+ * 自定义登记数据
  */
 $sql = 'create table if not exists xxt_enroll_record_data(';
 $sql .= 'aid varchar(40) not null';
@@ -192,6 +208,22 @@ $sql .= ',name varchar(40) not null';
 $sql .= ',value text';
 $sql .= ',state tinyint not null default 1'; //0:remove,1:normal
 $sql .= ',primary key(aid,enroll_key,name)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 自定义登记数据统计
+ */
+$sql = 'create table if not exists xxt_enroll_record_stat(';
+$sql .= 'aid varchar(40) not null';
+$sql .= ',create_at int not null';
+$sql .= ',id varchar(40) not null';
+$sql .= ',title varchar(255) not null';
+$sql .= ',v varchar(40) not null';
+$sql .= ',l varchar(255) not null';
+$sql .= ',c int not null';
+$sql .= ',primary key(aid,id,v)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;

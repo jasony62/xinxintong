@@ -321,11 +321,16 @@
     };
     WrapLib.prototype.embedRecord = function(page, def) {
         if (def.schema === undefined) return;
-        var c, html, htmls, _this;
+        var c, html, htmls, _this, attrs;
         htmls = [];
         c = 'form-group';
         def.inline && (c += ' wrap-inline');
         def.splitLine && (c += ' wrap-splitline');
+        attrs = {
+            'ng-controller': 'ctrlRecord',
+            wrap: 'static',
+            class: c
+        };
         angular.forEach(def.schema, function(s) {
             if (s.checked) {
                 switch (s.type) {
@@ -335,7 +340,8 @@
                     case 'radio':
                     case 'checkbox':
                     case 'option':
-                        html = '<label>' + s.title + '</label><div>{{Record.current.data.' + s.id + '|value2Label:"' + s.id + '"}}</div>';
+                        html = '<label>' + s.title + '</label><div>{{value2Label("' + s.id + '")}}</div>';
+                        attrs['enroll-schema'] = 'fromCache=Y;interval=600';
                         break;
                     case 'datetime':
                         html = "<label>" + s.title + "</label><div>{{Record.current.data." + s.id + "|date:'yy-MM-dd HH:mm'}}</div>";
@@ -361,11 +367,7 @@
         }
         _this = this;
         angular.forEach(htmls, function(h) {
-            _this.addWrap(page, 'div', {
-                'ng-controller': 'ctrlRecord',
-                wrap: 'static',
-                class: c
-            }, h);
+            _this.addWrap(page, 'div', attrs, h);
         });
     };
     WrapLib.prototype.embedList = function(page, def) {

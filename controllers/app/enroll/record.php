@@ -280,7 +280,7 @@ class record extends base {
 		/* 如果已经有登记记录则不登记 */
 		$modelRec = $this->model('app\enroll\record');
 		if ($once === 'Y') {
-			$ek = $modelRec->getLastKey($mpid, $aid, $user->openid);
+			$ek = $modelRec->getLastKey($mpid, $aid, $user);
 		}
 		/* 创建登记记录*/
 		if (empty($ek)) {
@@ -363,7 +363,7 @@ class record extends base {
 		/* 如果已经有登记记录则不登记 */
 		$modelRec = $this->model('app\enroll\record');
 		if ($state === '1') {
-			$ek = $modelRec->getLastKey($mpid, $aid, $user->openid);
+			$ek = $modelRec->getLastKey($mpid, $aid, $user);
 			if (!empty($ek)) {
 				$rsp = new \stdClass;
 				$rsp->ek = $ek;
@@ -425,7 +425,7 @@ class record extends base {
 			$options = array(
 				'fields' => '*',
 			);
-			$record = $modelRec->getLast($mpid, $aid, $user->openid, $options);
+			$record = $modelRec->getLast($mpid, $aid, $user, $options);
 			if ($record) {
 				$openedek = $record->enroll_key;
 				if ($record->enroll_at) {

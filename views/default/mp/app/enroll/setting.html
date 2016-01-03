@@ -3,6 +3,10 @@
         <div class='form-group'>
             <button class='btn btn-default' title='设置轮次' ng-if="editing.multi_rounds==='N'" ng-click="canRounds()">设置轮次</button>
         </div>
+        
+        <div class='form-group'>
+            <button class='btn btn-default' title='设置轮次' ng-if="editing.multi_rounds==='N'" ng-click="canRounds()">设置轮次</button>
+        </div>
         <div class='form-group' ng-if="mpaccount.asparent==='N'">
             <pushmatter class='btn btn-primary' matter-id={{editing.id}} matter-type='enroll'>发送给指定用户</pushmatter>
         </div>

@@ -1,5 +1,5 @@
 (function() {
-    xxtApp.register.controller('settingCtrl', ['$scope', 'http2', 'matterTypes', '$modal', function($scope, http2, matterTypes, $modal) {
+    xxtApp.register.controller('settingCtrl', ['$scope', 'http2', 'matterTypes', '$modal', 'templateShop', function($scope, http2, matterTypes, $modal, templateShop) {
         $scope.$parent.subView = 'setting';
         $scope.pages4OutAcl = [];
         $scope.pages4Unauth = [];
@@ -101,6 +101,20 @@
             };
             http2.post('/rest/mp/app/enroll/setFailureReply?aid=' + $scope.aid, p, function(rsp) {
                 $scope.editing.failureMatter = null;
+            });
+        };
+        $scope.saveAsTemplate = function() {
+            var matter, editing;
+            editing = $scope.editing;
+            matter = {
+                id: editing.id,
+                type: 'enroll',
+                title: editing.title,
+                pic: editing.pic,
+                summary: editing.summary
+            };
+            templateShop.share($scope.mpaccount.mpid, matter).then(function() {
+                $scope.$root.infomsg = '成功';
             });
         };
     }]);

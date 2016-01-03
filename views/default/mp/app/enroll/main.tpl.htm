@@ -2,7 +2,11 @@
     <div class='form-inline form-group clearfix'>
         <label class="checkbox-inline" ng-show="hasParent==='Y'">
         <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='fromParent' ng-change='doSearch()'>来源于父账号</label>
-        <button class='btn btn-success pull-right' ng-click='create()'>新建活动</button>
+        <div class='form-group pull-right'>
+            <button class='btn btn-success' ng-click='create()'>新建活动</button>
+            <button class='btn btn-success' ng-click='createByInner()'>从内置模版创建</button>
+            <button class='btn btn-success' ng-click='createByShare()'>从用户分享创建</button>
+        </div>
     </div>
     <div class='form-group clearfix' style='margin:0 -15px'>
         <div class='col-md-3 app' ng-repeat='app in apps'>
@@ -39,43 +43,36 @@
             <button class="close" ng-click="cancel()">×</button>
             <h5 class="modal-title">选择模板</h5>
         </div>
-        <div class="modal-body">
-            <ul class='list-group'>
-                <li class='list-group-item'>
-                    <button class="btn btn-success" ng-click="blank()">从头创建</button>
-                </li>
-                <li class='list-group-item clearfix template'>
-                    <div class='options'>
-                        <div class='form-group'>
-                            <label>场景</label>
-                            <select class='form-control' ng-model='data.scenario' ng-options='s as s.title for s in templates' ng-change='chooseScenario()'></select>
-                        </div>
-                        <div class='form-group'>
-                            <label>模板</label>
-                            <select class='form-control' ng-model='data.template' ng-options='t.title for t in data.scenario.templates' ng-change='chooseTemplate()'></select>
-                        </div>
-                        <div class='form-group'>
-                            <button class="btn" ng-class="{'btn-default':!selected.template,'btn-success':data.template}" ng-click="ok()" ng-disabled='!data.template'>从模板创建</button>
-                        </div>
-                    </div>
-                    <div class='pages'>
-                        <div class='form-group'>
-                            <select id='selectedPage' class='form-control' ng-model='data.selectedPage' ng-options='p.title for p in pages' ng-change='choosePage()'></select>
-                        </div>
-                        <div class='form-group'>
-                            <iframe id='simulator' src=""></iframe>
-                        </div>
-                    </div>
-                    <div class='schema' ng-if="data.scenario.name==='voting'">
-                        <div class='form-group'>
-                            <button class='btn btn-default' ng-click='choosePage()'>重新生成页面</button>
-                        </div>
-                        <div class='form-group'>
-                            <textarea id='schemaData' ng-model="data.simpleSchema"></textarea>
-                        </div>
-                    </div>
-                </li>
-            </ul>
+        <div class="modal-body template">
+            <div class='options'>
+                <div class='form-group'>
+                    <label>场景</label>
+                    <select class='form-control' ng-model='data.scenario' ng-options='s as s.title for s in templates' ng-change='chooseScenario()'></select>
+                </div>
+                <div class='form-group'>
+                    <label>模板</label>
+                    <select class='form-control' ng-model='data.template' ng-options='t.title for t in data.scenario.templates' ng-change='chooseTemplate()'></select>
+                </div>
+                <div class='form-group'>
+                    <button class="btn" ng-class="{'btn-default':!selected.template,'btn-success':data.template}" ng-click="ok()" ng-disabled='!data.template'>创建活动</button>
+                </div>
+            </div>
+            <div class='pages'>
+                <div class='form-group'>
+                    <select id='selectedPage' class='form-control' ng-model='data.selectedPage' ng-options='p.title for p in pages' ng-change='choosePage()'></select>
+                </div>
+                <div class='form-group'>
+                    <iframe id='simulator' src=""></iframe>
+                </div>
+            </div>
+            <div class='schema' ng-if="data.scenario.name==='voting'">
+                <div class='form-group'>
+                    <button class='btn btn-default' ng-click='choosePage()'>重新生成页面</button>
+                </div>
+                <div class='form-group'>
+                    <textarea id='schemaData' ng-model="data.simpleSchema"></textarea>
+                </div>
+            </div>
         </div>
     </script>
 </div>

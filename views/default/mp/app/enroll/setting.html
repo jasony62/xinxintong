@@ -1,13 +1,14 @@
 <div id='setting'>
-    <div class='form-inline form-group' style='text-align:right'>
+    <div class='form-inline form-group'>
         <div class='form-group'>
-            <button class='btn btn-default' title='设置轮次' ng-if="editing.multi_rounds==='N'" ng-click="canRounds()">设置轮次</button>
+            <button class='btn btn-default' ng-if="editing.multi_rounds==='N'" ng-click="canRounds()">设置轮次</button>
+            <button class='btn btn-success' ng-click='saveAsTemplate()'>分享为模板</button>
         </div>
-        <div class='form-group' ng-if="mpaccount.asparent==='N'">
+        <div class="form-group pull-right" ng-if="mpaccount.asparent==='N'">
             <pushmatter class='btn btn-primary' matter-id={{editing.id}} matter-type='enroll'>发送给指定用户</pushmatter>
-        </div>
-        <div class='qrcode form-group' ng-controller='SendmeController' ng-if="mpaccount.asparent==='N'">
-            <button class='btn btn-primary' data-toggle="popover" data-placement='left' ng-click="qrcode({type:'enroll',id:editing.id},$event)">发送给我</button>
+            <span class='qrcode' ng-controller='SendmeController'>
+                <button class='btn btn-primary' data-toggle="popover" data-placement='left' ng-click="qrcode({type:'enroll',id:editing.id},$event)">发送给我</button>
+            </span >
         </div>
     </div>
     <div id='attrs'>

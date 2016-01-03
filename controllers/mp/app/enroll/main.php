@@ -237,27 +237,110 @@ class main extends \mp\app\app_base {
 	}
 	/**
 	 * 复制一个登记活动
+	 *
+	 * @param int $template
+	 *
+	 * @return object ResponseData
 	 */
-	public function copy_action($aid = null, $shopid = null) {
+	public function createByOther_action($template) {
 		$account = \TMS_CLIENT::account();
-		$uid = \TMS_CLIENT::get_client_uid();
+		$uid = $account->uid;
 		$uname = $account->nickname;
 		$current = time();
-		$enrollModel = $this->model('app\enroll');
-		$codeModel = $this->model('code/page');
+		$modelApp = $this->model('app\enroll');
+		$modelPage = $this->model('app\enroll\page');
+		$modelCode = $this->model('code/page');
 
-		if (!empty($aid)) {
-			$copied = $enrollModel->byId($aid);
-		} else if (!empty($shopid)) {
-			$shopItem = $this->model('shop\shelf')->byId($shopid);
-			$aid = $shopItem->matter_id;
-			$copied = $enrollModel->byId($aid);
-			$copied->title = $shopItem->title;
-			$copied->summary = $shopItem->summary;
-			$copied->pic = $shopItem->pic;
-		} else {
-			return new \ResponseError('没有指定要复制登记活动id');
+		$template = $this->model('shop\shelf')->byId($template);
+		$aid = $template->matter_id;
+		$copied = $modelApp->byId($aid);
+		$copied->title = $template->title;
+		$copied->summary = $template->summary;
+		$copied->pic = $template->pic;
+		/**
+		 * 获得的基本信息
+		 */
+		$newaid = uniqid();
+		$newact['mpid'] = $this->mpid;
+		$newact['id'] = $newaid;
+		$newact['creater'] = $uid;
+		$newact['creater_src'] = 'A';
+		$newact['creater_name'] = $uname;
+		$newact['create_at'] = $current;
+		$newact['title'] = $copied->title . '（副本）';
+		$newact['pic'] = $copied->pic;
+		$newact['summary'] = $copied->summary;
+		$newact['public_visible'] = $copied->public_visible;
+		$newact['open_lastroll'] = $copied->open_lastroll;
+		$newact['can_signin'] = $copied->can_signin;
+		$newact['can_lottery'] = $copied->can_lottery;
+		$newact['tags'] = $copied->tags;
+		$newact['enrolled_entry_page'] = $copied->enrolled_entry_page;
+		$newact['receiver_page'] = $copied->receiver_page;
+		$newact['entry_rule'] = json_encode($copied->entry_rule);
+		$this->model()->insert('xxt_enroll', $newact, false);
+		/**
+		 * 复制自定义页面
+		 */
+		if ($copied->pages) {
+			foreach ($copied->pages as $ep) {
+				$newPage = $modelPage->add($this->mpid, $newaid);
+				$rst = $modelPage->update(
+					'xxt_enroll_page',
+					array('title' => $ep->title, 'name' => $ep->name),
+					"aid='$newaid' and id=$newPage->id"
+				);
+				$data = array(
+					'title' => $ep->title,
+					'html' => $ep->html,
+					'css' => $ep->css,
+					'js' => $ep->js,
+				);
+				$modelCode->modify($newPage->code_id, $data);
+			}
 		}
+		/**
+		 * 复制抽奖页内容
+		 */
+		if ($copied->can_lottery === 'Y' && $copied->lottery_page_id) {
+			$lp = $modelCode->byId($copied->lottery_page_id);
+			$code = $modelCode->create($uid);
+			$rst = $modelPage->update(
+				'xxt_enroll',
+				array('lottery_page_id' => $code->id),
+				"id='$newaid'"
+			);
+			$data = array(
+				'title' => $lp->title,
+				'html' => $lp->html,
+				'css' => $lp->css,
+				'js' => $lp->js,
+			);
+			$modelCode->modify($code->id, $data);
+			foreach ($lp->ext_js as $ejs) {
+				$modelCode->insert('xxt_code_external', array('code_id' => $code->id, 'type' => 'J', 'url' => $ejs->url), false);
+			}
+			foreach ($lp->ext_css as $ecss) {
+				$modelCode->insert('xxt_code_external', array('code_id' => $code->id, 'type' => 'C', 'url' => $ecss->url), false);
+			}
+		}
+
+		$app = $modelApp->byId($newaid, array('cascaded' => 'N'));
+
+		return new \ResponseData($app);
+	}
+	/**
+	 * 复制一个登记活动
+	 */
+	public function copy_action($aid) {
+		$account = \TMS_CLIENT::account();
+		$uid = $account->uid;
+		$uname = $account->nickname;
+		$current = time();
+		$modelApp = $this->model('app\enroll');
+		$modelCode = $this->model('code/page');
+
+		$copied = $modelApp->byId($aid);
 		/**
 		 * 获得的基本信息
 		 */
@@ -306,7 +389,7 @@ class main extends \mp\app\app_base {
 					'css' => $ep->css,
 					'js' => $ep->js,
 				);
-				$codeModel->modify($newPage->code_id, $data);
+				$modelCode->modify($newPage->code_id, $data);
 			}
 		}
 		if ($copied->mpid === $this->mpid) {
@@ -335,10 +418,35 @@ class main extends \mp\app\app_base {
 			$sql .= " where matter_id='$aid'";
 			$this->model()->insert($sql, '', false);
 		}
+		/**
+		 * 复制抽奖页内容
+		 */
+		if ($copied->can_lottery === 'Y' && $copied->lottery_page_id) {
+			$lp = $modelCode->byId($copied->lottery_page_id);
+			$code = $modelCode->create($uid);
+			$rst = $modelPage->update(
+				'xxt_enroll',
+				array('lottery_page_id' => $code->id),
+				"id='$newaid'"
+			);
+			$data = array(
+				'title' => $lp->title,
+				'html' => $lp->html,
+				'css' => $lp->css,
+				'js' => $lp->js,
+			);
+			$modelCode->modify($code->id, $data);
+			foreach ($lp->ext_js as $ejs) {
+				$modelCode->insert('xxt_code_external', array('code_id' => $code->id, 'type' => 'J', 'url' => $ejs->url), false);
+			}
+			foreach ($lp->ext_css as $ecss) {
+				$modelCode->insert('xxt_code_external', array('code_id' => $code->id, 'type' => 'C', 'url' => $ecss->url), false);
+			}
+		}
 
-		$act = $enrollModel->byId($newaid);
+		$app = $modelApp->byId($newaid, array('cascaded' => 'N'));
 
-		return new \ResponseData($act);
+		return new \ResponseData($app);
 	}
 	/**
 	 * 更新活动的属性信息

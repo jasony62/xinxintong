@@ -15,7 +15,7 @@ $sql[] = "drop table if exists xxt_mprelay";
 $sql[] = "drop table if exists xxt_mpadministrator";
 $sql[] = "drop table if exists xxt_mppermission";
 /**
- * 素材 
+ * 素材
  */
 $sql[] = "drop table if exists xxt_article";
 $sql[] = "drop table if exists xxt_article_remark";
@@ -53,7 +53,7 @@ $sql[] = "drop table if exists xxt_call_qrcode";
 $sql[] = "drop table if exists xxt_call_other";
 $sql[] = "drop table if exists xxt_call_acl";
 /**
- * 用户 
+ * 用户
  */
 $sql[] = 'drop table if exists xxt_visitor';
 $sql[] = "drop table if exists xxt_fans";
@@ -103,17 +103,21 @@ $sql[] = 'drop table if exists xxt_checkin_log';
 /*
  * 微信墙
  */
-$sql[] = 'drop table if exists  xxt_wall';
-$sql[] = 'drop table if exists  xxt_wall_enroll';
-$sql[] = 'drop table if exists  xxt_wall_log';
+$sql[] = 'drop table if exists xxt_wall';
+$sql[] = 'drop table if exists xxt_wall_enroll';
+$sql[] = 'drop table if exists xxt_wall_log';
+/**
+ * 素材共享
+ */
+$sql[] = 'drop table if exists xxt_shop_matter';
 /**
  * 执行操作
  */
 foreach ($sql as $s) {
-    if (!$mysqli->query($s)) {
-        header('HTTP/1.0 500 Internal Server Error');
-        echo 'database error: '.$mysqli->error;
-    }
+	if (!$mysqli->query($s)) {
+		header('HTTP/1.0 500 Internal Server Error');
+		echo 'database error: ' . $mysqli->error;
+	}
 }
 
-echo 'finished.';
+echo 'drop all finished.';

@@ -48,8 +48,9 @@ class page_model extends \TMS_MODEL {
 	/**
 	 * 返回指定登记活动的页面
 	 */
-	public function &byApp($aid, $fields = null) {
-		$fields === null && $fields = 'id,name,type,title,code_id,autoenroll_onenter,autoenroll_onshare,check_entry_rule,share_page,share_summary,seq';
+	public function &byApp($aid, $options = array()) {
+		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
+		$fields = isset($options['fields']) ? $options['fields'] : 'id,name,type,title,code_id,autoenroll_onenter,autoenroll_onshare,check_entry_rule,share_page,share_summary,seq';
 		$q = array(
 			$fields,
 			'xxt_enroll_page',
@@ -57,17 +58,21 @@ class page_model extends \TMS_MODEL {
 		);
 		$q2 = array('o' => 'seq,create_at');
 		$eps = $this->query_objs_ss($q, $q2);
-		foreach ($eps as &$ep) {
-			$code = \TMS_APP::model('code/page')->byId($ep->code_id);
-			$ep->html = $code->html;
-			$ep->css = $code->css;
-			$ep->js = $code->js;
-			$ep->ext_js = $code->ext_js;
-			$ep->ext_css = $code->ext_css;
-			$pages[] = $ep;
+		if ($cascaded === 'Y' && !empty($eps)) {
+			$pages = array();
+			foreach ($eps as &$ep) {
+				$code = \TMS_APP::model('code/page')->byId($ep->code_id);
+				$ep->html = $code->html;
+				$ep->css = $code->css;
+				$ep->js = $code->js;
+				$ep->ext_js = $code->ext_js;
+				$ep->ext_css = $code->ext_css;
+				$pages[] = $ep;
+			}
+			return $pages;
+		} else {
+			return $eps;
 		}
-
-		return $pages;
 	}
 	/**
 	 * 从页面的html中提取登记项定义
@@ -212,7 +217,7 @@ class page_model extends \TMS_MODEL {
 
 		if ($size !== null && $size > 0 && $size < count($defs)) {
 			/**
-			 * 随机获得指定数量的登记项
+			 * 随机获得指定数量的登记项（为了解决随机获得答题的场景）
 			 */
 			$randomDefs = array();
 			$upper = count($defs) - 1;

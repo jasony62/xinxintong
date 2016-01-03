@@ -196,25 +196,6 @@ app.factory('Statistic', ['$http', function($http) {
     };
     return Stat;
 }]);
-app.factory('Schema', ['$http', '$q', function($http, $q) {
-    var schema, Schema;
-    schema = null;
-    Schema = function() {};
-    Schema.prototype.get = function() {
-        var deferred;
-        deferred = $q.defer();
-        if (schema !== null) {
-            deferred.resolve(schema);
-        } else {
-            $http.get(LS.j('page/schemaGet', 'mpid', 'aid')).success(function(rsp) {
-                schema = rsp.data;
-                deferred.resolve(schema);
-            });
-        }
-        return deferred.promise;
-    };
-    return Schema;
-}]);
 app.controller('ctrlRecords', ['$scope', 'Record', function($scope, Record) {
     var facRecord, options, fnFetch;
     facRecord = Record.ins(LS.p.mpid, LS.p.aid, LS.p.rid);
@@ -252,6 +233,31 @@ app.controller('ctrlRecords', ['$scope', 'Record', function($scope, Record) {
 }]);
 app.controller('ctrlRecord', ['$scope', 'Record', function($scope, Record) {
     var facRecord;
+    $scope.value2Label = function(key) {
+        var val, schemas, i, j, s, aVal, aLab = [];
+        if ($scope.Schema && $scope.Schema.data && facRecord.current.data) {
+            val = facRecord.current.data[key];
+            if (val === undefined) return '';
+            schemas = $scope.Schema.data;
+            for (i = 0, j = schemas.length; i < j; i++) {
+                s = schemas[i];
+                if (schemas[i].id === key) {
+                    s = schemas[i];
+                    break;
+                }
+            }
+            if (s && s.ops && s.ops.length) {
+                aVal = val.split(',');
+                for (i = 0, j = s.ops.length; i < j; i++) {
+                    aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].label);
+                }
+                if (aLab.length) return aLab.join(',');
+            }
+            return val;
+        } else {
+            return '';
+        }
+    };
     $scope.editRecord = function(event, page) {
         page ? $scope.gotoPage(event, page, facRecord.current.enroll_key) : alert('没有指定登记编辑页');
     };
@@ -364,12 +370,55 @@ app.controller('ctrlInvite', ['$scope', '$http', 'Record', function($scope, $htt
 }]);
 app.controller('ctrlStatistic', ['$scope', '$http', function($scope, $http) {
     var fnFetch;
-    fnFetch = function() {
-        $http.get(LS.j('statGet', 'mpid', 'aid')).success(function(rsp) {
+    fnFetch = function(options) {
+        var url;
+        url = LS.j('statGet', 'mpid', 'aid');
+        if (options) {
+            if (options.fromCache && options.fromCache === 'Y') {
+                url += '&fromCache=Y';
+                if (options.interval) {
+                    url += '&interval=' + options.interval;
+                }
+            }
+        }
+        $http.get(url).success(function(rsp) {
             $scope.statistic = rsp.data;
         });
     };
-    fnFetch();
+    $scope.fetch = fnFetch;
+}]);
+app.directive('enrollStatistic', [function() {
+    return {
+        restrict: 'A',
+        link: function(scope, elem, attrs) {
+            var i, params, pv, options;
+            params = attrs.enrollStatistic.split(';');
+            options = {};
+            for (i in params) {
+                pv = params[i];
+                pv = pv.split('=');
+                options[pv[0]] = pv[1];
+            }
+            scope.fetch(options);
+        }
+    };
+}]);
+app.directive('enrollSchema', ['Schema', function(facSchema) {
+    return {
+        restrict: 'A',
+        link: function(scope, elem, attrs) {
+            var i, params, pv, options;
+            params = attrs.enrollSchema.split(';');
+            options = {};
+            for (i in params) {
+                pv = params[i];
+                pv = pv.split('=');
+                options[pv[0]] = pv[1];
+            }
+            scope.Schema = facSchema.ins();
+            scope.Schema.get(options);
+        }
+    };
 }]);
 app.controller('ctrlView', ['$scope', function($scope) {
     $scope.$on('xxt.app.enroll.filter.owner', function(event, data) {
@@ -377,29 +426,4 @@ app.controller('ctrlView', ['$scope', function($scope) {
             $scope.$broadcast('xxt.app.enroll.filter.owner', data);
         }
     });
-}]);
-app.filter('value2Label', ['Schema', function(Schema) {
-    var schemas;
-    (new Schema()).get().then(function(data) {
-        schemas = data;
-    });
-    return function(val, key) {
-        var i, j, s, aVal, aLab = [];
-        if (val === undefined) return '';
-        for (i = 0, j = schemas.length; i < j; i++) {
-            s = schemas[i];
-            if (schemas[i].id === key) {
-                s = schemas[i];
-                break;
-            }
-        }
-        if (s && s.ops && s.ops.length) {
-            aVal = val.split(',');
-            for (i = 0, j = s.ops.length; i < j; i++) {
-                aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].label);
-            }
-            if (aLab.length) return aLab.join(',');
-        }
-        return val;
-    };
 }]);

@@ -71,9 +71,10 @@
                         <input type='checkbox' ng-model='selected[$index]'>
                     </td>
                     <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
-                    <td>
-                        <a href='javascript:void(0)' xxt-fid='{{r.fid}}' ng-click='viewUser(r)'>{{r.nickname}}</a>
+                    <td ng-if="r.openid">
+                        <a href='javascript:void(0)' userpopover xxt-fid='{{r.fid}}' ng-click='viewUser(r)'>{{r.nickname||r.openid}}</a>
                     </td>
+                    <td ng-if="!r.openid"><span>{{r.vid}}</span></td>
                     <td ng-repeat="c in schema">
                         <span ng-if="c.id.indexOf('member')===0">{{memberAttr(r.data, c.id)}}</span>
                         <span ng-if="c.type!=='img'&&c.type!=='file'">{{value2Label(r.data[c.id], c.id)}}</span>

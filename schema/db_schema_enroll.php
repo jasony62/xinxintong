@@ -31,7 +31,7 @@ $sql .= ',failure_matter_id varchar(128)';
 $sql .= ",enrolled_entry_page varchar(20) not null default ''";
 $sql .= ",receiver_page varchar(20) not null default ''";
 $sql .= ",remark_notice_page varchar(20) not null default ''";
-$sql .= ',form_code_id int not null default 0'; // 表单页
+$sql .= ',form_code_id int not null default 0'; // 表单页 should remove
 $sql .= ',lottery_page_id int not null default 0'; // 抽奖页
 $sql .= ",open_lastroll char(1) not null default 'Y'"; // 打开最后一条登记记录，还是编辑新的
 $sql .= ",multi_rounds char(1) not null default 'N'"; // 支持轮次
@@ -71,6 +71,22 @@ $sql .= ",autoenroll_onenter char(1) not null default 'N'"; // 进入时自动�
 $sql .= ",autoenroll_onshare char(1) not null default 'N'"; // 分享时自动登记
 $sql .= ",seq int not null"; //页面序号
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * schema cache
+ */
+$sql = 'create table if not exists xxt_enroll_record_schema(';
+$sql .= 'aid varchar(40) not null';
+$sql .= ',create_at int not null';
+$sql .= ',id varchar(40) not null';
+$sql .= ',title varchar(255) not null';
+$sql .= ',type varchar(255) not null';
+$sql .= ',v varchar(40) not null';
+$sql .= ',l varchar(255) not null';
+$sql .= ',primary key(aid,id,v)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;
@@ -183,7 +199,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 自定义信息
+ * 自定义登记数据
  */
 $sql = 'create table if not exists xxt_enroll_record_data(';
 $sql .= 'aid varchar(40) not null';
@@ -192,6 +208,22 @@ $sql .= ',name varchar(40) not null';
 $sql .= ',value text';
 $sql .= ',state tinyint not null default 1'; //0:remove,1:normal
 $sql .= ',primary key(aid,enroll_key,name)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 自定义登记数据统计
+ */
+$sql = 'create table if not exists xxt_enroll_record_stat(';
+$sql .= 'aid varchar(40) not null';
+$sql .= ',create_at int not null';
+$sql .= ',id varchar(40) not null';
+$sql .= ',title varchar(255) not null';
+$sql .= ',v varchar(40) not null';
+$sql .= ',l varchar(255) not null';
+$sql .= ',c int not null';
+$sql .= ',primary key(aid,id,v)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;

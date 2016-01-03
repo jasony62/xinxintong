@@ -15,5 +15,6 @@
 #records .table th{text-align:center;}
 #records .table th.custom-col{width:140px;}
 #records .table a{word-break:break-all;}
+#records .table td span{word-break:break-all;}
 #records .record td img{max-width:64px;max-height:64px}
 .record-editor img{max-width:100%}

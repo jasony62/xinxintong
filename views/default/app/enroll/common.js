@@ -11,7 +11,9 @@ if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage !== undefi
     }, false);
 }
 var LS = (function(fields) {
-    function locationSearch() {
+    var _ins;
+
+    function extract() {
         var ls, search;
         ls = location.search;
         search = {};
@@ -25,23 +27,27 @@ var LS = (function(fields) {
     };
     /*join search*/
     function j(method) {
-        var j, l, url = '/rest/app/enroll',
+        var i = 1,
+            l = arguments.length,
+            url = '/rest/app/enroll',
             _this = this,
             search = [];
         method && method.length && (url += '/' + method);
-        if (arguments.length > 1) {
-            for (i = 1, l = arguments.length; i < l; i++) {
-                search.push(arguments[i] + '=' + _this.p[arguments[i]]);
-            };
-            url += '?' + search.join('&');
-        }
+        for (; i < l; i++) {
+            search.push(arguments[i] + '=' + _this.p[arguments[i]]);
+        };
+        this.p['ignoretime'] === 'Y' && search.push('ignoretime=' + this.p['ignoretime']);
+        search.length && (url += '?' + search.join('&'));
         return url;
     };
-    return {
-        p: locationSearch(),
-        j: j
+    if (_ins === undefined) {
+        _ins = {
+            p: extract(),
+            j: j
+        }
     };
-})(['mpid', 'aid', 'rid', 'page', 'ek', 'preview', 'newRecord']);
+    return _ins;
+})(['mpid', 'aid', 'rid', 'page', 'ek', 'preview', 'newRecord', 'ignoretime']);
 var PG = (function() {
     return {
         exec: function(task) {
@@ -61,9 +67,9 @@ var PG = (function() {
                 fn.apply(obj, args);
             }
         },
-        setMember: function(params, member) {
-            if (params && member && member.authid && params.user.members && params.user.members.length) {
-                angular.forEach(params.user.members, function(member2) {
+        setMember: function(user, member) {
+            if (user && member && member.authid && user.members && user.members.length) {
+                angular.forEach(user.members, function(member2) {
                     if (member2.authapi_id == member.authid) {
                         $("[ng-model^='data.member']").each(function() {
                             var attr;
@@ -177,6 +183,46 @@ app.config(['$controllerProvider', function($cp) {
         controller: $cp.register
     };
 }]);
+app.factory('Schema', ['$http', '$q', function($http, $q) {
+    var Cls, _running, _ins;
+    _running = false;
+    Cls = function() {
+        this.data = null;
+    };
+    Cls.prototype.get = function(options) {
+        var deferred, url, _this;
+        if (_running) return false;
+        _running = true;
+        deferred = $q.defer();
+        if (this.data !== null) {
+            deferred.resolve(this.data);
+        } else {
+            url = LS.j('page/schemaGet', 'mpid', 'aid');
+            if (options) {
+                if (options.fromCache && options.fromCache === 'Y') {
+                    url += '&fromCache=Y';
+                    if (options.interval) {
+                        url += '&interval=' + options.interval;
+                    }
+                }
+            }
+            _this = this;
+            $http.get(url).success(function(rsp) {
+                _this.data = rsp.data;
+                deferred.resolve(_this.data);
+            });
+        }
+        return deferred.promise;
+    };
+    return {
+        ins: function() {
+            if (_ins === undefined) {
+                _ins = new Cls();
+            }
+            return _ins;
+        }
+    };
+}]);
 app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
     var tasksOfOnReady = [];
     $scope.errmsg = '';
@@ -261,10 +307,8 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
         var params;
         params = rsp.data;
         $scope.params = params;
-        $scope.mpa = params.mpaccount;
         $scope.App = params.app;
         $scope.User = params.user;
-        $scope.Schema = params.schema;
         if (params.app.multi_rounds === 'Y') {
             $scope.ActiveRound = params.activeRound;
         }

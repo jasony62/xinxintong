@@ -1,4 +1,4 @@
-xxtApp.controller('enrollCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+xxtApp.controller('enrollCtrl', ['$scope', '$modal', 'http2', 'templateShop', function($scope, $modal, http2, templateShop) {
     $scope.page = {
         at: 1,
         size: 30
@@ -12,6 +12,13 @@ xxtApp.controller('enrollCtrl', ['$scope', '$modal', 'http2', function($scope, $
         });
     };
     $scope.create = function() {
+        var url, config;
+        url = '/rest/mp/app/enroll/create';
+        http2.post(url, {}, function(rsp) {
+            location.href = '/rest/mp/app/enroll/detail?aid=' + rsp.data.id;
+        });
+    };
+    $scope.createByInner = function() {
         $modal.open({
             templateUrl: 'templatePicker.html',
             size: 'lg',
@@ -83,6 +90,25 @@ xxtApp.controller('enrollCtrl', ['$scope', '$modal', 'http2', function($scope, $
             });
         })
     };
+    $scope.createByShare = function() {
+        templateShop.choose('enroll').then(function(data) {
+            var url;
+            url = '/rest/mp/app/enroll/createByOther?template=' + data.id;
+            http2.get(url, function(rsp) {
+                location.href = '/rest/mp/app/enroll/detail?aid=' + rsp.data.id;
+            });
+        });
+    };
+    $scope.copy = function(copied, event) {
+        event.preventDefault();
+        event.stopPropagation();
+        var url;
+        url = '/rest/mp/app/enroll/copy?';
+        url += 'aid=' + copied.id;
+        http2.get(url, function(rsp) {
+            location.href = '/rest/mp/app/enroll/detail?aid=' + rsp.data.id;
+        });
+    };
     $scope.open = function(aid) {
         location.href = '/rest/mp/app/enroll/detail?aid=' + aid;
     };
@@ -92,18 +118,6 @@ xxtApp.controller('enrollCtrl', ['$scope', '$modal', 'http2', function($scope, $
         http2.get('/rest/mp/app/enroll/remove?aid=' + act.id, function(rsp) {
             var i = $scope.apps.indexOf(act);
             $scope.apps.splice(i, 1);
-        });
-    };
-    $scope.copy = function(copied, event) {
-        event.preventDefault();
-        event.stopPropagation();
-        var url = '/rest/mp/app/enroll/copy?';
-        if (copied.id)
-            url += 'aid=' + copied.id;
-        else if (copied.shopid)
-            url += 'shopid=' + copied.shopid;
-        http2.get(url, function(rsp) {
-            location.href = '/rest/mp/app/enroll/detail?aid=' + rsp.data.id;
         });
     };
     $scope.doSearch();

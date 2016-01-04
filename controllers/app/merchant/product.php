@@ -70,10 +70,11 @@ class product extends \member_base {
 	 * @param int $endAt 商品的sku的有效期结束时间
 	 *
 	 */
-	public function list_action($catelog, $pvids = '', $beginAt = 0, $endAt = 0, $cascaded = 'N') {
+	public function list_action($catelog, $pvids = '', $beginAt = 0, $endAt = 0, $cascaded = 'N', $hasSku = 'N') {
 		/*分类*/
+		$modelCate = $this->model('app\merchant\catelog');
 		$cateFields = 'id,sid,name,pattern,pages';
-		$catelog = $this->model('app\merchant\catelog')->byId($catelog, array('fields' => $cateFields, 'cascaded' => 'Y'));
+		$catelog = $modelCate->byId($catelog, array('fields' => $cateFields, 'cascaded' => 'Y'));
 		/*商品属性*/
 		$pvids = empty($pvids) ? array() : explode(',', $pvids);
 		/*商品状态*/
@@ -94,8 +95,55 @@ class product extends \member_base {
 		);
 		$modelProd = $this->model('app\merchant\product');
 		$products = $modelProd->byPropValue($catelog, $pvids, $options);
-
-		return new \ResponseData(array('products' => $products, 'catelog' => $catelog));
+		if ($hasSku === 'Y') {
+			$products2 = array();
+			/*过滤掉没有sku的商品*/
+			$cateSkus = $modelCate->skus($catelog->id);
+			foreach ($products as &$prod) {
+				if ($prod->cateSkus === false) {
+					foreach ($cateSkus as $cs) {
+						if ($cs->can_autogen === 'Y') {
+							$skus = $modelCate->autogenByCateSku($cs, $beginAt, $endAt);
+							if (!empty($skus)) {
+								if ($prod->cateSkus === false) {
+									$prod->cateSkus = new \stdClass;
+								}
+								$cs->skus = $skus;
+								$prod->cateSkus->{$cs->id} = $cs;
+							}
+						}
+					}
+				} else {
+					$i = $j = 0;
+					foreach ($prod->cateSkus as $cs) {
+						$i++;
+						if (!$this->_checkSkuValidity($cs->skus, $beginAt, $endAt)) {
+							unset($prod->cateSkus->{$cs->id});
+							$j++;
+						}
+					}
+					$i === $j && $prod->cateSkus = false;
+				}
+				if ($prod->cateSkus !== false) {
+					/*检查在指定的时间范围内是否有sku*/
+					$products2[] = $prod;
+				}
+			}
+			return new \ResponseData(array('products' => $products2, 'catelog' => $catelog));
+		} else {
+			return new \ResponseData(array('products' => $products, 'catelog' => $catelog));
+		}
+	}
+	/**
+	 * 只要在连续的sku中，有任何一个sku在指定时间范围内已经被专用，就整体不可用
+	 */
+	private function _checkSkuValidity(&$skus, $beginAt, $endAt) {
+		foreach ($skus as $sku) {
+			if ((int) $sku->quantity === 0 && (int) $sku->validity_begin_at >= $beginAt && (int) $sku->validity_end_at <= $endAt) {
+				return false;
+			}
+		}
+		return true;
 	}
 	/**
 	 *

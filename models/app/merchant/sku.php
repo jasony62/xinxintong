@@ -107,8 +107,8 @@ class sku_model extends \TMS_MODEL {
 		$skus = $this->query_objs_ss($q, $q2);
 		/*sku的分类信息*/
 		$cateSkus = array();
+		$modelCate = \TMS_MODEL::M('app\merchant\catelog');
 		if (!empty($skus)) {
-			$modelCate = \TMS_MODEL::M('app\merchant\catelog');
 			$cateSkuOptions = array(
 				'fields' => 'id,name,has_validity,require_pay',
 			);
@@ -123,13 +123,13 @@ class sku_model extends \TMS_MODEL {
 				unset($sku->cate_sku_id);
 			}
 		} else {
-			/*检查是否生成过sku*/
+			/*检查是否生成过sku，如果没有生成过返回false*/
 			$q = array(
-				'1',
+				'count(*)',
 				'xxt_merchant_product_gensku_log',
 				"prod_id=$productId and begin_at=$beginAt and end_at=$endAt",
 			);
-			if ('1' !== $this->query_val_ss($q)) {
+			if (0 === (int) $this->query_val_ss($q)) {
 				$cateSkus = false;
 			}
 		}

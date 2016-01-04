@@ -595,17 +595,18 @@ class auth extends \member_base {
 					'xxt_member',
 					"mpid='$mpid' and openid='$user->userid'",
 				);
-				$memeber = $model->query_obj_ss($q);
-				if (empty($memeber->tags)) {
-					$memeber->tags = $memberTagId;
-				} else {
-					$memeber->tags .= ',' . $memberTagId;
+				if ($memeber = $model->query_obj_ss($q)) {
+					if (empty($memeber->tags)) {
+						$memeber->tags = $memberTagId;
+					} else {
+						$memeber->tags .= ',' . $memberTagId;
+					}
+					$model->update(
+						'xxt_member',
+						array('tags' => $memeber->tags),
+						"mpid='$mpid' and openid='$user->userid'"
+					);
 				}
-				$model->update(
-					'xxt_member',
-					array('tags' => $memeber->tags),
-					"mpid='$mpid' and openid='$user->userid'"
-				);
 			}
 		}
 		/**

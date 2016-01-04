@@ -12,12 +12,11 @@ xxtApp.controller('memberCtrl', ['$scope', 'http2', function($scope, http2) {
             filter = '&kw=' + $scope.page.keyword;
             filter += '&by=' + $scope.page.searchBy;
         }
-        url = '/rest/mp/user/member/get?authid=' + $scope.selectedAuthapi.authid;
+        url = '/rest/mp/user/member/list?authid=' + $scope.selectedAuthapi.authid;
         url += '&page=' + $scope.page.at + '&size=' + $scope.page.size + filter
-        url += '&contain=total';
-        if ($scope.attrs === undefined) url += ',memberAttrs';
+        url += '&contain=total,memberAttrs';
         http2.get(url, function(rsp) {
-            var i, member, members = rsp.data[0];
+            var i, member, members = rsp.data.members;
             for (i in members) {
                 member = members[i];
                 if (member.extattr) {
@@ -29,8 +28,8 @@ xxtApp.controller('memberCtrl', ['$scope', 'http2', function($scope, http2) {
                 }
             }
             $scope.roll = members;
-            rsp.data[1] !== undefined && ($scope.page.total = rsp.data[1]);
-            rsp.data[2] && ($scope.attrs = rsp.data[2]);
+            $scope.page.total = rsp.data.total;
+            $scope.attrs = rsp.data.attrs;
         });
     };
     $scope.changeAuthapi = function() {

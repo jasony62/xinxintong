@@ -38,7 +38,7 @@ class member extends \mp\mp_controller {
 	 *
 	 * return member list|total|itemsSetting
 	 */
-	public function get_action($authid, $page = 1, $size = 30, $kw = null, $by = null, $dept = null, $tag = null, $contain = '') {
+	public function list_action($authid, $page = 1, $size = 30, $kw = null, $by = null, $dept = null, $tag = null, $contain = '') {
 		$contain = explode(',', $contain);
 
 		$w = "m.authapi_id=$authid and m.forbidden='N'";
@@ -59,7 +59,7 @@ class member extends \mp\mp_controller {
 		if (!empty($tag)) {
 			$w .= " and concat(',',m.tags,',') like '%,$tag,%'";
 		}
-
+		$result = array();
 		$q = array(
 			'm.*',
 			'xxt_member m',
@@ -69,32 +69,34 @@ class member extends \mp\mp_controller {
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
 		if ($members = $this->model()->query_objs_ss($q, $q2)) {
-			$result[] = $members;
+			$result['members'] = $members;
 			if (in_array('total', $contain)) {
 				$q[0] = 'count(*)';
 				$total = (int) $this->model()->query_val_ss($q);
-				$result[] = $total;
+				$result['total'] = $total;
 			}
-			if (in_array('memberAttrs', $contain)) {
-				/**
-				 * 0-5 注册用户的基本信息
-				 */
-				$setting = $this->model('user/authapi')->byId($authid, 'attr_mobile,attr_email,attr_name,extattr');
-				/**
-				 * 注册用户的其他属性，例如：会员卡号，会员积分
-				 */
-				//$features = $this->model('mp\mpaccount')->getFeature($this->mpid);
-				//$setting->can_member_card = $features->can_member_card;
-				//$setting->can_member_credits = $features->can_member_credits;
-				/**
-				 * 返回属性设置信息
-				 */
-				$result[] = $setting;
-			}
-			return new \ResponseData($result);
+		} else {
+			$result['members'] = array();
+			$result['total'] = 0;
+		}
+		if (in_array('memberAttrs', $contain)) {
+			/**
+			 * 0-5 注册用户的基本信息
+			 */
+			$setting = $this->model('user/authapi')->byId($authid, 'attr_mobile,attr_email,attr_name,extattr');
+			/**
+			 * 注册用户的其他属性，例如：会员卡号，会员积分
+			 */
+			//$features = $this->model('mp\mpaccount')->getFeature($this->mpid);
+			//$setting->can_member_card = $features->can_member_card;
+			//$setting->can_member_credits = $features->can_member_credits;
+			/**
+			 * 返回属性设置信息
+			 */
+			$result['attrs'] = $setting;
 		}
 
-		return new \ResponseData(array());
+		return new \ResponseData($result);
 	}
 	/**
 	 * 直接创建一个认证用户

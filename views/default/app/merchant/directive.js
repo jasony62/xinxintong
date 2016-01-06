@@ -66,13 +66,13 @@ app.directive('dynaComponent', ['$compile', '$http', function($compile, $http) {
         }
     };
 }]);
-app.directive('tmsDatetime', ['$compile', function($compile) {
+app.directive('tmsDate', ['$compile', function($compile) {
     return {
         restrict: 'A',
         scope: {
-            value: '=tmsDatetimeValue',
-            items: '@tmsDatetimeItems',
-            autoNow: '@tmsDatetimeAutoNow'
+            value: '=tmsDateValue',
+            items: '@tmsDateItems',
+            autoNow: '@tmsDateAutoNow'
         },
         controller: function($scope) {
             $scope.close = function() {
@@ -144,6 +144,81 @@ app.directive('tmsDatetime', ['$compile', function($compile) {
                 $compile(html)(scope);
             };
             $(elem).find('[ng-bind]').click(fnOpenPicker);
+        }
+    }
+}]);
+app.directive('tmsTime', ['$compile', function($compile) {
+    var format = function(timePoint) {
+        var h, m;
+        h = Math.floor(timePoint / 60);
+        m = timePoint - (h * 60);
+        m < 10 && (m = '0' + m);
+        return h + ':' + m;
+    };
+    return {
+        restrict: 'A',
+        scope: {
+            value: '=tmsTimeValue',
+            begin: '@tmsTimeBegin',
+            end: '@tmsTimeEnd',
+            interval: '@tmsTimeInterval'
+        },
+        template: '<span ng-repeat="t in timePoints" ng-bind="t.l" ng-class="{\'selected\':t.selected}" ng-click="chooseTime(t)"></span>',
+        controller: function($scope) {
+            var choosedTime = {
+                begin: null,
+                end: null
+            };
+            $scope.chooseTime = function(time) {
+                time.selected = !time.selected;
+                if (choosedTime.begin === time) {
+                    choosedTime.begin = choosedTime.end;
+                    choosedTime.end = null;
+                } else if (choosedTime.end === time) {
+                    choosedTime.end = null;
+                } else if (choosedTime.begin === null) {
+                    choosedTime.begin = time;
+                } else if (choosedTime.end === null) {
+                    if (time.v > choosedTime.begin.v) {
+                        choosedTime.end = time;
+                    } else {
+                        choosedTime.end = choosedTime.begin;
+                        choosedTime.begin = time;
+                    }
+                } else {
+                    if (time.v < choosedTime.begin.v) {
+                        choosedTime.begin.selected = false;
+                        choosedTime.begin = time;
+                    } else if (time.v > choosedTime.end.v) {
+                        choosedTime.end.selected = false;
+                        choosedTime.end = time;
+                    } else {
+                        if (time.v - choosedTime.begin.v < choosedTime.end.v - time.v) {
+                            choosedTime.begin.selected = false;
+                            choosedTime.begin = time;
+                        } else {
+                            choosedTime.end.selected = false;
+                            choosedTime.end = time;
+                        }
+                    }
+                }
+                $scope.value.begin = choosedTime.begin !== null ? choosedTime.begin.v : null;
+                $scope.value.end = choosedTime.end !== null ? choosedTime.end.v : null;
+            };
+        },
+        link: function(scope, elem, attrs) {
+            var timePoint, endPoint, timePoints;
+            timePoints = [];
+            timePoint = scope.begin * 60;
+            endPoint = scope.end * 60;
+            while (timePoint <= endPoint) {
+                timePoints.push({
+                    v: timePoint * 60 * 1000,
+                    l: format(timePoint)
+                });
+                timePoint += parseInt(scope.interval);
+            }
+            scope.timePoints = timePoints;
         }
     }
 }]);

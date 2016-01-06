@@ -10,11 +10,11 @@ __util.makeDialog = function(id, html) {
     $('body').append($dlg);
     return $dlg.contents();
 };
-app.directive('tmsDatetime', ['$compile', function($compile) {
+app.directive('tmsDate', ['$compile', function($compile) {
     return {
         restrict: 'A',
         scope: {
-            value: '=tmsDatetimeValue'
+            value: '=tmsDateValue'
         },
         controller: function($scope) {
             $scope.close = function() {

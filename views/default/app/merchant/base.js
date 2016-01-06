@@ -106,7 +106,7 @@ app.factory('Product', function($http, $q) {
         });
         return promise;
     };
-    Product.prototype.list = function(catelogId, propValues, beginAt, endAt) {
+    Product.prototype.list = function(catelogId, propValues, beginAt, endAt, hasSku) {
         var deferred, promise, url;
         deferred = $q.defer();
         promise = deferred.promise;
@@ -114,6 +114,7 @@ app.factory('Product', function($http, $q) {
         propValues && propValues.length && (url += '&pvids=' + propValues);
         beginAt && (url += '&beginAt=' + beginAt);
         endAt && (url += '&endAt=' + endAt);
+        hasSku && (url += '&hasSku=' + hasSku);
         url += '&cascaded=Y';
         $http.get(url).success(function(rsp) {
             if (typeof rsp === 'undefined') {

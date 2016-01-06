@@ -5,19 +5,26 @@
 				<select class='form-control' ng-model='selectedCatelog' ng-options='c.name for c in catelogs' ng-change='listProduct()'></select>
 			</div>
 			<div class='form-group' ng-repeat='p in selectedCatelog.properties'>
-				<div class='name' ng-bind='p.name'></div>
+				<div class='title' ng-bind='p.name'></div>
 				<div class='options'>
 					<span class='option' ng-class="{'selected':v._selected}" ng-repeat="v in selectedCatelog.propValues[p.id]" ng-bind='v.name' ng-click='clickOption(p,v)'></span>
 				</div>
 			</div>
-			<div class='date input-group' tms-datetime tms-datetime-value="options.time.begin" tms-datetime-items="yMd" tms-datetime-auto-now="N" ng-if="selectedCatelog.has_validity='Y'">
-                <span class='input-group-btn'>
-                    <button class='btn btn-default' ng-click='prevDay()'>上一天</button>
-                </span>
-                <p class='form-control' ng-bind="options.time.begin|date:'yy/MM/dd'"></p>
-                <span class='input-group-btn'>
-                    <button class='btn btn-default' ng-click='nextDay()'>下一天</button>
-                </span>
+			<div class='form-group' ng-if="selectedCatelog.has_validity='Y'">
+			    <div class='title'>日期</div>
+    			<div class='date input-group' tms-date tms-date-value="options.date.begin" tms-date-items="yMd" tms-date-auto-now="N">
+                    <span class='input-group-btn'>
+                        <button class='btn btn-default' ng-click='prevDay()'>上一天</button>
+                    </span>
+                    <p class='form-control' ng-bind="options.date.begin|date:'yy/MM/dd'"></p>
+                    <span class='input-group-btn'>
+                        <button class='btn btn-default' ng-click='nextDay()'>下一天</button>
+                    </span>
+                </div>
+            </div>
+            <div class='form-group' ng-if="selectedCatelog.has_validity='Y'">
+                <div class='title'>时间段</div>
+                <div class='tms-time' tms-time tms-time-value="options.time" tms-time-begin="0" tms-time-end="24" tms-time-interval="60"></div>
             </div>
 			<footer>
 				<button ng-click='toggleFilter()'>取消</button>
@@ -31,7 +38,7 @@
 			<div class='col-sm-6' ng-repeat='prod in products'>
 				<div class='thumbnail' ng-click='gotoProduct(prod)'>
 					<div class='profile'>
-						<div class='product-img'><img ng-src='{{prod.main_img}}'></div>
+						<div class='product-img' ng-if="prod.main_img"><img ng-src='{{prod.main_img}}'></div>
 						<div class='product properties'>
 							<div class='product-name' ng-bind='prod.name'></div>
 							<div class='property-ext'><span ng-repeat='ep in prod.propValue'>{{ep.name}}</span></div>

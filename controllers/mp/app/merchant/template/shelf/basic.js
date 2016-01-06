@@ -64,8 +64,8 @@ app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', 'Catelog', '
 		var summary, mapOfPv;
 		summary = [];
 		if ($scope.selectedCatelog) {
-			if ($scope.selectedCatelog.has_validity === 'Y' && $scope.options.time) {
-				summary.push($filter('date')($scope.options.time.begin, 'yyyy-MM-dd'));
+			if ($scope.selectedCatelog.has_validity === 'Y' && $scope.options.date) {
+				summary.push($filter('date')($scope.options.date.begin, 'yyyy-MM-dd'));
 			}
 			mapOfPv = {};
 			angular.forEach($scope.selectedCatelog.propValues, function(pvs) {
@@ -82,29 +82,36 @@ app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', 'Catelog', '
 	facCatelog = new Catelog($scope.$parent.mpid, $scope.$parent.shopId);
 	facProduct = new Product($scope.$parent.mpid, $scope.$parent.shopId);
 	$scope.prevDay = function() {
-		$scope.options.time.begin -= 86400000;
-		$scope.options.time.end -= 86400000;
+		$scope.options.date.begin -= 86400000;
+		$scope.options.date.end -= 86400000;
 	};
 	$scope.nextDay = function() {
-		$scope.options.time.begin = parseInt($scope.options.time.begin) + parseInt(86400000);
-		$scope.options.time.end = parseInt($scope.options.time.end) + parseInt(86400000);
+		$scope.options.date.begin = parseInt($scope.options.date.begin) + parseInt(86400000);
+		$scope.options.date.end = parseInt($scope.options.date.end) + parseInt(86400000);
 	};
-	$scope.filterOpened = false;
-	$scope.toggleFilter = function() {
+	var initFilter = function() {
 		var today;
+		today = new Date();
+		today.setHours(0, 0, 0, 0);
+		today = today.getTime();
+		$scope.options.date = {
+			begin: today,
+			end: parseInt(today) + parseInt(86399000)
+		};
+		$scope.options.time = {
+			begin: null,
+			end: null
+		};
+	};
+	$scope.toggleFilter = function() {
 		$scope.filterOpened = !$scope.filterOpened;
-		if ($scope.selectedCatelog.has_validity === 'Y' && $scope.filterOpened) {
-			if ($scope.options.time === undefined) {
-				today = new Date();
-				today.setHours(0, 0, 0, 0);
-				today = today.getTime();
-				$scope.options.time = {
-					begin: today,
-					end: parseInt(today) + parseInt(86399000)
-				};
+		if ($scope.selectedCatelog.has_validity === 'Y') {
+			if ($scope.options.date === undefined) {
+				initFilter();
 			}
 		}
 	};
+	$scope.filterOpened = false;
 	$scope.clickOption = function(prop, propValue) {
 		propValue._selected = !propValue._selected;
 		if (propValue._selected) {
@@ -121,13 +128,21 @@ app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', 'Catelog', '
 	$scope.listProduct = function() {
 		var pvids, beginAt, endAt;
 		pvids = $scope.options.propValues.join(',');
-		if ($scope.options.time) {
-			beginAt = Math.round($scope.options.time.begin / 1000);
-			endAt = Math.round($scope.options.time.end / 1000);
+		if ($scope.options.date) {
+			if ($scope.options.time.begin) {
+				beginAt = Math.round(($scope.options.date.begin + $scope.options.time.begin) / 1000);
+			} else {
+				beginAt = Math.round($scope.options.date.begin / 1000);
+			}
+			if ($scope.options.time.end) {
+				endAt = Math.round(($scope.options.date.begin + $scope.options.time.end) / 1000);
+			} else {
+				endAt = Math.round($scope.options.date.end / 1000);
+			}
 		} else {
 			beginAt = endAt = undefined;
 		}
-		facProduct.list($scope.selectedCatelog.id, pvids, beginAt, endAt).then(function(data) {
+		facProduct.list($scope.selectedCatelog.id, pvids, beginAt, endAt, 'Y').then(function(data) {
 			setSku(data.products);
 			$scope.products = data.products;
 		});
@@ -140,7 +155,11 @@ app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', 'Catelog', '
 		if (catelogs.length) {
 			$scope.selectedCatelog = catelogs[0];
 			setPropOptions();
-			$scope.listProduct();
+			if ($scope.filterOpened) {
+				initFilter();
+			} else {
+				$scope.listProduct();
+			}
 		}
 	});
 }]);

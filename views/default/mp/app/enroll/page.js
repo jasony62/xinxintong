@@ -213,10 +213,10 @@
                 def.type === 'auth' && (html += 'ng-init="data.member.authid=' + def.auth.authid + '"');
                 html += ' class="form-control input-lg">';
                 break;
-            case 'datetime':
-                inpAttrs['tms-datetime'] = 'Y';
-                inpAttrs['tms-datetime-value'] = 'data.' + key;
-                html += '<div wrap="datetime" ng-bind="data.' + key + '|date:\'yy-MM-dd HH:mm\'"';
+            case 'date':
+                inpAttrs['tms-date'] = 'Y';
+                inpAttrs['tms-date-value'] = 'data.' + key;
+                html += '<div wrap="datet" ng-bind="data.' + key + '|date:\'yy-MM-dd HH:mm\'"';
                 html += ' title="' + def.name + '"';
                 html += ' placeholder="' + def.name + '"';
                 def.required == 1 && (html += 'required=""');

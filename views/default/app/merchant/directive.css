@@ -5,3 +5,8 @@
 .dialog .dlg-body{padding:15px 15px 0 15px}
 .dialog .dlg-footer{text-align:right;padding:15px}
 .dialog .dlg-footer button{border-radius:0}
+
+/*time*/
+.tms-time{border:1px solid green;border-right:0;border-bottom:0;}
+.tms-time span{display:inline-block;width:25%;border:1px solid green;border-left:0;border-top:0;padding:.25em;}
+.tms-time .selected{background:green;color:white;}

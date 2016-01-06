@@ -2,10 +2,11 @@ body{background-color:#ddd;}
 
 /*filter*/
 #filter{background:white;padding:1em;}
-.name{margin-bottom:.25em;}
-.option{display:inline-block;border:1px solid green;padding:.25em;margin-right:.5em;}
-.option.selected{background:green;color:white;}
+#fitler .title{margin-bottom:.25em;}
+#filter .option{display:inline-block;border:1px solid green;padding:.25em;margin-right:.5em;}
+#filter .option.selected{background:green;color:white;}
 #filter .date .form-control{text-align:center}
+
 
 /*products*/
 .thumbnail{position:relative;padding:8px;}

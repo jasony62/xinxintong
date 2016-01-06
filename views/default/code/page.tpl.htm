@@ -34,7 +34,7 @@
             <div id='panel'>
                 <div id='html' ng-class="{'max':maxed==='html'}">
                     <pre id='htmlEditor' class='editor' title='html'></pre>
-                    <button class='btn btn-sm btn-default' title='保存' ng-click="save('html')">
+                    <button class='btn btn-sm' ng-class="htmlChanged?'btn-success':'btn-default'" title='保存' ng-click="save('html')">
                         <span class='glyphicon glyphicon-save'></span>
                     </button>
                     <button class='btn btn-sm btn-default' title='缩放' ng-click="zoom('html')">
@@ -43,7 +43,7 @@
                 </div>
                 <div id='css' ng-class="{'max':maxed==='css'}">
                     <pre id='cssEditor' class='editor' title='css'></pre>
-                    <button class='btn btn-sm btn-default' title='保存' ng-click="save('css')">
+                    <button class='btn btn-sm' ng-class="cssChanged?'btn-success':'btn-default'" title='保存' ng-click="save('css')">
                         <span class='glyphicon glyphicon-save'></span>
                     </button>
                     <button class='btn btn-sm btn-default' title='缩放' ng-click="zoom('css')">
@@ -52,7 +52,7 @@
                 </div>
                 <div id='js' ng-class="{'max':maxed==='js'}">
                     <pre id='jsEditor' class='editor' title='javascript'></pre>
-                    <button class='btn btn-sm btn-default' title='保存' ng-click="save('js')">
+                    <button class='btn btn-sm' ng-class="jsChanged?'btn-success':'btn-default'" title='保存' ng-click="save('js')">
                         <span class='glyphicon glyphicon-save'></span>
                     </button>
                     <button class='btn btn-sm btn-default' title='缩放' ng-click="zoom('js')">

@@ -7,13 +7,13 @@ body{background-color:#ddd;}
 #filter .option.selected{background:green;color:white;}
 #filter .date .form-control{text-align:center}
 
-
 /*products*/
 .thumbnail{position:relative;padding:8px;}
+.thumbnail input[type=checkbox]{width:48px;height:48px;position:absolute;right:8px;}
 .thumbnail .profile{height:64px;display:table}
-.thumbnail .product-img{display:table-cell;height:64px;width:64px;}
+.thumbnail .product-img{display:table-cell;height:64px;width:79px;padding-right:15px;}
 .thumbnail .product-img img{width:100%;height:100%}
-.thumbnail .product.properties{display:table-cell;padding-left:15px;vertical-align:middle}
+.thumbnail .product.properties{display:table-cell;vertical-align:middle}
 .thumbnail .property-ext span{display:inline-block;margin-right:4px;}
 .thumbnail .product-detail_text{max-height:64px;margin-top:4px;overflow-y:auto}
 @media screen and (max-width:750px){

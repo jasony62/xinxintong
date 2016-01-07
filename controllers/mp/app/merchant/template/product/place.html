@@ -30,8 +30,8 @@
         <div ng-repeat='cateSku in cateSkus'>
             <div class='sku-grid clearfix' ng-show='cateSku.skus.length'>
                 <div class='sku' ng-class="{'selected':sku.selected,'unavailable':sku.quantity<=0}" ng-repeat='sku in cateSku.skus' ng-click='chooseSku(cateSku,sku)'>
-                    <div class='beginAt' ng-bind="sku.validity_begin_at*1000|date:'hh:mm'"></div>
-                    <div class='endAt' ng-bind="sku.validity_end_at*1000|date:'hh:mm'"></div>
+                    <div class='beginAt' ng-bind="sku.validity_begin_at*1000|date:'HH:mm'"></div>
+                    <div class='endAt' ng-bind="sku.validity_end_at*1000|date:'HH:mm'"></div>
                 </div>
             </div>
         </div>

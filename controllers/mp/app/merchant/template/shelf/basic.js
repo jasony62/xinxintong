@@ -60,7 +60,7 @@ app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', 'Catelog', '
 			}
 		}
 	};
-	var setFilterSummary = function() {
+	var summaryOfFilter = function() {
 		var summary, mapOfPv;
 		summary = [];
 		if ($scope.selectedCatelog) {
@@ -91,17 +91,19 @@ app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', 'Catelog', '
 	};
 	var initFilter = function() {
 		var today;
-		today = new Date();
-		today.setHours(0, 0, 0, 0);
-		today = today.getTime();
-		$scope.options.date = {
-			begin: today,
-			end: parseInt(today) + parseInt(86399000)
-		};
-		$scope.options.time = {
-			begin: null,
-			end: null
-		};
+		if (!$scope.options.date) {
+			today = new Date();
+			today.setHours(0, 0, 0, 0);
+			today = today.getTime();
+			$scope.options.date = {
+				begin: today,
+				end: parseInt(today) + parseInt(86399000)
+			};
+			$scope.options.time = {
+				begin: null,
+				end: null
+			};
+ 		}
 	};
 	$scope.toggleFilter = function() {
 		$scope.filterOpened = !$scope.filterOpened;
@@ -123,22 +125,17 @@ app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', 'Catelog', '
 	$scope.doFilter = function() {
 		$scope.listProduct();
 		$scope.toggleFilter();
-		setFilterSummary();
+		summaryOfFilter();
+	};
+	$scope.chooseProd = function(event, prod) {
+		event.stopPropagation();
 	};
 	$scope.listProduct = function() {
 		var pvids, beginAt, endAt;
 		pvids = $scope.options.propValues.join(',');
-		if ($scope.options.date) {
-			if ($scope.options.time.begin) {
-				beginAt = Math.round(($scope.options.date.begin + $scope.options.time.begin) / 1000);
-			} else {
-				beginAt = Math.round($scope.options.date.begin / 1000);
-			}
-			if ($scope.options.time.end) {
-				endAt = Math.round(($scope.options.date.begin + $scope.options.time.end) / 1000);
-			} else {
-				endAt = Math.round($scope.options.date.end / 1000);
-			}
+		if (datetime = datetimeOfFilter($scope.options)) {
+			beginAt = datetime.begin;
+			endAt = datetime.end;
 		} else {
 			beginAt = endAt = undefined;
 		}
@@ -148,7 +145,7 @@ app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', 'Catelog', '
 		});
 	};
 	$scope.$watch('selectedCatelog', function(nv) {
-		nv && setFilterSummary();
+		nv && summaryOfFilter();
 	});
 	facCatelog.get().then(function(catelogs) {
 		$scope.catelogs = catelogs;

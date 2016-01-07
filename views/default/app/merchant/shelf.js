@@ -39,21 +39,39 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Catelog', 'Product', fun
             countOfProducts: products
         };
     })();
-    $scope.gotoProduct = function(product) {
+    $scope.gotoProduct = function(product, autoChooseSku) {
         Cookies.set('xxt.app.merchant.shelf.options', JSON.stringify($scope.options));
-        var url;
+        var url, datetime;
         url = '/rest/app/merchant/product?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&catelog=' + product.cate_id + '&product=' + product.id;
-        if ($scope.options.time) {
-            url += '&beginAt=' + $scope.options.time.begin;
-            url += '&endAt=' + $scope.options.time.end;
+        if (datetime = datetimeOfFilter($scope.options)) {
+            url += '&beginAt=' + datetime.begin * 1000;
+            url += '&endAt=' + datetime.end * 1000;
+        }
+        if (autoChooseSku && autoChooseSku === 'Y') {
+            url += '&autoChooseSku=Y';
         }
         location.href = url;
     };
     $scope.gotoOrderlist = function() {
         location.href = '/rest/app/merchant/orderlist?mpid=' + $scope.mpid + '&shop=' + $scope.shopId;
     };
-    $scope.gotoOrder = function(product) {
-        location.href = '/rest/app/merchant/order?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&catelog=' + product.cate_id + '&product=' + product.id;
+    /*生成订单*/
+    $scope.gotoOrder = function(products) {
+        var url, i, skuIds;
+        skuIds = [];
+        angular.forEach(products, function(prod) {
+            if (prod._checked) {
+                angular.forEach(prod.cateSkus, function(cateSku) {
+                    angular.forEach(cateSku.skus, function(sku) {
+                        skuIds.push(sku.id);
+                    });
+                });
+            }
+        });
+        if (skuIds.length === 0) return;
+        url = '/rest/app/merchant/order?mpid=' + $scope.mpid + '&shop=' + $scope.shopId;
+        url += '&skus=' + skuIds.join(',');
+        location.href = url;
     };
     $scope.gotoCart = function() {
         url = '/rest/app/merchant/cart?mpid=' + $scope.mpid + '&shop=' + $scope.shopId;

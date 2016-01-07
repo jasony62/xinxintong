@@ -47,6 +47,25 @@ window.setPage = function($scope, page) {
         $scope.Page = page;
     }
 };
+var datetimeOfFilter = function(options) {
+    var dt;
+    dt = {};
+    if (options && options.date) {
+        if (options.time.begin) {
+            dt.begin = Math.round((options.date.begin + options.time.begin) / 1000);
+        } else {
+            dt.begin = Math.round(options.date.begin / 1000);
+        }
+        if (options.time.end) {
+            dt.end = Math.round((options.date.begin + options.time.end) / 1000);
+        } else {
+            dt.end = Math.round(options.date.end / 1000);
+        }
+        return dt;
+    } else {
+        return false;
+    }
+};
 app = angular.module('app', ['ngSanitize']);
 app.config(['$controllerProvider', function($cp) {
     app.register = {

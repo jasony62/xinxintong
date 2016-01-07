@@ -3,7 +3,6 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
     ls = location.search;
     $scope.mpid = ls.match(/mpid=([^&]*)/)[1];
     $scope.shopId = ls.match(/shop=([^&]*)/)[1];
-    $scope.productId = ls.match(/[\?&]product=(.+?)(&|$)/) ? ls.match(/[\?&]product=(.+?)(&|$)/)[1] : '';
     skuIds = Cookies.get('xxt.app.merchant.cart.skus');
     $scope.skuIds = skuIds;
     $scope.errmsg = '';
@@ -29,7 +28,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
         }
         if (skuIds.length === 0) return;
 
-        url = '/rest/app/merchant/order?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&product=' + $scope.productId;
+        url = '/rest/app/merchant/order?mpid=' + $scope.mpid + '&shop=' + $scope.shopId;
         url += '&skus=' + skuIds.join(',');
 
         location.href = url;

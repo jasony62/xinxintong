@@ -9,12 +9,22 @@ app.register.controller('productCtrl', ['$scope', '$http', '$timeout', 'Product'
 			$scope.propValues = product.propValue;
 			facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId);
 			options = {
-				beginAt: $scope.skuFilter.time.begin / 1000,
-				endAt: $scope.skuFilter.time.end / 1000,
+				beginAt: $scope.skuFilter.time.begin,
+				endAt: $scope.skuFilter.time.end,
 				autogen: 'Y'
 			};
 			facSku.get(product.catelog.id, id, options).then(function(skus) {
 				$scope.cateSkus = skus;
+				if ($scope.autoChooseSku === 'Y') {
+					angular.forEach($scope.cateSkus, function(cateSku) {
+						if (cateSku.skus.length) {
+							$scope.chooseSku(cateSku, cateSku.skus[0]);
+						}
+						if (cateSku.skus.length > 1) {
+							$scope.chooseSku(cateSku, cateSku.skus[cateSku.skus.length - 1]);
+						}
+					});
+				}
 			})
 		});
 	};

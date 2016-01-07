@@ -7,6 +7,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
     $scope.productId = ls.match(/[\?&]product=(.+?)(&|$)/) ? ls.match(/[\?&]product=(.+?)(&|$)/)[1] : '';
     $scope.beginAt = ls.match(/[\?&]beginAt=(.+?)(&|$)/) ? ls.match(/[\?&]beginAt=(.+?)(&|$)/)[1] : false;
     $scope.endAt = ls.match(/[\?&]endAt=(.+?)(&|$)/) ? ls.match(/[\?&]endAt=(.+?)(&|$)/)[1] : false;
+    $scope.autoChooseSku = ls.match(/[\?&]autoChooseSku=(.+?)(&|$)/) ? ls.match(/[\?&]autoChooseSku=(.+?)(&|$)/)[1] : 'N';
     $scope.errmsg = '';
     $scope.Cart = (function() {
         var products;

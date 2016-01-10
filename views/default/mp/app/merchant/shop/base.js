@@ -84,14 +84,14 @@ xxtApp.controller('settingCtrl', ['$scope', 'http2', '$modal', 'Authapi', functi
         desc: ''
     }, {
         id: '-1',
-        name: '用户取消',
-        title: '已取消',
-        desc: '用户提交订单后取消订单'
-    }, {
-        id: '-2',
         name: '客服取消',
         title: '已取消',
         desc: '客户取消订单'
+    }, {
+        id: '-2',
+        name: '用户取消',
+        title: '已取消',
+        desc: '用户提交订单后取消订单'
     }];
     $scope.authapis = [];
     (new Authapi()).get('N').then(function(data) {

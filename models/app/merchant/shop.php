@@ -5,11 +5,12 @@ namespace app\merchant;
  */
 class shop_model extends \TMS_MODEL {
 	/*
-	 *
-	 */
-	public function &byId($id) {
+		 *
+	*/
+	public function &byId($id, $options = array()) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$q = array(
-			'*',
+			$fields,
 			'xxt_merchant_shop s',
 			"id='$id'",
 		);

@@ -16,6 +16,7 @@ $sql .= ',pic text';
 $sql .= ',summary varchar(240) not null';
 $sql .= ",approved char(1) not null default 'N'";
 $sql .= ",buyer_api text";
+$sql .= ",order_status text";
 $sql .= ",access_control char(1) not null default 'N'";
 $sql .= ",authapis text";
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';

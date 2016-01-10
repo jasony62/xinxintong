@@ -331,3 +331,41 @@ app.factory('Order', function($http, $q) {
     };
     return Order;
 });
+app.factory('Cart', function() {
+    var Cart = function() {};
+    Cart.prototype.add = function(product, skus) {
+        var prodIds, skuIds;
+        if (!product || !skus || Object.keys(skus).length === 0) return;
+        /*products*/
+        prodIds = Cookies.get('xxt.app.merchant.cart.products');
+        if (prodIds === undefined || prodIds.length === 0) {
+            prodIds = [];
+        } else {
+            prodIds = prodIds.split(',');
+        }
+        prodIds.indexOf(product.id) === -1 && prodIds.push(product.id);
+        Cookies.set('xxt.app.merchant.cart.products', prodIds.join(','));
+        /*skus*/
+        skuIds = Cookies.get('xxt.app.merchant.cart.skus');
+        if (skuIds === undefined || skuIds.length === 0) {
+            skuIds = [];
+        } else {
+            skuIds = skuIds.split(',');
+        }
+        angular.forEach(skus, function(sku, skuId) {
+            skuIds.indexOf(skuId) === -1 && skuIds.push(skuId);
+        });
+        Cookies.set('xxt.app.merchant.cart.skus', skuIds.join(','));
+    };
+    Cart.prototype.count = function() {
+        var products;
+        products = Cookies.get('xxt.app.merchant.cart.products');
+        if (products && products.length) {
+            products = products.split(',').length;
+        } else {
+            products = 0;
+        }
+        return products;
+    };
+    return Cart;
+});

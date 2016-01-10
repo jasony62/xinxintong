@@ -33,13 +33,15 @@
 		</div>
 	</div>
 	<div ng-show='!filterOpened'>
-		<div class="form-group">
-			<div id='filterSummary' class='form-control input-lg'>筛选条件：<span ng-bind="filterSummary"></span></div>
+		<div class="form-group" ng-click="toggleFilter()">
+			<button id='filterSummary' class='btn btn-default btn-block btn-lg'>筛选：<span ng-bind="filterSummary"></span><span class="glyphicon glyphicon-chevron-right"></span></button>
 		</div>
 		<div id='products' class='row'>
 			<div class='col-sm-6' ng-repeat="prod in products">
 				<div class='thumbnail' ng-click="gotoProduct(prod)">
-					<input type='checkbox' ng-model="prod._checked" ng-click="chooseProd($event,prod)">
+					<div class='grip' ng-click="chooseProd($event,prod)">
+						<div ng-class="{'checked':prod._checked}"></div>
+					</div>
 					<div class='profile'>
 						<div class='product-img' ng-if="prod.main_img"><img ng-src="{{prod.main_img}}"></div>
 						<div class='product properties'>
@@ -64,7 +66,7 @@
 		</div>
 		<footer>
 			<button ng-click="gotoOrderlist()">我的订单</button>
-			<button class='cart' ng-click="gotoOrder(products)">生成订单</button>
+			<button ng-disabled="orderInfo.products.length===0" ng-click="gotoOrder(orderInfo.products)">生成订单</button>
 			<button class='cart' ng-click="gotoCart()"><span>已选</span><div class='status' ng-bind="Cart.countOfProducts"></div></button>
 			<button ng-click="toggleFilter()">筛选</button>
 		</footer>

@@ -31,14 +31,24 @@ app.register.controller('productCtrl', ['$scope', '$http', '$timeout', 'Product'
 	today = new Date();
 	today.setHours(0, 0, 0, 0);
 	today = today.getTime();
-	$scope.orderInfo = {
-		skus: {}
-	};
-	$scope.skuLoading = false;
 	$scope.skuFilter = {
 		time: {
 			begin: $scope.beginAt || today,
 			end: $scope.endAt || (parseInt(today) + parseInt(86399000))
+		}
+	};
+	$scope.orderInfo = {
+		skus: {},
+		countOfSkus: 0,
+		push: function(sku) {
+			this.skus[sku.id] = {
+				count: 1
+			};
+			this.countOfSkus++;
+		},
+		remove: function(sku) {
+			delete this.skus[sku.id];
+			this.countOfSkus--;
 		}
 	};
 	$scope.prevDay = function() {
@@ -61,9 +71,7 @@ app.register.controller('productCtrl', ['$scope', '$http', '$timeout', 'Product'
 			sku = cateSku.skus[i];
 			if (!sku.selected) {
 				sku.selected = true;
-				$scope.orderInfo.skus[sku.id] = {
-					count: 1
-				};
+				$scope.orderInfo.push(sku);
 			}
 		}
 	};
@@ -71,9 +79,7 @@ app.register.controller('productCtrl', ['$scope', '$http', '$timeout', 'Product'
 		if (sku.quantity == 0) return;
 		sku.selected = !sku.selected;
 		if (sku.selected) {
-			$scope.orderInfo.skus[sku.id] = {
-				count: 1
-			};
+			$scope.orderInfo.push(sku);
 			if (startSku === null) {
 				startSku = sku;
 			} else {
@@ -81,14 +87,8 @@ app.register.controller('productCtrl', ['$scope', '$http', '$timeout', 'Product'
 				startSku = null;
 			}
 		} else {
-			delete $scope.orderInfo.skus[sku.id];
+			$scope.orderInfo.remove(sku);
 		}
 	};
-	var hammertime = Hammer(document.querySelector('#skus'), {});
-	hammertime.on('swipeleft', function(event) {
-		$scope.nextDay();
-	}).on('swiperight', function(event) {
-		$scope.prevDay();
-	});
 	productGet($scope.$parent.productId);
 }]);

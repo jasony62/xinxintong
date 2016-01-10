@@ -60,12 +60,30 @@ app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', 'Catelog', '
 			}
 		}
 	};
+	var setDatetimeOptions = function() {
+		var today;
+		if (!$scope.options.date) {
+			today = new Date();
+			today.setHours(0, 0, 0, 0);
+			today = today.getTime();
+			$scope.options.date = {
+				begin: today,
+				end: parseInt(today) + parseInt(86399000)
+			};
+			$scope.options.time = {
+				begin: null,
+				end: null
+			};
+		}
+	};
 	var summaryOfFilter = function() {
 		var summary, mapOfPv;
 		summary = [];
 		if ($scope.selectedCatelog) {
-			if ($scope.selectedCatelog.has_validity === 'Y' && $scope.options.date) {
-				summary.push($filter('date')($scope.options.date.begin, 'yyyy-MM-dd'));
+			if ($scope.selectedCatelog.has_validity === 'Y') {
+				if ($scope.options.date) {
+					summary.push($filter('date')($scope.options.date.begin, 'yyyy-MM-dd'));
+				}
 			}
 			mapOfPv = {};
 			angular.forEach($scope.selectedCatelog.propValues, function(pvs) {
@@ -88,22 +106,6 @@ app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', 'Catelog', '
 	$scope.nextDay = function() {
 		$scope.options.date.begin = parseInt($scope.options.date.begin) + parseInt(86400000);
 		$scope.options.date.end = parseInt($scope.options.date.end) + parseInt(86400000);
-	};
-	var initFilter = function() {
-		var today;
-		if (!$scope.options.date) {
-			today = new Date();
-			today.setHours(0, 0, 0, 0);
-			today = today.getTime();
-			$scope.options.date = {
-				begin: today,
-				end: parseInt(today) + parseInt(86399000)
-			};
-			$scope.options.time = {
-				begin: null,
-				end: null
-			};
- 		}
 	};
 	$scope.toggleFilter = function() {
 		$scope.filterOpened = !$scope.filterOpened;
@@ -129,6 +131,7 @@ app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', 'Catelog', '
 	};
 	$scope.chooseProd = function(event, prod) {
 		event.stopPropagation();
+		prod._checked ? $scope.orderInfo.remove(prod) : $scope.orderInfo.push(prod);
 	};
 	$scope.listProduct = function() {
 		var pvids, beginAt, endAt;
@@ -152,9 +155,9 @@ app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', 'Catelog', '
 		if (catelogs.length) {
 			$scope.selectedCatelog = catelogs[0];
 			setPropOptions();
-			if ($scope.filterOpened) {
-				initFilter();
-			} else {
+			setDatetimeOptions();
+			summaryOfFilter();
+			if (!$scope.filterOpened) {
 				$scope.listProduct();
 			}
 		}

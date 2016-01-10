@@ -60,8 +60,39 @@ xxtApp.controller('shopCtrl', ['$scope', 'http2', '$location', function($scope, 
         $scope.mpaccount = rsp.data;
     });
 }]);
-xxtApp.controller('settingCtrl', ['$scope', 'http2', 'Authapi', function($scope, http2, Authapi) {
+xxtApp.controller('settingCtrl', ['$scope', 'http2', '$modal', 'Authapi', function($scope, http2, $modal, Authapi) {
     $scope.$parent.subView = 'setting';
+    $scope.orderStatus = [{
+        id: '1',
+        name: '未付款',
+        title: '未付款',
+        desc: '用户提交订单'
+    }, {
+        id: '2',
+        name: '已付款',
+        title: '已付款',
+        desc: '用户提交订单并完成付款'
+    }, {
+        id: '3',
+        name: '已确认',
+        title: '已确认',
+        desc: ''
+    }, {
+        id: '5',
+        name: '已完成',
+        title: '已完成',
+        desc: ''
+    }, {
+        id: '-1',
+        name: '用户取消',
+        title: '已取消',
+        desc: '用户提交订单后取消订单'
+    }, {
+        id: '-2',
+        name: '客服取消',
+        title: '已取消',
+        desc: '客户取消订单'
+    }];
     $scope.authapis = [];
     (new Authapi()).get('N').then(function(data) {
         var i, l, authapi;
@@ -75,21 +106,45 @@ xxtApp.controller('settingCtrl', ['$scope', 'http2', 'Authapi', function($scope,
         nv[name] = $scope.editing[name];
         http2.post('/rest/mp/app/merchant/shop/update?shop=' + $scope.shopId, nv, function(rsp) {});
     };
+    $scope.configOrderStatus = function(orderStatus) {
+        $modal.open({
+            templateUrl: 'orderStatusEditor.html',
+            backdrop: 'static',
+            controller: ['$modalInstance', '$scope', function($mi, $scope2) {
+                $scope2.status = angular.copy(orderStatus);
+                $scope2.close = function() {
+                    $mi.dismiss();
+                };
+                $scope2.ok = function() {
+                    $mi.close($scope2.status);
+                };
+            }]
+        }).result.then(function(newStatus) {
+            if (orderStatus.title !== newStatus.title) {
+                orderStatus.title = newStatus.title;
+                $scope.editing.order_status[newStatus.id] = newStatus.title;
+                $scope.update('order_status');
+            }
+        });
+    };
     http2.get('/rest/mp/app/merchant/shop/get?shop=' + $scope.shopId, function(rsp) {
         $scope.editing = rsp.data;
+        if (Object.keys($scope.editing.order_status).length === 0) {
+            $scope.editing.order_status = {};
+            angular.forEach($scope.orderStatus, function(os) {
+                $scope.editing.order_status[os.id] = os.title;
+            });
+            $scope.update('order_status');
+        } else {
+            angular.forEach($scope.orderStatus, function(os) {
+                os.title = $scope.editing.order_status[os.id];
+            });
+        }
         $scope.editing.canSetSupporter = 'Y';
     });
 }]);
 xxtApp.controller('orderCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
     var OrderStatus;
-    OrderStatus = {
-        '1': '未付款',
-        '2': '已付款',
-        '3': '已确认',
-        '5': '已完成',
-        '-1': '已取消',
-        '-2': '已取消',
-    };
     $scope.$parent.subView = 'order';
     $scope.open = function(order) {
         $modal.open({
@@ -139,10 +194,13 @@ xxtApp.controller('orderCtrl', ['$scope', '$modal', 'http2', function($scope, $m
             }]
         }).result.then(function() {});
     };
-    http2.get('/rest/mp/app/merchant/order/list?shop=' + $scope.shopId, function(rsp) {
-        $scope.orders = rsp.data.orders;
-        angular.forEach($scope.orders, function(ord) {
-            ord._order_status = OrderStatus[ord.order_status];
+    http2.get('/rest/mp/app/merchant/shop/get?shop=' + $scope.shopId, function(rsp) {
+        OrderStatus = rsp.data.order_status;
+        http2.get('/rest/mp/app/merchant/order/list?shop=' + $scope.shopId, function(rsp) {
+            $scope.orders = rsp.data.orders;
+            angular.forEach($scope.orders, function(ord) {
+                ord._order_status = OrderStatus[ord.order_status];
+            });
         });
     });
 }]);

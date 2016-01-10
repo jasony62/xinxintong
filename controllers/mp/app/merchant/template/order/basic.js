@@ -25,7 +25,7 @@ app.register.controller('orderCtrl', ['$scope', '$http', 'Sku', 'Order', functio
 		if (sku.unlimited_quantity === 'Y') {
 			return true;
 		}
-		if (sku.quantity > 0) {
+		if (sku.quantity >= 0) {
 			return true;
 		}
 		return false;

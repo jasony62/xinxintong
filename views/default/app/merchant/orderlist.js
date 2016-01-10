@@ -11,6 +11,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $h
         }
         var params;
         params = rsp.data;
+        $scope.Shop = params.shop;
         $scope.User = params.user;
         window.setPage($scope, params.page);
         $timeout(function() {

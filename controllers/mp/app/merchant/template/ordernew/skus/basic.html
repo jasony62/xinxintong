@@ -1,5 +1,5 @@
-<div class='sku' ng-class="{'selected':sku.selected,'unavailable':sku.quantity==0,'removed':sku.removed}" ng-repeat='sku in cateSku.skus'>
-    <div>
+<div class='sku' ng-class="{'selected':sku.selected,'unavailable':!sku._available,'removed':sku.removed}" ng-repeat='sku in cateSku.skus'>
+    <div class='description'>
         <div class='summary'>
             <div ng-bind="summarySku(cate,prod,sku)"></div>
         </div>

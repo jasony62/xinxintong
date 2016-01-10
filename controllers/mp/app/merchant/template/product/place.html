@@ -40,6 +40,6 @@
     <footer>
         <button ng-click='addOther(product,orderInfo.skus)'>继续选择</button>
         <button class='cart' ng-click='gotoCart(product,orderInfo.skus)'><span>已选</span><div class='status' ng-bind='Cart.countOfProducts'></div></button>
-        <button ng-click='gotoOrder(product,orderInfo.skus)'>完成选择</button>
+        <button ng-disabled="orderInfo.countOfSkus===0" ng-click='gotoOrder(product,orderInfo.skus)'>完成选择</button>
     </footer>
 </div>

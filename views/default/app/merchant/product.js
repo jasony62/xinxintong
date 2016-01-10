@@ -1,5 +1,5 @@
-app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
-    var ls, url, Cart;
+app.controller('ctrl', ['$scope', '$http', '$timeout', 'Cart', function($scope, $http, $timeout, Cart) {
+    var ls, url, facCart;
     ls = location.search;
     $scope.mpid = ls.match(/mpid=([^&]*)/)[1];
     $scope.shopId = ls.match(/shop=([^&]*)/)[1];
@@ -9,56 +9,27 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
     $scope.endAt = ls.match(/[\?&]endAt=(.+?)(&|$)/) ? ls.match(/[\?&]endAt=(.+?)(&|$)/)[1] : false;
     $scope.autoChooseSku = ls.match(/[\?&]autoChooseSku=(.+?)(&|$)/) ? ls.match(/[\?&]autoChooseSku=(.+?)(&|$)/)[1] : 'N';
     $scope.errmsg = '';
-    $scope.Cart = (function() {
-        var products;
-        products = Cookies.get('xxt.app.merchant.cart.products');
-        if (products && products.length) {
-            products = products.split(',').length;
-        } else {
-            products = 0;
-        }
-        return {
-            countOfProducts: products
-        };
-    })();
-    var add2Cart = function(product, skus) {
-        var i, prodIds, skuIds;
-        /*products*/
-        prodIds = Cookies.get('xxt.app.merchant.cart.products');
-        if (prodIds === undefined || prodIds.length === 0) {
-            prodIds = [];
-        } else {
-            prodIds = prodIds.split(',');
-        }
-        prodIds.indexOf(product.id) === -1 && prodIds.push(product.id);
-        Cookies.set('xxt.app.merchant.cart.products', prodIds.join(','));
-        /*skus*/
-        skuIds = Cookies.get('xxt.app.merchant.cart.skus');
-        if (skuIds === undefined || skuIds.length === 0) {
-            skuIds = [];
-        } else {
-            skuIds = skuIds.split(',');
-        }
-        for (i in skus) {
-            skuIds.indexOf(i) === -1 && skuIds.push(i);
-        }
-        Cookies.set('xxt.app.merchant.cart.skus', skuIds.join(','));
+    facCart = new Cart();
+    $scope.Cart = {
+        countOfProducts: facCart.count()
     };
     /*保存现有的选择，继续选择其他商品*/
     $scope.addOther = function(product, skus) {
-        add2Cart(product, skus);
+        facCart.add(product, skus);
         history.back();
     };
     $scope.gotoCart = function(product, skus) {
         var url;
-        add2Cart(product, skus);
+        if (product && skus && Object.keys(skus).length) {
+            facCart.add(product, skus);
+        }
         url = '/rest/app/merchant/cart?mpid=' + $scope.mpid + '&shop=' + $scope.shopId;
         location.href = url;
     };
     $scope.gotoOrder = function(product, skus, includeCart) {
         var url, i, skuIds;
         if (includeCart) {
-            add2Cart(product, skus);
+            facCart.add(product, skus);
             skuIds = Cookies.get('xxt.app.merchant.cart.skus');
             if (skuIds.length === 0) return;
             url = '/rest/app/merchant/order?mpid=' + $scope.mpid + '&shop=' + $scope.shopId;
@@ -66,9 +37,9 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
         } else {
             if (!skus) return;
             skuIds = [];
-            for (i in skus) {
-                skuIds.push(i);
-            }
+            angular.forEach(skus, function(sku, skuId) {
+                skuIds.push(skuId); 
+            });
             if (skuIds.length === 0) return;
             url = '/rest/app/merchant/order?mpid=' + $scope.mpid + '&shop=' + $scope.shopId;
             url += '&skus=' + skuIds.join(',');

@@ -29,14 +29,7 @@ class orderlist extends \member_base {
 		 * 获得当前访问用户
 		 */
 		$openid = $this->doAuth($mpid, $code, $mocker);
-
-		$this->afterOAuth($mpid, $shop, $openid);
-	}
-	/**
-	 * 返回页面
-	 */
-	public function afterOAuth($mpid, $shop, $openid) {
-		/* 订单列表 */
+		/* 订单列表页 */
 		\TPL::output('/app/merchant/orderlist');
 		exit;
 	}
@@ -44,16 +37,20 @@ class orderlist extends \member_base {
 	 *
 	 */
 	public function pageGet_action($mpid, $shop) {
+		// shop
+		$shop = $this->model('app\merchant\shop')->byId($shop, array('fields' => 'id,title,order_status'));
+		$shop->order_status = empty($shop->order_status) ? new \stdClass : json_decode($shop->order_status);
 		// current visitor
 		$user = $this->getUser($mpid);
 		// page
-		$page = $this->model('app\merchant\page')->byType('orderlist', $shop);
+		$page = $this->model('app\merchant\page')->byType('orderlist', $shop->id);
 		if (empty($page)) {
 			return new \ResponseError('没有获得订单页定义');
 		}
 		$page = $page[0];
-
+		// return
 		$params = array(
+			'shop' => $shop,
 			'user' => $user,
 			'page' => $page,
 		);

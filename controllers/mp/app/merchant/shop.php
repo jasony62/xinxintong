@@ -43,6 +43,7 @@ class shop extends \mp\app\app_base {
 		$shop = $this->model('app\merchant\shop')->byId($shop);
 
 		$shop->buyer_api = empty($shop->buyer_api) ? new \stdClass : json_decode($shop->buyer_api);
+		$shop->order_status = empty($shop->order_status) ? new \stdClass : json_decode($shop->order_status);
 		$shop->staffs = $this->model('app\merchant\shop')->staffAcls($this->mpid, $shop->id, 'c');
 
 		return new \ResponseData($shop);
@@ -86,6 +87,9 @@ class shop extends \mp\app\app_base {
 		$nv = (array) $this->getPostJson();
 		if (isset($nv['buyer_api'])) {
 			$nv['buyer_api'] = \TMS_MODEL::toJson($nv['buyer_api']);
+		}
+		if (isset($nv['order_status'])) {
+			$nv['order_status'] = \TMS_MODEL::toJson($nv['order_status']);
 		}
 		$rst = $this->model()->update('xxt_merchant_shop', $nv, "id='$shop'");
 

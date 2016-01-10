@@ -45,6 +45,57 @@
 				});
 			}
 		};
+		$scope.catelogPageTypes = [{
+			type: 'product',
+			name: '用户.商品'
+		}, {
+			type: 'ordernew.skus',
+			name: '用户.新建订单.库存'
+		}, {
+			type: 'order.skus',
+			name: '用户.查看订单.库存'
+		}, {
+			type: 'cart.skus',
+			name: '用户.购物车.库存'
+		}, {
+			type: 'op.order.skus',
+			name: '客服.查看订单.库存'
+		}];
+		http2.get('/rest/mp/app/merchant/catelog/list?shop=' + $scope.$parent.shopId, function(rsp) {
+			$scope.catelogs = rsp.data;
+			if (rsp.data.length) {
+				$scope.selectedCatelog = rsp.data[0];
+			}
+		});
+		$scope.$watch('selectedCatelog', function(nv) {
+			if (nv) {
+				http2.get('/rest/mp/app/merchant/page/byCatelog?catelog=' + nv.id, function(rsp) {
+					$scope.pagesOfCatelog = {};
+					angular.forEach(rsp.data, function(page) {
+						$scope.pagesOfCatelog[page.type] = page;
+					});
+				});
+			} else {
+				$scope.pagesOfCatelog = {};
+			}
+		});
+		$scope.createCatelogCode = function(pageType) {
+			var url;
+			url = '/rest/mp/app/merchant/page/createByCatelog?catelog=' + $scope.$parent.catelogId;
+			url += '&type=' + pageType;
+			http2.get(url, function(rsp) {
+				$scope.pagesOfCatelog[pageType] = rsp.data;
+			});
+		};
+		$scope.removeCatelogCode = function(page, index) {
+			if (window.confirm('确定删除？')) {
+				var url;
+				url = '/rest/mp/app/merchant/page/remove?page=' + page.id;
+				http2.get(url, function(rsp) {
+					delete $scope.pagesOfCatelog[page.type];
+				});
+			}
+		};
 		$scope.config = function(page) {
 			$modal.open({
 				templateUrl: 'pageEditor.html',

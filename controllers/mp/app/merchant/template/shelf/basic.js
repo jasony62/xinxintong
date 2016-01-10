@@ -1,5 +1,12 @@
 app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', 'Catelog', 'Product', function($scope, $http, $filter, Catelog, Product) {
 	var facCatelog, facProduct;
+	/*对商品进行排序，缺省按商品名称排序*/
+	var sortProducts = function(products) {
+		return products.sort(function(a, b) {
+			return a.localeCompare(b);
+		});
+	};
+	/*显示sku的简要信息*/
 	var summarySku = function(product, cateSku, sku) {
 		if (sku.summary && sku.summary.length) {
 			return sku.summary;
@@ -144,7 +151,7 @@ app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', 'Catelog', '
 		}
 		facProduct.list($scope.selectedCatelog.id, pvids, beginAt, endAt, 'Y').then(function(data) {
 			setSku(data.products);
-			$scope.products = data.products;
+			$scope.products = sortProducts(data.products);
 		});
 	};
 	$scope.$watch('selectedCatelog', function(nv) {

@@ -3,8 +3,11 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Order', function($scope,
     ls = location.search;
     $scope.mpid = ls.match(/mpid=([^&]*)/)[1];
     $scope.shopId = ls.match(/shop=([^&]*)/)[1];
+    $scope.productIds = ls.match(/[\?&]products=(.+?)(&|$)/) ? ls.match(/[\?&]products=(.+?)(&|$)/)[1] : '';
     $scope.skuIds = ls.match(/[\?&]skus=(.+?)(&|$)/) ? ls.match(/[\?&]skus=(.+?)(&|$)/)[1] : '';
     $scope.orderId = ls.match(/[\?&]order=(.+?)(&|$)/) ? ls.match(/[\?&]order=(.+?)(&|$)/)[1] : '';
+    $scope.beginAt = ls.match(/[\?&]beginAt=(.+?)(&|$)/) ? ls.match(/[\?&]beginAt=(.+?)(&|$)/)[1] : false;
+    $scope.endAt = ls.match(/[\?&]endAt=(.+?)(&|$)/) ? ls.match(/[\?&]endAt=(.+?)(&|$)/)[1] : false;
     $scope.errmsg = '';
     facOrder = new Order($scope.mpid, $scope.shopId);
     url = '/rest/app/merchant/order/pageGet?mpid=' + $scope.mpid;
@@ -62,6 +65,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Order', function($scope,
             }
         });
     };
+    /*保存订单修改结果*/
     $scope.modify = function() {
         facOrder.modify($scope.orderId, $scope.orderInfo).then(function() {
             alert('ok');

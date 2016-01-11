@@ -54,8 +54,18 @@ app.register.controller('orderCtrl', ['$scope', '$http', 'Sku', function($scope,
 		}
 	};
 	facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId);
-	facSku.list($scope.$parent.skuIds).then(function(data) {
-		$scope.catelogs = data;
-		setSkus(data);
-	});
+	if ($scope.$parent.productIds && $scope.$parent.productIds.length) {
+		facSku.listByProducts($scope.$parent.productIds, {
+			beginAt: $scope.$parent.beginAt,
+			endAt: $scope.$parent.endAt
+		}).then(function(data) {
+			$scope.catelogs = data;
+			setSkus(data);
+		});
+	} else if ($scope.$parent.skuIds && $scope.$parent.skuIds.length) {
+		facSku.list($scope.$parent.skuIds).then(function(data) {
+			$scope.catelogs = data;
+			setSkus(data);
+		});
+	}
 }]);

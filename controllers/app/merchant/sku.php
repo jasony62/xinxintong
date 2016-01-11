@@ -29,6 +29,14 @@ class sku extends \member_base {
 	public function byProduct_action($mpid, $shop, $catelog, $product, $beginAt = 0, $endAt = 0, $autogen = 'N') {
 		$user = $this->getUser($mpid);
 
+		$cateSkus = $this->_byProduct($user, $mpid, $shop, $catelog, $product, $beginAt, $endAt, $autogen);
+
+		return new \ResponseData($cateSkus);
+	}
+	/**
+	 *
+	 */
+	private function &_byProduct($user, $mpid, $shop, $catelog, $product, $beginAt = 0, $endAt = 0, $autogen = 'N') {
 		/*有效期，缺省为当天*/
 		$beginAt === 0 && ($beginAt = mktime(0, 0, 0));
 		$endAt === 0 && ($endAt = mktime(23, 59, 59));
@@ -72,7 +80,7 @@ class sku extends \member_base {
 			}
 		}
 
-		return new \ResponseData($cateSkus);
+		return $cateSkus;
 	}
 	/**
 	 *
@@ -132,6 +140,40 @@ class sku extends \member_base {
 					}
 				}
 			}
+		}
+
+		return new \ResponseData($catelogs);
+	}
+	/**
+	 *
+	 * @param string $mpid
+	 * @param int $shop
+	 * @param string $ids product's id splited by comma
+	 * @param int $beginAt
+	 * @param int $endAt
+	 *
+	 * @return
+	 */
+	public function listByProducts_action($mpid, $shop, $ids, $beginAt = 0, $endAt = 0) {
+		$user = $this->getUser($mpid);
+		$modelCate = $this->model('app\merchant\catelog');
+		$cateFields = 'id,sid,name,pattern,pages';
+		$modelProd = $this->model('app\merchant\product');
+		$prodFields = 'id,sid,cate_id,name,main_img,img,detail_text,detail_text,prop_value,buy_limit,sku_info';
+		$catelogs = array();
+		$ids = explode(',', $ids);
+
+		foreach ($ids as $prodId) {
+			$product = $modelProd->byId($prodId, array('cascaded' => 'Y', 'fields' => $prodFields));
+			$cateSkus = $this->_byProduct($user, $mpid, $shop, $product->cate_id, $prodId, $beginAt, $endAt, 'Y');
+			$product->cateSkus = &$cateSkus;
+			if (!isset($catelogs[$product->cate_id])) {
+				$catelog = $modelCate->byId($product->cate_id, array('fields' => $cateFields, 'cascaded' => 'Y'));
+				$catelog->pages = isset($catelog->pages) ? json_decode($catelog->pages) : new \stdClass;
+				$catelog->products = array();
+				$catelogs[$catelog->id] = $catelog;
+			}
+			$catelogs[$product->cate_id]->products[] = $product;
 		}
 
 		return new \ResponseData($catelogs);

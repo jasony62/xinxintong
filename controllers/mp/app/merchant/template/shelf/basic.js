@@ -3,7 +3,7 @@ app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', 'Catelog', '
 	/*对商品进行排序，缺省按商品名称排序*/
 	var sortProducts = function(products) {
 		return products.sort(function(a, b) {
-			return a.localeCompare(b);
+			return a.name.localeCompare(b.name);
 		});
 	};
 	/*显示sku的简要信息*/

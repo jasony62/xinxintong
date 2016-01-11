@@ -211,6 +211,37 @@ app.factory('Sku', function($http, $q) {
         }
         return promise;
     };
+    Sku.prototype.listByProducts = function(ids, options) {
+        var deferred, promise, url;
+        deferred = $q.defer();
+        promise = deferred.promise;
+        if (ids && ids.length) {
+            url = '/rest/app/merchant/sku/listByProducts';
+            url += '?mpid=' + this.mpid;
+            url += '&shop=' + this.shopId;
+            url += '&ids=' + ids;
+            if (options) {
+                if (options.beginAt) {
+                    url += '&beginAt=' + (options.beginAt / 1000)
+                }
+                if (options.endAt) {
+                    url += '&endAt=' + (options.endAt / 1000)
+                }
+            }
+            $http.get(url).success(function(rsp) {
+                if (typeof rsp === 'undefined') {
+                    alert(rsp);
+                    return;
+                }
+                if (rsp.err_code != 0) {
+                    alert(rsp.data);
+                    return;
+                }
+                deferred.resolve(rsp.data);
+            });
+        }
+        return promise;
+    };
     return Sku;
 });
 app.factory('Order', function($http, $q) {

@@ -1,10 +1,11 @@
-app.controller('ctrl', ['$scope', '$http', '$timeout', 'Cart', function($scope, $http, $timeout, Cart) {
-    var ls, pageId, options, facCart;
+app.controller('ctrl', ['$scope', '$http', '$timeout', 'Cart', 'Sku', function($scope, $http, $timeout, Cart, Sku) {
+    var ls, pageId, options, facCart, facSku;
     ls = location.search;
     $scope.mpid = ls.match(/mpid=([^&]*)/)[1];
     $scope.shopId = ls.match(/shop=([^&]*)/)[1];
     pageId = ls.match(/page=([^&]*)/)[1];
     facCart = new Cart();
+    facSku = new Sku($scope.mpid, $scope.shopId);
     $scope.errmsg = '';
     /*产品过滤条件*/
     options = Cookies.get('xxt.app.merchant.shelf.options');
@@ -34,7 +35,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Cart', function($scope, 
     $scope.gotoProduct = function(product, autoChooseSku) {
         Cookies.set('xxt.app.merchant.shelf.options', JSON.stringify($scope.options));
         var url, datetime;
-        url = '/rest/app/merchant/product?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&catelog=' + product.cate_id + '&product=' + product.id;
+        url = '/rest/app/merchant/product?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&page=' + pageId + '&catelog=' + product.cate_id + '&product=' + product.id;
         if (datetime = datetimeOfFilter($scope.options)) {
             url += '&beginAt=' + datetime.begin * 1000;
             url += '&endAt=' + datetime.end * 1000;
@@ -45,7 +46,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Cart', function($scope, 
         location.href = url;
     };
     $scope.gotoOrderlist = function() {
-        location.href = '/rest/app/merchant/orderlist?mpid=' + $scope.mpid + '&shop=' + $scope.shopId;
+        location.href = '/rest/app/merchant/orderlist?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&page=' + pageId;
     };
     /*生成订单*/
     $scope.orderInfo = {
@@ -57,43 +58,89 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Cart', function($scope, 
         remove: function(prod) {
             this.products.splice(this.products.indexOf(prod), 1);
             prod._checked = false;
-        }
-    };
-    $scope.gotoOrder = function(products) {
-        var url, i, skuIds;
-        skuIds = [];
-        angular.forEach(products, function(prod) {
-            angular.forEach(prod.cateSkus, function(cateSku) {
-                angular.forEach(cateSku.skus, function(sku) {
-                    skuIds.push(sku.id);
+        },
+        productIds: function() {
+            var ids;
+            ids = [];
+            angular.forEach(this.products, function(prod) {
+                ids.push(prod.id);
+            });
+            return ids;
+        },
+        skuIds: function() {
+            var skuIds;
+            skuIds = [];
+            angular.forEach(this.products, function(prod) {
+                angular.forEach(prod.cateSkus, function(cateSku) {
+                    angular.forEach(cateSku.skus, function(sku) {
+                        sku.id && skuIds.push(sku.id);
+                    });
                 });
             });
-        });
-        if (skuIds.length === 0) return;
-        url = '/rest/app/merchant/order?mpid=' + $scope.mpid + '&shop=' + $scope.shopId;
-        url += '&skus=' + skuIds.join(',');
+            return skuIds;
+        }
+    };
+    /*将选择商品直接生成订单*/
+    $scope.gotoOrder = function() {
+        var url, prodIds, skuIds, datetime;
+        prodIds = $scope.orderInfo.productIds();
+        if (prodIds.length === 0) return;
+        url = '/rest/app/merchant/order?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&page=' + pageId;
+        url += '&products=' + prodIds.join(',');
+        if (datetime = datetimeOfFilter($scope.options)) {
+            url += '&beginAt=' + datetime.begin * 1000;
+            url += '&endAt=' + datetime.end * 1000;
+        }
         location.href = url;
     };
     /*进入购物车*/
     $scope.gotoCart = function(products) {
         var url;
+        url = '/rest/app/merchant/cart?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&fromShell=' + pageId;
         if (products !== undefined && products.length) {
-            angular.forEach(products, function(prod) {
-                if (prod._checked) {
-                    angular.forEach(prod.cateSkus, function(cateSku) {
-                        console.log('sss', cateSku.skus);
-                        var skus = {};
-                        angular.forEach(cateSku.skus, function(sku) {
-                            skus[sku.id] = {
-                                count: 1
-                            };
+            var fetchSkus = function(index) {
+                var prod, cateSkuIds, options, datetime;
+                if (index === products.length) {
+                    location.href = url;
+                } else {
+                    prod = products[index];
+                    cateSkuIds = Object.keys(prod.cateSkus);
+                    if (prod.cateSkus[cateSkuIds[0]].skus[0].id) {
+                        angular.forEach(prod.cateSkus, function(cateSku) {
+                            var skus = {};
+                            angular.forEach(cateSku.skus, function(sku) {
+                                skus[sku.id] = {
+                                    count: 1
+                                };
+                            });
+                            facCart.add(prod, skus);
                         });
-                        facCart.add(prod, skus);
-                    });
+                        fetchSkus(++index);
+                    } else {
+                        datetime = datetimeOfFilter($scope.options)
+                        options = {
+                            beginAt: datetime.begin * 1000,
+                            endAt: datetime.end * 1000,
+                            autogen: 'Y'
+                        };
+                        facSku.get(prod.cate_id, prod.id, options).then(function(cateSkus) {
+                            angular.forEach(cateSkus, function(cateSku) {
+                                var skus = {};
+                                angular.forEach(cateSku.skus, function(sku) {
+                                    skus[sku.id] = {
+                                        count: 1
+                                    };
+                                });
+                                facCart.add(prod, skus);
+                            });
+                            fetchSkus(++index);
+                        });
+                    }
                 }
-            });
+            };
+            fetchSkus(0);
+        } else {
+            location.href = url;
         }
-        url = '/rest/app/merchant/cart?mpid=' + $scope.mpid + '&shop=' + $scope.shopId;
-        location.href = url;
     };
 }]);

@@ -3,6 +3,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
     ls = location.search;
     $scope.mpid = ls.match(/mpid=([^&]*)/)[1];
     $scope.shopId = ls.match(/shop=([^&]*)/)[1];
+    $scope.shellId = ls.match(/fromShell=([^&]*)/)[1];
     skuIds = Cookies.get('xxt.app.merchant.cart.skus');
     $scope.skuIds = skuIds;
     $scope.errmsg = '';

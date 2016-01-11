@@ -87,6 +87,11 @@ app.register.controller('cartCtrl', ['$scope', '$http', 'Sku', function($scope, 
 			history.back();
 		}
 	};
+	$scope.gotoShop = function() {
+		var url;
+		url = '/rest/app/merchant/shelf?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&page=' + $scope.shellId;
+		location.href = url;
+	};
 	facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId);
 	facSku.list($scope.$parent.skuIds).then(function(data) {
 		setSkus(data);

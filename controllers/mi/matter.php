@@ -38,9 +38,9 @@ class matter extends \member_base {
 		empty($id) && $this->outputError('素材id为空');
 		empty($type) && $this->outputError('素材type为空');
 
-		$who = $this->doAuth($mpid, $code, $mocker);
+		$openid = $this->doAuth($mpid, $code, $mocker);
 
-		$this->afterOAuth($mpid, $id, $type, $shareby, $openid, $who);
+		$this->afterOAuth($mpid, $id, $type, $shareby, $openid, $openid);
 	}
 	/**
 	 * 返回请求的素材
@@ -52,11 +52,11 @@ class matter extends \member_base {
 	 * $openid
 	 * $who
 	 */
-	private function afterOAuth($mpid, $id, $type, $shareby, $openid, $who = null) {
+	private function afterOAuth($mpid, $id, $type, $shareby, $openid, $openid = null) {
 		/**
 		 * visit fans.
 		 */
-		$ooid = empty($who) ? $this->getCookieOAuthUser($mpid)->openid : $who;
+		$openid = empty($who) ? $this->getCookieOAuthUser($mpid)->openid : $openid;
 		/**
 		 * 根据类型获得处理素材的对象
 		 */
@@ -80,7 +80,7 @@ class matter extends \member_base {
 			exit;
 		case 'addressbook':
 			require_once dirname(__FILE__) . '/page_addressbook.php';
-			$page = new page_addressbook($id, $ooid);
+			$page = new page_addressbook($id, $openid);
 			break;
 		case 'link':
 			require_once dirname(__FILE__) . '/page_external.php';
@@ -92,7 +92,7 @@ class matter extends \member_base {
 				$q = array(
 					'count(*)',
 					'xxt_fans',
-					"mpid='$mpid' and openid='$ooid' and unsubscribe_at=0",
+					"mpid='$mpid' and openid='$openid' and unsubscribe_at=0",
 				);
 				if (1 !== (int) $this->model()->query_val_ss($q)) {
 					/**
@@ -108,11 +108,11 @@ class matter extends \member_base {
 			$link->type = 'L';
 			switch ($link->urlsrc) {
 			case 0:
-				$page = new page_external($link, $ooid);
+				$page = new page_external($link, $openid);
 				break;
 			case 1:
 				require_once dirname(__FILE__) . '/page_news.php';
-				$page = new page_news((int) $link->url, $ooid);
+				$page = new page_news((int) $link->url, $openid);
 				break;
 			case 2:
 				$channelUrl = $this->model('matter\channel')->getEntryUrl($mpid, (int) $link->url);
@@ -133,11 +133,15 @@ class matter extends \member_base {
 		 */
 		$this->logAccess_action($mpid, $id, $type, $matter->title, $shareby);
 		/**
+		 * write coin log
+		 */
+		$this->model('coin\log')->record($mpid, 'matter.' . $type . '.open:' . $id, 'sys', $openid);
+		/**
 		 * 访问控制
 		 */
 		$mid = false;
 		if (isset($matter->access_control) && $matter->access_control === 'Y') {
-			$this->accessControl($mpid, $matter->id, $matter->authapis, $ooid, $matter);
+			$this->accessControl($mpid, $matter->id, $matter->authapis, $openid, $matter);
 		}
 
 		$page->output($mpid, $mid, $vid, $this);

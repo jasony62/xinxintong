@@ -467,14 +467,22 @@ class xxt_base extends TMS_CONTROLLER {
 				foreach ($fans as $fan) {
 					$openids[] = $fan->openid;
 				}
-
 				break;
 			case 'T':
-				$fans = $this->model('user/tag')->getFans($us->identity, 'openid');
-				foreach ($fans as $fan) {
-					$openids[] = $fan->openid;
+				//$fans = $this->model('user/tag')->getFans($us->identity, 'openid');
+				$tagids = explode(',', $us->identity);
+				$model = $this->model();
+				$q = array(
+					'openid',
+					'xxt_member',
+				);
+				foreach ($tagids as $tagid) {
+					$q[2] = "concat(',',tags,',') like '%,$tagid,%'";
+					$fans = $this->model()->query_objs_ss($q);
+					foreach ($fans as $fan) {
+						$openids[] = $fan->openid;
+					}
 				}
-
 				break;
 			case 'DT':
 				$deptAndTagIds = explode(',', $us->identity);
@@ -484,7 +492,6 @@ class xxt_base extends TMS_CONTROLLER {
 				foreach ($fans as $fan) {
 					$openids[] = $fan->openid;
 				}
-
 				break;
 			case 'M':
 				$mid = $us->identity;
@@ -492,7 +499,6 @@ class xxt_base extends TMS_CONTROLLER {
 				if (empty($member->fid)) {
 					return array(false, '无法获得当前用户的openid');
 				}
-
 				$fan = $this->model('user/fans')->byId($member->fid, 'openid');
 				$openids[] = $fan->openid;
 				break;

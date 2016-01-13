@@ -230,16 +230,16 @@ class xxt_base extends TMS_CONTROLLER {
 	 * $openid
 	 * $message
 	 */
-	public function sendByOpenid($mpid, $openid, $message, $urlencode = false) {
+	public function sendByOpenid($mpid, $openid, $message) {
 		$mpa = $this->model('mp\mpaccount')->getApis($mpid);
 		$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $mpid);
 
 		switch ($mpa->mpsrc) {
 		case 'yx':
 			if ($mpa->mpsrc === 'yx' && $mpa->yx_p2p === 'Y') {
-				$rst = $mpproxy->messageSend($message, array($openid), $urlencode);
+				$rst = $mpproxy->messageSend($message, array($openid));
 			} else {
-				$rst = $mpproxy->messageCustomSend($message, $openid, $urlencode);
+				$rst = $mpproxy->messageCustomSend($message, $openid);
 			}
 			break;
 		case 'wx':
@@ -672,6 +672,10 @@ class xxt_base extends TMS_CONTROLLER {
 		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 
 		$this->model('log')->writeMatterRead($mpid, $logUser, $logMatter, $logClient, $shareby, $search, $referer);
+		/**
+		 * write coin log
+		 */
+		$this->model('coin\log')->record($mpid, 'matter.' . $type . '.read', $id, 'sys', $user->openid);
 
 		return true;
 	}

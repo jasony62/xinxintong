@@ -133,10 +133,6 @@ class matter extends \member_base {
 		 */
 		$this->logAccess_action($mpid, $id, $type, $matter->title, $shareby);
 		/**
-		 * write coin log
-		 */
-		$this->model('coin\log')->record($mpid, 'matter.' . $type . '.open:' . $id, 'sys', $openid);
-		/**
 		 * 访问控制
 		 */
 		$mid = false;

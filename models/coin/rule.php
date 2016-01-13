@@ -7,7 +7,7 @@ class rule_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function byMpid($mpid, $act = null) {
+	public function byMpid($mpid, $act = null, $objId = null) {
 		$q = array(
 			'*',
 			'xxt_coin_rule',
@@ -15,7 +15,16 @@ class rule_model extends \TMS_MODEL {
 		);
 		if (!empty($act)) {
 			$q[2] .= " and act='$act'";
-			$rules = $this->query_obj_ss($q);
+			if (!empty($objId)) {
+				$q[2] .= " and objid='$objId'";
+				$rules = $this->query_obj_ss($q);
+				if (!$rules) {
+					$q[2] = preg_replace('/objid=\'.+?\'/', "objid='*'", $q[2]);
+					$rules = $this->query_obj_ss($q);
+				}
+			} else {
+				$rules = $this->query_obj_ss($q);
+			}
 		} else {
 			$rules = $this->query_objs_ss($q);
 		}

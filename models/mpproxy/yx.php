@@ -359,7 +359,7 @@ class yx_model extends mpproxy_base {
 		$message['touser'] = $openid;
 		$cmd = 'https://api.yixin.im/cgi-bin/message/custom/send';
 
-		$posted = $urlencode ? \TMS_MODEL::toJson($message) : $message;
+		$posted = $urlencode ? \TMS_MODEL::toJson($message) : json_encode($message);
 
 		$rst = $this->httpPost($cmd, $posted);
 

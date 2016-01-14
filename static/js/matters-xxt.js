@@ -933,9 +933,6 @@ xxtMatters.directive('pushmatter', function() {
                             $rootScope.infomsg = '发送完成';
                         });
                     } else {
-                        //http2.post('/rest/mp/send/mass', data, function(rsp) {
-                        //    $rootScope.infomsg = '发送完成';
-                        //});
                         if (data.targetUser === 'M' && $scope.mpaccount.mpsrc === 'yx') {
                             var countOfUsers;
                             var doSend = function(phase) {
@@ -944,7 +941,12 @@ xxtMatters.directive('pushmatter', function() {
                                         doSend(rsp.data.nextPhase);
                                         $rootScope.progmsg = '正在发送数据，剩余用户：' + rsp.data.countOfOpenids;
                                     } else {
-                                        $rootScope.progmsg = '完成向【' + countOfUsers + '】个用户发送';
+                                        var msg;
+                                        msg = '完成向【' + countOfUsers + '】个用户发送';
+                                        if (rsp.data.length) {
+                                            msg += '，失败【' + JSON.stringify(rsp.data) + '】用户';
+                                        }
+                                        $rootScope.progmsg = msg;
                                     }
                                 });
                             }
@@ -954,7 +956,12 @@ xxtMatters.directive('pushmatter', function() {
                                     countOfUsers = rsp.data.countOfOpenids;
                                     $rootScope.progmsg = '正在发送数据，剩余用户：' + countOfUsers;
                                 } else {
-                                    $rootScope.progmsg = '完成向【' + countOfUsers + '】个用户发送';
+                                    var msg;
+                                    msg = '完成向【' + countOfUsers + '】个用户发送';
+                                    if (rsp.data.length) {
+                                        msg += '，失败【' + JSON.stringify(rsp.data) + '】用户';
+                                    }
+                                    $rootScope.progmsg = msg;
                                 }
                             });
                         } else {

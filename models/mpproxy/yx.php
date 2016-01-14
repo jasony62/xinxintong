@@ -383,7 +383,7 @@ class yx_model extends mpproxy_base {
 			$message['touser'] = $openid;
 			$posted = \TMS_MODEL::toJson($message);
 			$rst = $this->httpPost($cmd, $posted);
-			$rst[0] === false && $warning[] = $rst[1];
+			$rst[0] === false && $warning[] = array($openid => $rst[1]);
 		}
 
 		if (isset($warning)) {

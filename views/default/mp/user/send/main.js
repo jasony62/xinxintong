@@ -38,7 +38,12 @@ xxtApp.controller('sendCtrl', ['$scope', 'http2', '$modal', function($scope, htt
                         doSend(rsp.data.nextPhase);
                         $scope.$root.progmsg = '正在发送数据，剩余用户：' + rsp.data.countOfOpenids;
                     } else {
-                        $scope.$root.progmsg = '完成向【' + countOfUsers + '】个用户发送';
+                        var msg;
+                        msg = '完成向【' + countOfUsers + '】个用户发送';
+                        if (rsp.data.length) {
+                            msg += '，失败【' + JSON.stringify(rsp.data) + '】用户'
+                        }
+                        $scope.$root.progmsg = msg;
                         $scope.massStatus = {
                             result: 'ok'
                         };
@@ -52,12 +57,14 @@ xxtApp.controller('sendCtrl', ['$scope', 'http2', '$modal', function($scope, htt
                     $scope.$root.progmsg = '正在发送数据，剩余用户：' + countOfUsers;
                 } else {
                     $scope.$root.progmsg = '完成向【' + countOfUsers + '】个用户发送';
+                    if (rsp.data.length) {
+                        $scope.$root.progmsg += '，失败【' + JSON.stringfiy(rsp.data) + '】用户'
+                    }
                     $scope.massStatus = {
                         result: 'ok'
                     };
                 }
             });
-
         } else {
             http2.post('/rest/mp/send/mass', data, function(rsp) {
                 $scope.$root.infomsg = '发送完成';

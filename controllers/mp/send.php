@@ -190,26 +190,29 @@ class send extends mp_controller {
 			return new \ResponseData(array('nextPhase' => 1, 'countOfOpenids' => $countOfOpenids));
 		}
 		if ($phase == 1) {
+			$warning = isset($_SESSION['warning']) ? $_SESSION['warning'] : array();
 			$message = $_SESSION['message'];
 			$openids = $_SESSION['openids'];
 			$batch = array_slice($openids, 0, $sizeOfBatch);
 			/*发送*/
 			$rst = $this->send2YxUserByP2p($this->mpid, $message, $batch);
 			if (false === $rst[0]) {
-				return new \ResponseError(implode(';', $rst[1]));
+				$warning = array_merge($warning, $rst[1]);
 			}
 			if (count($openids) > $sizeOfBatch) {
 				$openids = array_splice($openids, $sizeOfBatch);
 				$_SESSION['openids'] = &$openids;
 				$countOfOpenids = count($openids);
+				$_SESSION['warning'] = $warning;
 				return new \ResponseData(array('nextPhase' => 1, 'countOfOpenids' => $countOfOpenids));
 			}
 		}
 		/*结束*/
+		unset($_SESSION['warning']);
 		unset($_SESSION['openids']);
 		unset($_SESSION['message']);
 
-		return new \ResponseData('ok');
+		return new \ResponseData($warning);
 	}
 	/**
 	 * 预览消息

@@ -17,7 +17,7 @@ xxtApp.controller('deptCtrl', ['$scope', 'http2', function($scope, http2) {
     };
     $scope.doSearch = function() {
         $scope.depts.children = [];
-        var url = '/rest/mp/user/department/get';
+        var url = '/rest/mp/user/department/list';
         url += '?authid=' + $scope.selectedAuthapi.authid;
         http2.get(url, function(rsp) {
             buildDepts(0, rsp.data, $scope.depts);
@@ -66,7 +66,7 @@ xxtApp.controller('deptCtrl', ['$scope', 'http2', function($scope, http2) {
     $scope.toggleChild = function(child) {
         if (!child.loaded) {
             child.loaded = true;
-            var url = '/rest/mp/user/department/get';
+            var url = '/rest/mp/user/department/list';
             url += '?authid=' + $scope.selectedAuthapi.authid + '&pid=' + child.data.id;
             http2.get(url, function(rsp) {
                 buildDepts(child.data.id, rsp.data, child);

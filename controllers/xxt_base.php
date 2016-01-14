@@ -463,12 +463,11 @@ class xxt_base extends TMS_CONTROLLER {
 		foreach ($userSet as $us) {
 			switch ($us->idsrc) {
 			case 'D':
-				//$fans = $this->model('user/department')->getFans($us->identity, 'openid');
 				$deptid = $us->identity;
 				$q = array(
 					'openid',
-					'xxt_member m',
-					"m.depts like '%\"$deptid\"%'",
+					'xxt_member',
+					"forbidden='N' and depts like '%\"$deptid\"%'",
 				);
 				$fans = $this->model()->query_objs_ss($q);
 				foreach ($fans as $fan) {
@@ -476,7 +475,6 @@ class xxt_base extends TMS_CONTROLLER {
 				}
 				break;
 			case 'T':
-				//$fans = $this->model('user/tag')->getFans($us->identity, 'openid');
 				$tagids = explode(',', $us->identity);
 				$model = $this->model();
 				$q = array(
@@ -484,7 +482,7 @@ class xxt_base extends TMS_CONTROLLER {
 					'xxt_member',
 				);
 				foreach ($tagids as $tagid) {
-					$q[2] = "concat(',',tags,',') like '%,$tagid,%'";
+					$q[2] = "forbidden='N' and concat(',',tags,',') like '%,$tagid,%'";
 					$fans = $this->model()->query_objs_ss($q);
 					foreach ($fans as $fan) {
 						!in_array($fan->openid, $openids) && $openids[] = $fan->openid;
@@ -495,15 +493,13 @@ class xxt_base extends TMS_CONTROLLER {
 				$deptAndTagIds = explode(',', $us->identity);
 				$deptid = $deptAndTagIds[0];
 				$tagids = array_slice($deptAndTagIds, 1);
-				//$fans = $this->model('user/department')->getFansByTag($deptid, $tagids, 'openid');
-				//$fans = $this->model('user/tag')->getFans($us->identity, 'openid');
 				$model = $this->model();
 				$q = array(
 					'openid',
 					'xxt_member',
 				);
 				foreach ($tagids as $tagid) {
-					$q[2] = "depts like '%\"$deptid\"%' and concat(',',tags,',') like '%,$tagid,%'";
+					$q[2] = "forbidden='N' and depts like '%\"$deptid\"%' and concat(',',tags,',') like '%,$tagid,%'";
 					$fans = $this->model()->query_objs_ss($q);
 					foreach ($fans as $fan) {
 						!in_array($fan->openid, $openids) && $openids[] = $fan->openid;

@@ -20,10 +20,10 @@ class department extends \mp\mp_controller {
 	/**
 	 * 获得指定父节点下的部门
 	 *
-	 * $authid
-	 * $pid
+	 * @param int $authid
+	 * @param int $pid
 	 */
-	public function get_action($authid, $pid = 0) {
+	public function list_action($authid, $pid = 0) {
 		$depts = $this->model('user/department')->byMpid($this->mpid, $authid, $pid);
 
 		return new \ResponseData($depts);

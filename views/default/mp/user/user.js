@@ -1,30 +1,41 @@
-xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$modal', function ($location, $scope, http2, $modal) {
+xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$modal', function($location, $scope, http2, $modal) {
     var openid;
     openid = $location.search().openid;
-    $scope.SexMap = { '0': '未知', '1': '男', '2': '女', '3': '无效值' };
-    $scope.trackpage = { at: 1, size: 30 };
+    $scope.SexMap = {
+        '0': '未知',
+        '1': '男',
+        '2': '女',
+        '3': '无效值'
+    };
+    $scope.trackpage = {
+        at: 1,
+        size: 30
+    };
     $scope.matterType = 'write';
-    $scope.matterpage = { at: 1, size: 30 };
-    $scope.back = function (event) {
+    $scope.matterpage = {
+        at: 1,
+        size: 30
+    };
+    $scope.back = function(event) {
         event.preventDefault();
         history.back();
     };
-    $scope.update = function (name) {
+    $scope.update = function(name) {
         var nv = {};
         nv[name] = $scope.user[name];
         http2.post('/rest/mp/user/fans/update?openid=' + $scope.user.openid, nv);
     };
-    $scope.userTrack = function () {
+    $scope.userTrack = function() {
         var url = '/rest/mp/user/fans/track?openid=' + $scope.user.openid;
         url += '&page=' + $scope.trackpage.at + '&size=' + $scope.trackpage.size;
-        http2.get(url, function (rsp) {
+        http2.get(url, function(rsp) {
             $scope.track = rsp.data;
         });
     };
-    $scope.selectMatter = function (matter) {
+    $scope.selectMatter = function(matter) {
         $scope.selectedMatter = matter;
     };
-    $scope.fetchMatter = function (page) {
+    $scope.fetchMatter = function(page) {
         if ($scope.matterType === 'write') {
             $scope.matters = null;
             return;
@@ -35,7 +46,7 @@ xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$modal', functio
         !page && (page = $scope.matterpage.at);
         url += '?page=' + page + '&size=' + $scope.matterpage.size;
         $scope.fromParent && $scope.fromParent === 'Y' && (params.src = 'p');
-        http2.post(url, params, function (rsp) {
+        http2.post(url, params, function(rsp) {
             if (/article/.test($scope.matterType)) {
                 $scope.matters = rsp.data[0];
                 rsp.data[1] && ($scope.matterpage.total = rsp.data[1]);
@@ -43,10 +54,12 @@ xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$modal', functio
                 $scope.matters = rsp.data;
         });
     };
-    $scope.send = function () {
+    $scope.send = function() {
         var data;
         if ($scope.matterType === 'write') {
-            data = { text: $scope.text };
+            data = {
+                text: $scope.text
+            };
         } else {
             data = {
                 id: $scope.selectedMatter.id,
@@ -54,17 +67,17 @@ xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$modal', functio
                 title: $scope.selectedMatter.title || $scope.selectedMatter.content
             };
         }
-        http2.post('/rest/mp/send/custom?openid=' + $scope.user.openid, data, function (rsp) {
+        http2.post('/rest/mp/send/custom?openid=' + $scope.user.openid, data, function(rsp) {
             $scope.userTrack();
         });
     };
-    $scope.remove = function () {
-        http2.get('/rest/mp/user/fans/removeOne?fid=' + $scope.user.fid, function (rsp) {
+    $scope.remove = function() {
+        http2.get('/rest/mp/user/fans/removeOne?fid=' + $scope.user.fid, function(rsp) {
             location.href = '/page/mp/user/received';
         });
     };
-    $scope.refresh = function () {
-        http2.get('/rest/mp/user/fans/refreshOne?openid=' + $scope.user.openid, function (rsp) {
+    $scope.refresh = function() {
+        http2.get('/rest/mp/user/fans/refreshOne?openid=' + $scope.user.openid, function(rsp) {
             $scope.user.sex = rsp.data.sex;
             $scope.user.nickname = rsp.data.nickname;
             rsp.data.subscribe_at !== undefined && ($scope.user.subscribe_at = rsp.data.subscribe_at);
@@ -72,8 +85,10 @@ xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$modal', functio
             $scope.$root.infomsg = '完成刷新';
         });
     };
-    $scope.$on('tag.xxt.combox.done', function (event, aSelected, index) {
-        var aNewTags = [], aTagIds = [], member = $scope.user.members[index];
+    $scope.$on('tag.xxt.combox.done', function(event, aSelected, index) {
+        var aNewTags = [],
+            aTagIds = [],
+            member = $scope.user.members[index];
         for (var i in aSelected) {
             var existing = false;
             for (var j in member.tags) {
@@ -81,24 +96,23 @@ xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$modal', functio
                     existing = true;
                     break;
                 }
-            }
-            !existing && aNewTags.push(aSelected[i]);
+            }!existing && aNewTags.push(aSelected[i]);
         }
         for (var i in aNewTags)
             aTagIds.push(aNewTags[i].id);
-        http2.post('/rest/mp/user/member/addTags?mid=' + member.mid, aTagIds, function (rsp) {
+        http2.post('/rest/mp/user/member/addTags?mid=' + member.mid, aTagIds, function(rsp) {
             member.tags2 = member.tags2.concat(aNewTags);
             member.tags = rsp.data;
         });
     });
-    $scope.$on('tag.xxt.combox.del', function (event, removed, index) {
+    $scope.$on('tag.xxt.combox.del', function(event, removed, index) {
         var member = $scope.user.members[index];
-        http2.get('/rest/mp/user/member/delTags?mid=' + member.mid + '&tagid=' + removed.id, function (rsp) {
+        http2.get('/rest/mp/user/member/delTags?mid=' + member.mid + '&tagid=' + removed.id, function(rsp) {
             member.tags2.splice(member.tags2.indexOf(removed), 1);
             member.tags = rsp.data;
         });
     });
-    $scope.selectDept = function (member) {
+    $scope.selectDept = function(member) {
         $modal.open({
             templateUrl: 'deptSelector.html',
             controller: 'deptSelectorCtrl',
@@ -106,38 +120,46 @@ xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$modal', functio
             size: 'lg',
             windowClass: 'auto-height',
             resolve: {
-                member: function () { return member; },
-                depts: function () { return angular.copy($scope.depts); }
+                member: function() {
+                    return member;
+                },
+                depts: function() {
+                    return angular.copy($scope.depts);
+                }
             }
-        }).result.then(function (checkedDepts) {
+        }).result.then(function(checkedDepts) {
             member.depts = JSON.stringify(checkedDepts);
-            http2.post('/rest/mp/user/member/updateDepts?mid=' + member.mid, { 'depts': member.depts }, function (rsp) {
+            http2.post('/rest/mp/user/member/updateDepts?mid=' + member.mid, {
+                'depts': member.depts
+            }, function(rsp) {
                 member.depts2 = rsp.data;
             });
         });
     };
-    $scope.canFieldShow = function (authapi, name) {
+    $scope.canFieldShow = function(authapi, name) {
         return authapi['attr_' + name].charAt(0) === '0';
     };
-    $scope.addMember = function (authapi) {
+    $scope.addMember = function(authapi) {
         $modal.open({
             templateUrl: 'memberEditor.html',
             backdrop: 'static',
-            controller: ['$modalInstance', '$scope', function ($modalInstance, $scope) {
+            controller: ['$modalInstance', '$scope', function($modalInstance, $scope) {
                 $scope.authapi = authapi;
-                $scope.member = { extattr: {} };
-                $scope.canShow = function (name) {
+                $scope.member = {
+                    extattr: {}
+                };
+                $scope.canShow = function(name) {
                     return authapi['attr_' + name].charAt(0) === '0';
                 };
-                $scope.close = function () {
+                $scope.close = function() {
                     $modalInstance.dismiss();
                 };
-                $scope.ok = function () {
+                $scope.ok = function() {
                     $modalInstance.close($scope.member);
                 };
             }]
-        }).result.then(function (member) {
-            http2.post('/rest/mp/user/member/create?fid=' + $scope.user.fid + '&authid=' + authapi.authid, member, function (rsp) {
+        }).result.then(function(member) {
+            http2.post('/rest/mp/user/member/create?fid=' + $scope.user.fid + '&authid=' + authapi.authid, member, function(rsp) {
                 member = rsp.data;
                 member.extattr = JSON.parse(decodeURIComponent(member.extattr.replace(/\+/g, '%20')));
                 member.authapi = authapi;
@@ -146,27 +168,32 @@ xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$modal', functio
             });
         });
     };
-    $scope.editMember = function (member) {
+    $scope.editMember = function(member) {
         $modal.open({
             templateUrl: 'memberEditor.html',
             backdrop: 'static',
-            controller: ['$modalInstance', '$scope', function ($modalInstance, $scope) {
+            controller: ['$modalInstance', '$scope', function($modalInstance, $scope) {
                 $scope.authapi = member.authapi;
                 $scope.member = angular.copy(member);
-                $scope.canShow = function (name) {
+                $scope.canShow = function(name) {
                     return $scope.authapi && $scope.authapi['attr_' + name].charAt(0) === '0';
                 };
-                $scope.close = function () {
+                $scope.close = function() {
                     $modalInstance.dismiss();
                 };
-                $scope.ok = function () {
-                    $modalInstance.close({ action: 'update', data: $scope.member });
+                $scope.ok = function() {
+                    $modalInstance.close({
+                        action: 'update',
+                        data: $scope.member
+                    });
                 };
-                $scope.remove = function () {
-                    $modalInstance.close({ action: 'remove' });
+                $scope.remove = function() {
+                    $modalInstance.close({
+                        action: 'remove'
+                    });
                 };
             }]
-        }).result.then(function (rst) {
+        }).result.then(function(rst) {
             if (rst.action === 'update') {
                 var newData, i, ea;
                 newData = {
@@ -181,21 +208,21 @@ xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$modal', functio
                     ea = member.authapi.extattr[i];
                     newData[ea.id] = rst.data[ea.id];
                 }
-                http2.post('/rest/mp/user/member/update?mid=' + member.mid, newData, function (rsp) {
+                http2.post('/rest/mp/user/member/update?mid=' + member.mid, newData, function(rsp) {
                     angular.extend(member, newData);
                 });
             } else if (rst.action === 'remove') {
-                http2.get('/rest/mp/user/member/remove?mid=' + member.mid, function () {
+                http2.get('/rest/mp/user/member/remove?mid=' + member.mid, function() {
                     $scope.user.members.splice($scope.user.members.indexOf(member), 1);
                 });
             }
         });
     };
-    http2.get('/rest/mp/mpaccount/get', function (rsp) {
+    http2.get('/rest/mp/mpaccount/get', function(rsp) {
         $scope.mpaccount = rsp.data;
         $scope.hasParent = $scope.mpaccount.parent_mpid && $scope.mpaccount.parent_mpid.length;
     });
-    http2.get('/rest/mp/user/get?openid=' + openid, function (rsp) {
+    http2.get('/rest/mp/user/get?openid=' + openid, function(rsp) {
         var i, j;
         $scope.user = rsp.data.fan;
         $scope.groups = rsp.data.groups;
@@ -227,14 +254,16 @@ xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$modal', functio
         }
         $scope.userTrack();
     });
-}]).controller('deptSelectorCtrl', ['$modalInstance', 'http2', '$scope', 'member', function ($modalInstance, http2, $scope, member) {
+}]).controller('deptSelectorCtrl', ['$modalInstance', 'http2', '$scope', 'member', function($modalInstance, http2, $scope, member) {
     var checkedDepts;
     if (member.depts && member.depts.length)
         checkedDepts = JSON.parse(member.depts);
     else
         checkedDepts = [];
-    $scope.depts = { children: [] };
-    $scope.isChecked = function (dept) {
+    $scope.depts = {
+        children: []
+    };
+    $scope.isChecked = function(dept) {
         var i, checked;
         for (i in checkedDepts) {
             checked = checkedDepts[i].indexOf(dept.id) === checkedDepts[i].length - 1;
@@ -242,7 +271,7 @@ xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$modal', functio
         }
         return false;
     };
-    var buildDepts = function (pid, depts, treeNode, path) {
+    var buildDepts = function(pid, depts, treeNode, path) {
         var i, dept, newNode;
         for (i in depts) {
             dept = depts[i];
@@ -255,23 +284,23 @@ xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$modal', functio
             treeNode.children.push(newNode);
         }
     };
-    $scope.close = function () {
+    $scope.close = function() {
         $modalInstance.dismiss('cancel');
     };
-    $scope.ok = function () {
+    $scope.ok = function() {
         $modalInstance.close(checkedDepts);
     };
-    $scope.toggleChild = function (child) {
+    $scope.toggleChild = function(child) {
         if (!child.loaded) {
             child.loaded = true;
-            http2.get('/rest/mp/user/department/get?authid=' + member.authapi_id + '&pid=' + child.data.id, function (rsp) {
+            http2.get('/rest/mp/user/department/list?authid=' + member.authapi_id + '&pid=' + child.data.id, function(rsp) {
                 var depts = rsp.data;
                 buildDepts(child.data.id, depts, child);
             });
         }
         child.expanded = !child.expanded;
     };
-    $scope.updateDepts = function (dept) {
+    $scope.updateDepts = function(dept) {
         if (dept.checked && dept.checked === 'Y') {
             var path;
             path = dept.fullpath.split(',');
@@ -286,8 +315,8 @@ xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$modal', functio
         }
     };
     buildDepts(0, member.authapi.depts, $scope.depts, []);
-}]).filter('joinobj', function () {
-    return function (objs, prop) {
+}]).filter('joinobj', function() {
+    return function(objs, prop) {
         var output = [];
         for (i in objs)
             output.push(objs[i][prop]);

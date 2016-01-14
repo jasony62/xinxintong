@@ -137,22 +137,18 @@ class main extends \member_base {
 				 */
 				$tr = $this->model('reply\text', $msg, $reply, false);
 				$tr->exec();
-			} else
-			/**
-			 * 只允许在一个活动中进行处理
-			 */
-			{
+			} else {
+				/**
+				 * 只允许在一个活动中进行处理
+				 */
 				return $reply;
 			}
-
-		} else
-		/**
-		 * 没有进行处理
-		 */
-		{
+		} else {
+			/**
+			 * 没有进行处理
+			 */
 			return false;
 		}
-
 	}
 	/**
 	 * 获得有效的分支活动
@@ -173,7 +169,6 @@ class main extends \member_base {
 		} else {
 			return false;
 		}
-
 	}
 	/**
 	 * 事件消息处理
@@ -215,7 +210,6 @@ class main extends \member_base {
 		case 'CLICK':
 			$this->menu_call($data, $k);
 			break;
-
 		}
 		die('');
 	}
@@ -344,6 +338,11 @@ class main extends \member_base {
 			array('unsubscribe_at' => $unsubscribe_at),
 			"mpid='$mpid' and openid='$openid'"
 		);
+		$rst = $this->model()->update(
+			'xxt_member',
+			array('forbidden' => 'Y'),
+			"mpid='$mpid' and openid='$openid'"
+		);
 
 		return $rst;
 	}
@@ -426,7 +425,6 @@ class main extends \member_base {
 		} else {
 			$this->universal_call($call);
 		}
-
 	}
 	/**
 	 * 语音消息响应

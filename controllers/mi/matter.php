@@ -210,13 +210,12 @@ class matter extends \member_base {
 			}
 		}
 
-		$user = $this->getUser($mpid, array('verbose' => array('fan' => 'Y')));
-		//$user = $this->getUser($mpid);
+		$user = $this->getUser($mpid);
 
 		$logUser = new \stdClass;
 		$logUser->vid = $user->vid;
 		$logUser->openid = $user->openid;
-		$logUser->nickname = empty($user->fan) ? '' : $this->model()->escape($user->fan->nickname);
+		$logUser->nickname = $user->nickname;
 
 		$logMatter = new \stdClass;
 		$logMatter->id = $id;
@@ -228,6 +227,10 @@ class matter extends \member_base {
 		$logClient->ip = $this->client_ip();
 
 		$this->model('log')->writeShareAction($mpid, $shareid, $shareto, $shareby, $logUser, $logMatter, $logClient);
+		/**
+		 * write coin log
+		 */
+		$this->model('coin\log')->record($mpid, 'matter.' . $type . '.share.' . $shareto, $id, 'sys', $user->openid);
 
 		return new \ResponseData('ok');
 	}

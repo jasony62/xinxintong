@@ -164,6 +164,53 @@ class send extends mp_controller {
 		}
 	}
 	/**
+	 * 群发消息
+	 * 开通了点对点认证接口的易信公众号
+	 */
+	public function yxmember_action($phase = 0, $sizeOfBatch = 20) {
+		if ($phase == 0) {
+			$matter = $this->getPostJson();
+			if (empty($matter->targetUser) || empty($matter->userSet)) {
+				return new \ResponseError('请指定接收消息的用户');
+			}
+			/*消息*/
+			$model = $this->model('matter\\' . $matter->type);
+			$message = $model->forCustomPush($this->mpid, $matter->id);
+			/*用户*/
+			$userSet = $matter->userSet;
+			$rst = $this->getOpenid($userSet);
+			if ($rst[0] === false) {
+				return new \ResponseError($rst[1]);
+			}
+			$openids = $rst[1];
+			$_SESSION['message'] = &$message;
+			$_SESSION['openids'] = &$openids;
+			$countOfOpenids = count($openids);
+
+			return new \ResponseData(array('nextPhase' => 1, 'countOfOpenids' => $countOfOpenids));
+		}
+		if ($phase == 1) {
+			$message = $_SESSION['openids'];
+			$openids = $_SESSION['openids'];
+			$batch = array_slice($openids, 0, $sizeOfBatch);
+			/*发送*/
+			$rst = $this->send2YxUserByP2p($this->mpid, $message, $batch);
+			if (false === $rst[0]) {
+				return new \ResponseError(implode(';', $rst[1]));
+			}
+			if (count($openids) > $sizeOfBatch) {
+				$openids = array_splice($openids, $sizeOfBatch);
+				$_SESSION['openids'] = &$openids;
+				return new \ResponseData(array('nextPhase' => 1, 'countOfOpenids' => $countOfOpenids));
+			}
+		}
+		/*结束*/
+		unset($_SESSION['openids']);
+		unset($_SESSION['message']);
+
+		return new \ResponseData('ok');
+	}
+	/**
 	 * 预览消息
 	 *
 	 * 开通预览接口的微信公众号

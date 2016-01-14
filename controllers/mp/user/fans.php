@@ -24,29 +24,19 @@ class fans extends \mp\mp_controller {
 	 * $amount
 	 * $gid 关注用户分组
 	 */
-	public function get_action($keyword = '', $page = 1, $size = 30, $order = 'time', $amount = null, $gid = null, $authid = null, $contain = '') {
+	public function list_action($keyword = '', $page = 1, $size = 30, $order = 'time', $amount = null, $gid = null, $authid = null, $contain = '') {
 		$contain = explode(',', $contain);
 
 		if ($authid !== null) {
-			$q[] = 'f.fid,f.openid,f.subscribe_at,f.nickname,f.sex,f.city,f.read_num,f.share_friend_num,f.share_timeline_num,m.mid,m.authed_identity,m.tags,m.depts,m.email m_email,m.mobile m_mobile,m.name m_name,m.create_at,m.email_verified,m.extattr m_extattr';
+			$q[] = 'f.fid,f.openid,f.subscribe_at,f.nickname,f.sex,f.city,f.read_num,f.share_friend_num,f.share_timeline_num,f.coin,m.mid,m.authed_identity,m.tags,m.depts,m.email m_email,m.mobile m_mobile,m.name m_name,m.create_at,m.email_verified,m.extattr m_extattr';
 			$q[] = "xxt_fans f left join xxt_member m on m.forbidden='N' and f.fid=m.fid and m.authapi_id=$authid";
 			if (in_array('memberAttrs', $contain)) {
-				/**
-				 * member's fields setting
-				 */
 				$setting = $this->model('user/authapi')->byId($authid, 'attr_mobile,attr_email,attr_name,extattr');
-				/**
-				 * 注册用户的其他属性，例如：会员卡号，会员积分
-				 */
-				//$features = $this->model('mp\mpaccount')->getFeature($this->mpid);
-				//$setting->can_member_card = $features->can_member_card;
-				//$setting->can_member_credits = $features->can_member_credits;
 			}
 		} else {
-			$q[] = 'f.fid,f.openid,f.subscribe_at,f.nickname,f.sex,f.city,f.read_num,f.share_friend_num,f.share_timeline_num';
+			$q[] = 'f.fid,f.openid,f.subscribe_at,f.nickname,f.sex,f.city,f.read_num,f.share_friend_num,f.share_timeline_num,f.coin';
 			$q[] = 'xxt_fans f';
 		}
-
 		$w = "f.mpid='$this->mpid' and f.unsubscribe_at=0 and f.forbidden='N'";
 		/**
 		 * search by keyword
@@ -56,7 +46,6 @@ class fans extends \mp\mp_controller {
 			if ($authid !== null) {
 				$w .= " or m.authed_identity like '%$keyword%'";
 			}
-
 			$w .= ")";
 		}
 		/**
@@ -65,7 +54,6 @@ class fans extends \mp\mp_controller {
 		if ($gid !== null) {
 			$w .= " and f.groupid=$gid";
 		}
-
 		$q[] = $w;
 
 		switch ($order) {
@@ -81,6 +69,9 @@ class fans extends \mp\mp_controller {
 		case 'share_timeline':
 			$q2['o'] = 'share_timeline_num desc';
 			break;
+		case 'coin':
+			$q2['o'] = 'coin desc';
+			break;
 		}
 		$q2['r'] = array('o' => ($page - 1) * $size, 'l' => $size);
 		if ($fans = $this->model()->query_objs_ss($q, $q2)) {
@@ -88,7 +79,6 @@ class fans extends \mp\mp_controller {
 				$q[0] = 'count(*)';
 				$amount = (int) $this->model()->query_val_ss($q);
 			}
-
 			/**
 			 * 返回属性设置信息
 			 */
@@ -100,7 +90,7 @@ class fans extends \mp\mp_controller {
 	/**
 	 * get one
 	 */
-	public function fan_action($fid) {
+	public function get_action($fid) {
 		$fan = $this->model('user/fans')->byId($fid);
 		$mm = $this->model('user/member');
 		if ($members = $mm->byFanid($fid)) {

@@ -710,7 +710,7 @@ xxtMatters.directive('userpopover', ['http2', function(http2) {
         link: function(scope, elem, attrs) {
             $(elem).on('mouseenter', function(event) {
                 if (!$(elem).attr('loaded')) {
-                    http2.get('/rest/mp/user/fans/fan?fid=' + scope.xxtFid, function(rsp) {
+                    http2.get('/rest/mp/user/fans/get?fid=' + scope.xxtFid, function(rsp) {
                         var member, tags = [],
                             depts = [],
                             detail = '';

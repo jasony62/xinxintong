@@ -24,7 +24,7 @@ xxtApp.controller('fansCtrl', ['$scope', 'http2', function($scope, http2) {
                 param += '&contain=memberAttrs';
         }
         param += '&order=' + $scope.order;
-        http2.get('/rest/mp/user/fans/get' + param, function(rsp) {
+        http2.get('/rest/mp/user/fans/list' + param, function(rsp) {
             var fans = rsp.data[0];
             if ($scope.selectedAuthapi) {
                 var i, fan;

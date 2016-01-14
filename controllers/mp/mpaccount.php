@@ -19,7 +19,7 @@ class mpaccount extends mp_controller {
 		$pmodel->can('mpsetting_setting', 'read') && $entries[] = array('name' => 'main', 'title' => '基本信息', 'entry' => '');
 		$pmodel->can('mpsetting_feature', 'read') && $entries[] = array('name' => 'feature', 'title' => '定制功能', 'entry' => '');
 		$pmodel->can('mpsetting_customapi', 'read') && $entries[] = array('name' => 'customapi', 'title' => '自定义接口', 'entry' => '');
-		$pmodel->can('mpsetting_permission', 'read') && $entries[] = array('name' => 'permission', 'title' => '权限设置', 'entry' => '');
+		$entries[] = array('name' => 'coin', 'title' => '积分规则', 'entry' => '');
 		$pmodel->can('mpsetting_administrator', 'read') && $entries[] = array('name' => 'administrator', 'title' => '系统管理员', 'entry' => '');
 		$entries[] = array('name' => 'syslog', 'title' => '系统日志', 'entry' => '');
 
@@ -184,6 +184,12 @@ class mpaccount extends mp_controller {
 		} else {
 			$this->view_action('/mp/mpaccount/read/permission');
 		}
+	}
+	/**
+	 * 设置积分规则
+	 */
+	public function coin_action() {
+		$this->view_action('/mp/mpaccount/coin');
 	}
 	/**
 	 *

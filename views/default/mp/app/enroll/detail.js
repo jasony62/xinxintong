@@ -18,7 +18,7 @@ xxtApp.factory('Mp', function($q, http2) {
 });
 xxtApp.config(['$routeProvider', function($routeProvider) {
     $routeProvider.when('/rest/mp/app/enroll/detail', {
-        templateUrl: '/views/default/mp/app/enroll/setting.html',
+        templateUrl: '/views/default/mp/app/enroll/setting.html?_=1',
         controller: 'settingCtrl',
         resolve: {
             load: function($q) {
@@ -32,7 +32,7 @@ xxtApp.config(['$routeProvider', function($routeProvider) {
             }
         }
     }).when('/rest/mp/app/enroll/round', {
-        templateUrl: '/views/default/mp/app/enroll/round.html',
+        templateUrl: '/views/default/mp/app/enroll/round.html?_=1',
         controller: 'roundCtrl',
         resolve: {
             load: function($q) {
@@ -74,7 +74,7 @@ xxtApp.config(['$routeProvider', function($routeProvider) {
             }
         }
     }).when('/rest/mp/app/enroll/stat', {
-        templateUrl: '/views/default/mp/app/enroll/stat.html',
+        templateUrl: '/views/default/mp/app/enroll/stat.html?_=1',
         controller: 'statCtrl'
     }).when('/rest/mp/app/enroll/lottery', {
         templateUrl: '/views/default/mp/app/enroll/lottery.html?_=' + (new Date()).getTime(),
@@ -91,10 +91,10 @@ xxtApp.config(['$routeProvider', function($routeProvider) {
             }
         }
     }).when('/rest/mp/app/enroll/accesslog', {
-        templateUrl: '/views/default/mp/app/enroll/accesslog.html',
+        templateUrl: '/views/default/mp/app/enroll/accesslog.html?_=1',
         controller: 'accesslogCtrl'
     }).otherwise({
-        templateUrl: '/views/default/mp/app/enroll/setting.html',
+        templateUrl: '/views/default/mp/app/enroll/setting.html?_=2',
         controller: 'settingCtrl'
     });
 }]);

@@ -41,6 +41,9 @@ xxtApp.controller('TextCtrl', ['$scope', 'http2', function($scope, http2) {
                 $scope.selectOne(0);
         });
     };
+    http2.get('/rest/mp/mpaccount/get', function(rsp) {
+        $scope.mpaccount = rsp.data;
+    });
     http2.get('/rest/mp/feature/get?fields=matter_visible_to_creater', function(rsp) {
         $scope.features = rsp.data;
     });

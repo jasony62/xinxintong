@@ -907,7 +907,8 @@ xxtMatters.directive('pushmatter', function() {
         restrict: 'E',
         scope: {
             matterId: '@',
-            matterType: '@'
+            matterType: '@',
+            mpaccount: '='
         },
         controller: ['$rootScope', '$scope', '$modal', 'http2', function($rootScope, $scope, $modal, http2) {
             $scope.open = function() {
@@ -921,8 +922,9 @@ xxtMatters.directive('pushmatter', function() {
                     data.id = $scope.matterId;
                     data.type = $scope.matterType;
                     if (data.mps !== undefined) {
-                        var i = 0,
-                            mps = [];
+                        var i, mps;
+                        i = 0;
+                        mps = [];
                         for (i; i < data.mps.length; i++) {
                             mps.push(data.mps[i].mpid);
                         }
@@ -931,9 +933,35 @@ xxtMatters.directive('pushmatter', function() {
                             $rootScope.infomsg = '发送完成';
                         });
                     } else {
-                        http2.post('/rest/mp/send/mass', data, function(rsp) {
-                            $rootScope.infomsg = '发送完成';
-                        });
+                        //http2.post('/rest/mp/send/mass', data, function(rsp) {
+                        //    $rootScope.infomsg = '发送完成';
+                        //});
+                        if (data.targetUser === 'M' && $scope.mpaccount.mpsrc === 'yx') {
+                            var countOfUsers;
+                            var doSend = function(phase) {
+                                http2.get('/rest/mp/send/yxmember?phase=' + phase, function(rsp) {
+                                    if (rsp.data.nextPhase) {
+                                        doSend(rsp.data.nextPhase);
+                                        $rootScope.progmsg = '正在发送数据，剩余用户：' + rsp.data.countOfOpenids;
+                                    } else {
+                                        $rootScope.progmsg = '完成向【' + countOfUsers + '】个用户发送';
+                                    }
+                                });
+                            }
+                            http2.post('/rest/mp/send/yxmember', data, function(rsp) {
+                                if (rsp.data.nextPhase) {
+                                    doSend(rsp.data.nextPhase);
+                                    countOfUsers = rsp.data.countOfOpenids;
+                                    $rootScope.progmsg = '正在发送数据，剩余用户：' + countOfUsers;
+                                } else {
+                                    $rootScope.progmsg = '完成向【' + countOfUsers + '】个用户发送';
+                                }
+                            });
+                        } else {
+                            http2.post('/rest/mp/send/mass', data, function(rsp) {
+                                $rootScope.infomsg = '发送完成';
+                            });
+                        }
                     }
                 });
             };

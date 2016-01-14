@@ -372,8 +372,8 @@ class yx_model extends mpproxy_base {
 	 * $message
 	 * $openids
 	 */
-	public function messageSend($message, $openids, $urlencode = true) {
-		is_string($openids) && $openids = array($openids);
+	public function messageSend($message, $openids) {
+		is_string($openids) && $openids = implde(',', $openids);
 		/**
 		 * 发送消息
 		 */
@@ -381,11 +381,8 @@ class yx_model extends mpproxy_base {
 
 		foreach ($openids as $openid) {
 			$message['touser'] = $openid;
-
-			$posted = $urlencode ? \TMS_MODEL::toJson($message) : json_encode($message);
-
+			$posted = \TMS_MODEL::toJson($message);
 			$rst = $this->httpPost($cmd, $posted);
-
 			$rst[0] === false && $warning[] = $rst[1];
 		}
 

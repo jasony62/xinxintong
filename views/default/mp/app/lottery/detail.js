@@ -56,7 +56,7 @@ xxtApp.config(['$routeProvider', function($routeProvider) {
             }
         }
     }).otherwise({
-        templateUrl: '/views/default/mp/app/lottery/setting.html?_=1',
+        templateUrl: '/views/default/mp/app/lottery/setting.html?_=2',
         controller: 'settingCtrl',
         resolve: {
             load: function($q) {

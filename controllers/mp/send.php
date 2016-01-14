@@ -190,7 +190,7 @@ class send extends mp_controller {
 			return new \ResponseData(array('nextPhase' => 1, 'countOfOpenids' => $countOfOpenids));
 		}
 		if ($phase == 1) {
-			$message = $_SESSION['openids'];
+			$message = $_SESSION['message'];
 			$openids = $_SESSION['openids'];
 			$batch = array_slice($openids, 0, $sizeOfBatch);
 			/*发送*/
@@ -201,6 +201,7 @@ class send extends mp_controller {
 			if (count($openids) > $sizeOfBatch) {
 				$openids = array_splice($openids, $sizeOfBatch);
 				$_SESSION['openids'] = &$openids;
+				$countOfOpenids = count($openids);
 				return new \ResponseData(array('nextPhase' => 1, 'countOfOpenids' => $countOfOpenids));
 			}
 		}

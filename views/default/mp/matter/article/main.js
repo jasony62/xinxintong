@@ -1,18 +1,18 @@
 xxtApp.config(['$routeProvider', function($routeProvider) {
     $routeProvider.when('/rest/mp/matter/article/edit', {
-        templateUrl: '/views/default/mp/matter/article/edit.html',
+        templateUrl: '/views/default/mp/matter/article/edit.html?_=1',
         controller: 'editCtrl',
     }).when('/rest/mp/matter/article/read', {
-        templateUrl: '/views/default/mp/matter/article/read.html',
+        templateUrl: '/views/default/mp/matter/article/read.html?_=1',
         controller: 'readCtrl',
     }).when('/rest/mp/matter/article/remark', {
-        templateUrl: '/views/default/mp/matter/article/remark.html',
+        templateUrl: '/views/default/mp/matter/article/remark.html?_=1',
         controller: 'remarkCtrl',
     }).when('/rest/mp/matter/article/stat', {
-        templateUrl: '/views/default/mp/matter/article/stat.html',
+        templateUrl: '/views/default/mp/matter/article/stat.html?_=1',
         controller: 'statCtrl'
     }).otherwise({
-        templateUrl: '/views/default/mp/matter/article/edit.html',
+        templateUrl: '/views/default/mp/matter/article/edit.html?_=1',
         controller: 'editCtrl'
     });
 }]);

@@ -35,8 +35,7 @@
     </div>
     <div id='tags' ng-class="{'col-md-3':isPickSingleMember==='N'}" ng-show='tags.length'>
         <ul class='list-group'>
-            <li class='list-group-item' ng-class="{'active':t===selectedTag}" ng-repeat='t in tags' ng-init="t.checked=isTagChecked(t)?'Y':'N'" ng-click='selectTag(t)'>
-            <label class='checkbox-inline'>{{t.name}}<input class='pull-right' style='position:static' type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='t.checked' ng-change="checkTags(t)" ng-show="isPickSingleMember==='N'"></label></li>
+            <li class='list-group-item' ng-class="{'active':t===selectedTag}" ng-repeat='t in tags' ng-init="t.checked=isTagChecked(t)?'Y':'N'"><label class='checkbox-inline'>{{t.name}}<input class='pull-right' style='position:static' type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='t.checked' ng-change="checkTags(t)" ng-show="isPickSingleMember==='N'"></label></li>
         </ul>
     </div>
     <div id='members' ng-show="isPickSingleMember==='Y'">

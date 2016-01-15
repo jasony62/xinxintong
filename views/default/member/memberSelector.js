@@ -52,7 +52,8 @@
                 checkedTags.splice(checkedTags.indexOf(tag), 1);
                 $scope.$emit('remove.tag.member.selector', tag);
             }
-            if ($scope.isPickSingleMember === 'Y') $scope.selectTag(tag);
+            $scope.selectedTag = $scope.selectedTag === tag ? null : tag;
+            $scope.isPickSingleMember === 'Y' && $scope.searchMember();
         };
         $scope.checkMembers = function(member) {
             if (member.checked && member.checked === 'Y') {
@@ -77,13 +78,9 @@
             url += '&contain=total';
             params.length && (url += '&' + params.join('&'));
             http2.get(url, function(rsp) {
-                $scope.members = rsp.data[0];
-                rsp.data[1] && ($scope.page.total = rsp.data[1]);
+                $scope.members = rsp.data.members;
+                rsp.data.total !== undefined && ($scope.page.total = rsp.data.total);
             });
-        };
-        $scope.selectTag = function(tag) {
-            $scope.selectedTag = $scope.selectedTag === tag ? null : tag;
-            if ($scope.isPickSingleMember === 'Y') $scope.searchMember();
         };
         $scope.selectDept = function(dept) {
             if ($scope.isPickSingleMember === 'Y') {

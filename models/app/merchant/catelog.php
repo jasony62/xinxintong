@@ -320,7 +320,7 @@ class catelog_model extends \TMS_MODEL {
 		/*生成sku*/
 		$skus = array();
 		$start = $first;
-		while ($start <= $last) {
+		while ($start < $last) {
 			$sku = new \stdClass;
 			$sku->quantity = isset($rules->count) ? $rules->count : 1;
 			$sku->validity_begin_at = $start;

@@ -99,7 +99,7 @@ class sku_model extends \TMS_MODEL {
 		if ($beginAt || $endAt) {
 			$q[2] .= " and (has_validity='N' or (has_validity>='Y'";
 			$beginAt && $q[2] .= " and validity_begin_at>=$beginAt";
-			$endAt && $q[2] .= " and validity_begin_at<=$endAt";
+			$endAt && $q[2] .= " and validity_end_at<=$endAt";
 			$q[2] .= "))";
 		}
 		$q2 = array('o' => 'validity_begin_at');

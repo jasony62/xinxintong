@@ -26,17 +26,31 @@ class sku extends \member_base {
 	 * @param string $autogen 是否自动生成
 	 *
 	 */
-	public function byProduct_action($mpid, $shop, $catelog, $product, $beginAt = 0, $endAt = 0, $autogen = 'N') {
+	public function byProduct_action($mpid, $shop, $catelog, $product, $beginAt = 0, $endAt = 0, $autogen = 'N', $genBeginAt = 0, $genEndAt = 0) {
 		$user = $this->getUser($mpid);
+		/*如果需要自动生成，需要设置生成范围，而不是只生成筛选范围内的sku*/
+		if ($autogen === 'Y') {
+			if (empty($genBeginAt)) {
+				$genBeginAt = mktime(0, 0, 0, date('n', $beginAt), date('j', $beginAt), date('Y', $beginAt));
+			}
+			if (empty($genEndAt)) {
+				if (date('His', $endAt) == '000000') {
+					/*如果是0点0分0秒不延伸生成sku的时间段*/
+					$genEndAt = $endAt;
+				} else {
+					$genEndAt = mktime(23, 59, 59, date('n', $endAt), date('j', $endAt), date('Y', $endAt));
+				}
+			}
+		}
 
-		$cateSkus = $this->_byProduct($user, $mpid, $shop, $catelog, $product, $beginAt, $endAt, $autogen);
+		$cateSkus = $this->_byProduct($user, $mpid, $shop, $catelog, $product, $beginAt, $endAt, $autogen, $genBeginAt, $genEndAt);
 
 		return new \ResponseData($cateSkus);
 	}
 	/**
 	 *
 	 */
-	private function &_byProduct($user, $mpid, $shop, $catelog, $product, $beginAt = 0, $endAt = 0, $autogen = 'N') {
+	private function &_byProduct($user, $mpid, $shop, $catelog, $product, $beginAt = 0, $endAt = 0, $autogen = 'N', $genBeginAt = 0, $genEndAt = 0) {
 		/*有效期，缺省为当天*/
 		$beginAt === 0 && ($beginAt = mktime(0, 0, 0));
 		$endAt === 0 && ($endAt = mktime(23, 59, 59));
@@ -54,7 +68,7 @@ class sku extends \member_base {
 
 		$modelSku = $this->model('app\merchant\sku');
 		$cateSkus = $modelSku->byProduct($product, $options);
-
+		/*自动生成sku*/
 		if ($autogen === 'Y' && $beginAt != 0 && $endAt != 0) {
 			$q = array(
 				'1',
@@ -62,7 +76,7 @@ class sku extends \member_base {
 				"prod_id=$product and begin_at=$beginAt and end_at=$endAt",
 			);
 			if ('1' !== $modelSku->query_val_ss($q)) {
-				$this->_autogen($user->openid, $catelog, $product, $beginAt, $endAt, $cateSkus);
+				$this->_autogen($user->openid, $catelog, $product, $beginAt, $endAt, $cateSkus, $genBeginAt, $genEndAt);
 				$modelSku->insert(
 					'xxt_merchant_product_gensku_log',
 					array(
@@ -188,18 +202,20 @@ class sku extends \member_base {
 	 * @param string $autogen 是否自动生成
 	 *
 	 */
-	private function _autogen($creater, $catelogId, $productId, $beginAt, $endAt, &$existedCateSkus) {
+	private function _autogen($creater, $catelogId, $productId, $beginAt, $endAt, &$existedCateSkus, $genBeginAt = null, $genEndAt = null) {
 		$modelCate = $this->model('app\merchant\catelog');
 		$modelSku = $this->model('app\merchant\sku');
 		$cateSkuOptions = array(
 			'fields' => 'mpid,id,sid,cate_id,name,has_validity,require_pay,can_autogen,autogen_rule',
 		);
 		$cateSkus = $modelCate->skus($catelogId, $cateSkuOptions);
+		empty($genBeginAt) && $genBeginAt = $beginAt;
+		empty($genEndAt) && $genEndAt = $endAt;
 		foreach ($cateSkus as $cs) {
 			if ($cs->can_autogen === 'Y') {
 				$merged = array();
 				$existedCateSku = empty($existedCateSkus[$cs->id]) ? false : $existedCateSkus[$cs->id];
-				$newSkus = $modelCate->autogenByCateSku($cs, $beginAt, $endAt);
+				$newSkus = $modelCate->autogenByCateSku($cs, $genBeginAt, $genEndAt);
 				foreach ($newSkus as $ns) {
 					if (false === $existedCateSku || !$this->_isSkuExisted($existedCateSku, $ns)) {
 						$gened = array(
@@ -223,12 +239,15 @@ class sku extends \member_base {
 							'active' => 'Y',
 						);
 						$skuId = $this->model()->insert('xxt_merchant_product_sku', $gened, true);
-						$merged[] = $modelSku->byId($skuId);
+						if ($ns->validity_begin_at >= $beginAt && $ns->validity_end_at <= $endAt) {
+							/*在指定的筛选范围内*/
+							$merged[] = $modelSku->byId($skuId);
+						}
 					}
 				}
 				if (!empty($merged)) {
 					if ($existedCateSku) {
-						$existedCateSku->skus = array_merge($ecs->skus, $merge);
+						$existedCateSku->skus = array_merge($cs->skus, $merge);
 					} else {
 						$cs->skus = $merged;
 						unset($cs->can_autogen);

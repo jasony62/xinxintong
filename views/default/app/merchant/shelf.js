@@ -95,17 +95,21 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Cart', 'Sku', function($
     };
     /*进入购物车*/
     $scope.gotoCart = function(products) {
+        Cookies.set('xxt.app.merchant.shelf.options', JSON.stringify($scope.options));
         var url;
         url = '/rest/app/merchant/cart?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&fromShell=' + pageId;
         if (products !== undefined && products.length) {
+            /*将选中的商品放入购物车*/
             var fetchSkus = function(index) {
                 var prod, cateSkuIds, options, datetime;
                 if (index === products.length) {
+                    /*所有商品都已经进行了处理*/
                     location.href = url;
                 } else {
                     prod = products[index];
                     cateSkuIds = Object.keys(prod.cateSkus);
                     if (prod.cateSkus[cateSkuIds[0]].skus[0].id) {
+                        /*商品的sku已经存在，直接放入购物车*/
                         angular.forEach(prod.cateSkus, function(cateSku) {
                             var skus = {};
                             angular.forEach(cateSku.skus, function(sku) {
@@ -115,8 +119,9 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Cart', 'Sku', function($
                             });
                             facCart.add(prod, skus);
                         });
-                        fetchSkus(++index);
+                        fetchSkus(++index); // next product
                     } else {
+                        /*商品的sku还没有生成，先生成，再加入购物车*/
                         datetime = datetimeOfFilter($scope.options)
                         options = {
                             beginAt: datetime.begin * 1000,
@@ -133,13 +138,14 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Cart', 'Sku', function($
                                 });
                                 facCart.add(prod, skus);
                             });
-                            fetchSkus(++index);
+                            fetchSkus(++index); // next product
                         });
                     }
                 }
             };
-            fetchSkus(0);
+            fetchSkus(0); // first product
         } else {
+            /*直接进入购物车，查看已有商品*/
             location.href = url;
         }
     };

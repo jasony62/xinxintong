@@ -155,6 +155,10 @@ app.directive('tmsTime', ['$compile', function($compile) {
         m < 10 && (m = '0' + m);
         return h + ':' + m;
     };
+    var choosedTime = {
+        begin: null,
+        end: null
+    };
     return {
         restrict: 'A',
         scope: {
@@ -165,10 +169,6 @@ app.directive('tmsTime', ['$compile', function($compile) {
         },
         template: '<span ng-repeat="t in timePoints" ng-bind="t.l" ng-class="{\'selected\':t.selected}" ng-click="chooseTime(t)"></span>',
         controller: function($scope) {
-            var choosedTime = {
-                begin: null,
-                end: null
-            };
             $scope.chooseTime = function(time) {
                 time.selected = !time.selected;
                 if (choosedTime.begin === time) {
@@ -207,15 +207,23 @@ app.directive('tmsTime', ['$compile', function($compile) {
             };
         },
         link: function(scope, elem, attrs) {
-            var timePoint, endPoint, timePoints;
+            var timePoint, endPoint, timePoints, timeSeg;
             timePoints = [];
             timePoint = scope.begin * 60;
             endPoint = scope.end * 60;
             while (timePoint <= endPoint) {
-                timePoints.push({
+                timeSeg = {
                     v: timePoint * 60 * 1000,
                     l: format(timePoint)
-                });
+                };
+                if (timeSeg.v === scope.value.begin) {
+                    timeSeg.selected = true;
+                    choosedTime.begin = timeSeg;
+                } else if (timeSeg.v === scope.value.end) {
+                    timeSeg.selected = true;
+                    choosedTime.end = timeSeg;
+                }
+                timePoints.push(timeSeg);
                 timePoint += parseInt(scope.interval);
             }
             scope.timePoints = timePoints;

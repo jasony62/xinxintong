@@ -216,12 +216,14 @@ app.directive('tmsTime', ['$compile', function($compile) {
                     v: timePoint * 60 * 1000,
                     l: format(timePoint)
                 };
-                if (timeSeg.v === scope.value.begin) {
-                    timeSeg.selected = true;
-                    choosedTime.begin = timeSeg;
-                } else if (timeSeg.v === scope.value.end) {
-                    timeSeg.selected = true;
-                    choosedTime.end = timeSeg;
+                if (scope.value) {
+                    if (scope.value.begin !== undefined && timeSeg.v === scope.value.begin) {
+                        timeSeg.selected = true;
+                        choosedTime.begin = timeSeg;
+                    } else if (scope.value.end !== undefined && timeSeg.v === scope.value.end) {
+                        timeSeg.selected = true;
+                        choosedTime.end = timeSeg;
+                    }
                 }
                 timePoints.push(timeSeg);
                 timePoint += parseInt(scope.interval);

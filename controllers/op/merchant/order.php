@@ -70,6 +70,9 @@ class order extends \member_base {
 			);
 			foreach ($skus as &$sku) {
 				$sku = $modelSku->byId($sku->sku_id, $skuOptions);
+				if (false === $sku) {
+					continue;
+				}
 				if (!isset($catelogs[$sku->cate_id])) {
 					/*catelog*/
 					$catelog = $modelCate->byId($sku->cate_id, array('fields' => $cateFields, 'cascaded' => 'Y'));
@@ -195,11 +198,19 @@ class order extends \member_base {
 					} else if ($p->id === '__orderState') {
 						$v = '未付款';
 					} else {
-						$v = $order->extPropValue->{$product->catelog->id}->{$p->id};
+						if (isset($order->extPropValue->{$product->catelog->id}->{$p->id})) {
+							$v = $order->extPropValue->{$product->catelog->id}->{$p->id};
+						} else {
+							$v = '';
+						}
 					}
 					break;
 				case 'feedback':
-					$v = $order->feedback->{$product->catelog->id}->{$p->id};
+					if (isset($order->feedback->{$product->catelog->id}->{$p->id})) {
+						$v = $order->feedback->{$product->catelog->id}->{$p->id};
+					} else {
+						$v = '';
+					}
 					break;
 				case 'text':
 					$v = $p->id;

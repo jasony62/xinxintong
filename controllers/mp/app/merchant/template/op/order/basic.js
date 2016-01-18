@@ -65,7 +65,7 @@ app.register.controller('notifyCtrl', ['$scope', '$http', 'Order', function($sco
 		$http.post(url, $scope.order.feedback).success(function(rsp) {
 			alert('ok');
 		}).error(function(data) {
-            alert('error:' + data);
-        });
+			alert('error:' + data);
+		});
 	};
 }]);

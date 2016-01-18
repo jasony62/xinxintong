@@ -4,7 +4,7 @@
             <label class='form-control-static'>名称</label>
             <div class='form-control-static' ng-bind='product.name'></div>
         </div>
-        <div class='form-group'>
+        <div class='form-group' ng-if="prod.detail_text">
             <label class='form-control-static'>介绍</label>
             <div>
                 <div class='form-control-static detail_text' ng-bind="product.detail_text||'&nbsp;'"></div>

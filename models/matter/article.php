@@ -264,7 +264,7 @@ class article_model extends article_base {
 	public function fullsearch_its($mpid, $keyword, $page = 1, $limit = 5) {
 		$s = "id,mpid,title,author,summary,pic,body,url,'article' type";
 		$f = 'xxt_article';
-		$w = "mpid='$mpid' and state=1 and approved='Y'";
+		$w = "mpid='$mpid' and state=1 and approved='Y' and can_fullsearch='Y'";
 		$w .= " and (title like '%$keyword%'";
 		$w .= "or summary like '%$keyword%'";
 		$w .= "or body like '%$keyword%')";

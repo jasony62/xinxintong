@@ -155,6 +155,8 @@
             <div class='col-md-10'>
                 <label class='checkbox-inline'>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_share' ng-change="update('can_share');">可以分享</label>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_fullsearch' ng-change="update('can_fullsearch');">可以检索</label>
             </div>
         </div>
         <accesscontrol mpid='{{mpaccount.mpid}}' obj='editing' prop-acl='acl' prop-access='access_control' prop-apis='authapis'

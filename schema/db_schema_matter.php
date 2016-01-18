@@ -24,6 +24,7 @@ $sql .= ',pic text'; // head image.
 $sql .= ",hide_pic char(1) not null default 'N'"; // hide head image in body of article.
 $sql .= ",can_picviewer char(1) not null default 'N'";
 $sql .= ",can_share char(1) not null default 'N'";
+$sql .= ",can_fullsearch char(1) not null default 'Y'"; // 是否可以进行全文检索
 $sql .= ',summary varchar(240) not null';
 $sql .= ',url text'; // 图文消息的原文地址，即点击“阅读原文”后的URL
 $sql .= ',weight int default 0'; // 权重

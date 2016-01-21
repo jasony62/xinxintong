@@ -10,3 +10,35 @@
 .tms-time{border:1px solid green;border-right:0;border-bottom:0;}
 .tms-time span{display:inline-block;width:25%;border:1px solid green;border-left:0;border-top:0;padding:.25em;}
 .tms-time .selected{background:green;color:white;}
+
+/*lock*/
+.btn.tms-lock-running{position:relative;}
+@keyframes tmsRunning{
+	0%{background:linear-gradient(0deg,#eee,#999);}
+	25%{background:linear-gradient(90deg,#eee,#999);}
+	50%{background:linear-gradient(180deg,#eee,#999);}
+	75%{background:linear-gradient(270deg,#eee,#999);}
+	100%{background:linear-gradient(0deg,#eee,#999);}
+}
+@-webkit-keyframes tmsRunning{
+	0%{background:-webkit-linear-gradient(0deg,#eee,#999);}
+	25%{background:-webkit-linear-gradient(90deg,#eee,#999);}
+	50%{background:-webkit-linear-gradient(180deg,#eee,#999);}
+	75%{background:-webkit-linear-gradient(270deg,#eee,#999);}
+	100%{background:-webkit-linear-gradient(0deg,#eee,#999);}
+}
+@-moz-keyframes tmsRunning{
+	0%{background:-moz-linear-gradient(0deg,#eee,#999);}
+	25%{background:-moz-linear-gradient(90deg,#eee,#999);}
+	50%{background:-moz-linear-gradient(180deg,#eee,#999);}
+	75%{background:-moz-linear-gradient(270deg,#eee,#999);}
+	100%{background:-moz-linear-gradient(0deg,#eee,#999);}
+}
+@-o-keyframes tmsRunning{
+	0%{background:-o-linear-gradient(0deg,#eee,#999);}
+	25%{background:-o-linear-gradient(90deg,#eee,#999);}
+	50%{background:-o-linear-gradient(180deg,#eee,#999);}
+	75%{background:-o-linear-gradient(270deg,#eee,#999);}
+	100%{background:-o-linear-gradient(0deg,#eee,#999);}
+}
+.btn.tms-lock-running .indicator{content:'';position:absolute;left:50%;top:50%;margin-left:-1em;margin-top:-1em;border-radius:1em;width:2em;height:2em;line-height:2em;border:1px solid #666;background:linear-gradient(0deg,#eee,#999);background:-webkit-linear-gradient(0deg,#eee,#999);background:-moz-linear-gradient(0deg,#eee,#999);background:-o-gradient(0deg,#eee,#999);animation:tmsRunning 1s infinite;-webkit-animation:tmsRunning 1s infinite;-moz-animation:tmsRunning 1s infinite;-o-animation:tmsRunning 1s infinite;}

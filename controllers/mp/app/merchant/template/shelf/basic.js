@@ -1,4 +1,4 @@
-app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', 'Catelog', 'Product', function($scope, $http, $filter, Catelog, Product) {
+app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', '$q', 'Catelog', 'Product', function($scope, $http, $filter, $q, Catelog, Product) {
 	var facCatelog, facProduct;
 	/*对商品进行排序，缺省按商品名称排序*/
 	var sortProducts = function(products) {
@@ -122,6 +122,7 @@ app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', 'Catelog', '
 			}
 		}
 	};
+	$scope.lock = false;
 	$scope.filterOpened = false;
 	$scope.clickOption = function(prop, propValue) {
 		propValue._selected = !propValue._selected;
@@ -132,10 +133,13 @@ app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', 'Catelog', '
 		}
 	};
 	$scope.doFilter = function() {
+		var defer = $q.defer();
 		$scope.listProduct(function() {
 			$scope.toggleFilter();
 			summaryOfFilter();
+			defer.resolve();
 		});
+		return defer.promise;
 	};
 	$scope.chooseProd = function(event, prod) {
 		event.stopPropagation();

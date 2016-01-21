@@ -27,8 +27,8 @@
                 <div class='tms-time' tms-time tms-time-value="options.time" tms-time-begin="0" tms-time-end="24" tms-time-interval="60"></div>
             </div>
 			<footer>
-				<button class="btn btn-default btn-lg" ng-click='toggleFilter()'>关闭</button>
-				<button class="btn btn-default btn-lg" ng-click='doFilter()'>确定</button>
+				<button class="btn btn-default btn-lg" tms-lock="lock" ng-click='toggleFilter()'>关闭</button>
+				<button class="btn btn-default btn-lg" tms-lock="lock" tms-lock-promoter="Y" ng-click='doFilter()'>确定</button>
 			</footer>
 		</div>
 	</div>

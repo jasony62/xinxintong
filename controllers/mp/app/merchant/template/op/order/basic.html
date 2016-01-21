@@ -64,8 +64,8 @@
         </div>
     </div>
     <footer>
-        <button class="btn btn-default btn-lg" ng-if="order.order_status==='1'" ng-click="finish()">完成</button>
-        <button class="btn btn-default btn-lg" ng-if="order.order_status==='1'" ng-click="cancel()">取消</button>
+        <button class="btn btn-success btn-lg" ng-if="order.order_status==='1'" ng-click="finish()">完成</button>
+        <button class="btn btn-danger btn-lg" ng-if="order.order_status==='1'" ng-click="cancel()">取消</button>
         <button class="btn btn-default btn-lg" ng-click="call()">电话</button>
     </footer>
 </div>

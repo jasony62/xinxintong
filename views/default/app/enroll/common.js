@@ -271,11 +271,16 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
         newRecord !== undefined && newRecord === 'Y' && (url += '&newRecord=Y');
         location.replace(url);
     };
-    $scope.openMatter = function(id, type, replace) {
+    $scope.openMatter = function(id, type, replace, newWindow) {
+        var url = '/rest/mi/matter?mpid=' + LS.p.mpid + '&id=' + id + '&type=' + type;
         if (replace) {
-            location.replace('/rest/mi/matter?mpid=' + LS.p.mpid + '&id=' + id + '&type=' + type);
+            location.replace(url);
         } else {
-            location.href = '/rest/mi/matter?mpid=' + LS.p.mpid + '&id=' + id + '&type=' + type;
+            if (newWindow === false) {
+                location.href = url;
+            } else {
+                window.open(url);
+            }
         }
     };
     $scope.gotoLottery = function(event, lottery, ek) {

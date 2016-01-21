@@ -132,15 +132,16 @@ app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', 'Catelog', '
 		}
 	};
 	$scope.doFilter = function() {
-		$scope.listProduct();
-		$scope.toggleFilter();
-		summaryOfFilter();
+		$scope.listProduct(function() {
+			$scope.toggleFilter();
+			summaryOfFilter();
+		});
 	};
 	$scope.chooseProd = function(event, prod) {
 		event.stopPropagation();
 		prod._checked ? $scope.orderInfo.remove(prod) : $scope.orderInfo.push(prod);
 	};
-	$scope.listProduct = function() {
+	$scope.listProduct = function(callbackFn) {
 		var pvids, beginAt, endAt;
 		pvids = $scope.options.propValues.join(',');
 		if (datetime = datetimeOfFilter($scope.options)) {
@@ -152,6 +153,9 @@ app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', 'Catelog', '
 		facProduct.list($scope.selectedCatelog.id, pvids, beginAt, endAt, 'Y').then(function(data) {
 			setSku(data.products);
 			$scope.products = sortProducts(data.products);
+			if (callbackFn) {
+				callbackFn();
+			}
 		});
 	};
 	$scope.$watch('selectedCatelog', function(nv) {

@@ -59,7 +59,7 @@
         </div>
     </div>
     <footer ng-if="orderInfo.status==='1'||orderInfo.status==='2'||orderInfo.status==='3'">
-        <button ng-click='cancel()'>取消订单</button>
-        <button ng-if="orderInfo.status==='1'" ng-disabled="orderInfo.skus.counter===0" ng-click='modify()'>修改订单</button>
+        <button class="btn btn-default btn-lg" ng-click='cancel()'>取消订单</button>
+        <button class="btn btn-default btn-lg" ng-if="orderInfo.status==='1'" ng-disabled="orderInfo.skus.counter===0" ng-click='modify()'>修改订单</button>
     </footer>
 </div>

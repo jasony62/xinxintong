@@ -41,6 +41,5 @@ input.form-control[readonly]{border:0;border-bottom:1px solid #ccc;border-radius
 
 /*footer*/
 body{padding-bottom:64px;}
-footer{display:-webkit-box;position:fixed;bottom:0;left:0;right:0;border-top:1px solid #ddd;}
-footer button{display:block;-webkit-box-flex:1;height:48px;border:0;background:white;border-left:1px solid #ddd;}
-footer button:first-child{border-left:0;}
+footer{position:fixed;bottom:0;left:0;right:0;border-top:1px solid #ddd;background:rgb(255,255,255);display:-webkit-box;display:box;display:-webkit-flex;display:flex;}
+footer .btn{display:block;margin:4px;box-flex:1.0;flex-grow:1;-webkit-box-flex:1.0;}

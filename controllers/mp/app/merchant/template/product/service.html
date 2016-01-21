@@ -36,8 +36,8 @@
         <div class='empty-sku' ng-if="cateSkus.length===0">没有库存</div>
     </div>
     <footer>
-        <button ng-click='addOther(product,orderInfo.skus)'>添加其他</button>
-        <button class='cart' ng-click='gotoCart(product,orderInfo.skus)'><span>已选</span><div class='status' ng-bind='Cart.countOfProducts'></div></button>
-        <button ng-click='gotoOrder(product,orderInfo.skus)'>完成选择</button>
+        <button class="btn btn-default btn-lg" ng-click='addOther(product,orderInfo.skus)'>添加其他</button>
+        <button class='cart btn btn-default btn-lg' ng-click='gotoCart(product,orderInfo.skus)'><span>已选</span><div class='status' ng-bind='Cart.countOfProducts'></div></button>
+        <button class="btn btn-default btn-lg" ng-click='gotoOrder(product,orderInfo.skus)'>完成选择</button>
     </footer>
 </div>

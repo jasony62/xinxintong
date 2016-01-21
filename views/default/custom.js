@@ -44,7 +44,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $h
         $http.get('/rest/mi/article/get?mpid=' + mpid + '&id=' + id).success(function(rsp) {
             var params, page, jslength;
             params = rsp.data;
-            $http.post('/rest/mi/matter/logAccess?mpid=' + mpid + '&id=' + id + '&type=article&title=' + $scope.article.title + '&shareby=' + shareby, {
+            $http.post('/rest/mi/matter/logAccess?mpid=' + mpid + '&id=' + id + '&type=article&title=' + params.article.title + '&shareby=' + shareby, {
                 search: location.search.replace('?', ''),
                 referer: document.referrer
             });

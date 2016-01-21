@@ -204,6 +204,7 @@ app.directive('tmsTime', ['$compile', function($compile) {
                 }
                 $scope.value.begin = choosedTime.begin !== null ? choosedTime.begin.v : null;
                 $scope.value.end = choosedTime.end !== null ? choosedTime.end.v : null;
+                $scope._valueChanged = true;
             };
         },
         link: function(scope, elem, attrs) {
@@ -216,19 +217,28 @@ app.directive('tmsTime', ['$compile', function($compile) {
                     v: timePoint * 60 * 1000,
                     l: format(timePoint)
                 };
-                if (scope.value) {
-                    if (scope.value.begin !== undefined && timeSeg.v === scope.value.begin) {
-                        timeSeg.selected = true;
-                        choosedTime.begin = timeSeg;
-                    } else if (scope.value.end !== undefined && timeSeg.v === scope.value.end) {
-                        timeSeg.selected = true;
-                        choosedTime.end = timeSeg;
-                    }
-                }
                 timePoints.push(timeSeg);
                 timePoint += parseInt(scope.interval);
             }
             scope.timePoints = timePoints;
+            scope.$watch('value', function(nv) {
+                if (scope._valueChanged !== true) {
+                    if (nv) {
+                        console.log('sv', nv);
+                        angular.forEach(timePoints, function(tp) {
+                            if (nv.begin !== undefined && tp.v === nv.begin && true !== tp.selected) {
+                                tp.selected = true;
+                                choosedTime.begin = tp;
+                            } else if (nv.end !== undefined && tp.v === nv.end && true !== tp.selected) {
+                                tp.selected = true;
+                                choosedTime.end = tp;
+                            }
+                        });
+                    }
+                } else {
+                    scope._valueChanged = false;
+                }
+            }, true);
         }
     }
 }]);

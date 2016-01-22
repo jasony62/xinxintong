@@ -194,13 +194,26 @@ xxtApp.controller('orderCtrl', ['$scope', '$modal', 'http2', function($scope, $m
             }]
         }).result.then(function() {});
     };
-    http2.get('/rest/mp/app/merchant/shop/get?shop=' + $scope.shopId, function(rsp) {
-        OrderStatus = rsp.data.order_status;
-        http2.get('/rest/mp/app/merchant/order/list?shop=' + $scope.shopId, function(rsp) {
+    $scope.page = {
+        at: 1,
+        size: 30,
+        joinParams: function() {
+            var p;
+            p = '&page=' + this.at + '&size=' + this.size;
+            return p;
+        }
+    };
+    $scope.doSearch = function() {
+        http2.get('/rest/mp/app/merchant/order/list?shop=' + $scope.shopId + $scope.page.joinParams(), function(rsp) {
             $scope.orders = rsp.data.orders;
+            $scope.page.total = rsp.data.total;
             angular.forEach($scope.orders, function(ord) {
                 ord._order_status = OrderStatus[ord.order_status];
             });
         });
+    };
+    http2.get('/rest/mp/app/merchant/shop/get?shop=' + $scope.shopId, function(rsp) {
+        OrderStatus = rsp.data.order_status;
+        $scope.doSearch();
     });
 }]);

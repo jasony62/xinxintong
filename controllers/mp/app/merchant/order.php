@@ -67,13 +67,14 @@ class order extends \mp\app\app_base {
 	/**
 	 *
 	 */
-	public function list_action($shop) {
+	public function list_action($shop, $page = 1, $size = 30) {
 		$modelOrder = $this->model('app\merchant\order');
 
-		$orders = $modelOrder->byShopId($shop);
-		$result = array(
-			'orders' => $orders,
-		);
+		$p = new \stdClass;
+		$p->page = $page;
+		$p->size = $size;
+
+		$result = $modelOrder->byShopId($shop, array('page' => $p));
 
 		return new \ResponseData($result);
 	}

@@ -67,8 +67,8 @@ class orderlist extends \member_base {
 		$options = array(
 			'openid' => $user->openid,
 		);
-		$orders = $this->model('app\merchant\order')->byShopid($shop, $options);
+		$result = $this->model('app\merchant\order')->byShopid($shop, $options);
 
-		return new \ResponseData($orders);
+		return new \ResponseData($result);
 	}
 }

@@ -47,21 +47,32 @@ class order_model extends \TMS_MODEL {
 	public function &byShopid($shopId, $options = array()) {
 		$openid = isset($options['openid']) ? $options['openid'] : null;
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-
+		/*orders*/
 		$q = array(
 			'*',
 			'xxt_merchant_order',
 			"sid=$shopId",
 		);
 		!empty($openid) && $q[2] .= " and buyer_openid='$openid'";
-
 		$q2 = array(
 			'o' => 'order_create_time desc',
 		);
-
+		if (isset($options['page'])) {
+			$page = $options['page'];
+			$q2['r'] = array('o' => ($page->page - 1) * $page->size, 'l' => $page->size);
+		}
 		$orders = $this->query_objs_ss($q, $q2);
+		/*total*/
+		if (empty($orders)) {
+			$total = 0;
+		} else {
+			$q[0] = "count(*)";
+			$total = $this->query_val_ss($q);
+		}
 
-		return $orders;
+		$result = array('orders' => $orders, 'total' => $total);
+
+		return $result;
 	}
 	/**
 	 * 创建订单

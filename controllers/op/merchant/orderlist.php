@@ -49,12 +49,12 @@ class orderlist extends \member_base {
 	/**
 	 * 查询订单
 	 */
-	public function get_action($mpid, $shop) {
-		//$fan = $this->getCookieOAuthUser($mpid);
-		//if (empty($fan->openid))
-		//    return new \ResponseError('无法获得当前用户身份信息');
-
-		$orders = $this->model('app\merchant\order')->byShopid($shop);
+	public function get_action($mpid, $shop, $page = 1, $size = 30) {
+		$p = new \stdClass;
+		$p->page = $page;
+		$p->size = $size;
+		$options = array('page' => $p);
+		$orders = $this->model('app\merchant\order')->byShopid($shop, $options);
 
 		return new \ResponseData($orders);
 	}

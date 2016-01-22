@@ -270,13 +270,17 @@ app.factory('Order', function($http, $q) {
         });
         return promise;
     };
-    Order.prototype.list = function() {
+    Order.prototype.list = function(options) {
         var deferred, promise, url;
         deferred = $q.defer();
         promise = deferred.promise;
         url = '/rest/app/merchant/orderlist/get';
         url += '?mpid=' + this.mpid;
         url += '&shop=' + this.shopId;
+        if (options) {
+            options.page && (url += '&page=' + options.page);
+            options.size && (url += '&size=' + options.size);
+        }
         $http.get(url).success(function(rsp) {
             if (typeof rsp === 'undefined') {
                 alert(rsp);

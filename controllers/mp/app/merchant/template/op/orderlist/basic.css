@@ -5,3 +5,5 @@
 	.table-bordered>tbody>tr>td{display:block;position:relative;border:0;}
 	td:before{content:attr(data-th);display:inline-block;width:80px;}
 }
+footer{position:fixed;bottom:0;left:0;right:0;border-top:1px solid #ddd;background:rgb(255,255,255);display:-webkit-box;display:box;display:-webkit-flex;display:flex;}
+footer .btn{display:block;margin:4px;box-flex:1.0;flex-grow:1;-webkit-box-flex:1.0;}

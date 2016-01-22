@@ -58,15 +58,22 @@ class orderlist extends \member_base {
 		return new \ResponseData($params);
 	}
 	/**
+	 * 当前用户发起的订单
+	 *
 	 * @param string $mpid
 	 * @param int $order
 	 * @param int shop
 	 */
-	public function get_action($mpid, $shop) {
+	public function get_action($mpid, $shop, $page = 1, $size = 30) {
 		$user = $this->getUser($mpid);
 		$options = array(
 			'openid' => $user->openid,
 		);
+		$p = new \stdClass;
+		$p->page = $page;
+		$p->size = $size;
+		$options = array('page' => $p);
+
 		$result = $this->model('app\merchant\order')->byShopid($shop, $options);
 
 		return new \ResponseData($result);

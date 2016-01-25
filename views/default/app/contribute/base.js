@@ -1,17 +1,20 @@
 xxtApp = angular.module('xxtApp', ['ngRoute', 'ui.tms', 'matters.xxt']);
-xxtApp.config(['$locationProvider', '$controllerProvider', function ($locationProvider, $controllerProvider) {
+xxtApp.config(['$locationProvider', '$controllerProvider', function($locationProvider, $controllerProvider) {
     $locationProvider.html5Mode(true);
-    xxtApp.register = { controller: $controllerProvider.register };
+    xxtApp.register = {
+        controller: $controllerProvider.register
+    };
 }]);
-xxtApp.factory('Article', function ($q, http2) {
-    var Article = function (phase, mpid, entry) {
+xxtApp.factory('Article', function($q, http2) {
+    var Article = function(phase, mpid, entry) {
         this.phase = phase;
         this.mpid = mpid;
         this.entry = entry;
         this.baseUrl = '/rest/app/contribute/' + phase + '/';
     };
-    Article.prototype.get = function (id) {
-        var deferred = $q.defer(), promise = deferred.promise;
+    Article.prototype.get = function(id) {
+        var deferred = $q.defer(),
+            promise = deferred.promise;
         var url = this.baseUrl + 'articleGet';
         url += '?mpid=' + this.mpid;
         url += '&id=' + id;
@@ -21,8 +24,9 @@ xxtApp.factory('Article', function ($q, http2) {
 
         return promise;
     };
-    Article.prototype.list = function () {
-        var deferred = $q.defer(), promise = deferred.promise;
+    Article.prototype.list = function() {
+        var deferred = $q.defer(),
+            promise = deferred.promise;
         var url = this.baseUrl + 'articleList';
         url += '?mpid=' + this.mpid;
         url += '&entry=' + this.entry;
@@ -32,8 +36,9 @@ xxtApp.factory('Article', function ($q, http2) {
 
         return promise;
     };
-    Article.prototype.create = function () {
-        var deferred = $q.defer(), promise = deferred.promise;
+    Article.prototype.create = function() {
+        var deferred = $q.defer(),
+            promise = deferred.promise;
         var url = this.baseUrl + 'articleCreate';
         url += '?mpid=' + this.mpid + '&entry=' + this.entry;
         http2.get(url, function success(rsp) {
@@ -42,7 +47,7 @@ xxtApp.factory('Article', function ($q, http2) {
 
         return promise;
     };
-    Article.prototype.return = function (obj, msg) {
+    Article.prototype.return = function(obj, msg) {
         var deferred = $q.defer();
         var promise = deferred.promise;
         var url;
@@ -55,7 +60,7 @@ xxtApp.factory('Article', function ($q, http2) {
         });
         return promise;
     };
-    Article.prototype.pass = function (obj) {
+    Article.prototype.pass = function(obj) {
         var deferred = $q.defer();
         var promise = deferred.promise;
         var url;
@@ -67,8 +72,9 @@ xxtApp.factory('Article', function ($q, http2) {
         });
         return promise;
     };
-    Article.prototype.forward = function (obj, mid, phase) {
-        var deferred = $q.defer(), promise = deferred.promise;
+    Article.prototype.forward = function(obj, mid, phase) {
+        var deferred = $q.defer(),
+            promise = deferred.promise;
         var url = this.baseUrl + 'articleForward';
         url += '?mpid=' + this.mpid;
         url += '&id=' + obj.id;
@@ -79,7 +85,7 @@ xxtApp.factory('Article', function ($q, http2) {
         });
         return promise;
     };
-    Article.prototype.update = function (obj, prop) {
+    Article.prototype.update = function(obj, prop) {
         var deferred = $q.defer();
         var promise = deferred.promise;
         var url, nv = {};
@@ -95,7 +101,7 @@ xxtApp.factory('Article', function ($q, http2) {
         });
         return promise;
     };
-    Article.prototype.remove = function (obj) {
+    Article.prototype.remove = function(obj) {
         var deferred = $q.defer();
         var promise = deferred.promise;
         var url;
@@ -107,8 +113,9 @@ xxtApp.factory('Article', function ($q, http2) {
         });
         return promise;
     };
-    Article.prototype.channels = function (id) {
-        var deferred = $q.defer(), promise = deferred.promise;
+    Article.prototype.channels = function(id) {
+        var deferred = $q.defer(),
+            promise = deferred.promise;
         var url = this.baseUrl + 'channelGet';
         url += '?mpid=' + this.mpid;
         url += '&acceptType=article';
@@ -117,8 +124,9 @@ xxtApp.factory('Article', function ($q, http2) {
         });
         return promise;
     };
-    Article.prototype.addChannels = function (params) {
-        var deferred = $q.defer(), promise = deferred.promise;
+    Article.prototype.addChannels = function(params) {
+        var deferred = $q.defer(),
+            promise = deferred.promise;
         var url = this.baseUrl + 'articleAddChannel';
         url += '?mpid=' + this.mpid;
         http2.post(url, params, function success(rsp) {
@@ -126,8 +134,9 @@ xxtApp.factory('Article', function ($q, http2) {
         });
         return promise;
     };
-    Article.prototype.delChannel = function (id, channelId) {
-        var deferred = $q.defer(), promise = deferred.promise;
+    Article.prototype.delChannel = function(id, channelId) {
+        var deferred = $q.defer(),
+            promise = deferred.promise;
         var url = this.baseUrl + 'articleRemoveChannel';
         url += '?mpid=' + this.mpid;
         url += '&id=' + id;
@@ -137,8 +146,9 @@ xxtApp.factory('Article', function ($q, http2) {
         });
         return promise;
     };
-    Article.prototype.mpaccounts = function (id) {
-        var deferred = $q.defer(), promise = deferred.promise;
+    Article.prototype.mpaccounts = function(id) {
+        var deferred = $q.defer(),
+            promise = deferred.promise;
         var url = this.baseUrl + 'mpaccountGet';
         url += '?mpid=' + this.mpid;
         http2.get(url, function success(rsp) {
@@ -148,15 +158,16 @@ xxtApp.factory('Article', function ($q, http2) {
     };
     return Article;
 });
-xxtApp.factory('News', function ($q, http2) {
-    var News = function (phase, mpid, entry) {
+xxtApp.factory('News', function($q, http2) {
+    var News = function(phase, mpid, entry) {
         this.phase = phase;
         this.mpid = mpid;
         this.entry = entry;
         this.baseUrl = '/rest/app/contribute/' + phase + '/';
     };
-    News.prototype.get = function (id) {
-        var deferred = $q.defer(), promise = deferred.promise;
+    News.prototype.get = function(id) {
+        var deferred = $q.defer(),
+            promise = deferred.promise;
         var url = this.baseUrl + 'newsGet';
         url += '?mpid=' + this.mpid;
         url += '&entry=' + this.entry;
@@ -166,8 +177,9 @@ xxtApp.factory('News', function ($q, http2) {
         });
         return promise;
     };
-    News.prototype.list = function (id) {
-        var deferred = $q.defer(), promise = deferred.promise;
+    News.prototype.list = function(id) {
+        var deferred = $q.defer(),
+            promise = deferred.promise;
         var url = this.baseUrl + 'newsList';
         url += '?mpid=' + this.mpid;
         url += '&entry=' + this.entry;
@@ -176,8 +188,9 @@ xxtApp.factory('News', function ($q, http2) {
         });
         return promise;
     };
-    News.prototype.create = function (articleIds) {
-        var deferred = $q.defer(), promise = deferred.promise;
+    News.prototype.create = function(articleIds) {
+        var deferred = $q.defer(),
+            promise = deferred.promise;
         var url = this.baseUrl + 'newsCreate';
         url += '?mpid=' + this.mpid + '&entry=' + this.entry;
         http2.post(url, articleIds, function success(rsp) {
@@ -185,7 +198,7 @@ xxtApp.factory('News', function ($q, http2) {
         });
         return promise;
     };
-    News.prototype.return = function (obj) {
+    News.prototype.return = function(obj) {
         var deferred = $q.defer();
         var promise = deferred.promise;
         var url;
@@ -197,7 +210,7 @@ xxtApp.factory('News', function ($q, http2) {
         });
         return promise;
     };
-    News.prototype.pass = function (obj) {
+    News.prototype.pass = function(obj) {
         var deferred = $q.defer();
         var promise = deferred.promise;
         var url;
@@ -209,8 +222,9 @@ xxtApp.factory('News', function ($q, http2) {
         });
         return promise;
     };
-    News.prototype.forward = function (obj, who, phase) {
-        var deferred = $q.defer(), promise = deferred.promise;
+    News.prototype.forward = function(obj, who, phase) {
+        var deferred = $q.defer(),
+            promise = deferred.promise;
         var url = this.baseUrl + 'newsForward';
         url += '?mpid=' + this.mpid;
         url += '&id=' + obj.id;
@@ -220,7 +234,7 @@ xxtApp.factory('News', function ($q, http2) {
         });
         return promise;
     };
-    News.prototype.update = function (obj, prop) {
+    News.prototype.update = function(obj, prop) {
         var deferred = $q.defer();
         var promise = deferred.promise;
         var url, nv = {};
@@ -236,7 +250,7 @@ xxtApp.factory('News', function ($q, http2) {
         });
         return promise;
     };
-    News.prototype.remove = function (obj) {
+    News.prototype.remove = function(obj) {
         var deferred = $q.defer();
         var promise = deferred.promise;
         var url;
@@ -250,15 +264,16 @@ xxtApp.factory('News', function ($q, http2) {
     };
     return News;
 });
-xxtApp.factory('Entry', function ($q, http2) {
-    var Entry = function (mpid, entry) {
+xxtApp.factory('Entry', function($q, http2) {
+    var Entry = function(mpid, entry) {
         this.mpid = mpid;
         entry = entry.split(',');
         this.type = entry[0];
         this.id = entry[1];
     };
-    Entry.prototype.get = function () {
-        var deferred = $q.defer(), promise = deferred.promise;
+    Entry.prototype.get = function() {
+        var deferred = $q.defer(),
+            promise = deferred.promise;
         var url = '/rest/app/contribute/entryGet';
         url += '?mpid=' + this.mpid;
         url += '&type=' + this.type;
@@ -270,14 +285,15 @@ xxtApp.factory('Entry', function ($q, http2) {
     };
     return Entry;
 });
-xxtApp.factory('Reviewlog', function ($q, http2) {
-    var Reviewlog = function (phase, mpid, matter) {
+xxtApp.factory('Reviewlog', function($q, http2) {
+    var Reviewlog = function(phase, mpid, matter) {
         this.mpid = mpid;
         this.matter = matter;
         this.baseUrl = '/rest/app/contribute/reviewlog/';
     };
-    Reviewlog.prototype.list = function (id) {
-        var deferred = $q.defer(), promise = deferred.promise;
+    Reviewlog.prototype.list = function(id) {
+        var deferred = $q.defer(),
+            promise = deferred.promise;
         var url = this.baseUrl + 'list';
         url += '?mpid=' + this.mpid;
         url += '&matterId=' + this.matter.id;

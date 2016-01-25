@@ -195,7 +195,7 @@ class main extends \member_base {
 		/**
 		 * 当前用户
 		 */
-		$c->user = $this->getUser($mpid, array('verbose' => array('member' => 'Y')));
+		$c->user = $this->getUser($mpid, array('verbose' => array('fan' => 'Y', 'member' => 'Y')));
 
 		return new \ResponseData($c);
 	}

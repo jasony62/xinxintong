@@ -10,6 +10,15 @@
         }, {
             id: 'feedback_order',
             label: '客服反馈订单'
+        }, {
+            id: 'finish_order',
+            label: '客服完成订单'
+        }, {
+            id: 'cancel_order',
+            label: '客服取消订单'
+        }, {
+            id: 'cus_cancel_order',
+            label: '用户取消订单'
         }];
         http2.get('/rest/mp/matter/tmplmsg/list?cascaded=Y', function(rsp) {
             $scope.tmplmsgs = rsp.data;

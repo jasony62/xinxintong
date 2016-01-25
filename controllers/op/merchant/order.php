@@ -19,6 +19,15 @@ class order extends \member_base {
 	 *
 	 */
 	public function index_action($mpid = null, $shop = null, $order = null) {
+		// page
+		$options = array(
+			'cascaded' => 'N',
+			'fields' => 'title',
+		);
+		$page = $this->model('app\merchant\page')->byType('op.order', $shop, 0, 0, $options);
+		$page = $page[0];
+
+		\TPL::assign('title', $page->title);
 		\TPL::output('/op/merchant/order');
 		exit;
 	}
@@ -137,48 +146,99 @@ class order extends \member_base {
 		);
 		/*发通知*/
 		$order->feedback = json_decode($pv);
-		$this->notify($mpid, $order);
+		$this->_notify($mpid, 'feedback', $order);
 
 		return new \ResponseData($rst);
 	}
 	/**
+	 * 完成订单处理
+	 *
+	 * @param string $mpid
+	 * @param int $order
 	 *
 	 */
 	public function finish_action($mpid, $order) {
 		$modelOrd = $this->model('app\merchant\order');
-		$rst = $modelOrd->finish($order);
 		// notify
+		$order = $modelOrd->byId($order);
+		$order->extPropValue = json_decode($order->ext_prop_value);
+
+		$feedback = $this->getPostJson();
+		$pv = empty($feedback) ? '{}' : \TMS_MODEL::toJson($feedback);
+
+		$rst = $this->model()->update(
+			'xxt_merchant_order',
+			array(
+				'feedback' => $pv,
+				'order_status' => 5, // 已完成
+			),
+			"id=$order->id"
+		);
+		/*发通知*/
+		$order->feedback = json_decode($pv);
+		$this->_notify($mpid, 'finish', $order);
 
 		return new \ResponseData($rst);
 	}
 	/**
+	 * 取消订单
+	 *
+	 * @param string $mpid
+	 * @param int $order
 	 *
 	 */
 	public function cancel_action($mpid, $order) {
 		$modelOrd = $this->model('app\merchant\order');
 		$rst = $modelOrd->cancel($order);
 		// notify
+		$order = $modelOrd->byId($order);
+		$order->extPropValue = json_decode($order->ext_prop_value);
+
+		$feedback = $this->getPostJson();
+		$pv = empty($feedback) ? '{}' : \TMS_MODEL::toJson($feedback);
+
+		$rst = $this->model()->update(
+			'xxt_merchant_order',
+			array(
+				'feedback' => $pv,
+			),
+			"id=$order->id"
+		);
+		/*发通知*/
+		$order->feedback = json_decode($pv);
+		$this->_notify($mpid, 'cancel', $order);
 
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 通知客服有新订单
+	 * 通知客户已受理订单
 	 */
-	public function notify($mpid, $order) {
+	private function _notify($mpid, $action, $order) {
 		$modelProd = $this->model('app\merchant\product');
 		$modelTmpl = $this->model('matter\tmplmsg');
 		$products = json_decode($order->products);
+		$orderTmplmsgId = $product->catelog->{$action . '_order_tmplmsg'};
+		$pendings = array();
 		foreach ($products as $product) {
 			/**/
 			$product = $modelProd->byId($product->id, array('cascaded' => 'Y'));
-			$mapping = $modelTmpl->mappingById($product->catelog->feedback_order_tmplmsg);
-			if (false === $mapping) {
-				return false;
-			}
-			/**/
-			$tmplmsg = $modelTmpl->byId($mapping->msgid, array('cascaded' => 'Y'));
-			if (empty($tmplmsg->params)) {
-				return false;
+			/*获得模板消息定义*/
+			if (isset($pendings[$orderTmplmsgId]['mapping'])) {
+				$mapping = $pendings[$orderTmplmsgId]['mapping'];
+			} else {
+				$mapping = $modelTmpl->mappingById($orderTmplmsgId);
+				if (false === $mapping) {
+					continue;
+				}
+				$tmplmsg = $modelTmpl->byId($mapping->msgid, array('cascaded' => 'Y'));
+				if (empty($tmplmsg->params)) {
+					continue;
+				}
+				$pendings[$orderTmplmsgId] = array(
+					'mapping' => $mapping,
+					'tmplmsg' => $tmplmsg,
+					'onlyOrder' => true,
+				);
 			}
 			/*构造消息数据*/
 			$data = array();
@@ -191,6 +251,7 @@ class order extends \member_base {
 					} else {
 						$v = $product->propValue->{$p->id}->name;
 					}
+					$pendings[$orderTmplmsgId]['onlyOrder'] = false;
 					break;
 				case 'order':
 					if ($p->id === '__orderSn') {
@@ -218,13 +279,26 @@ class order extends \member_base {
 				}
 				$data[$k] = $v;
 			}
-			/**/
-			$url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/merchant/order";
-			$url .= "?mpid=" . $mpid;
-			$url .= "&shop=" . $order->sid;
-			$url .= "&order=" . $order->id;
-			/**/
-			$this->tmplmsgSendByOpenid($mpid, $tmplmsg->id, $order->buyer_openid, $data, $url);
+			//保存数据
+			$pendings[$orderTmplmsgId]['data'][] = $data;
+		}
+		/*订单访问地址*/
+		$url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/merchant/order";
+		$url .= "?mpid=" . $mpid;
+		$url .= "&shop=" . $order->sid;
+		$url .= "&order=" . $order->id;
+		foreach ($pendings as $pending) {
+			$tmplmsg = $pending['tmplmsg'];
+			$datas = $pending['data'];
+			if ($pending['onlyOrder'] === true) {
+				/*如果只包含订单信息则只发送一条*/
+				$datas = array($pending['data'][0]);
+			}
+			foreach ($datas as $data) {
+				/*发送模版消息*/
+				$this->tmplmsgSendByOpenid($mpid, $tmplmsg->id, $order->buyer_openid, $data, $url);
+				break;
+			}
 		}
 		return true;
 	}

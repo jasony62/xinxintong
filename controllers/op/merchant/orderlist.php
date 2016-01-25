@@ -19,6 +19,15 @@ class orderlist extends \member_base {
 	 *
 	 */
 	public function index_action($mpid = null, $shop = null, $order = null) {
+		$user = $this->getUser($mpid);
+		// page
+		$options = array(
+			'cascaded' => 'N',
+			'fields' => 'title',
+		);
+		$page = $this->model('app\merchant\page')->byType('op.orderlist', $shop, 0, 0, $options);
+		$page = $page[0];
+		\TPL::assign('title', $page->title);
 		\TPL::output('/op/merchant/orderlist');
 		exit;
 	}

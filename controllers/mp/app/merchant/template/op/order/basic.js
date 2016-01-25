@@ -54,12 +54,12 @@ app.register.controller('notifyCtrl', ['$scope', '$http', 'Order', function($sco
 		$scope.catelogs = data.catelogs;
 		setSkus(data.catelogs);
 	});
-	$scope.call = function() {
+	$scope.call = function(event) {
 		var ele = document.createElement('a');
 		ele.setAttribute('href', 'tel://' + $scope.order.receiver_mobile);
 		ele.click();
 	};
-	$scope.feedback = function() {
+	$scope.feedback = function(event) {
 		var url;
 		url = '/rest/op/merchant/order/feedback?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&order=' + $scope.orderId;
 		$http.post(url, $scope.order.feedback).success(function(rsp) {

@@ -25,10 +25,14 @@ class orderlist extends \member_base {
 	 * $sku sku'id
 	 */
 	public function index_action($mpid, $shop, $mocker = null, $code = null) {
-		/**
-		 * 获得当前访问用户
-		 */
-		$openid = $this->doAuth($mpid, $code, $mocker);
+		// page
+		$options = array(
+			'cascaded' => 'N',
+			'fields' => 'title',
+		);
+		$page = $this->model('app\merchant\page')->byType('op.orderlist', $shop, 0, 0, $options);
+		$page = $page[0];
+		\TPL::assign('title', $page->title);
 		/* 订单列表页 */
 		\TPL::output('/app/merchant/orderlist');
 		exit;

@@ -114,7 +114,11 @@ app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', '$q', 'Catel
 		$scope.options.date.begin = parseInt($scope.options.date.begin) + parseInt(86400000);
 		$scope.options.date.end = parseInt($scope.options.date.end) + parseInt(86400000);
 	};
-	$scope.toggleFilter = function() {
+	$scope.toggleFilter = function(event) {
+		if (event) {
+			event.preventDefault();
+			event.stopPropagation();
+		}
 		$scope.filterOpened = !$scope.filterOpened;
 		if ($scope.selectedCatelog.has_validity === 'Y') {
 			if ($scope.options.date === undefined) {
@@ -132,7 +136,11 @@ app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', '$q', 'Catel
 			$scope.options.propValues.splice($scope.options.propValues.indexOf(propValue.id), 1);
 		}
 	};
-	$scope.doFilter = function() {
+	$scope.doFilter = function(event) {
+		if (event) {
+			event.preventDefault();
+			event.stopPropagation();
+		}
 		var defer = $q.defer();
 		$scope.listProduct(function() {
 			$scope.toggleFilter();

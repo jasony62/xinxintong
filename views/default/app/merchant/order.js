@@ -1,4 +1,4 @@
-app.controller('ctrl', ['$scope', '$http', '$timeout', 'Order', function($scope, $http, $timeout, Order) {
+app.controller('ctrl', ['$scope', '$http', '$q', '$timeout', 'Order', function($scope, $http, $q, $timeout, Order) {
     var ls, url, facOrder;
     ls = location.search;
     $scope.mpid = ls.match(/mpid=([^&]*)/)[1];
@@ -47,6 +47,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Order', function($scope,
     };
     /*创建订单*/
     $scope.create = function() {
+        var defer = $q.defer();
         facOrder.create($scope.orderInfo).then(function(orderId) {
             var requirePay, cartSkuIds, cartModified;
             requirePay = false;
@@ -63,7 +64,9 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Order', function($scope,
             } else {
                 location.href = '/rest/app/merchant/payok?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&order=' + orderId;
             }
+            defer.resolve();
         });
+        return defer.promise;
     };
     /*保存订单修改结果*/
     $scope.modify = function() {

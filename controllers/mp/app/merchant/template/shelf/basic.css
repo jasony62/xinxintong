@@ -1,11 +1,16 @@
-body{background-color:#ddd;padding-bottom:64px;}
-
-/*filter*/
+/*layout frame*/
+.container{padding:0;height:100%;}
+.row{margin:0;height:100%;}
+.full-height{height:100%;}
+.flex-frame{height:100%;width:100%;background:#eee;display:-webkit-box;-webkit-box-orient:vertical;}
+.flex-bar{background:#eee;display:-webkit-box;padding:4px;}
+.flex-bar>button{display:block;-webkit-box-flex:1.0;margin-left:4px;}
+.flex-bar>button:first-child{margin-left:0;}
 #filter{background:white;padding:1em;}
-#fitler .title{margin-bottom:.25em;}
-#filter .option{display:inline-block;border:1px solid green;padding:.25em;margin-right:.5em;}
-#filter .option.selected{background:green;color:white;}
-#filter .date .form-control{text-align:center}
+#filter .flex-main-wrap{top:1em;bottom:1em;left:1em;right:1em;}
+#products .flex-main-wrap{padding-top:15px;}
+.flex-main{position:relative;background:#ccc;-webkit-box-flex:1.0;overflow-y:hidden;}
+.flex-main-wrap{position:absolute;top:0;bottom:0;left:0;right:0;overflow-y:auto;}
 
 /*products*/
 .thumbnail{position:relative;padding:8px;}
@@ -31,11 +36,10 @@ body{background-color:#ddd;padding-bottom:64px;}
 .empty-sku{display:inline-block;border:1px solid #efefef;border-radius:2px;padding:.25em;margin-top:.5em;}
 
 /*cart*/
-.cart .status{display:inline-block;color:white;background:red;font-size:12px;padding:.25em .8em;border-radius:1em;margin-left:.5em}
+.cart .status{display:inline-block;color:white;background:red;font-size:12px;padding:.25em .8em;border-radius:1em;margin-left:.5em;}
 
-/*footer*/
-footer{position:fixed;bottom:0;left:0;right:0;border-top:1px solid #ddd;background:rgb(255,255,255);display:-webkit-box;display:box;display:-webkit-flex;display:flex;}
-footer .btn{display:block;margin:4px;box-flex:1.0;flex-grow:1;-webkit-box-flex:1.0;}
-
-/*filter summary*/
-#filterSummary{text-align:center;border-radius:0;}
+/*filter*/
+#fitler .title{margin-bottom:.25em;}
+#filter .option{display:inline-block;border:1px solid green;padding:.25em;margin-right:.5em;}
+#filter .option.selected{background:green;color:white;}
+#filter .date .form-control{text-align:center}

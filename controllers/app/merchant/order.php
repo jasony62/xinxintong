@@ -271,16 +271,24 @@ class order extends \member_base {
 		$modelTmpl = $this->model('matter\tmplmsg');
 		$modelFan = $this->model('user/fans');
 		$products = json_decode($order->products);
+		$pendings = array();
 		foreach ($products as $product) {
 			$product = $modelProd->byId($product->id, array('cascaded' => 'Y'));
-			$mapping = $modelTmpl->mappingById($product->catelog->submit_order_tmplmsg);
-			if (false === $mapping) {
-				continue;
-			}
 			/*获得模板消息定义*/
-			$tmplmsg = $modelTmpl->byId($mapping->msgid, array('cascaded' => 'Y'));
-			if (empty($tmplmsg->params)) {
-				continue;
+			if (isset($pendings[$product->catelog->submit_order_tmplmsg]['mapping'])) {
+				$mapping = $pendings[$product->catelog->submit_order_tmplmsg]['mapping'];
+			} else {
+				$mapping = $modelTmpl->mappingById($product->catelog->submit_order_tmplmsg);
+				if (false === $mapping) {
+					continue;
+				}
+				$tmplmsg = $modelTmpl->byId($mapping->msgid, array('cascaded' => 'Y'));
+				if (empty($tmplmsg->params)) {
+					continue;
+				}
+				$pendings[$product->catelog->submit_order_tmplmsg]['mapping'] = $mapping;
+				$pendings[$product->catelog->submit_order_tmplmsg]['tmplmsg'] = $tmplmsg;
+				$pendings[$product->catelog->submit_order_tmplmsg]['onlyOrder'] = true;
 			}
 			/*构造消息数据*/
 			$data = array();
@@ -293,6 +301,7 @@ class order extends \member_base {
 					} else {
 						$v = $product->propValue->{$p->id}->name;
 					}
+					$pendings[$product->catelog->submit_order_tmplmsg]['onlyOrder'] = false;
 					break;
 				case 'order':
 					if ($p->id === '__orderSn') {
@@ -315,18 +324,35 @@ class order extends \member_base {
 				}
 				$data[$k] = $v;
 			}
-			/*订单访问地址*/
-			$url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/op/merchant/order";
-			$url .= "?mpid=" . $mpid;
-			$url .= "&shop=" . $order->sid;
-			$url .= "&order=" . $order->id;
-			/*发送模版消息*/
-			foreach ($staffs as $staff) {
-				switch ($staff->idsrc) {
-				case 'M':
-					$fan = $modelFan->byMid($staff->identity);
-					$this->tmplmsgSendByOpenid($mpid, $tmplmsg->id, $fan->openid, $data, $url);
-					break;
+			//保存数据
+			$pendings[$product->catelog->submit_order_tmplmsg]['data'][] = $data;
+		}
+		/*订单访问地址*/
+		$url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/op/merchant/order";
+		$url .= "?mpid=" . $mpid;
+		$url .= "&shop=" . $order->sid;
+		$url .= "&order=" . $order->id;
+		foreach ($pendings as $pending) {
+			$tmplmsg = $pending['tmplmsg'];
+			$datas = $pending['data'];
+			if ($pending['onlyOrder'] === true) {
+				/*如果只包含订单信息则只发送一条*/
+				$datas = array($pending['data'][0]);
+			}
+			foreach ($datas as $data) {
+				/*发送模版消息*/
+				foreach ($staffs as &$staff) {
+					switch ($staff->idsrc) {
+					case 'M':
+						if (isset($staff->fan)) {
+							$fan = $staff->fan;
+						} else {
+							$fan = $modelFan->byMid($staff->identity);
+							$staff->fan = $fan;
+						}
+						$this->tmplmsgSendByOpenid($mpid, $tmplmsg->id, $fan->openid, $data, $url);
+						break;
+					}
 				}
 			}
 		}

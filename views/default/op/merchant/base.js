@@ -53,20 +53,6 @@ app.config(['$controllerProvider', function($cp) {
         controller: $cp.register
     };
 }]);
-app.directive('dynamicHtml', function($compile) {
-    return {
-        restrict: 'EA',
-        replace: true,
-        link: function(scope, ele, attrs) {
-            scope.$watch(attrs.dynamicHtml, function(html) {
-                if (html && html.length) {
-                    ele.html(html);
-                    $compile(ele.contents())(scope);
-                }
-            });
-        }
-    };
-});
 app.factory('Order', function($http, $q) {
     var Order = function(mpid, shopId) {
         this.mpid = mpid;

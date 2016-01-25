@@ -32,7 +32,9 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Cart', 'Sku', function($
     $scope.Cart = {
         countOfProducts: facCart.count()
     };
-    $scope.gotoProduct = function(product, autoChooseSku) {
+    $scope.gotoProduct = function(event, product, autoChooseSku) {
+        event.preventDefault();
+        event.stopPropagation();
         Cookies.set('xxt.app.merchant.shelf.options', JSON.stringify($scope.options));
         var url, datetime;
         url = '/rest/app/merchant/product?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&page=' + pageId + '&catelog=' + product.cate_id + '&product=' + product.id;
@@ -45,7 +47,9 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Cart', 'Sku', function($
         }
         location.href = url;
     };
-    $scope.gotoOrderlist = function() {
+    $scope.gotoOrderlist = function(event) {
+        event.preventDefault();
+        event.stopPropagation();
         location.href = '/rest/app/merchant/orderlist?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&page=' + pageId;
     };
     /*生成订单*/
@@ -81,7 +85,9 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Cart', 'Sku', function($
         }
     };
     /*将选择商品直接生成订单*/
-    $scope.gotoOrder = function() {
+    $scope.gotoOrder = function(event) {
+        event.preventDefault();
+        event.stopPropagation();
         var url, prodIds, skuIds, datetime;
         prodIds = $scope.orderInfo.productIds();
         if (prodIds.length === 0) return;
@@ -94,7 +100,9 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Cart', 'Sku', function($
         location.href = url;
     };
     /*进入购物车*/
-    $scope.gotoCart = function(products) {
+    $scope.gotoCart = function(event, products) {
+        event.preventDefault();
+        event.stopPropagation();
         Cookies.set('xxt.app.merchant.shelf.options', JSON.stringify($scope.options));
         var url;
         url = '/rest/app/merchant/cart?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&fromShell=' + pageId;

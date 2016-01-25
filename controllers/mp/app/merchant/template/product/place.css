@@ -1,3 +1,14 @@
+/*layout frame*/
+.container{padding:0;height:100%;}
+.row{margin:0;height:100%;}
+.full-height{height:100%;}
+.flex-frame{height:100%;width:100%;background:#eee;display:-webkit-box;-webkit-box-orient:vertical;}
+.flex-bar{background:#eee;display:-webkit-box;padding:4px;}
+.flex-bar>button{display:block;-webkit-box-flex:1.0;margin-left:4px;}
+.flex-bar>button:first-child{margin-left:0;}
+.flex-main{background:#fff;-webkit-box-flex:1.0;overflow-y:auto;}
+
+/*products*/
 #product{margin-bottom:1em;}
 #product .form-group{display:table;width:100%;margin-bottom:0;border-bottom:1px dotted #ddd}
 #product .form-group:last-child{border-bottom:0}
@@ -16,8 +27,3 @@
 
 /*cart*/
 .cart .status{display:inline-block;color:white;background:red;font-size:12px;padding:.25em .8em;border-radius:1em;margin-left:.5em}
-
-/*footer*/
-body{padding-bottom:64px;}
-footer{position:fixed;bottom:0;left:0;right:0;border-top:1px solid #ddd;background:rgb(255,255,255);display:-webkit-box;display:box;display:-webkit-flex;display:flex;}
-footer .btn{display:block;margin:4px;box-flex:1.0;flex-grow:1;-webkit-box-flex:1.0;}

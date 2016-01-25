@@ -1,6 +1,6 @@
-<div ng-controller='cartCtrl'>
-    <div class='catelog' ng-repeat="cate in catelogs">
-        <div class='products'>
+<div class='flex-frame' ng-controller='cartCtrl'>
+    <div class='flex-main catelog' ng-repeat="cate in catelogs">
+        <div class='products flex-main-wrap'>
             <div class='product' ng-repeat="prod in cate.products">
                 <div class='form-group'>
                     <label class='form-control-static'>名称</label>
@@ -37,9 +37,9 @@
             </div>
         </div>
     </div>
-    <footer>
-        <button class="btn btn-default btn-lg" ng-click='gotoShop()'>继续选择</button>
-        <button class="btn btn-default btn-lg" ng-click='emptyCart()'>清空</button>
-        <button class="btn btn-default btn-lg" ng-click='gotoOrder(orderInfo.skus)'>生成订单</button>
+    <footer class='flex-bar'>
+        <button class="btn btn-lg btn-default" ng-click='gotoShop()'>继续选择</button>
+        <button class="btn btn-lg btn-default" ng-click='emptyCart()'>清空</button>
+        <button class="btn btn-lg btn-default" ng-click='gotoOrder(orderInfo.skus)'>生成订单</button>
     </footer>
 </div>

@@ -68,8 +68,8 @@
         </div>
     </div>
     <footer class='flex-bar'>
-        <button class="btn btn-lg btn-success" ng-if="order.order_status==='1'" ng-click="finish($event)">完成</button>
-        <button class="btn btn-lg btn-danger" ng-if="order.order_status==='1'" ng-click="cancel($event)">取消</button>
+        <button class="btn btn-lg btn-success" ng-if="order.order_status==='1'||order.order_status==='3'" ng-click="finish($event)">完成</button>
+        <button class="btn btn-lg btn-danger" ng-if="order.order_status==='1'||order.order_status==='3'" ng-click="cancel($event)">取消</button>
         <button class="btn btn-lg btn-default" ng-click="call($event)">电话</button>
     </footer>
 </div>

@@ -509,9 +509,7 @@ class main extends \member_base {
 
 		if ($reply = $this->model('reply')->qrcode_call($mpid, $data[1])) {
 			if ($reply->expire_at > 0) {
-				/**
-				 * 一次性二维码，用完后就删除
-				 */
+				/* 一次性二维码，用完后就删除 */
 				$this->model()->delete('xxt_call_qrcode', "id=$reply->id");
 			}
 
@@ -524,11 +522,11 @@ class main extends \member_base {
 					return;
 				}
 				switch ($reply->matter_type) {
-				case 'enrollsignin': // 登记活动签到
+				case 'enrollsignin': //登记活动签到
 					$r = $this->model('reply\enrollsignin', $call, $reply->matter_id, false);
 					$r2 = $r->exec();
 					if ($r2['matter_type'] === 'enroll') {
-						$message = $this->model("matter\enroll")->forCustomPush($mpid, $r2['matter_id']);
+						$message = $this->model('matter\\' . 'enroll')->forCustomPush($mpid, $r2['matter_id']);
 					} else if ($r2['matter_type'] === 'joinwall') {
 						$r = new $this->model('reply\joinwall', $call, $r2['matter_id']);
 						$tip = $r->exec(false);

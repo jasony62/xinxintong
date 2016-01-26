@@ -53,7 +53,11 @@ class order_model extends \TMS_MODEL {
 			'xxt_merchant_order',
 			"sid=$shopId",
 		);
+		/*buyer*/
 		!empty($openid) && $q[2] .= " and buyer_openid='$openid'";
+		/*status*/
+		!empty($options['status']) && $q[2] .= " and order_status in(" . implode(',', $options['status']) . ")";
+		/*order by*/
 		$q2 = array(
 			'o' => 'order_create_time desc',
 		);

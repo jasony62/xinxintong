@@ -91,6 +91,7 @@ app.factory('Order', function($http, $q) {
         if (options) {
             options.page && (url += '&page=' + options.page);
             options.size && (url += '&size=' + options.size);
+            options.status && options.status.length && (url += '&status=' + options.status.join(','));
         }
         $http.get(url).success(function(rsp) {
             if (typeof rsp === 'undefined') {

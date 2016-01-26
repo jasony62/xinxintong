@@ -68,7 +68,7 @@ class orderlist extends \member_base {
 	 * @param int $order
 	 * @param int shop
 	 */
-	public function get_action($mpid, $shop, $page = 1, $size = 30) {
+	public function get_action($mpid, $shop, $page = 1, $size = 30, $status = '') {
 		$user = $this->getUser($mpid);
 		$options = array(
 			'openid' => $user->openid,
@@ -76,7 +76,9 @@ class orderlist extends \member_base {
 		$p = new \stdClass;
 		$p->page = $page;
 		$p->size = $size;
-		$options = array('page' => $p);
+		$options['page'] = $p;
+
+		!empty($status) && $options['status'] = explode(',', $status);
 
 		$result = $this->model('app\merchant\order')->byShopid($shop, $options);
 

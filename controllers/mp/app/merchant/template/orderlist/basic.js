@@ -12,13 +12,17 @@ app.register.controller('orderlistCtrl', ['$scope', '$http', '$q', 'Order', func
 		});
 		return defer.promise;
 	};
-	facOrder = new Order($scope.$parent.mpid, $scope.$parent.shopId);
-	options = {
-		page: 1,
-		size: 10,
-		_more: true,
+	$scope.shiftView = function(name) {
+		$scope.subView = name;
 	};
-	$scope.options = options;
+	$scope.clickStatus = function(prop) {
+		prop._selected = !prop._selected;
+		if (prop._selected) {
+			options.status.push(prop.v);
+		} else {
+			options.status.splice(options.status.indexOf(prop.v), 1);
+		}
+	};
 	$scope.more = function() {
 		var defer = $q.defer();
 		options.page++;
@@ -30,6 +34,40 @@ app.register.controller('orderlistCtrl', ['$scope', '$http', '$q', 'Order', func
 		});
 		return defer.promise;
 	};
+	$scope.fetchByFilter = function() {
+		var defer = $q.defer();
+		options.page = 1;
+		fetch().then(function(result) {
+			$scope.orders = result.orders;
+			options.total = parseInt(result.total);
+			options._more = $scope.orders.length < options.total;
+			defer.resolve();
+			$scope.subView = 'list';
+		});
+		return defer.promise;
+	};
+	/*init*/
+	$scope.subView = 'list';
+	facOrder = new Order($scope.$parent.mpid, $scope.$parent.shopId);
+	/*order status*/
+	orderStatus = [];
+	angular.forEach($scope.Shop.order_status, function(l, v) {
+		if (l.length) {
+			orderStatus.push({
+				v: v,
+				l: l
+			});
+		}
+	});
+	$scope.orderStatus = orderStatus;
+	/*options*/
+	options = {
+		page: 1,
+		size: 10,
+		_more: true,
+		status: []
+	};
+	$scope.options = options;
 	fetch().then(function(result) {
 		$scope.orders = result.orders;
 		options.total = parseInt(result.total);

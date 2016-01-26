@@ -39,7 +39,7 @@
 .cart .status{display:inline-block;color:white;background:red;font-size:12px;padding:.25em .8em;border-radius:1em;margin-left:.5em;}
 
 /*filter*/
-#fitler .title{margin-bottom:.25em;}
-#filter .option{display:inline-block;border:1px solid green;padding:.25em;margin-right:.5em;}
+#filter .title{background:#eee;padding:.25em;}
+#filter .option{display:inline-block;border:1px solid green;padding:.25em;margin:.5em .5em 0 0;}
 #filter .option.selected{background:green;color:white;}
 #filter .date .form-control{text-align:center}

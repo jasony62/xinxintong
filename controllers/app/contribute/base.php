@@ -131,12 +131,15 @@ class base extends \member_base {
 		$url .= "&entry=$article->entry";
 		$url .= "&id=$id";
 
-		$reply = urlencode('您的投稿【');
-		$reply .= "<a href=\"$url\">";
-		$reply .= urlencode($article->title);
-		$reply .= "</a>";
-		$reply .= urlencode('】已退回。退回原因【' . $msg . '】，请修改后再次送审。');
-
+		$reply = '您的投稿【';
+		$reply .= $article->title;
+		$reply .= '】已退回。退回原因【' . $msg . '】，请修改后再次送审。';
+		$mpa = $this->model('mp\mpaccount')->byId($mpid, 'mpsrc');
+		if ($mpa->mpsrc === 'yx') {
+			$reply .= '查看详情：\n' . $url;
+		} else {
+			$reply .= "<a href='" . $url . "'>查看详情</a>";
+		}
 		$message = array(
 			"msgtype" => "text",
 			"text" => array(

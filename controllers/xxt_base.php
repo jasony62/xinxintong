@@ -298,7 +298,7 @@ class xxt_base extends TMS_CONTROLLER {
 			}
 			if (!empty($url)) {
 				if ($mpa->mpsrc === 'yx') {
-					$txt[] = ' <a href="' . $url . '">查看详情</a>';
+					$txt[] = '查看详情：\n' . $url;
 				} else {
 					$txt[] = " <a href='" . $url . "'>查看详情</a>";
 				}

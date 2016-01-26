@@ -170,11 +170,13 @@ class base extends \member_base {
 		 * 发给指定用户进行处理
 		 */
 		$url = $this->articleReviewUrl($mpid, $id);
-		$msg = urlencode('投稿活动【' . $c->title . '】有一篇新稿件，');
-		$msg .= "<a href=\"$url\">";
-		$msg .= urlencode('请处理');
-		$msg .= "</a>";
-
+		$msg = '投稿活动【' . $c->title . '】有一篇新稿件，';
+		$mpa = $this->model('mp\mpaccount')->byId($mpid, 'mpsrc');
+		if ($mpa->mpsrc === 'yx') {
+			$msg .= '请处理：\n' . $url;
+		} else {
+			$msg .= "<a href='" . $url . "'>请处理</a>";
+		}
 		$message = array(
 			"msgtype" => "text",
 			"text" => array(
@@ -186,7 +188,7 @@ class base extends \member_base {
 
 		$rst = $this->notify($mpid, $fan->openid, $message);
 
-		return new \ResponseData('ok');
+		return new \ResponseData($rst);
 	}
 	/**
 	 * 文章的投稿链接

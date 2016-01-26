@@ -113,7 +113,7 @@ xxtApp.controller('reviewCtrl', ['$location', '$scope', '$modal', 'http2', 'Arti
         });
     };
     $scope.preview = function () {
-        location.href = '/rest/mi/matter?mode=preview&tpl=std&mpid=' + mpid + '&id=' + id;
+        location.href = '/rest/mi/matter?mode=preview&type=article&tpl=std&mpid=' + mpid + '&id=' + id;
     };
     $scope.Reviewlog.list().then(function (data) {
         $scope.logs = data;

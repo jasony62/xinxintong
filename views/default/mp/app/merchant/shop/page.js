@@ -81,7 +81,7 @@
 		});
 		$scope.createCatelogCode = function(pageType) {
 			var url;
-			url = '/rest/mp/app/merchant/page/createByCatelog?catelog=' + $scope.$parent.catelogId;
+			url = '/rest/mp/app/merchant/page/createByCatelog?catelog=' + $scope.selectedCatelog.id;
 			url += '&type=' + pageType;
 			http2.get(url, function(rsp) {
 				$scope.pagesOfCatelog[pageType] = rsp.data;

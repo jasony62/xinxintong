@@ -20,6 +20,7 @@ app.controller('ctrl', ['$scope', '$http', '$q', '$timeout', 'Order', function($
         }
         var params;
         params = rsp.data;
+        $scope.Shop = params.shop;
         $scope.User = params.user;
         if (params.orderInfo) {
             $scope.orderInfo.receiver_name = params.orderInfo.receiver_name;
@@ -70,26 +71,30 @@ app.controller('ctrl', ['$scope', '$http', '$q', '$timeout', 'Order', function($
     };
     /*保存订单修改结果*/
     $scope.modify = function() {
+        var defer = $q.defer();
         facOrder.modify($scope.orderId, $scope.orderInfo).then(function() {
-            alert('ok');
+            defer.resolve();
         });
+        return defer.promise;
     };
     $scope.cancel = function() {
+        var defer = $q.defer();
         if ($scope.orderInfo.status === '2') {
             if (window.confirm('取消已支付订单将产生手续费，确定取消？')) {
                 facOrder.cancel($scope.orderId).then(function() {
-                    alert('ok');
+                    defer.resolve();
                     $scope.orderInfo.status = '-2';
                 });
             }
         } else {
             if (window.confirm('确定取消？')) {
                 facOrder.cancel($scope.orderId).then(function() {
-                    alert('ok');
+                    defer.resolve();
                     $scope.orderInfo.status = '-2';
                 });
             }
         }
+        return defer.promise;
     };
     $scope.removeSku = function(product, sku, index) {
         sku.removed = true;

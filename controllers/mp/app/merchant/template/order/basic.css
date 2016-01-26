@@ -37,6 +37,10 @@
 .order-properties{margin:0 .5em;}
 .order-property input.form-control{border-radius:0}
 
+/*order properties*/
+.feedback-properties{margin:0 .5em;}
+.feedback-properties input.form-control{border-radius:0}
+
 /*contact*/
-.contact{margin:0 .5em;}
+.contact,.order{margin:0 .5em;}
 .contact input.form-control{border-radius:0}

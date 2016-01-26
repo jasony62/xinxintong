@@ -43,7 +43,7 @@
                         <input type='text' class='form-control input-lg' ng-readonly="!order._canFeedback" ng-model="order.feedback[cate.id][p.id]">
                     </div>
                     <div class='form-group' ng-if="order._canFeedback">
-                        <button class="btn btn-success btn-lg btn-block" ng-click="feedback()">保存反馈信息并通知用户</button>
+                        <button class="btn btn-success btn-lg btn-block" tms-lock="lock" tms-lock-promoter="Y" ng-click="feedback()">保存反馈信息并通知用户</button>
                     </div>
                 </div>
             </div>
@@ -68,8 +68,8 @@
         </div>
     </div>
     <footer class='flex-bar'>
-        <button class="btn btn-lg btn-success" ng-if="order.order_status==='1'||order.order_status==='3'" ng-click="finish($event)">完成</button>
-        <button class="btn btn-lg btn-danger" ng-if="order.order_status==='1'||order.order_status==='3'" ng-click="cancel($event)">取消</button>
+        <button class="btn btn-lg btn-success" tms-lock="lock" tms-lock-promoter="Y" ng-if="order.order_status==='1'||order.order_status==='3'" ng-click="finish($event)">完成</button>
+        <button class="btn btn-lg btn-danger" tms-lock="lock" tms-lock-promoter="Y" ng-if="order.order_status==='1'||order.order_status==='3'" ng-click="cancel($event)">取消</button>
         <button class="btn btn-lg btn-default" ng-click="call($event)">电话</button>
     </footer>
 </div>

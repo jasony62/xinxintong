@@ -25,9 +25,10 @@ class contribute extends app_base {
 			/**
 			 * 参与人
 			 */
-			$c->initiator = $this->model('app\contribute')->userAcls($this->mpid, $id, 'I');
-			$c->reviewer = $this->model('app\contribute')->userAcls($this->mpid, $id, 'R');
-			$c->typesetter = $this->model('app\contribute')->userAcls($this->mpid, $id, 'T');
+			$modelCtrb = $this->model('app\contribute');
+			$c->initiator = $modelCtrb->userAcls($this->mpid, $id, 'I');
+			$c->reviewer = $modelCtrb->userAcls($this->mpid, $id, 'R');
+			$c->typesetter = $modelCtrb->userAcls($this->mpid, $id, 'T');
 			/**
 			 * return
 			 */

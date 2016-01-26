@@ -1,4 +1,4 @@
-app.register.controller('notifyCtrl', ['$scope', '$http', 'Order', function($scope, $http, Order) {
+app.register.controller('notifyCtrl', ['$scope', '$http', '$q', 'Order', function($scope, $http, $q, Order) {
 	var facOrder;
 	var summarySku = function(catelog, product, cateSku, sku) {
 		if (sku.summary && sku.summary.length) {
@@ -38,6 +38,7 @@ app.register.controller('notifyCtrl', ['$scope', '$http', 'Order', function($sco
 			}
 		}
 	};
+	$scope.lock = false;
 	facOrder = new Order($scope.$parent.mpid, $scope.$parent.shopId);
 	$scope.skus = [];
 	$scope.orderInfo = {
@@ -60,12 +61,14 @@ app.register.controller('notifyCtrl', ['$scope', '$http', 'Order', function($sco
 		ele.click();
 	};
 	$scope.feedback = function(event) {
-		var url;
+		var defer, url;
+		defer = $q.defer();
 		url = '/rest/op/merchant/order/feedback?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&order=' + $scope.orderId;
 		$http.post(url, $scope.order.feedback).success(function(rsp) {
-			alert('ok');
+			defer.resolve();
 		}).error(function(data) {
 			alert('error:' + data);
 		});
+		return defer.promise;
 	};
 }]);

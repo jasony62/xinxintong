@@ -53,10 +53,12 @@ app.register.controller('orderCtrl', ['$scope', '$http', 'Sku', 'Order', functio
 			}
 		}
 	};
+	$scope.lock = false;
 	facOrder = new Order($scope.$parent.mpid, $scope.$parent.shopId);
 	facOrder.get($scope.$parent.orderId).then(function(data) {
 		var order;
 		order = data.order;
+		order._order_status = $scope.Shop.order_status[order.order_status];
 		$scope.order = order;
 		$scope.orderInfo.status = order.order_status;
 		$scope.orderInfo.extPropValues = order.extPropValues;

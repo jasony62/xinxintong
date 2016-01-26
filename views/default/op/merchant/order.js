@@ -1,4 +1,4 @@
-app.controller('ctrl', ['$scope', '$http', '$timeout', 'Order', function($scope, $http, $timeout, Order) {
+app.controller('ctrl', ['$scope', '$http', '$q', '$timeout', 'Order', function($scope, $http, $q, $timeout, Order) {
     var ls, facOrder;
     ls = location.search;
     $scope.mpid = ls.match(/mpid=([^&]*)/)[1];
@@ -20,13 +20,17 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Order', function($scope,
         });
     });
     $scope.finish = function() {
+        var defer = $q.defer();
         facOrder.finish($scope.orderId).then(function() {
-            alert('ok');
+            defer.resolve();
         });
+        return defer.promise;
     };
     $scope.cancel = function() {
+        var defer = $q.defer();
         facOrder.cancel($scope.orderId).then(function() {
-            alert('ok');
+            defer.resolve();
         });
+        return defer.promise;
     };
 }]);

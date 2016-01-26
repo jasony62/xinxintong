@@ -53,20 +53,23 @@ class order extends \member_base {
 	public function pageGet_action($mpid, $shop, $order = '') {
 		// current visitor
 		$user = $this->getUser($mpid);
+		// shop
+		$shop = $this->model('app\merchant\shop')->byId($shop, array('fields' => 'id,title,order_status,buyer_api'));
+		$shop->order_status = empty($shop->order_status) ? new \stdClass : json_decode($shop->order_status);
 		// page
 		$pageType = empty($order) ? 'ordernew' : 'order';
-		$page = $this->model('app\merchant\page')->byType($pageType, $shop);
+		$page = $this->model('app\merchant\page')->byType($pageType, $shop->id);
 		if (empty($page)) {
 			return new \ResponseError('没有获得订单页定义');
 		}
 		$page = $page[0];
 
 		$params = array(
+			'shop' => $shop,
 			'user' => $user,
 			'page' => $page,
 		);
 		/*联系人信息*/
-		$shop = $this->model('app\merchant\shop')->byId($shop);
 		if (!empty($shop->buyer_api)) {
 			$buyerApi = json_decode($shop->buyer_api);
 			$authid = $buyerApi->authid;

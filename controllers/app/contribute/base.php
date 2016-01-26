@@ -82,6 +82,9 @@ class base extends \member_base {
 	public function articleUpdate_action($mpid, $id) {
 		$nv = (array) $this->getPostJson();
 
+		isset($nv['title']) && $nv['title'] = $this->model()->escape($nv['title']);
+		isset($nv['summary']) && $nv['summary'] = $this->model()->escape($nv['summary']);
+		isset($nv['author']) && $nv['author'] = $this->model()->escape($nv['author']);
 		isset($nv['body']) && $nv['body'] = $this->model()->escape(urldecode($nv['body']));
 
 		$nv['modify_at'] = time();

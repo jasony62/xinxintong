@@ -217,11 +217,15 @@ class order extends \member_base {
 		$modelProd = $this->model('app\merchant\product');
 		$modelTmpl = $this->model('matter\tmplmsg');
 		$products = json_decode($order->products);
-		$orderTmplmsgId = $product->catelog->{$action . '_order_tmplmsg'};
+		$actionTmplmsg = $action . '_order_tmplmsg';
 		$pendings = array();
 		foreach ($products as $product) {
 			/**/
 			$product = $modelProd->byId($product->id, array('cascaded' => 'Y'));
+			if (empty($product->catelog->{$actionTmplmsg})) {
+				continue;
+			}
+			$orderTmplmsgId = $product->catelog->{$actionTmplmsg};
 			/*获得模板消息定义*/
 			if (isset($pendings[$orderTmplmsgId]['mapping'])) {
 				$mapping = $pendings[$orderTmplmsgId]['mapping'];
@@ -287,6 +291,7 @@ class order extends \member_base {
 		$url .= "?mpid=" . $mpid;
 		$url .= "&shop=" . $order->sid;
 		$url .= "&order=" . $order->id;
+		/*发送消息*/
 		foreach ($pendings as $pending) {
 			$tmplmsg = $pending['tmplmsg'];
 			$datas = $pending['data'];

@@ -9,11 +9,15 @@
             html,body{height:100%;width:100%;padding:0;margin:0}
             body{font-family:"Microsoft YaHei"}
         </style>
-        <link href='test/loading/loading.css?_=2' rel="stylesheet">
+        <link href='test/loading/loading.css?_=3' rel="stylesheet">
     </head>
-    <body>
-        <div id="content">content</div>
-        <div class="loading"><div class='loading-indicator'><i></i></div>
-        <script src="static/js/require.js" defer async data-main="test/loading/main.js"></script>
+    <body ng-app="app">
+        <div id="content" ng-controller="ctrl">
+            <ul class='list-group'>
+                <li class='list-group-item' ng-repeat="d in data"><i ng-bind="d"></i></li>
+            </ul>
+        </div>
+        <div class="loading"><div class='loading-indicator'><i></i></div></div>
+        <script src="static/js/require.js" defer async data-main="test/loading/loading.js?_=7"></script>
     </body>
 </html>

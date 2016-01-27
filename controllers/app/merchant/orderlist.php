@@ -25,6 +25,8 @@ class orderlist extends \member_base {
 	 * $sku sku'id
 	 */
 	public function index_action($mpid, $shop, $mocker = null, $code = null) {
+		//
+		$openid = $this->doAuth($mpid, $code, $mocker);
 		// page
 		$options = array(
 			'cascaded' => 'N',
@@ -70,6 +72,9 @@ class orderlist extends \member_base {
 	 */
 	public function get_action($mpid, $shop, $page = 1, $size = 30, $status = '') {
 		$user = $this->getUser($mpid);
+		if (empty($user->openid)) {
+			return new \ResponseError('无法获得当前用户信息');
+		}
 		$options = array(
 			'openid' => $user->openid,
 		);

@@ -16,7 +16,9 @@ define(["require", "angular", "angular-sanitize"], function(require, angular) {
 				$scope.data.push('data:' + i);
 				i++;
 			}
-			document.querySelector('.loading').style.display = 'none';
+			document.querySelector('.loading-indicator').style.display = 'none';
+			document.querySelector('.loading').style.top = '100%';
+			document.querySelector('.loading').style.right = '100%';
 		}, 3000);
 	}]);
 	require(['domReady!'], function(document) {

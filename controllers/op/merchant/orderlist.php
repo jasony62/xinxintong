@@ -18,8 +18,9 @@ class orderlist extends \member_base {
 	/**
 	 *
 	 */
-	public function index_action($mpid = null, $shop = null, $order = null) {
-		$user = $this->getUser($mpid);
+	public function index_action($mpid = null, $shop = null, $order = null, $mocker = null, $code = null) {
+		// oauth
+		$openid = $this->doAuth($mpid, $code, $mocker);
 		// page
 		$options = array(
 			'cascaded' => 'N',

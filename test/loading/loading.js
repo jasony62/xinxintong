@@ -12,5 +12,5 @@ require.config({
 			exports: "angular-sanitize"
 		},
 	},
-	deps: ['/test/loading/app.js']
+	deps: ['/test/loading/app.js?_=7']
 });

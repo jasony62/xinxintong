@@ -82,9 +82,7 @@
     right: 0;
     bottom: 0;
     left: 0;
-    background: #eee;
-    -webkit-transition: all 1s ease;
-    transition: all 1s ease;
+    background: rgba(224, 224, 224, 0.9);
 }
 
 .loading-indicator {

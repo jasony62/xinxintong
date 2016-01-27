@@ -1,8 +1,6 @@
 define(["require", "angular", "angular-sanitize"], function(require, angular) {
 	'use strict';
-	var app = angular.module('app', [
-		'ngSanitize',
-	]);
+	var app = angular.module('app', ['ngSanitize']);
 	app.config(['$controllerProvider', function($cp) {
 		app.register = {
 			controller: $cp.register
@@ -11,15 +9,17 @@ define(["require", "angular", "angular-sanitize"], function(require, angular) {
 	app.controller('ctrl', ['$scope', '$timeout', function($scope, $timeout) {
 		$scope.data = [];
 		$timeout(function() {
-			var i = 0;
+			var i = 0,
+				eleLoading;
 			while (i < 100) {
 				$scope.data.push('data:' + i);
 				i++;
 			}
-			document.querySelector('.loading-indicator').style.display = 'none';
-			document.querySelector('.loading').style.top = '100%';
-			document.querySelector('.loading').style.right = '100%';
-		}, 3000);
+			$timeout(function() {
+				eleLoading = document.querySelector('.loading');
+				eleLoading.parentNode.removeChild(eleLoading);
+			}, 2000)
+		}, 2000);
 	}]);
 	require(['domReady!'], function(document) {
 		angular.bootstrap(document, ["app"]);

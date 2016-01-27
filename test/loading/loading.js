@@ -9,8 +9,9 @@ require.config({
 			exports: "angular"
 		},
 		"angular-sanitize": {
+			deps: ['angular'],
 			exports: "angular-sanitize"
 		},
 	},
-	deps: ['/test/loading/app.js?_=7']
+	deps: ['/test/loading/app.js?_=9']
 });

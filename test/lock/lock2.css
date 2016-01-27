@@ -1,0 +1,77 @@
+.btn.tms-lock-running {
+	position: relative;
+}
+@keyframes tmsRunning{
+	0%{background:linear-gradient(0deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	12%{background:linear-gradient(315deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	25%{background:linear-gradient(270deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	37%{background:linear-gradient(225deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	50%{background:linear-gradient(180deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	62%{background:linear-gradient(135deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	75%{background:linear-gradient(90deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	87%{background:linear-gradient(45deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	100%{background:linear-gradient(0deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+}
+@-webkit-keyframes tmsRunning{
+	0%{background:-webkit-linear-gradient(0deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	12%{background:-webkit-linear-gradient(315deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	25%{background:-webkit-linear-gradient(270deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	37%{background:-webkit-linear-gradient(225deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	50%{background:-webkit-linear-gradient(180deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	62%{background:-webkit-linear-gradient(135deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	75%{background:-webkit-linear-gradient(90deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	87%{background:-webkit-linear-gradient(45deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	100%{background:-webkit-linear-gradient(0deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+}
+@-moz-keyframes tmsRunning{
+	0%{background:-moz-linear-gradient(0deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	12%{background:-moz-linear-gradient(315deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	25%{background:-moz-linear-gradient(270deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	37%{background:-moz-linear-gradient(225deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	50%{background:-moz-linear-gradient(180deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	62%{background:-moz-linear-gradient(135deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	75%{background:-moz-linear-gradient(90deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	87%{background:-moz-linear-gradient(45deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	100%{background:-moz-linear-gradient(0deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+}
+@-o-keyframes tmsRunning{
+	0%{background:-moz\-linear-gradient(0deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	12%{background:-moz\-linear-gradient(315deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	25%{background:-moz\-linear-gradient(270deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	37%{background:-moz\-linear-gradient(225deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	50%{background:-moz\-linear-gradient(180deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	62%{background:-moz\-linear-gradient(135deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	75%{background:-moz\-linear-gradient(90deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	87%{background:-moz\-linear-gradient(45deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+	100%{background:-moz\-linear-gradient(0deg,#fff,#fff 40%,#333 41%,#333 60%,#fff 61%,#fff);}
+}
+.btn.tms-lock-running .indicator::after {
+	content: '';
+	position: absolute;
+	top: -5px;
+	right: -5px;
+	bottom: -5px;
+	left: -5px;
+	border: 1px solid #333;
+	border-radius: 50%;
+}
+.btn.tms-lock-running .indicator {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	margin-left: -1em;
+	margin-top: -1em;
+	border-radius: 1em;
+	width: 2em;
+	height: 2em;
+	line-height: 2em;
+	border: 5px solid #fff;
+	background: linear-gradient(0deg, #fff, #fff 40%, #333 41%, #333 60%, #fff 61%, #fff);
+	background: -webkit-linear-gradient(0deg, #fff, #fff 40%, #333 41%, #333 60%, #fff 61%, #fff);
+	background: -moz-linear-gradient(0deg, #fff, #fff 40%, #333 41%, #333 60%, #fff 61%, #fff);
+	background: -o-gradient(0deg, #fff, #fff 40%, #333 41%, #333 60%, #fff 61%, #fff);
+	animation: tmsRunning 1s infinite;
+	-webkit-animation: tmsRunning 1s infinite;
+	-moz-animation: tmsRunning 1s infinite;
+	-o-animation: tmsRunning 1s infinite;
+}

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app='app' ng-controller='ctrl'>
+<html ng-controller='ctrl'>
     
     <head>
         <meta charset="utf-8">
@@ -7,8 +7,8 @@
         <base href="/" />
         <title><?php TPL::pt('title');?></title>
         <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
-        <link href="//libs.useso.com/js/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
-        <link href="/views/default/app/enroll/page.css?_=2" rel="stylesheet">
+        <link href='static/css/loading.css?_=1' rel="stylesheet">
+        <link href="/views/default/app/enroll/page.css?_=4" rel="stylesheet">
         <link href="/views/default/app/enroll/directive.css?_=1" rel="stylesheet">
         <style ng-if="Page.css" ng-bind='Page.css'></style>
     </head>
@@ -18,27 +18,11 @@
         <div class="app">
             <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
             <div class='container'>
-                <div class='row' ng-controller='ctrlView'>
-                    <form name='page' novalidate dynamic-html="Page.html">
-                    </form>
+                <div class='row' ng-controller='ctrlView' dynamic-html="Page.html">
                 </div>
             </div>
         </div>
-        <script type="text/javascript">
-            if (/MicroMessenger/i.test(navigator.userAgent)) {
-                var mpid = location.search.match(/mpid=([^&]*)/)[1];
-                document.write("<script src='http:\/\/res.wx.qq.com\/open\/js\/jweixin-1.0.0.js'><\/script>");
-                document.write("<script src='\/rest\/mi\/matter\/wxjssdksignpackage?mpid="+mpid+"&url="+encodeURIComponent(location.href.split('#')[0])+"'><\/script>");
-            }
-        </script>
-        <script src="//libs.useso.com/js/jquery/1.10.2/jquery.min.js"></script>
-        <script src="/static/js/angular.min.js "></script>
-        <script src="/static/js/angular-sanitize.min.js "></script>
-        <script src="/static/js/ng-infinite-scroll.min.js "></script>
-        <script src="/static/js/xxt.share.js?_=1"></script>
-        <script src="/views/default/app/enroll/common.js?_=6"></script>
-        <script src="/views/default/app/enroll/page.js?_=21"></script>
-        <script src="/views/default/app/enroll/directive.js?_=1"></script>
+        <div class="loading"><div class='loading-indicator'><i></i></div></div>
+        <script src="static/js/require.js" defer async data-main="/views/default/app/enroll/page-loader.js?_=2"></script>
     </body>
-
 </html>

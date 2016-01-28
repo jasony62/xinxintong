@@ -1,7 +1,4 @@
 if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage !== undefined) {
-    signPackage.jsApiList = ['hideOptionMenu', 'showOptionMenu', 'closeWindow', 'chooseImage', 'uploadImage', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'getLocation'];
-    signPackage.debug = false;
-    wx.config(signPackage);
     wx.ready(function() {
         wx.showOptionMenu();
     });
@@ -71,9 +68,10 @@ var PG = (function() {
             if (user && member && member.authid && user.members && user.members.length) {
                 angular.forEach(user.members, function(member2) {
                     if (member2.authapi_id == member.authid) {
-                        $("[ng-model^='data.member']").each(function() {
+                        var eles = document.querySelectorAll("[ng-model^='data.member']");
+                        angular.forEach(eles, function(ele) {
                             var attr;
-                            attr = $(this).attr('ng-model');
+                            attr = ele.getAttribute('ng-model');
                             attr = attr.replace('data.member.', '');
                             attr = attr.split('.');
                             if (attr.length == 2) {
@@ -177,7 +175,7 @@ var setShareData = function(scope, params, $http) {
         alert(e.message);
     }
 };
-app = angular.module('app', ['ngSanitize', 'infinite-scroll']);
+app = angular.module('app', ['ngSanitize']);
 app.config(['$controllerProvider', function($cp) {
     app.register = {
         controller: $cp.register
@@ -325,6 +323,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
         $timeout(function() {
             $scope.$broadcast('xxt.app.enroll.ready', params);
         });
+        window.loading.finish();
     }).error(function(content, httpCode) {
         if (httpCode === 401) {
             var el = document.createElement('iframe');

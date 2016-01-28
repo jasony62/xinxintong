@@ -124,11 +124,11 @@ class log_model extends TMS_MODEL {
 		$d['mpid'] = $mpid;
 		$d['vid'] = $user->vid;
 		$d['openid'] = $user->openid;
-		$d['nickname'] = $user->nickname;
+		$d['nickname'] = $this->escape($user->nickname);
 		$d['read_at'] = $current;
 		$d['matter_id'] = $matter->id;
 		$d['matter_type'] = $matter->type;
-		$d['matter_title'] = $matter->title;
+		$d['matter_title'] = $this->escape($matter->title);
 		$d['matter_shareby'] = $shareby;
 		$d['user_agent'] = $client->agent;
 		$d['client_ip'] = $client->ip;
@@ -196,10 +196,10 @@ class log_model extends TMS_MODEL {
 		$d['share_to'] = $shareto;
 		$d['vid'] = $user->vid;
 		$d['openid'] = $user->openid;
-		$d['nickname'] = $user->nickname;
+		$d['nickname'] = $this->escape($user->nickname);
 		$d['matter_id'] = $matter->id;
 		$d['matter_type'] = $matter->type;
-		$d['matter_title'] = $matter->title;
+		$d['matter_title'] = $this->escape($matter->title);
 		$d['matter_shareby'] = $shareby;
 		$d['user_agent'] = $client->agent;
 		$d['client_ip'] = $client->ip;
@@ -222,7 +222,7 @@ class log_model extends TMS_MODEL {
 		$d['mpid'] = $mpid;
 		$d['vid'] = $user->vid;
 		$d['openid'] = $user->openid;
-		$d['nickname'] = $user->nickname;
+		$d['nickname'] = $this->escape($user->nickname);
 		$d['action_at'] = $action_at;
 		$d['original_logid'] = $original_logid;
 		switch ($action_name) {
@@ -265,7 +265,7 @@ class log_model extends TMS_MODEL {
 		$d['mpid'] = $mpid;
 		$d['matter_type'] = $matter->type;
 		$d['matter_id'] = $matter->id;
-		$d['matter_title'] = $matter->title;
+		$d['matter_title'] = $this->escape($matter->title);
 		$d['action_at'] = $action_at;
 		$d['original_logid'] = $original_logid;
 		switch ($action_name) {
@@ -364,10 +364,10 @@ class log_model extends TMS_MODEL {
 			$log = array();
 			$log['mpid'] = $mpid;
 			$log['openid'] = $user->openid;
-			$log['nickname'] = $user->nickname;
+			$log['nickname'] = $this->escape($user->nickname);
 			$log['matter_id'] = $matter->id;
 			$log['matter_type'] = $matter->type;
-			$log['matter_title'] = $matter->title;
+			$log['matter_title'] = $this->escape($matter->title);
 			$log['last_action_at'] = $action_at;
 			switch ($action_name) {
 			case 'R':

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app='app' ng-controller='ctrl'>
+<html ng-controller='ctrl'>
     
     <head>
         <meta charset="utf-8">
@@ -7,7 +7,8 @@
         <base href="/" />
         <title><?php TPL::pt('title');?></title>
         <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
-        <link href="/views/default/app/enroll/input.css?_=2" rel="stylesheet">
+        <link href='static/css/loading.css?_=1' rel="stylesheet">
+        <link href="/views/default/app/enroll/input.css?_=3" rel="stylesheet">
         <link href="/views/default/app/enroll/directive.css?_=2" rel="stylesheet">
         <style ng-if="Page.css" ng-bind='Page.css'></style>
     </head>
@@ -23,23 +24,7 @@
                 </div>
             </div>
         </div>
-        <script type="text/javascript">
-            if (/MicroMessenger/i.test(navigator.userAgent)) {
-                var mpid = location.search.match(/mpid=([^&]*)/)[1];
-                document.write("<script src='http:\/\/res.wx.qq.com\/open\/js\/jweixin-1.0.0.js'><\/script>");
-                document.write("<script src='\/rest\/mi\/matter\/wxjssdksignpackage?mpid="+mpid+"&url="+encodeURIComponent(location.href.split('#')[0])+"'><\/script>");
-            }
-        </script>
-        <script src="//libs.useso.com/js/jquery/1.10.2/jquery.min.js"></script>
-        <script src="/static/js/angular.min.js "></script>
-        <script src="/static/js/angular-sanitize.min.js "></script>
-        <script src="/static/js/ng-infinite-scroll.min.js "></script>
-        <script src="/static/js/resumable.js "></script>
-        <script src="/static/js/xxt.share.js?_=1"></script>
-        <script src="/static/js/xxt.image.js?_=1"></script>
-        <script src="/static/js/xxt.geo.js?_=2"></script>
-        <script src="/views/default/app/enroll/common.js?_=6"></script>
-        <script src="/views/default/app/enroll/input.js?_=22"></script>
-        <script src="/views/default/app/enroll/directive.js?_=1"></script>
+        <div class="loading"><div class='loading-indicator'><i></i></div></div>
+        <script src="static/js/require.js" defer async data-main="/views/default/app/enroll/input-loader.js?_=2"></script>
     </body>
 </html>

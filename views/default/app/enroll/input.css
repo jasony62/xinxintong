@@ -1,5 +1,6 @@
 .ng-cloak{display:none;}
-html,body{min-height:100%;width:100%;background:#efefef;font-family:Microsoft Yahei,Arial;}
+html,body{height:100%;width:100%;}
+html,body{background:#efefef;font-family:Microsoft Yahei,Arial;}
 body{position:relative;padding:15px;font-size:16px;}
 ul{margin:0;padding:0;list-style:none}
 li{margin:0;padding:0}

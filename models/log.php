@@ -498,4 +498,36 @@ class log_model extends TMS_MODEL {
 
 		return $logs;
 	}
+	/**
+	 * 记录访问素材日志
+	 */
+	public function matterOp($mpid, $user, $matter, $op) {
+		$current = time();
+		if ($op !== 'C') {
+			$d = array(
+				'last_op' => 'N',
+			);
+			$this->update(
+				'xxt_log_matter_op',
+				$d,
+				"matter_type='$matter->type' and matter_id='$matter->id'"
+			);
+		}
+		$d = array();
+		$d['mpid'] = $mpid;
+		$d['operator'] = $user->id;
+		$d['operator_name'] = $user->name;
+		$d['operator_src'] = $user->src;
+		$d['operate_at'] = $current;
+		$d['operation'] = $op;
+		$d['matter_id'] = $matter->id;
+		$d['matter_type'] = $matter->type;
+		$d['matter_title'] = $this->escape($matter->title);
+		$d['matter_summary'] = $this->escape($matter->summary);
+		$d['matter_pic'] = $matter->pic;
+
+		$logid = $this->insert('xxt_log_matter_op', $d, true);
+
+		return $logid;
+	}
 }

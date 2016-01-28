@@ -335,24 +335,42 @@ class article extends matter_ctrl {
 	 */
 	public function create_action() {
 		$account = \TMS_CLIENT::account();
+		$mpa = $this->model('mp\mpaccount')->getFeature($this->mpid, 'heading_pic');
 		$current = time();
+
+		$d = array();
 		$d['mpid'] = $this->mpid;
-		$d['creater'] = \TMS_CLIENT::get_client_uid();
+		$d['creater'] = $account->uid;
 		$d['creater_src'] = 'A';
 		$d['creater_name'] = $account->nickname;
 		$d['create_at'] = $current;
-		$d['modifier'] = \TMS_CLIENT::get_client_uid();
+		$d['modifier'] = $account->uid;
 		$d['modifier_src'] = 'A';
 		$d['modifier_name'] = $account->nickname;
 		$d['modify_at'] = $current;
 		$d['title'] = '新单图文';
 		$d['author'] = $d['creater_name'];
-		$d['pic'] = ''; // 头图
+		$d['pic'] = $mpa->heading_pic; // 头图
 		$d['hide_pic'] = 'N';
 		$d['summary'] = '';
 		$d['url'] = ''; // 原文链接
 		$d['body'] = '';
-		$id = $this->model()->insert('xxt_article', $d);
+		$id = $this->model()->insert('xxt_article', $d, true);
+
+		/*记录操作日志*/
+		/*用户*/
+		$user = new \stdClass;
+		$user->id = $account->uid;
+		$user->name = $account->nickname;
+		$user->src = 'A';
+		/*素材*/
+		$matter = new \stdClass;
+		$matter->id = $id;
+		$matter->type = 'article';
+		$matter->title = $d['title'];
+		$matter->summary = $d['summary'];
+		$matter->pic = $d['pic'];
+		$this->model('log')->matterOp($this->mpid, $user, $matter, 'C');
 
 		return new \ResponseData($id);
 	}
@@ -502,7 +520,6 @@ class article extends matter_ctrl {
 					"id='$id'"
 				);
 			}
-
 		}
 
 		return new \ResponseData($rst);
@@ -725,22 +742,39 @@ class article extends matter_ctrl {
 		return 'article';
 	}
 	/**
-	 *
+	 * 更新图文信息并记录操作日志
 	 */
 	private function _update($id, $nv) {
 		$account = \TMS_CLIENT::account();
+		$current = time();
 		$pmpid = $this->getParentMpid();
 
-		$nv['modifier'] = \TMS_CLIENT::get_client_uid();
+		$nv['modifier'] = $account->uid;
 		$nv['modifier_src'] = 'A';
 		$nv['modifier_name'] = $account->nickname;
-		$nv['modify_at'] = time();
+		$nv['modify_at'] = $current;
 
 		$rst = $this->model()->update(
 			'xxt_article',
 			$nv,
 			"(mpid='$this->mpid' or mpid='$pmpid') and id='$id'"
 		);
+		/*记录操作日志*/
+		/*用户*/
+		$user = new \stdClass;
+		$user->id = $account->uid;
+		$user->name = $account->nickname;
+		$user->src = 'A';
+		/*素材*/
+		$article = $this->model('matter\article')->byId($id, 'title,summary,pic');
+		$matter = new \stdClass;
+		$matter->id = $id;
+		$matter->type = 'article';
+		$matter->title = $article->title;
+		$matter->summary = $article->summary;
+		$matter->pic = $article->pic;
+
+		//$rst = $this->model('log')->matterOp($this->mpid, $user, $matter, 'U');
 
 		return $rst;
 	}

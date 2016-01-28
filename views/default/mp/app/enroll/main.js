@@ -1,8 +1,8 @@
 xxtApp.controller('enrollCtrl', ['$scope', '$modal', 'http2', 'templateShop', function($scope, $modal, http2, templateShop) {
     $scope.page = {
         at: 1,
-        size: 30
-    }
+        size: 28
+    };
     $scope.doSearch = function() {
         var url = '/rest/mp/app/enroll/list?page=' + $scope.page.at + '&size=' + $scope.page.size;
         $scope.fromParent && $scope.fromParent === 'Y' && (url += '&src=p');

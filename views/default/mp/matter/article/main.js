@@ -20,7 +20,7 @@ xxtApp.controller('articleCtrl', ['$scope', '$location', 'http2', function($scop
     $scope.id = $location.search().id;
     $scope.subView = '';
     $scope.back = function() {
-        location.href = '/page/mp/matter/articles';
+        history.back();
     };
     $scope.entryUrl = '';
     http2.get('/rest/mp/mpaccount/get', function(rsp) {
@@ -53,18 +53,12 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', 'templateShop', func
         title: '频道',
         url: '/rest/mp/matter'
     }];
-    var getInitData = function() {
-        http2.get('/rest/mp/matter/tag?resType=article', function(rsp) {
-            $scope.tags = rsp.data;
-        });
-        http2.get('/rest/mp/feature/get?fields=matter_visible_to_creater', function(rsp) {
-            $scope.features = rsp.data;
-        });
-    };
+    var modifiedData = {};
+    $scope.modified = false;
     window.onbeforeunload = function(e) {
         var message;
-        if ($scope.bodyModified) {
-            message = '已经修改的正文还没有保存',
+        if ($scope.modified) {
+            message = '修改还没有保存，是否要离开当前页面？',
                 e = e || window.event;
             if (e) {
                 e.returnValue = message;
@@ -73,14 +67,18 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', 'templateShop', func
         }
     };
     $scope.onBodyChange = function() {
-        $scope.bodyModified = true;
+        $scope.modified = true;
+        modifiedData[name] = name === 'body' ? encodeURIComponent($scope.editing[name]) : $scope.editing[name];
+    };
+    $scope.submit = function() {
+        http2.post('/rest/mp/matter/article/update?id=' + $scope.editing.id, modifiedData, function() {
+            modifiedData = {};
+            $scope.modified = false;
+        });
     };
     $scope.update = function(name) {
-        var nv = {};
-        nv[name] = name === 'body' ? encodeURIComponent($scope.editing[name]) : $scope.editing[name];
-        http2.post('/rest/mp/matter/article/update?id=' + $scope.editing.id, nv, function() {
-            name === 'body' && ($scope.bodyModified = false);
-        });
+        $scope.modified = true;
+        modifiedData[name] = name === 'body' ? encodeURIComponent($scope.editing[name]) : $scope.editing[name];
     };
     $scope.setPic = function() {
         var options = {
@@ -283,25 +281,27 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', 'templateShop', func
             $scope.editing.tags.splice($scope.editing.tags.indexOf(removed), 1);
         });
     });
-    getInitData();
+    http2.get('/rest/mp/matter/tag?resType=article', function(rsp) {
+        $scope.tags = rsp.data;
+    });
+    http2.get('/rest/mp/feature/get?fields=matter_visible_to_creater', function(rsp) {
+        $scope.features = rsp.data;
+    });
     var r = new Resumable({
         target: '/rest/mp/matter/article/upload?articleid=' + $scope.id,
         testChunks: false,
     });
     r.assignBrowse(document.getElementById('addAttachment'));
     r.on('fileAdded', function(file, event) {
-        console.log('fileAdded.');
         $scope.$root.progmsg = '开始上传文件';
         $scope.$root.$apply('progmsg');
         r.upload();
     });
     r.on('progress', function(file, event) {
-        console.log('progress.');
         $scope.$root.progmsg = '正在上传文件：' + Math.floor(r.progress() * 100) + '%';
         $scope.$root.$apply('progmsg');
     });
     r.on('complete', function() {
-        console.log('complete.');
         var f, lastModified, posted;
         f = r.files.pop().file;
         lastModified = f.lastModified ? f.lastModified : (f.lastModifiedDate ? f.lastModifiedDate.getTime() : 0);

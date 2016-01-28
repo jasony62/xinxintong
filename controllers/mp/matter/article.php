@@ -774,7 +774,7 @@ class article extends matter_ctrl {
 		$matter->summary = $article->summary;
 		$matter->pic = $article->pic;
 
-		//$rst = $this->model('log')->matterOp($this->mpid, $user, $matter, 'U');
+		$rst = $this->model('log')->matterOp($this->mpid, $user, $matter, 'U');
 
 		return $rst;
 	}

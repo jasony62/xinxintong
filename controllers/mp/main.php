@@ -21,4 +21,13 @@ class main extends mp_controller {
 	public function index_action() {
 		$this->view_action('/mp/main');
 	}
+	/**
+	 * 列出最近操作的素材
+	 */
+	public function recentMatters_action($size = 30) {
+		$modelLog = $this->model('log');
+		$matters = $modelLog->recentMatters($this->mpid, $size);
+
+		return new \ResponseData($matters);
+	}
 }

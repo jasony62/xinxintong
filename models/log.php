@@ -530,4 +530,23 @@ class log_model extends TMS_MODEL {
 
 		return $logid;
 	}
+	/**
+	 *
+	 */
+	public function &recentMatters($mpid, $size = 30) {
+		$fields = '*';
+		$q = array(
+			$fields,
+			'xxt_log_matter_op',
+			"mpid='$mpid' and last_op='Y' and operation<>'D'",
+		);
+		$q2 = array(
+			'r' => array('o' => 0, 'l' => $size),
+			'o' => array('operate_at desc'),
+		);
+
+		$matters = $this->query_objs_ss($q, $q2);
+
+		return $matters;
+	}
 }

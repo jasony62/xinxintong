@@ -30,6 +30,23 @@
             }
         }, true);
         $scope.matterTypes = matterTypes;
+        var modifiedData = {};
+        $scope.modified = false;
+        $scope.submit = function() {
+            http2.post('/rest/mp/app/enroll/update?aid=' + $scope.aid, modifiedData, function(rsp) {
+                $scope.modified = false;
+                modifiedData = {};
+            });
+        };
+        $scope.update = function(name) {
+            if (name === 'entry_rule')
+                modifiedData.entry_rule = encodeURIComponent($scope.editing[name]);
+            else if (name === 'tags')
+                modifiedData.tags = $scope.editing.tags.join(',');
+            else
+                modifiedData[name] = $scope.editing[name];
+            $scope.modified = true;
+        };
         $scope.updateEntryRule = function() {
             var p = {
                 entry_rule: encodeURIComponent(JSON.stringify($scope.editing.entry_rule))

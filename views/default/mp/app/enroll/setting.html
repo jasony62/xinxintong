@@ -1,6 +1,7 @@
 <div id='setting'>
     <div class='form-inline form-group'>
         <div class='form-group'>
+            <button class='btn' ng-click="submit()" ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'">保存</button>
             <button class='btn btn-default' ng-if="editing.multi_rounds==='N'" ng-click="canRounds()">设置轮次</button>
             <button class='btn btn-success' ng-click='saveAsTemplate()'>分享为模板</button>
         </div>
@@ -22,7 +23,7 @@
             <div class='form-group'>
                 <label class='col-md-2 control-label'>活动名称</label>
                 <div class='col-md-10'>
-                    <input type="text" class="form-control" ng-model='editing.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+                    <input type="text" class="form-control" ng-model='editing.title' ng-change="update('title')">
                     <div class='help-block'>最多35个汉字，70个英文字符</div>
                 </div>
             </div>
@@ -49,7 +50,7 @@
             <div class='form-group'>
                 <label class='col-md-2 control-label'>摘要</label>
                 <div class='col-md-10'>
-                    <textarea class='form-control' ng-model='editing.summary' tms-auto-update tms-wait=1000 tms-update="update('summary');"
+                    <textarea class='form-control' ng-model='editing.summary' ng-change="update('summary');"
                     rows='3'></textarea>
                     <p class='help-block'>最多120个汉字，240个英文字符</p>
                 </div>

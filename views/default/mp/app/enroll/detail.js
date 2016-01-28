@@ -107,20 +107,6 @@ xxtApp.controller('enrollCtrl', ['$scope', '$location', 'http2', function($scope
         $scope.editing.rounds = [];
         $location.path('/rest/mp/app/enroll/round');
     };
-    $scope.update = function(name) {
-        if (!angular.equals($scope.editing, $scope.persisted)) {
-            var p = {};
-            if (name === 'entry_rule')
-                p.entry_rule = encodeURIComponent($scope.editing[name]);
-            else if (name === 'tags')
-                p.tags = $scope.editing.tags.join(',');
-            else
-                p[name] = $scope.editing[name];
-            http2.post('/rest/mp/app/enroll/update?aid=' + $scope.aid, p, function(rsp) {
-                $scope.persisted = angular.copy($scope.editing);
-            });
-        }
-    };
     $scope.isInputPage = function(pageName) {
         if (!$scope.editing) {
             return false;

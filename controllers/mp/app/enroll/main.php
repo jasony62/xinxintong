@@ -103,7 +103,6 @@ class main extends \mp\app\app_base {
 	public function create_action($scenario = null, $template = null) {
 		$account = \TMS_CLIENT::account();
 		$current = time();
-		$uid = \TMS_CLIENT::get_client_uid();
 		$mpa = $this->model('mp\mpaccount')->getFeature($this->mpid, 'heading_pic');
 
 		$newapp = array();
@@ -131,7 +130,7 @@ class main extends \mp\app\app_base {
 		$newapp['id'] = $aid;
 		$newapp['title'] = '新登记活动';
 		$newapp['pic'] = $mpa->heading_pic;
-		$newapp['creater'] = $uid;
+		$newapp['creater'] = $account->uid;
 		$newapp['creater_src'] = 'A';
 		$newapp['creater_name'] = $account->nickname;
 		$newapp['create_at'] = time();
@@ -139,6 +138,20 @@ class main extends \mp\app\app_base {
 		$this->model()->insert('xxt_enroll', $newapp, false);
 
 		$app = $this->model('app\enroll')->byId($aid);
+		/*记录操作日志*/
+		/*用户*/
+		$user = new \stdClass;
+		$user->id = $account->uid;
+		$user->name = $account->nickname;
+		$user->src = 'A';
+		/*素材*/
+		$matter = new \stdClass;
+		$matter->id = $aid;
+		$matter->type = 'enroll';
+		$matter->title = $newapp['title'];
+		$matter->summary = '';
+		$matter->pic = $newapp['pic'];
+		$this->model('log')->matterOp($this->mpid, $user, $matter, 'C');
 
 		return new \ResponseData($app);
 	}
@@ -327,6 +340,21 @@ class main extends \mp\app\app_base {
 
 		$app = $modelApp->byId($newaid, array('cascaded' => 'N'));
 
+		/*记录操作日志*/
+		/*用户*/
+		$user = new \stdClass;
+		$user->id = $account->uid;
+		$user->name = $account->nickname;
+		$user->src = 'A';
+		/*素材*/
+		$matter = new \stdClass;
+		$matter->id = $newaid;
+		$matter->type = 'enroll';
+		$matter->title = $app->title;
+		$matter->summary = $app->summary;
+		$matter->pic = $app->pic;
+		$this->model('log')->matterOp($this->mpid, $user, $matter, 'C');
+
 		return new \ResponseData($app);
 	}
 	/**
@@ -446,6 +474,21 @@ class main extends \mp\app\app_base {
 
 		$app = $modelApp->byId($newaid, array('cascaded' => 'N'));
 
+		/*记录操作日志*/
+		/*用户*/
+		$user = new \stdClass;
+		$user->id = $account->uid;
+		$user->name = $account->nickname;
+		$user->src = 'A';
+		/*素材*/
+		$matter = new \stdClass;
+		$matter->id = $newaid;
+		$matter->type = 'enroll';
+		$matter->title = $app->title;
+		$matter->summary = $app->summary;
+		$matter->pic = $app->pic;
+		$this->model('log')->matterOp($this->mpid, $user, $matter, 'C');
+
 		return new \ResponseData($app);
 	}
 	/**
@@ -455,14 +498,30 @@ class main extends \mp\app\app_base {
 	 *
 	 */
 	public function update_action($aid) {
+		$account = \TMS_CLIENT::account();
 		$nv = (array) $this->getPostJson();
 		foreach ($nv as $n => $v) {
 			if (in_array($n, array('entry_rule'))) {
 				$nv[$n] = $this->model()->escape(urldecode($v));
 			}
 		}
-
 		$rst = $this->model()->update('xxt_enroll', $nv, "id='$aid'");
+		/*记录操作日志*/
+		/*用户*/
+		$user = new \stdClass;
+		$user->id = $account->uid;
+		$user->name = $account->nickname;
+		$user->src = 'A';
+		/*素材*/
+		$app = $this->model('matter\\' . 'enroll')->byId($aid, 'title,summary,pic');
+		$matter = new \stdClass;
+		$matter->id = $aid;
+		$matter->type = 'enroll';
+		$matter->title = $app->title;
+		$matter->summary = $app->summary;
+		$matter->pic = $app->pic;
+
+		$rst = $this->model('log')->matterOp($this->mpid, $user, $matter, 'U');
 
 		return new \ResponseData($rst);
 	}

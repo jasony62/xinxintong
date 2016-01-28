@@ -534,6 +534,9 @@ class main extends \mp\app\app_base {
 	 * @param string $aid
 	 */
 	public function remove_action($aid) {
+		/*素材*/
+		$app = $this->model('matter\\' . 'enroll')->byId($aid, 'title,summary,pic');
+		/*check*/
 		$q = array(
 			'count(*)',
 			'xxt_enroll_record',
@@ -575,6 +578,22 @@ class main extends \mp\app\app_base {
 				"mpid='$this->mpid' and id='$aid'"
 			);
 		}
+		/*记录操作日志*/
+		/*用户*/
+		$account = \TMS_CLIENT::account();
+		$user = new \stdClass;
+		$user->id = $account->uid;
+		$user->name = $account->nickname;
+		$user->src = 'A';
+		/*素材*/
+		$matter = new \stdClass;
+		$matter->id = $aid;
+		$matter->type = 'enroll';
+		$matter->title = $app->title;
+		$matter->summary = $app->summary;
+		$matter->pic = $app->pic;
+
+		$rst = $this->model('log')->matterOp($this->mpid, $user, $matter, 'D');
 
 		return new \ResponseData($rst);
 	}

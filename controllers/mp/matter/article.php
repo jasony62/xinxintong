@@ -686,6 +686,24 @@ class article extends matter_ctrl {
 			}
 		}
 
+		/*记录操作日志*/
+		/*用户*/
+		$account = \TMS_CLIENT::account();
+		$user = new \stdClass;
+		$user->id = $account->uid;
+		$user->name = $account->nickname;
+		$user->src = 'A';
+		/*素材*/
+		$article = $this->model('matter\\' . 'article')->byId($id, 'title,summary,pic');
+		$matter = new \stdClass;
+		$matter->id = $id;
+		$matter->type = 'article';
+		$matter->title = $article->title;
+		$matter->summary = $article->summary;
+		$matter->pic = $article->pic;
+
+		$rst = $this->model('log')->matterOp($this->mpid, $user, $matter, 'D');
+
 		return new \ResponseData($rst);
 	}
 	/**

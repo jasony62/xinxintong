@@ -102,6 +102,9 @@ xxtApp.controller('enrollCtrl', ['$scope', '$location', 'http2', function($scope
     $scope.aid = $location.search().aid;
     $scope.subView = '';
     $scope.taskCodeEntryUrl = 'http://' + location.host + '/rest/q';
+    $scope.back = function() {
+        history.back();
+    };
     $scope.canRounds = function() {
         $scope.editing.multi_rounds = 'Y';
         $scope.editing.rounds = [];

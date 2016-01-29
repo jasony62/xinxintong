@@ -216,6 +216,8 @@ xxtMatters.directive('tinymce', function($timeout) {
                 tinymce.init({
                     selector: '#' + scope.id,
                     language: 'zh_CN',
+                    theme: 'modern',
+                    skin: 'light',
                     menubar: false,
                     statusbar: false,
                     plugins: ['textcolor code table paste fullscreen visualblocks'],

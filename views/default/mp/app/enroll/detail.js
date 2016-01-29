@@ -18,7 +18,7 @@ xxtApp.factory('Mp', function($q, http2) {
 });
 xxtApp.config(['$routeProvider', function($routeProvider) {
     $routeProvider.when('/rest/mp/app/enroll/detail', {
-        templateUrl: '/views/default/mp/app/enroll/setting.html?_=1',
+        templateUrl: '/views/default/mp/app/enroll/setting.html?_=2',
         controller: 'settingCtrl',
         resolve: {
             load: function($q) {

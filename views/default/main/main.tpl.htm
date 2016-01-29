@@ -35,8 +35,8 @@ $p_mp_create = TMS_APP::M('mp\permission')->hasSystemRight('p_mp_create', $uid);
             <div class='row'>
                 <div class="panel panel-default">
                     <div class="panel-heading clearfix">
-                        <span class="panel-title">父公众号</span>
-                        <button class='btn btn-success pull-right' ng-click='createpmp()' ng-if='p_mpgroup_create'><span class='glyphicon glyphicon-plus'></span>创建父账号</button>
+                        <span class="panel-title">父站点</span>
+                        <button class='btn btn-success pull-right' ng-click='createpmp()' ng-if='p_mpgroup_create'><span class='glyphicon glyphicon-plus'></span>创建父站点</button>
                     </div>
                     <div class="panel-body">
                         <div  class='col-md-3' ng-repeat='p in pmps'>
@@ -53,8 +53,8 @@ $p_mp_create = TMS_APP::M('mp\permission')->hasSystemRight('p_mp_create', $uid);
                 <div class="panel panel-default">
                     <div class="panel-heading clearfix">
                         <span ng-if='selectedPmp'><button class='btn btn-default' ng-click='selectpmp(false)'>{{selectedPmp.name}}&nbsp;<span class='glyphicon glyphicon-remove'></span></button></span>
-                        <span ng-if='!selectedPmp' class="panel-title">我的公众号</span>
-                        <button class='btn btn-success pull-right' ng-click='createmp()' ng-if='p_mp_create'><span class='glyphicon glyphicon-plus'></span>创建公众号</button>
+                        <span ng-if='!selectedPmp' class="panel-title">我的站点</span>
+                        <button class='btn btn-success pull-right' ng-click='createmp()' ng-if='p_mp_create'><span class='glyphicon glyphicon-plus'></span>创建站点</button>
                     </div>
                     <div class="panel-body">
                         <div  class='col-md-3' ng-repeat='mp in mps'>

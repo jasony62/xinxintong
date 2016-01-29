@@ -19,22 +19,14 @@ class main extends \member_base {
 	 * $entry
 	 */
 	public function index_action($mpid, $entry = null, $code = null, $mocker = null) {
+
 		$openid = $this->doAuth($mpid, $code, $mocker);
-		$this->afterOAuth($mpid, $entry, $openid);
-	}
-	/**
-	 *
-	 */
-	public function afterOAuth($mpid, $entry = null, $openid = null) {
+
 		$myUrl = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/contribute?mpid=$mpid";
-		/**
-		 * 身份信息
-		 */
-		$user = $this->getUser($mpid, array('verbose' => array('member' => 'Y')));
-		/**
-		 * 必须是关注用户
-		 */
-		$this->getClientSrc() && $this->askFollow($mpid, $user->openid);
+		/**身份信息*/
+		$user = $this->getUser($mpid, array('openid' => $openid, 'verbose' => array('member' => 'Y')));
+		/**必须是关注用户*/
+		$this->getClientSrc() && $this->askFollow($mpid, $openid);
 		/**
 		 * 必须是认证用户
 		 */

@@ -69,4 +69,17 @@ class mp_controller extends \xxt_base {
 		$mpa = $this->getMpaccount();
 		return empty($mpa->parent_mpid) ? false : $mpa->parent_mpid;
 	}
+	/**
+	 * 获得当前登录账号的用户信息
+	 */
+	protected function &accountUser() {
+		$account = \TMS_CLIENT::account();
+
+		$user = new \stdClass;
+		$user->id = $account->uid;
+		$user->name = $account->nickname;
+		$user->src = 'A';
+
+		return $user;
+	}
 }

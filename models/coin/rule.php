@@ -31,4 +31,18 @@ class rule_model extends \TMS_MODEL {
 
 		return $rules;
 	}
+	/**
+	 *
+	 */
+	public function byPrefix($mpid, $prefix) {
+		$q = array(
+			'*',
+			'xxt_coin_rule',
+			"mpid='$mpid' and act like '$prefix%'",
+		);
+
+		$rules = $this->query_objs_ss($q);
+
+		return $rules;
+	}
 }

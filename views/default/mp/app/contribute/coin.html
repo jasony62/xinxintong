@@ -1,0 +1,19 @@
+<div>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>说明</th>
+                <th>积分</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="r in rules">
+                <td ng-bind="r.act"></td>
+                <td ng-bind="r.desc"></td>
+                <td><input type='text' ng-model="r.delta"></td>
+            </tr>
+        </tbody>
+    </table>
+    <button class='btn btn-success' ng-click="save()">保存</button>
+</div>

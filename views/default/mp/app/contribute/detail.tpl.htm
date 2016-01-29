@@ -1,0 +1,18 @@
+<div ng-controller="ctrlContribute">
+    <div class='navbar navbar-default'>
+        <ul class='nav navbar-nav'>
+            <li>
+                <a href='' ng-click="back()">
+                    <span class="glyphicon glyphicon-chevron-left"></span>
+                </a>
+            </li>
+            <li ng-class="{'active':subView==='setting'}">
+                <a href='/rest/mp/app/contribute/detail?aid={{aid}}'>设置</a>
+            </li>
+            <li ng-class="{'active':subView==='coin'}">
+                <a href='/rest/mp/app/contribute/coin?aid={{aid}}'>积分规则</a>
+            </li>
+        </ul>
+    </div>
+    <div ng-view></div>
+</div>

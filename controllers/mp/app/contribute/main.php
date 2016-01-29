@@ -1,11 +1,11 @@
 <?php
-namespace mp\app;
+namespace mp\app\contribute;
 
-require_once dirname(__FILE__) . '/base.php';
+require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
  *
  */
-class contribute extends app_base {
+class main extends \mp\app\app_base {
 	/**
 	 *
 	 */
@@ -15,71 +15,56 @@ class contribute extends app_base {
 	/**
 	 *
 	 */
-	public function index_action($id = null) {
-		if ($id) {
-			$c = $this->model('app\contribute')->byId($id);
-			/**
-			 * belong to channel
-			 */
-			$c->channels = $this->model('matter\channel')->byMatter($id, 'contribute');
-			/**
-			 * 参与人
-			 */
-			$modelCtrb = $this->model('app\contribute');
-			$c->initiator = $modelCtrb->userAcls($this->mpid, $id, 'I');
-			$c->reviewer = $modelCtrb->userAcls($this->mpid, $id, 'R');
-			$c->typesetter = $modelCtrb->userAcls($this->mpid, $id, 'T');
-			/**
-			 * return
-			 */
-			$channels = \TMS_APP::model('matter\channel')->byMpid($this->mpid);
-			$params = array(
-				'mpid' => $this->mpid,
-				'app' => $c,
-				'channels' => $channels,
-			);
-			\TPL::assign('params', $params);
-			$this->view_action('/mp/app/contribute/edit');
-		} else {
-			$this->view_action('/mp/app/contribute');
-		}
+	public function index_action() {
+		$this->view_action('/mp/app/contribute');
+	}
+	/**
+	 *
+	 */
+	public function detail_action() {
+		$this->view_action('/mp/app/contribute/detail');
 	}
 	/**
 	 * 返回投稿应用
 	 */
-	public function get_action($id = null, $page = 1, $size = 30, $contain = null) {
-		if ($id) {
-			$c = $this->model('app\contribute')->byId($id);
-			/**
-			 * belong to channel
-			 */
-			$c->channels = $this->model('matter\channel')->byMatter($id, 'contribute');
-			/**
-			 * 参与人
-			 */
-			$c->initiator = $this->model('app\contribute')->userAcls($this->mpid, $id, 'I');
-			$c->reviewer = $this->model('app\contribute')->userAcls($this->mpid, $id, 'R');
-			$c->typesetter = $this->model('app\contribute')->userAcls($this->mpid, $id, 'T');
-			/**
-			 * return
-			 */
-			return new \ResponseData($c);
-		} else {
-			$q = array('*', 'xxt_contribute', "mpid='$this->mpid' and state=1");
-			$q2['o'] = 'create_at desc';
-
-			if ($c = $this->model()->query_objs_ss($q, $q2)) {
-				$result[] = $c;
-				$q[0] = 'count(*)';
-				$total = (int) $this->model()->query_val_ss($q);
-				$result[] = $total;
-				return new \ResponseData($result);
-			}
-			return new \ResponseData(array());
-		}
+	public function get_action($id = null) {
+		$c = $this->model('app\contribute')->byId($id);
+		/**
+		 * belong to channel
+		 */
+		$c->channels = $this->model('matter\channel')->byMatter($id, 'contribute');
+		/**
+		 * 参与人
+		 */
+		$c->initiator = $this->model('app\contribute')->userAcls($this->mpid, $id, 'I');
+		$c->reviewer = $this->model('app\contribute')->userAcls($this->mpid, $id, 'R');
+		$c->typesetter = $this->model('app\contribute')->userAcls($this->mpid, $id, 'T');
+		/**
+		 * return
+		 */
+		return new \ResponseData($c);
 	}
 	/**
-	 * 创建一个投稿活动
+	 * 投稿活动列表
+	 */
+	public function list_action($page = 1, $size = 30) {
+		$q = array(
+			'*',
+			'xxt_contribute',
+			"mpid='$this->mpid' and state=1",
+		);
+		$q2['o'] = 'create_at desc';
+		if ($c = $this->model()->query_objs_ss($q, $q2)) {
+			$result['apps'] = $c;
+			$q[0] = 'count(*)';
+			$total = (int) $this->model()->query_val_ss($q);
+			$result['total'] = $total;
+			return new \ResponseData($result);
+		}
+		return new \ResponseData(array());
+	}
+	/**
+	 * 创建投稿活动
 	 */
 	public function create_action() {
 		$uid = \TMS_CLIENT::get_client_uid();

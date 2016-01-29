@@ -1,27 +1,27 @@
 xxtApp.controller('ctrlCoin', ['$scope', 'http2', function($scope, http2) {
     $scope.rules = {
-        'matter.article.read': {
-            act: 'matter.article.read',
+        'mp.matter.article.read': {
+            act: 'mp.matter.article.read',
             desc: '阅读单图文1次',
             delta: 0
         },
-        'matter.article.share.T': {
-            act: 'matter.article.share.T',
+        'mp.matter.article.share.T': {
+            act: 'mp.matter.article.share.T',
             desc: '分享单图文到朋友圈',
             delta: 0
         },
-        'matter.article.share.F': {
-            act: 'matter.article.share.F',
+        'mp.matter.article.share.F': {
+            act: 'mp.matter.article.share.F',
             desc: '分享单图文给好友',
             delta: 0
         },
-        'matter.article.appraise': {
-            act: 'matter.article.appraise',
+        'mp.matter.article.appraise': {
+            act: 'mp.matter.article.appraise',
             desc: '单图文点赞1次',
             delta: 0
         },
-        'matter.article.remark': {
-            act: 'matter.article.remark',
+        'mp.matter.article.remark': {
+            act: 'mp.matter.article.remark',
             desc: '单图文评论1次',
             delta: 0
         }
@@ -51,7 +51,7 @@ xxtApp.controller('ctrlCoin', ['$scope', 'http2', function($scope, http2) {
     };
     $scope.fetch = function() {
         var url;
-        url = '/rest/mp/coin/get?objid=*';
+        url = '/rest/mp/coin/get';
         http2.get(url, function(rsp) {
             angular.forEach(rsp.data, function(rule) {
                 $scope.rules[rule.act].id = rule.id;

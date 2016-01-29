@@ -1,10 +1,14 @@
 <?php
-namespace mp;
+namespace mp\app\contribute;
 
-require_once dirname(__FILE__) . '/mp_controller.php';
-
-class coin extends mp_controller {
-
+require_once dirname(dirname(__FILE__)) . '/base.php';
+/**
+ * 积分规则
+ */
+class coin extends \mp\app\app_base {
+	/**
+	 *
+	 */
 	public function get_access_rule() {
 		$rule_action['rule_type'] = 'white';
 		$rule_action['actions'][] = 'hello';
@@ -14,9 +18,17 @@ class coin extends mp_controller {
 	/**
 	 *
 	 */
-	public function get_action() {
+	public function index_action() {
+		$this->view_action('/mp/app/contribute/detail');
+	}
+	/**
+	 *
+	 */
+	public function get_action($aid) {
 		$model = $this->model('coin\rule');
-		$rules = $model->byPrefix($this->mpid, 'mp.');
+
+		$prefix = 'app.contribute,' . $aid . '.';
+		$rules = $model->byPrefix($this->mpid, $prefix);
 
 		return new \ResponseData($rules);
 	}

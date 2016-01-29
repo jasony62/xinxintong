@@ -230,7 +230,7 @@ class matter extends \member_base {
 		/**
 		 * write coin log
 		 */
-		$this->model('coin\log')->record($mpid, 'matter.' . $type . '.share.' . $shareto, $id, 'sys', $user->openid);
+		$this->model('coin\log')->record($mpid, 'mp.matter.' . $type . '.share.' . $shareto, $id, 'sys', $user->openid);
 
 		return new \ResponseData('ok');
 	}

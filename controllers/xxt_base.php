@@ -694,7 +694,7 @@ class xxt_base extends TMS_CONTROLLER {
 		/**
 		 * write coin log
 		 */
-		$this->model('coin\log')->record($mpid, 'matter.' . $type . '.read', $id, 'sys', $user->openid);
+		$this->model('coin\log')->record($mpid, 'mp.matter.' . $type . '.read', $id, 'sys', $user->openid);
 
 		return true;
 	}

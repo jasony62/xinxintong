@@ -134,7 +134,7 @@ class article extends \member_base {
 			/**
 			 * write coin log
 			 */
-			$this->model('coin\log')->record($mpid, 'matter.article.appraise', $id, 'sys', $user->openid);
+			$this->model('coin\log')->record($mpid, 'mp.matter.article.appraise', $id, 'sys', $user->openid);
 		}
 
 		return new \ResponseData(array($article->score, $praised));
@@ -223,7 +223,7 @@ class article extends \member_base {
 		/**
 		 * write coin log
 		 */
-		$this->model('coin\log')->record($mpid, 'matter.article.remark', $id, 'sys', $user->openid);
+		$this->model('coin\log')->record($mpid, 'mp.matter.article.remark', $id, 'sys', $user->openid);
 
 		if (!empty($receivers)) {
 			/**

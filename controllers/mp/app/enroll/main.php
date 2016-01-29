@@ -101,7 +101,7 @@ class main extends \mp\app\app_base {
 	 * @param string $template template's name
 	 */
 	public function create_action($scenario = null, $template = null) {
-		$account = \TMS_CLIENT::account();
+		$user = $this->accountUser();
 		$current = time();
 		$mpa = $this->model('mp\mpaccount')->getFeature($this->mpid, 'heading_pic');
 
@@ -130,28 +130,17 @@ class main extends \mp\app\app_base {
 		$newapp['id'] = $aid;
 		$newapp['title'] = '新登记活动';
 		$newapp['pic'] = $mpa->heading_pic;
-		$newapp['creater'] = $account->uid;
-		$newapp['creater_src'] = 'A';
-		$newapp['creater_name'] = $account->nickname;
+		$newapp['creater'] = $user->id;
+		$newapp['creater_src'] = $user->src;
+		$newapp['creater_name'] = $user->name;
 		$newapp['create_at'] = time();
 		$newapp['entry_rule'] = json_encode($entryRule);
+		$newapp['summary'] = '';
 		$this->model()->insert('xxt_enroll', $newapp, false);
-
 		$app = $this->model('app\enroll')->byId($aid);
 		/*记录操作日志*/
-		/*用户*/
-		$user = new \stdClass;
-		$user->id = $account->uid;
-		$user->name = $account->nickname;
-		$user->src = 'A';
-		/*素材*/
-		$matter = new \stdClass;
-		$matter->id = $aid;
-		$matter->type = 'enroll';
-		$matter->title = $newapp['title'];
-		$matter->summary = '';
-		$matter->pic = $newapp['pic'];
-		$this->model('log')->matterOp($this->mpid, $user, $matter, 'C');
+		$app->type = 'enroll';
+		$this->model('log')->matterOp($this->mpid, $user, $app, 'C');
 
 		return new \ResponseData($app);
 	}
@@ -256,9 +245,7 @@ class main extends \mp\app\app_base {
 	 * @return object ResponseData
 	 */
 	public function createByOther_action($template) {
-		$account = \TMS_CLIENT::account();
-		$uid = $account->uid;
-		$uname = $account->nickname;
+		$user = $this->accountUser();
 		$current = time();
 		$modelApp = $this->model('app\enroll');
 		$modelPage = $this->model('app\enroll\page');
@@ -270,31 +257,28 @@ class main extends \mp\app\app_base {
 		$copied->title = $template->title;
 		$copied->summary = $template->summary;
 		$copied->pic = $template->pic;
-		/**
-		 * 获得的基本信息
-		 */
+		/**获得的基本信息*/
 		$newaid = uniqid();
-		$newact['mpid'] = $this->mpid;
-		$newact['id'] = $newaid;
-		$newact['creater'] = $uid;
-		$newact['creater_src'] = 'A';
-		$newact['creater_name'] = $uname;
-		$newact['create_at'] = $current;
-		$newact['title'] = $copied->title . '（副本）';
-		$newact['pic'] = $copied->pic;
-		$newact['summary'] = $copied->summary;
-		$newact['public_visible'] = $copied->public_visible;
-		$newact['open_lastroll'] = $copied->open_lastroll;
-		$newact['can_signin'] = $copied->can_signin;
-		$newact['can_lottery'] = $copied->can_lottery;
-		$newact['tags'] = $copied->tags;
-		$newact['enrolled_entry_page'] = $copied->enrolled_entry_page;
-		$newact['receiver_page'] = $copied->receiver_page;
-		$newact['entry_rule'] = json_encode($copied->entry_rule);
-		$this->model()->insert('xxt_enroll', $newact, false);
-		/**
-		 * 复制自定义页面
-		 */
+		$newapp = array();
+		$newapp['mpid'] = $this->mpid;
+		$newapp['id'] = $newaid;
+		$newapp['creater'] = $user->id;
+		$newapp['creater_src'] = $user->src;
+		$newapp['creater_name'] = $user->name;
+		$newapp['create_at'] = $current;
+		$newapp['title'] = $copied->title . '（副本）';
+		$newapp['pic'] = $copied->pic;
+		$newapp['summary'] = $copied->summary;
+		$newapp['public_visible'] = $copied->public_visible;
+		$newapp['open_lastroll'] = $copied->open_lastroll;
+		$newapp['can_signin'] = $copied->can_signin;
+		$newapp['can_lottery'] = $copied->can_lottery;
+		$newapp['tags'] = $copied->tags;
+		$newapp['enrolled_entry_page'] = $copied->enrolled_entry_page;
+		$newapp['receiver_page'] = $copied->receiver_page;
+		$newapp['entry_rule'] = json_encode($copied->entry_rule);
+		$this->model()->insert('xxt_enroll', $newapp, false);
+		/**复制自定义页面*/
 		if ($copied->pages) {
 			foreach ($copied->pages as $ep) {
 				$newPage = $modelPage->add($this->mpid, $newaid);
@@ -312,12 +296,10 @@ class main extends \mp\app\app_base {
 				$modelCode->modify($newPage->code_id, $data);
 			}
 		}
-		/**
-		 * 复制抽奖页内容
-		 */
+		/**复制抽奖页内容*/
 		if ($copied->can_lottery === 'Y' && $copied->lottery_page_id) {
 			$lp = $modelCode->byId($copied->lottery_page_id);
-			$code = $modelCode->create($uid);
+			$code = $modelCode->create($user->id);
 			$rst = $modelPage->update(
 				'xxt_enroll',
 				array('lottery_page_id' => $code->id),
@@ -337,23 +319,10 @@ class main extends \mp\app\app_base {
 				$modelCode->insert('xxt_code_external', array('code_id' => $code->id, 'type' => 'C', 'url' => $ecss->url), false);
 			}
 		}
-
 		$app = $modelApp->byId($newaid, array('cascaded' => 'N'));
-
 		/*记录操作日志*/
-		/*用户*/
-		$user = new \stdClass;
-		$user->id = $account->uid;
-		$user->name = $account->nickname;
-		$user->src = 'A';
-		/*素材*/
-		$matter = new \stdClass;
-		$matter->id = $newaid;
-		$matter->type = 'enroll';
-		$matter->title = $app->title;
-		$matter->summary = $app->summary;
-		$matter->pic = $app->pic;
-		$this->model('log')->matterOp($this->mpid, $user, $matter, 'C');
+		$app->type = 'enroll';
+		$this->model('log')->matterOp($this->mpid, $user, $app, 'C');
 
 		return new \ResponseData($app);
 	}
@@ -361,9 +330,7 @@ class main extends \mp\app\app_base {
 	 * 复制一个登记活动
 	 */
 	public function copy_action($aid) {
-		$account = \TMS_CLIENT::account();
-		$uid = $account->uid;
-		$uname = $account->nickname;
+		$user = $this->accountUser();
 		$current = time();
 		$modelApp = $this->model('app\enroll');
 		$modelCode = $this->model('code/page');
@@ -373,32 +340,33 @@ class main extends \mp\app\app_base {
 		 * 获得的基本信息
 		 */
 		$newaid = uniqid();
-		$newact['mpid'] = $this->mpid;
-		$newact['id'] = $newaid;
-		$newact['creater'] = $uid;
-		$newact['creater_src'] = 'A';
-		$newact['creater_name'] = $uname;
-		$newact['create_at'] = $current;
-		$newact['title'] = $copied->title . '（副本）';
-		$newact['pic'] = $copied->pic;
-		$newact['summary'] = $copied->summary;
-		$newact['public_visible'] = $copied->public_visible;
-		$newact['open_lastroll'] = $copied->open_lastroll;
-		$newact['can_signin'] = $copied->can_signin;
-		$newact['can_lottery'] = $copied->can_lottery;
-		$newact['tags'] = $copied->tags;
-		$newact['enrolled_entry_page'] = $copied->enrolled_entry_page;
-		$newact['receiver_page'] = $copied->receiver_page;
-		$newact['entry_rule'] = json_encode($copied->entry_rule);
+		$newapp = array();
+		$newapp['mpid'] = $this->mpid;
+		$newapp['id'] = $newaid;
+		$newapp['creater'] = $user->id;
+		$newapp['creater_src'] = $user->src;
+		$newapp['creater_name'] = $user->name;
+		$newapp['create_at'] = $current;
+		$newapp['title'] = $copied->title . '（副本）';
+		$newapp['pic'] = $copied->pic;
+		$newapp['summary'] = $copied->summary;
+		$newapp['public_visible'] = $copied->public_visible;
+		$newapp['open_lastroll'] = $copied->open_lastroll;
+		$newapp['can_signin'] = $copied->can_signin;
+		$newapp['can_lottery'] = $copied->can_lottery;
+		$newapp['tags'] = $copied->tags;
+		$newapp['enrolled_entry_page'] = $copied->enrolled_entry_page;
+		$newapp['receiver_page'] = $copied->receiver_page;
+		$newapp['entry_rule'] = json_encode($copied->entry_rule);
 		if ($copied->mpid === $this->mpid) {
-			$newact['access_control'] = $copied->access_control;
-			$newact['authapis'] = $copied->authapis;
-			$newact['success_matter_type'] = $copied->success_matter_type;
-			$newact['success_matter_id'] = $copied->success_matter_id;
-			$newact['failure_matter_type'] = $copied->failure_matter_type;
-			$newact['failure_matter_id'] = $copied->failure_matter_id;
+			$newapp['access_control'] = $copied->access_control;
+			$newapp['authapis'] = $copied->authapis;
+			$newapp['success_matter_type'] = $copied->success_matter_type;
+			$newapp['success_matter_id'] = $copied->success_matter_id;
+			$newapp['failure_matter_type'] = $copied->failure_matter_type;
+			$newapp['failure_matter_id'] = $copied->failure_matter_id;
 		}
-		$this->model()->insert('xxt_enroll', $newact, false);
+		$this->model()->insert('xxt_enroll', $newapp, false);
 		/**
 		 * 复制自定义页面
 		 */
@@ -420,38 +388,31 @@ class main extends \mp\app\app_base {
 				$modelCode->modify($newPage->code_id, $data);
 			}
 		}
+		/*如果在同一个站点下复制，复制频道、接收人、ACL数据*/
 		if ($copied->mpid === $this->mpid) {
-			/**
-			 * 复制所属频道
-			 */
+			/**复制所属频道*/
 			$sql = 'insert into xxt_channel_matter(channel_id,matter_id,matter_type,creater,creater_src,creater_name,create_at)';
-			$sql .= " select channel_id,'$newaid','enroll','$uid','A','$uname',$current";
+			$sql .= " select channel_id,'$newaid','enroll','$user->id','A','$user->name',$current";
 			$sql .= ' from xxt_channel_matter';
 			$sql .= " where matter_id='$aid' and matter_type='enroll'";
 			$this->model()->insert($sql, '', false);
-			/**
-			 * 复制登记事件接收人
-			 */
+			/**复制登记事件接收人*/
 			$sql = 'insert into xxt_enroll_receiver(mpid,aid,identity,idsrc)';
 			$sql .= " select '$this->mpid','$newaid',identity,idsrc";
 			$sql .= ' from xxt_enroll_receiver';
 			$sql .= " where aid='$aid'";
 			$this->model()->insert($sql, '', false);
-			/**
-			 * 复制ACL
-			 */
+			/**复制ACL*/
 			$sql = 'insert into xxt_matter_acl(mpid,matter_type,matter_id,identity,idsrc,label)';
 			$sql .= " select '$this->mpid',matter_type,'$newaid',identity,idsrc,label";
 			$sql .= ' from xxt_matter_acl';
 			$sql .= " where matter_id='$aid'";
 			$this->model()->insert($sql, '', false);
 		}
-		/**
-		 * 复制抽奖页内容
-		 */
+		/**复制抽奖页内容*/
 		if ($copied->can_lottery === 'Y' && $copied->lottery_page_id) {
 			$lp = $modelCode->byId($copied->lottery_page_id);
-			$code = $modelCode->create($uid);
+			$code = $modelCode->create($user->id);
 			$rst = $modelPage->update(
 				'xxt_enroll',
 				array('lottery_page_id' => $code->id),
@@ -471,23 +432,10 @@ class main extends \mp\app\app_base {
 				$modelCode->insert('xxt_code_external', array('code_id' => $code->id, 'type' => 'C', 'url' => $ecss->url), false);
 			}
 		}
-
 		$app = $modelApp->byId($newaid, array('cascaded' => 'N'));
-
 		/*记录操作日志*/
-		/*用户*/
-		$user = new \stdClass;
-		$user->id = $account->uid;
-		$user->name = $account->nickname;
-		$user->src = 'A';
-		/*素材*/
-		$matter = new \stdClass;
-		$matter->id = $newaid;
-		$matter->type = 'enroll';
-		$matter->title = $app->title;
-		$matter->summary = $app->summary;
-		$matter->pic = $app->pic;
-		$this->model('log')->matterOp($this->mpid, $user, $matter, 'C');
+		$app->type = 'enroll';
+		$this->model('log')->matterOp($this->mpid, $user, $app, 'C');
 
 		return new \ResponseData($app);
 	}
@@ -498,7 +446,7 @@ class main extends \mp\app\app_base {
 	 *
 	 */
 	public function update_action($aid) {
-		$account = \TMS_CLIENT::account();
+		$user = $this->accountUser();
 		$nv = (array) $this->getPostJson();
 		foreach ($nv as $n => $v) {
 			if (in_array($n, array('entry_rule'))) {
@@ -507,21 +455,11 @@ class main extends \mp\app\app_base {
 		}
 		$rst = $this->model()->update('xxt_enroll', $nv, "id='$aid'");
 		/*记录操作日志*/
-		/*用户*/
-		$user = new \stdClass;
-		$user->id = $account->uid;
-		$user->name = $account->nickname;
-		$user->src = 'A';
-		/*素材*/
-		$app = $this->model('matter\\' . 'enroll')->byId($aid, 'title,summary,pic');
-		$matter = new \stdClass;
-		$matter->id = $aid;
-		$matter->type = 'enroll';
-		$matter->title = $app->title;
-		$matter->summary = $app->summary;
-		$matter->pic = $app->pic;
-
-		$rst = $this->model('log')->matterOp($this->mpid, $user, $matter, 'U');
+		if ($rst) {
+			$app = $this->model('matter\\' . 'enroll')->byId($aid, 'id,title,summary,pic');
+			$app->type = 'enroll';
+			$this->model('log')->matterOp($this->mpid, $user, $app, 'U');
+		}
 
 		return new \ResponseData($rst);
 	}
@@ -534,8 +472,8 @@ class main extends \mp\app\app_base {
 	 * @param string $aid
 	 */
 	public function remove_action($aid) {
-		/*素材*/
-		$app = $this->model('matter\\' . 'enroll')->byId($aid, 'title,summary,pic');
+		/*在删除数据前获得数据*/
+		$app = $this->model('matter\\' . 'enroll')->byId($aid, 'id,title,summary,pic');
 		/*check*/
 		$q = array(
 			'count(*)',
@@ -579,21 +517,9 @@ class main extends \mp\app\app_base {
 			);
 		}
 		/*记录操作日志*/
-		/*用户*/
-		$account = \TMS_CLIENT::account();
-		$user = new \stdClass;
-		$user->id = $account->uid;
-		$user->name = $account->nickname;
-		$user->src = 'A';
-		/*素材*/
-		$matter = new \stdClass;
-		$matter->id = $aid;
-		$matter->type = 'enroll';
-		$matter->title = $app->title;
-		$matter->summary = $app->summary;
-		$matter->pic = $app->pic;
-
-		$rst = $this->model('log')->matterOp($this->mpid, $user, $matter, 'D');
+		$user = $this->accountUser();
+		$app->type = 'enroll';
+		$this->model('log')->matterOp($this->mpid, $user, $app, 'D');
 
 		return new \ResponseData($rst);
 	}

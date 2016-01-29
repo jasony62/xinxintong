@@ -1,6 +1,6 @@
 xxtApp.config(['$routeProvider', function($routeProvider) {
     $routeProvider.when('/rest/mp/matter/article/edit', {
-        templateUrl: '/views/default/mp/matter/article/edit.html?_=1',
+        templateUrl: '/views/default/mp/matter/article/edit.html?_=2',
         controller: 'editCtrl',
     }).when('/rest/mp/matter/article/read', {
         templateUrl: '/views/default/mp/matter/article/read.html?_=1',

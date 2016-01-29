@@ -80,6 +80,12 @@ class resumableAliOss {
  */
 class article extends matter_ctrl {
 	/**
+	 *
+	 */
+	protected function getMatterType() {
+		return 'article';
+	}
+	/**
 	 * 返回单图文视图
 	 */
 	public function index_action() {
@@ -334,42 +340,33 @@ class article extends matter_ctrl {
 	 * 创建新图文
 	 */
 	public function create_action() {
-		$account = \TMS_CLIENT::account();
+		/*登录用户*/
+		$user = $this->accountUser();
 		$mpa = $this->model('mp\mpaccount')->getFeature($this->mpid, 'heading_pic');
 		$current = time();
 
-		$d = array();
-		$d['mpid'] = $this->mpid;
-		$d['creater'] = $account->uid;
-		$d['creater_src'] = 'A';
-		$d['creater_name'] = $account->nickname;
-		$d['create_at'] = $current;
-		$d['modifier'] = $account->uid;
-		$d['modifier_src'] = 'A';
-		$d['modifier_name'] = $account->nickname;
-		$d['modify_at'] = $current;
-		$d['title'] = '新单图文';
-		$d['author'] = $d['creater_name'];
-		$d['pic'] = $mpa->heading_pic; // 头图
-		$d['hide_pic'] = 'N';
-		$d['summary'] = '';
-		$d['url'] = ''; // 原文链接
-		$d['body'] = '';
-		$id = $this->model()->insert('xxt_article', $d, true);
-
+		$article = array();
+		$article['mpid'] = $this->mpid;
+		$article['creater'] = $user->id;
+		$article['creater_src'] = 'A';
+		$article['creater_name'] = $user->name;
+		$article['create_at'] = $current;
+		$article['modifier'] = $user->id;
+		$article['modifier_src'] = 'A';
+		$article['modifier_name'] = $user->name;
+		$article['modify_at'] = $current;
+		$article['title'] = '新单图文';
+		$article['author'] = $user->name;
+		$article['pic'] = $mpa->heading_pic; //使用账号缺省头图
+		$article['hide_pic'] = 'N';
+		$article['summary'] = '';
+		$article['url'] = '';
+		$article['body'] = '';
+		$id = $this->model()->insert('xxt_article', $article, true);
 		/*记录操作日志*/
-		/*用户*/
-		$user = new \stdClass;
-		$user->id = $account->uid;
-		$user->name = $account->nickname;
-		$user->src = 'A';
-		/*素材*/
-		$matter = new \stdClass;
+		$matter = (object) $article;
 		$matter->id = $id;
 		$matter->type = 'article';
-		$matter->title = $d['title'];
-		$matter->summary = $d['summary'];
-		$matter->pic = $d['pic'];
 		$this->model('log')->matterOp($this->mpid, $user, $matter, 'C');
 
 		return new \ResponseData($id);
@@ -564,40 +561,35 @@ class article extends matter_ctrl {
 	 */
 	public function uploadAndCreate_action($state = null) {
 		if ($state === 'done') {
-			$account = \TMS_CLIENT::account();
+			$user = $this->accountUser();
 			$posted = $this->getPostJson();
 			$file = $posted->file;
 
 			$current = time();
-			$uid = \TMS_CLIENT::get_client_uid();
-			$uname = $account->nickname;
 			$filename = str_replace(' ', '_', $file->name);
 
 			/* 生成图文*/
-			$d = array();
-			$d['mpid'] = $this->mpid;
-			$d['creater'] = $uid;
-			$d['creater_src'] = 'A';
-			$d['creater_name'] = $uname;
-			$d['create_at'] = $current;
-			$d['modifier'] = $uid;
-			$d['modifier_src'] = 'A';
-			$d['modifier_name'] = $uname;
-			$d['modify_at'] = $current;
-			$d['title'] = substr($filename, 0, strrpos($filename, '.'));
-			$d['author'] = $uname;
-			$d['url'] = '';
-			$d['hide_pic'] = 'Y';
-			$d['can_picviewer'] = 'Y';
-			$d['has_attachment'] = 'Y';
-			$d['pic'] = '';
-			$d['summary'] = '';
-			$d['body'] = '';
-
-			$id = $this->model()->insert('xxt_article', $d, true);
-			/**
-			 * 保存附件
-			 */
+			$article = array();
+			$article['mpid'] = $this->mpid;
+			$article['creater'] = $user->id;
+			$article['creater_src'] = $user->src;
+			$article['creater_name'] = $user->name;
+			$article['create_at'] = $current;
+			$article['modifier'] = $user->id;
+			$article['modifier_src'] = $user->src;
+			$article['modifier_name'] = $user->name;
+			$article['modify_at'] = $current;
+			$article['title'] = substr($filename, 0, strrpos($filename, '.'));
+			$article['author'] = $user->name;
+			$article['url'] = '';
+			$article['hide_pic'] = 'Y';
+			$article['can_picviewer'] = 'Y';
+			$article['has_attachment'] = 'Y';
+			$article['pic'] = '';
+			$article['summary'] = '';
+			$article['body'] = '';
+			$id = $this->model()->insert('xxt_article', $article, true);
+			/**保存附件*/
 			$att = array();
 			$att['article_id'] = $id;
 			$att['name'] = $filename;
@@ -605,7 +597,6 @@ class article extends matter_ctrl {
 			$att['size'] = $file->size;
 			$att['last_modified'] = $file->lastModified;
 			$att['url'] = 'local://article_' . $id . '_' . $filename;
-
 			$this->model()->insert('xxt_article_attachment', $att, true);
 			/* 处理附件 */
 			$modelRes = $this->model('fs/local', $this->mpid, '_resumable');
@@ -615,9 +606,7 @@ class article extends matter_ctrl {
 			if (false === rename($fileUploaded, $attachment)) {
 				return new ResponseError('移动上传文件失败');
 			}
-			/**
-			 * 获取附件的内容
-			 */
+			/**获取附件的内容*/
 			$appRoot = $_SERVER['DOCUMENT_ROOT'];
 			$ext = explode('.', $filename);
 			$ext = array_pop($ext);
@@ -648,6 +637,11 @@ class article extends matter_ctrl {
 				$rsp = exec($cmd);
 				$this->setBodyByAtt($id, $attDir);
 			}
+			/*记录操作日志*/
+			$matter = (object) $article;
+			$matter->id = $id;
+			$matter->type = 'article';
+			$this->model('log')->matterOp($this->mpid, $user, $matter, 'C');
 
 			return new \ResponseData($id);
 		} else {
@@ -662,20 +656,18 @@ class article extends matter_ctrl {
 		}
 	}
 	/**
-	 * 删除一个单图文
+	 * 删除单图文
 	 */
 	public function remove_action($id) {
 		$pmpid = $this->getParentMpid();
-
 		$model = $this->model();
 
 		$rst = $model->update(
 			'xxt_article',
 			array('state' => 0, 'modify_at' => time()),
-			"(mpid='$this->mpid' or mpid='$pmpid') and id='$id'");
-		/**
-		 * 将图文从所属的多图文和频道中删除
-		 */
+			"(mpid='$this->mpid' or mpid='$pmpid') and id='$id'"
+		);
+		/** 将图文从所属的多图文和频道中删除 */
 		if ($rst) {
 			$model->delete('xxt_channel_matter', "matter_id='$id' and matter_type='article'");
 			$modelNews = $this->model('matter\news');
@@ -684,25 +676,12 @@ class article extends matter_ctrl {
 					$modelNews->removeMatter($n->id, $id, 'article');
 				}
 			}
+			/*记录操作日志*/
+			$user = $this->accountUser();
+			$article = $this->model('matter\\' . 'article')->byId($id, 'id,title,summary,pic');
+			$article->type = 'article';
+			$this->model('log')->matterOp($this->mpid, $user, $article, 'D');
 		}
-
-		/*记录操作日志*/
-		/*用户*/
-		$account = \TMS_CLIENT::account();
-		$user = new \stdClass;
-		$user->id = $account->uid;
-		$user->name = $account->nickname;
-		$user->src = 'A';
-		/*素材*/
-		$article = $this->model('matter\\' . 'article')->byId($id, 'title,summary,pic');
-		$matter = new \stdClass;
-		$matter->id = $id;
-		$matter->type = 'article';
-		$matter->title = $article->title;
-		$matter->summary = $article->summary;
-		$matter->pic = $article->pic;
-
-		$rst = $this->model('log')->matterOp($this->mpid, $user, $matter, 'D');
 
 		return new \ResponseData($rst);
 	}
@@ -754,22 +733,16 @@ class article extends matter_ctrl {
 		return new \ResponseData($pageid);
 	}
 	/**
-	 *
-	 */
-	protected function getMatterType() {
-		return 'article';
-	}
-	/**
 	 * 更新图文信息并记录操作日志
 	 */
 	private function _update($id, $nv) {
-		$account = \TMS_CLIENT::account();
+		$user = $this->accountUser();
 		$current = time();
 		$pmpid = $this->getParentMpid();
 
-		$nv['modifier'] = $account->uid;
-		$nv['modifier_src'] = 'A';
-		$nv['modifier_name'] = $account->nickname;
+		$nv['modifier'] = $user->id;
+		$nv['modifier_src'] = $user->src;
+		$nv['modifier_name'] = $user->name;
 		$nv['modify_at'] = $current;
 
 		$rst = $this->model()->update(
@@ -778,21 +751,9 @@ class article extends matter_ctrl {
 			"(mpid='$this->mpid' or mpid='$pmpid') and id='$id'"
 		);
 		/*记录操作日志*/
-		/*用户*/
-		$user = new \stdClass;
-		$user->id = $account->uid;
-		$user->name = $account->nickname;
-		$user->src = 'A';
-		/*素材*/
-		$article = $this->model('matter\article')->byId($id, 'title,summary,pic');
-		$matter = new \stdClass;
-		$matter->id = $id;
-		$matter->type = 'article';
-		$matter->title = $article->title;
-		$matter->summary = $article->summary;
-		$matter->pic = $article->pic;
-
-		$rst = $this->model('log')->matterOp($this->mpid, $user, $matter, 'U');
+		$article = $this->model('matter\\' . 'article')->byId($id, 'id,title,summary,pic');
+		$article->type = 'article';
+		$rst = $this->model('log')->matterOp($this->mpid, $user, $article, 'U');
 
 		return $rst;
 	}

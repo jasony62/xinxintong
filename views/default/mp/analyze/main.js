@@ -8,6 +8,9 @@ xxtApp.config(['$routeProvider', function($routeProvider) {
     }).when('/page/mp/analyze/matter', {
         templateUrl: '/views/default/mp/analyze/matter.html',
         controller: 'matterCtrl'
+    }).when('/page/mp/analyze/coin', {
+        templateUrl: '/views/default/mp/analyze/coin.html',
+        controller: 'coinCtrl'
     }).otherwise({
         templateUrl: '/views/default/mp/analyze/mp.html',
         controller: 'mpCtrl'
@@ -133,4 +136,32 @@ xxtApp.controller('matterCtrl', ['$scope', 'http2', function($scope, http2) {
         $scope.fetch(1);
     });
     $scope.fetch(1);
+}]);
+xxtApp.controller('coinCtrl', ['$scope', 'http2', function($scope, http2) {
+    $scope.$parent.subView = 'coin';
+    $scope.period = 'A';
+    $scope.page = {
+        at: 1,
+        size: 30,
+        total: 0,
+        param: function() {
+            return 'page=' + this.at + '&size=' + this.size;
+        }
+    };
+    $scope.fetch = function(page) {
+        var url;
+        page && ($scope.page.at = page);
+        url = '/rest/mp/analyze/coin';
+        url += '?period=' + $scope.period;
+        url += '&' + $scope.page.param();
+        http2.get(url, function(rsp) {
+            $scope.fans = rsp.data.fans;
+            $scope.page.total = rsp.data.total;
+        });
+    };
+    $scope.$watch('period', function(nv) {
+        if (nv) {
+            $scope.fetch(1);
+        }
+    });
 }]);

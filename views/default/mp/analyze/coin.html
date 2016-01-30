@@ -1,0 +1,33 @@
+<div>
+    <div class='form-group form-inline'>
+        <label class='radio-inline'><input type='radio' value='A' name='period' ng-model="period">总排行</label>
+        <label class='radio-inline'><input type='radio' value='Y' name='period' ng-model="period">年排行</label>
+        <label class='radio-inline'><input type='radio' value='M' name='period' ng-model="period">月排行</label>
+        <label class='radio-inline'><input type='radio' value='W' name='period' ng-model="period">周排行</label>
+        <label class='radio-inline'><input type='radio' value='D' name='period' ng-model="period">日排行</label>
+    </div>
+    <div>
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th style="width:40px"></th>
+                    <th>用户</th>
+                    <th>积分</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat='f in fans'>
+                    <td>{{$index+1}}</td>
+                    <td>
+                        <a href='' ng-click='viewUser(f.openid)'>{{f.nickname||f.openid}}</a>
+                    </td>
+                    <td>{{f.coin}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class='form-group clearfix'>
+            <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+            <pagination ng-show='page.total>page.size' class='pull-right' style='cursor:pointer;margin:0;vertical-align:middle' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" class="pagination" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="fetch()"></pagination>
+        </div>
+    </div>
+</div>

@@ -106,4 +106,37 @@ class analyze extends mp_controller {
 
 		return new \ResponseData($logs);
 	}
+	/**
+	 * 积分排行榜
+	 */
+	public function coin_action($period, $page = 1, $size = 30) {
+		$map = array(
+			'A' => 'coin',
+			'Y' => 'coin_year',
+			'M' => 'coin_month',
+			'W' => 'coin_week',
+			'D' => 'coin_day',
+		);
+		$period = $map[$period];
+		$q = array(
+			'openid,nickname,' . $period . ' coin',
+			'xxt_fans',
+			"mpid='$this->mpid'",
+		);
+		$q2 = array(
+			'o' => $period . ' desc',
+			'r' => array('o' => ($page - 1) * $size, 'l' => $size),
+		);
+
+		$fans = $this->model()->query_objs_ss($q, $q2);
+		if (!empty($fans)) {
+			$q[0] = 'count(*)';
+			$total = $this->model()->query_val_ss($q);
+			$result = array('fans' => $fans, 'total' => $total);
+		} else {
+			$result = array('fans' => array(), 'total' => 0);
+		}
+
+		return new \ResponseData($result);
+	}
 }

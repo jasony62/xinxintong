@@ -18,7 +18,10 @@
             <combox title='频道' evt-prefix='channel' readonly=true prop='title' existing='selectedChannels' options='channels'></combox>
         </div>
         <div class='form-group'>
-            <combox title='标签' evt-prefix='tag' readonly='true' prop='title' existing='selectedTags' options='tags'></combox>
+            <combox title='内容标签' evt-prefix='tag' readonly='true' prop='title' existing='selectedTags' options='tags'></combox>
+        </div>
+        <div class='form-group'>
+            <combox title='管理标签' evt-prefix='tag2' readonly='true' prop='title' existing='selectedTags2' options='tags2'></combox>
         </div>
         <label class="checkbox-inline" ng-show="hasParent==='Y'">
         <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='fromParent' ng-change='doSearch()'>来源于父账号</label>
@@ -32,6 +35,7 @@
                 </div>
                 <div>
                     <span class='label label-warning' ng-repeat='t in a.tags' ng-bind='t.title'></span>
+                    <span class='label label-primary' ng-repeat='t in a.tags2' ng-bind='t.title'></span>
                 </div>
                 <div class='attr'>
                     <div>

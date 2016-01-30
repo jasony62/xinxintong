@@ -133,9 +133,15 @@
             </div>
         </div>
         <div class='form-group'>
-            <label class='col-md-2 control-label'>标签（可选）</label>
+            <label class='col-md-2 control-label'>内容标签</label>
             <div class='col-md-10'>
                 <combox evt-prefix='tag' prop='title' existing='editing.tags' options='tags'></combox>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>管理标签</label>
+            <div class='col-md-10'>
+                <combox evt-prefix='tag2' prop='title' existing='editing.tags2' options='tags2'></combox>
             </div>
         </div>
         <div class='form-group' ng-controller='setChannelCtrl' ng-init="matterType='article'">

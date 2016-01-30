@@ -107,6 +107,9 @@ class mpaccount extends mp_controller {
 	 *
 	 */
 	public function get_action() {
+		if (empty($this->mpid)) {
+			return new \ResponseTimeout();
+		}
 		$modelMpa = $this->model('mp\mpaccount');
 		$mpa = $modelMpa->byId($this->mpid);
 		$creater = $this->model('account')->byId($mpa->creater);

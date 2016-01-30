@@ -255,15 +255,15 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', 'templateShop', func
     };
     $scope.$on('tag.xxt.combox.done', function(event, aSelected) {
         var aNewTags = [];
-        for (var i in aSelected) {
+        angular.forEach(aSelected, function(selected) {
             var existing = false;
-            for (var j in $scope.editing.tags) {
-                if (aSelected[i].title === $scope.editing.tags[j].title) {
+            angular.forEach($scope.editing.tags, function(tag) {
+                if (selected.title === tag.title) {
                     existing = true;
-                    break;
                 }
-            }!existing && aNewTags.push(aSelected[i]);
-        }
+            });
+            !existing && aNewTags.push(selected);
+        });
         http2.post('/rest/mp/matter/article/addTag?id=' + $scope.id, aNewTags, function(rsp) {
             $scope.editing.tags = $scope.editing.tags.concat(aNewTags);
         });
@@ -281,8 +281,39 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', 'templateShop', func
             $scope.editing.tags.splice($scope.editing.tags.indexOf(removed), 1);
         });
     });
-    http2.get('/rest/mp/matter/tag?resType=article', function(rsp) {
+    $scope.$on('tag2.xxt.combox.done', function(event, aSelected) {
+        var aNewTags = [];
+        angular.forEach(aSelected, function(selected) {
+            var existing = false;
+            angular.forEach($scope.editing.tags2, function(tag) {
+                if (selected.title === tag.title) {
+                    existing = true;
+                }
+            });
+            !existing && aNewTags.push(selected);
+        });
+        http2.post('/rest/mp/matter/article/addTag2?id=' + $scope.id, aNewTags, function(rsp) {
+            $scope.editing.tags2 = $scope.editing.tags2.concat(aNewTags);
+        });
+    });
+    $scope.$on('tag2.xxt.combox.add', function(event, newTag) {
+        var oNewTag = {
+            title: newTag
+        };
+        http2.post('/rest/mp/matter/article/addTag2?id=' + $scope.id, [oNewTag], function(rsp) {
+            $scope.editing.tags2.push(oNewTag);
+        });
+    });
+    $scope.$on('tag2.xxt.combox.del', function(event, removed) {
+        http2.post('/rest/mp/matter/article/removeTag2?id=' + $scope.editing.id, [removed], function(rsp) {
+            $scope.editing.tags2.splice($scope.editing.tags.indexOf(removed), 1);
+        });
+    });
+    http2.get('/rest/mp/matter/tag?resType=article&subType=0', function(rsp) {
         $scope.tags = rsp.data;
+    });
+    http2.get('/rest/mp/matter/tag?resType=article&subType=1', function(rsp) {
+        $scope.tags2 = rsp.data;
     });
     http2.get('/rest/mp/feature/get?fields=matter_visible_to_creater', function(rsp) {
         $scope.features = rsp.data;

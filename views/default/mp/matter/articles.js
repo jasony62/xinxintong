@@ -3,36 +3,26 @@ xxtApp.controller('articleCtrl', ['$scope', '$window', '$modal', 'http2', functi
         var options = {
             channel: $scope.selectedChannelsId,
             tag: $scope.selectedTagsId,
+            tag2: $scope.selectedTagsId2,
             order: $scope.order
         };
-        var url = '/rest/mp/matter/article/get?' + $scope.page.toString();
+        var url = '/rest/mp/matter/article/list?' + $scope.page.toString();
         $scope.fromParent && $scope.fromParent === 'Y' && (options.src = 'p');
         http2.post(url, options, function(rsp) {
-            $scope.articles = rsp.data[0];
-            rsp.data[1] !== undefined && ($scope.page.total = rsp.data[1]);
-        });
-    };
-    var getInitData = function() {
-        http2.get('/rest/mp/mpaccount/get', function(rsp) {
-            $scope.mpa = rsp.data;
-            $scope.hasParent = (rsp.data.parent_mpid && rsp.data.parent_mpid.length) ? 'Y' : 'N';
-        });
-        http2.get('/rest/mp/matter/tag?resType=article', function(rsp) {
-            $scope.tags = rsp.data;
-            getArticles();
-        });
-        http2.get('/rest/mp/matter/channel/get?cascade=N', function(rsp) {
-            $scope.channels = rsp.data;
+            $scope.articles = rsp.data.articles;
+            $scope.page.total = rsp.data.total;
         });
     };
     $scope.selectedChannels = [];
     $scope.selectedChannelsId = [];
     $scope.selectedTags = [];
     $scope.selectedTagsId = [];
+    $scope.selectedTags2 = [];
+    $scope.selectedTagsId2 = [];
     $scope.order = 'time';
     $scope.page = {
         at: 1,
-        size: 30,
+        size: 28,
         toString: function() {
             return 'page=' + this.at + '&size=' + this.size;
         }
@@ -134,5 +124,37 @@ xxtApp.controller('articleCtrl', ['$scope', '$window', '$modal', 'http2', functi
         $scope.selectedTagsId.splice(i, 1);
         getArticles();
     });
+    $scope.$on('tag2.xxt.combox.done', function(event, aSelected) {
+        for (var i in aSelected) {
+            if ($scope.selectedTags2.indexOf(aSelected[i].title) === -1) {
+                $scope.selectedTags2.push(aSelected[i].title);
+                $scope.selectedTagsId2.push(aSelected[i].id);
+            }
+        }
+        getArticles();
+    });
+    $scope.$on('tag2.xxt.combox.del', function(event, removed) {
+        var i = $scope.selectedTags2.indexOf(removed);
+        $scope.selectedTags2.splice(i, 1);
+        $scope.selectedTagsId2.splice(i, 1);
+        getArticles();
+    });
+    var getInitData = function() {
+        http2.get('/rest/mp/mpaccount/get', function(rsp) {
+            $scope.mpa = rsp.data;
+            $scope.hasParent = (rsp.data.parent_mpid && rsp.data.parent_mpid.length) ? 'Y' : 'N';
+        });
+        http2.get('/rest/mp/matter/tag?resType=article&subType=0', function(rsp) {
+            $scope.tags = rsp.data;
+            //getArticles();
+        });
+        http2.get('/rest/mp/matter/tag?resType=article&subType=1', function(rsp) {
+            $scope.tags2 = rsp.data;
+        });
+        http2.get('/rest/mp/matter/channel/get?cascade=N', function(rsp) {
+            $scope.channels = rsp.data;
+        });
+    };
     getInitData();
+    getArticles();
 }]);

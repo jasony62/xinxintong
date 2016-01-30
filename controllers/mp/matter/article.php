@@ -128,151 +128,153 @@ class article extends matter_ctrl {
 	 * --$order
 	 *
 	 */
-	public function get_action($id = null, $page = 1, $size = 30) {
+	public function list_action($page = 1, $size = 30) {
 		if (!($options = $this->getPostJson())) {
 			$options = new \stdClass;
 		}
 
-		if ($id) {
-			$article = $this->getOne($this->mpid, $id);
-			return new \ResponseData($article);
+		$uid = \TMS_CLIENT::get_client_uid();
+		/**
+		 * 单图文来源
+		 */
+		$mpid = (!empty($options->src) && $options->src === 'p') ? $this->getParentMpid() : $this->mpid;
+		/**
+		 * select fields
+		 */
+		$s = "a.id,a.mpid,a.title,a.summary,a.custom_body,a.create_at,a.modify_at,a.approved,a.creater,a.creater_name,a.creater_src,'$uid' uid";
+		$s .= ",a.read_num,a.score,a.remark_num,a.share_friend_num,a.share_timeline_num,a.download_num";
+		/**
+		 * where
+		 */
+		$w = "a.mpid='$mpid' and a.state=1 and finished='Y'";
+		/**
+		 * 限作者和管理员
+		 */
+		if (!$this->model('mp\permission')->isAdmin($mpid, $uid, true)) {
+			$fea = $this->model('mp\mpaccount')->getFeature($mpid, 'matter_visible_to_creater');
+			if ($fea->matter_visible_to_creater === 'Y') {
+				$w .= " and (a.creater='$uid' or a.public_visible='Y')";
+			}
+		}
+		/**
+		 * 按频道过滤
+		 */
+		if (!empty($options->channel)) {
+			is_array($options->channel) && $options->channel = implode(',', $options->channel);
+			$whichChannel = "exists (select 1 from xxt_channel_matter c where a.id = c.matter_id and c.matter_type='article' and c.channel_id in ($options->channel))";
+			$w .= " and $whichChannel";
+		}
+		/**
+		 * 按标签过滤
+		 */
+		!isset($options->order) && $options->order = '';
+		if (empty($options->tag) && empty($options->tag2)) {
+			$q = array(
+				$s,
+				'xxt_article a',
+				$w,
+			);
+			switch ($options->order) {
+			case 'title':
+				$q2['o'] = 'CONVERT(a.title USING gbk ) COLLATE gbk_chinese_ci';
+				break;
+			case 'read':
+				$q2['o'] = 'a.read_num desc';
+				break;
+			case 'share_friend':
+				$q2['o'] = 'a.share_friend_num desc';
+				break;
+			case 'share_timeline':
+				$q2['o'] = 'a.share_timeline_num desc';
+				break;
+			case 'like':
+				$q2['o'] = 'a.score desc';
+				break;
+			case 'remark':
+				$q2['o'] = 'a.remark_num desc';
+				break;
+			case 'download':
+				$q2['o'] = 'a.download_num desc';
+				break;
+			default:
+				$q2['o'] = 'a.modify_at desc';
+			}
 		} else {
-			$uid = \TMS_CLIENT::get_client_uid();
-			/**
-			 * 单图文来源
-			 */
-			$mpid = (!empty($options->src) && $options->src === 'p') ? $this->getParentMpid() : $this->mpid;
-			/**
-			 * select fields
-			 */
-			$s = "a.id,a.mpid,a.title,a.summary,a.custom_body,a.create_at,a.modify_at,a.approved,a.creater,a.creater_name,a.creater_src,'$uid' uid";
-			$s .= ",a.read_num,a.score,a.remark_num,a.share_friend_num,a.share_timeline_num,a.download_num";
-			/**
-			 * where
-			 */
-			$w = "a.mpid='$mpid' and a.state=1 and finished='Y'";
-			/**
-			 * 限作者和管理员
-			 */
-			if (!$this->model('mp\permission')->isAdmin($mpid, $uid, true)) {
-				$fea = $this->model('mp\mpaccount')->getFeature($mpid, 'matter_visible_to_creater');
-				if ($fea->matter_visible_to_creater === 'Y') {
-					$w .= " and (a.creater='$uid' or a.public_visible='Y')";
-				}
-			}
-			/**
-			 * 按频道过滤
-			 */
-			if (!empty($options->channel)) {
-				is_array($options->channel) && $options->channel = implode(',', $options->channel);
-				$whichChannel = "exists (select 1 from xxt_channel_matter c where a.id = c.matter_id and c.matter_type='article' and c.channel_id in ($options->channel))";
-				$w .= " and $whichChannel";
-			}
 			/**
 			 * 按标签过滤
 			 */
-			!isset($options->order) && $options->order = '';
-			if (empty($options->tag)) {
-				$q = array(
-					$s,
-					'xxt_article a',
-					$w,
-				);
-				switch ($options->order) {
-				case 'title':
-					$q2['o'] = 'CONVERT(a.title USING gbk ) COLLATE gbk_chinese_ci';
-					break;
-				case 'read':
-					$q2['o'] = 'a.read_num desc';
-					break;
-				case 'share_friend':
-					$q2['o'] = 'a.share_friend_num desc';
-					break;
-				case 'share_timeline':
-					$q2['o'] = 'a.share_timeline_num desc';
-					break;
-				case 'like':
-					$q2['o'] = 'a.score desc';
-					break;
-				case 'remark':
-					$q2['o'] = 'a.remark_num desc';
-					break;
-				case 'download':
-					$q2['o'] = 'a.download_num desc';
-					break;
-				default:
-					$q2['o'] = 'a.modify_at desc';
-				}
-			} else {
-				/**
-				 * 按标签过滤
-				 */
-				is_array($options->tag) && $options->tag = implode(',', $options->tag);
-				$w .= " and a.mpid=at.mpid and a.id=at.res_id and at.tag_id in($options->tag)";
-				$q = array(
-					$s,
-					'xxt_article a,xxt_article_tag at',
-					$w,
-				);
-				$q2['g'] = 'a.id';
-				switch ($options->order) {
-				case 'title':
-					$q2['o'] = 'count(*),CONVERT(a.title USING gbk ) COLLATE gbk_chinese_ci';
-					break;
-				case 'read':
-					$q2['o'] = 'a.read_num desc';
-					break;
-				case 'share_friend':
-					$q2['o'] = 'a.share_friend_num desc';
-					break;
-				case 'share_timeline':
-					$q2['o'] = 'a.share_timeline_num desc';
-					break;
-				case 'like':
-					$q2['o'] = 'a.score desc';
-					break;
-				case 'remark':
-					$q2['o'] = 'a.remark_num desc';
-					break;
-				case 'download':
-					$q2['o'] = 'a.download_num desc';
-					break;
-				default:
-					$q2['o'] = 'a.modify_at desc';
-				}
+			$w .= " and a.mpid=at.mpid and a.id=at.res_id";
+			$tags = implode(',', array_merge($options->tag, $options->tag2));
+			$w .= " and at.tag_id in($tags)";
+			$q = array(
+				$s,
+				'xxt_article a,xxt_article_tag at',
+				$w,
+			);
+			$q2['g'] = 'a.id';
+			switch ($options->order) {
+			case 'title':
+				$q2['o'] = 'count(*),CONVERT(a.title USING gbk ) COLLATE gbk_chinese_ci';
+				break;
+			case 'read':
+				$q2['o'] = 'a.read_num desc';
+				break;
+			case 'share_friend':
+				$q2['o'] = 'a.share_friend_num desc';
+				break;
+			case 'share_timeline':
+				$q2['o'] = 'a.share_timeline_num desc';
+				break;
+			case 'like':
+				$q2['o'] = 'a.score desc';
+				break;
+			case 'remark':
+				$q2['o'] = 'a.remark_num desc';
+				break;
+			case 'download':
+				$q2['o'] = 'a.download_num desc';
+				break;
+			default:
+				$q2['o'] = 'a.modify_at desc';
 			}
-			/**
-			 * limit
-			 */
-			$q2['r'] = array('o' => ($page - 1) * $size, 'l' => $size);
-
-			if ($articles = $this->model()->query_objs_ss($q, $q2)) {
-				/**
-				 * amount
-				 */
-				$q[0] = 'count(*)';
-				$amount = (int) $this->model()->query_val_ss($q);
-				/**
-				 * 获得每个图文的tag
-				 */
-				foreach ($articles as &$a) {
-					$ids[] = $a->id;
-					$map[$a->id] = &$a;
-				}
-				$rels = $this->model('tag')->tagsByRes($ids, 'article');
-				foreach ($rels as $aid => &$tags) {
-					$map[$aid]->tags = $tags;
-				}
-
-				return new \ResponseData(array($articles, $amount));
-			}
-			return new \ResponseData(array(array(), 0));
 		}
+		/**
+		 * limit
+		 */
+		$q2['r'] = array('o' => ($page - 1) * $size, 'l' => $size);
+
+		if ($articles = $this->model()->query_objs_ss($q, $q2)) {
+			/**
+			 * amount
+			 */
+			$q[0] = 'count(*)';
+			$total = (int) $this->model()->query_val_ss($q);
+			/**
+			 * 获得每个图文的tag
+			 */
+			foreach ($articles as &$a) {
+				$ids[] = $a->id;
+				$map[$a->id] = &$a;
+			}
+			$rels = $this->model('tag')->tagsByRes($ids, 'article', 0);
+			foreach ($rels as $aid => &$tags) {
+				$map[$aid]->tags = $tags;
+			}
+			$rels = $this->model('tag')->tagsByRes($ids, 'article', 1);
+			foreach ($rels as $aid => &$tags) {
+				$map[$aid]->tags2 = $tags;
+			}
+
+			return new \ResponseData(array('articles' => $articles, 'total' => $total));
+		}
+		return new \ResponseData(array('articles' => array(), 'total' => 0));
 	}
 	/**
-	 * 一个单图文的完整信息
+	 * 获得可见的图文列表
+	 *
+	 * @param int $id article's id
 	 */
-	private function &getOne($mpid, $id, $cascade = true) {
+	public function get_action($id, $cascade = 'Y') {
 		$uid = \TMS_CLIENT::get_client_uid();
 
 		$pmpid = $this->getParentMpid();
@@ -280,9 +282,9 @@ class article extends matter_ctrl {
 		$q = array(
 			"a.*,'$uid' uid",
 			'xxt_article a',
-			"(a.mpid='$mpid' or a.mpid='$pmpid') and a.state=1 and a.id=$id",
+			"(a.mpid='$this->mpid' or a.mpid='$pmpid') and a.state=1 and a.id=$id",
 		);
-		if (($article = $this->model()->query_obj_ss($q)) && $cascade === true) {
+		if (($article = $this->model()->query_obj_ss($q)) && $cascade === 'Y') {
 			/**
 			 * channels
 			 */
@@ -290,11 +292,13 @@ class article extends matter_ctrl {
 			/**
 			 * tags
 			 */
-			$article->tags = $this->model('tag')->tagsByRes($article->id, 'article');
+			$modelTag = $this->model('tag');
+			$article->tags = $modelTag->tagsByRes($article->id, 'article', 0);
+			$article->tags2 = $modelTag->tagsByRes($article->id, 'article', 1);
 			/**
 			 * acl
 			 */
-			$article->acl = $this->model('acl')->byMatter($mpid, 'article', $id);
+			$article->acl = $this->model('acl')->byMatter($this->mpid, 'article', $id);
 			/**
 			 * attachments
 			 */
@@ -304,7 +308,7 @@ class article extends matter_ctrl {
 
 		}
 
-		return $article;
+		return new \ResponseData($article);
 	}
 	/**
 	 * 获得指定文章的所有评论
@@ -692,7 +696,19 @@ class article extends matter_ctrl {
 		$tags = $this->getPostJson();
 
 		$this->model('tag')->save(
-			$this->mpid, $id, 'article', $tags, null);
+			$this->mpid, $id, 'article', 0, $tags, null);
+
+		return new \ResponseData('success');
+	}
+	/**
+	 * 添加图文的标签
+	 */
+	public function addTag2_action($id) {
+		$tags = $this->getPostJson();
+
+		$this->model('tag')->save(
+			$this->mpid, $id, 'article', 1, $tags, null
+		);
 
 		return new \ResponseData('success');
 	}
@@ -703,7 +719,19 @@ class article extends matter_ctrl {
 		$tags = $this->getPostJson();
 
 		$this->model('tag')->save(
-			$this->mpid, $id, 'article', null, $tags
+			$this->mpid, $id, 'article', 0, null, $tags
+		);
+
+		return new \ResponseData('success');
+	}
+	/**
+	 * 删除图文的标签
+	 */
+	public function removeTag2_action($id) {
+		$tags = $this->getPostJson();
+
+		$this->model('tag')->save(
+			$this->mpid, $id, 'article', 1, null, $tags
 		);
 
 		return new \ResponseData('success');

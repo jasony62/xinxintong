@@ -35,6 +35,11 @@ $sql .= ",read_num int not null default 0"; // 累积阅读数
 $sql .= ",share_friend_num int not null default 0"; // 累积分享给好友数
 $sql .= ",share_timeline_num int not null default 0"; // 累积分享朋友圈数
 $sql .= ",coin int not null"; // 虚拟货币
+$sql .= ",coin_last_at int not null"; // 最近一次增加虚拟货币
+$sql .= ",coin_day int not null"; // 虚拟货币日增量
+$sql .= ",coin_week int not null"; // 虚拟货币周增量
+$sql .= ",coin_month int not null"; // 虚拟货币月增量
+$sql .= ",coin_year int not null"; // 虚拟货币年增量
 $sql .= ",primary key(mpid,openid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

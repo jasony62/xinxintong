@@ -76,19 +76,6 @@ class fans_model extends TMS_MODEL {
 	/**
 	 *
 	 */
-	public function getAll($mpid) {
-		$q = array(
-			'*',
-			'xxt_fans',
-			"mpid='$mpid'",
-		);
-		$fans = $this->query_objs_ss($q);
-
-		return $fans;
-	}
-	/**
-	 *
-	 */
 	public function getGroups($mpid) {
 		$q = array(
 			'id,name',

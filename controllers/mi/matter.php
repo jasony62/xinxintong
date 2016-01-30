@@ -228,9 +228,25 @@ class matter extends \member_base {
 
 		$this->model('log')->writeShareAction($mpid, $shareid, $shareto, $shareby, $logUser, $logMatter, $logClient);
 		/**
-		 * write coin log
+		 * coin log
+		 * 投稿人分享不奖励积分
 		 */
-		$this->model('coin\log')->record($mpid, 'mp.matter.' . $type . '.share.' . $shareto, $id, 'sys', $user->openid);
+		$modelCoin = $this->model('coin\log');
+		if ($type === 'article') {
+			$contribution = $this->model('matter\article')->getContributionInfo($id);
+			if (!empty($contribution->openid) && $contribution->openid !== $logUser->openid) {
+				// for contributor
+				$action = 'app.' . $contribution->entry . '.article.share.' . $shareto;
+				$modelCoin->record($mpid, $action, $id, 'sys', $contribution->openid);
+			}
+			if (empty($contribution->openid) || $contribution->openid !== $logUser->openid) {
+				// for reader
+				$modelCoin->record($mpid, 'mp.matter.article.share.' . $shareto, $id, 'sys', $logUser->openid);
+			}
+		} else {
+			// for reader
+			$modelCoin->record($mpid, 'mp.matter.' . $type . '.share.' . $shareto, $id, 'sys', $logUser->openid);
+		}
 
 		return new \ResponseData('ok');
 	}

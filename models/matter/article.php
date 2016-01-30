@@ -360,4 +360,18 @@ class article_model extends article_base {
 
 		return $logs;
 	}
+	/**
+	 * 返回投稿信息
+	 * @param int $id
+	 */
+	public function &getContributionInfo($id) {
+		$info = $this->byId($id, 'entry,creater,creater_name,creater_src,create_at');
+		if (!empty($info->entry)) {
+			if ($info->creater_src === 'M') {
+				$member = \TMS_APP::M('user/member')->byId($info->creater, 'openid');
+				$info->openid = $member->openid;
+			}
+		}
+		return $info;
+	}
 }

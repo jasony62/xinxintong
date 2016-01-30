@@ -91,10 +91,10 @@ xxtApp.controller('ctrlCoin', ['$scope', 'http2', function($scope, http2) {
     var prefix = 'app.contribute,' + $scope.aid,
         actions = [{
             name: 'article.submit',
-            desc: '用户A投稿图文提交成功'
+            desc: '用户A投稿图文第一次送审核'
         }, {
-            name: 'article.publish',
-            desc: '用户A投稿图文发布成功',
+            name: 'article.approved',
+            desc: '用户A投稿图文审核通过',
         }, {
             name: 'article.read',
             desc: '用户B阅读用户A投稿的图文',

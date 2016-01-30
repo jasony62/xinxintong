@@ -22,14 +22,9 @@ class article extends \member_base {
 	/**
 	 *
 	 */
-	public function index_action($mpid, $id) {
-		if (empty($id)) {
-			/* list */
-			\TPL::output('/matter/article-list');
-			exit;
-		} else {
-
-		}
+	public function index_action($mpid) {
+		\TPL::output('/matter/article-list');
+		exit;
 	}
 	/**
 	 * 返回请求的素材
@@ -132,9 +127,20 @@ class article extends \member_base {
 			$praised = true;
 			$article->score++;
 			/**
-			 * write coin log
+			 * coin log
+			 * 投稿人点赞不奖励积分
 			 */
-			$this->model('coin\log')->record($mpid, 'mp.matter.article.appraise', $id, 'sys', $user->openid);
+			$modelCoin = $this->model('coin\log');
+			$contribution = $this->model('matter\article')->getContributionInfo($id);
+			if (!empty($contribution->openid) && $contribution->openid !== $user->openid) {
+				// for contributor
+				$action = 'app.' . $contribution->entry . '.article.appraise';
+				$modelCoin->record($mpid, $action, $id, 'sys', $contribution->openid);
+			}
+			if (empty($contribution->openid) || $contribution->openid !== $user->openid) {
+				// for reader
+				$modelCoin->record($mpid, 'mp.matter.article.appraise', $id, 'sys', $user->openid);
+			}
 		}
 
 		return new \ResponseData(array($article->score, $praised));
@@ -146,8 +152,8 @@ class article extends \member_base {
 	 * 如果投稿人设定了接收客服消息
 	 * 那么每次有新的评论都发送一条提醒消息给投稿人
 	 *
-	 * $id article's id.
-	 * $mpid article's mpid.
+	 * @param int $id article's id.
+	 * @param string $mpid article's mpid.
 	 */
 	public function remark_action($mpid, $id) {
 		if (isset($_POST['remark'])) {
@@ -159,12 +165,10 @@ class article extends \member_base {
 		if (empty($posted->remark)) {
 			return new \ResponseError('评论不允许为空！');
 		}
-
 		$user = $this->getUser($mpid, array('verbose' => array('fan' => 'Y')));
 		if (empty($user->openid)) {
 			return new \ResponseError('无法获得用户标识，不允许发布评论');
 		}
-
 		$modelArticle = $this->model('matter\article');
 		$art = $modelArticle->byId($id, 'title,creater,creater_src,remark_notice,remark_notice_all');
 		/**
@@ -180,9 +184,8 @@ class article extends \member_base {
 			'create_at' => time(),
 			'remark' => $this->model()->escape($posted->remark),
 		);
-		$remarkId = $this->model()->insert('xxt_article_remark', $i, true);
-
-		$this->model()->update("update xxt_article set remark_num=remark_num+1 where id='$id'");
+		$remarkId = $modelArticle->insert('xxt_article_remark', $i, true);
+		$modelArticle->update("update xxt_article set remark_num=remark_num+1 where id='$id'");
 		/**
 		 * 获得完整的评论数据
 		 */
@@ -221,14 +224,25 @@ class article extends \member_base {
 			}
 		}
 		/**
-		 * write coin log
+		 * coin log
+		 * 投稿人评论不奖励积分
 		 */
-		$this->model('coin\log')->record($mpid, 'mp.matter.article.remark', $id, 'sys', $user->openid);
-
+		$modelCoin = $this->model('coin\log');
+		$contribution = $modelArticle->getContributionInfo($id);
+		if (!empty($contribution->openid) && $contribution->openid !== $user->openid) {
+			// for contributor
+			$action = 'app.' . $contribution->entry . '.article.remark';
+			$modelCoin->record($mpid, $action, $id, 'sys', $contribution->openid);
+		}
+		if (empty($contribution->openid) || $contribution->openid !== $user->openid) {
+			// for reader
+			$modelCoin->record($mpid, 'mp.matter.article.remark', $id, 'sys', $user->openid);
+		}
+		/**
+		 * 通知接收评论
+		 * @todo 应该改为模版消息实现
+		 */
 		if (!empty($receivers)) {
-			/**
-			 * 发送评论提醒
-			 */
 			$url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/mi/matter?mpid=$mpid&id=$id&tpl=std";
 			$text = urlencode($remark->nickname);
 			$text .= urlencode('对【');
@@ -245,9 +259,9 @@ class article extends \member_base {
 			/**
 			 * 获得所有发表过评论的人？？？
 			 */
-			foreach ($receivers as $receiver) {
-				$this->sendByOpenid($mpid, $receiver, $message);
-			}
+			//foreach ($receivers as $receiver) {
+			//	$this->sendByOpenid($mpid, $receiver, $message);
+			//}
 		}
 
 		return new \ResponseData($remark);

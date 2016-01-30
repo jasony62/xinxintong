@@ -76,16 +76,17 @@ class review extends base {
 	 */
 	public function articlePass_action($mpid, $id) {
 		$article = $this->getArticle($mpid, $id);
+		$contributor = $this->model('user/fans')->byMid($article->creater);
 		/**
 		 * 更新日志状态
 		 */
 		$disposer = $article->disposer;
-
 		if ($disposer && $disposer->mid === $this->user->mid && $disposer->phase === 'R' && $disposer->state === 'D') {
 			$this->model()->update(
 				'xxt_article_review_log',
 				array('close_at' => time(), 'state' => 'C'),
-				"id=$disposer->id");
+				"id=$disposer->id"
+			);
 		}
 		/**
 		 * 更新文稿状态
@@ -95,6 +96,12 @@ class review extends base {
 			array('approved' => 'Y'),
 			"mpid='$mpid' and id='$id'"
 		);
+		/**
+		 * 奖励投稿人
+		 */
+		$modelCoin = $this->model('coin\log');
+		$action = 'app.' . $article->entry . '.article.approved';
+		$modelCoin->record($mpid, $action, $id, 'sys', $contributor->openid);
 		/**
 		 * 发送通知
 		 */
@@ -120,9 +127,7 @@ class review extends base {
 			),
 		);
 
-		$fan = $this->model('user/fans')->byMid($article->creater);
-
-		$rst = $this->notify($mpid, $fan->openid, $message);
+		$rst = $this->notify($mpid, $contributor->openid, $message);
 
 		return new \ResponseData('ok');
 	}

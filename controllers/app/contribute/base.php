@@ -171,6 +171,7 @@ class base extends \member_base {
 		$log = $model->forward($mpid, $id, $mid, $phase);
 		/**
 		 * 发给指定用户进行处理
+		 * @todo 应该改为模版消息实现
 		 */
 		$url = $this->articleReviewUrl($mpid, $id);
 		$msg = '投稿活动【' . $c->title . '】有一篇新稿件，';

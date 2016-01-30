@@ -670,7 +670,7 @@ class xxt_base extends TMS_CONTROLLER {
 		return $setting;
 	}
 	/**
-	 *
+	 * 记录访问日志
 	 */
 	protected function logRead($mpid, $user, $id, $type, $title, $shareby = '') {
 		$logUser = new \stdClass;
@@ -692,9 +692,25 @@ class xxt_base extends TMS_CONTROLLER {
 
 		$this->model('log')->writeMatterRead($mpid, $logUser, $logMatter, $logClient, $shareby, $search, $referer);
 		/**
-		 * write coin log
+		 * coin log
+		 * 如果是投稿人阅读没有奖励
 		 */
-		$this->model('coin\log')->record($mpid, 'mp.matter.' . $type . '.read', $id, 'sys', $user->openid);
+		$modelCoin = $this->model('coin\log');
+		if ($type === 'article') {
+			$contribution = $this->model('matter\article')->getContributionInfo($id);
+			if (!empty($contribution->openid) && $contribution->openid !== $logUser->openid) {
+				// for contributor
+				$action = 'app.' . $contribution->entry . '.article.read';
+				$modelCoin->record($mpid, $action, $id, 'sys', $contribution->openid);
+			}
+			if (empty($contribution->openid) || $contribution->openid !== $logUser->openid) {
+				// for reader
+				$modelCoin->record($mpid, 'mp.matter.' . $type . '.read', $id, 'sys', $user->openid);
+			}
+		} else {
+			// for reader
+			$modelCoin->record($mpid, 'mp.matter.' . $type . '.read', $id, 'sys', $user->openid);
+		}
 
 		return true;
 	}

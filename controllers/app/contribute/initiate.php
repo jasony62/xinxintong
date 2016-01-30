@@ -153,7 +153,6 @@ class initiate extends base {
 		} else {
 			$this->view_action('/app/contribute/initiate/article-r');
 		}
-
 	}
 	/**
 	 * 单篇文稿页面
@@ -183,7 +182,6 @@ class initiate extends base {
 		} else {
 			$this->view_action('/app/contribute/initiate/article-r');
 		}
-
 	}
 	/**
 	 * 当前用户文稿
@@ -209,8 +207,8 @@ class initiate extends base {
 	/**
 	 * 新建一个文稿
 	 *
-	 * $mpid
-	 * $entry
+	 * @param string $mpid
+	 * @param string $entry
 	 */
 	public function articleCreate_action($mpid, $entry) {
 		$mpa = $this->model('mp\mpaccount')->getFeature($mpid, 'heading_pic');
@@ -380,7 +378,6 @@ class initiate extends base {
 				if ($status == 1) {
 					return new \ResponseError('转换文件失败：' . $rsp);
 				}
-
 				$this->setBodyByAtt($id, $attDir);
 				if (in_array($ext, array('ppt', 'pptx'))) {
 					$this->setCoverByAtt($id, $attDir);
@@ -421,17 +418,26 @@ class initiate extends base {
 	/**
 	 * 转发给指定人进行处理
 	 *
-	 * $mpid 公众平台ID
-	 * $id 文章ID
-	 * $phase 处理的阶段
-	 * $mid 审核人ID
+	 * @param string $mpid 公众平台ID
+	 * @param int $id 文章ID
+	 * @param string $phase 处理的阶段
+	 * @param string $mid 审核人ID
 	 */
 	public function articleForward_action($mpid, $id, $phase, $mid) {
-		$rst = $this->model()->update(
-			'xxt_article',
-			array('finished' => 'Y'),
-			"mpid='$mpid' and id='$id'"
-		);
+		$article = $this->getArticle($mpid, $id);
+		if ($article->finished === 'N') {
+			/*完成编辑并提交审核*/
+			$this->model()->update(
+				'xxt_article',
+				array('finished' => 'Y'),
+				"mpid='$mpid' and id='$id'"
+			);
+			/*奖励投稿人*/
+			$contributor = $this->getUser($mpid);
+			$modelCoin = $this->model('coin\log');
+			$action = 'app.' . $article->entry . '.article.submit';
+			$modelCoin->record($mpid, $action, $id, 'sys', $contributor->openid);
+		}
 
 		return parent::articleForward_action($mpid, $id, $phase, $mid);
 	}

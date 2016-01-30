@@ -145,10 +145,14 @@ class record extends base {
 		 * 处理提交数据
 		 */
 		if (empty($ek)) {
-			/* 插入报名数据 */
+			/*插入登记数据*/
 			$ek = $model->enroll($mpid, $app, $user->openid, $user->vid, $mid);
-			/* 处理自定义信息 */
+			/*处理自定义信息*/
 			$rst = \TMS_APP::M('app\enroll\record')->setData($user, $mpid, $aid, $ek, $posted, $submitkey);
+			/*登记提交的积分奖励*/
+			$modelCoin = $this->model('coin\log');
+			$action = 'app.enroll,' . $aid . '.record.submit';
+			$modelCoin->record($mpid, $action, $aid, 'sys', $user->openid);
 		} else {
 			/* 已经登记，更新原先提交的数据 */
 			$this->model()->update('xxt_enroll_record',
@@ -190,6 +194,7 @@ class record extends base {
 	}
 	/**
 	 * 通知活动管理员
+	 * @todo 应该改为模版消息
 	 */
 	private function notifyAdmin($mpid, $app, $ek, $user) {
 		$admins = \TMS_APP::model('acl')->enrollReceivers($mpid, $app->id);
@@ -390,8 +395,13 @@ class record extends base {
 					return new ResponseError($rst[1]);
 				}
 			}
-			/* 记录邀请数 */
-			$this->model()->update("update xxt_enroll_record set follower_num=follower_num+1 where enroll_key='$inviter'");
+			/*记录邀请数*/
+			$modelRec->update("update xxt_enroll_record set follower_num=follower_num+1 where enroll_key='$inviter'");
+			/*邀请成功的积分奖励*/
+			$inviteRecord = $modelRec->byId($inviter, array('cascaded' => 'N', 'fields' => 'openid'));
+			$modelCoin = $this->model('coin\log');
+			$action = 'app.enroll,' . $aid . '.invite.success';
+			$modelCoin->record($mpid, $action, $aid, 'sys', $inviteRecord->openid);
 		}
 		$rsp = new \stdClass;
 		$rsp->ek = $ek;

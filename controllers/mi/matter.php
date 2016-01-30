@@ -243,6 +243,9 @@ class matter extends \member_base {
 				// for reader
 				$modelCoin->record($mpid, 'mp.matter.article.share.' . $shareto, $id, 'sys', $logUser->openid);
 			}
+		} else if ($type === 'enroll') {
+			$action = 'app.enroll,' . $id . '.share.' . $shareto;
+			$modelCoin->record($mpid, $action, $id, 'sys', $logUser->openid);
 		} else {
 			// for reader
 			$modelCoin->record($mpid, 'mp.matter.' . $type . '.share.' . $shareto, $id, 'sys', $logUser->openid);

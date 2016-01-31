@@ -173,42 +173,6 @@ angular.module('ui.tms', ['ngSanitize']).service('http2', ['$rootScope', '$http'
             }, true);
         }
     }
-}]).controller('NoticeBoxController', ['$scope', '$timeout', function($scope, $timeout) {
-    $scope.closeBox = function() {
-        var msgType = '';
-        if ($scope.err && $scope.err.length) {
-            $scope.err = '';
-            msgType = 'err';
-        } else if ($scope.info && $scope.info.length) {
-            $scope.info = '';
-            msgType = 'info';
-        } else if ($scope.prog && $scope.prog.length) {
-            $scope.prog = '';
-            msgType = 'prog';
-        }
-        $scope.$emit('xxt.notice-box.timeout', msgType);
-    };
-    $scope.$watch('info', function(nv) {
-        if (nv && nv.length > 0) {
-            $scope.err = $scope.prog = '';
-            $timeout(function() {
-                $scope.info = '';
-                $scope.$emit('xxt.notice-box.timeout', 'info');
-            }, $scope.delay || 2000);
-        }
-    });
-    $scope.$watch('err', function(nv) {
-        if (nv && nv.length > 0) {
-            $scope.prog && ($scope.prog = '');
-            $scope.info && ($scope.info = '');
-        }
-    });
-    $scope.$watch('prog', function(nv) {
-        if (nv && nv.length > 0) {
-            $scope.err && ($scope.err = '');
-            $scope.info && ($scope.info = '');
-        }
-    });
 }]).directive('noticeBox', ['$timeout', function($timeout) {
     return {
         restrict: 'EA',
@@ -219,7 +183,43 @@ angular.module('ui.tms', ['ngSanitize']).service('http2', ['$rootScope', '$http'
             delay: '@'
         },
         templateUrl: '/static/template/noticebox.html?_=5',
-        controller: 'NoticeBoxController',
+        controller: ['$scope', '$timeout', function($scope, $timeout) {
+            $scope.closeBox = function() {
+                var msgType = '';
+                if ($scope.err && $scope.err.toString().length) {
+                    $scope.err = '';
+                    msgType = 'err';
+                } else if ($scope.info && $scope.info.length) {
+                    $scope.info = '';
+                    msgType = 'info';
+                } else if ($scope.prog && $scope.prog.length) {
+                    $scope.prog = '';
+                    msgType = 'prog';
+                }
+                $scope.$emit('xxt.notice-box.timeout', msgType);
+            };
+            $scope.$watch('info', function(nv) {
+                if (nv && nv.length > 0) {
+                    $scope.err = $scope.prog = '';
+                    $timeout(function() {
+                        $scope.info = '';
+                        $scope.$emit('xxt.notice-box.timeout', 'info');
+                    }, $scope.delay || 2000);
+                }
+            });
+            $scope.$watch('err', function(nv) {
+                if (nv && nv.length > 0) {
+                    $scope.prog && ($scope.prog = '');
+                    $scope.info && ($scope.info = '');
+                }
+            });
+            $scope.$watch('prog', function(nv) {
+                if (nv && nv.length > 0) {
+                    $scope.err && ($scope.err = '');
+                    $scope.info && ($scope.info = '');
+                }
+            });
+        }],
         replace: true
     };
 }]).directive('tmsDatepicker', function() {

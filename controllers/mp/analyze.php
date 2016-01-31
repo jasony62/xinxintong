@@ -108,20 +108,38 @@ class analyze extends mp_controller {
 	}
 	/**
 	 * 积分排行榜
+	 * 积分的增量并不是按日进行更新的，是最后一次产生积分时各个周期的增量，所以要检查最后一次获得积分时间是否在现有的统计周期内
 	 */
 	public function coin_action($period, $page = 1, $size = 30) {
-		$map = array(
-			'A' => 'coin',
-			'Y' => 'coin_year',
-			'M' => 'coin_month',
-			'W' => 'coin_week',
-			'D' => 'coin_day',
-		);
-		$period = $map[$period];
+		switch ($period) {
+		case 'A':
+			$period = 'coin';
+			$begin = 0;
+			break;
+		case 'Y':
+			$period = 'coin_year';
+			$begin = mktime(0, 0, 0, 1, 1, date('Y'));
+			break;
+		case 'M':
+			$period = 'coin_month';
+			$begin = mktime(0, 0, 0, date('n'), 1, date('Y'));
+			break;
+		case 'W': // 周一是第一天
+			$period = 'coin_week';
+			$firstDay = time();
+			$w = (int) date('N');
+			$firstDay -= $w * 86400;
+			$begin = mktime(0, 0, 0, date('n'), date('j', $firstDay), date('Y'));
+			break;
+		case 'D':
+			$period = 'coin_day';
+			$begin = mktime(0, 0, 0, date('n'), date('j'), date('Y'));
+			break;
+		}
 		$q = array(
 			'openid,nickname,' . $period . ' coin',
 			'xxt_fans',
-			"mpid='$this->mpid'",
+			"mpid='$this->mpid' and coin_last_at>=$begin",
 		);
 		$q2 = array(
 			'o' => $period . ' desc',

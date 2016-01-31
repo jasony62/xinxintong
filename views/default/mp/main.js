@@ -1,14 +1,54 @@
-xxtApp.controller('ctrlRecent', ['$scope', 'http2', function($scope, http2) {
-	$scope.open = function(matter) {
-		if (matter.matter_type === 'article') {
-			location.href = '/rest/mp/matter/article?id=' + matter.matter_id;
-		} else if (matter.matter_type === 'enroll') {
-			location.href = '/rest/mp/app/enroll/detail?aid=' + matter.matter_id;
+xxtApp.config(['$routeProvider', function($routeProvider) {
+	$routeProvider.when('/rest/mp/recent', {
+		templateUrl: '/views/default/mp/recent/main.html?_=1',
+		controller: 'ctrlRecent',
+		resolve: {
+			load: function($q) {
+				var defer = $q.defer();
+				(function() {
+					$.getScript('/views/default/mp/recent/main.js?_=1', function() {
+						defer.resolve();
+					});
+				})();
+				return defer.promise;
+			}
 		}
-	};
-	var url = '/rest/mp/recentMatters?size=28';
-	url += '&_=' + (new Date()).getTime();
-	http2.get(url, function(rsp) {
-		$scope.matters = rsp.data;
-	})
+	}).when('/rest/mp/mission', {
+		templateUrl: '/views/default/mp/mission/main.html?_=1',
+		controller: 'ctrlMission',
+		resolve: {
+			load: function($q) {
+				var defer = $q.defer();
+				(function() {
+					$.getScript('/views/default/mp/mission/main.js?_=1', function() {
+						defer.resolve();
+					});
+				})();
+				return defer.promise;
+			}
+		}
+	}).otherwise({
+		templateUrl: '/views/default/mp/recent/main.html?_=1',
+		controller: 'ctrlRecent',
+		resolve: {
+			load: function($q) {
+				var defer = $q.defer();
+				(function() {
+					$.getScript('/views/default/mp/recent/main.js?_=1', function() {
+						defer.resolve();
+					});
+				})();
+				return defer.promise;
+			}
+		}
+	});
+}]);
+xxtApp.controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
+	$scope.$on('$routeChangeSuccess', function(evt, nextRoute, lastRoute) {
+		if (nextRoute.loadedTemplateUrl.indexOf('/recent') !== -1) {
+			$scope.subView = 'recent';
+		} else if (nextRoute.loadedTemplateUrl.indexOf('/mission') !== -1) {
+			$scope.subView = 'mission';
+		}
+	});
 }]);

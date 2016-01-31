@@ -1,0 +1,12 @@
+<div id='viewRecent'>
+	<div class='col-md-3' ng-repeat='m in matters'>
+		<div class='thumbnail' ng-click="open(m)">
+			<h4 class='title' ng-bind='m.matter_title'></h4>
+			<p class='summary' ng-bind='m.matter_summary'></p>
+			<div class='attr'>
+				<div class='operator_name' ng-bind='m.operator_name'></div>
+				<div class='modify_at' title='修改时间' ng-bind="m.operate_at*1000|date:'yy-MM-dd'"></div>
+			</div>
+		</div>
+	</div>
+</div>

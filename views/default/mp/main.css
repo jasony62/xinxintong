@@ -1,4 +1,5 @@
-.thumbnail{position:relative;height:145px;cursor:pointer;display:flex;flex-direction:column;padding:8px;}
-.thumbnail .summary{flex:1;overflow: hidden;}
-.thumbnail .attr{display:flex;}
-.thumbnail .operator_name{flex:1;}
+#viewRecent{margin-left:-15px;margin-right:-15px;}
+#viewRecent .thumbnail{position:relative;height:145px;cursor:pointer;display:flex;flex-direction:column;padding:8px;}
+#viewRecent .thumbnail .summary{flex:1;overflow:hidden;}
+#viewRecent .thumbnail .attr{display:flex;}
+#viewRecent .thumbnail .operator_name{flex:1;}

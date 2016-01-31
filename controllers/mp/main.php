@@ -22,6 +22,19 @@ class main extends mp_controller {
 		$this->view_action('/mp/main');
 	}
 	/**
+	 *
+	 */
+	public function recent_action() {
+		$this->view_action('/mp/main');
+	}
+	/**
+	 *
+	 */
+	public function mission_action() {
+		$this->view_action('/mp/main');
+	}
+
+	/**
 	 * 列出最近操作的素材
 	 */
 	public function recentMatters_action($size = 30) {

@@ -8,6 +8,7 @@ $sql .= "id int not null auto_increment";
 $sql .= ",mpid varchar(32) not null";
 $sql .= ",title varchar(70) not null";
 $sql .= ",summary varchar(240) not null";
+$sql .= ",pic text";
 $sql .= ",creater varchar(40) not null default ''";
 $sql .= ",creater_name varchar(255) not null default ''";
 $sql .= ",creater_src char(1)";
@@ -16,6 +17,8 @@ $sql .= ",modifier varchar(40) not null default ''";
 $sql .= ",modifier_name varchar(255) not null default ''";
 $sql .= ",modifier_src char(1)";
 $sql .= ',modify_at int not null';
+$sql .= ",access_control char(1) not null default 'N'";
+$sql .= ",authapis text";
 $sql .= ",primary key(code)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

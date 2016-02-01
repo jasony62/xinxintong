@@ -1,0 +1,48 @@
+<div id='viewSetting'>
+    <div class='form-inline form-group'>
+        <div class='form-group'>
+            <button class='btn' ng-click="submit()" ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'">保存</button>
+        </div>
+    </div>
+    <div id='attrs'>
+        <div class='form-horizontal'>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>任务名称</label>
+                <div class='col-md-10'>
+                    <input type="text" class="form-control" ng-model='editing.title' ng-change="update('title')">
+                    <div class='help-block'>最多35个汉字，70个英文字符</div>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>摘要</label>
+                <div class='col-md-10'>
+                    <textarea class='form-control' ng-model='editing.summary' ng-change="update('summary');"
+                    rows='3'></textarea>
+                    <p class='help-block'>最多120个汉字，240个英文字符</p>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>头图</label>
+                <div class='col-md-10'>
+                    <div style="width:182px;border:1px solid #CCC">
+                        <div style="height:100px;text-align:center;padding-top:32px" ng-if="!editing.pic">
+                            <button class='btn btn-default' ng-click='setPic();'>
+                                <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                        </div>
+                        <div style='position:relative' ng-if="editing.pic" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                            <img name='pic' ng-src='{{editing.pic}}' width='180px' />
+                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                                <span class='glyphicon glyphicon-picture'></span>
+                            </button>
+                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                                <span class='glyphicon glyphicon-trash'></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <accesscontrol mpid='{{mpaccount.mpid}}' obj='editing' title='参与限制' label='仅限认证用户参与' prop-acl='acl' prop-access='access_control' prop-apis='authapis' update-access-control="update('access_control')" update-authapis="update('authapis')" change-acl-url='/rest/mp/mission/setAcl?id={{id}}' remove-acl-url='/rest/mp/mission/removeAcl' label-span='2' control-span='10'></accesscontrol>
+    </div>
+    <mediagallery box-id="{{mpaccount.mpid}}" />
+    <mattersgallery style='display:none' single-matter='true' has-parent='false' matter-url='/rest/mp/matter' matter-types='matterTypes'></mattersgallery>
+</div>

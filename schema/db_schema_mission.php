@@ -28,7 +28,8 @@ if (!$mysqli->query($sql)) {
  * 组成任务的素材
  */
 $sql = "create table if not exists xxt_mission_matter(";
-$sql .= "mission_id int not null";
+$sql .= "mpid varchar(32) not null";
+$sql .= ",mission_id int not null";
 $sql .= ",creater varchar(40) not null";
 $sql .= ",creater_name varchar(255) not null default ''";
 $sql .= ",creater_src char(1)";

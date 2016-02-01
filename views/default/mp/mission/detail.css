@@ -1,0 +1,5 @@
+/*matter*/
+#viewMatter .matters .thumbnail{position:relative;height:145px;cursor:pointer;display:flex;flex-direction:column;padding:8px;}
+#viewMatter .matters .thumbnail .summary{flex:1;overflow:hidden;}
+#viewMatter .matters .thumbnail .attr{display:flex;}
+#viewMatter .matters .thumbnail .operator{flex:1;}

@@ -5,6 +5,8 @@
 				location.href = '/rest/mp/matter/article?id=' + matter.matter_id;
 			} else if (matter.matter_type === 'enroll') {
 				location.href = '/rest/mp/app/enroll/detail?aid=' + matter.matter_id;
+			} else if (matter.matter_type === 'mission') {
+				location.href = '/rest/mp/mission/setting?id=' + matter.matter_id;
 			}
 		};
 		var url = '/rest/mp/recentMatters?size=28';

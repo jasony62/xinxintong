@@ -19,10 +19,10 @@ $sql .= ",modifier_src char(1)";
 $sql .= ',modify_at int not null';
 $sql .= ",access_control char(1) not null default 'N'";
 $sql .= ",authapis text";
-$sql .= ",primary key(code)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_contribute): ' . $mysqli->error;
+	echo 'database error(xxt_mission): ' . $mysqli->error;
 }
 /**
  * 组成任务的素材
@@ -39,7 +39,7 @@ $sql .= ",seq int not null default 0";
 $sql .= ",primary key(mission_id,matter_id,matter_type)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+	echo 'database error(xxt_mission_matter): ' . $mysqli->error;
 }
 
-echo 'finish xxt_task.' . PHP_EOL;
+echo 'finish xxt_mission.' . PHP_EOL;

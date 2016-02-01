@@ -1,5 +1,12 @@
+/*recent*/
 #viewRecent{margin-left:-15px;margin-right:-15px;}
 #viewRecent .thumbnail{position:relative;height:145px;cursor:pointer;display:flex;flex-direction:column;padding:8px;}
 #viewRecent .thumbnail .summary{flex:1;overflow:hidden;}
 #viewRecent .thumbnail .attr{display:flex;}
 #viewRecent .thumbnail .operator_name{flex:1;}
+/*mission*/
+#viewMission{margin-left:-15px;margin-right:-15px;}
+#viewMission .thumbnail{position:relative;height:145px;cursor:pointer;display:flex;flex-direction:column;padding:8px;}
+#viewMission .thumbnail .summary{flex:1;overflow:hidden;}
+#viewMission .thumbnail .attr{display:flex;}
+#viewMission .thumbnail .operator_name{flex:1;}

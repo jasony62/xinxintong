@@ -133,7 +133,7 @@ class main extends \mp\app\app_base {
 		$newapp['creater'] = $user->id;
 		$newapp['creater_src'] = $user->src;
 		$newapp['creater_name'] = $user->name;
-		$newapp['create_at'] = time();
+		$newapp['create_at'] = $current;
 		$newapp['entry_rule'] = json_encode($entryRule);
 		$newapp['summary'] = '';
 		$this->model()->insert('xxt_enroll', $newapp, false);

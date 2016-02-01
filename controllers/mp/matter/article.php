@@ -344,7 +344,7 @@ class article extends matter_ctrl {
 	 * 创建新图文
 	 */
 	public function create_action() {
-		/*登录用户*/
+		/*用户*/
 		$user = $this->accountUser();
 		$mpa = $this->model('mp\mpaccount')->getFeature($this->mpid, 'heading_pic');
 		$current = time();
@@ -374,6 +374,44 @@ class article extends matter_ctrl {
 		$this->model('log')->matterOp($this->mpid, $user, $matter, 'C');
 
 		return new \ResponseData($id);
+	}
+	/**
+	 *
+	 * @param int $id mission'is
+	 */
+	public function createByMission_action($id) {
+		$modelMis = $this->model('mission');
+		$mission = $modelMis->byId($id);
+		$user = $this->accountUser();
+		$current = time();
+
+		$article = array();
+		$article['mpid'] = $this->mpid;
+		$article['creater'] = $user->id;
+		$article['creater_src'] = 'A';
+		$article['creater_name'] = $user->name;
+		$article['create_at'] = $current;
+		$article['modifier'] = $user->id;
+		$article['modifier_src'] = 'A';
+		$article['modifier_name'] = $user->name;
+		$article['modify_at'] = $current;
+		$article['title'] = '新单图文';
+		$article['author'] = $user->name;
+		$article['pic'] = $mission->pic; //使用任务的头图
+		$article['hide_pic'] = 'N';
+		$article['summary'] = $mission->summary;
+		$article['url'] = '';
+		$article['body'] = '';
+		$articleId = $this->model()->insert('xxt_article', $article, true);
+		/*记录操作日志*/
+		$matter = (object) $article;
+		$matter->id = $articleId;
+		$matter->type = 'article';
+		$this->model('log')->matterOp($this->mpid, $user, $matter, 'C');
+		/*记录和任务的关系*/
+		$modelMis->addMatter($user, $this->mpid, $id, $matter);
+
+		return new \ResponseData($matter);
 	}
 	/**
 	 * 更新单图文的字段

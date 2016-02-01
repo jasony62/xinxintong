@@ -9,6 +9,9 @@
             <li ng-class="{'active':subView==='setting'}">
                 <a href="/rest/mp/mission/setting?id={{id}}">任务设置</a>
             </li>
+            <li ng-class="{'active':subView==='matter'}">
+                <a href="/rest/mp/mission/matter?id={{id}}">素材管理</a>
+            </li>
         </ul>
     </nav>
     <div ng-view></div>

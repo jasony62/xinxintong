@@ -74,7 +74,6 @@ class main extends \mp\app\app_base {
 	 * $src 是否来源于父账号，=p
 	 */
 	public function list_action($src = null, $page = 1, $size = 30) {
-		$uid = \TMS_CLIENT::get_client_uid();
 		$q = array('a.*', 'xxt_enroll a');
 		if ($src === 'p') {
 			$pmpid = $this->getParentMpid();
@@ -82,7 +81,7 @@ class main extends \mp\app\app_base {
 		} else {
 			$q[2] = "mpid='$this->mpid' and state=1";
 		}
-		$q2['o'] = 'a.create_at desc';
+		$q2['o'] = 'a.modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
 		if ($a = $this->model()->query_objs_ss($q, $q2)) {
@@ -134,6 +133,10 @@ class main extends \mp\app\app_base {
 		$newapp['creater_src'] = $user->src;
 		$newapp['creater_name'] = $user->name;
 		$newapp['create_at'] = $current;
+		$newapp['modifier'] = $user->id;
+		$newapp['modifier_src'] = $user->src;
+		$newapp['modifier_name'] = $user->name;
+		$newapp['modify_at'] = $current;
 		$newapp['entry_rule'] = json_encode($entryRule);
 		$newapp['summary'] = '';
 		$this->model()->insert('xxt_enroll', $newapp, false);
@@ -143,6 +146,44 @@ class main extends \mp\app\app_base {
 		$this->model('log')->matterOp($this->mpid, $user, $app, 'C');
 
 		return new \ResponseData($app);
+	}
+	/**
+	 *
+	 * @param int $id mission'is
+	 */
+	public function createByMission_action($id) {
+		$modelMis = $this->model('mission');
+		$mission = $modelMis->byId($id);
+		$user = $this->accountUser();
+		$current = time();
+
+		/*create app*/
+		$aid = uniqid();
+		$entryRule = $this->_addBlankPage($aid);
+		$newapp['mpid'] = $this->mpid;
+		$newapp['id'] = $aid;
+		$newapp['title'] = '新登记活动';
+		$newapp['pic'] = $mission->pic;
+		$newapp['creater'] = $user->id;
+		$newapp['creater_src'] = $user->src;
+		$newapp['creater_name'] = $user->name;
+		$newapp['create_at'] = $current;
+		$newapp['modifier'] = $user->id;
+		$newapp['modifier_src'] = $user->src;
+		$newapp['modifier_name'] = $user->name;
+		$newapp['modify_at'] = $current;
+		$newapp['entry_rule'] = json_encode($entryRule);
+		$newapp['summary'] = $mission->summary;
+		$this->model()->insert('xxt_enroll', $newapp, false);
+
+		$matter = $this->model('app\enroll')->byId($aid);
+		/*记录操作日志*/
+		$matter->type = 'enroll';
+		$this->model('log')->matterOp($this->mpid, $user, $matter, 'C');
+		/*记录和任务的关系*/
+		$modelMis->addMatter($user, $this->mpid, $id, $matter);
+
+		return new \ResponseData($matter);
 	}
 	/**
 	 *
@@ -266,6 +307,10 @@ class main extends \mp\app\app_base {
 		$newapp['creater_src'] = $user->src;
 		$newapp['creater_name'] = $user->name;
 		$newapp['create_at'] = $current;
+		$newapp['modifier'] = $user->id;
+		$newapp['modifier_src'] = $user->src;
+		$newapp['modifier_name'] = $user->name;
+		$newapp['modify_at'] = $current;
 		$newapp['title'] = $copied->title . '（副本）';
 		$newapp['pic'] = $copied->pic;
 		$newapp['summary'] = $copied->summary;
@@ -347,6 +392,10 @@ class main extends \mp\app\app_base {
 		$newapp['creater_src'] = $user->src;
 		$newapp['creater_name'] = $user->name;
 		$newapp['create_at'] = $current;
+		$newapp['modifier'] = $user->id;
+		$newapp['modifier_src'] = $user->src;
+		$newapp['modifier_name'] = $user->name;
+		$newapp['modify_at'] = $current;
 		$newapp['title'] = $copied->title . '（副本）';
 		$newapp['pic'] = $copied->pic;
 		$newapp['summary'] = $copied->summary;
@@ -453,6 +502,11 @@ class main extends \mp\app\app_base {
 				$nv[$n] = $this->model()->escape(urldecode($v));
 			}
 		}
+		$nv['modifier'] = $user->id;
+		$nv['modifier_src'] = $user->src;
+		$nv['modifier_name'] = $user->name;
+		$nv['modify_at'] = time();
+
 		$rst = $this->model()->update('xxt_enroll', $nv, "id='$aid'");
 		/*记录操作日志*/
 		if ($rst) {
@@ -474,6 +528,8 @@ class main extends \mp\app\app_base {
 	public function remove_action($aid) {
 		/*在删除数据前获得数据*/
 		$app = $this->model('matter\\' . 'enroll')->byId($aid, 'id,title,summary,pic');
+		/*删除和任务的关联*/
+		$this->model('mission')->removeMatter($this->mpid, $aid, 'enroll');
 		/*check*/
 		$q = array(
 			'count(*)',

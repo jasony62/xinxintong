@@ -13,6 +13,20 @@ xxtApp.config(['$routeProvider', function($routeProvider) {
                 return defer.promise;
             }
         }
+    }).when('/rest/mp/mission/matter', {
+        templateUrl: '/views/default/mp/mission/matter.html?_=1',
+        controller: 'settingCtrl',
+        resolve: {
+            load: function($q) {
+                var defer = $q.defer();
+                (function() {
+                    $.getScript('/views/default/mp/mission/matter.js', function() {
+                        defer.resolve();
+                    });
+                })();
+                return defer.promise;
+            }
+        }
     }).otherwise({
         templateUrl: '/views/default/mp/mission/setting.html?_=1',
         controller: 'settingCtrl'
@@ -26,6 +40,8 @@ xxtApp.controller('ctrlMission', ['$scope', '$location', 'http2', function($scop
     $scope.$on('$routeChangeSuccess', function(evt, nextRoute, lastRoute) {
         if (nextRoute.loadedTemplateUrl.indexOf('/setting') !== -1) {
             $scope.subView = 'setting';
+        } else if (nextRoute.loadedTemplateUrl.indexOf('/matter') !== -1) {
+            $scope.subView = 'matter';
         }
     });
     http2.get('/rest/mp/mpaccount/get', function(rsp) {

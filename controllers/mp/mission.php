@@ -30,6 +30,12 @@ class mission extends mp_controller {
 	/**
 	 *
 	 */
+	public function matter_action() {
+		$this->view_action('/mp/mission/detail');
+	}
+	/**
+	 *
+	 */
 	public function get_action($id) {
 		$mission = $this->model('mission')->byId($id);
 
@@ -110,5 +116,15 @@ class mission extends mp_controller {
 		$result = $modelMis->byMpid($this->mpid);
 
 		return new \ResponseData($result);
+	}
+	/**
+	 * 活的任务下的素材
+	 *
+	 * @param int $id
+	 */
+	public function mattersList_action($id) {
+		$matters = $this->model('mission')->mattersById($this->mpid, $id);
+
+		return new \ResponseData($matters);
 	}
 }

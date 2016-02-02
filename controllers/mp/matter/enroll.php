@@ -33,7 +33,7 @@ class enroll extends \mp\mp_controller {
 	/**
 	 *
 	 */
-	public function get_action($src) {
+	public function list_action($src) {
 		return $this->index_action($src);
 	}
 }

@@ -85,6 +85,53 @@ class channel extends matter_ctrl {
 		}
 	}
 	/**
+	 *
+	 * $src 是否从父账号获取资源
+	 * $acceptType
+	 * $cascade 是否获得频道内的素材和访问控制列表
+	 */
+	public function list_action($acceptType = null, $cascade = 'Y') {
+		$uid = \TMS_CLIENT::get_client_uid();
+
+		$options = $this->getPostJson();
+		/**
+		 * 素材的来源
+		 */
+		$mpid = (!empty($options->src) && $options->src === 'p') ? $this->getParentMpid() : $this->mpid;
+		$q = array(
+			"c.*,'$uid' uid",
+			'xxt_channel c',
+			"c.mpid='$mpid' and c.state=1",
+		);
+		!empty($acceptType) && $q[2] .= " and (matter_type='' or matter_type='$acceptType')";
+		/**
+		 * 仅限作者和管理员？
+		 */
+		if (!$this->model('mp\permission')->isAdmin($mpid, $uid, true)) {
+			$visible = $this->model()->query_value('matter_visible_to_creater', 'xxt_mpsetting', "mpid='$mpid'");
+			$visible === 'Y' && $q[2] .= " and (creater='$uid' or public_visible='Y')";
+		}
+		$q2['o'] = 'create_at desc';
+		$channels = $this->model()->query_objs_ss($q, $q2);
+		/**
+		 * 获得子资源
+		 */
+		if ($channels && $cascade == 'Y') {
+			foreach ($channels as $c) {
+				/**
+				 * matters
+				 */
+				$c->matters = $this->model('matter\channel')->getMatters($c->id, $c, $this->mpid);
+				/**
+				 * acl
+				 */
+				$c->acl = $this->model('acl')->byMatter($mpid, 'channel', $c->id);
+			}
+		}
+
+		return new \ResponseData($channels);
+	}
+	/**
 	 * 创建一个平道素材
 	 */
 	public function create_action() {

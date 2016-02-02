@@ -13,12 +13,12 @@ xxtApp.controller('sendCtrl', ['$scope', 'http2', '$modal', function($scope, htt
         var url = '/rest/mp/matter/' + $scope.matterType,
             params = {};;
         !page && (page = $scope.page.at);
-        url += '/get?page=' + page + '&size=' + $scope.page.size;
+        url += '/list?page=' + page + '&size=' + $scope.page.size;
         $scope.fromParent && $scope.fromParent === 'Y' && (params.src = 'p');
         http2.post(url, params, function(rsp) {
             if ('article' === $scope.matterType) {
-                $scope.matters = rsp.data[0];
-                rsp.data[1] && ($scope.page.total = rsp.data[1]);
+                $scope.matters = rsp.data.articles;
+                $scope.page.total = rsp.data.total;
             } else
                 $scope.matters = rsp.data;
         });

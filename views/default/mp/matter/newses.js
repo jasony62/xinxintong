@@ -49,7 +49,7 @@ xxtApp.controller('newsesCtrl', ['$scope', 'http2', function($scope, http2) {
             });
     };
     $scope.doSearch = function() {
-        var url = '/rest/mp/matter/news/get?cascade=N',
+        var url = '/rest/mp/matter/news/list?cascade=N',
             params = {};
         $scope.fromParent && $scope.fromParent === 'Y' && (params.src = 'p');
         http2.post(url, params, function(rsp) {

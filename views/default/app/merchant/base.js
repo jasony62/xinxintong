@@ -373,12 +373,7 @@ app.factory('Cart', function() {
         var prodIds, skuIds;
         if (!product || !skus || Object.keys(skus).length === 0) return;
         /*products*/
-        prodIds = Cookies.get('xxt.app.merchant.cart.products');
-        if (prodIds === undefined || prodIds.length === 0) {
-            prodIds = [];
-        } else {
-            prodIds = prodIds.split(',');
-        }
+        prodIds = this.productIds();
         prodIds.indexOf(product.id) === -1 && prodIds.push(product.id);
         Cookies.set('xxt.app.merchant.cart.products', prodIds.join(','));
         /*skus*/
@@ -393,15 +388,36 @@ app.factory('Cart', function() {
         });
         Cookies.set('xxt.app.merchant.cart.skus', skuIds.join(','));
     };
-    Cart.prototype.count = function() {
-        var products;
-        products = Cookies.get('xxt.app.merchant.cart.products');
-        if (products && products.length) {
-            products = products.split(',').length;
+    Cart.prototype.productIds = function() {
+        ids = Cookies.get('xxt.app.merchant.cart.products');
+        if (ids === undefined || ids.length === 0) {
+            ids = [];
         } else {
-            products = 0;
+            ids = ids.split(',');
         }
-        return products;
+        return ids;
+    };
+    Cart.prototype.removeSku = function(skuId) {
+        var skuIds;
+        skuIds = Cookies.get('xxt.app.merchant.cart.skus');
+        skuIds = skuIds.split(',');
+        skuIds.splice(skuIds.indexOf(skuId), 1);
+        skuIds = skuIds.join(',');
+        Cookies.set('xxt.app.merchant.cart.skus', skuIds);
+    };
+    Cart.prototype.restoreSku = function(skuId) {
+        skuIds = Cookies.get('xxt.app.merchant.cart.skus');
+        skuIds = (skuIds && skuIds.length) ? skuIds.split(',') : [];
+        skuIds.push(skuId);
+        skuIds = skuIds.join(',');
+        Cookies.set('xxt.app.merchant.cart.skus', skuIds);
+    };
+    Cart.prototype.count = function() {
+        return this.productIds().length;
+    };
+    Cart.prototype.empty = function() {
+        Cookies.set('xxt.app.merchant.cart.products', '');
+        Cookies.set('xxt.app.merchant.cart.skus', '');
     };
     return Cart;
 });

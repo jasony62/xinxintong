@@ -435,7 +435,7 @@ xxtMatters.controller('MattersGalleryModalInstCtrl', ['$scope', '$http', '$modal
         var url, params = {};
         url = $scope.p.matterType.url;
         url += '/' + $scope.p.matterType.value;
-        url += '/get?page=' + $scope.page.current + '&size=' + $scope.page.size + '&fields=' + fields;
+        url += '/list?page=' + $scope.page.current + '&size=' + $scope.page.size + '&fields=' + fields;
         $scope.p.fromParent && $scope.p.fromParent == 1 && (params.src = 'p');
         $http.post(url, params).success(function(rsp) {
             if (/article|contribute/.test($scope.p.matterType.value)) {

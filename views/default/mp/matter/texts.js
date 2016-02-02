@@ -32,7 +32,7 @@ xxtApp.controller('TextCtrl', ['$scope', 'http2', function($scope, http2) {
         http2.post('/rest/mp/matter/text/update?id=' + $scope.editing.id, p);
     };
     $scope.doSearch = function() {
-        var url = '/rest/mp/matter/text/get',
+        var url = '/rest/mp/matter/text/list',
             params = {};
         $scope.fromParent && $scope.fromParent === 'Y' && (params.src = 'p');
         http2.post(url, params, function(rsp) {

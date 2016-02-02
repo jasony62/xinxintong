@@ -68,9 +68,10 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', 'templateShop', func
     };
     $scope.onBodyChange = function() {
         $scope.modified = true;
-        modifiedData[name] = name === 'body' ? encodeURIComponent($scope.editing[name]) : $scope.editing[name];
+        modifiedData['body'] = encodeURIComponent($scope.editing['body']);
     };
     $scope.submit = function() {
+
         http2.post('/rest/mp/matter/article/update?id=' + $scope.editing.id, modifiedData, function() {
             modifiedData = {};
             $scope.modified = false;

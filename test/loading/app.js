@@ -1,27 +1,26 @@
-define(["require", "angular", "angular-sanitize"], function(require, angular) {
+define(["angular"], function(angular) {
 	'use strict';
-	var app = angular.module('app', ['ngSanitize']);
-	app.config(['$controllerProvider', function($cp) {
-		app.register = {
-			controller: $cp.register
-		};
-	}]);
-	app.controller('ctrl', ['$scope', '$timeout', function($scope, $timeout) {
+	angular.module('app', []).controller('ctrl', ['$scope', '$timeout', function($scope, $timeout) {
 		$scope.data = [];
 		$timeout(function() {
-			var i = 0,
-				eleLoading;
-			while (i < 100) {
+			for (var i = 0; i < 100; i++) {
 				$scope.data.push('data:' + i);
-				i++;
 			}
 			$timeout(function() {
-				eleLoading = document.querySelector('.loading');
-				eleLoading.parentNode.removeChild(eleLoading);
-			}, 2000)
+				var link, head;
+				link = document.createElement('link');
+				link.href = "/test/loading/app.css?_=" + (new Date()).getTime();
+				link.rel = 'stylesheet';
+				link.onload = function() {
+					var eleLoading, eleStyle;
+					eleLoading = document.querySelector('.loading');
+					eleLoading.parentNode.removeChild(eleLoading);
+					eleStyle = document.querySelector('#loadingStyle');
+					eleStyle.parentNode.removeChild(eleStyle);
+				};
+				head = document.querySelector('head');
+				head.appendChild(link);
+			}, 2000);
 		}, 2000);
 	}]);
-	require(['domReady!'], function(document) {
-		angular.bootstrap(document, ["app"]);
-	});
 });

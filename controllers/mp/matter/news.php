@@ -94,6 +94,52 @@ class news extends matter_ctrl {
 	/**
 	 *
 	 */
+	public function list_action($cascade = 'Y') {
+		$uid = \TMS_CLIENT::get_client_uid();
+
+		$options = $this->getPostJson();
+		/**
+		 * 素材的来源
+		 */
+		$mpid = (!empty($options->src) && $options->src === 'p') ? $this->getParentMpid() : $this->mpid;
+
+		$q = array(
+			"n.*,a.nickname creater_name,'$uid' uid",
+			'xxt_news n,account a',
+			"n.mpid='$mpid' and n.state=1 and n.creater=a.uid",
+		);
+		/**
+		 * 仅限作者和管理员？
+		 */
+		if (!$this->model('mp\permission')->isAdmin($mpid, $uid, true)) {
+			$limit = $this->model()->query_value('matter_visible_to_creater', 'xxt_mpsetting', "mpid='$mpid'");
+			if ($limit === 'Y') {
+				$q[2] .= " and (creater='$uid' or public_visible='Y')";
+			}
+
+		}
+		$q2['o'] = 'create_at desc';
+		$news = $this->model()->query_objs_ss($q, $q2);
+		/**
+		 * 获得子资源
+		 */
+		if ($news) {
+			foreach ($news as &$n) {
+				if ($n->empty_reply_type && $n->empty_reply_id) {
+					$n->emptyReply = $this->model('matter\base')->getMatterInfoById($n->empty_reply_type, $n->empty_reply_id);
+				}
+				if ($cascade === 'Y') {
+					$n->matters = $this->model('matter\news')->getMatters($n->id);
+					$n->acl = $this->model('acl')->byMatter($mpid, 'news', $n->id);
+				}
+			}
+		}
+
+		return new \ResponseData($news);
+	}
+	/**
+	 *
+	 */
 	public function update_action($id, $nv) {
 		$nv = (array) $this->getPostJson();
 

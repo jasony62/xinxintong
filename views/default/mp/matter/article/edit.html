@@ -95,7 +95,7 @@
                     <label class='checkbox-inline'>
                         <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.custom_body' ng-change="update('custom_body');">定制页面</label>
                 </div>
-                <tinymce content='editing.body' contenteditable='bodyEditable' change="onBodyChange()" id='body1'></tinymce>
+                <tinymce content='editing.body' contenteditable='bodyEditable' update="onBodyChange()" change="onBodyChange()" id='body1'></tinymce>
             </div>
         </div>
         <div class='form-group' ng-if="editing.custom_body==='Y'">

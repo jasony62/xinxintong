@@ -1,5 +1,7 @@
-app.register.controller('cartCtrl', ['$scope', '$http', 'Sku', function($scope, $http, Sku) {
-	var facSku;
+app.register.controller('cartCtrl', ['$scope', '$http', 'Cart', 'Sku', function($scope, $http, Cart, Sku) {
+	var facCart, facSku;
+	facCart = new Cart();
+	facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId);
 	var summarySku = function(catelog, product, cateSku, sku) {
 		if (sku.summary && sku.summary.length) {
 			return sku.summary;
@@ -57,23 +59,13 @@ app.register.controller('cartCtrl', ['$scope', '$http', 'Sku', function($scope, 
 		counter: 0
 	};
 	$scope.removeSku = function(sku, index) {
-		var skuIds;
-		skuIds = Cookies.get('xxt.app.merchant.cart.skus');
-		skuIds = skuIds.split(',');
-		skuIds.splice(skuIds.indexOf(sku.id), 1);
-		skuIds = skuIds.join(',');
-		Cookies.set('xxt.app.merchant.cart.skus', skuIds);
+		facCart.removeSku(sku);
 		sku.removed = true;
 		delete $scope.orderInfo.skus[sku.id];
 	};
 	$scope.restoreSku = function(sku, index) {
 		if (!sku.removed || sku.quantity == 0) return;
-		var skuIds;
-		skuIds = Cookies.get('xxt.app.merchant.cart.skus');
-		skuIds = (skuIds && skuIds.length) ? skuIds.split(',') : [];
-		skuIds.push(sku.id);
-		skuIds = skuIds.join(',');
-		Cookies.set('xxt.app.merchant.cart.skus', skuIds);
+		facCart.restoreSku(sku);
 		$scope.orderInfo.skus[sku.id] = {
 			count: 1
 		};
@@ -81,8 +73,7 @@ app.register.controller('cartCtrl', ['$scope', '$http', 'Sku', function($scope, 
 	};
 	$scope.emptyCart = function() {
 		if (window.confirm('确定清空？')) {
-			Cookies.set('xxt.app.merchant.cart.products', '');
-			Cookies.set('xxt.app.merchant.cart.skus', '');
+			facCart.empty();
 			$scope.orderInfo.skus = [];
 			history.back();
 		}
@@ -92,7 +83,6 @@ app.register.controller('cartCtrl', ['$scope', '$http', 'Sku', function($scope, 
 		url = '/rest/app/merchant/shelf?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&page=' + $scope.shellId;
 		location.href = url;
 	};
-	facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId);
 	facSku.list($scope.$parent.skuIds).then(function(data) {
 		setSkus(data);
 		$scope.catelogs = data;

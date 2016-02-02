@@ -1,4 +1,4 @@
-define(["require", "angular", "angular-sanitize", "xxt-share"], function(require, angular) {
+define(["require", "angular", "angular-sanitize"], function(require, angular) {
     'use strict';
     var app = angular.module('app', ['ngSanitize']);
     app.config(['$controllerProvider', function($cp) {
@@ -12,10 +12,10 @@ define(["require", "angular", "angular-sanitize", "xxt-share"], function(require
         mpid = ls.match(/[\?&]mpid=([^&]*)/)[1];
         id = ls.match(/[\?&]id=([^&]*)/)[1];
         shareby = ls.match(/shareby=([^&]*)/) ? ls.match(/shareby=([^&]*)/)[1] : '';
-        var setShare = function() {
+        var setMpShare = function(xxtShare) {
             var shareid, sharelink;
             shareid = $scope.user.vid + (new Date()).getTime();
-            window.xxt.share.options.logger = function(shareto) {
+            xxtShare.options.logger = function(shareto) {
                 var url = "/rest/mi/matter/logShare";
                 url += "?shareid=" + shareid;
                 url += "&mpid=" + mpid;
@@ -32,56 +32,69 @@ define(["require", "angular", "angular-sanitize", "xxt-share"], function(require
             sharelink += '&id=' + id;
             sharelink += '&tpl=cus';
             sharelink += "&shareby=" + shareid;
-            window.xxt.share.set($scope.article.title, sharelink, $scope.article.summary, $scope.article.pic);
+            xxtShare.set($scope.article.title, sharelink, $scope.article.summary, $scope.article.pic);
         };
-        var getArticle = function() {
+        var loadCss = function(css) {
+            var link, head;
+            link = document.createElement('link');
+            link.href = css.url;
+            link.rel = 'stylesheet';
+            head = document.querySelector('head');
+            head.appendChild(link);
+        };
+        var loadDynaJs = function(article, page) {
+            $timeout(function dynamicjs() {
+                eval(page.js);
+                $scope.article = article;
+            });
+        };
+        var loadExtJs = function(article, page) {
+            var jslength = page.ext_js.length;
+            var loadJs = function(js) {
+                var script;
+                script = document.createElement('script');
+                script.src = js.url;
+                script.onload = function() {
+                    jslength--;
+                    if (jslength === 0) {
+                        if (page.js && page.js.length) {
+                            loadDynaJs(article, page);
+                        } else {
+                            $scope.article = article;
+                        }
+                    }
+                };
+                document.body.appendChild(script);
+            };
+            angular.forEach(page.ext_js, loadJs);
+        };
+        var articleLoaded = function() {
+            /MicroMessenge|Yixin/i.test(navigator.userAgent) && require(['xxt-share'], function(xxtShare) {
+                setMpShare(xxtShare);
+            });
+            window.loading.finish();
+        };
+        var loadArticle = function() {
             var deferred = $q.defer();
             $http.get('/rest/mi/article/get?mpid=' + mpid + '&id=' + id).success(function(rsp) {
-                var params, page, jslength;
-                params = rsp.data;
-                $http.post('/rest/mi/matter/logAccess?mpid=' + mpid + '&id=' + id + '&type=article&title=' + params.article.title + '&shareby=' + shareby, {
+                var article, page;
+                article = rsp.data.article;
+                $http.post('/rest/mi/matter/logAccess?mpid=' + mpid + '&id=' + id + '&type=article&title=' + article.title + '&shareby=' + shareby, {
                     search: location.search.replace('?', ''),
                     referer: document.referrer
                 });
-                page = params.article.page;
-                $scope.user = params.user;
-                $scope.mpa = params.mpaccount;
+                page = article.page;
+                $scope.user = rsp.data.user;
+                $scope.mpa = rsp.data.mpaccount;
                 if (page.ext_css && page.ext_css.length) {
-                    angular.forEach(page.ext_css, function(css) {
-                        var link, head;
-                        link = document.createElement('link');
-                        link.href = css.url;
-                        link.rel = 'stylesheet';
-                        head = document.querySelector('head');
-                        head.appendChild(link);
-                    });
+                    angular.forEach(page.ext_css, loadCss);
                 }
                 if (page.ext_js && page.ext_js.length) {
-                    jslength = page.ext_js.length;
-                    angular.forEach(page.ext_js, function(js) {
-                        $.getScript(js.url, function() {
-                            jslength--;
-                            if (jslength === 0) {
-                                if (page.js && page.js.length) {
-                                    $timeout(function dynamicjs() {
-                                        eval(page.js);
-                                        $scope.article = params.article;
-                                    });
-                                } else {
-                                    $scope.article = params.article;
-                                }
-                            }
-                        });
-                    });
+                    loadExtJs(article, page);
+                } else if (page.js && page.js.length) {
+                    loadDynaJs(article, page);
                 } else {
-                    if (page.js && page.js.length) {
-                        $timeout(function dynamicjs() {
-                            eval(page.js);
-                            $scope.article = params.article;
-                        });
-                    } else {
-                        $scope.article = params.article;
-                    }
+                    $scope.article = article;
                 }
                 deferred.resolve();
             }).error(function(content, httpCode) {
@@ -95,17 +108,13 @@ define(["require", "angular", "angular-sanitize", "xxt-share"], function(require
                     if (content.indexOf('http') === 0) {
                         window.onAuthSuccess = function() {
                             el.style.display = 'none';
-                            getArticle().then(function() {
-                                $scope.loading = false
-                            });
+                            loadArticle().then(articleLoaded);
                         };
                         el.setAttribute('src', content);
                         el.style.display = 'block';
-                    } else {
-                        if (el.contentDocument && el.contentDocument.body) {
-                            el.contentDocument.body.innerHTML = content;
-                            el.style.display = 'block';
-                        }
+                    } else if (el.contentDocument && el.contentDocument.body) {
+                        el.contentDocument.body.innerHTML = content;
+                        el.style.display = 'block';
                     }
                 } else {
                     alert(content);
@@ -113,10 +122,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share"], function(require
             });
             return deferred.promise;
         };
-        getArticle().then(function() {
-            /MicroMessenge|Yixin/i.test(navigator.userAgent) && setShare();
-            window.loading.finish();
-        });
+        loadArticle().then(articleLoaded);
     }]);
     app.directive('dynamicHtml', function($compile) {
         return {

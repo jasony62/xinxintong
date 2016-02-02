@@ -76,4 +76,7 @@
             }
         }
     };
+    define && define(function() {
+        return window.xxt.share;
+    });
 })();

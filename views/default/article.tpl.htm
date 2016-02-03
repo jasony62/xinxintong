@@ -6,23 +6,23 @@
         <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
         <base href="/" />
         <title><?php TPL::pt('title');?></title>
-        <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
-        <link href='static/css/loading.css?_=1' rel="stylesheet">
-        <link href="/views/default/article.css?_=1" rel="stylesheet">
         <style ng-if="mpa.header_page.css" ng-bind='mpa.header_page.css'></style>
         <style ng-if="mpa.footer_page.css" ng-bind='mpa.footer_page.css'></style>
+        <style id='loadingStyle'>
+            @keyframes loadingRunning{0%{transform:rotate(0deg)}12%{transform:rotate(45deg)}25%{transform:rotate(90deg)}37%{transform:rotate(135deg)}50%{transform:rotate(180deg)}62%{transform:rotate(225deg)}75%{transform:rotate(270deg)}87%{transform:rotate(315deg)}100%{transform:rotate(360deg)}}@-webkit-keyframes loadingRunning{0%{-webkit-transform:rotate(0deg)}12%{-webkit-transform:rotate(45deg)}25%{-webkit-transform:rotate(90deg)}37%{-webkit-transform:rotate(135deg)}50%{-webkit-transform:rotate(180deg)}62%{-webkit-transform:rotate(225deg)}75%{-webkit-transform:rotate(270deg)}87%{-webkit-transform:rotate(315deg)}100%{-webkit-transform:rotate(360deg)}}.loading{position:absolute;top:0;right:0;bottom:0;left:0;background:rgba(224,224,224,0.9)}.loading-indicator{position:absolute;top:50%;left:50%;margin-left:-25px;margin-top:-25px;width:50px;height:50px;animation:loadingRunning 1s infinite;-webkit-animation:loadingRunning 1s infinite}.loading-indicator:before{content:"";display:block;width:50px;height:25px;padding:5px;padding-bottom:0;box-sizing:border-box;border-top-left-radius:25px;border-top-right-radius:25px;background:-webkit-linear-gradient(0deg,#999,#bbb)}.loading-indicator:after{content:"";display:block;width:50px;height:25px;padding:5px;padding-top:0;box-sizing:border-box;border-bottom-left-radius:25px;border-bottom-right-radius:25px;background:-webkit-linear-gradient(0deg,#eee,#bbb)}.loading-indicator>i{display:block;position:absolute;width:40px;height:40px;background:#eee;top:5px;left:5px;border-radius:20px}
+        </style>
     </head>
     
-    <body ng-cloak class='ng-cloak'>
+    <body>
         <header dynamic-html='mpa.header_page.html'></header>
         <div class="article">
             <div class="wrap">
                 <h1 id="title" class="ttile" ng-bind='article.title'></h1>
                 <div id="attribute">
-                    <span class="time" ng-bind="article.modify_at*1000|date:'yyyy-MM-dd'"></span>
+                    <span class="time" ng-bind="article.modify_at*1000|date:'yy-MM-dd'"></span>
                     <span class="author" ng-bind='article.author'></span>
                     <span id='article_from_mp' ng-if='mpa.yx_cardid'>
-                        <a ng-click="followMp()" href="javascript:void(0)" ng-bind='mpa.yx_cardname'></a>
+                        <a ng-click="followYixinMp()" href="" ng-bind='mpa.yx_cardname'></a>
                     </span>
                 </div>
                 <div class="headpic" ng-if="article.hide_pic!=='Y'">
@@ -42,7 +42,7 @@
                     </table>
                 </div>
                 <p class="url" ng-if="article.url">
-                    <a href="{{article.url}}" target="_self">阅读原文</a>
+                    <a ng-href="{{article.url}}" target="_self">阅读原文</a>
                 </p>
                 <div id='stat'>
                     <span class='read'>
@@ -55,28 +55,30 @@
                     </span>
                 </div>
                 <div id='tag' ng-if="article.channels.length||article.tags.length">
-                    <span ng-repeat="c in article.channels" ng-click="openChannel(c)">{{c.title}}</span>
-                    <span ng-repeat="t in article.tags" ng-click="searchByTag(t)">{{t.title}}</span>
+                    <span ng-repeat="c in article.channels" ng-click="openChannel(c)" ng-bind="c.title"></span>
+                    <span ng-repeat="t in article.tags" ng-click="searchByTag(t)" ng-bind="t.title"></span>
                 </div>
-                <div id='remark' class='clearfix' ng-show="mpa.can_article_remark==='Y'">
-                    <h5>评论</h5>
-                    <ul class='list-group' ng-hide="mode==='preview'">
-                        <li class='list-group-item' ng-repeat="r in article.remarks" ng-click='reply(r)'>
+                <div id='remark' class='clearfix' ng-show="mpa.can_article_remark==='Y'" ng-controller='ctrlRemark'>
+                    <h3>评论</h3>
+                    <div class='list-group' ng-hide="mode==='preview'">
+                        <div class='list-group-item' ng-repeat="r in article.remarks" ng-click='reply(r)'>
                             <div class='content' ng-bind="r.remark"></div>
-                            <div class='clearfix'>
+                            <div class='attrs'>
                                 <div class='nickname' ng-bind="r.nickname"></div>
                                 <div class='datetime' ng-bind="r.create_at*1000|date:'yy-MM-dd HH:mm'"></div>
                             </div>
-                        </li>
-                    </ul>
-                    <textarea id='newRemark' rows='4' class='form-control' ng-disabled="mode==='preview'" ng-model="newRemark"></textarea>
-                    <button class='btn btn-primary pull-right' ng-disabled="mode==='preview'" ng-click='remark()'>发表评论</button>
+                        </div>
+                    </div>
+                    <div class='actions'>
+                        <textarea id='newRemark' rows='4' class='form-control' ng-disabled="mode==='preview'" ng-model="newRemark"></textarea>
+                        <button ng-disabled="!newRemark||newRemark.length===0" ng-click='remark()'>发表评论</button>
+                    </div>
                 </div>
             </div>
         </div>
         <footer dynamic-html='mpa.footer_page.html'></footer>
         <div class="loading"><div class='loading-indicator'><i></i></div></div>
-        <script src="static/js/require.js" defer async data-main="/views/default/article-loader.js?_=1"></script>
+        <script src="static/js/require.js" defer async data-main="/views/default/article-loader.js?_=4"></script>
     </body>
 
 </html>

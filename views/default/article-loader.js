@@ -1,29 +1,30 @@
 window.loading = {
 	finish: function() {
+		var eleLoading, eleStyle;
 		eleLoading = document.querySelector('.loading');
 		eleLoading.parentNode.removeChild(eleLoading);
+		eleStyle = document.querySelector('#loadingStyle');
+		eleStyle.parentNode.removeChild(eleStyle);
 	},
 	load: function() {
 		require.config({
 			paths: {
 				"domReady": '/static/js/domReady',
 				"angular": "/static/js/angular.min",
-				"angular-sanitize": "/static/js/angular-sanitize.min",
 				"xxt-share": "/static/js/xxt.share",
+				"hammer": "/static/js/hammer.min",
+				"picviewer": "/views/default/picviewer",
 			},
 			shim: {
 				"angular": {
 					exports: "angular"
 				},
-				"angular-sanitize": {
-					deps: ['angular'],
-					exports: "angular-sanitize"
-				},
-				"xxt-share": {
-					exports: "xxt-share"
-				},
+				"picviewer": {
+					deps: ['hammer']
+				}
 			},
-			deps: ['/views/default/article.js?_=1']
+			deps: ['/views/default/article.js?_=2'],
+			urlArgs: "bust=" + (new Date()).getTime()
 		});
 	}
 };

@@ -76,7 +76,7 @@
             }
         }
     };
-    define && define(function() {
+    window.define && define(function() {
         return window.xxt.share;
     });
 })();

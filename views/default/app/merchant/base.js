@@ -397,6 +397,12 @@ app.factory('Cart', function() {
         }
         return ids;
     };
+    Cart.prototype.removeProd = function(prodId) {
+        var prodIds = this.productIds();
+        prodIds.splice(prodIds.indexOf(prodId), 1);
+        prodIds = prodIds.join(',');
+        Cookies.set('xxt.app.merchant.cart.products', prodIds);
+    };
     Cart.prototype.removeSku = function(skuId) {
         var skuIds;
         skuIds = Cookies.get('xxt.app.merchant.cart.skus');

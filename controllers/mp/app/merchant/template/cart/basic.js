@@ -1,5 +1,5 @@
 app.register.controller('cartCtrl', ['$scope', '$http', 'Cart', 'Sku', function($scope, $http, Cart, Sku) {
-	var facCart, facSku;
+	var facCart, facSku, removedCache;
 	facCart = new Cart();
 	facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId);
 	var summarySku = function(catelog, product, cateSku, sku) {
@@ -58,10 +58,28 @@ app.register.controller('cartCtrl', ['$scope', '$http', 'Cart', 'Sku', function(
 		skus: {},
 		counter: 0
 	};
+	$scope.removeProd = function(evt, cate, prod, index) {
+		/*清空订单信息中商品的sku*/
+		angular.forEach(prod.cateSkus, function(cateSku) {
+			angular.forEach(cateSku.skus, function(sku) {
+				$scope.removeSku(sku);
+			});
+		});
+		/*从购物车中清除商品*/
+		facCart.removeProd(prod);
+		/*缓存删除的商品*/
+		removedCache = removedCache || [];
+		removedCache.push({
+			catelog: cate,
+			product: prod
+		});
+		delete cate.products[prod.id];
+	};
 	$scope.removeSku = function(sku, index) {
 		facCart.removeSku(sku);
 		sku.removed = true;
 		delete $scope.orderInfo.skus[sku.id];
+		$scope.orderInfo.counter--;
 	};
 	$scope.restoreSku = function(sku, index) {
 		if (!sku.removed || sku.quantity == 0) return;

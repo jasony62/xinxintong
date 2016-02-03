@@ -33,7 +33,7 @@
 			<button class="btn btn-lg btn-default" tms-lock="lock" ng-click='toggleFilter($event)'>关闭</button>
 			<button class="btn btn-lg btn-default" tms-lock="lock" tms-lock-promoter="Y" ng-click='doFilter($event)'>确定</button>
 		</footer>
-	</div>
+	</div>sn
 	<div class='flex-frame' ng-show='!filterOpened'>
 		<header class="flex-bar" ng-click="toggleFilter()">
 			<button id='filterSummary' class='btn btn-lg btn-default'>筛选：<span ng-bind="filterSummary"></span><span class="glyphicon glyphicon-chevron-right"></span></button>
@@ -41,7 +41,7 @@
 		<div id='products' class='flex-main'>
 			<div class='flex-main-wrap'>
 				<div class='col-sm-6' ng-repeat="prod in products">
-					<div class='thumbnail' ng-click="gotoProduct(prod)">
+					<div class='thumbnail' ng-click="gotoProduct($event,prod)">
 						<div class='grip' ng-click="chooseProd($event,prod)">
 							<div ng-class="{'checked':prod._checked}"></div>
 						</div>

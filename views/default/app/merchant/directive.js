@@ -224,7 +224,6 @@ app.directive('tmsTime', ['$compile', function($compile) {
             scope.$watch('value', function(nv) {
                 if (scope._valueChanged !== true) {
                     if (nv) {
-                        console.log('sv', nv);
                         angular.forEach(timePoints, function(tp) {
                             if (nv.begin !== undefined && tp.v === nv.begin && true !== tp.selected) {
                                 tp.selected = true;

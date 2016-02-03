@@ -1,6 +1,6 @@
-define(["require", "angular", "angular-sanitize"], function(require, angular) {
+define(["require", "angular"], function(require, angular) {
     'use strict';
-    var app = angular.module('app', ['ngSanitize']);
+    var app = angular.module('app', []);
     app.config(['$controllerProvider', function($cp) {
         app.register = {
             controller: $cp.register

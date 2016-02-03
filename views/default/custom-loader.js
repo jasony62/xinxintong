@@ -11,23 +11,18 @@ window.loading = {
 			paths: {
 				"domReady": '/static/js/domReady',
 				"angular": "/static/js/angular.min",
-				"angular-sanitize": "/static/js/angular-sanitize.min",
 				"xxt-share": "/static/js/xxt.share",
 			},
 			shim: {
 				"angular": {
 					exports: "angular"
 				},
-				"angular-sanitize": {
-					deps: ['angular'],
-					exports: "angular-sanitize"
-				},
 				"xxt-share": {
 					exports: "xxt-share"
 				},
 			},
 			deps: ['/views/default/custom.js?_=1'],
-			//urlArgs: "bust=" + (new Date()).getTime()
+			urlArgs: "bust=" + (new Date()).getTime()
 		});
 	}
 };

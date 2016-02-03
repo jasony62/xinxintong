@@ -18,9 +18,9 @@
 .product .detail_text{max-height:180px;overflow:auto}
 
 /*skus*/
-.skus{margin:1em 0;}
+.skus{margin:0 0 1em 0;}
 .sku{display:table;width:100%;border-bottom:1px dotted #ddd;}
-.sku.unavailable{background:#ccc;}
+.sku.unavailable{background:#efefef;}
 .sku.removed{text-decoration:line-through;color:#999;}
 .sku .content,.sku .actions{display:table-cell;}
 .sku .description>div{border-bottom:1px dotted #ddd;}

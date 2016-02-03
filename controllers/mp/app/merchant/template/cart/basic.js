@@ -33,15 +33,10 @@ app.register.controller('cartCtrl', ['$scope', '$http', 'Cart', 'Sku', function(
 		return false;
 	};
 	var setSkus = function(catelogs) {
-		var i, j, k, l, catelog, product, cateSku, sku;
-		for (i in catelogs) {
-			catelog = catelogs[i];
-			for (j in catelog.products) {
-				product = catelog.products[j];
-				for (k in product.cateSkus) {
-					cateSku = product.cateSkus[k];
-					for (l in cateSku.skus) {
-						sku = cateSku.skus[l];
+		angular.forEach(function(catelogs, function(catelog) {
+			angular.forEach(function(catelog.products, function(product) {
+				angular.forEach(product.cateSkus, function(cateSku) {
+					angular.forEach(cateSku.skus, function(sku) {
 						sku.cateSku = cateSku;
 						sku._summary = summarySku(catelog, product, cateSku, sku);
 						sku._available = isAvailable(sku);
@@ -49,10 +44,10 @@ app.register.controller('cartCtrl', ['$scope', '$http', 'Cart', 'Sku', function(
 							count: 1
 						};
 						$scope.orderInfo.counter++;
-					}
-				}
-			}
-		}
+					});
+				});
+			}));
+		}));
 	};
 	$scope.orderInfo = {
 		skus: {},
@@ -101,7 +96,7 @@ app.register.controller('cartCtrl', ['$scope', '$http', 'Cart', 'Sku', function(
 		url = '/rest/app/merchant/shelf?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&page=' + $scope.shellId;
 		location.href = url;
 	};
-	facSku.list($scope.$parent.skuIds).then(function(data) {
+	facSku.list(facCart.skuIds()).then(function(data) {
 		setSkus(data);
 		$scope.catelogs = data;
 	});

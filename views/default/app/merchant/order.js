@@ -1,5 +1,5 @@
-app.controller('ctrl', ['$scope', '$http', '$q', '$timeout', 'Order', function($scope, $http, $q, $timeout, Order) {
-    var ls, url, facOrder;
+app.controller('ctrl', ['$scope', '$http', '$q', '$timeout', 'Cart', 'Order', function($scope, $http, $q, $timeout, Cart, Order) {
+    var ls, url, facCart, facOrder;
     ls = location.search;
     $scope.mpid = ls.match(/mpid=([^&]*)/)[1];
     $scope.shopId = ls.match(/shop=([^&]*)/)[1];
@@ -9,6 +9,7 @@ app.controller('ctrl', ['$scope', '$http', '$q', '$timeout', 'Order', function($
     $scope.beginAt = ls.match(/[\?&]beginAt=(.+?)(&|$)/) ? ls.match(/[\?&]beginAt=(.+?)(&|$)/)[1] : false;
     $scope.endAt = ls.match(/[\?&]endAt=(.+?)(&|$)/) ? ls.match(/[\?&]endAt=(.+?)(&|$)/)[1] : false;
     $scope.errmsg = '';
+    facCart = new Cart();
     facOrder = new Order($scope.mpid, $scope.shopId);
     url = '/rest/app/merchant/order/pageGet?mpid=' + $scope.mpid;
     url += '&shop=' + $scope.shopId;
@@ -58,8 +59,8 @@ app.controller('ctrl', ['$scope', '$http', '$q', '$timeout', 'Order', function($
                     return false;
                 }
             });
-            Cookies.set('xxt.app.merchant.cart.products', '');
-            Cookies.set('xxt.app.merchant.cart.skus', '');
+            //todo 合理吗？
+            facCart.empty();
             if (requirePay) {
                 location.href = '/rest/app/merchant/pay?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&order=' + orderId;
             } else {
@@ -96,12 +97,12 @@ app.controller('ctrl', ['$scope', '$http', '$q', '$timeout', 'Order', function($
         }
         return defer.promise;
     };
-    $scope.removeSku = function(product, sku, index) {
+    $scope.removeSku = function(product, sku) {
         sku.removed = true;
         $scope.orderInfo.counter--;
         delete $scope.orderInfo.skus[sku.id];
     };
-    $scope.restoreSku = function(product, sku, index) {
+    $scope.restoreSku = function(product, sku) {
         if (!sku.removed || sku.quantity == 0) return;
         $scope.orderInfo.skus[sku.id] = {
             count: 1

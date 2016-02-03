@@ -390,12 +390,22 @@ app.factory('Cart', function() {
     };
     Cart.prototype.productIds = function() {
         ids = Cookies.get('xxt.app.merchant.cart.products');
-        if (ids === undefined || ids.length === 0) {
-            ids = [];
-        } else {
-            ids = ids.split(',');
-        }
+        ids = (ids === undefined || ids.length === 0) ? [] : ids.split(',');
         return ids;
+    };
+    Cart.prototype.skuIds = function() {
+        ids = Cookies.get('xxt.app.merchant.cart.skus');
+        ids = (ids === undefined || ids.length === 0) ? [] : ids.split(',');
+        return ids;
+    };
+    /*产品置顶*/
+    Cart.prototype.asFirstProd = function(prodId) {
+        var prodIds;
+        this.removeProd(prodId);
+        prodIds = this.productIds();
+        prodIds.unshift(prodId);
+        prodIds = prodIds.join(',');
+        Cookies.set('xxt.app.merchant.cart.products', prodIds);
     };
     Cart.prototype.removeProd = function(prodId) {
         var prodIds = this.productIds();

@@ -1,5 +1,7 @@
-app.register.controller('orderCtrl', ['$scope', '$http', 'Sku', function($scope, $http, Sku) {
-	var facSku;
+app.register.controller('orderCtrl', ['$scope', '$http', 'Cart', 'Sku', function($scope, $http, Cart, Sku) {
+	var facSku, facCart, removedCache;
+	facCart = new Cart();
+	facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId);
 	var summarySku = function(catelog, product, cateSku, sku) {
 		if (sku.summary && sku.summary.length) {
 			return sku.summary;
@@ -31,15 +33,10 @@ app.register.controller('orderCtrl', ['$scope', '$http', 'Sku', function($scope,
 		return false;
 	};
 	var setSkus = function(catelogs) {
-		var i, j, k, l, catelog, product, cateSku, sku;
-		for (i in catelogs) {
-			catelog = catelogs[i];
-			for (j in catelog.products) {
-				product = catelog.products[j];
-				for (k in product.cateSkus) {
-					cateSku = product.cateSkus[k];
-					for (l in cateSku.skus) {
-						sku = cateSku.skus[l];
+		angular.forEach(catelogs, function(catelog) {
+			angular.forEach(catelog.products, function(product) {
+				angular.forEach(product.cateSkus, function(cateSku) {
+					angular.forEach(cateSku.skus, function(sku) {
 						sku._summary = summarySku(catelog, product, cateSku, sku);
 						sku._available = isAvailable(sku);
 						sku.cateSku = cateSku;
@@ -48,12 +45,12 @@ app.register.controller('orderCtrl', ['$scope', '$http', 'Sku', function($scope,
 							count: 1
 						};
 						$scope.orderInfo.counter++;
-					}
-				}
-			}
-		}
+					});
+				});
+			});
+		});
 	};
-	facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId);
+	/*获得订单包含的商品和sku*/
 	if ($scope.$parent.productIds && $scope.$parent.productIds.length) {
 		facSku.listByProducts($scope.$parent.productIds, {
 			beginAt: $scope.$parent.beginAt,
@@ -68,4 +65,19 @@ app.register.controller('orderCtrl', ['$scope', '$http', 'Sku', function($scope,
 			setSkus(data);
 		});
 	}
+	$scope.removeProd = function(evt, cate, prod) {
+		/*清空订单信息中商品的sku*/
+		angular.forEach(prod.cateSkus, function(cateSku) {
+			angular.forEach(cateSku.skus, function(sku) {
+				$scope.removeSku(sku);
+			});
+		});
+		/*缓存删除的商品*/
+		removedCache = removedCache || [];
+		removedCache.push({
+			catelog: cate,
+			product: prod
+		});
+		delete cate.products[prod.id];
+	};
 }]);

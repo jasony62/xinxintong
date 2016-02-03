@@ -22,21 +22,16 @@ app.register.controller('notifyCtrl', ['$scope', '$http', '$q', 'Order', functio
 		}
 	};
 	var setSkus = function(catelogs) {
-		var i, j, k, l, catelog, product, cateSku, sku;
-		for (i in catelogs) {
-			catelog = catelogs[i];
-			for (j in catelog.products) {
-				product = catelog.products[j];
-				for (k in product.cateSkus) {
-					cateSku = product.cateSkus[k];
-					for (l in cateSku.skus) {
-						sku = cateSku.skus[l];
+		angular.forEach(catelogs, function(catelog) {
+			angular.forEach(catelog.products, function(product) {
+				angular.forEach(product.cateSkus, function(cateSku) {
+					angular.forEach(cateSku.skus, function(sku) {
 						sku.cateSku = cateSku;
 						sku._summary = summarySku(catelog, product, cateSku, sku);
-					}
-				}
-			}
-		}
+					});
+				});
+			});
+		});
 	};
 	$scope.lock = false;
 	facOrder = new Order($scope.$parent.mpid, $scope.$parent.shopId);

@@ -8,6 +8,34 @@ define(["require", "angular"], function(require, angular) {
         head = document.querySelector('head');
         head.appendChild(link);
     };
+    var openPlugin = function(content, cb) {
+        var frag, wrap, frm;
+        frag = document.createDocumentFragment();
+        wrap = document.createElement('div');
+        wrap.setAttribute('id', 'frmPlugin');
+        frm = document.createElement('iframe');
+        wrap.appendChild(frm);
+        wrap.onclick = function() {
+            wrap.parentNode.removeChild(wrap);
+        };
+        frag.appendChild(wrap);
+        document.body.appendChild(frag);
+        if (content.indexOf('http') === 0) {
+            window.onClosePlugin = function() {
+                wrap.parentNode.removeChild(wrap);
+                cb && cb();
+            };
+            window.onAuthSuccess = function() {
+                wrap.parentNode.removeChild(wrap);
+                cb && cb();
+            };
+            frm.setAttribute('src', content);
+        } else {
+            if (frm.contentDocument && frm.contentDocument.body) {
+                frm.contentDocument.body.innerHTML = content;
+            }
+        }
+    };
     var app = angular.module('app', []);
     app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
         var ls, mpid, id, shareby;
@@ -75,25 +103,9 @@ define(["require", "angular"], function(require, angular) {
                 });
             }).error(function(content, httpCode) {
                 if (httpCode === 401) {
-                    var el = document.createElement('iframe');
-                    el.setAttribute('id', 'frmAuth');
-                    el.onload = function() {
-                        this.height = document.documentElement.clientHeight;
-                    };
-                    document.body.appendChild(el);
-                    if (content.indexOf('http') === 0) {
-                        window.onAuthSuccess = function() {
-                            el.style.display = 'none';
-                            loadArticle().then(articleLoaded);
-                        };
-                        el.setAttribute('src', content);
-                        el.style.display = 'block';
-                    } else {
-                        if (el.contentDocument && el.contentDocument.body) {
-                            el.contentDocument.body.innerHTML = content;
-                            el.style.display = 'block';
-                        }
-                    }
+                    openPlugin(function() {
+                        loadArticle().then(articleLoaded);
+                    });
                 } else {
                     alert(content);
                 }
@@ -146,6 +158,15 @@ define(["require", "angular"], function(require, angular) {
             $timeout(function() {
                 document.querySelector('#gotoNewRemark').click();
             });
+        };
+    }]);
+    app.controller('ctrlPay', ['$scope', function($scope) {
+        $scope.open = function() {
+            var url = 'http://' + location.host;
+            url += '/rest/coin/pay';
+            url += "?mpid=" + $scope.mpid;
+            url += "&matter=article," + $scope.articleId;
+            openPlugin(url);
         };
     }]);
     app.directive('dynamicHtml', function($compile) {

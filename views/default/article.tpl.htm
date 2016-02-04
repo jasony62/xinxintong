@@ -14,8 +14,8 @@
     </head>
     
     <body>
-        <header dynamic-html='mpa.header_page.html'></header>
         <div class="article">
+            <header dynamic-html='mpa.header_page.html'></header>
             <div class="wrap">
                 <h1 id="title" class="ttile" ng-bind='article.title'></h1>
                 <div id="attribute">
@@ -58,7 +58,7 @@
                     <span ng-repeat="c in article.channels" ng-click="openChannel(c)" ng-bind="c.title"></span>
                     <span ng-repeat="t in article.tags" ng-click="searchByTag(t)" ng-bind="t.title"></span>
                 </div>
-                <div id='remark' class='clearfix' ng-show="mpa.can_article_remark==='Y'" ng-controller='ctrlRemark'>
+                <div id='remark' ng-show="mpa.can_article_remark==='Y'" ng-controller='ctrlRemark'>
                     <h3>评论</h3>
                     <div class='list-group' ng-hide="mode==='preview'">
                         <div class='list-group-item' ng-repeat="r in article.remarks" ng-click='reply(r)'>
@@ -75,8 +75,9 @@
                     </div>
                 </div>
             </div>
+            <footer dynamic-html='mpa.footer_page.html'></footer>
+            <div style="display:none" ng-controller="ctrlPay"><button ng-click="open()">打赏</button></div>
         </div>
-        <footer dynamic-html='mpa.footer_page.html'></footer>
         <div class="loading"><div class='loading-indicator'><i></i></div></div>
         <script src="static/js/require.js" defer async data-main="/views/default/article-loader.js?_=4"></script>
     </body>

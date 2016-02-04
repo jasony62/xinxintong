@@ -194,12 +194,12 @@ class TMS_MODEL {
 	/**
 	 * generate a 32bits salt.
 	 */
-	protected static function gen_salt() {
+	public static function gen_salt($length = 32) {
 		$alpha_digits = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 		$alpha_digits_len = strlen($alpha_digits) - 1;
 
 		$salt = '';
-		for ($i = 0; $i < 32; $i++) {
+		for ($i = 0; $i < $length; $i++) {
 			$salt .= $alpha_digits[mt_rand(0, $alpha_digits_len)];
 		}
 

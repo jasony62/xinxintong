@@ -19,8 +19,8 @@ class ResponseData {
 	}
 }
 class ResponseError extends ResponseData {
-	public function __construct($msg) {
-		parent::__construct(null, -1, $msg);
+	public function __construct($msg, $data = null) {
+		parent::__construct($data, -1, $msg);
 	}
 }
 class ResponseTimeout extends ResponseData {

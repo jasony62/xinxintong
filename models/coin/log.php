@@ -67,4 +67,64 @@ class log_model extends \TMS_MODEL {
 
 		return $coin;
 	}
+	/**
+	 * 转账
+	 *
+	 * @param string $mpid
+	 * @param string $payer 付款人，openid
+	 * @param string $payee 首款人，openid
+	 * @param string $coin 转账的数额
+	 *
+	 */
+	public function transfer($mpid, $payer, $payee, $coin) {
+		/*减付款人*/
+		$sql = "update xxt_fans set";
+		$sql .= " coin=coin-" . $coin;
+		$sql .= " where mpid='$mpid' and openid='$payer'";
+		$this->update($sql);
+		/*转账日志*/
+		$current = time();
+		$payee = \TMS_APP::model('user/fans')->byOpenid($mpid, $payee, 'openid,nickname,coin,coin_last_at,coin_day,coin_week,coin_month,coin_year');
+		/*更新总值*/
+		$total = (int) $payee->coin + $coin;
+		/*记录日志*/
+		$i['mpid'] = $mpid;
+		$i['occur_at'] = $current;
+		$i['act'] = 'coin.transfer';
+		$i['payer'] = $payer;
+		$i['payee'] = $payee->openid;
+		$i['nickname'] = $payee->nickname;
+		$i['delta'] = $coin;
+		$i['total'] = $total;
+		$this->insert('xxt_coin_log', $i, false);
+		/*增量累计值*/
+		$last = explode(',', date('Y,n,W,j', $payee->coin_last_at));
+		$today = explode(',', date('Y,n,W,j', $current));
+		if ($today[0] !== $last[0]) {
+			$year = $month = $week = $day = $coin;
+		} else {
+			$year = $payee->coin_year + $coin;
+			if ($today[1] !== $last[1]) {
+				$month = $week = $day = $coin;
+			} else {
+				$month = $payee->coin_month + $coin;
+				if ($today[2] !== $last[2]) {
+					$week = $day = $coin;
+				} else {
+					$week = $payee->coin_week + $coin;
+					if ($today[3] !== $last[3]) {
+						$day = $coin;
+					} else {
+						$day = $payee->coin_day + $coin;
+					}
+				}
+			}
+		}
+		/*更新数据*/
+		$sql = "update xxt_fans set";
+		$sql .= " coin=$total,coin_last_at=$current";
+		$sql .= ",coin_day=$day,coin_week=$week,coin_month=$month,coin_year=$year";
+		$sql .= " where mpid='$mpid' and openid='$payee->openid'";
+		$this->update($sql);
+	}
 }

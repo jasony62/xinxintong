@@ -237,18 +237,18 @@ class matter extends \member_base {
 			if (!empty($contribution->openid) && $contribution->openid !== $logUser->openid) {
 				// for contributor
 				$action = 'app.' . $contribution->entry . '.article.share.' . $shareto;
-				$modelCoin->record($mpid, $action, $id, 'sys', $contribution->openid);
+				$modelCoin->income($mpid, $action, $id, 'sys', $contribution->openid);
 			}
 			if (empty($contribution->openid) || $contribution->openid !== $logUser->openid) {
 				// for reader
-				$modelCoin->record($mpid, 'mp.matter.article.share.' . $shareto, $id, 'sys', $logUser->openid);
+				$modelCoin->income($mpid, 'mp.matter.article.share.' . $shareto, $id, 'sys', $logUser->openid);
 			}
 		} else if ($type === 'enroll') {
 			$action = 'app.enroll,' . $id . '.share.' . $shareto;
-			$modelCoin->record($mpid, $action, $id, 'sys', $logUser->openid);
+			$modelCoin->income($mpid, $action, $id, 'sys', $logUser->openid);
 		} else {
 			// for reader
-			$modelCoin->record($mpid, 'mp.matter.' . $type . '.share.' . $shareto, $id, 'sys', $logUser->openid);
+			$modelCoin->income($mpid, 'mp.matter.' . $type . '.share.' . $shareto, $id, 'sys', $logUser->openid);
 		}
 
 		return new \ResponseData('ok');

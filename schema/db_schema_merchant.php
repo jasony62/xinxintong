@@ -15,10 +15,11 @@ $sql .= ",title varchar(70) not null";
 $sql .= ',pic text';
 $sql .= ',summary varchar(240) not null';
 $sql .= ",approved char(1) not null default 'N'";
-$sql .= ",buyer_api text";
-$sql .= ",order_status text";
+$sql .= ",buyer_api text"; // 记录客户信息的用户认证接口
+$sql .= ",order_status text"; // 订单状态定义
 $sql .= ",access_control char(1) not null default 'N'";
 $sql .= ",authapis text";
+$sql .= ",payby varchar(255) not null default ''"; // 商店支持的支付方式，包括：coin（积分），wx（微信支付）
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -363,6 +364,7 @@ $sql .= ",delivery_id int not null default 0";
 $sql .= ",delivery_company varchar(255) not null default ''";
 $sql .= ",trans_id varchar(255) not null default ''";
 $sql .= ",feedback text"; //反馈信息
+$sql .= ",payby varchar(255) not null default ''"; // 订单的支付方式，商店支持的支付方式中的一种
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

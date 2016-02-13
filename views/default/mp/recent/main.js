@@ -9,10 +9,10 @@
 				location.href = '/rest/mp/mission/setting?id=' + matter.matter_id;
 			}
 		};
-		var url = '/rest/mp/recentMatters?size=28';
-		url += '&_=' + (new Date()).getTime();
+		var url = '/rest/mp/recentMatters';
+		url += '?_=' + (new Date()).getTime();
 		http2.get(url, function(rsp) {
-			$scope.matters = rsp.data;
+			$scope.matters = rsp.data.matters;
 		})
 	}]);
 })();

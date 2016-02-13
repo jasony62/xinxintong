@@ -20,7 +20,7 @@
 	<div class='form-group'>
 		<label class='col-md-2 control-label'>订单状态名称</label>
 		<div class='col-md-10'>
-			<table class='table table-bordered'>
+			<table class='table table-bordered' style='margin-bottom:0'>
 				<thead>
 					<tr>
 						<th style='width:48px'>ID</th>
@@ -42,6 +42,13 @@
 					</tr>
 				</tbody>
 			</table>
+		</div>
+	</div>
+	<div class='form-group'>
+		<label class='col-md-2 control-label'>支付渠道</label>
+		<div class='col-md-10'>
+			<label class='checkbox-inline'><input type='checkbox' ng-model="payby.coin" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('payby')">积分支付</label>
+			<label class='checkbox-inline'><input type='checkbox' ng-model="payby.wx" ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('payby')">微信支付</label>
 		</div>
 	</div>
 	<script type='text/ng-template' id='orderStatusEditor.html'>

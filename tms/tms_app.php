@@ -80,32 +80,36 @@ class TMS_APP {
 	 */
 	public static function run($config) {
 		global $__controller, $__action;
-		/**
-		 * map uri to controller and action.
-		 */
 		$url = parse_url($_SERVER['REQUEST_URI']);
 		$path = $url['path'];
-		if (0 === strpos($path, TMS_APP_API_PREFIX . '/')) {
+		if (0 === strpos($path, '/site/')) {
+			/*快速进入站点*/
+			$short = substr($path, 6);
+			$full = '/rest/site/fe?site=' . $short;
+			header("Location: $full");
+			exit;
+		} else if (0 === strpos($path, TMS_APP_API_PREFIX . '/')) {
 			$path = substr($path, strlen(TMS_APP_API_PREFIX));
-			self::request_api($path);
+			self::_request_api($path);
 		} else if (0 === strpos($path, TMS_APP_VIEW_PREFIX . '/')) {
 			$path = substr($path, strlen(TMS_APP_VIEW_PREFIX));
-			self::request_view($path);
+			self::_request_view($path);
 		} else {
-			if (self::authenticate()) {
+			/**
+			 * 缺省情况下，跳转到管理端首页
+			 */
+			if (self::_authenticate()) {
 				$path = TMS_APP_AUTHED;
-				if (0 === strpos($path, TMS_APP_VIEW_PREFIX . '/')) {
-					$path = substr($path, strlen(TMS_APP_VIEW_PREFIX));
-				}
-
-				self::request_view($path);
+				self::_request_api($path);
 			}
 		}
 	}
 	/**
+	 * 除了API请求
 	 *
+	 * @param string $path
 	 */
-	private static function request_api($path) {
+	private static function _request_api($path) {
 		global $__controller, $__action;
 		self::apiuri_to_controller($path);
 		/**
@@ -129,15 +133,15 @@ class TMS_APP {
 		if (isset($access_rule)) {
 			if (isset($access_rule['rule_type']) && ($access_rule['rule_type'] == 'white')) {
 				if ((!$access_rule['actions']) || (!in_array($__action, $access_rule['actions']))) {
-					self::authenticate();
+					self::_authenticate($obj_controller);
 				}
 			} else if (isset($access_rule['actions']) && in_array($__action, $access_rule['actions'])) {
 				// 非白就是黑名单
-				self::authenticate();
+				self::_authenticate($obj_controller);
 			}
 		} else {
 			// 不指定就都检查
-			self::authenticate();
+			self::_authenticate($obj_controller);
 		}
 		// parameters
 		$trans = array_merge($_GET, $_POST);
@@ -183,7 +187,7 @@ class TMS_APP {
 	/**
 	 * $path controller's path
 	 */
-	private static function request_view($path, $skipAuth = false) {
+	private static function _request_view($path, $skipAuth = false) {
 		global $__controller;
 		self::viewuri_to_controller($path);
 		/**
@@ -214,15 +218,15 @@ class TMS_APP {
 			if ($ar) {
 				if ($ar['rule_type'] && $ar['rule_type'] == 'white') {
 					if ((!$ar['actions']) || (!in_array('view', $ar['actions']))) {
-						self::authenticate();
+						self::_authenticate();
 					}
 				} else if ($ar['actions'] && in_array('view', $ar['actions'])) {
 					// 非白就是黑名单
-					self::authenticate();
+					self::_authenticate($obj_controller);
 				}
 			} else {
 				// 不指定就都检查
-				self::authenticate();
+				self::_authenticate($obj_controller);
 			}
 		}
 		/**
@@ -343,20 +347,32 @@ class TMS_APP {
 		return false;
 	}
 	/**
-	 * 认证
-	 *
+	 * 检查用户是否已经通过认证
+	 * @param object $objController
 	 */
-	private static function authenticate($request_url = null) {
-		if (!TMS_CLIENT::is_authenticated()) {
-			if (!self::_login()) {
-				/**
-				 * 如果当前用户没有登录过，跳转到指定的登录页面
-				 */
-				self::request_api(str_replace(TMS_APP_API_PREFIX, '', TMS_APP_UNAUTH));
-				die();
+	private static function _authenticate($objController = null) {
+		if ($objController === null) {
+			if (!TMS_CLIENT::is_authenticated()) {
+				if (!self::_login()) {
+					/**
+					 * 如果当前用户没有登录过，跳转到指定的登录页面
+					 */
+					self::_request_api(str_replace(TMS_APP_API_PREFIX, '', TMS_APP_UNAUTH));
+				}
 			}
+			return true;
+		} else {
+			// access control
+			if (method_exists($objController, 'authenticated') && method_exists($objController, 'authenticateURL')) {
+				if (true === $objController->authenticated()) {
+					return true;
+				}
+				self::_request_api($objController->authenticateURL());
+			} else if (!TMS_CLIENT::is_authenticated()) {
+				self::_request_api(str_replace(TMS_APP_API_PREFIX, '', TMS_APP_UNAUTH));
+			}
+			return true;
 		}
-		return true;
 	}
 	/**
 	 * 是否已经登录？

@@ -64,6 +64,16 @@
                     <input type='text' class='form-control input-lg' ng-model='orderInfo.receiver_email'>
                 </div>
             </div>
+            <div class='pay'>
+                <div class='form-group'>
+                    <label class='form-control-static'>总价</label>
+                    <p class='form-control input-lg' ng-bind='orderInfo.totalPrice'>
+                </div>
+                <div class='form-group'>
+                    <label class='form-control-static'>支付方式</label>
+                    <select class='form-control' ng-model="orderInfo.payby" ng-options="p.n as p.l for p in payby.support"></select>
+                </div>
+            </div>
         </div>
     </div>
     <footer class='flex-bar'>

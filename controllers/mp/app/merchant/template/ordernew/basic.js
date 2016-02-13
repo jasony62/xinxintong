@@ -65,6 +65,17 @@ app.register.controller('orderCtrl', ['$scope', '$http', 'Cart', 'Sku', function
 			setSkus(data);
 		});
 	}
+	/*计算sku的总价*/
+	$scope.$watchCollection('skus', function() {
+		var totalPrice = 0,
+			orderSkus = $scope.orderInfo.skus;
+		angular.forEach($scope.skus, function(sku) {
+			if (orderSkus[sku.id]) {
+				totalPrice += orderSkus[sku.id].count * sku.price;
+			}
+		});
+		$scope.orderInfo.totalPrice = totalPrice;
+	});
 	$scope.removeProd = function(evt, cate, prod) {
 		/*清空订单信息中商品的sku*/
 		angular.forEach(prod.cateSkus, function(cateSku) {

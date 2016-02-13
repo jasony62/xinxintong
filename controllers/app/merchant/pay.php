@@ -20,46 +20,100 @@ class pay extends \member_base {
 	 *
 	 * 要求当前用户必须是认证用户
 	 *
-	 * $mpid mpid'id
-	 * $shop shop'id
-	 * $sku sku'id
+	 * @param string $mpid mpid'id
+	 * @param int $shop shop'id
+	 * @param int $order order'id
+	 *
 	 */
-	public function index_action($mpid, $order, $mocker = null, $code = null) {
-		/**
-		 * 获得当前访问用户
-		 */
+	public function index_action($mpid, $shop, $order, $payby = null, $mocker = null, $code = null) {
+		/*当前访问用户*/
 		$openid = $this->doAuth($mpid, $code, $mocker);
-		$this->afterOAuth($mpid, $order, $openid);
-	}
-	/**
-	 * 返回页面
-	 */
-	public function afterOAuth($mpid, $orderId, $openid) {
-		\TPL::output('/app/merchant/pay');
+		/*页面信息*/
+		/*
+			$options = array(
+				'fields' => 'title',
+				'cascaded' => 'N',
+			);
+			$page = $this->model('app\merchant\page')->byType('pay', $shop, 0, 0, $options);
+			$page = $page[0];
+			\TPL::assign('title', $page->title);
+		*/
+		/*订单*/
+		if ($payby === null) {
+			$order = $this->model('app\merchant\order')->byId($order);
+			$payby = $order->payby;
+		}
+		switch ($payby) {
+		case 'coin':
+			\TPL::output('/app/merchant/pay/coin');
+			break;
+		case 'wx':
+			\TPL::output('/app/merchant/pay/wx');
+			break;
+		default:
+		}
 		exit;
 	}
 	/**
-	 *
+	 * 获得页面定义
 	 */
-	public function pageGet_action($mpid, $shop) {
-		// current visitor
+	public function pageGet_action($mpid, $shop, $order) {
+		// current user
 		$user = $this->getUser($mpid);
+		// order
+		$order = $this->model('app\merchant\order')->byId($order);
+		if (false === $order) {
+			return new \ResponseError('订单不存在');
+		}
 		// page
 		$page = $this->model('app\merchant\page')->byType('pay', $shop);
 		if (empty($page)) {
-			return new \ResponseError('没有获得订单页定义');
+			return new \ResponseError('没有获得订单支付页定义');
 		}
 		$page = $page[0];
 
 		$params = array(
 			'user' => $user,
 			'page' => $page,
+			'order' => $order,
 		);
 
 		return new \ResponseData($params);
 	}
 	/**
+	 * 用积分进行支付
 	 *
+	 * @param string $mpid
+	 * @param int $order
+	 */
+	public function coinOut_action($mpid, $shop, $order) {
+		// current user
+		$user = $this->getUser($mpid);
+		// order
+		$modelOrd = $this->model('app\merchant\order');
+		$order = $modelOrd->byId($order);
+		// 扣除用户的积分
+		$modelCoin = $this->model('coin\log');
+		$modelCoin->expense($mpid, 'app.merchant.order,' . $order->id . '.pay', $user->openid, $order->order_total_price);
+		// 更新订单状态
+		$rst = $modelOrd->update(
+			'xxt_merchant_order',
+			array(
+				'order_status' => '2', // 已支付
+			),
+			"id='$order->id' and buyer_openid='user->openid'"
+		);
+		if ($rst != 1) {
+			return new \RespnseError("更新订单信息失败");
+		}
+
+		return new \ResponseData('ok');
+	}
+	/**
+	 * 获得调用微信支付jsapi的参数
+	 *
+	 * @param string $mpid
+	 * @param int $order
 	 */
 	public function jsApiParametersGet_action($mpid, $order) {
 		$user = $this->getUser($mpid);

@@ -1,4 +1,5 @@
 <?php
+//@removed
 class account_model extends TMS_MODEL {
 
 	const TABLE_A = 'account';

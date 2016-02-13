@@ -139,6 +139,7 @@ class order_model extends \TMS_MODEL {
 			'receiver_name' => isset($info->receiver_name) ? $info->receiver_name : '',
 			'receiver_mobile' => isset($info->receiver_mobile) ? $info->receiver_mobile : '',
 			'receiver_email' => isset($info->receiver_email) ? $info->receiver_email : '',
+			'payby' => isset($info->payby) ? $info->payby : '',
 		);
 		$order['id'] = $this->insert('xxt_merchant_order', $order, true);
 		$order['extPropValue'] = $info->extPropValues;

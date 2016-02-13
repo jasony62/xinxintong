@@ -91,7 +91,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', 'Cart', 'Sku', function($
         var url, prodIds, skuIds, datetime;
         prodIds = $scope.orderInfo.productIds();
         if (prodIds.length === 0) return;
-        url = '/rest/app/merchant/order?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&page=' + pageId;
+        url = '/rest/app/merchant/ordernew?mpid=' + $scope.mpid + '&shop=' + $scope.shopId + '&page=' + pageId;
         url += '&products=' + prodIds.join(',');
         if (datetime = datetimeOfFilter($scope.options)) {
             url += '&beginAt=' + datetime.begin * 1000;

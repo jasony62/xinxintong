@@ -113,16 +113,17 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', 'templateShop', func
         return '/rest/mi/article/attachmentGet?mpid=' + $scope.editing.mpid + '&articleid=' + $scope.editing.id + '&attachmentid=' + att.id;
     };
     $scope.gotoCode = function() {
-        if ($scope.editing.page_id != 0)
-            location.href = '/rest/code?pid=' + $scope.editing.page_id;
-        else {
+        if ($scope.editing.page_id != 0) {
+            window.open('/rest/code?pid=' + $scope.editing.page_id);
+        } else {
             http2.get('/rest/code/create', function(rsp) {
                 var nv = {
                     'page_id': rsp.data.id
                 };
                 http2.post('/rest/mp/matter/article/update?id=' + $scope.editing.id, nv, function() {
                     $scope.editing.page_id = rsp.data.id;
-                    location.href = '/rest/code?pid=' + rsp.data.id;
+                    //location.href = '/rest/code?pid=' + rsp.data.id;
+                    window.open('/rest/code?pid=' + rsp.data.id);
                 });
             });
         }

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/static/css/tms.css" rel="stylesheet">
+        <style type='text/css'>
+            .thumbnail.mp{position:relative;height:120px;cursor:pointer}
+            .thumbnail.mp .footer{position:absolute;bottom:4px;left:4px;right:4px}
+            .thumbnail.mp .footer .datetime{display:inline-block;float:right;color:#999}
+        </style>
+        <title><?php echo APP_TITLE;?></title>
+    </head>
+    <body style='padding-top:71px;' ng-app='xxt' ng-controller='ctrlMain'>
+        <notice-box err='errmsg' info='infomsg' delay='1000'></notice-box>
+        <nav class='navbar navbar-inverse navbar-fixed-top' role='navigation'>
+        <ul class='nav navbar-nav navbar-right' style='margin-right:0'>
+            <li><a href='/page/pl/fe/user/settings' target='_self'>设置</a></li>
+            <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+        </ul>
+        </nav>
+        <div class='container'>
+            <div class='row'>
+                <div class="panel panel-default">
+                    <div class="panel-heading clearfix">
+                        <span class="panel-title">父站点</span>
+                        <button class='btn btn-success pull-right' ng-click='createpmp()'><span class='glyphicon glyphicon-plus'></span>创建父站点</button>
+                    </div>
+                    <div class="panel-body">
+                        <div  class='col-md-3' ng-repeat='p in pmps'>
+                            <div title='选择父账号，可列出它的子账号' class='thumbnail mp pmp' ng-mouseenter='mouseenter=true' ng-mouseleave='mouseenter=false' ng-click='selectpmp(p)'>
+                                <div ng-bind="p.name"></div>
+                                <div class='footer'>
+                                    <button class='btn btn-default btn-sm' ng-click='openmp($event,p)' title='管理'><span class='glyphicon glyphicon-edit'></span></button>
+                                    <span class='datetime' ng-bind="p.create_at*1000|date:'yyyy-MM-dd'"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading clearfix">
+                        <span ng-if='selectedPmp'><button class='btn btn-default' ng-click='selectpmp(false)'>{{selectedPmp.name}}&nbsp;<span class='glyphicon glyphicon-remove'></span></button></span>
+                        <span ng-if='!selectedPmp' class="panel-title">我的站点</span>
+                        <button class='btn btn-success pull-right' ng-click='create()'><span class='glyphicon glyphicon-plus'></span>创建站点</button>
+                    </div>
+                    <div class="panel-body">
+                        <div  class='col-md-3' ng-repeat='site in sites'>
+                            <div class='thumbnail mp' ng-mouseenter='mouseenter=true' ng-mouseleave='mouseenter=false' ng-click='open($event,site)'>
+                                <button class='btn btn-default pull-right' ng-if='mouseenter' ng-click='removemp($event,mp)'><span class='glyphicon glyphicon-trash'></span></button>
+                                <div ng-bind="site.name"></div>
+                                <div class='footer'>
+                                    <span class='datetime' ng-bind="site.create_at*1000|date:'yy-MM-dd'"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="/static/js/angular.min.js"></script>
+        <script src="/static/js/angular-sanitize.min.js"></script>
+        <script src="/static/js/ui-tms.js"></script>
+        <script src="/views/default/pl/fe/main2.js"></script>
+</html>

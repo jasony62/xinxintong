@@ -135,11 +135,11 @@ class article extends \member_base {
 			if (!empty($contribution->openid) && $contribution->openid !== $user->openid) {
 				// for contributor
 				$action = 'app.' . $contribution->entry . '.article.appraise';
-				$modelCoin->record($mpid, $action, $id, 'sys', $contribution->openid);
+				$modelCoin->income($mpid, $action, $id, 'sys', $contribution->openid);
 			}
 			if (empty($contribution->openid) || $contribution->openid !== $user->openid) {
 				// for reader
-				$modelCoin->record($mpid, 'mp.matter.article.appraise', $id, 'sys', $user->openid);
+				$modelCoin->income($mpid, 'mp.matter.article.appraise', $id, 'sys', $user->openid);
 			}
 		}
 
@@ -232,11 +232,11 @@ class article extends \member_base {
 		if (!empty($contribution->openid) && $contribution->openid !== $user->openid) {
 			// for contributor
 			$action = 'app.' . $contribution->entry . '.article.remark';
-			$modelCoin->record($mpid, $action, $id, 'sys', $contribution->openid);
+			$modelCoin->income($mpid, $action, $id, 'sys', $contribution->openid);
 		}
 		if (empty($contribution->openid) || $contribution->openid !== $user->openid) {
 			// for reader
-			$modelCoin->record($mpid, 'mp.matter.article.remark', $id, 'sys', $user->openid);
+			$modelCoin->income($mpid, 'mp.matter.article.remark', $id, 'sys', $user->openid);
 		}
 		/**
 		 * 通知接收评论

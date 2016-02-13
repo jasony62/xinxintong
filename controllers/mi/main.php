@@ -226,22 +226,24 @@ class main extends \member_base {
 		$current = time();
 		$mpid = $data['mpid'];
 		$openid = $data['from_user'];
-		$fanpk = "mpid='$mpid' and openid='$openid'";
-		$q = array('count(*)', 'xxt_fans', $fanpk);
-		if ((int) $this->model()->query_val_ss($q) === 1) {
+		$modelFan = $this->model('user/fans');
+		if ($fan = $modelFan->byOpenid($mpid, $openid, '*')) {
 			/**
-			 * 重新关注
+			 * 粉丝重新关注
 			 */
-			$this->model()->update(
+			$modelFan->update(
 				'xxt_fans',
 				array(
 					'subscribe_at' => $current,
 					'unsubscribe_at' => 0,
 					'sync_at' => $current,
 				),
-				$fanpk
+				"mpid='$mpid' and openid='$openid'"
 			);
 		} else {
+			/**
+			 * 新粉丝关注
+			 */
 			$mpa = \TMS_APP::G('mp\mpaccount');
 			if ($mpa->mpsrc === 'qy') {
 				$result = $this->getFanInfo($mpid, $openid, false);
@@ -256,17 +258,18 @@ class main extends \member_base {
 					$tr->exec();
 				}
 			} else {
-				/**
-				 * new fan
-				 */
+				/*创建站点用户*/
+				$siteUser = $this->model('site\user\account')->blank($mpid, true);
+				/*new fan*/
 				$fan = array(
-					'fid' => $this->model('user/fans')->calcId($mpid, $openid),
+					'fid' => $modelFan->calcId($mpid, $openid),
 					'mpid' => $mpid,
 					'openid' => $openid,
 					'subscribe_at' => $current,
 					'sync_at' => $current,
+					'userid' => $siteUser->uid,
 				);
-				$this->model()->insert('xxt_fans', $fan, false);
+				$modelFan->insert('xxt_fans', $fan, false);
 				// log
 				$this->model('log')->writeSubscribe($mpid, $openid);
 			}
@@ -316,12 +319,11 @@ class main extends \member_base {
 			if ($reply = $this->qrcode_call($scandata)) {
 				is_object($reply) && $reply->exec();
 			}
-
 		}
-		/**
-		 * subscribe reply.
-		 */
 		if ($reply = $this->model('reply')->other_call($mpid, 'subscribe')) {
+			/**
+			 * subscribe reply.
+			 */
 			$r = $this->model('reply\\' . $reply->matter_type, $data, $reply->matter_id);
 			$r->exec();
 		}

@@ -3,7 +3,7 @@ namespace shop;
 
 include_once dirname(dirname(__FILE__)) . '/member_base.php';
 /**
- *
+ * 素材货架
  */
 class shelf extends \member_base {
 
@@ -83,7 +83,7 @@ class shelf extends \member_base {
 		return new \ResponseData($item);
 	}
 	/**
-	 * todo 如何检查当前用户是否有权限？
+	 * @todo 如何检查当前用户是否有权限？
 	 */
 	public function update_action($id) {
 		$nv = $this->getPostJson();

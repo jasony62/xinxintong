@@ -13,16 +13,14 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $h
     $scope.shopId = ls.match(/shop=([^&]*)/)[1];
     $scope.orderId = ls.match(/[\?&]order=([^&]*)/)[1];
     $scope.errmsg = '';
-    $scope.ready = false;
+    $scope.wxPayReady = false;
     $http.get('/rest/app/merchant/pay/pageGet?mpid=' + $scope.mpid + '&shop=' + $scope.shopId).success(function(rsp) {
         if (rsp.err_code !== 0) {
             $scope.errmsg = rsp.err_msg;
             return;
         }
-        var params;
-        params = rsp.data;
-        $scope.User = params.user;
-        window.setPage($scope, params.page);
+        $scope.User = rsp.data.user;
+        window.setPage($scope, rsp.data.page);
         $timeout(function() {
             $scope.$broadcast('xxt.app.merchant.ready');
         });
@@ -41,7 +39,6 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $h
                 }
             );
         }
-
         function callpay() {
             if (typeof WeixinJSBridge === "undefined") {
                 if (document.addEventListener) {
@@ -64,7 +61,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $h
                 return;
             }
             jsApiParameters = rsp.data.jsApiParameters;
-            $scope.ready = true;
+            $scope.wxPayReady = true;
         }).error(function(rsp, code) {
             alert('[' + code + ']' + rsp);
         });

@@ -501,20 +501,21 @@ class log_model extends TMS_MODEL {
 	/**
 	 * 记录访问素材日志
 	 */
-	public function matterOp($mpid, $user, $matter, $op) {
+	public function matterOp($siteId, $user, $matter, $op) {
 		$current = time();
 		if ($op !== 'C') {
+			/*更新操作，需要将之前的操作设置为非最后操作*/
 			$d = array(
 				'last_op' => 'N',
 			);
 			$this->update(
 				'xxt_log_matter_op',
 				$d,
-				"matter_type='$matter->type' and matter_id='$matter->id'"
+				"site_id='$siteId' and matter_type='$matter->type' and matter_id='$matter->id' and last_op='Y'"
 			);
 		}
 		$d = array();
-		$d['mpid'] = $mpid;
+		$d['site_id'] = $siteId;
 		$d['operator'] = $user->id;
 		$d['operator_name'] = $user->name;
 		$d['operator_src'] = $user->src;
@@ -531,22 +532,36 @@ class log_model extends TMS_MODEL {
 		return $logid;
 	}
 	/**
-	 *
+	 * 最近操作的素材
 	 */
-	public function &recentMatters($mpid, $size = 30) {
-		$fields = '*';
+	public function &recentMatters($siteId, $options = array()) {
+		$fields = empty($options['fields']) ? '*' : $options['fields'];
+		if (empty($options['page'])) {
+			$page = new \stdClass;
+			$page->at = 1;
+			$page->size = 30;
+		} else {
+			$page = $options['page'];
+		}
 		$q = array(
 			$fields,
 			'xxt_log_matter_op',
-			"mpid='$mpid' and last_op='Y' and operation<>'D'",
+			"site_id='$siteId' and last_op='Y' and operation<>'D'",
 		);
 		$q2 = array(
-			'r' => array('o' => 0, 'l' => $size),
+			'r' => array('o' => ($page->at - 1) * $page->size, 'l' => $page->size),
 			'o' => array('operate_at desc'),
 		);
 
 		$matters = $this->query_objs_ss($q, $q2);
+		$result = array('matters' => $matters);
+		if (empty($matters)) {
+			$result['total'] = 0;
+		} else {
+			$q[0] = 'count(*)';
+			$result['total'] = $this->query_val_ss($q);
+		}
 
-		return $matters;
+		return $result;
 	}
 }

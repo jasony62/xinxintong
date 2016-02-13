@@ -66,7 +66,7 @@ var datetimeOfFilter = function(options) {
         return false;
     }
 };
-app = angular.module('app', ['ngSanitize']);
+app = angular.module('app', []);
 app.config(['$controllerProvider', function($cp) {
     app.register = {
         controller: $cp.register
@@ -301,7 +301,7 @@ app.factory('Order', function($http, $q) {
         var deferred, promise, url;
         deferred = $q.defer();
         promise = deferred.promise;
-        url = '/rest/app/merchant/order/create';
+        url = '/rest/app/merchant/ordernew/create';
         url += '?mpid=' + this.mpid;
         url += '&shop=' + this.shopId;
         $http.post(url, orderInfo).success(function(rsp) {

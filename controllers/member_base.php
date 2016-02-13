@@ -454,9 +454,9 @@ class member_base extends xxt_base {
 		if ($rst[0] === false) {
 			die('oauth2 failed:' . $rst[1]);
 		}
-
 		/**
 		 * 将openid保存在cookie，可用于进行用户身份绑定
+		 * openid不一定是关注用户
 		 */
 		$openid = $rst[1];
 		$this->setCookieOAuthUser($mpid, $openid);

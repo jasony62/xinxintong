@@ -93,6 +93,17 @@ xxtApp.controller('settingCtrl', ['$scope', 'http2', '$modal', 'Authapi', functi
         title: '已取消',
         desc: '用户提交订单后取消订单'
     }];
+    /*支付渠道*/
+    $scope.payby = {
+        'coin': 'N',
+        'wx': 'N',
+        join: function() {
+            var j = [];
+            this.coin === 'Y' && j.push('coin');
+            this.wx === 'Y' && j.push('wx');
+            return j.join(',');
+        }
+    };
     $scope.authapis = [];
     (new Authapi()).get('N').then(function(data) {
         var i, l, authapi;
@@ -103,7 +114,11 @@ xxtApp.controller('settingCtrl', ['$scope', 'http2', '$modal', 'Authapi', functi
     });
     $scope.update = function(name) {
         var nv = {};
-        nv[name] = $scope.editing[name];
+        if (name === 'payby') {
+            nv.payby = $scope.payby.join();
+        } else {
+            nv[name] = $scope.editing[name];
+        }
         http2.post('/rest/mp/app/merchant/shop/update?shop=' + $scope.shopId, nv, function(rsp) {});
     };
     $scope.configOrderStatus = function(orderStatus) {
@@ -128,19 +143,25 @@ xxtApp.controller('settingCtrl', ['$scope', 'http2', '$modal', 'Authapi', functi
         });
     };
     http2.get('/rest/mp/app/merchant/shop/get?shop=' + $scope.shopId, function(rsp) {
-        $scope.editing = rsp.data;
-        if (Object.keys($scope.editing.order_status).length === 0) {
-            $scope.editing.order_status = {};
+        var shop = rsp.data;
+        $scope.editing = shop;
+        if (Object.keys(shop.order_status).length === 0) {
+            shop.order_status = {};
             angular.forEach($scope.orderStatus, function(os) {
-                $scope.editing.order_status[os.id] = os.title;
+                shop.order_status[os.id] = os.title;
             });
             $scope.update('order_status');
         } else {
             angular.forEach($scope.orderStatus, function(os) {
-                os.title = $scope.editing.order_status[os.id];
+                os.title = shop.order_status[os.id];
             });
         }
-        $scope.editing.canSetSupporter = 'Y';
+        if (shop.payby && shop.payby.length) {
+            angular.forEach(shop.payby.split(','), function(name) {
+                $scope.payby[name] = 'Y';
+            });
+        }
+        shop.canSetSupporter = 'Y';
     });
 }]);
 xxtApp.controller('orderCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {

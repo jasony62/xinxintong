@@ -152,7 +152,7 @@ class record extends base {
 			/*登记提交的积分奖励*/
 			$modelCoin = $this->model('coin\log');
 			$action = 'app.enroll,' . $aid . '.record.submit';
-			$modelCoin->record($mpid, $action, $aid, 'sys', $user->openid);
+			$modelCoin->income($mpid, $action, $aid, 'sys', $user->openid);
 		} else {
 			/* 已经登记，更新原先提交的数据 */
 			$this->model()->update('xxt_enroll_record',
@@ -401,7 +401,7 @@ class record extends base {
 			$inviteRecord = $modelRec->byId($inviter, array('cascaded' => 'N', 'fields' => 'openid'));
 			$modelCoin = $this->model('coin\log');
 			$action = 'app.enroll,' . $aid . '.invite.success';
-			$modelCoin->record($mpid, $action, $aid, 'sys', $inviteRecord->openid);
+			$modelCoin->income($mpid, $action, $aid, 'sys', $inviteRecord->openid);
 		}
 		$rsp = new \stdClass;
 		$rsp->ek = $ek;

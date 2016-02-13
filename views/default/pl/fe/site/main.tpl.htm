@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <base href='/'>
+        <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/static/css/tms.css" rel="stylesheet">
+        <link href="/views/default/pl/fe/site/main.css" rel="stylesheet">
+        <title>我的站点</title>
+    </head>
+    <body ng-app='app' ng-controller='ctrlSite'>
+        <notice-box err='errmsg' info='infomsg' delay='1000'></notice-box>
+        <nav class='navbar navbar-inverse'>
+            <ul class='nav navbar-nav site'>
+                <li ng-class="{'active':subView=='console'}">
+                    <a href='/rest/pl/fe/site/console?id={{id}}'>工作台</a>
+                </li>
+                <li ng-class="{'active':subView=='setting'}">
+                    <a href='/rest/pl/fe/site/setting?id={{id}}'>站点设置</a>
+                </li>
+            </ul>
+            <ul class='nav navbar-nav navbar-right' style='margin-right:0'>
+                <li><a href='/page/pl/fe/user/settings' target='_self'>设置</a></li>
+                <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+            </ul>
+        </nav>
+        <div class='container main' ng-view></div>
+        <script src="/static/js/angular.min.js"></script>
+        <script src="/static/js/angular-route.min.js"></script>
+        <script src="/static/js/angular-sanitize.min.js"></script>
+        <script src="/static/js/ui-bootstrap.min.js"></script>
+        <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+        <script src="/static/js/ui-tms.js"></script>
+        <script src="/static/js/matters-xxt.js"></script>
+        <script src="/views/default/pl/fe/site/main.js"></script>
+    </body>
+</html>

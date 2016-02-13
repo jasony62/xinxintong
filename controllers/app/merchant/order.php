@@ -3,7 +3,7 @@ namespace app\merchant;
 
 require_once dirname(dirname(dirname(__FILE__))) . '/member_base.php';
 /**
- * 订单
+ * 查看订单
  */
 class order extends \member_base {
 	/**
@@ -35,8 +35,7 @@ class order extends \member_base {
 			'cascaded' => 'N',
 			'fields' => 'title',
 		);
-		$pageType = empty($order) ? 'ordernew' : 'order';
-		$page = $this->model('app\merchant\page')->byType($pageType, $shop, 0, 0, $options);
+		$page = $this->model('app\merchant\page')->byType('order', $shop, 0, 0, $options);
 		$page = $page[0];
 
 		\TPL::assign('title', $page->title);
@@ -54,11 +53,11 @@ class order extends \member_base {
 		// current visitor
 		$user = $this->getUser($mpid);
 		// shop
-		$shop = $this->model('app\merchant\shop')->byId($shop, array('fields' => 'id,title,order_status,buyer_api'));
+		$shop = $this->model('app\merchant\shop')->byId($shop, array('fields' => 'id,title,order_status,buyer_api,payby'));
 		$shop->order_status = empty($shop->order_status) ? new \stdClass : json_decode($shop->order_status);
+		$shop->payby = empty($shop->payby) ? array() : explode(',', $shop->payby);
 		// page
-		$pageType = empty($order) ? 'ordernew' : 'order';
-		$page = $this->model('app\merchant\page')->byType($pageType, $shop->id);
+		$page = $this->model('app\merchant\page')->byType('order', $shop->id);
 		if (empty($page)) {
 			return new \ResponseError('没有获得订单页定义');
 		}
@@ -181,50 +180,6 @@ class order extends \member_base {
 		}
 
 		return new \ResponseData(array('order' => $order, 'catelogs' => $catelogs));
-	}
-	/**
-	 * 创建订单
-	 *
-	 * @param string $mpid
-	 *
-	 * @return int order's id
-	 */
-	public function create_action($mpid, $shop) {
-		$user = $this->getUser($mpid, array('verbose' => array('fan' => 'Y')));
-		if (empty($user->openid)) {
-			return new \ResponseError('无法获得当前用户身份信息');
-		}
-		if (empty($user->fan)) {
-			return new \ResponseError("无法获得当前用户【" . $user->openid . "】身份信息");
-		}
-		$orderInfo = $this->getPostJson();
-		//if (empty((array) $orderInfo->skus)) {
-		//	return new \ResponseError('没有选择商品库存，无法创建订单');
-		//}
-
-		$order = $this->model('app\merchant\order')->create($mpid, $user, $orderInfo);
-		$this->_notify($mpid, $order);
-
-		/*保留联系人信息*/
-		$shop = $this->model('app\merchant\shop')->byId($shop);
-		if (!empty($shop->buyer_api)) {
-			$buyerApi = json_decode($shop->buyer_api);
-			$authid = $buyerApi->authid;
-			$modelMemb = $this->model('user/member');
-			$member = new \stdClass;
-			$member->name = isset($orderInfo->receiver_name) ? $orderInfo->receiver_name : '';
-			$member->mobile = isset($orderInfo->receiver_mobile) ? $orderInfo->receiver_mobile : '';
-			$member->email = isset($orderInfo->receiver_email) ? $orderInfo->receiver_email : '';
-			if ($existentMember = $modelMemb->byOpenid($mpid, $user->openid, 'mid', $authid)) {
-				$rst = $modelMemb->modify($mpid, $authid, $existentMember->mid, $member);
-			} else {
-				$rst = $modelMemb->create2($mpid, $authid, $user->fan->fid, $member);
-			}
-			if (false === $rst[0]) {
-				return new \ResponseError($rst[1]);
-			}
-		}
-		return new \ResponseData($order->id);
 	}
 	/**
 	 * 修改订单
@@ -353,7 +308,9 @@ class order extends \member_base {
 							$fan = $modelFan->byMid($staff->identity);
 							$staff->fan = $fan;
 						}
-						$this->tmplmsgSendByOpenid($mpid, $tmplmsg->id, $fan->openid, $data, $url);
+						if ($fan && !empty($fan->openid)) {
+							$this->tmplmsgSendByOpenid($mpid, $tmplmsg->id, $fan->openid, $data, $url);
+						}
 						break;
 					}
 				}

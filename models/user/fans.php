@@ -74,6 +74,20 @@ class fans_model extends TMS_MODEL {
 		return md5($mpid . $openid);
 	}
 	/**
+	 * 创建空的关注用户
+	 */
+	public function blank($mpid, $openid, $persisted = true, $options = array()) {
+		$fan = new stdClass;
+		$fan->fid = $this->calcId($mpid, $openid);
+		$fan->mpid = $mpid;
+		$fan->openid = $openid;
+		!empty($options['userid']) && $fan->userid = $options['userid'];
+
+		$this->insert('xxt_fans', $fan, false);
+
+		return $fan;
+	}
+	/**
 	 *
 	 */
 	public function getGroups($mpid) {

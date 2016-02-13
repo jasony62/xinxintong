@@ -30,6 +30,7 @@ $sql .= ',sex tinyint not null default 0';
 $sql .= ",city varchar(255) not null default ''";
 $sql .= ",province varchar(255) not null default ''";
 $sql .= ",country varchar(255) not null default ''";
+$sql .= ",userid varchar(40) not null default ''"; // 对应的站点用户帐号
 $sql .= ",forbidden char(1) not null default 'N'";
 $sql .= ",read_num int not null default 0"; // 累积阅读数
 $sql .= ",share_friend_num int not null default 0"; // 累积分享给好友数

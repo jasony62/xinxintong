@@ -99,6 +99,11 @@ define('G_COOKIE_DOMAIN', '');
 define('G_COOKIE_PREFIX', 'xxt');
 // 定义应用加密 KEY
 define('G_COOKIE_HASH_KEY', 'gzuhhqnckcryrrd');
+// 用户信息在cookie中保存的天数
+define('TMS_COOKIE_SITE_USER_EXPIRE', 30);
+define('TMS_COOKIE_SITE_LOGIN_EXPIRE', 30);
+// 重新绑定公众号未关注用户信息的间隔
+define('TMS_COOKIE_SITE_USER_BIND_INTERVAL', 600);
 /**
  * app's local position.
  */
@@ -116,8 +121,8 @@ define('TMS_APP_DIR', dirname(__FILE__));
 /**
  * default page.
  */
-!defined('TMS_APP_UNAUTH') && define('TMS_APP_UNAUTH', '/rest/auth/auth'); // 未认证通过的缺省页
-define('TMS_APP_AUTHED', TMS_APP_VIEW_PREFIX . '/main'); // 认证通过后的缺省页
+!defined('TMS_APP_UNAUTH') && define('TMS_APP_UNAUTH', '/pl/fe/user/auth'); // 未认证通过的缺省页
+define('TMS_APP_AUTHED', '/pl/fe/main'); // 认证通过后的缺省页
 /**
  * default upload directory
  */
@@ -126,7 +131,6 @@ if (defined('SAE_TMP_PATH')) {
 } else {
 	define('TMS_UPLOAD_DIR', 'kcfinder/upload/');
 }
-
 /**
  * run application.
  */

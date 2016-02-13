@@ -180,7 +180,7 @@ class sku extends \member_base {
 		foreach ($ids as $prodId) {
 			$product = $modelProd->byId($prodId, array('cascaded' => 'Y', 'fields' => $prodFields));
 			$cateSkus = $this->_byProduct($user, $mpid, $shop, $product->cate_id, $prodId, $beginAt, $endAt, 'Y');
-			$product->cateSkus = &$cateSkus;
+			$product->cateSkus = $cateSkus;
 			if (!isset($catelogs[$product->cate_id])) {
 				$catelog = $modelCate->byId($product->cate_id, array('fields' => $cateFields, 'cascaded' => 'Y'));
 				$catelog->pages = isset($catelog->pages) ? json_decode($catelog->pages) : new \stdClass;

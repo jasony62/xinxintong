@@ -1,7 +1,7 @@
 <?php
 namespace code;
 /**
- *
+ * 自定义代码管理
  */
 class main extends \TMS_CONTROLLER {
 

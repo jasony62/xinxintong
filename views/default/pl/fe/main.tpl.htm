@@ -1,0 +1,95 @@
+<?php
+$uid = TMS_CLIENT::get_client_uid();
+$p_mpgroup_create = TMS_APP::M('mp\permission')->hasSystemRight('p_mpgroup_create', $uid);
+$p_mp_create = TMS_APP::M('mp\permission')->hasSystemRight('p_mp_create', $uid);
+?>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/static/css/tms.css" rel="stylesheet">
+        <?php 
+        if ($css = TPL::val('css')) {
+        foreach ($css as $c) {
+        call_user_func_array(array($this,'import_css'), $c);
+        }
+        }
+        ?>
+        <style type='text/css'>
+            .thumbnail.mp{position:relative;height:120px;cursor:pointer}
+            .thumbnail.mp .footer{position:absolute;bottom:4px;left:4px;right:4px}
+            .thumbnail.mp .footer .datetime{display:inline-block;float:right;color:#999}
+        </style>
+        <title><?php echo APP_TITLE;?></title>
+    </head>
+    <body style='padding-top:71px;' ng-app='xxt' ng-controller='MpCtrl'>
+        <notice-box err='errmsg' info='infomsg' delay='1000'></notice-box>
+        <nav class='navbar navbar-inverse navbar-fixed-top' role='navigation'>
+        <ul class='nav navbar-nav navbar-right' style='margin-right:0'>
+            <li><a href='/page/pl/fe/user/settings' target='_self'>设置</a></li>
+            <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+        </ul>
+        </nav>
+        <div class='container' ng-init="p_mpgroup_create=<?php echo $p_mpgroup_create?'true':'false';?>;p_mp_create=<?php echo $p_mp_create?'true':'false';?>">
+            <div class='row'>
+                <div class="panel panel-default">
+                    <div class="panel-heading clearfix">
+                        <span class="panel-title">父站点</span>
+                        <button class='btn btn-success pull-right' ng-click='createpmp()' ng-if='p_mpgroup_create'><span class='glyphicon glyphicon-plus'></span>创建父站点</button>
+                    </div>
+                    <div class="panel-body">
+                        <div  class='col-md-3' ng-repeat='p in pmps'>
+                            <div title='选择父账号，可列出它的子账号' class='thumbnail mp pmp' ng-mouseenter='mouseenter=true' ng-mouseleave='mouseenter=false' ng-click='selectpmp(p)'>
+                                <div ng-bind="p.name"></div>
+                                <div class='footer'>
+                                    <button class='btn btn-default btn-sm' ng-click='openmp($event,p)' title='管理'><span class='glyphicon glyphicon-edit'></span></button>
+                                    <span class='datetime' ng-bind="p.create_at*1000|date:'yyyy-MM-dd'"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading clearfix">
+                        <span ng-if='selectedPmp'><button class='btn btn-default' ng-click='selectpmp(false)'>{{selectedPmp.name}}&nbsp;<span class='glyphicon glyphicon-remove'></span></button></span>
+                        <span ng-if='!selectedPmp' class="panel-title">我的站点</span>
+                        <button class='btn btn-success pull-right' ng-click='createmp()' ng-if='p_mp_create'><span class='glyphicon glyphicon-plus'></span>创建站点</button>
+                    </div>
+                    <div class="panel-body">
+                        <div  class='col-md-3' ng-repeat='mp in mps'>
+                            <div title='进入管理公众号' class='thumbnail mp' ng-mouseenter='mouseenter=true' ng-mouseleave='mouseenter=false' ng-click='openmp($event,mp)'>
+                                <button class='btn btn-default pull-right' ng-if='mouseenter' ng-click='removemp($event,mp)'><span class='glyphicon glyphicon-trash'></span></button>
+                                <div ng-bind="mp.name"></div>
+                                <div class='footer'>
+                                    <span class='datetime' ng-bind="mp.create_at*1000|date:'yyyy-MM-dd'"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="/static/js/jquery.min.js"></script>
+        <script src="/static/js/angular.min.js"></script>
+        <script src="/static/js/angular-route.min.js"></script>
+        <script src="/static/js/angular-sanitize.min.js"></script>
+        <script src="/static/js/ui-tms.js"></script>
+        <?php
+        if ($js = TPL::val('global_js')) {
+        call_user_func_array(array($this,'global_js'), $js);
+        }
+        ?>
+        <?php
+        if ($js = TPL::val('js')) {
+        foreach ($js as $j) {
+        $j[] = true;
+        call_user_func_array(array($this,'import_js'), $j);
+        }
+        }
+        ?>
+        <?php if (defined('SAE_MYSQL_HOST_M')) { ?>
+        <a href="http://zhanzhang.anquan.org/physical/report/?domain=xinxintong.sinaapp.com" name="lcm3m6XK2JcF6Qs1Rc9Cq79PWByUNrftEuYsjgbCmqGtA4rClt"><img height="47" src="http://zhanzhang.anquan.org/static/common/images/zhanzhang.png"alt="安全联盟站长平台" /></a>
+        <?php }?>
+    </body>
+</html>

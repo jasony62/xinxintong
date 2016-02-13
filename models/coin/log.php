@@ -5,13 +5,14 @@ namespace coin;
  */
 class log_model extends \TMS_MODEL {
 	/**
+	 * 记录积分获得日志
 	 *
 	 * @param string $mpid
 	 * @param string $act
 	 * @param string $from payer
 	 * @param string $openid payee
 	 */
-	public function record($mpid, $act, $objId, $from, $openid) {
+	public function income($mpid, $act, $objId, $from, $openid) {
 		$coin = 0;
 		if (empty($mpid) || empty($act) || empty($openid) || empty($from)) {
 			return $coin;
@@ -68,7 +69,36 @@ class log_model extends \TMS_MODEL {
 		return $coin;
 	}
 	/**
-	 * 转账
+	 * 支出积分
+	 *
+	 * @param string $mpid
+	 * @param string $openid
+	 * @param int $count
+	 *
+	 */
+	public function expense($mpid, $act, $openid, $count) {
+		/*是否有足够的余额？*/
+		/*记录日志*/
+		$current = time();
+		$i['mpid'] = $mpid;
+		$i['occur_at'] = $current;
+		$i['act'] = $act;
+		$i['payer'] = $openid;
+		$i['payee'] = 'sys'; //???
+		$i['nickname'] = '';
+		$i['delta'] = $count;
+		$i['total'] = '0';
+		$this->insert('xxt_coin_log', $i, false);
+		/*更新总额*/
+		$sql = "update xxt_fans set";
+		$sql .= " coin=coin-" . $count;
+		$sql .= " where mpid='$mpid' and openid='$openid'";
+		$rst = $this->update($sql);
+
+		return $rst;
+	}
+	/**
+	 * 用户之间进行转账
 	 *
 	 * @param string $mpid
 	 * @param string $payer 付款人，openid

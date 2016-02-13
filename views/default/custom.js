@@ -1,9 +1,9 @@
 define(["require", "angular"], function(require, angular) {
     'use strict';
     var app = angular.module('app', []);
-    app.config(['$controllerProvider', function($cp) {
+    app.config(['$controllerProvider', function($controllerProvider) {
         app.register = {
-            controller: $cp.register
+            controller: $controllerProvider.register,
         };
     }]);
     app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {

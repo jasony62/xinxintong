@@ -101,7 +101,7 @@ class review extends base {
 		 */
 		$modelCoin = $this->model('coin\log');
 		$action = 'app.' . $article->entry . '.article.approved';
-		$modelCoin->record($mpid, $action, $id, 'sys', $contributor->openid);
+		$modelCoin->income($mpid, $action, $id, 'sys', $contributor->openid);
 		/**
 		 * 发送通知
 		 */

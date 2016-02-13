@@ -436,7 +436,7 @@ class initiate extends base {
 			$contributor = $this->getUser($mpid);
 			$modelCoin = $this->model('coin\log');
 			$action = 'app.' . $article->entry . '.article.submit';
-			$modelCoin->record($mpid, $action, $id, 'sys', $contributor->openid);
+			$modelCoin->income($mpid, $action, $id, 'sys', $contributor->openid);
 		}
 
 		return parent::articleForward_action($mpid, $id, $phase, $mid);

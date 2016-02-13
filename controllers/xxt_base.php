@@ -701,15 +701,15 @@ class xxt_base extends TMS_CONTROLLER {
 			if (!empty($contribution->openid) && $contribution->openid !== $logUser->openid) {
 				// for contributor
 				$action = 'app.' . $contribution->entry . '.article.read';
-				$modelCoin->record($mpid, $action, $id, 'sys', $contribution->openid);
+				$modelCoin->income($mpid, $action, $id, 'sys', $contribution->openid);
 			}
 			if (empty($contribution->openid) || $contribution->openid !== $logUser->openid) {
 				// for reader
-				$modelCoin->record($mpid, 'mp.matter.' . $type . '.read', $id, 'sys', $user->openid);
+				$modelCoin->income($mpid, 'mp.matter.' . $type . '.read', $id, 'sys', $user->openid);
 			}
 		} else {
 			// for reader
-			$modelCoin->record($mpid, 'mp.matter.' . $type . '.read', $id, 'sys', $user->openid);
+			$modelCoin->income($mpid, 'mp.matter.' . $type . '.read', $id, 'sys', $user->openid);
 		}
 
 		return true;

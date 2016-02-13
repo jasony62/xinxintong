@@ -204,4 +204,35 @@ class mpaccount_model extends \TMS_MODEL {
 
 		return array(true, $response);
 	}
+	/**
+	 * 公众号进行OAuth的地址
+	 *
+	 * @param string $mpid
+	 * @param string $callbackUrl 回调地址
+	 */
+	public function oauthUrl($mpid, $callbackUrl = null) {
+		$mpa = $this->byId($mpid, 'mpsrc');
+		switch ($mpa->mpsrc) {
+		case 'qy':
+			$mpproxy = \TMS_APP::M('mpproxy/qy', $mpid);
+			break;
+		case 'wx':
+			$fea = $this->getApis($mpid);
+			$fea->wx_oauth === 'Y' && $mpproxy = \TMS_APP::M('mpproxy/wx', $mpid);
+			break;
+		case 'yx':
+			$fea = $this->getApis($mpid);
+			$fea->yx_oauth === 'Y' && $mpproxy = \TMS_APP::M('mpproxy/yx', $mpid);
+			break;
+		}
+		if (isset($mpproxy)) {
+			if ($callbackUrl === null) {
+				$callbackUrl = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+			}
+			$url = $mpproxy->oauthUrl($mpid, $callbackUrl);
+			return $url;
+		}
+
+		return false;
+	}
 }

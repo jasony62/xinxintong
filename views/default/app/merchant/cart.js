@@ -26,7 +26,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $
         }
         if (skuIds.length === 0) return;
 
-        url = '/rest/app/merchant/order?mpid=' + $scope.mpid + '&shop=' + $scope.shopId;
+        url = '/rest/app/merchant/ordernew?mpid=' + $scope.mpid + '&shop=' + $scope.shopId;
         url += '&skus=' + skuIds.join(',');
 
         location.href = url;

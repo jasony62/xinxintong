@@ -11,11 +11,16 @@ window.loading = {
 			paths: {
 				"domReady": '/static/js/domReady',
 				"angular": "/static/js/angular.min",
+				"angular-animate": "//cdn.bootcss.com/angular.js/1.4.2/angular-animate.min",
 				"xxt-share": "/static/js/xxt.share",
 			},
 			shim: {
 				"angular": {
 					exports: "angular"
+				},
+				"angular-animate": {
+					exports: "angular-animate",
+					deps: ['angular']
 				},
 				"xxt-share": {
 					exports: "xxt-share"
@@ -36,10 +41,12 @@ if (/MicroMessenger/i.test(navigator.userAgent)) {
 			if (xhr.readyState == 4) {
 				if (xhr.status >= 200 && xhr.status < 400) {
 					try {
-						eval("(" + xhr.responseText + ')');
-						signPackage.debug = false;
-						signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
-						wx.config(signPackage);
+						if (xhr.responseText && xhr.responseText.length) {
+							eval("(" + xhr.responseText + ")");
+							signPackage.debug = false;
+							signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
+							wx.config(signPackage);
+						}
 						window.loading.load();
 					} catch (e) {
 						alert('local error:' + e.toString());

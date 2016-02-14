@@ -33,8 +33,8 @@ app.register.controller('cartCtrl', ['$scope', '$http', 'Cart', 'Sku', function(
 		return false;
 	};
 	var setSkus = function(catelogs) {
-		angular.forEach(function(catelogs, function(catelog) {
-			angular.forEach(function(catelog.products, function(product) {
+		angular.forEach(catelogs, function(catelog) {
+			angular.forEach(catelog.products, function(product) {
 				angular.forEach(product.cateSkus, function(cateSku) {
 					angular.forEach(cateSku.skus, function(sku) {
 						sku.cateSku = cateSku;
@@ -46,8 +46,8 @@ app.register.controller('cartCtrl', ['$scope', '$http', 'Cart', 'Sku', function(
 						$scope.orderInfo.counter++;
 					});
 				});
-			}));
-		}));
+			});
+		});
 	};
 	$scope.orderInfo = {
 		skus: {},

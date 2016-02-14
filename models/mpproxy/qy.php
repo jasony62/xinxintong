@@ -181,7 +181,7 @@ class qy_model extends mpproxy_base {
 		$js .= ",url:'{$signPackage['url']}'";
 		$js .= ",signature:'{$signPackage['signature']}'}";
 
-		return array(true, $signPackage);
+		return array(true, $js);
 	}
 	/**
 	 *
@@ -219,7 +219,7 @@ class qy_model extends mpproxy_base {
 				'wx_jsapi_ticket' => $ticket->ticket,
 				'wx_jsapi_ticket_expire_at' => time() + $ticket->expires_in,
 			),
-			"mpid='$mpid'"
+			"mpid='$this->mpid'"
 		);
 
 		return array(true, $ticket->ticket);

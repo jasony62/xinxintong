@@ -1,5 +1,5 @@
 app.register.controller('orderlistCtrl', ['$scope', '$http', '$q', 'Order', function($scope, $http, $q, Order) {
-	var facOrder, options;
+	var facOrder, orderStatus, options;
 	var fetch = function() {
 		var defer = $q.defer();
 		facOrder.list(options).then(function(result) {

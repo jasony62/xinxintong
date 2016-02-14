@@ -20,8 +20,8 @@ window.loading = {
 					exports: "angular"
 				},
 				"base": {
-					exports: "base",
-					deps: ['angular'],
+					exports: "app",
+					deps: ["angular"]
 				},
 				"directive": {
 					deps: ["base"]
@@ -30,7 +30,7 @@ window.loading = {
 					exports: "Cookies"
 				},
 			},
-			deps: ['/views/default/app/merchant/pay/coin.js'],
+			deps: ['/views/default/app/merchant/pay/wx.js'],
 			urlArgs: "bust=" + (new Date()).getTime()
 		});
 	}
@@ -45,13 +45,16 @@ if (/MicroMessenger/i.test(navigator.userAgent)) {
 			if (xhr.readyState == 4) {
 				if (xhr.status >= 200 && xhr.status < 400) {
 					try {
-						eval("(" + xhr.responseText + ')');
-						signPackage.debug = false;
-						signPackage.jsApiList = ['hideOptionMenu'];
-						wx.config(signPackage);
-						wx.ready(function() {
-							wx.hideOptionMenu();
-						});
+						if (xhr.responseText && xhr.responseText.length) {
+							eval("(" + xhr.responseText + ")");
+							signPackage.debug = false;
+							signPackage.jsApiList = ['hideOptionMenu'];
+							wx.config(signPackage);
+							wx.ready(function() {
+								wx.hideOptionMenu();
+							});
+						}
+						window.loading.load();
 					} catch (e) {
 						alert('local error:' + e.toString());
 					}

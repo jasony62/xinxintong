@@ -29,16 +29,6 @@ class pay extends \member_base {
 		/*当前访问用户*/
 		$openid = $this->doAuth($mpid, $code, $mocker);
 		/*页面信息*/
-		/*
-			$options = array(
-				'fields' => 'title',
-				'cascaded' => 'N',
-			);
-			$page = $this->model('app\merchant\page')->byType('pay', $shop, 0, 0, $options);
-			$page = $page[0];
-			\TPL::assign('title', $page->title);
-		*/
-		/*订单*/
 		if ($payby === null) {
 			$order = $this->model('app\merchant\order')->byId($order);
 			$payby = $order->payby;
@@ -51,6 +41,7 @@ class pay extends \member_base {
 			\TPL::output('/app/merchant/pay/wx');
 			break;
 		default:
+			die('unknown pay channel');
 		}
 		exit;
 	}

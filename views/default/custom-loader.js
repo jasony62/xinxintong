@@ -11,16 +11,11 @@ window.loading = {
 			paths: {
 				"domReady": '/static/js/domReady',
 				"angular": "/static/js/angular.min",
-				"angular-animate": "//cdn.bootcss.com/angular.js/1.4.2/angular-animate.min",
 				"xxt-share": "/static/js/xxt.share",
 			},
 			shim: {
 				"angular": {
 					exports: "angular"
-				},
-				"angular-animate": {
-					exports: "angular-animate",
-					deps: ['angular']
 				},
 				"xxt-share": {
 					exports: "xxt-share"

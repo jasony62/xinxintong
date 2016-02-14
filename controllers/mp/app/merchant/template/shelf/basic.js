@@ -154,7 +154,7 @@ app.register.controller('shelfCtrl', ['$scope', '$http', '$filter', '$q', 'Catel
 		prod._checked ? $scope.orderInfo.remove(prod) : $scope.orderInfo.push(prod);
 	};
 	$scope.listProduct = function(callbackFn) {
-		var pvids, beginAt, endAt;
+		var pvids, beginAt, endAt, datetime;
 		pvids = $scope.options.propValues.join(',');
 		if (datetime = datetimeOfFilter($scope.options)) {
 			beginAt = datetime.begin;

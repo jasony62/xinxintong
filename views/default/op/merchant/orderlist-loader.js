@@ -10,27 +10,23 @@ window.loading = {
 		require.config({
 			paths: {
 				"domReady": '/static/js/domReady',
-				"cookie": '//cdn.bootcss.com/Cookies.js/1.2.1/cookies.min',
 				"angular": "/static/js/angular.min",
-				"base": "/views/default/app/merchant/base",
-				"directive": "/views/default/app/merchant/directive",
+				"base": "/views/default/op/merchant/base",
+				"directive": "/views/default/op/merchant/directive",
 			},
 			shim: {
 				"angular": {
 					exports: "angular"
 				},
 				"base": {
-					exports: "base",
-					deps: ['angular'],
+					exports: "app",
+					deps: ["angular"]
 				},
 				"directive": {
 					deps: ["base"]
 				},
-				"cookie": {
-					exports: "Cookies"
-				},
 			},
-			deps: ['/views/default/app/merchant/pay/coin.js'],
+			deps: ['/views/default/op/merchant/orderlist.js'],
 			urlArgs: "bust=" + (new Date()).getTime()
 		});
 	}
@@ -45,13 +41,16 @@ if (/MicroMessenger/i.test(navigator.userAgent)) {
 			if (xhr.readyState == 4) {
 				if (xhr.status >= 200 && xhr.status < 400) {
 					try {
-						eval("(" + xhr.responseText + ')');
-						signPackage.debug = false;
-						signPackage.jsApiList = ['hideOptionMenu'];
-						wx.config(signPackage);
-						wx.ready(function() {
-							wx.hideOptionMenu();
-						});
+						if (xhr.responseText && xhr.responseText.length) {
+							eval("(" + xhr.responseText + ")");
+							signPackage.debug = false;
+							signPackage.jsApiList = ['hideOptionMenu'];
+							wx.config(signPackage);
+							wx.ready(function() {
+								wx.hideOptionMenu();
+							});
+						}
+						window.loading.load();
 					} catch (e) {
 						alert('local error:' + e.toString());
 					}

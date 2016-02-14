@@ -1,12 +1,4 @@
 define(["require", "angular", "app", "directive"], function(require, angular, app) {
-    if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage !== undefined) {
-        signPackage.jsApiList = ['hideOptionMenu'];
-        //signPackage.debug = false;
-        wx.config(signPackage);
-        wx.ready(function() {
-            wx.hideOptionMenu();
-        });
-    }
     var ls = location.search,
         mpid = ls.match(/[\?|&]mpid=([^&]*)/)[1],
         shopId = ls.match(/[\?&]shop=([^&]*)/)[1],
@@ -26,9 +18,9 @@ define(["require", "angular", "app", "directive"], function(require, angular, ap
             }
             $scope.User = rsp.data.user;
             $scope.Order = rsp.data.order;
+            loadCss("/views/default/app/merchant/pay/coin.css");
             window.setPage($scope, rsp.data.page);
             $timeout(function() {
-                window.loading.finish();
                 $scope.payReady = true;
                 $scope.$broadcast('xxt.app.merchant.ready');
             });

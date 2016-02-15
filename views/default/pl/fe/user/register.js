@@ -8,7 +8,7 @@ xxtApp.controller('regCtrl', ['$scope', '$http', '$rootScope', function($scope, 
         };
     })();
     $scope.register = function() {
-        $http.post('/rest/user/register', {
+        $http.post('/rest/pl/fe/user/register/do', {
             email: $scope.email,
             password: $scope.password
         }).
@@ -17,7 +17,7 @@ xxtApp.controller('regCtrl', ['$scope', '$http', '$rootScope', function($scope, 
                 $rootScope.errmsg = rsp.err_msg;
                 return;
             }
-            location.href = '/page/user/login';
+            location.replace('/rest/pl/fe/user/login');
         });
     };
 }]);

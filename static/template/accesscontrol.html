@@ -1,5 +1,5 @@
 <div class='form-group' ng-if='!hideAccessControl&&propAccess&&authapis.length'>
-    <label class='col-md-{{labelSpan}} control-label'>{{title||'访问控制'}}</label>
+    <label class='col-md-{{labelSpan}} control-label' ng-if='labelSpan'>{{title||'访问控制'}}</label>
     <div class='col-md-{{controlSpan}}'>
         <div class='checkbox'>
             <label><input type='checkbox' ng-disabled="disabled&&disabled==='Y'" ng-true-value="'Y'" ng-false-value="'N'" ng-model="obj[propAccess]" ng-change="setAccessControl()">{{label||'仅限认证用户访问'}}</label>
@@ -17,7 +17,7 @@
     </div>
 </div>
 <div class='form-group' ng-if="propAccess&&obj[propAccess]==='Y'&&authapis.length&&changeAclUrl">
-    <label class='col-md-{{labelSpan}} control-label'>{{labelOfList||'白名单'}}</label>
+    <label class='col-md-{{labelSpan}} control-label' ng-if="labelSpan">{{labelOfList||'白名单'}}</label>
     <div class='col-md-{{controlSpan}}'>
         <button class='btn btn-default btn-sm' ng-click='addAcl()' style="display:none" ng-hide="disabled&&disabled==='Y'"><span class='glyphicon glyphicon-plus'></span></button>
         <button class="btn btn-default btn-sm" title='部门、标签、用户' ng-click="openAclSelector()" ng-hide="disabled&&disabled==='Y'"><span class='glyphicon glyphicon-folder-open'></span></button>

@@ -1,4 +1,4 @@
-angular.module('channel.matter.mp', ['ui.tms']).
+angular.module('channel.fe.pl', ['ui.tms']).
 controller('setChannelCtrl', ['$scope', 'http2', function($scope, http2) {
     $scope.$on('channel.xxt.combox.done', function(event, aSelected) {
         var aNewChannels = [],

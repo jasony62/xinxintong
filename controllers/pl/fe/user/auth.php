@@ -17,8 +17,14 @@ class auth extends \TMS_CONTROLLER {
 	 * 进入平台管理页面用户身份验证页面
 	 */
 	public function index_action() {
+		/*记录发起登录的页面*/
+		$ruri = $_SERVER['REQUEST_URI'];
+		if (!empty($ruri) && !in_array($ruri, array('/'))) {
+			$this->mySetCookie('_login_referer', $ruri);
+		}
+		/*登录页面地址*/
 		$path = TMS_APP_API_PREFIX . '/pl/fe/user/login';
-		$path .= '?callback=' . urlencode(TMS_APP_API_PREFIX . '/pl/fe/user/auth/passed');
+		//$path .= '?callback=' . urlencode(TMS_APP_API_PREFIX . '/pl/fe/user/auth/passed');
 		$this->redirect($path);
 	}
 	/**
@@ -39,6 +45,11 @@ class auth extends \TMS_CONTROLLER {
 		/**
 		 * 跳转到缺省页
 		 */
-		$this->redirect(TMS_APP_API_PREFIX . TMS_APP_AUTHED);
+		if ($ruri = $this->myGetCookie('_login_referer')) {
+			$this->mySetCookie('_login_referer', '', time() - 3600);
+			$this->redirect($ruri);
+		} else {
+			$this->redirect(TMS_APP_API_PREFIX . TMS_APP_AUTHED);
+		}
 	}
 }

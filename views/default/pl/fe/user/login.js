@@ -1,13 +1,4 @@
-xxtApp.controller('userCtrl', ['$scope', '$http', '$rootScope', function($scope, $http, $rootScope) {
-    var search, params, callback;
-    search = decodeURIComponent(location.search);
-    params = search.split('&');
-    for (var i in params) {
-        if (callback = params[i].match(/callback=(.+)/)) {
-            callback = callback[1];
-            break;
-        }
-    }
+app.controller('userCtrl', ['$scope', '$http', '$rootScope', function($scope, $http, $rootScope) {
     $scope.data = {};
     $rootScope.keypress = function(event) {
         var code = event.keyCode || event.which;
@@ -22,12 +13,7 @@ xxtApp.controller('userCtrl', ['$scope', '$http', '$rootScope', function($scope,
                 $rootScope.errmsg = rsp.err_msg;
                 return;
             }
-            if (callback && callback.length > 0) {
-                callback += '?uid=' + rsp.data;
-                location.replace(callback);
-            } else {
-                location.replace('/rest/pl/fe/main');
-            }
+            location.replace('/rest/pl/fe/user/auth/passed?uid=' + rsp.data);
         });
     };
 }]);

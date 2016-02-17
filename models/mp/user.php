@@ -169,14 +169,14 @@ class user_model extends \TMS_MODEL {
 	 */
 	public function validate($email, $password) {
 		if (!$account = $this->get_account_by_email($email)) {
-			return new ParameterError('您输入的用户名不存在。');
+			return array(false, '您输入的用户名不存在。');
 		}
 		$pw_hash = $this->compile_password($email, $password, $account->salt);
 		if ($pw_hash != $account->password) {
-			return new ParameterError('您输入的用户名或密码不正确。');
+			return array(false, '您输入的用户名或密码不正确。');
 		}
 
-		return new ResponseData($account);
+		return array(true, $account);
 	}
 	/**
 	 * get account object by it's email

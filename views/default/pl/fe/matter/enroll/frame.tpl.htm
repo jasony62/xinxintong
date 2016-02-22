@@ -3,10 +3,12 @@
     <head>
         <meta charset="UTF-8">
         <base href="/"/>
-        <title>图文</title>
+        <title>登记活动</title>
         <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link href="//libs.useso.com/js/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
         <link href="/static/css/tms.css?_=2" rel="stylesheet">
-        <link href="/views/default/pl/fe/matter/article/frame.css?_=1" rel="stylesheet">
+        <link href="/static/css/tms.css?_=2" rel="stylesheet">
+        <link href="/views/default/pl/fe/matter/enroll/frame.css?_=1" rel="stylesheet">
     </head>
     <body  ng-app='app' ng-controller='ctrlArticle' ng-cloak class='ng-cloak'>
         <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
@@ -14,7 +16,7 @@
             <ul class='nav navbar-nav'>
             </ul>
             <ul class='nav navbar-nav navbar-right' style='margin-right:0'>
-                <li><a href='/page/pl/fe/user/settings' target='_self'>设置</a></li>
+                <li><a href='/rest/pl/fe/user/settings' target='_self'>设置</a></li>
                 <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
             </ul>
         </nav>

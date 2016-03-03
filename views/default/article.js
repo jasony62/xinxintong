@@ -9,6 +9,7 @@ define(["require", "angular"], function(require, angular) {
         head.appendChild(link);
     };
     var openPlugin = function(content, cb) {
+        window.loading.finish();
         var frag, wrap, frm;
         frag = document.createDocumentFragment();
         wrap = document.createElement('div');
@@ -95,7 +96,6 @@ define(["require", "angular"], function(require, angular) {
                 $scope.mpa = mpa;
                 /MicroMessenge|Yixin/i.test(navigator.userAgent) && require(['xxt-share'], setMpShare);
                 $scope.article.can_picviewer === 'Y' && require(['picviewer']);
-                loadCss('/views/default/article.css');
                 deferred.resolve();
                 $http.post('/rest/mi/matter/logAccess?mpid=' + mpid + '&id=' + id + '&type=article&title=' + $scope.article.title + '&shareby=' + shareby, {
                     search: location.search.replace('?', ''),
@@ -103,7 +103,7 @@ define(["require", "angular"], function(require, angular) {
                 });
             }).error(function(content, httpCode) {
                 if (httpCode === 401) {
-                    openPlugin(function() {
+                    openPlugin(content, function() {
                         loadArticle().then(articleLoaded);
                     });
                 } else {
@@ -134,6 +134,7 @@ define(["require", "angular"], function(require, angular) {
             evt.stopPropagation();
             location.href = '/rest/mi/matter?mpid=' + mpid + '&id=' + id + '&type=' + type + '&tpl=std';
         };
+        loadCss('/views/default/article.css');
         loadArticle().then(articleLoaded);
     }]);
     app.controller('ctrlRemark', ['$scope', '$http', function($scope, $http) {

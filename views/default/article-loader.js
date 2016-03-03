@@ -2,9 +2,11 @@ window.loading = {
 	finish: function() {
 		var eleLoading, eleStyle;
 		eleLoading = document.querySelector('.loading');
-		eleLoading.parentNode.removeChild(eleLoading);
-		eleStyle = document.querySelector('#loadingStyle');
-		eleStyle.parentNode.removeChild(eleStyle);
+		if (eleLoading) {
+			eleLoading.parentNode.removeChild(eleLoading);
+			eleStyle = document.querySelector('#loadingStyle');
+			eleStyle.parentNode.removeChild(eleStyle);
+		}
 	},
 	load: function() {
 		require.config({
@@ -23,7 +25,7 @@ window.loading = {
 					deps: ['hammer']
 				}
 			},
-			deps: ['/views/default/article.js?_=2'],
+			deps: ['/views/default/article.js?_=5'],
 			urlArgs: "bust=" + (new Date()).getTime()
 		});
 	}

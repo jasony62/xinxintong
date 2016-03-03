@@ -304,6 +304,7 @@ class main extends \member_base {
 					isset($fanInfo[1]->icon) && $u['headimgurl'] = $fanInfo[1]->icon; // 易信认证号接口
 					isset($fanInfo[1]->province) && $u['province'] = $fanInfo[1]->province;
 					isset($fanInfo[1]->country) && $u['country'] = $fanInfo[1]->country;
+					$fanpk = "mpid='$mpid' and openid='$openid'";
 					$this->model()->update('xxt_fans', $u, $fanpk);
 				}
 			}

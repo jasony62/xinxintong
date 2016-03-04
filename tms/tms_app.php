@@ -348,6 +348,8 @@ class TMS_APP {
 	}
 	/**
 	 * 检查用户是否已经通过认证
+	 * 如果指定了controller对象，且controller对象提供认证接口，用controller的认证接口进行认证
+	 *
 	 * @param object $objController
 	 */
 	private static function _authenticate($objController = null) {
@@ -357,6 +359,7 @@ class TMS_APP {
 					/**
 					 * 如果当前用户没有登录过，跳转到指定的登录页面
 					 */
+					$_SERVER['HTTP_REFERER'] = $_SERVER['REQUEST_URI'];
 					self::_request_api(str_replace(TMS_APP_API_PREFIX, '', TMS_APP_UNAUTH));
 				}
 			}

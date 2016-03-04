@@ -40,7 +40,7 @@ class matter extends \member_base {
 
 		$openid = $this->doAuth($mpid, $code, $mocker);
 
-		$this->afterOAuth($mpid, $id, $type, $shareby, $openid, $openid);
+		$this->afterOAuth($mpid, $id, $type, $shareby, $openid);
 	}
 	/**
 	 * 返回请求的素材
@@ -52,11 +52,7 @@ class matter extends \member_base {
 	 * $openid
 	 * $who
 	 */
-	private function afterOAuth($mpid, $id, $type, $shareby, $openid, $openid = null) {
-		/**
-		 * visit fans.
-		 */
-		$openid = empty($who) ? $this->getCookieOAuthUser($mpid)->openid : $openid;
+	private function afterOAuth($mpid, $id, $type, $shareby, $openid) {
 		/**
 		 * 根据类型获得处理素材的对象
 		 */

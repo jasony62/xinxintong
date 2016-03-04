@@ -1,4 +1,4 @@
-xxtApp.controller('setCtrl', ['$scope', '$http', '$rootScope', function($scope, $http, $rootScope) {
+app.controller('setCtrl', ['$scope', '$http', '$rootScope', function($scope, $http, $rootScope) {
     $scope.repeatPwd = (function() {
         return {
             test: function(value) {

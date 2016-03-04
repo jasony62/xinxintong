@@ -20,23 +20,20 @@ class login extends \TMS_CONTROLLER {
 		$this->view_action('/pl/fe/user/login');
 	}
 	/**
-	 * login
-	 *
-	 * $param string $email
-	 * $param string $password
+	 * 只是进行用户身份的检查，并不解决页面跳转
 	 */
 	public function do_action() {
 		$data = $this->getPostJson();
 
-		$result = $this->model('account')->validate($data->email, $data->password);
-		if ($result->err_code != 0) {
-			return $result;
+		$modelUsr = $this->model('mp\user');
+		/*check*/
+		$result = $modelUsr->validate($data->email, $data->password);
+		if ($result[0] === false) {
+			return new \ResponseError($result[1]);
 		}
-		$account = $result->data;
+		$act = $result[1];
 
-		$fromip = $this->client_ip();
-		$this->model('account')->update_last_login($account->uid, $fromip);
-
-		return new \ResponseData($account->uid);
+		return new \ResponseData($act->uid);
 	}
+
 }

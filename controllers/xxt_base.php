@@ -608,7 +608,7 @@ class xxt_base extends TMS_CONTROLLER {
 			$fea = $modelMpa->getFeature($runningMpid);
 			if ($fea->follow_page_id === '0') {
 				$mpa = $this->model('mp\mpaccount')->byId($runningMpid);
-				$html = '请关注公众号：' . $mpa->title;
+				$html = '请关注公众号：' . $mpa->name;
 			} else {
 				$page = $this->model('code/page')->byId($fea->follow_page_id);
 				$html = $page->html;

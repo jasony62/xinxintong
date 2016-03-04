@@ -1,0 +1,345 @@
+<div class='col-md-8'>
+    <div class='tile'>
+        <div class='tile-toggle'><i class='glyphicon glyphicon-chevron-up'></i></div>
+        <div class='form-group'>
+            <input type='text' class='form-control' ng-model='editing.title' ng-change="update('title');">
+            <div class='help-block'>标题：最多35个汉字，70个英文字符</div>
+        </div>
+        <div class='form-group'>
+            <div style='position:relative'>
+                <div style="width:182px;border:1px solid #CCC">
+                    <div style="height:100px;text-align:center;padding-top:32px" ng-if="!editing.pic">
+                        <button class='btn btn-default' ng-click='setPic();'>
+                        <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                    </div>
+                    <div style='position:relative' ng-if="editing.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                        <img name='pic' ng-src="{{editing.pic}}" width='180px' />
+                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                        <span class='glyphicon glyphicon-picture'></span>
+                        </button>
+                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                        <span class='glyphicon glyphicon-trash'></span>
+                        </button>
+                    </div>
+                </div>
+                <div style='position:absolute;top:30px;left:210px'>
+                    <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.hide_pic' ng-change="update('hide_pic');">正文中不显示头图</label>
+                </div>
+            </div>
+            <div class='help-block'>头图（可选）：建议尺寸：900像素 * 500像素</div>
+        </div>
+        <div class='form-group'>
+            <textarea class='form-control' ng-model='editing.summary' ng-change="update('summary');"></textarea>
+            <div class='help-block'>摘要（可选）：最多120个汉字，240个英文字符</div>
+        </div>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th style='width:180px'>用户范围</th>
+                        <th>开始前</th>
+                        <th>进入时</th>
+                        <th>已登记时</th>
+                        <th>结束后</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>未指定时</td>
+                        <td rowspan="5">
+                            <select title='进入页面' class='form-control' ng-model='editing.before_start_page' ng-options='page.name as page.title for page in editing.pages' ng-change="update('before_start_page')">
+                                <option value=''></option>
+                            </select>
+                        </td>
+                        <td>
+                            <div class='form-inline'>
+                                <select class='form-control' ng-change="updateEntryRule()" ng-model='editing.entry_rule.otherwise.entry' ng-options='page.name as page.title for page in editing.pages'></select>
+                                <button class='btn btn-default'>
+                                    <span class='glyphicon glyphicon-plus'></span>
+                                </button>
+                                <button class='btn btn-default'>
+                                    <span class='glyphicon glyphicon-edit'></span>
+                                </button>
+                            </div>
+                        </td>
+                        <td rowspan="5">
+                            <select class='form-control' ng-model='editing.enrolled_entry_page' ng-options='page.name as page.title for page in editing.pages' ng-change="update('enrolled_entry_page')">
+                                <option value=''></option>
+                            </select>
+                        </td>
+                        <td rowspan="5">
+                            <select title='进入页面' class='form-control' ng-model='editing.after_end_page' ng-options='page.name as page.title for page in editing.pages' ng-change="update('after_end_page')">
+                                <option value=''></option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>认证用户
+                            <span ng-if="editing.acl.length">（在白名单）</span>
+                        </td>
+                        <td>
+                            <div class='form-inline'>
+                                <select class='form-control' ng-change="updateEntryRule()" ng-model='editing.entry_rule.member.entry' ng-options='page.name as page.title for page in editing.pages'>
+                                    <option value=''></option>
+                                </select>
+                                <button class='btn btn-default'>
+                                    <span class='glyphicon glyphicon-plus'></span>
+                                </button>
+                                <button class='btn btn-default'>
+                                    <span class='glyphicon glyphicon-edit'></span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>认证用户（不在白名单）</td>
+                        <td>
+                            <div class='form-inline'>
+                                <select class='form-control' ng-change="updateEntryRule()" ng-model='editing.entry_rule.member_outacl.entry' ng-options='p.name as p.title for p in pages4OutAcl'>
+                                    <option value=''></option>
+                                </select>
+                                <button class='btn btn-default'>
+                                    <span class='glyphicon glyphicon-plus'></span>
+                                </button>
+                                <button class='btn btn-default'>
+                                    <span class='glyphicon glyphicon-edit'></span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>关注用户</td>
+                        <td>
+                            <div class='form-inline'>
+                                <select class='form-control' ng-change="updateEntryRule()" ng-model='editing.entry_rule.fan.entry' ng-options='p.name as p.title for p in pages4Unauth'>
+                                    <option value=''></option>
+                                </select>
+                                <button class='btn btn-default'>
+                                    <span class='glyphicon glyphicon-plus'></span>
+                                </button>
+                                <button class='btn btn-default' ng-click="gotoPage(editing.entry_rule.fan.entry)">
+                                    <span class='glyphicon glyphicon-edit'></span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>非关注用户</td>
+                        <td>
+                            <div class='form-inline'>
+                                <select class='form-control' ng-change="updateEntryRule()" ng-model='editing.entry_rule.nonfan.entry' ng-options="p.name as p.title for p in pages4Nonfan"></select>
+                                <button class='btn btn-default'>
+                                    <span class='glyphicon glyphicon-plus'></span>
+                                </button>
+                                <button class='btn btn-default'>
+                                    <span class='glyphicon glyphicon-edit'></span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class='help-block'>参与规则</div>
+        </div>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th style='width:180px'>用户范围</th>
+                        <th style='width:140px'>登记时</th>
+                        <th style='width:140px'>评论</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>未指定时</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>认证用户
+                            <span ng-if="editing.acl.length">（在白名单）</span>
+                        </td>
+                        <td>
+                            <select class='form-control' disabled>
+                                <option value='Y'>允许</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class='form-control' disabled>
+                                <option value='Y'>允许</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>认证用户（不在白名单）</td>
+                        <td>
+                            <select class='form-control' ng-change="updateEntryRule()" ng-model='editing.entry_rule.member_outacl.enroll'>
+                                <option value='Y'>允许</option>
+                                <option value='$authapi_outacl'>提示白名单</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class='form-control' ng-change="updateEntryRule()" ng-model='editing.entry_rule.member_outacl.remark'>
+                                <option value='Y'>允许</option>
+                                <option value='N'>不允许</option>
+                                <option value='$authapi_outacl'>提示白名单</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>关注用户</td>
+                        <td>
+                            <select class='form-control' ng-change="updateEntryRule()" ng-model='editing.entry_rule.fan.enroll'>
+                                <option value='$authapi_auth' ng-if="editing.access_control==='Y'">提示认证</option>
+                                <option value='Y'>允许</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class='form-control' ng-change="updateEntryRule()" ng-model='editing.entry_rule.fan.remark'>
+                                <option value='Y'>允许</option>
+                                <option value='N'>不允许</option>
+                                <option value='$authapi_auth' ng-if="editing.access_control==='Y'">提示认证</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>非关注用户</td>
+                        <td>
+                            <select class='form-control' ng-change="updateEntryRule()" ng-model='editing.entry_rule.nonfan.enroll'>
+                                <option value='$mp_follow'>提示关注</option>
+                                <option value='Y'>允许</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class='form-control' disabled>
+                                <option value='N'>不允许</option>
+                            </select>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class='help-block'>参与规则</div>
+        </div>
+    </div>
+</div>
+<div class='col-md-4'>
+    <div class='tile'>
+        <button class='btn btn-block' ng-click="submit()" ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'">保存</button>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <div style='word-break: break-all;'>{{entryUrl}}</div>
+        </div>
+        <div class='qrcode form-group' ng-controller='SendmeController'>
+            <button class='btn btn-block btn-success' data-toggle="popover" data-placement='left' ng-click="qrcode({type:'article',id:editing.id},$event)">发送给我</button>
+        </div>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <div>阅读：{{editing.read_num}}</div>
+            <div>分享好友：{{editing.share_friend_num}}</div>
+            <div>分享朋友圈：{{editing.share_timeline_num}}</div>
+        </div>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <tms-datepicker tms-title='开始时间' tms-date='editing.start_at' tms-state='start_at'></tms-datepicker>
+            <div class='help-block'>开始时间（可选）</div>
+            <tms-datepicker tms-title='结束时间' tms-date='editing.end_at' tms-state='end_at'></tms-datepicker>
+            <div class='help-block'>结束时间（可选）</div>
+        </div>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <label class='checkbox-inline'>
+                <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_like_record' ng-change="update('can_like_record');">登记点赞</label>
+            <label class='checkbox-inline'>
+                <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_autoenroll' ng-change="update('can_autoenroll');">自动登记</label>
+            <label class='checkbox-inline'>
+                <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_invite' ng-change="update('can_invite');">邀请</label>
+            <label class='checkbox-inline'>
+                <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_lottery' ng-change="update('can_lottery');">抽奖</label>
+        </div>
+    </div>
+    <div class='tile'>
+        <div class='checkbox'>
+            <label class='checkbox-inline'>
+                <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_remark_record' ng-change="update('can_remark_record');">提供登记项评论功能</label>
+            <label class='checkbox-inline'>
+                <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.remark_notice' ng-change="update('remark_notice');">登记评论提醒</label>
+        </div>
+        <div class='form-group' ng-if="editing.remark_notice==='Y'">
+            <select class='form-control' ng-model='editing.remark_notice_page' ng-options='page.name as page.title for page in editing.pages'
+                ng-change="update('remark_notice_page')">
+                    <option value=''></option>
+            </select>
+            <div class='help-block'>接收评论提醒页</div>
+        </div>
+    </div>
+    <div class='tile'>
+        <div class='checkbox'>
+            <label>
+                <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_signin' ng-change="update('can_signin');">提供签到功能</label>
+        </div>
+        <div class='form-group' ng-show="editing.can_signin==='Y' ">
+            <button class='btn btn-default btn-sm' ng-click='setSuccessReply()'>指定素材</button>
+            <a class='list-group-item' title='{{editing.successMatter.type|typetitle}}' ng-if='editing.successMatter'><span>{{editing.successMatter.title||editing.successMatter.content}}</span><button class='btn btn-default btn-xs pull-right' ng-click='removeSuccessReply()'><span class='glyphicon glyphicon-remove'></span></button></a>
+            <div class='help-block'>签到时已登记回复</div>
+        </div>
+        <div class='form-group' ng-show="editing.can_signin==='Y'">
+            <button class='btn btn-default btn-sm' ng-click='setFailureReply()'>指定素材</button>
+            <a class='list-group-item' title='{{editing.failureMatter.type|typetitle}}' ng-if='editing.failureMatter'><span>{{editing.failureMatter.title||editing.failureMatter.content}}</span><button class='btn btn-default btn-xs pull-right' ng-click='removeFailureReply()'><span class='glyphicon glyphicon-remove'></span></button></a>
+            <div class='help-block'>签到时未登记回复</div>
+        </div>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <div>创建人：{{editing.creater_name}}</div>
+            <div>创建时间：{{editing.create_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+            <div>修改人：{{editing.modifier_name}}</div>
+            <div>最后一次修改时间：{{editing.modify_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+        </div>
+    </div>
+    <div class='tile'>
+        <div class='form-group' ng-controller='setChannelCtrl' ng-init="matterType='enroll'">
+            <combox evt-prefix='channel' readonly=true prop='title' existing='editing.channels' options='channels'></combox>
+            <div class='help-block'>频道（可选）</div>
+        </div>
+    </div>
+    <div class='tile'>
+        <accesscontrol mpid='{{mpid}}' obj='editing' prop-access='canSetReceiver' update-access-control=false prop-acl='receiver' label-of-list='登记活动管理员' change-acl-url='/rest/mp/app/enroll/setEnrollReceiver?aid={{id}}' remove-acl-url='/rest/mp/app/enroll/delEnrollReceiver' hide-access-control=true></accesscontrol>
+        <div class='form-group'>
+            <select class='form-control' ng-model='editing.receiver_page' ng-options='page.name as page.title for page in editing.pages'
+            ng-change="update('receiver_page') ">
+                <option value=''></option>
+            </select>
+            <div class='help-block'>接收登记通知页</div>
+        </div>
+    </div>
+    <div class='tile'>
+        <accesscontrol mpid='{{mpid}}' obj='editing' title='参与限制' label='仅限认证用户参与' prop-acl='acl' prop-access='access_control' prop-apis='authapis' update-access-control="update('access_control')" update-authapis="update('authapis')" change-acl-url='/rest/mp/app/enroll/setAcl?id={{id}}' remove-acl-url='/rest/mp/app/enroll/removeAcl'></accesscontrol>
+    </div>
+</div>
+<div mattersgallery style='display:none' matter-url='/rest/mp/matter' matter-types='innerlinkTypes' has-parent='hasParent'></div>
+<mediagallery box-id='{{mpid}}' />
+<script type="text/ng-template" id="insertMedia.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">媒体文件</h5>
+    </div>
+    <div class="modal-body">
+        <div class="form-group">
+            <label>地址（URL）</label>
+            <textarea class="form-control" ng-model='data.url' rows=6></textarea>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="ok()">确定</button>
+    </div>
+</script>

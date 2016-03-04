@@ -439,8 +439,8 @@ xxtMatters.controller('MattersGalleryModalInstCtrl', ['$scope', '$http', '$modal
         $scope.p.fromParent && $scope.p.fromParent == 1 && (params.src = 'p');
         $http.post(url, params).success(function(rsp) {
             if (/article|contribute/.test($scope.p.matterType.value)) {
-                $scope.matters = rsp.data[0];
-                rsp.data[1] && ($scope.page.total = rsp.data[1]);
+                $scope.matters = rsp.data.articles;
+                $scope.page.total = rsp.data.total;
             } else {
                 $scope.matters = rsp.data;
                 $scope.page.total = $scope.matters.length;
@@ -700,7 +700,7 @@ xxtMatters.directive('accesscontrol', function() {
             hideAccessControl: '@'
         },
         controller: 'AccessControlController',
-        templateUrl: '/static/template/accesscontrol.html?_=7',
+        templateUrl: '/static/template/accesscontrol.html?_=9',
     }
 });
 xxtMatters.directive('userpopover', ['http2', function(http2) {

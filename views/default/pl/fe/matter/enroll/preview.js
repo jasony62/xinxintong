@@ -633,7 +633,7 @@
     window.wrapLib = new WrapLib();
 })();
 (function() {
-    app.provider.controller('ctrlPage', ['$scope', 'http2', '$modal', '$timeout', 'Mp', function($scope, http2, $modal, $timeout, Mp) {
+    app.provider.controller('ctrlPreview', ['$scope', 'http2', '$modal', '$timeout', 'Mp', function($scope, http2, $modal, $timeout, Mp) {
         var extractSchema = function() {
             var i, pages, page, s, s2;
             pages = $scope.app.pages;
@@ -1124,24 +1124,6 @@
             }
             $scope.$broadcast('mediagallery.open', options);
         });
-        $scope.addPage = function() {
-            http2.get('/rest/mp/app/enroll/page/add?aid=' + $scope.aid, function(rsp) {
-                var page = rsp.data;
-                $scope.app.pages.push(page);
-                $timeout(function() {
-                    $('a[href="#tab_' + page.name + '"]').tab('show');
-                });
-            });
-        };
-        $scope.onPageChange = function(page) {
-            var i, old;
-            for (i = $scope.persisted.pages.length - 1; i >= 0; i--) {
-                old = $scope.persisted.pages[i];
-                if (old.name === page.name)
-                    break;
-            }
-            page.$$modified = page.html !== old.html;
-        };
         $scope.updPage = function(page, name) {
             var editor;
             if (!angular.equals($scope.app, $scope.persisted)) {
@@ -1167,24 +1149,6 @@
                     $scope.$root.progmsg = '';
                 });
             }
-        };
-        $scope.delPage = function(index, page) {
-            if (window.confirm('确定删除？')) {
-                var url = '/rest/mp/app/enroll/page/remove';
-                url += '?aid=' + $scope.aid;
-                url += '&pid=' + page.id;
-                http2.get(url, function(rsp) {
-                    tinymce.remove('#' + page.name);
-                    $scope.app.pages.splice(index, 1);
-                    $timeout(function() {
-                        $($('a[href^=#tab_]')[0]).tab('show');
-                    });
-                });
-            }
-        };
-        $scope.shiftPage = function(event) {
-            event.preventDefault();
-            $(event.target).tab('show');
         };
         $scope.gotoCode = function(codeid) {
             window.open('/rest/code?pid=' + codeid, '_self');
@@ -1220,174 +1184,5 @@
                 $scope.ep.user_schemas = userSchemas && userSchemas.length ? JSON.parse(userSchemas) : [];
             };
         });
-    }]);
-    app.provider.controller('ctrlPageSchema', ['$scope', '$modal', function($scope, $modal) {
-        $scope.chooseUser = function() {
-            $modal.open({
-                templateUrl: 'chooseUserSchema.html',
-                backdrop: 'static',
-                controller: ['$scope', '$modalInstance', function($scope, $mi) {
-                    var choosed = [];
-                    $scope.schemas = [{
-                        name: 'nickname',
-                        label: '昵称'
-                    }, {
-                        name: 'headpic',
-                        label: '头像'
-                    }];
-                    $scope.choose = function(schema) {
-                        schema._selected ? choosed.push(schema) : choosed.splice(choosed.indexOf(schema), 1);
-                    };
-                    $scope.ok = function() {
-                        $mi.close(choosed);
-                    };
-                    $scope.cancel = function() {
-                        $mi.dismiss();
-                    };
-                }],
-            }).result.then(function(choosed) {
-                angular.forEach(choosed, function(schema) {
-                    var userSchemas = $scope.ep.user_schemas,
-                        i = 0,
-                        l = userSchemas.length;
-                    while (i < l && schema.name !== userSchemas[i++].name) {};
-                    if (i === l) {
-                        delete schema._selected;
-                        userSchemas.push(schema);
-                    }
-                });
-            });
-        };
-        $scope.removeUser = function(schema) {
-            var user_schemas = $scope.ep.user_schemas;
-            user_schemas.splice(user_schemas.indexOf(schema), 1);
-        };
-        $scope.chooseSchema = function() {
-            $modal.open({
-                templateUrl: 'chooseDataSchema.html',
-                backdrop: 'static',
-                resolve: {
-                    schemas: function() {
-                        return $scope.app.data_schemas;
-                    }
-                },
-                controller: ['$scope', '$modalInstance', 'schemas', function($scope, $mi, schemas) {
-                    var choosed = [];
-                    $scope.schemas = angular.copy(schemas);
-                    $scope.choose = function(schema) {
-                        schema._selected ? choosed.push(schema) : choosed.splice(choosed.indexOf(schema), 1);
-                    };
-                    $scope.ok = function() {
-                        $mi.close(choosed);
-                    };
-                    $scope.cancel = function() {
-                        $mi.dismiss();
-                    };
-                }],
-            }).result.then(function(choosed) {
-                angular.forEach(choosed, function(schema) {
-                    var dataSchemas = $scope.ep.data_schemas,
-                        i = 0,
-                        l = dataSchemas.length;
-                    while (i < l && schema.name !== dataSchemas[i++].name) {};
-                    if (i === l) {
-                        delete schema._selected;
-                        dataSchemas.push(schema);
-                    }
-                });
-                $scope.updPage($scope.ep, 'data_schemas');
-            });
-        };
-        $scope.removeSchema = function(schema) {
-            var data_schemas = $scope.ep.data_schemas;
-            data_schemas.splice(data_schemas.indexOf(schema), 1);
-            $scope.updPage($scope.ep, 'data_schemas');
-        };
-        $scope.chooseAct = function() {
-            $modal.open({
-                templateUrl: 'chooseButton.html',
-                backdrop: 'static',
-                resolve: {
-                    def: function() {
-                        return {
-                            name: '',
-                            label: '',
-                            next: ''
-                        };
-                    }
-                },
-                controller: ['$scope', '$modalInstance', 'def', function($scope, $mi, def) {
-                    $scope.def = def;
-                    $scope.buttons = {
-                        submit: {
-                            l: '提交信息'
-                        },
-                        addRecord: {
-                            l: '新增登记'
-                        },
-                        editRecord: {
-                            l: '修改登记'
-                        },
-                        sendInvite: {
-                            l: '发出邀请'
-                        },
-                        acceptInvite: {
-                            l: '接受邀请'
-                        },
-                        gotoPage: {
-                            l: '页面导航'
-                        },
-                        closeWindow: {
-                            l: '关闭页面'
-                        },
-                    };
-                    $scope.choose = function() {
-                        var names;
-                        def.label = $scope.buttons[def.name].l;
-                        def.next = '';
-                    };
-                    $scope.ok = function() {
-                        $mi.close(def);
-                    };
-                    $scope.cancel = function() {
-                        $mi.dismiss();
-                    };
-                }],
-            }).result.then(function(def) {
-                $scope.ep.act_schemas.push(def);
-                $scope.updPage($scope.ep, 'act_schemas');
-            });
-        };
-        $scope.removeAct = function(def) {
-            $scope.ep.act_schemas.splice($scope.ep.act_schemas.indexOf(def), 1);
-            $scope.updPage($scope.ep, 'act_schemas');
-        };
-        $scope.makePage = function() {
-            angular.forEach($scope.ep.user_schemas, function(schema) {
-                var def = {};
-                def[schema.name] = true;
-                window.wrapLib.embedUser($scope.ep, def);
-            });
-            angular.forEach($scope.ep.data_schemas, function(schema) {
-                var def = {};
-                def.key = schema.id;
-                def.name = schema.title;
-                def.type = schema.type;
-                def.required = schema.required;
-                def.showname = 'label';
-                window.wrapLib.embedInput($scope.ep, def);
-            });
-            angular.forEach($scope.ep.act_schemas, function(schema) {
-                var def = {};
-                def.type = schema.name;
-                def.label = schema.label;
-                window.wrapLib.embedButton($scope.ep, def);
-            });
-        };
-        $scope.emptyPage = function() {
-            var activeEditor = tinymce.get($scope.ep.name);
-            activeEditor.setContent('');
-            $scope.ep.html = '';
-        };
     }]);
 })();

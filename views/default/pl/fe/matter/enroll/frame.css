@@ -14,7 +14,8 @@ div.mce-tinymce div.mce-edit-area{border:0!important;border-top:1px solid #ccc!i
 div.mce-tinymce .mce-menubtn.mce-fixed-width span{width:auto;}
 
 /*pages*/
-.editor{position:relative;float:left;width:572px;}
+#page .editor{position:relative;float:left;width:572px;}
+#preview .editor{position:relative;width:572px;margin-left:auto;margin-right:auto;}
 .editor .mce-tinymce{margin-right:44px!important}
 .editor .mce-tinymce.mce-container.mce-panel{border:1px solid #ccc;}
 .editor .mce-tinymce.mce-container.mce-panel.mce-fullscreen{margin-top:51px}

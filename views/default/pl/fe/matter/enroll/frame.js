@@ -6,6 +6,20 @@ app.config(['$controllerProvider', '$routeProvider', '$locationProvider', functi
 	$routeProvider.when('/rest/pl/fe/matter/enroll/setting', {
 		templateUrl: '/views/default/pl/fe/matter/enroll/setting.html?_=1',
 		controller: 'ctrlSetting',
+	}).when('/rest/pl/fe/matter/enroll/schema', {
+		templateUrl: '/views/default/pl/fe/matter/enroll/schema.html?_=1',
+		controller: 'ctrlSchema',
+		resolve: {
+			load: function($q) {
+				var defer = $q.defer();
+				(function() {
+					$.getScript('/views/default/pl/fe/matter/enroll/schema.js', function() {
+						defer.resolve();
+					});
+				})();
+				return defer.promise;
+			}
+		}
 	}).when('/rest/pl/fe/matter/enroll/page', {
 		templateUrl: '/views/default/pl/fe/matter/enroll/page.html?_=1',
 		controller: 'ctrlPage',
@@ -20,14 +34,14 @@ app.config(['$controllerProvider', '$routeProvider', '$locationProvider', functi
 				return defer.promise;
 			}
 		}
-	}).when('/rest/pl/fe/matter/enroll/schema', {
-		templateUrl: '/views/default/pl/fe/matter/enroll/schema.html?_=1',
-		controller: 'ctrlSchema',
+	}).when('/rest/pl/fe/matter/enroll/preview', {
+		templateUrl: '/views/default/pl/fe/matter/enroll/preview.html?_=1',
+		controller: 'ctrlPreview',
 		resolve: {
 			load: function($q) {
 				var defer = $q.defer();
 				(function() {
-					$.getScript('/views/default/pl/fe/matter/enroll/schema.js', function() {
+					$.getScript('/views/default/pl/fe/matter/enroll/preview.js', function() {
 						defer.resolve();
 					});
 				})();

@@ -17,7 +17,7 @@ $sql .= ",modify_at int not null";
 $sql .= ",public_visible char(1) not null default 'N'";
 $sql .= ",shift2pc char(1) not null default 'N'"; //
 $sql .= ",can_taskcode char(1) not null default 'N'";
-$sql .= ',state tinyint not null default 1'; //0:stop,1:normal
+$sql .= ',state tinyint not null default 1'; //0:删除,1:配置,2:运行
 $sql .= ",title varchar(255) not null default ''";
 $sql .= ',pic text'; // 分享或生成链接时的图片
 $sql .= ",summary varchar(240) not null default ''"; // 分享或生成链接时的摘要
@@ -28,9 +28,9 @@ $sql .= ",after_end_page varchar(20) not null default ''";
 $sql .= ",access_control char(1) not null default 'N'";
 $sql .= ",authapis text";
 $sql .= ",entry_rule text"; // 参与规则
-$sql .= ',success_matter_type varchar(14)';
+$sql .= ',success_matter_type varchar(14)'; // 签到成功回复
 $sql .= ',success_matter_id varchar(128)';
-$sql .= ',failure_matter_type varchar(14)';
+$sql .= ',failure_matter_type varchar(14)'; // 签到失败回复
 $sql .= ',failure_matter_id varchar(128)';
 $sql .= ",enrolled_entry_page varchar(20) not null default ''";
 $sql .= ",receiver_page varchar(20) not null default ''";
@@ -50,6 +50,7 @@ $sql .= ",tags text";
 $sql .= ",read_num int not null default 0"; // 阅读数
 $sql .= ",share_friend_num int not null default 0"; // 分享给好友数
 $sql .= ",share_timeline_num int not null default 0"; // 分享朋友圈数
+$sql .= ",data_schemas text"; // 登记项定义
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -74,6 +75,8 @@ $sql .= ",share_summary varchar(240)"; // 分享时的摘要字段
 $sql .= ",autoenroll_onenter char(1) not null default 'N'"; // 进入时自动登记
 $sql .= ",autoenroll_onshare char(1) not null default 'N'"; // 分享时自动登记
 $sql .= ",seq int not null"; //页面序号
+$sql .= ",data_schemas text"; // 登记项定义
+$sql .= ",act_schemas text"; // 登记操作定义
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

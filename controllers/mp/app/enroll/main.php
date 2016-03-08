@@ -495,11 +495,17 @@ class main extends \mp\app\app_base {
 	 *
 	 */
 	public function update_action($aid) {
+		$model = $this->model();
 		$user = $this->accountUser();
+		/**
+		 * 处理数据
+		 */
 		$nv = (array) $this->getPostJson();
 		foreach ($nv as $n => $v) {
 			if (in_array($n, array('entry_rule'))) {
-				$nv[$n] = $this->model()->escape(urldecode($v));
+				$nv[$n] = $model->escape(urldecode($v));
+			} else if (in_array($n, array('data_schemas'))) {
+				$nv[$n] = $model->toJson($v);
 			}
 		}
 		$nv['modifier'] = $user->id;
@@ -507,7 +513,7 @@ class main extends \mp\app\app_base {
 		$nv['modifier_name'] = $user->name;
 		$nv['modify_at'] = time();
 
-		$rst = $this->model()->update('xxt_enroll', $nv, "id='$aid'");
+		$rst = $model->update('xxt_enroll', $nv, "id='$aid'");
 		/*记录操作日志*/
 		if ($rst) {
 			$app = $this->model('matter\\' . 'enroll')->byId($aid, 'id,title,summary,pic');

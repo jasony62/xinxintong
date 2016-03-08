@@ -8,12 +8,13 @@ class mpaccount_model extends \TMS_MODEL {
 	 * 创建一个公众账号
 	 */
 	public function create($data) {
-		/**
-		 * 公众号的基本信息
-		 */
 		$uid = \TMS_CLIENT::get_client_uid();
-		$mpid = $this->uuid($uid);
-		$data['mpid'] = $mpid;
+		if (empty($data['mpid'])) {
+			$mpid = $this->uuid($uid);
+			$data['mpid'] = $mpid;
+		} else {
+			$mpid = $data['mpid'];
+		}
 		$data['creater'] = $uid;
 		$data['create_at'] = time();
 		$this->insert('xxt_mpaccount', $data, false);
@@ -22,7 +23,6 @@ class mpaccount_model extends \TMS_MODEL {
 		 */
 		$setting = array(
 			'mpid' => $mpid,
-			//'follow_ele' => '请关注公众号！',
 		);
 		$this->insert('xxt_mpsetting', $setting, false);
 

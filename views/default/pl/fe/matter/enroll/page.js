@@ -633,11 +633,10 @@
     window.wrapLib = new WrapLib();
 })();
 (function() {
-    app.register.controller('ctrlPage', ['$scope', 'http2', '$modal', '$timeout', 'Mp', function($scope, http2, $modal, $timeout, Mp) {
-        console.log('xxxxxx');
+    app.provider.controller('ctrlPage', ['$scope', 'http2', '$modal', '$timeout', 'Mp', function($scope, http2, $modal, $timeout, Mp) {
         var extractSchema = function() {
             var i, pages, page, s, s2;
-            pages = $scope.editing.pages;
+            pages = $scope.app.pages;
             s = {};
             for (i in pages) {
                 page = pages[i];
@@ -865,7 +864,7 @@
                 backdrop: 'static',
                 resolve: {
                     enroll: function() {
-                        return $scope.editing;
+                        return $scope.app;
                     },
                     def: function() {
                         return {
@@ -886,7 +885,7 @@
                 backdrop: 'static',
                 resolve: {
                     enroll: function() {
-                        return $scope.editing;
+                        return $scope.app;
                     },
                     schema: function() {
                         return extractSchema();
@@ -940,7 +939,7 @@
                 backdrop: 'static',
                 resolve: {
                     enroll: function() {
-                        return $scope.editing;
+                        return $scope.app;
                     }
                 },
                 controller: ['$scope', '$modalInstance', 'enroll', function($scope, $mi, enroll) {
@@ -1030,7 +1029,7 @@
                     backdrop: 'static',
                     resolve: {
                         enroll: function() {
-                            return $scope.editing;
+                            return $scope.app;
                         },
                         def: function() {
                             return def;
@@ -1128,7 +1127,7 @@
         $scope.addPage = function() {
             http2.get('/rest/mp/app/enroll/page/add?aid=' + $scope.aid, function(rsp) {
                 var page = rsp.data;
-                $scope.editing.pages.push(page);
+                $scope.app.pages.push(page);
                 $timeout(function() {
                     $('a[href="#tab_' + page.name + '"]').tab('show');
                 });
@@ -1145,7 +1144,7 @@
         };
         $scope.updPage = function(page, name) {
             var editor;
-            if (!angular.equals($scope.editing, $scope.persisted)) {
+            if (!angular.equals($scope.app, $scope.persisted)) {
                 if (name === 'html') {
                     editor = tinymce.get(page.name);
                     if ($(editor.getBody()).find('.active').length) {
@@ -1158,12 +1157,12 @@
                 var url, p = {};
                 p[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
                 url = '/rest/mp/app/enroll/page/update';
-                url += '?aid=' + $scope.aid;
+                url += '?aid=' + $scope.id;
                 url += '&pid=' + page.id;
                 url += '&pname=' + page.name;
                 url += '&cid=' + page.code_id;
                 http2.post(url, p, function(rsp) {
-                    $scope.persisted = angular.copy($scope.editing);
+                    $scope.persisted = angular.copy($scope.app);
                     page.$$modified = false;
                     $scope.$root.progmsg = '';
                 });
@@ -1176,7 +1175,7 @@
                 url += '&pid=' + page.id;
                 http2.get(url, function(rsp) {
                     tinymce.remove('#' + page.name);
-                    $scope.editing.pages.splice(index, 1);
+                    $scope.app.pages.splice(index, 1);
                     $timeout(function() {
                         $($('a[href^=#tab_]')[0]).tab('show');
                     });
@@ -1193,8 +1192,8 @@
         window.onbeforeunload = function(e) {
             var i, p, message, modified;
             modified = false;
-            for (i in $scope.editing.pages) {
-                p = $scope.editing.pages[i];
+            for (i in $scope.app.pages) {
+                p = $scope.app.pages[i];
                 if (p.$$modified) {
                     modified = true;
                     break;
@@ -1209,12 +1208,134 @@
                 return message;
             }
         };
-        $scope.$watch('editing', function(nv) {
-            if (!nv) return;
-            $scope.schema = extractSchema();
-            $timeout(function() {
-                $($('a[href^=#tab_]')[0]).tab('show');
-            });
+        $scope.$watch('app.pages', function(pages) {
+            var dataSchemas;
+            if (pages) {
+                $scope.ep = pages[0];
+                dataSchemas = $scope.ep.data_schemas;
+                $scope.ep.data_schemas = dataSchemas && dataSchemas.length ? JSON.parse(dataSchemas) : [];
+                actSchemas = $scope.ep.act_schemas;
+                $scope.ep.act_schemas = actSchemas && actSchemas.length ? JSON.parse(actSchemas) : [];
+            };
         });
+    }]);
+    app.provider.controller('ctrlPageSchema', ['$scope', '$modal', function($scope, $modal) {
+        $scope.chooseSchema = function() {
+            $modal.open({
+                templateUrl: 'chooseDataSchema.html',
+                backdrop: 'static',
+                resolve: {
+                    schemas: function() {
+                        return $scope.app.data_schemas;
+                    }
+                },
+                controller: ['$scope', '$modalInstance', 'schemas', function($scope, $mi, schemas) {
+                    var choosed = [];
+                    $scope.schemas = angular.copy(schemas);
+                    $scope.choose = function(schema) {
+                        schema._selected ? choosed.push(schema) : choosed.splice(choosed.indexOf(schema), 1);
+                    };
+                    $scope.ok = function() {
+                        $mi.close(choosed);
+                    };
+                    $scope.cancel = function() {
+                        $mi.dismiss();
+                    };
+                }],
+            }).result.then(function(choosed) {
+                angular.forEach(choosed, function(schema) {
+                    var dataSchemas = $scope.ep.data_schemas,
+                        i = 0,
+                        l = dataSchemas.length;
+                    while (i < l && schema.name !== dataSchemas[i++].name) {};
+                    if (i === l) {
+                        delete schema._selected;
+                        dataSchemas.push(schema);
+                    }
+                });
+                $scope.updPage($scope.ep, 'data_schemas');
+            });
+        };
+        $scope.removeSchema = function(schema) {
+            var data_schemas = $scope.ep.data_schemas;
+            data_schemas.splice(data_schemas.indexOf(schema), 1);
+            $scope.updPage($scope.ep, 'data_schemas');
+        };
+        $scope.chooseAct = function() {
+            $modal.open({
+                templateUrl: 'chooseButton.html',
+                backdrop: 'static',
+                resolve: {
+                    def: function() {
+                        return {
+                            name: '',
+                            label: '',
+                            next: ''
+                        };
+                    }
+                },
+                controller: ['$scope', '$modalInstance', 'def', function($scope, $mi, def) {
+                    $scope.def = def;
+                    $scope.buttons = {
+                        submit: {
+                            l: '提交信息'
+                        },
+                        addRecord: {
+                            l: '新增登记'
+                        },
+                        editRecord: {
+                            l: '修改登记'
+                        },
+                        sendInvite: {
+                            l: '发出邀请'
+                        },
+                        acceptInvite: {
+                            l: '接受邀请'
+                        },
+                        gotoPage: {
+                            l: '页面导航'
+                        },
+                        closeWindow: {
+                            l: '关闭页面'
+                        },
+                    };
+                    $scope.choose = function() {
+                        var names;
+                        def.label = $scope.buttons[def.name].l;
+                        def.next = '';
+                    };
+                    $scope.ok = function() {
+                        $mi.close(def);
+                    };
+                    $scope.cancel = function() {
+                        $mi.dismiss();
+                    };
+                }],
+            }).result.then(function(def) {
+                $scope.ep.act_schemas.push(def);
+                $scope.updPage($scope.ep, 'act_schemas');
+            });
+        };
+        $scope.removeAct = function(def) {
+            $scope.ep.act_schemas.splice($scope.ep.act_schemas.indexOf(def), 1);
+            $scope.updPage($scope.ep, 'act_schemas');
+        };
+        $scope.makePage = function() {
+            angular.forEach($scope.ep.data_schemas, function(schema) {
+                var def = {};
+                def.key = schema.id;
+                def.name = schema.title;
+                def.type = schema.type;
+                def.required = schema.required;
+                def.showname = 'label';
+                window.wrapLib.embedInput($scope.ep, def);
+            });
+            angular.forEach($scope.ep.act_schemas, function(schema) {
+                var def = {};
+                def.type = schema.name;
+                def.label = schema.label;
+                window.wrapLib.embedButton($scope.ep, def);
+            });
+        };
     }]);
 })();

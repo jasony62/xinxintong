@@ -14,14 +14,40 @@ class main extends \pl\fe\base {
 		exit;
 	}
 	/**
-	 *
+	 * 创建站点
 	 */
 	public function create_action($pid = '', $asparent = 'N') {
 		$site['name'] = '新站点';
 		$site['asparent'] = $asparent;
 		$siteid = $this->model('site')->create($site);
 
+		/* @TODO 兼容改造前的模型，改造后应该去掉 */
+		$mpa = array();
+		$mpa['mpid'] = $siteid;
+		$mpa['name'] = '新站点';
+		$mpa['asparent'] = $asparent;
+		$mpa['parent_mpid'] = '';
+		$this->model('mp\mpaccount')->create($mpa);
+
 		return new \ResponseData(array('id' => $siteid));
+	}
+	/**
+	 * 删除站点
+	 * 只允许站点的创建者删除站点
+	 * 不实际删除站点，只是打标记
+	 */
+	public function remove_action($id) {
+		$acnt = \TMS_CLIENT::account();
+		/**
+		 * 做标记
+		 */
+		$rst = $this->model()->update(
+			'xxt_site',
+			array('state' => 0),
+			"id='$id' and creater='$acnt->uid'"
+		);
+
+		return new \ResponseData($rst);
 	}
 	/**
 	 *
@@ -43,7 +69,7 @@ class main extends \pl\fe\base {
 		$q = array(
 			'id,creater_name,create_at,name',
 			'xxt_site',
-			"creater='$uid'",
+			"creater='$uid' and state=1",
 		);
 		$q2 = array('o' => 'create_at desc');
 

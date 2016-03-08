@@ -1,0 +1,143 @@
+<div class="panel panel-default" ng-repeat="s in schemas">
+	<div class="panel-body">
+		<div class='form-horizontal'>
+			<div class='form-group'>
+				<label class='control-label col-md-2'>ID</label>
+				<div class='col-md-10'>
+					<input class='form-control' ng-model="s.id">
+				</div>
+			</div>
+			<div class='form-group'>
+				<label class='control-label col-md-2'>名称</label>
+				<div class='col-md-10'>
+					<input class='form-control' ng-model="s.title">
+				</div>
+			</div>
+			<div class='form-group'>
+				<label class='control-label col-md-2'>类型</label>
+				<div class='col-md-10'>
+					<input class='form-control' ng-model="s.type">
+				</div>
+			</div>
+			<div class='form-group'>
+				<label class='control-label col-md-2'>必填</label>
+				<div class='col-md-10'>
+					<input class='form-control' ng-model="s.required">
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<button class='btn btn-success btn-lg btn-block' ng-click='add()'>添加登记内容</button>
+<button class='btn btn-success btn-lg btn-block' ng-click='save()'>保存</button>
+<script type="text/ng-template" id="embedInputLib.html">
+<div class="modal-header">
+	<button class="close" ng-click="cancel()" type="button">×</button>
+	<h5 class="modal-title">内容</h5>
+</div>
+<div class="modal-body">
+	<form class="form-horizontal" role="form">
+		<div class="form-group">
+			<label class="col-md-2 control-label">类型</label>
+			<div class="col-md-10">
+				<select class='form-control' ng-model='def.type' ng-change="changeType()">
+					<option value='name'>姓名</option>
+					<option value='mobile'>手机</option>
+					<option value='email'>邮箱</option>
+					<option value='date'>日期</option>
+					<option value='shorttext'>短文本</option>
+					<option value='longtext'>长文本</option>
+					<option value='single'>单选项</option>
+					<option value='multiple'>多选项</option>
+					<option value='image'>图片</option>
+					<option value='file'>文件上传</option>
+					<option value='location'>位置</option>
+					<option value='auth'>用户认证信息</option>
+				</select>
+			</div>
+		</div>
+		<div class="form-group" ng-if="def.type==='auth'">
+			<label class="col-md-2 control-label">认证接口</label>
+			<div class="col-md-10">
+				<select class='form-control' ng-model='selectedAuth.api' ng-options='a.name for a in authapis' ng-change='shiftAuthapi()'></select>
+				<select class='form-control' ng-model='selectedAuth.attr' ng-options='a.label for a in selectedAuth.attrs' ng-change="shiftAuthAttr()"></select>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-md-2 control-label">ID</label>
+			<div class="col-md-10">
+				<p class='form-control-static' ng-bind='def.key'></p>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-md-2 control-label">名称*</label>
+			<div class="col-md-10">
+				<input type='text' class='form-control' ng-model='def.name' required>
+			</div>
+		</div>
+		<div class="form-group" ng-show="['image'].indexOf(def.type)===-1">
+			<label class="col-md-2 control-label">必填</label>
+			<div class="col-md-10">
+				<div class="checkbox">
+					<label><input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model='def.required'>是</label>
+				</div>
+			</div>
+		</div>
+		<div class="form-group" ng-if="def.type==='single'">
+			<label class="col-md-2 control-label">形式</label>
+			<div class="col-md-10">
+				<label class="radio-inline"><input type='radio' name='component' value='R' ng-model='def.component'>单选钮</label>
+				<label class="radio-inline"><input type='radio' name='component' value='S' ng-model='def.component'>下拉框</label>
+			</div>
+		</div>
+		<div class="form-group" ng-if="(def.type==='single'&&def.component==='R')||def.type==='multiple'">
+			<label class="col-md-2 control-label">排列方向</label>
+			<div class="col-md-10">
+				<label class="radio-inline"><input type='radio' name='align' value='V' ng-model='def.align'>垂直</label>
+				<label class="radio-inline"><input type='radio' name='align' value='H' ng-model='def.align'>水平</label>
+			</div>
+		</div>
+		<div class="form-group" ng-if="def.type==='single'||def.type==='multiple'">
+			<label class="col-md-2 control-label">选项</label>
+			<div class="col-md-10">
+				<button class="btn btn-default btn-sm" ng-click='addOption()'>添加</button>
+				<ul class='list-group' style='margin-bottom:0'>
+					<li class='list-group-item' ng-repeat='op in def.ops' editable prop='text' obj='op'></li>
+				</ul>
+			</div>
+		</div>
+		<div class="form-group" ng-if="def.type==='image'||def.type==='file'">
+			<label class="col-md-2 control-label">数量</label>
+			<div class="col-md-10">
+				<input type='text' class='form-control' ng-model='def.count'>
+			</div>
+		</div>
+		<div class="form-group" ng-if="def.type==='multiple'">
+			<label class="col-md-2 control-label">限制数量</label>
+			<div class="col-md-10">
+				<div class='input-group'>
+					<span class='input-group-addon'>
+						<input type='checkbox' ng-model='def.setUpper' ng-true-value="'Y'" ng-false-value="'N'">
+					</span>
+					<input type='text' ng-disabled="def.setUpper==='N'" class='form-control' ng-model='def.upper'>
+				</div>
+			</div>
+		</div>
+		<div class="form-group" style="display:none">
+			<label class="col-md-2 control-label">附加信息</label>
+			<div class="col-md-10">
+				<button class="btn btn-default btn-sm" ng-click='addExtAttr()'>添加</button>
+				<ul class='list-group'>
+					<li class='list-group-item' ng-repeat='attr in def.attrs'>
+						<input type='text' ng-model='attr.name'>
+						<input type='text' ng-model='attr.value'>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</form>
+</div>
+<div class="modal-footer" style="margin-top:0">
+	<button class="btn btn-success" ng-click="ok()">确定</button>
+</div>
+</script>

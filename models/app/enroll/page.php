@@ -50,7 +50,7 @@ class page_model extends \TMS_MODEL {
 	 */
 	public function &byApp($aid, $options = array()) {
 		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
-		$fields = isset($options['fields']) ? $options['fields'] : 'id,name,type,title,code_id,autoenroll_onenter,autoenroll_onshare,check_entry_rule,share_page,share_summary,seq';
+		$fields = isset($options['fields']) ? $options['fields'] : 'id,name,type,title,code_id,autoenroll_onenter,autoenroll_onshare,check_entry_rule,share_page,share_summary,seq,data_schemas,act_schemas';
 		$q = array(
 			$fields,
 			'xxt_enroll_page',

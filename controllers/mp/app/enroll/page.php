@@ -46,9 +46,15 @@ class page extends \mp\app\app_base {
 			$rst = $this->model('code/page')->modify($cid, $data);
 		} else {
 			if ($pid != 0) {
-				$rst = $this->model()->update(
+				$model = $this->model();
+				if (isset($nv->data_schemas)) {
+					$nv->data_schemas = $model->toJson($nv->data_schemas);
+				} else if (isset($nv->act_schemas)) {
+					$nv->act_schemas = $model->toJson($nv->act_schemas);
+				}
+				$rst = $model->update(
 					'xxt_enroll_page',
-					(array) $nv,
+					$nv,
 					"aid='$aid' and id=$pid"
 				);
 			}

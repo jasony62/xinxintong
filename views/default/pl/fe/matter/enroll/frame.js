@@ -3,10 +3,7 @@ app.config(['$controllerProvider', '$routeProvider', '$locationProvider', functi
 	app.provider = {
 		controller: $controllerProvider.register
 	};
-	$routeProvider.when('/rest/pl/fe/matter/enroll/setting', {
-		templateUrl: '/views/default/pl/fe/matter/enroll/setting.html?_=1',
-		controller: 'ctrlSetting',
-	}).when('/rest/pl/fe/matter/enroll/schema', {
+	$routeProvider.when('/rest/pl/fe/matter/enroll/schema', {
 		templateUrl: '/views/default/pl/fe/matter/enroll/schema.html?_=1',
 		controller: 'ctrlSchema',
 		resolve: {
@@ -48,9 +45,90 @@ app.config(['$controllerProvider', '$routeProvider', '$locationProvider', functi
 				return defer.promise;
 			}
 		}
+	}).when('/rest/pl/fe/matter/enroll/event', {
+		templateUrl: '/views/default/pl/fe/matter/enroll/event.html?_=1',
+		controller: 'ctrlEntry',
+		resolve: {
+			load: function($q) {
+				var defer = $q.defer();
+				(function() {
+					$.getScript('/views/default/pl/fe/matter/enroll/event.js', function() {
+						defer.resolve();
+					});
+				})();
+				return defer.promise;
+			}
+		}
+	}).when('/rest/pl/fe/matter/enroll/record', {
+		templateUrl: '/views/default/pl/fe/matter/enroll/record.html?_=1',
+		controller: 'ctrlRecord',
+		resolve: {
+			load: function($q) {
+				var defer = $q.defer();
+				(function() {
+					$.getScript('/views/default/pl/fe/matter/enroll/record.js', function() {
+						defer.resolve();
+					});
+				})();
+				return defer.promise;
+			}
+		}
+	}).when('/rest/pl/fe/matter/enroll/stat', {
+		templateUrl: '/views/default/pl/fe/matter/enroll/stat.html?_=1',
+		controller: 'ctrlStat',
+		resolve: {
+			load: function($q) {
+				var defer = $q.defer();
+				(function() {
+					$.getScript('/views/default/pl/fe/matter/enroll/stat.js', function() {
+						defer.resolve();
+					});
+				})();
+				return defer.promise;
+			}
+		}
+	}).when('/rest/pl/fe/matter/enroll/coin', {
+		templateUrl: '/views/default/pl/fe/matter/enroll/coin.html?_=1',
+		controller: 'ctrlCoin',
+		resolve: {
+			load: function($q) {
+				var defer = $q.defer();
+				(function() {
+					$.getScript('/views/default/pl/fe/matter/enroll/coin.js', function() {
+						defer.resolve();
+					});
+				})();
+				return defer.promise;
+			}
+		}
+	}).when('/rest/pl/fe/matter/enroll/running', {
+		templateUrl: '/views/default/pl/fe/matter/enroll/running.html?_=1',
+		controller: 'ctrlRunning',
+		resolve: {
+			load: function($q) {
+				var defer = $q.defer();
+				(function() {
+					$.getScript('/views/default/pl/fe/matter/enroll/running.js', function() {
+						defer.resolve();
+					});
+				})();
+				return defer.promise;
+			}
+		}
 	}).otherwise({
 		templateUrl: '/views/default/pl/fe/matter/enroll/setting.html?_=1',
-		controller: 'ctrlSetting'
+		controller: 'ctrlSetting',
+		resolve: {
+			load: function($q) {
+				var defer = $q.defer();
+				(function() {
+					$.getScript('/views/default/pl/fe/matter/enroll/setting.js', function() {
+						defer.resolve();
+					});
+				})();
+				return defer.promise;
+			}
+		}
 	});
 	$locationProvider.html5Mode(true);
 }]);
@@ -77,6 +155,7 @@ app.controller('ctrlApp', ['$scope', '$location', 'http2', function($scope, $loc
 		modifiedData = {};
 	$scope.id = ls.id;
 	$scope.mpid = ls.mpid;
+	$scope.siteid = ls.mpid;
 	$scope.modified = false;
 	$scope.submit = function() {
 		http2.post('/rest/mp/app/enroll/update?aid=' + $scope.id, modifiedData, function(rsp) {
@@ -94,7 +173,7 @@ app.controller('ctrlApp', ['$scope', '$location', 'http2', function($scope, $loc
 		}
 		$scope.modified = true;
 	};
-	http2.get('/rest/mp/app/enroll/get?aid=' + $scope.id + '&mpid=' + $scope.mpid, function(rsp) {
+	http2.get('/rest/mp/app/enroll/get?aid=' + $scope.id + '&mpid=' + $scope.siteid, function(rsp) {
 		var app;
 		app = rsp.data;
 		app.tags = (!app.tags || app.tags.length === 0) ? [] : app.tags.split(',');
@@ -103,65 +182,4 @@ app.controller('ctrlApp', ['$scope', '$location', 'http2', function($scope, $loc
 		$scope.persisted = angular.copy(app);
 		$scope.app = app;
 	});
-}]);
-app.controller('ctrlSetting', ['$scope', 'http2', function($scope, http2) {
-	$scope.pages4OutAcl = [];
-	$scope.pages4Unauth = [];
-	$scope.pages4Nonfan = [];
-	$scope.$watch('app.pages', function(nv) {
-		var newPage;
-		if (!nv) return;
-		$scope.pages4OutAcl = $scope.app.access_control === 'Y' ? [{
-			name: '$authapi_outacl',
-			title: '提示白名单'
-		}] : [];
-		$scope.pages4Unauth = $scope.app.access_control === 'Y' ? [{
-			name: '$authapi_auth',
-			title: '提示认证'
-		}] : [];
-		$scope.pages4Nonfan = [{
-			name: '$mp_follow',
-			title: '提示关注'
-		}];
-		for (var p in nv) {
-			newPage = {
-				name: nv[p].name,
-				title: nv[p].title
-			};
-			$scope.pages4OutAcl.push(newPage);
-			$scope.pages4Unauth.push(newPage);
-			$scope.pages4Nonfan.push(newPage);
-		}
-	}, true);
-	window.onbeforeunload = function(e) {
-		var message;
-		if ($scope.modified) {
-			message = '修改还没有保存，是否要离开当前页面？',
-				e = e || window.event;
-			if (e) {
-				e.returnValue = message;
-			}
-			return message;
-		}
-	};
-	$scope.setPic = function() {
-		var options = {
-			callback: function(url) {
-				$scope.app.pic = url + '?_=' + (new Date()) * 1;
-				$scope.update('pic');
-			}
-		};
-		$scope.$broadcast('mediagallery.open', options);
-	};
-	$scope.removePic = function() {
-		var nv = {
-			pic: ''
-		};
-		http2.post('/rest/mp/app/enroll/update?aid=' + $scope.aid, nv, function() {
-			$scope.app.pic = '';
-		});
-	};
-	$scope.gotoPage = function(name) {
-		location.href = '/rest/pl/fe/matter/enroll/page?id=' + $scope.id + '&mpid=' + $scope.mpid + '&page=' + name;
-	};
 }]);

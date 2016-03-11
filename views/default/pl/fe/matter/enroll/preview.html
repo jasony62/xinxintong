@@ -36,6 +36,21 @@
 </div>
 <div mattersgallery style='display:none' matter-url='/rest/mp/matter' matter-types='innerlinkTypes' has-parent="hasParent"></div>
 <mediagallery box-id="{{mpid}}" />
+<script type="text/ng-template" id="insertMedia.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">媒体文件</h5>
+    </div>
+    <div class="modal-body">
+        <div class="form-group">
+            <label>地址（URL）</label>
+            <textarea class="form-control" ng-model='data.url' rows=6></textarea>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="ok()">确定</button>
+    </div>
+</script>
 <script type="text/ng-template" id="chooseUserSchema.html">
     <div class="modal-header">
         <button class="close" ng-click="cancel()" type="button">×</button>
@@ -422,5 +437,20 @@
     </div>
     <div class="modal-footer" style="margin-top:0">
         <button class="btn btn-success" ng-click="ok()">确定</button>
+    </div>
+</script>
+<script type="text/ng-template" id="insertMedia.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">媒体文件</h5>
+    </div>
+    <div class="modal-body">
+        <div class="form-group">
+            <label>地址（URL）</label>
+            <textarea class="form-control" ng-model='data.url' rows=6></textarea>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="ok()">确定</button>
     </div>
 </script>

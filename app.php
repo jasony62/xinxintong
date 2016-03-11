@@ -122,7 +122,7 @@ define('TMS_APP_DIR', dirname(__FILE__));
  * default page.
  */
 !defined('TMS_APP_UNAUTH') && define('TMS_APP_UNAUTH', '/pl/fe/user/auth'); // 未认证通过的缺省页
-define('TMS_APP_AUTHED', '/pl/fe/main'); // 认证通过后的缺省页
+define('TMS_APP_AUTHED', '/pl/fe'); // 认证通过后的缺省页
 /**
  * default upload directory
  */

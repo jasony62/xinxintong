@@ -1,0 +1,265 @@
+<div>
+    <div class='form-group form-inline'>
+        <div class='form-group'>
+            <select class='form-control' ng-model='page.searchBy' ng-options='s.v as s.n for s in searchBys'></select>
+        </div>
+        <div class='form-group' style='max-width:200px'>
+            <div class="input-group">
+                <input type='text' class='form-control' ng-model='page.keyword' placeholder='搜索条件' ng-keyup='keywordKeyup($event)'>
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="button" ng-click='doSearch(1)'>
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                </span>
+            </div>
+        </div>
+        <div class='form-group'>
+            <select class='form-control' title='登记轮次' ng-if='editing.rounds' ng-model='page.byRound' ng-options='r.rid as r.title for r in editing.rounds'
+            ng-change='doSearch(1)'>
+                <option value=>全部</option>
+            </select>
+        </div>
+        <div class='form-group'>
+            <combox title='标签' evt-prefix='search-tag' readonly='true' existing='page.tags' options='editing.tags'></combox>
+        </div>
+        <div class='form-group pull-right' style='width:90px'>
+            <div class='input-group'>
+                <input class='form-control' ng-model='page.size' title='每页条数' placeholder='每页条数'>
+                <span class='input-group-btn'>
+                    <button class='btn btn-default' ng-click='doSearch(1)'>
+                        <span class='glyphicon glyphicon-refresh'></span>
+                    </button>
+                </span>
+            </div>
+        </div>
+        <div class='form-group'>
+            <select class='form-control' title="排序条件" ng-model='page.orderBy' ng-options='o.v as o.n for o in orderBys' ng-change='doSearch(1)'></select>
+        </div>
+        <div class='form-group' ng-if="editing.can_signin==='Y'" style='width:180px'>
+            <tms-datepicker tms-title='签到范围开始日期' tms-date='signinStartAt' tms-state='signinStartAt'></tms-datepicker>
+        </div>
+        <div class='form-group' ng-if="editing.can_signin==='Y'" style='width:180px'>
+            <tms-datepicker tms-title='签到范围结束日期' tms-date='signinEndAt' tms-state='signinEndAt'></tms-datepicker>
+        </div>
+        <div class='form-group'>
+            <button class='btn btn-default' ng-click='tagByData()'>打标签</button>
+            <button class='btn btn-default' ng-click='exportByData()'>导出记录</button>
+        </div>
+    </div>
+    <div id='records'>
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th style='width:40px'>
+                        <input type='checkbox' ng-model="selectAll">
+                    </th>
+                    <th style='width:100px'>登记时间</th>
+                    <th style='width:100px'>昵称</th>
+                    <th class='custom-col' ng-repeat="c in schema" title="{{c.ops}}">{{c.title}}</th>
+                    <th style='width:100px' ng-if="editing.can_signin==='Y'">最近签到时间</th>
+                    <th style='width:80px' ng-if="editing.can_signin==='Y'">签到次数</th>
+                    <th style='width:140px'>标签</th>
+                    <th style='width:60px' ng-if="editing.can_invite==='Y'">邀请</th>
+                    <th style='width:60px' ng-if="editing.can_like_record==='Y'">点赞</th>
+                    <th style='width:60px' ng-if="editing.can_remark_record==='Y'">评论</th>
+                    <th style='width:72px'>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat='r in records' class='record'>
+                    <td>
+                        <input type='checkbox' ng-model='selected[$index]'>
+                    </td>
+                    <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
+                    <td ng-if="r.openid">
+                        <a href='javascript:void(0)' userpopover xxt-fid='{{r.fid}}' ng-click='viewUser(r)'>{{r.nickname||r.openid}}</a>
+                    </td>
+                    <td ng-if="!r.openid"><span>{{r.vid}}</span></td>
+                    <td ng-repeat="c in schema">
+                        <span ng-if="c.id.indexOf('member')===0">{{memberAttr(r.data, c.id)}}</span>
+                        <span ng-if="c.type!=='img'&&c.type!=='file'">{{value2Label(r.data[c.id], c.id)}}</span>
+                        <span ng-if="c.type==='img'" ng-init="imgs=r.data[c.id].split(',')">
+                            <img ng-repeat="img in imgs" ng-src='{{img}}' />
+                        </span>
+                        <span ng-if="c.type==='file'" ng-init="files=json2Obj(r.data[c.id])">
+                            <span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                        </span>
+                    </td>
+                    <td ng-if="editing.can_signin==='Y'">{{r.signin_at>0 ? ((r.signin_at*1000)|date:'MM-dd HH:mm') : ''}}</td>
+                    <td ng-if="editing.can_signin==='Y'">{{r.signinLogs.length}}</td>
+                    <td>{{r.tags}}</td>
+                    <td ng-if="editing.can_invite==='Y'">{{r.follower_num}}</td>
+                    <td ng-if="editing.can_like_record==='Y'">{{r.score}}</td>
+                    <td ng-if="editing.can_remark_record==='Y'">{{r.remark_num}}</td>
+                    <td>
+                        <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                        <button class='btn btn-xs btn-default' ng-click='editRecord(r)'>
+                            <span class='glyphicon glyphicon-edit'></span>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class='form-group form-inline'>
+        <combox title='标签' evt-prefix='batch-tag' readonly='true' options='editing.tags'></combox>
+        <button class='btn btn-danger' ng-click='empty()'>清空记录</button>
+        <div class="btn-group">
+            <button type="button" class="btn btn-default">添加用户记录</button>
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+            aria-expanded="false">
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <a href="javascript:void(0)" ng-click='importUser()'>认证用户</a>
+                </li>
+                <li>
+                    <a href="javascript:void(0)" ng-click='addRecord()'>手工添加</a>
+                </li>
+            </ul>
+        </div>
+        <pushnotify class='btn btn-primary' single-matter='Y' matter-types='notifyMatterTypes'>发送信息</pushnotify>
+        <span>总数：{{page.total}}</span>
+        <pagination style='margin:0;cursor:pointer;vertical-align:bottom' ng-if='page.total>page.size' class='pull-right'
+        boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at"
+        previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
+    </div>
+    <script type="text/ng-template" id="tagByData.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title">筛选条件</h5>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal record-editor">
+                <div class="form-group" ng-repeat="def in schema" ng-if="def.id.indexOf('member')!==0">
+                    <label class="col-md-3 control-label">{{def.title}}</label>
+                    <div class="col-md-9" ng-if="def.type!=='single'&&def.type!=='multiple'">
+                        <input type='text' class='form-control' ng-model="data.filter[def.id]">
+                    </div>
+                    <div class="col-md-9" ng-if="def.type==='single'||def.type==='multiple'">
+                        <select class='form-control' ng-model="data.filter[def.id]" ng-options="op.v as op.label for op in def.ops">
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+                <hr>
+                <div class='form-group'>
+                    <label class="col-md-3 control-label">标签</label>
+                    <div class="col-md-9">
+                        <input type='text' class='form-control' ng-model="data.tag">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">确定</button>
+        </div>
+    </script>
+    <script type="text/ng-template" id="exportByData.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title">筛选条件</h5>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal record-editor">
+                <div class="form-group" ng-repeat="def in schema" ng-if="def.id.indexOf('member')!==0">
+                    <label class="col-md-3 control-label">{{def.title}}</label>
+                    <div class="col-md-9" ng-if="def.type!=='single'&&def.type!=='multiple'">
+                        <input type='text' class='form-control' ng-model="data.filter[def.id]">
+                    </div>
+                    <div class="col-md-9" ng-if="def.type==='single'||def.type==='multiple'">
+                        <select class='form-control' ng-model="data.filter[def.id]" ng-options="op.v as op.label for op in def.ops">
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+                <hr>
+                <div class='form-group'>
+                    <label class="col-md-3 control-label">目标登记活动</label>
+                    <div class="col-md-9">
+                        <select class="form-control" ng-model="data.target" ng-options="app.id as app.title for app in apps"></select>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class="col-md-3 control-label">包含数据</label>
+                    <div class="col-md-9">
+                        <div class='checkbox'>
+                            <label><input type="checkbox" ng-model="data.includeData" ng-true-value="'Y'" ng-false=value="N">是</label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">确定</button>
+        </div>
+    </script>
+    <script type="text/ng-template" id="editor.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title">登记记录</h5>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal record-editor">
+                <div class="form-group" ng-if='record.enroll_at'>
+                    <label class="col-md-2 control-label">登记时间</label>
+                    <div class="col-md-10">
+                        <p class="form-control-static">{{record.enroll_at*1000|date:'yy-MM-dd hh:mm'}}</p>
+                    </div>
+                </div>
+                <div class="form-group" ng-repeat="c in schema" ng-if="c.id.indexOf('member')!==0">
+                    <label class="col-md-2 control-label">{{c.title}}</label>
+                    <div class="col-md-10">
+                        <input type='text' class='form-control' ng-if="c.type!=='img'&&c.type!=='file'" ng-model="record.data[c.id]">
+                        <span ng-if="c.type==='img'" ng-init="imgs=record.data[c.id].split(',')">
+                            <img ng-repeat="img in imgs" ng-src='{{img}}' style="width:100%"/>
+                        </span>
+                        <span ng-if="c.type==='file'">
+                            <span ng-repeat="file in record.data[c.id]">
+                                <span ng-bind="file.url"></span>
+                                <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
+                                    <source src="{{file.url}}" type="{{file.type}}"/>
+                                </video>
+                                <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%"/>
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group" ng-if="enroll.can_signin==='Y'&&record.enroll_at">
+                    <label class="col-md-2 control-label">签到时间</label>
+                    <div class="col-md-10">
+                        <ul class='list-group' style='margin-bottom:0'>
+                            <li class='list-group-item' ng-repeat="l in record.signinLogs">{{l.signin_at*1000|date:'yy-MM-dd hh:mm'}}</li>
+                        </ul>
+                        <button class="btn btn-primary" ng-if='record.signin_at==0' ng-click="signin()">签到</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">活动标签</label>
+                    <div class="col-md-10">
+                        <combox evt-prefix='tag' existing='record.aTags' options='aTags'></combox>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">保存</button>
+        </div>
+    </script>
+    <script type="text/ng-template" id="userPicker.html">
+        <div class="modal-header">
+            <button class="close" type="button" ng-click="cancel()">×</button>
+            <h5 class="modal-title">选择认证用户</h5>
+        </div>
+        <div class="modal-body">
+            <userpicker user-set='userSet' user-config='userConfig'></userpicker>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">确定</button>
+        </div>
+    </script>
+</div>

@@ -1,0 +1,32 @@
+<div class='col-md-8'>
+    <div class='tile'>
+        <div class='form-group'>
+            <div class='form-control' ng-bind='app.title'></div>
+        </div>
+    </div>
+    <div class='tile'>
+        <a href='/rest/pl/fe/matter/enroll/setting?id={{id}}'>设置</a>
+    </div>
+    <div class='tile'>
+        <div class='qrcode form-group' ng-controller='SendmeController'>
+            <button class='btn btn-block btn-success' data-toggle="popover" data-placement='left' ng-click="qrcode({type:'article',id:app.id},$event)">发送给我</button>
+        </div>
+    </div>
+    <div class='tile'>
+        运行情况统计
+    </div>
+</div>
+<div class='col-md-4'>
+    <div class='tile'>
+        <div class='form-group'>
+            <a href='/rest/pl/fe/matter/enroll/record?id={{id}}'>登记记录</a>
+        </div>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <div>阅读：{{app.read_num}}</div>
+            <div>分享好友：{{app.share_friend_num}}</div>
+            <div>分享朋友圈：{{app.share_timeline_num}}</div>
+        </div>
+    </div>
+</div>

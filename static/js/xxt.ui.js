@@ -500,66 +500,59 @@ xxtMatters.directive('mattersgallery', function() {
         templateUrl: '/static/template/mattersgallery.html?v=3',
     }
 });
-xxtMatters.directive('mediagallery', function() {
-    return {
-        restrict: 'EA',
-        scope: {
-            boxId: '@boxId'
-        },
-        controller: ['$scope', '$http', '$modal', function($scope, $http, $modal) {
-            var modalInstance, open;
-            open = function(options) {
-                modalInstance = $modal.open({
-                    templateUrl: 'modalMediaGallery.html',
-                    controller: ['$scope', '$modalInstance', 'url', function($scope2, $mi, url) {
-                        $scope2.title = options.mediaType;
-                        $scope2.url = url;
-                        $scope2.setshowname = options.setshowname;
-                        $scope2.setting = {
-                            isShowName: 'N'
-                        };
-                        $scope2.cancel = function() {
-                            $mi.dismiss('cancel');
-                        };
-                        $scope2.$watch('setting.isShowName', function(nv) {
-                            $mi.isShowName = nv;
-                        });
-                    }],
-                    backdrop: 'static',
-                    size: 'lg',
-                    windowClass: 'auto-height media-gallery',
-                    resolve: {
-                        url: function() {
-                            return "/kcfinder/browse.php?lang=zh-cn&type=" + options.mediaType + "&mpid=" + $scope.boxId;
-                        },
-                    }
-                });
-            };
-            $scope.$on('mediagallery.open', function(event, options) {
-                options = angular.extend({
-                    mediaType: "图片",
-                    callback: null,
-                    multiple: false,
-                    setshowname: false
-                }, options);
-                var kcfCallBack = function(url) {
-                    window.KCFinder = null;
-                    options.callback && options.callback(url, modalInstance.isShowName);
-                    modalInstance.close();
+xxtMatters.factory('mediagallery', function($modal) {
+    var gallery = {},
+        open;
+    open = function(galleryId, options) {
+        modalInstance = $modal.open({
+            templateUrl: '/static/template/mediagallery2.html',
+            controller: ['$scope', '$modalInstance', 'url', function($scope2, $mi, url) {
+                $scope2.title = options.mediaType;
+                $scope2.url = url;
+                $scope2.setshowname = options.setshowname;
+                $scope2.setting = {
+                    isShowName: 'N'
                 };
-                if (options.multiple)
-                    window.KCFinder = {
-                        callBackMultiple: kcfCallBack
-                    };
-                else
-                    window.KCFinder = {
-                        callBack: kcfCallBack
-                    };
-                open(options);
-            });
-        }],
-        templateUrl: '/static/template/mediagallery.html?_=1',
-    }
+                $scope2.cancel = function() {
+                    $mi.dismiss('cancel');
+                };
+                $scope2.$watch('setting.isShowName', function(nv) {
+                    $mi.isShowName = nv;
+                });
+            }],
+            backdrop: 'static',
+            size: 'lg',
+            windowClass: 'auto-height media-gallery',
+            resolve: {
+                url: function() {
+                    return "/kcfinder/browse.php?lang=zh-cn&type=" + options.mediaType + "&mpid=" + galleryId;
+                },
+            }
+        });
+    };
+    gallery.open = function(galleryId, options) {
+        options = angular.extend({
+            mediaType: "图片",
+            callback: null,
+            multiple: false,
+            setshowname: false
+        }, options);
+        var kcfCallBack = function(url) {
+            window.KCFinder = null;
+            options.callback && options.callback(url, modalInstance.isShowName);
+            modalInstance.close();
+        };
+        if (options.multiple)
+            window.KCFinder = {
+                callBackMultiple: kcfCallBack
+            };
+        else
+            window.KCFinder = {
+                callBack: kcfCallBack
+            };
+        open(galleryId, options);
+    };
+    return gallery;
 });
 xxtMatters.controller('AccessControllerUserPickerController', ['$scope', '$modalInstance', 'userSetAsParam', function($scope, $mi, userSetAsParam) {
     $scope.userConfig = {

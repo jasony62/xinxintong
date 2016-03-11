@@ -1,0 +1,17 @@
+<div>
+    <table class='table table-bordered' ng-repeat="s in stat">
+        <caption>{{s.title}}</caption>
+        <thead>
+            <tr>
+                <th>选项</th>
+                <th>数量</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="op in s.ops">
+                <td>{{op.l}}</td>
+                <td>{{op.c}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

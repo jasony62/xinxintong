@@ -13,13 +13,14 @@ class page_model extends \TMS_MODEL {
 		$q = array($select, $from, $where);
 
 		$ep = $this->query_obj_ss($q);
-
-		$code = \TMS_APP::model('code/page')->byId($ep->code_id);
-		$ep->html = $code->html;
-		$ep->css = $code->css;
-		$ep->js = $code->js;
-		$ep->ext_js = $code->ext_js;
-		$ep->ext_css = $code->ext_css;
+		if ($ep) {
+			$code = \TMS_APP::model('code/page')->byId($ep->code_id);
+			$ep->html = $code->html;
+			$ep->css = $code->css;
+			$ep->js = $code->js;
+			$ep->ext_js = $code->ext_js;
+			$ep->ext_css = $code->ext_css;
+		}
 
 		return $ep;
 	}
@@ -255,6 +256,8 @@ class page_model extends \TMS_MODEL {
 	 * 创建活动页面
 	 */
 	public function add($mpid, $aid, $data = null) {
+		is_object($data) && $data = (array) $data;
+
 		$uid = \TMS_CLIENT::get_client_uid();
 
 		$code = \TMS_APP::model('code/page')->create($uid);

@@ -497,6 +497,9 @@ class main extends \mp\app\app_base {
 	public function update_action($aid) {
 		$model = $this->model();
 		$user = $this->accountUser();
+		if (false === $user) {
+			return new \ResponseTimeout();
+		}
 		/**
 		 * 处理数据
 		 */

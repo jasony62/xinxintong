@@ -1,5 +1,5 @@
 (function() {
-	app.provider.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
+	app.provider.controller('ctrlSetting', ['$scope', '$location', 'http2', '$modal', 'mediagallery', function($scope, $location, http2, $modal, mediagallery) {
 		window.onbeforeunload = function(e) {
 			var message;
 			if ($scope.modified) {
@@ -27,7 +27,7 @@
 			var nv = {
 				pic: ''
 			};
-			http2.post('/rest/mp/app/enroll/update?aid=' + $scope.aid, nv, function() {
+			http2.post('/rest/mp/app/enroll/update?aid=' + $scope.id, nv, function() {
 				$scope.app.pic = '';
 			});
 		};
@@ -35,5 +35,28 @@
 			$scope.app[data.state] = data.value;
 			$scope.update(data.state);
 		});
+		$scope.addPage = function() {
+			$modal.open({
+				templateUrl: 'createPage.html',
+				backdrop: 'static',
+				controller: ['$scope', '$modalInstance', function($scope, $mi) {
+					$scope.options = {};
+					$scope.ok = function() {
+						$mi.close($scope.options);
+					};
+					$scope.cancel = function() {
+						$mi.dismiss();
+					};
+				}],
+			}).result.then(function(options) {
+				http2.post('/rest/mp/app/enroll/page/add?aid=' + $scope.id, options, function(rsp) {
+					var page = rsp.data;
+					$scope.app.pages.push(page);
+					//$location.path('/rest/pl/fe/matter/enroll/page?id=' + $scope.id + '&page=' + page.name);
+					//$location.replace();
+					location.href = '/rest/pl/fe/matter/enroll/page?id=' + $scope.id + '&page=' + page.name;
+				});
+			});
+		};
 	}]);
 })();

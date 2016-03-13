@@ -38,9 +38,13 @@
     <a href='/rest/pl/fe/matter/enroll/schema?id={{id}}'>编辑</a>
     </div>
     <div class='tile'>
-    登记页面
-    <a href='/rest/pl/fe/matter/enroll/page?id={{id}}'>编辑</a>
-    <a href='/rest/pl/fe/matter/enroll/entry?id={{id}}'>进入规则</a>
+        <div class='list-group form-group'>
+            <div class='list-group-item' ng-repeat="p in app.pages">
+                <a href='/rest/pl/fe/matter/enroll/page?id={{id}}&page={{p.name}}'>{{p.title}}</a>
+            </div>
+        </div>
+        <a href='/rest/pl/fe/matter/enroll/entry?id={{id}}'>进入规则</a>
+        <button class='btn btn-success' ng-click="addPage()">添加</button>
     </div>
     <div class='tile'>
         <div class='form-group'>
@@ -81,4 +85,18 @@
         </div>
     </div>
 </div>
-<mediagallery box-id="{{siteid}}" />
+<script type="text/ng-template" id="createPage.html">
+    <div class="modal-header">
+        <button class="close" ng-click="cancel()" type="button">×</button>
+        <h5 class="modal-title">新页面</h5>
+    </div>
+    <div class="modal-body">
+        <div class="form-group">
+            <label class='radio-inline'><input type='radio' value='I' name='type' ng-model='options.type'>登记页</label>
+            <label class='radio-inline'><input type='radio' value='V' name='type' ng-model='options.type'>查看页</label>
+        </div>
+    </div>
+    <div class="modal-footer" style="margin-top:0">
+        <button class="btn btn-success" ng-click="ok()">确定</button>
+    </div>
+</script>

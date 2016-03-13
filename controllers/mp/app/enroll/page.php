@@ -18,7 +18,9 @@ class page extends \mp\app\app_base {
 	 * $aid 获动的id
 	 */
 	public function add_action($aid) {
-		$newPage = $this->model('app\enroll\page')->add($this->mpid, $aid);
+		$options = $this->getPostJson();
+
+		$newPage = $this->model('app\enroll\page')->add($this->mpid, $aid, $options);
 
 		return new \ResponseData($newPage);
 	}

@@ -74,12 +74,15 @@ class mp_controller extends \xxt_base {
 	 */
 	protected function &accountUser() {
 		$account = \TMS_CLIENT::account();
+		if ($account) {
+			$user = new \stdClass;
+			$user->id = $account->uid;
+			$user->name = $account->nickname;
+			$user->src = 'A';
 
-		$user = new \stdClass;
-		$user->id = $account->uid;
-		$user->name = $account->nickname;
-		$user->src = 'A';
-
+		} else {
+			$user = false;
+		}
 		return $user;
 	}
 }

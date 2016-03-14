@@ -405,100 +405,71 @@ xxtMatters.directive('tinymce', function($timeout) {
         }
     }
 });
-xxtMatters.controller('MattersGalleryModalInstCtrl', ['$scope', '$http', '$modalInstance', 'matterTypes', 'singleMatter', 'hasParent', function($scope, $http, $modalInstance, matterTypes, singleMatter, hasParent) {
-    $scope.matterTypes = matterTypes;
-    $scope.singleMatter = singleMatter;
-    $scope.hasParent = hasParent;
-    $scope.p = {};
-    if ($scope.matterTypes && $scope.matterTypes.length)
-        $scope.p.matterType = $scope.matterTypes[0];
-
-    var fields = ['id', 'title'];
-    $scope.page = {
-        current: 1,
-        size: 10
-    };
-    $scope.aChecked = [];
-    $scope.doCheck = function(matter) {
-        if ($scope.singleMatter) {
-            $scope.aChecked = [matter];
-        } else {
-            var i = $scope.aChecked.indexOf(matter);
-            if (i === -1)
-                $scope.aChecked.push(matter);
-            else
-                $scope.aChecked.splice(i, 1);
-        }
-    };
-    $scope.doSearch = function() {
-        if (!$scope.p.matterType) return;
-        var url, params = {};
-        url = $scope.p.matterType.url;
-        url += '/' + $scope.p.matterType.value;
-        url += '/list?page=' + $scope.page.current + '&size=' + $scope.page.size + '&fields=' + fields;
-        $scope.p.fromParent && $scope.p.fromParent == 1 && (params.src = 'p');
-        $http.post(url, params).success(function(rsp) {
-            if (/article|contribute/.test($scope.p.matterType.value)) {
-                $scope.matters = rsp.data.articles;
-                $scope.page.total = rsp.data.total;
-            } else {
-                $scope.matters = rsp.data;
-                $scope.page.total = $scope.matters.length;
-            }
-        });
-    };
-    $scope.ok = function() {
-        $modalInstance.close([$scope.aChecked, $scope.p.matterType ? $scope.p.matterType.value : 'article']);
-    };
-    $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
-    };
-    $scope.$watch('p.matterType', function(nv) {
-        $scope.doSearch();
-    });
-}]);
-xxtMatters.controller('MattersController', ['$scope', '$http', '$modal', function($scope, $http, $modal) {
-    var open = function() {
+xxtMatters.factory('mattersgallery', function($modal) {
+    var gallery = {};
+    gallery.open = function(galleryId, callback, options) {
         $modal.open({
-            templateUrl: 'modalMattersGalllery.html',
-            controller: 'MattersGalleryModalInstCtrl',
+            templateUrl: '/static/template/mattersgallery2.html?v=1',
+            controller: ['$scope', '$http', '$modalInstance', function($scope, $http, $mi) {
+                $scope.matterTypes = options.matterTypes;
+                $scope.singleMatter = options.singleMatter;
+                $scope.hasParent = options.hasParent;
+                $scope.p = {};
+                if ($scope.matterTypes && $scope.matterTypes.length)
+                    $scope.p.matterType = $scope.matterTypes[0];
+
+                var fields = ['id', 'title'];
+                $scope.page = {
+                    current: 1,
+                    size: 10
+                };
+                $scope.aChecked = [];
+                $scope.doCheck = function(matter) {
+                    if ($scope.singleMatter) {
+                        $scope.aChecked = [matter];
+                    } else {
+                        var i = $scope.aChecked.indexOf(matter);
+                        if (i === -1)
+                            $scope.aChecked.push(matter);
+                        else
+                            $scope.aChecked.splice(i, 1);
+                    }
+                };
+                $scope.doSearch = function() {
+                    if (!$scope.p.matterType) return;
+                    var url, params = {};
+                    url = $scope.p.matterType.url;
+                    url += '/' + $scope.p.matterType.value;
+                    url += '/list?page=' + $scope.page.current + '&size=' + $scope.page.size + '&fields=' + fields;
+                    $scope.p.fromParent && $scope.p.fromParent == 1 && (params.src = 'p');
+                    $http.post(url, params).success(function(rsp) {
+                        if (/article|contribute/.test($scope.p.matterType.value)) {
+                            $scope.matters = rsp.data.articles;
+                            $scope.page.total = rsp.data.total;
+                        } else {
+                            $scope.matters = rsp.data;
+                            $scope.page.total = $scope.matters.length;
+                        }
+                    });
+                };
+                $scope.ok = function() {
+                    $mi.close([$scope.aChecked, $scope.p.matterType ? $scope.p.matterType.value : 'article']);
+                };
+                $scope.cancel = function() {
+                    $mi.dismiss('cancel');
+                };
+                $scope.$watch('p.matterType', function(nv) {
+                    $scope.doSearch();
+                });
+            }],
             size: 'lg',
             backdrop: 'static',
-            windowClass: 'auto-height mattersgallery',
-            resolve: {
-                singleMatter: function() {
-                    return $scope.singleMatter ? $scope.singleMatter : false;
-                },
-                hasParent: function() {
-                    return $scope.hasParent ? $scope.hasParent : false;
-                },
-                matterTypes: function() {
-                    return $scope.matterTypes;
-                }
-            }
+            windowClass: 'auto-height mattersgallery'
         }).result.then(function(result) {
-            if ($scope.callback) {
-                $scope.callback(result[0], result[1]);
-            }
-            $scope.$emit('mattersgallery.done', result[0]);
+            callback && callback(result[0], result[1]);
         });
     };
-    $scope.$on('mattersgallery.open', function(event, callback) {
-        $scope.callback = callback;
-        open();
-    });
-}]);
-xxtMatters.directive('mattersgallery', function() {
-    return {
-        restrict: 'EA',
-        scope: {
-            singleMatter: '@',
-            hasParent: '@',
-            matterTypes: '='
-        },
-        controller: 'MattersController',
-        templateUrl: '/static/template/mattersgallery.html?v=3',
-    }
+    return gallery;
 });
 xxtMatters.factory('mediagallery', function($modal) {
     var gallery = {},
@@ -542,14 +513,15 @@ xxtMatters.factory('mediagallery', function($modal) {
             options.callback && options.callback(url, modalInstance.isShowName);
             modalInstance.close();
         };
-        if (options.multiple)
+        if (options.multiple) {
             window.KCFinder = {
                 callBackMultiple: kcfCallBack
             };
-        else
+        } else {
             window.KCFinder = {
                 callBack: kcfCallBack
             };
+        }
         open(galleryId, options);
     };
     return gallery;

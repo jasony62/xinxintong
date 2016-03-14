@@ -908,7 +908,7 @@
             });
         };
     }]);
-    app.provider.controller('ctrlPageEditor', ['$scope', '$modal', function($scope, $modal) {
+    app.provider.controller('ctrlPageEditor', ['$scope', '$modal', 'mattersgallery', 'mediagallery', function($scope, $modal, mattersgallery, mediagallery) {
         $scope.activeWrap = false;
         var setActiveWrap = function(wrap) {
             var wrapType;
@@ -1049,7 +1049,7 @@
             }
         };
         $scope.embedMatter = function(page) {
-            $scope.$broadcast('mattersgallery.open', function(matters, type) {
+            mattersgallery.open('mattersgallery.open', function(matters, type) {
                 var editor, dom, i, matter, mtype, fn;
                 editor = tinymce.get(page.name);
                 dom = editor.dom;
@@ -1065,6 +1065,10 @@
                         "ng-click": fn,
                     }, dom.encode(matter.title))));
                 }
+            }, {
+                matterTypes: $scope.innerlinkTypes,
+                hasParent: false,
+                singleMatter: true
             });
         };
         $scope.gotoCode = function(codeid) {
@@ -1075,8 +1079,9 @@
                 callback: callback,
                 multiple: true,
                 setshowname: true
-            }
-            $scope.$broadcast('mediagallery.open', options);
+            };
+            mediagallery.open($scope.siteid, options);
+            //$scope.$broadcast('mediagallery.open', options);
         });
     }]);
 })();

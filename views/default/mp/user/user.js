@@ -42,16 +42,17 @@ xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$modal', functio
         }
         $scope.selectedMatter = null;
         var url, params = {};
-        url = '/rest/mp/matter/' + $scope.matterType + '/get';
+        url = '/rest/mp/matter/' + $scope.matterType + '/list';
         !page && (page = $scope.matterpage.at);
         url += '?page=' + page + '&size=' + $scope.matterpage.size;
         $scope.fromParent && $scope.fromParent === 'Y' && (params.src = 'p');
         http2.post(url, params, function(rsp) {
             if (/article/.test($scope.matterType)) {
-                $scope.matters = rsp.data[0];
-                rsp.data[1] && ($scope.matterpage.total = rsp.data[1]);
-            } else
+                $scope.matters = rsp.data.articles;
+                $scope.matterpage.total = rsp.data.total;
+            } else {
                 $scope.matters = rsp.data;
+            }
         });
     };
     $scope.send = function() {

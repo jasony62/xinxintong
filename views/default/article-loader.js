@@ -39,14 +39,19 @@ if (/MicroMessenger/i.test(navigator.userAgent)) {
 		xhr.onreadystatechange = function() {
 			if (xhr.readyState == 4) {
 				if (xhr.status >= 200 && xhr.status < 400) {
-					try {
-						eval("(" + xhr.responseText + ')');
-						signPackage.debug = false;
-						signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
-						wx.config(signPackage);
+					if (xhr.responseText && xhr.responseText.length) {
+						try {
+							eval("(" + xhr.responseText + ')');
+							signPackage.debug = false;
+							signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
+							wx.config(signPackage);
+							window.loading.load();
+						} catch (e) {
+							alert('local error:' + e.toString());
+						}
+					} else {
+						//alert('http error: response is empty.');
 						window.loading.load();
-					} catch (e) {
-						alert('local error:' + e.toString());
 					}
 				} else {
 					alert('http error:' + xhr.statusText);

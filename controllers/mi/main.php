@@ -27,7 +27,7 @@ class main extends \member_base {
 
 		switch ($method) {
 		case 'GET':
-			$this->model('log')->log($mpid, 'GET', 'join');
+			/* 公众平台对接 */
 			$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $mpid);
 			$rst = $mpproxy->join($_GET);
 			header('Content-Type: text/html; charset=utf-8');
@@ -35,19 +35,16 @@ class main extends \member_base {
 			break;
 		case 'POST':
 			$data = file_get_contents("php://input");
-			$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $mpid);
 			if ($mpa->mpsrc === 'qy') {
-				/**
-				 * 企业号需要对数据进行解密处理
-				 */
+				$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $mpid);
+				/* 企业号需要对数据进行解密处理 */
 				$rst = $mpproxy->DecryptMsg($_GET, $data);
 				if ($rst[0] === false) {
 					exit;
 				}
-
 				$data = $rst[1];
 			}
-			$call = new UserCall($data);
+			$call = new UserCall($data, $mpid, $mpa->mpsrc);
 			$this->handle($mpid, $call);
 			break;
 		}
@@ -422,7 +419,6 @@ class main extends \member_base {
 			if ($reply->access_control === 'Y') {
 				$this->accessControl4Call($call, 'Text', $reply->keyword, $reply->authapis);
 			}
-
 			$r = $this->model('reply\\' . $reply->matter_type, $call, $reply->matter_id, $reply->keyword);
 			$r->exec();
 		} else {

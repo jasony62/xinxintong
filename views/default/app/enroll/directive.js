@@ -139,13 +139,13 @@ app.directive('flexImg', function() {
         replace: true,
         template: "<img src='{{img.imgSrc}}'>",
         link: function(scope, elem, attrs) {
-            $(elem).on('load', function() {
-                var w = $(this).width(),
-                    h = $(this).height(),
+            angular.element(elem).on('load', function() {
+                var w = this.clientWidth,
+                    h = this.clientHeight,
                     sw, sh;
                 if (w > h) {
-                    sw = w / h * 72;
-                    $(this).css({
+                    sw = w / h * 80;
+                    angular.element(this).css({
                         'height': '100%',
                         'width': sw + 'px',
                         'top': '0',
@@ -153,8 +153,8 @@ app.directive('flexImg', function() {
                         'margin-left': (-1 * sw / 2) + 'px'
                     });
                 } else {
-                    sh = h / w * 72;
-                    $(this).css({
+                    sh = h / w * 80;
+                    angular.element(this).css({
                         'width': '100%',
                         'height': sh + 'px',
                         'left': '0',

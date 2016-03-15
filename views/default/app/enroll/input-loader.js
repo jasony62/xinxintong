@@ -45,7 +45,8 @@ window.loading = {
 					exports: "enroll-directive"
 				},
 			},
-			deps: ['/views/default/app/enroll/input.js?_=1']
+			deps: ['/views/default/app/enroll/input.js?_=1'],
+			urlArgs: "bust=" + (new Date()).getTime()
 		});
 	}
 };
@@ -61,7 +62,7 @@ if (/MicroMessenger/i.test(navigator.userAgent)) {
 					try {
 						eval("(" + xhr.responseText + ')');
 						signPackage.debug = false;
-						signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
+						signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'chooseImage', 'uploadImage'];
 						wx.config(signPackage);
 						window.loading.load();
 					} catch (e) {

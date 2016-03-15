@@ -1,5 +1,8 @@
 define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt-geo", "enroll-directive", "enroll-common"], function(require, angular) {
     'use strict';
+    app.config(['$compileProvider', function($compileProvider) {
+        $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
+    }]);
     app.factory('Record', ['$http', '$q', function($http, $q) {
         var Record, _ins;
         Record = function() {};
@@ -164,7 +167,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
         };
         return {
             restrict: 'A',
-            controller: function($scope) {
+            controller: function($scope, $timeout) {
                 $scope.beforeSubmit(function() {
                     return onSubmit($scope.data);
                 });
@@ -185,7 +188,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
                         }
                         imgFieldName = $scope.cachedImgFieldName;
                         $scope.cachedImgFieldName = null;
-                        $('#pickImageFrom').remove();
+                        angular.element('#pickImageFrom').remove();
                     }
                     window.xxt.image.choose($q.defer(), from).then(function(imgs) {
                         var phase, i, j, img;
@@ -197,11 +200,15 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
                                 $scope.data[imgFieldName] = $scope.data[imgFieldName].concat(imgs);
                             });
                         }
-                        for (i = 0, j = imgs.length; i < j; i++) {
-                            img = imgs[i];
-                            (window.wx !== undefined) && $('ul[name="' + imgFieldName + '"] li:nth-last-child(2) img').attr('src', img.imgSrc);
-                        }
-                        $scope.$broadcast('xxt.enroll.image.choose.done', imgFieldName);
+                        $timeout(function() {
+                            for (i = 0, j = imgs.length; i < j; i++) {
+                                img = imgs[i];
+                                if (window.wx !== undefined) {
+                                    document.querySelector('ul[name="' + imgFieldName + '"] li:nth-last-child(2) img').setAttribute('src', img.imgSrc);
+                                }
+                            }
+                            $scope.$broadcast('xxt.enroll.image.choose.done', imgFieldName);
+                        });
                     });
                 };
                 $scope.removeImage = function(imgField, index) {
@@ -359,7 +366,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
             });
         };
         var doTask = function(seq, nextAction) {
-            task = tasksOfBeforeSubmit[seq];
+            var task = tasksOfBeforeSubmit[seq];
             task().then(function(rsp) {
                 seq++;
                 seq < tasksOfBeforeSubmit.length ? doTask(seq, nextAction) : doSubmit(nextAction);

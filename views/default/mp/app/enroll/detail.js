@@ -128,6 +128,7 @@ xxtApp.controller('enrollCtrl', ['$scope', '$location', 'http2', function($scope
         $scope.editing = rsp.data;
         $scope.editing.tags = (!$scope.editing.tags || $scope.editing.tags.length === 0) ? [] : $scope.editing.tags.split(',');
         $scope.editing.type = 'enroll';
+        $scope.editing.canSetReceiver = 'Y';
         $scope.persisted = angular.copy($scope.editing);
     });
     http2.get('/rest/mp/mpaccount/get', function(rsp) {

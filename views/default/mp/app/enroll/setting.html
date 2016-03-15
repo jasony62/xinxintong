@@ -240,9 +240,7 @@
                         <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.open_lastroll' ng-change="update('open_lastroll')">登记页中自动打开已登记记录</label>
                 </div>
             </div>
-            <accesscontrol mpid='{{mpaccount.mpid}}' obj='editing' prop-access='canSetReceiver' update-access-control=false prop-acl='receiver'
-            label-of-list='登记活动管理员' change-acl-url='/rest/mp/app/enroll/setEnrollReceiver?aid={{aid}}' remove-acl-url='/rest/mp/app/enroll/delEnrollReceiver'
-            label-span='2' control-span='10' hide-access-control=true></accesscontrol>
+            <accesscontrol mpid='{{mpaccount.mpid}}' obj='editing' prop-apis='authapis' prop-access='canSetReceiver' update-access-control=false prop-acl='receiver' label-of-list='登记活动管理员' change-acl-url='/rest/mp/app/enroll/setEnrollReceiver?aid={{aid}}' remove-acl-url='/rest/mp/app/enroll/delEnrollReceiver' label-span='2' control-span='10' hide-access-control=true></accesscontrol>
             <div class='form-group'>
                 <label class='col-md-2 control-label'>接收登记通知页</label>
                 <div class='col-md-10'>

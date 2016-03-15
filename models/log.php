@@ -18,7 +18,7 @@ class log_model extends TMS_MODEL {
 	 * 接收消息日志
 	 */
 	public function receive($msg) {
-		$mpid = $msg['mpid'];
+		$mpid = isset($msg['mpid']) ? $msg['mpid'] : $msg['siteid'];
 		$openid = $msg['from_user'];
 
 		$fan = TMS_APP::model('user/fans')->byOpenid($mpid, $openid, 'nickname');

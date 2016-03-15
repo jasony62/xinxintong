@@ -60,8 +60,11 @@ class account_model extends \TMS_MODEL {
 		$account->uid = $uid;
 		$account->level_id = self::DEFAULT_LEVEL;
 		$account->reg_time = $current;
+		if (isset($options['ufrom'])) {
+			$account->ufrom = $options['ufrom'];
+		}
 		if ($persisted === true) {
-			$this->insert('xxt_site_account', (array) $account, false);
+			$this->insert('xxt_site_account', $account, false);
 		}
 
 		return $account;

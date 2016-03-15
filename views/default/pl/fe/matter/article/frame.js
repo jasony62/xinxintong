@@ -12,14 +12,14 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 app.controller('ctrlArticle', ['$scope', '$location', 'http2', function($scope, $location, http2) {
 	var ls = $location.search();
 	$scope.id = ls.id;
-	$scope.mpid = ls.mpid;
+	$scope.siteid = ls.site;
 	http2.get('/rest/mp/matter/article/get?id=' + $scope.id, function(rsp) {
 		$scope.editing = rsp.data;
-		$scope.entryUrl = 'http://' + location.host + '/rest/mi/matter?mpid=' + ls.mpid + '&id=' + ls.id + '&type=article';
+		$scope.entryUrl = 'http://' + location.host + '/rest/mi/matter?mpid=' + ls.site + '&id=' + ls.id + '&type=article';
 		$scope.entryUrl += '&tpl=' + ($scope.editing.custom_body === 'N' ? 'std' : 'cus');
 	});
 }]);
-app.controller('ctrlSetting', ['$scope', 'http2', function($scope, http2) {
+app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', 'mediagallery', function($scope, http2, mattersgallery, mediagallery) {
 	var modifiedData = {};
 	$scope.modified = false;
 	$scope.innerlinkTypes = [{
@@ -67,7 +67,7 @@ app.controller('ctrlSetting', ['$scope', 'http2', function($scope, http2) {
 				$scope.update('pic');
 			}
 		};
-		$scope.$broadcast('mediagallery.open', options);
+		mediagallery.open($scope.siteid, options);
 	};
 	$scope.removePic = function() {
 		$scope.editing.pic = '';
@@ -79,10 +79,10 @@ app.controller('ctrlSetting', ['$scope', 'http2', function($scope, http2) {
 			multiple: true,
 			setshowname: true
 		};
-		$scope.$broadcast('mediagallery.open', options);
+		mediagallery.open($scope.siteid, options);
 	});
 	$scope.embedMatter = function() {
-		$scope.$broadcast('mattersgallery.open', function(matters, type) {
+		mattersgallery.open('mattersgallery.open', function(matters, type) {
 			var editor, dom, i, matter, mtype, fn;
 			editor = tinymce.get('body1');
 			dom = editor.dom;
@@ -96,6 +96,10 @@ app.controller('ctrlSetting', ['$scope', 'http2', function($scope, http2) {
 					"ng-click": fn,
 				}, dom.encode(matter.title))));
 			}
+		}, {
+			matterTypes: $scope.innerlinkTypes,
+			hasParent: false,
+			singleMatter: true
 		});
 	};
 	var insertVideo = function(url) {

@@ -28,11 +28,7 @@ app.controller('ctrlSite', ['$scope', '$location', 'http2', function($scope, $lo
 app.controller('ctrlSet', ['$scope', 'http2', function($scope, http2) {
     $scope.sub = 'basic';
     $scope.gotoSub = function(name) {
-        if (name === 'mp') {
-            location.replace('/rest/mp/mpaccount?mpid=' + $scope.id);
-        } else {
-            $scope.sub = name;
-        }
+        $scope.sub = name;
     };
     $scope.update = function(name) {
         var p = {};

@@ -36,24 +36,25 @@ if (!$mysqli->query($sql)) {
 /**
  * user account
  */
-$sql = "CREATE TABLE IF NOT EXISTS xxt_site_account (";
-$sql .= "site_id varchar(32) not null COMMENT '站点ID'";
-$sql .= ",uid varchar(40) NOT NULL COMMENT '用户的ID'";
-$sql .= ",uname varchar(50) DEFAULT NULL COMMENT '登录用户名'";
-$sql .= ",password varchar(64) DEFAULT NULL COMMENT '用户密码'";
-$sql .= ",salt varchar(32) DEFAULT NULL COMMENT '用户附加混淆码'";
-$sql .= ",nickname varchar(50) DEFAULT NULL COMMENT '用户昵称'";
+$sql = "create table if not exists xxt_site_account (";
+$sql .= "site_id varchar(32) not null comment '站点id'";
+$sql .= ",uid varchar(40) not null comment '用户的id'";
+$sql .= ",ufrom varchar(20) not null default '' comment '用户来源'";
+$sql .= ",uname varchar(50) default null comment '登录用户名'";
+$sql .= ",password varchar(64) default null comment '用户密码'";
+$sql .= ",salt varchar(32) default null comment '用户附加混淆码'";
+$sql .= ",nickname varchar(50) default null comment '用户昵称'";
 $sql .= ",headimgurl varchar(255) not null default ''";
-$sql .= ",email varchar(255) DEFAULT NULL COMMENT 'EMAIL'";
-$sql .= ",mobile varchar(255) DEFAULT NULL COMMENT 'MOBILE'";
-$sql .= ",reg_time int DEFAULT NULL COMMENT '注册时间'";
-$sql .= ",reg_ip varchar(128) DEFAULT NULL COMMENT '注册IP'";
-$sql .= ",last_login int DEFAULT '0' COMMENT '最后登录时间'";
-$sql .= ",last_ip varchar(128) DEFAULT NULL COMMENT '最后登录 IP'";
-$sql .= ",last_active int DEFAULT NULL COMMENT '最后活跃时间'";
-$sql .= ",forbidden tinyint(3) DEFAULT '0' COMMENT '是否禁止用户'";
-$sql .= ",is_first_login tinyint(1) DEFAULT '1' COMMENT '首次登录标记'";
-$sql .= ",level_id int DEFAULT NULL COMMENT '用户级别'";
+$sql .= ",email varchar(255) default null comment 'email'";
+$sql .= ",mobile varchar(255) default null comment 'mobile'";
+$sql .= ",reg_time int default null comment '注册时间'";
+$sql .= ",reg_ip varchar(128) default null comment '注册ip'";
+$sql .= ",last_login int default '0' comment '最后登录时间'";
+$sql .= ",last_ip varchar(128) default null comment '最后登录 ip'";
+$sql .= ",last_active int default null comment '最后活跃时间'";
+$sql .= ",forbidden tinyint(3) default '0' comment '是否禁止用户'";
+$sql .= ",is_first_login tinyint(1) default '1' comment '首次登录标记'";
+$sql .= ",level_id int default null comment '用户级别'";
 $sql .= ",read_num int not null default 0"; // 累积阅读数
 $sql .= ",share_friend_num int not null default 0"; // 累积分享给好友数
 $sql .= ",share_timeline_num int not null default 0"; // 累积分享朋友圈数
@@ -87,4 +88,4 @@ if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error(xxt_log_matter_read): ' . $mysqli->error;
 }
-echo 'finish site_account.' . PHP_EOL;
+echo 'finish site.' . PHP_EOL;

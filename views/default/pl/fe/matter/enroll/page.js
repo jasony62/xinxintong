@@ -1081,7 +1081,6 @@
                 setshowname: true
             };
             mediagallery.open($scope.siteid, options);
-            //$scope.$broadcast('mediagallery.open', options);
         });
     }]);
 })();

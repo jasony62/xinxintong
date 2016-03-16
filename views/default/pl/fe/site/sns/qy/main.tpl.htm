@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <base href='/'>
+        <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/static/css/tms.css" rel="stylesheet">
+        <link href="/views/default/pl/fe/site/sns/main.css" rel="stylesheet">
+        <title>微信企业号</title>
+    </head>
+    <body ng-app='app' ng-controller='ctrlQy'>
+        <notice-box err='errmsg' info='infomsg' delay='1000'></notice-box>
+        <nav class='navbar navbar-inverse'>
+            <ul class='nav navbar-nav site'>
+                <li>
+                    <a href='/rest/pl/fe/site/console?id={{id}}'>工作台</a>
+                </li>
+                <li>
+                    <a href='/rest/pl/fe/site/setting?id={{id}}'>站点设置</a>
+                </li>
+            </ul>
+            <ul class='nav navbar-nav navbar-right' style='margin-right:0'>
+                <li><a href='/page/pl/fe/user/settings' target='_self'>设置</a></li>
+                <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+            </ul>
+        </nav>
+        <div class='navbar navbar-default'>
+            <ul class='nav navbar-nav'>
+                <li ng-class="{'active':subView==='setting'}"><a href='/rest/pl/fe/site/sns/qy/setting'>账号配置</a></li>
+                <li><a href='/rest/pl/fe/site/sns/qy/text'>文本消息</a></li>
+                <li><a href='/rest/pl/fe/site/sns/qy/menu'>菜单事件</a></li>
+                <li><a href='/rest/pl/fe/site/sns/qy/qrcode'>扫二维码</a></li>
+                <li><a href='/rest/pl/fe/site/sns/qy/other'>其他事件</a></li>
+            </ul>
+        </div>
+        <div ng-view></div>
+        <script src="/static/js/angular.min.js"></script>
+        <script src="/static/js/angular-route.min.js"></script>
+        <script src="/static/js/angular-sanitize.min.js"></script>
+        <script src="/static/js/ui-bootstrap.min.js"></script>
+        <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+        <script src="/static/js/xxt.ui.js"></script>
+        <script src="/static/js/ui-tms.js"></script>
+        <script src="/views/default/pl/fe/site/sns/qy/main.js"></script>
+    </body>
+</html>

@@ -30,6 +30,9 @@ app.controller('ctrlSet', ['$scope', 'http2', function($scope, http2) {
     $scope.gotoSub = function(name) {
         $scope.sub = name;
     };
+    $scope.gotoSns = function(name) {
+        location.href = '/rest/pl/fe/site/sns/' + name + '?id=' + $scope.id;
+    };
     $scope.update = function(name) {
         var p = {};
         p[name] = $scope.site[name];

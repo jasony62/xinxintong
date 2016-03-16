@@ -566,4 +566,21 @@ class qy_model extends mpproxy_base {
 
 		return $rst;
 	}
+	/**
+	 * 获得下载媒体文件的链接
+	 *
+	 * $mediaid
+	 */
+	public function mediaGetUrl($mediaId) {
+		$rst = $this->accessToken();
+		if ($rst[0] === false) {
+			return $rst[1];
+		}
+
+		$url = 'http://file.api.weixin.qq.com/cgi-bin/media/get';
+		$url .= "?access_token={$rst[1]}";
+		$url .= "&media_id=$mediaId";
+
+		return array(true, $url);
+	}
 }

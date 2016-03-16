@@ -138,25 +138,28 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
             $compile(html)(scope);
         };
         onSubmit = function(data) {
-            var defer;
-            defer = $q.defer();
+            var defer = $q.defer(),
+                i = 0,
+                j = 0,
+                nextWxImage;
             if (window.wx !== undefined && modifiedImgFields.length) {
-                var i, j, nextWxImage;
-                i = j = 0;
                 nextWxImage = function() {
                     var imgField, img;
                     imgField = data[modifiedImgFields[i]];
                     img = imgField[j];
                     window.xxt.image.wxUpload($q.defer(), img).then(function(data) {
-                        if (j < imgField.length - 1)
+                        if (j < imgField.length - 1) {
+                            /* next img*/
                             j++;
-                        else if (i < modifiedImgFields.length - 1) {
+                            nextWxImage();
+                        } else if (i < modifiedImgFields.length - 1) {
+                            /* next field*/
                             j = 0;
                             i++;
+                            nextWxImage();
                         } else {
                             defer.resolve('ok');
                         }
-                        nextWxImage();
                     });
                 };
                 nextWxImage();

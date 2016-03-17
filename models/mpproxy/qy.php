@@ -577,7 +577,7 @@ class qy_model extends mpproxy_base {
 			return $rst[1];
 		}
 
-		$url = 'http://file.api.weixin.qq.com/cgi-bin/media/get';
+		$url = 'https://qyapi.weixin.qq.com/cgi-bin/media/get';
 		$url .= "?access_token={$rst[1]}";
 		$url .= "&media_id=$mediaId";
 

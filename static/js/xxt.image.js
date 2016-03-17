@@ -76,9 +76,10 @@
                         deferred.resolve(img);
                     }
                 });
-            } else
+            } else {
                 deferred.resolve(img);
+            }
             return promise;
-        },
+        }
     };
 })();

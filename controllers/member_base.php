@@ -538,7 +538,7 @@ class member_base extends xxt_base {
 			}
 			die($rst[1]);
 		} else {
-			die('');
+			die("alert('mpaccount is not joined.')");
 		}
 	}
 }

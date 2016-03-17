@@ -168,7 +168,6 @@ class user_model {
 			if ($rst[0] === false) {
 				return $rst;
 			}
-
 			$rst = $this->storeUrl($rst[1]);
 		} else {
 			return array(false, '图片数据格式错误');

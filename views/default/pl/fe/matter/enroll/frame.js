@@ -154,8 +154,7 @@ app.controller('ctrlApp', ['$scope', '$location', 'http2', function($scope, $loc
 	var ls = $location.search(),
 		modifiedData = {};
 	$scope.id = ls.id;
-	$scope.mpid = ls.mpid;
-	$scope.siteid = ls.mpid;
+	$scope.siteid = ls.site;
 	$scope.modified = false;
 	$scope.submit = function() {
 		http2.post('/rest/mp/app/enroll/update?aid=' + $scope.id, modifiedData, function(rsp) {
@@ -181,5 +180,6 @@ app.controller('ctrlApp', ['$scope', '$location', 'http2', function($scope, $loc
 		app.data_schemas = app.data_schemas && app.data_schemas.length ? JSON.parse(app.data_schemas) : [];
 		$scope.persisted = angular.copy(app);
 		$scope.app = app;
+		$scope.url = 'http://' + location.host + '/rest/app/enroll?mpid=' + $scope.siteid + '&aid=' + $scope.id;
 	});
 }]);

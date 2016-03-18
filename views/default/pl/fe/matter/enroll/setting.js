@@ -52,10 +52,28 @@
 				http2.post('/rest/mp/app/enroll/page/add?aid=' + $scope.id, options, function(rsp) {
 					var page = rsp.data;
 					$scope.app.pages.push(page);
-					//$location.path('/rest/pl/fe/matter/enroll/page?id=' + $scope.id + '&page=' + page.name);
-					//$location.replace();
 					location.href = '/rest/pl/fe/matter/enroll/page?id=' + $scope.id + '&page=' + page.name;
 				});
+			});
+		};
+		$scope.entry = function() {
+			$modal.open({
+				templateUrl: 'dialogQrcode.html',
+				backdrop: 'static',
+				resolve: {
+					url: function() {
+						return $scope.url
+					}
+				},
+				controller: ['$scope', '$modalInstance', 'url', function($scope, $mi, url) {
+					$scope.entry = {
+						url: url,
+						qrcode: '/rest/pl/fe/matter/enroll/qrcode?url=' + encodeURI(url)
+					};
+					$scope.cancel = function() {
+						$mi.dismiss();
+					};
+				}],
 			});
 		};
 	}]);

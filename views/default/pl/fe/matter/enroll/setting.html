@@ -58,6 +58,9 @@
         <button class='btn btn-block' ng-click="run()" ng-disabled='modified' ng-class="modified?'btn-default':'btn-success'">开始</button>
     </div>
     <div class='tile'>
+        <button class='btn btn-success btn-block' ng-click='entry()'>访问入口</button>
+    </div>
+    <div class='tile'>
         <div class='form-group'>
             <tms-datepicker tms-title='开始时间' tms-date='app.start_at' tms-state='start_at'></tms-datepicker>
             <div class='help-block'>开始时间（可选）</div>
@@ -98,5 +101,22 @@
     </div>
     <div class="modal-footer" style="margin-top:0">
         <button class="btn btn-success" ng-click="ok()">确定</button>
+    </div>
+</script>
+<script type="text/ng-template" id="dialogQrcode.html">
+    <div class="modal-header">
+        <button class="close" ng-click="cancel()" type="button">×</button>
+        <h4 class="modal-title">二维码</h4>
+    </div>
+    <div class="modal-body">
+        <div class="form-group">
+            <div class='form-control' style='height:auto;word-break:break-all' ng-bind='entry.url'></div>
+        </div>
+        <div class="form-group">
+            <div><img ng-src="{{entry.qrcode}}"></div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="cancel()">关闭</button>
     </div>
 </script>

@@ -227,14 +227,19 @@ class qy_model extends mpproxy_base {
 	/**
 	 *
 	 */
-	public function oauthUrl($mpid, $redirect, $state = null) {
-		$mpa = TMS_APP::model('mp\mpaccount')->byId($mpid, 'qy_corpid');
+	public function oauthUrl($mpid, $redirect, $state = null, $scope = 'snsapi_base') {
+		if (is_object($mpid)) {
+			$appid = $mpid->appid;
+		} else {
+			$mpa = TMS_APP::model('mp\mpaccount')->byId($mpid, 'qy_corpid');
+			$appid = $mpa->qy_corpid;
+		}
 
 		$oauth = "https://open.weixin.qq.com/connect/oauth2/authorize";
-		$oauth .= "?appid=$mpa->qy_corpid";
+		$oauth .= "?appid=" . $appid;
 		$oauth .= "&redirect_uri=" . urlencode($redirect);
 		$oauth .= "&response_type=code";
-		$oauth .= "&scope=snsapi_base";
+		$oauth .= "&scope=" . $scope;
 		!empty($state) && $oauth .= "&state=$state";
 		$oauth .= "#wechat_redirect";
 

@@ -112,7 +112,8 @@ class member_base extends xxt_base {
 		/**
 		 * 获得当前用户的访客id
 		 */
-		$vid = $this->getVisitorId($mpid);
+		//$vid = $this->getVisitorId($mpid);
+		$vid = '';
 		$user->vid = $vid;
 		/* 从cookie中获得当前用户的openid */
 		if (empty($openid)) {

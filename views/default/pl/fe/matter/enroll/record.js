@@ -25,8 +25,9 @@
             var url;
             page && ($scope.page.at = page);
             url = '/rest/mp/app/enroll/record/get';
-            url += '?aid=' + $scope.aid;
-            if ($scope.editing.can_signin === 'Y') {
+            url += '?aid=' + $scope.app.id;
+            url += '&mpid=' + $scope.siteid; // todo
+            if ($scope.app.can_signin === 'Y') {
                 url += '&signinStartAt=' + $scope.signinStartAt;
                 url += '&signinEndAt=' + $scope.signinEndAt;
             }
@@ -135,7 +136,7 @@
                         $scope.doSearch();
                         aAssigned = data.tag.split(',');
                         angular.forEach(aAssigned, function(newTag) {
-                            $scope.editing.tags.indexOf(newTag) === -1 && $scope.editing.tags.push(newTag);
+                            $scope.app.tags.indexOf(newTag) === -1 && $scope.app.tags.push(newTag);
                         });
                     });
                 }
@@ -285,7 +286,7 @@
                 windowClass: 'auto-height',
                 resolve: {
                     enroll: function() {
-                        return $scope.editing;
+                        return $scope.app;
                     },
                     record: function() {
                         record.aid = $scope.aid;
@@ -300,7 +301,7 @@
                 p = updated[0];
                 http2.post('/rest/mp/app/enroll/record/update?aid=' + $scope.aid + '&ek=' + record.enroll_key, p, function(rsp) {
                     tags = updated[1];
-                    $scope.editing.tags = tags;
+                    $scope.app.tags = tags;
                 });
             });
         };
@@ -311,7 +312,7 @@
                 windowClass: 'auto-height',
                 resolve: {
                     enroll: function() {
-                        return $scope.editing;
+                        return $scope.app;
                     },
                     record: function() {
                         return {
@@ -328,7 +329,7 @@
                 p = updated[0];
                 tags = updated[1];
                 http2.post('/rest/mp/app/enroll/record/add?aid=' + $scope.aid, p, function(rsp) {
-                    $scope.editing.tags = tags;
+                    $scope.app.tags = tags;
                     $scope.records.splice(0, 0, rsp.data);
                 });
             });
@@ -358,7 +359,7 @@
         };
         $scope.removeRecord = function(record) {
             if (window.confirm('确认删除？')) {
-                http2.get('/rest/mp/app/enroll/record/remove?aid=' + $scope.aid + '&key=' + record.enroll_key, function(rsp) {
+                http2.get('/rest/mp/app/enroll/record/remove?aid=' + $scope.id + '&key=' + record.enroll_key, function(rsp) {
                     var i = $scope.records.indexOf(record);
                     $scope.records.splice(i, 1);
                     $scope.page.total = $scope.page.total - 1;
@@ -368,7 +369,7 @@
         $scope.empty = function() {
             var vcode;
             vcode = prompt('是否要删除所有登记信息？，若是，请输入活动名称。');
-            if (vcode === $scope.editing.title) {
+            if (vcode === $scope.app.title) {
                 http2.get('/rest/mp/app/enroll/record/empty?aid=' + $scope.aid, function(rsp) {
                     $scope.doSearch(1);
                 });
@@ -381,7 +382,7 @@
                     $scope.selected[i] = nv;
                 }
         });
-        $scope.$watch('editing', function(nv) {
+        $scope.$watch('app', function(nv) {
             if (nv) {
                 $scope.doSearch();
             }

@@ -106,9 +106,9 @@ app.controller('ctrlAdmin', ['$scope', '$modal', 'http2', function($scope, $moda
 app.controller('ctrlConsole', ['$scope', 'http2', function($scope, http2) {
     $scope.open = function(matter) {
         if (matter.matter_type === 'article') {
-            location.href = 'http://localhost/rest/pl/fe/matter/article?id=' + matter.matter_id + '&site=' + $scope.id;
+            location.href = '/rest/pl/fe/matter/article?id=' + matter.matter_id + '&site=' + $scope.id;
         } else if (matter.matter_type === 'enroll') {
-            location.href = 'http://localhost/rest/pl/fe/matter/enroll?id=' + matter.matter_id + '&site=' + $scope.id;
+            location.href = '/rest/pl/fe/matter/enroll?id=' + matter.matter_id + '&site=' + $scope.id;
         } else if (matter.matter_type === 'mission') {
             location.href = '/rest/mp/mission/setting?id=' + matter.matter_id + '&site=' + $scope.id;
         }

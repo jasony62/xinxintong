@@ -7,7 +7,7 @@ class qy_model extends \TMS_MODEL {
 	/**
 	 * 站点绑定的公众号
 	 */
-	public function &bySite($siteid) {
+	public function &bySite($siteid, $fields = '*') {
 		$q = array(
 			'*',
 			'xxt_site_qy',

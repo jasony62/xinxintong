@@ -1,4 +1,4 @@
-git<?php
+<?php
 require_once '../../db.php';
 
 $sqls = array();

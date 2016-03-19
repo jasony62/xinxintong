@@ -180,6 +180,6 @@ app.controller('ctrlApp', ['$scope', '$location', 'http2', function($scope, $loc
 		app.data_schemas = app.data_schemas && app.data_schemas.length ? JSON.parse(app.data_schemas) : [];
 		$scope.persisted = angular.copy(app);
 		$scope.app = app;
-		$scope.url = 'http://' + location.host + '/rest/app/enroll?mpid=' + $scope.siteid + '&aid=' + $scope.id;
+		$scope.url = 'http://' + location.host + '/rest/site/fe/matter/enroll?site=' + $scope.siteid + '&app=' + $scope.id;
 	});
 }]);

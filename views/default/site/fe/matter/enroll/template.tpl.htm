@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html ng-app='app' ng-controller='ctrl'>
+    
+    <head>
+        <meta charset="utf-8">
+        <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+        <base href="/" />
+        <title></title>
+        <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/views/default/app/enroll/directive.css?_=1" rel="stylesheet">
+        <link href="/views/default/app/enroll/template.css?_=2" rel="stylesheet">
+        <style ng-if="Page.css" ng-bind='Page.css'></style>
+    </head>
+    
+    <body ng-cloak class='ng-cloak'>
+        <header ng-bind-html='mpa.header_page.html'></header>
+        <div class="app">
+            <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
+            <div class='container'>
+                <div class='row'>
+                    <form name='page' novalidate dynamic-html="Page.html">
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script src="/static/js/jquery.min.js"></script>
+        <script src="/static/js/angular.min.js "></script>
+        <script src="/static/js/angular-sanitize.min.js "></script>
+        <script src="/static/js/ng-infinite-scroll.min.js "></script>
+        <script src="/views/default/app/enroll/template.js?_=13"></script>
+        <script src="/views/default/app/enroll/directive.js?_=3"></script>
+    </body>
+
+</html>

@@ -68,7 +68,7 @@
 				controller: ['$scope', '$modalInstance', 'url', function($scope, $mi, url) {
 					$scope.entry = {
 						url: url,
-						qrcode: '/rest/pl/fe/matter/enroll/qrcode?url=' + encodeURI(url)
+						qrcode: '/rest/pl/fe/matter/enroll/qrcode?url=' + encodeURIComponent(url)
 					};
 					$scope.cancel = function() {
 						$mi.dismiss();

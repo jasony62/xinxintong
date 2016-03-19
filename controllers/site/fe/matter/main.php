@@ -33,7 +33,6 @@ class main extends \site\fe\base {
 				\TPL::output('site/fe/matter/article');
 				exit;
 			}
-			break;
 		}
 	}
 }

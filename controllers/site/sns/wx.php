@@ -19,15 +19,14 @@ class wx extends \member_base {
 	 * 接收来源于微信公众平台的请求
 	 */
 	public function api_action($site) {
-		$wx = $this->model('site\sns\wx')->bySite($site);
-		\TMS_APP::G('site\sns\wx', $wx);
 
 		$method = $_SERVER['REQUEST_METHOD'];
 
 		switch ($method) {
 		case 'GET':
 			/* 公众平台对接 */
-			$mpproxy = $this->model('mpproxy/wx', $site);
+			$wx = $this->model('site\sns\wx')->bySite($site);
+			$mpproxy = $this->model('sns\wx', $wx);
 			$rst = $mpproxy->join($_GET);
 			header('Content-Type: text/html; charset=utf-8');
 			die($rst[1]);

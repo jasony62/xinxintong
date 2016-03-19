@@ -3,6 +3,14 @@
 		$scope.pages4OutAcl = [];
 		$scope.pages4Unauth = [];
 		$scope.pages4Nonfan = [];
+		$scope.updateEntryRule = function() {
+			var p = {
+				entry_rule: encodeURIComponent(JSON.stringify($scope.app.entry_rule))
+			};
+			http2.post('/rest/mp/app/enroll/update?aid=' + $scope.id, p, function(rsp) {
+				$scope.persisted = angular.copy($scope.app);
+			});
+		};
 		$scope.$watch('app.pages', function(nv) {
 			var newPage;
 			if (!nv) return;

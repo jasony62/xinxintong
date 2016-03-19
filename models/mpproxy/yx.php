@@ -30,37 +30,65 @@ class yx_model extends mpproxy_base {
 	 *
 	 * 若确认此次GET请求来自易信服务器，请原样返回echostr参数内容，则接入生效，否则接入失败。
 	 */
-	public function join($params) {
+	public function join($params, $setting = null) {
 		$signature = $params['signature'];
 		$timestamp = $params['timestamp'];
 		$nonce = $params['nonce'];
 		$echostr = $params['echostr'];
 
-		$mpa = TMS_APP::G('mp\mpaccount');
+		if (empty($setting)) {
+			$mpa = TMS_APP::G('mp\mpaccount');
+			$p = array($mpa->token, $timestamp, $nonce);
+			asort($p);
+			$s = implode('', $p);
+			$ss = sha1($s);
+			if ($ss === $signature) {
+				/**
+				 * 断开连接
+				 */
+				TMS_APP::model()->update(
+					'xxt_mpaccount',
+					array('yx_joined' => 'N'),
+					"yx_appid='$mpa->yx_appid' and yx_appsecret='$mpa->yx_appsecret'");
+				/**
+				 * 确认建立连接
+				 */
+				TMS_APP::model()->update(
+					'xxt_mpaccount',
+					array('yx_joined' => 'Y'),
+					"mpid='$this->mpid'");
 
-		$p = array($mpa->token, $timestamp, $nonce);
-		asort($p);
-		$s = implode('', $p);
-		$ss = sha1($s);
-		if ($ss === $signature) {
-			/**
-			 * 断开连接
-			 */
-			TMS_APP::model()->update(
-				'xxt_mpaccount',
-				array('yx_joined' => 'N'),
-				"yx_appid='$mpa->yx_appid' and yx_appsecret='$mpa->yx_appsecret'");
-			/**
-			 * 确认建立连接
-			 */
-			TMS_APP::model()->update(
-				'xxt_mpaccount',
-				array('yx_joined' => 'Y'),
-				"mpid='$this->mpid'");
-
-			return array(true, $echostr);
+				return array(true, $echostr);
+			} else {
+				return array(false, 'failed');
+			}
 		} else {
-			return array(false, 'failed');
+			$p = array($setting->token, $timestamp, $nonce);
+			asort($p);
+			$s = implode('', $p);
+			$ss = sha1($s);
+			if ($ss === $signature) {
+				/**
+				 * 断开连接
+				 */
+				TMS_APP::model()->update(
+					'xxt_site_yx',
+					array('joined' => 'N'),
+					"appid='$setting->appid' and appsecret='$setting->appsecret'"
+				);
+				/**
+				 * 确认建立连接
+				 */
+				TMS_APP::model()->update(
+					'xxt_site_yx',
+					array('joined' => 'Y'),
+					"siteid='$setting->siteid'"
+				);
+
+				return array(true, $echostr);
+			} else {
+				return array(false, 'failed');
+			}
 		}
 	}
 	/**
@@ -135,14 +163,19 @@ class yx_model extends mpproxy_base {
 	/**
 	 *
 	 */
-	public function oauthUrl($mpid, $redirect, $state = null) {
-		$mpa = TMS_APP::model('mp\mpaccount')->byId($mpid, 'yx_appid');
+	public function oauthUrl($mpid, $redirect, $state = null, $scope = 'snsapi_base') {
+		if (is_object($mpid)) {
+			$appid = $mpid->appid;
+		} else {
+			$mpa = TMS_APP::model('mp\mpaccount')->byId($mpid, 'yx_appid');
+			$appid = $mpa->yx_appid;
+		}
 
 		$oauth = "http://open.plus.yixin.im/connect/oauth2/authorize";
-		$oauth .= "?appid=$mpa->yx_appid";
+		$oauth .= "?appid=" . $appid;
 		$oauth .= "&redirect_uri=" . urlencode($redirect);
 		$oauth .= "&response_type=code";
-		$oauth .= "&scope=snsapi_base";
+		$oauth .= "&scope=" . $scope;
 		!empty($state) && $oauth .= "&state=$state";
 		$oauth .= "#yixin_redirect";
 
@@ -151,12 +184,19 @@ class yx_model extends mpproxy_base {
 	/**
 	 * 获得openid
 	 */
-	public function getOAuthUser($code) {
-		$mpa = TMS_APP::M('mp\mpaccount')->byId($this->mpid, "yx_appid,yx_appsecret");
+	public function getOAuthUser($code, $sns = null) {
+		if (empty($sns)) {
+			$mpa = TMS_APP::M('mp\mpaccount')->byId($this->mpid, "yx_appid,yx_appsecret");
+			$appid = $mpa->yx_appid;
+			$appsecret = $mpa->yx_appsecret;
+		} else {
+			$appid = $sns->appid;
+			$appsecret = $sns->appsecret;
+		}
 
 		$cmd = "https://api.yixin.im/sns/oauth2/access_token";
-		$params["appid"] = $mpa->yx_appid;
-		$params["secret"] = $mpa->yx_appsecret;
+		$params["appid"] = $appid;
+		$params["secret"] = $appsecret;
 		$params["code"] = $code;
 		$params["grant_type"] = "authorization_code";
 

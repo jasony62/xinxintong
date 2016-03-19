@@ -66,13 +66,13 @@
         <div class='form-group'>
             <label class='col-md-2 control-label'>AppId</label>
             <div class='col-md-10'>
-                <p class='form-control'>{{yx.appid}}</p>
+                <input type='text' class='form-control' ng-model='yx.appid' tms-auto-update tms-wait=1000 tms-update="update('appid')">
             </div>
         </div>
         <div class='form-group'>
             <label class='col-md-2 control-label'>AppSecret</label>
             <div class='col-md-10'>
-                <p class='form-control'>{{yx.appsecret}}</p>
+                <input type='text' class='form-control' ng-model='yx.appsecret' tms-auto-update tms-wait=1000 tms-update="update('appsecret')">
             </div>
         </div>
         <div class='form-group'>

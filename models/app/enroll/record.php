@@ -377,7 +377,7 @@ class record_model extends \TMS_MODEL {
 		}
 
 		if (empty($submitkey)) {
-			$submitkey = $user->vid;
+			$submitkey = isset($user->vid) ? $user->vid : '';
 		}
 		// 已有的登记数据
 		$fields = $this->query_vals_ss(array('name', 'xxt_enroll_record_data', "aid='$aid' and enroll_key='$ek'"));

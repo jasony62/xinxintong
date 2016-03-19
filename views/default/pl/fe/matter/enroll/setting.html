@@ -43,13 +43,8 @@
                 <a href='/rest/pl/fe/matter/enroll/page?id={{id}}&page={{p.name}}'>{{p.title}}</a>
             </div>
         </div>
-        <a class='btn btn-success' href='/rest/pl/fe/matter/enroll/entry?id={{id}}'>设置进入规则</a>
+        <a class='btn btn-success' href='/rest/pl/fe/matter/enroll/event?id={{id}}'>设置进入规则</a>
         <button class='btn btn-success' ng-click="addPage()">添加</button>
-    </div>
-    <div class='tile'>
-        <div class='form-group'>
-            <accesscontrol mpid='{{mpid}}' obj='app' title='参与限制' label='仅限认证用户参与' prop-acl='acl' prop-access='access_control' prop-apis='authapis' update-access-control="update('access_control')" update-authapis="update('authapis')" change-acl-url='/rest/mp/app/enroll/setAcl?id={{id}}' remove-acl-url='/rest/mp/app/enroll/removeAcl'></accesscontrol>
-        </div>
     </div>
 </div>
 <div class='col-md-4'>

@@ -19,15 +19,14 @@ class yx extends \member_base {
 	 * 接收来源于微信公众平台的请求
 	 */
 	public function api_action($site) {
-		$yx = $this->model('site\sns\yx')->bySite($site);
-		\TMS_APP::G('site\sns\yx', $yx);
 
 		$method = $_SERVER['REQUEST_METHOD'];
 
 		switch ($method) {
 		case 'GET':
 			/* 公众平台对接 */
-			$mpproxy = $this->model('mpproxy/yx', $site);
+			$yx = $this->model('site\sns\yx')->bySite($site);
+			$mpproxy = $this->model('sns\yx', $yx);
 			$rst = $mpproxy->join($_GET);
 			header('Content-Type: text/html; charset=utf-8');
 			die($rst[1]);

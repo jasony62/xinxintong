@@ -1,0 +1,27 @@
+.ng-cloak{display:none;}
+html,body{min-height:100%;width:100%;background:#efefef;font-family:Microsoft Yahei,Arial;}
+body{position:relative;padding:15px;font-size:16px;}
+ul{margin:0;padding:0;list-style:none}
+li{margin:0;padding:0}
+#errmsg{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:0;left:50%;margin:0 0 0 -150px;text-align:center;transition:opacity 1s;z-index:-1;word-break:break-all}
+#errmsg.active{opacity:1;height:auto;z-index:999}
+
+/* img tiles */
+ul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;margin:4px;float:left}
+ul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute}
+ul.img-tiles li.img-thumbnail button{position:absolute;top:0;right:0}
+ul.img-tiles li.img-picker button{position:auto;width:100%;height:100%}
+ul.img-tiles li.img-picker button span{font-size:36px}
+
+/* default form style*/
+div[wrap].wrap-splitline{padding-bottom:0.5em;border-bottom:1px solid #fff;}
+div[wrap].wrap-inline>*{display:inline-block;vertical-align:middle;margin:0 1em 0 0;}
+div[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+
+/*list*/
+li .wrap-inline>label{padding:7px 0;color:#444;}
+li .wrap-inline{border-bottom:1px dashed #efefef;}
+li .wrap-inline:last-child{border-bottom:0;}
+
+/* auth */
+#frmPopup{position:absolute;top:0;left:0;right:0;bottom:0;border:none;width:100%;z-index:999;box-sizing:border-box;}

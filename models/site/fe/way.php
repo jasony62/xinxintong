@@ -209,10 +209,10 @@ class way_model extends \TMS_MODEL {
 		}
 		$fan->_bindAt = time();
 
-		empty($siteUser->third) && $siteUser->third = new \stdClass;
-		$modelMpa = \TMS_APP::M('mp\mpaccount');
-		$mpa = $modelMpa->byId($siteId);
-		$siteUser->third->{$mpa->mpsrc} = &$fan;
+		//empty($siteUser->third) && $siteUser->third = new \stdClass;
+		//$modelMpa = \TMS_APP::M('mp\mpaccount');
+		//$mpa = $modelMpa->byId($siteId);
+		//$siteUser->third->{$mpa->mpsrc} = &$fan;
 
 		return $siteUser;
 	}

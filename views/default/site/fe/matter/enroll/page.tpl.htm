@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html ng-controller='ctrl'>
+    
+    <head>
+        <meta charset="utf-8">
+        <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+        <base href="/" />
+        <title><?php TPL::pt('title');?></title>
+        <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link href='static/css/loading.css?_=1' rel="stylesheet">
+        <link href="/views/default/app/enroll/page.css?_=4" rel="stylesheet">
+        <link href="/views/default/app/enroll/directive.css?_=1" rel="stylesheet">
+        <style ng-if="Page.css" ng-bind='Page.css'></style>
+    </head>
+    
+    <body ng-cloak class='ng-cloak'>
+        <header ng-bind-html='mpa.header_page.html'></header>
+        <div class="app">
+            <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
+            <div class='container'>
+                <div class='row' ng-controller='ctrlView' dynamic-html="Page.html">
+                </div>
+            </div>
+        </div>
+        <div class="loading"><div class='loading-indicator'><i></i></div></div>
+        <script src="static/js/require.js" defer async data-main="/views/default/app/enroll/page-loader.js?_=2"></script>
+    </body>
+</html>

@@ -43,6 +43,13 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 返回视图
 	 */
+	public function event_action() {
+		\TPL::output('/pl/fe/matter/enroll/frame');
+		exit;
+	}
+	/**
+	 * 返回视图
+	 */
 	public function preview_action() {
 		\TPL::output('/pl/fe/matter/enroll/frame');
 		exit;

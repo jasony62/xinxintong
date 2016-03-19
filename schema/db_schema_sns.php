@@ -159,6 +159,7 @@ $sql .= ',siteid varchar(32) not null';
 $sql .= ',creater varchar(40) not null';
 $sql .= ',create_at int not null';
 $sql .= ',qrcode text'; // qrcode image.
+$sql .= ",public_id varchar(20) not null default ''"; //微信号
 $sql .= ",token varchar(40) not null default ''";
 $sql .= ",corpid varchar(255) not null default ''";
 $sql .= ",secret varchar(255) not null default ''";
@@ -167,6 +168,8 @@ $sql .= ",agentid int not null default 0";
 $sql .= ",joined char(1) not null default 'N'";
 $sql .= ",access_token text";
 $sql .= ",access_token_expire_at int not null default 0";
+$sql .= ',jsapi_ticket text';
+$sql .= ',jsapi_ticket_expire_at int not null default 0';
 $sql .= ",can_updateab char(1) not null default 'N'"; //更新通讯录
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

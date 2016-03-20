@@ -36,29 +36,40 @@ class base extends \site\fe\base {
 				$page = $app->entry_rule->nonfan->entry;
 			}
 		} else {
-			if (empty($user->fan)) {
+			if (empty($user->sns)) {
 				/**
 				 * 非关注用户
 				 */
 				$page = $app->entry_rule->nonfan->entry;
 			} else {
-				if (isset($user->fan)) {
+				$entryRule = $app->entry_rule;
+				if (isset($entryRule->wxfan->entry) && isset($user->sns->wx)) {
 					/**
-					 * 关注用户
+					 * 微信公众号关注用户
 					 */
-					$page = $app->entry_rule->fan->entry;
+					$page = $entryRule->wxfan->entry;
+				} else if (isset($entryRule->qyfan->entry) && isset($user->sns->qy)) {
+					/**
+					 * 微信企业号关注用户
+					 */
+					$page = $entryRule->qyfan->entry;
+				} else if (isset($entryRule->yxfan->entry) && isset($user->sns->yx)) {
+					/**
+					 * 易信公众号关注用户
+					 */
+					$page = $entryRule->yxfan->entry;
 				}
 				if (isset($user->membersInAcl) && !empty($user->members)) {
 					/**
 					 * 认证用户不在白名单中
 					 */
-					$page = $app->entry_rule->member_outacl->entry;
+					$page = $entryRule->member_outacl->entry;
 				}
 				if (!empty($user->membersInAcl) || (!isset($user->membersInAcl) && !empty($user->members))) {
 					/**
 					 * 白名单中的认证用户，或者，不限制白名单的认证用户
 					 */
-					$page = $app->entry_rule->member->entry;
+					$page = $entryRule->member->entry;
 				}
 			}
 		}

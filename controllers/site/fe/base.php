@@ -19,31 +19,43 @@ class base extends \TMS_CONTROLLER {
 		empty($_GET['site']) && die('参数错误！');
 		$siteId = $_GET['site'];
 		$this->siteId = $siteId;
-		/* oauth返回 */
-		if (isset($_GET['state'])) {
-			$state = $_GET['state'];
-			if (strpos($state, 'snsOAuth-') === 0) {
-				if ($code = isset($_GET['code'])) {
+		/* 获得访问用户的信息 */
+		$modelWay = $this->model('site\fe\way');
+		$this->who = $modelWay->who($siteId);
+	}
+	/**
+	 * 检查是否当前的请求是OAuth后返回的请求
+	 */
+	public function afterSnsOAuth() {
+		/* 当前用户的身份信息 */
+		$auth = array();
+		if (isset($_GET['mocker'])) {
+			/* 指定的模拟用户 */
+			list($snsName, $openid) = explode(',', $_GET['mocker']);
+			$snsUser = new \stdclass;
+			$snsUser->openid = $openid;
+			$auth['sns'][$snsName] = $snsUser;
+		} else if ($this->myGetcookie("_{$this->siteId}_oauthpending") === 'Y') {
+			/* oauth回调 */
+			$this->mySetcookie("_{$this->siteId}_oauthpending", '', time() - 3600);
+			if (isset($_GET['state']) && isset($_GET['code'])) {
+				$state = $_GET['state'];
+				if (strpos($state, 'snsOAuth-') === 0) {
 					$code = $_GET['code'];
-					$this->mySetcookie("_{$siteId}_oauthpending", '', time() - 3600);
 					$snsName = explode('-', $state)[1];
-					$openid = $this->snsOAuthUserByCode($siteId, $code, $snsName);
+					$snsUser = $this->snsOAuthUserByCode($this->siteId, $code, $snsName);
+					$auth['sns'][$snsName] = $snsUser;
 				}
 			}
 		}
-		/* 获得访问用户的信息 */
-		$modelWay = $this->model('site\fe\way');
-		try {
-			$options = array();
-			isset($openid) && $options['openid'] = $openid;
-			isset($_GET['mocker']) && $options['mocker'] = $_GET['mocker'];
-			$this->who = $modelWay->who($siteId, $options);
-		} catch (site\fe\excep\RequireOAuth $e) {
-			/* 跳转到OAuth */
-			$oauthUrl = $e->getMessage();
-			$this->mySetcookie("_{$siteId}_oauthpending", 'Y');
-			$this->redirect($oauthUrl);
+		if (!empty($auth)) {
+			/* 如果获得了用户的身份信息，更新保留的用户信息 */
+			$modelWay = $this->model('site\fe\way');
+			$this->who = $modelWay->who($this->siteId, $auth);
+			return true;
 		}
+
+		return false;
 	}
 	/**
 	 * 检查当前用户是否已经登录，且在有效期内
@@ -74,20 +86,22 @@ class base extends \TMS_CONTROLLER {
 		switch ($snsName) {
 		case 'qy':
 			$mpproxy = $this->model('sns\qy', $snsConfig);
+			$oauthUrl = $mpproxy->oauthUrl($ruri, 'snsOAuth-' . $snsName);
 			break;
 		case 'wx':
 			if ($snsConfig->can_oauth === 'Y') {
 				$mpproxy = $this->model('sns\wx', $snsConfig);
+				$oauthUrl = $mpproxy->oauthUrl($ruri, 'snsOAuth-' . $snsName, 'snsapi_userinfo');
 			}
 			break;
 		case 'yx':
 			if ($snsConfig->can_oauth === 'Y') {
 				$mpproxy = $this->model('sns\yx', $snsConfig);
+				$oauthUrl = $mpproxy->oauthUrl($ruri, 'snsOAuth-' . $snsName);
 			}
 			break;
 		}
-		if (isset($mpproxy)) {
-			$oauthUrl = $mpproxy->oauthUrl($ruri, 'snsOAuth-' . $snsName);
+		if (isset($oauthUrl)) {
 			/* 通过cookie判断是否是后退进入 */
 			$this->mySetcookie("_{$snsConfig->siteid}_oauthpending", 'Y');
 			$this->redirect($oauthUrl);
@@ -102,14 +116,10 @@ class base extends \TMS_CONTROLLER {
 	 * $code
 	 */
 	protected function snsOAuthUserByCode($site, $code, $snsName) {
-		/*if ($this->myGetcookie("_{$site}_oauth")) {
-			$fan = $this->getCookieOAuthUser($site);
-			return $fan->openid;
-		}*/
 		/**
 		 * 获得openid
 		 */
-		$snsConfig = $this->model('site\sns\yx')->bySite($site);
+		$snsConfig = $this->model('site\sns\\' . $snsName)->bySite($site);
 		$mpproxy = $this->model('sns\\' . $snsName, $snsConfig);
 		$rst = $mpproxy->getOAuthUser($code);
 		$rst[0] === false && die('oauth2 failed:' . $rst[1]);
@@ -117,10 +127,9 @@ class base extends \TMS_CONTROLLER {
 		 * 将openid保存在cookie，可用于进行用户身份绑定
 		 * openid不一定是关注用户
 		 */
-		$openid = $rst[1];
-		//$this->setCookieOAuthUser($site, $openid);
+		$user = $rst[1];
 
-		return $openid;
+		return $user;
 	}
 	/**
 	 * 客户端应用名称
@@ -189,5 +198,29 @@ class base extends \TMS_CONTROLLER {
 	 */
 	public function askFollow_action($site) {
 		$this->askFollow($site);
+	}
+	/**
+	 * 微信jssdk包
+	 *
+	 * $site
+	 * $url
+	 */
+	public function wxjssdksignpackage_action($site, $url) {
+		if ($sns = $this->model('site\sns\wx')->bySite($site)) {
+			$mpproxy = $this->model('sns\wx', $sns);
+		} else if ($sns = $this->model('site\sns\qy')->bySite($site)) {
+			$mpproxy = $this->model('sns\qy', $sns);
+		}
+
+		if (isset($mpproxy)) {
+			$rst = $mpproxy->getJssdkSignPackage(urldecode($url));
+			header('Content-Type: text/javascript');
+			if ($rst[0] === false) {
+				die("alert('{$rst[1]}');");
+			}
+			die($rst[1]);
+		} else {
+			die("alert('site is not joined.')");
+		}
 	}
 }

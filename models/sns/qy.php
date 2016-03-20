@@ -248,6 +248,9 @@ class qy_model extends sns_base {
 
 		$openid = $rst[1]->UserId;
 
+		$user = new \stdClass;
+		$user->openid = $openid;
+
 		return array(true, $openid);
 	}
 	/**

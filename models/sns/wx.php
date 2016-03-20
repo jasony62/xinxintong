@@ -95,7 +95,7 @@ class wx_model extends sns_base {
 		 */
 		$url_token = "https://api.weixin.qq.com/cgi-bin/token";
 		$url_token .= "?grant_type=client_credential";
-		$url_token .= "&appid=$app->wx_appid&secret=$app->wx_appsecret";
+		$url_token .= "&appid={$this->config->appid}&secret={$this->config->appsecret}";
 		$ch = curl_init($url_token);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -224,21 +224,50 @@ class wx_model extends sns_base {
 	 *
 	 */
 	public function getOAuthUser($code) {
+		/* 获得用户的openid */
 		$cmd = "https://api.weixin.qq.com/sns/oauth2/access_token";
 		$params["appid"] = $this->config->appid;
-		$params["secret"] = $mpa->config->appsecret;
+		$params["secret"] = $this->config->appsecret;
 		$params["code"] = $code;
 		$params["grant_type"] = "authorization_code";
-
+		\TMS_APP::M('log')->log('yangyue', 'debug', json_encode($params));
 		$rst = $this->httpGet($cmd, $params, false, false);
-
 		if ($rst[0] === false) {
 			return $rst;
 		}
 
 		$openid = $rst[1]->openid;
+		\TMS_APP::M('log')->log('yangyue', 'debug', json_encode($rst));
+		/* 获得用户的其它信息 */
+		if (false !== strpos($rst[1]->scope, 'snsapi_userinfo')) {
+			$cmd = 'https://api.weixin.qq.com/sns/userinfo';
+			$params = array('openid' => $openid);
+			$params = array('lang' => 'zh_CN');
+			/*user info*/
+			$userRst = $this->httpGet($cmd, $params);
+			if ($userRst[0] === false && strpos($userRst[1], 'json failed:') === 0) {
+				$user = new \stdClass;
+				$json = str_replace(array('json failed:', '{', '}'), '', $userRst[1]);
+				$data = explode(',', $json);
+				foreach ($data as $pv) {
+					$pv = explode(':', $pv);
+					$p = str_replace('"', '', $pv[0]);
+					$v = str_replace('"', '', $pv[1]);
+					$fan->{$p} = $v;
+				}
+				$userRst[0] = true;
+				$userRst[1] = $user;
+			} else if (empty($userRst[1])) {
+				return array(false, 'empty openid:' . $openid);
+			} else {
+				$user = $userRst[1];
+			}
+		} else {
+			$user = new \stdClass;
+			$user->openid = $openid;
+		}
 
-		return array(true, $openid);
+		return array(true, $user);
 	}
 	/**
 	 * 获得所有的微信粉丝

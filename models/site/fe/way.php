@@ -14,59 +14,39 @@ class way_model extends \TMS_MODEL {
 	 * 2、浏览器
 	 * 如果用户是首次访问，创建一个空的注册用户
 	 *
-	 * 更新cookie中的用户信息，延期90天
 	 */
-	public function who($siteId, $options = array()) {
+	public function who($siteId, $auth = array()) {
+		$requireUpdate = false;
 		$current = time();
-		/*cookie中缓存的注册用户*/
+		/* cookie中缓存的用户信息 */
 		$siteUser = $this->getCookieUser($siteId);
 		if ($siteUser === false) {
-			/*首次访问的用户*/
 			$modelAct = \TMS_APP::M('site\user\account');
-			$account = $modelAct->blank($siteId, true);
+			if (!empty($auth)) {
+				/* 如果是一个可以确认身份的用户访问，创建一个空用户 */
+				$account = $modelAct->blank($siteId, true);
+				$requireUpdate = true;
+			} else {
+				$account = $modelAct->blank($siteId, false);
+			}
 			$siteUser = new \stdClass;
 			$siteUser->uid = $account->uid;
 			$siteUser->nickname = '';
 			$siteUser->expire = $current + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);
 		}
-
-		/*第三方认证用户信息*/
-		/*微信、易信公众号*/
-		$csrc = $this->getClientSrc();
-		if (in_array($csrc, array('wx', 'yx'))) {
-			if (isset($options['mocker'])) {
-				/*模拟关注用户*/
-				$mpa = \TMS_APP::M('mp\mpaccount')->byId($siteId);
-				isset($siteUser->third) && $siteUser->third->{$mpa->mpsrc} = null;
-				$options['openid'] = $options['mocker'];
+		/* 第三方认证用户信息 */
+		if (isset($auth['sns'])) {
+			empty($siteUser->sns) && $siteUser->sns = new \stdClass;
+			foreach ($auth['sns'] as $key => $value) {
+				$siteUser->sns->{$key} = $value;
+				$this->_bindSnsUser($siteId, $siteUser, $key, $value);
 			}
-			if (!empty($options['openid'])) {
-				/*绑定关注用户*/
-				$this->_bindMpFollower($siteId, $options['openid'], $siteUser);
-			} else {
-				$modelMpa = \TMS_APP::M('mp\mpaccount');
-				$mpa = $modelMpa->byId($siteId);
-				if (empty($siteUser->third->{$mpa->mpsrc})) {
-					/*没有进行过绑定，先获得openid*/
-					if ($oauthUrl = $modelMpa->oauthUrl($siteId)) {
-						/*公众号支持oauth*/
-						require_once TMS_APP_DIR . '/models/site/excep/RequireOAuth';
-						throw new \site\fe\excep\RequireOAuth($oauthUrl);
-					}
-				} else {
-					/*已经做过绑定，检查是否需要重新绑定*/
-					$fan = $siteUser->third->{$mpa->mpsrc};
-					if (empty($fan->subscribe_at) && $fan->_bindAt < (time() - TMS_COOKIE_SITE_USER_BIND_INTERVAL)) {
-						$this->_bindMpFollower($siteId, $fan->openid, $siteUser);
-					}
-				}
-			}
+			$requireUpdate = true;
 		}
-
-		/*内置认证信息*/
-
 		/*将信息保存在cookie中*/
-		$this->setCookieUser($siteId, $siteUser);
+		if ($requireUpdate) {
+			$this->setCookieUser($siteId, $siteUser);
+		}
 
 		return $siteUser;
 	}
@@ -83,21 +63,6 @@ class way_model extends \TMS_MODEL {
 		$this->setCookieLogin($siteId, $who);
 
 		return true;
-	}
-	/**
-	 * 发起请求的客户端
-	 */
-	protected function getClientSrc() {
-		$user_agent = $_SERVER['HTTP_USER_AGENT'];
-		if (preg_match('/yixin/i', $user_agent)) {
-			$csrc = 'yx';
-		} elseif (preg_match('/MicroMessenger/i', $user_agent)) {
-			$csrc = 'wx';
-		} else {
-			$csrc = false;
-		}
-
-		return $csrc;
 	}
 	/**
 	 * 设置 COOKIE
@@ -179,40 +144,51 @@ class way_model extends \TMS_MODEL {
 	/**
 	 * 绑定公众号关注用户
 	 */
-	private function _bindMpFollower($siteId, $openid, &$siteUser) {
-		/*指定了当前用户的openid*/
-		$modelFan = \TMS_App::M('user/fans');
-		if ($fan = $modelFan->byOpenid($siteId, $openid, 'fid,openid,nickname,headimgurl,subscribe_at,unsubscribe_at,userid')) {
+	private function _bindSnsUser($siteId, &$siteUser, $snsName, $snsUser) {
+		/* 指定了当前用户的openid */
+		$modelFan = \TMS_App::M('site\sns\\' . $snsName . 'fan');
+		if ($fan = $modelFan->byOpenid($siteId, $snsUser->openid, 'userid,nickname,headimgurl,sex,country,province,city')) {
 			if ($fan->userid !== $siteUser->uid) {
 				/*更新用户绑定关系*/
 				$modelFan->update(
-					'xxt_fans',
+					'xxt_site_wxfan',
 					array('userid' => $siteUser->uid),
-					"fid='$fan->fid'"
+					"siteid='$siteId' and openid='{$snsUser->openid}'"
 				);
-				if (empty($siteUser->uname)) {
-					$siteUser->nickname = $fan->nickname;
-					$modelFan->update(
-						'xxt_site_user',
-						array('nickname' => $fan->nickname),
-						"uid='$siteUser->uid'"
-					);
-				}
 			}
 			unset($fan->userid);
 		} else {
-			/*如果openid不是关注用户，建一个空的关注用户*/
-			$blank = $modelFan->blank($siteId, $openid, true, array('userid' => $siteUser->uid));
-			$fan = new \stdClass;
-			$fan->fid = $blank->fid;
-			$fan->openid = $blank->openid;
+			/* 如果openid不是关注用户，建一个空的关注用户 */
+			$options = array('userid' => $siteUser->uid);
+			isset($siteUser->headimgurl) && $options['headimgurl'] = $siteUser->headimgurl;
+			isset($siteUser->sex) && $options['sex'] = $siteUser->sex;
+			isset($siteUser->country) && $options['country'] = $siteUser->country;
+			isset($siteUser->province) && $options['province'] = $siteUser->province;
+			isset($siteUser->city) && $options['city'] = $siteUser->city;
+			$fan = $modelFan->blank($siteId, $snsUser->openid, true, $options);
+			unset($fan->userid);
+			unset($fan->siteid);
+			unset($fan->subscribe_at);
+			unset($fan->sync_at);
 		}
-		$fan->_bindAt = time();
+		/* 更新站点用户信息 */
+		$modelUser = \TMS_App::M('site\user\account');
+		if ($user = $modelUser->byId($siteUser->uid)) {
+			if (empty($siteUser->uname)) {
+				$siteUser->nickname = $fan->nickname;
+				$modelFan->update(
+					'xxt_site_account',
+					array('nickname' => $fan->nickname),
+					"uid='$siteUser->uid'"
+				);
+			}
+		} else {
+			$uname = $siteUser->uname;
+			$modelUser->create($siteId, $uname, '', array('uid' => $siteUser->uid));
+			$siteUser->nickname = $nickname;
+		}
 
-		//empty($siteUser->third) && $siteUser->third = new \stdClass;
-		//$modelMpa = \TMS_APP::M('mp\mpaccount');
-		//$mpa = $modelMpa->byId($siteId);
-		//$siteUser->third->{$mpa->mpsrc} = &$fan;
+		$siteUser->sns->{$snsName} = $fan;
 
 		return $siteUser;
 	}

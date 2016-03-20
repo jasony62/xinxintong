@@ -39,14 +39,14 @@ class main extends base {
 		empty($app) && $this->outputError('登记活动ID为空');
 
 		$app = $this->modelApp->byId($app, array('cascaded' => 'Y'));
-		/* 检查是否需要第三方社交帐号OAuth */
-		$this->_snsOAuth($site, $app);
+		if (!$this->afterSnsOAuth()) {
+			/* 检查是否需要第三方社交帐号OAuth */
+			$this->_requireSnsOAuth($site, $app);
+		}
 		/* 判断活动的开始结束时间 */
 		$ignoretime === 'N' && $this->_isValid($app);
-		/* 获得当前访问用户的信息*/
-		$user = $this->who;
 		/* 计算打开哪个页面 */
-		$oPage = $this->_defaultPage($site, $app, $user, true);
+		$oPage = $this->_defaultPage($site, $app, true);
 		/* 记录日志，完成前置活动再次进入的情况不算 */
 		$this->model()->update("update xxt_enroll set read_num=read_num+1 where id='$app->id'");
 		//$this->logRead($siteid, $user, $app->id, 'enroll', $app->title, $shareby);
@@ -70,22 +70,28 @@ class main extends base {
 	 * @param string $site
 	 * @param object $app
 	 */
-	private function _snsOAuth($siteid, &$app) {
+	private function _requireSnsOAuth($siteid, &$app) {
 		$entryRule = $app->entry_rule;
 		if ($this->userAgent() === 'wx') {
 			if (isset($entryRule->wxfan)) {
-				if ($sns = $this->model('site\sns\wx')->bySite($siteid)) {
-					$this->snsOAuth($sns, 'wx');
+				if (!isset($this->who->sns->wx)) {
+					if ($sns = $this->model('site\sns\wx')->bySite($siteid)) {
+						$this->snsOAuth($sns, 'wx');
+					}
 				}
 			}
 			if (isset($entryRule->qyfan)) {
-				if ($sns = $this->model('site\sns\qy')->bySite($siteid)) {
-					$this->snsOAuth($sns, 'qy');
+				if (!isset($this->who->sns->qy)) {
+					if ($sns = $this->model('site\sns\qy')->bySite($siteid)) {
+						$this->snsOAuth($sns, 'qy');
+					}
 				}
 			}
 		} else if (isset($entryRule->yxfan) && $this->userAgent() === 'yx') {
-			if ($sns = $this->model('site\sns\yx')->bySite($siteid)) {
-				$this->snsOAuth($sns, 'yx');
+			if (!isset($this->who->sns->yx)) {
+				if ($sns = $this->model('site\sns\yx')->bySite($siteid)) {
+					$this->snsOAuth($sns, 'yx');
+				}
 			}
 		}
 
@@ -123,7 +129,8 @@ class main extends base {
 	/**
 	 * 当前用户的缺省页面
 	 */
-	private function _defaultPage($site, &$app, &$user, $redirect = false) {
+	private function _defaultPage($site, &$app, $redirect = false) {
+		$user = $this->who;
 		$oPage = null;
 		$hasEnrolled = $this->modelApp->hasEnrolled($site, $app->id, $user);
 		if ($hasEnrolled && !empty($app->enrolled_entry_page)) {

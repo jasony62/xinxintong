@@ -164,7 +164,10 @@ class yx_model extends sns_base {
 
 		$openid = $rst[1]->openid;
 
-		return array(true, $openid);
+		$user = new \stdClass;
+		$user->openid = $openid;
+
+		return array(true, $user);
 	}
 	/**
 	 *

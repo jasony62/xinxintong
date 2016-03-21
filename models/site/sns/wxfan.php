@@ -47,10 +47,16 @@ class wxfan_model extends \TMS_MODEL {
 		$fan = new \stdClass;
 		$fan->siteid = $siteid;
 		$fan->openid = $openid;
-		$fan->nickname = '';
 		!empty($options['userid']) && $fan->userid = $options['userid'];
 		!empty($options['subscribe_at']) && $fan->subscribe_at = $options['subscribe_at'];
 		!empty($options['sync_at']) && $fan->sync_at = $options['sync_at'];
+
+		$fan->nickname = isset($options['nickname']) ? $options['nickname'] : '';
+		isset($options['sex']) && $fan->sex = $options['sex'];
+		isset($options['headimgurl']) && $fan->headimgurl = $options['headimgurl'];
+		isset($options['country']) && $fan->country = $options['country'];
+		isset($options['province']) && $fan->province = $options['province'];
+		isset($options['city']) && $fan->city = $options['city'];
 
 		$fan->id = $this->insert('xxt_site_wxfan', $fan, true);
 

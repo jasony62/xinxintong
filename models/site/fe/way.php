@@ -13,9 +13,12 @@ class way_model extends \TMS_MODEL {
 		if (!empty($auth)) {
 			/* 有身份用户首次访问，若已经有绑定的站点用户，获取站点用户；否则，创建持久化的站点用户，并绑定关系 */
 			foreach ($auth['sns'] as $snsName => $snsUser) {
+				if ($snsName === 'qy') {
+					continue;
+				}
 				$modelSns = \TMS_App::M('site\sns\\' . $snsName);
 				$siteSns = $modelSns->bySite($siteId);
-				if ($siteSns->by_platform === 'Y') {
+				if (isset($siteSns->by_platform) && $siteSns->by_platform === 'Y') {
 					$cookieUser = $this->_bindPlatformSnsUser($snsName, $snsUser, $cookieUser);
 				} else {
 					$cookieUser = $this->_bindSiteSnsUser($siteId, $snsName, $snsUser, $cookieUser);
@@ -120,13 +123,6 @@ class way_model extends \TMS_MODEL {
 		return true;
 	}
 	/**
-	 * 清除用户登录信息
-	 */
-	public function cleanCookieLogin($siteId) {
-		$this->mySetcookie("_site_{$siteId}_fe_login", '', time() - 3600);
-		return true;
-	}
-	/**
 	 * 绑定站点第三方认证用户
 	 */
 	private function _bindSiteSnsUser($siteId, $snsName, $snsUser, $cookieUser) {
@@ -175,9 +171,18 @@ class way_model extends \TMS_MODEL {
 			unset($authedUser->userid);
 		} else {
 			/* 不是关注用户，建一个空的关注用户 */
+			$options = array();
+			if ($snsName === 'wx') {
+				isset($snsUser->nickname) && $options['nickname'] = $snsUser->nickname;
+				isset($snsUser->sex) && $options['sex'] = $snsUser->sex;
+				isset($snsUser->headimgurl) && $options['headimgurl'] = $snsUser->headimgurl;
+				isset($snsUser->country) && $options['country'] = $snsUser->country;
+				isset($snsUser->province) && $options['province'] = $snsUser->province;
+				isset($snsUser->city) && $options['city'] = $snsUser->city;
+			}
 			if ($cookieUser === false) {
 				$siteUser = $modelSiteUser->blank($siteId, true, array('ufrom' => $snsName));
-				$options = array('userid' => $siteUser->uid);
+				$options['userid'] = $siteUser->uid;
 				$authedUser = $modelSnsUser->blank($siteId, $snsUser->openid, true, $options);
 				/* 新的cookie用户 */
 				$cookieUser = new \stdClass;
@@ -188,7 +193,7 @@ class way_model extends \TMS_MODEL {
 					$siteUser = $modelSiteUser->blank($siteId, true, array('ufrom' => $snsName));
 				}
 				/* 创建新的第三方认证用户 */
-				$options = array('userid' => $siteUser->uid);
+				$options['userid'] = $siteUser->uid;
 				$authedUser = $modelSnsUser->blank($siteId, $snsUser->openid, true, $options);
 				/* 清空不必要的数据，减小cookie尺寸 */
 				unset($authedUser->userid);
@@ -211,5 +216,19 @@ class way_model extends \TMS_MODEL {
 	 */
 	private function _bindPlatformSnsUser($snsName, $snsUser, $cookieUser) {
 		return $cookieUser;
+	}
+	/**
+	 * 清除用户登录信息
+	 */
+	public function cleanCookieLogin($siteId) {
+		$this->mySetcookie("_site_{$siteId}_fe_login", '', time() - 3600);
+		return true;
+	}
+	/**
+	 * 清除用户登录信息
+	 */
+	public function cleanCookieUser($siteId) {
+		$this->mySetcookie("_site_{$siteId}_fe_user", '', time() - 3600);
+		return true;
 	}
 }

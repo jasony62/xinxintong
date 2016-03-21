@@ -237,14 +237,17 @@ class wx_model extends sns_base {
 		}
 
 		$openid = $rst[1]->openid;
-		\TMS_APP::M('log')->log('yangyue', 'debug', json_encode($rst));
 		/* 获得用户的其它信息 */
 		if (false !== strpos($rst[1]->scope, 'snsapi_userinfo')) {
+			$accessToken = $rst[1]->access_token;
 			$cmd = 'https://api.weixin.qq.com/sns/userinfo';
-			$params = array('openid' => $openid);
-			$params = array('lang' => 'zh_CN');
+			$params = array(
+				'access_token' => $accessToken,
+				'openid' => $openid,
+				'lang' => 'zh_CN',
+			);
 			/*user info*/
-			$userRst = $this->httpGet($cmd, $params);
+			$userRst = $this->httpGet($cmd, $params, false, false);
 			if ($userRst[0] === false && strpos($userRst[1], 'json failed:') === 0) {
 				$user = new \stdClass;
 				$json = str_replace(array('json failed:', '{', '}'), '', $userRst[1]);

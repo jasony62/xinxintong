@@ -116,9 +116,6 @@ class base extends \TMS_CONTROLLER {
 	 * $code
 	 */
 	protected function snsOAuthUserByCode($site, $code, $snsName) {
-		/**
-		 * 获得openid
-		 */
 		$snsConfig = $this->model('site\sns\\' . $snsName)->bySite($site);
 		$mpproxy = $this->model('sns\\' . $snsName, $snsConfig);
 		$rst = $mpproxy->getOAuthUser($code);
@@ -222,5 +219,19 @@ class base extends \TMS_CONTROLLER {
 		} else {
 			die("alert('site is not joined.')");
 		}
+	}
+	/**
+	 * 清除用户登录信息
+	 */
+	public function cleanCookieLogin_action($site) {
+		$this->model('site\fe\way')->cleanCookieLogin($site);
+		return new \ResponseData('ok');
+	}
+	/**
+	 * 清除用户登录信息
+	 */
+	public function cleanCookieUser_action($site) {
+		$this->model('site\fe\way')->cleanCookieUser($site);
+		return new \ResponseData('ok');
 	}
 }

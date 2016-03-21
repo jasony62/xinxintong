@@ -24,13 +24,12 @@ class sns_base {
 	 * 需要提供token的请求
 	 */
 	protected function httpGet($cmd, $params = null, $newAccessToken = false, $appendAccessToken = true) {
-		$token = $this->accessToken($newAccessToken);
-		if ($token[0] === false) {
-			return $token;
-		}
-
 		$url = $cmd;
 		if ($appendAccessToken) {
+			$token = $this->accessToken($newAccessToken);
+			if ($token[0] === false) {
+				return $token;
+			}
 			$url .= false == strpos($url, '?') ? '?' : '&';
 			$url .= "access_token={$token[1]}";
 		}

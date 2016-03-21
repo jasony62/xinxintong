@@ -13,7 +13,13 @@
     <body  ng-app='app' ng-controller='ctrlApp' ng-cloak class='ng-cloak'>
         <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
         <nav class='navbar navbar-inverse navbar-fixed-top'>
-            <ul class='nav navbar-nav'>
+            <ul class='nav navbar-nav site'>
+                <li ng-class="{'active':subView=='console'}">
+                    <a href='/rest/pl/fe/site/console?id={{siteid}}' target='_self'>工作台</a>
+                </li>
+                <li ng-class="{'active':subView=='setting'}">
+                    <a href='/rest/pl/fe/site/setting?id={{siteid}}' target='_self'>站点设置</a>
+                </li>
             </ul>
             <ul class='nav navbar-nav navbar-right' style='margin-right:0'>
                 <li><a href='/rest/pl/fe/user/settings' target='_self'>设置</a></li>

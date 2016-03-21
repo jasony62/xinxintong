@@ -39,6 +39,7 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_site_account (";
 $sql .= "site_id varchar(32) not null comment '站点id'";
 $sql .= ",uid varchar(40) not null comment '用户的id'";
+$sql .= ",assoc_id varchar(40) not null default '' comment '用户的关联id'";
 $sql .= ",ufrom varchar(20) not null default '' comment '用户来源'";
 $sql .= ",uname varchar(50) default null comment '登录用户名'";
 $sql .= ",password varchar(64) default null comment '用户密码'";

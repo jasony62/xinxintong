@@ -7,19 +7,6 @@ class yxfan_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function &byUid($uid, $fields = '*') {
-		$q = array(
-			$fields,
-			'xxt_site_yxfan',
-			"uid='$uid'",
-		);
-		$fan = $this->query_obj_ss($q);
-
-		return $fan;
-	}
-	/**
-	 *
-	 */
 	public function &byOpenid($siteid, $openid, $fields = '*', $followed = null) {
 		$q = array(
 			$fields,
@@ -60,6 +47,7 @@ class yxfan_model extends \TMS_MODEL {
 		$fan = new \stdClass;
 		$fan->siteid = $siteid;
 		$fan->openid = $openid;
+		$fan->nickname = '';
 		!empty($options['userid']) && $fan->userid = $options['userid'];
 		!empty($options['subscribe_at']) && $fan->subscribe_at = $options['subscribe_at'];
 		!empty($options['sync_at']) && $fan->sync_at = $options['sync_at'];
@@ -82,5 +70,11 @@ class yxfan_model extends \TMS_MODEL {
 		$groups = $this->query_objs_ss($q, $q2);
 
 		return $groups;
+	}
+	/**
+	 *
+	 */
+	public function modifyByOpenid($siteid, $openid, $updated) {
+		return $this->update('xxt_site_wxfan', $updated, "siteid='$siteid' and openid='$openid'");
 	}
 }

@@ -6,49 +6,34 @@ namespace site\fe;
 class way_model extends \TMS_MODEL {
 	/**
 	 * 返回当前访问用户的信息
-	 *
-	 * 1、微信、易信客户端，且站点绑定了微信或易信公众，且支持OAuth接口，那么先获得openid
-	 * 如果用户不是关注用户，创建一个空的关注用户
-	 * 如果用户是首次访问，创建一个空的注册用户
-	 * 建立关注用户和注册用户的管理
-	 * 2、浏览器
-	 * 如果用户是首次访问，创建一个空的注册用户
-	 *
 	 */
 	public function who($siteId, $auth = array()) {
-		$requireUpdate = false;
-		$current = time();
 		/* cookie中缓存的用户信息 */
-		$siteUser = $this->getCookieUser($siteId);
-		if ($siteUser === false) {
+		$cookieUser = $this->getCookieUser($siteId);
+		if (!empty($auth)) {
+			/* 有身份用户首次访问，若已经有绑定的站点用户，获取站点用户；否则，创建持久化的站点用户，并绑定关系 */
+			foreach ($auth['sns'] as $snsName => $snsUser) {
+				$modelSns = \TMS_App::M('site\sns\\' . $snsName);
+				$siteSns = $modelSns->bySite($siteId);
+				if ($siteSns->by_platform === 'Y') {
+					$cookieUser = $this->_bindPlatformSnsUser($snsName, $snsUser, $cookieUser);
+				} else {
+					$cookieUser = $this->_bindSiteSnsUser($siteId, $snsName, $snsUser, $cookieUser);
+				}
+			}
+		} elseif ($cookieUser === false) {
+			/* 无身份用户首次访问，创建非持久化的站点用户 */
 			$modelAct = \TMS_APP::M('site\user\account');
-			if (!empty($auth)) {
-				/* 如果是一个可以确认身份的用户访问，创建一个空用户 */
-				$account = $modelAct->blank($siteId, true);
-				$requireUpdate = true;
-			} else {
-				$account = $modelAct->blank($siteId, false);
-			}
-			$siteUser = new \stdClass;
-			$siteUser->uid = $account->uid;
-			$siteUser->nickname = '';
-			$siteUser->expire = $current + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);
+			$account = $modelAct->blank($siteId, false);
+			$cookieUser = new \stdClass;
+			$cookieUser->uid = $account->uid;
+			$cookieUser->nickname = '新用户';
+			$cookieUser->expire = time() + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);
 		}
-		/* 第三方认证用户信息 */
-		if (isset($auth['sns'])) {
-			empty($siteUser->sns) && $siteUser->sns = new \stdClass;
-			foreach ($auth['sns'] as $key => $value) {
-				$siteUser->sns->{$key} = $value;
-				$this->_bindSnsUser($siteId, $siteUser, $key, $value);
-			}
-			$requireUpdate = true;
-		}
-		/*将信息保存在cookie中*/
-		if ($requireUpdate) {
-			$this->setCookieUser($siteId, $siteUser);
-		}
+		/* 将用户信息保存在cookie中 */
+		$this->setCookieUser($siteId, $cookieUser);
 
-		return $siteUser;
+		return $cookieUser;
 	}
 	/**
 	 * 检查指定的用户是否已经登录
@@ -142,54 +127,89 @@ class way_model extends \TMS_MODEL {
 		return true;
 	}
 	/**
-	 * 绑定公众号关注用户
+	 * 绑定站点第三方认证用户
 	 */
-	private function _bindSnsUser($siteId, &$siteUser, $snsName, $snsUser) {
-		/* 指定了当前用户的openid */
-		$modelFan = \TMS_App::M('site\sns\\' . $snsName . 'fan');
-		if ($fan = $modelFan->byOpenid($siteId, $snsUser->openid, 'userid,nickname,headimgurl,sex,country,province,city')) {
-			if ($fan->userid !== $siteUser->uid) {
-				/*更新用户绑定关系*/
-				$modelFan->update(
-					'xxt_site_wxfan',
-					array('userid' => $siteUser->uid),
-					"siteid='$siteId' and openid='{$snsUser->openid}'"
-				);
-			}
-			unset($fan->userid);
-		} else {
-			/* 如果openid不是关注用户，建一个空的关注用户 */
-			$options = array('userid' => $siteUser->uid);
-			isset($siteUser->headimgurl) && $options['headimgurl'] = $siteUser->headimgurl;
-			isset($siteUser->sex) && $options['sex'] = $siteUser->sex;
-			isset($siteUser->country) && $options['country'] = $siteUser->country;
-			isset($siteUser->province) && $options['province'] = $siteUser->province;
-			isset($siteUser->city) && $options['city'] = $siteUser->city;
-			$fan = $modelFan->blank($siteId, $snsUser->openid, true, $options);
-			unset($fan->userid);
-			unset($fan->siteid);
-			unset($fan->subscribe_at);
-			unset($fan->sync_at);
-		}
-		/* 更新站点用户信息 */
-		$modelUser = \TMS_App::M('site\user\account');
-		if ($user = $modelUser->byId($siteUser->uid)) {
-			if (empty($siteUser->uname)) {
-				$siteUser->nickname = $fan->nickname;
-				$modelFan->update(
-					'xxt_site_account',
-					array('nickname' => $fan->nickname),
-					"uid='$siteUser->uid'"
-				);
-			}
-		} else {
-			$uname = $siteUser->uname;
-			$modelUser->create($siteId, $uname, '', array('uid' => $siteUser->uid));
-			$siteUser->nickname = $nickname;
-		}
+	private function _bindSiteSnsUser($siteId, $snsName, $snsUser, $cookieUser) {
+		$modelSiteUser = \TMS_App::M('site\user\account');
+		$modelSnsUser = \TMS_App::M('site\sns\\' . $snsName . 'fan');
+		// 已经存在的第三方认证用户
+		$authedUser = $modelSnsUser->byOpenid($siteId, $snsUser->openid, 'userid,nickname,headimgurl,sex,country,province,city');
 
-		$siteUser->sns->{$snsName} = $fan;
+		if ($authedUser) {
+			if ($cookieUser === false) {
+				if (!empty($authedUser->userid)) {
+					/* 已经绑定过站点用户 */
+					$siteUser = $modelSiteUser->byId($authedUser->userid);
+				} else {
+					/* 创建新的站点用户 */
+					$siteUser = $modelSiteUser->blank($siteId, true, array('ufrom' => $snsName));
+				}
+				/* 新的cookie用户 */
+				$cookieUser = new \stdClass;
+			} else {
+				$siteUser = $modelSiteUser->byId($cookieUser->uid);
+				if ($siteUser === false) {
+					if (!empty($authedUser->userid)) {
+						/* 已经绑定过站点用户 */
+						$siteUser = $modelSiteUser->byId($authedUser->userid);
+					} else {
+						/* 创建新的站点用户 */
+						$siteUser = $modelSiteUser->blank($siteId, true, array('ufrom' => $snsName));
+					}
+				} else if ($authedUser->userid !== $siteUser->uid) {
+					/* 更新认证用户关联的站点用户信息 */
+					$modelSiteUser->update(
+						'xxt_site_account',
+						array('assoc_uid' => $siteUser->uid),
+						"uid='{$authedUser->userid}'"
+					);
+					$modelSnsUser->update(
+						$siteId,
+						$snsUser->openid,
+						array('userid' => $siteUser->uid)
+					);
+					$siteUser = $modelSiteUser->byId($authedUser->userid);
+				}
+			}
+			/* 清空不必要的数据，减小cookie尺寸 */
+			unset($authedUser->userid);
+		} else {
+			/* 不是关注用户，建一个空的关注用户 */
+			if ($cookieUser === false) {
+				$siteUser = $modelSiteUser->blank($siteId, true, array('ufrom' => $snsName));
+				$options = array('userid' => $siteUser->uid);
+				$authedUser = $modelSnsUser->blank($siteId, $snsUser->openid, true, $options);
+				/* 新的cookie用户 */
+				$cookieUser = new \stdClass;
+			} else {
+				$siteUser = $modelSiteUser->byId($cookieUser->uid);
+				if ($siteUser === false) {
+					/* 没有站点用户创建个新的 */
+					$siteUser = $modelSiteUser->blank($siteId, true, array('ufrom' => $snsName));
+				}
+				/* 创建新的第三方认证用户 */
+				$options = array('userid' => $siteUser->uid);
+				$authedUser = $modelSnsUser->blank($siteId, $snsUser->openid, true, $options);
+				/* 清空不必要的数据，减小cookie尺寸 */
+				unset($authedUser->userid);
+				unset($authedUser->siteid);
+				unset($authedUser->subscribe_at);
+				unset($authedUser->sync_at);
+			}
+		}
+		/* 更新cookie信息 */
+		$cookieUser->uid = $siteUser->uid;
+		$cookieUser->nickname = $authedUser->nickname;
+		$cookieUser->expire = time() + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);
+		!isset($cookieUser->sns) && $cookieUser->sns = new \stdClass;
+		$cookieUser->sns->{$snsName} = $authedUser;
 
-		return $siteUser;
+		return $cookieUser;
+	}
+	/**
+	 * 绑定平台第三方认证用户
+	 */
+	private function _bindPlatformSnsUser($snsName, $snsUser, $cookieUser) {
+		return $cookieUser;
 	}
 }

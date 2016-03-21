@@ -1,7 +1,7 @@
 <?php
 namespace site\fe;
 /**
- * 站点访问控制器基类
+ * 站点前端访问控制器基类
  */
 class base extends \TMS_CONTROLLER {
 	/**

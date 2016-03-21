@@ -1,45 +1,47 @@
-<div class='form-group'>
-    <label class='col-md-2 control-label'>站点ID</label>
-    <div class='col-md-10'>
-        <p class='form-control-static' ng-bind="site.id"></p>
+<div class='form-horizontal'>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>站点ID</label>
+        <div class='col-md-10'>
+            <p class='form-control-static' ng-bind="site.id"></p>
+        </div>
     </div>
-</div>
-<div class='form-group'>
-    <label class='col-md-2 control-label'>创建人</label>
-    <div class='col-md-10'>
-        <p class='form-control-static' ng-bind="site.creater_name"></p>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>创建人</label>
+        <div class='col-md-10'>
+            <p class='form-control-static' ng-bind="site.creater_name"></p>
+        </div>
     </div>
-</div>
-<div class='form-group'>
-    <label class='col-md-2 control-label'>创建时间</label>
-    <div class='col-md-10'>
-        <p class='form-control-static' ng-bind="site.create_at*1000|date:'yy-MM-dd HH:mm'"></p>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>创建时间</label>
+        <div class='col-md-10'>
+            <p class='form-control-static' ng-bind="site.create_at*1000|date:'yy-MM-dd HH:mm'"></p>
+        </div>
     </div>
-</div>
-<div class='form-group'>
-    <label class='col-md-2 control-label'>站点名称</label>
-    <div class='col-md-10'>
-        <input type='text' class='form-control' ng-model='site.name' tms-auto-update tms-wait=1000 tms-update="update('name')">
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>站点名称</label>
+        <div class='col-md-10'>
+            <input type='text' class='form-control' ng-model='site.name' tms-auto-update tms-wait=1000 tms-update="update('name')">
+        </div>
     </div>
-</div>
-<div class='form-group'>
-    <label class='col-md-2 control-label'>缺省头图</label>
-    <div class='col-md-10' style='position:relative'>
-        <div style="width:182px;border:1px solid #CCC">
-            <div style="height:100px;text-align:center;padding-top:32px" ng-if="!site.heading_pic">
-                <button class='btn btn-default' ng-click='setPic();'>
-                <span class='glyphicon glyphicon-picture'></span>选择图片</button>
-            </div>
-            <div style='position:relative' ng-if="site.heading_pic" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
-                <img name='pic' ng-src="{{site.heading_pic}}" width='180px' />
-                <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
-                <span class='glyphicon glyphicon-picture'></span>
-                </button>
-                <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
-                <span class='glyphicon glyphicon-trash'></span>
-                </button>
+    <div class='form-group'>
+        <label class='col-md-2 control-label'>缺省头图</label>
+        <div class='col-md-10' style='position:relative'>
+            <div style="width:182px;border:1px solid #CCC">
+                <div style="height:100px;text-align:center;padding-top:32px" ng-if="!site.heading_pic">
+                    <button class='btn btn-default' ng-click='setPic();'>
+                    <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                </div>
+                <div style='position:relative' ng-if="site.heading_pic" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                    <img name='pic' ng-src="{{site.heading_pic}}" width='180px' />
+                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                    <span class='glyphicon glyphicon-picture'></span>
+                    </button>
+                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                    <span class='glyphicon glyphicon-trash'></span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
+    <mediagallery box-id="{{id}}"></mediagallery>
 </div>
-<mediagallery box-id="{{id}}"></mediagallery>

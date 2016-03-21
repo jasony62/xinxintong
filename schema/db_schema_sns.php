@@ -323,4 +323,5 @@ if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error(xxt_pl_yxfangroup): ' . $mysqli->error;
 }
+/*******************************/
 echo 'finish sns.' . PHP_EOL;

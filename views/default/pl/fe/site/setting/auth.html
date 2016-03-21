@@ -1,128 +1,125 @@
 <div ng-controller='ctrlAuth'>
-    <div class="panel panel-default">
-        <div class="panel-heading">用户认证接口</div>
-        <div class="panel-body">
-            <div class='list-group'>
-                <div class='list-group-item' ng-repeat='a in authapis'>
-                    <div class='form-inline form-group'>
-                        <div class='form-group'>
-                            <div class='input-group'>
-                                <span class='input-group-addon'>
-                                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='a.valid' ng-change="updAuthapi(a,'valid')">
-                                </span>
-                                <input type='text' class='form-control' style='width:200px' ng-model='a.name' placeholder='输入名称' tms-auto-update tms-wait=1000
-                                tms-update="updAuthapi(a,'name')">
-                                <span class="input-group-btn">
-                                    <button class="btn btn-default" type="button" ng-click='delAuthapi(a)'>
-                                        <span class='glyphicon glyphicon-remove'></span>
-                                    </button>
-                                </span>
-                            </div>
-                        </div>
-                        <div class='form-group'>
-                            <select class='form-control' title='类型' ng-model='a.type' ng-change="updAuthapi(a,'type')">
-                                <option value='inner'>内置</option>
-                                <option value='cus'>自定义</option>
-                            </select>
-                        </div>
-                        <div class='form-group' ng-show="a.valid==='Y'">
-                            <select class='form-control' title='认证结果有效期' ng-model='a.validity' ng-options='d.v as d.n for d in days' ng-change="updAuthapi(a,'validity')"></select>
-                        </div>
-                        <div class='form-group' ng-show="a.valid==='Y'">
-                            <button class='btn btn-success' ng-click='addExtattr(a)'>增加信息项</button>
-                            <button class='btn btn-default' ng-if="a.type==='inner'" ng-click='gotoCode(a)'>定制认证页面</button>
-                            <button class='btn btn-default' ng-if="a.type==='inner'" ng-click='resetCode(a)'>重置认证页面</button>
+    <div class='list-group'>
+        <div class='list-group-item' ng-repeat='a in authapis'>
+            <div class='form-group'>
+                <div class='form-inline'>
+                    <div class='form-group'>
+                        <div class='input-group'>
+                            <span class='input-group-addon'>
+                                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='a.valid' ng-change="updAuthapi(a,'valid')">
+                            </span>
+                            <input type='text' class='form-control' style='width:200px' ng-model='a.name' placeholder='输入名称' tms-auto-update tms-wait=1000
+                            tms-update="updAuthapi(a,'name')">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" ng-click='delAuthapi(a)'>
+                                    <span class='glyphicon glyphicon-remove'></span>
+                                </button>
+                            </span>
                         </div>
                     </div>
-                    <div ng-show="a.valid==='Y'">
-                        <div class='form-group'>
-                            <table class='table table-bordered'>
-                                <thead>
-                                    <tr>
-                                        <th style='width:96px'>信息项</th>
-                                        <th style='width:96px'>隐藏</th>
-                                        <th style='width:96px'>必填</th>
-                                        <th style='width:96px'>唯一</th>
-                                        <th style='width:96px'>不可更改</th>
-                                        <th style='width:96px'>需要验证</th>
-                                        <th style='width:96px'>身份标识</th>
-                                        <th style='width:96px'>操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat='attr in authAttrOps'>
-                                        <td>{{attr[0]}}</td>
-                                        <td ng-repeat='op in attr[2]'>
-                                            <input type='checkbox' ng-if='op===$index' ng-true-value="'1'" ng-false-value="'0'" ng-model="a.attrs[attr[1]][$index]"
-                                            ng-change="updAuthAttr(a,attr[1])">
-                                        </td>
-                                        <td></td>
-                                    </tr>
-                                    <tr ng-repeat='ea in a.extattr'>
-                                        <td>{{ea.label}}</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td>
-                                            <a href='javascript:void(0)' ng-click='editExtattr(a,ea)'>修改</a>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class='form-group'>
-                            <table class='table table-bordered'>
-                                <tr>
-                                    <td><label>认证页面地址</label></td>
-                                    <td>
-                                        <input type='text' ng-show="a.type==='cus'" class='form-control' ng-model='a.url' placeholder='输入URL' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'url')">
-                                        <div class='form-control-static'>{{fullAuthUrl(a)}}</div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><label>进入认证页面前提示</label></td>
-                                    <td>
-                                        <textarea class='form-control' ng-model='a.entry_statement' placeholder='进入前说明' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'entry_statement')"></textarea>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><label>不在白名单中说明</label></td>
-                                    <td>
-                                        <textarea class='form-control' ng-model='a.acl_statement' placeholder='不在白名单中说明' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'acl_statement')"></textarea>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><label>验证未通过说明</label></td>
-                                    <td>
-                                        <textarea class='form-control' ng-model='a.notpass_statement' placeholder='验证未通过说明' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'notpass_statement')"></textarea>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
+                    <div class='form-group'>
+                        <select class='form-control' title='类型' ng-model='a.type' ng-change="updAuthapi(a,'type')">
+                            <option value='inner'>内置</option>
+                            <option value='cus'>自定义</option>
+                        </select>
                     </div>
-                    <div class='alert alert-info' ng-show="canImport2Qy(a)">
-                        <button class='btn btn-primary' ng-disabled='import2QyRunning' ng-click='import2Qy(a)'>
-                        <span><i class='fa fa-refresh' ng-class="{'fa-spin':import2QyRunning}"></i>&nbsp;全量导入到企业号</span>
-                        </button>
-                        <button class='btn btn-primary' ng-disabled='sync2QyRunning' ng-click='sync2Qy(a)'>
-                        <span><i class='fa fa-refresh' ng-class="{'fa-spin':sync2QyRunning}"></i>&nbsp;增量同步到企业号</span>
-                        </button>
-                        <span ng-show='a.sync_to_qy_at>0'>上次同步到企业号通讯录时间：{{a.sync_to_qy_at*1000|date:'yy-MM-dd HH:mm'}}</span>
+                    <div class='form-group' ng-show="a.valid==='Y'">
+                        <select class='form-control' title='认证结果有效期' ng-model='a.validity' ng-options='d.v as d.n for d in days' ng-change="updAuthapi(a,'validity')"></select>
                     </div>
-                    <div class='alert alert-info' ng-show="canSyncFromQy(a)">
-                        <button class='btn btn-primary' ng-disabled='syncFromQyRunning' ng-click='syncFromQy(a)'>
-                        <span><i class='fa fa-refresh' ng-class="{'fa-spin':syncFromQyRunning}"></i>&nbsp;从企业号同步</span>
-                        </button>
-                        <span ng-show='a.sync_from_qy_at>0'>上次从企业号通讯录同步时间：{{a.sync_from_qy_at*1000|date:'yy-MM-dd HH:mm'}}</span>
+                    <div class='form-group' ng-show="a.valid==='Y'">
+                        <button class='btn btn-success' ng-click='addExtattr(a)'>增加信息项</button>
+                        <button class='btn btn-default' ng-if="a.type==='inner'" ng-click='gotoCode(a)'>定制认证页面</button>
+                        <button class='btn btn-default' ng-if="a.type==='inner'" ng-click='resetCode(a)'>重置认证页面</button>
                     </div>
                 </div>
             </div>
-            <button class='btn btn-primary' ng-click='addAuthapi()'>添加认证接口</button>
+            <div ng-show="a.valid==='Y'">
+                <div class='form-group'>
+                    <table class='table table-bordered'>
+                        <thead>
+                            <tr>
+                                <th style='width:96px'>信息项</th>
+                                <th style='width:96px'>隐藏</th>
+                                <th style='width:96px'>必填</th>
+                                <th style='width:96px'>唯一</th>
+                                <th style='width:96px'>不可更改</th>
+                                <th style='width:96px'>需要验证</th>
+                                <th style='width:96px'>身份标识</th>
+                                <th style='width:96px'>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat='attr in authAttrOps'>
+                                <td>{{attr[0]}}</td>
+                                <td ng-repeat='op in attr[2]'>
+                                    <input type='checkbox' ng-if='op===$index' ng-true-value="'1'" ng-false-value="'0'" ng-model="a.attrs[attr[1]][$index]"
+                                    ng-change="updAuthAttr(a,attr[1])">
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr ng-repeat='ea in a.extattr'>
+                                <td>{{ea.label}}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <a href='javascript:void(0)' ng-click='editExtattr(a,ea)'>修改</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class='form-group'>
+                    <table class='table table-bordered'>
+                        <tr>
+                            <td><label>认证页面地址</label></td>
+                            <td>
+                                <input type='text' ng-show="a.type==='cus'" class='form-control' ng-model='a.url' placeholder='输入URL' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'url')">
+                                <div class='form-control-static'>{{fullAuthUrl(a)}}</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label>进入认证页面前提示</label></td>
+                            <td>
+                                <textarea class='form-control' ng-model='a.entry_statement' placeholder='进入前说明' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'entry_statement')"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label>不在白名单中说明</label></td>
+                            <td>
+                                <textarea class='form-control' ng-model='a.acl_statement' placeholder='不在白名单中说明' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'acl_statement')"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label>验证未通过说明</label></td>
+                            <td>
+                                <textarea class='form-control' ng-model='a.notpass_statement' placeholder='验证未通过说明' tms-auto-update tms-wait=1000 tms-update="updAuthapi(a,'notpass_statement')"></textarea>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class='alert alert-info' ng-show="canImport2Qy(a)">
+                <button class='btn btn-primary' ng-disabled='import2QyRunning' ng-click='import2Qy(a)'>
+                <span><i class='fa fa-refresh' ng-class="{'fa-spin':import2QyRunning}"></i>&nbsp;全量导入到企业号</span>
+                </button>
+                <button class='btn btn-primary' ng-disabled='sync2QyRunning' ng-click='sync2Qy(a)'>
+                <span><i class='fa fa-refresh' ng-class="{'fa-spin':sync2QyRunning}"></i>&nbsp;增量同步到企业号</span>
+                </button>
+                <span ng-show='a.sync_to_qy_at>0'>上次同步到企业号通讯录时间：{{a.sync_to_qy_at*1000|date:'yy-MM-dd HH:mm'}}</span>
+            </div>
+            <div class='alert alert-info' ng-show="canSyncFromQy(a)">
+                <button class='btn btn-primary' ng-disabled='syncFromQyRunning' ng-click='syncFromQy(a)'>
+                <span><i class='fa fa-refresh' ng-class="{'fa-spin':syncFromQyRunning}"></i>&nbsp;从企业号同步</span>
+                </button>
+                <span ng-show='a.sync_from_qy_at>0'>上次从企业号通讯录同步时间：{{a.sync_from_qy_at*1000|date:'yy-MM-dd HH:mm'}}</span>
+            </div>
         </div>
     </div>
+    <button class='btn btn-primary' ng-click='addAuthapi()'>添加定义</button>
     <script type="text/ng-template" id="authapiEditor.html">
         <div class="modal-header">
             <button class="close" type="button" ng-click="close()">×</button>

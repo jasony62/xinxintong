@@ -89,4 +89,104 @@ if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error(xxt_log_matter_read): ' . $mysqli->error;
 }
+/**************************/
+/**
+ * 自定义用户信息
+ *
+ * 支持的认证用户记录信息
+ * 昵称，姓名，手机号，邮箱，生日
+ * 每项内容的设置
+ * 隐藏(0)，必填(1)，唯一(2)，不可更改(3)，需要验证(4)，身份标识(5)
+ */
+$sql = "create table if not exists xxt_site_member_schema(";
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",creater varchar(40) not null";
+$sql .= ",create_at int not null";
+$sql .= ",type varchar(5) not null"; //inner,cus
+$sql .= ",valid char(1) not null default 'Y'";
+$sql .= ",used int not null default 0";
+$sql .= ",name varchar(50) not null";
+$sql .= ",url text"; // 入口地址
+$sql .= ",validity int not null default 365"; // 认证有效期，以天为单位，最长一年
+$sql .= ",mobile char(6) default '001000'";
+$sql .= ",email char(6) default '001000'";
+$sql .= ",name char(6) default '000000'";
+$sql .= ",extattr text"; // 扩展属性定义
+$sql .= ',code_id int not null default 0';
+$sql .= ',entry_statement text';
+$sql .= ',acl_statement text';
+$sql .= ',notpass_statement text';
+$sql .= ',sync_to_qy_at int not null default 0'; // 最近一次向企业号通讯录同步的时间
+$sql .= ',sync_from_qy_at int not null default 0'; // 最近一次从企业号通讯录同步的时间
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/*
+ * 通过认证的用户
+ *
+ * 支持与企业号用户同步
+ * 系统支持多个认证源
+ */
+$sql = "create table if not exists xxt_site_member(";
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null"; //
+$sql .= ",userid varchar(40) not null"; // xxt_site_account
+$sql .= ",schema_id int not null"; // id from xxt_site_member_schema
+$sql .= ",create_at int not null";
+$sql .= ",openid varchar(255) not null default ''"; // 如果与外部认证对接，记录用户在外部系统中的标识
+$sql .= ",sync_at int not null"; // 数据的同步时间
+$sql .= ",userid varchar(40) not null";
+$sql .= ",name varchar(255) not null";
+$sql .= ",mobile varchar(20) not null";
+$sql .= ",mobile_verified char(1) not null default 'Y'";
+$sql .= ",email varchar(50) not null";
+$sql .= ",email_verified char(1) not null default 'Y'";
+$sql .= ",extattr text"; // 扩展属性
+$sql .= ",depts text"; // 所属部门
+$sql .= ",tags text"; // 所属标签
+$sql .= ",verified char(1) not null default 'N'"; // 用户是否已通过认证
+$sql .= ",forbidden char(1) not null default 'N'";
+$sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * departments
+ */
+$sql = "create table if not exists xxt_site_member_department(";
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",schema_id int not null"; // id from xxt_site_member_schema
+$sql .= ",pid int not null default 0"; // 父节点的名称
+$sql .= ",seq int not null default 0"; // 在父节点下的排列顺序
+$sql .= ',sync_at int not null'; // 数据的同步时间
+$sql .= ",name varchar(20) not null default ''";
+$sql .= ",fullpath text";
+$sql .= ",extattr text"; //扩展属性
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * tags
+ */
+$sql = "create table if not exists xxt_site_member_tag(";
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",schema_id int not null"; // id from xxt_site_member_schema
+$sql .= ",sync_at int not null"; // 数据的同步时间
+$sql .= ",name varchar(64) not null default ''";
+$sql .= ",type tinyint not null default 0"; // 0:自定义,1:岗位
+$sql .= ",extattr text"; //扩展属性
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**********************/
 echo 'finish site.' . PHP_EOL;

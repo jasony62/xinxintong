@@ -108,6 +108,7 @@ define('TMS_COOKIE_SITE_USER_BIND_INTERVAL', 600);
  * app's local position.
  */
 define('TMS_APP_DIR', dirname(__FILE__));
+define('TMS_APP_TEMPLATE', dirname(__FILE__) . '/_template');
 /**
  * app's uri.
  */

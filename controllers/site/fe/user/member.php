@@ -6,6 +6,9 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  * 自定义用户信息
  */
 class member extends \site\fe\base {
+	/**
+	 *
+	 */
 	public function get_access_rule() {
 		$rule_action['rule_type'] = 'black';
 		$rule_action['actions'] = array();
@@ -39,17 +42,21 @@ class member extends \site\fe\base {
 	public function pageGet_action($site, $schema) {
 		$params = array();
 
-		$api = $this->model('user/authapi')->byId($schema);
-		$params['api'] = $api;
-		/*属性信息*/
+		$schema = $this->model('site\user\memberschema')->byId($schema);
+		$params['schema'] = $schema;
+		/* 属性定义 */
 		$attrs = array(
-			'mobile' => $api->attr_mobile,
-			'email' => $api->attr_email,
-			'name' => $api->attr_name,
-			'extattrs' => $api->extattr,
+			'mobile' => $schema->attr_mobile,
+			'email' => $schema->attr_email,
+			'name' => $schema->attr_name,
+			'extattrs' => $schema->extattr,
 		);
 		$params['attrs'] = $attrs;
-		/*已经认证过的用户身份*/
+
+		/* 已填写的用户信息 */
+		if (isset($this->who->members)) {
+			$params['member'] = $this->who->members->{$schema->id};
+		}
 
 		return new \ResponseData($params);
 	}
@@ -66,41 +73,30 @@ class member extends \site\fe\base {
 	 * 0:hidden,1:mandatory,2:unique,3:immuatable,4:verification,5:identity
 	 *
 	 */
-	public function doAuth_action($mpid, $authid) {
-		$user = $this->getUser($mpid, array('verbose' => array('fan' => 'Y')));
-		if (empty($user->openid)) {
-			return new \ResponseError('无法获得当前用户的openid');
-		}
+	public function doAuth_action($schema) {
+		$schema = $this->model('site\user\memberschema')->byId($schema, 'id,attr_mobile,attr_email,attr_name,extattr');
 
 		$member = $this->getPostJson();
-
-		if (isset($member->password2)) {
-			unset($member->password2);
-		}
-		$member->mpid = $mpid;
-		$member->authapi_id = $authid;
-		/**
-		 * get auth settings.
-		 */
-		$attrs = $this->model('user/authapi')->byId($authid, 'attr_mobile,attr_email,attr_name,attr_password,extattr');
+		$member->siteid = $this->siteId;
+		$member->schema_id = $schema->id;
 		/**
 		 * check auth data.
 		 */
-		if ($err_msg = $this->model('user/member')->rejectAuth($member, $attrs)) {
-			return new \ParameterError($err_msg);
+		if ($errMsg = $this->model('site\user\member')->rejectAuth($member, $schema)) {
+			return new \ParameterError($errMsg);
 		}
 		/**
 		 * 用户的邮箱需要验证，将状态设置为等待验证的状态
 		 */
-		$member->email_verified = ($attrs->attr_email[4] === '1') ? 'N' : 'Y';
+		//$member->email_verified = ($schema->attr_email[4] === '1') ? 'N' : 'Y';
 		/**
 		 * todo 应该支持使用扩展属性作为唯一标识
 		 */
-		if ($attrs->attr_mobile[5] === '1' && isset($member->mobile)) {
+		if ($schema->attr_mobile[5] === '1' && isset($member->mobile)) {
 			/**
 			 * 手机号作为唯一标识
 			 */
-			if ($attrs->attr_mobile[4] === '1') {
+			if ($schema->attr_mobile[4] === '1') {
 				$mobile = $member->mobile;
 				$mpa = $this->model('mp\mpaccount')->getApis($mpid);
 				if ('yx' !== $mpa->mpsrc || 'yx' !== $this->getClientSrc()) {
@@ -119,45 +115,32 @@ class member extends \site\fe\base {
 					return new \ResponseError("您输入的手机号与注册易信用户时的提供手机号不一致");
 				}
 			}
-			$member->authed_identity = $member->mobile;
-		} else if ($attrs->attr_email[5] === '1' && isset($member->email)) {
-			/**
-			 * 邮箱作为唯一标识
-			 */
-			$member->authed_identity = $member->email;
+			//$member->authed_identity = $member->mobile;
 		} else {
-			return new \ResponseError('无法获得身份标识信息');
+			//return new \ResponseError('无法获得身份标识信息');
 		}
-		/**
-		 * 添加新的认证用户
-		 */
-		$rst = $this->model('user/member')->create($user->fan->fid, $member, $attrs);
+		$user = $this->who;
+		/* 创建新的自定义用户 */
+		$rst = $this->model('site\user\member')->create($user->uid, $member, $schema);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
-
-		$mid = $rst[1];
+		$member = $rst[1];
+		/* 绑定当前站点用户 */
+		$modelWay = $this->model('site\fe\way');
+		$modelWay->bindMember($this->siteId, $member);
 		// log
-		$this->model('log')->writeMemberAuth($mpid, $user->openid, $mid);
+		//$this->model('log')->writeMemberAuth($mpid, $user->openid, $mid);
 		/**
 		 * 验证邮箱真实性
 		 */
-		$attrs->attr_email[4] === '1' && $this->_sendVerifyEmail($mpid, $member->email);
+		//$attrs->attr_email[4] === '1' && $this->_sendVerifyEmail($mpid, $member->email);
 		/**
 		 * 在cookie中记录认证用户的身份信息
 		 */
-		$this->setCookie4Member($mpid, $authid, $mid);
-		/**
-		 * 记录和访客用户的关系
-		 */
-		$vid = $this->getVisitorId($mpid);
-		$this->model()->update(
-			'xxt_visitor',
-			array('fid' => $user->fan->fid),
-			"mpid='$mpid' and vid='$vid'"
-		);
+		//$this->setCookie4Member($mpid, $authid, $mid);
 
-		return new \ResponseData($mid);
+		return new \ResponseData($member);
 	}
 	/**
 	 * 重新进行用户身份验证

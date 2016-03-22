@@ -91,7 +91,7 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
         }
         return true;
     };
-    var sendAuthRequest = function(url) {
+    var sendRequest = function(url) {
         $scope.posting = true;
         $http.post(url, $scope.member).
         success(function(rsp) {
@@ -104,7 +104,7 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
                 $scope.errmsg = rsp.err_msg;
                 return;
             }
-            location.href = LS.j('passed', 'mpid', 'authid') + '&mid=' + rsp.data;
+            //location.href = LS.j('passed', 'mpid', 'authid') + '&mid=' + rsp.data;
         });
     };
     $scope.posting = false;
@@ -116,16 +116,7 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
             $scope.errmsg = '请填写必填项';
             return;
         }
-        sendAuthRequest(LS.j('doAuth', 'mpid', 'authid'));
-    };
-    $scope.doReauth = function() {
-        var url;
-        if (!validate()) return;
-        if (document.querySelectorAll('.ng-invalid-required').length) {
-            $scope.errmsg = '请填写必填项';
-            return;
-        }
-        sendAuthRequest(LS.j('doReauth', 'site', 'schema'));
+        sendRequest(LS.j('doAuth', 'site', 'schema'));
     };
     $scope.$watchCollection('member', function() {
         $scope.errmsg = '';
@@ -140,18 +131,19 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
         }
         var params;
         params = rsp.data;
-        $scope.Page = params.api.page;
+        $scope.Page = params.schema.page;
         $scope.attrs = {};
         angular.forEach(params.attrs, function(attr, name) {
             $scope.attrs[name] = true;
         });
-        if (params.authedMember) {
-            $scope.authedMember = params.authedMember;
-            $scope._authedTitle = params.authedMember.name || params.authedMember.mobile || params.authedMember.email;
-        }
         $scope.member = {
-            shcema_id: LS.p.schema
+            schema_id: LS.p.schema
         };
+        if (params.member) {
+            $scope.member.name = params.member.name;
+            $scope.member.email = params.member.email;
+            $scope.member.mobile = params.member.mobile;
+        }
         $timeout(function() {
             $scope.$broadcast('xxt.member.auth.ready', params);
         });

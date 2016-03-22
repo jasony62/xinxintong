@@ -217,6 +217,41 @@ class way_model extends \TMS_MODEL {
 		return $cookieUser;
 	}
 	/**
+	 * 绑定自定义用户
+	 */
+	public function &bindMember($siteId, $member) {
+		$modelSiteUser = \TMS_App::M('site\user\account');
+		/* cookie中缓存的用户信息 */
+		$cookieUser = $this->getCookieUser($siteId);
+		if ($cookieUser === false) {
+			$siteUser = $modelSiteUser->blank($siteId, true, array('ufrom' => 'member'));
+			/* 新的cookie用户 */
+			$cookieUser = new \stdClass;
+		} else {
+			$siteUser = $modelSiteUser->byId($cookieUser->uid);
+			if ($siteUser === false) {
+				$siteUser = $modelSiteUser->blank($siteId, true, array('uid' => $cookieUser->uid, 'ufrom' => 'member'));
+			}
+		}
+		/* 更新cookie信息 */
+		$cookieUser->uid = $siteUser->uid;
+		if (empty($cookieUser->nickname)) {
+			$cookieUser->nickname = isset($member->name) ? $member->name : (isset($member->mobile) ? $member->mobile : (isset($member->email) ? $member->email : ''));
+			$modelSiteUser->update(
+				'xxt_site_account',
+				array('nickname' => $cookieUser->nickname),
+				"uid='{$cookieUser->userid}'"
+			);
+		}
+		$cookieUser->expire = time() + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);
+		!isset($cookieUser->members) && $cookieUser->members = new \stdClass;
+		$cookieUser->members->{$member->schema_id} = $member;
+		/* 将用户信息保存在cookie中 */
+		$this->setCookieUser($siteId, $cookieUser);
+
+		return $cookieUser;
+	}
+	/**
 	 * 检查指定的用户是否已经登录
 	 */
 	public function isLogined($siteId, $who) {

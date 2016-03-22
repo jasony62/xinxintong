@@ -15,51 +15,36 @@ app.config(['$locationProvider', '$routeProvider', function($lp, $rp) {
         controller: 'ctrlConsole'
     });
 }]);
-app.factory('Authapi', function($q, http2) {
-    var Authapi = function() {
-        this.baseUrl = '/rest/mp/authapi/';
+app.factory('MemberSchema', function($q, http2) {
+    var MemberSchema = function(siteId) {
+        this.siteId = siteId;
+        this.baseUrl = '/rest/pl/fe/site/memberschema/';
     };
-    Authapi.prototype.get = function(own) {
+    MemberSchema.prototype.get = function(own) {
         var deferred, url;
         deferred = $q.defer();
         own === undefined && (own === 'N');
-        url = this.baseUrl + 'list?own=' + own;
+        url = this.baseUrl;
+        url += 'list?site=' + this.siteId;
+        url += '&own=' + own;
         http2.get(url, function(rsp) {
             deferred.resolve(rsp.data);
         });
         return deferred.promise;
     }
-    Authapi.prototype.update = function(api, updated) {
+    MemberSchema.prototype.update = function(schema, updated) {
         var deferred, url;
         deferred = $q.defer();
-        url = this.baseUrl + 'update?type=' + api.type;
-        if (api.authid) url += '&id=' + api.authid;
+        url = this.baseUrl;
+        url += 'update?site=' + this.siteId;
+        url += '&type=' + schema.type;
+        if (schema.id) url += '&id=' + schema.id;
         http2.post(url, updated, function(rsp) {
             deferred.resolve(rsp.data);
         });
         return deferred.promise;
     };
-    return Authapi;
-});
-app.factory('Mp', function($q, http2) {
-    var Mp = function() {};
-    Mp.prototype.get = function() {
-        var deferred;
-        deferred = $q.defer();
-        http2.get('/rest/mp/mpaccount/get', function(rsp) {
-            deferred.resolve(rsp.data);
-        });
-        return deferred.promise;
-    };
-    Mp.prototype.relayGet = function() {
-        var deferred;
-        deferred = $q.defer();
-        http2.get('/rest/mp/relay/get', function(rsp) {
-            deferred.resolve(rsp.data);
-        });
-        return deferred.promise;
-    };
-    return Mp;
+    return MemberSchema;
 });
 app.controller('ctrlSite', ['$scope', '$location', 'http2', function($scope, $location, http2) {
     $scope.subView = 'console';
@@ -180,19 +165,17 @@ app.controller('ctrlConsole', ['$scope', 'http2', function($scope, http2) {
         $scope.matters = rsp.data.matters;
     });
 }]);
-app.controller('ctrlAuth', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Authapi', function($scope, http2, $http, $modal, Mp, Authapi) {
+app.controller('ctrlMember', ['$scope', 'http2', '$http', '$modal', 'MemberSchema', function($scope, http2, $http, $modal, MemberSchema) {
     var service = {
-        mp: new Mp(),
-        authapi: new Authapi()
+        memberSchema: new MemberSchema($scope.id)
     };
-    var shiftAuthapiAttr = function(authapi) {
-        authapi.attrs = {
-            mobile: authapi.attr_mobile.split(''),
-            email: authapi.attr_email.split(''),
-            name: authapi.attr_name.split(''),
-            password: authapi.attr_password.split('')
+    var shiftAttr = function(schema) {
+        schema.attrs = {
+            mobile: schema.attr_mobile.split(''),
+            email: schema.attr_email.split(''),
+            name: schema.attr_name.split('')
         };
-        angular.forEach(authapi.extattr, function(ea) {
+        angular.forEach(schema.extattr, function(ea) {
             ea.cfg2 = ea.cfg.split('');
         });
     };
@@ -212,52 +195,41 @@ app.controller('ctrlAuth', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Authapi
         n: '1年',
         v: '365'
     }];
-    $scope.authapis = [];
-    $scope.pAuthapis = [];
-    $scope.authAttrOps = [
+    $scope.schemas = [];
+    $scope.attrOps = [
         ['手机', 'mobile', [0, 1, 2, 3, 4, 5]],
         ['邮箱', 'email', [0, 1, 2, 3, 4, 5]],
         ['姓名', 'name', [0, 1, -2, 3, -4, -5]],
-        ['密码', 'password', [0, -1, -2, -3, -4, -5]],
     ];
-    $scope.fullAuthUrl = function(authapi) {
+    $scope.fullUrl = function(schema) {
         var url = '';
-        !/^http/.test(authapi.url) && (url = 'http://' + location.host);
-        return url + authapi.url + '?mpid=' + $scope.mpaccount.mpid + '&authid=' + authapi.authid;
+        !/^http/.test(schema.url) && (url = 'http://' + location.host);
+        return url + schema.url + '?site=' + $scope.id + '&schema=' + schema.id;
     };
-    $scope.canImport2Qy = function(authapi) {
-        return $scope.mpaccount.mpsrc === 'qy' && authapi.valid === 'Y' && authapi.type === 'cus';
-    };
-    $scope.canSyncFromQy = function(authapi) {
-        return $scope.mpaccount.mpsrc === 'qy' && authapi.valid === 'Y';
-    };
-    $scope.addAuthapi = function() {
-        var url = '/rest/mp/authapi/create';
+    $scope.addSchema = function() {
+        var url = '/rest/pl/fe/site/memberschema/create?site=' + $scope.id;
         http2.get(url, function(rsp) {
-            $scope.authapis.push(rsp.data);
+            $scope.schemas.push(rsp.data);
         });
     };
-    $scope.delAuthapi = function(api) {
+    $scope.delSchema = function(api) {
         var url = '/rest/mp/authapi/delete?id=' + api.authid;
         http2.get(url, function(rsp) {
             var i = $scope.authapis.indexOf(api);
             $scope.authapis.splice(i, 1);
         });
     };
-    $scope.updAuthapi = function(api, field) {
-        var url, pv;
-        url = '/rest/mp/authapi/update?type=' + api.type;
-        api.authid && (url += '&id=' + api.authid);
-        pv = {};
-        pv[field] = (/entry_statement|acl_statement|notpass_statement/.test(field)) ? encodeURIComponent(api[field]) : api[field];
-        http2.post(url, pv, function(rsp) {
+    $scope.updSchema = function(schema, field) {
+        var pv = {};
+        pv[field] = (/entry_statement|acl_statement|notpass_statement/.test(field)) ? encodeURIComponent(schema[field]) : schema[field];
+        service.memberSchema.update(schema, pv).then(function() {
             if (field === 'type') {
-                api.url = rsp.data.url;
+                schema.url = rsp.data.url;
             }
         });
     };
-    $scope.updAuthAttr = function(authapi, item) {
-        var attrs = authapi.attrs[item],
+    $scope.updAttr = function(schema, item) {
+        var attrs = schema.attrs[item],
             p = {};
         if ((item === 'mobile' || item === 'email') && attrs[5] === '1') {
             attrs[0] = '0';
@@ -266,15 +238,11 @@ app.controller('ctrlAuth', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Authapi
             attrs[3] = '1';
         }
         p['attr_' + item] = attrs.join('');
-        http2.post('/rest/mp/authapi/updateUserauth?authid=' + authapi.authid, p);
+        service.memberSchema.update(schema, p);
     };
-    $scope.updAuthExtattr = function(authapi, attr) {
-        attr.cfg = attr.cfg2.join('');
-        $scope.updAuthapi(authapi, 'extattr');
-    };
-    $scope.addExtattr = function(authapi) {
+    $scope.addExtattr = function(schema) {
         $modal.open({
-            templateUrl: 'authapiEditor.html',
+            templateUrl: 'schemaEditor.html',
             controller: ['$modalInstance', '$scope', function($mi, $scope) {
                 $scope.attr = {
                     id: 'ea' + (new Date()).getTime(),
@@ -290,14 +258,14 @@ app.controller('ctrlAuth', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Authapi
             }],
             backdrop: 'static'
         }).result.then(function(attr) {
-            if (!authapi.extattr) authapi.extattr = [];
-            authapi.extattr.push(attr);
-            $scope.updAuthapi(authapi, 'extattr');
+            if (!schema.extattr) schema.extattr = [];
+            schema.extattr.push(attr);
+            $scope.updSchema(schema, 'extattr');
         });
     };
-    $scope.editExtattr = function(authapi, attr) {
+    $scope.editExtattr = function(schema, attr) {
         $modal.open({
-            templateUrl: 'authapiEditor.html',
+            templateUrl: 'schemaEditor.html',
             controller: ['$modalInstance', '$scope', 'attr', function($mi, $scope, attr) {
                 $scope.canRemove = true;
                 $scope.attr = angular.copy(attr);
@@ -327,127 +295,56 @@ app.controller('ctrlAuth', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Authapi
                 attr.id = rst.data.id;
                 attr.label = rst.data.label;
             } else if (rst.action === 'remove') {
-                authapi.extattr.splice(authapi.extattr.indexOf(attr), 1);
+                schema.extattr.splice(schema.extattr.indexOf(attr), 1);
             }
-            $scope.updAuthapi(authapi, 'extattr');
+            $scope.updSchema(schema, 'extattr');
         });
     };
-    $scope.gotoCode = function(authapi) {
-        if (authapi.auth_code_id != 0)
-            location.href = '/rest/code?pid=' + authapi.auth_code_id;
+    $scope.gotoCode = function(schema) {
+        if (schema.code_id != 0)
+            location.href = '/rest/code?pid=' + schema.code_id;
         else {
             http2.get('/rest/code/create', function(rsp) {
                 var nv = {
-                    'auth_code_id': rsp.data.id
+                    'code_id': rsp.data.id
                 };
-                service.authapi.update(authapi, nv).then(function(rsp) {
-                    authapi.auth_code_id = nv.auth_code_id;
-                    location.href = '/rest/code?pid=' + nv.auth_code_id;
+                service.memberSchema.update(schema, nv).then(function(rsp) {
+                    schema.code_id = nv.code_id;
+                    location.href = '/rest/code?pid=' + nv.code_id;
                 });
             });
         }
     };
-    $scope.resetCode = function(authapi) {
-        if (authapi.auth_code_id === '0') {
+    $scope.resetCode = function(schema) {
+        if (schema.code_id === '0') {
             http2.get('/rest/code/create', function(rsp) {
                 var nv = {
-                    'auth_code_id': rsp.data.id
+                    'code_id': rsp.data.id
                 };
-                service.authapi.update(authapi, nv).then(function(rsp) {
-                    authapi.auth_code_id = nv.auth_code_id;
-                    location.href = '/rest/code?pid=' + nv.auth_code_id;
+                service.memberSchema.update(schema, nv).then(function(rsp) {
+                    schema.code_id = nv.code_id;
+                    location.href = '/rest/code?pid=' + nv.code_id;
                 });
             });
         } else {
             if (window.confirm('重置操作将覆盖已经做出的修改，确定重置？')) {
-                http2.get('/rest/mp/authapi/pageReset?codeId=' + authapi.auth_code_id, function(rsp) {
-                    location.href = '/rest/code?pid=' + authapi.auth_code_id;
+                http2.get('/rest/pl/fe/site/memberschema/pageReset?site=' + $scope.id + '&codeId=' + schema.code_id, function(rsp) {
+                    location.href = '/rest/code?pid=' + schema.code_id;
                 });
             }
         }
     };
-    $scope.import2QyRunning = false;
-    $scope.sync2QyRunning = false;
-    $scope.syncFromQyRunning = false;
-    $scope.import2Qy = function(authapi) {
-        var url = authapi.url + '/import2Qy';
-        url += '?mpid=' + $scope.mpaccount.mpid;
-        url += '&authid=' + authapi.authid;
-        var doImport = function(param) {
-            $scope.import2QyRunning = true;
-            var url2 = url;
-            param && (url2 += '&next=' + param.next);
-            param && param.step !== undefined && (url2 += '&step=' + param.step);
-            $http.get(url2).success(function(rsp) {
-                $scope.import2QyRunning = false;
-                if (angular.isString(rsp))
-                    $scope.$root.errmsg = rsp;
-                else if (rsp.err_code != 0)
-                    $scope.$root.errmsg = rsp.err_msg;
-                else if (rsp.data.param) {
-                    $scope.$root.progmsg = rsp.data.param.desc + (rsp.data.param.step ? '，剩余批次：' + rsp.data.param.left : '');
-                    if (rsp.data.param.next)
-                        doImport(rsp.data.param);
-                } else {
-                    if (rsp.data.warning !== undefined && rsp.data.warning.length)
-                        $scope.$root.errmsg = JSON.stringify(rsp.data.warning);
-                    else
-                        $scope.$root.progmsg = '同步操作完成';
-                }
+    service.memberSchema.get('N').then(function(schemas) {
+        angular.forEach(schemas, function(schema) {
+            shiftAttr(schema);
+            $scope.schemas.push(schema);
+        });
+        if ($scope.schemas.length === 0) {
+            $scope.schemas.push({
+                type: 'inner',
+                valid: 'N'
             });
-        };
-        doImport();
-    };
-    $scope.sync2Qy = function(authapi) {
-        var url = authapi.url + '/sync2Qy';
-        url += '?mpid=' + $scope.mpaccount.mpid;
-        url += '&authid=' + authapi.authid;
-        $scope.sync2QyRunning = true;
-        http2.get(url, function(rsp) {
-            if (rsp.err_code === 0) {
-                $scope.$root.progmsg = "完成";
-            }
-            $scope.sync2QyRunning = false;
-        }, {
-            autoBreak: false
-        });
-    };
-    $scope.syncFromQy = function(authapi) {
-        var url = authapi.url + '/syncFromQy';
-        url += '?mpid=' + $scope.mpaccount.mpid;
-        url += '&authid=' + authapi.authid;
-        $scope.syncFromQyRunning = true;
-        http2.get(url, function(rsp) {
-            if (rsp.err_code === 0) {
-                $scope.$root.progmsg = "同步" + rsp.data[0] + "个部门，" + rsp.data[1] + "个用户，" + rsp.data[2] + "个标签";
-            }
-            $scope.syncFromQyRunning = false;
-        }, {
-            autoBreak: false
-        });
-    };
-    service.mp.relayGet().then(function(data) {
-        $scope.relays = data;
-    });
-    service.mp.get().then(function(data) {
-        $scope.mpaccount = data;
-        service.authapi.get('N').then(function(data) {
-            var i, l, authapi;
-            angular.forEach(data, function(authapi) {
-                shiftAuthapiAttr(authapi);
-                if ($scope.mpaccount.mpid === authapi.mpid) {
-                    $scope.authapis.push(authapi);
-                } else {
-                    $scope.pAuthapis.push(authapi);
-                }
-            });
-            if ($scope.authapis.length === 0) {
-                $scope.authapis.push({
-                    type: 'inner',
-                    valid: 'N'
-                });
-            }
-        });
+        }
     });
 }]);
 app.controller('ctrlMatter', ['$scope', 'http2', function($scope, http2) {}]);

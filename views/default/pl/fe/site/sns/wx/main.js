@@ -41,8 +41,8 @@ app.config(['$locationProvider', '$controllerProvider', '$routeProvider', functi
 }]);
 app.controller('ctrlWx', ['$scope', '$location', 'http2', function($scope, $location, http2) {
     $scope.subView = '';
-    $scope.id = $location.search().id;
-    http2.get('/rest/pl/fe/site/sns/wx/get?id=' + $scope.id, function(rsp) {
+    $scope.siteId = $location.search().site;
+    http2.get('/rest/pl/fe/site/sns/wx/get?site=' + $scope.siteId, function(rsp) {
         $scope.wx = rsp.data;
     });
 }]);

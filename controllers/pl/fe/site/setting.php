@@ -10,7 +10,7 @@ class setting extends \pl\fe\base {
 	 *
 	 */
 	public function index_action() {
-		\TPL::output('/pl/fe/site/main');
+		\TPL::output('/pl/fe/site/setting');
 		exit;
 	}
 }

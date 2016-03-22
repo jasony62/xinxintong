@@ -21,4 +21,20 @@ class base extends \TMS_CONTROLLER {
 		// outputs image directly into browser, as PNG stream
 		\QRcode::png($url);
 	}
+	/**
+	 * 获得当前登录账号的用户信息
+	 */
+	protected function &accountUser() {
+		$account = \TMS_CLIENT::account();
+		if ($account) {
+			$user = new \stdClass;
+			$user->id = $account->uid;
+			$user->name = $account->nickname;
+			$user->src = 'A';
+
+		} else {
+			$user = false;
+		}
+		return $user;
+	}
 }

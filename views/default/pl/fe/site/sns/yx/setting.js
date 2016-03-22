@@ -2,11 +2,11 @@
 (function() {
 	app.provider.controller('ctrlSet', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
 		$scope.$parent.subView = 'setting';
-		$scope.url = 'http://' + location.host + '/rest/site/sns/yx/api?site=' + $scope.id;
+		$scope.url = 'http://' + location.host + '/rest/site/sns/yx/api?site=' + $scope.siteId;
 		$scope.update = function(name) {
 			var p = {};
 			p[name] = $scope.yx[name];
-			http2.post('/rest/pl/fe/site/sns/yx/update?id=' + $scope.id, p, function(rsp) {
+			http2.post('/rest/pl/fe/site/sns/yx/update?site=' + $scope.siteId, p, function(rsp) {
 				if (name === 'token') {
 					$scope.yx.joined = 'N';
 				}

@@ -54,7 +54,7 @@ class member extends \site\fe\base {
 		$params['attrs'] = $attrs;
 
 		/* 已填写的用户信息 */
-		if (isset($this->who->members)) {
+		if (isset($this->who->members) && isset($this->who->members->{$schema->id})) {
 			$params['member'] = $this->who->members->{$schema->id};
 		}
 

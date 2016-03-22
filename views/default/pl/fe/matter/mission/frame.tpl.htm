@@ -3,11 +3,11 @@
     <head>
         <meta charset="UTF-8">
         <base href="/"/>
-        <title>登记活动</title>
+        <title>项目</title>
         <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
         <link href="//libs.useso.com/js/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
-        <link href="/static/css/tms.css?_=2" rel="stylesheet">
-        <link href="/views/default/pl/fe/matter/enroll/frame.css?_=1" rel="stylesheet">
+        <link href="/static/css/tms.css?_=1" rel="stylesheet">
+        <link href="/views/default/pl/fe/matter/mission/frame.css?_=1" rel="stylesheet">
     </head>
     <body  ng-app='app' ng-controller='ctrlApp' ng-cloak class='ng-cloak'>
         <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
@@ -26,6 +26,16 @@
             </ul>
         </nav>
         <div class='container'>
+            <nav class="navbar navbar-default">
+                <ul class="nav navbar-nav">
+                    <li ng-class="{'active':subView==='setting'}">
+                        <a href="/rest/pl/fe/matter/mission/setting?id={{id}}&site={{siteId}}">项目设置</a>
+                    </li>
+                    <li ng-class="{'active':subView==='matter'}">
+                        <a href="/rest/pl/fe/matter/mission/matter?id={{id}}&&site={{siteId}}">素材管理</a>
+                    </li>
+                </ul>
+            </nav>
             <div class='row' ng-view></div>
         </div>
         <script src="/static/js/jquery.min.js"></script>
@@ -39,7 +49,6 @@
         <script src="/static/js/tinymce/tinymce.min.js"></script>
         <script src="/static/js/ui-tms.js?_=1"></script>
         <script src="/static/js/xxt.ui.js"></script>
-        <script src="/views/default/pl/fe/_module/channel.js?_1"></script>
-        <script src="/views/default/pl/fe/matter/enroll/frame.js?_1"></script>
+        <script src="/views/default/pl/fe/matter/mission/frame.js?_1"></script>
     </body>
 </html>

@@ -1,0 +1,20 @@
+<div id='viewMatter'>
+    <div class='form-inline form-group'>
+        <div class='form-group'>
+            <button class='btn btn-success' ng-click="createArticle()">添加图文</button>
+            <button class='btn btn-success' ng-click="createEnroll()">添加登记活动</button>
+        </div>
+    </div>
+    <div class='matters row'>
+        <div class='col-md-3' ng-repeat='m in matters'>
+            <div class='thumbnail' ng-click="open(m)">
+                <h4 class='title' ng-bind='m.title'></h4>
+                <p class='summary' ng-bind='m.summary'></p>
+                <div class='attr'>
+                    <div class='operator' ng-bind='m._operator'></div>
+                    <div class='operateAt' ng-bind="m._operateAt*1000|date:'yy-MM-dd'"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

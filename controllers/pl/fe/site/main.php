@@ -10,7 +10,7 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	public function index_action() {
-		\TPL::output('/pl/fe/site/main');
+		\TPL::output('/pl/fe/site/console');
 		exit;
 	}
 	/**
@@ -36,7 +36,7 @@ class main extends \pl\fe\base {
 	 * 只允许站点的创建者删除站点
 	 * 不实际删除站点，只是打标记
 	 */
-	public function remove_action($id) {
+	public function remove_action($site) {
 		$acnt = \TMS_CLIENT::account();
 		/**
 		 * 做标记
@@ -44,7 +44,7 @@ class main extends \pl\fe\base {
 		$rst = $this->model()->update(
 			'xxt_site',
 			array('state' => 0),
-			"id='$id' and creater='$acnt->uid'"
+			"id='$site' and creater='$acnt->uid'"
 		);
 
 		return new \ResponseData($rst);
@@ -52,8 +52,8 @@ class main extends \pl\fe\base {
 	/**
 	 *
 	 */
-	public function get_action($id) {
-		$site = $this->model('site')->byId($id);
+	public function get_action($site) {
+		$site = $this->model('site')->byId($site);
 
 		return new \ResponseData($site);
 	}
@@ -80,13 +80,13 @@ class main extends \pl\fe\base {
 	/**
 	 *
 	 */
-	public function update_action($id) {
+	public function update_action($site) {
 		$nv = $this->getPostJson();
 
 		$rst = $this->model()->update(
 			'xxt_site',
 			$nv,
-			"id='$id'"
+			"id='$site'"
 		);
 
 		return new \ResponseData($rst);
@@ -94,8 +94,8 @@ class main extends \pl\fe\base {
 	/**
 	 *
 	 */
-	public function pageCreate_action($id, $page, $template = 'basic') {
-		$site = $this->model('site')->byId($id);
+	public function pageCreate_action($site, $page, $template = 'basic') {
+		$site = $this->model('site')->byId($site);
 		$uid = \TMS_CLIENT::get_client_uid();
 
 		$data = $this->_makePage($site, $page, $template);
@@ -105,7 +105,7 @@ class main extends \pl\fe\base {
 		$rst = $this->model()->update(
 			'xxt_site',
 			array($page . '_page_id' => $code->id),
-			"id='$id'"
+			"id='{$site->id}'"
 		);
 
 		return new \ResponseData(array('id' => $code->id));
@@ -115,8 +115,8 @@ class main extends \pl\fe\base {
 	 *
 	 * @param int $codeId
 	 */
-	public function pageReset_action($id, $page, $template = 'basic') {
-		$site = $this->model('site')->byId($id);
+	public function pageReset_action($site, $page, $template = 'basic') {
+		$site = $this->model('site')->byId($site);
 
 		$data = $this->_makePage($site, $page, $template);
 

@@ -41,8 +41,8 @@ app.config(['$locationProvider', '$controllerProvider', '$routeProvider', functi
 }]);
 app.controller('ctrlYx', ['$scope', '$location', 'http2', function($scope, $location, http2) {
     $scope.subView = '';
-    $scope.id = $location.search().id;
-    http2.get('/rest/pl/fe/site/sns/yx/get?id=' + $scope.id, function(rsp) {
+    $scope.siteId = $location.search().site;
+    http2.get('/rest/pl/fe/site/sns/yx/get?site=' + $scope.siteId, function(rsp) {
         $scope.yx = rsp.data;
     });
 }]);

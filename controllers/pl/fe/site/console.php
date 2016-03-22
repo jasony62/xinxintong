@@ -10,13 +10,13 @@ class console extends \pl\fe\base {
 	 *
 	 */
 	public function index_action() {
-		\TPL::output('/pl/fe/site/main');
+		\TPL::output('/pl/fe/site/console');
 		exit;
 	}
 	/**
 	 * 列出站点最近操作的素材
 	 */
-	public function recent_action($id, $page = 1, $size = 30) {
+	public function recent_action($site, $page = 1, $size = 30) {
 		$modelLog = $this->model('log');
 
 		/*分页参数*/
@@ -28,7 +28,7 @@ class console extends \pl\fe\base {
 			'page' => $p,
 		);
 
-		$matters = $modelLog->recentMatters($id, $options);
+		$matters = $modelLog->recentMatters($site, $options);
 
 		return new \ResponseData($matters);
 	}

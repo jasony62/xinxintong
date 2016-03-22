@@ -41,8 +41,8 @@ app.config(['$locationProvider', '$controllerProvider', '$routeProvider', functi
 }]);
 app.controller('ctrlQy', ['$scope', '$location', 'http2', function($scope, $location, http2) {
     $scope.subView = '';
-    $scope.id = $location.search().id;
-    http2.get('/rest/pl/fe/site/sns/qy/get?id=' + $scope.id, function(rsp) {
+    $scope.siteId = $location.search().site;
+    http2.get('/rest/pl/fe/site/sns/qy/get?site=' + $scope.siteId, function(rsp) {
         $scope.qy = rsp.data;
     });
 }]);

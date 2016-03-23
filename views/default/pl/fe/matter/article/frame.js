@@ -12,8 +12,8 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 app.controller('ctrlArticle', ['$scope', '$location', 'http2', function($scope, $location, http2) {
 	var ls = $location.search();
 	$scope.id = ls.id;
-	$scope.siteid = ls.site;
-	http2.get('/rest/mp/matter/article/get?id=' + $scope.id, function(rsp) {
+	$scope.siteId = ls.site;
+	http2.get('/rest/pl/fe/matter/article/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
 		$scope.editing = rsp.data;
 		$scope.entryUrl = 'http://' + location.host + '/rest/mi/matter?mpid=' + ls.site + '&id=' + ls.id + '&type=article';
 		$scope.entryUrl += '&tpl=' + ($scope.editing.custom_body === 'N' ? 'std' : 'cus');

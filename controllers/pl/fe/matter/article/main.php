@@ -1,7 +1,7 @@
 <?php
-namespace pl\fe\matter;
+namespace pl\fe\matter\article;
 
-require_once dirname(__FILE__) . '/base.php';
+require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
  *
  */
@@ -78,7 +78,7 @@ class resumableAliOss {
 /*
  * 文章控制器
  */
-class article extends base {
+class main extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
@@ -279,15 +279,13 @@ class article extends base {
 	 *
 	 * @param int $id article's id
 	 */
-	public function get_action($id, $cascade = 'Y') {
-		$uid = \TMS_CLIENT::get_client_uid();
-
-		$pmpid = $this->getParentMpid();
+	public function get_action($site, $id, $cascade = 'Y') {
+		$user = $this->accountUser();
 
 		$q = array(
-			"a.*,'$uid' uid",
+			"a.*,'{$user->id}' uid",
 			'xxt_article a',
-			"(a.mpid='$this->mpid' or a.mpid='$pmpid') and a.state=1 and a.id=$id",
+			"a.siteid='$site' and a.state=1 and a.id=$id",
 		);
 		if (($article = $this->model()->query_obj_ss($q)) && $cascade === 'Y') {
 			/**
@@ -303,14 +301,13 @@ class article extends base {
 			/**
 			 * acl
 			 */
-			$article->acl = $this->model('acl')->byMatter($this->mpid, 'article', $id);
+			$article->acl = $this->model('acl')->byMatter($site, 'article', $id);
 			/**
 			 * attachments
 			 */
 			if ($article->has_attachment === 'Y') {
 				$article->attachments = $this->model()->query_objs_ss(array('*', 'xxt_article_attachment', "article_id='$id'"));
 			}
-
 		}
 
 		return new \ResponseData($article);
@@ -348,14 +345,13 @@ class article extends base {
 	/**
 	 * 创建新图文
 	 */
-	public function create_action() {
-		/*用户*/
+	public function create_action($site) {
 		$user = $this->accountUser();
-		$mpa = $this->model('mp\mpaccount')->getFeature($this->mpid, 'heading_pic');
+		$site = $this->model('site')->byId($site, 'heading_pic');
 		$current = time();
 
 		$article = array();
-		$article['mpid'] = $this->mpid;
+		$article['siteid'] = $site->id;
 		$article['creater'] = $user->id;
 		$article['creater_src'] = 'A';
 		$article['creater_name'] = $user->name;
@@ -366,17 +362,18 @@ class article extends base {
 		$article['modify_at'] = $current;
 		$article['title'] = '新单图文';
 		$article['author'] = $user->name;
-		$article['pic'] = $mpa->heading_pic; //使用账号缺省头图
+		$article['pic'] = $site->heading_pic; //使用账号缺省头图
 		$article['hide_pic'] = 'N';
 		$article['summary'] = '';
 		$article['url'] = '';
 		$article['body'] = '';
 		$id = $this->model()->insert('xxt_article', $article, true);
-		/*记录操作日志*/
+
+		/* 记录操作日志 */
 		$matter = (object) $article;
 		$matter->id = $id;
 		$matter->type = 'article';
-		$this->model('log')->matterOp($this->mpid, $user, $matter, 'C');
+		$this->model('log')->matterOp($site->id, $user, $matter, 'C');
 
 		return new \ResponseData($id);
 	}

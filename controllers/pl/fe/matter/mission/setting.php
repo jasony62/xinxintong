@@ -7,13 +7,6 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class setting extends \pl\fe\matter\base {
 	/**
-	 * 返回视图
-	 */
-	public function index_action() {
-		\TPL::output('/pl/fe/matter/mission/frame');
-		exit;
-	}
-	/**
 	 * 更新任务设置
 	 */
 	public function update_action($site, $id) {

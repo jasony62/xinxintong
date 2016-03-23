@@ -5,6 +5,7 @@ require_once '../db.php';
  */
 $sql = "create table if not exists xxt_article(";
 $sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
 $sql .= ",mpid varchar(32) not null";
 $sql .= ",entry text"; // 创建图文的入口，管理端，投稿活动等
 $sql .= ",target_mps text"; // 发布到哪个子账号

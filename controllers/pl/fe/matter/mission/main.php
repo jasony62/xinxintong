@@ -10,7 +10,7 @@ class main extends \pl\fe\matter\base {
 	 * 返回视图
 	 */
 	public function index_action() {
-		\TPL::output('/pl/fe/matter/mission/frame');
+		\TPL::output('/pl/fe/matter/mission/main');
 		exit;
 	}
 	/**

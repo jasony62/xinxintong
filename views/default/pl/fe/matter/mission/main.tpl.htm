@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <base href="/"/>
+        <title>项目</title>
+        <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link href="//libs.useso.com/js/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
+        <link href="/static/css/tms.css?_=1" rel="stylesheet">
+        <link href="/views/default/pl/fe/matter/mission/main.css?_=1" rel="stylesheet">
+    </head>
+    <body  ng-app='app' ng-controller='ctrlApp' ng-cloak class='ng-cloak'>
+        <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
+        <nav class='navbar navbar-inverse'>
+            <ul class='nav navbar-nav site'>
+                <li>
+                    <a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>工作台</a>
+                </li>
+                <li>
+                    <a href='/rest/pl/fe/site/setting?site={{siteId}}' target='_self'>站点设置</a>
+                </li>
+            </ul>
+            <ul class='nav navbar-nav navbar-right' style='margin-right:0'>
+                <li><a href='/rest/pl/fe/user/settings' target='_self'>设置</a></li>
+                <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+            </ul>
+        </nav>
+        <div class='container'>
+            <div id='viewSetting' ng-controller="ctrlSetting">
+                <div class='attrs'>
+                    <div class='form-group'>
+                        <label>项目名称</label>
+                        <div>
+                            <input type="text" class="form-control" ng-model='editing.title' ng-change="update('title')">
+                            <div class='help-block'>最多35个汉字，70个英文字符</div>
+                        </div>
+                    </div>
+                    <div class='form-group'>
+                        <label>摘要</label>
+                        <div>
+                            <textarea class='form-control' ng-model='editing.summary' ng-change="update('summary');" rows='3'></textarea>
+                            <p class='help-block'>最多120个汉字，240个英文字符</p>
+                        </div>
+                    </div>
+                    <div class='form-group'>
+                        <label>头图</label>
+                        <div style="width:182px;border:1px solid #CCC">
+                            <div style="height:100px;text-align:center;padding-top:32px" ng-if="!editing.pic">
+                                <button class='btn btn-default' ng-click='setPic();'>
+                                <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                            </div>
+                            <div style='position:relative' ng-if="editing.pic" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                                <img name='pic' ng-src='{{editing.pic}}' width='180px' />
+                                <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                                <span class='glyphicon glyphicon-picture'></span>
+                                </button>
+                                <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                                <span class='glyphicon glyphicon-trash'></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <nav class="navbar navbar-default">
+                    <div class="navbar-form">
+                        <button class='btn' ng-click="submit()" ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'">保存</button>
+                    </div>
+                </nav>
+            </div>
+            <div id='viewMatter' ng-controller="ctrlMatter">
+                <div class='matters'>
+                    <div class='col-md-3' ng-repeat='m in matters'>
+                        <div class='thumbnail' ng-click="open(m)">
+                            <h4 class='title' ng-bind='m.title'></h4>
+                            <p class='summary' ng-bind='m.summary'></p>
+                            <div class='attr'>
+                                <div class='operator' ng-bind='m._operator'></div>
+                                <div class='operateAt' ng-bind="m._operateAt*1000|date:'yy-MM-dd'"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <nav class="navbar navbar-default">
+                    <div class="navbar-form">
+                        <button class='btn btn-success' ng-click="createArticle()">添加图文</button>
+                        <button class='btn btn-success' ng-click="createEnroll()">添加登记活动</button>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        <script src="/static/js/jquery.min.js"></script>
+        <script src="/static/js/jquery-ui.min.js"></script>
+        <script src="/static/js/bootstrap.min.js"></script>
+        <script src="/static/js/angular.min.js"></script>
+        <script src="/static/js/angular-route.min.js"></script>
+        <script src="/static/js/angular-sanitize.min.js"></script>
+        <script src="/static/js/ui-bootstrap.min.js"></script>
+        <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+        <script src="/static/js/tinymce/tinymce.min.js"></script>
+        <script src="/static/js/ui-tms.js?_=1"></script>
+        <script src="/static/js/xxt.ui.js"></script>
+        <script src="/views/default/pl/fe/matter/mission/main.js?_1"></script>
+    </body>
+</html>

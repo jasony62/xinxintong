@@ -19,20 +19,20 @@ app.controller('ctrlConsole', ['$scope', 'http2', function($scope, http2) {
         }
     };
     $scope.addArticle = function() {
-        http2.get('/rest/mp/matter/article/create?mpid=' + $scope.id, function(rsp) {
-            location.href = '/rest/mp/matter/article?id=' + rsp.data;
+        http2.get('/rest/pl/fe/matter/article/create?site=' + $scope.siteId, function(rsp) {
+            location.href = '/rest/pl/fe/matter/article?site=' + $scope.siteId + '&id=' + rsp.data;
         });
     };
     $scope.addEnroll = function() {
         var url;
-        url = '/rest/mp/app/enroll/create?mpid=' + $scope.id;
+        url = '/rest/pl/fe/matter/enroll/create?site=' + $scope.siteId;
         http2.post(url, {}, function(rsp) {
-            location.href = '/rest/mp/app/enroll/detail?aid=' + rsp.data.id;
+            location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
     $scope.addTask = function() {
-        http2.get('/rest/mp/mission/create?mpid=' + $scope.id, function(rsp) {
-            location.href = '/rest/mp/mission/setting?id=' + rsp.data.id;
+        http2.get('/rest/mp/mission/create?site=' + $scope.siteId, function(rsp) {
+            location.href = '/rest/pl/fe/matter/mission??site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
     http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId, function(rsp) {

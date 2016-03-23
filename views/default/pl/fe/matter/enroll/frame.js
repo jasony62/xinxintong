@@ -157,7 +157,7 @@ app.controller('ctrlApp', ['$scope', '$location', 'http2', function($scope, $loc
 	$scope.siteid = ls.site;
 	$scope.modified = false;
 	$scope.submit = function() {
-		http2.post('/rest/mp/app/enroll/update?aid=' + $scope.id, modifiedData, function(rsp) {
+		http2.post('/rest/pl/fe/matter/enroll/update?id=' + $scope.id, modifiedData, function(rsp) {
 			$scope.modified = false;
 			modifiedData = {};
 		});
@@ -172,7 +172,7 @@ app.controller('ctrlApp', ['$scope', '$location', 'http2', function($scope, $loc
 		}
 		$scope.modified = true;
 	};
-	http2.get('/rest/mp/app/enroll/get?aid=' + $scope.id + '&mpid=' + $scope.siteid, function(rsp) {
+	http2.get('/rest/pl/fe/matter/enroll/get?site=' + $scope.siteid + '&id=' + $scope.id, function(rsp) {
 		var app;
 		app = rsp.data;
 		app.tags = (!app.tags || app.tags.length === 0) ? [] : app.tags.split(',');

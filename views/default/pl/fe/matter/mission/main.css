@@ -13,4 +13,5 @@ body{background:#f8f8f8;position:relative;overflow:hidden;display:flex;flex-dire
 
 /*matter*/
 #viewMatter .matters{flex:1.0;overflow-y:auto;overflow-x:hidden;}
+#viewMatter .thumbnail{cursor:pointer;}
 #viewMatter .navbar{margin-bottom:0;}

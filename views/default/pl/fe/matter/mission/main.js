@@ -80,8 +80,8 @@ app.controller('ctrlMatter', ['$scope', 'http2', function($scope, http2) {
 	$scope.open = function(matter) {
 		if (matter.type === 'article') {
 			location.href = '/rest/pl/fe/matter/article?site=' + $scope.siteId + '&id=' + matter.id;
-		} else if (matter.matter_type === 'enroll') {
-			location.href = '/rest/pl/fe/matter／enroll?site=' + $scope.siteId + '&id=' + matter.id;
+		} else if (matter.type === 'enroll') {
+			location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + matter.id;
 		}
 	};
 	$scope.fetch = function() {

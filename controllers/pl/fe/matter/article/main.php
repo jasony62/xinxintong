@@ -347,7 +347,7 @@ class main extends \pl\fe\matter\base {
 	 */
 	public function create_action($site) {
 		$user = $this->accountUser();
-		$site = $this->model('site')->byId($site, 'heading_pic');
+		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
 		$current = time();
 
 		$article = array();
@@ -381,14 +381,14 @@ class main extends \pl\fe\matter\base {
 	 *
 	 * @param int $id mission'is
 	 */
-	public function createByMission_action($id) {
+	public function createByMission_action($site, $id) {
 		$modelMis = $this->model('mission');
 		$mission = $modelMis->byId($id);
 		$user = $this->accountUser();
 		$current = time();
 
 		$article = array();
-		$article['mpid'] = $this->mpid;
+		$article['siteid'] = $site;
 		$article['creater'] = $user->id;
 		$article['creater_src'] = 'A';
 		$article['creater_name'] = $user->name;
@@ -405,13 +405,13 @@ class main extends \pl\fe\matter\base {
 		$article['url'] = '';
 		$article['body'] = '';
 		$articleId = $this->model()->insert('xxt_article', $article, true);
-		/*记录操作日志*/
+		/* 记录操作日志 */
 		$matter = (object) $article;
 		$matter->id = $articleId;
 		$matter->type = 'article';
-		$this->model('log')->matterOp($this->mpid, $user, $matter, 'C');
-		/*记录和任务的关系*/
-		$modelMis->addMatter($user, $this->mpid, $id, $matter);
+		$this->model('log')->matterOp($site, $user, $matter, 'C');
+		/* 记录和任务的关系 */
+		$modelMis->addMatter($user, $site, $id, $matter);
 
 		return new \ResponseData($matter);
 	}
@@ -421,15 +421,16 @@ class main extends \pl\fe\matter\base {
 	 * $id article's id
 	 * $nv pair of name and value
 	 */
-	public function update_action($id) {
+	public function update_action($site, $id) {
+		$model = $this->model();
+
 		$nv = (array) $this->getPostJson();
+		isset($nv['title']) && $nv['title'] = $model->escape($nv['title']);
+		isset($nv['summary']) && $nv['summary'] = $model->escape($nv['summary']);
+		isset($nv['author']) && $nv['author'] = $model->escape($nv['author']);
+		isset($nv['body']) && $nv['body'] = $model->escape(urldecode($nv['body']));
 
-		isset($nv['title']) && $nv['title'] = $this->model()->escape($nv['title']);
-		isset($nv['summary']) && $nv['summary'] = $this->model()->escape($nv['summary']);
-		isset($nv['author']) && $nv['author'] = $this->model()->escape($nv['author']);
-		isset($nv['body']) && $nv['body'] = $this->model()->escape(urldecode($nv['body']));
-
-		$rst = $this->_update($id, $nv);
+		$rst = $this->_update($site, $id, $nv);
 
 		return new \ResponseData($rst);
 	}
@@ -803,10 +804,9 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 更新图文信息并记录操作日志
 	 */
-	private function _update($id, $nv) {
+	private function _update($siteId, $id, $nv) {
 		$user = $this->accountUser();
 		$current = time();
-		$pmpid = $this->getParentMpid();
 
 		$nv['modifier'] = $user->id;
 		$nv['modifier_src'] = $user->src;
@@ -816,12 +816,12 @@ class main extends \pl\fe\matter\base {
 		$rst = $this->model()->update(
 			'xxt_article',
 			$nv,
-			"(mpid='$this->mpid' or mpid='$pmpid') and id='$id'"
+			"siteid='$siteId' and id='$id'"
 		);
 		/*记录操作日志*/
 		$article = $this->model('matter\\' . 'article')->byId($id, 'id,title,summary,pic');
 		$article->type = 'article';
-		$rst = $this->model('log')->matterOp($this->mpid, $user, $article, 'U');
+		$this->model('log')->matterOp($siteId, $user, $article, 'U');
 
 		return $rst;
 	}

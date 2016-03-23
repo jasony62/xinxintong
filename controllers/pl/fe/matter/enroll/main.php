@@ -135,7 +135,7 @@ class main extends \pl\fe\matter\base {
 	public function create_action($site, $scenario = null, $template = null) {
 		$user = $this->accountUser();
 		$current = time();
-		$site = $this->model('site')->byId($site, 'heading_pic');
+		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
 
 		$newapp = array();
 		$id = uniqid();
@@ -179,6 +179,82 @@ class main extends \pl\fe\matter\base {
 		$this->model('log')->matterOp($site->id, $user, $app, 'C');
 
 		return new \ResponseData($app);
+	}
+	/**
+	 *
+	 * @param int $id mission'is
+	 */
+	public function createByMission_action($site, $id) {
+		$modelMis = $this->model('mission');
+		$mission = $modelMis->byId($id);
+		$user = $this->accountUser();
+		$current = time();
+
+		/*create app*/
+		$aid = uniqid();
+		$entryRule = $this->_addBlankPage($site, $aid);
+		$newapp['siteid'] = $site;
+		$newapp['id'] = $aid;
+		$newapp['title'] = '新登记活动';
+		$newapp['pic'] = $mission->pic;
+		$newapp['creater'] = $user->id;
+		$newapp['creater_src'] = $user->src;
+		$newapp['creater_name'] = $user->name;
+		$newapp['create_at'] = $current;
+		$newapp['modifier'] = $user->id;
+		$newapp['modifier_src'] = $user->src;
+		$newapp['modifier_name'] = $user->name;
+		$newapp['modify_at'] = $current;
+		$newapp['entry_rule'] = json_encode($entryRule);
+		$newapp['summary'] = $mission->summary;
+		$this->model()->insert('xxt_enroll', $newapp, false);
+
+		$matter = $this->model('app\enroll')->byId($aid);
+		/*记录操作日志*/
+		$matter->type = 'enroll';
+		$this->model('log')->matterOp($site, $user, $matter, 'C');
+		/*记录和任务的关系*/
+		$modelMis->addMatter($user, $site, $id, $matter);
+
+		return new \ResponseData($matter);
+	}
+	/**
+	 * 更新活动的属性信息
+	 *
+	 * @param string $aid
+	 *
+	 */
+	public function update_action($site, $id) {
+		$model = $this->model();
+		$user = $this->accountUser();
+		if (false === $user) {
+			return new \ResponseTimeout();
+		}
+		/**
+		 * 处理数据
+		 */
+		$nv = (array) $this->getPostJson();
+		foreach ($nv as $n => $v) {
+			if (in_array($n, array('entry_rule'))) {
+				$nv[$n] = $model->escape(urldecode($v));
+			} else if (in_array($n, array('data_schemas'))) {
+				$nv[$n] = $model->toJson($v);
+			}
+		}
+		$nv['modifier'] = $user->id;
+		$nv['modifier_src'] = $user->src;
+		$nv['modifier_name'] = $user->name;
+		$nv['modify_at'] = time();
+
+		$rst = $model->update('xxt_enroll', $nv, "id='$id'");
+		/*记录操作日志*/
+		if ($rst) {
+			$app = $this->model('matter\\' . 'enroll')->byId($id, 'id,title,summary,pic');
+			$app->type = 'enroll';
+			$this->model('log')->matterOp($site, $user, $app, 'U');
+		}
+
+		return new \ResponseData($rst);
 	}
 	/**
 	 * 添加空页面

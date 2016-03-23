@@ -27,7 +27,8 @@ class mp_controller extends \xxt_base {
 		if (isset($_GET['mpid']) && ($mpid = $_GET['mpid'])) {
 			$_SESSION['mpid'] = $mpid;
 		} else if (!isset($_SESSION['mpid']) || !($mpid = $_SESSION['mpid'])) {
-			$this->redirect('');
+			header('HTTP/1.0 500 parameter error:mpid is empty.');
+			die('参数不完整');
 		}
 		$this->mpid = $mpid;
 		/**

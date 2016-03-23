@@ -1,6 +1,6 @@
 app = angular.module('app', ['ngRoute', 'ui.tms', 'matters.xxt', 'channel.fe.pl']);
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
-	$routeProvider.when('/rest/mp/matter/article/setting', {
+	$routeProvider.when('/rest/pl/fe/matter/article', {
 		templateUrl: '/views/default/pl/fe/matter/article/setting.html?_=1',
 		controller: 'ctrlSetting',
 	}).otherwise({
@@ -51,7 +51,7 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', 'mediagaller
 		modifiedData['body'] = encodeURIComponent($scope.editing['body']);
 	};
 	$scope.submit = function() {
-		http2.post('/rest/mp/matter/article/update?id=' + $scope.id, modifiedData, function() {
+		http2.post('/rest/pl/fe/matter/article/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData, function() {
 			modifiedData = {};
 			$scope.modified = false;
 		});

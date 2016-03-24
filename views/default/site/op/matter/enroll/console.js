@@ -1,0 +1,44 @@
+'use strict';
+define(["require", "angular", "util.site"], function(require, angular) {
+    var app = angular.module('app', ['util.site.tms']);
+    app.config(['$controllerProvider', function($cp) {
+        app.provider = {
+            controller: $cp.register
+        };
+    }]);
+    app.controller('ctrl', ['$scope', '$http', 'PageLoader', 'PageUrl', function($scope, $http, PageLoader, PageUrl) {
+        var PU = PageUrl.ins('/rest/site/op/matter/enroll', ['site', 'app']);
+        $http.get(PU.j('pageGet', 'site', 'app')).success(function(rsp) {
+            if (rsp.err_code !== 0) {
+                $scope.errmsg = rsp.err_msg;
+                return;
+            }
+            PageLoader.render($scope, rsp.data).then(function() {
+                $scope.Page = rsp.data;
+            })
+            $timeout(function() {
+                $scope.$broadcast('xxt.app.enroll.ready');
+            });
+            window.loading.finish();
+        }).error(function(content, httpCode) {
+            $scope.errmsg = content;
+        });
+    }]);
+    app.directive('dynamicHtml', function($compile) {
+        return {
+            restrict: 'EA',
+            replace: true,
+            link: function(scope, ele, attrs) {
+                scope.$watch(attrs.dynamicHtml, function(html) {
+                    if (html && html.length) {
+                        ele.html(html);
+                        $compile(ele.contents())(scope);
+                    }
+                });
+            }
+        };
+    });
+    require(['domReady!'], function(document) {
+        angular.bootstrap(document, ["app"]);
+    });
+});

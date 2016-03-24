@@ -21,7 +21,7 @@ window.loading = {
 					exports: "xxt-share"
 				},
 			},
-			deps: ['/views/default/site/fe/matter/custom.js?_=1'],
+			deps: ['/views/default/site/fe/matter/article/custom.js?_=1'],
 			urlArgs: "bust=" + (new Date()).getTime()
 		});
 	}

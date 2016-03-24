@@ -26,11 +26,11 @@ class main extends \site\fe\base {
 			$article = $modelArticle->byId($id, 'title');
 			if (isset($_GET['tpl']) && $_GET['tpl'] === 'cus') {
 				\TPL::assign('title', $article->title);
-				\TPL::output('site/fe/matter/custom');
+				\TPL::output('site/fe/matter/article/custom');
 				exit;
 			} else {
 				\TPL::assign('title', $article->title);
-				\TPL::output('site/fe/matter/article');
+				\TPL::output('site/fe/matter/article/main');
 				exit;
 			}
 		}

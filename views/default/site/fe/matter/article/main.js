@@ -108,7 +108,7 @@ define(["require", "angular"], function(require, angular) {
                 $scope.mpa = mpa;
                 /MicroMessenge|Yixin/i.test(navigator.userAgent) && require(['xxt-share'], setMpShare);
                 $scope.article.can_picviewer === 'Y' && require(['picviewer']);
-                loadCss('/views/default/site/fe/matter/article.css');
+                loadCss('/views/default/site/fe/matter/article/main.css');
                 deferred.resolve();
                 $http.post('/rest/mi/matter/logAccess?mpid=' + mpid + '&id=' + id + '&type=article&title=' + $scope.article.title + '&shareby=' + shareby, {
                     search: location.search.replace('?', ''),

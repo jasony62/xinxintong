@@ -23,7 +23,7 @@ window.loading = {
 					deps: ['hammer']
 				}
 			},
-			deps: ['/views/default/site/fe/matter/article.js?_=1'],
+			deps: ['/views/default/site/fe/matter/article/main.js?_=1'],
 			urlArgs: "bust=" + (new Date()).getTime()
 		});
 	}

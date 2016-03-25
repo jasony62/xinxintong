@@ -44,6 +44,12 @@ class record_model extends \TMS_MODEL {
 	 * [2] 数据项的定义
 	 */
 	public function find($mpid, $aid, $options = null) {
+		$modelApp = $this->M('app\enroll');
+		/* 获得活动的定义 */
+		$app = $modelApp->byId($aid);
+		if ($app === false) {
+			return false;
+		}
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$creater = isset($options->creater) ? $options->creater : null;
@@ -67,9 +73,6 @@ class record_model extends \TMS_MODEL {
 			$kw = isset($options->kw) ? $options->kw : null;
 			$by = isset($options->by) ? $options->by : null;
 		}
-		$modelApp = $this->M('app\enroll');
-		/* 获得活动的定义 */
-		$app = $modelApp->byId($aid);
 		$result = new \stdClass; // 返回的结果
 		$result->total = 0;
 		/* 获得数据项定义 */

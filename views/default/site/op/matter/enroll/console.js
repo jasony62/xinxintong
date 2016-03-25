@@ -6,8 +6,17 @@ define(["require", "angular", "util.site"], function(require, angular) {
             controller: $cp.register
         };
     }]);
-    app.controller('ctrl', ['$scope', '$http', 'PageLoader', 'PageUrl', function($scope, $http, PageLoader, PageUrl) {
+    app.controller('ctrl', ['$scope', '$http', '$timeout', 'PageLoader', 'PageUrl', function($scope, $http, $timeout, PageLoader, PageUrl) {
         var PU = PageUrl.ins('/rest/site/op/matter/enroll', ['site', 'app']);
+        $scope.getRecords = function() {
+            $http.get(PU.j('record/list', 'site', 'app')).success(function(rsp) {
+                if (rsp.err_code !== 0) {
+                    $scope.errmsg = rsp.err_msg;
+                    return;
+                }
+                $scope.records = rsp.data.records;
+            });
+        };
         $http.get(PU.j('pageGet', 'site', 'app')).success(function(rsp) {
             if (rsp.err_code !== 0) {
                 $scope.errmsg = rsp.err_msg;
@@ -19,6 +28,7 @@ define(["require", "angular", "util.site"], function(require, angular) {
             $timeout(function() {
                 $scope.$broadcast('xxt.app.enroll.ready');
             });
+            $scope.getRecords();
             window.loading.finish();
         }).error(function(content, httpCode) {
             $scope.errmsg = content;

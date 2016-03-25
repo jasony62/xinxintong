@@ -50,11 +50,11 @@ define(["require", "angular"], function(require, angular) {
 		}
 	}]);
 	module.factory('PageUrl', [function() {
-		var PU, _params;
+		var PU;
 		PU = function(baseUrl, fields) {
 			this.baseUrl = baseUrl;
 			this.fields = fields;
-			_params = (function extract() {
+			this.params = (function extract() {
 				var ls, search;
 				ls = location.search;
 				search = {};
@@ -74,7 +74,7 @@ define(["require", "angular"], function(require, angular) {
 				search = [];
 			method && method.length && (url += '/' + method);
 			for (; i < l; i++) {
-				search.push(arguments[i] + '=' + _params[arguments[i]]);
+				search.push(arguments[i] + '=' + this.params[arguments[i]]);
 			};
 			search.length && (url += '?' + search.join('&'));
 			return url;

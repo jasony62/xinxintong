@@ -1,58 +1,73 @@
-<div>enroll operator's console</div>
-<div id='records'>
-	<table class='table table-bordered'>
-		<thead>
-			<tr>
-				<th style='width:40px'>
-					<input type='checkbox' ng-model="selectAll">
-				</th>
-				<th style='width:100px'>登记时间</th>
-				<th style='width:100px'>昵称</th>
-				<th class='custom-col' ng-repeat="c in schema" title="{{c.ops}}">{{c.title}}</th>
-				<th style='width:100px' ng-if="editing.can_signin==='Y'">最近签到时间</th>
-				<th style='width:80px' ng-if="editing.can_signin==='Y'">签到次数</th>
-				<th style='width:140px'>标签</th>
-				<th style='width:60px' ng-if="editing.can_invite==='Y'">邀请</th>
-				<th style='width:60px' ng-if="editing.can_like_record==='Y'">点赞</th>
-				<th style='width:60px' ng-if="editing.can_remark_record==='Y'">评论</th>
-				<th style='width:72px'>操作</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr ng-repeat='r in records' class='record'>
-				<td>
-					<input type='checkbox' ng-model='selected[$index]'>
-				</td>
-				<td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
-				<td ng-if="r.openid">
-					<a href='javascript:void(0)' userpopover xxt-fid='{{r.fid}}' ng-click='viewUser(r)'>{{r.nickname||r.openid}}</a>
-				</td>
-				<td ng-if="!r.openid"><span>{{r.vid}}</span></td>
-				<td ng-repeat="c in schema">
-					<span ng-if="c.id.indexOf('member')===0">{{memberAttr(r.data, c.id)}}</span>
-					<span ng-if="c.type!=='img'&&c.type!=='file'">{{value2Label(r.data[c.id], c.id)}}</span>
-					<span ng-if="c.type==='img'" ng-init="imgs=r.data[c.id].split(',')">
-						<img ng-repeat="img in imgs" ng-src='{{img}}' />
-					</span>
-					<span ng-if="c.type==='file'" ng-init="files=json2Obj(r.data[c.id])">
-						<span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
-					</span>
-				</td>
-				<td ng-if="editing.can_signin==='Y'">{{r.signin_at>0 ? ((r.signin_at*1000)|date:'MM-dd HH:mm') : ''}}</td>
-				<td ng-if="editing.can_signin==='Y'">{{r.signinLogs.length}}</td>
-				<td>{{r.tags}}</td>
-				<td ng-if="editing.can_invite==='Y'">{{r.follower_num}}</td>
-				<td ng-if="editing.can_like_record==='Y'">{{r.score}}</td>
-				<td ng-if="editing.can_remark_record==='Y'">{{r.remark_num}}</td>
-				<td>
-					<button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
-					<span class='glyphicon glyphicon-remove'></span>
-					</button>
-					<button class='btn btn-xs btn-default' ng-click='editRecord(r)'>
-					<span class='glyphicon glyphicon-edit'></span>
-					</button>
-				</td>
-			</tr>
-		</tbody>
-	</table>
+<div class='container-fluid'>
+	<div class='row'>
+		<div id='actions' class='col-md-2'>
+			<div class='form-group'>
+				<label>URL</label>
+				<div class='form-control' ng-bind='entryURL' style='height:auto;word-break:break-all;'></div>
+			</div>
+			<div class='form-group'>
+				<label>登记二维码</label>
+				<div class='form-control' style='height:auto;'>
+					<img ng-src="{{entryQrcode}}">
+				</div>
+			</div>
+		</div>
+		<div id='records' class='col-md-10'>
+			<table class='table table-bordered'>
+				<thead>
+					<tr>
+						<th style='width:40px'>
+							<input type='checkbox' ng-model="selectAll">
+						</th>
+						<th style='width:100px'>登记时间</th>
+						<th style='width:100px'>昵称</th>
+						<th class='custom-col' ng-repeat="c in schema" title="{{c.ops}}">{{c.title}}</th>
+						<th style='width:100px' ng-if="editing.can_signin==='Y'">最近签到时间</th>
+						<th style='width:80px' ng-if="editing.can_signin==='Y'">签到次数</th>
+						<th style='width:140px'>标签</th>
+						<th style='width:60px' ng-if="editing.can_invite==='Y'">邀请</th>
+						<th style='width:60px' ng-if="editing.can_like_record==='Y'">点赞</th>
+						<th style='width:60px' ng-if="editing.can_remark_record==='Y'">评论</th>
+						<th style='width:72px'>操作</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat='r in records' class='record'>
+						<td>
+							<input type='checkbox' ng-model='selected[$index]'>
+						</td>
+						<td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
+						<td ng-if="r.openid">
+							<a href='javascript:void(0)' userpopover xxt-fid='{{r.fid}}' ng-click='viewUser(r)'>{{r.nickname||r.openid}}</a>
+						</td>
+						<td ng-if="!r.openid"><span>{{r.vid}}</span></td>
+						<td ng-repeat="c in schema">
+							<span ng-if="c.id.indexOf('member')===0">{{memberAttr(r.data, c.id)}}</span>
+							<span ng-if="c.type!=='img'&&c.type!=='file'">{{value2Label(r.data[c.id], c.id)}}</span>
+							<span ng-if="c.type==='img'" ng-init="imgs=r.data[c.id].split(',')">
+								<img ng-repeat="img in imgs" ng-src='{{img}}' />
+							</span>
+							<span ng-if="c.type==='file'" ng-init="files=json2Obj(r.data[c.id])">
+								<span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+							</span>
+						</td>
+						<td ng-if="editing.can_signin==='Y'">{{r.signin_at>0 ? ((r.signin_at*1000)|date:'MM-dd HH:mm') : ''}}</td>
+						<td ng-if="editing.can_signin==='Y'">{{r.signinLogs.length}}</td>
+						<td>{{r.tags}}</td>
+						<td ng-if="editing.can_invite==='Y'">{{r.follower_num}}</td>
+						<td ng-if="editing.can_like_record==='Y'">{{r.score}}</td>
+						<td ng-if="editing.can_remark_record==='Y'">{{r.remark_num}}</td>
+						<td>
+							<button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
+							<span class='glyphicon glyphicon-remove'></span>
+							</button>
+							<button class='btn btn-xs btn-default' ng-click='editRecord(r)'>
+							<span class='glyphicon glyphicon-edit'></span>
+							</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
 </div>

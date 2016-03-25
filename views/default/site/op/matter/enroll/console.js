@@ -17,6 +17,8 @@ define(["require", "angular", "util.site"], function(require, angular) {
                 $scope.records = rsp.data.records;
             });
         };
+        $scope.entryURL = 'http://' + location.host + '/rest/site/fe/matter/enroll?site=' + PU.params.site + '&app=' + PU.params.app;
+        $scope.entryQrcode = '/rest/pl/fe/matter/enroll/qrcode?url=' + encodeURIComponent($scope.entryURL);
         $http.get(PU.j('pageGet', 'site', 'app')).success(function(rsp) {
             if (rsp.err_code !== 0) {
                 $scope.errmsg = rsp.err_msg;

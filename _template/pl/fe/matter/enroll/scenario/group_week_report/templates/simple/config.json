@@ -1,0 +1,47 @@
+{
+	"pages": [{
+		"name": "enroll",
+		"title": "登记页",
+		"type": "I"
+	}, {
+		"name": "list",
+		"title": "登记清单页",
+		"type": "V"
+	}],
+	"schema": [{
+		"id": "c1",
+		"title": "任务名称"
+	}, {
+		"id": "c2",
+		"title": "本周情况"
+	}, {
+		"id": "c3",
+		"title": "下周计划"
+	}],
+	"entryRule": {
+		"otherwise": {
+			"entry": "enroll"
+		},
+		"member": {
+			"entry": "enroll",
+			"enroll": "Y",
+			"remark": "Y"
+		},
+		"member_outacl": {
+			"entry": "enroll",
+			"enroll": "Y",
+			"remark": "Y"
+		},
+		"fan": {
+			"entry": "enroll",
+			"enroll": "Y",
+			"remark": "Y"
+		},
+		"nonfan": {
+			"entry": "$mp_follow",
+			"enroll": "$mp_follow"
+		}
+	},
+	"multi_rounds": "Y",
+	"enrolled_entry_page": "enroll"
+}

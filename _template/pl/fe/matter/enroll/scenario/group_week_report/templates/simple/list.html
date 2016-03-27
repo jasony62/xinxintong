@@ -1,0 +1,49 @@
+<div wrap="filter" class="form-group" tms-filter ng-controller="ctrlRounds" tms-filter-default="ActiveRound" tms-filter-event="xxt.app.enroll.filter.rounds" tms-filter-multiple="N">
+    <div class="switch input-group">
+        <p class="form-control"><span class="label label-default" ng-repeat="s in tmsFilter.selected" ng-bind="s.title"></span></p>
+        <span class="input-group-btn">
+            <button tms-filter-switch class="btn btn-default">轮次<span class="caret"></span></button>
+        </span>
+    </div>
+    <div class="detail" ng-show="tmsFilter.opened">
+        <div class="options"><span ng-repeat="rd in rounds" ng-bind="rd.title" ng-click="click(rd)" class='label' ng-class="{'label-default':!rd._selected,'label-primary':rd._selected}"></span></div>
+        <div class="actions btn-group btn-group-justified">
+            <div class="btn-group"><button class="btn btn-default" tms-filter-cancel>取消</button></div>
+            <div class="btn-group"><button class="btn btn-default" tms-filter-ok>确定</button></div>
+        </div>
+    </div>
+</div>
+<div wrap="filter" class="form-group" tms-filter ng-controller="ctrlOwnerOptions" tms-filter-default="owners.U" tms-filter-event="xxt.app.enroll.filter.owner" tms-filter-multiple="N">
+    <div class="switch input-group">
+        <p class="form-control"><span class="label label-default" ng-repeat="s in tmsFilter.selected" ng-bind="s.label"></span></p>
+        <span class="input-group-btn">
+            <button tms-filter-switch class="btn btn-default">所属<span class="caret"></span></button>
+        </span>
+    </div>
+    <div class="detail" ng-show="tmsFilter.opened">
+        <div class="options"><span ng-repeat="o in owners" ng-bind="o.label" ng-click="click(o)" class='label' ng-class="{'label-default':!o._selected,'label-primary':o._selected}"></span></div>
+        <div class="actions btn-group btn-group-justified">
+            <div class="btn-group"><button class="btn btn-default" tms-filter-cancel>取消</button></div>
+            <div class="btn-group"><button class="btn btn-default" tms-filter-ok>确定</button></div>
+        </div>
+    </div>
+</div>
+<div wrap="list" enroll-records enroll-records-owner="U" ng-controller="ctrlRecords">
+	<ul class="list-group">
+		<li class="list-group-item" ng-repeat="rec in records" ng-click="gotoPage($event,'enroll',rec.enroll_key)">
+			<div wrap="static" class="wrap-inline">
+				<label>任务名称</label>
+				<div>{{rec.data.c1}}</div>
+			</div>
+			<div wrap="static" class="wrap-inline">
+				<label>本周情况</label>
+				<div>{{rec.data.c2}}</div>
+			</div>
+			<div wrap="static" class="wrap-inline">
+				<label>下周计划</label>
+				<div>{{rec.data.c3}}</div>
+			</div>
+		</li>
+	</ul>
+</div>
+<div wrap="button" class="form-group"><button id="btnNewRecord" class="btn btn-primary btn-block btn-lg" ng-click="addRecord($event)"><span>添加记录</span></button></div>

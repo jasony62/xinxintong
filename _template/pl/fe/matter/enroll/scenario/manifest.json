@@ -1,0 +1,43 @@
+{
+	"group_week_report": {
+		"title": "团队周报",
+		"name": "group_week_report",
+		"description": "多人共同填写周报",
+		"templates": {
+			"simple": {
+				"title": "简单",
+				"name": "simple",
+				"description": "简单快速"
+			}
+		}
+	},
+	"registration": {
+		"title": "登记报名",
+		"name": "registration",
+		"description": "报名信息收集",
+		"templates": {
+			"simple": {
+				"title": "简单",
+				"name": "simple",
+				"description": "简单快速"
+			}
+		}
+	},
+	"voting": {
+		"title": "投票",
+		"name": "voting",
+		"description": "投票信息收集",
+		"templates": {
+			"simple": {
+				"title": "简单",
+				"name": "simple",
+				"description": "简单快速"
+			},
+			"custom": {
+				"title": "定制",
+				"name": "custom",
+				"description": "自有定制展示内容"
+			}
+		}
+	}
+}

@@ -1,0 +1,95 @@
+{
+	"rounds": [{
+		"id": "1",
+		"rid": "rd1",
+		"title": "轮次1"
+	}, {
+		"rid": "rd2",
+		"title": "轮次2"
+	}],
+	"activeRound": {
+		"rid": "rd2",
+		"title": "轮次2"
+	},
+	"records": [{
+		"rid": "rd1",
+		"enroll_key": "ek2",
+		"enroll_at": "1447924405",
+		"signin_at": "0",
+		"tags": null,
+		"follower_num": "0",
+		"score": null,
+		"remark_num": "0",
+		"fid": "b6917a20487c5831f56d71ff64b17498",
+		"nickname": "mocker",
+		"openid": "mine",
+		"headimgurl": "",
+		"data": {
+			"member": "{}",
+			"c1": "项目2",
+			"c2": "未完成",
+			"c3": "暂停"
+		},
+		"signinLogs": {}
+	}, {
+		"rid": "rd1",
+		"enroll_key": "ek1",
+		"enroll_at": "1447924388",
+		"signin_at": "0",
+		"tags": null,
+		"follower_num": "0",
+		"score": null,
+		"remark_num": "0",
+		"fid": "b6917a20487c5831f56d71ff64b17498",
+		"nickname": "mocker",
+		"openid": "mocker",
+		"headimgurl": "",
+		"data": {
+			"member": "{}",
+			"c1": "项目1",
+			"c2": "完成",
+			"c3": "继续"
+		},
+		"signinLogs": {}
+	}, {
+		"rid": "rd2",
+		"enroll_key": "ek3",
+		"enroll_at": "1447924388",
+		"signin_at": "0",
+		"tags": null,
+		"follower_num": "0",
+		"score": null,
+		"remark_num": "0",
+		"fid": "b6917a20487c5831f56d71ff64b17498",
+		"nickname": "mocker",
+		"openid": "mine",
+		"headimgurl": "",
+		"data": {
+			"member": "{}",
+			"c1": "项目4",
+			"c2": "完成",
+			"c3": "继续"
+		},
+		"signinLogs": {}
+	}, {
+		"rid": "rd2",
+		"enroll_key": "ek4",
+		"enroll_at": "1447924388",
+		"signin_at": "0",
+		"tags": null,
+		"follower_num": "0",
+		"score": null,
+		"remark_num": "0",
+		"fid": "b6917a20487c5831f56d71ff64b17498",
+		"nickname": "mocker",
+		"openid": "mocker",
+		"headimgurl": "",
+		"data": {
+			"member": "{}",
+			"c1": "项目3",
+			"c2": "完成",
+			"c3": "继续"
+		},
+		"signinLogs": {}
+	}]
+}

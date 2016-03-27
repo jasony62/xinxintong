@@ -662,4 +662,30 @@ class record extends base {
 
 		return new \ResponseData($remark);
 	}
+	/**
+	 *当前用户活动签到
+	 */
+	public function signin_action($site, $app) {
+		$model = \TMS_APP::model('app\enroll');
+		$app = $model->byId($app);
+		$rst = $model->signin($site, $app->id, $openid);
+		/**
+		 * 回复
+		 */
+		if ($rst) {
+			if ($app->success_matter_type && $app->success_matter_id) {
+				$cls = $app->success_matter_type;
+				return array('matter_type' => $app->success_matter_type, 'matter_id' => $app->success_matter_id);
+			} else {
+				return new \ResponseData("活动【" . $app->title . "】已签到，已登记");
+			}
+		} else {
+			if ($app->failure_matter_type && $app->failure_matter_id) {
+				$cls = $app->failure_matter_type;
+				return array('matter_type' => $app->failure_matter_type, 'matter_id' => $app->failure_matter_id);
+			} else {
+				return new \ResponseData("活动【" . $app->title . "】已签到，未登记");
+			}
+		}
+	}
 }

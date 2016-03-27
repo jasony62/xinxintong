@@ -41,7 +41,7 @@
 				<nav class="navbar navbar-default">
 					<div class="navbar-form">
 						<button class="btn btn-success" ng-click="addArticle()">＋图文</button>
-						<button class="btn btn-success" ng-click="addEnroll()">＋登记活动</button>
+						<button class="btn btn-success" ng-click="addEnrollByTemplate()">＋登记活动</button>
 						<button class="btn btn-success" ng-click="addTask()">＋项目</button>
 					</div>
 				</nav>
@@ -50,6 +50,46 @@
 				building
 			</div>
 		</div>
+		<script type='text/ng-template' id='templatePicker.html'>
+	        <div class="modal-header">
+	            <button class="close" ng-click="cancel()">×</button>
+	            <h5 class="modal-title">选择模板</h5>
+	        </div>
+	        <div class="modal-body template">
+	            <div class='options'>
+	                <div class='form-group'>
+	                    <label>场景</label>
+	                    <select class='form-control' ng-model='data.scenario' ng-options='s as s.title for s in templates' ng-change='chooseScenario()'></select>
+	                </div>
+	                <div class='form-group'>
+	                    <label>模板</label>
+	                    <select class='form-control' ng-model='data.template' ng-options='t.title for t in data.scenario.templates' ng-change='chooseTemplate()'></select>
+	                </div>
+	                <div class='form-group'>
+	                    <button class="btn" ng-class="{'btn-default':!selected.template,'btn-success':data.template}" ng-click="ok()" ng-disabled='!data.template'>创建活动</button>
+	                </div>
+	                <div class='form-group'>
+	                    <button class="btn btn-default" ng-click="blank()">创建空活动</button>
+	                </div>
+	            </div>
+	            <div class='pages'>
+	                <div class='form-group'>
+	                    <select id='selectedPage' class='form-control' ng-model='data.selectedPage' ng-options='p.title for p in pages' ng-change='choosePage()'></select>
+	                </div>
+	                <div class='form-group'>
+	                    <iframe id='simulator' src=""></iframe>
+	                </div>
+	            </div>
+	            <div class='schema' ng-if="data.scenario.name==='voting'">
+	                <div class='form-group'>
+	                    <button class='btn btn-default' ng-click='choosePage()'>重新生成页面</button>
+	                </div>
+	                <div class='form-group'>
+	                    <textarea id='schemaData' ng-model="data.simpleSchema"></textarea>
+	                </div>
+	            </div>
+	        </div>
+	    </script>
 		<script src="/static/js/angular.min.js"></script>
 		<script src="/static/js/angular-route.min.js"></script>
 		<script src="/static/js/angular-sanitize.min.js"></script>

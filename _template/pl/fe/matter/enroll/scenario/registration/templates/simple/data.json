@@ -1,0 +1,47 @@
+{
+	"records": [{
+		"rid": "",
+		"enroll_key": "ek2",
+		"enroll_at": "1447924405",
+		"signin_at": "0",
+		"tags": null,
+		"follower_num": "0",
+		"score": null,
+		"remark_num": "0",
+		"fid": "fid1",
+		"nickname": "用户1",
+		"openid": "user1",
+		"headimgurl": "",
+		"data": {
+			"member": "{}",
+			"name": "用户1",
+			"mobile": "1890000111",
+			"email": "user1@email.com",
+			"c1": "用户1-登记信息1",
+			"c2": "用户1-登记信息2"
+		},
+		"signinLogs": {}
+	}, {
+		"rid": "",
+		"enroll_key": "ek1",
+		"enroll_at": "1447924388",
+		"signin_at": "0",
+		"tags": null,
+		"follower_num": "0",
+		"score": null,
+		"remark_num": "0",
+		"fid": "fid2",
+		"nickname": "用户2",
+		"openid": "user2",
+		"headimgurl": "",
+		"data": {
+			"member": "{}",
+			"name": "用户1",
+			"mobile": "1890000222",
+			"email": "user2@email.com",
+			"c1": "用户2-登记信息1",
+			"c2": "用户2-登记信息2"
+		},
+		"signinLogs": {}
+	}]
+}

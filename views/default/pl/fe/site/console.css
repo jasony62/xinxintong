@@ -14,3 +14,10 @@ body{background:#f8f8f8;position:relative;overflow:hidden;display:flex;flex-dire
 #viewRecent .thumbnail .summary{flex:1;overflow:hidden;}
 #viewRecent .thumbnail .attr{display:flex;}
 #viewRecent .thumbnail .operator_name{flex:1;}
+
+/*template*/
+.template .options{position:relative;float:left;width:180px;margin-right:15px;}
+.template .pages{position:relative;float:left;width:301px;margin-right:15px;}
+.template .schema{position:relative;float:left;width:301px;}
+#simulator,#schemaData{width:100%;height:535px;border:1px solid #efefef;}
+#schemaData{resize:none;}

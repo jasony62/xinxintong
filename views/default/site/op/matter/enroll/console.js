@@ -15,10 +15,30 @@ define(["require", "angular", "util.site"], function(require, angular) {
                     return;
                 }
                 $scope.records = rsp.data.records;
+                $scope.schema = rsp.data.schema;
             });
         };
         $scope.entryURL = 'http://' + location.host + '/rest/site/fe/matter/enroll?site=' + PU.params.site + '&app=' + PU.params.app;
         $scope.entryQrcode = '/rest/pl/fe/matter/enroll/qrcode?url=' + encodeURIComponent($scope.entryURL);
+        $scope.value2Label = function(val, key) {
+            var i, j, s, aVal, aLab = [];
+            if (val === undefined) return '';
+            for (i = 0, j = $scope.schema.length; i < j; i++) {
+                s = $scope.schema[i];
+                if ($scope.schema[i].id === key) {
+                    s = $scope.schema[i];
+                    break;
+                }
+            }
+            if (s && s.ops && s.ops.length) {
+                aVal = val.split(',');
+                for (i = 0, j = s.ops.length; i < j; i++) {
+                    aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].label);
+                }
+                if (aLab.length) return aLab.join(',');
+            }
+            return val;
+        };
         $http.get(PU.j('pageGet', 'site', 'app')).success(function(rsp) {
             if (rsp.err_code !== 0) {
                 $scope.errmsg = rsp.err_msg;

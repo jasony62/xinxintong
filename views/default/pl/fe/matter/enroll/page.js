@@ -627,8 +627,9 @@
                 $scope.$root.progmsg = '正在保存页面...';
                 var url, p = {};
                 p[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
-                url = '/rest/mp/app/enroll/page/update';
-                url += '?aid=' + $scope.id;
+                url = '/rest/pl/fe/matter/enroll/page/update';
+                url += '?site=' + $scope.siteId;
+                url += '&id=' + $scope.id;
                 url += '&pid=' + page.id;
                 url += '&pname=' + page.name;
                 url += '&cid=' + page.code_id;
@@ -771,7 +772,7 @@
                     };
                     $scope.choose = function() {
                         var names;
-                        def.label = $scope.buttons[def.title].l;
+                        def.label = $scope.buttons[def.name].l;
                         def.next = '';
                     };
                     $scope.ok = function() {

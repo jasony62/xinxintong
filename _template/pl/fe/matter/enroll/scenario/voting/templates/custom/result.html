@@ -1,0 +1,29 @@
+<p></p>
+<div ng-controller="ctrlStatistic" enroll-statistic="fromCache=Y;interval=600" wrap="statistic" class="form-group">
+<!-- begin: generate by schema -->
+<?php foreach ($this->schema as $def) { if ($def->type && ($def->type==='multiple' || $def->type==='single')) { ?> 
+<table class="table table-bordered"><caption><?php echo $def->title;?></caption>
+<thead>
+<tr><th>选项</th><th>数量</th></tr>
+</thead>
+<tbody>
+<tr ng-repeat="op in statistic.<?php echo $def->id; ?>.ops">
+<td>{{op.l}}</td>
+<td>{{op.c}}</td>
+</tr>
+</tbody>
+</table>
+<?php }} ?>
+</div>
+<p></p>
+<?php foreach ($this->schema as $def) { ?>
+<div ng-controller="ctrlRecord" enroll-schema="fromCache=Y;interval=600" wrap="static" class="form-group wrap-inline wrap-splitline"><label><?php echo $def->title; ?></label>
+<div>{{value2Label("<?php echo $def->id; ?>")}}</div>
+</div>
+<?php } ?>
+<div ng-controller="ctrlRecord" wrap="static" class="form-group wrap-inline wrap-splitline"><label>投票时间</label>
+<div>{{Record.current.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+</div>
+<!-- end: generate by schema -->
+<p></p>
+<div wrap="button" class="form-group" ng-controller="ctrlRecord"><button id="btnEditRecord_enroll" class="btn btn-primary btn-block btn-lg" ng-click="editRecord($event,'voting')"><span>修改投票</span></button></div>

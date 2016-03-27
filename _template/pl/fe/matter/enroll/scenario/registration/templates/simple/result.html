@@ -1,0 +1,19 @@
+<div class="form-group wrap-inline wrap-splitline" wrap="static" ng-controller="ctrlRecord"><label>姓名</label>
+<div>{{Record.current.data.name}}</div>
+</div>
+<div class="form-group wrap-inline wrap-splitline" wrap="static" ng-controller="ctrlRecord"><label>手机</label>
+<div>{{Record.current.data.mobile}}</div>
+</div>
+<div class="form-group wrap-inline wrap-splitline" wrap="static" ng-controller="ctrlRecord"><label>邮箱</label>
+<div>{{Record.current.data.email}}</div>
+</div>
+<div class="form-group wrap-inline wrap-splitline" wrap="static" ng-controller="ctrlRecord"><label>登记信息1</label>
+<div>{{Record.current.data.c1}}</div>
+</div>
+<div class="form-group wrap-inline wrap-splitline" wrap="static" ng-controller="ctrlRecord"><label>登记信息2</label>
+<div>{{Record.current.data.c2}}</div>
+</div>
+<div class="form-group wrap-inline wrap-splitline" wrap="static" ng-controller="ctrlRecord"><label>登记时间</label>
+<div>{{Record.current.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+</div>
+<div class="form-group" wrap="button"><button id="btnEditRecord" class="btn btn-primary btn-block btn-lg" ng-click="editRecord($event)"><span>修改信息</span></button></div>

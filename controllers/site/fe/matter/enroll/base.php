@@ -33,14 +33,14 @@ class base extends \site\fe\base {
 				 */
 				$page = '$authapi_auth';
 			} else {
-				$page = $app->entry_rule->nonfan->entry;
+				$page = $app->entry_rule->other->entry;
 			}
 		} else {
 			if (empty($user->sns)) {
 				/**
 				 * 非关注用户
 				 */
-				$page = $app->entry_rule->nonfan->entry;
+				$page = $app->entry_rule->other->entry;
 			} else {
 				$entryRule = $app->entry_rule;
 				if (isset($entryRule->wxfan->entry) && isset($user->sns->wx)) {
@@ -93,6 +93,7 @@ class base extends \site\fe\base {
 	 *
 	 */
 	protected function checkActionRule($site, $app, $user) {
+		return 'Y';
 		if (empty($user->fan)) {
 			/**
 			 * 非关注用户

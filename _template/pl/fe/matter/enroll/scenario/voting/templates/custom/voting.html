@@ -1,0 +1,20 @@
+<p></p>
+<div ng-controller="customCtrl">
+<!-- begin: generate by schema -->
+<?php foreach ($this->schema as $def) { ?>
+<h4><?php echo $def->title; ?></h4>
+<div class="container">
+	<div class="row" tms-checkbox-group="<?php echo $def->id; ?>" tms-checkbox-group-model="data" tms-checkbox-group-upper="<?php echo count($def->ops);?>">
+		<?php foreach ($def->ops as $op) {?>
+		<div class="col-xs-6" name="<?php echo $def->id; ?>" ng-click="chooseOption($event,'<?php echo $def->id; ?>','<?php echo $op->v; ?>')">
+			<div class="thumbnail">
+				<div><?php echo $op->l; ?></div>
+			</div>
+		</div>
+		<?php } ?>
+	</div>
+</div>
+<?php } ?>
+<!-- end: generate by schema -->
+</div>
+<div wrap="button" class="form-group"><button id="btnSubmit" class="btn btn-primary btn-block btn-lg" ng-click="submit($event,'result')"><span>提交信息</span></button></div>

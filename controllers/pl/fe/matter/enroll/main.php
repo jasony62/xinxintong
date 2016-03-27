@@ -142,12 +142,8 @@ class main extends \pl\fe\matter\base {
 		/*pages*/
 		if (!empty($scenario) && !empty($template)) {
 			$customConfig = $this->getPostJson();
-			$config = $this->_addPageByTemplate($id, $scenario, $template, $customConfig);
+			$config = $this->_addPageByTemplate($site->id, $id, $scenario, $template, $customConfig);
 			$entryRule = $config->entryRule;
-			if (isset($config->multi_rounds) && $config->multi_rounds === 'Y') {
-				$this->_createRound($id);
-				$newapp['multi_rounds'] = 'Y';
-			}
 			if (isset($config->enrolled_entry_page)) {
 				$newapp['enrolled_entry_page'] = $config->enrolled_entry_page;
 			}
@@ -286,5 +282,48 @@ class main extends \pl\fe\matter\base {
 		$modelPage->add($siteId, $aid, $page);
 
 		return $entryRule;
+	}
+	/**
+	 * 根据模板生成页面
+	 *
+	 * @param string $aid
+	 * @param string $scenario scenario's name
+	 * @param string $template template's name
+	 */
+	private function _addPageByTemplate($siteId, $aid, $scenario, $template, $customConfig) {
+		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/matter/enroll/scenario/' . $scenario . '/templates/' . $template;
+		$config = file_get_contents($templateDir . '/config.json');
+		$config = preg_replace('/\t|\r|\n/', '', $config);
+		$config = json_decode($config);
+		$pages = $config->pages;
+		if (empty($pages)) {
+			return false;
+		}
+		$modelPage = $this->model('app\enroll\page');
+		$modelCode = $this->model('code/page');
+		foreach ($pages as $page) {
+			$ap = $modelPage->add($siteId, $aid, (array) $page);
+			$data = array(
+				'html' => file_get_contents($templateDir . '/' . $page->name . '.html'),
+				'css' => file_get_contents($templateDir . '/' . $page->name . '.css'),
+				'js' => file_get_contents($templateDir . '/' . $page->name . '.js'),
+			);
+			//if ($page->type === 'I') {
+			/*填充页面*/
+			$matched = array();
+			$pattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
+			if (preg_match($pattern, $data['html'], $matched)) {
+				if (isset($customConfig->simpleSchema)) {
+					$html = $modelPage->htmlBySimpleSchema($customConfig->simpleSchema, $matched[0]);
+				} else {
+					$html = $modelPage->htmlBySchema($config->schema, $matched[0]);
+				}
+				$data['html'] = preg_replace($pattern, $html, $data['html']);
+			}
+			//}
+			$modelCode->modify($ap->code_id, $data);
+		}
+
+		return $config;
 	}
 }

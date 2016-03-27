@@ -9,7 +9,9 @@ class main extends \site\op\base {
 	/**
 	 *
 	 */
-	public function index_action() {
+	public function index_action($app) {
+		$app = $this->model('app\enroll')->byId($app);
+		\TPL::assign('title', $app->title);
 		\TPL::output('site/op/matter/enroll/console');
 		exit;
 	}

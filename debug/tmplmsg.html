@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>信信通</title>
+    </head>
+    <body>
+        <div>
+            <input id='mpid' type='text' size=50 value='b2766479d1e04aba1c8b1c76dc7e16d9'>
+        </div>
+        <div>
+            <input id='templateid' type='text' value='1'>
+        </div>
+        <div>
+            <input id='openid' type='text'>
+        </div>
+        <div>
+            <button class='send'>send</button>
+        </div>
+    </body>
+</html>
+<script type="text/javascript" src="../static/js/jquery.min.js"></script>
+<script type="text/javascript">
+    $(function(){
+        $('button.send').click(function(){
+            $.ajax({
+                type: 'POST',
+                headers: {
+                    "Content-Type":"application/json",
+                },
+                url: '/rest/send/tmplmsg?mpid=' + $('#mpid').val()+'&templateid='+$('#templateid').val(),
+                data: JSON.stringify({data:{first:'测试内容1',keyword1:'测试内容2',keyword2:'20160328',remark:'备注1'},openids:[$('#openid').val()]}),
+                success: function(rsp) {
+                    
+                }
+            });
+        });
+    });
+</script>

@@ -73,7 +73,7 @@ class resumableAliOss {
 	}
 }
 /**
- * 登记活动
+ * 登记活动记录
  */
 class record extends base {
 	/**
@@ -101,11 +101,20 @@ class record extends base {
 		header('Access-Control-Allow-Headers:Content-Type');
 		$_SERVER['REQUEST_METHOD'] === 'OPTIONS' && exit;
 
-		empty($site) && die('site is empty.');
-		empty($app) && die('app is empty.');
+		if (empty($site)) {
+			header('HTTP/1.0 500 parameter error:site is empty.');
+			die('参数错误！');
+		}
+		if (empty($app)) {
+			header('HTTP/1.0 500 parameter error:app is empty.');
+			die('参数错误！');
+		}
 
-		$model = $this->model('app\enroll');
-		false === ($app = $model->byId($app)) && die('活动不存在');
+		$modelApp = $this->model('matter\enroll');
+		if (false === ($app = $modelApp->byId($app))) {
+			header('HTTP/1.0 500 parameter error:app dosen\'t exist.');
+			die('活动不存在');
+		}
 		/**
 		 * 当前访问用户的基本信息
 		 */
@@ -134,15 +143,14 @@ class record extends base {
 		 */
 		if (empty($ek)) {
 			/*插入登记数据*/
-			$openid = isset($user->openid) ? $user->openid : '';
-			$vid = isset($user->vid) ? $user->vid : '';
-			$ek = $model->enroll($site, $app, $openid, $vid, $mid);
+			$modelRec = $this->model('matter\enroll\record');
+			$ek = $modelRec->enroll($site, $app, $user);
 			/*处理自定义信息*/
-			$rst = \TMS_APP::M('app\enroll\record')->setData($user, $site, $app->id, $ek, $posted, $submitkey);
+			$rst = $modelRec->setData($user, $site, $app, $ek, $posted, $submitkey);
 			/*登记提交的积分奖励*/
 			$modelCoin = $this->model('coin\log');
 			$action = 'app.enroll,' . $app->id . '.record.submit';
-			$modelCoin->income($site, $action, $app->id, 'sys', $openid);
+			$modelCoin->income($site, $action, $app->id, 'sys', $user->uid);
 		} else {
 			/* 已经登记，更新原先提交的数据 */
 			$this->model()->update('xxt_enroll_record',

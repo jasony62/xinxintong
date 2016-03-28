@@ -10,17 +10,18 @@ class page extends \pl\fe\matter\base {
 	 *
 	 */
 	public function index_action() {
-		$this->view_action('/mp/app/enroll/detail');
+		\TPL::output('/pl/fe/matter/enroll/frame');
+		exit;
 	}
 	/**
 	 * 添加活动页面
 	 *
 	 * $aid 获动的id
 	 */
-	public function add_action($aid) {
+	public function add_action($site, $app) {
 		$options = $this->getPostJson();
 
-		$newPage = $this->model('app\enroll\page')->add($this->mpid, $aid, $options);
+		$newPage = $this->model('app\enroll\page')->add($site, $app, $options);
 
 		return new \ResponseData($newPage);
 	}

@@ -132,6 +132,9 @@ var setPage = function($scope, page) {
     }
 };
 var setShareData = function(scope, params, $http) {
+    if (!window.xxt || !window.xxt.share) {
+        return false;
+    }
     try {
         var sharelink, summary;
         sharelink = 'http://' + location.host + LS.j('', 'mpid', 'aid');

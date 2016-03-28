@@ -46,7 +46,19 @@ class main extends base {
 		/* 判断活动的开始结束时间 */
 		$ignoretime === 'N' && $this->_isValid($app);
 		/* 计算打开哪个页面 */
-		$oPage = $this->_defaultPage($site, $app, true);
+		if (empty($page)) {
+			$oPage = $this->_defaultPage($site, $app, true);
+		} else {
+			foreach ($app->pages as $p) {
+				if ($p->name === $page) {
+					$oPage = &$p;
+					break;
+				}
+			}
+		}
+		if (empty($oPage)) {
+			die('page is not exist');
+		}
 		/* 记录日志，完成前置活动再次进入的情况不算 */
 		$this->model()->update("update xxt_enroll set read_num=read_num+1 where id='$app->id'");
 		//$this->logRead($siteid, $user, $app->id, 'enroll', $app->title, $shareby);
@@ -54,8 +66,10 @@ class main extends base {
 		\TPL::assign('title', $app->title);
 		if ($oPage->type === 'I') {
 			\TPL::output('/site/fe/matter/enroll/input');
-		} else {
+		} else if ($oPage->type === 'V') {
 			\TPL::output('/site/fe/matter/enroll/page');
+		} else if ($oPage->type === 'S') {
+			\TPL::output('/site/fe/matter/enroll/signin');
 		}
 		exit;
 	}
@@ -172,8 +186,17 @@ class main extends base {
 		/* 当前访问用户的基本信息 */
 		$user = $this->who;
 		$params['user'] = $user;
-		/* 打开页面 */
-		$oPage = $this->_defaultPage($site, $app, $user);
+		/* 计算打开哪个页面 */
+		if (empty($page)) {
+			$oPage = $this->_defaultPage($site, $app, $user);
+		} else {
+			foreach ($app->pages as $p) {
+				if ($p->name === $page) {
+					$oPage = &$p;
+					break;
+				}
+			}
+		}
 		if (empty($oPage)) {
 			return new \ResponseError('页面不存在');
 		}
@@ -203,7 +226,7 @@ class main extends base {
 		}
 		/*登记记录*/
 		$newForm = false;
-		if ($oPage->type === 'I') {
+		if ($oPage->type === 'I' || $oPage->type === 'S') {
 			if ($newRecord === 'Y') {
 				$newForm = true;
 			} else if (empty($ek)) {
@@ -216,8 +239,8 @@ class main extends base {
 				$options = array(
 					'fields' => '*',
 				);
-				$modelRec = $this->model('app\enroll\record');
-				$lastRecord = $modelRec->getLast($site, $app->id, $user, $options);
+				$modelRec = $this->model('matter\enroll\record');
+				$lastRecord = $modelRec->getLast($site, $app, $user, $options);
 				if ($lastRecord) {
 					if ($lastRecord->enroll_at) {
 						$lastRecord->data = $modelRec->dataById($lastRecord->enroll_key);

@@ -12,7 +12,7 @@
 			}
 		};
 		$scope.run = function() {
-			location.href = '/rest/pl/fe/matter/enroll/running?id=' + $scope.id;
+			location.href = '/rest/pl/fe/matter/enroll/running?site=' + $scope.siteid + '&id=' + $scope.id;
 		};
 		$scope.setPic = function() {
 			var options = {
@@ -39,7 +39,13 @@
 			$modal.open({
 				templateUrl: 'createPage.html',
 				backdrop: 'static',
-				controller: ['$scope', '$modalInstance', function($scope, $mi) {
+				resolve: {
+					app: function() {
+						return $scope.app;
+					}
+				},
+				controller: ['$scope', '$modalInstance', 'app', function($scope, $mi, app) {
+					$scope.app = app;
 					$scope.options = {};
 					$scope.ok = function() {
 						$mi.close($scope.options);
@@ -49,7 +55,7 @@
 					};
 				}],
 			}).result.then(function(options) {
-				http2.post('/rest/mp/app/enroll/page/add?aid=' + $scope.id, options, function(rsp) {
+				http2.post('/rest/pl/fe/matter/enroll/page/add?site=' + $scope.siteid + '&app=' + $scope.id, options, function(rsp) {
 					var page = rsp.data;
 					$scope.app.pages.push(page);
 					location.href = '/rest/pl/fe/matter/enroll/page?id=' + $scope.id + '&page=' + page.name;
@@ -58,17 +64,29 @@
 		};
 		$scope.entry = function() {
 			$modal.open({
-				templateUrl: 'dialogQrcode.html',
+				templateUrl: 'dialogEntry.html',
 				backdrop: 'static',
 				resolve: {
 					url: function() {
-						return $scope.url
+						return $scope.url;
+					},
+					signinUrl: function() {
+						var i, l, page, url;
+						for (i = 0, l = $scope.app.pages.length; i < l; i++) {
+							page = $scope.app.pages[i];
+							if (page.type === 'S') {
+								return $scope.url + '&page=' + page.name;
+							}
+						}
+						return '';
 					}
 				},
-				controller: ['$scope', '$modalInstance', 'url', function($scope, $mi, url) {
+				controller: ['$scope', '$modalInstance', 'url', 'signinUrl', function($scope, $mi, url, signinUrl) {
 					$scope.entry = {
 						url: url,
-						qrcode: '/rest/pl/fe/matter/enroll/qrcode?url=' + encodeURIComponent(url)
+						qrcode: '/rest/pl/fe/matter/enroll/qrcode?url=' + encodeURIComponent(url),
+						signinUrl: signinUrl,
+						signinQrcode: '/rest/pl/fe/matter/enroll/qrcode?url=' + encodeURIComponent(signinUrl)
 					};
 					$scope.cancel = function() {
 						$mi.dismiss();

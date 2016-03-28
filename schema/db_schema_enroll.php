@@ -137,10 +137,12 @@ if (!$mysqli->query($sql)) {
  * 活动登记记录
  */
 $sql = 'create table if not exists xxt_enroll_record(';
-$sql .= 'id int not null auto_increment';
-$sql .= ',aid varchar(40) not null';
-$sql .= ',mpid varchar(32) not null';
+$sql .= "id int not null auto_increment";
+$sql .= ",aid varchar(40) not null";
+$sql .= ",mpid varchar(32) not null";
+$sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",rid varchar(13) not null default ''";
+$sql .= ",userid varchar(40) not null default ''";
 $sql .= ",openid varchar(255) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",enroll_key varchar(32) not null";
@@ -167,8 +169,11 @@ if (!$mysqli->query($sql)) {
 $sql = 'create table if not exists xxt_enroll_signin_log(';
 $sql .= 'id int not null auto_increment';
 $sql .= ',mpid varchar(32) not null';
+$sql .= ",siteid varchar(32) not null default ''";
 $sql .= ',aid varchar(40) not null';
 $sql .= ",enroll_key varchar(32) not null";
+$sql .= ",userid varchar(40) not null default ''";
+$sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",openid varchar(255) not null default ''";
 $sql .= ",signin_at int not null default 0"; // 签到时间
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';

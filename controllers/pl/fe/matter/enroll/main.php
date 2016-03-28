@@ -57,13 +57,6 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 返回视图
 	 */
-	public function record_action() {
-		\TPL::output('/pl/fe/matter/enroll/frame');
-		exit;
-	}
-	/**
-	 * 返回视图
-	 */
 	public function stat_action() {
 		\TPL::output('/pl/fe/matter/enroll/frame');
 		exit;

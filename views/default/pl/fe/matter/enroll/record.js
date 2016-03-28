@@ -24,9 +24,9 @@
         $scope.doSearch = function(page) {
             var url;
             page && ($scope.page.at = page);
-            url = '/rest/mp/app/enroll/record/get';
-            url += '?aid=' + $scope.app.id;
-            url += '&mpid=' + $scope.siteid; // todo
+            url = '/rest/pl/fe/matter/enroll/record/list';
+            url += '?site=' + $scope.siteid; // todo
+            url += '&app=' + $scope.app.id;
             if ($scope.app.can_signin === 'Y') {
                 url += '&signinStartAt=' + $scope.signinStartAt;
                 url += '&signinEndAt=' + $scope.signinEndAt;

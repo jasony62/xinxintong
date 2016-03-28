@@ -64,12 +64,6 @@
         </div>
     </div>
     <div class='tile'>
-        <div class='form-group' ng-controller='setChannelCtrl' ng-init="matterType='enroll'">
-            <combox evt-prefix='channel' readonly=true prop='title' existing='app.channels' options='channels'></combox>
-            <div class='help-block'>频道（可选）</div>
-        </div>
-    </div>
-    <div class='tile'>
         <div class='checkbox'>
             <label><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.can_signin' ng-change="update('can_signin');">提供签到功能</label>
         </div>
@@ -92,16 +86,17 @@
         <div class="form-group">
             <label class='radio-inline'><input type='radio' value='I' name='type' ng-model='options.type'>登记页</label>
             <label class='radio-inline'><input type='radio' value='V' name='type' ng-model='options.type'>查看页</label>
+            <label class='radio-inline' ng-if="app.can_signin==='Y'"><input type='radio' value='S' name='type' ng-model='options.type'>签到页</label>
         </div>
     </div>
     <div class="modal-footer" style="margin-top:0">
         <button class="btn btn-success" ng-click="ok()">确定</button>
     </div>
 </script>
-<script type="text/ng-template" id="dialogQrcode.html">
+<script type="text/ng-template" id="dialogEntry.html">
     <div class="modal-header">
         <button class="close" ng-click="cancel()" type="button">×</button>
-        <h4 class="modal-title">二维码</h4>
+        <h4 class="modal-title">访问入口</h4>
     </div>
     <div class="modal-body">
         <div class="form-group">
@@ -109,6 +104,12 @@
         </div>
         <div class="form-group">
             <div><img ng-src="{{entry.qrcode}}"></div>
+        </div>
+        <div class="form-group">
+            <div class='form-control' style='height:auto;word-break:break-all' ng-bind='entry.signinUrl'></div>
+        </div>
+        <div class="form-group">
+            <div><img ng-src="{{entry.signinQrcode}}"></div>
         </div>
     </div>
     <div class="modal-footer">

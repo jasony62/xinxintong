@@ -5,11 +5,12 @@
         </div>
     </div>
     <div class='tile'>
-        <a href='/rest/pl/fe/matter/enroll/setting?id={{id}}'>设置</a>
+        <a href='/rest/pl/fe/matter/enroll/setting?site={{siteid}}&id={{id}}'>设置</a>
     </div>
     <div class='tile'>
-        <div class='qrcode form-group' ng-controller='SendmeController'>
-            <button class='btn btn-block btn-success' data-toggle="popover" data-placement='left' ng-click="qrcode({type:'article',id:app.id},$event)">发送给我</button>
+        <div class='form-group'>
+            <label>屏幕地址</label>
+            <div class='form-control' ng-bind="opUrl"></div>
         </div>
     </div>
     <div class='tile'>
@@ -19,7 +20,7 @@
 <div class='col-md-4'>
     <div class='tile'>
         <div class='form-group'>
-            <a href='/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}'>登记记录</a>
+            <a href='/rest/pl/fe/matter/enroll/record?site={{siteid}}&id={{id}}'>登记记录</a>
         </div>
     </div>
     <div class='tile'>

@@ -424,6 +424,10 @@
             id: 'btnCloseWindow',
             act: 'closeWindow($event)'
         },
+        signin: {
+            id: 'btnSignin',
+            act: 'signin($event)'
+        },
     };
     WrapLib.prototype.changeEmbedButton = function(page, wrap, def) {
         var schema, id, action, $button;
@@ -538,6 +542,9 @@
                 },
                 closeWindow: {
                     l: '关闭页面'
+                },
+                signin: {
+                    l: '签到'
                 },
             };
             enroll.can_like_record === 'Y' && ($scope.buttons.likeRecord = {
@@ -732,6 +739,58 @@
             var user_schemas = $scope.ep.user_schemas;
             user_schemas.splice(user_schemas.indexOf(schema), 1);
         };
+        $scope.removeAct = function(def) {
+            $scope.ep.act_schemas.splice($scope.ep.act_schemas.indexOf(def), 1);
+            $scope.updPage($scope.ep, 'act_schemas');
+        };
+        $scope.emptyPage = function() {
+            var activeEditor = tinymce.get($scope.ep.name);
+            activeEditor.setContent('');
+            $scope.ep.html = '';
+        };
+    }]);
+    app.provider.controller('ctrlInputSchema', ['$scope', '$modal', function($scope, $modal) {
+        $scope.chooseSchema = function() {
+            $modal.open({
+                templateUrl: 'chooseDataSchema.html',
+                backdrop: 'static',
+                resolve: {
+                    schemas: function() {
+                        return $scope.app.data_schemas;
+                    }
+                },
+                controller: ['$scope', '$modalInstance', 'schemas', function($scope, $mi, schemas) {
+                    var choosed = [];
+                    $scope.schemas = angular.copy(schemas);
+                    $scope.choose = function(schema) {
+                        schema._selected ? choosed.push(schema) : choosed.splice(choosed.indexOf(schema), 1);
+                    };
+                    $scope.ok = function() {
+                        $mi.close(choosed);
+                    };
+                    $scope.cancel = function() {
+                        $mi.dismiss();
+                    };
+                }],
+            }).result.then(function(choosed) {
+                angular.forEach(choosed, function(schema) {
+                    var dataSchemas = $scope.ep.data_schemas,
+                        i = 0,
+                        l = dataSchemas.length;
+                    while (i < l && schema.id !== dataSchemas[i++].id) {};
+                    if (i === l) {
+                        delete schema._selected;
+                        dataSchemas.push(schema);
+                    }
+                });
+                $scope.updPage($scope.ep, 'data_schemas');
+            });
+        };
+        $scope.removeSchema = function(schema) {
+            var data_schemas = $scope.ep.data_schemas;
+            data_schemas.splice(data_schemas.indexOf(schema), 1);
+            $scope.updPage($scope.ep, 'data_schemas');
+        };
         $scope.chooseAct = function() {
             $modal.open({
                 templateUrl: 'chooseButton.html',
@@ -787,17 +846,26 @@
                 $scope.updPage($scope.ep, 'act_schemas');
             });
         };
-        $scope.removeAct = function(def) {
-            $scope.ep.act_schemas.splice($scope.ep.act_schemas.indexOf(def), 1);
-            $scope.updPage($scope.ep, 'act_schemas');
-        };
-        $scope.emptyPage = function() {
-            var activeEditor = tinymce.get($scope.ep.name);
-            activeEditor.setContent('');
-            $scope.ep.html = '';
+        $scope.makePage = function() {
+            $scope.emptyPage();
+            angular.forEach($scope.ep.user_schemas, function(schema) {
+                var def = {};
+                def[schema.name] = true;
+                window.wrapLib.embedUser($scope.ep, def);
+            });
+            angular.forEach($scope.ep.data_schemas, function(schema) {
+                schema.showname = 'label';
+                window.wrapLib.embedInput($scope.ep, schema);
+            });
+            angular.forEach($scope.ep.act_schemas, function(schema) {
+                var def = {};
+                def.type = schema.name;
+                def.label = schema.label;
+                window.wrapLib.embedButton($scope.ep, def);
+            });
         };
     }]);
-    app.provider.controller('ctrlInputSchema', ['$scope', '$modal', function($scope, $modal) {
+    app.provider.controller('ctrlSigninSchema', ['$scope', '$modal', function($scope, $modal) {
         $scope.chooseSchema = function() {
             $modal.open({
                 templateUrl: 'chooseDataSchema.html',
@@ -839,6 +907,49 @@
             data_schemas.splice(data_schemas.indexOf(schema), 1);
             $scope.updPage($scope.ep, 'data_schemas');
         };
+        $scope.chooseAct = function() {
+            $modal.open({
+                templateUrl: 'chooseButton.html',
+                backdrop: 'static',
+                resolve: {
+                    def: function() {
+                        return {
+                            name: '',
+                            label: '',
+                            next: ''
+                        };
+                    }
+                },
+                controller: ['$scope', '$modalInstance', 'def', function($scope, $mi, def) {
+                    $scope.def = def;
+                    $scope.buttons = {
+                        signin: {
+                            l: '签到'
+                        },
+                        gotoPage: {
+                            l: '页面导航'
+                        },
+                        closeWindow: {
+                            l: '关闭页面'
+                        },
+                    };
+                    $scope.choose = function() {
+                        var names;
+                        def.label = $scope.buttons[def.name].l;
+                        def.next = '';
+                    };
+                    $scope.ok = function() {
+                        $mi.close(def);
+                    };
+                    $scope.cancel = function() {
+                        $mi.dismiss();
+                    };
+                }],
+            }).result.then(function(def) {
+                $scope.ep.act_schemas.push(def);
+                $scope.updPage($scope.ep, 'act_schemas');
+            });
+        };
         $scope.makePage = function() {
             $scope.emptyPage();
             angular.forEach($scope.ep.user_schemas, function(schema) {
@@ -858,7 +969,7 @@
             });
         };
     }]);
-    app.provider.controller('ctrlViewSchema', ['$scope', function($scope) {
+    app.provider.controller('ctrlViewSchema', ['$scope', '$modal', function($scope, $modal) {
         $scope.options = {
             record: {
                 l: '登记项'
@@ -899,6 +1010,58 @@
                 addNickname: 0,
                 schema: angular.copy($scope.app.data_schemas)
             }
+        };
+        $scope.chooseAct = function() {
+            $modal.open({
+                templateUrl: 'chooseButton.html',
+                backdrop: 'static',
+                resolve: {
+                    def: function() {
+                        return {
+                            name: '',
+                            label: '',
+                            next: ''
+                        };
+                    }
+                },
+                controller: ['$scope', '$modalInstance', 'def', function($scope, $mi, def) {
+                    $scope.def = def;
+                    $scope.buttons = {
+                        addRecord: {
+                            l: '新增登记'
+                        },
+                        editRecord: {
+                            l: '修改登记'
+                        },
+                        sendInvite: {
+                            l: '发出邀请'
+                        },
+                        acceptInvite: {
+                            l: '接受邀请'
+                        },
+                        gotoPage: {
+                            l: '页面导航'
+                        },
+                        closeWindow: {
+                            l: '关闭页面'
+                        },
+                    };
+                    $scope.choose = function() {
+                        var names;
+                        def.label = $scope.buttons[def.name].l;
+                        def.next = '';
+                    };
+                    $scope.ok = function() {
+                        $mi.close(def);
+                    };
+                    $scope.cancel = function() {
+                        $mi.dismiss();
+                    };
+                }],
+            }).result.then(function(def) {
+                $scope.ep.act_schemas.push(def);
+                $scope.updPage($scope.ep, 'act_schemas');
+            });
         };
         $scope.makePage = function() {
             $scope.emptyPage();

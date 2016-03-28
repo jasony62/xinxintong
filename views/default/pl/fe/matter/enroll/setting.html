@@ -105,10 +105,10 @@
         <div class="form-group">
             <div><img ng-src="{{entry.qrcode}}"></div>
         </div>
-        <div class="form-group">
+        <div class="form-group" ng-if="app.can_signin==='Y'">
             <div class='form-control' style='height:auto;word-break:break-all' ng-bind='entry.signinUrl'></div>
         </div>
-        <div class="form-group">
+        <div class="form-group" ng-if="app.can_signin==='Y'">
             <div><img ng-src="{{entry.signinQrcode}}"></div>
         </div>
     </div>

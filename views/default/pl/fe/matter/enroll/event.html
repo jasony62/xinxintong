@@ -2,21 +2,20 @@
     <table class='table table-bordered'>
         <thead>
             <tr>
-                <th style='width:180px'>用户范围</th>
                 <th>开始前</th>
-                <th>进入时</th>
+                <th colspan='2'>进入时</th>
                 <th>已登记时</th>
                 <th>结束后</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>未指定时</td>
                 <td rowspan="7">
                     <select title='进入页面' class='form-control' ng-model='app.before_start_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('before_start_page')">
                         <option value=''></option>
                     </select>
                 </td>
+                <td>未指定时</td>
                 <td>
                     <div class='form-inline'>
                         <select class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.otherwise.entry' ng-options='page.name as page.title for page in app.pages'></select>
@@ -37,40 +36,6 @@
                     <select title='进入页面' class='form-control' ng-model='app.after_end_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('after_end_page')">
                         <option value=''></option>
                     </select>
-                </td>
-            </tr>
-            <tr>
-                <td>认证用户
-                    <span ng-if="app.acl.length">（在白名单）</span>
-                </td>
-                <td>
-                    <div class='form-inline'>
-                        <select class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.member.entry' ng-options='page.name as page.title for page in app.pages'>
-                            <option value=''></option>
-                        </select>
-                        <button class='btn btn-default'>
-                        <span class='glyphicon glyphicon-plus'></span>
-                        </button>
-                        <button class='btn btn-default'>
-                        <span class='glyphicon glyphicon-edit'></span>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>认证用户（不在白名单）</td>
-                <td>
-                    <div class='form-inline'>
-                        <select class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.member_outacl.entry' ng-options='p.name as p.title for p in pages4OutAcl'>
-                            <option value=''></option>
-                        </select>
-                        <button class='btn btn-default'>
-                        <span class='glyphicon glyphicon-plus'></span>
-                        </button>
-                        <button class='btn btn-default'>
-                        <span class='glyphicon glyphicon-edit'></span>
-                        </button>
-                    </div>
                 </td>
             </tr>
             <tr>
@@ -137,29 +102,7 @@
             </tr>
         </tbody>
     </table>
-    <div class='help-block'>参与规则</div>
-</div>
-<div class='form-group'>
-    <accesscontrol mpid='{{mpid}}' obj='app' prop-access='canSetReceiver' update-access-control=false prop-acl='receiver' label-of-list='登记活动管理员' change-acl-url='/rest/mp/app/enroll/setEnrollReceiver?aid={{id}}' remove-acl-url='/rest/mp/app/enroll/delEnrollReceiver' hide-access-control=true></accesscontrol>
-    <div class='form-group'>
-        <select class='form-control' ng-model='app.receiver_page' ng-options='page.name as page.title for page in app.pages'
-        ng-change="update('receiver_page') ">
-            <option value=''></option>
-        </select>
-        <div class='help-block'>接收登记通知页</div>
-    </div>
-</div>
-<div class='form-group'>
-    <div class='form-group'>
-        <button class='btn btn-default btn-sm' ng-click='setSuccessReply()'>指定素材</button>
-        <a class='list-group-item' title='{{app.successMatter.type|typetitle}}' ng-if='app.successMatter'><span>{{app.successMatter.title||app.successMatter.content}}</span><button class='btn btn-default btn-xs pull-right' ng-click='removeSuccessReply()'><span class='glyphicon glyphicon-remove'></span></button></a>
-        <div class='help-block'>签到时已登记回复</div>
-    </div>
-    <div class='form-group'>
-        <button class='btn btn-default btn-sm' ng-click='setFailureReply()'>指定素材</button>
-        <a class='list-group-item' title='{{app.failureMatter.type|typetitle}}' ng-if='app.failureMatter'><span>{{app.failureMatter.title||app.failureMatter.content}}</span><button class='btn btn-default btn-xs pull-right' ng-click='removeFailureReply()'><span class='glyphicon glyphicon-remove'></span></button></a>
-        <div class='help-block'>签到时未登记回复</div>
-    </div>
+    <div class='help-block'>进入规则</div>
 </div>
 <div class='form-group'>
     <table class='table table-bordered'>
@@ -175,37 +118,36 @@
                 <td></td>
             </tr>
             <tr>
-                <td>认证用户
-                    <span ng-if="app.acl.length">（在白名单）</span>
-                </td>
+                <td>微信公众号关注用户</td>
                 <td>
-                    <select class='form-control' disabled>
-                        <option value='Y'>允许</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>认证用户（不在白名单）</td>
-                <td>
-                    <select class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.member_outacl.enroll'>
-                        <option value='Y'>允许</option>
-                        <option value='$authapi_outacl'>提示白名单</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>关注用户</td>
-                <td>
-                    <select class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.fan.enroll'>
+                    <select class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.wxfan.enroll'>
                         <option value='$authapi_auth' ng-if="app.access_control==='Y'">提示认证</option>
                         <option value='Y'>允许</option>
                     </select>
                 </td>
             </tr>
             <tr>
-                <td>非关注用户</td>
+                <td>微信企业号关注用户</td>
                 <td>
-                    <select class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.nonfan.enroll'>
+                    <select class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.qyfan.enroll'>
+                        <option value='$authapi_auth' ng-if="app.access_control==='Y'">提示认证</option>
+                        <option value='Y'>允许</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>易信公众号关注用户</td>
+                <td>
+                    <select class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.yxfan.enroll'>
+                        <option value='$authapi_auth' ng-if="app.access_control==='Y'">提示认证</option>
+                        <option value='Y'>允许</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>其他用户</td>
+                <td>
+                    <select class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.other.enroll'>
                         <option value='$mp_follow'>提示关注</option>
                         <option value='Y'>允许</option>
                     </select>

@@ -67,6 +67,9 @@
 				templateUrl: 'dialogEntry.html',
 				backdrop: 'static',
 				resolve: {
+					app: function() {
+						return $scope.app;
+					},
 					url: function() {
 						return $scope.url;
 					},
@@ -81,7 +84,8 @@
 						return '';
 					}
 				},
-				controller: ['$scope', '$modalInstance', 'url', 'signinUrl', function($scope, $mi, url, signinUrl) {
+				controller: ['$scope', '$modalInstance', 'app', 'url', 'signinUrl', function($scope, $mi, app, url, signinUrl) {
+					$scope.app = app;
 					$scope.entry = {
 						url: url,
 						qrcode: '/rest/pl/fe/matter/enroll/qrcode?url=' + encodeURIComponent(url),

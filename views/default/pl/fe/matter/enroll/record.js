@@ -1,5 +1,5 @@
 (function() {
-    app.provider.controller('ctrlRecord', ['$scope', 'http2', '$modal', function($scope, http2, $modal) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', 'http2', '$modal', function($scope, http2, $modal) {
         $scope.notifyMatterTypes = [{
             value: 'text',
             title: '文本',
@@ -25,7 +25,7 @@
             var url;
             page && ($scope.page.at = page);
             url = '/rest/pl/fe/matter/enroll/record/list';
-            url += '?site=' + $scope.siteid; // todo
+            url += '?site=' + $scope.siteId; // todo
             url += '&app=' + $scope.app.id;
             if ($scope.app.can_signin === 'Y') {
                 url += '&signinStartAt=' + $scope.signinStartAt;
@@ -163,14 +163,14 @@
                     $scope2.ok = function() {
                         $mi.close($scope2.data);
                     };
-                    http2.get('/rest/pl/fe/matter/enroll/list?site=' + $scope.siteid + '&page=1&size=999', function(rsp) {
+                    http2.get('/rest/pl/fe/matter/enroll/list?site=' + $scope.siteId + '&page=1&size=999', function(rsp) {
                         $scope2.apps = rsp.data[0];
                     });
                 }],
                 backdrop: 'static'
             }).result.then(function(data) {
                 if (data.target && data.target.length) {
-                    http2.post('/rest/pl/fe/matter/enroll/record/exportByData?site=' + $scope.siteid + '&app=' + $scope.id, data, function(rsp) {
+                    http2.post('/rest/pl/fe/matter/enroll/record/exportByData?site=' + $scope.siteId + '&app=' + $scope.id, data, function(rsp) {
                         alert('ok');
                     });
                 }
@@ -390,7 +390,7 @@
             }
         });
     }]);
-    app.provider.controller('editorCtrl', ['$scope', '$modalInstance', '$sce', 'enroll', 'record', 'schema', function($scope, $modalInstance, $sce, enroll, record, schema) {
+    ngApp.provider.controller('editorCtrl', ['$scope', '$modalInstance', '$sce', 'enroll', 'record', 'schema', function($scope, $modalInstance, $sce, enroll, record, schema) {
         var p, col, files;
         for (p in schema) {
             col = schema[p];

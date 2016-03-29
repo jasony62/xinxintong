@@ -1,5 +1,5 @@
 (function() {
-	app.provider.controller('ctrlEntry', ['$scope', 'http2', '$modal', '$timeout', function($scope, http2, $modal, $timeout) {
+	ngApp.provider.controller('ctrlEntry', ['$scope', 'http2', '$modal', '$timeout', function($scope, http2, $modal, $timeout) {
 		$scope.pages4OutAcl = [];
 		$scope.pages4Unauth = [];
 		$scope.pages4Nonfan = [];

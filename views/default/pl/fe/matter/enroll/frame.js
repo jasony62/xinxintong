@@ -1,6 +1,6 @@
-app = angular.module('app', ['ngRoute', 'ui.tms', 'matters.xxt', 'channel.fe.pl']);
-app.config(['$controllerProvider', '$routeProvider', '$locationProvider', function($controllerProvider, $routeProvider, $locationProvider) {
-	app.provider = {
+ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'matters.xxt', 'channel.fe.pl']);
+ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', function($controllerProvider, $routeProvider, $locationProvider) {
+	ngApp.provider = {
 		controller: $controllerProvider.register
 	};
 	$routeProvider.when('/rest/pl/fe/matter/enroll/schema', {
@@ -132,7 +132,7 @@ app.config(['$controllerProvider', '$routeProvider', '$locationProvider', functi
 	});
 	$locationProvider.html5Mode(true);
 }]);
-app.factory('Mp', function($q, http2) {
+ngApp.factory('Mp', function($q, http2) {
 	var Mp = function() {};
 	Mp.prototype.getAuthapis = function(id) {
 		var _this = this,
@@ -150,15 +150,15 @@ app.factory('Mp', function($q, http2) {
 	};
 	return Mp;
 });
-app.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($scope, $location, $q, http2) {
+ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($scope, $location, $q, http2) {
 	var ls = $location.search(),
 		modifiedData = {};
 	$scope.id = ls.id;
-	$scope.siteid = ls.site;
+	$scope.siteId = ls.site;
 	$scope.modified = false;
 	$scope.submit = function() {
 		var defer = $q.defer();
-		http2.post('/rest/pl/fe/matter/enroll/update?site=' + $scope.siteid + '&app=' + $scope.id, modifiedData, function(rsp) {
+		http2.post('/rest/pl/fe/matter/enroll/update?site=' + $scope.siteId + '&app=' + $scope.id, modifiedData, function(rsp) {
 			$scope.modified = false;
 			modifiedData = {};
 			defer.resolve(rsp.data);
@@ -175,7 +175,7 @@ app.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($scope
 		}
 		$scope.modified = true;
 	};
-	http2.get('/rest/pl/fe/matter/enroll/get?site=' + $scope.siteid + '&id=' + $scope.id, function(rsp) {
+	http2.get('/rest/pl/fe/matter/enroll/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
 		var app;
 		app = rsp.data;
 		app.tags = (!app.tags || app.tags.length === 0) ? [] : app.tags.split(',');
@@ -183,6 +183,6 @@ app.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($scope
 		app.data_schemas = app.data_schemas && app.data_schemas.length ? JSON.parse(app.data_schemas) : [];
 		$scope.persisted = angular.copy(app);
 		$scope.app = app;
-		$scope.url = 'http://' + location.host + '/rest/site/fe/matter/enroll?site=' + $scope.siteid + '&app=' + $scope.id;
+		$scope.url = 'http://' + location.host + '/rest/site/fe/matter/enroll?site=' + $scope.siteId + '&app=' + $scope.id;
 	});
 }]);

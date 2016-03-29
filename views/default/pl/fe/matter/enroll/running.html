@@ -5,7 +5,23 @@
         </div>
     </div>
     <div class='tile'>
-        <a href='/rest/pl/fe/matter/enroll/setting?site={{siteid}}&id={{id}}'>设置</a>
+        <a href='/rest/pl/fe/matter/enroll/setting?site={{siteId}}&id={{id}}'>设置</a>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <label>进入URL</label>
+            <div class='form-control' style='height:auto;word-break:break-all' ng-bind='entry.url'></div>
+        </div>
+        <div class='form-group'>
+            <label>进入二维码</label>
+            <div><img ng-src="{{entry.qrcode}}"></div>
+        </div>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <label>屏幕地址</label>
+            <div class='form-control' ng-bind="opUrl"></div>
+        </div>
     </div>
     <div class='tile'>
         <div class='form-group'>
@@ -23,7 +39,7 @@
     </div>
     <div class='tile'>
         <div class='form-group'>
-            <a href='/rest/pl/fe/matter/enroll/record?site={{siteid}}&id={{id}}'>登记记录</a>
+            <a href='/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}'>登记记录</a>
         </div>
     </div>
     <div class='tile'>

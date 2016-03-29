@@ -1,5 +1,5 @@
 (function() {
-	app.provider.controller('ctrlSetting', ['$scope', '$location', 'http2', '$modal', 'mediagallery', function($scope, $location, http2, $modal, mediagallery) {
+	ngApp.provider.controller('ctrlSetting', ['$scope', '$location', 'http2', '$modal', 'mediagallery', function($scope, $location, http2, $modal, mediagallery) {
 		window.onbeforeunload = function(e) {
 			var message;
 			if ($scope.modified) {
@@ -15,7 +15,7 @@
 			$scope.app.state = 2;
 			$scope.update('state');
 			$scope.submit().then(function() {
-				location.href = '/rest/pl/fe/matter/enroll/running?site=' + $scope.siteid + '&id=' + $scope.id;
+				location.href = '/rest/pl/fe/matter/enroll/running?site=' + $scope.siteId + '&id=' + $scope.id;
 			});
 		};
 		$scope.setPic = function() {
@@ -25,7 +25,7 @@
 					$scope.update('pic');
 				}
 			};
-			mediagallery.open($scope.siteid, options);
+			mediagallery.open($scope.siteId, options);
 		};
 		$scope.removePic = function() {
 			var nv = {
@@ -59,7 +59,7 @@
 					};
 				}],
 			}).result.then(function(options) {
-				http2.post('/rest/pl/fe/matter/enroll/page/add?site=' + $scope.siteid + '&app=' + $scope.id, options, function(rsp) {
+				http2.post('/rest/pl/fe/matter/enroll/page/add?site=' + $scope.siteId + '&app=' + $scope.id, options, function(rsp) {
 					var page = rsp.data;
 					$scope.app.pages.push(page);
 					location.href = '/rest/pl/fe/matter/enroll/page?id=' + $scope.id + '&page=' + page.name;

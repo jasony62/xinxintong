@@ -1,5 +1,5 @@
 (function() {
-	app.provider.controller('ctrlCoin', ['$scope', 'http2', '$modal', '$timeout', function($scope, http2, $modal, $timeout) {
+	ngApp.provider.controller('ctrlCoin', ['$scope', 'http2', '$modal', '$timeout', function($scope, http2, $modal, $timeout) {
 		var prefix = 'app.enroll,' + $scope.id,
 			actions = [{
 				name: 'record.submit',

@@ -94,7 +94,7 @@
                             for (var a in def.attrs) {
                                 html += 'data-' + def.attrs[a].name + '="' + def.attrs[a].value + '"';
                             }
-                            html += ' data-label="' + def.ops[i].text + '"><span>' + def.ops[i].text + '</span></label></li>';
+                            html += ' data-label="' + def.ops[i].l + '"><span>' + def.ops[i].l + '</span></label></li>';
                         }
                         html += '</ul>';
                     } else if (def.component === 'S') {
@@ -102,7 +102,7 @@
                         def.required == 1 && (html += 'required=""');
                         html += ' title="' + def.title + '">\r\n';
                         for (var i in def.ops) {
-                            html += '<option wrap="option" name="data.' + key + '" value="v' + i + '"' + 'data-label="' + def.ops[i].text + '"' + 'title="' + def.title + '"' + '>' + def.ops[i].text + '</option>';
+                            html += '<option wrap="option" name="data.' + key + '" value="v' + i + '"' + 'data-label="' + def.ops[i].l + '"' + 'title="' + def.title + '"' + '>' + def.ops[i].text + '</option>';
                         }
                         html += '\r\n</select>';
                     }
@@ -124,7 +124,7 @@
                         html += '><input type="checkbox" name="' + key + '"';
                         def.required == 1 && (html += 'required=""');
                         html += ' ng-model="data.' + key + '.v' + i + '"';
-                        html += ' title="' + def.title + '" data-label="' + def.ops[i].text + '"><span>' + def.ops[i].text + '</span></label></li>';
+                        html += ' title="' + def.title + '" data-label="' + def.ops[i].l + '"><span>' + def.ops[i].l + '</span></label></li>';
                     }
                     html += '</ul>';
                 }
@@ -490,7 +490,7 @@
     window.wrapLib = new WrapLib();
 })();
 (function() {
-    app.provider.controller('ctrlPage', ['$scope', '$location', 'http2', '$modal', '$timeout', 'Mp', function($scope, $location, http2, $modal, $timeout, Mp) {
+    ngApp.provider.controller('ctrlPage', ['$scope', '$location', 'http2', '$modal', '$timeout', 'Mp', function($scope, $location, http2, $modal, $timeout, Mp) {
         var extractSchema = function() {
             var i, pages, page, s, s2;
             pages = $scope.app.pages;
@@ -635,7 +635,7 @@
                 var url, p = {};
                 p[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
                 url = '/rest/pl/fe/matter/enroll/page/update';
-                url += '?site=' + $scope.siteid;
+                url += '?site=' + $scope.siteId;
                 url += '&id=' + $scope.id;
                 url += '&pid=' + page.id;
                 url += '&pname=' + page.name;
@@ -650,7 +650,7 @@
         $scope.delPage = function() {
             if (window.confirm('确定删除？')) {
                 var url = '/rest/pl/fe/matter/enroll/page/remove';
-                url += '?site=' + $scope.siteid;
+                url += '?site=' + $scope.siteId;
                 url += '&app=' + $scope.id;
                 url += '&pid=' + $scope.ep.id;
                 http2.get(url, function(rsp) {
@@ -699,7 +699,7 @@
             $scope.others = others;
         });
     }]);
-    app.provider.controller('ctrlPageSchema', ['$scope', '$modal', function($scope, $modal) {
+    ngApp.provider.controller('ctrlPageSchema', ['$scope', '$modal', function($scope, $modal) {
         $scope.chooseUser = function() {
             $modal.open({
                 templateUrl: 'chooseUserSchema.html',
@@ -750,7 +750,7 @@
             $scope.ep.html = '';
         };
     }]);
-    app.provider.controller('ctrlInputSchema', ['$scope', '$modal', function($scope, $modal) {
+    ngApp.provider.controller('ctrlInputSchema', ['$scope', '$modal', function($scope, $modal) {
         $scope.chooseSchema = function() {
             $modal.open({
                 templateUrl: 'chooseDataSchema.html',
@@ -866,7 +866,7 @@
             });
         };
     }]);
-    app.provider.controller('ctrlSigninSchema', ['$scope', '$modal', function($scope, $modal) {
+    ngApp.provider.controller('ctrlSigninSchema', ['$scope', '$modal', function($scope, $modal) {
         $scope.chooseSchema = function() {
             $modal.open({
                 templateUrl: 'chooseDataSchema.html',
@@ -970,7 +970,7 @@
             });
         };
     }]);
-    app.provider.controller('ctrlViewSchema', ['$scope', '$modal', function($scope, $modal) {
+    ngApp.provider.controller('ctrlViewSchema', ['$scope', '$modal', function($scope, $modal) {
         $scope.options = {
             record: {
                 l: '登记项'
@@ -1073,7 +1073,7 @@
             });
         };
     }]);
-    app.provider.controller('ctrlPageEditor', ['$scope', '$modal', 'mattersgallery', 'mediagallery', function($scope, $modal, mattersgallery, mediagallery) {
+    ngApp.provider.controller('ctrlPageEditor', ['$scope', '$modal', 'mattersgallery', 'mediagallery', function($scope, $modal, mattersgallery, mediagallery) {
         $scope.activeWrap = false;
         var setActiveWrap = function(wrap) {
             var wrapType;
@@ -1245,7 +1245,7 @@
                 multiple: true,
                 setshowname: true
             };
-            mediagallery.open($scope.siteid, options);
+            mediagallery.open($scope.siteId, options);
         });
     }]);
 })();

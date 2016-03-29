@@ -103,15 +103,16 @@ class main extends \pl\fe\matter\base {
 	 * $src 是否来源于父账号，=p
 	 */
 	public function list_action($site, $page = 1, $size = 30) {
+		$model = $this->model();
 		$q = array('a.*', 'xxt_enroll a');
 		$q[2] = "siteid='$site' and state=1";
 		$q2['o'] = 'a.modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
-		if ($a = $this->model()->query_objs_ss($q, $q2)) {
+		if ($a = $model->query_objs_ss($q, $q2)) {
 			$result[] = $a;
 			$q[0] = 'count(*)';
-			$total = (int) $this->model()->query_val_ss($q);
+			$total = (int) $model->query_val_ss($q);
 			$result[] = $total;
 			return new \ResponseData($result);
 		}
@@ -158,9 +159,10 @@ class main extends \pl\fe\matter\base {
 		$newapp['modifier_name'] = $user->name;
 		$newapp['modify_at'] = $current;
 		$newapp['entry_rule'] = json_encode($entryRule);
+		$newapp['data_schemas'] = \TMS_MODEL::toJson($config->schema);
 		$newapp['summary'] = '';
 		$this->model()->insert('xxt_enroll', $newapp, false);
-		$app = $this->model('app\enroll')->byId($id);
+		$app = $this->model('matter\enroll')->byId($id);
 		/*记录操作日志*/
 		$app->type = 'enroll';
 		$this->model('log')->matterOp($site->id, $user, $app, 'C');
@@ -281,7 +283,7 @@ class main extends \pl\fe\matter\base {
 	 * @param string $scenario scenario's name
 	 * @param string $template template's name
 	 */
-	private function _addPageByTemplate($siteId, $aid, $scenario, $template, $customConfig) {
+	private function &_addPageByTemplate($siteId, $aid, $scenario, $template, $customConfig) {
 		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/matter/enroll/scenario/' . $scenario . '/templates/' . $template;
 		$config = file_get_contents($templateDir . '/config.json');
 		$config = preg_replace('/\t|\r|\n/', '', $config);
@@ -299,19 +301,21 @@ class main extends \pl\fe\matter\base {
 				'css' => file_get_contents($templateDir . '/' . $page->name . '.css'),
 				'js' => file_get_contents($templateDir . '/' . $page->name . '.js'),
 			);
-			//if ($page->type === 'I') {
 			/*填充页面*/
 			$matched = array();
 			$pattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
 			if (preg_match($pattern, $data['html'], $matched)) {
 				if (isset($customConfig->simpleSchema)) {
-					$html = $modelPage->htmlBySimpleSchema($customConfig->simpleSchema, $matched[0]);
-				} else {
-					$html = $modelPage->htmlBySchema($config->schema, $matched[0]);
+					$config->schema = $modelPage->schemaByText($customConfig->simpleSchema);
 				}
+				$html = $modelPage->htmlBySchema($config->schema, $matched[0]);
 				$data['html'] = preg_replace($pattern, $html, $data['html']);
+				$rst = $modelPage->update(
+					'xxt_enroll_page',
+					array('data_schemas' => \TMS_MODEL::toJson($config->schema)),
+					"aid='$aid' and id={$ap->id}"
+				);
 			}
-			//}
 			$modelCode->modify($ap->code_id, $data);
 		}
 

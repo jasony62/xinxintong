@@ -1,5 +1,5 @@
 (function() {
-    app.provider.controller('ctrlSchema', ['$scope', 'http2', '$timeout', function($scope, http2, $timeout) {
+    ngApp.provider.controller('ctrlSchema', ['$scope', 'http2', '$timeout', function($scope, http2, $timeout) {
         var id = 'c' + (new Date()).getTime(),
             base = {
                 title: '',
@@ -48,7 +48,7 @@
         };
         $scope.addOption = function(schema) {
             var newOp = {
-                text: ''
+                l: ''
             };
             schema.ops.push(newOp);
             $timeout(function() {

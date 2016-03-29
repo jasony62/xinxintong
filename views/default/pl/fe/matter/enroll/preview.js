@@ -633,7 +633,7 @@
     window.wrapLib = new WrapLib();
 })();
 (function() {
-    app.provider.controller('ctrlPreview', ['$scope', 'http2', '$modal', '$timeout', 'Mp', function($scope, http2, $modal, $timeout, Mp) {
+    ngApp.provider.controller('ctrlPreview', ['$scope', 'http2', '$modal', '$timeout', 'Mp', function($scope, http2, $modal, $timeout, Mp) {
         var extractSchema = function() {
             var i, pages, page, s, s2;
             pages = $scope.app.pages;

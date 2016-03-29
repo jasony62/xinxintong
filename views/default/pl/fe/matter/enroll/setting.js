@@ -12,7 +12,11 @@
 			}
 		};
 		$scope.run = function() {
-			location.href = '/rest/pl/fe/matter/enroll/running?site=' + $scope.siteid + '&id=' + $scope.id;
+			$scope.app.state = 2;
+			$scope.update('state');
+			$scope.submit().then(function() {
+				location.href = '/rest/pl/fe/matter/enroll/running?site=' + $scope.siteid + '&id=' + $scope.id;
+			});
 		};
 		$scope.setPic = function() {
 			var options = {

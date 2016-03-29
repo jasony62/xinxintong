@@ -150,17 +150,20 @@ app.factory('Mp', function($q, http2) {
 	};
 	return Mp;
 });
-app.controller('ctrlApp', ['$scope', '$location', 'http2', function($scope, $location, http2) {
+app.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($scope, $location, $q, http2) {
 	var ls = $location.search(),
 		modifiedData = {};
 	$scope.id = ls.id;
 	$scope.siteid = ls.site;
 	$scope.modified = false;
 	$scope.submit = function() {
+		var defer = $q.defer();
 		http2.post('/rest/pl/fe/matter/enroll/update?site=' + $scope.siteid + '&app=' + $scope.id, modifiedData, function(rsp) {
 			$scope.modified = false;
 			modifiedData = {};
+			defer.resolve(rsp.data);
 		});
+		return defer.promise;
 	};
 	$scope.update = function(name) {
 		if (['entry_rule'].indexOf(name) !== -1) {

@@ -15,9 +15,14 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 返回视图
 	 */
-	public function index_action() {
-		\TPL::output('/pl/fe/matter/enroll/frame');
-		exit;
+	public function index_action($site, $id) {
+		$app = $this->model('matter\enroll')->byId($id);
+		if ($app->state === '2') {
+			$this->redirect('/rest/pl/fe/matter/enroll/running?site=' . $site . '&id=' . $id);
+		} else {
+			\TPL::output('/pl/fe/matter/enroll/frame');
+			exit;
+		}
 	}
 	/**
 	 * 返回视图

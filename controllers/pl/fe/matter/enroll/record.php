@@ -48,4 +48,52 @@ class record extends \pl\fe\matter\base {
 
 		return new \ResponseData($result);
 	}
+	/**
+	 * 给符合条件的登记记录打标签
+	 */
+	public function exportByData_action($app) {
+		$posted = $this->getPostJson();
+		$filter = $posted->filter;
+		$target = $posted->target;
+		$includeData = isset($posted->includeData) ? $posted->includeData : 'N';
+
+		if (!empty($target)) {
+			/*更新应用标签*/
+			$modelApp = $this->model('app\enroll');
+			/*给符合条件的记录打标签*/
+			$modelRec = $this->model('app\enroll\record');
+			$q = array(
+				'distinct enroll_key',
+				'xxt_enroll_record_data',
+				"aid='$app' and state=1",
+			);
+			$eks = null;
+			foreach ($filter as $k => $v) {
+				$w = "(name='$k' and ";
+				$w .= "concat(',',value,',') like '%,$v,%'";
+				$w .= ')';
+				$q2 = $q;
+				$q2[2] .= ' and ' . $w;
+				$eks2 = $modelRec->query_vals_ss($q2);
+				$eks = ($eks === null) ? $eks2 : array_intersect($eks, $eks2);
+			}
+			if (!empty($eks)) {
+				$objApp = $modelApp->byId($target, array('cascaded' => 'N'));
+				$options = array('cascaded' => $includeData);
+				foreach ($eks as $ek) {
+					$record = $modelRec->byId($ek, $options);
+					$user = new \stdClass;
+					$user->openid = $record->openid;
+					$user->nickname = $record->nickname;
+					$user->vid = '';
+					$newek = $modelRec->add($this->mpid, $objApp, $user);
+					if ($includeData === 'Y') {
+						$modelRec->setData($user, $objApp->mpid, $objApp->id, $newek, $record->data);
+					}
+				}
+			}
+		}
+
+		return new \ResponseData('ok');
+	}
 }

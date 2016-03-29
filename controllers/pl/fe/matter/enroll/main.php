@@ -36,13 +36,6 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 返回视图
 	 */
-	public function page_action() {
-		\TPL::output('/pl/fe/matter/enroll/frame');
-		exit;
-	}
-	/**
-	 * 返回视图
-	 */
 	public function event_action() {
 		\TPL::output('/pl/fe/matter/enroll/frame');
 		exit;
@@ -213,7 +206,7 @@ class main extends \pl\fe\matter\base {
 	 * @param string $aid
 	 *
 	 */
-	public function update_action($site, $id) {
+	public function update_action($site, $app) {
 		$model = $this->model();
 		$user = $this->accountUser();
 		if (false === $user) {
@@ -235,10 +228,10 @@ class main extends \pl\fe\matter\base {
 		$nv['modifier_name'] = $user->name;
 		$nv['modify_at'] = time();
 
-		$rst = $model->update('xxt_enroll', $nv, "id='$id'");
+		$rst = $model->update('xxt_enroll', $nv, "id='$app'");
 		/*记录操作日志*/
 		if ($rst) {
-			$app = $this->model('matter\\' . 'enroll')->byId($id, 'id,title,summary,pic');
+			$app = $this->model('matter\\' . 'enroll')->byId($app, 'id,title,summary,pic');
 			$app->type = 'enroll';
 			$this->model('log')->matterOp($site, $user, $app, 'U');
 		}

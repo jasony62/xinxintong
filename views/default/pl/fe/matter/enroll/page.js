@@ -635,7 +635,7 @@
                 var url, p = {};
                 p[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
                 url = '/rest/pl/fe/matter/enroll/page/update';
-                url += '?site=' + $scope.siteId;
+                url += '?site=' + $scope.siteid;
                 url += '&id=' + $scope.id;
                 url += '&pid=' + page.id;
                 url += '&pname=' + page.name;
@@ -649,8 +649,9 @@
         };
         $scope.delPage = function() {
             if (window.confirm('确定删除？')) {
-                var url = '/rest/mp/app/enroll/page/remove';
-                url += '?aid=' + $scope.id;
+                var url = '/rest/pl/fe/matter/enroll/page/remove';
+                url += '?site=' + $scope.siteid;
+                url += '&app=' + $scope.id;
                 url += '&pid=' + $scope.ep.id;
                 http2.get(url, function(rsp) {
                     $scope.app.pages.splice($scope.app.pages.indexOf($scope.ep), 1);

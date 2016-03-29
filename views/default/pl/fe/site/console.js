@@ -107,7 +107,7 @@ app.controller('ctrlConsole', ['$scope', '$modal', 'http2', function($scope, $mo
             location.href = '/rest/pl/fe/matter/mission?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
-    http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId, function(rsp) {
+    http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date()).getTime(), function(rsp) {
         $scope.matters = rsp.data.matters;
     });
 }]);

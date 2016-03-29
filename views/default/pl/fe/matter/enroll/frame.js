@@ -157,7 +157,7 @@ app.controller('ctrlApp', ['$scope', '$location', 'http2', function($scope, $loc
 	$scope.siteid = ls.site;
 	$scope.modified = false;
 	$scope.submit = function() {
-		http2.post('/rest/pl/fe/matter/enroll/update?id=' + $scope.id, modifiedData, function(rsp) {
+		http2.post('/rest/pl/fe/matter/enroll/update?site=' + $scope.siteid + '&app=' + $scope.id, modifiedData, function(rsp) {
 			$scope.modified = false;
 			modifiedData = {};
 		});

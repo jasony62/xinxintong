@@ -71,12 +71,12 @@ class page extends \pl\fe\matter\base {
 	 * $aid
 	 * $pid
 	 */
-	public function remove_action($aid, $pid) {
-		$page = $this->model('app\enroll\page')->byId($aid, $pid);
+	public function remove_action($app, $pid) {
+		$page = $this->model('app\enroll\page')->byId($app, $pid);
 
 		$this->model('code/page')->remove($page->code_id);
 
-		$rst = $this->model()->delete('xxt_enroll_page', "aid='$aid' and id=$pid");
+		$rst = $this->model()->delete('xxt_enroll_page', "aid='$app' and id=$pid");
 
 		return new \ResponseData($rst);
 	}

@@ -33,7 +33,7 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 保存登记的数据
 	 */
-	public function setData($user, $siteId, $app, $ek, $data, $submitkey = '') {
+	public function setData($user, $siteId, &$app, $ek, $data, $submitkey = '') {
 		if (empty($data)) {
 			return array(true);
 		}
@@ -130,20 +130,20 @@ class record_model extends \TMS_MODEL {
 	 * 如果用户已经做过活动登记，那么设置签到时间
 	 * 如果用户没有做个活动登记，那么要先产生一条登记记录，并记录签到时间
 	 */
-	public function signin($siteId, $app, $user) {
+	public function signin($siteId, &$app, $user, $data = null) {
 		if ($ek = $this->getLastKey($siteId, $app, $user)) {
 			$enrolled = true;
 		} else {
-			/*如果当前用户没有登记过，就先签到后登记*/
+			/* 如果当前用户没有登记过，就先签到后登记 */
 			$enrolled = false;
 			$ek = $this->enroll($siteId, $app, $user);
 		}
-		/*更新状态*/
+		/* 更新状态 */
 		$signinAt = time();
 		$sql = "update xxt_enroll_record set signin_at=$signinAt,signin_num=signin_num+1";
 		$sql .= " where siteid='$siteId' and aid='{$app->id}' and enroll_key='$ek'";
 		$rst = $this->update($sql);
-		/*记录日志*/
+		/* 记录日志 */
 		$this->insert(
 			'xxt_enroll_signin_log',
 			array(
@@ -156,6 +156,10 @@ class record_model extends \TMS_MODEL {
 			),
 			false
 		);
+		/* 更新登记记录 */
+		if (!empty($data)) {
+			$this->setData($user, $siteId, $app, $ek, $data);
+		}
 
 		return $enrolled;
 	}

@@ -163,14 +163,16 @@
                     $scope2.ok = function() {
                         $mi.close($scope2.data);
                     };
-                    http2.get('/rest/mp/app/enroll/list?page=1&size=999', function(rsp) {
+                    http2.get('/rest/pl/fe/matter/enroll/list?site=' + $scope.siteid + '&page=1&size=999', function(rsp) {
                         $scope2.apps = rsp.data[0];
                     });
                 }],
                 backdrop: 'static'
             }).result.then(function(data) {
                 if (data.target && data.target.length) {
-                    http2.post('/rest/mp/app/enroll/record/exportByData?aid=' + $scope.aid, data, function(rsp) {});
+                    http2.post('/rest/pl/fe/matter/enroll/record/exportByData?site=' + $scope.siteid + '&app=' + $scope.id, data, function(rsp) {
+                        alert('ok');
+                    });
                 }
             });
         };

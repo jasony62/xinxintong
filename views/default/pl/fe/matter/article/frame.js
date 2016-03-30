@@ -14,9 +14,14 @@ app.controller('ctrlArticle', ['$scope', '$location', 'http2', function($scope, 
 	$scope.id = ls.id;
 	$scope.siteId = ls.site;
 	http2.get('/rest/pl/fe/matter/article/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
+		var url;
 		$scope.editing = rsp.data;
-		$scope.entryUrl = 'http://' + location.host + '/rest/mi/matter?mpid=' + ls.site + '&id=' + ls.id + '&type=article';
-		$scope.entryUrl += '&tpl=' + ($scope.editing.custom_body === 'N' ? 'std' : 'cus');
+		url = 'http://' + location.host + '/rest/site/fe/matter?site=' + ls.site + '&id=' + ls.id + '&type=article';
+		url += '&tpl=' + ($scope.editing.custom_body === 'N' ? 'std' : 'cus');;
+		$scope.entry = {
+			url: url,
+			qrcode: '/rest/pl/fe/matter/article/qrcode?url=' + encodeURIComponent(url),
+		};
 	});
 }]);
 app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', 'mediagallery', function($scope, http2, mattersgallery, mediagallery) {

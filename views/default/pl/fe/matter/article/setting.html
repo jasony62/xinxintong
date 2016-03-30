@@ -1,6 +1,5 @@
 <div class='col-md-8'>
     <div class='tile'>
-        <div class='tile-toggle'><i class='glyphicon glyphicon-chevron-down'></i></div>
         <div class='form-group'>
             <input type='text' class='form-control' ng-model='editing.title' ng-change="update('title');">
             <div class='help-block'>标题：最多35个汉字，70个英文字符</div>
@@ -75,7 +74,10 @@
     </div>
     <div class='tile'>
         <div class='form-group'>
-            <div style='word-break: break-all;'>{{entryUrl}}</div>
+            <div style='word-break: break-all;'>{{entry.url}}</div>
+        </div>
+        <div class="form-group">
+            <div><img ng-src="{{entry.qrcode}}"></div>
         </div>
     </div>
     <div class='tile'>
@@ -85,6 +87,12 @@
             <div>点赞：{{editing.score}}</div>
             <div>分享好友：{{editing.share_friend_num}}</div>
             <div>分享朋友圈：{{editing.share_timeline_num}}</div>
+        </div>
+    </div>
+    <div class='tile'>
+        <div class='form-group' ng-controller='setChannelCtrl' ng-init="matterType='article'">
+            <combox evt-prefix='channel' readonly=true prop='title' existing='editing.channels' options='channels'></combox>
+            <div class='help-block'>频道（可选）</div>
         </div>
     </div>
     <div class='tile'>

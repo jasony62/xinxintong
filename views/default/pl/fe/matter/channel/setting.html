@@ -1,0 +1,125 @@
+<div class='col-md-8'>
+    <div class='tile'>
+        <div class='form-group'>
+            <input type='text' class='form-control' ng-model="editing.title" tms-auto-update tms-wait=1000 tms-update="update('title')">
+            <div class='help-block'>标题：最多35个汉字，70个英文字符</div>
+        </div>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <input type='text' class='form-control' ng-model="editing.fixed_title" tms-auto-update tms-wait=1000 tms-update="update('fixed_title')">
+            <div class='help-block'>固定标题</div>
+        </div>
+        <div class='form-group'>
+            <select class='form-control' ng-model='editing.matter_type' ng-change="update('matter_type')" ng-options='amt.name as amt.title for amt in acceptMatterTypes'></select>
+            <div class='help-block'>素材类型</div>
+        </div>
+        <div class='form-group'>
+            <select class='form-control' ng-model='editing.volume' ng-change="update('volume')" ng-options='v for v in volumes'></select>
+            <div class='help-block'>显示数量</div>
+        </div>
+        <div class='form-group'>
+            <button class='btn btn-default btn-sm' ng-click="setFixed('top')">选择图文</button>
+            <ul class='list-group' style='margin-bottom:0;'>
+                <li class='list-group-item' ng-if='topMatter' ng-mouseenter="hover=true" ng-mouseleave="hover=false" stuff="topMatter" title='{{topMatter.type|typetitle}}'>
+                    <span>{{topMatter.title}}</span>
+                    <button class='btn btn-xs btn-default pull-right' ng-if="hover" ng-click="setFixed('top',true)">
+                        <span class='glyphicon glyphicon-remove'></span>
+                    </button>
+                </li>
+            </ul>
+            <div class='help-block'>置顶（可选）</div>
+        </div>
+        <div class='form-group'>
+            <ul class='list-group' style='margin-bottom:0'>
+                <li class='list-group-item' ng-repeat="m in matters" ng-mouseenter='hover=true' ng-mouseleave='hover=false' title='{{m.type|typetitle}}'>
+                    <span>{{m.title}}</span>
+                    <button class='btn btn-xs btn-default pull-right' ng-if="hover" ng-click="removeMatter(m)">
+                        <span class='glyphicon glyphicon-remove'></span>
+                    </button>
+                </li>
+            </ul>
+            <div class='help-block'>已有图文</div>
+        </div>
+        <div class='form-group'>
+            <button class='btn btn-default btn-sm' ng-click="setFixed('bottom',false)">选择图文</button>
+            <ul class='list-group' style='margin-bottom:0;'>
+                <li class='list-group-item' ng-if='bottomMatter' ng-mouseenter="hover=true" ng-mouseleave="hover=false" stuff="bottomMatter"
+                title='{{bottomMatter.type|typetitle}}'>
+                    <span>{{bottomMatter.title}}</span>
+                    <button class='btn btn-xs btn-default pull-right' ng-if="hover" ng-click="setFixed('bottom',true)">
+                        <span class='glyphicon glyphicon-remove'></span>
+                    </button>
+                </li>
+            </ul>
+            <div class='help-block'>置底（可选）</div>
+        </div>
+        <div class='form-group' ng-show="editing.matter_type==='article'">
+            <div>
+                <label class="radio-inline">
+                    <input type='radio' ng-model='editing.orderby' value="time" name='orderby' ng-change="update('orderby')">加入频道时间</label>
+                <label class="radio-inline">
+                    <input type='radio' ng-model='editing.orderby' value="read" name='orderby' ng-change="update('orderby')">阅读数</label>
+                <label class="radio-inline">
+                    <input type='radio' ng-model='editing.orderby' value="share" name='orderby' ng-change="update('orderby')">分享数</label>
+                <label class="radio-inline">
+                    <input type='radio' ng-model='editing.orderby' value="like" name='orderby' ng-change="update('orderby')">点赞数</label>
+                <label class="radio-inline">
+                    <input type='radio' ng-model='editing.orderby' value="remark" name='orderby' ng-change="update('orderby')">评论数</label>
+            </div>
+            <div class='help-block'>排序规则</div>
+        </div>
+        <div class='form-group'>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-model='editing.filter_by_matter_acl' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('filter_by_matter_acl')">根据素材的访问控制规则自动过滤</label>
+            </div>
+        </div>
+        <div class='form-group'>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-model='editing.show_pic_in_page' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('show_pic_in_page')">页面形式中显示每条素材的头图</label>
+            </div>
+        </div>
+    </div>
+</div>
+<div class='col-md-4'>
+    <div class='tile'>
+        <button class='btn btn-block' ng-click="submit()" ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'">保存</button>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <div style='word-break: break-all;'>{{entryUrl}}</div>
+        </div>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <div>阅读：{{editing.read_num}}</div>
+            <div>分享好友：{{editing.share_friend_num}}</div>
+            <div>分享朋友圈：{{editing.share_timeline_num}}</div>
+        </div>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <div>创建人：{{editing.creater_name}}</div>
+            <div>创建时间：{{editing.create_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+            <div>修改人：{{editing.modifier_name}}</div>
+            <div>最后一次修改时间：{{editing.modify_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+        </div>
+    </div>
+</div>
+<script type="text/ng-template" id="insertMedia.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">媒体文件</h5>
+    </div>
+    <div class="modal-body">
+        <div class="form-group">
+            <label>地址（URL）</label>
+            <textarea class="form-control" ng-model='data.url' rows=6></textarea>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="ok()">确定</button>
+    </div>
+</script>

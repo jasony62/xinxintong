@@ -1,0 +1,59 @@
+<div class='col-md-8'>
+    <div class='tile'>
+        <div class='form-group'>
+            <input type='text' class='form-control' ng-model="editing.title" tms-auto-update tms-wait=1000 tms-update="update('title')">
+            <div class='help-block'>标题：最多35个汉字，70个英文字符</div>
+        </div>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <button class='btn btn-default btn-sm' ng-click='assign()'>选择素材</button>
+            <ul class='list-group' sortable style='margin-bottom:0'>
+                <li class='list-group-item' ng-repeat="m in editing.matters" stuff="s" title='{{m.type|typetitle}}' ng-mouseenter='hover=true'
+                ng-mouseleave='hover=false'>
+                    <span>{{m.title}}</span>
+                    <button class='btn btn-default btn-xs pull-right' ng-click='removeMatter($index)' ng-if="hover">
+                        <span class='glyphicon glyphicon-remove'></span>
+                    </button>
+                </li>
+            </ul>
+            <div class='help-block'>素材列表</div>
+        </div>
+        <div class='form-group'>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-model='editing.filter_by_matter_acl' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('filter_by_matter_acl')">根据素材的访问控制规则自动过滤</label>
+            </div>
+        </div>
+        <div class='form-group'>
+            <button class='btn btn-default btn-sm' ng-click='setEmptyReply()'>指定素材</button>
+            <a class='list-group-item' title='{{editing.emptyReply.type|typetitle}}' ng-if='editing.emptyReply'><span>{{editing.emptyReply.title||editing.emptyReply.content}}</span><button class='btn btn-default btn-xs pull-right' ng-click='removeEmptyReply()'><span class='glyphicon glyphicon-remove'></span></button></a>
+            <div class='help-block'>缺省素材</div>
+        </div>
+    </div>
+</div>
+<div class='col-md-4'>
+    <div class='tile'>
+        <button class='btn btn-block' ng-click="submit()" ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'">保存</button>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <div style='word-break: break-all;'>{{entryUrl}}</div>
+        </div>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <div>阅读：{{editing.read_num}}</div>
+            <div>分享好友：{{editing.share_friend_num}}</div>
+            <div>分享朋友圈：{{editing.share_timeline_num}}</div>
+        </div>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <div>创建人：{{editing.creater_name}}</div>
+            <div>创建时间：{{editing.create_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+            <div>修改人：{{editing.modifier_name}}</div>
+            <div>最后一次修改时间：{{editing.modify_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+        </div>
+    </div>
+</div>

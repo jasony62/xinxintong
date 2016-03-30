@@ -133,16 +133,12 @@ class main extends \pl\fe\matter\base {
 	 * --$order
 	 *
 	 */
-	public function list_action($page = 1, $size = 30) {
+	public function list_action($site, $page = 1, $size = 30) {
 		if (!($options = $this->getPostJson())) {
 			$options = new \stdClass;
 		}
 
 		$uid = \TMS_CLIENT::get_client_uid();
-		/**
-		 * 单图文来源
-		 */
-		$mpid = (!empty($options->src) && $options->src === 'p') ? $this->getParentMpid() : $this->mpid;
 		/**
 		 * select fields
 		 */
@@ -151,16 +147,16 @@ class main extends \pl\fe\matter\base {
 		/**
 		 * where
 		 */
-		$w = "a.mpid='$mpid' and a.state=1 and finished='Y'";
+		$w = "a.siteid='$site' and a.state=1 and finished='Y'";
 		/**
 		 * 限作者和管理员
 		 */
-		if (!$this->model('mp\permission')->isAdmin($mpid, $uid, true)) {
+		/*if (!$this->model('mp\permission')->isAdmin($mpid, $uid, true)) {
 			$fea = $this->model('mp\mpaccount')->getFeature($mpid, 'matter_visible_to_creater');
 			if ($fea->matter_visible_to_creater === 'Y') {
 				$w .= " and (a.creater='$uid' or a.public_visible='Y')";
 			}
-		}
+		}*/
 		/**
 		 * 按频道过滤
 		 */

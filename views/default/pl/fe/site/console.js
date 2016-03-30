@@ -12,6 +12,10 @@ app.controller('ctrlConsole', ['$scope', '$modal', 'http2', function($scope, $mo
     $scope.open = function(matter) {
         if (matter.matter_type === 'article') {
             location.href = '/rest/pl/fe/matter/article?id=' + matter.matter_id + '&site=' + $scope.siteId;
+        } else if (matter.matter_type === 'news') {
+            location.href = '/rest/pl/fe/matter/news?id=' + matter.matter_id + '&site=' + $scope.siteId;
+        } else if (matter.matter_type === 'channel') {
+            location.href = '/rest/pl/fe/matter/channel?id=' + matter.matter_id + '&site=' + $scope.siteId;
         } else if (matter.matter_type === 'enroll') {
             location.href = '/rest/pl/fe/matter/enroll?id=' + matter.matter_id + '&site=' + $scope.siteId;
         } else if (matter.matter_type === 'mission') {
@@ -25,12 +29,12 @@ app.controller('ctrlConsole', ['$scope', '$modal', 'http2', function($scope, $mo
     };
     $scope.addNews = function() {
         http2.get('/rest/pl/fe/matter/news/create?site=' + $scope.siteId, function(rsp) {
-            location.href = '/rest/pl/fe/matter/news?site=' + $scope.siteId + '&id=' + rsp.data;
+            location.href = '/rest/pl/fe/matter/news?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
     $scope.addChannel = function() {
         http2.get('/rest/pl/fe/matter/channel/create?site=' + $scope.siteId, function(rsp) {
-            location.href = '/rest/pl/fe/matter/channel?site=' + $scope.siteId + '&id=' + rsp.data;
+            location.href = '/rest/pl/fe/matter/channel?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
     $scope.addEnrollByTemplate = function() {

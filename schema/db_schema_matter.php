@@ -238,12 +238,17 @@ if (!$mysqli->query($sql)) {
  * 多图文
  */
 $sql = "create table if not exists xxt_news(";
-$sql .= 'id int not null auto_increment';
-$sql .= ',mpid varchar(32) not null';
-$sql .= ',creater varchar(40) not null';
-$sql .= ',create_at int not null';
+$sql .= "id int not null auto_increment";
+$sql .= ",mpid varchar(32) not null";
+$sql .= ",siteid varchar(32) not null default ''";
+$sql .= ",creater varchar(40) not null";
+$sql .= ",create_at int not null";
 $sql .= ",creater_name varchar(255) not null default ''"; //from account or fans
 $sql .= ",creater_src char(1) not null default 'A'"; //A:accouont|F:fans|M:member
+$sql .= ",modifier varchar(40) not null default ''"; //accountid/fid
+$sql .= ",modifier_name varchar(255) not null default ''"; //from account or fans
+$sql .= ",modifier_src char(1)"; //A:accouont|F:fans|M:member
+$sql .= ',modify_at int not null';
 $sql .= ",public_visible char(1) not null default 'N'";
 $sql .= ',state tinyint not null default 1'; //0:stop,1:normal
 $sql .= ',title varchar(70) not null';
@@ -298,12 +303,17 @@ if (!$mysqli->query($sql)) {
  * 频道
  */
 $sql = "create table if not exists xxt_channel(";
-$sql .= 'id int not null auto_increment';
-$sql .= ',mpid varchar(32) not null';
-$sql .= ',creater varchar(40) not null';
-$sql .= ',create_at int not null';
+$sql .= "id int not null auto_increment";
+$sql .= ",mpid varchar(32) not null";
+$sql .= ",siteid varchar(32) not null default ''";
+$sql .= ",creater varchar(40) not null";
+$sql .= ",create_at int not null";
 $sql .= ",creater_name varchar(255) not null default ''"; //from account or fans
 $sql .= ",creater_src char(1) not null default 'A'"; //A:accouont|F:fans|M:member
+$sql .= ",modifier varchar(40) not null default ''"; //accountid/fid
+$sql .= ",modifier_name varchar(255) not null default ''"; //from account or fans
+$sql .= ",modifier_src char(1)"; //A:accouont|F:fans|M:member
+$sql .= ',modify_at int not null';
 $sql .= ",public_visible char(1) not null default 'N'";
 $sql .= ',state tinyint not null default 1'; //0:stop,1:normal
 $sql .= ',title varchar(70) not null';

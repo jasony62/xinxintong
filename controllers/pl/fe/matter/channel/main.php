@@ -1,9 +1,9 @@
 <?php
-namespace pl\fe\matter\news;
+namespace pl\fe\matter\channel;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 
-class channel extends \pl\fe\matter\base {
+class main extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
@@ -14,79 +14,23 @@ class channel extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function edit_action() {
+	public function setting_action() {
 		\TPL::output('/pl/fe/matter/channel/frame');
 		exit;
 	}
 	/**
 	 *
 	 */
-	public function read_action() {
-		\TPL::output('/pl/fe/matter/channel/frame');
-		exit;
-	}
-	/**
-	 *
-	 */
-	public function stat_action() {
-		\TPL::output('/pl/fe/matter/channel/frame');
-		exit;
-	}
-	/**
-	 *
-	 * $src 是否从父账号获取资源
-	 * $acceptType
-	 * $cascade 是否获得频道内的素材和访问控制列表
-	 */
-	public function get_action($id = null, $acceptType = null, $cascade = 'Y') {
+	public function get_action($site, $id) {
 		$uid = \TMS_CLIENT::get_client_uid();
 
-		if ($id !== null) {
-			$channel = $this->model('matter\channel')->byId($id);
-			$channel->uid = $uid;
-			$channel->matters = $this->model('matter\channel')->getMatters($id, $channel, $this->mpid);
-			$channel->acl = $this->model('acl')->byMatter($this->mpid, 'channel', $id);
+		$modelChn = $this->model('matter\channel');
+		$channel = $modelChn->byId($id);
+		$channel->uid = $uid;
+		$channel->matters = $modelChn->getMatters($id, $channel, $site);
+		$channel->acl = $this->model('acl')->byMatter($site, 'channel', $id);
 
-			return new \ResponseData($channel);
-		} else {
-			$options = $this->getPostJson();
-			/**
-			 * 素材的来源
-			 */
-			$mpid = (!empty($options->src) && $options->src === 'p') ? $this->getParentMpid() : $this->mpid;
-			$q = array(
-				"c.*,'$uid' uid",
-				'xxt_channel c',
-				"c.mpid='$mpid' and c.state=1",
-			);
-			!empty($acceptType) && $q[2] .= " and (matter_type='' or matter_type='$acceptType')";
-			/**
-			 * 仅限作者和管理员？
-			 */
-			if (!$this->model('mp\permission')->isAdmin($mpid, $uid, true)) {
-				$visible = $this->model()->query_value('matter_visible_to_creater', 'xxt_mpsetting', "mpid='$mpid'");
-				$visible === 'Y' && $q[2] .= " and (creater='$uid' or public_visible='Y')";
-			}
-			$q2['o'] = 'create_at desc';
-			$channels = $this->model()->query_objs_ss($q, $q2);
-			/**
-			 * 获得子资源
-			 */
-			if ($channels && $cascade == 'Y') {
-				foreach ($channels as $c) {
-					/**
-					 * matters
-					 */
-					$c->matters = $this->model('matter\channel')->getMatters($c->id, $c, $this->mpid);
-					/**
-					 * acl
-					 */
-					$c->acl = $this->model('acl')->byMatter($mpid, 'channel', $c->id);
-				}
-			}
-
-			return new \ResponseData($channels);
-		}
+		return new \ResponseData($channel);
 	}
 	/**
 	 *
@@ -94,63 +38,67 @@ class channel extends \pl\fe\matter\base {
 	 * $acceptType
 	 * $cascade 是否获得频道内的素材和访问控制列表
 	 */
-	public function list_action($acceptType = null, $cascade = 'Y') {
+	public function list_action($site, $acceptType = null, $cascade = 'Y') {
 		$uid = \TMS_CLIENT::get_client_uid();
 
 		$options = $this->getPostJson();
 		/**
 		 * 素材的来源
 		 */
-		$mpid = (!empty($options->src) && $options->src === 'p') ? $this->getParentMpid() : $this->mpid;
 		$q = array(
 			"c.*,'$uid' uid",
 			'xxt_channel c',
-			"c.mpid='$mpid' and c.state=1",
+			"c.siteid='$site' and c.state=1",
 		);
 		!empty($acceptType) && $q[2] .= " and (matter_type='' or matter_type='$acceptType')";
 		/**
 		 * 仅限作者和管理员？
 		 */
-		if (!$this->model('mp\permission')->isAdmin($mpid, $uid, true)) {
+		/*if (!$this->model('mp\permission')->isAdmin($mpid, $uid, true)) {
 			$visible = $this->model()->query_value('matter_visible_to_creater', 'xxt_mpsetting', "mpid='$mpid'");
 			$visible === 'Y' && $q[2] .= " and (creater='$uid' or public_visible='Y')";
-		}
+		}*/
 		$q2['o'] = 'create_at desc';
 		$channels = $this->model()->query_objs_ss($q, $q2);
-		/**
-		 * 获得子资源
-		 */
+		/* 获得子资源 */
 		if ($channels && $cascade == 'Y') {
+			$modelChn = $this->model('matter\channel');
+			$modelAcl = $this->model('acl');
 			foreach ($channels as $c) {
-				/**
-				 * matters
-				 */
-				$c->matters = $this->model('matter\channel')->getMatters($c->id, $c, $this->mpid);
-				/**
-				 * acl
-				 */
-				$c->acl = $this->model('acl')->byMatter($mpid, 'channel', $c->id);
+				$c->matters = $modelChn->getMatters($c->id, $c, $site);
+				$c->acl = $modelAcl->byMatter($mpid, 'channel', $c->id);
 			}
 		}
 
 		return new \ResponseData($channels);
 	}
 	/**
-	 * 创建一个平道素材
+	 * 创建屏道素材
 	 */
-	public function create_action() {
-		$account = \TMS_CLIENT::account();
-		$uid = \TMS_CLIENT::get_client_uid();
+	public function create_action($site) {
+		$user = $this->accountUser();
+		$posted = $this->getPostJson();
+		$current = time();
 
-		$d = (array) $this->getPostJson();
+		$channel = array();
+		$channel['siteid'] = $site;
+		$channel['creater'] = $user->id;
+		$channel['create_at'] = $current;
+		$channel['creater_src'] = 'A';
+		$channel['creater_name'] = $user->name;
+		$channel['modifier'] = $user->id;
+		$channel['modifier_src'] = 'A';
+		$channel['modifier_name'] = $user->name;
+		$channel['modify_at'] = $current;
+		$channel['title'] = isset($posted->title) ? $posted->title : '新频道';
 
-		$d['mpid'] = $this->mpid;
-		$d['creater'] = $uid;
-		$d['create_at'] = time();
-		$d['creater_src'] = 'A';
-		$d['creater_name'] = $account->nickname;
+		$id = $this->model()->insert('xxt_channel', $channel, true);
 
-		$id = $this->model()->insert('xxt_channel', $d, true);
+		/* 记录操作日志 */
+		$matter = (object) $channel;
+		$matter->id = $id;
+		$matter->type = 'channel';
+		$this->model('log')->matterOp($site, $user, $matter, 'C');
 
 		$channel = $this->model('matter\channel')->byId($id);
 
@@ -162,13 +110,26 @@ class channel extends \pl\fe\matter\base {
 	 * $id channel's id
 	 * $nv pair of name and value
 	 */
-	public function update_action($id) {
+	public function update_action($site, $id) {
+		$user = $this->accountUser();
 		$nv = $this->getPostJson();
+		$current = time();
+
+		$nv->modifier = $user->id;
+		$nv->modifier_src = 'A';
+		$nv->modifier_name = $user->name;
+		$nv->modify_at = $current;
 
 		$rst = $this->model()->update('xxt_channel',
-			(array) $nv,
-			"mpid='$this->mpid' and id=$id"
+			$nv,
+			"siteid='$site' and id=$id"
 		);
+		/* 记录操作日志 */
+		if ($rst) {
+			$channel = $this->model('matter\\' . 'channel')->byId($id, 'id,title');
+			$channel->type = 'channel';
+			$this->model('log')->matterOp($site, $user, $channel, 'U');
+		}
 
 		return new \ResponseData($rst);
 	}
@@ -182,7 +143,7 @@ class channel extends \pl\fe\matter\base {
 	 * $id matter's id.
 	 *
 	 */
-	public function setfixed_action($id, $pos) {
+	public function setfixed_action($site, $id, $pos) {
 		$matter = $this->getPostJson();
 
 		if ($pos === 'top') {
@@ -191,7 +152,7 @@ class channel extends \pl\fe\matter\base {
 					'top_type' => $matter->t,
 					'top_id' => $matter->id,
 				),
-				"mpid='$this->mpid' and id=$id"
+				"siteid='$site' and id=$id"
 			);
 		} else if ($pos === 'bottom') {
 			$this->model()->update('xxt_channel',
@@ -199,7 +160,7 @@ class channel extends \pl\fe\matter\base {
 					'bottom_type' => $matter->t,
 					'bottom_id' => $matter->id,
 				),
-				"mpid='$this->mpid' and id=$id"
+				"siteid='$site' and id=$id"
 			);
 		}
 
@@ -210,10 +171,8 @@ class channel extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function addMatter_action() {
-		$account = \TMS_CLIENT::account();
-		$creater = \TMS_CLIENT::get_client_uid();
-		$createrName = $account->nickname;
+	public function addMatter_action($site) {
+		$user = $this->accountUser();
 
 		$relations = $this->getPostJson();
 
@@ -222,7 +181,7 @@ class channel extends \pl\fe\matter\base {
 
 		$model = $this->model('matter\channel');
 		foreach ($channels as $channel) {
-			$model->addMatter($channel->id, $matter, $creater, $createrName);
+			$model->addMatter($channel->id, $matter, $user->id, $user->name);
 		}
 
 		return new \ResponseData('success');
@@ -230,7 +189,7 @@ class channel extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function removeMatter_action($id, $reload = 'N') {
+	public function removeMatter_action($site, $id, $reload = 'N') {
 		$matter = $this->getPostJson();
 
 		$model = $this->model('matter\channel');

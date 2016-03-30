@@ -440,7 +440,7 @@ xxtMatters.factory('mattersgallery', function($modal) {
                     var url, params = {};
                     url = $scope.p.matterType.url;
                     url += '/' + $scope.p.matterType.value;
-                    url += '/list?page=' + $scope.page.current + '&size=' + $scope.page.size + '&fields=' + fields;
+                    url += '/list?site=' + galleryId + '&page=' + $scope.page.current + '&size=' + $scope.page.size + '&fields=' + fields;
                     $scope.p.fromParent && $scope.p.fromParent == 1 && (params.src = 'p');
                     $http.post(url, params).success(function(rsp) {
                         if (/article|contribute/.test($scope.p.matterType.value)) {

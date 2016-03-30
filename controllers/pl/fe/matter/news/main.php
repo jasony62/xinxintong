@@ -3,7 +3,7 @@ namespace pl\fe\matter\news;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 
-class news extends \pl\fe\matter\base {
+class main extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
@@ -14,28 +14,14 @@ class news extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function edit_action() {
+	public function setting_action() {
 		\TPL::output('/pl/fe/matter/news/frame');
 		exit;
 	}
 	/**
 	 *
 	 */
-	public function read_action() {
-		\TPL::output('/pl/fe/matter/news/frame');
-		exit;
-	}
-	/**
-	 *
-	 */
-	public function stat_action() {
-		\TPL::output('/pl/fe/matter/news/frame');
-		exit;
-	}
-	/**
-	 *
-	 */
-	public function get_action($id, $cascade = 'Y') {
+	public function get_action($site, $id, $cascade = 'Y') {
 		$uid = \TMS_CLIENT::get_client_uid();
 
 		$n = $this->model('matter\news')->byId($id);
@@ -46,7 +32,7 @@ class news extends \pl\fe\matter\base {
 
 		if ($cascade === 'Y') {
 			$n->matters = $this->model('matter\news')->getMatters($n->id);
-			$n->acl = $this->model('acl')->byMatter($this->mpid, 'news', $n->id);
+			$n->acl = $this->model('acl')->byMatter($site, 'news', $n->id);
 		}
 
 		return new \ResponseData($n);
@@ -98,16 +84,29 @@ class news extends \pl\fe\matter\base {
 		return new \ResponseData($news);
 	}
 	/**
-	 *
+	 * 更新数据
 	 */
-	public function update_action($id, $nv) {
-		$nv = (array) $this->getPostJson();
+	public function update_action($site, $id) {
+		$user = $this->accountUser();
+		$nv = $this->getPostJson();
+		$current = time();
 
+		$nv->modifier = $user->id;
+		$nv->modifier_src = 'A';
+		$nv->modifier_name = $user->name;
+		$nv->modify_at = $current;
+		/* 更新数据 */
 		$rst = $this->model()->update(
 			'xxt_news',
 			$nv,
-			"mpid='$this->mpid' and id=$id"
+			"siteid='$site' and id='$id'"
 		);
+		/* 记录操作日志 */
+		if ($rst) {
+			$news = $this->model('matter\\' . 'news')->byId($id, 'id,title');
+			$news->type = 'news';
+			$this->model('log')->matterOp($site, $user, $news, 'U');
+		}
 
 		return new \ResponseData($rst);
 	}
@@ -123,14 +122,14 @@ class news extends \pl\fe\matter\base {
 		/**
 		 * insert new relation.
 		 */
-		$this->assign_news_matter($id, $matters);
+		$this->_assignMatters($id, $matters);
 
 		return new \ResponseData(count($matters));
 	}
 	/**
 	 *
 	 */
-	private function assign_news_matter($news_id, &$matters) {
+	private function _assignMatters($news_id, &$matters) {
 		foreach ($matters as $i => $m) {
 			$matter_id = $m->id;
 			$matter_type = $m->type;
@@ -146,24 +145,32 @@ class news extends \pl\fe\matter\base {
 	/**
 	 * 创建一个多图文素材
 	 */
-	public function create_action() {
-		$account = \TMS_CLIENT::account();
-		$uid = \TMS_CLIENT::get_client_uid();
+	public function create_action($site) {
+		$user = $this->accountUser();
+		$posted = $this->getPostJson();
+		$current = time();
 
-		$news = $this->getPostJson();
+		$news = array();
+		$news['siteid'] = $site;
+		$news['creater'] = $user->id;
+		$news['create_at'] = $current;
+		$news['creater_src'] = 'A';
+		$news['creater_name'] = $user->name;
+		$news['modifier'] = $user->id;
+		$news['modifier_src'] = 'A';
+		$news['modifier_name'] = $user->name;
+		$news['modify_at'] = $current;
+		$news['title'] = isset($posted->title) ? $posted->title : '新多图文';
+		$id = $this->model()->insert('xxt_news', $news, true);
 
-		$d = array();
-		$d['mpid'] = $this->mpid;
-		$d['creater'] = $uid;
-		$d['create_at'] = time();
-		$d['creater_src'] = 'A';
-		$d['creater_name'] = $account->nickname;
-		$d['title'] = isset($news->title) ? $news->title : '新多图文';
-		$id = $this->model()->insert('xxt_news', $d, true);
-		/**
-		 * matters
-		 */
-		isset($news->matters) && $this->assign_news_matter($id, $news->matters);
+		/* 指定包含的素材 */
+		!empty($posted->matters) && $this->_assignMatters($id, $posted->matters);
+
+		/* 记录操作日志 */
+		$matter = (object) $news;
+		$matter->id = $id;
+		$matter->type = 'news';
+		$this->model('log')->matterOp($site, $user, $matter, 'C');
 
 		$news = $this->model('matter\news')->byId($id);
 

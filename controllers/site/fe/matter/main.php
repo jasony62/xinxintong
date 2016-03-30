@@ -18,7 +18,7 @@ class main extends \site\fe\base {
 	 * @param string $type
 	 * @param string $shareby
 	 */
-	public function index_action($id, $type, $shareby = '') {
+	public function index_action($site, $id, $type, $shareby = '') {
 		/*返回页面*/
 		switch ($type) {
 		case 'article':

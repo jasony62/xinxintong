@@ -511,11 +511,11 @@ class log_model extends TMS_MODEL {
 			$this->update(
 				'xxt_log_matter_op',
 				$d,
-				"site_id='$siteId' and matter_type='$matter->type' and matter_id='$matter->id' and last_op='Y'"
+				"siteid='$siteId' and matter_type='$matter->type' and matter_id='$matter->id' and last_op='Y'"
 			);
 		}
 		$d = array();
-		$d['site_id'] = $siteId;
+		$d['siteid'] = $siteId;
 		$d['operator'] = $user->id;
 		$d['operator_name'] = $user->name;
 		$d['operator_src'] = $user->src;
@@ -524,8 +524,8 @@ class log_model extends TMS_MODEL {
 		$d['matter_id'] = $matter->id;
 		$d['matter_type'] = $matter->type;
 		$d['matter_title'] = $this->escape($matter->title);
-		$d['matter_summary'] = $this->escape($matter->summary);
-		$d['matter_pic'] = $matter->pic;
+		!empty($matter->summary) && $d['matter_summary'] = $this->escape($matter->summary);
+		!empty($matter->pic) && $d['matter_pic'] = $matter->pic;
 
 		$logid = $this->insert('xxt_log_matter_op', $d, true);
 
@@ -546,7 +546,7 @@ class log_model extends TMS_MODEL {
 		$q = array(
 			$fields,
 			'xxt_log_matter_op',
-			"site_id='$siteId' and last_op='Y' and operation<>'D'",
+			"siteid='$siteId' and last_op='Y' and operation<>'D'",
 		);
 		$q2 = array(
 			'r' => array('o' => ($page->at - 1) * $page->size, 'l' => $page->size),

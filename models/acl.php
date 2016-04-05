@@ -344,13 +344,14 @@ class acl_model extends TMS_MODEL {
 						$acl->label = $member->name;
 					} else if (!empty($member->mobile)) {
 						$acl->label = $member->mobile;
+					} else if (!empty($member->email)) {
+						$acl->label = $member->email;
+					} else {
+						$acl->label = $member->authed_identity;
 					}
-				} else if (!empty($member->email)) {
-					$acl->label = $member->email;
 				} else {
-					$acl->label = $member->authed_identity;
+					$acl->label = '用户不存在';
 				}
-
 			}
 			$all = array_merge($all, $acls);
 		}

@@ -1,0 +1,13 @@
+body{font-family:"Microsoft Yahei","Helvetica Neue",Helvetica,Arial,sans-serif;background:#f8f8f8;padding-top:71px;}
+.tile{position:relative;border:1px solid #ddd;border-radius:4px;padding:8px;background:#f8f8f8;margin-bottom:15px;}
+.tile .tile-toggle{position:absolute;top:-15px;right:-15px;width:32px;height:32px;border:1px solid #ddd;border-radius:50%;background:#fff;}
+.tile .tile-toggle i{display:inline-block;position:absolute;top:50%;left:50%;margin-left:-10px;margin-top:-9px;color:#999;font-size:20px;}
+.tile .tile-toggle i:hover{color:#333;}
+/*setting*/
+.form-group{padding:8px;background:#fff;border-radius:4px;}
+.help-block{margin-bottom:0;}
+.tile .form-group:last-child{margin-bottom:0;}
+div.mce-tinymce.mce-container.mce-panel{margin-top:0;border:1px solid #ccc;}
+div.mce-tinymce.mce-container.mce-panel.mce-fullscreen{margin-top:51px}
+div.mce-tinymce div.mce-edit-area{border:0!important;border-top:1px solid #ccc!important;}
+div.mce-tinymce .mce-menubtn.mce-fixed-width span{width:auto;}

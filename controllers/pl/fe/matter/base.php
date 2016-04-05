@@ -7,11 +7,6 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class base extends \pl\fe\base {
 	/**
-	 * 检查权限
-	 */
-	public function __construct() {
-	}
-	/**
 	 * 设置访问白名单
 	 *
 	 * @param int $id 规则ID

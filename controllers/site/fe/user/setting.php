@@ -35,7 +35,7 @@ class setting extends \site\fe\base {
 		$this->model()->update(
 			'xxt_site_account',
 			$data,
-			"site_id='$this->siteId' and uid='$uid'"
+			"siteid='$this->siteId' and uid='$uid'"
 		);
 
 		if (isset($data->nickname)) {

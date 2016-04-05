@@ -1,0 +1,83 @@
+<div class='container' ng-clock ng-app='xxtApp' ng-controller='myArticleCtrl' style='padding:15px 0' ng-init="jsonParams='<?php echo urlencode(json_encode(TPL::val('params')));?>'">
+    <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
+    <nav class='navbar navbar-default'>
+        <div class='container-fluid'>
+            <div class="navbar-header">
+                <a class="navbar-brand" href="javascript:void(0)" ng-click="back($event)"><span class='glyphicon glyphicon-chevron-left'></span></a>
+            </div>
+        </div>
+    </nav>
+    <div class='form-horizontal'>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>专题</label>
+            <div class='col-md-10'>
+                <combox evt-prefix='channel' readonly=true prop='title' existing='editing.channels' options='channels'></combox>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>标题</label>
+            <div class='col-md-10'>
+                <input type='text' class='form-control' ng-model='editing.title' tms-auto-update tms-wait=1000 tms-update="update('title');">
+                <p class='help-block'>最多35个汉字，70个英文字符</p>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>权重</label>
+            <div class='col-md-10'>
+                <input type='text' class='form-control' ng-model='editing.weight' tms-auto-update tms-wait=1000 tms-update="update('weight');">
+                <p class='help-block'>0-100间的数字</p>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>头图</label>
+            <div class='col-md-10'>
+                <div style="width:182px;border:1px solid #CCC">
+                    <div style="height:100px;text-align:center;padding-top:32px" ng-if="editing.pic==''">
+                        <button class='btn btn-default' ng-click='setPic();'>
+                            <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                    </div>
+                    <div style='position:relative' ng-if="editing.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                        <img name='pic' ng-src="{{editing.pic}}" width='180px' />
+                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                            <span class='glyphicon glyphicon-picture'></span>
+                        </button>
+                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                            <span class='glyphicon glyphicon-trash'></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>摘要</label>
+            <div class='col-md-10'>
+                <textarea class='form-control' ng-model='editing.summary' tms-auto-update tms-wait=1000 tms-update="update('summary');"></textarea>
+                <p class='help-block'>最多120个汉字，240个英文字符</p>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>正文</label>
+            <div class='col-md-10'>
+                <button class='btn' ng-click="update('body')" ng-disabled='!bodyModified' ng-class="bodyModified?'btn-success':'btn-default'">保存</button>
+                <tinymce content='editing.body' contenteditable='bodyEditable' change="onBodyChange()" id='body1'></tinymce>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>发生地点</label>
+            <div class='col-md-10 form-inline'>
+                <label>经度&nbsp;</label>
+                <input type='text' class='form-control' ng-model='editing.extinfo.occured_lat' tms-auto-update tms-wait=1000
+                tms-update="update('extinfo.occured_lat');">
+                <label>纬度&nbsp;</label>
+                <input type='text' class='form-control' ng-model='editing.extinfo.occured_lng' tms-auto-update tms-wait=1000
+                tms-update="update('extinfo.occured_lng');">
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>发生时间</label>
+            <div class='col-md-10'>
+                <input type='text' class='form-control' ng-model='editing.extinfo.occured_time' tms-auto-update tms-wait=1000 tms-update="update('extinfo.occured_time');">
+            </div>
+        </div>
+    </div>
+</div>

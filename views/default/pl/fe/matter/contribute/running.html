@@ -1,0 +1,37 @@
+<div class='col-md-8'>
+    <div class='tile'>
+        <div class='form-group'>
+            <div class='form-control' ng-bind='app.title'></div>
+        </div>
+    </div>
+    <div class='tile'>
+        <a href='/rest/pl/fe/matter/contribute/setting?site={{siteId}}&id={{id}}'>设置</a>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <label>进入URL</label>
+            <div class='form-control' style='height:auto;word-break:break-all' ng-bind='entry.url'></div>
+        </div>
+        <div class='form-group'>
+            <label>进入二维码</label>
+            <div><img ng-src="{{entry.qrcode}}"></div>
+        </div>
+    </div>
+</div>
+<div class='col-md-4'>
+    <div class='tile'>
+        <button class='btn btn-block btn-default' ng-click="stop()">停止</button>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <a href='/rest/pl/fe/matter/contribute/record?site={{siteId}}&id={{id}}'>登记记录</a>
+        </div>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <div>阅读：{{app.read_num}}</div>
+            <div>分享好友：{{app.share_friend_num}}</div>
+            <div>分享朋友圈：{{app.share_timeline_num}}</div>
+        </div>
+    </div>
+</div>

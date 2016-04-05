@@ -16,6 +16,9 @@
 					<a href='/rest/pl/fe/site/console?site={{siteId}}'>工作台</a>
 				</li>
 				<li>
+					<a href='/rest/pl/fe/site/user?site={{siteId}}' target='_self'>用户</a>
+				</li>
+				<li>
 					<a href='/rest/pl/fe/site/setting?site={{siteId}}' target='_self'>站点设置</a>
 				</li>
 			</ul>
@@ -43,8 +46,12 @@
 						<button class="btn btn-success" ng-click="addArticle()">＋图文</button>
 						<button class="btn btn-success" ng-click="addNews()">＋多图文</button>
 						<button class="btn btn-success" ng-click="addChannel()">＋频道</button>
-						<button class="btn btn-success" ng-click="addEnrollByTemplate()">＋登记活动</button>
+						<button class="btn btn-success" ng-click="addEnrollByTemplate()">＋登记</button>
+						<button class="btn btn-success" ng-click="addGroup()">＋分组</button>
+						<button class="btn btn-success" ng-click="addLottery()">＋抽奖</button>
+						<button class="btn btn-success" ng-click="addContribute()">＋投稿</button>
 						<button class="btn btn-success" ng-click="addTask()">＋项目</button>
+						<button class="btn btn-success" ng-click="addCustom()">＋定制页</button>
 					</div>
 				</nav>
 			</div>

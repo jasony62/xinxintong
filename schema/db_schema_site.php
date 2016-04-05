@@ -23,7 +23,7 @@ if (!$mysqli->query($sql)) {
  * 站点授权管理员
  */
 $sql = "create table if not exists xxt_site_admin(";
-$sql .= "site_id varchar(32) not null";
+$sql .= "siteid varchar(32) not null";
 $sql .= ",uid varchar(40) not null";
 $sql .= ",creater varchar(40) not null";
 $sql .= ",creater_name varchar(255) not null default ''";
@@ -37,7 +37,7 @@ if (!$mysqli->query($sql)) {
  * user account
  */
 $sql = "create table if not exists xxt_site_account (";
-$sql .= "site_id varchar(32) not null comment '站点id'";
+$sql .= "siteid varchar(32) not null comment '站点id'";
 $sql .= ",uid varchar(40) not null comment '用户的id'";
 $sql .= ",assoc_id varchar(40) not null default '' comment '用户的关联id'";
 $sql .= ",ufrom varchar(20) not null default '' comment '用户来源'";
@@ -77,7 +77,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_site_favor(";
 $sql .= "id int not null auto_increment";
-$sql .= ",site_id varchar(32) not null";
+$sql .= ",siteid varchar(32) not null";
 $sql .= ",userid varchar(32) not null";
 $sql .= ",nickname varchar(50)";
 $sql .= ",favor_at int not null";

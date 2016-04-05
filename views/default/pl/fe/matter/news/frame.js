@@ -15,7 +15,7 @@ ngApp.controller('ctrlNews', ['$scope', '$location', 'http2', function($scope, $
 	$scope.siteId = ls.site;
 	http2.get('/rest/pl/fe/matter/news/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
 		$scope.editing = rsp.data;
-		$scope.entryUrl = 'http://' + location.host + '/rest/mi/matter?mpid=' + $scope.siteId + '&id=' + $scope.id + '&type=news';
+		$scope.entryUrl = 'http://' + location.host + '/rest/site/fe/matter?site=' + $scope.siteId + '&id=' + $scope.id + '&type=news';
 	});
 }]);
 ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', function($scope, http2, mattersgallery) {

@@ -19,6 +19,20 @@ class member_model extends \TMS_MODEL {
 		return $member;
 	}
 	/**
+	 * 获取自定义用户信息
+	 */
+	public function &byUser($siteId, $userid, $options = array()) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$q = array(
+			$fields,
+			'xxt_site_member',
+			"userid='$userid' and forbidden='N'",
+		);
+		$members = $this->query_objs_ss($q);
+
+		return $members;
+	}
+	/**
 	 * 创建一个自定义用户
 	 *
 	 * 自定义用户首先必须是站点用户
@@ -27,7 +41,7 @@ class member_model extends \TMS_MODEL {
 	 * $data
 	 * $schema
 	 */
-	public function create($userid, $data, $schema) {
+	public function create($siteId, $userid, &$schema, &$data) {
 		if (empty($userid)) {
 			return array(false, '仅支持对站点用户进行认证');
 		}
@@ -35,7 +49,9 @@ class member_model extends \TMS_MODEL {
 		is_array($data) && $data = (object) $data;
 
 		$create_at = time();
+		$data->siteid = $siteId;
 		$data->userid = $userid;
+		$data->schema_id = $schema->id;
 		$data->create_at = $create_at;
 		/**
 		 * 扩展属性

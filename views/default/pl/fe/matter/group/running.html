@@ -1,0 +1,31 @@
+<div class='col-md-8'>
+    <div class='tile'>
+        <div class='form-group'>
+            <div class='form-control' ng-bind='app.title'></div>
+        </div>
+    </div>
+    <div class='tile'>
+        <a href='/rest/pl/fe/matter/group/setting?site={{siteId}}&id={{id}}'>设置</a>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <label>屏幕地址</label>
+            <div class='form-control' ng-bind="opUrl"></div>
+        </div>
+    </div>
+    <div class='tile'>
+        运行结果
+    </div>
+</div>
+<div class='col-md-4'>
+    <div class='tile'>
+        <button class='btn btn-block btn-default' ng-click="stop()">停止</button>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <div>阅读：{{app.read_num}}</div>
+            <div>分享好友：{{app.share_friend_num}}</div>
+            <div>分享朋友圈：{{app.share_timeline_num}}</div>
+        </div>
+    </div>
+</div>

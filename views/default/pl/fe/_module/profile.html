@@ -1,0 +1,135 @@
+<div class="modal-header">
+    <div class='form-inline'>
+        <button class="close" type="button" ng-click="close()">×</button>
+        <div class='form-group' style='width:100px'>
+            <p class="modal-title h5 form-control-static">{{user.nickname}}</p>
+        </div>
+    </div>
+</div>
+<div class="modal-body">
+    <div class="panel panel-default">
+        <div class="panel-heading">注册信息</div>
+        <div class="panel-body">
+            <div class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-md-2 control-label">注册时间</label>
+                    <div class='col-md-10'>
+                        <p class="form-control-static">{{user.reg_time*1000|date:'yy-MM-dd HH:mm'}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default" ng-repeat='m in members'>
+        <div class="panel-heading">
+            <span>{{m.schema.title}}</span>
+            <a href='javascript:void(0)' class='pull-right' ng-click='editMember(m)'>修改</a>
+        </div>
+        <div class="panel-body">
+            <div class="form-horizontal">
+                <div class="form-group" ng-show="canFieldShow(m.schema,'name')">
+                    <label class="col-md-2 control-label">姓名</label>
+                    <div class="col-md-10">
+                        <p class="form-control-static">{{m.name}}</p>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="canFieldShow(m.schema,'mobile')">
+                    <label class="col-md-2 control-label">手机</label>
+                    <div class="col-md-10">
+                        <p class="form-control-static">{{m.mobile}}</p>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="canFieldShow(m.schema,'email')">
+                    <label class="col-md-2 control-label">邮箱</label>
+                    <div class="col-md-10">
+                        <p class="form-control-static">{{m.email}}</p>
+                    </div>
+                </div>
+                <div class="form-group" ng-repeat='ea in m.schema.extattr'>
+                    <label class="col-md-2 control-label">{{ea.label}}</label>
+                    <div class="col-md-10">
+                        <p class="form-control-static">{{m.extattr[ea.id]}}</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">完成认证</label>
+                    <div class="col-md-10">
+                        <div class="form-control-static">{{m.verified==='Y'?'是':'否'}}</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 control-label">标签</label>
+                    <div class="col-md-10">
+                        <combox evt-prefix='tag' prop='name' existing='m.tags2' options='m.schema.tags' state={{$index}}></combox>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='form-inline form-group' ng-show="memberSchemas.length">
+        <select class='form-control' ng-model='selectedSchema' ng-options='ms.title for ms in memberSchemas'>
+            <option value=''></option>
+        </select>
+        <button class='btn btn-primary' ng-disabled='!selectedSchema' ng-click='addMember(selectedSchema)'>添加自定义用户信息</button>
+    </div>
+</div>
+<script type="text/ng-template" id="memberEditor.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="close()">×</button>
+        <h5 class="modal-title">{{schema.title}}</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class="form-group" ng-if="member.id">
+                <label class="col-md-2 control-label">认证日期</label>
+                <div class="col-md-10">
+                    <p class="form-control-static">{{member.create_at*1000|date:'yy-MM-dd hh:mm'}}</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label">完成认证</label>
+                <div class="col-md-10">
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='member.verified'>是
+                    </label>
+                </div>
+            </div>
+            <div class="form-group" ng-if="canShow('name')">
+                <label class="col-md-2 control-label">姓名</label>
+                <div class="col-md-10">
+                    <input class="form-control" ng-model='member.name'>
+                </div>
+            </div>
+            <div class="form-group" ng-if="canShow('mobile')">
+                <label class="col-md-2 control-label">手机</label>
+                <div class="col-md-10">
+                    <input class="form-control" ng-model='member.mobile'>
+                </div>
+            </div>
+            <div class="form-group" ng-if="canShow('email')">
+                <label class="col-md-2 control-label">邮箱</label>
+                <div class="col-md-10">
+                    <input class="form-control" ng-model='member.email'>
+                </div>
+            </div>
+            <div class="form-group" ng-if='schema.attr_email[4]==1'>
+                <label class="col-md-2 control-label">邮箱验证通过</label>
+                <div class="col-md-10">
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='member.email_verified'>是
+                    </label>
+                </div>
+            </div>
+            <div class="form-group" ng-repeat='ea in schema.extattr'>
+                <label class="col-md-2 control-label">{{ea.label}}</label>
+                <div class="col-md-10">
+                    <input class="form-control" ng-model='member.extattr[ea.id]'>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-danger pull-left" ng-click="remove()" ng-if='member.mid'>删除</button>
+        <button class="btn btn-success" ng-click="ok()">保存</button>
+    </div>
+</script>

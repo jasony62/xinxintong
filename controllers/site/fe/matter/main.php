@@ -19,20 +19,26 @@ class main extends \site\fe\base {
 	 * @param string $shareby
 	 */
 	public function index_action($site, $id, $type, $shareby = '') {
-		/*返回页面*/
+		/* 返回页面 */
 		switch ($type) {
 		case 'article':
+		case 'custom':
 			$modelArticle = $this->model('matter\article');
 			$article = $modelArticle->byId($id, 'title');
-			if (isset($_GET['tpl']) && $_GET['tpl'] === 'cus') {
-				\TPL::assign('title', $article->title);
-				\TPL::output('site/fe/matter/article/custom');
-				exit;
-			} else {
-				\TPL::assign('title', $article->title);
+			\TPL::assign('title', $article->title);
+			if ($type === 'article') {
 				\TPL::output('site/fe/matter/article/main');
-				exit;
+			} else {
+				\TPL::output('site/fe/matter/custom/main');
 			}
+			break;
+		case 'news':
+			\TPL::output('site/fe/matter/news/main');
+			break;
+		case 'channel':
+			\TPL::output('site/fe/matter/channel/main');
+			break;
 		}
+		exit;
 	}
 }

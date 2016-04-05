@@ -1,11 +1,11 @@
 <?php
-namespace pl\fe\site;
+namespace pl\fe\site\member;
 
-require_once dirname(dirname(__FILE__)) . '/base.php';
+require_once dirname(dirname(dirname(__FILE__))) . '/base.php';
 /**
- *
+ * 自定义用户控制器
  */
-class memberschema extends \pl\fe\base {
+class schema extends \pl\fe\base {
 	//
 	private $siteId;
 	/**
@@ -162,5 +162,12 @@ class memberschema extends \pl\fe\base {
 		$code = \TMS_APP::model('code/page')->create($uid, $data);
 
 		return $code->id;
+	}
+	/**
+	 * 获得用户选择器的页面
+	 */
+	public function picker_action() {
+		\TPL::output('/pl/fe/site/user/picker');
+		exit;
 	}
 }

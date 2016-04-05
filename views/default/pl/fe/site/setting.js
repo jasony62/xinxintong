@@ -5,7 +5,7 @@ app.config(['$locationProvider', '$routeProvider', function($lp, $rp) {
 app.factory('MemberSchema', function($q, http2) {
     var MemberSchema = function(siteId) {
         this.siteId = siteId;
-        this.baseUrl = '/rest/pl/fe/site/memberschema/';
+        this.baseUrl = '/rest/pl/fe/site/member/schema/';
     };
     MemberSchema.prototype.get = function(own) {
         var deferred, url;
@@ -119,7 +119,7 @@ app.controller('ctrlAdmin', ['$scope', '$modal', 'http2', function($scope, $moda
 }]);
 app.controller('ctrlMember', ['$scope', 'http2', '$http', '$modal', 'MemberSchema', function($scope, http2, $http, $modal, MemberSchema) {
     var service = {
-        memberSchema: new MemberSchema($scope.id)
+        memberSchema: new MemberSchema($scope.siteId)
     };
     var shiftAttr = function(schema) {
         schema.attrs = {
@@ -159,7 +159,7 @@ app.controller('ctrlMember', ['$scope', 'http2', '$http', '$modal', 'MemberSchem
         return url + schema.url + '?site=' + $scope.siteId + '&schema=' + schema.id;
     };
     $scope.addSchema = function() {
-        var url = '/rest/pl/fe/site/memberschema/create?site=' + $scope.siteId;
+        var url = '/rest/pl/fe/site/member/schema/create?site=' + $scope.siteId;
         http2.get(url, function(rsp) {
             $scope.schemas.push(rsp.data);
         });
@@ -280,7 +280,7 @@ app.controller('ctrlMember', ['$scope', 'http2', '$http', '$modal', 'MemberSchem
             });
         } else {
             if (window.confirm('重置操作将覆盖已经做出的修改，确定重置？')) {
-                http2.get('/rest/pl/fe/site/memberschema/pageReset?site=' + $scope.id + '&codeId=' + schema.code_id, function(rsp) {
+                http2.get('/rest/pl/fe/site/member/schema/pageReset?site=' + $scope.id + '&codeId=' + schema.code_id, function(rsp) {
                     location.href = '/rest/code?pid=' + schema.code_id;
                 });
             }

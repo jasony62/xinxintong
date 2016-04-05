@@ -1,0 +1,21 @@
+body{background:#EEE}
+.table{background:#fff}
+.table .tr{display:table;width:100%;border:1px solid #ddd;border-top:0}
+.table .thead .tr{border-top:1px solid #ddd}
+.table .thead .tr>div{text-align:center;font-weight:700}
+.table .tbody .tr{cursor:pointer}
+.table .tr>div{display:table-cell;padding:15px 8px;border-left:1px solid #CCC;word-break: break-all}
+.table .tr>div.pending{color:red}
+#articles .table .tr>div:nth-child(1){width:60px;}
+#articles .table .tr>div:nth-child(3){width:160px;}
+#articles .table .tr>div:nth-child(4){width:140px}
+#articles .table .tr>div:nth-child(5){width:100px}
+#articles .table .tr>div:nth-child(6){width:140px;text-align:center}
+#articles .table .tr>div:nth-child(7){width:140px;text-align:center}
+#articles .table .tr>div:nth-child(8){width:100px;text-align:center}
+#articles .table .tr>div:nth-child(9){width:100px;text-align:center}
+#news .table .tr>div:nth-child(1){width:60px}
+#news .table .tr>div:nth-child(3){width:140px}
+#news .table .tr>div:nth-child(4){width:140px}
+#news .table .tr>div:nth-child(5){width:80px}
+#news .table .tr>div:nth-child(6){width:80px}

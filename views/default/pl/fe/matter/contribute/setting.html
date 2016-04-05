@@ -1,0 +1,91 @@
+<div class='col-md-8'>
+    <div class='tile'>
+        <div class='form-group'>
+            <input type="text" class="form-control" ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title');">
+            <div class='help-block'>标题：最多35个汉字，70个英文字符</div>
+        </div>
+        <div class='form-group'>
+            <div style='position:relative'>
+                <div style="width:182px;border:1px solid #CCC">
+                    <div style="height:100px;text-align:center;padding-top:32px" ng-if="!app.pic">
+                        <button class='btn btn-default' ng-click='setPic();'>
+                        <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                    </div>
+                    <div style='position:relative' ng-if="app.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                        <img name='pic' ng-src="{{app.pic}}" width='180px' />
+                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                        <span class='glyphicon glyphicon-picture'></span>
+                        </button>
+                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                        <span class='glyphicon glyphicon-trash'></span>
+                        </button>
+                    </div>
+                </div>
+                <div style='position:absolute;top:30px;left:210px'>
+                    <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.hide_pic' ng-change="update('hide_pic');">正文中不显示头图</label>
+                </div>
+            </div>
+            <div class='help-block'>头图（可选）：建议尺寸：900像素 * 500像素</div>
+        </div>
+        <div class='form-group'>
+            <textarea class='form-control' ng-model='app.summary' tms-auto-update tms-wait=1000 tms-update="update('summary');" rows='3'></textarea>
+            <div class='help-block'>摘要（可选）：最多120个汉字，240个英文字符</div>
+        </div>
+        <div class='form-group'>
+            <div>
+                <label class='radio-inline'><input type='radio' name='pic_store_at' value='U' ng-model='app.pic_store_at' ng-change="update('pic_store_at');">用户私有</label>
+                <label class='radio-inline'><input type='radio' name='pic_store_at' value='M' ng-model='app.pic_store_at' ng-change="update('pic_store_at');">公众号共有</label>
+            </div>
+            <div class='help-block'>图片存储位置</div>
+        </div>
+        <div class='form-group'>
+            <select class='form-control' ng-model='app.params.channel' ng-change="update('params');" ng-options='c.id as c.title for c in channels'>
+                <option></option>
+            </select>
+            <div class='help-block'>投稿所属频道</div>
+        </div>
+        <div class='form-group'>
+            <combox evt-prefix='sub-channel' readonly=true prop='title' existing='app.subChannels' options='channels'></combox>
+            <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.params.requireSubChannel' ng-change="update('params');">必选</label>
+            <div class='help-block'>投稿人指定频道</div>
+        </div>
+        <div class='form-group'>
+            <memberacl site-id='{{siteId}}' obj='app' prop-access='canSetInitiator' prop-acl='initiator' label-of-list='指定投稿人' change-acl-url='/rest/pl/fe/matter/contribute/role/setUser?site={{siteId}}&app={{app.id}}&role=I' remove-acl-url='/rest/pl/fe/matter/contribute/role/delUser' hide-access-control=true update-access-control=false></accesscontrol>
+        </div>
+        <div class='form-group'>
+            <memberacl site-id='{{siteId}}' obj='app' prop-access='canSetReviewer' prop-acl='reviewer' label-of-list='指定投稿人' change-acl-url='/rest/pl/fe/matter/contribute/role/setUser?site={{siteId}}&app={{app.id}}&role=R' remove-acl-url='/rest/pl/fe/matter/contribute/role/delUser' hide-access-control=true update-access-control=false></accesscontrol>
+        </div>
+        <div class='form-group'>
+            <memberacl site-id='{{siteId}}' obj='app' prop-access='canSetTypesetter' prop-acl='typesetter' label-of-list='指定投稿人' change-acl-url='/rest/pl/fe/matter/contribute/role/setUser?site={{siteId}}&app={{app.id}}&role=T' remove-acl-url='/rest/pl/fe/matter/contribute/role/delUser' hide-access-control=true update-access-control=false></accesscontrol>
+        </div>
+        <div class='form-group'>
+            <label class='checkbox-inline'><input type='checkbox' ng-model='app.shift2pc' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('shift2pc')">用户在手机上打开时，引导用户转发到PC端打开。需在【账号管理】【定制功能】中设置提示内容。</label>
+        </div>
+        <div class='form-group'>
+            <label class='checkbox-inline'><input type='checkbox' ng-model='app.can_taskcode' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('can_taskcode')">通过任务码直接在PC浏览器中打开任务（{{taskCodeEntryUrl}}）。</label>
+        </div>
+    </div>    
+</div>
+<div class='col-md-4'>
+    <div class='tile'>
+        <button class='btn btn-block' ng-click="submit()" ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'">保存</button>
+        <button class='btn btn-block' ng-click="run()" ng-disabled='modified' ng-class="modified?'btn-default':'btn-success'">开始</button>
+    </div>
+    <div class='tile'>
+        <div class='form-group' ng-controller='setChannelCtrl' ng-init="matterType='contribute'">
+            <combox evt-prefix='channel' readonly=true prop='title' existing='app.channels' options='channels'></combox>
+            <div class='help-block'>活动所属频道</div>
+        </div>
+    </div>
+    <div class='tile'>
+        <a class='btn btn-success' href='/rest/pl/fe/matter/contribute/coin?site={{siteId}}&id={{id}}'>积分规则</a>
+    </div>
+    <div class='tile'>
+        <div class='form-group'>
+            <div>创建人：{{app.creater_name}}</div>
+            <div>创建时间：{{app.create_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+            <div>修改人：{{app.modifier_name}}</div>
+            <div>最后一次修改时间：{{app.modify_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+        </div>
+    </div>
+</div>

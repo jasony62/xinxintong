@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<base href='/'>
+		<link href="/static/css/bootstrap.min.css" rel="stylesheet">
+		<link href="/static/css/tms.css" rel="stylesheet">
+		<link href="/views/default/pl/fe/site/user.css" rel="stylesheet">
+		<title>我的站点</title>
+	</head>
+	<body ng-app='app' ng-controller='ctrlSite'>
+		<notice-box err='errmsg' info='infomsg' delay='1000'></notice-box>
+		<nav class='navbar navbar-inverse'>
+			<ul class='nav navbar-nav site'>
+				<li>
+					<a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>工作台</a>
+				</li>
+				<li class='active'>
+					<a href='/rest/pl/fe/site/user?site={{siteId}}'>用户</a>
+				</li>
+				<li>
+					<a href='/rest/pl/fe/site/setting?site={{siteId}}' target='_self'>站点设置</a>
+				</li>
+			</ul>
+			<ul class='nav navbar-nav navbar-right' style='margin-right:0'>
+				<li><a href='/page/pl/fe/user/settings' target='_self'>设置</a></li>
+				<li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+			</ul>
+		</nav>
+		<nav class='navbar navbar-default'>
+		    <ul class='nav navbar-nav'>
+		        <li><a href='/rest/pl/fe/site/user/account?site={{siteId}}' target="_self">注册用户</a></li>
+		        <li ng-repeat="ms in memberSchemas"><a href='/rest/pl/fe/site/user/member?site={{siteId}}&schema={{ms.id}}' target="_self">{{ms.title}}</a></li>
+		    </ul>
+		</nav>
+		<div ng-view></div>
+		<script src="/static/js/jquery.min.js"></script>
+		<script src="/static/js/jquery-ui.min.js"></script>
+		<script src="/static/js/angular.min.js"></script>
+		<script src="/static/js/angular-route.min.js"></script>
+		<script src="/static/js/angular-sanitize.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/js/ui-bootstrap.min.js"></script>
+		<script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+		<script src="/static/js/ui-tms.js"></script>
+		<script src="/static/js/matters-xxt.js"></script>
+		<script src="/views/default/pl/fe/_module/profile.js"></script>
+		<script src="/views/default/pl/fe/site/user.js"></script>
+	</body>
+</html>

@@ -17,7 +17,6 @@ app.controller('ctrlArticle', ['$scope', '$location', 'http2', function($scope, 
 		var url;
 		$scope.editing = rsp.data;
 		url = 'http://' + location.host + '/rest/site/fe/matter?site=' + ls.site + '&id=' + ls.id + '&type=article';
-		url += '&tpl=' + ($scope.editing.custom_body === 'N' ? 'std' : 'cus');;
 		$scope.entry = {
 			url: url,
 			qrcode: '/rest/pl/fe/matter/article/qrcode?url=' + encodeURIComponent(url),
@@ -196,7 +195,7 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', 'mediagaller
 			});
 			!existing && aNewTags.push(selected);
 		});
-		http2.post('/rest/mp/matter/article/addTag?id=' + $scope.id, aNewTags, function(rsp) {
+		http2.post('/rest/pl/fe/matter/article/tag/add?site=' + $scope.siteId + '&id=' + $scope.id, aNewTags, function(rsp) {
 			$scope.editing.tags = $scope.editing.tags.concat(aNewTags);
 		});
 	});
@@ -204,12 +203,12 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', 'mediagaller
 		var oNewTag = {
 			title: newTag
 		};
-		http2.post('/rest/mp/matter/article/addTag?id=' + $scope.id, [oNewTag], function(rsp) {
+		http2.post('/rest/pl/fe/matter/article/tag/add?site=' + $scope.siteId + '&id=' + $scope.id, [oNewTag], function(rsp) {
 			$scope.editing.tags.push(oNewTag);
 		});
 	});
 	$scope.$on('tag.xxt.combox.del', function(event, removed) {
-		http2.post('/rest/mp/matter/article/removeTag?id=' + $scope.editing.id, [removed], function(rsp) {
+		http2.post('/rest/pl/fe/matter/article/tag/remove?site=' + $scope.siteId + '&id=' + $scope.id, [removed], function(rsp) {
 			$scope.editing.tags.splice($scope.editing.tags.indexOf(removed), 1);
 		});
 	});
@@ -224,7 +223,7 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', 'mediagaller
 			});
 			!existing && aNewTags.push(selected);
 		});
-		http2.post('/rest/mp/matter/article/addTag2?id=' + $scope.id, aNewTags, function(rsp) {
+		http2.post('/rest/pl/fe/matter/article/tag/add2?site=' + $scope.siteId + '&id=' + $scope.id, aNewTags, function(rsp) {
 			$scope.editing.tags2 = $scope.editing.tags2.concat(aNewTags);
 		});
 	});
@@ -232,19 +231,19 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', 'mediagaller
 		var oNewTag = {
 			title: newTag
 		};
-		http2.post('/rest/mp/matter/article/addTag2?id=' + $scope.id, [oNewTag], function(rsp) {
+		http2.post('/rest/pl/fe/matter/article/tag/add2?site=' + $scope.siteId + '&id=' + $scope.id, [oNewTag], function(rsp) {
 			$scope.editing.tags2.push(oNewTag);
 		});
 	});
 	$scope.$on('tag2.xxt.combox.del', function(event, removed) {
-		http2.post('/rest/mp/matter/article/removeTag2?id=' + $scope.editing.id, [removed], function(rsp) {
-			$scope.editing.tags2.splice($scope.editing.tags.indexOf(removed), 1);
+		http2.post('/rest/pl/fe/matter/article/tag/remove2?site=' + $scope.siteId + '&id=' + $scope.id, [removed], function(rsp) {
+			$scope.editing.tags2.splice($scope.editing.tags2.indexOf(removed), 1);
 		});
 	});
-	http2.get('/rest/mp/matter/tag?resType=article&subType=0', function(rsp) {
+	http2.get('/rest/pl/fe/matter/tag/list?site=' + $scope.siteId + '&resType=article&subType=0', function(rsp) {
 		$scope.tags = rsp.data;
 	});
-	http2.get('/rest/mp/matter/tag?resType=article&subType=1', function(rsp) {
+	http2.get('/rest/pl/fe/matter/tag/list?site=' + $scope.siteId + '&resType=article&subType=1', function(rsp) {
 		$scope.tags2 = rsp.data;
 	});
 }]);

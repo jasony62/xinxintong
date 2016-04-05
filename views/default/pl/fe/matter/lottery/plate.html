@@ -1,0 +1,64 @@
+<div>
+    <div class='form-group'>
+        <label>位置数量</label>
+        <select class="form-control" ng-model='plate.size' ng-change="update('size')">
+            <option value='0'>0</option>
+            <option value='6'>6</option>
+            <option value='8'>8</option>
+            <option value='12'>12</option>
+        </select>
+    </div>
+    <div class='form-group' ng-show='plate.size>0'>
+        <label>奖项设置</label>
+        <div class='clearfix' style='margin:0'>
+            <div class='col-md-4'>
+                <select class='form-control' ng-model='plate.a0' ng-options='a.aid as a.title for a in app.awards' ng-change="update('a0')">
+                </select>
+            </div>
+            <div class='col-md-4'>
+                <select class='form-control' ng-model='plate.a1' ng-options='a.aid as a.title for a in app.awards' ng-change="update('a1')">
+                </select>
+            </div>
+            <div class='col-md-4'>
+                <select class='form-control' ng-model='plate.a2' ng-options='a.aid as a.title for a in app.awards' ng-change="update('a2')">
+                </select>
+            </div>
+            <div class='col-md-4'>
+                <select class='form-control' ng-model='plate.a3' ng-options='a.aid as a.title for a in app.awards' ng-change="update('a3')">
+                </select>
+            </div>
+            <div class='col-md-4'>
+                <select class='form-control' ng-model='plate.a4' ng-options='a.aid as a.title for a in app.awards' ng-change="update('a4')">
+                </select>
+            </div>
+            <div class='col-md-4'>
+                <select class='form-control' ng-model='plate.a5' ng-options='a.aid as a.title for a in app.awards' ng-change="update('a5')">
+                </select>
+            </div>
+            <div class='col-md-4' ng-if='plate.size>6'>
+                <select class='form-control' ng-model='plate.a6' ng-options='a.aid as a.title for a in app.awards' ng-change="update('a6')">
+                </select>
+            </div>
+            <div class='col-md-4' ng-if='plate.size>6'>
+                <select class='form-control' ng-model='plate.a7' ng-options='a.aid as a.title for a in app.awards' ng-change="update('a7')">
+                </select>
+            </div>
+            <div class='col-md-4' ng-if='plate.size>8'>
+                <select class='form-control' ng-model='plate.a8' ng-options='a.aid as a.title for a in app.awards' ng-change="update('a8')">
+                </select>
+            </div>
+            <div class='col-md-4' ng-if='plate.size>8'>
+                <select class='form-control' ng-model='plate.a9' ng-options='a.aid as a.title for a in app.awards' ng-change="update('a9')">
+                </select>
+            </div>
+            <div class='col-md-4' ng-if='plate.size>8'>
+                <select class='form-control' ng-model='plate.a10' ng-options='a.aid as a.title for a in app.awards' ng-change="update('a10')">
+                </select>
+            </div>
+            <div class='col-md-4' ng-if='plate.size>8'>
+                <select class='form-control' ng-model='plate.a11' ng-options='a.aid as a.title for a in app.awards' ng-change="update('a11')">
+                </select>
+            </div>
+        </div>
+    </div>
+</div>

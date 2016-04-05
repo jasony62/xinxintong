@@ -303,18 +303,19 @@ class member extends \site\fe\base {
 	/**
 	 * 返回组织机构组件
 	 */
-	public function memberSelector_action($authid) {
+	public function memberSelector_action($id) {
 		$addon = array(
-			'js' => '/views/default/member/memberSelector.js',
-			'view' => "/rest/member/auth/organization?authid=$authid",
+			'js' => '/views/default/pl/fe/site/user/memberSelector.js',
+			'view' => "/rest/site/fe/user/member/organization?site={$this->siteId}&id=$id",
 		);
 		return new \ResponseData($addon);
 	}
 	/**
 	 *
 	 */
-	public function organization_action($authid) {
-		$this->view_action('/member/memberSelector');
+	public function organization_action($id) {
+		\TPL::output('/pl/fe/site/user/memberSelector');
+		exit;
 	}
 	/**
 	 * 检查指定用户是否在acl列表中
@@ -322,11 +323,11 @@ class member extends \site\fe\base {
 	 * $authid
 	 * $uid
 	 */
-	public function checkAcl_action($authid, $uid) {
+	public function checkAcl_action($schema, $uid) {
 		$q = array(
 			'*',
-			'xxt_member',
-			"authapi_id=$authid and authed_identity='$uid' and forbidden='N'",
+			'xxt_site_member',
+			"schema_id=$schema and id='$uid' and forbidden='N'",
 		);
 		$members = $this->model()->query_objs_ss($q);
 		if (empty($members)) {
@@ -361,7 +362,7 @@ class member extends \site\fe\base {
 
 					break;
 				case 'M':
-					if ($member->mid === $acl->identity) {
+					if ($member->id === $acl->identity) {
 						return new \ResponseData('passed');
 					}
 

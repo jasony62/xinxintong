@@ -142,12 +142,12 @@ class main extends \pl\fe\matter\base {
 		/**
 		 * select fields
 		 */
-		$s = "a.id,a.mpid,a.title,a.summary,a.custom_body,a.create_at,a.modify_at,a.approved,a.creater,a.creater_name,a.creater_src,'$uid' uid";
+		$s = "a.id,a.mpid,a.title,a.summary,a.create_at,a.modify_at,a.approved,a.creater,a.creater_name,a.creater_src,'$uid' uid";
 		$s .= ",a.read_num,a.score,a.remark_num,a.share_friend_num,a.share_timeline_num,a.download_num";
 		/**
 		 * where
 		 */
-		$w = "a.siteid='$site' and a.state=1 and finished='Y'";
+		$w = "a.custom_body='N' and a.siteid='$site' and a.state=1 and finished='Y'";
 		/**
 		 * 限作者和管理员
 		 */
@@ -725,77 +725,6 @@ class main extends \pl\fe\matter\base {
 		}
 
 		return new \ResponseData($rst);
-	}
-	/**
-	 * 添加图文的标签
-	 */
-	public function addTag_action($id) {
-		$tags = $this->getPostJson();
-
-		$this->model('tag')->save(
-			$this->mpid, $id, 'article', 0, $tags, null);
-
-		return new \ResponseData('success');
-	}
-	/**
-	 * 添加图文的标签
-	 */
-	public function addTag2_action($id) {
-		$tags = $this->getPostJson();
-
-		$this->model('tag')->save(
-			$this->mpid, $id, 'article', 1, $tags, null
-		);
-
-		return new \ResponseData('success');
-	}
-	/**
-	 * 删除图文的标签
-	 */
-	public function removeTag_action($id) {
-		$tags = $this->getPostJson();
-
-		$this->model('tag')->save(
-			$this->mpid, $id, 'article', 0, null, $tags
-		);
-
-		return new \ResponseData('success');
-	}
-	/**
-	 * 删除图文的标签
-	 */
-	public function removeTag2_action($id) {
-		$tags = $this->getPostJson();
-
-		$this->model('tag')->save(
-			$this->mpid, $id, 'article', 1, null, $tags
-		);
-
-		return new \ResponseData('success');
-	}
-	/**
-	 * 用指定的模板替换定制页面内容
-	 * @param int $id article'id
-	 *
-	 */
-	public function pageByTemplate_action($id, $template) {
-		$uid = \TMS_CLIENT::get_client_uid();
-
-		$modelTemplate = $this->model('shop\shelf');
-		$template = $modelTemplate->byId($template);
-
-		$modelArt = $this->model('matter\article');
-		$copied = $modelArt->byId($template->matter_id);
-		$target = $modelArt->byId($id);
-
-		$modelPage = $this->model('code/page');
-		$pageid = $modelPage->copy($uid, $copied->page_id, $target->page_id);
-
-		if ($target->page_id === 0) {
-			$this->_update($id, array('page_id' => $pageid));
-		}
-
-		return new \ResponseData($pageid);
 	}
 	/**
 	 * 更新图文信息并记录操作日志

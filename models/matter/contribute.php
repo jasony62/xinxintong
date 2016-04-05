@@ -28,4 +28,35 @@ class contribute_model extends app_base {
 
 		return $url;
 	}
+	/**
+	 * $siteId
+	 */
+	public function &bySite($siteId) {
+		$q = array(
+			'*',
+			'xxt_contribute c',
+			"siteid='$siteId' and (state=1 or state=2)",
+		);
+		$q2 = array('o' => 'create_at desc');
+
+		$cs = $this->query_objs_ss($q, $q2);
+
+		return $cs;
+	}
+	/**
+	 * 文稿编辑
+	 */
+	public function &editors($siteId, $appId, $role) {
+		/**
+		 * 直接指定
+		 */
+		$q = array(
+			'c.id,c.identity,c.idsrc,c.label',
+			'xxt_contribute_user c',
+			"c.siteid='$siteId' and c.cid='$appId' and role='$role'",
+		);
+		$acls = $this->query_objs_ss($q);
+
+		return $acls;
+	}
 }

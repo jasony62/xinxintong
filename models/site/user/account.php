@@ -38,7 +38,7 @@ class account_model extends \TMS_MODEL {
 		$q = array(
 			$fields,
 			'xxt_site_account',
-			"site_id='$siteId' and uname='$uname'",
+			"siteid='$siteId' and uname='$uname'",
 		);
 		$act = $this->query_obj_ss($q);
 
@@ -56,7 +56,7 @@ class account_model extends \TMS_MODEL {
 		/*new account*/
 		$current = time();
 		$account = new \stdClass;
-		$account->site_id = $siteid;
+		$account->siteid = $siteid;
 		$account->uid = $uid;
 		$account->level_id = self::DEFAULT_LEVEL;
 		$account->reg_time = $current;
@@ -94,13 +94,13 @@ class account_model extends \TMS_MODEL {
 			$rst = $this->update(
 				'xxt_site_account',
 				$account,
-				"site_id='$siteId' and uid='$uid'"
+				"siteid='$siteId' and uid='$uid'"
 			);
 		} else {
 			/*new accouont key*/
 			$uid = uniqid();
 			$account = array(
-				'site_id' => $siteId,
+				'siteid' => $siteId,
 				'uid' => $uid,
 				'uname' => $uname,
 				'password' => $pw_hash,
@@ -125,7 +125,7 @@ class account_model extends \TMS_MODEL {
 		$q = array(
 			'1',
 			'xxt_site_account',
-			"site_id='$siteId' and uname='$uname'",
+			"siteid='$siteId' and uname='$uname'",
 		);
 		$rst = $this->query_val_ss($q);
 
@@ -154,7 +154,7 @@ class account_model extends \TMS_MODEL {
 		$rst = $this->update(
 			'xxt_site_account',
 			$update_data,
-			"site_id='$siteId' and uname='$uname'"
+			"siteid='$siteId' and uname='$uname'"
 		);
 
 		return $rst;
@@ -166,7 +166,7 @@ class account_model extends \TMS_MODEL {
 		$rst = $this->query_val_ss(
 			'1',
 			'xxt_site_account',
-			"site_id='$siteId' and uname='$uname'"
+			"siteid='$siteId' and uname='$uname'"
 		);
 
 		return $rst === '1';

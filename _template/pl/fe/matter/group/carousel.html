@@ -1,0 +1,31 @@
+<div>
+    <select ng-controller='ctrlRounds' ng-model='round' ng-change='shiftRound()' ng-options="r.round_id as r.title for r in rounds">
+        <option value=''></option>
+    </select>
+    <button class='btn btn-sm btn-default pull-right' ng-click='empty()'>RESET</button>
+    <div id='frame'>
+        <div class='winners list-group'>
+            <div class='list-group-item'>
+                <span>已抽取：
+                    <span ng-bind="winners.length"></span>
+                </span>
+            </div>
+            <div class='list-group-item winner' ng-repeat='w in winners'>
+                <div class='name' ng-bind="w.nickname"></div>
+            </div>
+        </div>
+        <div class='lottery-box'>
+            <div class='swiper-container'>
+                <div class='swiper-wrapper'>
+                    <div class='swiper-slide' ng-repeat='p in players'>
+                        <div class='name' ng-bind="p.nickname"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='actions'>
+            <button class='btn btn-lg btn-danger' ng-click='start()' ng-if='!running'>开始</button>
+            <button class='btn btn-lg btn-danger' ng-disabled='stopping' ng-click='stop()' ng-if='running'>停止</button>
+        </div>
+    </div>
+</div>

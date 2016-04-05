@@ -19,7 +19,8 @@ class coin extends \mp\app\app_base {
 	 *
 	 */
 	public function index_action() {
-		$this->view_action('/mp/app/contribute/detail');
+		\TPL::output('/pl/fe/matter/contribute/frame');
+		exit;
 	}
 	/**
 	 *

@@ -159,6 +159,7 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_article_review_log(";
 $sql .= 'id int not null auto_increment';
 $sql .= ',mpid varchar(32) not null';
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',article_id int not null';
 $sql .= ',seq int not null';
 $sql .= ',mid varchar(32) not null';

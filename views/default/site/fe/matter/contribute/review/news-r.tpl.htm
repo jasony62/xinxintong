@@ -1,0 +1,32 @@
+<div class='container' ng-clock ng-app='xxtApp' ng-controller='myNewsCtrl' style='padding:15px 0' ng-init="jsonParams='<?php echo urlencode(json_encode(TPL::val('params')));?>'">
+    <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
+    <nav class='navbar navbar-default'>
+        <div class='container-fluid'>
+            <div class="navbar-header">
+                <a class="navbar-brand" href="javascript:void(0)" ng-click="back($event)"><span class='glyphicon glyphicon-chevron-left'></span></a>
+            </div>
+            <ul class='nav navbar-nav navbar-right'>
+                <button class='btn navbar-btn btn-default' ng-click='return()'>退回</button>
+                <button class='btn navbar-btn btn-default'>发布</button>
+            </ul>
+        </div>
+    </nav>
+    <div class='form-horizontal'>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>标题</label>
+            <div class='col-md-10'>
+                <p class='form-control' ng-bind='editing.title'></p>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>文稿</label>
+            <div class='col-md-10'>
+                <ul class='list-group'>
+                    <li class='list-group-item' ng-repeat='m in editing.matters'>
+                        <span ng-bind='m.title'></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

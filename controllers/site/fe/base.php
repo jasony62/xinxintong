@@ -24,6 +24,15 @@ class base extends \TMS_CONTROLLER {
 		$this->who = $modelWay->who($siteId);
 	}
 	/**
+	 *
+	 */
+	public function get_access_rule() {
+		$rule_action['rule_type'] = 'black';
+		$rule_action['actions'] = array();
+
+		return $rule_action;
+	}
+	/**
 	 * 检查是否当前的请求是OAuth后返回的请求
 	 */
 	public function afterSnsOAuth() {

@@ -22,7 +22,7 @@ class favor extends \site\fe\base {
 		$q = array(
 			'id,favor_at,matter_id,matter_type,matter_title',
 			'xxt_site_favor',
-			"site_id='$this->siteId' and userid='$userid'",
+			"siteid='$this->siteId' and userid='$userid'",
 		);
 		$q2 = array(
 			'o' => 'favor_at desc',
@@ -49,7 +49,7 @@ class favor extends \site\fe\base {
 		$q = array(
 			'id',
 			'xxt_site_favor',
-			"site_id='$this->siteId' and userid='$userid' and matter_id='$id' and matter_type='$type'",
+			"siteid='$this->siteId' and userid='$userid' and matter_id='$id' and matter_type='$type'",
 		);
 		if (false === $model->query_obj_ss($q)) {
 			$log = array(
@@ -76,7 +76,7 @@ class favor extends \site\fe\base {
 		$userid = $this->who->uid;
 		$rst = $this->model()->delete(
 			'xxt_site_favor',
-			"site_id='$this->siteId' and userid='$userid' and id=$id"
+			"siteid='$this->siteId' and userid='$userid' and id=$id"
 		);
 
 		return new \ResponseData($rst);

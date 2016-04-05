@@ -1,8 +1,6 @@
 <?php
 require_once '../db.php';
-/*
- * 通用活动
- */
+/***登记活动***/
 $sql = 'create table if not exists xxt_enroll(';
 $sql .= 'id varchar(40) not null';
 $sql .= ',siteid varchar(32) not null';
@@ -266,6 +264,94 @@ $sql .= ",round_id varchar(32) not null";
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",draw_at int not null";
 $sql .= ",openid varchar(255) not null default ''";
+$sql .= ",nickname varchar(255) not null default ''";
+$sql .= ',primary key(aid,round_id,enroll_key)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/*** 分组活动 ***/
+$sql = "create table if not exists xxt_group(";
+$sql .= "id varchar(40) not null";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",creater varchar(40) not null default ''";
+$sql .= ",creater_name varchar(255) not null default ''";
+$sql .= ",creater_src char(1)";
+$sql .= ",create_at int not null";
+$sql .= ",modifier varchar(40) not null default ''";
+$sql .= ",modifier_name varchar(255) not null default ''";
+$sql .= ",modifier_src char(1)";
+$sql .= ",modify_at int not null";
+$sql .= ',state tinyint not null default 1'; //0:删除,1:配置,2:运行
+$sql .= ",title varchar(255) not null default ''";
+$sql .= ",summary varchar(240) not null default ''";
+$sql .= ",pic text"; // 分享或生成链接时的图片
+$sql .= ",data_schemas text";
+$sql .= ',page_code_id int not null default 0';
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 活动登记记录
+ */
+$sql = 'create table if not exists xxt_group_player(';
+$sql .= "id int not null auto_increment";
+$sql .= ",aid varchar(40) not null";
+$sql .= ",siteid varchar(32) not null default ''";
+$sql .= ",userid varchar(40) not null default ''";
+$sql .= ",nickname varchar(255) not null default ''";
+$sql .= ",enroll_key varchar(32) not null";
+$sql .= ",enroll_at int not null"; // 填写报名信息时间
+$sql .= ",tags text";
+$sql .= ",comment text";
+$sql .= ',state tinyint not null default 1'; //0:remove,1:normal,2:as invite log
+$sql .= ",referrer text"; //
+$sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 自定义登记数据
+ */
+$sql = 'create table if not exists xxt_group_player_data(';
+$sql .= 'aid varchar(40) not null';
+$sql .= ",enroll_key varchar(32) not null";
+$sql .= ',name varchar(40) not null';
+$sql .= ',value text';
+$sql .= ',state tinyint not null default 1'; //0:remove,1:normal
+$sql .= ',primary key(aid,enroll_key,name)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/*
+ * 分组轮次
+ */
+$sql = 'create table if not exists xxt_group_round(';
+$sql .= 'aid varchar(40) not null';
+$sql .= ",round_id varchar(32) not null";
+$sql .= ",create_at int not null";
+$sql .= ",title varchar(40) not null";
+$sql .= ",autoplay char(1) not null default 'N'"; // 自动抽奖直到达到抽奖次数
+$sql .= ",times int not null"; // 抽奖次数
+$sql .= ",targets text";
+$sql .= ',primary key(aid,round_id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/*
+ * 分组结果
+ */
+$sql = 'create table if not exists xxt_group_result(';
+$sql .= 'aid varchar(40) not null';
+$sql .= ",round_id varchar(32) not null";
+$sql .= ",enroll_key varchar(32) not null";
+$sql .= ",draw_at int not null";
+$sql .= ",userid varchar(40) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ',primary key(aid,round_id,enroll_key)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {

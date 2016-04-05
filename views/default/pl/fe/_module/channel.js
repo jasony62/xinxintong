@@ -1,12 +1,13 @@
 angular.module('channel.fe.pl', ['ui.tms']).
-controller('setChannelCtrl', ['$scope', 'http2', function($scope, http2) {
+controller('ctrlSetChannel', ['$scope', 'http2', function($scope, http2) {
     $scope.$on('channel.xxt.combox.done', function(event, aSelected) {
-        var aNewChannels = [],
-            relations = {};
-        for (var i in aSelected) {
-            var existing = false;
-            for (var j in $scope.$parent.editing.channels) {
-                if (aSelected[i].id === $scope.$parent.editing.channels[j].id) {
+        var i, j, existing, aNewChannels = [],
+            relations = {},
+            matter = $scope.$parent[$scope.matterObj];
+        for (i in aSelected) {
+            existing = false;
+            for (j in matter.channels) {
+                if (aSelected[i].id === matter.channels[j].id) {
                     existing = true;
                     break;
                 }
@@ -14,21 +15,21 @@ controller('setChannelCtrl', ['$scope', 'http2', function($scope, http2) {
         }
         relations.channels = aNewChannels;
         relations.matter = {
-            id: $scope.$parent.editing.id,
+            id: matter.id,
             type: $scope.matterType
         };
         http2.post('/rest/pl/fe/matter/channel/addMatter?site=' + $scope.siteId, relations, function() {
-            $scope.$parent.editing.channels = $scope.$parent.editing.channels.concat(aNewChannels);
+            matter.channels = matter.channels.concat(aNewChannels);
         });
     });
     $scope.$on('channel.xxt.combox.del', function(event, removed) {
-        var matter = {
-            id: $scope.$parent.editing.id,
-            type: $scope.matterType
-        };
-        http2.post('/rest/pl/fe/matter/channel/removeMatter?site=' + $scope.siteId + '&id=' + removed.id, matter, function(rsp) {
-            var i = $scope.$parent.editing.channels.indexOf(removed);
-            $scope.$parent.editing.channels.splice(i, 1);
+        var matter = $scope.$parent[$scope.matterObj],
+            param = {
+                id: matter.id,
+                type: $scope.matterType
+            };
+        http2.post('/rest/pl/fe/matter/channel/removeMatter?site=' + $scope.siteId + '&id=' + removed.id, param, function(rsp) {
+            matter.channels.splice(matter.channels.indexOf(removed), 1);
         });
     });
     $scope.$watch('matterType', function(nv) {

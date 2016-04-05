@@ -244,7 +244,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_log_matter_op(";
 $sql .= "id int not null auto_increment";
-$sql .= ",site_id varchar(32) not null";
+$sql .= ",siteid varchar(32) not null";
 $sql .= ",operator varchar(40) not null"; //accountid/fid
 $sql .= ",operator_name varchar(255) not null"; //from account or fans
 $sql .= ",operator_src char(1) not null default 'A'"; //A:accouont|F:fans|M:member

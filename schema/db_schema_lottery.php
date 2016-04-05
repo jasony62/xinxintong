@@ -6,8 +6,15 @@ require_once '../db.php';
 $sql = "create table if not exists xxt_lottery(";
 $sql .= "id varchar(40) not null"; //轮盘抽奖活动的ID
 $sql .= ",mpid varchar(32) not null";
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',creater varchar(40) not null';
+$sql .= ",creater_name varchar(255) not null default ''"; //from account or fans
+$sql .= ",creater_src char(1)"; //A:accouont|F:fans
 $sql .= ',create_at int not null';
+$sql .= ",modifier varchar(40) not null default ''"; //accountid/fid
+$sql .= ",modifier_name varchar(255) not null default ''"; //from account or fans
+$sql .= ",modifier_src char(1)"; //A:accouont|F:fans|M:member
+$sql .= ",modify_at int not null";
 $sql .= ",title varchar(70) not null";
 $sql .= ',pic text'; // 分享或生成链接时的图片
 $sql .= ',summary varchar(240) not null'; // 分享或生成链接时的摘要
@@ -40,6 +47,7 @@ if (!$mysqli->query($sql)) {
 //
 $sql = "create table if not exists xxt_lottery_task(";
 $sql .= 'mpid varchar(32) not null';
+$sql .= ',siteid varchar(32) not null';
 $sql .= ',lid varchar(40) not null'; //轮盘抽奖活动的ID
 $sql .= ',tid varchar(32) not null'; //任务ID
 $sql .= ',title varchar(20) not null';
@@ -51,9 +59,11 @@ if (!$mysqli->query($sql)) {
 }
 //
 $sql = "create table if not exists xxt_lottery_task_log(";
-$sql .= 'id int not null auto_increment';
-$sql .= ',lid varchar(40) not null'; //轮盘抽奖活动的ID
-$sql .= ',tid varchar(32) not null'; //任务ID
+$sql .= "id int not null auto_increment";
+$sql .= ",lid varchar(40) not null"; //轮盘抽奖活动的ID
+$sql .= ",tid varchar(32) not null"; //任务ID
+$sql .= ",userid varchar(40) not null default ''";
+$sql .= ",nickname varchar(255) not null default ''";
 $sql .= ',mid varchar(32) not null'; // 中奖会员
 $sql .= ",openid varchar(255) not null default ''";
 $sql .= ',create_at int not null'; // 抽奖的时间
@@ -65,10 +75,11 @@ if (!$mysqli->query($sql)) {
 }
 //
 $sql = "create table if not exists xxt_lottery_award(";
-$sql .= 'mpid varchar(32) not null';
-$sql .= ',lid varchar(40) not null'; //轮盘抽奖活动的ID
-$sql .= ',aid varchar(40) not null'; //奖品的ID
-$sql .= ',title varchar(20) not null';
+$sql .= "mpid varchar(32) not null";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",lid varchar(40) not null"; //轮盘抽奖活动的ID
+$sql .= ",aid varchar(40) not null"; //奖品的ID
+$sql .= ",title varchar(20) not null";
 $sql .= ",description text";
 $sql .= ",pic text";
 $sql .= ',prob int not null'; //奖品的概率
@@ -85,11 +96,12 @@ if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error(award): ' . $sql . ':' . $mysqli->error;
 }
-//
+/* 奖品的槽位 */
 $sql = "create table if not exists xxt_lottery_plate(";
-$sql .= 'mpid varchar(32) not null';
-$sql .= ',lid varchar(40) not null'; //轮盘抽奖活动的ID
-$sql .= ',size int not null default 8'; //轮盘的格数
+$sql .= "mpid varchar(32) not null";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",lid varchar(40) not null"; //轮盘抽奖活动的ID
+$sql .= ",size int not null default 8"; //轮盘的格数
 $sql .= ",a0 varchar(40) not null default ''";
 $sql .= ",a1 varchar(40) not null default ''";
 $sql .= ",a2 varchar(40) not null default ''";
@@ -107,11 +119,14 @@ if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error(plate): ' . $sql . ':' . $mysqli->error;
 }
-//
+/* 抽奖结果记录 */
 $sql = "create table if not exists xxt_lottery_log(";
 $sql .= 'id int not null auto_increment';
 $sql .= ',mpid varchar(32) not null';
+$sql .= ',siteid varchar(32) not null';
 $sql .= ',lid varchar(40) not null'; // 轮盘抽奖活动的ID
+$sql .= ",userid varchar(40) not null default ''";
+$sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",openid varchar(255) not null default ''";
 $sql .= ',draw_at int not null'; // 抽奖的时间
 $sql .= ',aid varchar(40) not null'; // 奖品的ID

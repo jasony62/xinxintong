@@ -1,0 +1,54 @@
+<div ng-controller='InnerMemberSelectorCtrl'>
+    <style> 
+        #member{position:absolute;top:70px;bottom:20px;left:20px;right:20px}
+        #member>div{width:100%;height:100%;padding-bottom:15px;white-space:nowrap;overflow-x:auto;overflow-y:hidden}
+        #depts,#tags,#members{display:inline-block;overflow:auto;min-width:200px;height:100%}
+        #tags,#members{padding-left:15px}
+        #members{min-width:380px}
+        #members label{padding-right:25px}
+        #members label input{margin-left:0;margin-right:-20px}
+        #depts p.form-control{cursor:pointer}
+        #depts p.form-control:hover{background-color:#f5f5f5}
+        #depts p.form-control.active{background-color:#428bca;border-color:#428bca;color:#fff}
+        li.list-group-item{cursor:pointer}
+        li.list-group-item:hover{background-color:#f5f5f5}
+        li.list-group-item.active{background-color:#428bca;border-color:#428bca;color:#fff}
+        li.list-group-item label{padding-left:0;width:100%}
+    </style>
+    <div id='depts' ng-class="{'col-md-6':isPickSingleMember==='N'}" ng-show='depts.children.length'>
+        <ol class='tree'>
+            <li class='treenode' tms-tree="child in depts.children at ol">
+            <div style='width:200px'>
+                <div class="input-group input-group-sm">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default" ng-click='toggleChild(child)'><span class="glyphicon" ng-class="child.expanded?'glyphicon-chevron-down':'glyphicon-chevron-right'"></span></button>
+                    </div>
+                    <p class='form-control' style='overflow:hidden' title='{{child.data.name}}' ng-class="{'active':child.data===selectedDept}" ng-click='selectDept(child.data)'>{{child.data.name}}</p>
+                    <span class="input-group-addon" ng-init="child.data.checked = isDeptChecked(child.data) ? 'Y':'N'" ng-show="isPickSingleMember==='N'">
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='child.data.checked' ng-change="checkDepts(child.data)">
+                    </span>
+                </div>
+            </div>
+            <ol ng-class="{pregnant:child.children.length}" ng-show="child.children.length&&child.expanded"></ol>
+            </li>
+        </ol>
+    </div>
+    <div id='tags' ng-class="{'col-md-3':isPickSingleMember==='N'}" ng-show='tags.length'>
+        <ul class='list-group'>
+            <li class='list-group-item' ng-class="{'active':t===selectedTag}" ng-repeat='t in tags' ng-init="t.checked=isTagChecked(t)?'Y':'N'"><label class='checkbox-inline'>{{t.name}}<input class='pull-right' style='position:static' type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='t.checked' ng-change="checkTags(t)" ng-show="isPickSingleMember==='N'"></label></li>
+        </ul>
+    </div>
+    <div id='members' ng-show="isPickSingleMember==='Y'">
+        <ul class='list-group'>
+            <li class='list-group-item' ng-repeat='m in members'>
+            <label class='checkbox-inline'>{{m.name||m.nickname||m.email||m.mobile}}
+                <input type='checkbox' class='pull-right' style='position:static' ng-true-value="'Y'" ng-false-value="'N'" ng-model='m.checked' ng-change="checkMembers(m)">
+            </label>
+            </li>
+        </ul>
+        <div id='memberBar' class='clearfix'>
+            <a href='#' ng-click='checkAllUser()' ng-show='members.length' class='pull-left' style='height:34px;line-height:34px'>全选</a>
+            <pagination style='margin:0;cursor:pointer' class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="5" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="searchMember()"></pagination>
+        </div>
+    </div>
+</div>

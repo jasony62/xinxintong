@@ -1,0 +1,11 @@
+body{background:#EEE}
+.mce-tinymce.mce-container.mce-panel{margin-top:0;border:1px solid #ccc;}
+.mce-tinymce.mce-container.mce-panel.mce-fullscreen{margin-top:51px}
+.mce-tinymce div.mce-edit-area{border:0!important;border-top:1px solid #ccc!important;}
+.mce-tinymce .mce-menubtn.mce-fixed-width span{width:auto;}
+.modal.mattersgallery .modal-dialog{position:absolute;top:0;bottom:0;left:50%;margin-left:-450px}
+.modal.mattersgallery .modal-dialog .modal-content{height:100%}
+.modal.mattersgallery .modal-dialog .modal-content .modal-body{position:absolute;top:66px;bottom:90px;left:0;right:0;overflow:auto}
+.qrcode .popover img{width:150px;height:150px}
+p.help-block{margin-bottom:0}
+iframe{background:#fff;width:100%}

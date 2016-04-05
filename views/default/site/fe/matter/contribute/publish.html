@@ -1,0 +1,18 @@
+<div class="modal-header">
+    <div class='form-inline'>
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5>选择</h5>
+    </div>
+</div>
+<div class="modal-body" style='overflow:auto'>
+    <ul class='list-group'>
+        <li class='list-group-item' ng-repeat='mp in childmps'>
+            <label class='checkbox-inline'>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='mp.checked' ng-change='pickMp(mp)'>{{mp.name}}</label>
+        </li>
+        <li class='list-group-item' ng-show='groups&&groups.length===0' style='color:#CCC'>没有分组</li>
+    </ul>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-success" ng-click="ok()">发送</button>
+</div>

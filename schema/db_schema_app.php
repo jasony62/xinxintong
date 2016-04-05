@@ -3,11 +3,18 @@ require_once '../db.php';
 /**
  * 投稿应用
  */
-$sql = 'create table if not exists xxt_contribute (';
-$sql .= 'id varchar(40) not null';
-$sql .= ',mpid varchar(32) not null';
-$sql .= ',creater varchar(40) not null';
+$sql = "create table if not exists xxt_contribute (";
+$sql .= "id varchar(40) not null";
+$sql .= ",mpid varchar(32) not null";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",creater varchar(40) not null";
+$sql .= ",creater_name varchar(255) not null default ''"; //from account or fans
+$sql .= ",creater_src char(1)"; //A:accouont|F:fans
 $sql .= ',create_at int not null';
+$sql .= ",modifier varchar(40) not null default ''"; //accountid/fid
+$sql .= ",modifier_name varchar(255) not null default ''"; //from account or fans
+$sql .= ",modifier_src char(1)"; //A:accouont|F:fans|M:member
+$sql .= ",modify_at int not null";
 $sql .= ",public_visible char(1) not null default 'N'";
 $sql .= ",shift2pc char(1) not null default 'N'";
 $sql .= ",can_taskcode char(1) not null default 'N'";
@@ -29,11 +36,12 @@ if (!$mysqli->query($sql)) {
  * 登记信息通知接收人
  */
 $sql = "create table if not exists xxt_contribute_user(";
-$sql .= 'id int not null auto_increment';
-$sql .= ',mpid varchar(32) not null';
-$sql .= ',cid varchar(40) not null'; // contribute's id
-$sql .= ',role char(1) not null'; // Initiator|Reviewer|Typesetter
-$sql .= ',identity varchar(100) not null';
+$sql .= "id int not null auto_increment";
+$sql .= ",mpid varchar(32) not null";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",cid varchar(40) not null"; // contribute's id
+$sql .= ",role char(1) not null"; // Initiator|Reviewer|Typesetter
+$sql .= ",identity varchar(100) not null";
 $sql .= ",idsrc char(2) not null default ''";
 $sql .= ",label varchar(255) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";

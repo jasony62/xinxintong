@@ -1,0 +1,16 @@
+#rouletteWrap{position:relative;margin:0 auto;height:340px;width:340px}
+.roulette-pointer{position:absolute;top:120px;left:120px;width:100px;height:100px;cursor:pointer;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+.award-slot{position:absolute;background-color:rgba(255,255,255,0.1);display:table;overflow:hidden;width:60px;height:60px;text-align:center;font-size:1.2em;color:white}
+.award-slot > div{display:table-cell;vertical-align:middle}
+.award-bg{background-size:contain;background-position:center center}
+.award-title{background-color:rgba(30,30,30,0.2)}
+@media screen and (max-width:360px){
+	#rouletteWrap{height:340px;width:340px}
+	.roulette-pointer{top:120px;left:120px;height:100px;width:100px}
+	.award-slot{font-size:1em}
+}
+@media screen and (max-width:320px){
+	#rouletteWrap{height:300px;width:300px}
+	.roulette-pointer{top:105px;left:105px;height:90px;width:90px}
+	.award-slot{font-size:1em}
+}

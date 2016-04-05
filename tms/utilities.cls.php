@@ -25,7 +25,7 @@ class ResponseError extends ResponseData {
 }
 class ResponseTimeout extends ResponseData {
 	public function __construct($msg = '') {
-		empty($msg) && $msg = '长时间未操作，请重新<a href="/rest/pl/fe/user/login">登陆</a>！';
+		empty($msg) && $msg = '长时间未操作，请重新<a href="/rest/pl/fe/user/login" target="_self">登陆</a>！';
 		parent::__construct(null, -2, $msg);
 	}
 }

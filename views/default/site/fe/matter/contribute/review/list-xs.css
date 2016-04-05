@@ -1,0 +1,13 @@
+.ng-cloak{display:none}
+body{background:#E7E8E8;padding:10px 10px 70px 10px}
+.table .thead{display:none;}
+.table .tr>div{margin:5px 0}
+.table .tr{background:#FFF;display:table;width:100%;border:1px solid #ddd;margin-bottom:10px}
+#list .tr{position:relative;padding:10px;border-top:3px solid red}
+#list .tr.approved{border-top:3px solid lightgreen}
+#list .tr .title{font-size:1.2em;background:#f6f6f6;padding:3px 0}
+#list .tr .create_at>span:first-child,#list .tr .send_at>span:first-child{padding-right:8px}
+#list .tr .score{position:absolute;bottom:10px;left:100px}
+#status{background-color:rgba(196,196,196,0.2)}
+#pagePopup{display:none;position:absolute;top:10px;bottom:80px;left:10px;right:10px;z-index: 999;padding:10px;background: #fff}
+#pagePopup>iframe{border:0;width:100%;height:100%}

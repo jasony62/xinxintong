@@ -443,6 +443,71 @@ class acl_model extends TMS_MODEL {
 		return false;
 	}
 	/**
+	 * 通用的白名单检查机制
+	 *
+	 * $mpid
+	 * $table 访问控制列表
+	 * $whichAcl 需要检查的列表项
+	 * $identity 用户身份标识
+	 * $authapis
+	 */
+	public function canAccess2($siteId, $table, $whichAcl, $identity, $aSchemaIds, $mustInclude = false) {
+		/**
+		 * 是否设置了白名单
+		 */
+		if (!$mustInclude) {
+			$q = array(
+				'count(*)',
+				$table,
+				$whichAcl,
+			);
+			if (0 === (int) $this->query_val_ss($q)) {
+				return true;
+			}
+
+		}
+		/**
+		 * 检查当前用户是否在白名单中
+		 * 如果有多个认证身份信息，有一个在白名单中就行
+		 * todo 用户身份必须和指定认证接口匹配才可以
+		 */
+		$q = array(
+			'count(*)',
+			$table,
+			"$whichAcl and idsrc='' and identity='$identity'",
+		);
+		if (0 < (int) $this->query_val_ss($q)) {
+			return true;
+		}
+
+		/**
+		 * 后缀匹配，例如：域名匹配
+		 */
+		$q = array(
+			'count(*)',
+			$table,
+			"$whichAcl and idsrc='' and '$identity' like concat('%',identity)",
+		);
+		if (1 === ((int) $this->query_val_ss($q))) {
+			return true;
+		}
+
+		/**
+		 * 由认证接口进行检查
+		 */
+		$q = array(
+			'identity,idsrc',
+			$table,
+			"$whichAcl",
+		);
+		$acls = $this->query_objs_ss($q);
+		if (true === $this->_checkBySchema($siteId, $aSchemaIds, $acls, $identity)) {
+			return true;
+		}
+
+		return false;
+	}
+	/**
 	 *
 	 */
 	private function checkAclByAuthapi($mpid, $authapis, $acls, $identity) {
@@ -457,6 +522,39 @@ class acl_model extends TMS_MODEL {
 			if ($url = $this->query_val_ss($q)) {
 				false === strpos($url, 'http') && $url = 'http://' . $_SERVER['HTTP_HOST'] . $url;
 				$url .= "/checkAcl?authid=$authid&uid=$identity";
+				$ch = curl_init($url);
+				curl_setopt($ch, CURLOPT_HEADER, 0);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+				curl_setopt($ch, CURLOPT_POST, 1);
+				curl_setopt($ch, CURLOPT_POSTFIELDS, $posted);
+				if (false === ($response = curl_exec($ch))) {
+					$err = curl_error($ch);
+					curl_close($ch);
+					return array(false, $err);
+				}
+				curl_close($ch);
+				$rst = json_decode($response);
+				if ($rst->err_code == 0 && $rst->data === 'passed') {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	/**
+	 *
+	 */
+	private function _checkBySchema($siteId, &$aSchemaIds, $acls, $identity) {
+		$posted = json_encode($acls);
+		foreach ($aSchemaIds as $schemaId) {
+			$q = array(
+				'url',
+				'xxt_site_member_schema',
+				"id=$schemaId and valid='Y'",
+			);
+			if ($url = $this->query_val_ss($q)) {
+				false === strpos($url, 'http') && $url = 'http://' . $_SERVER['HTTP_HOST'] . $url;
+				$url .= "/checkAcl?site=$siteId&schema=$schemaId&uid=$identity";
 				$ch = curl_init($url);
 				curl_setopt($ch, CURLOPT_HEADER, 0);
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

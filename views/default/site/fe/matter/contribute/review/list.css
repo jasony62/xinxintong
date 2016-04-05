@@ -1,0 +1,14 @@
+body{background:#EEE}
+.table{background:#fff}
+.table .tr{display:table;width:100%;border:1px solid #ddd;border-top:0}
+.table .thead .tr{border-top:1px solid #ddd}
+.table .thead .tr>div{text-align:center;font-weight:700}
+.table .tbody .tr{cursor:pointer}
+.table .tr>div{display:table-cell;padding:15px 8px;border-left:1px solid #CCC}
+.table .tr>div.pending{color:red}
+#list .table .tr>div:nth-child(2){width:140px;text-align:center}
+#list .table .tr>div:nth-child(3){width:140px;text-align:center}
+#list .table .tr>div:nth-child(4){width:80px;text-align:center}
+#list .table .tr>div:nth-child(5){width:80px;text-align:center}
+#list .table .tr>div:nth-child(6){width:60px;text-align:center}
+#list .table .tr>div:nth-child(7){width:60px;text-align:center}

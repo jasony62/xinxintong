@@ -125,19 +125,37 @@ class xxt_base extends TMS_CONTROLLER {
 
 		$aMember['depts'] = json_encode($udepts);
 
-		$this->model()->insert('xxt_member', $aMember, false);
+		$model = $this->model();
+		$model->insert('xxt_member', $aMember, false);
 		/**
 		 * 为了兼容服务号和订阅号的操作，生成和成员用户对应的粉丝用户
 		 */
-		$fan = array();
-		$fan['fid'] = $fid;
-		$fan['mpid'] = $mpid;
-		$fan['openid'] = $user->userid;
-		$fan['nickname'] = $user->name;
-		isset($user->avatar) && $fan['headimgurl'] = $user->avatar;
-		$user->status == 1 && $fan['subscribe_at'] = $create_at;
-		$this->model()->insert('xxt_fans', $fan, false);
-
+		if ($old = $this->model('user/fans')->byId($fid)) {
+			$fan = array();
+			$fan['nickname'] = $user->name;
+			isset($user->avatar) && $fan['headimgurl'] = $user->avatar;
+			if ($user->status == 1 && $old->subscribe_at == 0) {
+				$fan['subscribe_at'] = $timestamp;
+			} else if ($user->status == 1 && $old->unsubscribe_at != 0) {
+				$fan['unsubscribe_at'] = 0;
+			} else if ($user->status == 4 && $old->unsubscribe_at == 0) {
+				$fan['unsubscribe_at'] = $timestamp;
+			}
+			$model->update(
+				'xxt_fans',
+				$fan,
+				"mpid='$mpid' and fid='$fid'"
+			);
+		} else {
+			$fan = array();
+			$fan['fid'] = $fid;
+			$fan['mpid'] = $mpid;
+			$fan['openid'] = $user->userid;
+			$fan['nickname'] = $user->name;
+			isset($user->avatar) && $fan['headimgurl'] = $user->avatar;
+			$user->status == 1 && $fan['subscribe_at'] = $timestamp;
+			$model->insert('xxt_fans', $fan, false);
+		}
 		return true;
 	}
 	/**

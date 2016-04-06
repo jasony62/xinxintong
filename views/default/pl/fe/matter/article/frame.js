@@ -1,4 +1,4 @@
-app = angular.module('app', ['ngRoute', 'ui.tms', 'matters.xxt', 'channel.fe.pl']);
+app = angular.module('app', ['ngRoute', 'ui.tms', 'matters.xxt', 'member.xxt', 'channel.fe.pl']);
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
 	$routeProvider.when('/rest/pl/fe/matter/article', {
 		templateUrl: '/views/default/pl/fe/matter/article/setting.html?_=1',

@@ -85,27 +85,25 @@ class main extends \pl\fe\matter\base {
 
 		$current = time();
 		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
-		/**
-		 * 获得的基本信息
-		 */
-		$cid = uniqid();
-		$newone['siteid'] = $site->id;
-		$newone['id'] = $cid;
-		$newone['creater'] = $user->id;
-		$newone['creater_name'] = $user->name;
+
+		$appId = uniqid();
+		$newapp['siteid'] = $site->id;
+		$newapp['id'] = $appId;
+		$newapp['creater'] = $user->id;
+		$newapp['creater_name'] = $user->name;
 		$newapp['creater_src'] = $user->src;
-		$newone['create_at'] = $current;
+		$newapp['create_at'] = $current;
 		$newapp['modifier'] = $user->id;
 		$newapp['modifier_src'] = $user->src;
 		$newapp['modifier_name'] = $user->name;
 		$newapp['modify_at'] = $current;
-		$newone['title'] = '新投稿活动';
+		$newapp['title'] = '新投稿活动';
 		$newapp['summary'] = '';
 		$newapp['pic'] = $site->heading_pic;
 
-		$this->model()->insert('xxt_contribute', $newone, false);
+		$this->model()->insert('xxt_contribute', $newapp, false);
 
-		$c = $this->model('matter\contribute')->byId($cid);
+		$c = $this->model('matter\contribute')->byId($appId);
 		/*记录操作日志*/
 		$c->type = 'contribute';
 		$this->model('log')->matterOp($site->id, $user, $c, 'C');

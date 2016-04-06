@@ -11,7 +11,7 @@ class base extends \pl\fe\base {
 	 *
 	 * @param int $id 规则ID
 	 */
-	public function setAcl_action($id = null) {
+	public function setAcl_action($site, $id = null) {
 		if (empty($id)) {
 			die('parameters invalid.');
 		}
@@ -23,7 +23,7 @@ class base extends \pl\fe\base {
 			$rst = $this->model()->update('xxt_matter_acl', $u, "id=$acl->id");
 			return new \ResponseData($rst);
 		} else {
-			$i['mpid'] = $this->mpid;
+			$i['siteid'] = $site;
 			$i['matter_type'] = $this->getMatterType();
 			$i['matter_id'] = $id;
 			$i['identity'] = $acl->identity;
@@ -39,10 +39,10 @@ class base extends \pl\fe\base {
 	 *
 	 * @param int $acl 规则ID
 	 */
-	public function removeAcl_action($acl) {
+	public function removeAcl_action($site, $acl) {
 		$rst = $this->model()->delete(
 			'xxt_matter_acl',
-			"mpid='$this->mpid' and id=$acl"
+			"siteid='$site' and id=$acl"
 		);
 
 		return new \ResponseData($rst);

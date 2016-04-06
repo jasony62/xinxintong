@@ -81,6 +81,8 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_log_matter_read(";
 $sql .= 'id int not null auto_increment';
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",userid varchar(40) not null";
 $sql .= ',vid varchar(32) not null';
 $sql .= ',openid varchar(255) not null';
 $sql .= ',nickname varchar(255) not null';
@@ -105,6 +107,8 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_log_matter_share(";
 $sql .= 'id int not null auto_increment';
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",userid varchar(40) not null";
 $sql .= ',shareid varchar(45)'; // 分享行为的主键
 $sql .= ',vid varchar(32) not null'; // 谁做的分享
 $sql .= ',openid varchar(40) not null';
@@ -172,6 +176,8 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_log_user_action(";
 $sql .= 'id int not null auto_increment';
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",userid varchar(40) not null";
 $sql .= ',mpid varchar(32) not null';
 $sql .= ',vid varchar(32) not null';
 $sql .= ',openid varchar(255) not null';
@@ -191,6 +197,8 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_log_user_matter(";
 $sql .= 'id int not null auto_increment';
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",userid varchar(40) not null";
 $sql .= ',mpid varchar(32) not null';
 $sql .= ',openid varchar(255) not null';
 $sql .= ',nickname varchar(255) not null';
@@ -211,6 +219,8 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_log_matter_action(";
 $sql .= 'id int not null auto_increment';
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",userid varchar(40) not null";
 $sql .= ',mpid varchar(32) not null';
 $sql .= ',matter_id varchar(40) not null';
 $sql .= ',matter_type varchar(20) not null';

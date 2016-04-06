@@ -21,9 +21,6 @@
                         </button>
                     </div>
                 </div>
-                <div style='position:absolute;top:30px;left:210px'>
-                    <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.hide_pic' ng-change="update('hide_pic');">正文中不显示头图</label>
-                </div>
             </div>
             <div class='help-block'>头图（可选）：建议尺寸：900像素 * 500像素</div>
         </div>
@@ -42,21 +39,24 @@
             <select class='form-control' ng-model='app.params.channel' ng-change="update('params');" ng-options='c.id as c.title for c in channels'>
                 <option></option>
             </select>
-            <div class='help-block'>投稿所属频道</div>
+            <div class='help-block'>投稿自动加入频道</div>
         </div>
         <div class='form-group'>
             <combox evt-prefix='sub-channel' readonly=true prop='title' existing='app.subChannels' options='channels'></combox>
             <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.params.requireSubChannel' ng-change="update('params');">必选</label>
-            <div class='help-block'>投稿人指定频道</div>
+            <div class='help-block'>投稿人指定投稿加入频道</div>
         </div>
         <div class='form-group'>
-            <memberacl site-id='{{siteId}}' obj='app' prop-access='canSetInitiator' prop-acl='initiator' label-of-list='指定投稿人' change-acl-url='/rest/pl/fe/matter/contribute/role/setUser?site={{siteId}}&app={{app.id}}&role=I' remove-acl-url='/rest/pl/fe/matter/contribute/role/delUser' hide-access-control=true update-access-control=false></accesscontrol>
+            <memberacl site-id='{{siteId}}' obj='app' prop-access='canSetInitiator' prop-acl='initiator' label-of-list='指定投稿人' change-acl-url='/rest/pl/fe/matter/contribute/role/setUser?site={{siteId}}&app={{app.id}}&role=I' remove-acl-url='/rest/pl/fe/matter/contribute/role/delUser' hide-access-control=true update-access-control=false></memberacl>
+            <div class='help-block'>指定投稿人</div>
         </div>
         <div class='form-group'>
-            <memberacl site-id='{{siteId}}' obj='app' prop-access='canSetReviewer' prop-acl='reviewer' label-of-list='指定投稿人' change-acl-url='/rest/pl/fe/matter/contribute/role/setUser?site={{siteId}}&app={{app.id}}&role=R' remove-acl-url='/rest/pl/fe/matter/contribute/role/delUser' hide-access-control=true update-access-control=false></accesscontrol>
+            <memberacl site-id='{{siteId}}' obj='app' prop-access='canSetReviewer' prop-acl='reviewer' label-of-list='指定投稿人' change-acl-url='/rest/pl/fe/matter/contribute/role/setUser?site={{siteId}}&app={{app.id}}&role=R' remove-acl-url='/rest/pl/fe/matter/contribute/role/delUser' hide-access-control=true update-access-control=false></memberacl>
+            <div class='help-block'>指定审稿人</div>
         </div>
         <div class='form-group'>
-            <memberacl site-id='{{siteId}}' obj='app' prop-access='canSetTypesetter' prop-acl='typesetter' label-of-list='指定投稿人' change-acl-url='/rest/pl/fe/matter/contribute/role/setUser?site={{siteId}}&app={{app.id}}&role=T' remove-acl-url='/rest/pl/fe/matter/contribute/role/delUser' hide-access-control=true update-access-control=false></accesscontrol>
+            <memberacl site-id='{{siteId}}' obj='app' prop-access='canSetTypesetter' prop-acl='typesetter' label-of-list='指定投稿人' change-acl-url='/rest/pl/fe/matter/contribute/role/setUser?site={{siteId}}&app={{app.id}}&role=T' remove-acl-url='/rest/pl/fe/matter/contribute/role/delUser' hide-access-control=true update-access-control=false></memberacl>
+            <div class='help-block'>指定版面审稿人</div>
         </div>
         <div class='form-group'>
             <label class='checkbox-inline'><input type='checkbox' ng-model='app.shift2pc' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('shift2pc')">用户在手机上打开时，引导用户转发到PC端打开。需在【账号管理】【定制功能】中设置提示内容。</label>
@@ -72,7 +72,7 @@
         <button class='btn btn-block' ng-click="run()" ng-disabled='modified' ng-class="modified?'btn-default':'btn-success'">开始</button>
     </div>
     <div class='tile'>
-        <div class='form-group' ng-controller='setChannelCtrl' ng-init="matterType='contribute'">
+        <div class='form-group' ng-controller='ctrlSetChannel' ng-init="matterType='contribute';matterObj='app'">
             <combox evt-prefix='channel' readonly=true prop='title' existing='app.channels' options='channels'></combox>
             <div class='help-block'>活动所属频道</div>
         </div>

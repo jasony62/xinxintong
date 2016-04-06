@@ -50,12 +50,12 @@ define(["require", "angular"], function(require, angular) {
     };
     var app = angular.module('app', []);
     app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
-        var ls, mpid, id, shareby;
+        var ls, siteId, id, shareby;
         ls = location.search;
-        mpid = ls.match(/[\?&]site=([^&]*)/)[1];
+        siteId = ls.match(/[\?&]site=([^&]*)/)[1];
         id = ls.match(/(\?|&)id=([^&]*)/)[2];
         shareby = ls.match(/shareby=([^&]*)/) ? ls.match(/shareby=([^&]*)/)[1] : '';
-        $scope.mpid = mpid;
+        $scope.siteId = siteId;
         $scope.articleId = id;
         $scope.mode = ls.match(/mode=([^&]*)/) ? ls.match(/mode=([^&]*)/)[1] : '';
         var setMpShare = function(xxtShare) {
@@ -64,7 +64,7 @@ define(["require", "angular"], function(require, angular) {
             xxtShare.options.logger = function(shareto) {
                 var url = "/rest/mi/matter/logShare";
                 url += "?shareid=" + shareid;
-                url += "&mpid=" + mpid;
+                url += "&site=" + siteId;
                 url += "&id=" + id;
                 url += "&type=article";
                 url += "&title=" + $scope.article.title;
@@ -73,7 +73,7 @@ define(["require", "angular"], function(require, angular) {
                 $http.get(url);
             };
             sharelink = 'http://' + location.hostname + '/rest/mi/matter';
-            sharelink += '?mpid=' + mpid;
+            sharelink += '?site=' + siteId;
             sharelink += '&type=article';
             sharelink += '&id=' + id;
             sharelink += '&tpl=std';
@@ -91,32 +91,32 @@ define(["require", "angular"], function(require, angular) {
         };
         var loadArticle = function() {
             var deferred = $q.defer();
-            $http.get('/rest/mi/article/get?mpid=' + mpid + '&id=' + id).success(function(rsp) {
-                var mpa = rsp.data.mpaccount;
+            $http.get('/rest/site/fe/matter/article/get?site=' + siteId + '&id=' + id).success(function(rsp) {
+                var site = rsp.data.site;
                 $scope.article = rsp.data.article;
                 $scope.user = rsp.data.user;
-                if (mpa.header_page) {
+                if (site.header_page) {
                     (function() {
-                        eval(mpa.header_page.js);
+                        eval(site.header_page.js);
                     })();
                 }
-                if (mpa.footer_page) {
+                if (site.footer_page) {
                     (function() {
-                        eval(mpa.footer_page.js);
+                        eval(site.footer_page.js);
                     })();
                 }
-                $scope.mpa = mpa;
+                $scope.site = site;
                 /MicroMessenge|Yixin/i.test(navigator.userAgent) && require(['xxt-share'], setMpShare);
                 $scope.article.can_picviewer === 'Y' && require(['picviewer']);
                 loadCss('/views/default/site/fe/matter/article/main.css');
                 deferred.resolve();
-                $http.post('/rest/mi/matter/logAccess?mpid=' + mpid + '&id=' + id + '&type=article&title=' + $scope.article.title + '&shareby=' + shareby, {
+                $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + id + '&type=article&title=' + $scope.article.title + '&shareby=' + shareby, {
                     search: location.search.replace('?', ''),
                     referer: document.referrer
                 });
             }).error(function(content, httpCode) {
                 if (httpCode === 401) {
-                    openPlugin(function() {
+                    openPlugin(content, function() {
                         loadArticle().then(articleLoaded);
                     });
                 } else {
@@ -157,7 +157,7 @@ define(["require", "angular"], function(require, angular) {
         $scope.newRemark = '';
         $scope.remark = function() {
             var url, param;
-            url = "/rest/mi/article/remark?mpid=" + $scope.mpid + "&id=" + $scope.articleId;
+            url = "/rest/mi/article/remark?mpid=" + $scope.siteId + "&id=" + $scope.articleId;
             param = {
                 remark: $scope.newRemark
             };
@@ -186,14 +186,14 @@ define(["require", "angular"], function(require, angular) {
         $scope.open = function() {
             var url = 'http://' + location.host;
             url += '/rest/coin/pay';
-            url += "?mpid=" + $scope.mpid;
+            url += "?mpid=" + $scope.siteId;
             url += "&matter=article," + $scope.articleId;
             openPlugin(url);
         };
     }]);
     app.controller('ctrlFavor', ['$scope', '$http', function($scope, $http) {
         var doFavor = function() {
-            var url = "/rest/site/fe/user/favor/add?site=" + $scope.mpid + "&id=" + $scope.article.id + '&type=article' + '&title=' + $scope.article.title;
+            var url = "/rest/site/fe/user/favor/add?site=" + $scope.siteId + "&id=" + $scope.article.id + '&type=article' + '&title=' + $scope.article.title;
             $http.get(url).success(function(rsp) {
                 if (rsp.err_code !== 0) {
                     $scope.AlterMsg.title = '操作失败';
@@ -204,10 +204,10 @@ define(["require", "angular"], function(require, angular) {
         };
         $scope.favor = function() {
             if ($scope.mode === 'preview') return;
-            if (!cookieLogin($scope.mpid)) {
+            if (!cookieLogin($scope.siteId)) {
                 var url = 'http://' + location.host;
                 url += '/rest/site/fe/user/login';
-                url += "?site=" + $scope.mpid;
+                url += "?site=" + $scope.siteId;
                 openPlugin(url, doFavor);
                 return;
             }

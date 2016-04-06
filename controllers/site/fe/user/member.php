@@ -7,15 +7,6 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class member extends \site\fe\base {
 	/**
-	 *
-	 */
-	public function get_access_rule() {
-		$rule_action['rule_type'] = 'black';
-		$rule_action['actions'] = array();
-
-		return $rule_action;
-	}
-	/**
 	 * 打开认证页面
 	 *
 	 * $mpid

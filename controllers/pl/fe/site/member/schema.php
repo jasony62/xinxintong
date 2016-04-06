@@ -76,7 +76,7 @@ class schema extends \pl\fe\base {
 				}
 				$nv->extattr = urldecode(json_encode($nv->extattr));
 			} else if (isset($nv->type) && $nv->type === 'inner') {
-				$nv->url = TMS_APP_API_PREFIX . "/site/user/fe/member";
+				$nv->url = TMS_APP_API_PREFIX . "/site/fe/user/member";
 			}
 			$rst = $this->model()->update(
 				'xxt_site_member_schema',
@@ -106,7 +106,7 @@ class schema extends \pl\fe\base {
 			'entry_statement' => '无法确认您是否有权限进行该操作，请先完成【<a href="{{authapi}}">用户身份确认</a>】。',
 			'acl_statement' => '您的身份识别信息没有放入白名单中，请与系统管理员联系。',
 			'notpass_statement' => '您的邮箱还没有验证通过，若未收到验证邮件请联系系统管理员。若需要重发验证邮件，请先完成【<a href="{{authapi}}">用户身份确认</a>】。',
-			'url' => TMS_APP_API_PREFIX . "/member/auth",
+			'url' => TMS_APP_API_PREFIX . "/site/fe/user/member",
 			'code_id' => $codeId,
 		);
 		$id = $this->model()->insert('xxt_site_member_schema', $i, true);

@@ -277,6 +277,9 @@ class main extends \pl\fe\matter\base {
 	 */
 	public function get_action($site, $id, $cascade = 'Y') {
 		$user = $this->accountUser();
+		if (false === $user) {
+			return new \ResponseTimeout();
+		}
 
 		$q = array(
 			"a.*,'{$user->id}' uid",

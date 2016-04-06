@@ -33,7 +33,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error(xxt_contribute): ' . $mysqli->error;
 }
 /**
- * 登记信息通知接收人
+ * 投稿用户
  */
 $sql = "create table if not exists xxt_contribute_user(";
 $sql .= "id int not null auto_increment";
@@ -44,6 +44,7 @@ $sql .= ",role char(1) not null"; // Initiator|Reviewer|Typesetter
 $sql .= ",identity varchar(100) not null";
 $sql .= ",idsrc char(2) not null default ''";
 $sql .= ",label varchar(255) not null default ''";
+$sql .= ",level int not null default 1";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

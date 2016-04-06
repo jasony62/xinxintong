@@ -88,6 +88,8 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_article_remark(";
 $sql .= 'id int not null auto_increment';
 $sql .= ',mpid varchar(32) not null';
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",userid varchar(40) not null";
 $sql .= ',article_id int not null';
 $sql .= ',article_title varchar(70) not null';
 $sql .= ',fid varchar(32) not null';
@@ -106,6 +108,8 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_article_score(";
 $sql .= 'id int not null auto_increment';
 $sql .= ',mpid varchar(32) not null';
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",userid varchar(40) not null";
 $sql .= ',vid varchar(32) not null';
 $sql .= ',openid varchar(255) not null';
 $sql .= ',nickname varchar(255) not null';

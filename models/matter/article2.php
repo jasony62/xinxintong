@@ -153,11 +153,11 @@ class article2_model extends article_base {
 	/**
 	 * 当前访问用户是否已经点了赞
 	 */
-	public function praised($user, $article_id) {
+	public function praised(&$user, $articleId) {
 		$q = array(
 			'id,score,openid,nickname',
 			'xxt_article_score',
-			"article_id='$article_id' and vid='$user->vid'",
+			"article_id='$articleId' and userid='$user->uid'",
 		);
 		$log = $this->query_obj_ss($q);
 		if ($log) {

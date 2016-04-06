@@ -83,30 +83,31 @@ xxtMembers.controller('MemberAclUserPickerController', ['$scope', '$modalInstanc
     };
 }]);
 xxtMembers.controller('MemberAclController', ['$rootScope', '$scope', 'http2', '$timeout', '$modal', function($rootScope, $scope, http2, $timeout, $modal) {
-    var objMemberschemas = function() {
-        $scope.objMemberschemas = angular.copy($scope.memberschemas);
-        var aMemberschemas = $scope.obj[$scope.propApis] ? $scope.obj[$scope.propApis].trim() : '';
-        aMemberschemas = aMemberschemas.length === 0 ? [] : aMemberschemas.split(',');
-        for (var i in $scope.objMemberschemas) {
-            $scope.objMemberschemas[i].checked = aMemberschemas.indexOf($scope.objMemberschemas[i].authid) !== -1 ? 'Y' : 'N';
+    var setObjMemberSchemas = function() {
+        var aMemberSchemas, i;
+        $scope.objMemberSchemas = angular.copy($scope.memberschemas);
+        aMemberSchemas = $scope.obj[$scope.propApis] ? $scope.obj[$scope.propApis].trim() : '';
+        aMemberSchemas = aMemberSchemas.length === 0 ? [] : aMemberSchemas.split(',');
+        for (i in $scope.objMemberSchemas) {
+            $scope.objMemberSchemas[i].checked = aMemberSchemas.indexOf($scope.objMemberSchemas[i].id) !== -1 ? 'Y' : 'N';
         }
     };
     $scope.setAccessControl = function() {
         $scope.updateAccessControl();
         if ($scope.memberschemas.length === 1) {
-            $scope.obj[$scope.propApis] = $scope.obj[$scope.propAccess] === 'Y' ? $scope.memberschemas[0].authid : '';
-            $scope.objMemberschemas[0].checked = $scope.obj[$scope.propAccess] === 'Y' ? 'Y' : 'N';
-            $scope.updatememberschemas();
+            $scope.obj[$scope.propApis] = $scope.obj[$scope.propAccess] === 'Y' ? $scope.memberschemas[0].id : '';
+            $scope.objMemberSchemas[0].checked = $scope.obj[$scope.propAccess] === 'Y' ? 'Y' : 'N';
+            $scope.updateMemberSchemas();
         }
     };
-    $scope.setAuthapi = function(api) {
+    $scope.setMemberschema = function(api) {
         var eapis, p = {};
         eapis = $scope.obj[$scope.propApis] ? $scope.obj[$scope.propApis].trim() : '';
         eapis = eapis.length === 0 ? [] : eapis.split(',');
-        api.checked === 'Y' ? eapis.push(api.authid) : eapis.splice(eapis.indexOf(api.authid), 1);
+        api.checked === 'Y' ? eapis.push(api.id) : eapis.splice(eapis.indexOf(api.id), 1);
         p.memberschemas = eapis.join();
         $scope.obj[$scope.propApis] = p.memberschemas;
-        $scope.updatememberschemas();
+        $scope.updateMemberSchemas();
         if (eapis.length === 0) {
             if ($scope.obj[$scope.propAccess] !== 'N') {
                 $scope.obj[$scope.propAccess] = 'N';
@@ -178,17 +179,17 @@ xxtMembers.controller('MemberAclController', ['$rootScope', '$scope', 'http2', '
         if (acl.id === undefined)
             $scope.obj[$scope.propAcl].splice(i, 1);
         else {
-            http2.get($scope.removeAclUrl + '?acl=' + acl.id, function(rsp) {
+            http2.get($scope.removeAclUrl + '&acl=' + acl.id, function(rsp) {
                 $scope.obj[$scope.propAcl].splice(i, 1);
             });
         }
     };
     $scope.$watch('obj', function(obj) {
-        if (obj && $scope.memberschemas) objMemberschemas();
+        if (obj && $scope.memberschemas) objMemberSchemas();
     });
     http2.get('/rest/pl/fe/site/member/schema/list?site=' + $scope.siteId + '&valid=Y', function(rsp) {
         $scope.memberschemas = rsp.data;
-        if ($scope.obj) objMemberschemas();
+        if ($scope.obj) setObjMemberSchemas();
     });
 }]);
 xxtMembers.directive('memberacl', function() {
@@ -206,7 +207,7 @@ xxtMembers.directive('memberacl', function() {
             changeAclUrl: '@',
             removeAclUrl: '@',
             updateAccessControl: '&',
-            updatememberschemas: '&',
+            updateMemberSchemas: '&',
             labelSpan: '@',
             controlSpan: '@',
             disabled: '@',

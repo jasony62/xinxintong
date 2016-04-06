@@ -5,15 +5,15 @@ require_once dirname(__FILE__) . '/base.php';
 /**/
 class resumable {
 
-	private $site;
+	private $siteId;
 
 	private $dest;
 
 	private $modelFs;
 
-	public function __construct($site, $dest, $modelFs) {
+	public function __construct($siteId, $dest, $modelFs) {
 
-		$this->mpid = $site;
+		$this->siteId = $siteId;
 
 		$this->dest = $dest;
 

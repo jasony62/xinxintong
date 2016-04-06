@@ -74,6 +74,7 @@ class base extends \site\fe\base {
 			 */
 			$this->gotoMember($siteId, $aMemberSchemas, $userid, $targetUrl);
 		} else {
+			$model = $this->model();
 			$passed = false;
 			foreach ($members as $member) {
 				if ($this->canAccessObj($siteId, $objId, $member, $memberSchemas, $obj)) {
@@ -82,23 +83,23 @@ class base extends \site\fe\base {
 					 */
 					$q = array(
 						'verified',
-						'xxt_member',
-						"mpid='$siteId' and mid='$member->mid'",
+						'xxt_site_member',
+						"siteid='$siteId' and id='$member->id'",
 					);
-					if ('Y' !== $this->model()->query_val_ss($q)) {
-						$r = $this->model('user/authapi')->getNotpassStatement($member->authapi_id, $siteId);
+					if ('Y' !== $model->query_val_ss($q)) {
+						$r = $this->model('site\user\memberschema')->getNotpassStatement($member->schema_id, $siteId);
 						$protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
 						header($protocol . ' 401 Unauthorized');
-						TPL::assign('title', '访问控制未通过');
-						TPL::assign('body', $r);
-						TPL::output('error');
+						\TPL::assign('title', '访问控制未通过');
+						\TPL::assign('body', $r);
+						\TPL::output('error');
 						exit;
 					}
 					$passed = true;
 					break;
 				}
 			}
-			!$passed && $this->gotoOutAcl($siteId, $member->authapi_id);
+			!$passed && $this->gotoOutAcl($siteId, $member->schema_id);
 
 			return $member;
 		}

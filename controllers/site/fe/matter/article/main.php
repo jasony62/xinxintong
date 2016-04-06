@@ -10,7 +10,7 @@ class main extends \site\fe\matter\base {
 	 *
 	 */
 	protected function canAccessObj($siteId, $matterId, $member, $authapis, &$matter) {
-		return $this->model('acl')->canAccessMatter($siteId, 'article', $matterId, $member, $authapis);
+		return $this->model('matter\acl')->canAccessMatter($siteId, 'article', $matterId, $member, $authapis);
 	}
 	/**
 	 *

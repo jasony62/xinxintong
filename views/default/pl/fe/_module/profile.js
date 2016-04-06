@@ -126,11 +126,11 @@ xxtProfile.controller('ctrlProfile', ['$scope', 'http2', '$modalInstance', '$mod
 					email_verified: rst.data.email_verified,
 					extattr: rst.data.extattr
 				};
-				http2.post(baseURL + 'memberUpd?id=' + member.id, newData, function(rsp) {
+				http2.post(baseURL + 'memberUpd?site=' + $scope.siteId + '&id=' + member.id, newData, function(rsp) {
 					angular.extend(member, newData);
 				});
 			} else if (rst.action === 'remove') {
-				http2.get(baseURL + 'memberDel?id=' + member.id, function() {
+				http2.get(baseURL + 'memberDel?site=' + $scope.siteId + '&id=' + member.id, function() {
 					$scope.members.splice($scope.members.indexOf(member), 1);
 				});
 			}

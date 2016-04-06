@@ -3,21 +3,7 @@ ngApp.config(['$locationProvider', '$routeProvider', '$controllerProvider', func
 	ngApp.provider = {
 		controller: $cp.register
 	};
-	$rp.when('/rest/pl/fe/site/user/profile', {
-		templateUrl: '/views/default/pl/fe/site/user/profile.html?_=1',
-		controller: 'ctrlProfile',
-		resolve: {
-			load: function($q) {
-				var defer = $q.defer();
-				(function() {
-					$.getScript('/views/default/pl/fe/site/user/profile.js', function() {
-						defer.resolve();
-					});
-				})();
-				return defer.promise;
-			}
-		}
-	}).when('/rest/pl/fe/site/user/member', {
+	$rp.when('/rest/pl/fe/site/user/member', {
 		templateUrl: '/views/default/pl/fe/site/user/member.html?_=1',
 		controller: 'ctrlMember',
 		resolve: {

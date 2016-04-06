@@ -42,30 +42,27 @@
         </div>
     </div>
     <div class='tile'>
-        <div class='form-group' ng-show="editing.custom_body!=='Y'">
-            <div>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">添加素材
-                    <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a href="#" ng-click="embedMatter()">内置素材</a>
-                        </li>
-                        <li>
-                            <a href="#" ng-click="embedVideo()">视频</a>
-                        </li>
-                        <li>
-                            <a href="#" ng-click="embedAudio()">音频</a>
-                        </li>
-                    </ul>
-                </div>
-                <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_picviewer' ng-change="update('can_picviewer');">支持图片缩放浏览</label>
+        <div>
+            <div class="btn-group">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">添加素材
+                <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a href="#" ng-click="embedMatter()">内置素材</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="embedVideo()">视频</a>
+                    </li>
+                    <li>
+                        <a href="#" ng-click="embedAudio()">音频</a>
+                    </li>
+                </ul>
             </div>
-            <tinymce content='editing.body' contenteditable='bodyEditable' update="onBodyChange()" change="onBodyChange()" id='body1' height='700'></tinymce>
-            <div class='help-block'>正文：少于2万字符</div>
+            <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_picviewer' ng-change="update('can_picviewer');">支持图片缩放浏览</label>
         </div>
+        <tinymce content='editing.body' contenteditable='bodyEditable' update="onBodyChange()" change="onBodyChange()" id='body1' height='700'></tinymce>
+        <div class='help-block'>正文：少于2万字符</div>
     </div>
 </div>
 <div class='col-md-4'>

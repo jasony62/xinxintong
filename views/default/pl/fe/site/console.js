@@ -12,6 +12,7 @@ app.controller('ctrlConsole', ['$scope', '$modal', 'http2', function($scope, $mo
     $scope.open = function(matter) {
         switch (matter.matter_type) {
             case 'article':
+            case 'custom':
             case 'news':
             case 'channel':
             case 'enroll':

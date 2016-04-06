@@ -2,6 +2,31 @@
     <p><span ng-bind="_authedTitle"></span>，您好！您已经通过认证，不需要再次认证。</p>
 </div>
 <div>
+    <div class='form-group'>
+        <input type="text" class='form-control input-lg' name='uname' placeholder='输入用于登录的帐号名' ng-model='user.uname'/>
+    </div>
+    <div class='form-group'>
+        <input type='password' class='form-control input-lg' name='password' ng-model='user.password' ng-minlength='6' ng-maxlength='16' placeholder='输入6-16位登录密码'>
+    </div>
+    <div class='form-group'>
+        <input type='password' class='form-control input-lg' ng-pattern="repeatPwd" name='password2' ng-model='password2' placeholder='再次输入登录密码'/>
+    </div>
+    <div class='form-group'>
+        <button class="btn btn-lg btn-block btn-success" ng-click='register()'>注册</button>
+    </div>
+</div>
+<div>
+    <div class='form-group'>
+        <input type="text" class='form-control input-lg' name='uname' placeholder='输入用于登录的帐号名' ng-model='user.uname'/>
+    </div>
+    <div class='form-group'>
+        <input type='password' class='form-control input-lg' name='password' ng-model='user.password' ng-minlength='6' ng-maxlength='16' placeholder='输入6-16位登录密码'/>
+    </div>
+    <div class='form-group'>
+        <button class="btn btn-lg btn-block btn-success" ng-click='login()'>登录</button>
+    </div>
+</div>
+<div>
     <div class='form-group' ng-if="attrs.name">
         <input type='text' required="" ng-model='member.name' placeholder='姓名' class='form-control input-lg'>
     </div>
@@ -15,6 +40,6 @@
         <input type='text' required="" ng-model='member[ea.id]' placeholder='{{ea.label}}' class='form-control input-lg'>
     </div>
     <div class='form-group'>
-        <button class='btn btn-lg btn-block' ng-class="posting ? 'btn-default':'btn-primary'" ng-disabled='posting' ng-click='doAuth()'>提交</button>
+        <button class='btn btn-lg btn-block' ng-class="posting ? 'btn-default':'btn-success'" ng-disabled='posting' ng-click='doAuth()'>提交</button>
     </div>
 </div>

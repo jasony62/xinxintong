@@ -107,8 +107,36 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
             //location.href = LS.j('passed', 'mpid', 'authid') + '&mid=' + rsp.data;
         });
     };
+    var site = location.search.match('site=(.*)')[1];
     $scope.posting = false;
     $scope.errmsg = '';
+    $scope.user = {};
+    $scope.login = function() {
+        $http.post('/rest/site/fe/user/login/do?site=' + site, $scope.user).success(function(rsp) {
+            if (rsp.err_code != 0) {
+                $scope.$root.errmsg = rsp.err_msg;
+                return;
+            }
+        });
+    };
+    $scope.repeatPwd = (function() {
+        return {
+            test: function(value) {
+                return value === $scope.password;
+            }
+        };
+    })();
+    $scope.register = function() {
+        $http.post('/rest/site/fe/user/register/do?site=' + site, {
+            uname: $scope.user.uname,
+            password: $scope.user.password
+        }).success(function(rsp) {
+            if (rsp.err_code != 0) {
+                $scope.$root.errmsg = rsp.err_msg;
+                return;
+            }
+        });
+    };
     $scope.doAuth = function() {
         var url;
         if (!validate()) return;

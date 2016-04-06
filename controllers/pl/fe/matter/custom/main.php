@@ -360,8 +360,8 @@ class main extends \pl\fe\matter\base {
 			"siteid='$siteId' and id='$id'"
 		);
 		/*记录操作日志*/
-		$article = $this->model('matter\\' . 'article')->byId($id, 'id,title,summary,pic');
-		$article->type = 'article';
+		$article = $this->model('matter\article')->byId($id, 'id,title,summary,pic');
+		$article->type = 'custom';
 		$this->model('log')->matterOp($siteId, $user, $article, 'U');
 
 		return $rst;

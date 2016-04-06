@@ -365,7 +365,7 @@ class member_model extends \TMS_MODEL {
 			/* 不是当前用户自己 */
 			!empty($member->id) && $q[2] .= " and id!='{$member->id}'";
 			if ('1' === $this->query_val_ss($q)) {
-				return '手机号已经存在，不允许重复登记！';
+				return '邮箱已经存在，不允许重复登记！';
 			}
 		}
 

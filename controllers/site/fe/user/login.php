@@ -41,12 +41,19 @@ class login extends \site\fe\base {
 		/*user*/
 		$modelWay = $this->model('site\fe\way');
 		$cookieUser = $modelWay->getCookieUser($this->siteId);
+		/*合并用户*/
+		if ($account->uid !== $cookieUser->uid) {
+			if ($persisted = $modelAct->byId($cookieUser->uid)) {
+				$modelAct->update('xxt_site_account', array('assoc_id' => $account->uid), "uid='{$cookieUser->uid}'");
+			}
+			$cookieUser->uid = $account->uid;
+		}
 		$cookieUser->uname = $data->uname;
 		$cookieUser->loginExpire = time() + (86400 * TMS_COOKIE_SITE_LOGIN_EXPIRE);
 		$modelWay->setCookieUser($this->siteId, $cookieUser);
 		/*login*/
 		$modelWay->setCookieLogin($this->siteId, $cookieUser);
 
-		return new \ResponseData('ok');
+		return new \ResponseData($cookieUser);
 	}
 }

@@ -113,7 +113,7 @@ class member extends \site\fe\base {
 		}
 		$user = $this->who;
 		/* 创建新的自定义用户 */
-		$rst = $this->model('site\user\member')->create($user->uid, $member, $schema);
+		$rst = $this->model('site\user\member')->create($this->siteId, $user->uid, $schema, $member);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}

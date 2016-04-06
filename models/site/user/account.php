@@ -81,21 +81,38 @@ class account_model extends \TMS_MODEL {
 		$from_ip = empty($options['from_ip']) ? '' : $options['from_ip'];
 		if (isset($options['uid'])) {
 			$uid = $options['uid'];
-			$account = array(
-				'uname' => $uname,
-				'password' => $pw_hash,
-				'salt' => $pw_salt,
-				'reg_time' => $current,
-				'reg_ip' => $from_ip,
-				'last_login' => $current,
-				'last_ip' => $from_ip,
-				'last_active' => $current,
-			);
-			$rst = $this->update(
-				'xxt_site_account',
-				$account,
-				"siteid='$siteId' and uid='$uid'"
-			);
+			if ($existed = $this->byId($uid)) {
+				$account = array(
+					'uname' => $uname,
+					'password' => $pw_hash,
+					'salt' => $pw_salt,
+					'reg_time' => $current,
+					'reg_ip' => $from_ip,
+					'last_login' => $current,
+					'last_ip' => $from_ip,
+					'last_active' => $current,
+				);
+				$rst = $this->update(
+					'xxt_site_account',
+					$account,
+					"siteid='$siteId' and uid='$uid'"
+				);
+			} else {
+				$account = array(
+					'siteid' => $siteId,
+					'uid' => $uid,
+					'uname' => $uname,
+					'password' => $pw_hash,
+					'salt' => $pw_salt,
+					'reg_time' => $current,
+					'reg_ip' => $from_ip,
+					'last_login' => $current,
+					'last_ip' => $from_ip,
+					'last_active' => $current,
+					'level_id' => self::DEFAULT_LEVEL,
+				);
+				$this->insert('xxt_site_account', $account, false);
+			}
 		} else {
 			/*new accouont key*/
 			$uid = uniqid();

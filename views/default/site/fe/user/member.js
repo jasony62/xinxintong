@@ -104,17 +104,16 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
                 $scope.errmsg = rsp.err_msg;
                 return;
             }
-            //location.href = LS.j('passed', 'mpid', 'authid') + '&mid=' + rsp.data;
         });
     };
-    var site = location.search.match('site=(.*)')[1];
+    var site = location.search.match('site=([^&]*)')[1];
     $scope.posting = false;
     $scope.errmsg = '';
     $scope.user = {};
     $scope.login = function() {
         $http.post('/rest/site/fe/user/login/do?site=' + site, $scope.user).success(function(rsp) {
             if (rsp.err_code != 0) {
-                $scope.$root.errmsg = rsp.err_msg;
+                $scope.errmsg = rsp.err_msg;
                 return;
             }
         });
@@ -132,7 +131,7 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
             password: $scope.user.password
         }).success(function(rsp) {
             if (rsp.err_code != 0) {
-                $scope.$root.errmsg = rsp.err_msg;
+                $scope.errmsg = rsp.err_msg;
                 return;
             }
         });

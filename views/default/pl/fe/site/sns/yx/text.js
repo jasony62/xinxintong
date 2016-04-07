@@ -1,24 +1,12 @@
 'use strict';
 (function() {
-	ngApp.provider.controller('ctrlText', ['$scope', 'http2', 'mattersgallery', function($scope, http2, mattersgallery) {
+	ngApp.provider.controller('ctrlText', ['$scope', 'http2', 'matterTypes', 'mattersgallery', function($scope, http2, matterTypes, mattersgallery) {
 		var editCall = function(call) {
-			if (/text/i.test(call.matter.type))
+			if (/text/i.test(call.matter.type)) {
 				call.matter.title = call.matter.content;
+			}
 			$scope.editing = call;
 		};
-		$scope.matterTypes = [{
-			value: 'article',
-			title: '单图文',
-			url: '/rest/pl/fe/matter'
-		}, {
-			value: 'news',
-			title: '多图文',
-			url: '/rest/pl/fe/matter'
-		}, {
-			value: 'channel',
-			title: '频道',
-			url: '/rest/pl/fe/matter'
-		}];;
 		$scope.create = function() {
 			mattersgallery.open($scope.siteId, function(matters, type) {
 				if (matters.length === 1) {
@@ -29,7 +17,7 @@
 					});
 				}
 			}, {
-				matterTypes: $scope.matterTypes,
+				matterTypes: matterTypes,
 				hasParent: false,
 				singleMatter: true
 			});
@@ -38,12 +26,13 @@
 			http2.get('/rest/pl/fe/site/sns/yx/text/delete?site=' + $scope.siteId + '&id=' + $scope.editing.id, function(rsp) {
 				var index = $scope.calls.indexOf($scope.editing);
 				$scope.calls.splice(index, 1);
-				if ($scope.calls.length === 0)
+				if ($scope.calls.length === 0) {
 					window.alert('empty');
-				else if (index === $scope.calls.length)
+				} else if (index === $scope.calls.length) {
 					$scope.edit($scope.calls[--index]);
-				else
+				} else {
 					$scope.edit($scope.calls[index]);
+				}
 			});
 		};
 		$scope.edit = function(call) {
@@ -70,21 +59,23 @@
 						rid: matters[0].id
 					};
 					http2.post('/rest/pl/fe/site/sns/yx/text/setreply?site=' + $scope.siteId + '&id=' + $scope.editing.id, p, function(rsp) {
-						if (/text/i.test(matters[0].type))
+						if (/text/i.test(matters[0].type)) {
 							matters[0].title = matters[0].content;
+						}
 						$scope.editing.matter = matters[0];
 					});
 				}
 			}, {
-				matterTypes: $scope.matterTypes,
+				matterTypes: matterTypes,
 				hasParent: false,
 				singleMatter: true
 			});
 		};
 		http2.get('/rest/pl/fe/site/sns/yx/text/list?site=' + $scope.siteId + '&cascade=n', function(rsp) {
 			$scope.calls = rsp.data;
-			if ($scope.calls.length > 0)
+			if ($scope.calls.length > 0) {
 				$scope.edit($scope.calls[0]);
+			}
 		});
 	}]);
 })();

@@ -40,30 +40,15 @@ class main extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function list_action($cascade = 'Y') {
-		$uid = \TMS_CLIENT::get_client_uid();
+	public function list_action($site, $cascade = 'Y') {
+		$user = $this->accountUser();
 
 		$options = $this->getPostJson();
-		/**
-		 * 素材的来源
-		 */
-		$mpid = (!empty($options->src) && $options->src === 'p') ? $this->getParentMpid() : $this->mpid;
-
 		$q = array(
-			"n.*,a.nickname creater_name,'$uid' uid",
-			'xxt_news n,account a',
-			"n.mpid='$mpid' and n.state=1 and n.creater=a.uid",
+			"n.*",
+			'xxt_news n',
+			"n.siteid='$site' and n.state=1",
 		);
-		/**
-		 * 仅限作者和管理员？
-		 */
-		if (!$this->model('mp\permission')->isAdmin($mpid, $uid, true)) {
-			$limit = $this->model()->query_value('matter_visible_to_creater', 'xxt_mpsetting', "mpid='$mpid'");
-			if ($limit === 'Y') {
-				$q[2] .= " and (creater='$uid' or public_visible='Y')";
-			}
-
-		}
 		$q2['o'] = 'create_at desc';
 		$news = $this->model()->query_objs_ss($q, $q2);
 		/**
@@ -76,7 +61,7 @@ class main extends \pl\fe\matter\base {
 				}
 				if ($cascade === 'Y') {
 					$n->matters = $this->model('matter\news')->getMatters($n->id);
-					$n->acl = $this->model('acl')->byMatter($mpid, 'news', $n->id);
+					$n->acl = $this->model('acl')->byMatter($site, 'news', $n->id);
 				}
 			}
 		}

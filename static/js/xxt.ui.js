@@ -2,59 +2,59 @@ var xxtMatters = angular.module('matters.xxt', ['ui.bootstrap']);
 xxtMatters.constant('matterTypes', [{
     value: 'text',
     title: '文本',
-    url: '/rest/mp/matter'
+    url: '/rest/pl/fe/matter'
 }, {
     value: 'article',
     title: '单图文',
-    url: '/rest/mp/matter'
+    url: '/rest/pl/fe/matter'
 }, {
     value: 'news',
     title: '多图文',
-    url: '/rest/mp/matter'
+    url: '/rest/pl/fe/matter'
 }, {
     value: 'channel',
     title: '频道',
-    url: '/rest/mp/matter'
+    url: '/rest/pl/fe/matter'
 }, {
     value: 'link',
     title: '链接',
-    url: '/rest/mp/matter'
+    url: '/rest/pl/fe/matter'
 }, {
     value: 'addressbook',
     title: '通讯录',
-    url: '/rest/mp/matter'
+    url: '/rest/pl/fe/matter'
 }, {
     value: 'enroll',
     title: '登记活动',
-    url: '/rest/mp/matter'
+    url: '/rest/pl/fe/matter'
 }, {
     value: 'enrollsignin',
     title: '登记活动签到',
-    url: '/rest/mp/matter'
+    url: '/rest/pl/fe/matter'
 }, {
     value: 'lottery',
     title: '抽奖活动',
-    url: '/rest/mp/matter'
+    url: '/rest/pl/fe/matter'
 }, {
     value: 'wall',
     title: '讨论组',
-    url: '/rest/mp/matter'
+    url: '/rest/pl/fe/matter'
 }, {
     value: 'joinwall',
     title: '加入讨论组',
-    url: '/rest/mp/matter'
+    url: '/rest/pl/fe/matter'
 }, {
     value: 'contribute',
     title: '投稿活动',
-    url: '/rest/mp/app'
+    url: '/rest/pl/fe/matter'
 }, {
     value: 'inner',
     title: '内置回复',
-    url: '/rest/mp/matter'
+    url: '/rest/pl/fe/matter'
 }, {
     value: 'relay',
     title: '转发消息',
-    url: '/rest/mp/matter'
+    url: '/rest/pl/fe/matter'
 }, ]);
 xxtMatters.service('userSetAsParam', [function() {
     this.convert = function(userSet) {

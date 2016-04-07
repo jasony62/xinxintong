@@ -29,8 +29,8 @@
                 <li ng-class="{'active':subView==='setting'}"><a href='/rest/pl/fe/site/sns/yx/setting?site={{siteId}}'>账号配置</a></li>
                 <li ng-class="{'active':subView==='text'}"><a href='/rest/pl/fe/site/sns/yx/text?site={{siteId}}'>文本消息</a></li>
                 <li ng-class="{'active':subView==='menu'}"><a href='/rest/pl/fe/site/sns/yx/menu?site={{siteId}}'>菜单事件</a></li>
-                <li><a href='/rest/pl/fe/site/sns/yx/qrcode?site={{siteId}}'>扫二维码</a></li>
-                <li><a href='/rest/pl/fe/site/sns/yx/other?site={{siteId}}'>其他事件</a></li>
+                <li ng-class="{'active':subView==='qrcode'}"><a href='/rest/pl/fe/site/sns/yx/qrcode?site={{siteId}}'>扫二维码</a></li>
+                <li ng-class="{'active':subView==='other'}"><a href='/rest/pl/fe/site/sns/yx/other?site={{siteId}}'>其他事件</a></li>
             </ul>
         </div>
         <div ng-view></div>

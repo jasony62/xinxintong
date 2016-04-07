@@ -89,12 +89,11 @@ class menu_model extends \TMS_MODEL {
 	/**
 	 * 检查菜单定义中是否存在指定的项
 	 */
-	private function exists($buttons, $menu_key) {
+	private function _exists($buttons, $menu_key) {
 		foreach ($buttons as $btn) {
 			if ($btn->menu_key === $menu_key) {
 				return $btn;
 			}
-
 		}
 		return false;
 	}
@@ -104,7 +103,7 @@ class menu_model extends \TMS_MODEL {
 	 * 被调整的菜单项只进行位置的互换
 	 * 互换后，被调整的菜单项中存在于基准菜单的内容和基准菜单项的排序一致
 	 */
-	private function interchange($changed, $base) {
+	private function _interchange($changed, $base) {
 		/**
 		 * 按照一级菜单进行分组
 		 */
@@ -118,7 +117,7 @@ class menu_model extends \TMS_MODEL {
 				/**
 				 * 是否在基准定义中
 				 */
-				if ($newbtn = $this->exists($base, $btn->menu_key)) {
+				if ($newbtn = $this->_exists($base, $btn->menu_key)) {
 					$groupInBaseOrder[] = array((int) $newbtn->l1_pos, count($groups) - 1);
 					$groupInChangedIndex[] = array(count($groups) - 1, (int) $btn->l1_pos);
 				}
@@ -180,11 +179,11 @@ class menu_model extends \TMS_MODEL {
 	 *
 	 * return array
 	 */
-	private function &mergeButtons($pButtons, $myButtons) {
+	private function &_mergeButtons($pButtons, $myButtons) {
 		/**
 		 * 根据父账号新版本的定义，调整子账号菜单项的排序
 		 */
-		$myButtons = $this->interchange($myButtons, $pButtons);
+		$myButtons = $this->_interchange($myButtons, $pButtons);
 
 		$buttons = array();
 		$pc = count($pButtons);
@@ -206,59 +205,10 @@ class menu_model extends \TMS_MODEL {
 				/**
 				 * 开始处理
 				 */
-				if ($myBtn->pversion == -1) {
-					/**
-					 * 子账号的菜单项优先
-					 */
-					$buttons[] = $myBtn;
-					$pl1_offset++;
-					$i++;
-					$pi--;
-				} else {
-					/**
-					 * 父账号定义的一级菜单
-					 * 如果是已经定义过的一级菜单，直接替换
-					 * 如果不是，判断相同位置的旧版本的一级菜单项是否要保留（存在于新版本中）
-					 * 如果不保留，替换掉，否则在旧版本中增加offset
-					 */
-					if ($pBtn->menu_key === $myBtn->menu_key) {
-						/**
-						 * 相同的菜单项，内容【替换】
-						 */
-						$buttons[] = $pBtn;
-						$i++;
-					} else {
-						if (false === $this->exists($pButtons, $myBtn->menu_key)) {
-							/**
-							 * 子账号中继承的一级菜单项新版本中不存在，删除
-							 */
-							$buttons[] = $pBtn;
-							$i++;
-							$myl1_offset--;
-						} else {
-							/**
-							 * 旧版本的一级菜单【位置】发生了变化，要保留
-							 */
-							if (false !== $this->exists($buttons, $myBtn->menu_key)) {
-								/**
-								 * 旧版本的一级菜单已经处理过？
-								 * 丢弃掉旧版本的一级菜单
-								 * 但是后续的子版本定义的二级菜单要保留
-								 */
-								//$i++; $pi--;
-								// 通过预先调整旧版本菜单项的排序，避免这种情况
-							} else {
-								/**
-								 * 旧版本的一级菜单没有处理过
-								 * 插入了新的一级菜单
-								 * A2的处理暂停，添加A2的一级菜单项的offset
-								 */
-								$buttons[] = $pBtn;
-								$myl1_offset++;
-							}
-						}
-					}
-				}
+				$buttons[] = $myBtn;
+				$pl1_offset++;
+				$i++;
+				$pi--;
 				continue;
 			}
 			/**
@@ -268,30 +218,15 @@ class menu_model extends \TMS_MODEL {
 				/**
 				 * 同一个一级菜单内
 				 */
-				if ($myBtn->pversion == -1) {
-					/**
-					 * 父账号菜单项和子账号菜单项比较
-					 */
-					$buttons[] = $myBtn;
-					$i++;
-					$pi--;
-				} else {
-					/**
-					 * 父账号菜单项相互比较
-					 * 同样的位置上是父账号定义的菜单项
-					 * 从现有版本的定义中清除被替换的菜单项
-					 */
-					$buttons[] = $pBtn;
-					$i++;
-				}
+				$buttons[] = $myBtn;
+				$i++;
+				$pi--;
 			} else if (($pBtn->l1_pos + $pl1_offset) > ($myBtn->l1_pos + $myl1_offset)) {
 				/**
 				 * A1无法被处理，等着A2追上来
 				 * 旧版本的父账号菜单项直接去掉
 				 */
-				if ($myBtn->pversion == -1) {
-					$buttons[] = $myBtn;
-				}
+				$buttons[] = $myBtn;
 				$i++;
 				$pi--;
 			} else if (($pBtn->l1_pos + $pl1_offset) < ($myBtn->l1_pos + $myl1_offset)) {
@@ -330,7 +265,7 @@ class menu_model extends \TMS_MODEL {
 			 * todo published
 			 */
 			$q = array(
-				'max(version) v,max(pversion) pv',
+				'max(version) v',
 				'xxt_call_menu_yx',
 				"siteid='$siteId'",
 			);
@@ -349,7 +284,7 @@ class menu_model extends \TMS_MODEL {
 			}
 		} else {
 			$q = array(
-				"max(version) v,max(pversion) pv,'Y' p",
+				"max(version) v,'Y' p",
 				'xxt_call_menu_yx',
 				"siteid='$siteId' and published='Y'",
 			);
@@ -394,7 +329,7 @@ class menu_model extends \TMS_MODEL {
 		 * 复制当前版本，创建新版本
 		 */
 		$newVersion = (int) $version->v + 1;
-		$fields = 'siteid,menu_key,pversion,creater,create_at,menu_name,l1_pos,l2_pos,url,matter_type,matter_id,asview,access_control';
+		$fields = 'siteid,menu_key,creater,create_at,menu_name,l1_pos,l2_pos,url,matter_type,matter_id,asview,access_control';
 		$sql = "insert into xxt_call_menu_yx($fields,version)";
 		$sql .= " select $fields,$newVersion";
 		$sql .= ' from xxt_call_menu_yx';

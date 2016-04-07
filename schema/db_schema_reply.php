@@ -129,12 +129,76 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
+ * 二维码信息
+ */
+$sql = "create table if not exists xxt_call_qrcode_yx(";
+$sql .= 'id int not null auto_increment';
+$sql .= ',siteid varchar(32) not null';
+$sql .= ',scene_id int not null';
+$sql .= ',expire_at int not null default 0';
+$sql .= ',name varchar(50) not null';
+$sql .= ',pic text';
+$sql .= ',matter_type varchar(20)';
+$sql .= ',matter_id varchar(40)';
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 二维码信息
+ */
+$sql = "create table if not exists xxt_call_qrcode_wx(";
+$sql .= 'id int not null auto_increment';
+$sql .= ',siteid varchar(32) not null';
+$sql .= ',scene_id int not null';
+$sql .= ',expire_at int not null default 0';
+$sql .= ',name varchar(50) not null';
+$sql .= ',pic text';
+$sql .= ',matter_type varchar(20)';
+$sql .= ',matter_id varchar(40)';
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
  * 固定回复信息
  */
 $sql = "create table if not exists xxt_call_other(";
 $sql .= 'id int not null auto_increment';
 $sql .= ',siteid varchar(32) not null';
 $sql .= ',mpid varchar(32) not null';
+$sql .= ',name varchar(50) not null'; // subscribe/universal
+$sql .= ',title varchar(50) not null'; // 关注/缺省
+$sql .= ',matter_type varchar(20)'; // Text,Article,News
+$sql .= ",matter_id varchar(40) default ''";
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 固定回复信息
+ */
+$sql = "create table if not exists xxt_call_other_yx(";
+$sql .= 'id int not null auto_increment';
+$sql .= ',siteid varchar(32) not null';
+$sql .= ',name varchar(50) not null'; // subscribe/universal
+$sql .= ',title varchar(50) not null'; // 关注/缺省
+$sql .= ',matter_type varchar(20)'; // Text,Article,News
+$sql .= ",matter_id varchar(40) default ''";
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
+}
+/**
+ * 固定回复信息
+ */
+$sql = "create table if not exists xxt_call_other_wx(";
+$sql .= 'id int not null auto_increment';
+$sql .= ',siteid varchar(32) not null';
 $sql .= ',name varchar(50) not null'; // subscribe/universal
 $sql .= ',title varchar(50) not null'; // 关注/缺省
 $sql .= ',matter_type varchar(20)'; // Text,Article,News

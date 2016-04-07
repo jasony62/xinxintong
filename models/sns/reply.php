@@ -18,22 +18,21 @@ class reply_model extends \TMS_MODEL {
 	 *
 	 * return array(素材的类型，素材的ID)
 	 */
-	public function menu_call($mpid, $key) {
+	public function menuCall($siteId, $key) {
 		$q = array(
-			'matter_type,matter_id,access_control,authapis',
+			'matter_type,matter_id',
 			'xxt_call_menu',
-			"mpid='$mpid' and menu_key='$key' and published='Y'",
+			"siteid='$siteId' and menu_key='$key' and published='Y'",
 		);
 		$q2['o'] = 'version desc';
 		$q2['r']['o'] = '0';
 		$q2['r']['l'] = '1';
-
+		die(json_encode($q));
 		if ($cr = $this->query_objs_ss($q, $q2)) {
 			return $cr[0];
 		} else {
 			return false;
 		}
-
 	}
 	/**
 	 * 根据scene_id获得响应素材
@@ -83,11 +82,11 @@ class reply_model extends \TMS_MODEL {
 	/**
 	 * 关注回复素材
 	 */
-	public function other_call($mpid, $name) {
+	public function otherCall($siteId, $name) {
 		$p = array(
 			'matter_type,matter_id',
 			'xxt_call_other',
-			"mpid='$mpid' and name='$name'",
+			"siteid='$siteId' and name='$name'",
 		);
 		if ($reply = $this->query_obj_ss($p)) {
 			if (empty($reply->matter_type) || empty($reply->matter_id)) {

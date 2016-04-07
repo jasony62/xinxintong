@@ -193,7 +193,7 @@ class yx extends \member_base {
 			break;
 		case 'click':
 		case 'CLICK':
-			$this->menu_call($data, $k);
+			$this->_menuCall($data, $k);
 			break;
 		}
 		die('');
@@ -393,12 +393,9 @@ class yx extends \member_base {
 	/**
 	 * menu call
 	 */
-	private function menu_call($call, $k) {
-		$siteid = $call['siteid'];
-		if ($reply = $this->model('reply')->menu_call($siteid, $k)) {
-			if ($reply->access_control === 'Y') {
-				$this->accessControl4Call($call, 'Menu', $k, $reply->authapis);
-			}
+	private function _menuCall($call, $k) {
+		$siteId = $call['siteid'];
+		if ($reply = $this->model('sns\reply')->menuCall($siteId, $k)) {
 			if (!empty($reply->matter_type)) {
 				$r = $this->model('reply\\' . $reply->matter_type, $call, $reply->matter_id);
 				$r->exec();
@@ -411,8 +408,8 @@ class yx extends \member_base {
 	 * 缺省回复
 	 */
 	private function universal_call($call) {
-		$siteid = $call['siteid'];
-		if ($reply = $this->model('reply')->other_call($mpid, 'universal')) {
+		$siteId = $call['siteid'];
+		if ($reply = $this->model('sns\reply')->otherCall($siteId, 'universal')) {
 			$r = $this->model('reply\\' . $reply->matter_type, $call, $reply->matter_id);
 			$r->exec();
 		}

@@ -2,6 +2,9 @@
 namespace pl\fe\site\sns\yx;
 
 require_once dirname(dirname(dirname(dirname(__FILE__)))) . '/base.php';
+
+class MenuInvalidException extends \Exception {}
+
 /**
  * 易信公众号
  */
@@ -28,7 +31,7 @@ class menu extends \pl\fe\base {
 	/**
 	 * 获得当前账号菜单的可编辑版本号
 	 */
-	private function &getVersion($mpid) {
+	private function &_getVersion($mpid) {
 		$version = $this->model('sns\call\menu')->getVersion($mpid);
 		if ($version === false) {
 			$version = new \stdClass;
@@ -46,7 +49,7 @@ class menu extends \pl\fe\base {
 	 * 创建一级菜单按钮
 	 */
 	public function createButton_action($site) {
-		$version = $this->getVersion($site);
+		$version = $this->_getVersion($site);
 
 		$button = $this->getPostJson();
 
@@ -88,7 +91,7 @@ class menu extends \pl\fe\base {
 	 * 创建二级菜单按钮
 	 */
 	public function createSubButton_action($site) {
-		$version = $this->getVersion($site);
+		$version = $this->_getVersion($site);
 
 		$button = $this->getPostJson();
 
@@ -142,7 +145,7 @@ class menu extends \pl\fe\base {
 	 */
 	public function removeButton_action($site, $k) {
 		$model = $this->model();
-		$version = $this->getVersion($site);
+		$version = $this->_getVersion($site);
 
 		$button = $this->model('sns\call\menu')->getButtonById($site, $k);
 		if (0 === (int) $button->l2_pos) {
@@ -260,7 +263,7 @@ class menu extends \pl\fe\base {
 	 * 只允许在编辑状态的版本上改变菜单项的位置
 	 */
 	public function setpos_action($site, $k) {
-		$version = $this->getVersion($site);
+		$version = $this->_getVersion($site);
 
 		$newpos = $this->getPostJson();
 
@@ -424,35 +427,24 @@ class menu extends \pl\fe\base {
 		 * 获得菜单的消息格式
 		 */
 		try {
-			$literal_menu = $this->convertMenu();
+			$literal_menu = $this->_convertMenu($site);
 		} catch (MenuInvalidException $e) {
 			return new \ResponseError($e->getMessage());
 		}
 		/**
 		 * 向公众号平台发布消息
-		 * 如果是模板账号只更新状态
-		 * todo 一个公众号只会对接一个平台
 		 */
-		$mpa = $this->model('mp\mpaccount')->getApis($site);
-		if ($mpa->asparent === 'N') {
-			$mpsrc = $mpa->mpsrc;
-			/**
-			 * 父账号的菜单不能被发布到公众平台
-			 */
-			if ($mpa->{$mpsrc . '_joined'} === 'N') {
-				return new \ResponseError('公众账号未连接成功，请检查。');
-			}
-
-			if (isset($mpa->{$mpsrc . '_menu'}) && $mpa->{$mpsrc . '_menu'} === 'N') {
-				return new \ResponseError("未开通发布菜单高级接口");
-			}
-
-			$proxy = $this->model("mpproxy/$mpsrc", $site);
-			$rst = $proxy->menuCreate($literal_menu);
-			if ($rst[0] === false) {
-				return new \ResponseError("菜单发布失败：" . $rst[1]);
-			}
-
+		$yx = $this->model('site\sns\yx')->bySite($site);
+		if ($yx->joined === 'N') {
+			return new \ResponseError('公众账号未连接成功，请检查。');
+		}
+		if ($yx->can_menu === 'N') {
+			return new \ResponseError("未开通发布菜单高级接口");
+		}
+		$proxy = $this->model("sns\yx", $yx);
+		$rst = $proxy->menuCreate($literal_menu);
+		if ($rst[0] === false) {
+			return new \ResponseError("菜单发布失败：" . $rst[1]);
 		}
 		/**
 		 * 将菜单设置为发布状态
@@ -491,7 +483,7 @@ class menu extends \pl\fe\base {
 	 * todo 检查菜单数量，一级菜单微信1-3个，易信1-4个
 	 * todo 检查菜单数量，二级菜单2-5个
 	 */
-	private function convertMenu($site) {
+	private function _convertMenu($site) {
 		$buttons = array();
 		$menu = $this->model('sns\call\menu')->getMenu($site);
 		foreach ($menu as $button) {
@@ -499,7 +491,7 @@ class menu extends \pl\fe\base {
 				/**
 				 * 一级菜单
 				 */
-				$buttons[] = $this->convertButton($button);
+				$buttons[] = $this->_convertButton($site, $button);
 			} else {
 				/**
 				 * 二级菜单
@@ -509,7 +501,7 @@ class menu extends \pl\fe\base {
 					unset($pButtons['type']);
 					unset($pButtons['key']);
 				}
-				$pButtons['sub_button'][] = $this->convertButton($button);
+				$pButtons['sub_button'][] = $this->_convertButton($site, $button);
 			}
 		}
 
@@ -526,7 +518,7 @@ class menu extends \pl\fe\base {
 	 *
 	 * return array(button, mapping)
 	 */
-	private function &convertButton($site, $button) {
+	private function &_convertButton($site, $button) {
 		$key = $button->menu_key;
 		$type = $button->asview === 'N' ? 'click' : 'view';
 		$formatted = array(

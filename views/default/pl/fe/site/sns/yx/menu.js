@@ -1,5 +1,5 @@
 (function() {
-	ngApp.provider.controller('ctrlMenu', ['$rootScope', '$scope', 'http2', 'matterTypes', '$timeout', function($rootScope, $scope, http2, matterTypes, $timeout) {
+	ngApp.provider.controller('ctrlMenu', ['$scope', 'http2', 'matterTypes', '$timeout', 'mattersgallery', function($scope, http2, matterTypes, $timeout, mattersgallery) {
 		$scope.matterTypes = matterTypes;
 		var setPublishState = function(state) {
 			for (var i in $scope.menu) {
@@ -86,7 +86,7 @@
 			});
 		};
 		$scope.setReply = function() {
-			$scope.$broadcast('mattersgallery.open', function(aSelected, matterType) {
+			mattersgallery.open($scope.siteId, function(aSelected, matterType) {
 				if (aSelected.length === 1) {
 					var p = {
 						matter_type: matterType,
@@ -101,6 +101,10 @@
 						$scope.edit($scope.editing);
 					});
 				}
+			}, {
+				matterTypes: $scope.matterTypes,
+				hasParent: false,
+				singleMatter: true
 			});
 		};
 		$scope.update = function(name) {

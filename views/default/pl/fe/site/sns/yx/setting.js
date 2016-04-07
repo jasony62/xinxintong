@@ -1,7 +1,6 @@
 'use strict';
 (function() {
-	app.provider.controller('ctrlSet', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
-		$scope.$parent.subView = 'setting';
+	ngApp.provider.controller('ctrlSet', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
 		$scope.url = 'http://' + location.host + '/rest/site/sns/yx/api?site=' + $scope.siteId;
 		$scope.update = function(name) {
 			var p = {};

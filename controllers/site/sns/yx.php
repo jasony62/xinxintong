@@ -91,7 +91,7 @@ class yx extends \member_base {
 			 */
 			switch ($msg['type']) {
 			case 'text':
-				$this->text_call($msg);
+				$this->_textCall($msg);
 				break;
 			case 'voice':
 				$this->voice_call($msg);
@@ -368,14 +368,11 @@ class yx extends \member_base {
 	 * 文本消息响应
 	 * 如果没有定义如何响应，就调用缺省的响应内容
 	 */
-	private function text_call($call) {
-		$siteid = $call['siteid'];
+	private function _textCall($call) {
+		$siteId = $call['siteid'];
 		$text = $call['data'];
-		if ($reply = $this->model('reply')->text_call($siteid, $text)) {
-			if ($reply->access_control === 'Y') {
-				$this->accessControl4Call($call, 'Text', $reply->keyword, $reply->authapis);
-			}
-			$r = $this->model('reply\\' . $reply->matter_type, $call, $reply->matter_id, $reply->keyword);
+		if ($reply = $this->model('sns\reply')->textCall($siteId, $text)) {
+			$r = $this->model('sns\reply\\' . $reply->matter_type, $call, $reply->matter_id, $reply->keyword);
 			$r->exec();
 		} else {
 			$this->universal_call($call);

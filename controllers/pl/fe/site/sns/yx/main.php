@@ -1,11 +1,11 @@
 <?php
-namespace pl\fe\site\sns;
+namespace pl\fe\site\sns\yx;
 
-require_once dirname(dirname(dirname(__FILE__))) . '/base.php';
+require_once dirname(dirname(dirname(dirname(__FILE__)))) . '/base.php';
 /**
  * 易信公众号
  */
-class yx extends \pl\fe\base {
+class main extends \pl\fe\base {
 	/**
 	 *
 	 */

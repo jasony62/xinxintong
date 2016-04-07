@@ -19,15 +19,10 @@ class article2_model extends article_base {
 	/**
 	 *
 	 */
-	public function getEntryUrl($runningsiteid, $id, $openid = null) {
+	public function getEntryUrl($siteId, $id, $userid = null) {
 		$url = "http://" . $_SERVER['HTTP_HOST'];
-		$url .= "/rest/mi/matter";
-		$url .= "?siteid=$runningsiteid&id=$id&type=article";
-		!empty($openid) && $url .= "&openid=$openid";
-
-		$article = $this->byId($id, 'custom_body');
-
-		$url .= '&tpl=' . ($article->custom_body === 'Y' ? 'cus' : 'std');
+		$url .= "/rest/site/fe/matter";
+		$url .= "?site={$siteId}&id={$id}&type=article";
 
 		return $url;
 	}

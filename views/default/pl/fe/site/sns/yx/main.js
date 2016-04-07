@@ -1,5 +1,5 @@
-var app = angular.module('app', ['ngRoute', 'ui.tms', 'matters.xxt']);
-app.config(['$locationProvider', '$controllerProvider', '$routeProvider', function($lp, $cp, $rp) {
+var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'matters.xxt']);
+ngApp.config(['$locationProvider', '$controllerProvider', '$routeProvider', function($lp, $cp, $rp) {
     var loadJs = function(url, callback) {
         var script;
         script = document.createElement('script');
@@ -10,7 +10,7 @@ app.config(['$locationProvider', '$controllerProvider', '$routeProvider', functi
         document.body.appendChild(script);
     };
     $lp.html5Mode(true);
-    app.provider = {
+    ngApp.provider = {
         controller: $cp.register
     };
     $rp.when('/rest/pl/fe/site/sns/yx/setting', {
@@ -20,6 +20,30 @@ app.config(['$locationProvider', '$controllerProvider', '$routeProvider', functi
             load: function($q) {
                 var defer = $q.defer();
                 loadJs('/views/default/pl/fe/site/sns/yx/setting.js', function() {
+                    defer.resolve();
+                });
+                return defer.promise;
+            }
+        }
+    }).when('/rest/pl/fe/site/sns/yx/text', {
+        templateUrl: '/views/default/pl/fe/site/sns/yx/text.html?_=2',
+        controller: 'ctrlText',
+        resolve: {
+            load: function($q) {
+                var defer = $q.defer();
+                loadJs('/views/default/pl/fe/site/sns/yx/text.js', function() {
+                    defer.resolve();
+                });
+                return defer.promise;
+            }
+        }
+    }).when('/rest/pl/fe/site/sns/yx/menu', {
+        templateUrl: '/views/default/pl/fe/site/sns/yx/menu.html?_=2',
+        controller: 'ctrlMenu',
+        resolve: {
+            load: function($q) {
+                var defer = $q.defer();
+                loadJs('/views/default/pl/fe/site/sns/yx/menu.js', function() {
                     defer.resolve();
                 });
                 return defer.promise;
@@ -39,9 +63,17 @@ app.config(['$locationProvider', '$controllerProvider', '$routeProvider', functi
         }
     });
 }]);
-app.controller('ctrlYx', ['$scope', '$location', 'http2', function($scope, $location, http2) {
+ngApp.controller('ctrlYx', ['$scope', '$location', 'http2', function($scope, $location, http2) {
     $scope.subView = '';
     $scope.siteId = $location.search().site;
+    $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+        var subView = currentRoute.match(/([^\/]+)\?/);
+        if (subView) {
+            $scope.subView = subView[1];
+        } else {
+            $scope.subView = '';
+        }
+    });
     http2.get('/rest/pl/fe/site/sns/yx/get?site=' + $scope.siteId, function(rsp) {
         $scope.yx = rsp.data;
     });

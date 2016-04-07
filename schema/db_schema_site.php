@@ -28,10 +28,10 @@ $sql .= ",uid varchar(40) not null";
 $sql .= ",creater varchar(40) not null";
 $sql .= ",creater_name varchar(255) not null default ''";
 $sql .= ',create_at int not null';
-$sql .= ",primary key(site_id,uid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+$sql .= ",primary key(siteid,uid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_mppermission): ' . $mysqli->error;
+	echo 'database error(xxt_site_admin): ' . $mysqli->error;
 }
 /**
  * user account
@@ -87,7 +87,7 @@ $sql .= ",matter_title varchar(70) not null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error(xxt_log_matter_read): ' . $mysqli->error;
+	echo 'database error(xxt_site_favor): ' . $mysqli->error;
 }
 /**************************/
 /**

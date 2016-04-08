@@ -3,7 +3,7 @@ namespace sns;
 /**
  * 公众号代理类的基类
  */
-class sns_base {
+class proxybase {
 	/**
 	 * 社交平台配置信息
 	 */

@@ -2,11 +2,11 @@
 namespace sns;
 
 require_once TMS_APP_DIR . '/lib/wxqy/WXBizMsgCrypt.php';
-require_once dirname(__FILE__) . '/base.php';
+require_once dirname(dirname(__FILE__)) . '/proxybase.php';
 /**
  * 企业号代理类
  */
-class qy_model extends sns_base {
+class qy_model extends \sns\proxybase {
 	/**
 	 *
 	 */

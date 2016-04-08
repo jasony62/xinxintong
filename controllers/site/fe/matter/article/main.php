@@ -51,15 +51,12 @@ class main extends \site\fe\matter\base {
 		$data['article'] = $article;
 		$data['user'] = $user;
 		/**
-		 * 公众号信息
+		 * 站点号信息
 		 */
 		$site = $this->model('site')->byId($site);
-		$user_agent = $_SERVER['HTTP_USER_AGENT'];
-		if (preg_match('/yixin/i', $user_agent)) {
-			$modelMpa = $this->model('mp\mpaccount');
-			$mpa = $modelMpa->byId($siteId, 'yx_cardname,yx_cardid');
-			$mpaccount->yx_cardname = $mpa->yx_cardname;
-			$mpaccount->yx_cardid = $mpa->yx_cardid;
+		$userAgent = $_SERVER['HTTP_USER_AGENT'];
+		if (preg_match('/yixin/i', $userAgent)) {
+			$site->yx = $this->model('site\sns\yx')->bySite($site->id, 'cardname,cardid');
 		}
 		$data['site'] = $site;
 

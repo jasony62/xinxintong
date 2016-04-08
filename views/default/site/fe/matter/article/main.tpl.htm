@@ -15,15 +15,15 @@
     </head>
     
     <body>
-        <div class="article">
+        <div class="article ng-cloak" ng-cloak>
             <header dynamic-html='mpa.header_page.html'></header>
             <div class="wrap">
                 <h1 id="title" class="ttile" ng-bind='article.title'></h1>
                 <div id="attribute">
                     <span class="time" ng-bind="article.modify_at*1000|date:'yy-MM-dd'"></span>
                     <span class="author" ng-bind='article.author'></span>
-                    <span id='article_from_mp' ng-if='mpa.yx_cardid'>
-                        <a ng-click="followYixinMp()" href="" ng-bind='mpa.yx_cardname'></a>
+                    <span id='article_from_mp' ng-if='site.yx.cardid'>
+                        <a ng-click="followYixinMp()" href="" ng-bind='site.yx.cardname'></a>
                     </span>
                 </div>
                 <div class="headpic" ng-if="article.hide_pic!=='Y'">

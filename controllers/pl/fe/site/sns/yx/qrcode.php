@@ -81,8 +81,8 @@ class qrcode extends \pl\fe\base {
 		 * 生成二维码
 		 */
 		$yx = $this->model('site\sns\yx')->bySite($site);
-		$mpproxy = $this->model('sns\yx', $yx);
-		$rst = $mpproxy->qrcodeCreate($scene_id, false);
+		$proxy = $this->model('sns\yx\proxy', $yx);
+		$rst = $proxy->qrcodeCreate($scene_id, false);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
@@ -155,12 +155,11 @@ class qrcode extends \pl\fe\base {
 		/**
 		 * 获去二维码的ticket
 		 */
-		$mpproxy = $this->model('sns\yx', $yx);
-		$rst = $mpproxy->qrcodeCreate($scene_id);
+		$proxy = $this->model('sns\yx\proxy', $yx);
+		$rst = $proxy->qrcodeCreate($scene_id);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
-
 		$qrcode = $rst[1];
 		/**
 		 * 保存数据并返回

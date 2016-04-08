@@ -1,11 +1,11 @@
 <?php
-namespace sns;
+namespace sns\yx;
 
-require_once dirname(__FILE__) . '/base.php';
+require_once dirname(dirname(__FILE__)) . '/proxybase.php';
 /**
  * 易信公众号号代理类
  */
-class yx_model extends sns_base {
+class proxy_model extends \sns\proxybase {
 	/**
 	 *
 	 */

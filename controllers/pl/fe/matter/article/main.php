@@ -7,13 +7,13 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class resumableAliOss {
 
-	private $mpid;
+	private $siteId;
 
 	private $articleid;
 
-	public function __construct($mpid, $dest) {
+	public function __construct($siteId, $dest) {
 
-		$this->mpid = $mpid;
+		$this->siteId = $siteId;
 
 		$this->dest = $dest;
 	}
@@ -28,7 +28,7 @@ class resumableAliOss {
 	 * @param string $totalSize - original file size (in bytes)
 	 */
 	private function createFileFromChunks($temp_dir, $fileName, $chunkSize, $totalSize) {
-		$fs = \TMS_APP::M('fs/saestore', $this->mpid);
+		$fs = \TMS_APP::M('fs/saestore', $this->siteId);
 		// count all the parts of this file
 		$total_files = 0;
 		$rst = $fs->getListByPath($temp_dir);
@@ -40,7 +40,7 @@ class resumableAliOss {
 		// check that all the parts are present
 		// the size of the last part is between chunkSize and 2*$chunkSize
 		if ($total_files * $chunkSize >= ($totalSize - $chunkSize + 1)) {
-			$fs2 = \TMS_APP::M('fs/alioss', $this->mpid, 'xxt-attachment');
+			$fs2 = \TMS_APP::M('fs/alioss', $this->siteId, 'xxt-attachment');
 			// create the final destination file
 			$tmpfname = tempnam(sys_get_temp_dir(), 'xxt');
 			$handle = fopen($tmpfname, "w");
@@ -51,7 +51,7 @@ class resumableAliOss {
 			}
 			fclose($handle);
 			//
-			$rsp = $fs2->create_mpu_object($this->mpid . $this->dest, $tmpfname);
+			$rsp = $fs2->create_mpu_object($this->siteId . $this->dest, $tmpfname);
 			echo (json_encode($rsp));
 		}
 	}
@@ -65,7 +65,7 @@ class resumableAliOss {
 		$dest_file = $temp_dir . '/' . $_POST['resumableFilename'] . '.part' . $_POST['resumableChunkNumber'];
 		$content = base64_decode(preg_replace('/data:(.*?)base64\,/', '', $_POST['resumableChunkContent']));
 		// move the temporary file
-		$fs = \TMS_APP::M('fs/saestore', $this->mpid);
+		$fs = \TMS_APP::M('fs/saestore', $this->siteId);
 		if (!$fs->write($dest_file, $content)) {
 			return array(false, 'Error saving (move_uploaded_file) chunk ' . $_POST['resumableChunkNumber'] . ' for file ' . $_POST['resumableFilename']);
 		} else {
@@ -142,21 +142,12 @@ class main extends \pl\fe\matter\base {
 		/**
 		 * select fields
 		 */
-		$s = "a.id,a.mpid,a.title,a.summary,a.create_at,a.modify_at,a.approved,a.creater,a.creater_name,a.creater_src,'$uid' uid";
+		$s = "a.id,a.siteid,a.title,a.summary,a.create_at,a.modify_at,a.approved,a.creater,a.creater_name,a.creater_src,'$uid' uid";
 		$s .= ",a.read_num,a.score,a.remark_num,a.share_friend_num,a.share_timeline_num,a.download_num";
 		/**
 		 * where
 		 */
 		$w = "a.custom_body='N' and a.siteid='$site' and a.state=1 and finished='Y'";
-		/**
-		 * 限作者和管理员
-		 */
-		/*if (!$this->model('mp\permission')->isAdmin($mpid, $uid, true)) {
-			$fea = $this->model('mp\mpaccount')->getFeature($mpid, 'matter_visible_to_creater');
-			if ($fea->matter_visible_to_creater === 'Y') {
-				$w .= " and (a.creater='$uid' or a.public_visible='Y')";
-			}
-		}*/
 		/**
 		 * 按频道过滤
 		 */

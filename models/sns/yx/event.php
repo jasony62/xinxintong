@@ -1,7 +1,7 @@
 <?php
-namespace sns;
+namespace sns\yx;
 
-class reply_model extends \TMS_MODEL {
+class event_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
@@ -21,13 +21,12 @@ class reply_model extends \TMS_MODEL {
 	public function menuCall($siteId, $key) {
 		$q = array(
 			'matter_type,matter_id',
-			'xxt_call_menu',
+			'xxt_call_menu_yx',
 			"siteid='$siteId' and menu_key='$key' and published='Y'",
 		);
 		$q2['o'] = 'version desc';
 		$q2['r']['o'] = '0';
 		$q2['r']['l'] = '1';
-		die(json_encode($q));
 		if ($cr = $this->query_objs_ss($q, $q2)) {
 			return $cr[0];
 		} else {
@@ -39,10 +38,10 @@ class reply_model extends \TMS_MODEL {
 	 *
 	 * return array(素材的类型，素材的ID)
 	 */
-	public function qrcode_call($mpid, $scene_id) {
+	public function qrcodeCall($siteId, $scene_id) {
 		$q[] = 'id,matter_type,matter_id,expire_at';
-		$q[] = 'xxt_call_qrcode';
-		$q[] = "mpid='$mpid' and scene_id=$scene_id";
+		$q[] = 'xxt_call_qrcode_yx';
+		$q[] = "siteid='$siteId' and scene_id=$scene_id";
 
 		$cr = $this->query_obj_ss($q);
 
@@ -101,7 +100,7 @@ class reply_model extends \TMS_MODEL {
 	/**
 	 * 拼接URL中的参数
 	 */
-	public function spliceParams($mpid, &$params, $mid = null, $openid = null) {
+	public function spliceParams($siteId, &$params, $mid = null, $openid = null) {
 		$pairs = array();
 		foreach ($params as $p) {
 			switch ($p->pvalue) {

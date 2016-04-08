@@ -1,6 +1,7 @@
 html,body,h1,div,img,p{margin:0;padding:0}
 html,body{height:100%;width:100%}
 body{background-color:#fff;font:12.5pt/1.45 Microsoft Yahei,Arial;position:relative;overflow:hidden;}
+.ng-cloak{display:none;}
 .article{position:relative;height:100%;box-sizing:border-box;overflow-y:auto;margin:0 auto;padding:40px 0 8px;color:#666;white-space:normal;word-wrap:break-word;word-break:break-all}
 .article .wrap{margin:0 40px}
 @media screen and (max-width:719px){

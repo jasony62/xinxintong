@@ -1,11 +1,11 @@
 <?php
-namespace sns;
+namespace sns\wx;
 
-require_once dirname(__FILE__) . '/base.php';
+require_once dirname(dirname(__FILE__)) . '/proxybase.php';
 /**
  * 微信公众号代理类
  */
-class wx_model extends sns_base {
+class proxy_model extends \sns\proxybase {
 	/**
 	 *
 	 */

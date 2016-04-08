@@ -1,5 +1,5 @@
 <?php
-namespace sns\call;
+namespace sns\yx\call;
 /**
  *
  */
@@ -329,7 +329,7 @@ class menu_model extends \TMS_MODEL {
 		 * 复制当前版本，创建新版本
 		 */
 		$newVersion = (int) $version->v + 1;
-		$fields = 'siteid,menu_key,creater,create_at,menu_name,l1_pos,l2_pos,url,matter_type,matter_id,asview,access_control';
+		$fields = 'siteid,menu_key,creater,create_at,menu_name,l1_pos,l2_pos,url,matter_type,matter_id,asview';
 		$sql = "insert into xxt_call_menu_yx($fields,version)";
 		$sql .= " select $fields,$newVersion";
 		$sql .= ' from xxt_call_menu_yx';

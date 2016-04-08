@@ -94,18 +94,18 @@ class base extends \TMS_CONTROLLER {
 
 		switch ($snsName) {
 		case 'qy':
-			$mpproxy = $this->model('sns\qy', $snsConfig);
+			$mpproxy = $this->model('sns\qy\proxy', $snsConfig);
 			$oauthUrl = $mpproxy->oauthUrl($ruri, 'snsOAuth-' . $snsName);
 			break;
 		case 'wx':
 			if ($snsConfig->can_oauth === 'Y') {
-				$mpproxy = $this->model('sns\wx', $snsConfig);
+				$mpproxy = $this->model('sns\wx\proxy', $snsConfig);
 				$oauthUrl = $mpproxy->oauthUrl($ruri, 'snsOAuth-' . $snsName, 'snsapi_userinfo');
 			}
 			break;
 		case 'yx':
 			if ($snsConfig->can_oauth === 'Y') {
-				$mpproxy = $this->model('sns\yx', $snsConfig);
+				$mpproxy = $this->model('sns\yx\proxy', $snsConfig);
 				$oauthUrl = $mpproxy->oauthUrl($ruri, 'snsOAuth-' . $snsName);
 			}
 			break;

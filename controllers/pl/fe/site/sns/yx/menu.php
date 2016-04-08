@@ -20,11 +20,12 @@ class menu extends \pl\fe\base {
 	 * 返回菜单的完整定义，或者一个菜单项的定义
 	 */
 	public function get_action($site, $k = null) {
+		$modelMenu = $this->model('sns\yx\call\menu');
 		if (empty($k)) {
-			$menu = $this->model('sns\call\menu')->getMenu($site);
+			$menu = $modelMenu->getMenu($site);
 			return new \ResponseData($menu);
 		} else {
-			$button = $this->model('sns\call\menu')->getButtonById($site, $k, 'N', '*', array('matter', 'acl'));
+			$button = $modelMenu->getButtonById($site, $k, 'N', '*', array('matter', 'acl'));
 			return new \ResponseData($button);
 		}
 	}
@@ -32,7 +33,8 @@ class menu extends \pl\fe\base {
 	 * 获得当前账号菜单的可编辑版本号
 	 */
 	private function &_getVersion($mpid) {
-		$version = $this->model('sns\call\menu')->getVersion($mpid);
+		$modelMenu = $this->model('sns\yx\call\menu');
+		$version = $modelMenu->getVersion($mpid);
 		if ($version === false) {
 			$version = new \stdClass;
 			$version->v = 0;
@@ -41,7 +43,7 @@ class menu extends \pl\fe\base {
 			/**
 			 * 版本已经发布，需要生成新版本
 			 */
-			$version = $this->model('sns\call\menu')->newVersion($mpid);
+			$version = $modelMenu->newVersion($mpid);
 		}
 		return $version;
 	}
@@ -82,8 +84,8 @@ class menu extends \pl\fe\base {
 				$button->l1_pos = (int) $l1_pos + 1;
 			}
 		}
-
-		$button = $this->model('sns\call\menu')->createButton((array) $button);
+		$modelMenu = $this->model('sns\yx\call\menu');
+		$button = $modelMenu->createButton((array) $button);
 
 		return new \ResponseData($button);
 	}
@@ -135,8 +137,8 @@ class menu extends \pl\fe\base {
 			$l2_pos = (int) $this->model()->query_val_ss($q);
 			$button->l2_pos = (int) $l2_pos + 1;
 		}
-
-		$button = $this->model('sns\call\menu')->createButton((array) $button);
+		$modelMenu = $this->model('sns\yx\call\menu');
+		$button = $modelMenu->createButton((array) $button);
 
 		return new \ResponseData($button);
 	}
@@ -146,8 +148,8 @@ class menu extends \pl\fe\base {
 	public function removeButton_action($site, $k) {
 		$model = $this->model();
 		$version = $this->_getVersion($site);
-
-		$button = $this->model('sns\call\menu')->getButtonById($site, $k);
+		$modelMenu = $this->model('sns\yx\call\menu');
+		$button = $modelMenu->getButtonById($site, $k);
 		if (0 === (int) $button->l2_pos) {
 			/**
 			 * 删除一级菜单及子菜单
@@ -198,8 +200,8 @@ class menu extends \pl\fe\base {
 	 */
 	public function update_action($site, $k) {
 		$nv = $this->getPostJson();
-
-		$version = $this->model('sns\call\menu')->getVersion($site);
+		$modelMenu = $this->model('sns\yx\call\menu');
+		$version = $modelMenu->getVersion($site);
 		if ($version === false) {
 			$version = new \stdClass;
 			$version->v = 0;
@@ -210,14 +212,14 @@ class menu extends \pl\fe\base {
 			 * 如果修改的属性影响发布版本，就生成一个编辑版本
 			 */
 			if (isset($nv->menu_name) || isset($nv->url) || isset($nv->asview)) {
-				$version = $this->model('sns\call\menu')->newVersion($site);
+				$version = $modelMenu->newVersion($site);
 			}
 		}
 		/**
 		 * 是否需要更新关联数据
 		 */
 		$updateOther = false;
-		$button = $this->model('sns\call\menu')->getButtonById($site, $k);
+		$button = $modelMenu->getButtonById($site, $k);
 		if (isset($nv->url)) {
 			/**
 			 * 如果是设置URL，将matter清空
@@ -251,7 +253,7 @@ class menu extends \pl\fe\base {
 			$k = $nv->menu_key;
 		}
 		if ($updateOther) {
-			$button = $this->model('sns\call\menu')->getButtonById($site, $k);
+			$button = $modelMenu->getButtonById($site, $k);
 			return new \ResponseData($button);
 		} else {
 			return new \ResponseData($rst);
@@ -353,13 +355,13 @@ class menu extends \pl\fe\base {
 		if (empty($k)) {
 			return new ParameterError('参数错误，没有指定菜单项的唯一标识！');
 		}
-
+		$modelMenu = $this->model('sns\yx\call\menu');
 		$updateOther = false; // 是否更新了关联属性，或者菜单的版本
-		$button = $this->model('sns\call\menu')->getButtonById($site, $k);
+		$button = $modelMenu->getButtonById($site, $k);
 		/**
 		 * 判断是否需要新版本
 		 */
-		$version = $this->model('sns\call\menu')->getVersion($site);
+		$version = $modelMenu->getVersion($site);
 		if ($version === false) {
 			$version = new \stdClass;
 			$version->v = 0;
@@ -369,9 +371,9 @@ class menu extends \pl\fe\base {
 			 * 版本已经发布
 			 * 如果之前是asview的状态，需要生成新版本
 			 */
-			$button = $this->model('sns\call\menu')->getButtonById($site, $k);
+			$button = $modelMenu->getButtonById($site, $k);
 			if ($button->asview === 'Y') {
-				$version = $this->model('sns\call\menu')->newVersion($site);
+				$version = $modelMenu->newVersion($site);
 				$updateOther = true;
 			}
 		}
@@ -397,7 +399,7 @@ class menu extends \pl\fe\base {
 		);
 
 		if ($updateOther) {
-			$button = $this->model('sns\call\menu')->getButtonById($site, $k);
+			$button = $modelMenu->getButtonById($site, $k);
 			return new \ResponseData($button);
 		} else {
 			return new \ResponseData(true);
@@ -427,22 +429,22 @@ class menu extends \pl\fe\base {
 		 * 获得菜单的消息格式
 		 */
 		try {
-			$literal_menu = $this->_convertMenu($site);
+			$literalMenu = $this->_convertMenu($site);
 		} catch (MenuInvalidException $e) {
 			return new \ResponseError($e->getMessage());
 		}
 		/**
 		 * 向公众号平台发布消息
 		 */
-		$yx = $this->model('site\sns\yx')->bySite($site);
-		if ($yx->joined === 'N') {
+		$yxConfig = $this->model('site\sns\yx')->bySite($site);
+		if ($yxConfig->joined === 'N') {
 			return new \ResponseError('公众账号未连接成功，请检查。');
 		}
-		if ($yx->can_menu === 'N') {
+		if ($yxConfig->can_menu === 'N') {
 			return new \ResponseError("未开通发布菜单高级接口");
 		}
-		$proxy = $this->model("sns\yx", $yx);
-		$rst = $proxy->menuCreate($literal_menu);
+		$proxy = $this->model("sns\yx\proxy", $yxConfig);
+		$rst = $proxy->menuCreate($literalMenu);
 		if ($rst[0] === false) {
 			return new \ResponseError("菜单发布失败：" . $rst[1]);
 		}
@@ -461,21 +463,16 @@ class menu extends \pl\fe\base {
 	 *
 	 */
 	public function removeMenu_action($site) {
-		$mpa = $this->model('mp\mpaccount')->getApis($site);
-		if ($mpa->asparent === 'N') {
-			$mpsrc = $mpa->mpsrc;
-			$proxy = $this->model("mpproxy/$mpsrc", $site);
-			$rst = $proxy->menuDelete();
-			if ($rst[0] === false) {
-				return new \ResponseError("菜单删除失败：" . $rst[1]);
-			}
-
-			$this->model()->delete('xxt_call_menu_yx', "siteid='$site'");
-
-			return new \ResponseData($rst[1]);
-		} else {
-			return new \ResponseError("不支持删除父账号菜单");
+		$yxConfig = $this->model('site\sns\yx')->bySite($site);
+		$proxy = $this->model("sns\yx\proxy", $yxConfig);
+		$rst = $proxy->menuDelete();
+		if ($rst[0] === false) {
+			return new \ResponseError("菜单删除失败：" . $rst[1]);
 		}
+
+		$this->model()->delete('xxt_call_menu_yx', "siteid='$site'");
+
+		return new \ResponseData($rst[1]);
 	}
 	/**
 	 * 将编辑状态的菜单定义转化为消息格式
@@ -484,8 +481,10 @@ class menu extends \pl\fe\base {
 	 * todo 检查菜单数量，二级菜单2-5个
 	 */
 	private function _convertMenu($site) {
+		$modelMenu = $this->model('sns\yx\call\menu');
+
 		$buttons = array();
-		$menu = $this->model('sns\call\menu')->getMenu($site);
+		$menu = $modelMenu->getMenu($site);
 		foreach ($menu as $button) {
 			if (0 === (int) $button->l2_pos) {
 				/**

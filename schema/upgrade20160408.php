@@ -117,7 +117,7 @@ $sqls[] = "insert into xxt_site_wxfangroup(id,siteid,name) select id,mpid,name f
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {
 		header('HTTP/1.0 500 Internal Server Error');
-		echo 'database error(xxt_fans): ' . $mysqli->error;
+		echo "database error($sql): " . $mysqli->error;
 	}
 }
 //xxt_member_authapi,xxt_member,xxt_member_department,xxt_member_tag

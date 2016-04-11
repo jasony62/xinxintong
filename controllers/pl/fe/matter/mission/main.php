@@ -17,14 +17,36 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function get_action($id) {
+		$user = $this->accountUser();
+		if (false === $user) {
+			return new \ResponseTimeout();
+		}
 		$mission = $this->model('mission')->byId($id);
 
 		return new \ResponseData($mission);
-	}/**
+	}
+	/**
+	 * 任务列表
+	 */
+	public function list_action($site) {
+		$user = $this->accountUser();
+		if (false === $user) {
+			return new \ResponseTimeout();
+		}
+		$modelMis = $this->model('mission');
+		$result = $modelMis->bySite($site);
+
+		return new \ResponseData($result);
+	}
+	/**
 	 * 新建任务
 	 */
 	public function create_action($site) {
 		$user = $this->accountUser();
+		if (false === $user) {
+			return new \ResponseTimeout();
+		}
+
 		$current = time();
 		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
 

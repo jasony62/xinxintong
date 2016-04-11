@@ -17,17 +17,16 @@ class main extends \pl\fe\base {
 	 * 创建站点
 	 */
 	public function create_action($pid = '', $asparent = 'N') {
-		$site['name'] = '新站点';
-		$site['asparent'] = $asparent;
-		$siteid = $this->model('site')->create($site);
+		$user = $this->accountUser();
+		if (false === $user) {
+			return new \ResponseTimeout();
+		}
 
-		/* @TODO 兼容改造前的模型，改造后应该去掉 */
-		$mpa = array();
-		$mpa['mpid'] = $siteid;
-		$mpa['name'] = '新站点';
-		$mpa['asparent'] = $asparent;
-		$mpa['parent_mpid'] = '';
-		$this->model('mp\mpaccount')->create($mpa);
+		$site['name'] = '新站点';
+		$site['creater'] = $user->id;
+		$site['creater_name'] = $user->name;
+		$site['create_at'] = time();
+		$siteid = $this->model('site')->create($site);
 
 		return new \ResponseData(array('id' => $siteid));
 	}
@@ -37,14 +36,17 @@ class main extends \pl\fe\base {
 	 * 不实际删除站点，只是打标记
 	 */
 	public function remove_action($site) {
-		$acnt = \TMS_CLIENT::account();
+		$user = $this->accountUser();
+		if (false === $user) {
+			return new \ResponseTimeout();
+		}
 		/**
 		 * 做标记
 		 */
 		$rst = $this->model()->update(
 			'xxt_site',
 			array('state' => 0),
-			"id='$site' and creater='$acnt->uid'"
+			"id='$site' and creater='{$user->id}'"
 		);
 
 		return new \ResponseData($rst);
@@ -53,6 +55,10 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	public function get_action($site) {
+		$user = $this->accountUser();
+		if (false === $user) {
+			return new \ResponseTimeout();
+		}
 		$site = $this->model('site')->byId($site);
 
 		return new \ResponseData($site);
@@ -61,15 +67,14 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	public function list_action() {
-		/**
-		 * 当前用户是站点的创建人或者被授权人
-		 */
-		$uid = \TMS_CLIENT::get_client_uid();
-
+		$user = $this->accountUser();
+		if (false === $user) {
+			return new \ResponseTimeout();
+		}
 		$q = array(
 			'id,creater_name,create_at,name',
 			'xxt_site',
-			"creater='$uid' and state=1",
+			"creater='{$user->id}' and state=1",
 		);
 		$q2 = array('o' => 'create_at desc');
 
@@ -81,6 +86,10 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	public function update_action($site) {
+		$user = $this->accountUser();
+		if (false === $user) {
+			return new \ResponseTimeout();
+		}
 		$nv = $this->getPostJson();
 
 		$rst = $this->model()->update(

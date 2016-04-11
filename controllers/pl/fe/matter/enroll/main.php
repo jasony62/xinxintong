@@ -104,16 +104,19 @@ class main extends \pl\fe\matter\base {
 	 */
 	public function list_action($site, $page = 1, $size = 30) {
 		$model = $this->model();
-		$q = array('a.*', 'xxt_enroll a');
-		$q[2] = "siteid='$site' and state=1";
+		$q = array(
+			'a.*',
+			'xxt_enroll a',
+			"siteid='$site' and state=1",
+		);
 		$q2['o'] = 'a.modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
 		if ($a = $model->query_objs_ss($q, $q2)) {
-			$result[] = $a;
+			$result['apps'] = $a;
 			$q[0] = 'count(*)';
 			$total = (int) $model->query_val_ss($q);
-			$result[] = $total;
+			$result['total'] = $total;
 			return new \ResponseData($result);
 		}
 		return new \ResponseData(array());

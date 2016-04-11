@@ -97,17 +97,16 @@ app.controller('ctrlSet', ['$scope', 'http2', function($scope, http2) {
     };
 }]);
 app.controller('ctrlAdmin', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
-    $scope.admins = [];
-    $scope.isAdmin = true;
     $scope.add = function() {
-        var url = '/rest/pl/fe/site/adminCreate';
+        var url = '/rest/pl/fe/site/setting/admin/add?site=' + $scope.siteId;
+        $scope.authedid && $scope.authedid.length > 0 && (url += '&authedid=' + $scope.authedid);
         http2.get(url, function(rsp) {
             $scope.admins.push(rsp.data);
             $scope.select(rsp.data);
         });
     };
     $scope.remove = function(admin) {
-        http2.get('/rest/pl/fe/site/adminRemove?uid=' + admin.uid, function(rsp) {
+        http2.get('/rest/pl/fe/site/setting/admin/remove?site=' + $scope.siteId + '&uid=' + admin.uid, function(rsp) {
             var index = $scope.admins.indexOf(admin);
             $scope.admins.splice(index, 1);
             $scope.selected = false;
@@ -116,6 +115,9 @@ app.controller('ctrlAdmin', ['$scope', '$modal', 'http2', function($scope, $moda
     $scope.select = function(admin) {
         $scope.selected = admin;
     };
+    http2.get('/rest/pl/fe/site/setting/admin/list?site=' + $scope.siteId, function(rsp) {
+        $scope.admins = rsp.data;
+    });
 }]);
 app.controller('ctrlMember', ['$scope', 'http2', '$http', '$modal', 'MemberSchema', function($scope, http2, $http, $modal, MemberSchema) {
     var service = {

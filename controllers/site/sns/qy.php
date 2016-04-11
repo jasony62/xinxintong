@@ -20,27 +20,27 @@ class qy extends \member_base {
 	 *
 	 */
 	public function api_action($site) {
-		$qy = $this->model('site\sns\qy')->bySite($site);
-		$mpproxy = $this->model('sns\qy', $qy);
+		$qyConfig = $this->model('sns\qy')->bySite($site);
+		$qyProxy = $this->model('sns\qy\proxy', $qyConfig);
 
 		$method = $_SERVER['REQUEST_METHOD'];
 		switch ($method) {
 		case 'GET':
 			/* 公众平台对接 */
-			$rst = $mpproxy->join($_GET);
+			$rst = $qyProxy->join($_GET);
 			header('Content-Type: text/html; charset=utf-8');
 			die($rst[1]);
 			break;
 		case 'POST':
 			$data = file_get_contents("php://input");
 			/* 企业号需要对数据进行解密处理 */
-			$rst = $mpproxy->DecryptMsg($_GET, $data);
+			$rst = $qyProxy->DecryptMsg($_GET, $data);
 			if ($rst[0] === false) {
 				exit;
 			}
 			$data = $rst[1];
 			$call = new UserCall($data, $site, 'qy');
-			$this->handle($mpid, $call);
+			$this->handle($site, $call);
 			break;
 		}
 	}

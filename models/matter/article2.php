@@ -150,16 +150,13 @@ class article2_model extends article_base {
 	 */
 	public function praised(&$user, $articleId) {
 		$q = array(
-			'id,score,openid,nickname',
+			'id,score,userid,nickname',
 			'xxt_article_score',
-			"article_id='$articleId' and userid='$user->uid'",
+			"article_id='$articleId' and userid='{$user->uid}'",
 		);
 		$log = $this->query_obj_ss($q);
 		if ($log) {
 			$updated = array();
-			if (empty($log->openid) && !empty($user->openid)) {
-				$updated['openid'] = $user->openid;
-			}
 			if (empty($log->nickname) && !empty($user->nickname)) {
 				$updated['nickname'] = $user->nickname;
 			}

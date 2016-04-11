@@ -47,15 +47,15 @@
             <div class='help-block'>投稿人指定投稿加入频道</div>
         </div>
         <div class='form-group'>
-            <memberacl site-id='{{siteId}}' obj='app' prop-access='canSetInitiator' prop-acl='initiator' label-of-list='指定投稿人' change-acl-url='/rest/pl/fe/matter/contribute/role/setUser?site={{siteId}}&app={{app.id}}&role=I' remove-acl-url='/rest/pl/fe/matter/contribute/role/delUser' hide-access-control=true update-access-control=false></memberacl>
+            <memberacl site-id='{{siteId}}' obj='app' prop-access='canSetInitiator' prop-acl='initiator' label-of-list='指定投稿人' change-acl-url='/rest/pl/fe/matter/contribute/role/setUser?site={{siteId}}&app={{app.id}}&role=I' remove-acl-url='/rest/pl/fe/matter/contribute/role/delUser?site={{siteId}}&app={{app.id}}' hide-access-control=true update-access-control=false></memberacl>
             <div class='help-block'>指定投稿人</div>
         </div>
         <div class='form-group'>
-            <memberacl site-id='{{siteId}}' obj='app' prop-access='canSetReviewer' prop-acl='reviewer' label-of-list='指定投稿人' change-acl-url='/rest/pl/fe/matter/contribute/role/setUser?site={{siteId}}&app={{app.id}}&role=R' remove-acl-url='/rest/pl/fe/matter/contribute/role/delUser' hide-access-control=true update-access-control=false></memberacl>
+            <memberacl site-id='{{siteId}}' obj='app' prop-access='canSetReviewer' prop-acl='reviewer' label-of-list='指定投稿人' change-acl-url='/rest/pl/fe/matter/contribute/role/setUser?site={{siteId}}&app={{app.id}}&role=R' remove-acl-url='/rest/pl/fe/matter/contribute/role/delUser?site={{siteId}}&app={{app.id}}' hide-access-control=true update-access-control=false></memberacl>
             <div class='help-block'>指定审稿人</div>
         </div>
         <div class='form-group'>
-            <memberacl site-id='{{siteId}}' obj='app' prop-access='canSetTypesetter' prop-acl='typesetter' label-of-list='指定投稿人' change-acl-url='/rest/pl/fe/matter/contribute/role/setUser?site={{siteId}}&app={{app.id}}&role=T' remove-acl-url='/rest/pl/fe/matter/contribute/role/delUser' hide-access-control=true update-access-control=false></memberacl>
+            <memberacl site-id='{{siteId}}' obj='app' prop-access='canSetTypesetter' prop-acl='typesetter' label-of-list='指定投稿人' change-acl-url='/rest/pl/fe/matter/contribute/role/setUser?site={{siteId}}&app={{app.id}}&role=T' remove-acl-url='/rest/pl/fe/matter/contribute/role/delUser?site={{siteId}}&app={{app.id}}' hide-access-control=true update-access-control=false></memberacl>
             <div class='help-block'>指定版面审稿人</div>
         </div>
         <div class='form-group'>

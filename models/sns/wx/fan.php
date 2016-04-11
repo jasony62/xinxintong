@@ -1,9 +1,9 @@
 <?php
-namespace site\sns;
+namespace sns\wx;
 /**
  * 微信公众号关注用户
  */
-class wxfan_model extends \TMS_MODEL {
+class fan_model extends \TMS_MODEL {
 	/**
 	 *
 	 */

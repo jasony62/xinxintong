@@ -56,7 +56,7 @@ class main extends \site\fe\matter\base {
 		$site = $this->model('site')->byId($site);
 		$userAgent = $_SERVER['HTTP_USER_AGENT'];
 		if (preg_match('/yixin/i', $userAgent)) {
-			$site->yx = $this->model('site\sns\yx')->bySite($site->id, 'cardname,cardid');
+			$site->yx = $this->model('sns\yx')->bySite($site->id, 'cardname,cardid');
 		}
 		$data['site'] = $site;
 
@@ -65,15 +65,15 @@ class main extends \site\fe\matter\base {
 	/**
 	 *
 	 */
-	public function list_action($siteId, $tagid, $page = 1, $size = 10) {
+	public function list_action($site, $tagid, $page = 1, $size = 10) {
 		$model = $this->model('matter\article');
 
-		$user = $this->getUser($siteId);
+		$user = $this->who;
 
 		$options = new \stdClass;
 		$options->tag = array($tagid);
 
-		$result = $model->find($siteId, $user, $page, $size, $options);
+		$result = $model->find($site, $user, $page, $size, $options);
 
 		return new \ResponseData($result);
 	}
@@ -84,22 +84,21 @@ class main extends \site\fe\matter\base {
 	 * $id article's id.
 	 * $scope 分数
 	 */
-	public function score_action($siteId, $id, $score = 1) {
-		$modelArt = $this->model('matter\article');
+	public function score_action($site, $id, $score = 1) {
+		$modelArt = $this->model('matter\article2');
 		$article = $modelArt->byId($id, 'title,score');
-		$user = $this->getUser($siteId);
+		$user = $this->who;
 		if ($modelArt->praised($user, $id)) {
 			/* 点了赞，再次点击，取消赞 */
-			$this->model()->delete('xxt_article_score', "article_id='$id' and vid='$user->vid'");
+			$this->model()->delete('xxt_article_score', "article_id='$id' and userid='{$user->uid}'");
 			$this->model()->update("update xxt_article set score=score-$score where id='$id'");
 			$praised = false;
 			$article->score--;
 		} else {
 			/* 点赞 */
 			$log = array(
-				'mpid' => $siteId,
-				'vid' => $user->vid,
-				'openid' => $user->openid,
+				'siteid' => $site,
+				'userid' => $user->uid,
 				'nickname' => $user->nickname,
 				'article_id' => $id,
 				'article_title' => $article->title,
@@ -114,17 +113,17 @@ class main extends \site\fe\matter\base {
 			 * coin log
 			 * 投稿人点赞不奖励积分
 			 */
-			$modelCoin = $this->model('coin\log');
-			$contribution = $this->model('matter\article')->getContributionInfo($id);
-			if (!empty($contribution->openid) && $contribution->openid !== $user->openid) {
-				// for contributor
-				$action = 'app.' . $contribution->entry . '.article.appraise';
-				$modelCoin->income($siteId, $action, $id, 'sys', $contribution->openid);
-			}
-			if (empty($contribution->openid) || $contribution->openid !== $user->openid) {
-				// for reader
-				$modelCoin->income($siteId, 'mp.matter.article.appraise', $id, 'sys', $user->openid);
-			}
+			/*$modelCoin = $this->model('coin\log');
+				$contribution = $modelArt->getContributionInfo($id);
+				if (!empty($contribution->openid) && $contribution->openid !== $user->openid) {
+					// for contributor
+					$action = 'app.' . $contribution->entry . '.article.appraise';
+					$modelCoin->income($siteId, $action, $id, 'sys', $contribution->openid);
+				}
+				if (empty($contribution->openid) || $contribution->openid !== $user->openid) {
+					// for reader
+					$modelCoin->income($site, 'mp.matter.article.appraise', $id, 'sys', $user->uid);
+			*/
 		}
 
 		return new \ResponseData(array($article->score, $praised));
@@ -253,26 +252,25 @@ class main extends \site\fe\matter\base {
 	/**
 	 * 下载附件
 	 */
-	public function attachmentGet_action($siteId, $articleid, $attachmentid) {
-		$user = $this->getUser($siteId, array('verbose' => array('fan' => 'Y')));
+	public function attachmentGet_action($site, $articleid, $attachmentid) {
+		$user = $this->who;
 		/**
 		 * 访问控制
 		 */
-		$modelArticle = $this->model('matter\article');
+		$modelArticle = $this->model('matter\article2');
 		$article = $modelArticle->byId($articleid);
 		if (isset($article->access_control) && $article->access_control === 'Y') {
-			$this->accessControl($siteId, $articleid, $article->authapis, $user->openid, $article, $this->getRequestUrl());
+			$this->accessControl($site, $articleid, $article->authapis, $user->uid, $article, false);
 		}
 		/**
 		 * 记录日志
 		 */
 		$this->model()->update("update xxt_article set download_num=download_num+1 where id='$articleid'");
 		$log = array(
-			'vid' => $user->vid,
-			'openid' => $user->openid,
-			'nickname' => empty($user->fan) ? '' : $user->fan->nickname,
+			'userid' => $user->uid,
+			'nickname' => $user->nickname,
 			'download_at' => time(),
-			'mpid' => $siteId,
+			'siteid' => $site,
 			'article_id' => $articleid,
 			'attachment_id' => $attachmentid,
 			'user_agent' => $_SERVER['HTTP_USER_AGENT'],
@@ -290,17 +288,17 @@ class main extends \site\fe\matter\base {
 		$att = $this->model()->query_obj_ss($q);
 
 		if (strpos($att->url, 'alioss') === 0) {
-			$downloadUrl = 'http://xxt-attachment.oss-cn-shanghai.aliyuncs.com/' . $siteId . '/article/' . $articleid . '/' . urlencode($att->name);
+			$downloadUrl = 'http://xxt-attachment.oss-cn-shanghai.aliyuncs.com/' . $site . '/article/' . $articleid . '/' . urlencode($att->name);
 			$this->redirect($downloadUrl);
 		} else if (strpos($att->url, 'local') === 0) {
-			$fs = $this->model('fs/local', $siteId, '附件');
+			$fs = $this->model('fs/local', $site, '附件');
 			//header("Content-Type: application/force-download");
 			header("Content-Type: $att->type");
 			header("Content-Disposition: attachment; filename=" . $att->name);
 			header('Content-Length: ' . $att->size);
 			echo $fs->read(str_replace('local://', '', $att->url));
 		} else {
-			$fs = $this->model('fs/saestore', $siteId);
+			$fs = $this->model('fs/saestore', $site);
 			//header("Content-Type: application/force-download");
 			header("Content-Type: $att->type");
 			header("Content-Disposition: attachment; filename=" . $att->name);

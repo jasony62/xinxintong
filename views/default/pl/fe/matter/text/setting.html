@@ -1,0 +1,18 @@
+<div class='col-md-5' style='padding-left:0'>
+    <div class='list-group'>
+        <div class='list-group-item'>
+            <div class='form-inline'>
+                <button class='btn btn-success' ng-click='create()'>新建文本</button>
+            </div>
+        </div>
+        <a class='list-group-item' style='min-height:42px' ng-class="{'active':selectedIndex==$index}" ng-repeat="t in texts" ng-click='selectOne($index)'><span>{{t.title|truncate:40}}</span><button class='btn btn-xs btn-default pull-right' ng-if="selectedIndex==$index" ng-click='deleteOne($event)'><span class='glyphicon glyphicon-remove'></span></button></a>
+    </div>
+</div>
+<div class='col-md-7' ng-show='editing' style='padding-right:0'>
+    <div class='form-group clearfix'>
+        <p class='form-control-static'><label>创建人：</label><span>{{editing.creater_name}}</span></p>
+    </div>
+    <div class='form-group'>
+        <textarea class='form-control' ng-model='editing.title' tms-auto-update tms-wait=1000 tms-update="update('title')" rows='20'></textarea>
+    </div>
+</div>

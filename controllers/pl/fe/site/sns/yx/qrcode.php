@@ -80,7 +80,7 @@ class qrcode extends \pl\fe\base {
 		/**
 		 * 生成二维码
 		 */
-		$yx = $this->model('site\sns\yx')->bySite($site);
+		$yx = $this->model('sns\yx')->bySite($site);
 		$proxy = $this->model('sns\yx\proxy', $yx);
 		$rst = $proxy->qrcodeCreate($scene_id, false);
 		if ($rst[0] === false) {
@@ -133,7 +133,7 @@ class qrcode extends \pl\fe\base {
 	 * 只要做了扫描，二维码就失效（删除掉）
 	 */
 	public function createOneOff_action($site, $matter_type, $matter_id) {
-		$yx = $this->model('site\sns\yx')->bySite($site);
+		$yx = $this->model('sns\yx')->bySite($site);
 
 		if ($yx->can_qrcode === 'N') {
 			return new \ResponseError('公众号还没有开通场景二维码接口');

@@ -44,6 +44,12 @@
                                             <span class='channel' ng-repeat='sc in editing.subChannels' ng-bind='sc.title'></span>
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <td>附件</td>
+                                        <td>
+                                            <p ng-repeat="a in editing.attachments"><a ng-href='{{downloadUrl(a)}}' target='_blank'>{{a.name}}</a></p>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -99,10 +105,10 @@
                 </div>
                 <nav id='toolbar' class="navbar navbar-default">
                     <div class="container text-center">
-                        <button class='btn btn-lg navbar-btn btn-default' ng-click='back($event)'>
+                        <button class='btn navbar-btn btn-default' ng-click='back($event)'>
                             <span class='glyphicon glyphicon-list'></span>
                         </button>
-                        <button class='btn btn-lg navbar-btn btn-default visible-xs-inline' ng-if="!editing.disposer||editing.disposer.phase==='I'"
+                        <button class='btn navbar-btn btn-default visible-xs-inline' ng-if="!editing.disposer||editing.disposer.phase==='I'"
                         ng-click='shift2pc($event)'>
                             <span class='glyphicon glyphicon-pencil'></span>
                         </button>

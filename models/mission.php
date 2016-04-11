@@ -21,12 +21,12 @@ class mission_model extends TMS_MODEL {
 	/**
 	 *
 	 */
-	public function &byMpid($mpid, $options = array()) {
+	public function &bySite($siteId, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$q = array(
 			$fields,
 			'xxt_mission',
-			"mpid='$mpid'",
+			"siteid='$siteId'",
 		);
 		$q2 = array('o' => 'modify_at desc');
 
@@ -39,9 +39,9 @@ class mission_model extends TMS_MODEL {
 	/**
 	 * 在任务中添加素材
 	 */
-	public function addMatter($user, $mpid, $missionId, $matter) {
+	public function addMatter($user, $siteId, $missionId, $matter) {
 		$relation = array(
-			'mpid' => $mpid,
+			'siteid' => $siteId,
 			'mission_id' => $missionId,
 			'matter_id' => $matter->id,
 			'matter_type' => $matter->type,
@@ -57,23 +57,23 @@ class mission_model extends TMS_MODEL {
 	/**
 	 *
 	 */
-	public function removeMatter($mpid, $matterId, $matterType) {
+	public function removeMatter($siteId, $matterId, $matterType) {
 		$rst = $this->delete(
 			'xxt_mission_matter',
-			"mpid='$mpid' and matter_id='$matterId' and matter_type='$matterType'"
+			"siteid='$siteId' and matter_id='$matterId' and matter_type='$matterType'"
 		);
 		return $rst;
 	}
 	/**
 	 *
 	 */
-	public function &mattersById($mpid, $id, $options = array()) {
+	public function &mattersById($siteId, $id, $options = array()) {
 		$matters = array();
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$q = array(
 			$fields,
 			'xxt_mission_matter',
-			"mpid='$mpid' and mission_id=$id",
+			"siteid='$siteId' and mission_id=$id",
 		);
 		$mms = $this->query_objs_ss($q);
 		foreach ($mms as &$mm) {

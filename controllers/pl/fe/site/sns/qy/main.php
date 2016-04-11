@@ -1,29 +1,29 @@
 <?php
-namespace pl\fe\site\sns;
+namespace pl\fe\site\sns\qy;
 
-require_once dirname(dirname(dirname(__FILE__))) . '/base.php';
+require_once dirname(dirname(dirname(dirname(__FILE__)))) . '/base.php';
 /**
- * 微信公众号
+ * 易信公众号
  */
-class wx extends \pl\fe\base {
+class main extends \pl\fe\base {
 	/**
 	 *
 	 */
 	public function index_action() {
-		\TPL::output('/pl/fe/site/sns/wx/main');
+		\TPL::output('/pl/fe/site/sns/qy/main');
 		exit;
 	}
 	/**
 	 * 获得公众号配置信息
 	 */
 	public function get_action($site) {
-		$modelWx = $this->model('site\sns\wx');
-		$wx = $modelWx->bySite($site);
-		if ($wx === false) {
+		$modelQy = $this->model('sns\qy');
+		$qy = $modelQy->bySite($site);
+		if ($qy === false) {
 			/* 不存在就创建一个 */
-			$wx = $modelWx->create($site);
+			$qy = $modelQy->create($site);
 		}
-		return new \ResponseData($wx);
+		return new \ResponseData($qy);
 	}
 	/**
 	 * 更新账号配置信息
@@ -35,7 +35,7 @@ class wx extends \pl\fe\base {
 		isset($nv->token) && $nv->joined = 'N';
 
 		$rst = $this->model()->update(
-			'xxt_site_wx',
+			'xxt_site_qy',
 			$nv,
 			"siteid='$site'"
 		);

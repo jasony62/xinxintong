@@ -16,19 +16,18 @@ class text extends \pl\fe\base {
 	/**
 	 * get all text call.
 	 */
-	public function list_action($site, $cascade = 'y') {
+	public function list_action($site, $cascade = 'Y') {
 		$calls = array();
 		$q = array(
 			'id',
-			'xxt_call_text',
+			'xxt_call_text_yx',
 			"siteid='$site'",
 		);
 		$q2['o'] = 'id desc';
 
 		if ($vs = $this->model()->query_objs_ss($q, $q2)) {
 			foreach ($vs as $v) {
-				$call = $this->_byId($v->id, $cascade === 'y' ? array('matter', 'acl') : array());
-				$call->fromParent = 'N';
+				$call = $this->_byId($v->id, $cascade === 'Y' ? array('matter') : array());
 				$calls[] = $call;
 			}
 		}
@@ -42,8 +41,8 @@ class text extends \pl\fe\base {
 		 * 文本命令的基本信息
 		 */
 		$q = array(
-			'mpid,keyword,matter_type,matter_id',
-			'xxt_call_text',
+			'siteid,keyword,match_mode,matter_type,matter_id',
+			'xxt_call_text_yx',
 			"id=$id",
 		);
 		$call = $this->model()->query_obj_ss($q);
@@ -54,11 +53,6 @@ class text extends \pl\fe\base {
 			$call->matter = $this->model('matter\base')->getMatterInfoById($call->matter_type, $call->matter_id);
 		}
 
-		/**
-		 * acl
-		 */
-		$call->acl = $this->model('acl')->textCall($call->mpid, $call->keyword);
-
 		return new \ResponseData($call);
 	}
 	/**
@@ -67,10 +61,10 @@ class text extends \pl\fe\base {
 	 * $id int text call id.
 	 * $contain array
 	 */
-	private function &_byId($id, $contain = array('matter', 'acl')) {
+	private function &_byId($id, $contain = array('matter')) {
 		$q = array(
-			'id,siteid,keyword,match_mode,matter_type,matter_id,access_control',
-			'xxt_call_text',
+			'id,siteid,keyword,match_mode,matter_type,matter_id',
+			'xxt_call_text_yx',
 			"id=$id",
 		);
 		$call = $this->model()->query_obj_ss($q);
@@ -99,7 +93,7 @@ class text extends \pl\fe\base {
 		$d['keyword'] = $keyword;
 		$d['match_mode'] = $matchMode;
 
-		$id = $this->model()->insert('xxt_call_text', $d, true);
+		$id = $this->model()->insert('xxt_call_text_yx', $d, true);
 
 		$call = $this->_byId($id);
 
@@ -109,7 +103,7 @@ class text extends \pl\fe\base {
 	 * 删除文本命令
 	 */
 	public function delete_action($site, $id) {
-		$rsp = $this->model()->delete('xxt_call_text', "id=$id");
+		$rsp = $this->model()->delete('xxt_call_text_yx', "id=$id");
 
 		return new \ResponseData($rsp);
 	}
@@ -123,7 +117,7 @@ class text extends \pl\fe\base {
 	public function update_action($site, $id) {
 		$nv = $this->getPostJson();
 		$rst = $this->model()->update(
-			'xxt_call_text',
+			'xxt_call_text_yx',
 			$nv,
 			"siteid='$site' and id=$id"
 		);
@@ -136,7 +130,7 @@ class text extends \pl\fe\base {
 		$reply = $this->getPostJson();
 
 		$rst = $this->model()->update(
-			'xxt_call_text',
+			'xxt_call_text_yx',
 			array(
 				'matter_type' => $reply->rt,
 				'matter_id' => $reply->rid,

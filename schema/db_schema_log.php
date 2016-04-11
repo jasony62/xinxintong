@@ -132,6 +132,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_log_massmsg(";
 $sql .= 'id int not null auto_increment';
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',mpid varchar(32) not null';
 $sql .= ',matter_id varchar(40) not null';
 $sql .= ',matter_type varchar(20) not null';
@@ -155,6 +156,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_log_tmplmsg(";
 $sql .= 'id int not null auto_increment';
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',mpid varchar(32) not null';
 $sql .= ',tmplmsg_id int not null'; // 模板ID
 $sql .= ',template_id varchar(255) not null'; // 模板ID

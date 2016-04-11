@@ -26,11 +26,12 @@
         </nav>
         <div class='navbar navbar-default'>
             <ul class='nav navbar-nav'>
-                <li ng-class="{'active':subView==='setting'}"><a href='/rest/pl/fe/site/sns/wx/setting'>账号配置</a></li>
-                <li><a href='/rest/pl/fe/site/sns/wx/text'>文本消息</a></li>
-                <li><a href='/rest/pl/fe/site/sns/wx/menu'>菜单事件</a></li>
-                <li><a href='/rest/pl/fe/site/sns/wx/qrcode'>扫二维码</a></li>
-                <li><a href='/rest/pl/fe/site/sns/wx/other'>其他事件</a></li>
+                <li ng-class="{'active':subView==='setting'}"><a href='/rest/pl/fe/site/sns/wx/setting?site={{siteId}}'>账号配置</a></li>
+                <li ng-class="{'active':subView==='text'}"><a href='/rest/pl/fe/site/sns/wx/text?site={{siteId}}'>文本消息</a></li>
+                <li ng-class="{'active':subView==='menu'}"><a href='/rest/pl/fe/site/sns/wx/menu?site={{siteId}}'>菜单事件</a></li>
+                <li ng-class="{'active':subView==='qrcode'}"><a href='/rest/pl/fe/site/sns/wx/qrcode?site={{siteId}}'>扫二维码</a></li>
+                <li ng-class="{'active':subView==='other'}"><a href='/rest/pl/fe/site/sns/wx/other?site={{siteId}}'>其他事件</a></li>
+                <li ng-class="{'active':subView==='relay'}"><a href='/rest/pl/fe/site/sns/wx/relay?site={{siteId}}'>转发接口</a></li>
             </ul>
         </div>
         <div ng-view></div>

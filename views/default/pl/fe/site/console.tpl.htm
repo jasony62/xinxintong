@@ -11,6 +11,9 @@
 	<body ng-app='app' ng-controller='ctrlSite'>
 		<notice-box err='errmsg' info='infomsg' delay='1000'></notice-box>
 		<nav class='navbar navbar-inverse'>
+			<ul class='nav navbar-nav'>
+				<li><a href='/rest/pl/fe' target='_self'>首页</a></li>
+			</ul>
 			<ul class='nav navbar-nav site'>
 				<li class='active'>
 					<a href='/rest/pl/fe/site/console?site={{siteId}}'>工作台</a>
@@ -29,14 +32,33 @@
 		</nav>
 		<div class='container' ng-controller='ctrlConsole'>
 			<div id='viewRecent'>
-				<div class='matters'>
+				<div class="input-group">
+					<select class='form-control' ng-model="matterType" ng-change="chooseMatterType()">
+						<option value='recent'>最近</option>
+						<option value='mission'>项目</option>
+						<option value='article'>单图文</option>
+						<option value='news'>多图文</option>
+						<option value='channel'>频道</option>
+						<option value='enroll'>登记活动</option>
+						<option value='group'>分组活动</option>
+						<option value='lottery'>抽奖活动</option>
+						<option value='contribute'>投稿活动</option>
+						<option value='text'>文本</option>
+						<option value='custom'>定制页</option>
+						<option value='link'>链接</option>
+					</select>
+					<span class="input-group-btn">
+						<button class='btn btn-default' ng-disabled="matterType==='recent'" ng-click="addMatter()">添加</button>
+				    </span>
+			    </div>
+    			<div class='matters'>
 					<div class='col-md-6' ng-repeat='m in matters'>
 						<div class='thumbnail' ng-click="open(m)">
-							<h4 class='title' ng-bind='m.matter_title'></h4>
-							<p class='summary' ng-bind='m.matter_summary'></p>
+							<h4 class='title' ng-bind='m.matter_title||m.title'></h4>
+							<p class='summary' ng-bind='m.matter_summary||m.summary'></p>
 							<div class='attr'>
-								<div class='operator_name' ng-bind='m.operator_name'></div>
-								<div class='modify_at' title='修改时间' ng-bind="m.operate_at*1000|date:'yy-MM-dd'"></div>
+								<div class='operator_name' ng-bind='m.operator_name||m.creater_name'></div>
+								<div class='modify_at' title='修改时间' ng-bind="(m.operate_at||m.modify_at)*1000|date:'yy-MM-dd'"></div>
 							</div>
 						</div>
 					</div>
@@ -44,14 +66,9 @@
 				<nav class="navbar navbar-default">
 					<div class="navbar-form">
 						<button class="btn btn-success" ng-click="addArticle()">＋图文</button>
-						<button class="btn btn-success" ng-click="addNews()">＋多图文</button>
-						<button class="btn btn-success" ng-click="addChannel()">＋频道</button>
 						<button class="btn btn-success" ng-click="addEnrollByTemplate()">＋登记</button>
 						<button class="btn btn-success" ng-click="addGroup()">＋分组</button>
 						<button class="btn btn-success" ng-click="addLottery()">＋抽奖</button>
-						<button class="btn btn-success" ng-click="addContribute()">＋投稿</button>
-						<button class="btn btn-success" ng-click="addTask()">＋项目</button>
-						<button class="btn btn-success" ng-click="addCustom()">＋定制页</button>
 					</div>
 				</nav>
 			</div>

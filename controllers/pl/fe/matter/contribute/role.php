@@ -41,7 +41,7 @@ class role extends \pl\fe\matter\base {
 	 * $id
 	 * $acl aclid
 	 */
-	public function delUser_action($site, $acl) {
+	public function delUser_action($site, $app, $acl) {
 		$rst = $this->model()->delete(
 			'xxt_contribute_user',
 			"siteid='$site' and id=$acl"

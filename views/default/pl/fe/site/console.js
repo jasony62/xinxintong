@@ -9,8 +9,12 @@ app.controller('ctrlSite', ['$scope', '$location', 'http2', function($scope, $lo
     });
 }]);
 app.controller('ctrlConsole', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+    $scope.matterType = 'recent';
     $scope.open = function(matter) {
-        switch (matter.matter_type) {
+        var type = (matter.matter_type || $scope.matterType),
+            id = (matter.matter_id || matter.id);
+        switch (type) {
+            case 'text':
             case 'article':
             case 'custom':
             case 'news':
@@ -19,10 +23,77 @@ app.controller('ctrlConsole', ['$scope', '$modal', 'http2', function($scope, $mo
             case 'group':
             case 'lottery':
             case 'contribute':
+            case 'link':
             case 'mission':
-                location.href = '/rest/pl/fe/matter/' + matter.matter_type + '?id=' + matter.matter_id + '&site=' + $scope.siteId;
+                location.href = '/rest/pl/fe/matter/' + type + '?id=' + id + '&site=' + $scope.siteId;
                 break;
         }
+    };
+    $scope.chooseMatterType = function() {
+        if ($scope.matterType === 'recent') {
+            http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date()).getTime(), function(rsp) {
+                $scope.matters = rsp.data.matters;
+            });
+        } else {
+            http2.get('/rest/pl/fe/matter/' + $scope.matterType + '/list?site=' + $scope.siteId + '&page=1&size=20&_=' + (new Date()).getTime(), function(rsp) {
+                if (/article/.test($scope.matterType)) {
+                    $scope.matters = rsp.data.articles;
+                } else if (/enroll|group|contribute/.test($scope.matterType)) {
+                    $scope.matters = rsp.data.apps;
+                } else if (/mission/.test($scope.matterType)) {
+                    $scope.matters = rsp.data.missions;
+                } else if (/custom/.test($scope.matterType)) {
+                    $scope.matters = rsp.data.customs;
+                } else {
+                    $scope.matters = rsp.data;
+                }
+            });
+        }
+    };
+    $scope.addMatter = function() {
+        switch ($scope.matterType) {
+            case 'article':
+                $scope.addArticle();
+                break;
+            case 'custom':
+                $scope.addCustom();
+                break;
+            case 'news':
+                $scope.addNews();
+                break;
+            case 'channel':
+                $scope.addChannel();
+                break;
+            case 'enroll':
+                $scope.addEnrollByTemplate();
+                break;
+            case 'group':
+                $scope.addGroup();
+                break;
+            case 'lottery':
+                $scope.addLottery();
+                break;
+            case 'contribute':
+                $scope.addContribute();
+                break;
+            case 'mission':
+                $scope.addMission();
+                break;
+            case 'text':
+                $scope.gotoText();
+                break;
+            case 'link':
+                $scope.addLink();
+                break;
+        }
+    };
+    $scope.gotoText = function() {
+        location.href = '/rest/pl/fe/matter/text?site=' + $scope.siteId;
+    };
+    $scope.addLink = function() {
+        http2.get('/rest/pl/fe/matter/link/create?site=' + $scope.siteId, function(rsp) {
+            location.href = '/rest/pl/fe/matter/link?site=' + $scope.siteId + '&id=' + rsp.data;
+        });
     };
     $scope.addArticle = function() {
         http2.get('/rest/pl/fe/matter/article/create?site=' + $scope.siteId, function(rsp) {
@@ -126,7 +197,7 @@ app.controller('ctrlConsole', ['$scope', '$modal', 'http2', function($scope, $mo
             location.href = '/rest/pl/fe/matter/contribute?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
-    $scope.addTask = function() {
+    $scope.addMission = function() {
         http2.get('/rest/pl/fe/matter/mission/create?site=' + $scope.siteId, function(rsp) {
             location.href = '/rest/pl/fe/matter/mission?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });

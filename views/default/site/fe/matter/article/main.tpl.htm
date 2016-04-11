@@ -35,7 +35,7 @@
                         <caption>附件</caption>
                         <tr ng-repeat='a in article.attachments'>
                             <td>
-                                <a ng-href="{{'/rest/mi/article/attachmentGet?mpid='+mpid+'&articleid='+article.id+'&attachmentid='+a.id}}" target='_blank'
+                                <a ng-href="{{'/rest/site/fe/matter/article/attachmentGet?site='+siteId+'&articleid='+article.id+'&attachmentid='+a.id}}" target='_blank'
                                 ng-bind='a.name'></a>
                             </td>
                             <td ng-bind='a.size|filesize' style="width:90px"></td>

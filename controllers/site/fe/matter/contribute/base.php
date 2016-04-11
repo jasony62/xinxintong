@@ -28,7 +28,13 @@ class base extends \site\fe\base {
 		/**
 		 * tags
 		 */
-		$article->tags = $this->model('tag')->tagsByRes($article->id, 'article');
+		//$article->tags = $this->model('tag')->tagsByRes($article->id, 'article');
+		/**
+		 * attachments
+		 */
+		if ($article->has_attachment === 'Y') {
+			$article->attachments = $this->model()->query_objs_ss(array('*', 'xxt_article_attachment', "article_id='$id'"));
+		}
 
 		return $article;
 	}

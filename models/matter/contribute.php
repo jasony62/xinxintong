@@ -51,7 +51,7 @@ class contribute_model extends app_base {
 		 * 直接指定
 		 */
 		$q = array(
-			'c.id,c.identity,c.idsrc,c.label',
+			'c.id,c.identity,c.idsrc,c.label,c.level',
 			'xxt_contribute_user c',
 			"c.siteid='$siteId' and c.cid='$appId' and role='$role'",
 		);

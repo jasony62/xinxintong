@@ -57,6 +57,51 @@ class base extends \site\fe\base {
 		}
 	}
 	/**
+	 * 解决老版本的数据迁移问题
+	 */
+	private function __upgradeCookieMembers($siteId, $userid, $aMemberSchemas) {
+		$model = $this->model();
+		$members = array();
+		/* members */
+		foreach ($aMemberSchemas as $authid) {
+			if ($encoded = $this->myGetCookie("_{$siteId}_{$authid}_member")) {
+				if (!isset($cookiekey)) {
+					/* get cookie key */
+					$q = array('creater', 'xxt_mpaccount', "mpid='$siteId'");
+					if (!($mpCreater = $model->query_val_ss($q))) {
+						return false;
+					}
+					$cookiekey = md5($siteId . $mpCreater);
+				}
+				if ($mid = $model->encrypt($encoded, 'DECODE', $cookiekey)) {
+					/**
+					 * 检查数据库中是否有匹配的记录
+					 */
+					$q = array(
+						'authed_identity',
+						'xxt_member',
+						"authapi_id=$authid and mid='$mid' and forbidden='N'",
+					);
+					if ($memberOld = $model->query_obj_ss($q)) {
+						$q = array(
+							'*',
+							'xxt_site_member',
+							"siteid='{$siteId}' and schema_id=$authid and identity='{$memberOld->authed_identity}'",
+						);
+						if ($member = $model->query_obj_ss($q)) {
+							$model->update('xxt_site_member', array('userid' => $userid), "id='{$member->id}'");
+							$member->userid = $userid;
+							$members[] = $member;
+						}
+					}
+				}
+				/* 清除原有的cookie */
+				$this->mySetCookie("_{$siteId}_{$authid}_member", '', time() - 86400);
+			}
+		}
+		return $members;
+	}
+	/**
 	 * 访问控制设置
 	 *
 	 * 检查当前用户是否为认证用户
@@ -67,7 +112,11 @@ class base extends \site\fe\base {
 	 */
 	protected function accessControl($siteId, $objId, $memberSchemas, $userid, &$obj, $targetUrl = null) {
 		$aMemberSchemas = explode(',', $memberSchemas);
-		$members = $this->model('site\user\member')->byUser($siteId, $userid);
+		$members = $this->model('site\user\member')->byUser($siteId, $userid, array('schemas' => $memberSchemas));
+		if (empty($members)) {
+			/* 处理版本迁移数据 */
+			$members = $this->__upgradeCookieMembers($siteId, $userid, $aMemberSchemas);
+		}
 		if (empty($members)) {
 			/**
 			 * 如果不是认证用户，先进行认证

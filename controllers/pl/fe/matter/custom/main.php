@@ -62,7 +62,7 @@ class main extends \pl\fe\matter\base {
 		/**
 		 * select fields
 		 */
-		$s = "a.id,a.mpid,a.title,a.summary,a.create_at,a.modify_at,a.approved,a.creater,a.creater_name,a.creater_src,'$uid' uid";
+		$s = "a.id,a.siteid,a.title,a.summary,a.create_at,a.modify_at,a.approved,a.creater,a.creater_name,a.creater_src,'$uid' uid";
 		$s .= ",a.read_num,a.score,a.remark_num,a.share_friend_num,a.share_timeline_num,a.download_num";
 		/**
 		 * where
@@ -106,7 +106,7 @@ class main extends \pl\fe\matter\base {
 			/**
 			 * 按标签过滤
 			 */
-			$w .= " and a.mpid=at.mpid and a.id=at.res_id";
+			$w .= " and a.siteid=at.siteid and a.id=at.res_id";
 			$tags = implode(',', array_merge($options->tag, $options->tag2));
 			$w .= " and at.tag_id in($tags)";
 			$q = array(

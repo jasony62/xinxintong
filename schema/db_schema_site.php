@@ -136,7 +136,7 @@ $sql .= ",siteid varchar(32) not null"; //
 $sql .= ",userid varchar(40) not null"; // xxt_site_account
 $sql .= ",schema_id int not null"; // id from xxt_site_member_schema
 $sql .= ",create_at int not null";
-$sql .= ",openid varchar(255) not null default ''"; // 如果与外部认证对接，记录用户在外部系统中的标识
+$sql .= ",identity varchar(255) not null default ''"; // 认证用户的唯一标识
 $sql .= ",sync_at int not null"; // 数据的同步时间
 $sql .= ",name varchar(255) not null";
 $sql .= ",mobile varchar(20) not null";
@@ -151,7 +151,12 @@ $sql .= ",forbidden char(1) not null default 'N'";
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+	echo 'database error(xxt_site_member): ' . $mysqli->error;
+}
+$sql = "ALTER TABLE `xxt_site_member` ADD UNIQUE memberpk( `schema_id`, `identity`)";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error(xxt_site_member): ' . $mysqli->error;
 }
 /**
  * departments

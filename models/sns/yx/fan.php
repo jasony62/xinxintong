@@ -1,9 +1,9 @@
 <?php
-namespace site\sns;
+namespace sns\yx;
 /**
  * 易信公众号关注用户
  */
-class yxfan_model extends \TMS_MODEL {
+class fan_model extends \TMS_MODEL {
 	/**
 	 *
 	 */

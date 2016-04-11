@@ -28,6 +28,7 @@ class member_model extends \TMS_MODEL {
 			'xxt_site_member',
 			"userid='$userid' and forbidden='N'",
 		);
+		isset($options['schemas']) && $q[2] .= " and schema_id in (" . $options['schemas'] . ")";
 		$members = $this->query_objs_ss($q);
 
 		return $members;

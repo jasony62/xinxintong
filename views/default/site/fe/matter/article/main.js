@@ -131,7 +131,7 @@ define(["require", "angular"], function(require, angular) {
         };
         $scope.like = function() {
             if ($scope.mode === 'preview') return;
-            var url = "/rest/mi/article/score?mpid=" + mpid + "&id=" + $scope.articleId;
+            var url = "/rest/site/fe/matter/article/score?site=" + $scope.siteId + "&id=" + $scope.articleId;
             $http.get(url).success(function(rsp) {
                 $scope.article.score = rsp.data[0];
                 $scope.article.praised = rsp.data[1];
@@ -141,15 +141,15 @@ define(["require", "angular"], function(require, angular) {
             location.href = 'yixin://opencard?pid=' + $scope.mpa.yx_cardid;
         };
         $scope.openChannel = function(ch) {
-            location.href = '/rest/mi/matter?mpid=' + mpid + '&type=channel&id=' + ch.id;
+            location.href = '/rest/site/fe/matter?site=' + $scope.siteId + '&type=channel&id=' + ch.id;
         };
         $scope.searchByTag = function(tag) {
-            location.href = '/rest/mi/article?mpid=' + mpid + '&tagid=' + tag.id;
+            location.href = '/rest/site/fe/matter/article?site=' + $scope.siteId + '&tagid=' + tag.id;
         };
         $scope.openMatter = function(evt, id, type) {
             evt.preventDefault();
             evt.stopPropagation();
-            location.href = '/rest/mi/matter?mpid=' + mpid + '&id=' + id + '&type=' + type + '&tpl=std';
+            location.href = '/rest/site/fe/matter?site=' + $scope.siteId + '&id=' + id + '&type=' + type + '&tpl=std';
         };
         loadArticle().then(articleLoaded);
     }]);
@@ -157,7 +157,7 @@ define(["require", "angular"], function(require, angular) {
         $scope.newRemark = '';
         $scope.remark = function() {
             var url, param;
-            url = "/rest/mi/article/remark?mpid=" + $scope.siteId + "&id=" + $scope.articleId;
+            url = "/rest/site/fe/matter/article/remark?site=" + $scope.siteId + "&id=" + $scope.articleId;
             param = {
                 remark: $scope.newRemark
             };

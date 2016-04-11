@@ -24,7 +24,7 @@ class main extends \pl\fe\base {
 	 * 获得公众号配置信息
 	 */
 	public function get_action($site) {
-		$modelYx = $this->model('site\sns\yx');
+		$modelYx = $this->model('sns\yx');
 		$yx = $modelYx->bySite($site);
 		if ($yx === false) {
 			/* 不存在就创建一个 */

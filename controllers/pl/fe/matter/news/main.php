@@ -22,10 +22,13 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function get_action($site, $id, $cascade = 'Y') {
-		$uid = \TMS_CLIENT::get_client_uid();
+		$user = $this->accountUser();
+		if (false === $user) {
+			return new \ResponseTimeout();
+		}
 
 		$n = $this->model('matter\news')->byId($id);
-		$n->uid = $uid;
+		$n->uid = $user->id;
 		if ($n->empty_reply_type && $n->empty_reply_id) {
 			$n->emptyReply = $this->model('matter\base')->getMatterInfoById($n->empty_reply_type, $n->empty_reply_id);
 		}

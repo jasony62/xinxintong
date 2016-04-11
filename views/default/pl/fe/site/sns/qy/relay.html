@@ -1,0 +1,26 @@
+<div class='list-group'>
+    <div class='list-group-item' ng-repeat='r in relays'>
+        <div class='form-horizontal'>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>接口名称</label>
+                <div class='col-md-10'>
+                    <div class="input-group">
+                        <input type='text' class='form-control' ng-model='r.title' tms-auto-update tms-wait=1000 tms-update="update(r,'title');">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" ng-click='remove(r)'>
+                            <span class='glyphicon glyphicon-remove'></span>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='col-md-2 control-label'>接口地址</label>
+                <div class='col-md-10'>
+                    <textarea class='form-control' ng-model='r.url' tms-auto-update tms-wait=1000 tms-update="update(r,'url');"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<button class='btn btn-primary' ng-click='add()'>添加转发接口</button>

@@ -1,7 +1,6 @@
 <?php
 namespace site\sns;
 
-require_once dirname(dirname(dirname(dirname(__FILE__)))) . '/lib/wxqy/WXBizMsgCrypt.php';
 require_once dirname(__FILE__) . '/usercall.php';
 require_once dirname(dirname(dirname(__FILE__))) . '/member_base.php';
 
@@ -25,9 +24,9 @@ class yx extends \member_base {
 		switch ($method) {
 		case 'GET':
 			/* 公众平台对接 */
-			$yx = $this->model('site\sns\yx')->bySite($site);
-			$proxy = $this->model('sns\yx\proxy', $yx);
-			$rst = $proxy->join($_GET);
+			$yxConfig = $this->model('sns\yx')->bySite($site);
+			$yxProxy = $this->model('sns\yx\proxy', $yxConfig);
+			$rst = $yxProxy->join($_GET);
 			header('Content-Type: text/html; charset=utf-8');
 			die($rst[1]);
 			break;
@@ -80,7 +79,7 @@ class yx extends \member_base {
 		 * 【信息墙】需要从现有信息处理流程中形成分支，分支中进行处理就可以了。
 		 * 如果分支进行了处理，可以通过返回值告知是否还需要进行处理
 		 */
-		if ($this->fork($msg)) {
+		if ($this->_fork($msg)) {
 			/**
 			 * 分支活动负责处理
 			 */
@@ -93,15 +92,12 @@ class yx extends \member_base {
 			case 'text':
 				$this->_textCall($msg);
 				break;
-			case 'voice':
-				$this->voice_call($msg);
-				break;
 			case 'event':
-				$this->event_call($msg);
+				$this->_eventCall($msg);
 				break;
 			case 'location':
 				if ($reply = $this->model('reply')->other_call($site, 'location')) {
-					$r = $this->model('reply\\' . $reply->matter_type, $msg, $reply->matter_id);
+					$r = $this->model('sns\reply\\' . $reply->matter_type, $msg, $reply->matter_id);
 					$r->exec();
 				}
 			}
@@ -111,8 +107,8 @@ class yx extends \member_base {
 	/**
 	 * 消息分流处理
 	 */
-	private function fork($msg) {
-		if ($fa = $this->currentForkActivity($msg)) {
+	private function _fork($msg) {
+		if ($fa = $this->_currentForkActivity($msg)) {
 			/**
 			 * 由分支活动负责处理消息
 			 */
@@ -121,7 +117,7 @@ class yx extends \member_base {
 				/**
 				 * 返回分支活动的回复
 				 */
-				$tr = $this->model('reply\text', $msg, $reply, false);
+				$tr = $this->model('sns\reply\text', $msg, $reply, false);
 				$tr->exec();
 			} else {
 				/**
@@ -145,12 +141,12 @@ class yx extends \member_base {
 	 * return array 0：活动的ID，1：活动实例
 	 *
 	 */
-	private function currentForkActivity($msg) {
-		$siteid = $msg['siteid'];
+	private function _currentForkActivity($msg) {
+		$siteId = $msg['siteid'];
 		$openid = $msg['from_user'];
 		$wall = $this->model('app\wall');
 
-		if ($wid = $wall->joined($siteid, $openid)) {
+		if ($wid = $wall->joined($siteId, $openid)) {
 			return array($wid, $wall);
 		} else {
 			return false;
@@ -159,7 +155,7 @@ class yx extends \member_base {
 	/**
 	 * 事件消息处理
 	 */
-	private function event_call($data) {
+	private function _eventCall($data) {
 		$e = json_decode($data['data']);
 		if (is_array($e)) {
 			$t = $e[0];
@@ -170,14 +166,14 @@ class yx extends \member_base {
 		}
 		switch ($t) {
 		case 'subscribe':
-			$this->subscribe_call($data, $k);
+			$this->_subscribeCall($data, $k);
 			break;
 		case 'unsubscribe':
-			$this->unsubscribe_call($data);
+			$this->_unsubscribeCall($data);
 			break;
 		case 'scan':
 		case 'SCAN':
-			$this->qrcode_call($data, 'scan', $k);
+			$this->_qrcodeCall($data, 'scan', $k);
 			break;
 		case 'click':
 		case 'CLICK':
@@ -192,16 +188,16 @@ class yx extends \member_base {
 	 * $call
 	 * $k 场景二维码的scene_id
 	 */
-	private function subscribe_call($call, $scene_id = null) {
+	private function _subscribeCall($call, $scene_id = null) {
 		/**
 		 * 记录粉丝关注信息
 		 */
 		$current = time();
-		$yx = \TMS_APP::G('site\sns\yx');
-		$siteid = $call['siteid'];
+		$yxConfig = \TMS_APP::G('site\sns\yx');
+		$siteId = $call['siteid'];
 		$openid = $call['from_user'];
-		$modelFan = $this->model('site\sns\yxfan');
-		if ($fan = $modelFan->byOpenid($siteid, $openid, '*')) {
+		$modelFan = $this->model('sns\yx\fan');
+		if ($fan = $modelFan->byOpenid($siteId, $openid, '*')) {
 			/**
 			 * 粉丝重新关注
 			 */
@@ -212,29 +208,29 @@ class yx extends \member_base {
 					'unsubscribe_at' => 0,
 					'sync_at' => $current,
 				),
-				"siteid='$siteid' and openid='$openid'"
+				"siteid='$siteId' and openid='$openid'"
 			);
 		} else {
 			/**
 			 * 新粉丝关注
 			 */
 			/* 创建站点用户 */
-			$siteUser = $this->model('site\user\account')->blank($siteid, true, array('ufrom' => 'yx'));
-			$fan = $modelFan->blank($siteid, $openid, true, array(
+			$siteUser = $this->model('site\user\account')->blank($siteId, true, array('ufrom' => 'yx'));
+			$fan = $modelFan->blank($siteId, $openid, true, array(
 				'userid' => $siteUser->uid,
 				'subscribe_at' => $current,
 				'sync_at' => $current)
 			);
 			// log
-			$this->model('log')->writeSubscribe($siteid, $openid);
+			$this->model('log')->writeSubscribe($siteId, $openid);
 		}
-		if ($yx->can_fans === 'Y') {
+		if ($yxConfig->can_fans === 'Y') {
 			/**
 			 * 获取粉丝信息并更新
 			 * todo 是否应该更新用户所属的分组？
 			 */
-			$mpproxy = $this->model('mpproxy/yx', $siteid);
-			$fanInfo = $mpproxy->userInfo($openid, false);
+			$yxProxy = $this->model('sns\yx\proxy', $yxConfig);
+			$fanInfo = $yxProxy->userInfo($openid, false);
 			if ($fanInfo[0]) {
 				/*更新粉丝用户信息*/
 				$nickname = trim($this->model()->escape($fanInfo[1]->nickname));
@@ -247,7 +243,7 @@ class yx extends \member_base {
 				isset($fanInfo[1]->icon) && $u['headimgurl'] = $fanInfo[1]->icon; // 易信认证号接口
 				isset($fanInfo[1]->province) && $u['province'] = $fanInfo[1]->province;
 				isset($fanInfo[1]->country) && $u['country'] = $fanInfo[1]->country;
-				$this->model()->update('xxt_site_yxfan', $u, "siteid='$siteid' and openid='$openid'");
+				$this->model()->update('xxt_site_yxfan', $u, "siteid='$siteId' and openid='$openid'");
 				/*更新站点用户信息 @todo 总是要更新吗？*/
 				$this->model()->update(
 					'xxt_site_account',
@@ -264,31 +260,26 @@ class yx extends \member_base {
 			$scene_id = substr($scene_id, strlen('qrscene_'));
 			$scandata = $call;
 			$scandata['data'] = json_encode(array('scan', $scene_id));
-			if ($reply = $this->qrcode_call($scandata)) {
+			if ($reply = $this->_qrcodeCall($scandata)) {
 				is_object($reply) && $reply->exec();
 			}
 		}
-		if ($reply = $this->model('reply')->other_call($siteid, 'subscribe')) {
-			$r = $this->model('reply\\' . $reply->matter_type, $call, $reply->matter_id);
+		if ($reply = $this->model('sns\yx\event')->otherCall($siteId, 'subscribe')) {
+			$r = $this->model('sns\reply\\' . $reply->matter_type, $call, $reply->matter_id);
 			$r->exec();
 		}
 	}
 	/**
 	 * 取消关注
 	 */
-	private function unsubscribe_call($call) {
-		$siteid = $call['siteid'];
+	private function _unsubscribeCall($call) {
+		$siteId = $call['siteid'];
 		$openid = $call['from_user'];
 		$unsubscribe_at = time();
 		$rst = $this->model()->update(
-			'xxt_fans',
+			'xxt_fans_yxfan',
 			array('unsubscribe_at' => $unsubscribe_at),
-			"mpid='$siteid' and openid='$openid'"
-		);
-		$rst = $this->model()->update(
-			'xxt_member',
-			array('forbidden' => 'Y'),
-			"mpid='$siteid' and openid='$openid'"
+			"siteid='$siteId' and openid='$openid'"
 		);
 
 		return $rst;
@@ -337,15 +328,15 @@ class yx extends \member_base {
 	 * 企业号目前不支持场景二维码
 	 * 由于目前易信的场景二维码客户端无法收到回复信息，因此改为推动客户消息替代
 	 */
-	private function qrcode_call($call) {
-		$siteid = $call['siteid'];
+	private function _qrcodeCall($call) {
+		$siteId = $call['siteid'];
 		$data = json_decode($call['data']);
-		if ($reply = $this->model('sns\yx\event')->qrcode_call($siteid, $data[1])) {
+		if ($reply = $this->model('sns\yx\event')->qrcodeCall($siteId, $data[1])) {
 			if ($reply->expire_at > 0) {
 				/* 一次性二维码，用完后就删除 */
 				$this->model()->delete('xxt_call_qrcode_yx', "id=$reply->id");
 			}
-			$r = $this->model('reply\\' . $reply->matter_type, $call, $reply->matter_id);
+			$r = $this->model('sns\reply\\' . $reply->matter_type, $call, $reply->matter_id);
 			$r->exec();
 		}
 	}

@@ -16,6 +16,7 @@ app.controller('ctrlArticle', ['$scope', '$location', 'http2', function($scope, 
 	http2.get('/rest/pl/fe/matter/article/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
 		var url;
 		$scope.editing = rsp.data;
+		!$scope.editing.attachments && ($scope.editing.attachments = []);
 		url = 'http://' + location.host + '/rest/site/fe/matter?site=' + ls.site + '&id=' + ls.id + '&type=article';
 		$scope.entry = {
 			url: url,
@@ -25,19 +26,49 @@ app.controller('ctrlArticle', ['$scope', '$location', 'http2', function($scope, 
 }]);
 app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', 'mediagallery', function($scope, http2, mattersgallery, mediagallery) {
 	var modifiedData = {};
+	var r = new Resumable({
+		target: '/rest/pl/fe/matter/article/attachment/upload?site=' + $scope.siteId + '&articleid=' + $scope.id,
+		testChunks: false,
+	});
+	r.assignBrowse(document.getElementById('addAttachment'));
+	r.on('fileAdded', function(file, event) {
+		$scope.$root.progmsg = '开始上传文件';
+		$scope.$root.$apply('progmsg');
+		r.upload();
+	});
+	r.on('progress', function(file, event) {
+		$scope.$root.progmsg = '正在上传文件：' + Math.floor(r.progress() * 100) + '%';
+		$scope.$root.$apply('progmsg');
+	});
+	r.on('complete', function() {
+		var f, lastModified, posted;
+		f = r.files.pop().file;
+		lastModified = f.lastModified ? f.lastModified : (f.lastModifiedDate ? f.lastModifiedDate.getTime() : 0);
+		posted = {
+			name: f.name,
+			size: f.size,
+			type: f.type,
+			lastModified: lastModified,
+			uniqueIdentifier: f.uniqueIdentifier,
+		};
+		http2.post('/rest/pl/fe/matter/article/attachment/add?site=' + $scope.siteId + '&id=' + $scope.id, posted, function success(rsp) {
+			$scope.editing.attachments.push(rsp.data);
+			$scope.$root.progmsg = null;
+		});
+	});
 	$scope.modified = false;
 	$scope.innerlinkTypes = [{
 		value: 'article',
 		title: '单图文',
-		url: '/rest/mp/matter'
+		url: '/rest/pl/fe/matter'
 	}, {
 		value: 'news',
 		title: '多图文',
-		url: '/rest/mp/matter'
+		url: '/rest/pl/fe/matter'
 	}, {
 		value: 'channel',
 		title: '频道',
-		url: '/rest/mp/matter'
+		url: '/rest/pl/fe/matter'
 	}];
 	window.onbeforeunload = function(e) {
 		var message;
@@ -240,6 +271,16 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', 'mediagaller
 			$scope.editing.tags2.splice($scope.editing.tags2.indexOf(removed), 1);
 		});
 	});
+	$scope.delAttachment = function(index, att) {
+		$scope.$root.progmsg = '删除文件';
+		http2.get('/rest/pl/fe/matter/article/attachment/del?site=' + $scope.siteId + '&id=' + att.id, function success(rsp) {
+			$scope.editing.attachments.splice(index, 1);
+			$scope.$root.progmsg = null;
+		});
+	};
+	$scope.downloadUrl = function(att) {
+		return '/rest/site/fe/mattter/article/attachmentGet?site=' + $scope.siteId + '&articleid=' + $scope.editing.id + '&attachmentid=' + att.id;
+	};
 	http2.get('/rest/pl/fe/matter/tag/list?site=' + $scope.siteId + '&resType=article&subType=0', function(rsp) {
 		$scope.tags = rsp.data;
 	});

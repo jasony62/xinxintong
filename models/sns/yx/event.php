@@ -59,7 +59,7 @@ class event_model extends \TMS_MODEL {
 		 */
 		$q = array(
 			'id,keyword,match_mode,matter_type,matter_id',
-			'xxt_call_text',
+			'xxt_call_text_yx',
 			"siteid='$siteId'",
 		);
 		$mps = $this->query_objs_ss($q);
@@ -84,7 +84,7 @@ class event_model extends \TMS_MODEL {
 	public function otherCall($siteId, $name) {
 		$p = array(
 			'matter_type,matter_id',
-			'xxt_call_other',
+			'xxt_call_other_yx',
 			"siteid='$siteId' and name='$name'",
 		);
 		if ($reply = $this->query_obj_ss($p)) {
@@ -96,46 +96,5 @@ class event_model extends \TMS_MODEL {
 
 		}
 		return false;
-	}
-	/**
-	 * 拼接URL中的参数
-	 */
-	public function spliceParams($siteId, &$params, $mid = null, $openid = null) {
-		$pairs = array();
-		foreach ($params as $p) {
-			switch ($p->pvalue) {
-			case '{{mpid}}':
-				$v = $mpid;
-				break;
-			case '{{openid}}':
-				$v = $openid;
-				break;
-			case '{{authed_identity}}':
-				if (empty($mid)) {
-					$q = array(
-						'authed_identity',
-						'xxt_member m',
-						"m.mpid='$mpid' and m.forbidden='N' and m.openid='$openid' and m.authapi_id=$p->authapi_id",
-					);
-				} else {
-					$q = array(
-						'authed_identity',
-						'xxt_member',
-						"mpid='$mpid' and m.forbidden='N' and mid='$mid' and authapi_id=$p->authapi_id",
-					);
-				}
-
-				if (!($v = $this->query_val_ss($q))) {
-					$v = '';
-				}
-				break;
-			default:
-				$v = $p->pvalue;
-			}
-			$pairs[] = "$p->pname=$v";
-		}
-		$spliced = implode('&', $pairs);
-
-		return $spliced;
 	}
 }

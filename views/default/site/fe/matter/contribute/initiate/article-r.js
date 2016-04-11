@@ -14,6 +14,9 @@ ngApp.controller('ctrlInitiate', ['$location', '$scope', '$modal', 'http2', 'Art
         type: 'article',
         id: id
     });
+    $scope.downloadUrl = function(att) {
+        return '/rest/site/fe/matter/article/attachmentGet?site=' + siteId + '&articleid=' + $scope.editing.id + '&attachmentid=' + att.id;
+    };
     $scope.back = function(event) {
         event.preventDefault();
         location.href = '/rest/site/fe/matter/contribute/initiate?site=' + siteId + '&entry=' + $scope.entry;

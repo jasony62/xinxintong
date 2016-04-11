@@ -52,9 +52,12 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 抽奖活动
 	 */
-	public function list_action() {
-		$q = array('*', 'xxt_lottery', "siteid='{$this->siteid}'");
-
+	public function list_action($site) {
+		$q = array(
+			'*',
+			'xxt_lottery',
+			"siteid='$site'",
+		);
 		$q2['o'] = 'create_at desc';
 
 		$apps = $this->model()->query_objs_ss($q, $q2);

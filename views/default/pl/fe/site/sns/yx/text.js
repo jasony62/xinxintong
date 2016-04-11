@@ -2,9 +2,6 @@
 (function() {
 	ngApp.provider.controller('ctrlText', ['$scope', 'http2', 'matterTypes', 'mattersgallery', function($scope, http2, matterTypes, mattersgallery) {
 		var editCall = function(call) {
-			if (/text/i.test(call.matter.type)) {
-				call.matter.title = call.matter.content;
-			}
 			$scope.editing = call;
 		};
 		$scope.create = function() {
@@ -27,7 +24,7 @@
 				var index = $scope.calls.indexOf($scope.editing);
 				$scope.calls.splice(index, 1);
 				if ($scope.calls.length === 0) {
-					window.alert('empty');
+					editCall(null);
 				} else if (index === $scope.calls.length) {
 					$scope.edit($scope.calls[--index]);
 				} else {

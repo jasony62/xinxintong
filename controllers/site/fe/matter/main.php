@@ -19,11 +19,12 @@ class main extends \site\fe\base {
 	 * @param string $shareby
 	 */
 	public function index_action($site, $id, $type, $shareby = '') {
+		$this->afterSnsOAuth();
 		/* 返回页面 */
 		switch ($type) {
 		case 'article':
 		case 'custom':
-			$modelArticle = $this->model('matter\article');
+			$modelArticle = $this->model('matter\article2');
 			$article = $modelArticle->byId($id, 'title');
 			\TPL::assign('title', $article->title);
 			if ($type === 'article') {

@@ -18,6 +18,9 @@ ngApp.controller('ctrlReview', ['$location', '$scope', '$modal', 'http2', 'Artic
         event.preventDefault();
         location.href = '/rest/site/fe/matter/contribute/review?site=' + siteId + '&entry=' + $scope.entry;
     };
+    $scope.downloadUrl = function(att) {
+        return '/rest/site/fe/matter/article/attachmentGet?site=' + siteId + '&articleid=' + $scope.editing.id + '&attachmentid=' + att.id;
+    };
     $scope.Article.get(id).then(function(data) {
         $scope.editing = data;
         var ele = document.querySelector('#content>iframe');

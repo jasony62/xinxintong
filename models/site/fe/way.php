@@ -16,7 +16,7 @@ class way_model extends \TMS_MODEL {
 				if ($snsName === 'qy') {
 					continue;
 				}
-				$modelSns = \TMS_App::M('site\sns\\' . $snsName);
+				$modelSns = \TMS_App::M('sns\\' . $snsName);
 				$siteSns = $modelSns->bySite($siteId);
 				if (isset($siteSns->by_platform) && $siteSns->by_platform === 'Y') {
 					$cookieUser = $this->_bindPlatformSnsUser($siteId, $snsName, $snsUser, $cookieUser);
@@ -43,9 +43,9 @@ class way_model extends \TMS_MODEL {
 	 */
 	private function _bindSiteSnsUser($siteId, $snsName, $snsUser, $cookieUser) {
 		$modelSiteUser = \TMS_App::M('site\user\account');
-		$modelSnsUser = \TMS_App::M('site\sns\\' . $snsName . 'fan');
+		$modelSnsUser = \TMS_App::M('sns\\' . $snsName . '\fan');
 		// 已经存在的第三方认证用户
-		$authedUser = $modelSnsUser->byOpenid($siteId, $snsUser->openid, 'userid,nickname,headimgurl,sex,country,province,city');
+		$authedUser = $modelSnsUser->byOpenid($siteId, $snsUser->openid, 'userid,openid,nickname,headimgurl,sex,country,province,city');
 
 		if ($authedUser) {
 			if ($cookieUser === false) {
@@ -55,6 +55,8 @@ class way_model extends \TMS_MODEL {
 				} else {
 					/* 创建新的站点用户 */
 					$siteUser = $modelSiteUser->blank($siteId, true, array('ufrom' => $snsName));
+					/* 更新第三方认证用户和站点用户的关联关系 */
+					$modelSnsUser->modifyByOpenid($siteId, $snsUser->openid, array('userid' => $siteUser->uid));
 				}
 				/* 新的cookie用户 */
 				$cookieUser = new \stdClass;
@@ -67,19 +69,20 @@ class way_model extends \TMS_MODEL {
 					} else {
 						/* 创建新的站点用户 */
 						$siteUser = $modelSiteUser->blank($siteId, true, array('ufrom' => $snsName));
+						/* 更新第三方认证用户和站点用户的关联关系 */
+						$modelSnsUser->modifyByOpenid($siteId, $snsUser->openid, array('userid' => $siteUser->uid));
 					}
 				} else if ($authedUser->userid !== $siteUser->uid) {
 					/* 更新认证用户关联的站点用户信息 */
-					$modelSiteUser->update(
-						'xxt_site_account',
-						array('assoc_uid' => $siteUser->uid),
-						"uid='{$authedUser->userid}'"
-					);
-					$modelSnsUser->update(
-						$siteId,
-						$snsUser->openid,
-						array('userid' => $siteUser->uid)
-					);
+					if (!empty($authedUser->userid)) {
+						$modelSiteUser->update(
+							'xxt_site_account',
+							array('assoc_uid' => $siteUser->uid),
+							"uid='{$authedUser->userid}'"
+						);
+					}
+					/* 更新第三方认证用户和站点用户的关联关系 */
+					$modelSnsUser->modifyByOpenid($siteId, $snsUser->openid, array('userid' => $siteUser->uid));
 					$siteUser = $modelSiteUser->byId($authedUser->userid);
 				}
 			}

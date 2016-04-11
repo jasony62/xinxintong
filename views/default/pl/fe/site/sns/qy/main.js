@@ -25,6 +25,18 @@ app.config(['$locationProvider', '$controllerProvider', '$routeProvider', functi
                 return defer.promise;
             }
         }
+    }).when('/rest/pl/fe/site/sns/qy/relay', {
+        templateUrl: '/views/default/pl/fe/site/sns/qy/relay.html?_=2',
+        controller: 'ctrlRelay',
+        resolve: {
+            load: function($q) {
+                var defer = $q.defer();
+                loadJs('/views/default/pl/fe/site/sns/qy/relay.js', function() {
+                    defer.resolve();
+                });
+                return defer.promise;
+            }
+        }
     }).otherwise({
         templateUrl: '/views/default/pl/fe/site/sns/qy/setting.html?_=2',
         controller: 'ctrlSet',

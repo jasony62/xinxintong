@@ -142,14 +142,16 @@ if (!$mysqli->query($sql)) {
  * 文章发布过程日志
  */
 $sql = "create table if not exists xxt_article_download_log(";
-$sql .= 'id int not null auto_increment';
-$sql .= ',vid varchar(32) not null';
-$sql .= ',openid varchar(255) not null';
-$sql .= ',nickname varchar(255) not null';
-$sql .= ',download_at int not null';
-$sql .= ',mpid varchar(32) not null';
-$sql .= ',article_id int not null';
-$sql .= ',attachment_id int not null';
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",userid varchar(40) not null";
+$sql .= ",vid varchar(32) not null";
+$sql .= ",openid varchar(255) not null";
+$sql .= ",nickname varchar(255) not null";
+$sql .= ",download_at int not null";
+$sql .= ",mpid varchar(32) not null";
+$sql .= ",article_id int not null";
+$sql .= ",attachment_id int not null";
 $sql .= ",user_agent text";
 $sql .= ",client_ip varchar(40) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
@@ -184,10 +186,17 @@ if (!$mysqli->query($sql)) {
  * 外部链接
  */
 $sql = "create table if not exists xxt_link(";
-$sql .= 'id int not null auto_increment';
-$sql .= ',mpid varchar(32) not null';
-$sql .= ',creater varchar(40) not null';
-$sql .= ',create_at int not null';
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",mpid varchar(32) not null";
+$sql .= ",creater varchar(40) not null";
+$sql .= ",creater_name varchar(255) not null default ''"; //from account or fans
+$sql .= ",creater_src char(1) not null default 'A'"; //A:accouont|F:fans|M:member
+$sql .= ",create_at int not null";
+$sql .= ",modifier varchar(40) not null default ''"; //accountid/fid
+$sql .= ",modifier_name varchar(255) not null default ''"; //from account or fans
+$sql .= ",modifier_src char(1) not null default 'A'"; //A:accouont|F:fans|M:member
+$sql .= ',modify_at int not null';
 $sql .= ",public_visible char(1) not null default 'N'";
 $sql .= ',state tinyint not null default 1';
 $sql .= ',title varchar(70) not null';
@@ -227,13 +236,21 @@ if (!$mysqli->query($sql)) {
  * 文本素材
  */
 $sql = "create table if not exists xxt_text(";
-$sql .= 'id int not null auto_increment';
-$sql .= ',mpid varchar(32) not null';
-$sql .= ',creater varchar(40) not null';
-$sql .= ',create_at int not null';
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",mpid varchar(32) not null";
+$sql .= ",creater varchar(40) not null";
+$sql .= ",creater_name varchar(255) not null default ''"; //from account or fans
+$sql .= ",creater_src char(1) default 'A'"; //A:accouont|F:fans|M:member
+$sql .= ",create_at int not null";
+$sql .= ",modifier varchar(40) not null default ''"; //accountid/fid
+$sql .= ",modifier_name varchar(255) not null default ''"; //from account or fans
+$sql .= ",modifier_src char(1) default 'A'"; //A:accouont|F:fans|M:member
+$sql .= ',modify_at int not null';
 $sql .= ",public_visible char(1) not null default 'N'";
-$sql .= ',state tinyint not null default 1'; //0:stop,1:normal
-$sql .= ',content text';
+$sql .= ",state tinyint not null default 1"; //0:stop,1:normal
+$sql .= ",content text";
+$sql .= ",title text";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -425,11 +442,12 @@ if (!$mysqli->query($sql)) {
  * 回复访问控制列表
  */
 $sql = "create table if not exists xxt_matter_acl(";
-$sql .= 'id int not null auto_increment';
-$sql .= ',mpid varchar(32) not null';
-$sql .= ',matter_type char(20) not null';
-$sql .= ',matter_id varchar(40) not null';
-$sql .= ',identity varchar(100) not null';
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",mpid varchar(32) not null";
+$sql .= ",matter_type char(20) not null";
+$sql .= ",matter_id varchar(40) not null";
+$sql .= ",identity varchar(100) not null";
 $sql .= ",idsrc char(2) not null default ''";
 $sql .= ",label varchar(255) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";

@@ -11,6 +11,10 @@ class setting extends \pl\fe\matter\base {
 	 */
 	public function update_action($site, $id) {
 		$user = $this->accountUser();
+		if (false === $user) {
+			return new \ResponseTimeout();
+		}
+
 		$model = $this->model();
 		/*data*/
 		$nv = (array) $this->getPostJson();

@@ -1,33 +1,33 @@
 <?php
-namespace site\sns;
+namespace sns;
 /**
- * 易信公众号
+ * 微信公众号
  */
-class yx_model extends \TMS_MODEL {
+class wx_model extends \TMS_MODEL {
 	/**
 	 * 站点绑定的公众号
 	 */
 	public function &bySite($siteid, $fields = '*') {
 		$q = array(
 			$fields,
-			'xxt_site_yx',
+			'xxt_site_wx',
 			"siteid='$siteid'",
 		);
-		$yx = $this->query_obj_ss($q);
+		$wx = $this->query_obj_ss($q);
 
-		return $yx;
+		return $wx;
 	}
 	/**
 	 * 创建绑定的公众号配置信息
 	 */
 	public function &create($siteid) {
-		$yx = array(
+		$wx = array(
 			'siteid' => $siteid,
 		);
-		$this->insert('xxt_site_yx', $yx, false);
+		$this->insert('xxt_site_wx', $wx, false);
 
-		$yx = $this->bySite($siteid);
+		$wx = $this->bySite($siteid);
 
-		return $yx;
+		return $wx;
 	}
 }

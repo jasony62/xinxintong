@@ -30,7 +30,7 @@ abstract class Reply {
 		$r = '<xml>';
 		$r .= $this->header();
 		$r .= '<MsgType><![CDATA[text]]></MsgType>';
-		$r .= '<Content><![CDATA[' . $this->text_reply($content) . ']]></Content>';
+		$r .= '<Content><![CDATA[' . $this->_textReplace($content) . ']]></Content>';
 		$r .= '</xml> ';
 		if ($this->call['src'] === 'qy') {
 			$r = $this->encrypt($r);
@@ -67,15 +67,15 @@ abstract class Reply {
 	 * {{openid}}
 	 * {{src}}
 	 */
-	private function text_reply($content) {
+	private function _textReplace($content) {
 		$content = str_replace(
 			array(
-				'{{mpid}}',
+				'{{site}}',
 				'{{openid}}',
 				'{{src}}',
 			),
 			array(
-				$this->call['mpid'],
+				$this->call['siteid'],
 				$this->call['from_user'],
 				$this->call['src'],
 			),

@@ -20,6 +20,7 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$modal', 'http2', 'Art
     $scope.Entry = new Entry($scope.siteId, $scope.entry);
     $scope.Article.get($scope.id).then(function(data) {
         $scope.editing = data;
+        !$scope.editing.attachments && ($scope.editing.attachments = []);
     }).then(function() {
         $scope.Entry.get().then(function(data) {
             var i, j, ch, mapSubChannels = {},
@@ -124,37 +125,46 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$modal', 'http2', 'Art
             $scope.editing.subChannels.splice(i, 1);
         });
     });
-    $scope.$on('tag.xxt.combox.done', function(event, aSelected) {
-        var aNewTags = [];
-        for (var i in aSelected) {
-            var existing = false;
-            for (var j in $scope.editing.tags) {
-                if (aSelected[i].title === $scope.editing.tags[j].title) {
-                    existing = true;
-                    break;
-                }
-            }!existing && aNewTags.push(aSelected[i]);
-        }
-        http2.post('/rest/mp/matter/article/addTag?id=' + $scope.id, aNewTags, function(rsp) {
-            $scope.editing.tags = $scope.editing.tags.concat(aNewTags);
-        });
+    var r = new Resumable({
+        target: '/rest/site/fe/matter/contribute/attachment/upload?site=' + $scope.siteId + '&articleid=' + $scope.id,
+        testChunks: false,
     });
-    $scope.$on('tag.xxt.combox.add', function(event, newTag) {
-        var oNewTag = {
-            title: newTag
+    r.assignBrowse(document.getElementById('addAttachment'));
+    r.on('fileAdded', function(file, event) {
+        $scope.$root.progmsg = '开始上传文件';
+        $scope.$root.$apply('progmsg');
+        r.upload();
+    });
+    r.on('progress', function(file, event) {
+        $scope.$root.progmsg = '正在上传文件：' + Math.floor(r.progress() * 100) + '%';
+        $scope.$root.$apply('progmsg');
+    });
+    r.on('complete', function() {
+        var f, lastModified, posted;
+        f = r.files.pop().file;
+        lastModified = f.lastModified ? f.lastModified : (f.lastModifiedDate ? f.lastModifiedDate.getTime() : 0);
+        posted = {
+            name: f.name,
+            size: f.size,
+            type: f.type,
+            lastModified: lastModified,
+            uniqueIdentifier: f.uniqueIdentifier,
         };
-        http2.post('/rest/mp/matter/article/addTag?id=' + $scope.id, [oNewTag], function(rsp) {
-            $scope.editing.tags.push(oNewTag);
+        http2.post('/rest/site/fe/matter/contribute/attachment/add?site=' + $scope.siteId + '&id=' + $scope.id, posted, function success(rsp) {
+            $scope.editing.attachments.push(rsp.data);
+            $scope.$root.progmsg = null;
         });
     });
-    $scope.$on('tag.xxt.combox.del', function(event, removed) {
-        http2.post('/rest/mp/matter/article/removeTag?id=' + $scope.id, [removed], function(rsp) {
-            $scope.editing.tags.splice($scope.editing.tags.indexOf(removed), 1);
+    $scope.delAttachment = function(index, att) {
+        $scope.$root.progmsg = '删除文件';
+        http2.get('/rest/site/fe/matter/contribute/attachment/del?site=' + $scope.siteId + '&id=' + att.id, function success(rsp) {
+            $scope.editing.attachments.splice(index, 1);
+            $scope.$root.progmsg = null;
         });
-    });
-    http2.get('/rest/site/fe/matter/tag/list?site=' + $scope.siteId + '&resType=article', function(rsp) {
-        $scope.tags = rsp.data;
-    });
+    };
+    $scope.downloadUrl = function(att) {
+        return '/rest/site/fe/matter/article/attachmentGet?site=' + siteId + '&articleid=' + $scope.editing.id + '&attachmentid=' + att.id;
+    };
     $scope.finish = function() {
         $scope.editing.finished = 'Y';
         $scope.Article.update($scope.editing, 'finished');
@@ -162,7 +172,7 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$modal', 'http2', 'Art
     $scope.remove = function() {
         if (window.confirm('确认删除？')) {
             $scope.Article.remove($scope.editing).then(function(data) {
-                location.href = '/rest/app/contribute/initiate?site=' + $scope.siteId + '&entry=' + $scope.entry;
+                location.href = '/rest/site/fe/matter/contribute/initiate?site=' + $scope.siteId + '&entry=' + $scope.entry;
             });
         }
     };
@@ -193,7 +203,14 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$modal', 'http2', 'Art
             }],
             resolve: {
                 reviewers: function() {
-                    return $scope.entryApp.reviewers;
+                    var level1 = [];
+                    angular.forEach($scope.entryApp.reviewers, function(reviewer) {
+                        console.log('rrr', reviewer);
+                        if (reviewer.level === '1') {
+                            level1.push(reviewer);
+                        }
+                    });
+                    return level1;
                 }
             },
             backdrop: 'static',

@@ -69,14 +69,14 @@ class base extends \TMS_CONTROLLER {
 	/**
 	 * 检查当前用户是否已经登录，且在有效期内
 	 */
-	public function authenticated() {
+	public function isLogined() {
 		$modelWay = $this->model('site\fe\way');
 		return $modelWay->isLogined($this->siteId, $this->who);
 	}
 	/**
 	 * 进行用户认证的URL
 	 */
-	public function authenticateURL() {
+	public function loginURL() {
 		$url = '/site/fe/user/login';
 		return $url;
 	}
@@ -212,10 +212,10 @@ class base extends \TMS_CONTROLLER {
 	 * $url
 	 */
 	public function wxjssdksignpackage_action($site, $url) {
-		if ($sns = $this->model('site\sns\wx')->bySite($site)) {
-			$mpproxy = $this->model('sns\wx', $sns);
-		} else if ($sns = $this->model('site\sns\qy')->bySite($site)) {
-			$mpproxy = $this->model('sns\qy', $sns);
+		if ($sns = $this->model('sns\wx')->bySite($site)) {
+			$mpproxy = $this->model('sns\wx\proxy', $sns);
+		} else if ($sns = $this->model('sns\qy')->bySite($site)) {
+			$mpproxy = $this->model('sns\qy\proxy', $sns);
 		}
 
 		if (isset($mpproxy)) {

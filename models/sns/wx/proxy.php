@@ -47,7 +47,7 @@ class proxy_model extends \sns\proxybase {
 			 * 如果存在，断开公众号原有连接
 			 */
 			\TMS_APP::model()->update(
-				'xxt_site_yx',
+				'xxt_site_wx',
 				array('joined' => 'N'),
 				"appid='{$this->config->appid}' and appsecret='{$this->config->appsecret}'"
 			);

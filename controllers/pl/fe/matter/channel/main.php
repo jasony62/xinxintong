@@ -51,13 +51,6 @@ class main extends \pl\fe\matter\base {
 			"c.siteid='$site' and c.state=1",
 		);
 		!empty($acceptType) && $q[2] .= " and (matter_type='' or matter_type='$acceptType')";
-		/**
-		 * 仅限作者和管理员？
-		 */
-		/*if (!$this->model('mp\permission')->isAdmin($mpid, $uid, true)) {
-			$visible = $this->model()->query_value('matter_visible_to_creater', 'xxt_mpsetting', "mpid='$mpid'");
-			$visible === 'Y' && $q[2] .= " and (creater='$uid' or public_visible='Y')";
-		}*/
 		$q2['o'] = 'create_at desc';
 		$channels = $this->model()->query_objs_ss($q, $q2);
 		/* 获得子资源 */
@@ -66,7 +59,7 @@ class main extends \pl\fe\matter\base {
 			$modelAcl = $this->model('acl');
 			foreach ($channels as $c) {
 				$c->matters = $modelChn->getMatters($c->id, $c, $site);
-				$c->acl = $modelAcl->byMatter($mpid, 'channel', $c->id);
+				$c->acl = $modelAcl->byMatter($site, 'channel', $c->id);
 			}
 		}
 

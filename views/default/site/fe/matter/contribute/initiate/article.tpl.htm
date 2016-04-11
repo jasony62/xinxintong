@@ -77,9 +77,27 @@
                                 </div>
                             </div>
                             <div class='form-group'>
-                                <label class='col-md-2 control-label'>频道</label>
+                                <label class='col-md-2 control-label'>频道（可选）</label>
                                 <div class='col-md-10'>
                                     <combox evt-prefix='sub-channel' readonly=true prop='title' existing='editing.subChannels' options='entryApp.subChannels'></combox>
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <label class='col-md-2 control-label'>附件（可选）</label>
+                                <div class='col-md-10'>
+                                    <button id='addAttachment' class='btn btn-default btn-sm'>
+                                        <span class='glyphicon glyphicon-plus'></span>
+                                    </button>
+                                    <ul class='list-group' style='margin-bottom:0'>
+                                        <li class='list-group-item' ng-repeat='a in editing.attachments' ng-mouseenter="enter=true" ng-mouseleave="enter=false">
+                                            <span>
+                                                <a ng-href='{{downloadUrl(a)}}' target='_blank'>{{a.name}}</a>
+                                            </span>
+                                            <button class='btn btn-default btn-xs pull-right' ng-if='enter' ng-click='delAttachment($index,a)'>
+                                                <span class='glyphicon glyphicon-remove'></span>
+                                            </button>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
                             <div class='form-group'>
@@ -152,6 +170,7 @@
         <script src="/static/js/ui-bootstrap.min.js"></script>
         <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
         <script src="/static/js/tinymce/tinymce.min.js"></script>
+        <script src="/static/js/resumable.js"></script>
         <script src="/static/js/ui-tms.js?_=1"></script>
         <script src="/static/js/matters-xxt.js?_=1"></script>
         <script src="/views/default/site/fe/matter/contribute/base.js"></script>

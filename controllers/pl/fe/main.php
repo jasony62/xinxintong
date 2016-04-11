@@ -15,11 +15,11 @@ class main extends \TMS_CONTROLLER {
 	 * 用户登录后的首页
 	 */
 	public function index_action($ver = null) {
-		if ($ver === '2') {
+		if ($ver === '1') {
+			$this->view_action('/pl/fe/main');
+		} else {
 			\TPL::output('/pl/fe/main2');
 			exit;
-		} else {
-			$this->view_action('/pl/fe/main');
 		}
 	}
 	/**

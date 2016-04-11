@@ -26,7 +26,7 @@ $sqls[] = 'truncate xxt_site_qy';
 $sqls[] = 'truncate xxt_site_yxfan';
 $sqls[] = 'truncate xxt_site_yxfangroup';
 $sqls[] = 'truncate xxt_site_wxfan';
-$sqls[] = 'truncate xxt_site_yxfangroup';
+$sqls[] = 'truncate xxt_site_wxfangroup';
 //
 $sqls[] = 'truncate xxt_site_member_schema';
 $sqls[] = 'truncate xxt_site_member';

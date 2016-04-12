@@ -1,5 +1,5 @@
 <?php
-namespace pl\fe\site\sns\yx;
+namespace pl\fe\site\sns\wx;
 
 require_once dirname(dirname(dirname(dirname(__FILE__)))) . '/base.php';
 
@@ -13,14 +13,14 @@ class menu extends \pl\fe\base {
 	 *
 	 */
 	public function index_action() {
-		\TPL::output('/pl/fe/site/sns/yx/main');
+		\TPL::output('/pl/fe/site/sns/wx/main');
 		exit;
 	}
 	/**
 	 * 返回菜单的完整定义，或者一个菜单项的定义
 	 */
 	public function get_action($site, $k = null) {
-		$modelMenu = $this->model('sns\yx\call\menu');
+		$modelMenu = $this->model('sns\wx\call\menu');
 		if (empty($k)) {
 			$menu = $modelMenu->getMenu($site);
 			return new \ResponseData($menu);
@@ -33,7 +33,7 @@ class menu extends \pl\fe\base {
 	 * 获得当前账号菜单的可编辑版本号
 	 */
 	private function &_getVersion($mpid) {
-		$modelMenu = $this->model('sns\yx\call\menu');
+		$modelMenu = $this->model('sns\wx\call\menu');
 		$version = $modelMenu->getVersion($mpid);
 		if ($version === false) {
 			$version = new \stdClass;
@@ -74,7 +74,7 @@ class menu extends \pl\fe\base {
 			 */
 			$q = array(
 				'max(l1_pos)',
-				'xxt_call_menu_yx',
+				'xxt_call_menu_wx',
 				"siteid='$site' and l2_pos=0 and published='N'",
 			);
 			$l1_pos = $this->model()->query_val_ss($q);
@@ -84,7 +84,7 @@ class menu extends \pl\fe\base {
 				$button->l1_pos = (int) $l1_pos + 1;
 			}
 		}
-		$modelMenu = $this->model('sns\yx\call\menu');
+		$modelMenu = $this->model('sns\wx\call\menu');
 		$button = $modelMenu->createButton((array) $button);
 
 		return new \ResponseData($button);
@@ -112,7 +112,7 @@ class menu extends \pl\fe\base {
 			 */
 			$q = array(
 				'max(l2_pos)',
-				'xxt_call_menu_yx',
+				'xxt_call_menu_wx',
 				"siteid='$site' and l1_pos=$button->l1_pos and published='N'",
 			);
 			$max_l2_pos = (int) $this->model()->query_val_ss($q);
@@ -123,7 +123,7 @@ class menu extends \pl\fe\base {
 				 * 更新现有的数据
 				 */
 				$this->model()->update(
-					"update xxt_call_menu_yx set l2_pos=l2_pos+1 where siteid='$site' and published='N' and l2_pos>=$button->l2_pos");
+					"update xxt_call_menu_wx set l2_pos=l2_pos+1 where siteid='$site' and published='N' and l2_pos>=$button->l2_pos");
 			}
 		} else {
 			/**
@@ -131,13 +131,13 @@ class menu extends \pl\fe\base {
 			 */
 			$q = array(
 				'max(l2_pos)',
-				'xxt_call_menu_yx',
+				'xxt_call_menu_wx',
 				"siteid='$site' and l1_pos=$button->l1_pos and published='N'",
 			);
 			$l2_pos = (int) $this->model()->query_val_ss($q);
 			$button->l2_pos = (int) $l2_pos + 1;
 		}
-		$modelMenu = $this->model('sns\yx\call\menu');
+		$modelMenu = $this->model('sns\wx\call\menu');
 		$button = $modelMenu->createButton((array) $button);
 
 		return new \ResponseData($button);
@@ -148,20 +148,20 @@ class menu extends \pl\fe\base {
 	public function removeButton_action($site, $k) {
 		$model = $this->model();
 		$version = $this->_getVersion($site);
-		$modelMenu = $this->model('sns\yx\call\menu');
+		$modelMenu = $this->model('sns\wx\call\menu');
 		$button = $modelMenu->getButtonById($site, $k);
 		if (0 === (int) $button->l2_pos) {
 			/**
 			 * 删除一级菜单及子菜单
 			 */
 			$model->delete(
-				'xxt_call_menu_yx',
+				'xxt_call_menu_wx',
 				"siteid='$site' and published='N' and l1_pos=$button->l1_pos"
 			);
 			/**
 			 * 更新菜单项位置
 			 */
-			$sql = 'update xxt_call_menu_yx';
+			$sql = 'update xxt_call_menu_wx';
 			$sql .= ' set l1_pos=l1_pos-1';
 			$sql .= " where siteid='$site' and published='N'";
 			$sql .= " and l1_pos>$button->l1_pos";
@@ -171,13 +171,13 @@ class menu extends \pl\fe\base {
 			 * 删除二级菜单
 			 */
 			$model->delete(
-				'xxt_call_menu_yx',
+				'xxt_call_menu_wx',
 				"siteid='$site' and published='N' and menu_key='$k'"
 			);
 			/**
 			 * 更新菜单项位置
 			 */
-			$sql = 'update xxt_call_menu_yx';
+			$sql = 'update xxt_call_menu_wx';
 			$sql .= ' set l2_pos=l2_pos-1';
 			$sql .= " where siteid='$site' and published='N' and l1_pos=$button->l1_pos";
 			$sql .= " and l2_pos>$button->l2_pos";
@@ -200,7 +200,7 @@ class menu extends \pl\fe\base {
 	 */
 	public function update_action($site, $k) {
 		$nv = $this->getPostJson();
-		$modelMenu = $this->model('sns\yx\call\menu');
+		$modelMenu = $this->model('sns\wx\call\menu');
 		$version = $modelMenu->getVersion($site);
 		if ($version === false) {
 			$version = new \stdClass;
@@ -241,7 +241,7 @@ class menu extends \pl\fe\base {
 		 * 在最新版本上更新
 		 */
 		$rst = $this->model()->update(
-			'xxt_call_menu_yx',
+			'xxt_call_menu_wx',
 			$nv,
 			"siteid='$site' and menu_key='$k' and version=$version->v"
 		);
@@ -271,7 +271,7 @@ class menu extends \pl\fe\base {
 
 		$q = array(
 			'l1_pos,l2_pos',
-			'xxt_call_menu_yx',
+			'xxt_call_menu_wx',
 			"siteid='$site' and menu_key='$k' and published='N'",
 		);
 		$oldpos = $this->model()->query_obj_ss($q);
@@ -280,25 +280,25 @@ class menu extends \pl\fe\base {
 			 * 一级菜单
 			 */
 			$this->model()->update(
-				'xxt_call_menu_yx',
+				'xxt_call_menu_wx',
 				array('l1_pos' => -1),
 				"siteid='$site' and published='N' and l1_pos=$oldpos->l1_pos"
 			);
 			if ($newpos->l1_pos > $oldpos->l1_pos) {
-				$sql = 'update xxt_call_menu_yx';
+				$sql = 'update xxt_call_menu_wx';
 				$sql .= ' set l1_pos=l1_pos-1';
 				$sql .= " where siteid='$site' and published='N'";
 				$sql .= " and l1_pos>$oldpos->l1_pos and l1_pos<=$newpos->l1_pos";
 				$this->model()->update($sql);
 			} else {
-				$sql = 'update xxt_call_menu_yx';
+				$sql = 'update xxt_call_menu_wx';
 				$sql .= ' set l1_pos=l1_pos+1';
 				$sql .= " where siteid='$site' and published='N'";
 				$sql .= " and l1_pos>=$newpos->l1_pos and l1_pos<$oldpos->l1_pos";
 				$this->model()->update($sql);
 			}
 			$this->model()->update(
-				'xxt_call_menu_yx',
+				'xxt_call_menu_wx',
 				array('l1_pos' => $newpos->l1_pos),
 				"siteid='$site' and published='N' and l1_pos=-1"
 			);
@@ -307,20 +307,20 @@ class menu extends \pl\fe\base {
 			 * 在同一个一级菜单内调整二级菜单的顺序
 			 */
 			if ($newpos->l2_pos > $oldpos->l2_pos) {
-				$sql = 'update xxt_call_menu_yx';
+				$sql = 'update xxt_call_menu_wx';
 				$sql .= ' set l2_pos=l2_pos-1';
 				$sql .= " where siteid='$site' and published='N' and l1_pos=$oldpos->l1_pos";
 				$sql .= " and l2_pos>$oldpos->l2_pos and l2_pos<=$newpos->l2_pos";
 				$this->model()->update($sql);
 			} else {
-				$sql = 'update xxt_call_menu_yx';
+				$sql = 'update xxt_call_menu_wx';
 				$sql .= ' set l2_pos=l2_pos+1';
 				$sql .= " where siteid='$site' and published='N' and l1_pos=$oldpos->l1_pos";
 				$sql .= " and l2_pos>=$newpos->l2_pos and l2_pos<$oldpos->l2_pos";
 				$this->model()->update($sql);
 			}
 			$this->model()->update(
-				'xxt_call_menu_yx',
+				'xxt_call_menu_wx',
 				array('l2_pos' => $newpos->l2_pos),
 				"siteid='$site' and published='N' and menu_key='$k'"
 			);
@@ -328,20 +328,20 @@ class menu extends \pl\fe\base {
 			/**
 			 * 在不同一级菜单间调整二级菜单的顺序
 			 */
-			$sql = 'update xxt_call_menu_yx';
+			$sql = 'update xxt_call_menu_wx';
 			$sql .= ' set l2_pos=l2_pos-1';
 			$sql .= " where siteid='$site' and published='N' and l1_pos=$oldpos->l1_pos";
 			$sql .= " and l2_pos>$oldpos->l2_pos";
 			$this->model()->update($sql);
 
-			$sql = 'update xxt_call_menu_yx';
+			$sql = 'update xxt_call_menu_wx';
 			$sql .= ' set l2_pos=l2_pos+1';
 			$sql .= " where siteid='$site' and published='N' and l1_pos=$newpos->l1_pos";
 			$sql .= " and l2_pos>=$newpos->l2_pos";
 			$this->model()->update($sql);
 
 			$this->model()->update(
-				'xxt_call_menu_yx',
+				'xxt_call_menu_wx',
 				array('l1_pos' => $newpos->l1_pos, 'l2_pos' => $newpos->l2_pos),
 				"siteid='$site' and published='N' and menu_key='$k'"
 			);
@@ -355,7 +355,7 @@ class menu extends \pl\fe\base {
 		if (empty($k)) {
 			return new ParameterError('参数错误，没有指定菜单项的唯一标识！');
 		}
-		$modelMenu = $this->model('sns\yx\call\menu');
+		$modelMenu = $this->model('sns\wx\call\menu');
 		$updateOther = false; // 是否更新了关联属性，或者菜单的版本
 		$button = $modelMenu->getButtonById($site, $k);
 		/**
@@ -393,7 +393,7 @@ class menu extends \pl\fe\base {
 		 * update mapping.
 		 */
 		$rst = $this->model()->update(
-			'xxt_call_menu_yx',
+			'xxt_call_menu_wx',
 			(array) $matter,
 			"siteid='$site' and version=$version->v and menu_key='$k'"
 		);
@@ -419,7 +419,7 @@ class menu extends \pl\fe\base {
 		 */
 		$q = array(
 			'count(*)',
-			'xxt_call_menu_yx',
+			'xxt_call_menu_wx',
 			"siteid='$site' and published='N'",
 		);
 		if (0 === (int) $this->model()->query_val_ss($q)) {
@@ -436,14 +436,14 @@ class menu extends \pl\fe\base {
 		/**
 		 * 向公众号平台发布消息
 		 */
-		$yxConfig = $this->model('sns\yx')->bySite($site);
-		if ($yxConfig->joined === 'N') {
+		$wxConfig = $this->model('sns\wx')->bySite($site);
+		if ($wxConfig->joined === 'N') {
 			return new \ResponseError('公众账号未连接成功，请检查。');
 		}
-		if ($yxConfig->can_menu === 'N') {
+		if ($wxConfig->can_menu === 'N') {
 			return new \ResponseError("未开通发布菜单高级接口");
 		}
-		$proxy = $this->model("sns\yx\proxy", $yxConfig);
+		$proxy = $this->model("sns\wx\proxy", $wxConfig);
 		$rst = $proxy->menuCreate($literalMenu);
 		if ($rst[0] === false) {
 			return new \ResponseError("菜单发布失败：" . $rst[1]);
@@ -452,7 +452,7 @@ class menu extends \pl\fe\base {
 		 * 将菜单设置为发布状态
 		 */
 		$rst = $this->model()->update(
-			'xxt_call_menu_yx',
+			'xxt_call_menu_wx',
 			array('published' => 'Y'),
 			"siteid='$site' and published='N'"
 		);
@@ -463,14 +463,14 @@ class menu extends \pl\fe\base {
 	 *
 	 */
 	public function removeMenu_action($site) {
-		$yxConfig = $this->model('sns\yx')->bySite($site);
-		$proxy = $this->model("sns\yx\proxy", $yxConfig);
+		$wxConfig = $this->model('sns\wx')->bySite($site);
+		$proxy = $this->model("sns\wx\proxy", $wxConfig);
 		$rst = $proxy->menuDelete();
 		if ($rst[0] === false) {
 			return new \ResponseError("菜单删除失败：" . $rst[1]);
 		}
 
-		$this->model()->delete('xxt_call_menu_yx', "siteid='$site'");
+		$this->model()->delete('xxt_call_menu_wx', "siteid='$site'");
 
 		return new \ResponseData($rst[1]);
 	}
@@ -481,7 +481,7 @@ class menu extends \pl\fe\base {
 	 * todo 检查菜单数量，二级菜单2-5个
 	 */
 	private function _convertMenu($site) {
-		$modelMenu = $this->model('sns\yx\call\menu');
+		$modelMenu = $this->model('sns\wx\call\menu');
 
 		$buttons = array();
 		$menu = $modelMenu->getMenu($site);

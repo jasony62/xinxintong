@@ -14,6 +14,13 @@ class main extends \pl\fe\base {
 		exit;
 	}
 	/**
+	 *
+	 */
+	public function setting_action() {
+		\TPL::output('/pl/fe/site/sns/qy/main');
+		exit;
+	}
+	/**
 	 * 获得公众号配置信息
 	 */
 	public function get_action($site) {
@@ -41,5 +48,13 @@ class main extends \pl\fe\base {
 		);
 
 		return new \ResponseData($rst);
+	}
+	/**
+	 *
+	 */
+	public function checkJoin_action($site) {
+		$site = $this->model('sns\qy')->bySite($site);
+
+		return new \ResponseData($site->joined);
 	}
 }

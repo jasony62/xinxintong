@@ -22,8 +22,20 @@
                 <button class='btn btn-success' ng-disabled="wx.joined==='Y'" ng-click="checkJoin()">
                 检查<span ng-show="stateOfCheckJoin.running">{{'('+stateOfCheckJoin.count+')'}}</span>
                 </button>
-                <button class='btn btn-default' ng-disabled="wx.joined==='N'" ng-click="reset('joined')">重置</button>
+                <button class='btn btn-default' ng-disabled="wx.joined==='N'" ng-click="reset()">重置</button>
                 <p class="help-block">【检查】连接是否成功，成功后填写【AppId】和【AppSecret】并保存。</p>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>AppId</label>
+            <div class='col-md-10'>
+                <input type='text' class='form-control' ng-model="wx.appid" tms-auto-update tms-wait=1000 tms-update="update('appid')">
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>AppSecret</label>
+            <div class='col-md-10'>
+                <input type='text' class='form-control' ng-model="wx.appsecret" tms-auto-update tms-wait=1000 tms-update="update('appsecret')">
             </div>
         </div>
         <div class='form-group'>
@@ -55,18 +67,6 @@
             <label class='col-md-2 control-label'>商户号</label>
             <div class='col-md-10'>
                 <input type='text' class='form-control' ng-model='wx.mchid' tms-auto-update tms-wait=1000 tms-update="update('mchid')">
-            </div>
-        </div>
-        <div class='form-group'>
-            <label class='col-md-2 control-label'>AppId</label>
-            <div class='col-md-10'>
-                <input type='text' class='form-control' ng-model="wx.appid" tms-auto-update tms-wait=1000 tms-update="update('appid')">
-            </div>
-        </div>
-        <div class='form-group'>
-            <label class='col-md-2 control-label'>AppSecret</label>
-            <div class='col-md-10'>
-                <input type='text' class='form-control' ng-model="wx.appsecret" tms-auto-update tms-wait=1000 tms-update="update('appsecret')">
             </div>
         </div>
         <div class='form-group'>

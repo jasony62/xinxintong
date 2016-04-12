@@ -49,4 +49,12 @@ class main extends \pl\fe\base {
 
 		return new \ResponseData($rst);
 	}
+	/**
+	 *
+	 */
+	public function checkJoin_action($site) {
+		$site = $this->model('sns\wx')->bySite($site);
+
+		return new \ResponseData($site->joined);
+	}
 }

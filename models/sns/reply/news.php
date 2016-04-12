@@ -35,7 +35,7 @@ class news_model extends MultiArticleReply {
 			if ($m->access_control === 'Y' && $news->filter_by_matter_acl === 'Y') {
 				$inacl = false;
 				foreach ($members as $member) {
-					if ($modelAcl->canAccessMatter($m->mpid, $m->type, $m->id, $member, $m->authapis)) {
+					if ($modelAcl->canAccessMatter($m->siteid, $m->type, $m->id, $member, $m->authapis)) {
 						$inacl = true;
 						break;
 					}
@@ -44,7 +44,7 @@ class news_model extends MultiArticleReply {
 					continue;
 				}
 			}
-			$m->url = \TMS_APP::model('matter\\' . $m->type)->getEntryUrl($siteId, $m->id, $openid);
+			$m->entryURL = \TMS_APP::model('matter\\' . $m->type)->getEntryUrl($siteId, $m->id, $openid);
 			$matters2[] = $m;
 		}
 

@@ -20,6 +20,10 @@ class channel_model extends MultiArticleReply {
 		if (!empty($matters) && !empty($channel->fixed_title)) {
 			$matters[0]->title = $channel->fixed_title;
 		}
+		$openid = $this->call['from_user'];
+		foreach ($matters as &$matter) {
+			$matter->entryURL = $url = \TMS_APP::model('matter\\' . $matter->type)->getEntryUrl($siteId, $matter->id, $openid, $this->call);
+		}
 
 		return $matters;
 	}

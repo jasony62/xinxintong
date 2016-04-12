@@ -24,5 +24,16 @@
 			$scope.yx.qrcode = '';
 			$scope.update('qrcode');
 		};
+		$scope.checkJoin = function() {
+			http2.get('/rest/pl/fe/site/sns/yx/checkJoin?site=' + $scope.siteId, function(rsp) {
+				if (rsp.data === 'Y') {
+					$scope.yx.joined = 'Y';
+				}
+			});
+		};
+		$scope.reset = function() {
+			$scope.yx.joined = 'N';
+			$scope.update('joined');
+		};
 	}]);
 })();

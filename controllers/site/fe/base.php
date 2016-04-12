@@ -94,19 +94,19 @@ class base extends \TMS_CONTROLLER {
 
 		switch ($snsName) {
 		case 'qy':
-			$mpproxy = $this->model('sns\qy\proxy', $snsConfig);
-			$oauthUrl = $mpproxy->oauthUrl($ruri, 'snsOAuth-' . $snsName);
+			$snsProxy = $this->model('sns\qy\proxy', $snsConfig);
+			$oauthUrl = $snsProxy->oauthUrl($ruri, 'snsOAuth-' . $snsName);
 			break;
 		case 'wx':
 			if ($snsConfig->can_oauth === 'Y') {
-				$mpproxy = $this->model('sns\wx\proxy', $snsConfig);
-				$oauthUrl = $mpproxy->oauthUrl($ruri, 'snsOAuth-' . $snsName, 'snsapi_userinfo');
+				$snsProxy = $this->model('sns\wx\proxy', $snsConfig);
+				$oauthUrl = $snsProxy->oauthUrl($ruri, 'snsOAuth-' . $snsName, 'snsapi_userinfo');
 			}
 			break;
 		case 'yx':
 			if ($snsConfig->can_oauth === 'Y') {
-				$mpproxy = $this->model('sns\yx\proxy', $snsConfig);
-				$oauthUrl = $mpproxy->oauthUrl($ruri, 'snsOAuth-' . $snsName);
+				$snsProxy = $this->model('sns\yx\proxy', $snsConfig);
+				$oauthUrl = $snsProxy->oauthUrl($ruri, 'snsOAuth-' . $snsName);
 			}
 			break;
 		}
@@ -126,8 +126,8 @@ class base extends \TMS_CONTROLLER {
 	 */
 	protected function snsOAuthUserByCode($site, $code, $snsName) {
 		$snsConfig = $this->model('site\sns\\' . $snsName)->bySite($site);
-		$mpproxy = $this->model('sns\\' . $snsName, $snsConfig);
-		$rst = $mpproxy->getOAuthUser($code);
+		$snsProxy = $this->model('sns\\' . $snsName, $snsConfig);
+		$rst = $snsProxy->getOAuthUser($code);
 		$rst[0] === false && die('oauth2 failed:' . $rst[1]);
 		/**
 		 * 将openid保存在cookie，可用于进行用户身份绑定
@@ -213,13 +213,13 @@ class base extends \TMS_CONTROLLER {
 	 */
 	public function wxjssdksignpackage_action($site, $url) {
 		if ($sns = $this->model('sns\wx')->bySite($site)) {
-			$mpproxy = $this->model('sns\wx\proxy', $sns);
+			$snsProxy = $this->model('sns\wx\proxy', $sns);
 		} else if ($sns = $this->model('sns\qy')->bySite($site)) {
-			$mpproxy = $this->model('sns\qy\proxy', $sns);
+			$snsProxy = $this->model('sns\qy\proxy', $sns);
 		}
 
-		if (isset($mpproxy)) {
-			$rst = $mpproxy->getJssdkSignPackage(urldecode($url));
+		if (isset($snsProxy)) {
+			$rst = $snsProxy->getJssdkSignPackage(urldecode($url));
 			header('Content-Type: text/javascript');
 			if ($rst[0] === false) {
 				die("alert('{$rst[1]}');");

@@ -54,6 +54,14 @@ app.config(['$locationProvider', '$controllerProvider', '$routeProvider', functi
 app.controller('ctrlQy', ['$scope', '$location', 'http2', function($scope, $location, http2) {
     $scope.subView = '';
     $scope.siteId = $location.search().site;
+    $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+        var subView = currentRoute.match(/([^\/]+)\?/);
+        if (subView) {
+            $scope.subView = subView[1];
+        } else {
+            $scope.subView = '';
+        }
+    });
     http2.get('/rest/pl/fe/site/sns/qy/get?site=' + $scope.siteId, function(rsp) {
         $scope.qy = rsp.data;
     });

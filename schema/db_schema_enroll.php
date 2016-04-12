@@ -16,7 +16,7 @@ $sql .= ",modify_at int not null";
 $sql .= ",public_visible char(1) not null default 'N'";
 $sql .= ",shift2pc char(1) not null default 'N'"; //
 $sql .= ",can_taskcode char(1) not null default 'N'";
-$sql .= ',state tinyint not null default 1'; //0:删除,1:配置,2:运行
+$sql .= ",state tinyint not null default 1"; //0:删除,1:配置,2:运行
 $sql .= ",title varchar(255) not null default ''";
 $sql .= ',pic text'; // 分享或生成链接时的图片
 $sql .= ",summary varchar(240) not null default ''"; // 分享或生成链接时的摘要
@@ -60,6 +60,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = 'create table if not exists xxt_enroll_page(';
 $sql .= 'id int not null auto_increment';
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',mpid varchar(32) not null';
 $sql .= ',aid varchar(40) not null';
 $sql .= ",creater varchar(40) not null default ''";
@@ -102,6 +103,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = 'create table if not exists xxt_enroll_round(';
 $sql .= 'id int not null auto_increment';
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',rid varchar(13) not null';
 $sql .= ',aid varchar(40) not null';
 $sql .= ',mpid varchar(32) not null';
@@ -122,6 +124,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_enroll_receiver(";
 $sql .= 'id int not null auto_increment';
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',mpid varchar(32) not null';
 $sql .= ',aid varchar(40) not null';
 $sql .= ',identity varchar(100) not null';

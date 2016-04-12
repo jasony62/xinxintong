@@ -152,6 +152,82 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($lid);
 	}
 	/**
+	 *
+	 * @param int $id mission'is
+	 */
+	public function createByMission_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelMis = $this->model('mission');
+		$mission = $modelMis->byId($id);
+		/* lottery */
+		$lid = uniqid();
+		$current = time();
+		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
+
+		$newone['siteid'] = $site->id;
+		$newone['id'] = $lid;
+		$newone['title'] = '新抽奖活动';
+		$newone['creater'] = $user->id;
+		$newapp['creater_src'] = $user->src;
+		$newone['creater_name'] = $user->name;
+		$newone['create_at'] = $current;
+		$newapp['modifier'] = $user->id;
+		$newapp['modifier_src'] = $user->src;
+		$newapp['modifier_name'] = $user->name;
+		$newapp['modify_at'] = $current;
+		$newone['pic'] = $site->heading_pic;
+		$newone['start_at'] = $current;
+		$newone['end_at'] = $current + 86400;
+		$newone['nonfans_alert'] = "请先关注公众号，再参与抽奖！";
+		$newone['nochance_alert'] = "您的抽奖机会已经用光了，下次再来试试吧！";
+		$newone['pretaskdesc'] = "请设置前置任务";
+		/**
+		 * 创建定制页
+		 */
+		$codeModel = $this->model('code/page');
+		$page = $codeModel->create($user->id);
+		$data = array(
+			'html' => '<button ng-click="play()">开始</button>',
+			'css' => '#pattern button{width:100%;font-size:1.2em;padding:.5em 0}',
+			'js' => '',
+		);
+		$codeModel->modify($page->id, $data);
+		$newone['page_id'] = $page->id;
+
+		$this->model()->insert('xxt_lottery', $newone, false);
+		/**
+		 * default award
+		 */
+		$aid = uniqid();
+		$award['siteid'] = $site->id;
+		$award['lid'] = $lid;
+		$award['aid'] = $aid;
+		$award['title'] = '谢谢参与';
+		$award['prob'] = 100;
+		$award['type'] = 0;
+		$this->model()->insert('xxt_lottery_award', $award, false);
+		/**
+		 * plate
+		 */
+		$plate['siteid'] = $site->id;
+		$plate['lid'] = $lid;
+		for ($i = 0; $i < 12; $i++) {
+			$plate["a$i"] = $aid;
+		}
+		$this->model()->insert('xxt_lottery_plate', $plate, false);
+		$app = $this->model('matter\lottery')->byId($lid);
+		/*记录操作日志*/
+		$app->type = 'lottery';
+		$this->model('log')->matterOp($site->id, $user, $app, 'C');
+		/*记录和任务的关系*/
+		$modelMis->addMatter($user, $site, $id, $app);
+
+		return new \ResponseData($lid);
+	}
+	/**
 	 * 更新抽奖活动的基本设置信息
 	 */
 	public function update_action($site, $app) {

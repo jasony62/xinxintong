@@ -180,7 +180,7 @@ app.controller('ctrlConsole', ['$scope', '$modal', 'http2', function($scope, $mo
             http2.post(url, config, function(rsp) {
                 location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
             });
-        })
+        });
     };
     $scope.addGroup = function() {
         http2.get('/rest/pl/fe/matter/group/create?site=' + $scope.siteId, function(rsp) {

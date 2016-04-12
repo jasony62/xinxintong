@@ -41,10 +41,11 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 返回一个分组活动
 	 */
-	public function get_action($site, $id) {
-		$uid = \TMS_CLIENT::get_client_uid();
-		$app = $this->model('matter\group')->byId($id);
-		$app->uid = $uid;
+	public function get_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$app = $this->model('matter\group')->byId($app);
 
 		return new \ResponseData($app);
 	}
@@ -74,8 +75,7 @@ class main extends \pl\fe\matter\base {
 	 * @param string $template template's name
 	 */
 	public function create_action($site) {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -112,18 +112,17 @@ class main extends \pl\fe\matter\base {
 	 * @param int $id mission'is
 	 */
 	public function createByMission_action($site, $id) {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$mission = $modelMis->byId($id);
 		$modelMis = $this->model('mission');
+		$mission = $modelMis->byId($id);
 		$current = time();
 
 		/*create app*/
 		$aid = uniqid();
-		$entryRule = $this->_addBlankPage($site, $aid);
+		//$entryRule = $this->_addBlankPage($site, $aid);
 		$newapp['siteid'] = $site;
 		$newapp['id'] = $aid;
 		$newapp['title'] = '新分组活动';
@@ -186,6 +185,37 @@ class main extends \pl\fe\matter\base {
 		}
 
 		return new \ResponseData($rst);
+	}
+	/**
+	 * 添加空页面
+	 */
+	private function _addBlankPage($siteId, $aid) {
+		$current = time();
+		$modelPage = $this->model('app\enroll\page');
+		/* form page */
+		$page = array(
+			'title' => '登记信息页',
+			'type' => 'I',
+			'name' => 'z' . $current,
+		);
+		$page = $modelPage->add($siteId, $aid, $page);
+		/*entry rules*/
+		$entryRule = array(
+			'otherwise' => array('entry' => $page->name),
+			'member' => array('entry' => $page->name, 'enroll' => 'Y', 'remark' => 'Y'),
+			'member_outacl' => array('entry' => $page->name, 'enroll' => 'Y', 'remark' => 'Y'),
+			'fan' => array('entry' => $page->name, 'enroll' => 'Y', 'remark' => 'Y'),
+			'nonfan' => array('entry' => '$mp_follow', 'enroll' => '$mp_follow'),
+		);
+		/* result page */
+		$page = array(
+			'title' => '查看结果页',
+			'type' => 'V',
+			'name' => 'z' . ($current + 1),
+		);
+		$modelPage->add($siteId, $aid, $page);
+
+		return $entryRule;
 	}
 	/**
 	 * 根据模板生成页面

@@ -75,7 +75,8 @@ class mission_model extends TMS_MODEL {
 			'xxt_mission_matter',
 			"siteid='$siteId' and mission_id=$id",
 		);
-		$mms = $this->query_objs_ss($q);
+		$q2 = array('o' => 'create_at desc');
+		$mms = $this->query_objs_ss($q, $q2);
 		foreach ($mms as &$mm) {
 			$matter = \TMS_APP::M('matter\\' . $mm->matter_type)->byId($mm->matter_id);
 			$matter->type = $mm->matter_type;

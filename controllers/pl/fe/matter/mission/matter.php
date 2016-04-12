@@ -9,11 +9,11 @@ class matter extends \pl\fe\matter\base {
 	/**
 	 * 活的任务下的素材
 	 *
+	 * @param string $site
 	 * @param int $id
 	 */
 	public function list_action($site, $id) {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 

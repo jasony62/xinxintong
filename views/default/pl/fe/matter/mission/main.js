@@ -18,13 +18,12 @@ app.controller('ctrlApp', ['$scope', '$location', 'http2', function($scope, $loc
 			$scope.subView = 'matter';
 		}
 	});
-	http2.get('/rest/pl/fe/matter/mission/get?id=' + $scope.id, function(rsp) {
+	http2.get('/rest/pl/fe/matter/mission/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
 		$scope.editing = rsp.data;
 		$scope.editing.type = 'mission';
 	});
 }]);
-app.controller('ctrlSetting', ['$scope', 'http2', 'matterTypes', '$modal', 'mediagallery', function($scope, http2, matterTypes, $modal, mediagallery) {
-	$scope.matterTypes = matterTypes;
+app.controller('ctrlSetting', ['$scope', 'http2', '$modal', function($scope, http2, $modal) {
 	var modifiedData = {};
 	$scope.modified = false;
 	window.onbeforeunload = function(e) {
@@ -55,7 +54,7 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'matterTypes', '$modal', 'medi
 				$scope.update('pic');
 			}
 		};
-		mediagallery.open($scope.siteid, options);
+		mediagallery.open($scope.siteId, options);
 	};
 	$scope.removePic = function() {
 		var nv = {
@@ -66,22 +65,104 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'matterTypes', '$modal', 'medi
 		});
 	};
 }]);
-app.controller('ctrlMatter', ['$scope', 'http2', function($scope, http2) {
-	$scope.createArticle = function() {
+app.controller('ctrlMatter', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+	$scope.addArticle = function() {
 		http2.get('/rest/pl/fe/matter/article/createByMission?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
 			location.href = '/rest/pl/fe/matter/article?site=' + $scope.siteId + '&id=' + rsp.data.id;
 		});
 	};
-	$scope.createEnroll = function() {
-		http2.get('/rest/pl/fe/matter/enroll/createByMission?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
-			location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
+	$scope.addEnroll = function() {
+		$modal.open({
+			templateUrl: 'templatePicker.html',
+			size: 'lg',
+			backdrop: 'static',
+			windowClass: 'auto-height',
+			controller: ['$scope', '$modalInstance', function($scope2, $mi) {
+				$scope2.data = {};
+				$scope2.cancel = function() {
+					$mi.dismiss();
+				};
+				$scope2.blank = function() {
+					$mi.close();
+				};
+				$scope2.ok = function() {
+					$mi.close($scope2.data);
+				};
+				$scope2.chooseScenario = function() {};
+				$scope2.chooseTemplate = function() {
+					if (!$scope2.data.template) return;
+					var url;
+					url = '/rest/pl/fe/matter/enroll/template/config';
+					url += '?scenario=' + $scope2.data.scenario.name;
+					url += '&template=' + $scope2.data.template.name;
+					http2.get(url, function(rsp) {
+						var elSimulator, url;
+						$scope2.data.simpleSchema = rsp.data.simpleSchema ? rsp.data.simpleSchema : '';
+						$scope2.pages = rsp.data.pages;
+						$scope2.data.selectedPage = $scope2.pages[0];
+						elSimulator = document.querySelector('#simulator');
+						url = 'http://' + location.host;
+						url += '/rest/app/enroll/template';
+						url += '?scenario=' + $scope2.data.scenario.name;
+						url += '&template=' + $scope2.data.template.name;
+						url += '&_=' + (new Date()).getTime();
+						elSimulator.src = url;
+						elSimulator.onload = function() {
+							$scope.$apply(function() {
+								$scope2.choosePage();
+							});
+						};
+					});
+				};
+				$scope2.choosePage = function() {
+					var elSimulator, page;
+					elSimulator = document.querySelector('#simulator');
+					config = {
+						simpleSchema: $scope2.data.simpleSchema
+					};
+					page = $scope2.data.selectedPage.name;
+					elSimulator.contentWindow.renew(page, config);
+				};
+				http2.get('/rest/pl/fe/matter/enroll/template/list', function(rsp) {
+					$scope2.templates = rsp.data;
+				});
+			}]
+		}).result.then(function(data) {
+			var url, config;
+			url = '/rest/pl/fe/matter/enroll/createByMission?site=' + $scope.siteId + '&id=' + rsp.data.id;
+			config = {};
+			if (data) {
+				url += '&scenario=' + data.scenario.name;
+				url += '&template=' + data.template.name;
+				if (data.simpleSchema && data.simpleSchema.length) {
+					config.simpleSchema = data.simpleSchema;
+				}
+			}
+			http2.post(url, config, function(rsp) {
+				location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
+			});
+		});
+	};
+	$scope.addGroup = function() {
+		http2.get('/rest/pl/fe/matter/group/createByMission?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
+			location.href = '/rest/pl/fe/matter/group?site=' + $scope.siteId + '&id=' + rsp.data.id;
+		});
+	};
+	$scope.addLottery = function() {
+		http2.get('/rest/pl/fe/matter/lottery/createByMission?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
+			location.href = '/rest/pl/fe/matter/lottery?site=' + $scope.siteId + '&id=' + rsp.data.id;
 		});
 	};
 	$scope.open = function(matter) {
-		if (matter.type === 'article') {
-			location.href = '/rest/pl/fe/matter/article?site=' + $scope.siteId + '&id=' + matter.id;
-		} else if (matter.type === 'enroll') {
-			location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + matter.id;
+		var type = matter.type,
+			id = matter.id;
+		switch (type) {
+			case 'article':
+			case 'enroll':
+			case 'group':
+			case 'lottery':
+				location.href = '/rest/pl/fe/matter/' + type + '?id=' + id + '&site=' + $scope.siteId;
+				break;
 		}
 	};
 	$scope.fetch = function() {

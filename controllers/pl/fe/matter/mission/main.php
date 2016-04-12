@@ -17,8 +17,7 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function get_action($id) {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$mission = $this->model('mission')->byId($id);
@@ -29,8 +28,7 @@ class main extends \pl\fe\matter\base {
 	 * 任务列表
 	 */
 	public function list_action($site) {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$modelMis = $this->model('mission');
@@ -42,8 +40,7 @@ class main extends \pl\fe\matter\base {
 	 * 新建任务
 	 */
 	public function create_action($site) {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 

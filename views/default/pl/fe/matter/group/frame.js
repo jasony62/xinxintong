@@ -71,7 +71,7 @@ ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($sco
 		}
 		$scope.modified = true;
 	};
-	http2.get('/rest/pl/fe/matter/group/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
+	http2.get('/rest/pl/fe/matter/group/get?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
 		var app;
 		app = rsp.data;
 		app.tags = (!app.tags || app.tags.length === 0) ? [] : app.tags.split(',');

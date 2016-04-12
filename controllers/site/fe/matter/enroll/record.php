@@ -11,7 +11,7 @@ class resumableAliOss {
 
 	public function __construct($site, $dest, $domain = '_user') {
 
-		$this->mpid = $site;
+		$this->siteId = $site;
 
 		$this->dest = $dest;
 
@@ -29,7 +29,7 @@ class resumableAliOss {
 	 */
 	private function createFileFromChunks($temp_dir, $fileName, $chunkSize, $totalSize) {
 		/*检查文件是否都已经上传*/
-		$fs = \TMS_APP::M('fs/saestore', $this->mpid);
+		$fs = \TMS_APP::M('fs/saestore', $this->siteId);
 		$total_files = 0;
 		$rst = $fs->getListByPath($temp_dir);
 		foreach ($rst['files'] as $file) {
@@ -39,7 +39,7 @@ class resumableAliOss {
 		}
 		/*如果都已经上传，合并分块文件*/
 		if ($total_files * $chunkSize >= ($totalSize - $chunkSize + 1)) {
-			$fsAli = \TMS_APP::M('fs/alioss', $this->mpid, 'xinxintong', $this->domain);
+			$fsAli = \TMS_APP::M('fs/alioss', $this->siteId, 'xinxintong', $this->domain);
 			// 合并后的临时文件
 			$tmpfname = tempnam(sys_get_temp_dir(), 'xxt');
 			$handle = fopen($tmpfname, "w");
@@ -63,7 +63,7 @@ class resumableAliOss {
 		$temp_dir = $_POST['resumableIdentifier'];
 		$dest_file = $temp_dir . '/' . $_POST['resumableFilename'] . '.part' . $_POST['resumableChunkNumber'];
 		$content = base64_decode(preg_replace('/data:(.*?)base64\,/', '', $_POST['resumableChunkContent']));
-		$fsSae = \TMS_APP::M('fs/saestore', $this->mpid);
+		$fsSae = \TMS_APP::M('fs/saestore', $this->siteId);
 		if (!$fsSae->write($dest_file, $content)) {
 			return array(false, 'Error saving (move_uploaded_file) chunk ' . $_POST['resumableChunkNumber'] . ' for file ' . $_POST['resumableFilename']);
 		} else {
@@ -166,7 +166,7 @@ class record extends base {
 		/**
 		 * 通知登记活动的管理员
 		 */
-		!empty($app->receiver_page) && $this->notifyAdmin($site, $app, $ek, $user);
+		//!empty($app->receiver_page) && $this->_notifyAdmin($site, $app, $ek, $user);
 
 		return new \ResponseData($ek);
 	}
@@ -194,7 +194,7 @@ class record extends base {
 	 * 通知活动管理员
 	 * @todo 应该改为模版消息
 	 */
-	private function notifyAdmin($site, $app, $ek, $user) {
+	private function _notifyAdmin($site, $app, $ek, $user) {
 		$admins = \TMS_APP::model('acl')->enrollReceivers($site, $app->id);
 		if (false !== ($key = array_search($user->openid, $admins))) {
 			/* 管理员是登记人，不再通知 */

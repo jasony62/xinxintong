@@ -102,6 +102,34 @@ class base extends \site\fe\base {
 		return $members;
 	}
 	/**
+	 *
+	 */
+	private function __upgradeOldMembers($siteId, $userid, $openid) {
+		$model = $this->model();
+		$members = array();
+		$q = array(
+			'authed_identity,authapi_id',
+			'xxt_member',
+			"mpid='$siteId' and forbidden='N' and openid='$openid'",
+		);
+		if ($memberOlds = $model->query_objs_ss($q)) {
+			foreach ($memberOlds as $memberOld) {
+				$q = array(
+					'*',
+					'xxt_site_member',
+					"siteid='{$siteId}' and schema_id='{$memberOld->authapi_id}' and identity='{$memberOld->authed_identity}' and forbidden='N'",
+				);
+				if ($member = $model->query_obj_ss($q)) {
+					$model->update('xxt_site_member', array('userid' => $userid), "id='{$member->id}'");
+					$member->userid = $userid;
+					$members[] = $member;
+				}
+			}
+		}
+
+		return $members;
+	}
+	/**
 	 * 访问控制设置
 	 *
 	 * 检查当前用户是否为认证用户
@@ -116,6 +144,22 @@ class base extends \site\fe\base {
 		if (empty($members)) {
 			/* 处理版本迁移数据 */
 			$members = $this->__upgradeCookieMembers($siteId, $userid, $aMemberSchemas);
+			if (empty($members)) {
+				if ($this->userAgent() === 'wx') {
+					if (!isset($this->who->sns->wx)) {
+						$openid = $this->who->sns->wx->openid;
+					} else if (!isset($this->who->sns->qy)) {
+						$openid = $this->who->sns->qy->openid;
+					}
+				} else if ($this->userAgent() === 'yx') {
+					if (isset($this->who->sns->yx)) {
+						$openid = $this->who->sns->yx->openid;
+					}
+				}
+				if (isset($openid)) {
+					$members = $this->__upgradeOldMembers($siteId, $userid, $openid);
+				}
+			}
 		}
 		if (empty($members)) {
 			/**

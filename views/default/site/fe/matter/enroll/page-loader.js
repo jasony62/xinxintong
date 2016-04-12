@@ -13,8 +13,8 @@ window.loading = {
 				"xxt-share": "/static/js/xxt.share",
 				"xxt-image": "/static/js/xxt.image",
 				"xxt-geo": "/static/js/xxt.geo",
-				"enroll-directive": "/views/default/app/enroll/directive",
-				"enroll-common": "/views/default/app/enroll/common",
+				"enroll-directive": "/views/default/site/fe/matter/enroll/directive",
+				"enroll-common": "/views/default/site/fe/matter/enroll/common",
 			},
 			shim: {
 				"angular": {
@@ -36,24 +36,26 @@ window.loading = {
 					exports: "enroll-directive"
 				},
 			},
-			deps: ['/views/default/app/enroll/page.js?_=1']
+			deps: ['/views/default/site/fe/matter/enroll/page.js?_=1']
 		});
 	}
 };
 if (/MicroMessenger/i.test(navigator.userAgent)) {
-	var mpid = location.search.match(/[\?&]mpid=([^&]*)/)[1];
+	var site = location.search.match(/[\?&]site=([^&]*)/)[1];
 	requirejs(["http://res.wx.qq.com/open/js/jweixin-1.0.0.js"], function(wx) {
-		window.wx = wx;
 		var xhr = new XMLHttpRequest();
-		xhr.open('GET', "/rest/mi/matter/wxjssdksignpackage?mpid=" + mpid + "&url=" + encodeURIComponent(location.href.split('#')[0]), true);
+		xhr.open('GET', "/rest/site/fe/matter/enroll/wxjssdksignpackage?site=" + site + "&url=" + encodeURIComponent(location.href.split('#')[0]), true);
 		xhr.onreadystatechange = function() {
 			if (xhr.readyState == 4) {
 				if (xhr.status >= 200 && xhr.status < 400) {
 					try {
 						eval("(" + xhr.responseText + ')');
-						signPackage.debug = false;
-						signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
-						wx.config(signPackage);
+						if (signPackage) {
+							window.wx = wx;
+							signPackage.debug = false;
+							signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
+							wx.config(signPackage);
+						}
 						window.loading.load();
 					} catch (e) {
 						alert('local error:' + e.toString());

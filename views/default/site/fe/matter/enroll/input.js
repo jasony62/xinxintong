@@ -223,7 +223,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
     app.directive('tmsFileInput', function($q) {
         var r, onSubmit;
         r = new Resumable({
-            target: '/rest/site/fe/matter/enroll/record/uploadFile?mpid=' + LS.p.mpid + '&aid=' + LS.p.aid,
+            target: '/rest/site/fe/matter/enroll/record/uploadFile?site=' + LS.p.site + '&aid=' + LS.p.aid,
             testChunks: false,
             chunkSize: 512 * 1024
         });
@@ -384,7 +384,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
             }
         };
         $scope.getMyLocation = function(prop) {
-            window.xxt.geo.getAddress($http, $q.defer(), $scope.mpid).then(function(data) {
+            window.xxt.geo.getAddress($http, $q.defer(), LS.p.site).then(function(data) {
                 if (data.errmsg === 'ok')
                     $scope.data[prop] = data.address;
                 else

@@ -19,7 +19,10 @@ class main extends \site\fe\base {
 	 * @param string $shareby
 	 */
 	public function index_action($site, $id, $type, $shareby = '') {
-		$this->afterSnsOAuth();
+		if (!$this->afterSnsOAuth()) {
+			/* 检查是否需要第三方社交帐号OAuth */
+			$this->_requireSnsOAuth($site);
+		}
 		/* 返回页面 */
 		switch ($type) {
 		case 'article':
@@ -41,6 +44,38 @@ class main extends \site\fe\base {
 			break;
 		}
 		exit;
+	}
+	/**
+	 * 检查是否需要第三方社交帐号认证
+	 * 检查条件：
+	 * 0、应用是否设置了需要认证
+	 * 1、站点是否绑定了第三方社交帐号认证
+	 * 2、平台是否绑定了第三方社交帐号认证
+	 * 3、用户客户端是否可以发起认证
+	 *
+	 * @param string $site
+	 */
+	private function _requireSnsOAuth($siteid) {
+		if ($this->userAgent() === 'wx') {
+			if (!isset($this->who->sns->wx)) {
+				if ($wxConfig = $this->model('sns\wx')->bySite($siteid)) {
+					$this->snsOAuth($wxConfig, 'wx');
+				}
+			}
+			if (!isset($this->who->sns->qy)) {
+				if ($qyConfig = $this->model('sns\qy')->bySite($siteid)) {
+					$this->snsOAuth($qyConfig, 'qy');
+				}
+			}
+		} else if ($this->userAgent() === 'yx') {
+			if (!isset($this->who->sns->yx)) {
+				if ($yxConfig = $this->model('sns\yx')->bySite($siteid)) {
+					$this->snsOAuth($yxConfig, 'yx');
+				}
+			}
+		}
+
+		return false;
 	}
 	/**
 	 * 记录访问日志

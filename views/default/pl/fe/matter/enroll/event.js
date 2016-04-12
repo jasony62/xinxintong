@@ -7,7 +7,7 @@
 			var p = {
 				entry_rule: encodeURIComponent(JSON.stringify($scope.app.entry_rule))
 			};
-			http2.post('/rest/pl/fe/matter/enroll/update?site=' + $scope.siteId + '&id=' + $scope.id, p, function(rsp) {
+			http2.post('/rest/pl/fe/matter/enroll/update?site=' + $scope.siteId + '&app=' + $scope.id, p, function(rsp) {
 				$scope.persisted = angular.copy($scope.app);
 			});
 		};

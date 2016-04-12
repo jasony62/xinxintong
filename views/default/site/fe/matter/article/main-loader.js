@@ -31,7 +31,6 @@ window.loading = {
 if (/MicroMessenger/i.test(navigator.userAgent)) {
 	var siteId = location.search.match(/[\?&]site=([^&]*)/)[1];
 	requirejs(["http://res.wx.qq.com/open/js/jweixin-1.0.0.js"], function(wx) {
-		window.wx = wx;
 		var xhr = new XMLHttpRequest();
 		xhr.open('GET', "/rest/site/fe/matter/article/wxjssdksignpackage?site=" + siteId + "&url=" + encodeURIComponent(location.href.split('#')[0]), true);
 		xhr.onreadystatechange = function() {
@@ -39,9 +38,12 @@ if (/MicroMessenger/i.test(navigator.userAgent)) {
 				if (xhr.status >= 200 && xhr.status < 400) {
 					try {
 						eval("(" + xhr.responseText + ')');
-						signPackage.debug = false;
-						signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
-						wx.config(signPackage);
+						if (signPackage) {
+							window.wx = wx;
+							signPackage.debug = false;
+							signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
+							wx.config(signPackage);
+						}
 						window.loading.load();
 					} catch (e) {
 						alert('local error:' + e.toString());

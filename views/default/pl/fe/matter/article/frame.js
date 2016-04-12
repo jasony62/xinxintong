@@ -102,7 +102,7 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', 'mediagaller
 				$scope.update('pic');
 			}
 		};
-		mediagallery.open($scope.siteid, options);
+		mediagallery.open($scope.siteId, options);
 	};
 	$scope.removePic = function() {
 		$scope.editing.pic = '';
@@ -114,7 +114,7 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', 'mediagaller
 			multiple: true,
 			setshowname: true
 		};
-		mediagallery.open($scope.siteid, options);
+		mediagallery.open($scope.siteId, options);
 	});
 	$scope.embedMatter = function() {
 		mattersgallery.open('mattersgallery.open', function(matters, type) {

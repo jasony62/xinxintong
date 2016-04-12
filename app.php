@@ -100,7 +100,7 @@ define('G_COOKIE_PREFIX', 'xxt');
 // 定义应用加密 KEY
 define('G_COOKIE_HASH_KEY', 'gzuhhqnckcryrrd');
 // 用户信息在cookie中保存的天数
-define('TMS_COOKIE_SITE_USER_EXPIRE', 30);
+define('TMS_COOKIE_SITE_USER_EXPIRE', 3650);
 define('TMS_COOKIE_SITE_LOGIN_EXPIRE', 30);
 // 重新绑定公众号未关注用户信息的间隔
 define('TMS_COOKIE_SITE_USER_BIND_INTERVAL', 600);

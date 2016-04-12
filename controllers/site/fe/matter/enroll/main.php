@@ -210,9 +210,9 @@ class main extends base {
 			$options = array(
 				'fields' => 'enroll_key,enroll_at',
 			);
-			$lastRecord = $modelRec->getLast($siteid, $appid, $user, $options);
+			$lastRecord = $modelRec->getLast($site, $$app->id, $user, $options);
 			if (false === $lastRecord) {
-				$modelRec->add($siteid, $app, $user, (empty($posted->referrer) ? '' : $posted->referrer));
+				$modelRec->add($site, $app, $user, (empty($posted->referrer) ? '' : $posted->referrer));
 			} else if ($lastRecord->enroll_at === '0') {
 				$updated = array(
 					'enroll_at' => time(),
@@ -222,7 +222,7 @@ class main extends base {
 			}
 		}
 		if ($app->multi_rounds === 'Y') {
-			$params['activeRound'] = $this->model('app\enroll\round')->getLast($siteid, $appid);
+			$params['activeRound'] = $this->model('app\enroll\round')->getLast($site, $app->id);
 		}
 		/*登记记录*/
 		$newForm = false;

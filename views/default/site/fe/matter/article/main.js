@@ -106,7 +106,7 @@ define(["require", "angular"], function(require, angular) {
                     })();
                 }
                 $scope.site = site;
-                /MicroMessenge|Yixin/i.test(navigator.userAgent) && require(['xxt-share'], setMpShare);
+                window.wx || /Yixin/i.test(navigator.userAgent) && require(['xxt-share'], setMpShare);
                 $scope.article.can_picviewer === 'Y' && require(['picviewer']);
                 loadCss('/views/default/site/fe/matter/article/main.css');
                 deferred.resolve();

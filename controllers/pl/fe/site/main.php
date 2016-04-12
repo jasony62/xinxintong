@@ -73,8 +73,8 @@ class main extends \pl\fe\base {
 		}
 		$q = array(
 			'id,creater_name,create_at,name',
-			'xxt_site',
-			"creater='{$user->id}' and state=1",
+			'xxt_site s',
+			"(creater='{$user->id}' or exists(select 1 from xxt_site_admin sa where sa.siteid=s.id and uid='{$user->id}')) and state=1",
 		);
 		$q2 = array('o' => 'create_at desc');
 

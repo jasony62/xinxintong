@@ -270,7 +270,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
                 if (nextAction === 'closeWindow') {
                     $scope.closeWindow();
                 } else if (nextAction !== undefined && nextAction.length) {
-                    var url = LS.j('', 'mpid', 'aid');
+                    var url = LS.j('', 'site', 'aid');
                     url += '&ek=' + facRecord.current.enroll_key;
                     url += '&page=' + nextAction;
                     location.replace(url);
@@ -374,7 +374,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         var fnFetch;
         fnFetch = function(options) {
             var url;
-            url = LS.j('statGet', 'mpid', 'aid');
+            url = LS.j('statGet', 'site', 'aid');
             if (options) {
                 if (options.fromCache && options.fromCache === 'Y') {
                     url += '&fromCache=Y';

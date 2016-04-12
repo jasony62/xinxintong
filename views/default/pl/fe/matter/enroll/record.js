@@ -3,23 +3,23 @@
         $scope.notifyMatterTypes = [{
             value: 'text',
             title: '文本',
-            url: '/rest/mp/matter'
+            url: '/rest/pl/fe/matter'
         }, {
             value: 'article',
             title: '单图文',
-            url: '/rest/mp/matter'
+            url: '/rest/pl/fe/matter'
         }, {
             value: 'news',
             title: '多图文',
-            url: '/rest/mp/matter'
+            url: '/rest/pl/fe/matter'
         }, {
             value: 'channel',
             title: '频道',
-            url: '/rest/mp/matter'
+            url: '/rest/pl/fe/matter'
         }, {
             value: 'enroll',
             title: '登记活动',
-            url: '/rest/mp/app'
+            url: '/rest/pl/fe/matter'
         }];
         $scope.doSearch = function(page) {
             var url;
@@ -131,7 +131,7 @@
                 backdrop: 'static'
             }).result.then(function(data) {
                 if (data.tag && data.tag.length) {
-                    http2.post('/rest/mp/app/enroll/record/tagByData?aid=' + $scope.aid, data, function(rsp) {
+                    http2.post('/rest/pl/fe/matter/enroll/record/tagByData?aid=' + $scope.aid, data, function(rsp) {
                         var aAssigned;
                         $scope.doSearch();
                         aAssigned = data.tag.split(',');
@@ -205,7 +205,7 @@
                     eks: eks,
                     tags: aSelected
                 };
-                http2.post('/rest/mp/app/enroll/record/batchTag?aid=' + $scope.aid, posted, function(rsp) {
+                http2.post('/rest/pl/fe/matter/enroll/record/batchTag?aid=' + $scope.aid, posted, function(rsp) {
                     var i, l, m, n, newTag;
                     n = aSelected.length;
                     for (i = 0, l = records.length; i < l; i++) {
@@ -223,7 +223,7 @@
             }
         });
         $scope.$on('pushnotify.xxt.done', function(event, matter) {
-            var url = '/rest/mp/app/enroll/record/sendNotify';
+            var url = '/rest/pl/fe/matter/enroll/record/record/sendNotify';
             url += '?matterType=' + matter[1];
             url += '&matterId=' + matter[0][0].id;
             url += '&aid=' + $scope.aid;
@@ -301,7 +301,7 @@
             }).result.then(function(updated) {
                 var p, tags;
                 p = updated[0];
-                http2.post('/rest/mp/app/enroll/record/update?aid=' + $scope.aid + '&ek=' + record.enroll_key, p, function(rsp) {
+                http2.post('/rest/pl/fe/matter/enroll/record/update?site=' + $scope.siteId + '&app=' + $scope.id + '&ek=' + record.enroll_key, p, function(rsp) {
                     tags = updated[1];
                     $scope.app.tags = tags;
                 });
@@ -330,7 +330,7 @@
                 var p, tags;
                 p = updated[0];
                 tags = updated[1];
-                http2.post('/rest/mp/app/enroll/record/add?aid=' + $scope.aid, p, function(rsp) {
+                http2.post('/rest/pl/fe/matter/enroll/record/add?site=' + $scope.siteId + '&app=' + $scope.id, p, function(rsp) {
                     $scope.app.tags = tags;
                     $scope.records.splice(0, 0, rsp.data);
                 });
@@ -352,7 +352,7 @@
                     var members = [];
                     for (var i in selected.members)
                         members.push(selected.members[i].data.mid);
-                    http2.post('/rest/mp/app/record/importUser?aid=' + $scope.aid, members, function(rsp) {
+                    http2.post('/rest/pl/fe/matter/enroll/record/importUser?aid=' + $scope.id, members, function(rsp) {
                         for (var i in rsp.data)
                             $scope.records.splice(0, 0, rsp.data[i]);
                     });
@@ -361,7 +361,7 @@
         };
         $scope.removeRecord = function(record) {
             if (window.confirm('确认删除？')) {
-                http2.get('/rest/mp/app/enroll/record/remove?aid=' + $scope.id + '&key=' + record.enroll_key, function(rsp) {
+                http2.get('/rest/pl/fe/matter/enroll/record/remove?site=' + $scope.siteId + '&app=' + $scope.id + '&key=' + record.enroll_key, function(rsp) {
                     var i = $scope.records.indexOf(record);
                     $scope.records.splice(i, 1);
                     $scope.page.total = $scope.page.total - 1;
@@ -372,7 +372,7 @@
             var vcode;
             vcode = prompt('是否要删除所有登记信息？，若是，请输入活动名称。');
             if (vcode === $scope.app.title) {
-                http2.get('/rest/mp/app/enroll/record/empty?aid=' + $scope.aid, function(rsp) {
+                http2.get('/rest/pl/fe/matter/enroll/record/empty?site=' + $scope.siteId + '&app=' + $scope.aid, function(rsp) {
                     $scope.doSearch(1);
                 });
             }

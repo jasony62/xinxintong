@@ -125,8 +125,8 @@ class base extends \TMS_CONTROLLER {
 	 * $code
 	 */
 	protected function snsOAuthUserByCode($site, $code, $snsName) {
-		$snsConfig = $this->model('site\sns\\' . $snsName)->bySite($site);
-		$snsProxy = $this->model('sns\\' . $snsName, $snsConfig);
+		$snsConfig = $this->model('sns\\' . $snsName)->bySite($site);
+		$snsProxy = $this->model('sns\\' . $snsName . '\proxy', $snsConfig);
 		$rst = $snsProxy->getOAuthUser($code);
 		$rst[0] === false && die('oauth2 failed:' . $rst[1]);
 		/**
@@ -212,12 +212,15 @@ class base extends \TMS_CONTROLLER {
 	 * $url
 	 */
 	public function wxjssdksignpackage_action($site, $url) {
-		if ($sns = $this->model('sns\wx')->bySite($site)) {
-			$snsProxy = $this->model('sns\wx\proxy', $sns);
-		} else if ($sns = $this->model('sns\qy')->bySite($site)) {
-			$snsProxy = $this->model('sns\qy\proxy', $sns);
+		if ($snsConfig = $this->model('sns\wx')->bySite($site)) {
+			if ($snsConfig->joined === 'Y') {
+				$snsProxy = $this->model('sns\wx\proxy', $snsConfig);
+			}
+		} else if ($snsConfig = $this->model('sns\qy')->bySite($site)) {
+			if ($snsConfig->joined === 'Y') {
+				$snsProxy = $this->model('sns\qy\proxy', $snsConfig);
+			}
 		}
-
 		if (isset($snsProxy)) {
 			$rst = $snsProxy->getJssdkSignPackage(urldecode($url));
 			header('Content-Type: text/javascript');
@@ -226,7 +229,7 @@ class base extends \TMS_CONTROLLER {
 			}
 			die($rst[1]);
 		} else {
-			die("alert('site is not joined.')");
+			die("signPackage=false");
 		}
 	}
 	/**

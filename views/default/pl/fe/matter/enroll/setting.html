@@ -21,10 +21,6 @@
                         </button>
                     </div>
                 </div>
-                <div style='position:absolute;top:30px;left:210px'>
-                    <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.hide_pic' ng-change="update('hide_pic');">正文中不显示头图</label>
-                </div>
             </div>
             <div class='help-block'>头图（可选）：建议尺寸：900像素 * 500像素</div>
         </div>
@@ -35,7 +31,7 @@
     </div>
     <div class='tile'>
     登记内容
-    <a href='/rest/pl/fe/matter/enroll/schema?id={{id}}'>编辑</a>
+    <a href='/rest/pl/fe/matter/enroll/schema?site={{siteId}}&id={{id}}'>编辑</a>
     </div>
     <div class='tile'>
         <div class='list-group form-group'>
@@ -43,7 +39,7 @@
                 <a href='/rest/pl/fe/matter/enroll/page?id={{id}}&page={{p.name}}'>{{p.title}}</a>
             </div>
         </div>
-        <a class='btn btn-success' href='/rest/pl/fe/matter/enroll/event?id={{id}}'>设置进入规则</a>
+        <a class='btn btn-success' href='/rest/pl/fe/matter/enroll/event?site={{siteId}}&id={{id}}'>设置进入规则</a>
         <button class='btn btn-success' ng-click="addPage()">添加</button>
     </div>
 </div>

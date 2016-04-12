@@ -420,13 +420,7 @@ class record extends base {
 		$options = array('cascaded' => 'N');
 		$app = $modelApp->byId($app, $options);
 		/*当前访问用户的基本信息*/
-		$user = $this->getUser($site,
-			array(
-				'authapis' => $app->authapis,
-				'matter' => $app,
-				'verbose' => array('member' => 'Y', 'fan' => 'Y'),
-			)
-		);
+		$user = $this->who;
 		/**登记数据*/
 		if (empty($openedek)) {
 			/*获得最后一条登记数据。登记记录有可能未进行过登记*/
@@ -447,15 +441,7 @@ class record extends base {
 		/**互动数据*/
 		if (!empty($openedek)) {
 			/*登记人信息*/
-			if (!empty($record->openid)) {
-				$options = array(
-					'openid' => $record->openid,
-					'verbose' => array('fan' => 'Y', 'member' => 'Y'),
-				);
-				$record->enroller = $this->getUser($site, $options);
-			} else {
-				$record->enroller = $user;
-			}
+			$record->enroller = $user;
 			if (!empty($record->data['member'])) {
 				$record->data['member'] = json_decode($record->data['member']);
 			} else if (isset($record->data['member'])) {

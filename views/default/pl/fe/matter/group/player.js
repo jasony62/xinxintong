@@ -1,30 +1,9 @@
 (function() {
     ngApp.provider.controller('ctrlRecord', ['$scope', 'http2', '$modal', function($scope, http2, $modal) {
-        $scope.notifyMatterTypes = [{
-            value: 'text',
-            title: '文本',
-            url: '/rest/mp/matter'
-        }, {
-            value: 'article',
-            title: '单图文',
-            url: '/rest/mp/matter'
-        }, {
-            value: 'news',
-            title: '多图文',
-            url: '/rest/mp/matter'
-        }, {
-            value: 'channel',
-            title: '频道',
-            url: '/rest/mp/matter'
-        }, {
-            value: 'enroll',
-            title: '登记活动',
-            url: '/rest/mp/app'
-        }];
         $scope.doSearch = function(page) {
             var url;
             page && ($scope.page.at = page);
-            url = '/rest/pl/fe/matter/group//list';
+            url = '/rest/pl/fe/matter/group/list';
             url += '?site=' + $scope.siteId; // todo
             url += '&app=' + $scope.app.id;
             url += '&tags=' + $scope.page.tags.join(',');
@@ -65,19 +44,6 @@
         $scope.searchBys = [{
             n: '昵称',
             v: 'nickname'
-        }];
-        $scope.orderBys = [{
-            n: '登记时间',
-            v: 'time'
-        }, {
-            n: '邀请数',
-            v: 'follower'
-        }, {
-            n: '点赞数',
-            v: 'score'
-        }, {
-            n: '评论数',
-            v: 'remark'
         }];
         var current, startAt, endAt;
         current = new Date();
@@ -138,14 +104,13 @@
                 }
             });
         };
-        $scope.exportByData = function() {
+        $scope.importByData = function() {
             $modal.open({
-                templateUrl: 'exportByData.html',
+                templateUrl: 'importByData.html',
                 controller: ['$scope', '$modalInstance', function($scope2, $mi) {
                     $scope2.data = {
                         filter: {},
-                        target: '',
-                        includeData: 'N'
+                        source: '',
                     };
                     $scope2.schema = [];
                     angular.forEach($scope.schema, function(def) {
@@ -160,13 +125,13 @@
                         $mi.close($scope2.data);
                     };
                     http2.get('/rest/pl/fe/matter/enroll/list?site=' + $scope.siteId + '&page=1&size=999', function(rsp) {
-                        $scope2.apps = rsp.data[0];
+                        $scope2.apps = rsp.data.apps;
                     });
                 }],
                 backdrop: 'static'
             }).result.then(function(data) {
-                if (data.target && data.target.length) {
-                    http2.post('/rest/pl/fe/matter/enroll/record/exportByData?site=' + $scope.siteId + '&app=' + $scope.id, data, function(rsp) {
+                if (data.source && data.source.length) {
+                    http2.post('/rest/pl/fe/matter/group/importByData?site=' + $scope.siteId + '&app=' + $scope.id, data, function(rsp) {
                         alert('ok');
                     });
                 }

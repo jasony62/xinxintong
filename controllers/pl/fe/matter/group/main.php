@@ -53,6 +53,9 @@ class main extends \pl\fe\matter\base {
 	 * 返回分组活动列表
 	 */
 	public function list_action($site, $page = 1, $size = 30) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$model = $this->model();
 		$q = array('g.*', 'xxt_group g');
 		$q[2] = "siteid='$site' and state=1";
@@ -111,13 +114,13 @@ class main extends \pl\fe\matter\base {
 	 *
 	 * @param int $id mission'is
 	 */
-	public function createByMission_action($site, $id) {
+	public function createByMission_action($site, $mission) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelMis = $this->model('mission');
-		$mission = $modelMis->byId($id);
+		$mission = $modelMis->byId($mission);
 		$current = time();
 
 		/*create app*/
@@ -144,7 +147,7 @@ class main extends \pl\fe\matter\base {
 		$matter->type = 'group';
 		$this->model('log')->matterOp($site, $user, $matter, 'C');
 		/*记录和任务的关系*/
-		$modelMis->addMatter($user, $site, $id, $matter);
+		$modelMis->addMatter($user, $site, $mission->id, $matter);
 
 		return new \ResponseData($matter);
 	}
@@ -261,5 +264,53 @@ class main extends \pl\fe\matter\base {
 		}
 
 		return $config;
+	}
+	/**
+	 * 给符合条件的登记记录打标签
+	 */
+	public function importByData_action($site, $app) {
+		$posted = $this->getPostJson();
+		$filter = $posted->filter;
+		$source = $posted->source;
+
+		if (!empty($source)) {
+			/*给符合条件的记录打标签*/
+			$modelRec = $this->model('matter\group\player');
+			$q = array(
+				'distinct enroll_key',
+				'xxt_enroll_record_data',
+				"aid='$source' and state=1",
+			);
+			$eks = null;
+			if (empty((array) $filter)) {
+				$eks = $modelRec->query_vals_ss($q);
+			} else {
+				foreach ($filter as $k => $v) {
+					$w = "(name='$k' and ";
+					$w .= "concat(',',value,',') like '%,$v,%'";
+					$w .= ')';
+					$q2 = $q;
+					$q2[2] .= ' and ' . $w;
+					$eks2 = $modelRec->query_vals_ss($q2);
+					$eks = ($eks === null) ? $eks2 : array_intersect($eks, $eks2);
+				}
+			}
+			if (!empty($eks)) {
+				/*更新应用标签*/
+				$modelApp = $this->model('matter\group');
+				$objApp = $modelApp->byId($app, array('cascaded' => 'N'));
+				$options = array('cascaded' => 'Y');
+				foreach ($eks as $ek) {
+					$record = $modelRec->byId($ek, $options);
+					$user = new \stdClass;
+					$user->userid = $record->userid;
+					$user->nickname = $record->nickname;
+					$newek = $modelRec->add($site, $objApp, $user);
+					$modelRec->setData($user, $site, $objApp->id, $newek, $record->data);
+				}
+			}
+		}
+
+		return new \ResponseData('ok');
 	}
 }

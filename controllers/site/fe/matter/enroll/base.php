@@ -23,7 +23,7 @@ class base extends \site\fe\base {
 	 * 检查进入登记活动规则
 	 */
 	protected function checkEntryRule($site, $app, $user, $redirect = false) {
-		if (!in_array($this->userAgent(), array('wx', 'yx')) && empty($user->openid)) {
+		if (!in_array($this->userAgent(), array('wx', 'yx'))) {
 			/**
 			 * 非易信、微信公众号打开，无法获得openid
 			 */
@@ -32,7 +32,7 @@ class base extends \site\fe\base {
 				 * 如果活动限认证用户访问
 				 */
 				$page = '$authapi_auth';
-			} else {
+			} else if (isset($app->entry_rule->other->entry)) {
 				$page = $app->entry_rule->other->entry;
 			}
 		} else {
@@ -73,6 +73,11 @@ class base extends \site\fe\base {
 				}
 			}
 		}
+		if (!isset($page) && isset($app->entry_rule->otherwise->entry)) {
+			$page = $app->entry_rule->otherwise->entry;
+
+		}
+
 		switch ($page) {
 		case '$authapi_outacl':
 			$appAuthapis = explode(',', $app->authapis);

@@ -43,7 +43,7 @@
 			"enroll": "Y",
 			"remark": "Y"
 		},
-		"nonfan": {
+		"other": {
 			"entry": "$mp_follow",
 			"enroll": "$mp_follow"
 		}

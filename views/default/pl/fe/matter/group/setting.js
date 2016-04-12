@@ -76,9 +76,10 @@
 			http2.post('/rest/pl/fe/matter/group/round/update?site=' + $scope.siteId + '&app=' + $scope.id + '&rid=' + $scope.editingRound.round_id, nv);
 		};
 		$scope.removeRound = function() {
-			http2.post('/rest/pl/fe/matter/group/round/remove?site=' + $scope.siteId + '&app=' + $scope.id + '&rid=' + $scope.editingRound.round_id, function(rsp) {
+			http2.get('/rest/pl/fe/matter/group/round/remove?site=' + $scope.siteId + '&app=' + $scope.id + '&rid=' + $scope.editingRound.round_id, function(rsp) {
 				var i = $scope.rounds.indexOf($scope.editingRound);
 				$scope.rounds.splice(i, 1);
+				$scope.editingRound = null;
 			});
 		};
 		$scope.addTarget = function() {

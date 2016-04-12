@@ -32,9 +32,6 @@
                 </span>
             </div>
         </div>
-        <div class='form-group'>
-            <select class='form-control' title="排序条件" ng-model='page.orderBy' ng-options='o.v as o.n for o in orderBys' ng-change='doSearch(1)'></select>
-        </div>
         <div class='form-group' ng-if="app.can_signin==='Y'" style='width:180px'>
             <tms-datepicker tms-title='签到范围开始日期' tms-date='signinStartAt' tms-state='signinStartAt'></tms-datepicker>
         </div>
@@ -43,7 +40,7 @@
         </div>
         <div class='form-group'>
             <button class='btn btn-default' ng-click='tagByData()'>打标签</button>
-            <button class='btn btn-default' ng-click='exportByData()'>导出记录</button>
+            <button class='btn btn-default' ng-click='importByData()'>导入用户</button>
         </div>
     </div>
     <div id='records'>
@@ -105,27 +102,9 @@
     <div class='form-group form-inline'>
         <combox title='标签' evt-prefix='batch-tag' readonly='true' options='app.tags'></combox>
         <button class='btn btn-danger' ng-click='empty()'>清空记录</button>
-        <div class="btn-group">
-            <button type="button" class="btn btn-default">添加用户记录</button>
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-            aria-expanded="false">
-            <span class="caret"></span>
-            <span class="sr-only">Toggle Dropdown</span>
-            </button>
-            <ul class="dropdown-menu">
-                <li>
-                    <a href="javascript:void(0)" ng-click='importUser()'>注册用户</a>
-                </li>
-                <li>
-                    <a href="javascript:void(0)" ng-click='addRecord()'>手工添加</a>
-                </li>
-            </ul>
-        </div>
-        <pushnotify class='btn btn-primary' single-matter='Y' matter-types='notifyMatterTypes'>发送信息</pushnotify>
+        <button class="btn btn-default" ng-click='addRecord()'>添加用户记录</button>
         <span>总数：{{page.total}}</span>
-        <pagination style='margin:0;cursor:pointer;vertical-align:bottom' ng-if='page.total>page.size' class='pull-right'
-        boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at"
-        previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
+        <pagination style='margin:0;cursor:pointer;vertical-align:bottom' ng-if='page.total>page.size' class='pull-right' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
     </div>
     <script type="text/ng-template" id="tagByData.html">
         <div class="modal-header">
@@ -158,37 +137,17 @@
             <button class="btn btn-primary" ng-click="ok()">确定</button>
         </div>
     </script>
-    <script type="text/ng-template" id="exportByData.html">
+    <script type="text/ng-template" id="importByData.html">
         <div class="modal-header">
             <button class="close" type="button" ng-click="cancel()">×</button>
             <h5 class="modal-title">筛选条件</h5>
         </div>
         <div class="modal-body">
             <form class="form-horizontal record-editor">
-                <div class="form-group" ng-repeat="def in schema" ng-if="def.id.indexOf('member')!==0">
-                    <label class="col-md-3 control-label">{{def.title}}</label>
-                    <div class="col-md-9" ng-if="def.type!=='single'&&def.type!=='multiple'">
-                        <input type='text' class='form-control' ng-model="data.filter[def.id]">
-                    </div>
-                    <div class="col-md-9" ng-if="def.type==='single'||def.type==='multiple'">
-                        <select class='form-control' ng-model="data.filter[def.id]" ng-options="op.v as op.label for op in def.ops">
-                            <option></option>
-                        </select>
-                    </div>
-                </div>
-                <hr>
                 <div class='form-group'>
-                    <label class="col-md-3 control-label">目标登记活动</label>
+                    <label class="col-md-3 control-label">目标活动</label>
                     <div class="col-md-9">
-                        <select class="form-control" ng-model="data.target" ng-options="app.id as app.title for app in apps"></select>
-                    </div>
-                </div>
-                <div class='form-group'>
-                    <label class="col-md-3 control-label">包含数据</label>
-                    <div class="col-md-9">
-                        <div class='checkbox'>
-                            <label><input type="checkbox" ng-model="data.includeData" ng-true-value="'Y'" ng-false=value="N">是</label>
-                        </div>
+                        <select class="form-control" ng-model="data.source" ng-options="app.id as app.title for app in apps"></select>
                     </div>
                 </div>
             </form>

@@ -107,7 +107,7 @@ class main extends \pl\fe\matter\base {
 		$q = array(
 			'a.*',
 			'xxt_enroll a',
-			"siteid='$site' and state=1",
+			"siteid='$site' and state<>0",
 		);
 		$q2['o'] = 'a.modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
@@ -128,7 +128,9 @@ class main extends \pl\fe\matter\base {
 	 * @param string $template template's name
 	 */
 	public function create_action($site, $scenario = null, $template = null) {
-		$user = $this->accountUser();
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$current = time();
 		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
 
@@ -162,7 +164,7 @@ class main extends \pl\fe\matter\base {
 		$newapp['modifier_name'] = $user->name;
 		$newapp['modify_at'] = $current;
 		$newapp['entry_rule'] = json_encode($entryRule);
-		$newapp['data_schemas'] = \TMS_MODEL::toJson($config->schema);
+		isset($config) && $newapp['data_schemas'] = \TMS_MODEL::toJson($config->schema);
 		$newapp['summary'] = '';
 		$this->model()->insert('xxt_enroll', $newapp, false);
 		$app = $this->model('matter\enroll')->byId($id);
@@ -174,17 +176,30 @@ class main extends \pl\fe\matter\base {
 	}
 	/**
 	 *
-	 * @param int $id mission'is
+	 * @param int $mission mission'is
 	 */
-	public function createByMission_action($site, $id) {
+	public function createByMission_action($site, $mission, $scenario = null, $template = null) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$modelMis = $this->model('mission');
-		$mission = $modelMis->byId($id);
-		$user = $this->accountUser();
+		$mission = $modelMis->byId($mission);
 		$current = time();
 
 		/*create app*/
 		$aid = uniqid();
-		$entryRule = $this->_addBlankPage($site, $aid);
+		/*pages*/
+		if (!empty($scenario) && !empty($template)) {
+			$customConfig = $this->getPostJson();
+			$config = $this->_addPageByTemplate($site, $aid, $scenario, $template, $customConfig);
+			$entryRule = $config->entryRule;
+			if (isset($config->enrolled_entry_page)) {
+				$newapp['enrolled_entry_page'] = $config->enrolled_entry_page;
+			}
+		} else {
+			$entryRule = $this->_addBlankPage($site, $aid);
+		}
 		$newapp['siteid'] = $site;
 		$newapp['id'] = $aid;
 		$newapp['title'] = '新登记活动';
@@ -199,14 +214,15 @@ class main extends \pl\fe\matter\base {
 		$newapp['modify_at'] = $current;
 		$newapp['entry_rule'] = json_encode($entryRule);
 		$newapp['summary'] = $mission->summary;
+		isset($config) && $newapp['data_schemas'] = \TMS_MODEL::toJson($config->schema);
 		$this->model()->insert('xxt_enroll', $newapp, false);
 
-		$matter = $this->model('app\enroll')->byId($aid);
+		$matter = $this->model('matter\enroll')->byId($aid);
 		/*记录操作日志*/
 		$matter->type = 'enroll';
 		$this->model('log')->matterOp($site, $user, $matter, 'C');
 		/*记录和任务的关系*/
-		$modelMis->addMatter($user, $site, $id, $matter);
+		$modelMis->addMatter($user, $site, $mission->id, $matter);
 
 		return new \ResponseData($matter);
 	}

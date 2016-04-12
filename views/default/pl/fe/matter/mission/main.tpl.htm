@@ -79,7 +79,7 @@
                 <nav class="navbar navbar-default">
                     <div class="navbar-form">
                         <button class='btn btn-success' ng-click="addArticle()">+图文</button>
-                        <button class='btn btn-success' ng-click="addEnroll()">+登记</button>
+                        <button class='btn btn-success' ng-click="addEnroll('registration')">+报名</button>
                         <button class='btn btn-success' ng-click="addGroup()">+分组</button>
                         <button class='btn btn-success' ng-click="addLottery()">+抽奖</button>
                     </div>
@@ -95,7 +95,7 @@
                 <div class='options'>
                     <div class='form-group'>
                         <label>场景</label>
-                        <select class='form-control' ng-model='data.scenario' ng-options='s as s.title for s in templates' ng-change='chooseScenario()'></select>
+                        <select class='form-control' ng-disabled="fixedScenario" ng-model='data.scenario' ng-options='s as s.title for s in templates' ng-change='chooseScenario()'></select>
                     </div>
                     <div class='form-group'>
                         <label>模板</label>

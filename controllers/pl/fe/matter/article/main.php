@@ -372,11 +372,11 @@ class main extends \pl\fe\matter\base {
 	}
 	/**
 	 *
-	 * @param int $id mission'is
+	 * @param int $mission mission's id
 	 */
-	public function createByMission_action($site, $id) {
+	public function createByMission_action($site, $mission) {
 		$modelMis = $this->model('mission');
-		$mission = $modelMis->byId($id);
+		$mission = $modelMis->byId($mission);
 		$user = $this->accountUser();
 		$current = time();
 
@@ -404,7 +404,7 @@ class main extends \pl\fe\matter\base {
 		$matter->type = 'article';
 		$this->model('log')->matterOp($site, $user, $matter, 'C');
 		/* 记录和任务的关系 */
-		$modelMis->addMatter($user, $site, $id, $matter);
+		$modelMis->addMatter($user, $site, $mission->id, $matter);
 
 		return new \ResponseData($matter);
 	}

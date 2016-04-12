@@ -92,7 +92,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
             var _this, url, deferred;
             _this = this;
             deferred = $q.defer();
-            url = LS.j('record/get', 'mpid', 'aid');
+            url = LS.j('record/get', 'site', 'app');
             ek && (url += '&ek=' + ek);
             $http.get(url).success(function(rsp) {
                 var record;
@@ -108,7 +108,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         Record.prototype.list = function(owner, rid) {
             var url, deferred;
             deferred = $q.defer();
-            url = LS.j('record/list', 'mpid', 'aid');
+            url = LS.j('record/list', 'site', 'app');
             url += '&owner=' + owner;
             rid && rid.length && (url += '&rid=' + rid);
             $http.get(url).success(function(rsp) {
@@ -129,7 +129,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         Record.prototype.like = function(record) {
             var url;
             deferred = $q.defer();
-            url = LS.j('record/score', 'mpid');
+            url = LS.j('record/score', 'site');
             url += '&ek=' + record.enroll_key;
             $http.get(url).success(function(rsp) {
                 record.myscore = rsp.data.myScore;
@@ -141,7 +141,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         Record.prototype.likerList = function(record) {
             var url;
             deferred = $q.defer();
-            url = LS.j('record/likerList', 'mpid');
+            url = LS.j('record/likerList', 'site');
             url += '&ek=' + record.enroll_key;
             $http.get(url).success(function(rsp) {
                 deferred.resolve(rsp.data);
@@ -151,7 +151,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         Record.prototype.remark = function(record, newRemark) {
             var url, deferred;
             deferred = $q.defer();
-            url = LS.j('record/remark', 'mpid');
+            url = LS.j('record/remark', 'site');
             url += '&ek=' + record.enroll_key;
             $http.post(url, {
                 remark: newRemark
@@ -170,11 +170,11 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
             return deferred.promise;
         };
         return {
-            ins: function(mpid, aid, rid, $scope) {
+            ins: function(siteId, appId, rid, $scope) {
                 if (_ins) {
                     return _ins;
                 }
-                _ins = new Record(mpid, aid, rid, $scope);
+                _ins = new Record(siteId, appId, rid, $scope);
                 return _ins;
             }
         };

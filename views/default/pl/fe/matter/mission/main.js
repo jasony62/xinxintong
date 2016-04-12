@@ -67,11 +67,11 @@ app.controller('ctrlSetting', ['$scope', 'http2', '$modal', function($scope, htt
 }]);
 app.controller('ctrlMatter', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
 	$scope.addArticle = function() {
-		http2.get('/rest/pl/fe/matter/article/createByMission?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
+		http2.get('/rest/pl/fe/matter/article/createByMission?site=' + $scope.siteId + '&mission=' + $scope.id, function(rsp) {
 			location.href = '/rest/pl/fe/matter/article?site=' + $scope.siteId + '&id=' + rsp.data.id;
 		});
 	};
-	$scope.addEnroll = function() {
+	$scope.addEnroll = function(assignedScenario) {
 		$modal.open({
 			templateUrl: 'templatePicker.html',
 			size: 'lg',
@@ -125,11 +125,15 @@ app.controller('ctrlMatter', ['$scope', '$modal', 'http2', function($scope, $mod
 				};
 				http2.get('/rest/pl/fe/matter/enroll/template/list', function(rsp) {
 					$scope2.templates = rsp.data;
+					if (assignedScenario) {
+						$scope2.data.scenario = $scope2.templates[assignedScenario];
+						$scope2.fixedScenario = true;
+					}
 				});
 			}]
 		}).result.then(function(data) {
 			var url, config;
-			url = '/rest/pl/fe/matter/enroll/createByMission?site=' + $scope.siteId + '&id=' + rsp.data.id;
+			url = '/rest/pl/fe/matter/enroll/createByMission?site=' + $scope.siteId + '&mission=' + $scope.id;
 			config = {};
 			if (data) {
 				url += '&scenario=' + data.scenario.name;
@@ -144,12 +148,12 @@ app.controller('ctrlMatter', ['$scope', '$modal', 'http2', function($scope, $mod
 		});
 	};
 	$scope.addGroup = function() {
-		http2.get('/rest/pl/fe/matter/group/createByMission?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
+		http2.get('/rest/pl/fe/matter/group/createByMission?site=' + $scope.siteId + '&mission=' + $scope.id, function(rsp) {
 			location.href = '/rest/pl/fe/matter/group?site=' + $scope.siteId + '&id=' + rsp.data.id;
 		});
 	};
 	$scope.addLottery = function() {
-		http2.get('/rest/pl/fe/matter/lottery/createByMission?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
+		http2.get('/rest/pl/fe/matter/lottery/createByMission?site=' + $scope.siteId + '&mission=' + $scope.id, function(rsp) {
 			location.href = '/rest/pl/fe/matter/lottery?site=' + $scope.siteId + '&id=' + rsp.data.id;
 		});
 	};

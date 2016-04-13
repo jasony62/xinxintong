@@ -345,6 +345,7 @@ class main extends \pl\fe\matter\base {
 
 		$article = array();
 		$article['siteid'] = $site->id;
+		$article['mpid'] = $site->id;
 		$article['creater'] = $user->id;
 		$article['creater_src'] = 'A';
 		$article['creater_name'] = $user->name;

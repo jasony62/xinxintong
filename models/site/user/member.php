@@ -144,18 +144,6 @@ class member_model extends \TMS_MODEL {
 			return array(false, '无法获得用户身份标识信息');
 		}
 
-		/**
-		 * 处理访问口令
-		 */
-		/*if ($attrs->attr_password[0] === '0') {
-			if (empty($member->password) || strlen($member->password) < 6)
-			return array(false, '密码长度不符合要求');
-			$salt = $this->gen_salt();
-			$cpw = $this->compile_password($member->authed_identity, $member->password, $salt);
-			$member->password = $cpw;
-			$member->password_salt = $salt;
-		*/
-
 		$create_at = time();
 		$mid = md5(uniqid() . $create_at); //member's id
 		$member->mid = $mid;
@@ -375,45 +363,33 @@ class member_model extends \TMS_MODEL {
 	/**
 	 * 根据提交的认证信息，查找已经存在认证用户
 	 *
-	 * 要求认证用户必须关联一个关注用户
-	 *
 	 * $member
 	 * $items array 用户认证信息定义
 	 * 0:hidden,1:mandatory,2:unique,3:immuatable,4:verification,5:identity
 	 */
-	public function findMember($member, $attrs, $checkPassword = true) {
-		if (isset($member->mobile) && $attrs->attr_mobile[5] === '1') {
+	public function findMember(&$member, &$schema, $options = array()) {
+		if (isset($member->mobile) && $schema->attr_mobile[5] === '1') {
 			/**
 			 * 手机号唯一
 			 */
 			$identity = $member->mobile;
-		} else if (isset($member->email) && $attrs->attr_email[5] === '1') {
+		} else if (isset($member->email) && $schema->attr_email[5] === '1') {
 			/**
 			 * 邮箱唯一
 			 */
 			$identity = $member->email;
 		}
 		if (isset($identity)) {
+			$fields = isset($options['fields']) ? $options['fields'] : '*';
 			$q = array(
-				'mid,password,password_salt',
-				'xxt_member',
-				"authapi_id=$member->authapi_id and fid!='' and forbidden='N' and authed_identity='$identity'",
+				$fields,
+				'xxt_site_member',
+				"schema_id={$schema->id} and forbidden='N' and identity='$identity'",
 			);
 			$found = $this->query_obj_ss($q);
-			if (!empty($found)) {
-				if ($checkPassword && $attrs->attr_password[0] === '0') {
-					/**
-					 * 检查口令
-					 */
-					$cpw = $this->compile_password($identity, $member->password, $found->password_salt);
-					if ($cpw !== $found->password) {
-						return false;
-					}
-				}
-			}
 		}
 
-		return !empty($found) ? $found->mid : false;
+		return !empty($found) ? $found : false;
 	}
 	/**
 	 *

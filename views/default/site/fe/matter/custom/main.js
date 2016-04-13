@@ -7,9 +7,9 @@ define(["require", "angular"], function(require, angular) {
         };
     }]);
     app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
-        var ls, mpid, id, shareby;
+        var ls, siteId, id, shareby;
         ls = location.search;
-        mpid = ls.match(/[\?&]site=([^&]*)/)[1];
+        siteId = ls.match(/[\?&]site=([^&]*)/)[1];
         id = ls.match(/[\?&]id=([^&]*)/)[1];
         shareby = ls.match(/shareby=([^&]*)/) ? ls.match(/shareby=([^&]*)/)[1] : '';
         var setMpShare = function(xxtShare) {
@@ -18,7 +18,7 @@ define(["require", "angular"], function(require, angular) {
             xxtShare.options.logger = function(shareto) {
                 var url = "/rest/mi/matter/logShare";
                 url += "?shareid=" + shareid;
-                url += "&mpid=" + mpid;
+                url += "&site=" + siteId;
                 url += "&id=" + id;
                 url += "&type=article";
                 url += "&title=" + $scope.article.title;
@@ -27,7 +27,7 @@ define(["require", "angular"], function(require, angular) {
                 $http.get(url);
             };
             sharelink = 'http://' + location.hostname + '/rest/mi/matter';
-            sharelink += '?mpid=' + mpid;
+            sharelink += '?siteId=' + siteId;
             sharelink += '&type=article';
             sharelink += '&id=' + id;
             sharelink += '&tpl=cus';
@@ -76,16 +76,16 @@ define(["require", "angular"], function(require, angular) {
         };
         var loadArticle = function() {
             var deferred = $q.defer();
-            $http.get('/rest/mi/article/get?mpid=' + mpid + '&id=' + id).success(function(rsp) {
+            $http.get('/rest/site/fe/matter/article/get?site=' + siteId + '&id=' + id).success(function(rsp) {
                 var article, page;
                 article = rsp.data.article;
-                $http.post('/rest/mi/matter/logAccess?mpid=' + mpid + '&id=' + id + '&type=article&title=' + article.title + '&shareby=' + shareby, {
+                $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + id + '&type=article&title=' + article.title + '&shareby=' + shareby, {
                     search: location.search.replace('?', ''),
                     referer: document.referrer
                 });
                 page = article.page;
                 $scope.user = rsp.data.user;
-                $scope.mpa = rsp.data.mpaccount;
+                $scope.site = rsp.data.site;
                 if (page.ext_css && page.ext_css.length) {
                     angular.forEach(page.ext_css, loadCss);
                 }

@@ -38,7 +38,6 @@
                 if (rsp.data) {
                     $scope.records = rsp.data.records ? rsp.data.records : [];
                     rsp.data.total && ($scope.page.total = rsp.data.total);
-                    rsp.data.schema && ($scope.schema = rsp.data.schema);
                 } else
                     $scope.records = [];
                 for (i = 0, j = $scope.records.length; i < j; i++) {
@@ -255,12 +254,12 @@
             }
         };
         $scope.value2Label = function(val, key) {
-            var i, j, s, aVal, aLab = [];
+            var schemas = $scope.app.data_schemas,
+                i, j, s, aVal, aLab = [];
             if (val === undefined) return '';
-            for (i = 0, j = $scope.schema.length; i < j; i++) {
-                s = $scope.schema[i];
-                if ($scope.schema[i].id === key) {
-                    s = $scope.schema[i];
+            for (i = 0, j = schemas.length; i < j; i++) {
+                if (schemas[i].id === key) {
+                    s = schemas[i];
                     break;
                 }
             }

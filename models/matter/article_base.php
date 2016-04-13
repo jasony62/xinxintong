@@ -80,11 +80,10 @@ abstract class article_base extends base_model {
 	/**
 	 *
 	 */
-	public function getEntryUrl($runningMpid, $id, $openid = null) {
+	public function getEntryUrl($siteId, $id) {
 		$url = "http://" . $_SERVER['HTTP_HOST'];
-		$url .= "/rest/mi/matter";
-		$url .= "?mpid=$runningMpid&id=$id&type=" . $this->getTypeName();
-		!empty($openid) && $url .= "&openid=$openid";
+		$url .= "/rest/site/fe/matter";
+		$url .= "?site={$siteId}&id={$id}&type=" . $this->getTypeName();
 
 		return $url;
 	}

@@ -60,7 +60,7 @@ ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', func
 			}
 		}
 	}).when('/rest/pl/fe/matter/enroll/record', {
-		templateUrl: '/views/default/pl/fe/matter/enroll/record.html?_=1',
+		templateUrl: '/views/default/pl/fe/matter/enroll/record.html?_=2',
 		controller: 'ctrlRecord',
 		resolve: {
 			load: function($q) {

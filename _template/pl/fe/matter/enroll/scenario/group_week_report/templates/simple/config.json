@@ -18,6 +18,11 @@
 		"id": "c3",
 		"title": "下周计划"
 	}],
+	"scenarioConfig": {
+		"can_period": "D",
+		"can_rounds": "E",
+		"can_signin": "D"
+	},
 	"entryRule": {
 		"otherwise": {
 			"entry": "enroll"

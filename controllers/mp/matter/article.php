@@ -351,6 +351,7 @@ class article extends matter_ctrl {
 
 		$article = array();
 		$article['mpid'] = $this->mpid;
+		$article['siteid'] = $this->mpid;
 		$article['creater'] = $user->id;
 		$article['creater_src'] = 'A';
 		$article['creater_name'] = $user->name;

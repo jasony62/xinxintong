@@ -1,11 +1,11 @@
 <?php
 namespace site\fe\matter\link;
 
-include_once dirname(dirname(dirname(__FILE__))) . '/base.php';
+include_once dirname(dirname(__FILE__)) . '/base.php';
 /**
  * 链接
  */
-class main extends \site\fe\base {
+class main extends \site\fe\matter\base {
 	/**
 	 *
 	 */
@@ -78,11 +78,10 @@ class main extends \site\fe\base {
 			//$page = new page_news((int) $link->url, $openid);
 			break;
 		case 2:
-			//$channelUrl = $this->model('matter\channel')->getEntryUrl($mpid, (int) $link->url);
-			//$this->redirect($channelUrl);
+			$channelUrl = $this->model('matter\channel')->getEntryUrl($site, (int) $link->url);
+			$this->redirect($channelUrl);
 			break;
 		}
-		break;
 	}
 	/**
 	 * 检查是否需要第三方社交帐号认证

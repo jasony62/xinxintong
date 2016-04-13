@@ -39,7 +39,7 @@ app.controller('ctrlSite', ['$scope', '$location', 'http2', function($scope, $lo
         $scope.site = rsp.data;
     });
 }]);
-app.controller('ctrlSet', ['$scope', 'http2', function($scope, http2) {
+app.controller('ctrlSet', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
     $scope.sub = 'basic';
     $scope.gotoSub = function(name) {
         $scope.sub = name;
@@ -59,7 +59,7 @@ app.controller('ctrlSet', ['$scope', 'http2', function($scope, http2) {
                 $scope.update('heading_pic');
             }
         };
-        $scope.$broadcast('mediagallery.open', options);
+        mediagallery.open($scope.siteId, options);
     };
     $scope.removePic = function() {
         $scope.features.heading_pic = '';

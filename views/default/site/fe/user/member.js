@@ -104,6 +104,7 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
                 $scope.errmsg = rsp.err_msg;
                 return;
             }
+            window.parent && window.parent.onClosePlugin && window.parent.onClosePlugin();
         });
     };
     var site = location.search.match('site=([^&]*)')[1];
@@ -144,6 +145,15 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
             return;
         }
         sendRequest(LS.j('doAuth', 'site', 'schema'));
+    };
+    $scope.doReauth = function() {
+        var url;
+        if (!validate()) return;
+        if (document.querySelectorAll('.ng-invalid-required').length) {
+            $scope.errmsg = '请填写必填项';
+            return;
+        }
+        sendRequest(LS.j('doReauth', 'site', 'schema'));
     };
     $scope.$watchCollection('member', function() {
         $scope.errmsg = '';

@@ -45,7 +45,11 @@ class enroll_model extends app_base {
 			if (isset($app->entry_rule)) {
 				$app->entry_rule = json_decode($app->entry_rule);
 			}
-
+			if (!empty($app->scenario_config)) {
+				$app->scenarioConfig = json_decode($app->scenario_config);
+			} else {
+				$app->scenarioConfig = new \stdClass;
+			}
 			if ($cascaded === 'Y') {
 				$modelPage = \TMS_APP::M('app\enroll\page');
 				$app->pages = $modelPage->byApp($aid);

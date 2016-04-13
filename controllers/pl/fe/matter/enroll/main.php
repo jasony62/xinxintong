@@ -71,7 +71,7 @@ class main extends \pl\fe\matter\base {
 	 */
 	public function get_action($site, $id) {
 		$uid = \TMS_CLIENT::get_client_uid();
-		$a = $this->model('app\enroll')->byId($id);
+		$a = $this->model('matter\enroll')->byId($id);
 		$a->uid = $uid;
 		/**
 		 * 活动签到回复消息
@@ -87,11 +87,11 @@ class main extends \pl\fe\matter\base {
 		/* channels */
 		$a->channels = $this->model('matter\channel')->byMatter($id, 'enroll');
 		/* acl */
-		$a->acl = $this->model('acl')->byMatter($site, 'enroll', $id);
+		$a->acl = $this->model('matter\acl')->byMatter($site, 'enroll', $id);
 		/* 登记通知接收人 */
-		$a->receiver = $this->model('acl')->enrollReceiver($site, $id);
+		$a->receiver = $this->model('matter\acl')->enrollReceiver($site, $id);
 		/* 获得的轮次 */
-		if ($rounds = $this->model('app\enroll\round')->byApp($site, $id)) {
+		if ($rounds = $this->model('matter\enroll\round')->byApp($site, $id)) {
 			!empty($rounds) && $a->rounds = $rounds;
 		}
 
@@ -140,10 +140,21 @@ class main extends \pl\fe\matter\base {
 		if (!empty($scenario) && !empty($template)) {
 			$customConfig = $this->getPostJson();
 			$config = $this->_addPageByTemplate($site->id, $id, $scenario, $template, $customConfig);
+			/*进入规则*/
 			$entryRule = $config->entryRule;
 			if (isset($config->enrolled_entry_page)) {
 				$newapp['enrolled_entry_page'] = $config->enrolled_entry_page;
 			}
+			/*场景设置*/
+			if (isset($config->scenarioConfig)) {
+				$scenarioConfig = $config->scenarioConfig;
+				$newapp['scenario_config'] = json_encode($scenarioConfig);
+				/*缺省支持签到*/
+				if ($scenarioConfig->can_signin === 'Y') {
+					$newapp['can_signin'] = 'Y';
+				}
+			}
+			$newapp['scenario'] = $scenario;
 		} else {
 			$entryRule = $this->_addBlankPage($site->id, $id);
 		}
@@ -197,6 +208,16 @@ class main extends \pl\fe\matter\base {
 			if (isset($config->enrolled_entry_page)) {
 				$newapp['enrolled_entry_page'] = $config->enrolled_entry_page;
 			}
+			/*场景设置*/
+			if (isset($config->scenarioConfig)) {
+				$scenarioConfig = $config->scenarioConfig;
+				$newapp['scenario_config'] = json_encode($scenarioConfig);
+				/*缺省支持签到*/
+				if ($scenarioConfig->can_signin === 'Y') {
+					$newapp['can_signin'] = 'Y';
+				}
+			}
+			$newapp['scenario'] = $scenario;
 		} else {
 			$entryRule = $this->_addBlankPage($site, $aid);
 		}

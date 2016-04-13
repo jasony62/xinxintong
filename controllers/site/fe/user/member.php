@@ -9,7 +9,7 @@ class member extends \site\fe\base {
 	/**
 	 * 打开认证页面
 	 *
-	 * $mpid
+	 * $site
 	 * $authid
 	 * $openid
 	 *
@@ -55,7 +55,7 @@ class member extends \site\fe\base {
 	/**
 	 * 提交用户身份认证信息
 	 *
-	 * $mpid running mpid.
+	 * $site running mpid.
 	 * $authid
 	 *
 	 * 支持记录的内容
@@ -90,7 +90,7 @@ class member extends \site\fe\base {
 			 */
 			if ($schema->attr_mobile[4] === '1') {
 				$mobile = $member->mobile;
-				$mpa = $this->model('mp\mpaccount')->getApis($mpid);
+				$mpa = $this->model('mp\mpaccount')->getApis($site);
 				if ('yx' !== $mpa->mpsrc || 'yx' !== $this->getClientSrc()) {
 					return new \ResponseError('目前仅支持在易信客户端中验证手机号');
 				}
@@ -98,7 +98,7 @@ class member extends \site\fe\base {
 				if ('N' == $mpa->yx_checkmobile) {
 					return new \ResponseError('仅支持在开通了手机验证接口的公众号中验证手机号');
 				}
-				$rst = $this->model('mpproxy/yx', $mpid)->mobile2Openid($mobile);
+				$rst = $this->model('mpproxy/yx', $site)->mobile2Openid($mobile);
 				if ($rst[0] === false) {
 					//return new \ResponseError("验证手机号失败【{$rst[1]}】");
 					return new \ResponseError("请输入注册易信时使用的手机号码");
@@ -122,81 +122,62 @@ class member extends \site\fe\base {
 		$modelWay = $this->model('site\fe\way');
 		$modelWay->bindMember($this->siteId, $member);
 		// log
-		//$this->model('log')->writeMemberAuth($mpid, $user->openid, $mid);
+		//$this->model('log')->writeMemberAuth($site, $user->openid, $mid);
 		/**
 		 * 验证邮箱真实性
 		 */
-		//$attrs->attr_email[4] === '1' && $this->_sendVerifyEmail($mpid, $member->email);
+		//$attrs->attr_email[4] === '1' && $this->_sendVerifyEmail($site, $member->email);
 		/**
 		 * 在cookie中记录认证用户的身份信息
 		 */
-		//$this->setCookie4Member($mpid, $authid, $mid);
+		//$this->setCookie4Member($site, $authid, $mid);
 
 		return new \ResponseData($member);
 	}
 	/**
 	 * 重新进行用户身份验证
 	 */
-	public function doReauth_action($mpid, $authid) {
-		$member = $this->getPostJson();
+	public function doReauth_action($schema) {
+		$schema = $this->model('site\user\memberschema')->byId($schema, 'id,attr_mobile,attr_email,attr_name,extattr');
 
-		$member->authapi_id = $authid;
+		$member = $this->getPostJson();
+		$member->siteid = $this->siteId;
+		$member->schema_id = $schema->id;
 		/**
 		 * get auth settings.
 		 */
-		$attrs = $this->model('user/authapi')->byId($authid, 'attr_mobile,attr_email,attr_name,attr_password');
-		if (false === ($mid = $this->model('user/member')->findMember($member, $attrs))) {
+		if (false === ($found = $this->model('site\user\member')->findMember($member, $schema, false))) {
 			return new \ParameterError('找不到匹配的认证用户');
 		}
-		/**
-		 * 是否需要进行验证
-		 * 目前仅支持邮箱验证
-		 */
-		if ($attrs->attr_email[4] === '1') {
-			$this->model()->update(
-				'xxt_member',
-				array('verified' => 'N', 'email_verified' => 'N'),
-				"mid='$mid'"
-			);
-			$this->_sendVerifyEmail($mpid, $member->email);
-		}
-		if ($attrs->attr_mobile[4] === '1') {
-			$this->model()->update(
-				'xxt_member',
-				array('verified' => 'N', 'mobile_verified' => 'N'),
-				"mid='$mid'"
-			);
-		}
-		/**
-		 * 在cookie中记录认证用户的身份信息
-		 */
-		$this->setCookie4Member($mpid, $authid, $mid);
+		/* 绑定当前站点用户 */
+		$modelWay = $this->model('site\fe\way');
+		$modelWay->bindMember($this->siteId, $found);
 
-		return new \ResponseData($mid);
+		return new \ResponseData($found);
 	}
 	/**
 	 * 认证完成后的回调地址
 	 * 进行用户身份绑定
 	 * 生成cookie的唯一标识，这个值可以逆向解开
 	 *
-	 * $mpid
+	 * $site
 	 * $authid
 	 * $mid 需要告知当前用户的唯一标识
 	 */
-	public function passed_action($mpid, $authid, $mid) {
-		if ($target = $this->myGetCookie("_{$mpid}_mauth_t")) {
+	public function passed_action($site, $authid, $mid) {
+		if ($target = $this->myGetCookie("_{$site}_mauth_t")) {
 			/**
 			 * 调用认证前记录的
 			 */
-			$this->mySetcookie("_{$mpid}_mauth_t", '');
-			$target = $this->model()->encrypt($target, 'DECODE', $mpid);
+			$this->mySetcookie("_{$site}_mauth_t", '');
+			$target = $this->model()->encrypt($target, 'DECODE', $site);
 			$this->redirect($target);
 		} else {
 			/**
 			 * 认证成功后的缺省页面
 			 */
 			$params = array(
-				'mpid' => $mpid,
+				'mpid' => $site,
 				'authid' => $authid,
 			);
 			\TPL::assign('params', $params);
@@ -208,8 +189,8 @@ class member extends \site\fe\base {
 	 *
 	 * $email 在一个公众账号内是唯一的
 	 */
-	private function _sendVerifyEmail($mpid, $email) {
-		$mp = $this->model('mp\mpaccount')->byId($mpid, 'name');
+	private function _sendVerifyEmail($site, $email) {
+		$mp = $this->model('mp\mpaccount')->byId($site, 'name');
 		$subject = $mp->name . "用户身份验证";
 
 		/**
@@ -218,7 +199,7 @@ class member extends \site\fe\base {
 		$access_token = md5(uniqid($email) . mt_rand());
 		$i['token'] = $access_token;
 		$i['create_at'] = time();
-		$i['data'] = json_encode(array($mpid, $email));
+		$i['data'] = json_encode(array($site, $email));
 		$this->model()->insert('xxt_access_token', $i);
 
 		$url = "http://" . $_SERVER['HTTP_HOST'];
@@ -230,7 +211,7 @@ class member extends \site\fe\base {
 		$content .= "<p></p>";
 		$content .= "<p><a href='$url'>完成身份验证</a></p>";
 
-		if (true !== ($msg = $this->sendEmail($mpid, $subject, $content, $email))) {
+		if (true !== ($msg = $this->sendEmail($site, $subject, $content, $email))) {
 			return $msg;
 		}
 
@@ -272,15 +253,15 @@ class member extends \site\fe\base {
 	 * 给当前用户发送验证邮件
 	 * 当前用户的信息通过cookie获取
 	 *
-	 * $mpid
+	 * $site
 	 *
 	 */
-	public function sendVerifyEmail_action($mpid) {
+	public function sendVerifyEmail_action($site) {
 		// todo 需要指定认证接口
 		$aAuthapis = array();
-		$authapi = $this->model('user/authapi')->byUrl($mpid, '/rest/member/auth', 'authid,url');
+		$authapi = $this->model('user/authapi')->byUrl($site, '/rest/member/auth', 'authid,url');
 		$aAuthapis[] = $authapi->authid;
-		$members = $this->getCookieMember($mpid, $aAuthapis);
+		$members = $this->getCookieMember($site, $aAuthapis);
 		if (empty($members)) {
 			die('parameter invalid.');
 		}
@@ -288,7 +269,7 @@ class member extends \site\fe\base {
 		//$member = $this->model('user/member')->byId($mid, 'email');
 		$member = $members[0];
 
-		$this->_sendVerifyEmail($mpid, $member->authed_identity);
+		$this->_sendVerifyEmail($site, $member->authed_identity);
 
 		return new \ResponseData('success');
 	}
@@ -391,19 +372,19 @@ class member extends \site\fe\base {
 	/**
 	 * 将内部组织结构数据全量导入到企业号通讯录
 	 *
-	 * $mpid
+	 * $site
 	 * $authid
 	 */
-	public function import2Qy_action($mpid, $authid) {
+	public function import2Qy_action($site, $authid) {
 		return new \ResponseError('not support');
 	}
 	/**
 	 * 将内部组织结构数据增量导入到企业号通讯录
 	 *
-	 * $mpid
+	 * $site
 	 * $authid
 	 */
-	public function sync2Qy_action($mpid, $authid) {
+	public function sync2Qy_action($site, $authid) {
 		return new \ResponseError('not support');
 	}
 	/**
@@ -413,17 +394,17 @@ class member extends \site\fe\base {
 	 * $pdid 父部门id
 	 *
 	 */
-	public function syncFromQy_action($mpid, $authid, $pdid = 1) {
+	public function syncFromQy_action($site, $authid, $pdid = 1) {
 		if (!($authapi = $this->model('user/authapi')->byId($authid))) {
 			return new \ResponseError('未设置内置认证接口，无法同步通讯录');
 		}
 
-		$mp = $this->model('mp\mpaccount')->byId($mpid, 'qy_joined');
+		$mp = $this->model('mp\mpaccount')->byId($site, 'qy_joined');
 		if (!$mp && $mp->qy_joined !== 'Y') {
 			return new \ResponseError('未与企业号连接，无法同步通讯录');
 		}
 		$timestamp = time(); // 进行同步操作的时间戳
-		$qyproxy = $this->model('mpproxy/qy', $mpid);
+		$qyproxy = $this->model('mpproxy/qy', $site);
 		$model = $this->model();
 		$modelDept = $this->model('user/department');
 		/**
@@ -450,10 +431,10 @@ class member extends \site\fe\base {
 			$q = array(
 				'id,fullpath,sync_at',
 				'xxt_member_department',
-				"mpid='$mpid' and extattr like '%\"id\":$rdept->id,%'",
+				"mpid='$site' and extattr like '%\"id\":$rdept->id,%'",
 			);
 			if (!($ldept = $model->query_obj_ss($q))) {
-				$ldept = $modelDept->create($mpid, $authid, $pid, null);
+				$ldept = $modelDept->create($site, $authid, $pid, null);
 			}
 			$model->update(
 				'xxt_member_department',
@@ -463,7 +444,7 @@ class member extends \site\fe\base {
 					'name' => $rdeptName,
 					'extattr' => json_encode($rdept),
 				),
-				"mpid='$mpid' and id=$ldept->id"
+				"mpid='$site' and id=$ldept->id"
 			);
 			$mapDeptR2L[$rdept->id] = array('id' => $ldept->id, 'path' => $ldept->fullpath);
 		}
@@ -472,7 +453,7 @@ class member extends \site\fe\base {
 		 */
 		$this->model()->delete(
 			'xxt_member_department',
-			"mpid='$mpid' and sync_at<" . $timestamp
+			"mpid='$site' and sync_at<" . $timestamp
 		);
 		/**
 		 * 同步部门下的用户
@@ -487,12 +468,12 @@ class member extends \site\fe\base {
 				$q = array(
 					'mid,fid,sync_at',
 					'xxt_member',
-					"mpid='$mpid' and openid='$user->userid'",
+					"mpid='$site' and openid='$user->userid'",
 				);
 				if (!($luser = $model->query_obj_ss($q))) {
-					$this->createQyFan($mpid, $user, $authid, $timestamp, $mapDeptR2L);
+					$this->createQyFan($site, $user, $authid, $timestamp, $mapDeptR2L);
 				} else if ($luser->sync_at < $timestamp) {
-					$this->updateQyFan($mpid, $luser->fid, $user, $authid, $timestamp, $mapDeptR2L);
+					$this->updateQyFan($site, $luser->fid, $user, $authid, $timestamp, $mapDeptR2L);
 				}
 			}
 		}
@@ -501,14 +482,14 @@ class member extends \site\fe\base {
 		 */
 		$model->delete(
 			'xxt_fans',
-			"mpid='$mpid' and fid in (select fid from xxt_member where mpid='$mpid' and sync_at<" . $timestamp . ")"
+			"mpid='$site' and fid in (select fid from xxt_member where mpid='$site' and sync_at<" . $timestamp . ")"
 		);
 		/**
 		 * 清空没有同步的成员数据
 		 */
 		$model->delete(
 			'xxt_member',
-			"mpid='$mpid' and sync_at<" . $timestamp
+			"mpid='$site' and sync_at<" . $timestamp
 		);
 		/**
 		 * 同步标签
@@ -522,11 +503,11 @@ class member extends \site\fe\base {
 			$q = array(
 				'id,sync_at',
 				'xxt_member_tag',
-				"mpid='$mpid' and extattr like '{\"tagid\":$tag->tagid}%'",
+				"mpid='$site' and extattr like '{\"tagid\":$tag->tagid}%'",
 			);
 			if (!($ltag = $model->query_obj_ss($q))) {
 				$t = array(
-					'mpid' => $mpid,
+					'mpid' => $site,
 					'sync_at' => $timestamp,
 					'name' => $tag->tagname,
 					'authapi_id' => $authid,
@@ -542,7 +523,7 @@ class member extends \site\fe\base {
 				$this->model()->update(
 					'xxt_member_tag',
 					$t,
-					"mpid='$mpid' and id=$ltag->id"
+					"mpid='$site' and id=$ltag->id"
 				);
 			}
 			/**
@@ -557,7 +538,7 @@ class member extends \site\fe\base {
 				$q = array(
 					'sync_at,tags',
 					'xxt_member',
-					"mpid='$mpid' and openid='$user->userid'",
+					"mpid='$site' and openid='$user->userid'",
 				);
 				if ($memeber = $model->query_obj_ss($q)) {
 					if (empty($memeber->tags)) {
@@ -568,7 +549,7 @@ class member extends \site\fe\base {
 					$model->update(
 						'xxt_member',
 						array('tags' => $memeber->tags),
-						"mpid='$mpid' and openid='$user->userid'"
+						"mpid='$site' and openid='$user->userid'"
 					);
 				}
 			}
@@ -578,7 +559,7 @@ class member extends \site\fe\base {
 		 */
 		$model->delete(
 			'xxt_member_tag',
-			"mpid='$mpid' and sync_at<" . $timestamp
+			"mpid='$site' and sync_at<" . $timestamp
 		);
 
 		$model->update(

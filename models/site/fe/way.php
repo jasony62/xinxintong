@@ -80,10 +80,11 @@ class way_model extends \TMS_MODEL {
 							array('assoc_uid' => $siteUser->uid),
 							"uid='{$authedUser->userid}'"
 						);
+					} else {
+
 					}
 					/* 更新第三方认证用户和站点用户的关联关系 */
 					$modelSnsUser->modifyByOpenid($siteId, $snsUser->openid, array('userid' => $siteUser->uid));
-					$siteUser = $modelSiteUser->byId($authedUser->userid);
 				}
 			}
 			/* 清空不必要的数据，减小cookie尺寸 */
@@ -91,14 +92,12 @@ class way_model extends \TMS_MODEL {
 		} else {
 			/* 不是关注用户，建一个空的关注用户 */
 			$options = array();
-			if ($snsName === 'wx') {
-				isset($snsUser->nickname) && $options['nickname'] = $snsUser->nickname;
-				isset($snsUser->sex) && $options['sex'] = $snsUser->sex;
-				isset($snsUser->headimgurl) && $options['headimgurl'] = $snsUser->headimgurl;
-				isset($snsUser->country) && $options['country'] = $snsUser->country;
-				isset($snsUser->province) && $options['province'] = $snsUser->province;
-				isset($snsUser->city) && $options['city'] = $snsUser->city;
-			}
+			isset($snsUser->nickname) && $options['nickname'] = $snsUser->nickname;
+			isset($snsUser->sex) && $options['sex'] = $snsUser->sex;
+			isset($snsUser->headimgurl) && $options['headimgurl'] = $snsUser->headimgurl;
+			isset($snsUser->country) && $options['country'] = $snsUser->country;
+			isset($snsUser->province) && $options['province'] = $snsUser->province;
+			isset($snsUser->city) && $options['city'] = $snsUser->city;
 			if ($cookieUser === false) {
 				$siteUser = $modelSiteUser->blank($siteId, true, array('ufrom' => $snsName));
 				$options['userid'] = $siteUser->uid;
@@ -243,7 +242,7 @@ class way_model extends \TMS_MODEL {
 			$modelSiteUser->update(
 				'xxt_site_account',
 				array('nickname' => $cookieUser->nickname),
-				"uid='{$cookieUser->userid}'"
+				"uid='{$cookieUser->uid}'"
 			);
 		}
 		$cookieUser->expire = time() + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);

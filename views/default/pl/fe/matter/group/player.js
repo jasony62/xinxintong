@@ -136,7 +136,6 @@
                 i, j, s, aVal, aLab = [];
             if (val === undefined) return '';
             for (i = 0, j = schemas.length; i < j; i++) {
-                s = schemas[i];
                 if (schemas[i].id === key) {
                     s = schemas[i];
                     break;

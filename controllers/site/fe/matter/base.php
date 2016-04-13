@@ -140,7 +140,15 @@ class base extends \site\fe\base {
 	 */
 	protected function accessControl($siteId, $objId, $memberSchemas, $userid, &$obj, $targetUrl = null) {
 		$aMemberSchemas = explode(',', $memberSchemas);
-		$members = $this->model('site\user\member')->byUser($siteId, $userid, array('schemas' => $memberSchemas));
+		$members = array();
+		foreach ($aMemberSchemas as $memberSchema) {
+			if (isset($this->who->members->{$memberSchema})) {
+				$members[] = $this->who->members->{$memberSchema};
+			}
+		}
+		if (empty($members)) {
+			$members = $this->model('site\user\member')->byUser($siteId, $userid, array('schemas' => $memberSchemas));
+		}
 		if (empty($members)) {
 			/* 处理版本迁移数据 */
 			$members = $this->__upgradeCookieMembers($siteId, $userid, $aMemberSchemas);

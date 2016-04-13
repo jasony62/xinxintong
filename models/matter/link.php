@@ -42,10 +42,10 @@ class link_model extends base_model {
 	/**
 	 * 返回进行推送的消息格式
 	 *
-	 * $runningMpid
+	 * $siteId
 	 * $id
 	 */
-	public function &forCustomPush($runningMpid, $id) {
+	public function &forCustomPush($siteId, $id) {
 		$link = $this->byId($id);
 		$link->type = 'link';
 
@@ -56,7 +56,7 @@ class link_model extends base_model {
 					array(
 						'title' => $link->title,
 						'description' => $link->summary,
-						'url' => $this->getEntryUrl($runningMpid, $id),
+						'url' => $this->getEntryUrl($siteId, $id),
 						'picurl' => $link->pic,
 					),
 				),
@@ -68,7 +68,7 @@ class link_model extends base_model {
 	/**
 	 *
 	 */
-	public function getEntryUrl($runningMpid, $id, $openid = null, $call = null) {
+	public function getEntryUrl($siteId, $id, $openid = null, $call = null) {
 		if (isset($matter->urlsrc)) {
 			/**
 			 * link
@@ -84,7 +84,7 @@ class link_model extends base_model {
 					);
 					if ($params = $this->query_objs_ss($q)) {
 						$url .= (strpos($url, '?') === false) ? '?' : '&';
-						$url .= $this->spliceParams($runningMpid, $params, null, $openid);
+						$url .= $this->spliceParams($siteId, $params, null, $openid);
 					}
 					if (preg_match('/^(http:|https:)/', $url) === 0) {
 						$url = 'http://' . $url;
@@ -92,14 +92,14 @@ class link_model extends base_model {
 
 					return $url;
 				} else {
-					$url = "?mpid=$runningMpid&id=$matter->id&type=link";
+					$url = "?site=$siteId&id=$matter->id&type=link";
 				}
 				break;
 			case 1: // news
-				$url = "?mpid=$runningMpid&type=news&id=" . $matter->url;
+				$url = "?site=$siteId&type=news&id=" . $matter->url;
 				break;
 			case 2: // channel
-				$url = "?mpid=$runningMpid&type=channel&id=" . $matter->url;
+				$url = "?site=$siteId&type=channel&id=" . $matter->url;
 				break;
 			case 3: // inner
 				$reply = TMS_APP::model('reply\inner', $call, $matter->url);
@@ -111,7 +111,7 @@ class link_model extends base_model {
 				);
 				if ($params = $this->query_objs_ss($q)) {
 					$url .= (strpos($url, '?') === false) ? '?' : '&';
-					$url .= $this->spliceParams($runningMpid, $params, null, $openid);
+					$url .= $this->spliceParams($siteId, $params, null, $openid);
 				}
 				if (preg_match('/^(http:|https:)/', $url) === 0) {
 					$url = 'http://' . $url;
@@ -122,11 +122,8 @@ class link_model extends base_model {
 				die('unknown link urlsrc.');
 			}
 		} else {
-			$url = "http://" . $_SERVER['HTTP_HOST'] . "/rest/mi/matter";
-			$url .= "?mpid=$runningMpid&id=$id&type=" . $this->getTypeName();
-			if (!empty($openid)) {
-				$url .= "&openid=$openid";
-			}
+			$url = "http://" . $_SERVER['HTTP_HOST'] . "/rest/site/fe/matter/link";
+			$url .= "?site=$siteId&id=$id&type=" . $this->getTypeName();
 
 			return $url;
 		}

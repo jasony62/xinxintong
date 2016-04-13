@@ -48,7 +48,7 @@
         <button class='btn btn-block' ng-click="submit()" ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'">保存</button>
         <button class='btn btn-block' ng-click="run()" ng-disabled='modified' ng-class="modified?'btn-default':'btn-success'">开始</button>
     </div>
-    <div class='tile'>
+    <div class='tile' ng-if="app.scenarioConfig.can_period!=='D'">
         <div class='form-group'>
             <tms-datepicker tms-title='开始时间' tms-date='app.start_at' tms-state='start_at'></tms-datepicker>
             <div class='help-block'>开始时间（可选）</div>
@@ -56,7 +56,7 @@
             <div class='help-block'>结束时间（可选）</div>
         </div>
     </div>
-    <div class='tile'>
+    <div class='tile' ng-if="app.scenarioConfig.can_signin!=='D'">
         <div class='checkbox'>
             <label><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.can_signin' ng-change="update('can_signin');">提供签到功能</label>
         </div>

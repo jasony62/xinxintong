@@ -279,7 +279,7 @@ class channel_model extends article_base {
 	 *
 	 * return 频道包含的所有条目
 	 */
-	public function &getMattersNoLimit($channel_id, $vid, $params) {
+	public function &getMattersNoLimit($channel_id, $userid, $params) {
 		/**
 		 * load channel.
 		 */
@@ -291,7 +291,7 @@ class channel_model extends article_base {
 			$orderby = $params->orderby || $channel->orderby;
 			$q1 = array();
 			$q1[] = "m.id,m.title,m.summary,m.pic,m.create_at,m.creater_name,cm.create_at add_at,'article' type,m.score,m.remark_num,s.score myscore";
-			$q1[] = "xxt_article m left join xxt_article_score s on m.id=s.article_id and s.vid='$vid',xxt_channel_matter cm";
+			$q1[] = "xxt_article m left join xxt_article_score s on m.id=s.article_id and s.vid='$userid',xxt_channel_matter cm";
 			$q1[] = "m.state=1 and m.approved='Y' and cm.channel_id=$channel_id and m.id=cm.matter_id and cm.matter_type='article'";
 
 			$q2 = array();

@@ -95,11 +95,11 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', function($sc
 	$scope.setPic = function() {
 		var options = {
 			callback: function(url) {
-				$scope.editing.pic = url + '?_=' + (new Date()) * 1;
+				$scope.app.pic = url + '?_=' + (new Date()) * 1;
 				$scope.update('pic');
 			}
 		};
-		$scope.$broadcast('mediagallery.open', options);
+		mediagallery.open($scope.siteId, options);
 	};
 	$scope.removePic = function() {
 		$scope.editing.pic = '';
@@ -140,5 +140,30 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', function($sc
 	$scope.changePValueMode = function(p) {
 		p.pvalue = '';
 	};
+	$scope.$watch('editing.urlsrc', function(nv) {
+		switch (nv) {
+			case '1':
+				if ($scope.news === undefined) {
+					http2.get('/rest/pl/fe/matter/news/list?site=' + $scope.siteId + '&cascade=N', function(rsp) {
+						$scope.news = rsp.data;
+					});
+				}
+				break;
+			case '2':
+				if ($scope.channels === undefined) {
+					http2.get('/rest/pl/fe/matter/channel/list?site=' + $scope.siteId + '&cascade=N', function(rsp) {
+						$scope.channels = rsp.data;
+					});
+				}
+				break;
+			case '3':
+				if ($scope.inners === undefined) {
+					http2.get('/rest/pl/fe/matter/inner/list?site=' + $scope.siteId, function(rsp) {
+						$scope.inners = rsp.data;
+					});
+				}
+				break;
+		}
+	});
 	getInitData();
 }]);

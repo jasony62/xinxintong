@@ -35,8 +35,6 @@ class main extends \site\fe\matter\base {
 		if (isset($article->access_control) && $article->access_control === 'Y') {
 			$this->accessControl($site, $id, $article->authapis, $user->uid, $article, false);
 		}
-		$article->remarks = $article->remark_num > 0 ? $modelArticle->remarks($id) : false;
-		$article->praised = $modelArticle->praised($user, $id);
 		$article->channels = $this->model('matter\channel')->byMatter($id, 'article');
 		$article->tags = $modelArticle->tags($id);
 		if ($article->has_attachment === 'Y') {
@@ -47,6 +45,13 @@ class main extends \site\fe\matter\base {
 					"article_id='$id'",
 				)
 			);
+		}
+		if ($article->custom_body === 'N') {
+			$article->remarks = $article->remark_num > 0 ? $modelArticle->remarks($id) : false;
+			$article->praised = $modelArticle->praised($user, $id);
+		} else if ($article->page_id) {
+			/* 定制页 */
+			$article->page = $this->model('code/page')->byId($article->page_id);
 		}
 		$data['article'] = $article;
 		$data['user'] = $user;

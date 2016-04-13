@@ -40,6 +40,9 @@ class main extends \site\fe\base {
 			\TPL::output('site/fe/matter/news/main');
 			break;
 		case 'channel':
+			$modelChn = $this->model('matter\channel');
+			$channel = $modelChn->byId($id, 'title');
+			\TPL::assign('title', $channel->title);
 			\TPL::output('site/fe/matter/channel/main');
 			break;
 		}

@@ -71,15 +71,12 @@ class member_model extends TMS_MODEL {
 		if (empty($mpid)) {
 			return array(false, '没有指定MPID');
 		}
-
 		if (empty($authid)) {
 			return array(false, '没有指定用户认证接口ID');
 		}
-
 		if (empty($fid)) {
 			return array(false, '仅支持对关注用户进行认证');
 		}
-
 		$fan = \TMS_APP::M('user/fans')->byId($fid);
 		$member->mpid = $mpid;
 		$member->authapi_id = $authid;
@@ -104,20 +101,16 @@ class member_model extends TMS_MODEL {
 				if ('yx' !== $mpa->mpsrc) {
 					return array(false, '目前仅支持在易信客户端中验证手机号');
 				}
-
 				if ('N' == $mpa->yx_checkmobile) {
 					return array(false, '仅支持在开通了手机验证接口的公众号中验证手机号');
 				}
-
 				$rst = \TMS_APP::M('mpproxy/yx', $mpid)->mobile2Openid($mobile);
 				if ($rst[0] === false) {
 					return array(false, "验证手机号失败【{$rst[1]}】");
 				}
-
 				if ($fan->openid !== $rst[1]->openid) {
 					return array(false, "您输入的手机号与注册易信用户时的提供手机号不一致");
 				}
-
 			}
 			$member->authed_identity = $member->mobile;
 		} else if ($attrs->attr_email[5] === '1' && isset($member->email)) {
@@ -125,18 +118,6 @@ class member_model extends TMS_MODEL {
 		} else {
 			return array(false, '无法获得用户身份标识信息');
 		}
-
-		/**
-		 * 处理访问口令
-		 */
-		/*if ($attrs->attr_password[0] === '0') {
-			if (empty($member->password) || strlen($member->password) < 6)
-			return array(false, '密码长度不符合要求');
-			$salt = $this->gen_salt();
-			$cpw = $this->compile_password($member->authed_identity, $member->password, $salt);
-			$member->password = $cpw;
-			$member->password_salt = $salt;
-		*/
 
 		$create_at = time();
 		$mid = md5(uniqid() . $create_at); //member's id

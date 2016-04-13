@@ -24,6 +24,10 @@
 		"id": "c2",
 		"title": "登记信息2"
 	}],
+	"scenarioConfig": {
+		"can_rounds": "D",
+		"can_signin": "P"
+	},
 	"entryRule": {
 		"otherwise": {
 			"entry": "enroll"

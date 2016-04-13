@@ -290,11 +290,12 @@ $sql .= ",title varchar(255) not null default ''";
 $sql .= ",summary varchar(240) not null default ''";
 $sql .= ",pic text"; // 分享或生成链接时的图片
 $sql .= ",data_schemas text";
+$sql .= ",tags text";
 $sql .= ',page_code_id int not null default 0';
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
-	echo 'database error: ' . $mysqli->error;
+	echo 'database error(xxt_group): ' . $mysqli->error;
 }
 /**
  * 活动登记记录

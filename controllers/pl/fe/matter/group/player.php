@@ -17,7 +17,12 @@ class player extends \pl\fe\matter\base {
 	 *
 	 */
 	public function list_action($site, $app) {
-		$players = array();
-		return new \ResponseData($players);
+		$modelGrp = $this->model('matter\group');
+		$modelPlayer = $this->model('matter\group\player');
+
+		$app = $modelGrp->byId($app);
+		$result = $modelPlayer->find($site, $app);
+
+		return new \ResponseData($result);
 	}
 }

@@ -1,20 +1,79 @@
 <div class='col-md-8'>
     <div class='tile'>
         <div class='form-group'>
-            <div class='form-control' ng-bind='app.title'></div>
+            <a  href='/rest/pl/fe/matter/group/setting?site={{siteId}}&id={{id}}' ng-bind='app.title'></a>
         </div>
     </div>
-    <div class='tile'>
-        <a href='/rest/pl/fe/matter/group/setting?site={{siteId}}&id={{id}}'>设置</a>
-    </div>
-    <div class='tile'>
-        <div class='form-group'>
-            <label>屏幕地址</label>
-            <div class='form-control' ng-bind="opUrl"></div>
+    <div class='tile' ng-controller="ctrlRound">
+        <div class='list-group'>
+            <a class='list-group-item' ng-class="{'active':!editingRound}" ng-click='open()' style='text-align:center'>全部</a>
+            <a class='list-group-item' ng-class="{'active':r===editingRound}" ng-repeat='r in rounds' ng-click='open(r)'>
+                <span>{{r.title}}</span>
+                <button class='btn btn-xs btn-default pull-right' ng-if="r===editingRound" ng-click='removeRound()'><span class='glyphicon glyphicon-remove'></span></button>
+            </a>
+            <a class='list-group-item'>
+                <button class='btn btn-success btn-block' ng-click='addRound()'>添加</button>
+            </a>
         </div>
-    </div>
-    <div class='tile'>
-        运行结果
+        <div ng-if='editingRound'>
+            <div class='form-group'>
+                <label>轮次名称</label>
+                <input type='text' class='form-control' ng-model='editingRound.title' tms-auto-update tms-wait=1000 tms-update="updateRound('title')">
+            </div>
+            <div class='form-group'>
+                <label>抽取数量</label>
+                <input type='text' class='form-control' ng-model='editingRound.times' tms-auto-update tms-wait=1000 tms-update="updateRound('times')">
+            </div>
+            <div class='checkbox'>
+                <label><input type='checkbox' ng-model='editingRound.autoplay' ng-true-value="'Y'" ng-false-value="'N'" ng-change="updateRound('autoplay')">自动抽取</label>
+            </div>
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th style='width:80px'>抽取规则</th>
+                        <th>抽取对象</th>
+                        <th style='width:48px'>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="t in aTargets">
+                        <td>{{$index+1}}</td>
+                        <td>
+                            <combox evt-prefix='tag' existing='t.tags' options='aTags' state={{$index}}></combox>
+                        </td>
+                        <td>
+                            <button class='btn btn-default btn-sm' ng-click='removeTarget($index)'>
+                            <span class='glyphicon glyphicon-remove'></span>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan=3>
+                            <button class='btn btn-success' ng-click='saveTargets()'>保存</button>
+                            <button class='btn btn-primary pull-right' ng-click='addTarget()'>添加</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>昵称</th>
+                        <th>姓名</th>
+                        <th>手机号</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="w in winners">
+                        <td>{{$index+1}}</td>
+                        <td>{{w.nickname}}</td>
+                        <td>{{w.member.name}}</td>
+                        <td>{{w.member.mobile}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 <div class='col-md-4'>
@@ -23,9 +82,8 @@
     </div>
     <div class='tile'>
         <div class='form-group'>
-            <div>阅读：{{app.read_num}}</div>
-            <div>分享好友：{{app.share_friend_num}}</div>
-            <div>分享朋友圈：{{app.share_timeline_num}}</div>
+            <div class='form-control' ng-bind="opUrl" style="height:auto;word-break:break-all;"></div>
+            <div class='help-block'>投影地址</div>
         </div>
     </div>
 </div>

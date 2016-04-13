@@ -266,25 +266,42 @@ class main extends \pl\fe\matter\base {
 		return $config;
 	}
 	/**
-	 * 给符合条件的登记记录打标签
+	 * 从登记活动导入数据
 	 */
-	public function importByData_action($site, $app) {
+	public function importByApp_action($site, $app) {
+		$modelGrp = $this->model('matter\group');
+		$modelPlayer = $this->model('matter\group\player');
 		$posted = $this->getPostJson();
 		$filter = $posted->filter;
 		$source = $posted->source;
 
 		if (!empty($source)) {
-			/*给符合条件的记录打标签*/
-			$modelRec = $this->model('matter\group\player');
-			$q = array(
-				'distinct enroll_key',
-				'xxt_enroll_record_data',
-				"aid='$source' and state=1",
+			$sourceApp = $this->model('matter\enroll')->byId($source);
+			/* 导入活动定义 */
+			$modelGrp->update(
+				'xxt_group',
+				array('data_schemas' => $sourceApp->data_schemas, 'tags' => $sourceApp->tags),
+				"id='$app'"
 			);
+			/* 清空已有数据 */
+			$modelPlayer->clean($app, true);
+			/* 获取数据 */
+			$modelRec = $this->model('matter\enroll\record');
 			$eks = null;
 			if (empty((array) $filter)) {
+				$q = array(
+					'enroll_key',
+					'xxt_enroll_record',
+					"aid='$source' and state=1",
+				);
 				$eks = $modelRec->query_vals_ss($q);
 			} else {
+				/* 根据过滤条件选择数据 */
+				$q = array(
+					'distinct enroll_key',
+					'xxt_enroll_record_data',
+					"aid='$source' and state=1",
+				);
 				foreach ($filter as $k => $v) {
 					$w = "(name='$k' and ";
 					$w .= "concat(',',value,',') like '%,$v,%'";
@@ -295,18 +312,17 @@ class main extends \pl\fe\matter\base {
 					$eks = ($eks === null) ? $eks2 : array_intersect($eks, $eks2);
 				}
 			}
+			/* 导入数据 */
 			if (!empty($eks)) {
-				/*更新应用标签*/
-				$modelApp = $this->model('matter\group');
-				$objApp = $modelApp->byId($app, array('cascaded' => 'N'));
+				$objGrp = $modelGrp->byId($app, array('cascaded' => 'N'));
 				$options = array('cascaded' => 'Y');
 				foreach ($eks as $ek) {
 					$record = $modelRec->byId($ek, $options);
 					$user = new \stdClass;
-					$user->userid = $record->userid;
+					$user->uid = $record->userid;
 					$user->nickname = $record->nickname;
-					$newek = $modelRec->add($site, $objApp, $user);
-					$modelRec->setData($user, $site, $objApp->id, $newek, $record->data);
+					$newek = $modelPlayer->enroll($site, $objGrp, $user);
+					$modelPlayer->setData($user, $site, $objGrp, $newek, $record->data);
 				}
 			}
 		}

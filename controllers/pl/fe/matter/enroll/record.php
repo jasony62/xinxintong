@@ -44,7 +44,7 @@ class record extends \pl\fe\matter\base {
 		$mdoelRec = $this->model('matter\enroll\record');
 		$result = $mdoelRec->find($site, $app, $options);
 		/* 获得数据项定义 */
-		$result->schema = json_decode($app->data_schemas);
+		//$result->schema = json_decode($app->data_schemas);
 
 		return new \ResponseData($result);
 	}

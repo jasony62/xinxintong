@@ -36,7 +36,7 @@ class player_model extends \TMS_MODEL {
 		if (empty($submitkey)) {
 			$submitkey = $user->uid;
 		}
-		// 已有的登记数据
+		/* 已有的登记数据 */
 		$fields = $this->query_vals_ss(array('name', 'xxt_group_player_data', "aid='{$app->id}' and enroll_key='$ek'"));
 		foreach ($data as $n => $v) {
 			/**
@@ -157,29 +157,13 @@ class player_model extends \TMS_MODEL {
 		return $cusdata;
 	}
 	/**
-	 * 登记清单
-	 *
-	 * 1、如果活动仅限会员报名，那么要叠加会员信息
-	 * 2、如果报名的表单中有扩展信息，那么要提取扩展信息
-	 *
-	 * $mpid
-	 * $aid
-	 * $options
-	 * --creater openid
-	 * --visitor openid
-	 * --page
-	 * --size
-	 * --kw 检索关键词
-	 * --by 检索字段
-	 *
+	 * 用户清单
 	 *
 	 * return
 	 * [0] 数据列表
 	 * [1] 数据总条数
-	 * [2] 数据项的定义
 	 */
 	public function find($siteId, &$app, $options = null) {
-		/* 获得活动的定义 */
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$orderby = isset($options->orderby) ? $options->orderby : '';
@@ -190,7 +174,7 @@ class player_model extends \TMS_MODEL {
 		}
 		$result = new \stdClass; // 返回的结果
 		$result->total = 0;
-		/* 获得登记数据 */
+		/* 数据过滤条件 */
 		$w = "e.state=1 and e.siteid='$siteId' and e.aid='{$app->id}'";
 		if (!empty($kw) && !empty($by)) {
 			switch ($by) {
@@ -214,16 +198,20 @@ class player_model extends \TMS_MODEL {
 			"xxt_group_player e",
 			$w,
 		);
-		$q2 = array(
-			'r' => array('o' => ($page - 1) * $size, 'l' => $size),
-		);
+		/* 分页参数 */
+		if (isset($page)) {
+			$q2 = array(
+				'r' => array('o' => ($page - 1) * $size, 'l' => $size),
+			);
+		}
+		/* 排序 */
 		$q2['o'] = 'e.enroll_at desc';
-		if ($records = $this->query_objs_ss($q, $q2)) {
+		if ($players = $this->query_objs_ss($q, $q2)) {
 			/* record data */
-			foreach ($records as &$r) {
-				$r->data = $this->dataById($r->enroll_key);
+			foreach ($players as &$player) {
+				$player->data = $this->dataById($player->enroll_key);
 			}
-			$result->records = $records;
+			$result->players = $players;
 			/* total */
 			$q[0] = 'count(*)';
 			$total = (int) $this->query_val_ss($q);
@@ -282,8 +270,8 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 生成活动登记的key
 	 */
-	public function genKey($mpid, $aid) {
-		return md5(uniqid() . $mpid . $aid);
+	public function genKey($siteId, $aid) {
+		return md5(uniqid() . $siteId . $aid);
 	}
 	/**
 	 *
@@ -317,39 +305,34 @@ class player_model extends \TMS_MODEL {
 		return $rst;
 	}
 	/**
-	 * 删除所有登记记录（打标记）
+	 * 清除所有登记记录
 	 *
 	 * @param string $aid
 	 */
-	public function clean($aid) {
-		$rst = $this->update(
-			'xxt_group_player_data',
-			array('state' => 0),
-			"aid='$aid'"
-		);
-		$rst = $this->update(
-			'xxt_group_player',
-			array('state' => 0),
-			"aid='$aid'"
-		);
+	public function clean($aid, $byDelete = false) {
+		if ($byDelete) {
+			$rst = $this->delete(
+				'xxt_group_player_data',
+				"aid='$aid'"
+			);
+			$rst = $this->delete(
+				'xxt_group_player',
+				"aid='$aid'"
+			);
+		} else {
+			$rst = $this->update(
+				'xxt_group_player_data',
+				array('state' => 0),
+				"aid='$aid'"
+			);
+			$rst = $this->update(
+				'xxt_group_player',
+				array('state' => 0),
+				"aid='$aid'"
+			);
+		}
 
 		return $rst;
-	}
-	/**
-	 * 获得抽奖的轮次
-	 * @param string $aid
-	 * @param array $options
-	 */
-	public function &rounds($aid, $options = array()) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$q = array(
-			$fields,
-			'xxt_group_round',
-			"aid='$aid'",
-		);
-		$rounds = $this->query_objs_ss($q);
-
-		return $rounds;
 	}
 	/**
 	 * 有资格参加指定轮次分组的用户

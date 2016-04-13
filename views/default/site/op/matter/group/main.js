@@ -89,8 +89,8 @@ ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$interval', function($
         winner = $scope.players[winnerIndex - 1];
         if (winner) {
             $scope.winners.push(winner);
-            $http.post(LS.j('/done', 'aid', 'rid') + '&ek=' + winner.enroll_key, {
-                openid: winner.openid,
+            $http.post(LS.j('/done', 'site', 'app', 'rid') + '&ek=' + winner.enroll_key, {
+                uid: winner.userid,
                 nickname: winner.nickname
             });
         }
@@ -206,11 +206,11 @@ ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$interval', function($
         }, $scope.speed);
     };
     $scope.empty = function(fromBegin) {
-        $http.get(LS.j('/empty', 'aid')).success(function(rsp) {
+        $http.get(LS.j('/empty', 'site', 'app')).success(function(rsp) {
             if (fromBegin && fromBegin === 'Y') {
                 var url, t;
                 t = (new Date()).getTime();
-                url = '/rest/op/enroll/lottery?aid=' + LS.p.aid + '&_=' + t;
+                url = '/rest/site/op/matter/group?site=' + LS.p.site + '&app=' + LS.p.app + '&_=' + t;
                 location.href = url;
             } else {
                 location.reload();

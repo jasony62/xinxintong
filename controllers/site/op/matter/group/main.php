@@ -62,7 +62,7 @@ class main extends \site\op\base {
 	 *
 	 */
 	public function empty_action($app) {
-		$rst = $this->model()->delete('xxt_group_result', "app='$app'");
+		$rst = $this->model()->delete('xxt_group_result', "aid='$app'");
 
 		return new \ResponseData($rst);
 	}
@@ -70,14 +70,14 @@ class main extends \site\op\base {
 	 * 记录中奖人
 	 */
 	public function done_action($app, $rid, $ek) {
-		$fans = $this->getPostJson();
+		$user = $this->getPostJson();
 
 		$i = array(
 			'aid' => $app,
 			'round_id' => $rid,
 			'enroll_key' => $ek,
-			'openid' => $fans->openid,
-			'nickname' => $fans->nickname,
+			'userid' => isset($user->uid) ? $user->uid : '',
+			'nickname' => $user->nickname,
 			'draw_at' => time(),
 		);
 

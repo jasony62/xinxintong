@@ -8,12 +8,12 @@ class round_model extends \TMS_MODEL {
 	 * @param string $app
 	 * @param array $options
 	 */
-	public function &find($app, $options = array()) {
+	public function &find($appId, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$q = array(
 			$fields,
 			'xxt_group_round',
-			"aid='$app'",
+			"aid='$appId'",
 		);
 		$rounds = $this->query_objs_ss($q);
 

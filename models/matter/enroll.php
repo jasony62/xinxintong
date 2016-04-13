@@ -145,6 +145,30 @@ class enroll_model extends app_base {
 		return $rst > 0;
 	}
 	/**
+	 * 检查用户是否已经登记
+	 *
+	 * 如果设置轮次，只坚持当前轮次是否已经登记
+	 */
+	public function userEnrolled($siteId, $aid, &$user) {
+		if (empty($siteId) || empty($aid) || empty($user->uid)) {
+			return false;
+		}
+		$q = array(
+			'count(*)',
+			'xxt_enroll_record',
+			"state=1 and enroll_at>0 and aid='$aid' and userid='$user->uid'",
+		);
+		/* 当前轮次 */
+		$modelRun = \TMS_APP::M('matter\enroll\round');
+		if ($activeRound = $modelRun->getActive($siteId, $aid)) {
+			$q[2] .= " and rid='$activeRound->rid'";
+		}
+
+		$rst = (int) $this->query_val_ss($q);
+
+		return $rst > 0;
+	}
+	/**
 	 * 登记活动签到
 	 *
 	 * 如果用户已经做过活动登记，那么设置签到时间

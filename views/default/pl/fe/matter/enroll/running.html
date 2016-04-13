@@ -1,46 +1,44 @@
 <div class='col-md-8'>
     <div class='tile'>
         <div class='form-group'>
-            <div class='form-control' ng-bind='app.title'></div>
+            <a href='/rest/pl/fe/matter/enroll/setting?site={{siteId}}&id={{id}}' ng-bind='app.title'></a>
         </div>
     </div>
     <div class='tile'>
-        <a href='/rest/pl/fe/matter/enroll/setting?site={{siteId}}&id={{id}}'>设置</a>
-    </div>
-    <div class='tile'>
         <div class='form-group'>
-            <label>进入URL</label>
             <div class='form-control' style='height:auto;word-break:break-all' ng-bind='entry.url'></div>
+            <div class='help-block'>用户进入URL</div>
         </div>
         <div class='form-group'>
-            <label>进入二维码</label>
             <div><img ng-src="{{entry.qrcode}}"></div>
+            <div class='help-block'>用户进入二维码</div>
+        </div>
+    </div>
+    <div class='tile' ng-if="app.can_signin==='Y'">
+        <div class='form-group'>
+            <div class='form-control' style='height:auto;word-break:break-all' ng-bind='entry.signinUrl'></div>
+            <div class='help-block'>用户签到URL</div>
+        </div>
+        <div class='form-group'>
+            <div><img ng-src="{{entry.signinQrcode}}"></div>
+            <div class='help-block'>用户签到二维码</div>
         </div>
     </div>
     <div class='tile'>
         <div class='form-group'>
-            <label>屏幕地址</label>
             <div class='form-control' ng-bind="opUrl"></div>
+            <div class='help-block'>投影地址</div>
         </div>
-    </div>
-    <div class='tile'>
-        <div class='form-group'>
-            <label>屏幕地址</label>
-            <div class='form-control' ng-bind="opUrl"></div>
-        </div>
-    </div>
-    <div class='tile'>
-        运行情况统计
-    </div>
-</div>
-<div class='col-md-4'>
-    <div class='tile'>
-        <button class='btn btn-block btn-default' ng-click="stop()">停止</button>
     </div>
     <div class='tile'>
         <div class='form-group'>
             <a href='/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}'>登记记录</a>
         </div>
+    </div>
+</div>
+<div class='col-md-4'>
+    <div class='tile'>
+        <button class='btn btn-block btn-default' ng-click="stop()">停止</button>
     </div>
     <div class='tile'>
         <div class='form-group'>

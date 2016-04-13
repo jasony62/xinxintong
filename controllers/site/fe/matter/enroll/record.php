@@ -413,8 +413,8 @@ class record extends base {
 	 * @param string $ek
 	 */
 	public function get_action($site, $app, $ek = '') {
-		$modelApp = $this->model('app\enroll');
-		$modelRec = $this->model('app\enroll\record');
+		$modelApp = $this->model('matter\enroll');
+		$modelRec = $this->model('matter\enroll\record');
 		$openedek = $ek;
 		$record = null;
 		$options = array('cascaded' => 'N');

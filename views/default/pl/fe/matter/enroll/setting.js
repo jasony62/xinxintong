@@ -28,12 +28,8 @@
 			mediagallery.open($scope.siteId, options);
 		};
 		$scope.removePic = function() {
-			var nv = {
-				pic: ''
-			};
-			http2.post('/rest/mp/app/enroll/update?aid=' + $scope.id, nv, function() {
-				$scope.app.pic = '';
-			});
+			$scope.app.pic = '';
+			$scope.update('pic');
 		};
 		$scope.$on('xxt.tms-datepicker.change', function(event, data) {
 			$scope.app[data.state] = data.value;

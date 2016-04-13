@@ -5,8 +5,8 @@
                 <label>ID:&nbsp;<span style='font-weight:normal' ng-bind="ep.name"></span></label>
             </div>
             <div class='form-group'>
-                <label>页面名称</label>
                 <input type='text' class='form-control' ng-model='ep.title' tms-auto-update tms-wait=1000 tms-update="updPage(ep,'title')">
+                <div class='help-block'>页面名称</div>
             </div>
             <div class='form-group' style='display:none'>
                 <label class="checkbox-inline"><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='ep.check_entry_rule' ng-change="updPage(ep,'check_entry_rule')">检查进入规则</label>
@@ -29,7 +29,14 @@
     </div>
     <div class="panel panel-default">
         <div class="panel-body">
-            <div ng-include="'/views/default/pl/fe/matter/enroll/comp-'+(ep.type==='I'?'input':(ep.type==='V'?'view':'signin'))+'.html?_=2'" ng-controller='ctrlPageSchema'></div>
+            <div ng-include="'/views/default/pl/fe/matter/enroll/comp-'+(ep.type==='I'?'input':(ep.type==='V'?'view':'signin'))+'.html?_=5'" ng-controller='ctrlPageSchema'></div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class='list-group form-group'>
+            <div class='list-group-item' ng-repeat="p in others">
+                <span ng-bind='p.title'></span>(<span ng-bind='p.name'></span>)
+            </div>
         </div>
     </div>
 </div>

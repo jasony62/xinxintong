@@ -293,7 +293,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
             }
         }
     });
-    app.controller('ctrlInput', ['$scope', '$http', 'Input', 'Schema', function($scope, $http, Input, Schema) {
+    app.controller('ctrlInput', ['$scope', '$http', 'Input', function($scope, $http, Input) {
         var facInput, tasksOfOnReady, tasksOfBeforeSubmit;
         tasksOfBeforeSubmit = [];
         facInput = Input.ins();
@@ -307,9 +307,10 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
         };
         $scope.$on('xxt.app.enroll.ready', function(event, params) {
             if (params.record) {
-                var mapSchema, p, dataOfRecord, value;
+                var schemas, mapSchema, p, dataOfRecord, value;
                 mapSchema = {};
-                angular.forEach(params.schema, function(def) {
+                schemas = JSON.parse(params.app.data_schemas);
+                angular.forEach(schemas, function(def) {
                     mapSchema[def.id] = def;
                 });
                 dataOfRecord = params.record.data;

@@ -15,7 +15,7 @@ class main extends base {
 	 */
 	public function __construct() {
 		parent::__construct();
-		$this->modelApp = $this->model('app\enroll');
+		$this->modelApp = $this->model('matter\enroll');
 	}
 	/**
 	 * 返回活动页
@@ -146,7 +146,7 @@ class main extends base {
 	private function _defaultPage($site, &$app, $redirect = false) {
 		$user = $this->who;
 		$oPage = null;
-		$hasEnrolled = $this->modelApp->hasEnrolled($site, $app->id, $user);
+		$hasEnrolled = $this->modelApp->userEnrolled($site, $app->id, $user);
 		if ($hasEnrolled && !empty($app->enrolled_entry_page)) {
 			$page = $app->enrolled_entry_page;
 		} else {

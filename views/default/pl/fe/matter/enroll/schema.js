@@ -45,15 +45,23 @@
         $scope.addSchema = function(type) {
             var schema = newSchema(type);
             $scope.schemas.push(schema);
+            $scope.$parent.modified = true;
         };
         $scope.addOption = function(schema) {
-            var newOp = {
-                l: ''
-            };
+            var maxSeq = 0,
+                newOp = {
+                    l: ''
+                };
+            angular.forEach(schema.ops, function(op) {
+                var opSeq = parseInt(op.v.substr(1));
+                opSeq > maxSeq && (maxSeq = opSeq);
+            });
+            newOp.v = 'v' + (++maxSeq);
             schema.ops.push(newOp);
             $timeout(function() {
                 $scope.$broadcast('xxt.editable.add', newOp);
             });
+            $scope.$parent.modified = true;
         };
         $scope.$on('xxt.editable.remove', function(e, op) {
             angular.forEach($scope.schemas, function(schema) {
@@ -61,7 +69,11 @@
                     schema.ops.splice(schema.ops.indexOf(op), 1);
                 }
             });
+            $scope.$parent.modified = true;
         });
+        $scope.modify = function(name) {
+            $scope.$parent.modified = true;
+        };
         $scope.save = function() {
             $scope.update('data_schemas');
             $scope.submit();

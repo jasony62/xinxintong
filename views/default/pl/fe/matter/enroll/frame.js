@@ -132,30 +132,15 @@ ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', func
 	});
 	$locationProvider.html5Mode(true);
 }]);
-ngApp.factory('Mp', function($q, http2) {
-	var Mp = function() {};
-	Mp.prototype.getAuthapis = function(id) {
-		var _this = this,
-			deferred = $q.defer(),
-			promise = deferred.promise;
-		if (_this.authapis !== undefined) {
-			deferred.resolve(_this.authapis);
-		} else {
-			http2.get('/rest/mp/authapi/get?valid=Y', function(rsp) {
-				_this.authapis = rsp.data;
-				deferred.resolve(rsp.data);
-			});
-		}
-		return promise;
-	};
-	return Mp;
-});
 ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($scope, $location, $q, http2) {
 	var ls = $location.search(),
 		modifiedData = {};
 	$scope.id = ls.id;
 	$scope.siteId = ls.site;
 	$scope.modified = false;
+	$scope.back = function() {
+		history.back();
+	};
 	$scope.submit = function() {
 		var defer = $q.defer();
 		http2.post('/rest/pl/fe/matter/enroll/update?site=' + $scope.siteId + '&app=' + $scope.id, modifiedData, function(rsp) {

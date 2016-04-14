@@ -102,7 +102,7 @@
                         def.required == 1 && (html += 'required=""');
                         html += ' title="' + def.title + '">\r\n';
                         for (var i in def.ops) {
-                            html += '<option wrap="option" name="data.' + key + '" value="v' + i + '"' + 'data-label="' + def.ops[i].l + '"' + 'title="' + def.title + '"' + '>' + def.ops[i].text + '</option>';
+                            html += '<option wrap="option" name="data.' + key + '" value="' + def.ops[i].v + '"' + 'data-label="' + def.ops[i].l + '"' + 'title="' + def.title + '"' + '>' + def.ops[i].l + '</option>';
                         }
                         html += '\r\n</select>';
                     }
@@ -123,7 +123,7 @@
                         if (def.align === 'H') html += ' class="checkbox-inline"';
                         html += '><input type="checkbox" name="' + key + '"';
                         def.required == 1 && (html += 'required=""');
-                        html += ' ng-model="data.' + key + '.v' + i + '"';
+                        html += ' ng-model="data.' + key + '.' + def.ops[i].v + '"';
                         html += ' title="' + def.title + '" data-label="' + def.ops[i].l + '"><span>' + def.ops[i].l + '</span></label></li>';
                     }
                     html += '</ul>';
@@ -450,18 +450,18 @@
         tmplBtn = function(id, action, label) {
             return '<button id="' + id + '" class="btn btn-primary btn-block btn-lg" ng-click="' + action + '"><span>' + label + '</span></button>';
         };
-        if (schema = EmbedButtonSchema[def.type]) {
+        if (schema = EmbedButtonSchema[def.name]) {
             id = schema.id;
             angular.isFunction(id) && (id = id(def));
             action = schema.act;
             angular.isFunction(action) && (action = action(def));
-            if (def.type === 'acceptInvite') {
+            if (def.name === 'acceptInvite') {
                 attrs['ng-controller'] = 'ctrlInvite';
-            } else if (def.type === 'editRecord' || def.type === 'likeRecord') {
+            } else if (def.name === 'editRecord' || def.name === 'likeRecord') {
                 attrs['ng-controller'] = 'ctrlRecord';
             }
             this.addWrap(page, 'div', attrs, tmplBtn(id, action, def.label));
-        } else if (def.type === 'sendInvite') {
+        } else if (def.name === 'sendInvite') {
             var html, action;
             action = "send($event,'" + def.accept + "'";
             def.next && (action += ",'" + def.next + "'");
@@ -475,7 +475,7 @@
                 wrap: 'button',
                 class: 'form-group input-group input-group-lg'
             }, html);
-        } else if (def.type === 'remarkRecord') {
+        } else if (def.name === 'remarkRecord') {
             var html = '<input type="text" class="form-control" placeholder="评论" ng-model="newRemark">';
             html += '<span class="input-group-btn">';
             html += '<button class="btn btn-success" type="button" ng-click="remark($event)"><span>发送</span></button>';
@@ -490,7 +490,78 @@
     window.wrapLib = new WrapLib();
 })();
 (function() {
-    ngApp.provider.controller('ctrlPage', ['$scope', '$location', 'http2', '$modal', '$timeout', 'Mp', function($scope, $location, http2, $modal, $timeout, Mp) {
+    var _ctrlEmbedButton = ['$scope', '$modalInstance', 'app', 'def', function($scope, $mi, app, def) {
+        var targetPages = {},
+            inputPages = {};
+        angular.forEach(app.pages, function(page) {
+            targetPages[page.name] = {
+                l: page.title
+            };
+            if (page.type === 'I') {
+                inputPages[page.name] = {
+                    l: page.title
+                };
+            }
+        });
+        targetPages.closeWindow = {
+            l: '关闭页面'
+        };
+        $scope.buttons = {
+            submit: {
+                l: '提交信息'
+            },
+            addRecord: {
+                l: '新增登记'
+            },
+            editRecord: {
+                l: '修改登记'
+            },
+            sendInvite: {
+                l: '发出邀请'
+            },
+            acceptInvite: {
+                l: '接受邀请'
+            },
+            gotoPage: {
+                l: '页面导航'
+            },
+            closeWindow: {
+                l: '关闭页面'
+            },
+            signin: {
+                l: '签到'
+            },
+        };
+        app.can_like_record === 'Y' && ($scope.buttons.likeRecord = {
+            l: '点赞'
+        });
+        app.can_remark_record === 'Y' && ($scope.buttons.remarkRecord = {
+            l: '评论'
+        });
+        $scope.pages = targetPages;
+        $scope.inputPages = inputPages;
+        $scope.def = def;
+        $scope.choose = function() {
+            var names;
+            def.label = $scope.buttons[def.name].l;
+            def.next = '';
+            if (['addRecord', 'editRecord'].indexOf(def.name) !== -1) {
+                names = Object.keys(inputPages);
+                if (names.length === 0) {
+                    alert('没有类型为“登记页”的页面');
+                } else {
+                    def.next = names[0];
+                }
+            }
+        };
+        $scope.ok = function() {
+            $mi.close($scope.def);
+        };
+        $scope.cancel = function() {
+            $mi.dismiss();
+        };
+    }];
+    ngApp.provider.controller('ctrlPage', ['$scope', '$location', 'http2', '$modal', '$timeout', function($scope, $location, http2, $modal, $timeout) {
         var extractSchema = function() {
             var i, pages, page, s, s2;
             pages = $scope.app.pages;
@@ -507,110 +578,16 @@
         $scope.innerlinkTypes = [{
             value: 'article',
             title: '单图文',
-            url: '/rest/mp/matter'
+            url: '/rest/pl/fe/matter'
         }, {
             value: 'news',
             title: '多图文',
-            url: '/rest/mp/matter'
+            url: '/rest/pl/fe/matter'
         }, {
             value: 'channel',
             title: '频道',
-            url: '/rest/mp/matter'
+            url: '/rest/pl/fe/matter'
         }];
-        var embedButtonCtrl = ['$scope', '$modalInstance', 'enroll', 'def', function($scope, $mi, enroll, def) {
-            var page, targetPages, inputPages;
-            targetPages = {};
-            inputPages = {};
-            $scope.buttons = {
-                submit: {
-                    l: '提交信息'
-                },
-                addRecord: {
-                    l: '新增登记'
-                },
-                editRecord: {
-                    l: '修改登记'
-                },
-                sendInvite: {
-                    l: '发出邀请'
-                },
-                acceptInvite: {
-                    l: '接受邀请'
-                },
-                gotoPage: {
-                    l: '页面导航'
-                },
-                closeWindow: {
-                    l: '关闭页面'
-                },
-                signin: {
-                    l: '签到'
-                },
-            };
-            enroll.can_like_record === 'Y' && ($scope.buttons.likeRecord = {
-                l: '点赞'
-            });
-            enroll.can_remark_record === 'Y' && ($scope.buttons.remarkRecord = {
-                l: '评论'
-            });
-            for (var p in enroll.pages) {
-                page = enroll.pages[p];
-                targetPages[page.name] = {
-                    l: page.title
-                };
-                if (page.type === 'I') {
-                    inputPages[page.name] = {
-                        l: page.title
-                    };
-                }
-            }
-            targetPages.closeWindow = {
-                l: '关闭页面'
-            };
-            $scope.pages = targetPages;
-            $scope.inputPages = inputPages;
-            $scope.def = def;
-            $scope.selectButton = function() {
-                var names;
-                def.label = $scope.buttons[def.type].l;
-                def.next = '';
-                if (['addRecord', 'editRecord'].indexOf(def.type) !== -1) {
-                    names = Object.keys(inputPages);
-                    if (names.length === 0) {
-                        alert('没有类型为“登记页”的页面');
-                    } else {
-                        def.next = names[0];
-                    }
-                }
-            };
-            $scope.ok = function() {
-                $mi.close($scope.def);
-            };
-            $scope.cancel = function() {
-                $mi.dismiss();
-            };
-        }];
-        $scope.embedButton = function(page) {
-            $modal.open({
-                templateUrl: 'embedButtonLib.html',
-                backdrop: 'static',
-                resolve: {
-                    enroll: function() {
-                        return $scope.app;
-                    },
-                    def: function() {
-                        return {
-                            type: '',
-                            label: '',
-                            next: ''
-                        };
-                    }
-                },
-                controller: embedButtonCtrl,
-            }).result.then(function(def) {
-                wrapLib.embedButton(page, def);
-            });
-        };
         $scope.onPageChange = function(page) {
             var i, old;
             for (i = $scope.persisted.pages.length - 1; i >= 0; i--) {
@@ -797,6 +774,9 @@
                 templateUrl: 'chooseButton.html',
                 backdrop: 'static',
                 resolve: {
+                    app: function() {
+                        return $scope.app;
+                    },
                     def: function() {
                         return {
                             name: '',
@@ -805,43 +785,7 @@
                         };
                     }
                 },
-                controller: ['$scope', '$modalInstance', 'def', function($scope, $mi, def) {
-                    $scope.def = def;
-                    $scope.buttons = {
-                        submit: {
-                            l: '提交信息'
-                        },
-                        addRecord: {
-                            l: '新增登记'
-                        },
-                        editRecord: {
-                            l: '修改登记'
-                        },
-                        sendInvite: {
-                            l: '发出邀请'
-                        },
-                        acceptInvite: {
-                            l: '接受邀请'
-                        },
-                        gotoPage: {
-                            l: '页面导航'
-                        },
-                        closeWindow: {
-                            l: '关闭页面'
-                        },
-                    };
-                    $scope.choose = function() {
-                        var names;
-                        def.label = $scope.buttons[def.name].l;
-                        def.next = '';
-                    };
-                    $scope.ok = function() {
-                        $mi.close(def);
-                    };
-                    $scope.cancel = function() {
-                        $mi.dismiss();
-                    };
-                }],
+                controller: _ctrlEmbedButton,
             }).result.then(function(def) {
                 $scope.ep.act_schemas.push(def);
                 $scope.updPage($scope.ep, 'act_schemas');
@@ -859,10 +803,7 @@
                 window.wrapLib.embedInput($scope.ep, schema);
             });
             angular.forEach($scope.ep.act_schemas, function(schema) {
-                var def = {};
-                def.type = schema.name;
-                def.label = schema.label;
-                window.wrapLib.embedButton($scope.ep, def);
+                window.wrapLib.embedButton($scope.ep, schema);
             });
         };
     }]);
@@ -913,6 +854,9 @@
                 templateUrl: 'chooseButton.html',
                 backdrop: 'static',
                 resolve: {
+                    app: function() {
+                        return $scope.app;
+                    },
                     def: function() {
                         return {
                             name: '',
@@ -921,31 +865,7 @@
                         };
                     }
                 },
-                controller: ['$scope', '$modalInstance', 'def', function($scope, $mi, def) {
-                    $scope.def = def;
-                    $scope.buttons = {
-                        signin: {
-                            l: '签到'
-                        },
-                        gotoPage: {
-                            l: '页面导航'
-                        },
-                        closeWindow: {
-                            l: '关闭页面'
-                        },
-                    };
-                    $scope.choose = function() {
-                        var names;
-                        def.label = $scope.buttons[def.name].l;
-                        def.next = '';
-                    };
-                    $scope.ok = function() {
-                        $mi.close(def);
-                    };
-                    $scope.cancel = function() {
-                        $mi.dismiss();
-                    };
-                }],
+                controller: _ctrlEmbedButton,
             }).result.then(function(def) {
                 $scope.ep.act_schemas.push(def);
                 $scope.updPage($scope.ep, 'act_schemas');
@@ -963,10 +883,7 @@
                 window.wrapLib.embedInput($scope.ep, schema);
             });
             angular.forEach($scope.ep.act_schemas, function(schema) {
-                var def = {};
-                def.type = schema.name;
-                def.label = schema.label;
-                window.wrapLib.embedButton($scope.ep, def);
+                window.wrapLib.embedButton($scope.ep, schema);
             });
         };
     }]);
@@ -1017,6 +934,9 @@
                 templateUrl: 'chooseButton.html',
                 backdrop: 'static',
                 resolve: {
+                    app: function() {
+                        return $scope.app;
+                    },
                     def: function() {
                         return {
                             name: '',
@@ -1025,40 +945,7 @@
                         };
                     }
                 },
-                controller: ['$scope', '$modalInstance', 'def', function($scope, $mi, def) {
-                    $scope.def = def;
-                    $scope.buttons = {
-                        addRecord: {
-                            l: '新增登记'
-                        },
-                        editRecord: {
-                            l: '修改登记'
-                        },
-                        sendInvite: {
-                            l: '发出邀请'
-                        },
-                        acceptInvite: {
-                            l: '接受邀请'
-                        },
-                        gotoPage: {
-                            l: '页面导航'
-                        },
-                        closeWindow: {
-                            l: '关闭页面'
-                        },
-                    };
-                    $scope.choose = function() {
-                        var names;
-                        def.label = $scope.buttons[def.name].l;
-                        def.next = '';
-                    };
-                    $scope.ok = function() {
-                        $mi.close(def);
-                    };
-                    $scope.cancel = function() {
-                        $mi.dismiss();
-                    };
-                }],
+                controller: _ctrlEmbedButton,
             }).result.then(function(def) {
                 $scope.ep.act_schemas.push(def);
                 $scope.updPage($scope.ep, 'act_schemas');
@@ -1117,7 +1004,7 @@
             $active = $(editor.getBody()).find('.active');
             if (/button/.test($active.attr('wrap'))) {
                 def = wrapLib.extractButtonSchema($active[0]);
-                if (def.type === 'remarkRecord') {
+                if (def.name === 'remarkRecord') {
                     $scope.$root.errmsg = '不支持修改该类型组件';
                     return;
                 }
@@ -1125,16 +1012,17 @@
                     templateUrl: 'embedButtonLib.html',
                     backdrop: 'static',
                     resolve: {
-                        enroll: function() {
+                        app: function() {
                             return $scope.app;
                         },
                         def: function() {
                             return def;
                         }
                     },
-                    controller: embedButtonCtrl,
+                    controller: _ctrlEmbedButton,
                 }).result.then(function(def) {
                     wrapLib.changeEmbedButton(page, $active[0], def);
+                    $scope.ep.$$modified = true;
                 });
             } else if (/input/.test($active.attr('wrap'))) {
                 def = wrapLib.extractInputSchema($active[0]);
@@ -1214,7 +1102,7 @@
             }
         };
         $scope.embedMatter = function(page) {
-            mattersgallery.open('mattersgallery.open', function(matters, type) {
+            mattersgallery.open($scope.siteId, function(matters, type) {
                 var editor, dom, i, matter, mtype, fn;
                 editor = tinymce.get(page.name);
                 dom = editor.dom;

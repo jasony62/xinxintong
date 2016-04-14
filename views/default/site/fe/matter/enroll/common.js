@@ -137,13 +137,13 @@ var setShareData = function(scope, params, $http) {
     }
     try {
         var sharelink, summary;
-        sharelink = 'http://' + location.host + LS.j('', 'mpid', 'aid');
+        sharelink = 'http://' + location.host + LS.j('', 'site', 'app');
         if (params.page.share_page && params.page.share_page === 'Y') {
             sharelink += '&page=' + params.page.name;
             sharelink += '&ek=' + params.enrollKey;
         }
-        window.shareid = params.user.vid + (new Date()).getTime();
-        sharelink += "&shareby=" + window.shareid;
+        //window.shareid = params.user.vid + (new Date()).getTime();
+        //sharelink += "&shareby=" + window.shareid;
         summary = params.app.summary;
         if (params.page.share_summary && params.page.share_summary.length && params.record)
             summary = params.record.data[params.page.share_summary];
@@ -156,7 +156,7 @@ var setShareData = function(scope, params, $http) {
         window.xxt.share.set(params.app.title, sharelink, summary, params.app.pic);
         window.shareCounter = 0;
         window.xxt.share.options.logger = function(shareto) {
-            var app, url;
+            /*var app, url;
             app = scope.App;
             url = "/rest/mi/matter/logShare";
             url += "?shareid=" + window.shareid;
@@ -167,12 +167,12 @@ var setShareData = function(scope, params, $http) {
             url += "&shareby=" + scope.params.shareby;
             url += "&shareto=" + shareto;
             $http.get(url);
-            window.shareCounter++;
+            window.shareCounter++;*/
             /* 是否需要自动登记 */
-            if (app.can_autoenroll === 'Y' && scope.Page.autoenroll_onshare === 'Y') {
+            /*if (app.can_autoenroll === 'Y' && scope.Page.autoenroll_onshare === 'Y') {
                 $http.get(LS.j('emptyGet', 'mpid', 'aid') + '&once=Y');
             }
-            window.onshare && window.onshare(window.shareCounter);
+            window.onshare && window.onshare(window.shareCounter);*/
         };
     } catch (e) {
         alert(e.message);

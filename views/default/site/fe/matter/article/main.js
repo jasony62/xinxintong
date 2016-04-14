@@ -54,7 +54,7 @@ define(["require", "angular"], function(require, angular) {
         ls = location.search;
         siteId = ls.match(/[\?&]site=([^&]*)/)[1];
         id = ls.match(/(\?|&)id=([^&]*)/)[2];
-        shareby = ls.match(/shareby=([^&]*)/) ? ls.match(/shareby=([^&]*)/)[1] : '';
+        //shareby = ls.match(/shareby=([^&]*)/) ? ls.match(/shareby=([^&]*)/)[1] : '';
         $scope.siteId = siteId;
         $scope.articleId = id;
         $scope.mode = ls.match(/mode=([^&]*)/) ? ls.match(/mode=([^&]*)/)[1] : '';
@@ -62,22 +62,22 @@ define(["require", "angular"], function(require, angular) {
             var shareid, sharelink;
             shareid = $scope.user.vid + (new Date()).getTime();
             xxtShare.options.logger = function(shareto) {
-                var url = "/rest/mi/matter/logShare";
+                /*var url = "/rest/mi/matter/logShare";
                 url += "?shareid=" + shareid;
                 url += "&site=" + siteId;
                 url += "&id=" + id;
                 url += "&type=article";
                 url += "&title=" + $scope.article.title;
                 url += "&shareto=" + shareto;
-                url += "&shareby=" + shareby;
-                $http.get(url);
+                //url += "&shareby=" + shareby;
+                $http.get(url);*/
             };
-            sharelink = 'http://' + location.hostname + '/rest/mi/matter';
+            sharelink = 'http://' + location.hostname + '/rest/site/fe/matter';
             sharelink += '?site=' + siteId;
             sharelink += '&type=article';
             sharelink += '&id=' + id;
-            sharelink += '&tpl=std';
-            sharelink += "&shareby=" + shareid;
+            //sharelink += '&tpl=std';
+            //sharelink += "&shareby=" + shareid;
             xxtShare.set($scope.article.title, sharelink, $scope.article.summary, $scope.article.pic);
         };
         var articleLoaded = function() {

@@ -248,6 +248,19 @@ class way_model extends \TMS_MODEL {
 		$cookieUser->expire = time() + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);
 		!isset($cookieUser->members) && $cookieUser->members = new \stdClass;
 		$cookieUser->members->{$member->schema_id} = $member;
+		/* 是否存在可关联的sns */
+		if (!empty($member->userid)) {
+			if (empty($cookieUser->sns->wx)) {
+				if ($wxFan = $modelWxFan = \TMS_App::M('sns\wx\fan')->byUser($siteId, $member->userid)) {
+					$cookieUser->sns->wx = $wxFan;
+				}
+			}
+			if (empty($cookieUser->sns->yx)) {
+				if ($yxFan = $modelYxFan = \TMS_App::M('sns\yx\fan')->byUser($siteId, $member->userid)) {
+					$cookieUser->sns->yx = $yxFan;
+				}
+			}
+		}
 		/* 将用户信息保存在cookie中 */
 		$this->setCookieUser($siteId, $cookieUser);
 

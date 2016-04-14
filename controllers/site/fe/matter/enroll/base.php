@@ -1,11 +1,11 @@
 <?php
 namespace site\fe\matter\enroll;
 
-include_once dirname(dirname(dirname(__FILE__))) . '/base.php';
+include_once dirname(dirname(__FILE__)) . '/base.php';
 /**
  * 登记活动
  */
-class base extends \site\fe\base {
+class base extends \site\fe\matter\base {
 
 	public function get_access_rule() {
 		$rule_action['rule_type'] = 'black';
@@ -23,7 +23,7 @@ class base extends \site\fe\base {
 	 * 检查进入登记活动规则
 	 */
 	protected function checkEntryRule($site, $app, $user, $redirect = false) {
-		if (!in_array($this->userAgent(), array('wx', 'yx'))) {
+		if (!in_array($this->userAgent(), array('wx', 'yx')) && empty($user->members)) {
 			/**
 			 * 非易信、微信公众号打开，无法获得openid
 			 */
@@ -75,7 +75,6 @@ class base extends \site\fe\base {
 		}
 		if (!isset($page) && isset($app->entry_rule->otherwise->entry)) {
 			$page = $app->entry_rule->otherwise->entry;
-
 		}
 
 		switch ($page) {
@@ -85,7 +84,8 @@ class base extends \site\fe\base {
 			break;
 		case '$authapi_auth':
 			$appAuthapis = explode(',', $app->authapis);
-			$this->gotoAuth($site, $appAuthapis, $user->openid, $redirect ? null : false);
+			//$this->gotoAuth($site, $appAuthapis, $user->openid, $redirect ? null : false);
+			$this->gotoMember($site, $appAuthapis, $user->uid);
 			break;
 		case '$mp_follow':
 			$this->askFollow($site, empty($user->openid) ? '' : $user->openid);

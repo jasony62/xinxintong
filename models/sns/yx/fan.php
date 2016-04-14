@@ -21,6 +21,22 @@ class fan_model extends \TMS_MODEL {
 		return $fan;
 	}
 	/**
+	 *
+	 */
+	public function &byUser($siteid, $userid, $fields = '*', $followed = null) {
+		$q = array(
+			$fields,
+			'xxt_site_yxfan',
+			"siteid='$siteid' and userid='$userid'",
+		);
+		if ($followed === 'Y') {
+			$q[2] .= " and unsubscribe_at=0";
+		}
+		$fan = $this->query_obj_ss($q);
+
+		return $fan;
+	}
+	/**
 	 * 是否关注了公众号
 	 *
 	 * todo 企业号的用户如何判断？

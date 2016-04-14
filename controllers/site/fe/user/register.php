@@ -50,6 +50,6 @@ class register extends \site\fe\base {
 		$cookieUser->loginExpire = time() + (86400 * TMS_COOKIE_SITE_LOGIN_EXPIRE);
 		$modelWay->setCookieUser($this->siteId, $cookieUser);
 
-		return new \ResponseData('ok');
+		return new \ResponseData($cookieUser);
 	}
 }

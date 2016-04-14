@@ -36,7 +36,6 @@ class login extends \site\fe\base {
 		/*记录登录状态*/
 		$fromip = $this->client_ip();
 		$modelAct->updateLastLogin($account->uid, $fromip);
-
 		/*更新cookie状态*/
 		/*user*/
 		$modelWay = $this->model('site\fe\way');
@@ -50,6 +49,37 @@ class login extends \site\fe\base {
 		}
 		$cookieUser->uname = $data->uname;
 		$cookieUser->loginExpire = time() + (86400 * TMS_COOKIE_SITE_LOGIN_EXPIRE);
+		/*站点认证身份*/
+		$modelMem = $this->model('site\user\member');
+		$members = $modelMem->byUser($this->siteId, $cookieUser->uid);
+		!empty($members) && $cookieUser->members = new \stdClass;
+		foreach ($members as $member) {
+			$cookieUser->members->{$member->schema_id} = $member;
+		}
+		/*社交帐号认证用户*/
+		if (isset($cookieUser->sns)) {
+			$model = $this->model();
+			foreach ($cookieUser->sns as $snsName => $snsUser) {
+				$modelSnsUser = \TMS_App::M('sns\\' . $snsName . '\fan');
+				$modelSnsUser->modifyByOpenid($this->siteId, $snsUser->openid, array('userid' => $cookieUser->uid));
+			}
+		}
+		$snsUsers = array();
+		/*wx用户*/
+		$snsUsers['wx'] = \TMS_App::M('sns\wx\fan')->byUser($this->siteId, $cookieUser->uid);
+		/*yx用户*/
+		$snsUsers['yx'] = \TMS_App::M('sns\yx\fan')->byUser($this->siteId, $cookieUser->uid);
+		/*qy用户*/
+		//$snsUsers['qy'] = \TMS_App::M('sns\qy\fan')->byUser($this->siteId, $cookieUser->uid);
+		if (!empty($snsUsers)) {
+			!isset($cookieUser->sns) && $cookieUser->sns = new \stdClass;
+			foreach ($snsUsers as $snsName => $snsUser) {
+				if ($snsUser) {
+					$cookieUser->sns->{$snsName} = $snsUser;
+				}
+			}
+		}
+		/*缓存用户信息*/
 		$modelWay->setCookieUser($this->siteId, $cookieUser);
 		/*login*/
 		$modelWay->setCookieLogin($this->siteId, $cookieUser);

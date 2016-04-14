@@ -91,6 +91,6 @@ class fan_model extends \TMS_MODEL {
 	 *
 	 */
 	public function modifyByOpenid($siteid, $openid, $updated) {
-		return $this->update('xxt_site_wxfan', $updated, "siteid='$siteid' and openid='$openid'");
+		return $this->update('xxt_site_yxfan', $updated, "siteid='$siteid' and openid='$openid'");
 	}
 }

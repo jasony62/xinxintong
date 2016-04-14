@@ -235,6 +235,10 @@ class way_model extends \TMS_MODEL {
 				$siteUser = $modelSiteUser->blank($siteId, true, array('uid' => $cookieUser->uid, 'ufrom' => 'member'));
 			}
 		}
+		/* 更新认证用户信息 */
+		if ($siteUser->uid !== $member->userid) {
+			$this->update('xxt_site_member', array('userid' => $siteUser->uid), "siteid='$siteId' and id=$member->id");
+		}
 		/* 更新cookie信息 */
 		$cookieUser->uid = $siteUser->uid;
 		if (empty($cookieUser->nickname)) {

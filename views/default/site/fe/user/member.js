@@ -107,21 +107,42 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
             window.parent && window.parent.onClosePlugin && window.parent.onClosePlugin();
         });
     };
+    var setMember = function(user) {
+        var member;
+        user.members && (member = user.members[LS.p.schema]);
+        $scope.member = {
+            schema_id: LS.p.schema
+        };
+        if (member) {
+            $scope.member.id = member.id;
+            $scope.member.name = member.name;
+            $scope.member.email = member.email;
+            $scope.member.mobile = member.mobile;
+        }
+    };
     var siteId = location.search.match('site=([^&]*)')[1];
     if (/MicroMessenger/i.test(navigator.userAgent)) {
-        $scope.clientSrc = 'wx';
+        $scope.snsClient = 'wx';
     } else if (/YiXin/i.test(navigator.userAgent)) {
-        $scope.clientSrc = 'yx';
+        $scope.snsClient = 'yx';
     }
     $scope.posting = false;
     $scope.errmsg = '';
-    $scope.user = {};
+    $scope.loginUser = {};
+    $scope.subView = 'register';
+    $scope.switchSubView = function(name) {
+        $scope.subView = name;
+    };
     $scope.login = function() {
-        $http.post('/rest/site/fe/user/login/do?site=' + siteId, $scope.user).success(function(rsp) {
+        $http.post('/rest/site/fe/user/login/do?site=' + siteId, $scope.loginUser).success(function(rsp) {
             if (rsp.err_code != 0) {
                 $scope.errmsg = rsp.err_msg;
                 return;
             }
+            $scope.User = rsp.data;
+            setMember($scope.User);
+        }).error(function(text) {
+            $scope.errmsg = text;
         });
     };
     $scope.repeatPwd = (function() {
@@ -133,13 +154,17 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
     })();
     $scope.register = function() {
         $http.post('/rest/site/fe/user/register/do?site=' + siteId, {
-            uname: $scope.user.uname,
-            password: $scope.user.password
+            uname: $scope.loginUser.uname,
+            password: $scope.loginUser.password
         }).success(function(rsp) {
             if (rsp.err_code != 0) {
                 $scope.errmsg = rsp.err_msg;
                 return;
             }
+            $scope.User = rsp.data;
+            setMember($scope.User);
+        }).error(function(text) {
+            $scope.errmsg = text;
         });
     };
     $scope.doAuth = function() {
@@ -171,23 +196,15 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
             $scope.errmsg = rsp.err_msg;
             return;
         }
-        var params;
-        params = rsp.data;
-        $scope.Page = params.schema.page;
+        $scope.User = rsp.data.user;
+        setMember($scope.User);
+        $scope.Page = rsp.data.schema.page;
         $scope.attrs = {};
-        angular.forEach(params.attrs, function(attr, name) {
+        angular.forEach(rsp.data.attrs, function(attr, name) {
             $scope.attrs[name] = true;
         });
-        $scope.member = {
-            schema_id: LS.p.schema
-        };
-        if (params.member) {
-            $scope.member.name = params.member.name;
-            $scope.member.email = params.member.email;
-            $scope.member.mobile = params.member.mobile;
-        }
         $timeout(function() {
-            $scope.$broadcast('xxt.member.auth.ready', params);
+            $scope.$broadcast('xxt.member.auth.ready', rsp.data);
         });
     }).error(function(content, httpCode) {
         $scope.errmsg = content;

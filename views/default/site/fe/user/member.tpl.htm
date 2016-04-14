@@ -7,10 +7,14 @@
         <base href="/" />
         <title>用户认证</title>
         <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            #errmsg{position:absolute;top:0;left:0;right:0;text-align:center;}
+        </style>
         <style ng-if="Page.css" ng-bind='Page.css'></style>
     </head>
     
     <body ng-cloak class='ng-cloak'>
+        <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind="errmsg" ng-show="errmsg"></div>
         <div class="app">
             <div class='container'>
                 <div class='row'>

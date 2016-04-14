@@ -54,7 +54,7 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', function($scop
 				$scope.update('pic');
 			}
 		};
-		mediagallery.open($scope.siteid, options);
+		mediagallery.open($scope.siteId, options);
 	};
 	$scope.removePic = function() {
 		$scope.editing.pic = '';

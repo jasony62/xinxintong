@@ -107,12 +107,17 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
             window.parent && window.parent.onClosePlugin && window.parent.onClosePlugin();
         });
     };
-    var site = location.search.match('site=([^&]*)')[1];
+    var siteId = location.search.match('site=([^&]*)')[1];
+    if (/MicroMessenger/i.test(navigator.userAgent)) {
+        $scope.clientSrc = 'wx';
+    } else if (/YiXin/i.test(navigator.userAgent)) {
+        $scope.clientSrc = 'yx';
+    }
     $scope.posting = false;
     $scope.errmsg = '';
     $scope.user = {};
     $scope.login = function() {
-        $http.post('/rest/site/fe/user/login/do?site=' + site, $scope.user).success(function(rsp) {
+        $http.post('/rest/site/fe/user/login/do?site=' + siteId, $scope.user).success(function(rsp) {
             if (rsp.err_code != 0) {
                 $scope.errmsg = rsp.err_msg;
                 return;
@@ -127,7 +132,7 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
         };
     })();
     $scope.register = function() {
-        $http.post('/rest/site/fe/user/register/do?site=' + site, {
+        $http.post('/rest/site/fe/user/register/do?site=' + siteId, {
             uname: $scope.user.uname,
             password: $scope.user.password
         }).success(function(rsp) {

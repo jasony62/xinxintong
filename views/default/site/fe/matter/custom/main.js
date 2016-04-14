@@ -14,9 +14,9 @@ define(["require", "angular"], function(require, angular) {
         shareby = ls.match(/shareby=([^&]*)/) ? ls.match(/shareby=([^&]*)/)[1] : '';
         var setMpShare = function(xxtShare) {
             var shareid, sharelink;
-            shareid = $scope.user.vid + (new Date()).getTime();
+            //shareid = $scope.user.vid + (new Date()).getTime();
             xxtShare.options.logger = function(shareto) {
-                var url = "/rest/mi/matter/logShare";
+                /*var url = "/rest/mi/matter/logShare";
                 url += "?shareid=" + shareid;
                 url += "&site=" + siteId;
                 url += "&id=" + id;
@@ -24,14 +24,13 @@ define(["require", "angular"], function(require, angular) {
                 url += "&title=" + $scope.article.title;
                 url += "&shareto=" + shareto;
                 url += "&shareby=" + shareby;
-                $http.get(url);
+                $http.get(url);*/
             };
-            sharelink = 'http://' + location.hostname + '/rest/mi/matter';
+            sharelink = 'http://' + location.hostname + '/rest/site/fe/matter';
             sharelink += '?siteId=' + siteId;
-            sharelink += '&type=article';
+            sharelink += '&type=custom';
             sharelink += '&id=' + id;
-            sharelink += '&tpl=cus';
-            sharelink += "&shareby=" + shareid;
+            //sharelink += "&shareby=" + shareid;
             xxtShare.set($scope.article.title, sharelink, $scope.article.summary, $scope.article.pic);
         };
         var loadCss = function(css) {
@@ -49,8 +48,9 @@ define(["require", "angular"], function(require, angular) {
             });
         };
         var loadExtJs = function(article, page) {
-            var jslength = page.ext_js.length;
-            var loadJs = function(js) {
+            var jslength = page.ext_js.length,
+                loadJs;
+            loadJs = function(js) {
                 var script;
                 script = document.createElement('script');
                 script.src = js.url;

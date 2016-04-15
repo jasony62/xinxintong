@@ -29,7 +29,7 @@ var LS = (function(fields) {
         p: locationSearch(),
         j: j
     };
-})(['site', 'schema']);
+})(['site', 'schema', 'debug']);
 app = angular.module('app', []);
 app.directive('dynamicHtml', function($compile) {
     return {
@@ -78,15 +78,12 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
         };
         var member = $scope.member;
         if (member.name !== undefined && false === required(member.name, 2, '请提供您的姓名！')) {
-            $('[ng-model="member.name"]').focus();
             return false;
         }
         if (member.mobile !== undefined && false === isMobile(member.mobile, '请提供正确的手机号（11位数字）！')) {
-            $('[ng-model="member.mobile"]').focus();
             return false;
         }
         if (member.email !== undefined && false === isEmail(member.email, '请提供正确的邮箱！')) {
-            $('[ng-model="member.email"]').focus();
             return false;
         }
         return true;
@@ -104,7 +101,13 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
                 $scope.errmsg = rsp.err_msg;
                 return;
             }
-            window.parent && window.parent.onClosePlugin && window.parent.onClosePlugin();
+            if ($scope.callback) {
+                location.href = $scope.callback;
+            } else if (window.parent && window.parent.onClosePlugin) {
+                window.parent.onClosePlugin();
+            } else {
+                $scope.infomsg = '操作成功';
+            }
         });
     };
     var setMember = function(user) {
@@ -115,9 +118,9 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
         };
         if (member) {
             $scope.member.id = member.id;
-            $scope.member.name = member.name;
-            $scope.member.email = member.email;
-            $scope.member.mobile = member.mobile;
+            $scope.attrs.name && ($scope.member.name = member.name);
+            $scope.attrs.email && ($scope.member.email = member.email);
+            $scope.attrs.mobile && ($scope.member.mobile = member.mobile);
         }
     };
     var siteId = location.search.match('site=([^&]*)')[1];
@@ -128,8 +131,10 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
     }
     $scope.posting = false;
     $scope.errmsg = '';
+    $scope.infomsg = '';
     $scope.loginUser = {};
     $scope.subView = 'register';
+    $scope.debug = LS.p.debug;
     $scope.switchSubView = function(name) {
         $scope.subView = name;
     };
@@ -185,24 +190,38 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
         }
         sendRequest(LS.j('doReauth', 'site', 'schema'));
     };
-    $scope.$watchCollection('member', function() {
-        $scope.errmsg = '';
-    });
     $scope.$watch('callback', function(nv) {
         nv && nv.length && ($scope.callback = decodeURIComponent(nv));
     });
+    $scope.cleanCookie = function() {
+        $http.get(LS.j('cleanCookieUser', 'site')).success(function(rsp) {
+            if (rsp.err_code != 0) {
+                $scope.errmsg = rsp.err_msg;
+                return;
+            }
+            location.reload(true);
+        }).error(function(text) {
+            $scope.errmsg = text;
+        });
+    };
     $http.get(LS.j('pageGet', 'site', 'schema')).success(function(rsp) {
         if (rsp.err_code !== 0) {
             $scope.errmsg = rsp.err_msg;
             return;
         }
         $scope.User = rsp.data.user;
-        setMember($scope.User);
         $scope.Page = rsp.data.schema.page;
         $scope.attrs = {};
         angular.forEach(rsp.data.attrs, function(attr, name) {
-            $scope.attrs[name] = true;
+            if (attr[5] === '1') {
+                $scope.attrs[name] = true;
+            } else if (name === 'extattrs') {
+                $scope.attrs['extattrs'] = attr;
+            } else {
+                $scope.attrs[name] = false;
+            }
         });
+        setMember($scope.User);
         $timeout(function() {
             $scope.$broadcast('xxt.member.auth.ready', rsp.data);
         });

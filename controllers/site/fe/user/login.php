@@ -81,8 +81,6 @@ class login extends \site\fe\base {
 		}
 		/*缓存用户信息*/
 		$modelWay->setCookieUser($this->siteId, $cookieUser);
-		/*login*/
-		$modelWay->setCookieLogin($this->siteId, $cookieUser);
 
 		return new \ResponseData($cookieUser);
 	}

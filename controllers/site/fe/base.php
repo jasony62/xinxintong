@@ -235,13 +235,6 @@ class base extends \TMS_CONTROLLER {
 	/**
 	 * 清除用户登录信息
 	 */
-	public function cleanCookieLogin_action($site) {
-		$this->model('site\fe\way')->cleanCookieLogin($site);
-		return new \ResponseData('ok');
-	}
-	/**
-	 * 清除用户登录信息
-	 */
 	public function cleanCookieUser_action($site) {
 		$this->model('site\fe\way')->cleanCookieUser($site);
 		return new \ResponseData('ok');

@@ -276,7 +276,7 @@ class way_model extends \TMS_MODEL {
 	public function isLogined($siteId, $who) {
 		/*如果已经超过有效期，认证不通过*/
 		if (empty($who->loginExpire) || $who->loginExpire < time()) {
-			$this->mySetcookie("_site_{$siteId}_fe_login", '', time() - 3600);
+			$this->cleanCookieUser($siteId);
 			return false;
 		}
 		/*通过cookie返回登录状态*/
@@ -341,25 +341,6 @@ class way_model extends \TMS_MODEL {
 		$cookieUser = json_decode($cookieUser);
 
 		return $cookieUser;
-	}
-	/**
-	 * 设置用户登录信息
-	 */
-	public function setCookieLogin($siteId, $who) {
-		/*通过cookie返回登录状态*/
-		$login = new \stdClass;
-		$login->nickname = empty($who->nickname) ? '匿名' : $who->nickname;
-		$json = $this->toJson($login);
-		$this->mySetcookie("_site_{$siteId}_fe_login", $json);
-
-		return true;
-	}
-	/**
-	 * 清除用户登录信息
-	 */
-	public function cleanCookieLogin($siteId) {
-		$this->mySetcookie("_site_{$siteId}_fe_login", '', time() - 3600);
-		return true;
 	}
 	/**
 	 * 清除用户登录信息

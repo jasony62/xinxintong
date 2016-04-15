@@ -8,13 +8,15 @@
         <title>用户认证</title>
         <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
         <style>
-            #errmsg{position:absolute;top:0;left:0;right:0;text-align:center;}
+            body{background-color:#f8f8f8;font-family:'Microsoft Yahei',Arial;position:relative;padding-top:60px;}
+            #errmsg,#infomsg{position:absolute;top:0;left:0;right:0;text-align:center;}
         </style>
         <style ng-if="Page.css" ng-bind='Page.css'></style>
     </head>
     
     <body ng-cloak class='ng-cloak'>
         <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind="errmsg" ng-show="errmsg"></div>
+        <div id='infomsg' class='alert alert-success' ng-class="{'active':infomsg}" ng-click="infomsg=''" ng-bind="infomsg" ng-show="infomsg"></div>
         <div class="app">
             <div class='container'>
                 <div class='row'>
@@ -23,7 +25,8 @@
                 </div>
             </div>
         </div>
+        <button ng-click='cleanCookie()' ng-if="debug==='Y'">clean cookie</button>
         <script src="/static/js/angular.min.js "></script>
-        <script src="/views/default/site/fe/user/member.js?_=3"></script>
+        <script src="/views/default/site/fe/user/member.js?_=4"></script>
     </body>
 </html>

@@ -40,6 +40,10 @@ class register extends \site\fe\base {
 			'uid' => $this->who->uid,
 			'from_ip' => $this->client_ip(),
 		);
+		/*nickname*/
+		if (isset($data->nickname)) {
+			$options['nickname'] = $data->nickname;
+		}
 		/*create account*/
 		$modelAct->create($this->siteId, $uname, $password, $options);
 

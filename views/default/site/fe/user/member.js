@@ -213,7 +213,7 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
         $scope.Page = rsp.data.schema.page;
         $scope.attrs = {};
         angular.forEach(rsp.data.attrs, function(attr, name) {
-            if (attr[5] === '1') {
+            if (attr[0] === '0') {
                 $scope.attrs[name] = true;
             } else if (name === 'extattrs') {
                 $scope.attrs['extattrs'] = attr;
@@ -221,7 +221,16 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
                 $scope.attrs[name] = false;
             }
         });
+        /*内置用户认证信息*/
         setMember($scope.User);
+        /*社交账号信息*/
+        if ($scope.User.sns) {
+            if ($scope.User.sns.wx) {
+                $scope.loginUser.nickname = $scope.User.sns.wx.nickname;
+            } else if ($scope.User.sns.yx) {
+                $scope.loginUser.nickname = $scope.User.sns.yx.nickname;
+            }
+        }
         $timeout(function() {
             $scope.$broadcast('xxt.member.auth.ready', rsp.data);
         });

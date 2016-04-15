@@ -79,11 +79,13 @@ class account_model extends \TMS_MODEL {
 		$pw_hash = $this->compile_password($uname, $password, $pw_salt);
 		/*ip*/
 		$from_ip = empty($options['from_ip']) ? '' : $options['from_ip'];
+		$nickname = empty($options['nickname']) ? '' : $options['nickname'];
 		if (isset($options['uid'])) {
 			$uid = $options['uid'];
 			if ($existed = $this->byId($uid)) {
 				$account = array(
 					'uname' => $uname,
+					'nickname' => $nickname,
 					'password' => $pw_hash,
 					'salt' => $pw_salt,
 					'reg_time' => $current,
@@ -102,6 +104,7 @@ class account_model extends \TMS_MODEL {
 					'siteid' => $siteId,
 					'uid' => $uid,
 					'uname' => $uname,
+					'nickname' => $nickname,
 					'password' => $pw_hash,
 					'salt' => $pw_salt,
 					'reg_time' => $current,
@@ -120,6 +123,7 @@ class account_model extends \TMS_MODEL {
 				'siteid' => $siteId,
 				'uid' => $uid,
 				'uname' => $uname,
+				'nickname' => $nickname,
 				'password' => $pw_hash,
 				'salt' => $pw_salt,
 				'reg_time' => $current,

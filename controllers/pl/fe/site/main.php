@@ -83,6 +83,33 @@ class main extends \pl\fe\base {
 		return new \ResponseData($sites);
 	}
 	/**
+	 * 获得站点绑定的第三方公众号
+	 */
+	public function snsList_action($site) {
+		$sns = array();
+		if ($wx = $this->model('sns\wx')->bySite($site)) {
+			if ($wx->joined === 'Y') {
+				$sns['wx'] = $wx;
+			}
+		}
+		if ($yx = $this->model('sns\yx')->bySite($site)) {
+			if ($yx->joined === 'Y') {
+				$sns['yx'] = $yx;
+			}
+		}
+		if ($qy = $this->model('sns\qy')->bySite($site)) {
+			if ($qy->joined === 'Y') {
+				$sns['qy'] = $qy;
+			}
+		}
+
+		if (empty($sns)) {
+			return new \ResponseData(false);
+		} else {
+			return new \ResponseData($sns);
+		}
+	}
+	/**
 	 *
 	 */
 	public function update_action($site) {
@@ -101,7 +128,7 @@ class main extends \pl\fe\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 *
+	 * 创建站点首页页面
 	 */
 	public function pageCreate_action($site, $page, $template = 'basic') {
 		$site = $this->model('site')->byId($site);
@@ -144,14 +171,14 @@ class main extends \pl\fe\base {
 			'js' => file_get_contents($templateDir . '/' . $template . '.js'),
 		);
 		/*填充页面*/
-		$data['html'] = $this->_htmlByMpa($site, $data['html']);
+		$data['html'] = $this->_htmlBySite($site, $data['html']);
 
 		return $data;
 	}
 	/**
 	 *
 	 */
-	private function &_htmlByMpa(&$site, $template) {
+	private function &_htmlBySite(&$site, $template) {
 		if (defined('SAE_TMP_PATH')) {
 			$tmpfname = tempnam(SAE_TMP_PATH, "template");
 		} else {

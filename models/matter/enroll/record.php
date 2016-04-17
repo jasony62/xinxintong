@@ -21,7 +21,7 @@ class record_model extends \TMS_MODEL {
 			'userid' => $user->uid,
 			'nickname' => $user->nickname,
 		);
-		$modelRun = \TMS_APP::M('app\enroll\round');
+		$modelRun = \TMS_APP::M('matter\enroll\round');
 		if ($activeRound = $modelRun->getActive($siteId, $app->id)) {
 			$i['rid'] = $activeRound->rid;
 		}

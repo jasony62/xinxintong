@@ -39,7 +39,6 @@
                 <a href='/rest/pl/fe/matter/enroll/page?site={{siteId}}&id={{id}}&page={{p.name}}'>{{p.title}}</a>
             </div>
         </div>
-        <a class='btn btn-success' href='/rest/pl/fe/matter/enroll/event?site={{siteId}}&id={{id}}'>设置进入规则</a>
         <button class='btn btn-success' ng-click="addPage()">添加</button>
     </div>
 </div>
@@ -56,6 +55,66 @@
             <tms-datepicker tms-title='结束时间' tms-date='app.end_at' tms-state='end_at'></tms-datepicker>
             <div class='help-block'>结束时间（可选）</div>
         </div>
+    </div>
+    <div class='tile'>
+        <table class='table table-bordered' style='margin-bottom:0px'>
+            <tbody>
+                <tr ng-if="app.start_at>0">
+                    <td>开始前进入</td>
+                    <td style='padding:0'>
+                        <select style='border:0' class='form-control' ng-model='app.before_start_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('before_start_page')">
+                            <option value=''></option>
+                        </select>
+                    </td>
+                </tr>
+                <tr ng-if="app.end_at>0">
+                    <td>结束后进入</td>
+                    <td style='padding:0'>
+                        <select style='border:0' class='form-control' ng-model='app.after_end_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('after_end_page')">
+                            <option value=''></option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>已登记时进入</td>
+                    <td style='padding:0'>
+                        <select style='border:0' class='form-control' ng-model='app.enrolled_entry_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('enrolled_entry_page')">
+                            <option value=''></option>
+                        </select>
+                    </td>
+                </tr>
+                <tr ng-if="sns.wx">
+                    <td>微信公众号关注用户</td>
+                    <td style='padding:0'>
+                        <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.wxfan.entry' ng-options='p.name as p.title for p in pages4Unauth'>
+                            <option value=''></option>
+                        </select>
+                    </td>
+                </tr>
+                <tr ng-if="sns.qy">
+                    <td>微信企业号关注用户</td>
+                    <td style='padding:0'>
+                        <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.qyfan.entry' ng-options='p.name as p.title for p in pages4Unauth'>
+                            <option value=''></option>
+                        </select>
+                    </td>
+                </tr>
+                <tr ng-if="sns.yx">
+                    <td>易信公众号关注用户</td>
+                    <td style='padding:0'>
+                        <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.yxfan.entry' ng-options='p.name as p.title for p in pages4Unauth'>
+                            <option value=''></option>
+                        </select>
+                    </td>
+                </tr>
+                <tr ng-if="sns">
+                    <td>其他用户</td>
+                    <td style='padding:0'>
+                        <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.other.entry' ng-options="p.name as p.title for p in pages4Nonfan"></select>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
     <div class='tile'>
         <div class='form-group'>

@@ -160,6 +160,9 @@ ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($sco
 		}
 		$scope.modified = true;
 	};
+	http2.get('/rest/pl/fe/site/snsList?site=' + $scope.siteId, function(rsp) {
+		$scope.sns = rsp.data;
+	});
 	http2.get('/rest/pl/fe/matter/enroll/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
 		var app;
 		app = rsp.data;

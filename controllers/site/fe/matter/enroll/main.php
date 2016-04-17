@@ -35,7 +35,7 @@ class main extends base {
 	 *
 	 */
 	public function index_action($site, $app, $shareby = '', $page = '', $ek = '', $ignoretime = 'N') {
-		empty($site) && $this->outputError('没有指定当前公众号的ID');
+		empty($site) && $this->outputError('没有指定当前站点的ID');
 		empty($app) && $this->outputError('登记活动ID为空');
 
 		$app = $this->modelApp->byId($app, array('cascaded' => 'Y'));
@@ -56,11 +56,10 @@ class main extends base {
 				}
 			}
 		}
-		if (empty($oPage)) {
-			die('page is not exist');
-		}
+		empty($oPage) && $this->outputError('没有可访问的页面');
+
 		/* 记录日志，完成前置活动再次进入的情况不算 */
-		$this->model()->update("update xxt_enroll set read_num=read_num+1 where id='$app->id'");
+		$this->modelApp->update("update xxt_enroll set read_num=read_num+1 where id='$app->id'");
 		//$this->logRead($siteid, $user, $app->id, 'enroll', $app->title, $shareby);
 		/* 返回登记活动页面 */
 		\TPL::assign('title', $app->title);
@@ -130,7 +129,7 @@ class main extends base {
 				$mapPages[$p->name] = $p;
 			}
 			$oPage = $mapPages[$tipPage];
-			$modelPage = $this->model('app\enroll\page');
+			$modelPage = $this->model('matter\enroll\page');
 			$oPage = $modelPage->byId($appid, $oPage->id);
 			!empty($oPage->html) && \TPL::assign('body', $oPage->html);
 			!empty($oPage->css) && \TPL::assign('css', $oPage->css);
@@ -145,13 +144,13 @@ class main extends base {
 	 */
 	private function _defaultPage($site, &$app, $redirect = false) {
 		$user = $this->who;
-		$oPage = null;
 		$hasEnrolled = $this->modelApp->userEnrolled($site, $app->id, $user);
 		if ($hasEnrolled && !empty($app->enrolled_entry_page)) {
 			$page = $app->enrolled_entry_page;
 		} else {
 			$page = $this->checkEntryRule($site, $app, $user, $redirect);
 		}
+		$oPage = null;
 		foreach ($app->pages as $p) {
 			if ($p->name === $page) {
 				$oPage = $p;
@@ -200,13 +199,13 @@ class main extends base {
 		if (empty($oPage)) {
 			return new \ResponseError('页面不存在');
 		}
-		$modelPage = $this->model('app\enroll\page');
+		$modelPage = $this->model('matter\enroll\page');
 		$oPage = $modelPage->byId($app->id, $oPage->id);
 		$params['page'] = $oPage;
 		/* 自动登记 */
 		$hasEnrolled = $this->modelApp->hasEnrolled($site, $app->id, $user);
 		if (!$hasEnrolled && $app->can_autoenroll === 'Y' && $oPage->autoenroll_onenter === 'Y') {
-			$modelRec = $this->model('app\enroll\record');
+			$modelRec = $this->model('matter\enroll\record');
 			$options = array(
 				'fields' => 'enroll_key,enroll_at',
 			);
@@ -222,7 +221,7 @@ class main extends base {
 			}
 		}
 		if ($app->multi_rounds === 'Y') {
-			$params['activeRound'] = $this->model('app\enroll\round')->getLast($site, $app->id);
+			$params['activeRound'] = $this->model('matter\enroll\round')->getLast($site, $app->id);
 		}
 		/*登记记录*/
 		$newForm = false;
@@ -300,9 +299,8 @@ class main extends base {
 	 * 根据邀请用户数的排名
 	 */
 	public function rankByFollower_action($siteid, $appid) {
-		$modelApp = $this->model('app\enroll');
-		$user = $this->getUser($siteid);
-		$rank = $modelApp->rankByFollower($siteid, $appid, $user->openid);
+		$user = $this->who;
+		$rank = $this->modelApp->rankByFollower($siteid, $appid, $user->userid);
 
 		return new \ResponseData(array('rank' => $rank));
 	}
@@ -347,7 +345,7 @@ class main extends base {
 					$item['ops'][] = $op;
 				}
 			} else {
-				$result = $this->model('app\enroll')->getStat($appid);
+				$result = $this->modelApp->getStat($appid);
 				/*更新缓存的统计数据*/
 				$model->delete('xxt_enroll_record_stat', "aid='$appid'");
 				foreach ($result as $id => $stat) {
@@ -367,7 +365,7 @@ class main extends base {
 			}
 		} else {
 			/*直接获取统计数据*/
-			$result = $this->model('app\enroll')->getStat($appid);
+			$result = $this->modelApp->getStat($appid);
 		}
 
 		return new \ResponseData($result);

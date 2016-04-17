@@ -15,30 +15,6 @@
                         <option value=''></option>
                     </select>
                 </td>
-                <td>未指定时</td>
-                <td>
-                    <div class='form-inline'>
-                        <select class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.otherwise.entry' ng-options='page.name as page.title for page in app.pages'></select>
-                        <button class='btn btn-default'>
-                        <span class='glyphicon glyphicon-plus'></span>
-                        </button>
-                        <button class='btn btn-default'>
-                        <span class='glyphicon glyphicon-edit'></span>
-                        </button>
-                    </div>
-                </td>
-                <td rowspan="7">
-                    <select class='form-control' ng-model='app.enrolled_entry_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('enrolled_entry_page')">
-                        <option value=''></option>
-                    </select>
-                </td>
-                <td rowspan="7">
-                    <select title='进入页面' class='form-control' ng-model='app.after_end_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('after_end_page')">
-                        <option value=''></option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
                 <td>微信公众号关注用户</td>
                 <td>
                     <div class='form-inline'>
@@ -52,6 +28,16 @@
                         <span class='glyphicon glyphicon-edit'></span>
                         </button>
                     </div>
+                </td>
+                <td rowspan="7">
+                    <select class='form-control' ng-model='app.enrolled_entry_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('enrolled_entry_page')">
+                        <option value=''></option>
+                    </select>
+                </td>
+                <td rowspan="7">
+                    <select title='进入页面' class='form-control' ng-model='app.after_end_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('after_end_page')">
+                        <option value=''></option>
+                    </select>
                 </td>
             </tr>
             <tr>

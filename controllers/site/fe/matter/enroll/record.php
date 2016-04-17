@@ -152,13 +152,14 @@ class record extends base {
 			$action = 'app.enroll,' . $app->id . '.record.submit';
 			$modelCoin->income($site, $action, $app->id, 'sys', $user->uid);
 		} else {
+			$modelRec = $this->model('matter\enroll\record');
 			/* 已经登记，更新原先提交的数据 */
-			$this->model()->update('xxt_enroll_record',
+			$modelRec->update('xxt_enroll_record',
 				array('enroll_at' => time()),
 				"enroll_key='$ek'"
 			);
 			/* 重新插入新提交的数据 */
-			$rst = \TMS_APP::M('app\enroll\record')->setData($user, $site, $app->id, $ek, $posted, $submitkey);
+			$rst = $modelRec->setData($user, $site, $app->id, $ek, $posted, $submitkey);
 		}
 		if (false === $rst[0]) {
 			return new \ResponseError($rst[1]);

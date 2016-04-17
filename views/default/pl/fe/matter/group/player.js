@@ -9,13 +9,11 @@
             url += '&tags=' + $scope.page.tags.join(',');
             url += $scope.page.joinParams();
             http2.get(url, function(rsp) {
-                var i, j, player;
                 if (rsp.data) {
                     $scope.players = rsp.data.players ? rsp.data.players : [];
-                    for (i = 0, j = $scope.players.length; i < j; i++) {
-                        player = $scope.players[i];
+                    angular.forEach($scope.players, function(player) {
                         player.data.member && (player.data.member = JSON.parse(player.data.member));
-                    }
+                    });
                     rsp.data.total && ($scope.page.total = rsp.data.total);
                 } else {
                     $scope.players = [];
@@ -144,7 +142,7 @@
             if (s && s.ops && s.ops.length) {
                 aVal = val.split(',');
                 for (i = 0, j = s.ops.length; i < j; i++) {
-                    aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].label);
+                    aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
                 }
                 if (aLab.length) return aLab.join(',');
             }

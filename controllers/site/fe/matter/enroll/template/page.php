@@ -1,5 +1,5 @@
 <?php
-namespace app\enroll\template;
+namespace site\fe\matter\enroll\template;
 
 include_once dirname(__FILE__) . '/base.php';
 /**

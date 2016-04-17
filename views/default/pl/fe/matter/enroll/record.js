@@ -34,16 +34,15 @@
             url += '&tags=' + $scope.page.tags.join(',');
             url += $scope.page.joinParams();
             http2.get(url, function(rsp) {
-                var i, j, r;
                 if (rsp.data) {
                     $scope.records = rsp.data.records ? rsp.data.records : [];
                     rsp.data.total && ($scope.page.total = rsp.data.total);
-                } else
+                } else {
                     $scope.records = [];
-                for (i = 0, j = $scope.records.length; i < j; i++) {
-                    r = $scope.records[i];
-                    r.data.member && (r.data.member = JSON.parse(r.data.member));
                 }
+                angular.forEach($scope.records, function(record) {
+                    record.data.member && (record.data.member = JSON.parse(record.data.member));
+                });
             });
         };
         $scope.page = {
@@ -141,40 +140,6 @@
                 }
             });
         };
-        $scope.exportByData = function() {
-            $modal.open({
-                templateUrl: 'exportByData.html',
-                controller: ['$scope', '$modalInstance', function($scope2, $mi) {
-                    $scope2.data = {
-                        filter: {},
-                        target: '',
-                        includeData: 'N'
-                    };
-                    $scope2.schema = [];
-                    angular.forEach($scope.schema, function(def) {
-                        if (['img', 'file', 'datetime'].indexOf(def.type) === -1) {
-                            $scope2.schema.push(def);
-                        }
-                    });
-                    $scope2.cancel = function() {
-                        $mi.dismiss();
-                    };
-                    $scope2.ok = function() {
-                        $mi.close($scope2.data);
-                    };
-                    http2.get('/rest/pl/fe/matter/enroll/list?site=' + $scope.siteId + '&page=1&size=999', function(rsp) {
-                        $scope2.apps = rsp.data[0];
-                    });
-                }],
-                backdrop: 'static'
-            }).result.then(function(data) {
-                if (data.target && data.target.length) {
-                    http2.post('/rest/pl/fe/matter/enroll/record/exportByData?site=' + $scope.siteId + '&app=' + $scope.id, data, function(rsp) {
-                        alert('ok');
-                    });
-                }
-            });
-        };
         $scope.$on('xxt.tms-datepicker.change', function(evt, data) {
             $scope[data.state] = data.value;
             $scope.doSearch(1);
@@ -266,7 +231,7 @@
             if (s && s.ops && s.ops.length) {
                 aVal = val.split(',');
                 for (i = 0, j = s.ops.length; i < j; i++) {
-                    aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].label);
+                    aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
                 }
                 if (aLab.length) return aLab.join(',');
             }
@@ -282,47 +247,41 @@
         };
         $scope.editRecord = function(record) {
             $modal.open({
-                templateUrl: 'editor.html',
-                controller: 'editorCtrl',
+                templateUrl: 'recordEditor.html',
+                controller: 'ctrlEditor',
                 windowClass: 'auto-height',
                 resolve: {
-                    enroll: function() {
+                    app: function() {
                         return $scope.app;
                     },
                     record: function() {
-                        record.aid = $scope.aid;
+                        record.aid = $scope.id;
                         return record;
                     },
-                    schema: function() {
-                        return $scope.schema;
-                    }
                 }
             }).result.then(function(updated) {
                 var p, tags;
                 p = updated[0];
                 http2.post('/rest/pl/fe/matter/enroll/record/update?site=' + $scope.siteId + '&app=' + $scope.id + '&ek=' + record.enroll_key, p, function(rsp) {
                     tags = updated[1];
-                    $scope.app.tags = tags;
+                    //$scope.app.tags = tags;
                 });
             });
         };
         $scope.addRecord = function() {
             $modal.open({
-                templateUrl: 'editor.html',
-                controller: 'editorCtrl',
+                templateUrl: 'recordEditor.html',
+                controller: 'ctrlEditor',
                 windowClass: 'auto-height',
                 resolve: {
-                    enroll: function() {
+                    app: function() {
                         return $scope.app;
                     },
                     record: function() {
                         return {
-                            aid: $scope.aid,
+                            aid: $scope.id,
                             tags: ''
                         };
-                    },
-                    schema: function() {
-                        return $scope.schema;
                     }
                 }
             }).result.then(function(updated) {
@@ -330,7 +289,7 @@
                 p = updated[0];
                 tags = updated[1];
                 http2.post('/rest/pl/fe/matter/enroll/record/add?site=' + $scope.siteId + '&app=' + $scope.id, p, function(rsp) {
-                    $scope.app.tags = tags;
+                    //$scope.app.tags = tags;
                     $scope.records.splice(0, 0, rsp.data);
                 });
             });
@@ -389,10 +348,10 @@
             }
         });
     }]);
-    ngApp.provider.controller('editorCtrl', ['$scope', '$modalInstance', '$sce', 'enroll', 'record', 'schema', function($scope, $modalInstance, $sce, enroll, record, schema) {
+    ngApp.provider.controller('ctrlEditor', ['$scope', '$modalInstance', '$sce', 'app', 'record', function($scope, $modalInstance, $sce, app, record) {
         var p, col, files;
-        for (p in schema) {
-            col = schema[p];
+        for (p in app.data_schemas) {
+            col = app.data_schemas[p];
             if (col.type === 'file') {
                 files = JSON.parse(record.data[col.id]);
                 angular.forEach(files, function(file) {
@@ -401,11 +360,10 @@
                 record.data[col.id] = files;
             }
         }
-        $scope.enroll = enroll;
+        $scope.app = app;
         $scope.record = record;
         $scope.record.aTags = (!record.tags || record.tags.length === 0) ? [] : record.tags.split(',');
-        $scope.aTags = enroll.tags;
-        $scope.schema = schema;
+        $scope.aTags = app.tags;
         $scope.json2Obj = function(json) {
             if (json && json.length) {
                 obj = JSON.parse(json);
@@ -418,18 +376,17 @@
             $scope.record.signin_at = Math.round((new Date()).getTime() / 1000);
         };
         $scope.ok = function() {
-            var p, col;
-            p = {
+            var p = {
                 tags: $scope.record.aTags.join(','),
                 data: {}
             };
             $scope.record.tags = p.tags;
-            if ($scope.record.id)
+            if ($scope.record.id) {
                 p.signin_at = $scope.record.signin_at;
-            for (var c in $scope.schema) {
-                col = $scope.schema[c];
-                p.data[col.id] = $scope.record.data[col.id];
             }
+            angular.forEach($scope.app.data_schemas, function(col) {
+                p.data[col.id] = $scope.record.data[col.id];
+            });
             $modalInstance.close([p, $scope.aTags]);
         };
         $scope.cancel = function() {

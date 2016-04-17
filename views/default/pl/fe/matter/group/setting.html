@@ -9,10 +9,6 @@
             <div class='help-block'>摘要（可选）：最多120个汉字，240个英文字符</div>
         </div>
     </div>
-    <div class='tile'>
-        <a href="javascript:void(0)" ng-click="gotoCode()">编辑代码</a>
-        <a href="javascript:void(0)" ng-click="resetCode()">重置代码</a>
-    </div>
 </div>
 <div class='col-md-4'>
     <div class='tile'>
@@ -45,6 +41,9 @@
                 <label class="col-md-3 control-label">目标活动</label>
                 <div class="col-md-9">
                     <select class="form-control" ng-model="data.source" ng-options="app.id as app.title for app in apps"></select>
+                    <div class='checkbox' ng-if="app.mission">
+                        <label><input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">选择同一个项目中的活动</label>
+                    </div>
                 </div>
             </div>
         </form>

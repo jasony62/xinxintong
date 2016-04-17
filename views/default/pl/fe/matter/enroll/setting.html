@@ -36,7 +36,7 @@
     <div class='tile'>
         <div class='list-group form-group'>
             <div class='list-group-item' ng-repeat="p in app.pages">
-                <a href='/rest/pl/fe/matter/enroll/page?id={{id}}&page={{p.name}}'>{{p.title}}</a>
+                <a href='/rest/pl/fe/matter/enroll/page?site={{siteId}}&id={{id}}&page={{p.name}}'>{{p.title}}</a>
             </div>
         </div>
         <a class='btn btn-success' href='/rest/pl/fe/matter/enroll/event?site={{siteId}}&id={{id}}'>设置进入规则</a>
@@ -47,6 +47,7 @@
     <div class='tile'>
         <button class='btn btn-block' ng-click="submit()" ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'">保存</button>
         <button class='btn btn-block' ng-click="run()" ng-disabled='modified' ng-class="modified?'btn-default':'btn-success'">开始</button>
+        <button class='btn btn-block btn-default' ng-click="remove()">删除</button>
     </div>
     <div class='tile' ng-if="app.scenarioConfig.can_period!=='D'">
         <div class='form-group'>
@@ -54,11 +55,6 @@
             <div class='help-block'>开始时间（可选）</div>
             <tms-datepicker tms-title='结束时间' tms-date='app.end_at' tms-state='end_at'></tms-datepicker>
             <div class='help-block'>结束时间（可选）</div>
-        </div>
-    </div>
-    <div class='tile' ng-if="app.scenarioConfig.can_signin!=='D'">
-        <div class='checkbox'>
-            <label><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.can_signin' ng-change="update('can_signin');">提供签到功能</label>
         </div>
     </div>
     <div class='tile'>

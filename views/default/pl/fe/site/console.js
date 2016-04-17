@@ -141,7 +141,7 @@ app.controller('ctrlConsole', ['$scope', '$modal', 'http2', function($scope, $mo
                         $scope2.data.selectedPage = $scope2.pages[0];
                         elSimulator = document.querySelector('#simulator');
                         url = 'http://' + location.host;
-                        url += '/rest/app/enroll/template';
+                        url += '/rest/site/fe/matter/enroll/template';
                         url += '?scenario=' + $scope2.data.scenario.name;
                         url += '&template=' + $scope2.data.template.name;
                         url += '&_=' + (new Date()).getTime();

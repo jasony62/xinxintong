@@ -37,7 +37,7 @@ class round extends \pl\fe\matter\base {
 		$nv = $this->getPostJson();
 
 		if (isset($nv->targets)) {
-			$nv->targets = $model->escape($nv->targets);
+			$nv->targets = $model->toJson($nv->targets);
 		}
 
 		$rst = $model->update(

@@ -21,27 +21,27 @@
                     id: 'email'
                 }
             },
-            newDef;
-        newSchema = function(type) {
-            var schema = Object.create(base);
-            schema.type = type;
-            if (map[type]) {
-                schema.id = map[type].id;
-                schema.title = map[type].title;
-            } else {
-                schema.id = id;
-                if (type === 'single' || type === 'multiple') {
-                    schema.ops = [];
-                    schema.align = 'V';
-                    if (type === 'single') {
-                        schema.component = 'R';
+            newDef,
+            newSchema = function(type) {
+                var schema = Object.create(base);
+                schema.type = type;
+                if (map[type]) {
+                    schema.id = map[type].id;
+                    schema.title = map[type].title;
+                } else {
+                    schema.id = id;
+                    if (type === 'single' || type === 'multiple') {
+                        schema.ops = [];
+                        schema.align = 'V';
+                        if (type === 'single') {
+                            schema.component = 'R';
+                        }
+                    } else if (type === 'image' || type === 'file') {
+                        schema.count = 1;
                     }
-                } else if (type === 'image' || type === 'file') {
-                    schema.count = 1;
                 }
-            }
-            return schema;
-        };
+                return schema;
+            };
         $scope.addSchema = function(type) {
             var schema = newSchema(type);
             $scope.schemas.push(schema);

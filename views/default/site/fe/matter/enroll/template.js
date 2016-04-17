@@ -14,7 +14,7 @@ app.factory('Round', ['$http', '$q', function($http, $q) {
         _this = this;
         deferred = $q.defer();
         promise = deferred.promise;
-        url = '/rest/app/enroll/template/round/list';
+        url = '/rest/site/fe/matter/enroll/template/round/list';
         url += '?scenario=' + _this.scenario;
         url += '&template=' + _this.template;
         $http.get(url).success(function(rsp) {
@@ -43,7 +43,7 @@ LS = (function() {
     };
     /*join search*/
     function j(method) {
-        var j, l, url = '/rest/app/enroll/template',
+        var j, l, url = '/rest/site/fe/matter/enroll/template',
             _this = this,
             search = [];
         method && method.length && (url += '/' + method);
@@ -101,7 +101,7 @@ app.factory('Record', ['$http', '$q', function($http, $q) {
         var _this, url, deferred;
         _this = this;
         deferred = $q.defer();
-        url = '/rest/app/enroll/template/record/get';
+        url = '/rest/site/fe/matter/enroll/template/record/get';
         url += '?scenario=' + _this.scenario;
         url += '&template=' + _this.template;
         $http.post(url, config).success(function(rsp) {
@@ -119,7 +119,7 @@ app.factory('Record', ['$http', '$q', function($http, $q) {
         var _this, url, deferred;
         _this = this;
         deferred = $q.defer();
-        url = '/rest/app/enroll/template/record/list';
+        url = '/rest/site/fe/matter/enroll/template/record/list';
         url += '?scenario=' + _this.scenario;
         url += '&template=' + _this.template;
         rid !== undefined && rid.length && (url += '&rid=' + rid);

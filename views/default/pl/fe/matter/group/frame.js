@@ -54,6 +54,9 @@ ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', '$modal', fun
 	$scope.id = ls.id;
 	$scope.siteId = ls.site;
 	$scope.modified = false;
+	$scope.back = function() {
+		history.back();
+	};
 	$scope.submit = function() {
 		var defer = $q.defer();
 		http2.post('/rest/pl/fe/matter/group/update?site=' + $scope.siteId + '&app=' + $scope.id, modifiedData, function(rsp) {
@@ -71,46 +74,19 @@ ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', '$modal', fun
 		}
 		$scope.modified = true;
 	};
-	$scope.importByApp = function() {
-		$modal.open({
-			templateUrl: 'importByApp.html',
-			controller: ['$scope', '$modalInstance', function($scope2, $mi) {
-				$scope2.data = {
-					filter: {},
-					source: '',
-				};
-				$scope2.schema = [];
-				angular.forEach($scope.schema, function(def) {
-					if (['img', 'file', 'datetime'].indexOf(def.type) === -1) {
-						$scope2.schema.push(def);
-					}
-				});
-				$scope2.cancel = function() {
-					$mi.dismiss();
-				};
-				$scope2.ok = function() {
-					$mi.close($scope2.data);
-				};
-				http2.get('/rest/pl/fe/matter/enroll/list?site=' + $scope.siteId + '&page=1&size=999', function(rsp) {
-					$scope2.apps = rsp.data.apps;
-				});
-			}],
-			backdrop: 'static'
-		}).result.then(function(data) {
-			if (data.source && data.source.length) {
-				http2.post('/rest/pl/fe/matter/group/importByApp?site=' + $scope.siteId + '&app=' + $scope.id, data, function(rsp) {
-					location.href = '/rest/pl/fe/matter/group/player?site=' + $scope.siteId + '&id=' + $scope.id;
-				});
-			}
-		});
-	};
 	http2.get('/rest/pl/fe/matter/group/get?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
-		var app;
+		var app, url;
 		app = rsp.data;
 		app.tags = (!app.tags || app.tags.length === 0) ? [] : app.tags.split(',');
 		app.type = 'group';
 		app.data_schemas = app.data_schemas && app.data_schemas.length ? JSON.parse(app.data_schemas) : [];
 		$scope.app = app;
-		$scope.url = 'http://' + location.host + '/rest/site/fe/matter/group?site=' + $scope.siteId + '&app=' + $scope.id;
+		$scope.url = 'http://' + location.host + '/rest/site/fe/matter/group?site=' + $scope.siteId + '&app=' + app.id;
+		if (app.page_code_id == 0) {
+			url = '/rest/pl/fe/matter/group/page/create?site=' + $scope.siteId + '&app=' + app.id;
+			http2.get(url, function(rsp) {
+				app.page_code_id = rsp.data;
+			});
+		}
 	});
 }]);

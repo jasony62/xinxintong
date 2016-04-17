@@ -33,7 +33,7 @@ class page extends \pl\fe\matter\base {
 	 * $pname 页面的名称
 	 * $cid 页面对应code page id
 	 */
-	public function update_action($site, $id, $pid, $pname, $cid) {
+	public function update_action($site, $app, $pid, $pname, $cid) {
 		$nv = $this->getPostJson();
 
 		$rst = 0;
@@ -58,7 +58,7 @@ class page extends \pl\fe\matter\base {
 				$rst = $model->update(
 					'xxt_enroll_page',
 					$nv,
-					"aid='$id' and id=$pid"
+					"aid='$app' and id=$pid"
 				);
 			}
 		}

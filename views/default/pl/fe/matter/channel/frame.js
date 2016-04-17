@@ -21,6 +21,9 @@ app.controller('ctrlChannel', ['$scope', '$location', 'http2', function($scope, 
 app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', function($scope, http2, mattersgallery) {
 	var modifiedData = {};
 	$scope.modified = false;
+	$scope.back = function() {
+		history.back();
+	};
 	$scope.matterTypes = [{
 		value: 'article',
 		title: '单图文',

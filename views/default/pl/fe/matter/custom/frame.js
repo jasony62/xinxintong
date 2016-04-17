@@ -26,6 +26,9 @@ app.controller('ctrlCustom', ['$scope', '$location', 'http2', function($scope, $
 app.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
 	var modifiedData = {};
 	$scope.modified = false;
+	$scope.back = function() {
+		history.back();
+	};
 	window.onbeforeunload = function(e) {
 		var message;
 		if ($scope.modified) {

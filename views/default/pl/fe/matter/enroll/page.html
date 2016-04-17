@@ -29,13 +29,13 @@
     </div>
     <div class="panel panel-default">
         <div class="panel-body">
-            <div ng-include="'/views/default/pl/fe/matter/enroll/comp-'+(ep.type==='I'?'input':(ep.type==='V'?'view':'signin'))+'.html?_=5'" ng-controller='ctrlPageSchema'></div>
+            <div ng-include="'/views/default/pl/fe/matter/enroll/comp-'+(ep.type==='I'?'input':(ep.type==='V'?'view':'signin'))+'.html?_=7'" ng-controller='ctrlPageSchema'></div>
         </div>
     </div>
     <div class="panel panel-default">
         <div class='list-group form-group'>
             <div class='list-group-item' ng-repeat="p in others">
-                <span ng-bind='p.title'></span>(<span ng-bind='p.name'></span>)
+                <a href='/rest/pl/fe/matter/enroll/page?site={{siteId}}&id={{id}}&page={{p.name}}'>{{p.title}}（{{p.name}}）</a>
             </div>
         </div>
     </div>

@@ -54,6 +54,9 @@ ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($sco
 	$scope.id = ls.id;
 	$scope.siteId = ls.site;
 	$scope.modified = false;
+	$scope.back = function() {
+		history.back();
+	};
 	$scope.submit = function() {
 		var defer = $q.defer();
 		http2.post('/rest/pl/fe/matter/contribute/update?site=' + $scope.siteId + '&app=' + $scope.id, modifiedData, function(rsp) {

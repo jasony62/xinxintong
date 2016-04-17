@@ -170,7 +170,7 @@
         this.addWrap(page, 'div', inpAttrs, html);
     };
     WrapLib.prototype.embedRecord = function(page, def) {
-        if (def.schema === undefined) return;
+        if (def.schemas === undefined || def.schemas.length === 0) return;
         var c, html, htmls, _this, attrs;
         htmls = [];
         c = 'form-group';
@@ -181,84 +181,82 @@
             wrap: 'static',
             class: c
         };
-        angular.forEach(def.schema, function(s) {
-            if (s.checked) {
-                switch (s.type) {
-                    case 'name':
-                    case 'mobile':
-                    case 'email':
-                    case 'shorttext':
-                    case 'longtext':
-                        html = '<label>' + s.title + '</label><div>{{Record.current.data.' + s.id + '}}</div>';
-                        break;
-                    case 'single':
-                    case 'multiple':
-                        html = '<label>' + s.title + '</label><div>{{value2Label("' + s.id + '")}}</div>';
-                        attrs['enroll-schema'] = 'fromCache=Y;interval=600';
-                        break;
-                    case 'datetime':
-                        html = "<label>" + s.title + "</label><div>{{Record.current.data." + s.id + "|date:'yy-MM-dd HH:mm'}}</div>";
-                        break;
-                    case 'img':
-                        html = '<label>' + s.title + '</label><ul><li ng-repeat="img in Record.current.data.' + s.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul>';
-                        break;
-                }
-                html ? htmls.push(html) : console.log('embedRecord schema error', s);
+        angular.forEach(def.schemas, function(s) {
+            html = '';
+            switch (s.type) {
+                case 'name':
+                case 'mobile':
+                case 'email':
+                case 'shorttext':
+                case 'longtext':
+                    html = '<label>' + s.title + '</label><div>{{Record.current.data.' + s.id + '}}</div>';
+                    break;
+                case 'single':
+                case 'multiple':
+                    html = '<label>' + s.title + '</label><div>{{value2Label("' + s.id + '")}}</div>';
+                    attrs['enroll-schema'] = 'fromCache=Y;interval=600';
+                    break;
+                case 'datetime':
+                    html = "<label>" + s.title + "</label><div>{{Record.current.data." + s.id + "|date:'yy-MM-dd HH:mm'}}</div>";
+                    break;
+                case 'img':
+                    html = '<label>' + s.title + '</label><ul><li ng-repeat="img in Record.current.data.' + s.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul>';
+                    break;
+                case '_enrollAt':
+                    html = "<label>" + s.title + "</label><div>{{Record.current.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>";
+                    break;
+                case '_enrollerNickname':
+                    html = "<label>" + s.title + "</label><div>{{Record.current.enroller.nickname}}</div>";
+                    break;
+                case '_enrollerHeadpic':
+                    html = "<label>" + s.title + "</label><div><img ng-src='{{Record.current.enroller.fan.headimgurl}}'></div>";
+                    break;
             }
+            html ? htmls.push(html) : console.log('embedRecord schema error', s);
         });
-        if (def.addEnrollAt) {
-            html = "<label>登记时间</label><div>{{Record.current.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>";
-            htmls.push(html);
-        }
-        if (def.addNickname) {
-            html = "<label>昵称</label><div>{{Record.current.enroller.nickname}}</div>";
-            htmls.push(html);
-        }
-        if (def.addHeadpic) {
-            html = "<label>头像</label><div><img ng-src='{{Record.current.enroller.fan.headimgurl}}'></div>";
-            htmls.push(html);
-        }
         _this = this;
         angular.forEach(htmls, function(h) {
             _this.addWrap(page, 'div', attrs, h);
         });
     };
     WrapLib.prototype.embedList = function(page, def) {
+        if (!def.schemas && def.schemas.length === 0) return false;;
         var onclick, html;
         onclick = def.onclick.length ? " ng-click=\"gotoPage($event,'" + def.onclick + "',r.enroll_key)\"" : '';
         html = '<ul class="list-group">';
-        console.log('hhh', html);
         html += '<li class="list-group-item" ng-repeat="r in records"' + onclick + '>';
-        if (def.addEnrollAt)
-            html += "<div wrap='static' class='wrap-inline'><label>登记时间</label><div>{{r.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div></div>";
-        if (def.addNickname)
-            html += "<div wrap='static' class='wrap-inline'><label>昵称</label><div>{{r.nickname}}</div></div>";
-        if (def.addHeadpic)
-            html += "<div wrap='static' class='wrap-inline'><label>头像</label><div><img ng-src='{{r.headimgurl}}'></div></div>";
-        if (def.schema) {
-            var i, s;
-            for (i in def.schema) {
-                s = def.schema[i];
-                if (!s.checked) continue;
-                switch (s.type) {
-                    case 'input':
-                    case 'location':
-                        html += '<div wrap="static" class="wrap-inline"><label>' + s.title + '</label><div>{{r.data.' + s.id + '}}</div></div>';
-                        break;
-                    case 'datetime':
-                        html += '<div wrap="static" class="wrap-inline"><label>' + s.title + '</label><div>{{r.data.' + s.id + '|date:"yy-MM-dd HH:mm"}}</div></div>';
-                        break;
-                    case 'radio':
-                    case 'checkbox':
-                    case 'option':
-                        html += '<div wrap="static" class="wrap-inline"><label>' + s.title + '</label><div>{{r.data.' + s.id + '|value2Label:"' + s.id + '"}}</div></div>';
-                        break;
-                    case 'img':
-                        html += '<div wrap="static" class="wrap-inline"><label>' + s.title + '</label><ul><li ng-repeat="img in r.data.' + s.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul></div>';
-                        break;
-                }
+        angular.forEach(def.schemas, function(s) {
+            switch (s.type) {
+                case 'name':
+                case 'email':
+                case 'mobile':
+                case 'shorttext':
+                case 'longtext':
+                case 'location':
+                    html += '<div wrap="static" class="wrap-inline"><label>' + s.title + '</label><div>{{r.data.' + s.id + '}}</div></div>';
+                    break;
+                case 'datetime':
+                    html += '<div wrap="static" class="wrap-inline"><label>' + s.title + '</label><div>{{r.data.' + s.id + '|date:"yy-MM-dd HH:mm"}}</div></div>';
+                    break;
+                case 'radio':
+                case 'checkbox':
+                case 'option':
+                    html += '<div wrap="static" class="wrap-inline"><label>' + s.title + '</label><div>{{r.data.' + s.id + '|value2Label:"' + s.id + '"}}</div></div>';
+                    break;
+                case 'img':
+                    html += '<div wrap="static" class="wrap-inline"><label>' + s.title + '</label><ul><li ng-repeat="img in r.data.' + s.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul></div>';
+                    break;
+                case '_enrollAt':
+                    html += "<div wrap='static' class='wrap-inline'><label>" + s.title + "</label><div>{{r.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div></div>";
+                    break;
+                case '_enrollerNickname':
+                    html += "<div wrap='static' class='wrap-inline'><label>" + s.title + "</label><div>{{r.nickname}}</div></div>";
+                    break;
+                case '_enrollerHeadpic':
+                    html += "<div wrap='static' class='wrap-inline'><label>" + s.title + "</label><div><img ng-src='{{r.headimgurl}}'></div></div>";
+                    break;
             }
-        }
+        });
         if (def.canLike === 'Y') {
             html += '<div wrap="static" class="wrap-inline"><label>总赞数</label><div>{{r.score}}</div></div>';
             html += "<div wrap='static' ng-if='!r.myscore'><a href='javascript:void(0)' ng-click='like($event,r)'>赞</a></div>";
@@ -272,6 +270,7 @@
             wrap: 'list',
             class: 'form-group'
         }, html);
+        return true;
     };
     WrapLib.prototype.embedRounds = function(page, def) {
         var onclick, html;
@@ -307,8 +306,8 @@
             class: 'form-group'
         }, html);
     };
-    WrapLib.prototype.embedShow = function(page, def) {
-        switch (def.type) {
+    WrapLib.prototype.embedShow = function(page, def, catelog) {
+        switch (catelog) {
             case 'record':
                 this.embedRecord(page, def);
                 break;
@@ -562,19 +561,6 @@
         };
     }];
     ngApp.provider.controller('ctrlPage', ['$scope', '$location', 'http2', '$modal', '$timeout', function($scope, $location, http2, $modal, $timeout) {
-        var extractSchema = function() {
-            var i, pages, page, s, s2;
-            pages = $scope.app.pages;
-            s = {};
-            for (i in pages) {
-                page = pages[i];
-                if (page.type && page.type === 'I') {
-                    s2 = wrapLib.extractSchema(page.html);
-                    s = angular.extend(s, s2);
-                }
-            }
-            return s;
-        };
         $scope.innerlinkTypes = [{
             value: 'article',
             title: '单图文',
@@ -613,7 +599,7 @@
                 p[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
                 url = '/rest/pl/fe/matter/enroll/page/update';
                 url += '?site=' + $scope.siteId;
-                url += '&id=' + $scope.id;
+                url += '&app=' + $scope.id;
                 url += '&pid=' + page.id;
                 url += '&pname=' + page.name;
                 url += '&cid=' + page.code_id;
@@ -799,7 +785,6 @@
                 window.wrapLib.embedUser($scope.ep, def);
             });
             angular.forEach($scope.ep.data_schemas, function(schema) {
-                schema.showname = 'label';
                 window.wrapLib.embedInput($scope.ep, schema);
             });
             angular.forEach($scope.ep.act_schemas, function(schema) {
@@ -879,7 +864,6 @@
                 window.wrapLib.embedUser($scope.ep, def);
             });
             angular.forEach($scope.ep.data_schemas, function(schema) {
-                schema.showname = 'label';
                 window.wrapLib.embedInput($scope.ep, schema);
             });
             angular.forEach($scope.ep.act_schemas, function(schema) {
@@ -888,46 +872,63 @@
         };
     }]);
     ngApp.provider.controller('ctrlViewSchema', ['$scope', '$modal', function($scope, $modal) {
-        $scope.options = {
-            record: {
-                l: '登记项'
-            },
-            list: {
-                l: '登记清单'
-            },
+        $scope.chooseSchema = function(dataSchemasCatalog) {
+            $modal.open({
+                templateUrl: 'chooseDataSchema.html',
+                backdrop: 'static',
+                resolve: {
+                    schemas: function() {
+                        var dataSchemas = angular.copy($scope.app.data_schemas);
+                        dataSchemas.push({
+                            id: 'enrollAt',
+                            type: '_enrollAt',
+                            title: '登记时间'
+                        });
+                        dataSchemas.push({
+                            id: 'enrollerNickname',
+                            type: '_enrollerNickname',
+                            title: '用户昵称'
+                        });
+                        dataSchemas.push({
+                            id: 'enrollerHeadpic',
+                            type: '_enrollerHeadpic',
+                            title: '用户头像'
+                        });
+                        return dataSchemas;
+                    }
+                },
+                controller: ['$scope', '$modalInstance', 'schemas', function($scope, $mi, schemas) {
+                    var choosed = [];
+                    $scope.schemas = schemas;
+                    $scope.choose = function(schema) {
+                        schema._selected ? choosed.push(schema) : choosed.splice(choosed.indexOf(schema), 1);
+                    };
+                    $scope.ok = function() {
+                        $mi.close(choosed);
+                    };
+                    $scope.cancel = function() {
+                        $mi.dismiss();
+                    };
+                }],
+            }).result.then(function(choosed) {
+                var schemas = dataSchemasCatalog.schemas;
+                angular.forEach(choosed, function(schema) {
+                    var i = 0,
+                        l = schemas.length;
+                    while (i < l && schema.id !== schemas[i++].id) {};
+                    if (i === l) {
+                        delete schema._selected;
+                        schemas.push(schema);
+                    }
+                });
+                $scope.ep.data_schemas = angular.copy($scope.dataSchemas);
+                $scope.updPage($scope.ep, 'data_schemas');
+            });
         };
-        $scope.app.multi_rounds === 'Y' && ($scope.options.rounds = {
-            l: '轮次清单'
-        });
-        $scope.app.can_remark_record === 'Y' && ($scope.options.remarks = {
-            l: '评论清单'
-        });
-        $scope.app.can_like_record === 'Y' && ($scope.options.likers = {
-            l: '点赞人清单'
-        });
-        $scope.def = {
-            record: {
-                enabled: 'N',
-                type: 'record',
-                inline: true,
-                splitLine: true,
-                addEnrollAt: 0,
-                addNickname: 0,
-                schema: angular.copy($scope.app.data_schemas)
-            },
-            list: {
-                enabled: 'N',
-                type: 'list',
-                inline: true,
-                splitLine: true,
-                dataScope: 'U',
-                canLike: 'N',
-                autoload: 'N',
-                onclick: '',
-                addEnrollAt: 0,
-                addNickname: 0,
-                schema: angular.copy($scope.app.data_schemas)
-            }
+        $scope.removeSchema = function(schema) {
+            var data_schemas = $scope.ep.data_schemas;
+            data_schemas.splice(data_schemas.indexOf(schema), 1);
+            $scope.updPage($scope.ep, 'data_schemas');
         };
         $scope.chooseAct = function() {
             $modal.open({
@@ -946,19 +947,48 @@
                     }
                 },
                 controller: _ctrlEmbedButton,
-            }).result.then(function(def) {
-                $scope.ep.act_schemas.push(def);
+            }).result.then(function(schema) {
+                $scope.actSchemas.push(schema);
                 $scope.updPage($scope.ep, 'act_schemas');
             });
         };
         $scope.makePage = function() {
             $scope.emptyPage();
-            angular.forEach($scope.def, function(schema) {
+            angular.forEach($scope.dataSchemas, function(schema, catelog) {
                 if (schema.enabled === 'Y') {
-                    wrapLib.embedShow($scope.ep, schema);
+                    wrapLib.embedShow($scope.ep, schema, catelog);
                 }
             });
+            angular.forEach($scope.actSchemas, function(schema) {
+                window.wrapLib.embedButton($scope.ep, schema);
+            });
         };
+        $scope.$watch('ep', function(ep) {
+            if (!ep) return;
+            if (ep.data_schemas.record === undefined) {
+                $scope.dataSchemas = {
+                    record: {
+                        enabled: 'N',
+                        inline: 'Y',
+                        splitLine: 'Y',
+                        schemas: []
+                    },
+                    list: {
+                        enabled: 'N',
+                        inline: 'Y',
+                        splitLine: 'Y',
+                        dataScope: 'U',
+                        canLike: 'N',
+                        autoload: 'N',
+                        onclick: '',
+                        schemas: []
+                    }
+                };
+            } else {
+                $scope.dataSchemas = angular.copy(ep.data_schemas);
+            }
+            $scope.actSchemas = angular.copy(ep.act_schemas);
+        });
     }]);
     ngApp.provider.controller('ctrlPageEditor', ['$scope', '$modal', 'mattersgallery', 'mediagallery', function($scope, $modal, mattersgallery, mediagallery) {
         $scope.activeWrap = false;

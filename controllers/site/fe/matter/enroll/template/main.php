@@ -1,5 +1,5 @@
 <?php
-namespace app\enroll\template;
+namespace site\fe\matter\enroll\template;
 
 require_once dirname(__FILE__) . "/base.php";
 /**
@@ -11,7 +11,7 @@ class main extends base {
 	 */
 	public function index_action() {
 		\TPL::assign('title', '模板演示');
-		\TPL::output('/app/enroll/template');
+		\TPL::output('/site/fe/matter/enroll/template');
 		exit;
 	}
 	/**

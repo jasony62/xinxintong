@@ -1,5 +1,5 @@
 <?php
-namespace app\enroll\template;
+namespace site\fe\matter\enroll\template;
 
 /**
  * 登记活动模板
@@ -9,7 +9,7 @@ class base extends \TMS_CONTROLLER {
 	 *
 	 */
 	protected function &getTemplateDir($scenario, $template) {
-		$templateDir = $_SERVER['DOCUMENT_ROOT'] . '/controllers/mp/app/enroll/scenario/' . $scenario . '/templates/' . $template;
+		$templateDir = $_SERVER['DOCUMENT_ROOT'] . '/_template/pl/fe/matter/enroll/scenario/' . $scenario . '/templates/' . $template;
 		return $templateDir;
 	}
 	/**
@@ -55,7 +55,7 @@ class base extends \TMS_CONTROLLER {
 		$matched = array();
 		$pattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
 		if (preg_match($pattern, $target->html, $matched)) {
-			$modelPage = $this->model('app\enroll\page');
+			$modelPage = $this->model('matter\enroll\page');
 			if (isset($config->simpleSchema)) {
 				$html = $modelPage->htmlBySimpleSchema($config->simpleSchema, $matched[0]);
 			} else {

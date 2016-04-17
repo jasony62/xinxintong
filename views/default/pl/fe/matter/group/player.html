@@ -116,7 +116,10 @@
                 <div class="form-group" ng-repeat="c in app.data_schemas" ng-if="c.id.indexOf('member')!==0">
                     <label class="col-md-2 control-label">{{c.title}}</label>
                     <div class="col-md-10">
-                        <input type='text' class='form-control' ng-if="c.type!=='img'&&c.type!=='file'" ng-model="player.data[c.id]">
+                        <input type='text' class='form-control' ng-if="c.type!=='img'&&c.type!=='file'&&c.type!=='single'" ng-model="player.data[c.id]">
+                        <select class='form-control' ng-if="c.type==='single'" ng-model="record.data[c.id]" ng-options="op.v as op.l for op in c.ops">
+                            <option></option>
+                        </select>
                         <span ng-if="c.type==='img'" ng-init="imgs=player.data[c.id].split(',')">
                             <img ng-repeat="img in imgs" ng-src='{{img}}' style="width:100%"/>
                         </span>

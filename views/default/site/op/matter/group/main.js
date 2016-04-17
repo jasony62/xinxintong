@@ -102,8 +102,9 @@ ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$interval', function($
             $scope.$broadcast('xxt.app.enroll.lottery.round-finish');
             return;
         }
-        if ($scope.currentRound.autoplay === 'Y' && $scope.times < $scope.currentRound.times)
+        if ($scope.currentRound.autoplay === 'Y' && $scope.times < $scope.currentRound.times) {
             $scope.start();
+        }
     };
     $scope.init = function() {
         mySwiper = new Swiper('.swiper-container', {
@@ -121,14 +122,12 @@ ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$interval', function($
         });
     };
     $scope.matched = function(candidate, target) {
-        var ctags, i, j;
+        var k, v;
         if (!candidate) return false;
-        if (!target.tags || target.tags.length === 0) return true;
-        ctags = candidate.tags;
-        if (!ctags || ctags.length === 0) return false;
-        ctags = ctags.split(',');
-        for (i = 0, j = ctags.length; i < j; i++) {
-            if (target.tags.indexOf(ctags[i]) !== -1) return true;
+        if (Object.keys(target).length === 0) return true;
+        for (k in target) {
+            v = target[k];
+            if (candidate[k] === v) return true;
         }
         return false;
     };
@@ -167,7 +166,7 @@ ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$interval', function($
                 currentRound = $scope.currentRound;
                 if (currentRound.targets && currentRound.targets.length > 0) {
                     target = currentRound.targets[$scope.times % currentRound.targets.length];
-                    if (target.tags && target.tags.length > 0) {
+                    if (Object.keys(target).length > 0) {
                         /**
                          * 检查规则
                          */
@@ -177,19 +176,23 @@ ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$interval', function($
                             /**
                              * 不匹配，继续找。有可能所有的候选人都不匹配。
                              */
-                            checked = []; //已经匹配过的候选人
+                            checked = []; //已经检查过的候选人
                             timer3 = $interval(function() {
                                 candidate = activePlayer();
-                                if ($scope.matched(candidate, target) || checked.length === $scope.players.length) {
+                                if ($scope.matched(candidate, target)) {
                                     /**
                                      * 匹配了，或者所有的候选人都已经检查过。
                                      */
                                     $interval.cancel(timer3);
                                     setWinner();
+                                } else if (checked.length === $scope.players.length) {
+                                    $interval.cancel(timer3);
+                                    alert('没有匹配的用户');
                                 } else {
                                     mySwiper.slideNext();
-                                    if (checked.indexOf(mySwiper.activeIndex) === -1)
+                                    if (checked.indexOf(mySwiper.activeIndex) === -1) {
                                         checked.push(mySwiper.activeIndex);
+                                    }
                                 }
                             }, $scope.speed);
                         } else {

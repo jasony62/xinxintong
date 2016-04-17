@@ -7,15 +7,17 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class page extends \pl\fe\matter\base {
 	/**
-	 * 创建抽奖页面
+	 * 创建分组页面
 	 *
 	 * @param string $aid
 	 * @param string $type
 	 */
 	public function create_action($site, $app, $type = 'carousel') {
-		$uid = \TMS_CLIENT::get_client_uid();
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$modelCode = $this->model('code/page');
-		$code = $modelCode->create($uid);
+		$code = $modelCode->create($user->id);
 
 		$this->model()->update('xxt_group', array('page_code_id' => $code->id), "id='$app'");
 

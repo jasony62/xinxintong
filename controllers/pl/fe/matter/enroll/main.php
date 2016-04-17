@@ -102,13 +102,16 @@ class main extends \pl\fe\matter\base {
 	 *
 	 * $src 是否来源于父账号，=p
 	 */
-	public function list_action($site, $page = 1, $size = 30) {
+	public function list_action($site, $page = 1, $size = 30, $mission = null) {
 		$model = $this->model();
 		$q = array(
 			'a.*',
 			'xxt_enroll a',
 			"siteid='$site' and state<>0",
 		);
+		if (!empty($mission)) {
+			$q[2] .= " and exists(select 1 from xxt_mission_matter where mission_id='$mission' and matter_type='enroll' and matter_id=a.id)";
+		}
 		$q2['o'] = 'a.modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
@@ -199,11 +202,11 @@ class main extends \pl\fe\matter\base {
 		$current = time();
 
 		/*create app*/
-		$aid = uniqid();
+		$app->id = uniqid();
 		/*pages*/
 		if (!empty($scenario) && !empty($template)) {
 			$customConfig = $this->getPostJson();
-			$config = $this->_addPageByTemplate($site, $aid, $scenario, $template, $customConfig);
+			$config = $this->_addPageByTemplate($site, $app->id, $scenario, $template, $customConfig);
 			$entryRule = $config->entryRule;
 			if (isset($config->enrolled_entry_page)) {
 				$newapp['enrolled_entry_page'] = $config->enrolled_entry_page;
@@ -219,10 +222,10 @@ class main extends \pl\fe\matter\base {
 			}
 			$newapp['scenario'] = $scenario;
 		} else {
-			$entryRule = $this->_addBlankPage($site, $aid);
+			$entryRule = $this->_addBlankPage($site, $app->id);
 		}
 		$newapp['siteid'] = $site;
-		$newapp['id'] = $aid;
+		$newapp['id'] = $app->id;
 		$newapp['title'] = '新登记活动';
 		$newapp['pic'] = $mission->pic;
 		$newapp['creater'] = $user->id;
@@ -238,7 +241,7 @@ class main extends \pl\fe\matter\base {
 		isset($config) && $newapp['data_schemas'] = \TMS_MODEL::toJson($config->schema);
 		$this->model()->insert('xxt_enroll', $newapp, false);
 
-		$matter = $this->model('matter\enroll')->byId($aid);
+		$matter = $this->model('matter\enroll')->byId($app->id);
 		/*记录操作日志*/
 		$matter->type = 'enroll';
 		$this->model('log')->matterOp($site, $user, $matter, 'C');
@@ -250,7 +253,7 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 更新活动的属性信息
 	 *
-	 * @param string $aid
+	 * @param string $app
 	 *
 	 */
 	public function update_action($site, $app) {
@@ -278,9 +281,9 @@ class main extends \pl\fe\matter\base {
 		$rst = $model->update('xxt_enroll', $nv, "id='$app'");
 		/*记录操作日志*/
 		if ($rst) {
-			$app = $this->model('matter\\' . 'enroll')->byId($app, 'id,title,summary,pic');
-			$app->type = 'enroll';
-			$this->model('log')->matterOp($site, $user, $app, 'U');
+			$matter = $this->model('matter\\enroll')->byId($app, 'id,title,summary,pic');
+			$matter->type = 'enroll';
+			$this->model('log')->matterOp($site, $user, $matter, 'U');
 		}
 
 		return new \ResponseData($rst);
@@ -288,7 +291,7 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 添加空页面
 	 */
-	private function _addBlankPage($siteId, $aid) {
+	private function _addBlankPage($siteId, $app) {
 		$current = time();
 		$modelPage = $this->model('app\enroll\page');
 		/* form page */
@@ -297,7 +300,7 @@ class main extends \pl\fe\matter\base {
 			'type' => 'I',
 			'name' => 'z' . $current,
 		);
-		$page = $modelPage->add($siteId, $aid, $page);
+		$page = $modelPage->add($siteId, $app->id, $page);
 		/*entry rules*/
 		$entryRule = array(
 			'otherwise' => array('entry' => $page->name),
@@ -312,18 +315,18 @@ class main extends \pl\fe\matter\base {
 			'type' => 'V',
 			'name' => 'z' . ($current + 1),
 		);
-		$modelPage->add($siteId, $aid, $page);
+		$modelPage->add($siteId, $app->id, $page);
 
 		return $entryRule;
 	}
 	/**
 	 * 根据模板生成页面
 	 *
-	 * @param string $aid
+	 * @param string $app
 	 * @param string $scenario scenario's name
 	 * @param string $template template's name
 	 */
-	private function &_addPageByTemplate($siteId, $aid, $scenario, $template, $customConfig) {
+	private function &_addPageByTemplate($siteId, $app, $scenario, $template, $customConfig) {
 		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/matter/enroll/scenario/' . $scenario . '/templates/' . $template;
 		$config = file_get_contents($templateDir . '/config.json');
 		$config = preg_replace('/\t|\r|\n/', '', $config);
@@ -335,7 +338,7 @@ class main extends \pl\fe\matter\base {
 		$modelPage = $this->model('app\enroll\page');
 		$modelCode = $this->model('code/page');
 		foreach ($pages as $page) {
-			$ap = $modelPage->add($siteId, $aid, (array) $page);
+			$ap = $modelPage->add($siteId, $app, (array) $page);
 			$data = array(
 				'html' => file_get_contents($templateDir . '/' . $page->name . '.html'),
 				'css' => file_get_contents($templateDir . '/' . $page->name . '.css'),
@@ -350,15 +353,74 @@ class main extends \pl\fe\matter\base {
 				}
 				$html = $modelPage->htmlBySchema($config->schema, $matched[0]);
 				$data['html'] = preg_replace($pattern, $html, $data['html']);
-				$rst = $modelPage->update(
-					'xxt_enroll_page',
-					array('data_schemas' => \TMS_MODEL::toJson($config->schema)),
-					"aid='$aid' and id={$ap->id}"
-				);
 			}
 			$modelCode->modify($ap->code_id, $data);
+			/*页面关联的定义*/
+			$pageSchemas = array();
+			$pageSchemas['data_schemas'] = isset($page->data_schemas) ? \TMS_MODEL::toJson($page->data_schemas) : '[]';
+			$pageSchemas['act_schemas'] = isset($page->act_schemas) ? \TMS_MODEL::toJson($page->act_schemas) : '[]';
+			$rst = $modelPage->update(
+				'xxt_enroll_page',
+				$pageSchemas,
+				"aid='$app' and id={$ap->id}"
+			);
 		}
 
 		return $config;
+	}
+	/**
+	 * 删除一个活动
+	 *
+	 * 如果没有报名数据，就将活动彻底删除
+	 * 否则只是打标记
+	 *
+	 * @param string $app->id
+	 */
+	public function remove_action($site, $app) {
+		$model = $this->model();
+		/*在删除数据前获得数据*/
+		$app = $this->model('matter\\enroll')->byId($app, 'id,title,summary,pic');
+		/*删除和任务的关联*/
+		$this->model('mission')->removeMatter($site, $app->id, 'enroll');
+		/*check*/
+		$q = array(
+			'count(*)',
+			'xxt_enroll_record',
+			"siteid='$site' and aid='$app->id'",
+		);
+		if ((int) $model->query_val_ss($q) > 0) {
+			$rst = $model->update(
+				'xxt_enroll',
+				array('state' => 0),
+				"siteid='$site' and id='$app->id'"
+			);
+		} else {
+			$model->delete(
+				'xxt_enroll_receiver',
+				"siteid='$site' and aid='$app->id'"
+			);
+			$model->delete(
+				'xxt_enroll_round',
+				"siteid='$site' and aid='$app->id'"
+			);
+			$model->delete(
+				'xxt_code_page',
+				"id in (select code_id from xxt_enroll_page where aid='$app->id')"
+			);
+			$model->delete(
+				'xxt_enroll_page',
+				"siteid='$site' and aid='$app->id'"
+			);
+			$rst = $model->delete(
+				'xxt_enroll',
+				"siteid='$site' and id='$app->id'"
+			);
+		}
+		/*记录操作日志*/
+		$user = $this->accountUser();
+		$app->type = 'enroll';
+		$this->model('log')->matterOp($site, $user, $app, 'D');
+
+		return new \ResponseData($rst);
 	}
 }

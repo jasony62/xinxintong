@@ -18,6 +18,11 @@
 				location.href = '/rest/pl/fe/matter/enroll/running?site=' + $scope.siteId + '&id=' + $scope.id;
 			});
 		};
+		$scope.remove = function() {
+			http2.get('/rest/pl/fe/matter/enroll/remove?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+				location.href = '/rest/pl/fe/site/console?site=' + $scope.siteId;
+			});
+		};
 		$scope.setPic = function() {
 			var options = {
 				callback: function(url) {

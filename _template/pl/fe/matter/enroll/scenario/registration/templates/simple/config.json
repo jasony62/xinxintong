@@ -2,31 +2,106 @@
 	"pages": [{
 		"name": "enroll",
 		"title": "登记页",
-		"type": "I"
+		"type": "I",
+		"data_schemas": [{
+			"id": "name",
+			"title": "名称",
+			"type": "name",
+			"showname": "placeholder"
+		}, {
+			"id": "mobile",
+			"title": "手机",
+			"type": "mobile",
+			"showname": "placeholder"
+		}, {
+			"id": "email",
+			"title": "邮箱",
+			"type": "email",
+			"showname": "placeholder"
+		}, {
+			"id": "c1",
+			"title": "登记信息1",
+			"type": "shorttext",
+			"showname": "placeholder"
+		}, {
+			"id": "c2",
+			"title": "登记信息2",
+			"type": "longtext",
+			"showname": "placeholder"
+		}],
+		"act_schemas": [{
+			"name": "submit",
+			"label": "提交信息",
+			"next": "result"
+		}]
 	}, {
 		"name": "result",
 		"title": "登记结果页",
+		"type": "V",
+		"data_schemas": [{
+			"id": "name",
+			"title": "名称",
+			"type": "name",
+			"showname": "placeholder"
+		}, {
+			"id": "mobile",
+			"title": "手机",
+			"type": "mobile",
+			"showname": "placeholder"
+		}, {
+			"id": "email",
+			"title": "邮箱",
+			"type": "email",
+			"showname": "placeholder"
+		}, {
+			"id": "c1",
+			"title": "登记信息1",
+			"type": "shorttext",
+			"showname": "placeholder"
+		}, {
+			"id": "c2",
+			"title": "登记信息2",
+			"type": "longtext",
+			"showname": "placeholder"
+		}]
+	}, {
+		"name": "signin",
+		"title": "签到页",
+		"type": "S"
+	}, {
+		"name": "signinsuccess",
+		"title": "签到成功页",
 		"type": "V"
 	}],
 	"schema": [{
 		"id": "name",
-		"title": "名称"
+		"title": "名称",
+		"type": "name",
+		"showname": "placeholder"
 	}, {
 		"id": "mobile",
-		"title": "手机"
+		"title": "手机",
+		"type": "mobile",
+		"showname": "placeholder"
 	}, {
 		"id": "email",
-		"title": "邮箱"
+		"title": "邮箱",
+		"type": "email",
+		"showname": "placeholder"
 	}, {
 		"id": "c1",
-		"title": "登记信息1"
+		"title": "登记信息1",
+		"type": "shorttext",
+		"showname": "placeholder"
 	}, {
 		"id": "c2",
-		"title": "登记信息2"
+		"title": "登记信息2",
+		"type": "longtext",
+		"showname": "placeholder"
 	}],
 	"scenarioConfig": {
 		"can_rounds": "D",
-		"can_signin": "P"
+		"can_signin": "Y"
 	},
 	"entryRule": {
 		"otherwise": {

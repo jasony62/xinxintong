@@ -45,7 +45,9 @@ class main extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$app = $this->model('matter\group')->byId($app);
+		$app = $this->model('matter\\group')->byId($app);
+		/*所属项目*/
+		$app->mission = $this->model('matter\\mission')->byMatter($site, $app->id, 'group');
 
 		return new \ResponseData($app);
 	}

@@ -22,6 +22,3 @@ div[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-ov
 li .wrap-inline>label{padding:7px 0;color:#444;}
 li .wrap-inline{border-bottom:1px dashed #efefef;}
 li .wrap-inline:last-child{border-bottom:0;}
-
-/* auth */
-#frmPopup{position:absolute;top:0;left:0;right:0;bottom:0;border:none;width:100%;z-index:999;box-sizing:border-box;}

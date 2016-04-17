@@ -70,6 +70,9 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', 'mediagaller
 		title: '频道',
 		url: '/rest/pl/fe/matter'
 	}];
+	$scope.back = function() {
+		history.back();
+	};
 	window.onbeforeunload = function(e) {
 		var message;
 		if ($scope.modified) {

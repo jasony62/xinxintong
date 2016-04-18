@@ -124,6 +124,8 @@ class channel_model extends article_base {
 		if (empty($channel->matter_type)) {
 			$matterTypes = array(
 				'article' => 'xxt_article',
+				'channel' => 'xxt_channel',
+				'news' => 'xxt_news',
 				'link' => 'xxt_link',
 				'enroll' => 'xxt_enroll',
 				'contribute' => 'xxt_contribute',

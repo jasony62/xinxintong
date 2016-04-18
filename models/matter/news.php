@@ -50,7 +50,7 @@ class news_model extends article_base {
 		 * 单图文
 		 */
 		$q = array(
-			"a.id,a.mpid,a.title,a.pic,a.summary,a.url,a.create_at,nm.seq,'article' type,a.access_control,a.authapis",
+			"a.id,a.siteid,a.title,a.pic,a.summary,a.url,a.create_at,nm.seq,'article' type,a.access_control,a.authapis",
 			'xxt_article a,xxt_news_matter nm',
 			"a.state=1 and a.approved='Y' and nm.matter_type='article' and nm.news_id=$news_id and nm.matter_id=a.id",
 		);
@@ -61,12 +61,40 @@ class news_model extends article_base {
 			}
 		}
 		/**
+		 * 多图文
+		 */
+		$q = array(
+			"n.id,n.siteid,n.title,n.pic,n.summary,n.create_at,nm.seq,'news' type,n.access_control,n.authapis",
+			'xxt_news n,xxt_news_matter nm',
+			"n.state=1 and nm.matter_type='news' and nm.news_id=$news_id and nm.matter_id=n.id",
+		);
+		$q2 = array('o' => 'nm.seq');
+		if ($news = $this->query_objs_ss($q, $q2)) {
+			foreach ($news as $n) {
+				$matters[(int) $n->seq] = $n;
+			}
+		}
+		/**
+		 * 频道
+		 */
+		$q = array(
+			"c.id,c.siteid,c.title,c.pic,c.summary,c.create_at,nm.seq,'channel' type,c.access_control,c.authapis",
+			'xxt_channel c,xxt_news_matter nm',
+			"c.state=1 and nm.matter_type='channel' and nm.news_id=$news_id and nm.matter_id=c.id",
+		);
+		$q2 = array('o' => 'nm.seq');
+		if ($channels = $this->query_objs_ss($q, $q2)) {
+			foreach ($channels as $c) {
+				$matters[(int) $c->seq] = $c;
+			}
+		}
+		/**
 		 * 链接
 		 */
 		$q = array(
-			"l.id,l.mpid,l.title,l.pic,l.summary,l.url,l.urlsrc,l.create_at,nm.seq,'link' type,method,open_directly,l.access_control,l.authapis",
+			"l.id,l.siteid,l.title,l.pic,l.summary,l.url,l.urlsrc,l.create_at,nm.seq,'link' type,method,open_directly,l.access_control,l.authapis",
 			'xxt_link l,xxt_news_matter nm',
-			"nm.matter_type='link' and nm.news_id=$news_id and nm.matter_id=l.id",
+			"l.state=1 and nm.matter_type='link' and nm.news_id=$news_id and nm.matter_id=l.id",
 		);
 		$q2 = array('o' => 'nm.seq');
 		if ($links = $this->query_objs_ss($q, $q2)) {
@@ -78,22 +106,21 @@ class news_model extends article_base {
 		 * 登记活动
 		 */
 		$q = array(
-			"a.id,a.mpid,a.title,a.pic,a.summary,a.create_at,nm.seq,'enroll' type,a.access_control,a.authapis",
-			'xxt_enroll a,xxt_news_matter nm',
-			"nm.matter_type='enroll' and nm.news_id=$news_id and nm.matter_id=a.id",
+			"e.id,e.siteid,e.title,e.pic,e.summary,e.create_at,nm.seq,'enroll' type,e.access_control,e.authapis",
+			'xxt_enroll e,xxt_news_matter nm',
+			"e.state=1 and nm.matter_type='enroll' and nm.news_id=$news_id and nm.matter_id=e.id",
 		);
 		$q2 = array('o' => 'nm.seq');
-		if ($acts = $this->query_objs_ss($q, $q2)) {
-			foreach ($acts as &$a) {
+		if ($apps = $this->query_objs_ss($q, $q2)) {
+			foreach ($apps as &$a) {
 				$matters[(int) $a->seq] = $a;
 			}
-
 		}
 		/**
 		 * 抽奖活动
 		 */
 		$q = array(
-			"l.id,l.mpid,l.title,l.pic,l.summary,l.create_at,nm.seq,'lottery' type,l.access_control,l.authapis",
+			"l.id,l.siteid,l.title,l.pic,l.summary,l.create_at,nm.seq,'lottery' type,l.access_control,l.authapis",
 			'xxt_lottery l,xxt_news_matter nm',
 			"nm.matter_type='lottery' and nm.news_id=$news_id and nm.matter_id=l.id",
 		);
@@ -104,22 +131,6 @@ class news_model extends article_base {
 			}
 
 		}
-		/**
-		 * 信息墙
-		 */
-		$q = array(
-			"w.id,w.mpid,w.title,w.pic,w.summary,w.create_at,nm.seq,'wall' type,w.access_control,w.authapis",
-			'xxt_wall w,xxt_news_matter nm',
-			"nm.matter_type='wall' and nm.news_id=$news_id and nm.matter_id=w.id",
-		);
-		$q2 = array('o' => 'nm.seq');
-		if ($walls = $this->query_objs_ss($q, $q2)) {
-			foreach ($walls as &$w) {
-				$matters[(int) $w->seq] = $w;
-			}
-
-		}
-
 		ksort($matters);
 
 		$matters2 = array();
@@ -142,9 +153,9 @@ class news_model extends article_base {
 		 * 单图文
 		 */
 		$q = array(
-			"a.id,a.mpid,a.title,a.pic,a.summary,a.body,a.url,a.create_at,nm.seq,'article' type",
+			"e.id,e.siteid,e.title,e.pic,e.summary,e.body,e.url,e.create_at,nm.seq,'article' type",
 			'xxt_article a,xxt_news_matter nm',
-			"nm.matter_type='article' and nm.news_id=$news_id and nm.matter_id=a.id",
+			"nm.matter_type='article' and nm.news_id=$news_id and nm.matter_id=e.id",
 		);
 		$q2['o'] = 'nm.seq';
 

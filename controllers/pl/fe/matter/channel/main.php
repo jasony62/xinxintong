@@ -22,11 +22,12 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function get_action($site, $id) {
-		$uid = \TMS_CLIENT::get_client_uid();
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 
 		$modelChn = $this->model('matter\channel');
 		$channel = $modelChn->byId($id);
-		$channel->uid = $uid;
 		$channel->matters = $modelChn->getMatters($id, $channel, $site);
 		$channel->acl = $this->model('acl')->byMatter($site, 'channel', $id);
 
@@ -66,7 +67,7 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($channels);
 	}
 	/**
-	 * 创建屏道素材
+	 * 创建频道素材
 	 */
 	public function create_action($site) {
 		$user = $this->accountUser();
@@ -177,7 +178,7 @@ class main extends \pl\fe\matter\base {
 			$model->addMatter($channel->id, $matter, $user->id, $user->name);
 		}
 
-		return new \ResponseData('success');
+		return new \ResponseData('ok');
 	}
 	/**
 	 *

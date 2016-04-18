@@ -210,7 +210,6 @@ class record_model extends \TMS_MODEL {
 			is_array($options) && $options = (object) $options;
 			$creater = isset($options->creater) ? $options->creater : null;
 			$inviter = isset($options->inviter) ? $options->inviter : null;
-			$visitor = isset($options->visitor) ? $options->visitor : '';
 			$orderby = isset($options->orderby) ? $options->orderby : '';
 			$page = isset($options->page) ? $options->page : null;
 			$size = isset($options->size) ? $options->size : null;
@@ -221,7 +220,7 @@ class record_model extends \TMS_MODEL {
 				} else if (!empty($options->rid)) {
 					$rid = $options->rid;
 				}
-			} else if ($activeRound = $this->M('app\enroll\round')->getActive($siteId, $aid)) {
+			} else if ($activeRound = $this->M('matter\enroll\round')->getActive($siteId, $app->id)) {
 				$rid = $activeRound->rid;
 			}
 			$signinStartAt = isset($options->signinStartAt) ? $options->signinStartAt : null;
@@ -234,7 +233,7 @@ class record_model extends \TMS_MODEL {
 		/* 获得登记数据 */
 		$w = "e.state=1 and e.siteid='$siteId' and e.aid='{$app->id}'";
 		if (!empty($creater)) {
-			$w .= " and e.openid='$creater'";
+			$w .= " and e.userid='$creater'";
 		} else if (!empty($inviter)) {
 			$user = new \stdClass;
 			$user->openid = $inviter;

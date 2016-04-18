@@ -108,7 +108,7 @@ class news_model extends article_base {
 		$q = array(
 			"e.id,e.siteid,e.title,e.pic,e.summary,e.create_at,nm.seq,'enroll' type,e.access_control,e.authapis",
 			'xxt_enroll e,xxt_news_matter nm',
-			"e.state=1 and nm.matter_type='enroll' and nm.news_id=$news_id and nm.matter_id=e.id",
+			"e.state<>0 and nm.matter_type='enroll' and nm.news_id=$news_id and nm.matter_id=e.id",
 		);
 		$q2 = array('o' => 'nm.seq');
 		if ($apps = $this->query_objs_ss($q, $q2)) {

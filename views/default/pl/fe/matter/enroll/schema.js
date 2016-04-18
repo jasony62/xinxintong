@@ -1,6 +1,6 @@
 (function() {
     ngApp.provider.controller('ctrlSchema', ['$scope', 'http2', '$timeout', function($scope, http2, $timeout) {
-        var id = 'c' + (new Date()).getTime(),
+        var
             base = {
                 title: '',
                 type: '',
@@ -23,7 +23,8 @@
             },
             newDef,
             newSchema = function(type) {
-                var schema = Object.create(base);
+                var id = 'c' + (new Date()).getTime(),
+                    schema = Object.create(base);
                 schema.type = type;
                 if (map[type]) {
                     schema.id = map[type].id;
@@ -71,6 +72,10 @@
             });
             $scope.$parent.modified = true;
         });
+        $scope.removeSchema = function(schema) {
+            $scope.schemas.splice($scope.schemas.indexOf(schema));
+            $scope.$parent.modified = true;
+        };
         $scope.modify = function(name) {
             $scope.$parent.modified = true;
         };

@@ -710,7 +710,9 @@
         $scope.emptyPage = function() {
             var activeEditor = tinymce.get($scope.ep.name);
             activeEditor.setContent('');
+            activeEditor.save();
             $scope.ep.html = '';
+            $scope.onPageChange($scope.ep);
         };
     }]);
     ngApp.provider.controller('ctrlInputSchema', ['$scope', '$modal', function($scope, $modal) {

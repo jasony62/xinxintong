@@ -4,7 +4,7 @@ ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', func
 		controller: $controllerProvider.register
 	};
 	$routeProvider.when('/rest/pl/fe/matter/enroll/schema', {
-		templateUrl: '/views/default/pl/fe/matter/enroll/schema.html?_=1',
+		templateUrl: '/views/default/pl/fe/matter/enroll/schema.html?_=2',
 		controller: 'ctrlSchema',
 		resolve: {
 			load: function($q) {

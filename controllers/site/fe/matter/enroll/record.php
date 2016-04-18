@@ -491,23 +491,19 @@ class record extends base {
 	 *
 	 */
 	public function list_action($site, $app, $owner = 'U', $rid = '', $orderby = 'time', $openid = null, $page = 1, $size = 30) {
-		$user = $this->getUser($site);
+		$user = $this->who;
 		switch ($owner) {
-		case 'U':
-			$options = array(
-				'creater' => $user->openid,
-				'visitor' => $user->openid,
-			);
-			break;
 		case 'I':
 			$options = array(
-				'inviter' => $user->openid,
+				'inviter' => $user->uid,
 			);
+			break;
+		case 'A':
+			$options = array();
 			break;
 		default:
 			$options = array(
-				'creater' => $openid,
-				'visitor' => $user->openid,
+				'creater' => $user->uid,
 			);
 			break;
 		}
@@ -516,7 +512,9 @@ class record extends base {
 		$options['size'] = $size;
 		$options['orderby'] = $orderby;
 
-		$modelRec = $this->model('app\enroll\record');
+		$app = $this->model('matter\enroll')->byId($app);
+		$modelRec = $this->model('matter\enroll\record');
+
 		$rst = $modelRec->find($site, $app, $options);
 
 		return new \ResponseData($rst);

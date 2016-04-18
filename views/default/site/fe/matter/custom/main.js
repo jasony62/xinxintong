@@ -1,12 +1,12 @@
 define(["require", "angular"], function(require, angular) {
     'use strict';
-    var app = angular.module('app', []);
-    app.config(['$controllerProvider', function($cp) {
-        app.register = {
+    var ngApp = angular.module('app', []);
+    ngApp.config(['$controllerProvider', function($cp) {
+        ngApp.provider = {
             controller: $cp.register
         };
     }]);
-    app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
+    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
         var ls, siteId, id, shareby;
         ls = location.search;
         siteId = ls.match(/[\?&]site=([^&]*)/)[1];
@@ -124,7 +124,7 @@ define(["require", "angular"], function(require, angular) {
         };
         loadArticle().then(articleLoaded);
     }]);
-    app.directive('dynamicHtml', function($compile) {
+    ngApp.directive('dynamicHtml', function($compile) {
         return {
             restrict: 'EA',
             replace: true,

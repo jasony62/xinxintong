@@ -24,7 +24,7 @@ class base extends \site\fe\matter\base {
 	 */
 	protected function checkEntryRule($site, $app, $user, $redirect = false) {
 		$entryRule = $app->entry_rule;
-		if ($entryRule->scope === 'member') {
+		if (isset($entryRule->scope) && $entryRule->scope === 'member') {
 			foreach ($entryRule->member as $schemaId => $rule) {
 				if (isset($user->members->{$schemaId})) {
 					$page = $rule->entry;
@@ -32,7 +32,7 @@ class base extends \site\fe\matter\base {
 				}
 			}
 			!isset($page) && $page = '$memberschema';
-		} else if ($entryRule->scope === 'sns') {
+		} else if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
 			foreach ($entryRule->sns as $snsName => $rule) {
 				if (isset($user->sns->{$snsName})) {
 					$page = $rule->entry;
@@ -43,6 +43,8 @@ class base extends \site\fe\matter\base {
 		} else {
 			if (isset($entryRule->otherwise->entry)) {
 				$page = $entryRule->otherwise->entry;
+			} else {
+				$page = null;
 			}
 		}
 		/*内置页面*/
@@ -61,7 +63,7 @@ class base extends \site\fe\matter\base {
 			}
 			break;
 		case '$mpfollow':
-			$this->askFollow($site, $user->uid);
+			$this->snsFollow($site);
 			break;
 		}
 

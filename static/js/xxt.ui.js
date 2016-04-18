@@ -446,6 +446,9 @@ xxtMatters.factory('mattersgallery', function($modal) {
                         if (/article|contribute/.test($scope.p.matterType.value)) {
                             $scope.matters = rsp.data.articles;
                             $scope.page.total = rsp.data.total;
+                        } else if (/enroll/.test($scope.p.matterType.value)) {
+                            $scope.matters = rsp.data.apps;
+                            $scope.page.total = rsp.data.total;
                         } else {
                             $scope.matters = rsp.data;
                             $scope.page.total = $scope.matters.length;

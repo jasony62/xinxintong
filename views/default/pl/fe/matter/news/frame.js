@@ -28,19 +28,19 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', function($
 	}, {
 		value: 'link',
 		title: '链接',
-		url: '/rest/mp/matter'
+		url: '/rest/pl/fe/matter'
 	}, {
 		value: 'enroll',
 		title: '通用活动',
-		url: '/rest/mp/matter'
+		url: '/rest/pl/fe/matter'
 	}, {
 		value: 'lottery',
 		title: '抽奖活动',
-		url: '/rest/mp/matter'
+		url: '/rest/pl/fe/matter'
 	}, {
 		value: 'wall',
 		title: '讨论组',
-		url: '/rest/mp/matter'
+		url: '/rest/pl/fe/matter'
 	}, ];
 	var updateMatters = function() {
 		http2.post('/rest/pl/fe/matter/news/updateMatter?site=' + $scope.siteId + '&id=' + $scope.editing.id, $scope.editing.matters);

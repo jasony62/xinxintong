@@ -26,22 +26,26 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', function($
 		title: '单图文',
 		url: '/rest/pl/fe/matter'
 	}, {
+		value: 'news',
+		title: '多图文',
+		url: '/rest/pl/fe/matter'
+	}, {
+		value: 'channel',
+		title: '频道',
+		url: '/rest/pl/fe/matter'
+	}, {
 		value: 'link',
 		title: '链接',
 		url: '/rest/pl/fe/matter'
 	}, {
 		value: 'enroll',
-		title: '通用活动',
+		title: '登记活动',
 		url: '/rest/pl/fe/matter'
 	}, {
 		value: 'lottery',
 		title: '抽奖活动',
 		url: '/rest/pl/fe/matter'
-	}, {
-		value: 'wall',
-		title: '讨论组',
-		url: '/rest/pl/fe/matter'
-	}, ];
+	}];
 	var updateMatters = function() {
 		http2.post('/rest/pl/fe/matter/news/updateMatter?site=' + $scope.siteId + '&id=' + $scope.editing.id, $scope.editing.matters);
 	};

@@ -1,0 +1,14 @@
+<div id='tip'>
+	<p>感谢关注</p>
+	<p><?php echo $this->site->name;?></p>
+	<hr/>
+	<?php if (!empty($this->yx->cardid)) {?>
+	<p id='follow'>
+		<a href="yixin://opencard?pid=<?php echo $this->yx->cardid;?>">点击关注</a>
+	</p>
+	<?php }?>
+</div>
+<div id='qrcode'>
+	<img src="<?php echo $this->yx->qrcode;?>"/>
+	<p>长按二维码关注公众号</p>
+</div>

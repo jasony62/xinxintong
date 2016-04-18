@@ -63,7 +63,13 @@ class base extends \site\fe\matter\base {
 			}
 			break;
 		case '$mpfollow':
-			$this->snsFollow($site);
+			if (isset($entryRule->sns->wx)) {
+				$this->snsFollow($site, 'wx');
+			} else if (isset($entryRule->sns->qy)) {
+				$this->snsFollow($site, 'qy');
+			} else if (isset($entryRule->sns->yx)) {
+				$this->snsFollow($site, 'yx');
+			}
 			break;
 		}
 

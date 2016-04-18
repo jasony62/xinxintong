@@ -18,7 +18,7 @@
 					$scope.update('qrcode');
 				}
 			};
-			mediagallery.open($scope.id, options);
+			mediagallery.open($scope.siteId, options);
 		};
 		$scope.removeQrcode = function() {
 			$scope.yx.qrcode = '';

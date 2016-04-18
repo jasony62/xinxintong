@@ -209,7 +209,7 @@ class base extends \TMS_CONTROLLER {
 	 */
 	protected function snsFollow($siteId, $snsName) {
 		$modelSns = $this->model('sns\\' . $snsName);
-		$sns = $modelsSns->bySite($siteId, 'follow_page_id');
+		$sns = $modelSns->bySite($siteId, 'follow_page_id');
 		if ($sns->follow_page_id === '0') {
 			$site = $this->model('site')->byId($siteId);
 			$html = '请关注公众号：' . $site->name;

@@ -1,0 +1,8 @@
+body{background-color:#EEE}
+#tip{position:relative;width:220px;height:220px;left:50%;margin-left:-110px;margin-top:30px;background-color:#000;font-size:16px;border-radius:110px;padding-top:30px}
+#tip>p{margin:8px;font-size:14px;color:#FFF;text-align:center}
+hr{margin-top:16px;border:1px solid #00C0FF;margin-left:12px;margin-right:12px}
+#tip #follow{margin-top:16px}
+#follow a{color:#00C0FF}
+#qrcode{position:relative;text-align:center;margin-top:30px;}
+#qrcode img{width:200px;height:200px}

@@ -85,6 +85,18 @@ ngApp.config(['$locationProvider', '$controllerProvider', '$routeProvider', func
                 return defer.promise;
             }
         }
+    }).when('/rest/pl/fe/site/sns/yx/page', {
+        templateUrl: '/views/default/pl/fe/site/sns/yx/page.html?_=2',
+        controller: 'ctrlPage',
+        resolve: {
+            load: function($q) {
+                var defer = $q.defer();
+                loadJs('/views/default/pl/fe/site/sns/yx/page.js', function() {
+                    defer.resolve();
+                });
+                return defer.promise;
+            }
+        }
     }).otherwise({
         templateUrl: '/views/default/pl/fe/site/sns/yx/setting.html?_=2',
         controller: 'ctrlSet',

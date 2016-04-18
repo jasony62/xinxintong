@@ -1,4 +1,4 @@
-app.controller('regCtrl', ['$scope', '$http', '$rootScope', function($scope, $http, $rootScope) {
+app.controller('ctrlReg', ['$scope', '$http', '$rootScope', function($scope, $http, $rootScope) {
     $scope.repeatPwd = (function() {
         return {
             test: function(value) {

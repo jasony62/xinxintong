@@ -70,32 +70,35 @@ class main extends \pl\fe\matter\base {
 	 * 返回一个登记活动
 	 */
 	public function get_action($site, $id) {
-		$uid = \TMS_CLIENT::get_client_uid();
-		$a = $this->model('matter\enroll')->byId($id);
-		$a->uid = $uid;
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$app = $this->model('matter\enroll')->byId($id);
 		/**
 		 * 活动签到回复消息
 		 */
-		if ($a->success_matter_type && $a->success_matter_id) {
-			$m = $this->model('matter\base')->getMatterInfoById($a->success_matter_type, $a->success_matter_id);
-			$a->successMatter = $m;
+		if ($app->success_matter_type && $app->success_matter_id) {
+			$m = $this->model('matter\base')->getMatterInfoById($app->success_matter_type, $app->success_matter_id);
+			$app->successMatter = $m;
 		}
-		if ($a->failure_matter_type && $a->failure_matter_id) {
-			$m = $this->model('matter\base')->getMatterInfoById($a->failure_matter_type, $a->failure_matter_id);
-			$a->failureMatter = $m;
+		if ($app->failure_matter_type && $app->failure_matter_id) {
+			$m = $this->model('matter\base')->getMatterInfoById($app->failure_matter_type, $app->failure_matter_id);
+			$app->failureMatter = $m;
 		}
 		/* channels */
-		$a->channels = $this->model('matter\channel')->byMatter($id, 'enroll');
+		$app->channels = $this->model('matter\channel')->byMatter($id, 'enroll');
 		/* acl */
-		$a->acl = $this->model('matter\acl')->byMatter($site, 'enroll', $id);
+		$app->acl = $this->model('matter\acl')->byMatter($site, 'enroll', $id);
 		/* 登记通知接收人 */
-		$a->receiver = $this->model('matter\acl')->enrollReceiver($site, $id);
+		$app->receiver = $this->model('matter\acl')->enrollReceiver($site, $id);
 		/* 获得的轮次 */
 		if ($rounds = $this->model('matter\enroll\round')->byApp($site, $id)) {
-			!empty($rounds) && $a->rounds = $rounds;
+			!empty($rounds) && $app->rounds = $rounds;
 		}
+		/*所属项目*/
+		$app->mission = $this->model('matter\mission')->byMatter($site, $app->id, 'enroll');
 
-		return new \ResponseData($a);
+		return new \ResponseData($app);
 	}
 	/**
 	 * 返回登记活动列表
@@ -103,6 +106,9 @@ class main extends \pl\fe\matter\base {
 	 * $src 是否来源于父账号，=p
 	 */
 	public function list_action($site, $page = 1, $size = 30, $mission = null) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$model = $this->model();
 		$q = array(
 			'a.*',
@@ -202,11 +208,11 @@ class main extends \pl\fe\matter\base {
 		$current = time();
 
 		/*create app*/
-		$app->id = uniqid();
+		$appid = uniqid();
 		/*pages*/
 		if (!empty($scenario) && !empty($template)) {
 			$customConfig = $this->getPostJson();
-			$config = $this->_addPageByTemplate($site, $app->id, $scenario, $template, $customConfig);
+			$config = $this->_addPageByTemplate($site, $appid, $scenario, $template, $customConfig);
 			$entryRule = $config->entryRule;
 			if (isset($config->enrolled_entry_page)) {
 				$newapp['enrolled_entry_page'] = $config->enrolled_entry_page;
@@ -222,10 +228,10 @@ class main extends \pl\fe\matter\base {
 			}
 			$newapp['scenario'] = $scenario;
 		} else {
-			$entryRule = $this->_addBlankPage($site, $app->id);
+			$entryRule = $this->_addBlankPage($site, $appid);
 		}
 		$newapp['siteid'] = $site;
-		$newapp['id'] = $app->id;
+		$newapp['id'] = $appid;
 		$newapp['title'] = '新登记活动';
 		$newapp['pic'] = $mission->pic;
 		$newapp['creater'] = $user->id;
@@ -241,7 +247,7 @@ class main extends \pl\fe\matter\base {
 		isset($config) && $newapp['data_schemas'] = \TMS_MODEL::toJson($config->schema);
 		$this->model()->insert('xxt_enroll', $newapp, false);
 
-		$matter = $this->model('matter\enroll')->byId($app->id);
+		$matter = $this->model('matter\enroll')->byId($appid);
 		/*记录操作日志*/
 		$matter->type = 'enroll';
 		$this->model('log')->matterOp($site, $user, $matter, 'C');
@@ -257,11 +263,11 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function update_action($site, $app) {
-		$model = $this->model();
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
+		$model = $this->model();
 		/**
 		 * 处理数据
 		 */
@@ -377,6 +383,9 @@ class main extends \pl\fe\matter\base {
 	 * @param string $app->id
 	 */
 	public function remove_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$model = $this->model();
 		/*在删除数据前获得数据*/
 		$app = $this->model('matter\\enroll')->byId($app, 'id,title,summary,pic');

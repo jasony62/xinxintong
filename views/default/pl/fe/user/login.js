@@ -1,4 +1,4 @@
-app.controller('userCtrl', ['$scope', '$http', '$rootScope', function($scope, $http, $rootScope) {
+app.controller('ctrlLogin', ['$scope', '$http', '$rootScope', function($scope, $http, $rootScope) {
     $scope.data = {};
     $rootScope.keypress = function(event) {
         var code = event.keyCode || event.which;

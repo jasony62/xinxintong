@@ -116,6 +116,11 @@
             </tbody>
         </table>
     </div>
+    <div class='tile' ng-if="app.state==='2'">
+        <div class='form-group'>
+            <a href='/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}'>登记记录</a>
+        </div>
+    </div>
     <div class='tile'>
         <div class='form-group'>
             <div>创建人：{{app.creater_name}}</div>

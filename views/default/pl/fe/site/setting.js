@@ -103,6 +103,7 @@ app.controller('ctrlAdmin', ['$scope', '$modal', 'http2', function($scope, $moda
         http2.get(url, function(rsp) {
             $scope.admins.push(rsp.data);
             $scope.select(rsp.data);
+            $scope.authedid = '';
         });
     };
     $scope.remove = function(admin) {

@@ -21,7 +21,7 @@ class page extends \pl\fe\matter\base {
 	public function add_action($site, $app) {
 		$options = $this->getPostJson();
 
-		$newPage = $this->model('app\enroll\page')->add($site, $app, $options);
+		$newPage = $this->model('matter\enroll\page')->add($site, $app, $options);
 
 		return new \ResponseData($newPage);
 	}
@@ -72,7 +72,7 @@ class page extends \pl\fe\matter\base {
 	 * $pid
 	 */
 	public function remove_action($app, $pid) {
-		$page = $this->model('app\enroll\page')->byId($app, $pid);
+		$page = $this->model('matter\enroll\page')->byId($app, $pid);
 
 		$this->model('code/page')->remove($page->code_id);
 

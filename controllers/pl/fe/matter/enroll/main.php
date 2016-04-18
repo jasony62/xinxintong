@@ -295,21 +295,72 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 	/**
+	 * 重置活动进入规则
+	 *
+	 * @param string $app
+	 *
+	 */
+	public function entryRuleReset_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$model = $this->model();
+		/*缺省进入规则*/
+		$entryRule = $this->_defaultEntryRule($site, $app);
+		/*更新数据*/
+		$nv['entry_rule'] = $model->toJson($entryRule);
+		$nv['modifier'] = $user->id;
+		$nv['modifier_src'] = $user->src;
+		$nv['modifier_name'] = $user->name;
+		$nv['modify_at'] = time();
+
+		$rst = $model->update('xxt_enroll', $nv, "id='$app'");
+		/*记录操作日志*/
+		if ($rst) {
+			$matter = $this->model('matter\\enroll')->byId($app, 'id,title,summary,pic');
+			$matter->type = 'enroll';
+			$this->model('log')->matterOp($site, $user, $matter, 'U');
+		}
+
+		return new \ResponseData($entryRule);
+	}
+	/**
+	 * 缺省进入规则
+	 */
+	private function &_defaultEntryRule($site, $appid) {
+		/*第一个登记页*/
+		$modelPage = $this->model('matter\enroll\page');
+		$pages = $modelPage->byApp($appid, array('cascaded' => 'N', 'fields' => 'name,type'));
+		foreach ($pages as $page) {
+			if ($page->type === 'I') {
+				$firstInputPage = $page;
+				break;
+			}
+		}
+		/*设置规则*/
+		$entryRule = new \stdClass;
+		$entryRule->scope = 'none';
+		$entryRule->otherwise = new \stdClass;
+		$entryRule->otherwise->entry = isset($firstInputPage) ? $firstInputPage->name : '';
+
+		return $entryRule;
+	}
+	/**
 	 * 添加空页面
 	 */
-	private function _addBlankPage($siteId, $app) {
+	private function _addBlankPage($siteId, $appid) {
 		$current = time();
-		$modelPage = $this->model('app\enroll\page');
+		$modelPage = $this->model('matter\enroll\page');
 		/* form page */
 		$page = array(
 			'title' => '登记信息页',
 			'type' => 'I',
 			'name' => 'z' . $current,
 		);
-		$page = $modelPage->add($siteId, $app->id, $page);
+		$page = $modelPage->add($siteId, $appid, $page);
 		/*entry rules*/
 		$entryRule = array(
-			'otherwise' => array('entry' => $page->name),
 			'member' => array('entry' => $page->name, 'enroll' => 'Y', 'remark' => 'Y'),
 			'member_outacl' => array('entry' => $page->name, 'enroll' => 'Y', 'remark' => 'Y'),
 			'fan' => array('entry' => $page->name, 'enroll' => 'Y', 'remark' => 'Y'),
@@ -321,7 +372,7 @@ class main extends \pl\fe\matter\base {
 			'type' => 'V',
 			'name' => 'z' . ($current + 1),
 		);
-		$modelPage->add($siteId, $app->id, $page);
+		$modelPage->add($siteId, $appid, $page);
 
 		return $entryRule;
 	}

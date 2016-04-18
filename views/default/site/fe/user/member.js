@@ -101,12 +101,12 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
                 $scope.errmsg = rsp.err_msg;
                 return;
             }
-            if ($scope.callback) {
-                location.href = $scope.callback;
-            } else if (window.parent && window.parent.onClosePlugin) {
+            if (window.parent && window.parent.onClosePlugin) {
                 window.parent.onClosePlugin();
             } else {
-                $scope.infomsg = '操作成功';
+                $http.get(LS.j('passed', 'site', 'schema') + '&redirect=N').success(function(rsp) {
+                    location.href = rsp.data;
+                });
             }
         });
     };
@@ -190,9 +190,6 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
         }
         sendRequest(LS.j('doReauth', 'site', 'schema'));
     };
-    $scope.$watch('callback', function(nv) {
-        nv && nv.length && ($scope.callback = decodeURIComponent(nv));
-    });
     $scope.cleanCookie = function() {
         $http.get(LS.j('cleanCookieUser', 'site')).success(function(rsp) {
             if (rsp.err_code != 0) {

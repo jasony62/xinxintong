@@ -158,7 +158,7 @@ class main extends base {
 			}
 		}
 		if (empty($oPage)) {
-			if ($redirct === true) {
+			if ($redirect === true) {
 				$this->outputError('指定的页面[' . $page . ']不存在');
 				exit;
 			}

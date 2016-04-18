@@ -20,75 +20,48 @@ class base extends \site\fe\matter\base {
 		return $this->model('acl')->canAccessMatter($site, 'enroll', $app, $member, $authapis);
 	}
 	/**
-	 * 检查进入登记活动规则
+	 * 检查登记活动进入规则
 	 */
 	protected function checkEntryRule($site, $app, $user, $redirect = false) {
-		if (!in_array($this->userAgent(), array('wx', 'yx')) && empty($user->members)) {
-			/**
-			 * 非易信、微信公众号打开，无法获得openid
-			 */
-			if ($app->access_control === 'Y' && !empty($app->authapis)) {
-				/**
-				 * 如果活动限认证用户访问
-				 */
-				$page = '$authapi_auth';
-			} else if (isset($app->entry_rule->other->entry)) {
-				$page = $app->entry_rule->other->entry;
+		$entryRule = $app->entry_rule;
+		if ($entryRule->scope === 'member') {
+			foreach ($entryRule->member as $schemaId => $rule) {
+				if (isset($user->members->{$schemaId})) {
+					$page = $rule->entry;
+					break;
+				}
 			}
+			!isset($page) && $page = '$memberschema';
+		} else if ($entryRule->scope === 'sns') {
+			foreach ($entryRule->sns as $snsName => $rule) {
+				if (isset($user->sns->{$snsName})) {
+					$page = $rule->entry;
+					break;
+				}
+			}
+			!isset($page) && $page = '$mpfollow';
 		} else {
-			if (empty($user->sns)) {
-				/**
-				 * 非关注用户
-				 */
-				$page = $app->entry_rule->other->entry;
-			} else {
-				$entryRule = $app->entry_rule;
-				if (isset($entryRule->wxfan->entry) && isset($user->sns->wx)) {
-					/**
-					 * 微信公众号关注用户
-					 */
-					$page = $entryRule->wxfan->entry;
-				} else if (isset($entryRule->qyfan->entry) && isset($user->sns->qy)) {
-					/**
-					 * 微信企业号关注用户
-					 */
-					$page = $entryRule->qyfan->entry;
-				} else if (isset($entryRule->yxfan->entry) && isset($user->sns->yx)) {
-					/**
-					 * 易信公众号关注用户
-					 */
-					$page = $entryRule->yxfan->entry;
-				}
-				if (isset($user->membersInAcl) && !empty($user->members)) {
-					/**
-					 * 认证用户不在白名单中
-					 */
-					$page = $entryRule->member_outacl->entry;
-				}
-				if (!empty($user->membersInAcl) || (!isset($user->membersInAcl) && !empty($user->members))) {
-					/**
-					 * 白名单中的认证用户，或者，不限制白名单的认证用户
-					 */
-					$page = $entryRule->member->entry;
-				}
+			if (isset($entryRule->otherwise->entry)) {
+				$page = $entryRule->otherwise->entry;
 			}
 		}
-		if (!isset($page) && isset($app->entry_rule->otherwise->entry)) {
-			$page = $app->entry_rule->otherwise->entry;
-		}
-
+		/*内置页面*/
 		switch ($page) {
-		case '$authapi_outacl':
-			$appAuthapis = explode(',', $app->authapis);
-			$this->gotoOutAcl($site, $appAuthapis[0]);
+		case '$memberschema':
+			$aMemberSchemas = array();
+			foreach ($entryRule->member as $schemaId => $rule) {
+				$aMemberSchemas[] = $schemaId;
+			}
+			if ($redirect) {
+				/*页面跳转*/
+				$this->gotoMember($site, $aMemberSchemas, $user->uid);
+			} else {
+				/*返回地址*/
+				$this->gotoMember($site, $aMemberSchemas, $user->uid, false);
+			}
 			break;
-		case '$authapi_auth':
-			$appAuthapis = explode(',', $app->authapis);
-			//$this->gotoAuth($site, $appAuthapis, $user->openid, $redirect ? null : false);
-			$this->gotoMember($site, $appAuthapis, $user->uid);
-			break;
-		case '$mp_follow':
-			$this->askFollow($site, empty($user->openid) ? '' : $user->openid);
+		case '$mpfollow':
+			$this->askFollow($site, $user->uid);
 			break;
 		}
 

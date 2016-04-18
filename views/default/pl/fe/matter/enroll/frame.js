@@ -163,12 +163,16 @@ ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($sco
 	http2.get('/rest/pl/fe/site/snsList?site=' + $scope.siteId, function(rsp) {
 		$scope.sns = rsp.data;
 	});
+	http2.get('/rest/pl/fe/site/member/schema/list?site=' + $scope.siteId, function(rsp) {
+		$scope.memberSchemas = rsp.data;
+	});
 	http2.get('/rest/pl/fe/matter/enroll/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
 		var app;
 		app = rsp.data;
 		app.tags = (!app.tags || app.tags.length === 0) ? [] : app.tags.split(',');
 		app.type = 'enroll';
 		app.data_schemas = app.data_schemas && app.data_schemas.length ? JSON.parse(app.data_schemas) : [];
+		app.entry_rule.scope === undefined && (app.entry_rule.scope = 'none');
 		$scope.persisted = angular.copy(app);
 		$scope.app = app;
 		$scope.url = 'http://' + location.host + '/rest/site/fe/matter/enroll?site=' + $scope.siteId + '&app=' + $scope.id;

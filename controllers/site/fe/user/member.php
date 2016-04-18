@@ -198,26 +198,29 @@ class member extends \site\fe\base {
 	 *
 	 * $site
 	 * $authid
-	 * $mid 需要告知当前用户的唯一标识
 	 */
-	public function passed_action($site, $authid, $mid) {
+	public function passed_action($site, $schema, $redirect = 'Y') {
 		if ($target = $this->myGetCookie("_{$site}_mauth_t")) {
 			/**
 			 * 调用认证前记录的
 			 */
 			$this->mySetcookie("_{$site}_mauth_t", '');
 			$target = $this->model()->encrypt($target, 'DECODE', $site);
-			$this->redirect($target);
+			if ($redirect === 'Y') {
+				$this->redirect($target);
+			} else {
+				return new \ResponseData($target);
+			}
 		} else {
 			/**
 			 * 认证成功后的缺省页面
 			 */
-			$params = array(
-				'mpid' => $site,
-				'authid' => $authid,
-			);
-			\TPL::assign('params', $params);
-			$this->view_action('/member/authed');
+			$target = '/rest/site/fe/user?site' . $site;
+			if ($redirect === 'Y') {
+				$this->redirect($target);
+			} else {
+				return new \ResponseData($target);
+			}
 		}
 	}
 	/**

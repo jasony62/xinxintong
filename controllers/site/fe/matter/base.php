@@ -26,7 +26,7 @@ class base extends \site\fe\base {
 			 * 让用户选择通过那个认证接口进行认证
 			 */
 			$authUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/rest/site/user/member/authoptions';
-			$authUrl .= "?mpid=$siteId";
+			$authUrl .= "?site=$siteId";
 			!empty($userid) && $authUrl .= "&userid=$userid";
 			$authUrl .= "&schema=" . implode(',', $aMemberSchemas);
 		}

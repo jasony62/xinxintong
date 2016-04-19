@@ -50,6 +50,16 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', function($scop
 		$scope.modified = true;
 		modifiedData[name] = name === 'body' ? encodeURIComponent($scope.editing[name]) : $scope.editing[name];
 	};
+	$scope.copy = function() {
+		http2.get('/rest/pl/fe/matter/custom/copy?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
+			location.href = '/rest/pl/fe/matter/custom?site=' + $scope.siteId + '&id=' + rsp.data;
+		});
+	};
+	$scope.remove = function() {
+		http2.get('/rest/pl/fe/matter/custom/remove?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+			location.href = '/rest/pl/fe/site/console?site=' + $scope.siteId;
+		});
+	};
 	$scope.setPic = function() {
 		var options = {
 			callback: function(url) {

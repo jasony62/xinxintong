@@ -68,7 +68,7 @@ class page_model extends TMS_MODEL {
 	/**
 	 *
 	 */
-	public function copy($creater, $src, $target) {
+	public function copy($creater, $src, $target = 0) {
 		$page = $this->byId($src);
 		if ($target === 0) {
 			$newone = $this->create($creater);

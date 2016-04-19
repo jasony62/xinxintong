@@ -169,7 +169,9 @@ class main extends \pl\fe\matter\base {
 	 * @param int $id article's id
 	 */
 	public function get_action($site, $id, $cascade = 'Y') {
-		$user = $this->accountUser();
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 
 		$q = array(
 			"a.*,'{$user->id}' uid",
@@ -199,7 +201,10 @@ class main extends \pl\fe\matter\base {
 	 * 创建新图文
 	 */
 	public function create_action($site) {
-		$user = $this->accountUser();
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
 		$current = time();
 
@@ -236,9 +241,12 @@ class main extends \pl\fe\matter\base {
 	 * @param int $id mission'is
 	 */
 	public function createByMission_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$modelMis = $this->model('mission');
 		$mission = $modelMis->byId($id);
-		$user = $this->accountUser();
 		$current = time();
 
 		$article = array();
@@ -277,6 +285,10 @@ class main extends \pl\fe\matter\base {
 	 * $nv pair of name and value
 	 */
 	public function update_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$model = $this->model();
 
 		$nv = (array) $this->getPostJson();
@@ -290,9 +302,52 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 删除单图文
+	 * 复制定制页
+	 */
+	public function copy_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelArt = $this->model('matter\article');
+		$modelPage = $this->model('code/page');
+
+		$copied = $modelArt->byId($id);
+
+		$pageid = $modelPage->copy($user->id, $copied->page_id);
+
+		$current = time();
+		$article = array();
+		$article['siteid'] = $site;
+		$article['creater'] = $user->id;
+		$article['creater_src'] = 'A';
+		$article['creater_name'] = $user->name;
+		$article['create_at'] = $current;
+		$article['modifier'] = $user->id;
+		$article['modifier_src'] = 'A';
+		$article['modifier_name'] = $user->name;
+		$article['modify_at'] = $current;
+		$article['title'] = $copied->title . '-副本';
+		$article['author'] = $user->name;
+		$article['pic'] = $copied->pic;
+		$article['hide_pic'] = 'Y';
+		$article['summary'] = $copied->summary;
+		$article['url'] = '';
+		$article['body'] = '';
+		$article['custom_body'] = 'Y';
+		$article['page_id'] = $pageid;
+		$id = $this->model()->insert('xxt_article', $article, true);
+
+		return new \ResponseData($id);
+	}
+	/**
+	 * 删除定制页
+	 * 只是打标记，不真正删除数据
 	 */
 	public function remove_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$model = $this->model();
 
 		$rst = $model->update(
@@ -310,21 +365,23 @@ class main extends \pl\fe\matter\base {
 				}
 			}
 			/*记录操作日志*/
-			$user = $this->accountUser();
-			$article = $this->model('matter\\' . 'article')->byId($id, 'id,title,summary,pic');
-			$article->type = 'custom';
-			$this->model('log')->matterOp($this->mpid, $user, $article, 'D');
+			$matter = $this->model('matter\article')->byId($id, 'id,title,summary,pic');
+			$matter->type = 'custom';
+			$this->model('log')->matterOp($site, $user, $matter, 'D');
 		}
 
 		return new \ResponseData($rst);
 	}
 	/**
 	 * 用指定的模板替换定制页面内容
+	 *
 	 * @param int $id article'id
 	 *
 	 */
 	public function pageByTemplate_action($id, $template) {
-		$uid = \TMS_CLIENT::get_client_uid();
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 
 		$modelTemplate = $this->model('shop\shelf');
 		$template = $modelTemplate->byId($template);
@@ -334,7 +391,7 @@ class main extends \pl\fe\matter\base {
 		$target = $modelArt->byId($id);
 
 		$modelPage = $this->model('code/page');
-		$pageid = $modelPage->copy($uid, $copied->page_id, $target->page_id);
+		$pageid = $modelPage->copy($user->id, $copied->page_id, $target->page_id);
 
 		if ($target->page_id === 0) {
 			$this->_update($id, array('page_id' => $pageid));

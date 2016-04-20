@@ -1,10 +1,10 @@
-app = angular.module('app', ['ngSanitize', 'infinite-scroll']);
-app.config(['$controllerProvider', function($cp) {
-    app.register = {
+ngApp = angular.module('app', ['ngSanitize', 'infinite-scroll']);
+ngApp.config(['$controllerProvider', function($cp) {
+    ngApp.register = {
         controller: $cp.register
     };
 }]);
-app.factory('Round', ['$http', '$q', function($http, $q) {
+ngApp.factory('Round', ['$http', '$q', function($http, $q) {
     var Round = function(scenario, template) {
         this.scenario = scenario;
         this.template = template;
@@ -60,7 +60,7 @@ LS = (function() {
         j: j
     };
 })();
-app.controller('ctrlRounds', ['$scope', 'Round', function($scope, Round) {
+ngApp.controller('ctrlRounds', ['$scope', 'Round', function($scope, Round) {
     var facRound, onDataReadyCallbacks;
     facRound = new Round(LS.p.scenario, LS.p.template);
     facRound.list().then(function(rounds) {
@@ -84,7 +84,7 @@ app.controller('ctrlRounds', ['$scope', 'Round', function($scope, Round) {
         return false;
     };
 }]);
-app.factory('Record', ['$http', '$q', function($http, $q) {
+ngApp.factory('Record', ['$http', '$q', function($http, $q) {
     var _ins, _running, Record;
     Record = function(scenario, template) {
         this.scenario = scenario;
@@ -149,7 +149,7 @@ app.factory('Record', ['$http', '$q', function($http, $q) {
         }
     };
 }]);
-app.controller('ctrlRecord', ['$scope', 'Record', function($scope, Record) {
+ngApp.controller('ctrlRecord', ['$scope', 'Record', function($scope, Record) {
     var facRecord;
     facRecord = Record.ins(LS.p.scenario, LS.p.template);
     facRecord.get($scope.CustomConfig);
@@ -180,7 +180,7 @@ app.controller('ctrlRecord', ['$scope', 'Record', function($scope, Record) {
         }
     };
 }]);
-app.controller('ctrlRecords', ['$scope', 'Record', function($scope, Record) {
+ngApp.controller('ctrlRecords', ['$scope', 'Record', function($scope, Record) {
     var facRecord, options, fnFetch, rid;
     if (LS.p.rid === '' && $scope.$parent.ActiveRound) {
         rid = $scope.$parent.ActiveRound.rid;
@@ -208,7 +208,7 @@ app.controller('ctrlRecords', ['$scope', 'Record', function($scope, Record) {
     $scope.fetch = fnFetch;
     $scope.options = options;
 }]);
-app.controller('ctrlOwnerOptions', ['$scope', function($scope) {
+ngApp.controller('ctrlOwnerOptions', ['$scope', function($scope) {
     $scope.owners = {
         'A': {
             id: 'A',
@@ -223,7 +223,7 @@ app.controller('ctrlOwnerOptions', ['$scope', function($scope) {
         return $scope.owners[owner.id];
     }
 }]);
-app.controller('ctrlOrderbyOptions', ['$scope', function($scope) {
+ngApp.controller('ctrlOrderbyOptions', ['$scope', function($scope) {
     $scope.orderbys = {
         time: {
             id: 'time',
@@ -239,7 +239,7 @@ app.controller('ctrlOrderbyOptions', ['$scope', function($scope) {
         }
     };
 }]);
-app.controller('ctrlStatistic', ['$scope', '$http', function($scope, $http) {
+ngApp.controller('ctrlStatistic', ['$scope', '$http', function($scope, $http) {
     var fnFetch;
     fnFetch = function() {
         $http.post(LS.j('statGet', 'scenario', 'template'), $scope.CustomConfig).success(function(rsp) {
@@ -263,7 +263,7 @@ app.controller('ctrlStatistic', ['$scope', '$http', function($scope, $http) {
     };
     $scope.fetch = fnFetch;
 }]);
-app.directive('enrollStatistic', [function() {
+ngApp.directive('enrollStatistic', [function() {
     return {
         restrict: 'A',
         link: function(scope, elem, attrs) {
@@ -279,7 +279,7 @@ app.directive('enrollStatistic', [function() {
         }
     };
 }]);
-app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
+ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
     window.renew = function(page, config) {
         $scope.$apply(function() {
             $scope.CustomConfig = config;
@@ -341,7 +341,7 @@ app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $h
         }
     });
 }]);
-app.factory('Schema', ['$http', '$q', function($http, $q) {
+ngApp.factory('Schema', ['$http', '$q', function($http, $q) {
     var Cls, _running, _ins;
     _running = false;
     Cls = function() {
@@ -381,7 +381,7 @@ app.factory('Schema', ['$http', '$q', function($http, $q) {
         }
     };
 }]);
-app.directive('enrollSchema', ['Schema', function(facSchema) {
+ngApp.directive('enrollSchema', ['Schema', function(facSchema) {
     return {
         restrict: 'A',
         link: function(scope, elem, attrs) {

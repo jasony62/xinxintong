@@ -210,10 +210,10 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
         $scope.Page = rsp.data.schema.page;
         $scope.attrs = {};
         angular.forEach(rsp.data.attrs, function(attr, name) {
-            if (attr[0] === '0') {
-                $scope.attrs[name] = true;
-            } else if (name === 'extattrs') {
+            if (name === 'extattrs') {
                 $scope.attrs['extattrs'] = attr;
+            } else if (attr && attr[0] === '0') {
+                $scope.attrs[name] = true;
             } else {
                 $scope.attrs[name] = false;
             }

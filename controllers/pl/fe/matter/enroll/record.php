@@ -51,7 +51,7 @@ class record extends \pl\fe\matter\base {
 	/**
 	 * 给符合条件的登记记录打标签
 	 */
-	public function exportByData_action($app) {
+	public function exportByData_action($site, $app) {
 		$posted = $this->getPostJson();
 		$filter = $posted->filter;
 		$target = $posted->target;
@@ -59,9 +59,9 @@ class record extends \pl\fe\matter\base {
 
 		if (!empty($target)) {
 			/*更新应用标签*/
-			$modelApp = $this->model('app\enroll');
+			$modelApp = $this->model('matter\enroll');
 			/*给符合条件的记录打标签*/
-			$modelRec = $this->model('app\enroll\record');
+			$modelRec = $this->model('matter\enroll\record');
 			$q = array(
 				'distinct enroll_key',
 				'xxt_enroll_record_data',
@@ -86,9 +86,9 @@ class record extends \pl\fe\matter\base {
 					$user->openid = $record->openid;
 					$user->nickname = $record->nickname;
 					$user->vid = '';
-					$newek = $modelRec->add($this->mpid, $objApp, $user);
+					$newek = $modelRec->add($site, $objApp, $user);
 					if ($includeData === 'Y') {
-						$modelRec->setData($user, $objApp->mpid, $objApp->id, $newek, $record->data);
+						$modelRec->setData($user, $site, $objApp, $newek, $record->data);
 					}
 				}
 			}
@@ -104,7 +104,7 @@ class record extends \pl\fe\matter\base {
 	public function add_action($site, $app) {
 		$posted = $this->getPostJson();
 		$current = time();
-		$modelRec = $this->model('app\enroll\record');
+		$modelRec = $this->model('matter\enroll\record');
 		$ek = $modelRec->genKey($site, $app);
 
 		$r = array();
@@ -115,7 +115,7 @@ class record extends \pl\fe\matter\base {
 		$r['signin_at'] = $current;
 		if (isset($posted->tags)) {
 			$r['tags'] = $posted->tags;
-			$this->model('app\enroll')->updateTags($app, $posted->tags);
+			$this->model('matter\enroll')->updateTags($app, $posted->tags);
 		}
 		$id = $modelRec->insert('xxt_enroll_record', $r, true);
 		$r['id'] = $id;
@@ -144,7 +144,7 @@ class record extends \pl\fe\matter\base {
 	 * 清空一条登记信息
 	 */
 	public function remove_action($site, $app, $key) {
-		$rst = $this->model('app\enroll\record')->remove($app, $key);
+		$rst = $this->model('matter\enroll\record')->remove($app, $key);
 
 		return new \ResponseData($rst);
 	}
@@ -166,7 +166,7 @@ class record extends \pl\fe\matter\base {
 					"enroll_key='$ek'"
 				);
 				if ($k === 'tags') {
-					$this->model('app\enroll')->updateTags($app, $v);
+					$this->model('matter\enroll')->updateTags($app, $v);
 				}
 			} else if ($k === 'data' and is_object($v)) {
 				foreach ($v as $cn => $cv) {

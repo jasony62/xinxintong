@@ -10,7 +10,7 @@ __util.makeDialog = function(id, html) {
     $('body').append($dlg);
     return $dlg.contents();
 };
-app.directive('tmsDate', ['$compile', function($compile) {
+ngApp.directive('tmsDate', ['$compile', function($compile) {
     return {
         restrict: 'A',
         scope: {
@@ -80,7 +80,7 @@ app.directive('tmsDate', ['$compile', function($compile) {
         }
     }
 }]);
-app.directive('tmsCheckboxGroup', function() {
+ngApp.directive('tmsCheckboxGroup', function() {
     return {
         restrict: 'A',
         link: function(scope, elem, attrs) {
@@ -122,7 +122,7 @@ app.directive('tmsCheckboxGroup', function() {
         }
     };
 });
-app.directive('runningButton', function() {
+ngApp.directive('runningButton', function() {
     return {
         restrict: 'EA',
         template: "<button ng-class=\"isRunning?'btn-default':'btn-primary'\" ng-disabled='isRunning' ng-transclude></button>",
@@ -133,7 +133,7 @@ app.directive('runningButton', function() {
         transclude: true
     };
 });
-app.directive('flexImg', function() {
+ngApp.directive('flexImg', function() {
     return {
         restrict: 'A',
         replace: true,
@@ -166,7 +166,7 @@ app.directive('flexImg', function() {
         }
     }
 });
-app.directive('tmsFilter', function() {
+ngApp.directive('tmsFilter', function() {
     return {
         restrict: 'A',
         link: function(scope, ele, attrs) {
@@ -232,7 +232,7 @@ app.directive('tmsFilter', function() {
         }
     };
 });
-app.directive('dynamicHtml', function($compile) {
+ngApp.directive('dynamicHtml', function($compile) {
     return {
         restrict: 'EA',
         replace: true,
@@ -246,7 +246,7 @@ app.directive('dynamicHtml', function($compile) {
         }
     };
 });
-app.directive('enrollRecords', function() {
+ngApp.directive('enrollRecords', function() {
     return {
         restrict: 'A',
         replace: 'false',

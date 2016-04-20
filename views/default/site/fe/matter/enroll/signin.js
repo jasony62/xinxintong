@@ -1,6 +1,6 @@
 define(["require", "angular", "angular-sanitize", "enroll-directive", "enroll-common"], function(require, angular) {
     'use strict';
-    app.controller('ctrlSignin', ['$scope', '$http', function($scope, $http) {
+    ngApp.controller('ctrlSignin', ['$scope', '$http', function($scope, $http) {
         $scope.data = {
             member: {}
         };

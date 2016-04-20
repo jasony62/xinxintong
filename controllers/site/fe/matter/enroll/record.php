@@ -159,7 +159,7 @@ class record extends base {
 				"enroll_key='$ek'"
 			);
 			/* 重新插入新提交的数据 */
-			$rst = $modelRec->setData($user, $site, $app->id, $ek, $posted, $submitkey);
+			$rst = $modelRec->setData($user, $site, $app, $ek, $posted, $submitkey);
 		}
 		if (false === $rst[0]) {
 			return new \ResponseError($rst[1]);

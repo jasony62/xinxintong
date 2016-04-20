@@ -215,7 +215,7 @@ class member extends \site\fe\base {
 			/**
 			 * 认证成功后的缺省页面
 			 */
-			$target = '/rest/site/fe/user?site' . $site;
+			$target = '/rest/site/fe/user?site=' . $site;
 			if ($redirect === 'Y') {
 				$this->redirect($target);
 			} else {

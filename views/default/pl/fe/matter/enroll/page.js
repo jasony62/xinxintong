@@ -194,7 +194,6 @@
                 case 'single':
                 case 'multiple':
                     html = '<label>' + s.title + '</label><div>{{value2Label("' + s.id + '")}}</div>';
-                    attrs['enroll-schema'] = 'fromCache=Y;interval=600';
                     break;
                 case 'datetime':
                     html = "<label>" + s.title + "</label><div>{{Record.current.data." + s.id + "|date:'yy-MM-dd HH:mm'}}</div>";
@@ -238,10 +237,9 @@
                 case 'datetime':
                     html += '<div wrap="static" class="wrap-inline"><label>' + s.title + '</label><div>{{r.data.' + s.id + '|date:"yy-MM-dd HH:mm"}}</div></div>';
                     break;
-                case 'radio':
-                case 'checkbox':
-                case 'option':
-                    html += '<div wrap="static" class="wrap-inline"><label>' + s.title + '</label><div>{{r.data.' + s.id + '|value2Label:"' + s.id + '"}}</div></div>';
+                case 'single':
+                case 'multiple':
+                    html += '<div wrap="static" class="wrap-inline"><label>' + s.title + '</label><div>{{value2Label(r,"' + s.id + '")}}</div></div>';
                     break;
                 case 'img':
                     html += '<div wrap="static" class="wrap-inline"><label>' + s.title + '</label><ul><li ng-repeat="img in r.data.' + s.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul></div>';

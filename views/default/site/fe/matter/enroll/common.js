@@ -178,53 +178,13 @@ var setShareData = function(scope, params, $http) {
         alert(e.message);
     }
 };
-app = angular.module('app', ['ngSanitize']);
-app.config(['$controllerProvider', function($cp) {
-    app.provider = {
+ngApp = angular.module('app', ['ngSanitize']);
+ngApp.config(['$controllerProvider', function($cp) {
+    ngApp.provider = {
         controller: $cp.register
     };
 }]);
-app.factory('Schema', ['$http', '$q', function($http, $q) {
-    var Cls, _running, _ins;
-    _running = false;
-    Cls = function() {
-        this.data = null;
-    };
-    Cls.prototype.get = function(options) {
-        var deferred, url, _this;
-        if (_running) return false;
-        _running = true;
-        deferred = $q.defer();
-        if (this.data !== null) {
-            deferred.resolve(this.data);
-        } else {
-            url = LS.j('page/schemaGet', 'mpid', 'aid');
-            if (options) {
-                if (options.fromCache && options.fromCache === 'Y') {
-                    url += '&fromCache=Y';
-                    if (options.interval) {
-                        url += '&interval=' + options.interval;
-                    }
-                }
-            }
-            _this = this;
-            $http.get(url).success(function(rsp) {
-                _this.data = rsp.data;
-                deferred.resolve(_this.data);
-            });
-        }
-        return deferred.promise;
-    };
-    return {
-        ins: function() {
-            if (_ins === undefined) {
-                _ins = new Cls();
-            }
-            return _ins;
-        }
-    };
-}]);
-app.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
+ngApp.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
     var tasksOfOnReady = [];
     $scope.errmsg = '';
     $scope.closePreviewTip = function() {

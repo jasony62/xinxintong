@@ -1,15 +1,15 @@
 define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt-geo", "enroll-directive", "enroll-common"], function(require, angular) {
     'use strict';
-    app.config(['$compileProvider', function($compileProvider) {
+    ngApp.config(['$compileProvider', function($compileProvider) {
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
     }]);
-    app.factory('Record', ['$http', '$q', function($http, $q) {
+    ngApp.factory('Record', ['$http', '$q', function($http, $q) {
         var Record, _ins;
         Record = function() {};
         Record.prototype.get = function(ek) {
             var url, deferred;
             deferred = $q.defer();
-            url = LS.j('record/get', 'mpid', 'aid');
+            url = LS.j('record/get', 'site', 'aid');
             ek && (url += '&ek=' + ek);
             $http.get(url).success(function(rsp) {
                 if (rsp.err_code == 0) {
@@ -24,7 +24,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
             }
         };
     }]);
-    app.factory('Input', function($http, $q, $timeout) {
+    ngApp.factory('Input', function($http, $q, $timeout) {
         var Input, _ins;
         var required = function(value, len) {
             return (value == null || value == "" || value.length < len) ? false : true;
@@ -125,7 +125,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
             }
         }
     });
-    app.directive('tmsImageInput', function($compile, $q) {
+    ngApp.directive('tmsImageInput', function($compile, $q) {
         var modifiedImgFields, openPickFrom, onSubmit;
         modifiedImgFields = [];
         openPickFrom = function(scope) {
@@ -220,7 +220,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
             }
         }
     });
-    app.directive('tmsFileInput', function($q) {
+    ngApp.directive('tmsFileInput', function($q) {
         var r, onSubmit;
         r = new Resumable({
             target: '/rest/site/fe/matter/enroll/record/uploadFile?site=' + LS.p.site + '&aid=' + LS.p.aid,
@@ -293,7 +293,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
             }
         }
     });
-    app.controller('ctrlInput', ['$scope', '$http', 'Input', function($scope, $http, Input) {
+    ngApp.controller('ctrlInput', ['$scope', '$http', 'Input', function($scope, $http, Input) {
         var facInput, tasksOfOnReady, tasksOfBeforeSubmit;
         tasksOfBeforeSubmit = [];
         facInput = Input.ins();

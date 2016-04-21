@@ -14,6 +14,10 @@
 							<label class='control-label col-md-2'>名称</label>
 							<div class='col-md-10'>
 								<input class='form-control' ng-model="s.title" ng-change="modify(s,'title')">
+								<div class="radio">
+		                            <label><input type='radio' value='placeholder' ng-model='s.showname' ng-change="modify(s,'showname')">输入框内</label>
+		                            <label><input type='radio' value='label' ng-model='s.showname' ng-change="modify(s,'showname')">输入框前</label>
+		                        </div>
 							</div>
 						</div>
 						<div class='form-group'>

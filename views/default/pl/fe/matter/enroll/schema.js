@@ -1,11 +1,11 @@
 (function() {
     ngApp.provider.controller('ctrlSchema', ['$scope', 'http2', '$timeout', function($scope, http2, $timeout) {
-        var
-            base = {
+        var base = {
                 title: '',
                 type: '',
                 comment: '',
-                required: 'N'
+                required: 'N',
+                showname: 'label'
             },
             map = {
                 'name': {

@@ -1,12 +1,12 @@
 define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive", "enroll-common"], function(require, angular) {
     'use strict';
-    app.factory('Round', ['$http', '$q', function($http, $q) {
+    ngApp.factory('Round', ['$http', '$q', function($http, $q) {
         var Round, _ins;
         Round = function() {};
         Round.prototype.list = function() {
             var deferred, url;
             deferred = $q.defer();
-            url = LS.j('round/list', 'mpid', 'aid');
+            url = LS.j('round/list', 'site', 'aid');
             $http.get(url).success(function(rsp) {
                 if (rsp.err_code != 0) {
                     alert(rsp.data);
@@ -23,7 +23,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
             }
         };
     }]);
-    app.controller('ctrlRounds', ['$scope', 'Round', function($scope, Round) {
+    ngApp.controller('ctrlRounds', ['$scope', 'Round', function($scope, Round) {
         var facRound, onDataReadyCallbacks;
         facRound = Round.ins();
         facRound.list().then(function(rounds) {
@@ -47,7 +47,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
             return false;
         };
     }]);
-    app.controller('ctrlOwnerOptions', ['$scope', function($scope) {
+    ngApp.controller('ctrlOwnerOptions', ['$scope', function($scope) {
         $scope.owners = {
             'A': {
                 id: 'A',
@@ -62,7 +62,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
             return $scope.owners[owner.id];
         }
     }]);
-    app.controller('ctrlOrderbyOptions', ['$scope', function($scope) {
+    ngApp.controller('ctrlOrderbyOptions', ['$scope', function($scope) {
         $scope.orderbys = {
             time: {
                 id: 'time',
@@ -78,7 +78,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
             }
         };
     }]);
-    app.factory('Record', ['$http', '$q', function($http, $q) {
+    ngApp.factory('Record', ['$http', '$q', function($http, $q) {
         var Record, _ins, _running;
         Record = function() {
             this.current = {
@@ -179,9 +179,9 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
             }
         };
     }]);
-    app.factory('Statistic', ['$http', function($http) {
-        var Stat = function(mpid, aid, data) {
-            this.mpid = mpid;
+    ngApp.factory('Statistic', ['$http', function($http) {
+        var Stat = function(siteId, aid, data) {
+            this.siteId = siteId;
             this.aid = aid;
             this.data = null;
             this.result = {};
@@ -190,7 +190,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
             var _this, url;
             _this = this;
             url = '/rest/app/enroll/rankByFollower';
-            url += '?mpid=' + this.mpid;
+            url += '?site=' + this.siteId;
             url += '&aid=' + this.aid;
             $http.get(url).success(function(rsp) {
                 _this.result.rankByFollower = rsp.data;
@@ -198,9 +198,35 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         };
         return Stat;
     }]);
-    app.controller('ctrlRecords', ['$scope', 'Record', function($scope, Record) {
-        var facRecord, options, fnFetch;
-        facRecord = Record.ins(LS.p.mpid, LS.p.aid, LS.p.rid);
+    ngApp.controller('ctrlRecords', ['$scope', 'Record', function($scope, Record) {
+        var facRecord, options, fnFetch, schemas;
+        schemas = JSON.parse($scope.Page.data_schemas);
+        schemas = schemas.list.schemas;
+        $scope.value2Label = function(record, key) {
+            var val, i, j, s, aVal, aLab = [];
+            if (schemas && record.data) {
+                val = record.data[key];
+                if (val === undefined) return '';
+                for (i = 0, j = schemas.length; i < j; i++) {
+                    s = schemas[i];
+                    if (schemas[i].id === key) {
+                        s = schemas[i];
+                        break;
+                    }
+                }
+                if (s && s.ops && s.ops.length) {
+                    aVal = val.split(',');
+                    for (i = 0, j = s.ops.length; i < j; i++) {
+                        aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
+                    }
+                    if (aLab.length) return aLab.join(',');
+                }
+                return val;
+            } else {
+                return '';
+            }
+        };
+        facRecord = Record.ins(LS.p.site, LS.p.aid, LS.p.rid);
         options = {
             owner: 'U',
             rid: LS.p.rid
@@ -233,14 +259,15 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         $scope.options = options;
         $scope.fetch = fnFetch;
     }]);
-    app.controller('ctrlRecord', ['$scope', 'Record', function($scope, Record) {
-        var facRecord;
+    ngApp.controller('ctrlRecord', ['$scope', 'Record', function($scope, Record) {
+        var facRecord, schemas;
+        schemas = JSON.parse($scope.Page.data_schemas);
+        schemas = schemas.record.schemas;
         $scope.value2Label = function(key) {
-            var val, schemas, i, j, s, aVal, aLab = [];
-            if ($scope.Schema && $scope.Schema.data && facRecord.current.data) {
+            var val, i, j, s, aVal, aLab = [];
+            if (schemas && facRecord.current.data) {
                 val = facRecord.current.data[key];
                 if (val === undefined) return '';
-                schemas = $scope.Schema.data;
                 for (i = 0, j = schemas.length; i < j; i++) {
                     s = schemas[i];
                     if (schemas[i].id === key) {
@@ -251,7 +278,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
                 if (s && s.ops && s.ops.length) {
                     aVal = val.split(',');
                     for (i = 0, j = s.ops.length; i < j; i++) {
-                        aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].label);
+                        aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
                     }
                     if (aLab.length) return aLab.join(',');
                 }
@@ -288,7 +315,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         facRecord.get(LS.p.ek);
         $scope.Record = facRecord;
     }]);
-    app.controller('ctrlRemark', ['$scope', '$http', 'Record', function($scope, $http, Record) {
+    ngApp.controller('ctrlRemark', ['$scope', '$http', 'Record', function($scope, $http, Record) {
         var facRecord;
         $scope.newRemark = '';
         $scope.remark = function(event) {
@@ -310,7 +337,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         facRecord.get(LS.p.ek);
         $scope.Record = facRecord;
     }]);
-    app.controller('ctrlInvite', ['$scope', '$http', 'Record', function($scope, $http, Record) {
+    ngApp.controller('ctrlInvite', ['$scope', '$http', 'Record', function($scope, $http, Record) {
         var facRecord;
         $scope.options = {
             genRecordWhenAccept: 'Y'
@@ -320,7 +347,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
             event.preventDefault();
             event.stopPropagation();
             var url;
-            url = LS.j('record/inviteSend', 'mpid', 'aid');
+            url = LS.j('record/inviteSend', 'site', 'aid');
             url += '&ek=' + facRecord.current.enroll_key;
             url += '&invitee=' + $scope.invitee;
             url += '&page=' + invitePage;
@@ -332,7 +359,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
                 if (nextAction === 'closeWindow') {
                     $scope.closeWindow();
                 } else if (nextAction !== undefined && nextAction.length) {
-                    var url = LS.j('', 'mpid', 'aid');
+                    var url = LS.j('', 'site', 'aid');
                     url += '&ek=' + facRecord.current.enroll_key;
                     url += '&page=' + nextAction;
                     location.replace(url);
@@ -352,14 +379,14 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
                 return;
             }
             inviter = $scope.Record.current.enroll_key;
-            url = LS.j('record/acceptInvite', 'mpid', 'aid');
+            url = LS.j('record/acceptInvite', 'site', 'aid');
             url += '&inviter=' + inviter;
             $scope.options.genRecordWhenAccept === 'N' && (url += '&state=2');
             $http.get(url).success(function(rsp) {
                 if (nextAction === 'closeWindow') {
                     $scope.closeWindow();
                 } else if (nextAction !== undefined && nextAction.length) {
-                    var url = LS('', 'mpid', 'aid');
+                    var url = LS('', 'site', 'aid');
                     url += '&ek=' + rsp.data.ek;
                     url += '&page=' + nextAction;
                     location.replace(url);
@@ -370,7 +397,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         facRecord.get(LS.p.ek);
         $scope.Record = facRecord;
     }]);
-    app.controller('ctrlStatistic', ['$scope', '$http', function($scope, $http) {
+    ngApp.controller('ctrlStatistic', ['$scope', '$http', function($scope, $http) {
         var fnFetch;
         fnFetch = function(options) {
             var url;
@@ -389,7 +416,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         };
         $scope.fetch = fnFetch;
     }]);
-    app.directive('enrollStatistic', [function() {
+    ngApp.directive('enrollStatistic', [function() {
         return {
             restrict: 'A',
             link: function(scope, elem, attrs) {
@@ -405,24 +432,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
             }
         };
     }]);
-    app.directive('enrollSchema', ['Schema', function(facSchema) {
-        return {
-            restrict: 'A',
-            link: function(scope, elem, attrs) {
-                var i, params, pv, options;
-                params = attrs.enrollSchema.split(';');
-                options = {};
-                for (i in params) {
-                    pv = params[i];
-                    pv = pv.split('=');
-                    options[pv[0]] = pv[1];
-                }
-                scope.Schema = facSchema.ins();
-                scope.Schema.get(options);
-            }
-        };
-    }]);
-    app.controller('ctrlView', ['$scope', function($scope) {
+    ngApp.controller('ctrlView', ['$scope', function($scope) {
         $scope.$on('xxt.app.enroll.filter.owner', function(event, data) {
             if (event.targetScope !== $scope) {
                 $scope.$broadcast('xxt.app.enroll.filter.owner', data);

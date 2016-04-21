@@ -22,7 +22,7 @@
         $label = $($(wrap).find('label').get(0));
         def.name = $label.html();
         def.showname = $label.hasClass('sr-only') ? 'placeholder' : 'label';
-        $input = $(wrap).find('input,select');
+        $input = $(wrap).find('input,select,textarea');
         model = $input.attr('ng-model') || $input.attr('ng-bind');
         def.key = model.split('.')[1];
         return def;

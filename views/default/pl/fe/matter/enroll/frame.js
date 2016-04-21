@@ -1,7 +1,8 @@
 ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'matters.xxt', 'channel.fe.pl']);
-ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', function($controllerProvider, $routeProvider, $locationProvider) {
+ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider) {
 	ngApp.provider = {
-		controller: $controllerProvider.register
+		controller: $controllerProvider.register,
+		directive: $compileProvider.directive
 	};
 	$routeProvider.when('/rest/pl/fe/matter/enroll/schema', {
 		templateUrl: '/views/default/pl/fe/matter/enroll/schema.html?_=2',

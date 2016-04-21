@@ -267,22 +267,16 @@ class record extends base {
 	public function emptyGet_action($site, $app, $once = 'N') {
 		$posted = $this->getPostJson();
 
-		$model = $this->model('app\enroll');
+		$model = $this->model('matter\enroll');
 		if (false === ($app = $model->byId($app))) {
 			return new \ParameterError("指定的活动（$app）不存在");
 		}
 		/**
 		 * 当前访问用户的基本信息
 		 */
-		$user = $this->getUser($site,
-			array(
-				'authapis' => $app->authapis,
-				'matter' => $app,
-				'verbose' => array('member' => 'Y', 'fan' => 'Y'),
-			)
-		);
+		$user = $this->who;
 		/* 如果已经有登记记录则不登记 */
-		$modelRec = $this->model('app\enroll\record');
+		$modelRec = $this->model('matter\enroll\record');
 		if ($once === 'Y') {
 			$ek = $modelRec->getLastKey($site, $app, $user);
 		}
@@ -293,7 +287,7 @@ class record extends base {
 			 * 处理提交数据
 			 */
 			$data = $_GET;
-			unset($data['mpid']);
+			unset($data['site']);
 			unset($data['aid']);
 			if (!empty($data)) {
 				$data = (object) $data;
@@ -304,8 +298,8 @@ class record extends base {
 			}
 		}
 		/*登记记录的URL*/
-		$url = '/rest/app/enroll';
-		$url .= '?mpid=' . $site;
+		$url = '/rest/site/fe/matter/enroll';
+		$url .= '?site=' . $site;
 		$url .= '&aid=' . $app;
 		$url .= '&ek=' . $ek;
 

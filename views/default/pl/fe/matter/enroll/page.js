@@ -14,7 +14,7 @@
         } else {
             newWrap = dom.add(body, name, attrs, html);
         }
-        activeEditor.save();
+        //activeEditor.save();
     };
     WrapLib.prototype.extractInputSchema = function(wrap) {
         var $label, def = {},
@@ -778,7 +778,8 @@
             });
         };
         $scope.makePage = function() {
-            $scope.emptyPage();
+            var activeEditor = tinymce.get($scope.ep.name);
+            activeEditor.setContent('');
             angular.forEach($scope.ep.user_schemas, function(schema) {
                 var def = {};
                 def[schema.name] = true;
@@ -790,6 +791,7 @@
             angular.forEach($scope.ep.act_schemas, function(schema) {
                 window.wrapLib.embedButton($scope.ep, schema);
             });
+            activeEditor.save();
         };
     }]);
     ngApp.provider.controller('ctrlSigninSchema', ['$scope', '$modal', function($scope, $modal) {
@@ -857,7 +859,8 @@
             });
         };
         $scope.makePage = function() {
-            $scope.emptyPage();
+            var activeEditor = tinymce.get($scope.ep.name);
+            activeEditor.setContent('');
             angular.forEach($scope.ep.user_schemas, function(schema) {
                 var def = {};
                 def[schema.name] = true;
@@ -869,6 +872,7 @@
             angular.forEach($scope.ep.act_schemas, function(schema) {
                 window.wrapLib.embedButton($scope.ep, schema);
             });
+            activeEditor.save();
         };
     }]);
     ngApp.provider.controller('ctrlViewSchema', ['$scope', '$modal', function($scope, $modal) {
@@ -953,7 +957,8 @@
             });
         };
         $scope.makePage = function() {
-            $scope.emptyPage();
+            var activeEditor = tinymce.get($scope.ep.name);
+            activeEditor.setContent('');
             angular.forEach($scope.dataSchemas, function(schema, catelog) {
                 if (schema.enabled === 'Y') {
                     wrapLib.embedShow($scope.ep, schema, catelog);
@@ -962,6 +967,7 @@
             angular.forEach($scope.actSchemas, function(schema) {
                 window.wrapLib.embedButton($scope.ep, schema);
             });
+            activeEditor.save();
         };
         $scope.$watch('ep', function(ep) {
             if (!ep) return;

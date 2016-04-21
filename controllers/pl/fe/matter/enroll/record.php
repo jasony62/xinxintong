@@ -126,6 +126,27 @@ class record extends \pl\fe\matter\base {
 			foreach ($posted->data as $n => $v) {
 				if (in_array($n, array('signin_at', 'comment'))) {
 					continue;
+				} else if (is_array($v) && isset($v[0]->imgSrc)) {
+					/* 上传图片 */
+					$vv = array();
+					$fsuser = $this->model('fs/user', $site);
+					foreach ($v as $img) {
+						if (preg_match("/^data:.+base64/", $img->imgSrc)) {
+							$rst = $fsuser->storeImg($img);
+							if (false === $rst[0]) {
+								return new \ResponseError($rst[1]);
+							}
+							$vv[] = $rst[1];
+						} else {
+							$vv[] = $img->imgSrc;
+						}
+					}
+					$v = implode(',', $vv);
+				} else if (is_string($v)) {
+					$v = $modelRec->escape($v);
+				} else if (is_object($v) || is_array($c = v)) {
+					/*多选题*/
+					$v = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
 				}
 				$cd = array(
 					'aid' => $app,
@@ -170,9 +191,29 @@ class record extends \pl\fe\matter\base {
 				}
 			} else if ($k === 'data' and is_object($v)) {
 				foreach ($v as $cn => $cv) {
-					/**
-					 * 检查数据项是否存在，如果不存在就先创建一条
-					 */
+					if (is_array($cv) && isset($cv[0]->imgSrc)) {
+						/* 上传图片 */
+						$vv = array();
+						$fsuser = $this->model('fs/user', $site);
+						foreach ($cv as $img) {
+							if (preg_match("/^data:.+base64/", $img->imgSrc)) {
+								$rst = $fsuser->storeImg($img);
+								if (false === $rst[0]) {
+									return new \ResponseError($rst[1]);
+								}
+								$vv[] = $rst[1];
+							} else {
+								$vv[] = $img->imgSrc;
+							}
+						}
+						$cv = implode(',', $vv);
+					} else if (is_string($cv)) {
+						$cv = $model->escape($cv);
+					} else if (is_object($cv) || is_array($cv)) {
+						/*多选题*/
+						$cv = implode(',', array_keys(array_filter((array) $cv, function ($i) {return $i;})));
+					}
+					/*检查数据项是否存在，如果不存在就先创建一条*/
 					$q = array(
 						'count(*)',
 						'xxt_enroll_record_data',
@@ -193,10 +234,11 @@ class record extends \pl\fe\matter\base {
 						);
 						$model->insert('xxt_enroll_record_data', $cd, false);
 					}
+					$record->data->{$cn} = $cv;
 				}
 			}
 		}
 
-		return new \ResponseData('ok');
+		return new \ResponseData($record);
 	}
 }

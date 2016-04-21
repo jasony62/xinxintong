@@ -249,6 +249,7 @@
             $modal.open({
                 templateUrl: 'recordEditor.html',
                 controller: 'ctrlEditor',
+                backdrop: 'static',
                 windowClass: 'auto-height',
                 resolve: {
                     app: function() {
@@ -256,14 +257,15 @@
                     },
                     record: function() {
                         record.aid = $scope.id;
-                        return record;
+                        return angular.copy(record);
                     },
                 }
             }).result.then(function(updated) {
                 var p, tags;
                 p = updated[0];
                 http2.post('/rest/pl/fe/matter/enroll/record/update?site=' + $scope.siteId + '&app=' + $scope.id + '&ek=' + record.enroll_key, p, function(rsp) {
-                    tags = updated[1];
+                    //tags = updated[1];
+                    record.data = rsp.data.data;
                     //$scope.app.tags = tags;
                 });
             });
@@ -280,7 +282,8 @@
                     record: function() {
                         return {
                             aid: $scope.id,
-                            tags: ''
+                            tags: '',
+                            data: {}
                         };
                     }
                 }
@@ -348,16 +351,67 @@
             }
         });
     }]);
+    ngApp.provider.directive('flexImg', function() {
+        return {
+            restrict: 'A',
+            replace: true,
+            template: "<img src='{{img.imgSrc}}'>",
+            link: function(scope, elem, attrs) {
+                angular.element(elem).on('load', function() {
+                    var w = this.clientWidth,
+                        h = this.clientHeight,
+                        sw, sh;
+                    if (w > h) {
+                        sw = w / h * 80;
+                        angular.element(this).css({
+                            'height': '100%',
+                            'width': sw + 'px',
+                            'top': '0',
+                            'left': '50%',
+                            'margin-left': (-1 * sw / 2) + 'px'
+                        });
+                    } else {
+                        sh = h / w * 80;
+                        angular.element(this).css({
+                            'width': '100%',
+                            'height': sh + 'px',
+                            'left': '0',
+                            'top': '50%',
+                            'margin-top': (-1 * sh / 2) + 'px'
+                        });
+                    }
+                })
+            }
+        }
+    });
     ngApp.provider.controller('ctrlEditor', ['$scope', '$modalInstance', '$sce', 'app', 'record', function($scope, $modalInstance, $sce, app, record) {
         var p, col, files;
         for (p in app.data_schemas) {
             col = app.data_schemas[p];
-            if (col.type === 'file') {
-                files = JSON.parse(record.data[col.id]);
-                angular.forEach(files, function(file) {
-                    file.url = $sce.trustAsResourceUrl(file.url);
-                });
-                record.data[col.id] = files;
+            if (record.data[col.id]) {
+                if (col.type === 'file') {
+                    files = JSON.parse(record.data[col.id]);
+                    angular.forEach(files, function(file) {
+                        file.url = $sce.trustAsResourceUrl(file.url);
+                    });
+                    record.data[col.id] = files;
+                } else if (col.type === 'multiple') {
+                    var value = record.data[col.id].split(','),
+                        obj = {};
+                    angular.forEach(value, function(p) {
+                        obj[p] = true;
+                    });
+                    record.data[col.id] = obj;
+                } else if (col.type === 'image') {
+                    var value = record.data[col.id].split(','),
+                        obj = [];
+                    angular.forEach(value, function(p) {
+                        obj.push({
+                            imgSrc: p
+                        });
+                    });
+                    record.data[col.id] = obj;
+                }
             }
         }
         $scope.app = app;
@@ -391,6 +445,42 @@
         };
         $scope.cancel = function() {
             $modalInstance.dismiss('cancel');
+        };
+        $scope.chooseImage = function(imgFieldName, count, from) {
+            var data = $scope.record.data;
+            if (imgFieldName !== null) {
+                data[imgFieldName] === undefined && (data[imgFieldName] = []);
+                var ele = document.createElement('input');
+                ele.setAttribute('type', 'file');
+                ele.addEventListener('change', function(evt) {
+                    var i, cnt, f, type;
+                    cnt = evt.target.files.length;
+                    for (i = 0; i < cnt; i++) {
+                        f = evt.target.files[i];
+                        type = {
+                            ".jp": "image/jpeg",
+                            ".pn": "image/png",
+                            ".gi": "image/gif"
+                        }[f.name.match(/\.(\w){2}/g)[0] || ".jp"];
+                        f.type2 = f.type || type;
+                        var reader = new FileReader();
+                        reader.onload = (function(theFile) {
+                            return function(e) {
+                                var img = {};
+                                img.imgSrc = e.target.result.replace(/^.+(,)/, "data:" + theFile.type2 + ";base64,");
+                                $scope.$apply(function() {
+                                    data[imgFieldName].push(img);
+                                });
+                            };
+                        })(f);
+                        reader.readAsDataURL(f);
+                    }
+                }, false);
+                ele.click();
+            }
+        };
+        $scope.removeImage = function(imgField, index) {
+            imgField.splice(index, 1);
         };
         $scope.$on('tag.xxt.combox.done', function(event, aSelected) {
             var aNewTags = [];

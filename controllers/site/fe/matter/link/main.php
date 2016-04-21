@@ -123,7 +123,7 @@ class main extends \site\fe\matter\base {
 			if (isset($this->who->sns->wx)) {
 				return $this->who->sns->wx->openid;
 			}
-			if (!isset($this->who->sns->qy)) {
+			if (isset($this->who->sns->qy)) {
 				return $this->who->sns->qy->openid;
 			}
 		} else if ($this->userAgent() === 'yx') {

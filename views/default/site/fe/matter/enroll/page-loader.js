@@ -36,7 +36,8 @@ window.loading = {
 					exports: "enroll-directive"
 				},
 			},
-			deps: ['/views/default/site/fe/matter/enroll/page.js?_=1']
+			deps: ['/views/default/site/fe/matter/enroll/page.js?_=1'],
+			urlArgs: "bust=" + (new Date()).getTime()
 		});
 	}
 };

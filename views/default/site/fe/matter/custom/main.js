@@ -41,6 +41,14 @@ define(["require", "angular"], function(require, angular) {
             head = document.querySelector('head');
             head.appendChild(link);
         };
+        var loadDynaCss = function(css) {
+            var style, head;
+            style = document.createElement('style');
+            style.rel = 'stylesheet';
+            style.innerHTML = css;
+            head = document.querySelector('head');
+            head.appendChild(style);
+        };
         var loadDynaJs = function(article, page) {
             $timeout(function dynamicjs() {
                 eval(page.js);
@@ -88,6 +96,9 @@ define(["require", "angular"], function(require, angular) {
                 $scope.site = rsp.data.site;
                 if (page.ext_css && page.ext_css.length) {
                     angular.forEach(page.ext_css, loadCss);
+                }
+                if (page.css && page.css.length) {
+                    loadDynaCss(page.css);
                 }
                 if (page.ext_js && page.ext_js.length) {
                     loadExtJs(article, page);

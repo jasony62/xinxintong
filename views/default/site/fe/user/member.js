@@ -113,7 +113,6 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
     var setMember = function(user) {
         var member;
         user.members && (member = user.members[LS.p.schema]);
-        member.extattr = JSON.parse(member.extattr);
         $scope.member = {
             schema_id: LS.p.schema
         };
@@ -122,7 +121,8 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
             $scope.attrs.name && ($scope.member.name = member.name);
             $scope.attrs.email && ($scope.member.email = member.email);
             $scope.attrs.mobile && ($scope.member.mobile = member.mobile);
-            if ($scope.attrs.extattrs) {
+            if ($scope.attrs.extattrs && $scope.attrs.extattrs.length) {
+                member.extattr = member.extattr ? JSON.parse(member.extattr) : [];
                 angular.forEach($scope.attrs.extattrs, function(ea) {
                     $scope.member[ea.id] = member.extattr[ea.id];
                 });

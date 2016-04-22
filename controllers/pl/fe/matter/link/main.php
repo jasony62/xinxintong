@@ -33,24 +33,25 @@ class main extends \pl\fe\matter\base {
 			'xxt_link',
 			"siteid='$site' and id='$id' and state=1",
 		);
-		$link = $model->query_obj_ss($q);
-		/**
-		 * params
-		 */
-		$q = array(
-			'id,pname,pvalue',
-			'xxt_link_param',
-			"link_id='$id'",
-		);
-		$link->params = $model->query_objs_ss($q);
-		/**
-		 * channels
-		 */
-		$link->channels = $this->model('matter\channel')->byMatter($id, 'link');
-		/**
-		 * acl
-		 */
-		$link->acl = $this->model('acl')->byMatter($site, 'link', $id);
+		if ($link = $model->query_obj_ss($q)) {
+			/**
+			 * params
+			 */
+			$q = array(
+				'id,pname,pvalue',
+				'xxt_link_param',
+				"link_id='$id'",
+			);
+			$link->params = $model->query_objs_ss($q);
+			/**
+			 * channels
+			 */
+			$link->channels = $this->model('matter\channel')->byMatter($id, 'link');
+			/**
+			 * acl
+			 */
+			$link->acl = $this->model('acl')->byMatter($site, 'link', $id);
+		}
 
 		return new \ResponseData($link);
 	}
@@ -134,11 +135,11 @@ class main extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-
-		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
+		$modelSite = $this->model('site');
+		$site = $modelSite->byId($site, array('fields' => 'id,heading_pic'));
 		$current = time();
 		$link = array();
-		$link['siteid'] = $site;
+		$link['siteid'] = $site->id;
 		$link['creater'] = $user->id;
 		$link['creater_name'] = $user->name;
 		$link['create_at'] = $current;
@@ -148,17 +149,11 @@ class main extends \pl\fe\matter\base {
 		$link['title'] = $title;
 		$link['pic'] = $site->heading_pic; //使用站点缺省头图
 
-		$id = $this->model()->insert('xxt_link', $link, true);
-
-		$q = array(
-			"*",
-			'xxt_link',
-			"id=$id",
-		);
-		$link = $this->model()->query_obj_ss($q);
+		$id = $modelSite->insert('xxt_link', $link, true);
+		$link = $this->model('matter\link')->byId($id);
 
 		/* 记录操作日志 */
-		$matter = (object) $link;
+		$matter = $link;
 		$matter->type = 'link';
 		$this->model('log')->matterOp($site->id, $user, $matter, 'C');
 
@@ -186,7 +181,7 @@ class main extends \pl\fe\matter\base {
 		/*记录操作日志*/
 		$link = $this->model('matter\link')->byId($id, 'id,title,summary,pic');
 		$link->type = 'link';
-		$this->model('log')->matterOp($siteId, $user, $link, 'D');
+		$this->model('log')->matterOp($site, $user, $link, 'D');
 
 		return new \ResponseData($rst);
 	}

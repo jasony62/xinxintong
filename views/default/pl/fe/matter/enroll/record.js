@@ -42,6 +42,12 @@
                 }
                 angular.forEach($scope.records, function(record) {
                     record.data.member && (record.data.member = JSON.parse(record.data.member));
+                    if ($scope.mapOfSchemaByType['image'] && $scope.mapOfSchemaByType['image'].length) {
+                        angular.forEach($scope.mapOfSchemaByType['image'], function(schemaId) {
+                            var imgs = record.data[schemaId] ? record.data[schemaId].split(',') : [];
+                            record.data[schemaId] = imgs;
+                        });
+                    }
                 });
             });
         };
@@ -186,19 +192,8 @@
                 });
             }
         });
-        $scope.$on('pushnotify.xxt.done', function(event, matter) {
-            var url = '/rest/pl/fe/matter/enroll/record/record/sendNotify';
-            url += '?matterType=' + matter[1];
-            url += '&matterId=' + matter[0][0].id;
-            url += '&aid=' + $scope.aid;
-            url += '&tags=' + $scope.page.tags.join(',');
-            url += $scope.page.joinParams();
-            http2.get(url, function(data) {
-                $scope.$root.infomsg = '发送成功';
-            });
-        });
         $scope.viewUser = function(fan) {
-            location.href = '/rest/mp/user?openid=' + fan.openid;
+            //location.href = '/rest/mp/user?openid=' + fan.openid;
         };
         $scope.keywordKeyup = function(evt) {
             evt.which === 13 && $scope.doSearch();
@@ -265,7 +260,14 @@
                 p = updated[0];
                 http2.post('/rest/pl/fe/matter/enroll/record/update?site=' + $scope.siteId + '&app=' + $scope.id + '&ek=' + record.enroll_key, p, function(rsp) {
                     //tags = updated[1];
-                    record.data = rsp.data.data;
+                    var data = rsp.data.data;
+                    if ($scope.mapOfSchemaByType['image'] && $scope.mapOfSchemaByType['image'].length) {
+                        angular.forEach($scope.mapOfSchemaByType['image'], function(schemaId) {
+                            var imgs = data[schemaId] ? data[schemaId].split(',') : [];
+                            data[schemaId] = imgs;
+                        });
+                    }
+                    record.data = data;
                     //$scope.app.tags = tags;
                 });
             });
@@ -293,6 +295,13 @@
                 tags = updated[1];
                 http2.post('/rest/pl/fe/matter/enroll/record/add?site=' + $scope.siteId + '&app=' + $scope.id, p, function(rsp) {
                     //$scope.app.tags = tags;
+                    var record = rsp.data;
+                    if ($scope.mapOfSchemaByType['image'] && $scope.mapOfSchemaByType['image'].length) {
+                        angular.forEach($scope.mapOfSchemaByType['image'], function(schemaId) {
+                            var imgs = record.data[schemaId] ? record.data[schemaId].split(',') : [];
+                            record.data[schemaId] = imgs;
+                        });
+                    }
                     $scope.records.splice(0, 0, rsp.data);
                 });
             });
@@ -345,10 +354,15 @@
                     $scope.selected[i] = nv;
                 }
         });
-        $scope.$watch('app', function(nv) {
-            if (nv) {
-                $scope.doSearch();
-            }
+        $scope.$watch('app', function(app) {
+            if (!app) return;
+            var mapOfSchemaByType = {};
+            angular.forEach(app.data_schemas, function(schema) {
+                mapOfSchemaByType[schema.type] === undefined && (mapOfSchemaByType[schema.type] = []);
+                mapOfSchemaByType[schema.type].push(schema.id);
+            });
+            $scope.mapOfSchemaByType = mapOfSchemaByType;
+            $scope.doSearch();
         });
     }]);
     ngApp.provider.directive('flexImg', function() {
@@ -403,7 +417,7 @@
                     });
                     record.data[col.id] = obj;
                 } else if (col.type === 'image') {
-                    var value = record.data[col.id].split(','),
+                    var value = record.data[col.id],
                         obj = [];
                     angular.forEach(value, function(p) {
                         obj.push({

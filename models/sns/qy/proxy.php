@@ -6,7 +6,7 @@ require_once dirname(dirname(__FILE__)) . '/proxybase.php';
 /**
  * 企业号代理类
  */
-class qy_model extends \sns\proxybase {
+class proxy_model extends \sns\proxybase {
 	/**
 	 *
 	 */

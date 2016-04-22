@@ -154,9 +154,9 @@ class base extends \site\fe\base {
 			$members = $this->__upgradeCookieMembers($siteId, $userid, $aMemberSchemas);
 			if (empty($members)) {
 				if ($this->userAgent() === 'wx') {
-					if (!isset($this->who->sns->wx)) {
+					if (isset($this->who->sns->wx)) {
 						$openid = $this->who->sns->wx->openid;
-					} else if (!isset($this->who->sns->qy)) {
+					} else if (isset($this->who->sns->qy)) {
 						$openid = $this->who->sns->qy->openid;
 					}
 				} else if ($this->userAgent() === 'yx') {

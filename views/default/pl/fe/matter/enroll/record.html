@@ -71,8 +71,8 @@
                     <td ng-repeat="c in  app.data_schemas">
                         <span ng-if="c.id.indexOf('member')===0">{{memberAttr(r.data, c.id)}}</span>
                         <span ng-if="c.type!=='image'&&c.type!=='file'">{{value2Label(r.data[c.id], c.id)}}</span>
-                        <span ng-if="c.type==='image'" ng-init="imgs=r.data[c.id].split(',')">
-                            <img ng-repeat="img in imgs" ng-src='{{img}}' />
+                        <span ng-if="c.type==='image'">
+                            <img ng-repeat="img in r.data[c.id]" ng-src='{{img}}' />
                         </span>
                         <span ng-if="c.type==='file'" ng-init="files=json2Obj(r.data[c.id])">
                             <span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>

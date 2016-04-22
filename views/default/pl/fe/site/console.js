@@ -92,7 +92,7 @@ app.controller('ctrlConsole', ['$scope', '$modal', 'http2', function($scope, $mo
     };
     $scope.addLink = function() {
         http2.get('/rest/pl/fe/matter/link/create?site=' + $scope.siteId, function(rsp) {
-            location.href = '/rest/pl/fe/matter/link?site=' + $scope.siteId + '&id=' + rsp.data;
+            location.href = '/rest/pl/fe/matter/link?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
     $scope.addArticle = function() {

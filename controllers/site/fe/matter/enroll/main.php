@@ -88,22 +88,28 @@ class main extends base {
 		if ($this->userAgent() === 'wx') {
 			if (isset($entryRule->wxfan)) {
 				if (!isset($this->who->sns->wx)) {
-					if ($sns = $this->model('sns\wx')->bySite($siteid)) {
-						$this->snsOAuth($sns, 'wx');
+					if ($wxConfig = $this->model('sns\wx')->bySite($siteid)) {
+						if ($wxConfig->joined === 'Y') {
+							$this->snsOAuth($wxConfig, 'wx');
+						}
 					}
 				}
 			}
 			if (isset($entryRule->qyfan)) {
 				if (!isset($this->who->sns->qy)) {
-					if ($sns = $this->model('sns\qy')->bySite($siteid)) {
-						$this->snsOAuth($sns, 'qy');
+					if ($qyConfig = $this->model('sns\qy')->bySite($siteid)) {
+						if ($qyConfig->joined === 'Y') {
+							$this->snsOAuth($qyConfig, 'qy');
+						}
 					}
 				}
 			}
 		} else if (isset($entryRule->yxfan) && $this->userAgent() === 'yx') {
 			if (!isset($this->who->sns->yx)) {
-				if ($sns = $this->model('sns\yx')->bySite($siteid)) {
-					$this->snsOAuth($sns, 'yx');
+				if ($yxConfig = $this->model('sns\yx')->bySite($siteid)) {
+					if ($yxConfig->joined === 'Y') {
+						$this->snsOAuth($yxConfig, 'yx');
+					}
 				}
 			}
 		}

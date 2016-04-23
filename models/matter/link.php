@@ -84,7 +84,7 @@ class link_model extends base_model {
 					);
 					if ($params = $this->query_objs_ss($q)) {
 						$url .= (strpos($url, '?') === false) ? '?' : '&';
-						$url .= $this->spliceParams($siteId, $params, null, $openid);
+						$url .= $this->_spliceParams($siteId, $params, $openid);
 					}
 					if (preg_match('/^(http:|https:)/', $url) === 0) {
 						$url = 'http://' . $url;
@@ -102,7 +102,7 @@ class link_model extends base_model {
 				$url = "?site=$siteId&type=channel&id=" . $matter->url;
 				break;
 			case 3: // inner
-				$reply = TMS_APP::model('reply\inner', $call, $matter->url);
+				$reply = \TMS_APP::model('reply\inner', $call, $matter->url);
 				$url = $reply->exec(false);
 				$q = array(
 					'pname,pvalue,authapi_id',
@@ -111,7 +111,7 @@ class link_model extends base_model {
 				);
 				if ($params = $this->query_objs_ss($q)) {
 					$url .= (strpos($url, '?') === false) ? '?' : '&';
-					$url .= $this->spliceParams($siteId, $params, null, $openid);
+					$url .= $this->_spliceParams($siteId, $params, $openid);
 				}
 				if (preg_match('/^(http:|https:)/', $url) === 0) {
 					$url = 'http://' . $url;
@@ -127,5 +127,27 @@ class link_model extends base_model {
 
 			return $url;
 		}
+	}
+	/**
+	 * 拼接URL中的参数
+	 */
+	private function _spliceParams($siteId, &$params, $openid = '') {
+		$pairs = array();
+		foreach ($params as $p) {
+			switch ($p->pvalue) {
+			case '{{site}}':
+				$v = $siteId;
+				break;
+			case '{{openid}}':
+				$v = $openid;
+				break;
+			default:
+				$v = $p->pvalue;
+			}
+			$pairs[] = "$p->pname=$v";
+		}
+		$spliced = implode('&', $pairs);
+
+		return $spliced;
 	}
 }

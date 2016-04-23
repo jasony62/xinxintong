@@ -21,13 +21,16 @@ class link_model extends Reply {
 	 *
 	 */
 	public function exec() {
-		$link = \TMS_APP::model('matter\link')->byIdWithParams($this->link_id);
+		$modelLink = \TMS_APP::model('matter\link');
+		$call = $this->call;
+		$link = $modelLink->byIdWithParams($this->link_id);
 		$link->type = 'link';
+		$link->entryURL = $modelLink->getEntryUrl($call['siteid'], $this->link_id, $call['from_user'], $call);
 		if ($link->return_data === 'Y') {
 			/**
 			 * 以文字的形式响应
 			 */
-			$rst = $this->output($link, $this->call['from_user']);
+			$rst = $this->output($link, $call['from_user']);
 			$r = $this->textResponse($rst);
 		} else {
 			/**

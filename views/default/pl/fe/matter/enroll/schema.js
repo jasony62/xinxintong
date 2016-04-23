@@ -73,7 +73,7 @@
             $scope.$parent.modified = true;
         });
         $scope.removeSchema = function(schema) {
-            $scope.schemas.splice($scope.schemas.indexOf(schema));
+            $scope.schemas.splice($scope.schemas.indexOf(schema), 1);
             $scope.$parent.modified = true;
         };
         $scope.modify = function(name) {

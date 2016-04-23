@@ -59,6 +59,11 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', function($sc
 			return message;
 		}
 	};
+	$scope.remove = function() {
+		http2.get('/rest/pl/fe/matter/link/remove?site=' + $scope.siteId + '&id=' + $scope.id, function() {
+			location.href = '/rest/pl/fe/site/console?site=' + $scope.siteId;
+		});
+	};
 	$scope.submit = function() {
 		http2.post('/rest/pl/fe/matter/link/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData, function() {
 			modifiedData = {};

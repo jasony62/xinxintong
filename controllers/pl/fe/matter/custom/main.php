@@ -365,7 +365,7 @@ class main extends \pl\fe\matter\base {
 				}
 			}
 			/*记录操作日志*/
-			$matter = $this->model('matter\article')->byId($id, 'id,title,summary,pic');
+			$matter = $this->model('matter\article2')->byId($id, 'id,title,summary,pic');
 			$matter->type = 'custom';
 			$this->model('log')->matterOp($site, $user, $matter, 'D');
 		}

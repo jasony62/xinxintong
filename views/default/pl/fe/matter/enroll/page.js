@@ -198,7 +198,7 @@
                 case 'datetime':
                     html = "<label>" + s.title + "</label><div>{{Record.current.data." + s.id + "|date:'yy-MM-dd HH:mm'}}</div>";
                     break;
-                case 'img':
+                case 'image':
                     html = '<label>' + s.title + '</label><ul><li ng-repeat="img in Record.current.data.' + s.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul>';
                     break;
                 case '_enrollAt':
@@ -929,9 +929,8 @@
                 $scope.updPage($scope.ep, 'data_schemas');
             });
         };
-        $scope.removeSchema = function(schema) {
-            var data_schemas = $scope.ep.data_schemas;
-            data_schemas.splice(data_schemas.indexOf(schema), 1);
+        $scope.removeSchema = function(schemas, schema) {
+            schemas.splice(schemas.indexOf(schema), 1);
             $scope.updPage($scope.ep, 'data_schemas');
         };
         $scope.chooseAct = function() {
@@ -961,6 +960,7 @@
             activeEditor.setContent('');
             angular.forEach($scope.dataSchemas, function(schema, catelog) {
                 if (schema.enabled === 'Y') {
+                    console.log('schema', schema);
                     wrapLib.embedShow($scope.ep, schema, catelog);
                 }
             });
@@ -991,9 +991,9 @@
                     }
                 };
             } else {
-                $scope.dataSchemas = angular.copy(ep.data_schemas);
+                $scope.dataSchemas = ep.data_schemas;
             }
-            $scope.actSchemas = angular.copy(ep.act_schemas);
+            $scope.actSchemas = ep.act_schemas;
         });
     }]);
     ngApp.provider.controller('ctrlPageEditor', ['$scope', '$modal', 'mattersgallery', 'mediagallery', function($scope, $modal, mattersgallery, mediagallery) {

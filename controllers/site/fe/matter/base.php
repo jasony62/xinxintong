@@ -25,7 +25,7 @@ class base extends \site\fe\base {
 			/**
 			 * 让用户选择通过那个认证接口进行认证
 			 */
-			$authUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/rest/site/user/member/authoptions';
+			$authUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/rest/site/fe/user/member/schemaOptions';
 			$authUrl .= "?site=$siteId";
 			!empty($userid) && $authUrl .= "&userid=$userid";
 			$authUrl .= "&schema=" . implode(',', $aMemberSchemas);
@@ -154,9 +154,9 @@ class base extends \site\fe\base {
 			$members = $this->__upgradeCookieMembers($siteId, $userid, $aMemberSchemas);
 			if (empty($members)) {
 				if ($this->userAgent() === 'wx') {
-					if (!isset($this->who->sns->wx)) {
+					if (isset($this->who->sns->wx)) {
 						$openid = $this->who->sns->wx->openid;
-					} else if (!isset($this->who->sns->qy)) {
+					} else if (isset($this->who->sns->qy)) {
 						$openid = $this->who->sns->qy->openid;
 					}
 				} else if ($this->userAgent() === 'yx') {

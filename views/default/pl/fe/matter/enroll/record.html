@@ -52,6 +52,7 @@
                         <input type='checkbox' ng-model="selectAll">
                     </th>
                     <th style='width:100px'>登记时间</th>
+                    <th style='width:80px'>昵称</th>
                     <th class='custom-col' ng-repeat="c in  app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
                     <th style='width:100px' ng-if="app.can_signin==='Y'">最近签到时间</th>
                     <th style='width:80px' ng-if="app.can_signin==='Y'">签到次数</th>
@@ -68,6 +69,7 @@
                         <input type='checkbox' ng-model='selected[$index]'>
                     </td>
                     <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
+                    <td>{{r.nickname}}</td>
                     <td ng-repeat="c in  app.data_schemas">
                         <span ng-if="c.id.indexOf('member')===0">{{memberAttr(r.data, c.id)}}</span>
                         <span ng-if="c.type!=='image'&&c.type!=='file'">{{value2Label(r.data[c.id], c.id)}}</span>

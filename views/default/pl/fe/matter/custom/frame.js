@@ -1,10 +1,10 @@
 app = angular.module('app', ['ngRoute', 'ui.tms', 'matters.xxt', 'channel.fe.pl']);
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
 	$routeProvider.when('/rest/pl/fe/matter/custom', {
-		templateUrl: '/views/default/pl/fe/matter/custom/setting.html?_=1',
+		templateUrl: '/views/default/pl/fe/matter/custom/setting.html?_=2',
 		controller: 'ctrlSetting',
 	}).otherwise({
-		templateUrl: '/views/default/pl/fe/matter/custom/setting.html?_=1',
+		templateUrl: '/views/default/pl/fe/matter/custom/setting.html?_=2',
 		controller: 'ctrlSetting'
 	});
 	$locationProvider.html5Mode(true);
@@ -56,7 +56,7 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', function($scop
 		});
 	};
 	$scope.remove = function() {
-		http2.get('/rest/pl/fe/matter/custom/remove?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+		http2.get('/rest/pl/fe/matter/custom/remove?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
 			location.href = '/rest/pl/fe/site/console?site=' + $scope.siteId;
 		});
 	};

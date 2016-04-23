@@ -32,6 +32,29 @@ class member extends \site\fe\base {
 		exit;
 	}
 	/**
+	 * 进入选择认证接口页
+	 *
+	 * 如果被访问的页面支持多个认证接口，要求用户选择一种认证接口
+	 */
+	public function schemaOptions_action($site, $schema, $userid = null) {
+		$params = "siteid=$site";
+		if (!empty($openid)) {
+			$params .= "&openid=$openid";
+		}
+
+		$aMemberSchemas = array();
+		$aAuthids = explode(',', $authids);
+		foreach ($aAuthids as $authid) {
+			$authapi = $this->model('user/authapi')->byId($authid, 'name,url');
+			$authapi->url .= "?authid=$authid&$params";
+			$aMemberSchemas[] = $authapi;
+		}
+
+		\TPL::assign('authapis', $aMemberSchemas);
+
+		$this->view_action('/member/authoptions');
+	}
+	/**
 	 * 检查是否需要第三方社交帐号认证
 	 * 检查条件：
 	 * 0、应用是否设置了需要认证

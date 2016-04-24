@@ -24,7 +24,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_coin_rule(";
 $sql .= "mpid varchar(32) not null";
-$sql .= "siteid varchar(32) not null";
+$sql .= ",siteid varchar(32) not null";
 $sql .= ",act varchar(255) not null";
 $sql .= ",objid varchar(255) not null default '*'";
 $sql .= ",delta int not null";
@@ -33,4 +33,4 @@ if (!$mysqli->query($sql)) {
 	header("HTTP/1.0 500 Internal Server Error");
 	echo "database error: " . $mysqli->error;
 }
-echo "finish tag." . PHP_EOL;
+echo "finish coin." . PHP_EOL;

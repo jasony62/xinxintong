@@ -97,18 +97,24 @@ class main extends \site\fe\matter\base {
 		if ($this->userAgent() === 'wx') {
 			if (!isset($this->who->sns->wx)) {
 				if ($wxConfig = $this->model('sns\wx')->bySite($siteid)) {
-					$this->snsOAuth($wxConfig, 'wx');
+					if ($wxConfig->joined === 'Y') {
+						$this->snsOAuth($wxConfig, 'wx');
+					}
 				}
 			}
 			if (!isset($this->who->sns->qy)) {
 				if ($qyConfig = $this->model('sns\qy')->bySite($siteid)) {
-					$this->snsOAuth($qyConfig, 'qy');
+					if ($qyConfig->joined === 'Y') {
+						$this->snsOAuth($qyConfig, 'qy');
+					}
 				}
 			}
 		} else if ($this->userAgent() === 'yx') {
 			if (!isset($this->who->sns->yx)) {
 				if ($yxConfig = $this->model('sns\yx')->bySite($siteid)) {
-					$this->snsOAuth($yxConfig, 'yx');
+					if ($yxConfig->joined === 'Y') {
+						$this->snsOAuth($yxConfig, 'yx');
+					}
 				}
 			}
 		}

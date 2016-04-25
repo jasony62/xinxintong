@@ -1,0 +1,156 @@
+<div id='page-view'>
+	<table class='table table-bordered'>
+		<thead>
+			<tr>
+				<th style='width:60px'>ID</th>
+				<th>类型</th>
+				<th>标题</th>
+				<th>URL</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="p in shelfs">
+				<td ng-bind="p.id"></td>
+				<td ng-bind="p.name"></td>
+				<td ng-bind="p.title"></td>
+				<td ng-bind="p._url"></td>
+				<td>
+					<a href="javascript:void(0)" ng-click="config(p)">配置</a>
+					<a href="javascript:void(0)" ng-click="gotoCode(p)">代码</a>
+					<a href="javascript:void(0)" ng-click="resetCode(p)">重置</a>
+					<a href="javascript:void(0)" ng-click="removeShelf(p, $index)">清除</a>
+				</td>
+			</tr>
+		</tbody>
+		<tfoot>
+		<tr>
+			<td colspan="5">
+				<button class="btn btn-success" ng-click='createShelf()'>添加</button>
+			</td>
+		</tr>
+		</tfoot>
+	</table>
+	<table class='table table-bordered'>
+		<thead>
+			<tr>
+				<th style='width:60px'>ID</th>
+				<th>类型</th>
+				<th>标题</th>
+				<th>URL</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="p in orderlists">
+				<td ng-bind="p.id"></td>
+				<td ng-bind="p.name"></td>
+				<td ng-bind="p.title"></td>
+				<td ng-bind="p._url"></td>
+				<td>
+					<a href="javascript:void(0)" ng-click="config(p)">配置</a>
+					<a href="javascript:void(0)" ng-click="gotoCode(p)">代码</a>
+					<a href="javascript:void(0)" ng-click="resetCode(p)">重置</a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<table class='table table-bordered'>
+		<thead>
+			<tr>
+				<th style='width:60px'>ID</th>
+				<th>类型</th>
+				<th>标题</th>
+				<th>URL</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="p in opOrderlists">
+				<td ng-bind="p.id"></td>
+				<td ng-bind="p.name"></td>
+				<td ng-bind="p.title"></td>
+				<td ng-bind="p._url"></td>
+				<td>
+					<a href="javascript:void(0)" ng-click="config(p)">配置</a>
+					<a href="javascript:void(0)" ng-click="gotoCode(p)">代码</a>
+					<a href="javascript:void(0)" ng-click="resetCode(p)">重置</a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<table class='table table-bordered'>
+		<thead>
+			<tr>
+				<th style='width:60px'>ID</th>
+				<th>类型</th>
+				<th>标题</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="p in others">
+				<td ng-bind="p.id"></td>
+				<td ng-bind="p.name"></td>
+				<td ng-bind="p.title"></td>
+				<td>
+					<a href="javascript:void(0)" ng-click="config(p)">配置</a>
+					<a href="javascript:void(0)" ng-click="gotoCode(p)">代码</a>
+					<a href="javascript:void(0)" ng-click="resetCode(p)">重置</a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<div class='form-group'>
+		<select class='form-control' ng-model="selectedCatelog" ng-options="c.name for c in catelogs">
+			<option></option>
+		</select>
+	</div>
+	<table class='table table-bordered' ng-if="selectedCatelog">
+		<thead>
+			<tr>
+				<th style='width:60px'>ID</th>
+				<th>类型</th>
+				<th>标题</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat='pt in catelogPageTypes'>
+				<td ng-bind="pagesOfCatelog[pt.type].id"></td>
+				<td ng-bind="pt.name"></td>
+				<td ng-bind="pagesOfCatelog[pt.type].title"></td>
+				<td>
+					<span ng-show='!pagesOfCatelog[pt.type]'>
+						<a href="javascript:void(0)" ng-click="createCatelogCode(pt.type)">设置</a>
+					</span>
+					<span ng-show='pagesOfCatelog[pt.type]'>
+						<a href="javascript:void(0)" ng-click="config(pagesOfCatelog[pt.type])">配置</a>
+						<a href="javascript:void(0)" ng-click="gotoCode(pagesOfCatelog[pt.type])">代码</a>
+						<a href="javascript:void(0)" ng-click="resetCode(pagesOfCatelog[pt.type])">重置</a>
+						<a href="javascript:void(0)" ng-click="removeCatelogCode(pagesOfCatelog[pt.type])">清除</a>
+					</span>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<script type='text/ng-template' id='pageEditor.html'>
+	<div class="modal-header">
+        <button class="close" type="button" ng-click="close()">×</button>
+        <h5 class="modal-title">配置页面</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="col-md-2 control-label">标题</label>
+                <div class="col-md-10">
+                    <input type='text' class='form-control' ng-model='page.title'>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="ok()">保存</button>
+    </div>
+	</script>
+</div>

@@ -1,0 +1,56 @@
+<div class='flex-frame' ng-controller='cartCtrl'>
+    <div class='flex-main catelog' ng-repeat="cate in catelogs">
+        <div class='products flex-main-wrap'>
+            <div class='product' ng-repeat="prod in cate.products">
+                <div class='basic'>
+                    <div class='description' ng-click="prod._actionsOpened=!prod._actionsOpened">
+                        <div class='form-group'>
+                            <label class='form-control-static'>名称</label>
+                            <div class='form-control-static' ng-bind='prod.name'></div>
+                        </div>
+                        <div class='form-group' ng-if="prod.detail_text">
+                            <label class='form-control-static'>介绍</label>
+                            <div>
+                                <div class='form-control-static detail_text' ng-bind="prod.detail_text||'&nbsp;'"></div>
+                            </div>
+                        </div>
+                        <div class='form-group prop' ng-repeat='cp in cate.properties'>
+                            <label class='form-control-static' ng-bind='cp.name'></label>
+                            <div class='form-control-static' ng-bind="prod.propValue[cp.id].name||'&nbsp;'"></div>
+                        </div>
+                    </div>
+                    <div class='actions' ng-class="{'opened':prod._actionsOpened}">
+                        <div class='wrap-empty'></div>
+                        <div class='wrap'>
+                            <button class='btn btn-block btn-danger' ng-click="removeProd($event, cate, prod, $index)">删除</button>
+                        </div>
+                        <div class='wrap-empty'></div>
+                    </div>
+                </div>
+                <div class='cateSku' ng-repeat='cateSku in prod.cateSkus'>
+                    <div class='skus'>
+                        <div class='sku' ng-class="{'selected':sku.selected,'unavailable':!sku._available,'removed':sku.removed}" ng-repeat='sku in cateSku.skus'>
+                            <div>
+                                <div class='summary'>
+                                    <div ng-bind="sku._summary"></div>
+                                </div>
+                                <div class='price' ng-if="cateSku.require_pay==='Y'">
+                                    <div ng-bind="(sku.price/100)||'&nbsp;'"></div>
+                                </div>
+                            </div>
+                            <div class='actions'>
+                                <button class='btn btn-danger btn-sm' ng-show='!sku.removed' ng-click='removeSku(sku, $index)'>删除</button>
+                                <button class='btn btn-success btn-sm' ng-show='sku.removed&&sku._available' ng-click='restoreSku(sku, $index)'>恢复</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class='flex-bar'>
+        <button class="btn btn-lg btn-default" ng-click='gotoShop()'>继续选择</button>
+        <button class="btn btn-lg btn-default" ng-click='emptyCart()'>清空</button>
+        <button class="btn btn-lg btn-default" ng-click='gotoOrder(orderInfo.skus)'>生成订单</button>
+    </footer>
+</div>

@@ -1,0 +1,79 @@
+<div class='full-height flex-frame' ng-controller='ctrlOrder'>
+    <div class='flex-main'>
+        <div class='flex-main-wrap'>
+            <div class='catelog' ng-repeat="cate in catelogs">
+                <div class='products'>
+                    <div class='product' ng-repeat="prod in cate.products">
+                        <div class='form-group'>
+                            <label class='form-control-static'>名称</label>
+                            <div class='form-control-static' ng-bind='prod.name'></div>
+                        </div>
+                        <div class='form-group' ng-if="prod.detail_text">
+                            <label class='form-control-static'>介绍</label>
+                            <div>
+                                <div class='form-control-static detail_text' ng-bind="prod.detail_text||'&nbsp;'"></div>
+                            </div>
+                        </div>
+                        <div class='form-group prop' ng-repeat='cp in cate.properties'>
+                            <label class='form-control-static' ng-bind='cp.name'></label>
+                            <div class='form-control-static' ng-bind="prod.propValue[cp.id].name||'&nbsp;'"></div>
+                        </div>
+                        <div class='cateSku' ng-repeat='cateSku in prod.cateSkus'>
+                            <div class='skus' dyna-component url="cate.pages['order.skus']==='Y'?'/rest/app/merchant/order/componentGet?page=order&comp=skus&shop='+shopId+'&catelog='+cate.id+'&product='+prod.id:''">
+                                <div class='sku' ng-repeat='sku in cateSku.skus'>
+                                    <div class='summary' ng-if="sku._summary">
+                                        <div ng-bind="sku._summary"></div>
+                                    </div>
+                                    <div class='price' ng-if="cateSku.require_pay==='Y'">
+                                        <label class='form-control-static'>价格（元）</label>
+                                        <div ng-bind="(sku.price/100)||'&nbsp;'"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='order-properties'>
+                    <div class='order-property form-group' ng-repeat='p in cate.orderProperties'>
+                        <label class='form-control-static' ng-bind='p.name'></label>
+                        <input type='text' class='form-control input-lg' tms-lock="lock" ng-readonly="orderInfo.status!=='1'" ng-model='orderInfo.extPropValues[cate.id][p.id]'>
+                    </div>
+                </div>
+                <div class='feedback-properties'>
+                    <div class='feedback-property form-group' ng-repeat='p in cate.feedbackProperties'>
+                        <label class='form-control-static' ng-bind='p.name'></label>
+                        <input type='text' class='form-control input-lg' readonly ng-model='orderInfo.feedback[cate.id][p.id]'>
+                    </div>
+                </div>
+            </div>
+            <div class='contact'>
+                <div class='form-group'>
+                    <label class='form-control-static'>联系人姓名</label>
+                    <input type='text' class='form-control input-lg' tms-lock="lock" ng-readonly="orderInfo.status!=='1'" ng-model='orderInfo.receiver_name'>
+                </div>
+                <div class='form-group'>
+                    <label class='form-control-static'>联系人电话</label>
+                    <input type='text' class='form-control input-lg' tms-lock="lock" ng-readonly="orderInfo.status!=='1'" ng-model='orderInfo.receiver_mobile'>
+                </div>
+                <div class='form-group'>
+                    <label class='form-control-static'>联系人邮箱</label>
+                    <input type='text' class='form-control input-lg' tms-lock="lock" ng-readonly="orderInfo.status!=='1'" ng-model='orderInfo.receiver_email'>
+                </div>
+            </div>
+            <div class='order'>
+                <div class='form-group'>
+                    <label class='form-control-static'>下单时间</label>
+                    <div class='form-control-static' ng-bind="order.order_create_time*1000|date:'yy/MM/dd HH:mm'"></div>
+                </div>
+                <div class='form-group'>
+                    <label class='form-control-static'>订单状态</label>
+                    <div class='form-control-static' ng-bind="order._order_status"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class='flex-bar' ng-if="orderInfo.status==='1'||orderInfo.status==='2'||orderInfo.status==='3'">
+        <button class="btn btn-lg btn-default" tms-lock="lock" tms-lock-promoter="Y" ng-click="cancel($event)">取消订单</button>
+        <button class="btn btn-lg btn-default" tms-lock="lock" tms-lock-promoter="Y" ng-if="orderInfo.status==='1'" ng-disabled="orderInfo.skus.counter===0" ng-click="modify($event)">修改订单</button>
+    </footer>
+</div>

@@ -1,0 +1,43 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <base href="/"/>
+        <title>订购活动</title>
+        <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/static/css/tms.css?_=2" rel="stylesheet">
+        <link href="/views/default/pl/fe/matter/merchant/product/frame.css?_=1" rel="stylesheet">
+    </head>
+    <body  ng-app='app' ng-controller='ctrlProduct' ng-cloak class='ng-cloak'>
+        <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
+        <nav class='navbar navbar-inverse navbar-fixed-top'>
+            <ul class='nav navbar-nav'>
+                <li><a href='/rest/pl/fe' target='_self'>首页</a></li>
+                <li><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>工作台</a></li>
+            </ul>
+            <ul class='nav navbar-nav shortcut'>
+            </ul>
+            <ul class='nav navbar-nav navbar-right' style='margin-right:0'>
+                <li><a href='/rest/pl/fe/user/settings' target='_self'>设置</a></li>
+                <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+            </ul>
+        </nav>
+        <div class='alert alert-info'>
+            <span>ID：<span ng-bind='editing.id'></span></span>
+            <span>，分类：<a href='javascript:void(0)' ng-bind='editing.catelog.name' ng-click='gotoCatelog()'></a></span>
+        </div>
+        <div class='container'>
+            <div class='row' ng-view></div>
+        </div>
+        <script src="/static/js/jquery.min.js"></script>
+        <script src="/static/js/jquery-ui.min.js"></script>
+        <script src="/static/js/bootstrap.min.js"></script>
+        <script src="/static/js/angular.min.js"></script>
+        <script src="/static/js/angular-route.min.js"></script>
+        <script src="/static/js/angular-sanitize.min.js"></script>
+        <script src="/static/js/ui-bootstrap.min.js"></script>
+        <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+        <script src="/static/js/ui-tms.js?_=1"></script>
+        <script src="/static/js/xxt.ui.js"></script>
+        <script src="/views/default/pl/fe/matter/merchant/product/frame.js?_=1"></script>
+    </body>
+</html>

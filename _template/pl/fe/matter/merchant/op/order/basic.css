@@ -1,0 +1,51 @@
+/*layout frame*/
+.container{padding:0;height:100%;}
+.row{margin:0;height:100%;}
+.full-height{height:100%;}
+.flex-frame{height:100%;width:100%;background:#eee;display:-webkit-box;-webkit-box-orient:vertical;}
+.flex-bar{background:#eee;display:-webkit-box;padding:4px;}
+.flex-bar>button{display:block;-webkit-box-flex:1.0;margin-left:4px;}
+.flex-bar>button:first-child{margin-left:0;}
+.flex-main{background:#fff;-webkit-box-flex:1.0;overflow-y:auto;}
+
+/*products*/
+.product{margin-bottom:1em;}
+.product .form-group{display:table;width:100%;margin-bottom:0;border-bottom:1px dotted #ddd}
+.product .form-group:last-child{border-bottom:0}
+.product .form-group>*{display:table-cell;}
+.product .form-group>label{width:6em;white-space:normal;word-wrap:break-word;word-break:break-all;background:#eee;padding-left:.5em}
+.product .form-group>div{padding-left:1em}
+.product .detail_text{max-height:180px;overflow:auto}
+
+/*skus*/
+.skus{margin:1em 0;}
+.sku{width:100%;border-bottom:1px dotted #ddd;padding-left:.5em;}
+.sku>div{padding:.5em 0;border-bottom:1px dotted #ddd;}
+.sku>div:last-child{border-bottom:0}
+.sku .price{display:table;width:100%;}
+.sku .price>*{display:table-cell;}
+.sku .price>label{width:6em;white-space:normal;word-wrap:break-word;word-break:break-all;background:#eee;padding-left:.5em}
+.sku .price>div{padding-left:1em;color:red;}
+
+/*properties*/
+input.form-control[readonly]{border:0;border-bottom:1px solid #ccc;border-radius:0;box-shadow:none;background:#fff}
+
+/*order properties*/
+.order-properties{margin-bottom:1em;}
+.order-properties .form-group{display:table;width:100%;margin-bottom:0;border-bottom:1px dotted #ddd}
+.order-properties .form-group:last-child{border-bottom:0}
+.order-properties .form-group>*{display:table-cell;}
+.order-properties .form-group>label{width:6em;white-space:normal;word-wrap:break-word;word-break:break-all;background:#eee;padding-left:.5em}
+.order-properties .form-group>div{padding-left:1em}
+
+/*order properties*/
+.feedback-properties{margin:0 .5em}
+.feedback-property .form-control{border-radius:0;background:#fcfcfc}
+
+/*contact*/
+.contact{margin-bottom:1em;}
+.contact .form-group{display:table;width:100%;margin-bottom:0;border-bottom:1px dotted #ddd}
+.contact .form-group:last-child{border-bottom:0}
+.contact .form-group>*{display:table-cell;}
+.contact .form-group>label{width:6em;white-space:normal;word-wrap:break-word;word-break:break-all;background:#eee;padding-left:.5em}
+.contact .form-group>div{padding-left:1em}

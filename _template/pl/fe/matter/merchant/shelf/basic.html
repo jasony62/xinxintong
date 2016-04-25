@@ -1,0 +1,78 @@
+<div class='full-height' ng-controller='ctrlShelf'>
+	<div class='flex-frame' ng-show='filterOpened'>
+		<div id='filter' class='flex-main'>
+			<div class='flex-main-wrap'>
+				<div class='form-group' ng-hide="catelogs.length<=1">
+					<select class='form-control' ng-model="selectedCatelog" ng-options="c.name for c in catelogs" ng-change="listProduct()"></select>
+				</div>
+				<div class='form-group' ng-repeat="p in selectedCatelog.properties">
+					<div class='title' ng-bind="p.name"></div>
+					<div class='options'>
+						<span class='option' ng-class="{'selected':v._selected}" ng-repeat="v in selectedCatelog.propValues[p.id]" ng-bind="v.name" ng-click="clickOption(p,v)"></span>
+					</div>
+				</div>
+				<div class='form-group' ng-if="selectedCatelog.has_validity='Y'">
+				    <div class='title'>日期</div>
+					<div class='date input-group' tms-date tms-date-value="options.date.begin" tms-date-items="yMd" tms-date-auto-now="N">
+		                <span class='input-group-btn'>
+		                    <button class='btn btn-default' ng-click="prevDay()">上一天</button>
+		                </span>
+		                <p class='form-control' ng-bind="options.date.begin|date:'yy/MM/dd'"></p>
+		                <span class='input-group-btn'>
+		                    <button class='btn btn-default' ng-click="nextDay()">下一天</button>
+		                </span>
+		            </div>
+		        </div>
+		        <div class='form-group' ng-if="selectedCatelog.has_validity='Y'">
+		            <div class='title'>时间段</div>
+		            <div class='tms-time' tms-time tms-time-value="options.time" tms-time-begin="0" tms-time-end="24" tms-time-interval="60"></div>
+		        </div>
+	        </div>
+        </div>
+		<footer class='flex-bar'>
+			<button class="btn btn-lg btn-default" tms-lock="lock" ng-click='toggleFilter($event)'>关闭</button>
+			<button class="btn btn-lg btn-default" tms-lock="lock" tms-lock-promoter="Y" ng-click='doFilter($event)'>确定</button>
+		</footer>
+	</div>
+	<div class='flex-frame' ng-show='!filterOpened'>
+		<header class="flex-bar" ng-click="toggleFilter()">
+			<button id='filterSummary' class='btn btn-lg btn-default'>筛选：<span ng-bind="filterSummary"></span><span class="glyphicon glyphicon-chevron-right"></span></button>
+		</header>
+		<div id='products' class='flex-main'>
+			<div class='flex-main-wrap'>
+				<div class='col-sm-6' ng-repeat="prod in products">
+					<div class='thumbnail' ng-click="gotoProduct($event,prod)">
+						<div class='grip' ng-click="chooseProd($event,prod)">
+							<div ng-class="{'checked':prod._checked}"></div>
+						</div>
+						<div class='profile'>
+							<div class='product-img' ng-if="prod.main_img"><img ng-src="{{prod.main_img}}"></div>
+							<div class='product properties'>
+								<div class='product-name' ng-bind="prod.name"></div>
+								<div class='property-ext'><span ng-repeat="ep in prod.propValue">{{ep.name}}</span></div>
+							</div>
+						</div>
+						<div class='product-detail_text' ng-bind="prod.detail_text"></div>
+						<div class='cateSkus' ng-repeat="cateSku in prod.cateSkus">
+							<div class='skus'>
+								<span class='sku' ng-repeat="sku in cateSku.skus" ng-class="{'unavailable':!sku._available}"><em ng-bind="sku._summary"></em></span>
+							</div>
+						</div>
+						<div class='empty-sku' ng-if="prod.cateSkus!==false&&prod._countOfSkus===0">
+							<span>没有库存</span>
+						</div>
+						<div class='empty-sku' ng-if="prod.cateSkus===false">
+							<span>空闲</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<footer class='flex-bar'>
+			<button class="btn btn-lg btn-default" ng-click="gotoOrderlist($event)">我的订单</button>
+			<button class="btn btn-lg btn-default" ng-disabled="orderInfo.products.length===0" ng-click="gotoOrder($event)">生成订单</button>
+			<button class='cart btn btn-lg btn-default' ng-click="gotoCart($event)"><span>已选</span><div class='status' ng-bind="Cart.countOfProducts"></div></button>
+			<button class="btn btn-lg btn-default" ng-click="toggleFilter($event)">筛选</button>
+		</footer>
+	</div>
+</div>

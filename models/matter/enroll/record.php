@@ -187,7 +187,7 @@ class record_model extends \TMS_MODEL {
 	 * 1、如果活动仅限会员报名，那么要叠加会员信息
 	 * 2、如果报名的表单中有扩展信息，那么要提取扩展信息
 	 *
-	 * $mpid
+	 * $siteId
 	 * $aid
 	 * $options
 	 * --creater openid
@@ -358,7 +358,7 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 获得用户的登记清单
 	 */
-	public function byUser($mpid, $aid, $openid, $rid = null) {
+	public function byUser($siteId, $aid, $openid, $rid = null) {
 		if (empty($openid)) {
 			return false;
 		}
@@ -366,11 +366,11 @@ class record_model extends \TMS_MODEL {
 		$q = array(
 			'*',
 			'xxt_enroll_record',
-			"state=1 and mpid='$mpid' and aid='$aid' and openid='$openid'",
+			"state=1 and mpid='$siteId' and aid='$aid' and openid='$openid'",
 		);
 		if (empty($rid)) {
-			$modelRun = \TMS_APP::M('app\enroll\round');
-			if ($activeRound = $modelRun->getActive($mpid, $aid)) {
+			$modelRun = \TMS_APP::M('matter\enroll\round');
+			if ($activeRound = $modelRun->getActive($siteId, $aid)) {
 				$q[2] .= " and rid='$activeRound->rid'";
 			}
 		} else {
@@ -394,7 +394,7 @@ class record_model extends \TMS_MODEL {
 			"siteid='$siteId' and aid='{$app->id}' and state=1",
 		);
 		$q[2] .= " and userid='{$user->uid}'";
-		if ($activeRound = \TMS_APP::M('app\enroll\round')->getActive($siteId, $app->id)) {
+		if ($activeRound = \TMS_APP::M('matter\enroll\round')->getActive($siteId, $app->id)) {
 			$q[2] .= " and rid='$activeRound->rid'";
 		}
 		$q2 = array(
@@ -470,21 +470,21 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 生成活动登记的key
 	 */
-	public function genKey($mpid, $aid) {
-		return md5(uniqid() . $mpid . $aid);
+	public function genKey($siteId, $aid) {
+		return md5(uniqid() . $siteId . $aid);
 	}
 	/**
 	 * 活动登记（不包括登记数据）
 	 *
-	 * $mpid 运行的公众号，和openid和src相对应
+	 * $siteId 运行的公众号，和openid和src相对应
 	 * $act
 	 * $mid
 	 */
-	public function add($mpid, $act, $user, $referrer = '') {
-		$ek = $this->genKey($mpid, $act->id);
+	public function add($siteId, $act, $user, $referrer = '') {
+		$ek = $this->genKey($siteId, $act->id);
 		$i = array(
 			'aid' => $act->id,
-			'mpid' => $mpid,
+			'siteid' => $siteId,
 			'enroll_at' => time(),
 			'enroll_key' => $ek,
 			'openid' => $user->openid,
@@ -494,8 +494,8 @@ class record_model extends \TMS_MODEL {
 			'referrer' => $referrer,
 		);
 
-		$modelRou = \TMS_APP::M('app\enroll\round');
-		if ($activeRound = $modelRou->getActive($mpid, $act->id)) {
+		$modelRou = \TMS_APP::M('matter\enroll\round');
+		if ($activeRound = $modelRou->getActive($siteId, $act->id)) {
 			$i['rid'] = $activeRound->rid;
 		}
 

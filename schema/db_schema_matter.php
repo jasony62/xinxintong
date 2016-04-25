@@ -405,6 +405,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_tmplmsg(";
 $sql .= 'id int not null auto_increment';
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',mpid varchar(32) not null';
 $sql .= ',templateid varchar(128) not null';
 $sql .= ',creater varchar(40) not null';

@@ -25,6 +25,7 @@ app.controller('ctrlConsole', ['$scope', '$modal', 'http2', function($scope, $mo
             case 'contribute':
             case 'link':
             case 'mission':
+            case 'merchant':
                 location.href = '/rest/pl/fe/matter/' + type + '?id=' + id + '&site=' + $scope.siteId;
                 break;
         }
@@ -84,6 +85,9 @@ app.controller('ctrlConsole', ['$scope', '$modal', 'http2', function($scope, $mo
                 break;
             case 'link':
                 $scope.addLink();
+                break;
+            case 'merchant':
+                $scope.addMerchant();
                 break;
         }
     };
@@ -205,6 +209,11 @@ app.controller('ctrlConsole', ['$scope', '$modal', 'http2', function($scope, $mo
     $scope.addCustom = function() {
         http2.get('/rest/pl/fe/matter/custom/create?site=' + $scope.siteId, function(rsp) {
             location.href = '/rest/pl/fe/matter/custom?site=' + $scope.siteId + '&id=' + rsp.data;
+        });
+    };
+    $scope.addMerchant = function() {
+        http2.get('/rest/pl/fe/matter/merchant/shop/create?site=' + $scope.siteId, function(rsp) {
+            location.href = '/rest/pl/fe/matter/merchant/shop?site=' + $scope.siteId + '&id=' + rsp.data;
         });
     };
     http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date()).getTime(), function(rsp) {

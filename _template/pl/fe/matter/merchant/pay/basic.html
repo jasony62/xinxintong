@@ -1,0 +1,10 @@
+<div>
+    <div id='statement'>
+        <h4>下单须知</h4>
+    </div>
+    <div id='fee'>
+    	<h4>费用</h4>	
+        <p ng-bind="Order.order_total_price"></p>
+    </div>
+    <button class='btn' ng-disabled='!payReady' ng-class="{'btn-success':payReady,'btn-default':!payReady}" ng-click='callpay()'>同意并付款</button>
+</div>

@@ -1,0 +1,38 @@
+body{background:#f8f8f8;padding-top:71px;}
+.shortcut.navbar-nav{position:absolute;left:50%;margin-left:-58px;float:none;}
+.tile{position:relative;border:1px solid #ddd;border-radius:4px;padding:8px;background:#f8f8f8;margin-bottom:15px;}
+
+/*setting*/
+.tile .form-group,.tile .checkbox{padding:8px;background:#fff;border-radius:4px;}
+.help-block{margin-bottom:0;}
+.tile .form-group:last-child{margin-bottom:0;}
+
+/*order*/
+#order-detail-skus .product{margin-bottom:1em;}
+#order-detail-skus .product .form-group{display:table;width:100%;margin-bottom:0;border-bottom:1px dotted #ddd}
+#order-detail-skus .product .form-group:last-child{border-bottom:0}
+#order-detail-skus .product .form-group>*{display:table-cell;}
+#order-detail-skus .product .form-group>label{width:6em;white-space:normal;word-wrap:break-word;word-break:break-all;background:#eee;padding-left:.5em}
+#order-detail-skus .product .form-group>div{padding-left:1em}
+#order-detail-skus .product .detail_text{max-height:180px;overflow:auto}
+
+/*skus*/
+#order-detail-skus .skus{margin-bottom:2em;}
+#order-detail-skus .sku{display:table;width:100%;margin-bottom:0;border-bottom:1px dotted #ddd;padding:.5em;}
+#order-detail-skus .sku>div{display:table-cell;}
+
+/*properties*/
+#order-detail-skus input.form-control[readonly]{border:0;border-bottom:1px solid #ccc;border-radius:0;box-shadow:none;background:#fff}
+
+/*order properties*/
+#order-detail-skus .order-properties{margin-bottom:1em;}
+#order-detail-skus .order-properties .form-group{display:table;width:100%;margin-bottom:0;border-bottom:1px dotted #ddd}
+#order-detail-skus .order-properties .form-group:last-child{border-bottom:0}
+#order-detail-skus .order-properties .form-group>*{display:table-cell;}
+#order-detail-skus .order-properties .form-group>label{width:6em;white-space:normal;word-wrap:break-word;word-break:break-all;background:#eee;padding-left:.5em}
+#order-detail-skus .order-properties .form-group>div{padding-left:1em}
+
+/*order properties*/
+#order-detail-skus .feedback-properties{margin:0 .5em}
+#order-detail-skus .feedback-property .form-control{border-radius:0;background:#fcfcfc}
+.qrcode .popover img{width:150px;height:150px}

@@ -6,11 +6,14 @@ require_once '../db.php';
 $sql = 'create table if not exists xxt_merchant_shop(';
 $sql .= 'id int not null auto_increment';
 $sql .= ',mpid varchar(32) not null';
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',creater varchar(40) not null';
 $sql .= ",creater_name varchar(255) not null default ''";
 $sql .= ",create_at int not null";
-$sql .= ',reviser varchar(40) not null';
+$sql .= ',modifier varchar(40) not null';
+$sql .= ",modifier_name varchar(255) not null default ''";
 $sql .= ",modify_at int not null";
+$sql .= ',reviser varchar(40) not null';
 $sql .= ",title varchar(70) not null";
 $sql .= ',pic text';
 $sql .= ',summary varchar(240) not null';
@@ -31,6 +34,7 @@ if (!$mysqli->query($sql)) {
 $sql = 'create table if not exists xxt_merchant_page(';
 $sql .= 'id int not null auto_increment';
 $sql .= ',mpid varchar(32) not null';
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',sid int not null'; //shop
 $sql .= ",cate_id int not null default 0"; //catelog
 $sql .= ",prod_id int not null default 0"; //product
@@ -53,6 +57,7 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_merchant_staff(";
 $sql .= 'id int not null auto_increment';
 $sql .= ',mpid varchar(32) not null';
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',sid int not null';
 $sql .= ',role char(1) not null';
 $sql .= ',identity varchar(100) not null';
@@ -69,6 +74,7 @@ if (!$mysqli->query($sql)) {
 $sql = 'create table if not exists xxt_merchant_catelog(';
 $sql .= 'id int not null auto_increment';
 $sql .= ',mpid varchar(32) not null';
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',sid int not null'; // shop id
 $sql .= ',creater varchar(40) not null';
 $sql .= ",create_at int not null";
@@ -99,6 +105,7 @@ if (!$mysqli->query($sql)) {
 $sql = 'create table if not exists xxt_merchant_catelog_property(';
 $sql .= "id int not null auto_increment";
 $sql .= ",mpid varchar(32) not null";
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',sid int not null'; // shop id
 $sql .= ',cate_id int not null';
 $sql .= ",creater varchar(40) not null";
@@ -120,6 +127,7 @@ if (!$mysqli->query($sql)) {
 $sql = 'create table if not exists xxt_merchant_catelog_property_value(';
 $sql .= "id int not null auto_increment";
 $sql .= ",mpid varchar(32) not null";
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',sid int not null'; // shop id
 $sql .= ',cate_id int not null';
 $sql .= ',prop_id int not null';
@@ -140,6 +148,7 @@ if (!$mysqli->query($sql)) {
 $sql = 'create table if not exists xxt_merchant_catelog_sku(';
 $sql .= "id int not null auto_increment";
 $sql .= ",mpid varchar(32) not null";
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',sid int not null'; // shop id
 $sql .= ',cate_id int not null'; // catelog id
 $sql .= ",creater varchar(40) not null";
@@ -165,6 +174,7 @@ if (!$mysqli->query($sql)) {
 $sql = 'create table if not exists xxt_merchant_catelog_sku_value(';
 $sql .= "id int not null auto_increment";
 $sql .= ",mpid varchar(32) not null";
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',sid int not null'; // shop id
 $sql .= ',cate_id int not null'; // catelog id
 $sql .= ',sku_id int not null';
@@ -185,6 +195,7 @@ if (!$mysqli->query($sql)) {
 $sql = 'create table if not exists xxt_merchant_product(';
 $sql .= 'id int not null auto_increment';
 $sql .= ',mpid varchar(32) not null';
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',sid int not null'; // shop id
 $sql .= ',cate_id int not null'; // 所属分类ID
 $sql .= ',creater varchar(40) not null';
@@ -215,6 +226,7 @@ if (!$mysqli->query($sql)) {
 $sql = 'create table if not exists xxt_merchant_product_sku(';
 $sql .= 'id int not null auto_increment';
 $sql .= ',mpid varchar(32) not null';
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',sid int not null'; // shop id
 $sql .= ',cate_id int not null'; // 所属分类ID
 $sql .= ',prod_id int not null'; // 所属商品
@@ -249,6 +261,7 @@ if (!$mysqli->query($sql)) {
 $sql = 'create table if not exists xxt_merchant_product_gensku_log(';
 $sql .= 'id int not null auto_increment';
 $sql .= ',mpid varchar(32) not null';
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',sid int not null'; // shop id
 $sql .= ',cate_id int not null'; // 所属分类ID
 $sql .= ',prod_id int not null'; // 所属商品
@@ -267,6 +280,7 @@ if (!$mysqli->query($sql)) {
 $sql = 'create table if not exists xxt_merchant_group(';
 $sql .= 'id int not null auto_increment';
 $sql .= ',mpid varchar(32) not null';
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',sid varchar(32) not null'; // shop id
 $sql .= ',creater varchar(40) not null';
 $sql .= ",create_at int not null";
@@ -284,6 +298,7 @@ if (!$mysqli->query($sql)) {
 $sql = 'create table if not exists xxt_merchant_group_product(';
 $sql .= 'id int not null auto_increment';
 $sql .= ',mpid varchar(32) not null';
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',sid varchar(32) not null'; // shop id
 $sql .= ',group_id int not null';
 $sql .= ",product_id int not null";
@@ -300,6 +315,7 @@ if (!$mysqli->query($sql)) {
 $sql = 'create table if not exists xxt_merchant_order_property(';
 $sql .= "id int not null auto_increment";
 $sql .= ",mpid varchar(32) not null";
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',sid int not null'; // shop id
 $sql .= ',cate_id int not null';
 $sql .= ",creater varchar(40) not null";
@@ -321,6 +337,7 @@ if (!$mysqli->query($sql)) {
 $sql = 'create table if not exists xxt_merchant_order_feedback_property(';
 $sql .= "id int not null auto_increment";
 $sql .= ",mpid varchar(32) not null";
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',sid int not null'; // shop id
 $sql .= ',cate_id int not null';
 $sql .= ",creater varchar(40) not null";
@@ -343,6 +360,7 @@ $sql = 'create table if not exists xxt_merchant_order(';
 $sql .= 'id int not null auto_increment';
 $sql .= ',trade_no varchar(32) not null'; // 订单号
 $sql .= ',mpid varchar(32) not null';
+$sql .= ",siteid varchar(32) not null";
 $sql .= ',sid varchar(32) not null';
 $sql .= ",products text"; //订单包含的产品信息
 $sql .= ',order_status int not null'; // 1-已提交（未支付），2-待发货（已支付）, 3-已发货（已确认）, 5-已完成, 8-维权中，-1-客服取消订单，-2，用户取消订单
@@ -376,6 +394,7 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_merchant_order_sku(";
 $sql .= "id int not null auto_increment";
 $sql .= ",mpid varchar(32) not null";
+$sql .= ",siteid varchar(32) not null";
 $sql .= ",sid varchar(32) not null"; //商铺号
 $sql .= ",oid int not null"; //订单号
 $sql .= ",cate_id int not null";

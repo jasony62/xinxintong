@@ -1,0 +1,50 @@
+<div class='full-height' id='orderlist' ng-controller="ctrlOrderlist" ng-switch on="subView">
+    <div class='full-height flex-frame' ng-switch-when="filter">
+        <div id='filter' class='flex-main'>
+            <div class='form-group'>
+                <div class='title'>订单状态</div>
+                <div class='options'>
+                    <span class='option' ng-class="{'selected':s._selected}" ng-repeat="s in orderStatus" ng-bind="s.l" ng-click="clickStatus(s)"></span>
+                </div>
+            </div>
+        </div>
+        <footer class='flex-bar'>
+            <button class='btn btn-lg btn-default' ng-click="shiftView('list')">关闭</button>
+            <button class='btn btn-lg btn-default' ng-click="fetchByFilter()">确定</button>
+        </footer>
+    </div>
+    <div class='full-height flex-frame' ng-switch-default>
+        <header class='flex-bar'>
+            <button class='btn btn-lg btn-default' ng-click="shiftView('filter')">筛选</button>
+        </header>
+        <div id='orders' class='flex-main'>
+            <div class='flex-main-wrap'>
+                <table class='table table-bordered'>
+                    <thead>
+                        <tr>
+                            <th>商品</th>
+                            <th>姓名</th>
+                            <th>手机</th>
+                            <th>邮箱</th>
+                            <th>下单日期</th>
+                            <th>订单状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat='o in orders' ng-click='open(o)'>
+                            <td data-th="商品"><span ng-bind="o.products[0].name"></span></td>
+                            <td data-th="姓名"><span ng-bind="o.receiver_name"></span></td>
+                            <td data-th="手机"><span ng-bind="o.receiver_mobile"></span></td>
+                            <td data-th="邮箱"><span ng-bind="o.receiver_email"></span></td>
+                            <td data-th="下单日期"><span ng-bind="o.order_create_time*1000|date:'yy-MM-dd HH:mm'"></span></td>
+                            <td data-th="状态"><span ng-bind="o._order_status"></span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <footer class='flex-bar' ng-if="options._more">
+            <button class='btn btn-lg btn-default' tms-lock="lock" tms-lock-promoter="Y" ng-click="more($event)">更多</button>
+        </footer>
+    </div>
+</div>

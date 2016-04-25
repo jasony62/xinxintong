@@ -8,16 +8,16 @@ include_once dirname(__FILE__) . '/base.php';
 class round extends base {
 	/**
 	 *
-	 * @param string $mpid
-	 * @param string $aid
+	 * @param string $site
+	 * @param string $app
 	 */
-	public function list_action($mpid, $aid) {
-		$modelRun = $this->model('app\enroll\round');
+	public function list_action($site, $app) {
+		$modelRun = $this->model('matter\enroll\round');
 		$options = array(
 			'fields' => 'rid,title',
 			'state' => '1,2',
 		);
-		$rounds = $modelRun->byApp($mpid, $aid, $options);
+		$rounds = $modelRun->byApp($site, $app, $options);
 
 		return new \ResponseData($rounds);
 	}

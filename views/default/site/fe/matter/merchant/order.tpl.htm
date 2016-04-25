@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    
+    <head>
+        <meta charset="utf-8">
+        <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
+        <base href="/" />
+        <title><?php TPL::pt('title');?></title>
+        <style id='loadingStyle'>
+        @keyframes loadingRunning{0%{transform:rotate(0deg)}12%{transform:rotate(45deg)}25%{transform:rotate(90deg)}37%{transform:rotate(135deg)}50%{transform:rotate(180deg)}62%{transform:rotate(225deg)}75%{transform:rotate(270deg)}87%{transform:rotate(315deg)}100%{transform:rotate(360deg)}}@-webkit-keyframes loadingRunning{0%{-webkit-transform:rotate(0deg)}12%{-webkit-transform:rotate(45deg)}25%{-webkit-transform:rotate(90deg)}37%{-webkit-transform:rotate(135deg)}50%{-webkit-transform:rotate(180deg)}62%{-webkit-transform:rotate(225deg)}75%{-webkit-transform:rotate(270deg)}87%{-webkit-transform:rotate(315deg)}100%{-webkit-transform:rotate(360deg)}}.loading{position:absolute;top:0;right:0;bottom:0;left:0;background:rgba(224,224,224,0.9)}.loading-indicator{position:absolute;top:50%;left:50%;margin-left:-25px;margin-top:-25px;width:50px;height:50px;animation:loadingRunning 1s infinite;-webkit-animation:loadingRunning 1s infinite}.loading-indicator:before{content:"";display:block;width:50px;height:25px;padding:5px;padding-bottom:0;box-sizing:border-box;border-top-left-radius:25px;border-top-right-radius:25px;background:-webkit-linear-gradient(0deg,#999,#bbb)}.loading-indicator:after{content:"";display:block;width:50px;height:25px;padding:5px;padding-top:0;box-sizing:border-box;border-bottom-left-radius:25px;border-bottom-right-radius:25px;background:-webkit-linear-gradient(0deg,#eee,#bbb)}.loading-indicator>i{display:block;position:absolute;width:40px;height:40px;background:#eee;top:5px;left:5px;border-radius:20px}
+        </style>
+    </head>
+    
+    <body ng-controller='ctrl'>
+        <div class="loading"><div class='loading-indicator'><i></i></div></div>
+        <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
+        <div class='container'>
+            <div class='row' dynamic-html="Page.html"></div>
+        </div>
+        <script src="static/js/require.js" defer async data-main="/views/default/site/fe/matter/merchant/order-loader.js?_=1"></script>
+    </body>
+</html>

@@ -6,7 +6,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         Round.prototype.list = function() {
             var deferred, url;
             deferred = $q.defer();
-            url = LS.j('round/list', 'site', 'aid');
+            url = LS.j('round/list', 'site', 'app');
             $http.get(url).success(function(rsp) {
                 if (rsp.err_code != 0) {
                     alert(rsp.data);
@@ -180,9 +180,9 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         };
     }]);
     ngApp.factory('Statistic', ['$http', function($http) {
-        var Stat = function(siteId, aid, data) {
+        var Stat = function(siteId, appId, data) {
             this.siteId = siteId;
-            this.aid = aid;
+            this.appId = appId;
             this.data = null;
             this.result = {};
         };
@@ -191,7 +191,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
             _this = this;
             url = '/rest/app/enroll/rankByFollower';
             url += '?site=' + this.siteId;
-            url += '&aid=' + this.aid;
+            url += '&app=' + this.appId;
             $http.get(url).success(function(rsp) {
                 _this.result.rankByFollower = rsp.data;
             });
@@ -226,7 +226,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
                 return '';
             }
         };
-        facRecord = Record.ins(LS.p.site, LS.p.aid, LS.p.rid);
+        facRecord = Record.ins(LS.p.site, LS.p.app, LS.p.rid);
         options = {
             owner: 'U',
             rid: LS.p.rid
@@ -297,7 +297,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
                 if (nextAction === 'closeWindow') {
                     $scope.closeWindow();
                 } else if (nextAction !== undefined && nextAction.length) {
-                    var url = LS.j('', 'site', 'aid');
+                    var url = LS.j('', 'site', 'app');
                     url += '&ek=' + facRecord.current.enroll_key;
                     url += '&page=' + nextAction;
                     location.replace(url);
@@ -347,7 +347,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
             event.preventDefault();
             event.stopPropagation();
             var url;
-            url = LS.j('record/inviteSend', 'site', 'aid');
+            url = LS.j('record/inviteSend', 'site', 'app');
             url += '&ek=' + facRecord.current.enroll_key;
             url += '&invitee=' + $scope.invitee;
             url += '&page=' + invitePage;
@@ -359,7 +359,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
                 if (nextAction === 'closeWindow') {
                     $scope.closeWindow();
                 } else if (nextAction !== undefined && nextAction.length) {
-                    var url = LS.j('', 'site', 'aid');
+                    var url = LS.j('', 'site', 'app');
                     url += '&ek=' + facRecord.current.enroll_key;
                     url += '&page=' + nextAction;
                     location.replace(url);
@@ -379,14 +379,14 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
                 return;
             }
             inviter = $scope.Record.current.enroll_key;
-            url = LS.j('record/acceptInvite', 'site', 'aid');
+            url = LS.j('record/acceptInvite', 'site', 'app');
             url += '&inviter=' + inviter;
             $scope.options.genRecordWhenAccept === 'N' && (url += '&state=2');
             $http.get(url).success(function(rsp) {
                 if (nextAction === 'closeWindow') {
                     $scope.closeWindow();
                 } else if (nextAction !== undefined && nextAction.length) {
-                    var url = LS('', 'site', 'aid');
+                    var url = LS('', 'site', 'app');
                     url += '&ek=' + rsp.data.ek;
                     url += '&page=' + nextAction;
                     location.replace(url);
@@ -401,7 +401,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         var fnFetch;
         fnFetch = function(options) {
             var url;
-            url = LS.j('statGet', 'site', 'aid');
+            url = LS.j('statGet', 'site', 'app');
             if (options) {
                 if (options.fromCache && options.fromCache === 'Y') {
                     url += '&fromCache=Y';

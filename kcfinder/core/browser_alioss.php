@@ -262,9 +262,12 @@ class browser_alioss extends browser {
 		if (!$gd->resize_fit($this->config['thumbWidth'], $this->config['thumbHeight'])) {
 			return false;
 		}
-
 		// Save thumbnail
-		$temp = tempnam(sys_get_temp_dir(), uniqid());
+		if (defined('SAE_TMP_PATH')) {
+			$temp = SAE_TMP_PATH . uniqid();
+		} else {
+			$temp = tempnam(sys_get_temp_dir(), uniqid());
+		}
 		if (!$gd->imagejpeg($temp, $this->config['jpegQuality'])) {
 			@unlink($temp);
 			return false;

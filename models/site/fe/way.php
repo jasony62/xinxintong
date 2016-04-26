@@ -10,7 +10,6 @@ class way_model extends \TMS_MODEL {
 	public function who($siteId, $auth = array()) {
 		/* cookie中缓存的用户信息 */
 		$cookieUser = $this->getCookieUser($siteId);
-
 		if (!empty($auth)) {
 			/* 有身份用户首次访问，若已经有绑定的站点用户，获取站点用户；否则，创建持久化的站点用户，并绑定关系 */
 			foreach ($auth['sns'] as $snsName => $snsUser) {

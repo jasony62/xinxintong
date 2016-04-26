@@ -55,6 +55,17 @@ class member_model extends \TMS_MODEL {
 		$data->schema_id = $schema->id;
 		$data->create_at = $create_at;
 		/**
+		 * todo 应该支持使用扩展属性作为唯一标识
+		 */
+		if ($schema->attr_mobile[5] === '1' && isset($data->mobile)) {
+			if ($schema->attr_mobile[4] === '1') {
+				/*检查手机号*/
+			}
+			$data->identity = $data->mobile;
+		} else if ($schema->attr_email[5] === '1' && isset($data->email)) {
+			$data->identity = $data->email;
+		}
+		/**
 		 * 扩展属性
 		 */
 		if (!empty($schema->extattr)) {

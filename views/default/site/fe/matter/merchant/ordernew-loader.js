@@ -20,7 +20,7 @@ window.loading = {
 					exports: "angular"
 				},
 				"base": {
-					exports: "app",
+					exports: "ngApp",
 					deps: ["angular"]
 				},
 				"directive": {

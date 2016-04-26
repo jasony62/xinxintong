@@ -25,7 +25,6 @@ ngApp.controller('ctrlProduct', ['$scope', 'http2', '$location', function($scope
     $scope.siteId = $location.search().site;
     $scope.shopId = $location.search().shop;
     $scope.productId = $location.search().product;
-    $scope.subView = '';
     $scope.gotoCatelog = function() {
         location.href = '/rest/pl/fe/matter/merchant/catelog?site=' + $scope.siteId + '&shop=' + $scope.shopId + '&catelog=' + $scope.editing.catelog.id;
     };
@@ -35,7 +34,17 @@ ngApp.controller('ctrlProduct', ['$scope', 'http2', '$location', function($scope
     };
     $scope.get = function() {
         http2.get('/rest/pl/fe/matter/merchant/product/get?product=' + $scope.productId, function(rsp) {
+            var url;
             $scope.editing = rsp.data;
+            url = 'http://' + location.host;
+            url += "/rest/site/fe/matter/merchant/product";
+            url += "?site=" + $scope.siteId;
+            url += "&shop=" + $scope.shopId;
+            url += "&catelog=" + $scope.editing.cate_id;
+            url += "&product=" + $scope.productId;
+            $scope.entry = {
+                url: url,
+            };
         });
     };
     $scope.get();

@@ -281,7 +281,7 @@ class product extends \pl\fe\matter\base {
 		$updated->active = 'Y';
 		$rst = $this->_skuUpdate($sku, $updated);
 
-		return new \ResponseData($rst);
+		return $rst;
 	}
 	/**
 	 *
@@ -292,7 +292,7 @@ class product extends \pl\fe\matter\base {
 		$updated->active = 'N';
 		$rst = $this->_skuUpdate($sku, $updated);
 
-		return new \ResponseData($rst);
+		return $rst;
 	}
 	/**
 	 * @param int $sku

@@ -167,11 +167,11 @@ app.controller('ctrlMember', ['$scope', 'http2', '$http', '$modal', 'MemberSchem
             $scope.schemas.push(rsp.data);
         });
     };
-    $scope.delSchema = function(api) {
-        var url = '/rest/mp/authapi/delete?id=' + api.authid;
+    $scope.delSchema = function(schema) {
+        var url = '/rest/pl/fe/site/member/schema/delete?site=' + $scope.siteId + '&id=' + schema.id;
         http2.get(url, function(rsp) {
-            var i = $scope.authapis.indexOf(api);
-            $scope.authapis.splice(i, 1);
+            var i = $scope.schemas.indexOf(schema);
+            $scope.schemas.splice(i, 1);
         });
     };
     $scope.updSchema = function(schema, field) {

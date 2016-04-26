@@ -1,13 +1,13 @@
-define(["require", "angular", "base", "cookie", "directive"], function(require, angular, app, Cookies) {
+define(["require", "angular", "base", "cookie", "directive"], function(require, angular, ngApp, Cookies) {
     'use strict';
-    app.controller('ctrl', ['$scope', '$http', '$q', '$timeout', 'Cart', 'Order', function($scope, $http, $q, $timeout, Cart, Order) {
+    ngApp.controller('ctrl', ['$scope', '$http', '$q', '$timeout', 'Cart', 'Order', function($scope, $http, $q, $timeout, Cart, Order) {
         var ls = location.search,
-            mpid = ls.match(/[\?&]mpid=(.+?)(&|$)/)[1],
+            siteId = ls.match(/[\?&]site=(.+?)(&|$)/)[1],
             shopId = ls.match(/[\?&]shop=(.+?)(&|$)/)[1],
             facCart = new Cart(),
-            facOrder = new Order(mpid, shopId),
+            facOrder = new Order(siteId, shopId),
             url;
-        $scope.mpid = mpid;
+        $scope.siteId = siteId;
         $scope.shopId = shopId;
         $scope.productIds = ls.match(/[\?&]products=(.+?)(&|$)/) ? ls.match(/[\?&]products=(.+?)(&|$)/)[1] : '';
         $scope.skuIds = ls.match(/[\?&]skus=(.+?)(&|$)/) ? ls.match(/[\?&]skus=(.+?)(&|$)/)[1] : '';
@@ -22,7 +22,8 @@ define(["require", "angular", "base", "cookie", "directive"], function(require, 
             },
             length: 0
         };
-        url = '/rest/app/merchant/ordernew/pageGet?mpid=' + mpid;
+        url = '/rest/site/fe/matter/merchant/ordernew/pageGet';
+        url += '?site=' + siteId;
         url += '&shop=' + shopId;
         $http.get(url).success(function(rsp) {
             var shop, orderInfo;
@@ -52,7 +53,7 @@ define(["require", "angular", "base", "cookie", "directive"], function(require, 
                     $scope.payby.support[orderInfo.payby].selected = true;
                 }
             }
-            loadCss("/views/default/app/merchant/ordernew.css");
+            loadCss("/views/default/site/fe/matter/merchant/ordernew.css");
             window.setPage($scope, rsp.data.page);
             $timeout(function() {
                 $scope.$broadcast('xxt.app.merchant.ready');
@@ -90,9 +91,9 @@ define(["require", "angular", "base", "cookie", "directive"], function(require, 
                 facCart.empty();
                 /*需要支付时进入支付页*/
                 if (orderInfo.payby && orderInfo.payby.length && orderInfo.totalPrice) {
-                    location.href = '/rest/app/merchant/pay?mpid=' + mpid + '&shop=' + shopId + '&order=' + orderId + '&payby=' + $scope.orderInfo.payby;
+                    location.href = '/rest/site/fe/matter/merchant/pay?site=' + siteId + '&shop=' + shopId + '&order=' + orderId + '&payby=' + $scope.orderInfo.payby;
                 } else {
-                    location.href = '/rest/app/merchant/payok?mpid=' + mpid + '&shop=' + shopId + '&order=' + orderId;
+                    location.href = '/rest/site/fe/matter/merchant/payok?site=' + siteId + '&shop=' + shopId + '&order=' + orderId;
                 }
                 defer.resolve();
             });

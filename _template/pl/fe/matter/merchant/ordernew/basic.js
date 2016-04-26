@@ -1,7 +1,7 @@
-app.register.controller('orderCtrl', ['$scope', '$http', 'Cart', 'Sku', function($scope, $http, Cart, Sku) {
+ngApp.provider.controller('ctrlOrder', ['$scope', '$http', 'Cart', 'Sku', function($scope, $http, Cart, Sku) {
 	var facSku, facCart, removedCache;
 	facCart = new Cart();
-	facSku = new Sku($scope.$parent.mpid, $scope.$parent.shopId);
+	facSku = new Sku($scope.$parent.siteId, $scope.$parent.shopId);
 	var summarySku = function(catelog, product, cateSku, sku) {
 		if (sku.summary && sku.summary.length) {
 			return sku.summary;

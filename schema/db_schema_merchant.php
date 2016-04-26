@@ -369,6 +369,7 @@ $sql .= ',order_create_time int not null';
 $sql .= ',order_express_price int not null';
 $sql .= ",ext_prop_value text"; // 扩展属性ID及属性值ID
 $sql .= ",buyer_openid varchar(255) not null default ''";
+$sql .= ",buyer_userid varchar(40) not null default ''";
 $sql .= ',buyer_nick varchar(255) not null';
 $sql .= ',receiver_name varchar(255) not null';
 $sql .= ',receiver_province varchar(20) not null';

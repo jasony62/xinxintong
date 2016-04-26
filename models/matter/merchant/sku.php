@@ -22,7 +22,7 @@ class sku_model extends \TMS_MODEL {
 		if ($sku) {
 			if ($cascaded === 'Y') {
 				if ($cateSku === false) {
-					$modelCate = \TMS_MODEL::M('app\merchant\catelog');
+					$modelCate = \TMS_MODEL::M('matter\merchant\catelog');
 					$cateSku = $modelCate->skuById($sku->cate_sku_id);
 				}
 				$sku->cateSku = $cateSku;
@@ -61,7 +61,7 @@ class sku_model extends \TMS_MODEL {
 		$skus = $this->query_objs_ss($q, $q2);
 		if (!empty($skus) && $cascaded === 'Y') {
 			$cateSkus = array();
-			$modelCate = \TMS_MODEL::M('app\merchant\catelog');
+			$modelCate = \TMS_MODEL::M('matter\merchant\catelog');
 			foreach ($skus as &$sku) {
 				if (!isset($cateSkus[$sku->cate_sku_id])) {
 					$cateSkus[$sku->cate_sku_id] = $modelCate->skuById($sku->cate_sku_id);
@@ -80,7 +80,7 @@ class sku_model extends \TMS_MODEL {
 	 *
 	 */
 	public function &byProduct($productId, $options = array()) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'id,cate_sku_id,icon_url,ori_price,price,product_code,unlimited_quantity,quantity,sku_value,validity_begin_at,validity_end_at,required';
+		$fields = isset($options['fields']) ? $options['fields'] : 'id,cate_sku_id,icon_url,ori_price,price,product_code,unlimited_quantity,quantity,sku_value,validity_begin_at,validity_end_at,required,disabled,active';
 		$beginAt = isset($options['beginAt']) ? $options['beginAt'] : 0;
 		$endAt = isset($options['endAt']) ? $options['endAt'] : 0;
 
@@ -105,9 +105,11 @@ class sku_model extends \TMS_MODEL {
 		$q2 = array('o' => 'validity_begin_at');
 
 		$skus = $this->query_objs_ss($q, $q2);
+		//die(json_encode($q));
+
 		/*sku的分类信息*/
 		$cateSkus = array();
-		$modelCate = \TMS_MODEL::M('app\merchant\catelog');
+		$modelCate = \TMS_MODEL::M('matter\merchant\catelog');
 		if (!empty($skus)) {
 			$cateSkuOptions = array(
 				'fields' => 'id,name,has_validity,require_pay',

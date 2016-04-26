@@ -15,13 +15,8 @@ class payok extends \site\fe\matter\base {
 	 * $shop shop'id
 	 * $sku sku'id
 	 */
-	public function index_action($site, $mocker = null, $code = null) {
-		/**
-		 * 获得当前访问用户
-		 */
-		$openid = $this->doAuth($site, $code, $mocker);
-
-		\TPL::output('/app/merchant/payok');
+	public function index_action() {
+		\TPL::output('/site/fe/matter/merchant/payok');
 		exit;
 	}
 	/**
@@ -29,7 +24,7 @@ class payok extends \site\fe\matter\base {
 	 */
 	public function pageGet_action($site, $shop) {
 		// current visitor
-		$user = $this->getUser($site);
+		$user = $this->who;
 		// page
 		$page = $this->model('matter\merchant\page')->byType('payok', $shop);
 		if (empty($page)) {

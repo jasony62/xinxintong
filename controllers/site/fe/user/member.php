@@ -68,18 +68,24 @@ class member extends \site\fe\base {
 		if ($this->userAgent() === 'wx') {
 			if (!isset($this->who->sns->wx)) {
 				if ($wxConfig = $this->model('sns\wx')->bySite($siteid)) {
-					$this->snsOAuth($wxConfig, 'wx');
+					if ($wxConfig->joined === 'Y') {
+						$this->snsOAuth($wxConfig, 'wx');
+					}
 				}
 			}
 			if (!isset($this->who->sns->qy)) {
 				if ($qyConfig = $this->model('sns\qy')->bySite($siteid)) {
-					$this->snsOAuth($qyConfig, 'qy');
+					if ($qyConfig->joined === 'Y') {
+						$this->snsOAuth($qyConfig, 'qy');
+					}
 				}
 			}
 		} else if ($this->userAgent() === 'yx') {
 			if (!isset($this->who->sns->yx)) {
 				if ($yxConfig = $this->model('sns\yx')->bySite($siteid)) {
-					$this->snsOAuth($yxConfig, 'yx');
+					if ($yxConfig->joined === 'Y') {
+						$this->snsOAuth($yxConfig, 'yx');
+					}
 				}
 			}
 		}
@@ -200,14 +206,13 @@ class member extends \site\fe\base {
 		$schema = $this->model('site\user\memberschema')->byId($schema, 'id,attr_mobile,attr_email,attr_name,extattr');
 
 		$member = $this->getPostJson();
-		$member->siteid = $this->siteId;
-		$member->schema_id = $schema->id;
-		/**
-		 * get auth settings.
-		 */
-		if (false === ($found = $this->model('site\user\member')->findMember($member, $schema, false))) {
+		/* 检查数据合法性 */
+		$modelMem = $this->model('site\user\member');
+		if (false === ($found = $modelMem->findMember($member, $schema, false))) {
 			return new \ParameterError('找不到匹配的认证用户');
 		}
+		/* 更新用户信息 */
+		$modelMem->modify($this->siteId, $schema, $found->id, $member);
 		/* 绑定当前站点用户 */
 		$modelWay = $this->model('site\fe\way');
 		$modelWay->bindMember($this->siteId, $found);

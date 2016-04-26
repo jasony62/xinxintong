@@ -85,12 +85,12 @@ class member_model extends \TMS_MODEL {
 	 * $data
 	 * $attrs
 	 */
-	public function create2($mpid, $authid, $fid, $member) {
-		if (empty($mpid)) {
+	public function create2($siteId, $schemaId, $fid, $member) {
+		if (empty($siteId)) {
 			return array(false, '没有指定MPID');
 		}
 
-		if (empty($authid)) {
+		if (empty($schemaId)) {
 			return array(false, '没有指定用户认证接口ID');
 		}
 
@@ -99,10 +99,10 @@ class member_model extends \TMS_MODEL {
 		}
 
 		$fan = \TMS_APP::M('user/fans')->byId($fid);
-		$member->mpid = $mpid;
-		$member->authapi_id = $authid;
+		$member->mpid = $siteId;
+		$member->authapi_id = $schemaId;
 
-		$attrs = \TMS_APP::M('user/authapi')->byId($authid, 'attr_mobile,attr_email,attr_name,attr_password,extattr');
+		$attrs = \TMS_APP::M('user/authapi')->byId($schemaId, 'attr_mobile,attr_email,attr_name,attr_password,extattr');
 		if ($errMsg = $this->rejectAuth($member, $attrs)) {
 			return array(false, $errMsg);
 		}
@@ -118,7 +118,7 @@ class member_model extends \TMS_MODEL {
 		if ($attrs->attr_mobile[5] === '1' && isset($member->mobile)) {
 			if ($attrs->attr_mobile[4] === '1') {
 				$mobile = $member->mobile;
-				$mpa = \TMS_APP::M('mp\mpaccount')->getApis($mpid);
+				$mpa = \TMS_APP::M('mp\mpaccount')->getApis($siteId);
 				if ('yx' !== $mpa->mpsrc) {
 					return array(false, '目前仅支持在易信客户端中验证手机号');
 				}
@@ -127,7 +127,7 @@ class member_model extends \TMS_MODEL {
 					return array(false, '仅支持在开通了手机验证接口的公众号中验证手机号');
 				}
 
-				$rst = \TMS_APP::M('mpproxy/yx', $mpid)->mobile2Openid($mobile);
+				$rst = \TMS_APP::M('mpproxy/yx', $siteId)->mobile2Openid($mobile);
 				if ($rst[0] === false) {
 					return array(false, "验证手机号失败【{$rst[1]}】");
 				}
@@ -173,74 +173,37 @@ class member_model extends \TMS_MODEL {
 	 *
 	 * 要求认证用户首先必须是关注用户
 	 *
-	 * $mpid
+	 * $siteId
 	 * $fid 关注用户id
 	 * $data
 	 * $attrs
 	 */
-	public function modify($mpid, $authid, $mid, $member) {
-		if (empty($mpid)) {
-			return array(false, '没有指定MPID');
+	public function modify($siteId, &$schema, $memberId, $member) {
+		if (empty($siteId)) {
+			return array(false, '没有指定SITEID');
 		}
-		if (empty($authid)) {
-			return array(false, '没有指定用户认证接口ID');
-		}
-		if (empty($mid)) {
+		if (empty($memberId)) {
 			return array(false, '没有指定认证用户MID');
 		}
-		$member->mid = $mid;
-		$member->mpid = $mpid;
-		$member->authapi_id = $authid;
-
-		$attrs = \TMS_APP::M('user/authapi')->byId($authid, 'attr_mobile,attr_email,attr_name,attr_password,extattr');
-		if ($errMsg = $this->rejectAuth($member, $attrs)) {
+		if ($errMsg = $this->rejectAuth($member, $schema)) {
 			return array(false, $errMsg);
 		}
-
 		is_array($member) && $member = (object) $member;
 		/**
 		 * 用户的邮箱需要验证，将状态设置为等待验证的状态
 		 */
-		$member->email_verified = ($attrs->attr_email[4] === '1') ? 'N' : 'Y';
+		$member->email_verified = ($schema->attr_email[4] === '1') ? 'N' : 'Y';
 		/**
 		 * todo 应该支持使用扩展属性作为唯一标识
 		 */
-		if ($attrs->attr_mobile[5] === '1' && isset($member->mobile)) {
-			if ($attrs->attr_mobile[4] === '1') {
-				$mobile = $member->mobile;
-				$mpa = \TMS_APP::M('mp\mpaccount')->getApis($mpid);
-				if ('yx' !== $mpa->mpsrc) {
-					return array(false, '目前仅支持在易信客户端中验证手机号');
-				}
-				if ('N' == $mpa->yx_checkmobile) {
-					return array(false, '仅支持在开通了手机验证接口的公众号中验证手机号');
-				}
-				$rst = \TMS_APP::M('mpproxy/yx', $mpid)->mobile2Openid($mobile);
-				if ($rst[0] === false) {
-					return array(false, "验证手机号失败【{$rst[1]}】");
-				}
-				$fan = \TMS_APP::M('user/fans')->byMid($mid);
-				if ($fan->openid !== $rst[1]->openid) {
-					return array(false, "您输入的手机号与注册易信用户时的提供手机号不一致");
-				}
+		if ($schema->attr_mobile[5] === '1' && isset($member->mobile)) {
+			if ($schema->attr_mobile[4] === '1') {
+				/*检查手机号*/
 			}
-			$member->authed_identity = $member->mobile;
-		} else if ($attrs->attr_email[5] === '1' && isset($member->email)) {
-			$member->authed_identity = $member->email;
-			//} else {
-			//return array(false, '无法获得用户身份标识信息');
+			$member->identity = $member->mobile;
+		} else if ($schema->attr_email[5] === '1' && isset($member->email)) {
+			$member->identity = $member->email;
 		}
-		/**
-		 * 处理访问口令
-		 */
-		/*if ($attrs->attr_password[0] === '0') {
-			if (empty($member->password) || strlen($member->password) < 6)
-			return array(false, '密码长度不符合要求');
-			$salt = $this->gen_salt();
-			$cpw = $this->compile_password($member->authed_identity, $member->password, $salt);
-			$member->password = $cpw;
-			$member->password_salt = $salt;
-		*/
 		/**
 		 * 扩展属性
 		 */
@@ -254,7 +217,7 @@ class member_model extends \TMS_MODEL {
 			$member->extattr = '{}';
 		}
 
-		$this->update('xxt_member', $member, "mid='$mid'");
+		$this->update('xxt_site_member', $member, "id='$memberId'");
 
 		return array(true);
 	}
@@ -324,7 +287,7 @@ class member_model extends \TMS_MODEL {
 	 *  若不合法，返回描述原因的字符串
 	 *  合法返回false
 	 */
-	public function rejectAuth($member, $schema) {
+	public function rejectAuth(&$member, &$schema) {
 		if (isset($member->mobile) && $schema->attr_mobile[2] === '1') {
 			/**
 			 * 检查手机号的唯一性
@@ -394,12 +357,12 @@ class member_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function &search($mpid, $identity, $options = array()) {
+	public function &search($siteId, $identity, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$q = array(
 			$fields,
 			'xxt_member',
-			"mpid='$mpid' and forbidden='N' and (mobile='$identity' or email='$identity')",
+			"mpid='$siteId' and forbidden='N' and (mobile='$identity' or email='$identity')",
 		);
 		$members = $this->query_objs_ss($q);
 

@@ -9,28 +9,46 @@ class ordernew extends \site\fe\matter\base {
 	/**
 	 * 进入发起订单页
 	 *
-	 * 要求当前用户必须是关注用户
+	 * 要求当前用户必须是注册用户
 	 *
 	 * @param string $site mpid'id
 	 * @param int $shop
 	 *
 	 */
-	public function index_action($site, $shop, $mocker = null, $code = null) {
-		/**
-		 * 获得当前访问用户
-		 */
-		$openid = $this->doAuth($site, $code, $mocker);
-		// page
+	public function index_action($site, $shop) {
+		/*检查进入规则*/
+		$shop = $this->model('matter\merchant\shop')->byId($shop, array('fields' => 'id,buyer_api'));
+		$shop->buyer_api = json_decode($shop->buyer_api);
+		$this->checkEntryRule($site, $shop, $this->who, true);
+		/*page*/
 		$options = array(
 			'cascaded' => 'N',
 			'fields' => 'title',
 		);
-		$page = $this->model('matter\merchant\page')->byType('ordernew', $shop, 0, 0, $options);
+		$page = $this->model('matter\merchant\page')->byType('ordernew', $shop->id, 0, 0, $options);
 		$page = $page[0];
 
 		\TPL::assign('title', $page->title);
-		\TPL::output('/app/merchant/ordernew');
+		\TPL::output('/site/fe/matter/merchant/ordernew');
 		exit;
+	}
+	/**
+	 * 检查发起订单规则
+	 */
+	protected function checkEntryRule($siteId, &$app, &$user, $redirect = false) {
+		if (!isset($user->members->{$app->buyer_api->authid})) {
+			/*内置页面*/
+			$aMemberSchemas = array($app->buyer_api->authid);
+			if ($redirect) {
+				/*页面跳转*/
+				$this->gotoMember($siteId, $aMemberSchemas, $user->uid);
+			} else {
+				/*返回地址*/
+				$this->gotoMember($siteId, $aMemberSchemas, $user->uid, false);
+			}
+		}
+
+		return true;
 	}
 	/**
 	 * 获得订单页面定义
@@ -41,7 +59,7 @@ class ordernew extends \site\fe\matter\base {
 	 */
 	public function pageGet_action($site, $shop) {
 		// current visitor
-		$user = $this->getUser($site);
+		$user = $this->who;
 		// shop
 		$shop = $this->model('matter\merchant\shop')->byId($shop, array('fields' => 'id,title,order_status,buyer_api,payby'));
 		$shop->order_status = empty($shop->order_status) ? new \stdClass : json_decode($shop->order_status);
@@ -61,14 +79,16 @@ class ordernew extends \site\fe\matter\base {
 		/*联系人信息*/
 		if (!empty($shop->buyer_api)) {
 			$buyerApi = json_decode($shop->buyer_api);
-			$authid = $buyerApi->authid;
-			$modelMemb = $this->model('user/member');
-			if ($existentMember = $modelMemb->byOpenid($site, $user->openid, 'name,mobile,email', $authid)) {
-				$params['orderInfo'] = array(
-					'receiver_name' => $existentMember->name,
-					'receiver_mobile' => $existentMember->mobile,
-					'receiver_email' => $existentMember->email,
-				);
+			$schemaId = $buyerApi->authid;
+			if ($member = $user->members->{$schemaId}) {
+				$modelMemb = $this->model('site\user\member');
+				if ($member = $modelMemb->byId($member->id, array('fields' => 'name,mobile,email'))) {
+					$params['orderInfo'] = array(
+						'receiver_name' => $member->name,
+						'receiver_mobile' => $member->mobile,
+						'receiver_email' => $member->email,
+					);
+				}
 			}
 		}
 
@@ -104,24 +124,18 @@ class ordernew extends \site\fe\matter\base {
 	 * @return int order's id
 	 */
 	public function create_action($site, $shop) {
-		$user = $this->getUser($site, array('verbose' => array('fan' => 'Y')));
-		if (empty($user->openid)) {
-			return new \ResponseError('无法获得当前用户身份信息');
-		}
-		if (empty($user->fan)) {
-			return new \ResponseError("无法获得当前用户【" . $user->openid . "】身份信息");
-		}
+		$user = $this->who;
 		$orderInfo = $this->getPostJson();
 		//if (empty((array) $orderInfo->skus)) {
 		//	return new \ResponseError('没有选择商品库存，无法创建订单');
 		//}
 
 		$order = $this->model('matter\merchant\order')->create($site, $user, $orderInfo);
-		$this->_notify($site, $order);
+		//$this->_notify($site, $order);
 
 		/*保留联系人信息*/
 		$shop = $this->model('matter\merchant\shop')->byId($shop);
-		if (!empty($shop->buyer_api)) {
+		/*if (!empty($shop->buyer_api)) {
 			$buyerApi = json_decode($shop->buyer_api);
 			$authid = $buyerApi->authid;
 			$modelMemb = $this->model('user/member');
@@ -137,7 +151,7 @@ class ordernew extends \site\fe\matter\base {
 			if (false === $rst[0]) {
 				return new \ResponseError($rst[1]);
 			}
-		}
+		}*/
 		return new \ResponseData($order->id);
 	}
 	/**

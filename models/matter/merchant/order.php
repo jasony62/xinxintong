@@ -87,14 +87,14 @@ class order_model extends \TMS_MODEL {
 	 *
 	 * @return object $order
 	 */
-	public function &create($siteId, $user, $info) {
+	public function &create($siteId, &$user, &$info) {
 		//订单号
 		$trade_no = date('YmdHis') . mt_rand(100000, 999999);
 		//库存信息
 		$productIds = array();
 		$skus = array();
 		$totalPrice = 0;
-		$modelSku = \TMS_APP::M('app\merchant\sku');
+		$modelSku = \TMS_APP::M('matter\merchant\sku');
 		foreach ($info->skus as $skuId => $skuInfo) {
 			$sku = $modelSku->byId($skuId);
 			$sku->__count = $skuInfo->count;
@@ -104,7 +104,7 @@ class order_model extends \TMS_MODEL {
 		}
 		//商品信息
 		$products = array();
-		$modelProd = \TMS_APP::M('app\merchant\product');
+		$modelProd = \TMS_APP::M('matter\merchant\product');
 		foreach ($productIds as $prodId => $v) {
 			$product = $modelProd->byId($prodId);
 			$products[] = array(
@@ -134,8 +134,9 @@ class order_model extends \TMS_MODEL {
 			'order_create_time' => time(),
 			'order_express_price' => 0,
 			'ext_prop_value' => $epv,
-			'buyer_openid' => $user->openid,
-			'buyer_nick' => $user->fan->nickname,
+			'buyer_userid' => $user->uid,
+			//'buyer_openid' => $user->openid,
+			'buyer_nick' => $user->nickname,
 			'receiver_name' => isset($info->receiver_name) ? $info->receiver_name : '',
 			'receiver_mobile' => isset($info->receiver_mobile) ? $info->receiver_mobile : '',
 			'receiver_email' => isset($info->receiver_email) ? $info->receiver_email : '',

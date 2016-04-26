@@ -4,14 +4,10 @@
             <input class='form-control' ng-model='editing.name' tms-auto-update tms-wait=1000 tms-update="update('name')">
             <div class="help-block">名称</div>
         </div>
-    </div>
-    <div class="tile">
         <div class='form-group'>
             <textarea class='form-control' ng-model='editing.detail_text' tms-auto-update tms-wait=1000 tms-update="update('detail_text')" rows=3></textarea>
             <div class="help-block">介绍</div>
         </div>
-    </div>
-    <div class="tile">
         <div class='form-group'>
             <div style="width:182px;border:1px solid #CCC">
                 <div style="height:100px;text-align:center;padding-top:32px" ng-if="!editing.main_img">
@@ -30,10 +26,10 @@
             </div>
             <div class='help-block'>图片</div>
         </div>
+    </div>
+    <div class="tile">
         <div class='form-group' ng-repeat='p in editing.catelog.properties'>
-            <div class="col-md-10">
-                <p class='form-control' ng-bind="editing.propValue[p.id].name" ng-click='setPropValue(p)'></p>
-            </div>
+            <p class='form-control' ng-bind="editing.propValue[p.id].name" ng-click='setPropValue(p)'></p>
             <div class="help-block" ng-bind='p.name'></div>
         </div>
     </div>
@@ -102,6 +98,13 @@
         <button class='btn btn-block btn-success' ng-show="editing.active==='Y'" ng-click='deactivate()'>下线</button>
     </div>
 </div>
+<div class='col-md-4'>
+    <div class='tile'>
+        <div class='form-group'>
+            <div style='word-break: break-all;'>{{entry.url}}</div>
+        </div>
+    </div>
+</div>
 <script type="text/ng-template" id="propValueSetter.html">
     <div class="modal-header">
         <button class="close" type="button" ng-click="close()">×</button>
@@ -110,7 +113,7 @@
     <div class="modal-body">
         <form class="form-horizontal">
             <div class="form-group">
-                <label class="help-block">{{prop.name}}</label>
+                <label class="col-md-2">{{prop.name}}</label>
                 <div class="col-md-10">
                     <input type='text' class="form-control" ng-model="data.name"/>
                    <select class="form-control" size="5" ng-model="data.name" ng-options="v.name as v.name for v in options">

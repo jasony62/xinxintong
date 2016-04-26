@@ -1,4 +1,4 @@
-define(['angular', 'base'], function(angular, app) {
+define(['angular', 'base'], function(angular, ngApp) {
     "use strict";
     loadCss("/views/default/site/fe/matter/merchant/directive.css");
     var __util = {};
@@ -17,7 +17,7 @@ define(['angular', 'base'], function(angular, app) {
         document.body.appendChild(eleMask);
         return angular.element(eleMask).contents();
     };
-    app.directive('dynamicHtml', function($compile) {
+    ngApp.directive('dynamicHtml', function($compile) {
         return {
             restrict: 'EA',
             replace: true,
@@ -31,7 +31,7 @@ define(['angular', 'base'], function(angular, app) {
             }
         };
     });
-    app.directive('dynaComponent', ['$compile', '$http', function($compile, $http) {
+    ngApp.directive('dynaComponent', ['$compile', '$http', function($compile, $http) {
         return {
             restrict: 'EA',
             replace: true,
@@ -73,7 +73,7 @@ define(['angular', 'base'], function(angular, app) {
             }
         };
     }]);
-    app.directive('tmsDate', ['$compile', function($compile) {
+    ngApp.directive('tmsDate', ['$compile', function($compile) {
         return {
             restrict: 'A',
             scope: {
@@ -155,7 +155,7 @@ define(['angular', 'base'], function(angular, app) {
             }
         }
     }]);
-    app.directive('tmsTime', ['$compile', function($compile) {
+    ngApp.directive('tmsTime', ['$compile', function($compile) {
         var format = function(timePoint) {
             var h, m;
             h = Math.floor(timePoint / 60);
@@ -249,7 +249,7 @@ define(['angular', 'base'], function(angular, app) {
             }
         }
     }]);
-    app.directive('tmsLock', function() {
+    ngApp.directive('tmsLock', function() {
         return {
             restrict: 'A',
             scope: {

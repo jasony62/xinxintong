@@ -16,15 +16,7 @@
                 <li><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>工作台</a></li>
             </ul>
             <ul class='nav navbar-nav shortcut'>
-                <li ng-class="{'active':subView=='setting'}">
-                    <a href='/rest/pl/fe/matter/merchant/shop?site={{siteId}}&id={{shopId}}'>商店定义</a>
-                </li>
-                <li ng-class="{'active':subView=='page'}">
-                    <a href='/rest/pl/fe/matter/merchant/shop/page?site={{siteId}}&id={{shopId}}'>页面定制</a>
-                </li>
-                <li ng-class="{'active':subView=='order'}">
-                    <a href='/rest/pl/fe/matter/merchant/shop/order?site={{siteId}}&id={{shopId}}'>已有订单</a>
-                </li>
+                <li><a href='/rest/pl/fe/matter/merchant/shop?site={{siteId}}&id={{shopId}}'>{{editing.title}}</a></li>
             </ul>
             <ul class='nav navbar-nav navbar-right' style='margin-right:0'>
                 <li><a href='/rest/pl/fe/user/settings' target='_self'>设置</a></li>

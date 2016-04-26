@@ -1,13 +1,13 @@
-define(["require", "angular", "base", "cookie", "directive"], function(require, angular, app, Cookies) {
+define(["require", "angular", "base", "cookie", "directive"], function(require, angular, ngApp, Cookies) {
     'use strict';
-    app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
+    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
         var ls;
         ls = location.search;
-        $scope.mpid = ls.match(/mpid=([^&]*)/)[1];
+        $scope.siteId = ls.match(/site=([^&]*)/)[1];
         $scope.shopId = ls.match(/shop=([^&]*)/)[1];
         $scope.errmsg = '';
         $scope.ready = false;
-        $http.get('/rest/app/merchant/payok/pageGet?mpid=' + $scope.mpid + '&shop=' + $scope.shopId).success(function(rsp) {
+        $http.get('/rest/site/fe/matter/merchant/payok/pageGet?site=' + $scope.siteId + '&shop=' + $scope.shopId).success(function(rsp) {
             if (rsp.err_code !== 0) {
                 $scope.errmsg = rsp.err_msg;
                 return;
@@ -29,7 +29,7 @@ define(["require", "angular", "base", "cookie", "directive"], function(require, 
             }
         };
         $scope.gotoOrderlist = function() {
-            location.href = '/rest/app/merchant/orderlist?mpid=' + $scope.mpid + '&shop=' + $scope.shopId;
+            location.href = '/rest/site/fe/matter/merchant/orderlist?site=' + $scope.siteId + '&shop=' + $scope.shopId;
         };
     }]);
     require(['domReady!'], function(document) {

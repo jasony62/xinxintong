@@ -30,25 +30,63 @@ app.controller('ctrlConsole', ['$scope', '$modal', 'http2', function($scope, $mo
                 break;
         }
     };
+    $scope.page = {
+        at: 1,
+        size: 4,
+        j: function() {
+            return '&page=' + this.at + '&size=' + this.size;
+        }
+    };
+    var searchMatters = function(append) {
+        var url = '/rest/pl/fe/matter/' + $scope.matterType + '/list?site=' + $scope.siteId + $scope.page.j();
+        url += '&_=' + (new Date()).getTime();
+        http2.get(url, function(rsp) {
+            if (/article/.test($scope.matterType)) {
+                if (append) {
+                    $scope.matters = $scope.matters.concat(rsp.data.articles);
+                } else {
+                    $scope.matters = rsp.data.articles;
+                }
+                $scope.page.total = rsp.data.total;
+            } else if (/enroll|group|contribute/.test($scope.matterType)) {
+                if (append) {
+                    $scope.matters = $scope.matters.concat(rsp.data.apps);
+                } else {
+                    $scope.matters = rsp.data.apps;
+                }
+                $scope.page.total = rsp.data.total;
+            } else if (/mission/.test($scope.matterType)) {
+                if (append) {
+                    $scope.matters = $scope.matters.concat(rsp.data.missions);
+                } else {
+                    $scope.matters = rsp.data.missions;
+                }
+                $scope.page.total = rsp.data.total;
+            } else if (/custom/.test($scope.matterType)) {
+                if (append) {
+                    $scope.matters = $scope.matters.concat(rsp.data.customs);
+                } else {
+                    $scope.matters = rsp.data.customs;
+                }
+                $scope.page.total = rsp.data.total;
+            } else {
+                $scope.matters = rsp.data;
+            }
+        });
+    };
+    $scope.moreMatters = function() {
+        $scope.page.at++;
+        searchMatters(true);
+    };
     $scope.chooseMatterType = function() {
         if ($scope.matterType === 'recent') {
             http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date()).getTime(), function(rsp) {
                 $scope.matters = rsp.data.matters;
             });
         } else {
-            http2.get('/rest/pl/fe/matter/' + $scope.matterType + '/list?site=' + $scope.siteId + '&page=1&size=20&_=' + (new Date()).getTime(), function(rsp) {
-                if (/article/.test($scope.matterType)) {
-                    $scope.matters = rsp.data.articles;
-                } else if (/enroll|group|contribute/.test($scope.matterType)) {
-                    $scope.matters = rsp.data.apps;
-                } else if (/mission/.test($scope.matterType)) {
-                    $scope.matters = rsp.data.missions;
-                } else if (/custom/.test($scope.matterType)) {
-                    $scope.matters = rsp.data.customs;
-                } else {
-                    $scope.matters = rsp.data;
-                }
-            });
+            $scope.page.at = 1;
+            $scope.page.total = 0;
+            searchMatters(false);
         }
     };
     $scope.addMatter = function() {

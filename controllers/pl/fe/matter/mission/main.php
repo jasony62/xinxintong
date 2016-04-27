@@ -20,19 +20,22 @@ class main extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$mission = $this->model('mission')->byId($id);
+		$mission = $this->model('matter\mission')->byId($id);
 
 		return new \ResponseData($mission);
 	}
 	/**
 	 * 任务列表
 	 */
-	public function list_action($site) {
+	public function list_action($site, $page = 1, $size = 20) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$modelMis = $this->model('mission');
-		$result = $modelMis->bySite($site);
+		$modelMis = $this->model('matter\mission');
+		$options = array(
+			'limit' => (object) array('page' => $page, 'size' => $size),
+		);
+		$result = $modelMis->bySite($site, $options);
 
 		return new \ResponseData($result);
 	}

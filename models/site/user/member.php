@@ -189,7 +189,7 @@ class member_model extends \TMS_MODEL {
 	 * $data
 	 * $attrs
 	 */
-	public function modify($siteId, &$schema, $memberId, $member) {
+	public function modify($siteId, &$schema, $memberId, &$member) {
 		if (empty($siteId)) {
 			return array(false, '没有指定SITEID');
 		}
@@ -219,11 +219,7 @@ class member_model extends \TMS_MODEL {
 		 * 扩展属性
 		 */
 		if (!empty($member->extattr)) {
-			$extdata = array();
-			foreach ($member->extattr as $ek => $ev) {
-				$extdata[$ek] = urlencode($ev);
-			}
-			$member->extattr = urldecode(json_encode($extdata));
+			$member->extattr = $this->toJson($member->extattr);
 		} else {
 			$member->extattr = '{}';
 		}

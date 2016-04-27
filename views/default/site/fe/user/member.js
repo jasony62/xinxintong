@@ -122,9 +122,10 @@ app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $htt
             $scope.attrs.email && ($scope.member.email = member.email);
             $scope.attrs.mobile && ($scope.member.mobile = member.mobile);
             if ($scope.attrs.extattrs && $scope.attrs.extattrs.length) {
+                $scope.member.extattr = {};
                 member.extattr = member.extattr ? JSON.parse(member.extattr) : [];
                 angular.forEach($scope.attrs.extattrs, function(ea) {
-                    $scope.member[ea.id] = member.extattr[ea.id];
+                    $scope.member.extattr[ea.id] = member.extattr[ea.id];
                 });
             }
         }

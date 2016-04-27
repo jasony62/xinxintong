@@ -192,7 +192,7 @@
             http2.post('/rest/pl/fe/matter/merchant/catelog/skuUpdate?sku=' + sku.id, nv);
         };
         $scope.addSku = function() {
-            http2.get('/rest/pl/fe/matter/merchant/catelog/skuCreate?shop=' + $scope.shopId + '&catelog=' + $scope.catelogId, function(rsp) {
+            http2.get('/rest/pl/fe/matter/merchant/catelog/skuCreate?site=' + $scope.siteId + '&shop=' + $scope.shopId + '&catelog=' + $scope.catelogId, function(rsp) {
                 $scope.skus.push(rsp.data);
             });
         };

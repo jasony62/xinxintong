@@ -354,7 +354,7 @@ class catelog extends \pl\fe\matter\base {
 	 * @param int $shop
 	 * @param int $catelog
 	 */
-	public function skuCreate_action($shop, $catelog) {
+	public function skuCreate_action($site, $shop, $catelog) {
 		$data = new \stdClass;
 		$data->name = '新库存定义';
 		$data->has_validity = 'N';

@@ -23,16 +23,24 @@ class mission_model extends app_base {
 	 */
 	public function &bySite($siteId, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$limit = isset($options['limit']) ? $options['limit'] : (object) array('page' => 1, 'size' => 20);
 		$q = array(
 			$fields,
 			'xxt_mission',
 			"siteid='$siteId'",
 		);
-		$q2 = array('o' => 'modify_at desc');
+		$q2 = array(
+			'o' => 'modify_at desc',
+			'r' => array('o' => ($limit->page - 1) * $limit->size, 'l' => $limit->size),
+		);
 
-		$missions = $this->query_objs_ss($q, $q2);
-
-		$result = array('missions' => $missions);
+		if ($missions = $this->query_objs_ss($q, $q2)) {
+			$q[0] = 'count(*)';
+			$total = (int) $this->query_val_ss($q);
+			$result = array('missions' => $missions, 'total' => $total);
+		} else {
+			$result = array('missions' => $missions, 'total' => 0);
+		}
 
 		return $result;
 	}

@@ -15,7 +15,6 @@
     <table class='table table-bordered'>
         <thead>
             <tr>
-                <th>站点用户</th>
                 <th style='width:100px'>认证日期</th>
                 <th style='width:80px'>完成认证</th>
                 <th ng-if='schema.attr_name[0]==0'>姓名</th>
@@ -23,13 +22,11 @@
                 <th ng-if='schema.attr_email[0]==0'>电子邮件</th>
                 <th style='width:80px' ng-if='schema.attr_email[0]==0&&schema.attr_email[4]==1'>邮箱验证</th>
                 <th ng-repeat='ea in schema.extattr'>{{ea.label}}</th>
+                <th>操作</th>
             </tr>
         </thead>
         <tbody>
             <tr ng-repeat='m in members'>
-                <td>
-                    <a href='#'>{{m.nickname||'未知'}}</a>
-                </td>
                 <td>{{m.create_at*1000|date:'yy-MM-dd'}}</td>
                 <td>{{m.verified==='Y'?'是':'否'}}</td>
                 <td ng-if='schema.attr_name[0]==0'>{{m.name}}</td>
@@ -37,6 +34,7 @@
                 <td ng-if="schema.attr_email[0]==0">{{m.email}}</td>
                 <td ng-if="schema.attr_email[0]==0&&schema.attr_email[4]==1">{{m.email_verified==='Y'?'通过':'未通过'}}</td>
                 <td ng-repeat='ea in schema.extattr'>{{m.extattr[ea.id]}}</td>
+                <td></td>
             </tr>
         </tbody>
     </table>

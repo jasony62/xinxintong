@@ -423,7 +423,9 @@
         },
         signin: {
             id: 'btnSignin',
-            act: 'signin($event)'
+            act: function(def) {
+                return 'signin' + EmbedButtonSchema._args(def);
+            }
         },
     };
     WrapLib.prototype.changeEmbedButton = function(page, wrap, def) {

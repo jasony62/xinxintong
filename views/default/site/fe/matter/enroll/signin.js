@@ -4,9 +4,15 @@ define(["require", "angular", "angular-sanitize", "enroll-directive", "enroll-co
         $scope.data = {
             member: {}
         };
-        $scope.signin = function() {
-            $http.post(LS.j('signin/do', 'site', 'app'), $scope.data).success(function() {
-
+        $scope.signin = function(event, nextAction) {
+            $http.post(LS.j('signin/do', 'site', 'app'), $scope.data).success(function(rsp) {
+                var url;
+                if (nextAction !== undefined && nextAction.length) {
+                    url = LS.j('', 'site', 'app');
+                    url += '&ek=' + $scope.record.enroll_key;
+                    url += '&page=' + nextAction;
+                    location.replace(url);
+                }
             });
         };
         $scope.$on('xxt.app.enroll.ready', function(event, params) {

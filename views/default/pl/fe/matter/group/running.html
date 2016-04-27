@@ -4,74 +4,34 @@
             <a  href='/rest/pl/fe/matter/group/setting?site={{siteId}}&id={{id}}' ng-bind='app.title'></a>
         </div>
     </div>
-    <div class='tile' ng-controller="ctrlRound">
+    <div class='tile'>
         <div class='list-group'>
-            <a class='list-group-item' ng-class="{'active':!editingRound}" ng-click='open()' style='text-align:center'>全部</a>
+            <a class='list-group-item' ng-class="{'active':!editingRound}" ng-click="open(false)" style='text-align:center'>全部</a>
             <a class='list-group-item' ng-class="{'active':r===editingRound}" ng-repeat='r in rounds' ng-click='open(r)'>
                 <span>{{r.title}}</span>
-                <button class='btn btn-xs btn-default pull-right' ng-if="r===editingRound" ng-click='removeRound()'><span class='glyphicon glyphicon-remove'></span></button>
-            </a>
-            <a class='list-group-item'>
-                <button class='btn btn-success btn-block' ng-click='addRound()'>添加</button>
             </a>
         </div>
-        <div ng-if='editingRound'>
-            <div class='form-group'>
-                <input type='text' class='form-control' ng-model='editingRound.title' tms-auto-update tms-wait=1000 tms-update="updateRound('title')">
-                <div class='help-block'>轮次名称</div>
-            </div>
-            <div class='form-group'>
-                <input type='text' class='form-control' ng-model='editingRound.times' tms-auto-update tms-wait=1000 tms-update="updateRound('times')">
-                <div class='help-block'>抽取数量</div>
-            </div>
-            <div class='checkbox'>
-                <label><input type='checkbox' ng-model='editingRound.autoplay' ng-true-value="'Y'" ng-false-value="'N'" ng-change="updateRound('autoplay')">自动抽取</label>
-            </div>
-            <table class='table table-bordered'>
-                <thead>
-                    <tr>
-                        <th style='width:80px'>抽取规则</th>
-                        <th>抽取对象</th>
-                        <th style='width:48px'>操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="t in aTargets">
-                        <td>{{$index+1}}</td>
-                        <td>{{labelTarget(t)}}</td>
-                        <td>
-                            <button class='btn btn-default btn-sm' ng-click='removeTarget($index)'>
-                            <span class='glyphicon glyphicon-remove'></span>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan=3>
-                            <button class='btn' ng-click="saveTargets()" ng-disabled="!targetModified" ng-class="targetModified?'btn-success':'btn-default'">保存</button>
-                            <button class='btn btn-primary pull-right' ng-click='addTarget()'>添加</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <table class='table table-bordered'>
-                <thead>
-                    <tr>
-                        <th>序号</th>
-                        <th>昵称</th>
-                        <th>姓名</th>
-                        <th>手机号</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="w in winners">
-                        <td>{{$index+1}}</td>
-                        <td>{{w.nickname}}</td>
-                        <td>{{w.member.name}}</td>
-                        <td>{{w.member.mobile}}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th ng-if="!editingRound">轮次</th>
+                    <th>序号</th>
+                    <th>昵称</th>
+                    <th>姓名</th>
+                    <th>手机号</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="w in winners">
+                    <td ng-if="!editingRound">{{w.title}}</td>
+                    <td>{{$index+1}}</td>
+                    <td>{{w.nickname}}</td>
+                    <td>{{w.name}}</td>
+                    <td>{{w.mobile}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class='help-block'>分组结果</div>
     </div>
 </div>
 <div class='col-md-4'>

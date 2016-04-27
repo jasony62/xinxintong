@@ -49,7 +49,7 @@ class main extends \site\fe\matter\base {
 
 		$matters = \TMS_APP::M('matter\channel')->getMattersNoLimit($id, $user->uid, $params);
 		$tagModel = $this->model('tag');
-		foreach ($matters as $m) {
+		foreach ($matters as &$m) {
 			$matterModel = \TMS_APP::M('matter\\' . $m->type);
 			$m->url = $matterModel->getEntryUrl($site, $m->id);
 			if ($m->type === 'article') {

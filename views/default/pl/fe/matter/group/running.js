@@ -1,5 +1,5 @@
 (function() {
-	ngApp.provider.controller('ctrlRunning', ['$scope', 'http2', function($scope, http2) {
+	ngApp.provider.controller('ctrlRunning', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
 		$scope.opUrl = 'http://' + location.host + '/rest/site/op/matter/group?site=' + $scope.siteId + '&app=' + $scope.id;
 		$scope.gotoCode = function() {
 			var app, url;
@@ -31,58 +31,20 @@
 				location.href = '/rest/pl/fe/matter/group/setting?site=' + $scope.siteId + '&id=' + $scope.id;
 			});
 		};
-	}]);
-	ngApp.provider.controller('ctrlRound', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
-		$scope.targetModified = false;
-		$scope.aTargets = null;
-		$scope.addRound = function() {
-			http2.get('/rest/pl/fe/matter/group/round/add?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
-				$scope.rounds.push(rsp.data);
+		var getWinners = function() {
+			var url = '/rest/pl/fe/matter/group/round/winnersGet?app=' + $scope.id;
+			if ($scope.editingRound) {
+				url += '&rid=' + $scope.editingRound.round_id;
+			}
+			http2.get(url, function(rsp) {
+				$scope.winners = rsp.data;
 			});
 		};
+		$scope.aTargets = null;
 		$scope.open = function(round) {
 			$scope.editingRound = round;
 			$scope.aTargets = (!round || round.targets.length === 0) ? [] : eval(round.targets);
-		};
-		$scope.updateRound = function(name) {
-			var nv = {};
-			nv[name] = $scope.editingRound[name];
-			http2.post('/rest/pl/fe/matter/group/round/update?site=' + $scope.siteId + '&app=' + $scope.id + '&rid=' + $scope.editingRound.round_id, nv);
-		};
-		$scope.removeRound = function() {
-			http2.get('/rest/pl/fe/matter/group/round/remove?site=' + $scope.siteId + '&app=' + $scope.id + '&rid=' + $scope.editingRound.round_id, function(rsp) {
-				var i = $scope.rounds.indexOf($scope.editingRound);
-				$scope.rounds.splice(i, 1);
-				$scope.editingRound = null;
-			});
-		};
-		$scope.addTarget = function() {
-			$modal.open({
-				templateUrl: 'targetEditor.html',
-				resolve: {
-					schemas: function() {
-						return angular.copy($scope.app.data_schemas);
-					}
-				},
-				controller: ['$modalInstance', '$scope', 'schemas', function($mi, $scope, schemas) {
-					$scope.schemas = schemas;
-					$scope.target = {};
-					$scope.cancel = function() {
-						$mi.dismiss()
-					};
-					$scope.ok = function() {
-						$mi.close($scope.target)
-					};
-				}],
-				backdrop: 'static',
-			}).result.then(function(target) {
-				$scope.aTargets.push(target);
-				$scope.targetModified = true;
-			});
-		};
-		$scope.removeTarget = function(i) {
-			$scope.aTargets.splice(i, 1);
-			$scope.targetModified = true;
+			getWinners();
 		};
 		$scope.value2Label = function(val, key) {
 			var schemas = $scope.app.data_schemas,
@@ -103,25 +65,12 @@
 			}
 			return val;
 		};
-		$scope.labelTarget = function(target) {
-			var labels = [];
-			angular.forEach(target, function(v, k) {
-				if (k !== '$$hashKey' && v && v.length) {
-					labels.push($scope.value2Label(v, k));
-				}
-			});
-			return labels.join(',');
-		};
-		$scope.saveTargets = function() {
-			$scope.editingRound.targets = $scope.aTargets;
-			$scope.updateRound('targets');
-			$scope.targetModified = false;
-		};
 		$scope.$watch('app', function(nv) {
 			if (!nv) return;
 			$scope.aTags = $scope.app.tags;
 			http2.get('/rest/pl/fe/matter/group/round/list?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
 				$scope.rounds = rsp.data;
+				getWinners();
 			});
 		});
 	}]);

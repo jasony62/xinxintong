@@ -72,4 +72,12 @@ class round extends \pl\fe\matter\base {
 
 		return new \ResponseData($rst);
 	}
+	/**
+	 * 中奖的人
+	 */
+	public function winnersGet_action($app, $rid = null) {
+		$result = $this->model('matter\group\player')->winnersByRound($app, $rid);
+
+		return new \ResponseData($result);
+	}
 }

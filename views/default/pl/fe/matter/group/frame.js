@@ -18,7 +18,7 @@ ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', func
 			}
 		}
 	}).when('/rest/pl/fe/matter/group/running', {
-		templateUrl: '/views/default/pl/fe/matter/group/running.html?_=1',
+		templateUrl: '/views/default/pl/fe/matter/group/running.html?_=2',
 		controller: 'ctrlRunning',
 		resolve: {
 			load: function($q) {
@@ -32,7 +32,7 @@ ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', func
 			}
 		}
 	}).otherwise({
-		templateUrl: '/views/default/pl/fe/matter/group/setting.html?_=1',
+		templateUrl: '/views/default/pl/fe/matter/group/setting.html?_=2',
 		controller: 'ctrlSetting',
 		resolve: {
 			load: function($q) {

@@ -87,7 +87,7 @@
                             html += '<li class="' + cls + '" wrap="radio"><label';
                             if (def.align === 'H') html += ' class="radio-inline"';
                             html += '><input type="radio" name="' + key + '"';
-                            html += ' value="v' + i + '"';
+                            html += ' value="' + def.ops[i].v + '"';
                             html += ' ng-model="data.' + key + '"';
                             def.required == 1 && (html += 'required=""');
                             html += ' title="' + def.title + '"';

@@ -187,7 +187,8 @@ ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$interval', function($
                                     setWinner();
                                 } else if (checked.length === $scope.players.length) {
                                     $interval.cancel(timer3);
-                                    alert('没有匹配的用户');
+                                    setWinner();
+                                    //alert('没有匹配的用户');
                                 } else {
                                     mySwiper.slideNext();
                                     if (checked.indexOf(mySwiper.activeIndex) === -1) {

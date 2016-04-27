@@ -18,6 +18,10 @@ class main extends \site\fe\matter\base {
 
 		if ($cascade === 'Y') {
 			$news->matters = $modelNews->getMatters($news->id);
+			foreach ($news->matters as &$m) {
+				$matterModel = \TMS_APP::M('matter\\' . $m->type);
+				$m->url = $matterModel->getEntryUrl($this->siteId, $m->id);
+			}
 			$news->acl = $this->model('acl')->byMatter($this->siteId, 'news', $news->id);
 		}
 

@@ -6,8 +6,8 @@ if (/MicroMessenger/.test(navigator.userAgent)) {
 angular.module('xxt', []).config(['$locationProvider', function($locationProvider) {
     $locationProvider.html5Mode(true);
 }]).controller('ctrl', ['$scope', '$location', '$http', '$q', function($scope, $location, $http, $q) {
-    var mpid, newsId, shareby;
-    mpid = $location.search().mpid;
+    var siteId, newsId, shareby;
+    siteId = $location.search().site;
     newsId = $location.search().id;
     shareby = $location.search().shareby ? $location.search().shareby : '';
     var setShare = function() {
@@ -16,7 +16,7 @@ angular.module('xxt', []).config(['$locationProvider', function($locationProvide
         window.xxt.share.options.logger = function(shareto) {
             var url = "/rest/mi/matter/logShare";
             url += "?shareid=" + shareid;
-            url += "&mpid=" + mpid;
+            url += "&siteId=" + siteId;
             url += "&id=" + newsId;
             url += "&type=news";
             url += "&title=" + $scope.news.title;
@@ -25,19 +25,20 @@ angular.module('xxt', []).config(['$locationProvider', function($locationProvide
             $http.get(url);
         };
         sharelink = location.href;
-        if (/shareby=/.test(sharelink))
+        if (/shareby=/.test(sharelink)) {
             sharelink = sharelink.replace(/shareby=[^&]*/, 'shareby=' + shareid);
-        else
+        } else {
             sharelink += "&shareby=" + shareid;
-        window.xxt.share.set($scope.news.title, sharelink, $scope.news.title, '');
+        }
+        //window.xxt.share.set($scope.news.title, sharelink, $scope.news.title, '');
     };
     var getNews = function() {
         var deferred = $q.defer();
-        $http.get('/rest/mi/news/get?mpid=' + mpid + '&id=' + newsId).success(function(rsp) {
+        $http.get('/rest/site/fe/matter/news/get?site=' + siteId + '&id=' + newsId).success(function(rsp) {
             var news;
             news = rsp.data.news;
             if (news.matters && news.matters.length === 1) {
-                $http.post('/rest/mi/matter/logAccess?mpid=' + mpid + '&id=' + newsId + '&type=news' + '&shareby=' + shareby, {
+                $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + newsId + '&type=news' + '&shareby=' + shareby, {
                     search: location.search.replace('?', ''),
                     referer: document.referrer
                 });
@@ -49,7 +50,7 @@ angular.module('xxt', []).config(['$locationProvider', function($locationProvide
                     setShare();
                 }
                 deferred.resolve();
-                $http.post('/rest/mi/matter/logAccess?mpid=' + mpid + '&id=' + newsId + '&title=' + news.title + '&type=news' + '&shareby=' + shareby, {
+                $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + newsId + '&title=' + news.title + '&type=news' + '&shareby=' + shareby, {
                     search: location.search.replace('?', ''),
                     referer: document.referrer
                 });

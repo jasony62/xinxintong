@@ -21,10 +21,10 @@ class enroll_model extends app_base {
 	/**
 	 *
 	 */
-	public function getEntryUrl($runningMpid, $id) {
+	public function getEntryUrl($siteId, $id) {
 		$url = "http://" . $_SERVER['HTTP_HOST'];
-		$url .= "/rest/app/enroll";
-		$url .= "?mpid=$runningMpid&aid=" . $id;
+		$url .= "/rest/site/fe/matter/enroll";
+		$url .= "?site={$siteId}&app=" . $id;
 
 		return $url;
 	}

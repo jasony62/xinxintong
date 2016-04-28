@@ -1,5 +1,5 @@
 (function() {
-    ngApp.provider.controller('ctrlSchema', ['$scope', 'http2', '$timeout', function($scope, http2, $timeout) {
+    ngApp.provider.controller('ctrlSchema', ['$scope', 'http2', '$timeout', '$modal', function($scope, http2, $timeout, $modal) {
         var base = {
                 title: '',
                 type: '',
@@ -72,6 +72,26 @@
             });
             $scope.$parent.modified = true;
         });
+        $scope.configSchema = function(schema) {
+            $modal.open({
+                templateUrl: 'configSchema.html',
+                controller: ['$scope', '$modalInstance', function($scope2, $mi) {
+                    $scope2.schema = angular.copy(schema);
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        $mi.close($scope2.schema);
+                    };
+                }],
+                backdrop: 'static'
+            }).result.then(function(newSchema) {
+                schema.id = newSchema.id;
+                schema.comment = newSchema.comment;
+                schema.required = newSchema.required;
+                $scope.$parent.modified = true;
+            });
+        };
         $scope.removeSchema = function(schema) {
             $scope.schemas.splice($scope.schemas.indexOf(schema), 1);
             $scope.$parent.modified = true;

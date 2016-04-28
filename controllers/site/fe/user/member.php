@@ -176,8 +176,10 @@ class member extends \site\fe\base {
 		} else {
 			//return new \ResponseError('无法获得身份标识信息');
 		}
-		$user = $this->who;
+		/* 验证状态 */
+		$member->verified = 'Y';
 		/* 创建新的自定义用户 */
+		$user = $this->who;
 		$rst = $this->model('site\user\member')->create($this->siteId, $user->uid, $schema, $member);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);

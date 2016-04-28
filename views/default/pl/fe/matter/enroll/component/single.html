@@ -1,0 +1,19 @@
+<div class='form-group' ng-if="s.component==='S'">
+	<label>{{s.title}}</label>
+	<select class='form-control'>
+		<option></option>
+		<option ng-repeat="op in s.ops">{{op.l}}</option>
+	</select>
+</div>
+<div class='form-group' ng-if="s.component==='R'&&s.align==='V'">
+	<label>{{s.title}}</label>
+	<div class='radio' ng-repeat="op in s.ops">
+		<label><input type='radio'>{{op.l}}</label>
+	</div>
+</div>
+<div class='form-group' ng-if="s.component==='R'&&s.align==='H'">
+	<label>{{s.title}}</label>
+	<div class='radio'>
+		<label class='radio-inline' ng-repeat="op in s.ops"><input type='radio'>{{op.l}}</label>
+	</div>
+</div>

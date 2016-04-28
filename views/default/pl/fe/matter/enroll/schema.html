@@ -1,68 +1,38 @@
 <div style='margin-bottom:100px'>
-	<div class="panel panel-default" ng-repeat="s in schemas">
-		<div class="panel-body">
-			<div class='row'>
-				<div class='col-md-10'>
-					<div class='form-horizontal'>
-						<div class='form-group'>
-							<label class='control-label col-md-2'>ID</label>
-							<div class='col-md-10'>
-								<input class='form-control' ng-model="s.id" ng-change="modify(s,'id')">
-							</div>
-						</div>
-						<div class='form-group'>
-							<label class='control-label col-md-2'>名称</label>
-							<div class='col-md-10'>
-								<input class='form-control' ng-model="s.title" ng-change="modify(s,'title')">
-								<div class="radio">
-		                            <label><input type='radio' value='placeholder' ng-model='s.showname' ng-change="modify(s,'showname')">输入框内</label>
-		                            <label><input type='radio' value='label' ng-model='s.showname' ng-change="modify(s,'showname')">输入框前</label>
-		                        </div>
-							</div>
-						</div>
-						<div class='form-group'>
-							<label class='control-label col-md-2'>说明</label>
-							<div class='col-md-10'>
-								<textarea class='form-control' ng-model="s.comment" ng-change="modify(s,'comment')"></textarea>
-							</div>
-						</div>
-						<div class='form-group'>
-							<label class='control-label col-md-2'>必填</label>
-							<div class='col-md-10'>
-								<div class="checkbox">
-									<label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="s.required" ng-change="modify(s,'required')">是</label>
-								</div>
-							</div>
-						</div>
-						<div class="form-group" ng-if="s.type==='single'">
-							<label class="col-md-2 control-label">形式</label>
-							<div class="col-md-10">
-								<label class="radio-inline"><input type='radio' name='component' value='R' ng-model='s.component' ng-change="modify(s,'component')">单选钮</label>
-								<label class="radio-inline"><input type='radio' name='component' value='S' ng-model='s.component' ng-change="modify(s,'component')">下拉框</label>
-							</div>
-						</div>
-						<div class="form-group" ng-if="(s.type==='single'&&s.component==='R')||s.type==='multiple'">
-							<label class="col-md-2 control-label">排列方向</label>
-							<div class="col-md-10">
-								<label class="radio-inline"><input type='radio' name='align' value='V' ng-model='s.align' ng-change="modify(s,'align')">垂直</label>
-								<label class="radio-inline"><input type='radio' name='align' value='H' ng-model='s.align' ng-change="modify(s,'align')">水平</label>
-							</div>
-						</div>
-						<div class="form-group" ng-if="s.type==='single'||s.type==='multiple'">
-							<label class="col-md-2 control-label">选项</label>
-							<div class="col-md-10">
-								<button class="btn btn-default btn-sm" ng-click='addOption(s)'>添加</button>
-								<ul class='list-group' style='margin-bottom:0'>
-									<li class='list-group-item' ng-repeat='op in s.ops' editable prop='l' obj='op'></li>
-								</ul>
-							</div>
-						</div>
-					</div>
-				</div><!--form-->
-				<div class='col-md-2'>
-					<button class='btn btn-success' ng-click="removeSchema(s)">删除</button>
-				</div><!--actions-->
+	<div class="list-group">
+		<div class="list-group-item row" style='margin-bottom:8px' ng-repeat="s in schemas">
+			<div class='col-md-5'>
+				<div ng-include="'/views/default/pl/fe/matter/enroll/component/'+s.type+'.html'"></div>
 			</div>
+			<div class='col-md-5'>
+				<div class='form-horizontal'>
+					<div class='form-group'>
+						<input class='form-control' placeholder='标题' ng-model="s.title" ng-change="modify(s,'title')">
+						<div class="radio" ng-if="s.type!=='single'&&s.type!=='multiple'">
+                            <label><input type='radio' value='placeholder' ng-model='s.showname' ng-change="modify(s,'showname')">显示在输入框内</label>
+                            <label><input type='radio' value='label' ng-model='s.showname' ng-change="modify(s,'showname')">显示在输入框前</label>
+                        </div>
+					</div>
+					<div class="form-group" ng-if="s.type==='single'||s.type==='multiple'">
+						<button class="btn btn-default btn-sm" ng-click='addOption(s)'>添加选项</button>
+						<ul class='list-group' style='margin-bottom:0'>
+							<li class='list-group-item' ng-repeat='op in s.ops' editable prop='l' obj='op'></li>
+						</ul>
+					</div>
+					<div class="form-group" ng-if="s.type==='single'">
+						<label class="radio-inline"><input type='radio' name='component' value='R' ng-model='s.component' ng-change="modify(s,'component')">单选钮</label>
+						<label class="radio-inline"><input type='radio' name='component' value='S' ng-model='s.component' ng-change="modify(s,'component')">下拉框</label>
+					</div>
+					<div class="form-group" ng-if="(s.type==='single'&&s.component==='R')||s.type==='multiple'">
+						<label class="radio-inline"><input type='radio' name='align' value='V' ng-model='s.align' ng-change="modify(s,'align')">选项垂直排列</label>
+						<label class="radio-inline"><input type='radio' name='align' value='H' ng-model='s.align' ng-change="modify(s,'align')">选项水平排列</label>
+					</div>
+				</div>
+			</div><!--form-->
+			<div class='col-md-2'>
+				<button class='btn btn-default' ng-click="configSchema(s)">设置</button>
+				<button class='btn btn-danger' ng-click="removeSchema(s)">删除</button>
+			</div><!--actions-->
 		</div>
 	</div>
 </div>
@@ -82,3 +52,36 @@
 		<button class='btn navbar-btn' ng-click='save()' ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'">保存</button>
 	</div>
 </nav>
+<script type="text/ng-template" id="configSchema.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">设置登记项</h5>
+    </div>
+    <div class="modal-body">
+        <div class='form-horizontal'>
+			<div class='form-group'>
+				<label class='control-label col-md-2'>ID</label>
+				<div class='col-md-10'>
+					<input class='form-control' ng-model="schema.id">
+				</div>
+			</div>
+			<div class='form-group'>
+				<label class='control-label col-md-2'>必填</label>
+				<div class='col-md-10'>
+					<div class="checkbox">
+						<label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="s.required" ng-change="modify(s,'required')">是</label>
+					</div>
+				</div>
+			</div>
+			<div class='form-group'>
+				<label class='control-label col-md-2'>说明</label>
+				<div class='col-md-10'>
+					<textarea class='form-control' ng-model="schema.comment"></textarea>
+				</div>
+			</div>
+		</div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">确定</button>
+    </div>
+</script>

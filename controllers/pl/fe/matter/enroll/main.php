@@ -259,6 +259,7 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 更新活动的属性信息
 	 *
+	 * @param string $site
 	 * @param string $app
 	 *
 	 */
@@ -285,14 +286,63 @@ class main extends \pl\fe\matter\base {
 		$nv['modify_at'] = time();
 
 		$rst = $model->update('xxt_enroll', $nv, "id='$app'");
-		/*记录操作日志*/
 		if ($rst) {
+			/*更新级联数据*/
+			if (isset($nv['data_schemas'])) {
+				$this->_refreshPagesSchema($app);
+			}
+			/*记录操作日志*/
 			$matter = $this->model('matter\\enroll')->byId($app, 'id,title,summary,pic');
 			$matter->type = 'enroll';
 			$this->model('log')->matterOp($site, $user, $matter, 'U');
 		}
 
 		return new \ResponseData($rst);
+	}
+	/**
+	 * 应用的登记项更新时，级联更新页面的登记项
+	 */
+	private function _refreshPagesSchema($appId) {
+		$app = $this->model('matter\enroll')->byId($appId);
+		if (count($app->pages)) {
+			$dataSchemas = json_decode($app->data_schemas);
+			$mapOfDateSchemas = new \stdClass;
+			foreach ($dataSchemas as $ds) {
+				$mapOfDateSchemas->{$ds->id} = $ds;
+			}
+			foreach ($app->pages as $page) {
+				if (!empty($page->data_schemas)) {
+					$this->_refreshOnePageSchema($appId, $page, $mapOfDateSchemas);
+				}
+			}
+		}
+		return true;
+	}
+	/**
+	 * 应用的登记项更新时，级联更新页面的登记项
+	 */
+	private function _refreshOnePageSchema($appId, &$page, &$mapOfDateSchemas) {
+		$pageDataSchemas = json_decode($page->data_schemas);
+		if (count($pageDataSchemas)) {
+			$newPageDataSchemas = array();
+			if ($page->type === 'V') {
+			} else {
+				foreach ($pageDataSchemas as $pds) {
+					if (isset($mapOfDateSchemas->{$pds->id})) {
+						$newPageDataSchemas[] = $mapOfDateSchemas->{$pds->id};
+					}
+				}
+				$model = $this->model();
+				$newPageDataSchemas = $model->toJson($newPageDataSchemas);
+				$rst = $model->update(
+					'xxt_enroll_page',
+					array('data_schemas' => $newPageDataSchemas),
+					"aid='$appId' and id={$page->id}"
+				);
+				return $rst;
+			}
+		}
+		return 0;
 	}
 	/**
 	 * 重置活动进入规则

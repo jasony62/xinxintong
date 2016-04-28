@@ -32,7 +32,7 @@ app.controller('ctrlConsole', ['$scope', '$modal', 'http2', function($scope, $mo
     };
     $scope.page = {
         at: 1,
-        size: 4,
+        size: 20,
         j: function() {
             return '&page=' + this.at + '&size=' + this.size;
         }

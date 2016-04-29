@@ -189,6 +189,7 @@
                 case 'email':
                 case 'shorttext':
                 case 'longtext':
+                case 'member':
                     html = '<label>' + s.title + '</label><div>{{Record.current.data.' + s.id + '}}</div>';
                     break;
                 case 'single':
@@ -232,6 +233,7 @@
                 case 'shorttext':
                 case 'longtext':
                 case 'location':
+                case 'member':
                     html += '<div wrap="static" class="wrap-inline"><label>' + s.title + '</label><div>{{r.data.' + s.id + '}}</div></div>';
                     break;
                 case 'datetime':

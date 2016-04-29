@@ -206,7 +206,7 @@
             case 'mobile':
             case 'email':
             case 'shorttext':
-            case 'auth':
+            case 'member':
                 html += '<input type="text" ng-model="data.' + key + '" title="' + def.name + '"';
                 def.showname === 'placeholder' && (html += ' placeholder="' + def.name + '"');
                 def.required == 1 && (html += 'required=""');

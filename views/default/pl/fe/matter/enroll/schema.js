@@ -24,7 +24,7 @@
             newDef,
             newSchema = function(type) {
                 var id = 'c' + (new Date()).getTime(),
-                    schema = Object.create(base);
+                    schema = angular.copy(base);
                 schema.type = type;
                 if (map[type]) {
                     schema.id = map[type].id;

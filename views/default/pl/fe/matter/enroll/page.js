@@ -56,11 +56,11 @@
             case 'mobile':
             case 'email':
             case 'shorttext':
-            case 'auth':
+            case 'member':
                 html += '<input type="text" ng-model="data.' + key + '" title="' + def.title + '"';
                 def.showname === 'placeholder' && (html += ' placeholder="' + def.title + '"');
                 def.required == 1 && (html += 'required=""');
-                def.type === 'auth' && (html += 'ng-init="data.member.authid=' + def.auth.authid + '"');
+                def.type === 'member' && (html += 'ng-init="data.member.schema_id=' + def.schema_id + '"');
                 html += ' class="form-control input-lg">';
                 break;
             case 'date':

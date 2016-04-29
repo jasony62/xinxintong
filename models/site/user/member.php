@@ -96,7 +96,7 @@ class member_model extends \TMS_MODEL {
 	 * $data
 	 * $attrs
 	 */
-	public function create2($siteId, $schemaId, $fid, $member) {
+	public function createByApp($siteId, $schemaId, $userid, $member) {
 		if (empty($siteId)) {
 			return array(false, '没有指定MPID');
 		}

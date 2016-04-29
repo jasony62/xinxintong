@@ -65,24 +65,23 @@ var PG = (function() {
             }
         },
         setMember: function(user, member) {
-            if (user && member && member.authid && user.members && user.members.length) {
-                angular.forEach(user.members, function(member2) {
-                    if (member2.authapi_id == member.authid) {
-                        var eles = document.querySelectorAll("[ng-model^='data.member']");
-                        angular.forEach(eles, function(ele) {
-                            var attr;
-                            attr = ele.getAttribute('ng-model');
-                            attr = attr.replace('data.member.', '');
-                            attr = attr.split('.');
-                            if (attr.length == 2) {
-                                !member.extattr && (member.extattr = {});
-                                member.extattr[attr[1]] = member2.extattr[attr[1]];
-                            } else {
-                                member[attr[0]] = member2[attr[0]];
-                            }
-                        });
-                    }
-                });
+            var member2, eles;
+            if (user && member && member.schema_id && user.members) {
+                if (member2 = user.members[member.schema_id]) {
+                    eles = document.querySelectorAll("[ng-model^='data.member']");
+                    angular.forEach(eles, function(ele) {
+                        var attr;
+                        attr = ele.getAttribute('ng-model');
+                        attr = attr.replace('data.member.', '');
+                        attr = attr.split('.');
+                        if (attr.length == 2) {
+                            !member.extattr && (member.extattr = {});
+                            member.extattr[attr[1]] = member2.extattr[attr[1]];
+                        } else {
+                            member[attr[0]] = member2[attr[0]];
+                        }
+                    });
+                }
             }
         }
     };

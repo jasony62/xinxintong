@@ -122,18 +122,17 @@ class record extends base {
 		/**
 		 * 当前用户是否可以进行提交操作
 		 */
-		$this->checkActionRule($site, $app, $user);
+		//$this->checkActionRule($site, $app, $user);
 		/**
 		 * 处理提交数据
 		 */
 		$posted = $this->getPostJson();
-		$mid = empty($user->membersInAcl) ? '' : $user->membersInAcl[0]->mid;
 		/**
 		 * 包含用户身份信息
 		 */
-		if (isset($posted->member) && isset($posted->member->authid)) {
+		if (isset($posted->member) && isset($posted->member->schema_id)) {
 			$member = clone $posted->member;
-			$rst = $this->submitMember($site, $member, $user->fan->fid, $mid);
+			$rst = $this->_submitMember($site, $member, $user);
 			if ($rst[0] === false) {
 				return new \ParameterError($rst[1]);
 			}
@@ -172,27 +171,28 @@ class record extends base {
 		return new \ResponseData($ek);
 	}
 	/**
-	 * 提交信息中包含的用户身份信息
+	 * 提交信息中包含的自定义用户信息
 	 */
-	private function submitMember($site, $member, $fid) {
-		/**
-		 * 处理用户认证信息
-		 */
-		$authid = $member->authid;
-		unset($member->authid);
-		$memberModel = $this->model('user/member');
+	private function _submitMember($siteId, &$member, &$user) {
+		$schemaId = $member->schema_id;
+		$schema = $this->model('site\user\memberschema')->byId($schemaId, 'attr_mobile,attr_email,attr_name,extattr');
+		$modelMem = $this->model('site\user\member');
 
-		if ($existentMember = $memberModel->byFanid($fid, 'mid', $authid)) {
-			$rst = $memberModel->modify($site, $authid, $existentMember->mid, $member);
+		$existentMember = $modelMem->byUser($siteId, $user->uid, array('schemas' => $schemaId));
+		if (count($existentMember)) {
+			$memberId = $existentMember[0]->id;
+			$member->id = $memberId;
+			$rst = $modelMem->modify($siteId, $schema, $memberId, $member);
 		} else {
-			$rst = $memberModel->create2($site, $authid, $fid, $member);
+			$rst = $modelMem->createByApp($siteId, $schema, $user->uid, $member);
 		}
-		$member->authid = $authid;
+		$member->schema_id = $schemaId;
 
 		return $rst;
 	}
 	/**
 	 * 通知活动管理员
+	 *
 	 * @todo 应该改为模版消息
 	 */
 	private function _notifyAdmin($site, $app, $ek, $user) {

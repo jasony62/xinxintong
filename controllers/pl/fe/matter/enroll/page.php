@@ -54,6 +54,8 @@ class page extends \pl\fe\matter\base {
 					$nv->data_schemas = $model->toJson($nv->data_schemas);
 				} else if (isset($nv->act_schemas)) {
 					$nv->act_schemas = $model->toJson($nv->act_schemas);
+				} else if (isset($nv->user_schemas)) {
+					$nv->user_schemas = $model->toJson($nv->user_schemas);
 				}
 				$rst = $model->update(
 					'xxt_enroll_page',

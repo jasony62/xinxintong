@@ -41,17 +41,44 @@
 		<button class='btn btn-default navbar-btn' ng-click="addSchema('name')">姓名</button>
 		<button class='btn btn-default navbar-btn' ng-click="addSchema('mobile')">手机</button>
 		<button class='btn btn-default navbar-btn' ng-click="addSchema('email')">邮箱</button>
-		<button class='btn btn-default navbar-btn'  ng-click="addSchema('date')">日期</button>
-		<button class='btn btn-default navbar-btn'  ng-click="addSchema('shorttext')">短文本</button>
-		<button class='btn btn-default navbar-btn'  ng-click="addSchema('longtext')">长文本</button>
-		<button class='btn btn-default navbar-btn'  ng-click="addSchema('single')">单选题</button>
-		<button class='btn btn-default navbar-btn'  ng-click="addSchema('multiple')">多选题</button>
-		<button class='btn btn-default navbar-btn'  ng-click="addSchema('image')">上传图片</button>
-		<button class='btn btn-default navbar-btn'  ng-click="addSchema('file')">上传文件</button>
-		<button class='btn btn-default navbar-btn'  ng-click="addSchema('location')">上传位置</button>
+		<button class='btn btn-default navbar-btn' ng-click="addSchema('date')">日期</button>
+		<button class='btn btn-default navbar-btn' ng-click="addSchema('shorttext')">短文本</button>
+		<button class='btn btn-default navbar-btn' ng-click="addSchema('longtext')">长文本</button>
+		<button class='btn btn-default navbar-btn' ng-click="addSchema('single')">单选题</button>
+		<button class='btn btn-default navbar-btn' ng-click="addSchema('multiple')">多选题</button>
+		<button class='btn btn-default navbar-btn' ng-click="addSchema('image')">上传图片</button>
+		<button class='btn btn-default navbar-btn' ng-click="addSchema('file')">上传文件</button>
+		<button class='btn btn-default navbar-btn' ng-click="addSchema('location')">上传位置</button>
+		<button class='btn btn-default navbar-btn' ng-click="addMember()">自定义用户信息</button>
 		<button class='btn navbar-btn' ng-click='save()' ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'">保存</button>
 	</div>
 </nav>
+<script type="text/ng-template" id="memberSchema.html">
+    <div class="modal-header">
+        <button class="close" ng-click="cancel()" type="button">×</button>
+        <h5 class="modal-title">内容</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" role="form">
+            <div class="form-group">
+                <label class="col-md-3 control-label">自定义用户</label>
+                <div class="col-md-9">
+                    <select class='form-control' ng-model='data.memberSchema' ng-options='ms.title for ms in memberSchemas' ng-change='shiftSchema()'></select>
+                    <select class='form-control' ng-model='data.attr' ng-options='a.label for a in data.attrs' ng-change="shiftAttr()"></select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">名称</label>
+                <div class="col-md-9">
+                    <input type='text' class='form-control' ng-model='schema.title' required>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer" style="margin-top:0">
+        <button class="btn btn-success" ng-click="ok()">确定</button>
+    </div>
+</script>
 <script type="text/ng-template" id="configSchema.html">
     <div class="modal-header">
         <button class="close" type="button" ng-click="cancel()">×</button>

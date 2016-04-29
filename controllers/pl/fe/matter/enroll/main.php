@@ -324,23 +324,47 @@ class main extends \pl\fe\matter\base {
 	private function _refreshOnePageSchema($appId, &$page, &$mapOfDateSchemas) {
 		$pageDataSchemas = json_decode($page->data_schemas);
 		if (count($pageDataSchemas)) {
-			$newPageDataSchemas = array();
 			if ($page->type === 'V') {
+				$newPageDataSchemas = new \stdClass;
+				if (isset($pageDataSchemas->record)) {
+					$newPageDataSchemas->record = clone $pageDataSchemas->record;
+					$newPageDataSchemas->record->schemas = array();
+					foreach ($pageDataSchemas->record->schemas as $pds) {
+						if (isset($mapOfDateSchemas->{$pds->id})) {
+							$newPageDataSchemas->record->schemas[] = $mapOfDateSchemas->{$pds->id};
+						} else if (in_array($pds->id, array('enrollAt', 'enrollerNickname', 'enrollerHeadpic'))) {
+							$newPageDataSchemas->record->schemas[] = $pds;
+						}
+					}
+				}
+				if (isset($pageDataSchemas->list)) {
+					$newPageDataSchemas->list = clone $pageDataSchemas->list;
+					$newPageDataSchemas->list->schemas = array();
+					foreach ($pageDataSchemas->list->schemas as $pds) {
+						if (isset($mapOfDateSchemas->{$pds->id})) {
+							$newPageDataSchemas->list->schemas[] = $mapOfDateSchemas->{$pds->id};
+						} else if (in_array($pds->id, array('enrollAt', 'enrollerNickname', 'enrollerHeadpic'))) {
+							$newPageDataSchemas->list->schemas[] = $pds;
+						}
+					}
+				}
 			} else {
+				$newPageDataSchemas = array();
 				foreach ($pageDataSchemas as $pds) {
 					if (isset($mapOfDateSchemas->{$pds->id})) {
 						$newPageDataSchemas[] = $mapOfDateSchemas->{$pds->id};
 					}
 				}
-				$model = $this->model();
-				$newPageDataSchemas = $model->toJson($newPageDataSchemas);
-				$rst = $model->update(
-					'xxt_enroll_page',
-					array('data_schemas' => $newPageDataSchemas),
-					"aid='$appId' and id={$page->id}"
-				);
-				return $rst;
+
 			}
+			$model = $this->model();
+			$newPageDataSchemas = $model->toJson($newPageDataSchemas);
+			$rst = $model->update(
+				'xxt_enroll_page',
+				array('data_schemas' => $newPageDataSchemas),
+				"aid='$appId' and id={$page->id}"
+			);
+			return $rst;
 		}
 		return 0;
 	}

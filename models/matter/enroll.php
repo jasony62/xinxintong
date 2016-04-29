@@ -51,7 +51,7 @@ class enroll_model extends app_base {
 				$app->scenarioConfig = new \stdClass;
 			}
 			if ($cascaded === 'Y') {
-				$modelPage = \TMS_APP::M('app\enroll\page');
+				$modelPage = \TMS_APP::M('matter\enroll\page');
 				$app->pages = $modelPage->byApp($aid);
 			}
 		}
@@ -98,7 +98,7 @@ class enroll_model extends app_base {
 	 */
 	public function enroll($mpid, $act, $openid, $vid = '', $mid = '', $enroll_at = null) {
 		$fan = \TMS_APP::M('user/fans')->byOpenid($mpid, $openid);
-		$modelRec = \TMS_APP::M('app\enroll\record');
+		$modelRec = \TMS_APP::M('matter\enroll\record');
 		$ek = $modelRec->genKey($mpid, $act->id);
 		$i = array(
 			'aid' => $act->id,
@@ -110,7 +110,7 @@ class enroll_model extends app_base {
 			'vid' => $vid,
 			'mid' => $mid,
 		);
-		$modelRun = \TMS_APP::M('app\enroll\round');
+		$modelRun = \TMS_APP::M('matter\enroll\round');
 		if ($activeRound = $modelRun->getActive($mpid, $act->id)) {
 			$i['rid'] = $activeRound->rid;
 		}
@@ -140,7 +140,7 @@ class enroll_model extends app_base {
 		} else {
 			return false;
 		}
-		$modelRun = \TMS_APP::M('app\enroll\round');
+		$modelRun = \TMS_APP::M('matter\enroll\round');
 		if ($activeRound = $modelRun->getActive($mpid, $aid)) {
 			$q[2] .= " and rid='$activeRound->rid'";
 		}
@@ -179,7 +179,7 @@ class enroll_model extends app_base {
 	 * 如果用户没有做个活动登记，那么要先产生一条登记记录，并记录签到时间
 	 */
 	public function signin($mpid, $aid, $openid) {
-		$modelRec = \TMS_APP::M('app\enroll\record');
+		$modelRec = \TMS_APP::M('matter\enroll\record');
 		$user = new \stdClass;
 		$user->openid = $openid;
 		if ($ek = $modelRec->getLastKey($mpid, $aid, $user)) {
@@ -243,7 +243,7 @@ class enroll_model extends app_base {
 				} else if (!empty($options->rid)) {
 					$rid = $options->rid;
 				}
-			} else if ($activeRound = \TMS_APP::M('app\enroll\round')->getActive($mpid, $aid)) {
+			} else if ($activeRound = \TMS_APP::M('matter\enroll\round')->getActive($mpid, $aid)) {
 				$rid = $activeRound->rid;
 			}
 
@@ -296,7 +296,7 @@ class enroll_model extends app_base {
 	 *
 	 */
 	public function getStat($aid) {
-		$modelPage = \TMS_APP::M('app\enroll\page');
+		$modelPage = \TMS_APP::M('matter\enroll\page');
 		$pages = $modelPage->byApp($aid);
 		foreach ($pages as $page) {
 			if ($page->type === 'I') {
@@ -396,7 +396,7 @@ class enroll_model extends app_base {
 	 * 根据邀请到的用户数量进行的排名
 	 */
 	public function rankByFollower($mpid, $aid, $openid) {
-		$modelRec = \TMS_APP::M('app\enroll\record');
+		$modelRec = \TMS_APP::M('matter\enroll\record');
 		$user = new \stdClass;
 		$user->openid = $openid;
 		$last = $modelRec->getLast($mpid, $aid, $user);

@@ -325,14 +325,14 @@
     };
     WrapLib.prototype.embedUser = function(page, def) {
         if (def.nickname === true) {
-            html = "<label>昵称</label><div>{{User.fan.nickname}}</div>";
+            html = "<label>昵称</label><div>{{User.nickname}}</div>";
             this.addWrap(page, 'div', {
                 wrap: 'static',
                 class: 'form-group'
             }, html);
         }
         if (def.headpic === true) {
-            html = '<label>头像</label><div><img ng-src="{{User.fan.headimgurl}}"></div>';
+            html = '<label>头像</label><div><img ng-src="{{User.headimgurl}}"></div>';
             this.addWrap(page, 'div', {
                 wrap: 'static',
                 class: 'form-group'
@@ -697,6 +697,7 @@
                         userSchemas.push(schema);
                     }
                 });
+                $scope.updPage($scope.ep, 'user_schemas');
             });
         };
         $scope.removeUser = function(schema) {

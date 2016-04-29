@@ -79,6 +79,7 @@ $sql .= ",autoenroll_onshare char(1) not null default 'N'"; // 分享时自动�
 $sql .= ",seq int not null"; //页面序号
 $sql .= ",data_schemas text"; // 登记项定义
 $sql .= ",act_schemas text"; // 登记操作定义
+$sql .= ",user_schemas text"; // 登记用户信息定义（仅登记页有效）
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

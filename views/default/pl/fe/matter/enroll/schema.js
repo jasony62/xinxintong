@@ -48,6 +48,63 @@
             $scope.schemas.push(schema);
             $scope.$parent.modified = true;
         };
+        $scope.addMember = function() {
+            var schema = newSchema('member');
+            $modal.open({
+                templateUrl: 'memberSchema.html',
+                resolve: {
+                    memberSchemas: function() {
+                        return $scope.memberSchemas;
+                    }
+                },
+                controller: ['$scope', '$modalInstance', 'memberSchemas', function($scope2, $mi, memberSchemas) {
+                    $scope2.memberSchemas = memberSchemas;
+                    $scope2.schema = schema;
+                    $scope2.data = {};
+                    $scope2.shiftSchema = function() {
+                        var schema = $scope2.data.memberSchema,
+                            attrs = [];
+                        $scope2.schema.schema_id = schema.id;
+                        schema.attr_name[0] === '0' && (attrs.push({
+                            id: 'name',
+                            label: '姓名'
+                        }));
+                        schema.attr_mobile[0] === '0' && (attrs.push({
+                            id: 'mobile',
+                            label: '手机'
+                        }));
+                        schema.attr_email[0] === '0' && (attrs.push({
+                            id: 'email',
+                            label: '邮箱'
+                        }));
+                        if (schema.extattr && schema.extattr.length) {
+                            angular.forEach(schema.extattr, function(ea) {
+                                attrs.push({
+                                    id: 'extattr.' + ea.id,
+                                    label: ea.label
+                                });
+                            });
+                        }
+                        $scope2.data.attrs = attrs;
+                    };
+                    $scope2.shiftAttr = function() {
+                        var attr = $scope2.data.attr;
+                        $scope2.schema.title = attr.label;
+                        $scope2.schema.id = 'member.' + attr.id;
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope2.ok = function() {
+                        $mi.close($scope2.schema);
+                    };
+                }],
+                backdrop: 'static'
+            }).result.then(function(newSchema) {
+                $scope.schemas.push(schema);
+                $scope.$parent.modified = true;
+            });
+        };
         $scope.addOption = function(schema) {
             var maxSeq = 0,
                 newOp = {
@@ -101,7 +158,7 @@
         };
         $scope.save = function() {
             $scope.update('data_schemas');
-            $scope.submit();
+            $scope.submit().then($scope.getApp);
         };
         $scope.$watch('app.data_schemas', function(schemas) {
             if (schemas) {

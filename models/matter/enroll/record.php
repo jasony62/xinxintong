@@ -264,19 +264,11 @@ class record_model extends \TMS_MODEL {
 				$w .= "and concat(',',e.tags,',') like '%,$tag,%'";
 			}
 		}
-		if ($app->access_control === 'Y') {
-			$q = array(
-				'e.enroll_key,e.enroll_at,e.signin_at,e.tags,e.follower_num,e.score,e.remark_num,e.nickname,e.openid,e.vid,m.mid,m.name,m.mobile,m.email',
-				"xxt_enroll_record e left join xxt_member m on m.forbidden='N' and e.mid=m.mid",
-				$w,
-			);
-		} else {
-			$q = array(
-				'e.enroll_key,e.enroll_at,e.signin_at,e.tags,e.follower_num,e.score,e.remark_num,e.nickname,e.openid,e.vid',
-				"xxt_enroll_record e",
-				$w,
-			);
-		}
+		$q = array(
+			'e.enroll_key,e.enroll_at,e.signin_at,e.tags,e.follower_num,e.score,e.remark_num,e.userid,e.nickname,e.openid',
+			"xxt_enroll_record e",
+			$w,
+		);
 		$q2 = array(
 			'r' => array('o' => ($page - 1) * $size, 'l' => $size),
 		);

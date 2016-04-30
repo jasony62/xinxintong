@@ -38,21 +38,18 @@ class member extends \site\fe\base {
 	 */
 	public function schemaOptions_action($site, $schema, $userid = null) {
 		$params = "siteid=$site";
-		if (!empty($openid)) {
-			$params .= "&openid=$openid";
-		}
 
+		$modelSch = $this->model('site\user\memberschema');
 		$aMemberSchemas = array();
-		$aAuthids = explode(',', $authids);
-		foreach ($aAuthids as $authid) {
-			$authapi = $this->model('user/authapi')->byId($authid, 'name,url');
-			$authapi->url .= "?authid=$authid&$params";
-			$aMemberSchemas[] = $authapi;
+		$aSchemaIds = explode(',', $schema);
+		foreach ($aSchemaIds as $schemaId) {
+			$schema = $modelSch->byId($schemaId, 'id,name,url');
+			$schema->url .= "?siteid={$site}&schema={$schemaId}";
+			$aMemberSchemas[] = $schema;
 		}
-
-		\TPL::assign('authapis', $aMemberSchemas);
-
-		$this->view_action('/member/authoptions');
+		\TPL::assign('schemas', $aMemberSchemas);
+		\TPL::output('/site/fe/user/schemaoptions');
+		exit;
 	}
 	/**
 	 * 检查是否需要第三方社交帐号认证

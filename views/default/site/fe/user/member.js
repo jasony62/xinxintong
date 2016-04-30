@@ -30,8 +30,13 @@ var LS = (function(fields) {
         j: j
     };
 })(['site', 'schema', 'debug']);
-app = angular.module('app', []);
-app.directive('dynamicHtml', function($compile) {
+ngApp = angular.module('app', []);
+ngApp.config(['$controllerProvider', function($cp) {
+    ngApp.provider = {
+        controller: $cp.register
+    };
+}]);
+ngApp.directive('dynamicHtml', function($compile) {
     return {
         restrict: 'EA',
         replace: true,
@@ -45,7 +50,7 @@ app.directive('dynamicHtml', function($compile) {
         }
     };
 });
-app.controller('ctrlAuth', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
+ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
     var validate = function() {
         var required = function(value, len, alerttext) {
             if (value == null || value == "" || value.length < len) {

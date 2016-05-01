@@ -21,7 +21,7 @@ app.controller('ctrlApp', ['$scope', '$location', 'http2', function($scope, $loc
 	http2.get('/rest/pl/fe/matter/mission/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
 		var mission = rsp.data;
 		mission.type = 'mission';
-		mission.extattrs = (mission.extattrs && mission.extattrs.length) ? JSON.parse(mission.extattrs) : [];
+		mission.extattrs = (mission.extattrs && mission.extattrs.length) ? JSON.parse(mission.extattrs) : {};
 		$scope.editing = mission;
 	});
 }]);

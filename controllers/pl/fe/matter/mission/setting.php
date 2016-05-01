@@ -21,6 +21,8 @@ class setting extends \pl\fe\matter\base {
 		foreach ($nv as $n => $v) {
 			if (in_array($n, array('title', 'summary'))) {
 				$nv[$n] = $model->escape(urldecode($v));
+			} else if (in_array($n, array('extattrs'))) {
+				$nv[$n] = $model->toJson($v);
 			}
 		}
 		/*modifier*/

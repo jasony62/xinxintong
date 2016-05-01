@@ -19,8 +19,10 @@ app.controller('ctrlApp', ['$scope', '$location', 'http2', function($scope, $loc
 		}
 	});
 	http2.get('/rest/pl/fe/matter/mission/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
-		$scope.editing = rsp.data;
-		$scope.editing.type = 'mission';
+		var mission = rsp.data;
+		mission.type = 'mission';
+		mission.extattrs = (mission.extattrs && mission.extattrs.length) ? JSON.parse(mission.extattrs) : [];
+		$scope.editing = mission;
 	});
 }]);
 app.controller('ctrlSetting', ['$scope', 'http2', '$modal', function($scope, http2, $modal) {
@@ -64,6 +66,10 @@ app.controller('ctrlSetting', ['$scope', 'http2', '$modal', function($scope, htt
 			$scope.editing.pic = '';
 		});
 	};
+	$scope.$on('xxt.tms-datepicker.change', function(event, data) {
+		$scope.editing[data.state] = data.value;
+		$scope.update(data.state);
+	});
 }]);
 app.controller('ctrlMatter', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
 	$scope.addArticle = function() {

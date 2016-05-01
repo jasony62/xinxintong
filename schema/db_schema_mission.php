@@ -20,6 +20,9 @@ $sql .= ",modifier_src char(1)";
 $sql .= ',modify_at int not null';
 $sql .= ",access_control char(1) not null default 'N'";
 $sql .= ",authapis text";
+$sql .= ",start_at int not null default 0"; // 开始时间
+$sql .= ",end_at int not null default 0"; // 结束时间
+$sql .= ",extattrs text"; //扩展属性
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

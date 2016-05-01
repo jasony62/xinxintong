@@ -102,7 +102,7 @@ app.controller('ctrlMatter', ['$scope', '$modal', 'http2', function($scope, $mod
 						$scope2.data.selectedPage = $scope2.pages[0];
 						elSimulator = document.querySelector('#simulator');
 						url = 'http://' + location.host;
-						url += '/rest/app/enroll/template';
+						url += '/rest/site/fe/matter/enroll/template';
 						url += '?scenario=' + $scope2.data.scenario.name;
 						url += '&template=' + $scope2.data.template.name;
 						url += '&_=' + (new Date()).getTime();
@@ -124,9 +124,15 @@ app.controller('ctrlMatter', ['$scope', '$modal', 'http2', function($scope, $mod
 					elSimulator.contentWindow.renew(page, config);
 				};
 				http2.get('/rest/pl/fe/matter/enroll/template/list', function(rsp) {
+					var keysOfTemplate;
 					$scope2.templates = rsp.data;
 					if (assignedScenario) {
 						$scope2.data.scenario = $scope2.templates[assignedScenario];
+						keysOfTemplate = Object.keys($scope2.data.scenario.templates);
+						if (keysOfTemplate.length) {
+							$scope2.data.template = $scope2.data.scenario.templates[keysOfTemplate[0]];
+							$scope2.chooseTemplate();
+						}
 						$scope2.fixedScenario = true;
 					}
 				});

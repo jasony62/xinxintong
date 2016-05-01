@@ -38,31 +38,43 @@
 		"name": "result",
 		"title": "登记结果页",
 		"type": "V",
-		"data_schemas": [{
-			"id": "name",
-			"title": "名称",
-			"type": "name",
-			"showname": "placeholder"
-		}, {
-			"id": "mobile",
-			"title": "手机",
-			"type": "mobile",
-			"showname": "placeholder"
-		}, {
-			"id": "email",
-			"title": "邮箱",
-			"type": "email",
-			"showname": "placeholder"
-		}, {
-			"id": "c1",
-			"title": "登记信息1",
-			"type": "shorttext",
-			"showname": "placeholder"
-		}, {
-			"id": "c2",
-			"title": "登记信息2",
-			"type": "longtext",
-			"showname": "placeholder"
+		"data_schemas": {
+			"record": {
+				"enabled": "Y",
+				"inline": "Y",
+				"splitLine": "Y",
+				"schemas": [{
+					"id": "name",
+					"title": "名称",
+					"type": "name",
+					"showname": "placeholder"
+				}, {
+					"id": "mobile",
+					"title": "手机",
+					"type": "mobile",
+					"showname": "placeholder"
+				}, {
+					"id": "email",
+					"title": "邮箱",
+					"type": "email",
+					"showname": "placeholder"
+				}, {
+					"id": "c1",
+					"title": "登记信息1",
+					"type": "shorttext",
+					"showname": "placeholder"
+				}, {
+					"id": "c2",
+					"title": "登记信息2",
+					"type": "longtext",
+					"showname": "placeholder"
+				}]
+			}
+		},
+		"act_schemas": [{
+			"name": "editRecord",
+			"label": "修改登记",
+			"next": "enroll"
 		}]
 	}, {
 		"name": "signin",
@@ -106,25 +118,6 @@
 	"entryRule": {
 		"otherwise": {
 			"entry": "enroll"
-		},
-		"member": {
-			"entry": "enroll",
-			"enroll": "Y",
-			"remark": "Y"
-		},
-		"member_outacl": {
-			"entry": "enroll",
-			"enroll": "Y",
-			"remark": "Y"
-		},
-		"fan": {
-			"entry": "enroll",
-			"enroll": "Y",
-			"remark": "Y"
-		},
-		"other": {
-			"entry": "$mp_follow",
-			"enroll": "$mp_follow"
 		}
 	},
 	"multi_rounds": "N",

@@ -66,11 +66,16 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>已登记时进入</td>
+                                <td rowspan="2">已登记时进入</td>
                                 <td style='padding:0'>
                                     <select style='border:0' class='form-control' ng-model='app.enrolled_entry_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('enrolled_entry_page')">
                                         <option value=''></option>
                                     </select>
+                                </td>
+                            </tr>
+                            <tr ng-show='isInputPage(app.enrolled_entry_page)'>
+                                <td>
+                                    <label class='checkbox-inline'><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.open_lastroll' ng-change="update('open_lastroll')">显示最后一条登记记录</label>
                                 </td>
                             </tr>
                         </tbody>

@@ -26,25 +26,6 @@
 	"entryRule": {
 		"otherwise": {
 			"entry": "enroll"
-		},
-		"member": {
-			"entry": "enroll",
-			"enroll": "Y",
-			"remark": "Y"
-		},
-		"member_outacl": {
-			"entry": "enroll",
-			"enroll": "Y",
-			"remark": "Y"
-		},
-		"fan": {
-			"entry": "enroll",
-			"enroll": "Y",
-			"remark": "Y"
-		},
-		"nonfan": {
-			"entry": "$mp_follow",
-			"enroll": "$mp_follow"
 		}
 	},
 	"multi_rounds": "Y",

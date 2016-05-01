@@ -435,10 +435,7 @@ class main extends \pl\fe\matter\base {
 		$page = $modelPage->add($siteId, $appid, $page);
 		/*entry rules*/
 		$entryRule = array(
-			'member' => array('entry' => $page->name, 'enroll' => 'Y', 'remark' => 'Y'),
-			'member_outacl' => array('entry' => $page->name, 'enroll' => 'Y', 'remark' => 'Y'),
-			'fan' => array('entry' => $page->name, 'enroll' => 'Y', 'remark' => 'Y'),
-			'nonfan' => array('entry' => '$mp_follow', 'enroll' => '$mp_follow'),
+			'otherwise' => array('entry' => $page->name),
 		);
 		/* result page */
 		$page = array(
@@ -466,7 +463,7 @@ class main extends \pl\fe\matter\base {
 		if (empty($pages)) {
 			return false;
 		}
-		$modelPage = $this->model('app\enroll\page');
+		$modelPage = $this->model('matter\enroll\page');
 		$modelCode = $this->model('code/page');
 		foreach ($pages as $page) {
 			$ap = $modelPage->add($siteId, $app, (array) $page);

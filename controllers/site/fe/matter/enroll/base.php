@@ -14,10 +14,10 @@ class base extends \site\fe\matter\base {
 		return $rule_action;
 	}
 	/**
-	 *
+	 * @param string $memberSchemas
 	 */
-	protected function canAccessObj($site, $app, $member, $authapis, $app) {
-		return $this->model('acl')->canAccessMatter($site, 'enroll', $app, $member, $authapis);
+	protected function canAccessObj($site, $appId, &$member, $memberSchemas, &$app) {
+		return $this->model('acl')->canAccessMatter($site, 'enroll', $app, $member, $memberSchemas);
 	}
 	/**
 	 * 检查登记活动进入规则

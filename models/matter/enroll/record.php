@@ -5,28 +5,48 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 活动登记（不包括登记数据）
 	 *
-	 * $siteId
-	 * $app
-	 * $user
-	 * $enroll_at
+	 * @param string $siteId
+	 * @param string $app
+	 * @param object $user
+	 * @param int $enroll_at
 	 */
-	public function enroll($siteId, &$app, &$user, $enroll_at = null) {
+	public function enroll($siteId, &$app, &$user, $enroll_at = null, $referrer = '') {
 		$ek = $this->genKey($siteId, $app->id);
-		$i = array(
+		$record = array(
 			'aid' => $app->id,
 			'siteid' => $siteId,
 			'mpid' => $siteId,
 			'enroll_at' => $enroll_at === null ? time() : $enroll_at,
 			'enroll_key' => $ek,
 			'userid' => $user->uid,
-			'nickname' => $user->nickname,
+			'referrer' => $referrer,
 		);
+		/*记录所属轮次*/
 		$modelRun = \TMS_APP::M('matter\enroll\round');
 		if ($activeRound = $modelRun->getActive($siteId, $app->id)) {
-			$i['rid'] = $activeRound->rid;
+			$record['rid'] = $activeRound->rid;
+		}
+		/*登记用户昵称*/
+		$entryRule = $app->entry_rule;
+		if (isset($entryRule->scope) && $entryRule->scope === 'member') {
+			foreach ($entryRule->member as $schemaId => $rule) {
+				if (isset($user->members->{$schemaId})) {
+					$record['nickname'] = $user->members->{$schemaId}->name;
+					break;
+				}
+			}
+		} else if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
+			foreach ($entryRule->sns as $snsName => $rule) {
+				if (isset($user->sns->{$snsName})) {
+					$record['nickname'] = $user->sns->{$snsName}->nickname;
+					break;
+				}
+			}
+		} else {
+			$record['nickname'] = $user->nickname;
 		}
 
-		$this->insert('xxt_enroll_record', $i, false);
+		$this->insert('xxt_enroll_record', $record, false);
 
 		return $ek;
 	}
@@ -443,7 +463,7 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 返回登记人
 	 */
-	public function &enrollers($aid, $rid = '', $size = 1, $size = 30) {
+	public function &enrollers($aid, $rid = '', $page = 1, $size = 30) {
 		$w = "aid='$aid' and state=1";
 		!empty($rid) && $w .= " and rid='$rid'";
 		$q = array(
@@ -464,36 +484,6 @@ class record_model extends \TMS_MODEL {
 	 */
 	public function genKey($siteId, $aid) {
 		return md5(uniqid() . $siteId . $aid);
-	}
-	/**
-	 * 活动登记（不包括登记数据）
-	 *
-	 * $siteId 运行的公众号，和openid和src相对应
-	 * $act
-	 * $mid
-	 */
-	public function add($siteId, $act, $user, $referrer = '') {
-		$ek = $this->genKey($siteId, $act->id);
-		$i = array(
-			'aid' => $act->id,
-			'siteid' => $siteId,
-			'enroll_at' => time(),
-			'enroll_key' => $ek,
-			'openid' => $user->openid,
-			'nickname' => empty($user->nickname) ? '' : $user->nickname,
-			'vid' => $user->vid,
-			'mid' => '',
-			'referrer' => $referrer,
-		);
-
-		$modelRou = \TMS_APP::M('matter\enroll\round');
-		if ($activeRound = $modelRou->getActive($siteId, $act->id)) {
-			$i['rid'] = $activeRound->rid;
-		}
-
-		$this->insert('xxt_enroll_record', $i, false);
-
-		return $ek;
 	}
 	/**
 	 *

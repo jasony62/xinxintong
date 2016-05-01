@@ -150,7 +150,7 @@ class main extends base {
 	 */
 	private function _defaultPage($site, &$app, $redirect = false) {
 		$user = $this->who;
-		$hasEnrolled = $this->modelApp->userEnrolled($site, $app->id, $user);
+		$hasEnrolled = $this->modelApp->userEnrolled($site, $app, $user);
 		if ($hasEnrolled && !empty($app->enrolled_entry_page)) {
 			$page = $app->enrolled_entry_page;
 		} else {

@@ -83,6 +83,17 @@
 				$scope.persisted = angular.copy($scope.app);
 			});
 		};
+		$scope.isInputPage = function(pageName) {
+			if (!$scope.app) {
+				return false;
+			}
+			for (var i in $scope.app.pages) {
+				if ($scope.app.pages[i].name === pageName && $scope.app.pages[i].type === 'I') {
+					return true;
+				}
+			}
+			return false;
+		};
 		$scope.$watch('app.pages', function(pages) {
 			if (!pages) return;
 			$scope.pages4NonMember = [{

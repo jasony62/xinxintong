@@ -21,7 +21,7 @@ class MySavant3 extends Savant3 {
 	 * 引入CSS文件
 	 */
 	public function import_css($dir) {
-		$current_uri = TMS_APP_URI . '/views/default' . $dir;
+		$current_uri = TMS_APP_URI . '/views/' . TMS_APP_VIEW_NAME . $dir;
 		$names = func_get_args();
 		$argnum = count($names);
 		// 附加参数，是否刷新
@@ -90,7 +90,7 @@ class MySavant3 extends Savant3 {
 	 * 其他参数是JS的文件名
 	 */
 	public function import_js($dir) {
-		$current_uri = TMS_APP_URI . '/views/default' . $dir;
+		$current_uri = TMS_APP_URI . '/views/' . TMS_APP_VIEW_NAME . $dir;
 		$names = func_get_args();
 		$argnum = count($names);
 		// 是否需要强制刷新
@@ -140,9 +140,9 @@ class TPL {
 			$template_filename .= self::$template_ext;
 		}
 
-		$display_template_filename = 'default/' . $template_filename;
+		$display_template_filename = TMS_APP_VIEW_NAME . '/' . $template_filename;
 
-		self::assign('template_name', 'default');
+		self::assign('template_name', TMS_APP_VIEW_NAME);
 
 		$output = self::$view->getOutput($display_template_filename);
 		if ($display) {
@@ -183,7 +183,7 @@ class TPL {
 		self::init();
 
 		if (self::$in_app) {
-			if (get_setting('ui_style') != 'default') {
+			if (get_setting('ui_style') != TMS_APP_VIEW_NAME) {
 				$custom_template_file = self::$template_path . '/' . get_setting('ui_style') . '/' . $template_filename . self::$template_ext;
 
 				if (file_exists($custom_template_file)) {
@@ -192,7 +192,7 @@ class TPL {
 			}
 		}
 
-		return file_get_contents(self::$template_path . '/default/' . $template_filename . self::$template_ext);
+		return file_get_contents(self::$template_path . '/' . TMS_APP_VIEW_NAME . '/' . $template_filename . self::$template_ext);
 	}
 
 	public static function is_output($output_filename, $template_filename) {

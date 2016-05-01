@@ -93,22 +93,26 @@ define('DEFAULT_DB_AUTOID', true);
 /**
  * cookie
  */
-// 定义 Cookies 作用域
+/* 定义 Cookies 作用域 */
 define('G_COOKIE_DOMAIN', '');
-// 定义 Cookies 前缀
+/* 定义 Cookies 前缀 */
 define('G_COOKIE_PREFIX', 'xxt');
-// 定义应用加密 KEY
+/* 定义应用加密 KEY */
 define('G_COOKIE_HASH_KEY', 'gzuhhqnckcryrrd');
-// 用户信息在cookie中保存的天数
+/* 用户信息在cookie中保存的天数 */
 define('TMS_COOKIE_SITE_USER_EXPIRE', 3650);
 define('TMS_COOKIE_SITE_LOGIN_EXPIRE', 30);
-// 重新绑定公众号未关注用户信息的间隔
+/* 重新绑定公众号未关注用户信息的间隔 */
 define('TMS_COOKIE_SITE_USER_BIND_INTERVAL', 600);
 /**
  * app's local position.
  */
+/* 应用程序起始目录 */
 define('TMS_APP_DIR', dirname(__FILE__));
-define('TMS_APP_TEMPLATE', dirname(__FILE__) . '/_template');
+/* 应用程序视图名称，起始路径为：TMS_APP_DIR.'/views/'.TMS_APP_VIEW_NAME */
+!defined('TMS_APP_VIEW_NAME') && define('TMS_APP_VIEW_NAME', 'default');
+/* 应用程序模版起始目录 */
+!defined('TMS_APP_TEMPLATE') && define('TMS_APP_TEMPLATE', dirname(__FILE__) . '/_template');
 /**
  * app's uri.
  */

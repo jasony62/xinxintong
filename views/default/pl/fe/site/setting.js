@@ -68,7 +68,8 @@ app.controller('ctrlSet', ['$scope', 'http2', 'mediagallery', function($scope, h
     $scope.editPage = function(event, page) {
         event.preventDefault();
         event.stopPropagation();
-        var pageid = $scope.site[page + '_page_id'];
+        var prop = page + '_page_id',
+            pageid = $scope.site[prop];
         if (pageid === '0') {
             http2.get('/rest/pl/fe/site/pageCreate?site=' + $scope.siteId + '&page=' + page, function(rsp) {
                 $scope.site[prop] = new String(rsp.data.id);

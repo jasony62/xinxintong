@@ -1,9 +1,8 @@
 <?php
-require_once dirname(__FILE__) . '/member_base.php';
 /**
- *
+ * 快速任务
  */
-class q extends member_base {
+class q extends TMS_CONTROLLER {
 	/**
 	 *
 	 */
@@ -25,9 +24,16 @@ class q extends member_base {
 			if (false === $task) {
 				$this->outputError('任务不存在');
 			}
-			$fan = $this->model('user/fans')->byId($task->fid);
-			$this->setCookieOAuthUser($task->mpid, $fan->openid);
 			$this->redirect($task->url);
 		}
+	}
+	/**
+	 *
+	 */
+	protected function outputError($err, $title = '程序错误') {
+		TPL::assign('title', $title);
+		TPL::assign('body', $err);
+		TPL::output('error');
+		exit;
 	}
 }

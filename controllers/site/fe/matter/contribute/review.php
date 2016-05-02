@@ -62,8 +62,8 @@ class review extends base {
 	/**
 	 * 页面
 	 */
-	public function reviewlog_action($mpid, $id) {
-		$article = $this->getArticle($mpid, $id);
+	public function reviewlog_action($siteid, $id) {
+		$article = $this->getArticle($siteid, $id);
 
 		$disposer = $article->disposer;
 		if ($disposer && $disposer->mid === $this->user->mid && $disposer->phase === 'R' && $disposer->state === 'P') {
@@ -79,14 +79,17 @@ class review extends base {
 	/**
 	 * 文稿审核通过
 	 */
-	public function articlePass_action($mpid, $id) {
-		$article = $this->getArticle($mpid, $id);
-		$contributor = $this->model('user/fans')->byMid($article->creater);
+	public function articlePass_action($site, $id) {
+		$article = $this->getArticle($site, $id);
+		$contributor = $this->model('site\user\member')->byId($article->creater);
 		/**
 		 * 更新日志状态
 		 */
+		$user = $this->who;
+		$members = $this->model('site\user\member')->byUser($site, $user->uid);
+		$member = $members[0];
 		$disposer = $article->disposer;
-		if ($disposer && $disposer->mid === $this->user->mid && $disposer->phase === 'R' && $disposer->state === 'D') {
+		if ($disposer && $disposer->mid === $member->id && $disposer->phase === 'R' && $disposer->state === 'D') {
 			$this->model()->update(
 				'xxt_article_review_log',
 				array('close_at' => time(), 'state' => 'C'),
@@ -99,48 +102,48 @@ class review extends base {
 		$rst = $this->model()->update(
 			'xxt_article',
 			array('approved' => 'Y'),
-			"mpid='$mpid' and id='$id'"
+			"siteid='$site' and id='$id'"
 		);
 		/**
 		 * 奖励投稿人
 		 */
-		$modelCoin = $this->model('coin\log');
-		$action = 'app.' . $article->entry . '.article.approved';
-		$modelCoin->income($mpid, $action, $id, 'sys', $contributor->openid);
+		//$modelCoin = $this->model('coin\log');
+		//$action = 'app.' . $article->entry . '.article.approved';
+		//$modelCoin->income($siteid, $action, $id, 'sys', $contributor->openid);
 		/**
 		 * 发送通知
 		 */
-		$url = 'http://' . $_SERVER['HTTP_HOST'];
-		$url .= '/rest/app/contribute/initiate/article';
-		$url .= "?mpid=$mpid";
-		$url .= "&entry=$article->entry";
-		$url .= "&id=$id";
+		/*$url = 'http://' . $_SERVER['HTTP_HOST'];
+			$url .= '/rest/app/contribute/initiate/article';
+			$url .= "?siteid=$siteid";
+			$url .= "&entry=$article->entry";
+			$url .= "&id=$id";
 
-		$reply = '您的稿件【';
-		$reply .= $article->title;
-		$reply .= '】已经通过审核，';
-		$mpa = $this->model('mp\mpaccount')->byId($mpid, 'mpsrc');
-		if ($mpa->mpsrc === 'yx') {
-			$reply .= '查看详情：\n' . $url;
-		} else {
-			$reply .= "<a href='" . $url . "'>查看详情</a>";
-		}
-		$message = array(
-			"msgtype" => "text",
-			"text" => array(
-				"content" => $reply,
-			),
-		);
+			$reply = '您的稿件【';
+			$reply .= $article->title;
+			$reply .= '】已经通过审核，';
+			$mpa = $this->model('mp\mpaccount')->byId($siteid, 'mpsrc');
+			if ($mpa->mpsrc === 'yx') {
+				$reply .= '查看详情：\n' . $url;
+			} else {
+				$reply .= "<a href='" . $url . "'>查看详情</a>";
+			}
+			$message = array(
+				"msgtype" => "text",
+				"text" => array(
+					"content" => $reply,
+				),
+			);
 
-		$rst = $this->notify($mpid, $contributor->openid, $message);
-
+			$rst = $this->notify($siteid, $contributor->openid, $message);
+		*/
 		return new \ResponseData('ok');
 	}
 	/**
 	 * 版面页面
 	 */
-	public function news_action($mpid, $id) {
-		$news = $this->getNews($mpid, $id);
+	public function news_action($siteid, $id) {
+		$news = $this->getNews($siteid, $id);
 		$disposer = $news->disposer;
 		/**
 		 * 更改处理状态
@@ -157,7 +160,7 @@ class review extends base {
 	/**
 	 * 待审核版面
 	 */
-	public function newsList_action($mpid, $id) {
+	public function newsList_action($siteid, $id) {
 		$myNews = $this->model('matter\news')->byReviewer($this->user->mid, 'R', '*', true);
 
 		if (!empty($myNews)) {

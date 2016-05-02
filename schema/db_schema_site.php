@@ -14,6 +14,7 @@ $sql .= ",asparent char(1) not null default 'N'"; // 是否作为父站点
 $sql .= ",site_id varchar(32) not null default ''"; // 父站点ID
 $sql .= ',state tinyint not null default 1'; // 1:正常, 0:停用
 $sql .= ',home_page_id int not null default 0'; // 站点主页
+$sql .= ',shift2pc_page_id int not null default 0'; // 引导到PC端完成
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

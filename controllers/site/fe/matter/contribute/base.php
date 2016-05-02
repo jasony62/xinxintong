@@ -1,11 +1,11 @@
 <?php
 namespace site\fe\matter\contribute;
 
-include_once dirname(dirname(dirname(__FILE__))) . '/base.php';
+include_once dirname(dirname(__FILE__)) . '/base.php';
 /**
  * 投稿活动
  */
-class base extends \site\fe\base {
+class base extends \site\fe\matter\base {
 	/**
 	 * 单篇文章
 	 */
@@ -66,7 +66,7 @@ class base extends \site\fe\base {
 		$rst = $this->model()->update(
 			'xxt_article',
 			$nv,
-			"siteid='$site' and creater='" . $this->who->uid . "' and id='$id'"
+			"siteid='$site' and id='$id'"
 		);
 
 		return new \ResponseData($rst);
@@ -78,7 +78,7 @@ class base extends \site\fe\base {
 		/**
 		 * 记录日志
 		 */
-		$articleModel = $this->model('matter\article');
+		$articleModel = $this->model('matter\article2');
 		$disposer = $articleModel->disposer($id);
 		if ($disposer->seq == 1) {
 			$article = $articleModel->byId($id);
@@ -101,7 +101,7 @@ class base extends \site\fe\base {
 		 */
 		$article = $articleModel->byId($id);
 		$url = 'http://' . $_SERVER['HTTP_HOST'];
-		$url .= '/rest/app/contribute/initiate/article';
+		$url .= '/rest/site/fe/matter/contribute/initiate/article';
 		$url .= "?mpid=$site";
 		$url .= "&entry=$article->entry";
 		$url .= "&id=$id";
@@ -109,22 +109,23 @@ class base extends \site\fe\base {
 		$reply = '您的投稿【';
 		$reply .= $article->title;
 		$reply .= '】已退回。退回原因【' . $msg . '】，请修改后再次送审。';
-		$mpa = $this->model('mp\mpaccount')->byId($site, 'mpsrc');
-		if ($mpa->mpsrc === 'yx') {
-			$reply .= '查看详情：\n' . $url;
-		} else {
-			$reply .= "<a href='" . $url . "'>查看详情</a>";
+
+		foreach (array('wx', 'yx', 'qy') as $snsName) {
+			if ($snsName === 'yx') {
+				$reply .= '查看详情：\n' . $url;
+			} else {
+				$reply .= "<a href='" . $url . "'>查看详情</a>";
+			}
+			$message = array(
+				"msgtype" => "text",
+				"text" => array(
+					"content" => $reply,
+				),
+			);
+			if ($snsUser = $this->snsUserByMember($site, $mid, $snsName)) {
+				$this->notify($site, $snsName, $snsUser, $message);
+			}
 		}
-		$message = array(
-			"msgtype" => "text",
-			"text" => array(
-				"content" => $reply,
-			),
-		);
-
-		$fan = $this->model('user/fans')->byMid($mid);
-
-		$rst = $this->notify($site, $fan->openid, $message);
 
 		return new \ResponseData('ok');
 	}
@@ -148,10 +149,10 @@ class base extends \site\fe\base {
 		 * 发给指定用户进行处理
 		 * @todo 应该改为模版消息实现
 		 */
-		/*$url = $this->articleReviewUrl($site, $id);
-			$msg = '投稿活动【' . $c->title . '】有一篇新稿件，';
-			$mpa = $this->model('mp\mpaccount')->byId($site, 'mpsrc');
-			if ($mpa->mpsrc === 'yx') {
+		$url = $this->articleReviewUrl($site, $id);
+		$msg = '投稿活动【' . $c->title . '】有一篇新稿件，';
+		foreach (array('wx', 'yx', 'qy') as $snsName) {
+			if ($snsName === 'yx') {
 				$msg .= '请处理：\n' . $url;
 			} else {
 				$msg .= "<a href='" . $url . "'>请处理</a>";
@@ -162,11 +163,11 @@ class base extends \site\fe\base {
 					"content" => $msg,
 				),
 			);
+			if ($snsUser = $this->snsUserByMember($site, $mid, $snsName)) {
+				$rst = $this->notify($site, $snsName, $snsUser, $message);
+			}
+		}
 
-			$fan = $this->model('user/fans')->byMid($mid);
-
-			$rst = $this->notify($site, $fan->openid, $message);
-		*/
 		return new \ResponseData('ok');
 	}
 	/**
@@ -176,15 +177,15 @@ class base extends \site\fe\base {
 	 * $id 文章ID
 	 */
 	public function articleInitiateUrl($site, $id) {
-		$model = $this->model('matter\article');
+		$model = $this->model('matter\article2');
 		$article = $model->byId($id);
 
-		$modelCtrb = $this->model('app\contribute');
+		$modelCtrb = $this->model('matter\contribute');
 		$entry = explode(',', $article->entry);
 		$c = $modelCtrb->byId($entry[1]);
 
 		$url = 'http://' . $_SERVER['HTTP_HOST'];
-		$url .= '/rest/app/contribute/initiate/article';
+		$url .= '/rest/site/fe/matter/contribute/initiate/article';
 		$url .= "?mpid=$site";
 		$url .= "&entry=$article->entry";
 		$url .= "&id=$id";
@@ -198,16 +199,16 @@ class base extends \site\fe\base {
 	 * $id 文章ID
 	 */
 	public function articleReviewUrl($site, $id) {
-		$model = $this->model('matter\article');
+		$model = $this->model('matter\article2');
 		$article = $model->byId($id);
 
-		$modelCtrb = $this->model('app\contribute');
+		$modelCtrb = $this->model('matter\contribute');
 		$entry = explode(',', $article->entry);
 		$c = $modelCtrb->byId($entry[1]);
 
 		$url = 'http://' . $_SERVER['HTTP_HOST'];
-		$url .= '/rest/app/contribute/review/article';
-		$url .= "?mpid=$site";
+		$url .= '/rest/site/fe/matter/contribute/review/article';
+		$url .= "?site=$site";
 		$url .= "&entry=$article->entry";
 		$url .= "&id=$id";
 
@@ -220,8 +221,8 @@ class base extends \site\fe\base {
 	 * $id 文章ID
 	 * $phase 处理的阶段
 	 */
-	public function notify($site, $openid, $message) {
-		$rst = $this->sendByOpenid($site, $openid, $message);
+	public function notify($site, $snsName, &$snsUser, $message) {
+		$rst = $this->sendBySnsUser($site, $snsName, $snsUser, $message);
 
 		return $rst;
 	}
@@ -229,8 +230,7 @@ class base extends \site\fe\base {
 	 *
 	 */
 	public function articleAddChannel_action($site) {
-		$fan = $this->model('user/fans')->byId($this->user->fid, 'nickname');
-
+		$user = $this->who;
 		$relations = $this->getPostJson();
 
 		$channels = $relations->channels;
@@ -238,7 +238,7 @@ class base extends \site\fe\base {
 
 		$model = $this->model('matter\channel');
 		foreach ($channels as $channel) {
-			$model->addMatter($channel->id, $matter, $this->user->mid, $fan->nickname, 'M');
+			$model->addMatter($channel->id, $matter, $user->uid, $user->nickname, 'U');
 		}
 
 		return new \ResponseData('ok');
@@ -264,7 +264,7 @@ class base extends \site\fe\base {
 		$q = array(
 			"n.*",
 			'xxt_news n',
-			"n.mpid='$site' and n.id=$id",
+			"n.siteid='$site' and n.id=$id",
 		);
 
 		if ($news = $this->model()->query_obj_ss($q)) {
@@ -328,41 +328,6 @@ class base extends \site\fe\base {
 		$log = $newsModel->forward($site, $id, $mid, $phase);
 
 		return new \ResponseData('ok');
-	}
-	/**
-	 * 当前公众号的父账号的所有子公众号
-	 */
-	public function childmps_action($site) {
-		$mpa = $this->model('mp\mpaccount')->byId($site, 'parent_mpid');
-
-		if ($mpa && !empty($mpa->parent_mpid)) {
-			$q = array(
-				'mpid,name,mpsrc,create_at,yx_joined,wx_joined,qy_joined',
-				'xxt_mpaccount a',
-				"parent_mpid='$mpa->parent_mpid'",
-			);
-			$q2 = array('o' => 'name');
-
-			$mps = $this->model()->query_objs_ss($q, $q2);
-		} else {
-			$q = array(
-				'mpid,name,mpsrc,create_at,yx_joined,wx_joined,qy_joined',
-				'xxt_mpaccount a',
-				"mpid='$site'",
-			);
-			$mp = $this->model()->query_obj_ss($q);
-			$mps = array($mp);
-		}
-
-		return new \ResponseData($mps);
-	}
-	/**
-	 * $pid 获得父公众平台下的子平台
-	 */
-	public function mpaccountGet_action($site) {
-		$mpas = $this->model('mp\mpaccount')->byMpid($site);
-
-		return new \ResponseData($mpas);
 	}
 	/**
 	 * 可用的频道

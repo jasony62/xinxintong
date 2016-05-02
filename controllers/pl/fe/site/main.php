@@ -164,14 +164,14 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	private function &_makePage($site, $page, $template) {
-		$templateDir = TMS_APP_DIR . '/controllers/pl/_template/fe/site/' . $page;
+		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/page/' . $page;
 		$data = array(
 			'html' => file_get_contents($templateDir . '/' . $template . '.html'),
 			'css' => file_get_contents($templateDir . '/' . $template . '.css'),
 			'js' => file_get_contents($templateDir . '/' . $template . '.js'),
 		);
 		/*填充页面*/
-		$data['html'] = $this->_htmlBySite($site, $data['html']);
+		//$data['html'] = $this->_htmlBySite($site, $data['html']);
 
 		return $data;
 	}

@@ -8,8 +8,9 @@ include_once dirname(__FILE__) . '/base.php';
 class entry extends \site\fe\base {
 	/**
 	 * 获得当前用户的信息
-	 * $site
-	 * $entry
+	 *
+	 * @param string $site
+	 *
 	 */
 	public function list_action($site) {
 		/* 身份信息*/
@@ -25,7 +26,7 @@ class entry extends \site\fe\base {
 		if (!empty($entries)) {
 			$modelAcl = $this->model('acl');
 			foreach ($entries as $entry) {
-				// 可以参与投稿？
+				/* 可以参与投稿？ */
 				$set = "cid='$entry->id' and role='I'";
 				$entry->isInitiator = $modelAcl->canAccess2(
 					$site,
@@ -33,7 +34,7 @@ class entry extends \site\fe\base {
 					$set,
 					$member->id,
 					array($member->schema_id), false);
-				// 可以参与审稿？
+				/* 可以参与审稿？ */
 				$set = "cid='$entry->id' and role='R'";
 				$entry->isReviewer = $modelAcl->canAccess2(
 					$site,
@@ -41,7 +42,7 @@ class entry extends \site\fe\base {
 					$set,
 					$member->id,
 					array($member->schema_id), true);
-				// 可以参与版面？
+				/* 可以参与版面？ */
 				$set = "cid='$entry->id' and role='T'";
 				$entry->isTypesetter = $modelAcl->canAccess2(
 					$site,
@@ -90,18 +91,17 @@ class entry extends \site\fe\base {
 			 * 获得用户信息
 			 */
 			$entry = 'contribute,' . $c->id;
-			$myUrl = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/contribute/initiate?mpid=$site&entry=$entry";
-			list($fid) = $this->getCurrentUserInfo($site, $myUrl);
+			$myUrl = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/site/fe/matter/contribute/initiate?site=$site&entry=$entry";
 			/**
 			 * 提示在PC端完成
 			 */
-			$fea = $this->model('mp\mpaccount')->getFeature($site, 'shift2pc_page_id');
-			$page = $this->model('code/page')->byId($fea->shift2pc_page_id, 'html,css,js');
+			$oSite = $this->model('site')->byId($site, 'shift2pc_page_id');
+			$page = $this->model('code/page')->byId($oSite->shift2pc_page_id, 'html,css,js');
 			/**
 			 * 任务码
 			 */
 			if ($c->can_taskcode && $c->can_taskcode === 'Y') {
-				$taskCode = $this->model('task')->addTask($site, $fid, $myUrl);
+				$taskCode = $this->model('task')->addTask($site, $this->who->uid, $myUrl);
 				$page->html = str_replace('{{taskCode}}', $taskCode, $page->html);
 			}
 			$c->pageShift2Pc = $page;
@@ -129,6 +129,8 @@ class entry extends \site\fe\base {
 				break;
 			}
 		}
+
+		$c->user = $this->who;
 
 		return new \ResponseData($c);
 	}

@@ -47,24 +47,28 @@
             <div class='help-block'>投稿人指定投稿加入频道</div>
         </div>
         <div class='form-group'>
-            <memberacl site-id='{{siteId}}' obj='app' prop-access='canSetInitiator' prop-acl='initiator' label-of-list='指定投稿人' change-acl-url='/rest/pl/fe/matter/contribute/role/setUser?site={{siteId}}&app={{app.id}}&role=I' remove-acl-url='/rest/pl/fe/matter/contribute/role/delUser?site={{siteId}}&app={{app.id}}' hide-access-control=true update-access-control=false></memberacl>
+            <memberacl site-id='{{siteId}}' obj='app' prop-access='canSetInitiator' prop-acl='initiator' label-of-list='指定投稿人' prop-member-schemas="initiator_schemas" update-member-schemas="update('initiator_schemas')" hide-access-control=true></memberacl>
             <div class='help-block'>指定投稿人</div>
         </div>
         <div class='form-group'>
-            <memberacl site-id='{{siteId}}' obj='app' prop-access='canSetReviewer' prop-acl='reviewer' label-of-list='指定投稿人' change-acl-url='/rest/pl/fe/matter/contribute/role/setUser?site={{siteId}}&app={{app.id}}&role=R' remove-acl-url='/rest/pl/fe/matter/contribute/role/delUser?site={{siteId}}&app={{app.id}}' hide-access-control=true update-access-control=false></memberacl>
+            <memberacl site-id='{{siteId}}' obj='app' prop-access='canSetReviewer' prop-acl='reviewer' label-of-list='指定投稿人' change-acl-url='/rest/pl/fe/matter/contribute/role/setUser?site={{siteId}}&app={{app.id}}&role=R' remove-acl-url='/rest/pl/fe/matter/contribute/role/delUser?site={{siteId}}&app={{app.id}}' hide-access-control=true hide-member-schemas=true></memberacl>
             <div class='help-block'>指定审稿人</div>
         </div>
         <div class='form-group'>
-            <memberacl site-id='{{siteId}}' obj='app' prop-access='canSetTypesetter' prop-acl='typesetter' label-of-list='指定投稿人' change-acl-url='/rest/pl/fe/matter/contribute/role/setUser?site={{siteId}}&app={{app.id}}&role=T' remove-acl-url='/rest/pl/fe/matter/contribute/role/delUser?site={{siteId}}&app={{app.id}}' hide-access-control=true update-access-control=false></memberacl>
+            <memberacl site-id='{{siteId}}' obj='app' prop-access='canSetTypesetter' prop-acl='typesetter' label-of-list='指定投稿人' change-acl-url='/rest/pl/fe/matter/contribute/role/setUser?site={{siteId}}&app={{app.id}}&role=T' remove-acl-url='/rest/pl/fe/matter/contribute/role/delUser?site={{siteId}}&app={{app.id}}' hide-access-control=true hide-member-schemas=true></memberacl>
             <div class='help-block'>指定版面审稿人</div>
         </div>
         <div class='form-group'>
             <label class='checkbox-inline'><input type='checkbox' ng-model='app.shift2pc' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('shift2pc')">用户在手机上打开时，引导用户转发到PC端打开。需在【账号管理】【定制功能】中设置提示内容。</label>
         </div>
         <div class='form-group'>
-            <label class='checkbox-inline'><input type='checkbox' ng-model='app.can_taskcode' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('can_taskcode')">通过任务码直接在PC浏览器中打开任务（{{taskCodeEntryUrl}}）。</label>
+            <label class='checkbox-inline'><input type='checkbox' ng-model='app.can_taskcode' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('can_taskcode')">通过任务码直接在PC浏览器中打开任务。</label>
         </div>
-    </div>    
+    </div>
+    <div class='tile'>
+        <tinymce content='app.template_body' contenteditable='bodyEditable' update="onBodyChange()" change="onBodyChange()" id='templateBody' height='700'></tinymce>
+        <div class='help-block'>投稿内容模版</div>
+    </div>
 </div>
 <div class='col-md-4'>
     <div class='tile'>

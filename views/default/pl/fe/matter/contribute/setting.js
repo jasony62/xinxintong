@@ -20,7 +20,7 @@
 			var nv = {
 				pic: ''
 			};
-			http2.post('/rest/mp/app/group/update?aid=' + $scope.id, nv, function() {
+			http2.post('/rest/pl/fe/matter/group/update?aid=' + $scope.id, nv, function() {
 				$scope.app.pic = '';
 			});
 		};
@@ -44,8 +44,8 @@
 			app.params.subChannels.splice(i, 1);
 			$scope.update('params');
 		});
-		http2.get('/rest/pl/fe/matter/channel/list?site=' + $scope.siteId + '&acceptType=contribute&cascade=N', function(rsp) {
-			$scope.channels = rsp.data;
-		});
+		$scope.onBodyChange = function() {
+			$scope.update('template_body');
+		};
 	}]);
 })();

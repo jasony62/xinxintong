@@ -9,7 +9,7 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', 'http2', '$modal', 'Art
         'N': '未通过'
     };
     $scope.create = function() {
-        if (/MicroMessenger|Yixin/i.test(navigator.userAgent)) {
+        if ($scope.entryApp.pageShift2Pc && /MicroMessenger|Yixin/i.test(navigator.userAgent)) {
             var ele = document.querySelector('#pagePopup iframe'),
                 css, js;
             if (ele.contentDocument && ele.contentDocument.body) {
@@ -21,7 +21,7 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', 'http2', '$modal', 'Art
                 js.innerHTML = $scope.entryApp.pageShift2Pc.js;
                 ele.contentDocument.body.appendChild(js);
             }
-            $('#pagePopup').show();
+            document.querySelector('#pagePopup').style.display = 'block';
         } else {
             $scope.Article.create().then(function(data) {
                 location.href = '/rest/site/fe/matter/contribute/initiate/article?site=' + $scope.siteId + '&entry=' + $scope.entry + '&id=' + data.id;

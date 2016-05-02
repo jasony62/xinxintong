@@ -1,13 +1,13 @@
 ngApp.config(['$routeProvider', function($routeProvider) {
-    $routeProvider.when('/rest/app/contribute/initiate/article', {
+    $routeProvider.when('/rest/site/fe/matter/contribute/initiate/article', {
         templateUrl: '/views/default/app/contribute/initiate/edit.html',
         controller: 'editCtrl',
-    }).when('/rest/app/contribute/initiate/reviewlog', {
+    }).when('/rest/site/fe/matter/contribute/initiate/reviewlog', {
         templateUrl: '/views/default/app/contribute/initiate/reviewlog.html',
         controller: 'reviewlogCtrl',
     });
 }]);
-ngApp.controller('ctrlInitiate', ['$scope', '$location', '$modal', 'http2', 'Article', 'Entry', 'Reviewlog', function($scope, $location, $modal, http2, Article, Entry, Reviewlog) {
+ngApp.controller('ctrlInitiate', ['$scope', '$location', '$modal', 'http2', 'mediagallery', 'Article', 'Entry', 'Reviewlog', function($scope, $location, $modal, http2, mediagallery, Article, Entry, Reviewlog) {
     $scope.phases = {
         'I': '投稿',
         'R': '审核',
@@ -33,18 +33,19 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$modal', 'http2', 'Art
                     ch = data.subChannels[i];
                     mapSubChannels[ch.id] = ch;
                 }
-            if ($scope.editing.channels)
+            if ($scope.editing.channels) {
                 for (i = 0, j = $scope.editing.channels.length; i < j; i++) {
                     ch = $scope.editing.channels[i];
                     mapSubChannels[ch.id] && $scope.editing.subChannels.push(ch);
                 }
-                //$scope.picBoxId = data.pic_store_at === 'M' ? $scope.siteId : data.user.fan.fid;
+            }
+            $scope.picBoxId = data.pic_store_at === 'M' ? $scope.siteId : data.user.uid;
             $scope.needReview = (data.reviewers && data.reviewers.length) ? 'Y' : 'N';
         });
     });
     $scope.back = function(event) {
         event.preventDefault();
-        location.href = '/rest/app/contribute/initiate?site=' + $scope.siteId + '&entry=' + $scope.entry;
+        location.href = '/rest/site/fe/matter/contribute/initiate?site=' + $scope.siteId + '&entry=' + $scope.entry;
     };
     $scope.edit = function(event, article) {
         if (article._cascade === true)
@@ -63,7 +64,7 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$modal', 'http2', 'Art
                 $scope.Article.update($scope.editing, 'pic');
             }
         };
-        $scope.$broadcast('mediagallery.open', options);
+        mediagallery.open($scope.picBoxId, options);
     };
     $scope.removePic = function() {
         $scope.editing.pic = '';
@@ -89,7 +90,7 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$modal', 'http2', 'Art
             multiple: true,
             setshowname: true
         }
-        $scope.$broadcast('mediagallery.open', options);
+        mediagallery.open($scope.picBoxId, options);
     });
     $scope.update = function(name) {
         $scope.Article.update($scope.editing, name);

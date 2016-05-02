@@ -138,6 +138,71 @@ class base extends \TMS_CONTROLLER {
 		return $user;
 	}
 	/**
+	 *
+	 */
+	protected function &snsUserByMember($siteId, $memberId, $snsName, $fields = '*', $followed = 'Y') {
+		$snsUser = false;
+		$member = $this->model('site\user\member')->byId($memberId);
+		switch ($snsName) {
+		case 'wx':
+			$snsUser = $this->model('sns\wx\fan')->byUser($siteId, $member->userid, $fields, $followed);
+			break;
+		case 'qy':
+			//$snsUser = $this->model('sns\qy\fan')->byUser($siteId, $member->userid, $fields, $followed);
+			$snsUser = false;
+			break;
+		case 'yx':
+			$snsUser = $this->model('sns\yx\fan')->byUser($siteId, $member->userid, $fields, $followed);
+			break;
+		}
+		return $snsUser;
+	}
+	/**
+	 * 尽最大可能向用户发送消息
+	 *
+	 * $mpid
+	 * $openid
+	 * $message
+	 */
+	public function sendBySnsUser($siteId, $snsName, $snsUser, $message) {
+		$rst = array(false);
+
+		switch ($snsName) {
+		case 'yx':
+			if ($snsConfig = $this->model('sns\yx')->bySite($siteId)) {
+				if ($snsConfig->joined === 'Y') {
+					$proxy = $this->model('sns\yx\proxy', $snsConfig);
+					if ($snsConfig->can_p2p === 'Y') {
+						$rst = $proxy->messageSend($message, array($snsUser->openid));
+					} else {
+						$rst = $proxy->messageCustomSend($message, $snsUser->openid);
+					}
+				}
+			}
+			break;
+		case 'wx':
+			if ($snsConfig = $this->model('sns\wx')->bySite($siteId)) {
+				if ($snsConfig->joined === 'Y') {
+					$proxy = $this->model('sns\wx\proxy', $snsConfig);
+					$rst = $proxy->messageCustomSend($message, $snsUser->openid);
+				}
+			}
+			break;
+		case 'qy':
+			if ($snsConfig = $this->model('sns\wx')->bySite($siteId)) {
+				if ($snsConfig->joined === 'Y') {
+					$proxy = $this->model('sns\qy\proxy', $snsConfig);
+					$message['touser'] = $snsUser->openid;
+					$message['agentid'] = $snsConfig->agentid;
+					$rst = $mpproxy->messageSend($message, $snsUser->openid);
+				}
+			}
+			break;
+		}
+
+		return $rst;
+	}
+	/**
 	 * 客户端应用名称
 	 */
 	protected function &userAgent() {

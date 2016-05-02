@@ -6,7 +6,7 @@
         </div>
     </div>
 </div>
-<div ng-if="!hideAccessControl&&propAccess&&obj[propAccess]=='Y'">
+<div ng-if="!hideMemberSchemas&&propAccess&&obj[propAccess]=='Y'">
     <div ng-class="{'col-md-{{controlSpan}}':controlSpan,'col-md-offset-{{labelSpan}}':labelSpan}">
         <div class='list-group'>
             <div class='list-group-item' ng-repeat='ms in objMemberSchemas'>

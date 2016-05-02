@@ -37,7 +37,7 @@ ngApp.controller('ctrlInitiate', ['$location', '$scope', '$modal', 'http2', 'Art
     };
     $scope.preview = function() {
         var url;
-        url = '/rest/mi/matter?mode=preview&type=article&tpl=std&site=' + siteId + '&id=' + id;
+        url = '/rest/site/fe/matter?mode=preview&type=article&tpl=std&site=' + siteId + '&id=' + id;
         location.href = url;
     };
     $scope.Article.get(id).then(function(data) {

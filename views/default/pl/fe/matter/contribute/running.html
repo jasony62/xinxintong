@@ -1,11 +1,8 @@
 <div class='col-md-8'>
     <div class='tile'>
         <div class='form-group'>
-            <div class='form-control' ng-bind='app.title'></div>
+            <a href='/rest/pl/fe/matter/contribute/setting?site={{siteId}}&id={{id}}'>{{app.title}} (设置）</a>
         </div>
-    </div>
-    <div class='tile'>
-        <a href='/rest/pl/fe/matter/contribute/setting?site={{siteId}}&id={{id}}'>设置</a>
     </div>
     <div class='tile'>
         <div class='form-group'>
@@ -21,11 +18,6 @@
 <div class='col-md-4'>
     <div class='tile'>
         <button class='btn btn-block btn-default' ng-click="stop()">停止</button>
-    </div>
-    <div class='tile'>
-        <div class='form-group'>
-            <a href='/rest/pl/fe/matter/contribute/record?site={{siteId}}&id={{id}}'>登记记录</a>
-        </div>
     </div>
     <div class='tile'>
         <div class='form-group'>

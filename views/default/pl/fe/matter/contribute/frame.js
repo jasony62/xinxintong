@@ -71,24 +71,28 @@ ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($sco
 		$scope.modified = true;
 	};
 	http2.get('/rest/pl/fe/matter/contribute/get?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
-		var app, mapChannels = {};
-		app = rsp.data;
+		var app = rsp.data;
 		app.params = app.params ? JSON.parse(app.params) : {};
-		app.subChannels = [];
-		angular.forEach(app.channels, function(ch) {
-			mapChannels[ch.id] = ch;
-		});
-		if (app.params.subChannels && app.params.subChannels.length) {
-			angular.forEach(app.params.subChannels, function(cid) {
-				app.subChannels.push(mapChannels[cid]);
-			});
-		}
 		app.canSetInitiator = 'Y';
 		app.canSetReviewer = 'Y';
 		app.canSetTypesetter = 'Y';
 		app.type = 'contribute';
 		$scope.persisted = angular.copy(app);
 		$scope.url = 'http://' + location.host + '/rest/site/fe/matter/contribute?site=' + $scope.siteId + '&app=' + $scope.id;
-		$scope.app = app;
+		http2.get('/rest/pl/fe/matter/channel/list?site=' + $scope.siteId + '&acceptType=contribute&cascade=N', function(rsp) {
+			var channels = rsp.data,
+				mapChannels = {};
+			angular.forEach(channels, function(ch) {
+				mapChannels[ch.id] = ch;
+			});
+			app.subChannels = [];
+			if (app.params.subChannels && app.params.subChannels.length) {
+				angular.forEach(app.params.subChannels, function(cid) {
+					app.subChannels.push(mapChannels[cid]);
+				});
+			}
+			$scope.channels = channels;
+			$scope.app = app;
+		});
 	});
 }]);

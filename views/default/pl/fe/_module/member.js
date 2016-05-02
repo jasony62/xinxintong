@@ -86,7 +86,7 @@ xxtMembers.controller('MemberAclController', ['$rootScope', '$scope', 'http2', '
     var setObjMemberSchemas = function() {
         var aMemberSchemas, i;
         $scope.objMemberSchemas = angular.copy($scope.memberschemas);
-        aMemberSchemas = $scope.obj[$scope.propApis] ? $scope.obj[$scope.propApis].trim() : '';
+        aMemberSchemas = $scope.obj[$scope.propMemberSchemas] ? $scope.obj[$scope.propMemberSchemas].trim() : '';
         aMemberSchemas = aMemberSchemas.length === 0 ? [] : aMemberSchemas.split(',');
         for (i in $scope.objMemberSchemas) {
             $scope.objMemberSchemas[i].checked = aMemberSchemas.indexOf($scope.objMemberSchemas[i].id) !== -1 ? 'Y' : 'N';
@@ -95,18 +95,18 @@ xxtMembers.controller('MemberAclController', ['$rootScope', '$scope', 'http2', '
     $scope.setAccessControl = function() {
         $scope.updateAccessControl();
         if ($scope.memberschemas.length === 1) {
-            $scope.obj[$scope.propApis] = $scope.obj[$scope.propAccess] === 'Y' ? $scope.memberschemas[0].id : '';
+            $scope.obj[$scope.propMemberSchemas] = $scope.obj[$scope.propAccess] === 'Y' ? $scope.memberschemas[0].id : '';
             $scope.objMemberSchemas[0].checked = $scope.obj[$scope.propAccess] === 'Y' ? 'Y' : 'N';
             $scope.updateMemberSchemas();
         }
     };
     $scope.setMemberschema = function(api) {
         var eapis, p = {};
-        eapis = $scope.obj[$scope.propApis] ? $scope.obj[$scope.propApis].trim() : '';
+        eapis = $scope.obj[$scope.propMemberSchemas] ? $scope.obj[$scope.propMemberSchemas].trim() : '';
         eapis = eapis.length === 0 ? [] : eapis.split(',');
         api.checked === 'Y' ? eapis.push(api.id) : eapis.splice(eapis.indexOf(api.id), 1);
         p.memberschemas = eapis.join();
-        $scope.obj[$scope.propApis] = p.memberschemas;
+        $scope.obj[$scope.propMemberSchemas] = p.memberschemas;
         $scope.updateMemberSchemas();
         if (eapis.length === 0) {
             if ($scope.obj[$scope.propAccess] !== 'N') {
@@ -203,7 +203,7 @@ xxtMembers.directive('memberacl', function() {
             propAcl: '@',
             labelOfList: '@',
             propAccess: '@',
-            propApis: '@',
+            propMemberSchemas: '@',
             changeAclUrl: '@',
             removeAclUrl: '@',
             updateAccessControl: '&',
@@ -211,7 +211,8 @@ xxtMembers.directive('memberacl', function() {
             labelSpan: '@',
             controlSpan: '@',
             disabled: '@',
-            hideAccessControl: '@'
+            hideAccessControl: '@',
+            hideMemberSchemas: '@'
         },
         controller: 'MemberAclController',
         templateUrl: '/views/default/pl/fe/_module/memberacl.html?_=' + (new Date()).getTime(),

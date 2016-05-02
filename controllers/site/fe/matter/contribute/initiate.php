@@ -124,12 +124,74 @@ class resumable {
 class initiate extends base {
 	/**
 	 * 获得当前用户的信息
-	 * $site
-	 * $entry
+	 *
+	 * @param string $site
+	 * @param string $entry
+	 *
 	 */
-	public function index_action() {
+	public function index_action($site, $entry) {
+		/* 检查是否可以进入活动 */
+		list($appType, $appId) = explode(',', $entry);
+		$app = $this->model('matter\\' . $appType)->byId($appId);
+		$this->_checkEntryRule($site, $app, $this->who, true);
+
 		\TPL::output('/site/fe/matter/contribute/initiate/list');
 		exit;
+	}
+	/**
+	 * 检查登记活动进入规则
+	 */
+	private function _checkEntryRule($site, &$app, &$user, $redirect = false) {
+		if (!empty($app->initiator_schemas)) {
+			$pass = false;
+			$aMemberSchemas = explode(',', $app->initiator_schemas);
+			foreach ($aMemberSchemas as $schemaId) {
+				if (isset($user->members->{$schemaId})) {
+					$pass = true;
+					break;
+				}
+			}
+			if (!$pass) {
+				if ($redirect) {
+					/*页面跳转*/
+					$this->gotoMember($site, $aMemberSchemas, $user->uid);
+				} else {
+					/*返回地址*/
+					$this->gotoMember($site, $aMemberSchemas, $user->uid, false);
+				}
+			}
+		}
+
+		return true;
+	}
+	/**
+	 * 获得投稿人身份信息
+	 */
+	private function &_initiatorMember(&$app) {
+		/* 投稿人的身份信息 */
+		$member = false;
+
+		$user = $this->who;
+		/* 活动指定的投稿人 */
+		$aMemberSchemas = explode(',', $app->initiator_schemas);
+
+		foreach ($aMemberSchemas as $schemaId) {
+			if (isset($user->members->{$schemaId})) {
+				$member = $user->members->{$schemaId};
+				break;
+			}
+		}
+
+		return $member;
+	}
+	/**
+	 *
+	 */
+	private function &_entryApp($entry) {
+		list($appType, $appId) = explode(',', $entry);
+		$app = $this->model('matter\\' . $appType)->byId($appId);
+
+		return $app;
 	}
 	/**
 	 * 单篇文稿页面
@@ -192,17 +254,22 @@ class initiate extends base {
 	/**
 	 * 当前用户文稿
 	 */
-	public function articleList_action($site, $entry, $openid = null) {
+	public function articleList_action($site, $entry) {
 		$articleModel = $this->model('matter\article2');
-		$myArticles = $articleModel->byEntry($site, $entry, $this->who->uid, '*');
+		$user = $this->who;
+		$app = $this->_entryApp($entry);
+		$member = $this->_initiatorMember($app);
+		$myArticles = $articleModel->byEntry($site, $entry, $member->id, '*');
+
 		if (!empty($myArticles)) {
+			$modelMem = $this->model('site\user\member');
 			foreach ($myArticles as &$a) {
 				$a->disposer = $articleModel->disposer($a->id);
 				$disposer = $a->disposer;
 				if (!empty($disposer)) {
-					$member = $this->model('site\user\member')->byId($disposer->mid);
-					if ($member->userid === $this->who->uid && $disposer->phase === 'I' && $disposer->receive_at == 0) {
-						$this->model()->update(
+					$member = $modelMem->byId($disposer->mid);
+					if ($member->userid === $user->uid && $disposer->phase === 'I' && $disposer->receive_at == 0) {
+						$articleModel->update(
 							'xxt_article_review_log',
 							array('receive_at' => time()),
 							"id=" . $a->disposer->id);
@@ -220,20 +287,25 @@ class initiate extends base {
 	 * @param string $entry
 	 */
 	public function articleCreate_action($site, $entry) {
+		/* 当前站点 */
 		$site = $this->model('site')->byId($site, 'id,heading_pic');
+		/* 投稿活动 */
+		$app = $this->_entryApp($entry);
+
 		$current = time();
 		$user = $this->who;
+		$member = $this->_initiatorMember($app);
 
 		$article = array();
 		$article['siteid'] = $site->id;
 		$article['entry'] = $entry;
-		$article['creater'] = $user->uid;
-		$article['creater_name'] = $user->nickname;
-		$article['creater_src'] = 'U';
+		$article['creater'] = $member->id;
+		$article['creater_name'] = $member->name;
+		$article['creater_src'] = 'M';
 		$article['create_at'] = $current;
-		$article['modifier'] = $user->uid;
-		$article['modifier_name'] = $user->nickname;
-		$article['modifier_src'] = 'U';
+		$article['modifier'] = $member->id;
+		$article['modifier_name'] = $member->name;
+		$article['modifier_src'] = 'M';
 		$article['modify_at'] = $current;
 		$article['title'] = '新文稿';
 		$article['pic'] = $site->heading_pic;
@@ -241,7 +313,7 @@ class initiate extends base {
 		$article['summary'] = '';
 		$article['url'] = '';
 		$article['weight'] = 70;
-		$article['body'] = '';
+		$article['body'] = isset($app->template_body) ? $app->template_body : '';
 		$article['finished'] = 'N';
 		$article['approved'] = 'N';
 		$article['public_visible'] = 'Y';
@@ -251,12 +323,10 @@ class initiate extends base {
 		/**
 		 * 设置频道
 		 */
-		list($entryType, $entryId) = explode(',', $entry);
-		$entry = $this->model('matter\\' . $entryType)->byId($entryId, 'params');
-		$params = json_decode($entry->params);
+		$params = json_decode($app->params);
 		if (!empty($params->channel)) {
 			$channelId = $params->channel;
-			$this->model('matter\channel')->addMatter($channelId, array('id' => $id, 'type' => 'article'), $user->uid, $user->nickname, 'M');
+			$this->model('matter\channel')->addMatter($channelId, array('id' => $id, 'type' => 'article'), $member->id, $member->name, 'M');
 		}
 
 		$article = $this->model('matter\article2')->byId($id);
@@ -415,10 +485,15 @@ class initiate extends base {
 	 * 删除一个文稿
 	 */
 	public function articleRemove_action($site, $id) {
+		$article = $this->getArticle($site, $id);
+		/* 投稿活动 */
+		$app = $this->_entryApp($article->entry);
+		$member = $this->_initiatorMember($app);
+
 		$rst = $this->model()->update(
 			'xxt_article',
 			array('state' => 0, 'modify_at' => time()),
-			"creater='" . $this->who->uid . "' and id='$id'");
+			"creater='" . $member->id . "' and id='$id'");
 
 		return new \ResponseData($rst);
 	}
@@ -437,7 +512,7 @@ class initiate extends base {
 			$this->model()->update(
 				'xxt_article',
 				array('finished' => 'Y'),
-				"mpid='$site' and id='$id'"
+				"siteid='$site' and id='$id'"
 			);
 			/*奖励投稿人*/
 			//$contributor = $this->getUser($site);

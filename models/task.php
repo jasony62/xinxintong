@@ -6,7 +6,7 @@ class task_model extends TMS_MODEL {
 	/**
 	 *
 	 */
-	public function addTask($mpid, $fid, $url) {
+	public function addTask($siteId, $userid, $url) {
 		$code = $this->genCode();
 
 		$q = array('1', 'xxt_task', "code='$code'");
@@ -18,8 +18,8 @@ class task_model extends TMS_MODEL {
 
 		$task = array(
 			'code' => $code,
-			'mpid' => $mpid,
-			'fid' => $fid,
+			'siteid' => $siteId,
+			'userid' => $userid,
 			'url' => $url,
 			'create_at' => time(),
 		);
@@ -33,7 +33,7 @@ class task_model extends TMS_MODEL {
 	 */
 	public function getTask($code) {
 		$q = array(
-			'mpid,fid,url,create_at',
+			'siteid,userid,url,create_at',
 			'xxt_task',
 			"code='$code'",
 		);

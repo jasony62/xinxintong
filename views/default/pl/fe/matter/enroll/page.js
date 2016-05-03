@@ -1050,7 +1050,7 @@
                     }
                 },
                 backdrop: 'static',
-                controller: ['$scope', '$modalInstance', 'memberSchemas', function($scope, $mi, memberSchemas) {
+                controller: ['$scope', '$modalInstance', '$timeout', 'memberSchemas', function($scope, $mi, $timeout, memberSchemas) {
                     var id;
                     id = 'c' + (new Date()).getTime();
                     $scope.memberSchemas = memberSchemas;
@@ -1067,9 +1067,15 @@
                     $scope.addOption = function() {
                         if ($scope.def.ops === undefined)
                             $scope.def.ops = [];
-                        var newOp = {
-                            text: ''
-                        };
+                        var maxSeq = 0,
+                            newOp = {
+                                l: ''
+                            };
+                        angular.forEach($scope.def.ops, function(op) {
+                            var opSeq = parseInt(op.v.substr(1));
+                            opSeq > maxSeq && (maxSeq = opSeq);
+                        });
+                        newOp.v = 'v' + (++maxSeq);
                         $scope.def.ops.push(newOp);
                         $timeout(function() {
                             $scope.$broadcast('xxt.editable.add', newOp);

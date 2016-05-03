@@ -150,16 +150,17 @@ ngApp.factory('Record', ['$http', '$q', function($http, $q) {
     };
 }]);
 ngApp.controller('ctrlRecord', ['$scope', 'Record', function($scope, Record) {
-    var facRecord;
+    var facRecord, schemas;
     facRecord = Record.ins(LS.p.scenario, LS.p.template);
     facRecord.get($scope.CustomConfig);
     $scope.Record = facRecord;
+    schemas = JSON.parse($scope.Page.data_schemas);
+    schemas = schemas.record.schemas;
     $scope.value2Label = function(key) {
-        var val, schemas, i, j, s, aVal, aLab = [];
-        if ($scope.Schema && $scope.Schema.data && facRecord.current.data) {
+        var val, i, j, s, aVal, aLab = [];
+        if (schemas && facRecord.current.data) {
             val = facRecord.current.data[key];
             if (val === undefined) return '';
-            schemas = $scope.Schema.data;
             for (i = 0, j = schemas.length; i < j; i++) {
                 s = schemas[i];
                 if (schemas[i].id === key) {
@@ -340,61 +341,4 @@ ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, 
             $scope.$broadcast('xxt.app.enroll.filter.owner', data);
         }
     });
-}]);
-ngApp.factory('Schema', ['$http', '$q', function($http, $q) {
-    var Cls, _running, _ins;
-    _running = false;
-    Cls = function() {
-        this.data = null;
-    };
-    Cls.prototype.get = function(options) {
-        var deferred, url, _this;
-        if (_running) return false;
-        _running = true;
-        deferred = $q.defer();
-        if (this.data !== null) {
-            deferred.resolve(this.data);
-        } else {
-            url = LS.j('page/schemaGet', 'scenario', 'template');
-            if (options) {
-                if (options.fromCache && options.fromCache === 'Y') {
-                    url += '&fromCache=Y';
-                    if (options.interval) {
-                        url += '&interval=' + options.interval;
-                    }
-                }
-            }
-            _this = this;
-            $http.get(url).success(function(rsp) {
-                _this.data = rsp.data;
-                deferred.resolve(_this.data);
-            });
-        }
-        return deferred.promise;
-    };
-    return {
-        ins: function() {
-            if (_ins === undefined) {
-                _ins = new Cls();
-            }
-            return _ins;
-        }
-    };
-}]);
-ngApp.directive('enrollSchema', ['Schema', function(facSchema) {
-    return {
-        restrict: 'A',
-        link: function(scope, elem, attrs) {
-            var i, params, pv, options;
-            params = attrs.enrollSchema.split(';');
-            options = {};
-            for (i in params) {
-                pv = params[i];
-                pv = pv.split('=');
-                options[pv[0]] = pv[1];
-            }
-            scope.Schema = facSchema.ins();
-            scope.Schema.get(options);
-        }
-    };
 }]);

@@ -50,7 +50,7 @@ class main extends base {
 	public function statGet_action($scenario, $template) {
 		$customConfig = $this->getPostJson();
 		if (!empty($customConfig->simpleSchema)) {
-			$schema = $this->model('app\enroll\page')->schemaByText($customConfig->simpleSchema);
+			$schema = $this->model('matter\enroll\page')->schemaByText($customConfig->simpleSchema);
 			$statistic = new \stdClass;
 			foreach ($schema as &$def) {
 				if ($def->type === 'single' || $def->type === 'multiple') {

@@ -9,7 +9,7 @@ class base extends \TMS_CONTROLLER {
 	 *
 	 */
 	protected function &getTemplateDir($scenario, $template) {
-		$templateDir = $_SERVER['DOCUMENT_ROOT'] . '/_template/pl/fe/matter/enroll/scenario/' . $scenario . '/templates/' . $template;
+		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/matter/enroll/scenario/' . $scenario . '/templates/' . $template;
 		return $templateDir;
 	}
 	/**

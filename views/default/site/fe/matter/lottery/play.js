@@ -97,13 +97,13 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
     $scope.awards = {};
     $scope.greeting = null;
     $http.get('/rest/site/fe/matter/lottery/get?site=' + siteId + '&app=' + appId).success(function(rsp) {
-        var lot, i, l, award, params, awards, sharelink;
-        params = rsp.data;
-        lot = params.app;
-        if (lot.fans_enter_only === 'Y' && params.user.openid.length === 0) {
+        var lot = params.app,
+            i, l, award, params = rsp.data,
+            awards, sharelink;
+        /*if (lot.fans_enter_only === 'Y' && params.user.openid.length === 0) {
             openAskFollow();
             return;
-        }
+        }*/
         $scope.lot = lot;
         awards = lot.awards;
         for (i = 0, l = awards.length; i < l; i++) {

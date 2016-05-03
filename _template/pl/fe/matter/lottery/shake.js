@@ -1,4 +1,4 @@
-lotApp.register.controller('shakeCtrl', ['$scope', '$interval', function($scope, $interval) {
+lotApp.provider.controller('shakeCtrl', ['$scope', '$interval', function($scope, $interval) {
     var lot, after;
     $scope.running = false;
     //function to call when shake occurs

@@ -56,29 +56,13 @@ class main extends \site\fe\base {
 		/**
 		 * 当前访问用户
 		 */
-		//$user = $this->getUser($site);
 		$user = $this->who;
 		/**
 		 * 访问控制
 		 */
 		if ($lot->access_control === 'Y') {
-			$this->accessControl($site, $lot->id, $lot->authapis, $user->openid, $lßot);
+			$this->accessControl($site, $lot->id, $lot->authapis, $user->openid, $lot);
 		}
-		/**
-		 * 记录前置活动执行状态
-		 */
-		if ($lot->pretask === 'N') {
-			//$this->logRead($site, $user, $lot->id, 'lottery', $lot->title, $shareby);
-		} else if ($pretaskdone === 'Y') {
-			if ($lot->pretaskcount === 'F') {
-				$expire = (int) $lot->end_at;
-				$this->mySetCookie("_{$app}_pretask", 'done', $expire);
-			} else {
-				$this->mySetCookie("_{$app}_pretask", 'done');
-			}
-			//$this->logRead($site, $user, $lot->id, 'lottery', $lot->title, $shareby);
-		}
-
 		\TPL::assign('title', $lot->title);
 		\TPL::output('/site/fe/matter/lottery/play');
 		exit;
@@ -90,7 +74,6 @@ class main extends \site\fe\base {
 		/* user */
 		$user = $this->who;
 		/**/
-		$mid = null;
 		$params = new \stdClass;
 		$params->user = $user;
 		/**
@@ -99,20 +82,10 @@ class main extends \site\fe\base {
 		$modelLot = $this->model('matter\lottery');
 		$lot = $modelLot->byId($app, array('cascaded' => array('award', 'plate')));
 		/**
-		 * 处理前置活动
-		 */
-		if ($lot->pretask === 'Y') {
-			$state = $this->myGetCookie("_{$app}_pretask");
-			$lot->_pretaskstate = $state === 'done' ? 'done' : 'pending';
-			if ($lot->pretaskcount === 'E') {
-				$this->mySetCookie("_{$app}_pretask", '', time() - 86400);
-			}
-		}
-		/**
 		 *
 		 */
-		$params->logs = $modelLot->getLog($app, $mid, $user->uid, true);
-		$params->leftChance = $modelLot->getChance($app, $mid, $user->uid);
+		$params->logs = $modelLot->getLog($app, $user, true);
+		$params->leftChance = $modelLot->getChance($app, $user);
 		$params->app = $lot;
 
 		$page = $this->model('code/page')->byId($lot->page_id);
@@ -130,57 +103,39 @@ class main extends \site\fe\base {
 	}
 	/**
 	 * 进行抽奖
+	 *
 	 * @param string $site
 	 * @param string $app 抽奖互动
 	 * @param string $enrollKey 关联的登记活动的登记记录
+	 *
 	 */
 	public function play_action($site, $app, $enrollKey = null) {
 		$user = $this->who;
-		$model = $this->model('matter\lottery');
+		$modelLot = $this->model('matter\lottery');
+		$modelTsk = $this->model('matter\lottery\task');
 		$modelRst = $this->model('matter\lottery\result');
 		/**
 		 * define data.
 		 */
-		$lot = $model->byId($app, array('cascaded' => array('award', 'plate')));
-		/**
-		 * 如果仅限关注用户参与，获得openid
-		 */
-		$openid = $user->uid;
-		if ($lot->fans_only === 'Y') {
-			if (empty($openid)) {
-				return new \ResponseData(null, 302, $lot->nonfans_alert);
-			}
-			$q = array(
-				'count(*)',
-				'xxt_fans',
-				"mpid='$site' and openid='$openid' and unsubscribe_at=0",
-			);
-			if (1 !== (int) $this->model()->query_val_ss($q)) {
-				return new \ResponseData(null, 302, $lot->nonfans_alert);
-			}
-		}
-		/**
-		 * 如果不能获得一个确定的身份信息，就无法将抽奖结果和用户关联
-		 * 因此无法确定用户身份时，就不允许进行抽奖
-		 */
-		//if (empty($openid) && empty($mid)) {
-		//	return new \ComplianceError('无法确定您的身份信息，不能参与抽奖！');
-		//}
-		/**
-		 * 如果仅限会员参与，获得用户身份信息
-		 */
-		if ($lot->access_control === 'Y') {
-			$aAuthapis = explode(',', $lot->authapis);
-			$members = $this->authenticate($site, $aAuthapis, false);
-			$mid = $members[0]->mid;
-		} else {
-			$mid = null;
-		}
+		$lot = $modelLot->byId($app, array('cascaded' => array('award', 'plate', 'task')));
 		/**
 		 * 是否完成了指定内置任务
 		 */
-		if ($task = $model->hasTask($app, $mid, $user->uid)) {
-			return new \ResponseData(null, 301, $task->description);
+		if (count($lot->tasks)) {
+			foreach ($lot->tasks as $lotTask) {
+				$userTask = $modelTsk->getTaskByUser($user, $lot->id, $lotTask->tid);
+				if ($userTask === false) {
+					/*创建任务*/
+					$modelTsk->addTask4User($user, $lot->id, $lotTask->tid);
+					return new \ResponseData(null, 301, $lotTask->description);
+				}
+				if ($userTask->finished === 'N') {
+					if (false === $modelTsk->checkUserTask($user, $lot->id, $lotTask, $userTask)) {
+						/*任务未完成*/
+						return new \ResponseData(null, 301, $lotTask->description);
+					}
+				}
+			}
 		}
 		/**
 		 * 还有参加抽奖的机会吗？
@@ -218,7 +173,7 @@ class main extends \site\fe\base {
 		/**
 		 * 检查剩余的机会
 		 */
-		$chance = $model->getChance($lot->id, $mid, $user->uid);
+		$chance = $modelLot->getChance($lot->id, $user);
 		/**
 		 * 清理冗余数据
 		 */

@@ -102,7 +102,7 @@ class base extends \site\fe\matter\base {
 		$article = $articleModel->byId($id);
 		$url = 'http://' . $_SERVER['HTTP_HOST'];
 		$url .= '/rest/site/fe/matter/contribute/initiate/article';
-		$url .= "?mpid=$site";
+		$url .= "?site=$site";
 		$url .= "&entry=$article->entry";
 		$url .= "&id=$id";
 
@@ -186,7 +186,7 @@ class base extends \site\fe\matter\base {
 
 		$url = 'http://' . $_SERVER['HTTP_HOST'];
 		$url .= '/rest/site/fe/matter/contribute/initiate/article';
-		$url .= "?mpid=$site";
+		$url .= "?site=$site";
 		$url .= "&entry=$article->entry";
 		$url .= "&id=$id";
 

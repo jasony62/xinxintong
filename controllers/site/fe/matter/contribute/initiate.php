@@ -212,7 +212,7 @@ class initiate extends base {
 		/**
 		 * 只有为投稿状态，且在PC端打开的时候才允许编辑
 		 */
-		if ($article->approved === 'N' && (empty($article->disposer) || $article->disposer->phase === 'I')) {
+		if (!in_array($this->userAgent(), array('wx', 'yx')) && $article->approved === 'N' && (empty($article->disposer) || $article->disposer->phase === 'I')) {
 			\TPL::output('/site/fe/matter/contribute/initiate/article');
 		} else {
 			\TPL::output('/site/fe/matter/contribute/initiate/article-r');

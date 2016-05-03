@@ -1,3 +1,10 @@
+if (/MicroMessenger/.test(navigator.userAgent)) {
+    if (window.signPackage) {
+        //signPackage.debug = true;
+        signPackage.jsApiList = ['onMenuShareTimeline', 'onMenuShareAppMessage'];
+        wx.config(signPackage);
+    }
+}
 lotApp = angular.module('app', ["ngSanitize"]).
 config(['$controllerProvider', function($cp) {
     lotApp.provider = {
@@ -49,7 +56,7 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
         },
     };
     var openAskFollow = function() {
-        $http.get('/rest/site/fe/matter/lottery/askFollow?mpid=' + mpid).error(function(content) {
+        $http.get('/rest/site/fe/matter/lottery/askFollow?site=' + siteId).error(function(content) {
             var body, el;;
             body = document.body;
             el = document.createElement('iframe');
@@ -60,9 +67,32 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
             window.closeAskFollow = function() {
                 el.style.display = 'none';
             };
-            el.setAttribute('src', '/rest/site/fe/matter/lottery/askFollow?mpid=' + mpid);
+            el.setAttribute('src', '/rest/site/fe/matter/lottery/askFollow?site=' + siteId);
             el.style.display = 'block';
         });
+    };
+    var setShare = function(app, user) {
+        var sharelink;
+        sharelink = 'http://' + location.hostname + "/rest/site/fe/matter/lottery";
+        sharelink += "?site=" + siteId;
+        sharelink += "&lottery=" + appId;
+        window.shareid = user.uid + (new Date()).getTime();
+        sharelink += "&shareby=" + window.shareid;
+        window.xxt.share.set(app.title, sharelink, app.summary, app.pic);
+        window.xxt.share.options.logger = function(shareto) {
+            var url;
+            url = "/rest/site/fe/matter/logShare";
+            url += "?shareid=" + window.shareid;
+            url += "&site=" + siteId;
+            url += "&id=" + app.id;
+            url += "&type=lottery";
+            url += "&title=" + app.title;
+            url += "&shareby=" + window.shareid;
+            url += "&shareto=" + shareto;
+            $http.get(url).success(function() {
+                $scope.$broadcast('xxt.app.lottery.share', shareto);
+            });
+        };
     };
     $scope.awards = {};
     $scope.greeting = null;
@@ -96,10 +126,11 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
             })();
         }
         $scope.params = params;
-        if (lot.pretask === 'Y' && lot._pretaskstate !== 'done') {
-            $scope.alert.pretask(lot.pretaskdesc);
-            return;
-        }
+        setShare($scope.lot, params.user);
+        //if (lot.pretask === 'Y' && lot._pretaskstate !== 'done') {
+        //    $scope.alert.pretask(lot.pretaskdesc);
+        //    return;
+        //}
     });
     var playAfter = function(result) {
         var log;

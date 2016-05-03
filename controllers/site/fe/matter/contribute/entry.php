@@ -59,6 +59,7 @@ class entry extends \site\fe\base {
 		}
 		$params = array();
 		$params['entries'] = $mine;
+		$params['user'] = $user;
 
 		return new \ResponseData($params);
 	}

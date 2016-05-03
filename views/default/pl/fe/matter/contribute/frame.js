@@ -79,7 +79,7 @@ ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($sco
 		app.type = 'contribute';
 		$scope.persisted = angular.copy(app);
 		$scope.url = 'http://' + location.host + '/rest/site/fe/matter/contribute?site=' + $scope.siteId + '&app=' + $scope.id;
-		http2.get('/rest/pl/fe/matter/channel/list?site=' + $scope.siteId + '&acceptType=contribute&cascade=N', function(rsp) {
+		http2.get('/rest/pl/fe/matter/channel/list?site=' + $scope.siteId + '&cascade=N', function(rsp) {
 			var channels = rsp.data,
 				mapChannels = {};
 			angular.forEach(channels, function(ch) {

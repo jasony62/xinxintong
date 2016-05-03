@@ -155,7 +155,7 @@ app.controller('ctrlMember', ['$scope', 'http2', '$http', '$modal', 'MemberSchem
     $scope.attrOps = [
         ['手机', 'mobile', [0, 1, 2, 3, 4, 5]],
         ['邮箱', 'email', [0, 1, 2, 3, 4, 5]],
-        ['姓名', 'name', [0, 1, -2, 3, -4, -5]],
+        ['姓名', 'name', [-99, 1, -2, 3, -4, -5]],
     ];
     $scope.fullUrl = function(schema) {
         var url = '';

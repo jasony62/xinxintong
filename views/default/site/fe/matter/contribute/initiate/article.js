@@ -164,7 +164,11 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$modal', 'http2', 'med
         });
     };
     $scope.downloadUrl = function(att) {
-        return '/rest/site/fe/matter/article/attachmentGet?site=' + siteId + '&articleid=' + $scope.editing.id + '&attachmentid=' + att.id;
+        var url;
+        url = '/rest/site/fe/matter/article/attachmentGet';
+        url += '?site=' + $scope.siteId;
+        url += '&articleid=' + $scope.id + '&attachmentid=' + att.id;
+        return url;
     };
     $scope.finish = function() {
         $scope.editing.finished = 'Y';
@@ -206,7 +210,6 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$modal', 'http2', 'med
                 reviewers: function() {
                     var level1 = [];
                     angular.forEach($scope.entryApp.reviewers, function(reviewer) {
-                        console.log('rrr', reviewer);
                         if (reviewer.level === '1') {
                             level1.push(reviewer);
                         }

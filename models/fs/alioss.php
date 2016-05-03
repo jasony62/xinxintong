@@ -135,7 +135,11 @@ class alioss_model {
 		/**
 		 * 写到临时文件中
 		 */
-		$tmpfname = tempnam($dir, 'xxt');
+		if (defined('SAE_TMP_PATH')) {
+			$tmpfname = tempnam(SAE_TMP_PATH, 'xxt');
+		} else {
+			$tmpfname = tempnam($dir, 'xxt');
+		}
 		$handle = fopen($tmpfname, "w");
 		fwrite($handle, $content);
 		fclose($handle);

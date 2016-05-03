@@ -161,4 +161,85 @@ class main extends \site\fe\base {
 
 		return true;
 	}
+	/**
+	 * 记录分享动作
+	 *
+	 * $shareid
+	 * $site 公众号ID，是当前用户
+	 * $id 分享的素材ID
+	 * $type 分享的素材类型
+	 * $share_to  分享给好友或朋友圈
+	 * $shareby 谁分享的当前素材ID
+	 *
+	 */
+	public function logShare_action($shareid, $site, $id, $type, $title, $shareto, $shareby = '') {
+		header('Access-Control-Allow-Origin:*');
+
+		switch ($type) {
+		case 'article':
+			$table = 'xxt_article';
+			break;
+		case 'news':
+			$table = 'xxt_news';
+			break;
+		case 'channel':
+			$table = 'xxt_channel';
+			break;
+		case 'enroll':
+			$table = 'xxt_enroll';
+			break;
+		case 'lottery':
+			$table = 'xxt_lottery';
+			break;
+		}
+		if (isset($table)) {
+			if ($shareto === 'F') {
+				$this->model()->update("update $table set share_friend_num=share_friend_num+1 where id='$id'");
+			} else if ($shareto === 'T') {
+				$this->model()->update("update $table set share_timeline_num=share_timeline_num+1 where id='$id'");
+			}
+		}
+
+		$user = $this->who;
+
+		$logUser = new \stdClass;
+		$logUser->userid = $user->uid;
+		$logUser->nickname = $user->nickname;
+
+		$logMatter = new \stdClass;
+		$logMatter->id = $id;
+		$logMatter->type = $type;
+		$logMatter->title = $this->model()->escape($title);
+
+		$logClient = new \stdClass;
+		$logClient->agent = $_SERVER['HTTP_USER_AGENT'];
+		$logClient->ip = $this->client_ip();
+
+		$this->model('log')->writeShareAction($site, $shareid, $shareto, $shareby, $logUser, $logMatter, $logClient);
+		/**
+		 * coin log
+		 * 投稿人分享不奖励积分
+		 */
+		/*$modelCoin = $this->model('coin\log');
+			if ($type === 'article') {
+				$contribution = $this->model('matter\article')->getContributionInfo($id);
+				if (!empty($contribution->openid) && $contribution->openid !== $logUser->openid) {
+					// for contributor
+					$action = 'app.' . $contribution->entry . '.article.share.' . $shareto;
+					$modelCoin->income($site, $action, $id, 'sys', $contribution->openid);
+				}
+				if (empty($contribution->openid) || $contribution->openid !== $logUser->openid) {
+					// for reader
+					$modelCoin->income($site, 'mp.matter.article.share.' . $shareto, $id, 'sys', $logUser->openid);
+				}
+			} else if ($type === 'enroll') {
+				$action = 'app.enroll,' . $id . '.share.' . $shareto;
+				$modelCoin->income($site, $action, $id, 'sys', $logUser->openid);
+			} else {
+				// for reader
+				$modelCoin->income($site, 'mp.matter.' . $type . '.share.' . $shareto, $id, 'sys', $logUser->openid);
+		*/
+
+		return new \ResponseData('ok');
+	}
 }

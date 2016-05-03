@@ -23,7 +23,7 @@ class lottery_model extends app_base {
 	 */
 	public function getEntryUrl($runningMpid, $id) {
 		$url = "http://" . $_SERVER['HTTP_HOST'];
-		$url .= "/rest/app/lottery";
+		$url .= "/rest/site/fe/matter/lottery";
 		$url .= "?mpid=$runningMpid&lottery=" . $id;
 
 		return $url;
@@ -85,13 +85,16 @@ class lottery_model extends app_base {
 		);
 
 		$tasks = $this->query_objs_ss($q);
+		foreach ($tasks as &$task) {
+			$task->task_params = json_decode($task->task_params);
+		}
 
 		return $tasks;
 	}
 	/**
 	 * 还有多少次参与机会
 	 */
-	public function getChance($lid, $mid = null, $openid = null) {
+	public function getChance($lid, &$user) {
 		/**
 		 * 获得抽奖设置
 		 */
@@ -103,11 +106,6 @@ class lottery_model extends app_base {
 		$setting = $this->query_obj_ss($q);
 
 		$times_threshold = $setting->chance; //每天允许参与的次数
-
-		if (empty($mid) && empty($openid)) {
-			return $times_threshold;
-		}
-
 		/**
 		 * 计算当前用户的抽奖机会
 		 */
@@ -115,11 +113,7 @@ class lottery_model extends app_base {
 			'times_accumulated,draw_at',
 			'xxt_lottery_log',
 		);
-		if (!empty($mid)) {
-			$q[2] = "lid='$lid' and mid='$mid' and last='Y'";
-		} else {
-			$q[2] = "lid='$lid' and openid='$openid' and last='Y'";
-		}
+		$q[2] = "lid='$lid' and userid='{$user->uid}' and last='Y'";
 
 		if (!($last = $this->query_obj_ss($q))) {
 			/**
@@ -166,15 +160,8 @@ class lottery_model extends app_base {
 	 *
 	 * 如果有返回任务的定义
 	 */
-	public function hasTask($lid, $mid, $openid) {
-		if (!empty($openid)) {
-			$whichuser = "lid='$lid' and openid='$openid'";
-		} else if (!empty($mid)) {
-			$whichuser = "lid='$lid' and mid='$mid'";
-		} else {
-			return false;
-		}
-
+	public function hasTask($lid, &$user) {
+		$whichuser = "lid='$lid' and userid='{$user->uid}'";
 		/**
 		 * 一个活动可能产生多个任务，只有最新创建的任务是有效任务
 		 */
@@ -192,7 +179,6 @@ class lottery_model extends app_base {
 			if ($tasklog->finished === 'Y') {
 				return false;
 			}
-
 			/**
 			 * 有任务，没有完成
 			 */
@@ -202,39 +188,40 @@ class lottery_model extends app_base {
 				"tid='$tasklog->tid'",
 			);
 			$task = $this->query_obj_ss($q);
-			//if ($taskid === 'share2friend001' || $taskid === 'share2friend002') {
-			/**
-			 * todo 具体的规则应该在任务中进行定义，而不应该写死
-			 * 检查是否分享了好友
-			 * 没有对分享的时间点进行检查
-			 */
-			$q = array(
-				'count(*)',
-				'xxt_log_matter_share',
-				"openid='$openid' and (share_to='F' or share_to='T') and matter_type='lottery' and matter_id='$lid' and share_at>$tasklog->create_at",
-			);
-			if (3 <= (int) $this->query_val_ss($q)) {
+			if ($task->task_type === 'sns_share') {
+				$task->task_params = json_decode($task->params);
 				/**
-				 * 任务完成，奖励一次抽奖机会
+				 * 检查是否分享了好友
+				 * 没有对分享的时间点进行检查
 				 */
-				$award = array('quantity' => 1);
-				$this->earnPlayAgain($lid, $mid, $openid, $award);
-				/**
-				 * 修改任务状态
-				 */
-				$this->update(
-					'xxt_lottery_task_log',
-					array('finished' => 'Y'),
-					"id=$tasklog->id"
+				$q = array(
+					'count(*)',
+					'xxt_log_matter_share',
+					"userid='{$user->uid}' and (share_to='F' or share_to='T') and matter_type='lottery' and matter_id='$lid' and share_at>$tasklog->create_at",
 				);
-				return false;
+				if ($task->task_params->shareCount <= (int) $this->query_val_ss($q)) {
+					/**
+					 * 任务完成，奖励一次抽奖机会
+					 */
+					$award = array('quantity' => 1);
+					\TMS_APP::M('matter\lottery\record')->earnPlayAgain($lid, $user, $award);
+					/**
+					 * 修改任务状态
+					 */
+					$this->update(
+						'xxt_lottery_task_log',
+						array('finished' => 'Y'),
+						"id=$tasklog->id"
+					);
+					return false;
+				}
 			}
-			//}
 			/**
 			 * 检查任务是否已经完成了
 			 */
 			return $task;
 		}
+
 		return false;
 	}
 	/**
@@ -242,9 +229,9 @@ class lottery_model extends app_base {
 	 */
 	public function &getWinners($lid) {
 		$q = array(
-			'm.nickname,a.title award_title',
-			'xxt_lottery_log l,xxt_lottery_award a,xxt_member m',
-			"l.lid='$lid' and l.mid=m.mid and m.forbidden='N' and l.aid=a.aid and a.type !=0",
+			'l.nickname,a.title award_title',
+			'xxt_lottery_log l,xxt_lottery_award a',
+			"l.lid='$lid' and l.aid=a.aid and a.type !=0",
 		);
 		$q2['o'] = 'l.draw_at desc';
 		$q2['r']['o'] = 0;
@@ -257,30 +244,21 @@ class lottery_model extends app_base {
 	/**
 	 * 获得抽奖记录
 	 */
-	public function &getLog($lid, $mid = null, $openid = null, $includeAll = false, $page = 1, $size = 20) {
-		if (empty($mid) && empty($openid)) {
-			$log = array();
-		} else {
-			$q = array(
-				'l.id,l.aid,l.draw_at,l.prize_url,a.title award_title,a.pic award_pic,a.greeting award_greeting,a.type',
-				'xxt_lottery_log l,xxt_lottery_award a',
-			);
-			if (!empty($mid)) {
-				$q[2] = "l.lid='$lid' and l.mid='$mid' and l.aid=a.aid";
-			} else {
-				$q[2] = "l.lid='$lid' and l.openid='$openid' and l.aid=a.aid";
-			}
-
-			if (!$includeAll) {
-				$q[2] .= " and a.type!=0";
-			}
-
-			$q2['o'] = 'l.draw_at desc';
-			$q2['r']['o'] = $page - 1;
-			$q2['r']['l'] = $size;
-
-			$log = $this->query_objs_ss($q, $q2);
+	public function &getLog($lid, &$user, $includeAll = false, $page = 1, $size = 20) {
+		$q = array(
+			'l.id,l.aid,l.draw_at,l.prize_url,a.title award_title,a.pic award_pic,a.greeting award_greeting,a.type',
+			'xxt_lottery_log l,xxt_lottery_award a',
+			"l.lid='$lid' and l.userid='{$user->uid}' and l.aid=a.aid",
+		);
+		if (!$includeAll) {
+			$q[2] .= " and a.type!=0";
 		}
+		$q2['o'] = 'l.draw_at desc';
+		$q2['r']['o'] = $page - 1;
+		$q2['r']['l'] = $size;
+
+		$log = $this->query_objs_ss($q, $q2);
+
 		return $log;
 	}
 	/**
@@ -300,6 +278,8 @@ class lottery_model extends app_base {
 	 * 2、奖品抽取情况记录
 	 */
 	public function clean($lid) {
+		/* task log*/
+		$this->delete('xxt_lottery_task_log', "lid='$lid'");
 		/**
 		 * log
 		 */

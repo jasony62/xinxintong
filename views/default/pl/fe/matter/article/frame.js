@@ -4,7 +4,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 		templateUrl: '/views/default/pl/fe/matter/article/setting.html?_=1',
 		controller: 'ctrlSetting',
 	}).otherwise({
-		templateUrl: '/views/default/pl/fe/matter/article/setting.html?_=1',
+		templateUrl: '/views/default/pl/fe/matter/article/setting.html?_=2',
 		controller: 'ctrlSetting'
 	});
 	$locationProvider.html5Mode(true);

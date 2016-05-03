@@ -41,6 +41,7 @@
         $scope.batchAward = function() {
             $modal.open({
                 templateUrl: 'batchAward.html',
+
                 controller: ['$scope', '$modalInstance', function($scope2, $mi) {
                     $scope2.option = {
                         quantity: 1,
@@ -75,9 +76,25 @@
         $scope.openAward = function(award) {
             $modal.open({
                 templateUrl: 'awardEditor.html',
+                resolve: {
+                    siteId: function() {
+                        return $scope.siteId;
+                    }
+                },
                 windowClass: 'auto-height',
-                controller: ['$scope', '$modalInstance', function($scope2, $mi) {
+                controller: ['$scope', '$modalInstance', 'siteId', 'mediagallery', function($scope2, $mi, siteId, mediagallery) {
                     $scope2.award = angular.copy(award);
+                    $scope2.setPic = function(award) {
+                        var options = {
+                            callback: function(url) {
+                                award.pic = url + '?_=' + (new Date()) * 1;
+                            }
+                        };
+                        mediagallery.open(siteId, options);
+                    };
+                    $scope2.removePic = function(award) {
+                        award.pic = '';
+                    };
                     $scope2.close = function() {
                         $mi.dismiss();
                     }

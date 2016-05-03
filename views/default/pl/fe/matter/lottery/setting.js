@@ -59,4 +59,36 @@
 			}
 		};
 	}]);
+	ngApp.provider.controller('ctrlTask', ['$scope', 'http2', function($scope, http2) {
+		$scope.taskHtml = function(task) {
+			var url;
+			url = '/views/default/pl/fe/matter/lottery/task/' + task.task_type + '.html';
+			return url;
+		};
+		$scope.add = function() {
+			var url, data = {};
+			url = '/rest/pl/fe/matter/lottery/task/add?site=' + $scope.siteId + '&app=' + $scope.app.id;
+			data.task_type = 'sns_share';
+			http2.post(url, data, function(rsp) {
+				$scope.app.tasks.push(rsp.data);
+			});
+		};
+		$scope.remove = function(task) {
+			var url;
+			url = '/rest/pl/fe/matter/lottery/task/remove?site=' + $scope.siteId + '&app=' + $scope.app.id;
+			url += '&task=' + task.tid;
+			http2.get(url, function(rsp) {
+				var i = $scope.app.tasks.indexOf(task);
+				$scope.app.tasks.splice(i, 1);
+			});
+		};
+		$scope.save = function(task) {
+			var url, data = {};
+			url = '/rest/pl/fe/matter/lottery/task/update?site=' + $scope.siteId + '&app=' + $scope.app.id;
+			url += '&task=' + task.tid;
+			data.description = task.description;
+			data.task_params = task.task_params;
+			http2.post(url, data, function(rsp) {});
+		};
+	}]);
 })();

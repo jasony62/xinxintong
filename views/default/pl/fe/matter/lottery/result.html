@@ -1,0 +1,72 @@
+<div>
+    <div class='form-group clearfix'>
+        <button class='btn btn-danger' ng-click='clean()'>清空抽奖记录</button>
+        <button class='btn btn-success' ng-click='addChance()' title='给未中奖用户增加一次抽奖机会'>增加抽奖机会</button>
+        <button class='btn btn-primary pull-right' ng-click='refresh()'>刷新</button>
+    </div>
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <th>奖项</th>
+                <th>抽中数量</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat='s in stat'>
+                <td>{{s.title}}</td>
+                <td>{{s.number}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class='form-inline'>
+        <div class='form-group'>
+            <select class='form-control' ng-model='byAward' ng-options='a.aid as a.title for a in lottery.awards' ng-change="doSearch()">
+                <option value=''></option>
+            </select>
+        </div>
+        <div class='form-group' style='width:180px'>
+            <tms-datepicker tms-title='开始日期' tms-date='startAt' tms-state='startAt'></tms-datepicker>
+        </div>
+        <div class='form-group' style='width:180px'>
+            <tms-datepicker tms-title='结束日期' tms-date='endAt' tms-state='endAt'></tms-datepicker>
+        </div>
+        <div class='form-group pull-right'>
+            <div class='input-group' style='width:100px'>
+                <input class='form-control' ng-model='page.size' title='每页显示数量'>
+                <span class='input-group-btn'>
+                    <button class='btn btn-default' ng-click='doSearch(1)'><span class='glyphicon glyphicon-refresh'></span></button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <th style='width:48px'>序号</th>
+                <th>昵称</th>
+                <th>抽奖时间</th>
+                <th>奖品</th>
+                <th style='width:48px'>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat='r in result'>
+                <td>{{$index+1}}</td>
+                <td><a href='javascript:void(0)' ng-click='viewUser(r)'>{{r.nickname}}</a></td>
+                <td>{{r.draw_at*1000|date:'MM-dd HH:mm'}}</td>
+                <td>{{r.award_title}}</td>
+                <td>
+                    <button class='btn btn-xs btn-danger' ng-click='removeRoll(r)'>
+                    <span class='glyphicon glyphicon-remove'></span>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class='form-inline'>
+        <span style='margin-left:20px'>总计：{{page.total}}</span>
+        <div class='pull-right'>
+            <pagination boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.current" class="pagination" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()" style='margin:0;cursor:pointer'></pagination>
+        </div>
+    </div>
+</div>

@@ -11,7 +11,7 @@ app.controller('ctrlSite', ['$scope', '$location', 'http2', function($scope, $lo
 app.controller('ctrlConsole', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
     $scope.matterType = 'recent';
     $scope.open = function(matter) {
-        var type = (matter.matter_type || $scope.matterType),
+        var type = $scope.matterType === 'recent' ? matter.matter_type : $scope.matterType,
             id = (matter.matter_id || matter.id);
         switch (type) {
             case 'text':
@@ -231,7 +231,7 @@ app.controller('ctrlConsole', ['$scope', '$modal', 'http2', function($scope, $mo
     };
     $scope.addLottery = function() {
         http2.get('/rest/pl/fe/matter/lottery/create?site=' + $scope.siteId, function(rsp) {
-            location.href = '/rest/pl/fe/matter/lottery?site=' + $scope.siteId + '&id=' + rsp.data.id;
+            location.href = '/rest/pl/fe/matter/lottery?site=' + $scope.siteId + '&id=' + rsp.data;
         });
     };
     $scope.addContribute = function() {

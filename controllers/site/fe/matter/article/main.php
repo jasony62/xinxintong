@@ -32,7 +32,7 @@ class main extends \site\fe\matter\base {
 
 		$modelArticle = $this->model('matter\article2');
 		$article = $modelArticle->byId($id);
-		if (isset($article->access_control) && $article->access_control === 'Y') {
+		if (isset($article->access_control) && $article->access_control === 'Y' && !empty($article->authapis)) {
 			$this->accessControl($site, $id, $article->authapis, $user->uid, $article, false);
 		}
 		$article->channels = $this->model('matter\channel')->byMatter($id, 'article');
@@ -71,7 +71,7 @@ class main extends \site\fe\matter\base {
 	 *
 	 */
 	public function list_action($site, $tagid, $page = 1, $size = 10) {
-		$model = $this->model('matter\article');
+		$model = $this->model('matter\article2');
 
 		$user = $this->who;
 

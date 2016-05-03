@@ -10,14 +10,14 @@ class result extends \pl\fe\matter\base {
 	 *
 	 */
 	public function index_action() {
-		$this->output('/pl/fe/matter/lottery/frame');
+		\TPL::output('/pl/fe/matter/lottery/frame');
 		exit;
 	}
 	/**
 	 *
 	 */
 	public function get_action($id) {
-		$log = $this->model('app\lottery\log')->byId($id);
+		$log = $this->model('matter\lottery\log')->byId($id);
 
 		return new \ResponseData($log);
 	}
@@ -25,13 +25,13 @@ class result extends \pl\fe\matter\base {
 	 *
 	 */
 	public function list_action($lid, $startAt = null, $endAt = null, $page = 1, $size = 30, $award = null) {
-		$r = $this->model('app\lottery')->byId($lid, 'access_control');
+		$r = $this->model('matter\lottery')->byId($lid, 'access_control');
 		/**
 		 * 参与抽奖的用户不一定是关注用户，所以粉丝表里不一定有对应的记录
 		 */
 		$q = array(
-			"f.nickname,l.openid,l.draw_at,a.title award_title,l.takeaway",
-			"xxt_lottery_log l left join xxt_lottery_award a on l.aid=a.aid left join xxt_fans f on f.mpid='$this->mpid' and l.openid=f.openid",
+			"l.nickname,l.userid,l.draw_at,a.title award_title,l.takeaway",
+			"xxt_lottery_log l left join xxt_lottery_award a on l.aid=a.aid",
 			"l.lid='$lid'",
 		);
 		/**

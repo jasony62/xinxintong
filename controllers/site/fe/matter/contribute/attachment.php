@@ -40,7 +40,11 @@ class resumableAliOss {
 		if ($total_files * $chunkSize >= ($totalSize - $chunkSize + 1)) {
 			$fs2 = \TMS_APP::M('fs/alioss', $this->siteId, 'xxt-attachment');
 			// create the final destination file
-			$tmpfname = tempnam(sys_get_temp_dir(), 'xxt');
+			if (defined('SAE_TMP_PATH')) {
+				$tmpfname = tempnam(SAE_TMP_PATH, 'xxt');
+			} else {
+				$tmpfname = tempnam(sys_get_temp_dir(), 'xxt');
+			}
 			$handle = fopen($tmpfname, "w");
 			for ($i = 1; $i <= $total_files; $i++) {
 				$content = $fs->read($temp_dir . '/' . $fileName . '.part' . $i);

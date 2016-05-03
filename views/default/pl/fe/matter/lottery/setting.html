@@ -1,11 +1,6 @@
 <div class='col-md-8'>
     <div class='tile'>
         <div class='form-group'>
-            <div class="form-control-static" style='height:auto' ng-bind='app._url'></div>
-        </div>
-    </div>
-    <div class='tile'>
-        <div class='form-group'>
             <input type="text" class="form-control" ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title');">
             <div class='help-block'>标题：最多35个汉字，70个英文字符</div>
         </div>
@@ -18,17 +13,9 @@
                     </div>
                     <div style='position:relative' ng-if="app.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
                         <img name='pic' ng-src="{{app.pic}}" width='180px' />
-                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
-                        <span class='glyphicon glyphicon-picture'></span>
-                        </button>
-                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
-                        <span class='glyphicon glyphicon-trash'></span>
-                        </button>
+                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'><span class='glyphicon glyphicon-picture'></span></button>
+                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'><span class='glyphicon glyphicon-trash'></span></button>
                     </div>
-                </div>
-                <div style='position:absolute;top:30px;left:210px'>
-                    <label class='checkbox-inline'>
-                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.hide_pic' ng-change="update('hide_pic');">正文中不显示头图</label>
                 </div>
             </div>
             <div class='help-block'>头图（可选）：建议尺寸：900像素 * 500像素</div>
@@ -52,16 +39,18 @@
             <label class='checkbox-inline'><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.fans_enter_only' ng-change="update('fans_enter_only')">仅限关注用户进入</label>
             <label class='checkbox-inline'><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.fans_only' ng-change="update('fans_only')">仅限关注用户参与</label>
         </div>
-        <div class='form-group'>
-            <label class='checkbox-inline'><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.pretask' ng-change="update('pretask');">必须完成前置活动才能抽奖</label>
-        </div>
-        <div class='form-group' ng-if="app.pretask==='Y'">
-            <div class="form-control" style='height:auto' ng-bind="app._pretaskdoneUrl"></div>
-            <div class='help-block'>前置活动完成URL</div>
-        </div>
-        <div class='form-group' ng-if="app.pretask==='Y'">
-            <label class='radio-inline'><input type="radio" name='pretaskcount' value='F' ng-model='app.pretaskcount' ng-change="update('pretaskcount')">首次执行</label>
-            <label class='radio-inline'><input type="radio" name='pretaskcount' value='E' ng-model='app.pretaskcount' ng-change="update('pretaskcount')">每次都执行</label>
+        <div class='form-group' ng-controller="ctrlTask">
+            <button class='btn btn-default' ng-click="add()">添加</button>
+            <ul class='list-group'>
+                <li class='list-group-item' ng-repeat="t in app.tasks">
+                    <textarea class="form-control" ng-model='t.description'></textarea>
+                    <div class='help-block'>任务描述</div>
+                    <div class='task-params' ng-include="taskHtml(t)"></div>
+                    <button class='btn btn-default' ng-click="save(t)">保存</button>
+                    <button class='btn btn-default' ng-click="remove(t)">删除</button>
+                </li>
+            </ul>
+            <div class='help-block'>抽奖任务</div>
         </div>
     </div>    
 </div>
@@ -82,6 +71,9 @@
             <tms-datepicker tms-title='结束时间' tms-date='app.end_at' tms-state='end_at'></tms-datepicker>
             <div class='help-block'>结束时间（可选）</div>
         </div>
+    </div>
+    <div class='tile'>
+        <a href="/rest/pl/fe/matter/lottery/result?site={{siteId}}&id={{id}}">抽奖结果</a>    
     </div>
     <div class='tile'>
         <div class='form-group'>

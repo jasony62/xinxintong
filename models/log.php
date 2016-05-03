@@ -181,21 +181,17 @@ class log_model extends TMS_MODEL {
 	 * $client_ip  谁进行的分享
 	 * $share_at 什么时间做的分享
 	 * $share_to  分享给好友或朋友圈
-	 * $mshareid 素材的分享ID
 	 *
 	 */
-	public function writeShareAction($mpid, $shareid, $shareto, $shareby, $user, $matter, $client) {
-		$mopenid = '';
-		$mshareid = '';
+	public function writeShareAction($siteId, $shareid, $shareto, $shareby, $user, $matter, $client) {
 		$current = time();
 
 		$d = array();
-		$d['mpid'] = $mpid;
+		$d['siteid'] = $siteId;
 		$d['shareid'] = $shareid;
 		$d['share_at'] = $current;
 		$d['share_to'] = $shareto;
-		$d['vid'] = $user->vid;
-		$d['openid'] = $user->openid;
+		$d['userid'] = $user->userid;
 		$d['nickname'] = $this->escape($user->nickname);
 		$d['matter_id'] = $matter->id;
 		$d['matter_type'] = $matter->type;
@@ -207,9 +203,9 @@ class log_model extends TMS_MODEL {
 		$logid = $this->insert('xxt_log_matter_share', $d, true);
 
 		// 日志汇总
-		$this->writeUserAction($mpid, $user, $current, 'S' . $shareto, $logid);
+		//$this->writeUserAction($siteId, $user, $current, 'S' . $shareto, $logid);
 
-		$this->writeMatterAction($mpid, $matter, $current, 'S' . $shareto, $logid);
+		//$this->writeMatterAction($siteId, $matter, $current, 'S' . $shareto, $logid);
 
 		return $logid;
 	}
@@ -217,11 +213,9 @@ class log_model extends TMS_MODEL {
 	 * 用户行为汇总日志
 	 * 为了便于进行数据统计
 	 */
-	private function writeUserAction($mpid, $user, $action_at, $action_name, $original_logid) {
+	private function writeUserAction($siteId, $user, $action_at, $action_name, $original_logid) {
 		$d = array();
-		$d['mpid'] = $mpid;
-		$d['vid'] = $user->vid;
-		$d['openid'] = $user->openid;
+		$d['siteid'] = $siteId;
 		$d['nickname'] = $this->escape($user->nickname);
 		$d['action_at'] = $action_at;
 		$d['original_logid'] = $original_logid;
@@ -243,13 +237,13 @@ class log_model extends TMS_MODEL {
 		if (!empty($user->openid)) {
 			switch ($action_name) {
 			case 'R':
-				$this->update("update xxt_fans set read_num=read_num+1 where mpid='$mpid' and openid='$user->openid'");
+				$this->update("update xxt_fans set read_num=read_num+1 where site='$siteId' and userid='$user->openid'");
 				break;
 			case 'SF':
-				$this->update("update xxt_fans set share_friend_num=share_friend_num+1 where mpid='$mpid' and openid='$user->openid'");
+				$this->update("update xxt_fans set share_friend_num=share_friend_num+1 where site='$siteId' and userid='$user->openid'");
 				break;
 			case 'ST':
-				$this->update("update xxt_fans set share_timeline_num=share_timeline_num+1 where mpid='$mpid' and openid='$user->openid'");
+				$this->update("update xxt_fans set share_timeline_num=share_timeline_num+1 where site='$siteId' and userid='$user->openid'");
 				break;
 			}
 		}

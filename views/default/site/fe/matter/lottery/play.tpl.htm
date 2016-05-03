@@ -62,6 +62,13 @@
         <script src="/static/js/angular-sanitize.min.js "></script>
         <script src="/static/js/shake.js "></script>
         <script src="/static/js/xxt.share.js?_=1"></script>
-        <script src="/views/default/site/fe/matter/lottery/play.js?_=2"></script>
+        <script type="text/javascript">
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+        var siteId = location.search.match(/site=([^&]*)/)[1];
+        document.write("<script src='http:\/\/res.wx.qq.com\/open\/js\/jweixin-1.0.0.js'><\/script>");
+        document.write("<script src='\/rest\/site\/fe\/matter\/lottery\/wxjssdksignpackage?site="+siteId+"&url="+encodeURIComponent(location.href.split('#')[0])+"'><\/script>");
+        }
+        </script>
+        <script src="/views/default/site/fe/matter/lottery/play.js?_=4"></script>
     </body>
 </html>

@@ -59,6 +59,20 @@ ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', func
 				return defer.promise;
 			}
 		}
+	}).when('/rest/pl/fe/matter/lottery/result', {
+		templateUrl: '/views/default/pl/fe/matter/lottery/result.html?_=1',
+		controller: 'ctrlResult',
+		resolve: {
+			load: function($q) {
+				var defer = $q.defer();
+				(function() {
+					$.getScript('/views/default/pl/fe/matter/lottery/result.js', function() {
+						defer.resolve();
+					});
+				})();
+				return defer.promise;
+			}
+		}
 	}).otherwise({
 		templateUrl: '/views/default/pl/fe/matter/lottery/setting.html?_=1',
 		controller: 'ctrlSetting',

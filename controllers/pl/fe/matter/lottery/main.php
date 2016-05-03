@@ -253,7 +253,7 @@ class main extends \pl\fe\matter\base {
 		/*记录操作日志*/
 		if ($rst) {
 			$app = $this->model('matter\lottery')->byId($app, 'id,title,summary,pic');
-			$app->type = 'group';
+			$app->type = 'lottery';
 			$this->model('log')->matterOp($site, $user, $app, 'U');
 		}
 
@@ -344,7 +344,7 @@ class main extends \pl\fe\matter\base {
 	 * 清空抽奖活动数据
 	 */
 	public function clean_action($lid) {
-		$rst = $this->model('app\lottery')->clean($lid);
+		$rst = $this->model('matter\lottery')->clean($lid);
 
 		return new \ResponseData($rst);
 	}
@@ -363,7 +363,7 @@ class main extends \pl\fe\matter\base {
 		$award['quantity'] = 1;
 		$losers = $this->model()->query_objs_ss($q);
 		foreach ($losers as $loser) {
-			$this->model('app\lottery')->earnPlayAgain($lid, $loser->mid, $loser->openid, $award);
+			$this->model('matter\lottery')->earnPlayAgain($lid, $loser->mid, $loser->openid, $award);
 		}
 
 		return new \ResponseData(count($losers));

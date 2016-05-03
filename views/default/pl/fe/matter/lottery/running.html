@@ -18,13 +18,13 @@
             <div class='form-control' ng-bind="opUrl"></div>
         </div>
     </div>
-    <div class='tile'>
-        运行情况统计
-    </div>
 </div>
 <div class='col-md-4'>
     <div class='tile'>
         <button class='btn btn-block btn-default' ng-click="stop()">停止</button>
+    </div>
+    <div class='tile'>
+        <a href="/rest/pl/fe/matter/lottery/result?site={{siteId}}&id={{id}}">抽奖结果</a>    
     </div>
     <div class='tile'>
         <div class='form-group'>

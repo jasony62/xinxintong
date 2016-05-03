@@ -35,6 +35,10 @@
 				$scope.app.pic = '';
 			});
 		};
+		$scope.$on('xxt.tms-datepicker.change', function(evt, data) {
+			$scope.app[data.state] = data.value;
+			$scope.update(data.state);
+		});
 		$scope.gotoCode = function() {
 			var app, url;
 			app = $scope.app;

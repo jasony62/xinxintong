@@ -19,7 +19,7 @@ ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$co
 			}
 		}
 	}).when('/rest/pl/fe/matter/enroll/page', {
-		templateUrl: '/views/default/pl/fe/matter/enroll/page.html?_=1',
+		templateUrl: '/views/default/pl/fe/matter/enroll/page.html?_=2',
 		controller: 'ctrlPage',
 		resolve: {
 			load: function($q) {

@@ -562,7 +562,7 @@
             $mi.dismiss();
         };
     }];
-    ngApp.provider.controller('ctrlPage', ['$scope', '$location', 'http2', '$modal', '$timeout', function($scope, $location, http2, $modal, $timeout) {
+    ngApp.provider.controller('ctrlPage', ['$scope', '$location', 'http2', '$modal', '$timeout', '$q', function($scope, $location, http2, $modal, $timeout, $q) {
         $scope.innerlinkTypes = [{
             value: 'article',
             title: '单图文',
@@ -586,7 +586,7 @@
             page.$$modified = page.html !== old.html;
         };
         $scope.updPage = function(page, name) {
-            var editor;
+            var editor, defer = $q.defer();
             if (!angular.equals($scope.app, $scope.persisted)) {
                 if (name === 'html') {
                     editor = tinymce.get(page.name);
@@ -609,8 +609,10 @@
                     $scope.persisted = angular.copy($scope.app);
                     page.$$modified = false;
                     $scope.$root.progmsg = '';
+                    defer.resolve();
                 });
             }
+            return defer.promise;
         };
         $scope.delPage = function() {
             if (window.confirm('确定删除？')) {
@@ -1039,6 +1041,139 @@
                 }
             });
         });
+        $scope.embedInput = function(page) {
+            $modal.open({
+                templateUrl: 'embedInputLib.html',
+                resolve: {
+                    memberSchemas: function() {
+                        return $scope.memberSchemas;
+                    }
+                },
+                backdrop: 'static',
+                controller: ['$scope', '$modalInstance', 'memberSchemas', function($scope, $mi, memberSchemas) {
+                    var id;
+                    id = 'c' + (new Date()).getTime();
+                    $scope.memberSchemas = memberSchemas;
+                    $scope.def = {
+                        id: 'name',
+                        type: 'name',
+                        title: '姓名',
+                        showname: 'placeholder',
+                        component: 'R',
+                        align: 'V',
+                        count: 1,
+                        setUpper: 'N'
+                    };
+                    $scope.addOption = function() {
+                        if ($scope.def.ops === undefined)
+                            $scope.def.ops = [];
+                        var newOp = {
+                            text: ''
+                        };
+                        $scope.def.ops.push(newOp);
+                        $timeout(function() {
+                            $scope.$broadcast('xxt.editable.add', newOp);
+                        });
+                    };
+                    $scope.$on('xxt.editable.remove', function(e, op) {
+                        var i = $scope.def.ops.indexOf(op);
+                        $scope.def.ops.splice(i, 1);
+                    });
+                    $scope.changeType = function() {
+                        var map = {
+                            'name': {
+                                title: '姓名',
+                                id: 'name'
+                            },
+                            'mobile': {
+                                title: '手机',
+                                id: 'mobile'
+                            },
+                            'email': {
+                                title: '邮箱',
+                                id: 'email'
+                            }
+                        };
+                        if (map[$scope.def.type]) {
+                            $scope.def.title = map[$scope.def.type].title;
+                            $scope.def.id = map[$scope.def.type].id;
+                        } else if ($scope.def.type === 'member') {
+                            $scope.def.title = '';
+                            $scope.def.id = '';
+                            $scope.def.member = {};
+                        } else {
+                            $scope.def.title = '';
+                            $scope.def.id = id;
+                        }
+                    };
+                    $scope.selectedMemberSchema = {
+                        schema: null,
+                        attrs: null,
+                        attr: null
+                    };
+                    $scope.shiftMemberSchema = function() {
+                        var schema = $scope.selectedMemberSchema.schema,
+                            schemaAttrs = [];
+                        $scope.def.member.schema_id = schema.id;
+                        schema.attr_name[0] === '0' && (schemaAttrs.push({
+                            id: 'name',
+                            label: '姓名'
+                        }));
+                        schema.attr_mobile[0] === '0' && (schemaAttrs.push({
+                            id: 'mobile',
+                            label: '手机'
+                        }));
+                        schema.attr_email[0] === '0' && (schemaAttrs.push({
+                            id: 'email',
+                            label: '邮箱'
+                        }));
+                        if (schema.extattr && schema.extattr.length) {
+                            var i, l, ea;
+                            for (i = 0, l = schema.extattr.length; i < l; i++) {
+                                ea = schema.extattr[i];
+                                schemaAttrs.push({
+                                    id: 'extattr.' + ea.id,
+                                    label: ea.label
+                                });
+                            }
+                        }
+                        $scope.selectedMemberSchema.attrs = schemaAttrs;
+                    };
+                    $scope.shiftMemberSchemaAttr = function() {
+                        var attr = $scope.selectedMemberSchema.attr;
+                        selectedMemberSchema = attr.label;
+                        $scope.def.id = 'member.' + attr.id;
+                    };
+                    $scope.ok = function() {
+                        if ($scope.def.title.length === 0) {
+                            alert('必须指定登记项的名称');
+                            return;
+                        }
+                        $mi.close($scope.def);
+                    };
+                    $scope.cancel = function() {
+                        $mi.dismiss();
+                    };
+                    $scope.$watch('def.setUpper', function(nv) {
+                        if (nv === 'Y') {
+                            $scope.def.upper = $scope.def.ops ? $scope.def.ops.length : 0;
+                        }
+                    });
+                }],
+            }).result.then(function(def) {
+                $scope.app.data_schemas.push(def);
+                $scope.$parent.modified = true;
+                $scope.update('data_schemas');
+                $scope.submit().then(function() {
+                    page.data_schemas.push(def);
+                    $scope.updPage(page, 'data_schemas').then(function() {
+                        var activeEditor = tinymce.get(page.name);
+                        wrapLib.embedInput(page, def);
+                        activeEditor.save();
+                    });
+                });
+            });
+        };
         $scope.editWrap = function(page) {
             var editor, $active, def;
             editor = tinymce.get(page.name);

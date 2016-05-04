@@ -136,7 +136,7 @@ class main extends \pl\fe\matter\base {
 	 * @param string $scenario scenario's name
 	 * @param string $template template's name
 	 */
-	public function create_action($site, $scenario = null, $template = null) {
+	public function create_action($site, $data = null, $scenario = null, $template = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -173,7 +173,7 @@ class main extends \pl\fe\matter\base {
 		/*create app*/
 		$newapp['siteid'] = $site->id;
 		$newapp['id'] = $id;
-		$newapp['title'] = '新登记活动';
+		$newapp['title'] = empty($data['title']) ? '新登记活动' : $data['title'];
 		$newapp['pic'] = $site->heading_pic;
 		$newapp['creater'] = $user->id;
 		$newapp['creater_src'] = $user->src;
@@ -198,7 +198,7 @@ class main extends \pl\fe\matter\base {
 	 *
 	 * @param int $mission mission'is
 	 */
-	public function createByMission_action($site, $mission, $scenario = null, $template = null) {
+	public function createByMission_action($site, $mission, $data = null, $scenario = null, $template = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -232,7 +232,7 @@ class main extends \pl\fe\matter\base {
 		}
 		$newapp['siteid'] = $site;
 		$newapp['id'] = $appid;
-		$newapp['title'] = '新登记活动';
+		$newapp['title'] = empty($data['title']) ? '新登记活动' : $data['title'];
 		$newapp['pic'] = $mission->pic;
 		$newapp['creater'] = $user->id;
 		$newapp['creater_src'] = $user->src;

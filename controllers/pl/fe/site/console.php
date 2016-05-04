@@ -16,7 +16,7 @@ class console extends \pl\fe\base {
 	/**
 	 * 列出站点最近操作的素材
 	 */
-	public function recent_action($site, $page = 1, $size = 30) {
+	public function recent_action($site, $exclude = '', $page = 1, $size = 30) {
 		$modelLog = $this->model('log');
 
 		/*分页参数*/
@@ -27,6 +27,11 @@ class console extends \pl\fe\base {
 		$options = array(
 			'page' => $p,
 		);
+
+		if (!empty($exclude)) {
+			$exclude = explode(',', $exclude);
+			$options['exclude'] = $exclude;
+		}
 
 		$matters = $modelLog->recentMatters($site, $options);
 

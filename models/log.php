@@ -542,6 +542,16 @@ class log_model extends TMS_MODEL {
 			'xxt_log_matter_op',
 			"siteid='$siteId' and last_op='Y' and operation<>'D'",
 		);
+		/* 不包含的类型 */
+		if (isset($options['exclude'])) {
+			$sql = '(';
+			foreach ($options['exclude'] as $excludeMatter) {
+				$sql .= "matter_type<>'$excludeMatter'";
+			}
+			$sql .= ')';
+			$q[2] .= ' and ' . $sql;
+		}
+		/* 分页和排序 */
 		$q2 = array(
 			'r' => array('o' => ($page->at - 1) * $page->size, 'l' => $page->size),
 			'o' => array('operate_at desc'),

@@ -136,10 +136,12 @@ class main extends \pl\fe\matter\base {
 	 * @param string $scenario scenario's name
 	 * @param string $template template's name
 	 */
-	public function create_action($site, $data = null, $scenario = null, $template = null) {
+	public function create_action($site, $scenario = null, $template = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
+		$customConfig = $this->getPostJson();
 		$current = time();
 		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
 
@@ -147,7 +149,6 @@ class main extends \pl\fe\matter\base {
 		$id = uniqid();
 		/*pages*/
 		if (!empty($scenario) && !empty($template)) {
-			$customConfig = $this->getPostJson();
 			$config = $this->_addPageByTemplate($site->id, $id, $scenario, $template, $customConfig);
 			/*进入规则*/
 			$entryRule = $config->entryRule;
@@ -173,7 +174,7 @@ class main extends \pl\fe\matter\base {
 		/*create app*/
 		$newapp['siteid'] = $site->id;
 		$newapp['id'] = $id;
-		$newapp['title'] = empty($data['title']) ? '新登记活动' : $data['title'];
+		$newapp['title'] = empty($customConfig->prototype->title) ? '新登记活动' : $customConfig->prototype->title;
 		$newapp['pic'] = $site->heading_pic;
 		$newapp['creater'] = $user->id;
 		$newapp['creater_src'] = $user->src;
@@ -198,10 +199,11 @@ class main extends \pl\fe\matter\base {
 	 *
 	 * @param int $mission mission'is
 	 */
-	public function createByMission_action($site, $mission, $data = null, $scenario = null, $template = null) {
+	public function createByMission_action($site, $mission, $scenario = null, $template = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		$customConfig = $this->getPostJson();
 
 		$modelMis = $this->model('mission');
 		$mission = $modelMis->byId($mission);
@@ -211,7 +213,6 @@ class main extends \pl\fe\matter\base {
 		$appid = uniqid();
 		/*pages*/
 		if (!empty($scenario) && !empty($template)) {
-			$customConfig = $this->getPostJson();
 			$config = $this->_addPageByTemplate($site, $appid, $scenario, $template, $customConfig);
 			$entryRule = $config->entryRule;
 			if (isset($config->enrolled_entry_page)) {
@@ -232,7 +233,7 @@ class main extends \pl\fe\matter\base {
 		}
 		$newapp['siteid'] = $site;
 		$newapp['id'] = $appid;
-		$newapp['title'] = empty($data['title']) ? '新登记活动' : $data['title'];
+		$newapp['title'] = empty($customConfig->prototype->title) ? '新登记活动' : $customConfig->prototype->title;
 		$newapp['pic'] = $mission->pic;
 		$newapp['creater'] = $user->id;
 		$newapp['creater_src'] = $user->src;

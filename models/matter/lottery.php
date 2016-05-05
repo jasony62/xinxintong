@@ -75,14 +75,11 @@ class lottery_model extends app_base {
 		return $awards;
 	}
 	/**
-	 * 还有多少次参与机会
+	 * 计算奖励的抽奖机会
 	 */
-	public function getChance(&$lot, &$user) {
-		$lid = $lot->id;
+	public function freshEarnChance(&$lot, &$user) {
 		$modelTsk = \TMS_APP::M('matter\lottery\task');
-		/**
-		 * 计算奖励的抽奖机会
-		 */
+
 		$tasks = $modelTsk->byApp($lot->id, array('task_type' => 'add_chance'));
 		if (count($tasks)) {
 			foreach ($tasks as $lotTask) {
@@ -94,6 +91,17 @@ class lottery_model extends app_base {
 				$modelTsk->checkUserTask($user, $lot->id, $lotTask, $userTask);
 			}
 		}
+		return true;
+	}
+	/**
+	 * 还有多少次参与机会
+	 */
+	public function getChance(&$lot, &$user) {
+		$lid = $lot->id;
+		/**
+		 * 计算奖励的抽奖机会
+		 */
+		$this->freshEarnChance($lot, $user);
 		/**
 		 * 获得抽奖设置
 		 */

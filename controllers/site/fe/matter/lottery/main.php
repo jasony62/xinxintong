@@ -161,6 +161,10 @@ class main extends \site\fe\base {
 		 */
 		$lot = $modelLot->byId($app, array('cascaded' => array('award', 'plate')));
 		/**
+		 * 检查是否有奖励的抽奖机会
+		 */
+		$modelLot->freshEarnChance($lot, $user);
+		/**
 		 * 是否完成了前置任务
 		 */
 		$tasks = $modelTsk->byApp($lot->id, array('task_type' => 'can_play'));

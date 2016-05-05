@@ -80,7 +80,7 @@ class task_model extends \TMS_MODEL {
 	 */
 	public function checkUserTask(&$user, $lid, &$lotTask, &$userTask) {
 		if ($lotTask->task_type === 'can_play') {
-			if ($lotTask->task_type === 'sns_share') {
+			if ($lotTask->task_name === 'sns_share') {
 				/**
 				 * 检查是否分享了好友
 				 * 没有对分享的时间点进行检查
@@ -104,7 +104,7 @@ class task_model extends \TMS_MODEL {
 				}
 			}
 		} else if ($lotTask->task_type === 'add_chance') {
-			if ($lotTask->task_type === 'sns_share') {
+			if ($lotTask->task_name === 'sns_share') {
 				/**
 				 * 检查是否分享了好友
 				 * 没有对分享的时间点进行检查

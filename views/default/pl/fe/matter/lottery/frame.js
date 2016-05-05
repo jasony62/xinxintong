@@ -4,7 +4,7 @@ ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', func
 		controller: $controllerProvider.register
 	};
 	$routeProvider.when('/rest/pl/fe/matter/lottery/award', {
-		templateUrl: '/views/default/pl/fe/matter/lottery/award.html?_=1',
+		templateUrl: '/views/default/pl/fe/matter/lottery/award.html?_=2',
 		controller: 'ctrlAward',
 		resolve: {
 			load: function($q) {

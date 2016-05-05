@@ -67,6 +67,26 @@ class base extends \TMS_CONTROLLER {
 		return false;
 	}
 	/**
+	 * 活的社交帐号用户信息
+	 */
+	protected function &getSnsUser($siteId) {
+		if ($this->userAgent() === 'wx') {
+			if (isset($this->who->sns->wx)) {
+				$openid = $this->who->sns->wx->openid;
+				$fan = $this->model('sns\wx\fan')->byOpenid($siteId, $openid, '*', 'Y');
+			} else if (isset($this->who->sns->qy)) {
+				$openid = $this->who->sns->qy->openid;
+				$fan = false;
+			}
+		} else if ($this->userAgent() === 'yx') {
+			if (isset($this->who->sns->yx)) {
+				$openid = $this->who->sns->yx->openid;
+				$fan = $this->model('sns\yx\fan')->byOpenid($siteId, $openid, '*', 'Y');
+			}
+		}
+		return $fan;
+	}
+	/**
 	 * 检查当前用户是否已经登录，且在有效期内
 	 */
 	public function isLogined() {

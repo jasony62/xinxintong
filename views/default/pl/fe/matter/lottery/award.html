@@ -123,6 +123,13 @@
                         </div>
                     </div>
                 </div>
+                <div class='form-group' ng-if='award.type!=0'>
+                    <label class="col-md-2 control-label">数量限制</label>
+                    <div class='col-md-10'>
+                        <input type='text' class='form-control' ng-model='award.user_limit'>
+                        <div class='help-block'>限制用户该奖项中奖数量</div>
+                    </div>
+                </div>
                 <div class='form-group' ng-if="award.type==99&&award.period==='A'">
                     <label class="col-md-2 control-label">已领数量</label>
                     <div class='col-md-10'>

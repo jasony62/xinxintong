@@ -35,18 +35,14 @@ class main extends \site\fe\base {
 		$modelLot = $this->model('matter\lottery');
 		$lot = $modelLot->byId($app);
 		$current = time();
-		/**
-		 * start?
-		 */
+		/* start? */
 		if ($current < $lot->start_at) {
 			\TPL::assign('title', $lot->title);
 			\TPL::assign('body', empty($lot->nostart_alert) ? '活动未开始' : $lot->nostart_alert);
 			\TPL::output('info');
 			exit;
 		}
-		/**
-		 * end?
-		 */
+		/* end? */
 		if ($current > $lot->end_at) {
 			\TPL::assign('title', $lot->title);
 			\TPL::assign('body', empty($lot->hasend_alert) ? '活动已结束' : $lot->hasend_alert);
@@ -61,12 +57,6 @@ class main extends \site\fe\base {
 			}
 		}
 
-		/* 当前访问用户 */
-		$user = $this->who;
-		/* 访问控制 */
-		//if ($lot->access_control === 'Y') {
-		//	$this->accessControl($site, $lot->id, $lot->authapis, $user->openid, $lot);
-		//}
 		\TPL::assign('title', $lot->title);
 		\TPL::output('/site/fe/matter/lottery/play');
 		exit;
@@ -161,6 +151,15 @@ class main extends \site\fe\base {
 		 */
 		$lot = $modelLot->byId($app, array('cascaded' => array('award', 'plate')));
 		/**
+		 * 如果仅限关注用户参与，获得openid
+		 */
+		if ($lot->fans_only === 'Y') {
+			$fan = $this->getSnsUser($site);
+			if (empty($fan)) {
+				return new \ResponseData(null, 302, $lot->nonfans_alert);
+			}
+		}
+		/**
 		 * 检查是否有奖励的抽奖机会
 		 */
 		$modelLot->freshEarnChance($lot, $user);
@@ -193,7 +192,7 @@ class main extends \site\fe\base {
 		/**
 		 * 抽奖
 		 */
-		list($selectedSlot, $selectedAwardID, $myAward) = $this->_drawAward($lot);
+		list($selectedSlot, $selectedAwardID, $myAward) = $this->_drawAward($lot, $user);
 
 		if (empty($myAward)) {
 			return new \ResponseData(null, 301, '对不起，没有奖品了！');
@@ -280,7 +279,7 @@ class main extends \site\fe\base {
 	 *
 	 * @param object $lot
 	 */
-	private function _drawAward(&$lot) {
+	private function _drawAward(&$lot, &$user) {
 		/**
 		 * arrange relateion between award and plate's slots.
 		 */
@@ -292,6 +291,18 @@ class main extends \site\fe\base {
 			 */
 			if ((int) $a->prob === 0 || ($a->period === 'A' && $a->type == 99 && ((int) $a->takeaway >= (int) $a->quantity))) {
 				continue;
+			}
+			/*限制了奖项的中奖次数*/
+			if ((int) $a->user_limit > 0) {
+				$q = array(
+					'count(*)',
+					'xxt_lottery_log',
+					"userid='$user->uid' and lid='$lot->id' and aid='$a->aid'",
+				);
+				$count = (int) $this->model()->query_val_ss($q);
+				if ($count >= (int) $a->user_limit) {
+					continue;
+				}
 			}
 			$awards[$a->aid] = array(
 				'aid' => $a->aid,

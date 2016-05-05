@@ -1106,7 +1106,6 @@
                         } else if ($scope.def.type === 'member') {
                             $scope.def.title = '';
                             $scope.def.id = '';
-                            $scope.def.member = {};
                         } else {
                             $scope.def.title = '';
                             $scope.def.id = id;
@@ -1120,7 +1119,7 @@
                     $scope.shiftMemberSchema = function() {
                         var schema = $scope.selectedMemberSchema.schema,
                             schemaAttrs = [];
-                        $scope.def.member.schema_id = schema.id;
+                        $scope.def.schema_id = schema.id;
                         schema.attr_name[0] === '0' && (schemaAttrs.push({
                             id: 'name',
                             label: '姓名'

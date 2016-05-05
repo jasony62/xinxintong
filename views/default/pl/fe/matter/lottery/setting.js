@@ -63,18 +63,19 @@
 			}
 		};
 	}]);
-	ngApp.provider.controller('ctrlTask', ['$scope', 'http2', function($scope, http2) {
+	ngApp.provider.controller('ctrlCanPlayTask', ['$scope', 'http2', function($scope, http2) {
 		$scope.taskHtml = function(task) {
 			var url;
-			url = '/views/default/pl/fe/matter/lottery/task/' + task.task_type + '.html';
+			url = '/views/default/pl/fe/matter/lottery/task/canplay/' + task.task_name + '.html';
 			return url;
 		};
 		$scope.add = function() {
 			var url, data = {};
 			url = '/rest/pl/fe/matter/lottery/task/add?site=' + $scope.siteId + '&app=' + $scope.app.id;
-			data.task_type = 'sns_share';
+			data.task_type = 'can_play';
+			data.task_name = 'sns_share';
 			http2.post(url, data, function(rsp) {
-				$scope.app.tasks.push(rsp.data);
+				$scope.tasks.push(rsp.data);
 			});
 		};
 		$scope.remove = function(task) {
@@ -82,8 +83,8 @@
 			url = '/rest/pl/fe/matter/lottery/task/remove?site=' + $scope.siteId + '&app=' + $scope.app.id;
 			url += '&task=' + task.tid;
 			http2.get(url, function(rsp) {
-				var i = $scope.app.tasks.indexOf(task);
-				$scope.app.tasks.splice(i, 1);
+				var i = $scope.tasks.indexOf(task);
+				$scope.tasks.splice(i, 1);
 			});
 		};
 		$scope.save = function(task) {
@@ -94,5 +95,54 @@
 			data.task_params = task.task_params;
 			http2.post(url, data, function(rsp) {});
 		};
+		$scope.$watch('app.tasks', function(tasks) {
+			var canPlayTasks = [];
+			if (!tasks) return;
+			angular.forEach(tasks, function(task) {
+				task.task_type === 'can_play' && canPlayTasks.push(task);
+			});
+			$scope.tasks = canPlayTasks;
+		});
+	}]);
+	ngApp.provider.controller('ctrlAddChanceTask', ['$scope', 'http2', function($scope, http2) {
+		$scope.taskHtml = function(task) {
+			var url;
+			url = '/views/default/pl/fe/matter/lottery/task/addchance/' + task.task_name + '.html';
+			return url;
+		};
+		$scope.add = function() {
+			var url, data = {};
+			url = '/rest/pl/fe/matter/lottery/task/add?site=' + $scope.siteId + '&app=' + $scope.app.id;
+			data.task_type = 'add_chance';
+			data.task_name = 'sns_share';
+			http2.post(url, data, function(rsp) {
+				$scope.tasks.push(rsp.data);
+			});
+		};
+		$scope.remove = function(task) {
+			var url;
+			url = '/rest/pl/fe/matter/lottery/task/remove?site=' + $scope.siteId + '&app=' + $scope.app.id;
+			url += '&task=' + task.tid;
+			http2.get(url, function(rsp) {
+				var i = $scope.tasks.indexOf(task);
+				$scope.tasks.splice(i, 1);
+			});
+		};
+		$scope.save = function(task) {
+			var url, data = {};
+			url = '/rest/pl/fe/matter/lottery/task/update?site=' + $scope.siteId + '&app=' + $scope.app.id;
+			url += '&task=' + task.tid;
+			data.description = task.description;
+			data.task_params = task.task_params;
+			http2.post(url, data, function(rsp) {});
+		};
+		$scope.$watch('app.tasks', function(tasks) {
+			var addChanceTasks = [];
+			if (!tasks) return;
+			angular.forEach(tasks, function(task) {
+				task.task_type === 'add_chance' && addChanceTasks.push(task);
+			});
+			$scope.tasks = addChanceTasks;
+		});
 	}]);
 })();

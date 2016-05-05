@@ -27,6 +27,7 @@ class task extends \pl\fe\matter\base {
 			'siteid' => $site,
 			'title' => isset($posted->title) ? $posted->title : '',
 			'task_type' => $posted->task_type,
+			'task_name' => $posted->task_name,
 			'task_params' => '{}',
 			'description' => '',
 		);

@@ -21,10 +21,10 @@ class lottery_model extends app_base {
 	/**
 	 *
 	 */
-	public function getEntryUrl($runningMpid, $id) {
+	public function getEntryUrl($siteId, $id) {
 		$url = "http://" . $_SERVER['HTTP_HOST'];
 		$url .= "/rest/site/fe/matter/lottery";
-		$url .= "?mpid=$runningMpid&lottery=" . $id;
+		$url .= "?site=$siteId&app=" . $id;
 
 		return $url;
 	}
@@ -43,9 +43,6 @@ class lottery_model extends app_base {
 			if (in_array('award', $cascaded)) {
 				$lot->awards = $this->getAwards($lid);
 			}
-			if (in_array('task', $cascaded)) {
-				$lot->tasks = $this->getTasks($lid);
-			}
 			if (in_array('plate', $cascaded)) {
 				$q = array(
 					'size,a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11',
@@ -55,6 +52,9 @@ class lottery_model extends app_base {
 				if ($plate = parent::query_obj_ss($q)) {
 					$lot->plate = $plate;
 				}
+			}
+			if (in_array('task', $cascaded)) {
+				$lot->tasks = \TMS_APP::M('matter\lottery\task')->byApp($lid);
 			}
 		}
 		return $lot;
@@ -75,26 +75,25 @@ class lottery_model extends app_base {
 		return $awards;
 	}
 	/**
-	 * 获得抽奖活动的任务
-	 */
-	public function &getTasks($lid) {
-		$q = array(
-			'*',
-			'xxt_lottery_task',
-			"lid='$lid'",
-		);
-
-		$tasks = $this->query_objs_ss($q);
-		foreach ($tasks as &$task) {
-			$task->task_params = json_decode($task->task_params);
-		}
-
-		return $tasks;
-	}
-	/**
 	 * 还有多少次参与机会
 	 */
-	public function getChance($lid, &$user) {
+	public function getChance(&$lot, &$user) {
+		$lid = $lot->id;
+		$modelTsk = \TMS_APP::M('matter\lottery\task');
+		/**
+		 * 计算奖励的抽奖机会
+		 */
+		$tasks = $modelTsk->byApp($lot->id, array('task_type' => 'add_chance'));
+		if (count($tasks)) {
+			foreach ($tasks as $lotTask) {
+				$userTask = $modelTsk->getTaskByUser($user, $lot->id, $lotTask->tid);
+				if ($userTask === false || $userTask->finished === 'Y') {
+					/*没有创建过任务或者任务已经完成，创建新任务*/
+					$userTask = $modelTsk->addTask4User($user, $lot->id, $lotTask->tid);
+				}
+				$modelTsk->checkUserTask($user, $lot->id, $lotTask, $userTask);
+			}
+		}
 		/**
 		 * 获得抽奖设置
 		 */
@@ -121,7 +120,6 @@ class lottery_model extends app_base {
 			 */
 			return $times_threshold;
 		}
-
 		/**
 		 * 计算剩余的次数
 		 */
@@ -138,11 +136,10 @@ class lottery_model extends app_base {
 			 */
 			$lastdate = getdate($last->draw_at);
 			$nowdate = getdate(time());
-			if ($lastdate['year'] === $nowdate['year'] && ($nowdate['yday'] - $lastdate['yday']) > 0)
-			/**
-			 * 和最近一次抽奖不是在同一天，允许抽奖
-			 */
-			{
+			if ($lastdate['year'] === $nowdate['year'] && ($nowdate['yday'] - $lastdate['yday']) > 0) {
+				/**
+				 * 和最近一次抽奖不是在同一天，允许抽奖
+				 */
 				$chance = $times_threshold;
 			} else {
 				$chance = $times_threshold - (int) $last->times_accumulated;
@@ -154,75 +151,6 @@ class lottery_model extends app_base {
 		}
 
 		return $chance;
-	}
-	/**
-	 * 当前用户是否有为完成的任务
-	 *
-	 * 如果有返回任务的定义
-	 */
-	public function hasTask($lid, &$user) {
-		$whichuser = "lid='$lid' and userid='{$user->uid}'";
-		/**
-		 * 一个活动可能产生多个任务，只有最新创建的任务是有效任务
-		 */
-		$q = array(
-			'id,tid,finished,create_at',
-			'xxt_lottery_task_log',
-			$whichuser,
-		);
-		$q2 = array(
-			'o' => 'create_at desc',
-			'r' => array('o' => 0, 'l' => 1),
-		);
-		if ($tasklog = $this->query_objs_ss($q, $q2)) {
-			$tasklog = $tasklog[0];
-			if ($tasklog->finished === 'Y') {
-				return false;
-			}
-			/**
-			 * 有任务，没有完成
-			 */
-			$q = array(
-				'*',
-				'xxt_lottery_task',
-				"tid='$tasklog->tid'",
-			);
-			$task = $this->query_obj_ss($q);
-			if ($task->task_type === 'sns_share') {
-				$task->task_params = json_decode($task->params);
-				/**
-				 * 检查是否分享了好友
-				 * 没有对分享的时间点进行检查
-				 */
-				$q = array(
-					'count(*)',
-					'xxt_log_matter_share',
-					"userid='{$user->uid}' and (share_to='F' or share_to='T') and matter_type='lottery' and matter_id='$lid' and share_at>$tasklog->create_at",
-				);
-				if ($task->task_params->shareCount <= (int) $this->query_val_ss($q)) {
-					/**
-					 * 任务完成，奖励一次抽奖机会
-					 */
-					$award = array('quantity' => 1);
-					\TMS_APP::M('matter\lottery\record')->earnPlayAgain($lid, $user, $award);
-					/**
-					 * 修改任务状态
-					 */
-					$this->update(
-						'xxt_lottery_task_log',
-						array('finished' => 'Y'),
-						"id=$tasklog->id"
-					);
-					return false;
-				}
-			}
-			/**
-			 * 检查任务是否已经完成了
-			 */
-			return $task;
-		}
-
-		return false;
 	}
 	/**
 	 *

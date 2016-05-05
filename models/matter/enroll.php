@@ -165,7 +165,7 @@ class enroll_model extends app_base {
 		/* 当前轮次 */
 		if ($app->multi_rounds === 'Y') {
 			$modelRun = \TMS_APP::M('matter\enroll\round');
-			if ($activeRound = $modelRun->getActive($siteId, $aid)) {
+			if ($activeRound = $modelRun->getActive($siteId, $app->id)) {
 				$q[2] .= " and rid='$activeRound->rid'";
 			}
 		}

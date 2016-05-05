@@ -75,7 +75,7 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
         var sharelink;
         sharelink = 'http://' + location.hostname + "/rest/site/fe/matter/lottery";
         sharelink += "?site=" + siteId;
-        sharelink += "&lottery=" + appId;
+        sharelink += "&app=" + appId;
         window.shareid = user.uid + (new Date()).getTime();
         sharelink += "&shareby=" + window.shareid;
         window.xxt.share.set(app.title, sharelink, app.summary, app.pic);
@@ -97,8 +97,9 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
     $scope.awards = {};
     $scope.greeting = null;
     $http.get('/rest/site/fe/matter/lottery/get?site=' + siteId + '&app=' + appId).success(function(rsp) {
-        var lot = params.app,
-            i, l, award, params = rsp.data,
+        var params = rsp.data,
+            lot = params.app,
+            i, l, award,
             awards, sharelink;
         /*if (lot.fans_enter_only === 'Y' && params.user.openid.length === 0) {
             openAskFollow();
@@ -235,6 +236,29 @@ controller('lotCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $t
                 $http.post('/rest/site/fe/matter/lottery/prize?site=' + siteId, prizeUrl).success(function() {
                     location.replace(rsp.data.url);
                 })
+            }).error(function(content, httpCode) {
+                if (httpCode === 401) {
+                    var el = document.createElement('iframe');
+                    el.setAttribute('id', 'frmPopup');
+                    el.onload = function() {
+                        this.height = document.documentElement.clientHeight;
+                    };
+                    document.body.appendChild(el);
+                    if (content.indexOf('http') === 0) {
+                        window.onAuthSuccess = function() {
+                            el.style.display = 'none';
+                        };
+                        el.setAttribute('src', content);
+                        el.style.display = 'block';
+                    } else {
+                        if (el.contentDocument && el.contentDocument.body) {
+                            el.contentDocument.body.innerHTML = content;
+                            el.style.display = 'block';
+                        }
+                    }
+                } else {
+                    alert(content);
+                }
             });
         }
     };

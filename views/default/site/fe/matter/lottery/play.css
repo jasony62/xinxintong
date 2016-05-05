@@ -1,7 +1,7 @@
 .ng-cloak{display:none}
 *,*:before,*:after{box-sizing:border-box}
 *{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
-html,body{height: 100%}
+html,body{height:100%}
 body{font-family:Microsoft Yahei,Arial;background:#f8f8f8}
 table{width:100%;border:1px solid #ddd;border-collapse:collapse;border-spacing:0}
 th,td{border:1px solid #ddd;padding:.5em}

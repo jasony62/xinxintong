@@ -72,14 +72,14 @@ class result_model extends \TMS_MODEL {
 	/**
 	 * 当前用户是否还有继续玩的机会
 	 */
-	public function canPlay($lid, &$user, $autoUpdateState = false) {
+	public function canPlay(&$lot, &$user, $autoUpdateState = false) {
 		/**
 		 * 最近一次抽奖情况
 		 */
 		$q = array(
 			'times_accumulated,draw_at',
 			'xxt_lottery_log',
-			"lid='$lid' and userid='{$user->uid}' and last='Y'",
+			"lid='{$lot->id}' and userid='{$user->uid}' and last='Y'",
 		);
 		if (!($last = $this->query_obj_ss($q))) {
 			/**
@@ -88,18 +88,11 @@ class result_model extends \TMS_MODEL {
 			return true;
 		}
 		/**
-		 * 获得抽奖设置
+		 * 检查规则
 		 */
-		$q = array(
-			'chance,period',
-			'xxt_lottery',
-			"id='$lid'",
-		);
-		$setting = $this->query_obj_ss($q);
-
-		switch ($setting->period) {
+		switch ($lot->period) {
 		case 'A': // 总计
-			return (int) $last->times_accumulated < (int) $setting->chance;
+			return (int) $last->times_accumulated < (int) $lot->chance;
 		case 'D': // 天
 			$lastdate = getdate($last->draw_at);
 			$nowdate = getdate(time());
@@ -109,12 +102,12 @@ class result_model extends \TMS_MODEL {
 				 * 和最近一次抽奖不是在同一天，允许抽奖
 				 */
 				if ($autoUpdateState) {
-					$w = "lid='$lid' and userid='{$user->uid}' and last='Y'";
+					$w = "lid='$lot->id' and userid='{$user->uid}' and last='Y'";
 					$this->update('xxt_lottery_log', array('last' => 'N'), $w);
 				}
 				return true;
 			} else {
-				return (int) $last->times_accumulated < (int) $setting->chance;
+				return (int) $last->times_accumulated < (int) $lot->chance;
 			}
 		}
 	}

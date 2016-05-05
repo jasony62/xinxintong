@@ -38,6 +38,7 @@ $sql .= ',page_id int not null default 0';
 $sql .= ",autostop char(1) not null default 'Y'";
 $sql .= ",maxstep int not null default 60";
 $sql .= ",active char(1) not null default 'N'"; //激活状态
+$sql .= ",state tinyint not null default 1"; //0:删除,1:配置,2:运行
 $sql .= ",read_num int not null default 0"; // 阅读数
 $sql .= ",share_friend_num int not null default 0"; // 分享给好友数
 $sql .= ",share_timeline_num int not null default 0"; // 分享朋友圈数
@@ -46,13 +47,18 @@ if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error(xxt_lottery): ' . $sql . ':' . $mysqli->error;
 }
-//
+/**
+ * 抽奖任务
+ * 1、前置任务（canPlay），只有完成才允许抽奖
+ * 2、机会任务（addChance），完成后增加
+ */
 $sql = "create table if not exists xxt_lottery_task(";
 $sql .= "siteid varchar(32) not null";
 $sql .= ",lid varchar(40) not null"; //抽奖活动的ID
 $sql .= ",tid varchar(32) not null"; //任务ID
 $sql .= ",title varchar(20) not null";
-$sql .= ",task_type varchar(20) not null"; // 任务类型,sns_share
+$sql .= ",task_type varchar(20) not null"; // 任务类型,can_play,add_chance
+$sql .= ",task_name varchar(20) not null"; // 任务名称,sns_share
 $sql .= ",task_params text"; // 任务参数
 $sql .= ",description text"; // 任务提示
 $sql .= ",primary key(tid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";

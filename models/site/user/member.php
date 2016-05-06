@@ -98,19 +98,14 @@ class member_model extends \TMS_MODEL {
 	 */
 	public function createByApp($siteId, $schemaId, $userid, $member) {
 		if (empty($siteId)) {
-			return array(false, '没有指定MPID');
+			return array(false, '没有指定站点');
 		}
 
 		if (empty($schemaId)) {
-			return array(false, '没有指定用户认证接口ID');
+			return array(false, '没有指定用户自定义接口');
 		}
 
-		if (empty($fid)) {
-			return array(false, '仅支持对关注用户进行认证');
-		}
-
-		$fan = \TMS_APP::M('user/fans')->byId($fid);
-		$member->mpid = $siteId;
+		$member->site = $siteId;
 		$member->authapi_id = $schemaId;
 
 		$attrs = \TMS_APP::M('user/authapi')->byId($schemaId, 'attr_mobile,attr_email,attr_name,attr_password,extattr');

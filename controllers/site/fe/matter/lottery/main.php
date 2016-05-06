@@ -236,8 +236,6 @@ class main extends \site\fe\base {
 	public function prize_action($site) {
 		$log = $this->getPostJson();
 
-		$user = $this->getUser($site);
-
 		$rst = $this->model()->update(
 			'xxt_lottery_log',
 			array('prize_url' => $log->url),

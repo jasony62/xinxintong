@@ -286,13 +286,13 @@ class record extends base {
 		}
 		/* 创建登记记录*/
 		if (empty($ek)) {
-			$ek = $modelRec->add($site, $app, $user, (empty($posted->referrer) ? '' : $posted->referrer));
+			$ek = $modelRec->enroll($site, $app, $user, time(), (empty($posted->referrer) ? '' : $posted->referrer));
 			/**
 			 * 处理提交数据
 			 */
 			$data = $_GET;
 			unset($data['site']);
-			unset($data['aid']);
+			unset($data['app']);
 			if (!empty($data)) {
 				$data = (object) $data;
 				$rst = $modelRec->setData($user, $site, $app, $ek, $data);
@@ -304,7 +304,7 @@ class record extends base {
 		/*登记记录的URL*/
 		$url = '/rest/site/fe/matter/enroll';
 		$url .= '?site=' . $site;
-		$url .= '&aid=' . $app;
+		$url .= '&app=' . $app->id;
 		$url .= '&ek=' . $ek;
 
 		$rsp = new \stdClass;

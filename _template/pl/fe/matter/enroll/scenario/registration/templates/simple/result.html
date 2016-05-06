@@ -16,4 +16,4 @@
 <div class="form-group wrap-inline wrap-splitline" wrap="static" ng-controller="ctrlRecord"><label>登记时间</label>
 <div>{{Record.current.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>
 </div>
-<div class="form-group" wrap="button"><button id="btnEditRecord" class="btn btn-primary btn-block btn-lg" ng-click="editRecord($event)"><span>修改信息</span></button></div>
+<div class="form-group" wrap="button" ng-controller="ctrlRecord"><button id="btnEditRecord" class="btn btn-primary btn-block btn-lg" ng-click="editRecord($event,'enroll')"><span>修改信息</span></button></div>

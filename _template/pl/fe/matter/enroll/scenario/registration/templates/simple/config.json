@@ -79,11 +79,12 @@
 	}, {
 		"name": "signin",
 		"title": "签到页",
-		"type": "S"
-	}, {
-		"name": "signinsuccess",
-		"title": "签到成功页",
-		"type": "V"
+		"type": "S",
+		"act_schemas": [{
+			"name": "signin",
+			"label": "提交信息",
+			"next": "result"
+		}]
 	}],
 	"schema": [{
 		"id": "name",

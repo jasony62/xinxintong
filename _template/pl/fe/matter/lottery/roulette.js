@@ -160,7 +160,7 @@ lotApp.provider.controller('rouCtrl', ['$scope', '$interval', function($scope, $
         playAfter();
     };
     var startClick = function() {
-        $scope.$parent.play(function(result, after) {
+        $scope.$parent.play(function success(result, after) {
             if (running) return;
             running = true;
             stop = false;
@@ -168,6 +168,8 @@ lotApp.provider.controller('rouCtrl', ['$scope', '$interval', function($scope, $
             selectedSlot = result.slot;
             playAfter = after;
             timer = $interval(rotate, speed);
+        }, function failure(rsp) {
+            state = 2;
         });
     };
     var endClick = function() {
@@ -184,17 +186,17 @@ lotApp.provider.controller('rouCtrl', ['$scope', '$interval', function($scope, $
     };
     $scope.act = function(forced) {
         switch (state) {
-            case 0:
+            case 0: //开始
                 state = 1;
                 startClick();
                 break;
-            case 1:
+            case 1: //运行中
                 if (forced || lot.autostop === 'N') {
                     state = 2;
                     endClick();
                 }
                 break;
-            case 2:
+            case 2: //完成1次后再次开始
                 setup();
                 $scope.act();
                 break;

@@ -154,7 +154,7 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', function($scope, Record) {
     facRecord = Record.ins(LS.p.scenario, LS.p.template);
     facRecord.get($scope.CustomConfig);
     $scope.Record = facRecord;
-    schemas = JSON.parse($scope.Page.data_schemas);
+    schemas = $scope.Page.data_schemas;
     schemas = schemas.record.schemas;
     $scope.value2Label = function(key) {
         var val, i, j, s, aVal, aLab = [];

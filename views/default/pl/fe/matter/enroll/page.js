@@ -14,7 +14,6 @@
         } else {
             newWrap = dom.add(body, name, attrs, html);
         }
-        //activeEditor.save();
     };
     WrapLib.prototype.extractInputSchema = function(wrap) {
         var $label, def = {},
@@ -648,21 +647,26 @@
         $scope.$watch('app.pages', function(pages) {
             var current = $location.search().page,
                 dataSchemas, others = [];
-            if (pages) {
-                angular.forEach(pages, function(p) {
-                    if (p.name === current) {
-                        $scope.ep = p;
+            if (!pages || pages.length === 0) return;
+            angular.forEach(pages, function(p) {
+                if (p.name === current) {
+                    $scope.ep = p;
+                    if (angular.isString($scope.ep.data_schemas)) {
                         dataSchemas = $scope.ep.data_schemas;
                         $scope.ep.data_schemas = dataSchemas && dataSchemas.length ? JSON.parse(dataSchemas) : [];
+                    }
+                    if (angular.isString($scope.ep.act_schemas)) {
                         actSchemas = $scope.ep.act_schemas;
                         $scope.ep.act_schemas = actSchemas && actSchemas.length ? JSON.parse(actSchemas) : [];
+                    }
+                    if (angular.isString($scope.ep.user_schemas)) {
                         userSchemas = $scope.ep.user_schemas;
                         $scope.ep.user_schemas = userSchemas && userSchemas.length ? JSON.parse(userSchemas) : [];
-                    } else {
-                        p !== $scope.ep && others.push(p);
                     }
-                });
-            };
+                } else {
+                    p !== $scope.ep && others.push(p);
+                }
+            });
             $scope.others = others;
         });
     }]);
@@ -967,7 +971,6 @@
             activeEditor.setContent('');
             angular.forEach($scope.dataSchemas, function(schema, catelog) {
                 if (schema.enabled === 'Y') {
-                    console.log('schema', schema);
                     wrapLib.embedShow($scope.ep, schema, catelog);
                 }
             });
@@ -1003,7 +1006,7 @@
             $scope.actSchemas = ep.act_schemas;
         });
     }]);
-    ngApp.provider.controller('ctrlPageEditor', ['$scope', '$modal', 'mattersgallery', 'mediagallery', function($scope, $modal, mattersgallery, mediagallery) {
+    ngApp.provider.controller('ctrlPageEditor', ['$scope', '$modal', '$q', 'mattersgallery', 'mediagallery', function($scope, $modal, $q, mattersgallery, mediagallery) {
         $scope.activeWrap = false;
         var setActiveWrap = function(wrap) {
             var wrapType;
@@ -1041,6 +1044,45 @@
                 }
             });
         });
+        $scope.chooseSchema = function(page) {
+            $modal.open({
+                templateUrl: 'chooseDataSchema.html',
+                backdrop: 'static',
+                resolve: {
+                    schemas: function() {
+                        return $scope.app.data_schemas;
+                    }
+                },
+                controller: ['$scope', '$modalInstance', 'schemas', function($scope, $mi, schemas) {
+                    var choosed = [];
+                    $scope.schemas = angular.copy(schemas);
+                    $scope.choose = function(schema) {
+                        schema._selected ? choosed.push(schema) : choosed.splice(choosed.indexOf(schema), 1);
+                    };
+                    $scope.ok = function() {
+                        $mi.close(choosed);
+                    };
+                    $scope.cancel = function() {
+                        $mi.dismiss();
+                    };
+                }],
+            }).result.then(function(choosed) {
+                var activeEditor = tinymce.get(page.name);
+                angular.forEach(choosed, function(schema) {
+                    var dataSchemas = page.data_schemas,
+                        i = 0,
+                        l = dataSchemas.length;
+                    while (i < l && schema.id !== dataSchemas[i++].id) {};
+                    if (i === l) {
+                        delete schema._selected;
+                        dataSchemas.push(schema);
+                    }
+                    window.wrapLib.embedInput(page, schema);
+                });
+                activeEditor.save();
+                $scope.updPage(page, 'data_schemas');
+            });
+        };
         $scope.embedInput = function(page) {
             $modal.open({
                 templateUrl: 'embedInputLib.html',

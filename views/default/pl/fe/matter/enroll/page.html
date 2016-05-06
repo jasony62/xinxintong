@@ -54,6 +54,9 @@
             <button class='btn btn-default' ng-click="embedInput(ep)" ng-if="ep.type==='I'">
             <i class='fa fa-plus fa-fw'></i>
             </button>
+            <button class='btn btn-default' ng-click="chooseSchema(ep)" ng-if="ep.type==='I'">
+            <i class='fa fa-plus-square fa-fw'></i>
+            </button>
             <button class='btn btn-default' ng-click="editWrap(ep)" ng-disabled='!hasActiveWrap||!activeWrap.editable'>
             <i class='fa fa-edit fa-fw'></i>
             </button>

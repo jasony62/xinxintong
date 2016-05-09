@@ -1,5 +1,5 @@
 (function() {
-	ngApp.provider.controller('ctrlRunning', ['$scope', 'http2', function($scope, http2) {
+	ngApp.provider.controller('ctrlRunning', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
 		$scope.$watch('app', function(app) {
 			if (!app) return;
 			var entry = {},
@@ -31,6 +31,24 @@
 			$scope.submit().then(function() {
 				location.href = '/rest/pl/fe/matter/enroll/setting?site=' + $scope.siteId + '&id=' + $scope.id;
 			});
+		};
+		$scope.remove = function() {
+			http2.get('/rest/pl/fe/matter/enroll/remove?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+				location.href = '/rest/pl/fe/site/console?site=' + $scope.siteId;
+			});
+		};
+		$scope.setPic = function() {
+			var options = {
+				callback: function(url) {
+					$scope.app.pic = url + '?_=' + (new Date()) * 1;
+					$scope.update('pic');
+				}
+			};
+			mediagallery.open($scope.siteId, options);
+		};
+		$scope.removePic = function() {
+			$scope.app.pic = '';
+			$scope.update('pic');
 		};
 	}]);
 	ngApp.provider.controller('ctrlRound', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {

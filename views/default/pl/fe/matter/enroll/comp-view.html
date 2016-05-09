@@ -1,58 +1,55 @@
 <div ng-controller="ctrlViewSchema">
 	<div class="panel panel-default">
 		<div class="panel-heading">
-			<div class='checkbox' style='margin-top:0;margin-bottom:0'>
-				<label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="dataSchemas.record.enabled">登记项</label>
-			</div>
+			登记项
 		</div>
-		<div class="panel-body" ng-if="dataSchemas.record.enabled==='Y'">
-            <div class="form-group">
-                <ul class='list-group' style='overflow-y:auto;max-height:245px;margin-bottom:0'>
-                    <li class='list-group-item slim' ng-repeat='s in dataSchemas.record.schemas'>
-                    <span>{{s.title}}</span>
+		<div class="panel-body">
+            <div class='list-group-item' ng-repeat='r in dataSchemas'>
+                <div class="form-group">
+                    <span>{{r.schema.title}}</span>
                     <button class='btn btn-default btn-xs pull-right' ng-click='removeSchema(dataSchemas.record.schemas,s)'><span class='glyphicon glyphicon-remove'></span></button>
-                    </li>
-                </ul>
-                <button class='btn btn-success btn-block' ng-click="chooseSchema(dataSchemas.record)">添加登记数据项</button>
-            </div>
-            <div class="form-group">
-                <div class='checkbox' style='margin-top:0'>
-                    <label><input type='checkbox' name='inline' ng-true-value="'Y'" ng-false-value="'N'" ng-model='dataSchemas.record.inline'>标题与数据在同一行</label>
-                    <label><input type='checkbox' name='splitLine' ng-true-value="'Y'" ng-false-value="'N'" ng-model='dataSchemas.record.splitLine'>显示分割线</label>
+                </div>
+                <div class="form-group">
+                    <div class='checkbox'>
+                        <label><input type='checkbox' name='inline' ng-true-value="'Y'" ng-false-value="'N'" ng-model='r.inline'>标题与数据在同一行</label>
+                        <label><input type='checkbox' name='splitLine' ng-true-value="'Y'" ng-false-value="'N'" ng-model='r.splitLine'>显示分割线</label>
+                    </div>
                 </div>
             </div>
+            <button class='btn btn-success btn-block' ng-click="chooseSchema(dataSchemas.record)">添加登记数据项</button>
 		</div>
 	</div>
 	<div class="panel panel-default">
 		<div class="panel-heading">
-			<div class='checkbox' style='margin-top:0;margin-bottom:0'>
-				<label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="dataSchemas.list.enabled">登记清单</label>
-			</div>
+			登记清单
 		</div>
-		<div class="panel-body" ng-if="dataSchemas.list.enabled==='Y'">
-            <div class="form-group">
-                <div class='radio' style='margin-top:0'>
-                    <label><input type='radio' value='U' name='scope' ng-model='dataSchemas.list.dataScope'>当前用户</label>
-                    <label><input type='radio' value='A' name='scope' ng-model='dataSchemas.list.dataScope'>整个活动</label>
-                    <label><input type='radio' value='I' name='scope' ng-model='dataSchemas.list.dataScope'>当前用户邀请的</label>
+		<div class="panel-body">
+            <div class='list-group-item' ng-repeat='l in dataSchemas'>
+                <div class="form-group">
+                    <div class='radio' style='margin-top:0'>
+                        <label><input type='radio' value='U' name='scope' ng-model='l.dataScope'>当前用户</label>
+                        <label><input type='radio' value='A' name='scope' ng-model='l.dataScope'>整个活动</label>
+                        <label><input type='radio' value='I' name='scope' ng-model='l.dataScope'>当前用户邀请的</label>
+                    </div>
+                    <div class='help-block'>数据范围</div>
                 </div>
-                <div class='help-block'>数据范围</div>
-            </div>
-            <div class="form-group">
-                <select class='form-control' ng-model='dataSchemas.list.onclick'>
-                    <option value=''>不处理</option>
-                    <option value='{{p.name}}' ng-repeat='p in app.pages'>{{p.title}}</option>
-                </select>
-                <div class='help-block'>选中后跳转到页面</div>
-            </div>
-            <div class="form-group">
-                <ul class='list-group' style='overflow-y:auto;max-height:245px;margin-bottom:0'>
-                    <li class='list-group-item slim' ng-repeat='s in dataSchemas.list.schemas'>
-                        <span>{{s.title}}</span>
-                        <button class='btn btn-default btn-xs pull-right' ng-click='removeSchema(dataSchemas.list.schemas,s)'><span class='glyphicon glyphicon-remove'></span></button>
-                    </li>
-                </ul>
-                <button class='btn btn-success btn-block' ng-click="chooseSchema(dataSchemas.list)">添加登记数据项</button>
+                <div class="form-group">
+                    <select class='form-control' ng-model='l.onclick'>
+                        <option value=''>不处理</option>
+                        <option value='{{p.name}}' ng-repeat='p in app.pages'>{{p.title}}</option>
+                    </select>
+                    <div class='help-block'>选中后跳转到页面</div>
+                </div>
+                <div class="form-group">
+                    <ul class='list-group' style='overflow-y:auto;max-height:245px;margin-bottom:0'>
+                        <li class='list-group-item slim' ng-repeat='s in l.schemas'>
+                            <span>{{s.title}}</span>
+                            <button class='btn btn-default btn-xs pull-right' ng-click='removeSchema(l.schemas,s)'><span class='glyphicon glyphicon-remove'></span></button>
+                        </li>
+                    </ul>
+                </div>
+                <button class='btn btn-success' ng-click="chooseSchema(l)">添加登记数据项</button>
+                <button class='btn btn-default' ng-click="removeList(l)">删除清单</button>
             </div>
 		</div>
 	</div>

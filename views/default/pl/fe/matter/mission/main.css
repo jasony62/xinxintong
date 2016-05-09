@@ -19,9 +19,13 @@ body{background:#f8f8f8;position:relative;overflow:hidden;display:flex;flex-dire
 #viewMatter .thumbnail .operator{flex:1;}
 #viewMatter .navbar{margin-bottom:0;}
 
+/*indicator*/
+#viewMatter .thumbnail.indicator{flex-direction:row;align-items:center;background:#f8f8f8;}
+#viewMatter .thumbnail.indicator>div{flex:1.0;font-size:18px;text-align:center;}
+
 /*template*/
-.template .options{position:relative;float:left;width:180px;margin-right:15px;}
-.template .pages{position:relative;float:left;width:301px;margin-right:15px;}
-.template .schema{position:relative;float:left;width:301px;}
+.modal.template .modal-dialog{width:640px;margin-left:-320px}
+.modal.template .options{position:relative;float:left;width:280px;margin-right:15px;}
+.modal.template .pages{position:relative;float:left;width:301px;}
 #simulator,#schemaData{width:100%;height:535px;border:1px solid #efefef;}
 #schemaData{resize:none;}

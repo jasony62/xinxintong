@@ -42,27 +42,24 @@ class page extends \pl\fe\matter\base {
 				'html' => urldecode($nv->html),
 			);
 			$rst = $this->model('code/page')->modify($cid, $data);
-		} else if (isset($nv->js)) {
-			$data = array(
-				'js' => urldecode($nv->js),
-			);
-			$rst = $this->model('code/page')->modify($cid, $data);
-		} else {
-			if ($pid != 0) {
-				$model = $this->model();
-				if (isset($nv->data_schemas)) {
-					$nv->data_schemas = $model->toJson($nv->data_schemas);
-				} else if (isset($nv->act_schemas)) {
-					$nv->act_schemas = $model->toJson($nv->act_schemas);
-				} else if (isset($nv->user_schemas)) {
-					$nv->user_schemas = $model->toJson($nv->user_schemas);
-				}
-				$rst = $model->update(
-					'xxt_enroll_page',
-					$nv,
-					"aid='$app' and id=$pid"
-				);
+			unset($nv->html);
+		}
+		if ($pid != 0 && count(array_keys(get_object_vars($nv)))) {
+			$model = $this->model();
+			if (isset($nv->data_schemas)) {
+				$nv->data_schemas = $model->toJson($nv->data_schemas);
 			}
+			if (isset($nv->act_schemas)) {
+				$nv->act_schemas = $model->toJson($nv->act_schemas);
+			}
+			if (isset($nv->user_schemas)) {
+				$nv->user_schemas = $model->toJson($nv->user_schemas);
+			}
+			$rst = $model->update(
+				'xxt_enroll_page',
+				$nv,
+				"aid='$app' and id=$pid"
+			);
 		}
 
 		return new \ResponseData($rst);

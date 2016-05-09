@@ -1,0 +1,145 @@
+<div class='form-group'>
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <th>开始前</th>
+                <th colspan='2'>进入时</th>
+                <th>已登记时</th>
+                <th>结束后</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td rowspan="7">
+                    <select title='进入页面' class='form-control' ng-model='app.before_start_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('before_start_page')">
+                        <option value=''></option>
+                    </select>
+                </td>
+                <td>微信公众号关注用户</td>
+                <td>
+                    <div class='form-inline'>
+                        <select class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.wxfan.entry' ng-options='p.name as p.title for p in pages4Unauth'>
+                            <option value=''></option>
+                        </select>
+                        <button class='btn btn-default'>
+                        <span class='glyphicon glyphicon-plus'></span>
+                        </button>
+                        <button class='btn btn-default' ng-click="gotoPage(app.entry_rule.wxfan.entry)">
+                        <span class='glyphicon glyphicon-edit'></span>
+                        </button>
+                    </div>
+                </td>
+                <td rowspan="7">
+                    <select class='form-control' ng-model='app.enrolled_entry_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('enrolled_entry_page')">
+                        <option value=''></option>
+                    </select>
+                </td>
+                <td rowspan="7">
+                    <select title='进入页面' class='form-control' ng-model='app.after_end_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('after_end_page')">
+                        <option value=''></option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>微信企业号关注用户</td>
+                <td>
+                    <div class='form-inline'>
+                        <select class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.qyfan.entry' ng-options='p.name as p.title for p in pages4Unauth'>
+                            <option value=''></option>
+                        </select>
+                        <button class='btn btn-default'>
+                        <span class='glyphicon glyphicon-plus'></span>
+                        </button>
+                        <button class='btn btn-default' ng-click="gotoPage(app.entry_rule.qyfan.entry)">
+                        <span class='glyphicon glyphicon-edit'></span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>易信公众号关注用户</td>
+                <td>
+                    <div class='form-inline'>
+                        <select class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.yxfan.entry' ng-options='p.name as p.title for p in pages4Unauth'>
+                            <option value=''></option>
+                        </select>
+                        <button class='btn btn-default'>
+                        <span class='glyphicon glyphicon-plus'></span>
+                        </button>
+                        <button class='btn btn-default' ng-click="gotoPage(app.entry_rule.yxfan.entry)">
+                        <span class='glyphicon glyphicon-edit'></span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>其他用户</td>
+                <td>
+                    <div class='form-inline'>
+                        <select class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.other.entry' ng-options="p.name as p.title for p in pages4Nonfan"></select>
+                        <button class='btn btn-default'>
+                        <span class='glyphicon glyphicon-plus'></span>
+                        </button>
+                        <button class='btn btn-default'>
+                        <span class='glyphicon glyphicon-edit'></span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class='help-block'>进入规则</div>
+</div>
+<div class='form-group'>
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <th style='width:180px'>用户范围</th>
+                <th style='width:140px'>登记时</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>未指定时</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>微信公众号关注用户</td>
+                <td>
+                    <select class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.wxfan.enroll'>
+                        <option value='$authapi_auth' ng-if="app.access_control==='Y'">提示认证</option>
+                        <option value='Y'>允许</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>微信企业号关注用户</td>
+                <td>
+                    <select class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.qyfan.enroll'>
+                        <option value='$authapi_auth' ng-if="app.access_control==='Y'">提示认证</option>
+                        <option value='Y'>允许</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>易信公众号关注用户</td>
+                <td>
+                    <select class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.yxfan.enroll'>
+                        <option value='$authapi_auth' ng-if="app.access_control==='Y'">提示认证</option>
+                        <option value='Y'>允许</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>其他用户</td>
+                <td>
+                    <select class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.other.enroll'>
+                        <option value='$mp_follow'>提示关注</option>
+                        <option value='Y'>允许</option>
+                    </select>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class='help-block'>参与规则</div>
+</div>

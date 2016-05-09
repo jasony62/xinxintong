@@ -19,8 +19,7 @@
 			"email": "user1@email.com",
 			"c1": "用户1-登记信息1",
 			"c2": "用户1-登记信息2"
-		},
-		"signinLogs": {}
+		}
 	}, {
 		"rid": "",
 		"enroll_key": "ek1",
@@ -41,7 +40,6 @@
 			"email": "user2@email.com",
 			"c1": "用户2-登记信息1",
 			"c2": "用户2-登记信息2"
-		},
-		"signinLogs": {}
+		}
 	}]
 }

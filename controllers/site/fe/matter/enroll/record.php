@@ -654,12 +654,18 @@ class record extends base {
 		return new \ResponseData($remark);
 	}
 	/**
-	 *当前用户活动签到
+	 * 当前用户活动签到
+	 *
+	 * @param string $site
+	 * @param string $app
 	 */
 	public function signin_action($site, $app) {
-		$model = \TMS_APP::model('app\enroll');
-		$app = $model->byId($app);
-		$rst = $model->signin($site, $app->id, $openid);
+		$modelApp = $this->model('matter\enroll');
+		$modelRec = $this->model('matter\enroll\signin');
+
+		$user = $this->who;
+		$app = $modelApp->byId($app);
+		$rst = $modelRec->signin($site, $app, $user);
 		/**
 		 * 回复
 		 */

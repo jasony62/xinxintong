@@ -1,5 +1,5 @@
 (function() {
-	ngApp.provider.controller('ctrlSetting', ['$scope', '$location', 'http2', '$modal', 'mediagallery', function($scope, $location, http2, $modal, mediagallery) {
+	ngApp.provider.controller('ctrlConfig', ['$scope', '$location', 'http2', '$modal', function($scope, $location, http2, $modal) {
 		window.onbeforeunload = function(e) {
 			var message;
 			if ($scope.modified) {
@@ -11,35 +11,6 @@
 				return message;
 			}
 		};
-		$scope.run = function() {
-			$scope.app.state = 2;
-			$scope.update('state');
-			$scope.submit().then(function() {
-				location.href = '/rest/pl/fe/matter/enroll/running?site=' + $scope.siteId + '&id=' + $scope.id;
-			});
-		};
-		$scope.remove = function() {
-			http2.get('/rest/pl/fe/matter/enroll/remove?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
-				location.href = '/rest/pl/fe/site/console?site=' + $scope.siteId;
-			});
-		};
-		$scope.setPic = function() {
-			var options = {
-				callback: function(url) {
-					$scope.app.pic = url + '?_=' + (new Date()) * 1;
-					$scope.update('pic');
-				}
-			};
-			mediagallery.open($scope.siteId, options);
-		};
-		$scope.removePic = function() {
-			$scope.app.pic = '';
-			$scope.update('pic');
-		};
-		$scope.$on('xxt.tms-datepicker.change', function(event, data) {
-			$scope.app[data.state] = data.value;
-			$scope.update(data.state);
-		});
 		$scope.addPage = function() {
 			$modal.open({
 				templateUrl: 'createPage.html',

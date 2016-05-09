@@ -72,6 +72,29 @@ app.controller('ctrlSetting', ['$scope', 'http2', '$modal', function($scope, htt
 	});
 }]);
 app.controller('ctrlMatter', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+	var indicators = {
+		registration: {
+			title: '在线报名',
+			handler: function() {
+				$scope.addEnroll('registration');
+			}
+		},
+		group: {
+			title: '分组',
+			handler: function() {
+				$scope.addGroup();
+			}
+		},
+		voting: {
+			title: '评价',
+			handler: function() {
+				$scope.addEnroll('voting');
+			}
+		},
+	};
+	$scope.addByIndicator = function(indicator) {
+		indicator.handler();
+	};
 	$scope.addArticle = function() {
 		http2.get('/rest/pl/fe/matter/article/createByMission?site=' + $scope.siteId + '&mission=' + $scope.id, function(rsp) {
 			location.href = '/rest/pl/fe/matter/article?site=' + $scope.siteId + '&id=' + rsp.data.id;
@@ -80,9 +103,8 @@ app.controller('ctrlMatter', ['$scope', '$modal', 'http2', function($scope, $mod
 	$scope.addEnroll = function(assignedScenario) {
 		$modal.open({
 			templateUrl: 'templatePicker.html',
-			size: 'lg',
 			backdrop: 'static',
-			windowClass: 'auto-height',
+			windowClass: 'auto-height template',
 			controller: ['$scope', '$modalInstance', function($scope2, $mi) {
 				$scope2.data = {};
 				$scope2.cancel = function() {
@@ -183,11 +205,21 @@ app.controller('ctrlMatter', ['$scope', '$modal', 'http2', function($scope, $mod
 	};
 	$scope.fetch = function() {
 		http2.get('/rest/pl/fe/matter/mission/matter/list?site=' + $scope.siteId + '&id=' + $scope.id + '&_=' + (new Date()).getTime(), function(rsp) {
+			var typeCount = {};
 			angular.forEach(rsp.data, function(matter) {
 				matter._operator = matter.modifier_name || matter.creater_name;
 				matter._operateAt = matter.modifiy_at || matter.create_at;
+				if (matter.type === 'enroll') {
+					typeCount[matter.scenario] ? typeCount[matter.scenario]++ : (typeCount[matter.scenario] = 1);
+				} else {
+					typeCount[matter.type] ? typeCount[matter.type]++ : (typeCount[matter.type] = 1);
+				}
 			});
 			$scope.matters = rsp.data;
+			$scope.indicators = [];
+			!typeCount.registration && indicators.push(indicators.registration);
+			!typeCount.group && $scope.indicators.push(indicators.group);
+			!typeCount.voting && $scope.indicators.push(indicators.voting);
 		});
 	};
 	$scope.fetch();

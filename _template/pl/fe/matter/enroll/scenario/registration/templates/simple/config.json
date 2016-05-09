@@ -1,7 +1,7 @@
 {
 	"pages": [{
 		"name": "enroll",
-		"title": "登记页",
+		"title": "填写页",
 		"type": "I",
 		"data_schemas": [{
 			"id": "name",
@@ -30,60 +30,76 @@
 			"showname": "placeholder"
 		}],
 		"act_schemas": [{
+			"id": "act1",
 			"name": "submit",
 			"label": "提交信息",
 			"next": "result"
 		}]
 	}, {
 		"name": "result",
-		"title": "登记结果页",
+		"title": "填写结果页",
 		"type": "V",
-		"data_schemas": {
-			"record": {
-				"enabled": "Y",
-				"inline": "Y",
-				"splitLine": "Y",
-				"schemas": [{
-					"id": "name",
-					"title": "名称",
-					"type": "name",
-					"showname": "placeholder"
-				}, {
-					"id": "mobile",
-					"title": "手机",
-					"type": "mobile",
-					"showname": "placeholder"
-				}, {
-					"id": "email",
-					"title": "邮箱",
-					"type": "email",
-					"showname": "placeholder"
-				}, {
-					"id": "c1",
-					"title": "登记信息1",
-					"type": "shorttext",
-					"showname": "placeholder"
-				}, {
-					"id": "c2",
-					"title": "登记信息2",
-					"type": "longtext",
-					"showname": "placeholder"
-				}]
+		"data_schemas": [{
+			"id": "s1",
+			"pattern": "record",
+			"inline": "Y",
+			"splitLine": "Y",
+			"schema": {
+				"id": "name",
+				"title": "名称",
+				"type": "name",
+				"showname": "placeholder"
 			}
-		},
+		}, {
+			"id": "s2",
+			"pattern": "record",
+			"inline": "Y",
+			"splitLine": "Y",
+			"schema": {
+				"id": "mobile",
+				"title": "手机",
+				"type": "mobile",
+				"showname": "placeholder"
+			}
+		}, {
+			"id": "s3",
+			"pattern": "record",
+			"inline": "Y",
+			"splitLine": "Y",
+			"schema": {
+				"id": "email",
+				"title": "邮箱",
+				"type": "email",
+				"showname": "placeholder"
+			}
+		}, {
+			"id": "s4",
+			"pattern": "record",
+			"inline": "Y",
+			"splitLine": "Y",
+			"schema": {
+				"id": "c1",
+				"title": "登记信息1",
+				"type": "shorttext",
+				"showname": "placeholder"
+			}
+		}, {
+			"id": "s5",
+			"pattern": "record",
+			"inline": "Y",
+			"splitLine": "Y",
+			"schema": {
+				"id": "c2",
+				"title": "登记信息2",
+				"type": "longtext",
+				"showname": "placeholder"
+			}
+		}],
 		"act_schemas": [{
+			"id": "act2",
 			"name": "editRecord",
 			"label": "修改登记",
 			"next": "enroll"
-		}]
-	}, {
-		"name": "signin",
-		"title": "签到页",
-		"type": "S",
-		"act_schemas": [{
-			"name": "signin",
-			"label": "提交信息",
-			"next": "result"
 		}]
 	}],
 	"schema": [{
@@ -113,8 +129,7 @@
 		"showname": "placeholder"
 	}],
 	"scenarioConfig": {
-		"can_rounds": "D",
-		"can_signin": "Y"
+		"can_rounds": "D"
 	},
 	"entryRule": {
 		"otherwise": {

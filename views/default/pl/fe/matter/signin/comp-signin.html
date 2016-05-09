@@ -1,0 +1,73 @@
+<div ng-controller="ctrlSigninSchema">
+    <div class='list-group form-group'>
+        <div class='list-group-item' ng-repeat="s in ep.data_schemas">
+            <span ng-bind='s.title'></span>
+            <button class='btn btn-default btn-xs pull-right' ng-click='removeSchema(s)'><span class='glyphicon glyphicon-remove'></span></button>
+        </div>
+        <button class='btn btn-success btn-block' ng-click='chooseSchema()'>添加登记数据</button>
+    </div>
+    <div class='list-group form-group'>
+        <div class='list-group-item' ng-repeat="s in ep.act_schemas">
+            <span ng-bind='s.label'></span>
+            <button class='btn btn-default btn-xs pull-right' ng-click='removeAct(s)'><span class='glyphicon glyphicon-remove'></span></button>
+        </div>
+        <button class='btn btn-success btn-block' ng-click='chooseAct()'>添加操作</button>
+    </div>
+    <div class='form-group'>
+        <button class='btn btn-success btn-block' ng-click='makePage()'>生成页面</button>
+        <button class='btn btn-success btn-block' ng-click='emptyPage()'>清空页面</button>
+    </div>
+</div>
+<script type="text/ng-template" id="chooseDataSchema.html">
+    <div class="modal-header">
+        <button class="close" ng-click="cancel()" type="button">×</button>
+        <h5 class="modal-title">登记项</h5>
+    </div>
+    <div class="modal-body">
+        <div class='list-group-item' style='padding-top:0;padding-bottom:0' ng-repeat="s in schemas">
+            <div class='checkbox'>
+                <label><input type='checkbox' ng-model='s._selected' ng-change="choose(s)"><span ng-bind="s.title"></span></label>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer" style="margin-top:0">
+        <button class="btn btn-success" ng-click="ok()">确定</button>
+    </div>
+</script>
+<script type="text/ng-template" id="embedInputEditor.html">
+    <div class="modal-header">
+        <button class="close" ng-click="cancel()" type="button">×</button>
+        <h5 class="modal-title">内容</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" role="form">
+            <div class="form-group">
+                <label class="col-md-2 control-label">ID</label>
+                <div class="col-md-10">
+                    <p class='form-control-static' ng-bind='def.key'></p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label">名称*</label>
+                <div class="col-md-10">
+                    <input type='text' class='form-control' ng-model='def.name' required>
+                    <div class="radio">
+                        <label><input type='radio' value='placeholder' ng-model='def.showname'>输入框内</label>
+                        <label><input type='radio' value='label' ng-model='def.showname'>输入框前</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" ng-show="['0','1','2','3','4','5','6','8'].indexOf(def.type)!==-1">
+                <label class="col-md-2 control-label">必填</label>
+                <div class="col-md-10">
+                    <div class="checkbox">
+                        <label><input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model='def.required'>是</label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer" style="margin-top:0">
+        <button class="btn btn-success" ng-click="ok()">确定</button>
+    </div>
+</script>

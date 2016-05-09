@@ -1,5 +1,5 @@
-var xxtProfile = angular.module('profile.user.xxt', ['ui.bootstrap', 'ui.tms']);
-xxtProfile.controller('ctrlProfile', ['$scope', 'http2', '$modalInstance', '$modal', 'params', function($scope, http2, $modalInstance, $modal, params) {
+angular.module('profile.user.xxt', ['ui.bootstrap', 'ui.tms']).
+controller('ctrlProfile', ['$scope', 'http2', '$modalInstance', '$modal', 'params', function($scope, http2, $modalInstance, $modal, params) {
 	var baseURL = '/rest/pl/fe/site/user/profile/',
 		userid = params.userid;
 	$scope.siteId = params.siteId;
@@ -136,8 +136,8 @@ xxtProfile.controller('ctrlProfile', ['$scope', 'http2', '$modalInstance', '$mod
 			}
 		});
 	};
-}]);
-xxtProfile.factory('userProfile', function($modal) {
+}]).
+factory('userProfile', function($modal) {
 	var Profile = {},
 		open;
 	open = function(siteId, userid, memberSchemas, options) {

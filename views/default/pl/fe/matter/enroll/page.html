@@ -29,7 +29,7 @@
     </div>
     <div class="panel panel-default">
         <div class="panel-body">
-            <div ng-include="'/views/default/pl/fe/matter/enroll/comp-'+(ep.type==='I'?'input':(ep.type==='V'?'view':'signin'))+'.html?_=7'" ng-controller='ctrlPageSchema'></div>
+            <div ng-include="'/views/default/pl/fe/matter/enroll/comp-'+(ep.type==='I'?'input':(ep.type==='V'?'view':'signin'))+'.html?_=10'" ng-controller='ctrlPageSchema'></div>
         </div>
     </div>
     <div class="panel panel-default">
@@ -41,7 +41,7 @@
     </div>
 </div>
 <div class='col-md-6' ng-if="ep" ng-controller="ctrlPageEditor">
-    <div class='editor'>
+    <div class='page-editor'>
         <div>
             <div class='btn-group'>
                 <button class='btn' ng-class="ep.$$modified?'btn-success':'btn-default'" ng-disabled='!ep.$$modified' ng-click="updPage(ep,'html')">保存</button>

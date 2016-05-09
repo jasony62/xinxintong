@@ -1,0 +1,12 @@
+/*dialog*/
+.dialog.mask{position:fixed;absolute;background:rgba(0,0,0,0.3);top:0;left:0;bottom:0;right:0;overflow:auto;z-index:998}
+.dialog.dlg{position:absolute;background:#fff;left:0;right:0;bottom:0;margin:15px}
+.dialog .dlg-header{padding:15px 15px 0 15px}
+.dialog .dlg-body{padding:15px 15px 0 15px}
+.dialog .dlg-footer{text-align:right;padding:15px}
+.dialog .dlg-footer button{border-radius:0}
+
+/*filter*/
+div[wrap=filter] .detail{background:#ccc}
+div[wrap=filter] .detail .options .label{display:inline-block;margin:.5em;padding-top:.3em;font-size:100%}
+div[wrap=filter] .detail .actions .btn{border-radius:0}

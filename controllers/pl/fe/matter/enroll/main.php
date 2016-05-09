@@ -18,7 +18,7 @@ class main extends \pl\fe\matter\base {
 	public function index_action($site, $id) {
 		$app = $this->model('matter\enroll')->byId($id);
 		if ($app->state === '2') {
-			$this->redirect('/rest/pl/fe/matter/enroll/running?site=' . $site . '&id=' . $id);
+			$this->redirect('/rest/pl/fe/matter/enroll/publish?site=' . $site . '&id=' . $id);
 		} else {
 			\TPL::output('/pl/fe/matter/enroll/frame');
 			exit;
@@ -27,14 +27,14 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 返回视图
 	 */
-	public function setting_action() {
+	public function app_action() {
 		\TPL::output('/pl/fe/matter/enroll/frame');
 		exit;
 	}
 	/**
 	 * 返回视图
 	 */
-	public function running_action() {
+	public function publish_action() {
 		\TPL::output('/pl/fe/matter/enroll/frame');
 		exit;
 	}
@@ -222,10 +222,6 @@ class main extends \pl\fe\matter\base {
 			if (isset($config->scenarioConfig)) {
 				$scenarioConfig = $config->scenarioConfig;
 				$newapp['scenario_config'] = json_encode($scenarioConfig);
-				/*缺省支持签到*/
-				if ($scenarioConfig->can_signin === 'Y') {
-					$newapp['can_signin'] = 'Y';
-				}
 			}
 			$newapp['scenario'] = $scenario;
 		} else {

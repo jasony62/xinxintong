@@ -1,0 +1,84 @@
+<div class="modal-header">
+    <button class="close" ng-click="cancel()" type="button">×</button>
+    <div class='form-inline'>
+        <div class='form-group'>
+            <select class='form-control' ng-model='schema.type' ng-change="changeType()" style='width:200px'>
+                <option value='name'>姓名</option>
+                <option value='mobile'>手机</option>
+                <option value='email'>邮箱</option>
+                <option value='date'>日期</option>
+                <option value='shorttext'>短文本</option>
+                <option value='longtext'>长文本</option>
+                <option value='single'>单选项</option>
+                <option value='multiple'>多选项</option>
+                <option value='image'>图片</option>
+                <option value='file'>文件上传</option>
+                <option value='location'>位置</option>
+                <option value='member'>自定义用户信息</option>
+            </select>
+        </div>
+        <div class='form-group' style="width:300px">
+            <input type='text' class='form-control' ng-model='schema.id' title='ID:需保持唯一'>
+        </div>
+    </div>
+</div>
+<div class="modal-body">
+    <div class='row'>
+        <div class='col-md-6'>
+            <div class='form-group' style='background:#f8f8f8;padding:8px' ng-include="schemaHtml(schema)"></div>
+            <div class="radio" ng-if="schema.type!=='single'&&schema.type!=='multiple'">
+                <label><input type='radio' value='placeholder' ng-model='schema.showname'>输入框内</label>
+                <label><input type='radio' value='label' ng-model='schema.showname'>输入框前</label>
+            </div>
+            <div class="form-group" ng-if="schema.type==='single'">
+                <label class="radio-inline"><input type='radio' name='component' value='R' ng-model='schema.component'>单选钮</label>
+                <label class="radio-inline"><input type='radio' name='component' value='S' ng-model='schema.component'>下拉框</label>
+            </div>
+            <div class="form-group" ng-if="(schema.type==='single'&&schema.component==='R')||schema.type==='multiple'">
+                <label class="radio-inline"><input type='radio' name='align' value='V' ng-model='schema.align'>垂直</label>
+                <label class="radio-inline"><input type='radio' name='align' value='H' ng-model='schema.align'>水平</label>
+            </div>
+        </div>
+        <div class='col-md-6'>
+            <div class="form-group" ng-if="schema.type==='member'">
+                <select class='form-control' ng-model='selectedMemberSchema.schema' ng-options='ms.title for ms in memberSchemas' ng-change='shiftMemberSchema()'>
+                    <option></option>
+                </select>
+                <select class='form-control' ng-model='selectedMemberSchema.attr' ng-options='a.label for a in selectedMemberSchema.attrs' ng-change="shiftMemberSchemaAttr()">
+                    <option></option>
+                </select>
+                <div class="help-block">自定义用户信息</div>
+            </div>
+            <div class="form-group">
+                <input type='text' class='form-control' placeholder="标题" ng-model='schema.title' required>
+            </div>
+            <div class="form-group" ng-if="schema.type==='single'||schema.type==='multiple'">
+                <button class="btn btn-default btn-sm" ng-click='addOption()'>添加</button>
+                <ul class='list-group' style='margin-bottom:0'>
+                    <li class='list-group-item' ng-repeat='op in schema.ops' editable prop='l' obj='op'></li>
+                </ul>
+            </div>
+            <div class="checkbox" ng-show="['image'].indexOf(schema.type)===-1">
+                <label><input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model='schema.required'>必填</label>
+            </div>
+            <div class="form-group" ng-if="schema.type==='image'||schema.type==='file'">
+                <div class="col-md-10">
+                    <input type='text' class='form-control' ng-model='schema.count'>
+                </div>
+                <div class="help-block">数量</div>
+            </div>
+            <div class="form-group" ng-if="schema.type==='multiple'">
+                <div class='input-group'>
+                    <span class='input-group-addon'>
+                        <input type='checkbox' ng-model='schema.setUpper' ng-true-value="'Y'" ng-false-value="'N'">
+                    </span>
+                    <input type='text' ng-disabled="schema.setUpper==='N'" class='form-control' ng-model='schema.upper'>
+                </div>
+                <div class="help-block">限制数量</div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer" style="margin-top:0">
+    <button class="btn btn-success" ng-click="ok()">确定</button>
+</div>

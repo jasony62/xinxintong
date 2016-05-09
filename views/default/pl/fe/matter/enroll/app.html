@@ -1,0 +1,95 @@
+<div id='app-view'>
+    <div class='col-md-8' ng-controller="ctrlPageEditor">
+        <div class='col-md-3'>
+            <div class='list-group'>
+                <div class='list-group-item page' ng-class="{'active':p===ep}" ng-repeat="p in app.pages" ng-click='choosePage(p)' ng-bind="p.title">
+                </div>
+            </div>
+            <button class='btn btn-block btn-success' ng-click="addPage()">添加页面</button>
+            <button class='btn btn-block btn-default' ng-click='delPage()'>删除页面</button>
+        </div>
+        <div class='col-md-9'>
+            <div class='page-editor' ng-if='ep'>
+                <tinymce content='ep.html' id='tinymce-page' height='669' change="onPageChange()"></tinymce>
+                <div class='sidebar'>
+                    <button class='btn btn-default' ng-click="updPage(ep,'html')" title='保存修改' ng-disabled='!ep.$$modified'>
+                    <i class='fa fa-save fa-fw'></i>
+                    </button>
+                    <button class='btn btn-default' ng-click="createInput()" title='创建登记项' ng-if="ep.type==='I'">
+                    <i class='fa fa-plus fa-fw'></i>
+                    </button>
+                    <button class='btn btn-default' ng-click="chooseInput()" title='添加已有登记项'>
+                    <i class='fa fa-plus-square-o fa-fw'></i>
+                    </button>
+                    <button class='btn btn-default' ng-click="createAct()" title='添加操作'>
+                    <i class='fa fa-plus-square fa-fw'></i>
+                    </button>
+                    <button class='btn btn-default' ng-click="embedMatter()" title='添加素材'>
+                    <i class='fa fa-file fa-fw'></i>
+                    </button>
+                    <button class='btn btn-default' ng-click="modifyWrap()" title='编辑登记项' ng-disabled='!hasActiveWrap||!activeWrap.editable'>
+                    <i class='fa fa-edit fa-fw'></i>
+                    </button>
+                    <button class='btn btn-default' title='修改' ng-click="removeWrap()" ng-disabled='!hasActiveWrap'>
+                    <i class='fa fa-remove fa-fw'></i>
+                    </button>
+                    <button class='btn btn-default' ng-click="upWrap()" ng-disabled='!hasActiveWrap'>
+                    <span class='fa fa-arrow-up fa-fw'></span>
+                    </button>
+                    <button class='btn btn-default' ng-click="downWrap()" ng-disabled='!hasActiveWrap'>
+                    <span class='fa fa-arrow-down fa-fw'></span>
+                    </button>
+                    <button class='btn btn-default' title='上一级' ng-click="upLevel()" ng-disabled='!hasActiveWrap||activeWrap.upmost'>
+                    <span class='fa fa-level-up fa-fw'></span>
+                    </button>
+                    <button class='btn btn-default' title='下一级' ng-click="downLevel()" ng-disabled='!hasActiveWrap||activeWrap.downmost'>
+                    <i class='fa fa-level-down fa-fw'></i>
+                    </button>
+                    <button class='btn btn-default' title='页面设置' ng-click="gotoPageConfig()">
+                    <i class='fa fa-cog fa-fw'></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='col-md-4'>
+        <div class='tile'>
+            <button class='btn btn-block' ng-click="submit()" ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'">保存</button>
+            <button class='btn btn-block' ng-click="publish()" ng-disabled='modified' ng-class="modified?'btn-default':'btn-success'">发布</button>
+            <button class='btn btn-block btn-default' ng-click="remove()">删除</button>
+        </div>
+        <div class='tile'>
+            <div class='form-group'>
+                <input type='text' class='form-control' ng-model='app.title' ng-change="update('title');">
+                <div class='help-block'>标题：最多35个汉字，70个英文字符</div>
+            </div>
+            <div class='form-group' ng-if="app.scenarioConfig.can_period!=='D'">
+                <tms-datepicker tms-title='开始时间' tms-date='app.start_at' tms-state='start_at'></tms-datepicker>
+                <div class='help-block'>开始时间（可选）</div>
+                <tms-datepicker tms-title='结束时间' tms-date='app.end_at' tms-state='end_at'></tms-datepicker>
+                <div class='help-block'>结束时间（可选）</div>
+            </div>
+        </div>
+        <div class='tile' ng-if="app.state==='2'">
+            <div class='form-group'>
+                <div style='height:auto;word-break:break-all' ng-bind='url'></div>
+            </div>
+        </div>
+        <div class='tile'>
+            <a href='/rest/pl/fe/matter/enroll/schema?site={{siteId}}&id={{id}}'>所有登记项</a>
+        </div>
+        <div class='tile' ng-if="app.state==='2'">
+            <div class='form-group'>
+                <a href='/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}'>登记记录</a>
+            </div>
+        </div>
+        <div class='tile'>
+            <div class='form-group'>
+                <div>创建人：{{app.creater_name}}</div>
+                <div>创建时间：{{app.create_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+                <div>修改人：{{app.modifier_name}}</div>
+                <div>最后一次修改时间：{{app.modify_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+            </div>
+        </div>
+    </div>
+</div>

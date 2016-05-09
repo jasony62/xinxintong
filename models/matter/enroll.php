@@ -88,38 +88,7 @@ class enroll_model extends app_base {
 		return true;
 	}
 	/**
-	 * 活动登记（不包括登记数据）
-	 *
-	 * $mpid 运行的公众号，和openid和src相对应
-	 * $act
-	 * $openid
-	 * $vid
-	 * $mid
-	 */
-	public function enroll($mpid, $act, $openid, $vid = '', $mid = '', $enroll_at = null) {
-		$fan = \TMS_APP::M('user/fans')->byOpenid($mpid, $openid);
-		$modelRec = \TMS_APP::M('matter\enroll\record');
-		$ek = $modelRec->genKey($mpid, $act->id);
-		$i = array(
-			'aid' => $act->id,
-			'mpid' => $mpid,
-			'enroll_at' => $enroll_at === null ? time() : $enroll_at,
-			'enroll_key' => $ek,
-			'openid' => $openid,
-			'nickname' => !empty($fan) ? $fan->nickname : '',
-			'vid' => $vid,
-			'mid' => $mid,
-		);
-		$modelRun = \TMS_APP::M('matter\enroll\round');
-		if ($activeRound = $modelRun->getActive($mpid, $act->id)) {
-			$i['rid'] = $activeRound->rid;
-		}
-
-		$this->insert('xxt_enroll_record', $i, false);
-
-		return $ek;
-	}
-	/**
+	 * @todo 应该删除
 	 * 检查用户是否已经登记
 	 *
 	 * 如果设置轮次，只坚持当前轮次是否已经登记
@@ -173,44 +142,6 @@ class enroll_model extends app_base {
 		$rst = (int) $this->query_val_ss($q);
 
 		return $rst > 0;
-	}
-	/**
-	 * 登记活动签到
-	 *
-	 * 如果用户已经做过活动登记，那么设置签到时间
-	 * 如果用户没有做个活动登记，那么要先产生一条登记记录，并记录签到时间
-	 */
-	public function signin($mpid, $aid, $openid) {
-		$modelRec = \TMS_APP::M('matter\enroll\record');
-		$user = new \stdClass;
-		$user->openid = $openid;
-		if ($ek = $modelRec->getLastKey($mpid, $aid, $user)) {
-			$enrolled = true;
-		} else {
-			$enrolled = false;
-			$act = new \stdClass;
-			$act->id = $aid;
-			$ek = $this->enroll($mpid, $act, $openid, '', '', 0);
-		}
-		/*更新状态*/
-		$signinAt = time();
-		$sql = "update xxt_enroll_record set signin_at=$signinAt,signin_num=signin_num+1";
-		$sql .= " where mpid='$mpid' and aid='$aid' and enroll_key='$ek'";
-		$rst = $this->update($sql);
-		/*记录日志*/
-		$this->insert(
-			'xxt_enroll_signin_log',
-			array(
-				'mpid' => $mpid,
-				'aid' => $aid,
-				'enroll_key' => $ek,
-				'openid' => $openid,
-				'signin_at' => $signinAt,
-			),
-			false
-		);
-
-		return $enrolled;
 	}
 	/**
 	 * 活动报名名单

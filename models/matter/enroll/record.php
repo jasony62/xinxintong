@@ -150,7 +150,7 @@ class record_model extends \TMS_MODEL {
 	 * 如果用户已经做过活动登记，那么设置签到时间
 	 * 如果用户没有做个活动登记，那么要先产生一条登记记录，并记录签到时间
 	 */
-	public function signin($siteId, &$app, $user, $data = null) {
+	public function signin($siteId, &$app, &$user, $data = null) {
 		if ($ek = $this->getLastKey($siteId, $app, $user)) {
 			$enrolled = true;
 		} else {
@@ -419,7 +419,12 @@ class record_model extends \TMS_MODEL {
 	}
 	/**
 	 * 获得指定用户最后一次登记的key
-	 * 如果设置轮次，只坚持当前轮次的情况
+	 * 如果设置轮次，只检查当前轮次的情况
+	 *
+	 * @param string $siteId
+	 * @param object $app
+	 * @param object $user
+	 *
 	 */
 	public function getLastKey($siteId, &$app, &$user) {
 		$last = $this->getLast($siteId, $app, $user);

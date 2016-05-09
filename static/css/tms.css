@@ -72,3 +72,7 @@ body,pre,code{font-family:Arial,'Microsoft YaHei'}
 .combox .dropdown-menu .checkbox label{display:inline-block;width:100%;min-height:20px;padding-left:0px;margin-bottom:0px;font-weight:400;cursor:pointer;}
 .combox .dropdown-menu .checkbox:hover{background-color:#F5F5F5}
 .combox .dropdown-menu .checkbox input[type="checkbox"]{position:absolute;margin-left:-20px;}
+
+/*tms-datepicker*/
+.tms-datepicker>div{border-top-right-radius:0;border-bottom-right-radius:0;border-right:0;}
+.tms-datepicker>.input-group-btn>.btn{border-top-left-radius:0;border-bottom-left-radius:0}

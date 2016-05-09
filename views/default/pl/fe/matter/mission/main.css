@@ -9,7 +9,7 @@ body{background:#f8f8f8;position:relative;overflow:hidden;display:flex;flex-dire
 
 /*setting*/
 #viewSetting .attrs{flex:1.0;overflow-y:auto;overflow-x:hidden;padding-left:15px;padding-right:15px;}
-#viewSetting .navbar{margin-bottom:0;}
+#viewSetting .navbar{margin:0 -1px;}
 
 /*matter*/
 #viewMatter .matters{flex:1.0;overflow-y:auto;overflow-x:hidden;}
@@ -17,7 +17,7 @@ body{background:#f8f8f8;position:relative;overflow:hidden;display:flex;flex-dire
 #viewMatter .thumbnail .summary{flex:1;overflow:hidden;}
 #viewMatter .thumbnail .attrs{display:flex;}
 #viewMatter .thumbnail .operator{flex:1;}
-#viewMatter .navbar{margin-bottom:0;}
+#viewMatter .navbar{margin:0 -1px;}
 
 /*indicator*/
 #viewMatter .thumbnail.indicator{flex-direction:row;align-items:center;background:#f8f8f8;}

@@ -48,6 +48,7 @@ app.controller('ctrlSetting', ['$scope', 'http2', '$modal', function($scope, htt
 	$scope.update = function(name) {
 		modifiedData[name] = $scope.editing[name];
 		$scope.modified = true;
+		$scope.submit();
 	};
 	$scope.setPic = function() {
 		var options = {

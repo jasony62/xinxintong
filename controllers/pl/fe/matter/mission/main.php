@@ -69,6 +69,8 @@ class main extends \pl\fe\matter\base {
 		$matter = (object) $mission;
 		$matter->type = 'mission';
 		$this->model('log')->matterOp($site->id, $user, $matter, 'C');
+		/*返回结果*/
+		$mission = $this->model('matter\mission')->byId($mission['id']);
 
 		return new \ResponseData($matter);
 	}

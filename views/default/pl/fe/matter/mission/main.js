@@ -217,7 +217,7 @@ app.controller('ctrlMatter', ['$scope', '$modal', 'http2', function($scope, $mod
 			});
 			$scope.matters = rsp.data;
 			$scope.indicators = [];
-			!typeCount.registration && indicators.push(indicators.registration);
+			!typeCount.registration && $scope.indicators.push(indicators.registration);
 			!typeCount.group && $scope.indicators.push(indicators.group);
 			!typeCount.voting && $scope.indicators.push(indicators.voting);
 		});

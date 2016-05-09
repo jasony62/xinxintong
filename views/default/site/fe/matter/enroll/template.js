@@ -150,12 +150,14 @@ ngApp.factory('Record', ['$http', '$q', function($http, $q) {
     };
 }]);
 ngApp.controller('ctrlRecord', ['$scope', 'Record', function($scope, Record) {
-    var facRecord, schemas;
-    facRecord = Record.ins(LS.p.scenario, LS.p.template);
+    var facRecord = Record.ins(LS.p.scenario, LS.p.template),
+        schemas = [],
+        i;
     facRecord.get($scope.CustomConfig);
     $scope.Record = facRecord;
-    schemas = $scope.Page.data_schemas;
-    schemas = schemas.record.schemas;
+    for (i in $scope.Page.data_schemas) {
+        schemas.push($scope.Page.data_schemas[i].schema);
+    }
     $scope.value2Label = function(key) {
         var val, i, j, s, aVal, aLab = [];
         if (schemas && facRecord.current.data) {

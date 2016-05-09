@@ -1,4 +1,4 @@
-ngApp = angular.module('xxtApp', ['ngRoute', 'ui.tms', 'matters.xxt']);
+ngApp = angular.module('xxtApp', ['ngRoute', 'ui.tms', 'tinymce.ui.xxt', 'matters.xxt']);
 ngApp.config(['$locationProvider', '$controllerProvider', function($locationProvider, $controllerProvider) {
     $locationProvider.html5Mode(true);
     ngApp.register = {

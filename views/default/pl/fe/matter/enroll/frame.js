@@ -102,6 +102,20 @@ ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$co
 				return defer.promise;
 			}
 		}
+	}).when('/rest/pl/fe/matter/enroll/config', {
+		templateUrl: '/views/default/pl/fe/matter/enroll/config.html?_=2',
+		controller: 'ctrlConfig',
+		resolve: {
+			load: function($q) {
+				var defer = $q.defer();
+				(function() {
+					$.getScript('/views/default/pl/fe/matter/enroll/config.js', function() {
+						defer.resolve();
+					});
+				})();
+				return defer.promise;
+			}
+		}
 	}).otherwise({
 		templateUrl: '/views/default/pl/fe/matter/enroll/app.html?_=2',
 		controller: 'ctrlApp',
@@ -200,23 +214,18 @@ ngApp.controller('ctrlFrame', ['$scope', '$location', '$q', 'http2', function($s
 				}
 				return false;
 			},
-			removeStatic: function(schema) {
+			removeStatic: function(config) {
 				if (this.type === 'V') {
-					if (this.data_schemas.record) {
-						for (i = 0, l = this.data_schemas.record.length; i < l; i++) {
-							if (this.data_schemas.record[i].schema.id === schema.id) {
-								return this.data_schemas.record.splice(i, 1);
-							}
-						}
-					}
-					if (this.data_schemas.list) {
-						var list, j, k;
-						for (i = 0, l = this.data_schemas.list.length; i < l; i++) {
-							list = this.data_schemas.list[i];
-							for (j = 0, k = list.schemas.length; j < k; j++) {
-								if (list.schemas[j].id === schema.id) {
-									return list.schemas.splice(j, 1);
+					for (var i = 0, l = this.data_schemas.length; i < l; i++) {
+						if (this.data_schemas[i].id === config.id) {
+							if (config.schema) {
+								for (var j = 0, k = this.data_schemas[i].schemas.length; j < k; j++) {
+									if (this.data_schemas[i].schemas[j].id === config.schema.id) {
+										return this.data_schemas[i].schemas.splice(j, 1);
+									}
 								}
+							} else {
+								return this.data_schemas.splice(i, 1);
 							}
 						}
 					}

@@ -289,11 +289,21 @@
         config.splitLine === 'Y' ? $(wrap).addClass('wrap-splitline') : $(wrap).removeClass('wrap-splitline');
     };
     WrapLib.prototype.extractStaticSchema = function(wrap) {
-        var schema = {};
-        schema.id = $(wrap).attr('id');
-        schema.inline = $(wrap).hasClass('wrap-inline');
-        schema.splitLine = $(wrap).hasClass('wrap-splitline');
-        return schema;
+        var config = {},
+            html;
+        config.id = $(wrap).attr('id');
+        config.inline = $(wrap).hasClass('wrap-inline');
+        config.splitLine = $(wrap).hasClass('wrap-splitline');
+        if (!config.id) {
+            html = $(wrap).html();
+            html = html.match(/\{\{(.+)\}\}/);
+            if (html.length === 2) {
+                config.schema = {
+                    id: html[1].split('.').pop()
+                };
+            }
+        }
+        return config;
     };
     var PrefabActSchema = {
         _args: function(schema) {

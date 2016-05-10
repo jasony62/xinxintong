@@ -1,6 +1,6 @@
-if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage !== undefined) {
-    wx.ready(function() {
-        wx.showOptionMenu();
+if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.wx) {
+    window.wx.ready(function() {
+        window.wx.showOptionMenu();
     });
 } else if (/YiXin/i.test(navigator.userAgent)) {
     document.addEventListener('YixinJSBridgeReady', function() {
@@ -272,6 +272,7 @@ ngApp.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http,
         var params;
         params = rsp.data;
         $scope.params = params;
+        params.app.data_schemas = JSON.parse(params.app.data_schemas);
         $scope.App = params.app;
         $scope.User = params.user;
         if (params.app.multi_rounds === 'Y') {

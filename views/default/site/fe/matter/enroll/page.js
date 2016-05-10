@@ -199,16 +199,14 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         return Stat;
     }]);
     ngApp.controller('ctrlRecords', ['$scope', 'Record', function($scope, Record) {
-        var facRecord, options, fnFetch, schemas;
-        schemas = JSON.parse($scope.Page.data_schemas);
-        schemas = schemas.list.schemas;
+        var facRecord, options, fnFetch,
+            schemas = $scope.App.data_schemas;
         $scope.value2Label = function(record, key) {
             var val, i, j, s, aVal, aLab = [];
             if (schemas && record.data) {
                 val = record.data[key];
                 if (val === undefined) return '';
                 for (i = 0, j = schemas.length; i < j; i++) {
-                    s = schemas[i];
                     if (schemas[i].id === key) {
                         s = schemas[i];
                         break;
@@ -260,19 +258,14 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         $scope.fetch = fnFetch;
     }]);
     ngApp.controller('ctrlRecord', ['$scope', 'Record', function($scope, Record) {
-        var facRecord, schemas = [],
-            dataSchemas = JSON.parse($scope.Page.data_schemas),
-            i;
-        for (i in dataSchemas) {
-            schemas.push(dataSchemas[i].schema);
-        }
+        var facRecord,
+            schemas = $scope.App.data_schemas;
         $scope.value2Label = function(key) {
             var val, i, j, s, aVal, aLab = [];
             if (schemas && facRecord.current.data) {
                 val = facRecord.current.data[key];
                 if (val === undefined) return '';
                 for (i = 0, j = schemas.length; i < j; i++) {
-                    s = schemas[i];
                     if (schemas[i].id === key) {
                         s = schemas[i];
                         break;

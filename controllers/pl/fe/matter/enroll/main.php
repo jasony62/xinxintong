@@ -34,6 +34,13 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 返回视图
 	 */
+	public function config_action() {
+		\TPL::output('/pl/fe/matter/enroll/frame');
+		exit;
+	}
+	/**
+	 * 返回视图
+	 */
 	public function publish_action() {
 		\TPL::output('/pl/fe/matter/enroll/frame');
 		exit;

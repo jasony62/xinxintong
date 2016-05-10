@@ -74,14 +74,14 @@
                             html += '<li class="' + cls + '" wrap="radio"><label';
                             if (schema.align === 'H') html += ' class="radio-inline"';
                             html += '><input type="radio" name="' + schema.id + '"';
-                            html += ' value="' + ops.v + '"';
+                            html += ' value="' + op.v + '"';
                             html += ' ng-model="data.' + schema.id + '"';
                             schema.required == 1 && (html += 'required=""');
                             html += ' title="' + schema.title + '"';
                             angular.forEach(schema.attrs, function(attr) {
                                 html += 'data-' + attr.name + '="' + attr.value + '"';
                             });
-                            html += ' data-label="' + op.l + '"><span>' + ops.l + '</span></label></li>';
+                            html += ' data-label="' + op.l + '"><span>' + op.l + '</span></label></li>';
                         });
                         html += '</ul>';
                     } else if (schema.component === 'S') {
@@ -89,7 +89,7 @@
                         schema.required == 1 && (html += 'required=""');
                         html += ' title="' + schema.title + '">\r\n';
                         angular.forEach(schema.ops, function(op) {
-                            html += '<option wrap="option" name="data.' + schema.id + '" value="' + op.v + '"' + 'data-label="' + op.l + '"' + 'title="' + schema.title + '"' + '>' + ops.l + '</option>';
+                            html += '<option wrap="option" name="data.' + schema.id + '" value="' + op.v + '"' + 'data-label="' + op.l + '"' + 'title="' + schema.title + '"' + '>' + op.l + '</option>';
                         });
                         html += '\r\n</select>';
                     }

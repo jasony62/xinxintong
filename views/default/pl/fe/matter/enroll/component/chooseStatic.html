@@ -4,7 +4,7 @@
    		<div class='form-group'>
    			<label class='radio-inline'><input type='radio' name='pattern' value='record' ng-model="data.pattern">登记项</label>
    			<label class='radio-inline'><input type='radio' name='pattern' value='record-list' ng-model="data.pattern">登记清单</label>
-   			<label class='radio-inline' ng-if="app.multi_rounds==='Y'"><input type='radio' name='pattern' value='round-list' ng-model="data.pattern">轮次清单</label>
+   			<label class='radio-inline' ng-if="app.scenarioConfig.can_rounds==='Y'"><input type='radio' name='pattern' value='round-list' ng-model="data.pattern">轮次清单</label>
    		</div>
    	</div>
 </div>

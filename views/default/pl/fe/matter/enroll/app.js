@@ -606,6 +606,45 @@
 					editor.save();
 					$scope.updPage($scope.ep, ['data_schemas', 'html']);
 				});
+			} else if (/round-list/.test($active.attr('wrap'))) {
+				$modal.open({
+					templateUrl: '/views/default/pl/fe/matter/enroll/component/modifyRoundList.html?_=1',
+					backdrop: 'static',
+					resolve: {
+						app: function() {
+							return $scope.app;
+						},
+						config: function() {
+							var config = wrapLib.extractStaticSchema($active[0]),
+								config2;
+							if (config2 = $scope.ep.containStatic(config)) {
+								return config2;
+							}
+							return config;
+						}
+					},
+					controller: ['$scope', '$modalInstance', 'app', 'config', function($scope, $mi, app, config) {
+						var choosedSchemas = [];
+						$scope.config = config;
+						$scope.app = app;
+						$scope.ok = function() {
+							$mi.close($scope.config);
+						};
+						$scope.cancel = function() {
+							$mi.dismiss();
+						};
+					}]
+				}).result.then(function(config) {
+					var editor = tinymce.get('tinymce-page'),
+						$active = $(editor.getBody()).find('.active'),
+						newWrap;
+					config.pattern = 'round-list';
+					newWrap = wrapLib.embedRounds(editor, config);
+					$active.remove();
+					setActiveWrap(newWrap);
+					editor.save();
+					$scope.updPage($scope.ep, ['data_schemas', 'html']);
+				});
 			}
 		};
 		/*查找包含指定登记项的页面*/
@@ -657,13 +696,13 @@
 					setActiveWrap(null);
 					$scope.updPage($scope.ep, ['data_schemas', 'html']);
 				}
-			} else if (/record-list/.test($active.attr('wrap'))) {
+			} else if (/record-list|round-list/.test($active.attr('wrap'))) {
 				config = wrapLib.extractStaticSchema($active[0]);
 				$scope.ep.removeStatic(config);
 				$active.remove();
 				editor.save();
 				setActiveWrap(null);
-				$scope.updPage($scope.ep, ['act_schemas', 'html']);
+				$scope.updPage($scope.ep, ['data_schemas', 'html']);
 			}
 		};
 		$scope.upWrap = function(page) {

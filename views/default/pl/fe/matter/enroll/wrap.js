@@ -250,15 +250,15 @@
         var newWrap = this.addWrap(editor, 'div', attrs, html);
         return newWrap;
     };
-    WrapLib.prototype.embedRounds = function(page, def) {
+    WrapLib.prototype.embedRounds = function(page, config) {
         var onclick, html, attrs = {
             'ng-controller': 'ctrlRounds',
-            wrap: 'list',
+            wrap: 'round-list',
             class: 'form-group'
         };
-        onclick = def.onclick.length ? " ng-click=\"gotoPage($event,'" + def.onclick + "',null,r.rid)\"" : '';
+        config.id && (attrs.id = config.id);
+        onclick = config.onclick.length ? " ng-click=\"gotoPage($event,'" + config.onclick + "',null,r.rid)\"" : '';
         html = "<ul class='list-group'><li class='list-group-item' ng-repeat='r in rounds'" + onclick + "><div>{{r.title}}</div></li></ul>";
-        def.id && (attrs.id = def.id);
         this.addWrap(page, 'div', attrs, html);
     };
     WrapLib.prototype.embedUser = function(page, def) {

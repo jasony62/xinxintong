@@ -35,7 +35,15 @@ class main extends \site\fe\matter\base {
 		if (isset($article->access_control) && $article->access_control === 'Y' && !empty($article->authapis)) {
 			$this->accessControl($site, $id, $article->authapis, $user->uid, $article, false);
 		}
+		/* 单图文所属的频道 */
 		$article->channels = $this->model('matter\channel')->byMatter($id, 'article');
+		$modelCode = $this->model('code\page');
+		foreach ($article->channels as &$channel) {
+			if ($channel->style_page_id) {
+				$channel->style_page = $modelCode->byId($channel->style_page_id, 'html,css,js');
+			}
+		}
+		/* 单图文所属的标签 */
 		$article->tags = $modelArticle->tags($id);
 		if ($article->has_attachment === 'Y') {
 			$article->attachments = $this->model()->query_objs_ss(

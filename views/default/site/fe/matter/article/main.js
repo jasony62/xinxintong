@@ -8,6 +8,13 @@ define(["require", "angular"], function(require, angular) {
         head = document.querySelector('head');
         head.appendChild(link);
     };
+    var loadDynaCss = function(css) {
+        var style, head;
+        style = document.createElement('style');
+        style.innerHTML = css;
+        head = document.querySelector('head');
+        head.appendChild(style);
+    };
     var openPlugin = function(content, cb) {
         var frag, wrap, frm;
         frag = document.createDocumentFragment();
@@ -92,9 +99,9 @@ define(["require", "angular"], function(require, angular) {
         var loadArticle = function() {
             var deferred = $q.defer();
             $http.get('/rest/site/fe/matter/article/get?site=' + siteId + '&id=' + id).success(function(rsp) {
-                var site = rsp.data.site;
-                $scope.article = rsp.data.article;
-                $scope.user = rsp.data.user;
+                var site = rsp.data.site,
+                    article = rsp.data.article,
+                    channels = article.channels;
                 if (site.header_page) {
                     (function() {
                         eval(site.header_page.js);
@@ -105,12 +112,22 @@ define(["require", "angular"], function(require, angular) {
                         eval(site.footer_page.js);
                     })();
                 }
+                if (channels && channels.length) {
+                    for (var i = 0, l = channels.length, channel; i < l; i++) {
+                        channel = channels[i];
+                        if (channel.style_page) {
+                            loadDynaCss(channel.style_page.css);
+                        }
+                    }
+                }
                 $scope.site = site;
+                $scope.article = article;
+                $scope.user = rsp.data.user;
                 window.wx || /Yixin/i.test(navigator.userAgent) && require(['xxt-share'], setMpShare);
-                $scope.article.can_picviewer === 'Y' && require(['picviewer']);
+                article.can_picviewer === 'Y' && require(['picviewer']);
                 loadCss('/views/default/site/fe/matter/article/main.css');
                 deferred.resolve();
-                $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + id + '&type=article&title=' + $scope.article.title + '&shareby=' + shareby, {
+                $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + id + '&type=article&title=' + article.title + '&shareby=' + shareby, {
                     search: location.search.replace('?', ''),
                     referer: document.referrer
                 });

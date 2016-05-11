@@ -70,7 +70,9 @@ class main extends \pl\fe\matter\base {
 	 * 创建频道素材
 	 */
 	public function create_action($site) {
-		$user = $this->accountUser();
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$posted = $this->getPostJson();
 		$current = time();
 
@@ -210,5 +212,40 @@ class main extends \pl\fe\matter\base {
 	 */
 	protected function getMatterType() {
 		return 'channel';
+	}
+	/**
+	 * 创建频道定制页面
+	 */
+	public function pageCreate_action($site, $id, $page) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$code = $this->model('code\page')->create($user->id);
+
+		$rst = $this->model()->update(
+			'xxt_channel',
+			array($page . '_page_id' => $code->id),
+			"siteid='{$site}' and id='$id'"
+		);
+
+		return new \ResponseData(array('id' => $code->id));
+	}
+	/**
+	 * 重置定制页面
+	 *
+	 * @param int $codeId
+	 */
+	public function pageReset_action($site, $id, $page) {
+		$modelChn = $this->model('matter\channel');
+		$channel = $modelChn->byId($id);
+		$data = array(
+			'html' => '',
+			'css' => '',
+			'js' => '',
+		);
+		$rst = $this->model('code\page')->modify($channel->{$page . '_page_id'}, $data);
+
+		return new \ResponseData($rst);
 	}
 }

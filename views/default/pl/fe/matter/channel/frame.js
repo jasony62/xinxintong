@@ -61,14 +61,16 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', function($sc
 		if ($scope.editing.top_type) {
 			$scope.topMatter = $scope.matters[0];
 			$scope.matters = $scope.matters.slice(1);
-		} else
+		} else {
 			$scope.topMatter = false;
+		}
 		if ($scope.editing.bottom_type) {
 			var l = $scope.matters.length;
 			$scope.bottomMatter = $scope.matters[l - 1];
 			$scope.matters = $scope.matters.slice(0, l - 1);
-		} else
+		} else {
 			$scope.bottomMatter = false;
+		}
 	};
 	var postFixed = function(pos, params) {
 		http2.post('/rest/pl/fe/matter/channel/setfixed?site=' + $scope.siteId + '&id=' + $scope.id + '&pos=' + pos, params, function(rsp) {
@@ -130,6 +132,37 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', function($sc
 			$scope.editing.matters = rsp.data;
 			arrangeMatters();
 		});
+	};
+	$scope.editPage = function(event, page) {
+		event.preventDefault();
+		event.stopPropagation();
+		var prop = page + '_page_id',
+			pageid = $scope.editing[prop];
+		if (pageid === '0') {
+			http2.get('/rest/pl/fe/matter/channel/pageCreate?site=' + $scope.siteId + '&id=' + $scope.id + '&page=' + page, function(rsp) {
+				$scope.editing[prop] = new String(rsp.data.id);
+				location.href = '/rest/code?pid=' + rsp.data.id;
+			});
+		} else {
+			location.href = '/rest/code?pid=' + pageid;
+		}
+	};
+	$scope.resetPage = function(event, page) {
+		event.preventDefault();
+		event.stopPropagation();
+		if (window.confirm('重置操作将覆盖已经做出的修改，确定重置？')) {
+			var pageid = $scope.editing[page + '_page_id'];
+			if (pageid === '0') {
+				http2.get('/rest/pl/fe/matter/channel/pageCreate?site=' + $scope.siteId + '&id=' + $scope.id + '&page=' + page, function(rsp) {
+					$scope.editing[prop] = new String(rsp.data.id);
+					location.href = '/rest/code?pid=' + rsp.data.id;
+				});
+			} else {
+				http2.get('/rest/pl/fe/matter/channel/pageReset?site=' + $scope.siteId + '&id=' + $scope.id + '&page=' + page, function(rsp) {
+					location.href = '/rest/code?pid=' + pageid;
+				});
+			}
+		}
 	};
 	$scope.$parent.$watch('editing', function(nv) {
 		if (!nv) return;

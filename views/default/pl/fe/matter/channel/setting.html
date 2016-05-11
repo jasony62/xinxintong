@@ -82,6 +82,19 @@
             </div>
         </div>
     </div>
+    <div class='tile'>
+        <table class='table table-bordered' style='margin:0'>
+            <tr>
+                <td>频道样式</td>
+                <td>频道内图文样式</td>
+                <td>
+                    <a href='' ng-click="editPage($event,'style')">编辑页面</a>
+                    <a href='' ng-click="resetPage($event,'style')" ng-show="editing.style_page_id!=='0'">重置页面</a>
+                </td>
+            </tr>
+        </table>
+        <div class='help-block'>页面定制</div>
+    </div>
 </div>
 <div class='col-md-4'>
     <div class='tile'>

@@ -1,4 +1,4 @@
-<div ng-if="!User.loginExpire">
+<div ng-if="!user.loginExpire">
     <div ng-if="subView==='register'">
         <div class='form-group'>
             <input type="text" class='form-control input-lg' name='uname' placeholder='输入用于登录的帐号名' ng-model='loginUser.uname'/>
@@ -34,7 +34,7 @@
         </div>
     </div>
 </div>
-<div ng-if="User.loginExpire">
+<div ng-if="user.loginExpire">
     <div class='form-group' ng-if="attrs.name">
         <input type='text' required="" ng-model='member.name' placeholder='姓名' class='form-control input-lg'>
     </div>
@@ -52,5 +52,8 @@
     </div>
     <div class='form-group'>
         <button class='btn btn-lg btn-block' ng-class="posting ? 'btn-default':'btn-success'" ng-disabled='posting' ng-click='doReauth()'>确认身份信息</button>
+    </div>
+    <div class='form-group'>
+        <button class="btn btn-lg btn-block btn-default" ng-click="logout()">退出登录</button>
     </div>
 </div>

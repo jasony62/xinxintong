@@ -47,6 +47,8 @@ $sql .= ",has_attachment char(1) not null default 'N'";
 $sql .= ",download_num int not null default 0"; // 附件下载数
 $sql .= ",media_id varchar(256) not null default ''";
 $sql .= ",upload_at int not null default 0";
+$sql .= ",use_site_header char(1) not null default 'Y'"; // 使用站点页眉
+$sql .= ",use_site_footer char(1) not null default 'Y'"; // 使用站点页脚
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

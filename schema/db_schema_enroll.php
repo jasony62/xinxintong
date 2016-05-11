@@ -52,6 +52,8 @@ $sql .= ",read_num int not null default 0"; // 阅读数
 $sql .= ",share_friend_num int not null default 0"; // 分享给好友数
 $sql .= ",share_timeline_num int not null default 0"; // 分享朋友圈数
 $sql .= ",data_schemas text"; // 登记项定义
+$sql .= ",use_site_header char(1) not null default 'Y'"; // 使用站点页眉
+$sql .= ",use_site_footer char(1) not null default 'Y'"; // 使用站点页脚
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

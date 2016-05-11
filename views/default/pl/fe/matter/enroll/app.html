@@ -73,6 +73,14 @@
                 <div class='help-block'>结束时间（可选）</div>
             </div>
         </div>
+        <div class='tile'>
+            <div class='form-group'>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_header' ng-change="update('use_site_header');">使用站点页眉</label>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_footer' ng-change="update('use_site_footer');">使用站点页脚</label>
+            </div>
+        </div>
         <div class='tile' ng-if="app.state==='2'">
             <div class='form-group'>
                 <div style='height:auto;word-break:break-all' ng-bind='url'></div>

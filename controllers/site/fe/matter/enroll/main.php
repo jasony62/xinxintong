@@ -185,6 +185,10 @@ class main extends base {
 	public function get_action($site, $app, $rid = null, $page = null, $ek = null, $newRecord = null) {
 		$params = array();
 
+		$params['site'] = $this->model('site')->byId(
+			$site,
+			array('cascaded' => 'header_page_id,footer_page_id')
+		);
 		/* 登记活动定义 */
 		$app = $this->modelApp->byId($app, array('cascaded' => 'Y'));
 		$params['app'] = &$app;

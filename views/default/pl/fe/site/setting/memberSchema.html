@@ -81,6 +81,12 @@
                             </td>
                         </tr>
                         <tr>
+                            <td><label>认证通过后页面地址</label></td>
+                            <td>
+                                <input type='text' class='form-control' ng-model='s.passed_url' placeholder='输入URL' tms-auto-update tms-wait=1000 tms-update="updSchema(s,'passed_url')">
+                            </td>
+                        </tr>
+                        <tr>
                             <td><label>进入认证页面前提示</label></td>
                             <td>
                                 <textarea class='form-control' ng-model='s.entry_statement' placeholder='进入前说明' tms-auto-update tms-wait=1000 tms-update="updSchema(s,'entry_statement')"></textarea>

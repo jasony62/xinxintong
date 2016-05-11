@@ -239,10 +239,15 @@ class member extends \site\fe\base {
 				return new \ResponseData($target);
 			}
 		} else {
+			$schema = $this->model('site\user\memberschema')->byId($schema, 'passed_url');
 			/**
 			 * 认证成功后的缺省页面
 			 */
-			$target = '/rest/site/fe/user?site=' . $site;
+			if (!empty($schema->passed_url)) {
+				$target = $schema->passed_url;
+			} else {
+				$target = '/rest/site/fe/user?site=' . $site;
+			}
 			if ($redirect === 'Y') {
 				$this->redirect($target);
 			} else {

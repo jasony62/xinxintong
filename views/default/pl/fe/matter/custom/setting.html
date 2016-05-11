@@ -75,6 +75,12 @@
     <div class='tile'>
         <div class='form-group'>
             <label class='checkbox-inline'>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.use_site_header' ng-change="update('use_site_header');">使用站点页眉</label>
+            <label class='checkbox-inline'>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.use_site_footer' ng-change="update('use_site_footer');">使用站点页脚</label>
+        </div>
+        <div class='form-group'>
+            <label class='checkbox-inline'>
                 <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.can_share' ng-change="update('can_share');">可以分享</label>
         </div>
     </div>

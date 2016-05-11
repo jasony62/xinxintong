@@ -111,7 +111,7 @@ var setPage = function($scope, page) {
                         $scope.$apply(
                             function dynamicjs() {
                                 eval(page.js);
-                                $scope.Page = page;
+                                $scope.appPage = page;
                             }
                         );
                     }
@@ -124,10 +124,10 @@ var setPage = function($scope, page) {
     } else if (page.js && page.js.length) {
         (function dynamicjs() {
             eval(page.js);
-            $scope.Page = page;
+            $scope.appPage = page;
         })();
     } else {
-        $scope.Page = page;
+        $scope.appPage = page;
     }
 };
 var setShareData = function(scope, params, $http) {
@@ -205,6 +205,22 @@ ngApp.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http,
             el.style.display = 'block';
         });
     };
+    var loadCss = function(css) {
+        var link, head;
+        link = document.createElement('link');
+        link.href = css.url;
+        link.rel = 'stylesheet';
+        head = document.querySelector('head');
+        head.appendChild(link);
+    };
+    var loadDynaCss = function(css) {
+        var style, head;
+        style = document.createElement('style');
+        style.rel = 'stylesheet';
+        style.innerHTML = css;
+        head = document.querySelector('head');
+        head.appendChild(style);
+    };
     $scope.closeWindow = function() {
         if (/MicroMessenger/i.test(navigator.userAgent)) {
             window.wx.closeWindow();
@@ -269,16 +285,43 @@ ngApp.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http,
             $scope.errmsg = rsp.err_msg;
             return;
         }
-        var params;
-        params = rsp.data;
+        var params = rsp.data,
+            site = params.site;
         $scope.params = params;
         params.app.data_schemas = JSON.parse(params.app.data_schemas);
-        $scope.App = params.app;
-        $scope.User = params.user;
+        $scope.site = site;
+        $scope.app = params.app;
+        $scope.user = params.user;
         if (params.app.multi_rounds === 'Y') {
-            $scope.ActiveRound = params.activeRound;
+            $scope.activeRound = params.activeRound;
         }
         setShareData($scope, params, $http);
+        if (site.header_page) {
+            if (site.header_page.ext_css.length) {
+                angular.forEach(site.header_page.ext_css, function(css) {
+                    loadCss(css);
+                });
+            }
+            if (site.header_page.css.length) {
+                loadDynaCss(site.header_page.css);
+            }
+            (function() {
+                eval(site.header_page.js);
+            })();
+        }
+        if (site.footer_page) {
+            if (site.footer_page.ext_css.length) {
+                angular.forEach(site.footer_page.ext_css, function(css) {
+                    loadCss(css);
+                });
+            }
+            if (site.footer_page.css.length) {
+                loadDynaCss(site.footer_page.css);
+            }
+            (function() {
+                eval(site.footer_page.js);
+            })();
+        }
         setPage($scope, params.page);
         if (tasksOfOnReady.length) {
             angular.forEach(tasksOfOnReady, PG.exec);

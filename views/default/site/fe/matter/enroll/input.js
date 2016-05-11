@@ -307,9 +307,10 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
         };
         $scope.$on('xxt.app.enroll.ready', function(event, params) {
             if (params.record) {
-                var schemas, mapSchema, p, dataOfRecord, value;
-                mapSchema = {};
-                schemas = params.app.data_schemas;
+                var schemas = params.app.data_schemas,
+                    mapSchema = {},
+                    dataOfRecord = params.record.data,
+                    p, value;
                 angular.forEach(schemas, function(def) {
                     mapSchema[def.id] = def;
                 });

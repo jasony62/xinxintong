@@ -11,7 +11,7 @@
             body{background-color:#f8f8f8;font-family:'Microsoft Yahei',Arial;position:relative;padding-top:60px;}
             #errmsg,#infomsg{position:absolute;top:0;left:0;right:0;text-align:center;}
         </style>
-        <style ng-if="Page.css" ng-bind='Page.css'></style>
+        <style ng-if="page.css" ng-bind='page.css'></style>
     </head>
     
     <body ng-cloak class='ng-cloak'>
@@ -20,7 +20,7 @@
         <div class="app">
             <div class='container'>
                 <div class='row'>
-                    <div name='page' novalidate dynamic-html="Page.html">
+                    <div name='page' novalidate dynamic-html="page.html">
                     </div>
                 </div>
             </div>

@@ -111,6 +111,7 @@ $sql .= ",type varchar(5) not null"; //inner,cus
 $sql .= ",valid char(1) not null default 'Y'";
 $sql .= ",used int not null default 0";
 $sql .= ",url text"; // 入口地址
+$sql .= ",passed_url text"; // 验证通过后进入的地址
 $sql .= ",validity int not null default 365"; // 认证有效期，以天为单位，最长一年
 $sql .= ",attr_mobile char(6) default '001000'";
 $sql .= ",attr_email char(6) default '001000'";

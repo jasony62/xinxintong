@@ -156,8 +156,19 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', function($scope, 
                 $scope.errmsg = rsp.err_msg;
                 return;
             }
-            $scope.User = rsp.data;
-            setMember($scope.User);
+            $scope.user = rsp.data;
+            setMember($scope.user);
+        }).error(function(text) {
+            $scope.errmsg = text;
+        });
+    };
+    $scope.logout = function() {
+        $http.post('/rest/site/fe/user/logout/do?site=' + siteId, $scope.loginUser).success(function(rsp) {
+            if (rsp.err_code != 0) {
+                $scope.errmsg = rsp.err_msg;
+                return;
+            }
+            $scope.user = rsp.data;
         }).error(function(text) {
             $scope.errmsg = text;
         });
@@ -178,8 +189,8 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', function($scope, 
                 $scope.errmsg = rsp.err_msg;
                 return;
             }
-            $scope.User = rsp.data;
-            setMember($scope.User);
+            $scope.user = rsp.data;
+            setMember($scope.user);
         }).error(function(text) {
             $scope.errmsg = text;
         });
@@ -218,8 +229,8 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', function($scope, 
             $scope.errmsg = rsp.err_msg;
             return;
         }
-        $scope.User = rsp.data.user;
-        $scope.Page = rsp.data.schema.page;
+        $scope.user = rsp.data.user;
+        $scope.page = rsp.data.schema.page;
         $scope.attrs = {};
         angular.forEach(rsp.data.attrs, function(attr, name) {
             if (name === 'extattrs') {
@@ -231,13 +242,13 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', function($scope, 
             }
         });
         /*内置用户认证信息*/
-        setMember($scope.User);
+        setMember($scope.user);
         /*社交账号信息*/
-        if ($scope.User.sns) {
-            if ($scope.User.sns.wx) {
-                $scope.loginUser.nickname = $scope.User.sns.wx.nickname;
-            } else if ($scope.User.sns.yx) {
-                $scope.loginUser.nickname = $scope.User.sns.yx.nickname;
+        if ($scope.user.sns) {
+            if ($scope.user.sns.wx) {
+                $scope.loginUser.nickname = $scope.user.sns.wx.nickname;
+            } else if ($scope.user.sns.yx) {
+                $scope.loginUser.nickname = $scope.user.sns.yx.nickname;
             }
         }
         $timeout(function() {

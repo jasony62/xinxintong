@@ -14,14 +14,17 @@
     </head>
     
     <body ng-cloak class='ng-cloak'>
+        <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
         <div class="app">
             <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
             <div class='container'>
-                <div class='row' ng-controller='ctrlView' dynamic-html="Page.html">
+                <div class='row' ng-controller='ctrlView' dynamic-html="appPage.html">
                 </div>
             </div>
         </div>
+        <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
         <div class="loading"><div class='loading-indicator'><i></i></div></div>
+        <script src="http://cdn.bootcss.com/jquery/2.2.3/jquery.min.js"></script>
         <script src="static/js/require.js" defer async data-main="/views/default/site/fe/matter/enroll/page-loader.js?_=3"></script>
     </body>
 </html>

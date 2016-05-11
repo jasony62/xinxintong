@@ -1,7 +1,8 @@
 .ng-cloak{display:none;}
-html,body{height:100%;width:100%;}
-html,body{background:#efefef;font-family:Microsoft Yahei,Arial;}
+html,body{background:#efefef;font-family:Microsoft Yahei,Arial;height:100%;width:100%;}
 body{position:relative;padding:15px;font-size:16px;}
+header{margin:-15px -15px 0 -15px;}
+footer{margin:0 -15px -15px -15px;}
 ul{margin:0;padding:0;list-style:none}
 li{margin:0;padding:0}
 #errmsg{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:0;left:50%;margin:0 0 0 -150px;text-align:center;transition:opacity 1s;z-index:-1;word-break:break-all}

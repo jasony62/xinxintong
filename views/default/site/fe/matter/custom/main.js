@@ -85,15 +85,41 @@ define(["require", "angular"], function(require, angular) {
         var loadArticle = function() {
             var deferred = $q.defer();
             $http.get('/rest/site/fe/matter/article/get?site=' + siteId + '&id=' + id).success(function(rsp) {
-                var article, page;
-                article = rsp.data.article;
+                var site = rsp.data.site,
+                    article = rsp.data.article,
+                    page = article.page;
                 $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + id + '&type=article&title=' + article.title + '&shareby=' + shareby, {
                     search: location.search.replace('?', ''),
                     referer: document.referrer
                 });
-                page = article.page;
                 $scope.user = rsp.data.user;
-                $scope.site = rsp.data.site;
+                $scope.site = site;
+                if (site.header_page) {
+                    if (site.header_page.ext_css.length) {
+                        angular.forEach(site.header_page.ext_css, function(css) {
+                            loadCss(css);
+                        });
+                    }
+                    if (site.header_page.css.length) {
+                        loadDynaCss(site.header_page.css);
+                    }
+                    (function() {
+                        eval(site.header_page.js);
+                    })();
+                }
+                if (site.footer_page) {
+                    if (site.footer_page.ext_css.length) {
+                        angular.forEach(site.footer_page.ext_css, function(css) {
+                            loadCss(css);
+                        });
+                    }
+                    if (site.footer_page.css.length) {
+                        loadDynaCss(site.footer_page.css);
+                    }
+                    (function() {
+                        eval(site.footer_page.js);
+                    })();
+                }
                 if (page.ext_css && page.ext_css.length) {
                     angular.forEach(page.ext_css, loadCss);
                 }

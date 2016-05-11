@@ -36,8 +36,8 @@ class site_model extends \TMS_MODEL {
 
 				} else if ($field === 'header_page_id' && $site->header_page_id) {
 					$site->header_page = $modelCode->byId($site->header_page_id, 'html,css,js');
-				} else if ($field === 'footer_page_id') {
-
+				} else if ($field === 'footer_page_id' && $site->footer_page_id) {
+					$site->footer_page = $modelCode->byId($site->footer_page_id, 'html,css,js');
 				} else if ($field === 'shift2pc_page_id') {
 
 				}

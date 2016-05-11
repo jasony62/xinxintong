@@ -45,7 +45,7 @@ window.loading = {
 					exports: "enroll-directive"
 				},
 			},
-			deps: ['/views/default/site/fe/matter/enroll/input.js?_=1'],
+			deps: ['/views/default/site/fe/matter/enroll/input.js'],
 			urlArgs: "bust=" + (new Date()).getTime()
 		});
 	}

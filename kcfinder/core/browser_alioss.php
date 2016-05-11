@@ -366,9 +366,10 @@ class browser_alioss extends browser {
 		$options = array(
 			'delimiter' => $delimiter,
 			'prefix' => $prefix,
-			'max-keys' => 100);
-
+			'max-keys' => 100,
+		);
 		$rsp = $alioss->list_object($bucket, $options);
+		$rsp->body = str_replace('&', '', $rsp->body);
 		$xmlBody = simplexml_load_string($rsp->body);
 		$objects = $xmlBody->CommonPrefixes;
 		$dirs = array();

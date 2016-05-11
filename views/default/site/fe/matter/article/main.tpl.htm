@@ -7,16 +7,14 @@
         <base href="/" />
         <title><?php TPL::pt('title');?></title>
         <link href="/views/default/site/fe/matter/article/main.css" rel="stylesheet">
-        <style ng-if="site.header_page.css" ng-bind='site.header_page.css'></style>
-        <style ng-if="site.footer_page.css" ng-bind='site.footer_page.css'></style>
         <style id='loadingStyle'>
             @keyframes loadingRunning{0%{transform:rotate(0deg)}12%{transform:rotate(45deg)}25%{transform:rotate(90deg)}37%{transform:rotate(135deg)}50%{transform:rotate(180deg)}62%{transform:rotate(225deg)}75%{transform:rotate(270deg)}87%{transform:rotate(315deg)}100%{transform:rotate(360deg)}}@-webkit-keyframes loadingRunning{0%{-webkit-transform:rotate(0deg)}12%{-webkit-transform:rotate(45deg)}25%{-webkit-transform:rotate(90deg)}37%{-webkit-transform:rotate(135deg)}50%{-webkit-transform:rotate(180deg)}62%{-webkit-transform:rotate(225deg)}75%{-webkit-transform:rotate(270deg)}87%{-webkit-transform:rotate(315deg)}100%{-webkit-transform:rotate(360deg)}}.loading{position:absolute;top:0;right:0;bottom:0;left:0;background:rgba(224,224,224,0.9)}.loading-indicator{position:absolute;top:50%;left:50%;margin-left:-25px;margin-top:-25px;width:50px;height:50px;animation:loadingRunning 1s infinite;-webkit-animation:loadingRunning 1s infinite}.loading-indicator:before{content:"";display:block;width:50px;height:25px;padding:5px;padding-bottom:0;box-sizing:border-box;border-top-left-radius:25px;border-top-right-radius:25px;background:-webkit-linear-gradient(0deg,#999,#bbb)}.loading-indicator:after{content:"";display:block;width:50px;height:25px;padding:5px;padding-top:0;box-sizing:border-box;border-bottom-left-radius:25px;border-bottom-right-radius:25px;background:-webkit-linear-gradient(0deg,#eee,#bbb)}.loading-indicator>i{display:block;position:absolute;width:40px;height:40px;background:#eee;top:5px;left:5px;border-radius:20px}
         </style>
     </head>
     
     <body class='ng-clock' ng-cloak>
-        <header dynamic-html="site.header_page.html"></header>
         <div class="article">
+            <header dynamic-html="site.header_page.html"></header>
             <div class="wrap">
                 <h1 id="title" class="ttile" ng-bind='article.title'></h1>
                 <div id="attribute">
@@ -77,20 +75,6 @@
                 </div>
             </div>
             <footer dynamic-html="site.footer_page.html"></footer>
-            <div class="weui_dialog_alert" ng-controller='ctrlAlert'>
-                <div class="weui_mask"></div>
-                <div class="weui_dialog">
-                    <div class="weui_dialog_hd">
-                      <strong class="weui_dialog_title" ng-bind="AlterMsg.title"></strong>
-                  </div>
-                    <div class="weui_dialog_bd" ng-bind="AlterMsg.msg"></div>
-                    <div class="weui_dialog_ft">
-                        <a href="javascript:;" class="weui_btn_dialog primary" ng-click="close()">确定</a>
-                    </div>
-                </div>
-            </div>
-            <div style="display:none" ng-controller="ctrlPay"><button ng-click="open()">打赏</button></div>
-            <div style="display:none;position:absolute;top:0" ng-controller="ctrlFavor"><button ng-click="favor()">收藏</button></div>
         </div>
         <div class="loading"><div class='loading-indicator'><i></i></div></div>
         <script src="static/js/require.js" defer async data-main="/views/default/site/fe/matter/article/main-loader.js?_=6"></script>

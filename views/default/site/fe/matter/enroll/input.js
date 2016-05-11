@@ -309,7 +309,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
             if (params.record) {
                 var schemas, mapSchema, p, dataOfRecord, value;
                 mapSchema = {};
-                schemas = JSON.parse(params.app.data_schemas);
+                schemas = params.app.data_schemas;
                 angular.forEach(schemas, function(def) {
                     mapSchema[def.id] = def;
                 });

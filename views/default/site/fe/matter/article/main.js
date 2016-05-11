@@ -3,7 +3,7 @@ define(["require", "angular"], function(require, angular) {
     var loadCss = function(url) {
         var link, head;
         link = document.createElement('link');
-        link.href = url + '?_=4';
+        link.href = url;
         link.rel = 'stylesheet';
         head = document.querySelector('head');
         head.appendChild(link);
@@ -88,7 +88,6 @@ define(["require", "angular"], function(require, angular) {
             xxtShare.set($scope.article.title, sharelink, $scope.article.summary, $scope.article.pic);
         };
         var articleLoaded = function() {
-            loadCss("https://res.wx.qq.com/open/libs/weui/0.3.0/weui.min.css");
             window.loading.finish();
             $timeout(function() {
                 var audios;
@@ -103,11 +102,27 @@ define(["require", "angular"], function(require, angular) {
                     article = rsp.data.article,
                     channels = article.channels;
                 if (site.header_page) {
+                    if (site.header_page.ext_css.length) {
+                        angular.forEach(site.header_page.ext_css, function(css) {
+                            loadCss(css.url);
+                        });
+                    }
+                    if (site.header_page.css.length) {
+                        loadDynaCss(site.header_page.css);
+                    }
                     (function() {
                         eval(site.header_page.js);
                     })();
                 }
                 if (site.footer_page) {
+                    if (site.footer_page.ext_css.length) {
+                        angular.forEach(site.footer_page.ext_css, function(css) {
+                            loadCss(css.url);
+                        });
+                    }
+                    if (site.footer_page.css.length) {
+                        loadDynaCss(site.footer_page.css);
+                    }
                     (function() {
                         eval(site.footer_page.js);
                     })();
@@ -124,8 +139,8 @@ define(["require", "angular"], function(require, angular) {
                 $scope.article = article;
                 $scope.user = rsp.data.user;
                 window.wx || /Yixin/i.test(navigator.userAgent) && require(['xxt-share'], setMpShare);
+                //loadCss("https://res.wx.qq.com/open/libs/weui/0.3.0/weui.min.css");
                 article.can_picviewer === 'Y' && require(['picviewer']);
-                loadCss('/views/default/site/fe/matter/article/main.css');
                 deferred.resolve();
                 $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + id + '&type=article&title=' + article.title + '&shareby=' + shareby, {
                     search: location.search.replace('?', ''),

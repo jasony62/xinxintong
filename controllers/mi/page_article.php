@@ -77,7 +77,7 @@ class page_article extends matter_page_base {
 			\TPL::assign('title', $this->article->title);
 			$nl = array("\r\n", "\n", "\r");
 			if ($this->article->page_id) {
-				$page = \TMS_APP::M('code/page')->byId($this->article->page_id);
+				$page = \TMS_APP::M('code\page')->byId($this->article->page_id);
 				$page->html && \TPL::assign('body', $page->html);
 				$page->css && \TPL::assign('css', $page->css);
 				$page->js && \TPL::assign('js', $page->js);

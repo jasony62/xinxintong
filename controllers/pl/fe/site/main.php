@@ -136,7 +136,7 @@ class main extends \pl\fe\base {
 
 		$data = $this->_makePage($site, $page, $template);
 
-		$code = $this->model('code/page')->create($uid, $data);
+		$code = $this->model('code\page')->create($uid, $data);
 
 		$rst = $this->model()->update(
 			'xxt_site',
@@ -156,7 +156,7 @@ class main extends \pl\fe\base {
 
 		$data = $this->_makePage($site, $page, $template);
 
-		$rst = $this->model('code/page')->modify($site->{$page . '_page_id'}, $data);
+		$rst = $this->model('code\page')->modify($site->{$page . '_page_id'}, $data);
 
 		return new \ResponseData($rst);
 	}

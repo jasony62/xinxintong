@@ -59,7 +59,7 @@ class article extends \member_base {
 		 * 定制页面内容
 		 */
 		if ($article->custom_body === 'Y' && $article->page_id) {
-			$article->page = $this->model('code/page')->byId($article->page_id);
+			$article->page = $this->model('code\page')->byId($article->page_id);
 		}
 		$data['article'] = $article;
 		$data['user'] = $user;

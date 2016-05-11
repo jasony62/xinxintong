@@ -41,7 +41,7 @@ class page extends \pl\fe\matter\base {
 			$data = array(
 				'html' => urldecode($nv->html),
 			);
-			$rst = $this->model('code/page')->modify($cid, $data);
+			$rst = $this->model('code\page')->modify($cid, $data);
 			unset($nv->html);
 		}
 		if ($pid != 0 && count(array_keys(get_object_vars($nv)))) {
@@ -73,7 +73,7 @@ class page extends \pl\fe\matter\base {
 	public function remove_action($app, $pid) {
 		$page = $this->model('matter\enroll\page')->byId($app, $pid);
 
-		$this->model('code/page')->remove($page->code_id);
+		$this->model('code\page')->remove($page->code_id);
 
 		$rst = $this->model()->delete('xxt_enroll_page', "aid='$app' and id=$pid");
 

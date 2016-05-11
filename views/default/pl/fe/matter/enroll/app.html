@@ -48,6 +48,9 @@
                     <button class='btn btn-default' title='页面设置' ng-click="gotoPageConfig()">
                     <i class='fa fa-cog fa-fw'></i>
                     </button>
+                    <button class='btn btn-default' title='编辑代码' ng-click="gotoCode()">
+                    <i class='fa fa-code fa-fw'></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -82,9 +85,7 @@
             <a href='/rest/pl/fe/matter/enroll/config?site={{siteId}}&id={{id}}'>进入规则</a>
         </div>
         <div class='tile' ng-if="app.state==='2'">
-            <div class='form-group'>
-                <a href='/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}'>登记记录</a>
-            </div>
+            <a href='/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}'>登记结果</a>
         </div>
         <div class='tile'>
             <div class='form-group'>

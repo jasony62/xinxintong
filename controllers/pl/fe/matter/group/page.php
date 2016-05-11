@@ -16,7 +16,7 @@ class page extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$modelCode = $this->model('code/page');
+		$modelCode = $this->model('code\page');
 		$code = $modelCode->create($user->id);
 
 		$this->model()->update('xxt_group', array('page_code_id' => $code->id), "id='$app'");
@@ -53,7 +53,7 @@ class page extends \pl\fe\matter\base {
 	 * @param string $type
 	 */
 	public function reset_action($site, $app, $type = 'carousel') {
-		$modelCode = $this->model('code/page');
+		$modelCode = $this->model('code\page');
 
 		$options = array('fields' => 'page_code_id', 'cascaded' => 'N');
 		$app = $this->model('matter\group')->byId($app, $options);

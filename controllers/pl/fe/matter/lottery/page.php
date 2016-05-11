@@ -17,7 +17,7 @@ class page extends \pl\fe\matter\base {
 	 *
 	 */
 	public function update_action($app, $pageid, $pattern) {
-		$codeModel = $this->model('code/page');
+		$codeModel = $this->model('code\page');
 		if ($pageid) {
 			$page = $codeModel->byId($pageid);
 		} else {

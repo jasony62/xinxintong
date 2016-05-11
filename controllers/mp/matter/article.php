@@ -790,7 +790,7 @@ class article extends matter_ctrl {
 		$copied = $modelArt->byId($template->matter_id);
 		$target = $modelArt->byId($id);
 
-		$modelPage = $this->model('code/page');
+		$modelPage = $this->model('code\page');
 		$pageid = $modelPage->copy($uid, $copied->page_id, $target->page_id);
 
 		if ($target->page_id === 0) {

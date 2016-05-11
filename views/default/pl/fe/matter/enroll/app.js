@@ -737,8 +737,8 @@
 		};
 		$scope.embedMatter = function(page) {
 			mattersgallery.open($scope.siteId, function(matters, type) {
-				var editor, dom, mtype, fn;
-				var editor = tinymce.get('tinymce-page');
+				var editor = tinymce.get('tinymce-page'),
+					dom, mtype, fn;
 				dom = editor.dom;
 				angular.forEach(matters, function(matter) {
 					fn = "openMatter(" + matter.id + ",'" + mtype + "')";
@@ -756,8 +756,8 @@
 				singleMatter: true
 			});
 		};
-		$scope.gotoCode = function(codeid) {
-			window.open('/rest/code?pid=' + codeid, '_self');
+		$scope.gotoCode = function() {
+			window.open('/rest/code?pid=' + $scope.ep.code_id, '_self');
 		};
 		$scope.onPageChange = function() {
 			$scope.ep.$$modified = true;

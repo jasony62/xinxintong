@@ -1,8 +1,9 @@
 <?php
+namespace code;
 /**
  *
  */
-class page_model extends TMS_MODEL {
+class page_model extends \TMS_MODEL {
 	/**
 	 *
 	 */

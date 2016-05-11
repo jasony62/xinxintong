@@ -72,7 +72,7 @@ class main extends base {
 		if ($this->getClientSrc() && isset($app->shift2pc) && $app->shift2pc === 'Y') {
 			if (isset($user->fan)) {
 				$fea = $this->model('mp\mpaccount')->getFeature($mpid, 'shift2pc_page_id');
-				$pageOfShift2Pc = $this->model('code/page')->byId($fea->shift2pc_page_id, 'html,css,js');
+				$pageOfShift2Pc = $this->model('code\page')->byId($fea->shift2pc_page_id, 'html,css,js');
 				/*任务码*/
 				if ($app->can_taskcode && $app->can_taskcode === 'Y') {
 					$httpHost = $_SERVER['HTTP_HOST'];

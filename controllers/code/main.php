@@ -18,17 +18,17 @@ class main extends \TMS_CONTROLLER {
 		if ($_SERVER['HTTP_ACCEPT'] === 'application/json') {
 			if ($pid === null) {
 				$uid = \TMS_CLIENT::get_client_uid();
-				$pages = $this->model('code/page')->byUser($uid);
+				$pages = $this->model('code\page')->byUser($uid);
 				return new \ResponseData(array($pages, count($pages)));
 			} else {
-				$page = $this->model('code/page')->byId($pid);
+				$page = $this->model('code\page')->byId($pid);
 				return new \ResponseData($page);
 			}
 		} else {
 			if ($pid === null) {
 				$this->view_action('/code/main');
 			} else {
-				$page = $this->model('code/page')->byId($pid);
+				$page = $this->model('code\page')->byId($pid);
 				\TPL::assign('page', $page);
 				$this->view_action('/code/page');
 			}
@@ -39,7 +39,7 @@ class main extends \TMS_CONTROLLER {
 	 */
 	public function create_action() {
 		$uid = \TMS_CLIENT::get_client_uid();
-		$page = $this->model('code/page')->create($uid);
+		$page = $this->model('code\page')->create($uid);
 
 		return new \ResponseData($page);
 	}
@@ -47,7 +47,7 @@ class main extends \TMS_CONTROLLER {
 	 * 删除页面
 	 */
 	public function remove_action($id) {
-		$rst = $this->model('code/page')->remove($id);
+		$rst = $this->model('code\page')->remove($id);
 
 		return new \ResponseData($rst);
 	}

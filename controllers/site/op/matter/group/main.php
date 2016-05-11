@@ -21,7 +21,7 @@ class main extends \site\op\base {
 	public function pageGet_action($app) {
 		$option = array('fields' => 'page_code_id', 'cascaded' => 'N');
 		$app = $this->model('matter\group')->byId($app, $option);
-		$page = $this->model('code/page')->byId($app->page_code_id);
+		$page = $this->model('code\page')->byId($app->page_code_id);
 
 		$params = array(
 			'page' => $page,

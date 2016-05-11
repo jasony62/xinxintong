@@ -97,7 +97,7 @@ class entry extends \site\fe\base {
 			 * 提示在PC端完成
 			 */
 			$oSite = $this->model('site')->byId($site, 'shift2pc_page_id');
-			$page = $this->model('code/page')->byId($oSite->shift2pc_page_id, 'html,css,js');
+			$page = $this->model('code\page')->byId($oSite->shift2pc_page_id, 'html,css,js');
 			/**
 			 * 任务码
 			 */

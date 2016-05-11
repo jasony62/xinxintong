@@ -29,7 +29,7 @@ class lottery extends \member_base {
 	public function pageGet_action($aid) {
 		$option = array('fields' => 'lottery_page_id', 'cascaded' => 'N');
 		$app = $this->model('app\enroll')->byId($aid, $option);
-		$page = $this->model('code/page')->byId($app->lottery_page_id);
+		$page = $this->model('code\page')->byId($app->lottery_page_id);
 
 		$params = array(
 			'page' => $page,

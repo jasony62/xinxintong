@@ -120,7 +120,7 @@ class main extends \site\fe\base {
 		$params->leftChance = $modelLot->getChance($lot, $user);
 		$params->app = $lot;
 
-		$page = $this->model('code/page')->byId($lot->page_id);
+		$page = $this->model('code\page')->byId($lot->page_id);
 		$params->page = $page;
 
 		return new \ResponseData($params);

@@ -266,7 +266,7 @@ class base extends \TMS_CONTROLLER {
 					$mpa = $this->model('mp\mpaccount')->byId($siteId);
 					$html = '请关注公众号：' . $mpa->name;
 				} else {
-					$page = $this->model('code/page')->byId($fea->follow_page_id);
+					$page = $this->model('code\page')->byId($fea->follow_page_id);
 					$html = $page->html;
 					$css = $page->css;
 					$js = $page->js;
@@ -299,7 +299,7 @@ class base extends \TMS_CONTROLLER {
 			$site = $this->model('site')->byId($siteId);
 			$html = '请关注公众号：' . $site->name;
 		} else {
-			$page = $this->model('code/page')->byId($sns->follow_page_id);
+			$page = $this->model('code\page')->byId($sns->follow_page_id);
 			$html = $page->html;
 			$css = $page->css;
 			//$js = $page->js;

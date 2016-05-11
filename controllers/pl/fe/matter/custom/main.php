@@ -310,7 +310,7 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$modelArt = $this->model('matter\article');
-		$modelPage = $this->model('code/page');
+		$modelPage = $this->model('code\page');
 
 		$copied = $modelArt->byId($id);
 
@@ -390,7 +390,7 @@ class main extends \pl\fe\matter\base {
 		$copied = $modelArt->byId($template->matter_id);
 		$target = $modelArt->byId($id);
 
-		$modelPage = $this->model('code/page');
+		$modelPage = $this->model('code\page');
 		$pageid = $modelPage->copy($user->id, $copied->page_id, $target->page_id);
 
 		if ($target->page_id === 0) {

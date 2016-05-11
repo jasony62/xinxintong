@@ -14,7 +14,7 @@ class page_model extends \TMS_MODEL {
 
 		$ep = $this->query_obj_ss($q);
 		if ($ep) {
-			$code = \TMS_APP::model('code/page')->byId($ep->code_id);
+			$code = \TMS_APP::model('code\page')->byId($ep->code_id);
 			$ep->html = $code->html;
 			$ep->css = $code->css;
 			$ep->js = $code->js;
@@ -35,7 +35,7 @@ class page_model extends \TMS_MODEL {
 		$q = array($select, $from, $where);
 
 		if ($ep = $this->query_obj_ss($q)) {
-			$code = \TMS_APP::model('code/page')->byId($ep->code_id);
+			$code = \TMS_APP::model('code\page')->byId($ep->code_id);
 			$ep->html = $code->html;
 			$ep->css = $code->css;
 			$ep->js = $code->js;
@@ -62,7 +62,7 @@ class page_model extends \TMS_MODEL {
 		if ($cascaded === 'Y' && !empty($eps)) {
 			$pages = array();
 			foreach ($eps as &$ep) {
-				$code = \TMS_APP::model('code/page')->byId($ep->code_id);
+				$code = \TMS_APP::model('code\page')->byId($ep->code_id);
 				$ep->html = $code->html;
 				$ep->css = $code->css;
 				$ep->js = $code->js;
@@ -260,7 +260,7 @@ class page_model extends \TMS_MODEL {
 
 		$uid = \TMS_CLIENT::get_client_uid();
 
-		$code = \TMS_APP::model('code/page')->create($uid);
+		$code = \TMS_APP::model('code\page')->create($uid);
 
 		if (empty($data['seq'])) {
 			$q = array(

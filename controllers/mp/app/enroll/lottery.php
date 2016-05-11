@@ -20,7 +20,7 @@ class lottery extends \mp\app\app_base {
 	 */
 	public function pageCreate_action($aid, $type = 'carousel') {
 		$uid = \TMS_CLIENT::get_client_uid();
-		$modelCode = $this->model('code/page');
+		$modelCode = $this->model('code\page');
 		$code = $modelCode->create($uid);
 
 		$this->model()->update('xxt_enroll', array('lottery_page_id' => $code->id), "id='$aid'");
@@ -57,7 +57,7 @@ class lottery extends \mp\app\app_base {
 	 * @param string $type
 	 */
 	public function pageReset_action($aid, $type = 'carousel') {
-		$modelCode = $this->model('code/page');
+		$modelCode = $this->model('code\page');
 
 		$options = array('fields' => 'lottery_page_id', 'cascaded' => 'N');
 		$app = $this->model('app\enroll')->byId($aid, $options);

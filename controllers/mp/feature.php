@@ -70,7 +70,7 @@ class feature extends mp_controller {
 
 		$data = $this->_makePage($mpa, $template);
 
-		$code = \TMS_APP::model('code/page')->create($uid, $data);
+		$code = \TMS_APP::model('code\page')->create($uid, $data);
 
 		$rst = $this->model()->update(
 			'xxt_mpsetting',
@@ -90,7 +90,7 @@ class feature extends mp_controller {
 
 		$data = $this->_makePage($mpa, $template);
 
-		$rst = \TMS_APP::model('code/page')->modify($codeId, $data);
+		$rst = \TMS_APP::model('code\page')->modify($codeId, $data);
 
 		return new \ResponseData($rst);
 	}

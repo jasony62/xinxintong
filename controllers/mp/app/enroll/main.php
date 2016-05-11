@@ -221,7 +221,7 @@ class main extends \mp\app\app_base {
 			return false;
 		}
 		$modelPage = $this->model('app\enroll\page');
-		$modelCode = $this->model('code/page');
+		$modelCode = $this->model('code\page');
 		foreach ($pages as $page) {
 			$ap = $modelPage->add($this->mpid, $aid, (array) $page);
 			$data = array(
@@ -290,7 +290,7 @@ class main extends \mp\app\app_base {
 		$current = time();
 		$modelApp = $this->model('app\enroll');
 		$modelPage = $this->model('app\enroll\page');
-		$modelCode = $this->model('code/page');
+		$modelCode = $this->model('code\page');
 
 		$template = $this->model('shop\shelf')->byId($template);
 		$aid = $template->matter_id;
@@ -378,7 +378,7 @@ class main extends \mp\app\app_base {
 		$user = $this->accountUser();
 		$current = time();
 		$modelApp = $this->model('app\enroll');
-		$modelCode = $this->model('code/page');
+		$modelCode = $this->model('code\page');
 
 		$copied = $modelApp->byId($aid);
 		/**

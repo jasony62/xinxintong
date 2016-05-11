@@ -125,7 +125,7 @@ class main extends \member_base {
 		$params->leftChance = $model->getChance($lottery, $mid, $user->openid);
 		$params->lottery = $lot;
 
-		$page = $this->model('code/page')->byId($lot->page_id);
+		$page = $this->model('code\page')->byId($lot->page_id);
 		$params->page = $page;
 
 		return new \ResponseData($params);

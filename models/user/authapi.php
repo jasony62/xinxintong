@@ -20,7 +20,7 @@ class authapi_model extends TMS_MODEL {
 				$api->extattr = json_decode($api->extattr);
 			}
 			if ($api->auth_code_id != 0) {
-				$page = \TMS_APP::M('code/page')->byId($api->auth_code_id, 'html,css,js');
+				$page = \TMS_APP::M('code\page')->byId($api->auth_code_id, 'html,css,js');
 				$api->page = $page;
 			}
 		}

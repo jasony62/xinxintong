@@ -141,7 +141,7 @@ class schema extends \pl\fe\base {
 			'js' => file_get_contents($templateDir . '/' . $template . '.js'),
 		);
 
-		$rst = \TMS_APP::model('code/page')->modify($codeId, $data);
+		$rst = \TMS_APP::model('code\page')->modify($codeId, $data);
 
 		return new \ResponseData($rst);
 	}
@@ -159,7 +159,7 @@ class schema extends \pl\fe\base {
 			'js' => file_get_contents($templateDir . '/' . $template . '.js'),
 		);
 
-		$code = \TMS_APP::model('code/page')->create($uid, $data);
+		$code = \TMS_APP::model('code\page')->create($uid, $data);
 
 		return $code->id;
 	}

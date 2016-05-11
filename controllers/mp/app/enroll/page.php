@@ -40,12 +40,12 @@ class page extends \mp\app\app_base {
 			$data = array(
 				'html' => urldecode($nv->html),
 			);
-			$rst = $this->model('code/page')->modify($cid, $data);
+			$rst = $this->model('code\page')->modify($cid, $data);
 		} else if (isset($nv->js)) {
 			$data = array(
 				'js' => urldecode($nv->js),
 			);
-			$rst = $this->model('code/page')->modify($cid, $data);
+			$rst = $this->model('code\page')->modify($cid, $data);
 		} else {
 			if ($pid != 0) {
 				$model = $this->model();
@@ -73,7 +73,7 @@ class page extends \mp\app\app_base {
 	public function remove_action($aid, $pid) {
 		$page = $this->model('app\enroll\page')->byId($aid, $pid);
 
-		$this->model('code/page')->remove($page->code_id);
+		$this->model('code\page')->remove($page->code_id);
 
 		$rst = $this->model()->delete('xxt_enroll_page', "aid='$aid' and id=$pid");
 

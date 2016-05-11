@@ -239,7 +239,7 @@ class main extends \pl\fe\matter\base {
 			return false;
 		}
 		$modelPage = $this->model('app\enroll\page');
-		$modelCode = $this->model('code/page');
+		$modelCode = $this->model('code\page');
 		foreach ($pages as $page) {
 			$ap = $modelPage->add($siteId, $aid, (array) $page);
 			$data = array(

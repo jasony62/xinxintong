@@ -19,7 +19,7 @@ class page extends \mp\app\app_base {
 	 */
 	public function list_action($wall) {
 		$modelPage = $this->model('app\wall\page');
-		$modelCode = $this->model('code/page');
+		$modelCode = $this->model('code\page');
 
 		$wallPages = array(
 			array(
@@ -56,7 +56,7 @@ class page extends \mp\app\app_base {
 	 */
 	public function reset_action($page) {
 		$page = $this->model('app\wall\page')->byId($page);
-		$modelCode = $this->model('code/page');
+		$modelCode = $this->model('code\page');
 
 		$pattern = 'basic';
 		$dir = str_replace('.', '/', $page->type);

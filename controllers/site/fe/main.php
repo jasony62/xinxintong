@@ -27,7 +27,7 @@ class main extends base {
 	 */
 	public function pageGet_action() {
 		$site = $this->model('site')->byId($this->siteId);
-		$page = $this->model('code/page')->byId($site->home_page_id);
+		$page = $this->model('code\page')->byId($site->home_page_id);
 
 		$param = array(
 			'page' => $page,

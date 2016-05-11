@@ -24,7 +24,7 @@ class page extends \pl\fe\base {
 
 		$data = $this->_makePage($site, $template);
 
-		$code = \TMS_APP::model('code/page')->create($user->id, $data);
+		$code = \TMS_APP::model('code\page')->create($user->id, $data);
 
 		$rst = $this->model()->update(
 			'xxt_site_yx',
@@ -47,7 +47,7 @@ class page extends \pl\fe\base {
 
 		$data = $this->_makePage($site, $template);
 
-		$rst = \TMS_APP::model('code/page')->modify($codeId, $data);
+		$rst = \TMS_APP::model('code\page')->modify($codeId, $data);
 
 		return new \ResponseData($rst);
 	}

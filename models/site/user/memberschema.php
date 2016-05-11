@@ -21,7 +21,7 @@ class memberschema_model extends \TMS_MODEL {
 				$schema->extattr = json_decode($schema->extattr);
 			}
 			if ($schema->code_id != 0) {
-				$page = \TMS_APP::M('code/page')->byId($schema->code_id, 'html,css,js');
+				$page = \TMS_APP::M('code\page')->byId($schema->code_id, 'html,css,js');
 				$schema->page = $page;
 			}
 		}

@@ -11,7 +11,7 @@ class page extends \mp\app\app_base {
 	 */
 	public function byShop_action($shop) {
 		$modelPage = $this->model('app\merchant\page');
-		$modelCode = $this->model('code/page');
+		$modelCode = $this->model('code\page');
 
 		$shopPages = array(
 			array(
@@ -102,7 +102,7 @@ class page extends \mp\app\app_base {
 	 */
 	public function createByShop_action($shop, $type) {
 		$modelPage = $this->model('app\merchant\page');
-		$modelCode = $this->model('code/page');
+		$modelCode = $this->model('code\page');
 
 		$shopPages = array(
 			'shelf' => array(
@@ -160,7 +160,7 @@ class page extends \mp\app\app_base {
 	public function createByCatelog_action($catelog, $type) {
 		$modelCate = $this->model('app\merchant\catelog');
 		$modelPage = $this->model('app\merchant\page');
-		$modelCode = $this->model('code/page');
+		$modelCode = $this->model('code\page');
 
 		$catePages = array(
 			'product' => array(
@@ -230,7 +230,7 @@ class page extends \mp\app\app_base {
 	 */
 	public function reset_action($page) {
 		$page = $this->model('app\merchant\page')->byId($page);
-		$modelCode = $this->model('code/page');
+		$modelCode = $this->model('code\page');
 
 		if ($page->cate_id != 0) {
 			$modelCate = $this->model('app\merchant\catelog');
@@ -271,7 +271,7 @@ class page extends \mp\app\app_base {
 			$modelCate->update('xxt_merchant_catelog', array('pages' => $catelog->pages), "id=$catelog->id");
 		}
 
-		$this->model('code/page')->remove($page->code_id);
+		$this->model('code\page')->remove($page->code_id);
 		$rst = $modelPage->delete('xxt_merchant_page', "id=$page->id");
 
 		return new \ResponseData($rst);

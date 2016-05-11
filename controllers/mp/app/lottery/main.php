@@ -113,7 +113,7 @@ class main extends \mp\app\app_base {
 		/**
 		 * 创建定制页
 		 */
-		$codeModel = $this->model('code/page');
+		$codeModel = $this->model('code\page');
 		$page = $codeModel->create($uid);
 		$data = array(
 			'html' => '<button ng-click="play()">开始</button>',
@@ -184,7 +184,7 @@ class main extends \mp\app\app_base {
 	 *
 	 */
 	public function pageSet_action($lid, $pageid, $pattern) {
-		$codeModel = $this->model('code/page');
+		$codeModel = $this->model('code\page');
 		if ($pageid) {
 			$page = $codeModel->byId($pageid);
 		} else {

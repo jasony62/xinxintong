@@ -20,7 +20,7 @@ class page_model extends \TMS_MODEL {
 		$page = $this->query_obj_ss($q);
 
 		if ($page && $cascaded === 'Y') {
-			$code = \TMS_APP::M('code/page')->byId($page->code_id);
+			$code = \TMS_APP::M('code\page')->byId($page->code_id);
 			$page->html = $code->html;
 			$page->css = $code->css;
 			$page->js = $code->js;
@@ -78,7 +78,7 @@ class page_model extends \TMS_MODEL {
 			}
 		}
 		if (count($pages) > 0 && $cascaded === 'Y') {
-			$modelCode = \TMS_APP::M('code/page');
+			$modelCode = \TMS_APP::M('code\page');
 			foreach ($pages as &$page) {
 				$code = $modelCode->byId($page->code_id);
 				$page->html = $code->html;
@@ -97,7 +97,7 @@ class page_model extends \TMS_MODEL {
 	public function add($siteId, $data, $shopId, $catelogId = 0, $productId = 0) {
 		$uid = \TMS_CLIENT::get_client_uid();
 
-		$code = \TMS_APP::model('code/page')->create($uid);
+		$code = \TMS_APP::model('code\page')->create($uid);
 
 		$newPage = array(
 			'siteid' => $siteId,
@@ -124,7 +124,7 @@ class page_model extends \TMS_MODEL {
 	 */
 	public function remove($pageId) {
 		$page = $this->byId($pageId, array('cascaded' => 'N'));
-		\TMS_APP::model('code/page')->remove($page->code_id);
+		\TMS_APP::model('code\page')->remove($page->code_id);
 		$rst = $this->delete('xxt_merchant_page', "id=$pageId");
 
 		return $rst;

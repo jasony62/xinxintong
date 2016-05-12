@@ -87,6 +87,7 @@ define(["require", "angular"], function(require, angular) {
             $http.get('/rest/site/fe/matter/article/get?site=' + siteId + '&id=' + id).success(function(rsp) {
                 var site = rsp.data.site,
                     article = rsp.data.article,
+                    channels = article.channels,
                     page = article.page;
                 $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + id + '&type=article&title=' + article.title + '&shareby=' + shareby, {
                     search: location.search.replace('?', ''),
@@ -119,6 +120,14 @@ define(["require", "angular"], function(require, angular) {
                     (function() {
                         eval(site.footer_page.js);
                     })();
+                }
+                if (channels && channels.length) {
+                    for (var i = 0, l = channels.length, channel; i < l; i++) {
+                        channel = channels[i];
+                        if (channel.style_page) {
+                            loadDynaCss(channel.style_page.css);
+                        }
+                    }
                 }
                 if (page.ext_css && page.ext_css.length) {
                     angular.forEach(page.ext_css, loadCss);

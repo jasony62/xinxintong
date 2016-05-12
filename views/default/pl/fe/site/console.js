@@ -40,6 +40,11 @@ app.controller('ctrlConsole', ['$scope', '$modal', 'http2', function($scope, $mo
     var searchMatters = function(append) {
         var url = '/rest/pl/fe/matter/' + $scope.matterType + '/list?site=' + $scope.siteId + $scope.page.j();
         url += '&_=' + (new Date()).getTime();
+        switch ($scope.matterType) {
+            case 'channel':
+                url += '&cascade=N';
+                break;
+        }
         http2.get(url, function(rsp) {
             if (/article/.test($scope.matterType)) {
                 if (append) {

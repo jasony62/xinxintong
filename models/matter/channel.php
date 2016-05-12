@@ -124,8 +124,8 @@ class channel_model extends article_base {
 		if (empty($channel->matter_type)) {
 			$matterTypes = array(
 				'article' => 'xxt_article',
-				'channel' => 'xxt_channel',
-				'news' => 'xxt_news',
+				//'channel' => 'xxt_channel',
+				//'news' => 'xxt_news',
 				'link' => 'xxt_link',
 				'enroll' => 'xxt_enroll',
 				'contribute' => 'xxt_contribute',
@@ -174,8 +174,6 @@ class channel_model extends article_base {
 			!empty($top) && $top->type === $type && $qaw .= " and m.id<>$top->id";
 
 			!empty($bottom) && $bottom->type === $type && $qaw .= " and m.id<>$bottom->id";
-			// channel in parent mp
-			!empty($pmpid) && $qaw .= " and (m.mpid = '$pmpid' or m.mpid = '$runningMpid')";
 
 			$q1[] = $qaw;
 			$q2 = array();

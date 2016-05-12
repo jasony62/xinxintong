@@ -1,59 +1,61 @@
-<div ng-if="!user.loginExpire">
-    <div ng-if="subView==='register'">
-        <div class='form-group'>
-            <input type="text" class='form-control input-lg' name='uname' placeholder='输入用于登录的帐号名' ng-model='loginUser.uname'/>
+<div ng-controller="myCtrlMember">
+    <div ng-if="!user.loginExpire">
+        <div ng-if="subView==='register'">
+            <div class='form-group'>
+                <input type="text" class='form-control input-lg' name='uname' placeholder='输入用于登录的帐号名' ng-model="loginUser.uname"/>
+            </div>
+            <div class='form-group'>
+                <input type="text" class='form-control input-lg' name='nickname' placeholder='帐号昵称' ng-model="loginUser.nickname"/>
+            </div>
+            <div class='form-group'>
+                <input type='password' class='form-control input-lg' name='password' ng-model="loginUser.password" ng-minlength='6' ng-maxlength='16' placeholder='输入6-16位登录密码'>
+            </div>
+            <div class='form-group'>
+                <input type='password' class='form-control input-lg' ng-pattern="repeatPwd" name='password2' ng-model="password2" placeholder='再次输入登录密码'/>
+            </div>
+            <div class='form-group'>
+                <button class="btn btn-lg btn-block btn-success" ng-click='register()'>注册</button>
+            </div>
+            <div class='form-group'>
+                <button class="btn btn-lg btn-block btn-default" ng-click="switchSubView('login')">已有帐号，去登录</button>
+            </div>
         </div>
-        <div class='form-group'>
-            <input type="text" class='form-control input-lg' name='nickname' placeholder='帐号昵称' ng-model='loginUser.nickname'/>
-        </div>
-        <div class='form-group'>
-            <input type='password' class='form-control input-lg' name='password' ng-model='loginUser.password' ng-minlength='6' ng-maxlength='16' placeholder='输入6-16位登录密码'>
-        </div>
-        <div class='form-group'>
-            <input type='password' class='form-control input-lg' ng-pattern="repeatPwd" name='password2' ng-model='password2' placeholder='再次输入登录密码'/>
-        </div>
-        <div class='form-group'>
-            <button class="btn btn-lg btn-block btn-success" ng-click='register()'>注册</button>
-        </div>
-        <div class='form-group'>
-            <button class="btn btn-lg btn-block btn-default" ng-click="switchSubView('login')">已有帐号，去登录</button>
+        <div ng-if="subView==='login'">
+            <div class='form-group'>
+                <input type="text" class='form-control input-lg' name='uname' placeholder='输入用于登录的帐号名' ng-model="loginUser.uname"/>
+            </div>
+            <div class='form-group'>
+                <input type='password' class='form-control input-lg' name='password' ng-model="loginUser.password" ng-minlength='6' ng-maxlength='16' placeholder='输入6-16位登录密码'/>
+            </div>
+            <div class='form-group'>
+                <button class="btn btn-lg btn-block btn-success" ng-click="login()">登录</button>
+            </div>
+            <div class='form-group'>
+                <button class="btn btn-lg btn-block btn-default" ng-click="switchSubView('register')">没有帐号，去注册</button>
+            </div>
         </div>
     </div>
-    <div ng-if="subView==='login'">
-        <div class='form-group'>
-            <input type="text" class='form-control input-lg' name='uname' placeholder='输入用于登录的帐号名' ng-model='loginUser.uname'/>
+    <div ng-if="user.loginExpire">
+        <div class='form-group' ng-if="attrs.name">
+            <input type='text' required="" ng-model="member.name" placeholder='姓名' class='form-control input-lg'>
+        </div>
+        <div class='form-group' ng-if="attrs.mobile">
+            <input type='text' required="" ng-model="member.mobile" placeholder='手机号' class='form-control input-lg'>
+        </div>
+        <div class='form-group' ng-if="attrs.email">
+            <input type='text' required="" ng-model="member.email" placeholder='邮箱' class='form-control input-lg'>
+        </div>
+        <div class='form-group' ng-repeat="ea in attrs.extattrs">
+            <input type='text' ng-model="member.extattr[ea.id]" placeholder='{{ea.label}}' class='form-control input-lg'>
         </div>
         <div class='form-group'>
-            <input type='password' class='form-control input-lg' name='password' ng-model='loginUser.password' ng-minlength='6' ng-maxlength='16' placeholder='输入6-16位登录密码'/>
+            <button class='btn btn-lg btn-block' ng-class="posting ? 'btn-default':'btn-success'" ng-disabled='posting' ng-click="doAuth()">提交身份信息</button>
         </div>
         <div class='form-group'>
-            <button class="btn btn-lg btn-block btn-success" ng-click='login()'>登录</button>
+            <button class='btn btn-lg btn-block' ng-class="posting ? 'btn-default':'btn-success'" ng-disabled='posting' ng-click="doReauth()">确认身份信息</button>
         </div>
         <div class='form-group'>
-            <button class="btn btn-lg btn-block btn-default" ng-click="switchSubView('register')">没有帐号，去注册</button>
+            <button class="btn btn-lg btn-block btn-default" ng-click="logout()">退出登录</button>
         </div>
-    </div>
-</div>
-<div ng-if="user.loginExpire">
-    <div class='form-group' ng-if="attrs.name">
-        <input type='text' required="" ng-model='member.name' placeholder='姓名' class='form-control input-lg'>
-    </div>
-    <div class='form-group' ng-if="attrs.mobile">
-        <input type='text' required="" ng-model='member.mobile' placeholder='手机号' class='form-control input-lg'>
-    </div>
-    <div class='form-group' ng-if="attrs.email">
-        <input type='text' required="" ng-model='member.email' placeholder='邮箱' class='form-control input-lg'>
-    </div>
-    <div class='form-group' ng-repeat="ea in attrs.extattrs">
-        <input type='text' ng-model='member.extattr[ea.id]' placeholder='{{ea.label}}' class='form-control input-lg'>
-    </div>
-    <div class='form-group'>
-        <button class='btn btn-lg btn-block' ng-class="posting ? 'btn-default':'btn-success'" ng-disabled='posting' ng-click='doAuth()'>提交身份信息</button>
-    </div>
-    <div class='form-group'>
-        <button class='btn btn-lg btn-block' ng-class="posting ? 'btn-default':'btn-success'" ng-disabled='posting' ng-click='doReauth()'>确认身份信息</button>
-    </div>
-    <div class='form-group'>
-        <button class="btn btn-lg btn-block btn-default" ng-click="logout()">退出登录</button>
     </div>
 </div>

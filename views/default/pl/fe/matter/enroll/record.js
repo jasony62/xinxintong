@@ -135,7 +135,7 @@
                 backdrop: 'static'
             }).result.then(function(data) {
                 if (data.tag && data.tag.length) {
-                    http2.post('/rest/pl/fe/matter/enroll/record/tagByData?aid=' + $scope.aid, data, function(rsp) {
+                    http2.post('/rest/pl/fe/matter/enroll/record/tagByData?aid=' + $scope.id, data, function(rsp) {
                         var aAssigned;
                         $scope.doSearch();
                         aAssigned = data.tag.split(',');
@@ -175,7 +175,7 @@
                     eks: eks,
                     tags: aSelected
                 };
-                http2.post('/rest/pl/fe/matter/enroll/record/batchTag?aid=' + $scope.aid, posted, function(rsp) {
+                http2.post('/rest/pl/fe/matter/enroll/record/batchTag?aid=' + $scope.id, posted, function(rsp) {
                     var i, l, m, n, newTag;
                     n = aSelected.length;
                     for (i = 0, l = records.length; i < l; i++) {
@@ -342,7 +342,7 @@
             var vcode;
             vcode = prompt('是否要删除所有登记信息？，若是，请输入活动名称。');
             if (vcode === $scope.app.title) {
-                http2.get('/rest/pl/fe/matter/enroll/record/empty?site=' + $scope.siteId + '&app=' + $scope.aid, function(rsp) {
+                http2.get('/rest/pl/fe/matter/enroll/record/empty?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
                     $scope.doSearch(1);
                 });
             }

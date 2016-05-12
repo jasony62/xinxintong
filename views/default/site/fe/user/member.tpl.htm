@@ -9,7 +9,7 @@
         <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
         <style>
             body{background-color:#f8f8f8;font-family:'Microsoft Yahei',Arial;position:relative;padding-top:60px;}
-            #errmsg,#infomsg{position:absolute;top:0;left:0;right:0;text-align:center;}
+            #errmsg,#infomsg{position:fixed;top:0;left:0;right:0;text-align:center;}
         </style>
         <style ng-if="page.css" ng-bind='page.css'></style>
     </head>
@@ -20,13 +20,12 @@
         <div class="app">
             <div class='container'>
                 <div class='row'>
-                    <div name='page' novalidate dynamic-html="page.html">
+                    <div dynamic-html="page.html">
                     </div>
                 </div>
             </div>
         </div>
-        <button ng-click='cleanCookie()' ng-if="debug==='Y'">clean cookie</button>
         <script src="/static/js/angular.min.js "></script>
-        <script src="/views/default/site/fe/user/member.js?_=9"></script>
+        <script src="/views/default/site/fe/user/member.js?_=13"></script>
     </body>
 </html>

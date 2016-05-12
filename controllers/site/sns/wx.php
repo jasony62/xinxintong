@@ -210,9 +210,9 @@ class wx extends \member_base {
 		 * 记录粉丝关注信息
 		 */
 		$current = time();
-		$wxConfig = \TMS_APP::G('site\sns\wx');
 		$siteId = $call['siteid'];
 		$openid = $call['from_user'];
+		$wxConfig = $this->model('sns\wx')->bySite($siteId);
 		$modelFan = $this->model('sns\wx\fan');
 		if ($fan = $modelFan->byOpenid($siteId, $openid, '*')) {
 			/**
@@ -246,7 +246,7 @@ class wx extends \member_base {
 			 * 获取粉丝信息并更新
 			 * todo 是否应该更新用户所属的分组？
 			 */
-			$wxProxy = $this->model('sns/wx/proxy', $wxConfig);
+			$wxProxy = $this->model('sns\wx\proxy', $wxConfig);
 			$fanInfo = $wxProxy->userInfo($openid, false);
 			if ($fanInfo[0]) {
 				/*更新粉丝用户信息*/
@@ -280,7 +280,7 @@ class wx extends \member_base {
 				is_object($reply) && $reply->exec();
 			}
 		}
-		if ($reply = $this->model('sns\wx\event')->_otherCall($siteId, 'subscribe')) {
+		if ($reply = $this->model('sns\wx\event')->otherCall($siteId, 'subscribe')) {
 			$r = $this->model('sns\reply\\' . $reply->matter_type, $call, $reply->matter_id);
 			$r->exec();
 		}

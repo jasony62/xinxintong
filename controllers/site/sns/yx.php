@@ -193,9 +193,9 @@ class yx extends \member_base {
 		 * 记录粉丝关注信息
 		 */
 		$current = time();
-		$yxConfig = \TMS_APP::G('site\sns\yx');
 		$siteId = $call['siteid'];
 		$openid = $call['from_user'];
+		$yxConfig = $this->model('sns\yx')->bySite($siteId);
 		$modelFan = $this->model('sns\yx\fan');
 		if ($fan = $modelFan->byOpenid($siteId, $openid, '*')) {
 			/**

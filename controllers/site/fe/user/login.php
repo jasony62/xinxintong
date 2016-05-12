@@ -27,6 +27,9 @@ class login extends \site\fe\base {
 	 */
 	public function do_action() {
 		$data = $this->getPostJson();
+		if (empty($data->uname) || empty($data->password)) {
+			return new \ResponseError("登录信息不完整");
+		}
 
 		$modelAct = $this->model('site\user\account');
 		$account = $modelAct->validate($this->siteId, $data->uname, $data->password);

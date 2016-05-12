@@ -170,6 +170,14 @@ class record extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 	/**
+	 * 清空登记信息
+	 */
+	public function empty_action($site, $app) {
+		$rst = $this->model('matter\enroll\record')->clean($app);
+
+		return new \ResponseData($rst);
+	}
+	/**
 	 * 更新登记记录
 	 *
 	 * @param string $app

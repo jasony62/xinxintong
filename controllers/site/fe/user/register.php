@@ -26,8 +26,12 @@ class register extends \site\fe\base {
 	 * @param string $siteid
 	 */
 	public function do_action() {
-		$modelAct = $this->model('site\user\account');
 		$data = $this->getPostJson();
+		if (empty($data->uname) || empty($data->password)) {
+			return new \ResponseError("登录信息不完整");
+		}
+
+		$modelAct = $this->model('site\user\account');
 		/*uname*/
 		$uname = $data->uname;
 		if ($modelAct->checkUname($this->siteId, $uname)) {

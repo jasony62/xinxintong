@@ -50,7 +50,7 @@ ngApp.directive('dynamicHtml', function($compile) {
         }
     };
 });
-ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
+ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
     var validate = function() {
         var required = function(value, len, alerttext) {
             if (value == null || value == "" || value.length < len) {
@@ -93,21 +93,63 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', function($scope, 
         }
         return true;
     };
-    var sendRequest = function(url) {
+    var makePage = function($scope, page) {
+        if (page.ext_css && page.ext_css.length) {
+            angular.forEach(page.ext_css, function(css) {
+                var link, head;
+                link = document.createElement('link');
+                link.href = css.url;
+                link.rel = 'stylesheet';
+                head = document.querySelector('head');
+                head.appendChild(link);
+            });
+        }
+        if (page.ext_js && page.ext_js.length) {
+            var i = 0,
+                l = page.ext_js.length,
+                loadJs = function() {
+                    var js;
+                    js = page.ext_js[i];
+                    $.getScript(js.url, function() {
+                        i++;
+                        if (i === l) {
+                            if (page.js && page.js.length) {
+                                $scope.$apply(
+                                    function dynamicjs() {
+                                        eval(page.js);
+                                        $scope.page = page;
+                                    }
+                                );
+                            }
+                        } else {
+                            loadJs();
+                        }
+                    });
+                };
+            loadJs();
+        } else if (page.js && page.js.length) {
+            (function dynamicjs() {
+                eval(page.js);
+                $scope.page = page;
+            })();
+        } else {
+            $scope.page = page;
+        }
+    };
+    var sendRequest = function(url, deferred) {
         $scope.posting = true;
         $http.post(url, $scope.member).
         success(function(rsp) {
             $scope.posting = false;
             if (angular.isString(rsp)) {
                 $scope.errmsg = rsp;
-                return;
-            }
-            if (rsp.err_code != 0) {
+                deferred.reject(rsp);
+            } else if (rsp.err_code != 0) {
                 $scope.errmsg = rsp.err_msg;
-                return;
-            }
-            if (window.parent && window.parent.onClosePlugin) {
+                deferred.reject(rsp.err_msg);
+            } else if (window.parent && window.parent.onClosePlugin) {
                 window.parent.onClosePlugin();
+                deferred.resolve();
             } else {
                 $http.get(LS.j('passed', 'site', 'schema') + '&redirect=N').success(function(rsp) {
                     location.href = rsp.data;
@@ -151,27 +193,34 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', function($scope, 
         $scope.subView = name;
     };
     $scope.login = function() {
+        var deferred = $q.defer();
         $http.post('/rest/site/fe/user/login/do?site=' + siteId, $scope.loginUser).success(function(rsp) {
             if (rsp.err_code != 0) {
                 $scope.errmsg = rsp.err_msg;
                 return;
             }
-            $scope.user = rsp.data;
-            setMember($scope.user);
+            var user = rsp.data;
+            $scope.user = user;
+            setMember(user);
+            deferred.resolve(user);
         }).error(function(text) {
             $scope.errmsg = text;
+            deferred.reject(text);
         });
+        return deferred.promise;
     };
     $scope.logout = function() {
+        var deferred = $q.defer();
         $http.post('/rest/site/fe/user/logout/do?site=' + siteId, $scope.loginUser).success(function(rsp) {
             if (rsp.err_code != 0) {
                 $scope.errmsg = rsp.err_msg;
                 return;
             }
-            $scope.user = rsp.data;
+            location.reload(true);
         }).error(function(text) {
             $scope.errmsg = text;
         });
+        return deferred.promise;
     };
     $scope.repeatPwd = (function() {
         return {
@@ -181,6 +230,7 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', function($scope, 
         };
     })();
     $scope.register = function() {
+        var deferred = $q.defer();
         $http.post('/rest/site/fe/user/register/do?site=' + siteId, {
             uname: $scope.loginUser.uname,
             password: $scope.loginUser.password
@@ -190,39 +240,38 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', function($scope, 
                 return;
             }
             $scope.user = rsp.data;
+            // 解决版本迁移造成的问题，正常逻辑不需要
             setMember($scope.user);
+            deferred.resolve($scope.user);
         }).error(function(text) {
             $scope.errmsg = text;
+            deferred.reject(text);
         });
+        return deferred.promise;
     };
-    $scope.doAuth = function() {
-        var url;
-        if (!validate()) return;
-        if (document.querySelectorAll('.ng-invalid-required').length) {
-            $scope.errmsg = '请填写必填项';
-            return;
-        }
-        sendRequest(LS.j('doAuth', 'site', 'schema'));
-    };
-    $scope.doReauth = function() {
-        var url;
-        if (!validate()) return;
-        if (document.querySelectorAll('.ng-invalid-required').length) {
-            $scope.errmsg = '请填写必填项';
-            return;
-        }
-        sendRequest(LS.j('doReauth', 'site', 'schema'));
-    };
-    $scope.cleanCookie = function() {
-        $http.get(LS.j('cleanCookieUser', 'site')).success(function(rsp) {
-            if (rsp.err_code != 0) {
-                $scope.errmsg = rsp.err_msg;
+    $scope.doAuth = function(ignoreCheck) {
+        var deferred = $q.defer();
+        if (!ignoreCheck) {
+            if (!validate()) {
                 return;
             }
-            location.reload(true);
-        }).error(function(text) {
-            $scope.errmsg = text;
-        });
+            if (document.querySelectorAll('.ng-invalid-required').length) {
+                $scope.errmsg = '请填写必填项';
+                return;
+            }
+        }
+        sendRequest(LS.j('doAuth', 'site', 'schema'), deferred);
+        return deferred.promise;
+    };
+    $scope.doReauth = function() {
+        var deferred = $q.defer();
+        if (!validate()) return;
+        if (document.querySelectorAll('.ng-invalid-required').length) {
+            $scope.errmsg = '请填写必填项';
+            return;
+        }
+        sendRequest(LS.j('doReauth', 'site', 'schema'), deferred);
+        return deferred.promise;
     };
     $http.get(LS.j('pageGet', 'site', 'schema')).success(function(rsp) {
         if (rsp.err_code !== 0) {
@@ -230,7 +279,6 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', function($scope, 
             return;
         }
         $scope.user = rsp.data.user;
-        $scope.page = rsp.data.schema.page;
         $scope.attrs = {};
         angular.forEach(rsp.data.attrs, function(attr, name) {
             if (name === 'extattrs') {
@@ -251,6 +299,7 @@ ngApp.controller('ctrlMember', ['$scope', '$http', '$timeout', function($scope, 
                 $scope.loginUser.nickname = $scope.user.sns.yx.nickname;
             }
         }
+        makePage($scope, rsp.data.schema.page);
         $timeout(function() {
             $scope.$broadcast('xxt.member.auth.ready', rsp.data);
         });

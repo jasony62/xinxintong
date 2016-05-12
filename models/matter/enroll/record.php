@@ -522,18 +522,19 @@ class record_model extends \TMS_MODEL {
 	}
 	/**
 	 * 清除登记记录
-	 * @param string $aid
+	 *
+	 * @param string $appId
 	 */
-	public function clean($aid) {
+	public function clean($appId) {
 		$rst = $this->update(
 			'xxt_enroll_record_data',
 			array('state' => 0),
-			"aid='$aid'"
+			"aid='$appId'"
 		);
 		$rst = $this->update(
 			'xxt_enroll_record',
 			array('state' => 0),
-			"aid='$aid'"
+			"aid='$appId'"
 		);
 
 		return $rst;

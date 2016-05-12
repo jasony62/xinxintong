@@ -20,18 +20,12 @@ class logout extends \site\fe\base {
 	public function do_action($redirect = 'N') {
 		/*更新cookie状态*/
 		$modelWay = $this->model('site\fe\way');
-		$cookieUser = $modelWay->getCookieUser($this->siteId);
-		$cookieUser->loginExpire = 0;
-		unset($cookieUser->members);
-		unset($cookieUser->sns);
-
-		/*缓存用户信息*/
-		$modelWay->setCookieUser($this->siteId, $cookieUser);
+		$modelWay->cleanCookieUser($this->siteId);
 		if ($redirect === 'Y') {
 			$referer = $_SERVER['HTTP_REFERER'];
 			$this->redirect($referer);
 		} else {
-			return new \ResponseData($cookieUser);
+			return new \ResponseData('ok');
 		}
 	}
 }

@@ -13,8 +13,8 @@ window.loading = {
 				"xxt-share": "/static/js/xxt.share",
 				"xxt-image": "/static/js/xxt.image",
 				"xxt-geo": "/static/js/xxt.geo",
-				"enroll-directive": "/views/default/site/fe/matter/enroll/directive",
-				"enroll-common": "/views/default/site/fe/matter/enroll/common",
+				"enroll-directive": "/views/default/site/fe/matter/signin/directive",
+				"enroll-common": "/views/default/site/fe/matter/signin/common",
 			},
 			shim: {
 				"angular": {
@@ -36,7 +36,7 @@ window.loading = {
 					exports: "enroll-directive"
 				},
 			},
-			deps: ['/views/default/site/fe/matter/enroll/page.js?_=1'],
+			deps: ['/views/default/site/fe/matter/signin/view.js'],
 			urlArgs: "bust=" + (new Date()).getTime()
 		});
 	}
@@ -45,7 +45,7 @@ if (/MicroMessenger/i.test(navigator.userAgent)) {
 	var site = location.search.match(/[\?&]site=([^&]*)/)[1];
 	requirejs(["http://res.wx.qq.com/open/js/jweixin-1.0.0.js"], function(wx) {
 		var xhr = new XMLHttpRequest();
-		xhr.open('GET', "/rest/site/fe/matter/enroll/wxjssdksignpackage?site=" + site + "&url=" + encodeURIComponent(location.href.split('#')[0]), true);
+		xhr.open('GET', "/rest/site/fe/matter/signin/wxjssdksignpackage?site=" + site + "&url=" + encodeURIComponent(location.href.split('#')[0]), true);
 		xhr.onreadystatechange = function() {
 			if (xhr.readyState == 4) {
 				if (xhr.status >= 200 && xhr.status < 400) {

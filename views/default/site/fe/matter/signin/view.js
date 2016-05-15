@@ -126,49 +126,6 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
             });
             return deferred.promise;
         };
-        Record.prototype.like = function(record) {
-            var url;
-            deferred = $q.defer();
-            url = LS.j('record/score', 'site');
-            url += '&ek=' + record.enroll_key;
-            $http.get(url).success(function(rsp) {
-                record.myscore = rsp.data.myScore;
-                record.score = rsp.data.score;
-                deferred.resolve(rsp.data);
-            });
-            return deferred.promise;
-        };
-        Record.prototype.likerList = function(record) {
-            var url;
-            deferred = $q.defer();
-            url = LS.j('record/likerList', 'site');
-            url += '&ek=' + record.enroll_key;
-            $http.get(url).success(function(rsp) {
-                deferred.resolve(rsp.data);
-            });
-            return deferred.promise;
-        };
-        Record.prototype.remark = function(record, newRemark) {
-            var url, deferred;
-            deferred = $q.defer();
-            url = LS.j('record/remark', 'site');
-            url += '&ek=' + record.enroll_key;
-            $http.post(url, {
-                remark: newRemark
-            }).success(function(rsp) {
-                if (angular.isString(rsp)) {
-                    alert(rsp);
-                    return;
-                }
-                if (rsp.err_code != 0) {
-                    alert(rsp.err_msg);
-                    return;
-                }
-                record.remarks.push(rsp.data);
-                deferred.resolve(rsp.data);
-            });
-            return deferred.promise;
-        };
         return {
             ins: function(siteId, appId, rid, $scope) {
                 if (_ins) {
@@ -178,25 +135,6 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
                 return _ins;
             }
         };
-    }]);
-    ngApp.factory('Statistic', ['$http', function($http) {
-        var Stat = function(siteId, appId, data) {
-            this.siteId = siteId;
-            this.appId = appId;
-            this.data = null;
-            this.result = {};
-        };
-        Stat.prototype.rankByFollower = function() {
-            var _this, url;
-            _this = this;
-            url = '/rest/app/enroll/rankByFollower';
-            url += '?site=' + this.siteId;
-            url += '&app=' + this.appId;
-            $http.get(url).success(function(rsp) {
-                _this.result.rankByFollower = rsp.data;
-            });
-        };
-        return Stat;
     }]);
     ngApp.controller('ctrlRecords', ['$scope', 'Record', function($scope, Record) {
         var facRecord, options, fnFetch, schemas;
@@ -260,9 +198,8 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         $scope.fetch = fnFetch;
     }]);
     ngApp.controller('ctrlRecord', ['$scope', 'Record', function($scope, Record) {
-        var facRecord, schemas;
-        schemas = JSON.parse($scope.Page.data_schemas);
-        schemas = schemas.record.schemas;
+        var facRecord = Record.ins(),
+            schemas = $scope.app.data_schemas;
         $scope.value2Label = function(key) {
             var val, i, j, s, aVal, aLab = [];
             if (schemas && facRecord.current.data) {
@@ -290,147 +227,8 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         $scope.editRecord = function(event, page) {
             page ? $scope.gotoPage(event, page, facRecord.current.enroll_key) : alert('没有指定登记编辑页');
         };
-        $scope.like = function(event, nextAction) {
-            event.preventDefault();
-            event.stopPropagation();
-            facRecord.like(facRecord.current).then(function(data) {
-                if (nextAction === 'closeWindow') {
-                    $scope.closeWindow();
-                } else if (nextAction !== undefined && nextAction.length) {
-                    var url = LS.j('', 'site', 'app');
-                    url += '&ek=' + facRecord.current.enroll_key;
-                    url += '&page=' + nextAction;
-                    location.replace(url);
-                } else {
-                    alert('操作成功');
-                }
-            });
-        };
-        $scope.likers = function(event) {
-            facRecord.likerList(facRecord.current).then(function(data) {
-                $scope.likers = data.likers;
-            });
-        };
-        facRecord = Record.ins();
         facRecord.get(LS.p.ek);
         $scope.Record = facRecord;
-    }]);
-    ngApp.controller('ctrlRemark', ['$scope', '$http', 'Record', function($scope, $http, Record) {
-        var facRecord;
-        $scope.newRemark = '';
-        $scope.remark = function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            if ($scope.newRemark.length === 0) {
-                alert('评论内容不允许为空');
-                return false;
-            }
-            if (facRecord.current.enroll_key === undefined) {
-                alert('没有指定要评论的登记记录');
-                return false;
-            }
-            facRecord.remark(facRecord.current, $scope.newRemark).then(function(rsp) {
-                $scope.newRemark = '';
-            });
-        };
-        facRecord = Record.ins();
-        facRecord.get(LS.p.ek);
-        $scope.Record = facRecord;
-    }]);
-    ngApp.controller('ctrlInvite', ['$scope', '$http', 'Record', function($scope, $http, Record) {
-        var facRecord;
-        $scope.options = {
-            genRecordWhenAccept: 'Y'
-        };
-        $scope.invitee = '';
-        $scope.send = function(event, invitePage, nextAction) {
-            event.preventDefault();
-            event.stopPropagation();
-            var url;
-            url = LS.j('record/inviteSend', 'site', 'app');
-            url += '&ek=' + facRecord.current.enroll_key;
-            url += '&invitee=' + $scope.invitee;
-            url += '&page=' + invitePage;
-            $http.get(url).success(function(rsp) {
-                if (rsp.err_code != 0) {
-                    alert(rsp.err_msg);
-                    return;
-                }
-                if (nextAction === 'closeWindow') {
-                    $scope.closeWindow();
-                } else if (nextAction !== undefined && nextAction.length) {
-                    var url = LS.j('', 'site', 'app');
-                    url += '&ek=' + facRecord.current.enroll_key;
-                    url += '&page=' + nextAction;
-                    location.replace(url);
-                } else {
-                    alert('操作成功');
-                }
-            });
-        };
-        $scope.accept = function(event, nextAction) {
-            var inviter, url;
-            if (!$scope.Record.current) {
-                alert('未进行登记，无效的邀请');
-                return;
-            }
-            if ($scope.Record.current.openid === $scope.User.fan.openid) {
-                alert('不能自己邀请自己');
-                return;
-            }
-            inviter = $scope.Record.current.enroll_key;
-            url = LS.j('record/acceptInvite', 'site', 'app');
-            url += '&inviter=' + inviter;
-            $scope.options.genRecordWhenAccept === 'N' && (url += '&state=2');
-            $http.get(url).success(function(rsp) {
-                if (nextAction === 'closeWindow') {
-                    $scope.closeWindow();
-                } else if (nextAction !== undefined && nextAction.length) {
-                    var url = LS('', 'site', 'app');
-                    url += '&ek=' + rsp.data.ek;
-                    url += '&page=' + nextAction;
-                    location.replace(url);
-                }
-            });
-        };
-        facRecord = Record.ins();
-        facRecord.get(LS.p.ek);
-        $scope.Record = facRecord;
-    }]);
-    ngApp.controller('ctrlStatistic', ['$scope', '$http', function($scope, $http) {
-        var fnFetch;
-        fnFetch = function(options) {
-            var url;
-            url = LS.j('statGet', 'site', 'app');
-            if (options) {
-                if (options.fromCache && options.fromCache === 'Y') {
-                    url += '&fromCache=Y';
-                    if (options.interval) {
-                        url += '&interval=' + options.interval;
-                    }
-                }
-            }
-            $http.get(url).success(function(rsp) {
-                $scope.statistic = rsp.data;
-            });
-        };
-        $scope.fetch = fnFetch;
-    }]);
-    ngApp.directive('enrollStatistic', [function() {
-        return {
-            restrict: 'A',
-            link: function(scope, elem, attrs) {
-                var i, params, pv, options;
-                params = attrs.enrollStatistic.split(';');
-                options = {};
-                for (i in params) {
-                    pv = params[i];
-                    pv = pv.split('=');
-                    options[pv[0]] = pv[1];
-                }
-                scope.fetch(options);
-            }
-        };
     }]);
     ngApp.controller('ctrlView', ['$scope', function($scope) {
         $scope.$on('xxt.app.enroll.filter.owner', function(event, data) {

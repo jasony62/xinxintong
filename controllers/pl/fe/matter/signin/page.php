@@ -1,5 +1,5 @@
 <?php
-namespace pl\fe\matter\enroll;
+namespace pl\fe\matter\signin;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /*
@@ -10,7 +10,7 @@ class page extends \pl\fe\matter\base {
 	 *
 	 */
 	public function index_action() {
-		\TPL::output('/pl/fe/matter/enroll/frame');
+		\TPL::output('/pl/fe/matter/signin/frame');
 		exit;
 	}
 	/**
@@ -19,9 +19,13 @@ class page extends \pl\fe\matter\base {
 	 * $aid 获动的id
 	 */
 	public function add_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$options = $this->getPostJson();
 
-		$newPage = $this->model('matter\enroll\page')->add($site, $app, $options);
+		$newPage = $this->model('matter\signin\page')->add($user, $site, $app, $options);
 
 		return new \ResponseData($newPage);
 	}
@@ -30,10 +34,13 @@ class page extends \pl\fe\matter\base {
 	 *
 	 * $aid 活动的id
 	 * $pid 页面的id，如果id==0，是固定页面
-	 * $pname 页面的名称
 	 * $cid 页面对应code page id
 	 */
-	public function update_action($site, $app, $pid, $pname, $cid) {
+	public function update_action($site, $app, $pid, $cid) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$nv = $this->getPostJson();
 
 		$rst = 0;
@@ -58,7 +65,7 @@ class page extends \pl\fe\matter\base {
 					$nv->user_schemas = $model->toJson($nv->user_schemas);
 				}
 				$rst = $model->update(
-					'xxt_enroll_page',
+					'xxt_signin_page',
 					$nv,
 					"aid='$app' and id=$pid"
 				);
@@ -74,11 +81,15 @@ class page extends \pl\fe\matter\base {
 	 * $pid
 	 */
 	public function remove_action($app, $pid) {
-		$page = $this->model('matter\enroll\page')->byId($app, $pid);
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$page = $this->model('matter\signin\page')->byId($app, $pid);
 
 		$this->model('code\page')->remove($page->code_id);
 
-		$rst = $this->model()->delete('xxt_enroll_page', "aid='$app' and id=$pid");
+		$rst = $this->model()->delete('xxt_signin_page', "aid='$app' and id=$pid");
 
 		return new \ResponseData($rst);
 	}

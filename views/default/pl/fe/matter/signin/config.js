@@ -31,29 +31,15 @@
 					};
 				}],
 			}).result.then(function(options) {
-				http2.post('/rest/pl/fe/matter/enroll/page/add?site=' + $scope.siteId + '&app=' + $scope.id, options, function(rsp) {
+				http2.post('/rest/pl/fe/matter/signin/page/add?site=' + $scope.siteId + '&app=' + $scope.id, options, function(rsp) {
 					var page = rsp.data;
 					$scope.app.pages.push(page);
-					location.href = '/rest/pl/fe/matter/enroll/page?id=' + $scope.id + '&page=' + page.name;
+					location.href = '/rest/pl/fe/matter/signin/page?id=' + $scope.id + '&page=' + page.name;
 				});
 			});
 		};
 		$scope.pages4NonMember = [];
 		$scope.pages4Nonfan = [];
-		$scope.updateEntryRule = function() {
-			var p = {
-				entry_rule: encodeURIComponent(JSON.stringify($scope.app.entry_rule))
-			};
-			http2.post('/rest/pl/fe/matter/enroll/update?site=' + $scope.siteId + '&app=' + $scope.id, p, function(rsp) {
-				$scope.persisted = angular.copy($scope.app);
-			});
-		};
-		$scope.resetEntryRule = function() {
-			http2.get('/rest/pl/fe/matter/enroll/entryRuleReset?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
-				$scope.app.entry_rule = rsp.data;
-				$scope.persisted = angular.copy($scope.app);
-			});
-		};
 		$scope.isInputPage = function(pageName) {
 			if (!$scope.app) {
 				return false;

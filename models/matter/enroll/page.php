@@ -5,10 +5,10 @@ class page_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function &byId($aid, $apid) {
+	public function &byId($appId, $apid) {
 		$select = 'ap.*,cp.html,cp.css,cp.js';
 		$from = 'xxt_enroll_page ap,xxt_code_page cp';
-		$where = "ap.aid='$aid' and ap.id=$apid and ap.code_id=cp.id";
+		$where = "ap.aid='$appId' and ap.id=$apid and ap.code_id=cp.id";
 
 		$q = array($select, $from, $where);
 
@@ -27,10 +27,10 @@ class page_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function byName($aid, $name) {
+	public function byName($appId, $name) {
 		$select = 'ep.*,cp.html,cp.css,cp.js';
 		$from = 'xxt_enroll_page ep,xxt_code_page cp';
-		$where = "ep.aid='$aid' and ep.name='$name' and ep.code_id=cp.id";
+		$where = "ep.aid='$appId' and ep.name='$name' and ep.code_id=cp.id";
 
 		$q = array($select, $from, $where);
 
@@ -49,13 +49,13 @@ class page_model extends \TMS_MODEL {
 	/**
 	 * 返回指定登记活动的页面
 	 */
-	public function &byApp($aid, $options = array()) {
+	public function &byApp($appId, $options = array()) {
 		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
 		$fields = isset($options['fields']) ? $options['fields'] : 'id,name,type,title,code_id,autoenroll_onenter,autoenroll_onshare,check_entry_rule,share_page,share_summary,seq,data_schemas,act_schemas,user_schemas';
 		$q = array(
 			$fields,
 			'xxt_enroll_page',
-			"aid='$aid'",
+			"aid='$appId'",
 		);
 		$q2 = array('o' => 'seq,create_at');
 		$eps = $this->query_objs_ss($q, $q2);
@@ -237,10 +237,10 @@ class page_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function &schemaByApp($aid) {
+	public function &schemaByApp($appId) {
 		$schema = array();
 
-		$pages = $this->byApp($aid);
+		$pages = $this->byApp($appId);
 		if (!empty($pages)) {
 			foreach ($pages as $p) {
 				if ($p->type === 'I') {
@@ -255,18 +255,16 @@ class page_model extends \TMS_MODEL {
 	/**
 	 * 创建活动页面
 	 */
-	public function add($mpid, $aid, $data = null) {
+	public function add(&$user, $siteId, $appId, $data = null) {
 		is_object($data) && $data = (array) $data;
 
-		$uid = \TMS_CLIENT::get_client_uid();
-
-		$code = \TMS_APP::model('code\page')->create($uid);
+		$code = \TMS_APP::model('code\page')->create($user->id);
 
 		if (empty($data['seq'])) {
 			$q = array(
 				'max(seq)',
 				'xxt_enroll_page',
-				"aid='$aid'",
+				"aid='$appId'",
 			);
 			$seq = $this->query_val_ss($q);
 			$seq = empty($seq) ? 1 : $seq + 1;
@@ -274,9 +272,9 @@ class page_model extends \TMS_MODEL {
 			$seq = $data['seq'];
 		}
 		$newPage = array(
-			'mpid' => $mpid,
-			'aid' => $aid,
-			'creater' => $uid,
+			'siteid' => $siteId,
+			'aid' => $appId,
+			'creater' => $user->id,
 			'create_at' => time(),
 			'type' => isset($data['type']) ? $data['type'] : 'V',
 			'title' => isset($data['title']) ? $data['title'] : '新页面',

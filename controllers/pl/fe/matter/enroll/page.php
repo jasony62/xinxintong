@@ -16,12 +16,17 @@ class page extends \pl\fe\matter\base {
 	/**
 	 * 添加活动页面
 	 *
-	 * $aid 获动的id
+	 * @param string $site
+	 * @param string $app
 	 */
 	public function add_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$options = $this->getPostJson();
 
-		$newPage = $this->model('matter\enroll\page')->add($site, $app, $options);
+		$newPage = $this->model('matter\enroll\page')->add($user, $site, $app, $options);
 
 		return new \ResponseData($newPage);
 	}

@@ -61,7 +61,12 @@ class record_model extends \TMS_MODEL {
 			$submitkey = $user->uid;
 		}
 		// 已有的登记数据
-		$fields = $this->query_vals_ss(array('name', 'xxt_enroll_record_data', "aid='{$app->id}' and enroll_key='$ek'"));
+		$q = array(
+			'name',
+			'xxt_enroll_record_data',
+			"aid='{$app->id}' and enroll_key='$ek'",
+		);
+		$fields = $this->query_vals_ss($q);
 		foreach ($data as $n => $v) {
 			/**
 			 * 插入自定义属性
@@ -200,6 +205,61 @@ class record_model extends \TMS_MODEL {
 		}
 
 		return $record;
+	}
+	/**
+	 * 获得用户的登记清单
+	 */
+	public function byUser($siteId, $aid, $openid, $rid = null) {
+		if (empty($openid)) {
+			return false;
+		}
+
+		$q = array(
+			'*',
+			'xxt_enroll_record',
+			"state=1 and mpid='$siteId' and aid='$aid' and openid='$openid'",
+		);
+		if (empty($rid)) {
+			$modelRun = \TMS_APP::M('matter\enroll\round');
+			if ($activeRound = $modelRun->getActive($siteId, $aid)) {
+				$q[2] .= " and rid='$activeRound->rid'";
+			}
+		} else {
+			$q[2] .= " and rid='$rid'";
+		}
+		$q2 = array('o' => 'enroll_at desc');
+
+		$list = $this->query_objs_ss($q, $q2);
+
+		return $list;
+	}
+	/**
+	 * 根据指定的数据查找匹配的记录
+	 */
+	public function &byData(&$user, $siteId, &$app, &$data) {
+		$matchedRecords = array();
+		$q = array(
+			'*',
+			'xxt_enroll_record',
+			"state=1 and siteid='$siteId' and aid='{$app->id}' and userid='{$user->uid}'",
+		);
+		$userRecords = $this->query_objs_ss($q);
+		foreach ($userRecords as &$userRecord) {
+			$matched = true;
+			$recordData = $this->dataById($userRecord->enroll_key);
+			foreach ($data as $key => $val) {
+				if ($recordData->{$key} !== $val) {
+					$matched = false;
+					break;
+				}
+			}
+			if ($matched) {
+				$userRecord->data = $recordData;
+				$matchedRecords[] = $userRecord;
+			}
+		}
+
+		return $matchedRecords;
 	}
 	/**
 	 * 登记清单
@@ -366,33 +426,6 @@ class record_model extends \TMS_MODEL {
 		}
 
 		return $result;
-	}
-	/**
-	 * 获得用户的登记清单
-	 */
-	public function byUser($siteId, $aid, $openid, $rid = null) {
-		if (empty($openid)) {
-			return false;
-		}
-
-		$q = array(
-			'*',
-			'xxt_enroll_record',
-			"state=1 and mpid='$siteId' and aid='$aid' and openid='$openid'",
-		);
-		if (empty($rid)) {
-			$modelRun = \TMS_APP::M('matter\enroll\round');
-			if ($activeRound = $modelRun->getActive($siteId, $aid)) {
-				$q[2] .= " and rid='$activeRound->rid'";
-			}
-		} else {
-			$q[2] .= " and rid='$rid'";
-		}
-		$q2 = array('o' => 'enroll_at desc');
-
-		$list = $this->query_objs_ss($q, $q2);
-
-		return $list;
 	}
 	/**
 	 * 获得指定用户最后一次登记记录

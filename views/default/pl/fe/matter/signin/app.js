@@ -1,16 +1,63 @@
 (function() {
-	ngApp.provider.controller('ctrlApp', ['$scope', 'http2', function($scope, http2, mediagallery) {
+	ngApp.provider.controller('ctrlApp', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
 		$scope.publish = function() {
 			$scope.app.state = 2;
 			$scope.update('state');
 			$scope.submit().then(function() {
-				location.href = '/rest/pl/fe/matter/enroll/publish?site=' + $scope.siteId + '&id=' + $scope.id;
+				location.href = '/rest/pl/fe/matter/signin/publish?site=' + $scope.siteId + '&id=' + $scope.id;
 			});
 		};
-		$scope.$on('xxt.tms-datepicker.change', function(event, data) {
-			$scope.app[data.state] = data.value;
-			$scope.update(data.state);
-		});
+		$scope.remove = function() {
+			if (window.confirm('确定删除？')) {
+				http2.get('/rest/pl/fe/matter/signin/remove?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+					location = '/rest/pl/fe/site/console?site=' + $scope.siteId;
+				});
+			}
+		};
+		$scope.assignEnrollApp = function() {
+			$modal.open({
+				templateUrl: 'assignEnrollApp.html',
+				resolve: {
+					app: function() {
+						return $scope.app;
+					}
+				},
+				controller: ['$scope', '$modalInstance', 'app', function($scope2, $mi, app) {
+					$scope2.app = app;
+					$scope2.data = {
+						filter: {},
+						source: ''
+					};
+					app.mission && ($scope2.data.sameMission = 'Y');
+					$scope2.cancel = function() {
+						$mi.dismiss();
+					};
+					$scope2.ok = function() {
+						$mi.close($scope2.data);
+					};
+					var url = '/rest/pl/fe/matter/enroll/list?site=' + $scope.siteId + '&page=1&size=999';
+					app.mission && (url += '&mission=' + app.mission.id);
+					http2.get(url, function(rsp) {
+						$scope2.apps = rsp.data.apps;
+					});
+				}],
+				backdrop: 'static'
+			}).result.then(function(data) {
+				$scope.app.enroll_app_id = data.source;
+				$scope.update('enroll_app_id');
+				$scope.submit().then(function(rsp) {
+					var url = '/rest/pl/fe/matter/enroll/get?site=' + $scope.siteId + '&id=' + $scope.app.enroll_app_id;
+					http2.get(url, function(rsp) {
+						$scope.app.enrollApp = rsp.data;
+					});
+				});
+			});
+		};
+		$scope.cancelEnrollApp = function() {
+			$scope.app.enroll_app_id = '';
+			$scope.update('enroll_app_id');
+			$scope.submit();
+		};
 	}]);
 	ngApp.provider.controller('ctrlPageEditor', ['$scope', '$q', '$modal', 'http2', 'mediagallery', function($scope, $q, $modal, http2, mediagallery) {
 		$scope.$watch('app', function(app) {
@@ -91,7 +138,7 @@
 			$scope.schema = schema ? schema : newSchema('shorttext');
 			$scope.memberSchemas = memberSchemas;
 			$scope.schemaHtml = function(schema) {
-				var url = '/views/default/pl/fe/matter/enroll/component/' + schema.type + '.html?_=1';
+				var url = '/views/default/pl/fe/matter/signin/component/' + schema.type + '.html?_=1';
 				return url;
 			};
 			$scope.addOption = function() {
@@ -193,7 +240,7 @@
 		});
 		$scope.chooseSchema = function() {
 			$modal.open({
-				templateUrl: '/views/default/pl/fe/matter/enroll/component/chooseSchema.html?_=1',
+				templateUrl: '/views/default/pl/fe/matter/signin/component/chooseSchema.html?_=1',
 				backdrop: 'static',
 				resolve: {
 					schemas: function() {
@@ -231,7 +278,7 @@
 		};
 		$scope.createSchema = function() {
 			$modal.open({
-				templateUrl: '/views/default/pl/fe/matter/enroll/component/createSchema.html?_=1',
+				templateUrl: '/views/default/pl/fe/matter/signin/component/createSchema.html?_=1',
 				resolve: {
 					schema: function() {
 						return false;
@@ -287,7 +334,7 @@
 				});
 			} else if (/input/.test($active.attr('wrap'))) {
 				$modal.open({
-					templateUrl: '/views/default/pl/fe/matter/enroll/component/modifySchema.html?_=1',
+					templateUrl: '/views/default/pl/fe/matter/signin/component/modifySchema.html?_=1',
 					backdrop: 'static',
 					size: 'lg',
 					windowClass: 'auto-height',
@@ -415,7 +462,7 @@
 				$scope.$root.progmsg = '正在保存页面...';
 				var url, p = {};
 				p[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
-				url = '/rest/pl/fe/matter/enroll/page/update';
+				url = '/rest/pl/fe/matter/signin/page/update';
 				url += '?site=' + $scope.siteId;
 				url += '&app=' + $scope.id;
 				url += '&pid=' + page.id;
@@ -432,7 +479,7 @@
 		};
 		$scope.delPage = function() {
 			if (window.confirm('确定删除？')) {
-				var url = '/rest/pl/fe/matter/enroll/page/remove';
+				var url = '/rest/pl/fe/matter/signin/page/remove';
 				url += '?site=' + $scope.siteId;
 				url += '&app=' + $scope.id;
 				url += '&pid=' + $scope.ep.id;
@@ -447,7 +494,7 @@
 			}
 		};
 		$scope.gotoPageConfig = function() {
-			location = '/rest/pl/fe/matter/enroll/page?site=' + $scope.siteId + '&id=' + $scope.id + '&page=' + $scope.ep.name;
+			location = '/rest/pl/fe/matter/signin/page?site=' + $scope.siteId + '&id=' + $scope.id + '&page=' + $scope.ep.name;
 		};
 		$scope.$on('tinymce.multipleimage.open', function(event, callback) {
 			var options = {

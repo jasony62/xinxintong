@@ -6,35 +6,16 @@
 				i, l, page, signinUrl;
 			entry = {
 				url: $scope.url,
-				qrcode: '/rest/pl/fe/matter/enroll/qrcode?url=' + encodeURIComponent($scope.url),
+				qrcode: '/rest/pl/fe/matter/signin/qrcode?url=' + encodeURIComponent($scope.url),
 			};
-			if (app.can_signin === 'Y') {
-				l = app.pages.length;
-				for (i = 0; i < l; i++) {
-					page = app.pages[i];
-					if (page.type === 'S') {
-						signinUrl = $scope.url + '&page=' + page.name;
-						break;
-					}
-				}
-				if (signinUrl) {
-					entry.signinUrl = signinUrl;
-					entry.signinQrcode = '/rest/pl/fe/matter/enroll/qrcode?url=' + encodeURIComponent(signinUrl);
-				}
-			}
 			$scope.entry = entry;
 		});
-		$scope.opUrl = 'http://' + location.host + '/rest/site/op/matter/enroll?site=' + $scope.siteId + '&app=' + $scope.id;
+		$scope.opUrl = 'http://' + location.host + '/rest/site/op/matter/signin?site=' + $scope.siteId + '&app=' + $scope.id;
 		$scope.stop = function() {
 			$scope.app.state = 1;
 			$scope.update('state');
 			$scope.submit().then(function() {
-				location.href = '/rest/pl/fe/matter/enroll/setting?site=' + $scope.siteId + '&id=' + $scope.id;
-			});
-		};
-		$scope.remove = function() {
-			http2.get('/rest/pl/fe/matter/enroll/remove?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
-				location.href = '/rest/pl/fe/site/console?site=' + $scope.siteId;
+				location.href = '/rest/pl/fe/matter/signin/app?site=' + $scope.siteId + '&id=' + $scope.id;
 			});
 		};
 		$scope.setPic = function() {
@@ -79,7 +60,7 @@
 					};
 				}]
 			}).result.then(function(newRound) {
-				http2.post('/rest/pl/fe/matter/enroll/round/add?site=' + $scope.siteId + '&app=' + $scope.id, newRound, function(rsp) {
+				http2.post('/rest/pl/fe/matter/signin/round/add?site=' + $scope.siteId + '&app=' + $scope.id, newRound, function(rsp) {
 					!$scope.app.rounds && ($scope.app.rounds = []);
 					if ($scope.app.rounds.length > 0 && rsp.data.state == 1) {
 						$scope.app.rounds[0].state = 2;
@@ -125,7 +106,7 @@
 			}).result.then(function(rst) {
 				var url;
 				if (rst.action === 'update') {
-					url = '/rest/pl/fe/matter/enroll/round/update';
+					url = '/rest/pl/fe/matter/signin/round/update';
 					url += '?site=' + $scope.siteId;
 					url += '&app=' + $scope.id;
 					url += '&rid=' + round.rid;
@@ -136,7 +117,7 @@
 						angular.extend(round, rst.data);
 					});
 				} else if (rst.action === 'remove') {
-					url = '/rest/pl/fe/matter/enroll/round/remove';
+					url = '/rest/pl/fe/matter/signin/round/remove';
 					url += '?site=' + $scope.siteId;
 					url += '&app=' + $scope.id;
 					url += '&rid=' + round.rid;

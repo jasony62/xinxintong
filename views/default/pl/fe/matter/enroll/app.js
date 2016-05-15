@@ -7,6 +7,13 @@
 				location.href = '/rest/pl/fe/matter/enroll/publish?site=' + $scope.siteId + '&id=' + $scope.id;
 			});
 		};
+		$scope.remove = function() {
+			if (window.confirm('确定删除？')) {
+				http2.get('/rest/pl/fe/matter/enroll/remove?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+					location = '/rest/pl/fe/site/console?site=' + $scope.siteId;
+				});
+			}
+		};
 		$scope.$on('xxt.tms-datepicker.change', function(event, data) {
 			$scope.app[data.state] = data.value;
 			$scope.update(data.state);

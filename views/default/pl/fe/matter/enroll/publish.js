@@ -29,12 +29,7 @@
 			$scope.app.state = 1;
 			$scope.update('state');
 			$scope.submit().then(function() {
-				location.href = '/rest/pl/fe/matter/enroll/setting?site=' + $scope.siteId + '&id=' + $scope.id;
-			});
-		};
-		$scope.remove = function() {
-			http2.get('/rest/pl/fe/matter/enroll/remove?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
-				location.href = '/rest/pl/fe/site/console?site=' + $scope.siteId;
+				location.href = '/rest/pl/fe/matter/enroll/app?site=' + $scope.siteId + '&id=' + $scope.id;
 			});
 		};
 		$scope.setPic = function() {

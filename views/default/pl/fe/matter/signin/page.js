@@ -598,7 +598,7 @@
                 $scope.$root.progmsg = '正在保存页面...';
                 var url, p = {};
                 p[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
-                url = '/rest/pl/fe/matter/enroll/page/update';
+                url = '/rest/pl/fe/matter/signin/page/update';
                 url += '?site=' + $scope.siteId;
                 url += '&app=' + $scope.id;
                 url += '&pid=' + page.id;
@@ -615,7 +615,7 @@
         };
         $scope.delPage = function() {
             if (window.confirm('确定删除？')) {
-                var url = '/rest/pl/fe/matter/enroll/page/remove';
+                var url = '/rest/pl/fe/matter/signin/page/remove';
                 url += '?site=' + $scope.siteId;
                 url += '&app=' + $scope.id;
                 url += '&pid=' + $scope.ep.id;

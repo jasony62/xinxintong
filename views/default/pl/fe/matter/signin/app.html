@@ -15,10 +15,10 @@
                     <button class='btn btn-default' ng-click="updPage(ep,'html')" title='保存修改' ng-disabled='!ep.$$modified'>
                     <i class='fa fa-save fa-fw'></i>
                     </button>
-                    <button class='btn btn-default' ng-click="createSchema()" title='创建登记项' ng-if="ep.type==='I'">
+                    <button class='btn btn-default' ng-click="createSchema()" title='创建登记项' ng-if="ep.type==='S'">
                     <i class='fa fa-plus fa-fw'></i>
                     </button>
-                    <button class='btn btn-default' ng-click="chooseSchema()" title='添加已有登记项' ng-if="ep.type==='I'">
+                    <button class='btn btn-default' ng-click="chooseSchema()" title='添加已有登记项' ng-if="ep.type==='S'">
                     <i class='fa fa-plus-square fa-fw'></i>
                     </button>
                     <button class='btn btn-default' ng-click="embedMatter()" title='添加素材'>
@@ -51,10 +51,6 @@
     </div>
     <div class='col-md-4'>
         <div class='tile'>
-            登记内容
-            <a href='/rest/pl/fe/matter/enroll/schema?site={{siteId}}&id={{id}}'>编辑</a>
-        </div>
-        <div class='tile'>
             <button class='btn btn-block' ng-click="submit()" ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'">保存</button>
             <button class='btn btn-block' ng-click="publish()" ng-disabled='modified' ng-class="modified?'btn-default':'btn-success'">发布</button>
             <button class='btn btn-block btn-default' ng-click="remove()">删除</button>
@@ -64,24 +60,36 @@
                 <input type='text' class='form-control' ng-model='app.title' ng-change="update('title');">
                 <div class='help-block'>标题：最多35个汉字，70个英文字符</div>
             </div>
-            <div class='form-group' ng-if="app.scenarioConfig.can_period!=='D'">
-                <tms-datepicker tms-title='开始时间' tms-date='app.start_at' tms-state='start_at'></tms-datepicker>
-                <div class='help-block'>开始时间（可选）</div>
-                <tms-datepicker tms-title='结束时间' tms-date='app.end_at' tms-state='end_at'></tms-datepicker>
-                <div class='help-block'>结束时间（可选）</div>
+            <div class='form-group'>
+                <a href='/rest/pl/fe/matter/signin/schema?site={{siteId}}&id={{id}}'>签到项</a>
             </div>
-            <div class='checkbox' ng-if="app.scenarioConfig.can_signin!=='D'">
-                <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_signin">需要签到</label>
+            <div class='form-group' ng-if="!app.enroll_app_id">
+                <button class='btn btn-block btn-success' ng-click="assignEnrollApp()">指定签到名单</button>
+            </div>
+            <div class='form-group' ng-if="app.enroll_app_id">
+                <div class="input-group">
+                    <div class='form-control' ng-bind="app.enrollApp.title"></div>
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" ng-click="cancelEnrollApp()">
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                    </span>
+                </div>
+                <div class='help-block'>指定的签到名单</div>
+                <div class='list-group'>
+                    <div class='list-group-item' ng-repeat="s in app.data_schemas">
+                        <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="s.requireCheck" ng-change="update('data_schemas')">{{s.title}}</label>
+                    </div>
+                </div>
+                <div class='help-block'>要在签到名单中验证的项</div>
             </div>
         </div>
         <div class='tile' ng-if="app.state==='2'">
             <div class='form-group'>
                 <div style='height:auto;word-break:break-all' ng-bind='url'></div>
             </div>
-        </div>
-        <div class='tile' ng-if="app.state==='2'">
             <div class='form-group'>
-                <a href='/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}'>登记记录</a>
+                <a href='/rest/pl/fe/matter/signin/record?site={{siteId}}&id={{id}}'>登记记录</a>
             </div>
         </div>
         <div class='tile'>
@@ -94,6 +102,28 @@
         </div>
     </div>
 </div>
+<script type="text/ng-template" id="assignEnrollApp.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">筛选条件</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal record-editor">
+            <div class='form-group'>
+                <label class="col-md-3 control-label">目标活动</label>
+                <div class="col-md-9">
+                    <select class="form-control" ng-model="data.source" ng-options="app.id as app.title for app in apps"></select>
+                    <div class='checkbox' ng-if="app.mission">
+                        <label><input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">选择同一个项目中的活动</label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">确定</button>
+    </div>
+</script>
 <script type="text/ng-template" id="createPage.html">
     <div class="modal-header">
         <button class="close" ng-click="cancel()" type="button">×</button>
@@ -101,9 +131,8 @@
     </div>
     <div class="modal-body">
         <div class="form-group">
-            <label class='radio-inline'><input type='radio' value='I' name='type' ng-model='options.type'>登记页</label>
+            <label class='radio-inline'><input type='radio' value='S' name='type' ng-model='options.type'>签到页</label>
             <label class='radio-inline'><input type='radio' value='V' name='type' ng-model='options.type'>查看页</label>
-            <label class='radio-inline' ng-if="app.can_signin==='Y'"><input type='radio' value='S' name='type' ng-model='options.type'>签到页</label>
         </div>
     </div>
     <div class="modal-footer" style="margin-top:0">

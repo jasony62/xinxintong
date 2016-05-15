@@ -54,12 +54,9 @@
                     <th style='width:100px'>登记时间</th>
                     <th style='width:80px'>昵称</th>
                     <th class='custom-col' ng-repeat="c in  app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
-                    <th style='width:100px' ng-if="app.can_signin==='Y'">最近签到时间</th>
-                    <th style='width:80px' ng-if="app.can_signin==='Y'">签到次数</th>
+                    <th style='width:100px'>最近签到时间</th>
+                    <th style='width:80px'>签到次数</th>
                     <th style='width:140px'>标签</th>
-                    <th style='width:60px' ng-if="app.can_invite==='Y'">邀请</th>
-                    <th style='width:60px' ng-if="app.can_like_record==='Y'">点赞</th>
-                    <th style='width:60px' ng-if="app.can_remark_record==='Y'">评论</th>
                     <th style='width:72px'>操作</th>
                 </tr>
             </thead>
@@ -80,12 +77,9 @@
                             <span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                         </span>
                     </td>
-                    <td ng-if="app.can_signin==='Y'">{{r.signin_at>0 ? ((r.signin_at*1000)|date:'MM-dd HH:mm') : ''}}</td>
-                    <td ng-if="app.can_signin==='Y'">{{r.signinLogs.length}}</td>
+                    <td>{{r.signin_at>0 ? ((r.signin_at*1000)|date:'MM-dd HH:mm') : ''}}</td>
+                    <td>{{r.signin_num}}</td>
                     <td>{{r.tags}}</td>
-                    <td ng-if="app.can_invite==='Y'">{{r.follower_num}}</td>
-                    <td ng-if="app.can_like_record==='Y'">{{r.score}}</td>
-                    <td ng-if="app.can_remark_record==='Y'">{{r.remark_num}}</td>
                     <td>
                         <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
                             <span class='glyphicon glyphicon-remove'></span>

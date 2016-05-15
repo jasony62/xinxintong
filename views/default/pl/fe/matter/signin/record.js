@@ -24,14 +24,9 @@
         $scope.doSearch = function(page) {
             var url;
             page && ($scope.page.at = page);
-            url = '/rest/pl/fe/matter/enroll/record/list';
+            url = '/rest/pl/fe/matter/signin/record/list';
             url += '?site=' + $scope.siteId; // todo
             url += '&app=' + $scope.app.id;
-            if ($scope.app.can_signin === 'Y') {
-                url += '&signinStartAt=' + $scope.signinStartAt;
-                url += '&signinEndAt=' + $scope.signinEndAt;
-            }
-            url += '&tags=' + $scope.page.tags.join(',');
             url += $scope.page.joinParams();
             http2.get(url, function(rsp) {
                 if (rsp.data) {
@@ -111,41 +106,6 @@
         $scope.signinEndAt = endAt.getTime() / 1000;
         $scope.selected = {};
         $scope.selectAll;
-        $scope.tagByData = function() {
-            $modal.open({
-                templateUrl: 'tagByData.html',
-                controller: ['$scope', '$modalInstance', function($scope2, $mi) {
-                    $scope2.data = {
-                        filter: {},
-                        tag: ''
-                    };
-                    $scope2.schema = [];
-                    angular.forEach($scope.schema, function(def) {
-                        if (['img', 'file', 'datetime'].indexOf(def.type) === -1) {
-                            $scope2.schema.push(def);
-                        }
-                    });
-                    $scope2.cancel = function() {
-                        $mi.dismiss();
-                    };
-                    $scope2.ok = function() {
-                        $mi.close($scope2.data);
-                    };
-                }],
-                backdrop: 'static'
-            }).result.then(function(data) {
-                if (data.tag && data.tag.length) {
-                    http2.post('/rest/pl/fe/matter/enroll/record/tagByData?aid=' + $scope.aid, data, function(rsp) {
-                        var aAssigned;
-                        $scope.doSearch();
-                        aAssigned = data.tag.split(',');
-                        angular.forEach(aAssigned, function(newTag) {
-                            $scope.app.tags.indexOf(newTag) === -1 && $scope.app.tags.push(newTag);
-                        });
-                    });
-                }
-            });
-        };
         $scope.$on('xxt.tms-datepicker.change', function(evt, data) {
             $scope[data.state] = data.value;
             $scope.doSearch(1);
@@ -158,39 +118,6 @@
             var i = $scope.page.tags.indexOf(removed);
             $scope.page.tags.splice(i, 1);
             $scope.doSearch();
-        });
-        $scope.$on('batch-tag.xxt.combox.done', function(event, aSelected) {
-            var i, record, records, eks, posted;
-            records = [];
-            eks = [];
-            for (i in $scope.selected) {
-                if ($scope.selected) {
-                    record = $scope.records[i];
-                    eks.push(record.enroll_key);
-                    records.push(record);
-                }
-            }
-            if (eks.length) {
-                posted = {
-                    eks: eks,
-                    tags: aSelected
-                };
-                http2.post('/rest/pl/fe/matter/enroll/record/batchTag?aid=' + $scope.aid, posted, function(rsp) {
-                    var i, l, m, n, newTag;
-                    n = aSelected.length;
-                    for (i = 0, l = records.length; i < l; i++) {
-                        record = records[i];
-                        if (!record.tags || record.length === 0) {
-                            record.tags = aSelected.join(',');
-                        } else {
-                            for (m = 0; m < n; m++) {
-                                newTag = aSelected[m];
-                                (',' + record.tags + ',').indexOf(newTag) === -1 && (record.tags += ',' + newTag);
-                            }
-                        }
-                    }
-                });
-            }
         });
         $scope.viewUser = function(fan) {
             //location.href = '/rest/mp/user?openid=' + fan.openid;
@@ -258,7 +185,7 @@
             }).result.then(function(updated) {
                 var p, tags;
                 p = updated[0];
-                http2.post('/rest/pl/fe/matter/enroll/record/update?site=' + $scope.siteId + '&app=' + $scope.id + '&ek=' + record.enroll_key, p, function(rsp) {
+                http2.post('/rest/pl/fe/matter/signin/record/update?site=' + $scope.siteId + '&app=' + $scope.id + '&ek=' + record.enroll_key, p, function(rsp) {
                     //tags = updated[1];
                     var data = rsp.data.data;
                     if ($scope.mapOfSchemaByType['image'] && $scope.mapOfSchemaByType['image'].length) {
@@ -293,7 +220,7 @@
                 var p, tags;
                 p = updated[0];
                 tags = updated[1];
-                http2.post('/rest/pl/fe/matter/enroll/record/add?site=' + $scope.siteId + '&app=' + $scope.id, p, function(rsp) {
+                http2.post('/rest/pl/fe/matter/signin/record/add?site=' + $scope.siteId + '&app=' + $scope.id, p, function(rsp) {
                     //$scope.app.tags = tags;
                     var record = rsp.data;
                     if ($scope.mapOfSchemaByType['image'] && $scope.mapOfSchemaByType['image'].length) {
@@ -322,7 +249,7 @@
                     var members = [];
                     for (var i in selected.members)
                         members.push(selected.members[i].data.mid);
-                    http2.post('/rest/pl/fe/matter/enroll/record/importUser?aid=' + $scope.id, members, function(rsp) {
+                    http2.post('/rest/pl/fe/matter/signin/record/importUser?aid=' + $scope.id, members, function(rsp) {
                         for (var i in rsp.data)
                             $scope.records.splice(0, 0, rsp.data[i]);
                     });
@@ -331,7 +258,7 @@
         };
         $scope.removeRecord = function(record) {
             if (window.confirm('确认删除？')) {
-                http2.get('/rest/pl/fe/matter/enroll/record/remove?site=' + $scope.siteId + '&app=' + $scope.id + '&key=' + record.enroll_key, function(rsp) {
+                http2.get('/rest/pl/fe/matter/signin/record/remove?site=' + $scope.siteId + '&app=' + $scope.id + '&key=' + record.enroll_key, function(rsp) {
                     var i = $scope.records.indexOf(record);
                     $scope.records.splice(i, 1);
                     $scope.page.total = $scope.page.total - 1;
@@ -342,7 +269,7 @@
             var vcode;
             vcode = prompt('是否要删除所有登记信息？，若是，请输入活动名称。');
             if (vcode === $scope.app.title) {
-                http2.get('/rest/pl/fe/matter/enroll/record/empty?site=' + $scope.siteId + '&app=' + $scope.aid, function(rsp) {
+                http2.get('/rest/pl/fe/matter/signin/record/empty?site=' + $scope.siteId + '&app=' + $scope.aid, function(rsp) {
                     $scope.doSearch(1);
                 });
             }

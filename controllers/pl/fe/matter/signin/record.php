@@ -1,5 +1,5 @@
 <?php
-namespace pl\fe\matter\enroll;
+namespace pl\fe\matter\signin;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /*
@@ -10,7 +10,7 @@ class record extends \pl\fe\matter\base {
 	 * 返回视图
 	 */
 	public function index_action() {
-		\TPL::output('/pl/fe/matter/enroll/frame');
+		\TPL::output('/pl/fe/matter/signin/frame');
 		exit;
 	}
 	/**
@@ -26,7 +26,7 @@ class record extends \pl\fe\matter\base {
 	 */
 	public function list_action($site, $app, $page = 1, $size = 30, $signinStartAt = null, $signinEndAt = null, $tags = null, $rid = null, $kw = null, $by = null, $orderby = null, $contain = null) {
 		/*应用*/
-		$modelApp = $this->model('matter\enroll');
+		$modelApp = $this->model('matter\signin');
 		$app = $modelApp->byId($app);
 		/*参数*/
 		$options = array(
@@ -41,10 +41,8 @@ class record extends \pl\fe\matter\base {
 			'orderby' => $orderby,
 			'contain' => $contain,
 		);
-		$mdoelRec = $this->model('matter\enroll\record');
+		$mdoelRec = $this->model('matter\signin\record');
 		$result = $mdoelRec->find($site, $app, $options);
-		/* 获得数据项定义 */
-		//$result->schema = json_decode($app->data_schemas);
 
 		return new \ResponseData($result);
 	}
@@ -59,12 +57,12 @@ class record extends \pl\fe\matter\base {
 
 		if (!empty($target)) {
 			/*更新应用标签*/
-			$modelApp = $this->model('matter\enroll');
+			$modelApp = $this->model('matter\signin');
 			/*给符合条件的记录打标签*/
-			$modelRec = $this->model('matter\enroll\record');
+			$modelRec = $this->model('matter\signin\record');
 			$q = array(
 				'distinct enroll_key',
-				'xxt_enroll_record_data',
+				'xxt_signin_record_data',
 				"aid='$app' and state=1",
 			);
 			$eks = null;
@@ -78,14 +76,12 @@ class record extends \pl\fe\matter\base {
 				$eks = ($eks === null) ? $eks2 : array_intersect($eks, $eks2);
 			}
 			if (!empty($eks)) {
-				$objApp = $modelApp->byId($target, array('cascaded' => 'N'));
+				$objApp = $modelApp->byId($target, array('cascade' => 'N'));
 				$options = array('cascaded' => $includeData);
 				foreach ($eks as $ek) {
 					$record = $modelRec->byId($ek, $options);
 					$user = new \stdClass;
-					$user->openid = $record->openid;
 					$user->nickname = $record->nickname;
-					$user->vid = '';
 					$newek = $modelRec->add($site, $objApp, $user);
 					if ($includeData === 'Y') {
 						$modelRec->setData($user, $site, $objApp, $newek, $record->data);
@@ -104,7 +100,7 @@ class record extends \pl\fe\matter\base {
 	public function add_action($site, $app) {
 		$posted = $this->getPostJson();
 		$current = time();
-		$modelRec = $this->model('matter\enroll\record');
+		$modelRec = $this->model('matter\signin\record');
 		$ek = $modelRec->genKey($site, $app);
 
 		$r = array();
@@ -115,9 +111,9 @@ class record extends \pl\fe\matter\base {
 		$r['signin_at'] = $current;
 		if (isset($posted->tags)) {
 			$r['tags'] = $posted->tags;
-			$this->model('matter\enroll')->updateTags($app, $posted->tags);
+			$this->model('matter\signin')->updateTags($app, $posted->tags);
 		}
-		$id = $modelRec->insert('xxt_enroll_record', $r, true);
+		$id = $modelRec->insert('xxt_signin_record', $r, true);
 		$r['id'] = $id;
 		/**
 		 * 登记数据
@@ -154,7 +150,7 @@ class record extends \pl\fe\matter\base {
 					'name' => $n,
 					'value' => $v,
 				);
-				$modelRec->insert('xxt_enroll_record_data', $cd, false);
+				$modelRec->insert('xxt_signin_record_data', $cd, false);
 				$r['data'][$n] = $v;
 			}
 		}
@@ -165,7 +161,7 @@ class record extends \pl\fe\matter\base {
 	 * 清空一条登记信息
 	 */
 	public function remove_action($site, $app, $key) {
-		$rst = $this->model('matter\enroll\record')->remove($app, $key);
+		$rst = $this->model('matter\signin\record')->remove($app, $key);
 
 		return new \ResponseData($rst);
 	}
@@ -182,12 +178,12 @@ class record extends \pl\fe\matter\base {
 		foreach ($record as $k => $v) {
 			if (in_array($k, array('signin_at', 'tags', 'comment'))) {
 				$model->update(
-					'xxt_enroll_record',
+					'xxt_signin_record',
 					array($k => $v),
 					"enroll_key='$ek'"
 				);
 				if ($k === 'tags') {
-					$this->model('matter\enroll')->updateTags($app, $v);
+					$this->model('matter\signin')->updateTags($app, $v);
 				}
 			} else if ($k === 'data' and is_object($v)) {
 				foreach ($v as $cn => $cv) {
@@ -216,12 +212,12 @@ class record extends \pl\fe\matter\base {
 					/*检查数据项是否存在，如果不存在就先创建一条*/
 					$q = array(
 						'count(*)',
-						'xxt_enroll_record_data',
+						'xxt_signin_record_data',
 						"enroll_key='$ek' and name='$cn'",
 					);
 					if (1 === (int) $model->query_val_ss($q)) {
 						$model->update(
-							'xxt_enroll_record_data',
+							'xxt_signin_record_data',
 							array('value' => $cv),
 							"enroll_key='$ek' and name='$cn'"
 						);
@@ -232,7 +228,7 @@ class record extends \pl\fe\matter\base {
 							'name' => $cn,
 							'value' => $cv,
 						);
-						$model->insert('xxt_enroll_record_data', $cd, false);
+						$model->insert('xxt_signin_record_data', $cd, false);
 					}
 					$record->data->{$cn} = $cv;
 				}

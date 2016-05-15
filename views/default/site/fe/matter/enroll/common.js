@@ -248,7 +248,7 @@ ngApp.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http,
         location.replace(url);
     };
     $scope.openMatter = function(id, type, replace, newWindow) {
-        var url = '/rest/mi/matter?mpid=' + LS.p.mpid + '&id=' + id + '&type=' + type;
+        var url = '/rest/site/fe/matter?site=' + LS.p.site + '&id=' + id + '&type=' + type;
         if (replace) {
             location.replace(url);
         } else {

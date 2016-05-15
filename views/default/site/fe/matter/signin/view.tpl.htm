@@ -8,20 +8,22 @@
         <title><?php TPL::pt('title');?></title>
         <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
         <link href='static/css/loading.css?_=1' rel="stylesheet">
-        <link href="/views/default/site/fe/matter/enroll/page.css?_=4" rel="stylesheet">
-        <link href="/views/default/site/fe/matter/enroll/directive.css?_=1" rel="stylesheet">
-        <style ng-if="Page.css" ng-bind='Page.css'></style>
+        <link href="/views/default/site/fe/matter/signin/view.css?_=4" rel="stylesheet">
+        <link href="/views/default/site/fe/matter/signin/directive.css?_=1" rel="stylesheet">
+        <style ng-if="page.css" ng-bind='page.css'></style>
     </head>
     
     <body ng-cloak class='ng-cloak'>
+        <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
         <div class="app">
             <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
             <div class='container'>
-                <div class='row' ng-controller='ctrlView' dynamic-html="Page.html">
+                <div class='row' ng-controller='ctrlView' dynamic-html="page.html">
                 </div>
             </div>
         </div>
+        <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
         <div class="loading"><div class='loading-indicator'><i></i></div></div>
-        <script src="static/js/require.js" defer async data-main="/views/default/site/fe/matter/enroll/page-loader.js?_=3"></script>
+        <script src="static/js/require.js" defer async data-main="/views/default/site/fe/matter/signin/view-loader.js?_=1"></script>
     </body>
 </html>

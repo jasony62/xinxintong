@@ -182,7 +182,7 @@ angular.module('ui.tms', ['ngSanitize']).service('http2', ['$rootScope', '$http'
             prog: '=',
             delay: '@'
         },
-        templateUrl: '/static/template/noticebox.html?_=5',
+        templateUrl: '/static/template/noticebox.html?_=6',
         controller: ['$scope', '$timeout', function($scope, $timeout) {
             $scope.closeBox = function() {
                 var msgType = '';

@@ -9,8 +9,12 @@ window.loading = {
 				"domReady": '/static/js/domReady',
 				"angular": "/static/js/angular.min",
 				"angular-sanitize": "/static/js/angular-sanitize.min",
-				"enroll-directive": "/views/default/site/fe/matter/enroll/directive",
-				"enroll-common": "/views/default/site/fe/matter/enroll/common",
+				"resumable": "/static/js/resumable.min",
+				"xxt-share": "/static/js/xxt.share",
+				"xxt-image": "/static/js/xxt.image",
+				"xxt-geo": "/static/js/xxt.geo",
+				"enroll-directive": "/views/default/site/fe/matter/signin/directive",
+				"enroll-common": "/views/default/site/fe/matter/signin/common",
 			},
 			shim: {
 				"angular": {
@@ -19,6 +23,18 @@ window.loading = {
 				"angular-sanitize": {
 					deps: ['angular'],
 					exports: "angular-sanitize"
+				},
+				"resumable": {
+					exports: "resumbale"
+				},
+				"xxt-share": {
+					exports: "xxt-share"
+				},
+				"xxt-image": {
+					exports: "xxt-image"
+				},
+				"xxt-geo": {
+					exports: "xxt-geo"
 				},
 				"enroll-common": {
 					deps: ['angular-sanitize'],
@@ -29,9 +45,38 @@ window.loading = {
 					exports: "enroll-directive"
 				},
 			},
-			deps: ['/views/default/site/fe/matter/enroll/signin.js'],
+			deps: ['/views/default/site/fe/matter/signin/signin.js'],
 			urlArgs: "bust=" + (new Date()).getTime()
 		});
 	}
 };
-window.loading.load();
+if (/MicroMessenger/i.test(navigator.userAgent)) {
+	var site = location.search.match(/[\?&]site=([^&]*)/)[1];
+	requirejs(["http://res.wx.qq.com/open/js/jweixin-1.0.0.js"], function(wx) {
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', "/rest/site/fe/matter/signin/wxjssdksignpackage?site=" + site + "&url=" + encodeURIComponent(location.href.split('#')[0]), true);
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState == 4) {
+				if (xhr.status >= 200 && xhr.status < 400) {
+					try {
+						eval("(" + xhr.responseText + ')');
+						if (signPackage) {
+							window.wx = wx;
+							signPackage.debug = false;
+							signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage', 'chooseImage', 'uploadImage'];
+							wx.config(signPackage);
+						}
+						window.loading.load();
+					} catch (e) {
+						alert('local error:' + e.toString());
+					}
+				} else {
+					alert('http error:' + xhr.statusText);
+				}
+			};
+		}
+		xhr.send();
+	});
+} else {
+	window.loading.load();
+}

@@ -1,0 +1,80 @@
+{
+	"path": "/pl/fe/matter/signin/basic",
+	"pages": [{
+		"name": "signin",
+		"title": "签到页",
+		"type": "S",
+		"data_schemas": [{
+			"id": "name",
+			"title": "名称",
+			"type": "name",
+			"showname": "label"
+		}, {
+			"id": "mobile",
+			"title": "手机",
+			"type": "mobile",
+			"showname": "label"
+		}],
+		"act_schemas": [{
+			"id": "act1",
+			"name": "submit",
+			"label": "提交信息",
+			"next": "result"
+		}]
+	}, {
+		"name": "success",
+		"title": "签到成功页",
+		"type": "V",
+		"data_schemas": [{
+			"id": "s1",
+			"pattern": "record",
+			"inline": "Y",
+			"splitLine": "Y",
+			"schema": {
+				"id": "name",
+				"title": "名称",
+				"type": "name",
+				"showname": "label"
+			}
+		}, {
+			"id": "s2",
+			"pattern": "record",
+			"inline": "Y",
+			"splitLine": "Y",
+			"schema": {
+				"id": "mobile",
+				"title": "手机",
+				"type": "mobile",
+				"showname": "label"
+			}
+		}],
+		"act_schemas": [{
+			"id": "act2",
+			"name": "editRecord",
+			"label": "重新签到",
+			"next": "signin"
+		}]
+	}],
+	"schema": [{
+		"id": "name",
+		"title": "名称",
+		"type": "name",
+		"showname": "label"
+	}, {
+		"id": "mobile",
+		"title": "手机",
+		"type": "mobile",
+		"showname": "label"
+	}],
+	"entryRule": {
+		"signed": {
+			"entry": "success",
+		},
+		"enrolled": {
+			"entry": "signin",
+		},
+		"otherwise": {
+			"entry": "signin"
+		}
+	},
+}

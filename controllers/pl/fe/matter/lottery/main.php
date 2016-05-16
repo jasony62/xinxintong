@@ -319,23 +319,15 @@ class main extends \pl\fe\matter\base {
 	 * 删除一条抽奖活动数据
 	 * todo 是否应该更新奖品数量？
 	 */
-	public function removeRoll_action($lid, $openid = '', $mid = '') {
-		if (!empty($openid)) {
-			$whichuser = "lid='$lid' and openid='$openid'";
-		} else if (!empty($mid)) {
-			$whichuser = "lid='$lid' and mid='$mid'";
-		} else {
-			die('invalid parameters.');
-		}
-
+	public function removeRoll_action($lid, $userid) {
 		$this->model()->delete(
 			'xxt_lottery_task_log',
-			$whichuser
+			"lid='$lid' and userid='$userid'"
 		);
 
 		$rst = $this->model()->delete(
 			'xxt_lottery_log',
-			$whichuser
+			"lid='$lid' and userid='$userid'"
 		);
 
 		return new \ResponseData($rst);

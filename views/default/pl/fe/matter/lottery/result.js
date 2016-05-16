@@ -67,10 +67,7 @@
             vcode = prompt('是否要删除当前用户的所有抽奖记录？，若是，请输入活动名称。');
             if (vcode === $scope.app.title) {
                 var url = '/rest/pl/fe/matter/lottery/removeRoll?lid=' + $scope.id;
-                if (r.openid && r.openid.length > 0)
-                    url += '&openid=' + r.openid;
-                else
-                    url += '&mid=' + r.mid;
+                url += '&userid=' + r.userid;
                 http2.get(url, function(rsp) {
                     $scope.refresh();
                 });

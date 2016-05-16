@@ -167,7 +167,7 @@ class TMS_DB {
 
 		$sql = $this->_assemble_query($select, $from, $where);
 
-		($db_result = $mysqli->query($sql)) || $this->show_error("database error:" . $sql . ';' . $mysql->error);
+		($db_result = $mysqli->query($sql)) || $this->show_error("database error:" . $sql . ';' . $mysqli->error);
 
 		$values = array();
 		while ($row = $db_result->fetch_row()) {

@@ -58,7 +58,7 @@ class round extends \pl\fe\matter\base {
 		 */
 		$q = array(
 			'count(*)',
-			'xxt_group_result',
+			'xxt_group_player',
 			"aid='$app' and round_id='$rid'",
 		);
 		if (0 < (int) $model->query_val_ss($q)) {

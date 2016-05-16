@@ -228,7 +228,7 @@ class main extends \pl\fe\matter\base {
 			if (empty((array) $filter)) {
 				$q = array(
 					'enroll_key',
-					'xxt_group_record',
+					'xxt_group_player',
 					"aid='$source' and state=1",
 				);
 				$eks = $modelRec->query_vals_ss($q);
@@ -236,7 +236,7 @@ class main extends \pl\fe\matter\base {
 				/* 根据过滤条件选择数据 */
 				$q = array(
 					'distinct enroll_key',
-					'xxt_group_record_data',
+					'xxt_group_player_data',
 					"aid='$source' and state=1",
 				);
 				foreach ($filter as $k => $v) {

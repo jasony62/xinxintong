@@ -138,7 +138,9 @@ define(["require", "angular"], function(require, angular) {
                 $scope.site = site;
                 $scope.article = article;
                 $scope.user = rsp.data.user;
-                window.wx || /Yixin/i.test(navigator.userAgent) && require(['xxt-share'], setMpShare);
+                if (window.wx || /Yixin/i.test(navigator.userAgent)) {
+                    require(['xxt-share'], setMpShare);
+                }
                 //loadCss("https://res.wx.qq.com/open/libs/weui/0.3.0/weui.min.css");
                 article.can_picviewer === 'Y' && require(['picviewer']);
                 deferred.resolve();

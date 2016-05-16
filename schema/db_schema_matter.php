@@ -22,6 +22,7 @@ $sql .= ",state tinyint not null default 1"; //0:stop,1:normal
 $sql .= ",title varchar(70) not null";
 $sql .= ",author varchar(16) not null"; // 作者
 $sql .= ",pic text"; // head image.
+$sql .= ",mission_id int not null default 0"; // 所属项目
 $sql .= ",hide_pic char(1) not null default 'N'"; // hide head image in body of article.
 $sql .= ",can_picviewer char(1) not null default 'N'";
 $sql .= ",can_share char(1) not null default 'N'";

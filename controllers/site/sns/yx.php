@@ -277,7 +277,7 @@ class yx extends \member_base {
 		$openid = $call['from_user'];
 		$unsubscribe_at = time();
 		$rst = $this->model()->update(
-			'xxt_fans_yxfan',
+			'xxt_site_yxfan',
 			array('unsubscribe_at' => $unsubscribe_at),
 			"siteid='$siteId' and openid='$openid'"
 		);

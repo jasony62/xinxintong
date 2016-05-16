@@ -1,4 +1,4 @@
-<div>
+<div ng-controller="ctrlExtract">
     <select ng-controller='ctrlRounds' ng-model='round' ng-change='shiftRound()' ng-options="r.round_id as r.title for r in rounds">
         <option value=''></option>
     </select>

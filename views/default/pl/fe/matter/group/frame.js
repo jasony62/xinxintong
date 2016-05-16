@@ -79,11 +79,12 @@ ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', '$modal', fun
 		app = rsp.data;
 		app.tags = (!app.tags || app.tags.length === 0) ? [] : app.tags.split(',');
 		app.type = 'group';
+		app.group_rule = app.group_rule && app.group_rule.length ? JSON.parse(app.group_rule) : {};
 		app.data_schemas = app.data_schemas && app.data_schemas.length ? JSON.parse(app.data_schemas) : [];
 		$scope.app = app;
 		$scope.url = 'http://' + location.host + '/rest/site/fe/matter/group?site=' + $scope.siteId + '&app=' + app.id;
-		if (app.page_code_id == 0) {
-			url = '/rest/pl/fe/matter/group/page/create?site=' + $scope.siteId + '&app=' + app.id;
+		if (app.page_code_id == 0 && app.scenario.length) {
+			url = '/rest/pl/fe/matter/group/page/create?site=' + $scope.siteId + '&app=' + app.id + '&scenario=' + app.scenario;
 			http2.get(url, function(rsp) {
 				app.page_code_id = rsp.data;
 			});

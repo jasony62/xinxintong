@@ -183,7 +183,7 @@ app.controller('ctrlMatter', ['$scope', '$modal', 'http2', function($scope, $mod
 		});
 	};
 	$scope.addGroup = function() {
-		http2.get('/rest/pl/fe/matter/group/createByMission?site=' + $scope.siteId + '&mission=' + $scope.id, function(rsp) {
+		http2.get('/rest/pl/fe/matter/group/create?site=' + $scope.siteId + '&mission=' + $scope.id + '&scenario=split', function(rsp) {
 			location.href = '/rest/pl/fe/matter/group?site=' + $scope.siteId + '&id=' + rsp.data.id;
 		});
 	};

@@ -49,27 +49,3 @@
         </div>
     </div>
 </div>
-<script type="text/ng-template" id="targetEditor.html">
-    <div class="modal-header">
-        <button class="close" type="button" ng-click="cancel()">×</button>
-        <h5 class="modal-title">抽取条件</h5>
-    </div>
-    <div class="modal-body">
-        <form class="form-horizontal">
-            <div class="form-group" ng-repeat="s in schemas" ng-if="s.id.indexOf('member')!==0">
-                <label class="col-md-3 control-label">{{s.title}}</label>
-                <div class="col-md-9" ng-if="s.type!=='single'&&s.type!=='multiple'">
-                    <input type='text' class='form-control' ng-model="target[s.id]">
-                </div>
-                <div class="col-md-9" ng-if="s.type==='single'||s.type==='multiple'">
-                    <select class='form-control' ng-model="target[s.id]" ng-options="op.v as op.l for op in s.ops">
-                        <option></option>
-                    </select>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="ok()">确定</button>
-    </div>
-</script>

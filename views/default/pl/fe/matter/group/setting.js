@@ -71,10 +71,54 @@
 				$scope.app.pic = '';
 			});
 		};
-
+		$scope.remove = function() {
+			if (window.confirm('确定删除？')) {
+				http2.get('/rest/pl/fe/matter/group/remove?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+					location = '/rest/pl/fe/site/console?site=' + $scope.siteId;
+				});
+			}
+		};
 	}]);
-	ngApp.provider.controller('ctrlRound', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+	ngApp.provider.controller('ctrlRule', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
 		$scope.aTargets = null;
+		$scope.configRule = function() {
+			$modal.open({
+				templateUrl: 'configRule.html',
+				resolve: {
+					rule: function() {
+						return angular.copy($scope.app.group_rule);
+					},
+					schemas: function() {
+						return angular.copy($scope.app.data_schemas);
+					}
+				},
+				controller: ['$modalInstance', '$scope', 'rule', 'schemas', function($mi, $scope, rule, schemas) {
+					$scope.schemas = [];
+					angular.forEach(schemas, function(schema) {
+						if (schema.type === 'single') {
+							$scope.schemas.push(schema);
+							if (rule.schema && rule.schema.id === schema.id) {
+								rule.schema = schema;
+							}
+						}
+					});
+					$scope.rule = rule;
+					$scope.cancel = function() {
+						$mi.dismiss();
+					};
+					$scope.ok = function() {
+						$mi.close($scope.rule);
+					};
+				}],
+				backdrop: 'static',
+			}).result.then(function(rule) {
+				var url = '/rest/pl/fe/matter/group/configRule?site=' + $scope.siteId + '&app=' + $scope.id;
+				http2.post(url, rule, function(rsp) {
+					$scope.rounds = rsp.data;
+					$scope.group_rule = rule;
+				});
+			});
+		};
 		$scope.addRound = function() {
 			http2.get('/rest/pl/fe/matter/group/round/add?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
 				$scope.rounds.push(rsp.data);
@@ -108,10 +152,10 @@
 					$scope.schemas = schemas;
 					$scope.target = {};
 					$scope.cancel = function() {
-						$mi.dismiss()
+						$mi.dismiss();
 					};
 					$scope.ok = function() {
-						$mi.close($scope.target)
+						$mi.close($scope.target);
 					};
 				}],
 				backdrop: 'static',

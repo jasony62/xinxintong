@@ -76,24 +76,33 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 创建空的分组活动
 	 *
-	 * @param string $scenario scenario's name
-	 * @param string $template template's name
+	 * @param string $site
+	 * @param string $missioon
 	 */
-	public function create_action($site) {
+	public function create_action($site, $mission = null, $scenario = '') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$current = time();
-		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
-
 		$newapp = array();
-		$id = uniqid();
+		$appId = uniqid();
+		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
+		if (empty($mission)) {
+			$newapp['summary'] = '';
+			$newapp['pic'] = $site->heading_pic;
+		} else {
+			$modelMis = $this->model('mission');
+			$mission = $modelMis->byId($mission);
+			$newapp['summary'] = $mission->summary;
+			$newapp['pic'] = $mission->pic;
+			$newapp['mission_id'] = $mission->id;
+		}
 		/*create app*/
 		$newapp['siteid'] = $site->id;
-		$newapp['id'] = $id;
+		$newapp['id'] = $appId;
 		$newapp['title'] = '新分组活动';
-		$newapp['pic'] = $site->heading_pic;
+		$newapp['scenario'] = $scenario;
 		$newapp['creater'] = $user->id;
 		$newapp['creater_src'] = $user->src;
 		$newapp['creater_name'] = $user->name;
@@ -102,56 +111,17 @@ class main extends \pl\fe\matter\base {
 		$newapp['modifier_src'] = $user->src;
 		$newapp['modifier_name'] = $user->name;
 		$newapp['modify_at'] = $current;
-		//$newapp['data_schemas'] = \TMS_MODEL::toJson($config->schema);
-		$newapp['summary'] = '';
 		$this->model()->insert('xxt_group', $newapp, false);
-		$app = $this->model('matter\group')->byId($id);
+		$app = $this->model('matter\group')->byId($appId);
 		/*记录操作日志*/
 		$app->type = 'group';
 		$this->model('log')->matterOp($site->id, $user, $app, 'C');
-
-		return new \ResponseData($app);
-	}
-	/**
-	 *
-	 * @param int $id mission'is
-	 */
-	public function createByMission_action($site, $mission) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
+		/*记录和任务的关系*/
+		if (isset($mission)) {
+			$modelMis->addMatter($user, $site->id, $mission->id, $app);
 		}
 
-		$modelMis = $this->model('mission');
-		$mission = $modelMis->byId($mission);
-		$current = time();
-
-		/*create app*/
-		$aid = uniqid();
-		//$entryRule = $this->_addBlankPage($site, $aid);
-		$newapp['siteid'] = $site;
-		$newapp['id'] = $aid;
-		$newapp['title'] = '新分组活动';
-		$newapp['pic'] = $mission->pic;
-		$newapp['creater'] = $user->id;
-		$newapp['creater_src'] = $user->src;
-		$newapp['creater_name'] = $user->name;
-		$newapp['create_at'] = $current;
-		$newapp['modifier'] = $user->id;
-		$newapp['modifier_src'] = $user->src;
-		$newapp['modifier_name'] = $user->name;
-		$newapp['modify_at'] = $current;
-		//$newapp['data_schemas'] = \TMS_MODEL::toJson($config->schema);
-		$newapp['summary'] = $mission->summary;
-		$this->model()->insert('xxt_group', $newapp, false);
-
-		$matter = $this->model('matter\group')->byId($aid);
-		/*记录操作日志*/
-		$matter->type = 'group';
-		$this->model('log')->matterOp($site, $user, $matter, 'C');
-		/*记录和任务的关系*/
-		$modelMis->addMatter($user, $site, $mission->id, $matter);
-
-		return new \ResponseData($matter);
+		return new \ResponseData($app);
 	}
 	/**
 	 * 更新活动的属性信息
@@ -160,8 +130,7 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function update_action($site, $app) {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$model = $this->model();
@@ -169,13 +138,6 @@ class main extends \pl\fe\matter\base {
 		 * 处理数据
 		 */
 		$nv = (array) $this->getPostJson();
-		foreach ($nv as $n => $v) {
-			if (in_array($n, array('entry_rule'))) {
-				$nv[$n] = $model->escape(urldecode($v));
-			} else if (in_array($n, array('data_schemas'))) {
-				$nv[$n] = $model->toJson($v);
-			}
-		}
 		$nv['modifier'] = $user->id;
 		$nv['modifier_src'] = $user->src;
 		$nv['modifier_name'] = $user->name;
@@ -192,85 +154,57 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 添加空页面
+	 * 从登记活动导入数据
 	 */
-	private function _addBlankPage($siteId, $aid) {
-		$current = time();
-		$modelPage = $this->model('app\enroll\page');
-		/* form page */
-		$page = array(
-			'title' => '登记信息页',
-			'type' => 'I',
-			'name' => 'z' . $current,
-		);
-		$page = $modelPage->add($siteId, $aid, $page);
-		/*entry rules*/
-		$entryRule = array(
-			'otherwise' => array('entry' => $page->name),
-			'member' => array('entry' => $page->name, 'enroll' => 'Y', 'remark' => 'Y'),
-			'member_outacl' => array('entry' => $page->name, 'enroll' => 'Y', 'remark' => 'Y'),
-			'fan' => array('entry' => $page->name, 'enroll' => 'Y', 'remark' => 'Y'),
-			'nonfan' => array('entry' => '$mp_follow', 'enroll' => '$mp_follow'),
-		);
-		/* result page */
-		$page = array(
-			'title' => '查看结果页',
-			'type' => 'V',
-			'name' => 'z' . ($current + 1),
-		);
-		$modelPage->add($siteId, $aid, $page);
-
-		return $entryRule;
-	}
-	/**
-	 * 根据模板生成页面
-	 *
-	 * @param string $aid
-	 * @param string $scenario scenario's name
-	 * @param string $template template's name
-	 */
-	private function &_addPageByTemplate($siteId, $aid, $scenario, $template, $customConfig) {
-		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/matter/enroll/scenario/' . $scenario . '/templates/' . $template;
-		$config = file_get_contents($templateDir . '/config.json');
-		$config = preg_replace('/\t|\r|\n/', '', $config);
-		$config = json_decode($config);
-		$pages = $config->pages;
-		if (empty($pages)) {
-			return false;
+	public function configRule_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
 		}
-		$modelPage = $this->model('app\enroll\page');
-		$modelCode = $this->model('code\page');
-		foreach ($pages as $page) {
-			$ap = $modelPage->add($siteId, $aid, (array) $page);
-			$data = array(
-				'html' => file_get_contents($templateDir . '/' . $page->name . '.html'),
-				'css' => file_get_contents($templateDir . '/' . $page->name . '.css'),
-				'js' => file_get_contents($templateDir . '/' . $page->name . '.js'),
+
+		$rounds = array();
+		$rule = $this->getPostJson();
+		$modelRnd = $this->model('matter\group\round');
+
+		/*清除原有的规则*/
+		$modelRnd->delete(
+			'xxt_group_round',
+			"aid='$app'"
+		);
+		/*create targets*/
+		$targets = array();
+		foreach ($rule->schema->ops as $op) {
+			$target = new \stdClass;
+			$target->{$rule->schema->id} = $op->v;
+			$targets[] = $target;
+		}
+		/*create round*/
+		for ($i = 0; $i < $rule->count; $i++) {
+			$prototype = array(
+				'title' => '分组' . ($i + 1),
+				'targets' => $targets,
+				'times' => $rule->times,
 			);
-			/*填充页面*/
-			$matched = array();
-			$pattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
-			if (preg_match($pattern, $data['html'], $matched)) {
-				if (isset($customConfig->simpleSchema)) {
-					$config->schema = $modelPage->schemaByText($customConfig->simpleSchema);
-				}
-				$html = $modelPage->htmlBySchema($config->schema, $matched[0]);
-				$data['html'] = preg_replace($pattern, $html, $data['html']);
-				$rst = $modelPage->update(
-					'xxt_enroll_page',
-					array('data_schemas' => \TMS_MODEL::toJson($config->schema)),
-					"aid='$aid' and id={$ap->id}"
-				);
-			}
-			$modelCode->modify($ap->code_id, $data);
+			$round = $modelRnd->create($app, $prototype);
+			$round->targets = json_decode($round->targets);
+			$rounds[] = $round;
 		}
+		/*记录规则*/
+		$rst = $modelRnd->update(
+			'xxt_group',
+			array('group_rule' => $modelRnd->toJson($rule)),
+			"id='$app'"
+		);
 
-		return $config;
+		return new \ResponseData($rounds);
 	}
 	/**
 	 * 从登记活动导入数据
 	 */
 	public function importByApp_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$modelGrp = $this->model('matter\group');
 		$modelPlayer = $this->model('matter\group\player');
 		$posted = $this->getPostJson();
@@ -293,7 +227,7 @@ class main extends \pl\fe\matter\base {
 			if (empty((array) $filter)) {
 				$q = array(
 					'enroll_key',
-					'xxt_enroll_record',
+					'xxt_group_record',
 					"aid='$source' and state=1",
 				);
 				$eks = $modelRec->query_vals_ss($q);
@@ -301,7 +235,7 @@ class main extends \pl\fe\matter\base {
 				/* 根据过滤条件选择数据 */
 				$q = array(
 					'distinct enroll_key',
-					'xxt_enroll_record_data',
+					'xxt_group_record_data',
 					"aid='$source' and state=1",
 				);
 				foreach ($filter as $k => $v) {
@@ -330,5 +264,52 @@ class main extends \pl\fe\matter\base {
 		}
 
 		return new \ResponseData('ok');
+	}
+	/**
+	 * 删除一个活动
+	 *
+	 * @param string $site
+	 * @param string $app
+	 */
+	public function remove_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$model = $this->model();
+		/*在删除数据前获得数据*/
+		$app = $this->model('matter\group')->byId($app, 'id,title,summary,pic');
+		/*删除和任务的关联*/
+		$this->model('mission')->removeMatter($site, $app->id, 'group');
+		/*check*/
+		$q = array(
+			'count(*)',
+			'xxt_group_player',
+			"siteid='$site' and aid='$app->id'",
+		);
+		if ((int) $model->query_val_ss($q) > 0) {
+			$rst = $model->update(
+				'xxt_group',
+				array('state' => 0),
+				"siteid='$site' and id='$app->id'"
+			);
+		} else {
+			$model->delete(
+				'xxt_group_round',
+				"aid='$app->id'"
+			);
+			$model->delete(
+				'xxt_group_result',
+				"aid='$app->id'"
+			);
+			$rst = $model->delete(
+				'xxt_group',
+				"siteid='$site' and id='$app->id'"
+			);
+		}
+		/*记录操作日志*/
+		$app->type = 'group';
+		$this->model('log')->matterOp($site, $user, $app, 'D');
+
+		return new \ResponseData($rst);
 	}
 }

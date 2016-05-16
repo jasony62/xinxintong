@@ -173,7 +173,7 @@ class main extends \pl\fe\matter\base {
 			}
 			$newapp['scenario'] = $scenario;
 		} else {
-			$entryRule = $this->_addBlankPage($site->id, $id);
+			$entryRule = $this->_addBlankPage($user, $site->id, $id);
 		}
 		if (empty($entryRule)) {
 			return new \ResponseError('没有获得页面进入规则');
@@ -232,7 +232,7 @@ class main extends \pl\fe\matter\base {
 			}
 			$newapp['scenario'] = $scenario;
 		} else {
-			$entryRule = $this->_addBlankPage($site, $appid);
+			$entryRule = $this->_addBlankPage($user, $site, $appid);
 		}
 		$newapp['siteid'] = $site;
 		$newapp['id'] = $appid;
@@ -427,7 +427,7 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 添加空页面
 	 */
-	private function _addBlankPage($siteId, $appid) {
+	private function _addBlankPage($user, $siteId, $appid) {
 		$current = time();
 		$modelPage = $this->model('matter\enroll\page');
 		/* form page */
@@ -436,7 +436,7 @@ class main extends \pl\fe\matter\base {
 			'type' => 'I',
 			'name' => 'z' . $current,
 		);
-		$page = $modelPage->add($siteId, $appid, $page);
+		$page = $modelPage->add($user, $siteId, $appid, $page);
 		/*entry rules*/
 		$entryRule = array(
 			'otherwise' => array('entry' => $page->name),
@@ -447,7 +447,7 @@ class main extends \pl\fe\matter\base {
 			'type' => 'V',
 			'name' => 'z' . ($current + 1),
 		);
-		$modelPage->add($siteId, $appid, $page);
+		$modelPage->add($user, $siteId, $appid, $page);
 
 		return $entryRule;
 	}
@@ -552,7 +552,6 @@ class main extends \pl\fe\matter\base {
 			);
 		}
 		/*记录操作日志*/
-		$user = $this->accountUser();
 		$app->type = 'enroll';
 		$this->model('log')->matterOp($site, $user, $app, 'D');
 

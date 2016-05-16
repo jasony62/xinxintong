@@ -10,9 +10,9 @@ class page extends \pl\fe\matter\base {
 	 * 创建分组页面
 	 *
 	 * @param string $aid
-	 * @param string $type
+	 * @param string $template
 	 */
-	public function create_action($site, $app, $type = 'carousel') {
+	public function create_action($site, $app, $scenario = 'lottery', $template = 'basic') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -21,7 +21,7 @@ class page extends \pl\fe\matter\base {
 
 		$this->model()->update('xxt_group', array('page_code_id' => $code->id), "id='$app'");
 
-		$module = TMS_APP_TEMPLATE . '/pl/fe/matter/group/' . $type;
+		$module = TMS_APP_TEMPLATE . '/pl/fe/matter/group/' . $scenario . '/' . $template;
 		/*page*/
 		$data = array(
 			'html' => file_get_contents($module . '.html'),
@@ -50,15 +50,15 @@ class page extends \pl\fe\matter\base {
 	 * 重置抽奖页面
 	 *
 	 * @param string $aid
-	 * @param string $type
+	 * @param string $template
 	 */
-	public function reset_action($site, $app, $type = 'carousel') {
+	public function reset_action($site, $app, $scenario = 'lottery', $template = 'basic') {
 		$modelCode = $this->model('code\page');
 
 		$options = array('fields' => 'page_code_id', 'cascaded' => 'N');
 		$app = $this->model('matter\group')->byId($app, $options);
 
-		$module = TMS_APP_TEMPLATE . '/pl/fe/matter/group/' . $type;
+		$module = TMS_APP_TEMPLATE . '/pl/fe/matter/group/' . $scenario . '/' . $template;
 		/*page*/
 		$data = array(
 			'html' => file_get_contents($module . '.html'),

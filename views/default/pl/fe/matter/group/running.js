@@ -7,7 +7,7 @@
 			if (app.page_code_id != 0) {
 				window.open('/rest/code?pid=' + app.page_code_id, '_self');
 			} else {
-				url = '/rest/pl/fe/matter/group/page/create?site=' + $scope.siteId + '&app=' + app.id;
+				url = '/rest/pl/fe/matter/group/page/create?site=' + $scope.siteId + '&app=' + app.id + '&scenario=' + app.scenario;
 				http2.get(url, function(rsp) {
 					app.page_code_id = rsp.data;
 					window.open('/rest/code?pid=' + app.page_code_id, '_self');
@@ -18,7 +18,7 @@
 			var app, url;
 			if (window.confirm('重置操作将丢失已做修改，确定？')) {
 				app = $scope.app;
-				url = '/rest/pl/fe/matter/group/page/reset?site=' + $scope.siteId + '&app=' + app.id;;
+				url = '/rest/pl/fe/matter/group/page/reset?site=' + $scope.siteId + '&app=' + app.id + '&scenario=' + app.scenario;
 				http2.get(url, function(rsp) {
 					window.open('/rest/code?pid=' + app.page_code_id, '_self');
 				});

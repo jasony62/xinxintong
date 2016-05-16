@@ -1,0 +1,16 @@
+<div ng-controller="ctrlSplit">
+    <table class='table table-bordered'>
+        <thead>
+        </thead>
+        <tbody>
+            <tr ng-repeat="round in rounds">
+                <td ng-bind="round.title"></td>
+                <td ng-repeat="winner in round.winners"><span ng-bind="winner.name"></span></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class='actions'>
+        <button class='btn btn-lg btn-success' ng-disabled="winners.length" ng-click='start()'>开始</button>
+        <button class='btn btn-lg btn-default' ng-click='empty()'>清空</button>
+    </div>
+</div>

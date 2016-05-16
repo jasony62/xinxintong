@@ -3,7 +3,7 @@ namespace site\op\matter\group;
 
 require_once TMS_APP_DIR . '/controllers/site/op/base.php';
 /**
- *
+ * 分组活动主控制器
  */
 class main extends \site\op\base {
 	/**
@@ -30,7 +30,7 @@ class main extends \site\op\base {
 		return new \ResponseData($params);
 	}
 	/**
-	 * 抽奖的轮次
+	 * 抽取的轮次
 	 */
 	public function roundsGet_action($app) {
 		$options = array(
@@ -67,22 +67,24 @@ class main extends \site\op\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 记录中奖人
+	 * 记录抽中的人
 	 */
-	public function done_action($app, $rid, $ek) {
-		$user = $this->getPostJson();
-
-		$i = array(
-			'aid' => $app,
-			'round_id' => $rid,
-			'enroll_key' => $ek,
-			'userid' => isset($user->uid) ? $user->uid : '',
-			'nickname' => $user->nickname,
-			'draw_at' => time(),
-		);
-
-		$this->model()->insert('xxt_group_result', $i, false);
-
+	public function done_action($app, $rid = null, $ek = null) {
+		$users = $this->getPostJson();
+		if (is_object($users)) {
+			$users = array($users);
+		}
+		foreach ($users as $user) {
+			$i = array(
+				'aid' => $app,
+				'round_id' => $user->rid,
+				'enroll_key' => $user->ek,
+				'userid' => isset($user->uid) ? $user->uid : '',
+				'nickname' => $user->nickname,
+				'draw_at' => time(),
+			);
+			$this->model()->insert('xxt_group_result', $i, false);
+		}
 		return new \ResponseData('ok');
 	}
 }

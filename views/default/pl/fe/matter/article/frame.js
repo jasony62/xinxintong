@@ -120,7 +120,7 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', 'mediagaller
 		mediagallery.open($scope.siteId, options);
 	});
 	$scope.embedMatter = function() {
-		mattersgallery.open('mattersgallery.open', function(matters, type) {
+		mattersgallery.open($scope.siteId, function(matters, type) {
 			var editor, dom, i, matter, mtype, fn;
 			editor = tinymce.get('body1');
 			dom = editor.dom;

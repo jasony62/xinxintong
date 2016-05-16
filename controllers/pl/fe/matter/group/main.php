@@ -84,6 +84,7 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$customConfig = $this->getPostJson();
 		$current = time();
 		$newapp = array();
 		$appId = uniqid();
@@ -99,9 +100,9 @@ class main extends \pl\fe\matter\base {
 			$newapp['mission_id'] = $mission->id;
 		}
 		/*create app*/
-		$newapp['siteid'] = $site->id;
 		$newapp['id'] = $appId;
-		$newapp['title'] = '新分组活动';
+		$newapp['siteid'] = $site->id;
+		$newapp['title'] = empty($customConfig->proto->title) ? '新登记活动' : $customConfig->proto->title;
 		$newapp['scenario'] = $scenario;
 		$newapp['creater'] = $user->id;
 		$newapp['creater_src'] = $user->src;

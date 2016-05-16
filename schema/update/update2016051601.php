@@ -2,6 +2,7 @@
 require_once '../../db.php';
 
 $sqls = array();
+$sqls[] = "alter table xxt_enroll add mission_id int not null default 0 after pic";
 $sqls[] = "alter table xxt_group add mission_id int not null default 0 after pic";
 $sqls[] = "alter table xxt_group add scenario varchar(255) not null default '' after mission_id";
 $sqls[] = "alter table xxt_group add group_rule text after scenario";

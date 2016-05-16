@@ -68,10 +68,10 @@
 	}],
 	"entryRule": {
 		"signed": {
-			"entry": "success",
+			"entry": "success"
 		},
 		"enrolled": {
-			"entry": "signin",
+			"entry": "signin"
 		},
 		"otherwise": {
 			"entry": "signin"

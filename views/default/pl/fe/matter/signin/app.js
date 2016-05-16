@@ -238,9 +238,9 @@
 				}
 			});
 		});
-		$scope.chooseSchema = function() {
+		var chooseInput = function() {
 			$modal.open({
-				templateUrl: '/views/default/pl/fe/matter/signin/component/chooseSchema.html?_=1',
+				templateUrl: '/views/default/pl/fe/matter/signin/component/chooseInput.html?_=1',
 				backdrop: 'static',
 				resolve: {
 					schemas: function() {
@@ -261,6 +261,7 @@
 					};
 				}],
 			}).result.then(function(choosed) {
+				var editor = tinymce.get('tinymce-page');
 				angular.forEach(choosed, function(schema) {
 					var dataSchemas = $scope.ep.data_schemas,
 						i = 0,
@@ -270,15 +271,110 @@
 						delete schema._selected;
 						dataSchemas.push(schema);
 					}
-					window.wrapLib.embedInput(tinymce.activeEditor, schema);
+					wrapLib.embedInput(editor, schema);
 				});
-				tinymce.activeEditor.save();
-				$scope.updPage(page, 'data_schemas');
+				editor.save();
+				$scope.updPage($scope.ep, ['data_schemas', 'html']);
 			});
 		};
-		$scope.createSchema = function() {
+		var chooseInput4View = function() {
 			$modal.open({
-				templateUrl: '/views/default/pl/fe/matter/signin/component/createSchema.html?_=1',
+				templateUrl: '/views/default/pl/fe/matter/signin/component/chooseStatic.html?_=3',
+				backdrop: 'static',
+				size: 'lg',
+				windowClass: 'auto-height',
+				resolve: {
+					app: function() {
+						return $scope.app;
+					},
+					page: function() {
+						return $scope.ep;
+					}
+				},
+				controller: ['$scope', '$modalInstance', 'app', 'page', function($scope, $mi, app, page) {
+					var choosedSchemas = [],
+						prefab = {
+							record: {
+								inline: 'Y',
+								splitLine: 'Y'
+							},
+							'record-list': {
+								inline: 'Y',
+								splitLine: 'Y',
+								dataScope: 'U',
+								autoload: 'N',
+								onclick: ''
+							},
+							'round-list': {
+								onclick: ''
+							}
+						};
+					$scope.data = {
+						pattern: 'record'
+					};
+					$scope.configs = {};
+					$scope.app = app;
+					$scope.schemas = angular.copy(app.data_schemas);
+					$scope.schemas.push({
+						id: 'enrollAt',
+						type: '_enrollAt',
+						title: '登记时间'
+					});
+					$scope.$watch('data.pattern', function(pattern) {
+						if (!pattern) return;
+						$scope.configs = angular.copy(prefab[pattern]);
+						$scope.configs.id = 's' + (new Date()).getTime();
+					});
+					$scope.choose = function(schema) {
+						schema._selected ? choosedSchemas.push(schema) : choosedSchemas.splice(choosedSchemas.indexOf(schema), 1);
+					};
+					$scope.ok = function() {
+						$scope.configs.pattern = $scope.data.pattern;
+						$scope.configs.schemas = choosedSchemas;
+						$mi.close($scope.configs);
+					};
+					$scope.cancel = function() {
+						$mi.dismiss();
+					};
+				}],
+			}).result.then(function(configs) {
+				var pattern = configs.pattern,
+					dataSchemas = $scope.ep.data_schemas,
+					editor = tinymce.get('tinymce-page');
+				if (configs.pattern === 'record' && configs.schemas.length) {
+					var baseConfig = configs,
+						schemas = configs.schemas;
+					delete baseConfig.schemas;
+					angular.forEach(schemas, function(schema) {
+						var recordConfig = angular.copy(baseConfig);
+						recordConfig.schema = schema;
+						wrapLib.embedRecord(editor, recordConfig);
+						dataSchemas.push(recordConfig);
+					});
+					editor.save();
+					$scope.updPage($scope.ep, ['data_schemas', 'html']);
+				} else if (configs.pattern === 'record-list' || configs.pattern === 'round-list') {
+					dataSchemas.push(configs);
+					if (configs.pattern === 'record-list') {
+						wrapLib.embedList(editor, configs);
+					} else {
+						wrapLib.embedRounds(editor, configs);
+					}
+					editor.save();
+					$scope.updPage($scope.ep, ['data_schemas', 'html']);
+				}
+			});
+		};
+		$scope.chooseInput = function() {
+			if ($scope.ep.type === 'S') {
+				chooseInput();
+			} else if ($scope.ep.type === 'V') {
+				chooseInput4View();
+			}
+		};
+		$scope.createInput = function() {
+			$modal.open({
+				templateUrl: '/views/default/pl/fe/matter/signin/component/createInput.html?_=1',
 				resolve: {
 					schema: function() {
 						return false;
@@ -442,8 +538,8 @@
 				singleMatter: true
 			});
 		};
-		$scope.gotoCode = function(codeid) {
-			window.open('/rest/code?pid=' + codeid, '_self');
+		$scope.gotoCode = function() {
+			window.open('/rest/code?pid=' + $scope.ep.code_id, '_self');
 		};
 		$scope.onPageChange = function() {
 			$scope.ep.$$modified = true;

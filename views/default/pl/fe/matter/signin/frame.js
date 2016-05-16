@@ -109,6 +109,7 @@ ngApp.controller('ctrlFrame', ['$scope', '$location', '$q', 'http2', function($s
 	$scope.update = function(name) {
 		modifiedData[name] = $scope.app[name];
 		$scope.modified = true;
+		$scope.submit();
 	};
 	$scope.getApp = function() {
 		http2.get('/rest/pl/fe/matter/signin/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {

@@ -73,6 +73,7 @@ ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', '$modal', fun
 			modifiedData[name] = $scope.app[name];
 		}
 		$scope.modified = true;
+		$scope.submit();
 	};
 	http2.get('/rest/pl/fe/matter/group/get?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
 		var app, url;

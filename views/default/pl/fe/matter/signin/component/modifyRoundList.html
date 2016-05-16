@@ -1,0 +1,14 @@
+<div class="modal-header">
+    <button class="close" ng-click="cancel()" type="button">×</button>
+   	<h5 class="modal-title">修改</h5>
+</div>
+<div class="modal-body">
+    <select class='form-control' ng-model="configs.onclick">
+        <option value=''>不跳转</option>
+        <option value='{{p.name}}' ng-repeat='p in app.pages'>{{p.title}}</option>
+    </select>
+    <div class='help-block'>选中后跳转到页面</div>
+</div>
+<div class="modal-footer" style="margin-top:0">
+    <button class="btn btn-success" ng-click="ok()">确定</button>
+</div>

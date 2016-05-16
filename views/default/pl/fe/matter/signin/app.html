@@ -15,10 +15,10 @@
                     <button class='btn btn-default' ng-click="updPage(ep,'html')" title='保存修改' ng-disabled='!ep.$$modified'>
                     <i class='fa fa-save fa-fw'></i>
                     </button>
-                    <button class='btn btn-default' ng-click="createSchema()" title='创建登记项' ng-if="ep.type==='S'">
+                    <button class='btn btn-default' ng-click="createInput()" title='创建登记项' ng-if="ep.type==='S'">
                     <i class='fa fa-plus fa-fw'></i>
                     </button>
-                    <button class='btn btn-default' ng-click="chooseSchema()" title='添加已有登记项' ng-if="ep.type==='S'">
+                    <button class='btn btn-default' ng-click="chooseInput()" title='添加已有登记项' ng-if="ep.type==='S'">
                     <i class='fa fa-plus-square fa-fw'></i>
                     </button>
                     <button class='btn btn-default' ng-click="embedMatter()" title='添加素材'>
@@ -45,19 +45,21 @@
                     <button class='btn btn-default' title='页面设置' ng-click="gotoPageConfig()">
                     <i class='fa fa-cog fa-fw'></i>
                     </button>
+                    <button class='btn btn-default' title='编辑代码' ng-click="gotoCode()">
+                    <i class='fa fa-code fa-fw'></i>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
     <div class='col-md-4'>
         <div class='tile'>
-            <button class='btn btn-block' ng-click="submit()" ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'">保存</button>
             <button class='btn btn-block' ng-click="publish()" ng-disabled='modified' ng-class="modified?'btn-default':'btn-success'">发布</button>
             <button class='btn btn-block btn-default' ng-click="remove()">删除</button>
         </div>
         <div class='tile'>
             <div class='form-group'>
-                <input type='text' class='form-control' ng-model='app.title' ng-change="update('title');">
+                <input type='text' class='form-control' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
                 <div class='help-block'>标题：最多35个汉字，70个英文字符</div>
             </div>
             <div class='form-group'>

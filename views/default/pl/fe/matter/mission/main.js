@@ -80,6 +80,12 @@ app.controller('ctrlMatter', ['$scope', '$modal', 'http2', function($scope, $mod
 				$scope.addEnroll('registration');
 			}
 		},
+		signin: {
+			title: '签到',
+			handler: function() {
+				$scope.addSignin();
+			}
+		},
 		group: {
 			title: '分组',
 			handler: function() {
@@ -168,8 +174,12 @@ app.controller('ctrlMatter', ['$scope', '$modal', 'http2', function($scope, $mod
 			}]
 		}).result.then(function(data) {
 			var url, config;
-			url = '/rest/pl/fe/matter/enroll/createByMission?site=' + $scope.siteId + '&mission=' + $scope.id;
-			config = {};
+			url = '/rest/pl/fe/matter/enroll/create?site=' + $scope.siteId + '&mission=' + $scope.id;
+			config = {
+				proto: {
+					title: $scope.editing.title + '-报名'
+				}
+			};
 			if (data) {
 				url += '&scenario=' + data.scenario.name;
 				url += '&template=' + data.template.name;
@@ -182,14 +192,26 @@ app.controller('ctrlMatter', ['$scope', '$modal', 'http2', function($scope, $mod
 			});
 		});
 	};
-	$scope.addGroup = function() {
-		http2.get('/rest/pl/fe/matter/group/create?site=' + $scope.siteId + '&mission=' + $scope.id + '&scenario=split', function(rsp) {
-			location.href = '/rest/pl/fe/matter/group?site=' + $scope.siteId + '&id=' + rsp.data.id;
+	$scope.addSignin = function() {
+		var url = '/rest/pl/fe/matter/signin/create?site=' + $scope.siteId + '&mission=' + $scope.id,
+			config = {
+				proto: {
+					title: $scope.editing.title + '-签到'
+				}
+			};
+		http2.post(url, config, function(rsp) {
+			location.href = '/rest/pl/fe/matter/signin?site=' + $scope.siteId + '&id=' + rsp.data.id;
 		});
 	};
-	$scope.addLottery = function() {
-		http2.get('/rest/pl/fe/matter/lottery/createByMission?site=' + $scope.siteId + '&mission=' + $scope.id, function(rsp) {
-			location.href = '/rest/pl/fe/matter/lottery?site=' + $scope.siteId + '&id=' + rsp.data.id;
+	$scope.addGroup = function() {
+		var url = '/rest/pl/fe/matter/group/create?site=' + $scope.siteId + '&mission=' + $scope.id + '&scenario=split',
+			config = {
+				proto: {
+					title: $scope.editing.title + '-分组'
+				}
+			};
+		http2.post(url, config, function(rsp) {
+			location.href = '/rest/pl/fe/matter/group?site=' + $scope.siteId + '&id=' + rsp.data.id;
 		});
 	};
 	$scope.open = function(matter) {
@@ -199,7 +221,7 @@ app.controller('ctrlMatter', ['$scope', '$modal', 'http2', function($scope, $mod
 			case 'article':
 			case 'enroll':
 			case 'group':
-			case 'lottery':
+			case 'signin':
 				location.href = '/rest/pl/fe/matter/' + type + '?id=' + id + '&site=' + $scope.siteId;
 				break;
 		}
@@ -219,6 +241,7 @@ app.controller('ctrlMatter', ['$scope', '$modal', 'http2', function($scope, $mod
 			$scope.matters = rsp.data;
 			$scope.indicators = [];
 			!typeCount.registration && $scope.indicators.push(indicators.registration);
+			!typeCount.signin && $scope.indicators.push(indicators.signin);
 			!typeCount.group && $scope.indicators.push(indicators.group);
 			!typeCount.voting && $scope.indicators.push(indicators.voting);
 		});

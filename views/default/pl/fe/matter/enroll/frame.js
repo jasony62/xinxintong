@@ -268,6 +268,7 @@ ngApp.controller('ctrlFrame', ['$scope', '$location', '$q', 'http2', function($s
 			modifiedData[name] = $scope.app[name];
 		}
 		$scope.modified = true;
+		$scope.submit();
 	};
 	$scope.getApp = function() {
 		http2.get('/rest/pl/fe/matter/enroll/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {

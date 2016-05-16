@@ -83,7 +83,6 @@ class main extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-
 		$newapp = array();
 		$current = time();
 		$appId = uniqid();
@@ -105,16 +104,21 @@ class main extends \pl\fe\matter\base {
 		$pic = !empty($mission->pic) ? $mission->pic : $site->heading_pic;
 		/*用户指定的*/
 		$customConfig = $this->getPostJson();
-		$title = empty($customConfig->prototype->title) ? '新签到活动' : $customConfig->prototype->title;
+		$title = empty($customConfig->proto->title) ? '新签到活动' : $customConfig->proto->title;
 		/*模版信息*/
 		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/matter/signin/' . $template;
 		$templateConfig = file_get_contents($templateDir . '/config.json');
 		$templateConfig = preg_replace('/\t|\r|\n/', '', $templateConfig);
 		$templateConfig = json_decode($templateConfig);
-		/*登记数据*/
-		if (!empty($templateConfig->schema)) {
-			$newapp['data_schemas'] = \TMS_MODEL::toJson($templateConfig->schema);
+		if (JSON_ERROR_NONE !== json_last_error()) {
+			return new \ResponseError('解析模版数据错误：' . json_last_error_msg());
 		}
+		/*登记数据*/{
+			if (!empty($templateConfig->schema)) {
+				$newapp['data_schemas'] = \TMS_MODEL::toJson($templateConfig->schema);
+			}
+		}
+
 		/*进入规则*/
 		if (isset($templateConfig->entryRule)) {
 			$newapp['entry_rule'] = \TMS_MODEL::toJson($templateConfig->entryRule);

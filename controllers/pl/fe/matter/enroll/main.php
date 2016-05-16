@@ -103,7 +103,9 @@ class main extends \pl\fe\matter\base {
 			!empty($rounds) && $app->rounds = $rounds;
 		}
 		/*所属项目*/
-		$app->mission = $this->model('matter\mission')->byMatter($site, $app->id, 'enroll');
+		if ($app->mission_id) {
+			$app->mission = $this->model('matter\mission')->byMatter($site, $app->id, 'enroll');
+		}
 
 		return new \ResponseData($app);
 	}
@@ -143,20 +145,30 @@ class main extends \pl\fe\matter\base {
 	 * @param string $scenario scenario's name
 	 * @param string $template template's name
 	 */
-	public function create_action($site, $scenario = null, $template = null) {
+	public function create_action($site, $mission = null, $scenario = null, $template = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$customConfig = $this->getPostJson();
 		$current = time();
-		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
-
 		$newapp = array();
-		$id = uniqid();
+		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
+		/*从站点或任务获得的信息*/
+		if (empty($mission)) {
+			$newapp['pic'] = $site->heading_pic;
+			$newapp['summary'] = '';
+		} else {
+			$modelMis = $this->model('mission');
+			$mission = $modelMis->byId($mission);
+			$newapp['pic'] = $mission->pic;
+			$newapp['summary'] = $mission->summary;
+			$newapp['mission_id'] = $mission->id;
+		}
+		$appId = uniqid();
 		/*pages*/
 		if (!empty($scenario) && !empty($template)) {
-			$config = $this->_addPageByTemplate($site->id, $id, $scenario, $template, $customConfig);
+			$config = $this->_addPageByTemplate($user, $site->id, $appId, $scenario, $template, $customConfig);
 			/*进入规则*/
 			$entryRule = $config->entryRule;
 			if (isset($config->enrolled_entry_page)) {
@@ -166,23 +178,18 @@ class main extends \pl\fe\matter\base {
 			if (isset($config->scenarioConfig)) {
 				$scenarioConfig = $config->scenarioConfig;
 				$newapp['scenario_config'] = json_encode($scenarioConfig);
-				/*缺省支持签到*/
-				if ($scenarioConfig->can_signin === 'Y') {
-					$newapp['can_signin'] = 'Y';
-				}
 			}
 			$newapp['scenario'] = $scenario;
 		} else {
-			$entryRule = $this->_addBlankPage($user, $site->id, $id);
+			$entryRule = $this->_addBlankPage($user, $site->id, $appId);
 		}
 		if (empty($entryRule)) {
 			return new \ResponseError('没有获得页面进入规则');
 		}
 		/*create app*/
+		$newapp['id'] = $appId;
 		$newapp['siteid'] = $site->id;
-		$newapp['id'] = $id;
-		$newapp['title'] = empty($customConfig->prototype->title) ? '新登记活动' : $customConfig->prototype->title;
-		$newapp['pic'] = $site->heading_pic;
+		$newapp['title'] = empty($customConfig->proto->title) ? '新登记活动' : $customConfig->proto->title;
 		$newapp['creater'] = $user->id;
 		$newapp['creater_src'] = $user->src;
 		$newapp['creater_name'] = $user->name;
@@ -193,72 +200,18 @@ class main extends \pl\fe\matter\base {
 		$newapp['modify_at'] = $current;
 		$newapp['entry_rule'] = json_encode($entryRule);
 		isset($config) && $newapp['data_schemas'] = \TMS_MODEL::toJson($config->schema);
-		$newapp['summary'] = '';
+
 		$this->model()->insert('xxt_enroll', $newapp, false);
-		$app = $this->model('matter\enroll')->byId($id);
+		$app = $this->model('matter\enroll')->byId($appId);
 		/*记录操作日志*/
 		$app->type = 'enroll';
 		$this->model('log')->matterOp($site->id, $user, $app, 'C');
+		/*记录和任务的关系*/
+		if (isset($mission->id)) {
+			$modelMis->addMatter($user, $site->id, $mission->id, $app);
+		}
 
 		return new \ResponseData($app);
-	}
-	/**
-	 *
-	 * @param int $mission mission'is
-	 */
-	public function createByMission_action($site, $mission, $scenario = null, $template = null) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-		$customConfig = $this->getPostJson();
-
-		$modelMis = $this->model('mission');
-		$mission = $modelMis->byId($mission);
-		$current = time();
-
-		/*create app*/
-		$appid = uniqid();
-		/*pages*/
-		if (!empty($scenario) && !empty($template)) {
-			$config = $this->_addPageByTemplate($site, $appid, $scenario, $template, $customConfig);
-			$entryRule = $config->entryRule;
-			if (isset($config->enrolled_entry_page)) {
-				$newapp['enrolled_entry_page'] = $config->enrolled_entry_page;
-			}
-			/*场景设置*/
-			if (isset($config->scenarioConfig)) {
-				$scenarioConfig = $config->scenarioConfig;
-				$newapp['scenario_config'] = json_encode($scenarioConfig);
-			}
-			$newapp['scenario'] = $scenario;
-		} else {
-			$entryRule = $this->_addBlankPage($user, $site, $appid);
-		}
-		$newapp['siteid'] = $site;
-		$newapp['id'] = $appid;
-		$newapp['title'] = empty($customConfig->prototype->title) ? '新登记活动' : $customConfig->prototype->title;
-		$newapp['pic'] = $mission->pic;
-		$newapp['creater'] = $user->id;
-		$newapp['creater_src'] = $user->src;
-		$newapp['creater_name'] = $user->name;
-		$newapp['create_at'] = $current;
-		$newapp['modifier'] = $user->id;
-		$newapp['modifier_src'] = $user->src;
-		$newapp['modifier_name'] = $user->name;
-		$newapp['modify_at'] = $current;
-		$newapp['entry_rule'] = json_encode($entryRule);
-		$newapp['summary'] = $mission->summary;
-		isset($config) && $newapp['data_schemas'] = \TMS_MODEL::toJson($config->schema);
-		$this->model()->insert('xxt_enroll', $newapp, false);
-
-		$matter = $this->model('matter\enroll')->byId($appid);
-		/*记录操作日志*/
-		$matter->type = 'enroll';
-		$this->model('log')->matterOp($site, $user, $matter, 'C');
-		/*记录和任务的关系*/
-		$modelMis->addMatter($user, $site, $mission->id, $matter);
-
-		return new \ResponseData($matter);
 	}
 	/**
 	 * 更新活动的属性信息
@@ -458,7 +411,7 @@ class main extends \pl\fe\matter\base {
 	 * @param string $scenario scenario's name
 	 * @param string $template template's name
 	 */
-	private function &_addPageByTemplate($siteId, $app, $scenario, $template, $customConfig) {
+	private function &_addPageByTemplate(&$user, $siteId, &$app, $scenario, $template, &$customConfig) {
 		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/matter/enroll/scenario/' . $scenario . '/templates/' . $template;
 		$config = file_get_contents($templateDir . '/config.json');
 		$config = preg_replace('/\t|\r|\n/', '', $config);
@@ -470,7 +423,7 @@ class main extends \pl\fe\matter\base {
 		$modelPage = $this->model('matter\enroll\page');
 		$modelCode = $this->model('code\page');
 		foreach ($pages as $page) {
-			$ap = $modelPage->add($siteId, $app, (array) $page);
+			$ap = $modelPage->add($user, $siteId, $app, (array) $page);
 			$data = array(
 				'html' => file_get_contents($templateDir . '/' . $page->name . '.html'),
 				'css' => file_get_contents($templateDir . '/' . $page->name . '.css'),

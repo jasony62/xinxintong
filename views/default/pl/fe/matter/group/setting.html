@@ -1,11 +1,11 @@
 <div class='col-md-8'>
     <div class='tile'>
         <div class='form-group'>
-            <input type='text' class='form-control' ng-model='app.title' ng-change="update('title');">
+            <input type='text' class='form-control' ng-model="app.title" tms-auto-update tms-wait=1000 tms-update="update('title')">
             <div class='help-block'>标题：最多35个汉字，70个英文字符</div>
         </div>
         <div class='form-group'>
-            <textarea class='form-control' ng-model='app.summary' ng-change="update('summary');"></textarea>
+            <textarea class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
             <div class='help-block'>摘要（可选）：最多120个汉字，240个英文字符</div>
         </div>
         <div class='form-group'>
@@ -70,12 +70,13 @@
 </div>
 <div class='col-md-4'>
     <div class='tile'>
-        <button class='btn btn-block btn-success' ng-click='importByApp()'>导入用户</button>
-        <button class='btn btn-block' ng-click="submit()" ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'">保存</button>
         <button class='btn btn-block' ng-click="run()" ng-disabled='modified' ng-class="modified?'btn-default':'btn-success'">开始</button>
         <button class='btn btn-block btn-default' ng-click="remove()">删除</button>
     </div>
     <div class='tile'>
+        <div class='form-group'>
+            <button class='btn btn-block btn-success' ng-click='importByApp()'>导入用户</button>
+        </div>
         <div class='form-group'>
             <a href='/rest/pl/fe/matter/group/player?site={{siteId}}&id={{id}}'>分组用户</a>
         </div>

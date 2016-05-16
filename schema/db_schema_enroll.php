@@ -20,8 +20,9 @@ $sql .= ",shift2pc char(1) not null default 'N'"; //
 $sql .= ",can_taskcode char(1) not null default 'N'";
 $sql .= ",state tinyint not null default 1"; //0:删除,1:配置,2:运行
 $sql .= ",title varchar(255) not null default ''";
-$sql .= ",pic text"; // 分享或生成链接时的图片
 $sql .= ",summary varchar(240) not null default ''"; // 分享或生成链接时的摘要
+$sql .= ",pic text"; // 分享或生成链接时的图片
+$sql .= ",mission_id int not null default 0"; // 所属项目
 $sql .= ",scenario varchar(255) not null default ''"; // 登记活动场景
 $sql .= ",scenario_config text"; // 登记活动场景的配置参数
 $sql .= ",start_at int not null default 0"; // 开始时间
@@ -250,7 +251,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /*
- * 通用活动抽奖轮次
+ * 通用活动抽奖轮次（需要删除）
  */
 $sql = "create table if not exists xxt_enroll_lottery_round(";
 $sql .= "aid varchar(40) not null";
@@ -266,7 +267,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /*
- * 通用活动抽奖结果
+ * 通用活动抽奖结果（需要删除）
  */
 $sql = "create table if not exists xxt_enroll_lottery(";
 $sql .= "aid varchar(40) not null";

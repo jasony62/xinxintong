@@ -103,8 +103,14 @@ app.controller('ctrlMatter', ['$scope', '$modal', 'http2', function($scope, $mod
 		indicator.handler();
 	};
 	$scope.addArticle = function() {
-		http2.get('/rest/pl/fe/matter/article/createByMission?site=' + $scope.siteId + '&mission=' + $scope.id, function(rsp) {
-			location.href = '/rest/pl/fe/matter/article?site=' + $scope.siteId + '&id=' + rsp.data.id;
+		var url = '/rest/pl/fe/matter/article/create?site=' + $scope.siteId + '&mission=' + $scope.id,
+			config = {
+				proto: {
+					title: $scope.editing.title + '-资料'
+				}
+			};
+		http2.post(url, config, function(rsp) {
+			location.href = '/rest/pl/fe/matter/article?site=' + $scope.siteId + '&id=' + rsp.data;
 		});
 	};
 	$scope.addEnroll = function(assignedScenario) {

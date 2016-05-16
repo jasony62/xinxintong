@@ -193,6 +193,10 @@ class main extends \pl\fe\matter\base {
 			 * acl
 			 */
 			$article->acl = $this->model('acl')->byMatter($site, 'article', $id);
+			/*所属项目*/
+			if ($article->mission_id) {
+				$article->mission = $this->model('matter\mission')->byMatter($site, $app->id, 'custom');
+			}
 		}
 
 		return new \ResponseData($article);
@@ -200,15 +204,31 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 创建新图文
 	 */
-	public function create_action($site) {
+	public function create_action($site, $mission) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
-		$current = time();
-
 		$article = array();
+		$current = time();
+		$customConfig = $this->getPostJson();
+		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
+
+		/*从站点或项目获取的定义*/
+		if (empty($mission)) {
+			$article['pic'] = $site->heading_pic; //使用账号缺省头图
+			$article['summary'] = '';
+		} else {
+			$modelMis = $this->model('mission');
+			$mission = $modelMis->byId($mission);
+			$article['summary'] = $mission->summary;
+			$article['pic'] = $mission->pic;
+			$article['mission_id'] = $mission->id;
+		}
+
+		/*前端指定的信息*/
+		$article['title'] = empty($customConfig->proto->title) ? '新定制页' : $customConfig->proto->title;
+
 		$article['siteid'] = $site->id;
 		$article['creater'] = $user->id;
 		$article['creater_src'] = 'A';
@@ -218,11 +238,8 @@ class main extends \pl\fe\matter\base {
 		$article['modifier_src'] = 'A';
 		$article['modifier_name'] = $user->name;
 		$article['modify_at'] = $current;
-		$article['title'] = '新定制页';
 		$article['author'] = $user->name;
-		$article['pic'] = $site->heading_pic; //使用账号缺省头图
 		$article['hide_pic'] = 'N';
-		$article['summary'] = '';
 		$article['url'] = '';
 		$article['body'] = '';
 		$article['custom_body'] = 'Y';
@@ -234,49 +251,12 @@ class main extends \pl\fe\matter\base {
 		$matter->type = 'custom';
 		$this->model('log')->matterOp($site->id, $user, $matter, 'C');
 
-		return new \ResponseData($id);
-	}
-	/**
-	 *
-	 * @param int $id mission'is
-	 */
-	public function createByMission_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
+		/* 记录和任务的关系 */
+		if (isset($mission->id)) {
+			$modelMis->addMatter($user, $site, $mission->id, $matter);
 		}
 
-		$modelMis = $this->model('mission');
-		$mission = $modelMis->byId($id);
-		$current = time();
-
-		$article = array();
-		$article['siteid'] = $site;
-		$article['creater'] = $user->id;
-		$article['creater_src'] = 'A';
-		$article['creater_name'] = $user->name;
-		$article['create_at'] = $current;
-		$article['modifier'] = $user->id;
-		$article['modifier_src'] = 'A';
-		$article['modifier_name'] = $user->name;
-		$article['modify_at'] = $current;
-		$article['title'] = '新定制页';
-		$article['author'] = $user->name;
-		$article['pic'] = $mission->pic; //使用任务的头图
-		$article['hide_pic'] = 'N';
-		$article['summary'] = $mission->summary;
-		$article['url'] = '';
-		$article['body'] = '';
-		$article['custom_body'] = 'Y';
-		$articleId = $this->model()->insert('xxt_article', $article, true);
-		/* 记录操作日志 */
-		$matter = (object) $article;
-		$matter->id = $articleId;
-		$matter->type = 'custom';
-		$this->model('log')->matterOp($site, $user, $matter, 'C');
-		/* 记录和任务的关系 */
-		$modelMis->addMatter($user, $site, $id, $matter);
-
-		return new \ResponseData($matter);
+		return new \ResponseData($id);
 	}
 	/**
 	 * 更新单图文的字段

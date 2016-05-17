@@ -185,11 +185,15 @@ xxtMembers.controller('MemberAclController', ['$rootScope', '$scope', 'http2', '
         }
     };
     $scope.$watch('obj', function(obj) {
-        if (obj && $scope.memberschemas) objMemberSchemas();
+        if (obj && $scope.memberschemas) {
+            setObjMemberSchemas();
+        }
     });
     http2.get('/rest/pl/fe/site/member/schema/list?site=' + $scope.siteId + '&valid=Y', function(rsp) {
         $scope.memberschemas = rsp.data;
-        if ($scope.obj) setObjMemberSchemas();
+        if ($scope.obj) {
+            setObjMemberSchemas();
+        }
     });
 }]);
 xxtMembers.directive('memberacl', function() {

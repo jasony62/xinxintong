@@ -34,7 +34,7 @@ define(["require", "angular"], function(require, angular) {
             xxtShare.set($scope.article.title, sharelink, $scope.article.summary, $scope.article.pic);
         };
         var loadCss = function(css) {
-            var link, head;
+            var , head;
             link = document.createElement('link');
             link.href = css.url;
             link.rel = 'stylesheet';

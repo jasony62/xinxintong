@@ -62,7 +62,7 @@ class main extends \pl\fe\matter\base {
 		$q = array(
 			'*',
 			'xxt_contribute',
-			"siteid='$site' and state=1",
+			"siteid='$site' and state<>0",
 		);
 		$q2['o'] = 'create_at desc';
 		if ($c = $this->model()->query_objs_ss($q, $q2)) {

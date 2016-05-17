@@ -29,14 +29,18 @@ class contribute_model extends app_base {
 		return $url;
 	}
 	/**
-	 * $siteId
+	 *
+	 * @param string $siteId
+	 * @param string $appId
 	 */
-	public function &bySite($siteId) {
+	public function &bySite($siteId, $appId = null) {
 		$q = array(
 			'*',
 			'xxt_contribute c',
 			"siteid='$siteId' and (state=1 or state=2)",
 		);
+		!empty($appId) && $q[2] .= " and id='$appId'";
+
 		$q2 = array('o' => 'create_at desc');
 
 		$cs = $this->query_objs_ss($q, $q2);

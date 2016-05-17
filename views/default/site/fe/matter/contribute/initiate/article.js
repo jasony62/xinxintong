@@ -19,7 +19,13 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$modal', 'http2', 'med
     $scope.Article = new Article('initiate', $scope.siteId, $scope.entry);
     $scope.Entry = new Entry($scope.siteId, $scope.entry);
     $scope.Article.get($scope.id).then(function(data) {
+        var url;
         $scope.editing = data;
+        url = 'http://' + location.host + '/rest/site/fe/matter?site=' + $scope.siteId + '&id=' + $scope.id + '&type=article';
+        $scope.access = {
+            url: url,
+            qrcode: '/rest/site/fe/matter/contribute/qrcode?site=' + $scope.siteId + '&url=' + encodeURIComponent(url),
+        };
         !$scope.editing.attachments && ($scope.editing.attachments = []);
     }).then(function() {
         $scope.Entry.get().then(function(data) {
@@ -83,6 +89,9 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$modal', 'http2', 'med
     };
     $scope.onBodyChange = function() {
         $scope.bodyModified = true;
+    };
+    $scope.tinymceSave = function() {
+        $scope.update('body');
     };
     $scope.$on('tinymce.multipleimage.open', function(event, callback) {
         var options = {

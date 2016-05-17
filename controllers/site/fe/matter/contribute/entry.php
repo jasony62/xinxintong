@@ -12,14 +12,14 @@ class entry extends \site\fe\base {
 	 * @param string $site
 	 *
 	 */
-	public function list_action($site) {
+	public function list_action($site, $app = null) {
 		/* 身份信息*/
 		$user = $this->who;
 		$members = $this->model('site\user\member')->byUser($site, $user->uid);
 		/**
 		 * 投稿活动
 		 */
-		$entries = $this->model('matter\contribute')->bySite($site);
+		$entries = $this->model('matter\contribute')->bySite($site, $app);
 
 		$member = $members[0];
 		$mine = array();

@@ -4,7 +4,8 @@ ngApp.config(['$locationProvider', function($locationProvider) {
 }]);
 ngApp.controller('ctrlContribute', ['$scope', '$location', 'http2', function($scope, $location, http2) {
     $scope.siteId = $location.search().site;
-    http2.get('/rest/site/fe/matter/contribute/entry/list?site=' + $scope.siteId, function(rsp) {
+    $scope.appId = $location.search().app;
+    http2.get('/rest/site/fe/matter/contribute/entry/list?site=' + $scope.siteId + '&app=' + $scope.appId, function(rsp) {
         $scope.entries = rsp.data.entries;
     })
     $scope.initiate = function(entry) {

@@ -138,9 +138,11 @@ class record extends base {
 			}
 			/*在指定的登记活动中检查数据*/
 			$enrollApp = $this->model('matter\enroll')->byId($app->enroll_app_id);
-			$enrollRecord = $this->model('matter\enroll\record')->byData($user, $site, $enrollApp, $enrollData);
-			if (!$enrollRecord) {
-				return new \ResponseError('提交的数据不在指定的清单中');
+			if ($enrollApp) {
+				$enrollRecord = $this->model('matter\enroll\record')->byData($user, $site, $enrollApp, $enrollData);
+				if (!$enrollRecord) {
+					return new \ResponseError('提交的数据不在指定的清单中');
+				}
 			}
 		}
 		/**

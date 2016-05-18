@@ -1,5 +1,5 @@
 (function() {
-	ngApp.provider.controller('ctrlMember', ['$scope', '$location', 'http2', function($scope, $location, http2) {
+	ngApp.provider.controller('ctrlMember', ['$scope', '$modal', '$location', 'http2', function($scope, $modal, $location, http2) {
 		$scope.$watch('memberSchemas', function(nv) {
 			if (!nv) return;
 			$scope.schema = $scope.$parent.currentMemberSchema($location.search().schema);
@@ -48,6 +48,62 @@
 				}
 				$scope.members = members;
 				$scope.page.total = rsp.data.total;
+			});
+		};
+		$scope.editMember = function(member) {
+			$modal.open({
+				templateUrl: 'memberEditor.html',
+				backdrop: 'static',
+				resolve: {
+					schema: function() {
+						return angular.copy($scope.schema);
+					}
+				},
+				controller: ['$modalInstance', '$scope', 'schema', function($mi, $scope, schema) {
+					$scope.schema = schema;
+					$scope.member = angular.copy(member);
+					$scope.canShow = function(name) {
+						return schema && schema['attr_' + name].charAt(0) === '0';
+					};
+					$scope.close = function() {
+						$mi.dismiss();
+					};
+					$scope.ok = function() {
+						$mi.close({
+							action: 'update',
+							data: $scope.member
+						});
+					};
+					$scope.remove = function() {
+						$mi.close({
+							action: 'remove'
+						});
+					};
+				}]
+			}).result.then(function(rst) {
+				if (rst.action === 'update') {
+					var data = rst.data,
+						newData = {
+							verified: data.verified,
+							name: data.name,
+							mobile: data.mobile,
+							email: data.email,
+							email_verified: data.email_verified,
+							extattr: data.extattr
+						},
+						i, ea;
+					for (i in $scope.schema.extattr) {
+						ea = $scope.schema.extattr[i];
+						newData[ea.id] = rst.data[ea.id];
+					}
+					http2.post('/rest/pl/fe/site/member/update?site=' + $scope.siteId + '&id=' + member.id, newData, function(rsp) {
+						angular.extend(member, newData);
+					});
+				} else if (rst.action === 'remove') {
+					http2.get('/rest/pl/fe/site/member/remove?site=' + $scope.siteId + '&id=' + member.id, function() {
+						$scope.members.splice($scope.members.indexOf(member), 1);
+					});
+				}
 			});
 		};
 	}]);

@@ -34,7 +34,7 @@
                 <td ng-if="schema.attr_email[0]==0">{{m.email}}</td>
                 <td ng-if="schema.attr_email[0]==0&&schema.attr_email[4]==1">{{m.email_verified==='Y'?'通过':'未通过'}}</td>
                 <td ng-repeat='ea in schema.extattr'>{{m.extattr[ea.id]}}</td>
-                <td></td>
+                <td><a href='javascript:void(0)' ng-click='editMember(m)'>修改</a></td>
             </tr>
         </tbody>
     </table>
@@ -43,3 +43,63 @@
         <pagination style='margin:0;cursor:pointer' class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
     </div>
 </div>
+<script type="text/ng-template" id="memberEditor.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="close()">×</button>
+        <h5 class="modal-title">{{schema.title}}</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="col-md-2 control-label">认证日期</label>
+                <div class="col-md-10">
+                    <p class="form-control-static">{{member.create_at*1000|date:'yy-MM-dd hh:mm'}}</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-2 control-label">完成认证</label>
+                <div class="col-md-10">
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='member.verified'>是
+                    </label>
+                </div>
+            </div>
+            <div class="form-group" ng-if="canShow('name')">
+                <label class="col-md-2 control-label">姓名</label>
+                <div class="col-md-10">
+                    <input class="form-control" ng-model='member.name'>
+                </div>
+            </div>
+            <div class="form-group" ng-if="canShow('mobile')">
+                <label class="col-md-2 control-label">手机</label>
+                <div class="col-md-10">
+                    <input class="form-control" ng-model='member.mobile'>
+                </div>
+            </div>
+            <div class="form-group" ng-if="canShow('email')">
+                <label class="col-md-2 control-label">邮箱</label>
+                <div class="col-md-10">
+                    <input class="form-control" ng-model='member.email'>
+                </div>
+            </div>
+            <div class="form-group" ng-if='schema.attr_email[4]==1'>
+                <label class="col-md-2 control-label">邮箱验证通过</label>
+                <div class="col-md-10">
+                    <label class='checkbox-inline'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='member.email_verified'>是
+                    </label>
+                </div>
+            </div>
+            <div class="form-group" ng-repeat='ea in schema.extattr'>
+                <label class="col-md-2 control-label">{{ea.label}}</label>
+                <div class="col-md-10">
+                    <input class="form-control" ng-model='member.extattr[ea.id]'>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-danger pull-left" ng-click="remove()" ng-if='member.id'>删除</button>
+        <button class="btn btn-success" ng-click="ok()">保存</button>
+    </div>
+</script>

@@ -4,7 +4,7 @@ ngApp.config(['$locationProvider', '$routeProvider', '$controllerProvider', func
 		controller: $cp.register
 	};
 	$rp.when('/rest/pl/fe/site/user/member', {
-		templateUrl: '/views/default/pl/fe/site/user/member.html?_=1',
+		templateUrl: '/views/default/pl/fe/site/user/member.html?_=2',
 		controller: 'ctrlMember',
 		resolve: {
 			load: function($q) {

@@ -35,10 +35,9 @@ class page extends \pl\fe\matter\base {
 	 *
 	 * $aid 活动的id
 	 * $pid 页面的id，如果id==0，是固定页面
-	 * $pname 页面的名称
 	 * $cid 页面对应code page id
 	 */
-	public function update_action($site, $app, $pid, $pname, $cid) {
+	public function update_action($site, $app, $pid, $cname) {
 		$nv = $this->getPostJson();
 
 		$rst = 0;
@@ -46,7 +45,9 @@ class page extends \pl\fe\matter\base {
 			$data = array(
 				'html' => urldecode($nv->html),
 			);
-			$rst = $this->model('code\page')->modify($cid, $data);
+			$modelCode = $this->model('code\page');
+			$code = $modelCode->lastByName($site, $cname);
+			$rst = $modelCode->modify($code->id, $data);
 			unset($nv->html);
 		}
 		if ($pid != 0 && count(array_keys(get_object_vars($nv)))) {
@@ -75,10 +76,12 @@ class page extends \pl\fe\matter\base {
 	 * $aid
 	 * $pid
 	 */
-	public function remove_action($app, $pid) {
+	public function remove_action($site, $app, $pid) {
 		$page = $this->model('matter\enroll\page')->byId($app, $pid);
 
-		$this->model('code\page')->remove($page->code_id);
+		$modelCode = $this->model('code\page');
+		$code = $modelCode->lastByName($site, $cname);
+		$modelCode->remove($code->id);
 
 		$rst = $this->model()->delete('xxt_enroll_page', "aid='$app' and id=$pid");
 

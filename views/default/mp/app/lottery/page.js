@@ -30,9 +30,9 @@
             });
         };
         $scope.gotoCode = function() {
-            if ($scope.lottery.page_id != 0)
+            if ($scope.lottery.page_id != 0) {
                 location.href = '/rest/code?pid=' + $scope.lottery.page_id;
-            else {
+            } else {
                 http2.get('/rest/code/create', function(rsp) {
                     var nv = {
                         'page_id': rsp.data.id

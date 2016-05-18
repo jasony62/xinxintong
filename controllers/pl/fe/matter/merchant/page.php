@@ -10,6 +10,10 @@ class page extends \pl\fe\matter\base {
 	 *
 	 */
 	public function byShop_action($site, $shop) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$modelPage = $this->model('matter\merchant\page');
 		$modelCode = $this->model('code\page');
 
@@ -101,6 +105,10 @@ class page extends \pl\fe\matter\base {
 	 * 创建店铺下的定制页面
 	 */
 	public function createByShop_action($site, $shop, $type) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$modelPage = $this->model('matter\merchant\page');
 		$modelCode = $this->model('code\page');
 
@@ -129,6 +137,10 @@ class page extends \pl\fe\matter\base {
 	 * 获得分类下定制的页面
 	 */
 	public function byCatelog_action($catelog) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$modelCate = $this->model('matter\merchant\catelog');
 		$modelPage = $this->model('matter\merchant\page');
 
@@ -158,6 +170,10 @@ class page extends \pl\fe\matter\base {
 	 * 创建分类下的定制页面
 	 */
 	public function createByCatelog_action($site, $catelog, $type) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$modelCate = $this->model('matter\merchant\catelog');
 		$modelPage = $this->model('matter\merchant\page');
 		$modelCode = $this->model('code\page');

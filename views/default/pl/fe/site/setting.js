@@ -68,30 +68,30 @@ app.controller('ctrlSet', ['$scope', 'http2', 'mediagallery', function($scope, h
     $scope.editPage = function(event, page) {
         event.preventDefault();
         event.stopPropagation();
-        var prop = page + '_page_id',
-            pageid = $scope.site[prop];
-        if (pageid === '0') {
-            http2.get('/rest/pl/fe/site/pageCreate?site=' + $scope.siteId + '&page=' + page, function(rsp) {
-                $scope.site[prop] = new String(rsp.data.id);
-                location.href = '/rest/code?pid=' + rsp.data.id;
-            });
+        var prop = page + '_page_name',
+            name = $scope.site[prop];
+        if (name && name.length) {
+            location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + name;
         } else {
-            location.href = '/rest/code?pid=' + pageid;
+            http2.get('/rest/pl/fe/site/pageCreate?site=' + $scope.siteId + '&page=' + page, function(rsp) {
+                $scope.site[prop] = rsp.data.name;
+                location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + rsp.data.name;
+            });
         }
     };
     $scope.resetPage = function(event, page) {
         event.preventDefault();
         event.stopPropagation();
         if (window.confirm('重置操作将覆盖已经做出的修改，确定重置？')) {
-            var pageid = $scope.site[page + '_page_id'];
-            if (pageid === '0') {
-                http2.get('/rest/pl/fe/site/pageCreate?site=' + $scope.siteId + '&page=' + page, function(rsp) {
-                    $scope.site[prop] = new String(rsp.data.id);
-                    location.href = '/rest/code?pid=' + rsp.data.id;
+            var name = $scope.site[page + '_page_name'];
+            if (name && name.length) {
+                http2.get('/rest/pl/fe/site/pageReset?site=' + $scope.siteId + '&page=' + page, function(rsp) {
+                    location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + name;
                 });
             } else {
-                http2.get('/rest/pl/fe/site/pageReset?site=' + $scope.siteId + '&page=' + page, function(rsp) {
-                    location.href = '/rest/code?pid=' + pageid;
+                http2.get('/rest/pl/fe/site/pageCreate?site=' + $scope.siteId + '&page=' + page, function(rsp) {
+                    $scope.site[prop] = rsp.data.name;
+                    location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + rsp.data.name;
                 });
             }
         }
@@ -257,37 +257,41 @@ app.controller('ctrlMember', ['$scope', 'http2', '$http', '$modal', 'MemberSchem
         });
     };
     $scope.gotoCode = function(schema) {
-        if (schema.code_id != 0)
-            location.href = '/rest/code?pid=' + schema.code_id;
-        else {
-            http2.get('/rest/code/create', function(rsp) {
+        if (schema.page_code_name && schema.page_code_name.length) {
+            location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + schema.page_code_name;
+        } else {
+            http2.get('/rest/pl/fe/code/create?site=' + $scope.siteId, function(rsp) {
                 var nv = {
-                    'code_id': rsp.data.id
+                    'code_id': rsp.data.id,
+                    'page_code_name': rsp.data.name
                 };
                 service.memberSchema.update(schema, nv).then(function(rsp) {
                     schema.code_id = nv.code_id;
-                    location.href = '/rest/code?pid=' + nv.code_id;
+                    schema.page_code_name = nv.page_code_name;
+                    location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + nv.page_code_name;
                 });
             });
         }
     };
     $scope.resetCode = function(schema) {
-        if (schema.code_id === '0') {
-            http2.get('/rest/code/create', function(rsp) {
+        if (schema.page_code_name && schema.page_code_name.length) {
+            if (window.confirm('重置操作将覆盖已经做出的修改，确定重置？')) {
+                http2.get('/rest/pl/fe/site/member/schema/pageReset?site=' + $scope.siteId + '&name=' + schema.page_code_name, function(rsp) {
+                    location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + schema.page_code_name;
+                });
+            }
+        } else {
+            http2.get('/rest/pl/fe/code/create?site=' + $scope.siteId, function(rsp) {
                 var nv = {
-                    'code_id': rsp.data.id
+                    'code_id': rsp.data.id,
+                    'page_code_name': rsp.data.name
                 };
                 service.memberSchema.update(schema, nv).then(function(rsp) {
                     schema.code_id = nv.code_id;
-                    location.href = '/rest/code?pid=' + nv.code_id;
+                    schema.page_code_name = nv.page_code_name;
+                    location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + nv.page_code_name;
                 });
             });
-        } else {
-            if (window.confirm('重置操作将覆盖已经做出的修改，确定重置？')) {
-                http2.get('/rest/pl/fe/site/member/schema/pageReset?site=' + $scope.id + '&codeId=' + schema.code_id, function(rsp) {
-                    location.href = '/rest/code?pid=' + schema.code_id;
-                });
-            }
         }
     };
     service.memberSchema.get('N').then(function(schemas) {

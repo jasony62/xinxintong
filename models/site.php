@@ -20,25 +20,25 @@ class site_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function &byId($id, $options = array()) {
+	public function &byId($siteId, $options = array()) {
 		$fields = empty($options['fields']) ? '*' : $options['fields'];
 		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : '';
 		$q = array(
 			$fields,
 			'xxt_site',
-			"id='$id'",
+			"id='$siteId'",
 		);
 		if (($site = $this->query_obj_ss($q)) && !empty($cascaded)) {
 			$cascaded = explode(',', $cascaded);
 			$modelCode = \TMS_APP::M('code\page');
 			foreach ($cascaded as $field) {
-				if ($field === 'home_page_id') {
+				if ($field === 'home_page_name') {
 
-				} else if ($field === 'header_page_id' && $site->header_page_id) {
-					$site->header_page = $modelCode->byId($site->header_page_id, 'html,css,js');
-				} else if ($field === 'footer_page_id' && $site->footer_page_id) {
-					$site->footer_page = $modelCode->byId($site->footer_page_id, 'html,css,js');
-				} else if ($field === 'shift2pc_page_id') {
+				} else if ($field === 'header_page_name' && $site->header_page_name) {
+					$site->header_page = $modelCode->lastPublishedByName($siteId, $site->header_page_name, array('fields' => 'id,html,css,js'));
+				} else if ($field === 'footer_page_name' && $site->footer_page_name) {
+					$site->footer_page = $modelCode->lastPublishedByName($siteId, $site->footer_page_name, array('fields' => 'id,html,css,js'));
+				} else if ($field === 'shift2pc_page_name') {
 
 				}
 			}

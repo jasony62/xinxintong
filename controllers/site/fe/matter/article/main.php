@@ -40,7 +40,7 @@ class main extends \site\fe\matter\base {
 		$modelCode = $this->model('code\page');
 		foreach ($article->channels as &$channel) {
 			if ($channel->style_page_id) {
-				$channel->style_page = $modelCode->byId($channel->style_page_id, 'html,css,js');
+				$channel->style_page = $modelCode->lastPublishedByName($site, $channel->style_page_name, 'id,html,css,js');
 			}
 		}
 		/* 单图文所属的标签 */
@@ -59,14 +59,15 @@ class main extends \site\fe\matter\base {
 			$article->praised = $modelArticle->praised($user, $id);
 		} else if ($article->page_id) {
 			/* 定制页 */
-			$article->page = $this->model('code\page')->byId($article->page_id);
+			$modelCode = $this->model('code\page');
+			$article->page = $modelCode->lastPublishedByName($site, $article->body_page_name);
 		}
 		$data['article'] = $article;
 		$data['user'] = $user;
 		/* 站点号信息 */
 		$site = $this->model('site')->byId(
 			$site,
-			array('cascaded' => 'header_page_id,footer_page_id')
+			array('cascaded' => 'header_page_name,footer_page_name')
 		);
 		$userAgent = $_SERVER['HTTP_USER_AGENT'];
 		if (preg_match('/yixin/i', $userAgent)) {

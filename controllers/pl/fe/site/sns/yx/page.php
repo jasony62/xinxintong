@@ -24,22 +24,25 @@ class page extends \pl\fe\base {
 
 		$data = $this->_makePage($site, $template);
 
-		$code = \TMS_APP::model('code\page')->create($user->id, $data);
+		$code = \TMS_APP::model('code\page')->create($site, $user->id, $data);
 
 		$rst = $this->model()->update(
 			'xxt_site_yx',
-			array('follow_page_id' => $code->id),
+			array(
+				'follow_page_id' => $code->id,
+				'follow_page_name' => $code->name,
+			),
 			"siteid='{$site->id}'"
 		);
 
-		return new \ResponseData($code->id);
+		return new \ResponseData($code);
 	}
 	/**
 	 * 根据模版重置引导关注页面
 	 *
 	 * @param int $codeId
 	 */
-	public function reset_action($site, $codeId, $template = 'basic') {
+	public function reset_action($site, $name, $template = 'basic') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -47,7 +50,9 @@ class page extends \pl\fe\base {
 
 		$data = $this->_makePage($site, $template);
 
-		$rst = \TMS_APP::model('code\page')->modify($codeId, $data);
+		$modelCode = \TMS_APP::model('code\page');
+		$code = $modelCode->lastByName($site, $name);
+		$rst = $modelCode->modify($code->id, $data);
 
 		return new \ResponseData($rst);
 	}

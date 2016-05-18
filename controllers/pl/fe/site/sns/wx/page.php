@@ -24,11 +24,14 @@ class page extends \pl\fe\base {
 
 		$data = $this->_makePage($site, $template);
 
-		$code = \TMS_APP::model('code\page')->create($user->id, $data);
+		$code = \TMS_APP::model('code\page')->create($site, $user->id, $data);
 
 		$rst = $this->model()->update(
 			'xxt_site_wx',
-			array('follow_page_id' => $code->id),
+			array(
+				'follow_page_id' => $code->id,
+				'follow_page_name' => $code->name,
+			),
 			"siteid='{$site->id}'"
 		);
 
@@ -47,7 +50,9 @@ class page extends \pl\fe\base {
 
 		$data = $this->_makePage($site, $template);
 
-		$rst = \TMS_APP::model('code\page')->modify($codeId, $data);
+		$modelCode = \TMS_APP::model('code\page');
+		$code = $modelCode->lastByName($site, $name);
+		$rst = $modelCode->modify($code->id, $data);
 
 		return new \ResponseData($rst);
 	}

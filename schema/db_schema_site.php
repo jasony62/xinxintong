@@ -1,22 +1,26 @@
 <?php
-require_once '../db.php';
+require_once "../db.php";
 /**
  * site
  */
 $sql = "create table if not exists xxt_site(";
-$sql .= 'id varchar(32) not null';
-$sql .= ',name varchar(50) not null';
+$sql .= "id varchar(32) not null";
+$sql .= ",name varchar(50) not null";
 $sql .= ",heading_pic text"; // 缺省头图
-$sql .= ',creater varchar(40) not null';
+$sql .= ",creater varchar(40) not null";
 $sql .= ",creater_name varchar(255) not null default ''";
-$sql .= ',create_at int not null';
+$sql .= ",create_at int not null";
 $sql .= ",asparent char(1) not null default 'N'"; // 是否作为父站点
 $sql .= ",site_id varchar(32) not null default ''"; // 父站点ID
-$sql .= ',state tinyint not null default 1'; // 1:正常, 0:停用
-$sql .= ',home_page_id int not null default 0'; // 站点主页
-$sql .= ',header_page_id int not null default 0'; // 通用页头
-$sql .= ',footer_page_id int not null default 0'; // 通用页尾
-$sql .= ',shift2pc_page_id int not null default 0'; // 引导到PC端完成
+$sql .= ",state tinyint not null default 1"; // 1:正常, 0:停用
+$sql .= ",home_page_id int not null default 0"; // 站点主页
+$sql .= ",home_page_name varchar(13) not null default ''"; // 站点主页
+$sql .= ",header_page_id int not null default 0"; // 通用页头
+$sql .= ",header_page_name int not null default ''"; // 通用页头
+$sql .= ",footer_page_id int not null default 0"; // 通用页尾
+$sql .= ",footer_page_name int not null default ''"; // 通用页尾
+$sql .= ",shift2pc_page_id int not null default 0"; // 引导到PC端完成
+$sql .= ",shift2pc_page_name int not null default ''"; // 引导到PC端完成
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -30,7 +34,7 @@ $sql .= "siteid varchar(32) not null";
 $sql .= ",uid varchar(40) not null";
 $sql .= ",creater varchar(40) not null";
 $sql .= ",creater_name varchar(255) not null default ''";
-$sql .= ',create_at int not null';
+$sql .= ",create_at int not null";
 $sql .= ",primary key(siteid,uid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -117,12 +121,13 @@ $sql .= ",attr_mobile char(6) default '001000'";
 $sql .= ",attr_email char(6) default '001000'";
 $sql .= ",attr_name char(6) default '000000'";
 $sql .= ",extattr text"; // 扩展属性定义
-$sql .= ',code_id int not null default 0';
-$sql .= ',entry_statement text';
-$sql .= ',acl_statement text';
-$sql .= ',notpass_statement text';
-$sql .= ',sync_to_qy_at int not null default 0'; // 最近一次向企业号通讯录同步的时间
-$sql .= ',sync_from_qy_at int not null default 0'; // 最近一次从企业号通讯录同步的时间
+$sql .= ",code_id int not null default 0";
+$sql .= ",page_code_name varchar(13) not null default ''";
+$sql .= ",entry_statement text";
+$sql .= ",acl_statement text";
+$sql .= ",notpass_statement text";
+$sql .= ",sync_to_qy_at int not null default 0"; // 最近一次向企业号通讯录同步的时间
+$sql .= ",sync_from_qy_at int not null default 0"; // 最近一次从企业号通讯录同步的时间
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -152,7 +157,7 @@ $sql .= ",depts text"; // 所属部门
 $sql .= ",tags text"; // 所属标签
 $sql .= ",verified char(1) not null default 'N'"; // 用户是否已通过认证
 $sql .= ",forbidden char(1) not null default 'N'";
-$sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error(xxt_site_member): ' . $mysqli->error;
@@ -171,7 +176,7 @@ $sql .= ",siteid varchar(32) not null";
 $sql .= ",schema_id int not null"; // id from xxt_site_member_schema
 $sql .= ",pid int not null default 0"; // 父节点的名称
 $sql .= ",seq int not null default 0"; // 在父节点下的排列顺序
-$sql .= ',sync_at int not null'; // 数据的同步时间
+$sql .= ",sync_at int not null"; // 数据的同步时间
 $sql .= ",name varchar(20) not null default ''";
 $sql .= ",fullpath text";
 $sql .= ",extattr text"; //扩展属性

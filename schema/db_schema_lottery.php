@@ -35,6 +35,7 @@ $sql .= ',hasend_alert text'; //活动没有结束提示
 $sql .= ",show_greeting char(1) not null default 'Y'"; //是否显示中奖词
 $sql .= ",show_winners char(1) not null default 'N'"; //显示获奖人名单
 $sql .= ',page_id int not null default 0';
+$sql .= ",page_code_name varchar(13) not null default ''";
 $sql .= ",autostop char(1) not null default 'Y'";
 $sql .= ",maxstep int not null default 60";
 $sql .= ",active char(1) not null default 'N'"; //激活状态

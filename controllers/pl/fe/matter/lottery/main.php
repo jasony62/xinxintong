@@ -84,8 +84,7 @@ class main extends \pl\fe\matter\base {
 	 * 自动将转盘各个槽位的奖项设置为没有奖励的缺省奖项
 	 */
 	public function create_action($site) {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -113,15 +112,16 @@ class main extends \pl\fe\matter\base {
 		/**
 		 * 创建定制页
 		 */
-		$codeModel = $this->model('code\page');
-		$page = $codeModel->create($user->id);
+		$modelCode = $this->model('code\page');
+		$page = $modelCode->create($site, $user->id);
 		$data = array(
 			'html' => '<button ng-click="play()">开始</button>',
 			'css' => '#pattern button{width:100%;font-size:1.2em;padding:.5em 0}',
 			'js' => '',
 		);
-		$codeModel->modify($page->id, $data);
+		$modelCode->modify($page->id, $data);
 		$newone['page_id'] = $page->id;
+		$newone['page_code_name'] = $page->name;
 
 		$this->model()->insert('xxt_lottery', $newone, false);
 		/**
@@ -187,14 +187,14 @@ class main extends \pl\fe\matter\base {
 		/**
 		 * 创建定制页
 		 */
-		$codeModel = $this->model('code\page');
-		$page = $codeModel->create($user->id);
+		$modelCode = $this->model('code\page');
+		$page = $modelCode->create($user->id);
 		$data = array(
 			'html' => '<button ng-click="play()">开始</button>',
 			'css' => '#pattern button{width:100%;font-size:1.2em;padding:.5em 0}',
 			'js' => '',
 		);
-		$codeModel->modify($page->id, $data);
+		$modelCode->modify($page->id, $data);
 		$newone['page_id'] = $page->id;
 
 		$this->model()->insert('xxt_lottery', $newone, false);
@@ -277,15 +277,15 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function pageSet_action($lid, $pageid, $pattern) {
-		$codeModel = $this->model('code\page');
+		$modelCode = $this->model('code\page');
 		if ($pageid) {
-			$page = $codeModel->byId($pageid);
+			$page = $modelCode->byId($pageid);
 		} else {
 			/**
 			 * 创建定制页
 			 */
 			$uid = \TMS_CLIENT::get_client_uid();
-			$page = $codeModel->create($uid);
+			$page = $modelCode->create($uid);
 			$this->model()->update('xxt_lottery', array('page_id' => $page->id), "id='$lid'");
 		}
 		$data = array(
@@ -293,7 +293,7 @@ class main extends \pl\fe\matter\base {
 			'css' => file_get_contents(dirname(__FILE__) . '/pattern/' . $pattern . '.css'),
 			'js' => file_get_contents(dirname(__FILE__) . '/pattern/' . $pattern . '.js'),
 		);
-		$rst = $codeModel->modify($page->id, $data);
+		$rst = $modelCode->modify($page->id, $data);
 
 		return new \ResponseData($rst);
 	}

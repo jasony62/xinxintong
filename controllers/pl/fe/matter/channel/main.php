@@ -221,15 +221,18 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$code = $this->model('code\page')->create($user->id);
+		$code = $this->model('code\page')->create($site, $user->id);
 
 		$rst = $this->model()->update(
 			'xxt_channel',
-			array($page . '_page_id' => $code->id),
+			array(
+				$page . '_page_id' => $code->id,
+				$page . '_page_name' => $code->name,
+			),
 			"siteid='{$site}' and id='$id'"
 		);
 
-		return new \ResponseData(array('id' => $code->id));
+		return new \ResponseData($code);
 	}
 	/**
 	 * 重置定制页面
@@ -237,6 +240,9 @@ class main extends \pl\fe\matter\base {
 	 * @param int $codeId
 	 */
 	public function pageReset_action($site, $id, $page) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$modelChn = $this->model('matter\channel');
 		$channel = $modelChn->byId($id);
 		$data = array(
@@ -244,7 +250,9 @@ class main extends \pl\fe\matter\base {
 			'css' => '',
 			'js' => '',
 		);
-		$rst = $this->model('code\page')->modify($channel->{$page . '_page_id'}, $data);
+		$modelCode = $this->model('code\page');
+		$code = $modelCode->lastByName($site, $channel->{$page . '_page_name'});
+		$rst = $modelCode->modify($code->id, $data);
 
 		return new \ResponseData($rst);
 	}

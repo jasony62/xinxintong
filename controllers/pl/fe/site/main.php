@@ -113,8 +113,7 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	public function update_action($site) {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$nv = $this->getPostJson();
@@ -131,16 +130,21 @@ class main extends \pl\fe\base {
 	 * 创建站点首页页面
 	 */
 	public function pageCreate_action($site, $page, $template = 'basic') {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$site = $this->model('site')->byId($site);
-		$uid = \TMS_CLIENT::get_client_uid();
 
 		$data = $this->_makePage($site, $page, $template);
 
-		$code = $this->model('code\page')->create($uid, $data);
+		$code = $this->model('code\page')->create($site, $user->id, $data);
 
 		$rst = $this->model()->update(
 			'xxt_site',
-			array($page . '_page_id' => $code->id),
+			array(
+				$page . '_page_id' => $code->id,
+				$page . '_page_name' => $code->name,
+			),
 			"id='{$site->id}'"
 		);
 
@@ -152,6 +156,9 @@ class main extends \pl\fe\base {
 	 * @param int $codeId
 	 */
 	public function pageReset_action($site, $page, $template = 'basic') {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$site = $this->model('site')->byId($site);
 
 		$data = $this->_makePage($site, $page, $template);

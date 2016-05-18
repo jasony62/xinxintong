@@ -32,7 +32,8 @@ $sql .= ",url text"; // 图文消息的原文地址，即点击“阅读原文�
 $sql .= ",weight int default 0"; // 权重
 $sql .= ",custom_body char(1) not null default 'N'";
 $sql .= ",body text";
-$sql .= ",page_id int not null default 0";
+$sql .= ",page_id int not null default 0"; // 定制页，should remove
+$sql .= ",body_page_name varchar(13) not null default ''"; // 定制页
 $sql .= ",access_control char(1) not null default 'N'";
 $sql .= ",authapis text";
 $sql .= ",finished char(1) not null default 'Y'"; // 完成编辑
@@ -362,8 +363,11 @@ $sql .= ",read_num int not null default 0"; // 阅读数
 $sql .= ",share_friend_num int not null default 0"; // 分享给好友数
 $sql .= ",share_timeline_num int not null default 0"; // 分享朋友圈数
 $sql .= ',style_page_id int not null default 0'; // 样式
-$sql .= ',header_page_id int not null default 0'; // 通用页头
-$sql .= ',footer_page_id int not null default 0'; // 通用页尾
+$sql .= ",style_page_name varchar(13) not null default ''"; // 样式
+$sql .= ",header_page_id int not null default 0"; // 通用页头
+$sql .= ",header_page_name varchar(13) not null default ''"; // 通用页头
+$sql .= ",footer_page_id int not null default 0"; // 通用页尾
+$sql .= ",footer_page_name varchar(13) not null default ''"; // 通用页尾
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

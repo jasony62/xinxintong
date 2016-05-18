@@ -18,9 +18,8 @@ class page_model extends \TMS_MODEL {
 		);
 
 		$page = $this->query_obj_ss($q);
-
 		if ($page && $cascaded === 'Y') {
-			$code = \TMS_APP::M('code\page')->byId($page->code_id);
+			$code = \TMS_APP::M('code\page')->lastPublishedByName($page->siteid, $page->code_name);
 			$page->html = $code->html;
 			$page->css = $code->css;
 			$page->js = $code->js;
@@ -80,7 +79,7 @@ class page_model extends \TMS_MODEL {
 		if (count($pages) > 0 && $cascaded === 'Y') {
 			$modelCode = \TMS_APP::M('code\page');
 			foreach ($pages as &$page) {
-				$code = $modelCode->byId($page->code_id);
+				$code = $modelCode->lastPublishedByName($page->siteid, $page->code_name);
 				$page->html = $code->html;
 				$page->css = $code->css;
 				$page->js = $code->js;
@@ -97,7 +96,7 @@ class page_model extends \TMS_MODEL {
 	public function add($siteId, $data, $shopId, $catelogId = 0, $productId = 0) {
 		$uid = \TMS_CLIENT::get_client_uid();
 
-		$code = \TMS_APP::model('code\page')->create($uid);
+		$code = \TMS_APP::model('code\page')->create($siteId, $uid);
 
 		$newPage = array(
 			'siteid' => $siteId,
@@ -111,6 +110,7 @@ class page_model extends \TMS_MODEL {
 			'title' => isset($data['title']) ? $data['title'] : '新页面',
 			'seq' => $data['seq'],
 			'code_id' => $code->id,
+			'code_name' => $code->name,
 		);
 
 		$apid = $this->insert('xxt_merchant_page', $newPage, true);

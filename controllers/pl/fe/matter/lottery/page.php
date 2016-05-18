@@ -16,14 +16,23 @@ class page extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function update_action($app, $pageid, $pattern) {
-		$codeModel = $this->model('code\page');
-		if ($pageid) {
-			$page = $codeModel->byId($pageid);
+	public function update_action($site, $app, $pattern, $name = '') {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$modelCode = $this->model('code\page');
+		if (!empty($name)) {
+			$page = $modelCode->lastByName($site, $name);
 		} else {
-			$uid = \TMS_CLIENT::get_client_uid();
-			$page = $codeModel->create($uid);
-			$this->model()->update('xxt_lottery', array('page_id' => $page->id), "id='$app'");
+			$page = $modelCode->create($site, $user->id);
+			$this->model()->update(
+				'xxt_lottery',
+				array(
+					'page_id' => $page->id,
+					'page_code_name' => $page->name,
+				),
+				"id='$app'"
+			);
 		}
 		$template = TMS_APP_TEMPLATE . '/pl/fe/matter/lottery/' . $pattern;
 		$data = array(
@@ -31,7 +40,7 @@ class page extends \pl\fe\matter\base {
 			'css' => file_get_contents($template . '.css'),
 			'js' => file_get_contents($template . '.js'),
 		);
-		$rst = $codeModel->modify($page->id, $data);
+		$rst = $modelCode->modify($page->id, $data);
 
 		return new \ResponseData($rst);
 	}

@@ -175,7 +175,7 @@ class main extends base {
 
 		$params['site'] = $this->model('site')->byId(
 			$site,
-			array('cascaded' => 'header_page_id,footer_page_id')
+			array('cascaded' => 'header_page_name,footer_page_name')
 		);
 		/* 登记活动定义 */
 		$app = $this->modelApp->byId($app);
@@ -198,7 +198,7 @@ class main extends base {
 			return new \ResponseError('页面不存在');
 		}
 		$modelPage = $this->model('matter\signin\page');
-		$oPage = $modelPage->byId($app->id, $oPage->id);
+		$oPage = $modelPage->byId($app->id, $oPage->id, 'Y');
 		$params['page'] = $oPage;
 		$params['activeRound'] = $this->model('matter\signin\round')->byId($app->active_round);
 		/*登记记录*/

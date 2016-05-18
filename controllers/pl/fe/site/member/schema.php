@@ -35,27 +35,29 @@ class schema extends \pl\fe\base {
 	 *
 	 */
 	public function update_action($type, $id = null) {
-		$uid = \TMS_CLIENT::get_client_uid();
-
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$nv = $this->getPostJson();
 
 		if (empty($id)) {
 			/**
 			 * 如果是首次使用内置接口，就创建新的接口定义
 			 */
-			$codeId = $this->_pageCreate();
+			$code = $this->_pageCreate();
 			$i = array(
 				'siteid' => $this->siteId,
 				'title' => '内置认证',
 				'type' => 'inner',
 				'valid' => 'N',
-				'creater' => $uid,
+				'creater' => $user->id,
 				'create_at' => time(),
 				'entry_statement' => '无法确认您是否有权限进行该操作，请先完成【<a href="{{authapi}}">用户身份确认</a>】。',
 				'acl_statement' => '您的身份识别信息没有放入白名单中，请与系统管理员联系。',
 				'notpass_statement' => '您的邮箱还没有验证通过，若未收到验证邮件请联系系统管理员。若需要重发验证邮件，请先完成【<a href="{{authapi}}">用户身份确认</a>】。',
 				'url' => TMS_APP_API_PREFIX . "/site/fe/user/member",
-				'code_id' => $codeId,
+				'code_id' => $code->id,
+				'page_code_name' => $code->name,
 			);
 			$i = array_merge($i, (array) $nv);
 			$id = $this->model()->insert('xxt_site_member_schema', $i, true);
@@ -80,7 +82,7 @@ class schema extends \pl\fe\base {
 			}
 			$rst = $this->model()->update(
 				'xxt_site_member_schema',
-				(array) $nv,
+				$nv,
 				"siteid='$this->siteId' and id='$id'"
 			);
 		}
@@ -94,20 +96,24 @@ class schema extends \pl\fe\base {
 	 * 自定义认证接口只有在本地部署版本中才有效
 	 */
 	public function create_action() {
-		$uid = \TMS_CLIENT::get_client_uid();
-		$codeId = $this->_pageCreate();
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$code = $this->_pageCreate();
 		$i = array(
 			'siteid' => $this->siteId,
 			'title' => '',
 			'type' => 'inner',
 			'valid' => 'N',
-			'creater' => $uid,
+			'creater' => $user->id,
 			'create_at' => time(),
 			'entry_statement' => '无法确认您是否有权限进行该操作，请先完成【<a href="{{authapi}}">用户身份确认</a>】。',
 			'acl_statement' => '您的身份识别信息没有放入白名单中，请与系统管理员联系。',
 			'notpass_statement' => '您的邮箱还没有验证通过，若未收到验证邮件请联系系统管理员。若需要重发验证邮件，请先完成【<a href="{{authapi}}">用户身份确认</a>】。',
 			'url' => TMS_APP_API_PREFIX . "/site/fe/user/member",
-			'code_id' => $codeId,
+			'code_id' => $code->id,
+			'page_code_name' => $code->name,
 		);
 		$id = $this->model()->insert('xxt_site_member_schema', $i, true);
 
@@ -121,6 +127,9 @@ class schema extends \pl\fe\base {
 	 * 只有没有被使用的自定义接口才允许被删除
 	 */
 	public function delete_action($id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$rst = $this->model()->delete('xxt_site_member_schema', "siteid='$this->siteId' and id='$id' and used=0");
 
 		return new \ResponseData($rst);
@@ -130,18 +139,22 @@ class schema extends \pl\fe\base {
 	 *
 	 * @param int $codeId
 	 */
-	public function pageReset_action($codeId, $template = 'basic') {
-		$uid = \TMS_CLIENT::get_client_uid();
+	public function pageReset_action($site, $name, $template = 'basic') {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelCode = $this->model('code\page');
+		$code = $modelCode->lastByName($site, $name);
 
 		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/site/memberschema';
-
 		$data = array(
 			'html' => file_get_contents($templateDir . '/' . $template . '.html'),
 			'css' => file_get_contents($templateDir . '/' . $template . '.css'),
 			'js' => file_get_contents($templateDir . '/' . $template . '.js'),
 		);
 
-		$rst = \TMS_APP::model('code\page')->modify($codeId, $data);
+		$rst = $modelCode->modify($code->id, $data);
 
 		return new \ResponseData($rst);
 	}
@@ -159,9 +172,9 @@ class schema extends \pl\fe\base {
 			'js' => file_get_contents($templateDir . '/' . $template . '.js'),
 		);
 
-		$code = \TMS_APP::model('code\page')->create($uid, $data);
+		$code = \TMS_APP::model('code\page')->create($this->siteId, $uid, $data);
 
-		return $code->id;
+		return $code;
 	}
 	/**
 	 * 获得用户选择器的页面

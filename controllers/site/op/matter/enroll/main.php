@@ -10,7 +10,7 @@ class main extends \site\op\base {
 	 *
 	 */
 	public function index_action($app) {
-		$app = $this->model('app\enroll')->byId($app);
+		$app = $this->model('matter\enroll')->byId($app);
 		\TPL::assign('title', $app->title);
 		\TPL::output('site/op/matter/enroll/console');
 		exit;
@@ -26,7 +26,7 @@ class main extends \site\op\base {
 
 		/* 登记活动定义 */
 		$modelApp = $this->model('matter\enroll');
-		$app = $modelApp->byId($app, array('cascaded' => 'Y'));
+		$app = $modelApp->byId($app, array('cascaded' => 'Y'), 'Y');
 		$params['app'] = &$app;
 		/* 页面定义 */
 		$templateDir = TMS_APP_TEMPLATE . '/site/op/matter/enroll';

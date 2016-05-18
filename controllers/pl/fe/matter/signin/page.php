@@ -36,7 +36,7 @@ class page extends \pl\fe\matter\base {
 	 * $pid 页面的id，如果id==0，是固定页面
 	 * $cid 页面对应code page id
 	 */
-	public function update_action($site, $app, $pid, $cid) {
+	public function update_action($site, $app, $pid, $cname) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -48,7 +48,9 @@ class page extends \pl\fe\matter\base {
 			$data = array(
 				'html' => urldecode($nv->html),
 			);
-			$rst = $this->model('code\page')->modify($cid, $data);
+			$modelCode = $this->model('code\page');
+			$code = $modelCode->lastByName($site, $cname);
+			$rst = $modelCode->modify($code->id, $data);
 		} else if (isset($nv->js)) {
 			$data = array(
 				'js' => urldecode($nv->js),
@@ -87,7 +89,9 @@ class page extends \pl\fe\matter\base {
 
 		$page = $this->model('matter\signin\page')->byId($app, $pid);
 
-		$this->model('code\page')->remove($page->code_id);
+		$modelCode = $this->model('code\page');
+		$code = $modelCode->lastByName($site, $cname);
+		$modelCode->remove($code->id);
 
 		$rst = $this->model()->delete('xxt_signin_page', "aid='$app' and id=$pid");
 

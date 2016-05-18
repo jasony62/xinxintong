@@ -136,30 +136,30 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', function($sc
 	$scope.editPage = function(event, page) {
 		event.preventDefault();
 		event.stopPropagation();
-		var prop = page + '_page_id',
-			pageid = $scope.editing[prop];
-		if (pageid === '0') {
-			http2.get('/rest/pl/fe/matter/channel/pageCreate?site=' + $scope.siteId + '&id=' + $scope.id + '&page=' + page, function(rsp) {
-				$scope.editing[prop] = new String(rsp.data.id);
-				location.href = '/rest/code?pid=' + rsp.data.id;
-			});
+		var prop = page + '_page_name',
+			codeName = $scope.editing[prop];
+		if (codeName && codeName.length) {
+			location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + codeName;
 		} else {
-			location.href = '/rest/code?pid=' + pageid;
+			http2.get('/rest/pl/fe/matter/channel/pageCreate?site=' + $scope.siteId + '&id=' + $scope.id + '&page=' + page, function(rsp) {
+				$scope.editing[prop] = rsp.data.name;
+				location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + rsp.data.name;
+			});
 		}
 	};
 	$scope.resetPage = function(event, page) {
 		event.preventDefault();
 		event.stopPropagation();
 		if (window.confirm('重置操作将覆盖已经做出的修改，确定重置？')) {
-			var pageid = $scope.editing[page + '_page_id'];
-			if (pageid === '0') {
-				http2.get('/rest/pl/fe/matter/channel/pageCreate?site=' + $scope.siteId + '&id=' + $scope.id + '&page=' + page, function(rsp) {
-					$scope.editing[prop] = new String(rsp.data.id);
-					location.href = '/rest/code?pid=' + rsp.data.id;
+			var codeName = $scope.editing[page + '_page_name'];
+			if (codeName && codeName.length) {
+				http2.get('/rest/pl/fe/matter/channel/pageReset?site=' + $scope.siteId + '&id=' + $scope.id + '&page=' + page, function(rsp) {
+					location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + codeName;
 				});
 			} else {
-				http2.get('/rest/pl/fe/matter/channel/pageReset?site=' + $scope.siteId + '&id=' + $scope.id + '&page=' + page, function(rsp) {
-					location.href = '/rest/code?pid=' + pageid;
+				http2.get('/rest/pl/fe/matter/channel/pageCreate?site=' + $scope.siteId + '&id=' + $scope.id + '&page=' + page, function(rsp) {
+					$scope.editing[prop] = rsp.data.name;
+					location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + rsp.data.name;
 				});
 			}
 		}

@@ -138,8 +138,7 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function list_action($site, $page = 1, $size = 30) {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 

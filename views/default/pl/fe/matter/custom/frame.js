@@ -74,17 +74,19 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', function($scop
 		$scope.update('pic');
 	};
 	$scope.gotoCode = function() {
-		if ($scope.editing.page_id != 0) {
-			window.open('/rest/code?pid=' + $scope.editing.page_id);
+		var name = $scope.editing.body_page_name;
+		if (name && name.length) {
+			window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + name);
 		} else {
-			http2.get('/rest/code/create', function(rsp) {
+			http2.get('/rest/pl/fe/code/create?site=' + $scope.siteId, function(rsp) {
 				var nv = {
-					'page_id': rsp.data.id
+					'page_id': rsp.data.id,
+					'body_page_name': rsp.data.name
 				};
 				http2.post('/rest/pl/fe/matter/custom/update?site=' + $scope.siteId + '&id=' + $scope.id, nv, function() {
 					$scope.editing.page_id = rsp.data.id;
-					//location.href = '/rest/code?pid=' + rsp.data.id;
-					window.open('/rest/code?pid=' + rsp.data.id);
+					$scope.editing.body_page_name = rsp.data.name;
+					window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + rsp.data.name);
 				});
 			});
 		}

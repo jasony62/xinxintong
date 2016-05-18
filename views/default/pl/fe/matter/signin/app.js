@@ -539,7 +539,7 @@
 			});
 		};
 		$scope.gotoCode = function() {
-			window.open('/rest/code?pid=' + $scope.ep.code_id, '_self');
+			window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + $scope.ep.code_name, '_self');
 		};
 		$scope.onPageChange = function() {
 			$scope.ep.$$modified = true;
@@ -562,8 +562,7 @@
 				url += '?site=' + $scope.siteId;
 				url += '&app=' + $scope.id;
 				url += '&pid=' + page.id;
-				url += '&pname=' + page.name;
-				url += '&cid=' + page.code_id;
+				url += '&cname=' + page.code_name;
 				http2.post(url, p, function(rsp) {
 					$scope.persisted = angular.copy($scope.app);
 					page.$$modified = false;

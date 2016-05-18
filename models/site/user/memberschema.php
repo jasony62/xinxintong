@@ -20,8 +20,8 @@ class memberschema_model extends \TMS_MODEL {
 			if (!empty($schema->extattr)) {
 				$schema->extattr = json_decode($schema->extattr);
 			}
-			if ($schema->code_id != 0) {
-				$page = \TMS_APP::M('code\page')->byId($schema->code_id, 'html,css,js');
+			if (!empty($schema->page_code_name)) {
+				$page = \TMS_APP::M('code\page')->lastPublishedByName($schema->siteid, $schema->page_code_name, 'id,html,css,js');
 				$schema->page = $page;
 			}
 		}

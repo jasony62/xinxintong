@@ -76,6 +76,7 @@ $sql .= ",type char(1) not null default 'V'"; //I:input,V:view
 $sql .= ",title varchar(70) not null default ''";
 $sql .= ",name varchar(20) not null default ''";
 $sql .= ",code_id int not null default 0"; // from xxt_code_page
+$sql .= ",code_name varchar(13) not null default ''"; // from xxt_code_page
 $sql .= ",check_entry_rule char(1) not null default 'N'"; //
 $sql .= ",share_page char(1) not null default 'N'"; // 分享时分享当前页还是分享活动，缺省分享活动
 $sql .= ",share_summary varchar(240)"; // 分享时的摘要字段
@@ -173,7 +174,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 登记活动签到记录
+ * 登记活动签到记录（应该删除）
  */
 $sql = "create table if not exists xxt_enroll_signin_log(";
 $sql .= "id int not null auto_increment";
@@ -191,7 +192,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 活动登记评分
+ * 活动登记评分（应该删除）
  */
 $sql = "create table if not exists xxt_enroll_record_score(";
 $sql .= "id int not null auto_increment";
@@ -206,7 +207,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 活动登记评
+ * 活动登记评（应该删除）
  */
 $sql = "create table if not exists xxt_enroll_record_remark(";
 $sql .= "id int not null auto_increment";
@@ -348,6 +349,7 @@ $sql .= ",type char(1) not null default 'V'"; //S:signin,V:view
 $sql .= ",title varchar(70) not null default ''";
 $sql .= ",name varchar(20) not null default ''";
 $sql .= ",code_id int not null default 0"; // from xxt_code_page
+$sql .= ",code_name varchar(13) not null default ''"; // from xxt_code_page
 $sql .= ",seq int not null"; //页面序号
 $sql .= ",data_schemas text"; // 登记项定义
 $sql .= ",act_schemas text"; // 登记操作定义
@@ -434,6 +436,7 @@ $sql .= ",group_rule text"; // 分组规则
 $sql .= ",data_schemas text";
 $sql .= ",tags text";
 $sql .= ",page_code_id int not null default 0";
+$sql .= ",page_code_name varchar(13) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

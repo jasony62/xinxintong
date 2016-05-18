@@ -1252,7 +1252,7 @@
             });
         };
         $scope.gotoCode = function(codeid) {
-            window.open('/rest/code?pid=' + codeid, '_self');
+            //window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + codeid, '_self');
         };
         $scope.$on('tinymce.multipleimage.open', function(event, callback) {
             var options = {

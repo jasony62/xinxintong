@@ -34,7 +34,7 @@ define(["require", "angular"], function(require, angular) {
             xxtShare.set($scope.article.title, sharelink, $scope.article.summary, $scope.article.pic);
         };
         var loadCss = function(css) {
-            var , head;
+            var link, head;
             link = document.createElement('link');
             link.href = css.url;
             link.rel = 'stylesheet';
@@ -96,7 +96,7 @@ define(["require", "angular"], function(require, angular) {
                 $scope.user = rsp.data.user;
                 $scope.site = site;
                 if (site.header_page) {
-                    if (site.header_page.ext_css.length) {
+                    if (site.header_page.ext_css && site.header_page.ext_css.length) {
                         angular.forEach(site.header_page.ext_css, function(css) {
                             loadCss(css);
                         });
@@ -109,7 +109,7 @@ define(["require", "angular"], function(require, angular) {
                     })();
                 }
                 if (site.footer_page) {
-                    if (site.footer_page.ext_css.length) {
+                    if (site.footer_page.ext_css && site.footer_page.ext_css.length) {
                         angular.forEach(site.footer_page.ext_css, function(css) {
                             loadCss(css);
                         });

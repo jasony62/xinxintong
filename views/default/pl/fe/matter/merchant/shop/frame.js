@@ -393,7 +393,7 @@ ngApp.controller('ctrlPage', ['$scope', '$modal', 'http2', function($scope, $mod
         });
     };
     $scope.gotoCode = function(page) {
-        window.open('/rest/code?pid=' + page.code_id, '_self');
+        window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + page.code_name, '_self');
     };
     $scope.resetCode = function(page) {
         if (window.confirm('重置后将丢失已经做过的修改，确定操作？')) {

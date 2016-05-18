@@ -15,48 +15,51 @@ class entry extends \site\fe\base {
 	public function list_action($site, $app = null) {
 		/* 身份信息*/
 		$user = $this->who;
-		$members = $this->model('site\user\member')->byUser($site, $user->uid);
-		/**
-		 * 投稿活动
-		 */
-		$entries = $this->model('matter\contribute')->bySite($site, $app);
-
-		$member = $members[0];
 		$mine = array();
-		if (!empty($entries)) {
-			$modelAcl = $this->model('acl');
-			foreach ($entries as $entry) {
-				/* 可以参与投稿？ */
-				$set = "cid='$entry->id' and role='I'";
-				$entry->isInitiator = $modelAcl->canAccess2(
-					$site,
-					'xxt_contribute_user',
-					$set,
-					$member->id,
-					array($member->schema_id), false);
-				/* 可以参与审稿？ */
-				$set = "cid='$entry->id' and role='R'";
-				$entry->isReviewer = $modelAcl->canAccess2(
-					$site,
-					'xxt_contribute_user',
-					$set,
-					$member->id,
-					array($member->schema_id), true);
-				/* 可以参与版面？ */
-				$set = "cid='$entry->id' and role='T'";
-				$entry->isTypesetter = $modelAcl->canAccess2(
-					$site,
-					'xxt_contribute_user',
-					$set,
-					$member->id,
-					array($member->schema_id), true);
-				//
-				if ($entry->isInitiator || $entry->isReviewer || $entry->isTypesetter) {
-					$entry->pk = 'contribute,' . $entry->id;
-					$mine[] = $entry;
+		$members = $this->model('site\user\member')->byUser($site, $user->uid);
+		if (!empty($members)) {
+			/**
+			 * 投稿活动
+			 */
+			$entries = $this->model('matter\contribute')->bySite($site, $app);
+
+			$member = $members[0];
+			if (!empty($entries)) {
+				$modelAcl = $this->model('acl');
+				foreach ($entries as $entry) {
+					/* 可以参与投稿？ */
+					$set = "cid='$entry->id' and role='I'";
+					$entry->isInitiator = $modelAcl->canAccess2(
+						$site,
+						'xxt_contribute_user',
+						$set,
+						$member->id,
+						array($member->schema_id), false);
+					/* 可以参与审稿？ */
+					$set = "cid='$entry->id' and role='R'";
+					$entry->isReviewer = $modelAcl->canAccess2(
+						$site,
+						'xxt_contribute_user',
+						$set,
+						$member->id,
+						array($member->schema_id), true);
+					/* 可以参与版面？ */
+					$set = "cid='$entry->id' and role='T'";
+					$entry->isTypesetter = $modelAcl->canAccess2(
+						$site,
+						'xxt_contribute_user',
+						$set,
+						$member->id,
+						array($member->schema_id), true);
+					//
+					if ($entry->isInitiator || $entry->isReviewer || $entry->isTypesetter) {
+						$entry->pk = 'contribute,' . $entry->id;
+						$mine[] = $entry;
+					}
 				}
 			}
 		}
+
 		$params = array();
 		$params['entries'] = $mine;
 		$params['user'] = $user;

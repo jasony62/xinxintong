@@ -258,27 +258,28 @@ class initiate extends base {
 		$articleModel = $this->model('matter\article2');
 		$user = $this->who;
 		$app = $this->_entryApp($entry);
-		$member = $this->_initiatorMember($app);
-		$myArticles = $articleModel->byEntry($site, $entry, $member->id, '*');
-
-		if (!empty($myArticles)) {
-			$modelMem = $this->model('site\user\member');
-			foreach ($myArticles as &$a) {
-				$a->disposer = $articleModel->disposer($a->id);
-				$disposer = $a->disposer;
-				if (!empty($disposer)) {
-					$member = $modelMem->byId($disposer->mid);
-					if ($member->userid === $user->uid && $disposer->phase === 'I' && $disposer->receive_at == 0) {
-						$articleModel->update(
-							'xxt_article_review_log',
-							array('receive_at' => time()),
-							"id=" . $a->disposer->id);
+		if ($member = $this->_initiatorMember($app)) {
+			$myArticles = $articleModel->byEntry($site, $entry, $member->id, '*');
+			if (!empty($myArticles)) {
+				$modelMem = $this->model('site\user\member');
+				foreach ($myArticles as &$a) {
+					$a->disposer = $articleModel->disposer($a->id);
+					$disposer = $a->disposer;
+					if (!empty($disposer)) {
+						$member = $modelMem->byId($disposer->mid);
+						if ($member->userid === $user->uid && $disposer->phase === 'I' && $disposer->receive_at == 0) {
+							$articleModel->update(
+								'xxt_article_review_log',
+								array('receive_at' => time()),
+								"id=" . $a->disposer->id);
+						}
 					}
 				}
 			}
+			return new \ResponseData($myArticles);
 		}
 
-		return new \ResponseData($myArticles);
+		return new \ResponseData(false);
 	}
 	/**
 	 * 新建一个文稿

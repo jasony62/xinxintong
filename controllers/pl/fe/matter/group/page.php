@@ -17,10 +17,16 @@ class page extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 		$modelCode = $this->model('code\page');
-		$code = $modelCode->create($user->id);
+		$code = $modelCode->create($site, $user->id);
 
-		$this->model()->update('xxt_group', array('page_code_id' => $code->id), "id='$app'");
-
+		$this->model()->update(
+			'xxt_group',
+			array(
+				'page_code_name' => $code->name,
+				'page_code_id' => $code->id,
+			),
+			"id='$app'"
+		);
 		$module = TMS_APP_TEMPLATE . '/pl/fe/matter/group/' . $scenario . '/' . $template;
 		/*page*/
 		$data = array(
@@ -44,7 +50,7 @@ class page extends \pl\fe\matter\base {
 			}
 		}
 
-		return new \ResponseData($code->id);
+		return new \ResponseData($code);
 	}
 	/**
 	 * 重置抽奖页面
@@ -65,7 +71,8 @@ class page extends \pl\fe\matter\base {
 			'css' => file_get_contents($module . '.css'),
 			'js' => file_get_contents($module . '.js'),
 		);
-		$modelCode->modify($app->page_code_id, $data);
+		$code = $modelCode->lastByName($site, $app->page_code_name);
+		$modelCode->modify($code->id, $data);
 		/*config*/
 		$modelCode->delete('xxt_code_external', "code_id=$app->page_code_id");
 		$config = file_get_contents($module . '.json');

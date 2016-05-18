@@ -4,13 +4,14 @@
 		$scope.gotoCode = function() {
 			var app, url;
 			app = $scope.app;
-			if (app.page_code_id != 0) {
-				window.open('/rest/code?pid=' + app.page_code_id, '_self');
+			if (app.page_code_name && app.page_code_name.length) {
+				window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + app.page_code_name, '_self');
 			} else {
 				url = '/rest/pl/fe/matter/group/page/create?site=' + $scope.siteId + '&app=' + app.id + '&scenario=' + app.scenario;
 				http2.get(url, function(rsp) {
-					app.page_code_id = rsp.data;
-					window.open('/rest/code?pid=' + app.page_code_id, '_self');
+					app.page_code_id = rsp.data.id;
+					app.page_code_name = rsp.data.name;
+					window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + app.page_code_name, '_self');
 				});
 			}
 		};
@@ -20,7 +21,7 @@
 				app = $scope.app;
 				url = '/rest/pl/fe/matter/group/page/reset?site=' + $scope.siteId + '&app=' + app.id + '&scenario=' + app.scenario;
 				http2.get(url, function(rsp) {
-					window.open('/rest/code?pid=' + app.page_code_id, '_self');
+					window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + app.page_code_name, '_self');
 				});
 			}
 		};

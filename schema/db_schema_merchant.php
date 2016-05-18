@@ -45,6 +45,7 @@ $sql .= ",title varchar(70) not null default ''";
 $sql .= ",name varchar(70) not null default ''";
 $sql .= ",summary varchar(240) not null default ''";
 $sql .= ',code_id int not null default 0'; // from xxt_code_page
+$sql .= ",code_name varchar(13) not null default ''"; // from xxt_code_page
 $sql .= ",seq int not null";
 $sql .= ',primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {

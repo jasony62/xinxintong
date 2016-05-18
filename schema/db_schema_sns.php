@@ -31,6 +31,7 @@ $sql .= ",can_qrcode char(1) not null default 'N'"; //微信场景二维码
 $sql .= ",can_oauth char(1) not null default 'N'"; //微信认证
 $sql .= ",can_pay char(1) not null default 'N'"; //微信支付
 $sql .= ',follow_page_id int not null default 0'; // 引导关注页
+$sql .= ",follow_page_name varchar(13) not null default ''"; // 引导关注页
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -107,6 +108,7 @@ $sql .= ",can_oauth char(1) not null default 'N'"; //易信认证
 $sql .= ",can_p2p char(1) not null default 'N'"; //易信认证接口点对点消息
 $sql .= ",can_checkmobile char(1) not null default 'N'"; // 检查手机号是否为易信注册用户
 $sql .= ',follow_page_id int not null default 0'; // 引导关注页
+$sql .= ",follow_page_name varchar(13) not null default ''"; // 引导关注页
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -176,6 +178,7 @@ $sql .= ',jsapi_ticket text';
 $sql .= ',jsapi_ticket_expire_at int not null default 0';
 $sql .= ",can_updateab char(1) not null default 'N'"; //更新通讯录
 $sql .= ',follow_page_id int not null default 0'; // 引导关注页
+$sql .= ",follow_page_name varchar(13) not null default ''"; // 引导关注页
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

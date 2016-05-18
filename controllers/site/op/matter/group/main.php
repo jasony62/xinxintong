@@ -19,9 +19,9 @@ class main extends \site\op\base {
 	 *
 	 */
 	public function pageGet_action($app) {
-		$option = array('fields' => 'page_code_id', 'cascaded' => 'N');
+		$option = array('fields' => 'siteid,page_code_name', 'cascaded' => 'N');
 		$app = $this->model('matter\group')->byId($app, $option);
-		$page = $this->model('code\page')->byId($app->page_code_id);
+		$page = $this->model('code\page')->lastPublishedByName($app->siteid, $app->page_code_name);
 
 		$params = array(
 			'page' => $page,

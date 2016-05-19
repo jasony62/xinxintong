@@ -32,20 +32,98 @@
 				location.href = '/rest/pl/fe/matter/group/setting?site=' + $scope.siteId + '&id=' + $scope.id;
 			});
 		};
-		var getWinners = function() {
-			var url = '/rest/pl/fe/matter/group/round/winnersGet?app=' + $scope.id;
-			if ($scope.editingRound) {
-				url += '&rid=' + $scope.editingRound.round_id;
-			}
-			http2.get(url, function(rsp) {
-				$scope.winners = rsp.data;
+		$scope.editPlayer = function(player) {
+			$modal.open({
+				templateUrl: 'editorPlayer.html',
+				controller: 'ctrlEditor',
+				windowClass: 'auto-height',
+				resolve: {
+					app: function() {
+						return angular.copy($scope.app);
+					},
+					rounds: function() {
+						return $scope.rounds;
+					},
+					player: function() {
+						return angular.copy(player);
+					}
+				}
+			}).result.then(function(updated) {
+				var p = updated[0];
+				http2.post('/rest/pl/fe/matter/group/player/update?site=' + $scope.siteId + '&app=' + $scope.id + '&ek=' + player.enroll_key, p, function(rsp) {
+					//tags = updated[1];
+					//$scope.app.tags = tags;
+					angular.extend(player, rsp.data);
+				});
 			});
 		};
-		$scope.aTargets = null;
-		$scope.open = function(round) {
-			$scope.editingRound = round;
-			$scope.aTargets = (!round || round.targets.length === 0) ? [] : eval(round.targets);
-			getWinners();
+		$scope.addPlayer = function() {
+			$modal.open({
+				templateUrl: 'editorPlayer.html',
+				controller: 'ctrlEditor',
+				windowClass: 'auto-height',
+				resolve: {
+					app: function() {
+						return $scope.app;
+					},
+					rounds: function() {
+						return $scope.rounds;
+					},
+					player: function() {
+						return {
+							tags: ''
+						};
+					}
+				}
+			}).result.then(function(updated) {
+				var p = updated[0];
+				http2.post('/rest/pl/fe/matter/group/player/add?site=' + $scope.siteId + '&app=' + $scope.id, p, function(rsp) {
+					$scope.players.splice(0, 0, rsp.data);
+				});
+			});
+		};
+		$scope.removePlayer = function(record) {
+			if (window.confirm('确认删除？')) {
+				http2.get('/rest/pl/fe/matter/group/player/remove?site=' + $scope.siteId + '&app=' + $scope.id + '&ek=' + record.enroll_key, function(rsp) {
+					var i = $scope.players.indexOf(record);
+					$scope.players.splice(i, 1);
+					$scope.page.total = $scope.page.total - 1;
+				});
+			}
+		};
+		$scope.empty = function() {
+			var vcode;
+			vcode = prompt('是否要删除所有登记信息？，若是，请输入活动名称。');
+			if (vcode === $scope.app.title) {
+				http2.get('/rest/pl/fe/matter/group/player/empty?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+					$scope.doSearch(1);
+				});
+			}
+		};
+		$scope.allPlayers = function() {
+			var url = '/rest/pl/fe/matter/group/player/list?site=' + $scope.siteId + '&app=' + $scope.id;
+			http2.get(url, function(rsp) {
+				$scope.players = rsp.data.players;
+			});
+		};
+		$scope.winners = function(round) {
+			$scope.selectedRound = round;
+			var url = '/rest/pl/fe/matter/group/round/winnersGet?app=' + $scope.id;
+			url += '&rid=' + round.round_id;
+			http2.get(url, function(rsp) {
+				$scope.players = rsp.data;
+			});
+		};
+		$scope.pendings = function() {
+			var url = '/rest/pl/fe/matter/group/player/pendingsGet?app=' + $scope.id;
+			http2.get(url, function(rsp) {
+				$scope.players = rsp.data;
+			});
+		};
+		$scope.updateRound = function(name) {
+			var nv = {};
+			nv[name] = $scope.selectedRound[name];
+			http2.post('/rest/pl/fe/matter/group/round/update?site=' + $scope.siteId + '&app=' + $scope.id + '&rid=' + $scope.selectedRound.round_id, nv);
 		};
 		$scope.value2Label = function(val, key) {
 			var schemas = $scope.app.data_schemas,
@@ -66,13 +144,5 @@
 			}
 			return val;
 		};
-		$scope.$watch('app', function(nv) {
-			if (!nv) return;
-			$scope.aTags = $scope.app.tags;
-			http2.get('/rest/pl/fe/matter/group/round/list?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
-				$scope.rounds = rsp.data;
-				getWinners();
-			});
-		});
 	}]);
 })();

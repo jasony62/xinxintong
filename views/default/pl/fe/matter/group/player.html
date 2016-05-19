@@ -27,6 +27,7 @@
                     <th style='width:100px'>登记时间</th>
                     <th class='custom-col' ng-repeat="c in app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
                     <th>标签</th>
+                    <th>分组</th>
                     <th style='width:72px'>操作</th>
                 </tr>
             </thead>
@@ -47,6 +48,7 @@
                         </span>
                     </td>
                     <td>{{p.tags}}</td>
+                    <td>{{p.round_title}}</td>
                     <td>
                         <button class='btn btn-xs btn-danger' ng-click='removePlayer(p)'>
                             <span class='glyphicon glyphicon-remove'></span>
@@ -103,12 +105,6 @@
         </div>
         <div class="modal-body">
             <form class="form-horizontal player-editor">
-                <div class="form-group" ng-if='player.enroll_at'>
-                    <label class="col-md-2 control-label">登记时间</label>
-                    <div class="col-md-10">
-                        <p class="form-control-static">{{player.enroll_at*1000|date:'MM-dd hh:mm'}}</p>
-                    </div>
-                </div>
                 <div class="form-group" ng-repeat="c in app.data_schemas" ng-if="c.id.indexOf('member')!==0">
                     <label class="col-md-2 control-label">{{c.title}}</label>
                     <div class="col-md-10">
@@ -131,9 +127,11 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-md-2 control-label">活动标签</label>
+                    <label class="col-md-2 control-label">所属分组</label>
                     <div class="col-md-10">
-                        <combox evt-prefix='tag' existing='player.aTags' options='aTags'></combox>
+                        <select class='form-control' ng-model="player.round_id" ng-options="r.round_id as r.title for r in rounds">
+                            <option></option>
+                        </select>
                     </div>
                 </div>
             </form>

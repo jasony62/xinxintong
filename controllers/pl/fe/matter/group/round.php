@@ -45,7 +45,14 @@ class round extends \pl\fe\matter\base {
 			$nv,
 			"aid='$app' and round_id='$rid'"
 		);
-
+		/*更新级联信息*/
+		if ($rst && isset($nv->title)) {
+			$model->update(
+				'xxt_group_player',
+				array('round_title' => $nv->title),
+				"aid='$app' and round_id='$rid'"
+			);
+		}
 		return new \ResponseData($rst);
 	}
 	/**
@@ -73,7 +80,7 @@ class round extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 中奖的人
+	 * 属于指定分组的人
 	 */
 	public function winnersGet_action($app, $rid = null) {
 		$result = $this->model('matter\group\player')->winnersByRound($app, $rid);

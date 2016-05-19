@@ -101,4 +101,59 @@ ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($sco
 			});
 		}
 	});
+	http2.get('/rest/pl/fe/matter/group/round/list?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+		$scope.rounds = rsp.data;
+	});
+}]);
+ngApp.controller('ctrlEditor', ['$scope', '$modalInstance', '$sce', 'app', 'rounds', 'player', function($scope, $mi, $sce, app, rounds, player) {
+	$scope.app = app;
+	$scope.rounds = rounds;
+	$scope.aTags = app.tags;
+	player.aTags = (!player.tags || player.tags.length === 0) ? [] : player.tags.split(',');
+	$scope.player = player;
+	$scope.json2Obj = function(json) {
+		if (json && json.length) {
+			obj = JSON.parse(json);
+			return obj;
+		} else {
+			return {};
+		}
+	};
+	$scope.ok = function() {
+		var c, p, col;
+		p = {
+			tags: $scope.player.aTags.join(','),
+			data: {},
+			round_id: $scope.player.round_id
+		};
+		$scope.player.tags = p.tags;
+		for (c in $scope.app.data_schemas) {
+			col = $scope.app.data_schemas[c];
+			p.data[col.id] = $scope.player.data[col.id];
+		}
+		$mi.close([p, $scope.aTags]);
+	};
+	$scope.cancel = function() {
+		$mi.dismiss('cancel');
+	};
+	$scope.$on('tag.xxt.combox.done', function(event, aSelected) {
+		var aNewTags = [];
+		for (var i in aSelected) {
+			var existing = false;
+			for (var j in $scope.player.aTags) {
+				if (aSelected[i] === $scope.player.aTags[j]) {
+					existing = true;
+					break;
+				}
+			}!existing && aNewTags.push(aSelected[i]);
+		}
+		$scope.player.aTags = $scope.player.aTags.concat(aNewTags);
+	});
+	$scope.$on('tag.xxt.combox.add', function(event, newTag) {
+		$scope.player.aTags.push(newTag);
+		$scope.aTags.indexOf(newTag) === -1 && $scope.aTags.push(newTag);
+	});
+	$scope.$on('tag.xxt.combox.del', function(event, removed) {
+		$scope.player.aTags.splice($scope.player.aTags.indexOf(removed), 1);
+	});
 }]);

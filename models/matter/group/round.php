@@ -3,6 +3,19 @@ namespace matter\group;
 
 class round_model extends \TMS_MODEL {
 	/**
+	 *
+	 */
+	public function &byId($id) {
+		$q = array(
+			'*',
+			'xxt_group_round',
+			"round_id='$id'",
+		);
+		$round = $this->query_obj_ss($q);
+
+		return $round;
+	}
+	/**
 	 * 创建轮次
 	 */
 	public function &create($app, $prototype = array()) {

@@ -181,10 +181,12 @@ class main extends \pl\fe\matter\base {
 		);
 		/*create targets*/
 		$targets = array();
-		foreach ($rule->schema->ops as $op) {
-			$target = new \stdClass;
-			$target->{$rule->schema->id} = $op->v;
-			$targets[] = $target;
+		if (isset($rule->schema)) {
+			foreach ($rule->schema->ops as $op) {
+				$target = new \stdClass;
+				$target->{$rule->schema->id} = $op->v;
+				$targets[] = $target;
+			}
 		}
 		/*create round*/
 		for ($i = 0; $i < $rule->count; $i++) {
@@ -236,10 +238,6 @@ class main extends \pl\fe\matter\base {
 		} else {
 			$model->delete(
 				'xxt_group_round',
-				"aid='$app->id'"
-			);
-			$model->delete(
-				'xxt_group_result',
 				"aid='$app->id'"
 			);
 			$rst = $model->delete(

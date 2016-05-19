@@ -48,43 +48,64 @@ class main extends \site\op\base {
 	 */
 	public function usersGet_action($app, $rid, $hasData = 'Y') {
 		$model = $this->model('matter\group\player');
-		$players = $model->playersByRound($app, $rid, $hasData);
+		$pendings = $model->pendings($app, $hasData);
 		$winners = $model->winnersByRound($app, $rid);
 
 		$result = array(
-			'players' => &$players,
+			'players' => &$pendings,
 			'winners' => &$winners,
 		);
 
 		return new \ResponseData($result);
 	}
 	/**
+	 * 清除分组结果
 	 *
+	 * @param string $app
 	 */
 	public function empty_action($app) {
-		$rst = $this->model()->delete('xxt_group_result', "aid='$app'");
+		$rst = $this->model()->update(
+			'xxt_group_player',
+			array(
+				'round_id' => '',
+				'round_title' => '',
+				'draw_at' => 0,
+			),
+			"aid='$app'"
+		);
 
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 记录抽中的人
+	 * 记录分组结果
+	 *
+	 * @param string $app
 	 */
-	public function done_action($app, $rid = null, $ek = null) {
+	public function done_action($app) {
+		/*活的应用的轮次，并转换为map*/
+		$mapOfRounds = new \stdClass;
+		$options = array(
+			'fields' => 'round_id,title',
+		);
+		$rounds = $this->model('matter\group\round')->find($app, $options);
+		foreach ($rounds as &$round) {
+			$mapOfRounds->{$round->id} = $round;
+		}
+		/*记录分组结果*/
 		$users = $this->getPostJson();
 		if (is_object($users)) {
 			$users = array($users);
 		}
+		$current = time();
 		foreach ($users as $user) {
 			$i = array(
-				'aid' => $app,
-				'round_id' => $user->rid,
-				'enroll_key' => $user->ek,
-				'userid' => isset($user->uid) ? $user->uid : '',
-				'nickname' => $user->nickname,
-				'draw_at' => time(),
+				'round_id' => $user->round_id,
+				'round_title' => $mapOfRounds->{$user->round_id}->title,
+				'draw_at' => $current,
 			);
-			$this->model()->insert('xxt_group_result', $i, false);
+			$this->model()->update('xxt_group_player', $i, "aid='$app' and enroll_key='$user->ek'");
 		}
+
 		return new \ResponseData('ok');
 	}
 }

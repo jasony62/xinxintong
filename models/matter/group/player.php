@@ -200,7 +200,7 @@ class player_model extends \TMS_MODEL {
 			}
 		}
 		$q = array(
-			'e.enroll_key,e.enroll_at,e.tags,e.nickname,e.userid',
+			'e.enroll_key,e.enroll_at,e.tags,e.nickname,e.userid,e.round_id,e.round_title',
 			"xxt_group_player e",
 			$w,
 		);
@@ -246,34 +246,6 @@ class player_model extends \TMS_MODEL {
 		return $list;
 	}
 	/**
-	 * 获得指定用户最后一次登记记录
-	 */
-	public function &getLast($siteId, $app, $user, $options = array()) {
-		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$q = array(
-			$fields,
-			'xxt_group_player',
-			"siteid='$siteId' and aid='{$app->id}' and state=1",
-		);
-		$q[2] .= " and userid='{$user->uid}'";
-		$q2 = array(
-			'o' => 'enroll_at desc',
-			'r' => array('o' => 0, 'l' => 1),
-		);
-		$records = $this->query_objs_ss($q, $q2);
-
-		return count($records) === 1 ? $records[0] : false;
-	}
-	/**
-	 * 获得指定用户最后一次登记的key
-	 * 如果设置轮次，只坚持当前轮次的情况
-	 */
-	public function getLastKey($siteId, &$app, &$user) {
-		$last = $this->getLast($siteId, $app, $user);
-
-		return $last ? $last->enroll_key : false;
-	}
-	/**
 	 * 生成活动登记的key
 	 */
 	public function genKey($siteId, $aid) {
@@ -299,10 +271,6 @@ class player_model extends \TMS_MODEL {
 	public function remove($appId, $ek, $byDelete = false) {
 		if ($byDelete) {
 			$rst = $this->delete(
-				'xxt_group_result',
-				"aid='$appId' and enroll_key='$ek'"
-			);
-			$rst = $this->delete(
 				'xxt_group_player_data',
 				"aid='$appId' and enroll_key='$ek'"
 			);
@@ -311,11 +279,6 @@ class player_model extends \TMS_MODEL {
 				"aid='$appId' and enroll_key='$ek'"
 			);
 		} else {
-			$rst = $this->update(
-				'xxt_group_result',
-				array('state' => 0),
-				"aid='$appId' and enroll_key='$ek'"
-			);
 			$rst = $this->update(
 				'xxt_group_player_data',
 				array('state' => 0),
@@ -338,10 +301,6 @@ class player_model extends \TMS_MODEL {
 	public function clean($appId, $byDelete = false) {
 		if ($byDelete) {
 			$rst = $this->delete(
-				'xxt_group_result',
-				"aid='$appId'"
-			);
-			$rst = $this->delete(
 				'xxt_group_player_data',
 				"aid='$appId'"
 			);
@@ -350,11 +309,6 @@ class player_model extends \TMS_MODEL {
 				"aid='$appId'"
 			);
 		} else {
-			$rst = $this->update(
-				'xxt_group_result',
-				array('state' => 0),
-				"aid='$appId'"
-			);
 			$rst = $this->update(
 				'xxt_group_player_data',
 				array('state' => 0),
@@ -372,22 +326,21 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 有资格参加指定轮次分组的用户
 	 */
-	public function &playersByRound($appId, $rid, $hasData = 'N') {
+	public function &pendings($appId, $hasData = 'N') {
 		/* 没有抽中过的用户 */
-		$w = "u.aid='$appId' and u.state=1";
-		$w .= " and not exists(select 1 from xxt_group_result r where u.enroll_key=r.enroll_key)";
 		$q = array(
-			'u.id,u.enroll_key,u.nickname,u.userid,u.enroll_at,u.tags',
-			'xxt_group_player u',
-			$w,
+			'id,enroll_key,nickname,userid,enroll_at,tags',
+			'xxt_group_player',
+			"aid='$appId' and state=1 and round_id=0",
 		);
-		$q2['o'] = 'u.enroll_at desc';
+		$q2['o'] = 'enroll_at desc';
 		/* 获得用户的登记数据 */
 		if (($players = $this->query_objs_ss($q, $q2)) && !empty($players)) {
 			/**
 			 * 获得自定义数据的值
 			 */
 			foreach ($players as &$player) {
+				$player->data = new \stdClass;
 				$qc = array(
 					'name,value',
 					'xxt_group_player_data',
@@ -396,9 +349,9 @@ class player_model extends \TMS_MODEL {
 				$cds = $this->query_objs_ss($qc);
 				foreach ($cds as $cd) {
 					if ($cd->name === 'member') {
-						$player->{$cd->name} = json_decode($cd->value);
+						$player->data->{$cd->name} = json_decode($cd->value);
 					} else {
-						$player->{$cd->name} = $cd->value;
+						$player->data->{$cd->name} = $cd->value;
 					}
 				}
 			}
@@ -406,7 +359,7 @@ class player_model extends \TMS_MODEL {
 			if ($hasData === 'Y') {
 				$players2 = array();
 				foreach ($players as $p2) {
-					if (empty($p2->name) && empty($p2->mobile)) {
+					if (empty($p2->data->name) && empty($p2->data->mobile)) {
 						continue;
 					}
 					$players2[] = $p2;
@@ -426,20 +379,20 @@ class player_model extends \TMS_MODEL {
 	 */
 	public function &winnersByRound($appId, $rid = null) {
 		$q = array(
-			'l.*,r.title',
-			'xxt_group_result l,xxt_group_round r',
-			"l.aid='$appId' and l.round_id=r.round_id",
+			'*',
+			'xxt_group_player',
+			"aid='$appId'",
 		);
 		if (!empty($rid)) {
-			$q[2] .= " and l.round_id='$rid'";
+			$q[2] .= " and round_id='$rid'";
 		}
-
-		$q2 = array('o' => 'l.round_id,l.draw_at');
+		$q2 = array('o' => 'round_id,draw_at');
 		if ($players = $this->query_objs_ss($q, $q2)) {
 			/**
 			 * 获得自定义数据的值
 			 */
 			foreach ($players as &$p) {
+				$p->data = new \stdClass;
 				$qc = array(
 					'name,value',
 					'xxt_group_player_data',
@@ -448,9 +401,9 @@ class player_model extends \TMS_MODEL {
 				$cds = $this->query_objs_ss($qc);
 				foreach ($cds as $cd) {
 					if ($cd->name === 'member') {
-						$p->{$cd->name} = json_decode($cd->value);
+						$p->data->{$cd->name} = json_decode($cd->value);
 					} else {
-						$p->{$cd->name} = $cd->value;
+						$p->data->{$cd->name} = $cd->value;
 					}
 				}
 			}

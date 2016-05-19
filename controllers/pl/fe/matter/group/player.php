@@ -224,6 +224,177 @@ class player extends \pl\fe\matter\base {
 		return count($records);
 	}
 	/**
+	 * 手工添加登记信息
+	 *
+	 * @param string $aid
+	 */
+	public function add_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$posted = $this->getPostJson();
+		$current = time();
+		$modelPlayer = $this->model('matter\group\player');
+		$ek = $modelPlayer->genKey($site, $app);
+		/**
+		 * 登记记录
+		 */
+		$player = array();
+		$player['aid'] = $app;
+		$player['siteid'] = $site;
+		$player['enroll_key'] = $ek;
+		$player['enroll_at'] = $current;
+		if (!empty($posted->round_id)) {
+			$modelRnd = $this->model('matter\group\round');
+			$round = $modelRnd->byId($posted->round_id);
+			$player['round_id'] = $posted->round_id;
+			$player['round_title'] = $round->title;
+		}
+		$id = $modelPlayer->insert('xxt_group_player', $player, true);
+		$player['id'] = $id;
+		/**
+		 * 登记数据
+		 */
+		if (isset($posted->data)) {
+			foreach ($posted->data as $n => $v) {
+				if (is_array($v) && isset($v[0]->imgSrc)) {
+					/* 上传图片 */
+					$vv = array();
+					$fsuser = $this->model('fs/user', $site);
+					foreach ($v as $img) {
+						if (preg_match("/^data:.+base64/", $img->imgSrc)) {
+							$rst = $fsuser->storeImg($img);
+							if (false === $rst[0]) {
+								return new \ResponseError($rst[1]);
+							}
+							$vv[] = $rst[1];
+						} else {
+							$vv[] = $img->imgSrc;
+						}
+					}
+					$v = implode(',', $vv);
+				} else if (is_string($v)) {
+					$v = $modelPlayer->escape($v);
+				} else if (is_object($v) || is_array($c = v)) {
+					/*多选题*/
+					$v = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
+				}
+				$cd = array(
+					'aid' => $app,
+					'enroll_key' => $ek,
+					'name' => $n,
+					'value' => $v,
+				);
+				$modelPlayer->insert('xxt_group_player_data', $cd, false);
+				$player['data'][$n] = $v;
+			}
+		}
+
+		return new \ResponseData($player);
+	}
+	/**
+	 * 更新登记记录
+	 *
+	 * @param string $site
+	 * @param string $app
+	 * @param $ek record's key
+	 */
+	public function update_action($site, $app, $ek) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$record = $this->getPostJson();
+		$model = $this->model();
+
+		foreach ($record as $k => $v) {
+			if ($k === 'round_id') {
+				if (empty($v)) {
+					$model->update(
+						'xxt_group_player',
+						array(
+							'round_id' => 0,
+							'round_title' => '',
+						),
+						"aid='$app' and enroll_key='$ek'"
+					);
+					$record->round_title = '';
+				} else {
+					$modelRnd = $this->model('matter\group\round');
+					if ($round = $modelRnd->byId($v)) {
+						$model->update(
+							'xxt_group_player',
+							array(
+								'round_id' => $v,
+								'round_title' => $round->title,
+							),
+							"aid='$app' and enroll_key='$ek'"
+						);
+						$record->round_title = $round->title;
+					}
+				}
+			} else if ($k === 'data' and is_object($v)) {
+				foreach ($v as $cn => $cv) {
+					if (is_array($cv) && isset($cv[0]->imgSrc)) {
+						/* 上传图片 */
+						$vv = array();
+						$fsuser = $this->model('fs/user', $site);
+						foreach ($cv as $img) {
+							if (preg_match("/^data:.+base64/", $img->imgSrc)) {
+								$rst = $fsuser->storeImg($img);
+								if (false === $rst[0]) {
+									return new \ResponseError($rst[1]);
+								}
+								$vv[] = $rst[1];
+							} else {
+								$vv[] = $img->imgSrc;
+							}
+						}
+						$cv = implode(',', $vv);
+					} else if (is_string($cv)) {
+						$cv = $model->escape($cv);
+					} else if (is_object($cv) || is_array($cv)) {
+						/*多选题*/
+						$cv = implode(',', array_keys(array_filter((array) $cv, function ($i) {return $i;})));
+					}
+					/*检查数据项是否存在，如果不存在就先创建一条*/
+					$q = array(
+						'count(*)',
+						'xxt_group_player_data',
+						"enroll_key='$ek' and name='$cn'",
+					);
+					if (1 === (int) $model->query_val_ss($q)) {
+						$model->update(
+							'xxt_group_player_data',
+							array('value' => $cv),
+							"enroll_key='$ek' and name='$cn'"
+						);
+					} else {
+						$cd = array(
+							'aid' => $app,
+							'enroll_key' => $ek,
+							'name' => $cn,
+							'value' => $cv,
+						);
+						$model->insert('xxt_group_player_data', $cd, false);
+					}
+					$record->data->{$cn} = $cv;
+				}
+			}
+		}
+
+		return new \ResponseData($record);
+	}
+	/**
+	 * 未分组的人
+	 */
+	public function pendingsGet_action($app, $rid = null) {
+		$result = $this->model('matter\group\player')->pendings($app);
+
+		return new \ResponseData($result);
+	}
+	/**
 	 * 清空一条登记信息
 	 */
 	public function remove_action($site, $app, $ek, $keepData = 'Y') {

@@ -35,7 +35,7 @@ class signin_model extends app_base {
 	 */
 	public function &byId($appId, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$cascade = isset($options['cascade']) ? $options['cascade'] : 'Y';
+		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
 		$q = array(
 			$fields,
 			'xxt_signin',
@@ -45,7 +45,7 @@ class signin_model extends app_base {
 			if (isset($app->entry_rule)) {
 				$app->entry_rule = json_decode($app->entry_rule);
 			}
-			if ($cascade === 'Y') {
+			if ($cascaded === 'Y') {
 				/* 页面 */
 				$app->pages = \TMS_APP::M('matter\signin\page')->byApp($appId);
 				/* 轮次 */

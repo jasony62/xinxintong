@@ -29,8 +29,8 @@
 				controller: ['$scope', '$modalInstance', 'app', function($scope2, $mi, app) {
 					$scope2.app = app;
 					$scope2.data = {
-						filter: {},
-						source: ''
+						app: '',
+						appType: 'registration'
 					};
 					app.mission && ($scope2.data.sameMission = 'Y');
 					$scope2.cancel = function() {
@@ -39,20 +39,35 @@
 					$scope2.ok = function() {
 						$mi.close($scope2.data);
 					};
-					var url = '/rest/pl/fe/matter/enroll/list?site=' + $scope.siteId + '&page=1&size=999';
-					app.mission && (url += '&mission=' + app.mission.id);
-					http2.get(url, function(rsp) {
-						$scope2.apps = rsp.data.apps;
+					$scope2.$watch('data.appType', function(appType) {
+						if (!appType) return;
+						var url;
+						if (appType === 'registration') {
+							url = '/rest/pl/fe/matter/enroll/list?site=' + $scope.siteId + '&page=1&size=999';
+							url += '&scenario=registration';
+						} else {
+							url = '/rest/pl/fe/matter/signin/list?site=' + $scope.siteId + '&page=1&size=999';
+						}
+						app.mission && (url += '&mission=' + app.mission.id);
+						http2.get(url, function(rsp) {
+							$scope2.apps = rsp.data.apps;
+						});
 					});
 				}],
 				backdrop: 'static'
 			}).result.then(function(data) {
-				if (data.source && data.source.length) {
-					http2.post('/rest/pl/fe/matter/group/importByApp?site=' + $scope.siteId + '&app=' + $scope.id, data, function(rsp) {
+				if (data.app && data.app.length) {
+					http2.post('/rest/pl/fe/matter/group/player/importByApp?site=' + $scope.siteId + '&app=' + $scope.id, data, function(rsp) {
 						location.href = '/rest/pl/fe/matter/group/player?site=' + $scope.siteId + '&id=' + $scope.id;
 					});
 				}
 			});
+		};
+		$scope.cancelSourceApp = function() {
+			$scope.app.source_app = '';
+			delete $scope.app.sourceApp;
+			$scope.update('source_app');
+			$scope.submit();
 		};
 		$scope.setPic = function() {
 			var options = {

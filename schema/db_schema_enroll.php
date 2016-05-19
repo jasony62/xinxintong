@@ -432,6 +432,8 @@ $sql .= ",summary varchar(240) not null default ''";
 $sql .= ",pic text"; // 分享或生成链接时的图片
 $sql .= ",mission_id int not null default 0"; // 所属项目
 $sql .= ",scenario varchar(255) not null default ''"; // 分组活动场景
+$sql .= ",source_app varchar(255) not null default ''"; // 关联的登记或签到活动
+$sql .= ",last_sync_at int not null"; // 最有同步的时间
 $sql .= ",group_rule text"; // 分组规则
 $sql .= ",data_schemas text";
 $sql .= ",tags text";
@@ -502,7 +504,8 @@ $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",draw_at int not null";
 $sql .= ",userid varchar(40) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
-$sql .= ",primary key(aid,round_id,enroll_key)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+$sql .= ",state tinyint not null default 1"; //0:remove,1:normal
+$sql .= ",primary key(aid,enroll_key,state)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;

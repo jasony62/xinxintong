@@ -25,6 +25,9 @@ class record extends \pl\fe\matter\base {
 	 * [2] 数据项的定义
 	 */
 	public function list_action($site, $app, $page = 1, $size = 30, $signinStartAt = null, $signinEndAt = null, $tags = null, $rid = null, $kw = null, $by = null, $orderby = null, $contain = null) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		/*应用*/
 		$modelApp = $this->model('matter\signin');
 		$app = $modelApp->byId($app);
@@ -50,6 +53,9 @@ class record extends \pl\fe\matter\base {
 	 * 给符合条件的登记记录打标签
 	 */
 	public function exportByData_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$posted = $this->getPostJson();
 		$filter = $posted->filter;
 		$target = $posted->target;
@@ -98,6 +104,9 @@ class record extends \pl\fe\matter\base {
 	 * @param string $aid
 	 */
 	public function add_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$posted = $this->getPostJson();
 		$current = time();
 		$modelRec = $this->model('matter\signin\record');
@@ -109,10 +118,10 @@ class record extends \pl\fe\matter\base {
 		$r['enroll_key'] = $ek;
 		$r['enroll_at'] = $current;
 		$r['signin_at'] = $current;
-		if (isset($posted->tags)) {
+		/*if (isset($posted->tags)) {
 			$r['tags'] = $posted->tags;
 			$this->model('matter\signin')->updateTags($app, $posted->tags);
-		}
+		}*/
 		$id = $modelRec->insert('xxt_signin_record', $r, true);
 		$r['id'] = $id;
 		/**
@@ -161,6 +170,9 @@ class record extends \pl\fe\matter\base {
 	 * 清空一条登记信息
 	 */
 	public function remove_action($site, $app, $key) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$rst = $this->model('matter\signin\record')->remove($app, $key);
 
 		return new \ResponseData($rst);
@@ -172,6 +184,9 @@ class record extends \pl\fe\matter\base {
 	 * @param $ek record's key
 	 */
 	public function update_action($site, $app, $ek) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$record = $this->getPostJson();
 		$model = $this->model();
 

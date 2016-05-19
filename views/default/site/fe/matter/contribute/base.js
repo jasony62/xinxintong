@@ -86,13 +86,15 @@ ngApp.factory('Article', function($q, http2) {
         return promise;
     };
     Article.prototype.update = function(obj, prop) {
-        var deferred = $q.defer();
-        var promise = deferred.promise;
-        var url, nv = {};
-        if (prop === 'body')
+        var deferred = $q.defer(),
+            promise = deferred.promise,
+            nv = {},
+            url;
+        if (prop === 'body') {
             nv[prop] = encodeURIComponent(obj[prop]);
-        else
+        } else {
             nv[prop] = obj[prop];
+        }
         url = this.baseUrl + 'articleUpdate';
         url += '?site=' + this.siteId;
         url += '&id=' + obj.id;

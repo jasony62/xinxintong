@@ -1,28 +1,34 @@
 <?php
 namespace matter\group;
-
+/**
+ *
+ */
 class player_model extends \TMS_MODEL {
 	/**
 	 * 用户登记（不包括登记数据）
 	 *
-	 * $siteId
-	 * $app
-	 * $user
-	 * $options
+	 * @param string $siteId
+	 * @param object $app
+	 * @param object $user
+	 * @param array $options
 	 */
-	public function enroll($siteId, &$app, &$user, $options = array(), $enroll_at = null) {
-		$ek = $this->genKey($siteId, $app->id);
-		$i = array(
+	public function enroll($siteId, &$app, &$user, $options = array()) {
+		if (isset($options['enroll_key'])) {
+			$ek = $options['enroll_key'];
+		} else {
+			$ek = $this->genKey($siteId, $app->id);
+		}
+		$player = array(
 			'aid' => $app->id,
 			'siteid' => $siteId,
 			'enroll_key' => $ek,
 			'userid' => $user->uid,
 			'nickname' => $user->nickname,
 		);
-		$i['enroll_at'] = isset($options['enroll_at']) ? $options['enroll_at'] : time();
-		isset($options['referrer']) && $i['referrer'] = $options['referrer'];
+		$player['enroll_at'] = isset($options['enroll_at']) ? $options['enroll_at'] : time();
+		isset($options['referrer']) && $player['referrer'] = $options['referrer'];
 
-		$this->insert('xxt_group_player', $i, false);
+		$this->insert('xxt_group_player', $player, false);
 
 		return $ek;
 	}
@@ -285,50 +291,79 @@ class player_model extends \TMS_MODEL {
 		return $rst;
 	}
 	/**
-	 * 删除一条登记记录（打标记）
+	 * 删除一个分组用户
 	 *
-	 * @param string $aid
+	 * @param string $appId
 	 * @param string $ek
 	 */
-	public function remove($aid, $ek) {
-		$rst = $this->update(
-			'xxt_group_player_data',
-			array('state' => 0),
-			"aid='$aid' and enroll_key='$ek'"
-		);
-		$rst = $this->update(
-			'xxt_group_player',
-			array('state' => 0),
-			"aid='$aid' and enroll_key='$ek'"
-		);
+	public function remove($appId, $ek, $byDelete = false) {
+		if ($byDelete) {
+			$rst = $this->delete(
+				'xxt_group_result',
+				"aid='$appId' and enroll_key='$ek'"
+			);
+			$rst = $this->delete(
+				'xxt_group_player_data',
+				"aid='$appId' and enroll_key='$ek'"
+			);
+			$rst = $this->delete(
+				'xxt_group_player',
+				"aid='$appId' and enroll_key='$ek'"
+			);
+		} else {
+			$rst = $this->update(
+				'xxt_group_result',
+				array('state' => 0),
+				"aid='$appId' and enroll_key='$ek'"
+			);
+			$rst = $this->update(
+				'xxt_group_player_data',
+				array('state' => 0),
+				"aid='$appId' and enroll_key='$ek'"
+			);
+			$rst = $this->update(
+				'xxt_group_player',
+				array('state' => 0),
+				"aid='$appId' and enroll_key='$ek'"
+			);
+		}
 
 		return $rst;
 	}
 	/**
 	 * 清除所有登记记录
 	 *
-	 * @param string $aid
+	 * @param string $appId
 	 */
-	public function clean($aid, $byDelete = false) {
+	public function clean($appId, $byDelete = false) {
 		if ($byDelete) {
 			$rst = $this->delete(
+				'xxt_group_result',
+				"aid='$appId'"
+			);
+			$rst = $this->delete(
 				'xxt_group_player_data',
-				"aid='$aid'"
+				"aid='$appId'"
 			);
 			$rst = $this->delete(
 				'xxt_group_player',
-				"aid='$aid'"
+				"aid='$appId'"
 			);
 		} else {
 			$rst = $this->update(
+				'xxt_group_result',
+				array('state' => 0),
+				"aid='$appId'"
+			);
+			$rst = $this->update(
 				'xxt_group_player_data',
 				array('state' => 0),
-				"aid='$aid'"
+				"aid='$appId'"
 			);
 			$rst = $this->update(
 				'xxt_group_player',
 				array('state' => 0),
-				"aid='$aid'"
+				"aid='$appId'"
 			);
 		}
 
@@ -337,9 +372,9 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 有资格参加指定轮次分组的用户
 	 */
-	public function &playersByRound($aid, $rid, $hasData = 'N') {
+	public function &playersByRound($appId, $rid, $hasData = 'N') {
 		/* 没有抽中过的用户 */
-		$w = "u.aid='$aid' and u.state=1";
+		$w = "u.aid='$appId' and u.state=1";
 		$w .= " and not exists(select 1 from xxt_group_result r where u.enroll_key=r.enroll_key)";
 		$q = array(
 			'u.id,u.enroll_key,u.nickname,u.userid,u.enroll_at,u.tags',
@@ -389,11 +424,11 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 指定分组内的用户
 	 */
-	public function &winnersByRound($aid, $rid = null) {
+	public function &winnersByRound($appId, $rid = null) {
 		$q = array(
 			'l.*,r.title',
 			'xxt_group_result l,xxt_group_round r',
-			"l.aid='$aid' and l.round_id=r.round_id",
+			"l.aid='$appId' and l.round_id=r.round_id",
 		);
 		if (!empty($rid)) {
 			$q[2] .= " and l.round_id='$rid'";

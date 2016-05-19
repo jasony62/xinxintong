@@ -5,6 +5,9 @@
         </div>
     </div>
     <div class='tile'>
+        <div class='form-group'>
+            <button class='btn btn-block btn-success' ng-click='syncByApp()'>同步用户</button>
+        </div>
         <div class='list-group'>
             <a class='list-group-item' ng-class="{'active':!editingRound}" ng-click="open(false)" style='text-align:center'>全部</a>
             <a class='list-group-item' ng-class="{'active':r===editingRound}" ng-repeat='r in rounds' ng-click='open(r)'>
@@ -47,5 +50,8 @@
             <div class='form-control' ng-bind="opUrl" style="height:auto;word-break:break-all;"></div>
             <div class='help-block'>投影地址</div>
         </div>
+    </div>
+    <div class='form-group'>
+        <a href='/rest/pl/fe/matter/group/player?site={{siteId}}&id={{id}}'>分组用户</a>
     </div>
 </div>

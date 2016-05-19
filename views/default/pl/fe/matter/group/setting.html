@@ -77,6 +77,17 @@
         <div class='form-group'>
             <button class='btn btn-block btn-success' ng-click='importByApp()'>导入用户</button>
         </div>
+        <div class='form-group' ng-if="app.sourceApp">
+            <div class="input-group">
+                <div class='form-control' ng-bind="app.sourceApp.title"></div>
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="button" ng-click="cancelSourceApp()">
+                        <span class='glyphicon glyphicon-remove'></span>
+                    </button>
+                </span>
+            </div>
+            <div class="help-block">分组用户来源</div>
+        </div>
         <div class='form-group'>
             <a href='/rest/pl/fe/matter/group/player?site={{siteId}}&id={{id}}'>分组用户</a>
         </div>
@@ -131,9 +142,16 @@
     <div class="modal-body">
         <form class="form-horizontal record-editor">
             <div class='form-group'>
+                <label class="col-md-3 control-label">数据来源</label>
+                <div class="col-md-9">
+                    <label class='radio-inline'><input type='radio' name='appType' value='registration' ng-model="data.appType">报名</label>
+                    <label class='radio-inline'><input type='radio' name='appType' value='signin' ng-model="data.appType">签到</label>
+                </div>
+            </div>
+            <div class='form-group'>
                 <label class="col-md-3 control-label">目标活动</label>
                 <div class="col-md-9">
-                    <select class="form-control" ng-model="data.source" ng-options="app.id as app.title for app in apps"></select>
+                    <select class="form-control" ng-model="data.app" ng-options="app.id as app.title for app in apps"></select>
                     <div class='checkbox' ng-if="app.mission">
                         <label><input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">选择同一个项目中的活动</label>
                     </div>

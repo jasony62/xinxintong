@@ -180,8 +180,22 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$modal', 'http2', 'med
         return url;
     };
     $scope.finish = function() {
-        $scope.editing.finished = 'Y';
-        $scope.Article.update($scope.editing, 'finished');
+        if ($scope.entryApp.params.requireSubChannel && $scope.entryApp.params.requireSubChannel === 'Y') {
+            if (!$scope.editing.subChannels || $scope.editing.subChannels.length === 0) {
+                $scope.errmsg = '请指定投稿频道';
+                return;
+            }
+        }
+        if ($scope.bodyModified) {
+            $scope.Article.update($scope.editing, 'body').then(function() {
+                $scope.editing.finished = 'Y';
+                $scope.Article.update($scope.editing, 'finished');
+            });
+            $scope.bodyModified = false;
+        } else {
+            $scope.editing.finished = 'Y';
+            $scope.Article.update($scope.editing, 'finished');
+        }
     };
     $scope.remove = function() {
         if (window.confirm('确认删除？')) {

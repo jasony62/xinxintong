@@ -48,7 +48,7 @@ ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', func
 	});
 	$locationProvider.html5Mode(true);
 }]);
-ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', '$modal', function($scope, $location, $q, http2, $modal) {
+ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($scope, $location, $q, http2) {
 	var ls = $location.search(),
 		modifiedData = {};
 	$scope.id = ls.id;
@@ -73,7 +73,17 @@ ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', '$modal', fun
 			modifiedData[name] = $scope.app[name];
 		}
 		$scope.modified = true;
-		$scope.submit();
+		return $scope.submit();
+	};
+	$scope.syncByApp = function() {
+		var defer = $q.defer();
+		if ($scope.app.sourceApp) {
+			http2.get('/rest/pl/fe/matter/group/player/syncByApp?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+				$scope.$root.infomsg = '同步' + rsp.data + '个用户';
+				defer.resolve(rsp.data);
+			});
+		}
+		return defer.promise;
 	};
 	http2.get('/rest/pl/fe/matter/group/get?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
 		var app, url;

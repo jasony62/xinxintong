@@ -47,7 +47,15 @@ class main extends \pl\fe\matter\base {
 		}
 		$app = $this->model('matter\\group')->byId($app);
 		/*所属项目*/
-		$app->mission = $this->model('matter\\mission')->byMatter($site, $app->id, 'group');
+		if ($app->mission_id) {
+			$app->mission = $this->model('matter\\mission')->byMatter($site, $app->id, 'group');
+		}
+		/*关联应用*/
+		if (!empty($app->source_app)) {
+			$sourceApp = json_decode($app->source_app);
+			$options = array('cascaded' => 'N', 'fields' => 'id,title');
+			$app->sourceApp = $this->model('matter\\' . $sourceApp->type)->byId($sourceApp->id, $options);
+		}
 
 		return new \ResponseData($app);
 	}
@@ -197,74 +205,6 @@ class main extends \pl\fe\matter\base {
 		);
 
 		return new \ResponseData($rounds);
-	}
-	/**
-	 * 从登记活动导入数据
-	 */
-	public function importByApp_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$modelGrp = $this->model('matter\group');
-		$modelPlayer = $this->model('matter\group\player');
-		$posted = $this->getPostJson();
-		$filter = $posted->filter;
-		$source = $posted->source;
-
-		if (!empty($source)) {
-			$sourceApp = $this->model('matter\enroll')->byId($source);
-			/* 导入活动定义 */
-			$modelGrp->update(
-				'xxt_group',
-				array('data_schemas' => $sourceApp->data_schemas, 'tags' => $sourceApp->tags),
-				"id='$app'"
-			);
-			/* 清空已有数据 */
-			$modelPlayer->clean($app, true);
-			/* 获取数据 */
-			$modelRec = $this->model('matter\enroll\record');
-			$eks = null;
-			if (empty((array) $filter)) {
-				$q = array(
-					'enroll_key',
-					'xxt_group_player',
-					"aid='$source' and state=1",
-				);
-				$eks = $modelRec->query_vals_ss($q);
-			} else {
-				/* 根据过滤条件选择数据 */
-				$q = array(
-					'distinct enroll_key',
-					'xxt_group_player_data',
-					"aid='$source' and state=1",
-				);
-				foreach ($filter as $k => $v) {
-					$w = "(name='$k' and ";
-					$w .= "concat(',',value,',') like '%,$v,%'";
-					$w .= ')';
-					$q2 = $q;
-					$q2[2] .= ' and ' . $w;
-					$eks2 = $modelRec->query_vals_ss($q2);
-					$eks = ($eks === null) ? $eks2 : array_intersect($eks, $eks2);
-				}
-			}
-			/* 导入数据 */
-			if (!empty($eks)) {
-				$objGrp = $modelGrp->byId($app, array('cascaded' => 'N'));
-				$options = array('cascaded' => 'Y');
-				foreach ($eks as $ek) {
-					$record = $modelRec->byId($ek, $options);
-					$user = new \stdClass;
-					$user->uid = $record->userid;
-					$user->nickname = $record->nickname;
-					$newek = $modelPlayer->enroll($site, $objGrp, $user);
-					$modelPlayer->setData($user, $site, $objGrp, $newek, $record->data);
-				}
-			}
-		}
-
-		return new \ResponseData('ok');
 	}
 	/**
 	 * 删除一个活动

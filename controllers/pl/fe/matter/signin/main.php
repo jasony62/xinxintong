@@ -39,7 +39,7 @@ class main extends \pl\fe\matter\base {
 		exit;
 	}
 	/**
-	 * 返回一个登记活动
+	 * 返回一个签到活动
 	 */
 	public function get_action($site, $id) {
 		if (false === ($user = $this->accountUser())) {
@@ -47,7 +47,7 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$app = $this->model('matter\signin')->byId($id);
-		/*关联登记活动*/
+		/*关联签到活动*/
 		if ($app->enroll_app_id) {
 			$app->enrollApp = $this->model('matter\enroll')->byId($app->enroll_app_id);
 		}
@@ -59,7 +59,7 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($app);
 	}
 	/**
-	 * 返回登记活动列表
+	 * 返回签到活动列表
 	 *
 	 */
 	public function list_action($site, $page = 1, $size = 30, $mission = null) {
@@ -76,7 +76,7 @@ class main extends \pl\fe\matter\base {
 	 *
 	 * @param string $site site's id
 	 * @param string $mission mission's id
-	 * @param string $enrollApp 关联的登记活动
+	 * @param string $enrollApp 关联的签到活动
 	 *
 	 */
 	public function create_action($site, $mission = null, $enrollApp = null, $template = 'basic') {
@@ -86,13 +86,13 @@ class main extends \pl\fe\matter\base {
 		$newapp = array();
 		$current = time();
 		$appId = uniqid();
-		/*从关联的登记活动中获取登记项定义*/
+		/*从关联的签到活动中获取登记项定义*/
 		if (!empty($enrollApp)) {
-			$enrollApp = $this->model('mattersignin')->byId(
+			$enrollApp = $this->model('matter\enroll')->byId(
 				$enrollApp,
 				array('fields' => 'data_schemas', 'cascaded' => 'N')
 			);
-			$newapp['enroll_app_id'] = $enrollApp->enroll_app_id;
+			$newapp['enroll_app_id'] = $enrollApp->id;
 		}
 		/*从站点和项目中获得pic定义*/
 		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
@@ -141,7 +141,7 @@ class main extends \pl\fe\matter\base {
 		$newapp['modify_at'] = $current;
 		$newapp['summary'] = '';
 		$this->model()->insert('xxt_signin', $newapp, false);
-		$app = $this->model('matter\signin')->byId($appId, array('cascade' => 'N'));
+		$app = $this->model('matter\signin')->byId($appId, array('cascaded' => 'N'));
 
 		/*记录操作日志*/
 		$app->type = 'signin';
@@ -186,9 +186,8 @@ class main extends \pl\fe\matter\base {
 		$nv['modify_at'] = time();
 
 		if ($rst = $model->update('xxt_signin', $nv, "id='$app'")) {
-			/*更新级联数据*/
 			/*记录操作日志*/
-			$matter = $this->model('matter\\signin')->byId($app, 'id,title,summary,pic');
+			$matter = $this->model('matter\\signin')->byId($app, array('fields' => 'id,title,summary,pic', 'cascaded' => 'N'));
 			$matter->type = 'signin';
 			$this->model('log')->matterOp($site, $user, $matter, 'U');
 		}
@@ -276,17 +275,19 @@ class main extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$model = $this->model();
 		/*在删除数据前获得数据*/
-		$app = $this->model('matter\signin')->byId($app, 'id,title,summary,pic');
+		$app = $this->model('matter\signin')->byId($app, array('fields' => 'id,title,summary,pic', 'cascaded' => 'N'));
 		/*删除和任务的关联*/
-		$this->model('mission')->removeMatter($site, $app->id, 'signin');
+		if ($app->mission_id) {
+			$this->model('mission')->removeMatter($site, $app->id, 'signin');
+		}
 		/*check*/
 		$q = array(
 			'count(*)',
 			'xxt_signin_record',
 			"siteid='$site' and aid='$app->id'",
 		);
+		$model = $this->model();
 		if ((int) $model->query_val_ss($q) > 0) {
 			$rst = $model->update(
 				'xxt_signin',

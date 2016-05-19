@@ -58,7 +58,7 @@
                 backdrop: 'static'
             }).result.then(function(data) {
                 if (data.tag && data.tag.length) {
-                    http2.post('/rest/mp/app/enroll/record/tagByData?aid=' + $scope.aid, data, function(rsp) {
+                    http2.post('/rest/pl/fe/matter/group/record/tagByData?aid=' + $scope.aid, data, function(rsp) {
                         var aAssigned;
                         $scope.doSearch();
                         aAssigned = data.tag.split(',');
@@ -205,7 +205,7 @@
         };
         $scope.removePlayer = function(record) {
             if (window.confirm('确认删除？')) {
-                http2.get('/rest/mp/app/enroll/record/remove?aid=' + $scope.id + '&key=' + record.enroll_key, function(rsp) {
+                http2.get('/rest/pl/fe/matter/group/player/remove?site=' + $scope.siteId + '&app=' + $scope.id + '&ek=' + record.enroll_key, function(rsp) {
                     var i = $scope.players.indexOf(record);
                     $scope.players.splice(i, 1);
                     $scope.page.total = $scope.page.total - 1;
@@ -216,7 +216,7 @@
             var vcode;
             vcode = prompt('是否要删除所有登记信息？，若是，请输入活动名称。');
             if (vcode === $scope.app.title) {
-                http2.get('/rest/mp/app/enroll/record/empty?aid=' + $scope.aid, function(rsp) {
+                http2.get('/rest/pl/fe/matter/group/player/empty?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
                     $scope.doSearch(1);
                 });
             }

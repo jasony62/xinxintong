@@ -433,7 +433,7 @@ class record_model extends \TMS_MODEL {
 			}
 		}
 		$q = array(
-			'e.enroll_key,e.enroll_at,e.signin_at,e.signin_num,e.userid,e.nickname',
+			'e.enroll_key,e.enroll_at,e.signin_at,e.signin_num,e.userid,e.nickname,e.verified',
 			"xxt_signin_record e",
 			$w,
 		);

@@ -55,6 +55,7 @@
                     <th class='custom-col' ng-repeat="c in  app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
                     <th style='width:100px'>签到时间</th>
                     <th style='width:80px'>签到次数</th>
+                    <th style='width:80px'>验证通过</th>
                     <th style='width:140px'>标签</th>
                     <th style='width:72px'>操作</th>
                 </tr>
@@ -77,6 +78,7 @@
                     </td>
                     <td>{{r.signin_at>0 ? ((r.signin_at*1000)|date:'MM-dd HH:mm') : ''}}</td>
                     <td>{{r.signin_num}}</td>
+                    <td>{{r.verified}}</td>
                     <td>{{r.tags}}</td>
                     <td>
                         <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
@@ -200,6 +202,12 @@
                             <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%"/>
                         </span>
                     </span>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class="col-md-2 control-label">验证通过</label>
+                <div class="col-md-10">
+                    <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="record.verified">是</label>
                 </div>
             </div>
             <div class="form-group" ng-if="enroll.can_signin==='Y'&&record.enroll_at">

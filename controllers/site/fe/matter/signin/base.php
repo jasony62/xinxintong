@@ -34,7 +34,7 @@ class base extends \site\fe\matter\base {
 			if (isset($entryRule->signed->entry)) {
 				$page = $entryRule->signed->entry;
 			}
-		} else if ($modelRec->byUser($user, $siteId, $app, array('fields' => 'enroll_key', 'cascade' => 'N'))) {
+		} else if ($modelRec->byUser($user, $siteId, $app, array('fields' => 'enroll_key', 'cascaded' => 'N'))) {
 			/* 用户是否已经登记 */
 			if (isset($entryRule->signed->entry)) {
 				$page = $entryRule->enrolled->entry;

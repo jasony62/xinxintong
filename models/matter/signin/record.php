@@ -8,15 +8,16 @@ class record_model extends \TMS_MODEL {
 	 * @param string $siteId
 	 * @param string $app
 	 * @param object $user
-	 * @param int $signin_at
+	 * @param int $enrollAt
 	 *
 	 */
 	public function enroll(&$user, $siteId, &$app, $enrollAt = null, $referrer = '') {
 		$options = array(
 			'fields' => 'enroll_key',
-			'cascade' => 'N',
+			'cascaded' => 'N',
 		);
 		if ($userRecord = $this->byUser($user, $siteId, $app, $options)) {
+			/*不允许多次登记*/
 			$ek = $userRecord->enroll_key;
 		} else {
 			$ek = $this->genKey($siteId, $app->id);
@@ -50,7 +51,9 @@ class record_model extends \TMS_MODEL {
 			$ek = $this->enroll($user, $siteId, $app);
 			$state->enrolled = true;
 		}
-		if (!$this->userSigned($user, $siteId, $app)) {
+		/* 执行签到 */
+		$activeRound = \TMS_APP::M('matter\signin\round')->getActive($siteId, $app->id);
+		if (!$this->userSigned($user, $siteId, $app, $activeRound)) {
 			/* 记录日志 */
 			$signinAt = time();
 			$this->insert(
@@ -58,7 +61,7 @@ class record_model extends \TMS_MODEL {
 				array(
 					'siteid' => $siteId,
 					'aid' => $app->id,
-					'rid' => $app->active_round,
+					'rid' => $activeRound->rid,
 					'enroll_key' => $ek,
 					'userid' => $user->uid,
 					'nickname' => $user->nickname,
@@ -81,14 +84,14 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 检查用户在指定轮次是否已经签到
 	 */
-	public function userSigned(&$user, $siteId, &$app, $roundId = null) {
-		if (empty($roundId)) {
-			$roundId = $app->active_round;
+	public function &userSigned(&$user, $siteId, &$app, &$round = null) {
+		if (empty($round)) {
+			$round = \TMS_APP::M('matter\signin\round')->getActive($siteId, $app->id);
 		}
 		$q = array(
 			'*',
 			'xxt_signin_log',
-			"siteid='$siteId' and aid='{$app->id}' and rid='$roundId' and userid='{$user->uid}'",
+			"siteid='$siteId' and aid='{$app->id}' and rid='{$round->rid}' and userid='{$user->uid}'",
 		);
 		$log = $this->query_obj_ss($q);
 
@@ -193,14 +196,14 @@ class record_model extends \TMS_MODEL {
 	 */
 	public function byId($ek, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$cascade = isset($options['cascade']) ? $options['cascade'] : 'Y';
+		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
 
 		$q = array(
 			$fields,
 			'xxt_signin_record',
 			"enroll_key='$ek'",
 		);
-		if (($record = $this->query_obj_ss($q)) && $cascade === 'Y') {
+		if (($record = $this->query_obj_ss($q)) && $cascaded === 'Y') {
 			$record->data = $this->dataById($ek);
 		}
 
@@ -212,7 +215,7 @@ class record_model extends \TMS_MODEL {
 	 */
 	public function &byUser(&$user, $siteId, &$app, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$cascade = isset($options['cascade']) ? $options['cascade'] : 'Y';
+		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
 
 		$q = array(
 			$fields,
@@ -220,7 +223,7 @@ class record_model extends \TMS_MODEL {
 			"state=1 and siteid='$siteId' and aid='{$app->id}' and userid='{$user->uid}'",
 		);
 		if ($userRecord = $this->query_obj_ss($q)) {
-			if ($cascade === 'Y') {
+			if ($cascaded === 'Y') {
 				/* 登记记录有可能未进行过登记 */
 				if ($userRecord->enroll_at) {
 					$userRecord->data = $this->dataById($userRecord->enroll_key);
@@ -287,41 +290,81 @@ class record_model extends \TMS_MODEL {
 		return $rst;
 	}
 	/**
-	 * 清除一条登记记录
+	 * 清除一条用户记录
 	 *
 	 * @param string $appId
 	 * @param string $ek
 	 */
-	public function remove($appId, $ek) {
-		$rst = $this->update(
-			'xxt_signin_record_data',
-			array('state' => 0),
-			"aid='$appId' and enroll_key='$ek'"
-		);
-		$rst = $this->update(
-			'xxt_signin_record',
-			array('state' => 0),
-			"aid='$appId' and enroll_key='$ek'"
-		);
+	public function remove($appId, $ek, $byDelete = false) {
+		if ($byDelete) {
+			$rst = $this->delete(
+				'xxt_signin_log',
+				"aid='$appId' and enroll_key='$ek'"
+			);
+			$rst = $this->delete(
+				'xxt_signin_record_data',
+				"aid='$appId' and enroll_key='$ek'"
+			);
+			$rst = $this->delete(
+				'xxt_signin_record',
+				"aid='$appId' and enroll_key='$ek'"
+			);
+		} else {
+			$rst = $this->update(
+				'xxt_signin_log',
+				array('state' => 0),
+				"aid='$appId' and enroll_key='$ek'"
+			);
+			$rst = $this->update(
+				'xxt_signin_record_data',
+				array('state' => 0),
+				"aid='$appId' and enroll_key='$ek'"
+			);
+			$rst = $this->update(
+				'xxt_signin_record',
+				array('state' => 0),
+				"aid='$appId' and enroll_key='$ek'"
+			);
+		}
 
 		return $rst;
 	}
 	/**
-	 * 清除登记记录
+	 * 清除用户记录
 	 *
 	 * @param string $appId
 	 */
-	public function clean($appId) {
-		$rst = $this->update(
-			'xxt_signin_record_data',
-			array('state' => 0),
-			"aid='$appId'"
-		);
-		$rst = $this->update(
-			'xxt_signin_record',
-			array('state' => 0),
-			"aid='$appId'"
-		);
+	public function clean($appId, $byDelete = false) {
+		if ($byDelete) {
+			$rst = $this->delete(
+				'xxt_signin_log',
+				"aid='$appId'"
+			);
+			$rst = $this->delete(
+				'xxt_signin_record_data',
+				"aid='$appId'"
+			);
+			$rst = $this->delete(
+				'xxt_signin_record',
+				"aid='$appId'"
+			);
+		} else {
+			$rst = $this->update(
+				'xxt_signin_log',
+				array('state' => 0),
+				"aid='$appId'"
+			);
+			$rst = $this->update(
+				'xxt_signin_record_data',
+				array('state' => 0),
+				"aid='$appId'"
+			);
+			$rst = $this->update(
+				'xxt_signin_record',
+				array('state' => 0),
+				"aid='$appId'"
+			);
+		}
 
 		return $rst;
 	}

@@ -168,6 +168,7 @@ $sql .= ",remark_num int not null default 0"; // 评论数
 $sql .= ",follower_num int not null default 0"; // 接收邀请的下家
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal,2:as invite log
 $sql .= ",referrer text"; //
+$sql .= ",verified char(1) not null default 'N'"; // 记录是否已通过审核
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -307,7 +308,7 @@ $sql .= ",pic text"; // 分享或生成链接时的图片
 $sql .= ",mission_id int not null default 0"; // 所属项目
 $sql .= ",entry_rule text"; // 进入规则
 $sql .= ",data_schemas text";
-$sql .= ",active_round varchar(13) not null"; // 当前激活的轮次
+$sql .= ",active_round varchar(13) not null"; // 当前激活的轮次 should remove
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -376,6 +377,7 @@ $sql .= ",tags text";
 $sql .= ",comment text";
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal
 $sql .= ",referrer text"; // 发起签到的链接
+$sql .= ",verified char(1) not null default 'Y'"; // 记录是否已通过审核
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -407,6 +409,7 @@ $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",userid varchar(40) not null default ''";
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",signin_at int not null default 0"; // 签到时间
+$sql .= ",state tinyint not null default 1"; //0:remove,1:normal
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

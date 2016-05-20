@@ -236,26 +236,37 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 根据指定的数据查找匹配的记录
 	 */
-	public function &byData(&$user, $siteId, &$app, &$data) {
+	public function &byData($siteId, &$app, &$data) {
 		$matchedRecords = array();
+		/*需要匹配的条件*/
+		$conditions = array();
+		foreach ($data as $key => $val) {
+			$conditions[] = "(name='$key' and value='$val')";
+		}
+		if (empty($conditions)) {
+			return $matchedRecords;
+		}
+		/*需要匹配的条件的数量*/
+		$countOfConditions = count($conditions);
+		/*将条件转换为SQL*/
+		$conditions = '(' . implode(' or ', $conditions) . ')';
+		/*查找匹配条件的数据*/
 		$q = array(
-			'*',
-			'xxt_enroll_record',
-			"state=1 and siteid='$siteId' and aid='{$app->id}' and userid='{$user->uid}'",
+			'enroll_key',
+			'xxt_enroll_record_data',
+			"state=1 and aid='{$app->id}' and $conditions",
 		);
-		$userRecords = $this->query_objs_ss($q);
-		foreach ($userRecords as &$userRecord) {
-			$matched = true;
-			$recordData = $this->dataById($userRecord->enroll_key);
-			foreach ($data as $key => $val) {
-				if ($recordData->{$key} !== $val) {
-					$matched = false;
-					break;
-				}
+		/*记录每条记录匹配的次数*/
+		$mapOfCount = new \stdClass;
+		$pendings = $this->query_objs_ss($q);
+		foreach ($pendings as &$pending) {
+			if (isset($mapOfCount->{$pending->enroll_key})) {
+				$mapOfCount->{$pending->enroll_key} += 1;
+			} else {
+				$mapOfCount->{$pending->enroll_key} = 1;
 			}
-			if ($matched) {
-				$userRecord->data = $recordData;
-				$matchedRecords[] = $userRecord;
+			if ($mapOfCount->{$pending->enroll_key} === $countOfConditions) {
+				$matchedRecords[] = $pending->enroll_key;
 			}
 		}
 

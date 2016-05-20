@@ -120,13 +120,35 @@ class record extends base {
 			die('活动不存在');
 		}
 		/**
-		 * 当前访问用户的基本信息
+		 * 提交的数据
 		 */
 		$user = $this->who;
-		/**
-		 * 处理提交数据
-		 */
 		$enrollData = $this->getPostJson();
+		/**
+		 * 包含用户身份信息
+		 */
+		if (isset($enrollData->member) && isset($enrollData->member->schema_id)) {
+			$member = clone $enrollData->member;
+			$rst = $this->_submitMember($site, $member, $user);
+			if ($rst[0] === false) {
+				return new \ParameterError($rst[1]);
+			}
+		}
+		/**
+		 * 提交数据
+		 */
+		$modelRec = $this->model('matter\signin\record');
+		$signState = $modelRec->signin($user, $site, $app);
+		if ($signState->enrolled) {
+			/* 已经登记，更新原先提交的数据 */
+			$modelRec->update('xxt_signin_record',
+				array('enroll_at' => time()),
+				"enroll_key='{$signState->ek}'"
+			);
+		}
+		/**
+		 * 检查签到数据是否在报名表中
+		 */
 		if (isset($app->enroll_app_id)) {
 			/*获得要检查的数据*/
 			$dataSchemas = json_decode($app->data_schemas);
@@ -139,33 +161,16 @@ class record extends base {
 			/*在指定的登记活动中检查数据*/
 			$enrollApp = $this->model('matter\enroll')->byId($app->enroll_app_id);
 			if ($enrollApp) {
-				$enrollRecord = $this->model('matter\enroll\record')->byData($user, $site, $enrollApp, $enrollData);
-				if (!$enrollRecord) {
-					return new \ResponseError('提交的数据不在指定的清单中');
+				$enrollRecord = $this->model('matter\enroll\record')->byData($site, $enrollApp, $requireCheckedData);
+				if (empty($enrollRecord)) {
+					//return new \ResponseError('提交的数据不在指定的清单中');
+					/* 已经登记，更新原先提交的数据 */
+					$modelRec->update('xxt_signin_record',
+						array('verified' => 'N'),
+						"enroll_key='{$signState->ek}'"
+					);
 				}
 			}
-		}
-		/**
-		 * 包含用户身份信息
-		 */
-		if (isset($enrollData->member) && isset($enrollData->member->schema_id)) {
-			$member = clone $enrollData->member;
-			$rst = $this->_submitMember($site, $member, $user);
-			if ($rst[0] === false) {
-				return new \ParameterError($rst[1]);
-			}
-		}
-		/**
-		 * 处理提交数据
-		 */
-		$modelRec = $this->model('matter\signin\record');
-		$signState = $modelRec->signin($user, $site, $app);
-		if ($signState->enrolled) {
-			/* 已经登记，更新原先提交的数据 */
-			$modelRec->update('xxt_signin_record',
-				array('enroll_at' => time()),
-				"enroll_key='{$signState->ek}'"
-			);
 		}
 		/* 插入提交的数据 */
 		$rst = $modelRec->setData($user, $site, $app, $signState->ek, $enrollData, $submitkey);

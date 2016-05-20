@@ -167,17 +167,6 @@ class record extends \pl\fe\matter\base {
 		return new \ResponseData($r);
 	}
 	/**
-	 * 清空一条登记信息
-	 */
-	public function remove_action($site, $app, $key) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-		$rst = $this->model('matter\signin\record')->remove($app, $key);
-
-		return new \ResponseData($rst);
-	}
-	/**
 	 * 更新登记记录
 	 *
 	 * @param string $app
@@ -251,5 +240,28 @@ class record extends \pl\fe\matter\base {
 		}
 
 		return new \ResponseData($record);
+	}
+	/**
+	 * 清空一条登记信息
+	 */
+	public function remove_action($site, $app, $key, $keepData = 'N') {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$rst = $this->model('matter\signin\record')->remove($app, $key, $keepData !== 'Y');
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 清空登记信息
+	 */
+	public function empty_action($site, $app, $keepData = 'N') {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$rst = $this->model('matter\signin\record')->clean($app, $keepData !== 'Y');
+
+		return new \ResponseData($rst);
 	}
 }

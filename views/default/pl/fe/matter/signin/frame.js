@@ -125,7 +125,7 @@ ngApp.controller('ctrlFrame', ['$scope', '$location', '$q', 'http2', function($s
 				page.act_schemas = actSchemas && actSchemas.length ? JSON.parse(actSchemas) : [];
 				page.user_schemas = userSchemas && userSchemas.length ? JSON.parse(userSchemas) : [];
 			});
-			$scope.persisted = angular.copy(app);
+			!app.rounds && (app.rounds = []);
 			$scope.app = app;
 			$scope.url = 'http://' + location.host + '/rest/site/fe/matter/signin?site=' + $scope.siteId + '&app=' + $scope.id;
 		});

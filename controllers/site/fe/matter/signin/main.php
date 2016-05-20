@@ -206,7 +206,7 @@ class main extends base {
 		if ($oPage->type === 'S') {
 			$options = array(
 				'fields' => '*',
-				'cascade' => 'Y',
+				'cascaded' => 'Y',
 			);
 			$modelRec = $this->model('matter\signin\record');
 			$userRecord = $modelRec->byUser($user, $site, $app, $options);

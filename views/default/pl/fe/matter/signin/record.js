@@ -269,7 +269,7 @@
             var vcode;
             vcode = prompt('是否要删除所有登记信息？，若是，请输入活动名称。');
             if (vcode === $scope.app.title) {
-                http2.get('/rest/pl/fe/matter/signin/record/empty?site=' + $scope.siteId + '&app=' + $scope.aid, function(rsp) {
+                http2.get('/rest/pl/fe/matter/signin/record/empty?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
                     $scope.doSearch(1);
                 });
             }

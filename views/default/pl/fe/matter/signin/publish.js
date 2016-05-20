@@ -32,101 +32,50 @@
 			$scope.update('pic');
 		};
 	}]);
-	ngApp.provider.controller('ctrlRound', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
-		$scope.roundState = ['新建', '启用', '停止'];
+	ngApp.provider.controller('ctrlRound', ['$scope', 'http2', function($scope, http2) {
+		var rounds, editing;
+		$scope.$watch('app', function(app) {
+			app && (rounds = app.rounds);
+		});
 		$scope.add = function() {
-			$modal.open({
-				templateUrl: 'roundEditor.html',
-				backdrop: 'static',
-				resolve: {
-					roundState: function() {
-						return $scope.roundState;
-					}
-				},
-				controller: ['$scope', '$modalInstance', 'roundState', function($scope, $mi, roundState) {
-					$scope.round = {
-						state: 0
-					};
-					$scope.roundState = roundState;
-					$scope.close = function() {
-						$mi.dismiss();
-					};
-					$scope.ok = function() {
-						$mi.close($scope.round);
-					};
-					$scope.start = function() {
-						$scope.round.state = 1;
-						$mi.close($scope.round);
-					};
-				}]
-			}).result.then(function(newRound) {
-				http2.post('/rest/pl/fe/matter/signin/round/add?site=' + $scope.siteId + '&app=' + $scope.id, newRound, function(rsp) {
-					!$scope.app.rounds && ($scope.app.rounds = []);
-					if ($scope.app.rounds.length > 0 && rsp.data.state == 1) {
-						$scope.app.rounds[0].state = 2;
-					}
-					$scope.app.rounds.splice(0, 0, rsp.data);
-				});
+			var newRound = {
+				title: '轮次' + (rounds.length + 1),
+				start_at: 0,
+				end_at: 0,
+			};
+			http2.post('/rest/pl/fe/matter/signin/round/add?site=' + $scope.siteId + '&app=' + $scope.id, newRound, function(rsp) {
+				rounds.splice(0, 0, rsp.data);
+				$scope.chooseRound(rounds[0]);
 			});
 		};
-		$scope.open = function(round) {
-			$modal.open({
-				templateUrl: 'roundEditor.html',
-				backdrop: 'static',
-				resolve: {
-					roundState: function() {
-						return $scope.roundState;
-					}
-				},
-				controller: ['$scope', '$modalInstance', 'roundState', function($scope, $mi, roundState) {
-					$scope.round = angular.copy(round);
-					$scope.roundState = roundState;
-					$scope.close = function() {
-						$mi.dismiss();
-					};
-					$scope.ok = function() {
-						$mi.close({
-							action: 'update',
-							data: $scope.round
-						});
-					};
-					$scope.remove = function() {
-						$mi.close({
-							action: 'remove'
-						});
-					};
-					$scope.start = function() {
-						$scope.round.state = 1;
-						$mi.close({
-							action: 'update',
-							data: $scope.round
-						});
-					};
-				}]
-			}).result.then(function(rst) {
-				var url;
-				if (rst.action === 'update') {
-					url = '/rest/pl/fe/matter/signin/round/update';
-					url += '?site=' + $scope.siteId;
-					url += '&app=' + $scope.id;
-					url += '&rid=' + round.rid;
-					http2.post(url, rst.data, function(rsp) {
-						if ($scope.app.rounds.length > 1 && rst.data.state == 1) {
-							$scope.app.rounds[1].state = 2;
-						}
-						angular.extend(round, rst.data);
-					});
-				} else if (rst.action === 'remove') {
-					url = '/rest/pl/fe/matter/signin/round/remove';
-					url += '?site=' + $scope.siteId;
-					url += '&app=' + $scope.id;
-					url += '&rid=' + round.rid;
-					http2.get(url, function(rsp) {
-						var i = $scope.app.rounds.indexOf(round);
-						$scope.app.rounds.splice(i, 1);
-					});
-				}
+		$scope.update = function() {
+			var url;
+			url = '/rest/pl/fe/matter/signin/round/update';
+			url += '?site=' + $scope.siteId;
+			url += '&app=' + $scope.id;
+			url += '&rid=' + editing.rid;
+			http2.post(url, editing, function(rsp) {
+				angular.extend($scope.selectedRound, rsp.data);
+				$scope.$root.infomsg = '保存成功';
 			});
+		};
+		$scope.$on('xxt.tms-datepicker.change', function(event, data) {
+			$scope.editingRound[data.state] = data.value;
+		});
+		$scope.remove = function() {
+			var url;
+			url = '/rest/pl/fe/matter/signin/round/remove';
+			url += '?site=' + $scope.siteId;
+			url += '&app=' + $scope.id;
+			url += '&rid=' + editing.rid;
+			http2.get(url, function(rsp) {
+				rounds.splice(rounds.indexOf($scope.selectedRound), 1);
+				$scope.editingRound = editing = null;
+			});
+		};
+		$scope.chooseRound = function(round) {
+			$scope.selectedRound = round;
+			$scope.editingRound = editing = angular.copy(round);
 		};
 	}]);
 })();

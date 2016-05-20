@@ -44,42 +44,30 @@ class round_model extends \TMS_MODEL {
 		return $rounds;
 	}
 	/**
-	 *
-	 * @param string $siteId
-	 * @param string $appId
-	 *
-	 */
-	public function getLast($siteId, $appId) {
-		$q = array(
-			'*',
-			'xxt_signin_round',
-			"siteid='$siteId' and aid='$appId'",
-		);
-		$q2 = array(
-			'o' => 'create_at desc',
-			'r' => array('o' => 0, 'l' => 1),
-		);
-		$rounds = $this->query_objs_ss($q, $q2);
-
-		return count($rounds) === 1 ? $rounds[0] : false;
-	}
-	/**
-	 * 获得启用状态的轮次
-	 * 一个签到活动只有一个启用状态的轮次
+	 * 获得当前轮次
+	 * 已经开始的，且开始时间最完的
 	 *
 	 * @param string $siteId
 	 * @param string $appId
 	 *
 	 */
 	public function getActive($siteId, $appId) {
+		$current = time();
 		$q = array(
 			'*',
 			'xxt_signin_round',
-			"siteid='$siteId' and aid='$appId' and state=1",
+			"siteid='$siteId' and aid='$appId'",
+		);
+		/*开始时间*/
+		$q[2] .= " and (start_at=0 || start_at<$current)";
+		/*开始最晚的*/
+		$q2 = array(
+			'o' => 'start_at desc',
+			'r' => array('o' => 0, 'l' => 1),
 		);
 
-		$round = $this->query_obj_ss($q);
+		$rounds = $this->query_objs_ss($q, $q2);
 
-		return $round;
+		return count($rounds) === 1 ? $rounds[0] : false;
 	}
 }

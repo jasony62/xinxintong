@@ -270,30 +270,6 @@
             class: 'form-group'
         }, html);
     };
-    WrapLib.prototype.embedRemarks = function(page, def) {
-        var html;
-        html = "<ul class='list-group'>";
-        html += "<li class='list-group-item' ng-repeat='r in Record.current.remarks'>";
-        html += "<div wrap='static'>{{r.remark}}</div>";
-        html += "<div wrap='static'>{{r.nickname}}</div>";
-        html += "<div wrap='static'>{{(r.create_at*1000)|date:'yy-MM-dd HH:mm'}}</div>";
-        html += "</li>";
-        html += "</ul>";
-        this.addWrap(page, 'div', {
-            'ng-controller': 'ctrlRemark',
-            wrap: 'list',
-            class: 'form-group'
-        }, html);
-    };
-    WrapLib.prototype.embedLikers = function(page, def) {
-        var html;
-        html = "<ul class='list-group'><li class='list-group-item' ng-repeat='l in Record.current.likers'><div>{{l.nickname}}</div></li></ul>";
-        this.addWrap(page, 'div', {
-            'ng-controller': 'ctrlRecord',
-            wrap: 'list',
-            class: 'form-group'
-        }, html);
-    };
     WrapLib.prototype.embedShow = function(page, def, catelog) {
         switch (catelog) {
             case 'record':
@@ -304,12 +280,6 @@
                 break;
             case 'rounds':
                 this.embedRounds(page, def);
-                break;
-            case 'remarks':
-                this.embedRemarks(page, def);
-                break;
-            case 'likers':
-                this.embedLikers(page, def);
                 break;
         }
     };
@@ -361,61 +331,28 @@
         _args: function(def) {
             return def.next ? "($event,'" + def.next + "')" : "($event)"
         },
-        addRecord: {
-            id: function(def) {
-                return 'btnNewRecord_' + def.next;
-            },
-            act: function(def) {
-                return 'addRecord' + EmbedButtonSchema._args(def);
-            }
-        },
         editRecord: {
-            id: function(def) {
-                return 'btnEditRecord_' + def.next;
-            },
             act: function(def) {
                 return 'editRecord' + EmbedButtonSchema._args(def);
             }
         },
         submit: {
-            id: 'btnSubmit',
             act: function(def) {
                 return 'submit' + EmbedButtonSchema._args(def);
             }
         },
-        acceptInvite: {
-            id: function(def) {
-                return 'btnAcceptInvite_' + def.next;
-            },
-            act: function(def) {
-                return 'accept' + EmbedButtonSchema._args(def);
-            }
-        },
         gotoPage: {
-            id: function(def) {
-                return 'btnGotoPage_' + def.next;
-            },
             act: function(def) {
                 return 'gotoPage' + EmbedButtonSchema._args(def);
-            }
-        },
-        likeRecord: {
-            id: function(def) {
-                return 'btnLikeRecord_' + def.next;
-            },
-            act: function(def) {
-                return 'like' + EmbedButtonSchema._args(def);
             }
         },
         closeWindow: {
             id: 'btnCloseWindow',
             act: 'closeWindow($event)'
         },
-        signin: {
+        gotoEnroll: {
             id: 'btnSignin',
-            act: function(def) {
-                return 'signin' + EmbedButtonSchema._args(def);
-            }
+            act: 'gotoEnroll($event)'
         },
     };
     WrapLib.prototype.changeEmbedButton = function(page, wrap, def) {
@@ -426,8 +363,6 @@
             $button = $(wrap).find('button');
             $button.children('span').html(def.label);
             $button.attr('ng-click', action);
-        } else if (button === 'remarkRecord') {
-            // not support
         }
     };
     WrapLib.prototype.embedButton = function(page, def) {
@@ -436,44 +371,17 @@
             wrap: 'button',
             class: 'form-group'
         };
-        tmplBtn = function(id, action, label) {
-            return '<button id="' + id + '" class="btn btn-primary btn-block btn-lg" ng-click="' + action + '"><span>' + label + '</span></button>';
+        def.id && (attrs.id = def.id);
+        tmplBtn = function(action, label) {
+            return '<button class="btn btn-primary btn-block btn-lg" ng-click="' + action + '"><span>' + label + '</span></button>';
         };
         if (schema = EmbedButtonSchema[def.name]) {
-            id = schema.id;
-            angular.isFunction(id) && (id = id(def));
             action = schema.act;
             angular.isFunction(action) && (action = action(def));
-            if (def.name === 'acceptInvite') {
-                attrs['ng-controller'] = 'ctrlInvite';
-            } else if (def.name === 'editRecord' || def.name === 'likeRecord') {
+            if (def.name === 'editRecord') {
                 attrs['ng-controller'] = 'ctrlRecord';
             }
-            this.addWrap(page, 'div', attrs, tmplBtn(id, action, def.label));
-        } else if (def.name === 'sendInvite') {
-            var html, action;
-            action = "send($event,'" + def.accept + "'";
-            def.next && (action += ",'" + def.next + "'");
-            action += ")";
-            html = '<input type="text" class="form-control" placeholder="认证用户标识" ng-model="invitee">';
-            html += '<span class="input-group-btn">';
-            html += '<button class="btn btn-success" type="button" ng-click="' + action + '"><span>' + label + '</span></button>';
-            html += '</span>';
-            this.addWrap(page, 'div', {
-                'ng-controller': 'ctrlInvite',
-                wrap: 'button',
-                class: 'form-group input-group input-group-lg'
-            }, html);
-        } else if (def.name === 'remarkRecord') {
-            var html = '<input type="text" class="form-control" placeholder="评论" ng-model="newRemark">';
-            html += '<span class="input-group-btn">';
-            html += '<button class="btn btn-success" type="button" ng-click="remark($event)"><span>发送</span></button>';
-            html += '</span>';
-            this.addWrap(page, 'div', {
-                'ng-controller': 'ctrlRemark',
-                wrap: 'button',
-                class: 'form-group input-group input-group-lg'
-            }, html);
+            this.addWrap(page, 'div', attrs, tmplBtn(action, def.label));
         }
     };
     window.wrapLib = new WrapLib();

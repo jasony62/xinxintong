@@ -51,10 +51,10 @@
         </div>
         <tinymce content='ep.html' id='{{ep.name}}' height='669' change="onPageChange(ep)"></tinymce>
         <div class='sidebar'>
-            <button class='btn btn-default' ng-click="embedInput(ep)" ng-if="ep.type==='I'">
+            <button class='btn btn-default' ng-click="embedInput(ep)" ng-if="ep.type==='S'">
             <i class='fa fa-plus fa-fw'></i>
             </button>
-            <button class='btn btn-default' ng-click="chooseSchema(ep)" ng-if="ep.type==='I'">
+            <button class='btn btn-default' ng-click="chooseSchema(ep)" ng-if="ep.type==='S'">
             <i class='fa fa-plus-square fa-fw'></i>
             </button>
             <button class='btn btn-default' ng-click="editWrap(ep)" ng-disabled='!hasActiveWrap||!activeWrap.editable'>

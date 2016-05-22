@@ -267,7 +267,7 @@
                             data[schemaId] = imgs;
                         });
                     }
-                    record.data = data;
+                    angular.extend(record, p);
                     //$scope.app.tags = tags;
                 });
             });
@@ -444,14 +444,17 @@
             $scope.record.signin_at = Math.round((new Date()).getTime() / 1000);
         };
         $scope.ok = function() {
-            var p = {
-                tags: $scope.record.aTags.join(','),
-                data: {}
-            };
-            $scope.record.tags = p.tags;
-            if ($scope.record.id) {
-                p.signin_at = $scope.record.signin_at;
-            }
+            var record = $scope.record,
+                p = {
+                    //tags: record.aTags.join(','),
+                    data: {}
+                };
+            record.tags = p.tags;
+            //if (record.id) {
+            //p.signin_at = record.signin_at;
+            p.verified = record.verified;
+            //}
+
             angular.forEach($scope.app.data_schemas, function(col) {
                 p.data[col.id] = $scope.record.data[col.id];
             });

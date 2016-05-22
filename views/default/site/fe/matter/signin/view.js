@@ -227,6 +227,16 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         $scope.editRecord = function(event, page) {
             page ? $scope.gotoPage(event, page, facRecord.current.enroll_key) : alert('没有指定登记编辑页');
         };
+        $scope.gotoEnroll = function(event, page) {
+            if ($scope.app.enroll_app_id) {
+                var url = '/rest/site/fe/matter/enroll';
+                url += '?site=' + LS.p.site;
+                url += '&app=' + $scope.app.enroll_app_id;
+                location.href = url;
+            } else {
+                $scope.$root.$errmsg = '没有指定关联报名表，无法填写报名信息';
+            }
+        };
         facRecord.get(LS.p.ek);
         $scope.Record = facRecord;
     }]);

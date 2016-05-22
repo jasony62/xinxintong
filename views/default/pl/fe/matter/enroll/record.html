@@ -54,6 +54,7 @@
                     <th style='width:100px'>登记时间</th>
                     <th class='custom-col' ng-repeat="c in  app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
                     <th style='width:140px'>标签</th>
+                    <th style='width:80px'>审核通过</th>
                     <th style='width:60px' ng-if="app.can_invite==='Y'">邀请</th>
                     <th style='width:72px'>操作</th>
                 </tr>
@@ -73,6 +74,7 @@
                         </span>
                     </td>
                     <td>{{r.tags}}</td>
+                    <td>{{r.verified}}</td>
                     <td ng-if="app.can_invite==='Y'">{{r.follower_num}}</td>
                     <td>
                         <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
@@ -89,23 +91,7 @@
     <div class='form-group form-inline'>
         <combox title='标签' evt-prefix='batch-tag' readonly='true' options='app.tags'></combox>
         <button class='btn btn-danger' ng-click='empty()'>清空记录</button>
-        <div class="btn-group">
-            <button type="button" class="btn btn-default">添加用户记录</button>
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-            aria-expanded="false">
-            <span class="caret"></span>
-            <span class="sr-only">Toggle Dropdown</span>
-            </button>
-            <ul class="dropdown-menu">
-                <li>
-                    <a href="javascript:void(0)" ng-click='importUser()'>注册用户</a>
-                </li>
-                <li>
-                    <a href="javascript:void(0)" ng-click='addRecord()'>手工添加</a>
-                </li>
-            </ul>
-        </div>
-        <pushnotify class='btn btn-primary' single-matter='Y' matter-types='notifyMatterTypes'>发送信息</pushnotify>
+        <button class='btn btn-default' ng-click='addRecord()'>手工添加</button>
         <span>总数：{{page.total}}</span>
         <pagination style='margin:0;cursor:pointer;vertical-align:bottom' ng-if='page.total>page.size' class='pull-right'
         boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at"
@@ -198,13 +184,10 @@
                     </span>
                 </div>
             </div>
-            <div class="form-group" ng-if="enroll.can_signin==='Y'&&record.enroll_at">
-                <label class="col-md-2 control-label">签到时间</label>
+            <div class="form-group">
+                <label class="col-md-2 control-label">审核通过</label>
                 <div class="col-md-10">
-                    <ul class='list-group' style='margin-bottom:0'>
-                        <li class='list-group-item' ng-repeat="l in record.signinLogs">{{l.signin_at*1000|date:'yy-MM-dd hh:mm'}}</li>
-                    </ul>
-                    <button class="btn btn-primary" ng-if='record.signin_at==0' ng-click="signin()">签到</button>
+                    <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="record.verified">是</label>
                 </div>
             </div>
             <div class="form-group">

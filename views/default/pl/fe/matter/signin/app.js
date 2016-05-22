@@ -46,17 +46,31 @@
 				$scope.app.enroll_app_id = data.source;
 				$scope.update('enroll_app_id');
 				$scope.submit().then(function(rsp) {
-					var url = '/rest/pl/fe/matter/enroll/get?site=' + $scope.siteId + '&id=' + $scope.app.enroll_app_id;
+					var app = $scope.app,
+						url = '/rest/pl/fe/matter/enroll/get?site=' + $scope.siteId + '&id=' + app.enroll_app_id;
 					http2.get(url, function(rsp) {
-						$scope.app.enrollApp = rsp.data;
+						app.enrollApp = rsp.data;
 					});
+					for (var i = app.data_schemas.length - 1; i > 0; i--) {
+						if (app.data_schemas[i].id === 'mobile') {
+							app.data_schemas[i].requireCheck = 'Y';
+							break;
+						}
+					}
+					$scope.update('data_schemas');
 				});
 			});
 		};
 		$scope.cancelEnrollApp = function() {
-			$scope.app.enroll_app_id = '';
+			var app = $scope.app;
+			app.enroll_app_id = '';
 			$scope.update('enroll_app_id');
-			$scope.submit();
+			$scope.submit().then(function() {
+				angular.forEach(app.data_schemas, function(dataSchema) {
+					delete dataSchema.requireCheck;
+				});
+				$scope.update('data_schemas');
+			});
 		};
 	}]);
 	ngApp.provider.controller('ctrlPageEditor', ['$scope', '$q', '$modal', 'http2', 'mediagallery', function($scope, $q, $modal, http2, mediagallery) {
@@ -365,6 +379,62 @@
 				}
 			});
 		};
+		var ctrlEmbedButton = ['$scope', '$modalInstance', 'app', 'schema', function($scope, $mi, app, schema) {
+			var targetPages = {},
+				inputPages = {};
+			angular.forEach(app.pages, function(page) {
+				targetPages[page.name] = {
+					l: page.title
+				};
+				if (page.type === 'S') {
+					inputPages[page.name] = {
+						l: page.title
+					};
+				}
+			});
+			targetPages.closeWindow = {
+				l: '关闭页面'
+			};
+			$scope.buttons = {
+				submit: {
+					l: '提交信息'
+				},
+				editRecord: {
+					l: '修改信息'
+				},
+				gotoEnroll: {
+					l: '填写报名信息'
+				},
+				gotoPage: {
+					l: '页面导航'
+				},
+				closeWindow: {
+					l: '关闭页面'
+				}
+			};
+			$scope.pages = targetPages;
+			$scope.inputPages = inputPages;
+			$scope.schema = schema;
+			$scope.choose = function() {
+				var names;
+				schema.label = $scope.buttons[schema.name].l;
+				schema.next = '';
+				if (['editRecord'].indexOf(schema.name) !== -1) {
+					names = Object.keys(inputPages);
+					if (names.length === 0) {
+						alert('没有类型为“填写页”的页面');
+					} else {
+						schema.next = names[0];
+					}
+				}
+			};
+			$scope.ok = function() {
+				$mi.close($scope.schema);
+			};
+			$scope.cancel = function() {
+				$mi.dismiss();
+			};
+		}];
 		$scope.chooseInput = function() {
 			if ($scope.ep.type === 'S') {
 				chooseInput();
@@ -400,6 +470,32 @@
 						$scope.ep.$$modified = true;
 					});
 				});
+			});
+		};
+		$scope.createAct = function() {
+			$modal.open({
+				templateUrl: '/views/default/pl/fe/matter/signin/component/configAct.html?_=2',
+				backdrop: 'static',
+				resolve: {
+					app: function() {
+						return $scope.app;
+					},
+					schema: function() {
+						return {
+							name: '',
+							label: '',
+							next: ''
+						};
+					}
+				},
+				controller: ctrlEmbedButton,
+			}).result.then(function(schema) {
+				var editor = tinymce.get('tinymce-page');
+				schema.id = 'act' + (new Date()).getTime();
+				wrapLib.embedButton(editor, schema);
+				editor.save();
+				$scope.ep.act_schemas.push(schema);
+				$scope.updPage($scope.ep, ['act_schemas', 'html']);
 			});
 		};
 		$scope.modifyWrap = function() {
@@ -544,32 +640,33 @@
 		$scope.onPageChange = function() {
 			$scope.ep.$$modified = true;
 		};
-		$scope.updPage = function(page, name) {
-			var editor, defer = $q.defer();
-			if (!angular.equals($scope.app, $scope.persisted)) {
-				if (name === 'html') {
-					editor = tinymce.activeEditor;
-					if ($(editor.getBody()).find('.active').length) {
-						$(editor.getBody()).find('.active').removeClass('active');
-						$scope.hasActiveWrap = false;
-						page.html = $(editor.getBody()).html();
-					}
+
+		$scope.updPage = function(page, names) {
+			var editor, defer = $q.defer(),
+				url, p = {};
+			angular.isString(names) && (names = [names]);
+			if (names.indexOf('html') !== -1) {
+				editor = tinymce.get('tinymce-page');
+				if ($(editor.getBody()).find('.active').length) {
+					$(editor.getBody()).find('.active').removeClass('active');
+					$scope.hasActiveWrap = false;
 				}
-				$scope.$root.progmsg = '正在保存页面...';
-				var url, p = {};
-				p[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
-				url = '/rest/pl/fe/matter/signin/page/update';
-				url += '?site=' + $scope.siteId;
-				url += '&app=' + $scope.id;
-				url += '&pid=' + page.id;
-				url += '&cname=' + page.code_name;
-				http2.post(url, p, function(rsp) {
-					$scope.persisted = angular.copy($scope.app);
-					page.$$modified = false;
-					$scope.$root.progmsg = '';
-					defer.resolve();
-				});
+				page.html = $(editor.getBody()).html();
 			}
+			$scope.$root.progmsg = '正在保存页面...';
+			angular.forEach(names, function(name) {
+				p[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
+			});
+			url = '/rest/pl/fe/matter/signin/page/update';
+			url += '?site=' + $scope.siteId;
+			url += '&app=' + $scope.id;
+			url += '&pid=' + page.id;
+			url += '&cname=' + page.code_name;
+			http2.post(url, p, function(rsp) {
+				page.$$modified = false;
+				$scope.$root.progmsg = '';
+				defer.resolve();
+			});
 			return defer.promise;
 		};
 		$scope.delPage = function() {

@@ -19,7 +19,7 @@ ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$co
 			}
 		}
 	}).when('/rest/pl/fe/matter/signin/page', {
-		templateUrl: '/views/default/pl/fe/matter/signin/page.html?_=4',
+		templateUrl: '/views/default/pl/fe/matter/signin/page.html?_=5',
 		controller: 'ctrlPage',
 		resolve: {
 			load: function($q) {

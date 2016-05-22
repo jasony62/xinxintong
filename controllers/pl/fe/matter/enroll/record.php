@@ -33,8 +33,6 @@ class record extends \pl\fe\matter\base {
 			'page' => $page,
 			'size' => $size,
 			'tags' => $tags,
-			'signinStartAt' => $signinStartAt,
-			'signinEndAt' => $signinEndAt,
 			'rid' => $rid,
 			'kw' => $kw,
 			'by' => $by,
@@ -43,8 +41,6 @@ class record extends \pl\fe\matter\base {
 		);
 		$mdoelRec = $this->model('matter\enroll\record');
 		$result = $mdoelRec->find($site, $app, $options);
-		/* 获得数据项定义 */
-		//$result->schema = json_decode($app->data_schemas);
 
 		return new \ResponseData($result);
 	}
@@ -83,9 +79,7 @@ class record extends \pl\fe\matter\base {
 				foreach ($eks as $ek) {
 					$record = $modelRec->byId($ek, $options);
 					$user = new \stdClass;
-					$user->openid = $record->openid;
 					$user->nickname = $record->nickname;
-					$user->vid = '';
 					$newek = $modelRec->add($site, $objApp, $user);
 					if ($includeData === 'Y') {
 						$modelRec->setData($user, $site, $objApp, $newek, $record->data);
@@ -188,15 +182,15 @@ class record extends \pl\fe\matter\base {
 		$model = $this->model();
 
 		foreach ($record as $k => $v) {
-			if (in_array($k, array('signin_at', 'tags', 'comment'))) {
+			if (in_array($k, array('verified', 'signin_at', 'tags', 'comment'))) {
 				$model->update(
 					'xxt_enroll_record',
 					array($k => $v),
 					"enroll_key='$ek'"
 				);
-				if ($k === 'tags') {
+				/*if ($k === 'tags') {
 					$this->model('matter\enroll')->updateTags($app, $v);
-				}
+				}*/
 			} else if ($k === 'data' and is_object($v)) {
 				foreach ($v as $cn => $cv) {
 					if (is_array($cv) && isset($cv[0]->imgSrc)) {

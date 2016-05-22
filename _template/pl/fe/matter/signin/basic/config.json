@@ -49,10 +49,14 @@
 			}
 		}],
 		"act_schemas": [{
-			"id": "act2",
+			"id": "act1",
 			"name": "editRecord",
 			"label": "重新签到",
 			"next": "signin"
+		}, {
+			"id": "act2",
+			"name": "gotoEnroll",
+			"label": "修改报名信息"
 		}]
 	}],
 	"schema": [{

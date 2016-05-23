@@ -319,6 +319,11 @@
                 return 'editRecord' + PrefabActSchema._args(schema);
             }
         },
+        removeRecord: {
+            act: function(schema) {
+                return 'removeRecord' + PrefabActSchema._args(schema);
+            }
+        },
         submit: {
             act: function(schema) {
                 return 'submit' + PrefabActSchema._args(schema);
@@ -354,7 +359,7 @@
                 angular.isFunction(action) && (action = action(schema));
                 if (schema.name === 'acceptInvite') {
                     attrs['ng-controller'] = 'ctrlInvite';
-                } else if (schema.name === 'editRecord' || schema.name === 'likeRecord') {
+                } else if (['editRecord', 'removeRecord'].indexOf(schema.name) !== -1) {
                     attrs['ng-controller'] = 'ctrlRecord';
                 }
                 WrapLib.prototype.addWrap(editor, 'div', attrs, tmplBtn(action, schema.label));

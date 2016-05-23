@@ -654,35 +654,16 @@ class record extends base {
 		return new \ResponseData($remark);
 	}
 	/**
-	 * 当前用户活动签到
+	 * 删除当前记录
 	 *
 	 * @param string $site
 	 * @param string $app
 	 */
-	public function signin_action($site, $app) {
-		$modelApp = $this->model('matter\enroll');
-		$modelRec = $this->model('matter\enroll\signin');
+	public function remove_action($site, $app, $ek) {
+		$modelRec = $this->model('matter\enroll\record');
 
-		$user = $this->who;
-		$app = $modelApp->byId($app);
-		$rst = $modelRec->signin($site, $app, $user);
-		/**
-		 * 回复
-		 */
-		if ($rst) {
-			if ($app->success_matter_type && $app->success_matter_id) {
-				$cls = $app->success_matter_type;
-				return array('matter_type' => $app->success_matter_type, 'matter_id' => $app->success_matter_id);
-			} else {
-				return new \ResponseData("活动【" . $app->title . "】已签到，已登记");
-			}
-		} else {
-			if ($app->failure_matter_type && $app->failure_matter_id) {
-				$cls = $app->failure_matter_type;
-				return array('matter_type' => $app->failure_matter_type, 'matter_id' => $app->failure_matter_id);
-			} else {
-				return new \ResponseData("活动【" . $app->title . "】已签到，未登记");
-			}
-		}
+		$rst = $modelRec->removeByUser($site, $app, $ek);
+
+		return new \ResponseData($rst);
 	}
 }

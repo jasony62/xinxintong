@@ -494,6 +494,26 @@ class record_model extends \TMS_MODEL {
 	 * @param string $aid
 	 * @param string $ek
 	 */
+	public function removeByUser($site, $appId, $ek) {
+		$rst = $this->update(
+			'xxt_enroll_record_data',
+			array('state' => 0),
+			"aid='$appId' and enroll_key='$ek'"
+		);
+		$rst = $this->update(
+			'xxt_enroll_record',
+			array('state' => 0),
+			"aid='$appId' and enroll_key='$ek'"
+		);
+
+		return $rst;
+	}
+	/**
+	 * 清除一条登记记录
+	 *
+	 * @param string $aid
+	 * @param string $ek
+	 */
 	public function remove($appId, $ek, $byDelete = false) {
 		if ($byDelete) {
 			$rst = $this->delete(
@@ -507,12 +527,12 @@ class record_model extends \TMS_MODEL {
 		} else {
 			$rst = $this->update(
 				'xxt_enroll_record_data',
-				array('state' => 0),
+				array('state' => 100),
 				"aid='$appId' and enroll_key='$ek'"
 			);
 			$rst = $this->update(
 				'xxt_enroll_record',
-				array('state' => 0),
+				array('state' => 100),
 				"aid='$appId' and enroll_key='$ek'"
 			);
 		}

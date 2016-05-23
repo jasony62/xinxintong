@@ -218,6 +218,9 @@
 				editRecord: {
 					l: '修改登记'
 				},
+				removeRecord: {
+					l: '删除登记'
+				},
 				sendInvite: {
 					l: '发出邀请'
 				},
@@ -238,7 +241,7 @@
 				var names;
 				schema.label = $scope.buttons[schema.name].l;
 				schema.next = '';
-				if (['addRecord', 'editRecord'].indexOf(schema.name) !== -1) {
+				if (['addRecord', 'editRecord', 'removeRecord'].indexOf(schema.name) !== -1) {
 					names = Object.keys(inputPages);
 					if (names.length === 0) {
 						alert('没有类型为“填写页”的页面');

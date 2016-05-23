@@ -106,8 +106,8 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
             return deferred.promise;
         };
         Record.prototype.list = function(owner, rid) {
-            var url, deferred;
-            deferred = $q.defer();
+            var deferred = $q.defer(),
+                url;
             url = LS.j('record/list', 'site', 'app');
             url += '&owner=' + owner;
             rid && rid.length && (url += '&rid=' + rid);
@@ -126,45 +126,12 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
             });
             return deferred.promise;
         };
-        Record.prototype.like = function(record) {
-            var url;
-            deferred = $q.defer();
-            url = LS.j('record/score', 'site');
+        Record.prototype.remove = function(record) {
+            var deferred = $q.defer(),
+                url;
+            url = LS.j('record/remove', 'site', 'app');
             url += '&ek=' + record.enroll_key;
             $http.get(url).success(function(rsp) {
-                record.myscore = rsp.data.myScore;
-                record.score = rsp.data.score;
-                deferred.resolve(rsp.data);
-            });
-            return deferred.promise;
-        };
-        Record.prototype.likerList = function(record) {
-            var url;
-            deferred = $q.defer();
-            url = LS.j('record/likerList', 'site');
-            url += '&ek=' + record.enroll_key;
-            $http.get(url).success(function(rsp) {
-                deferred.resolve(rsp.data);
-            });
-            return deferred.promise;
-        };
-        Record.prototype.remark = function(record, newRemark) {
-            var url, deferred;
-            deferred = $q.defer();
-            url = LS.j('record/remark', 'site');
-            url += '&ek=' + record.enroll_key;
-            $http.post(url, {
-                remark: newRemark
-            }).success(function(rsp) {
-                if (angular.isString(rsp)) {
-                    alert(rsp);
-                    return;
-                }
-                if (rsp.err_code != 0) {
-                    alert(rsp.err_msg);
-                    return;
-                }
-                record.remarks.push(rsp.data);
                 deferred.resolve(rsp.data);
             });
             return deferred.promise;
@@ -285,6 +252,11 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         };
         $scope.editRecord = function(event, page) {
             page ? $scope.gotoPage(event, page, facRecord.current.enroll_key) : alert('没有指定登记编辑页');
+        };
+        $scope.removeRecord = function(event, page) {
+            facRecord.remove(facRecord.current).then(function(data) {
+                page && $scope.gotoPage(event, page);
+            });
         };
         $scope.like = function(event, nextAction) {
             event.preventDefault();

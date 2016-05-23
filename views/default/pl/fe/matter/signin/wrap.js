@@ -378,7 +378,7 @@
         if (schema = EmbedButtonSchema[def.name]) {
             action = schema.act;
             angular.isFunction(action) && (action = action(def));
-            if (def.name === 'editRecord') {
+            if (['editRecord', 'gotoEnroll'].indexOf(def.name) !== -1) {
                 attrs['ng-controller'] = 'ctrlRecord';
             }
             this.addWrap(page, 'div', attrs, tmplBtn(action, def.label));

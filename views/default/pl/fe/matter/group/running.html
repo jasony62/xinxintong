@@ -20,23 +20,31 @@
         </div>
     </div>
     <div class='tile' ng-if='selectedRound'>
-        <div class='form-group'>
+        <div class='form-group compact'>
             <input type='text' class='form-control' ng-model='selectedRound.title' tms-auto-update tms-wait=1000 tms-update="updateRound('title')">
             <div class='help-block'>分组名称</div>
+        </div>
+        <div class='form-group compact'>
+            <input type="text" class="form-control" ng-model="selectedRound.extattrs.attr1" tms-auto-update tms-wait=1000 tms-update="updateRound('extattrs')">
+            <div class='help-block'>扩展属性1</div>
+        </div>
+        <div class='form-group compact'>
+            <input type="text" class="form-control" ng-model="selectedRound.extattrs.attr2" tms-auto-update tms-wait=1000 tms-update="updateRound('extattrs')">
+            <div class='help-block'>扩展属性2</div>
         </div>
     </div>
     <div class='tile'>
         <table class='table table-bordered'>
             <thead>
                 <tr>
-                    <th>分组</th>
+                    <th ng-if="!selectedRound">分组</th>
                     <th class='custom-col' ng-repeat="c in app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
                     <th style='width:72px'>操作</th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat='p in players' class='player'>
-                    <td>{{p.round_title}}</td>
+                    <td ng-if="!selectedRound">{{p.round_title}}</td>
                     <td ng-repeat="c in app.data_schemas">
                         <span ng-if="c.id.indexOf('member')===0">{{memberAttr(p.data, c.id)}}</span>
                         <span ng-if="c.type!=='img'&&c.type!=='file'">{{value2Label(p.data[c.id], c.id)}}</span>

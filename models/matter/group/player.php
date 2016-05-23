@@ -385,6 +385,8 @@ class player_model extends \TMS_MODEL {
 		);
 		if (!empty($rid)) {
 			$q[2] .= " and round_id='$rid'";
+		} else {
+			$q[2] .= " and round_id<>0";
 		}
 		$q2 = array('o' => 'round_id,draw_at');
 		if ($players = $this->query_objs_ss($q, $q2)) {

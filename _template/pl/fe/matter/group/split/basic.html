@@ -5,7 +5,7 @@
         <tbody>
             <tr ng-repeat="round in rounds">
                 <td ng-bind="round.title"></td>
-                <td ng-repeat="winner in round.winners"><span ng-bind="winner.name"></span></td>
+                <td ng-repeat="winner in round.winners"><span ng-bind="winner.data.name"></span></td>
             </tr>
         </tbody>
     </table>

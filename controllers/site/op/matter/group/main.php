@@ -36,7 +36,7 @@ class main extends \site\op\base {
 		$options = array(
 			'fields' => 'round_id,title,autoplay,targets,times',
 		);
-		$rounds = $this->model('matter\group\round')->find($app, $options);
+		$rounds = $this->model('matter\group\round')->byApp($app, $options);
 		foreach ($rounds as &$round) {
 			$round->targets = json_decode($round->targets);
 		}
@@ -64,15 +64,7 @@ class main extends \site\op\base {
 	 * @param string $app
 	 */
 	public function empty_action($app) {
-		$rst = $this->model()->update(
-			'xxt_group_player',
-			array(
-				'round_id' => '',
-				'round_title' => '',
-				'draw_at' => 0,
-			),
-			"aid='$app'"
-		);
+		$rst = $this->model('matter\group\round')->clean($app);
 
 		return new \ResponseData($rst);
 	}
@@ -87,9 +79,9 @@ class main extends \site\op\base {
 		$options = array(
 			'fields' => 'round_id,title',
 		);
-		$rounds = $this->model('matter\group\round')->find($app, $options);
+		$rounds = $this->model('matter\group\round')->byApp($app, $options);
 		foreach ($rounds as &$round) {
-			$mapOfRounds->{$round->id} = $round;
+			$mapOfRounds->{$round->round_id} = $round;
 		}
 		/*记录分组结果*/
 		$users = $this->getPostJson();
@@ -98,12 +90,12 @@ class main extends \site\op\base {
 		}
 		$current = time();
 		foreach ($users as $user) {
-			$i = array(
-				'round_id' => $user->round_id,
-				'round_title' => $mapOfRounds->{$user->round_id}->title,
+			$winner = array(
+				'round_id' => $user->rid,
+				'round_title' => $mapOfRounds->{$user->rid}->title,
 				'draw_at' => $current,
 			);
-			$this->model()->update('xxt_group_player', $i, "aid='$app' and enroll_key='$user->ek'");
+			$this->model()->update('xxt_group_player', $winner, "aid='$app' and enroll_key='$user->ek'");
 		}
 
 		return new \ResponseData('ok');

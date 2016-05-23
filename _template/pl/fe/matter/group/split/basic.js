@@ -4,49 +4,51 @@
 			var players = $scope.players,
 				target = round.targets ? round.targets[round.winners.length % round.targets.length] : false,
 				steps = Math.round(Math.random() * 10),
-				pos, winner, matched;
-			pos4Match = pos = steps % players.length;
-			winner = players[pos];
+				startPos, winner, matched;
+			matchedPos = startPos = steps % players.length;
+			winner = players[startPos];
 			if (Object.keys(target).length > 0) {
 				/* 检查是否匹配规则 */
 				matched = $scope.matched(winner, target);
 				while (!matched) {
-					pos4Match++;
-					if (pos4Match === players.length) {
-						pos4Match = 0;
+					matchedPos++;
+					if (matchedPos === players.length) {
+						matchedPos = 0;
 					}
-					if (pos4Match === pos) {
+					winner = players[matchedPos];
+					if (matchedPos === startPos) {
 						/*比较了所有的候选者，没有匹配的*/
 						break;
+					} else {
+						/*下一个候选者*/
+						matched = $scope.matched(winner, target);
 					}
-					/*下一个候选者*/
-					winner = players[pos4Match];
-					matched = $scope.matched(winner, target);
 				}
 			}
 			round.winners.push(winner);
-			players.splice(pos4Match, 1);
+			players.splice(matchedPos, 1);
+
 			return winner;
 		};
 		$scope.start = function() {
 			var hasSpace = true,
 				i, l = $scope.rounds.length,
-				round, winner, winners = [];
+				round, winner4Round, submittedWinners = [];
 			while ($scope.players.length && hasSpace) {
 				hasSpace = false;
 				for (i = 0; i < l; i++) {
 					round = $scope.rounds[i];
 					if (round.times > round.winners.length) {
-						winner = getWinner4Round(round);
-						winner.round_id = round.round_id;
-						winners.push(winner);
+						winner4Round = getWinner4Round(round);
+						winner4Round.round_id = round.round_id;
+						submittedWinners.push(winner4Round);
 						if (round.times > round.winners.length) {
 							hasSpace = true;
 						}
 					}
 				}
 			}
-			$scope.addWinners(winners);
+			$scope.submit(submittedWinners);
 		};
 		$http.get(LS.j('roundsGet', 'site', 'app')).success(function(rsp) {
 			var rounds = rsp.data,
@@ -57,8 +59,14 @@
 			});
 			$scope.rounds = rounds;
 			$scope.getUsers().then(function(data) {
-				angular.forEach(data.winners, function(winner) {
-					mapOfRounds[winner.round_id].winners.push(winner);
+				var winners = data.winners,
+					round;
+				angular.forEach(winners, function(winner) {
+					if (round = mapOfRounds[winner.round_id]) {
+						round.winners.push(winner);
+					} else {
+						console.log('data error: round not exist', winner.round_id);
+					}
 				});
 			});
 		});

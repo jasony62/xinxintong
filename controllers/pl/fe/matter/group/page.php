@@ -61,7 +61,7 @@ class page extends \pl\fe\matter\base {
 	public function reset_action($site, $app, $scenario = 'lottery', $template = 'basic') {
 		$modelCode = $this->model('code\page');
 
-		$options = array('fields' => 'page_code_id', 'cascaded' => 'N');
+		$options = array('fields' => 'page_code_name', 'cascaded' => 'N');
 		$app = $this->model('matter\group')->byId($app, $options);
 
 		$module = TMS_APP_TEMPLATE . '/pl/fe/matter/group/' . $scenario . '/' . $template;
@@ -74,21 +74,21 @@ class page extends \pl\fe\matter\base {
 		$code = $modelCode->lastByName($site, $app->page_code_name);
 		$modelCode->modify($code->id, $data);
 		/*config*/
-		$modelCode->delete('xxt_code_external', "code_id=$app->page_code_id");
+		$modelCode->delete('xxt_code_external', "code_id={$code->id}");
 		$config = file_get_contents($module . '.json');
 		$config = preg_replace('/\t|\r|\n/', '', $config);
 		$config = json_decode($config);
 		if (!empty($config->extjs)) {
 			foreach ($config->extjs as $js) {
-				$modelCode->insert('xxt_code_external', array('code_id' => $app->page_code_id, 'type' => 'J', 'url' => $js), false);
+				$modelCode->insert('xxt_code_external', array('code_id' => $code->id, 'type' => 'J', 'url' => $js), false);
 			}
 		}
 		if (!empty($config->extcss)) {
 			foreach ($config->extcss as $css) {
-				$modelCode->insert('xxt_code_external', array('code_id' => $app->page_code_id, 'type' => 'C', 'url' => $css), false);
+				$modelCode->insert('xxt_code_external', array('code_id' => $code->id, 'type' => 'C', 'url' => $css), false);
 			}
 		}
 
-		return new \ResponseData($app->page_code_id);
+		return new \ResponseData($code->id);
 	}
 }

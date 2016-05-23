@@ -102,7 +102,11 @@ ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($sco
 		}
 	});
 	http2.get('/rest/pl/fe/matter/group/round/list?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
-		$scope.rounds = rsp.data;
+		var rounds = rsp.data;
+		angular.forEach(rounds, function(round) {
+			round.extattrs = (round.extattrs && round.extattrs.length) ? JSON.parse(round.extattrs) : {};
+		});
+		$scope.rounds = rounds;
 	});
 }]);
 ngApp.controller('ctrlEditor', ['$scope', '$modalInstance', '$sce', 'app', 'rounds', 'player', function($scope, $mi, $sce, app, rounds, player) {

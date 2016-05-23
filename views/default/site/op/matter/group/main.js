@@ -78,13 +78,13 @@ ngApp.controller('ctrl', ['$scope', '$http', '$q', function($scope, $http, $q) {
         if (Object.keys(target).length === 0) return true;
         for (k in target) {
             v = target[k];
-            if (candidate[k] === v) return true;
+            if (candidate.data[k] === v) return true;
         }
         return false;
     };
     /*清空结果*/
     $scope.empty = function(fromBegin) {
-        $http.get(LS.j('/empty', 'site', 'app')).success(function(rsp) {
+        $http.get(LS.j('empty', 'site', 'app')).success(function(rsp) {
             if (fromBegin && fromBegin === 'Y') {
                 var url, t;
                 t = (new Date()).getTime();
@@ -96,9 +96,9 @@ ngApp.controller('ctrl', ['$scope', '$http', '$q', function($scope, $http, $q) {
         });
     };
     /*在指定轮次中添加选中的用户*/
-    $scope.addWinners = function(winners) {
+    $scope.submit = function(winners) {
         var deferred = $q.defer(),
-            url = LS.j('/done', 'site', 'app'),
+            url = LS.j('done', 'site', 'app'),
             posted = [];
         angular.forEach(winners, function(winner) {
             posted.push({
@@ -113,7 +113,7 @@ ngApp.controller('ctrl', ['$scope', '$http', '$q', function($scope, $http, $q) {
         });
         return deferred.promise;
     };
-    $http.get(LS.j('/pageGet', 'site', 'app')).success(function(rsp) {
+    $http.get(LS.j('pageGet', 'site', 'app')).success(function(rsp) {
         if (rsp.err_code !== 0) {
             $scope.errmsg = rsp.err_msg;
             return;

@@ -101,6 +101,7 @@
 			}
 		};
 		$scope.allPlayers = function() {
+			$scope.selectedRound = null;
 			var url = '/rest/pl/fe/matter/group/player/list?site=' + $scope.siteId + '&app=' + $scope.id;
 			http2.get(url, function(rsp) {
 				$scope.players = rsp.data.players;
@@ -115,6 +116,7 @@
 			});
 		};
 		$scope.pendings = function() {
+			$scope.selectedRound = null;
 			var url = '/rest/pl/fe/matter/group/player/pendingsGet?app=' + $scope.id;
 			http2.get(url, function(rsp) {
 				$scope.players = rsp.data;

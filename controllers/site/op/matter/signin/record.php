@@ -1,5 +1,5 @@
 <?php
-namespace site\op\matter\enroll;
+namespace site\op\matter\signin;
 
 require_once TMS_APP_DIR . '/controllers/site/op/base.php';
 /**
@@ -22,7 +22,8 @@ class record extends \site\op\base {
 			'orderby' => $orderby,
 			'contain' => $contain,
 		);
-		$mdoelRec = $this->model('matter\enroll\record');
+		$mdoelRec = $this->model('matter\signin\record');
+		$app = $this->model('matter\signin')->byId($app);
 		$result = $mdoelRec->find($site, $app, $options);
 
 		return new \ResponseData($result);

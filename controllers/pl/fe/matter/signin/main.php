@@ -282,7 +282,7 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 		/*在删除数据前获得数据*/
-		$app = $this->model('matter\signin')->byId($app, array('fields' => 'id,title,summary,pic', 'cascaded' => 'N'));
+		$app = $this->model('matter\signin')->byId($app, array('fields' => 'id,title,summary,pic,mission_id', 'cascaded' => 'N'));
 		/*删除和任务的关联*/
 		if ($app->mission_id) {
 			$this->model('mission')->removeMatter($site, $app->id, 'signin');

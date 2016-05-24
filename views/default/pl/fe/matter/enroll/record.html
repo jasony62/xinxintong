@@ -40,9 +40,7 @@
         <div class='form-group' ng-if="app.can_signin==='Y'" style='width:180px'>
             <tms-datepicker tms-title='签到范围结束日期' tms-date='signinEndAt' tms-state='signinEndAt'></tms-datepicker>
         </div>
-        <div class='form-group'>
-            <button class='btn btn-default' ng-click='tagByData()' disabled>打标签</button>
-        </div>
+        <button class='btn btn-success' ng-click='verifyAll()'>全部通过审核</button>
     </div>
     <div id='records'>
         <table class='table table-bordered'>
@@ -89,7 +87,6 @@
         </table>
     </div>
     <div class='form-group form-inline'>
-        <combox title='标签' evt-prefix='batch-tag' readonly='true' options='app.tags'></combox>
         <button class='btn btn-danger' ng-click='empty()'>清空记录</button>
         <button class='btn btn-default' ng-click='addRecord()'>手工添加</button>
         <span>总数：{{page.total}}</span>
@@ -98,37 +95,6 @@
         previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
     </div>
 </div>
-<script type="text/ng-template" id="tagByData.html">
-    <div class="modal-header">
-        <button class="close" type="button" ng-click="cancel()">×</button>
-        <h5 class="modal-title">筛选条件</h5>
-    </div>
-    <div class="modal-body">
-        <form class="form-horizontal record-editor">
-            <div class="form-group" ng-repeat="def in schema" ng-if="def.id.indexOf('member')!==0">
-                <label class="col-md-3 control-label">{{def.title}}</label>
-                <div class="col-md-9" ng-if="def.type!=='single'&&def.type!=='multiple'">
-                    <input type='text' class='form-control' ng-model="data.filter[def.id]">
-                </div>
-                <div class="col-md-9" ng-if="def.type==='single'||def.type==='multiple'">
-                    <select class='form-control' ng-model="data.filter[def.id]" ng-options="op.v as op.label for op in def.ops">
-                        <option></option>
-                    </select>
-                </div>
-            </div>
-            <hr>
-            <div class='form-group'>
-                <label class="col-md-3 control-label">标签</label>
-                <div class="col-md-9">
-                    <input type='text' class='form-control' ng-model="data.tag">
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="ok()">确定</button>
-    </div>
-</script>
 <script type="text/ng-template" id="recordEditor.html">
     <style>
         /* img tiles */

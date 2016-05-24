@@ -99,9 +99,17 @@ class main extends \pl\fe\matter\base {
 		if (!empty($mission)) {
 			$modelMis = $this->model('mission');
 			$mission = $modelMis->byId($mission);
+			$newapp['summary'] = $mission->summary;
+			$newapp['pic'] = $mission->pic;
 			$newapp['mission_id'] = $mission->id;
+			$newapp['use_mission_header'] = 'Y';
+			$newapp['use_mission_footer'] = 'Y';
+		} else {
+			$newapp['summary'] = '';
+			$newapp['pic'] = $site->heading_pic;
+			$newapp['use_mission_header'] = 'N';
+			$newapp['use_mission_footer'] = 'N';
 		}
-		$pic = !empty($mission->pic) ? $mission->pic : $site->heading_pic;
 		/*用户指定的*/
 		$customConfig = $this->getPostJson();
 		$title = empty($customConfig->proto->title) ? '新签到活动' : $customConfig->proto->title;
@@ -130,7 +138,6 @@ class main extends \pl\fe\matter\base {
 		$newapp['siteid'] = $site->id;
 		$newapp['id'] = $appId;
 		$newapp['title'] = $title;
-		$newapp['pic'] = $pic;
 		$newapp['creater'] = $user->id;
 		$newapp['creater_src'] = $user->src;
 		$newapp['creater_name'] = $user->name;
@@ -139,7 +146,6 @@ class main extends \pl\fe\matter\base {
 		$newapp['modifier_src'] = $user->src;
 		$newapp['modifier_name'] = $user->name;
 		$newapp['modify_at'] = $current;
-		$newapp['summary'] = '';
 		$this->model()->insert('xxt_signin', $newapp, false);
 		$app = $this->model('matter\signin')->byId($appId, array('cascaded' => 'N'));
 

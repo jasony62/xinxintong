@@ -79,7 +79,7 @@
                 <label class='checkbox-inline'>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_footer' ng-change="update('use_site_footer');">使用站点页脚</label>
             </div>
-            <div class='form-group' ng-if="app.mission_id">
+            <div class='form-group' ng-if="app.mission_id>0">
                 <label class='checkbox-inline'>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_header' ng-change="update('use_mission_header');">使用项目页眉</label>
                 <label class='checkbox-inline'>

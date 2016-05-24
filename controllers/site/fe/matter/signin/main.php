@@ -173,13 +173,25 @@ class main extends base {
 	public function get_action($site, $app, $page = null) {
 		$params = array();
 
-		$params['site'] = $this->model('site')->byId(
-			$site,
-			array('cascaded' => 'header_page_name,footer_page_name')
-		);
 		/* 登记活动定义 */
 		$app = $this->modelApp->byId($app);
 		$params['app'] = &$app;
+		/*站点页面设置*/
+		if ($app->use_site_header === 'Y' || $app->use_site_footer === 'Y') {
+			$params['site'] = $this->model('site')->byId(
+				$site,
+				array('cascaded' => 'header_page_name,footer_page_name')
+			);
+		}
+		/*项目页面设置*/
+		if ($app->use_mission_header === 'Y' || $app->use_mission_footer === 'Y') {
+			if ($app->mission_id) {
+				$params['mission'] = $this->model('matter\mission')->byId(
+					$app->mission_id,
+					array('cascaded' => 'header_page_name,footer_page_name')
+				);
+			}
+		}
 		/* 当前访问用户的基本信息 */
 		$user = $this->who;
 		$params['user'] = $user;
@@ -200,7 +212,7 @@ class main extends base {
 		$modelPage = $this->model('matter\signin\page');
 		$oPage = $modelPage->byId($app->id, $oPage->id, 'Y');
 		$params['page'] = $oPage;
-		$params['activeRound'] = $this->model('matter\signin\round')->byId($app->active_round);
+		$params['activeRound'] = $this->model('matter\signin\round')->getActive($site, $app->id);
 		/*登记记录*/
 		$newForm = false;
 		if ($oPage->type === 'S') {

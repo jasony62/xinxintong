@@ -35,7 +35,7 @@
 					$scope2.ok = function() {
 						$mi.close($scope2.data);
 					};
-					var url = '/rest/pl/fe/matter/enroll/list?site=' + $scope.siteId + '&page=1&size=999';
+					var url = '/rest/pl/fe/matter/enroll/list?site=' + $scope.siteId + '&scenario=registration&size=999';
 					app.mission && (url += '&mission=' + app.mission.id);
 					http2.get(url, function(rsp) {
 						$scope2.apps = rsp.data.apps;

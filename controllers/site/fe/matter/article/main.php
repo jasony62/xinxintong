@@ -28,8 +28,6 @@ class main extends \site\fe\matter\base {
 	public function get_action($site, $id) {
 		$user = $this->who;
 
-		$data = array();
-
 		$modelArticle = $this->model('matter\article2');
 		$article = $modelArticle->byId($id);
 		if (isset($article->access_control) && $article->access_control === 'Y' && !empty($article->authapis)) {
@@ -62,18 +60,32 @@ class main extends \site\fe\matter\base {
 			$modelCode = $this->model('code\page');
 			$article->page = $modelCode->lastPublishedByName($site, $article->body_page_name);
 		}
-		$data['article'] = $article;
-		$data['user'] = $user;
-		/* 站点号信息 */
-		$site = $this->model('site')->byId(
-			$site,
-			array('cascaded' => 'header_page_name,footer_page_name')
-		);
+		$data = array();
+		$data['article'] = &$article;
+		$data['user'] = &$user;
+		/* 站点信息 */
+		if ($article->use_site_header === 'Y' || $article->use_site_footer === 'Y') {
+			$site = $this->model('site')->byId(
+				$site,
+				array('cascaded' => 'header_page_name,footer_page_name')
+			);
+		} else {
+			$site = $this->model('site')->byId($site);
+		}
+		$data['site'] = &$site;
 		$userAgent = $_SERVER['HTTP_USER_AGENT'];
 		if (preg_match('/yixin/i', $userAgent)) {
 			$site->yx = $this->model('sns\yx')->bySite($site->id, 'cardname,cardid');
 		}
-		$data['site'] = $site;
+		/*项目页面设置*/
+		if ($article->use_mission_header === 'Y' || $article->use_mission_footer === 'Y') {
+			if ($article->mission_id) {
+				$data['mission'] = $this->model('matter\mission')->byId(
+					$article->mission_id,
+					array('cascaded' => 'header_page_name,footer_page_name')
+				);
+			}
+		}
 
 		return new \ResponseData($data);
 	}

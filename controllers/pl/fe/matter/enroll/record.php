@@ -243,4 +243,16 @@ class record extends \pl\fe\matter\base {
 
 		return new \ResponseData($record);
 	}
+	/**
+	 * 所有记录通过审核
+	 */
+	public function verifyAll_action($site, $app) {
+		$rst = $this->model()->update(
+			'xxt_enroll_record',
+			array('verified' => 'Y'),
+			"siteid='$site' and aid='$app'"
+		);
+
+		return new \ResponseData($rst);
+	}
 }

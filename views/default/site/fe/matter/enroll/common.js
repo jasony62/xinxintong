@@ -286,17 +286,20 @@ ngApp.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http,
             return;
         }
         var params = rsp.data,
-            site = params.site;
+            site = params.site,
+            app = params.app,
+            mission = params.mission;
+        app.data_schemas = JSON.parse(app.data_schemas);
         $scope.params = params;
-        params.app.data_schemas = JSON.parse(params.app.data_schemas);
         $scope.site = site;
-        $scope.app = params.app;
+        $scope.mission = mission;
+        $scope.app = app;
         $scope.user = params.user;
-        if (params.app.multi_rounds === 'Y') {
+        if (app.multi_rounds === 'Y') {
             $scope.activeRound = params.activeRound;
         }
         setShareData($scope, params, $http);
-        if (params.app.use_site_header === 'Y' && site && site.header_page) {
+        if (app.use_site_header === 'Y' && site && site.header_page) {
             if (site.header_page.ext_css && site.header_page.ext_css.length) {
                 angular.forEach(site.header_page.ext_css, function(css) {
                     loadCss(css);
@@ -309,7 +312,33 @@ ngApp.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http,
                 eval(site.header_page.js);
             })();
         }
-        if (params.app.use_site_footer === 'Y' && site && site.footer_page) {
+        if (app.use_mission_header === 'Y' && mission && mission.header_page) {
+            if (mission.header_page.ext_css && mission.header_page.ext_css.length) {
+                angular.forEach(mission.header_page.ext_css, function(css) {
+                    loadCss(css);
+                });
+            }
+            if (mission.header_page.css.length) {
+                loadDynaCss(mission.header_page.css);
+            }
+            (function() {
+                eval(mission.header_page.js);
+            })();
+        }
+        if (app.use_mission_footer === 'Y' && mission && mission.footer_page) {
+            if (mission.footer_page.ext_css && mission.footer_page.ext_css.length) {
+                angular.forEach(mission.footer_page.ext_css, function(css) {
+                    loadCss(css);
+                });
+            }
+            if (mission.footer_page.css.length) {
+                loadDynaCss(mission.footer_page.css);
+            }
+            (function() {
+                eval(mission.footer_page.js);
+            })();
+        }
+        if (app.use_site_footer === 'Y' && site && site.footer_page) {
             if (site.footer_page.ext_css && site.footer_page.ext_css.length) {
                 angular.forEach(site.footer_page.ext_css, function(css) {
                     loadCss(css);

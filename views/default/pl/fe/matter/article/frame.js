@@ -88,6 +88,10 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', 'mediagaller
 		$scope.modified = true;
 		modifiedData['body'] = encodeURIComponent($scope.editing['body']);
 	};
+	$scope.tinymceSave = function() {
+		$scope.update('body');
+		$scope.submit();
+	};
 	$scope.submit = function() {
 		http2.post('/rest/pl/fe/matter/article/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData, function() {
 			modifiedData = {};

@@ -216,7 +216,7 @@ class player extends \pl\fe\matter\base {
 					}
 				} else {
 					/*删除用户*/
-					$modelPlayer->remove($app, $record->enroll_key, true);
+					$modelPlayer->remove($objGrp->id, $record->enroll_key, true);
 				}
 			}
 		}

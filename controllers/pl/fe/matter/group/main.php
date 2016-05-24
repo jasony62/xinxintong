@@ -100,12 +100,16 @@ class main extends \pl\fe\matter\base {
 		if (empty($mission)) {
 			$newapp['summary'] = '';
 			$newapp['pic'] = $site->heading_pic;
+			$newapp['use_mission_header'] = 'N';
+			$newapp['use_mission_footer'] = 'N';
 		} else {
 			$modelMis = $this->model('mission');
 			$mission = $modelMis->byId($mission);
 			$newapp['summary'] = $mission->summary;
 			$newapp['pic'] = $mission->pic;
 			$newapp['mission_id'] = $mission->id;
+			$newapp['use_mission_header'] = 'Y';
+			$newapp['use_mission_footer'] = 'Y';
 		}
 		/*create app*/
 		$newapp['id'] = $appId;

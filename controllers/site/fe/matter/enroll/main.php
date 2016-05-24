@@ -203,7 +203,6 @@ class main extends base {
 					array('cascaded' => 'header_page_name,footer_page_name')
 				);
 			}
-
 		}
 		/* 当前访问用户的基本信息 */
 		$user = $this->who;

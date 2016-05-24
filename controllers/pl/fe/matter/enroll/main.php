@@ -114,7 +114,7 @@ class main extends \pl\fe\matter\base {
 	 *
 	 * $src 是否来源于父账号，=p
 	 */
-	public function list_action($site, $page = 1, $size = 30, $mission = null) {
+	public function list_action($site, $page = 1, $size = 30, $mission = null, $scenario = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -124,6 +124,9 @@ class main extends \pl\fe\matter\base {
 			'xxt_enroll a',
 			"siteid='$site' and state<>0",
 		);
+		if (!empty($scenario)) {
+			$q[2] .= " and scenario='$scenario'";
+		}
 		if (!empty($mission)) {
 			$q[2] .= " and exists(select 1 from xxt_mission_matter where mission_id='$mission' and matter_type='enroll' and matter_id=a.id)";
 		}
@@ -158,16 +161,16 @@ class main extends \pl\fe\matter\base {
 		if (empty($mission)) {
 			$newapp['pic'] = $site->heading_pic;
 			$newapp['summary'] = '';
-			$newapp['use_mission_header'] = 'Y';
-			$newapp['use_mission_footer'] = 'Y';
+			$newapp['use_mission_header'] = 'N';
+			$newapp['use_mission_footer'] = 'N';
 		} else {
 			$modelMis = $this->model('mission');
 			$mission = $modelMis->byId($mission);
 			$newapp['pic'] = $mission->pic;
 			$newapp['summary'] = $mission->summary;
 			$newapp['mission_id'] = $mission->id;
-			$newapp['use_mission_header'] = 'N';
-			$newapp['use_mission_footer'] = 'N';
+			$newapp['use_mission_header'] = 'Y';
+			$newapp['use_mission_footer'] = 'Y';
 		}
 		$appId = uniqid();
 		/*pages*/

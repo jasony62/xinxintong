@@ -111,41 +111,6 @@
         $scope.signinEndAt = endAt.getTime() / 1000;
         $scope.selected = {};
         $scope.selectAll;
-        $scope.tagByData = function() {
-            $modal.open({
-                templateUrl: 'tagByData.html',
-                controller: ['$scope', '$modalInstance', function($scope2, $mi) {
-                    $scope2.data = {
-                        filter: {},
-                        tag: ''
-                    };
-                    $scope2.schema = [];
-                    angular.forEach($scope.schema, function(def) {
-                        if (['img', 'file', 'datetime'].indexOf(def.type) === -1) {
-                            $scope2.schema.push(def);
-                        }
-                    });
-                    $scope2.cancel = function() {
-                        $mi.dismiss();
-                    };
-                    $scope2.ok = function() {
-                        $mi.close($scope2.data);
-                    };
-                }],
-                backdrop: 'static'
-            }).result.then(function(data) {
-                if (data.tag && data.tag.length) {
-                    http2.post('/rest/pl/fe/matter/enroll/record/tagByData?aid=' + $scope.id, data, function(rsp) {
-                        var aAssigned;
-                        $scope.doSearch();
-                        aAssigned = data.tag.split(',');
-                        angular.forEach(aAssigned, function(newTag) {
-                            $scope.app.tags.indexOf(newTag) === -1 && $scope.app.tags.push(newTag);
-                        });
-                    });
-                }
-            });
-        };
         $scope.$on('xxt.tms-datepicker.change', function(evt, data) {
             $scope[data.state] = data.value;
             $scope.doSearch(1);
@@ -347,12 +312,20 @@
                 });
             }
         };
+        $scope.verifyAll = function() {
+            http2.get('/rest/pl/fe/matter/enroll/record/verifyAll?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+                angular.forEach($scope.records, function(record) {
+                    record.verified = 'Y';
+                    $scope.$root.infomsg = '完成操作';
+                });
+            });
+        };
         $scope.$watch('selectAll', function(nv) {
-            var i, j;
-            if (nv !== undefined)
-                for (i = 0, j = $scope.records.length; i < j; i++) {
+            if (nv !== undefined) {
+                for (var i = $scope.records.length - 1; i >= 0; i--) {
                     $scope.selected[i] = nv;
                 }
+            }
         });
         $scope.$watch('app', function(app) {
             if (!app) return;

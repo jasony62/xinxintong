@@ -43,10 +43,10 @@
 						if (!appType) return;
 						var url;
 						if (appType === 'registration') {
-							url = '/rest/pl/fe/matter/enroll/list?site=' + $scope.siteId + '&page=1&size=999';
+							url = '/rest/pl/fe/matter/enroll/list?site=' + $scope.siteId + '&size=999';
 							url += '&scenario=registration';
 						} else {
-							url = '/rest/pl/fe/matter/signin/list?site=' + $scope.siteId + '&page=1&size=999';
+							url = '/rest/pl/fe/matter/signin/list?site=' + $scope.siteId + '&size=999';
 						}
 						app.mission && (url += '&mission=' + app.mission.id);
 						http2.get(url, function(rsp) {

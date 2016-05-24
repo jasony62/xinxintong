@@ -99,9 +99,10 @@ define(["require", "angular"], function(require, angular) {
             var deferred = $q.defer();
             $http.get('/rest/site/fe/matter/article/get?site=' + siteId + '&id=' + id).success(function(rsp) {
                 var site = rsp.data.site,
+                    mission = rsp.data.mission,
                     article = rsp.data.article,
                     channels = article.channels;
-                if (site.header_page) {
+                if (article.use_site_header === 'Y' && site && site.header_page) {
                     if (site.header_page.ext_css.length) {
                         angular.forEach(site.header_page.ext_css, function(css) {
                             loadCss(css.url);
@@ -114,7 +115,33 @@ define(["require", "angular"], function(require, angular) {
                         eval(site.header_page.js);
                     })();
                 }
-                if (site.footer_page) {
+                if (article.use_mission_header === 'Y' && mission && mission.header_page) {
+                    if (mission.header_page.ext_css.length) {
+                        angular.forEach(mission.header_page.ext_css, function(css) {
+                            loadCss(css.url);
+                        });
+                    }
+                    if (mission.header_page.css.length) {
+                        loadDynaCss(mission.header_page.css);
+                    }
+                    (function() {
+                        eval(mission.header_page.js);
+                    })();
+                }
+                if (article.use_mission_footer === 'Y' && mission && mission.footer_page) {
+                    if (mission.footer_page.ext_css.length) {
+                        angular.forEach(mission.footer_page.ext_css, function(css) {
+                            loadCss(css.url);
+                        });
+                    }
+                    if (mission.footer_page.css.length) {
+                        loadDynaCss(mission.footer_page.css);
+                    }
+                    (function() {
+                        eval(mission.footer_page.js);
+                    })();
+                }
+                if (article.use_site_footer === 'Y' && site && site.footer_page) {
                     if (site.footer_page.ext_css.length) {
                         angular.forEach(site.footer_page.ext_css, function(css) {
                             loadCss(css.url);
@@ -136,6 +163,7 @@ define(["require", "angular"], function(require, angular) {
                     }
                 }
                 $scope.site = site;
+                $scope.mission = mission;
                 $scope.article = article;
                 $scope.user = rsp.data.user;
                 if (window.wx || /Yixin/i.test(navigator.userAgent)) {

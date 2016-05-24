@@ -33,10 +33,10 @@ class mission_model extends app_base {
 			$cascaded = explode(',', $cascaded);
 			$modelCode = \TMS_APP::M('code\page');
 			foreach ($cascaded as $field) {
-				if ($field === 'header_page_name' && $site->header_page_name) {
-					$site->header_page = $modelCode->lastPublishedByName($siteId, $site->header_page_name, array('fields' => 'id,html,css,js'));
-				} else if ($field === 'footer_page_name' && $site->footer_page_name) {
-					$site->footer_page = $modelCode->lastPublishedByName($siteId, $site->footer_page_name, array('fields' => 'id,html,css,js'));
+				if ($field === 'header_page_name' && $mission->header_page_name) {
+					$mission->header_page = $modelCode->lastPublishedByName($mission->siteid, $mission->header_page_name, array('fields' => 'id,html,css,js'));
+				} else if ($field === 'footer_page_name' && $mission->footer_page_name) {
+					$mission->footer_page = $modelCode->lastPublishedByName($mission->siteid, $mission->footer_page_name, array('fields' => 'id,html,css,js'));
 				}
 			}
 		}

@@ -14,7 +14,8 @@
     
     <body class='ng-clock' ng-cloak>
         <div class="article">
-            <header dynamic-html="site.header_page.html"></header>
+            <header ng-if="article.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
+            <header ng-if="article.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
             <div class="wrap">
                 <h1 id="title" class="ttile" ng-bind='article.title'></h1>
                 <div id="attribute">
@@ -74,7 +75,8 @@
                     </div>
                 </div>
             </div>
-            <footer dynamic-html="site.footer_page.html"></footer>
+            <footer ng-if="article.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
+            <footer ng-if="article.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
         </div>
         <div class="loading"><div class='loading-indicator'><i></i></div></div>
         <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/matter/article/main-loader.js?_=6"></script>

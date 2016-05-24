@@ -312,6 +312,10 @@ $sql .= ",mission_id int not null default 0"; // 所属项目
 $sql .= ",entry_rule text"; // 进入规则
 $sql .= ",data_schemas text";
 $sql .= ",active_round varchar(13) not null"; // 当前激活的轮次 should remove
+$sql .= ",use_site_header char(1) not null default 'Y'"; // 使用站点页眉
+$sql .= ",use_site_footer char(1) not null default 'Y'"; // 使用站点页脚
+$sql .= ",use_mission_header char(1) not null default 'Y'"; // 使用项目页眉
+$sql .= ",use_mission_footer char(1) not null default 'Y'"; // 使用项目页脚
 $sql .= ",extattrs text"; //扩展属性
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
@@ -444,8 +448,12 @@ $sql .= ",last_sync_at int not null"; // 最有同步的时间
 $sql .= ",group_rule text"; // 分组规则
 $sql .= ",data_schemas text";
 $sql .= ",tags text";
-$sql .= ",page_code_id int not null default 0";
+$sql .= ",page_code_id int not null default 0"; //should remove
 $sql .= ",page_code_name varchar(13) not null default ''";
+$sql .= ",use_site_header char(1) not null default 'Y'"; // 使用站点页眉
+$sql .= ",use_site_footer char(1) not null default 'Y'"; // 使用站点页脚
+$sql .= ",use_mission_header char(1) not null default 'Y'"; // 使用项目页眉
+$sql .= ",use_mission_footer char(1) not null default 'Y'"; // 使用项目页脚
 $sql .= ",extattrs text"; //扩展属性
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

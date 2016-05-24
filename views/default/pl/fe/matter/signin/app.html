@@ -19,7 +19,7 @@
                     <i class='fa fa-plus fa-fw'></i>
                     </button>
                     <button class='btn btn-default' ng-click="chooseInput()" title='添加已有登记项' ng-if="ep.type==='S'">
-                    <i class='fa fa-plus-square fa-fw'></i>
+                    <i class='fa fa-plus-square-o fa-fw'></i>
                     </button>
                     <button class='btn btn-default' ng-click="createAct()" title='添加操作'>
                     <i class='fa fa-plus-square fa-fw'></i>
@@ -103,12 +103,12 @@
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_footer' ng-change="update('use_mission_footer');">使用项目页脚</label>
             </div>
         </div>
-        <div class='tile' ng-if="app.state==='2'">
+        <div class='tile' ng-if="app.state==='3'||app.state==='2'">
             <div class='form-group'>
                 <div style='height:auto;word-break:break-all' ng-bind='url'></div>
             </div>
             <div class='form-group'>
-                <a href='/rest/pl/fe/matter/signin/record?site={{siteId}}&id={{id}}'>登记记录</a>
+                <a href='/rest/pl/fe/matter/signin/record?site={{siteId}}&id={{id}}'>签到记录</a>
             </div>
         </div>
         <div class='tile'>

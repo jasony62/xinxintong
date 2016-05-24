@@ -61,7 +61,7 @@ ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$co
 			}
 		}
 	}).otherwise({
-		templateUrl: '/views/default/pl/fe/matter/signin/app.html?_=2',
+		templateUrl: '/views/default/pl/fe/matter/signin/app.html?_=3',
 		controller: 'ctrlApp',
 		resolve: {
 			load: function($q) {

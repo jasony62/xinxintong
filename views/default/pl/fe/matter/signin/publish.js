@@ -12,7 +12,7 @@
 		});
 		$scope.opUrl = 'http://' + location.host + '/rest/site/op/matter/signin?site=' + $scope.siteId + '&app=' + $scope.id;
 		$scope.stop = function() {
-			$scope.app.state = 1;
+			$scope.app.state = 3;
 			$scope.update('state');
 			$scope.submit().then(function() {
 				location.href = '/rest/pl/fe/matter/signin/app?site=' + $scope.siteId + '&id=' + $scope.id;

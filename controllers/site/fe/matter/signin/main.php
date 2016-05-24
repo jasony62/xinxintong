@@ -43,8 +43,15 @@ class main extends base {
 			/* 检查是否需要第三方社交帐号OAuth */
 			$this->_requireSnsOAuth($site, $app);
 		}
-		/* 判断活动的开始结束时间 */
-		//$ignoretime === 'N' && $this->_isValid($app);
+		/* 判断活动是否可用 */
+		if ($app->state === '3') {
+			$this->outputError('签到已经结束', $app->title);
+		}
+		if ($ignoretime === 'N') {
+			if ($app->state === '1' || !$this->model('matter\signin\round')->getActive($site, $app->id)) {
+				$this->outputError('还没有开始签到', $app->title);
+			}
+		}
 		/* 计算打开哪个页面 */
 		if (empty($page)) {
 			/*没有指定页面*/
@@ -60,7 +67,7 @@ class main extends base {
 		empty($oPage) && $this->outputError('没有可访问的页面');
 		/* 记录日志 */
 		//$this->logRead($siteid, $user, $app->id, 'signin', $app->title, '');
-		/* 返回登记活动页面 */
+		/* 返回签到活动页面 */
 		\TPL::assign('title', $app->title);
 		if ($oPage->type === 'V') {
 			\TPL::output('/site/fe/matter/signin/view');
@@ -114,35 +121,6 @@ class main extends base {
 		return false;
 	}
 	/**
-	 * 登记活动是否可用
-	 *
-	 * @param object $app 登记活动
-	 */
-	private function _isValid(&$app) {
-		$tipPage = false;
-		$current = time();
-		if ($app->start_at != 0 && !empty($app->before_start_page) && $current < $app->start_at) {
-			$tipPage = $app->before_start_page;
-		} else if ($app->end_at != 0 && !empty($app->after_end_page) && $current > $app->end_at) {
-			$tipPage = $app->after_end_page;
-		}
-		if ($tipPage !== false) {
-			$mapPages = array();
-			foreach ($app->pages as &$p) {
-				$mapPages[$p->name] = $p;
-			}
-			$oPage = $mapPages[$tipPage];
-			$modelPage = $this->model('matter\signin\page');
-			$oPage = $modelPage->byId($appid, $oPage->id);
-			!empty($oPage->html) && \TPL::assign('body', $oPage->html);
-			!empty($oPage->css) && \TPL::assign('css', $oPage->css);
-			!empty($oPage->js) && \TPL::assign('js', $oPage->js);
-			\TPL::assign('title', $app->title);
-			\TPL::output('info');
-			exit;
-		}
-	}
-	/**
 	 * 当前用户的缺省页面
 	 */
 	private function &_defaultPage(&$user, $siteId, &$app, $redirect = false) {
@@ -173,7 +151,7 @@ class main extends base {
 	public function get_action($site, $app, $page = null) {
 		$params = array();
 
-		/* 登记活动定义 */
+		/* 签到活动定义 */
 		$app = $this->modelApp->byId($app);
 		$params['app'] = &$app;
 		/*站点页面设置*/

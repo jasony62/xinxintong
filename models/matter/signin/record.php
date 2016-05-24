@@ -85,16 +85,18 @@ class record_model extends \TMS_MODEL {
 	 * 检查用户在指定轮次是否已经签到
 	 */
 	public function &userSigned(&$user, $siteId, &$app, &$round = null) {
+		$log = false;
 		if (empty($round)) {
 			$round = \TMS_APP::M('matter\signin\round')->getActive($siteId, $app->id);
 		}
-		$q = array(
-			'*',
-			'xxt_signin_log',
-			"siteid='$siteId' and aid='{$app->id}' and rid='{$round->rid}' and userid='{$user->uid}'",
-		);
-		$log = $this->query_obj_ss($q);
-
+		if ($round) {
+			$q = array(
+				'*',
+				'xxt_signin_log',
+				"siteid='$siteId' and aid='{$app->id}' and rid='{$round->rid}' and userid='{$user->uid}'",
+			);
+			$log = $this->query_obj_ss($q);
+		}
 		return $log;
 	}
 	/**

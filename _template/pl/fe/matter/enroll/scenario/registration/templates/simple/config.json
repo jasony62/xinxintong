@@ -101,7 +101,7 @@
 			"label": "修改登记",
 			"next": "enroll"
 		}, {
-			"id": "act2",
+			"id": "act3",
 			"name": "removeRecord",
 			"label": "删除登记",
 			"next": "enroll"

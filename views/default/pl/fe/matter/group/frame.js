@@ -32,7 +32,7 @@ ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', func
 			}
 		}
 	}).otherwise({
-		templateUrl: '/views/default/pl/fe/matter/group/setting.html?_=2',
+		templateUrl: '/views/default/pl/fe/matter/group/setting.html?_=3',
 		controller: 'ctrlSetting',
 		resolve: {
 			load: function($q) {

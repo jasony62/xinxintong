@@ -30,6 +30,24 @@ class player extends \pl\fe\matter\base {
 		return new \ResponseData($result);
 	}
 	/**
+	 * 分组用户数量
+	 */
+	public function count_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$q = array(
+			'count(*)',
+			"xxt_group_player",
+			"siteid='$site' and aid='$app' and state=1",
+		);
+
+		$cnt = $this->model()->query_val_ss($q);
+
+		return new \ResponseData($cnt);
+	}
+	/**
 	 * 从其他活动导入数据
 	 */
 	public function importByApp_action($site, $app) {

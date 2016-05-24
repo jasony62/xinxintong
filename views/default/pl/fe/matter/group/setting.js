@@ -100,6 +100,9 @@
 			$modal.open({
 				templateUrl: 'configRule.html',
 				resolve: {
+					app: function() {
+						return $scope.app;
+					},
 					rule: function() {
 						return angular.copy($scope.app.group_rule);
 					},
@@ -107,8 +110,11 @@
 						return angular.copy($scope.app.data_schemas);
 					}
 				},
-				controller: ['$modalInstance', '$scope', 'rule', 'schemas', function($mi, $scope, rule, schemas) {
+				controller: ['$modalInstance', '$scope', 'http2', 'app', 'rule', 'schemas', function($mi, $scope, http2, app, rule, schemas) {
 					$scope.schemas = [];
+					http2.get('/rest/pl/fe/matter/group/player/count?site=' + app.siteid + '&app=' + app.id, function(rsp) {
+						$scope.countOfPlayers = rsp.data;
+					});
 					angular.forEach(schemas, function(schema) {
 						if (schema.type === 'single') {
 							$scope.schemas.push(schema);
@@ -124,6 +130,11 @@
 					$scope.ok = function() {
 						$mi.close($scope.rule);
 					};
+					$scope.$watch('rule.count', function(countOfGroups) {
+						if (countOfGroups) {
+							rule.times = Math.ceil($scope.countOfPlayers / countOfGroups);
+						}
+					});
 				}],
 				backdrop: 'static',
 			}).result.then(function(rule) {
@@ -135,7 +146,10 @@
 			});
 		};
 		$scope.addRound = function() {
-			http2.get('/rest/pl/fe/matter/group/round/add?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+			var proto = {
+				title: '分组' + ($scope.rounds.length + 1)
+			};
+			http2.post('/rest/pl/fe/matter/group/round/add?site=' + $scope.siteId + '&app=' + $scope.id, proto, function(rsp) {
 				$scope.rounds.push(rsp.data);
 			});
 		};

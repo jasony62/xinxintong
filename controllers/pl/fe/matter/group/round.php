@@ -18,11 +18,15 @@ class round extends \pl\fe\matter\base {
 	 *
 	 */
 	public function add_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$posted = $this->getPostJson();
 		$r = array(
 			'aid' => $app,
 			'round_id' => uniqid(),
 			'create_at' => time(),
-			'title' => '新轮次',
+			'title' => empty($posted->title) ? '新分组' : $posted->title,
 			'targets' => '',
 		);
 		$this->model()->insert('xxt_group_round', $r, false);
@@ -33,6 +37,9 @@ class round extends \pl\fe\matter\base {
 	 *
 	 */
 	public function update_action($site, $app, $rid) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$model = $this->model();
 		$nv = $this->getPostJson();
 
@@ -63,6 +70,9 @@ class round extends \pl\fe\matter\base {
 	 *
 	 */
 	public function remove_action($site, $app, $rid) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$model = $this->model();
 		/**
 		 * 已过已经有抽奖数据不允许删除
@@ -87,6 +97,9 @@ class round extends \pl\fe\matter\base {
 	 * 属于指定分组的人
 	 */
 	public function winnersGet_action($app, $rid = null) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$result = $this->model('matter\group\player')->winnersByRound($app, $rid);
 
 		return new \ResponseData($result);

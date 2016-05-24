@@ -163,10 +163,10 @@ app.controller('ctrlConsole', ['$scope', '$modal', 'http2', function($scope, $mo
     };
     $scope.addEnrollByTemplate = function() {
         $modal.open({
-            templateUrl: 'templatePicker.html',
+            templateUrl: '/views/default/pl/fe/_module/enroll-template.html',
             size: 'lg',
             backdrop: 'static',
-            windowClass: 'auto-height',
+            windowClass: 'auto-height template',
             controller: ['$scope', '$modalInstance', function($scope2, $mi) {
                 $scope2.data = {};
                 $scope2.cancel = function() {

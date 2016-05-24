@@ -296,7 +296,7 @@ ngApp.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http,
             $scope.activeRound = params.activeRound;
         }
         setShareData($scope, params, $http);
-        if (site.header_page) {
+        if (params.app.use_site_header === 'Y' && site && site.header_page) {
             if (site.header_page.ext_css && site.header_page.ext_css.length) {
                 angular.forEach(site.header_page.ext_css, function(css) {
                     loadCss(css);
@@ -309,7 +309,7 @@ ngApp.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http,
                 eval(site.header_page.js);
             })();
         }
-        if (site.footer_page) {
+        if (params.app.use_site_footer === 'Y' && site && site.footer_page) {
             if (site.footer_page.ext_css && site.footer_page.ext_css.length) {
                 angular.forEach(site.footer_page.ext_css, function(css) {
                     loadCss(css);

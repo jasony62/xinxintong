@@ -21,6 +21,31 @@ class mission_model extends app_base {
 	/**
 	 *
 	 */
+	public function &byId($id, $options = array()) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : '';
+		$q = array(
+			$fields,
+			$this->table(),
+			"id='$id'",
+		);
+		if (($mission = $this->query_obj_ss($q)) && !empty($cascaded)) {
+			$cascaded = explode(',', $cascaded);
+			$modelCode = \TMS_APP::M('code\page');
+			foreach ($cascaded as $field) {
+				if ($field === 'header_page_name' && $site->header_page_name) {
+					$site->header_page = $modelCode->lastPublishedByName($siteId, $site->header_page_name, array('fields' => 'id,html,css,js'));
+				} else if ($field === 'footer_page_name' && $site->footer_page_name) {
+					$site->footer_page = $modelCode->lastPublishedByName($siteId, $site->footer_page_name, array('fields' => 'id,html,css,js'));
+				}
+			}
+		}
+
+		return $mission;
+	}
+	/**
+	 *
+	 */
 	public function &bySite($siteId, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$limit = isset($options['limit']) ? $options['limit'] : (object) array('page' => 1, 'size' => 20);

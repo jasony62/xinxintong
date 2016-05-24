@@ -4,7 +4,7 @@
 		<td>站点主页</td>
 		<td>
 			<a href='' ng-click="editPage($event,'home')">编辑页面</a>
-			<a href='' ng-click="resetPage($event,'home')" ng-show="site.home_page_id!=='0'">重置页面</a>
+			<a href='' ng-click="resetPage($event,'home')" ng-show="site.home_page_name.length'">重置页面</a>
 		</td>
 	</tr>
 	<tr>
@@ -12,7 +12,7 @@
 		<td>通用页眉</td>
 		<td>
 			<a href='' ng-click="editPage($event,'header')">编辑页面</a>
-			<a href='' ng-click="resetPage($event,'header')" ng-show="site.header_page_id!=='0'">重置页面</a>
+			<a href='' ng-click="resetPage($event,'header')" ng-show="site.header_page_name.length'">重置页面</a>
 		</td>
 	</tr>
 	<tr>
@@ -20,7 +20,7 @@
 		<td>通用页脚</td>
 		<td>
 			<a href='' ng-click="editPage($event,'footer')">编辑页面</a>
-			<a href='' ng-click="resetPage($event,'footer')" ng-show="site.footer_page_id!=='0'">重置页面</a>
+			<a href='' ng-click="resetPage($event,'footer')" ng-show="site.footer_page_name.length'">重置页面</a>
 		</td>
 	</tr>
 	<tr>
@@ -28,7 +28,7 @@
 		<td>某些与用户互动的页面适合在PC端展现，可以在此处设置提示的内容。</td>
 		<td>
 			<a href='' ng-click="editPage($event,'shift2pc')">编辑页面</a>
-			<a href='' ng-click="resetPage($event,'shift2pc')" ng-show="site.shift2pc_page_id!=='0'">重置页面</a>
+			<a href='' ng-click="resetPage($event,'shift2pc')" ng-show="site.shift2pc_page_name.length'">重置页面</a>
 		</td>
 	</tr>
 </table>

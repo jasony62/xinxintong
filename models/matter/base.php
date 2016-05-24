@@ -56,7 +56,8 @@ class base_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function &byId($id, $fields = '*') {
+	public function &byId($id, $options = array()) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$q = array(
 			$fields,
 			$this->table(),

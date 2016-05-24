@@ -71,6 +71,37 @@ app.controller('ctrlSetting', ['$scope', 'http2', '$modal', function($scope, htt
 		$scope.editing[data.state] = data.value;
 		$scope.update(data.state);
 	});
+	$scope.editPage = function(event, page) {
+		event.preventDefault();
+		event.stopPropagation();
+		var prop = page + '_page_name',
+			codeName = $scope.editing[prop];
+		if (codeName && codeName.length) {
+			location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + codeName;
+		} else {
+			http2.get('/rest/pl/fe/matter/mission/setting/pageCreate?site=' + $scope.siteId + '&id=' + $scope.id + '&page=' + page, function(rsp) {
+				$scope.editing[prop] = rsp.data.name;
+				location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + rsp.data.name;
+			});
+		}
+	};
+	$scope.resetPage = function(event, page) {
+		event.preventDefault();
+		event.stopPropagation();
+		if (window.confirm('重置操作将覆盖已经做出的修改，确定重置？')) {
+			var codeName = $scope.editing[page + '_page_name'];
+			if (codeName && codeName.length) {
+				http2.get('/rest/pl/fe/matter/mission/setting/pageReset?site=' + $scope.siteId + '&id=' + $scope.id + '&page=' + page, function(rsp) {
+					location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + codeName;
+				});
+			} else {
+				http2.get('/rest/pl/fe/matter/mission/setting/pageCreate?site=' + $scope.siteId + '&id=' + $scope.id + '&page=' + page, function(rsp) {
+					$scope.editing[prop] = rsp.data.name;
+					location.href = '/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + rsp.data.name;
+				});
+			}
+		}
+	};
 }]);
 app.controller('ctrlMatter', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
 	var indicators = {
@@ -115,7 +146,7 @@ app.controller('ctrlMatter', ['$scope', '$modal', 'http2', function($scope, $mod
 	};
 	$scope.addEnroll = function(assignedScenario) {
 		$modal.open({
-			templateUrl: 'templatePicker.html',
+			templateUrl: '/views/default/pl/fe/_module/enroll-template.html',
 			backdrop: 'static',
 			windowClass: 'auto-height template',
 			controller: ['$scope', '$modalInstance', function($scope2, $mi) {

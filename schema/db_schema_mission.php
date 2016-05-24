@@ -22,6 +22,8 @@ $sql .= ",access_control char(1) not null default 'N'";
 $sql .= ",authapis text";
 $sql .= ",start_at int not null default 0"; // 开始时间
 $sql .= ",end_at int not null default 0"; // 结束时间
+$sql .= ",header_page_name varchar(13) not null default ''"; // 通用页头
+$sql .= ",footer_page_name varchar(13) not null default ''"; // 通用页尾
 $sql .= ",extattrs text"; //扩展属性
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

@@ -15,6 +15,7 @@
     
     <body ng-cloak class='ng-cloak'>
         <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
+        <header ng-if="app.use_mission_header==='Y'" dynamic-html="site.header_mission.html"></header>
         <div class="app">
             <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
             <div class='container'>
@@ -22,6 +23,7 @@
                 </div>
             </div>
         </div>
+        <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="site.footer_mission.html"></footer>
         <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
         <div class="loading"><div class='loading-indicator'><i></i></div></div>
         <script src="http://cdn.bootcss.com/jquery/2.2.3/jquery.min.js"></script>

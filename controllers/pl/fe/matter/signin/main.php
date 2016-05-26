@@ -258,12 +258,6 @@ class main extends \pl\fe\matter\base {
 
 		$modelRnd->insert('xxt_signin_round', $round, false);
 
-		$modelRnd->update(
-			'xxt_signin',
-			array('active_round' => $roundId),
-			"siteid='$siteId' and id='{$app->id}'"
-		);
-
 		$round = (object) $round;
 
 		return $round;

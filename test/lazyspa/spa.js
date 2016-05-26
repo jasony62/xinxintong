@@ -14,7 +14,7 @@ define(["require", "angular", "angular-route"], function(require, angular) {
 		/* 用provider的injector运行模块的controller，directive等等 */
 		angular.forEach(m._invokeQueue, function(invokeArgs) {
 			try {
-				var provider = providers.$injector.get(invokeArgs[0]);
+				var provider = app.providers.$injector.get(invokeArgs[0]);
 				provider[invokeArgs[1]].apply(provider, invokeArgs[2]);
 			} catch (e) {
 				console.error('load module invokeQueue failed:' + e.message, invokeArgs);
@@ -23,7 +23,7 @@ define(["require", "angular", "angular-route"], function(require, angular) {
 		/* 用provider的injector运行模块的config */
 		angular.forEach(m._configBlocks, function(invokeArgs) {
 			try {
-				providers.$injector.invoke.apply(providers.$injector, invokeArgs[2]);
+				app.providers.$injector.invoke.apply(app.providers.$injector, invokeArgs[2]);
 			} catch (e) {
 				console.error('load module configBlocks failed:' + e.message, invokeArgs);
 			}

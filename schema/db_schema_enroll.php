@@ -311,7 +311,6 @@ $sql .= ",pic text"; // 分享或生成链接时的图片
 $sql .= ",mission_id int not null default 0"; // 所属项目
 $sql .= ",entry_rule text"; // 进入规则
 $sql .= ",data_schemas text";
-$sql .= ",active_round varchar(13) not null"; // 当前激活的轮次 should remove
 $sql .= ",use_site_header char(1) not null default 'Y'"; // 使用站点页眉
 $sql .= ",use_site_footer char(1) not null default 'Y'"; // 使用站点页脚
 $sql .= ",use_mission_header char(1) not null default 'Y'"; // 使用项目页眉

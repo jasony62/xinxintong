@@ -11,6 +11,7 @@ window.loading = {
 			paths: {
 				"domReady": '/static/js/domReady',
 				"angular": "/static/js/angular.min",
+				"xxt-page": "/static/js/xxt.ui.page",
 				"xxt-share": "/static/js/xxt.share",
 				"hammer": "/static/js/hammer.min",
 				"picviewer": "/views/default/picviewer",
@@ -23,8 +24,10 @@ window.loading = {
 					deps: ['hammer']
 				}
 			},
-			deps: ['/views/default/site/fe/matter/article/main.js?_=1'],
 			urlArgs: "bust=" + (new Date()).getTime()
+		});
+		require(['xxt-page'], function(loader) {
+			loader.bootstrap('/views/default/site/fe/matter/article/main.js');
 		});
 	}
 };

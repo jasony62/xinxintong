@@ -1,73 +1,18 @@
-define(["require", "angular"], function(require, angular) {
+define(["angular", "xxt-page"], function(angular, xxtPage) {
     'use strict';
-    var loadCss = function(url) {
-        var link, head;
-        link = document.createElement('link');
-        link.href = url;
-        link.rel = 'stylesheet';
-        head = document.querySelector('head');
-        head.appendChild(link);
-    };
-    var loadDynaCss = function(css) {
-        var style, head;
-        style = document.createElement('style');
-        style.innerHTML = css;
-        head = document.querySelector('head');
-        head.appendChild(style);
-    };
-    var openPlugin = function(content, cb) {
-        var frag, wrap, frm;
-        frag = document.createDocumentFragment();
-        wrap = document.createElement('div');
-        wrap.setAttribute('id', 'frmPlugin');
-        frm = document.createElement('iframe');
-        wrap.appendChild(frm);
-        wrap.onclick = function() {
-            wrap.parentNode.removeChild(wrap);
-        };
-        frag.appendChild(wrap);
-        document.body.appendChild(frag);
-        if (content.indexOf('http') === 0) {
-            window.onClosePlugin = function() {
-                wrap.parentNode.removeChild(wrap);
-                cb && cb();
-            };
-            frm.setAttribute('src', content);
-        } else {
-            if (frm.contentDocument && frm.contentDocument.body) {
-                frm.contentDocument.body.innerHTML = content;
-            }
-        }
-    };
-    var cookieLogin = function(siteId) {
-        var ck, cn, cs, ce, login;
-        ck = document.cookie;
-        cn = '_site_' + siteId + '_fe_login';
-        if (ck.length > 0) {
-            cs = ck.indexOf(cn + "=");
-            if (cs !== -1) {
-                cs = cs + cn.length + 1;
-                ce = ck.indexOf(";", cs);
-                if (ce === -1) ce = ck.length;
-                login = ck.substring(cs, ce);
-                return JSON.parse(decodeURIComponent(login));
-            }
-        }
-        return false;
-    };
-    var app = angular.module('app', []);
-    app.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
+    var ngApp = angular.module('article', []);
+    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
         var ls, siteId, id, shareby;
         ls = location.search;
         siteId = ls.match(/[\?&]site=([^&]*)/)[1];
         id = ls.match(/(\?|&)id=([^&]*)/)[2];
-        //shareby = ls.match(/shareby=([^&]*)/) ? ls.match(/shareby=([^&]*)/)[1] : '';
+        shareby = ls.match(/shareby=([^&]*)/) ? ls.match(/shareby=([^&]*)/)[1] : '';
         $scope.siteId = siteId;
         $scope.articleId = id;
         $scope.mode = ls.match(/mode=([^&]*)/) ? ls.match(/mode=([^&]*)/)[1] : '';
         var setMpShare = function(xxtShare) {
             var shareid, sharelink;
-            shareid = $scope.user.vid + (new Date()).getTime();
+            shareid = $scope.user.uid + (new Date()).getTime();
             xxtShare.options.logger = function(shareto) {
                 /*var url = "/rest/mi/matter/logShare";
                 url += "?shareid=" + shareid;
@@ -83,8 +28,7 @@ define(["require", "angular"], function(require, angular) {
             sharelink += '?site=' + siteId;
             sharelink += '&type=article';
             sharelink += '&id=' + id;
-            //sharelink += '&tpl=std';
-            //sharelink += "&shareby=" + shareid;
+            sharelink += "&shareby=" + shareid;
             xxtShare.set($scope.article.title, sharelink, $scope.article.summary, $scope.article.pic);
         };
         var articleLoaded = function() {
@@ -103,64 +47,24 @@ define(["require", "angular"], function(require, angular) {
                     article = rsp.data.article,
                     channels = article.channels;
                 if (article.use_site_header === 'Y' && site && site.header_page) {
-                    if (site.header_page.ext_css.length) {
-                        angular.forEach(site.header_page.ext_css, function(css) {
-                            loadCss(css.url);
-                        });
-                    }
-                    if (site.header_page.css.length) {
-                        loadDynaCss(site.header_page.css);
-                    }
-                    (function() {
-                        eval(site.header_page.js);
-                    })();
+                    xxtPage.loadCode(site.header_page);
                 }
                 if (article.use_mission_header === 'Y' && mission && mission.header_page) {
-                    if (mission.header_page.ext_css.length) {
-                        angular.forEach(mission.header_page.ext_css, function(css) {
-                            loadCss(css.url);
-                        });
-                    }
-                    if (mission.header_page.css.length) {
-                        loadDynaCss(mission.header_page.css);
-                    }
-                    (function() {
-                        eval(mission.header_page.js);
-                    })();
-                }
-                if (article.use_mission_footer === 'Y' && mission && mission.footer_page) {
-                    if (mission.footer_page.ext_css.length) {
-                        angular.forEach(mission.footer_page.ext_css, function(css) {
-                            loadCss(css.url);
-                        });
-                    }
-                    if (mission.footer_page.css.length) {
-                        loadDynaCss(mission.footer_page.css);
-                    }
-                    (function() {
-                        eval(mission.footer_page.js);
-                    })();
-                }
-                if (article.use_site_footer === 'Y' && site && site.footer_page) {
-                    if (site.footer_page.ext_css.length) {
-                        angular.forEach(site.footer_page.ext_css, function(css) {
-                            loadCss(css.url);
-                        });
-                    }
-                    if (site.footer_page.css.length) {
-                        loadDynaCss(site.footer_page.css);
-                    }
-                    (function() {
-                        eval(site.footer_page.js);
-                    })();
+                    xxtPage.loadCode(mission.header_page);
                 }
                 if (channels && channels.length) {
                     for (var i = 0, l = channels.length, channel; i < l; i++) {
                         channel = channels[i];
                         if (channel.style_page) {
-                            loadDynaCss(channel.style_page.css);
+                            xxtPage.loadCode(channel.style_page);
                         }
                     }
+                }
+                if (article.use_mission_footer === 'Y' && mission && mission.footer_page) {
+                    xxtPage.loadCode(mission.footer_page);
+                }
+                if (article.use_site_footer === 'Y' && site && site.footer_page) {
+                    xxtPage.loadCode(site.footer_page);
                 }
                 $scope.site = site;
                 $scope.mission = mission;
@@ -178,7 +82,7 @@ define(["require", "angular"], function(require, angular) {
                 });
             }).error(function(content, httpCode) {
                 if (httpCode === 401) {
-                    openPlugin(content, function() {
+                    xxtPage.openPlugin(content).then(function() {
                         loadArticle().then(articleLoaded);
                     });
                 } else {
@@ -215,7 +119,7 @@ define(["require", "angular"], function(require, angular) {
         };
         loadArticle().then(articleLoaded);
     }]);
-    app.controller('ctrlRemark', ['$scope', '$http', function($scope, $http) {
+    ngApp.controller('ctrlRemark', ['$scope', '$http', function($scope, $http) {
         $scope.newRemark = '';
         $scope.remark = function() {
             var url, param;
@@ -239,12 +143,12 @@ define(["require", "angular"], function(require, angular) {
             });
         };
     }]);
-    app.controller('ctrlAlert', ['$scope', function($scope) {
+    ngApp.controller('ctrlAlert', ['$scope', function($scope) {
         $scope.close = function() {
             document.querySelector('.weui_dialog_alert').style.display = 'none';
         };
     }]);
-    app.controller('ctrlPay', ['$scope', function($scope) {
+    ngApp.controller('ctrlPay', ['$scope', function($scope) {
         $scope.open = function() {
             var url = 'http://' + location.host;
             url += '/rest/coin/pay';
@@ -253,7 +157,7 @@ define(["require", "angular"], function(require, angular) {
             openPlugin(url);
         };
     }]);
-    app.controller('ctrlFavor', ['$scope', '$http', function($scope, $http) {
+    ngApp.controller('ctrlFavor', ['$scope', '$http', function($scope, $http) {
         var doFavor = function() {
             var url = "/rest/site/fe/user/favor/add?site=" + $scope.siteId + "&id=" + $scope.article.id + '&type=article' + '&title=' + $scope.article.title;
             $http.get(url).success(function(rsp) {
@@ -266,7 +170,7 @@ define(["require", "angular"], function(require, angular) {
         };
         $scope.favor = function() {
             if ($scope.mode === 'preview') return;
-            if (!cookieLogin($scope.siteId)) {
+            if (!xxtPage.cookieLogin($scope.siteId)) {
                 var url = 'http://' + location.host;
                 url += '/rest/site/fe/user/login';
                 url += "?site=" + $scope.siteId;
@@ -276,21 +180,7 @@ define(["require", "angular"], function(require, angular) {
             doFavor();
         };
     }]);
-    app.directive('dynamicHtml', function($compile) {
-        return {
-            restrict: 'EA',
-            replace: true,
-            link: function(scope, ele, attrs) {
-                scope.$watch(attrs.dynamicHtml, function(html) {
-                    if (html && html.length) {
-                        ele.html(html);
-                        $compile(ele.contents())(scope);
-                    }
-                });
-            }
-        };
-    });
-    app.filter('filesize', function() {
+    ngApp.filter('filesize', function() {
         return function(length) {
             var unit;
             if (length / 1024 < 1) {
@@ -309,7 +199,6 @@ define(["require", "angular"], function(require, angular) {
             return length + unit;
         };
     });
-    require(['domReady!'], function(document) {
-        angular.bootstrap(document, ["app"]);
-    });
+    angular._lazyLoadModule('article');
+    return {};
 });

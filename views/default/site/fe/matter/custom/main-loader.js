@@ -11,6 +11,7 @@ window.loading = {
 			paths: {
 				"domReady": '/static/js/domReady',
 				"angular": "/static/js/angular.min",
+				"xxt-page": "/static/js/xxt.ui.page",
 				"xxt-share": "/static/js/xxt.share",
 			},
 			shim: {
@@ -21,8 +22,10 @@ window.loading = {
 					exports: "xxt-share"
 				},
 			},
-			deps: ['/views/default/site/fe/matter/custom/main.js?_=1'],
 			urlArgs: "bust=" + (new Date()).getTime()
+		});
+		require(['xxt-page'], function(loader) {
+			loader.bootstrap('/views/default/site/fe/matter/custom/main.js');
 		});
 	}
 };

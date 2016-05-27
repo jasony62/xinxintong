@@ -137,7 +137,7 @@ class main extends \pl\fe\base {
 
 		$data = $this->_makePage($site, $page, $template);
 
-		$code = $this->model('code\page')->create($site, $user->id, $data);
+		$code = $this->model('code\page')->create($site->id, $user->id, $data);
 
 		$rst = $this->model()->update(
 			'xxt_site',
@@ -148,7 +148,7 @@ class main extends \pl\fe\base {
 			"id='{$site->id}'"
 		);
 
-		return new \ResponseData(array('id' => $code->id));
+		return new \ResponseData($code);
 	}
 	/**
 	 * 根据模版重置引导关注页面

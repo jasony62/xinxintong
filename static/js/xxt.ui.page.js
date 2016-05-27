@@ -1,7 +1,7 @@
 define(['angular', 'domReady!'], function(angular) {
     'use strict';
     var ngApp = angular.module('app', []),
-        injector, codeLoader;
+        injector, codeAssembler;
     angular._lazyLoadModule = function(moduleName) {
         var lazyModule = angular.module(moduleName);
         /* 应用的injector，和config中的injector不是同一个，是instanceInject，返回的是通过provider.$get创建的实例 */
@@ -58,8 +58,15 @@ define(['angular', 'domReady!'], function(angular) {
     injector = angular.bootstrap(null, ["app"]);
 
     injector.invoke(['$q', function($q) {
-        codeLoader = {
-            loadCss: function(url) {
+        codeAssembler = {
+            loadCss: function(css) {
+                var style, head;
+                style = document.createElement('style');
+                style.innerHTML = css;
+                head = document.querySelector('head');
+                head.appendChild(style);
+            },
+            loadExtCss: function(url) {
                 var link, head;
                 link = document.createElement('link');
                 link.href = url;
@@ -67,12 +74,32 @@ define(['angular', 'domReady!'], function(angular) {
                 head = document.querySelector('head');
                 head.appendChild(link);
             },
-            loadDynaCss: function(css) {
-                var style, head;
-                style = document.createElement('style');
-                style.innerHTML = css;
-                head = document.querySelector('head');
-                head.appendChild(style);
+            loadJs: function(ngApp, js) {
+                (function(ngApp) {
+                    eval(js);
+                })(ngApp);
+            },
+            loadExtJs: function(ngApp, code) {
+                var deferred = $q.defer(),
+                    jslength = code.ext_js.length,
+                    loadScript;
+                loadScript = function(js) {
+                    var script;
+                    script = document.createElement('script');
+                    script.src = js.url;
+                    script.onload = function() {
+                        jslength--;
+                        if (jslength === 0) {
+                            if (code.js && code.js.length) {
+                                codeAssembler.loadJs(code.js);
+                            }
+                            deferred.resolve();
+                        }
+                    };
+                    document.body.appendChild(script);
+                };
+                angular.forEach(code.ext_js, loadScript);
+                return deferred.promise;
             },
             bootstrap: function(js) {
                 require([js], function() {
@@ -85,21 +112,27 @@ define(['angular', 'domReady!'], function(angular) {
                     ]);
                 });
             },
-            loadCode: function(codes) {
-                !angular.isArray(codes) && (codes = [codes]);
-                angular.forEach(codes, function(code) {
-                    if (code.ext_css.length) {
-                        angular.forEach(code.ext_css, function(css) {
-                            codeLoader.loadCss(css.url);
-                        });
+            loadCode: function(ngApp, code) {
+                var deferred = $q.defer();
+                if (code.ext_css && code.ext_css.length) {
+                    angular.forEach(code.ext_css, function(css) {
+                        codeAssembler.loadExtCss(css.url);
+                    });
+                }
+                if (code.css && code.css.length) {
+                    codeAssembler.loadCss(code.css);
+                }
+                if (code.ext_js && code.ext_js.length) {
+                    codeAssembler.loadExtJs(ngApp, code).then(function() {
+                        deferred.resolve();
+                    });
+                } else {
+                    if (code.js && code.js.length) {
+                        codeAssembler.loadJs(ngApp, code.js);
                     }
-                    if (code.css.length) {
-                        codeLoader.loadDynaCss(code.css);
-                    }
-                    (function() {
-                        eval(code.js);
-                    })();
-                });
+                    deferred.resolve();
+                }
+                return deferred.promise;
             },
             openPlugin: function(content) {
                 var frag, wrap, frm, deferred = $q.defer();
@@ -145,5 +178,5 @@ define(['angular', 'domReady!'], function(angular) {
         };
     }]);
 
-    return codeLoader;
+    return codeAssembler;
 });

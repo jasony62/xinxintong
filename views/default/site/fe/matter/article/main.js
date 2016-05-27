@@ -1,4 +1,4 @@
-define(["angular", "xxt-page"], function(angular, xxtPage) {
+define(["angular", "xxt-page"], function(angular, codeAssembler) {
     'use strict';
     var ngApp = angular.module('article', []);
     ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
@@ -47,24 +47,24 @@ define(["angular", "xxt-page"], function(angular, xxtPage) {
                     article = rsp.data.article,
                     channels = article.channels;
                 if (article.use_site_header === 'Y' && site && site.header_page) {
-                    xxtPage.loadCode(site.header_page);
+                    codeAssembler.loadCode(ngApp, site.header_page);
                 }
                 if (article.use_mission_header === 'Y' && mission && mission.header_page) {
-                    xxtPage.loadCode(mission.header_page);
+                    codeAssembler.loadCode(ngApp, mission.header_page);
+                }
+                if (article.use_mission_footer === 'Y' && mission && mission.footer_page) {
+                    codeAssembler.loadCode(ngApp, mission.footer_page);
+                }
+                if (article.use_site_footer === 'Y' && site && site.footer_page) {
+                    codeAssembler.loadCode(ngApp, site.footer_page);
                 }
                 if (channels && channels.length) {
                     for (var i = 0, l = channels.length, channel; i < l; i++) {
                         channel = channels[i];
                         if (channel.style_page) {
-                            xxtPage.loadCode(channel.style_page);
+                            codeAssembler.loadCode(ngApp, channel.style_page);
                         }
                     }
-                }
-                if (article.use_mission_footer === 'Y' && mission && mission.footer_page) {
-                    xxtPage.loadCode(mission.footer_page);
-                }
-                if (article.use_site_footer === 'Y' && site && site.footer_page) {
-                    xxtPage.loadCode(site.footer_page);
                 }
                 $scope.site = site;
                 $scope.mission = mission;
@@ -73,16 +73,15 @@ define(["angular", "xxt-page"], function(angular, xxtPage) {
                 if (window.wx || /Yixin/i.test(navigator.userAgent)) {
                     require(['xxt-share'], setMpShare);
                 }
-                //loadCss("https://res.wx.qq.com/open/libs/weui/0.3.0/weui.min.css");
                 article.can_picviewer === 'Y' && require(['picviewer']);
-                deferred.resolve();
                 $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + id + '&type=article&title=' + article.title + '&shareby=' + shareby, {
                     search: location.search.replace('?', ''),
                     referer: document.referrer
                 });
+                deferred.resolve();
             }).error(function(content, httpCode) {
                 if (httpCode === 401) {
-                    xxtPage.openPlugin(content).then(function() {
+                    codeAssembler.openPlugin(content).then(function() {
                         loadArticle().then(articleLoaded);
                     });
                 } else {
@@ -170,7 +169,7 @@ define(["angular", "xxt-page"], function(angular, xxtPage) {
         };
         $scope.favor = function() {
             if ($scope.mode === 'preview') return;
-            if (!xxtPage.cookieLogin($scope.siteId)) {
+            if (!codeAssembler.cookieLogin($scope.siteId)) {
                 var url = 'http://' + location.host;
                 url += '/rest/site/fe/user/login';
                 url += "?site=" + $scope.siteId;

@@ -82,6 +82,15 @@ class resumableAliOss {
  */
 class attachment extends \TMS_CONTROLLER {
 	/**
+	 *
+	 */
+	public function get_access_rule() {
+		$rule_action['rule_type'] = 'black';
+		$rule_action['actions'] = array();
+
+		return $rule_action;
+	}
+	/**
 	 * 上传附件
 	 */
 	public function upload_action($site, $articleid) {

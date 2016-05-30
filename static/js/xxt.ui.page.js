@@ -91,7 +91,7 @@ define(['angular', 'domReady!'], function(angular) {
                         jslength--;
                         if (jslength === 0) {
                             if (code.js && code.js.length) {
-                                codeAssembler.loadJs(code.js);
+                                codeAssembler.loadJs(ngApp, code.js);
                             }
                             deferred.resolve();
                         }

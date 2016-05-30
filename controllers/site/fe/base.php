@@ -51,9 +51,12 @@ class base extends \TMS_CONTROLLER {
 				$state = $_GET['state'];
 				if (strpos($state, 'snsOAuth-') === 0) {
 					$code = $_GET['code'];
-					$snsName = explode('-', $state)[1];
-					$snsUser = $this->snsOAuthUserByCode($this->siteId, $code, $snsName);
-					$auth['sns'][$snsName] = $snsUser;
+					$snsName = explode('-', $state);
+					if (count($snsName) === 2) {
+						$snsName = $snsName[1];
+						$snsUser = $this->snsOAuthUserByCode($this->siteId, $code, $snsName);
+						$auth['sns'][$snsName] = $snsUser;
+					}
 				}
 			}
 		}

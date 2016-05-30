@@ -22,6 +22,7 @@ class record extends \site\op\base {
 			'orderby' => $orderby,
 			'contain' => $contain,
 		);
+		$app = $this->model('matter\enroll')->byId($app);
 		$mdoelRec = $this->model('matter\enroll\record');
 		$result = $mdoelRec->find($site, $app, $options);
 

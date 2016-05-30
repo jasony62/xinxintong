@@ -2,18 +2,18 @@
 class local_model {
 
 	// 当前公众平台
-	protected $mpid;
+	protected $siteId;
 	// 用于分割不同类型的存储资源
 	protected $bucket;
 	// 起始存储位置
 	protected $rootDir;
 
-	public function __construct($mpid, $bucket) {
-		$this->mpid = $mpid;
+	public function __construct($siteId, $bucket) {
+		$this->siteId = $siteId;
 
 		$this->bucket = $bucket;
 
-		$this->rootDir = TMS_UPLOAD_DIR . "$this->mpid" . '/' . TMS_MODEL::toLocalEncoding($bucket);
+		$this->rootDir = TMS_UPLOAD_DIR . "$this->siteId" . '/' . TMS_MODEL::toLocalEncoding($bucket);
 		/* 检查根目录是否存在，不存在就创建 */
 		!file_exists($this->rootDir) && mkdir($this->rootDir, 0777, true);
 	}
@@ -31,7 +31,8 @@ class local_model {
 	 * return bool
 	 */
 	public function upload($filename, $destName, $destDir) {
-		$absDir = $this->rootDir . '/' . TMS_MODEL::toLocalEncoding($destDir);
+		//$absDir = $this->rootDir . '/' . TMS_MODEL::toLocalEncoding($destDir);
+		$absDir = $this->rootDir . '/' . $destDir;
 		// 目录是否存在
 		!is_dir($absDir) && mkdir($absDir, 0777, true);
 		// 文件的完整路径
@@ -43,7 +44,7 @@ class local_model {
 	 *
 	 */
 	public function getListByPath($dir) {
-		//return $this->storage->getListByPath($this->domain, $this->mpid . '/' . $dir, 1000);
+		//return $this->storage->getListByPath($this->domain, $this->siteId . '/' . $dir, 1000);
 	}
 	/**
 	 *
@@ -57,7 +58,8 @@ class local_model {
 	 */
 	public function write($filename, $content) {
 		/* 文件的完整路径 */
-		$absPath = $this->rootDir . '/' . TMS_MODEL::toLocalEncoding($filename);
+		//$absPath = $this->rootDir . '/' . TMS_MODEL::toLocalEncoding($filename);
+		$absPath = $this->rootDir . '/' . $filename;
 
 		/* 文件目录是否存在，不存在则创建 */
 		$dirname = dirname($absPath);

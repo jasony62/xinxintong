@@ -4,17 +4,13 @@
  */
 class resumable_model {
 
-	private $mpid;
-
 	private $dest;
 
 	private $modelFs;
 	/**
 	 *
 	 */
-	public function __construct($mpid, $dest, $modelFs) {
-
-		$this->mpid = $mpid;
+	public function __construct($siteId, $dest, $modelFs) {
 
 		$this->dest = $dest; // 分段上传文件的保存位置
 

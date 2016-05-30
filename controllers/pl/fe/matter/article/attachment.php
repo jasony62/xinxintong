@@ -107,12 +107,14 @@ class attachment extends \pl\fe\matter\base {
 		$file = $this->getPostJson();
 
 		if (defined('SAE_TMP_PATH')) {
+			/*文件存储在阿里*/
 			$url = 'alioss://article/' . $id . '/' . $file->name;
 		} else {
+			/*文件存储在本地*/
 			$modelRes = $this->model('fs/local', $site, '_resumable');
 			$modelAtt = $this->model('fs/local', $site, '附件');
 			$fileUploaded = $modelRes->rootDir . '/article_' . $id . '_' . $file->uniqueIdentifier;
-			$fileUploaded2 = $modelAtt->rootDir . '/article_' . $id . '_' . $file->name;
+			$fileUploaded2 = $modelAtt->rootDir . '/article_' . $id . '_' . \TMS_MODEL::toLocalEncoding($file->name);
 			if (false === rename($fileUploaded, $fileUploaded2)) {
 				return new ResponseError('移动上传文件失败');
 			}

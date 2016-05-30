@@ -286,7 +286,7 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', 'mediagaller
 		});
 	};
 	$scope.downloadUrl = function(att) {
-		return '/rest/site/fe/mattter/article/attachmentGet?site=' + $scope.siteId + '&articleid=' + $scope.editing.id + '&attachmentid=' + att.id;
+		return '/rest/site/fe/matter/article/attachmentGet?site=' + $scope.siteId + '&articleid=' + $scope.editing.id + '&attachmentid=' + att.id;
 	};
 	http2.get('/rest/pl/fe/matter/tag/list?site=' + $scope.siteId + '&resType=article&subType=0', function(rsp) {
 		$scope.tags = rsp.data;

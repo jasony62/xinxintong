@@ -257,6 +257,14 @@
 				$mi.dismiss();
 			};
 		}];
+		$scope.$on('tinymce.wrap.add', function(event, wrap) {
+			var root = wrap;
+			while (root.parentNode) root = root.parentNode;
+			$(root).find('.active').removeClass('active');
+			$scope.hasActiveWrap = false;
+			$scope.activeWrap = false;
+			setActiveWrap(wrap);
+		});
 		$scope.$on('tinymce.wrap.select', function(event, wrap) {
 			$scope.$apply(function() {
 				var root = wrap,
@@ -267,11 +275,11 @@
 				$scope.hasActiveWrap = false;
 				$scope.activeWrap = false;
 				wrapType = $(selectableWrap).attr('wrap');
-				while (!/input|radio|checkbox|static|button|record-list|round-list/.test(wrapType) && selectableWrap.parentNode) {
+				while (!/text|input|radio|checkbox|static|button|record-list|round-list/.test(wrapType) && selectableWrap.parentNode) {
 					selectableWrap = selectableWrap.parentNode;
 					wrapType = $(selectableWrap).attr('wrap');
 				}
-				if (/input|radio|checkbox|static|button|record-list|round-list/.test(wrapType)) {
+				if (/text|input|radio|checkbox|static|button|record-list|round-list/.test(wrapType)) {
 					setActiveWrap(selectableWrap);
 				}
 			});
@@ -668,8 +676,9 @@
 		$scope.removeWrap = function() {
 			var schema, config,
 				editor = tinymce.get('tinymce-page'),
-				$active = $(editor.getBody()).find('.active');
-			if (/input/.test($active.attr('wrap'))) {
+				$active = $(editor.getBody()).find('.active'),
+				wrapType = $active.attr('wrap');
+			if (/input/.test(wrapType)) {
 				schema = wrapLib.extractInputSchema($active[0]);
 				/*从页面中删除，从页面的schema中删除*/
 				$scope.ep.removeInput(schema);
@@ -678,17 +687,15 @@
 				setActiveWrap(null);
 				$scope.updPage($scope.ep, ['data_schemas', 'html']);
 				/*如果没有页面包含指定的登记项，从应用的schema中删除*/
-				if (pagesHasSchema(schema) === false) {
-					console.log('xxxxx');
-				}
-			} else if (/button/.test($active.attr('wrap'))) {
+				if (pagesHasSchema(schema) === false) {}
+			} else if (/button/.test(wrapType)) {
 				schema = wrapLib.button.extract($active[0]);
 				$scope.ep.removeAct(schema);
 				$active.remove();
 				editor.save();
 				setActiveWrap(null);
 				$scope.updPage($scope.ep, ['act_schemas', 'html']);
-			} else if (/static/.test($active.attr('wrap'))) {
+			} else if (/static/.test(wrapType)) {
 				config = wrapLib.extractStaticSchema($active[0]);
 				if (config.id || config.schema) {
 					if (config.id) {
@@ -706,13 +713,18 @@
 					setActiveWrap(null);
 					$scope.updPage($scope.ep, ['data_schemas', 'html']);
 				}
-			} else if (/record-list|round-list/.test($active.attr('wrap'))) {
+			} else if (/record-list|round-list/.test(wrapType)) {
 				config = wrapLib.extractStaticSchema($active[0]);
 				$scope.ep.removeStatic(config);
 				$active.remove();
 				editor.save();
 				setActiveWrap(null);
 				$scope.updPage($scope.ep, ['data_schemas', 'html']);
+			} else if (/text/.test(wrapType)) {
+				$active.remove();
+				editor.save();
+				setActiveWrap(null);
+				$scope.updPage($scope.ep, ['html']);
 			}
 		};
 		$scope.upWrap = function(page) {

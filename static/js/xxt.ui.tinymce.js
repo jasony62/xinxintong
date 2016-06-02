@@ -10,7 +10,7 @@ directive('tinymce', function($timeout) {
             onsavecallback: '&',
             update: '&',
             change: '&',
-            toolbar: '@'
+            toolbar: '@',
         },
         replace: true,
         template: '<textarea></textarea>',
@@ -73,6 +73,7 @@ directive('tinymce', function($timeout) {
                                         dom.insertAfter(newWrap, wrap);
                                         selection.setCursorLocation(newWrap, 0);
                                         editor.focus();
+                                        scope.$emit('tinymce.wrap.add', newWrap);
                                     }
                                 }
                             }
@@ -117,17 +118,6 @@ directive('tinymce', function($timeout) {
                             c = c.replace(/\n|\r/g, '').replace(/\s*/, ''); // trim
                             if (/^<table.*<\/table>$/i.test(c)) {
                                 e.content = '<p>&nbsp;</p><div class="tablewrap">' + c + '</div><p>&nbsp;</p>';
-                            } else if (/^<a.*<\/a>/i.test(c) && /link2email/.test(c) === false) {
-                                var $a = $(c);
-                                if ($a.attr('target') == '_email') {
-                                    var href = $a.attr('href'),
-                                        code = $a.attr('code'),
-                                        html = $a.html();
-                                    href += (href.indexOf('?') == -1 ? '?' : '&');
-                                    href += 'code=' + code;
-                                    href += '&text=' + html;
-                                    e.content = '<a class="link2email btn" href="' + href + '">发送【' + html + '】的链接到绑定邮箱</a>';
-                                }
                             }
                         }
                     });
@@ -187,6 +177,7 @@ directive('tinymce', function($timeout) {
                     scope.initialized = true;
                     if (scope.content !== undefined) {
                         tinymce.get(scope.id).setContent(scope.content);
+                        tinymce.get(scope.id).undoManager.clear();
                         scope.setContentDone = true;
                     }
                     if (scope.contenteditable !== undefined) {
@@ -205,6 +196,7 @@ directive('tinymce', function($timeout) {
             scope.$watch('content', function(nv) {
                 if (!scope.setContentDone && nv && nv.length && scope.initialized) {
                     tinymce.get(scope.id).setContent(nv);
+                    tinymce.get(scope.id).undoManager.clear();
                     scope.setContentDone = true;
                 }
             });

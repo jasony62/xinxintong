@@ -1,6 +1,7 @@
 <div id='app-view'>
-    <div class='col-md-8' ng-controller="ctrlPageEditor">
-        <div class='col-md-3'>
+    <div class='col-md-9' ng-controller="ctrlPageEditor">
+        <div class='col-md-4'>
+            <!---->
             <div class='list-group'>
                 <div class='list-group-item page' ng-class="{'active':p===ep}" ng-repeat="p in app.pages" ng-click='choosePage(p)' ng-bind="p.title">
                 </div>
@@ -8,7 +9,7 @@
             <button class='btn btn-block btn-success' ng-click="addPage()">添加页面</button>
             <button class='btn btn-block btn-default' ng-click='delPage()'>删除页面</button>
         </div>
-        <div class='col-md-9'>
+        <div class='col-md-8'><!--tinymce editor-->
             <div class='page-editor' ng-if='ep'>
                 <tinymce content='ep.html' id='tinymce-page' height='669' change="onPageChange()"></tinymce>
                 <div class='sidebar'>
@@ -53,9 +54,9 @@
                     </button>
                 </div>
             </div>
-        </div>
+        </div><!--tinymce editor-->
     </div>
-    <div class='col-md-4'>
+    <div class='col-md-3'>
         <div class='tile'>
             <button class='btn btn-block btn-success' ng-click="publish()">发布</button>
             <button class='btn btn-block btn-default' ng-click="remove()">删除</button>

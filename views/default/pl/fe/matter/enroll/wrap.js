@@ -224,7 +224,7 @@
                 case 'multiple':
                     html += '<div wrap="static" class="wrap-inline"><label>' + s.title + '</label><div>{{value2Label(r,"' + s.id + '")}}</div></div>';
                     break;
-                case 'img':
+                case 'image':
                     html += '<div wrap="static" class="wrap-inline"><label>' + s.title + '</label><ul><li ng-repeat="img in r.data.' + s.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul></div>';
                     break;
                 case '_enrollAt':

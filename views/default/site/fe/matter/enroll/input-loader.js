@@ -10,6 +10,7 @@ window.loading = {
 				"angular": "/static/js/angular.min",
 				"angular-sanitize": "/static/js/angular-sanitize.min",
 				"resumable": "/static/js/resumable.min",
+				"xxt-page": "/static/js/xxt.ui.page",
 				"xxt-share": "/static/js/xxt.share",
 				"xxt-image": "/static/js/xxt.image",
 				"xxt-geo": "/static/js/xxt.geo",
@@ -45,8 +46,10 @@ window.loading = {
 					exports: "enroll-directive"
 				},
 			},
-			deps: ['/views/default/site/fe/matter/enroll/input.js'],
 			urlArgs: "bust=" + (new Date()).getTime()
+		});
+		require(['xxt-page'], function(loader) {
+			loader.bootstrap('/views/default/site/fe/matter/enroll/input.js');
 		});
 	}
 };

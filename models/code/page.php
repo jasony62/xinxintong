@@ -120,7 +120,7 @@ class page_model extends \TMS_MODEL {
 		$q = array(
 			$fields,
 			'xxt_code_page',
-			"siteid='$siteId' name='$name'",
+			"siteid='$siteId' and name='$name'",
 		);
 		if ($p = $this->query_obj_ss($q)) {
 			$p->ext_js = array();
@@ -232,10 +232,37 @@ class page_model extends \TMS_MODEL {
 		return $rst;
 	}
 	/**
+	 * 删除代码
+	 *
+	 * @param string $siteId
+	 * @param string $name
+	 */
+	public function removeByName($siteId, $name) {
+		$rst = $this->delete(
+			'xxt_code_external',
+			"code_id in (select id from xxt_code_page where siteid='$siteId' and name='$name')"
+		);
+
+		$rst = $this->delete(
+			'xxt_code_page',
+			"siteid='$siteId' and name='$name'"
+		);
+
+		return $rst;
+	}
+	/**
 	 *
 	 */
 	public function remove($id) {
-		$rst = $this->delete('xxt_code_page', "id=$id");
+		$rst = $this->delete(
+			'xxt_code_external',
+			"code_id='$id'"
+		);
+
+		$rst = $this->delete(
+			'xxt_code_page',
+			"id=$id"
+		);
 
 		return $rst;
 	}

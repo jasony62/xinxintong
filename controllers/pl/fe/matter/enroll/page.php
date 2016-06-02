@@ -73,15 +73,15 @@ class page extends \pl\fe\matter\base {
 	/**
 	 * 删除活动的页面
 	 *
-	 * $aid
-	 * $pid
+	 * @param string $site
+	 * @param string $aid
+	 * @param string $pid
 	 */
-	public function remove_action($site, $app, $pid) {
+	public function remove_action($site, $app, $pid, $cname) {
 		$page = $this->model('matter\enroll\page')->byId($app, $pid);
 
 		$modelCode = $this->model('code\page');
-		$code = $modelCode->lastByName($site, $cname);
-		$modelCode->remove($code->id);
+		$modelCode->removeByName($site, $cname);
 
 		$rst = $this->model()->delete('xxt_enroll_page', "aid='$app' and id=$pid");
 

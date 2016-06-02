@@ -827,6 +827,7 @@
 				url += '?site=' + $scope.siteId;
 				url += '&app=' + $scope.id;
 				url += '&pid=' + $scope.ep.id;
+				url += '&cname=' + $scope.ep.code_name;
 				http2.get(url, function(rsp) {
 					$scope.app.pages.splice($scope.app.pages.indexOf($scope.ep), 1);
 					if ($scope.app.pages.length) {

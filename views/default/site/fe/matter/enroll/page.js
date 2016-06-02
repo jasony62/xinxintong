@@ -1,6 +1,6 @@
-define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive", "enroll-common"], function(require, angular) {
+define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "enroll-directive"], function(angular, ngApp) {
     'use strict';
-    ngApp.factory('Round', ['$http', '$q', function($http, $q) {
+    ngApp.factory('Round', ['$http', '$q', 'ls', function($http, $q, LS) {
         var Round, _ins;
         Round = function() {};
         Round.prototype.list = function() {
@@ -78,7 +78,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
             }
         };
     }]);
-    ngApp.factory('Record', ['$http', '$q', function($http, $q) {
+    ngApp.factory('Record', ['$http', '$q', 'ls', function($http, $q, LS) {
         var Record, _ins, _running;
         Record = function() {
             this.current = {
@@ -165,7 +165,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         };
         return Stat;
     }]);
-    ngApp.controller('ctrlRecords', ['$scope', 'Record', function($scope, Record) {
+    ngApp.controller('ctrlRecords', ['$scope', 'Record', 'ls', function($scope, Record, LS) {
         var facRecord, options, fnFetch,
             schemas = $scope.app.data_schemas;
         $scope.value2Label = function(record, key) {
@@ -224,7 +224,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         $scope.options = options;
         $scope.fetch = fnFetch;
     }]);
-    ngApp.controller('ctrlRecord', ['$scope', 'Record', function($scope, Record) {
+    ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', function($scope, Record, LS) {
         var facRecord,
             schemas = $scope.app.data_schemas;
         $scope.value2Label = function(key) {
@@ -283,7 +283,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         facRecord.get(LS.p.ek);
         $scope.Record = facRecord;
     }]);
-    ngApp.controller('ctrlRemark', ['$scope', '$http', 'Record', function($scope, $http, Record) {
+    ngApp.controller('ctrlRemark', ['$scope', '$http', 'Record', 'ls', function($scope, $http, Record, LS) {
         var facRecord;
         $scope.newRemark = '';
         $scope.remark = function(event) {
@@ -305,7 +305,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         facRecord.get(LS.p.ek);
         $scope.Record = facRecord;
     }]);
-    ngApp.controller('ctrlInvite', ['$scope', '$http', 'Record', function($scope, $http, Record) {
+    ngApp.controller('ctrlInvite', ['$scope', '$http', 'Record', 'ls', function($scope, $http, Record, LS) {
         var facRecord;
         $scope.options = {
             genRecordWhenAccept: 'Y'
@@ -354,7 +354,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
                 if (nextAction === 'closeWindow') {
                     $scope.closeWindow();
                 } else if (nextAction !== undefined && nextAction.length) {
-                    var url = LS('', 'site', 'app');
+                    var url = LS.j('', 'site', 'app');
                     url += '&ek=' + rsp.data.ek;
                     url += '&page=' + nextAction;
                     location.replace(url);
@@ -365,7 +365,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         facRecord.get(LS.p.ek);
         $scope.Record = facRecord;
     }]);
-    ngApp.controller('ctrlStatistic', ['$scope', '$http', function($scope, $http) {
+    ngApp.controller('ctrlStatistic', ['$scope', '$http', 'ls', function($scope, $http, LS) {
         var fnFetch;
         fnFetch = function(options) {
             var url;
@@ -407,7 +407,8 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
             }
         });
     }]);
-    require(['domReady!'], function(document) {
-        angular.bootstrap(document, ["app"]);
-    });
+
+    angular._lazyLoadModule('enroll');
+
+    return ngApp;
 });

@@ -21,7 +21,11 @@ class memberschema_model extends \TMS_MODEL {
 				$schema->extattr = json_decode($schema->extattr);
 			}
 			if (!empty($schema->page_code_name)) {
-				$page = \TMS_APP::M('code\page')->lastPublishedByName($schema->siteid, $schema->page_code_name, 'id,html,css,js');
+				$page = \TMS_APP::M('code\page')->lastPublishedByName(
+					$schema->siteid,
+					$schema->page_code_name,
+					array('fields' => 'id,html,css,js')
+				);
 				$schema->page = $page;
 			}
 		}

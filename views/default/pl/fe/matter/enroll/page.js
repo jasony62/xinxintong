@@ -604,8 +604,7 @@
             url += '?site=' + $scope.siteId;
             url += '&app=' + $scope.id;
             url += '&pid=' + page.id;
-            url += '&pname=' + page.name;
-            url += '&cid=' + page.code_id;
+            url += '&cname=' + page.code_name;
             http2.post(url, p, function(rsp) {
                 page.$$modified = false;
                 $scope.$root.progmsg = '';

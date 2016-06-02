@@ -1,5 +1,6 @@
-define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt-geo", "enroll-directive", "enroll-common"], function(require, angular) {
+define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image", "xxt-geo", "enroll-directive"], function(angular, ngApp) {
     'use strict';
+
     ngApp.config(['$compileProvider', function($compileProvider) {
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|sms|wxLocalResource):/);
     }]);
@@ -24,7 +25,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
             }
         };
     }]);
-    ngApp.factory('Input', function($http, $q, $timeout) {
+    ngApp.factory('Input', ['$http', '$q', '$timeout', 'ls', function($http, $q, $timeout, LS) {
         var Input, _ins;
         var required = function(value, len) {
             return (value == null || value == "" || value.length < len) ? false : true;
@@ -69,7 +70,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
             if (Object.keys && Object.keys(posted.member).length === 0) {
                 delete posted.member;
             }
-            url = '/rest/site/fe/matter/enroll/record/submit?site=' + LS.p.site + '&app=' + LS.p.app;
+            url = LS.j('record/submit', 'site', 'app');
             ek && ek.length && (url += '&ek=' + ek);
             for (var i in posted) {
                 d = posted[i];
@@ -124,7 +125,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
                 return _ins;
             }
         }
-    });
+    }]);
     ngApp.directive('tmsImageInput', function($compile, $q) {
         var modifiedImgFields, openPickFrom, onSubmit;
         modifiedImgFields = [];
@@ -220,7 +221,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
             }
         }
     });
-    ngApp.directive('tmsFileInput', function($q) {
+    ngApp.directive('tmsFileInput', ['$q', 'ls', function($q, LS) {
         var r, onSubmit;
         r = new Resumable({
             target: '/rest/site/fe/matter/enroll/record/uploadFile?site=' + LS.p.site + '&aid=' + LS.p.aid,
@@ -292,8 +293,32 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
                 };
             }
         }
-    });
-    ngApp.controller('ctrlInput', ['$scope', '$http', 'Input', function($scope, $http, Input) {
+    }]);
+    ngApp.controller('ctrlInput', ['$scope', '$http', 'Input', 'ls', function($scope, $http, Input, LS) {
+        var PG = (function() {
+            return {
+                setMember: function(user, member) {
+                    var member2, eles;
+                    if (user && member && member.schema_id && user.members) {
+                        if (member2 = user.members[member.schema_id]) {
+                            eles = document.querySelectorAll("[ng-model^='data.member']");
+                            angular.forEach(eles, function(ele) {
+                                var attr;
+                                attr = ele.getAttribute('ng-model');
+                                attr = attr.replace('data.member.', '');
+                                attr = attr.split('.');
+                                if (attr.length == 2) {
+                                    !member.extattr && (member.extattr = {});
+                                    member.extattr[attr[1]] = member2.extattr[attr[1]];
+                                } else {
+                                    member[attr[0]] = member2[attr[0]];
+                                }
+                            });
+                        }
+                    }
+                }
+            };
+        })();
         var facInput, tasksOfOnReady, tasksOfBeforeSubmit;
         tasksOfBeforeSubmit = [];
         facInput = Input.ins();
@@ -387,17 +412,19 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
         };
         $scope.getMyLocation = function(prop) {
             window.xxt.geo.getAddress($http, $q.defer(), LS.p.site).then(function(data) {
-                if (data.errmsg === 'ok')
+                if (data.errmsg === 'ok') {
                     $scope.data[prop] = data.address;
-                else
+                } else {
                     $scope.$parent.errmsg = data.errmsg;
+                }
             });
         };
         $scope.$watch('data.member.authid', function(nv) {
             if (nv && nv.length) PG.setMember($scope.params, $scope.data.member);
         });
     }]);
-    require(['domReady!'], function(document) {
-        angular.bootstrap(document, ["app"]);
-    });
+
+    angular._lazyLoadModule('enroll');
+
+    return ngApp;
 });

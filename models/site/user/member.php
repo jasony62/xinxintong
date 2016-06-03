@@ -89,77 +89,42 @@ class member_model extends \TMS_MODEL {
 	}
 	/**
 	 * 创建认证用户
-	 *
-	 * 要求认证用户首先必须是关注用户
-	 *
-	 * $fid 关注用户id
-	 * $data
-	 * $attrs
 	 */
-	public function createByApp($siteId, $schemaId, $userid, $member) {
+	public function createByApp($siteId, &$schema, $userid, $member) {
 		if (empty($siteId)) {
 			return array(false, '没有指定站点');
 		}
 
-		if (empty($schemaId)) {
+		if (empty($schema)) {
 			return array(false, '没有指定用户自定义接口');
 		}
 
-		$member->site = $siteId;
-		$member->authapi_id = $schemaId;
+		is_array($member) && $member = (object) $member;
+		$member->siteid = $siteId;
+		$create_at = time();
+		$member->userid = $userid;
+		$member->schema_id = $schema->id;
+		$member->create_at = $create_at;
 
-		$attrs = \TMS_APP::M('user/authapi')->byId($schemaId, 'attr_mobile,attr_email,attr_name,attr_password,extattr');
-		if ($errMsg = $this->rejectAuth($member, $attrs)) {
+		if ($errMsg = $this->rejectAuth($member, $schema)) {
 			return array(false, $errMsg);
 		}
-
-		is_array($member) && $member = (object) $member;
-		/**
-		 * 用户的邮箱需要验证，将状态设置为等待验证的状态
-		 */
-		$member->email_verified = ($attrs->attr_email[4] === '1') ? 'N' : 'Y';
+		/* 用户的邮箱需要验证，将状态设置为等待验证的状态 */
+		$member->email_verified = ($schema->attr_email[4] === '1') ? 'N' : 'Y';
 		/**
 		 * todo 应该支持使用扩展属性作为唯一标识
 		 */
-		if ($attrs->attr_mobile[5] === '1' && isset($member->mobile)) {
-			if ($attrs->attr_mobile[4] === '1') {
-				$mobile = $member->mobile;
-				$mpa = \TMS_APP::M('mp\mpaccount')->getApis($siteId);
-				if ('yx' !== $mpa->mpsrc) {
-					return array(false, '目前仅支持在易信客户端中验证手机号');
-				}
-
-				if ('N' == $mpa->yx_checkmobile) {
-					return array(false, '仅支持在开通了手机验证接口的公众号中验证手机号');
-				}
-
-				$rst = \TMS_APP::M('mpproxy/yx', $siteId)->mobile2Openid($mobile);
-				if ($rst[0] === false) {
-					return array(false, "验证手机号失败【{$rst[1]}】");
-				}
-
-				if ($fan->openid !== $rst[1]->openid) {
-					return array(false, "您输入的手机号与注册易信用户时的提供手机号不一致");
-				}
-
+		if ($schema->attr_mobile[5] === '1' && isset($member->mobile)) {
+			if ($schema->attr_mobile[4] === '1') {
+				/*检查手机号*/
 			}
-			$member->authed_identity = $member->mobile;
-		} else if ($attrs->attr_email[5] === '1' && isset($member->email)) {
-			$member->authed_identity = $member->email;
+			$member->identity = $member->mobile;
+		} else if ($schema->attr_email[5] === '1' && isset($member->email)) {
+			$member->identity = $member->email;
 		} else {
 			return array(false, '无法获得用户身份标识信息');
 		}
-
-		$create_at = time();
-		$mid = md5(uniqid() . $create_at); //member's id
-		$member->mid = $mid;
-		$member->fid = $fid;
-		$member->openid = $fan->openid;
-		$member->nickname = $fan->nickname;
-		$member->create_at = $create_at;
-		/**
-		 * 扩展属性
-		 */
+		/* 扩展属性 */
 		if (!empty($member->extattr)) {
 			$extdata = array();
 			foreach ($member->extattr as $ek => $ev) {
@@ -170,9 +135,11 @@ class member_model extends \TMS_MODEL {
 			$member->extattr = '{}';
 		}
 
-		$this->insert('xxt_member', (array) $member, false);
+		$id = $this->insert('xxt_site_member', $member, true);
 
-		return array(true, $mid);
+		$member = $this->byId($id);
+
+		return array(true, $member);
 	}
 	/**
 	 * 更新认证用户

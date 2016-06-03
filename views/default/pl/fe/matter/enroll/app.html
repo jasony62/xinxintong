@@ -8,6 +8,97 @@
             </div>
             <button class='btn btn-block btn-success' ng-click="addPage()">添加页面</button>
             <button class='btn btn-block btn-default' ng-click='delPage()'>删除页面</button>
+            <!--component editor-->
+            <hr>
+            <div ng-if="activeWrap.type==='input'&&activeSchema">
+                <div class="radio" ng-if="activeSchema.type!=='single'&&activeSchema.type!=='multiple'">
+                    <label><input type='radio' value='placeholder' ng-model='activeSchema.showname'>输入框内</label>
+                    <label><input type='radio' value='label' ng-model='activeSchema.showname'>输入框前</label>
+                </div>
+                <div class="form-group" ng-if="activeSchema.type==='single'">
+                    <label class="radio-inline"><input type='radio' name='component' value='R' ng-model='activeSchema.component'>单选钮</label>
+                    <label class="radio-inline"><input type='radio' name='component' value='S' ng-model='activeSchema.component'>下拉框</label>
+                </div>
+                <div class="form-group" ng-if="(activeSchema.type==='single'&&activeSchema.component==='R')||activeSchema.type==='multiple'">
+                    <label class="radio-inline"><input type='radio' name='align' value='V' ng-model='activeSchema.align'>垂直</label>
+                    <label class="radio-inline"><input type='radio' name='align' value='H' ng-model='activeSchema.align'>水平</label>
+                </div>
+                <div class="form-group" ng-if="activeSchema.type==='member'">
+                    <select class='form-control' ng-model='selectedMemberSchema.schema' ng-options='ms.title for ms in memberSchemas' ng-change='shiftMemberSchema()'>
+                        <option></option>
+                    </select>
+                    <select class='form-control' ng-model='selectedMemberSchema.attr' ng-options='a.label for a in selectedMemberSchema.attrs' ng-change="shiftMemberSchemaAttr()">
+                        <option></option>
+                    </select>
+                    <div class="help-block">自定义用户信息</div>
+                </div>
+                <div class="form-group">
+                    <input type='text' class='form-control' placeholder="标题" ng-model='activeSchema.title' required>
+                </div>
+                <div class="form-group" ng-if="activeSchema.type==='single'||activeSchema.type==='multiple'">
+                    <button class="btn btn-default btn-sm" ng-click='addOption()'>添加</button>
+                    <ul class='list-group' style='margin-bottom:0'>
+                        <li class='list-group-item' ng-repeat='op in activeSchema.ops' editable prop='l' obj='op'></li>
+                    </ul>
+                </div>
+                <div class="checkbox" ng-show="['image'].indexOf(activeSchema.type)===-1">
+                    <label><input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model='activeSchema.required'>必填</label>
+                </div>
+                <div class="form-group" ng-if="activeSchema.type==='image'||activeSchema.type==='file'">
+                    <div class="col-md-10">
+                        <input type='text' class='form-control' ng-model='activeSchema.count'>
+                    </div>
+                    <div class="help-block">数量</div>
+                </div>
+                <div class="form-group" ng-if="activeSchema.type==='multiple'">
+                    <div class='input-group'>
+                        <span class='input-group-addon'>
+                            <input type='checkbox' ng-model='activeSchema.setUpper' ng-true-value="'Y'" ng-false-value="'N'">
+                        </span>
+                        <input type='text' ng-disabled="activeSchema.setUpper==='N'" class='form-control' ng-model='activeSchema.upper'>
+                    </div>
+                    <div class="help-block">限制数量</div>
+                </div>
+            </div>
+            <!--component editor-->
+            <!--button editor-->
+            <div ng-if="activeWrap.type==='button'&&activeSchema" class="form-horizontal" ng-controller="ctrlButton">
+                <div class="form-group">
+                    <label class="col-md-3 control-label">操作</label>
+                    <div class="col-md-9">
+                        <select class='form-control' ng-model='activeSchema.name' ng-options='k as v.l for (k,v) in buttons' ng-change="choose()"></select>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="'remarkRecord'!==activeSchema.name">
+                    <label class="col-md-3 control-label">显示为</label>
+                    <div class="col-md-9">
+                        <input type='text' class='form-control' ng-model='activeSchema.label'>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="['closeWindow','addRecord','editRecord'].indexOf(activeSchema.name)===-1">
+                    <label class="col-md-3 control-label">操作后</label>
+                    <div class="col-md-9">
+                        <select class='form-control' ng-model='activeSchema.next' ng-options='k as v.l for (k,v) in pages'>
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="['addRecord','editRecord'].indexOf(activeSchema.name)!==-1">
+                    <label class="col-md-3 control-label">操作后</label>
+                    <div class="col-md-9">
+                        <select class='form-control' ng-model='activeSchema.next' ng-options='k as v.l for (k,v) in inputPages'>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="'sendInvite'===activeSchema.name">
+                    <label class="col-md-3 control-label">接受邀请页</label>
+                    <div class="col-md-9">
+                        <select class='form-control' ng-model='activeSchema.accept' ng-options='k as v.l for (k,v) in pages'>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <!--button editor-->
         </div>
         <div class='col-md-8'><!--tinymce editor-->
             <div class='page-editor' ng-if='ep'>

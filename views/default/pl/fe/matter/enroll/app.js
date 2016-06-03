@@ -19,6 +19,68 @@
 			$scope.update(data.state);
 		});
 	}]);
+	ngApp.provider.controller('ctrlButton', ['$scope', function($scope) {
+		var targetPages = {},
+			inputPages = {},
+			schema = $scope.activeSchema;
+		$scope.$watch('app', function(app) {
+			if (!app) return;
+			angular.forEach(app.pages, function(page) {
+				targetPages[page.name] = {
+					l: page.title
+				};
+				if (page.type === 'I') {
+					inputPages[page.name] = {
+						l: page.title
+					};
+				}
+			});
+		});
+		targetPages.closeWindow = {
+			l: '关闭页面'
+		};
+		$scope.buttons = {
+			submit: {
+				l: '提交信息'
+			},
+			addRecord: {
+				l: '新增登记'
+			},
+			editRecord: {
+				l: '修改登记'
+			},
+			removeRecord: {
+				l: '删除登记'
+			},
+			sendInvite: {
+				l: '发出邀请'
+			},
+			acceptInvite: {
+				l: '接受邀请'
+			},
+			gotoPage: {
+				l: '页面导航'
+			},
+			closeWindow: {
+				l: '关闭页面'
+			}
+		};
+		$scope.pages = targetPages;
+		$scope.inputPages = inputPages;
+		$scope.choose = function() {
+			var names;
+			schema.label = $scope.buttons[schema.name].l;
+			schema.next = '';
+			if (['addRecord', 'editRecord', 'removeRecord'].indexOf(schema.name) !== -1) {
+				names = Object.keys(inputPages);
+				if (names.length === 0) {
+					alert('没有类型为“填写页”的页面');
+				} else {
+					schema.next = names[0];
+				}
+			}
+		};
+	}]);
 	ngApp.provider.controller('ctrlPageEditor', ['$scope', '$q', '$modal', 'http2', 'mediagallery', 'mattersgallery', function($scope, $q, $modal, http2, mediagallery, mattersgallery) {
 		$scope.$watch('app', function(app) {
 			if (!app) return;
@@ -54,9 +116,58 @@
 					upmost: /body/i.test(wrap.parentNode.tagName),
 					downmost: /button|static|radio|checkbox/.test(wrapType),
 				};
+				if (/button/.test(wrapType)) {
+					$scope.activeSchema = (function() {
+						var schema, schema2;
+						schema = wrapLib.button.extract(wrap);
+						if (schema2 = $scope.ep.containAct(schema)) {
+							return schema2;
+						}
+						return schema;
+					})();
+				} else if (/input/.test(wrapType)) {
+					$scope.activeSchema = (function() {
+						var schema = wrapLib.extractInputSchema(wrap);
+						for (var i = 0, l = $scope.ep.data_schemas.length; i < l; i++) {
+							if (schema.id === $scope.ep.data_schemas[i].id) {
+								schema = $scope.ep.data_schemas[i];
+								break;
+							}
+						}
+						return schema;
+					})();
+				} else if (/static/.test($active.attr('wrap'))) {
+					var config = (function() {
+						var config = wrapLib.extractStaticSchema($active[0]),
+							config2;
+						if (config2 = $scope.ep.containStatic(config)) {
+							return config2;
+						}
+						return config;
+					})();
+				} else if (/record-list/.test($active.attr('wrap'))) {
+					var config = (function() {
+						var config = wrapLib.extractStaticSchema($active[0]),
+							config2;
+						if (config2 = $scope.ep.containStatic(config)) {
+							return config2;
+						}
+						return config;
+					})();
+				} else if (/round-list/.test($active.attr('wrap'))) {
+					var config = (function() {
+						var config = wrapLib.extractStaticSchema($active[0]),
+							config2;
+						if (config2 = $scope.ep.containStatic(config)) {
+							return config2;
+						}
+						return config;
+					})();
+				}
 			} else {
 				$scope.hasActiveWrap = false;
 				$scope.activeWrap = false;
+				$scope.activeSchema = false;
 			}
 		};
 		var ctrlSchemaEditor = ['$scope', '$modalInstance', '$timeout', 'schema', 'memberSchemas', function($scope, $mi, $timeout, schema, memberSchemas) {
@@ -284,6 +395,22 @@
 				}
 			});
 		});
+		$scope.$watch('activeSchema', function(nv, ov) {
+			var editor;
+			if (ov !== undefined) {
+				editor = tinymce.get('tinymce-page');
+				$active = $(editor.getBody()).find('.active');
+				$active = $active[0];
+				if (/input/.test($scope.activeWrap.type)) {
+					var newWrap = wrapLib.modifyEmbedInput(editor, $active, nv);
+					editor.save();
+					setActiveWrap(newWrap);
+				} else if (/button/.test($scope.activeWrap.type)) {
+					wrapLib.button.modify($active, nv);
+					editor.save();
+				}
+			}
+		}, true);
 		var chooseInput = function() {
 			$modal.open({
 				templateUrl: '/views/default/pl/fe/matter/enroll/component/chooseInput.html?_=1',

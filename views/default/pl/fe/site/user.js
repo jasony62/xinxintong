@@ -18,7 +18,7 @@ ngApp.config(['$locationProvider', '$routeProvider', '$controllerProvider', func
 			}
 		}
 	}).otherwise({
-		templateUrl: '/views/default/pl/fe/site/user/account.html?_=1',
+		templateUrl: '/views/default/pl/fe/site/user/account.html?_=2',
 		controller: 'ctrlAccount',
 		resolve: {
 			load: function($q) {
@@ -37,13 +37,17 @@ ngApp.config(['$locationProvider', '$routeProvider', '$controllerProvider', func
 ngApp.controller('ctrlSite', ['$scope', '$location', 'http2', 'userProfile', function($scope, $location, http2, userProfile) {
 	$scope.siteId = $location.search().site;
 	$scope.currentMemberSchema = function(schemaId) {
-		var i;
-		for (i in $scope.memberSchemas) {
-			if ($scope.memberSchemas[i].id == schemaId) {
-				return $scope.memberSchemas[i];
+		if (schemaId) {
+			for (var i = $scope.memberSchemas.length - 1; i === 0; i--) {
+				if ($scope.memberSchemas[i].id == schemaId) {
+					return $scope.memberSchemas[i];
+				}
 			}
+		} else if ($scope.memberSchemas.length) {
+			return $scope.memberSchemas[0];
+		} else {
+			return false;
 		}
-		return false;
 	};
 	$scope.openProfile = function(userid) {
 		userProfile.open($scope.siteId, userid, $scope.memberSchemas);

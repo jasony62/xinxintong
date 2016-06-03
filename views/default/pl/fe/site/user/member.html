@@ -34,7 +34,9 @@
                 <td ng-if="schema.attr_email[0]==0">{{m.email}}</td>
                 <td ng-if="schema.attr_email[0]==0&&schema.attr_email[4]==1">{{m.email_verified==='Y'?'通过':'未通过'}}</td>
                 <td ng-repeat='ea in schema.extattr'>{{m.extattr[ea.id]}}</td>
-                <td><a href='javascript:void(0)' ng-click='editMember(m)'>修改</a></td>
+                <td>
+                    <a href='javascript:void(0)' ng-click='editMember(m)'>修改</a>
+                </td>
             </tr>
         </tbody>
     </table>

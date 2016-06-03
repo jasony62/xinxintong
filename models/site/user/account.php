@@ -16,7 +16,7 @@ class account_model extends \TMS_MODEL {
 	 * @return object
 	 */
 	public function &byId($uid, $options = array()) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'uid,nickname,email,password,salt';
+		$fields = isset($options['fields']) ? $options['fields'] : 'uid,uname,nickname,email,password,salt';
 		$q = array(
 			$fields,
 			'xxt_site_account',
@@ -34,7 +34,7 @@ class account_model extends \TMS_MODEL {
 	 * return object
 	 */
 	public function &byUname($siteId, $uname) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'uid,nickname,email,password,salt';
+		$fields = isset($options['fields']) ? $options['fields'] : 'uid,nickname,password,salt';
 		$q = array(
 			$fields,
 			'xxt_site_account',
@@ -162,6 +162,18 @@ class account_model extends \TMS_MODEL {
 			'xxt_site_account',
 			$updated,
 			"uid='$uid'"
+		);
+
+		return $rst;
+	}
+	/**
+	 * 修改昵称
+	 */
+	public function changeNickname($siteId, $uname, $nickname) {
+		$rst = $this->update(
+			'xxt_site_account',
+			array('nickname' => $nickname),
+			"siteid='$siteId' and uname='$uname'"
 		);
 
 		return $rst;

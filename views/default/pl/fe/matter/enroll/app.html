@@ -1,156 +1,17 @@
 <div id='app-view'>
-    <div class='col-md-9' ng-controller="ctrlPageEditor">
-        <div class='col-md-4'>
-            <!---->
-            <div class='list-group'>
-                <div class='list-group-item page' ng-class="{'active':p===ep}" ng-repeat="p in app.pages" ng-click='choosePage(p)' ng-bind="p.title">
-                </div>
-            </div>
-            <button class='btn btn-block btn-success' ng-click="addPage()">添加页面</button>
-            <button class='btn btn-block btn-default' ng-click='delPage()'>删除页面</button>
-            <!--component editor-->
-            <hr>
-            <div ng-if="activeWrap.type==='input'&&activeSchema">
-                <div class="radio" ng-if="activeSchema.type!=='single'&&activeSchema.type!=='multiple'">
-                    <label><input type='radio' value='placeholder' ng-model='activeSchema.showname'>输入框内</label>
-                    <label><input type='radio' value='label' ng-model='activeSchema.showname'>输入框前</label>
-                </div>
-                <div class="form-group" ng-if="activeSchema.type==='single'">
-                    <label class="radio-inline"><input type='radio' name='component' value='R' ng-model='activeSchema.component'>单选钮</label>
-                    <label class="radio-inline"><input type='radio' name='component' value='S' ng-model='activeSchema.component'>下拉框</label>
-                </div>
-                <div class="form-group" ng-if="(activeSchema.type==='single'&&activeSchema.component==='R')||activeSchema.type==='multiple'">
-                    <label class="radio-inline"><input type='radio' name='align' value='V' ng-model='activeSchema.align'>垂直</label>
-                    <label class="radio-inline"><input type='radio' name='align' value='H' ng-model='activeSchema.align'>水平</label>
-                </div>
-                <div class="form-group" ng-if="activeSchema.type==='member'">
-                    <select class='form-control' ng-model='selectedMemberSchema.schema' ng-options='ms.title for ms in memberSchemas' ng-change='shiftMemberSchema()'>
-                        <option></option>
-                    </select>
-                    <select class='form-control' ng-model='selectedMemberSchema.attr' ng-options='a.label for a in selectedMemberSchema.attrs' ng-change="shiftMemberSchemaAttr()">
-                        <option></option>
-                    </select>
-                    <div class="help-block">自定义用户信息</div>
-                </div>
-                <div class="form-group">
-                    <input type='text' class='form-control' placeholder="标题" ng-model='activeSchema.title' required>
-                </div>
-                <div class="form-group" ng-if="activeSchema.type==='single'||activeSchema.type==='multiple'">
-                    <button class="btn btn-default btn-sm" ng-click='addOption()'>添加</button>
-                    <ul class='list-group' style='margin-bottom:0'>
-                        <li class='list-group-item' ng-repeat='op in activeSchema.ops' editable prop='l' obj='op'></li>
-                    </ul>
-                </div>
-                <div class="checkbox" ng-show="['image'].indexOf(activeSchema.type)===-1">
-                    <label><input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model='activeSchema.required'>必填</label>
-                </div>
-                <div class="form-group" ng-if="activeSchema.type==='image'||activeSchema.type==='file'">
-                    <div class="col-md-10">
-                        <input type='text' class='form-control' ng-model='activeSchema.count'>
-                    </div>
-                    <div class="help-block">数量</div>
-                </div>
-                <div class="form-group" ng-if="activeSchema.type==='multiple'">
-                    <div class='input-group'>
-                        <span class='input-group-addon'>
-                            <input type='checkbox' ng-model='activeSchema.setUpper' ng-true-value="'Y'" ng-false-value="'N'">
-                        </span>
-                        <input type='text' ng-disabled="activeSchema.setUpper==='N'" class='form-control' ng-model='activeSchema.upper'>
-                    </div>
-                    <div class="help-block">限制数量</div>
-                </div>
-            </div>
-            <!--component editor-->
-            <!--button editor-->
-            <div ng-if="activeWrap.type==='button'&&activeSchema" class="form-horizontal" ng-controller="ctrlButton">
-                <div class="form-group">
-                    <label class="col-md-3 control-label">操作</label>
-                    <div class="col-md-9">
-                        <select class='form-control' ng-model='activeSchema.name' ng-options='k as v.l for (k,v) in buttons' ng-change="choose()"></select>
-                    </div>
-                </div>
-                <div class="form-group" ng-show="'remarkRecord'!==activeSchema.name">
-                    <label class="col-md-3 control-label">显示为</label>
-                    <div class="col-md-9">
-                        <input type='text' class='form-control' ng-model='activeSchema.label'>
-                    </div>
-                </div>
-                <div class="form-group" ng-show="['closeWindow','addRecord','editRecord'].indexOf(activeSchema.name)===-1">
-                    <label class="col-md-3 control-label">操作后</label>
-                    <div class="col-md-9">
-                        <select class='form-control' ng-model='activeSchema.next' ng-options='k as v.l for (k,v) in pages'>
-                            <option></option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group" ng-show="['addRecord','editRecord'].indexOf(activeSchema.name)!==-1">
-                    <label class="col-md-3 control-label">操作后</label>
-                    <div class="col-md-9">
-                        <select class='form-control' ng-model='activeSchema.next' ng-options='k as v.l for (k,v) in inputPages'>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group" ng-show="'sendInvite'===activeSchema.name">
-                    <label class="col-md-3 control-label">接受邀请页</label>
-                    <div class="col-md-9">
-                        <select class='form-control' ng-model='activeSchema.accept' ng-options='k as v.l for (k,v) in pages'>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <!--button editor-->
-        </div>
-        <div class='col-md-8'><!--tinymce editor-->
-            <div class='page-editor' ng-if='ep'>
-                <tinymce content='ep.html' id='tinymce-page' height='669' change="onPageChange()"></tinymce>
-                <div class='sidebar'>
-                    <button class='btn btn-default' ng-click="updPage(ep,'html')" title='保存修改' ng-disabled='!ep.$$modified'>
-                    <i class='fa fa-save fa-fw'></i>
-                    </button>
-                    <button class='btn btn-default' ng-click="createInput()" title='创建登记项' ng-if="ep.type==='I'">
-                    <i class='fa fa-plus fa-fw'></i>
-                    </button>
-                    <button class='btn btn-default' ng-click="chooseInput()" title='添加已有登记项'>
-                    <i class='fa fa-plus-square-o fa-fw'></i>
-                    </button>
-                    <button class='btn btn-default' ng-click="createAct()" title='添加操作'>
-                    <i class='fa fa-plus-square fa-fw'></i>
-                    </button>
-                    <button class='btn btn-default' ng-click="embedMatter()" title='添加素材'>
-                    <i class='fa fa-file fa-fw'></i>
-                    </button>
-                    <button class='btn btn-default' ng-click="modifyWrap()" title='编辑' ng-disabled='!hasActiveWrap||!activeWrap.editable'>
-                    <i class='fa fa-edit fa-fw'></i>
-                    </button>
-                    <button class='btn btn-default' ng-click="removeWrap()" title='删除' ng-disabled='!hasActiveWrap'>
-                    <i class='fa fa-remove fa-fw'></i>
-                    </button>
-                    <button class='btn btn-default' ng-click="upWrap()" ng-disabled='!hasActiveWrap'>
-                    <span class='fa fa-arrow-up fa-fw'></span>
-                    </button>
-                    <button class='btn btn-default' ng-click="downWrap()" ng-disabled='!hasActiveWrap'>
-                    <span class='fa fa-arrow-down fa-fw'></span>
-                    </button>
-                    <button class='btn btn-default' title='上一级' ng-click="upLevel()" ng-disabled='!hasActiveWrap||activeWrap.upmost'>
-                    <span class='fa fa-level-up fa-fw'></span>
-                    </button>
-                    <button class='btn btn-default' title='下一级' ng-click="downLevel()" ng-disabled='!hasActiveWrap||activeWrap.downmost'>
-                    <i class='fa fa-level-down fa-fw'></i>
-                    </button>
-                    <button class='btn btn-default' title='页面设置' ng-click="gotoPageConfig()">
-                    <i class='fa fa-cog fa-fw'></i>
-                    </button>
-                    <button class='btn btn-default' title='编辑代码' ng-click="gotoCode()">
-                    <i class='fa fa-code fa-fw'></i>
-                    </button>
-                </div>
-            </div>
-        </div><!--tinymce editor-->
-    </div>
+    <!--app-->
     <div class='col-md-3'>
         <div class='tile'>
             <button class='btn btn-block btn-success' ng-click="publish()">发布</button>
             <button class='btn btn-block btn-default' ng-click="remove()">删除</button>
+        </div>
+        <div class='tile' ng-if="app.state==='2'">
+            <div class='form-group'>
+                <div style='height:auto;word-break:break-all' ng-bind='url'></div>
+            </div>
+        </div>
+        <div class='tile' ng-if="app.state==='2'">
+            <a href='/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}'>登记结果</a>
         </div>
         <div class='tile'>
             <div class='form-group'>
@@ -178,20 +39,6 @@
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_footer' ng-change="update('use_mission_footer');">使用项目页脚</label>
             </div>
         </div>
-        <div class='tile' ng-if="app.state==='2'">
-            <div class='form-group'>
-                <div style='height:auto;word-break:break-all' ng-bind='url'></div>
-            </div>
-        </div>
-        <div class='tile'>
-            <a href='/rest/pl/fe/matter/enroll/schema?site={{siteId}}&id={{id}}'>所有登记项</a>
-        </div>
-        <div class='tile'>
-            <a href='/rest/pl/fe/matter/enroll/config?site={{siteId}}&id={{id}}'>进入规则</a>
-        </div>
-        <div class='tile' ng-if="app.state==='2'">
-            <a href='/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}'>登记结果</a>
-        </div>
         <div class='tile'>
             <div class='form-group'>
                 <div>创建人：{{app.creater_name}}</div>
@@ -201,4 +48,141 @@
             </div>
         </div>
     </div>
+    <!--app-->
+    <!--page-->
+    <div class='col-md-9' ng-controller="ctrlPage">
+        <div class='col-md-4'>
+            <!--pages-->
+            <div class='tile'>
+                <div class='list-group'>
+                    <div class='list-group-item page' ng-class="{'active':p===ep}" ng-repeat="p in app.pages" ng-click='choosePage(p)' ng-bind="p.title">
+                    </div>
+                </div>
+                <a href='/rest/pl/fe/matter/enroll/config?site={{siteId}}&id={{id}}'>设置进入规则</a>
+                <div class='help-block'>所有页面</div>
+            </div>
+            <!--pages-->
+            <!--wrap editor-->
+            <div ng-if="activeSchema">
+                <hr>
+                <div class='form-group' ng-include="wrapEditorHtml(activeWrap)">
+                </div>
+                <hr>
+            </div>
+            <!--wrap editor-->
+            <div class='list-group' ng-if="ep.type==='I'" ng-controller="ctrlChooseAppSchema">
+                <div class='list-group-item' ng-repeat="s in appSchemas">
+                    <div class='checkbox' style='margin:0' ng-mouseenter="entered=true" ng-mouseleave="entered=false">
+                        <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
+                        <button ng-if="entered" type="button" class="close" ng-click="remove(s)"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                </div>
+            </div>
+            <!--create wrap-->
+            <div class='form-group tile' ng-if="ep.type==='I'">
+                <button class='btn btn-default' ng-click="newSchema('name')">姓名</button>
+                <button class='btn btn-default' ng-click="newSchema('mobile')">手机</button>
+                <button class='btn btn-default' ng-click="newSchema('email')">邮箱</button>
+                <button class='btn btn-default' ng-click="newSchema('date')">日期</button>
+                <button class='btn btn-default' ng-click="newSchema('shorttext')">短文本</button>
+                <button class='btn btn-default' ng-click="newSchema('longtext')">长文本</button>
+                <button class='btn btn-default' ng-click="newSchema('single')">单选题</button>
+                <button class='btn btn-default' ng-click="newSchema('multiple')">多选题</button>
+                <button class='btn btn-default' ng-click="newSchema('image')">上传图片</button>
+                <button class='btn btn-default' ng-click="newSchema('file')">上传文件</button>
+                <button class='btn btn-default' ng-click="newSchema('location')">上传位置</button>
+                <button class='btn btn-default' ng-click="newMember()">自定义用户信息</button>
+                <div class='help-block'>添加登记项</div>
+            </div>
+            <!--create wrap-->
+            <div ng-if="ep.type==='V'" ng-controller="ctrlStaticWrap">
+                <div class='list-group-item' ng-repeat="s in appSchemas">
+                    <div class='checkbox' style='margin:0'>
+                        <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
+                    </div>
+                </div>
+                <div class='list-group-item' ng-repeat="s in otherSchemas">
+                    <div class='checkbox' style='margin:0'>
+                        <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
+                    </div>
+                </div>
+            </div>
+             <div class='tile' ng-if="ep.type==='L'">
+                <button class='btn btn-default' ng-click="addRecordList()">登记项列表</button>
+                <button class='btn btn-default' ng-click="addRoundList()" ng-if="app.scenarioConfig.can_rounds==='Y'">添加登记项列表</button>
+            </div>
+            <div class='tile'>
+                <button class='btn btn-default' ng-click="addButton()">添加操作</button>
+            </div>
+        </div>
+        <!--tinymce editor-->
+        <div class='col-md-8'>
+            <div class='page-editor'>
+                <tinymce content='ep.html' id='tinymce-page' height='669' change="onPageChange()" toolbar="code"></tinymce>
+                <div class='sidebar'>
+                    <button class='btn btn-default' ng-click="updPage(ep,['html'])" title='保存修改' ng-disabled='!ep.$$modified'>
+                    <i class='fa fa-save fa-fw'></i>
+                    </button>
+                    <button class='btn btn-default' ng-click="embedMatter()" title='添加素材'>
+                    <i class='fa fa-file fa-fw'></i>
+                    </button>
+                    <button class='btn btn-default' ng-click="removeWrap()" title='删除' ng-disabled='!hasActiveWrap'>
+                    <i class='fa fa-remove fa-fw'></i>
+                    </button>
+                    <button class='btn btn-default' ng-click="upWrap()" ng-disabled='!hasActiveWrap'>
+                    <span class='fa fa-arrow-up fa-fw'></span>
+                    </button>
+                    <button class='btn btn-default' ng-click="downWrap()" ng-disabled='!hasActiveWrap'>
+                    <span class='fa fa-arrow-down fa-fw'></span>
+                    </button>
+                    <button class='btn btn-default' title='上一级' ng-click="upLevel()" ng-disabled='!hasActiveWrap||activeWrap.upmost'>
+                    <span class='fa fa-level-up fa-fw'></span>
+                    </button>
+                    <button class='btn btn-default' title='下一级' ng-click="downLevel()" ng-disabled='!hasActiveWrap||activeWrap.downmost'>
+                    <i class='fa fa-level-down fa-fw'></i>
+                    </button>
+                    <button class='btn btn-default' title='页面设置' ng-click="gotoPageConfig()">
+                    <i class='fa fa-cog fa-fw'></i>
+                    </button>
+                    <button class='btn btn-default' title='编辑代码' ng-click="gotoCode()">
+                    <i class='fa fa-code fa-fw'></i>
+                    </button>
+                    <button class='btn btn-default' title='添加页面' ng-click="addPage()">
+                    <i class='fa fa-file-o fa-fw'></i>
+                    </button>
+                    <button class='btn btn-default' title='删除页面' ng-click="delPage()">
+                    <i class='fa fa-trash fa-fw'></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!--tinymce editor-->
+    </div>
+    <!--page-->
 </div>
+<script type="text/ng-template" id="memberSchema.html">
+    <div class="modal-header">
+        <button class="close" ng-click="cancel()" type="button">×</button>
+        <h5 class="modal-title">内容</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" role="form">
+            <div class="form-group">
+                <label class="col-md-3 control-label">自定义用户</label>
+                <div class="col-md-9">
+                    <select class='form-control' ng-model='data.memberSchema' ng-options='ms.title for ms in memberSchemas' ng-change='shiftSchema()'></select>
+                    <select class='form-control' ng-model='data.attr' ng-options='a.label for a in data.attrs' ng-change="shiftAttr()"></select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">名称</label>
+                <div class="col-md-9">
+                    <input type='text' class='form-control' ng-model='schema.title' required>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer" style="margin-top:0">
+        <button class="btn btn-success" ng-click="ok()">确定</button>
+    </div>
+</script>

@@ -23,7 +23,7 @@ directive('tinymce', function($timeout) {
                 menubar: false,
                 statusbar: false,
                 plugins: ['save textcolor code table paste fullscreen visualblocks'],
-                toolbar: 'fontsizeselect styleselect forecolor backcolor bullist numlist outdent indent table multipleimage fullscreen code',
+                toolbar: 'fontsizeselect styleselect forecolor backcolor bullist numlist outdent indent table multipleimage',
                 content_css: '/static/css/bootstrap.min.css,/static/css/tinymce.css?v=6',
                 forced_root_block: 'div',
                 height: scope.height ? scope.height : 300,

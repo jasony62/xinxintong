@@ -133,17 +133,44 @@ ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$co
 	});
 	$locationProvider.html5Mode(true);
 }]);
-ngApp.controller('ctrlFrame', ['$scope', '$location', '$q', 'http2', function($scope, $location, $q, http2) {
+ngApp.controller('ctrlFrame', ['$scope', '$location', '$modal', '$q', 'http2', function($scope, $location, $modal, $q, http2) {
 	var ls = $location.search(),
 		modifiedData = {},
 		PageBase = {
-			arrange: function() {
+			arrange: function(mapOfAppSchemas) {
 				var dataSchemas = this.data_schemas,
 					actSchemas = this.act_schemas,
 					userSchemas = this.user_schemas;
 				this.data_schemas = dataSchemas && dataSchemas.length ? JSON.parse(dataSchemas) : [];
 				this.act_schemas = actSchemas && actSchemas.length ? JSON.parse(actSchemas) : [];
 				this.user_schemas = userSchemas && userSchemas.length ? JSON.parse(userSchemas) : [];
+				if (this.data_schemas.length) {
+					if (this.type === 'I') {
+						var pageSchemas = [];
+						angular.forEach(this.data_schemas, function(pageSchema) {
+							mapOfAppSchemas[pageSchema.id] && pageSchemas.push(mapOfAppSchemas[pageSchema.id]);
+						});
+						this.data_schemas = pageSchemas;
+					} else if (this.type === 'V') {
+						angular.forEach(this.data_schemas, function(config) {
+							if (config.pattern === 'record') {
+								mapOfAppSchemas[config.schema.id] && (config.schema = mapOfAppSchemas[config.schema.id]);
+							}
+						});
+					} else if (this.type === 'L') {
+						angular.forEach(this.data_schemas, function(config) {
+							if (config.pattern === 'record-list') {
+								var listSchemas = [];
+								angular.forEach(config.schemas, function(schema) {
+									listSchemas.push(mapOfAppSchemas[schema.id] ? mapOfAppSchemas[schema.id] : schema);
+								});
+								config.schemas = listSchemas;
+							}
+						});
+					}
+				} else if (angular.isObject(this.data_schemas)) {
+					this.data_schemas = [];
+				}
 			},
 			containInput: function(schema) {
 				var i, l;
@@ -205,6 +232,16 @@ ngApp.controller('ctrlFrame', ['$scope', '$location', '$q', 'http2', function($s
 				}
 				return false;
 			},
+			containList: function(schema) {
+				if (this.type === 'L') {
+					for (i = 0, l = this.data_schemas.length; i < l; i++) {
+						if (this.data_schemas[i].id === schema.id) {
+							return this.data_schemas[i];
+						}
+					}
+				}
+				return false;
+			},
 			removeAct: function(schema) {
 				var i, l;
 				for (i = 0, l = this.act_schemas.length; i < l; i++) {
@@ -232,6 +269,37 @@ ngApp.controller('ctrlFrame', ['$scope', '$location', '$q', 'http2', function($s
 				}
 				return false;
 			},
+			updateBySchema: function(schema) {
+				if (this.type === 'V' || this.type === 'L') {
+					var $html = $('<div>' + this.html + '</div>');
+					$html.find("[schema='" + schema.id + "']").find('label').html(schema.title);
+					this.html = $html.html();
+				}
+			},
+			removeBySchema: function(schema) {
+				if (this.type === 'V' || this.type === 'L') {
+					var $html = $('<div>' + this.html + '</div>');
+					$html.find("[schema='" + schema.id + "']").remove();
+					this.html = $html.html();
+				}
+			},
+			appendRecord: function(config) {
+				if (config.schema === undefined) {
+					console.error('WrapLib.record.embed: schema is empty.', config);
+					return false;
+				}
+				var wrapAttrs, wrapHtml, newWrap, $newHtml;
+				/* make wrap */
+				wrapAttrs = wrapLib.record.wrapAttrs(config);
+				wrapHtml = wrapLib.record.schemaHtml(config.schema);
+				newWrap = $('<div></div>').attr(wrapAttrs).append(wrapHtml);
+				/* update page */
+				$newHtml = $('<div>' + this.html + '</div>');
+				$newHtml.find("[wrap='static']:last").after(newWrap);
+				this.html = $newHtml.html();
+
+				return true;
+			}
 		};
 	$scope.id = ls.id;
 	$scope.siteId = ls.site;
@@ -268,21 +336,51 @@ ngApp.controller('ctrlFrame', ['$scope', '$location', '$q', 'http2', function($s
 			modifiedData[name] = $scope.app[name];
 		}
 		$scope.modified = true;
-		$scope.submit();
+
+		return $scope.submit();
+	};
+	$scope.createPage = function() {
+		var deferred = $q.defer();
+		$modal.open({
+			templateUrl: '/views/default/pl/fe/matter/enroll/component/createPage.html?_=2',
+			backdrop: 'static',
+			controller: ['$scope', '$modalInstance', function($scope, $mi) {
+				$scope.options = {};
+				$scope.ok = function() {
+					$mi.close($scope.options);
+				};
+				$scope.cancel = function() {
+					$mi.dismiss();
+				};
+			}],
+		}).result.then(function(options) {
+			http2.post('/rest/pl/fe/matter/enroll/page/add?site=' + $scope.siteId + '&app=' + $scope.id, options, function(rsp) {
+				var page = rsp.data;
+				angular.extend(page, PageBase);
+				page.arrange();
+				$scope.app.pages.push(page);
+				deferred.resolve(page);
+			});
+		});
+
+		return deferred.promise;
 	};
 	$scope.getApp = function() {
 		http2.get('/rest/pl/fe/matter/enroll/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
-			var app;
-			app = rsp.data;
+			var app = rsp.data,
+				mapOfAppSchemas = {};
 			app.tags = (!app.tags || app.tags.length === 0) ? [] : app.tags.split(',');
 			app.type = 'enroll';
 			app.data_schemas = app.data_schemas && app.data_schemas.length ? JSON.parse(app.data_schemas) : [];
+			angular.forEach(app.data_schemas, function(schema) {
+				mapOfAppSchemas[schema.id] = schema;
+			});
 			app.entry_rule.scope === undefined && (app.entry_rule.scope = 'none');
 			angular.forEach(app.pages, function(page) {
 				angular.extend(page, PageBase);
-				page.arrange();
+				page.arrange(mapOfAppSchemas);
 			});
-			$scope.persisted = angular.copy(app);
+			//$scope.persisted = angular.copy(app);
 			$scope.app = app;
 			$scope.url = 'http://' + location.host + '/rest/site/fe/matter/enroll?site=' + $scope.siteId + '&app=' + $scope.id;
 		});

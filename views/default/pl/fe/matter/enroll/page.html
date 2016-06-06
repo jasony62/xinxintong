@@ -8,6 +8,12 @@
                 <input type='text' class='form-control' ng-model='ep.title' tms-auto-update tms-wait=1000 tms-update="updPage(ep,'title')">
                 <div class='help-block'>页面名称</div>
             </div>
+            <div class='form-group'>
+                <label class='radio-inline'><input type='radio' value="I" ng-model='ep.type' ng-change="updPage(ep,'type')">填写页</label>
+                <label class='radio-inline'><input type='radio' value="V" ng-model='ep.type' ng-change="updPage(ep,'type')">查看页</label>
+                <label class='radio-inline'><input type='radio' value="L" ng-model='ep.type' ng-change="updPage(ep,'type')">列表页</label>
+                <div class='help-block'>页面类型</div>
+            </div>
             <div class='form-group' style='display:none'>
                 <label class="checkbox-inline"><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='ep.check_entry_rule' ng-change="updPage(ep,'check_entry_rule')">检查进入规则</label>
             </div>
@@ -29,7 +35,7 @@
     </div>
     <div class="panel panel-default">
         <div class="panel-body">
-            <div ng-include="'/views/default/pl/fe/matter/enroll/comp-'+(ep.type==='I'?'input':'view')+'.html?_=10'" ng-controller='ctrlPageSchema'></div>
+            <div ng-include="'/views/default/pl/fe/matter/enroll/comp-'+(ep.type==='I'?'input':'view')+'.html?_=11'" ng-controller='ctrlPageSchema'></div>
         </div>
     </div>
     <div class="panel panel-default">
@@ -42,302 +48,14 @@
 </div>
 <div class='col-md-6' ng-if="ep" ng-controller="ctrlPageEditor">
     <div class='page-editor'>
-        <div>
-            <div class='btn-group'>
-                <button class='btn' ng-class="ep.$$modified?'btn-success':'btn-default'" ng-disabled='!ep.$$modified' ng-click="updPage(ep,'html')">保存</button>
-                <button class='btn btn-default' ng-click="embedMatter(ep)">添加素材</button>
-            </div>
-            <a href='#' class='pull-right' ng-click="gotoCode(ep.code_id)">编辑代码</a>
-        </div>
         <tinymce content='ep.html' id='{{ep.name}}' height='669' change="onPageChange(ep)"></tinymce>
         <div class='sidebar'>
-            <button class='btn btn-default' ng-click="embedInput(ep)" ng-if="ep.type==='I'">
-            <i class='fa fa-plus fa-fw'></i>
+            <button class='btn btn-default' ng-click="updPage(ep,['data_schemas','html'])" title='保存修改' ng-disabled='!ep.$$modified'>
+            <i class='fa fa-save fa-fw'></i>
             </button>
-            <button class='btn btn-default' ng-click="chooseSchema(ep)" ng-if="ep.type==='I'">
-            <i class='fa fa-plus-square fa-fw'></i>
-            </button>
-            <button class='btn btn-default' ng-click="editWrap(ep)" ng-disabled='!hasActiveWrap||!activeWrap.editable'>
-            <i class='fa fa-edit fa-fw'></i>
-            </button>
-            <button class='btn btn-default' title='修改' ng-click="removeWrap(ep)" ng-disabled='!hasActiveWrap'>
-            <i class='fa fa-remove fa-fw'></i>
-            </button>
-            <button class='btn btn-default' ng-click="upWrap(ep)" ng-disabled='!hasActiveWrap'>
-            <span class='fa fa-arrow-up fa-fw'></span>
-            </button>
-            <button class='btn btn-default' ng-click="downWrap(ep)" ng-disabled='!hasActiveWrap'>
-            <span class='fa fa-arrow-down fa-fw'></span>
-            </button>
-            <button class='btn btn-default' title='上一级' ng-click="upLevel(ep)" ng-disabled='!hasActiveWrap||activeWrap.upmost'>
-            <span class='fa fa-level-up fa-fw'></span>
-            </button>
-            <button class='btn btn-default' title='下一级' ng-click="downLevel(ep)" ng-disabled='!hasActiveWrap||activeWrap.downmost'>
-            <span class='fa fa-level-down fa-fw'></span>
+            <button class='btn btn-default' title='编辑代码' ng-click="gotoCode(ep.code_id)">
+            <i class='fa fa-code fa-fw'></i>
             </button>
         </div>
     </div>
 </div>
-<script type="text/ng-template" id="embedInputLib.html">
-    <div class="modal-header">
-        <button class="close" ng-click="cancel()" type="button">×</button>
-        <h5 class="modal-title">内容</h5>
-    </div>
-    <div class="modal-body">
-        <form class="form-horizontal" role="form">
-            <div class="form-group">
-                <label class="col-md-2 control-label">类型</label>
-                <div class="col-md-10">
-                    <select class='form-control' ng-model='def.type' ng-change="changeType()">
-                        <option value='name'>姓名</option>
-                        <option value='mobile'>手机</option>
-                        <option value='email'>邮箱</option>
-                        <option value='date'>日期</option>
-                        <option value='shorttext'>短文本</option>
-                        <option value='longtext'>长文本</option>
-                        <option value='single'>单选项</option>
-                        <option value='multiple'>多选项</option>
-                        <option value='image'>图片</option>
-                        <option value='file'>文件上传</option>
-                        <option value='location'>位置</option>
-                        <option value='member'>自定义用户信息</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group" ng-if="def.type==='member'">
-                <label class="col-md-2 control-label">自定义用户接口</label>
-                <div class="col-md-10">
-                    <select class='form-control' ng-model='selectedMemberSchema.schema' ng-options='ms.title for ms in memberSchemas' ng-change='shiftMemberSchema()'></select>
-                    <select class='form-control' ng-model='selectedMemberSchema.attr' ng-options='a.label for a in selectedMemberSchema.attrs' ng-change="shiftMemberSchemaAttr()"></select>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-md-2 control-label">ID</label>
-                <div class="col-md-10">
-                    <p class='form-control-static' ng-bind='def.id'></p>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-md-2 control-label">名称*</label>
-                <div class="col-md-10">
-                    <input type='text' class='form-control' ng-model='def.title' required>
-                    <div class="radio">
-                        <label><input type='radio' value='placeholder' ng-model='def.showname'>输入框内</label>
-                        <label><input type='radio' value='label' ng-model='def.showname'>输入框前</label>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group" ng-show="['image'].indexOf(def.type)===-1">
-                <label class="col-md-2 control-label">必填</label>
-                <div class="col-md-10">
-                    <div class="checkbox">
-                        <label><input type='checkbox' ng-true-value="'1'" ng-false-value="'0'" ng-model='def.required'>是</label>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group" ng-if="def.type==='single'">
-                <label class="col-md-2 control-label">形式</label>
-                <div class="col-md-10">
-                    <label class="radio-inline"><input type='radio' name='component' value='R' ng-model='def.component'>单选钮</label>
-                    <label class="radio-inline"><input type='radio' name='component' value='S' ng-model='def.component'>下拉框</label>
-                </div>
-            </div>
-            <div class="form-group" ng-if="(def.type==='single'&&def.component==='R')||def.type==='multiple'">
-                <label class="col-md-2 control-label">排列方向</label>
-                <div class="col-md-10">
-                    <label class="radio-inline"><input type='radio' name='align' value='V' ng-model='def.align'>垂直</label>
-                    <label class="radio-inline"><input type='radio' name='align' value='H' ng-model='def.align'>水平</label>
-                </div>
-            </div>
-            <div class="form-group" ng-if="def.type==='single'||def.type==='multiple'">
-                <label class="col-md-2 control-label">选项</label>
-                <div class="col-md-10">
-                    <button class="btn btn-default btn-sm" ng-click='addOption()'>添加</button>
-                    <ul class='list-group' style='margin-bottom:0'>
-                        <li class='list-group-item' ng-repeat='op in def.ops' editable prop='l' obj='op'></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="form-group" ng-if="def.type==='image'||def.type==='file'">
-                <label class="col-md-2 control-label">数量</label>
-                <div class="col-md-10">
-                    <input type='text' class='form-control' ng-model='def.count'>
-                </div>
-            </div>
-            <div class="form-group" ng-if="def.type==='multiple'">
-                <label class="col-md-2 control-label">限制数量</label>
-                <div class="col-md-10">
-                    <div class='input-group'>
-                        <span class='input-group-addon'>
-                            <input type='checkbox' ng-model='def.setUpper' ng-true-value="'Y'" ng-false-value="'N'">
-                        </span>
-                        <input type='text' ng-disabled="def.setUpper==='N'" class='form-control' ng-model='def.upper'>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="modal-footer" style="margin-top:0">
-        <button class="btn btn-success" ng-click="ok()">确定</button>
-    </div>
-</script>
-<script type="text/ng-template" id="chooseUserSchema.html">
-    <div class="modal-header">
-        <button class="close" ng-click="cancel()" type="button">×</button>
-        <h5 class="modal-title">访问用户</h5>
-    </div>
-    <div class="modal-body">
-        <form class="form-horizontal">
-            <div class="form-group">
-                <label class="col-md-2 control-label">登记项</label>
-                <div class="col-md-10">
-                    <ul class='list-group'>
-                        <li class='list-group-item slim' ng-repeat="s in schemas">
-                            <label class='checkbox-inline'><input type='checkbox' ng-model='s._selected' ng-change="choose(s)">{{s.label}}</label>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="modal-footer" style="margin-top:0">
-        <button class="btn btn-success" ng-click="ok()">确定</button>
-    </div>
-</script>
-<script type="text/ng-template" id="chooseButton.html">
-    <div class="modal-header">
-        <button class="close" ng-click="cancel()" type="button">×</button>
-        <h5 class="modal-title">操作</h5>
-    </div>
-    <div class="modal-body">
-        <form class="form-horizontal" role="form">
-            <div class="form-group">
-                <label class="col-md-3 control-label">操作</label>
-                <div class="col-md-9">
-                    <select class='form-control' ng-model='def.name' ng-options='k as v.l for (k,v) in buttons' ng-change="choose()"></select>
-                </div>
-            </div>
-            <div class="form-group" ng-show="'remarkRecord'!==def.name">
-                <label class="col-md-3 control-label">显示为</label>
-                <div class="col-md-9">
-                    <input type='text' class='form-control' ng-model='def.label'>
-                </div>
-            </div>
-            <div class="form-group" ng-show="['closeWindow','addRecord','editRecord'].indexOf(def.name)===-1">
-                <label class="col-md-3 control-label">操作后</label>
-                <div class="col-md-9">
-                    <select class='form-control' ng-model='def.next' ng-options='k as v.l for (k,v) in pages'>
-                        <option></option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group" ng-show="['addRecord','editRecord'].indexOf(def.name)!==-1">
-                <label class="col-md-3 control-label">操作后</label>
-                <div class="col-md-9">
-                    <select class='form-control' ng-model='def.next' ng-options='k as v.l for (k,v) in inputPages'>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group" ng-show="'sendInvite'===def.name">
-                <label class="col-md-3 control-label">接受邀请页</label>
-                <div class="col-md-9">
-                    <select class='form-control' ng-model='def.accept' ng-options='k as v.l for (k,v) in pages'>
-                    </select>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="modal-footer" style="margin-top:0">
-        <button class="btn btn-success" ng-click="ok()">确定</button>
-    </div>
-</script>
-<script type="text/ng-template" id="embedUserLib.html">
-    <div class="modal-header">
-        <button class="close" ng-click="cancel()" type="button">×</button>
-        <h5 class="modal-title">访问用户</h5>
-    </div>
-    <div class="modal-body">
-        <form class="form-horizontal" role="form">
-            <div class="form-group">
-                <label class="col-md-2 control-label">登记项</label>
-                <div class="col-md-10">
-                    <ul class='list-group' style='overflow-y:auto;max-height:245px;margin-bottom:0'>
-                        <li class='list-group-item slim'><label class='checkbox-inline'><input type='checkbox' ng-model='def.nickname'>用户昵称</label></li>
-                        <li class='list-group-item slim'><label class='checkbox-inline'><input type='checkbox' ng-model='def.headpic'>用户头像</label></li>
-                        <li class='list-group-item slim'><label class='checkbox-inline'><input type='checkbox' ng-model='def.rankByFollower'>邀请用户数排名</label></li>
-                    </ul>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="modal-footer" style="margin-top:0">
-        <button class="btn btn-success" ng-click="ok()">确定</button>
-    </div>
-</script>
-<script type="text/ng-template" id="embedStaticEditor.html">
-    <div class="modal-header">
-        <button class="close" ng-click="cancel()" type="button">×</button>
-        <h5 class="modal-title">修改</h5>
-    </div>
-    <div class="modal-body">
-        <div class="form-group">
-            <label class="col-md-2 control-label">样式</label>
-            <div class="col-md-10">
-                <label class="checkbox-inline">
-                    <input type='checkbox' name='inline' ng-model='def.inline'>标题与数据在同一行</label>
-                <label class="checkbox-inline">
-                    <input type='checkbox' name='splitLine' ng-model='def.splitLine'>显示分割线</label>
-            </div>
-        </div>
-    </div>
-    <div class="modal-footer" style="margin-top:0">
-        <button class="btn btn-success" ng-click="ok()">确定</button>
-    </div>
-</script>
-<script type="text/ng-template" id="embedButtonLib.html">
-    <div class="modal-header">
-        <button class="close" ng-click="cancel()" type="button">×</button>
-        <h5 class="modal-title">操作</h5>
-    </div>
-    <div class="modal-body">
-        <form class="form-horizontal" role="form">
-            <div class="form-group">
-                <label class="col-md-3 control-label">操作</label>
-                <div class="col-md-9">
-                    <select class='form-control' ng-model='def.type' ng-options='k as v.l for (k,v) in buttons' ng-change="selectButton()"></select>
-                </div>
-            </div>
-            <div class="form-group" ng-show="'remarkRecord'!==def.type">
-                <label class="col-md-3 control-label">显示为</label>
-                <div class="col-md-9">
-                    <input type='text' class='form-control' ng-model='def.label'>
-                </div>
-            </div>
-            <div class="form-group" ng-show="['closeWindow','addRecord','editRecord'].indexOf(def.type)===-1">
-                <label class="col-md-3 control-label">操作后</label>
-                <div class="col-md-9">
-                    <select class='form-control' ng-model='def.next' ng-options='k as v.l for (k,v) in pages'>
-                        <option></option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group" ng-show="['addRecord','editRecord'].indexOf(def.type)!==-1">
-                <label class="col-md-3 control-label">操作后</label>
-                <div class="col-md-9">
-                    <select class='form-control' ng-model='def.next' ng-options='k as v.l for (k,v) in inputPages'>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group" ng-show="'sendInvite'===def.type">
-                <label class="col-md-3 control-label">接受邀请页</label>
-                <div class="col-md-9">
-                    <select class='form-control' ng-model='def.accept' ng-options='k as v.l for (k,v) in pages'>
-                    </select>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="modal-footer" style="margin-top:0">
-        <button class="btn btn-success" ng-click="ok()">确定</button>
-    </div>
-</script>

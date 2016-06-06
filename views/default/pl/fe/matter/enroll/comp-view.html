@@ -16,7 +16,6 @@
                     </div>
                 </div>
             </div>
-            <button class='btn btn-success btn-block' ng-click="chooseSchema(dataSchemas.record)">添加登记数据项</button>
 		</div>
 	</div>
 	<div class="panel panel-default">
@@ -48,8 +47,6 @@
                         </li>
                     </ul>
                 </div>
-                <button class='btn btn-success' ng-click="chooseSchema(l)">添加登记数据项</button>
-                <button class='btn btn-default' ng-click="removeList(l)">删除清单</button>
             </div>
 		</div>
 	</div>
@@ -58,26 +55,5 @@
             <span ng-bind='s.label'></span>
             <button class='btn btn-default btn-xs pull-right' ng-click='removeAct(s)'><span class='glyphicon glyphicon-remove'></span></button>
         </div>
-        <button class='btn btn-success btn-block' ng-click='chooseAct()'>添加操作</button>
-    </div>
-	<div class='form-group'>
-        <button class='btn btn-success btn-block' ng-click='makePage()'>生成页面</button>
-        <button class='btn btn-success btn-block' ng-click='emptyPage()'>清空页面</button>
     </div>
 </div>
-<script type="text/ng-template" id="chooseDataSchema.html">
-    <div class="modal-header">
-        <button class="close" ng-click="cancel()" type="button">×</button>
-        <h5 class="modal-title">登记项</h5>
-    </div>
-    <div class="modal-body">
-        <div class='list-group-item' style='padding-top:0;padding-bottom:0' ng-repeat="s in schemas">
-            <div class='checkbox'>
-                <label><input type='checkbox' ng-model='s._selected' ng-change="choose(s)"><span ng-bind="s.title"></span></label>
-            </div>
-        </div>
-    </div>
-    <div class="modal-footer" style="margin-top:0">
-        <button class="btn btn-success" ng-click="ok()">确定</button>
-    </div>
-</script>

@@ -32,11 +32,56 @@
 			$scope.update('pic');
 		};
 	}]);
-	ngApp.provider.controller('ctrlRound', ['$scope', 'http2', function($scope, http2) {
+	ngApp.provider.controller('ctrlRound', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
 		var rounds, editing;
 		$scope.$watch('app', function(app) {
 			app && (rounds = app.rounds);
 		});
+		$scope.batch = function() {
+			$modal.open({
+				templateUrl: 'batchRounds.html',
+				backdrop: 'static',
+				resolve: {
+					app: function() {
+						return $scope.app;
+					}
+				},
+				controller: ['$scope', '$modalInstance', 'app', function($scope2, $mi, app) {
+					var params = {
+						timesOfDay: 2,
+						overwrite: 'Y'
+					};
+					if (app.mission && app.mission_phase_id) {
+						(function() {
+							var i, phase;
+							for (i = app.mission.phases.length - 1; i >= 0; i--) {
+								phase = app.mission.phases[i];
+								if (app.mission_phase_id === phase.phase_id) {
+									params.start_at = phase.start_at;
+									params.end_at = phase.end_at;
+									break;
+								}
+							}
+						})();
+					}
+					$scope2.params = params;
+					$scope2.cancel = function() {
+						$mi.dismiss();
+					};
+					$scope2.ok = function() {
+						$mi.close($scope2.params);
+					};
+				}]
+			}).result.then(function(params) {
+				http2.post('/rest/pl/fe/matter/signin/round/batch?site=' + $scope.siteId + '&app=' + $scope.id, params, function(rsp) {
+					if (params.overwrite === 'Y') {
+						$scope.app.rounds = rsp.data;
+					} else {
+						$scope.app.rounds = $scope.rounds.concat(rsp.data);
+					}
+				});
+			});
+		};
 		$scope.add = function() {
 			var newRound = {
 				title: '轮次' + (rounds.length + 1),

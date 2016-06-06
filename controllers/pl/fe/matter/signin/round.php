@@ -7,6 +7,90 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class round extends \pl\fe\matter\base {
 	/**
+	 * 批量添加轮次
+	 *
+	 * @param string $app
+	 */
+	public function batch_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelRnd = $this->model('matter\signin\round');
+		$posted = $this->getPostJson();
+
+		if ($posted->overwrite === 'Y') {
+			/*删除已有的轮次*/
+			$rst = $modelRnd->delete(
+				'xxt_signin_round',
+				"siteid='$site' and aid='$app'"
+			);
+		}
+		/*计算创建的数量*/
+		$startAt = getdate($posted->start_at);
+		$startDay = mktime(0, 0, 0, $startAt['mon'], $startAt['mday'], $startAt['year']);
+		$first = array(3600 * 7, 3600 * 2);
+		$second = array(3600 * 13, 3600 * 2);
+		$roundStartAt = $startDay;
+
+		/*创建轮次*/
+		$i = 1; //轮次的编号
+		$d = 0; //日期的编号
+		$rounds = array();
+		while ($roundStartAt < $posted->end_at) {
+			$roundStartAt += $first[0];
+			if ($roundStartAt > $posted->start_at && $roundStartAt < $posted->end_at) {
+				/* 创建新轮次 */
+				$roundId = uniqid();
+				$round = array(
+					'siteid' => $site,
+					'aid' => $app,
+					'rid' => $roundId,
+					'creater' => $user->id,
+					'create_at' => time(),
+					'title' => isset($posted->title) ? $posted->title : "轮次{$i}",
+					'start_at' => $roundStartAt,
+					'end_at' => $roundStartAt + $first[1],
+				);
+				$modelRnd->insert('xxt_signin_round', $round, false);
+
+				$newRnd = $modelRnd->byId($roundId);
+
+				$rounds[] = $newRnd;
+
+				$i++;
+			}
+			if ($posted->timesOfDay == 2) {
+				$roundStartAt = $roundStartAt - $first[0] + $second[0];
+				if ($roundStartAt > $posted->start_at && $roundStartAt < $posted->end_at) {
+					/* 创建新轮次 */
+					$roundId = uniqid();
+					$round = array(
+						'siteid' => $site,
+						'aid' => $app,
+						'rid' => $roundId,
+						'creater' => $user->id,
+						'create_at' => time(),
+						'title' => isset($posted->title) ? $posted->title : "轮次{$i}",
+						'start_at' => $roundStartAt,
+						'end_at' => $roundStartAt + $first[1],
+					);
+					$modelRnd->insert('xxt_signin_round', $round, false);
+
+					$newRnd = $modelRnd->byId($roundId);
+
+					$rounds[] = $newRnd;
+
+					$i++;
+				}
+			}
+			$d++;
+			$roundStartAt = $startDay + (86400 * $d);
+		}
+
+		return new \ResponseData($rounds);
+	}
+	/**
 	 * 添加轮次
 	 *
 	 * @param string $app

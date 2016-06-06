@@ -55,9 +55,9 @@
                             <div class='help-block'>头图（可选）：建议尺寸：900像素 * 500像素</div>
                         </div>
                         <div class='form-group'>
-                            <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='editing.start_at' tms-state='start_at'></tms-datepicker>
+                            <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='editing.start_at' tms-state='mission.start_at'></tms-datepicker>
                             <div class='help-block'>开始时间（可选）</div>
-                            <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='editing.end_at' tms-state='end_at'></tms-datepicker>
+                            <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='editing.end_at' tms-state='mission.end_at'></tms-datepicker>
                             <div class='help-block'>结束时间（可选）</div>
                         </div>
                         <div class='form-group'>
@@ -69,6 +69,22 @@
                             <div class='help-block'>扩展属性2</div>
                         </div>
                     </div><!--tile-->
+                    <div class='tile' ng-controller="ctrlPhase">
+                        <div class='list-group'>
+                            <div class='list-group-item' ng-repeat="p in phases">
+                                <input type="text" class="form-control" ng-model="p.title" tms-auto-update tms-wait=1000 tms-update="update(p,'title')">
+                                <div class='help-block'>阶段名称</div>
+                                <textarea class="form-control" ng-model="p.summary" tms-auto-update tms-wait=1000 tms-update="update(p,'summary')"></textarea>
+                                <div class='help-block'>阶段说明</div>
+                                <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-obj="p" tms-date='p.start_at' tms-state='phase.start_at'></tms-datepicker>
+                                <div class='help-block'>阶段开始时间</div>
+                                <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-obj="p" tms-date='p.end_at' tms-state='phase.end_at'></tms-datepicker>
+                                <div class='help-block'>阶段结束时间</div>
+                                <button class='btn btn-default' ng-click="remove(p)">删除</button>
+                            </div>
+                        </div>
+                        <button class='btn btn-success' ng-click="add()">添加阶段</button>
+                    </div>
                     <div class='tile'>
                         <table class='table table-bordered' style='margin:0'>
                             <tr>

@@ -1,10 +1,10 @@
 app = angular.module('app', ['ngRoute', 'ui.tms', 'tinymce.ui.xxt', 'matters.xxt', 'member.xxt', 'channel.fe.pl']);
 app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
 	$routeProvider.when('/rest/pl/fe/matter/article', {
-		templateUrl: '/views/default/pl/fe/matter/article/setting.html?_=1',
+		templateUrl: '/views/default/pl/fe/matter/article/setting.html?_=3',
 		controller: 'ctrlSetting',
 	}).otherwise({
-		templateUrl: '/views/default/pl/fe/matter/article/setting.html?_=2',
+		templateUrl: '/views/default/pl/fe/matter/article/setting.html?_=3',
 		controller: 'ctrlSetting'
 	});
 	$locationProvider.html5Mode(true);

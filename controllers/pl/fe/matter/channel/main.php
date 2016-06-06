@@ -40,14 +40,15 @@ class main extends \pl\fe\matter\base {
 	 * $cascade 是否获得频道内的素材和访问控制列表
 	 */
 	public function list_action($site, $acceptType = null, $cascade = 'Y') {
-		$uid = \TMS_CLIENT::get_client_uid();
-
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$options = $this->getPostJson();
 		/**
 		 * 素材的来源
 		 */
 		$q = array(
-			"c.*,'$uid' uid",
+			"c.*",
 			'xxt_channel c',
 			"c.siteid='$site' and c.state=1",
 		);

@@ -125,6 +125,12 @@
             <memberacl site-id='{{siteId}}' obj='editing' prop-access='access_control' update-access-control="update('access_control')" prop-member-schemas='authapis' update-member-schemas="update('authapis')" prop-acl='acl' change-acl-url='/rest/pl/fe/matter/article/setAcl?site={{siteId}}&id={{editing.id}}' remove-acl-url='/rest/pl/fe/matter/article/removeAcl?site={{siteId}}'></memberacl>
         </div>
     </div>
+    <div class='tile' ng-if="editing.entry">
+        <div class='form-group'>
+            <label class='checkbox-inline'>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.approved' ng-change="update('approved');">审核通过</label>
+        </div>
+    </div>
     <div class='tile'>
         <div class='form-group'>
             <label class='checkbox-inline'>

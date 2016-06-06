@@ -68,8 +68,10 @@ app.controller('ctrlSetting', ['$scope', 'http2', '$modal', function($scope, htt
 		});
 	};
 	$scope.$on('xxt.tms-datepicker.change', function(event, data) {
-		$scope.editing[data.state] = data.value;
-		$scope.update(data.state);
+		if (data.state.indexOf('mission.') === 0) {
+			$scope.editing[data.state] = data.value;
+			$scope.update(data.state);
+		}
 	});
 	$scope.editPage = function(event, page) {
 		event.preventDefault();
@@ -102,6 +104,37 @@ app.controller('ctrlSetting', ['$scope', 'http2', '$modal', function($scope, htt
 			}
 		}
 	};
+}]);
+app.controller('ctrlPhase', ['$scope', 'http2', function($scope, http2) {
+	$scope.add = function() {
+		var data = {
+			title: '阶段' + ($scope.phases.length + 1)
+		};
+		http2.post('/rest/pl/fe/matter/mission/phase/create?site=' + $scope.siteId + '&mission=' + $scope.id, data, function(rsp) {
+			$scope.phases.push(rsp.data);
+		});
+	};
+	$scope.update = function(phase, name) {
+		var modifiedData = {};
+		modifiedData[name] = phase[name];
+		http2.post('/rest/pl/fe/matter/mission/phase/update?site=' + $scope.siteId + '&mission=' + $scope.id + '&id=' + phase.phase_id, modifiedData, function(rsp) {});
+	};
+	$scope.remove = function(phase) {
+		http2.get('/rest/pl/fe/matter/mission/phase/remove?site=' + $scope.siteId + '&mission=' + $scope.id + '&id=' + phase.phase_id, function(rsp) {
+			$scope.phases.splice($scope.phases.indexOf(phase), 1);
+		});
+	};
+	$scope.$on('xxt.tms-datepicker.change', function(event, data) {
+		var prop;
+		if (data.state.indexOf('phase.') === 0) {
+			prop = data.state.substr(6);
+			data.obj[prop] = data.value;
+			$scope.update(data.obj, prop);
+		}
+	});
+	http2.get('/rest/pl/fe/matter/mission/phase/list?site=' + $scope.siteId + '&mission=' + $scope.id, function(rsp) {
+		$scope.phases = rsp.data;
+	});
 }]);
 app.controller('ctrlMatter', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
 	var indicators = {

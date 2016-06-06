@@ -48,7 +48,7 @@ class main extends \pl\fe\matter\base {
 		$app = $this->model('matter\\group')->byId($app);
 		/*所属项目*/
 		if ($app->mission_id) {
-			$app->mission = $this->model('matter\\mission')->byMatter($site, $app->id, 'group');
+			$app->mission = $this->model('matter\mission')->byId($app->mission_id, array('cascaded' => 'phase'));
 		}
 		/*关联应用*/
 		if (!empty($app->source_app)) {

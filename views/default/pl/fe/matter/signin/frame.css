@@ -4,6 +4,7 @@ body{background:#f8f8f8;padding-top:71px;}
 .tile .form-group,.tile .checkbox{padding:8px;background:#fff;border-radius:4px;}
 .compact .form-group,.compact .checkbox{margin-bottom:0px;}
 .help-block{margin-bottom:0;}
+.tile .form-group.compact{margin-bottom:0;}
 .tile .form-group:last-child{margin-bottom:0;}
 
 /*app*/

@@ -37,6 +37,8 @@ class mission_model extends app_base {
 					$mission->header_page = $modelCode->lastPublishedByName($mission->siteid, $mission->header_page_name, array('fields' => 'id,html,css,js'));
 				} else if ($field === 'footer_page_name' && $mission->footer_page_name) {
 					$mission->footer_page = $modelCode->lastPublishedByName($mission->siteid, $mission->footer_page_name, array('fields' => 'id,html,css,js'));
+				} else if ($field === 'phase') {
+					$mission->phases = \TMS_APP::M('matter\mission\phase')->byMission($id);
 				}
 			}
 		}

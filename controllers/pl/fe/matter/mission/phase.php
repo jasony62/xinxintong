@@ -17,7 +17,7 @@ class phase extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$phase = $this->model('matter\mission\phase')->byMission($site, $mission);
+		$phase = $this->model('matter\mission\phase')->byMission($mission);
 
 		return new \ResponseData($phase);
 	}

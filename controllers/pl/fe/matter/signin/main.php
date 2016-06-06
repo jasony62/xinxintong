@@ -53,7 +53,7 @@ class main extends \pl\fe\matter\base {
 		}
 		/*所属项目*/
 		if ($app->mission_id) {
-			$app->mission = $this->model('matter\mission')->byMatter($site, $app->id, 'signin');
+			$app->mission = $this->model('matter\mission')->byId($app->mission_id, array('cascaded' => 'phase'));
 		}
 
 		return new \ResponseData($app);

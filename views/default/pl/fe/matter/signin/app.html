@@ -61,17 +61,23 @@
             <button class='btn btn-block btn-default' ng-click="remove()">删除</button>
         </div>
         <div class='tile'>
-            <div class='form-group'>
+            <div class='form-group compact'>
                 <input type='text' class='form-control' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
                 <div class='help-block'>标题：最多35个汉字，70个英文字符</div>
             </div>
-            <div class='form-group'>
+            <div class='form-group compact' ng-if="app.mission.multi_phase==='Y'">
+                <select class='form-control' ng-model="app.mission_phase_id" ng-change="update('mission_phase_id')" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
+                    <option></option>
+                </select>
+                <div class='help-block'>项目阶段</div>
+            </div>
+            <div class='form-group compact'>
                 <a href='/rest/pl/fe/matter/signin/schema?site={{siteId}}&id={{id}}'>签到项</a>
             </div>
-            <div class='form-group' ng-if="!app.enroll_app_id">
+            <div class='form-group compact' ng-if="!app.enroll_app_id">
                 <button class='btn btn-block btn-success' ng-click="assignEnrollApp()">指定签到名单</button>
             </div>
-            <div class='form-group' ng-if="app.enroll_app_id">
+            <div class='form-group compact' ng-if="app.enroll_app_id">
                 <div class="input-group">
                     <div class='form-control' ng-bind="app.enrollApp.title"></div>
                     <span class="input-group-btn">
@@ -90,13 +96,13 @@
             </div>
         </div>
         <div class='tile'>
-            <div class='form-group'>
+            <div class='form-group compact'>
                 <label class='checkbox-inline'>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_header' ng-change="update('use_site_header');">使用站点页眉</label>
                 <label class='checkbox-inline'>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_footer' ng-change="update('use_site_footer');">使用站点页脚</label>
             </div>
-            <div class='form-group' ng-if="app.mission_id>0">
+            <div class='form-group compact' ng-if="app.mission_id>0">
                 <label class='checkbox-inline'>
                     <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_header' ng-change="update('use_mission_header');">使用项目页眉</label>
                 <label class='checkbox-inline'>
@@ -104,15 +110,15 @@
             </div>
         </div>
         <div class='tile' ng-if="app.state==='3'||app.state==='2'">
-            <div class='form-group'>
+            <div class='form-group compact'>
                 <div style='height:auto;word-break:break-all' ng-bind='url'></div>
             </div>
-            <div class='form-group'>
+            <div class='form-group compact'>
                 <a href='/rest/pl/fe/matter/signin/record?site={{siteId}}&id={{id}}'>签到记录</a>
             </div>
         </div>
         <div class='tile'>
-            <div class='form-group'>
+            <div class='form-group compact'>
                 <div>创建人：{{app.creater_name}}</div>
                 <div>创建时间：{{app.create_at*1000|date:'yy-MM-dd HH:mm'}}</div>
                 <div>修改人：{{app.modifier_name}}</div>

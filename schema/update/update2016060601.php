@@ -21,6 +21,9 @@ $sqls[] = "alter table xxt_mission add multi_phase char(1) not null default 'N'"
 $sqls[] = "alter table xxt_mission add state tinyint not null default 1 after modify_at";
 $sqls[] = "alter table xxt_mission_phase add state tinyint not null default 1 after title";
 $sqls[] = "alter table xxt_mission_matter add phase_id varchar(13) not null after mission_id";
+$sqls[] = "alter table xxt_enroll add mission_phase_id varchar(13) not null default '' after mission_id";
+$sqls[] = "alter table xxt_signin add mission_phase_id varchar(13) not null default '' after mission_id";
+$sqls[] = "alter table xxt_group add mission_phase_id varchar(13) not null default '' after mission_id";
 
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

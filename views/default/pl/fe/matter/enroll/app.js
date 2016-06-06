@@ -578,18 +578,18 @@
 		var timerOfUpdate = null;
 		$scope.$watch('activeSchema', function(nv, ov) {
 			var editor, newWrap, current;
-			if (ov) {
+			if (ov && ov.id === nv.id) {
 				editor = tinymce.get('tinymce-page');
 				$active = $(editor.getBody()).find('.active');
 				$active = $active[0];
 				if (/input/.test($scope.activeWrap.type)) {
-					/* 更新应用的定义 */
 					newWrap = wrapLib.input.modify(editor, $active, nv);
 					setActiveWrap(newWrap);
 					if (timerOfUpdate !== null) {
 						$timeout.cancel(timerOfUpdate);
 					}
 					timerOfUpdate = $timeout(function() {
+						/* 更新应用的定义 */
 						$scope.update('data_schemas').then(function() {
 							/* 更新当前页面 */
 							$scope.updPage($scope.ep, ['data_schemas', 'html']).then(function() {
@@ -650,7 +650,7 @@
 			}
 		}, true);
 		$scope.wrapEditorHtml = function() {
-			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=4';
+			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=5';
 			return url;
 		};
 		var addInputSchema = function(addedSchema) {

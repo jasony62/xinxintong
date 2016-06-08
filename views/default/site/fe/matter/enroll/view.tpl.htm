@@ -6,9 +6,9 @@
         <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
         <base href="/" />
         <title><?php TPL::pt('title');?></title>
-        <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link href="//cdn.bootcss.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
         <link href='static/css/loading.css?_=1' rel="stylesheet">
-        <link href="/views/default/site/fe/matter/enroll/page.css?_=4" rel="stylesheet">
+        <link href="/views/default/site/fe/matter/enroll/view.css?_=4" rel="stylesheet">
         <link href="/views/default/site/fe/matter/enroll/directive.css?_=1" rel="stylesheet">
         <style ng-if="appPage.css" ng-bind='appPage.css'></style>
     </head>
@@ -27,6 +27,6 @@
         <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
         <div class="loading"><div class='loading-indicator'><i></i></div></div>
         <script src="http://cdn.bootcss.com/jquery/2.2.3/jquery.min.js"></script>
-        <script src="static/js/require.js" defer async data-main="/views/default/site/fe/matter/enroll/page-loader.js?_=4"></script>
+        <script src="static/js/require.js" defer async data-main="/views/default/site/fe/matter/enroll/view-loader.js?_=4"></script>
     </body>
 </html>

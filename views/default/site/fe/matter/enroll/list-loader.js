@@ -40,7 +40,7 @@ window.loading = {
 			urlArgs: "bust=" + (new Date()).getTime()
 		});
 		require(['xxt-page'], function(assembler) {
-			assembler.bootstrap('/views/default/site/fe/matter/enroll/page.js');
+			assembler.bootstrap('/views/default/site/fe/matter/enroll/view.js');
 		});
 	}
 };

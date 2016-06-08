@@ -1,9 +1,13 @@
 <div ng-controller="ctrlRecordListWrap">
     <div class="form-group">
-        <div>
-            <label class='radio-inline'><input type='radio' value='U' name='scope' ng-model="activeSchema.dataScope">当前用户</label>
-            <label class='radio-inline'><input type='radio' value='A' name='scope' ng-model="activeSchema.dataScope">整个活动</label>
-            <label class='radio-inline'><input type='radio' value='I' name='scope' ng-model="activeSchema.dataScope">当前用户邀请的</label>
+        <div class='radio'>
+            <label><input type='radio' value='U' name='scope' ng-model="activeSchema.dataScope">当前用户</label>
+        </div>
+        <div class='radio'>
+            <label><input type='radio' value='A' name='scope' ng-model="activeSchema.dataScope">整个活动</label>
+        </div>
+        <div class='radio'>
+            <label><input type='radio' value='I' name='scope' ng-model="activeSchema.dataScope">当前用户邀请的</label>
         </div>
         <div class='help-block'>数据范围</div>
     </div>

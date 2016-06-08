@@ -30,7 +30,7 @@ class round extends \pl\fe\matter\base {
 		$startAt = getdate($posted->start_at);
 		$startDay = mktime(0, 0, 0, $startAt['mon'], $startAt['mday'], $startAt['year']);
 		$first = array(3600 * 7, 3600 * 2);
-		$second = array(3600 * 13, 3600 * 2);
+		$second = array(3600 * 12, 3600 * 2);
 		$roundStartAt = $startDay;
 
 		/*创建轮次*/

@@ -336,14 +336,14 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                     mapSchema = {},
                     dataOfRecord = params.record.data,
                     p, value;
-                angular.forEach(schemas, function(def) {
-                    mapSchema[def.id] = def;
+                angular.forEach(schemas, function(schema) {
+                    mapSchema[schema.id] = schema;
                 });
                 dataOfRecord = params.record.data;
                 for (p in dataOfRecord) {
                     if (p === 'member') {
                         $scope.data.member = angular.extend($scope.data.member, dataOfRecord.member);
-                    } else if (dataOfRecord[p].length) {
+                    } else if (dataOfRecord[p].length && mapSchema[p]) {
                         if (mapSchema[p].type === 'img') {
                             value = dataOfRecord[p].split(',');
                             $scope.data[p] = [];

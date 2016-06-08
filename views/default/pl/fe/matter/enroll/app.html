@@ -66,7 +66,7 @@
                 </div>
                 <!--pages-->
                 <div class='tile'>
-                    <div class='list-group' ng-if="ep.type==='I'" ng-controller="ctrlChooseAppSchema">
+                    <div class='list-group' ng-if="ep.type==='I'" ng-controller="ctrlAppSchemas4Input">
                         <div class='list-group-item schema' ng-repeat="s in appSchemas">
                             <div class='checkbox' style='margin:0;padding:0' ng-mouseenter="entered=true" ng-mouseleave="entered=false">
                                 <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
@@ -93,7 +93,7 @@
                     <div class='help-block'>添加登记项</div>
                 </div>
                 <!--create wrap-->
-                <div ng-if="ep.type==='V'" ng-controller="ctrlStaticWrap">
+                <div ng-if="ep.type==='V'" ng-controller="ctrlAppSchemas4View">
                     <div class='list-group-item' ng-repeat="s in appSchemas">
                         <div class='checkbox' style='margin:0'>
                             <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>

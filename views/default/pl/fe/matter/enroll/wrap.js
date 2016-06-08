@@ -49,26 +49,26 @@
                 case 'longtext':
                 case 'location':
                 case 'member':
-                    html += '<div wrap="static" class="wrap-inline" schema="' + s.id + '"><label>' + s.title + '</label><div>{{r.data.' + s.id + '}}</div></div>';
+                    html += '<div wrap="static" class="wrap-inline wrap-splitline" schema="' + s.id + '"><label>' + s.title + '</label><div>{{r.data.' + s.id + '}}</div></div>';
                     break;
                 case 'datetime':
-                    html += '<div wrap="static" class="wrap-inline" schema="' + s.id + '"><label>' + s.title + '</label><div>{{r.data.' + s.id + '|date:"yy-MM-dd HH:mm"}}</div></div>';
+                    html += '<div wrap="static" class="wrap-inline wrap-splitline" schema="' + s.id + '"><label>' + s.title + '</label><div>{{r.data.' + s.id + '|date:"yy-MM-dd HH:mm"}}</div></div>';
                     break;
                 case 'single':
                 case 'multiple':
-                    html += '<div wrap="static" class="wrap-inline" schema="' + s.id + '"><label>' + s.title + '</label><div>{{value2Label(r,"' + s.id + '")}}</div></div>';
+                    html += '<div wrap="static" class="wrap-inline wrap-splitline" schema="' + s.id + '"><label>' + s.title + '</label><div>{{value2Label(r,"' + s.id + '")}}</div></div>';
                     break;
                 case 'image':
-                    html += '<div wrap="static" class="wrap-inline" schema="' + s.id + '"><label>' + s.title + '</label><ul><li ng-repeat="img in r.data.' + s.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul></div>';
+                    html += '<div wrap="static" class="wrap-inline wrap-splitline" schema="' + s.id + '"><label>' + s.title + '</label><ul><li ng-repeat="img in r.data.' + s.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul></div>';
                     break;
                 case '_enrollAt':
-                    html += '<div wrap="static" class="wrap-inline" schema="' + s.id + '"><label>' + s.title + "</label><div>{{r.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div></div>";
+                    html += '<div wrap="static" class="wrap-inline wrap-splitline" schema="' + s.id + '"><label>' + s.title + "</label><div>{{r.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div></div>";
                     break;
                 case '_enrollerNickname':
-                    html += '<div wrap="static" class="wrap-inline" schema="' + s.id + '"><label>' + s.title + "</label><div>{{r.nickname}}</div></div>";
+                    html += '<div wrap="static" class="wrap-inline wrap-splitline" schema="' + s.id + '"><label>' + s.title + "</label><div>{{r.nickname}}</div></div>";
                     break;
                 case '_enrollerHeadpic':
-                    html += '<div wrap="static" class="wrap-inline" schema="' + s.id + '"><label>' + s.title + "</label><div><img ng-src='{{r.headimgurl}}'></div></div>";
+                    html += '<div wrap="static" class="wrap-inline wrap-splitline" schema="' + s.id + '"><label>' + s.title + "</label><div><img ng-src='{{r.headimgurl}}'></div></div>";
                     break;
             }
         });
@@ -122,8 +122,8 @@
         var config = {},
             html;
         config.id = $(wrap).attr('id');
-        config.inline = $(wrap).hasClass('wrap-inline');
-        config.splitLine = $(wrap).hasClass('wrap-splitline');
+        config.inline = $(wrap).hasClass('wrap-inline') ? 'Y' : 'N';
+        config.splitLine = $(wrap).hasClass('wrap-splitline') ? 'Y' : 'N';
         if (!config.id) {
             html = $(wrap).html();
             html = html.match(/\{\{(.+)\}\}/);
@@ -174,6 +174,61 @@
         }
     };
     WrapLib.prototype.input = {
+        _htmlSingleRadio: function(schema) {
+            var html, cls;
+            html = '<ul>';
+            cls = 'radio';
+            if (schema.align === 'H') cls += '-inline';
+            angular.forEach(schema.ops, function(op) {
+                html += '<li class="' + cls + '" wrap="radio"><label';
+                if (schema.align === 'H') html += ' class="radio-inline"';
+                html += '><input type="radio" name="' + schema.id + '"';
+                html += ' value="' + op.v + '"';
+                html += ' ng-model="data.' + schema.id + '"';
+                schema.required == 1 && (html += 'required=""');
+                html += ' title="' + schema.title + '"';
+                angular.forEach(schema.attrs, function(attr) {
+                    html += 'data-' + attr.name + '="' + attr.value + '"';
+                });
+                html += ' data-label="' + op.l + '" disabled><span>' + op.l + '</span></label></li>';
+            });
+            html += '</ul>';
+
+            return html;
+        },
+        _htmlSingleSelect: function(schema) {
+            var html;
+            html = '<select class="form-control input-lg" ng-model="data.' + schema.id + '"';
+            schema.required == 1 && (html += 'required=""');
+            html += ' title="' + schema.title + '">\r\n';
+            angular.forEach(schema.ops, function(op) {
+                html += '<option wrap="option" name="data.' + schema.id + '" value="' + op.v + '"' + 'data-label="' + op.l + '"' + 'title="' + schema.title + '"' + '>' + op.l + '</option>';
+            });
+            html += '\r\n</select>';
+
+            return html;
+        },
+        _htmlMultiple: function(schema) {
+            var html, cls;
+            html = '<ul';
+            if (schema.setUpper === 'Y') {
+                html += ' tms-checkbox-group="' + schema.id + '" tms-checkbox-group-model="data" tms-checkbox-group-upper="' + schema.upper + '"';
+            }
+            html += '>';
+            cls = 'checkbox';
+            if (schema.align === 'H') cls += '-inline';
+            angular.forEach(schema.ops, function(op) {
+                html += '<li class="' + cls + '" wrap="checkbox"><label';
+                if (schema.align === 'H') html += ' class="checkbox-inline"';
+                html += '><input type="checkbox" name="' + schema.id + '"';
+                schema.required == 1 && (html += 'required=""');
+                html += ' ng-model="data.' + schema.id + '.' + op.v + '"';
+                html += ' title="' + schema.title + '" data-label="' + op.l + '" disabled><span>' + op.l + '</span></label></li>';
+            });
+            html += '</ul>';
+
+            return html;
+        },
         embed: function(editor, schema) {
             var newWrap, inpAttrs = {
                     wrap: 'input',
@@ -191,7 +246,7 @@
                     schema.showname === 'placeholder' && (html += ' placeholder="' + schema.title + '"');
                     schema.required == 1 && (html += 'required=""');
                     schema.type === 'member' && (html += 'ng-init="data.member.schema_id=' + schema.schema_id + '"');
-                    html += ' class="form-control input-lg">';
+                    html += ' class="form-control input-lg" readonly>';
                     break;
                 case 'date':
                     inpAttrs['tms-date'] = 'Y';
@@ -211,52 +266,15 @@
                 case 'single':
                     if (schema.ops && schema.ops.length > 0) {
                         if (schema.component === 'R') {
-                            html += '<ul>', cls = 'radio';
-                            if (schema.align === 'H') cls += '-inline';
-                            angular.forEach(schema.ops, function(op) {
-                                html += '<li class="' + cls + '" wrap="radio"><label';
-                                if (schema.align === 'H') html += ' class="radio-inline"';
-                                html += '><input type="radio" name="' + schema.id + '"';
-                                html += ' value="' + op.v + '"';
-                                html += ' ng-model="data.' + schema.id + '"';
-                                schema.required == 1 && (html += 'required=""');
-                                html += ' title="' + schema.title + '"';
-                                angular.forEach(schema.attrs, function(attr) {
-                                    html += 'data-' + attr.name + '="' + attr.value + '"';
-                                });
-                                html += ' data-label="' + op.l + '"><span>' + op.l + '</span></label></li>';
-                            });
-                            html += '</ul>';
+                            html += this._htmlSingleRadio(schema);
                         } else if (schema.component === 'S') {
-                            html += '<select class="form-control" ng-model="data.' + schema.id + '"';
-                            schema.required == 1 && (html += 'required=""');
-                            html += ' title="' + schema.title + '">\r\n';
-                            angular.forEach(schema.ops, function(op) {
-                                html += '<option wrap="option" name="data.' + schema.id + '" value="' + op.v + '"' + 'data-label="' + op.l + '"' + 'title="' + schema.title + '"' + '>' + op.l + '</option>';
-                            });
-                            html += '\r\n</select>';
+                            html += this._htmlSingleSelect(schema);
                         }
                     }
                     break;
                 case 'multiple':
                     if (schema.ops && schema.ops.length > 0) {
-                        var cls;
-                        html += '<ul';
-                        if (schema.setUpper === 'Y') {
-                            html += ' tms-checkbox-group="' + schema.id + '" tms-checkbox-group-model="data" tms-checkbox-group-upper="' + schema.upper + '"';
-                        }
-                        html += '>';
-                        cls = 'checkbox';
-                        if (schema.align === 'H') cls += '-inline';
-                        angular.forEach(schema.ops, function(op) {
-                            html += '<li class="' + cls + '" wrap="checkbox"><label';
-                            if (schema.align === 'H') html += ' class="checkbox-inline"';
-                            html += '><input type="checkbox" name="' + schema.id + '"';
-                            schema.required == 1 && (html += 'required=""');
-                            html += ' ng-model="data.' + schema.id + '.' + op.v + '"';
-                            html += ' title="' + schema.title + '" data-label="' + op.l + '"><span>' + op.l + '</span></label></li>';
-                        });
-                        html += '</ul>';
+                        html += this._htmlMultiple(schema);
                     }
                     break;
                 case 'image':
@@ -301,19 +319,50 @@
             return newWrap;
         },
         modify: function(editor, wrap, schema) {
-            var newWrap = this.embed(editor, schema);
-            $(editor.getBody()).find('.active').remove();
-            return newWrap;
+            var $wrap, $label, $input;
+            $wrap = $(editor.getBody()).find("[schema='" + schema.id + "']");
+            $label = $wrap.find('label');
+            $label.html(schema.title);
+            if (/name|email|mobile|shorttext|longtext/.test(schema.type)) {
+                $input = $wrap.find('input,select,textarea');
+                if (schema.showname === 'label') {
+                    $label.removeClass('sr-only');
+                    $input.removeAttr('placeholder');
+                } else {
+                    $label.addClass('sr-only');
+                    $input.attr('placeholder', schema.title);
+                }
+            } else if ('single' === schema.type) {
+                (function(lib) {
+                    var html;
+                    if (schema.ops && schema.ops.length > 0) {
+                        $wrap.children('ul,select').remove();
+                        if (schema.component === 'R') {
+                            html = lib._htmlSingleRadio(schema);
+                            $wrap.append(html);
+                        } else if (schema.component === 'S') {
+                            html = lib._htmlSingleSelect(schema);
+                            $wrap.append(html);
+                        }
+                    }
+                })(this);
+            } else if ('multiple' === schema.type) {
+                (function(lib) {
+                    if (schema.ops && schema.ops.length > 0) {
+                        html = lib._htmlMultiple(schema);
+                        $wrap.children('ul').remove();
+                        $wrap.append(html);
+                    }
+                })(this);
+            }
         },
         extract: function(wrap) {
-            var $label, schema = {},
-                $input, model;
-            $label = $($(wrap).find('label').get(0));
+            var $wrap, $label, schema = {};
+            $wrap = $(wrap);
+            schema.id = $wrap.attr('schema');
+            $label = $wrap.children('label');
             schema.title = $label.html();
-            schema.showname = $label.hasClass('sr-only') ? 'placeholder' : 'label';
-            $input = $(wrap).find('input,select,textarea');
-            model = $input.attr('ng-model') || $input.attr('ng-bind');
-            schema.id = model.substr(5); //去掉‘data.’前缀
+
             return schema;
         }
     };

@@ -66,9 +66,9 @@ class main extends base {
 		if ($oPage->type === 'I') {
 			\TPL::output('/site/fe/matter/enroll/input');
 		} else if ($oPage->type === 'V') {
-			\TPL::output('/site/fe/matter/enroll/page');
-		} else if ($oPage->type === 'S') {
-			\TPL::output('/site/fe/matter/enroll/signin');
+			\TPL::output('/site/fe/matter/enroll/view');
+		} else if ($oPage->type === 'L') {
+			\TPL::output('/site/fe/matter/enroll/list');
 		}
 		exit;
 	}

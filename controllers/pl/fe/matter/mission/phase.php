@@ -41,8 +41,8 @@ class phase extends \pl\fe\matter\base {
 		$newPhase['mission_id'] = $mission;
 		$newPhase['phase_id'] = $phaseId;
 		$newPhase['title'] = isset($proto->title) ? $proto->title : '新阶段';
-		$newPhase['start_at'] = $current;
-		$newPhase['end_at'] = $current + 86400;
+		$newPhase['start_at'] = isset($proto->start_at) ? $proto->start_at : $current;
+		$newPhase['end_at'] = isset($proto->end_at) ? $proto->end_at : $current + 86400;
 
 		$newPhase['id'] = $this->model()->insert('xxt_mission_phase', $newPhase, true);
 

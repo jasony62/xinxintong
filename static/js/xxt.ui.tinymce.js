@@ -24,7 +24,7 @@ directive('tinymce', function($timeout) {
                 statusbar: false,
                 plugins: ['save textcolor code table paste fullscreen visualblocks'],
                 toolbar: 'fontsizeselect styleselect forecolor backcolor bullist numlist outdent indent table multipleimage',
-                content_css: '/static/css/bootstrap.min.css,/static/css/tinymce.css?v=6',
+                content_css: '/static/css/bootstrap.min.css,/static/css/tinymce.css?v=7',
                 forced_root_block: 'div',
                 height: scope.height ? scope.height : 300,
                 valid_elements: "*[*]",
@@ -64,7 +64,7 @@ directive('tinymce', function($timeout) {
                                     while (wrap.parentNode !== editor.getBody()) {
                                         wrap = wrap.parentNode;
                                     }
-                                    if (wrap.hasAttribute('wrap') && wrap.getAttribute('wrap') !== 'text') {
+                                    if (wrap.hasAttribute('wrap')) {
                                         evt.preventDefault();
                                         var newWrap = dom.create('div', {
                                             wrap: 'text',

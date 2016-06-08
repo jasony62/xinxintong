@@ -110,6 +110,13 @@ app.controller('ctrlPhase', ['$scope', 'http2', function($scope, http2) {
 		var data = {
 			title: '阶段' + ($scope.phases.length + 1)
 		};
+		/*设置阶段的缺省起止时间*/
+		(function() {
+			var tomorrow = new Date();
+			tomorrow.setTime(tomorrow.getTime() + 86400000);
+			data.start_at = tomorrow.setHours(9, 0, 0, 0) / 1000;
+			data.end_at = tomorrow.setHours(17, 0, 0, 0) / 1000;;
+		})();
 		http2.post('/rest/pl/fe/matter/mission/phase/create?site=' + $scope.siteId + '&mission=' + $scope.id, data, function(rsp) {
 			$scope.phases.push(rsp.data);
 		});

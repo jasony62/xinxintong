@@ -1,11 +1,11 @@
 <?php
 namespace site\fe\matter\lottery;
 
-include_once dirname(dirname(dirname(__FILE__))) . '/base.php';
+include_once dirname(dirname(__FILE__)) . '/base.php';
 /**
  * 抽奖活动
  */
-class main extends \site\fe\base {
+class main extends \site\fe\matter\base {
 	/**
 	 *
 	 */
@@ -22,7 +22,7 @@ class main extends \site\fe\base {
 		return $this->model('acl')->canAccessMatter($site, 'lottery', $app, $member, $authapis);
 	}
 	/**
-	 * 获得轮盘抽奖活动的页面或定义
+	 * 获得抽奖活动的页面
 	 *
 	 * $site
 	 * $app 抽奖活动id
@@ -56,7 +56,10 @@ class main extends \site\fe\base {
 				$this->_requireSnsOAuth($site, $lot);
 			}
 		}
+		/* 给agent设置合法进入的key */
+		$this->_setAgentEnter($lot->id);
 
+		/* 返回页面内容 */
 		\TPL::assign('title', $lot->title);
 		\TPL::output('/site/fe/matter/lottery/play');
 		exit;
@@ -142,6 +145,11 @@ class main extends \site\fe\base {
 	 *
 	 */
 	public function play_action($site, $app, $enrollKey = null) {
+		/* 检查请求是否从客户端发起 */
+		if (!$this->_isAgentEnter($app)) {
+			return new \ResponseError('请从指定客户端发起请求');
+		}
+
 		$user = $this->who;
 		$modelLot = $this->model('matter\lottery');
 		$modelTsk = $this->model('matter\lottery\task');

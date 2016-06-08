@@ -119,7 +119,8 @@ class task_model extends \TMS_MODEL {
 					/**
 					 * 增加抽奖次数
 					 */
-					$this->earnChance($lid, $user->uid, $lotTask->task_params->chanceCount * $shareCount);
+					//$this->earnChance($lid, $user->uid, $lotTask->task_params->chanceCount * $shareCount);
+					$this->earnChance($lid, $user->uid, $lotTask->task_params->chanceCount);
 					/**
 					 * 修改任务状态
 					 */

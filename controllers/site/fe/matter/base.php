@@ -7,6 +7,24 @@ include_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class base extends \site\fe\base {
 	/**
+	 * 打开页面时设置客户端的标识，用户在后续的操作中判断调用是否来源于之前的客户端
+	 */
+	protected function _setAgentEnter($matterId) {
+		/* user */
+		$user = $this->who;
+		/* set key */
+		$_SESSION['AGENTENTER_' . $matterId . '_' . $user->uid] = time();
+	}
+	/**
+	 * 判断调用是否来源于之前的客户端
+	 */
+	protected function _isAgentEnter($matterId) {
+		/* user */
+		$user = $this->who;
+		/* set key */
+		return isset($_SESSION['AGENTENTER_' . $matterId . '_' . $user->uid]);
+	}
+	/**
 	 * 跳转到用户认证页
 	 */
 	protected function gotoMember($siteId, $aMemberSchemas, $userid, $targetUrl = null) {

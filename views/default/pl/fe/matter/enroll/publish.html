@@ -105,6 +105,7 @@
     <div class="modal-footer ">
         <button class="btn btn-danger pull-left " ng-click="remove() " ng-if='round.rid&&round.state==0'>删除</button>
         <button class="btn btn-success pull-left " ng-click="start() " ng-if='round.state==0'>启用</button>
+        <button class="btn btn-success pull-left " ng-click="stop() " ng-if='round.state==1'>停用</button>
         <button class="btn btn-success " ng-click="ok() ">保存</button>
     </div>
 </script>

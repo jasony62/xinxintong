@@ -435,6 +435,58 @@
             config.splitLine === 'Y' ? $(wrap).addClass('wrap-splitline') : $(wrap).removeClass('wrap-splitline');
         }
     };
+    WrapLib.prototype.list = {
+        embed = function(editor, config) {
+            if (!config.schemas && config.schemas.length === 0) return false;
+            var onclick, html, attrs;
+            onclick = config.onclick.length ? " ng-click=\"gotoPage($event,'" + config.onclick + "',r.enroll_key)\"" : '';
+            html = '<ul class="list-group">';
+            html += '<li class="list-group-item" ng-repeat="r in records"' + onclick + '>';
+            angular.forEach(config.schemas, function(s) {
+                switch (s.type) {
+                    case 'name':
+                    case 'email':
+                    case 'mobile':
+                    case 'shorttext':
+                    case 'longtext':
+                    case 'location':
+                    case 'member':
+                        html += '<div wrap="static" class="wrap-inline wrap-splitline" schema="' + s.id + '"><label>' + s.title + '</label><div>{{r.data.' + s.id + '}}</div></div>';
+                        break;
+                    case 'datetime':
+                        html += '<div wrap="static" class="wrap-inline wrap-splitline" schema="' + s.id + '"><label>' + s.title + '</label><div>{{r.data.' + s.id + '|date:"yy-MM-dd HH:mm"}}</div></div>';
+                        break;
+                    case 'single':
+                    case 'multiple':
+                        html += '<div wrap="static" class="wrap-inline wrap-splitline" schema="' + s.id + '"><label>' + s.title + '</label><div>{{value2Label(r,"' + s.id + '")}}</div></div>';
+                        break;
+                    case 'image':
+                        html += '<div wrap="static" class="wrap-inline wrap-splitline" schema="' + s.id + '"><label>' + s.title + '</label><ul><li ng-repeat="img in r.data.' + s.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul></div>';
+                        break;
+                    case '_enrollAt':
+                        html += '<div wrap="static" class="wrap-inline wrap-splitline" schema="' + s.id + '"><label>' + s.title + "</label><div>{{r.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div></div>";
+                        break;
+                    case '_enrollerNickname':
+                        html += '<div wrap="static" class="wrap-inline wrap-splitline" schema="' + s.id + '"><label>' + s.title + "</label><div>{{r.nickname}}</div></div>";
+                        break;
+                    case '_enrollerHeadpic':
+                        html += '<div wrap="static" class="wrap-inline wrap-splitline" schema="' + s.id + '"><label>' + s.title + "</label><div><img ng-src='{{r.headimgurl}}'></div></div>";
+                        break;
+                }
+            });
+            html += "</li></ul>";
+            attrs = {
+                'ng-controller': 'ctrlRecords',
+                'enroll-records': 'Y',
+                'enroll-records-owner': config.dataScope,
+                wrap: 'record-list',
+                class: 'form-group'
+            };
+            config.id && (attrs.id = config.id);
+
+            return this.addWrap(editor, 'div', attrs, html);
+        }
+    };
     WrapLib.prototype.button = {
         embed: function(editor, schema) {
             var attrs = {

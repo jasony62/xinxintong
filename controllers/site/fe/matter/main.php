@@ -1,11 +1,11 @@
 <?php
 namespace site\fe\matter;
 
-require_once dirname(dirname(__FILE__)) . '/base.php';
+require_once dirname(__FILE__) . '/base.php';
 /**
  * 返回访问的素材页面
  */
-class main extends \site\fe\base {
+class main extends \site\fe\matter\base {
 
 	public function get_access_rule() {
 		$rule_action['rule_type'] = 'black';
@@ -174,6 +174,12 @@ class main extends \site\fe\base {
 	 */
 	public function logShare_action($shareid, $site, $id, $type, $title, $shareto, $shareby = '') {
 		header('Access-Control-Allow-Origin:*');
+		/* 检查请求是否由客户端发起 */
+		if ($type === 'lottery') {
+			if (!$this->_isAgentEnter($id)) {
+				return new \ResponseError('请从指定客户端发起请求');
+			}
+		}
 
 		switch ($type) {
 		case 'article':
@@ -198,24 +204,26 @@ class main extends \site\fe\base {
 			} else if ($shareto === 'T') {
 				$this->model()->update("update $table set share_timeline_num=share_timeline_num+1 where id='$id'");
 			}
+
+			$user = $this->who;
+
+			$logUser = new \stdClass;
+			$logUser->userid = $user->uid;
+			$logUser->nickname = $user->nickname;
+
+			$logMatter = new \stdClass;
+			$logMatter->id = $id;
+			$logMatter->type = $type;
+			$logMatter->title = $this->model()->escape($title);
+
+			$logClient = new \stdClass;
+			$logClient->agent = $_SERVER['HTTP_USER_AGENT'];
+			$logClient->ip = $this->client_ip();
+
+			$this->model('log')->writeShareAction($site, $shareid, $shareto, $shareby, $logUser, $logMatter, $logClient);
+
+			return new \ResponseData('ok');
 		}
-
-		$user = $this->who;
-
-		$logUser = new \stdClass;
-		$logUser->userid = $user->uid;
-		$logUser->nickname = $user->nickname;
-
-		$logMatter = new \stdClass;
-		$logMatter->id = $id;
-		$logMatter->type = $type;
-		$logMatter->title = $this->model()->escape($title);
-
-		$logClient = new \stdClass;
-		$logClient->agent = $_SERVER['HTTP_USER_AGENT'];
-		$logClient->ip = $this->client_ip();
-
-		$this->model('log')->writeShareAction($site, $shareid, $shareto, $shareby, $logUser, $logMatter, $logClient);
 		/**
 		 * coin log
 		 * 投稿人分享不奖励积分
@@ -240,6 +248,6 @@ class main extends \site\fe\base {
 				$modelCoin->income($site, 'mp.matter.' . $type . '.share.' . $shareto, $id, 'sys', $logUser->openid);
 		*/
 
-		return new \ResponseData('ok');
+		return new \ResponseError('不支持的类型');
 	}
 }

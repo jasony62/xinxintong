@@ -109,6 +109,13 @@
 							action: 'remove'
 						});
 					};
+					$scope.stop = function() {
+						$scope.round.state = 2;
+						$mi.close({
+							action: 'update',
+							data: $scope.round
+						});
+					};
 					$scope.start = function() {
 						$scope.round.state = 1;
 						$mi.close({

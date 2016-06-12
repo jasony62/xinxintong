@@ -1,5 +1,5 @@
 (function() {
-    xxtApp.register.controller('usersCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+    xxtApp.register.controller('usersCtrl', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
         $scope.$parent.subView = 'users';
         $scope.doSearch = function() {
             http2.get('/rest/mp/app/wall/users/list?wall=' + $scope.wid, function(rsp) {
@@ -7,10 +7,10 @@
             });
         };
         $scope.import = function() {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'importUser.html',
                 windowClass: 'auto-height',
-                controller: ['$scope', '$modalInstance', function($scope2, $mi) {
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     http2.get('/rest/mp/app/enroll/list?page=1&size=999', function(rsp) {
                         $scope2.apps = rsp.data[0];
                     });
@@ -36,10 +36,10 @@
             });
         };
         $scope.export = function() {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'exportUser.html',
                 windowClass: 'auto-height',
-                controller: ['$scope', '$modalInstance', function($scope2, $mi) {
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     $scope2.options = {
                         onlySpeaker: 'N'
                     };

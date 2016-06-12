@@ -1,5 +1,5 @@
 (function() {
-    xxtApp.register.controller('settingCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+    xxtApp.register.controller('settingCtrl', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
         $scope.$parent.subView = 'setting';
         $scope.open = function(catelog) {
             if (catelog.properties === undefined) {
@@ -27,22 +27,22 @@
             });
         };
         $scope.editProp = function(prop, index) {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'propEditor.html',
                 backdrop: 'static',
-                controller: ['$modalInstance', '$scope', function($modalInstance, $scope) {
+                controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
                     $scope.prop = angular.copy(prop);
                     $scope.close = function() {
-                        $modalInstance.dismiss();
+                        $mi.dismiss();
                     };
                     $scope.remove = function() {
-                        $modalInstance.close({
+                        $mi.close({
                             name: 'remove',
                             data: $scope.prop
                         });
                     };
                     $scope.ok = function() {
-                        $modalInstance.close({
+                        $mi.close({
                             name: 'update',
                             data: $scope.prop
                         });
@@ -66,22 +66,22 @@
             });
         };
         $scope.editOrderProp = function(prop, index) {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'propEditor.html',
                 backdrop: 'static',
-                controller: ['$modalInstance', '$scope', function($modalInstance, $scope) {
+                controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
                     $scope.prop = angular.copy(prop);
                     $scope.close = function() {
-                        $modalInstance.dismiss();
+                        $mi.dismiss();
                     };
                     $scope.remove = function() {
-                        $modalInstance.close({
+                        $mi.close({
                             name: 'remove',
                             data: $scope.prop
                         });
                     };
                     $scope.ok = function() {
-                        $modalInstance.close({
+                        $mi.close({
                             name: 'update',
                             data: $scope.prop
                         });
@@ -105,22 +105,22 @@
             });
         };
         $scope.editFeedbackProp = function(prop, index) {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'propEditor.html',
                 backdrop: 'static',
-                controller: ['$modalInstance', '$scope', function($modalInstance, $scope) {
+                controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
                     $scope.prop = angular.copy(prop);
                     $scope.close = function() {
-                        $modalInstance.dismiss();
+                        $mi.dismiss();
                     };
                     $scope.remove = function() {
-                        $modalInstance.close({
+                        $mi.close({
                             name: 'remove',
                             data: $scope.prop
                         });
                     };
                     $scope.ok = function() {
-                        $modalInstance.close({
+                        $mi.close({
                             name: 'update',
                             data: $scope.prop
                         });

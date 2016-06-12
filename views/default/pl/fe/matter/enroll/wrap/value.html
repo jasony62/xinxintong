@@ -1,0 +1,11 @@
+<div ng-controller="ctrlValueWrap">
+	<div class='checkbox'>
+		<p class='form-control' ng-bind="activeWrap.schema.title"></p>
+	</div>
+	<div class="checkbox">
+		<label><input type='checkbox' name='inline' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeWrap.config.inline' ng-change="updWrap('config','inline')">标题与数据在同一行</label>
+	</div>
+	<div class='checkbox'>
+		<label><input type='checkbox' name='splitLine' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeWrap.config.splitLine' ng-change="updWrap('config','splitLine')">显示分割线</label>
+	</div>
+</div>

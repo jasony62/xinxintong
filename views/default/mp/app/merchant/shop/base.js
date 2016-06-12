@@ -60,7 +60,7 @@ xxtApp.controller('shopCtrl', ['$scope', 'http2', '$location', function($scope, 
         $scope.mpaccount = rsp.data;
     });
 }]);
-xxtApp.controller('settingCtrl', ['$scope', 'http2', '$modal', 'Authapi', function($scope, http2, $modal, Authapi) {
+xxtApp.controller('settingCtrl', ['$scope', 'http2', '$uibModal', 'Authapi', function($scope, http2, $uibModal, Authapi) {
     $scope.$parent.subView = 'setting';
     $scope.orderStatus = [{
         id: '1',
@@ -122,10 +122,10 @@ xxtApp.controller('settingCtrl', ['$scope', 'http2', '$modal', 'Authapi', functi
         http2.post('/rest/mp/app/merchant/shop/update?shop=' + $scope.shopId, nv, function(rsp) {});
     };
     $scope.configOrderStatus = function(orderStatus) {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'orderStatusEditor.html',
             backdrop: 'static',
-            controller: ['$modalInstance', '$scope', function($mi, $scope2) {
+            controller: ['$uibModalInstance', '$scope', function($mi, $scope2) {
                 $scope2.status = angular.copy(orderStatus);
                 $scope2.close = function() {
                     $mi.dismiss();
@@ -164,14 +164,14 @@ xxtApp.controller('settingCtrl', ['$scope', 'http2', '$modal', 'Authapi', functi
         shop.canSetSupporter = 'Y';
     });
 }]);
-xxtApp.controller('orderCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+xxtApp.controller('orderCtrl', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
     var OrderStatus;
     $scope.$parent.subView = 'order';
     $scope.open = function(order) {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'orderDetail.html',
             backdrop: 'static',
-            controller: ['$modalInstance', '$scope', function($mi, $scope2) {
+            controller: ['$uibModalInstance', '$scope', function($mi, $scope2) {
                 http2.get('/rest/mp/app/merchant/order/get?order=' + order.id, function(rsp) {
                     $scope2.order = rsp.data.order;
                     $scope2.order._order_status = OrderStatus[$scope2.order.order_status];

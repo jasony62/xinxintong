@@ -1,5 +1,5 @@
 (function() {
-	ngApp.provider.controller('ctrlMember', ['$scope', '$modal', '$location', 'http2', function($scope, $modal, $location, http2) {
+	ngApp.provider.controller('ctrlMember', ['$scope', '$uibModal', '$location', 'http2', function($scope, $uibModal, $location, http2) {
 		$scope.$watch('memberSchemas', function(nv) {
 			if (!nv) return;
 			$scope.schema = $scope.$parent.currentMemberSchema($location.search().schema);
@@ -51,7 +51,7 @@
 			});
 		};
 		$scope.editMember = function(member) {
-			$modal.open({
+			$uibModal.open({
 				templateUrl: 'memberEditor.html',
 				backdrop: 'static',
 				resolve: {
@@ -59,7 +59,7 @@
 						return angular.copy($scope.schema);
 					}
 				},
-				controller: ['$modalInstance', '$scope', 'schema', function($mi, $scope, schema) {
+				controller: ['$uibModalInstance', '$scope', 'schema', function($mi, $scope, schema) {
 					$scope.schema = schema;
 					$scope.member = angular.copy(member);
 					$scope.canShow = function(name) {

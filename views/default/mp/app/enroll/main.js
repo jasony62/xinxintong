@@ -1,4 +1,4 @@
-xxtApp.controller('enrollCtrl', ['$scope', '$modal', 'http2', 'templateShop', function($scope, $modal, http2, templateShop) {
+xxtApp.controller('enrollCtrl', ['$scope', '$uibModal', 'http2', 'templateShop', function($scope, $uibModal, http2, templateShop) {
     $scope.page = {
         at: 1,
         size: 28
@@ -19,12 +19,12 @@ xxtApp.controller('enrollCtrl', ['$scope', '$modal', 'http2', 'templateShop', fu
         });
     };
     $scope.createByInner = function() {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'templatePicker.html',
             size: 'lg',
             backdrop: 'static',
             windowClass: 'auto-height',
-            controller: ['$scope', '$modalInstance', function($scope2, $mi) {
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                 $scope2.data = {};
                 $scope2.cancel = function() {
                     $mi.dismiss();

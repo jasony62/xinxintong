@@ -58,7 +58,7 @@ class signin_model extends app_base {
 	/**
 	 * 返回签到活动列表
 	 */
-	public function &byApp($siteId, $page = 1, $size = 30, $mission = null) {
+	public function &bySite($siteId, $page = 1, $size = 30, $mission = null) {
 		$result = array();
 		$q = array(
 			'a.*',

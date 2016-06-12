@@ -66,7 +66,7 @@ xxtMembers.service('userSetAsParam', [function() {
         return params;
     };
 }]);
-xxtMembers.controller('MemberAclUserPickerController', ['$scope', '$modalInstance', 'userSetAsParam', 'params', function($scope, $mi, userSetAsParam, params) {
+xxtMembers.controller('MemberAclUserPickerController', ['$scope', '$uibModalInstance', 'userSetAsParam', 'params', function($scope, $mi, userSetAsParam, params) {
     $scope.siteId = params.siteId;
     $scope.userConfig = {
         userScope: ['M']
@@ -82,7 +82,7 @@ xxtMembers.controller('MemberAclUserPickerController', ['$scope', '$modalInstanc
         $mi.close(data);
     };
 }]);
-xxtMembers.controller('MemberAclController', ['$rootScope', '$scope', 'http2', '$timeout', '$modal', function($rootScope, $scope, http2, $timeout, $modal) {
+xxtMembers.controller('MemberAclController', ['$rootScope', '$scope', 'http2', '$timeout', '$uibModal', function($rootScope, $scope, http2, $timeout, $uibModal) {
     var setObjMemberSchemas = function() {
         var aMemberSchemas, i;
         $scope.objMemberSchemas = angular.copy($scope.memberschemas);
@@ -131,7 +131,7 @@ xxtMembers.controller('MemberAclController', ['$rootScope', '$scope', 'http2', '
         }, 10);
     };
     $scope.openAclSelector = function() {
-        $modal.open({
+        $uibModal.open({
             templateUrl: '/views/default/pl/fe/_module/userpicker.html?_=' + (new Date()).getTime(),
             resolve: {
                 params: function() {

@@ -1,4 +1,4 @@
-ngApp.controller('ctrlInitiate', ['$scope', '$location', 'http2', '$modal', 'Article', 'Entry', function($scope, $location, http2, $modal, Article, Entry) {
+ngApp.controller('ctrlInitiate', ['$scope', '$location', 'http2', '$uibModal', 'Article', 'Entry', function($scope, $location, http2, $uibModal, Article, Entry) {
     $scope.phases = {
         'I': '未送审',
         'R': '审核中',
@@ -29,9 +29,9 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', 'http2', '$modal', 'Art
         }
     };
     $scope.upload = function() {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'uploadArticle.html',
-            controller: ['$scope', '$modalInstance', 'site', 'entry', function($scope, $mi, site, entry) {
+            controller: ['$scope', '$uibModalInstance', 'site', 'entry', function($scope, $mi, site, entry) {
                 $scope.cancel = function() {
                     $mi.dismiss();
                 };

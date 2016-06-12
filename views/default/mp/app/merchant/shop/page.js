@@ -1,5 +1,5 @@
 (function() {
-	xxtApp.register.controller('pageCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+	xxtApp.register.controller('pageCtrl', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
 		$scope.$parent.subView = 'page';
 		$scope.shelfs = [];
 		$scope.orderlists = [];
@@ -97,10 +97,10 @@
 			}
 		};
 		$scope.config = function(page) {
-			$modal.open({
+			$uibModal.open({
 				templateUrl: 'pageEditor.html',
 				backdrop: 'static',
-				controller: ['$modalInstance', '$scope', function($mi, $scope2) {
+				controller: ['$uibModalInstance', '$scope', function($mi, $scope2) {
 					$scope2.page = {
 						title: page.title
 					};

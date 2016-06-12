@@ -633,7 +633,7 @@
     window.wrapLib = new WrapLib();
 })();
 (function() {
-    xxtApp.register.controller('pageCtrl', ['$scope', 'http2', '$modal', '$timeout', 'Mp', function($scope, http2, $modal, $timeout, Mp) {
+    xxtApp.register.controller('pageCtrl', ['$scope', 'http2', '$uibModal', '$timeout', 'Mp', function($scope, http2, $uibModal, $timeout, Mp) {
         $scope.$parent.subView = 'page';
         var extractSchema = function() {
             var i, pages, page, s, s2;
@@ -662,10 +662,10 @@
             url: '/rest/mp/matter'
         }];
         $scope.embedInput = function(page) {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'embedInputLib.html',
                 backdrop: 'static',
-                controller: ['$scope', '$modalInstance', function($scope, $mi) {
+                controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                     var key;
                     key = 'c' + (new Date()).getTime();
                     (new Mp()).getAuthapis().then(function(data) {
@@ -789,7 +789,7 @@
                 wrapLib.embedInput(page, def);
             });
         };
-        var embedButtonCtrl = ['$scope', '$modalInstance', 'enroll', 'def', function($scope, $mi, enroll, def) {
+        var embedButtonCtrl = ['$scope', '$uibModalInstance', 'enroll', 'def', function($scope, $mi, enroll, def) {
             var page, targetPages, inputPages;
             targetPages = {};
             inputPages = {};
@@ -860,7 +860,7 @@
             };
         }];
         $scope.embedButton = function(page) {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'embedButtonLib.html',
                 backdrop: 'static',
                 resolve: {
@@ -881,7 +881,7 @@
             });
         };
         $scope.embedShow = function(page) {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'embedShowLib.html',
                 backdrop: 'static',
                 resolve: {
@@ -892,7 +892,7 @@
                         return extractSchema();
                     }
                 },
-                controller: ['$scope', '$modalInstance', 'enroll', 'schema', function($scope, $mi, enroll, schema) {
+                controller: ['$scope', '$uibModalInstance', 'enroll', 'schema', function($scope, $mi, enroll, schema) {
                     $scope.options = {
                         record: {
                             l: '登记项'
@@ -935,7 +935,7 @@
             });
         };
         $scope.embedUser = function(page) {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'embedUserLib.html',
                 backdrop: 'static',
                 resolve: {
@@ -943,7 +943,7 @@
                         return $scope.editing;
                     }
                 },
-                controller: ['$scope', '$modalInstance', 'enroll', function($scope, $mi, enroll) {
+                controller: ['$scope', '$uibModalInstance', 'enroll', function($scope, $mi, enroll) {
                     $scope.pages = enroll.pages;
                     $scope.def = {
                         nickname: 0
@@ -1025,7 +1025,7 @@
                     $scope.$root.errmsg = '不支持修改该类型组件';
                     return;
                 }
-                $modal.open({
+                $uibModal.open({
                     templateUrl: 'embedButtonLib.html',
                     backdrop: 'static',
                     resolve: {
@@ -1042,27 +1042,27 @@
                 });
             } else if (/input/.test($active.attr('wrap'))) {
                 def = wrapLib.extractInputSchema($active[0]);
-                $modal.open({
+                $uibModal.open({
                     templateUrl: 'embedInputEditor.html',
                     backdrop: 'static',
-                    controller: function($scope, $modalInstance) {
+                    controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                         $scope.def = def;
                         $scope.ok = function() {
-                            $modalInstance.close($scope.def);
+                            $mi.close($scope.def);
                         };
                         $scope.cancel = function() {
-                            $modalInstance.dismiss();
+                            $mi.dismiss();
                         };
-                    },
+                    }],
                 }).result.then(function(def) {
                     wrapLib.changeEmbedInput(page, $active[0], def);
                 });
             } else if (/static/.test($active.attr('wrap'))) {
                 def = wrapLib.extractStaticSchema($active[0]);
-                $modal.open({
+                $uibModal.open({
                     templateUrl: 'embedStaticEditor.html',
                     backdrop: 'static',
-                    controller: ['$scope', '$modalInstance', function($scope, $mi) {
+                    controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                         $scope.def = def;
                         $scope.ok = function() {
                             $mi.close($scope.def);

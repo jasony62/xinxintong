@@ -1,4 +1,4 @@
-ngApp.controller('ctrlInitiate', ['$location', '$scope', '$modal', 'http2', 'Article', 'Entry', 'Reviewlog', function($location, $scope, $modal, http2, Article, Entry, Reviewlog) {
+ngApp.controller('ctrlInitiate', ['$location', '$scope', 'http2', 'Article', 'Entry', 'Reviewlog', function($location, $scope, http2, Article, Entry, Reviewlog) {
     var siteId, id;
     $scope.phases = {
         'I': '投稿',

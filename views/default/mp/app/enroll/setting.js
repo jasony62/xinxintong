@@ -1,5 +1,5 @@
 (function() {
-    xxtApp.register.controller('settingCtrl', ['$scope', 'http2', 'matterTypes', '$modal', 'templateShop', function($scope, http2, matterTypes, $modal, templateShop) {
+    xxtApp.register.controller('settingCtrl', ['$scope', 'http2', 'matterTypes', 'templateShop', function($scope, http2, matterTypes, templateShop) {
         $scope.$parent.subView = 'setting';
         $scope.pages4OutAcl = [];
         $scope.pages4Unauth = [];

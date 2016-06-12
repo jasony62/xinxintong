@@ -1,5 +1,5 @@
-(function() {
-    ngApp.provider.controller('ctrlPage', ['$scope', '$location', 'http2', '$modal', '$timeout', '$q', function($scope, $location, http2, $modal, $timeout, $q) {
+define(['frame'], function(ngApp) {
+    ngApp.provider.controller('ctrlPage', ['$scope', '$location', 'http2', '$uibModal', '$timeout', '$q', function($scope, $location, http2, $uibModal, $timeout, $q) {
         $scope.innerlinkTypes = [{
             value: 'article',
             title: '单图文',
@@ -107,16 +107,16 @@
             $scope.others = others;
         });
     }]);
-    ngApp.provider.controller('ctrlPageSchema', ['$scope', '$modal', function($scope, $modal) {}]);
-    ngApp.provider.controller('ctrlInputSchema', ['$scope', '$modal', function($scope, $modal) {}]);
-    ngApp.provider.controller('ctrlViewSchema', ['$scope', '$modal', function($scope, $modal) {
+    ngApp.provider.controller('ctrlPageSchema', ['$scope', '$uibModal', function($scope, $uibModal) {}]);
+    ngApp.provider.controller('ctrlInputSchema', ['$scope', '$uibModal', function($scope, $uibModal) {}]);
+    ngApp.provider.controller('ctrlViewSchema', ['$scope', '$uibModal', function($scope, $uibModal) {
         $scope.$watch('ep', function(ep) {
             if (!ep) return;
             $scope.dataSchemas = ep.data_schemas;
             $scope.actSchemas = ep.act_schemas;
         });
     }]);
-    ngApp.provider.controller('ctrlPageEditor', ['$scope', '$modal', '$q', 'mattersgallery', 'mediagallery', function($scope, $modal, $q, mattersgallery, mediagallery) {
+    ngApp.provider.controller('ctrlPageEditor', ['$scope', '$uibModal', '$q', 'mattersgallery', 'mediagallery', function($scope, $uibModal, $q, mattersgallery, mediagallery) {
         $scope.gotoCode = function(codeid) {
             //window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + codeid, '_self');
         };
@@ -129,4 +129,4 @@
             mediagallery.open($scope.siteId, options);
         });
     }]);
-})();
+});

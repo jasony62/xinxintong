@@ -1,5 +1,5 @@
 angular.module('profile.user.xxt', ['ui.bootstrap', 'ui.tms']).
-controller('ctrlProfile', ['$scope', 'http2', '$modalInstance', '$modal', 'params', function($scope, http2, $modalInstance, $modal, params) {
+controller('ctrlProfile', ['$scope', 'http2', '$uibModalInstance', '$uibModal', 'params', function($scope, http2, $mi, $uibModal, params) {
 	var baseURL = '/rest/pl/fe/site/user/profile/',
 		userid = params.userid;
 	$scope.siteId = params.siteId;
@@ -25,7 +25,7 @@ controller('ctrlProfile', ['$scope', 'http2', '$modalInstance', '$modal', 'param
 		}
 	});
 	$scope.close = function() {
-		$modalInstance.dismiss();
+		$mi.dismiss();
 	};
 	$scope.canFieldShow = function(schema, name) {
 		return schema['attr_' + name].charAt(0) === '0';
@@ -62,10 +62,10 @@ controller('ctrlProfile', ['$scope', 'http2', '$modalInstance', '$modal', 'param
 		});
 	});
 	$scope.addMember = function(schema) {
-		$modal.open({
+		$uibModal.open({
 			templateUrl: 'memberEditor.html',
 			backdrop: 'static',
-			controller: ['$modalInstance', '$scope', function($mi, $scope) {
+			controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
 				$scope.schema = schema;
 				$scope.member = {
 					extattr: {}
@@ -91,10 +91,10 @@ controller('ctrlProfile', ['$scope', 'http2', '$modalInstance', '$modal', 'param
 		});
 	};
 	$scope.editMember = function(member) {
-		$modal.open({
+		$uibModal.open({
 			templateUrl: 'memberEditor.html',
 			backdrop: 'static',
-			controller: ['$modalInstance', '$scope', function($mi, $scope) {
+			controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
 				$scope.schema = member.schema;
 				$scope.member = angular.copy(member);
 				$scope.canShow = function(name) {
@@ -137,11 +137,11 @@ controller('ctrlProfile', ['$scope', 'http2', '$modalInstance', '$modal', 'param
 		});
 	};
 }]).
-factory('userProfile', function($modal) {
+factory('userProfile', function($uibModal) {
 	var Profile = {},
 		open;
 	open = function(siteId, userid, memberSchemas, options) {
-		$modal.open({
+		$uibModal.open({
 			templateUrl: '/views/default/pl/fe/_module/profile.html?_=1',
 			controller: 'ctrlProfile',
 			backdrop: 'static',

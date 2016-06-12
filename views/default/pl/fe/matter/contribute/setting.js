@@ -1,5 +1,5 @@
 (function() {
-	ngApp.provider.controller('ctrlSetting', ['$scope', '$location', 'http2', '$modal', 'mediagallery', function($scope, $location, http2, $modal, mediagallery) {
+	ngApp.provider.controller('ctrlSetting', ['$scope', '$location', 'http2', 'mediagallery', function($scope, $location, http2, mediagallery) {
 		$scope.run = function() {
 			$scope.app.state = 2;
 			$scope.update('state');

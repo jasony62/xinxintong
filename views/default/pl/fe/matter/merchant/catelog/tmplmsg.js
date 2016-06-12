@@ -1,5 +1,5 @@
 (function() {
-    ngApp.provider.controller('ctrlTmplmsg', ['$scope', 'http2', '$modal', function($scope, http2, $modal) {
+    ngApp.provider.controller('ctrlTmplmsg', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
         $scope.orderEvts = [{
             id: 'submit_order',
             label: '用户提交订单'
@@ -107,7 +107,7 @@
             });
         };
         $scope.selectTmplmsg = function() {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'tmplmsgSelector.html',
                 backdrop: 'static',
                 resolve: {
@@ -115,7 +115,7 @@
                         return $scope.tmplmsgs;
                     }
                 },
-                controller: ['$modalInstance', '$scope', 'tmplmsgs', function($mi, $scope2, tmplmsgs) {
+                controller: ['$uibModalInstance', '$scope', 'tmplmsgs', function($mi, $scope2, tmplmsgs) {
                     $scope2.tmplmsgs = tmplmsgs;
                     $scope2.data = {};
                     $scope2.close = function() {
@@ -130,7 +130,7 @@
             });
         };
         $scope.selectProperty = function(tmplmsgProp) {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'propertySelector.html',
                 backdrop: 'static',
                 resolve: {
@@ -138,7 +138,7 @@
                         return $scope.$parent.editing;
                     }
                 },
-                controller: ['$modalInstance', '$scope', 'catelog', function($mi, $scope2, catelog) {
+                controller: ['$uibModalInstance', '$scope', 'catelog', function($mi, $scope2, catelog) {
                     $scope2.catelog = catelog;
                     $scope2.properties = angular.copy(catelog.properties);
                     $scope2.properties.push({

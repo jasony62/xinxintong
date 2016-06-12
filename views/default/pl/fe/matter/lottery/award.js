@@ -1,5 +1,5 @@
 (function() {
-    ngApp.provider.controller('ctrlAward', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+    ngApp.provider.controller('ctrlAward', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
         $scope.awardTypes = {
             '0': {
                 n: '未中奖',
@@ -39,10 +39,10 @@
             });
         };
         $scope.batchAward = function() {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'batchAward.html',
 
-                controller: ['$scope', '$modalInstance', function($scope2, $mi) {
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     $scope2.option = {
                         quantity: 1,
                         award: {
@@ -74,7 +74,7 @@
             });
         };
         $scope.openAward = function(award) {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'awardEditor.html',
                 resolve: {
                     siteId: function() {
@@ -82,7 +82,7 @@
                     }
                 },
                 windowClass: 'auto-height',
-                controller: ['$scope', '$modalInstance', 'siteId', 'mediagallery', function($scope2, $mi, siteId, mediagallery) {
+                controller: ['$scope', '$uibModalInstance', 'siteId', 'mediagallery', function($scope2, $mi, siteId, mediagallery) {
                     $scope2.award = angular.copy(award);
                     $scope2.setPic = function(award) {
                         var options = {

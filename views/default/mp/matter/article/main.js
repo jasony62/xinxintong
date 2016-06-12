@@ -38,7 +38,7 @@ xxtApp.controller('articleCtrl', ['$scope', '$location', 'http2', function($scop
         });
     });
 }]);
-xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', 'templateShop', function($scope, $modal, http2, templateShop) {
+xxtApp.controller('editCtrl', ['$scope', '$uibModal', 'http2', 'templateShop', function($scope, $uibModal, http2, templateShop) {
     $scope.$parent.subView = 'edit';
     $scope.innerlinkTypes = [{
         value: 'article',
@@ -189,9 +189,9 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', 'templateShop', func
         }
     };
     $scope.embedVideo = function() {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'insertMedia.html',
-            controller: ['$modalInstance', '$scope', function($mi, $scope) {
+            controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
                 $scope.data = {
                     url: ''
                 };
@@ -221,9 +221,9 @@ xxtApp.controller('editCtrl', ['$scope', '$modal', 'http2', 'templateShop', func
     };
     $scope.embedAudio = function() {
         if ($scope.mpaccount._env.SAE) {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'insertMedia.html',
-                controller: ['$modalInstance', '$scope', function($mi, $scope) {
+                controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
                     $scope.data = {
                         url: ''
                     };

@@ -1,4 +1,4 @@
-ngApp.controller('ctrlReview', ['$location', '$scope', '$modal', 'http2', 'Article', 'Entry', 'Reviewlog', function($location, $scope, $modal, http2, Article, Entry, Reviewlog) {
+ngApp.controller('ctrlReview', ['$location', '$scope', '$uibModal', 'http2', 'Article', 'Entry', 'Reviewlog', function($location, $scope, $uibModal, http2, Article, Entry, Reviewlog) {
     var siteId, id;
     siteId = $location.search().site;
     id = $location.search().id;
@@ -45,19 +45,19 @@ ngApp.controller('ctrlReview', ['$location', '$scope', '$modal', 'http2', 'Artic
         });
     });
     $scope.return = function() {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'replyBox.html',
-            controller: function($scope, $modalInstance, http2) {
+            controller: ['$scope', '$uibModalInstance', 'http2', function($scope, $mi, http2) {
                 $scope.data = {
                     message: ''
                 };
                 $scope.close = function() {
-                    $modalInstance.dismiss();
+                    $mi.dismiss();
                 };
                 $scope.ok = function() {
-                    $modalInstance.close($scope.data);
+                    $mi.close($scope.data);
                 };
-            },
+            }],
             backdrop: 'static',
         }).result.then(function(data) {
             $scope.Article.return($scope.editing, data.message).then(function() {
@@ -66,9 +66,9 @@ ngApp.controller('ctrlReview', ['$location', '$scope', '$modal', 'http2', 'Artic
         });
     };
     $scope.forward2Review = function() {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'review-list.html',
-            controller: ['$scope', '$modalInstance', 'reviewers', function($scope, $mi, reviewers) {
+            controller: ['$scope', '$uibModalInstance', 'reviewers', function($scope, $mi, reviewers) {
                 $scope.reviewers = reviewers;
                 $scope.data = {
                     selected: '0'

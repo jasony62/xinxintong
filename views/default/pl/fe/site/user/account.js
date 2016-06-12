@@ -1,5 +1,5 @@
 (function() {
-	ngApp.provider.controller('ctrlAccount', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+	ngApp.provider.controller('ctrlAccount', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
 		$scope.page = {
 			at: 1,
 			size: 30,
@@ -15,10 +15,10 @@
 			});
 		};
 		$scope.resetPassword = function(user) {
-			$modal.open({
+			$uibModal.open({
 				templateUrl: 'resetPassword.html',
 				backdrop: 'static',
-				controller: ['$modalInstance', '$scope', function($mi, $scope) {
+				controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
 					$scope.data = {
 						password: '123456'
 					};

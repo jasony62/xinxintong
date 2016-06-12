@@ -1,4 +1,4 @@
-xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Authapi', function($scope, http2, $http, $modal, Mp, Authapi) {
+xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$uibModal', 'Mp', 'Authapi', function($scope, http2, $http, $uibModal, Mp, Authapi) {
     var service = {
         mp: new Mp(),
         authapi: new Authapi()
@@ -91,9 +91,9 @@ xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Autha
         $scope.updAuthapi(authapi, 'extattr');
     };
     $scope.addExtattr = function(authapi) {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'authapiEditor.html',
-            controller: ['$modalInstance', '$scope', function($mi, $scope) {
+            controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
                 $scope.attr = {
                     id: 'ea' + (new Date()).getTime(),
                     label: '扩展属性',
@@ -114,9 +114,9 @@ xxtApp.controller('apiCtrl', ['$scope', 'http2', '$http', '$modal', 'Mp', 'Autha
         });
     };
     $scope.editExtattr = function(authapi, attr) {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'authapiEditor.html',
-            controller: ['$modalInstance', '$scope', 'attr', function($mi, $scope, attr) {
+            controller: ['$uibModalInstance', '$scope', 'attr', function($mi, $scope, attr) {
                 $scope.canRemove = true;
                 $scope.attr = angular.copy(attr);
                 $scope.close = function() {

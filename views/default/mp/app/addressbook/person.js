@@ -1,4 +1,4 @@
-xxtApp.controller('personCtrl', ['$scope', 'http2', '$timeout', '$modal', function ($scope, http2, $timeout, $modal) {
+xxtApp.controller('personCtrl', ['$scope', 'http2', '$timeout', '$uibModal', function ($scope, http2, $timeout, $uibModal) {
     var getPersonTags = function () {
         http2.get('/rest/mp/app/addressbook/tagGet?abid=' + $scope.person.ab_id, function (rsp) {
             $scope.options.tags = rsp.data;
@@ -74,7 +74,7 @@ xxtApp.controller('personCtrl', ['$scope', 'http2', '$timeout', '$modal', functi
         updateTels();
     });
     $scope.addDept = function () {
-        $modal.open({
+        $uibModal.open({
             templateUrl: '/views/default/mp/app/addressbook/deptSelector.html?_=1',
             controller: 'deptSelectorCtrl',
             windowClass: 'auto-height',

@@ -1,5 +1,5 @@
 (function() {
-    xxtApp.register.controller('settingCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+    xxtApp.register.controller('settingCtrl', ['$scope', 'http2', function($scope, http2) {
         $scope.$parent.subView = 'setting';
         $scope.years = [2014, 2015, 2016];
         $scope.months = [];

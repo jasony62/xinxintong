@@ -97,7 +97,7 @@ app.controller('ctrlSet', ['$scope', 'http2', 'mediagallery', function($scope, h
         }
     };
 }]);
-app.controller('ctrlAdmin', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+app.controller('ctrlAdmin', ['$scope', 'http2', function($scope, http2) {
     $scope.add = function() {
         var url = '/rest/pl/fe/site/setting/admin/add?site=' + $scope.siteId;
         $scope.authedid && $scope.authedid.length > 0 && (url += '&authedid=' + $scope.authedid);
@@ -121,7 +121,7 @@ app.controller('ctrlAdmin', ['$scope', '$modal', 'http2', function($scope, $moda
         $scope.admins = rsp.data;
     });
 }]);
-app.controller('ctrlMember', ['$scope', 'http2', '$http', '$modal', 'MemberSchema', function($scope, http2, $http, $modal, MemberSchema) {
+app.controller('ctrlMember', ['$scope', 'http2', '$http', '$uibModal', 'MemberSchema', function($scope, http2, $http, $uibModal, MemberSchema) {
     var service = {
         memberSchema: new MemberSchema($scope.siteId)
     };
@@ -197,9 +197,9 @@ app.controller('ctrlMember', ['$scope', 'http2', '$http', '$modal', 'MemberSchem
         service.memberSchema.update(schema, p);
     };
     $scope.addExtattr = function(schema) {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'schemaEditor.html',
-            controller: ['$modalInstance', '$scope', function($mi, $scope) {
+            controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
                 $scope.attr = {
                     id: 'ea' + (new Date()).getTime(),
                     label: '扩展属性',
@@ -220,9 +220,9 @@ app.controller('ctrlMember', ['$scope', 'http2', '$http', '$modal', 'MemberSchem
         });
     };
     $scope.editExtattr = function(schema, attr) {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'schemaEditor.html',
-            controller: ['$modalInstance', '$scope', 'attr', function($mi, $scope, attr) {
+            controller: ['$uibModalInstance', '$scope', 'attr', function($mi, $scope, attr) {
                 $scope.canRemove = true;
                 $scope.attr = angular.copy(attr);
                 $scope.close = function() {

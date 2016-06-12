@@ -7,7 +7,7 @@ ngApp.config(['$routeProvider', function($routeProvider) {
         controller: 'reviewlogCtrl',
     });
 }]);
-ngApp.controller('ctrlInitiate', ['$scope', '$location', '$modal', 'http2', 'mediagallery', 'Article', 'Entry', 'Reviewlog', function($scope, $location, $modal, http2, mediagallery, Article, Entry, Reviewlog) {
+ngApp.controller('ctrlInitiate', ['$scope', '$location', '$uibModal', 'http2', 'mediagallery', 'Article', 'Entry', 'Reviewlog', function($scope, $location, $uibModal, http2, mediagallery, Article, Entry, Reviewlog) {
     $scope.phases = {
         'I': '投稿',
         'R': '审核',
@@ -215,9 +215,9 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$modal', 'http2', 'med
                 return;
             }
         }
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'review-list.html',
-            controller: ['$scope', '$modalInstance', 'reviewers', function($scope, $mi, reviewers) {
+            controller: ['$scope', '$uibModalInstance', 'reviewers', function($scope, $mi, reviewers) {
                 $scope.reviewers = reviewers;
                 $scope.data = {
                     selected: '0'

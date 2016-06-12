@@ -1,11 +1,11 @@
 (function() {
-    xxtApp.register.controller('skuCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+    xxtApp.register.controller('skuCtrl', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
         $scope.$parent.subView = 'sku';
         $scope.addSku = function() {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'cateSkuSelector.html',
                 backdrop: 'static',
-                controller: ['$modalInstance', '$scope', function($mi, $scope2) {
+                controller: ['$uibModalInstance', '$scope', function($mi, $scope2) {
                     $scope2.cateSkus = $scope.cateSkus;
                     $scope2.data = {
                         selected: null

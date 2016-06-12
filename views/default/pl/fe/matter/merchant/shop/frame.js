@@ -49,7 +49,7 @@ ngApp.controller('ctrlShop', ['$scope', 'http2', '$location', function($scope, h
         $scope.memberSchemas = rsp.data;
     });
 }]);
-ngApp.controller('ctrlSetting', ['$scope', 'http2', '$modal', function($scope, http2, $modal) {
+ngApp.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
     $scope.$parent.subView = 'setting';
     $scope.orderStatus = [{
         id: '1',
@@ -103,10 +103,10 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', '$modal', function($scope, h
         http2.post('/rest/pl/fe/matter/merchant/shop/update?site=' + $scope.siteId + '&shop=' + $scope.shopId, nv, function(rsp) {});
     };
     $scope.configOrderStatus = function(orderStatus) {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'orderStatusEditor.html',
             backdrop: 'static',
-            controller: ['$modalInstance', '$scope', function($mi, $scope2) {
+            controller: ['$uibModalInstance', '$scope', function($mi, $scope2) {
                 $scope2.status = angular.copy(orderStatus);
                 $scope2.close = function() {
                     $mi.dismiss();
@@ -124,14 +124,14 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', '$modal', function($scope, h
         });
     };
 }]);
-ngApp.controller('orderCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+ngApp.controller('orderCtrl', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
     var OrderStatus;
     $scope.$parent.subView = 'order';
     $scope.open = function(order) {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'orderDetail.html',
             backdrop: 'static',
-            controller: ['$modalInstance', '$scope', function($mi, $scope2) {
+            controller: ['$uibModalInstance', '$scope', function($mi, $scope2) {
                 http2.get('/rest/pl/fe/matter/merchant/order/get?order=' + order.id, function(rsp) {
                     $scope2.order = rsp.data.order;
                     $scope2.order._order_status = OrderStatus[$scope2.order.order_status];
@@ -214,7 +214,7 @@ ngApp.controller('ctrlCatelog', ['$scope', 'http2', function($scope, http2) {
     };
     $scope.list();
 }]);
-ngApp.controller('ctrlProduct', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+ngApp.controller('ctrlProduct', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
     $scope.selectedCatelog = null;
     $scope.search = function() {
         var url;
@@ -230,10 +230,10 @@ ngApp.controller('ctrlProduct', ['$scope', '$modal', 'http2', function($scope, $
         location.href = "/rest/pl/fe/matter/merchant/product?site=" + $scope.siteId + "&shop=" + $scope.shopId + "&product=" + product.id;
     };
     $scope.create = function() {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'catelogSelector.html',
             backdrop: 'static',
-            controller: ['$modalInstance', '$scope', function($mi, $scope2) {
+            controller: ['$uibModalInstance', '$scope', function($mi, $scope2) {
                 $scope2.catelogs = $scope.catelogs;
                 $scope2.data = {
                     selected: $scope.selectedCatelog
@@ -271,7 +271,7 @@ ngApp.controller('ctrlProduct', ['$scope', '$modal', 'http2', function($scope, $
         }
     });
 }]);
-ngApp.controller('ctrlPage', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+ngApp.controller('ctrlPage', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
     $scope.shelfs = [];
     $scope.orderlists = [];
     $scope.opOrderlists = [];
@@ -368,10 +368,10 @@ ngApp.controller('ctrlPage', ['$scope', '$modal', 'http2', function($scope, $mod
         }
     };
     $scope.config = function(page) {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'pageEditor.html',
             backdrop: 'static',
-            controller: ['$modalInstance', '$scope', function($mi, $scope2) {
+            controller: ['$uibModalInstance', '$scope', function($mi, $scope2) {
                 $scope2.page = {
                     title: page.title
                 };

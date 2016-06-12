@@ -1,4 +1,4 @@
-xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$modal', function($location, $scope, http2, $modal) {
+xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$uibModal', function($location, $scope, http2, $uibModal) {
     var openid;
     openid = $location.search().openid;
     $scope.SexMap = {
@@ -114,7 +114,7 @@ xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$modal', functio
         });
     });
     $scope.selectDept = function(member) {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'deptSelector.html',
             controller: 'deptSelectorCtrl',
             backdrop: 'static',
@@ -141,10 +141,10 @@ xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$modal', functio
         return authapi['attr_' + name].charAt(0) === '0';
     };
     $scope.addMember = function(authapi) {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'memberEditor.html',
             backdrop: 'static',
-            controller: ['$modalInstance', '$scope', function($modalInstance, $scope) {
+            controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
                 $scope.authapi = authapi;
                 $scope.member = {
                     extattr: {}
@@ -153,10 +153,10 @@ xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$modal', functio
                     return authapi['attr_' + name].charAt(0) === '0';
                 };
                 $scope.close = function() {
-                    $modalInstance.dismiss();
+                    $mi.dismiss();
                 };
                 $scope.ok = function() {
-                    $modalInstance.close($scope.member);
+                    $mi.close($scope.member);
                 };
             }]
         }).result.then(function(member) {
@@ -170,26 +170,26 @@ xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$modal', functio
         });
     };
     $scope.editMember = function(member) {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'memberEditor.html',
             backdrop: 'static',
-            controller: ['$modalInstance', '$scope', function($modalInstance, $scope) {
+            controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
                 $scope.authapi = member.authapi;
                 $scope.member = angular.copy(member);
                 $scope.canShow = function(name) {
                     return $scope.authapi && $scope.authapi['attr_' + name].charAt(0) === '0';
                 };
                 $scope.close = function() {
-                    $modalInstance.dismiss();
+                    $mi.dismiss();
                 };
                 $scope.ok = function() {
-                    $modalInstance.close({
+                    $mi.close({
                         action: 'update',
                         data: $scope.member
                     });
                 };
                 $scope.remove = function() {
-                    $modalInstance.close({
+                    $mi.close({
                         action: 'remove'
                     });
                 };
@@ -255,7 +255,7 @@ xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$modal', functio
         }
         $scope.userTrack();
     });
-}]).controller('deptSelectorCtrl', ['$modalInstance', 'http2', '$scope', 'member', function($modalInstance, http2, $scope, member) {
+}]).controller('deptSelectorCtrl', ['$uibModalInstance', 'http2', '$scope', 'member', function($mi, http2, $scope, member) {
     var checkedDepts;
     if (member.depts && member.depts.length)
         checkedDepts = JSON.parse(member.depts);
@@ -286,10 +286,10 @@ xxtApp.controller('userCtrl', ['$location', '$scope', 'http2', '$modal', functio
         }
     };
     $scope.close = function() {
-        $modalInstance.dismiss('cancel');
+        $mi.dismiss('cancel');
     };
     $scope.ok = function() {
-        $modalInstance.close(checkedDepts);
+        $mi.close(checkedDepts);
     };
     $scope.toggleChild = function(child) {
         if (!child.loaded) {

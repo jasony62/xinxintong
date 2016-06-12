@@ -1,5 +1,5 @@
-(function() {
-    ngApp.provider.controller('ctrlRecord', ['$scope', 'http2', '$modal', function($scope, http2, $modal) {
+define(['frame'], function(ngApp) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
         $scope.notifyMatterTypes = [{
             value: 'text',
             title: '文本',
@@ -206,7 +206,7 @@
             }
         };
         $scope.editRecord = function(record) {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'recordEditor.html',
                 controller: 'ctrlEditor',
                 backdrop: 'static',
@@ -238,7 +238,7 @@
             });
         };
         $scope.addRecord = function() {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'recordEditor.html',
                 controller: 'ctrlEditor',
                 windowClass: 'auto-height',
@@ -272,14 +272,14 @@
             });
         };
         $scope.importUser = function() {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: "userPicker.html",
                 backdrop: 'static',
                 windowClass: 'auto-height',
                 size: 'lg',
-                controller: function($scope, $modalInstance) {
+                controller: function($scope, $uibModalInstance) {
                     $scope.cancel = function() {
-                        $modalInstance.dismiss();
+                        $uibModalInstance.dismiss();
                     }
                 },
             }).result.then(function(selected) {
@@ -371,7 +371,7 @@
             }
         }
     });
-    ngApp.provider.controller('ctrlEditor', ['$scope', '$modalInstance', '$sce', 'app', 'record', function($scope, $modalInstance, $sce, app, record) {
+    ngApp.provider.controller('ctrlEditor', ['$scope', '$uibModalInstance', '$sce', 'app', 'record', function($scope, $uibModalInstance, $sce, app, record) {
         var p, col, files;
         for (p in app.data_schemas) {
             col = app.data_schemas[p];
@@ -431,10 +431,10 @@
             angular.forEach($scope.app.data_schemas, function(col) {
                 p.data[col.id] = $scope.record.data[col.id];
             });
-            $modalInstance.close([p, $scope.aTags]);
+            $uibModalInstance.close([p, $scope.aTags]);
         };
         $scope.cancel = function() {
-            $modalInstance.dismiss('cancel');
+            $uibModalInstance.dismiss('cancel');
         };
         $scope.chooseImage = function(imgFieldName, count, from) {
             var data = $scope.record.data;
@@ -493,4 +493,4 @@
             $scope.record.aTags.splice($scope.record.aTags.indexOf(removed), 1);
         });
     }]);
-})();
+});

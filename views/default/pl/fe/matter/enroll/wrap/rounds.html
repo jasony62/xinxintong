@@ -1,5 +1,5 @@
 <div ng-controller="ctrlRoundListWrap">
-    <select class='form-control' ng-model="activeSchema.onclick">
+    <select class='form-control' ng-model="activeWrap.schema.onclick" ng-change="updWrap('config','onclick')">
         <option value=''>不跳转</option>
         <option value='{{p.name}}' ng-repeat='p in app.pages'>{{p.title}}</option>
     </select>

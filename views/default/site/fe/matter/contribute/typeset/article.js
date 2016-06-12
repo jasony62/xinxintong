@@ -1,4 +1,4 @@
-xxtApp.controller('myArticleCtrl', ['$location', '$scope', '$modal', 'http2', 'Article', function ($location, $scope, $modal, http2, Article) {
+xxtApp.controller('myArticleCtrl', ['$location', '$scope', '$uibModal', 'http2', 'Article', function ($location, $scope, $uibModal, http2, Article) {
     $scope.back = function (event) {
         event.preventDefault();
         history.back();
@@ -28,7 +28,7 @@ xxtApp.controller('myArticleCtrl', ['$location', '$scope', '$modal', 'http2', 'A
         $scope.Article.update($scope.editing, 'target_mps');
     };
     $scope.forward = function () {
-        $modal.open({
+        $uibModal.open({
             templateUrl: '/static/template/userpicker.html?_=2',
             controller: 'ReviewUserPickerCtrl',
             backdrop: 'static',

@@ -109,7 +109,7 @@ ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($sco
 		$scope.rounds = rounds;
 	});
 }]);
-ngApp.controller('ctrlEditor', ['$scope', '$modalInstance', '$sce', 'app', 'rounds', 'player', function($scope, $mi, $sce, app, rounds, player) {
+ngApp.controller('ctrlEditor', ['$scope', '$uibModalInstance', '$sce', 'app', 'rounds', 'player', function($scope, $mi, $sce, app, rounds, player) {
 	$scope.app = app;
 	$scope.rounds = rounds;
 	$scope.aTags = app.tags;

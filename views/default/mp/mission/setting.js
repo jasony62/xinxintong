@@ -1,5 +1,5 @@
 (function() {
-    xxtApp.register.controller('settingCtrl', ['$scope', 'http2', 'matterTypes', '$modal', function($scope, http2, matterTypes, $modal) {
+    xxtApp.register.controller('settingCtrl', ['$scope', 'http2', 'matterTypes', function($scope, http2, matterTypes) {
         $scope.matterTypes = matterTypes;
         var modifiedData = {};
         $scope.modified = false;

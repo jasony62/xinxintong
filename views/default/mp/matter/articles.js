@@ -1,4 +1,4 @@
-xxtApp.controller('articleCtrl', ['$scope', '$window', '$modal', 'http2', function($scope, $window, $modal, http2) {
+xxtApp.controller('articleCtrl', ['$scope', '$window', '$uibModal', 'http2', function($scope, $window, $uibModal, http2) {
     var getArticles = function() {
         var options = {
             channel: $scope.selectedChannelsId,
@@ -33,9 +33,9 @@ xxtApp.controller('articleCtrl', ['$scope', '$window', '$modal', 'http2', functi
         });
     };
     $scope.upload = function() {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'uploadArticle.html',
-            controller: ['$scope', '$modalInstance', '$timeout', function($scope, $mi) {
+            controller: ['$scope', '$uibModalInstance', '$timeout', function($scope, $mi) {
                 $scope.cancel = function() {
                     $mi.dismiss();
                 };

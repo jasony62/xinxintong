@@ -1,5 +1,5 @@
 (function() {
-    xxtApp.register.controller('productCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+    xxtApp.register.controller('productCtrl', ['$scope', 'http2', function($scope, http2) {
         $scope.$parent.subView = 'product';
         $scope.search = function() {
             var url;

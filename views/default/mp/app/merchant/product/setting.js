@@ -1,5 +1,5 @@
 (function() {
-    xxtApp.register.controller('settingCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+    xxtApp.register.controller('settingCtrl', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
         $scope.$parent.subView = 'setting';
         $scope.update = function(name) {
             var nv = {};
@@ -20,10 +20,10 @@
             $scope.update('main_img');
         };
         $scope.setPropValue = function(prop) {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'propValueSetter.html',
                 backdrop: 'static',
-                controller: ['$modalInstance', '$scope', function($mi, $scope2) {
+                controller: ['$uibModalInstance', '$scope', function($mi, $scope2) {
                     $scope2.prop = prop;
                     if ($scope.editing.propValue[prop.id]) {
                         $scope2.data = angular.copy($scope.editing.propValue[prop.id]);

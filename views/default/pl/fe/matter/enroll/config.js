@@ -1,5 +1,5 @@
 (function() {
-	ngApp.provider.controller('ctrlConfig', ['$scope', '$location', 'http2', '$modal', function($scope, $location, http2, $modal) {
+	ngApp.provider.controller('ctrlConfig', ['$scope', '$location', 'http2', '$uibModal', function($scope, $location, http2, $uibModal) {
 		window.onbeforeunload = function(e) {
 			var message;
 			if ($scope.modified) {
@@ -12,7 +12,7 @@
 			}
 		};
 		$scope.addPage = function() {
-			$modal.open({
+			$uibModal.open({
 				templateUrl: 'createPage.html',
 				backdrop: 'static',
 				resolve: {
@@ -20,7 +20,7 @@
 						return $scope.app;
 					}
 				},
-				controller: ['$scope', '$modalInstance', 'app', function($scope, $mi, app) {
+				controller: ['$scope', '$uibModalInstance', 'app', function($scope, $mi, app) {
 					$scope.app = app;
 					$scope.options = {};
 					$scope.ok = function() {

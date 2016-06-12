@@ -132,13 +132,13 @@ xxtMatters.filter('typetitle', ['matterTypes', function(matterTypes) {
         return '';
     }
 }]);
-xxtMatters.service('templateShop', ['$modal', 'http2', '$q', function($modal, http2, $q) {
+xxtMatters.service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, $q) {
     this.choose = function(type, callback) {
         var deferred;
         deferred = $q.defer();
-        $modal.open({
+        $uibModal.open({
             templateUrl: '/static/template/templateShop.html?v=2',
-            controller: ['$scope', '$modalInstance', function($scope, $mi) {
+            controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                 $scope.page = {
                     size: 10,
                     at: 1,
@@ -171,9 +171,9 @@ xxtMatters.service('templateShop', ['$modal', 'http2', '$q', function($modal, ht
     this.share = function(mpid, matter) {
         var deferred;
         deferred = $q.defer();
-        $modal.open({
+        $uibModal.open({
             templateUrl: '/static/template/templateShare.html?v=1',
-            controller: ['$scope', '$modalInstance', function($scope, $mi) {
+            controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                 $scope.data = {
                     scope: 'U'
                 };
@@ -405,7 +405,7 @@ xxtMatters.directive('tinymce', function($timeout) {
         }
     }
 });
-xxtMatters.controller('MattersGalleryModalInstCtrl', ['$scope', '$http', '$modalInstance', 'matterTypes', 'singleMatter', 'hasParent', function($scope, $http, $modalInstance, matterTypes, singleMatter, hasParent) {
+xxtMatters.controller('MattersGalleryModalInstCtrl', ['$scope', '$http', '$uibModalInstance', 'matterTypes', 'singleMatter', 'hasParent', function($scope, $http, $mi, matterTypes, singleMatter, hasParent) {
     $scope.matterTypes = matterTypes;
     $scope.singleMatter = singleMatter;
     $scope.hasParent = hasParent;
@@ -448,18 +448,18 @@ xxtMatters.controller('MattersGalleryModalInstCtrl', ['$scope', '$http', '$modal
         });
     };
     $scope.ok = function() {
-        $modalInstance.close([$scope.aChecked, $scope.p.matterType ? $scope.p.matterType.value : 'article']);
+        $mi.close([$scope.aChecked, $scope.p.matterType ? $scope.p.matterType.value : 'article']);
     };
     $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
+        $mi.dismiss('cancel');
     };
     $scope.$watch('p.matterType', function(nv) {
         $scope.doSearch();
     });
 }]);
-xxtMatters.controller('MattersController', ['$scope', '$http', '$modal', function($scope, $http, $modal) {
+xxtMatters.controller('MattersController', ['$scope', '$http', '$uibModal', function($scope, $http, $uibModal) {
     var open = function() {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'modalMattersGalllery.html',
             controller: 'MattersGalleryModalInstCtrl',
             size: 'lg',
@@ -506,12 +506,12 @@ xxtMatters.directive('mediagallery', function() {
         scope: {
             boxId: '@boxId'
         },
-        controller: ['$scope', '$http', '$modal', function($scope, $http, $modal) {
+        controller: ['$scope', '$http', '$uibModal', function($scope, $http, $uibModal) {
             var modalInstance, open;
             open = function(options) {
-                modalInstance = $modal.open({
+                modalInstance = $uibModal.open({
                     templateUrl: 'modalMediaGallery.html',
-                    controller: ['$scope', '$modalInstance', 'url', function($scope2, $mi, url) {
+                    controller: ['$scope', '$uibModalInstance', 'url', function($scope2, $mi, url) {
                         $scope2.title = options.mediaType;
                         $scope2.url = url;
                         $scope2.setshowname = options.setshowname;
@@ -561,7 +561,7 @@ xxtMatters.directive('mediagallery', function() {
         templateUrl: '/static/template/mediagallery.html?_=1',
     }
 });
-xxtMatters.controller('AccessControllerUserPickerController', ['$scope', '$modalInstance', 'userSetAsParam', function($scope, $mi, userSetAsParam) {
+xxtMatters.controller('AccessControllerUserPickerController', ['$scope', '$uibModalInstance', 'userSetAsParam', function($scope, $mi, userSetAsParam) {
     $scope.userConfig = {
         userScope: ['M']
     };
@@ -576,7 +576,7 @@ xxtMatters.controller('AccessControllerUserPickerController', ['$scope', '$modal
         $mi.close(data);
     };
 }]);
-xxtMatters.controller('AccessControlController', ['$rootScope', '$scope', 'http2', '$timeout', '$modal', function($rootScope, $scope, http2, $timeout, $modal) {
+xxtMatters.controller('AccessControlController', ['$rootScope', '$scope', 'http2', '$timeout', '$uibModal', function($rootScope, $scope, http2, $timeout, $uibModal) {
     var objAuthapis = function() {
         $scope.objAuthapis = angular.copy($scope.authapis);
         var aAuthapis = $scope.obj[$scope.propApis] ? $scope.obj[$scope.propApis].trim() : '';
@@ -624,7 +624,7 @@ xxtMatters.controller('AccessControlController', ['$rootScope', '$scope', 'http2
         }, 10);
     };
     $scope.openAclSelector = function() {
-        $modal.open({
+        $uibModal.open({
             templateUrl: '/static/template/userpicker.html?_=2',
             controller: 'AccessControllerUserPickerController',
             backdrop: 'static',
@@ -873,13 +873,13 @@ xxtMatters.directive('userpicker', ['http2', function(http2) {
         },
     };
 }]);
-xxtMatters.controller('PushMatterController', ['http2', '$scope', '$modalInstance', 'userSetAsParam', function(http2, $scope, $modalInstance, userSetAsParam) {
+xxtMatters.controller('PushMatterController', ['http2', '$scope', '$uibModalInstance', 'userSetAsParam', function(http2, $scope, $mi, userSetAsParam) {
     $scope.userConfig = {
         userScope: ['M']
     };
     $scope.userSet = {};
     $scope.cancel = function() {
-        $modalInstance.dismiss();
+        $mi.dismiss();
     };
     $scope.ok = function() {
         var targetUser, data;
@@ -888,16 +888,18 @@ xxtMatters.controller('PushMatterController', ['http2', '$scope', '$modalInstanc
             targetUser: targetUser
         };
         if (targetUser === 'F') {
-            if ($scope.userSet.userScope === 'mp')
+            if ($scope.userSet.userScope === 'mp') {
                 data.mps = $scope.userSet.childmps;
-            else if ($scope.userSet.userScope === 'a')
+            } else if ($scope.userSet.userScope === 'a') {
                 data.allUsers = 'Y';
-            else if ($scope.userScope == 'g')
+            } else if ($scope.userScope == 'g') {
                 data.gs = $scope.userSet.fansGroup;
-        } else
+            }
+        } else {
             data.userSet = userSetAsParam.convert($scope.userSet);
+        }
 
-        $modalInstance.close(data);
+        $mi.close(data);
     };
     http2.get('/rest/mp/mpaccount/apis', function(rsp) {
         if (rsp.data.mpsrc === 'qy' || (rsp.data.mpsrc === 'yx' && rsp.data.yx_p2p))
@@ -912,9 +914,9 @@ xxtMatters.directive('pushmatter', function() {
             matterType: '@',
             mpaccount: '='
         },
-        controller: ['$rootScope', '$scope', '$modal', 'http2', function($rootScope, $scope, $modal, http2) {
+        controller: ['$rootScope', '$scope', '$uibModal', 'http2', function($rootScope, $scope, $uibModal, http2) {
             $scope.open = function() {
-                $modal.open({
+                $uibModal.open({
                     templateUrl: '/static/template/pushmatter.html?_=4',
                     controller: 'PushMatterController',
                     backdrop: 'static',
@@ -980,7 +982,7 @@ xxtMatters.directive('pushmatter', function() {
         template: "<button ng-click='open()' ng-transclude></button>",
     };
 });
-xxtMatters.controller('PushNotifyController', ['http2', '$scope', '$modalInstance', 'options', function(http2, $scope, $mi, options) {
+xxtMatters.controller('PushNotifyController', ['http2', '$scope', '$uibModalInstance', 'options', function(http2, $scope, $mi, options) {
     $scope.options = options;
     $scope.p = {};
     options.matterTypes && options.matterTypes.length && ($scope.p.matterType = options.matterTypes[0]);
@@ -1037,9 +1039,9 @@ xxtMatters.directive('pushnotify', function() {
             matterTypes: '=',
             canFromParentMp: '@'
         },
-        controller: ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+        controller: ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
             $scope.open = function() {
-                $modal.open({
+                $uibModal.open({
                     templateUrl: '/static/template/pushnotify.html?_=0',
                     controller: 'PushNotifyController',
                     resolve: {

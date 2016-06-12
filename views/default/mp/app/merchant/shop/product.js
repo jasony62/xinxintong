@@ -1,5 +1,5 @@
 (function() {
-    xxtApp.register.controller('productCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+    xxtApp.register.controller('productCtrl', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
         $scope.$parent.subView = 'product';
         $scope.selectedCatelog = null;
         $scope.search = function() {
@@ -15,10 +15,10 @@
             location.href = "/rest/mp/app/merchant/product?shop=" + $scope.shopId + "&product=" + product.id;
         };
         $scope.create = function() {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'catelogSelector.html',
                 backdrop: 'static',
-                controller: ['$modalInstance', '$scope', function($mi, $scope2) {
+                controller: ['$uibModalInstance', '$scope', function($mi, $scope2) {
                     $scope2.catelogs = $scope.catelogs;
                     $scope2.data = {
                         selected: $scope.selectedCatelog

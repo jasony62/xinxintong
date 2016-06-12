@@ -166,9 +166,9 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', 'mediagaller
 		}
 	};
 	$scope.embedVideo = function() {
-		$modal.open({
+		$uibModal.open({
 			templateUrl: 'insertMedia.html',
-			controller: ['$modalInstance', '$scope', function($mi, $scope) {
+			controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
 				$scope.data = {
 					url: ''
 				};
@@ -198,9 +198,9 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', 'mediagaller
 	};
 	$scope.embedAudio = function() {
 		if ($scope.mpaccount._env.SAE) {
-			$modal.open({
+			$uibModal.open({
 				templateUrl: 'insertMedia.html',
-				controller: ['$modalInstance', '$scope', function($mi, $scope) {
+				controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
 					$scope.data = {
 						url: ''
 					};

@@ -1,10 +1,10 @@
 (function() {
-    xxtApp.register.controller('pageCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+    xxtApp.register.controller('pageCtrl', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
         $scope.$parent.subView = 'page';
         $scope.setPage = function() {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: "pageSetting.html",
-                controller: ['$scope', '$modalInstance', function($scope2, $mi) {
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     $scope2.patterns = [{
                         l: '基本',
                         v: 'basic'

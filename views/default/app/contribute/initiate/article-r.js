@@ -1,4 +1,4 @@
-xxtApp.controller('initiateCtrl', ['$location', '$scope', '$modal', 'http2', 'Article', 'Entry', 'Reviewlog', function($location, $scope, $modal, http2, Article, Entry, Reviewlog) {
+xxtApp.controller('initiateCtrl', ['$location', '$scope', 'http2', 'Article', 'Entry', 'Reviewlog', function($location, $scope, http2, Article, Entry, Reviewlog) {
     var mpid, id;
     $scope.phases = {
         'I': '投稿',

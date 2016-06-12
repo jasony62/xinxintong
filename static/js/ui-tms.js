@@ -232,11 +232,11 @@ angular.module('ui.tms', ['ngSanitize']).service('http2', ['$rootScope', '$http'
             obj: '=tmsObj'
         },
         templateUrl: '/static/template/datepicker.html?_=2',
-        controller: ['$scope', '$modal', function($scope, $modal) {
+        controller: ['$scope', '$uibModal', function($scope, $uibModal) {
             $scope.open = function() {
-                $modal.open({
+                $uibModal.open({
                     templateUrl: 'tmsModalDatepicker.html',
-                    controller: ['$scope', '$modalInstance', 'date', function($scope, $mi, date) {
+                    controller: ['$scope', '$uibModalInstance', 'date', function($scope, $mi, date) {
                         date = (function() {
                             var d = new Date();
                             d.setTime(date == 0 ? d.getTime() : date * 1000);

@@ -1,5 +1,5 @@
 (function() {
-    ngApp.provider.controller('ctrlSetting', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+    ngApp.provider.controller('ctrlSetting', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
         $scope.open = function(catelog) {
             if (catelog.properties === undefined) {
                 http2.get('/rest/pl/fe/matter/merchant/catelog/cascaded?id=' + catelog.id, function(rsp) {
@@ -27,22 +27,22 @@
             });
         };
         $scope.editProp = function(prop, index) {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'propEditor.html',
                 backdrop: 'static',
-                controller: ['$modalInstance', '$scope', function($modalInstance, $scope) {
+                controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
                     $scope.prop = angular.copy(prop);
                     $scope.close = function() {
-                        $modalInstance.dismiss();
+                        $mi.dismiss();
                     };
                     $scope.remove = function() {
-                        $modalInstance.close({
+                        $mi.close({
                             name: 'remove',
                             data: $scope.prop
                         });
                     };
                     $scope.ok = function() {
-                        $modalInstance.close({
+                        $mi.close({
                             name: 'update',
                             data: $scope.prop
                         });
@@ -66,22 +66,22 @@
             });
         };
         $scope.editOrderProp = function(prop, index) {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'propEditor.html',
                 backdrop: 'static',
-                controller: ['$modalInstance', '$scope', function($modalInstance, $scope) {
+                controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
                     $scope.prop = angular.copy(prop);
                     $scope.close = function() {
-                        $modalInstance.dismiss();
+                        $mi.dismiss();
                     };
                     $scope.remove = function() {
-                        $modalInstance.close({
+                        $mi.close({
                             name: 'remove',
                             data: $scope.prop
                         });
                     };
                     $scope.ok = function() {
-                        $modalInstance.close({
+                        $mi.close({
                             name: 'update',
                             data: $scope.prop
                         });
@@ -105,22 +105,22 @@
             });
         };
         $scope.editFeedbackProp = function(prop, index) {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'propEditor.html',
                 backdrop: 'static',
-                controller: ['$modalInstance', '$scope', function($modalInstance, $scope) {
+                controller: ['$uibModalInstance', '$scope', function($mi, $scope) {
                     $scope.prop = angular.copy(prop);
                     $scope.close = function() {
-                        $modalInstance.dismiss();
+                        $mi.dismiss();
                     };
                     $scope.remove = function() {
-                        $modalInstance.close({
+                        $mi.close({
                             name: 'remove',
                             data: $scope.prop
                         });
                     };
                     $scope.ok = function() {
-                        $modalInstance.close({
+                        $mi.close({
                             name: 'update',
                             data: $scope.prop
                         });
@@ -159,7 +159,7 @@
         };
         $scope.get();
     }]);
-    ngApp.provider.controller('ctrlProduct', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+    ngApp.provider.controller('ctrlProduct', ['$scope', 'http2', function($scope, http2) {
         $scope.search = function() {
             var url;
             url = '/rest/pl/fe/matter/merchant/product/list';
@@ -185,7 +185,7 @@
         };
         $scope.search();
     }]);
-    ngApp.provider.controller('ctrlSku', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+    ngApp.provider.controller('ctrlSku', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
         $scope.updateSku = function(sku, prop) {
             var nv = {};
             nv[prop] = sku[prop];
@@ -205,10 +205,10 @@
             if (!sku.autogen_rule) {
                 sku.autogen_rule = {};
             }
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'crontabEditor.html',
                 backdrop: 'static',
-                controller: ['$modalInstance', '$scope', function($mi, $scope2) {
+                controller: ['$uibModalInstance', '$scope', function($mi, $scope2) {
                     var crontab;
                     crontab = sku.autogen_rule.crontab || '*_*_*_*_*';
                     $scope2.data = crontab.split('_');
@@ -228,7 +228,7 @@
             $scope.skus = rsp.data;
         });
     }]);
-    ngApp.provider.controller('ctrlPage', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+    ngApp.provider.controller('ctrlPage', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
         $scope.pageTypes = [{
             type: 'product',
             name: '用户.商品'
@@ -269,10 +269,10 @@
             }
         };
         $scope.config = function(page) {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'pageEditor.html',
                 backdrop: 'static',
-                controller: ['$modalInstance', '$scope', function($mi, $scope2) {
+                controller: ['$uibModalInstance', '$scope', function($mi, $scope2) {
                     $scope2.page = {
                         title: page.title
                     };

@@ -1,9 +1,9 @@
 (function() {
-	xxtApp.register.controller('roundCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+	xxtApp.register.controller('roundCtrl', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
 		$scope.$parent.subView = 'round';
 		$scope.roundState = ['新建', '启用', '停止'];
 		$scope.add = function() {
-			$modal.open({
+			$uibModal.open({
 				templateUrl: 'roundEditor.html',
 				backdrop: 'static',
 				resolve: {
@@ -11,20 +11,20 @@
 						return $scope.roundState;
 					}
 				},
-				controller: ['$scope', '$modalInstance', 'roundState', function($scope, $modalInstance, roundState) {
+				controller: ['$scope', '$uibModalInstance', 'roundState', function($scope, $mi, roundState) {
 					$scope.round = {
 						state: 0
 					};
 					$scope.roundState = roundState;
 					$scope.close = function() {
-						$modalInstance.dismiss();
+						$mi.dismiss();
 					};
 					$scope.ok = function() {
-						$modalInstance.close($scope.round);
+						$mi.close($scope.round);
 					};
 					$scope.start = function() {
 						$scope.round.state = 1;
-						$modalInstance.close($scope.round);
+						$mi.close($scope.round);
 					};
 				}]
 			}).result.then(function(newRound) {
@@ -36,7 +36,7 @@
 			});
 		};
 		$scope.open = function(round) {
-			$modal.open({
+			$uibModal.open({
 				templateUrl: 'roundEditor.html',
 				backdrop: 'static',
 				resolve: {
@@ -44,26 +44,26 @@
 						return $scope.roundState;
 					}
 				},
-				controller: ['$scope', '$modalInstance', 'roundState', function($scope, $modalInstance, roundState) {
+				controller: ['$scope', '$uibModalInstance', 'roundState', function($scope, $mi, roundState) {
 					$scope.round = angular.copy(round);
 					$scope.roundState = roundState;
 					$scope.close = function() {
-						$modalInstance.dismiss();
+						$mi.dismiss();
 					};
 					$scope.ok = function() {
-						$modalInstance.close({
+						$mi.close({
 							action: 'update',
 							data: $scope.round
 						});
 					};
 					$scope.remove = function() {
-						$modalInstance.close({
+						$mi.close({
 							action: 'remove'
 						});
 					};
 					$scope.start = function() {
 						$scope.round.state = 1;
-						$modalInstance.close({
+						$mi.close({
 							action: 'update',
 							data: $scope.round
 						});

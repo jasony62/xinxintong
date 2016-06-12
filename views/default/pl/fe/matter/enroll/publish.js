@@ -1,4 +1,4 @@
-(function() {
+define(['frame'], function(ngApp) {
 	ngApp.provider.controller('ctrlRunning', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
 		$scope.$watch('app', function(app) {
 			if (!app) return;
@@ -46,10 +46,10 @@
 			$scope.update('pic');
 		};
 	}]);
-	ngApp.provider.controller('ctrlRound', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+	ngApp.provider.controller('ctrlRound', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
 		$scope.roundState = ['新建', '启用', '停止'];
 		$scope.add = function() {
-			$modal.open({
+			$uibModal.open({
 				templateUrl: 'roundEditor.html',
 				backdrop: 'static',
 				resolve: {
@@ -57,7 +57,7 @@
 						return $scope.roundState;
 					}
 				},
-				controller: ['$scope', '$modalInstance', 'roundState', function($scope, $mi, roundState) {
+				controller: ['$scope', '$uibModalInstance', 'roundState', function($scope, $mi, roundState) {
 					$scope.round = {
 						state: 0
 					};
@@ -84,7 +84,7 @@
 			});
 		};
 		$scope.open = function(round) {
-			$modal.open({
+			$uibModal.open({
 				templateUrl: 'roundEditor.html',
 				backdrop: 'static',
 				resolve: {
@@ -92,7 +92,7 @@
 						return $scope.roundState;
 					}
 				},
-				controller: ['$scope', '$modalInstance', 'roundState', function($scope, $mi, roundState) {
+				controller: ['$scope', '$uibModalInstance', 'roundState', function($scope, $mi, roundState) {
 					$scope.round = angular.copy(round);
 					$scope.roundState = roundState;
 					$scope.close = function() {
@@ -150,4 +150,4 @@
 			});
 		};
 	}]);
-})();
+});

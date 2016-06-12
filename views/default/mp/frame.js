@@ -4,7 +4,7 @@ xxtApp.config(['$locationProvider', '$controllerProvider', function($locationPro
 		controller: $controllerProvider.register
 	};
 }]);
-xxtApp.controller('mpCtrl', ['$rootScope', '$modal', '$q', 'http2', function($rootScope, $modal, $q, http2) {
+xxtApp.controller('mpCtrl', ['$rootScope', '$q', 'http2', function($rootScope, $q, http2) {
 	$rootScope.$on('xxt.notice-box.timeout', function(event, name) {
 		$rootScope.infomsg = $rootScope.errmsg = $rootScope.progmsg = '';
 	});

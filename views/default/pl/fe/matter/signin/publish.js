@@ -1,4 +1,4 @@
-(function() {
+define(['frame'], function(ngApp) {
 	ngApp.provider.controller('ctrlRunning', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
 		$scope.$watch('app', function(app) {
 			if (!app) return;
@@ -32,13 +32,13 @@
 			$scope.update('pic');
 		};
 	}]);
-	ngApp.provider.controller('ctrlRound', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+	ngApp.provider.controller('ctrlRound', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
 		var rounds, editing;
 		$scope.$watch('app', function(app) {
 			app && (rounds = app.rounds);
 		});
 		$scope.batch = function() {
-			$modal.open({
+			$uibModal.open({
 				templateUrl: 'batchRounds.html',
 				backdrop: 'static',
 				resolve: {
@@ -46,7 +46,7 @@
 						return $scope.app;
 					}
 				},
-				controller: ['$scope', '$modalInstance', 'app', function($scope2, $mi, app) {
+				controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
 					var params = {
 						timesOfDay: 2,
 						overwrite: 'Y'
@@ -123,4 +123,4 @@
 			$scope.editingRound = editing = angular.copy(round);
 		};
 	}]);
-})();
+});

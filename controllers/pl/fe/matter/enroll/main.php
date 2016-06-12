@@ -253,7 +253,7 @@ class main extends \pl\fe\matter\base {
 		if ($rst) {
 			/*更新级联数据*/
 			if (isset($nv['data_schemas'])) {
-				$this->_refreshPagesSchema($app);
+				//$this->_refreshPagesSchema($app);
 			}
 			/*记录操作日志*/
 			$matter = $this->model('matter\\enroll')->byId($app, 'id,title,summary,pic');
@@ -516,5 +516,41 @@ class main extends \pl\fe\matter\base {
 		$this->model('log')->matterOp($site, $user, $app, 'D');
 
 		return new \ResponseData($rst);
+	}
+	/**
+	 * 版本升级
+	 */
+	public function verUpgrade_Action($site) {
+		$result = array();
+		/*app's data_schema*/
+		$model = $this->model('matter\enroll');
+		$apps = $model->bySite($site, 1, 999);
+		$apps = $apps['apps'];
+		foreach ($apps as $app) {
+			if (!empty($app->data_schemas)) {
+				$dataSchemas = json_decode($app->data_schemas);
+				if (!isset($dataSchemas[0]->config)) {
+					$newDataSchemas = array();
+					foreach ($dataSchemas as $dataSchema) {
+						$schema = new \stdClass;
+						$schema->id = $dataSchema->id;
+						isset($dataSchema->type) && $schema->type = $dataSchema->type;
+						$schema->title = $dataSchema->title;
+						isset($dataSchema->ops) && $schema->ops = $dataSchema->ops;
+
+						$newDataSchemas[] = $schema;
+					}
+					$result[$app->id] = $newDataSchemas;
+					/*update*/
+					$model->update(
+						'xxt_enroll',
+						array('data_schemas' => $model->toJson($newDataSchemas)),
+						"id='$app->id'"
+					);
+				}
+			}
+		}
+
+		return new \ResponseData($result);
 	}
 }

@@ -67,7 +67,7 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 		$model = $this->model('matter\signin');
-		$result = $model->byApp($site, $page, $size, $mission);
+		$result = $model->bySite($site, $page, $size, $mission);
 
 		return new \ResponseData($result);
 	}
@@ -321,5 +321,35 @@ class main extends \pl\fe\matter\base {
 		$this->model('log')->matterOp($site, $user, $app, 'D');
 
 		return new \ResponseData($rst);
+	}
+	/**
+	 *
+	 */
+	public function verUpgrade_Action($site) {
+		$result = array();
+		/*app's data_schema*/
+		$model = $this->model('matter\signin');
+		$apps = $model->bySite($site, 1, 999);
+		$apps = $apps['apps'];
+		foreach ($apps as $app) {
+			if (!empty($app->data_schemas)) {
+				$dataSchemas = json_decode($app->data_schemas);
+				if (!isset($dataSchemas[0]->config)) {
+					$newDataSchemas = array();
+					foreach ($dataSchemas as $dataSchema) {
+						$schema = new \stdClass;
+						$schema->id = $dataSchema->id;
+						$schema->type = $dataSchema->type;
+						$schema->title = $dataSchema->title;
+						isset($dataSchema->ops) && $schema->ops = $dataSchema->ops;
+
+						$newDataSchemas[] = $schema;
+					}
+					$result[$app->id] = $newDataSchemas;
+				}
+			}
+		}
+
+		return new \ResponseData($result);
 	}
 }

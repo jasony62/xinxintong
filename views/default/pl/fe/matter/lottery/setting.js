@@ -1,5 +1,5 @@
 (function() {
-	ngApp.provider.controller('ctrlSetting', ['$scope', '$location', 'http2', '$modal', 'mediagallery', function($scope, $location, http2, $modal, mediagallery) {
+	ngApp.provider.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
 		window.onbeforeunload = function(e) {
 			var message;
 			if ($scope.modified) {

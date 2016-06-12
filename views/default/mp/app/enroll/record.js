@@ -1,5 +1,5 @@
 (function() {
-    xxtApp.register.controller('recordCtrl', ['$scope', 'http2', '$modal', function($scope, http2, $modal) {
+    xxtApp.register.controller('recordCtrl', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
         $scope.$parent.subView = 'record';
         $scope.notifyMatterTypes = [{
             value: 'text',
@@ -108,9 +108,9 @@
         $scope.selected = {};
         $scope.selectAll;
         $scope.tagByData = function() {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'tagByData.html',
-                controller: ['$scope', '$modalInstance', function($scope2, $mi) {
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     $scope2.data = {
                         filter: {},
                         tag: ''
@@ -143,9 +143,9 @@
             });
         };
         $scope.exportByData = function() {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'exportByData.html',
-                controller: ['$scope', '$modalInstance', function($scope2, $mi) {
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     $scope2.data = {
                         filter: {},
                         target: '',
@@ -280,7 +280,7 @@
             }
         };
         $scope.editRecord = function(record) {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'editor.html',
                 controller: 'editorCtrl',
                 windowClass: 'auto-height',
@@ -306,7 +306,7 @@
             });
         };
         $scope.addRecord = function() {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'editor.html',
                 controller: 'editorCtrl',
                 windowClass: 'auto-height',
@@ -335,16 +335,16 @@
             });
         };
         $scope.importUser = function() {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: "userPicker.html",
                 backdrop: 'static',
                 windowClass: 'auto-height',
                 size: 'lg',
-                controller: function($scope, $modalInstance) {
+                controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                     $scope.cancel = function() {
-                        $modalInstance.dismiss();
+                        $mi.dismiss();
                     }
-                },
+                }],
             }).result.then(function(selected) {
                 if (selected.members && selected.members.length) {
                     var members = [];
@@ -388,7 +388,7 @@
             }
         });
     }]);
-    xxtApp.register.controller('editorCtrl', ['$scope', '$modalInstance', '$sce', 'enroll', 'record', 'schema', function($scope, $modalInstance, $sce, enroll, record, schema) {
+    xxtApp.register.controller('editorCtrl', ['$scope', '$uibModalInstance', '$sce', 'enroll', 'record', 'schema', function($scope, $mi, $sce, enroll, record, schema) {
         var p, col, files;
         for (p in schema) {
             col = schema[p];
@@ -429,10 +429,10 @@
                 col = $scope.schema[c];
                 p.data[col.id] = $scope.record.data[col.id];
             }
-            $modalInstance.close([p, $scope.aTags]);
+            $mi.close([p, $scope.aTags]);
         };
         $scope.cancel = function() {
-            $modalInstance.dismiss('cancel');
+            $mi.dismiss('cancel');
         };
         $scope.$on('tag.xxt.combox.done', function(event, aSelected) {
             var aNewTags = [];

@@ -1,5 +1,5 @@
 (function() {
-	xxtApp.register.controller('skuCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+	xxtApp.register.controller('skuCtrl', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
 		$scope.$parent.subView = 'sku';
 		$scope.updateSku = function(sku, prop) {
 			var nv = {};
@@ -20,10 +20,10 @@
 			if (!sku.autogen_rule) {
 				sku.autogen_rule = {};
 			}
-			$modal.open({
+			$uibModal.open({
 				templateUrl: 'crontabEditor.html',
 				backdrop: 'static',
-				controller: ['$modalInstance', '$scope', function($mi, $scope2) {
+				controller: ['$uibModalInstance', '$scope', function($mi, $scope2) {
 					var crontab;
 					crontab = sku.autogen_rule.crontab || '*_*_*_*_*';
 					$scope2.data = crontab.split('_');

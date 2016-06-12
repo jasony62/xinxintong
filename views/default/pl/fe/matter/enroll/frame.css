@@ -6,8 +6,9 @@ body{background:#f8f8f8;padding-top:71px;}
 .tile>.form-group.compact{margin-bottom:0;}
 .tile>.form-group:last-child{margin-bottom:0;}
 
-/*app*/
-#app-view .list-group-item.page{cursor:pointer;}
+/*app-setting*/
+#appSetting .checkbox{display:block;}
+#appSetting .checkbox input{margin-right:.5em;}
 
 /*pages*/
 .page-editor{position:relative;float:left;width:550px;}

@@ -1,4 +1,4 @@
-xxtApp.controller('sendCtrl', ['$scope', 'http2', '$modal', function($scope, http2, $modal) {
+xxtApp.controller('sendCtrl', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
     $scope.matterType = 'text';
     $scope.page = {
         at: 1,
@@ -75,7 +75,7 @@ xxtApp.controller('sendCtrl', ['$scope', 'http2', '$modal', function($scope, htt
         }
     };
     $scope.openUserPicker = function() {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'userPicker.html',
             controller: 'SendMatterController',
             backdrop: 'static',
@@ -105,10 +105,10 @@ xxtApp.controller('sendCtrl', ['$scope', 'http2', '$modal', function($scope, htt
     });
     $scope.fetchMatter();
 }]);
-xxtApp.controller('SendMatterController', ['$scope', '$modalInstance', 'userSetAsParam', function($scope, $modalInstance, userSetAsParam) {
+xxtApp.controller('SendMatterController', ['$scope', '$uibModalInstance', 'userSetAsParam', function($scope, $mi, userSetAsParam) {
     $scope.userSet = {};
     $scope.cancel = function() {
-        $modalInstance.dismiss();
+        $mi.dismiss();
     };
     $scope.ok = function() {
         var data, targetUser;
@@ -117,6 +117,6 @@ xxtApp.controller('SendMatterController', ['$scope', '$modalInstance', 'userSetA
             targetUser: targetUser
         };
         data.userSet = userSetAsParam.convert($scope.userSet);
-        $modalInstance.close(data);
+        $mi.close(data);
     };
 }]);

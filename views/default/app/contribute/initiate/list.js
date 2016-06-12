@@ -1,4 +1,4 @@
-xxtApp.controller('initiateCtrl', ['$scope', '$location', 'http2', '$modal', 'Article', 'Entry', function($scope, $location, http2, $modal, Article, Entry) {
+xxtApp.controller('initiateCtrl', ['$scope', '$location', 'http2', '$uibModal', 'Article', 'Entry', function($scope, $location, http2, $uibModal, Article, Entry) {
     $scope.phases = {
         'I': '未送审',
         'R': '审核中',
@@ -29,9 +29,9 @@ xxtApp.controller('initiateCtrl', ['$scope', '$location', 'http2', '$modal', 'Ar
         }
     };
     $scope.upload = function() {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'uploadArticle.html',
-            controller: ['$scope', '$modalInstance', 'mpid', 'entry', function($scope, $mi, mpid, entry) {
+            controller: ['$scope', '$uibModalInstance', 'mpid', 'entry', function($scope, $mi, mpid, entry) {
                 $scope.cancel = function() {
                     $mi.dismiss();
                 };

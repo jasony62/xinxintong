@@ -1,4 +1,4 @@
-xxtApp.controller('pageCtrl', ['$rootScope', '$scope', 'http2', '$timeout', '$modal', function($rootScope, $scope, http2, $timeout, $modal) {
+xxtApp.controller('pageCtrl', ['$rootScope', '$scope', 'http2', '$timeout', '$uibModal', function($rootScope, $scope, http2, $timeout, $uibModal) {
     htmlEditor = ace.edit("htmlEditor");
     htmlEditor.setTheme("ace/theme/twilight");
     htmlEditor.getSession().setMode("ace/mode/html");
@@ -45,20 +45,20 @@ xxtApp.controller('pageCtrl', ['$rootScope', '$scope', 'http2', '$timeout', '$mo
         }, 100);
     };
     $scope.addExternal = function(type) {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'external.html',
-            controller: function($scope, $modalInstance) {
+            controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                 $scope.external = {
                     url: '',
                     type: type
                 };
                 $scope.close = function() {
-                    $modalInstance.dismiss('cancel');
+                    $mi.dismiss('cancel');
                 };
                 $scope.confirm = function() {
-                    $modalInstance.close($scope.external);
+                    $mi.close($scope.external);
                 };
-            }
+            }]
         }).result.then(function(rst) {
             http2.post('/rest/code/addExternal?id=' + $scope.page.id, rst, function(rsp) {
                 if (type === 'J')

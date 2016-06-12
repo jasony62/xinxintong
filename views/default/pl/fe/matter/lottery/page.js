@@ -1,9 +1,9 @@
 (function() {
-    ngApp.provider.controller('ctrlPage', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+    ngApp.provider.controller('ctrlPage', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
         $scope.setPage = function() {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: "pageSetting.html",
-                controller: ['$scope', '$modalInstance', function($scope2, $mi) {
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     $scope2.patterns = [{
                         l: '基本',
                         v: 'basic'

@@ -1,4 +1,4 @@
-xxtApp.controller('ctrlFeature', ['$scope', 'http2', '$modal', function($scope, http2, $modal) {
+xxtApp.controller('ctrlFeature', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
     $scope.update = function(name, callback) {
         var p = {};
         p[name] = $scope.features[name];
@@ -52,9 +52,9 @@ xxtApp.controller('ctrlFeature', ['$scope', 'http2', '$modal', function($scope, 
     $scope.previewFollow = function(event) {
         event.preventDefault();
         event.stopPropagation();
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'preview.html',
-            controller: ['$scope', '$modalInstance', function($scope2, $mi) {
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                 $scope2.page = {
                     src: '/rest/mp/feature/askFollow?mpid=' + $scope.features.mpid
                 };

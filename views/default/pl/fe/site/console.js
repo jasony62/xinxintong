@@ -8,7 +8,7 @@ app.controller('ctrlSite', ['$scope', '$location', 'http2', function($scope, $lo
         $scope.site = rsp.data;
     });
 }]);
-app.controller('ctrlConsole', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+app.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
     $scope.matterType = 'recent';
     $scope.open = function(matter) {
         var type = $scope.matterType === 'recent' ? matter.matter_type : $scope.matterType,
@@ -162,12 +162,12 @@ app.controller('ctrlConsole', ['$scope', '$modal', 'http2', function($scope, $mo
         });
     };
     $scope.addEnrollByTemplate = function() {
-        $modal.open({
+        $uibModal.open({
             templateUrl: '/views/default/pl/fe/_module/enroll-template.html',
             size: 'lg',
             backdrop: 'static',
             windowClass: 'auto-height template',
-            controller: ['$scope', '$modalInstance', function($scope2, $mi) {
+            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                 $scope2.data = {};
                 $scope2.cancel = function() {
                     $mi.dismiss();

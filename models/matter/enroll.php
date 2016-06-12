@@ -59,6 +59,35 @@ class enroll_model extends app_base {
 		return $app;
 	}
 	/**
+	 * 返回登记活动列表
+	 */
+	public function &bySite($site, $page = 1, $size = 30, $mission = null, $scenario = null) {
+		$result = array();
+
+		$q = array(
+			'*',
+			'xxt_enroll a',
+			"siteid='$site' and state<>0",
+		);
+		if (!empty($scenario)) {
+			$q[2] .= " and scenario='$scenario'";
+		}
+		if (!empty($mission)) {
+			$q[2] .= " and exists(select 1 from xxt_mission_matter where mission_id='$mission' and matter_type='enroll' and matter_id=a.id)";
+		}
+		$q2['o'] = 'a.modify_at desc';
+		$q2['r']['o'] = ($page - 1) * $size;
+		$q2['r']['l'] = $size;
+		if ($a = $this->query_objs_ss($q, $q2)) {
+			$result['apps'] = $a;
+			$q[0] = 'count(*)';
+			$total = (int) $this->query_val_ss($q);
+			$result['total'] = $total;
+		}
+
+		return $result;
+	}
+	/**
 	 * 更新登记活动标签
 	 */
 	public function updateTags($aid, $tags) {

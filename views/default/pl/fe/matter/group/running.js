@@ -1,5 +1,5 @@
 (function() {
-	ngApp.provider.controller('ctrlRunning', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+	ngApp.provider.controller('ctrlRunning', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
 		$scope.opUrl = 'http://' + location.host + '/rest/site/op/matter/group?site=' + $scope.siteId + '&app=' + $scope.id;
 		$scope.gotoCode = function() {
 			var app, url;
@@ -33,7 +33,7 @@
 			});
 		};
 		$scope.editPlayer = function(player) {
-			$modal.open({
+			$uibModal.open({
 				templateUrl: 'editorPlayer.html',
 				controller: 'ctrlEditor',
 				windowClass: 'auto-height',
@@ -58,7 +58,7 @@
 			});
 		};
 		$scope.addPlayer = function() {
-			$modal.open({
+			$uibModal.open({
 				templateUrl: 'editorPlayer.html',
 				controller: 'ctrlEditor',
 				windowClass: 'auto-height',

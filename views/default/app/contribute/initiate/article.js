@@ -7,7 +7,7 @@ xxtApp.config(['$routeProvider', function($routeProvider) {
         controller: 'reviewlogCtrl',
     });
 }]);
-xxtApp.controller('initiateCtrl', ['$scope', '$location', '$modal', 'http2', 'Article', 'Entry', 'Reviewlog', function($scope, $location, $modal, http2, Article, Entry, Reviewlog) {
+xxtApp.controller('initiateCtrl', ['$scope', '$location', '$uibModal', 'http2', 'Article', 'Entry', 'Reviewlog', function($scope, $location, $uibModal, http2, Article, Entry, Reviewlog) {
     $scope.phases = {
         'I': '投稿',
         'R': '审核',
@@ -177,9 +177,9 @@ xxtApp.controller('initiateCtrl', ['$scope', '$location', '$modal', 'http2', 'Ar
                 return;
             }
         }
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'review-list.html',
-            controller: ['$scope', '$modalInstance', 'reviewers', function($scope, $mi, reviewers) {
+            controller: ['$scope', '$uibModalInstance', 'reviewers', function($scope, $mi, reviewers) {
                 $scope.reviewers = reviewers;
                 $scope.data = {
                     selected: '0'

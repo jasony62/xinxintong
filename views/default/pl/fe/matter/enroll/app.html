@@ -22,61 +22,36 @@
                     </div>
                 </div>
                 <div class="navbar-form navbar-right">
-                    <button class='btn btn-success' ng-click="publish()">发布</button>
+                    <button uib-popover-template="'appSetting.html'" popover-placement="bottom" popover-title="应用设置" popover-trigger="outsideClick" type="button" class="btn btn-default">活动设置 <span class="caret"></span></button>
+                    <button class='btn btn-success' ng-click="publish()">收集数据</button>
                     <button class='btn btn-default' ng-click="remove()">删除</button>
                 </div>
             </div>
         </nav>
-        <div class='form-group' style='display:none'>
-            <label class='checkbox-inline'>
-                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_header' ng-change="update('use_site_header');">使用站点页眉</label>
-            <label class='checkbox-inline'>
-                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_footer' ng-change="update('use_site_footer');">使用站点页脚</label>
-        </div>
-        <div class='form-group' style='display:none' ng-if="app.mission_id>0">
-            <label class='checkbox-inline'>
-                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_header' ng-change="update('use_mission_header');">使用项目页眉</label>
-            <label class='checkbox-inline'>
-                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_footer' ng-change="update('use_mission_footer');">使用项目页脚</label>
-        </div>
-        <div class='tile' ng-if="app.state==='2'" style='display:none'>
-            <div class='form-group'>
-                <div style='height:auto;word-break:break-all' ng-bind='url'></div>
-            </div>
-        </div>
         <div class='tile' ng-if="app.state==='2'" style='display:none'>
             <a href='/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}'>登记结果</a>
         </div>
     </div>
     <!--app-->
-    <!--page-->
+    <!--pages-->
+    <div class='col-md-12'>
+        <div class="container-fluid">
+            <ul class="nav nav-pills">
+                <li role="presentation" ng-class="{'active':p===ep}" ng-repeat="p in app.pages">
+                    <a href="#" ng-click="choosePage(p)"><span>{{p.title}}</span></a>
+                </li>
+                <ul class="navbar-form navbar-right">
+                    <button uib-popover-template="'pageSetting.html'" popover-placement="bottom" popover-title="页面设置" popover-trigger="outsideClick" class="btn btn-default">页面设置 <span class="caret"></span></button>
+                </ul>
+            </ul>
+        </div>
+    </div>
+    <!--pages-->
+    <!--one page-->
     <div class='col-md-12 page' ng-controller="ctrlPage">
         <div class='row'>
             <div class='col-md-3'>
-                <!--pages-->
-                <div class='tile'>
-                    <div class='list-group'>
-                        <div class='list-group-item page' ng-class="{'active':p===ep}" ng-repeat="p in app.pages" ng-click='choosePage(p)' ng-bind="p.title">
-                        </div>
-                    </div>
-                    <div class='clearfix' style='line-height:34px'>
-                        <span>所有页面</span>
-                        <a class='btn btn-default pull-right' title='设置进入规则' href='/rest/pl/fe/matter/enroll/config?site={{siteId}}&id={{id}}'><span class='glyphicon glyphicon-cog'></span></a>
-                    </div>
-                </div>
-                <!--pages-->
-                <div class='tile'>
-                    <div class='list-group' ng-if="ep.type==='I'" ng-controller="ctrlAppSchemas4Input">
-                        <div class='list-group-item schema' ng-repeat="s in appSchemas">
-                            <div class='checkbox' style='margin:0;padding:0' ng-mouseenter="entered=true" ng-mouseleave="entered=false">
-                                <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
-                                <button ng-if="entered" type="button" class="close" ng-click="remove(s)"><span aria-hidden="true">&times;</span></button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class='help-block'>所有登记项</div>
-                </div>
-                <!--create wrap-->
+                <!--create input wrap-->
                 <div class='form-group tile' ng-if="ep.type==='I'">
                     <button class='btn btn-default' ng-click="newSchema('name')">姓名</button>
                     <button class='btn btn-default' ng-click="newSchema('mobile')">手机</button>
@@ -89,10 +64,28 @@
                     <button class='btn btn-default' ng-click="newSchema('image')">上传图片</button>
                     <button class='btn btn-default' ng-click="newSchema('file')">上传文件</button>
                     <button class='btn btn-default' ng-click="newSchema('location')">上传位置</button>
+                    <button class='btn btn-default' ng-click="newSchema('phase')">项目阶段</button>
                     <button class='btn btn-default' ng-click="newMember()">自定义用户信息</button>
                     <div class='help-block'>添加登记项</div>
                 </div>
-                <!--create wrap-->
+                <!--create input wrap-->
+                <!--create button wrap-->
+                <div class='tile'>
+                    <button class='btn btn-default' ng-click="newButton(btn)" ng-repeat="btn in buttons">{{btn.l}}</button>
+                    <div class='help-block'>添加操作</div>
+                </div>
+                <!--create button wrap-->
+                <div class='tile' ng-if="ep.type==='I'">
+                    <div class='list-group' ng-controller="ctrlAppSchemas4Input">
+                        <div class='list-group-item schema' ng-repeat="s in appSchemas">
+                            <div class='checkbox' style='margin:0;padding:0' ng-mouseenter="entered=true" ng-mouseleave="entered=false">
+                                <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
+                                <button ng-if="entered" type="button" class="close" ng-click="remove(s)"><span aria-hidden="true">&times;</span></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class='help-block'>所有登记项</div>
+                </div>
                 <div ng-if="ep.type==='V'" ng-controller="ctrlAppSchemas4View">
                     <div class='list-group-item' ng-repeat="s in appSchemas">
                         <div class='checkbox' style='margin:0'>
@@ -106,11 +99,8 @@
                     </div>
                 </div>
                  <div class='tile' ng-if="ep.type==='L'">
-                    <button class='btn btn-default' ng-click="addRecordList()">登记项列表</button>
-                    <button class='btn btn-default' ng-click="addRoundList()" ng-if="app.scenarioConfig.can_rounds==='Y'">添加登记项列表</button>
-                </div>
-                <div class='tile'>
-                    <button class='btn btn-default' ng-click="addButton()">添加操作</button>
+                    <button class='btn btn-default' ng-click="newList('records')">登记项列表</button>
+                    <button class='btn btn-default' ng-click="newList('rounds')" ng-if="app.scenarioConfig.can_rounds==='Y'">添加轮次列表</button>
                 </div>
             </div>
             <!--tinymce editor-->
@@ -124,32 +114,23 @@
                         <button class='btn btn-default' ng-click="embedMatter()" title='添加素材'>
                         <i class='fa fa-file fa-fw'></i>
                         </button>
-                        <button class='btn btn-default' ng-click="removeWrap()" title='删除' ng-disabled='!hasActiveWrap'>
+                        <button class='btn btn-default' ng-click="removeWrap()" title='删除' ng-disabled='!activeWrap'>
                         <i class='fa fa-remove fa-fw'></i>
                         </button>
-                        <button class='btn btn-default' ng-click="upWrap()" ng-disabled='!hasActiveWrap'>
+                        <button class='btn btn-default' ng-click="moveWrap('up')" ng-disabled='!activeWrap'>
                         <span class='fa fa-arrow-up fa-fw'></span>
                         </button>
-                        <button class='btn btn-default' ng-click="downWrap()" ng-disabled='!hasActiveWrap'>
+                        <button class='btn btn-default' ng-click="moveWrap('down')" ng-disabled='!activeWrap'>
                         <span class='fa fa-arrow-down fa-fw'></span>
                         </button>
-                        <button class='btn btn-default' title='上一级' ng-click="upLevel()" ng-disabled='!hasActiveWrap||activeWrap.upmost'>
+                        <button class='btn btn-default' title='上一级' ng-click="moveWrap('upLevel')" ng-disabled='!activeWrap||activeWrap.upmost'>
                         <span class='fa fa-level-up fa-fw'></span>
                         </button>
-                        <button class='btn btn-default' title='下一级' ng-click="downLevel()" ng-disabled='!hasActiveWrap||activeWrap.downmost'>
+                        <button class='btn btn-default' title='下一级' ng-click="moveWrap('downLevel')" ng-disabled='!activeWrap||activeWrap.downmost'>
                         <i class='fa fa-level-down fa-fw'></i>
-                        </button>
-                        <button class='btn btn-default' title='页面设置' ng-click="gotoPageConfig()">
-                        <i class='fa fa-cog fa-fw'></i>
                         </button>
                         <button class='btn btn-default' title='编辑代码' ng-click="gotoCode()">
                         <i class='fa fa-code fa-fw'></i>
-                        </button>
-                        <button class='btn btn-default' title='添加页面' ng-click="addPage()">
-                        <i class='fa fa-file-o fa-fw'></i>
-                        </button>
-                        <button class='btn btn-default' title='删除页面' ng-click="delPage()">
-                        <i class='fa fa-trash fa-fw'></i>
                         </button>
                     </div>
                 </div>
@@ -157,8 +138,8 @@
             <!--tinymce editor-->
             <div class='col-md-3'>
                 <!--wrap editor-->
-                <div class='tile' ng-if="activeSchema">
-                    <div class='form-group' ng-include="wrapEditorHtml(activeWrap)">
+                <div class='tile' ng-if="activeWrap">
+                    <div class='form-group' ng-include="wrapEditorHtml()">
                     </div>
                 </div>
                 <!--wrap editor-->
@@ -167,29 +148,46 @@
     </div>
     <!--page-->
 </div>
-<script type="text/ng-template" id="memberSchema.html">
-    <div class="modal-header">
-        <button class="close" ng-click="cancel()" type="button">×</button>
-        <h5 class="modal-title">内容</h5>
-    </div>
-    <div class="modal-body">
-        <form class="form-horizontal" role="form">
-            <div class="form-group">
-                <label class="col-md-3 control-label">自定义用户</label>
-                <div class="col-md-9">
-                    <select class='form-control' ng-model='data.memberSchema' ng-options='ms.title for ms in memberSchemas' ng-change='shiftSchema()'></select>
-                    <select class='form-control' ng-model='data.attr' ng-options='a.label for a in data.attrs' ng-change="shiftAttr()"></select>
-                </div>
+<script type="text/ng-template" id="appSetting.html">
+    <div id="appSetting">
+        <div class='tile'>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_header' ng-change="update('use_site_header');">使用站点页眉</label>
             </div>
-            <div class="form-group">
-                <label class="col-md-3 control-label">名称</label>
-                <div class="col-md-9">
-                    <input type='text' class='form-control' ng-model='schema.title' required>
-                </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_footer' ng-change="update('use_site_footer');">使用站点页脚</label>
             </div>
-        </form>
-    </div>
-    <div class="modal-footer" style="margin-top:0">
-        <button class="btn btn-success" ng-click="ok()">确定</button>
-    </div>
+        </div>
+        <div class='tile' ng-if="app.mission_id>0">
+            <div class='checkbox'>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_header' ng-change="update('use_mission_header');">使用项目页眉</label>
+            </div>
+            <div class='checkbox'>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_footer' ng-change="update('use_mission_footer');">使用项目页脚</label>
+            </div>
+        </div>
+        <div class='tile' ng-if="app.state==='2'">
+            <div class='form-group'>
+                <div style='height:auto;word-break:break-all' ng-bind='url'></div>
+            </div>
+        </div>
+    <div>
+</script>
+<script type="text/ng-template" id="pageSetting.html">
+    <div id="pageSetting">
+        <div class='form-group'>
+            <input type='text' class='form-control' ng-model="ep.title" tms-auto-update tms-wait=1000 tms-update="updPage(ep,'title')">
+        </div>
+        <hr>
+        <button class='btn btn-block btn-default' ng-click="gotoPageConfig()">修改页面</button>
+        <button class='btn btn-block btn-default' ng-click="delPage()">删除页面</button>
+        <hr>
+        <button class='btn btn-block btn-default' ng-click="addPage()">添加页面</button>
+        <hr>
+        <a href="/rest/pl/fe/matter/enroll/config?site={{siteId}}&id={{id}}">活动进入规则</a>
+    <div>
 </script>

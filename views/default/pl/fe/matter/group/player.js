@@ -1,5 +1,5 @@
 (function() {
-    ngApp.provider.controller('ctrlRecord', ['$scope', 'http2', '$modal', function($scope, http2, $modal) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
         $scope.doSearch = function(page) {
             var url;
             page && ($scope.page.at = page);
@@ -35,9 +35,9 @@
         $scope.selected = {};
         $scope.selectAll;
         $scope.tagByData = function() {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'tagByData.html',
-                controller: ['$scope', '$modalInstance', function($scope2, $mi) {
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     $scope2.data = {
                         filter: {},
                         tag: ''
@@ -157,7 +157,7 @@
             }
         };
         $scope.editPlayer = function(player) {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'editorPlayer.html',
                 controller: 'ctrlEditor',
                 windowClass: 'auto-height',
@@ -182,7 +182,7 @@
             });
         };
         $scope.addPlayer = function() {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'editorPlayer.html',
                 controller: 'ctrlEditor',
                 windowClass: 'auto-height',

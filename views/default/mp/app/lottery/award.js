@@ -1,5 +1,5 @@
 (function() {
-    xxtApp.register.controller('awardCtrl', ['$scope', '$modal', 'http2', function($scope, $modal, http2) {
+    xxtApp.register.controller('awardCtrl', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
         $scope.$parent.subView = 'award';
         $scope.addAward = function() {
             http2.get('/rest/mp/app/lottery/award/add?lottery=' + $scope.lid + '&mpid=' + $scope.lottery.mpid, function(rsp) {
@@ -8,9 +8,9 @@
             });
         };
         $scope.batchAward = function() {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'batchAward.html',
-                controller: ['$scope', '$modalInstance', function($scope2, $mi) {
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     $scope2.option = {
                         quantity: 1,
                         award: {
@@ -42,10 +42,10 @@
             });
         };
         $scope.openAward = function(award) {
-            $modal.open({
+            $uibModal.open({
                 templateUrl: 'awardEditor.html',
                 windowClass: 'auto-height',
-                controller: ['$scope', '$modalInstance', function($scope2, $mi) {
+                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     $scope2.award = angular.copy(award);
                     $scope2.close = function() {
                         $mi.dismiss();

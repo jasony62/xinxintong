@@ -1,4 +1,4 @@
-xxtApp.controller('myNewsCtrl', ['$location', '$scope', '$modal', 'http2', 'News', function ($location, $scope, $modal, http2, News) {
+xxtApp.controller('myNewsCtrl', ['$location', '$scope', 'http2', 'News', function ($location, $scope, http2, News) {
     $scope.back = function (event) {
         event.preventDefault();
         history.back();

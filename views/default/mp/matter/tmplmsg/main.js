@@ -43,7 +43,7 @@ app.controller('editCtrl', ['$scope', 'http2', function($scope, http2) {
         });
     };
 }]);
-app.controller('sendCtrl', ['$rootScope', '$scope', 'http2', '$modal', function($rootScope, $scope, http2, $modal) {
+app.controller('sendCtrl', ['$rootScope', '$scope', 'http2', '$uibModal', function($rootScope, $scope, http2, $uibModal) {
     $scope.matterTypes = [{
         value: 'article',
         title: '单图文',
@@ -61,7 +61,7 @@ app.controller('sendCtrl', ['$rootScope', '$scope', 'http2', '$modal', function(
     $scope.data = {};
     $scope.matter = null;
     $scope.startUserPicker = function() {
-        $modal.open({
+        $uibModal.open({
             templateUrl: 'userPicker.html',
             controller: 'userPickerCtrl',
             backdrop: 'static',
@@ -114,7 +114,7 @@ app.controller('logCtrl', ['$scope', 'http2', function($scope, http2) {
     };
     $scope.doSearch();
 }])
-app.controller('userPickerCtrl', ['$scope', '$modalInstance', 'userSetAsParam', function($scope, $mi, userSetAsParam) {
+app.controller('userPickerCtrl', ['$scope', '$uibModalInstance', 'userSetAsParam', function($scope, $mi, userSetAsParam) {
     $scope.userSet = {};
     $scope.cancel = function() {
         $mi.dismiss();

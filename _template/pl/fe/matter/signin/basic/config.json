@@ -3,17 +3,27 @@
 	"pages": [{
 		"name": "signin",
 		"title": "签到页",
-		"type": "S",
+		"type": "I",
 		"data_schemas": [{
-			"id": "name",
-			"title": "名称",
-			"type": "name",
-			"showname": "label"
+			"schema": {
+				"id": "name",
+				"title": "名称",
+				"type": "name"
+			},
+			"config": {
+				"showname": "label",
+				"required": "Y"
+			}
 		}, {
-			"id": "mobile",
-			"title": "手机",
-			"type": "mobile",
-			"showname": "label"
+			"schema": {
+				"id": "mobile",
+				"title": "手机",
+				"type": "mobile"
+			},
+			"config": {
+				"showname": "label",
+				"required": "Y"
+			}
 		}],
 		"act_schemas": [{
 			"id": "act1",
@@ -26,56 +36,91 @@
 		"title": "签到成功页",
 		"type": "V",
 		"data_schemas": [{
-			"id": "s1",
-			"pattern": "record",
-			"inline": "Y",
-			"splitLine": "Y",
+			"config": {
+				"id": "s1",
+				"pattern": "record",
+				"inline": "Y",
+				"splitLine": "Y"
+			},
 			"schema": {
 				"id": "name",
 				"title": "名称",
-				"type": "name",
-				"showname": "label"
+				"type": "name"
 			}
 		}, {
-			"id": "s2",
-			"pattern": "record",
-			"inline": "Y",
-			"splitLine": "Y",
+			"config": {
+				"id": "s2",
+				"pattern": "record",
+				"inline": "Y",
+				"splitLine": "Y"
+			},
 			"schema": {
 				"id": "mobile",
 				"title": "手机",
-				"type": "mobile",
-				"showname": "label"
+				"type": "mobile"
 			}
 		}],
 		"act_schemas": [{
 			"id": "act2",
 			"name": "editRecord",
-			"label": "重新签到",
+			"label": "修改签到信息",
+			"next": "signin"
+		}]
+	}, {
+		"name": "failure",
+		"title": "签到失败页",
+		"type": "V",
+		"data_schemas": [{
+			"config": {
+				"id": "s1",
+				"pattern": "record",
+				"inline": "Y",
+				"splitLine": "Y"
+			},
+			"schema": {
+				"id": "name",
+				"title": "名称",
+				"type": "name"
+			}
+		}, {
+			"config": {
+				"id": "s2",
+				"pattern": "record",
+				"inline": "Y",
+				"splitLine": "Y"
+			},
+			"schema": {
+				"id": "mobile",
+				"title": "手机",
+				"type": "mobile"
+			}
+		}],
+		"act_schemas": [{
+			"id": "act2",
+			"name": "editRecord",
+			"label": "修改签到信息",
 			"next": "signin"
 		}, {
 			"id": "act3",
 			"name": "gotoEnroll",
-			"label": "修改报名信息"
+			"label": "填写报名信息"
 		}]
 	}],
 	"schema": [{
 		"id": "name",
 		"title": "名称",
-		"type": "name",
-		"showname": "label"
+		"type": "name"
 	}, {
 		"id": "mobile",
 		"title": "手机",
-		"type": "mobile",
-		"showname": "label"
+		"type": "mobile"
 	}],
 	"entryRule": {
-		"signed": {
+		"success": {
 			"entry": "success"
 		},
-		"enrolled": {
-			"entry": "signin"
+		"fail": {
+			"entry": "failure"
 		},
 		"otherwise": {
 			"entry": "signin"

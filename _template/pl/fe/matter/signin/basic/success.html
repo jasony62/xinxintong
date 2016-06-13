@@ -1,9 +1,8 @@
-<div id="s1" class="form-group wrap-inline wrap-splitline" wrap="static" ng-controller="ctrlRecord" schema="name"><label>姓名</label>
+<div id="s1" class="form-group wrap-inline wrap-splitline" wrap="static" ng-controller="ctrlRecord" schema="name" schema-type="name"><label>姓名</label>
 <div>{{Record.current.data.name}}</div>
 </div>
-<div id="s2" class="form-group wrap-inline wrap-splitline" wrap="static" ng-controller="ctrlRecord" schema="mobile"><label>手机</label>
+<div id="s2" class="form-group wrap-inline wrap-splitline" wrap="static" ng-controller="ctrlRecord" schema="mobile" schema-type="mobile"><label>手机</label>
 <div>{{Record.current.data.mobile}}</div>
 </div>
 <div wrap="text" class="form-group">签到成功！</div>
-<div id="act2" class="form-group" wrap="button" ng-controller="ctrlRecord"><button class="btn btn-primary btn-block btn-lg" ng-click="editRecord($event,'signin')"><span>信息修改</span></button></div>
-<div id="act3" class="form-group" wrap="button" ng-controller="ctrlRecord"><button class="btn btn-primary btn-block btn-lg" ng-click="gotoEnroll($event)"><span>填写报名信息</span></button></div>
+<div id="act2" class="form-group" wrap="button" ng-controller="ctrlRecord"><button class="btn btn-primary btn-block btn-lg" ng-click="editRecord($event,'signin')"><span>修改签到信息</span></button></div>

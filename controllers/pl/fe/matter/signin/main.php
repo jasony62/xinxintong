@@ -90,7 +90,7 @@ class main extends \pl\fe\matter\base {
 		if (!empty($enrollApp)) {
 			$enrollApp = $this->model('matter\enroll')->byId(
 				$enrollApp,
-				array('fields' => 'data_schemas', 'cascaded' => 'N')
+				array('fields' => 'id,data_schemas', 'cascaded' => 'N')
 			);
 			$newapp['enroll_app_id'] = $enrollApp->id;
 		}
@@ -121,18 +121,13 @@ class main extends \pl\fe\matter\base {
 		if (JSON_ERROR_NONE !== json_last_error()) {
 			return new \ResponseError('解析模版数据错误：' . json_last_error_msg());
 		}
-		/*登记数据*/{
-			if (!empty($templateConfig->schema)) {
-				$newapp['data_schemas'] = \TMS_MODEL::toJson($templateConfig->schema);
-			}
+		/*登记数据*/
+		if (!empty($templateConfig->schema)) {
+			$newapp['data_schemas'] = \TMS_MODEL::toJson($templateConfig->schema);
 		}
-
 		/*进入规则*/
 		if (isset($templateConfig->entryRule)) {
 			$newapp['entry_rule'] = \TMS_MODEL::toJson($templateConfig->entryRule);
-		}
-		if (isset($templateConfig->enrolled_entry_page)) {
-			$newapp['enrolled_entry_page'] = $templateConfig->enrolled_entry_page;
 		}
 		/*create app*/
 		$newapp['siteid'] = $site->id;

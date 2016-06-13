@@ -58,7 +58,7 @@
         set: function(title, link, desc, img, fnOther) {
             if (/Android/i.test(navigator.userAgent) || /iPhone/i.test(navigator.userAgent) || /iPad/i.test(navigator.userAgent)) {
                 img && img.length && img.indexOf('http') === -1 && (img = 'http://' + location.hostname + img);
-                if (/MicroMessenger/i.test(navigator.userAgent)) {
+                if (/MicroMessenger/i.test(navigator.userAgent) && window.wx !== undefined) {
                     window.wx.ready(function() {
                         setWxShare(title, link, desc, img);
                     });

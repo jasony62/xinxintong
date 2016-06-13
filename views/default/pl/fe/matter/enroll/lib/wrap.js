@@ -256,6 +256,7 @@ define([], function() {
             })(this);
         } else if ('multiple' === schema.type) {
             (function(lib) {
+                var html;
                 if (schema.ops && schema.ops.length > 0) {
                     html = lib._htmlMultiple(dataWrap);
                     $wrap.children('ul').remove();
@@ -265,20 +266,24 @@ define([], function() {
         }
     };
     InputWrap.prototype.dataByDom = function(domWrap, page) {
-        var $wrap, $label, schema = {};
+        var $wrap, oWrap, $label, schema = {};
         $wrap = $(domWrap);
         schema.id = $wrap.attr('schema');
 
         if (page) {
-            return page.wrapBySchema(schema);
-        } else {
-            schema.type = $wrap.attr('schema-type');
-            $label = $wrap.children('label');
-            schema.title = $label.html();
-            return {
-                schema: schema
-            };
+            oWrap = page.wrapBySchema(schema);
         }
+
+        if (oWrap) return oWrap;
+
+        /*返回模拟的*/
+        schema.type = $wrap.attr('schema-type');
+        $label = $wrap.children('label');
+        schema.title = $label.html();
+        return {
+            config: {},
+            schema: schema
+        };
     };
     /**
      * value wrap class 

@@ -53,6 +53,7 @@ define(['frame'], function(ngApp) {
             tags: [],
             searchBy: 'nickname',
             orderBy: 'time',
+            byRound: '',
             joinParams: function() {
                 var p;
                 p = '&page=' + this.at + '&size=' + this.size;
@@ -70,17 +71,8 @@ define(['frame'], function(ngApp) {
             v: 'nickname'
         }];
         $scope.orderBys = [{
-            n: '登记时间',
+            n: '签到时间',
             v: 'time'
-        }, {
-            n: '邀请数',
-            v: 'follower'
-        }, {
-            n: '点赞数',
-            v: 'score'
-        }, {
-            n: '评论数',
-            v: 'remark'
         }];
         var current, startAt, endAt;
         current = new Date();
@@ -195,6 +187,7 @@ define(['frame'], function(ngApp) {
                         });
                     }
                     record.data = data;
+                    record.verified = rsp.data.verified;
                     //$scope.app.tags = tags;
                 });
             });
@@ -379,6 +372,7 @@ define(['frame'], function(ngApp) {
             if ($scope.record.id) {
                 p.signin_at = $scope.record.signin_at;
             }
+            p.verified = $scope.record.verified;
             angular.forEach($scope.app.data_schemas, function(col) {
                 p.data[col.id] = $scope.record.data[col.id];
             });

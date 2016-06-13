@@ -127,10 +127,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		$scope.gotoPageConfig = function() {
 			location = '/rest/pl/fe/matter/signin/page?site=' + $scope.siteId + '&id=' + $scope.id + '&page=' + $scope.ep.name;
 		};
-		$scope.$on('xxt.tms-datepicker.change', function(event, data) {
-			$scope.app[data.state] = data.value;
-			$scope.update(data.state);
-		});
 		$scope.$watch('app', function(app) {
 			if (!app) return;
 			$scope.ep = app.pages[0];
@@ -307,6 +303,11 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			$scope.schema.id = 'member.' + attr.id;
 			$scope.schema.title = attr.label;
 		};
+		$scope.$watch('schema.ops', function(nv, ov) {
+			if (nv !== ov) {
+				$scope.updWrap('schema', 'ops');
+			}
+		}, true);
 		$scope.$watch('schema.setUpper', function(nv) {
 			if (nv === 'Y') {
 				$scope.schema.upper = $scope.schema.ops ? $scope.schema.ops.length : 0;

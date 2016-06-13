@@ -17,20 +17,6 @@ define(['require', 'page'], function(require, pageLib) {
 					return defer.promise;
 				}
 			}
-		}).when('/rest/pl/fe/matter/signin/event', {
-			templateUrl: '/views/default/pl/fe/matter/signin/event.html?_=2',
-			controller: 'ctrlEntry',
-			resolve: {
-				load: function($q) {
-					var defer = $q.defer();
-					(function() {
-						$.getScript('/views/default/pl/fe/matter/signin/event.js', function() {
-							defer.resolve();
-						});
-					})();
-					return defer.promise;
-				}
-			}
 		}).when('/rest/pl/fe/matter/signin/record', {
 			templateUrl: '/views/default/pl/fe/matter/signin/record.html?_=3',
 			controller: 'ctrlRecord',
@@ -83,22 +69,20 @@ define(['require', 'page'], function(require, pageLib) {
 					return defer.promise;
 				}
 			}
-		}).when('/rest/pl/fe/matter/signin/config', {
-			templateUrl: '/views/default/pl/fe/matter/signin/config.html?_=2',
-			controller: 'ctrlConfig',
+		}).when('/rest/pl/fe/matter/signin/event', {
+			templateUrl: '/views/default/pl/fe/matter/signin/event.html?_=6',
+			controller: 'ctrlEvent',
 			resolve: {
 				load: function($q) {
 					var defer = $q.defer();
-					(function() {
-						$.getScript('/views/default/pl/fe/matter/signin/config.js', function() {
-							defer.resolve();
-						});
-					})();
+					require(['/views/default/pl/fe/matter/signin/event.js'], function() {
+						defer.resolve();
+					});
 					return defer.promise;
 				}
 			}
 		}).otherwise({
-			templateUrl: '/views/default/pl/fe/matter/signin/app.html?_=1',
+			templateUrl: '/views/default/pl/fe/matter/signin/app.html?_=2',
 			controller: 'ctrlApp',
 			resolve: {
 				load: function($q) {
@@ -142,9 +126,7 @@ define(['require', 'page'], function(require, pageLib) {
 			return defer.promise;
 		};
 		$scope.update = function(name) {
-			if (['entry_rule'].indexOf(name) !== -1) {
-				modifiedData[name] = encodeURIComponent($scope.app[name]);
-			} else if (name === 'tags') {
+			if (name === 'tags') {
 				modifiedData.tags = $scope.app.tags.join(',');
 			} else {
 				modifiedData[name] = $scope.app[name];
@@ -156,7 +138,7 @@ define(['require', 'page'], function(require, pageLib) {
 		$scope.createPage = function() {
 			var deferred = $q.defer();
 			$uibModal.open({
-				templateUrl: '/views/default/pl/fe/matter/signin/component/createPage.html?_=2',
+				templateUrl: '/views/default/pl/fe/matter/signin/component/createPage.html?_=3',
 				backdrop: 'static',
 				controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
 					$scope.options = {};
@@ -189,6 +171,7 @@ define(['require', 'page'], function(require, pageLib) {
 				angular.forEach(app.data_schemas, function(schema) {
 					mapOfAppSchemas[schema.id] = schema;
 				});
+				!app.entry_rule && (app.entry_rule = {});
 				app.entry_rule.scope === undefined && (app.entry_rule.scope = 'none');
 				angular.forEach(app.pages, function(page) {
 					angular.extend(page, pageLib);

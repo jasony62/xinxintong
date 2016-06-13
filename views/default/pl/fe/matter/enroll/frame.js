@@ -156,7 +156,7 @@ define(['require', 'page'], function(require, pageLib) {
 		$scope.createPage = function() {
 			var deferred = $q.defer();
 			$uibModal.open({
-				templateUrl: '/views/default/pl/fe/matter/enroll/component/createPage.html?_=2',
+				templateUrl: '/views/default/pl/fe/matter/enroll/component/createPage.html?_=3',
 				backdrop: 'static',
 				controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
 					$scope.options = {};

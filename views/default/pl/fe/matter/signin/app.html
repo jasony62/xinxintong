@@ -14,6 +14,20 @@
                             <option></option>
                         </select>
                     </div>
+                    <div class='form-group' ng-if="!app.enroll_app_id">
+                        <button class='btn btn-success navbar-btn' ng-click="assignEnrollApp()">指定签到名单</button>
+                    </div>
+                    <div class='form-group' ng-if="app.enroll_app_id">
+                        <label>签到名单</label>
+                        <div class="input-group">
+                            <div class='form-control' ng-bind="app.enrollApp.title"></div>
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" ng-click="cancelEnrollApp()">
+                                    <span class='glyphicon glyphicon-remove'></span>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
                 </div>
                 <div class="navbar-form navbar-right">
                     <button uib-popover-template="'appSetting.html'" popover-placement="bottom" popover-title="应用设置" popover-trigger="outsideClick" type="button" class="btn btn-default">活动设置 <span class="caret"></span></button>
@@ -46,7 +60,7 @@
         <div class='row'>
             <div class='col-md-3'>
                 <!--create input wrap-->
-                <div class='form-group tile' ng-if="ep.type==='S'">
+                <div class='form-group tile' ng-if="ep.type==='I'">
                     <button class='btn btn-default' ng-click="newSchema('name')">姓名</button>
                     <button class='btn btn-default' ng-click="newSchema('mobile')">手机</button>
                     <button class='btn btn-default' ng-click="newSchema('email')">邮箱</button>
@@ -68,7 +82,7 @@
                     <div class='help-block'>添加操作</div>
                 </div>
                 <!--create button wrap-->
-                <div class='tile' ng-if="ep.type==='S'">
+                <div class='tile' ng-if="ep.type==='I'">
                     <div class='list-group' ng-controller="ctrlAppSchemas4Input">
                         <div class='list-group-item schema' ng-repeat="s in appSchemas">
                             <div class='checkbox' style='margin:0;padding:0' ng-mouseenter="entered=true" ng-mouseleave="entered=false">
@@ -77,7 +91,15 @@
                             </div>
                         </div>
                     </div>
-                    <div class='help-block'>所有登记项</div>
+                    <div class='help-block'>已有签到登记项</div>
+                </div>
+                <div class='tile' ng-if="app.enroll_app_id">
+                    <div class='list-group'>
+                        <div class='list-group-item' ng-repeat="s in app.data_schemas">
+                            <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="s.requireCheck" ng-change="update('data_schemas')">{{s.title}}</label>
+                        </div>
+                    </div>
+                    <div class='help-block'>要在签到名单中验证的登记项</div>
                 </div>
                 <div ng-if="ep.type==='V'" ng-controller="ctrlAppSchemas4View">
                     <div class='list-group-item' ng-repeat="s in appSchemas">
@@ -143,26 +165,6 @@
 </div>
 <script type="text/ng-template" id="appSetting.html">
     <div id="appSetting">
-        <div class='form-group compact' ng-if="!app.enroll_app_id">
-            <button class='btn btn-block btn-success' ng-click="assignEnrollApp()">指定签到名单</button>
-        </div>
-        <div class='form-group compact' ng-if="app.enroll_app_id">
-            <div class="input-group">
-                <div class='form-control' ng-bind="app.enrollApp.title"></div>
-                <span class="input-group-btn">
-                    <button class="btn btn-default" type="button" ng-click="cancelEnrollApp()">
-                        <span class='glyphicon glyphicon-remove'></span>
-                    </button>
-                </span>
-            </div>
-            <div class='help-block'>指定的签到名单</div>
-            <div class='list-group'>
-                <div class='list-group-item' ng-repeat="s in app.data_schemas">
-                    <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="s.requireCheck" ng-change="update('data_schemas')">{{s.title}}</label>
-                </div>
-            </div>
-            <div class='help-block'>要在签到名单中验证的项</div>
-        </div>
         <div class='tile'>
             <div class='checkbox'>
                 <label>
@@ -201,7 +203,7 @@
         <hr>
         <button class='btn btn-block btn-default' ng-click="addPage()">添加页面</button>
         <hr>
-        <a href="/rest/pl/fe/matter/enroll/config?site={{siteId}}&id={{id}}">活动进入规则</a>
+        <a href="/rest/pl/fe/matter/signin/event?site={{siteId}}&id={{id}}">活动进入规则</a>
     <div>
 </script>
 <script type="text/ng-template" id="assignEnrollApp.html">

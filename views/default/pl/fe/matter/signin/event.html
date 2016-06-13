@@ -1,0 +1,116 @@
+<div class='row'>
+    <div class='col-md-6'>
+        <div class='form-group'>
+            <table class='table table-bordered'>
+                <tbody>
+                    <tr>
+                        <td>签到成功时进入</td>
+                        <td style='padding:0'>
+                            <div class='form-inline'>
+                                <div class='form-group'>
+                                    <select style='border:0' class='form-control' ng-model='entryRule.success.entry' ng-options='page.name as page.title for page in app.pages' ng-change="update('entry_rule')">
+                                        <option value=''></option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-default" type="button" ng-click="gotoPage(entryRule.success.entry)">&gt;</button>
+                                <button class="btn btn-default" type="button" ng-click="newPage('success.entry')">+</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>签到失败时进入</td>
+                        <td style='padding:0'>
+                            <div class='form-inline'>
+                                <div class='form-group'>
+                                    <select style='border:0' class='form-control' ng-model='entryRule.fail.entry' ng-options='page.name as page.title for page in app.pages' ng-change="update('entry_rule')">
+                                        <option value=''></option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-default" type="button" ng-click="gotoPage(entryRule.fail.entry)">&gt;</button>
+                                <button class="btn btn-default" type="button" ng-click="newPage('fail.entry')">+</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class='radio' ng-if="memberSchemas.length">
+                <label><input type='radio' value='member' ng-model="entryRule.scope">限自定义用户访问</label>
+            </div>
+            <div class='radio' ng-if="sns">
+                <label><input type='radio' value='sns' ng-model="entryRule.scope">限公众号关注用户访问</label>
+            </div>
+            <div class='radio' ng-if="memberSchemas.length||sns">
+                <label><input type='radio' value='none' ng-model="entryRule.scope">不限制访问用户身份</label>
+            </div>
+            <table class='table table-bordered' ng-if="entryRule.scope==='none'">
+                <tbody>
+                    <tr>
+                        <td>缺省进入页面</td>
+                        <td style='padding:0'>
+                            <div class='form-inline'>
+                                <div class='form-group'>
+                                    <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='entryRule.otherwise.entry' ng-options="p.name as p.title for p in app.pages"></select>
+                                </div>
+                                <button class="btn btn-default" type="button" ng-click="gotoPage(entryRule.otherwise.entry)">&gt;</button>
+                                <button class="btn btn-default" type="button" ng-click="newPage('otherwise.entry')">+</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class='table table-bordered' ng-if="entryRule.scope==='member'">
+                <tbody>
+                    <tr ng-repeat="ms in memberSchemas">
+                        <td>{{ms.title}}</td>
+                        <td style='padding:0'>
+                            <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model="entryRule.member[ms.id].entry" ng-options="p.name as p.title for p in app.pages">
+                                <option value=''></option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>不满足条件用户</td>
+                        <td style='padding:0'>
+                            <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model='entryRule.other.entry' ng-options="p.name as p.title for p in pages4NonMember"></select>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class='table table-bordered' ng-if="entryRule.scope==='sns'">
+                <tbody>
+                    <tr ng-if="sns.wx">
+                        <td>微信公众号关注用户</td>
+                        <td style='padding:0'>
+                            <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model='entryRule.sns.wx.entry' ng-options='p.name as p.title for p in app.pages'>
+                                <option value=''></option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr ng-if="sns.qy">
+                        <td>微信企业号关注用户</td>
+                        <td style='padding:0'>
+                            <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model='entryRule.sns.qy.entry' ng-options='p.name as p.title for p in app.pages'>
+                                <option value=''></option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr ng-if="sns.yx">
+                        <td>易信公众号关注用户</td>
+                        <td style='padding:0'>
+                            <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model='entryRule.sns.yx.entry' ng-options='p.name as p.title for p in app.pages'>
+                                <option value=''></option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>不满足条件用户</td>
+                        <td style='padding:0'>
+                            <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model='entryRule.other.entry' ng-options="p.name as p.title for p in pages4Nonfan"></select>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class='btn btn-block btn-success' ng-click="resetEntryRule()">重置进入规则</button>
+        </div>
+    </div>
+</div>

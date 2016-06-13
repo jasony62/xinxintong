@@ -378,8 +378,8 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                     $scope.closeWindow();
                 } else if (nextAction !== undefined && nextAction.length) {
                     url = LS.j('', 'site', 'app');
-                    url += '&ek=' + rsp.data;
                     url += '&page=' + nextAction;
+                    url += '&ek=' + rsp.data;
                     location.replace(url);
                 } else {
                     btnSubmit && btnSubmit.removeAttribute('disabled');

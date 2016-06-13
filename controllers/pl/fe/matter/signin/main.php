@@ -90,19 +90,19 @@ class main extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$newapp = array();
+		$newapp = [];
 		$current = time();
 		$appId = uniqid();
 		/*从关联的签到活动中获取登记项定义*/
 		if (!empty($enrollApp)) {
 			$enrollApp = $this->model('matter\enroll')->byId(
 				$enrollApp,
-				array('fields' => 'id,data_schemas', 'cascaded' => 'N')
+				['fields' => 'data_schemas', 'cascaded' => 'N']
 			);
 			$newapp['enroll_app_id'] = $enrollApp->id;
 		}
 		/*从站点和项目中获得pic定义*/
-		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
+		$site = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
 		if (!empty($mission)) {
 			$modelMis = $this->model('mission');
 			$mission = $modelMis->byId($mission);
@@ -128,9 +128,10 @@ class main extends \pl\fe\matter\base {
 		if (JSON_ERROR_NONE !== json_last_error()) {
 			return new \ResponseError('解析模版数据错误：' . json_last_error_msg());
 		}
-		/*登记数据*/
-		if (!empty($templateConfig->schema)) {
-			$newapp['data_schemas'] = \TMS_MODEL::toJson($templateConfig->schema);
+		/*登记数据*/{
+			if (!empty($templateConfig->schema)) {
+				$newapp['data_schemas'] = \TMS_MODEL::toJson($templateConfig->schema);
+			}
 		}
 		/*进入规则*/
 		if (isset($templateConfig->entryRule)) {
@@ -149,7 +150,7 @@ class main extends \pl\fe\matter\base {
 		$newapp['modifier_name'] = $user->name;
 		$newapp['modify_at'] = $current;
 		$this->model()->insert('xxt_signin', $newapp, false);
-		$app = $this->model('matter\signin')->byId($appId, array('cascaded' => 'N'));
+		$app = $this->model('matter\signin')->byId($appId, ['cascaded' => 'N']);
 
 		/*记录操作日志*/
 		$app->type = 'signin';
@@ -219,7 +220,7 @@ class main extends \pl\fe\matter\base {
 		$modelPage = $this->model('matter\signin\page');
 		$modelCode = $this->model('code\page');
 		foreach ($pages as $page) {
-			$ap = $modelPage->add($siteId, $app->id, $user, $page);
+			$ap = $modelPage->add($user, $siteId, $app->id, $page);
 			$data = [
 				'html' => file_get_contents($templateDir . '/' . $page->name . '.html'),
 				'css' => file_get_contents($templateDir . '/' . $page->name . '.css'),

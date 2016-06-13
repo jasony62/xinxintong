@@ -349,18 +349,23 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
             ek = $scope.record ? $scope.record.enroll_key : undefined;
             facInput.submit($scope.data, ek).then(function(rsp) {
                 var url;
-                if (nextAction === 'closeWindow') {
+                if (rsp.data.forword) {
+                    url = LS.j('', 'site', 'app');
+                    url += '&page=' + rsp.data.forword;
+                    url += '&ek=' + rsp.data.ek;
+                    location.replace(url);
+                } else if (nextAction === 'closeWindow') {
                     $scope.closeWindow();
                 } else if (nextAction !== undefined && nextAction.length) {
                     url = LS.j('', 'site', 'app');
-                    url += '&ek=' + rsp.data;
                     url += '&page=' + nextAction;
+                    url += '&ek=' + rsp.data.ek;
                     location.replace(url);
                 } else {
                     btnSubmit && btnSubmit.removeAttribute('disabled');
                     if (ek === undefined) {
                         $scope.record = {
-                            enroll_key: rsp.data
+                            enroll_key: rsp.data.ek
                         }
                     }
                     $scope.$broadcast('xxt.app.enroll.submit.done', rsp.data);

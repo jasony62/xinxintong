@@ -4,30 +4,55 @@
 		"title": "填写页",
 		"type": "I",
 		"data_schemas": [{
-			"id": "name",
-			"title": "名称",
-			"type": "name",
-			"showname": "placeholder"
+			"schema": {
+				"id": "name",
+				"title": "名称",
+				"type": "name"
+			},
+			"config": {
+				"required": "Y",
+				"showname": "placeholder"
+			}
 		}, {
-			"id": "mobile",
-			"title": "手机",
-			"type": "mobile",
-			"showname": "placeholder"
+			"schema": {
+				"id": "mobile",
+				"title": "手机",
+				"type": "mobile"
+			},
+			"config": {
+				"required": "Y",
+				"showname": "placeholder"
+			}
 		}, {
-			"id": "email",
-			"title": "邮箱",
-			"type": "email",
-			"showname": "placeholder"
+			"schema": {
+				"id": "email",
+				"title": "邮箱",
+				"type": "email"
+			},
+			"config": {
+				"required": "Y",
+				"showname": "placeholder"
+			}
 		}, {
-			"id": "c1",
-			"title": "登记信息1",
-			"type": "shorttext",
-			"showname": "placeholder"
+			"schema": {
+				"id": "c1",
+				"title": "登记信息1",
+				"type": "shorttext"
+			},
+			"config": {
+				"required": "N",
+				"showname": "placeholder"
+			}
 		}, {
-			"id": "c2",
-			"title": "登记信息2",
-			"type": "longtext",
-			"showname": "placeholder"
+			"schema": {
+				"id": "c2",
+				"title": "登记信息2",
+				"type": "longtext"
+			},
+			"config": {
+				"required": "N",
+				"showname": "placeholder"
+			}
 		}],
 		"act_schemas": [{
 			"id": "act1",
@@ -40,59 +65,76 @@
 		"title": "填写结果页",
 		"type": "V",
 		"data_schemas": [{
-			"id": "s1",
-			"pattern": "record",
-			"inline": "Y",
-			"splitLine": "Y",
-			"schema": {
+			"config": {
+				"id": "V1",
+				"pattern": "record",
+				"inline": "Y",
+				"splitLine": "Y"
+			},
+			"schemas": {
 				"id": "name",
 				"title": "名称",
-				"type": "name",
-				"showname": "placeholder"
+				"type": "name"
 			}
 		}, {
-			"id": "s2",
-			"pattern": "record",
-			"inline": "Y",
-			"splitLine": "Y",
+			"config": {
+				"id": "V2",
+				"pattern": "record",
+				"inline": "Y",
+				"splitLine": "Y"
+			},
 			"schema": {
 				"id": "mobile",
 				"title": "手机",
-				"type": "mobile",
-				"showname": "placeholder"
+				"type": "mobile"
 			}
 		}, {
-			"id": "s3",
-			"pattern": "record",
-			"inline": "Y",
-			"splitLine": "Y",
+			"config": {
+				"id": "V3",
+				"pattern": "record",
+				"inline": "Y",
+				"splitLine": "Y"
+			},
 			"schema": {
 				"id": "email",
 				"title": "邮箱",
-				"type": "email",
-				"showname": "placeholder"
+				"type": "email"
 			}
 		}, {
-			"id": "s4",
-			"pattern": "record",
-			"inline": "Y",
-			"splitLine": "Y",
+			"config": {
+				"id": "V4",
+				"pattern": "record",
+				"inline": "Y",
+				"splitLine": "Y"
+			},
 			"schema": {
 				"id": "c1",
 				"title": "登记信息1",
-				"type": "shorttext",
-				"showname": "placeholder"
+				"type": "shorttext"
 			}
 		}, {
-			"id": "s5",
-			"pattern": "record",
-			"inline": "Y",
-			"splitLine": "Y",
+			"config": {
+				"id": "V5",
+				"pattern": "record",
+				"inline": "Y",
+				"splitLine": "Y"
+			},
 			"schema": {
 				"id": "c2",
 				"title": "登记信息2",
-				"type": "longtext",
-				"showname": "placeholder"
+				"type": "longtext"
+			}
+		}, {
+			"config": {
+				"id": "V6",
+				"pattern": "record",
+				"inline": "Y",
+				"splitLine": "Y"
+			},
+			"schema": {
+				"id": "enrollAt",
+				"title": "登记信息2",
+				"type": "_enrollAt"
 			}
 		}],
 		"act_schemas": [{
@@ -110,28 +152,23 @@
 	"schema": [{
 		"id": "name",
 		"title": "名称",
-		"type": "name",
-		"showname": "placeholder"
+		"type": "name"
 	}, {
 		"id": "mobile",
 		"title": "手机",
-		"type": "mobile",
-		"showname": "placeholder"
+		"type": "mobile"
 	}, {
 		"id": "email",
 		"title": "邮箱",
-		"type": "email",
-		"showname": "placeholder"
+		"type": "email"
 	}, {
 		"id": "c1",
 		"title": "登记信息1",
-		"type": "shorttext",
-		"showname": "placeholder"
+		"type": "shorttext"
 	}, {
 		"id": "c2",
 		"title": "登记信息2",
-		"type": "longtext",
-		"showname": "placeholder"
+		"type": "longtext"
 	}],
 	"scenarioConfig": {
 		"can_rounds": "D"

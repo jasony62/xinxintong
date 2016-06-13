@@ -233,7 +233,9 @@ app.controller('ctrlMatter', ['$scope', '$uibModal', 'http2', function($scope, $
 						simpleSchema: $scope2.data.simpleSchema
 					};
 					page = $scope2.data.selectedPage.name;
-					elSimulator.contentWindow.renew(page, config);
+					if (elSimulator.contentWindow.renew) {
+						elSimulator.contentWindow.renew(page, config);
+					}
 				};
 				http2.get('/rest/pl/fe/matter/enroll/template/list', function(rsp) {
 					var keysOfTemplate;

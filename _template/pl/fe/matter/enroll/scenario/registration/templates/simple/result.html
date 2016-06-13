@@ -1,19 +1,19 @@
-<div id="s1" class="form-group wrap-inline wrap-splitline" wrap="static" ng-controller="ctrlRecord" schema="name"><label>姓名</label>
+<div id="V1" class="form-group wrap-inline wrap-splitline" wrap="value" ng-controller="ctrlRecord" schema="name" schema-type="name"><label>姓名</label>
 <div>{{Record.current.data.name}}</div>
 </div>
-<div id="s2" class="form-group wrap-inline wrap-splitline" wrap="static" ng-controller="ctrlRecord" schema="mobile"><label>手机</label>
+<div id="V2" class="form-group wrap-inline wrap-splitline" wrap="value" ng-controller="ctrlRecord" schema="mobile" schema-type="mobile"><label>手机</label>
 <div>{{Record.current.data.mobile}}</div>
 </div>
-<div id="s3" class="form-group wrap-inline wrap-splitline" wrap="static" ng-controller="ctrlRecord" schema="email"><label>邮箱</label>
+<div id="V3" class="form-group wrap-inline wrap-splitline" wrap="value" ng-controller="ctrlRecord" schema="email" schema-type="email"><label>邮箱</label>
 <div>{{Record.current.data.email}}</div>
 </div>
-<div id="s4" class="form-group wrap-inline wrap-splitline" wrap="static" ng-controller="ctrlRecord" schema="c1"><label>登记信息1</label>
+<div id="V4" class="form-group wrap-inline wrap-splitline" wrap="value" ng-controller="ctrlRecord" schema="c1" schema-type="c1"><label>登记信息1</label>
 <div>{{Record.current.data.c1}}</div>
 </div>
-<div id="s5" class="form-group wrap-inline wrap-splitline" wrap="static" ng-controller="ctrlRecord" schema="c2"><label>登记信息2</label>
+<div id="V5" class="form-group wrap-inline wrap-splitline" wrap="value" ng-controller="ctrlRecord" schema="c2" schema-type="c2"><label>登记信息2</label>
 <div>{{Record.current.data.c2}}</div>
 </div>
-<div id="s6" class="form-group wrap-inline wrap-splitline" wrap="static" ng-controller="ctrlRecord" schema="enrollAt"><label>登记时间</label>
+<div id="V6" class="form-group wrap-inline wrap-splitline" wrap="value" ng-controller="ctrlRecord" schema="enrollAt" schema-type="_enrollAt"><label>登记时间</label>
 <div>{{Record.current.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>
 </div>
 <div id="act2" class="form-group" wrap="button" ng-controller="ctrlRecord"><button class="btn btn-primary btn-block btn-lg" ng-click="editRecord($event,'enroll')"><span>修改登记</span></button></div>

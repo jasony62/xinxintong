@@ -28,8 +28,8 @@
 		"act_schemas": [{
 			"id": "act1",
 			"name": "submit",
-			"label": "提交信息",
-			"next": "result"
+			"label": "签到",
+			"next": ""
 		}]
 	}, {
 		"name": "success",

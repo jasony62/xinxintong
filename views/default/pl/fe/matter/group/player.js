@@ -1,4 +1,4 @@
-(function() {
+define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlRecord', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
         $scope.doSearch = function(page) {
             var url;
@@ -237,4 +237,4 @@
             $scope.doSearch();
         });
     }]);
-})();
+});

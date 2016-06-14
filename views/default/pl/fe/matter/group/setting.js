@@ -1,5 +1,5 @@
-(function() {
-	ngApp.provider.controller('ctrlSetting', ['$scope', '$location', 'http2', '$uibModal', 'mediagallery', function($scope, $location, http2, $uibModal, mediagallery) {
+define(['frame'], function(ngApp) {
+	ngApp.provider.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery', function($scope, http2, $uibModal, mediagallery) {
 		window.onbeforeunload = function(e) {
 			var message;
 			if ($scope.modified) {
@@ -241,4 +241,4 @@
 			});
 		});
 	}]);
-})();
+});

@@ -3,6 +3,17 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 	 * app setting controller
 	 */
 	ngApp.provider.controller('ctrlApp', ['$scope', '$uibModal', '$q', 'http2', function($scope, $uibModal, $q, http2) {
+		window.onbeforeunload = function(e) {
+			var message;
+			if ($scope.ep.$$modified) {
+				message = '已经修改的页面还没有保存，确定离开？';
+				e = e || window.event;
+				if (e) {
+					e.returnValue = message;
+				}
+				return message;
+			}
+		};
 		$scope.publish = function() {
 			$scope.app.state = 2;
 			$scope.update('state');

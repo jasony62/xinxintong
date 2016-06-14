@@ -102,17 +102,6 @@ define(['require', 'page'], function(require, pageLib) {
 		$scope.id = ls.id;
 		$scope.siteId = ls.site;
 		$scope.modified = false;
-		window.onbeforeunload = function(e) {
-			var message;
-			if ($scope.modified) {
-				message = '修改还没有保存，是否要离开当前页面？',
-					e = e || window.event;
-				if (e) {
-					e.returnValue = message;
-				}
-				return message;
-			}
-		};
 		$scope.back = function() {
 			history.back();
 		};

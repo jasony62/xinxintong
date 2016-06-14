@@ -96,7 +96,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * schema cache
+ * schema cache (should remove)
  */
 $sql = "create table if not exists xxt_enroll_record_schema(";
 $sql .= "aid varchar(40) not null";
@@ -495,7 +495,7 @@ $sql .= ",comment text";
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal,2:as invite log
 $sql .= ",referrer text"; //
 $sql .= ",round_id varchar(32) not null default ''";
-$sql .= ",round_title title varchar(40) not null default ''";
+$sql .= ",round_title varchar(40) not null default ''";
 $sql .= ",draw_at int not null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

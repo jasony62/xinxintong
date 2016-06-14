@@ -16,11 +16,11 @@ $sql .= ",state tinyint not null default 1"; // 1:正常, 0:停用
 $sql .= ",home_page_id int not null default 0"; // 站点主页
 $sql .= ",home_page_name varchar(13) not null default ''"; // 站点主页
 $sql .= ",header_page_id int not null default 0"; // 通用页头
-$sql .= ",header_page_name int not null default ''"; // 通用页头
+$sql .= ",header_page_name varchar(13) not null default ''"; // 通用页头
 $sql .= ",footer_page_id int not null default 0"; // 通用页尾
-$sql .= ",footer_page_name int not null default ''"; // 通用页尾
+$sql .= ",footer_page_name varchar(13) not null default ''"; // 通用页尾
 $sql .= ",shift2pc_page_id int not null default 0"; // 引导到PC端完成
-$sql .= ",shift2pc_page_name int not null default ''"; // 引导到PC端完成
+$sql .= ",shift2pc_page_name varchar(13) not null default ''"; // 引导到PC端完成
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

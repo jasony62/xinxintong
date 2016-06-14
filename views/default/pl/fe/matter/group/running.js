@@ -1,4 +1,4 @@
-(function() {
+define(['frame'], function(ngApp) {
 	ngApp.provider.controller('ctrlRunning', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
 		$scope.opUrl = 'http://' + location.host + '/rest/site/op/matter/group?site=' + $scope.siteId + '&app=' + $scope.id;
 		$scope.gotoCode = function() {
@@ -147,4 +147,4 @@
 			return val;
 		};
 	}]);
-})();
+});

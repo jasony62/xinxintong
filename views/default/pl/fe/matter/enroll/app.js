@@ -91,7 +91,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			tinymce.activeEditor.setContent(page.html);
 		};
 		$scope.newSchema = function(type) {
-			var newSchema = schemaLib.newSchema(type);
+			var newSchema = schemaLib.newSchema(type, $scope.app);
 			$scope.app.data_schemas.push(newSchema);
 			$scope.update('data_schemas').then(function() {
 				$scope.$broadcast('xxt.matter.enroll.app.data_schemas.created', newSchema);

@@ -464,7 +464,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 	/**
 	 * page
 	 */
-	ngApp.provider.controller('ctrlPage', ['$scope', '$q', 'mediagallery', 'mattersgallery', function($scope, $q, mediagallery, mattersgallery) {
+	ngApp.provider.controller('ctrlPage', ['$scope', '$q', '$timeout', 'mediagallery', 'mattersgallery', function($scope, $q, $timeout, mediagallery, mattersgallery) {
 		var tinymceEditor;
 		$scope.activeWrap = false;
 		$scope.innerlinkTypes = [{
@@ -580,10 +580,11 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			});
 		};
 		$scope.newList = function(pattern) {
+			var domWrap;
 			if (pattern === 'records') {
-				var domWrap = $scope.ep.appendRecordList($scope.app);
+				domWrap = $scope.ep.appendRecordList($scope.app);
 			} else if (pattern === 'rounds') {
-				var domWrap = $scope.ep.appendRoundList($scope.app);
+				domWrap = $scope.ep.appendRoundList($scope.app);
 			}
 			$scope.updPage($scope.ep, ['data_schemas', 'html']).then(function() {
 				$scope.setActiveWrap(domWrap);
@@ -633,6 +634,16 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		$scope.onPageChange = function() {
 			$scope.ep.$$modified = true;
 		};
+		$scope.$on('tinymce.content.editing', function(event, node) {
+			var oWrap = wrapLib.dataByDom($scope.activeWrap.dom);
+			if (oWrap) {
+				if (oWrap.schema.title !== $scope.activeWrap.schema.title) {
+					$timeout(function() {
+						$scope.activeWrap.schema.title = oWrap.schema.title;
+					});
+				}
+			}
+		});
 		$scope.$on('tinymce.multipleimage.open', function(event, callback) {
 			var options = {
 				callback: callback,

@@ -35,6 +35,7 @@ directive('tinymce', function($timeout) {
                     });
                 },
                 setup: function(editor) {
+                    var _lastContent;
                     editor.on('click', function(e) {
                         var wrap;
                         wrap = e.target;
@@ -51,6 +52,7 @@ directive('tinymce', function($timeout) {
                         }
                     });
                     editor.on('keydown', function(evt) {
+                        _lastContent = editor.selection.getNode().innerHTML;
                         if (evt.keyCode == 13) {
                             /**
                              * 检查组件元素，如果是，在结尾回车时不进行元素的复制，而是添加空行
@@ -79,11 +81,17 @@ directive('tinymce', function($timeout) {
                             }
                         }
                     });
+                    editor.on('keyup', function(evt) {
+                        var content = editor.selection.getNode().innerHTML;
+                        if (_lastContent !== content) {
+                            scope.$emit('tinymce.content.editing', editor.selection.getNode());
+                        }
+                    });
                     editor.on('change', function(e) {
-                        var content, phase;
+                        var content, phase, node;
                         content = tinymce.get(scope.id).getContent();
                         if (scope.content !== content) {
-                            var phase = scope.$root.$$phase;
+                            phase = scope.$root.$$phase;
                             if (phase === '$digest' || phase === '$apply') {
                                 scope.content = content;
                             } else {

@@ -23,8 +23,6 @@
                 </div>
                 <div class="navbar-form navbar-right">
                     <button uib-popover-template="'appSetting.html'" popover-placement="bottom" popover-title="应用设置" popover-trigger="outsideClick" type="button" class="btn btn-default">活动设置 <span class="caret"></span></button>
-                    <button class='btn btn-success' ng-click="publish()">收集数据</button>
-                    <button class='btn btn-default' ng-click="remove()">删除</button>
                 </div>
             </div>
         </nav>
@@ -35,14 +33,14 @@
     <!--app-->
     <!--pages-->
     <div class='col-md-12'>
-        <div class="container-fluid">
-            <ul class="nav nav-pills">
+        <div class="container-fluid" style="padding-bottom:8px">
+            <ul class="nav nav-tabs">
                 <li role="presentation" ng-class="{'active':p===ep}" ng-repeat="p in app.pages">
-                    <a href="#" ng-click="choosePage(p)"><span>{{p.title}}</span></a>
+                    <a href="#" ng-click="choosePage(p)"><span><i class='fa fa-file-o'></i> {{p.title}}</span></a>
                 </li>
-                <ul class="navbar-form navbar-right">
+                <li class="pull-right">
                     <button uib-popover-template="'pageSetting.html'" popover-placement="bottom" popover-title="页面设置" popover-trigger="outsideClick" class="btn btn-default">页面设置 <span class="caret"></span></button>
-                </ul>
+                </li>
             </ul>
         </div>
     </div>
@@ -57,8 +55,8 @@
                     <button class='btn btn-default' ng-click="newSchema('mobile')">手机</button>
                     <button class='btn btn-default' ng-click="newSchema('email')">邮箱</button>
                     <button class='btn btn-default' ng-click="newSchema('date')">日期</button>
-                    <button class='btn btn-default' ng-click="newSchema('shorttext')">短文本</button>
-                    <button class='btn btn-default' ng-click="newSchema('longtext')">长文本</button>
+                    <button class='btn btn-default' ng-click="newSchema('shorttext')">单行文本</button>
+                    <button class='btn btn-default' ng-click="newSchema('longtext')">多行文本</button>
                     <button class='btn btn-default' ng-click="newSchema('single')">单选题</button>
                     <button class='btn btn-default' ng-click="newSchema('multiple')">多选题</button>
                     <button class='btn btn-default' ng-click="newSchema('image')">上传图片</button>
@@ -147,6 +145,17 @@
         </div>
     </div>
     <!--page-->
+    <nav class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container-fluid" style='text-align:center'>
+            <form class="navbar-form" style='display:inline-block'>
+                <button class='btn' ng-disabled='!modified&&!ep.$$modified' ng-class="(modified||ep.$$modified)?'btn-success':'btn-default'" ng-click="updPage(ep,['data_schemas','html'])">保存</button>
+                <button class='btn btn-success' ng-click="publish()">收集数据</button>
+            </form>
+            <form class="navbar-form navbar-right" style='display:inline-block'>
+                <button class='btn btn-default' ng-click="remove()">删除活动</button>
+            </form>
+        </div>
+    </nav>
 </div>
 <script type="text/ng-template" id="appSetting.html">
     <div id="appSetting">

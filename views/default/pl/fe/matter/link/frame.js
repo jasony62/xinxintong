@@ -1,4 +1,4 @@
-ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'matters.xxt', 'member.xxt', 'channel.fe.pl']);
+ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'member.xxt', 'channel.fe.pl']);
 ngApp.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
 	$routeProvider.when('/rest/pl/fe/matter/link', {
 		templateUrl: '/views/default/pl/fe/matter/link/setting.html?_=2',

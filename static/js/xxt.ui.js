@@ -1,5 +1,5 @@
-var xxtMatters = angular.module('matters.xxt', ['ui.bootstrap']);
-xxtMatters.constant('matterTypes', [{
+var uiXxt = angular.module('ui.xxt', ['ui.bootstrap']);
+uiXxt.constant('matterTypes', [{
     value: 'text',
     title: '文本',
     url: '/rest/pl/fe/matter'
@@ -56,7 +56,7 @@ xxtMatters.constant('matterTypes', [{
     title: '转发消息',
     url: '/rest/pl/fe/matter'
 }, ]);
-xxtMatters.service('userSetAsParam', [function() {
+uiXxt.service('userSetAsParam', [function() {
     this.convert = function(userSet) {
         if (userSet.userScope === '') return [];
         var params = [],
@@ -123,7 +123,7 @@ xxtMatters.service('userSetAsParam', [function() {
         return params;
     };
 }]);
-xxtMatters.filter('typetitle', ['matterTypes', function(matterTypes) {
+uiXxt.filter('typetitle', ['matterTypes', function(matterTypes) {
     return function(type) {
         for (var i in matterTypes) {
             if (type && type.toLowerCase() === matterTypes[i].value)
@@ -132,7 +132,7 @@ xxtMatters.filter('typetitle', ['matterTypes', function(matterTypes) {
         return '';
     }
 }]);
-xxtMatters.service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, $q) {
+uiXxt.service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, $q) {
     this.choose = function(type, callback) {
         var deferred;
         deferred = $q.defer();
@@ -198,7 +198,7 @@ xxtMatters.service('templateShop', ['$uibModal', 'http2', '$q', function($uibMod
         return deferred.promise;
     };
 }]);
-xxtMatters.factory('mattersgallery', function($uibModal) {
+uiXxt.factory('mattersgallery', function($uibModal) {
     var gallery = {};
     gallery.open = function(galleryId, callback, options) {
         $uibModal.open({
@@ -267,7 +267,7 @@ xxtMatters.factory('mattersgallery', function($uibModal) {
     };
     return gallery;
 });
-xxtMatters.factory('mediagallery', function($uibModal) {
+uiXxt.factory('mediagallery', function($uibModal) {
     var gallery = {},
         open;
     open = function(galleryId, options) {
@@ -322,7 +322,7 @@ xxtMatters.factory('mediagallery', function($uibModal) {
     };
     return gallery;
 });
-xxtMatters.controller('AccessControllerUserPickerController', ['$scope', '$uibModalInstance', 'userSetAsParam', function($scope, $mi, userSetAsParam) {
+uiXxt.controller('AccessControllerUserPickerController', ['$scope', '$uibModalInstance', 'userSetAsParam', function($scope, $mi, userSetAsParam) {
     $scope.userConfig = {
         userScope: ['M']
     };
@@ -337,7 +337,7 @@ xxtMatters.controller('AccessControllerUserPickerController', ['$scope', '$uibMo
         $mi.close(data);
     };
 }]);
-xxtMatters.controller('AccessControlController', ['$rootScope', '$scope', 'http2', '$timeout', '$uibModal', function($rootScope, $scope, http2, $timeout, $uibModal) {
+uiXxt.controller('AccessControlController', ['$rootScope', '$scope', 'http2', '$timeout', '$uibModal', function($rootScope, $scope, http2, $timeout, $uibModal) {
     var objAuthapis = function() {
         $scope.objAuthapis = angular.copy($scope.authapis);
         var aAuthapis = $scope.obj[$scope.propApis] ? $scope.obj[$scope.propApis].trim() : '';
@@ -439,7 +439,7 @@ xxtMatters.controller('AccessControlController', ['$rootScope', '$scope', 'http2
         if ($scope.obj) objAuthapis();
     });
 }]);
-xxtMatters.directive('accesscontrol', function() {
+uiXxt.directive('accesscontrol', function() {
     return {
         restrict: 'EA',
         scope: {
@@ -464,7 +464,7 @@ xxtMatters.directive('accesscontrol', function() {
         templateUrl: '/static/template/accesscontrol.html?_=9',
     }
 });
-xxtMatters.directive('userpopover', ['http2', function(http2) {
+uiXxt.directive('userpopover', ['http2', function(http2) {
     return {
         restrict: 'A',
         scope: {
@@ -508,7 +508,7 @@ xxtMatters.directive('userpopover', ['http2', function(http2) {
         }
     };
 }]);
-xxtMatters.controller('SendmeController', ['$scope', 'http2', function($scope, http2) {
+uiXxt.controller('SendmeController', ['$scope', 'http2', function($scope, http2) {
     $scope.qrcodeShown = false;
     $scope.qrcode = function(matter, event) {
         if (!$scope.qrcodeShown) {
@@ -533,7 +533,7 @@ xxtMatters.controller('SendmeController', ['$scope', 'http2', function($scope, h
         }
     };
 }]);
-xxtMatters.controller('UserPickerController', ['http2', '$scope', function(http2, $scope) {
+uiXxt.controller('UserPickerController', ['http2', '$scope', function(http2, $scope) {
     var getPickedAuthapi = function() {
         var authid = $scope.userSet.userScope.split('_').pop();
         for (var i in $scope.authapis) {
@@ -621,7 +621,7 @@ xxtMatters.controller('UserPickerController', ['http2', '$scope', function(http2
         });
     }
 }]);
-xxtMatters.directive('userpicker', ['http2', function(http2) {
+uiXxt.directive('userpicker', ['http2', function(http2) {
     return {
         restrict: 'EA',
         scope: {
@@ -634,7 +634,7 @@ xxtMatters.directive('userpicker', ['http2', function(http2) {
         },
     };
 }]);
-xxtMatters.controller('PushMatterController', ['http2', '$scope', '$uibModalInstance', 'userSetAsParam', function(http2, $scope, $uibModalInstance, userSetAsParam) {
+uiXxt.controller('PushMatterController', ['http2', '$scope', '$uibModalInstance', 'userSetAsParam', function(http2, $scope, $uibModalInstance, userSetAsParam) {
     $scope.userConfig = {
         userScope: ['M']
     };
@@ -665,7 +665,7 @@ xxtMatters.controller('PushMatterController', ['http2', '$scope', '$uibModalInst
             $scope.userConfig.userScope.push('M');
     });
 }]);
-xxtMatters.directive('pushmatter', function() {
+uiXxt.directive('pushmatter', function() {
     return {
         restrict: 'E',
         scope: {
@@ -741,7 +741,7 @@ xxtMatters.directive('pushmatter', function() {
         template: "<button ng-click='open()' ng-transclude></button>",
     };
 });
-xxtMatters.controller('PushNotifyController', ['http2', '$scope', '$uibModalInstance', 'options', function(http2, $scope, $mi, options) {
+uiXxt.controller('PushNotifyController', ['http2', '$scope', '$uibModalInstance', 'options', function(http2, $scope, $mi, options) {
     $scope.options = options;
     $scope.p = {};
     options.matterTypes && options.matterTypes.length && ($scope.p.matterType = options.matterTypes[0]);
@@ -790,7 +790,7 @@ xxtMatters.controller('PushNotifyController', ['http2', '$scope', '$uibModalInst
         $scope.doSearch();
     });
 }]);
-xxtMatters.directive('pushnotify', function() {
+uiXxt.directive('pushnotify', function() {
     return {
         restrict: 'E',
         scope: {

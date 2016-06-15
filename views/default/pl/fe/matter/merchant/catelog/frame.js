@@ -1,4 +1,4 @@
-ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'matters.xxt']);
+ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
 ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', function($cp, $rp, $lp, $compileProvider) {
     $lp.html5Mode(true);
     ngApp.provider = {

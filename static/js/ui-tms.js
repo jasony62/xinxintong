@@ -223,25 +223,86 @@ angular.module('ui.tms', ['ngSanitize']).service('http2', ['$rootScope', '$http'
         replace: true
     };
 }]).directive('tmsDatepicker', function() {
+    _version = 4;
     return {
         restrict: 'EA',
         scope: {
             date: '=tmsDate',
+            mask: '@tmsMask', //y,m,d,h,i
             title: '@tmsTitle',
             state: '@tmsState',
             obj: '=tmsObj'
         },
-        templateUrl: '/static/template/datepicker.html?_=2',
+        templateUrl: '/static/template/datepicker.html?_=' + _version,
         controller: ['$scope', '$uibModal', function($scope, $uibModal) {
+            var mask, format = [];
+            if ($scope.mask === undefined) {
+                mask = {
+                    y: true,
+                    m: true,
+                    d: true,
+                    h: true,
+                    i: true
+                };
+                $scope.format = 'yyyy-MM-dd HH:mm';
+            } else {
+                mask = (function(mask1) {
+                    var mask2, mask1 = mask1.split(',');
+                    /*date*/
+                    mask2 = {
+                        y: mask1[0] === 'y' ? true : mask1[0],
+                        m: mask1[1] === 'm' ? true : mask1[1],
+                        d: mask1[2] === 'd' ? true : mask1[2],
+                    };
+                    $scope.format = 'yyyy-MM-dd';
+                    /*time*/
+                    if (mask1.length === 5) {
+                        if (mask1[3] === 'h') {
+                            mask2.h = true;
+                            $scope.format += ' HH';
+                            if (mask1[4] === 'i') {
+                                mask2.i = true;
+                                $scope.format += ':mm';
+                            } else {
+                                mask2.i = mask1[4];
+                            }
+                        } else {
+                            mask2.h = mask1[3];
+                            mask2.i = mask1[4] === 'i' ? true : mask1[4];
+                        }
+                    } else {
+                        mask2.h = 0;
+                        mask2.i = 0;
+                    }
+                    return mask2;
+                })($scope.mask);
+            }
             $scope.open = function() {
                 $uibModal.open({
                     templateUrl: 'tmsModalDatepicker.html',
-                    controller: ['$scope', '$uibModalInstance', 'date', function($scope, $mi, date) {
+                    resolve: {
+                        date: function() {
+                            return $scope.date;
+                        },
+                        mask: function() {
+                            return mask;
+                        }
+                    },
+                    controller: ['$scope', '$filter', '$uibModalInstance', 'date', 'mask', function($scope, $filter, $mi, date, mask) {
                         date = (function() {
                             var d = new Date();
                             d.setTime(date == 0 ? d.getTime() : date * 1000);
+                            d.setMilliseconds(0);
+                            d.setSeconds(0);
+                            if (mask.i !== true) {
+                                d.setMinutes(mask.i);
+                            }
+                            if (mask.h !== true) {
+                                d.setHours(mask.h);
+                            }
                             return d;
                         })();
+                        $scope.mask = mask;
                         $scope.years = [2015, 2016, 2017];
                         $scope.months = [];
                         $scope.days = [];
@@ -273,12 +334,7 @@ angular.module('ui.tms', ['ngSanitize']).service('http2', ['$rootScope', '$http'
                         };
                     }],
                     backdrop: 'static',
-                    size: 'sm',
-                    resolve: {
-                        date: function() {
-                            return $scope.date;
-                        }
-                    }
+                    size: 'sm'
                 }).result.then(function(result) {
                     var d;
                     d = result === null ? 0 : Date.parse(result.year + '/' + result.month + '/' + result.mday + ' ' + result.hour + ':' + result.minute) / 1000;

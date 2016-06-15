@@ -1,6 +1,6 @@
 define(['require'], function() {
 	'use strict';
-	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'matters.xxt']);
+	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
 	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', function($controllerProvider, $routeProvider, $locationProvider) {
 		ngApp.provider = {
 			controller: $controllerProvider.register

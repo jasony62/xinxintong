@@ -1,4 +1,4 @@
-var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'matters.xxt', 'profile.user.xxt']);
+var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'profile.user.xxt']);
 ngApp.config(['$locationProvider', '$routeProvider', '$controllerProvider', function($lp, $rp, $cp) {
 	ngApp.provider = {
 		controller: $cp.register

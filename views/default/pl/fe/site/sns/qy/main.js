@@ -1,4 +1,4 @@
-var app = angular.module('app', ['ngRoute', 'ui.tms', 'matters.xxt']);
+var app = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
 app.config(['$locationProvider', '$controllerProvider', '$routeProvider', function($lp, $cp, $rp) {
     var loadJs = function(url, callback) {
         var script;

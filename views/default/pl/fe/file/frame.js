@@ -1,4 +1,4 @@
-ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'matters.xxt']);
+ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
 ngApp.config(['$routeProvider', '$locationProvider', function($rp, $lp) {
 	$rp.when('/rest/pl/fe/matter/news', {
 		templateUrl: '/views/default/pl/fe/file/image.html?_=1',

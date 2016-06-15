@@ -1,4 +1,4 @@
-var app = angular.module('app', ['ngRoute', 'ui.tms', 'matters.xxt']);
+var app = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
 app.config(['$locationProvider', '$routeProvider', function($lp, $rp) {
     $lp.html5Mode(true);
 }]);

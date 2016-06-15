@@ -94,7 +94,7 @@ class TMS_CLIENT {
 		if (!$domain and G_COOKIE_DOMAIN) {
 			$domain = G_COOKIE_DOMAIN;
 		}
-		return setcookie(G_COOKIE_PREFIX . $name, $value, $expire, $path, $domain, $secure);
+		return setcookie(G_COOIE_PREFIX . $name, $value, $expire, $path, $domain, $secure);
 	}
 	/**
 	 * 将用户信息编码为加密串

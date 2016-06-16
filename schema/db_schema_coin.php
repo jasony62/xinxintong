@@ -5,7 +5,7 @@ require_once "../db.php";
  */
 $sql = "create table if not exists xxt_coin_log(";
 $sql .= "id int not null auto_increment";
-$sql .= ",mpid varchar(32) not null";
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",act varchar(255) not null";
 $sql .= ",occur_at int not null";
@@ -24,7 +24,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_coin_rule(";
 $sql .= "id int not null auto_increment";
-$sql .= ",mpid varchar(32) not null";
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",act varchar(255) not null";
 $sql .= ",objid varchar(255) not null default '*'";

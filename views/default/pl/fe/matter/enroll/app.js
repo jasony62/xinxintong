@@ -635,13 +635,47 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			$scope.ep.$$modified = true;
 		};
 		$scope.$on('tinymce.content.editing', function(event, node) {
-			var oWrap = wrapLib.dataByDom($scope.activeWrap.dom);
-			if (oWrap) {
-				if (oWrap.schema.title !== $scope.activeWrap.schema.title) {
-					$timeout(function() {
-						$scope.activeWrap.schema.title = oWrap.schema.title;
-					});
+			var domNodeWrap = $(node).parents('[wrap]');
+			if (domNodeWrap.length === 1) {
+				if (/label/i.test(node.nodeName)) {
+					/* schema's wrap */
+					(function freshSchemaByDom() {
+						var oWrap = wrapLib.dataByDom($scope.activeWrap.dom);
+						if (oWrap) {
+							if (oWrap.schema.title !== $scope.activeWrap.schema.title) {
+								$timeout(function() {
+									$scope.activeWrap.schema.title = oWrap.schema.title;
+								});
+							}
+						}
+					})();
 				}
+			} else if (domNodeWrap.length === 2) {
+				/* schema option's wrap */
+				(function() {
+					var $domParentWrap = $(domNodeWrap[0]),
+						oOptionWrap, editingSchema;
+					if (/radio|checkbox/.test($domParentWrap.attr('wrap'))) {
+						oOptionWrap = wrapLib.input.dataByDom(domNodeWrap[0]);
+						if (oOptionWrap.schema && oOptionWrap.schema.ops && oOptionWrap.schema.ops.length === 1) {
+							for (var i = $scope.app.data_schemas.length - 1; i > -0; i--) {
+								editingSchema = $scope.app.data_schemas[i];
+								if (oOptionWrap.schema.id === editingSchema.id) {
+									for (var j = editingSchema.ops.length - 1; j >= 0; j--) {
+										if (oOptionWrap.schema.ops[0].v === editingSchema.ops[j].v) {
+											editingSchema.ops[j].l = oOptionWrap.schema.ops[0].l;
+											console.log('ssss', editingSchema);
+											$timeout(function() {
+												console.log('ssss2', editingSchema);
+											});
+											break;
+										}
+									}
+								}
+							}
+						}
+					}
+				})();
 			}
 		});
 		$scope.$on('tinymce.multipleimage.open', function(event, callback) {

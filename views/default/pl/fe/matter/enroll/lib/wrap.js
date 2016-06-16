@@ -82,11 +82,10 @@ define([], function() {
             html += ' value="' + op.v + '"';
             html += ' ng-model="data.' + schema.id + '"';
             config.required === 'Y' && (html += 'required=""');
-            html += ' title="' + schema.title + '"';
             angular.forEach(schema.attrs, function(attr) {
                 html += 'data-' + attr.name + '="' + attr.value + '"';
             });
-            html += ' data-label="' + op.l + '" disabled><span>' + op.l + '</span></label></li>';
+            html += ' disabled><span>' + op.l + '</span></label></li>';
         });
         html += '</ul>';
 
@@ -123,7 +122,7 @@ define([], function() {
             html += '><input type="checkbox" name="' + schema.id + '"';
             config.required === 'Y' && (html += 'required=""');
             html += ' ng-model="data.' + schema.id + '.' + op.v + '"';
-            html += ' title="' + schema.title + '" data-label="' + op.l + '" disabled><span>' + op.l + '</span></label></li>';
+            html += ' disabled><span>' + op.l + '</span></label></li>';
         });
         html += '</ul>';
 
@@ -268,18 +267,36 @@ define([], function() {
     InputWrap.prototype.dataByDom = function(domWrap, page) {
         var $wrap, oWrap, $label, schema = {};
         $wrap = $(domWrap);
-        schema.id = $wrap.attr('schema');
 
         if (page) {
+            schema.id = $wrap.attr('schema');
             oWrap = page.wrapBySchema(schema);
         }
 
         if (oWrap) return oWrap;
 
         /*返回模拟的*/
-        schema.type = $wrap.attr('schema-type');
-        $label = $wrap.children('label');
-        schema.title = $label.html();
+        if ($wrap.attr('wrap') === 'input') {
+            schema.id = $wrap.attr('schema');
+            schema.type = $wrap.attr('schema-type');
+            $label = $wrap.children('label');
+            schema.title = $label.html();
+        } else if (/radio|checkbox/.test($wrap.attr('wrap'))) {
+            var $label = $wrap.children('label'),
+                $input = $label.children('input'),
+                $span = $label.children('span'),
+                op = {};
+            schema.id = $input.attr('name');
+            op.l = $wrap.children('label').children('span').html();
+            if ($input.attr('type') === 'radio') {
+                op.v = $input.val();
+            } else {
+                op.v = $input.attr('ng-model').split('.').pop();
+            }
+            schema.ops = [op];
+        } else {
+            schema = false;
+        }
         return {
             config: {},
             schema: schema

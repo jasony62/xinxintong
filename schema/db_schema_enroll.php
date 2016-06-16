@@ -6,7 +6,7 @@ require_once '../db.php';
 $sql = "create table if not exists xxt_enroll(";
 $sql .= "id varchar(40) not null";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",mpid varchar(32) not null";
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",creater varchar(40) not null default ''";
 $sql .= ",creater_name varchar(255) not null default ''"; //from account or fans
 $sql .= ",creater_src char(1)"; //A:accouont|F:fans
@@ -72,7 +72,7 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_enroll_page(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",mpid varchar(32) not null";
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",creater varchar(40) not null default ''";
 $sql .= ",create_at int not null";
@@ -119,7 +119,7 @@ $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",rid varchar(13) not null";
 $sql .= ",aid varchar(40) not null";
-$sql .= ",mpid varchar(32) not null";
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",creater varchar(40) not null default ''";
 $sql .= ",create_at int not null";
 $sql .= ",start_at int not null"; // 轮次开始时间
@@ -138,7 +138,7 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_enroll_receiver(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",mpid varchar(32) not null";
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",identity varchar(100) not null";
 $sql .= ",idsrc char(2) not null default ''";
@@ -153,7 +153,7 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_enroll_record(";
 $sql .= "id int not null auto_increment";
 $sql .= ",aid varchar(40) not null";
-$sql .= ",mpid varchar(32) not null";
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",rid varchar(13) not null default ''";
 $sql .= ",userid varchar(40) not null default ''";
@@ -183,7 +183,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_enroll_signin_log(";
 $sql .= "id int not null auto_increment";
-$sql .= ",mpid varchar(32) not null";
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",aid varchar(40) not null";
 $sql .= ",enroll_key varchar(32) not null";

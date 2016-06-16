@@ -5,7 +5,7 @@ require_once '../db.php';
  */
 $sql = "create table if not exists xxt_contribute (";
 $sql .= "id varchar(40) not null";
-$sql .= ",mpid varchar(32) not null";
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",creater varchar(40) not null";
 $sql .= ",creater_name varchar(255) not null default ''"; //from account or fans
@@ -38,7 +38,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_contribute_user(";
 $sql .= "id int not null auto_increment";
-$sql .= ",mpid varchar(32) not null";
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",cid varchar(40) not null"; // contribute's id
 $sql .= ",role char(1) not null"; // Initiator|Reviewer|Typesetter

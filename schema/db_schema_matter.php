@@ -6,7 +6,7 @@ require_once '../db.php';
 $sql = "create table if not exists xxt_article(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",mpid varchar(32) not null";
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",entry text"; // 创建图文的入口，管理端，投稿活动等
 $sql .= ",target_mps text"; // 发布到哪个子账号
 $sql .= ",creater varchar(40) not null default ''"; //accountid/fid
@@ -93,7 +93,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_article_remark(";
 $sql .= 'id int not null auto_increment';
-$sql .= ',mpid varchar(32) not null';
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",userid varchar(40) not null";
 $sql .= ',article_id int not null';
@@ -113,7 +113,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_article_score(";
 $sql .= 'id int not null auto_increment';
-$sql .= ',mpid varchar(32) not null';
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",userid varchar(40) not null";
 $sql .= ',vid varchar(32) not null';
@@ -155,7 +155,7 @@ $sql .= ",vid varchar(32) not null";
 $sql .= ",openid varchar(255) not null";
 $sql .= ",nickname varchar(255) not null";
 $sql .= ",download_at int not null";
-$sql .= ",mpid varchar(32) not null";
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",article_id int not null";
 $sql .= ",attachment_id int not null";
 $sql .= ",user_agent text";
@@ -170,7 +170,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_article_review_log(";
 $sql .= 'id int not null auto_increment';
-$sql .= ',mpid varchar(32) not null';
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ',article_id int not null';
 $sql .= ',seq int not null';
@@ -194,7 +194,7 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_link(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",mpid varchar(32) not null";
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",creater varchar(40) not null";
 $sql .= ",creater_name varchar(255) not null default ''"; //from account or fans
 $sql .= ",creater_src char(1) not null default 'A'"; //A:accouont|F:fans|M:member
@@ -244,7 +244,7 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_text(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",mpid varchar(32) not null";
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",creater varchar(40) not null";
 $sql .= ",creater_name varchar(255) not null default ''"; //from account or fans
 $sql .= ",creater_src char(1) default 'A'"; //A:accouont|F:fans|M:member
@@ -267,7 +267,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_news(";
 $sql .= "id int not null auto_increment";
-$sql .= ",mpid varchar(32) not null";
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",creater varchar(40) not null";
 $sql .= ",create_at int not null";
@@ -300,7 +300,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_news_review_log(";
 $sql .= 'id int not null auto_increment';
-$sql .= ',mpid varchar(32) not null';
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ',news_id int not null';
 $sql .= ',seq int not null';
 $sql .= ',mid varchar(32) not null';
@@ -334,8 +334,8 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_channel(";
 $sql .= "id int not null auto_increment";
-$sql .= ",mpid varchar(32) not null";
-$sql .= ",siteid varchar(32) not null default ''";
+$sql .= ",mpid varchar(32) not null default ''";
+$sql .= ",siteid varchar(32) not null";
 $sql .= ",creater varchar(40) not null";
 $sql .= ",create_at int not null";
 $sql .= ",creater_name varchar(255) not null default ''"; //from account or fans
@@ -418,7 +418,7 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_tmplmsg(";
 $sql .= 'id int not null auto_increment';
 $sql .= ",siteid varchar(32) not null";
-$sql .= ',mpid varchar(32) not null';
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ',templateid varchar(128) not null';
 $sql .= ',creater varchar(40) not null';
 $sql .= ',create_at int not null';
@@ -461,7 +461,7 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_matter_acl(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",mpid varchar(32) not null";
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",matter_type char(20) not null";
 $sql .= ",matter_id varchar(40) not null";
 $sql .= ",identity varchar(100) not null";

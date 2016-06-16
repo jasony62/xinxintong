@@ -123,22 +123,32 @@ define('TMS_APP_DIR', dirname(__FILE__));
  */
 !defined('TMS_APP_API_PREFIX') && define('TMS_APP_API_PREFIX', '/rest'); // 前缀API前缀
 !defined('TMS_APP_VIEW_PREFIX') && define('TMS_APP_VIEW_PREFIX', '/page'); // 请求页面前缀
+
+/***********************
+ * 设置平台入口
+ ***********************/
 /**
- * default page.
+ * 平台首页，未指定，或未找到指定地址时跳转到首页。
  */
-!defined('TMS_APP_UNAUTH') && define('TMS_APP_UNAUTH', '/pl/fe/user/auth'); // 未认证通过的缺省页
+!defined('TMS_APP_HOME') && define('TMS_APP_HOME', '');
+/**
+ * 用户未认证通过时缺省页
+ */
+!defined('TMS_APP_UNAUTH') && define('TMS_APP_UNAUTH', '/pl/fe/user/auth');
 define('TMS_APP_AUTHED', '/pl/fe'); // 认证通过后的缺省页
-/**
+
+/*************************
  * default upload directory
- */
+ *************************/
 if (defined('SAE_TMP_PATH')) {
 	define('TMS_UPLOAD_DIR', SAE_TMP_PATH);
 } else {
 	define('TMS_UPLOAD_DIR', 'kcfinder/upload/');
 }
-/**
+
+/*************************
  * run application.
- */
+ *************************/
 require_once 'tms/tms_app.php';
 
 $config = array();

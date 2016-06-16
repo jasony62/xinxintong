@@ -95,12 +95,19 @@ class TMS_APP {
 			$path = substr($path, strlen(TMS_APP_VIEW_PREFIX));
 			self::_request_view($path);
 		} else {
-			/**
-			 * 缺省情况下，跳转到管理端首页
-			 */
-			if (self::_authenticate()) {
-				$path = TMS_APP_AUTHED;
-				self::_request_api($path);
+			if (defined('TMS_APP_HOME') && !empty(TMS_APP_HOME)) {
+				/**
+				 * 跳转到指定首页
+				 */
+				header("Location: " . TMS_APP_HOME);
+			} else {
+				/**
+				 * 跳转到管理端首页
+				 */
+				if (self::_authenticate()) {
+					$path = TMS_APP_AUTHED;
+					self::_request_api($path);
+				}
 			}
 		}
 	}

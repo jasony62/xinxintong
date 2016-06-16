@@ -1,0 +1,130 @@
+<div id='viewSetting'>
+    <div class='form-horizontal'>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>Token</label>
+            <div class='col-md-10'>
+                <input type='text' class='form-control' ng-model='wx.token' tms-auto-update tms-wait=1000 tms-update="update('token')">
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>URL</label>
+            <div class='col-md-10'>
+                <p class='form-control' style='height:auto'>{{url}}</p>
+                <p class="help-block">将URL拷贝到微信公众账号管理平台中，执行验证操作。</p>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>连接成功</label>
+            <div class='col-md-10'>
+                <div class='checkbox' style='display:inline-block;width:48px'>
+                    <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='wx.joined' disabled></label>
+                </div>
+                <button class='btn btn-success' ng-disabled="wx.joined==='Y'" ng-click="checkJoin()">
+                检查<span ng-show="stateOfCheckJoin.running">{{'('+stateOfCheckJoin.count+')'}}</span>
+                </button>
+                <button class='btn btn-default' ng-disabled="wx.joined==='N'" ng-click="reset()">重置</button>
+                <p class="help-block">【检查】连接是否成功，成功后填写【AppId】和【AppSecret】并保存。</p>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>AppId</label>
+            <div class='col-md-10'>
+                <input type='text' class='form-control' ng-model="wx.appid" tms-auto-update tms-wait=1000 tms-update="update('appid')">
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>AppSecret</label>
+            <div class='col-md-10'>
+                <input type='text' class='form-control' ng-model="wx.appsecret" tms-auto-update tms-wait=1000 tms-update="update('appsecret')">
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>二维码</label>
+            <div class='col-md-10'>
+                <div style="width:182px;border:1px solid #CCC">
+                    <div style="height:100px;text-align:center;padding-top:32px" ng-if="!wx.qrcode">
+                        <button class='btn btn-default' ng-click='setQrcode();'><span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                    </div>
+                    <div style='position:relative' ng-if="wx.qrcode&&wx.qrcode.length" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                        <img name='pic' ng-src="{{wx.qrcode}}" width='180px' />
+                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setQrcode();'>
+                        <span class='glyphicon glyphicon-picture'></span>
+                        </button>
+                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removeQrcode();'>
+                        <span class='glyphicon glyphicon-trash'></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>微信号</label>
+            <div class='col-md-10'>
+                <input type='text' class='form-control' ng-model='wx.public_id' tms-auto-update tms-wait=1000 tms-update="update('public_id')">
+            </div>
+        </div>
+        <div class='form-group' ng-hide="wx.pay==='N'">
+            <label class='col-md-2 control-label'>商户号</label>
+            <div class='col-md-10'>
+                <input type='text' class='form-control' ng-model='wx.mchid' tms-auto-update tms-wait=1000 tms-update="update('mchid')">
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>高级接口</label>
+            <div class='col-md-10'>
+                <table class='table table-bordered'>
+                    <thead>
+                        <tr>
+                            <th>名称</th>
+                            <th>开通</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>自定义菜单</td>
+                            <td><input type='checkbox' ng-model='wx.can_menu' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('can_menu')"></td>
+                        </tr>
+                        <tr>
+                            <td>群发消息</td>
+                            <td><input type='checkbox' ng-model='wx.can_group_push' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('can_group_push')"></td>
+                        </tr>
+                        <tr>
+                            <td>客服消息</td>
+                            <td><input type='checkbox' ng-model='wx.can_custom_push' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('can_custom_push')"></td>
+                        </tr>
+                        <tr>
+                            <td>粉丝分组</td>
+                            <td><input type='checkbox' ng-model='wx.can_fansgroup' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('can_fansgroup')"></td>
+                        </tr>
+                        <tr ng-show="wx.fansgroup==='Y'">
+                            <td colspan='2'>
+                                <button running-button class='btn' is-running="backRunning" ng-click="refreshFansGroup('wx')">更新粉丝分组</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>粉丝信息</td>
+                            <td><input type='checkbox' ng-model='wx.can_fans' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('can_fans')"></td>
+                        </tr>
+                        <tr ng-show="wx.fans==='Y'">
+                            <td colspan='2'>
+                                <button running-button class='btn' is-running="backRunning" ng-click="refreshFans()">更新粉丝信息</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>场景二维码</td>
+                            <td><input type='checkbox' ng-model='wx.can_qrcode' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('can_qrcode')"></td>
+                        </tr>
+                        <tr>
+                            <td>网页授权（OAuth2.0）</td>
+                            <td><input type='checkbox' ng-model='wx.can_oauth' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('can_oauth')"></td>
+                        </tr>
+                        <tr>
+                            <td>微信支付</td>
+                            <td><input type='checkbox' ng-model='wx.can_pay' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('can_pay')"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

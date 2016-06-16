@@ -1,5 +1,5 @@
 <?php
-namespace pl\fe\site\sns\wx;
+namespace pl\be\site\sns\wx;
 
 require_once dirname(dirname(dirname(dirname(__FILE__)))) . '/base.php';
 

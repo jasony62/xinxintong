@@ -41,8 +41,7 @@ browser.initFiles = function() {
         _.unselect();
     });
     $.each(this.shows, function(i, val) {
-        var display = (_.kuki.get('show' + val) == 'off')
-            ? 'none' : 'block';
+        var display = (_.kuki.get('show' + val) == 'off') ? 'none' : 'block';
         $('#files .file div.' + val).css('display', display);
     });
     this.statusDir();
@@ -70,7 +69,7 @@ browser.showFiles = function(callBack, selected) {
                     '<td class="name" style="background-image:url(' + icon + ')">' + _.htmlData(file.name) + '</td>' +
                     '<td class="time">' + file.date + '</td>' +
                     '<td class="size">' + browser.humanSize(file.size) + '</td>' +
-                '</tr>';
+                    '</tr>';
                 if (i == browser.files.length - 1) html += '</table>';
             } else {
                 if (file.thumb)
@@ -88,7 +87,7 @@ browser.showFiles = function(callBack, selected) {
                     '<div class="name">' + _.htmlData(file.name) + '</div>' +
                     '<div class="time">' + file.date + '</div>' +
                     '<div class="size">' + browser.humanSize(file.size) + '</div>' +
-                '</div>';
+                    '</div>';
             }
         });
         $('#files').html('<div>' + html + '<div>');
@@ -100,7 +99,10 @@ browser.showFiles = function(callBack, selected) {
             )
                 $(item).addClass('selected');
         });
-        $('#files > div').css({opacity:'', filter:''});
+        $('#files > div').css({
+            opacity: '',
+            filter: ''
+        });
         if (callBack) callBack();
         browser.initFiles();
     }, 200);
@@ -163,8 +165,7 @@ browser.selectAll = function(e) {
 
 browser.returnFile = function(file) {
 
-    var fileURL = file.substr
-        ? file : browser.uploadURL + '/' + browser.dir + '/' + file.data('name');
+    var fileURL = file.substr ? file : browser.uploadURL + '/' + browser.dir + '/' + file.data('name');
     fileURL = _.escapeDirs(fileURL);
 
     if (this.opener.CKEditor) {
@@ -172,8 +173,8 @@ browser.returnFile = function(file) {
         window.close();
 
     } else if (this.opener.FCKeditor) {
-        window.opener.SetUrl(fileURL) ;
-        window.close() ;
+        window.opener.SetUrl(fileURL);
+        window.close();
 
     } else if (this.opener.TinyMCE) {
         var win = tinyMCEPopup.getWindowArg('window');
@@ -187,7 +188,9 @@ browser.returnFile = function(file) {
         }
         tinyMCEPopup.close();
     } else if (this.opener.name == 'tinymce4') {
-        var p = window.parent, tinymce = p.tinymce, wm = tinymce.activeEditor.windowManager;
+        var p = window.parent,
+            tinymce = p.tinymce,
+            wm = tinymce.activeEditor.windowManager;
         var params = wm.getParams();
         if (params && params.callback) {
             params.callback(fileURL);
@@ -273,18 +276,18 @@ browser.menuFile = function(file, e) {
         if (data.thumb || data.smallThumb || this.support.zip) {
             html += (html.length ? '<div class="delimiter"></div>' : '');
             if (data.thumb || data.smallThumb)
-                html +='<a href="kcact:view">' + this.label("View") + '</a>';
+                html += '<a href="kcact:view">' + this.label("View") + '</a>';
             //if (this.support.zip) html += (html.length ? '<div class="delimiter"></div>' : '') +
             //    '<a href="kcact:download">' + this.label("Download") + '</a>';
         }
 
         if (this.access.files.copy || this.access.files.move)
             html += (html.length ? '<div class="delimiter"></div>' : '') +
-                '<a href="kcact:clpbrdadd">' + this.label("Add to Clipboard") + '</a>';
+            '<a href="kcact:clpbrdadd">' + this.label("Add to Clipboard") + '</a>';
         if (this.access.files['delete'])
             html += (html.length ? '<div class="delimiter"></div>' : '') +
-                '<a href="kcact:rm"' + ((notWritable == files.length) ? ' class="denied"' : '') +
-                '>' + this.label("Delete") + '</a>';
+            '<a href="kcact:rm"' + ((notWritable == files.length) ? ' class="denied"' : '') +
+            '>' + this.label("Delete") + '</a>';
 
         if (html.length) {
             html = '<div class="menu">' + html + '</div>';
@@ -311,7 +314,10 @@ browser.menuFile = function(file, e) {
             $.each(files, function(i, cfile) {
                 pfiles[i] = $(cfile).data('name');
             });
-            browser.post(browser.baseGetData('downloadSelected'), {dir:browser.dir, files:pfiles});
+            browser.post(browser.baseGetData('downloadSelected'), {
+                dir: browser.dir,
+                files: pfiles
+            });
             return false;
         });
 
@@ -363,7 +369,9 @@ browser.menuFile = function(file, e) {
                     type: 'POST',
                     dataType: 'json',
                     url: browser.baseGetData('rm_cbd'),
-                    data: {files:dfiles},
+                    data: {
+                        files: dfiles
+                    },
                     async: false,
                     success: function(data) {
                         if (callBack) callBack();
@@ -383,7 +391,9 @@ browser.menuFile = function(file, e) {
 
             if (failed)
                 browser.confirm(
-                    browser.label("{count} selected files are not removable. Do you want to delete the rest?", {count:failed}),
+                    browser.label("{count} selected files are not removable. Do you want to delete the rest?", {
+                        count: failed
+                    }),
                     go
                 )
 
@@ -409,22 +419,22 @@ browser.menuFile = function(file, e) {
         }
 
         if (data.thumb || data.smallThumb)
-            html +='<a href="kcact:view">' + this.label("View") + '</a>';
+            html += '<a href="kcact:view">' + this.label("View") + '</a>';
 
         //html +=
         //    '<a href="kcact:download">' + this.label("Download") + '</a>';
 
         if (this.access.files.copy || this.access.files.move)
             html += '<div class="delimiter"></div>' +
-                '<a href="kcact:clpbrdadd">' + this.label("Add to Clipboard") + '</a>';
+            '<a href="kcact:clpbrdadd">' + this.label("Add to Clipboard") + '</a>';
         if (this.access.files.rename || this.access.files['delete'])
             html += '<div class="delimiter"></div>';
         if (this.access.files.rename)
             html += '<a href="kcact:mv"' + (!data.writable ? ' class="denied"' : '') + '>' +
-                this.label("Rename...") + '</a>';
+            this.label("Rename...") + '</a>';
         if (this.access.files['delete'])
             html += '<a href="kcact:rm"' + (!data.writable ? ' class="denied"' : '') + '>' +
-                this.label("Delete") + '</a>';
+            this.label("Delete") + '</a>';
         html += '</div>';
 
         $('#dialog').html(html);
@@ -447,7 +457,7 @@ browser.menuFile = function(file, e) {
             var html = '<form id="downloadForm" method="post" action="' + browser.baseGetData('download') + '">' +
                 '<input type="hidden" name="dir" />' +
                 '<input type="hidden" name="file" />' +
-            '</form>';
+                '</form>';
             $('#dialog').html(html);
             $('#downloadForm input').get(0).value = browser.dir;
             $('#downloadForm input').get(1).value = data.name;
@@ -475,7 +485,10 @@ browser.menuFile = function(file, e) {
         $('.menu a[href="kcact:mv"]').click(function(e) {
             if (!data.writable) return false;
             browser.fileNameDialog(
-                e, {dir: browser.dir, file: data.name},
+                e, {
+                    dir: browser.dir,
+                    file: data.name
+                },
                 'newName', data.name, browser.baseGetData('rename'), {
                     title: "New file name:",
                     errEmpty: "Please enter new file name.",
@@ -498,7 +511,10 @@ browser.menuFile = function(file, e) {
                         type: 'POST',
                         dataType: 'json',
                         url: browser.baseGetData('delete'),
-                        data: {dir:browser.dir, file:data.name},
+                        data: {
+                            dir: browser.dir,
+                            file: data.name
+                        },
                         async: false,
                         success: function(data) {
                             if (callBack) callBack();
@@ -523,7 +539,7 @@ browser.menuFile = function(file, e) {
         var ts = new Date().getTime();
         var showImage = function(data) {
             url = _.escapeDirs(browser.uploadURL + '/' + browser.dir + '/' + data.name) + '?ts=' + ts,
-            $('#loading').html(browser.label("Loading image..."));
+                $('#loading').html(browser.label("Loading image..."));
             $('#loading').css('display', 'inline');
             var img = new Image();
             img.src = url;
@@ -587,16 +603,12 @@ browser.menuFile = function(file, e) {
                                 $(document).keydown(function(e) {
                                     if (images.length > 1) {
                                         if (!browser.lock && (e.keyCode == 37)) {
-                                            var nimg = i
-                                                ? images[i - 1]
-                                                : images[images.length - 1];
+                                            var nimg = i ? images[i - 1] : images[images.length - 1];
                                             browser.lock = true;
                                             showImage(nimg);
                                         }
                                         if (!browser.lock && (e.keyCode == 39)) {
-                                            var nimg = (i >= images.length - 1)
-                                                ? images[0]
-                                                : images[i + 1];
+                                            var nimg = (i >= images.length - 1) ? images[0] : images[i + 1];
                                             browser.lock = true;
                                             showImage(nimg);
                                         }

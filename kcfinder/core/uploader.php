@@ -249,13 +249,20 @@ class uploader {
 
 			// ABSOLUTE & RELATIVE
 		} else {
-			$this->config['uploadURL'] = (substr($this->config['uploadURL'], 0, 1) === "/")
-			? path::normalize($this->config['uploadURL'])
-			: path::rel2abs_url($this->config['uploadURL']);
+			/*???*/
+			if (defined('KCFINDER_STORE_AT') && KCFINDER_STORE_AT === 'local') {
+				$this->config['uploadURL'] = '/kcfinder/' . $this->config['uploadURL'];
+			} else {
+				$this->config['uploadURL'] = (substr($this->config['uploadURL'], 0, 1) === "/")
+				? path::normalize($this->config['uploadURL'])
+				: path::rel2abs_url($this->config['uploadURL']);
+			}
 			$this->config['uploadDir'] = strlen($this->config['uploadDir'])
 			? path::normalize($this->config['uploadDir'])
 			: path::url2fullPath($this->config['uploadURL']);
+
 			$this->typeDir = "{$this->config['uploadDir']}/{$this->type}";
+
 			$this->typeURL = "{$this->config['uploadURL']}/{$this->type}";
 		}
 		if (defined('KCFINDER_STORE_AT') && KCFINDER_STORE_AT === 'local') {

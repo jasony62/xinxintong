@@ -224,7 +224,7 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_log_matter_action(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",userid varchar(40) not null";
+$sql .= ",userid varchar(40) not null default ''";
 $sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",matter_id varchar(40) not null";
 $sql .= ",matter_type varchar(20) not null";

@@ -3,6 +3,9 @@ require_once '../../db.php';
 $sqls = array();
 //
 $sqls[] = "alter table xxt_log_matter_read change mpid mpid varchar(32) not null default ''";
+$sqls[] = "alter table xxt_log_matter_read change vid vid varchar(32) not null default ''";
+$sqls[] = "alter table xxt_log_matter_read change openid openid varchar(255) not null default ''";
+$sqls[] = "alter table xxt_log_matter_read change nickname nickname varchar(255) not null default ''";
 $sqls[] = "alter table xxt_log_matter_share change mpid mpid varchar(32) not null default ''";
 $sqls[] = "alter table xxt_log_tmplmsg change mpid mpid varchar(32) not null default ''";
 $sqls[] = "alter table xxt_log_user_action change mpid mpid varchar(32) not null default ''";

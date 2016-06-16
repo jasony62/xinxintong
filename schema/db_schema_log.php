@@ -3,7 +3,7 @@ require_once '../db.php';
 // log raw message.
 $sql = "create table if not exists xxt_log(";
 $sql .= 'id int not null auto_increment';
-$sql .= ',mpid varchar(32) not null';
+$sql .= ",mpid varchar(32) not null";
 $sql .= ',create_at int(10) not null';
 $sql .= ',method varchar(255) not null';
 $sql .= ',data text';
@@ -18,7 +18,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_log_mpa(";
 $sql .= 'id int not null auto_increment';
-$sql .= ',mpid varchar(32) not null';
+$sql .= ",mpid varchar(32) not null";
 $sql .= ',year int not null default 0';
 $sql .= ',month int not null default 0';
 $sql .= ',day int not null default 0';
@@ -44,7 +44,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_log_mpreceive(";
 $sql .= 'id int not null auto_increment';
-$sql .= ',mpid varchar(32) not null';
+$sql .= ",mpid varchar(32) not null";
 $sql .= ",msgid bigint(64) not null default 0";
 $sql .= ',to_user varchar(255) not null';
 $sql .= ',openid varchar(255) not null';
@@ -63,7 +63,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_log_mpsend(";
 $sql .= 'id int not null auto_increment';
-$sql .= ',mpid varchar(32) not null';
+$sql .= ",mpid varchar(32) not null";
 $sql .= ',openid varchar(255) not null';
 $sql .= ',groupid varchar(255) not null';
 $sql .= ',creater varchar(40) not null';
@@ -87,7 +87,7 @@ $sql .= ',vid varchar(32) not null';
 $sql .= ',openid varchar(255) not null';
 $sql .= ',nickname varchar(255) not null';
 $sql .= ',read_at int not null';
-$sql .= ',mpid varchar(32) not null';
+$sql .= ",mpid varchar(32) not null  default ''";
 $sql .= ',matter_id varchar(40) not null';
 $sql .= ',matter_type varchar(20) not null'; //article,link
 $sql .= ',matter_title varchar(70) not null';
@@ -115,7 +115,7 @@ $sql .= ',openid varchar(40) not null';
 $sql .= ',nickname varchar(255) not null';
 $sql .= ',share_at int not null';
 $sql .= ',share_to char(1)'; //朋友圈(T)或好友(F)
-$sql .= ',mpid varchar(32) not null';
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ',matter_id varchar(40) not null';
 $sql .= ',matter_type varchar(20) not null';
 $sql .= ',matter_title varchar(70) not null';
@@ -133,7 +133,7 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_log_massmsg(";
 $sql .= 'id int not null auto_increment';
 $sql .= ",siteid varchar(32) not null";
-$sql .= ',mpid varchar(32) not null';
+$sql .= ",mpid varchar(32) not null";
 $sql .= ',matter_id varchar(40) not null';
 $sql .= ',matter_type varchar(20) not null';
 $sql .= ',sender varchar(40) not null';
@@ -157,7 +157,7 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_log_tmplmsg(";
 $sql .= 'id int not null auto_increment';
 $sql .= ",siteid varchar(32) not null";
-$sql .= ',mpid varchar(32) not null';
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ',tmplmsg_id int not null'; // 模板ID
 $sql .= ',template_id varchar(255) not null'; // 模板ID
 $sql .= ',msgid varchar(50) not null'; // 消息ID
@@ -180,7 +180,7 @@ $sql = "create table if not exists xxt_log_user_action(";
 $sql .= 'id int not null auto_increment';
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",userid varchar(40) not null";
-$sql .= ',mpid varchar(32) not null';
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ',vid varchar(32) not null';
 $sql .= ',openid varchar(255) not null';
 $sql .= ',nickname varchar(255) not null';
@@ -201,7 +201,7 @@ $sql = "create table if not exists xxt_log_user_matter(";
 $sql .= 'id int not null auto_increment';
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",userid varchar(40) not null";
-$sql .= ',mpid varchar(32) not null';
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ',openid varchar(255) not null';
 $sql .= ',nickname varchar(255) not null';
 $sql .= ',matter_id varchar(40) not null';
@@ -223,7 +223,7 @@ $sql = "create table if not exists xxt_log_matter_action(";
 $sql .= 'id int not null auto_increment';
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",userid varchar(40) not null";
-$sql .= ',mpid varchar(32) not null';
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ',matter_id varchar(40) not null';
 $sql .= ',matter_type varchar(20) not null';
 $sql .= ',matter_title varchar(70) not null';
@@ -242,7 +242,7 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_log_timer(";
 $sql .= 'id int not null auto_increment';
-$sql .= ',mpid varchar(32) not null';
+$sql .= ",mpid varchar(32) not null";
 $sql .= ",task_id int not null";
 $sql .= ",occur_at int not null";
 $sql .= ",result text";
@@ -264,8 +264,8 @@ $sql .= ",operation char(1) not null"; //Create|Update|Delete
 $sql .= ",operate_at int not null";
 $sql .= ",matter_id varchar(40) not null";
 $sql .= ",matter_type varchar(20) not null";
-$sql .= ",matter_title varchar(70) not null";
-$sql .= ",matter_summary varchar(240) not null";
+$sql .= ",matter_title varchar(70) not null default ''";
+$sql .= ",matter_summary varchar(240) not null default ''";
 $sql .= ",matter_pic text";
 $sql .= ",last_op char(1) not null default 'Y'";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";

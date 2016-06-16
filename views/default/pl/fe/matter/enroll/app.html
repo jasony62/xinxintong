@@ -51,6 +51,7 @@
             <div class='col-md-3'>
                 <!--create input wrap-->
                 <div class='form-group tile' ng-if="ep.type==='I'">
+                    <div class='help-block'>在页面中添加登记项</div>
                     <button class='btn btn-default' ng-click="newSchema('name')">姓名</button>
                     <button class='btn btn-default' ng-click="newSchema('mobile')">手机</button>
                     <button class='btn btn-default' ng-click="newSchema('email')">邮箱</button>
@@ -64,16 +65,22 @@
                     <button class='btn btn-default' ng-click="newSchema('location')">上传位置</button>
                     <button class='btn btn-default' ng-click="newSchema('phase')">项目阶段</button>
                     <button class='btn btn-default' ng-click="newMember()">自定义用户信息</button>
-                    <div class='help-block'>添加登记项</div>
                 </div>
                 <!--create input wrap-->
                 <!--create button wrap-->
                 <div class='tile'>
+                    <div class='help-block'>在页面中添加操作</div>
                     <button class='btn btn-default' ng-click="newButton(btn)" ng-repeat="btn in buttons">{{btn.l}}</button>
-                    <div class='help-block'>添加操作</div>
                 </div>
                 <!--create button wrap-->
+                <!--embed inner matter-->
+                <div class='tile'>
+                    <div class='help-block'>在页面中添加素材</div>
+                    <button class='btn btn-default' ng-click="embedMatter()">添加素材</button>
+                </div>
+                <!--embed inner matter-->
                 <div class='tile' ng-if="ep.type==='I'">
+                    <div class='help-block'>活动中所有登记项</div>
                     <div class='list-group' ng-controller="ctrlAppSchemas4Input">
                         <div class='list-group-item schema' ng-repeat="s in appSchemas">
                             <div class='checkbox' style='margin:0;padding:0' ng-mouseenter="entered=true" ng-mouseleave="entered=false">
@@ -82,7 +89,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class='help-block'>所有登记项</div>
                 </div>
                 <div ng-if="ep.type==='V'" ng-controller="ctrlAppSchemas4View">
                     <div class='list-group-item' ng-repeat="s in appSchemas">
@@ -106,12 +112,6 @@
                 <div class='page-editor'>
                     <tinymce content='ep.html' id='tinymce-page' height='660' change="onPageChange()" toolbar="code"></tinymce>
                     <div class='sidebar'>
-                        <button class='btn btn-default' ng-click="updPage(ep,['html'])" title='保存修改' ng-disabled='!ep.$$modified'>
-                        <i class='fa fa-save fa-fw'></i>
-                        </button>
-                        <button class='btn btn-default' ng-click="embedMatter()" title='添加素材'>
-                        <i class='fa fa-file fa-fw'></i>
-                        </button>
                         <button class='btn btn-default' ng-click="removeWrap()" title='删除' ng-disabled='!activeWrap'>
                         <i class='fa fa-remove fa-fw'></i>
                         </button>

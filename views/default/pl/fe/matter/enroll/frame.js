@@ -98,7 +98,7 @@ define(['require', 'page'], function(require, pageLib) {
 				}
 			}
 		}).otherwise({
-			templateUrl: '/views/default/pl/fe/matter/enroll/app.html?_=9',
+			templateUrl: '/views/default/pl/fe/matter/enroll/app.html?_=10',
 			controller: 'ctrlApp',
 			resolve: {
 				load: function($q) {

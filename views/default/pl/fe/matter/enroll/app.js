@@ -664,10 +664,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 									for (var j = editingSchema.ops.length - 1; j >= 0; j--) {
 										if (oOptionWrap.schema.ops[0].v === editingSchema.ops[j].v) {
 											editingSchema.ops[j].l = oOptionWrap.schema.ops[0].l;
-											console.log('ssss', editingSchema);
-											$timeout(function() {
-												console.log('ssss2', editingSchema);
-											});
 											break;
 										}
 									}

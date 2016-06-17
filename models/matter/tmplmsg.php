@@ -32,6 +32,33 @@ class tmplmsg_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
+	public function &bySite($site, $options = []) {
+		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
+
+		$q = array(
+			"t.*",
+			'xxt_tmplmsg t',
+			"t.siteid='$site' and t.state=1",
+		);
+		$q2['o'] = 't.create_at desc';
+		$tmplmsgs = $this->query_objs_ss($q, $q2);
+
+		if ($cascaded === 'Y' && !empty($tmplmsgs)) {
+			$q = array(
+				"id,pname,plabel",
+				'xxt_tmplmsg_param',
+			);
+			foreach ($tmplmsgs as &$tmpl) {
+				$q[2] = "tmplmsg_id=$tmpl->id";
+				$tmpl->params = $this->query_objs_ss($q);
+			}
+		}
+
+		return $tmplmsgs;
+	}
+	/**
+	 *
+	 */
 	public function &mappingById($id) {
 		$q = array(
 			'msgid,mapping',

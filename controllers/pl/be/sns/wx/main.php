@@ -14,13 +14,6 @@ class main extends \pl\be\base {
 		exit;
 	}
 	/**
-	 *
-	 */
-	public function setting_action() {
-		\TPL::output('/pl/be/sns/wx/main');
-		exit;
-	}
-	/**
 	 * 获得公众号配置信息
 	 */
 	public function get_action() {

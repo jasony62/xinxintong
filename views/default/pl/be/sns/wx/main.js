@@ -1,10 +1,10 @@
 'use strict';
 define(['require'], function(require) {
     var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
-    ngApp.config(['$locationProvider', '$controllerProvider', '$routeProvider', function($lp, $cp, $rp) {
+    ngApp.config(['$locationProvider', '$provide', '$controllerProvider', '$routeProvider', function($lp, $provide, $cp, $rp) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/be/sns/wx/';
-            this.templateUrl = baseURL + name + '.html?=2';
+            this.templateUrl = baseURL + name + '.html?=3';
             this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
             this.resolve = {
                 load: function($q) {
@@ -18,7 +18,8 @@ define(['require'], function(require) {
         };
         $lp.html5Mode(true);
         ngApp.provider = {
-            controller: $cp.register
+            controller: $cp.register,
+            service: $provide.service,
         };
         $rp.when('/rest/pl/be/sns/wx/setting', new RouteParam('setting'))
             .when('/rest/pl/be/sns/wx/text', new RouteParam('text'))

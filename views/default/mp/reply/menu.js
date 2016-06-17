@@ -1,4 +1,4 @@
-xxtApp.controller('MenuCtrl',['$rootScope','$scope','http2','matterTypes','$timeout',function($rootScope,$scope,http2,matterTypes,$timeout) {
+xxtApp.controller('MenuCtrl', ['$rootScope', '$scope', 'http2', 'matterTypes', '$timeout', function($rootScope, $scope, http2, matterTypes, $timeout) {
     $scope.matterTypes = matterTypes;
     var setPublishState = function(state) {
         for (var i in $scope.menu) {
@@ -11,7 +11,7 @@ xxtApp.controller('MenuCtrl',['$rootScope','$scope','http2','matterTypes','$time
     };
     $scope.edit = function(button) {
         if (button.sub === undefined || button.sub.length === 0) {
-            http2.get('/rest/mp/call/menu/get?k='+button.menu_key, function(rsp){
+            http2.get('/rest/mp/call/menu/get?k=' + button.menu_key, function(rsp) {
                 $scope.editing = button;
                 delete $scope.editing.matter;
                 delete $scope.editing.acl;
@@ -32,8 +32,10 @@ xxtApp.controller('MenuCtrl',['$rootScope','$scope','http2','matterTypes','$time
         }
     };
     $scope.appendButton = function(evt) {
-        var button = {menu_name:'新菜单'};
-        http2.post('/rest/mp/call/menu/createButton', button, function(rsp){
+        var button = {
+            menu_name: '新菜单'
+        };
+        http2.post('/rest/mp/call/menu/createButton', button, function(rsp) {
             button = rsp.data;
             if (button.sub === undefined) button.sub = [];
             $scope.menu.push(button);
@@ -43,19 +45,22 @@ xxtApp.controller('MenuCtrl',['$rootScope','$scope','http2','matterTypes','$time
     };
     $scope.appendSubButton = function(button, afterIndex) {
         var buttonPos = $scope.menu.indexOf(button) + 1;
-        var subButton = {menu_name:'新子菜单',l1_pos:buttonPos};
+        var subButton = {
+            menu_name: '新子菜单',
+            l1_pos: buttonPos
+        };
         if (afterIndex !== undefined) {
-            subButton.l2_pos = afterIndex+2;
+            subButton.l2_pos = afterIndex + 2;
         }
-        http2.post('/rest/mp/call/menu/createSubButton', subButton, function(rsp){
+        http2.post('/rest/mp/call/menu/createSubButton', subButton, function(rsp) {
             subButton = rsp.data;
             if (button.sub === undefined)
                 button.sub = [subButton];
             else {
                 if (afterIndex === undefined)
-                    button.sub.splice(0,0,subButton);
+                    button.sub.splice(0, 0, subButton);
                 else
-                    button.sub.splice(afterIndex+1,0,subButton);
+                    button.sub.splice(afterIndex + 1, 0, subButton);
             }
             setPublishState('N');
             $scope.edit(subButton);
@@ -64,7 +69,7 @@ xxtApp.controller('MenuCtrl',['$rootScope','$scope','http2','matterTypes','$time
     $scope.removeButton = function(button, index, evt) {
         evt.preventDefault();
         evt.stopPropagation();
-        http2.get('/rest/mp/call/menu/removeButton?k='+button.menu_key, function(rsp){
+        http2.get('/rest/mp/call/menu/removeButton?k=' + button.menu_key, function(rsp) {
             $scope.menu.splice(index, 1);
             setPublishState('N');
             $scope.editing = false;
@@ -73,7 +78,7 @@ xxtApp.controller('MenuCtrl',['$rootScope','$scope','http2','matterTypes','$time
     $scope.removeSubButton = function(button, subButton, index, evt) {
         evt.preventDefault();
         evt.stopPropagation();
-        http2.get('/rest/mp/call/menu/removeButton?k='+subButton.menu_key, function(rsp){
+        http2.get('/rest/mp/call/menu/removeButton?k=' + subButton.menu_key, function(rsp) {
             button.sub.splice(index, 1);
             if ($scope.published === 'Y')
                 setPublishState('N');
@@ -81,21 +86,23 @@ xxtApp.controller('MenuCtrl',['$rootScope','$scope','http2','matterTypes','$time
         });
     };
     $scope.asGroupMenu = function() {
-        http2.post('/rest/mp/call/menu/update?k='+$scope.editing.menu_key, {url:''}, function(rsp) {
+        http2.post('/rest/mp/call/menu/update?k=' + $scope.editing.menu_key, {
+            url: ''
+        }, function(rsp) {
             angular.extend($scope.editing, rsp.data);
             $scope.editing.hasReply = false;
             $scope.edit($scope.editing);
             setPublishState('N');
         });
     };
-    $scope.setReply = function(){
-        $scope.$broadcast('mattersgallery.open', function(aSelected, matterType){
+    $scope.setReply = function() {
+        $scope.$broadcast('mattersgallery.open', function(aSelected, matterType) {
             if (aSelected.length === 1) {
                 var p = {
                     matter_type: matterType,
                     matter_id: aSelected[0].id
                 };
-                http2.post('/rest/mp/call/menu/setreply?k='+$scope.editing.menu_key, p, function(rsp) {
+                http2.post('/rest/mp/call/menu/setreply?k=' + $scope.editing.menu_key, p, function(rsp) {
                     if (rsp.data.menu_key) {
                         if ($scope.editing.published != rsp.data.published)
                             setPublishState(rsp.data.published);
@@ -110,7 +117,7 @@ xxtApp.controller('MenuCtrl',['$rootScope','$scope','http2','matterTypes','$time
         if (!angular.equals($scope.editing, $scope.persisted)) {
             var p = {};
             p[name] = $scope.editing[name];
-            http2.post('/rest/mp/call/menu/update?k='+$scope.editing.menu_key, p, function(rsp) {
+            http2.post('/rest/mp/call/menu/update?k=' + $scope.editing.menu_key, p, function(rsp) {
                 if (rsp.data.menu_key) {
                     angular.extend($scope.editing, rsp.data);
                     $scope.edit($scope.editing)
@@ -122,7 +129,9 @@ xxtApp.controller('MenuCtrl',['$rootScope','$scope','http2','matterTypes','$time
     };
     $scope.updateKey = function() {
         var k = $scope.persisted.menu_key;
-        http2.post('/rest/mp/call/menu/update?k='+k, {'menu_key':$scope.editing.menu_key}, function(rsp) {
+        http2.post('/rest/mp/call/menu/update?k=' + k, {
+            'menu_key': $scope.editing.menu_key
+        }, function(rsp) {
             if (rsp.data.menu_key) {
                 angular.extend($scope.editing, rsp.data);
                 $scope.edit($scope.editing)
@@ -145,28 +154,33 @@ xxtApp.controller('MenuCtrl',['$rootScope','$scope','http2','matterTypes','$time
             setPublishState('Y');
         });
     };
-    $scope.$on('orderChanged', function(e, moved){
-        if (-1 === $scope.menu.indexOf(moved)){
-            var pos1,pos2,button,pos;
-            for(pos1=0;pos1<$scope.menu.length;pos1++) {
-                button = $scope.menu[pos1]; 
+    $scope.$on('orderChanged', function(e, moved) {
+        if (-1 === $scope.menu.indexOf(moved)) {
+            var pos1, pos2, button, pos;
+            for (pos1 = 0; pos1 < $scope.menu.length; pos1++) {
+                button = $scope.menu[pos1];
                 if (button.sub.indexOf(moved) === -1)
                     continue;
                 pos2 = button.sub.indexOf(moved);
                 break;
             }
-            pos = {'l1_pos':pos1+1,'l2_pos':pos2+1};
-            http2.post('/rest/mp/call/menu/setpos?k='+moved.menu_key, pos, function() {
+            pos = {
+                'l1_pos': pos1 + 1,
+                'l2_pos': pos2 + 1
+            };
+            http2.post('/rest/mp/call/menu/setpos?k=' + moved.menu_key, pos, function() {
                 setPublishState('N');
             });
         } else {
             var pos1 = $scope.menu.indexOf(moved);
-            http2.post('/rest/mp/call/menu/setpos?k='+moved.menu_key, {'l1_pos':pos1+1}, function() {
+            http2.post('/rest/mp/call/menu/setpos?k=' + moved.menu_key, {
+                'l1_pos': pos1 + 1
+            }, function() {
                 setPublishState('N');
             });
         }
     });
-    http2.get('/rest/mp/call/menu/get', function(rsp){
+    http2.get('/rest/mp/call/menu/get', function(rsp) {
         $scope.menu = [];
         for (var i in rsp.data) {
             var button = rsp.data[i];
@@ -179,7 +193,7 @@ xxtApp.controller('MenuCtrl',['$rootScope','$scope','http2','matterTypes','$time
                 button.sub = [];
                 $scope.menu.push(button);
             } else {
-                $scope.menu[$scope.menu.length-1].sub.push(button);
+                $scope.menu[$scope.menu.length - 1].sub.push(button);
             }
         }
         if ($scope.menu.length > 0) {
@@ -188,4 +202,3 @@ xxtApp.controller('MenuCtrl',['$rootScope','$scope','http2','matterTypes','$time
         }
     });
 }]);
-

@@ -7,48 +7,30 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class main extends \pl\fe\matter\base {
 	/**
-	 *
-	 */
-	public function index_action() {
-		//$this->view_action('/mp/matter/tmplmsg/main');
-	}
-	/**
 	 * @param int $id
 	 */
-	public function get_action($id) {
-		$modelTmpl = $this->model('matter\tmplmsg');
-		if ($tmplmsg = $modelTmpl->byId($id, array('cascaded' => 'Y'))) {
-			$tmplmsg->uid = \TMS_CLIENT::get_client_uid();
-			if ($creater = $this->model('account')->byId($tmplmsg->creater)) {
-				$tmplmsg->creater_name = $creater->nickname;
-			}
+	public function get_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
 		}
+
+		$modelTmpl = $this->model('matter\tmplmsg');
+
+		$tmplmsg = $modelTmpl->byId($id, ['cascaded' => 'Y']);
+
 		return new \ResponseData($tmplmsg);
 	}
 	/**
 	 *
 	 */
 	public function list_action($site, $cascaded = 'N') {
-		$uid = \TMS_CLIENT::get_client_uid();
-		$model = $this->model();
-		/**/
-		$q = array(
-			"t.*,a.nickname creater_name,'$uid' uid",
-			'xxt_tmplmsg t,account a',
-			"t.siteid='$site' and t.state=1 and t.creater=a.uid",
-		);
-		$q2['o'] = 't.create_at desc';
-		$tmplmsgs = $model->query_objs_ss($q, $q2);
-		if ($cascaded === 'Y' && !empty($tmplmsgs)) {
-			$q = array(
-				"id,pname,plabel",
-				'xxt_tmplmsg_param',
-			);
-			foreach ($tmplmsgs as &$tmpl) {
-				$q[2] = "tmplmsg_id=$tmpl->id";
-				$tmpl->params = $model->query_objs_ss($q);
-			}
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
 		}
+
+		$modelTmpl = $this->model('matter\tmplmsg');
+
+		$tmplmsgs = $modelTmpl->bySite($site, ['cascaded' => $cascaded]);
 
 		return new \ResponseData($tmplmsgs);
 	}
@@ -56,6 +38,9 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function mappingGet_action($id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$mapping = $this->model('matter\tmplmsg')->mappingById($id);
 
 		return new \ResponseData($mapping);
@@ -63,22 +48,28 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 创建模板消息
 	 */
-	public function create_action($title = '新模板消息') {
-		$uid = \TMS_CLIENT::get_client_uid();
-		$d['mpid'] = $this->mpid;
-		$d['creater'] = $uid;
+	public function create_action($site, $title = '新模板消息') {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$model = $this->model();
+
+		$d['siteid'] = $site;
+		$d['mpid'] = $site;
+		$d['creater'] = $user->id;
 		$d['create_at'] = time();
 		$d['title'] = $title;
 
-		$id = $this->model()->insert('xxt_tmplmsg', $d, true);
+		$id = $model->insert('xxt_tmplmsg', $d, true);
 
 		$q = array(
-			"t.*,a.nickname creater_name,'$uid' uid",
-			'xxt_tmplmsg t,account a',
-			"t.id=$id and t.creater=a.uid",
+			"t.*",
+			'xxt_tmplmsg t',
+			"t.id=$id",
 		);
 
-		$tmplmsg = $this->model()->query_obj_ss($q);
+		$tmplmsg = $model->query_obj_ss($q);
 
 		return new \ResponseData($tmplmsg);
 	}
@@ -87,11 +78,14 @@ class main extends \pl\fe\matter\base {
 	 *
 	 * $id
 	 */
-	public function remove_action($id) {
+	public function remove_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$rst = $this->model()->update(
 			'xxt_tmplmsg',
 			array('state' => 0),
-			"mpid='$this->mpid' and id=$id"
+			"siteid='$site' and id=$id"
 		);
 
 		return new \ResponseData($rst);
@@ -99,13 +93,16 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 更新模板消息属性
 	 */
-	public function update_action($id) {
+	public function update_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$nv = $this->getPostJson();
 
 		$rst = $this->model()->update(
 			'xxt_tmplmsg',
 			$nv,
-			"mpid='$this->mpid' and id=$id"
+			"siteid='$site' and id=$id"
 		);
 
 		return new \ResponseData($rst);
@@ -114,7 +111,11 @@ class main extends \pl\fe\matter\base {
 	 *
 	 * $tid tmplmsg's id
 	 */
-	public function addParam_action($tid) {
+	public function addParam_action($site, $tid) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$p['tmplmsg_id'] = $tid;
 
 		$id = $this->model()->insert('xxt_tmplmsg_param', $p, true);
@@ -127,12 +128,16 @@ class main extends \pl\fe\matter\base {
 	 *
 	 * $id parameter's id
 	 */
-	public function updateParam_action($id) {
+	public function updateParam_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$nv = $this->getPostJson();
 
 		$rst = $this->model()->update(
 			'xxt_tmplmsg_param',
-			(array) $nv,
+			$nv,
 			"id=$id"
 		);
 
@@ -142,7 +147,11 @@ class main extends \pl\fe\matter\base {
 	 *
 	 * $pid parameter's id
 	 */
-	public function removeParam_action($pid) {
+	public function removeParam_action($site, $pid) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$rst = $this->model()->delete('xxt_tmplmsg_param', "id=$pid");
 
 		return new \ResponseData($rst);

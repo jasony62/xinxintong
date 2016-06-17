@@ -125,18 +125,30 @@ class TMS_APP {
 		if (!$obj_controller = self::create_controller($__controller)) {
 			throw new Exception("控制器($__controller)不存在！");
 		}
-
-		// check controller's action.
+		/**
+		 * check controller's action.
+		 */
 		$action_method = $__action . '_action';
 		if (!method_exists($obj_controller, $action_method)) {
-			throw new Exception("操作($__controller->$action_method)不存在！");
+			if (strpos('text/html', $_SERVER['HTTP_ACCEPT']) !== -1) {
+				/**
+				 * 如果访问的是页面，返回控制器的缺省页面
+				 */
+				$default_method = self::$default_action . '_action';
+				if (!method_exists($obj_controller, $default_method)) {
+					throw new Exception("操作($__controller->$action_method)不存在！");
+				}
+				$action_method = $default_method;
+			} else {
+				throw new Exception("操作($__controller->$action_method)不存在！");
+			}
 		}
-
-		// access control
+		/**
+		 * access control
+		 */
 		if (method_exists($obj_controller, 'get_access_rule')) {
 			$access_rule = $obj_controller->get_access_rule();
 		}
-
 		if (isset($access_rule)) {
 			if (isset($access_rule['rule_type']) && ($access_rule['rule_type'] == 'white')) {
 				if ((!$access_rule['actions']) || (!in_array($__action, $access_rule['actions']))) {
@@ -150,7 +162,9 @@ class TMS_APP {
 			// 不指定就都检查
 			self::_authenticate($obj_controller);
 		}
-		// parameters
+		/**
+		 * parameters
+		 */
 		$trans = array_merge($_GET, $_POST);
 		$rm = new ReflectionMethod($obj_controller, $action_method);
 		$ps = $rm->getParameters();
@@ -189,7 +203,7 @@ class TMS_APP {
 			die($response->toJsonString());
 			//}
 		}
-		die('unknown request');
+		die('tms unknown request');
 	}
 	/**
 	 * $path controller's path

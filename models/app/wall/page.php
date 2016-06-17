@@ -89,7 +89,7 @@ class page_model extends \TMS_MODEL {
 	public function add($mpid, $data, $wallId) {
 		$uid = \TMS_CLIENT::get_client_uid();
 
-		$code = \TMS_APP::model('code\page')->create($uid);
+		$code = \TMS_APP::model('code\page')->create($mpid, $uid);
 
 		$newPage = array(
 			'mpid' => $mpid,

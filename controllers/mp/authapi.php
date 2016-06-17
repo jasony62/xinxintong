@@ -147,7 +147,7 @@ class authapi extends mp_controller {
 			'js' => file_get_contents($templateDir . '/' . $template . '.js'),
 		);
 
-		$rst = \TMS_APP::model('code\page')->modify($codeId, $data);
+		$rst = \TMS_APP::model('code\page')->modify($this->mpid, $codeId, $data);
 
 		return new \ResponseData($rst);
 	}
@@ -164,7 +164,7 @@ class authapi extends mp_controller {
 			'js' => file_get_contents($templateDir . '/' . $template . '.js'),
 		);
 
-		$code = \TMS_APP::model('code\page')->create($uid, $data);
+		$code = \TMS_APP::model('code\page')->create($this->mpid, $uid, $data);
 
 		return $code->id;
 	}

@@ -105,12 +105,20 @@ define(['wrap'], function(wrapLib) {
 			if (this.data_schemas.length) {
 				if (this.type === 'I') {
 					angular.forEach(this.data_schemas, function(dataWrap) {
-						mapOfAppSchemas[dataWrap.schema.id] && (dataWrap.schema = mapOfAppSchemas[dataWrap.schema.id]);
+						if (dataWrap.schema && dataWrap.schema.id) {
+							mapOfAppSchemas[dataWrap.schema.id] && (dataWrap.schema = mapOfAppSchemas[dataWrap.schema.id]);
+						} else {
+							console.error('data invalid', dataWrap);
+						}
 					});
 				} else if (this.type === 'V') {
 					angular.forEach(this.data_schemas, function(config) {
 						if (config.pattern === 'record') {
-							mapOfAppSchemas[config.schema.id] && (config.schema = mapOfAppSchemas[config.schema.id]);
+							if (config.schema && config.schema.id) {
+								mapOfAppSchemas[config.schema.id] && (config.schema = mapOfAppSchemas[config.schema.id]);
+							} else {
+								console.error('data invalid', config);
+							}
 						}
 					});
 				} else if (this.type === 'L') {

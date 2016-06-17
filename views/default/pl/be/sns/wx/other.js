@@ -1,4 +1,5 @@
-(function() {
+'use strict';
+define(['main'], function(ngApp) {
 	ngApp.provider.controller('ctrlOther', ['$scope', 'http2', 'matterTypes', 'mattersgallery', function($scope, http2, matterTypes, mattersgallery) {
 		$scope.edit = function(call) {
 			if (call.name === 'templatemsg' || call.name === 'cardevent') {
@@ -12,7 +13,7 @@
 			$scope.editing = call;
 		};
 		$scope.setReply = function() {
-			mattersgallery.open($scope.siteId, function(aSelected, matterType) {
+			mattersgallery.open($scope.wx.plid, function(aSelected, matterType) {
 				if (aSelected.length === 1) {
 					var matter = aSelected[0],
 						p = {
@@ -20,7 +21,7 @@
 							matter_type: matterType
 						};
 					matter.type = matterType;
-					http2.post('/rest/pl/fe/site/sns/wx/other/setreply?site=' + $scope.siteId + '&id=' + $scope.editing.id, p, function(rsp) {
+					http2.post('/rest/pl/be/sns/wx/other/setreply?site=' + $scope.wx.plid + '&id=' + $scope.editing.id, p, function(rsp) {
 						$scope.editing.matter = aSelected[0];
 					});
 				}
@@ -35,14 +36,13 @@
 				matter_id: '',
 				matter_type: ''
 			};
-			http2.post('/rest/pl/fe/site/sns/wx/other/setreply?site=' + $scope.siteId + '&id=' + $scope.editing.id, p, function(rsp) {
+			http2.post('/rest/pl/be/sns/wx/other/setreply?site=' + $scope.wx.plid + '&id=' + $scope.editing.id, p, function(rsp) {
 				$scope.editing.matter = null;
 			});
 		};
-		http2.get('/rest/pl/fe/site/sns/wx/other/list?site=' + $scope.siteId, function(rsp) {
+		http2.get('/rest/pl/be/sns/wx/other/list?site=' + $scope.wx.plid, function(rsp) {
 			$scope.calls = rsp.data;
 			$scope.edit($scope.calls[0]);
 		});
 	}]);
-
-})();
+});

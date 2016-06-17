@@ -202,7 +202,7 @@ uiXxt.factory('mattersgallery', function($uibModal) {
     var gallery = {};
     gallery.open = function(galleryId, callback, options) {
         $uibModal.open({
-            templateUrl: '/static/template/mattersgallery2.html?v=1',
+            templateUrl: '/static/template/mattersgallery2.html?v=2',
             controller: ['$scope', '$http', '$uibModalInstance', function($scope, $http, $mi) {
                 $scope.matterTypes = options.matterTypes;
                 $scope.singleMatter = options.singleMatter;

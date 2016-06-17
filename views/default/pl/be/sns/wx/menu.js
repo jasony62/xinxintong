@@ -1,4 +1,5 @@
-(function() {
+'use strict';
+define(['main'], function(ngApp) {
 	ngApp.provider.controller('ctrlMenu', ['$scope', 'http2', 'matterTypes', '$timeout', 'mattersgallery', function($scope, http2, matterTypes, $timeout, mattersgallery) {
 		$scope.matterTypes = matterTypes;
 		var setPublishState = function(state) {
@@ -12,7 +13,7 @@
 		};
 		$scope.edit = function(button) {
 			if (button.sub === undefined || button.sub.length === 0) {
-				http2.get('/rest/pl/fe/site/sns/wx/menu/get?site=' + $scope.siteId + '&k=' + button.menu_key, function(rsp) {
+				http2.get('/rest/pl/be/sns/wx/menu/get?site=' + $scope.wx.plid + '&k=' + button.menu_key, function(rsp) {
 					$scope.editing = button;
 					delete $scope.editing.matter;
 					if (rsp.data.matter) {
@@ -34,7 +35,7 @@
 			var button = {
 				menu_name: '新菜单'
 			};
-			http2.post('/rest/pl/fe/site/sns/wx/menu/createButton?site=' + $scope.siteId, button, function(rsp) {
+			http2.post('/rest/pl/be/sns/wx/menu/createButton?site=' + $scope.wx.plid, button, function(rsp) {
 				button = rsp.data;
 				if (button.sub === undefined) button.sub = [];
 				$scope.menu.push(button);
@@ -51,7 +52,7 @@
 			if (afterIndex !== undefined) {
 				subButton.l2_pos = afterIndex + 2;
 			}
-			http2.post('/rest/pl/fe/site/sns/wx/menu/createSubButton?site=' + $scope.siteId, subButton, function(rsp) {
+			http2.post('/rest/pl/be/sns/wx/menu/createSubButton?site=' + $scope.wx.plid, subButton, function(rsp) {
 				subButton = rsp.data;
 				if (button.sub === undefined) {
 					button.sub = [subButton];
@@ -69,7 +70,7 @@
 		$scope.removeButton = function(button, index, evt) {
 			evt.preventDefault();
 			evt.stopPropagation();
-			http2.get('/rest/pl/fe/site/sns/wx/menu/removeButton?site=' + $scope.siteId + '&k=' + button.menu_key, function(rsp) {
+			http2.get('/rest/pl/be/sns/wx/menu/removeButton?site=' + $scope.wx.plid + '&k=' + button.menu_key, function(rsp) {
 				$scope.menu.splice(index, 1);
 				setPublishState('N');
 				$scope.editing = false;
@@ -78,7 +79,7 @@
 		$scope.removeSubButton = function(button, subButton, index, evt) {
 			evt.preventDefault();
 			evt.stopPropagation();
-			http2.get('/rest/pl/fe/site/sns/wx/menu/removeButton?site=' + $scope.siteId + '&k=' + subButton.menu_key, function(rsp) {
+			http2.get('/rest/pl/be/sns/wx/menu/removeButton?site=' + $scope.wx.plid + '&k=' + subButton.menu_key, function(rsp) {
 				button.sub.splice(index, 1);
 				if ($scope.published === 'Y')
 					setPublishState('N');
@@ -86,13 +87,13 @@
 			});
 		};
 		$scope.setReply = function() {
-			mattersgallery.open($scope.siteId, function(aSelected, matterType) {
+			mattersgallery.open($scope.wx.plid, function(aSelected, matterType) {
 				if (aSelected.length === 1) {
 					var p = {
 						matter_type: matterType,
 						matter_id: aSelected[0].id
 					};
-					http2.post('/rest/pl/fe/site/sns/wx/menu/setreply?site=' + $scope.siteId + '&k=' + $scope.editing.menu_key, p, function(rsp) {
+					http2.post('/rest/pl/be/sns/wx/menu/setreply?site=' + $scope.wx.plid + '&k=' + $scope.editing.menu_key, p, function(rsp) {
 						if (rsp.data.menu_key) {
 							if ($scope.editing.published != rsp.data.published)
 								setPublishState(rsp.data.published);
@@ -111,7 +112,7 @@
 			if (!angular.equals($scope.editing, $scope.persisted)) {
 				var p = {};
 				p[name] = $scope.editing[name];
-				http2.post('/rest/pl/fe/site/sns/wx/menu/update?site=' + $scope.siteId + '&k=' + $scope.editing.menu_key, p, function(rsp) {
+				http2.post('/rest/pl/be/sns/wx/menu/update?site=' + $scope.wx.plid + '&k=' + $scope.editing.menu_key, p, function(rsp) {
 					if (rsp.data.menu_key) {
 						angular.extend($scope.editing, rsp.data);
 						$scope.edit($scope.editing)
@@ -123,7 +124,7 @@
 		};
 		$scope.updateKey = function() {
 			var k = $scope.persisted.menu_key;
-			http2.post('/rest/pl/fe/site/sns/wx/menu/update?site=' + $scope.siteId + '&k=' + k, {
+			http2.post('/rest/pl/be/sns/wx/menu/update?site=' + $scope.wx.plid + '&k=' + k, {
 				'menu_key': $scope.editing.menu_key
 			}, function(rsp) {
 				if (rsp.data.menu_key) {
@@ -136,7 +137,7 @@
 		};
 		$scope.removeMenu = function() {
 			if (confirm('确定删除菜单？')) {
-				http2.get('/rest/pl/fe/site/sns/wx/menu/removeMenu?site=' + $scope.siteId, function(rsp) {
+				http2.get('/rest/pl/be/sns/wx/menu/removeMenu?site=' + $scope.wx.plid, function(rsp) {
 					setPublishState('Y');
 					$scope.editing = false;
 					$scope.menu = [];
@@ -144,7 +145,7 @@
 			}
 		};
 		$scope.publish = function() {
-			http2.get('/rest/pl/fe/site/sns/wx/menu/publish?site=' + $scope.siteId, function(rsp) {
+			http2.get('/rest/pl/be/sns/wx/menu/publish?site=' + $scope.wx.plid, function(rsp) {
 				setPublishState('Y');
 			});
 		};
@@ -162,19 +163,19 @@
 					'l1_pos': pos1 + 1,
 					'l2_pos': pos2 + 1
 				};
-				http2.post('/rest/pl/fe/site/sns/wx/menu/setpos?site=' + $scope.siteId + '&k=' + moved.menu_key, pos, function() {
+				http2.post('/rest/pl/be/sns/wx/menu/setpos?site=' + $scope.wx.plid + '&k=' + moved.menu_key, pos, function() {
 					setPublishState('N');
 				});
 			} else {
 				var pos1 = $scope.menu.indexOf(moved);
-				http2.post('/rest/pl/fe/site/sns/wx/menu/setpos?site=' + $scope.siteId + '&k=' + moved.menu_key, {
+				http2.post('/rest/pl/be/sns/wx/menu/setpos?site=' + $scope.wx.plid + '&k=' + moved.menu_key, {
 					'l1_pos': pos1 + 1
 				}, function() {
 					setPublishState('N');
 				});
 			}
 		});
-		http2.get('/rest/pl/fe/site/sns/wx/menu/get?site=' + $scope.siteId, function(rsp) {
+		http2.get('/rest/pl/be/sns/wx/menu/get?site=' + $scope.wx.plid, function(rsp) {
 			$scope.menu = [];
 			for (var i in rsp.data) {
 				var button = rsp.data[i];
@@ -196,4 +197,4 @@
 			}
 		});
 	}]);
-})();
+});

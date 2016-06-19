@@ -281,14 +281,14 @@ class record extends \pl\fe\matter\base {
 
 		$participants = $this->model('matter\enroll')->participants($site, $app, $tmplmsg, $options);
 
-		$this->notifyWithMatter($participants, $tmplmsg, $message);
+		$this->notifyWithMatter($site, $participants, $tmplmsg, $message);
 
 		return new \ResponseData($participants);
 	}
 	/**
 	 * 给用户发送素材
 	 */
-	protected function notifyWithMatter(&$userIds, $tmplmsgId, &$message) {
+	protected function notifyWithMatter($siteId, &$userIds, $tmplmsgId, &$message) {
 		/**
 		 * 指定的消息发送方式
 		 */
@@ -297,25 +297,37 @@ class record extends \pl\fe\matter\base {
 			$modelAcnt = $this->model('site\user\account');
 			$modelWxfan = $modelYxfan = $modelQyfan = false;
 
+			/*微信可以使用平台的公众号*/
+			$wxSiteId = false;
+
 			foreach ($userIds as $userid) {
 				$user = $modelAcnt->byId($userid, ['fields' => 'ufrom']);
 				if (!isset($mapOfUsers->{$userid})) {
 					$mapOfUsers->{$userid} = $user;
 					switch ($user->ufrom) {
 					case 'wx':
+						if ($wxSiteId === false) {
+							$modelSns = $this->model('sns\wx');
+							$wxConfig = $modelSns->bySite($siteId);
+							if ($wxConfig === false || $wxConfig->joined !== 'Y') {
+								$wxSiteId = 'platform';
+							} else {
+								$wxSiteId = $siteId;
+							}
+						}
 						$modelWxfan === false && $modelWxfan = $this->model('sns\wx\fan');
-						$fan = $modelWxfan->byUser($site, $userid, 'openid', 'Y');
+						$fan = $modelWxfan->byUser($wxSiteId, $userid, 'openid', 'Y');
 						/*如果定义了发送素材的模版消息，用模版消息发送*/
 						$this->tmplmsgSendByOpenid($tmplmsgId, $fan->openid, $message);
 						break;
 					case 'yx':
 						$modelYxfan === false && $modelYxfan = $this->model('sns\yx\fan');
 						/*如果开放了点对点消息，用点对点消息发送*/
-						$fan = $modelYxfan->byUser($site, $userid, 'openid', 'Y');
+						$fan = $modelYxfan->byUser($siteId, $userid, 'openid', 'Y');
 						break;
 					case 'qy':
 						$modelQyfan = false && $modelQyfan = $this->model('sns\qy\fan');
-						$fan = $modelQyfan->byUser($site, $userid, 'openid', 'Y');
+						$fan = $modelQyfan->byUser($siteId, $userid, 'openid', 'Y');
 						break;
 					}
 				}

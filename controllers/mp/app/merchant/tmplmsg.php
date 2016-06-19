@@ -22,6 +22,7 @@ class tmplmsg extends \mp\app\app_base {
 			$mappingid = $model->insert(
 				'xxt_tmplmsg_mapping',
 				array(
+					'siteid' => $this->mpid,
 					'msgid' => $posted->msgid,
 					'mapping' => urldecode(json_encode($posted->mapping)),
 				),

@@ -36,7 +36,7 @@ define(['main'], function(ngApp) {
 		};
 		$scope.$watch('wx', function(wx) {
 			if (!wx) return;
-			$scope.url = 'http://' + location.host + '/rest/site/sns/plwx/api?site=' + $scope.wx.plid;
+			$scope.url = 'http://' + location.host + '/rest/site/sns/wx/api?site=platform';
 		});
 	}]);
 });

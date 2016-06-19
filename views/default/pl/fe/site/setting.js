@@ -3,7 +3,7 @@ define(['require'], function(require) {
     ngApp.config(['$locationProvider', '$provide', '$controllerProvider', '$routeProvider', function($lp, $provide, $cp, $rp) {
         var RouteParam = function(name, loadjs) {
             var baseURL = '/views/default/pl/fe/site/setting/';
-            this.templateUrl = baseURL + name + '.html?=2';
+            this.templateUrl = baseURL + name + '.html?=3';
             this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
             if (loadjs) {
                 this.resolve = {
@@ -27,7 +27,7 @@ define(['require'], function(require) {
             .when('/rest/pl/fe/site/setting/mschema', new RouteParam('mschema'))
             .when('/rest/pl/fe/site/setting/admin', new RouteParam('admin'))
             .when('/rest/pl/fe/site/setting/coin', new RouteParam('coin'))
-            .when('/rest/pl/fe/site/setting/notify', new RouteParam('notify', true))
+            .when('/rest/pl/fe/site/setting/notice', new RouteParam('notice', true))
             .otherwise(new RouteParam('basic'));
     }]);
     ngApp.factory('MemberSchema', function($q, http2) {

@@ -116,6 +116,7 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$p['siteid'] = $site;
 		$p['tmplmsg_id'] = $tid;
 
 		$id = $this->model()->insert('xxt_tmplmsg_param', $p, true);

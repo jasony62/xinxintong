@@ -37,4 +37,85 @@ class base extends \TMS_CONTROLLER {
 		}
 		return $user;
 	}
+	/**
+	 * 发送模板消息
+	 *
+	 * $mpid
+	 * $tmplmsgId
+	 * $openid
+	 */
+	protected function tmplmsgSendByOpenid($tmplmsgId, $openid, $data, $url = null) {
+		/*模板定义*/
+		is_object($data) && $data = (array) $data;
+		if (empty($url) && isset($data['url'])) {
+			$url = $data['url'];
+			unset($data['url']);
+		}
+
+		$tmpl = $this->model('matter\tmplmsg')->byId($tmplmsgId, array('cascaded' => 'Y'));
+		$siteId = $tmpl->siteid;
+		/*发送消息*/
+		if (!empty($tmpl->templateid)) {
+			/*只有微信号才有模板消息ID*/
+			$msg = array(
+				'touser' => $openid,
+				'template_id' => $tmpl->templateid,
+				'url' => $url,
+			);
+			if ($tmpl->params) {
+				foreach ($tmpl->params as $p) {
+					$value = isset($data[$p->pname]) ? $data[$p->pname] : (isset($data[$p->id]) ? $data[$p->id] : '');
+					$msg['data'][$p->pname] = array('value' => $value, 'color' => '#173177');
+				}
+			}
+			$wxConfig = $this->model('sns\wx')->bySite($siteId);
+			$proxy = $this->model('sns\wx\proxy', $wxConfig);
+			$rst = $proxy->messageTemplateSend($msg);
+			if ($rst[0] === false) {
+				return $rst;
+			}
+			$msgid = $rst[1]->msgid;
+		} else {
+			/*如果不是微信号，将模板消息转换文本消息*/
+			$mpa = $this->model('mp\mpaccount')->byId($siteId, 'mpsrc');
+			$txt = array();
+			$txt[] = $tmpl->title;
+			if ($tmpl->params) {
+				foreach ($tmpl->params as $p) {
+					$value = isset($data[$p->pname]) ? $data[$p->pname] : (isset($data[$p->id]) ? $data[$p->id] : '');
+					$txt[] = $p->plabel . '：' . $value;
+				}
+			}
+			if (!empty($url)) {
+				if ($mpa->mpsrc === 'yx') {
+					$txt[] = '查看详情：\n' . $url;
+				} else {
+					$txt[] = " <a href='" . $url . "'>查看详情</a>";
+				}
+			}
+			$txt = implode("\n", $txt);
+			$msg = array(
+				"msgtype" => "text",
+				"text" => array(
+					"content" => $txt,
+				),
+			);
+			$this->sendByOpenid($siteId, $openid, $msg);
+			$msg['template_id'] = 0;
+			$msgid = 0;
+		}
+		/*记录日志*/
+		$log = array(
+			'siteid' => $siteId,
+			'openid' => $openid,
+			'tmplmsg_id' => $tmplmsgId,
+			'template_id' => $msg['template_id'],
+			'data' => $this->model()->escape(json_encode($msg)),
+			'create_at' => time(),
+			'msgid' => $msgid,
+		);
+		$this->model()->insert('xxt_log_tmplmsg', $log, false);
+
+		return array(true);
+	}
 }

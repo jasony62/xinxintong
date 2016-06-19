@@ -7,11 +7,12 @@ class wx_model extends \TMS_MODEL {
 	/**
 	 * 站点绑定的公众号
 	 */
-	public function &bySite($siteid, $fields = '*') {
+	public function &bySite($siteId, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$q = array(
 			$fields,
 			'xxt_site_wx',
-			"siteid='$siteid'",
+			"siteid='$siteId'",
 		);
 		$wx = $this->query_obj_ss($q);
 
@@ -20,13 +21,12 @@ class wx_model extends \TMS_MODEL {
 	/**
 	 * 创建绑定的公众号配置信息
 	 */
-	public function &create($siteid) {
-		$wx = array(
-			'siteid' => $siteid,
-		);
-		$this->insert('xxt_site_wx', $wx, false);
+	public function &create($siteId, $data = []) {
+		$data['siteid'] = $siteId;
 
-		$wx = $this->bySite($siteid);
+		$this->insert('xxt_site_wx', $data, false);
+
+		$wx = $this->bySite($siteId);
 
 		return $wx;
 	}

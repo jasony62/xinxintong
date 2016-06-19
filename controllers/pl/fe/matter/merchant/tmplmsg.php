@@ -9,7 +9,7 @@ class tmplmsg extends \pl\fe\matter\base {
 	/**
 	 * 建立映射关系
 	 */
-	public function setup_action($catelog, $mappingid = 0) {
+	public function setup_action($site, $catelog, $mappingid = 0) {
 		$posted = $this->getPostJson();
 		$model = $this->model();
 		foreach ($posted->mapping as &$prop) {
@@ -22,6 +22,7 @@ class tmplmsg extends \pl\fe\matter\base {
 			$mappingid = $model->insert(
 				'xxt_tmplmsg_mapping',
 				array(
+					'site' => $site,
 					'msgid' => $posted->msgid,
 					'mapping' => urldecode(json_encode($posted->mapping)),
 				),

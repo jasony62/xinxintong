@@ -16,7 +16,7 @@ $sql .= ",create_at int not null";
 $sql .= ",modifier varchar(40) not null default ''"; //accountid/fid
 $sql .= ",modifier_name varchar(255) not null default ''"; //from account or fans
 $sql .= ",modifier_src char(1)"; //A:accouont|F:fans|M:member
-$sql .= ',modify_at int not null';
+$sql .= ",modify_at int not null";
 $sql .= ",public_visible char(1) not null default 'N'";
 $sql .= ",state tinyint not null default 1"; //0:stop,1:normal
 $sql .= ",title varchar(70) not null";
@@ -62,15 +62,15 @@ if (!$mysqli->query($sql)) {
  * 文章的扩展信息
  */
 $sql = "create table if not exists xxt_article_extinfo(";
-$sql .= 'article_id int not null';
-$sql .= ',occured_time int not null default 0';
-$sql .= ',occured_year int not null default 0'; //yyyy
-$sql .= ',occured_month int not null default 0'; // 1-12
-$sql .= ',occured_day int not null default 0'; // 1-31
-$sql .= ',occured_hour int not null default 0'; // 0-23
-$sql .= ',occured_lat double(10,6) not null default 0';
-$sql .= ',occured_lng double(10,6) not null default 0';
-$sql .= ',occured_place text';
+$sql .= "article_id int not null";
+$sql .= ",occured_time int not null default 0";
+$sql .= ",occured_year int not null default 0"; //yyyy
+$sql .= ",occured_month int not null default 0"; // 1-12
+$sql .= ",occured_day int not null default 0"; // 1-31
+$sql .= ",occured_hour int not null default 0"; // 0-23
+$sql .= ",occured_lat double(10,6) not null default 0";
+$sql .= ",occured_lng double(10,6) not null default 0";
+$sql .= ",occured_place text";
 $sql .= ",primary key(article_id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -80,9 +80,9 @@ if (!$mysqli->query($sql)) {
  * 文章的扩展信息（事件距离，临时表）
  */
 $sql = "create table if not exists xxt_article_ext_distance(";
-$sql .= 'article_id_a int not null';
-$sql .= ',article_id_b int not null';
-$sql .= ',distance int not null default 0';
+$sql .= "article_id_a int not null";
+$sql .= ",article_id_b int not null";
+$sql .= ",distance int not null default 0";
 $sql .= ",primary key(article_id_a,article_id_b)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -92,17 +92,17 @@ if (!$mysqli->query($sql)) {
  * 文章评论
  */
 $sql = "create table if not exists xxt_article_remark(";
-$sql .= 'id int not null auto_increment';
+$sql .= "id int not null auto_increment";
 $sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",userid varchar(40) not null";
-$sql .= ',article_id int not null';
-$sql .= ',article_title varchar(70) not null';
-$sql .= ',fid varchar(32) not null';
-$sql .= ',openid varchar(255) not null';
-$sql .= ',nickname varchar(255) not null';
-$sql .= ',create_at int not null';
-$sql .= ',remark text';
+$sql .= ",article_id int not null";
+$sql .= ",article_title varchar(70) not null";
+$sql .= ",fid varchar(32) not null";
+$sql .= ",openid varchar(255) not null";
+$sql .= ",nickname varchar(255) not null";
+$sql .= ",create_at int not null";
+$sql .= ",remark text";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -112,17 +112,17 @@ if (!$mysqli->query($sql)) {
  * 文章评分
  */
 $sql = "create table if not exists xxt_article_score(";
-$sql .= 'id int not null auto_increment';
+$sql .= "id int not null auto_increment";
 $sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",userid varchar(40) not null";
-$sql .= ',vid varchar(32) not null';
-$sql .= ',openid varchar(255) not null';
-$sql .= ',nickname varchar(255) not null';
-$sql .= ',article_id int not null';
-$sql .= ',article_title varchar(70) not null';
-$sql .= ',create_at int not null';
-$sql .= ',score int not null default 0';
+$sql .= ",vid varchar(32) not null";
+$sql .= ",openid varchar(255) not null";
+$sql .= ",nickname varchar(255) not null";
+$sql .= ",article_id int not null";
+$sql .= ",article_title varchar(70) not null";
+$sql .= ",create_at int not null";
+$sql .= ",score int not null default 0";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -132,13 +132,13 @@ if (!$mysqli->query($sql)) {
  * 文章附件
  */
 $sql = "create table if not exists xxt_article_attachment(";
-$sql .= 'id int not null auto_increment';
-$sql .= ',article_id int not null';
-$sql .= ',name varchar(255) not null';
-$sql .= ',type varchar(255) not null';
-$sql .= ',size int not null';
-$sql .= ',last_modified bigint(13) not null';
-$sql .= ',url text';
+$sql .= "id int not null auto_increment";
+$sql .= ",article_id int not null";
+$sql .= ",name varchar(255) not null";
+$sql .= ",type varchar(255) not null";
+$sql .= ",size int not null";
+$sql .= ",last_modified bigint(13) not null";
+$sql .= ",url text";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -169,20 +169,20 @@ if (!$mysqli->query($sql)) {
  * 文章发布过程日志
  */
 $sql = "create table if not exists xxt_article_review_log(";
-$sql .= 'id int not null auto_increment';
+$sql .= "id int not null auto_increment";
 $sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ',article_id int not null';
-$sql .= ',seq int not null';
-$sql .= ',mid varchar(32) not null';
-$sql .= ',disposer_name varchar(255) not null';
-$sql .= ',send_at int not null';
-$sql .= ',receive_at int not null default 0';
-$sql .= ',read_at int not null default 0';
-$sql .= ',close_at int not null default 0';
-$sql .= ',phase char(1) not null'; // Review|Typeset
+$sql .= ",article_id int not null";
+$sql .= ",seq int not null";
+$sql .= ",mid varchar(32) not null";
+$sql .= ",disposer_name varchar(255) not null";
+$sql .= ",send_at int not null";
+$sql .= ",receive_at int not null default 0";
+$sql .= ",read_at int not null default 0";
+$sql .= ",close_at int not null default 0";
+$sql .= ",phase char(1) not null"; // Review|Typeset
 $sql .= ",state char(1) not null"; // Pending|Disposing|Forward|Close
-$sql .= ',remark text';
+$sql .= ",remark text";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -202,15 +202,15 @@ $sql .= ",create_at int not null";
 $sql .= ",modifier varchar(40) not null default ''"; //accountid/fid
 $sql .= ",modifier_name varchar(255) not null default ''"; //from account or fans
 $sql .= ",modifier_src char(1) not null default 'A'"; //A:accouont|F:fans|M:member
-$sql .= ',modify_at int not null';
+$sql .= ",modify_at int not null";
 $sql .= ",public_visible char(1) not null default 'N'";
-$sql .= ',state tinyint not null default 1';
-$sql .= ',title varchar(70) not null';
-$sql .= ',pic text';
+$sql .= ",state tinyint not null default 1";
+$sql .= ",title varchar(70) not null";
+$sql .= ",pic text";
 $sql .= ",summary varchar(240) not null default ''";
 $sql .= ",urlsrc int not null default '0' COMMENT 'url的来源，0：外部，1：多图文'";
-$sql .= ',url text';
-$sql .= ',method varchar(6) not null default "GET"';
+$sql .= ",url text";
+$sql .= ",method varchar(6) not null default "GET"";
 $sql .= ",open_directly char(1) not null default 'N'";
 $sql .= ",return_data char(1) not null default 'N'"; // 是否直接执行链接并返回数据
 $sql .= ",access_control char(1) not null default 'N'";
@@ -228,11 +228,11 @@ if (!$mysqli->query($sql)) {
  * {{authed_identity}}
  */
 $sql = "create table if not exists xxt_link_param(";
-$sql .= 'id int not null auto_increment';
-$sql .= ',link_id int not null';
-$sql .= ',pname varchar(20) not null';
-$sql .= ',pvalue varchar(255) not null';
-$sql .= ',authapi_id int'; // id from xxt_member_authapi
+$sql .= "id int not null auto_increment";
+$sql .= ",link_id int not null";
+$sql .= ",pname varchar(20) not null";
+$sql .= ",pvalue varchar(255) not null";
+$sql .= ",authapi_id int"; // id from xxt_member_authapi
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -252,7 +252,7 @@ $sql .= ",create_at int not null";
 $sql .= ",modifier varchar(40) not null default ''"; //accountid/fid
 $sql .= ",modifier_name varchar(255) not null default ''"; //from account or fans
 $sql .= ",modifier_src char(1) default 'A'"; //A:accouont|F:fans|M:member
-$sql .= ',modify_at int not null';
+$sql .= ",modify_at int not null";
 $sql .= ",public_visible char(1) not null default 'N'";
 $sql .= ",state tinyint not null default 1"; //0:stop,1:normal
 $sql .= ",content text";
@@ -276,10 +276,10 @@ $sql .= ",creater_src char(1) not null default 'A'"; //A:accouont|F:fans|M:membe
 $sql .= ",modifier varchar(40) not null default ''"; //accountid/fid
 $sql .= ",modifier_name varchar(255) not null default ''"; //from account or fans
 $sql .= ",modifier_src char(1)"; //A:accouont|F:fans|M:member
-$sql .= ',modify_at int not null';
+$sql .= ",modify_at int not null";
 $sql .= ",public_visible char(1) not null default 'N'";
-$sql .= ',state tinyint not null default 1'; //0:stop,1:normal
-$sql .= ',title varchar(70) not null';
+$sql .= ",state tinyint not null default 1"; //0:stop,1:normal
+$sql .= ",title varchar(70) not null";
 $sql .= ",pic text"; // head image.
 $sql .= ",summary varchar(240) not null default ''";
 $sql .= ",access_control char(1) not null default 'N'";
@@ -299,18 +299,18 @@ if (!$mysqli->query($sql)) {
  * 多图文发布过程日志
  */
 $sql = "create table if not exists xxt_news_review_log(";
-$sql .= 'id int not null auto_increment';
+$sql .= "id int not null auto_increment";
 $sql .= ",mpid varchar(32) not null default ''";
-$sql .= ',news_id int not null';
-$sql .= ',seq int not null';
-$sql .= ',mid varchar(32) not null';
-$sql .= ',send_at int not null';
-$sql .= ',receive_at int not null default 0';
-$sql .= ',read_at int not null default 0';
-$sql .= ',close_at int not null default 0';
-$sql .= ',phase char(1) not null'; // Review|Typeset
+$sql .= ",news_id int not null";
+$sql .= ",seq int not null";
+$sql .= ",mid varchar(32) not null";
+$sql .= ",send_at int not null";
+$sql .= ",receive_at int not null default 0";
+$sql .= ",read_at int not null default 0";
+$sql .= ",close_at int not null default 0";
+$sql .= ",phase char(1) not null"; // Review|Typeset
 $sql .= ",state char(1) not null"; // Pending|Disposing|Forward|Close
-$sql .= ',remark text';
+$sql .= ",remark text";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -320,10 +320,10 @@ if (!$mysqli->query($sql)) {
  * 组成新闻的素材
  */
 $sql = "create table if not exists xxt_news_matter(";
-$sql .= 'news_id int not null';
-$sql .= ',matter_id varchar(40) not null';
-$sql .= ',matter_type varchar(20)'; //
-$sql .= ',seq int not null';
+$sql .= "news_id int not null";
+$sql .= ",matter_id varchar(40) not null";
+$sql .= ",matter_type varchar(20)"; //
+$sql .= ",seq int not null";
 $sql .= ",primary key(news_id,matter_id,matter_type)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -343,15 +343,15 @@ $sql .= ",creater_src char(1) not null default 'A'"; //A:accouont|F:fans|M:membe
 $sql .= ",modifier varchar(40) not null default ''"; //accountid/fid
 $sql .= ",modifier_name varchar(255) not null default ''"; //from account or fans
 $sql .= ",modifier_src char(1)"; //A:accouont|F:fans|M:member
-$sql .= ',modify_at int not null';
+$sql .= ",modify_at int not null";
 $sql .= ",public_visible char(1) not null default 'N'";
-$sql .= ',state tinyint not null default 1'; //0:stop,1:normal
-$sql .= ',title varchar(70) not null';
+$sql .= ",state tinyint not null default 1"; //0:stop,1:normal
+$sql .= ",title varchar(70) not null";
 $sql .= ",pic text"; // head image.
 $sql .= ",summary varchar(240) not null default ''";
 $sql .= ",fixed_title varchar(70) not null default ''"; //代替第一个图文的标题作为频道的固定标题
-$sql .= ',matter_type varchar(20)'; // article,link
-$sql .= ',volume int not null default 5';
+$sql .= ",matter_type varchar(20)"; // article,link
+$sql .= ",volume int not null default 5";
 $sql .= ",top_type varchar(20)"; // article,link
 $sql .= ",top_id varchar(40)";
 $sql .= ",bottom_type varchar(20)"; // article,link
@@ -364,7 +364,7 @@ $sql .= ",show_pic_in_page char(1) not null default 'Y'"; // 是否在页面中�
 $sql .= ",read_num int not null default 0"; // 阅读数
 $sql .= ",share_friend_num int not null default 0"; // 分享给好友数
 $sql .= ",share_timeline_num int not null default 0"; // 分享朋友圈数
-$sql .= ',style_page_id int not null default 0'; // 样式
+$sql .= ",style_page_id int not null default 0"; // 样式
 $sql .= ",style_page_name varchar(13) not null default ''"; // 样式
 $sql .= ",header_page_id int not null default 0"; // 通用页头
 $sql .= ",header_page_name varchar(13) not null default ''"; // 通用页头
@@ -379,13 +379,13 @@ if (!$mysqli->query($sql)) {
  * 组成频道的素材
  */
 $sql = "create table if not exists xxt_channel_matter(";
-$sql .= 'channel_id int not null';
-$sql .= ',creater varchar(40) not null';
+$sql .= "channel_id int not null";
+$sql .= ",creater varchar(40) not null";
 $sql .= ",creater_name varchar(255) not null default ''"; //from account or fans
 $sql .= ",creater_src char(1)"; //A:accouont|F:fans
-$sql .= ',create_at int not null';
-$sql .= ',matter_id varchar(40) not null';
-$sql .= ',matter_type varchar(20)'; // article,kink
+$sql .= ",create_at int not null";
+$sql .= ",matter_id varchar(40) not null";
+$sql .= ",matter_type varchar(20)"; // article,kink
 $sql .= ",primary key(channel_id,matter_id,matter_type)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -404,9 +404,9 @@ if (!$mysqli->query($sql)) {
  * 9、我发起的活动
  */
 $sql = "create table if not exists xxt_inner(";
-$sql .= 'id int not null';
-$sql .= ',title varchar(70) not null';
-$sql .= ',name varchar(30) not null';
+$sql .= "id int not null";
+$sql .= ",title varchar(70) not null";
+$sql .= ",name varchar(30) not null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -416,15 +416,15 @@ if (!$mysqli->query($sql)) {
  * 模板消息
  */
 $sql = "create table if not exists xxt_tmplmsg(";
-$sql .= 'id int not null auto_increment';
+$sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",mpid varchar(32) not null default ''";
-$sql .= ',templateid varchar(128) not null';
-$sql .= ',creater varchar(40) not null';
-$sql .= ',create_at int not null';
-$sql .= ',state tinyint not null default 1';
-$sql .= ',title varchar(70) not null';
-$sql .= ',example text';
+$sql .= ",templateid varchar(128) not null";
+$sql .= ",creater varchar(40) not null";
+$sql .= ",create_at int not null";
+$sql .= ",state tinyint not null default 1";
+$sql .= ",title varchar(70) not null";
+$sql .= ",example text";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -434,10 +434,11 @@ if (!$mysqli->query($sql)) {
  * 模板消息参数
  */
 $sql = "create table if not exists xxt_tmplmsg_param(";
-$sql .= 'id int not null auto_increment';
-$sql .= ',tmplmsg_id int not null';
-$sql .= ',pname varchar(128) not null';
-$sql .= ',plabel varchar(255) not null';
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",tmplmsg_id int not null";
+$sql .= ",pname varchar(128) not null";
+$sql .= ",plabel varchar(255) not null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -447,9 +448,10 @@ if (!$mysqli->query($sql)) {
  * 模板消息映射关系
  */
 $sql = "create table if not exists xxt_tmplmsg_mapping(";
-$sql .= 'id int not null auto_increment';
-$sql .= ',msgid int not null';
-$sql .= ',mapping text';
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null"; // 模版消息用在哪个站点，不一定是模版消息的站点
+$sql .= ",msgid int not null";
+$sql .= ",mapping text";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

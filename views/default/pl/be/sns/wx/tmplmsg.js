@@ -1,56 +1,52 @@
 'use strict';
 define(['main'], function(ngApp) {
 	ngApp.provider.service('serTmplmsg', ['$q', 'http2', function($q, http2) {
-		var _baseURL = '/rest/pl/fe/matter/tmplmsg',
-			_siteId;
-		this.setSiteId = function(id) {
-			_siteId = id;
-		};
+		var _baseURL = '/rest/pl/fe/matter/tmplmsg';
 		this.list = function() {
 			var defer = $q.defer();
-			http2.get(_baseURL + '/list?site=' + _siteId + '&cascaded=Y', function(rsp) {
+			http2.get(_baseURL + '/list?site=platform&cascaded=Y', function(rsp) {
 				defer.resolve(rsp.data);
 			});
 			return defer.promise;
 		};
 		this.create = function() {
 			var defer = $q.defer();
-			http2.get(_baseURL + '/create?site=' + _siteId, function(rsp) {
+			http2.get(_baseURL + '/create?site=platform', function(rsp) {
 				defer.resolve(rsp.data);
 			});
 			return defer.promise;
 		};
 		this.update = function(id, data) {
 			var defer = $q.defer();
-			http2.post(_baseURL + '/update?site=' + _siteId + '&id=' + id, data, function(rsp) {
+			http2.post(_baseURL + '/update?site=platform&id=' + id, data, function(rsp) {
 				defer.resolve(rsp.data);
 			});
 			return defer.promise;
 		};
 		this.remove = function(id) {
 			var defer = $q.defer();
-			http2.get(_baseURL + '/remove?site=' + _siteId + '&id=' + id, function(rsp) {
+			http2.get(_baseURL + '/remove?site=platform&id=' + id, function(rsp) {
 				defer.resolve(rsp.data);
 			});
 			return defer.promise;
 		};
 		this.addParam = function(tmplmsgId) {
 			var defer = $q.defer();
-			http2.get(_baseURL + '/addParam?site=' + _siteId + '&tid=' + tmplmsgId, function(rsp) {
+			http2.get(_baseURL + '/addParam?site=platform&tid=' + tmplmsgId, function(rsp) {
 				defer.resolve(rsp.data);
 			});
 			return defer.promise;
 		};
 		this.updateParam = function(paramId, updated) {
 			var defer = $q.defer();
-			http2.post(_baseURL + '/updateParam?site=' + _siteId + '&id=' + paramId, updated, function(rsp) {
+			http2.post(_baseURL + '/updateParam?site=platorm&id=' + paramId, updated, function(rsp) {
 				defer.resolve(rsp.data);
 			});
 			return defer.promise;
 		};
 		this.removeParam = function(removed) {
 			var defer = $q.defer();
-			http2.get(_baseURL + '/removeParam?site=' + _siteId + '&pid=' + removed.id, function(rsp) {
+			http2.get(_baseURL + '/removeParam?site=platform&pid=' + removed.id, function(rsp) {
 				defer.resolve(rsp.data);
 			});
 			return defer.promise;
@@ -70,11 +66,7 @@ define(['main'], function(ngApp) {
 				$scope.tmplmsgs = data;
 			});
 		};
-		$scope.$watch('wx', function(wx) {
-			if (!wx) return;
-			serTmplmsg.setSiteId(wx.plid);
-			$scope.doSearch();
-		});
+		$scope.doSearch();
 	}]);
 	ngApp.provider.controller('ctrlSetting', ['$scope', 'serTmplmsg', function($scope, serTmplmsg) {
 		$scope.update = function(n) {
@@ -100,6 +92,7 @@ define(['main'], function(ngApp) {
 					pname: 'newparam',
 					plabel: ''
 				};
+				!angular.isArray($scope.editing.params) && ($scope.editing.params = []);
 				$scope.editing.params.push(oNewParam);
 			});
 		};

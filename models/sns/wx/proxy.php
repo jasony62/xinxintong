@@ -207,7 +207,7 @@ class proxy_model extends \sns\proxybase {
 	/**
 	 *
 	 */
-	public function oauthUrl($redirect, $state = null, $scope = 'snsapi_base') {
+	public function oauthUrl($redirect, $state = null, $scope = 'snsapi_userinfo') {
 		$appid = $this->config->appid;
 
 		$oauth = "https://open.weixin.qq.com/connect/oauth2/authorize";
@@ -230,7 +230,7 @@ class proxy_model extends \sns\proxybase {
 		$params["secret"] = $this->config->appsecret;
 		$params["code"] = $code;
 		$params["grant_type"] = "authorization_code";
-		\TMS_APP::M('log')->log('yangyue', 'debug', json_encode($params));
+		//\TMS_APP::M('log')->log('yangyue', 'debug', json_encode($params));
 		$rst = $this->httpGet($cmd, $params, false, false);
 		if ($rst[0] === false) {
 			return $rst;

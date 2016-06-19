@@ -243,17 +243,25 @@ class main extends \pl\fe\matter\base {
 
 		if ($articles = $this->model()->query_objs_ss($q, $q2)) {
 			/**
-			 * amount
+			 * 活的符合条件的图文数量
 			 */
 			$q[0] = 'count(*)';
 			$total = (int) $this->model()->query_val_ss($q);
 			/**
-			 * 获得每个图文的tag
+			 * 处理每个图文的附件信息
 			 */
+			$modelArt = $this->model('matter\article2');
 			foreach ($articles as &$a) {
 				$ids[] = $a->id;
 				$map[$a->id] = &$a;
+				/**
+				 * 获得每个图文的url
+				 */
+				$a->url = $modelArt->getEntryUrl($site, $a->id);
 			}
+			/**
+			 * 获得每个图文的tag
+			 */
 			$rels = $this->model('tag')->tagsByRes($ids, 'article', 0);
 			foreach ($rels as $aid => &$tags) {
 				$map[$aid]->tags = $tags;

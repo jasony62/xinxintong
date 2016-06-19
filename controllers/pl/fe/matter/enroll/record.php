@@ -255,4 +255,73 @@ class record extends \pl\fe\matter\base {
 
 		return new \ResponseData($rst);
 	}
+	/**
+	 * 给登记活动的参与人发消息
+	 *
+	 * @param string $site
+	 * @param string $app
+	 * @param string $tmplmsg
+	 *
+	 */
+	public function notify_action($site, $app, $tmplmsg, $rid = null, $tags = null, $kw = null, $by = null) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$message = $this->getPostJson();
+		/**
+		 * 用户筛选条件
+		 */
+		$options = array(
+			'tags' => $tags,
+			'rid' => $rid,
+			'kw' => $kw,
+			'by' => $by,
+		);
+
+		$participants = $this->model('matter\enroll')->participants($site, $app, $tmplmsg, $options);
+
+		$this->notifyWithMatter($participants, $tmplmsg, $message);
+
+		return new \ResponseData($participants);
+	}
+	/**
+	 * 给用户发送素材
+	 */
+	protected function notifyWithMatter(&$userIds, $tmplmsgId, &$message) {
+		/**
+		 * 指定的消息发送方式
+		 */
+		if (count($userIds)) {
+			$mapOfUsers = new \stdClass;
+			$modelAcnt = $this->model('site\user\account');
+			$modelWxfan = $modelYxfan = $modelQyfan = false;
+
+			foreach ($userIds as $userid) {
+				$user = $modelAcnt->byId($userid, ['fields' => 'ufrom']);
+				if (!isset($mapOfUsers->{$userid})) {
+					$mapOfUsers->{$userid} = $user;
+					switch ($user->ufrom) {
+					case 'wx':
+						$modelWxfan === false && $modelWxfan = $this->model('sns\wx\fan');
+						$fan = $modelWxfan->byUser($site, $userid, 'openid', 'Y');
+						/*如果定义了发送素材的模版消息，用模版消息发送*/
+						$this->tmplmsgSendByOpenid($tmplmsgId, $fan->openid, $message);
+						break;
+					case 'yx':
+						$modelYxfan === false && $modelYxfan = $this->model('sns\yx\fan');
+						/*如果开放了点对点消息，用点对点消息发送*/
+						$fan = $modelYxfan->byUser($site, $userid, 'openid', 'Y');
+						break;
+					case 'qy':
+						$modelQyfan = false && $modelQyfan = $this->model('sns\qy\fan');
+						$fan = $modelQyfan->byUser($site, $userid, 'openid', 'Y');
+						break;
+					}
+				}
+			}
+		}
+
+		return array(true);
+	}
 }

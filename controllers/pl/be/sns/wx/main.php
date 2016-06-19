@@ -17,17 +17,16 @@ class main extends \pl\be\base {
 	 * 获得公众号配置信息
 	 */
 	public function get_action() {
-		$modelWx = $this->model('pl\sns\wx');
-		$wx = $modelWx->byPl();
+		$uid = \TMS_CLIENT::get_client_uid();
+
+		$modelWx = $this->model('sns\wx');
+		$wx = $modelWx->bySite('platform');
 		if ($wx === false) {
 			/* 不存在就创建一个 */
-			$data = [
-				'create_at' => time(),
-				'plid' => md5(uniqid('xxt') . mt_rand()),
-			];
-			$modelWx->insert('xxt_pl_wx', $data, false);
-
-			$wx = $modelWx->byPl();
+			$data['creater'] = $uid;
+			$data['create_at'] = time();
+			$modelWx->create('platform', $data);
+			$wx = $modelWx->bySite('platform');
 		}
 
 		return new \ResponseData($wx);
@@ -42,9 +41,9 @@ class main extends \pl\be\base {
 		isset($nv->token) && $nv->joined = 'N';
 
 		$rst = $this->model()->update(
-			'xxt_pl_wx',
+			'xxt_site_wx',
 			$nv,
-			"1=1"
+			"siteid='platform'"
 		);
 
 		return new \ResponseData($rst);
@@ -52,8 +51,8 @@ class main extends \pl\be\base {
 	/**
 	 *
 	 */
-	public function checkJoin_action($site) {
-		$wx = $this->model('pl\sns\wx')->byPl();
+	public function checkJoin_action() {
+		$wx = $this->model('sns\wx')->bySite('platform');
 
 		return new \ResponseData($wx->joined);
 	}

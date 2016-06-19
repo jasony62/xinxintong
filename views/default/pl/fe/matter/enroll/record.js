@@ -1,10 +1,6 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlRecord', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', 'http2', '$uibModal', 'mattersgallery', 'pushnotify', function($scope, http2, $uibModal, mattersgallery, pushnotify) {
         $scope.notifyMatterTypes = [{
-            value: 'text',
-            title: '文本',
-            url: '/rest/pl/fe/matter'
-        }, {
             value: 'article',
             title: '单图文',
             url: '/rest/pl/fe/matter'
@@ -87,34 +83,8 @@ define(['frame'], function(ngApp) {
             n: '评论数',
             v: 'remark'
         }];
-        var current, startAt, endAt;
-        current = new Date();
-        startAt = {
-            year: current.getFullYear(),
-            month: current.getMonth() + 1,
-            mday: current.getDate(),
-            getTime: function() {
-                var d = new Date(this.year, this.month - 1, this.mday, 0, 0, 0, 0);
-                return d.getTime();
-            }
-        };
-        endAt = {
-            year: current.getFullYear(),
-            month: current.getMonth() + 1,
-            mday: current.getDate(),
-            getTime: function() {
-                var d = new Date(this.year, this.month - 1, this.mday, 23, 59, 59, 0);
-                return d.getTime();
-            }
-        };
-        $scope.signinStartAt = startAt.getTime() / 1000;
-        $scope.signinEndAt = endAt.getTime() / 1000;
         $scope.selected = {};
         $scope.selectAll;
-        $scope.$on('xxt.tms-datepicker.change', function(evt, data) {
-            $scope[data.state] = data.value;
-            $scope.doSearch(1);
-        });
         $scope.$on('search-tag.xxt.combox.done', function(event, aSelected) {
             $scope.page.tags = $scope.page.tags.concat(aSelected);
             $scope.doSearch();
@@ -318,6 +288,25 @@ define(['frame'], function(ngApp) {
                     record.verified = 'Y';
                     $scope.$root.infomsg = '完成操作';
                 });
+            });
+        };
+        $scope.notify = function() {
+            pushnotify.open($scope.siteId, function(notify) {
+                var url;
+                if (notify.matters.length) {
+                    url = '/rest/pl/fe/matter/enroll/record/notify';
+                    url += '?site=' + $scope.siteId;
+                    url += '&app=' + $scope.id;
+                    url += '&tmplmsg=' + notify.tmplmsg.id;
+                    //url += '&tags=' + $scope.page.tags.join(',');
+                    //url += $scope.page.joinParams();
+                    http2.post(url, notify.message, function(data) {
+                        $scope.$root.infomsg = '发送成功';
+                    });
+                }
+            }, {
+                singleMatter: 'Y',
+                matterTypes: $scope.notifyMatterTypes
             });
         };
         $scope.$watch('selectAll', function(nv) {

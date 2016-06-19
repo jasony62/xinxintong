@@ -195,7 +195,7 @@ class enroll_model extends app_base {
 	 * [1] 数据总条数
 	 * [2] 数据项的定义
 	 */
-	public function participants($mpid, $aid, $options = null) {
+	public function participants($siteId, $appId, $options = null) {
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$rid = null;
@@ -205,37 +205,33 @@ class enroll_model extends app_base {
 				} else if (!empty($options->rid)) {
 					$rid = $options->rid;
 				}
-			} else if ($activeRound = \TMS_APP::M('matter\enroll\round')->getActive($mpid, $aid)) {
+			} else if ($activeRound = \TMS_APP::M('matter\enroll\round')->getActive($siteId, $appId)) {
 				$rid = $activeRound->rid;
 			}
 
 			$kw = isset($options->kw) ? $options->kw : null;
 			$by = isset($options->by) ? $options->by : null;
 		}
-		$w = "e.mpid='$mpid' and aid='$aid'";
+
+		$w = "e.siteid='$siteId' and aid='$appId' and userid<>''";
+		/**
+		 * 按轮次过滤
+		 */
 		!empty($rid) && $w .= " and e.rid='$rid'";
-		// tags
+		/**
+		 * 按标签过滤
+		 */
 		if (!empty($options->tags)) {
 			$aTags = explode(',', $options->tags);
 			foreach ($aTags as $tag) {
 				$w .= "and concat(',',e.tags,',') like '%,$tag,%'";
 			}
-
 		}
-		// todo need support?
-		if (!empty($kw) && !empty($by)) {
-			switch ($by) {
-			case 'mobile':
-				$kw && $w .= " and mobile like '%$kw%'";
-				break;
-			case 'nickname':
-				$kw && $w .= " and nickname like '%$kw%'";
-				break;
-			}
-		}
-		// 活动参与人
+		/**
+		 * 进行过登记的人
+		 */
 		$q = array(
-			'distinct e.openid',
+			'userid',
 			"xxt_enroll_record e",
 			$w,
 		);

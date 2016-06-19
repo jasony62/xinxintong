@@ -70,7 +70,7 @@ class base extends \TMS_CONTROLLER {
 		return false;
 	}
 	/**
-	 * 活的社交帐号用户信息
+	 * 获得社交帐号用户信息
 	 */
 	protected function &getSnsUser($siteId) {
 		if ($this->userAgent() === 'wx') {
@@ -144,14 +144,19 @@ class base extends \TMS_CONTROLLER {
 	/**
 	 * 通过OAuth接口获得用户信息
 	 *
-	 * $site
-	 * $code
+	 * @param string $site
+	 * @param string $code
+	 * @param string $snsName
 	 */
 	protected function snsOAuthUserByCode($site, $code, $snsName) {
-		$snsConfig = $this->model('sns\\' . $snsName)->bySite($site);
+		$modelSns = $this->model('sns\\' . $snsName);
+		$snsConfig = $modelSns->bySite($site);
+		if ($snsConfig === false && $snsConfig->joined !== 'Y') {
+			$snsConfig = $modelSns->bySite('platform');
+		}
 		$snsProxy = $this->model('sns\\' . $snsName . '\proxy', $snsConfig);
 		$rst = $snsProxy->getOAuthUser($code);
-		$rst[0] === false && die('oauth2 failed:' . $rst[1]);
+		$rst[0] === false && die('xxt oauth2 failed: ' . $rst[1]);
 		/**
 		 * 将openid保存在cookie，可用于进行用户身份绑定
 		 * openid不一定是关注用户

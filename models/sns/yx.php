@@ -7,7 +7,9 @@ class yx_model extends \TMS_MODEL {
 	/**
 	 * 站点绑定的公众号
 	 */
-	public function &bySite($siteid, $fields = '*') {
+	public function &bySite($siteid, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+
 		$q = array(
 			$fields,
 			'xxt_site_yx',

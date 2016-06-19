@@ -87,17 +87,21 @@ class main extends \pl\fe\base {
 	 */
 	public function snsList_action($site) {
 		$sns = array();
-		if ($wx = $this->model('sns\wx')->bySite($site)) {
+		if ($wx = $this->model('sns\wx')->bySite($site, ['fields' => 'joined'])) {
+			if ($wx->joined === 'Y') {
+				$sns['wx'] = $wx;
+			}
+		} else if ($wx = $this->model('sns\wx')->bySite('platform', ['fields' => 'joined'])) {
 			if ($wx->joined === 'Y') {
 				$sns['wx'] = $wx;
 			}
 		}
-		if ($yx = $this->model('sns\yx')->bySite($site)) {
+		if ($yx = $this->model('sns\yx')->bySite($site, ['fields' => 'joined'])) {
 			if ($yx->joined === 'Y') {
 				$sns['yx'] = $yx;
 			}
 		}
-		if ($qy = $this->model('sns\qy')->bySite($site)) {
+		if ($qy = $this->model('sns\qy')->bySite($site, ['fields' => 'joined'])) {
 			if ($qy->joined === 'Y') {
 				$sns['qy'] = $qy;
 			}

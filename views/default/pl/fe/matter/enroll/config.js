@@ -1,4 +1,4 @@
-(function() {
+define(['frame'], function(ngApp) {
 	ngApp.provider.controller('ctrlConfig', ['$scope', '$location', 'http2', '$uibModal', function($scope, $location, http2, $uibModal) {
 		window.onbeforeunload = function(e) {
 			var message;
@@ -85,4 +85,4 @@
 			});
 		}, true);
 	}]);
-})();
+});

@@ -1,5 +1,5 @@
-(function() {
-	ngApp.provider.controller('ctrlEntry', ['$scope', 'http2', function($scope, http2) {
+define(['frame'], function(ngApp) {
+	ngApp.provider.controller('ctrlEvent', ['$scope', 'http2', function($scope, http2) {
 		$scope.pages4OutAcl = [];
 		$scope.pages4Unauth = [];
 		$scope.pages4Nonfan = [];
@@ -37,4 +37,4 @@
 			}
 		}, true);
 	}]);
-})();
+});

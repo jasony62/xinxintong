@@ -43,8 +43,8 @@ class way_model extends \TMS_MODEL {
 	 */
 	private function _bindSiteSnsUser($siteId, $snsName, $snsUser, $cookieUser) {
 		//
-		$modelSns = $this->model('sns\\' . $snsName);
-		$snsConfig = $modelSns->bySite($site);
+		$modelSns = \TMS_APP::M('sns\\' . $snsName);
+		$snsConfig = $modelSns->bySite($siteId);
 		if ($snsConfig === false || $snsConfig->joined !== 'Y') {
 			$snsSiteId = 'platform';
 		} else {

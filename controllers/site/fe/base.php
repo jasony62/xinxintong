@@ -44,18 +44,26 @@ class base extends \TMS_CONTROLLER {
 			$snsUser = new \stdclass;
 			$snsUser->openid = $openid;
 			$auth['sns'][$snsName] = $snsUser;
-		} else if ($this->myGetcookie("_{$this->siteId}_oauthpending") === 'Y') {
-			/* oauth回调 */
-			$this->mySetcookie("_{$this->siteId}_oauthpending", '', time() - 3600);
-			if (isset($_GET['state']) && isset($_GET['code'])) {
-				$state = $_GET['state'];
-				if (strpos($state, 'snsOAuth-') === 0) {
-					$code = $_GET['code'];
-					$snsName = explode('-', $state);
-					if (count($snsName) === 2) {
-						$snsName = $snsName[1];
-						$snsUser = $this->snsOAuthUserByCode($this->siteId, $code, $snsName);
-						$auth['sns'][$snsName] = $snsUser;
+		} else {
+			$snsSiteId = false;
+			if ($this->myGetcookie("_{$this->siteId}_oauthpending") === 'Y') {
+				$snsSiteId = $this->siteId;
+			} else if ($this->myGetcookie("_platform_oauthpending") === 'Y') {
+				$snsSiteId = 'platform';
+			}
+			if (isset($snsSiteId)) {
+				/* oauth回调 */
+				$this->mySetcookie("_{$snsSiteId}_oauthpending", '', time() - 3600);
+				if (isset($_GET['state']) && isset($_GET['code'])) {
+					$state = $_GET['state'];
+					if (strpos($state, 'snsOAuth-') === 0) {
+						$code = $_GET['code'];
+						$snsName = explode('-', $state);
+						if (count($snsName) === 2) {
+							$snsName = $snsName[1];
+							$snsUser = $this->snsOAuthUserByCode($snsSiteId, $code, $snsName);
+							$auth['sns'][$snsName] = $snsUser;
+						}
 					}
 				}
 			}
@@ -151,7 +159,7 @@ class base extends \TMS_CONTROLLER {
 	protected function snsOAuthUserByCode($site, $code, $snsName) {
 		$modelSns = $this->model('sns\\' . $snsName);
 		$snsConfig = $modelSns->bySite($site);
-		if ($snsConfig === false && $snsConfig->joined !== 'Y') {
+		if ($snsConfig === false || $snsConfig->joined !== 'Y') {
 			$snsConfig = $modelSns->bySite('platform');
 		}
 		$snsProxy = $this->model('sns\\' . $snsName . '\proxy', $snsConfig);

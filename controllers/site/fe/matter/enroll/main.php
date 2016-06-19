@@ -85,34 +85,36 @@ class main extends base {
 	 */
 	private function _requireSnsOAuth($siteid, &$app) {
 		$entryRule = $app->entry_rule;
-		if ($this->userAgent() === 'wx') {
-			if (isset($entryRule->wxfan)) {
-				if (!isset($this->who->sns->wx)) {
-					if ($wxConfig = $this->model('sns\wx')->bySite($siteid)) {
-						if ($wxConfig->joined === 'Y') {
-							$this->snsOAuth($wxConfig, 'wx');
-						}
-					} else if ($wxConfig = $this->model('sns\wx')->bySite('platform')) {
-						if ($wxConfig->joined === 'Y') {
-							$this->snsOAuth($wxConfig, 'wx');
-						}
-					}
-				}
-			}
-			if (isset($entryRule->qyfan)) {
-				if (!isset($this->who->sns->qy)) {
-					if ($qyConfig = $this->model('sns\qy')->bySite($siteid)) {
-						if ($qyConfig->joined === 'Y') {
-							$this->snsOAuth($qyConfig, 'qy');
+		if ($entryRule->scope === 'sns') {
+			if ($this->userAgent() === 'wx') {
+				if (!empty($entryRule->sns->wx->entry)) {
+					if (!isset($this->who->sns->wx)) {
+						if ($wxConfig = $this->model('sns\wx')->bySite($siteid)) {
+							if ($wxConfig->joined === 'Y') {
+								$this->snsOAuth($wxConfig, 'wx');
+							}
+						} else if ($wxConfig = $this->model('sns\wx')->bySite('platform')) {
+							if ($wxConfig->joined === 'Y') {
+								$this->snsOAuth($wxConfig, 'wx');
+							}
 						}
 					}
 				}
-			}
-		} else if (isset($entryRule->yxfan) && $this->userAgent() === 'yx') {
-			if (!isset($this->who->sns->yx)) {
-				if ($yxConfig = $this->model('sns\yx')->bySite($siteid)) {
-					if ($yxConfig->joined === 'Y') {
-						$this->snsOAuth($yxConfig, 'yx');
+				if (!empty($entryRule->sns->qy->entry)) {
+					if (!isset($this->who->sns->qy)) {
+						if ($qyConfig = $this->model('sns\qy')->bySite($siteid)) {
+							if ($qyConfig->joined === 'Y') {
+								$this->snsOAuth($qyConfig, 'qy');
+							}
+						}
+					}
+				}
+			} else if (!empty($entryRule->sns->yx->entry) && $this->userAgent() === 'yx') {
+				if (!isset($this->who->sns->yx)) {
+					if ($yxConfig = $this->model('sns\yx')->bySite($siteid)) {
+						if ($yxConfig->joined === 'Y') {
+							$this->snsOAuth($yxConfig, 'yx');
+						}
 					}
 				}
 			}

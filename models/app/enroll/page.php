@@ -260,7 +260,7 @@ class page_model extends \TMS_MODEL {
 
 		$uid = \TMS_CLIENT::get_client_uid();
 
-		$code = \TMS_APP::model('code\page')->create($uid);
+		$code = \TMS_APP::model('code\page')->create($mpid, $uid);
 
 		if (empty($data['seq'])) {
 			$q = array(

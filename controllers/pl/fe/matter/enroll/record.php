@@ -281,7 +281,10 @@ class record extends \pl\fe\matter\base {
 
 		$participants = $this->model('matter\enroll')->participants($site, $app, $tmplmsg, $options);
 
-		$this->notifyWithMatter($site, $participants, $tmplmsg, $message);
+		$rst = $this->notifyWithMatter($site, $participants, $tmplmsg, $message);
+		if ($rst[0] === false) {
+			return new \ResponseError($rst[1]);
+		}
 
 		return new \ResponseData($participants);
 	}
@@ -318,7 +321,10 @@ class record extends \pl\fe\matter\base {
 						$modelWxfan === false && $modelWxfan = $this->model('sns\wx\fan');
 						$fan = $modelWxfan->byUser($wxSiteId, $userid, 'openid', 'Y');
 						/*如果定义了发送素材的模版消息，用模版消息发送*/
-						$this->tmplmsgSendByOpenid($tmplmsgId, $fan->openid, $message);
+						$rst = $this->tmplmsgSendByOpenid($tmplmsgId, $fan->openid, $message);
+						if ($rst[0] === false) {
+							return $rst;
+						}
 						break;
 					case 'yx':
 						$modelYxfan === false && $modelYxfan = $this->model('sns\yx\fan');

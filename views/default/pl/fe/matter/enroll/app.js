@@ -607,14 +607,16 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			});
 		};
 		$scope.removeWrap = function() {
-			var wrapType = $scope.activeWrap.type;
+			var wrapType = $scope.activeWrap.type,
+				schema;
 			$scope.ep.removeWrap($scope.activeWrap);
 			if (wrapType === 'button') {
 				$scope.updPage($scope.ep, ['act_schemas', 'html']);
 			} else {
+				schema = $scope.activeWrap.schema;
 				$scope.updPage($scope.ep, ['data_schemas', 'html']).then(function() {
 					if (/input/.test(wrapType)) {
-						$scope.$broadcast('xxt.matter.enroll.page.data_schemas.removed', $scope.activeWrap.schema, 'page');
+						$scope.$broadcast('xxt.matter.enroll.page.data_schemas.removed', schema, 'page');
 					}
 				});
 			}

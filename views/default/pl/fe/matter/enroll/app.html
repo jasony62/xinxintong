@@ -11,7 +11,7 @@
                     <div class='form-group' ng-if="app.mission.multi_phase==='Y'">
                         <label>项目阶段</label>
                         <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
-                            <option>全部</option>
+                            <option></option>
                         </select>
                     </div>
                     <div class='form-group' ng-if="app.scenarioConfig.can_period!=='D'">
@@ -26,9 +26,6 @@
                 </div>
             </div>
         </nav>
-        <div class='tile' ng-if="app.state==='2'" style='display:none'>
-            <a href='/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}'>登记结果</a>
-        </div>
     </div>
     <!--app-->
     <!--pages-->

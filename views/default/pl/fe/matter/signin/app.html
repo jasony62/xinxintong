@@ -34,9 +34,6 @@
                 </div>
             </div>
         </nav>
-        <div class='tile' ng-if="app.state==='2'" style='display:none'>
-            <a href='/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}'>登记结果</a>
-        </div>
     </div>
     <!-- end app -->
     <!-- pages -->
@@ -73,13 +70,19 @@
                     <button class='btn btn-default' ng-click="newSchema('location')">上传位置</button>
                     <button class='btn btn-default' ng-click="newMember()">自定义用户信息</button>
                 </div>
-                <!--create input wrap-->
-                <!--create button wrap-->
+                <!-- end create input wrap -->
+                <!-- create button wrap -->
                 <div class='tile'>
                     <div class='help-block'>添加操作</div>
                     <button class='btn btn-default' ng-click="newButton(btn)" ng-repeat="btn in buttons">{{btn.l}}</button>
                 </div>
-                <!--create button wrap-->
+                <!-- end create button wrap-->
+                <!--embed inner matter-->
+                <div class='tile'>
+                    <div class='help-block'>在页面中添加素材</div>
+                    <button class='btn btn-default' ng-click="embedMatter()">添加素材</button>
+                </div>
+                <!--embed inner matter-->
                 <div class='tile' ng-if="ep.type==='I'">
                     <div class='help-block'>已有签到登记项</div>
                     <div class='list-group' ng-controller="ctrlAppSchemas4Input">
@@ -112,7 +115,7 @@
                     </div>
                 </div>
                  <div class='tile' ng-if="ep.type==='L'">
-                    <button class='btn btn-default' ng-click="newList('records')">登记项列表</button>
+                    <button class='btn btn-default' ng-click="newList('records')">签到项列表</button>
                     <button class='btn btn-default' ng-click="newList('rounds')" ng-if="app.scenarioConfig.can_rounds==='Y'">添加轮次列表</button>
                 </div>
             </div>
@@ -123,9 +126,6 @@
                     <div class='sidebar'>
                         <button class='btn btn-default' ng-click="updPage(ep,['html'])" title='保存修改' ng-disabled='!ep.$$modified'>
                         <i class='fa fa-save fa-fw'></i>
-                        </button>
-                        <button class='btn btn-default' ng-click="embedMatter()" title='添加素材'>
-                        <i class='fa fa-file fa-fw'></i>
                         </button>
                         <button class='btn btn-default' ng-click="removeWrap()" title='删除' ng-disabled='!activeWrap'>
                         <i class='fa fa-remove fa-fw'></i>

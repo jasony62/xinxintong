@@ -57,13 +57,12 @@ define([], function() {
 				l: '关闭页面'
 			}
 		},
-		newSchema: function(type, app) {
-			var id = 'c' + (new Date()).getTime(),
-				schema = angular.copy(base);
+		newSchema: function(type, app, proto) {
+			var schema = angular.copy(base);
 			schema.type = type;
 			if (prefab[type]) {
-				schema.id = prefab[type].id;
-				schema.title = prefab[type].title;
+				schema.id = (proto && proto.id) ? proto.id : prefab[type].id;
+				schema.title = (proto && proto.title) ? proto.title : prefab[type].title;
 				if (type === 'phase') {
 					schema.ops = [];
 					if (app.mission && app.mission.phases) {
@@ -76,8 +75,8 @@ define([], function() {
 					}
 				}
 			} else {
-				schema.id = id;
-				schema.title = '新登记项';
+				schema.id = (proto && proto.id) ? proto.id : 'c' + (new Date()).getTime();
+				schema.title = (proto && proto.title) ? proto.title : '新登记项';
 				if (type === 'single' || type === 'multiple') {
 					schema.ops = [{
 						l: '选项1',
@@ -90,6 +89,7 @@ define([], function() {
 					schema.count = 1;
 				}
 			}
+
 			return schema;
 		}
 	}

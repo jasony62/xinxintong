@@ -1,5 +1,4 @@
 body{font-size:14px;overflow-x:hidden;padding:10px;font-family:Microsoft Yahei,Arial}
-ul{list-style:none;padding:0}
 img{max-width:100%}
 div.tablewrap{width:100%;overflow-x:auto;overflow-y:hidden}
 table,table.mce-item-table{border:solid 1px #ddd;border-top:0;border-left:0;border-collapse:collapse;border-spacing:0;position:relative;table-layout:fixed;}
@@ -8,6 +7,7 @@ table thead,table.mce-item-table thead{text-align:center;}
 table th,table td,table.mce-item-table th,table.mce-item-table td{border-left:1px solid #ddd;border-top:1px solid #ddd;padding:5px;empty-cells:show;}
 
 /* matter/enroll */
+div[wrap] ul{list-style:none;padding:0}
 div[wrap].active,li[wrap].active{outline:1px dotted #ccc}
 div[wrap].active:before,li[wrap].active:before{content:' ';display:block;margin:2px;width:8px;height:8px;border-radius:4px;background:green}
 div[wrap].wrap-splitline{padding-bottom:0.5em;border-bottom:1px solid #eee;}

@@ -97,6 +97,21 @@ define(['frame'], function(ngApp) {
 				});
 			}
 		};
+		$scope.choosePhase = function() {
+			var phaseId = $scope.app.mission_phase_id,
+				i, phase, newPhase;
+			for (i = $scope.app.mission.phases.length - 1; i >= 0; i--) {
+				phase = $scope.app.mission.phases[i];
+				$scope.app.title = $scope.app.title.replace('-' + phase.title, '');
+				if (phase.phase_id === phaseId) {
+					newPhase = phase;
+				}
+			}
+			if (newPhase) {
+				$scope.app.title += '-' + newPhase.title;
+			}
+			$scope.update(['mission_phase_id', 'title']);
+		};
 	}]);
 	ngApp.provider.controller('ctrlRule', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
 		$scope.aTargets = null;
@@ -147,6 +162,13 @@ define(['frame'], function(ngApp) {
 					$scope.rounds = rsp.data;
 					$scope.group_rule = rule;
 				});
+			});
+		};
+		$scope.emptyRule = function() {
+			var url = '/rest/pl/fe/matter/group/configRule?site=' + $scope.siteId + '&app=' + $scope.id;
+			http2.post(url, {}, function(rsp) {
+				$scope.rounds = [];
+				$scope.group_rule = {};
 			});
 		};
 		$scope.addRound = function() {

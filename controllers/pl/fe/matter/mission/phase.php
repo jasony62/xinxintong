@@ -17,12 +17,12 @@ class phase extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$phase = $this->model('matter\mission\phase')->byMission($mission);
+		$phases = $this->model('matter\mission\phase')->byMission($mission);
 
-		return new \ResponseData($phase);
+		return new \ResponseData($phases);
 	}
 	/**
-	 *
+	 * 增加项目阶段
 	 *
 	 * @param string $site
 	 * @param int $mission mission's id
@@ -76,7 +76,7 @@ class phase extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 *
+	 * 删除项目的阶段
 	 *
 	 * @param string $site
 	 * @param int $mission mission's id
@@ -86,10 +86,26 @@ class phase extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$rst = $this->model()->delete(
+		$model = $this->model();
+
+		$rst = $model->delete(
 			'xxt_mission_phase',
 			"siteid='$site' and phase_id='$id'"
 		);
+
+		/* 是否还有项目阶段 */
+		$count = (int) $model->query_val_ss([
+			'count(*)',
+			'xxt_mission_phase',
+			"siteid='$site' and id='$mission'",
+		]);
+		if ($count === 0) {
+			$model->update(
+				'xxt_mission',
+				['multi_phase' => 'N'],
+				"siteid='$site' and id='$mission'"
+			);
+		}
 
 		return new \ResponseData($rst);
 	}

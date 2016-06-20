@@ -7,19 +7,8 @@ define(["require", "angular", "util.site"], function(require, angular) {
         };
     }]);
     ngApp.controller('ctrl', ['$scope', '$http', '$timeout', 'PageLoader', 'PageUrl', function($scope, $http, $timeout, PageLoader, PageUrl) {
-        var PU, signinURL;
+        var PU;
         PU = PageUrl.ins('/rest/site/op/matter/enroll', ['site', 'app']);
-        signinURL = function(app) {
-            var i, l, page;
-            for (i = 0, l = app.pages.length; i < l; i++) {
-                page = app.pages[i];
-                if (page.type === 'S') {
-                    $scope.signinURL = 'http://' + location.host + '/rest/site/fe/matter/enroll?site=' + PU.params.site + '&app=' + PU.params.app + '&page=' + page.name;
-                    $scope.signinQrcode = '/rest/site/op/matter/enroll/qrcode?site=' + PU.params.site + '&url=' + encodeURIComponent($scope.signinURL);
-                }
-            }
-            return false;
-        };
         $scope.getRecords = function() {
             $http.get(PU.j('record/list', 'site', 'app')).success(function(rsp) {
                 if (rsp.err_code !== 0) {
@@ -27,27 +16,28 @@ define(["require", "angular", "util.site"], function(require, angular) {
                     return;
                 }
                 $scope.records = rsp.data.records;
-                $scope.schema = rsp.data.schema;
             });
         };
         $scope.entryURL = 'http://' + location.host + '/rest/site/fe/matter/enroll?site=' + PU.params.site + '&app=' + PU.params.app;
         $scope.entryQrcode = '/rest/pl/fe/matter/enroll/qrcode?url=' + encodeURIComponent($scope.entryURL);
         $scope.value2Label = function(val, key) {
-            var i, j, s, aVal, aLab = [];
+            var i, schema;
             if (val === undefined) return '';
-            for (i = 0, j = $scope.schema.length; i < j; i++) {
-                s = $scope.schema[i];
-                if ($scope.schema[i].id === key) {
-                    s = $scope.schema[i];
+            for (i = $scope.app.dataSchemas.length - 1; i >= 0; i--) {
+                if ($scope.app.dataSchemas[i].id === key) {
+                    schema = $scope.app.dataSchemas[i];
                     break;
                 }
             }
-            if (s && s.ops && s.ops.length) {
-                aVal = val.split(',');
-                for (i = 0, j = s.ops.length; i < j; i++) {
-                    aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].label);
-                }
-                if (aLab.length) return aLab.join(',');
+            if (schema && schema.ops && schema.ops.length) {
+                (function() {
+                    var i, aVal, aLab = [];
+                    aVal = val.split(',');
+                    for (i = schema.ops.length - 1; i >= 0; i--) {
+                        aVal.indexOf(schema.ops[i].v) !== -1 && aLab.push(schema.ops[i].l);
+                    }
+                    aLab.length && (val = aLab.join(','));
+                })();
             }
             return val;
         };
@@ -57,12 +47,12 @@ define(["require", "angular", "util.site"], function(require, angular) {
                 return;
             }
             $scope.app = rsp.data.app;
-            if ($scope.app.can_signin === 'Y') {
-                signinURL($scope.app);
-            }
             PageLoader.render($scope, rsp.data.page).then(function() {
                 $scope.Page = rsp.data.page;
-            })
+            });
+            if ($scope.app.data_schemas && $scope.app.data_schemas.length) {
+                $scope.app.dataSchemas = JSON.parse($scope.app.data_schemas);
+            }
             $timeout(function() {
                 $scope.$broadcast('xxt.app.enroll.ready');
             });

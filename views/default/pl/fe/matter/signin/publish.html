@@ -3,7 +3,8 @@
         <div class='form-group'>
             <a href='/rest/pl/fe/matter/signin/app?site={{siteId}}&id={{id}}'>{{app.title}}（设置）</a>
         </div>
-        <div class='form-group'>
+        <div class='form-group compact'>
+            <div class='help-block'>头图（可选）：建议尺寸：900像素 * 500像素</div>
             <div style='position:relative'>
                 <div style="width:182px;border:1px solid #CCC">
                     <div style="height:100px;text-align:center;padding-top:32px" ng-if="!app.pic">
@@ -21,11 +22,10 @@
                     </div>
                 </div>
             </div>
-            <div class='help-block'>头图（可选）：建议尺寸：900像素 * 500像素</div>
         </div>
-        <div class='form-group'>
-            <textarea class='form-control' ng-model='app.summary' tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+        <div class='form-group compact'>
             <div class='help-block'>摘要（可选）：最多120个汉字，240个英文字符</div>
+            <textarea class='form-control' ng-model='app.summary' tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
         </div>
     </div>
     <div id='rounds' class='tile' ng-controller="ctrlRound">
@@ -44,16 +44,16 @@
         </div>
         <div class='compact' ng-if="editingRound">
             <div class="form-group">
-                <input type='text' class="form-control" ng-model='editingRound.title'>
                 <div class="help-block">名称</div>
+                <input type='text' class="form-control" ng-model='editingRound.title'>
             </div>
             <div class="form-group">
-                <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='editingRound.start_at' tms-state='start_at'></tms-datepicker>
                 <div class="help-block">开始时间</div>
+                <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='editingRound.start_at' tms-state='start_at'></tms-datepicker>
             </div>
             <div class="form-group">
-                <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='editingRound.end_at' tms-state='end_at'></tms-datepicker>
                 <div class="help-block">结束时间</div>
+                <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='editingRound.end_at' tms-state='end_at'></tms-datepicker>
             </div>
             <button class="btn btn-danger" ng-click="remove()">删除</button>
             <button class="btn btn-success" ng-click="update()">保存</button>
@@ -66,18 +66,18 @@
     </div>
     <div class='tile'>
         <div class='form-group'>
-            <div class='form-control' style='height:auto;word-break:break-all' ng-bind='entry.url'></div>
             <div class='help-block'>签到URL</div>
+            <div class='form-control' style='height:auto;word-break:break-all' ng-bind='entry.url'></div>
         </div>
         <div class='form-group'>
-            <div><img ng-src="{{entry.qrcode}}"></div>
             <div class='help-block'>签到二维码</div>
+            <div><img ng-src="{{entry.qrcode}}"></div>
         </div>
     </div>
     <div class='tile'>
         <div class='form-group'>
-            <div class='form-control' style='height:auto;word-break:break-all' ng-bind="opUrl"></div>
             <div class='help-block'>投影地址</div>
+            <div class='form-control' style='height:auto;word-break:break-all' ng-bind="opUrl"></div>
         </div>
     </div>
     <div class='tile'>

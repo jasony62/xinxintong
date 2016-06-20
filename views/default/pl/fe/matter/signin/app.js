@@ -138,6 +138,42 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		$scope.gotoPageConfig = function() {
 			location = '/rest/pl/fe/matter/signin/page?site=' + $scope.siteId + '&id=' + $scope.id + '&page=' + $scope.ep.name;
 		};
+		$scope.choosePhase = function() {
+			var phaseId = $scope.app.mission_phase_id,
+				i, phase, newPhase;
+			for (i = $scope.app.mission.phases.length - 1; i >= 0; i--) {
+				phase = $scope.app.mission.phases[i];
+				$scope.app.title = $scope.app.title.replace('-' + phase.title, '');
+				if (phase.phase_id === phaseId) {
+					newPhase = phase;
+				}
+			}
+			if (newPhase) {
+				$scope.app.title += '-' + newPhase.title;
+			}
+			$scope.update(['mission_phase_id', 'title']).then(function() {
+				/* 如果活动只有一个轮次，且没有指定过时间，用阶段的时间更新 */
+				if (newPhase && $scope.app.rounds.length === 1) {
+					(function() {
+						var round = $scope.app.rounds[0],
+							url;
+						if (round.start_at === '0' && round.end_at === '0') {
+							url = '/rest/pl/fe/matter/signin/round/update';
+							url += '?site=' + $scope.siteId;
+							url += '&app=' + $scope.id;
+							url += '&rid=' + round.rid;
+							http2.post(url, {
+								start_at: newPhase.start_at,
+								end_at: newPhase.end_at
+							}, function(rsp) {
+								round.start_at = newPhase.start_at;
+								round.end_at = newPhase.end_at;
+							});
+						}
+					})();
+				}
+			});
+		};
 		$scope.$watch('app', function(app) {
 			if (!app) return;
 			$scope.ep = app.pages[0];
@@ -663,15 +699,14 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		};
 		$scope.embedMatter = function(page) {
 			mattersgallery.open($scope.siteId, function(matters, type) {
-				var dom, mtype, fn;
+				var dom, fn;
 				dom = tinymceEditor.dom;
 				angular.forEach(matters, function(matter) {
-					fn = "openMatter(" + matter.id + ",'" + mtype + "')";
+					fn = "openMatter(" + matter.id + ",'" + type + "')";
 					tinymceEditor.insertContent(dom.createHTML('div', {
-						'wrap': 'link',
-						'class': 'matter-link'
-					}, dom.createHTML('a', {
-						href: 'javascript:void(0)',
+						'wrap': 'matter',
+						'class': 'form-group'
+					}, dom.createHTML('span', {
 						"ng-click": fn,
 					}, dom.encode(matter.title))));
 				});

@@ -1,30 +1,31 @@
 <div class='col-md-8'>
     <div class='tile'>
-        <div class='form-group'>
-            <input type='text' class='form-control' ng-model="app.title" tms-auto-update tms-wait=1000 tms-update="update('title')">
+        <div class='form-group compact'>
             <div class='help-block'>标题：最多35个汉字，70个英文字符</div>
+            <input type='text' class='form-control' ng-model="app.title" tms-auto-update tms-wait=1000 tms-update="update('title')">
         </div>
         <div class='form-group compact' ng-if="app.mission.multi_phase==='Y'">
-            <select class='form-control' ng-model="app.mission_phase_id" ng-change="update('mission_phase_id')" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
+            <div class='help-block'>项目阶段</div>
+            <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
                 <option></option>
             </select>
-            <div class='help-block'>项目阶段</div>
         </div>
-        <div class='form-group'>
-            <textarea class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+        <div class='form-group compact'>
             <div class='help-block'>摘要（可选）：最多120个汉字，240个英文字符</div>
+            <textarea class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
         </div>
         <div class='form-group'>
+            <div class='help-block'>分组类型</div>
             <select class='form-control' ng-model='app.scenario' ng-change="update('scenario');">
                 <option value='split'>拆分</option>
                 <option value='extract'>抽取</option>
             </select>
-            <div class='help-block'>分组类型</div>
         </div>
     </div>
     <div class='tile' ng-controller="ctrlRule">
         <div class='form-group'>
             <button class='btn btn-success' ng-click='configRule()'>设置规则</button>
+            <button class='btn btn-success' ng-click='emptyRule()'>清除分组</button>
             <button class='btn btn-success' ng-click='addRound()'>添加分组</button>
         </div>
         <div class='list-group'>

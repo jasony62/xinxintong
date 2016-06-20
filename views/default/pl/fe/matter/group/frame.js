@@ -30,7 +30,7 @@ define(['require'], function() {
 				}
 			}
 		}).otherwise({
-			templateUrl: '/views/default/pl/fe/matter/group/setting.html?_=3',
+			templateUrl: '/views/default/pl/fe/matter/group/setting.html?_=5',
 			controller: 'ctrlSetting',
 			resolve: {
 				load: function($q) {
@@ -62,13 +62,17 @@ define(['require'], function() {
 			});
 			return defer.promise;
 		};
-		$scope.update = function(name) {
-			if (name === 'tags') {
-				modifiedData.tags = $scope.app.tags.join(',');
-			} else {
-				modifiedData[name] = $scope.app[name];
-			}
+		$scope.update = function(names) {
+			angular.isString(names) && (names = [names]);
+			angular.forEach(names, function(name) {
+				if (name === 'tags') {
+					modifiedData.tags = $scope.app.tags.join(',');
+				} else {
+					modifiedData[name] = $scope.app[name];
+				}
+			});
 			$scope.modified = true;
+
 			return $scope.submit();
 		};
 		$scope.syncByApp = function() {

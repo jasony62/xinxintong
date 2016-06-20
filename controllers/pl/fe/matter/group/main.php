@@ -193,15 +193,17 @@ class main extends \pl\fe\matter\base {
 			}
 		}
 		/*create round*/
-		for ($i = 0; $i < $rule->count; $i++) {
-			$prototype = array(
-				'title' => '分组' . ($i + 1),
-				'targets' => $targets,
-				'times' => $rule->times,
-			);
-			$round = $modelRnd->create($app, $prototype);
-			$round->targets = json_decode($round->targets);
-			$rounds[] = $round;
+		if (isset($rule->count)) {
+			for ($i = 0; $i < $rule->count; $i++) {
+				$prototype = array(
+					'title' => '分组' . ($i + 1),
+					'targets' => $targets,
+					'times' => $rule->times,
+				);
+				$round = $modelRnd->create($app, $prototype);
+				$round->targets = json_decode($round->targets);
+				$rounds[] = $round;
+			}
 		}
 		/*记录规则*/
 		$rst = $modelRnd->update(

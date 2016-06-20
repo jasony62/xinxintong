@@ -85,7 +85,7 @@ class main extends base {
 	 */
 	private function _requireSnsOAuth($siteid, &$app) {
 		$entryRule = $app->entry_rule;
-		if ($entryRule->scope === 'sns') {
+		if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
 			if ($this->userAgent() === 'wx') {
 				if (!empty($entryRule->sns->wx->entry)) {
 					if (!isset($this->who->sns->wx)) {

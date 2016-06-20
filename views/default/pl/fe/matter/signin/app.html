@@ -1,5 +1,5 @@
 <div id='app-view'>
-    <!--app-->
+    <!-- app -->
     <div class='col-md-12 app'>
         <nav class="navbar navbar-default">
             <div class="container-fluid">
@@ -10,7 +10,7 @@
                     </div>
                     <div class='form-group' ng-if="app.mission.multi_phase==='Y'">
                         <label>项目阶段</label>
-                        <select class='form-control' ng-model="app.mission_phase_id" ng-change="update('mission_phase_id')" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
+                        <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
                             <option></option>
                         </select>
                     </div>
@@ -31,8 +31,6 @@
                 </div>
                 <div class="navbar-form navbar-right">
                     <button uib-popover-template="'appSetting.html'" popover-placement="bottom" popover-title="应用设置" popover-trigger="outsideClick" type="button" class="btn btn-default">活动设置 <span class="caret"></span></button>
-                    <button class='btn btn-success' ng-click="publish()">收集数据</button>
-                    <button class='btn btn-default' ng-click="remove()">删除</button>
                 </div>
             </div>
         </nav>
@@ -40,13 +38,13 @@
             <a href='/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}'>登记结果</a>
         </div>
     </div>
-    <!--app-->
-    <!--pages-->
+    <!-- end app -->
+    <!-- pages -->
     <div class='col-md-12'>
         <div class="container-fluid">
             <ul class="nav nav-pills">
                 <li role="presentation" ng-class="{'active':p===ep}" ng-repeat="p in app.pages">
-                    <a href="#" ng-click="choosePage(p)"><span>{{p.title}}</span></a>
+                    <a href="#" ng-click="choosePage(p)"><span><i class='fa fa-file-o'></i> {{p.title}}</span></a>
                 </li>
                 <ul class="navbar-form navbar-right">
                     <button uib-popover-template="'pageSetting.html'" popover-placement="bottom" popover-title="页面设置" popover-trigger="outsideClick" class="btn btn-default">页面设置 <span class="caret"></span></button>
@@ -54,35 +52,36 @@
             </ul>
         </div>
     </div>
-    <!--pages-->
-    <!--one page-->
+    <!-- end pages -->
+    <!-- one page -->
     <div class='col-md-12 page' ng-controller="ctrlPage">
         <div class='row'>
             <div class='col-md-3'>
                 <!--create input wrap-->
                 <div class='form-group tile' ng-if="ep.type==='I'">
+                    <div class='help-block'>添加登记项</div>
                     <button class='btn btn-default' ng-click="newSchema('name')">姓名</button>
                     <button class='btn btn-default' ng-click="newSchema('mobile')">手机</button>
                     <button class='btn btn-default' ng-click="newSchema('email')">邮箱</button>
                     <button class='btn btn-default' ng-click="newSchema('date')">日期</button>
-                    <button class='btn btn-default' ng-click="newSchema('shorttext')">短文本</button>
-                    <button class='btn btn-default' ng-click="newSchema('longtext')">长文本</button>
+                    <button class='btn btn-default' ng-click="newSchema('shorttext')">单行文本</button>
+                    <button class='btn btn-default' ng-click="newSchema('longtext')">多行文本</button>
                     <button class='btn btn-default' ng-click="newSchema('single')">单选题</button>
                     <button class='btn btn-default' ng-click="newSchema('multiple')">多选题</button>
                     <button class='btn btn-default' ng-click="newSchema('image')">上传图片</button>
                     <button class='btn btn-default' ng-click="newSchema('file')">上传文件</button>
                     <button class='btn btn-default' ng-click="newSchema('location')">上传位置</button>
                     <button class='btn btn-default' ng-click="newMember()">自定义用户信息</button>
-                    <div class='help-block'>添加登记项</div>
                 </div>
                 <!--create input wrap-->
                 <!--create button wrap-->
                 <div class='tile'>
-                    <button class='btn btn-default' ng-click="newButton(btn)" ng-repeat="btn in buttons">{{btn.l}}</button>
                     <div class='help-block'>添加操作</div>
+                    <button class='btn btn-default' ng-click="newButton(btn)" ng-repeat="btn in buttons">{{btn.l}}</button>
                 </div>
                 <!--create button wrap-->
                 <div class='tile' ng-if="ep.type==='I'">
+                    <div class='help-block'>已有签到登记项</div>
                     <div class='list-group' ng-controller="ctrlAppSchemas4Input">
                         <div class='list-group-item schema' ng-repeat="s in appSchemas">
                             <div class='checkbox' style='margin:0;padding:0' ng-mouseenter="entered=true" ng-mouseleave="entered=false">
@@ -91,15 +90,14 @@
                             </div>
                         </div>
                     </div>
-                    <div class='help-block'>已有签到登记项</div>
                 </div>
                 <div class='tile' ng-if="app.enroll_app_id">
+                    <div class='help-block'>要在签到名单中验证的登记项</div>
                     <div class='list-group'>
                         <div class='list-group-item' ng-repeat="s in app.data_schemas">
                             <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="s.requireCheck" ng-change="update('data_schemas')">{{s.title}}</label>
                         </div>
                     </div>
-                    <div class='help-block'>要在签到名单中验证的登记项</div>
                 </div>
                 <div ng-if="ep.type==='V'" ng-controller="ctrlAppSchemas4View">
                     <div class='list-group-item' ng-repeat="s in appSchemas">
@@ -162,6 +160,18 @@
         </div>
     </div>
     <!--page-->
+    <nav class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container-fluid" style='text-align:center'>
+            <form class="navbar-form" style='display:inline-block'>
+                <button class='btn' ng-disabled='!modified&&!ep.$$modified' ng-class="(modified||ep.$$modified)?'btn-success':'btn-default'" ng-click="updPage(ep,['data_schemas','html'])">保存修改</button>
+                <button class='btn btn-success' ng-click="publish()">收集数据</button>
+                <a href="/rest/pl/fe/matter/signin/record?site={{siteId}}&id={{id}}">查看结果</a>
+            </form>
+            <form class="navbar-form navbar-right" style='display:inline-block'>
+                <button class='btn btn-default' ng-click="remove()">删除活动</button>
+            </form>
+        </div>
+    </nav>
 </div>
 <script type="text/ng-template" id="appSetting.html">
     <div id="appSetting">

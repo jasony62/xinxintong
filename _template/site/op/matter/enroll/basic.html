@@ -20,11 +20,7 @@
 							<input type='checkbox' ng-model="selectAll">
 						</th>
 						<th style='width:100px'>登记时间</th>
-						<th class='custom-col' ng-repeat="c in schema" title="{{c.ops}}">{{c.title}}</th>
-						<th style='width:120px' ng-if="app.can_signin==='Y'">最后签到时间</th>
-						<th style='width:120px' ng-if="app.can_signin==='Y'">累计签到次数</th>
-						<th style='width:140px'>标签</th>
-						<th style='width:60px' ng-if="app.can_invite==='Y'">邀请</th>
+						<th class='custom-col' ng-repeat="schema in app.dataSchemas">{{schema.title}}</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -33,7 +29,7 @@
 							<input type='checkbox' ng-model='selected[$index]'>
 						</td>
 						<td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
-						<td ng-repeat="c in schema">
+						<td ng-repeat="c in app.dataSchemas">
 							<span ng-if="c.id.indexOf('member')===0">{{memberAttr(r.data, c.id)}}</span>
 							<span ng-if="c.type!=='img'&&c.type!=='file'">{{value2Label(r.data[c.id], c.id)}}</span>
 							<span ng-if="c.type==='img'" ng-init="imgs=r.data[c.id].split(',')">
@@ -43,10 +39,6 @@
 								<span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
 							</span>
 						</td>
-						<td ng-if="app.can_signin==='Y'">{{r.signin_at>0 ? ((r.signin_at*1000)|date:'MM-dd HH:mm') : ''}}</td>
-						<td ng-if="app.can_signin==='Y'">{{r.signinLogs.length}}</td>
-						<td>{{r.tags}}</td>
-						<td ng-if="app.can_invite==='Y'">{{r.follower_num}}</td>
 					</tr>
 				</tbody>
 			</table>

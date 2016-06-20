@@ -84,6 +84,21 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			$scope.app[data.state] = data.value;
 			$scope.update(data.state);
 		});
+		$scope.choosePhase = function() {
+			var phaseId = $scope.app.mission_phase_id,
+				i, phase, newPhase;
+			for (i = $scope.app.mission.phases.length - 1; i >= 0; i--) {
+				phase = $scope.app.mission.phases[i];
+				$scope.app.title = $scope.app.title.replace('-' + phase.title, '');
+				if (phase.phase_id === phaseId) {
+					newPhase = phase;
+				}
+			}
+			if (newPhase) {
+				$scope.app.title += '-' + newPhase.title;
+			}
+			$scope.update(['mission_phase_id', 'title']);
+		};
 		$scope.$watch('app', function(app) {
 			if (!app) return;
 			$scope.ep = app.pages[0];
@@ -183,7 +198,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			title: '登记时间'
 		}];
 		angular.forEach(pageSchemas, function(config) {
-			chooseState[config.schema.id] = true;
+			config.schema && config.schema.id && (chooseState[config.schema.id] = true);
 		});
 		$scope.chooseState = chooseState;
 		$scope.choose = function(schema) {
@@ -203,6 +218,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 	 */
 	ngApp.provider.controller('ctrlInputWrap', ['$scope', '$timeout', function($scope, $timeout) {
 		$scope.schema = $scope.activeWrap.schema;
+		$scope.upperOptions = [];
 		$scope.addOption = function() {
 			if ($scope.schema.ops === undefined)
 				$scope.schema.ops = [];
@@ -495,7 +511,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			});
 		});
 		$scope.wrapEditorHtml = function() {
-			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=18';
+			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=19';
 			return url;
 		};
 		var addInputSchema = function(addedSchema) {
@@ -610,15 +626,14 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		};
 		$scope.embedMatter = function(page) {
 			mattersgallery.open($scope.siteId, function(matters, type) {
-				var dom, mtype, fn;
+				var dom, fn;
 				dom = tinymceEditor.dom;
 				angular.forEach(matters, function(matter) {
-					fn = "openMatter(" + matter.id + ",'" + mtype + "')";
+					fn = "openMatter(" + matter.id + ",'" + type + "')";
 					tinymceEditor.insertContent(dom.createHTML('div', {
-						'wrap': 'link',
-						'class': 'matter-link'
-					}, dom.createHTML('a', {
-						href: 'javascript:void(0)',
+						'wrap': 'matter',
+						'class': 'form-group'
+					}, dom.createHTML('span', {
 						"ng-click": fn,
 					}, dom.encode(matter.title))));
 				});

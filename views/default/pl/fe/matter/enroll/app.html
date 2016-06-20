@@ -10,8 +10,8 @@
                     </div>
                     <div class='form-group' ng-if="app.mission.multi_phase==='Y'">
                         <label>项目阶段</label>
-                        <select class='form-control' ng-model="app.mission_phase_id" ng-change="update('mission_phase_id')" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
-                            <option></option>
+                        <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
+                            <option>全部</option>
                         </select>
                     </div>
                     <div class='form-group' ng-if="app.scenarioConfig.can_period!=='D'">

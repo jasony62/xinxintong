@@ -20,6 +20,7 @@ ul.img-tiles li.img-picker button span{font-size:36px}
 div[wrap].wrap-splitline{padding-bottom:0.5em;border-bottom:1px solid #fff;}
 div[wrap].wrap-inline>*{display:inline-block;vertical-align:middle;margin:0 1em 0 0;}
 div[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+div[wrap=matter]>span{cursor:pointer;text-decoration:underline;}
 
 /*list*/
 li .wrap-inline>label{padding:7px 0;color:#444;}

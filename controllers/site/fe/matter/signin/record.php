@@ -166,8 +166,9 @@ class record extends base {
 			/*在指定的登记活动中检查数据*/
 			$enrollApp = $this->model('matter\enroll')->byId($app->enroll_app_id);
 			if ($enrollApp) {
-				$enrollRecord = $this->model('matter\enroll\record')->byData($site, $enrollApp, $requireCheckedData);
-				if (empty($enrollRecord)) {
+				$modelEnrollRec = $this->model('matter\enroll\record');
+				$enrollRecords = $modelEnrollRec->byData($site, $enrollApp, $requireCheckedData);
+				if (empty($enrollRecords)) {
 					/* 已经登记，更新原先提交的数据 */
 					$modelRec->update('xxt_signin_record',
 						array('verified' => 'N'),
@@ -178,6 +179,16 @@ class record extends base {
 						$signState->forword = $app->entry_rule->fail->entry;
 					}
 				} else {
+					/* 找到了对应的登记记录 */
+					$ek = $enrollRecords[0];
+					$enrollRecord = $modelEnrollRec->byId($ek, ['cascaded' => 'N', 'fields' => 'verified']);
+					if ($enrollRecord->verified === 'Y') {
+						$modelRec->update('xxt_signin_record',
+							array('verified' => 'Y'),
+							"enroll_key='{$signState->ek}'"
+						);
+					}
+					/* todo:如果登记记录没有验证通过怎么办？ */
 					$signState->verified = 'Y';
 					if (isset($app->entry_rule->success->entry)) {
 						$signState->forword = $app->entry_rule->success->entry;

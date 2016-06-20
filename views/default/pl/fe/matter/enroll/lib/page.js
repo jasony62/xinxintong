@@ -51,11 +51,11 @@ define(['wrap'], function(wrapLib) {
 			$(root).find('.active').removeClass('active');
 			this.setActiveWrap(null);
 			wrapType = $(selectableWrap).attr('wrap');
-			while (!/text|input|radio|checkbox|value|button|records|rounds/.test(wrapType) && selectableWrap.parentNode) {
+			while (!/text|matter|input|radio|checkbox|value|button|records|rounds/.test(wrapType) && selectableWrap.parentNode) {
 				selectableWrap = selectableWrap.parentNode;
 				wrapType = $(selectableWrap).attr('wrap');
 			}
-			if (/text|input|radio|checkbox|value|button|records|rounds/.test(wrapType)) {
+			if (/text|matter|input|radio|checkbox|value|button|records|rounds/.test(wrapType)) {
 				this.setActiveWrap(selectableWrap);
 			}
 

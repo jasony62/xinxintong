@@ -1,99 +1,32 @@
 define(['require', 'page'], function(require, pageLib) {
 	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'tinymce.ui.xxt', 'ui.xxt']);
 	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider) {
+		var RouteParam = function(name) {
+			var baseURL = '/views/default/pl/fe/matter/signin/';
+			this.templateUrl = baseURL + name + '.html?=8';
+			this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
+			this.resolve = {
+				load: function($q) {
+					var defer = $q.defer();
+					require([baseURL + name + '.js'], function() {
+						defer.resolve();
+					});
+					return defer.promise;
+				}
+			};
+		};
 		ngApp.provider = {
 			controller: $controllerProvider.register,
 			directive: $compileProvider.directive
 		};
-		$routeProvider.when('/rest/pl/fe/matter/signin/page', {
-			templateUrl: '/views/default/pl/fe/matter/signin/page.html?_=4',
-			controller: 'ctrlPage',
-			resolve: {
-				load: function($q) {
-					var defer = $q.defer();
-					require(['/views/default/pl/fe/matter/signin/page.js'], function() {
-						defer.resolve();
-					});
-					return defer.promise;
-				}
-			}
-		}).when('/rest/pl/fe/matter/signin/record', {
-			templateUrl: '/views/default/pl/fe/matter/signin/record.html?_=3',
-			controller: 'ctrlRecord',
-			resolve: {
-				load: function($q) {
-					var defer = $q.defer();
-					require(['/views/default/pl/fe/matter/signin/record.js'], function() {
-						defer.resolve();
-					});
-					return defer.promise;
-				}
-			}
-		}).when('/rest/pl/fe/matter/signin/stat', {
-			templateUrl: '/views/default/pl/fe/matter/signin/stat.html?_=1',
-			controller: 'ctrlStat',
-			resolve: {
-				load: function($q) {
-					var defer = $q.defer();
-					(function() {
-						$.getScript('/views/default/pl/fe/matter/signin/stat.js', function() {
-							defer.resolve();
-						});
-					})();
-					return defer.promise;
-				}
-			}
-		}).when('/rest/pl/fe/matter/signin/coin', {
-			templateUrl: '/views/default/pl/fe/matter/signin/coin.html?_=1',
-			controller: 'ctrlCoin',
-			resolve: {
-				load: function($q) {
-					var defer = $q.defer();
-					(function() {
-						$.getScript('/views/default/pl/fe/matter/signin/coin.js', function() {
-							defer.resolve();
-						});
-					})();
-					return defer.promise;
-				}
-			}
-		}).when('/rest/pl/fe/matter/signin/publish', {
-			templateUrl: '/views/default/pl/fe/matter/signin/publish.html?_=2',
-			controller: 'ctrlRunning',
-			resolve: {
-				load: function($q) {
-					var defer = $q.defer();
-					require(['/views/default/pl/fe/matter/signin/publish.js'], function() {
-						defer.resolve();
-					});
-					return defer.promise;
-				}
-			}
-		}).when('/rest/pl/fe/matter/signin/event', {
-			templateUrl: '/views/default/pl/fe/matter/signin/event.html?_=6',
-			controller: 'ctrlEvent',
-			resolve: {
-				load: function($q) {
-					var defer = $q.defer();
-					require(['/views/default/pl/fe/matter/signin/event.js'], function() {
-						defer.resolve();
-					});
-					return defer.promise;
-				}
-			}
-		}).otherwise({
-			templateUrl: '/views/default/pl/fe/matter/signin/app.html?_=2',
-			controller: 'ctrlApp',
-			resolve: {
-				load: function($q) {
-					var defer = $q.defer();
-					require(['/views/default/pl/fe/matter/signin/app.js'], function() {
-						defer.resolve();
-					});
-					return defer.promise;
-				}
-			}
-		});
+		$routeProvider
+			.when('/rest/pl/fe/matter/signin/page', new RouteParam('page'))
+			.when('/rest/pl/fe/matter/signin/event', new RouteParam('event'))
+			.when('/rest/pl/fe/matter/signin/record', new RouteParam('record'))
+			.when('/rest/pl/fe/matter/signin/publish', new RouteParam('publish'))
+			.when('/rest/pl/fe/matter/signin/event', new RouteParam('event'))
+			.otherwise(new RouteParam('app'));
+
 		$locationProvider.html5Mode(true);
 	}]);
 	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', function($scope, $location, $uibModal, $q, http2) {
@@ -114,12 +47,15 @@ define(['require', 'page'], function(require, pageLib) {
 			});
 			return defer.promise;
 		};
-		$scope.update = function(name) {
-			if (name === 'tags') {
-				modifiedData.tags = $scope.app.tags.join(',');
-			} else {
-				modifiedData[name] = $scope.app[name];
-			}
+		$scope.update = function(names) {
+			angular.isString(names) && (names = [names]);
+			angular.forEach(names, function(name) {
+				if (name === 'tags') {
+					modifiedData.tags = $scope.app.tags.join(',');
+				} else {
+					modifiedData[name] = $scope.app[name];
+				}
+			});
 			$scope.modified = true;
 
 			return $scope.submit();

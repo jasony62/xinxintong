@@ -114,10 +114,23 @@ app.controller('ctrlPhase', ['$scope', 'http2', function($scope, http2) {
 		};
 		/*设置阶段的缺省起止时间*/
 		(function() {
-			var tomorrow = new Date();
-			tomorrow.setTime(tomorrow.getTime() + 86400000);
-			data.start_at = tomorrow.setHours(9, 0, 0, 0) / 1000;
-			data.end_at = tomorrow.setHours(17, 0, 0, 0) / 1000;;
+			var nextDay = new Date(),
+				lastEndAt;
+			if ($scope.phases.length) {
+				lastEndAt = 0;
+				angular.forEach($scope.phases, function(phase) {
+					if (phase.end_at > lastEndAt) {
+						lastEndAt = phase.end_at;
+					}
+				});
+				/* 最后一天的下一天 */
+				nextDay.setTime(lastEndAt * 1000 + 86400000);
+			} else {
+				/* tomorrow */
+				nextDay.setTime(nextDay.getTime() + 86400000);
+			}
+			data.start_at = nextDay.setHours(0, 0, 0, 0) / 1000;
+			data.end_at = nextDay.setHours(23, 59, 59, 0) / 1000;
 		})();
 		http2.post('/rest/pl/fe/matter/mission/phase/create?site=' + $scope.siteId + '&mission=' + $scope.id, data, function(rsp) {
 			$scope.phases.push(rsp.data);

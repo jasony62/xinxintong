@@ -1,5 +1,5 @@
 define(['frame'], function(ngApp) {
-	ngApp.provider.controller('ctrlRunning', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
+	ngApp.provider.controller('ctrlPublish', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
 		$scope.$watch('app', function(app) {
 			if (!app) return;
 			var entry = {},

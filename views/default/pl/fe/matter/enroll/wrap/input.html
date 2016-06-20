@@ -45,12 +45,12 @@
         <div class="help-block">数量</div>
     </div>
     <div class="form-group" ng-if="activeWrap.schema.type==='multiple'">
+        <div class="help-block">限制数量</div>
         <div class='input-group'>
             <span class='input-group-addon'>
                 <input type='checkbox' ng-model='activeWrap.config.setUpper' ng-true-value="'Y'" ng-false-value="'N'" ng-change="updWrap(config,'setUpper')">
             </span>
-            <input type='text' ng-disabled="activeWrap.config.setUpper==='N'" class='form-control' ng-model='activeWrap.config.upper' ng-change="updWrap(config,'upper')">
+            <input type='number' ng-disabled="activeWrap.config.setUpper==='N'" class='form-control' ng-model='activeWrap.config.upper' ng-change="updWrap(config,'upper')">
         </div>
-        <div class="help-block">限制数量</div>
     </div>
 </div>

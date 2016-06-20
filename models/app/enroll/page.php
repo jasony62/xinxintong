@@ -260,7 +260,7 @@ class page_model extends \TMS_MODEL {
 
 		$uid = \TMS_CLIENT::get_client_uid();
 
-		$code = \TMS_APP::model('code\page')->create($uid);
+		$code = \TMS_APP::model('code\page')->create($mpid, $uid);
 
 		if (empty($data['seq'])) {
 			$q = array(
@@ -275,6 +275,7 @@ class page_model extends \TMS_MODEL {
 		}
 		$newPage = array(
 			'mpid' => $mpid,
+			'siteid' => $mpid,
 			'aid' => $aid,
 			'creater' => $uid,
 			'create_at' => time(),
@@ -282,6 +283,7 @@ class page_model extends \TMS_MODEL {
 			'title' => isset($data['title']) ? $data['title'] : '新页面',
 			'name' => isset($data['name']) ? $data['name'] : 'z' . time(),
 			'code_id' => $code->id,
+			'code_name' => $code->name,
 			'seq' => $seq,
 		);
 

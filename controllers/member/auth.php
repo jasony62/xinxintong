@@ -445,11 +445,12 @@ class auth extends \member_base {
 	/**
 	 * 从企业号通讯录同步用户数据
 	 *
-	 * $authid
-	 * $pdid 父部门id
+	 * @param string $mpid
+	 * @param int $authid
+	 * @param int $pdid 父部门id。如果不指定，就返回当前用户有权限获得的部门列表。
 	 *
 	 */
-	public function syncFromQy_action($mpid, $authid, $pdid = 1) {
+	public function syncFromQy_action($mpid, $authid, $pdid = null) {
 		if (!($authapi = $this->model('user/authapi')->byId($authid))) {
 			return new \ResponseError('未设置内置认证接口，无法同步通讯录');
 		}

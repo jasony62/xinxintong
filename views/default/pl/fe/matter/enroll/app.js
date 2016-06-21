@@ -154,7 +154,11 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			appSchemas = $scope.app.data_schemas,
 			chooseState = {};
 		angular.forEach(pageSchemas, function(dataWrap) {
-			chooseState[dataWrap.schema.id] = true;
+			if (dataWrap.schema && chooseState[dataWrap.schema.id]) {
+				chooseState[dataWrap.schema.id] = true;
+			} else {
+				console.error('page schema not exist', dataWrap);
+			}
 		});
 		$scope.appSchemas = appSchemas;
 		$scope.chooseState = chooseState;

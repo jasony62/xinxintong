@@ -121,11 +121,14 @@ directive('tinymce', function($timeout) {
                         }
                     });
                     editor.on('BeforeSetContent', function(e) {
+                        var c;
                         if (e.content && e.content.length) {
-                            var c = e.content;
+                            c = e.content;
                             c = c.replace(/\n|\r/g, '').replace(/\s*/, ''); // trim
                             if (/^<table.*<\/table>$/i.test(c)) {
-                                e.content = '<p>&nbsp;</p><div class="tablewrap">' + c + '</div><p>&nbsp;</p>';
+                                c = $('<div>' + c + '</div>');
+                                c.find('td').html('&nbsp;');
+                                e.content = '<p>&nbsp;</p><div wrap="table">' + c.html() + '</div><p>&nbsp;</p>';
                             }
                         }
                     });
@@ -133,7 +136,7 @@ directive('tinymce', function($timeout) {
                         switch (e.command) {
                             case 'mceTableDelete':
                                 var c = this.getContent(),
-                                    patt = /<div class="tablewrap">&nbsp;<\/div>/;
+                                    patt = /<div class="table">&nbsp;<\/div>/;
                                 if (patt.test(c)) {
                                     c = c.replace(patt, '');
                                     this.setContent(c);

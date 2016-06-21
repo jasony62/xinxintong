@@ -4,11 +4,11 @@
         <meta charset="UTF-8">
         <base href="/"/>
         <title>图文</title>
-        <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
         <link href="/static/css/tms.css?_=1" rel="stylesheet">
         <link href="/views/default/pl/fe/matter/article/frame.css?_=1" rel="stylesheet">
     </head>
-    <body ng-app='app' ng-controller='ctrlArticle' ng-cloak class='ng-cloak'>
+    <body ng-controller='ctrlArticle' ng-cloak class='ng-cloak'>
         <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
         <nav class='navbar navbar-inverse navbar-fixed-top'>
             <ul class='nav navbar-nav'>
@@ -40,6 +40,6 @@
         <script src="/static/js/xxt.ui.tinymce.js"></script>
         <script src="/views/default/pl/fe/_module/channel.js?_=1"></script>
         <script src="/views/default/pl/fe/_module/member.js?_=1"></script>
-        <script src="/views/default/pl/fe/matter/article/frame.js?_=4"></script>
+        <script src="/static/js/require.js" data-main="/views/default/pl/fe/matter/article/frame-loader.js?_=1"></script>
     </body>
 </html>

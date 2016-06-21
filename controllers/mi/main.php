@@ -80,12 +80,19 @@ class main extends \member_base {
 	 * XML编码格式为UTF-8
 	 */
 	private function handle($mpid, $call) {
+		$modelLog = $this->model('log');
+		$msg = $call->to_array();
+		$msg['mpid'] = $mpid;
+		/**
+		 * 消息已经收到，不处理
+		 */
+		if ($modelLog->hasReceived($msg)) {
+			die('');
+		}
 		/**
 		 * 记录消息日志
 		 */
-		$msg = $call->to_array();
-		$msg['mpid'] = $mpid;
-		$this->model('log')->receive($msg);
+		$modelLog->receive($msg);
 		/**
 		 * 消息分流处理
 		 * 【信息墙】需要从现有信息处理流程中形成分支，分支中进行处理就可以了。

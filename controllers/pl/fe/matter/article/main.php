@@ -413,6 +413,10 @@ class main extends \pl\fe\matter\base {
 	 * $nv pair of name and value
 	 */
 	public function update_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$model = $this->model();
 
 		$nv = (array) $this->getPostJson();
@@ -694,17 +698,28 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 删除单图文
 	 */
-	public function remove_action($id) {
-		$pmpid = $this->getParentMpid();
+	public function remove_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$model = $this->model();
 
 		$rst = $model->update(
 			'xxt_article',
-			array('state' => 0, 'modify_at' => time()),
-			"(mpid='$this->mpid' or mpid='$pmpid') and id='$id'"
+			[
+				'state' => 0,
+				'modifier' => $user->id,
+				'modifier_src' => $user->src,
+				'modifier_name' => $user->name,
+				'modify_at' => time(),
+			],
+			"siteid='$site' and id='$id'"
 		);
-		/** 将图文从所属的多图文和频道中删除 */
 		if ($rst) {
+			/**
+			 * 将图文从所属的多图文和频道中删除
+			 */
 			$model->delete('xxt_channel_matter', "matter_id='$id' and matter_type='article'");
 			$modelNews = $this->model('matter\news');
 			if ($news = $modelNews->byMatter($id, 'article')) {
@@ -712,11 +727,12 @@ class main extends \pl\fe\matter\base {
 					$modelNews->removeMatter($n->id, $id, 'article');
 				}
 			}
-			/*记录操作日志*/
-			$user = $this->accountUser();
+			/**
+			 * 记录操作日志
+			 */
 			$article = $this->model('matter\\' . 'article')->byId($id, 'id,title,summary,pic');
 			$article->type = 'article';
-			$this->model('log')->matterOp($this->mpid, $user, $article, 'D');
+			$this->model('log')->matterOp($site, $user, $article, 'D');
 		}
 
 		return new \ResponseData($rst);

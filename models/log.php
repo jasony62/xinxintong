@@ -48,6 +48,18 @@ class log_model extends TMS_MODEL {
 		return true;
 	}
 	/**
+	 * 是否已经接收过消息
+	 */
+	public function hasReceived($msg) {
+		$msgid = $msg['msgid'];
+		$q = [
+			'count(*)',
+			'xxt_log_mpreceive',
+			"msgid='$msgid'",
+		];
+		return 0 === (int) $this->query_val_ss($q);
+	}
+	/**
 	 * 记录所有发送给用户的消息
 	 */
 	public function send($mpid, $openid, $groupid, $content, $matter) {
@@ -237,13 +249,13 @@ class log_model extends TMS_MODEL {
 		if (!empty($user->openid)) {
 			switch ($action_name) {
 			case 'R':
-				$this->update("update xxt_fans set read_num=read_num+1 where site='$siteId' and userid='$user->openid'");
+				$this->update("update xxt_fans set read_num=read_num+1 where mpid='$siteId' and userid='$user->openid'");
 				break;
 			case 'SF':
-				$this->update("update xxt_fans set share_friend_num=share_friend_num+1 where site='$siteId' and userid='$user->openid'");
+				$this->update("update xxt_fans set share_friend_num=share_friend_num+1 where mpid='$siteId' and userid='$user->openid'");
 				break;
 			case 'ST':
-				$this->update("update xxt_fans set share_timeline_num=share_timeline_num+1 where site='$siteId' and userid='$user->openid'");
+				$this->update("update xxt_fans set share_timeline_num=share_timeline_num+1 where mpid='$siteId' and userid='$user->openid'");
 				break;
 			}
 		}

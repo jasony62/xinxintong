@@ -4,8 +4,10 @@ body{font-family:"Microsoft Yahei","Helvetica Neue",Helvetica,Arial,sans-serif;b
 
 /*setting*/
 .form-group{padding:8px;background:#fff;border-radius:4px;}
-.help-block{margin-bottom:0;}
+.form-group.compact{margin-bottom:0;}
 .tile .form-group:last-child{margin-bottom:0;}
+
+/*tinymce*/
 div.mce-tinymce.mce-container.mce-panel{margin-top:0;border:1px solid #ccc;}
 div.mce-tinymce.mce-container.mce-panel.mce-fullscreen{margin-top:51px}
 div.mce-tinymce div.mce-edit-area{border:0!important;border-top:1px solid #ccc!important;}

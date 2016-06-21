@@ -449,7 +449,7 @@ class auth extends \member_base {
 	 * $pdid 父部门id
 	 *
 	 */
-	public function syncFromQy_action($mpid, $authid, $pdid = 1) {
+	public function syncFromQy_action($mpid, $authid, $pdid = null) {
 		if (!($authapi = $this->model('user/authapi')->byId($authid))) {
 			return new \ResponseError('未设置内置认证接口，无法同步通讯录');
 		}

@@ -10,6 +10,9 @@ body{background:#f8f8f8;position:relative;overflow:hidden;display:flex;flex-dire
 /*setting*/
 #viewSetting .attrs{flex:1.0;overflow-y:auto;overflow-x:hidden;padding-left:15px;padding-right:15px;}
 #viewSetting .navbar{margin:0 -1px;}
+#viewSetting .phases{phase}
+#viewSetting .phases .phase{counter-increment:phase;}
+#viewSetting .list-group-item.phase:before{content:counter(phase);background:#eee;position:absolute;top:0;left:0;width:32px;height:32px;line-height:32px;text-align:center;}
 
 /*matter*/
 #viewMatter .matters{flex:1.0;overflow-y:auto;overflow-x:hidden;}

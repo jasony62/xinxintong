@@ -229,7 +229,7 @@ class qy_model extends mpproxy_base {
 	 */
 	public function oauthUrl($mpid, $redirect, $state = null, $scope = 'snsapi_base') {
 		if (is_object($mpid)) {
-			$appid = $mpid->appid;
+			$appid = $mpid->qy_corpid;
 		} else {
 			$mpa = TMS_APP::model('mp\mpaccount')->byId($mpid, 'qy_corpid');
 			$appid = $mpa->qy_corpid;
@@ -240,7 +240,11 @@ class qy_model extends mpproxy_base {
 		$oauth .= "&redirect_uri=" . urlencode($redirect);
 		$oauth .= "&response_type=code";
 		$oauth .= "&scope=" . $scope;
-		!empty($state) && $oauth .= "&state=$state";
+		if (empty($state)) {
+			$oauth .= "&state=" . time();
+		} else {
+			$oauth .= "&state=$state";
+		}
 		$oauth .= "#wechat_redirect";
 
 		return $oauth;

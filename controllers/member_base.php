@@ -453,7 +453,7 @@ class member_base extends xxt_base {
 		$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $mpid);
 		$rst = $mpproxy->getOAuthUser($code);
 		if ($rst[0] === false) {
-			die('oauth2 failed:' . $rst[1]);
+			die('xxt oauth2 failed:' . $rst[1] . ';code=' . $code);
 		}
 		/**
 		 * 将openid保存在cookie，可用于进行用户身份绑定

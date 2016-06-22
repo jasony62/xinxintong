@@ -177,7 +177,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.editRecord = function(record) {
             $uibModal.open({
-                templateUrl: 'recordEditor.html',
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html',
                 controller: 'ctrlEditor',
                 backdrop: 'static',
                 windowClass: 'auto-height',
@@ -209,7 +209,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.addRecord = function() {
             $uibModal.open({
-                templateUrl: 'recordEditor.html',
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html',
                 controller: 'ctrlEditor',
                 windowClass: 'auto-height',
                 resolve: {

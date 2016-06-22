@@ -31,13 +31,14 @@
                 </select>
             </div>
             <button class='btn btn-default' ng-click='delPage()'>删除页面</button>
+            <button class='btn btn-default' ng-click="empty()">清空页面</button>
         </div>
     </div>
 </div>
 <div class='col-md-6'>
     <div class="panel panel-default">
         <div class="panel-body">
-            <div ng-include="'/views/default/pl/fe/matter/enroll/comp-'+(ep.type==='I'?'input':'view')+'.html?_=11'" ng-controller='ctrlPageSchema'></div>
+            <div ng-include="'/views/default/pl/fe/matter/enroll/comp-'+(ep.type==='I'?'input':'view')+'.html?_=12'" ng-controller='ctrlPageSchema'></div>
         </div>
     </div>
 </div>

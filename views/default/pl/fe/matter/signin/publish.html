@@ -31,7 +31,7 @@
     <div id='rounds' class='tile' ng-controller="ctrlRound">
         <div class='row'>
             <div class='col-md-3' ng-repeat="r in app.rounds">
-                <a class='thumbnail' href='javascript:void(0)' ng-click="chooseRound(r)">
+                <a class='thumbnail' ng-class="{'active':r===selectedRound}" href='javascript:void(0)' ng-click="chooseRound(r)">
                     <span>{{r.title}}</span>
                 </a>
             </div>

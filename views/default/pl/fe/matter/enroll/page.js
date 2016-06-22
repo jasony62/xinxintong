@@ -1,39 +1,10 @@
+'use strict';
 define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlPage', ['$scope', '$location', 'http2', '$uibModal', '$timeout', '$q', function($scope, $location, http2, $uibModal, $timeout, $q) {
-        $scope.innerlinkTypes = [{
-            value: 'article',
-            title: '单图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'news',
-            title: '多图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'channel',
-            title: '频道',
-            url: '/rest/pl/fe/matter'
-        }];
-        $scope.onPageChange = function(page) {
-            var i, old;
-            for (i = $scope.persisted.pages.length - 1; i >= 0; i--) {
-                old = $scope.persisted.pages[i];
-                if (old.name === page.name)
-                    break;
-            }
-            page.$$modified = page.html !== old.html;
-        };
         $scope.updPage = function(page, names) {
-            var editor, defer = $q.defer(),
+            var defer = $q.defer(),
                 url, p = {};
             angular.isString(names) && (names = [names]);
-            if (names.indexOf('html') !== -1) {
-                editor = tinymce.get(page.name);
-                if ($(editor.getBody()).find('.active').length) {
-                    $(editor.getBody()).find('.active').removeClass('active');
-                    $scope.hasActiveWrap = false;
-                }
-                page.html = $(editor.getBody()).html();
-            }
             $scope.$root.progmsg = '正在保存页面...';
             angular.forEach(names, function(name) {
                 p[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
@@ -49,6 +20,12 @@ define(['frame'], function(ngApp) {
                 defer.resolve();
             });
             return defer.promise;
+        };
+        $scope.empty = function() {
+            $scope.ep.html = '';
+            $scope.ep.data_schemas = [];
+            $scope.ep.act_schemas = [];
+            $scope.updPage($scope.ep, ['html', 'data_schemas', 'act_schemas']);
         };
         $scope.delPage = function() {
             if (window.confirm('确定删除？')) {
@@ -88,14 +65,13 @@ define(['frame'], function(ngApp) {
             angular.forEach(pages, function(p) {
                 if (p.name === current) {
                     $scope.ep = p;
-                    console.log('dddd', p);
                 }
             });
         });
     }]);
-    ngApp.provider.controller('ctrlPageSchema', ['$scope', '$uibModal', function($scope, $uibModal) {}]);
-    ngApp.provider.controller('ctrlInputSchema', ['$scope', '$uibModal', function($scope, $uibModal) {}]);
-    ngApp.provider.controller('ctrlViewSchema', ['$scope', '$uibModal', function($scope, $uibModal) {
+    ngApp.provider.controller('ctrlPageSchema', ['$scope', function($scope) {}]);
+    ngApp.provider.controller('ctrlInputSchema', ['$scope', function($scope) {}]);
+    ngApp.provider.controller('ctrlViewSchema', ['$scope', function($scope) {
         $scope.$watch('ep', function(ep) {
             if (!ep) return;
             $scope.dataSchemas = ep.data_schemas;

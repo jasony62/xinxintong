@@ -2,46 +2,28 @@ define(['require'], function() {
 	'use strict';
 	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
 	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', function($controllerProvider, $routeProvider, $locationProvider) {
+		var RouteParam = function(name) {
+			var baseURL = '/views/default/pl/fe/matter/group/';
+			this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
+			this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
+			this.resolve = {
+				load: function($q) {
+					var defer = $q.defer();
+					require([baseURL + name + '.js'], function() {
+						defer.resolve();
+					});
+					return defer.promise;
+				}
+			};
+		};
 		ngApp.provider = {
 			controller: $controllerProvider.register
 		};
-		$routeProvider.when('/rest/pl/fe/matter/group/player', {
-			templateUrl: '/views/default/pl/fe/matter/group/player.html?_=1',
-			controller: 'ctrlRecord',
-			resolve: {
-				load: function($q) {
-					var defer = $q.defer();
-					require(['/views/default/pl/fe/matter/group/player.js'], function() {
-						defer.resolve();
-					});
-					return defer.promise;
-				}
-			}
-		}).when('/rest/pl/fe/matter/group/running', {
-			templateUrl: '/views/default/pl/fe/matter/group/running.html?_=2',
-			controller: 'ctrlRunning',
-			resolve: {
-				load: function($q) {
-					var defer = $q.defer();
-					require(['/views/default/pl/fe/matter/group/running.js'], function() {
-						defer.resolve();
-					});
-					return defer.promise;
-				}
-			}
-		}).otherwise({
-			templateUrl: '/views/default/pl/fe/matter/group/setting.html?_=5',
-			controller: 'ctrlSetting',
-			resolve: {
-				load: function($q) {
-					var defer = $q.defer();
-					require(['/views/default/pl/fe/matter/group/setting.js'], function() {
-						defer.resolve();
-					});
-					return defer.promise;
-				}
-			}
-		});
+		$routeProvider
+			.when('/rest/pl/fe/matter/group/player', new RouteParam('player'))
+			.when('/rest/pl/fe/matter/group/running', new RouteParam('running'))
+			.otherwise(new RouteParam('setting'));
+
 		$locationProvider.html5Mode(true);
 	}]);
 	ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($scope, $location, $q, http2) {

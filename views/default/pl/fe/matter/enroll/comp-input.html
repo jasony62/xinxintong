@@ -1,20 +1,12 @@
 <div ng-controller="ctrlInputSchema">
     <div class='list-group form-group'>
-        <div class='list-group-item' ng-repeat="s in ep.user_schemas">
-            <span ng-bind='s.label'></span>
-            <button class='btn btn-default btn-xs pull-right' ng-click='removeUser(s)'><span class='glyphicon glyphicon-remove'></span></button>
+        <div class='list-group-item' ng-repeat="ds in ep.data_schemas">
+            <span ng-bind='ds.schema.title'></span>
         </div>
     </div>
     <div class='list-group form-group'>
-        <div class='list-group-item' ng-repeat="s in ep.data_schemas">
-            <span ng-bind='s.title'></span>
-            <button class='btn btn-default btn-xs pull-right' ng-click='removeSchema(s)'><span class='glyphicon glyphicon-remove'></span></button>
-        </div>
-    </div>
-    <div class='list-group form-group'>
-        <div class='list-group-item' ng-repeat="s in ep.act_schemas">
-            <span ng-bind='s.label'></span>
-            <button class='btn btn-default btn-xs pull-right' ng-click='removeAct(s)'><span class='glyphicon glyphicon-remove'></span></button>
+        <div class='list-group-item' ng-repeat="as in ep.act_schemas">
+            <span ng-bind='as.label'></span>
         </div>
     </div>
 </div>

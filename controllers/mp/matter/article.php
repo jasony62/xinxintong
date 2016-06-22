@@ -28,10 +28,11 @@ class resumableAliOss {
 	 * @param string $totalSize - original file size (in bytes)
 	 */
 	private function createFileFromChunks($temp_dir, $fileName, $chunkSize, $totalSize) {
-		$fs = \TMS_APP::M('fs/saestore', $this->mpid);
+		$fsSae = \TMS_APP::M('fs/saestore', $this->mpid);
 		// count all the parts of this file
 		$total_files = 0;
-		$rst = $fs->getListByPath($temp_dir);
+		$rst = $fsSae->getListByPath($temp_dir);
+
 		foreach ($rst['files'] as $file) {
 			if (stripos($file['Name'], $fileName) !== false) {
 				$total_files++;
@@ -40,18 +41,22 @@ class resumableAliOss {
 		// check that all the parts are present
 		// the size of the last part is between chunkSize and 2*$chunkSize
 		if ($total_files * $chunkSize >= ($totalSize - $chunkSize + 1)) {
-			$fs2 = \TMS_APP::M('fs/alioss', $this->mpid, 'xxt-attachment');
+			$fsAlioss = \TMS_APP::M('fs/alioss', $this->mpid, 'xxt-attachment');
 			// create the final destination file
-			$tmpfname = tempnam(sys_get_temp_dir(), 'xxt');
+			if (defined('SAE_TMP_PATH')) {
+				$tmpfname = tempnam(SAE_TMP_PATH, 'xxt');
+			} else {
+				$tmpfname = tempnam(sys_get_temp_dir(), 'xxt');
+			}
 			$handle = fopen($tmpfname, "w");
 			for ($i = 1; $i <= $total_files; $i++) {
-				$content = $fs->read($temp_dir . '/' . $fileName . '.part' . $i);
+				$content = $fsSae->read($temp_dir . '/' . $fileName . '.part' . $i);
 				fwrite($handle, $content);
-				$fs->delete($temp_dir . '/' . $fileName . '.part' . $i);
+				$fsSae->delete($temp_dir . '/' . $fileName . '.part' . $i);
 			}
 			fclose($handle);
 			//
-			$rsp = $fs2->create_mpu_object($this->mpid . $this->dest, $tmpfname);
+			$rsp = $fsAlioss->create_mpu_object($this->mpid . $this->dest, $tmpfname);
 			echo (json_encode($rsp));
 		}
 	}
@@ -65,8 +70,8 @@ class resumableAliOss {
 		$dest_file = $temp_dir . '/' . $_POST['resumableFilename'] . '.part' . $_POST['resumableChunkNumber'];
 		$content = base64_decode(preg_replace('/data:(.*?)base64\,/', '', $_POST['resumableChunkContent']));
 		// move the temporary file
-		$fs = \TMS_APP::M('fs/saestore', $this->mpid);
-		if (!$fs->write($dest_file, $content)) {
+		$fsSae = \TMS_APP::M('fs/saestore', $this->mpid);
+		if (!$fsSae->write($dest_file, $content)) {
 			return array(false, 'Error saving (move_uploaded_file) chunk ' . $_POST['resumableChunkNumber'] . ' for file ' . $_POST['resumableFilename']);
 		} else {
 			// check if all the parts present, and create the final destination file

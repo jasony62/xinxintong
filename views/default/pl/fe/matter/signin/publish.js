@@ -35,7 +35,12 @@ define(['frame'], function(ngApp) {
 	ngApp.provider.controller('ctrlRound', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
 		var rounds, editing;
 		$scope.$watch('app', function(app) {
-			app && (rounds = app.rounds);
+			if (app) {
+				rounds = app.rounds;
+				if (rounds && rounds.length) {
+					$scope.chooseRound(rounds[0]);
+				}
+			}
 		});
 		$scope.batch = function() {
 			$uibModal.open({

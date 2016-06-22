@@ -1,5 +1,5 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlRecord', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
+    ngApp.provider.controller('ctrlPlayer', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
         $scope.doSearch = function(page) {
             var url;
             page && ($scope.page.at = page);

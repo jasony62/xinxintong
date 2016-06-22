@@ -15,7 +15,7 @@ define(['frame'], function(ngApp) {
 			$scope.app.state = 2;
 			$scope.update('state');
 			$scope.submit().then(function() {
-				location.href = '/rest/pl/fe/matter/group/running?site=' + $scope.siteId + '&id=' + $scope.id;
+				location.href = '/rest/site/op/matter/group?site=' + $scope.siteId + '&app=' + $scope.id;
 			});
 		};
 		$scope.importByApp = function() {

@@ -1,112 +1,121 @@
-<div class='col-md-8'>
-    <div class='tile'>
-        <div class='form-group compact'>
-            <div class='help-block'>标题：最多35个汉字，70个英文字符</div>
-            <input type='text' class='form-control' ng-model="app.title" tms-auto-update tms-wait=1000 tms-update="update('title')">
+<div class='row'>
+    <div class='col-md-8'>
+        <div class='tile'>
+            <div class='form-group compact'>
+                <div class='help-block'>标题：最多35个汉字，70个英文字符</div>
+                <input type='text' class='form-control' ng-model="app.title" tms-auto-update tms-wait=1000 tms-update="update('title')">
+            </div>
+            <div class='form-group compact' ng-if="app.mission.multi_phase==='Y'">
+                <div class='help-block'>项目阶段</div>
+                <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
+                    <option></option>
+                </select>
+            </div>
+            <div class='form-group compact'>
+                <div class='help-block'>摘要（可选）：最多120个汉字，240个英文字符</div>
+                <textarea class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+            </div>
+            <div class='form-group'>
+                <div class='help-block'>分组类型</div>
+                <select class='form-control' ng-model='app.scenario' ng-change="update('scenario');">
+                    <option value='split'>拆分</option>
+                    <option value='extract'>抽取</option>
+                </select>
+            </div>
         </div>
-        <div class='form-group compact' ng-if="app.mission.multi_phase==='Y'">
-            <div class='help-block'>项目阶段</div>
-            <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
-                <option></option>
-            </select>
-        </div>
-        <div class='form-group compact'>
-            <div class='help-block'>摘要（可选）：最多120个汉字，240个英文字符</div>
-            <textarea class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
-        </div>
-        <div class='form-group'>
-            <div class='help-block'>分组类型</div>
-            <select class='form-control' ng-model='app.scenario' ng-change="update('scenario');">
-                <option value='split'>拆分</option>
-                <option value='extract'>抽取</option>
-            </select>
+        <div class='tile' ng-controller="ctrlRule">
+            <div class='form-group'>
+                <button class='btn btn-success' ng-click='configRule()'>设置规则</button>
+                <button class='btn btn-success' ng-click='emptyRule()'>清除分组</button>
+                <button class='btn btn-success' ng-click='addRound()'>添加分组</button>
+            </div>
+            <div class='list-group'>
+                <a class='list-group-item' ng-class="{'active':r===editingRound}" ng-repeat='r in rounds' ng-click='open(r)' style='min-height:41px'>
+                    <span>{{r.title}}</span>
+                    <button class='btn btn-xs btn-default pull-right' ng-if="r===editingRound" ng-click='removeRound()'><span class='glyphicon glyphicon-remove'></span></button>
+                </a>
+            </div>
+            <div ng-if='editingRound'>
+                <div class='form-group'>
+                    <input type='text' class='form-control' ng-model='editingRound.title' tms-auto-update tms-wait=1000 tms-update="updateRound('title')">
+                    <div class='help-block'>名称</div>
+                </div>
+                <div class='form-group'>
+                    <input type='text' class='form-control' ng-model='editingRound.times' tms-auto-update tms-wait=1000 tms-update="updateRound('times')">
+                    <div class='help-block'>人数</div>
+                </div>
+                <div class='checkbox'>
+                    <label><input type='checkbox' ng-model='editingRound.autoplay' ng-true-value="'Y'" ng-false-value="'N'" ng-change="updateRound('autoplay')">自动抽取</label>
+                </div>
+                <table class='table table-bordered'>
+                    <thead>
+                        <tr>
+                            <th style='width:80px'>抽取规则</th>
+                            <th>抽取对象</th>
+                            <th style='width:48px'>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="t in aTargets">
+                            <td>{{$index+1}}</td>
+                            <td>{{labelTarget(t)}}</td>
+                            <td>
+                                <button class='btn btn-default btn-sm' ng-click='removeTarget($index)'>
+                                <span class='glyphicon glyphicon-remove'></span>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan=3>
+                                <button class='btn btn-primary pull-right' ng-click='addTarget()'>添加规则</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class='help-block'>分组规则</div>
         </div>
     </div>
-    <div class='tile' ng-controller="ctrlRule">
-        <div class='form-group'>
-            <button class='btn btn-success' ng-click='configRule()'>设置规则</button>
-            <button class='btn btn-success' ng-click='emptyRule()'>清除分组</button>
-            <button class='btn btn-success' ng-click='addRound()'>添加分组</button>
-        </div>
-        <div class='list-group'>
-            <a class='list-group-item' ng-class="{'active':r===editingRound}" ng-repeat='r in rounds' ng-click='open(r)' style='min-height:41px'>
-                <span>{{r.title}}</span>
-                <button class='btn btn-xs btn-default pull-right' ng-if="r===editingRound" ng-click='removeRound()'><span class='glyphicon glyphicon-remove'></span></button>
-            </a>
-        </div>
-        <div ng-if='editingRound'>
+    <div class='col-md-4'>
+        <div class='tile'>
             <div class='form-group'>
-                <input type='text' class='form-control' ng-model='editingRound.title' tms-auto-update tms-wait=1000 tms-update="updateRound('title')">
-                <div class='help-block'>名称</div>
+                <button class='btn btn-block btn-success' ng-click='importByApp()'>导入用户</button>
             </div>
-            <div class='form-group'>
-                <input type='text' class='form-control' ng-model='editingRound.times' tms-auto-update tms-wait=1000 tms-update="updateRound('times')">
-                <div class='help-block'>人数</div>
-            </div>
-            <div class='checkbox'>
-                <label><input type='checkbox' ng-model='editingRound.autoplay' ng-true-value="'Y'" ng-false-value="'N'" ng-change="updateRound('autoplay')">自动抽取</label>
-            </div>
-            <table class='table table-bordered'>
-                <thead>
-                    <tr>
-                        <th style='width:80px'>抽取规则</th>
-                        <th>抽取对象</th>
-                        <th style='width:48px'>操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="t in aTargets">
-                        <td>{{$index+1}}</td>
-                        <td>{{labelTarget(t)}}</td>
-                        <td>
-                            <button class='btn btn-default btn-sm' ng-click='removeTarget($index)'>
+            <div class='form-group' ng-if="app.sourceApp">
+                <div class="input-group">
+                    <div class='form-control' ng-bind="app.sourceApp.title"></div>
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" ng-click="cancelSourceApp()">
                             <span class='glyphicon glyphicon-remove'></span>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan=3>
-                            <button class='btn btn-primary pull-right' ng-click='addTarget()'>添加规则</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class='help-block'>分组规则</div>
-    </div>
-</div>
-<div class='col-md-4'>
-    <div class='tile'>
-        <button class='btn btn-block btn-success' ng-click="run()">开始</button>
-        <button class='btn btn-block btn-default' ng-click="remove()">删除</button>
-    </div>
-    <div class='tile'>
-        <div class='form-group'>
-            <button class='btn btn-block btn-success' ng-click='importByApp()'>导入用户</button>
-        </div>
-        <div class='form-group' ng-if="app.sourceApp">
-            <div class="input-group">
-                <div class='form-control' ng-bind="app.sourceApp.title"></div>
-                <span class="input-group-btn">
-                    <button class="btn btn-default" type="button" ng-click="cancelSourceApp()">
-                        <span class='glyphicon glyphicon-remove'></span>
-                    </button>
-                </span>
+                        </button>
+                    </span>
+                </div>
+                <div class="help-block">分组用户来源</div>
             </div>
-            <div class="help-block">分组用户来源</div>
         </div>
-        <div class='form-group'>
-            <a href='/rest/pl/fe/matter/group/player?site={{siteId}}&id={{id}}'>分组用户</a>
-        </div>
-    </div>
-    <div class='tile'>
-        <div class='form-group'>
-            <div>创建人：{{app.creater_name}}</div>
-            <div>创建时间：{{app.create_at*1000|date:'yy-MM-dd HH:mm'}}</div>
-            <div>修改人：{{app.modifier_name}}</div>
-            <div>最后一次修改时间：{{app.modify_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+        <div class='tile'>
+            <div class='form-group'>
+                <div>创建人：{{app.creater_name}}</div>
+                <div>创建时间：{{app.create_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+                <div>修改人：{{app.modifier_name}}</div>
+                <div>最后一次修改时间：{{app.modify_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+            </div>
         </div>
     </div>
+    <!-- bottom nav -->
+    <nav class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container-fluid" style='text-align:center'>
+            <form class="navbar-form" style='display:inline-block'>
+                <button class='btn btn-success' ng-click="run()">开始</button>
+                <a href="/rest/pl/fe/matter/group/running?site={{siteId}}&id={{id}}">分组结果</a>
+                <a href="/rest/pl/fe/matter/group/player?site={{siteId}}&id={{id}}">分组用户</a>
+            </form>
+            <form class="navbar-form navbar-right" style='display:inline-block'>
+                <button class='btn btn-default' ng-click="remove()">删除活动</button>
+            </form>
+        </div>
+    </nav>
+    <!-- end bottom nav -->
 </div>
 <script type="text/ng-template" id="configRule.html">
     <div class="modal-header">

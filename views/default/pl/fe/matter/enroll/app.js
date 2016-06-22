@@ -44,7 +44,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			if (page === $scope.ep && names.indexOf('html') !== -1) {
 				$scope.ep.purifyHtml();
 			}
-			$scope.$root.progmsg = '正在保存页面...';
 			angular.forEach(names, function(name) {
 				p[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
 			});
@@ -55,7 +54,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			url += '&cname=' + page.code_name;
 			http2.post(url, p, function(rsp) {
 				page.$$modified = false;
-				$scope.$root.progmsg = '';
 				defer.resolve();
 			});
 			return defer.promise;
@@ -102,6 +100,13 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		$scope.$watch('app', function(app) {
 			if (!app) return;
 			$scope.ep = app.pages[0];
+			if (app.mission && app.mission.phases && app.mission.phases.length) {
+				$scope.phases = app.mission.phases;
+				$scope.phases.unshift({
+					title: '全部',
+					phase_id: ''
+				});
+			}
 		});
 		$scope.choosePage = function(page) {
 			if (angular.isString(page)) {
@@ -162,10 +167,10 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			appSchemas = $scope.app.data_schemas,
 			chooseState = {};
 		angular.forEach(pageSchemas, function(dataWrap) {
-			if (dataWrap.schema && chooseState[dataWrap.schema.id]) {
+			if (dataWrap.schema) {
 				chooseState[dataWrap.schema.id] = true;
 			} else {
-				console.error('page schema not exist', dataWrap);
+				console.error('page[' + $scope.ep.name + '] schema not exist', dataWrap);
 			}
 		});
 		$scope.appSchemas = appSchemas;

@@ -188,7 +188,10 @@ class browser_alioss extends browser {
 		}
 
 		$mpid = $this->session['mpid'];
-		$thumb = "$mpid/{$this->config['thumbsDir']}/{$this->type}/{$this->get['dir']}/$file";
+		$thumb = "$mpid/{$this->config['thumbsDir']}/{$this->type}";
+		!empty($this->get['dir']) && $thumb .= '/' . $this->get['dir'];
+		$thumb .= '/' . $file;
+
 		$bucket = 'xinxintong';
 		$alioss = $this->get_alioss();
 		$rsp = $alioss->get_object($bucket, $thumb);
@@ -219,7 +222,9 @@ class browser_alioss extends browser {
 		header("Content-Length: " . (string) $rsp->header['content-length']);
 		die($rsp->body);
 	}
-
+	/**
+	 * 文件上传到ali云
+	 */
 	protected function moveUploadFile($file, $dir) {
 		$message = $this->checkUploadedFile($file);
 
@@ -235,7 +240,6 @@ class browser_alioss extends browser {
 		$filename = $this->normalizeFilename($file['name']);
 		$target = "$dir/$filename";
 		$fileUpload = $file['tmp_name'];
-
 		$alioss = $this->get_alioss();
 		$rsp = $alioss->upload_file_by_file($bucket, $target, $fileUpload);
 
@@ -243,8 +247,12 @@ class browser_alioss extends browser {
 
 		return "/" . $this->my_basename($target);
 	}
-
+	/**
+	 * 制作缩略图
+	 */
 	protected function makeThumb2($target, $fileUpload = null, $overwrite = true) {
+		$mpid = $this->session['mpid'];
+
 		$gd = new gd($fileUpload);
 
 		// Drop files which are not GD handled images
@@ -252,7 +260,6 @@ class browser_alioss extends browser {
 			return true;
 		}
 
-		$mpid = strtok($target, '/');
 		$thumb = str_replace($mpid, "$mpid/{$this->config['thumbsDir']}", $target);
 		$thumb = path::normalize($thumb);
 
@@ -272,7 +279,6 @@ class browser_alioss extends browser {
 			@unlink($temp);
 			return false;
 		}
-
 		$bucket = 'xinxintong';
 		$alioss = $this->get_alioss();
 		$rsp = $alioss->upload_file_by_file($bucket, $thumb, $temp);
@@ -341,7 +347,9 @@ class browser_alioss extends browser {
 	protected function postDir($existent = true) {
 		$mpid = $this->session['mpid'];
 		$type = $this->type;
-		$dir = "$mpid/$type/{$this->post['dir']}";
+		$dir = "$mpid/$type";
+		!empty($this->post['dir']) && $dir .= '/' . $this->post['dir'];
+
 		return $dir;
 	}
 

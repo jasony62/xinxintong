@@ -130,7 +130,7 @@ class TMS_APP {
 		 */
 		$action_method = $__action . '_action';
 		if (!method_exists($obj_controller, $action_method)) {
-			if (strpos('text/html', $_SERVER['HTTP_ACCEPT']) !== -1) {
+			if (isset($_SERVER['HTTP_ACCEPT']) && strpos('text/html', $_SERVER['HTTP_ACCEPT']) !== -1) {
 				/**
 				 * 如果访问的是页面，返回控制器的缺省页面
 				 */

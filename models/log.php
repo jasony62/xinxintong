@@ -51,13 +51,23 @@ class log_model extends TMS_MODEL {
 	 * 是否已经接收过消息
 	 */
 	public function hasReceived($msg) {
+		$mpid = isset($msg['mpid']) ? $msg['mpid'] : $msg['siteid'];
 		$msgid = $msg['msgid'];
+		/**
+		 * 没有消息ID就认为没收到过
+		 */
+		if (empty($msgid)) {
+			return false;
+		}
+
 		$q = [
 			'count(*)',
 			'xxt_log_mpreceive',
-			"msgid='$msgid'",
+			"mpid='$mpid' and msgid='$msgid'",
 		];
-		return 0 === (int) $this->query_val_ss($q);
+		$cnt = (int) $this->query_val_ss($q);
+
+		return $cnt !== 0;
 	}
 	/**
 	 * 记录所有发送给用户的消息

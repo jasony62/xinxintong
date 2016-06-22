@@ -51,7 +51,7 @@ class base extends \TMS_CONTROLLER {
 			} else if ($this->myGetcookie("_platform_oauthpending") === 'Y') {
 				$snsSiteId = 'platform';
 			}
-			if (isset($snsSiteId)) {
+			if (false !== $snsSiteId) {
 				/* oauth回调 */
 				$this->mySetcookie("_{$snsSiteId}_oauthpending", '', time() - 3600);
 				if (isset($_GET['state']) && isset($_GET['code'])) {
@@ -242,13 +242,17 @@ class base extends \TMS_CONTROLLER {
 	 * 客户端应用名称
 	 */
 	protected function &userAgent() {
-		$user_agent = $_SERVER['HTTP_USER_AGENT'];
-		if (preg_match('/yixin/i', $user_agent)) {
-			$ca = 'yx';
-		} elseif (preg_match('/MicroMessenger/i', $user_agent)) {
-			$ca = 'wx';
+		if (isset($_SERVER['HTTP_USER_AGENT'])) {
+			$user_agent = $_SERVER['HTTP_USER_AGENT'];
+			if (preg_match('/yixin/i', $user_agent)) {
+				$ca = 'yx';
+			} elseif (preg_match('/MicroMessenger/i', $user_agent)) {
+				$ca = 'wx';
+			} else {
+				$ca = false;
+			}
 		} else {
-			$ca = false;
+			$ca = fasle;
 		}
 
 		return $ca;

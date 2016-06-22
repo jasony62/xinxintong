@@ -67,7 +67,7 @@ class task_model extends \TMS_MODEL {
 		$t = array();
 		$t['lid'] = $lid;
 		$t['userid'] = $user->uid;
-		$t['nickname'] = $user->nickname;
+		$t['nickname'] = $this->escape($user->nickname);
 		$t['create_at'] = time();
 		$t['tid'] = $taskId;
 

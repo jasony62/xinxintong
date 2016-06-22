@@ -86,7 +86,7 @@ class main extends \member_base {
 		/**
 		 * 消息已经收到，不处理
 		 */
-		if ($modelLog->hasReceived($msg)) {
+		if (!empty($msg['msgid']) && $modelLog->hasReceived($msg)) {
 			die('');
 		}
 		/**
@@ -256,10 +256,18 @@ class main extends \member_base {
 					$tr->exec();
 				}
 				$user = $result[1];
-				$rst = $this->createQyFan($mpid, $user);
-				if (is_string($rst)) {
-					$tr = $this->model('reply\text', $call, $rst, false);
-					$tr->exec();
+				$q = [
+					'authid',
+					'xxt_member_authapi',
+					"mpid='$mpid'",
+				];
+				$ma = $this->model($q)->query_obj_ss($q);
+				if ($ma) {
+					$rst = $this->createQyFan($mpid, $user, $ma->authid);
+					if (is_string($rst)) {
+						$tr = $this->model('reply\text', $call, $rst, false);
+						$tr->exec();
+					}
 				}
 			} else {
 				/*创建站点用户*/

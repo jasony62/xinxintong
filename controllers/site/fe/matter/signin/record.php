@@ -123,12 +123,12 @@ class record extends base {
 		 * 提交的数据
 		 */
 		$user = $this->who;
-		$enrollData = $this->getPostJson();
+		$signinData = $this->getPostJson();
 		/**
 		 * 包含用户身份信息
 		 */
-		if (isset($enrollData->member) && isset($enrollData->member->schema_id)) {
-			$member = clone $enrollData->member;
+		if (isset($signinData->member) && isset($signinData->member->schema_id)) {
+			$member = clone $signinData->member;
 			$rst = $this->_submitMember($site, $member, $user);
 			if ($rst[0] === false) {
 				return new \ParameterError($rst[1]);
@@ -146,11 +146,6 @@ class record extends base {
 				"enroll_key='{$signState->ek}'"
 			);
 		}
-		/* 插入提交的数据 */
-		$rst = $modelRec->setData($user, $site, $app, $signState->ek, $enrollData, $submitkey);
-		if (false === $rst[0]) {
-			return new \ResponseError($rst[1]);
-		}
 		/**
 		 * 检查签到数据是否在报名表中
 		 */
@@ -162,7 +157,7 @@ class record extends base {
 				$requireCheckedData = new \stdClass;
 				foreach ($dataSchemas as $dataSchema) {
 					if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
-						$requireCheckedData->{$dataSchema->id} = $enrollData->{$dataSchema->id};
+						$requireCheckedData->{$dataSchema->id} = $signinData->{$dataSchema->id};
 					}
 				}
 				if ($app->mission_phase_id) {
@@ -176,8 +171,9 @@ class record extends base {
 					/**
 					 * 没有在报名表中找到对应的记录
 					 */
-					$modelRec->update('xxt_signin_record',
-						array('verified' => 'N'),
+					$modelRec->update(
+						'xxt_signin_record',
+						['verified' => 'N'],
 						"enroll_key='{$signState->ek}'"
 					);
 					$signState->verified = 'N';
@@ -189,8 +185,13 @@ class record extends base {
 					 * 找报名表中找到对应的记录
 					 */
 					$ek = $enrollRecords[0];
-					$modelRec->update('xxt_signin_record',
-						array('verified' => 'Y'),
+					$enrollData = $modelEnrollRec->dataById($ek);
+					foreach ($enrollData as $n => $v) {
+						!isset($signinData->{$n}) && $signinData->{$n} = $v;
+					}
+					$modelRec->update(
+						'xxt_signin_record',
+						['verified' => 'Y'],
 						"enroll_key='{$signState->ek}'"
 					);
 					$signState->verified = 'Y';
@@ -199,6 +200,13 @@ class record extends base {
 					}
 				}
 			}
+		}
+		/**
+		 * 插入提交的数据
+		 */
+		$rst = $modelRec->setData($user, $site, $app, $signState->ek, $signinData, $submitkey);
+		if (false === $rst[0]) {
+			return new \ResponseError($rst[1]);
 		}
 
 		return new \ResponseData($signState);

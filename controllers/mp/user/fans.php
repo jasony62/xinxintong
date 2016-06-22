@@ -288,7 +288,7 @@ class fans extends \mp\mp_controller {
 		if ($mpa->mpsrc === 'qy') {
 			$member = $this->model('user/member')->byOpenid($this->mpid, $openid);
 			if (count($member) !== 1) {
-				return array(false, '数据错误');
+				return new \ResponseError('数据错误', $member);
 			}
 
 			$member = $member[0];

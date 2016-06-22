@@ -3,7 +3,7 @@ define(['require', 'page'], function(require, pageLib) {
 	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider) {
 		var RouteParam = function(name) {
 			var baseURL = '/views/default/pl/fe/matter/enroll/';
-			this.templateUrl = baseURL + name + '.html?=4';
+			this.templateUrl = baseURL + name + '.html?=5';
 			this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
 			this.resolve = {
 				load: function($q) {

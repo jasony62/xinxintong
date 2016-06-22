@@ -88,23 +88,9 @@ define(['frame'], function(ngApp) {
             angular.forEach(pages, function(p) {
                 if (p.name === current) {
                     $scope.ep = p;
-                    if (angular.isString($scope.ep.data_schemas)) {
-                        dataSchemas = $scope.ep.data_schemas;
-                        $scope.ep.data_schemas = dataSchemas && dataSchemas.length ? JSON.parse(dataSchemas) : [];
-                    }
-                    if (angular.isString($scope.ep.act_schemas)) {
-                        actSchemas = $scope.ep.act_schemas;
-                        $scope.ep.act_schemas = actSchemas && actSchemas.length ? JSON.parse(actSchemas) : [];
-                    }
-                    if (angular.isString($scope.ep.user_schemas)) {
-                        userSchemas = $scope.ep.user_schemas;
-                        $scope.ep.user_schemas = userSchemas && userSchemas.length ? JSON.parse(userSchemas) : [];
-                    }
-                } else {
-                    p !== $scope.ep && others.push(p);
+                    console.log('dddd', p);
                 }
             });
-            $scope.others = others;
         });
     }]);
     ngApp.provider.controller('ctrlPageSchema', ['$scope', '$uibModal', function($scope, $uibModal) {}]);
@@ -114,19 +100,6 @@ define(['frame'], function(ngApp) {
             if (!ep) return;
             $scope.dataSchemas = ep.data_schemas;
             $scope.actSchemas = ep.act_schemas;
-        });
-    }]);
-    ngApp.provider.controller('ctrlPageEditor', ['$scope', '$uibModal', '$q', 'mattersgallery', 'mediagallery', function($scope, $uibModal, $q, mattersgallery, mediagallery) {
-        $scope.gotoCode = function(codeid) {
-            //window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + codeid, '_self');
-        };
-        $scope.$on('tinymce.multipleimage.open', function(event, callback) {
-            var options = {
-                callback: callback,
-                multiple: true,
-                setshowname: true
-            };
-            mediagallery.open($scope.siteId, options);
         });
     }]);
 });

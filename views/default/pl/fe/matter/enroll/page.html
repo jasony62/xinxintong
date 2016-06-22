@@ -33,29 +33,11 @@
             <button class='btn btn-default' ng-click='delPage()'>删除页面</button>
         </div>
     </div>
+</div>
+<div class='col-md-6'>
     <div class="panel panel-default">
         <div class="panel-body">
             <div ng-include="'/views/default/pl/fe/matter/enroll/comp-'+(ep.type==='I'?'input':'view')+'.html?_=11'" ng-controller='ctrlPageSchema'></div>
-        </div>
-    </div>
-    <div class="panel panel-default">
-        <div class='list-group form-group'>
-            <div class='list-group-item' ng-repeat="p in others">
-                <a href='/rest/pl/fe/matter/enroll/page?site={{siteId}}&id={{id}}&page={{p.name}}'>{{p.title}}（{{p.name}}）</a>
-            </div>
-        </div>
-    </div>
-</div>
-<div class='col-md-6' ng-if="ep" ng-controller="ctrlPageEditor">
-    <div class='page-editor'>
-        <tinymce content='ep.html' id='{{ep.name}}' height='669' change="onPageChange(ep)"></tinymce>
-        <div class='sidebar'>
-            <button class='btn btn-default' ng-click="updPage(ep,['data_schemas','html'])" title='保存修改' ng-disabled='!ep.$$modified'>
-            <i class='fa fa-save fa-fw'></i>
-            </button>
-            <button class='btn btn-default' title='编辑代码' ng-click="gotoCode(ep.code_id)">
-            <i class='fa fa-code fa-fw'></i>
-            </button>
         </div>
     </div>
 </div>

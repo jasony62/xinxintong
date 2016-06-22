@@ -113,9 +113,9 @@ class main extends \site\fe\matter\base {
 		$posted = $this->getPostJson();
 		$user = $this->who;
 
-		$this->logRead($site, $user, $id, $type, $title, $shareby = '');
+		$logid = $this->logRead($site, $user, $id, $type, $title, $shareby = '');
 
-		return new \ResponseData('ok');
+		return new \ResponseData($logid);
 	}
 	/**
 	 * 记录访问日志
@@ -137,7 +137,7 @@ class main extends \site\fe\matter\base {
 		$search = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '';
 		$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 
-		$this->model('matter\log')->writeMatterRead($siteId, $logUser, $logMatter, $logClient, $shareby, $search, $referer);
+		$logid = $this->model('matter\log')->writeMatterRead($siteId, $logUser, $logMatter, $logClient, $shareby, $search, $referer);
 		/**
 		 * coin log
 		 * 如果是投稿人阅读没有奖励
@@ -159,7 +159,7 @@ class main extends \site\fe\matter\base {
 				$modelCoin->income($siteId, 'mp.matter.' . $type . '.read', $id, 'sys', $user->openid);
 		*/
 
-		return true;
+		return $logid;
 	}
 	/**
 	 * 记录分享动作

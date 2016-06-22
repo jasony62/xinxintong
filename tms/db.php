@@ -188,7 +188,7 @@ class TMS_DB {
 	public function escape($str) {
 		global $mysqli;
 
-		return emptye($str) ? '' : $mysqli->real_escape_string($str);
+		return empty($str) ? '' : $mysqli->real_escape_string($str);
 	}
 	// 带页码的 fetch_all, 默认从第一页开始
 	public function fetch_page($table, $where = null, $order = null, $page = null, $limit = 10) {

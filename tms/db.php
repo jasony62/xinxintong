@@ -34,7 +34,7 @@ class TMS_DB {
 			$sql = $table;
 		} else {
 			foreach ($data as $key => $val) {
-				$insert_data['`' . $key . '`'] = "'" . $this->escape($val) . "'";
+				$insert_data['`' . $key . '`'] = "'" . $val . "'";
 			}
 
 			$sql = 'INSERT INTO `' . $this->get_table($table);
@@ -62,7 +62,7 @@ class TMS_DB {
 			$where || $this->show_error('DB Update no where string.');
 
 			foreach ($data AS $key => $val) {
-				$update_string[] = '`' . $key . "` = '" . $this->escape($val) . "'";
+				$update_string[] = '`' . $key . "` = '" . $val . "'";
 			}
 
 			$sql = 'UPDATE `' . $this->get_table($table);

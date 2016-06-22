@@ -155,21 +155,27 @@ class record extends base {
 		 * 检查签到数据是否在报名表中
 		 */
 		if (isset($app->enroll_app_id)) {
-			/*获得要检查的数据*/
-			$dataSchemas = json_decode($app->data_schemas);
-			$requireCheckedData = new \stdClass;
-			foreach ($dataSchemas as $dataSchema) {
-				if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
-					$requireCheckedData->{$dataSchema->id} = $enrollData->{$dataSchema->id};
-				}
-			}
-			/*在指定的登记活动中检查数据*/
 			$enrollApp = $this->model('matter\enroll')->byId($app->enroll_app_id);
 			if ($enrollApp) {
+				/*获得要检查的数据*/
+				$dataSchemas = json_decode($app->data_schemas);
+				$requireCheckedData = new \stdClass;
+				foreach ($dataSchemas as $dataSchema) {
+					if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
+						$requireCheckedData->{$dataSchema->id} = $enrollData->{$dataSchema->id};
+					}
+				}
+				if ($app->mission_phase_id) {
+					/* 需要匹配项目阶段 */
+					$requireCheckedData->phase = $app->mission_phase_id;
+				}
+				/* 在指定的登记活动中检查数据 */
 				$modelEnrollRec = $this->model('matter\enroll\record');
 				$enrollRecords = $modelEnrollRec->byData($site, $enrollApp, $requireCheckedData);
 				if (empty($enrollRecords)) {
-					/* 已经登记，更新原先提交的数据 */
+					/**
+					 * 没有在报名表中找到对应的记录
+					 */
 					$modelRec->update('xxt_signin_record',
 						array('verified' => 'N'),
 						"enroll_key='{$signState->ek}'"
@@ -179,16 +185,14 @@ class record extends base {
 						$signState->forword = $app->entry_rule->fail->entry;
 					}
 				} else {
-					/* 找到了对应的登记记录 */
+					/**
+					 * 找报名表中找到对应的记录
+					 */
 					$ek = $enrollRecords[0];
-					$enrollRecord = $modelEnrollRec->byId($ek, ['cascaded' => 'N', 'fields' => 'verified']);
-					if ($enrollRecord->verified === 'Y') {
-						$modelRec->update('xxt_signin_record',
-							array('verified' => 'Y'),
-							"enroll_key='{$signState->ek}'"
-						);
-					}
-					/* todo:如果登记记录没有验证通过怎么办？ */
+					$modelRec->update('xxt_signin_record',
+						array('verified' => 'Y'),
+						"enroll_key='{$signState->ek}'"
+					);
 					$signState->verified = 'Y';
 					if (isset($app->entry_rule->success->entry)) {
 						$signState->forword = $app->entry_rule->success->entry;

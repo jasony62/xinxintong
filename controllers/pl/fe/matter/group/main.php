@@ -16,12 +16,17 @@ class main extends \pl\fe\matter\base {
 	 * 返回视图
 	 */
 	public function index_action($site, $id) {
-		$app = $this->model('matter\group')->byId($id);
-		if ($app->state === '2') {
-			$this->redirect('/rest/pl/fe/matter/group/running?site=' . $site . '&id=' . $id);
-		} else {
+		if (strpos($_SERVER['REQUEST_URI'], 'running') !== false) {
 			\TPL::output('/pl/fe/matter/group/frame');
 			exit;
+		} else {
+			$app = $this->model('matter\group')->byId($id);
+			if ($app->state === '2') {
+				$this->redirect('/rest/pl/fe/matter/group/running?site=' . $site . '&id=' . $id);
+			} else {
+				\TPL::output('/pl/fe/matter/group/frame');
+				exit;
+			}
 		}
 	}
 	/**

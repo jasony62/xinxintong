@@ -45,8 +45,10 @@ define(['frame'], function(ngApp) {
 						if (appType === 'registration') {
 							url = '/rest/pl/fe/matter/enroll/list?site=' + $scope.siteId + '&size=999';
 							url += '&scenario=registration';
+							delete $scope2.data.includeEnroll;
 						} else {
 							url = '/rest/pl/fe/matter/signin/list?site=' + $scope.siteId + '&size=999';
+							$scope2.data.includeEnroll = 'Y';
 						}
 						app.mission && (url += '&mission=' + app.mission.id);
 						http2.get(url, function(rsp) {

@@ -25,20 +25,6 @@ class main extends \pl\fe\matter\base {
 		}
 	}
 	/**
-	 * 返回视图
-	 */
-	public function setting_action() {
-		\TPL::output('/pl/fe/matter/group/frame');
-		exit;
-	}
-	/**
-	 * 返回视图
-	 */
-	public function running_action() {
-		\TPL::output('/pl/fe/matter/group/frame');
-		exit;
-	}
-	/**
 	 * 返回一个分组活动
 	 */
 	public function get_action($site, $app) {

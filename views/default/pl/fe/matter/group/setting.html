@@ -25,14 +25,14 @@
         </div>
         <div class='tile' ng-controller="ctrlRule">
             <div class='form-group'>
-                <button class='btn btn-success' ng-click='configRule()'>设置规则</button>
-                <button class='btn btn-success' ng-click='emptyRule()'>清除分组</button>
-                <button class='btn btn-success' ng-click='addRound()'>添加分组</button>
+                <button class='btn btn-success' ng-disabled="!app.sourceApp" ng-click="configRule()">设置规则</button>
+                <button class='btn btn-success' ng-click="emptyRule()">清除分组</button>
+                <button class='btn btn-success' ng-click="addRound()">添加分组</button>
             </div>
             <div class='list-group'>
-                <a class='list-group-item' ng-class="{'active':r===editingRound}" ng-repeat='r in rounds' ng-click='open(r)' style='min-height:41px'>
+                <a class='list-group-item' ng-class="{'active':r===editingRound}" ng-repeat='r in rounds' ng-click="open(r)" style='min-height:41px'>
                     <span>{{r.title}}</span>
-                    <button class='btn btn-xs btn-default pull-right' ng-if="r===editingRound" ng-click='removeRound()'><span class='glyphicon glyphicon-remove'></span></button>
+                    <button class='btn btn-xs btn-default pull-right' ng-if="r===editingRound" ng-click="removeRound()"><span class='glyphicon glyphicon-remove'></span></button>
                 </a>
             </div>
             <div ng-if='editingRound'>
@@ -60,14 +60,14 @@
                             <td>{{$index+1}}</td>
                             <td>{{labelTarget(t)}}</td>
                             <td>
-                                <button class='btn btn-default btn-sm' ng-click='removeTarget($index)'>
+                                <button class='btn btn-default btn-sm' ng-click="removeTarget($index)">
                                 <span class='glyphicon glyphicon-remove'></span>
                                 </button>
                             </td>
                         </tr>
                         <tr>
                             <td colspan=3>
-                                <button class='btn btn-primary pull-right' ng-click='addTarget()'>添加规则</button>
+                                <button class='btn btn-primary pull-right' ng-click="addTarget()">添加规则</button>
                             </td>
                         </tr>
                     </tbody>
@@ -79,7 +79,7 @@
     <div class='col-md-4'>
         <div class='tile'>
             <div class='form-group'>
-                <button class='btn btn-block btn-success' ng-click='importByApp()'>导入用户</button>
+                <button class='btn btn-block btn-success' ng-click="importByApp()">导入用户</button>
             </div>
             <div class='form-group' ng-if="app.sourceApp">
                 <div class="input-group">
@@ -167,9 +167,17 @@
             <div class='form-group'>
                 <label class="col-md-3 control-label">目标活动</label>
                 <div class="col-md-9">
-                    <select class="form-control" ng-model="data.app" ng-options="app.id as app.title for app in apps"></select>
+                    <select class="form-control" ng-model="data.app" ng-options="app.title for app in apps"></select>
                     <div class='checkbox' ng-if="app.mission">
                         <label><input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">选择同一个项目中的活动</label>
+                    </div>
+                </div>
+            </div>
+            <div class='form-group' ng-if="data.app.enroll_app_id">
+                <label class="col-md-3 control-label">含报名数据</label>
+                <div class="col-md-9">
+                    <div class='checkbox'>
+                        <label><input type='checkbox' ng-model="data.includeEnroll" ng-true-value="'Y'" ng-false-value="'N'">是</label>
                     </div>
                 </div>
             </div>

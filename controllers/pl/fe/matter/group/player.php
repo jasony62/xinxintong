@@ -55,7 +55,9 @@ class player extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$sourceApp = null;
 		$posted = $this->getPostJson();
+
 		if (!empty($posted->app)) {
 			if ($posted->appType === 'registration') {
 				$sourceApp = $this->_importByEnroll($site, $app, $posted->app);
@@ -64,7 +66,7 @@ class player extends \pl\fe\matter\base {
 			}
 		}
 
-		return new \ResponseData('ok');
+		return new \ResponseData($sourceApp);
 	}
 	/**
 	 * 从关联活动同步数据
@@ -94,37 +96,38 @@ class player extends \pl\fe\matter\base {
 		return new \ResponseData($count);
 	}
 	/**
-	 * 从登记活动导入数据
+	 * 从报名活动导入数据
 	 */
 	private function &_importByEnroll($site, $app, $byApp, $sync = 'N') {
 		$modelGrp = $this->model('matter\group');
 		$modelPlayer = $this->model('matter\group\player');
+		$modelEnl = $this->model('matter\enroll');
 
-		$sourceApp = $this->model('matter\enroll')->byId($byApp, array('fields' => 'data_schemas', 'cascaded' => 'N'));
+		$sourceApp = $modelEnl->byId($byApp, ['fields' => 'data_schemas', 'cascaded' => 'N']);
 		/* 导入活动定义 */
 		$modelGrp->update(
 			'xxt_group',
-			array(
+			[
 				'last_sync_at' => time(),
 				'source_app' => '{"id":"' . $byApp . '","type":"enroll"}',
 				'data_schemas' => $sourceApp->data_schemas,
-			),
+			],
 			"id='$app'"
 		);
 		/* 清空已有分组数据 */
 		$modelPlayer->clean($app, true);
 		/* 获取所有登记数据 */
 		$modelRec = $this->model('matter\enroll\record');
-		$q = array(
+		$q = [
 			'enroll_key',
 			'xxt_enroll_record',
 			"aid='$byApp' and state=1",
-		);
+		];
 		$eks = $modelRec->query_vals_ss($q);
 		/* 导入数据 */
 		if (!empty($eks)) {
-			$objGrp = $modelGrp->byId($app, array('cascaded' => 'N'));
-			$options = array('cascaded' => 'Y');
+			$objGrp = $modelGrp->byId($app, ['cascaded' => 'N']);
+			$options = ['cascaded' => 'Y'];
 			foreach ($eks as $ek) {
 				$record = $modelRec->byId($ek, $options);
 				$user = new \stdClass;
@@ -138,13 +141,14 @@ class player extends \pl\fe\matter\base {
 		return $sourceApp;
 	}
 	/**
-	 * 从登记活动导入数据
+	 * 从签到活动导入数据
 	 */
 	private function &_importBySignin($site, $app, $byApp, $sync = 'N') {
 		$modelGrp = $this->model('matter\group');
 		$modelPlayer = $this->model('matter\group\player');
+		$modelSignin = $this->model('matter\signin');
 
-		$sourceApp = $this->model('matter\signin')->byId($byApp, array('fields' => 'data_schemas', 'cascaded' => 'N'));
+		$sourceApp = $modelSignin->byId($byApp, ['fields' => 'data_schemas', 'cascaded' => 'N']);
 		/* 导入活动定义 */
 		$modelGrp->update(
 			'xxt_group',

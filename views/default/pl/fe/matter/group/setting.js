@@ -56,8 +56,14 @@ define(['frame'], function(ngApp) {
 				}],
 				backdrop: 'static'
 			}).result.then(function(data) {
-				if (data.app && data.app.length) {
-					http2.post('/rest/pl/fe/matter/group/player/importByApp?site=' + $scope.siteId + '&app=' + $scope.id, data, function(rsp) {
+				var params;
+				if (data.app) {
+					params = {
+						app: data.app.id,
+						appType: data.appType,
+					};
+					data.appType === 'signin' && (params.includeEnroll = data.includeEnroll);
+					http2.post('/rest/pl/fe/matter/group/player/importByApp?site=' + $scope.siteId + '&app=' + $scope.id, params, function(rsp) {
 						location.href = '/rest/pl/fe/matter/group/player?site=' + $scope.siteId + '&id=' + $scope.id;
 					});
 				}

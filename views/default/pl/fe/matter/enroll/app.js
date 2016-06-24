@@ -21,17 +21,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				location.href = '/rest/pl/fe/matter/enroll/publish?site=' + $scope.siteId + '&id=' + $scope.id;
 			});
 		};
-		$scope.remove = function() {
-			if (window.confirm('确定删除？')) {
-				http2.get('/rest/pl/fe/matter/enroll/remove?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
-					if ($scope.app.mission) {
-						location = "/rest/pl/fe/matter/mission?site=" + $scope.siteId + "&id=" + $scope.app.mission.id;
-					} else {
-						location = '/rest/pl/fe/site/console?site=' + $scope.siteId;
-					}
-				});
-			}
-		};
 		$scope.addPage = function() {
 			$scope.createPage().then(function(page) {
 				$scope.choosePage(page);

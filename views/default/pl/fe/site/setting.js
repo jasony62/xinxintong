@@ -3,7 +3,7 @@ define(['require'], function(require) {
     ngApp.config(['$locationProvider', '$provide', '$controllerProvider', '$routeProvider', function($lp, $provide, $cp, $rp) {
         var RouteParam = function(name, loadjs) {
             var baseURL = '/views/default/pl/fe/site/setting/';
-            this.templateUrl = baseURL + name + '.html?=3';
+            this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
             this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
             if (loadjs) {
                 this.resolve = {
@@ -121,6 +121,9 @@ define(['require'], function(require) {
                     });
                 }
             }
+        };
+        $scope.gotoSns = function(snsName) {
+            location.href = '/rest/pl/fe/site/sns/' + snsName + '?site=' + $scope.siteId;
         };
     }]);
     ngApp.controller('ctrlBasic', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {}]);

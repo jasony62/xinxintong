@@ -324,9 +324,6 @@ class yx extends \member_base {
 	}
 	/**
 	 * 扫描二维码事件
-	 *
-	 * 企业号目前不支持场景二维码
-	 * 由于目前易信的场景二维码客户端无法收到回复信息，因此改为推动客户消息替代
 	 */
 	private function _qrcodeCall($call) {
 		$siteId = $call['siteid'];

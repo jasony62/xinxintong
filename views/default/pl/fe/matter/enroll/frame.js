@@ -64,6 +64,17 @@ define(['require', 'page'], function(require, pageLib) {
 
 			return $scope.submit();
 		};
+		$scope.remove = function() {
+			if (window.confirm('确定删除活动？')) {
+				http2.get('/rest/pl/fe/matter/enroll/remove?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+					if ($scope.app.mission) {
+						location = "/rest/pl/fe/matter/mission?site=" + $scope.siteId + "&id=" + $scope.app.mission.id;
+					} else {
+						location = '/rest/pl/fe/site/console?site=' + $scope.siteId;
+					}
+				});
+			}
+		};
 		$scope.createPage = function() {
 			var deferred = $q.defer();
 			$uibModal.open({

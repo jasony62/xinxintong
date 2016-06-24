@@ -87,20 +87,22 @@ class main extends \pl\fe\base {
 	 */
 	public function snsList_action($site) {
 		$sns = array();
-		if ($wx = $this->model('sns\wx')->bySite($site, ['fields' => 'joined'])) {
-			if ($wx->joined === 'Y') {
-				$sns['wx'] = $wx;
-			}
-		} else if ($wx = $this->model('sns\wx')->bySite('platform', ['fields' => 'joined'])) {
-			if ($wx->joined === 'Y') {
-				$sns['wx'] = $wx;
-			}
+
+		$modelWx = $this->model('sns\wx');
+		$wxOptions = ['fields' => 'joined,can_qrcode'];
+		if (($wx = $modelWx->bySite($site, $wxOptions)) && $wx->joined === 'Y') {
+			$sns['wx'] = $wx;
+		} else if (($wx = $modelWx->bySite('platform', $wxOptions)) && $wx->joined === 'Y') {
+			$sns['wx'] = $wx;
 		}
-		if ($yx = $this->model('sns\yx')->bySite($site, ['fields' => 'joined'])) {
+
+		$yxOptions = ['fields' => 'joined,can_qrcode'];
+		if ($yx = $this->model('sns\yx')->bySite($site, $yxOptions)) {
 			if ($yx->joined === 'Y') {
 				$sns['yx'] = $yx;
 			}
 		}
+
 		if ($qy = $this->model('sns\qy')->bySite($site, ['fields' => 'joined'])) {
 			if ($qy->joined === 'Y') {
 				$sns['qy'] = $qy;

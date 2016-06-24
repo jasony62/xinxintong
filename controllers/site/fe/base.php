@@ -268,6 +268,15 @@ class base extends \TMS_CONTROLLER {
 	}
 	/**
 	 *
+	 */
+	protected function outputInfo($info, $title = '提示') {
+		\TPL::assign('title', $title);
+		\TPL::assign('body', $info);
+		\TPL::output('info');
+		exit;
+	}
+	/**
+	 *
 	 * 要求关注
 	 *
 	 * @param string $siteId

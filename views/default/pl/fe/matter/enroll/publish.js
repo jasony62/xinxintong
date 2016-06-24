@@ -8,20 +8,6 @@ define(['frame'], function(ngApp) {
 				url: $scope.url,
 				qrcode: '/rest/pl/fe/matter/enroll/qrcode?url=' + encodeURIComponent($scope.url),
 			};
-			if (app.can_signin === 'Y') {
-				l = app.pages.length;
-				for (i = 0; i < l; i++) {
-					page = app.pages[i];
-					if (page.type === 'S') {
-						signinUrl = $scope.url + '&page=' + page.name;
-						break;
-					}
-				}
-				if (signinUrl) {
-					entry.signinUrl = signinUrl;
-					entry.signinQrcode = '/rest/pl/fe/matter/enroll/qrcode?url=' + encodeURIComponent(signinUrl);
-				}
-			}
 			$scope.entry = entry;
 		});
 		$scope.opUrl = 'http://' + location.host + '/rest/site/op/matter/enroll?site=' + $scope.siteId + '&app=' + $scope.id;
@@ -45,6 +31,39 @@ define(['frame'], function(ngApp) {
 			$scope.app.pic = '';
 			$scope.update('pic');
 		};
+	}]);
+	ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', function($scope, http2) {
+		var baseURL = '/rest/pl/fe/matter/enroll/receiver/';
+		$scope.qrcodeShown = false;
+		$scope.supportQrcode = {
+			wx: 'N',
+			yx: 'N'
+		};
+		$scope.qrcode = function(snsName) {
+			if ($scope.qrcodeShown === false) {
+				var url = '/rest/pl/fe/site/sns/' + snsName + '/qrcode/createOneOff';
+				url += '?site=' + $scope.siteId;
+				url += '&matter_type=enrollreceiver';
+				url += '&matter_id=' + $scope.id;
+				http2.get(url, function(rsp) {
+					$scope.qrcodeURL = rsp.data.pic;
+				});
+			}
+			$scope.qrcodeShown = !$scope.qrcodeShown;
+		};
+		$scope.remove = function(receiver) {
+			http2.get(baseURL + 'remove?site=' + $scope.siteId + '&app=' + $scope.id + '&receiver=' + receiver.userid, function(rsp) {
+				$scope.receivers.splice($scope.receivers.indexOf(receiver), 1);
+			});
+		};
+		http2.get(baseURL + 'list?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+			$scope.receivers = rsp.data;
+		});
+		http2.get('/rest/pl/fe/site/snsList?site=' + $scope.siteId, function(rsp) {
+			var snsConfig = rsp.data;
+			snsConfig.wx && (snsConfig.wx.can_qrcode === 'Y') && ($scope.supportQrcode.wx = 'Y');
+			snsConfig.yx && (snsConfig.yx.can_qrcode === 'Y') && ($scope.supportQrcode.yx = 'Y');
+		});
 	}]);
 	ngApp.provider.controller('ctrlRound', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
 		$scope.roundState = ['新建', '启用', '停止'];

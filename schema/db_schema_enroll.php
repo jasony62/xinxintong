@@ -138,10 +138,12 @@ if (!$mysqli->query($sql)) {
 $sql = "create table if not exists xxt_enroll_receiver(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",mpid varchar(32) not null default ''";
+$sql .= ",mpid varchar(32) not null default ''"; // should remove
 $sql .= ",aid varchar(40) not null";
-$sql .= ",identity varchar(100) not null";
-$sql .= ",idsrc char(2) not null default ''";
+$sql .= ",identity varchar(100) not null"; // should remove
+$sql .= ",idsrc char(2) not null default ''"; // should remove
+$sql .= ",userid varchar(40) not null default ''";
+$sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

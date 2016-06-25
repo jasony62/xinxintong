@@ -324,17 +324,81 @@ class yx extends \member_base {
 	}
 	/**
 	 * 扫描二维码事件
+	 *
+	 * 场景二维码自动回复不行，通过推送消息回复
 	 */
 	private function _qrcodeCall($call) {
 		$siteId = $call['siteid'];
+		$openid = $call['from_user'];
 		$data = json_decode($call['data']);
+
+		/* 需要开通客服消息 */
+		$yxConfig = $this->model('sns\yx')->bySite($siteId);
+		if ($yxConfig->can_custom_push !== 'Y') {
+			return;
+		}
+
 		if ($reply = $this->model('sns\yx\event')->qrcodeCall($siteId, $data[1])) {
+			/* 一次性二维码，用完后就删除 */
 			if ($reply->expire_at > 0) {
-				/* 一次性二维码，用完后就删除 */
 				$this->model()->delete('xxt_call_qrcode_yx', "id=$reply->id");
 			}
-			$r = $this->model('sns\reply\\' . $reply->matter_type, $call, $reply->matter_id);
-			$r->exec();
+
+			switch ($reply->matter_type) {
+			case 'enrollsignin': //登记活动签到
+				$r = $this->model('sns\reply\enrollsignin', $call, $reply->matter_id, false);
+				$r2 = $r->exec();
+				if ($r2['matter_type'] === 'enroll') {
+					$message = $this->model('matter\\' . 'enroll')->forCustomPush($mpid, $r2['matter_id']);
+				} else if ($r2['matter_type'] === 'joinwall') {
+					$r = new $this->model('sns\reply\joinwall', $call, $r2['matter_id']);
+					$tip = $r->exec(false);
+					if (!empty($tip)) {
+						$message = array(
+							"msgtype" => "text",
+							"text" => array(
+								"content" => $tip,
+							),
+						);
+					}
+				} else {
+					$message = $this->model('matter\\' . $r2['matter_type'])->forCustomPush($mpid, $r2['matter_id']);
+				}
+				break;
+			case 'joinwall': // 加入信息墙
+				$r = $this->model('sns\reply\joinwall', $call, $reply->matter_id);
+				$tip = $r->exec(false);
+				if (!empty($tip)) {
+					$message = array(
+						"msgtype" => "text",
+						"text" => array(
+							"content" => $tip,
+						),
+					);
+				}
+				break;
+			case 'enrollreceiver':
+				$r = $this->model('sns\reply\enrollreceiver', $call, $reply->matter_id);
+				$tip = $r->exec(false);
+				if (!empty($tip)) {
+					$message = array(
+						"msgtype" => "text",
+						"text" => array(
+							"content" => $tip,
+						),
+					);
+				}
+				break;
+			default:
+				$message = $this->model('matter\\' . $reply->matter_type)->forCustomPush($mpid, $reply->matter_id);
+			}
+			/**
+			 * 推送消息
+			 */
+			if (isset($message)) {
+				$yxProxy = $this->model('sns\yx\proxy', $yxConfig);
+				$rst = $yxProxy->messageCustomSend($message, $openid);
+			}
 		}
 	}
 }

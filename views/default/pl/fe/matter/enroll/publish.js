@@ -32,7 +32,7 @@ define(['frame'], function(ngApp) {
 			$scope.update('pic');
 		};
 	}]);
-	ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', function($scope, http2) {
+	ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', '$interval', function($scope, http2, $interval) {
 		var baseURL = '/rest/pl/fe/matter/enroll/receiver/';
 		$scope.qrcodeShown = false;
 		$scope.supportQrcode = {
@@ -46,10 +46,44 @@ define(['frame'], function(ngApp) {
 				url += '&matter_type=enrollreceiver';
 				url += '&matter_id=' + $scope.id;
 				http2.get(url, function(rsp) {
-					$scope.qrcodeURL = rsp.data.pic;
+					var qrcode = rsp.data;
+					$("#yxQrcode").trigger('show');
+					$scope.qrcodeURL = qrcode.pic;
+					$scope.qrcodeShown = true;
+					(function() {
+						var fnCheckQrcode, url2;
+						url2 = '/rest/pl/fe/site/sns/' + snsName + '/qrcode/get';
+						url2 += '?site=' + $scope.siteId;
+						url2 += '&id=' + rsp.data.id;
+						fnCheckQrcode = $interval(function() {
+							http2.get(url2, function(rsp) {
+								if (rsp.data == false) {
+									$interval.cancel(fnCheckQrcode);
+									$("#yxQrcode").trigger('hide');
+									$scope.qrcodeShown = false;
+									(function() {
+										var fnCheckReceiver, url3;
+										url3 = '/rest/pl/fe/site/sns/' + snsName + '/qrcode/get';
+										url3 += '?site=' + $scope.siteId;
+										url3 += '&id=' + rsp.data.id;
+										fnCheckReceiver = $interval(function() {
+											http2.get('/rest/pl/fe/matter/enroll/receiver/afterJoin?site=' + $scope.siteId + '&app=' + $scope.id + '&timestamp=' + qrcode.create_at, function(rsp) {
+												if (rsp.data.length) {
+													$interval.cancel(fnCheckReceiver);
+													$scope.receivers = $scope.receivers.concat(rsp.data);
+												}
+											});
+										}, 2000);
+									})();
+								}
+							});
+						}, 2000);
+					})();
 				});
+			} else {
+				$("#yxQrcode").trigger('hide');
+				$scope.qrcodeShown = false;
 			}
-			$scope.qrcodeShown = !$scope.qrcodeShown;
 		};
 		$scope.remove = function(receiver) {
 			http2.get(baseURL + 'remove?site=' + $scope.siteId + '&app=' + $scope.id + '&receiver=' + receiver.userid, function(rsp) {

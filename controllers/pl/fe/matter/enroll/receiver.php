@@ -24,6 +24,24 @@ class receiver extends \pl\fe\matter\base {
 		return new \ResponseData($receivers);
 	}
 	/**
+	 *
+	 */
+	public function afterJoin_action($site, $app, $timestamp = null) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		if (empty($timestamp)) {
+			return new \ResponseData([]);
+		}
+
+		$modelRev = $this->model('matter\enroll\receiver');
+
+		$receivers = $modelRev->afterJoin($site, $app, $timestamp);
+
+		return new \ResponseData($receivers);
+	}
+	/**
 	 * 删除轮次
 	 *
 	 * @param string site

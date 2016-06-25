@@ -1,5 +1,5 @@
 <?php
-namespace sns;
+namespace sns\qy;
 
 require_once TMS_APP_DIR . '/lib/wxqy/WXBizMsgCrypt.php';
 require_once dirname(dirname(__FILE__)) . '/proxybase.php';

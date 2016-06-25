@@ -43,10 +43,10 @@
                 </div>
                 <div lass='col-md-4'>
                     <div class='form-group' ng-if="supportQrcode.wx==='Y'">
-                        <button uib-popover-template="'joinQrcode.html'" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('wx')">微信扫码加入 <span class="caret"></span></button>
+                        <button id='wxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="none" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('wx')">微信扫码加入 <span class="caret"></span></button>
                     </div>
                     <div class='form-group' ng-if="supportQrcode.yx==='Y'">
-                        <button uib-popover-template="'joinQrcode.html'" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('wx')">易信扫码加入 <span class="caret"></span></button>
+                        <button id='yxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('yx')">易信扫码加入 <span class="caret"></span></button>
                     </div>
                 </div>
             </div>
@@ -131,7 +131,7 @@
     </div>
 </script>
 <script type="text/ng-template" id="joinQrcode.html">
-    <div>
-        <img ng-src="{{qrcodeURL}}">
+    <div style="width:200px">
+        <img ng-src="{{qrcodeURL}}" style="width:100%">
     <div>
 </script>

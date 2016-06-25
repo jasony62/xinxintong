@@ -38,4 +38,22 @@ class receiver_model extends \TMS_MODEL {
 
 		return $receivers;
 	}
+	/**
+	 *
+	 * @param string $siteId
+	 * @param string $aid
+	 */
+	public function &afterJoin($siteId, $aid, $timestamp, $options = array()) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+
+		$q = array(
+			$fields,
+			'xxt_enroll_receiver',
+			"siteid='$siteId' and aid='$aid' and join_at>=$timestamp",
+		);
+
+		$receivers = $this->query_objs_ss($q);
+
+		return $receivers;
+	}
 }

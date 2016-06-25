@@ -252,7 +252,7 @@ class base extends \TMS_CONTROLLER {
 				$ca = false;
 			}
 		} else {
-			$ca = fasle;
+			$ca = false;
 		}
 
 		return $ca;

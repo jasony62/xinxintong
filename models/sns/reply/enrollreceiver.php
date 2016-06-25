@@ -27,13 +27,18 @@ class enrollreceiver_model extends Reply {
 
 		$fan = \TMS_APP::M('sns\\' . $snsSrc . '\\fan')->byOpenid($siteId, $openId);
 		if ($fan) {
+			$snsUser = new \stdClass;
+			$snsUser->src = $snsSrc;
+			$snsUser->openid = $openId;
 			$modelEnl->insert(
 				'xxt_enroll_receiver',
 				[
 					'siteid' => $siteId,
 					'aid' => $this->appId,
+					'join_at' => time(),
 					'userid' => $fan->userid,
 					'nickname' => $fan->nickname,
+					'sns_user' => json_encode($snsUser),
 				],
 				false
 			);

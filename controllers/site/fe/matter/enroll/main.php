@@ -142,7 +142,7 @@ class main extends base {
 			}
 			$oPage = $mapPages[$tipPage];
 			$modelPage = $this->model('matter\enroll\page');
-			$oPage = $modelPage->byId($appid, $oPage->id);
+			$oPage = $modelPage->byId($app->id, $oPage->id);
 			!empty($oPage->html) && \TPL::assign('body', $oPage->html);
 			!empty($oPage->css) && \TPL::assign('css', $oPage->css);
 			!empty($oPage->js) && \TPL::assign('js', $oPage->js);

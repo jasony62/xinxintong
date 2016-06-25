@@ -1,6 +1,6 @@
 define(['require', 'page'], function(require, pageLib) {
 	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'tinymce.ui.xxt', 'ui.xxt', 'channel.fe.pl']);
-	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider) {
+	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
 		var RouteParam = function(name) {
 			var baseURL = '/views/default/pl/fe/matter/enroll/';
 			this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
@@ -30,6 +30,10 @@ define(['require', 'page'], function(require, pageLib) {
 			.otherwise(new RouteParam('app'));
 
 		$locationProvider.html5Mode(true);
+
+		$uibTooltipProvider.setTriggers({
+			'show': 'hide'
+		});
 	}]);
 	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', function($scope, $location, $uibModal, $q, http2) {
 		var ls = $location.search(),

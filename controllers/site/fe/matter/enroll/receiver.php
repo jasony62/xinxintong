@@ -40,6 +40,7 @@ class receiver extends \site\fe\matter\base {
 				[
 					'siteid' => $site,
 					'aid' => $app->id,
+					'join_at' => time(),
 					'userid' => $uid,
 					'nickname' => empty($nickname) ? '未知姓名' : $modelRev->escape($nickname),
 				],

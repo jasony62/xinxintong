@@ -34,6 +34,23 @@ class qrcode extends \pl\fe\base {
 		return new \ResponseData($calls);
 	}
 	/**
+	 * get onr qrcode calls.
+	 */
+	public function get_action($site, $id) {
+		/**
+		 * 公众号自己的文本消息回复
+		 */
+		$q = array(
+			'*',
+			'xxt_call_qrcode_wx',
+			"siteid='$site' and id=$id",
+		);
+
+		$qrcode = $this->model()->query_obj_ss($q);
+
+		return new \ResponseData($qrcode);
+	}
+	/**
 	 * get one text call.
 	 *
 	 * $id int text call id.
@@ -158,25 +175,29 @@ class qrcode extends \pl\fe\base {
 			}
 		}
 		/**
-		 * 获去二维码的ticket
+		 * 获取二维码
 		 */
 		$proxy = $this->model('sns\wx\proxy', $wxConfig);
 		$rst = $proxy->qrcodeCreate($scene_id);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
-		// $qrcode = $rst[1];
+		$qrcode = $rst[1];
+
+		// /*用于代码调试*/
 		// $qrcode = new \stdClass;
-		// $qrcode->scene_id = 100777;
+		// $qrcode->scene_id = $scene_id;
 		// $qrcode->expire_seconds = 300;
 		// $qrcode->pic = 'http://qrcode.xxt.com';
 		/**
 		 * 保存数据并返回
 		 */
+		$current = time();
 		$d['siteid'] = $snsSiteId;
 		$d['name'] = '';
 		$d['scene_id'] = $qrcode->scene_id;
-		$d['expire_at'] = time() + $qrcode->expire_seconds - 30;
+		$d['create_at'] = $current;
+		$d['expire_at'] = $current + $qrcode->expire_seconds - 30;
 		$d['matter_type'] = $matter_type;
 		$d['matter_id'] = $matter_id;
 		$d['pic'] = $qrcode->pic;

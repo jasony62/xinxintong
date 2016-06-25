@@ -46,8 +46,9 @@ define(['frame'], function(ngApp) {
 				url += '&matter_type=enrollreceiver';
 				url += '&matter_id=' + $scope.id;
 				http2.get(url, function(rsp) {
-					var qrcode = rsp.data;
-					$("#yxQrcode").trigger('show');
+					var qrcode = rsp.data,
+						eleQrcode = $("#" + snsName + "Qrcode");
+					eleQrcode.trigger('show');
 					$scope.qrcodeURL = qrcode.pic;
 					$scope.qrcodeShown = true;
 					(function() {
@@ -59,7 +60,7 @@ define(['frame'], function(ngApp) {
 							http2.get(url2, function(rsp) {
 								if (rsp.data == false) {
 									$interval.cancel(fnCheckQrcode);
-									$("#yxQrcode").trigger('hide');
+									eleQrcode.trigger('hide');
 									$scope.qrcodeShown = false;
 									(function() {
 										var fnCheckReceiver, url3;

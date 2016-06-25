@@ -1,5 +1,5 @@
-'use strict';
 define(['require'], function(require) {
+    'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
     ngApp.config(['$locationProvider', '$provide', '$controllerProvider', '$routeProvider', function($lp, $provide, $cp, $rp) {
         var RouteParam = function(name) {
@@ -9,6 +9,7 @@ define(['require'], function(require) {
             this.resolve = {
                 load: function($q) {
                     var defer = $q.defer();
+                    console.log('xxx', baseURL);
                     require([baseURL + name + '.js'], function() {
                         defer.resolve();
                     });
@@ -29,9 +30,7 @@ define(['require'], function(require) {
             .when('/rest/pl/be/sns/wx/relay', new RouteParam('relay'))
             .when('/rest/pl/be/sns/wx/tmplmsg', new RouteParam('tmplmsg'))
             .when('/rest/pl/be/sns/wx/page', new RouteParam('page'))
-            .otherwise({
-                redirectTo: '/rest/pl/be/sns/wx/setting'
-            });
+            .otherwise(new RouteParam('setting'));
     }]);
     ngApp.controller('ctrlWx', ['$scope', 'http2', function($scope, http2) {
         $scope.subView = '';

@@ -171,18 +171,20 @@ class qrcode extends \pl\fe\base {
 			}
 		}
 		/**
-		 * 获去二维码的ticket
+		 * 获去二维码
 		 */
-		// $proxy = $this->model('sns\yx\proxy', $yx);
-		// $rst = $proxy->qrcodeCreate($scene_id);
-		// if ($rst[0] === false) {
-		// 	return new \ResponseError($rst[1]);
-		// }
-		// $qrcode = $rst[1];
-		$qrcode = new \stdClass;
-		$qrcode->scene_id = 100777;
-		$qrcode->expire_seconds = 300;
-		$qrcode->pic = 'http://qrcode.xxt.com';
+		$proxy = $this->model('sns\yx\proxy', $yx);
+		$rst = $proxy->qrcodeCreate($scene_id);
+		if ($rst[0] === false) {
+			return new \ResponseError($rst[1]);
+		}
+		$qrcode = $rst[1];
+
+		/*用于代码调试*/
+		// $qrcode = new \stdClass;
+		// $qrcode->scene_id = $scene_id;
+		// $qrcode->expire_seconds = 300;
+		// $qrcode->pic = 'http://qrcode.xxt.com';
 		/**
 		 * 保存数据并返回
 		 */

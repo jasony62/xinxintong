@@ -1,4 +1,5 @@
-(function() {
+define(['main'], function(ngApp) {
+	'use strict';
 	ngApp.provider.controller('ctrlPage', ['$scope', 'http2', function($scope, http2) {
 		$scope.edit = function(event, prop) {
 			event.preventDefault();

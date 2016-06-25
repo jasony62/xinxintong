@@ -168,9 +168,9 @@ class record extends base {
 			return new \ResponseError($rst[1]);
 		}
 		/**
-		 * 通知登记活动的管理员
+		 * 通知登记活动事件接收人
 		 */
-		//!empty($app->receiver_page) && $this->_notifyAdmin($site, $app, $ek, $user);
+		$this->_notifyReceivers($site, $app, $ek);
 
 		return new \ResponseData($ek);
 	}
@@ -199,31 +199,77 @@ class record extends base {
 	 *
 	 * @todo 应该改为模版消息
 	 */
-	private function _notifyAdmin($site, $app, $ek, $user) {
-		$admins = \TMS_APP::model('acl')->enrollReceivers($site, $app->id);
-		if (false !== ($key = array_search($user->openid, $admins))) {
-			/* 管理员是登记人，不再通知 */
-			unset($admins[$key]);
-		}
-		if (!empty($admins)) {
-			$mpa = $this->model('mp\mpaccount')->byId($site, 'mpsrc');
-			$url = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/enroll?mpid=$site&aid=$app->id&ek=$ek&page=$app->receiver_page";
-			$txt = "【" . $app->title . "】有新登记数据，";
-			if ($mpa->mpsrc === 'yx') {
-				$txt .= '<a href="$url">';
-			} else {
-				$txt .= "<a href='$url'>";
-			}
-			$txt .= "请处理";
-			$txt .= "</a>";
-			$message = array(
-				"msgtype" => "text",
-				"text" => array(
-					"content" => $txt,
-				),
-			);
-			foreach ($admins as $admin) {
-				$this->sendByOpenid($site, $admin, $message);
+	private function _notifyReceivers($siteId, &$app, $ek) {
+		$receivers = $this->model('matter\enroll\receiver')->byApp($siteId, $app->id);
+		if (count($receivers)) {
+			$noticeURL = 'http://' . $_SERVER['HTTP_HOST'];
+			$noticeURL .= "/rest/site/op/matter/enroll?site=$siteId&app=$app->id&ek=$ek";
+			$yxProxy = $wxProxy = null;
+			foreach ($receivers as $receiver) {
+				if (empty($receiver->sns_user)) {
+					continue;
+				}
+				$snsUser = json_decode($receiver->sns_user);
+				switch ($snsUser->src) {
+				case 'yx':
+					if ($yxProxy === null) {
+						$yxConfig = $this->model('sns\yx')->bySite($siteId);
+						if ($yxConfig->joined === 'Y' && $yxConfig->can_p2p === 'Y') {
+							$yxProxy = $this->model('sns\yx\proxy', $yxConfig);
+						} else {
+							$yxProxy = false;
+						}
+						$message = array(
+							'msgtype' => 'news',
+							'news' => array(
+								'articles' => [
+									[
+										'title' => $app->title,
+										'description' => '有新登记数据请处理',
+										'url' => $noticeURL,
+										'picurl' => $app->pic,
+									],
+								],
+							),
+						);
+					}
+					if ($yxProxy !== false && isset($message)) {
+						$rst = $yxProxy->messageSend($message, array($snsUser->openid));
+					}
+					break;
+				case 'wx':
+					if ($wxProxy === null) {
+						$wxConfig = $this->model('sns\wx')->bySite($siteId);
+						if ($wxConfig->joined === 'Y') {
+							$wxProxy = $this->model('sns\wx\proxy', $wxConfig);
+						} else {
+							$wxProxy = false;
+						}
+						$txt = "【" . $app->title . "】有新登记数据，";
+						// if ($mpa->mpsrc === 'yx') {
+						// 	$txt .= '<a href="$url">';
+						// } else {
+						// 	$txt .= "<a href='$url'>";
+						// }
+						$txt .= "请处理";
+						// $txt .= "</a>";
+						$message = array(
+							"msgtype" => "text",
+							"text" => array(
+								"content" => $txt,
+							),
+						);
+					}
+					if ($wxProxy !== false) {
+						$rst = $mpproxy->messageCustomSend($message, $snsUser->openid);
+					}
+					break;
+				case 'qy':
+					// $message['touser'] = $openid;
+					// $message['agentid'] = $mpa->qy_agentid;
+					// $rst = $mpproxy->messageSend($message, $openid);
+					// break;
+				}
 			}
 		}
 

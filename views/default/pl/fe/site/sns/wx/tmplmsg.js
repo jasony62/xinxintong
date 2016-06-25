@@ -1,38 +1,42 @@
 define(['main'], function(ngApp) {
 	'use strict';
 	ngApp.provider.service('serTmplmsg', ['$q', 'http2', function($q, http2) {
-		var _baseURL = '/rest/pl/fe/matter/tmplmsg';
+		var _baseURL = '/rest/pl/fe/matter/tmplmsg',
+			_siteId;
+		this.setSiteId = function(siteId) {
+			_siteId = siteId;
+		};
 		this.list = function() {
 			var defer = $q.defer();
-			http2.get(_baseURL + '/list?site=' + $scope.siteId + '&cascaded=Y', function(rsp) {
+			http2.get(_baseURL + '/list?site=' + _siteId + '&cascaded=Y', function(rsp) {
 				defer.resolve(rsp.data);
 			});
 			return defer.promise;
 		};
 		this.create = function() {
 			var defer = $q.defer();
-			http2.get(_baseURL + '/create?site=' + $scope.siteId + '', function(rsp) {
+			http2.get(_baseURL + '/create?site=' + _siteId + '', function(rsp) {
 				defer.resolve(rsp.data);
 			});
 			return defer.promise;
 		};
 		this.update = function(id, data) {
 			var defer = $q.defer();
-			http2.post(_baseURL + '/update?site=' + $scope.siteId + '&id=' + id, data, function(rsp) {
+			http2.post(_baseURL + '/update?site=' + _siteId + '&id=' + id, data, function(rsp) {
 				defer.resolve(rsp.data);
 			});
 			return defer.promise;
 		};
 		this.remove = function(id) {
 			var defer = $q.defer();
-			http2.get(_baseURL + '/remove?site=' + $scope.siteId + '&id=' + id, function(rsp) {
+			http2.get(_baseURL + '/remove?site=' + _siteId + '&id=' + id, function(rsp) {
 				defer.resolve(rsp.data);
 			});
 			return defer.promise;
 		};
 		this.addParam = function(tmplmsgId) {
 			var defer = $q.defer();
-			http2.get(_baseURL + '/addParam?site=' + $scope.siteId + '&tid=' + tmplmsgId, function(rsp) {
+			http2.get(_baseURL + '/addParam?site=' + _siteId + '&tid=' + tmplmsgId, function(rsp) {
 				defer.resolve(rsp.data);
 			});
 			return defer.promise;
@@ -46,13 +50,14 @@ define(['main'], function(ngApp) {
 		};
 		this.removeParam = function(removed) {
 			var defer = $q.defer();
-			http2.get(_baseURL + '/removeParam?site=' + $scope.siteId + '&pid=' + removed.id, function(rsp) {
+			http2.get(_baseURL + '/removeParam?site=' + _siteId + '&pid=' + removed.id, function(rsp) {
 				defer.resolve(rsp.data);
 			});
 			return defer.promise;
 		};
 	}]);
 	ngApp.provider.controller('ctrlTmplmsg', ['$scope', 'serTmplmsg', function($scope, serTmplmsg) {
+		serTmplmsg.setSiteId($scope.siteId);
 		$scope.create = function() {
 			serTmplmsg.create().then(function(data) {
 				$scope.tmplmsgs.push(data);
@@ -69,6 +74,7 @@ define(['main'], function(ngApp) {
 		$scope.doSearch();
 	}]);
 	ngApp.provider.controller('ctrlSetting', ['$scope', 'serTmplmsg', function($scope, serTmplmsg) {
+		serTmplmsg.setSiteId($scope.siteId);
 		$scope.update = function(n) {
 			if (!angular.equals($scope.editing, $scope.persisted)) {
 				var nv = {};

@@ -1,5 +1,5 @@
-'use strict';
-(function() {
+define(['main'], function(ngApp) {
+	'use strict';
 	ngApp.provider.controller('ctrlText', ['$scope', 'http2', 'matterTypes', 'mattersgallery', function($scope, http2, matterTypes, mattersgallery) {
 		var editCall = function(call) {
 			$scope.editing = call;
@@ -75,4 +75,4 @@
 			}
 		});
 	}]);
-})();
+});

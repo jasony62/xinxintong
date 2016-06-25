@@ -1,7 +1,7 @@
 define(['require'], function(require) {
     'use strict';
     var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
-    ngApp.config(['$locationProvider', '$controllerProvider', '$routeProvider', function($lp, $cp, $rp) {
+    ngApp.config(['$locationProvider', '$controllerProvider', '$routeProvider', '$provide', function($lp, $cp, $rp, $provide) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/fe/site/sns/wx/';
             this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
@@ -18,7 +18,8 @@ define(['require'], function(require) {
         };
         $lp.html5Mode(true);
         ngApp.provider = {
-            controller: $cp.register
+            controller: $cp.register,
+            service: $provide.service,
         };
         $rp
             .when('/rest/pl/fe/site/sns/wx/setting', new RouteParam('setting'))
@@ -35,8 +36,8 @@ define(['require'], function(require) {
         $scope.subView = '';
         $scope.siteId = $location.search().site;
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
-            var subView = currentRoute.match(/([^\/]+?)$/);
-            $scope.subView = subView ? subView[1] : '';
+            var subView = currentRoute.match(/([^\/]+?)\?/);
+            $scope.subView = subView[1] === 'wx' ? 'setting' : subView[1];
         });
         http2.get('/rest/pl/fe/site/sns/wx/get?site=' + $scope.siteId, function(rsp) {
             $scope.wx = rsp.data;

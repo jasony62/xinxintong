@@ -1,4 +1,5 @@
-(function() {
+define(['main'], function(ngApp) {
+	'use strict';
 	ngApp.provider.controller('ctrlMenu', ['$scope', 'http2', 'matterTypes', '$timeout', 'mattersgallery', function($scope, http2, matterTypes, $timeout, mattersgallery) {
 		$scope.matterTypes = matterTypes;
 		var setPublishState = function(state) {
@@ -196,4 +197,4 @@
 			}
 		});
 	}]);
-})();
+});

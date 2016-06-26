@@ -166,8 +166,9 @@ $sql .= ",openid varchar(255) not null default ''"; // should remove
 $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",enroll_at int not null"; // 填写报名信息时间
-$sql .= ",signin_at int not null default 0"; // 签到时间
-$sql .= ",signin_num int not null default 0"; // 签到次数
+$sql .= ",first_enroll_at int not null"; // 填写报名信息时间
+$sql .= ",signin_at int not null default 0"; // 签到时间 ???
+$sql .= ",signin_num int not null default 0"; // 签到次数 ???
 $sql .= ",tags text";
 $sql .= ",comment text";
 $sql .= ",vid varchar(32)"; // should remove
@@ -249,7 +250,8 @@ if (!$mysqli->query($sql)) {
  * 自定义登记数据统计
  */
 $sql = "create table if not exists xxt_enroll_record_stat(";
-$sql .= "aid varchar(40) not null";
+$sql .= "siteid varchar(32) not null";
+$sql .= ",aid varchar(40) not null";
 $sql .= ",create_at int not null";
 $sql .= ",id varchar(40) not null";
 $sql .= ",title varchar(255) not null";

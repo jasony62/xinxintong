@@ -8,25 +8,28 @@ class record_model extends \TMS_MODEL {
 	 * @param string $siteId
 	 * @param string $app
 	 * @param object $user
-	 * @param int $enroll_at
+	 * @param int $enrollAt
+	 * @param string $referrer
 	 */
-	public function enroll($siteId, &$app, &$user, $enroll_at = null, $referrer = '') {
+	public function enroll($siteId, &$app, &$user, $enrollAt = null, $referrer = '') {
+		$enrollAt === null && $enrollAt = time();
 		$ek = $this->genKey($siteId, $app->id);
 		$record = array(
 			'aid' => $app->id,
 			'siteid' => $siteId,
 			'mpid' => $siteId,
-			'enroll_at' => $enroll_at === null ? time() : $enroll_at,
+			'enroll_at' => $enrollAt,
+			'first_enroll_at' => $enrollAt,
 			'enroll_key' => $ek,
 			'userid' => $user->uid,
 			'referrer' => $referrer,
 		);
-		/*记录所属轮次*/
+		/* 记录所属轮次 */
 		$modelRun = \TMS_APP::M('matter\enroll\round');
 		if ($activeRound = $modelRun->getActive($siteId, $app->id)) {
 			$record['rid'] = $activeRound->rid;
 		}
-		/*登记用户昵称*/
+		/* 登记用户昵称 */
 		$entryRule = $app->entry_rule;
 		if (isset($entryRule->scope) && $entryRule->scope === 'member') {
 			foreach ($entryRule->member as $schemaId => $rule) {
@@ -568,5 +571,52 @@ class record_model extends \TMS_MODEL {
 		}
 
 		return $rst;
+	}
+	/**
+	 * 统计登记信息
+	 *
+	 */
+	public function &getStat($appId) {
+		$result = [];
+
+		$app = \TMS_APP::M('matter\enroll')->byId($appId, ['data_schemas', 'cascaded' => 'N']);
+		$dataSchemas = json_decode($app->data_schemas);
+
+		foreach ($dataSchemas as $schema) {
+			if (!in_array($schema->type, ['single', 'multiple'])) {
+				continue;
+			}
+			if ($schema->type === 'single') {
+				$result[$schema->id] = ['title' => $schema->title, 'id' => $schema->id, 'ops' => []];
+				foreach ($schema->ops as $op) {
+					/**
+					 * 获取数据
+					 */
+					$q = [
+						'count(*)',
+						'xxt_enroll_record_data',
+						"aid='$appId' and state=1 and name='{$schema->id}' and value='{$op->v}'",
+					];
+					$op->c = $this->query_val_ss($q);
+					$result[$schema->id]['ops'][] = $op;
+				}
+			} else if ($schema->type === 'multiple') {
+				$result[$schema->id] = ['title' => $schema->title, 'id' => $schema->id, 'ops' => []];
+				foreach ($schema->ops as $op) {
+					/**
+					 * 获取数据
+					 */
+					$q = array(
+						'count(*)',
+						'xxt_enroll_record_data',
+						"aid='$appId' and state=1 and name='{$schema->id}' and FIND_IN_SET('{$op->v}', value)",
+					);
+					$op['c'] = $this->query_val_ss($q);
+					$result[$schema->id]['ops'][] = $op;
+				}
+			}
+		}
+
+		return $result;
 	}
 }

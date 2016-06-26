@@ -93,7 +93,7 @@ class record extends \pl\fe\matter\base {
 	/**
 	 * 手工添加登记信息
 	 *
-	 * @param string $aid
+	 * @param string $app
 	 */
 	public function add_action($site, $app) {
 		$posted = $this->getPostJson();

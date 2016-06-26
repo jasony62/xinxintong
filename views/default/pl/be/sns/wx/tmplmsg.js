@@ -89,7 +89,7 @@ define(['main'], function(ngApp) {
 			serTmplmsg.addParam($scope.editing.id).then(function(data) {
 				var oNewParam = {
 					id: data,
-					pname: 'newparam',
+					pname: 'keyword',
 					plabel: ''
 				};
 				!angular.isArray($scope.editing.params) && ($scope.editing.params = []);

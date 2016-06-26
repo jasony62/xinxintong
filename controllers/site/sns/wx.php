@@ -1,7 +1,6 @@
 <?php
 namespace site\sns;
 
-require_once dirname(dirname(dirname(dirname(__FILE__)))) . '/lib/wxqy/WXBizMsgCrypt.php';
 require_once dirname(__FILE__) . '/usercall.php';
 require_once dirname(dirname(dirname(__FILE__))) . '/member_base.php';
 

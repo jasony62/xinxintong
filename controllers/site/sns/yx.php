@@ -71,9 +71,10 @@ class yx extends \member_base {
 		/**
 		 * 记录消息日志
 		 */
+		$modelLog = $this->model('log');
 		$msg = $call->to_array();
 		$msg['siteid'] = $site;
-		$this->model('log')->receive($msg);
+		$modelLog->receive($msg);
 		/**
 		 * 消息分流处理
 		 * 【信息墙】需要从现有信息处理流程中形成分支，分支中进行处理就可以了。
@@ -164,6 +165,7 @@ class yx extends \member_base {
 			$t = $e->Event;
 			$k = null;
 		}
+
 		switch ($t) {
 		case 'subscribe':
 			$this->_subscribeCall($data, $k);

@@ -25,6 +25,14 @@ class login extends \TMS_CONTROLLER {
 	public function do_action() {
 		$data = $this->getPostJson();
 
+		if (empty($data->email)) {
+			return new \ResponseError('邮箱不允许为空');
+		}
+
+		if (empty($data->password)) {
+			return new \ResponseError('口令不允许为空');
+		}
+
 		$modelUsr = $this->model('mp\user');
 		/*check*/
 		$result = $modelUsr->validate($data->email, $data->password);

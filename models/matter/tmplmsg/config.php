@@ -1,13 +1,13 @@
 <?php
 namespace matter\tmplmsg;
 /**
- *
+ * 模版消息参数影射关系
  */
 class config_model extends \TMS_MODEL {
 	/**
 	 *
 	 *
-	 * @param string $id
+	 * @param string $id 模版消息映射关系ID
 	 * @param array $options
 	 *
 	 */

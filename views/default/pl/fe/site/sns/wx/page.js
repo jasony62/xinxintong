@@ -32,4 +32,4 @@ define(['main'], function(ngApp) {
 			}
 		};
 	}]);
-})();
+});

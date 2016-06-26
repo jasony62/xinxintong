@@ -1,4 +1,5 @@
-(function() {
+define(['main'], function(ngApp) {
+	'use strict';
 	ngApp.provider.controller('ctrlOther', ['$scope', 'http2', 'matterTypes', 'mattersgallery', function($scope, http2, matterTypes, mattersgallery) {
 		$scope.edit = function(call) {
 			if (call.name === 'templatemsg' || call.name === 'cardevent') {
@@ -45,4 +46,4 @@
 		});
 	}]);
 
-})();
+});

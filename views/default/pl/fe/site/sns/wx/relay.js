@@ -22,4 +22,4 @@ define(['main'], function(ngApp) {
 			$scope.relays = rsp.data;
 		});
 	}]);
-})();
+});

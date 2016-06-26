@@ -1,4 +1,5 @@
-(function() {
+define(['main'], function(ngApp) {
+	'use strict';
 	ngApp.provider.controller('ctrlQrcode', ['$scope', 'http2', 'matterTypes', 'mattersgallery', function($scope, http2, matterTypes, mattersgallery) {
 		$scope.matterTypes = matterTypes;
 		$scope.create = function() {
@@ -51,4 +52,4 @@
 			}
 		});
 	}]);
-})();
+});

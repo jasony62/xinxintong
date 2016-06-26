@@ -1,6 +1,6 @@
-'use strict';
-(function() {
-	ngApp.provider.controller('ctrlSet', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
+define(['main'], function(ngApp) {
+	'use strict';
+	ngApp.provider.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
 		$scope.url = 'http://' + location.host + '/rest/site/sns/yx/api?site=' + $scope.siteId;
 		$scope.update = function(name) {
 			var p = {};
@@ -36,4 +36,4 @@
 			$scope.update('joined');
 		};
 	}]);
-})();
+});

@@ -1,6 +1,6 @@
-'use strict';
-(function() {
-	app.provider.controller('ctrlSet', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
+define(['main'], function(ngApp) {
+	'use strict';
+	ngApp.provider.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
 		$scope.url = 'http://' + location.host + '/rest/site/sns/qy/api?site=' + $scope.siteId;
 		$scope.update = function(name) {
 			var p = {};
@@ -14,7 +14,7 @@
 		$scope.setQrcode = function() {
 			var options = {
 				callback: function(url) {
-					$scope.qy.qrcode = url + '?_=' + (new Date()) * 1;
+					$scope.qy.qrcode = url + '?_=' + (new Date() * 1);
 					$scope.update('qrcode');
 				}
 			};
@@ -36,4 +36,4 @@
 			$scope.update('joined');
 		};
 	}]);
-})();
+});

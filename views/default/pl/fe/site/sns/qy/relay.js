@@ -1,4 +1,5 @@
-(function() {
+define(['main'], function(ngApp) {
+	'use strict';
 	ngApp.provider.controller('ctrlRelay', ['$scope', 'http2', function($scope, http2) {
 		$scope.add = function() {
 			http2.get('/rest/pl/fe/site/sns/qy/relay/add?site=' + $scope.siteId, function(rsp) {
@@ -21,4 +22,4 @@
 			$scope.relays = rsp.data;
 		});
 	}]);
-})();
+});

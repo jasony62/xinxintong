@@ -1,128 +1,50 @@
-var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
-ngApp.config(['$locationProvider', '$controllerProvider', '$routeProvider', function($lp, $cp, $rp) {
-    var loadJs = function(url, callback) {
-        var script;
-        script = document.createElement('script');
-        script.src = url;
-        callback && (script.onload = function() {
-            callback()
+define(['require'], function(require) {
+    var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
+    ngApp.config(['$locationProvider', '$controllerProvider', '$routeProvider', '$provide', function($lp, $cp, $rp, $provide) {
+        var RouteParam = function(name) {
+            var baseURL = '/views/default/pl/fe/site/sns/yx/';
+            this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
+            this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
+            this.resolve = {
+                load: function($q) {
+                    var defer = $q.defer();
+                    require([baseURL + name + '.js'], function() {
+                        defer.resolve();
+                    });
+                    return defer.promise;
+                }
+            };
+        };
+        ngApp.provider = {
+            controller: $cp.register,
+            service: $provide.service
+        };
+        $lp.html5Mode(true);
+        $rp
+            .when('/rest/pl/fe/site/sns/yx/setting', new RouteParam('setting'))
+            .when('/rest/pl/fe/site/sns/yx/text', new RouteParam('text'))
+            .when('/rest/pl/fe/site/sns/yx/menu', new RouteParam('menu'))
+            .when('/rest/pl/fe/site/sns/yx/qrcode', new RouteParam('qrcode'))
+            .when('/rest/pl/fe/site/sns/yx/other', new RouteParam('other'))
+            .when('/rest/pl/fe/site/sns/yx/relay', new RouteParam('relay'))
+            .when('/rest/pl/fe/site/sns/yx/page', new RouteParam('page'))
+            .otherwise(new RouteParam('setting'));
+    }]);
+    ngApp.controller('ctrlYx', ['$scope', '$location', 'http2', function($scope, $location, http2) {
+        $scope.subView = '';
+        $scope.siteId = $location.search().site;
+        $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+            var subView = currentRoute.match(/([^\/]+?)\?/);
+            $scope.subView = subView[1] === 'yx' ? 'setting' : subView[1];
         });
-        document.body.appendChild(script);
-    };
-    $lp.html5Mode(true);
-    ngApp.provider = {
-        controller: $cp.register
-    };
-    $rp.when('/rest/pl/fe/site/sns/yx/setting', {
-        templateUrl: '/views/default/pl/fe/site/sns/yx/setting.html?_=2',
-        controller: 'ctrlSet',
-        resolve: {
-            load: function($q) {
-                var defer = $q.defer();
-                loadJs('/views/default/pl/fe/site/sns/yx/setting.js', function() {
-                    defer.resolve();
-                });
-                return defer.promise;
-            }
-        }
-    }).when('/rest/pl/fe/site/sns/yx/text', {
-        templateUrl: '/views/default/pl/fe/site/sns/yx/text.html?_=2',
-        controller: 'ctrlText',
-        resolve: {
-            load: function($q) {
-                var defer = $q.defer();
-                loadJs('/views/default/pl/fe/site/sns/yx/text.js', function() {
-                    defer.resolve();
-                });
-                return defer.promise;
-            }
-        }
-    }).when('/rest/pl/fe/site/sns/yx/menu', {
-        templateUrl: '/views/default/pl/fe/site/sns/yx/menu.html?_=2',
-        controller: 'ctrlMenu',
-        resolve: {
-            load: function($q) {
-                var defer = $q.defer();
-                loadJs('/views/default/pl/fe/site/sns/yx/menu.js', function() {
-                    defer.resolve();
-                });
-                return defer.promise;
-            }
-        }
-    }).when('/rest/pl/fe/site/sns/yx/qrcode', {
-        templateUrl: '/views/default/pl/fe/site/sns/yx/qrcode.html?_=2',
-        controller: 'ctrlQrcode',
-        resolve: {
-            load: function($q) {
-                var defer = $q.defer();
-                loadJs('/views/default/pl/fe/site/sns/yx/qrcode.js', function() {
-                    defer.resolve();
-                });
-                return defer.promise;
-            }
-        }
-    }).when('/rest/pl/fe/site/sns/yx/other', {
-        templateUrl: '/views/default/pl/fe/site/sns/yx/other.html?_=2',
-        controller: 'ctrlOther',
-        resolve: {
-            load: function($q) {
-                var defer = $q.defer();
-                loadJs('/views/default/pl/fe/site/sns/yx/other.js', function() {
-                    defer.resolve();
-                });
-                return defer.promise;
-            }
-        }
-    }).when('/rest/pl/fe/site/sns/yx/relay', {
-        templateUrl: '/views/default/pl/fe/site/sns/yx/relay.html?_=2',
-        controller: 'ctrlRelay',
-        resolve: {
-            load: function($q) {
-                var defer = $q.defer();
-                loadJs('/views/default/pl/fe/site/sns/yx/relay.js', function() {
-                    defer.resolve();
-                });
-                return defer.promise;
-            }
-        }
-    }).when('/rest/pl/fe/site/sns/yx/page', {
-        templateUrl: '/views/default/pl/fe/site/sns/yx/page.html?_=2',
-        controller: 'ctrlPage',
-        resolve: {
-            load: function($q) {
-                var defer = $q.defer();
-                loadJs('/views/default/pl/fe/site/sns/yx/page.js', function() {
-                    defer.resolve();
-                });
-                return defer.promise;
-            }
-        }
-    }).otherwise({
-        templateUrl: '/views/default/pl/fe/site/sns/yx/setting.html?_=2',
-        controller: 'ctrlSet',
-        resolve: {
-            load: function($q) {
-                var defer = $q.defer();
-                loadJs('/views/default/pl/fe/site/sns/yx/setting.js', function() {
-                    defer.resolve();
-                });
-                return defer.promise;
-            }
-        }
+        http2.get('/rest/pl/fe/site/sns/yx/get?site=' + $scope.siteId, function(rsp) {
+            $scope.yx = rsp.data;
+        });
+    }]);
+    /***/
+    require(['domReady!'], function(document) {
+        angular.bootstrap(document, ["app"]);
     });
-}]);
-ngApp.controller('ctrlYx', ['$scope', '$location', 'http2', function($scope, $location, http2) {
-    $scope.subView = '';
-    $scope.siteId = $location.search().site;
-    $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
-        var subView = currentRoute.match(/([^\/]+)\?/);
-        if (subView) {
-            $scope.subView = subView[1];
-        } else {
-            $scope.subView = '';
-        }
-    });
-    http2.get('/rest/pl/fe/site/sns/yx/get?site=' + $scope.siteId, function(rsp) {
-        $scope.yx = rsp.data;
-    });
-}]);
+    /***/
+    return ngApp;
+});

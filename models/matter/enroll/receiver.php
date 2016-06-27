@@ -31,7 +31,7 @@ class receiver_model extends \TMS_MODEL {
 		$q = array(
 			$fields,
 			'xxt_enroll_receiver',
-			"siteid='$siteId' and aid='$aid'",
+			"aid='$aid'",
 		);
 
 		$receivers = $this->query_objs_ss($q);

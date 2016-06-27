@@ -1,5 +1,5 @@
-'use strict';
 define(['main'], function(ngApp) {
+	'use strict';
 	ngApp.provider.service('serNotice', ['$q', 'http2', function($q, http2) {
 		var _baseURL = '/rest/pl/fe/site/setting/notice',
 			_siteId, _baseQS;

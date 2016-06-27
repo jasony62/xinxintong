@@ -1,16 +1,16 @@
 <?php
-namespace pl\fe\site\sns\wx;
+namespace pl\be\sns\wx;
 
-require_once dirname(dirname(dirname(dirname(__FILE__)))) . '/base.php';
+require_once dirname(dirname(dirname(__FILE__))) . '/base.php';
 /**
  * 微信公众号
  */
-class qrcode extends \pl\fe\base {
+class qrcode extends \pl\be\base {
 	/**
 	 * get all text call.
 	 */
 	public function index_action() {
-		\TPL::output('/pl/fe/site/sns/wx/main');
+		\TPL::output('/pl/be/sns/wx/main');
 		exit;
 	}
 	/**

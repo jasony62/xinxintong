@@ -1,4 +1,5 @@
 <div class='row'>
+    <!-- right -->
     <div class='col-md-8'>
         <div class='tile'>
             <div class='form-group compact'>
@@ -75,7 +76,9 @@
             </div>
             <div class='help-block'>分组规则</div>
         </div>
-    </div>
+    </div>å
+    <!-- end right -->
+    <!-- left -->
     <div class='col-md-4'>
         <div class='tile'>
             <div class='form-group'>
@@ -102,11 +105,12 @@
             </div>
         </div>
     </div>
+    <!-- end left -->
     <!-- bottom nav -->
     <nav class="navbar navbar-default navbar-fixed-bottom">
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
-                <button class='btn btn-success' ng-click="run()">开始</button>
+                <button class='btn btn-success' ng-click="run()">开始分组</button>
                 <a href="/rest/pl/fe/matter/group/running?site={{siteId}}&id={{id}}">分组结果</a>
                 <a href="/rest/pl/fe/matter/group/player?site={{siteId}}&id={{id}}">分组用户</a>
             </form>

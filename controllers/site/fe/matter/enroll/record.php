@@ -248,13 +248,9 @@ class record extends base {
 				break;
 			case 'wx':
 				if ($wxProxy === null) {
-					$wxSiteId = $siteId;
+					$wxSiteId = $receiver->siteid;
 					$modelWx = $this->model('sns\wx');
 					$wxConfig = $modelWx->bySite($wxSiteId);
-					if ($wxConfig === false || $wxConfig->joined !== 'Y') {
-						$wxSiteId = 'platform';
-						$wxConfig = $modelWx->bySite($wxSiteId);
-					}
 					if ($wxConfig->joined === 'Y') {
 						$wxProxy = $this->model('sns\wx\proxy', $wxConfig);
 					} else {

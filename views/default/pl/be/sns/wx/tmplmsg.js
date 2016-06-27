@@ -66,9 +66,6 @@ define(['main'], function(ngApp) {
 				$scope.tmplmsgs = data;
 			});
 		};
-		$scope.doSearch();
-	}]);
-	ngApp.provider.controller('ctrlSetting', ['$scope', 'serTmplmsg', function($scope, serTmplmsg) {
 		$scope.update = function(n) {
 			if (!angular.equals($scope.editing, $scope.persisted)) {
 				var nv = {};
@@ -109,6 +106,7 @@ define(['main'], function(ngApp) {
 				params.splice(params.indexOf(removed), 1);
 			});
 		};
+		$scope.doSearch();
 	}]);
 	ngApp.provider.controller('sendCtrl', ['$rootScope', '$scope', 'http2', '$uibModal', function($rootScope, $scope, http2, $uibModal) {
 		$scope.matterTypes = [{

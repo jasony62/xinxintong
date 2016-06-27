@@ -4,12 +4,11 @@ define(['require'], function(require) {
     ngApp.config(['$locationProvider', '$provide', '$controllerProvider', '$routeProvider', function($lp, $provide, $cp, $rp) {
         var RouteParam = function(name) {
             var baseURL = '/views/default/pl/be/sns/wx/';
-            this.templateUrl = baseURL + name + '.html?=3';
+            this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
             this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
             this.resolve = {
                 load: function($q) {
                     var defer = $q.defer();
-                    console.log('xxx', baseURL);
                     require([baseURL + name + '.js'], function() {
                         defer.resolve();
                     });
@@ -36,7 +35,7 @@ define(['require'], function(require) {
         $scope.subView = '';
         $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)$/);
-            $scope.subView = subView ? subView[1] : '';
+            $scope.subView = subView[1] === 'wx' ? 'setting' : subView[1];
         });
         http2.get('/rest/pl/be/sns/wx/get', function(rsp) {
             $scope.wx = rsp.data;

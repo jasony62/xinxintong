@@ -1,14 +1,14 @@
 <?php
-namespace pl\be\site\sns\wx;
+namespace pl\be\sns\wx;
 
-require_once dirname(dirname(dirname(dirname(__FILE__)))) . '/base.php';
+require_once dirname(dirname(dirname(__FILE__))) . '/base.php';
 
 class MenuInvalidException extends \Exception {}
 
 /**
  * 易信公众号
  */
-class menu extends \pl\fe\base {
+class menu extends \pl\be\base {
 	/**
 	 *
 	 */

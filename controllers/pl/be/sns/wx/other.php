@@ -1,11 +1,11 @@
 <?php
-namespace pl\fe\site\sns\wx;
+namespace pl\be\sns\wx;
 
-require_once dirname(dirname(dirname(dirname(__FILE__)))) . '/base.php';
+require_once dirname(dirname(dirname(__FILE__))) . '/base.php';
 /**
  * 微信公众号
  */
-class other extends \pl\fe\base {
+class other extends \pl\be\base {
 	/**
 	 * get all text call.
 	 */

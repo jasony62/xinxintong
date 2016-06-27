@@ -129,7 +129,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			if (!$scope.memberSchemas || $scope.memberSchemas.length === 0) return;
 
 			var memberSchema = $scope.memberSchemas[0],
-				newSchema = schemaLib.newInput('member');
+				newSchema = schemaLib.newSchema('member');
 
 			newSchema.schema_id = memberSchema.id;
 			if (memberSchema.attr_name[0] === '0') {

@@ -1,23 +1,16 @@
-app = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
-app.config(['$controllerProvider', '$locationProvider', function($controllerProvider, $locationProvider) {
-	app.provider = {
+var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
+ngApp.config(['$controllerProvider', '$locationProvider', function($controllerProvider, $locationProvider) {
+	ngApp.provider = {
 		controller: $controllerProvider.register
 	};
 	$locationProvider.html5Mode(true);
 }]);
-app.controller('ctrlApp', ['$scope', '$location', 'http2', function($scope, $location, http2) {
+ngApp.controller('ctrlApp', ['$scope', '$location', 'http2', function($scope, $location, http2) {
 	$scope.id = $location.search().id;
 	$scope.siteId = $location.search().site;
 	$scope.back = function() {
 		history.back();
 	};
-	$scope.$on('$routeChangeSuccess', function(evt, nextRoute, lastRoute) {
-		if (nextRoute.loadedTemplateUrl.indexOf('/setting') !== -1) {
-			$scope.subView = 'setting';
-		} else if (nextRoute.loadedTemplateUrl.indexOf('/matter') !== -1) {
-			$scope.subView = 'matter';
-		}
-	});
 	http2.get('/rest/pl/fe/matter/mission/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
 		var mission = rsp.data;
 		mission.type = 'mission';
@@ -25,7 +18,7 @@ app.controller('ctrlApp', ['$scope', '$location', 'http2', function($scope, $loc
 		$scope.editing = mission;
 	});
 }]);
-app.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery', function($scope, http2, $uibModal, mediagallery) {
+ngApp.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery', function($scope, http2, $uibModal, mediagallery) {
 	var modifiedData = {};
 	$scope.modified = false;
 	window.onbeforeunload = function(e) {
@@ -44,6 +37,13 @@ app.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery', f
 			$scope.modified = false;
 			modifiedData = {};
 		});
+	};
+	$scope.remove = function() {
+		if (window.confirm('确定删除项目？')) {
+			http2.get('/rest/pl/fe/matter/mission/remove?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
+				history.back();
+			});
+		}
 	};
 	$scope.update = function(name) {
 		modifiedData[name] = $scope.editing[name];
@@ -107,7 +107,7 @@ app.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery', f
 		}
 	};
 }]);
-app.controller('ctrlPhase', ['$scope', 'http2', function($scope, http2) {
+ngApp.controller('ctrlPhase', ['$scope', 'http2', function($scope, http2) {
 	$scope.add = function() {
 		var data = {
 			title: '阶段' + ($scope.phases.length + 1)
@@ -158,7 +158,7 @@ app.controller('ctrlPhase', ['$scope', 'http2', function($scope, http2) {
 		$scope.phases = rsp.data;
 	});
 }]);
-app.controller('ctrlMatter', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
+ngApp.controller('ctrlMatter', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
 	var indicators = {
 		registration: {
 			title: '在线报名',

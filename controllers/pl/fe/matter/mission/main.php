@@ -74,4 +74,38 @@ class main extends \pl\fe\matter\base {
 
 		return new \ResponseData($matter);
 	}
+	/**
+	 * 删除任务
+	 */
+	public function remove_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelMis = $this->model('matter\mission');
+
+		$q = array(
+			'count(*)',
+			'xxt_mission_matter',
+			"siteid='$site' and mission_id='$id'",
+		);
+		$cnt = (int) $modelMis->query_val_ss($q);
+
+		if ($cnt > 0) {
+			/* 如果已经素材，就只打标记 */
+			$rst = $modelMis->update('xxt_mission', ['state' => 2], "siteid='$site' and id='$id'");
+			/* 记录操作日志 */
+			if ($rst) {
+				$mission = $modelMis->byId($id, 'id,title,summary,pic');
+				$mission->type = 'mission';
+				$this->model('log')->matterOp($site, $user, $mission, 'D');
+			}
+		} else {
+			/* 清除数据 */
+			$modelMis->delete('xxt_mission_phase', "siteid='$site' and mission_id='$id'");
+			$rst = $modelMis->delete('xxt_mission', "siteid='$site' and id='$id'");
+		}
+
+		return new \ResponseData($rst);
+	}
 }

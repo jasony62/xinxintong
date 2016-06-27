@@ -299,6 +299,7 @@ class log_model extends \TMS_MODEL {
 		$d['matter_title'] = $this->escape($matter->title);
 		!empty($matter->summary) && $d['matter_summary'] = $this->escape($matter->summary);
 		!empty($matter->pic) && $d['matter_pic'] = $matter->pic;
+		!empty($matter->scenario) && $d['matter_scenario'] = $matter->scenario;
 
 		$logid = $this->insert('xxt_log_matter_op', $d, true);
 

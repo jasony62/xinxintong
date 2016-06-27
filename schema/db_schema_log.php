@@ -269,6 +269,7 @@ $sql .= ",matter_type varchar(20) not null";
 $sql .= ",matter_title varchar(70) not null default ''";
 $sql .= ",matter_summary varchar(240) not null default ''";
 $sql .= ",matter_pic text";
+$sql .= ",matter_scenario varchar(255) not null default ''"; // 应用场景
 $sql .= ",last_op char(1) not null default 'Y'";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

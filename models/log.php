@@ -517,7 +517,7 @@ class log_model extends TMS_MODEL {
 	/**
 	 * 记录访问素材日志
 	 */
-	public function matterOp($siteId, $user, $matter, $op) {
+	public function matterOp($siteId, &$user, &$matter, $op) {
 		$current = time();
 		if ($op !== 'C') {
 			/*更新操作，需要将之前的操作设置为非最后操作*/
@@ -542,6 +542,7 @@ class log_model extends TMS_MODEL {
 		$d['matter_title'] = $this->escape($matter->title);
 		!empty($matter->summary) && $d['matter_summary'] = $this->escape($matter->summary);
 		!empty($matter->pic) && $d['matter_pic'] = $matter->pic;
+		!empty($matter->scenario) && $d['matter_scenario'] = $matter->scenario;
 
 		$logid = $this->insert('xxt_log_matter_op', $d, true);
 

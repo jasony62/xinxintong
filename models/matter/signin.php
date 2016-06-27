@@ -59,12 +59,12 @@ class signin_model extends app_base {
 	 * 返回签到活动列表
 	 */
 	public function &bySite($siteId, $page = 1, $size = 30, $mission = null) {
-		$result = array();
-		$q = array(
+		$result = ['apps' => null, 'total' => 0];
+		$q = [
 			'a.*',
 			'xxt_signin a',
 			"siteid='$siteId' and state<>0",
-		);
+		];
 		if (!empty($mission)) {
 			$q[2] .= " and exists(select 1 from xxt_mission_matter where mission_id='$mission' and matter_type='signin' and matter_id=a.id)";
 		}

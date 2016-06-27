@@ -57,9 +57,14 @@ class main extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
+		$result = ['apps' => null, 'total' => 0];
 		$model = $this->model();
-		$q = array('g.*', 'xxt_group g');
-		$q[2] = "siteid='$site' and state=1";
+		$q = [
+			'g.*',
+			'xxt_group g',
+			"siteid='$site' and state=1",
+		];
 		$q2['o'] = 'g.modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
@@ -68,9 +73,9 @@ class main extends \pl\fe\matter\base {
 			$q[0] = 'count(*)';
 			$total = (int) $model->query_val_ss($q);
 			$result['total'] = $total;
-			return new \ResponseData($result);
 		}
-		return new \ResponseData(false);
+
+		return new \ResponseData($result);
 	}
 	/**
 	 * 创建空的分组活动

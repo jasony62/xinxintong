@@ -40,8 +40,8 @@
             </ul>
         </div>
     </div>
-    <!--pages-->
-    <!--one page-->
+    <!-- end pages -->
+    <!-- one page-->
     <div class='col-md-12 page' ng-controller="ctrlPage">
         <div class='row'>
             <div class='col-md-3'>
@@ -60,21 +60,22 @@
                     <button class='btn btn-default' ng-click="newSchema('file')">上传文件</button>
                     <button class='btn btn-default' ng-click="newSchema('location')">上传位置</button>
                     <button class='btn btn-default' ng-click="newSchema('phase')">项目阶段</button>
-                    <button class='btn btn-default' ng-click="newMember()">自定义用户信息</button>
+                    <button class='btn btn-default' ng-click="newMember(ms)" ng-repeat="ms in memberSchemas"><span>自定义用户信息：</span><span>{{ms.title}}</span></button>
                 </div>
-                <!--create input wrap-->
-                <!--create button wrap-->
+                <!-- end create input wrap -->
+                <!-- create button wrap -->
                 <div class='tile'>
                     <div class='help-block'>在页面中添加操作</div>
                     <button class='btn btn-default' ng-click="newButton(btn)" ng-repeat="btn in buttons">{{btn.l}}</button>
                 </div>
-                <!--create button wrap-->
-                <!--embed inner matter-->
+                <!-- end create button wrap-->
+                <!-- embed inner matter -->
                 <div class='tile'>
                     <div class='help-block'>在页面中添加素材</div>
                     <button class='btn btn-default' ng-click="embedMatter()">添加素材</button>
                 </div>
-                <!--embed inner matter-->
+                <!-- end embed inner matter-->
+                <!-- toggle schema in pages -->
                 <div class='tile' ng-if="ep.type==='I'">
                     <div class='help-block'>活动中所有登记项</div>
                     <div class='list-group' ng-controller="ctrlAppSchemas4Input">
@@ -98,10 +99,11 @@
                         </div>
                     </div>
                 </div>
-                 <div class='tile' ng-if="ep.type==='L'">
+                <div class='tile' ng-if="ep.type==='L'">
                     <button class='btn btn-default' ng-click="newList('records')">登记项列表</button>
                     <button class='btn btn-default' ng-click="newList('rounds')" ng-if="app.scenarioConfig.can_rounds==='Y'">添加轮次列表</button>
                 </div>
+                <!-- end toggle schema in pages -->
             </div>
             <!--tinymce editor-->
             <div class='col-md-6'>
@@ -129,18 +131,18 @@
                     </div>
                 </div>
             </div>
-            <!--tinymce editor-->
+            <!-- end tinymce editor -->
+            <!-- wrap editor -->
             <div class='col-md-3'>
-                <!--wrap editor-->
                 <div class='tile' ng-if="activeWrap">
                     <div class='form-group' ng-include="wrapEditorHtml()">
                     </div>
                 </div>
-                <!--wrap editor-->
             </div>
+            <!-- end wrap editor-->
         </div>
     </div>
-    <!--page-->
+    <!-- end one page -->
     <!-- bottom navbar-->
     <nav class="navbar navbar-default navbar-fixed-bottom">
         <div class="container-fluid" style='text-align:center'>

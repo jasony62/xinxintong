@@ -222,10 +222,10 @@ define([], function() {
     InputWrap.prototype.modify = function(wrap, dataWrap) {
         var $wrap, $label, $input, config = dataWrap.config,
             schema = dataWrap.schema;
-        $wrap = $(_editor.getBody()).find("[schema='" + schema.id + "']");
+        $wrap = $(wrap);
         $label = $wrap.find('label');
         $label.html(schema.title);
-        if (/name|email|mobile|shorttext|longtext/.test(schema.type)) {
+        if (/name|email|mobile|shorttext|longtext|member/.test(schema.type)) {
             $input = $wrap.find('input,select,textarea');
             if (config.showname === 'label') {
                 $label.removeClass('sr-only');

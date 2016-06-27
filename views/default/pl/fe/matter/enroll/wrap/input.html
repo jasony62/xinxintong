@@ -1,4 +1,13 @@
 <div ng-controller="ctrlInputWrap">
+    <div class="form-group" ng-if="activeWrap.schema.type==='member'">
+        <select class='form-control' disabled ng-model='selectedMemberSchema.schema' ng-options='ms.title for ms in memberSchemas'>
+            <option></option>
+        </select>
+        <select class='form-control' disabled ng-model='selectedMemberSchema.attr' ng-options='a.label for a in selectedMemberSchema.attrs'>
+            <option></option>
+        </select>
+        <div class="help-block">自定义用户信息</div>
+    </div>
     <div class="radio" ng-if="['single','multiple','phase'].indexOf(activeWrap.schema.type)===-1">
         <label><input type='radio' value='placeholder' ng-model='activeWrap.config.showname' ng-change="updWrap(config,'showname')">输入框内</label>
         <label><input type='radio' value='label' ng-model='activeWrap.config.showname' ng-change="updWrap(config,'showname')">输入框前</label>
@@ -10,15 +19,6 @@
     <div class="form-group" ng-if="(['single','phase'].indexOf(activeWrap.schema.type)!==-1&&activeWrap.config.component==='R')||activeWrap.schema.type==='multiple'">
         <label class="radio-inline"><input type='radio' name='align' value='V' ng-model='activeWrap.config.align' ng-change="updWrap(config,'align')">垂直</label>
         <label class="radio-inline"><input type='radio' name='align' value='H' ng-model='activeWrap.config.align' ng-change="updWrap(config,'align')">水平</label>
-    </div>
-    <div class="form-group" ng-if="activeWrap.schema.type==='member'">
-        <select class='form-control' ng-model='selectedMemberSchema.schema' ng-options='ms.title for ms in memberSchemas' ng-change='shiftMemberSchema()'>
-            <option></option>
-        </select>
-        <select class='form-control' ng-model='selectedMemberSchema.attr' ng-options='a.label for a in selectedMemberSchema.attrs' ng-change="shiftMemberSchemaAttr()">
-            <option></option>
-        </select>
-        <div class="help-block">自定义用户信息</div>
     </div>
     <div class="form-group">
         <input type='text' class='form-control' placeholder="标题" ng-model='activeWrap.schema.title' required ng-change="updWrap(schema,'title')">

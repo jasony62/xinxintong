@@ -10,7 +10,7 @@ class other extends \pl\be\base {
 	 * get all text call.
 	 */
 	public function index_action($site) {
-		\TPL::output('/pl/fe/site/sns/wx/main');
+		\TPL::output('/pl/be/sns/wx/main');
 		exit;
 	}
 	/**

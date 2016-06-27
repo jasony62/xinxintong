@@ -13,7 +13,7 @@ class menu extends \pl\be\base {
 	 *
 	 */
 	public function index_action() {
-		\TPL::output('/pl/fe/site/sns/wx/main');
+		\TPL::output('/pl/be/sns/wx/main');
 		exit;
 	}
 	/**

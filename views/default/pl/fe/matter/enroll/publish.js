@@ -54,7 +54,7 @@ define(['frame'], function(ngApp) {
 					(function() {
 						var fnCheckQrcode, url2;
 						url2 = '/rest/pl/fe/site/sns/' + snsName + '/qrcode/get';
-						url2 += '?site=' + $scope.siteId;
+						url2 += '?site=' + qrcode.siteid;
 						url2 += '&id=' + rsp.data.id;
 						fnCheckQrcode = $interval(function() {
 							http2.get(url2, function(rsp) {
@@ -63,10 +63,7 @@ define(['frame'], function(ngApp) {
 									eleQrcode.trigger('hide');
 									$scope.qrcodeShown = false;
 									(function() {
-										var fnCheckReceiver, url3;
-										url3 = '/rest/pl/fe/site/sns/' + snsName + '/qrcode/get';
-										url3 += '?site=' + $scope.siteId;
-										url3 += '&id=' + rsp.data.id;
+										var fnCheckReceiver;
 										fnCheckReceiver = $interval(function() {
 											http2.get('/rest/pl/fe/matter/enroll/receiver/afterJoin?site=' + $scope.siteId + '&app=' + $scope.id + '&timestamp=' + qrcode.create_at, function(rsp) {
 												if (rsp.data.length) {

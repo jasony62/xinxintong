@@ -74,8 +74,6 @@ class main extends \pl\fe\matter\base {
 	}
 	/**
 	 * 返回登记活动列表
-	 *
-	 * $src 是否来源于父账号，=p
 	 */
 	public function list_action($site, $page = 1, $size = 30, $mission = null, $scenario = null) {
 		if (false === ($user = $this->accountUser())) {
@@ -98,14 +96,14 @@ class main extends \pl\fe\matter\base {
 		$q2['o'] = 'a.modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
-		if ($a = $model->query_objs_ss($q, $q2)) {
-			$result['apps'] = $a;
+		if ($apps = $model->query_objs_ss($q, $q2)) {
+			$result['apps'] = $apps;
 			$q[0] = 'count(*)';
 			$total = (int) $model->query_val_ss($q);
 			$result['total'] = $total;
-			return new \ResponseData($result);
 		}
-		return new \ResponseData([]);
+
+		return new \ResponseData($result);
 	}
 	/**
 	 * 创建一个空的登记活动

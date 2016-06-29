@@ -137,6 +137,7 @@
                 <div class='tile' ng-if="activeWrap">
                     <div class='form-group' ng-include="wrapEditorHtml()">
                     </div>
+                    <button class='btn btn-block btn-danger' ng-click="removeSchema(activeWrap.schema)">删除登记项</button>
                 </div>
             </div>
             <!-- end wrap editor-->

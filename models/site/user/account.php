@@ -52,7 +52,7 @@ class account_model extends \TMS_MODEL {
 	 */
 	public function &blank($siteid, $persisted = false, $options = array()) {
 		/*new accouont key*/
-		$uid = uniqid();
+		$uid = isset($options['uid']) ? $options['uid'] : uniqid();
 		/*new account*/
 		$current = time();
 		$account = new \stdClass;

@@ -4,10 +4,9 @@
 			登记项
 		</div>
 		<div class="panel-body">
-            <div class='list-group-item' ng-repeat='r in dataSchemas'>
+            <div class='list-group-item' ng-repeat='r in ep.data_schemas'>
                 <div class="form-group">
                     <span>{{r.schema.title}}</span>
-                    <button class='btn btn-default btn-xs pull-right' ng-click='removeSchema(dataSchemas.record.schemas,s)'><span class='glyphicon glyphicon-remove'></span></button>
                 </div>
                 <div class="form-group">
                     <div class='checkbox'>
@@ -23,7 +22,7 @@
 			登记清单
 		</div>
 		<div class="panel-body">
-            <div class='list-group-item' ng-repeat='l in dataSchemas'>
+            <div class='list-group-item' ng-repeat='l in ep.data_schemas'>
                 <div class="form-group">
                     <div class='radio' style='margin-top:0'>
                         <label><input type='radio' value='U' name='scope' ng-model='l.dataScope'>当前用户</label>
@@ -43,7 +42,6 @@
                     <ul class='list-group' style='overflow-y:auto;max-height:245px;margin-bottom:0'>
                         <li class='list-group-item slim' ng-repeat='s in l.schemas'>
                             <span>{{s.title}}</span>
-                            <button class='btn btn-default btn-xs pull-right' ng-click='removeSchema(l.schemas,s)'><span class='glyphicon glyphicon-remove'></span></button>
                         </li>
                     </ul>
                 </div>
@@ -51,9 +49,8 @@
 		</div>
 	</div>
     <div class='list-group form-group'>
-        <div class='list-group-item' ng-repeat="s in actSchemas">
+        <div class='list-group-item' ng-repeat="s in ep.act_schemas">
             <span ng-bind='s.label'></span>
-            <button class='btn btn-default btn-xs pull-right' ng-click='removeAct(s)'><span class='glyphicon glyphicon-remove'></span></button>
         </div>
     </div>
 </div>

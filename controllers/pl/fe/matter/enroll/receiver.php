@@ -55,7 +55,7 @@ class receiver extends \pl\fe\matter\base {
 
 		$rst = $this->model()->delete(
 			'xxt_enroll_receiver',
-			"siteid='$site' and aid='$app' and userid='$receiver'"
+			"aid='$app' and userid='$receiver'"
 		);
 
 		return new \ResponseData($rst);

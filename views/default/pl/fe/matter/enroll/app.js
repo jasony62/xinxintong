@@ -157,7 +157,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 						ea = memberSchema.extattr[i];
 						if (mapOfMemberSchemas['member.' + ea.id] === undefined) {
 							newSchema.title = ea.label;
-							newSchema.id = 'member.' + ea.id;
+							newSchema.id = 'member.extattr.' + ea.id;
 							break;
 						}
 					}
@@ -192,11 +192,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				$scope.$emit('xxt.matter.enroll.page.data_schemas.requestAdd', schema);
 			} else {
 				$scope.$emit('xxt.matter.enroll.page.data_schemas.requestRemove', schema);
-			}
-		};
-		$scope.remove = function(removedSchema) {
-			if (window.confirm('确定删除所有页面上的登记项？')) {
-				$scope.$emit('xxt.matter.enroll.app.data_schemas.requestRemove', removedSchema);
 			}
 		};
 		$scope.$on('xxt.matter.enroll.page.data_schemas.add', function(event, newSchema) {
@@ -601,19 +596,21 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 
 			return deferred.promise;
 		};
-		$scope.$on('xxt.matter.enroll.app.data_schemas.requestRemove', function(event, removedSchema) {
-			removeSchema(removedSchema).then(function() {
-				/*更新其它页面。*/
-				angular.forEach($scope.app.pages, function(page) {
-					if (page !== $scope.ep) {
-						page.removeBySchema(removedSchema);
-						$scope.updPage(page, ['data_schemas', 'html']);
-					}
+		$scope.removeSchema = function(removedSchema) {
+			if (window.confirm('确定删除所有页面上的登记项？')) {
+				removeSchema(removedSchema).then(function() {
+					/*更新其它页面。*/
+					/*angular.forEach($scope.app.pages, function(page) {
+						if (page !== $scope.ep) {
+							page.removeBySchema(removedSchema);
+							$scope.updPage(page, ['data_schemas', 'html']);
+						}
+					});*/
+					/* 通知应用删除登记项 */
+					$scope.$broadcast('xxt.matter.enroll.page.data_schemas.removed', removedSchema, 'app');
 				});
-				/* 通知应用删除登记项 */
-				$scope.$broadcast('xxt.matter.enroll.page.data_schemas.removed', removedSchema, 'app');
-			});
-		});
+			}
+		};
 		$scope.$on('xxt.matter.enroll.page.data_schemas.requestRemove', function(event, removedSchema) {
 			removeSchema(removedSchema).then(function() {
 				$scope.$broadcast('xxt.matter.enroll.page.data_schemas.removed', removedSchema, 'page');

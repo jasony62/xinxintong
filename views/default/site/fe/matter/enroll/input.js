@@ -301,6 +301,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                     var member2, eles;
                     if (user && member && member.schema_id && user.members) {
                         if (member2 = user.members[member.schema_id]) {
+                            angular.isString(member2.extattr) && (member2.extattr = JSON.parse(member2.extattr));
                             eles = document.querySelectorAll("[ng-model^='data.member']");
                             angular.forEach(eles, function(ele) {
                                 var attr;

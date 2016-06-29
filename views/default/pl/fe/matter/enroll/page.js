@@ -70,7 +70,16 @@ define(['frame'], function(ngApp) {
         });
     }]);
     ngApp.provider.controller('ctrlPageSchema', ['$scope', function($scope) {}]);
-    ngApp.provider.controller('ctrlInputSchema', ['$scope', function($scope) {}]);
+    ngApp.provider.controller('ctrlInputSchema', ['$scope', function($scope) {
+        $scope.removeSchema = function(schema) {
+            $scope.ep.data_schemas.splice($scope.ep.data_schemas.indexOf(schema), 1);
+            $scope.updPage($scope.ep, ['data_schemas']);
+        };
+        $scope.removeAct = function(action) {
+            $scope.ep.act_schemas.splice($scope.ep.act_schemas.indexOf(action), 1);
+            $scope.updPage($scope.ep, ['act_schemas']);
+        };
+    }]);
     ngApp.provider.controller('ctrlViewSchema', ['$scope', function($scope) {
         $scope.$watch('ep', function(ep) {
             if (!ep) return;

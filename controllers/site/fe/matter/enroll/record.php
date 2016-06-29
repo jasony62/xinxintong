@@ -191,6 +191,13 @@ class record extends base {
 			$rst = $modelMem->modify($siteId, $schema, $memberId, $member);
 		} else {
 			$rst = $modelMem->createByApp($siteId, $schema, $user->uid, $member);
+			/**
+			 * 将用户自定义信息和当前用户进行绑定
+			 */
+			if ($rst[0] === true) {
+				$member = $rst[1];
+				$this->model('site\fe\way')->bindMember($siteId, $member);
+			}
 		}
 		$member->schema_id = $schemaId;
 

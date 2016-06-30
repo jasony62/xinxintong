@@ -531,6 +531,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			});
 		});
 		$scope.$on('tinymce.wrap.select', function(event, domWrap) {
+			console.log('xxxxxxxx', domWrap);
 			$scope.$apply(function() {
 				$scope.activeWrap = $scope.ep.selectWrap(domWrap);
 			});
@@ -599,13 +600,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		$scope.removeSchema = function(removedSchema) {
 			if (window.confirm('确定删除所有页面上的登记项？')) {
 				removeSchema(removedSchema).then(function() {
-					/*更新其它页面。*/
-					/*angular.forEach($scope.app.pages, function(page) {
-						if (page !== $scope.ep) {
-							page.removeBySchema(removedSchema);
-							$scope.updPage(page, ['data_schemas', 'html']);
-						}
-					});*/
 					/* 通知应用删除登记项 */
 					$scope.$broadcast('xxt.matter.enroll.page.data_schemas.removed', removedSchema, 'app');
 				});

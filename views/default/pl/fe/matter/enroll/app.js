@@ -525,17 +525,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		$scope.setActiveWrap = function(domWrap) {
 			$scope.activeWrap = $scope.ep.setActiveWrap(domWrap);
 		};
-		$scope.$on('tinymce.wrap.add', function(event, domWrap) {
-			$scope.$apply(function() {
-				$scope.activeWrap = $scope.ep.selectWrap(domWrap);
-			});
-		});
-		$scope.$on('tinymce.wrap.select', function(event, domWrap) {
-			console.log('xxxxxxxx', domWrap);
-			$scope.$apply(function() {
-				$scope.activeWrap = $scope.ep.selectWrap(domWrap);
-			});
-		});
 		$scope.wrapEditorHtml = function() {
 			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=20';
 			return url;
@@ -672,6 +661,16 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		$scope.onPageChange = function() {
 			$scope.ep.$$modified = true;
 		};
+		$scope.$on('tinymce.wrap.add', function(event, domWrap) {
+			$scope.$apply(function() {
+				$scope.activeWrap = $scope.ep.selectWrap(domWrap);
+			});
+		});
+		$scope.$on('tinymce.wrap.select', function(event, domWrap) {
+			$scope.$apply(function() {
+				$scope.activeWrap = $scope.ep.selectWrap(domWrap);
+			});
+		});
 		$scope.$on('tinymce.content.editing', function(event, node) {
 			var domNodeWrap = $(node).parents('[wrap]');
 			if (domNodeWrap.length === 1) {

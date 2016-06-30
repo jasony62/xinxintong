@@ -525,16 +525,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		$scope.setActiveWrap = function(domWrap) {
 			$scope.activeWrap = $scope.ep.setActiveWrap(domWrap);
 		};
-		$scope.$on('tinymce.wrap.add', function(event, domWrap) {
-			$scope.$apply(function() {
-				$scope.activeWrap = $scope.ep.selectWrap(domWrap);
-			});
-		});
-		$scope.$on('tinymce.wrap.select', function(event, domWrap) {
-			$scope.$apply(function() {
-				$scope.activeWrap = $scope.ep.selectWrap(domWrap);
-			});
-		});
 		$scope.wrapEditorHtml = function() {
 			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=20';
 			return url;
@@ -599,13 +589,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		$scope.removeSchema = function(removedSchema) {
 			if (window.confirm('确定删除所有页面上的登记项？')) {
 				removeSchema(removedSchema).then(function() {
-					/*更新其它页面。*/
-					/*angular.forEach($scope.app.pages, function(page) {
-						if (page !== $scope.ep) {
-							page.removeBySchema(removedSchema);
-							$scope.updPage(page, ['data_schemas', 'html']);
-						}
-					});*/
 					/* 通知应用删除登记项 */
 					$scope.$broadcast('xxt.matter.enroll.page.data_schemas.removed', removedSchema, 'app');
 				});
@@ -678,6 +661,16 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		$scope.onPageChange = function() {
 			$scope.ep.$$modified = true;
 		};
+		$scope.$on('tinymce.wrap.add', function(event, domWrap) {
+			$scope.$apply(function() {
+				$scope.activeWrap = $scope.ep.selectWrap(domWrap);
+			});
+		});
+		$scope.$on('tinymce.wrap.select', function(event, domWrap) {
+			$scope.$apply(function() {
+				$scope.activeWrap = $scope.ep.selectWrap(domWrap);
+			});
+		});
 		$scope.$on('tinymce.content.editing', function(event, node) {
 			var domNodeWrap = $(node).parents('[wrap]');
 			if (domNodeWrap.length === 1) {

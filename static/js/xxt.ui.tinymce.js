@@ -24,7 +24,7 @@ directive('tinymce', function($timeout) {
                 statusbar: false,
                 plugins: ['save textcolor code table paste fullscreen visualblocks'],
                 toolbar: 'fontsizeselect styleselect forecolor backcolor bullist numlist outdent indent table multipleimage',
-                content_css: '/static/css/bootstrap.min.css,/static/css/tinymce.css?v=' + (new Date()).getTime(),
+                content_css: '/static/css/bootstrap.min.css,/static/css/tinymce.css?v=' + (new Date() * 1),
                 forced_root_block: 'div',
                 height: scope.height ? scope.height : 300,
                 valid_elements: "*[*]",
@@ -36,30 +36,15 @@ directive('tinymce', function($timeout) {
                 },
                 setup: function(editor) {
                     var _lastContent;
-                    editor.on('click', function(e) {
-                        var wrap;
-                        wrap = e.target;
-                        if (wrap.tagName !== 'HTML') {
-                            if (!wrap.hasAttribute('wrap') && wrap !== editor.getBody()) {
-                                while (wrap.parentNode !== editor.getBody()) {
-                                    if (wrap.hasAttribute('wrap') || wrap.parentNode === null) break;
-                                    wrap = wrap.parentNode;
-                                }
-                            }
-                            scope.$emit('tinymce.wrap.select', wrap);
-                        } else {
-                            scope.$emit('tinymce.wrap.select', editor.getBody());
-                        }
-                    });
                     editor.on('keydown', function(evt) {
-                        _lastContent = editor.selection.getNode().innerHTML;
+                        var selection = editor.selection,
+                            _lastContent = selection.getNode().innerHTML;
                         if (evt.keyCode == 13) {
                             /**
                              * 检查组件元素，如果是，在结尾回车时不进行元素的复制，而是添加空行
                              */
-                            var dom, wrap, selection;
+                            var dom, wrap;
                             dom = editor.dom;
-                            selection = editor.selection;
                             if (selection && selection.getNode()) {
                                 wrap = selection.getNode();
                                 if (wrap !== editor.getBody()) {
@@ -79,12 +64,31 @@ directive('tinymce', function($timeout) {
                                     }
                                 }
                             }
+                        } else {
+                            if (selection.getNode().hasAttribute('wrap') && selection.getNode().getAttribute('wrap') !== 'text') {
+                                /*
+                                 * wrap不允许直接被编辑
+                                 */
+                                evt.preventDefault();
+                                evt.stopPropagation();
+                            }
                         }
                     });
                     editor.on('keyup', function(evt) {
                         var content = editor.selection.getNode().innerHTML;
                         if (_lastContent !== content) {
                             scope.$emit('tinymce.content.editing', editor.selection.getNode());
+                        }
+                    });
+                    editor.on('NodeChange', function(e) {
+                        var wrap;
+                        if (e.selectionChange) {
+                            wrap = e.element;
+                            while (wrap.parentNode !== editor.getBody()) {
+                                if (wrap.hasAttribute('wrap') || wrap.parentNode === null) break;
+                                wrap = wrap.parentNode;
+                            }
+                            scope.$emit('tinymce.wrap.select', wrap);
                         }
                     });
                     editor.on('change', function(e) {

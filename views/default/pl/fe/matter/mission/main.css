@@ -3,13 +3,14 @@ body{background:#f8f8f8;position:relative;overflow:hidden;display:flex;flex-dire
 .site.navbar-nav{position:absolute;left:50%;margin-left:-208px;float:none;}
 .site.navbar-nav .active:after{content:' ';position:absolute;left:0;right:0;bottom:-1px;height:3px;background:red;}
 .container{flex:1.0;overflow:hidden;position:relative;display:flex;padding:0;}
-#viewSetting,#viewMatter{flex:1.0;display:flex;flex-direction:column;border:1px solid #ddd;border-radius:4px;padding:15px 0 0 0;background:#fff;}
+#viewSetting,#viewMatter{flex:1.0;display:flex;flex-direction:column;border:1px solid #ddd;border-radius:4px;padding:0 0 0 0;background:#fff;}
 #viewSetting{margin-right:8px;}
 #viewMatter{margin-left:8px;}
 
 /*setting*/
 #viewSetting .attrs{flex:1.0;overflow-y:auto;overflow-x:hidden;padding-left:15px;padding-right:15px;}
-#viewSetting .navbar{margin:0 -1px;}
+#viewSetting .navbar.tms-top{margin:-1px -1px 0;}
+#viewSetting .navbar.tms-bottom{margin:0 -1px;}
 #viewSetting .phases{phase}
 #viewSetting .phases .phase{counter-increment:phase;}
 #viewSetting .list-group-item.phase:before{content:counter(phase);background:#eee;position:absolute;top:0;left:0;width:32px;height:32px;line-height:32px;text-align:center;}

@@ -72,6 +72,32 @@ class mission_model extends app_base {
 		return $result;
 	}
 	/**
+	 *
+	 */
+	public function &byAcl(&$user, $options = array()) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$limit = isset($options['limit']) ? $options['limit'] : (object) array('page' => 1, 'size' => 20);
+		$q = array(
+			$fields,
+			'xxt_mission_acl',
+			"coworker='{$user->id}'",
+		);
+		$q2 = array(
+			'o' => 'invite_at desc',
+			'r' => array('o' => ($limit->page - 1) * $limit->size, 'l' => $limit->size),
+		);
+
+		if ($missions = $this->query_objs_ss($q, $q2)) {
+			$q[0] = 'count(*)';
+			$total = (int) $this->query_val_ss($q);
+			$result = array('missions' => $missions, 'total' => $total);
+		} else {
+			$result = array('missions' => $missions, 'total' => 0);
+		}
+
+		return $result;
+	}
+	/**
 	 * 在任务中添加素材
 	 */
 	public function addMatter($user, $siteId, $missionId, $matter) {

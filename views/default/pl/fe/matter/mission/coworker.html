@@ -1,0 +1,17 @@
+<div ng-controller="ctrlCoworker">
+    <div class='form-group'>
+        <div class='help-block'>合作人的用户账号</div>
+        <div class='input-group'>
+            <input type="text" class="form-control" ng-model='label'>
+            <span class='input-group-btn'>
+                <button class='btn btn-primary' ng-click='add()' ng-disabled="!label||!label.length"><span class='glyphicon glyphicon-plus'></span></button>
+            </span>
+        </div>
+    </div>
+    <div class='list-group'>
+        <a href='javascript:void(0)' class='list-group-item' ng-repeat="c in coworkers" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
+            <span>{{c.coworker_label}}</span>
+            <button class='close' ng-if="entered" ng-click="remove(c)">&times;</button>
+        </a>
+    </div>
+</div>

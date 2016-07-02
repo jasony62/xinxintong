@@ -516,6 +516,8 @@ class log_model extends TMS_MODEL {
 	}
 	/**
 	 * 记录访问素材日志
+	 *
+	 * @param string $siteId
 	 */
 	public function matterOp($siteId, &$user, &$matter, $op) {
 		$current = time();

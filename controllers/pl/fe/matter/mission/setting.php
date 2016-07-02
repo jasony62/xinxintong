@@ -32,11 +32,13 @@ class setting extends \pl\fe\matter\base {
 		$nv['modify_at'] = time();
 		/*update*/
 		$rst = $this->model()->update('xxt_mission', $nv, "id='$id'");
-		/*记录操作日志*/
 		if ($rst) {
-			$mission = $this->model('mission')->byId($id, 'id,title,summary,pic');
+			/*记录操作日志*/
+			$mission = $this->model('matter\mission')->byId($id, 'id,title,summary,pic');
 			$mission->type = 'mission';
 			$this->model('log')->matterOp($site, $user, $mission, 'U');
+			/*更新acl*/
+			$mission = $this->model('matter\mission\acl')->updateMission($mission);
 		}
 
 		return new \ResponseData($rst);

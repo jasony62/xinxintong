@@ -17,8 +17,7 @@ class admin extends \pl\fe\base {
 	 * 站点管理员
 	 */
 	public function list_action($site) {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -40,8 +39,7 @@ class admin extends \pl\fe\base {
 	 * 添加站点管理员
 	 */
 	public function add_action($site, $authedid = null, $authapp = '', $autoreg = 'N') {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -89,8 +87,7 @@ class admin extends \pl\fe\base {
 	 * 删除站点管理员
 	 */
 	public function remove_action($site, $uid) {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 

@@ -71,8 +71,19 @@ class main extends \pl\fe\matter\base {
 		$matter = (object) $mission;
 		$matter->type = 'mission';
 		$this->model('log')->matterOp($site->id, $user, $matter, 'C');
-		/*加入ACL*/
-		$this->model('matter\mission\acl')->add($user, $matter, $user);
+		/**
+		 * 建立缺省的ACL
+		 * @todo 是否应该挪到消息队列中实现
+		 */
+		$modelAcl = $this->model('matter\mission\acl');
+		/*任务的创建人加入ACL*/
+		$coworker = new \stdClass;
+		$coworker->id = $user->id;
+		$coworker->label = $user->name;
+		$modelAcl->add($user, $matter, $coworker, 'O');
+		/*站点的系统管理员加入ACL*/
+		$modelAcl->addSiteAdmin($site->id, $user, null, $matter);
+
 		/*返回结果*/
 		$mission = $this->model('matter\mission')->byId($mission['id']);
 
@@ -89,12 +100,17 @@ class main extends \pl\fe\matter\base {
 
 		$modelMis = $this->model('matter\mission');
 		$mission = $modelMis->byId($id, 'id,title,summary,pic,creater');
-		/**
-		 * 从acl中移除当前用户
-		 */
-		$rst = $this->model('matter\mission\acl')->removeCoworker($mission, $user);
 
-		if ($mission->creater === $user->id) {
+		$modelAcl = $this->model('matter\mission\acl');
+		$acl = $modelAcl->byCoworker($mission->id, $user->id);
+
+		if (in_array($acl->coworker_role, array('O', 'A'))) {
+			/* 清空任务的ACL */
+			$modelAcl->removeMission($mission);
+			/* 记录操作日志 */
+			$mission->type = 'mission';
+			$this->model('log')->matterOp($site, $user, $mission, 'D');
+			/* 删除数据 */
 			$q = array(
 				'count(*)',
 				'xxt_mission_matter',
@@ -105,16 +121,16 @@ class main extends \pl\fe\matter\base {
 			if ($cnt > 0) {
 				/* 如果已经素材，就只打标记 */
 				$rst = $modelMis->update('xxt_mission', ['state' => 2], "siteid='$site' and id='$id'");
-				/* 记录操作日志 */
-				if ($rst) {
-					$mission->type = 'mission';
-					$this->model('log')->matterOp($site, $user, $mission, 'D');
-				}
 			} else {
 				/* 清除数据 */
 				$modelMis->delete('xxt_mission_phase', "siteid='$site' and mission_id='$id'");
 				$rst = $modelMis->delete('xxt_mission', "siteid='$site' and id='$id'");
 			}
+		} else {
+			/* 从访问列表中移除当前用户 */
+			$coworker = new \stdClass;
+			$coworker->id = $user->id;
+			$modelAcl->removeCoworker($mission, $coworker);
 		}
 
 		return new \ResponseData($rst);

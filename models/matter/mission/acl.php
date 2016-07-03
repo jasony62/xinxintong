@@ -47,7 +47,7 @@ class acl_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function &add(&$inviter, &$mission, &$coworker) {
+	public function &add(&$inviter, &$mission, &$coworker, $role = 'C') {
 		$current = time();
 		$acl = new \stdClass;
 		$acl->siteid = $mission->siteid;
@@ -61,13 +61,48 @@ class acl_model extends \TMS_MODEL {
 		$acl->inviter_label = $inviter->name;
 		$acl->invite_at = $current;
 		$acl->coworker = $coworker->id;
-		$acl->coworker_label = $coworker->name;
+		$acl->coworker_label = $coworker->label;
+		$acl->coworker_role = $role;
 		$acl->join_at = $current;
 		$acl->state = $mission->state;
 
 		$acl->id = $this->insert('xxt_mission_acl', $acl, true);
 
 		return $acl;
+	}
+	/**
+	 * 给站点的管理员添加权限
+	 */
+	public function addSiteAdmin($siteId, &$inviter, $coworkers = null, $missions = null) {
+		if ($coworkers === null) {
+			$coworkers = [];
+			$modelAdm = \TMS_APP::M('site\admin');
+			$admins = $modelAdm->bySite($siteId);
+			foreach ($admins as $admin) {
+				$coworker = new \stdClass;
+				$coworker->id = $admin->uid;
+				$coworker->label = $admin->ulabel;
+				$coworkers[] = $coworker;
+			}
+		} else {
+			is_object($coworkers) && $coworkers = [$coworkers];
+		}
+
+		if ($missions === null) {
+			$modelMis = \TMS_APP::M('matter\mission');
+			$missions = $modelMis->bySite($siteId, ['limit' => false]);
+			$missions = $missions['missions'];
+		} else {
+			is_object($missions) && $missions = [$missions];
+		}
+		/*加入ACL*/
+		foreach ($coworkers as $coworker) {
+			foreach ($missions as $mission) {
+				$this->add($inviter, $mission, $coworker, 'A');
+			}
+		}
+
+		return true;
 	}
 	/**
 	 *
@@ -92,7 +127,29 @@ class acl_model extends \TMS_MODEL {
 	public function removeCoworker(&$mission, &$coworker) {
 		$rst = $this->delete(
 			'xxt_mission_acl',
-			"mission_id='{$mission->id}' and coworker='{$coworker->uid}'"
+			"mission_id='{$mission->id}' and coworker='{$coworker->id}'"
+		);
+
+		return $rst;
+	}
+	/**
+	 *
+	 */
+	public function removeMission(&$mission) {
+		$rst = $this->delete(
+			'xxt_mission_acl',
+			"mission_id='{$mission->id}'"
+		);
+
+		return $rst;
+	}
+	/**
+	 * 删除站点管理员
+	 */
+	public function removeSiteAdmin($siteId, $coworker) {
+		$rst = $this->delete(
+			'xxt_mission_acl',
+			"siteid='{$siteId}' and coworker='{$coworker->id}' and coworker_role='A'"
 		);
 
 		return $rst;

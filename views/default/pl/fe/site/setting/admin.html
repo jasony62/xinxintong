@@ -1,18 +1,18 @@
 <div class='col-md-4' ng-controller="ctrlAdmin">
     <div class='form-group'>
         <div class='input-group'>
-            <input type="text" class="form-control" placeholder='请输入用户的账号' ng-model='authedid'>
+            <input type="text" class="form-control" placeholder='请输入用户的账号' ng-model='ulabel'>
             <span class='input-group-btn'>
-                <button class='btn btn-primary' ng-click='add()' ng-disabled="!authedid||!authedid.length">
+                <button class='btn btn-primary' ng-click='add()' ng-disabled="!ulabel||!ulabel.length">
                 <span class='glyphicon glyphicon-plus'></span>
                 </button>
             </span>
         </div>
     </div>
     <div class='list-group'>
-        <a href='javascript:void(0)' class='list-group-item' ng-class='{active:selected===a}' ng-repeat="a in admins" ng-click='select(a)'>
-            <span>{{a.authed_id}}</span>
-            <button class='btn btn-default btn-xs pull-right' ng-show='selected===a' ng-click='remove(a)'><span class='glyphicon glyphicon-remove'></span></button>
-        </a>
+        <div class='list-group-item' ng-repeat="a in admins" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
+            <span>{{a.ulabel}}</span>
+            <button class='close' ng-if="entered" ng-click='remove(a)'>&times;</button>
+        </div>
     </div>
 </div>

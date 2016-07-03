@@ -14,6 +14,8 @@ class acl_model extends \TMS_MODEL {
 	public function &byMission($missionId, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$excludeOwner = isset($options['excludeOwner']) ? $options['excludeOwner'] : 'N';
+		$excludeAdmin = isset($options['excludeAdmin']) ? $options['excludeAdmin'] : 'N';
+
 		$q = [
 			$fields,
 			'xxt_mission_acl',
@@ -21,6 +23,9 @@ class acl_model extends \TMS_MODEL {
 		];
 		if ($excludeOwner === 'Y') {
 			$q[2] .= " and creater<>coworker";
+		}
+		if ($excludeAdmin === 'Y') {
+			$q[2] .= " and coworker_role<>'A'";
 		}
 
 		$q2 = ['o' => 'invite_at desc'];

@@ -20,6 +20,7 @@ class coworker extends \pl\fe\matter\base {
 		$options = [
 			'fields' => 'inviter,invite_at,coworker,coworker_label,join_at',
 			'excludeOwner' => 'Y',
+			'excludeAdmin' => 'Y',
 		];
 		$coworkers = $this->model('matter\mission\acl')->byMission($mission, $options);
 
@@ -44,18 +45,18 @@ class coworker extends \pl\fe\matter\base {
 		if (!$account) {
 			return new \ResponseError('指定的账号不是注册账号，请先注册！');
 		}
-		$coworker = new \stdClass;
-		$coworker->id = $account->uid;
-		$coworker->name = $account->email;
 		/**
 		 * has joined?
 		 */
 		$modelAcl = $this->model('matter\mission\acl');
-		$acl = $modelAcl->byCoworker($mission->id, $coworker->id);
+		$acl = $modelAcl->byCoworker($mission->id, $account->uid);
 		if ($acl) {
 			return new \ResponseError('该账号已经是合作人，不能重复添加！');
 		}
 		/*加入ACL*/
+		$coworker = new \stdClass;
+		$coworker->id = $account->uid;
+		$coworker->label = $account->email;
 		$acl = $this->model('matter\mission\acl')->add($user, $mission, $coworker);
 
 		return new \ResponseData($acl);

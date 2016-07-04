@@ -13,9 +13,6 @@ ngApp.controller('ctrlFile', ['$scope', '$location', function($scope, $location)
 	var ls = $location.search();
 	$scope.id = ls.id;
 	$scope.siteId = ls.site;
-	$scope.back = function() {
-		history.back();
-	};
 }]);
 ngApp.controller('ctrlImage', ['$scope', 'http2', function($scope, http2) {
 	$scope.url = '/kcfinder/browse.php?lang=zh-cn&type=图片&mpid=' + $scope.siteId;

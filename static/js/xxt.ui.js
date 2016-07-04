@@ -242,6 +242,9 @@ angular.module('ui.xxt', ['ui.bootstrap'])
                             } else if (/enroll/.test($scope.p.matterType.value)) {
                                 $scope.matters = rsp.data.apps;
                                 $scope.page.total = rsp.data.total;
+                            } else if (/mission/.test($scope.p.matterType.value)) {
+                                $scope.matters = rsp.data.missions;
+                                $scope.page.total = rsp.data.total;
                             } else {
                                 $scope.matters = rsp.data;
                                 $scope.page.total = $scope.matters.length;

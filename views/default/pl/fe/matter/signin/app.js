@@ -2,7 +2,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 	/**
 	 * app setting controller
 	 */
-	ngApp.provider.controller('ctrlApp', ['$scope', '$uibModal', '$q', 'http2', function($scope, $uibModal, $q, http2) {
+	ngApp.provider.controller('ctrlApp', ['$scope', '$uibModal', '$q', 'http2', 'mattersgallery', function($scope, $uibModal, $q, http2, mattersgallery) {
 		window.onbeforeunload = function(e) {
 			var message;
 			if ($scope.ep.$$modified) {
@@ -13,6 +13,30 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				}
 				return message;
 			}
+		};
+		$scope.assignMission = function() {
+			mattersgallery.open($scope.siteId, function(matters, type) {
+				var app;
+				if (matters.length === 1) {
+					app = {
+						id: $scope.id,
+						type: 'signin'
+					};
+					http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.siteId + '&id=' + matters[0].mission_id, app, function(rsp) {
+						$scope.app.mission = rsp.data;
+						$scope.app.mission_id = rsp.data.id;
+						$scope.update('mission_id');
+					});
+				}
+			}, {
+				matterTypes: [{
+					value: 'mission',
+					title: '项目',
+					url: '/rest/pl/fe/matter'
+				}],
+				hasParent: false,
+				singleMatter: true
+			});
 		};
 		$scope.publish = function() {
 			$scope.app.state = 2;

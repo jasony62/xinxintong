@@ -31,6 +31,7 @@ body,pre,code{font-family:Arial,'Microsoft YaHei'}
 }
 .navbar{border-radius:0}
 .navbar-nav.navbar-right:last-child{margin-right:0}
+.navbar.tms-large{font-size:18px;}
 
 /*notice box*/
 .notice-box{position:fixed;width:50%;top:0px;left:50%;margin-left:-25%;overflow:none;z-index:3999;text-align:center;word-break:break-all}

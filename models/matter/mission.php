@@ -50,14 +50,43 @@ class mission_model extends app_base {
 	 */
 	public function &bySite($siteId, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$limit = isset($options['limit']) ? $options['limit'] : (object) array('page' => 1, 'size' => 20);
-		$q = array(
+		$limit = isset($options['limit']) ? $options['limit'] : (object) ['page' => 1, 'size' => 20];
+
+		$q = [
 			$fields,
 			'xxt_mission',
 			"siteid='$siteId'",
+		];
+		$q2 = [
+			'o' => 'modify_at desc',
+		];
+		if ($limit) {
+			$q2['r'] = ['o' => ($limit->page - 1) * $limit->size, 'l' => $limit->size];
+		}
+
+		if ($missions = $this->query_objs_ss($q, $q2)) {
+			$q[0] = 'count(*)';
+			$total = (int) $this->query_val_ss($q);
+			$result = ['missions' => $missions, 'total' => $total];
+		} else {
+			$result = ['missions' => $missions, 'total' => 0];
+		}
+
+		return $result;
+	}
+	/**
+	 *
+	 */
+	public function &byAcl(&$user, $options = array()) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$limit = isset($options['limit']) ? $options['limit'] : (object) array('page' => 1, 'size' => 20);
+		$q = array(
+			$fields,
+			'xxt_mission_acl',
+			"coworker='{$user->id}'",
 		);
 		$q2 = array(
-			'o' => 'modify_at desc',
+			'o' => 'invite_at desc',
 			'r' => array('o' => ($limit->page - 1) * $limit->size, 'l' => $limit->size),
 		);
 

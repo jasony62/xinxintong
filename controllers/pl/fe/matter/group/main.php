@@ -110,7 +110,7 @@ class main extends \pl\fe\matter\base {
 		/*create app*/
 		$newapp['id'] = $appId;
 		$newapp['siteid'] = $site->id;
-		$newapp['title'] = empty($customConfig->proto->title) ? '新登记活动' : $customConfig->proto->title;
+		$newapp['title'] = empty($customConfig->proto->title) ? '新分组活动' : $customConfig->proto->title;
 		$newapp['scenario'] = $scenario;
 		$newapp['creater'] = $user->id;
 		$newapp['creater_src'] = $user->src;

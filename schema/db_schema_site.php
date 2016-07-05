@@ -48,7 +48,8 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_site_admin(";
 $sql .= "siteid varchar(32) not null";
-$sql .= ",uid varchar(40) not null";
+$sql .= ",uid varchar(40) not null"; // 用户的ID
+$sql .= ",ulabel varchar(255) not null"; // 用户的标识
 $sql .= ",creater varchar(40) not null";
 $sql .= ",creater_name varchar(255) not null default ''";
 $sql .= ",create_at int not null";
@@ -163,11 +164,11 @@ $sql .= ",userid varchar(40) not null"; // xxt_site_account
 $sql .= ",schema_id int not null"; // id from xxt_site_member_schema
 $sql .= ",create_at int not null";
 $sql .= ",identity varchar(255) not null default ''"; // 认证用户的唯一标识
-$sql .= ",sync_at int not null"; // 数据的同步时间
-$sql .= ",name varchar(255) not null";
-$sql .= ",mobile varchar(20) not null";
+$sql .= ",sync_at int not null default 0"; // 数据和企业号的同步时间
+$sql .= ",name varchar(255) not null default ''";
+$sql .= ",mobile varchar(20) not null default ''";
 $sql .= ",mobile_verified char(1) not null default 'Y'";
-$sql .= ",email varchar(50) not null";
+$sql .= ",email varchar(50) not null default ''";
 $sql .= ",email_verified char(1) not null default 'Y'";
 $sql .= ",extattr text"; // 扩展属性
 $sql .= ",depts text"; // 所属部门

@@ -25,7 +25,7 @@ define(['require'], function(require) {
         $rp.when('/rest/pl/fe/site/setting/basic', new RouteParam('basic'))
             .when('/rest/pl/fe/site/setting/page', new RouteParam('page'))
             .when('/rest/pl/fe/site/setting/mschema', new RouteParam('mschema'))
-            .when('/rest/pl/fe/site/setting/admin', new RouteParam('admin'))
+            .when('/rest/pl/fe/site/setting/admin', new RouteParam('admin', true))
             .when('/rest/pl/fe/site/setting/coin', new RouteParam('coin'))
             .when('/rest/pl/fe/site/setting/notice', new RouteParam('notice', true))
             .otherwise(new RouteParam('basic'));
@@ -129,30 +129,6 @@ define(['require'], function(require) {
     ngApp.controller('ctrlBasic', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {}]);
     ngApp.controller('ctrlPage', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {}]);
     ngApp.controller('ctrlCoin', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {}]);
-    ngApp.controller('ctrlAdmin', ['$scope', 'http2', function($scope, http2) {
-        $scope.add = function() {
-            var url = '/rest/pl/fe/site/setting/admin/add?site=' + $scope.siteId;
-            $scope.authedid && $scope.authedid.length > 0 && (url += '&authedid=' + $scope.authedid);
-            http2.get(url, function(rsp) {
-                $scope.admins.push(rsp.data);
-                $scope.select(rsp.data);
-                $scope.authedid = '';
-            });
-        };
-        $scope.remove = function(admin) {
-            http2.get('/rest/pl/fe/site/setting/admin/remove?site=' + $scope.siteId + '&uid=' + admin.uid, function(rsp) {
-                var index = $scope.admins.indexOf(admin);
-                $scope.admins.splice(index, 1);
-                $scope.selected = false;
-            });
-        };
-        $scope.select = function(admin) {
-            $scope.selected = admin;
-        };
-        http2.get('/rest/pl/fe/site/setting/admin/list?site=' + $scope.siteId, function(rsp) {
-            $scope.admins = rsp.data;
-        });
-    }]);
     ngApp.controller('ctrlMschema', ['$scope', 'http2', '$http', '$uibModal', 'MemberSchema', function($scope, http2, $http, $uibModal, MemberSchema) {
         var service = {
             memberSchema: new MemberSchema($scope.siteId)

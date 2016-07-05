@@ -33,6 +33,35 @@ if (!$mysqli->query($sql)) {
 	echo 'database error(xxt_mission): ' . $mysqli->error;
 }
 /**
+ * 运营任务访问控制列表，记录任务的所有访问关系
+ * 角色：
+ * 所有者（Owner），创建任务的人
+ * 管理员（Admin），创建人所在站点的管理员
+ * 合作者（Coworker），指定的任务合作人
+ */
+$sql = "create table if not exists xxt_mission_acl (";
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null"; // 任务所属的站点
+$sql .= ",mission_id int not null";
+$sql .= ",title varchar(70) not null"; // 任务的标题
+$sql .= ",summary varchar(240) not null"; // 任务摘要
+$sql .= ",pic text"; // 任务图片
+$sql .= ",creater varchar(40) not null default ''"; // 任务的创建者
+$sql .= ",create_at int not null"; // 任务的创建时间
+$sql .= ",inviter varchar(40) not null default ''"; // 邀请人
+$sql .= ",inviter_label varchar(255) not null default ''";
+$sql .= ",invite_at int not null"; // 邀请时间
+$sql .= ",coworker varchar(40) not null default ''"; // 合作者
+$sql .= ",coworker_label varchar(255) not null default ''";
+$sql .= ",coworker_role char(1) not null default 'C'"; // 合作者角色：Owner，Admin，Coworker
+$sql .= ",join_at int not null"; // 加入时间
+$sql .= ",state tinyint not null default 1"; //0:stop,1:normal
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error(xxt_mission): ' . $mysqli->error;
+}
+/**
  * 组成任务的素材
  */
 $sql = "create table if not exists xxt_mission_matter(";

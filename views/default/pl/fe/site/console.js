@@ -25,9 +25,11 @@ app.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope, 
             case 'lottery':
             case 'contribute':
             case 'link':
-            case 'mission':
             case 'merchant':
                 location.href = '/rest/pl/fe/matter/' + type + '?id=' + id + '&site=' + $scope.siteId;
+                break;
+            case 'mission':
+                location.href = '/rest/pl/fe/matter/' + type + '?id=' + (matter.mission_id || id) + '&site=' + matter.siteid;
                 break;
         }
     };

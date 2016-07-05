@@ -86,6 +86,11 @@
 </div>
 <div class='col-md-4'>
     <div class='tile'>
+        <div class='form-group' ng-if="!app.mission">
+            <button class='btn btn-block btn-success' ng-click="assignMission()">指定项目</button>
+        </div>
+    </div>
+    <div class='tile'>
         <div class='form-group compact'>
             <div style='word-break: break-all;'>{{entry.url}}</div>
         </div>

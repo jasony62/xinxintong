@@ -10,7 +10,7 @@
     </head>
     <body ng-app='app' ng-controller='ctrlApp' ng-cloak class='ng-cloak'>
         <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
-        <nav class='navbar navbar-inverse'>
+        <nav class='navbar navbar-inverse tms-large'>
             <ul class='nav navbar-nav'>
                 <li><a href='/rest/pl/fe' target='_self'>首页</a></li>
             </ul>
@@ -26,89 +26,17 @@
         </nav>
         <div class='container'>
             <div id='viewSetting' ng-controller="ctrlSetting">
-                <div class='attrs'>
-                    <div class='tile'>
-                        <div class='form-group'>
-                            <div class='help-block'>项目名称：最多35个汉字，70个英文字符</div>
-                            <input type="text" class="form-control" ng-model='editing.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
-                        </div>
-                        <div class='form-group'>
-                            <div class='help-block'>摘要：最多120个汉字，240个英文字符</div>
-                            <textarea class='form-control' ng-model="editing.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')" rows='3'></textarea>
-                        </div>
-                        <div class='form-group'>
-                            <div class='help-block'>头图（可选）：建议尺寸：900像素 * 500像素</div>
-                            <div style="width:182px;border:1px solid #CCC">
-                                <div style="height:100px;text-align:center;padding-top:32px" ng-if="!editing.pic">
-                                    <button class='btn btn-default' ng-click='setPic();'>
-                                    <span class='glyphicon glyphicon-picture'></span>选择图片</button>
-                                </div>
-                                <div style='position:relative' ng-if="editing.pic" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
-                                    <img name='pic' ng-src='{{editing.pic}}' width='180px' />
-                                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
-                                    <span class='glyphicon glyphicon-picture'></span>
-                                    </button>
-                                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
-                                    <span class='glyphicon glyphicon-trash'></span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class='form-group'>
-                            <div class='help-block'>开始时间（可选）</div>
-                            <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='editing.start_at' tms-state='mission.start_at' tms-mask="y,m,d"></tms-datepicker>
-                            <div class='help-block'>结束时间（可选）</div>
-                            <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='editing.end_at' tms-state='mission.end_at' tms-mask="y,m,d,23,59"></tms-datepicker>
-                        </div>
-                        <div class='form-group'>
-                            <div class='help-block'>扩展属性1</div>
-                            <input type="text" class="form-control" ng-model="editing.extattrs.attr1" tms-auto-update tms-wait=1000 tms-update="update('extattrs')">
-                        </div>
-                        <div class='form-group'>
-                            <div class='help-block'>扩展属性2</div>
-                            <input type="text" class="form-control" ng-model="editing.extattrs.attr2" tms-auto-update tms-wait=1000 tms-update="update('extattrs')">
-                        </div>
-                    </div><!--tile-->
-                    <div class='tile' ng-controller="ctrlPhase">
-                        <div class='list-group phases'>
-                            <div class='list-group-item phase clearfix' ng-repeat="p in phases">
-                                <div style='text-align:right'>
-                                    <button class='btn btn-default' ng-click="remove(p)">删除阶段</button>
-                                </div>
-                                <div class='help-block'>阶段名称</div>
-                                <input type="text" class="form-control" ng-model="p.title" tms-auto-update tms-wait=1000 tms-update="update(p,'title')">
-                                <div class='help-block'>阶段说明</div>
-                                <textarea class="form-control" ng-model="p.summary" tms-auto-update tms-wait=1000 tms-update="update(p,'summary')"></textarea>
-                                <div class='help-block'>阶段开始时间</div>
-                                <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-obj="p" tms-date='p.start_at' tms-state='phase.start_at'></tms-datepicker>
-                                <div class='help-block'>阶段结束时间</div>
-                                <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-obj="p" tms-date='p.end_at' tms-state='phase.end_at'></tms-datepicker>
-                            </div>
-                        </div>
-                        <button class='btn btn-success' ng-click="add()">添加阶段</button>
+                <nav class="navbar navbar-default tms-top">
+                    <div class='container-fluid'>
+                        <ul class="nav navbar-nav">
+                            <li ng-class="{'active':sub==='basic'}"><a href='#' ng-click="gotoSub('basic')">基本信息</a></li>
+                            <li ng-class="{'active':sub==='phase'}"><a href='#' ng-click="gotoSub('phase')">阶段</a></li>
+                            <li ng-class="{'active':sub==='coworker'}"><a href='#' ng-click="gotoSub('coworker')">共享</a></li>
+                        </ul>
                     </div>
-                    <div class='tile'>
-                        <table class='table table-bordered' style='margin:0'>
-                            <tr>
-                                <td>项目页眉</td>
-                                <td>项目页眉</td>
-                                <td>
-                                    <a href='' ng-click="editPage($event,'header')">编辑页面</a>
-                                    <a href='' ng-click="resetPage($event,'header')" ng-show="editing.header_page_name.length">重置页面</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>项目页脚</td>
-                                <td>项目页脚</td>
-                                <td>
-                                    <a href='' ng-click="editPage($event,'footer')">编辑页面</a>
-                                    <a href='' ng-click="resetPage($event,'footer')" ng-show="editing.footer_page_name.length">重置页面</a>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-                <nav class="navbar navbar-default">
+                </nav>
+                <div class='attrs' ng-include="subView"></div>
+                <nav class="navbar navbar-default tms-bottom">
                     <div class="navbar-form">
                         <button class='btn' ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'" ng-click="submit()">保存</button>
                         <button class='btn btn-default' ng-click="remove()">删除</button>
@@ -116,6 +44,13 @@
                 </nav>
             </div>
             <div id='viewMatter' ng-controller="ctrlMatter">
+                <nav class="navbar navbar-default tms-top">
+                    <div class='container-fluid'>
+                        <ul class="nav navbar-nav">
+                            <li class='active'><a href='#'>全部</a></li>
+                        </ul>
+                    </div>
+                </nav>
                 <div class='matters'>
                     <div class='col-md-6' ng-repeat='m in matters'>
                         <div class='thumbnail' ng-click="open(m)">
@@ -133,7 +68,7 @@
                         </div>
                     </div>
                 </div>
-                <nav class="navbar navbar-default">
+                <nav class="navbar navbar-default tms-bottom">
                     <div class="navbar-form">
                         <button class='btn btn-success' ng-click="addArticle()">+图文</button>
                         <button class='btn btn-success' ng-click="addEnroll('registration')">+报名</button>
@@ -150,7 +85,6 @@
         <script src="/static/js/angular-route.min.js"></script>
         <script src="/static/js/angular-sanitize.min.js"></script>
         <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
-        <script src="/static/js/tinymce/tinymce.min.js"></script>
         <script src="/static/js/ui-tms.js?_=1"></script>
         <script src="/static/js/xxt.ui.js?_=1"></script>
         <script src="/views/default/pl/fe/matter/mission/main.js?_=4"></script>

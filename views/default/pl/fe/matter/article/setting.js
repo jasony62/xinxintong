@@ -59,6 +59,31 @@ define(['frame'], function(ngApp) {
 				return message;
 			}
 		};
+		$scope.assignMission = function() {
+			mattersgallery.open($scope.siteId, function(matters, type) {
+				var app;
+				if (matters.length === 1) {
+					app = {
+						id: $scope.id,
+						type: 'article'
+					};
+					http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.siteId + '&id=' + matters[0].mission_id, app, function(rsp) {
+						$scope.editing.mission = rsp.data;
+						$scope.editing.mission_id = rsp.data.id;
+						$scope.update('mission_id');
+						$scope.submit();
+					});
+				}
+			}, {
+				matterTypes: [{
+					value: 'mission',
+					title: '项目',
+					url: '/rest/pl/fe/matter'
+				}],
+				hasParent: false,
+				singleMatter: true
+			});
+		};
 		$scope.onBodyChange = function() {
 			$scope.modified = true;
 			modifiedData['body'] = encodeURIComponent($scope.editing['body']);

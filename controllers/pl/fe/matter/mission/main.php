@@ -35,7 +35,8 @@ class main extends \pl\fe\matter\base {
 		$options = array(
 			'limit' => (object) array('page' => $page, 'size' => $size),
 		);
-		$result = $modelMis->bySite($site, $options);
+		//$result = $modelMis->bySite($site, $options);
+		$result = $modelMis->byAcl($user, $options);
 
 		return new \ResponseData($result);
 	}
@@ -64,11 +65,25 @@ class main extends \pl\fe\matter\base {
 		$mission['modifier_src'] = $user->src;
 		$mission['modifier_name'] = $user->name;
 		$mission['modify_at'] = $current;
+		$mission['state'] = 1;
 		$mission['id'] = $this->model()->insert('xxt_mission', $mission, true);
 		/*记录操作日志*/
 		$matter = (object) $mission;
 		$matter->type = 'mission';
 		$this->model('log')->matterOp($site->id, $user, $matter, 'C');
+		/**
+		 * 建立缺省的ACL
+		 * @todo 是否应该挪到消息队列中实现
+		 */
+		$modelAcl = $this->model('matter\mission\acl');
+		/*任务的创建人加入ACL*/
+		$coworker = new \stdClass;
+		$coworker->id = $user->id;
+		$coworker->label = $user->name;
+		$modelAcl->add($user, $matter, $coworker, 'O');
+		/*站点的系统管理员加入ACL*/
+		$modelAcl->addSiteAdmin($site->id, $user, null, $matter);
+
 		/*返回结果*/
 		$mission = $this->model('matter\mission')->byId($mission['id']);
 
@@ -76,6 +91,7 @@ class main extends \pl\fe\matter\base {
 	}
 	/**
 	 * 删除任务
+	 * 只有任务的创建人才能删除任务，任务合作者删除任务时，只是将自己从acl列表中移除
 	 */
 	public function remove_action($site, $id) {
 		if (false === ($user = $this->accountUser())) {
@@ -83,27 +99,38 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$modelMis = $this->model('matter\mission');
+		$mission = $modelMis->byId($id, 'id,title,summary,pic,creater');
 
-		$q = array(
-			'count(*)',
-			'xxt_mission_matter',
-			"siteid='$site' and mission_id='$id'",
-		);
-		$cnt = (int) $modelMis->query_val_ss($q);
+		$modelAcl = $this->model('matter\mission\acl');
+		$acl = $modelAcl->byCoworker($mission->id, $user->id);
 
-		if ($cnt > 0) {
-			/* 如果已经素材，就只打标记 */
-			$rst = $modelMis->update('xxt_mission', ['state' => 2], "siteid='$site' and id='$id'");
+		if (in_array($acl->coworker_role, array('O', 'A'))) {
+			/* 清空任务的ACL */
+			$modelAcl->removeMission($mission);
 			/* 记录操作日志 */
-			if ($rst) {
-				$mission = $modelMis->byId($id, 'id,title,summary,pic');
-				$mission->type = 'mission';
-				$this->model('log')->matterOp($site, $user, $mission, 'D');
+			$mission->type = 'mission';
+			$this->model('log')->matterOp($site, $user, $mission, 'D');
+			/* 删除数据 */
+			$q = array(
+				'count(*)',
+				'xxt_mission_matter',
+				"siteid='$site' and mission_id='$id'",
+			);
+			$cnt = (int) $modelMis->query_val_ss($q);
+
+			if ($cnt > 0) {
+				/* 如果已经素材，就只打标记 */
+				$rst = $modelMis->update('xxt_mission', ['state' => 2], "siteid='$site' and id='$id'");
+			} else {
+				/* 清除数据 */
+				$modelMis->delete('xxt_mission_phase', "siteid='$site' and mission_id='$id'");
+				$rst = $modelMis->delete('xxt_mission', "siteid='$site' and id='$id'");
 			}
 		} else {
-			/* 清除数据 */
-			$modelMis->delete('xxt_mission_phase', "siteid='$site' and mission_id='$id'");
-			$rst = $modelMis->delete('xxt_mission', "siteid='$site' and id='$id'");
+			/* 从访问列表中移除当前用户 */
+			$coworker = new \stdClass;
+			$coworker->id = $user->id;
+			$modelAcl->removeCoworker($mission, $coworker);
 		}
 
 		return new \ResponseData($rst);

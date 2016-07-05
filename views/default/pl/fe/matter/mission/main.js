@@ -32,6 +32,12 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery',
 			return message;
 		}
 	};
+	$scope.sub = 'basic';
+	$scope.subView = '/views/default/pl/fe/matter/mission/basic.html?_=2';
+	$scope.gotoSub = function(sub) {
+		$scope.sub = sub;
+		$scope.subView = '/views/default/pl/fe/matter/mission/' + sub + '.html?_=2';
+	};
 	$scope.submit = function() {
 		http2.post('/rest/pl/fe/matter/mission/setting/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData, function(rsp) {
 			$scope.modified = false;
@@ -156,6 +162,26 @@ ngApp.controller('ctrlPhase', ['$scope', 'http2', function($scope, http2) {
 	});
 	http2.get('/rest/pl/fe/matter/mission/phase/list?site=' + $scope.siteId + '&mission=' + $scope.id, function(rsp) {
 		$scope.phases = rsp.data;
+	});
+}]);
+ngApp.controller('ctrlCoworker', ['$scope', 'http2', function($scope, http2) {
+	$scope.label = '';
+	$scope.add = function() {
+		var url = '/rest/pl/fe/matter/mission/coworker/add?site=' + $scope.siteId + '&mission=' + $scope.id;
+		url += '&label=' + $scope.label;
+		http2.get(url, function(rsp) {
+			$scope.coworkers.splice(0, 0, rsp.data);
+			$scope.label = '';
+		});
+	};
+	$scope.remove = function(acl) {
+		http2.get('/rest/pl/fe/matter/mission/coworker/remove?site=' + $scope.siteId + '&mission=' + $scope.id + '&coworker=' + acl.coworker, function(rsp) {
+			var index = $scope.coworkers.indexOf(acl);
+			$scope.coworkers.splice(index, 1);
+		});
+	};
+	http2.get('/rest/pl/fe/matter/mission/coworker/list?site=' + $scope.siteId + '&mission=' + $scope.id, function(rsp) {
+		$scope.coworkers = rsp.data;
 	});
 }]);
 ngApp.controller('ctrlMatter', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {

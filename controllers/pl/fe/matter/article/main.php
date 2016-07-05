@@ -97,34 +97,6 @@ class main extends \pl\fe\matter\base {
 		exit;
 	}
 	/**
-	 * 返回单图文视图
-	 */
-	public function edit_action() {
-		\TPL::output('/pl/fe/matter/article/frame');
-		exit;
-	}
-	/**
-	 *
-	 */
-	public function read_action() {
-		\TPL::output('/pl/fe/matter/article/frame');
-		exit;
-	}
-	/**
-	 *
-	 */
-	public function stat_action() {
-		\TPL::output('/pl/fe/matter/article/frame');
-		exit;
-	}
-	/**
-	 *
-	 */
-	public function remark_action() {
-		\TPL::output('/pl/fe/matter/article/frame');
-		exit;
-	}
-	/**
 	 * 获得可见的图文列表
 	 *
 	 * $id article's id
@@ -137,7 +109,7 @@ class main extends \pl\fe\matter\base {
 	 * --$order
 	 *
 	 */
-	public function list_action($site, $page = 1, $size = 30) {
+	public function list_action($site, $page = 1, $size = 30, $mission = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -148,12 +120,19 @@ class main extends \pl\fe\matter\base {
 		/**
 		 * select fields
 		 */
-		$s = "a.id,a.siteid,a.title,a.summary,a.create_at,a.modify_at,a.approved,a.creater,a.creater_name,a.creater_src";
+		$s = "a.id,a.siteid,a.title,a.summary,a.approved,a.mission_id";
+		$s .= ",a.create_at,a.modify_at,a.creater,a.creater_name,a.creater_src";
 		$s .= ",a.read_num,a.score,a.remark_num,a.share_friend_num,a.share_timeline_num,a.download_num";
 		/**
 		 * where
 		 */
 		$w = "a.custom_body='N' and a.siteid='$site' and a.state=1 and finished='Y'";
+		/**
+		 * 按项目过滤
+		 */
+		if (!empty($mission)) {
+			$w = "a.mission_id=$mission";
+		}
 		/**
 		 * 按频道过滤
 		 */

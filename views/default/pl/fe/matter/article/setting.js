@@ -149,6 +149,13 @@ define(['frame'], function(ngApp) {
 			mediagallery.open($scope.siteId, options);
 		});
 		$scope.embedMatter = function() {
+			var options = {
+				matterTypes: $scope.innerlinkTypes,
+				singleMatter: true
+			};
+			if ($scope.editing.mission) {
+				options.mission = $scope.editing.mission;
+			}
 			mattersgallery.open($scope.siteId, function(matters, type) {
 				var editor = tinymce.get('body1'),
 					dom = editor.dom,
@@ -191,11 +198,7 @@ define(['frame'], function(ngApp) {
 					editor.focus();
 					$scope.onBodyChange();
 				}
-			}, {
-				matterTypes: $scope.innerlinkTypes,
-				hasParent: false,
-				singleMatter: true
-			});
+			}, options);
 		};
 		var insertVideo = function(url) {
 			var editor, dom, html;

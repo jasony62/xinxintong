@@ -202,16 +202,19 @@ angular.module('ui.xxt', ['ui.bootstrap'])
         var gallery = {};
         gallery.open = function(galleryId, callback, options) {
             $uibModal.open({
-                templateUrl: '/static/template/mattersgallery2.html?_=4',
+                templateUrl: '/static/template/mattersgallery2.html?_=6',
                 controller: ['$scope', '$http', '$uibModalInstance', function($scope, $http, $mi) {
+                    var fields = ['id', 'title'];
                     $scope.matterTypes = options.matterTypes;
                     $scope.singleMatter = options.singleMatter;
-                    $scope.hasParent = options.hasParent;
                     $scope.p = {};
-                    if ($scope.matterTypes && $scope.matterTypes.length)
+                    if ($scope.matterTypes && $scope.matterTypes.length) {
                         $scope.p.matterType = $scope.matterTypes[0];
-
-                    var fields = ['id', 'title'];
+                    }
+                    if (options.mission) {
+                        $scope.mission = options.mission;
+                        $scope.p.sameMission = 'Y';
+                    }
                     $scope.page = {
                         current: 1,
                         size: 10
@@ -222,21 +225,29 @@ angular.module('ui.xxt', ['ui.bootstrap'])
                             $scope.aChecked = [matter];
                         } else {
                             var i = $scope.aChecked.indexOf(matter);
-                            if (i === -1)
+                            if (i === -1) {
                                 $scope.aChecked.push(matter);
-                            else
+                            } else {
                                 $scope.aChecked.splice(i, 1);
+                            }
                         }
                     };
-                    $scope.doSearch = function() {
+                    $scope.doSearch = function(page) {
                         if (!$scope.p.matterType) return;
                         var matter = $scope.p.matterType,
                             url = matter.url,
                             params = {};
+
+                        page && ($scope.page.current = page);
                         url += '/' + matter.value;
                         url += '/list?site=' + galleryId + '&page=' + $scope.page.current + '&size=' + $scope.page.size + '&fields=' + fields;
+                        /*指定登记活动场景*/
                         if (matter.value === 'enroll' && matter.scenario) {
                             url += '&scenario=' + matter.scenario;
+                        }
+                        /*同一个项目*/
+                        if ($scope.p.sameMission === 'Y') {
+                            url += '&mission=' + $scope.mission.id;
                         }
                         $http.post(url, params).success(function(rsp) {
                             if (/article/.test(matter.value)) {

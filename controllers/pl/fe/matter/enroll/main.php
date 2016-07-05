@@ -91,7 +91,7 @@ class main extends \pl\fe\matter\base {
 			$q[2] .= " and scenario='$scenario'";
 		}
 		if (!empty($mission)) {
-			$q[2] .= " and exists(select 1 from xxt_mission_matter where mission_id='$mission' and matter_type='enroll' and matter_id=a.id)";
+			$q[2] .= " and mission_id=$mission";
 		}
 		$q2['o'] = 'a.modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;

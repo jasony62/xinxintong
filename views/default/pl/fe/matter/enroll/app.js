@@ -661,6 +661,13 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			tinymceEditor.save();
 		};
 		$scope.embedMatter = function(page) {
+			var options = {
+				matterTypes: $scope.innerlinkTypes,
+				singleMatter: true
+			};
+			if ($scope.app.mission) {
+				options.mission = $scope.app.mission;
+			}
 			mattersgallery.open($scope.siteId, function(matters, type) {
 				var dom, fn;
 				dom = tinymceEditor.dom;
@@ -673,11 +680,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 						"ng-click": fn,
 					}, dom.encode(matter.title))));
 				});
-			}, {
-				matterTypes: $scope.innerlinkTypes,
-				hasParent: false,
-				singleMatter: true
-			});
+			}, options);
 		};
 		$scope.gotoCode = function() {
 			window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + $scope.ep.code_name, '_self');

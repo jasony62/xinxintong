@@ -202,7 +202,7 @@ angular.module('ui.xxt', ['ui.bootstrap'])
         var gallery = {};
         gallery.open = function(galleryId, callback, options) {
             $uibModal.open({
-                templateUrl: '/static/template/mattersgallery2.html?_=3',
+                templateUrl: '/static/template/mattersgallery2.html?_=4',
                 controller: ['$scope', '$http', '$uibModalInstance', function($scope, $http, $mi) {
                     $scope.matterTypes = options.matterTypes;
                     $scope.singleMatter = options.singleMatter;
@@ -230,11 +230,14 @@ angular.module('ui.xxt', ['ui.bootstrap'])
                     };
                     $scope.doSearch = function() {
                         if (!$scope.p.matterType) return;
-                        var url, params = {};
-                        url = $scope.p.matterType.url;
-                        url += '/' + $scope.p.matterType.value;
+                        var matter = $scope.p.matterType,
+                            url = matter.url,
+                            params = {};
+                        url += '/' + matter.value;
                         url += '/list?site=' + galleryId + '&page=' + $scope.page.current + '&size=' + $scope.page.size + '&fields=' + fields;
-                        $scope.p.fromParent && $scope.p.fromParent == 1 && (params.src = 'p');
+                        if (matter.value === 'enroll' && matter.scenario) {
+                            url += '&scenario=' + matter.scenario;
+                        }
                         $http.post(url, params).success(function(rsp) {
                             if (/article|contribute/.test($scope.p.matterType.value)) {
                                 $scope.matters = rsp.data.articles;

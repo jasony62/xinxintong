@@ -239,13 +239,13 @@ angular.module('ui.xxt', ['ui.bootstrap'])
                             url += '&scenario=' + matter.scenario;
                         }
                         $http.post(url, params).success(function(rsp) {
-                            if (/article|contribute/.test($scope.p.matterType.value)) {
+                            if (/article/.test(matter.value)) {
                                 $scope.matters = rsp.data.articles;
                                 $scope.page.total = rsp.data.total;
-                            } else if (/enroll/.test($scope.p.matterType.value)) {
+                            } else if (/enroll|signin|group|contribute/.test(matter.value)) {
                                 $scope.matters = rsp.data.apps;
                                 $scope.page.total = rsp.data.total;
-                            } else if (/mission/.test($scope.p.matterType.value)) {
+                            } else if (/mission/.test(matter.value)) {
                                 $scope.matters = rsp.data.missions;
                                 $scope.page.total = rsp.data.total;
                             } else {

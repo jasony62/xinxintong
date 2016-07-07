@@ -44,19 +44,20 @@ define(['wrap'], function(wrapLib) {
 			return _activeWrap;
 		},
 		selectWrap: function(domWrap) {
-			var root = domWrap,
-				selectableWrap = domWrap,
+			var selectableWrap = domWrap,
 				wrapType;
-			while (root.parentNode) root = root.parentNode;
-			$(root).find('.active').removeClass('active');
+
+			$(_editor.getBody()).find('.active').removeClass('active');
 			this.setActiveWrap(null);
-			wrapType = $(selectableWrap).attr('wrap');
-			while (!/text|matter|input|radio|checkbox|value|button|records|rounds/.test(wrapType) && selectableWrap.parentNode) {
-				selectableWrap = selectableWrap.parentNode;
+			if (selectableWrap) {
 				wrapType = $(selectableWrap).attr('wrap');
-			}
-			if (/text|matter|input|radio|checkbox|value|button|records|rounds/.test(wrapType)) {
-				this.setActiveWrap(selectableWrap);
+				while (!/text|matter|input|radio|checkbox|value|button|records|rounds/.test(wrapType) && selectableWrap.parentNode) {
+					selectableWrap = selectableWrap.parentNode;
+					wrapType = $(selectableWrap).attr('wrap');
+				}
+				if (/text|matter|input|radio|checkbox|value|button|records|rounds/.test(wrapType)) {
+					this.setActiveWrap(selectableWrap);
+				}
 			}
 
 			return _activeWrap;

@@ -386,6 +386,10 @@ define(['wrap'], function(wrapLib) {
 			}
 
 			return false;
+		},
+		scroll: function(dom) {
+			var domBody = _editor.getBody();
+			domBody.scrollTop = dom.offsetTop - 15;
 		}
 	};
 });

@@ -106,6 +106,12 @@ define(['require', 'page'], function(require, pageLib) {
 			return deferred.promise;
 		};
 		$scope.getApp = function() {
+			http2.get('/rest/pl/fe/site/snsList?site=' + $scope.siteId, function(rsp) {
+				$scope.sns = rsp.data;
+			});
+			http2.get('/rest/pl/fe/site/member/schema/list?valid=Y&site=' + $scope.siteId, function(rsp) {
+				$scope.memberSchemas = rsp.data;
+			});
 			http2.get('/rest/pl/fe/matter/enroll/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
 				var app = rsp.data,
 					mapOfAppSchemas = {};
@@ -120,17 +126,10 @@ define(['require', 'page'], function(require, pageLib) {
 					angular.extend(page, pageLib);
 					page.arrange(mapOfAppSchemas);
 				});
-				//$scope.persisted = angular.copy(app);
 				$scope.app = app;
 				$scope.url = 'http://' + location.host + '/rest/site/fe/matter/enroll?site=' + $scope.siteId + '&app=' + $scope.id;
 			});
 		};
-		http2.get('/rest/pl/fe/site/snsList?site=' + $scope.siteId, function(rsp) {
-			$scope.sns = rsp.data;
-		});
-		http2.get('/rest/pl/fe/site/member/schema/list?valid=Y&site=' + $scope.siteId, function(rsp) {
-			$scope.memberSchemas = rsp.data;
-		});
 		$scope.getApp();
 	}]);
 	/***/

@@ -6,7 +6,10 @@ body{background:#f8f8f8;padding:71px 0;}
 .tile>.form-group:last-child{margin-bottom:0;}
 #app-view,#publish-view{padding-bottom:71px;}
 
-/*app-setting*/
+/*app-view*/
+#app-view .pages .container-fluid{padding-bottom:8px;}
+
+/*app-view/app-setting*/
 #appSetting .checkbox{display:block;}
 #appSetting .checkbox input{margin-right:.5em;}
 

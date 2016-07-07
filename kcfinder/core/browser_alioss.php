@@ -44,7 +44,12 @@ class browser_alioss extends browser {
 
 	protected function act_chDir() {
 		$this->postDir(); // Just for existing check
-		$this->session['dir'] = $this->type . "/" . $this->post['dir'];
+		if (empty($this->post['dir'])) {
+			$this->session['dir'] = $this->type;
+		} else {
+			$this->session['dir'] = $this->type . "/" . $this->post['dir'];
+		}
+
 		$dirWritable = true;
 		return json_encode(array(
 			'files' => $this->getFiles($this->session['dir']),

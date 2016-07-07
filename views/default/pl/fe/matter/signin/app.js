@@ -34,7 +34,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 					title: '项目',
 					url: '/rest/pl/fe/matter'
 				}],
-				hasParent: false,
 				singleMatter: true
 			});
 		};
@@ -623,6 +622,8 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				$scope.setActiveWrap(domNewWrap);
 				deferred.resolve();
 			});
+			/* 页面滚动到新元素 */
+			$scope.ep.scroll(domNewWrap);
 
 			return deferred.promise;
 		};
@@ -736,7 +737,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				});
 			}, {
 				matterTypes: $scope.innerlinkTypes,
-				hasParent: false,
 				singleMatter: true
 			});
 		};

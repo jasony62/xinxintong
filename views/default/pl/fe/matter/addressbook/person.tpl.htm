@@ -1,0 +1,69 @@
+<div ng-controller='personCtrl' class='form-horizontal' ng-init="personId='<?php echo $_GET['id'];?>'">
+    <div class='navbar navbar-default'>
+        <ul class='nav navbar-nav'>
+            <li>
+                <a href='javascript:void(0);' ng-click="back()"><span class="glyphicon glyphicon-chevron-left"></span></a>
+            </li>
+        </ul>
+    </div>
+    <div>
+        <div class='form-group'>
+            <div class='col-md-12'>
+                <button class='btn btn-default pull-right' ng-click='remove()'>删除</button>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>姓名</label>
+            <div class='col-md-10'>
+                <input type='text' ng-model='person.name' tms-auto-update tms-wait=1000 tms-update="update('name')" class='form-control'
+                required autofocus/>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>电子邮箱</label>
+            <div class='col-md-10'>
+                <input type='text' ng-model='person.email' tms-auto-update tms-wait=1000 tms-update="update('email')" class='form-control'
+                required />
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>电话</label>
+            <div class='col-md-10'>
+                <button class='btn btn-default btn-sm' ng-click='addTel()'>
+                    <span class='glyphicon glyphicon-plus'></span>
+                </button>
+                <ul class='list-group' style='margin-bottom:0'>
+                    <li class='list-group-item' ng-repeat="t in person.tels" editable prop='v' obj='t'>{{t.v}}</li>
+                </ul>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>部门</label>
+            <div class='col-md-10'>
+                <button class='btn btn-default btn-sm' ng-click='addDept()'>
+                    <span class='glyphicon glyphicon-plus'></span>
+                </button>
+                <ul class='list-group'>
+                    <li class='list-group-item' ng-repeat='d in person.depts' ng-mouseenter='enter=true' ng-mouseleave='enter=false'>
+                        <span>{{d.name}}</span>
+                        <button class='btn btn-default btn-xs pull-right' ng-if='enter' ng-click='delDept(d)'>
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class='form-group'>
+            <label class='col-md-2 control-label'>备注</label>
+            <div class='col-md-10'>
+                <textarea ng-model='person.remark' tms-auto-update tms-wait=1000 tms-update="update('remark')" class='form-control' rows=3></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-2 control-label">标签</label>
+            <div class="col-md-10">
+                <combox evt-prefix='tag' prop='name' existing='person.tags2' options='options.tags'></combox>
+            </div>
+        </div>
+    </div>
+</div>

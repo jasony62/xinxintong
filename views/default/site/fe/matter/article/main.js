@@ -1,6 +1,11 @@
 define(["angular", "xxt-page"], function(angular, codeAssembler) {
     'use strict';
     var ngApp = angular.module('article', []);
+    ngApp.config(['$controllerProvider', function($cp) {
+        ngApp.provider = {
+            controller: $cp.register
+        };
+    }]);
     ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
         var ls, siteId, id, shareby;
         ls = location.search;

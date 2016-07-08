@@ -137,7 +137,7 @@ class mission_model extends app_base {
 		$q = array(
 			$fields,
 			'xxt_mission_matter',
-			"siteid='$siteId' and mission_id=$id",
+			" mission_id=$id",
 		);
 		$q2 = array('o' => 'create_at desc');
 		$mms = $this->query_objs_ss($q, $q2);

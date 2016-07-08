@@ -1,4 +1,5 @@
 define(['require', 'page'], function(require, pageLib) {
+	'use strict';
 	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'tinymce.ui.xxt', 'ui.xxt', 'channel.fe.pl']);
 	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
 		var RouteParam = function(name) {
@@ -38,6 +39,7 @@ define(['require', 'page'], function(require, pageLib) {
 	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', function($scope, $location, $uibModal, $q, http2) {
 		var ls = $location.search(),
 			modifiedData = {};
+
 		$scope.id = ls.id;
 		$scope.siteId = ls.site;
 		$scope.modified = false;
@@ -49,6 +51,7 @@ define(['require', 'page'], function(require, pageLib) {
 			http2.post('/rest/pl/fe/matter/enroll/update?site=' + $scope.siteId + '&app=' + $scope.id, modifiedData, function(rsp) {
 				$scope.modified = false;
 				modifiedData = {};
+				$scope.infomsg = '已完成保存';
 				defer.resolve(rsp.data);
 			});
 			return defer.promise;

@@ -173,6 +173,24 @@ angular.module('ui.tms', ['ngSanitize']).service('http2', ['$rootScope', '$http'
             }, true);
         }
     }
+}]).service('noticebox', ['$timeout', function($timeout) {
+    this.success = function(msg) {
+        var box = document.createElement('div');
+        box.classList.add('notice-box');
+        box.classList.add('alert');
+        box.classList.add('alert-success');
+        box.innerHTML = msg;
+        document.body.appendChild(box);
+        $timeout(function() {
+            document.body.removeChild(box);
+        }, 2000);
+    };
+    this.error = function(msg) {
+        alert(msg);
+    };
+    this.prog = function(msg) {
+        alert(msg);
+    };
 }]).directive('noticeBox', ['$timeout', function($timeout) {
     return {
         restrict: 'EA',

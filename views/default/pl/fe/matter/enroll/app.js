@@ -2,7 +2,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 	/**
 	 * app setting controller
 	 */
-	ngApp.provider.controller('ctrlApp', ['$scope', '$q', 'http2', 'mattersgallery', function($scope, $q, http2, mattersgallery) {
+	ngApp.provider.controller('ctrlApp', ['$scope', '$q', 'http2', 'mattersgallery', 'noticebox', function($scope, $q, http2, mattersgallery, noticebox) {
 		window.onbeforeunload = function(e) {
 			var message;
 			if ($scope.ep.$$modified) {
@@ -67,6 +67,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			http2.post(url, p, function(rsp) {
 				page.$$modified = false;
 				defer.resolve();
+				noticebox.success('完成页面保存');
 			});
 			return defer.promise;
 		};
@@ -335,24 +336,56 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				options.mission = $scope.app.mission;
 			}
 			mattersgallery.open($scope.siteId, function(matters, type) {
-				var dom, fn;
-				dom = tinymceEditor.dom;
-				angular.forEach(matters, function(matter) {
-					fn = "openMatter(" + matter.id + ",'" + type + "')";
-					tinymceEditor.insertContent(dom.createHTML('div', {
-						'wrap': 'matter',
-						'class': 'form-group'
-					}, dom.createHTML('span', {
-						"ng-click": fn,
-					}, dom.encode(matter.title))));
-				});
+				var dom = tinymceEditor.dom,
+					style = "cursor:pointer",
+					fn, domMatter, sibling;
+				if ($scope.activeWrap) {
+					sibling = $scope.activeWrap.dom;
+					while (sibling.parentNode !== tinymceEditor.getBody()) {
+						sibling = sibling.parentNode;
+					}
+					/*加到当前选中元素的后面*/
+					angular.forEach(matters, function(matter) {
+						fn = "openMatter(" + matter.id + ",'" + type + "')";
+						domMatter = dom.create('div', {
+							'wrap': 'matter',
+							'class': 'form-group',
+						}, dom.createHTML('span', {
+							"style": style,
+							"ng-click": fn
+						}, dom.encode(matter.title)));
+						dom.insertAfter(domMatter, sibling);
+					});
+				} else {
+					/*加到页面的结尾*/
+					angular.forEach(matters, function(matter) {
+						fn = "openMatter($event,'" + matter.id + "','" + type + "')";
+						domMatter = dom.add(tinymceEditor.getBody(), 'div', {
+							'wrap': 'matter',
+							'class': 'form-group',
+						}, dom.createHTML('span', {
+							"style": style,
+							"ng-click": fn
+						}, dom.encode(matter.title)));
+					});
+				}
 			}, options);
 		};
 		$scope.gotoCode = function() {
 			window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + $scope.ep.code_name, '_self');
 		};
+		var _timerOfPageUpdate = null;
 		$scope.onPageChange = function() {
 			$scope.ep.$$modified = true;
+			if (_timerOfPageUpdate !== null) {
+				$timeout.cancel(_timerOfPageUpdate);
+			}
+			_timerOfPageUpdate = $timeout(function() {
+				$scope.updPage($scope.ep, ['data_schemas', 'act_schemas', 'html']);
+			}, 1000);
+			_timerOfPageUpdate.then(function() {
+				_timerOfPageUpdate = null;
+			});
 		};
 		$scope.$on('tinymce.wrap.add', function(event, domWrap) {
 			$scope.$apply(function() {

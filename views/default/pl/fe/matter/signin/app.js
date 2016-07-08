@@ -278,6 +278,13 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				appSchemas.splice(appSchemas.indexOf(removedSchema), 1);
 				$scope.update('data_schemas');
 			}
+			/* 输入项被删除，其它页面上也不应该再有这个输入项 */
+			angular.forEach($scope.app.pages, function(page) {
+				if (page !== $scope.ep) {
+					page.removeBySchema(removedSchema);
+					$scope.updPage(page, ['data_schemas', 'html']);
+				}
+			});
 		});
 		$scope.$on('xxt.matter.signin.page.data_schemas.added', function(event, addedSchema, target) {
 			chooseState[addedSchema.id] = true;
@@ -629,7 +636,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		};
 		/*创建了新的schema*/
 		$scope.$on('xxt.matter.signin.app.data_schemas.created', function(event, newSchema) {
-			var newWrap, viewPages = [];
+			var newWrap;
 			if ($scope.ep.type === 'I') {
 				addInputSchema(newSchema).then(function() {
 					$scope.$broadcast('xxt.matter.signin.page.data_schemas.added', newSchema, 'app');
@@ -637,17 +644,12 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			}
 			angular.forEach($scope.app.pages, function(page) {
 				if (page.type === 'V') {
-					viewPages.push(page);
+					/* 更新内存的数据 */
+					page.appendRecord(newSchema);
+					/* 更新后台数据 */
+					$scope.updPage(page, ['data_schemas', 'html']);
 				}
 			});
-			/*如果只有1个查看页，在页面上自动添加登记项*/
-			if (viewPages.length === 1) {
-				var page = viewPages[0];
-				/* 更新内存的数据 */
-				page.appendRecord(newSchema);
-				/* 更新后台数据 */
-				$scope.updPage(page, ['data_schemas', 'html']);
-			}
 		});
 		$scope.$on('xxt.matter.signin.page.data_schemas.requestAdd', function(event, addedSchema) {
 			addInputSchema(addedSchema).then(function() {
@@ -723,22 +725,48 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			tinymceEditor.save();
 		};
 		$scope.embedMatter = function(page) {
-			mattersgallery.open($scope.siteId, function(matters, type) {
-				var dom, fn;
-				dom = tinymceEditor.dom;
-				angular.forEach(matters, function(matter) {
-					fn = "openMatter(" + matter.id + ",'" + type + "')";
-					tinymceEditor.insertContent(dom.createHTML('div', {
-						'wrap': 'matter',
-						'class': 'form-group'
-					}, dom.createHTML('span', {
-						"ng-click": fn,
-					}, dom.encode(matter.title))));
-				});
-			}, {
+			var options = {
 				matterTypes: $scope.innerlinkTypes,
 				singleMatter: true
-			});
+			};
+			if ($scope.app.mission) {
+				options.mission = $scope.app.mission;
+			}
+			mattersgallery.open($scope.siteId, function(matters, type) {
+				var dom = tinymceEditor.dom,
+					style = "cursor:pointer",
+					fn, domMatter, sibling;
+				if ($scope.activeWrap) {
+					sibling = $scope.activeWrap.dom;
+					while (sibling.parentNode !== tinymceEditor.getBody()) {
+						sibling = sibling.parentNode;
+					}
+					/*加到当前选中元素的后面*/
+					angular.forEach(matters, function(matter) {
+						fn = "openMatter(" + matter.id + ",'" + type + "')";
+						domMatter = dom.create('div', {
+							'wrap': 'matter',
+							'class': 'form-group',
+						}, dom.createHTML('span', {
+							"style": style,
+							"ng-click": fn
+						}, dom.encode(matter.title)));
+						dom.insertAfter(domMatter, sibling);
+					});
+				} else {
+					/*加到页面的结尾*/
+					angular.forEach(matters, function(matter) {
+						fn = "openMatter($event,'" + matter.id + "','" + type + "')";
+						domMatter = dom.add(tinymceEditor.getBody(), 'div', {
+							'wrap': 'matter',
+							'class': 'form-group',
+						}, dom.createHTML('span', {
+							"style": style,
+							"ng-click": fn
+						}, dom.encode(matter.title)));
+					});
+				}
+			}, options);
 		};
 		$scope.gotoCode = function() {
 			window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + $scope.ep.code_name, '_self');

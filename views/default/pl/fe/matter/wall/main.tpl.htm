@@ -1,0 +1,30 @@
+<div ng-controller='wallCtrl' ng-init="hasParent='<?php echo empty($_SESSION['mpaccount']->parent_mpid) ? 'N':'Y';?>'">
+    <div class='form-inline form-group'>
+        <label class="checkbox-inline" ng-show="hasParent==='Y'"><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='fromParent' ng-change='doSearch()'>来源于父账号</label>
+    </div>
+    <div class='form-horizontal'>
+        <div class='form-group'>
+            <label class='control-label col-md-1'>URL</label>
+            <div class='col-md-11'>
+                <p class='form-control' title='所有讨论组列表URL' style='height:auto'><?php TPL::pt('entryURL');?></p>
+            </div>
+        </div>
+    </div>
+    <div class='form-group' style='margin:0 -15px'>
+        <div class='col-md-3' ng-repeat='w in walls'>
+            <div class='thumbnail' ng-click='open(w.id)'>
+                <span>{{w.title}}</span>
+                <div class='footer'><span class='datetime'>{{w.create_at*1000|date:'yyyy-MM-dd HH:mm'}}</span></div>
+            </div>
+        </div>
+        <div class='col-md-3'>
+            <div class='thumbnail create'>
+                <div>
+                    <div>
+                        <button class='btn btn-success btn-lg' ng-click='open()'>新建讨论组</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

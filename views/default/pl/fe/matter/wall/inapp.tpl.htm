@@ -1,0 +1,18 @@
+<?php
+$entries = TPL::val('app_view_entries');
+$app = TPL::val("app-view");
+?>
+<div>
+    <div class='navbar navbar-default'>
+        <ul class='nav navbar-nav'>
+            <?php if (!empty($entries)) foreach ($entries as $e) {?>
+            <li class='<?php echo $e["url"] == $app ? "active" : "";?>'>
+            <a href='/rest<?php echo $e["url"];?>'><?php echo $e["title"];?></a>
+            </li>
+            <?php }?>
+        </ul>
+    </div>
+    <div>
+        <?php !empty($entries) && TPL::output($app.'/main');?>
+    </div>
+</div>

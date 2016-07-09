@@ -153,7 +153,7 @@
     <nav class="navbar navbar-default navbar-fixed-bottom">
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
-                <button class='btn btn-lg' ng-disabled='!modified&&!ep.$$modified' ng-class="(modified||ep.$$modified)?'btn-success':'btn-default'" ng-click="updPage(ep,['data_schemas','html'])">保存修改</button>
+                <button class='btn btn-lg btn-success' ng-click="updPage(ep,['data_schemas','act_schemas','html'])">保存修改</button>
                 <button class='btn btn-lg btn-success' ng-click="publish()">收集数据</button>
                 <a href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}">登记结果</a>
                 <a href="/rest/pl/fe/matter/enroll/stat?site={{siteId}}&id={{id}}">统计结果</a>

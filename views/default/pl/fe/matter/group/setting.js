@@ -145,7 +145,7 @@ define(['frame'], function(ngApp) {
 			$scope.update(['mission_phase_id', 'title']);
 		};
 	}]);
-	ngApp.provider.controller('ctrlRule', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
+	ngApp.provider.controller('ctrlRule', ['$scope', '$uibModal', 'http2', 'noticebox', function($scope, $uibModal, http2, noticebox) {
 		$scope.aTargets = null;
 		$scope.configRule = function() {
 			$uibModal.open({
@@ -218,7 +218,9 @@ define(['frame'], function(ngApp) {
 		$scope.updateRound = function(name) {
 			var nv = {};
 			nv[name] = $scope.editingRound[name];
-			http2.post('/rest/pl/fe/matter/group/round/update?site=' + $scope.siteId + '&app=' + $scope.id + '&rid=' + $scope.editingRound.round_id, nv);
+			http2.post('/rest/pl/fe/matter/group/round/update?site=' + $scope.siteId + '&app=' + $scope.id + '&rid=' + $scope.editingRound.round_id, nv, function(rsp) {
+				noticebox.success('完成保存');
+			});
 		};
 		$scope.removeRound = function() {
 			http2.get('/rest/pl/fe/matter/group/round/remove?site=' + $scope.siteId + '&app=' + $scope.id + '&rid=' + $scope.editingRound.round_id, function(rsp) {

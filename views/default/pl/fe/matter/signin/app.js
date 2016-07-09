@@ -2,7 +2,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 	/**
 	 * app setting controller
 	 */
-	ngApp.provider.controller('ctrlApp', ['$scope', '$uibModal', '$q', 'http2', 'mattersgallery', function($scope, $uibModal, $q, http2, mattersgallery) {
+	ngApp.provider.controller('ctrlApp', ['$scope', '$uibModal', '$q', 'http2', 'mattersgallery', 'noticebox', function($scope, $uibModal, $q, http2, mattersgallery, noticebox) {
 		window.onbeforeunload = function(e) {
 			var message;
 			if ($scope.ep.$$modified) {
@@ -125,7 +125,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			if (page === $scope.ep && names.indexOf('html') !== -1) {
 				$scope.ep.purifyHtml();
 			}
-			$scope.$root.progmsg = '正在保存页面...';
 			angular.forEach(names, function(name) {
 				p[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
 			});
@@ -136,7 +135,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			url += '&cname=' + page.code_name;
 			http2.post(url, p, function(rsp) {
 				page.$$modified = false;
-				$scope.$root.progmsg = '';
+				noticebox.success('完成保存');
 				defer.resolve();
 			});
 			return defer.promise;

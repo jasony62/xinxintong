@@ -36,22 +36,19 @@ define(['require', 'page'], function(require, pageLib) {
 			'show': 'hide'
 		});
 	}]);
-	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', function($scope, $location, $uibModal, $q, http2) {
+	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'noticebox', function($scope, $location, $uibModal, $q, http2, noticebox) {
 		var ls = $location.search(),
 			modifiedData = {};
 
 		$scope.id = ls.id;
 		$scope.siteId = ls.site;
 		$scope.modified = false;
-		$scope.back = function() {
-			history.back();
-		};
 		$scope.submit = function() {
 			var defer = $q.defer();
 			http2.post('/rest/pl/fe/matter/enroll/update?site=' + $scope.siteId + '&app=' + $scope.id, modifiedData, function(rsp) {
 				$scope.modified = false;
 				modifiedData = {};
-				$scope.infomsg = '已完成保存';
+				noticebox.success('完成保存');
 				defer.resolve(rsp.data);
 			});
 			return defer.promise;

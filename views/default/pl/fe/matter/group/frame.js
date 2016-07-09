@@ -26,21 +26,20 @@ define(['require'], function() {
 
 		$locationProvider.html5Mode(true);
 	}]);
-	ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($scope, $location, $q, http2) {
+	ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', 'noticebox', function($scope, $location, $q, http2, noticebox) {
 		var ls = $location.search(),
 			modifiedData = {};
+			
 		$scope.id = ls.id;
 		$scope.siteId = ls.site;
 		$scope.modified = false;
-		$scope.back = function() {
-			history.back();
-		};
 		$scope.submit = function() {
 			var defer = $q.defer();
 			http2.post('/rest/pl/fe/matter/group/update?site=' + $scope.siteId + '&app=' + $scope.id, modifiedData, function(rsp) {
 				$scope.modified = false;
 				modifiedData = {};
 				defer.resolve(rsp.data);
+				noticebox.success('完成保存');
 			});
 			return defer.promise;
 		};

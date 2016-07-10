@@ -61,16 +61,16 @@ class main extends \pl\fe\matter\base {
 		$result = ['apps' => null, 'total' => 0];
 		$model = $this->model();
 		$q = [
-			'g.*',
-			'xxt_group g',
+			'*',
+			'xxt_group',
 			"state<>0",
 		];
-		if (!empty($mission)) {
+		if (empty($mission)) {
 			$q[2] .= " and siteid='$site'";
 		} else {
 			$q[2] .= " and mission_id='$mission'";
 		}
-		$q2['o'] = 'g.modify_at desc';
+		$q2['o'] = 'modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
 		if ($apps = $model->query_objs_ss($q, $q2)) {

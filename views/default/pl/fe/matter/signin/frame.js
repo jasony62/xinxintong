@@ -29,7 +29,7 @@ define(['require', 'page'], function(require, pageLib) {
 
 		$locationProvider.html5Mode(true);
 	}]);
-	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'noticebox', function($scope, $location, $uibModal, $q, http2, 'noticebox') {
+	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'noticebox', function($scope, $location, $uibModal, $q, http2, noticebox) {
 		var ls = $location.search(),
 			modifiedData = {};
 		$scope.id = ls.id;

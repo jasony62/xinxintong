@@ -85,13 +85,15 @@ class main extends \pl\fe\matter\base {
 		$q = [
 			'a.*',
 			'xxt_enroll a',
-			"siteid='$site' and state<>0",
+			"state<>0",
 		];
-		if (!empty($scenario)) {
-			$q[2] .= " and scenario='$scenario'";
-		}
 		if (!empty($mission)) {
 			$q[2] .= " and mission_id=$mission";
+		} else {
+			$q[2] .= " and siteid='$site'";
+		}
+		if (!empty($scenario)) {
+			$q[2] .= " and scenario='$scenario'";
 		}
 		$q2['o'] = 'a.modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;

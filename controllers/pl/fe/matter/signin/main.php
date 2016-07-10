@@ -73,8 +73,13 @@ class main extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
 		$model = $this->model('matter\signin');
-		$result = $model->bySite($site, $page, $size, $mission);
+		if (empty($mission)) {
+			$result = $model->bySite($site, $page, $size);
+		} else {
+			$result = $model->bySite($mission, $page, $size);
+		}
 
 		return new \ResponseData($result);
 	}

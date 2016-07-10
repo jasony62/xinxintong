@@ -53,7 +53,7 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 返回分组活动列表
 	 */
-	public function list_action($site, $page = 1, $size = 30) {
+	public function list_action($site, $page = 1, $size = 30, $mission = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -63,8 +63,13 @@ class main extends \pl\fe\matter\base {
 		$q = [
 			'g.*',
 			'xxt_group g',
-			"siteid='$site' and state=1",
+			"state<>0",
 		];
+		if (!empty($mission)) {
+			$q[2] .= " and siteid='$site'";
+		} else {
+			$q[2] .= " and mission_id='$mission'";
+		}
 		$q2['o'] = 'g.modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;

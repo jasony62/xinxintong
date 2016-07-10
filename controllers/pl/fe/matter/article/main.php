@@ -126,12 +126,14 @@ class main extends \pl\fe\matter\base {
 		/**
 		 * where
 		 */
-		$w = "a.custom_body='N' and a.siteid='$site' and a.state=1 and finished='Y'";
+		$w = "a.custom_body='N' and a.state=1 and finished='Y'";
 		/**
 		 * 按项目过滤
 		 */
 		if (!empty($mission)) {
-			$w = "a.mission_id=$mission";
+			$w .= " and a.mission_id=$mission";
+		} else {
+			$w .= " and a.siteid='$site'";
 		}
 		/**
 		 * 按频道过滤

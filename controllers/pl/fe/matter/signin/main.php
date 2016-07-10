@@ -173,6 +173,93 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($app);
 	}
 	/**
+	 *
+	 * 复制一个登记活动
+	 *
+	 * @param string $site
+	 * @param string $app
+	 * @param int $mission
+	 *
+	 */
+	public function copy_action($site, $app, $mission = null) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$current = time();
+		$modelApp = $this->model('matter\signin');
+		$modelCode = $this->model('code\page');
+
+		$copied = $modelApp->byId($app);
+		/**
+		 * 获得的基本信息
+		 */
+		$newaid = uniqid();
+		$newapp = [];
+		$newapp['siteid'] = $site;
+		$newapp['id'] = $newaid;
+		$newapp['creater'] = $user->id;
+		$newapp['creater_src'] = $user->src;
+		$newapp['creater_name'] = $user->name;
+		$newapp['create_at'] = $current;
+		$newapp['modifier'] = $user->id;
+		$newapp['modifier_src'] = $user->src;
+		$newapp['modifier_name'] = $user->name;
+		$newapp['modify_at'] = $current;
+		$newapp['title'] = $copied->title . '（副本）';
+		$newapp['pic'] = $copied->pic;
+		$newapp['summary'] = $copied->summary;
+		$newapp['data_schemas'] = $copied->data_schemas;
+		$newapp['entry_rule'] = json_encode($copied->entry_rule);
+		if (!empty($mission)) {
+			$newapp['mission_id'] = $mission;
+		}
+
+		$this->model()->insert('xxt_signin', $newapp, false);
+		/**
+		 * 复制自定义页面
+		 */
+		if (count($copied->pages)) {
+			$modelPage = $this->model('matter\signin\page');
+			foreach ($copied->pages as $ep) {
+				$newPage = $modelPage->add($user, $site, $newaid);
+				$rst = $modelPage->update(
+					'xxt_signin_page',
+					[
+						'title' => $ep->title,
+						'name' => $ep->name,
+						'type' => $ep->type,
+						'data_schemas' => $ep->data_schemas,
+						'act_schemas' => $ep->act_schemas,
+						'user_schemas' => $ep->user_schemas,
+					],
+					"aid='$newaid' and id=$newPage->id"
+				);
+				$data = [
+					'title' => $ep->title,
+					'html' => $ep->html,
+					'css' => $ep->css,
+					'js' => $ep->js,
+				];
+				$modelCode->modify($newPage->code_id, $data);
+			}
+		}
+
+		$app = $modelApp->byId($newaid, ['cascaded' => 'N']);
+
+		/* 记录操作日志 */
+		$app->type = 'signin';
+		$this->model('log')->matterOp($site, $user, $app, 'C');
+
+		/* 记录和任务的关系 */
+		if (isset($mission)) {
+			$modelMis = $this->model('matter\mission');
+			$modelMis->addMatter($user, $site, $mission, $app);
+		}
+
+		return new \ResponseData($app);
+	}
+	/**
 	 * 更新活动的属性信息
 	 *
 	 * @param string $site

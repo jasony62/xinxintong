@@ -262,8 +262,7 @@ class main extends \pl\fe\matter\base {
 	 * @param int $id article's id
 	 */
 	public function get_action($site, $id, $cascade = 'Y') {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -383,6 +382,54 @@ class main extends \pl\fe\matter\base {
 		/* 记录和任务的关系 */
 		if (isset($mission->id)) {
 			$modelMis->addMatter($user, $site->id, $mission->id, $matter);
+		}
+
+		return new \ResponseData($id);
+	}
+	/**
+	 * 创建新图文
+	 */
+	public function copy_action($site, $id, $mission = null) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelArt = $this->model('matter\article');
+
+		$copied = $modelArt->byId($id);
+		$current = time();
+
+		$article = new \stdClass;
+		$article->siteid = $site;
+		$article->mpid = $site;
+		$article->creater = $user->id;
+		$article->creater_src = 'A';
+		$article->creater_name = $user->name;
+		$article->create_at = $current;
+		$article->modifier = $user->id;
+		$article->modifier_src = 'A';
+		$article->modifier_name = $user->name;
+		$article->modify_at = $current;
+		$article->author = $user->name;
+		$article->hide_pic = $copied->hide_pic;
+		$article->title = $copied->title . '（副本）';
+		$article->summary = $copied->summary;
+		$article->body = $copied->body;
+		$article->url = $copied->url;
+		if (!empty($mission)) {
+			$article->mission_id = $mission;
+		}
+
+		$article->id = $modelArt->insert('xxt_article', $article, true);
+
+		/* 记录操作日志 */
+		$article->type = 'article';
+		$this->model('log')->matterOp($site, $user, $article, 'C');
+
+		/* 记录和任务的关系 */
+		if (isset($mission)) {
+			$modelMis = $this->model('matter\mission');
+			$modelMis->addMatter($user, $site, $mission, $article);
 		}
 
 		return new \ResponseData($id);

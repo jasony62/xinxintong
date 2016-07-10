@@ -194,7 +194,7 @@ class main extends \pl\fe\matter\base {
 	 * @param int $mission
 	 *
 	 */
-	public function copy_action($site, $app, $mission) {
+	public function copy_action($site, $app, $mission = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -228,6 +228,10 @@ class main extends \pl\fe\matter\base {
 		$newapp['data_schemas'] = $copied->data_schemas;
 		$newapp['entry_rule'] = json_encode($copied->entry_rule);
 		$newapp['extattrs'] = $copied->extattrs;
+		if (!empty($mission)) {
+			$newapp['mission_id'] = $mission;
+		}
+
 		$this->model()->insert('xxt_enroll', $newapp, false);
 		/**
 		 * 复制自定义页面
@@ -262,6 +266,12 @@ class main extends \pl\fe\matter\base {
 		/* 记录操作日志 */
 		$app->type = 'enroll';
 		$this->model('log')->matterOp($site, $user, $app, 'C');
+
+		/* 记录和任务的关系 */
+		if (isset($mission)) {
+			$modelMis = $this->model('matter\mission');
+			$modelMis->addMatter($user, $site, $mission, $app);
+		}
 
 		return new \ResponseData($app);
 	}

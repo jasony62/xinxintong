@@ -17,7 +17,7 @@ class matter extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$matters = $this->model('mission')->mattersById($site, $id);
+		$matters = $this->model('matter\mission')->mattersById($site, $id);
 
 		return new \ResponseData($matters);
 	}

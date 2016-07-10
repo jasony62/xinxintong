@@ -29,7 +29,7 @@ define(['require'], function() {
 	ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', 'noticebox', function($scope, $location, $q, http2, noticebox) {
 		var ls = $location.search(),
 			modifiedData = {};
-			
+
 		$scope.id = ls.id;
 		$scope.siteId = ls.site;
 		$scope.modified = false;
@@ -71,8 +71,12 @@ define(['require'], function() {
 			app = rsp.data;
 			app.tags = (!app.tags || app.tags.length === 0) ? [] : app.tags.split(',');
 			app.type = 'group';
-			app.group_rule = app.group_rule && app.group_rule.length ? JSON.parse(app.group_rule) : {};
-			app.data_schemas = app.data_schemas && app.data_schemas.length ? JSON.parse(app.data_schemas) : [];
+			try {
+				app.group_rule = app.group_rule && app.group_rule.length ? JSON.parse(app.group_rule) : {};
+				app.data_schemas = app.data_schemas && app.data_schemas.length ? JSON.parse(app.data_schemas) : [];
+			} catch (e) {
+				console.error('error', e);
+			}
 			$scope.app = app;
 			$scope.url = 'http://' + location.host + '/rest/site/fe/matter/group?site=' + $scope.siteId + '&app=' + app.id;
 			if (app.page_code_id == 0 && app.scenario.length) {

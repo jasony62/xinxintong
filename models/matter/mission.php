@@ -142,9 +142,10 @@ class mission_model extends app_base {
 		$q2 = array('o' => 'create_at desc');
 		$mms = $this->query_objs_ss($q, $q2);
 		foreach ($mms as &$mm) {
-			$matter = \TMS_APP::M('matter\\' . $mm->matter_type)->byId($mm->matter_id);
-			$matter->type = $mm->matter_type;
-			$matters[] = $matter;
+			if ($matter = \TMS_APP::M('matter\\' . $mm->matter_type)->byId($mm->matter_id)) {
+				$matter->type = $mm->matter_type;
+				$matters[] = $matter;
+			}
 		}
 
 		return $matters;

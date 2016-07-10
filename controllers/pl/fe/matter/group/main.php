@@ -138,6 +138,66 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($app);
 	}
 	/**
+	 *
+	 * 复制一个登记活动
+	 *
+	 * @param string $site
+	 * @param string $app
+	 * @param int $mission
+	 *
+	 */
+	public function copy_action($site, $app, $mission = null) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$current = time();
+		$modelApp = $this->model('matter\group');
+		$modelCode = $this->model('code\page');
+
+		$copied = $modelApp->byId($app);
+		/**
+		 * 获得的基本信息
+		 */
+		$newaid = uniqid();
+		$newapp = [];
+		$newapp['siteid'] = $site;
+		$newapp['id'] = $newaid;
+		$newapp['creater'] = $user->id;
+		$newapp['creater_src'] = $user->src;
+		$newapp['creater_name'] = $user->name;
+		$newapp['create_at'] = $current;
+		$newapp['modifier'] = $user->id;
+		$newapp['modifier_src'] = $user->src;
+		$newapp['modifier_name'] = $user->name;
+		$newapp['modify_at'] = $current;
+		$newapp['title'] = $copied->title . '（副本）';
+		$newapp['pic'] = $copied->pic;
+		$newapp['summary'] = $copied->summary;
+		$newapp['scenario'] = $copied->scenario;
+		$newapp['data_schemas'] = $copied->data_schemas;
+		$newapp['group_rule'] = $copied->group_rule;
+		if (!empty($mission)) {
+			$newapp['mission_id'] = $mission;
+		}
+
+		$this->model()->insert('xxt_group', $newapp, false);
+
+		$app = $modelApp->byId($newaid, ['cascaded' => 'N']);
+
+		/* 记录操作日志 */
+		$app->type = 'group';
+		$this->model('log')->matterOp($site, $user, $app, 'C');
+
+		/* 记录和任务的关系 */
+		if (isset($mission)) {
+			$modelMis = $this->model('matter\mission');
+			$modelMis->addMatter($user, $site, $mission, $app);
+		}
+
+		return new \ResponseData($app);
+	}
+	/**
 	 * 更新活动的属性信息
 	 *
 	 * @param string $aid

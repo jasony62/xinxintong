@@ -67,4 +67,55 @@ class group_model extends app_base {
 		}
 		return true;
 	}
+	/**
+	 *
+	 */
+	public function execute($appId) {
+		$app = \TMS_APP::M('matter\group')->byId($appId);
+
+		$modelRnd = \TMS_APP::M('matter\group\round');
+		$rst = $modelRnd->clean($appId);
+		$rounds = $modelRnd->byApp($appId);
+
+		$players = \TMS_APP::M('matter\group\player')->pendings($appId);
+
+		$lenOfRounds = count($rounds);
+		$lenOfPlayers = count($players);
+		$spaceOfRound = ceil($lenOfPlayers / $lenOfRounds);
+		$hasSpace = true;
+		$submittedWinners = [];
+
+		while (count($players) && $hasSpace) {
+			$hasSpace = false;
+			foreach ($rounds as &$round) {
+				!isset($round->winners) && $round->winners = [];
+				$round->times == 0 && ($round->times = $spaceOfRound);
+				if ($round->times > count($round->winners)) {
+					$winner4Round = $this->getWinner4Round($round);
+					$winner4Round->round_id = $round->round_id;
+					$submittedWinners[] = $winner4Round;
+					if ($round->times > count($round->winners)) {
+						$hasSpace = true;
+					}
+				}
+			}
+		}
+	}
+	/**
+	 *
+	 */
+	private function getWinner4Round(&$round, &$players) {
+		$target = $round->targets ? $round->targets[count($round->winners) % count($round->targets)] : false;
+		$steps = 10;
+		$matchedPos = $startPos = $steps % count($players);
+		die('ppp:' . $matchedPos);
+		$winner = $players[$startPos];
+		if ($target) {
+			/* 设置了用户抽取规则 */
+		}
+		$round->winners[] = $winner;
+		$players->splice($matchedPos, 1);
+
+		return $winner;
+	}
 }

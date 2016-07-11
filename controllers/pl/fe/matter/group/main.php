@@ -16,18 +16,8 @@ class main extends \pl\fe\matter\base {
 	 * 返回视图
 	 */
 	public function index_action($site, $id) {
-		if (strpos($_SERVER['REQUEST_URI'], 'running') !== false) {
-			\TPL::output('/pl/fe/matter/group/frame');
-			exit;
-		} else {
-			$app = $this->model('matter\group')->byId($id);
-			if ($app->state === '2') {
-				$this->redirect('/rest/pl/fe/matter/group/running?site=' . $site . '&id=' . $id);
-			} else {
-				\TPL::output('/pl/fe/matter/group/frame');
-				exit;
-			}
-		}
+		\TPL::output('/pl/fe/matter/group/frame');
+		exit;
 	}
 	/**
 	 * 返回一个分组活动
@@ -317,5 +307,19 @@ class main extends \pl\fe\matter\base {
 		$this->model('log')->matterOp($site, $user, $app, 'D');
 
 		return new \ResponseData($rst);
+	}
+	/**
+	 * 进行分组
+	 */
+	public function execute_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelGrp = $this->model('matter\group');
+		/* 执行分组 */
+		$winners = $modelGrp->execute($app);
+
+		return new \ResponseData($winners);
 	}
 }

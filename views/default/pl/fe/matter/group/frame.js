@@ -56,15 +56,29 @@ define(['require'], function() {
 
 			return $scope.submit();
 		};
-		$scope.syncByApp = function() {
-			var defer = $q.defer();
-			if ($scope.app.sourceApp) {
-				http2.get('/rest/pl/fe/matter/group/player/syncByApp?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
-					$scope.$root.infomsg = '同步' + rsp.data + '个用户';
-					defer.resolve(rsp.data);
+		$scope.gotoCode = function() {
+			var app, url;
+			app = $scope.app;
+			if (app.page_code_name && app.page_code_name.length) {
+				window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + app.page_code_name, '_self');
+			} else {
+				url = '/rest/pl/fe/matter/group/page/create?site=' + $scope.siteId + '&app=' + app.id + '&scenario=' + app.scenario;
+				http2.get(url, function(rsp) {
+					app.page_code_id = rsp.data.id;
+					app.page_code_name = rsp.data.name;
+					window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + app.page_code_name, '_self');
 				});
 			}
-			return defer.promise;
+		};
+		$scope.resetCode = function() {
+			var app, url;
+			if (window.confirm('重置操作将丢失已做修改，确定？')) {
+				app = $scope.app;
+				url = '/rest/pl/fe/matter/group/page/reset?site=' + $scope.siteId + '&app=' + app.id + '&scenario=' + app.scenario;
+				http2.get(url, function(rsp) {
+					window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + app.page_code_name, '_self');
+				});
+			}
 		};
 		http2.get('/rest/pl/fe/matter/group/get?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
 			var app, url;
@@ -78,7 +92,7 @@ define(['require'], function() {
 				console.error('error', e);
 			}
 			$scope.app = app;
-			$scope.url = 'http://' + location.host + '/rest/site/fe/matter/group?site=' + $scope.siteId + '&app=' + app.id;
+			$scope.opUrl = 'http://' + location.host + '/rest/site/op/matter/group?site=' + $scope.siteId + '&app=' + $scope.id;
 			if (app.page_code_id == 0 && app.scenario.length) {
 				url = '/rest/pl/fe/matter/group/page/create?site=' + $scope.siteId + '&app=' + app.id + '&scenario=' + app.scenario;
 				http2.get(url, function(rsp) {

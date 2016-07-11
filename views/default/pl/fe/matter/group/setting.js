@@ -35,13 +35,6 @@ define(['frame'], function(ngApp) {
 				singleMatter: true
 			});
 		};
-		$scope.run = function() {
-			$scope.app.state = 2;
-			$scope.update('state');
-			$scope.submit().then(function() {
-				location.href = '/rest/site/op/matter/group?site=' + $scope.siteId + '&app=' + $scope.id;
-			});
-		};
 		$scope.importByApp = function() {
 			$uibModal.open({
 				templateUrl: 'importByApp.html',
@@ -203,7 +196,9 @@ define(['frame'], function(ngApp) {
 		};
 		$scope.execute = function() {
 			if (window.confirm('本操作将清除已有分组数据，确定执行?')) {
-				http2.get('/rest/pl/fe/matter/group/execute?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {});
+				http2.get('/rest/pl/fe/matter/group/execute?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+					$scope.$broadcast('xxt.matter.group.execute.done', rsp.data);
+				});
 			}
 		};
 		$scope.editingRound = null;
@@ -258,25 +253,6 @@ define(['frame'], function(ngApp) {
 			$scope.aTargets.splice(i, 1);
 			$scope.saveTargets();
 		};
-		$scope.value2Label = function(val, key) {
-			var schemas = $scope.app.data_schemas,
-				i, j, s, aVal, aLab = [];
-			if (val === undefined) return '';
-			for (i = 0, j = schemas.length; i < j; i++) {
-				if (schemas[i].id === key) {
-					s = schemas[i];
-					break;
-				}
-			}
-			if (s && s.ops && s.ops.length) {
-				aVal = val.split(',');
-				for (i = 0, j = s.ops.length; i < j; i++) {
-					aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
-				}
-				if (aLab.length) return aLab.join(',');
-			}
-			return val;
-		};
 		$scope.labelTarget = function(target) {
 			var labels = [];
 			angular.forEach(target, function(v, k) {
@@ -292,13 +268,6 @@ define(['frame'], function(ngApp) {
 		};
 	}]);
 	ngApp.provider.controller('ctrlRunning', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
-		$scope.stop = function() {
-			$scope.app.state = 1;
-			$scope.update('state');
-			$scope.submit().then(function() {
-				location.href = '/rest/pl/fe/matter/group/setting?site=' + $scope.siteId + '&id=' + $scope.id;
-			});
-		};
 		$scope.editPlayer = function(player) {
 			$uibModal.open({
 				templateUrl: 'editorPlayer.html',
@@ -417,6 +386,15 @@ define(['frame'], function(ngApp) {
 				$scope.pendings();
 			} else {
 				$scope.winners(round);
+			}
+		});
+		$scope.$on('xxt.matter.group.execute.done', function(winners) {
+			if ($scope.editingRound === null) {
+				$scope.allPlayers();
+			} else if ($scope.editingRound === false) {
+				$scope.pendings();
+			} else {
+				$scope.winners($scope.editingRound);
 			}
 		});
 	}]);

@@ -70,52 +70,108 @@ class group_model extends app_base {
 	/**
 	 *
 	 */
-	public function execute($appId) {
+	public function &execute($appId) {
 		$app = \TMS_APP::M('matter\group')->byId($appId);
 
 		$modelRnd = \TMS_APP::M('matter\group\round');
 		$rst = $modelRnd->clean($appId);
 		$rounds = $modelRnd->byApp($appId);
 
-		$players = \TMS_APP::M('matter\group\player')->pendings($appId);
+		$modelPly = \TMS_APP::M('matter\group\player');
+		$players = $modelPly->pendings($appId);
 
 		$lenOfRounds = count($rounds);
 		$lenOfPlayers = count($players);
 		$spaceOfRound = ceil($lenOfPlayers / $lenOfRounds);
 		$hasSpace = true;
+		$current = time();
 		$submittedWinners = [];
 
 		while (count($players) && $hasSpace) {
 			$hasSpace = false;
 			foreach ($rounds as &$round) {
 				!isset($round->winners) && $round->winners = [];
+				is_string($round->targets) && $round->targets = json_decode($round->targets);
 				$round->times == 0 && ($round->times = $spaceOfRound);
 				if ($round->times > count($round->winners)) {
-					$winner4Round = $this->getWinner4Round($round);
+					$winner4Round = $this->_getWinner4Round($round, $players);
 					$winner4Round->round_id = $round->round_id;
 					$submittedWinners[] = $winner4Round;
+					/*保存结果*/
+					$winner = array(
+						'round_id' => $round->round_id,
+						'round_title' => $round->title,
+						'draw_at' => $current,
+					);
+					$modelPly->update('xxt_group_player', $winner, "aid='$appId' and enroll_key='{$winner4Round->enroll_key}'");
+					/*轮次是否还可以继续放用户*/
 					if ($round->times > count($round->winners)) {
 						$hasSpace = true;
 					}
 				}
+				if (count($players) === 0) {
+					break;
+				}
 			}
 		}
+
+		return $submittedWinners;
 	}
 	/**
 	 *
 	 */
-	private function getWinner4Round(&$round, &$players) {
-		$target = $round->targets ? $round->targets[count($round->winners) % count($round->targets)] : false;
-		$steps = 10;
+	private function _getWinner4Round(&$round, &$players) {
+		$steps = rand(0, 10);
 		$matchedPos = $startPos = $steps % count($players);
-		die('ppp:' . $matchedPos);
 		$winner = $players[$startPos];
+
+		$target = $round->targets ? $round->targets[count($round->winners) % count($round->targets)] : false;
 		if ($target) {
 			/* 设置了用户抽取规则 */
+			if (count(get_object_vars($target)) > 0) {
+				/* 检查是否匹配规则 */
+				$matched = $this->_matched($winner, $target);
+				while (!$matched) {
+					$matchedPos++;
+					if ($matchedPos === count($players)) {
+						$matchedPos = 0;
+					}
+					$winner = $players[$matchedPos];
+					if ($matchedPos === $startPos) {
+						/*比较了所有的候选者，没有匹配的*/
+						break;
+					} else {
+						/*下一个候选者*/
+						$matched = $this->_matched($winner, $target);
+					}
+				}
+			}
 		}
 		$round->winners[] = $winner;
-		$players->splice($matchedPos, 1);
+
+		/* 从候选者中去掉 */
+		array_splice($players, $matchedPos, 1);
 
 		return $winner;
+	}
+	/**
+	 *
+	 */
+	private function _matched($candidate, $target) {
+		if (!$candidate) {
+			return false;
+		}
+
+		if (count(get_object_vars($target)) === 0) {
+			return true;
+		}
+
+		foreach ($target as $k => $v) {
+			if ($candidate->data[$k] === $v) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

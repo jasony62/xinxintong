@@ -100,6 +100,14 @@
                 <input type='text' class='form-control' ng-model='editingRound.title' tms-auto-update tms-wait=1000 tms-update="updateRound('title')">
             </div>
             <div class='form-group compact'>
+                <div class='help-block'>扩展属性1</div>
+                <input type="text" class="form-control" ng-model="editingRound.extattrs.attr1" tms-auto-update tms-wait=1000 tms-update="updateRound('extattrs')">
+            </div>
+            <div class='form-group compact'>
+                <div class='help-block'>扩展属性2</div>
+                <input type="text" class="form-control" ng-model="editingRound.extattrs.attr2" tms-auto-update tms-wait=1000 tms-update="updateRound('extattrs')">
+            </div>
+            <div class='form-group compact'>
                 <div class='help-block'>人数</div>
                 <input type='text' class='form-control' ng-model='editingRound.times' tms-auto-update tms-wait=1000 tms-update="updateRound('times')">
             </div>
@@ -134,52 +142,40 @@
         </div>
         <!-- result -->
         <div ng-controller='ctrlRunning'>
-            <div class='tile' ng-if='editingRound'>
-                <div class='form-group compact'>
-                    <input type="text" class="form-control" ng-model="editingRound.extattrs.attr1" tms-auto-update tms-wait=1000 tms-update="updateRound('extattrs')">
-                    <div class='help-block'>扩展属性1</div>
-                </div>
-                <div class='form-group compact'>
-                    <input type="text" class="form-control" ng-model="editingRound.extattrs.attr2" tms-auto-update tms-wait=1000 tms-update="updateRound('extattrs')">
-                    <div class='help-block'>扩展属性2</div>
-                </div>
-            </div>
-            <div class='tile'>
-                <table class='table table-bordered'>
-                    <thead>
-                        <tr>
-                            <th ng-if="null===editingRound">分组</th>
-                            <th class='custom-col' ng-repeat="c in app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
-                            <th style='width:72px'>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat='p in players' class='player'>
-                            <td ng-if="null===editingRound">{{p.round_title}}</td>
-                            <td ng-repeat="c in app.data_schemas">
-                                <span ng-if="c.id.indexOf('member')===0">{{memberAttr(p.data, c.id)}}</span>
-                                <span ng-if="c.type!=='img'&&c.type!=='file'">{{value2Label(p.data[c.id], c.id)}}</span>
-                                <span ng-if="c.type==='img'" ng-init="imgs=p.data[c.id].split(',')">
-                                    <img ng-repeat="img in imgs" ng-src='{{img}}' />
-                                </span>
-                                <span ng-if="c.type==='file'" ng-init="files=json2Obj(p.data[c.id])">
-                                    <span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
-                                </span>
-                            </td>
-                            <td>
-                                <button class='btn btn-xs btn-danger' ng-click='removePlayer(p)'>
-                                    <span class='glyphicon glyphicon-remove'></span>
-                                </button>
-                                <button class='btn btn-xs btn-default' ng-click='editPlayer(p)'>
-                                    <span class='glyphicon glyphicon-edit'></span>
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <button class='btn btn-danger' ng-click='empty()'>清空用户</button>
-                <button class="btn btn-default" ng-click='addPlayer()'>添加用户</button>
-            </div>
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th ng-if="null===editingRound">分组</th>
+                        <th class='custom-col' ng-repeat="c in app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
+                        <th style='width:72px'>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat='p in players' class='player'>
+                        <td ng-if="null===editingRound">{{p.round_title}}</td>
+                        <td ng-repeat="c in app.data_schemas">
+                            <span ng-if="c.id.indexOf('member')===0">{{memberAttr(p.data, c.id)}}</span>
+                            <span ng-if="c.type!=='img'&&c.type!=='file'">{{value2Label(p.data[c.id], c.id)}}</span>
+                            <span ng-if="c.type==='img'" ng-init="imgs=p.data[c.id].split(',')">
+                                <img ng-repeat="img in imgs" ng-src='{{img}}' />
+                            </span>
+                            <span ng-if="c.type==='file'" ng-init="files=json2Obj(p.data[c.id])">
+                                <span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                            </span>
+                        </td>
+                        <td>
+                            <button class='btn btn-xs btn-danger' ng-click='removePlayer(p)'>
+                                <span class='glyphicon glyphicon-remove'></span>
+                            </button>
+                            <button class='btn btn-xs btn-default' ng-click='editPlayer(p)'>
+                                <span class='glyphicon glyphicon-edit'></span>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class='btn btn-danger' ng-click='empty()'>清空用户</button>
+            <button class="btn btn-default" ng-click='addPlayer()'>添加用户</button>
         </div>
         <!-- result -->
     </div>

@@ -1,5 +1,5 @@
 define(['frame'], function(ngApp) {
-	ngApp.provider.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery', 'mattersgallery', function($scope, http2, $uibModal, mediagallery, mattersgallery) {
+	ngApp.provider.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery', 'mattersgallery', 'noticebox', function($scope, http2, $uibModal, mediagallery, mattersgallery, noticebox) {
 		window.onbeforeunload = function(e) {
 			var message;
 			if ($scope.modified) {
@@ -205,12 +205,25 @@ define(['frame'], function(ngApp) {
 		$scope.open = function(round) {
 			$scope.editingRound = round;
 		};
-	}]);
-	ngApp.provider.controller('ctrlRule', ['$scope', '$uibModal', 'http2', 'noticebox', function($scope, $uibModal, http2, noticebox) {
-		$scope.aTargets = null;
-		$scope.$watch('editingRound', function(round) {
-			$scope.aTargets = (!round || round.targets.length === 0) ? [] : eval(round.targets);
-		});
+		$scope.value2Label = function(val, key) {
+			var schemas = $scope.app.data_schemas,
+				i, j, s, aVal, aLab = [];
+			if (val === undefined) return '';
+			for (i = 0, j = schemas.length; i < j; i++) {
+				if (schemas[i].id === key) {
+					s = schemas[i];
+					break;
+				}
+			}
+			if (s && s.ops && s.ops.length) {
+				aVal = val.split(',');
+				for (i = 0, j = s.ops.length; i < j; i++) {
+					aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
+				}
+				if (aLab.length) return aLab.join(',');
+			}
+			return val;
+		};
 		$scope.updateRound = function(name) {
 			var nv = {};
 			nv[name] = $scope.editingRound[name];
@@ -225,6 +238,16 @@ define(['frame'], function(ngApp) {
 				$scope.editingRound = null;
 			});
 		};
+		$scope.activeTabIndex = 0;
+		$scope.activeTab = function(index) {
+			$scope.activeTabIndex = index;
+		};
+	}]);
+	ngApp.provider.controller('ctrlRule', ['$scope', '$uibModal', 'http2', 'noticebox', function($scope, $uibModal, http2, noticebox) {
+		$scope.aTargets = null;
+		$scope.$watch('editingRound', function(round) {
+			$scope.aTargets = (!round || round.targets.length === 0) ? [] : eval(round.targets);
+		});
 		$scope.addTarget = function() {
 			$uibModal.open({
 				templateUrl: 'targetEditor.html',
@@ -347,6 +370,7 @@ define(['frame'], function(ngApp) {
 			url += '&rid=' + round.round_id;
 			http2.get(url, function(rsp) {
 				$scope.players = rsp.data;
+				$scope.activeTab($scope.players.length ? 1 : 0);
 			});
 		};
 		$scope.pendings = function() {
@@ -354,30 +378,6 @@ define(['frame'], function(ngApp) {
 			http2.get(url, function(rsp) {
 				$scope.players = rsp.data;
 			});
-		};
-		$scope.updateRound = function(name) {
-			var nv = {};
-			nv[name] = $scope.editingRound[name];
-			http2.post('/rest/pl/fe/matter/group/round/update?site=' + $scope.siteId + '&app=' + $scope.id + '&rid=' + $scope.editingRound.round_id, nv);
-		};
-		$scope.value2Label = function(val, key) {
-			var schemas = $scope.app.data_schemas,
-				i, j, s, aVal, aLab = [];
-			if (val === undefined) return '';
-			for (i = 0, j = schemas.length; i < j; i++) {
-				if (schemas[i].id === key) {
-					s = schemas[i];
-					break;
-				}
-			}
-			if (s && s.ops && s.ops.length) {
-				aVal = val.split(',');
-				for (i = 0, j = s.ops.length; i < j; i++) {
-					aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
-				}
-				if (aLab.length) return aLab.join(',');
-			}
-			return val;
 		};
 		$scope.$watch('editingRound', function(round) {
 			if (round === null) {

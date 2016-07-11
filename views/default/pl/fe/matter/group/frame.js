@@ -21,7 +21,6 @@ define(['require'], function() {
 		};
 		$routeProvider
 			.when('/rest/pl/fe/matter/group/player', new RouteParam('player'))
-			.when('/rest/pl/fe/matter/group/running', new RouteParam('running'))
 			.otherwise(new RouteParam('setting'));
 
 		$locationProvider.html5Mode(true);

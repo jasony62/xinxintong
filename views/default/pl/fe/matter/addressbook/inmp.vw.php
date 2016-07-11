@@ -7,7 +7,7 @@
  */
 $view['template'] = '/mp/frame';
 $view['params']['layout-top'] = '/global/title-bar';
-$view['params']['layout-left'] = '/mp/nav';
+$view['params']['layout-left'] = '/pl/fe/matter/addressbook/nav';
 
 if (isset($_GET['mpid']) && ($mpid = $_GET['mpid'])) {
 	$_SESSION['mpid'] = $mpid;

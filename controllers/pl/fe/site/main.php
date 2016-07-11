@@ -9,7 +9,8 @@ class main extends \pl\fe\base {
 	/**
 	 *
 	 */
-	public function index_action() {
+	public function index_action() {      
+            $_SESSION['mpid']= $_GET['site'];
 		\TPL::output('/pl/fe/site/console');
 		exit;
 	}
@@ -27,6 +28,16 @@ class main extends \pl\fe\base {
 		$site['creater_name'] = $user->name;
 		$site['create_at'] = time();
 		$siteid = $this->model('site')->create($site);
+                
+                if ($asparent === 'Y') {
+			$d['token'] = uniqid();
+		}
+
+		$d['name'] = '新公众账号';
+		$d['asparent'] = $asparent;
+		$d['parent_mpid'] = '';
+                $d['mpid']=$siteid;
+		$this->model('mp\mpaccount')->create($d);
 
 		return new \ResponseData(array('id' => $siteid));
 	}

@@ -1,2 +1,2 @@
 <?php
-$view['template'] = '/mp/app/addressbook/dept';
+$view['template'] = '/pl/fe/matter/addressbook/dept';

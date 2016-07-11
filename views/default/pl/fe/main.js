@@ -13,7 +13,7 @@ controller('MpCtrl', ['$scope', 'http2', function($scope, http2) {
     };
     $scope.createmp = function() {
         var url = '/rest/pl/fe/main/createmp';
-        $scope.selectedPmp && (url += '?pmpid=' + $scope.selectedPmp.mpid);
+        $scope.selectedPmp && (url += '?pmpid=' + $scope.selectedPmp.mpid);      
         http2.get(url, function(rsp) {
             location.replace('/rest/mp/mpaccount?mpid=' + rsp.data);
         });

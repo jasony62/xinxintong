@@ -46,7 +46,7 @@ class addressbook_model extends app_base {
         $q = array(
             '*',
             'xxt_addressbook',
-            "mpid='$mpid'"
+            "mpid='".$mpid."'",
         );
         $q2 = array(
             'o'=>'modify_at desc'

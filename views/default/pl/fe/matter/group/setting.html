@@ -94,6 +94,15 @@
     <!-- end left -->
     <!-- right -->
     <div class='col-md-8'>
+        <uib-tabset active="active">
+            <uib-tab index="0" heading="Static title">Static content</uib-tab>
+            <uib-tab index="3" select="alertMe()">
+                <uib-tab-heading>
+                    <i class="glyphicon glyphicon-bell"></i> Alert!
+                </uib-tab-heading>
+                I've got an HTML heading, and a select callback. Pretty cool!
+            </uib-tab>
+        </uib-tabset>
         <div class='tile' ng-controller="ctrlRule" ng-if='editingRound'>
             <div class='form-group compact'>
                 <div class='help-block'>名称</div>

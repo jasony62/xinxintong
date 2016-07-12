@@ -15,7 +15,7 @@ xxtApp.controller('abCtrl',['$scope','http2',function($scope,http2){
     $scope.remove = function(event, addressbook, index){
         event.preventDefault();
         event.stopPropagation();
-        http2.get('/rest/pl/fe/matter/addressbook/remove?abid='+addressbook.id, function(rsp) {
+        http2.get('/rest/pl/fe/matter/addressbook/remove?id='+addressbook.id, function(rsp) {
             $scope.addressbooks.splice(index, 1);
         });
     };

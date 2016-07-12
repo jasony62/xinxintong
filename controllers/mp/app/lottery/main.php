@@ -94,7 +94,7 @@ class main extends \mp\app\app_base {
 	public function create_action() {
 		$uid = \TMS_CLIENT::get_client_uid();
 		$mpa = $this->model('mp\mpaccount')->getFeature($this->mpid, 'heading_pic');
-
+                $creater=$uid;
 		$lid = uniqid();
 		$current = time();
 
@@ -114,7 +114,7 @@ class main extends \mp\app\app_base {
 		 * 创建定制页
 		 */
 		$codeModel = $this->model('code\page');
-		$page = $codeModel->create($uid);
+		$page = $codeModel->create($uid,$creater);
 		$data = array(
 			'html' => '<button ng-click="play()">开始</button>',
 			'css' => '#pattern button{width:100%;font-size:1.2em;padding:.5em 0}',

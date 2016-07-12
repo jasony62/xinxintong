@@ -10,6 +10,9 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	public function index_action() {
+            if(isset($_GET['site'])&& $_GET['site']!=''){
+               $_SESSION['mpid']=  strip_tags($_GET['site']);
+            }
 		\TPL::output('/pl/fe/site/console');
 		exit;
 	}

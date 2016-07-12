@@ -44,7 +44,7 @@ xxtApp.controller('personCtrl', ['$scope', 'http2', '$timeout', '$uibModal', fun
     };
     $scope.options = {};
     $scope.back = function () {
-        location.href = '/page/pl/fe/matter/addressbook/edit?id=' + $scope.person.ab_id;
+        location.href = '/page/mp/app/addressbook/edit?id=' + $scope.person.ab_id;
     };
     $scope.update = function (name) {
         if (!angular.equals($scope.person, $scope.persisted)) {
@@ -75,7 +75,7 @@ xxtApp.controller('personCtrl', ['$scope', 'http2', '$timeout', '$uibModal', fun
     });
     $scope.addDept = function () {
         $uibModal.open({
-            templateUrl: '/views/default/pl/fe/matter/addressbook/deptSelector.html?_=1',
+            templateUrl: '/views/default/mp/app/addressbook/deptSelector.html?_=1',
             controller: 'deptSelectorCtrl',
             windowClass: 'auto-height',
             backdrop: 'static',

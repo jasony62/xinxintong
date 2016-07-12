@@ -10,14 +10,12 @@ xxtApp.controller('abCtrl',['$scope','http2',function($scope,http2){
         });
     };
     $scope.edit = function(addressbook) {
-        location.href = '/page/pl/fe/matter/addressbook/edit?id='+addressbook.id;
+        location.href = '/page/mp/app/addressbook/edit?id='+addressbook.id;
     };
     $scope.remove = function(event, addressbook, index){
-        console.log(addressbook.id);     
         event.preventDefault();
         event.stopPropagation();
-        http2.get('/rest/pl/fe/matter/addressbook/remove?id='+addressbook.id, function(rsp) {
-            console.log(rsp);
+        http2.get('/rest/pl/fe/matter/addressbook/remove?abid='+addressbook.id, function(rsp) {
             $scope.addressbooks.splice(index, 1);
         });
     };

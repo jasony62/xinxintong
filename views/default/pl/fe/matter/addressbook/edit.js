@@ -35,7 +35,6 @@ xxtApp.controller('abCtrl', ['$scope', 'http2', function($scope, http2) {
             }
         };
         $scope.$broadcast('mediagallery.open', options);
-        //console.log(options);
     };
     $scope.removePic = function() {
         $scope.editing.pic = '';
@@ -66,11 +65,11 @@ xxtApp.controller('rollCtrl', ['$scope', '$uibModal', 'http2', function($scope, 
     };
     $scope.create = function() {
         http2.get('/rest/pl/fe/matter/addressbook/personCreate?abid=' + $scope.abid, function(rsp) {
-            location.href = '/page/pl/fe/matter/addressbook/person?abid=' + $scope.abid + '&id=' + rsp.data.id;
+            location.href = '/page/mp/app/addressbook/person?abid=' + $scope.abid + '&id=' + rsp.data.id;
         });
     };
     $scope.edit = function(person) {
-        location.href = '/page/pl/fe/matter/addressbook/person?id=' + person.id;
+        location.href = '/page/mp/app/addressbook/person?id=' + person.id;
     };
     $scope.keypress = function(event) {
         if (event.keyCode == 13)
@@ -160,7 +159,7 @@ xxtApp.controller('deptCtrl', ['$scope', 'http2', '$uibModal', function($scope, 
     };
     $scope.setDeptParent = function() {
         $uibModal.open({
-            templateUrl: '/views/default/pl/fe/matter/addressbook/deptSelector.html?_=1',
+            templateUrl: '/views/default/mp/app/addressbook/deptSelector.html?_=1',
             controller: 'deptSelectorCtrl',
             backdrop: 'static',
             windowClass: 'auto-height',

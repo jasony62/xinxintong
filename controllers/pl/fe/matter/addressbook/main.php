@@ -22,55 +22,57 @@ class main extends \pl\fe\matter\base {
     protected $entries;
 
     public function __construct() {
-        $account = \TMS_CLIENT::account();
-        if ($account === false) {
-            return new \ResponseTimeout();
-        }
-        if (isset($_GET['mpid']) && ($mpid = $_GET['mpid'])) {        
-            $_SESSION['mpid'] = $mpid;
-        } else if (!isset($_SESSION['mpid']) || !($mpid = $_SESSION['mpid'])) {
-            header('HTTP/1.0 500 parameter error:mpid is empty.');
-            die('参数不完整');
-        }
-        $this->mpid = $mpid;
-        $prights = $this->model('matter\permission')->hasMpRight(
-                $this->mpid, array('mpsetting', 'matter', 'app', 'reply', 'user', 'analyze'), 'read'
-        );
-        //$prights=TRUE;
-        $entries = array();
-        (true === $prights || $prights['mpsetting']['read_p'] === 'Y') && $entries['/rest/mp/mpaccount'] = array('title' => '账号管理', 'entry' => '');
-        (true === $prights || $prights['matter']['read_p'] === 'Y') && $entries['/rest/mp/matter'] = array('title' => '素材管理', 'entry' => '');
-        (true === $prights || $prights['app']['read_p'] === 'Y') && $entries['/rest/pl/fe/matter/addressbook'] = array('title' => '应用管理', 'entry' => '');
-        (true === $prights || $prights['reply']['read_p'] === 'Y') && $entries['/rest/mp/call'] = array('title' => '回复管理', 'entry' => '');
-        (true === $prights || $prights['user']['read_p'] === 'Y') && $entries['/page/mp/user/received'] = array('title' => '用户管理', 'entry' => '');
-        (true === $prights || $prights['analyze']['read_p'] === 'Y') && $entries['/page/mp/analyze'] = array('title' => '统计分析', 'entry' => '');
-        \TPL::assign('mp_view_entries', $entries);
-        
-        $prights = $this->model('matter\permission')->hasMpRight(
-                $this->mpid, array(
-            'app_enroll',
-            'app_lottery',
-            'app_wall',
-            'app_addressbook',
-            'app_contribute',
-            'app_merchant',
-                ), 'read'
-        );
-        //$prights=TRUE;
-        $entries = array();
-        (true === $prights || (isset($prights['app_enroll']) && $prights['app_enroll']['read_p'] === 'Y')) && $entries[] = array('url' => '/pl/fe/matter/enroll', 'title' => '登记活动');
-        (true === $prights || (isset($prights['app_lottery']) && $prights['app_lottery']['read_p'] === 'Y')) && $entries[] = array('url' => '/pl/fe/matter/lottery', 'title' => '抽奖活动');
-        (true === $prights || (isset($prights['app_wall']) && $prights['app_wall']['read_p'] === 'Y')) && $entries[] = array('url' => '/pl/fe/matter/wall', 'title' => '信息墙');
-        (true === $prights || (isset($prights['app_addressbook']) && $prights['app_addressbook']['read_p'] === 'Y')) && $entries[] = array('url' => '/pl/fe/matter/addressbook', 'title' => '通讯录');
-        (true === $prights || (isset($prights['app_contribute']) && $prights['app_contribute']['read_p'] === 'Y')) && $entries[] = array('url' => '/pl/fe/matter/contribute', 'title' => '投稿');
-        (true === $prights || (isset($prights['app_merchant']) && $prights['app_merchant']['read_p'] === 'Y')) && $entries[] = array('url' => '/pl/fe/matter/merchant', 'title' => '订购');
+		$account = \TMS_CLIENT::account();
+		if ($account === false) {
+			return new \ResponseTimeout();
+		}
+		if (isset($_GET['mpid']) && ($mpid = $_GET['mpid'])) {
+			$_SESSION['mpid'] = $mpid;
+		} else if (!isset($_SESSION['mpid']) || !($mpid = $_SESSION['mpid'])) {
+			header('HTTP/1.0 500 parameter error:mpid is empty.');
+			die('参数不完整');
+		}
+		$this->mpid = $mpid;
+		$prights = $this->model('mp\permission')->hasMpRight(
+			$this->mpid,
+			array('mpsetting', 'matter', 'app', 'reply', 'user', 'analyze'),
+			'read'
+		);
+		$entries = array();
+		(true === $prights || $prights['mpsetting']['read_p'] === 'Y') && $entries['/rest/mp/mpaccount'] = array('title' => '账号管理', 'entry' => '');
+		(true === $prights || $prights['matter']['read_p'] === 'Y') && $entries['/rest/mp/matter'] = array('title' => '素材管理', 'entry' => '');
+		(true === $prights || $prights['app']['read_p'] === 'Y') && $entries['/rest/mp/app'] = array('title' => '应用管理', 'entry' => '');
+		(true === $prights || $prights['reply']['read_p'] === 'Y') && $entries['/rest/mp/call'] = array('title' => '回复管理', 'entry' => '');
+		(true === $prights || $prights['user']['read_p'] === 'Y') && $entries['/page/mp/user/received'] = array('title' => '用户管理', 'entry' => '');
+		(true === $prights || $prights['analyze']['read_p'] === 'Y') && $entries['/page/mp/analyze'] = array('title' => '统计分析', 'entry' => '');           
+		\TPL::assign('mp_view_entries', $entries);
+                
+                $prights = $this->model('mp\permission')->hasMpRight(
+			$this->mpid,
+			array(
+				'app_enroll',
+				'app_lottery',
+				'app_wall',
+				'app_addressbook',
+				'app_contribute',
+				'app_merchant',
+			),
+			'read'
+		);
 
-        $this->prights = $prights;
-        $this->entries = $entries;
+		$entries = array();
+		(true === $prights || (isset($prights['app_enroll']) && $prights['app_enroll']['read_p'] === 'Y')) && $entries[] = array('url' => '/mp/app/enroll', 'title' => '登记活动');
+		(true === $prights || (isset($prights['app_lottery']) && $prights['app_lottery']['read_p'] === 'Y')) && $entries[] = array('url' => '/mp/app/lottery', 'title' => '抽奖活动');
+		(true === $prights || (isset($prights['app_wall']) && $prights['app_wall']['read_p'] === 'Y')) && $entries[] = array('url' => '/mp/app/wall', 'title' => '信息墙');
+		(true === $prights || (isset($prights['app_addressbook']) && $prights['app_addressbook']['read_p'] === 'Y')) && $entries[] = array('url' => '/pl/fe/matter/addressbook', 'title' => '通讯录');
+		(true === $prights || (isset($prights['app_contribute']) && $prights['app_contribute']['read_p'] === 'Y')) && $entries[] = array('url' => '/mp/app/contribute', 'title' => '投稿');
+		(true === $prights || (isset($prights['app_merchant']) && $prights['app_merchant']['read_p'] === 'Y')) && $entries[] = array('url' => '/mp/app/merchant', 'title' => '订购');
 
-        \TPL::assign('app_view_entries', $entries);
-    }
+		$this->prights = $prights;
+		$this->entries = $entries;
 
+		\TPL::assign('app_view_entries', $entries);
+	}
     /**
      *
      */
@@ -84,23 +86,20 @@ class main extends \pl\fe\matter\base {
     public function index_action() {
         $this->view_action('/pl/fe/matter/addressbook');
     }
-     /*//测试使用 
+
     public function test_action() {
-        echo '<pre>';
+        //echo '<pre>';
         $ab = $this->model('matter\addressbook')->byId(1);
         $c = (array) $ab;
         $d = (object) $c;
-        //return new \ResponseData($c);
-        print_r($_SESSION['mpid']);
-        var_dump($this->mpid);
-        die();
+        return new \ResponseData($c);
     }
 
     public function one_action() {
         \TPL::assign('title', 'ok');
         \TPL::output('/pl/fe/matter/addressbook/one');
         die();
-    }*/
+    }
 
     /**
      * 使用tms_controller.php原类的model
@@ -135,9 +134,8 @@ class main extends \pl\fe\matter\base {
      * 删除通讯录
      */
     public function remove_action($id) {
-
         $rst = $this->model('matter\addressbook')->remove_ab($this->mpid, $id);
-        //var_dump($rst);
+
         if ($rst[0])
             return new \ResponseData('success');
         else

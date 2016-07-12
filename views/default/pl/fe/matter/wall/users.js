@@ -12,7 +12,7 @@
                 windowClass: 'auto-height',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     http2.get('/rest/pl/fe/matter/enroll/list?page=1&size=999', function(rsp) {
-                        $scope2.apps = rsp.data[0];
+                        $scope2.apps = rsp.data['apps'];
                     });
                     $scope2.chooseApp = function(app) {
                         $scope2.selectedApp = app;

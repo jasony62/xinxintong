@@ -1,14 +1,14 @@
-var app = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
-app.config(['$locationProvider', function($lp) {
+var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
+ngApp.config(['$locationProvider', function($lp) {
     $lp.html5Mode(true);
 }]);
-app.controller('ctrlSite', ['$scope', '$location', 'http2', function($scope, $location, http2) {
+ngApp.controller('ctrlSite', ['$scope', '$location', 'http2', function($scope, $location, http2) {
     $scope.siteId = $location.search().site;
     http2.get('/rest/pl/fe/site/get?site=' + $scope.siteId, function(rsp) {
         $scope.site = rsp.data;
     });
 }]);
-app.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
+ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
     $scope.matterType = 'recent';
     $scope.open = function(matter) {
         var type = $scope.matterType === 'recent' ? matter.matter_type : $scope.matterType,
@@ -29,7 +29,7 @@ app.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope, 
                 location.href = '/rest/pl/fe/matter/' + type + '?id=' + id + '&site=' + $scope.siteId;
                 break;
             case 'mission':
-                location.href = '/rest/pl/fe/matter/' + type + '?id=' + (matter.mission_id || id) + '&site=' + matter.siteid;
+                location.href = '/rest/pl/fe/matter/' + type + '?id=' + (matter.mission_id || id) + '&site=' + $scope.siteId;
                 break;
         }
     };

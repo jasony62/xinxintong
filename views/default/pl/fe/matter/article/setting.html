@@ -3,7 +3,7 @@
         <div class='tile'>
             <div class='form-group compact'>
                 <div class='help-block'>标题：最多35个汉字，70个英文字符</div>
-                <input type='text' class='form-control' ng-model='editing.title' ng-change="update('title');">
+                <input type='text' class='form-control' ng-model='editing.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
             </div>
             <div class='form-group compact'>
                 <div class='help-block'>头图（可选）：建议尺寸：900像素 * 500像素</div>
@@ -31,15 +31,15 @@
             </div>
             <div class='form-group compact'>
                 <div class='help-block'>摘要（可选）：最多120个汉字，240个英文字符</div>
-                <textarea class='form-control' ng-model='editing.summary' ng-change="update('summary');"></textarea>
+                <textarea class='form-control' ng-model='editing.summary' tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
             </div>
             <div class='form-group compact'>
                 <div class='help-block'>作者（可选）：最多8个汉字或英文字符</div>
-                <input type='text' class='form-control' ng-model='editing.author' ng-change="update('author');">
+                <input type='text' class='form-control' ng-model='editing.author' tms-auto-update tms-wait=1000 tms-update="update('author')">
             </div>
             <div class='form-group compact'>
                 <div class='help-block'>原文链接(可选)</div>
-                <textarea class='form-control' ng-model='editing.url' ng-change="update('url');"></textarea>
+                <textarea class='form-control' ng-model='editing.url' tms-auto-update tms-wait=1000 tms-update="update('url')"></textarea>
             </div>
         </div>
         <div class='tile'>
@@ -92,7 +92,7 @@
         </div>
         <div class='tile'>
             <div class='form-group compact'>
-                <div style='word-break: break-all;'>{{entry.url}}</div>
+                <div class='form-control' style='word-break: break-all;height:auto'>{{entry.url}}</div>
             </div>
             <div class="form-group">
                 <div><img ng-src="{{entry.qrcode}}"></div>
@@ -109,18 +109,18 @@
         </div>
         <div class='tile'>
             <div class='form-group' ng-controller='ctrlSetChannel' ng-init="matterType='article';matterObj='editing'">
-                <combox evt-prefix='channel' readonly=true prop='title' existing='editing.channels' options='channels'></combox>
                 <div class='help-block'>频道（可选）</div>
+                <combox evt-prefix='channel' readonly=true prop='title' existing='editing.channels' options='channels'></combox>
             </div>
         </div>
         <div class='tile'>
             <div class='form-group'>
-                <combox evt-prefix='tag' prop='title' existing='editing.tags' options='tags'></combox>
                 <div class='help-block'>内容标签</div>
+                <combox evt-prefix='tag' prop='title' existing='editing.tags' options='tags'></combox>
             </div>
             <div class='form-group'>
-                <combox evt-prefix='tag2' prop='title' existing='editing.tags2' options='tags2'></combox>
                 <div class='help-block'>管理标签</div>
+                <combox evt-prefix='tag2' prop='title' existing='editing.tags2' options='tags2'></combox>
             </div>
         </div>
         <div class='tile'>
@@ -170,7 +170,7 @@
 <nav class="navbar navbar-default navbar-fixed-bottom">
     <div class="container-fluid" style='text-align:center'>
         <form class="navbar-form" style='display:inline-block'>
-            <button class='btn btn-lg btn-block' ng-click="submit()" ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'">保存</button>
+            <button class='btn btn-lg btn-block btn-success' ng-click="submit()">保存</button>
         </form>
         <form class="navbar-form navbar-right" style='display:inline-block'>
             <button class='btn btn-lg btn-default' ng-click="remove()">删除图文</button>

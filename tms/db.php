@@ -1,4 +1,4 @@
-     <?php
+<?php
 class TMS_DB {
 
 	public $prefix;
@@ -204,7 +204,7 @@ class TMS_DB {
 		return $this->query_value('SELECT FOUND_ROWS()');
 	}
 	/**
-	 *
+	 * 处理SQL注入问题
 	 */
 	public function escape($str) {
 		global $mysqli;

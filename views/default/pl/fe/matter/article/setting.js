@@ -127,6 +127,7 @@ define(['frame'], function(ngApp) {
 		$scope.update = function(name) {
 			$scope.modified = true;
 			modifiedData[name] = name === 'body' ? encodeURIComponent($scope.editing[name]) : $scope.editing[name];
+			$scope.submit();
 		};
 		$scope.setPic = function() {
 			var options = {

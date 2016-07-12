@@ -140,6 +140,49 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
                 break;
         }
     };
+    $scope.removeMatter = function(evt, matter) {
+        var type = (matter.matter_type || $scope.matterType),
+            id = (matter.matter_id || matter.id),
+            title = (matter.title || matter.matter_title),
+            url = '/rest/pl/fe/matter/';
+
+        evt.stopPropagation();
+        if (window.confirm('确定删除：' + title + '？')) {
+            switch (type) {
+                case 'article':
+                    url += type + '/remove?id=' + id + '&site=' + $scope.siteId;
+                    break;
+                case 'enroll':
+                case 'signin':
+                case 'group':
+                    url += type + '/remove?app=' + id + '&site=' + $scope.siteId;
+                    break;
+            }
+            http2.get(url, function(rsp) {
+                $scope.matters.splice($scope.matters.indexOf(matter), 1);
+            });
+        }
+    };
+    $scope.copyMatter = function(evt, matter) {
+        var type = (matter.matter_type || $scope.matterType),
+            id = (matter.matter_id || matter.id),
+            url = '/rest/pl/fe/matter/';
+
+        evt.stopPropagation();
+        switch (type) {
+            case 'article':
+                url += type + '/copy?id=' + id + '&site=' + $scope.siteId;
+                break;
+            case 'enroll':
+            case 'signin':
+            case 'group':
+                url += type + '/copy?app=' + id + '&site=' + $scope.siteId;
+                break;
+        }
+        http2.get(url, function(rsp) {
+            location.href = '/rest/pl/fe/matter/' + type + '?site=' + $scope.siteId + '&id=' + rsp.data.id;
+        });
+    };
     $scope.gotoText = function() {
         location.href = '/rest/pl/fe/matter/text?site=' + $scope.siteId;
     };

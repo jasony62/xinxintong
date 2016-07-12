@@ -78,7 +78,7 @@ class TMS_DB {
 			} else {
 				$clauses[] = $where;
 			}
-			$sql .= ' WHERE ' . implode('', $clauses);
+			$sql .= ' WHERE ' . implode(' and ', $clauses);
 		}
 
 		global $mysqli_w;
@@ -92,7 +92,7 @@ class TMS_DB {
 		return $rows_affected;
 	}
 	/**
-	 *
+	 * 删除数据
 	 */
 	public function delete($table, $where) {
 		if (empty($where)) {
@@ -111,7 +111,7 @@ class TMS_DB {
 		} else {
 			$clauses[] = $where;
 		}
-		$sql .= ' WHERE ' . implode('', $clauses);
+		$sql .= ' WHERE ' . implode(' and ', $clauses);
 
 		if (!$mysqli_w->query($sql)) {
 			throw new Exception("database error(delete $table):" . $sql . ';' . $mysqli_w->error);
@@ -238,7 +238,7 @@ class TMS_DB {
 				} else {
 					$clauses[] = $where;
 				}
-				$select .= implode('', $clauses);
+				$select .= implode(' and ', $clauses);
 			}
 			if ($group) {
 				$select .= ' ';

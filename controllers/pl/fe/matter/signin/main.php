@@ -208,7 +208,7 @@ class main extends \pl\fe\matter\base {
 		$newapp['modify_at'] = $current;
 		$newapp['title'] = $copied->title . '（副本）';
 		$newapp['pic'] = $copied->pic;
-		$newapp['summary'] = $copied->summary;
+		$newapp['summary'] = $modelApp->escape($copied->summary);
 		$newapp['data_schemas'] = $copied->data_schemas;
 		$newapp['entry_rule'] = json_encode($copied->entry_rule);
 		if (!empty($mission)) {
@@ -286,7 +286,7 @@ class main extends \pl\fe\matter\base {
 		$nv['modifier_name'] = $user->name;
 		$nv['modify_at'] = time();
 
-		if ($rst = $model->update('xxt_signin', $nv, "id='$app'")) {
+		if ($rst = $model->update('xxt_signin', $nv, ["id" => $app])) {
 			/*记录操作日志*/
 			$matter = $this->model('matter\\signin')->byId($app, ['fields' => 'id,title,summary,pic', 'cascaded' => 'N']);
 			$matter->type = 'signin';
@@ -380,35 +380,35 @@ class main extends \pl\fe\matter\base {
 		$q = [
 			'count(*)',
 			'xxt_signin_record',
-			"siteid='$site' and aid='$app->id'",
+			["aid" => $app->id],
 		];
 		$model = $this->model();
 		if ((int) $model->query_val_ss($q) > 0) {
 			$rst = $model->update(
 				'xxt_signin',
 				['state' => 0],
-				"siteid='$site' and id='$app->id'"
+				["id" => $app->id]
 			);
 		} else {
 			$model->delete(
 				'xxt_signin_log',
-				"siteid='$site' and aid='$app->id'"
+				["aid" => $app->id]
 			);
 			$model->delete(
 				'xxt_signin_round',
-				"siteid='$site' and aid='$app->id'"
+				["aid" => $app->id]
 			);
 			$model->delete(
 				'xxt_code_page',
-				"id in (select code_id from xxt_signin_page where aid='$app->id')"
+				"id in (select code_id from xxt_signin_page where aid='" . $model->escape($app->id) . "')"
 			);
 			$model->delete(
 				'xxt_signin_page',
-				"siteid='$site' and aid='$app->id'"
+				["aid" => $app->id]
 			);
 			$rst = $model->delete(
 				'xxt_signin',
-				"siteid='$site' and id='$app->id'"
+				["id" => $app->id]
 			);
 		}
 		/*记录操作日志*/
@@ -416,258 +416,5 @@ class main extends \pl\fe\matter\base {
 		$this->model('log')->matterOp($site, $user, $app, 'D');
 
 		return new \ResponseData($rst);
-	}
-	/**
-	 * 版本升级
-	 */
-	public function verUpgrade_Action($site) {
-		$result = [];
-		/*app's data_schema*/
-		$model = $this->model('matter\signin');
-		$apps = $model->bySite($site, 1, 999);
-		$apps = $apps['apps'];
-		foreach ($apps as $app) {
-			/*app*/
-			if (!empty($app->data_schemas)) {
-				$dataSchemas = json_decode($app->data_schemas);
-				$newDataSchemas = [];
-				foreach ($dataSchemas as $dataSchema) {
-					$schema = new \stdClass;
-					$schema->id = $dataSchema->id;
-					isset($dataSchema->type) && $schema->type = $dataSchema->type;
-					isset($dataSchema->title) && $schema->title = $dataSchema->title;
-					isset($dataSchema->ops) && $schema->ops = $dataSchema->ops;
-
-					$newDataSchemas[] = $schema;
-				}
-				$result[$app->id] = $newDataSchemas;
-				/*update*/
-				$model->update(
-					'xxt_signin',
-					['data_schemas' => $model->toJson($newDataSchemas)],
-					"id='$app->id'"
-				);
-			}
-			/*page*/
-			$pages = $this->model('matter\signin\page')->byApp($app->id);
-			foreach ($pages as $page) {
-				if (!empty($page->data_schemas)) {
-					if ($page->type === 'S') {
-						/**
-						 * data schemas
-						 */
-						$dataSchemas = json_decode($page->data_schemas);
-						if (!isset($dataSchemas[0]->schema)) {
-							$newDataSchemas = [];
-							foreach ($dataSchemas as $dataSchema) {
-								$config = new \stdClass;
-								isset($dataSchema->showname) && $config->showname = $dataSchema->showname;
-								isset($dataSchema->required) && $config->required = $dataSchema->required;
-								isset($dataSchema->component) && $config->component = $dataSchema->component;
-								isset($dataSchema->align) && $config->align = $dataSchema->align;
-
-								$schema = new \stdClass;
-								$schema->id = $dataSchema->id;
-								isset($dataSchema->type) && $schema->type = $dataSchema->type;
-								$schema->title = $dataSchema->title;
-								isset($dataSchema->ops) && $schema->ops = $dataSchema->ops;
-
-								$wrap = new \stdClass;
-								$wrap->config = $config;
-								$wrap->schema = $schema;
-
-								$newDataSchemas[] = $wrap;
-							}
-							$result[$app->id . '.' . $page->name] = $newDataSchemas;
-							/*update*/
-							$model->update(
-								'xxt_signin_page',
-								['data_schemas' => $model->toJson($newDataSchemas)],
-								"id='$page->id'"
-							);
-						}
-						/**
-						 * html
-						 */
-						if (!empty($page->html) && false === strpos($page->html, 'schema-type=')) {
-							$newHtml = $this->_upgradeHtml($page->html);
-							$model->update(
-								'xxt_code_page',
-								['html' => $model->escape($newHtml)],
-								"siteid='$site' and name='$page->code_name'"
-							);
-						}
-					}
-				}
-			}
-		}
-
-		return new \ResponseData($result);
-	}
-	/**
-	 *
-	 */
-	public function _upgradeHtml($html) {
-		$schemas = [];
-
-		if (preg_match_all('/<div.+?wrap="input".+?>.*?<\/div>/i', $html, $wraps)) {
-			$wraps = $wraps[0];
-			foreach ($wraps as $wrap) {
-				$schema = [];
-				$inp = [];
-				$title = [];
-				$ngmodel = [];
-				$opval = [];
-				$optit = [];
-				if (!preg_match('/<input.+?>/', $wrap, $inp) && !preg_match('/<option.+?>/', $wrap, $inp) && !preg_match('/<textarea.+?>/', $wrap, $inp) && !preg_match('/wrap="datetime".+?>/', $wrap, $inp) && !preg_match('/wrap="img".+?>/', $wrap, $inp) && !preg_match('/wrap="file".+?>/', $wrap, $inp)) {
-					continue;
-				}
-				$inp = $inp[0];
-				if (preg_match('/title="(.*?)"/', $inp, $title)) {
-					$title = $title[1];
-				}
-				if (preg_match('/type="radio"/', $inp)) {
-					/**
-					 * for radio group.
-					 */
-					if (preg_match('/ng-model="data\.(.+?)"/', $inp, $ngmodel)) {
-						$id = $ngmodel[1];
-					}
-					if (empty($id)) {
-						continue;
-					}
-					$existing = false;
-					foreach ($schemas as &$d) {
-						if ($existing = ($d['id'] === $id)) {
-							break;
-						}
-					}
-					if (!$existing) {
-						$schema = ['title' => $title, 'id' => $id, 'type' => 'single', 'ops' => []];
-						$schemas[] = $schema;
-						$d = &$schemas[count($schemas) - 1];
-					}
-					$op = [];
-					if (preg_match('/value="(.+?)"/', $inp, $opval)) {
-						$op['v'] = $opval[1];
-					}
-					if (preg_match_all('/data-(.+?)="(.+?)"/', $wrap, $opAttrs)) {
-						for ($i = 0, $l = count($opAttrs[0]); $i < $l; $i++) {
-							$op[$opAttrs[1][$i]] = $opAttrs[2][$i];
-						}
-					}
-					$d['ops'][] = $op;
-				} elseif (preg_match('/<option/', $inp)) {
-					/**
-					 * for radio group.
-					 */
-					if (preg_match('/name="data\.(.+?)"/', $inp, $ngmodel)) {
-						$id = $ngmodel[1];
-					}
-					if (empty($id)) {
-						continue;
-					}
-					$existing = false;
-					foreach ($schemas as &$d) {
-						if ($existing = ($d['id'] === $id)) {
-							break;
-						}
-					}
-					if (!$existing) {
-						$schema = ['title' => $title, 'id' => $id, 'type' => 'single', 'ops' => []];
-						$schemas[] = $schema;
-						$d = &$schemas[count($schemas) - 1];
-					}
-					$op = [];
-					if (preg_match('/value="(.+?)"/', $inp, $opval)) {
-						$op['v'] = $opval[1];
-					}
-					if (preg_match_all('/data-(.+?)="(.+?)"/', $wrap, $opAttrs)) {
-						for ($i = 0, $l = count($opAttrs[0]); $i < $l; $i++) {
-							$op[$opAttrs[1][$i]] = $opAttrs[2][$i];
-						}
-					}
-					$d['ops'][] = $op;
-				} elseif (preg_match('/type="checkbox"/', $inp)) {
-					if (preg_match('/ng-model="data\.(.+?)\.(.+?)"/', $inp, $ngmodel)) {
-						$id = $ngmodel[1];
-						$opval = $ngmodel[2];
-					}
-					if (empty($id) || !isset($opval)) {
-						continue;
-					}
-					$existing = false;
-					foreach ($schemas as &$d) {
-						if ($existing = ($d['id'] === $id)) {
-							break;
-						}
-					}
-					if (!$existing) {
-						$schema = ['title' => $title, 'id' => $id, 'type' => 'multiple', 'ops' => []];
-						$schemas[] = $schema;
-						$d = &$schemas[count($schemas) - 1];
-					}
-					$op = [];
-					$op['v'] = $opval;
-					if (preg_match_all('/data-(.+?)="(.+?)"/', $wrap, $opAttrs)) {
-						for ($i = 0, $l = count($opAttrs[0]); $i < $l; $i++) {
-							$op[$opAttrs[1][$i]] = $opAttrs[2][$i];
-						}
-					}
-					$d['ops'][] = $op;
-				} elseif (preg_match('/ng-repeat="img in data\.(.+?)"/', $inp, $ngrepeat)) {
-					$id = $ngrepeat[1];
-					$schema = ['title' => $title, 'id' => $id, 'type' => 'img'];
-					$schemas[] = $schema;
-				} elseif (preg_match('/ng-repeat="file in data\.(.+?)"/', $inp, $ngrepeat)) {
-					$id = $ngrepeat[1];
-					$schema = ['title' => $title, 'id' => $id, 'type' => 'file'];
-					$schemas[] = $schema;
-				} elseif (preg_match('/ng-bind="data\.(.+?)\|/', $inp, $ngmodel)) {
-					$id = $ngmodel[1];
-					$schema = ['title' => $title, 'id' => $id, 'type' => 'datetime'];
-					$schemas[] = $schema;
-				} else {
-					/**
-					 * for text input/textarea/location.
-					 */
-					if (preg_match('/ng-model="data\.(.+?)"/', $inp, $ngmodel)) {
-						$id = $ngmodel[1];
-					}
-					if (empty($id)) {
-						continue;
-					}
-					if (in_array($id, ['name', 'email', 'mobile'])) {
-						$type = $id;
-					} elseif ($id === 'mobile') {
-						$type = 'mobile';
-					} else {
-						if (preg_match('/<textarea.+?>/', $wrap)) {
-							$type = 'longtext';
-						} else {
-							$type = 'shorttext';
-						}
-					}
-					$schema = ['title' => $title, 'id' => $id, 'type' => $type];
-					$schemas[] = $schema;
-				}
-			}
-		}
-		/*update html*/
-		$i = $offset = 0;
-		while ($offset = strpos($html, 'wrap="input"', $offset)) {
-			if (!isset($schemas[$i])) {
-				break;
-			}
-
-			$schema = $schemas[$i];
-			$newAttrs = 'wrap="input" schema="' . $schema['id'] . '" schema-type="' . $schema['type'] . '"';
-			$html = substr_replace($html, $newAttrs, $offset, 12);
-
-			$offset++;
-			$i++;
-		}
-
-		return $html;
 	}
 }

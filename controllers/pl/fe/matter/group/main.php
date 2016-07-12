@@ -207,7 +207,7 @@ class main extends \pl\fe\matter\base {
 		$nv['modifier_name'] = $user->name;
 		$nv['modify_at'] = time();
 
-		$rst = $model->update('xxt_group', $nv, "id='$app'");
+		$rst = $model->update('xxt_group', $nv, ["id" => $app]);
 		/*记录操作日志*/
 		if ($rst) {
 			$app = $this->model('matter\group')->byId($app, 'id,title,summary,pic');
@@ -232,7 +232,7 @@ class main extends \pl\fe\matter\base {
 		/*清除原有的规则*/
 		$modelRnd->delete(
 			'xxt_group_round',
-			"aid='$app'"
+			["aid" => $app]
 		);
 		/*create targets*/
 		$targets = array();
@@ -259,8 +259,8 @@ class main extends \pl\fe\matter\base {
 		/*记录规则*/
 		$rst = $modelRnd->update(
 			'xxt_group',
-			array('group_rule' => $modelRnd->toJson($rule)),
-			"id='$app'"
+			['group_rule' => $modelRnd->toJson($rule)],
+			["id" => $app]
 		);
 
 		return new \ResponseData($rounds);
@@ -284,22 +284,22 @@ class main extends \pl\fe\matter\base {
 		$q = array(
 			'count(*)',
 			'xxt_group_player',
-			"siteid='$site' and aid='$app->id'",
+			["aid" => $app->id],
 		);
 		if ((int) $model->query_val_ss($q) > 0) {
 			$rst = $model->update(
 				'xxt_group',
-				array('state' => 0),
-				"siteid='$site' and id='$app->id'"
+				['state' => 0],
+				["id" => $app->id]
 			);
 		} else {
 			$model->delete(
 				'xxt_group_round',
-				"aid='$app->id'"
+				["aid" => $app->id]
 			);
 			$rst = $model->delete(
 				'xxt_group',
-				"siteid='$site' and id='$app->id'"
+				["id" => $app->id]
 			);
 		}
 		/*记录操作日志*/

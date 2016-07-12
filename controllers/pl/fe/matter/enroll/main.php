@@ -221,7 +221,7 @@ class main extends \pl\fe\matter\base {
 		$newapp['modify_at'] = $current;
 		$newapp['title'] = $copied->title . '（副本）';
 		$newapp['pic'] = $copied->pic;
-		$newapp['summary'] = $copied->summary;
+		$newapp['summary'] = $mdoelApp->escape($copied->summary);
 		$newapp['scenario'] = $copied->scenario;
 		$newapp['scenario_config'] = json_encode($copied->scenario_config);
 		$newapp['multi_rounds'] = $copied->multi_rounds;
@@ -304,7 +304,7 @@ class main extends \pl\fe\matter\base {
 		$nv['modifier_name'] = $user->name;
 		$nv['modify_at'] = time();
 
-		$rst = $model->update('xxt_enroll', $nv, "id='$app'");
+		$rst = $model->update('xxt_enroll', $nv, ["id" => $app]);
 		if ($rst) {
 			/*更新级联数据*/
 			if (isset($nv['data_schemas'])) {
@@ -542,28 +542,28 @@ class main extends \pl\fe\matter\base {
 			$rst = $model->update(
 				'xxt_enroll',
 				['state' => 0],
-				"siteid='$site' and id='$app->id'"
+				["siteid" => $site, "id" => $app->id]
 			);
 		} else {
 			$model->delete(
 				'xxt_enroll_receiver',
-				"siteid='$site' and aid='$app->id'"
+				["siteid" => $site, "aid" => $app->id]
 			);
 			$model->delete(
 				'xxt_enroll_round',
-				"siteid='$site' and aid='$app->id'"
+				["siteid" => $site, "aid" => $app->id]
 			);
 			$model->delete(
 				'xxt_code_page',
-				"id in (select code_id from xxt_enroll_page where aid='$app->id')"
+				"id in (select code_id from xxt_enroll_page where aid='" . $model->escape($app->id) . "')"
 			);
 			$model->delete(
 				'xxt_enroll_page',
-				"siteid='$site' and aid='$app->id'"
+				["siteid" => $site, "aid" => $app->id]
 			);
 			$rst = $model->delete(
 				'xxt_enroll',
-				"siteid='$site' and id='$app->id'"
+				["siteid" => $site, "id" => $app->id]
 			);
 		}
 		/*记录操作日志*/

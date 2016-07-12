@@ -414,7 +414,7 @@ class main extends \pl\fe\matter\base {
 		$article->hide_pic = $copied->hide_pic;
 		$article->title = $copied->title . '（副本）';
 		$article->summary = $copied->summary;
-		$article->body = $copied->body;
+		$article->body = $modelArt->escape($copied->body);
 		$article->url = $copied->url;
 		if (!empty($mission)) {
 			$article->mission_id = $mission;
@@ -432,7 +432,7 @@ class main extends \pl\fe\matter\base {
 			$modelMis->addMatter($user, $site, $mission, $article);
 		}
 
-		return new \ResponseData($id);
+		return new \ResponseData($article);
 	}
 	/**
 	 * 更新单图文的字段
@@ -742,7 +742,7 @@ class main extends \pl\fe\matter\base {
 				'modifier_name' => $user->name,
 				'modify_at' => time(),
 			],
-			"siteid='$site' and id='$id'"
+			["id" => $id]
 		);
 		if ($rst) {
 			/**
@@ -780,7 +780,7 @@ class main extends \pl\fe\matter\base {
 		$rst = $this->model()->update(
 			'xxt_article',
 			$nv,
-			"siteid='$siteId' and id='$id'"
+			["id" => $id]
 		);
 		/*记录操作日志*/
 		$article = $this->model('matter\\' . 'article')->byId($id, 'id,title,summary,pic');

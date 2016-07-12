@@ -18,7 +18,7 @@
                         </select>
                     </div>
                     <div class='form-group' ng-if="!app.enroll_app_id">
-                        <button class='btn btn-success navbar-btn' ng-click="assignEnrollApp()">指定签到名单</button>
+                        <button class='btn btn-success' ng-click="assignEnrollApp()">指定签到名单</button>
                     </div>
                     <div class='form-group' ng-if="app.enroll_app_id">
                         <label>签到名单</label>
@@ -93,9 +93,6 @@
                 <div class='page-editor'>
                     <tinymce content='ep.html' id='tinymce-page' height='660' change="onPageChange()" toolbar="code"></tinymce>
                     <div class='sidebar'>
-                        <button class='btn btn-default' ng-click="updPage(ep,['html'])" title='保存修改' ng-disabled='!ep.$$modified'>
-                        <i class='fa fa-save fa-fw'></i>
-                        </button>
                         <button class='btn btn-default' ng-click="removeWrap()" title='删除' ng-disabled='!activeWrap'>
                         <i class='fa fa-remove fa-fw'></i>
                         </button>
@@ -120,7 +117,7 @@
             <!--tinymce editor-->
             <div class='col-md-3'>
                 <!--wrap editor-->
-                <div class='tile' ng-if="activeWrap">
+                <div class='tile' ng-if="activeWrap.schema">
                     <div class='form-group' ng-include="wrapEditorHtml()">
                     </div>
                     <button class='btn btn-block btn-danger' ng-click="removeSchema(activeWrap.schema)">删除登记项</button>
@@ -168,7 +165,7 @@
     <nav class="navbar navbar-default navbar-fixed-bottom">
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
-                <button class='btn btn-lg' ng-disabled='!modified&&!ep.$$modified' ng-class="(modified||ep.$$modified)?'btn-success':'btn-default'" ng-click="updPage(ep,['data_schemas','html'])">保存修改</button>
+                <button class='btn btn-lg btn-success' ng-click="updPage(ep,['data_schemas','html'])">保存修改</button>
                 <button class='btn btn-lg btn-success' ng-click="publish()">收集数据</button>
                 <a href="/rest/pl/fe/matter/signin/record?site={{siteId}}&id={{id}}">查看结果</a>
             </form>

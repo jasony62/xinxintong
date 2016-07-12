@@ -4,7 +4,7 @@ define(['require'], function() {
 	ngApp.config(['$routeProvider', '$locationProvider', '$controllerProvider', function($routeProvider, $locationProvider, $controllerProvider) {
 		var RouteParam = function(name) {
 			var baseURL = '/views/default/pl/fe/matter/article/';
-			this.templateUrl = baseURL + name + '.html?=1';
+			this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
 			this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
 			this.resolve = {
 				load: function($q) {

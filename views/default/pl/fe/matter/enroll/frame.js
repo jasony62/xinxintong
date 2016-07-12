@@ -1,4 +1,5 @@
 define(['require', 'page'], function(require, pageLib) {
+	'use strict';
 	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'tinymce.ui.xxt', 'ui.xxt', 'channel.fe.pl']);
 	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
 		var RouteParam = function(name) {
@@ -35,20 +36,19 @@ define(['require', 'page'], function(require, pageLib) {
 			'show': 'hide'
 		});
 	}]);
-	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', function($scope, $location, $uibModal, $q, http2) {
+	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'noticebox', function($scope, $location, $uibModal, $q, http2, noticebox) {
 		var ls = $location.search(),
 			modifiedData = {};
+
 		$scope.id = ls.id;
 		$scope.siteId = ls.site;
 		$scope.modified = false;
-		$scope.back = function() {
-			history.back();
-		};
 		$scope.submit = function() {
 			var defer = $q.defer();
 			http2.post('/rest/pl/fe/matter/enroll/update?site=' + $scope.siteId + '&app=' + $scope.id, modifiedData, function(rsp) {
 				$scope.modified = false;
 				modifiedData = {};
+				noticebox.success('完成保存');
 				defer.resolve(rsp.data);
 			});
 			return defer.promise;
@@ -106,6 +106,12 @@ define(['require', 'page'], function(require, pageLib) {
 			return deferred.promise;
 		};
 		$scope.getApp = function() {
+			http2.get('/rest/pl/fe/site/snsList?site=' + $scope.siteId, function(rsp) {
+				$scope.sns = rsp.data;
+			});
+			http2.get('/rest/pl/fe/site/member/schema/list?valid=Y&site=' + $scope.siteId, function(rsp) {
+				$scope.memberSchemas = rsp.data;
+			});
 			http2.get('/rest/pl/fe/matter/enroll/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
 				var app = rsp.data,
 					mapOfAppSchemas = {};
@@ -120,17 +126,10 @@ define(['require', 'page'], function(require, pageLib) {
 					angular.extend(page, pageLib);
 					page.arrange(mapOfAppSchemas);
 				});
-				//$scope.persisted = angular.copy(app);
 				$scope.app = app;
 				$scope.url = 'http://' + location.host + '/rest/site/fe/matter/enroll?site=' + $scope.siteId + '&app=' + $scope.id;
 			});
 		};
-		http2.get('/rest/pl/fe/site/snsList?site=' + $scope.siteId, function(rsp) {
-			$scope.sns = rsp.data;
-		});
-		http2.get('/rest/pl/fe/site/member/schema/list?valid=Y&site=' + $scope.siteId, function(rsp) {
-			$scope.memberSchemas = rsp.data;
-		});
 		$scope.getApp();
 	}]);
 	/***/

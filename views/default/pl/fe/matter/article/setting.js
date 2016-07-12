@@ -1,5 +1,5 @@
 define(['frame'], function(ngApp) {
-	ngApp.provider.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', 'mediagallery', function($scope, http2, mattersgallery, mediagallery) {
+	ngApp.provider.controller('ctrlSetting', ['$scope', '$uibModal', 'http2', 'mattersgallery', 'mediagallery', 'noticebox', function($scope, $uibModal, http2, mattersgallery, mediagallery, noticebox) {
 		var modifiedData = {};
 		var r = new Resumable({
 			target: '/rest/pl/fe/matter/article/attachment/upload?site=' + $scope.siteId + '&articleid=' + $scope.id,
@@ -44,6 +44,20 @@ define(['frame'], function(ngApp) {
 			value: 'channel',
 			title: '频道',
 			url: '/rest/pl/fe/matter'
+		}, {
+			value: 'enroll',
+			scenario: 'registration',
+			title: '报名',
+			url: '/rest/pl/fe/matter'
+		}, {
+			value: 'enroll',
+			scenario: 'voting',
+			title: '投票',
+			url: '/rest/pl/fe/matter'
+		}, {
+			value: 'signin',
+			title: '签到',
+			url: '/rest/pl/fe/matter'
 		}];
 		$scope.back = function() {
 			history.back();
@@ -59,6 +73,31 @@ define(['frame'], function(ngApp) {
 				return message;
 			}
 		};
+		$scope.assignMission = function() {
+			mattersgallery.open($scope.siteId, function(matters, type) {
+				var app;
+				if (matters.length === 1) {
+					app = {
+						id: $scope.id,
+						type: 'article'
+					};
+					http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.siteId + '&id=' + matters[0].mission_id, app, function(rsp) {
+						$scope.editing.mission = rsp.data;
+						$scope.editing.mission_id = rsp.data.id;
+						$scope.update('mission_id');
+						$scope.submit();
+					});
+				}
+			}, {
+				matterTypes: [{
+					value: 'mission',
+					title: '项目',
+					url: '/rest/pl/fe/matter'
+				}],
+				hasParent: false,
+				singleMatter: true
+			});
+		};
 		$scope.onBodyChange = function() {
 			$scope.modified = true;
 			modifiedData['body'] = encodeURIComponent($scope.editing['body']);
@@ -71,6 +110,7 @@ define(['frame'], function(ngApp) {
 			http2.post('/rest/pl/fe/matter/article/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData, function() {
 				modifiedData = {};
 				$scope.modified = false;
+				noticebox.success('完成保存');
 			});
 		};
 		$scope.remove = function() {
@@ -110,23 +150,56 @@ define(['frame'], function(ngApp) {
 			mediagallery.open($scope.siteId, options);
 		});
 		$scope.embedMatter = function() {
-			mattersgallery.open($scope.siteId, function(matters, type) {
-				var editor, dom, matter, fn;
-				editor = tinymce.get('body1');
-				dom = editor.dom;
-				angular.forEach(matters, function(matter) {
-					fn = "openMatter($event," + matter.id + ",'" + type + "')";
-					tinymceEditor.insertContent(dom.createHTML('p', {
-						'class': 'matter'
-					}, dom.createHTML('span', {
-						"ng-click": fn,
-					}, dom.encode(matter.title))));
-				});
-			}, {
+			var options = {
 				matterTypes: $scope.innerlinkTypes,
-				hasParent: false,
 				singleMatter: true
-			});
+			};
+			if ($scope.editing.mission) {
+				options.mission = $scope.editing.mission;
+			}
+			mattersgallery.open($scope.siteId, function(matters, type) {
+				var editor = tinymce.get('body1'),
+					dom = editor.dom,
+					selection = editor.selection,
+					sibling, domMatter, fn, style;
+
+				style = "cursor:pointer";
+				if (selection && selection.getNode()) {
+					/*选中了页面上已有的元素*/
+					sibling = selection.getNode();
+					if (sibling !== editor.getBody()) {
+						while (sibling.parentNode !== editor.getBody()) {
+							sibling = sibling.parentNode;
+						}
+						angular.forEach(matters, function(matter) {
+							fn = "openMatter($event,'" + matter.id + "','" + type + "')";
+							domMatter = dom.create('p', {
+								'wrap': 'matter'
+							}, dom.createHTML('span', {
+								"ng-click": fn,
+								"style": style
+							}, dom.encode(matter.title)));
+							dom.insertAfter(domMatter, sibling);
+							selection.setCursorLocation(domMatter, 0);
+						});
+					} else {
+						/*没有选中页面上的元素*/
+						angular.forEach(matters, function(matter) {
+							fn = "openMatter($event,'" + matter.id + "','" + type + "')";
+							domMatter = dom.add(editor.getBody(), 'p', {
+								'wrap': 'matter'
+							}, dom.createHTML('span', {
+								"ng-click": fn,
+								"style": style
+							}, dom.encode(matter.title)));
+							selection.setCursorLocation(domMatter, 0);
+						});
+					}
+					editor.save();
+					editor.focus();
+					$scope.onBodyChange();
+				}
+			}, options);
 		};
 		var insertVideo = function(url) {
 			var editor, dom, html;

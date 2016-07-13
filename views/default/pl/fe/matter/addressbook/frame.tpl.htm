@@ -1,0 +1,13 @@
+<div ng-controller='abCtrl' ng-init="mpid='<?php echo TPL::S('mpid');?>';abid='<?php echo $_GET['id'];?>'">
+    <div class='navbar navbar-default'>
+        <ul class='nav navbar-nav'>
+            <li><a href='javascript:void(0);' ng-click="back()"><span class="glyphicon glyphicon-chevron-left"></span></a></li>
+            <li ng-class="{'active':subView=='setting'}"><a href='#' ng-click="subView='setting'">设置</a></li>
+            <li ng-class="{'active':subView=='dept'}"><a href='#' ng-click="subView='dept'">部门</a></li>
+            <li ng-class="{'active':subView=='roll'}"><a href='#' ng-click="subView='roll'">人员</a></li>
+        </ul>
+    </div>
+    <div>
+        <div ng-init="subView='setting'" ng-include="'/page/mp/app/addressbook/'+subView"></div>
+    </div>
+</div>

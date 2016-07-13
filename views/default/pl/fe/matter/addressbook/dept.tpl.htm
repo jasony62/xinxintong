@@ -1,0 +1,53 @@
+<div ng-controller='deptCtrl'>
+    <div class='col-md-6' style='overflow-x:auto;overflow-y:hidden;padding-bottom:60px'>
+        <button class='btn btn-primary' ng-click="addChild(tree)">添加</button>
+        <ol class='tree'>
+            <li class='treenode' tms-tree="child in tree.children at ol">
+                <div style='width:300px'>
+                    <div class="input-group input-group-sm">
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default" ng-click='toggleChild(child)'>
+                                <span class="glyphicon" ng-class="child.expanded?'glyphicon-chevron-down':'glyphicon-chevron-right'"></span>
+                            </button>
+                        </div>
+                        <p class='form-control' ng-click="open(child)" style='overflow:hidden' title='{{child.data.name}}' ng-class="{'active':child===editingNode}">{{child.data.name}}</p>
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                <li>
+                                    <a href="javascript:void(0)" ng-click="addChild(child)">添加</a>
+                                </li>
+                                <li>
+                                    <a href="javascript:void(0)" ng-click="removeChild(child)">删除</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <ol ng-class="{pregnant:child.children.length}" ng-show="child.children.length&&child.expanded"></ol>
+            </li>
+        </ol>
+    </div>
+    <div class='col-md-6' ng-if='editingDept'>
+        <div class='form-group'>
+            <label>名称</label>
+            <input type='text' class='form-control' ng-model='editingDept.name' tms-auto-update tms-wait=1000 tms-update="updateDept('name')">
+        </div>
+        <div class='form-group'>
+            <label>上级部门</label>
+            <div class='input-group'>
+                <p class='form-control'>{{editingDept.pdept.name}}</p>
+                <div class='input-group-btn'>
+                    <button class='btn btn-default' ng-click='setDeptParent()'>
+                        <span class='glyphicon glyphicon-edit'></span>
+                    </button>
+                    <button class='btn btn-default' ng-click='cleanDeptParent()'>
+                        <span class='glyphicon glyphicon-remove'></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

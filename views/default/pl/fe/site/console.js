@@ -15,6 +15,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
             id = (matter.matter_id || matter.id);
         switch (type) {
             case 'text':
+            case 'addressbook':
             case 'article':
             case 'custom':
             case 'news':
@@ -132,6 +133,9 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
             case 'text':
                 $scope.gotoText();
                 break;
+            case 'addressbook':
+                $scope.gotoAddressbook();
+                break;
             case 'link':
                 $scope.addLink();
                 break;
@@ -185,6 +189,9 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
     };
     $scope.gotoText = function() {
         location.href = '/rest/pl/fe/matter/text?site=' + $scope.siteId;
+    };
+    $scope.gotoAddressbook = function() {
+        location.href = '/rest/pl/fe/matter/addressbook?site=' + $scope.siteId;
     };
     $scope.addLink = function() {
         http2.get('/rest/pl/fe/matter/link/create?site=' + $scope.siteId, function(rsp) {

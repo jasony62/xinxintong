@@ -1,0 +1,21 @@
+<div ng-controller='abCtrl'>
+    <div class='toolbar clearfix'>
+        <button class='btn btn-success' ng-click='create()' title='新建通讯录'>新建</button>
+    </div>
+    <div style='margin:0 -15px'>
+        <div class='col-md-3' ng-repeat='a in addressbooks'>
+            <div class='thumbnail' ng-mouseenter='enter=true' ng-mouseleave='enter=false' ng-click='edit(a)'>
+                <div>
+                    <h4>{{a.title}}</h4>
+                    <p>{{a.summary}}</p>
+                </div>
+                <div>
+                    <span class='modify_at'>{{a.modify_at*1000|date:'yyyy-MM-dd'}}</span>
+                </div>
+                <button class='btn btn-default btn-sm remove' ng-click='remove($event,a,$index)'>
+                    <span class='glyphicon glyphicon-trash'></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

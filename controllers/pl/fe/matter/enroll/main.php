@@ -85,13 +85,15 @@ class main extends \pl\fe\matter\base {
 		$q = [
 			'a.*',
 			'xxt_enroll a',
-			"siteid='$site' and state<>0",
+			"state<>0",
 		];
+		if (!empty($mission)) {
+			$q[2] .= " and mission_id=$mission";
+		} else {
+			$q[2] .= " and siteid='$site'";
+		}
 		if (!empty($scenario)) {
 			$q[2] .= " and scenario='$scenario'";
-		}
-		if (!empty($mission)) {
-			$q[2] .= " and exists(select 1 from xxt_mission_matter where mission_id='$mission' and matter_type='enroll' and matter_id=a.id)";
 		}
 		$q2['o'] = 'a.modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
@@ -192,7 +194,7 @@ class main extends \pl\fe\matter\base {
 	 * @param int $mission
 	 *
 	 */
-	public function copy_action($site, $app, $mission) {
+	public function copy_action($site, $app, $mission = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -219,13 +221,17 @@ class main extends \pl\fe\matter\base {
 		$newapp['modify_at'] = $current;
 		$newapp['title'] = $copied->title . '（副本）';
 		$newapp['pic'] = $copied->pic;
-		$newapp['summary'] = $copied->summary;
+		$newapp['summary'] = $modelApp->escape($copied->summary);
 		$newapp['scenario'] = $copied->scenario;
 		$newapp['scenario_config'] = json_encode($copied->scenario_config);
 		$newapp['multi_rounds'] = $copied->multi_rounds;
 		$newapp['data_schemas'] = $copied->data_schemas;
 		$newapp['entry_rule'] = json_encode($copied->entry_rule);
 		$newapp['extattrs'] = $copied->extattrs;
+		if (!empty($mission)) {
+			$newapp['mission_id'] = $mission;
+		}
+
 		$this->model()->insert('xxt_enroll', $newapp, false);
 		/**
 		 * 复制自定义页面
@@ -261,6 +267,12 @@ class main extends \pl\fe\matter\base {
 		$app->type = 'enroll';
 		$this->model('log')->matterOp($site, $user, $app, 'C');
 
+		/* 记录和任务的关系 */
+		if (isset($mission)) {
+			$modelMis = $this->model('matter\mission');
+			$modelMis->addMatter($user, $site, $mission, $app);
+		}
+
 		return new \ResponseData($app);
 	}
 	/**
@@ -292,7 +304,7 @@ class main extends \pl\fe\matter\base {
 		$nv['modifier_name'] = $user->name;
 		$nv['modify_at'] = time();
 
-		$rst = $model->update('xxt_enroll', $nv, "id='$app'");
+		$rst = $model->update('xxt_enroll', $nv, ["id" => $app]);
 		if ($rst) {
 			/*更新级联数据*/
 			if (isset($nv['data_schemas'])) {
@@ -530,28 +542,28 @@ class main extends \pl\fe\matter\base {
 			$rst = $model->update(
 				'xxt_enroll',
 				['state' => 0],
-				"siteid='$site' and id='$app->id'"
+				["siteid" => $site, "id" => $app->id]
 			);
 		} else {
 			$model->delete(
 				'xxt_enroll_receiver',
-				"siteid='$site' and aid='$app->id'"
+				["siteid" => $site, "aid" => $app->id]
 			);
 			$model->delete(
 				'xxt_enroll_round',
-				"siteid='$site' and aid='$app->id'"
+				["siteid" => $site, "aid" => $app->id]
 			);
 			$model->delete(
 				'xxt_code_page',
-				"id in (select code_id from xxt_enroll_page where aid='$app->id')"
+				"id in (select code_id from xxt_enroll_page where aid='" . $model->escape($app->id) . "')"
 			);
 			$model->delete(
 				'xxt_enroll_page',
-				"siteid='$site' and aid='$app->id'"
+				["siteid" => $site, "aid" => $app->id]
 			);
 			$rst = $model->delete(
 				'xxt_enroll',
-				"siteid='$site' and id='$app->id'"
+				["siteid" => $site, "id" => $app->id]
 			);
 		}
 		/*记录操作日志*/

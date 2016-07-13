@@ -80,15 +80,19 @@ directive('tinymce', function($timeout) {
                             scope.$emit('tinymce.content.editing', editor.selection.getNode());
                         }
                     });
-                    editor.on('NodeChange', function(e) {
+                    editor.on('click', function(e) {
                         var wrap;
-                        if (e.selectionChange) {
-                            wrap = e.element;
-                            while (wrap.parentNode !== editor.getBody()) {
-                                if (wrap.hasAttribute('wrap') || wrap.parentNode === null) break;
-                                wrap = wrap.parentNode;
+                        wrap = e.target;
+                        if (wrap.tagName !== 'HTML') {
+                            if (!wrap.hasAttribute('wrap') && wrap !== editor.getBody()) {
+                                while (wrap.parentNode !== editor.getBody()) {
+                                    if (wrap.hasAttribute('wrap') || wrap.parentNode === null) break;
+                                    wrap = wrap.parentNode;
+                                }
                             }
                             scope.$emit('tinymce.wrap.select', wrap);
+                        } else {
+                            scope.$emit('tinymce.wrap.select', editor.getBody());
                         }
                     });
                     editor.on('change', function(e) {

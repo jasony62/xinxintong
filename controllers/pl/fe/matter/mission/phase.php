@@ -49,8 +49,8 @@ class phase extends \pl\fe\matter\base {
 		/*更新项目状态*/
 		$this->model()->update(
 			'xxt_mission',
-			array('multi_phase' => 'Y'),
-			"siteid='$site' and id='$mission'"
+			['multi_phase' => 'Y'],
+			"id='$mission'"
 		);
 
 		return new \ResponseData($newPhase);

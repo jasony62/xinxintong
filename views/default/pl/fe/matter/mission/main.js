@@ -33,10 +33,10 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery',
 		}
 	};
 	$scope.sub = 'basic';
-	$scope.subView = '/views/default/pl/fe/matter/mission/basic.html?_=2';
+	$scope.subView = '/views/default/pl/fe/matter/mission/basic.html?_=4';
 	$scope.gotoSub = function(sub) {
 		$scope.sub = sub;
-		$scope.subView = '/views/default/pl/fe/matter/mission/' + sub + '.html?_=2';
+		$scope.subView = '/views/default/pl/fe/matter/mission/' + sub + '.html?_=4';
 	};
 	$scope.submit = function() {
 		http2.post('/rest/pl/fe/matter/mission/setting/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData, function(rsp) {
@@ -115,7 +115,8 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery',
 	};
 }]);
 ngApp.controller('ctrlPhase', ['$scope', 'http2', 'noticebox', function($scope, http2, noticebox) {
-	$scope.add = function() {
+	$scope.numberOfNewPhases = 1;
+	var newPhase = function() {
 		var data = {
 			title: '阶段' + ($scope.phases.length + 1)
 		};
@@ -139,9 +140,21 @@ ngApp.controller('ctrlPhase', ['$scope', 'http2', 'noticebox', function($scope, 
 			data.start_at = nextDay.setHours(0, 0, 0, 0) / 1000;
 			data.end_at = nextDay.setHours(23, 59, 59, 0) / 1000;
 		})();
-		http2.post('/rest/pl/fe/matter/mission/phase/create?site=' + $scope.siteId + '&mission=' + $scope.id, data, function(rsp) {
-			$scope.phases.push(rsp.data);
-		});
+
+		return data;
+	};
+	$scope.add = function() {
+		var phase;
+		if ($scope.numberOfNewPhases > 0) {
+			phase = newPhase();
+			http2.post('/rest/pl/fe/matter/mission/phase/create?site=' + $scope.siteId + '&mission=' + $scope.id, phase, function(rsp) {
+				$scope.phases.push(rsp.data);
+				$scope.numberOfNewPhases--;
+				if ($scope.numberOfNewPhases > 0) {
+					$scope.add();
+				}
+			});
+		}
 	};
 	$scope.update = function(phase, name) {
 		var modifiedData = {};
@@ -168,6 +181,7 @@ ngApp.controller('ctrlPhase', ['$scope', 'http2', 'noticebox', function($scope, 
 	});
 }]);
 ngApp.controller('ctrlCoworker', ['$scope', 'http2', function($scope, http2) {
+	$scope.inviteURL = 'http://' + location.host + '/rest/pl/fe/matter/mission/invite?site=' + $scope.siteId + '&id=' + $scope.id;
 	$scope.label = '';
 	$scope.add = function() {
 		var url = '/rest/pl/fe/matter/mission/coworker/add?site=' + $scope.siteId + '&mission=' + $scope.id;

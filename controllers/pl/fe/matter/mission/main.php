@@ -16,6 +16,13 @@ class main extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
+	public function invite_action() {
+		\TPL::output('/pl/fe/matter/mission/invite');
+		exit;
+	}
+	/**
+	 *
+	 */
 	public function get_action($id) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();

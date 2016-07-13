@@ -6,13 +6,13 @@ require_once '../db.php';
 $sql = "create table if not exists xxt_wall(";
 $sql .= "id varchar(32) not null";
 $sql .= ",mpid varchar(32) not null default ''";
-$sql .= ",siteid varchar(32) not null";
+$sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",creater varchar(40) not null";
 $sql .= ",create_at int not null";
 $sql .= ",active char(1) not null default 'N'";
 $sql .= ",title varchar(70) not null";
 $sql .= ",pic text"; // 分享或生成链接时的图片
-$sql .= ",summary varchar(240) not null"; // 分享或生成链接时的摘要
+$sql .= ",summary varchar(240) not null default ''"; // 分享或生成链接时的摘要
 $sql .= ",access_control char(1) not null default 'N'";
 $sql .= ",authapis text";
 $sql .= ",user_url text";
@@ -34,7 +34,8 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_wall_page(";
 $sql .= "id int not null auto_increment";
-$sql .= ",mpid varchar(32) not null";
+$sql .= ",mpid varchar(32) not null default ''";
+$sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",wid varchar(32) not null"; //wall
 $sql .= ",creater varchar(40) not null default ''";
 $sql .= ",create_at int not null";
@@ -54,7 +55,8 @@ if (!$mysqli->query($sql)) {
  * 信息墙用户状态
  */
 $sql = "create table if not exists xxt_wall_enroll(";
-$sql .= "mpid varchar(32) not null";
+$sql .= "mpid varchar(32) not null default ''";
+$sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",wid varchar(32) not null";
 $sql .= ",openid varchar(255) not null";
 $sql .= ",remark varchar(255) not null default ''";
@@ -71,7 +73,8 @@ if (!$mysqli->query($sql)) {
  */
 $sql = "create table if not exists xxt_wall_log(";
 $sql .= "id int not null auto_increment";
-$sql .= ",mpid varchar(32) not null";
+$sql .= ",mpid varchar(32) not null default ''";
+$sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",wid varchar(32) not null";
 $sql .= ",openid varchar(255) not null";
 $sql .= ",publish_at int not null";

@@ -15,11 +15,11 @@ class users extends \pl\fe\matter\base {
 	/**
 	 * 获得墙内的所有用户
 	 */
-	public function list_action($wall) {
+	public function list_action($wall, $siteid) {
 		$q = array(
 			'e.openid,e.join_at,e.last_msg_at,f.nickname',
 			'xxt_wall_enroll e,xxt_fans f',
-			"e.mpid='$this->mpid' and e.wid='$wall' and e.close_at=0 and e.mpid=f.mpid and e.openid=f.openid",
+			"e.siteid='$siteid' and e.wid='$wall' and e.close_at=0 and e.siteid=f.mpid and e.openid=f.openid",
 		);
 
 		$users = $this->model()->query_objs_ss($q);
@@ -32,11 +32,11 @@ class users extends \pl\fe\matter\base {
 	 * @param string $wall
 	 * @param string $app
 	 */
-	public function import_action($wall, $app) {
+	public function import_action($wall, $app, $siteid) {
 		$sql = 'insert into xxt_wall_enroll';
-		$sql .= '(mpid,wid,join_at,openid)';
+		$sql .= '(siteid,wid,join_at,openid)';
 		$sql .= " select distinct";
-		$sql .= " '$this->mpid','$wall'," . time();
+		$sql .= " '$siteid','$wall'," . time();
 		$sql .= ',openid';
 		$sql .= " from xxt_enroll_record";
 		$sql .= " where aid='$app' and state=1";
@@ -54,11 +54,11 @@ class users extends \pl\fe\matter\base {
 	 * @param string $wall
 	 * @param string $app
 	 */
-	public function export_action($wall, $app, $onlySpeaker = 'N') {
+	public function export_action($wall, $app, $onlySpeaker = 'N',$siteid) {
 		$q = array(
 			'e.openid,f.nickname',
 			'xxt_wall_enroll e,xxt_fans f',
-			"e.mpid='$this->mpid' and e.wid='$wall' and e.close_at=0 and e.mpid=f.mpid and e.openid=f.openid",
+			"e.siteid='$siteid' and e.wid='$wall' and e.close_at=0 and e.siteid=f.mpid and e.openid=f.openid",
 		);
 		if ($onlySpeaker === 'Y') {
 			$q[2] .= ' and e.last_msg_at<>0';
@@ -70,7 +70,7 @@ class users extends \pl\fe\matter\base {
 			$modelRec = $this->model('matter\enroll\record');
 			foreach ($users as $user) {
 				$user->vid = '';
-				$modelRec->add($this->mpid, $objApp, $user);
+				$modelRec->add($siteid, $objApp, $user);
 			}
 		}
 

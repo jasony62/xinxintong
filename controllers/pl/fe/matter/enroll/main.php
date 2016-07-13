@@ -17,7 +17,7 @@ class main extends \pl\fe\matter\base {
 	 */
 	public function index_action($site, $id) {
 		if (strpos($_SERVER['REQUEST_URI'], 'publish') !== false) {
-			\TPL::output('/pl/fe/matter/group/frame');
+			\TPL::output('/pl/fe/matter/enroll/frame');
 			exit;
 		} else {
 			$app = $this->model('matter\enroll')->byId($id);
@@ -28,13 +28,6 @@ class main extends \pl\fe\matter\base {
 				exit;
 			}
 		}
-	}
-	/**
-	 * 返回视图
-	 */
-	public function publish_action() {
-		\TPL::output('/pl/fe/matter/enroll/frame');
-		exit;
 	}
 	/**
 	 * 返回一个登记活动
@@ -88,12 +81,12 @@ class main extends \pl\fe\matter\base {
 			"state<>0",
 		];
 		if (!empty($mission)) {
-			$q[2] .= " and mission_id=$mission";
+			$q[2] .= " and mission_id=" . $model->escape($mission);
 		} else {
-			$q[2] .= " and siteid='$site'";
+			$q[2] .= " and siteid='" . $model->escape($site) . "'";
 		}
 		if (!empty($scenario)) {
-			$q[2] .= " and scenario='$scenario'";
+			$q[2] .= " and scenario='" . $model->escape($scenario) . "'";
 		}
 		$q2['o'] = 'a.modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
@@ -129,7 +122,7 @@ class main extends \pl\fe\matter\base {
 			$newapp['use_mission_header'] = 'N';
 			$newapp['use_mission_footer'] = 'N';
 		} else {
-			$modelMis = $this->model('mission');
+			$modelMis = $this->model('matter\mission');
 			$mission = $modelMis->byId($mission);
 			$newapp['pic'] = $mission->pic;
 			$newapp['summary'] = $mission->summary;
@@ -138,9 +131,9 @@ class main extends \pl\fe\matter\base {
 			$newapp['use_mission_footer'] = 'Y';
 		}
 		$appId = uniqid();
-		/*pages*/
+		/* pages */
 		if (!empty($scenario) && !empty($template)) {
-			$config = $this->_addPageByTemplate($user, $site->id, $appId, $scenario, $template, $customConfig);
+			$config = $this->_addPageByTemplate($user, $site, $mission, $appId, $scenario, $template, $customConfig);
 			/*进入规则*/
 			$entryRule = $config->entryRule;
 			if (isset($config->enrolled_entry_page)) {
@@ -158,7 +151,7 @@ class main extends \pl\fe\matter\base {
 		if (empty($entryRule)) {
 			return new \ResponseError('没有获得页面进入规则');
 		}
-		/*create app*/
+		/* create app */
 		$newapp['id'] = $appId;
 		$newapp['siteid'] = $site->id;
 		$newapp['title'] = empty($customConfig->proto->title) ? '新登记活动' : $customConfig->proto->title;
@@ -174,11 +167,12 @@ class main extends \pl\fe\matter\base {
 		isset($config) && $newapp['data_schemas'] = \TMS_MODEL::toJson($config->schema);
 
 		$this->model()->insert('xxt_enroll', $newapp, false);
+
 		$app = $this->model('matter\enroll')->byId($appId);
-		/*记录操作日志*/
+		/* 记录操作日志 */
 		$app->type = 'enroll';
 		$this->model('log')->matterOp($site->id, $user, $app, 'C');
-		/*记录和任务的关系*/
+		/* 记录和任务的关系 */
 		if (isset($mission->id)) {
 			$modelMis->addMatter($user, $site->id, $mission->id, $app);
 		}
@@ -473,11 +467,30 @@ class main extends \pl\fe\matter\base {
 	 * @param string $scenario scenario's name
 	 * @param string $template template's name
 	 */
-	private function &_addPageByTemplate(&$user, $siteId, &$app, $scenario, $template, &$customConfig) {
+	private function &_addPageByTemplate(&$user, &$site, &$mission, &$app, $scenario, $template, &$customConfig) {
 		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/matter/enroll/scenario/' . $scenario . '/templates/' . $template;
 		$config = file_get_contents($templateDir . '/config.json');
 		$config = preg_replace('/\t|\r|\n/', '', $config);
 		$config = json_decode($config);
+
+		/* 包含项目阶段 */
+		if (isset($config->schema_include_mission_phases) && $config->schema_include_mission_phases === 'Y') {
+			if (!empty($mission) && $mission->multi_phase === 'Y') {
+				$schemaPhase = new \stdClass;
+				$schemaPhase->id = 'phase';
+				$schemaPhase->title = '项目阶段';
+				$schemaPhase->type = 'phase';
+				$schemaPhase->ops = [];
+				$phases = $this->model('matter\mission\phase')->byMission($mission->id);
+				foreach ($phases as $phase) {
+					$newOp = new \stdClass;
+					$newOp->l = $phase->title;
+					$newOp->v = $phase->phase_id;
+					$schemaPhase->ops[] = $newOp;
+				}
+				$config->schema[] = $schemaPhase;
+			}
+		}
 		$pages = $config->pages;
 		if (empty($pages)) {
 			return false;
@@ -485,7 +498,7 @@ class main extends \pl\fe\matter\base {
 		$modelPage = $this->model('matter\enroll\page');
 		$modelCode = $this->model('code\page');
 		foreach ($pages as $page) {
-			$ap = $modelPage->add($user, $siteId, $app, (array) $page);
+			$ap = $modelPage->add($user, $site->id, $app, (array) $page);
 			$data = [
 				'html' => file_get_contents($templateDir . '/' . $page->name . '.html'),
 				'css' => file_get_contents($templateDir . '/' . $page->name . '.css'),
@@ -536,7 +549,7 @@ class main extends \pl\fe\matter\base {
 		$q = [
 			'count(*)',
 			'xxt_enroll_record',
-			"siteid='$site' and aid='$app->id'",
+			["siteid" => $site, "aid" => $app->id],
 		];
 		if ((int) $model->query_val_ss($q) > 0) {
 			$rst = $model->update(
@@ -571,258 +584,5 @@ class main extends \pl\fe\matter\base {
 		$this->model('log')->matterOp($site, $user, $app, 'D');
 
 		return new \ResponseData($rst);
-	}
-	/**
-	 * 版本升级
-	 */
-	public function verUpgrade_Action($site) {
-		$result = [];
-		/*app's data_schema*/
-		$model = $this->model('matter\enroll');
-		$apps = $model->bySite($site, 1, 999);
-		$apps = $apps['apps'];
-		foreach ($apps as $app) {
-			/*app*/
-			if (!empty($app->data_schemas)) {
-				$dataSchemas = json_decode($app->data_schemas);
-				$newDataSchemas = [];
-				foreach ($dataSchemas as $dataSchema) {
-					$schema = new \stdClass;
-					$schema->id = $dataSchema->id;
-					isset($dataSchema->type) && $schema->type = $dataSchema->type;
-					isset($dataSchema->title) && $schema->title = $dataSchema->title;
-					isset($dataSchema->ops) && $schema->ops = $dataSchema->ops;
-
-					$newDataSchemas[] = $schema;
-				}
-				$result[$app->id] = $newDataSchemas;
-				/*update*/
-				$model->update(
-					'xxt_enroll',
-					['data_schemas' => $model->toJson($newDataSchemas)],
-					"id='$app->id'"
-				);
-			}
-			/*page*/
-			$pages = $this->model('matter\enroll\page')->byApp($app->id);
-			foreach ($pages as $page) {
-				if (!empty($page->data_schemas)) {
-					if ($page->type === 'I') {
-						/**
-						 * data schemas
-						 */
-						$dataSchemas = json_decode($page->data_schemas);
-						if (!isset($dataSchemas[0]->schema)) {
-							$newDataSchemas = [];
-							foreach ($dataSchemas as $dataSchema) {
-								$config = new \stdClass;
-								isset($dataSchema->showname) && $config->showname = $dataSchema->showname;
-								isset($dataSchema->required) && $config->required = $dataSchema->required;
-								isset($dataSchema->component) && $config->component = $dataSchema->component;
-								isset($dataSchema->align) && $config->align = $dataSchema->align;
-
-								$schema = new \stdClass;
-								$schema->id = $dataSchema->id;
-								isset($dataSchema->type) && $schema->type = $dataSchema->type;
-								$schema->title = $dataSchema->title;
-								isset($dataSchema->ops) && $schema->ops = $dataSchema->ops;
-
-								$wrap = new \stdClass;
-								$wrap->config = $config;
-								$wrap->schema = $schema;
-
-								$newDataSchemas[] = $wrap;
-							}
-							$result[$app->id . '.' . $page->name] = $newDataSchemas;
-							/*update*/
-							$model->update(
-								'xxt_enroll_page',
-								['data_schemas' => $model->toJson($newDataSchemas)],
-								"id='$page->id'"
-							);
-						}
-						/**
-						 * html
-						 */
-						if (!empty($page->html) && false === strpos($page->html, 'schema-type=')) {
-							$newHtml = $this->_upgradeHtml($page->html);
-							$model->update(
-								'xxt_code_page',
-								['html' => $model->escape($newHtml)],
-								"siteid='$site' and name='$page->code_name'"
-							);
-						}
-					}
-				}
-			}
-		}
-
-		return new \ResponseData($result);
-	}
-	/**
-	 *
-	 */
-	public function _upgradeHtml($html) {
-		$schemas = [];
-
-		if (preg_match_all('/<div.+?wrap="input".+?>.*?<\/div>/i', $html, $wraps)) {
-			$wraps = $wraps[0];
-			foreach ($wraps as $wrap) {
-				$schema = [];
-				$inp = [];
-				$title = [];
-				$ngmodel = [];
-				$opval = [];
-				$optit = [];
-				if (!preg_match('/<input.+?>/', $wrap, $inp) && !preg_match('/<option.+?>/', $wrap, $inp) && !preg_match('/<textarea.+?>/', $wrap, $inp) && !preg_match('/wrap="datetime".+?>/', $wrap, $inp) && !preg_match('/wrap="img".+?>/', $wrap, $inp) && !preg_match('/wrap="file".+?>/', $wrap, $inp)) {
-					continue;
-				}
-				$inp = $inp[0];
-				if (preg_match('/title="(.*?)"/', $inp, $title)) {
-					$title = $title[1];
-				}
-				if (preg_match('/type="radio"/', $inp)) {
-					/**
-					 * for radio group.
-					 */
-					if (preg_match('/ng-model="data\.(.+?)"/', $inp, $ngmodel)) {
-						$id = $ngmodel[1];
-					}
-					if (empty($id)) {
-						continue;
-					}
-					$existing = false;
-					foreach ($schemas as &$d) {
-						if ($existing = ($d['id'] === $id)) {
-							break;
-						}
-					}
-					if (!$existing) {
-						$schema = ['title' => $title, 'id' => $id, 'type' => 'single', 'ops' => []];
-						$schemas[] = $schema;
-						$d = &$schemas[count($schemas) - 1];
-					}
-					$op = [];
-					if (preg_match('/value="(.+?)"/', $inp, $opval)) {
-						$op['v'] = $opval[1];
-					}
-					if (preg_match_all('/data-(.+?)="(.+?)"/', $wrap, $opAttrs)) {
-						for ($i = 0, $l = count($opAttrs[0]); $i < $l; $i++) {
-							$op[$opAttrs[1][$i]] = $opAttrs[2][$i];
-						}
-					}
-					$d['ops'][] = $op;
-				} elseif (preg_match('/<option/', $inp)) {
-					/**
-					 * for radio group.
-					 */
-					if (preg_match('/name="data\.(.+?)"/', $inp, $ngmodel)) {
-						$id = $ngmodel[1];
-					}
-					if (empty($id)) {
-						continue;
-					}
-					$existing = false;
-					foreach ($schemas as &$d) {
-						if ($existing = ($d['id'] === $id)) {
-							break;
-						}
-					}
-					if (!$existing) {
-						$schema = ['title' => $title, 'id' => $id, 'type' => 'single', 'ops' => []];
-						$schemas[] = $schema;
-						$d = &$schemas[count($schemas) - 1];
-					}
-					$op = [];
-					if (preg_match('/value="(.+?)"/', $inp, $opval)) {
-						$op['v'] = $opval[1];
-					}
-					if (preg_match_all('/data-(.+?)="(.+?)"/', $wrap, $opAttrs)) {
-						for ($i = 0, $l = count($opAttrs[0]); $i < $l; $i++) {
-							$op[$opAttrs[1][$i]] = $opAttrs[2][$i];
-						}
-					}
-					$d['ops'][] = $op;
-				} elseif (preg_match('/type="checkbox"/', $inp)) {
-					if (preg_match('/ng-model="data\.(.+?)\.(.+?)"/', $inp, $ngmodel)) {
-						$id = $ngmodel[1];
-						$opval = $ngmodel[2];
-					}
-					if (empty($id) || !isset($opval)) {
-						continue;
-					}
-					$existing = false;
-					foreach ($schemas as &$d) {
-						if ($existing = ($d['id'] === $id)) {
-							break;
-						}
-					}
-					if (!$existing) {
-						$schema = ['title' => $title, 'id' => $id, 'type' => 'multiple', 'ops' => []];
-						$schemas[] = $schema;
-						$d = &$schemas[count($schemas) - 1];
-					}
-					$op = [];
-					$op['v'] = $opval;
-					if (preg_match_all('/data-(.+?)="(.+?)"/', $wrap, $opAttrs)) {
-						for ($i = 0, $l = count($opAttrs[0]); $i < $l; $i++) {
-							$op[$opAttrs[1][$i]] = $opAttrs[2][$i];
-						}
-					}
-					$d['ops'][] = $op;
-				} elseif (preg_match('/ng-repeat="img in data\.(.+?)"/', $inp, $ngrepeat)) {
-					$id = $ngrepeat[1];
-					$schema = ['title' => $title, 'id' => $id, 'type' => 'img'];
-					$schemas[] = $schema;
-				} elseif (preg_match('/ng-repeat="file in data\.(.+?)"/', $inp, $ngrepeat)) {
-					$id = $ngrepeat[1];
-					$schema = ['title' => $title, 'id' => $id, 'type' => 'file'];
-					$schemas[] = $schema;
-				} elseif (preg_match('/ng-bind="data\.(.+?)\|/', $inp, $ngmodel)) {
-					$id = $ngmodel[1];
-					$schema = ['title' => $title, 'id' => $id, 'type' => 'datetime'];
-					$schemas[] = $schema;
-				} else {
-					/**
-					 * for text input/textarea/location.
-					 */
-					if (preg_match('/ng-model="data\.(.+?)"/', $inp, $ngmodel)) {
-						$id = $ngmodel[1];
-					}
-					if (empty($id)) {
-						continue;
-					}
-					if (in_array($id, ['name', 'email', 'mobile'])) {
-						$type = $id;
-					} elseif ($id === 'mobile') {
-						$type = 'mobile';
-					} else {
-						if (preg_match('/<textarea.+?>/', $wrap)) {
-							$type = 'longtext';
-						} else {
-							$type = 'shorttext';
-						}
-					}
-					$schema = ['title' => $title, 'id' => $id, 'type' => $type];
-					$schemas[] = $schema;
-				}
-			}
-		}
-		/*update html*/
-		$i = $offset = 0;
-		while ($offset = strpos($html, 'wrap="input"', $offset)) {
-			if (!isset($schemas[$i])) {
-				break;
-			}
-
-			$schema = $schemas[$i];
-			$newAttrs = 'wrap="input" schema="' . $schema['id'] . '" schema-type="' . $schema['type'] . '"';
-			$html = substr_replace($html, $newAttrs, $offset, 12);
-
-			$offset++;
-			$i++;
-		}
-
-		return $html;
 	}
 }

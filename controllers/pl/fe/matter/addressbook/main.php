@@ -84,9 +84,10 @@ class main extends \pl\fe\matter\base {
      *
      */
     public function index_action() {
-        $this->view_action('/pl/fe/matter/addressbook');
+        $this->view_action('/pl/fe/matter/addressbook/frame');
     }
 
+    /*
     public function test_action() {
         //echo '<pre>';
         $ab = $this->model('matter\addressbook')->byId(1);
@@ -94,12 +95,7 @@ class main extends \pl\fe\matter\base {
         $d = (object) $c;
         return new \ResponseData($c);
     }
-
-    public function one_action() {
-        \TPL::assign('title', 'ok');
-        \TPL::output('/pl/fe/matter/addressbook/one');
-        die();
-    }
+    */
 
     /**
      * 使用tms_controller.php原类的model

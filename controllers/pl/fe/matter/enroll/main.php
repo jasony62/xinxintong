@@ -473,6 +473,17 @@ class main extends \pl\fe\matter\base {
 		$config = preg_replace('/\t|\r|\n/', '', $config);
 		$config = json_decode($config);
 
+		$pages = $config->pages;
+		if (empty($pages)) {
+			return false;
+		}
+
+		$modelPage = $this->model('matter\enroll\page');
+		$modelCode = $this->model('code\page');
+		/* 简单schema定义，目前用于投票场景 */
+		if (isset($customConfig->simpleSchema)) {
+			$config->schema = $modelPage->schemaByText($customConfig->simpleSchema);
+		}
 		/* 包含项目阶段 */
 		if (isset($config->schema_include_mission_phases) && $config->schema_include_mission_phases === 'Y') {
 			if (!empty($mission) && $mission->multi_phase === 'Y') {
@@ -491,31 +502,31 @@ class main extends \pl\fe\matter\base {
 				$config->schema[] = $schemaPhase;
 			}
 		}
-		$pages = $config->pages;
-		if (empty($pages)) {
-			return false;
-		}
-		$modelPage = $this->model('matter\enroll\page');
-		$modelCode = $this->model('code\page');
+
 		foreach ($pages as $page) {
 			$ap = $modelPage->add($user, $site->id, $app, (array) $page);
-			$data = [
-				'html' => file_get_contents($templateDir . '/' . $page->name . '.html'),
-				'css' => file_get_contents($templateDir . '/' . $page->name . '.css'),
-				'js' => file_get_contents($templateDir . '/' . $page->name . '.js'),
-			];
-			/*填充页面*/
-			$matched = [];
-			$pattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
-			if (preg_match($pattern, $data['html'], $matched)) {
-				if (isset($customConfig->simpleSchema)) {
-					$config->schema = $modelPage->schemaByText($customConfig->simpleSchema);
+			/* 页面关联的定义 */
+			if (isset($schemaPhase)) {
+				if ($page->type === 'I') {
+					$newPageSchema = new \stdClass;
+					$schemaPhaseConfig = new \stdClass;
+					$schemaPhaseConfig->component = 'R';
+					$schemaPhaseConfig->align = 'V';
+					$newPageSchema->schema = $schemaPhase;
+					$newPageSchema->config = $schemaPhaseConfig;
+					$page->data_schemas[] = $newPageSchema;
+				} else if ($page->type === 'V') {
+					$newPageSchema = new \stdClass;
+					$schemaPhaseConfig = new \stdClass;
+					$schemaPhaseConfig->id = 'V' . time();
+					$schemaPhaseConfig->pattern = 'record';
+					$schemaPhaseConfig->inline = 'Y';
+					$schemaPhaseConfig->splitLine = 'Y';
+					$newPageSchema->schema = $schemaPhase;
+					$newPageSchema->config = $schemaPhaseConfig;
+					$page->data_schemas[] = $newPageSchema;
 				}
-				$html = $modelPage->htmlBySchema($config->schema, $matched[0]);
-				$data['html'] = preg_replace($pattern, $html, $data['html']);
 			}
-			$modelCode->modify($ap->code_id, $data);
-			/*页面关联的定义*/
 			$pageSchemas = [];
 			$pageSchemas['data_schemas'] = isset($page->data_schemas) ? \TMS_MODEL::toJson($page->data_schemas) : '[]';
 			$pageSchemas['act_schemas'] = isset($page->act_schemas) ? \TMS_MODEL::toJson($page->act_schemas) : '[]';
@@ -524,6 +535,21 @@ class main extends \pl\fe\matter\base {
 				$pageSchemas,
 				"aid='$app' and id={$ap->id}"
 			);
+			/* 填充页面 */
+			$data = [
+				'html' => file_get_contents($templateDir . '/' . $page->name . '.html'),
+				'css' => file_get_contents($templateDir . '/' . $page->name . '.css'),
+				'js' => file_get_contents($templateDir . '/' . $page->name . '.js'),
+			];
+			/* 页面存在动态信息 */
+			$matched = [];
+			$pattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
+			if (preg_match($pattern, $data['html'], $matched)) {
+				//$html = $modelPage->htmlBySchema($config->schema, $matched[0]);
+				$html = $modelPage->htmlBySchema($page->data_schemas, $matched[0]);
+				$data['html'] = preg_replace($pattern, $html, $data['html']);
+			}
+			$modelCode->modify($ap->code_id, $data);
 		}
 
 		return $config;

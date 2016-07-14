@@ -71,7 +71,7 @@
 				"inline": "Y",
 				"splitLine": "Y"
 			},
-			"schemas": {
+			"schema": {
 				"id": "name",
 				"title": "名称",
 				"type": "name"
@@ -133,7 +133,7 @@
 			},
 			"schema": {
 				"id": "enrollAt",
-				"title": "登记信息2",
+				"title": "登记时间",
 				"type": "_enrollAt"
 			}
 		}],

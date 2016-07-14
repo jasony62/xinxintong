@@ -86,13 +86,13 @@ class page_model extends \TMS_MODEL {
 	/**
 	 * 创建页面
 	 */
-	public function add($mpid, $data, $wallId) {
+	public function add($siteid, $data, $wallId) {
 		$uid = \TMS_CLIENT::get_client_uid();
 
-		$code = \TMS_APP::model('code\page')->create($mpid, $uid);
+		$code = \TMS_APP::model('code\page')->create($siteid, $uid);
 
 		$newPage = array(
-			'mpid' => $mpid,
+			'siteid' => $siteid,
 			'wid' => $wallId,
 			'creater' => $uid,
 			'create_at' => time(),

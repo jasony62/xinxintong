@@ -37,7 +37,7 @@ class app_base extends \mp\mp_controller {
 		$entries = array();
 		(true === $prights || (isset($prights['app_enroll']) && $prights['app_enroll']['read_p'] === 'Y')) && $entries[] = array('url' => '/mp/app/enroll', 'title' => '登记活动');
 		(true === $prights || (isset($prights['app_lottery']) && $prights['app_lottery']['read_p'] === 'Y')) && $entries[] = array('url' => '/mp/app/lottery', 'title' => '抽奖活动');
-		(true === $prights || (isset($prights['app_wall']) && $prights['app_wall']['read_p'] === 'Y')) && $entries[] = array('url' => '/pl/fe/matter/wall', 'title' => '信息墙');
+		(true === $prights || (isset($prights['app_wall']) && $prights['app_wall']['read_p'] === 'Y')) && $entries[] = array('url' => '/mp/app/wall', 'title' => '信息墙');
 		(true === $prights || (isset($prights['app_addressbook']) && $prights['app_addressbook']['read_p'] === 'Y')) && $entries[] = array('url' => '/mp/app/addressbook', 'title' => '通讯录');
 		(true === $prights || (isset($prights['app_contribute']) && $prights['app_contribute']['read_p'] === 'Y')) && $entries[] = array('url' => '/mp/app/contribute', 'title' => '投稿');
 		(true === $prights || (isset($prights['app_merchant']) && $prights['app_merchant']['read_p'] === 'Y')) && $entries[] = array('url' => '/mp/app/merchant', 'title' => '订购');

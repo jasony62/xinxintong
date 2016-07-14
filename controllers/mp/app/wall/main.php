@@ -16,19 +16,19 @@ class main extends \mp\app\app_base {
 	 *
 	 */
 	public function index_action() {
-		$this->view_action('/pl/fe/matter/wall');
+		$this->view_action('/mp/app/wall');
 	}
 	/**
 	 *
 	 */
 	public function detail_action() {
-		$this->view_action('/pl/fe/matter/wall/detail');
+		$this->view_action('/mp/app/wall/detail');
 	}
 	/**
 	 *
 	 */
 	public function approve_action() {
-		$this->view_action('/pl/fe/matter/wall/detail');
+		$this->view_action('/mp/app/wall/detail');
 	}
 	/**
 	 *

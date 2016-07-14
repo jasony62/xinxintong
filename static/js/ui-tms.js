@@ -173,6 +173,77 @@ angular.module('ui.tms', ['ngSanitize']).service('http2', ['$rootScope', '$http'
             }, true);
         }
     }
+}]).service('noticebox', ['$timeout', function($timeout) {
+    var _boxId = 'tmsbox' + (new Date() * 1),
+        _last = {
+            type: '',
+            timer: null
+        },
+        _getBox = function(type, msg) {
+            var box;
+            box = document.querySelector('#' + _boxId);
+            if (box === null) {
+                box = document.createElement('div');
+                box.setAttribute('id', _boxId);
+                box.classList.add('notice-box');
+                box.classList.add('alert');
+                box.classList.add('alert-' + type);
+                box.innerHTML = '<div>' + msg + '</div>';
+                document.body.appendChild(box);
+            } else {
+                if (_last.type !== type) {
+                    box.classList.remove('alert-' + type);
+                    _last.type = type;
+                }
+                box.childNodes[0].innerHTML = msg;
+            }
+
+            return box;
+        };
+
+    this.error = function(msg) {
+        var box, btn;
+
+        /*取消自动关闭*/
+        if (_last.timer) {
+            $timeout.cancel(_last.timer);
+            _last.timer = null;
+        }
+        /*显示消息框*/
+        box = _getBox('danger', msg);
+        /*手工关闭*/
+        btn = document.createElement('button');
+        btn.classList.add('close');
+        btn.innerHTML = '<span>&times;</span>';
+        box.insertBefore(btn, box.childNodes[0]);
+        btn.addEventListener('click', function() {
+            document.body.removeChild(box);
+        });
+    };
+    this.success = function(msg) {
+        var box;
+        /*取消自动关闭*/
+        _last.timer && $timeout.cancel(_last.timer);
+        /*显示消息框*/
+        box = _getBox('success', msg);
+        /*保持2秒钟后自动关闭*/
+        _last.timer = $timeout(function() {
+            document.body.removeChild(box);
+            _last.timer = null;
+        }, 2000);
+    };
+    this.info = function(msg) {
+        var box;
+        /*取消自动关闭*/
+        _last.timer && $timeout.cancel(_last.timer);
+        /*显示消息框*/
+        box = _getBox('info', msg);
+        /*保持2秒钟后自动关闭*/
+        _last.timer = $timeout(function() {
+            document.body.removeChild(box);
+            _last.timer = null;
+        }, 2000);
+    };
 }]).directive('noticeBox', ['$timeout', function($timeout) {
     return {
         restrict: 'EA',
@@ -244,7 +315,7 @@ angular.module('ui.tms', ['ngSanitize']).service('http2', ['$rootScope', '$http'
                     h: true,
                     i: true
                 };
-                $scope.format = 'yyyy-MM-dd HH:mm';
+                $scope.format = 'yy-MM-dd HH:mm';
             } else {
                 mask = (function(mask1) {
                     var mask2, mask1 = mask1.split(',');
@@ -254,7 +325,7 @@ angular.module('ui.tms', ['ngSanitize']).service('http2', ['$rootScope', '$http'
                         m: mask1[1] === 'm' ? true : mask1[1],
                         d: mask1[2] === 'd' ? true : mask1[2],
                     };
-                    $scope.format = 'yyyy-MM-dd';
+                    $scope.format = 'yy-MM-dd';
                     /*time*/
                     if (mask1.length === 5) {
                         if (mask1[3] === 'h') {

@@ -4,7 +4,7 @@ define(['require'], function() {
 	ngApp.config(['$routeProvider', '$locationProvider', '$controllerProvider', function($routeProvider, $locationProvider, $controllerProvider) {
 		var RouteParam = function(name) {
 			var baseURL = '/views/default/pl/fe/matter/article/';
-			this.templateUrl = baseURL + name + '.html?=1';
+			this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
 			this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
 			this.resolve = {
 				load: function($q) {
@@ -35,7 +35,7 @@ define(['require'], function() {
 			url = 'http://' + location.host + '/rest/site/fe/matter?site=' + ls.site + '&id=' + ls.id + '&type=article';
 			$scope.entry = {
 				url: url,
-				qrcode: '/rest/pl/fe/matter/article/qrcode?url=' + encodeURIComponent(url),
+				qrcode: '/rest/site/fe/matter/article/qrcode?site=' + ls.site + '&url=' + encodeURIComponent(url),
 			};
 		});
 	}]);

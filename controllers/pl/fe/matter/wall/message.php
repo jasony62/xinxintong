@@ -15,17 +15,17 @@ class message extends \pl\fe\matter\base {
 	/**
 	 * 获得所有消息
 	 */
-	public function list_action($wall, $page = 1, $size = 30, $contain = null) {
+	public function list_action($wall, $page = 1, $size = 30, $contain = null, $siteid) {
 		$contain = isset($contain) ? explode(',', $contain) : array();
-		$messages = $this->model('matter\wall\wall')->messages($this->mpid, $wall, $page, $size, $contain);
+		$messages = $this->model('matter\wall')->messages($siteid, $wall, $page, $size, $contain);
 
 		return new \ResponseData($messages);
 	}
 	/**
 	 * 获得未审核的消息
 	 */
-	public function pendingList_action($wall, $last = 0) {
-		$messages = $this->model('matter\wall\wall')->pendingMessages($this->mpid, $wall, $last);
+	public function pendingList_action($wall, $last = 0, $siteid) {
+		$messages = $this->model('matter\wall')->pendingMessages($siteid, $wall, $last);
 
 		return new \ResponseData(array($messages, time()));
 	}
@@ -38,12 +38,12 @@ class message extends \pl\fe\matter\base {
 	 * $id 消息ID
 	 *
 	 */
-	public function approve_action($wall, $id) {
-		$model = $this->model('matter\wall\wall');
+	public function approve_action($wall, $id, $siteid) {
+		$model = $this->model('matter\wall');
 		/**
 		 * 批准消息
 		 */
-		$v = $model->approve($this->mpid, $wall, $id, $this);
+		$v = $model->approve($siteid, $wall, $id, $this);
 		/**
 		 * 是否需要推送消息
 		 */
@@ -68,7 +68,8 @@ class message extends \pl\fe\matter\base {
 				);
 				break;
 			}
-			$model->push_others($this->mpid, $openid, $msg, $wall, $wall->id, $this);
+
+			$model->push_others($siteid, $openid, $msg, $wall, $wall->id, $this);
 		}
 
 		return new \ResponseData($v);
@@ -81,7 +82,7 @@ class message extends \pl\fe\matter\base {
 	 *
 	 */
 	public function reject_action($wall, $id) {
-		$v = $this->model('matter\wall\wall')->reject($wall, $id);
+		$v = $this->model('matter\wall')->reject($wall, $id);
 
 		return new \ResponseData($v);
 	}

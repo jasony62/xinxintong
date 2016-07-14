@@ -61,14 +61,26 @@ class TMS_DB {
 		} else {
 			$where || $this->show_error('DB Update no where string.');
 
-			foreach ($data AS $key => $val) {
-				$update_string[] = '`' . $key . "` = '" . $val . "'";
-			}
+			$sql = 'UPDATE ' . $this->get_table($table);
 
-			$sql = 'UPDATE `' . $this->get_table($table);
-			$sql .= '` SET ' . implode(', ', $update_string);
-			$sql .= ' WHERE ' . $where;
+			$updateStrs = [];
+			foreach ($data as $key => $val) {
+				$updateStrs[] = '`' . $key . "` = '" . $val . "'";
+			}
+			$sql .= ' SET ' . implode(', ', $updateStrs);
+
+			/* 防止SQL注入 */
+			$clauses = [];
+			if (is_array($where)) {
+				foreach ($where as $k => $v) {
+					$clauses[] = $k . "='" . $this->escape($v) . "'";
+				}
+			} else {
+				$clauses[] = $where;
+			}
+			$sql .= ' WHERE ' . implode(' and ', $clauses);
 		}
+
 		global $mysqli_w;
 
 		if (!$mysqli_w->query($sql)) {
@@ -80,17 +92,26 @@ class TMS_DB {
 		return $rows_affected;
 	}
 	/**
-	 *
+	 * 删除数据
 	 */
-	public function delete($table, $where = '') {
-		if (!$where) {
+	public function delete($table, $where) {
+		if (empty($where)) {
 			throw new Exception('DB Delete no where string.');
 		}
 
 		global $mysqli_w;
 
-		$sql = 'DELETE FROM `' . $this->get_table($table);
-		$sql .= '` WHERE ' . $where;
+		$sql = 'DELETE FROM ' . $this->get_table($table);
+		/* 防止SQL注入 */
+		$clauses = [];
+		if (is_array($where)) {
+			foreach ($where as $k => $v) {
+				$clauses[] = $k . "='" . $this->escape($v) . "'";
+			}
+		} else {
+			$clauses[] = $where;
+		}
+		$sql .= ' WHERE ' . implode(' and ', $clauses);
 
 		if (!$mysqli_w->query($sql)) {
 			throw new Exception("database error(delete $table):" . $sql . ';' . $mysqli_w->error);
@@ -183,30 +204,18 @@ class TMS_DB {
 		return $this->query_value('SELECT FOUND_ROWS()');
 	}
 	/**
-	 *
+	 * 处理SQL注入问题
 	 */
 	public function escape($str) {
 		global $mysqli;
 
-		return empty($str) ? '' : $mysqli->real_escape_string($str);
-	}
-	// 带页码的 fetch_all, 默认从第一页开始
-	public function fetch_page($table, $where = null, $order = null, $page = null, $limit = 10) {
-		return false;
+		$str = empty($str) ? '' : $mysqli->real_escape_string($str);
+
+		return $str;
 	}
 	/**
-	 * 添加引号防止数据库攻击
+	 * assemble a whole sql.
 	 */
-	public static function quote($string) {
-		if (function_exists('mysql_escape_string')) {
-			$string = @mysql_escape_string($string);
-		} else {
-			$string = addslashes($string);
-		}
-
-		return $string;
-	}
-	// assemble a whole sql.
 	private function _assemble_query($select, $from = null, $where = null, $group = null, $order = null, $offset = null, $limit = 0) {
 		$select || $this->show_error('Query was empty.');
 
@@ -221,8 +230,15 @@ class TMS_DB {
 			}
 			if ($where) {
 				$select .= ' where ';
-				$clauses = is_array($where) ? $where : array($where);
-				$select .= implode('', $clauses);
+				$clauses = [];
+				if (is_array($where)) {
+					foreach ($where as $k => $v) {
+						$clauses[] = $k . "='" . $this->escape($v) . "'";
+					}
+				} else {
+					$clauses[] = $where;
+				}
+				$select .= implode(' and ', $clauses);
 			}
 			if ($group) {
 				$select .= ' ';
@@ -248,6 +264,7 @@ class TMS_DB {
 				$select .= " limit $offset,$limit";
 			}
 		}
+
 		return $select;
 	}
 	/**

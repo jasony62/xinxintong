@@ -33,26 +33,21 @@ class main extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function get_action($wall = null, $src = null) {
+	public function get_action($wall = null, $src = null,$siteid) {
 		$w = $this->model('matter\wall')->byId($wall, '*');
 		/**
 		 * acl
 		 */
-		$w->acl = $this->model('acl')->byMatter($this->mpid, 'wall', $wall);
+		$w->acl = $this->model('acl')->byMatter($siteid, 'wall', $wall);
 
 		return new \ResponseData($w);
 	}
 	/**
 	 *
 	 */
-	public function list_action($src = null) {
+	public function list_action($src = null,$siteid) {
 		$q = array('*', 'xxt_wall');
-		if ($src === 'p') {
-			$pmpid = $this->getParentMpid();
-			$q[2] = "mpid='$pmpid'";
-		} else {
-			$q[2] = "mpid='$this->mpid'";
-		}
+		$q[2] = "siteid='$siteid'";
 		$q2['o'] = 'create_at desc';
 
 		$w = $this->model()->query_objs_ss($q, $q2);
@@ -62,10 +57,10 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 创建一个讨论组
 	 */
-	public function create_action() {
+	public function create_action($siteid) {
 		$wid = uniqid();
 		$newone['id'] = $wid;
-		$newone['mpid'] = $this->mpid;
+		$newone['siteid'] = $siteid;
 		$newone['title'] = '新信息墙';
 		$newone['creater'] = \TMS_CLIENT::get_client_uid();
 		$newone['create_at'] = time();

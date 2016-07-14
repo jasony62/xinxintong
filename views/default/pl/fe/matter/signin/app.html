@@ -3,6 +3,9 @@
     <div class='col-md-12 app'>
         <nav class="navbar navbar-default">
             <div class="container-fluid">
+                <div class="navbar-form navbar-left" ng-if="!app.mission">
+                    <button class='btn btn-default' ng-click="assignMission()">指定项目</button>
+                </div>
                 <div class="navbar-form navbar-left">
                     <div class='form-group'>
                         <label>标题</label>
@@ -15,7 +18,7 @@
                         </select>
                     </div>
                     <div class='form-group' ng-if="!app.enroll_app_id">
-                        <button class='btn btn-success navbar-btn' ng-click="assignEnrollApp()">指定签到名单</button>
+                        <button class='btn btn-success' ng-click="assignEnrollApp()">指定签到名单</button>
                     </div>
                     <div class='form-group' ng-if="app.enroll_app_id">
                         <label>签到名单</label>
@@ -36,10 +39,47 @@
         </nav>
     </div>
     <!-- end app -->
+    <!-- rounds -->
+    <div class='col-md-12 rounds' ng-controller='ctrlRound'>
+        <nav class="navbar navbar-default round" ng-repeat="round in rounds">
+            <div class="container-fluid">
+                <div class="navbar-form navbar-left">
+                    <div class='form-group'>
+                        <label>签到轮次</label>
+                        <input type='text' class="form-control" ng-model='round.title' tms-auto-update tms-wait=1000 tms-update="update(round,'title')">
+                    </div>
+                    <div class='form-group'>
+                        <label>开始时间</label>
+                         <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-obj="round" tms-date="round.start_at" tms-state='start_at'></tms-datepicker>
+                    </div>
+                    <div class='form-group'>
+                        <label>结束时间</label>
+                        <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-obj="round" tms-date="round.end_at" tms-state='end_at'></tms-datepicker>
+                    </div>
+                    <div class='form-group'>
+                        <label>迟到时间</label>
+                        <tms-datepicker class='tms-datepicker' tms-title='迟到时间' tms-obj="round" tms-date='round.late_at' tms-state='late_at'></tms-datepicker>
+                    </div>
+                </div>
+                <div class="navbar-form navbar-right">
+                    <button class="btn btn-default" ng-click="remove(round)"><span class="glyphicon glyphicon-remove"></span></button>
+                </div>
+            </div>
+        </nav>
+        <nav class="navbar navbar-default actions">
+            <div class="container-fluid">
+                <div class="navbar-form navbar-right">
+                    <button class="btn btn-success" ng-click="add()"><span class="glyphicon glyphicon-plus"></span></button>
+                    <button class="btn btn-success" ng-click="batch()"><span>批量添加</span></button>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- end rounds -->
     <!-- pages -->
     <div class='col-md-12'>
-        <div class="container-fluid">
-            <ul class="nav nav-pills">
+        <div class="container-fluid" style="padding-bottom:8px;">
+            <ul class="nav nav-tabs">
                 <li role="presentation" ng-class="{'active':p===ep}" ng-repeat="p in app.pages">
                     <a href="#" ng-click="choosePage(p)"><span><i class='fa fa-file-o'></i> {{p.title}}</span></a>
                 </li>
@@ -83,13 +123,49 @@
                     <button class='btn btn-default' ng-click="embedMatter()">添加素材</button>
                 </div>
                 <!--embed inner matter-->
+                
+            </div>
+            <!--tinymce editor-->
+            <div class='col-md-6'>
+                <div class='page-editor'>
+                    <tinymce content='ep.html' id='tinymce-page' height='660' change="onPageChange()" toolbar="code"></tinymce>
+                    <div class='sidebar'>
+                        <button class='btn btn-default' ng-click="removeWrap()" title='删除' ng-disabled='!activeWrap'>
+                        <i class='fa fa-remove fa-fw'></i>
+                        </button>
+                        <button class='btn btn-default' ng-click="moveWrap('up')" ng-disabled='!activeWrap'>
+                        <span class='fa fa-arrow-up fa-fw'></span>
+                        </button>
+                        <button class='btn btn-default' ng-click="moveWrap('down')" ng-disabled='!activeWrap'>
+                        <span class='fa fa-arrow-down fa-fw'></span>
+                        </button>
+                        <button class='btn btn-default' title='上一级' ng-click="moveWrap('upLevel')" ng-disabled='!activeWrap||activeWrap.upmost'>
+                        <span class='fa fa-level-up fa-fw'></span>
+                        </button>
+                        <button class='btn btn-default' title='下一级' ng-click="moveWrap('downLevel')" ng-disabled='!activeWrap||activeWrap.downmost'>
+                        <i class='fa fa-level-down fa-fw'></i>
+                        </button>
+                        <button class='btn btn-default' title='编辑代码' ng-click="gotoCode()">
+                        <i class='fa fa-code fa-fw'></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!--tinymce editor-->
+            <div class='col-md-3'>
+                <!--wrap editor-->
+                <div class='tile' ng-if="activeWrap.schema">
+                    <div class='form-group' ng-include="wrapEditorHtml()">
+                    </div>
+                    <button class='btn btn-block btn-danger' ng-click="removeSchema(activeWrap.schema)">删除登记项</button>
+                </div>
+                <!--wrap editor-->
                 <div class='tile' ng-if="ep.type==='I'">
                     <div class='help-block'>已有签到登记项</div>
                     <div class='list-group' ng-controller="ctrlAppSchemas4Input">
                         <div class='list-group-item schema' ng-repeat="s in appSchemas">
                             <div class='checkbox' style='margin:0;padding:0' ng-mouseenter="entered=true" ng-mouseleave="entered=false">
                                 <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
-                                <button ng-if="entered" type="button" class="close" ng-click="remove(s)"><span aria-hidden="true">&times;</span></button>
                             </div>
                         </div>
                     </div>
@@ -119,44 +195,6 @@
                     <button class='btn btn-default' ng-click="newList('rounds')" ng-if="app.scenarioConfig.can_rounds==='Y'">添加轮次列表</button>
                 </div>
             </div>
-            <!--tinymce editor-->
-            <div class='col-md-6'>
-                <div class='page-editor'>
-                    <tinymce content='ep.html' id='tinymce-page' height='660' change="onPageChange()" toolbar="code"></tinymce>
-                    <div class='sidebar'>
-                        <button class='btn btn-default' ng-click="updPage(ep,['html'])" title='保存修改' ng-disabled='!ep.$$modified'>
-                        <i class='fa fa-save fa-fw'></i>
-                        </button>
-                        <button class='btn btn-default' ng-click="removeWrap()" title='删除' ng-disabled='!activeWrap'>
-                        <i class='fa fa-remove fa-fw'></i>
-                        </button>
-                        <button class='btn btn-default' ng-click="moveWrap('up')" ng-disabled='!activeWrap'>
-                        <span class='fa fa-arrow-up fa-fw'></span>
-                        </button>
-                        <button class='btn btn-default' ng-click="moveWrap('down')" ng-disabled='!activeWrap'>
-                        <span class='fa fa-arrow-down fa-fw'></span>
-                        </button>
-                        <button class='btn btn-default' title='上一级' ng-click="moveWrap('upLevel')" ng-disabled='!activeWrap||activeWrap.upmost'>
-                        <span class='fa fa-level-up fa-fw'></span>
-                        </button>
-                        <button class='btn btn-default' title='下一级' ng-click="moveWrap('downLevel')" ng-disabled='!activeWrap||activeWrap.downmost'>
-                        <i class='fa fa-level-down fa-fw'></i>
-                        </button>
-                        <button class='btn btn-default' title='编辑代码' ng-click="gotoCode()">
-                        <i class='fa fa-code fa-fw'></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <!--tinymce editor-->
-            <div class='col-md-3'>
-                <!--wrap editor-->
-                <div class='tile' ng-if="activeWrap">
-                    <div class='form-group' ng-include="wrapEditorHtml()">
-                    </div>
-                </div>
-                <!--wrap editor-->
-            </div>
         </div>
     </div>
     <!-- end page -->
@@ -164,12 +202,11 @@
     <nav class="navbar navbar-default navbar-fixed-bottom">
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
-                <button class='btn' ng-disabled='!modified&&!ep.$$modified' ng-class="(modified||ep.$$modified)?'btn-success':'btn-default'" ng-click="updPage(ep,['data_schemas','html'])">保存修改</button>
-                <button class='btn btn-success' ng-click="publish()">收集数据</button>
-                <a href="/rest/pl/fe/matter/signin/record?site={{siteId}}&id={{id}}">查看结果</a>
+                <button class='btn btn-lg btn-success' ng-click="updPage(ep,['data_schemas','html'])">保存修改</button>
+                <button class='btn btn-lg btn-success' ng-click="publish()">收集数据</button>
             </form>
             <form class="navbar-form navbar-right" style='display:inline-block'>
-                <button class='btn btn-default' ng-click="remove()">删除活动</button>
+                <button class='btn btn-lg btn-default' ng-click="remove()">删除活动</button>
             </form>
         </div>
     </nav>
@@ -238,5 +275,43 @@
     </div>
     <div class="modal-footer">
         <button class="btn btn-primary" ng-click="ok()">确定</button>
+    </div>
+</script>
+<script type="text/ng-template" id="batchRounds.html">
+    <div class="modal-header">
+        <button class="close" ng-click="cancel()" type="button">×</button>
+        <h5 class="modal-title">指定签到次数</h5>
+    </div>
+    <div class="modal-body">
+        <div class='form-horizontal'>
+            <div class='form-group'>
+                <label class='col-md-3 control-label'>活动开始时间</label>
+                <div class='col-md-9'>
+                    <tms-datepicker class='tms-datepicker' tms-title='课程开始时间' tms-date='params.start_at' tms-state='start_at'></tms-datepicker>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='col-md-3 control-label'>活动结束时间</label>
+                <div class='col-md-9'>
+                    <tms-datepicker class='tms-datepicker' tms-title='课程结束时间' tms-date='params.end_at' tms-state='end_at'></tms-datepicker>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">每天签到次数</label>
+                <div class='col-md-9'>
+                    <label class='radio-inline'><input type='radio' value='1' name='type' ng-model="params.timesOfDay">1次</label>
+                    <label class='radio-inline'><input type='radio' value='2' name='type' ng-model="params.timesOfDay">2次</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">覆盖已有轮次</label>
+                <div class='col-md-9'>
+                    <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="params.overwrite">是</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer" style="margin-top:0">
+        <button class="btn btn-success" ng-click="ok()">确定</button>
     </div>
 </script>

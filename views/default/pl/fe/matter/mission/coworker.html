@@ -1,12 +1,16 @@
 <div ng-controller="ctrlCoworker">
     <div class='form-group'>
-        <div class='help-block'>合作人的用户账号</div>
+        <div class='help-block'>添加用户共同管理项目</div>
         <div class='input-group'>
-            <input type="text" class="form-control" ng-model='label'>
+            <input type="text" class="form-control" ng-model='label' placeholder="请输入作为用户账号的邮箱">
             <span class='input-group-btn'>
                 <button class='btn btn-primary' ng-click='add()' ng-disabled="!label||!label.length"><span class='glyphicon glyphicon-plus'></span></button>
             </span>
         </div>
+    </div>
+    <div class='form-group'>
+        <div class='help-block'>或者发送邀请链接</div>
+        <div class='form-control' style='height:auto;word-break:break-all;' ng-bind='inviteURL'></div>
     </div>
     <div class='list-group'>
         <a href='javascript:void(0)' class='list-group-item' ng-repeat="c in coworkers" ng-mouseenter="entered=true" ng-mouseleave="entered=false">

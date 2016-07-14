@@ -17,7 +17,7 @@ class page extends \pl\fe\matter\base {
 	 *
 	 * @param string $wall
 	 */
-	public function list_action($wall) {
+	public function list_action($wall, $siteid) {
 		$modelPage = $this->model('matter\wall\page');
 		$modelCode = $this->model('code\page');
 
@@ -33,7 +33,7 @@ class page extends \pl\fe\matter\base {
 		foreach ($wallPages as $wp) {
 			$page = $modelPage->byType($wp['type'], $wall);
 			if (empty($page)) {
-				$page = $modelPage->add($this->mpid, $wp, $wall);
+				$page = $modelPage->add($siteid, $wp, $wall);
 				$tmplateDir = dirname(__FILE__) . '/template/' . str_replace('.', '/', $wp['type']) . '/';
 				$data = array(
 					'html' => file_get_contents($tmplateDir . 'basic.html'),

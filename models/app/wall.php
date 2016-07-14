@@ -9,5 +9,5 @@ require_once dirname(dirname(__FILE__)) . '/matter/wall.php';
  *
  */
 class wall_model extends \matter\wall_model {
-	 
+	
 }

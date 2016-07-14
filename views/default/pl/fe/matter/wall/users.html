@@ -1,0 +1,69 @@
+<div>
+    <div class='form-group'>
+        <button class='btn btn-danger' ng-click='quit()'>将所有用户退出信息墙</button>
+        <button class='btn btn-default' ng-click='import()'>导入用户</button>
+        <button class='btn btn-default' ng-click='export()'>导出用户</button>
+        <button class='btn btn-default pull-right' ng-click='doSearch()'>
+        <span class='glyphicon glyphicon-refresh'></span>
+        </button>
+    </div>
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <th style='width:48px'>序号</th>
+                <th>用户</th>
+                <th>进入时间</th>
+                <th>留言时间</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat='u in users'>
+                <td>{{$index+1}}</td>
+                <td>{{u.nickname}}</td>
+                <td>{{u.join_at*1000|date:'MM-dd HH:mm'}}</td>
+                <td>{{u.last_msg_at*1000|date:'MM-dd HH:mm'}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <script type="text/ng-template" id="importUser.html">
+        <div class="modal-header">
+            <button class="close" ng-click="close()">×</button>
+            <h5 class="modal-title">导入用户</h5>
+        </div>
+        <div class="modal-body">
+            <ul class='list-group'>
+                <li class='list-group-item' ng-repeat='a in apps'>
+                    <div class='radio'>
+                        <label><input type='radio' name='act' ng-click='chooseApp(a)'>{{a.title}}</label>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">确定</button>
+        </div>
+    </script>
+    <script type="text/ng-template" id="exportUser.html">
+        <div class="modal-header">
+            <button class="close" ng-click="close()">×</button>
+            <h5 class="modal-title">导出用户</h5>
+        </div>
+        <div class="modal-body">
+            <div class='form-group'>
+                <div class='checkbox'>
+                    <label><input type='checkbox' ng-model='options.onlySpeaker' ng-true-value="'Y'" ng-false-value="'N'">仅包含发言用户</label>
+                </div>
+            </div>
+            <ul class='list-group'>
+                <li class='list-group-item' ng-repeat='a in apps'>
+                    <div class='radio'>
+                        <label><input type='radio' name='act' ng-click='chooseApp(a)'>{{a.title}}</label>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">确定</button>
+        </div>
+    </script>
+</div>

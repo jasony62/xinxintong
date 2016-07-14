@@ -1,0 +1,33 @@
+<div>
+    <div class='form-group'>
+        <button class='btn btn-danger' ng-click='resetWall()'>清除数据</button>
+        <button class='btn btn-default pull-right' ng-click='doSearch()'>
+            <span class='glyphicon glyphicon-refresh'></span>
+        </button>
+    </div>
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <th>用户信息</th>
+                <th>审核时间</th>
+                <th>留言时间</th>
+                <th>留言内容</th>
+                <th>状态</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat='m in messages'>
+                <td>{{m.nickname||m.openid}}</td>
+                <td>{{m.approve_at==0?'':(m.approve_at*1000|date:'MM-dd HH:mm:ss')}}</td>
+                <td>{{m.publish_at*1000|date:'MM-dd HH:mm:ss'}}</td>
+                <td>{{m.data}}</td>
+                <td>{{m.approved|transState}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class='form-inline form-group clearfix'>
+        <div class='pull-right'>
+            <pagination style='margin-top:0;cursor:pointer' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" class="pagination" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
+        </div>
+    </div>
+</div>

@@ -243,6 +243,98 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			});
 		};
 	}]);
+	ngApp.provider.controller('ctrlRound', ['$scope', '$uibModal', 'http2', 'noticebox', function($scope, $uibModal, http2, noticebox) {
+		$scope.batch = function() {
+			$uibModal.open({
+				templateUrl: 'batchRounds.html',
+				backdrop: 'static',
+				resolve: {
+					app: function() {
+						return $scope.app;
+					}
+				},
+				controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
+					var params = {
+						timesOfDay: 2,
+						overwrite: 'Y'
+					};
+					if (app.mission && app.mission_phase_id) {
+						(function() {
+							var i, phase;
+							for (i = app.mission.phases.length - 1; i >= 0; i--) {
+								phase = app.mission.phases[i];
+								if (app.mission_phase_id === phase.phase_id) {
+									params.start_at = phase.start_at;
+									params.end_at = phase.end_at;
+									break;
+								}
+							}
+						})();
+					} else {
+						params.start_at = 0;
+						params.end_at = 0;
+					}
+					$scope2.params = params;
+					$scope2.cancel = function() {
+						$mi.dismiss();
+					};
+					$scope2.ok = function() {
+						$mi.close($scope2.params);
+					};
+				}]
+			}).result.then(function(params) {
+				http2.post('/rest/pl/fe/matter/signin/round/batch?site=' + $scope.siteId + '&app=' + $scope.id, params, function(rsp) {
+					if (params.overwrite === 'Y') {
+						$scope.app.rounds = rsp.data;
+					} else {
+						$scope.app.rounds = $scope.rounds.concat(rsp.data);
+					}
+				});
+			});
+		};
+		$scope.add = function() {
+			var newRound = {
+				title: '轮次' + ($scope.rounds.length + 1),
+				start_at: Math.round((new Date()).getTime() / 1000),
+				end_at: Math.round((new Date()).getTime() / 1000) + 7200,
+			};
+			http2.post('/rest/pl/fe/matter/signin/round/add?site=' + $scope.siteId + '&app=' + $scope.id, newRound, function(rsp) {
+				$scope.rounds.push(rsp.data);
+			});
+		};
+		$scope.update = function(round, prop) {
+			var url = '/rest/pl/fe/matter/signin/round/update',
+				posted = {};
+			url += '?site=' + $scope.siteId;
+			url += '&app=' + $scope.id;
+			url += '&rid=' + round.rid;
+			posted[prop] = round[prop];
+			http2.post(url, posted, function(rsp) {
+				noticebox.success('完成保存');
+			});
+		};
+		$scope.$on('xxt.tms-datepicker.change', function(event, data) {
+			data.obj[data.state] = data.value;
+			$scope.update(data.obj, data.state);
+		});
+		$scope.remove = function(round) {
+			var url;
+			if (window.confirm('确定删除：' + round.title + '？')) {
+				url = '/rest/pl/fe/matter/signin/round/remove';
+				url += '?site=' + $scope.siteId;
+				url += '&app=' + $scope.id;
+				url += '&rid=' + round.rid;
+				http2.get(url, function(rsp) {
+					$scope.rounds.splice($scope.rounds.indexOf(round), 1);
+				});
+			}
+		};
+		$scope.$watch('app', function(app) {
+			if (app) {
+				$scope.rounds = app.rounds;
+			}
+		});
+	}]);
 	/**
 	 * 在当前编辑页面中选择应用的登记项
 	 */

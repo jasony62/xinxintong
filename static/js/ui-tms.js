@@ -315,7 +315,7 @@ angular.module('ui.tms', ['ngSanitize']).service('http2', ['$rootScope', '$http'
                     h: true,
                     i: true
                 };
-                $scope.format = 'yyyy-MM-dd HH:mm';
+                $scope.format = 'yy-MM-dd HH:mm';
             } else {
                 mask = (function(mask1) {
                     var mask2, mask1 = mask1.split(',');
@@ -325,7 +325,7 @@ angular.module('ui.tms', ['ngSanitize']).service('http2', ['$rootScope', '$http'
                         m: mask1[1] === 'm' ? true : mask1[1],
                         d: mask1[2] === 'd' ? true : mask1[2],
                     };
-                    $scope.format = 'yyyy-MM-dd';
+                    $scope.format = 'yy-MM-dd';
                     /*time*/
                     if (mask1.length === 5) {
                         if (mask1[3] === 'h') {

@@ -39,10 +39,47 @@
         </nav>
     </div>
     <!-- end app -->
+    <!-- rounds -->
+    <div class='col-md-12 rounds' ng-controller='ctrlRound'>
+        <nav class="navbar navbar-default round" ng-repeat="round in rounds">
+            <div class="container-fluid">
+                <div class="navbar-form navbar-left">
+                    <div class='form-group'>
+                        <label>签到轮次</label>
+                        <input type='text' class="form-control" ng-model='round.title' tms-auto-update tms-wait=1000 tms-update="update(round,'title')">
+                    </div>
+                    <div class='form-group'>
+                        <label>开始时间</label>
+                         <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-obj="round" tms-date="round.start_at" tms-state='start_at'></tms-datepicker>
+                    </div>
+                    <div class='form-group'>
+                        <label>结束时间</label>
+                        <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-obj="round" tms-date="round.end_at" tms-state='end_at'></tms-datepicker>
+                    </div>
+                    <div class='form-group'>
+                        <label>迟到时间</label>
+                        <tms-datepicker class='tms-datepicker' tms-title='迟到时间' tms-obj="round" tms-date='round.late_at' tms-state='late_at'></tms-datepicker>
+                    </div>
+                </div>
+                <div class="navbar-form navbar-right">
+                    <button class="btn btn-default" ng-click="remove(round)"><span class="glyphicon glyphicon-remove"></span></button>
+                </div>
+            </div>
+        </nav>
+        <nav class="navbar navbar-default actions">
+            <div class="container-fluid">
+                <div class="navbar-form navbar-right">
+                    <button class="btn btn-success" ng-click="add()"><span class="glyphicon glyphicon-plus"></span></button>
+                    <button class="btn btn-success" ng-click="batch()"><span>批量添加</span></button>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- end rounds -->
     <!-- pages -->
     <div class='col-md-12'>
         <div class="container-fluid" style="padding-bottom:8px;">
-            <ul class="nav nav-pills">
+            <ul class="nav nav-tabs">
                 <li role="presentation" ng-class="{'active':p===ep}" ng-repeat="p in app.pages">
                     <a href="#" ng-click="choosePage(p)"><span><i class='fa fa-file-o'></i> {{p.title}}</span></a>
                 </li>
@@ -167,7 +204,6 @@
             <form class="navbar-form" style='display:inline-block'>
                 <button class='btn btn-lg btn-success' ng-click="updPage(ep,['data_schemas','html'])">保存修改</button>
                 <button class='btn btn-lg btn-success' ng-click="publish()">收集数据</button>
-                <a href="/rest/pl/fe/matter/signin/record?site={{siteId}}&id={{id}}">查看结果</a>
             </form>
             <form class="navbar-form navbar-right" style='display:inline-block'>
                 <button class='btn btn-lg btn-default' ng-click="remove()">删除活动</button>
@@ -239,5 +275,43 @@
     </div>
     <div class="modal-footer">
         <button class="btn btn-primary" ng-click="ok()">确定</button>
+    </div>
+</script>
+<script type="text/ng-template" id="batchRounds.html">
+    <div class="modal-header">
+        <button class="close" ng-click="cancel()" type="button">×</button>
+        <h5 class="modal-title">指定签到次数</h5>
+    </div>
+    <div class="modal-body">
+        <div class='form-horizontal'>
+            <div class='form-group'>
+                <label class='col-md-3 control-label'>活动开始时间</label>
+                <div class='col-md-9'>
+                    <tms-datepicker class='tms-datepicker' tms-title='课程开始时间' tms-date='params.start_at' tms-state='start_at'></tms-datepicker>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='col-md-3 control-label'>活动结束时间</label>
+                <div class='col-md-9'>
+                    <tms-datepicker class='tms-datepicker' tms-title='课程结束时间' tms-date='params.end_at' tms-state='end_at'></tms-datepicker>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">每天签到次数</label>
+                <div class='col-md-9'>
+                    <label class='radio-inline'><input type='radio' value='1' name='type' ng-model="params.timesOfDay">1次</label>
+                    <label class='radio-inline'><input type='radio' value='2' name='type' ng-model="params.timesOfDay">2次</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">覆盖已有轮次</label>
+                <div class='col-md-9'>
+                    <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="params.overwrite">是</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer" style="margin-top:0">
+        <button class="btn btn-success" ng-click="ok()">确定</button>
     </div>
 </script>

@@ -16,6 +16,7 @@ class acl_model extends \TMS_MODEL {
 		$excludeOwner = isset($options['excludeOwner']) ? $options['excludeOwner'] : 'N';
 		$excludeAdmin = isset($options['excludeAdmin']) ? $options['excludeAdmin'] : 'N';
 
+		$missionId = $this->escape($missionId);
 		$q = [
 			$fields,
 			'xxt_mission_acl',
@@ -42,7 +43,7 @@ class acl_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_mission_acl',
-			"mission_id='$missionId' and coworker='$coworkerId'",
+			["mission_id" => $missionId, "coworker" => $coworkerId],
 		];
 
 		$acl = $this->query_obj_ss($q);

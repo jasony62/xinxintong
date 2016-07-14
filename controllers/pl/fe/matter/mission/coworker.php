@@ -57,7 +57,7 @@ class coworker extends \pl\fe\matter\base {
 		$coworker = new \stdClass;
 		$coworker->id = $account->uid;
 		$coworker->label = $account->email;
-		$acl = $this->model('matter\mission\acl')->add($user, $mission, $coworker);
+		$acl = $modelAcl->add($user, $mission, $coworker);
 
 		return new \ResponseData($acl);
 	}
@@ -76,6 +76,45 @@ class coworker extends \pl\fe\matter\base {
 			'xxt_mission_acl',
 			"mission_id='$mission' and coworker='$coworker'"
 		);
+
 		return new \ResponseData($rst);
+	}
+	/**
+	 * 被邀请参与项目的人接受邀请
+	 *
+	 * @param string $site
+	 * @param int $mission mission's id
+	 * @param string $code 邀请码
+	 *
+	 */
+	public function accept_action($site, $mission, $code) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$account = $this->model('account')->byId($user->id, ['fields' => 'email']);
+		$mission = $this->model('matter\mission')->byId($mission);
+
+		/**
+		 * 检查邀请码
+		 */
+		//$this->checkCode($site, $mission, $code);
+		/**
+		 * has joined?
+		 */
+		$modelAcl = $this->model('matter\mission\acl');
+		$acl = $modelAcl->byCoworker($mission->id, $user->id);
+		if ($acl) {
+			return new \ResponseError('该账号已经是合作人，不能重复添加！');
+		}
+		/**
+		 * 加入ACL
+		 */
+		$coworker = new \stdClass;
+		$coworker->id = $user->id;
+		$coworker->label = $account->email;
+		$acl = $modelAcl->add($user, $mission, $coworker);
+
+		return new \ResponseData($acl);
 	}
 }

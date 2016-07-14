@@ -3,6 +3,9 @@
     <div class='col-md-12 app'>
         <nav class="navbar navbar-default">
             <div class="container-fluid">
+                <div class="navbar-form navbar-left" ng-if="!app.mission">
+                    <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
+                </div>
                 <div class="navbar-form navbar-left">
                     <div class='form-group'>
                         <label>标题</label>
@@ -28,8 +31,8 @@
     </div>
     <!--app-->
     <!--pages-->
-    <div class='col-md-12'>
-        <div class="container-fluid" style="padding-bottom:8px">
+    <div class='col-md-12 pages'>
+        <div class="container-fluid">
             <ul class="nav nav-tabs">
                 <li role="presentation" ng-class="{'active':p===ep}" ng-repeat="p in app.pages">
                     <a href="#" ng-click="choosePage(p)"><span><i class='fa fa-file-o'></i> {{p.title}}</span></a>
@@ -75,34 +78,7 @@
                     <button class='btn btn-default' ng-click="embedMatter()">添加素材</button>
                 </div>
                 <!-- end embed inner matter-->
-                <!-- toggle schema in pages -->
-                <div class='tile' ng-if="ep.type==='I'">
-                    <div class='help-block'>活动中所有登记项</div>
-                    <div class='list-group' ng-controller="ctrlAppSchemas4Input">
-                        <div class='list-group-item schema' ng-repeat="s in appSchemas">
-                            <div class='checkbox' style='margin:0;padding:0' ng-mouseenter="entered=true" ng-mouseleave="entered=false">
-                                <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div ng-if="ep.type==='V'" ng-controller="ctrlAppSchemas4View">
-                    <div class='list-group-item' ng-repeat="s in appSchemas">
-                        <div class='checkbox' style='margin:0'>
-                            <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
-                        </div>
-                    </div>
-                    <div class='list-group-item' ng-repeat="s in otherSchemas">
-                        <div class='checkbox' style='margin:0'>
-                            <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
-                        </div>
-                    </div>
-                </div>
-                <div class='tile' ng-if="ep.type==='L'">
-                    <button class='btn btn-default' ng-click="newList('records')">登记项列表</button>
-                    <button class='btn btn-default' ng-click="newList('rounds')" ng-if="app.scenarioConfig.can_rounds==='Y'">添加轮次列表</button>
-                </div>
-                <!-- end toggle schema in pages -->
+                
             </div>
             <!--tinymce editor-->
             <div class='col-md-6'>
@@ -133,11 +109,41 @@
             <!-- end tinymce editor -->
             <!-- wrap editor -->
             <div class='col-md-3'>
-                <div class='tile' ng-if="activeWrap">
+                <!-- wrap schema editor -->
+                <div class='tile' ng-if="activeWrap.schema">
                     <div class='form-group' ng-include="wrapEditorHtml()">
                     </div>
                     <button class='btn btn-block btn-danger' ng-click="removeSchema(activeWrap.schema)">删除登记项</button>
                 </div>
+                <!-- end wrap schema editor-->
+                <!-- toggle schema in pages -->
+                <div class='tile' ng-if="ep.type==='I'">
+                    <div class='help-block'>活动中所有登记项</div>
+                    <div class='list-group' ng-controller="ctrlAppSchemas4Input">
+                        <div class='list-group-item schema' ng-repeat="s in appSchemas">
+                            <div class='checkbox' style='margin:0;padding:0' ng-mouseenter="entered=true" ng-mouseleave="entered=false">
+                                <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div ng-if="ep.type==='V'" ng-controller="ctrlAppSchemas4View">
+                    <div class='list-group-item' ng-repeat="s in appSchemas">
+                        <div class='checkbox' style='margin:0'>
+                            <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
+                        </div>
+                    </div>
+                    <div class='list-group-item' ng-repeat="s in otherSchemas">
+                        <div class='checkbox' style='margin:0'>
+                            <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
+                        </div>
+                    </div>
+                </div>
+                <div class='tile' ng-if="ep.type==='L'">
+                    <button class='btn btn-default' ng-click="newList('records')">登记项列表</button>
+                    <button class='btn btn-default' ng-click="newList('rounds')" ng-if="app.scenarioConfig.can_rounds==='Y'">添加轮次列表</button>
+                </div>
+                <!-- end toggle schema in pages -->
             </div>
             <!-- end wrap editor-->
         </div>
@@ -147,13 +153,13 @@
     <nav class="navbar navbar-default navbar-fixed-bottom">
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
-                <button class='btn' ng-disabled='!modified&&!ep.$$modified' ng-class="(modified||ep.$$modified)?'btn-success':'btn-default'" ng-click="updPage(ep,['data_schemas','html'])">保存修改</button>
-                <button class='btn btn-success' ng-click="publish()">收集数据</button>
+                <button class='btn btn-lg btn-success' ng-click="updPage(ep,['data_schemas','act_schemas','html'])">保存修改</button>
+                <button class='btn btn-lg btn-success' ng-click="publish()">收集数据</button>
                 <a href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}">登记结果</a>
                 <a href="/rest/pl/fe/matter/enroll/stat?site={{siteId}}&id={{id}}">统计结果</a>
             </form>
             <form class="navbar-form navbar-right" style='display:inline-block'>
-                <button class='btn btn-default' ng-click="remove()">删除活动</button>
+                <button class='btn btn-lg btn-default' ng-click="remove()">删除活动</button>
             </form>
         </div>
     </nav>

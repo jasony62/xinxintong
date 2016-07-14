@@ -68,6 +68,7 @@ class message extends \pl\fe\matter\base {
 				);
 				break;
 			}
+
 			$model->push_others($siteid, $openid, $msg, $wall, $wall->id, $this);
 		}
 

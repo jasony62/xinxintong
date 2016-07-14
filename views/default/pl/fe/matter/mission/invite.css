@@ -1,0 +1,5 @@
+body{background:#f8f8f8;}
+body>nav{display:flex;}
+body>nav>ul:nth-child(2){flex-grow:1;text-align:center;}
+body>nav>ul:nth-child(2)>li{display:inline-block;float:none;}
+.navbar.tms-large{font-size:18px;}

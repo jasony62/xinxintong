@@ -9,18 +9,17 @@
         <link href="/views/default/pl/fe/matter/group/frame.css?_=1" rel="stylesheet">
     </head>
     <body ng-controller='ctrlApp' ng-cloak class='ng-cloak'>
-        <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
-        <nav class='navbar navbar-inverse navbar-fixed-top'>
+        <nav class='navbar navbar-inverse navbar-fixed-top tms-large'>
             <ul class='nav navbar-nav'>
                 <li><a href='/rest/pl/fe' target='_self'>首页</a></li>
                 <li><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>工作台</a></li>
             </ul>
-            <ul class='nav navbar-nav shortcut'>
+            <ul class='nav navbar-nav'>
                 <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{siteId}}&id={{app.mission.id}}" target='_self'>返回项目</a></li>
                 <li><a href='/rest/pl/fe/matter/group/setting?site={{siteId}}&id={{id}}'>{{app.title}}</a></li>
             </ul>
-            <ul class='nav navbar-nav navbar-right' style='margin-right:0'>
-                <li><a href='/rest/pl/fe/user/settings' target='_self'>设置</a></li>
+            <ul class='nav navbar-nav'>
+                <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
                 <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
             </ul>
         </nav>

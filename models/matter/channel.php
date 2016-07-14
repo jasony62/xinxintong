@@ -324,9 +324,11 @@ class channel_model extends article_base {
 			$simpleMatters = $this->query_objs_ss($q1, $q2);
 			foreach ($simpleMatters as $sm) {
 				$fullMatter = \TMS_APP::M('matter\\' . $sm->matter_type)->byId($sm->matter_id);
-				$fullMatter->type = $sm->matter_type;
-				$fullMatter->add_at = $sm->create_at;
-				$matters[] = $fullMatter;
+				if ($fullMatter && $fullMatter->state === '1') {
+					$fullMatter->type = $sm->matter_type;
+					$fullMatter->add_at = $sm->create_at;
+					$matters[] = $fullMatter;
+				}
 			}
 		}
 

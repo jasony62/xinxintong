@@ -18,7 +18,7 @@ class account_model extends TMS_MODEL {
 		$q = array(
 			$fields,
 			'account',
-			"uid='$uid'",
+			["uid" => $uid],
 		);
 		$act = $this->query_obj_ss($q);
 

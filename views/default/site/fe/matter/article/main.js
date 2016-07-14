@@ -1,6 +1,11 @@
 define(["angular", "xxt-page"], function(angular, codeAssembler) {
     'use strict';
     var ngApp = angular.module('article', []);
+    ngApp.config(['$controllerProvider', function($cp) {
+        ngApp.provider = {
+            controller: $cp.register
+        };
+    }]);
     ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
         var ls, siteId, id, shareby;
         ls = location.search;
@@ -114,7 +119,13 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
         $scope.openMatter = function(evt, id, type) {
             evt.preventDefault();
             evt.stopPropagation();
-            location.href = '/rest/site/fe/matter?site=' + $scope.siteId + '&id=' + id + '&type=' + type + '&tpl=std';
+            if (/article/.test(type)) {
+                location.href = '/rest/site/fe/matter?site=' + $scope.siteId + '&id=' + id + '&type=' + type + '&tpl=std';
+            } else if (/news|channel|link/.test(type)) {
+                location.href = '/rest/site/fe/matter?site=' + $scope.siteId + '&id=' + id + '&type=' + type;
+            } else {
+                location.href = '/rest/site/fe/matter/' + type + '?site=' + $scope.siteId + '&app=' + id;
+            }
         };
         loadArticle().then(articleLoaded);
     }]);

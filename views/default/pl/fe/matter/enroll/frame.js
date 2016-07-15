@@ -130,6 +130,16 @@ define(['require', 'page'], function(require, pageLib) {
 				$scope.url = 'http://' + location.host + '/rest/site/fe/matter/enroll?site=' + $scope.siteId + '&app=' + $scope.id;
 			});
 		};
+		$scope.summaryOfRecords = function() {
+			var deferred = $q.defer(),
+				url = '/rest/pl/fe/matter/enroll/record/summary';
+			url += '?site=' + $scope.siteId;
+			url += '&app=' + $scope.id;
+			http2.get(url, function(rsp) {
+				deferred.resolve(rsp.data);
+			});
+			return deferred.promise;
+		};
 		$scope.getApp();
 	}]);
 	/***/

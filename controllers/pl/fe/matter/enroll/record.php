@@ -45,6 +45,19 @@ class record extends \pl\fe\matter\base {
 		return new \ResponseData($result);
 	}
 	/**
+	 * 登记情况汇总信息
+	 */
+	public function summary_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$mdoelRec = $this->model('matter\enroll\record');
+		$summary = $mdoelRec->summary($site, $app);
+
+		return new \ResponseData($summary);
+	}
+	/**
 	 * 给符合条件的登记记录打标签
 	 */
 	public function exportByData_action($site, $app) {
@@ -250,7 +263,7 @@ class record extends \pl\fe\matter\base {
 		$rst = $this->model()->update(
 			'xxt_enroll_record',
 			array('verified' => 'Y'),
-			"siteid='$site' and aid='$app'"
+			"aid='$app'"
 		);
 
 		return new \ResponseData($rst);

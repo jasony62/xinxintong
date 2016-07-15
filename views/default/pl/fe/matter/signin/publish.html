@@ -53,10 +53,26 @@
             <a href='/rest/pl/fe/matter/signin/app?site={{siteId}}&id={{id}}'>{{app.title}}（设置）</a>
         </div>
     </div>
-    <div class='tile'>
-        <div class='form-group'>
-            <a href='/rest/pl/fe/matter/signin/record?site={{siteId}}&id={{id}}'>签到记录</a>
-        </div>
+    <div class='tile records'>
+        <div class='help-block'>
+            <span>签到情况统计</span>
+            <a href='/rest/pl/fe/matter/signin/record?site={{siteId}}&id={{id}}'>（查看详情）</a></div>
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th>轮次</th>
+                    <th>全部</th>
+                    <th>迟到</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="round in summary" ng-class="{'info':round.active==='Y'}">
+                    <td ng-bind="round.title"></td>
+                    <td ng-bind="round.total"></td>
+                    <td ng-bind="round.late"></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
     <div class='tile'>
         <div class='form-group'>

@@ -103,10 +103,19 @@ define(['require', 'page'], function(require, pageLib) {
 					angular.extend(page, pageLib);
 					page.arrange(mapOfAppSchemas);
 				});
-				//$scope.persisted = angular.copy(app);
 				$scope.app = app;
 				$scope.url = 'http://' + location.host + '/rest/site/fe/matter/signin?site=' + $scope.siteId + '&app=' + $scope.id;
 			});
+		};
+		$scope.summaryOfRecords = function() {
+			var deferred = $q.defer(),
+				url = '/rest/pl/fe/matter/signin/record/summary';
+			url += '?site=' + $scope.siteId;
+			url += '&app=' + $scope.id;
+			http2.get(url, function(rsp) {
+				deferred.resolve(rsp.data);
+			});
+			return deferred.promise;
 		};
 		http2.get('/rest/pl/fe/site/snsList?site=' + $scope.siteId, function(rsp) {
 			$scope.sns = rsp.data;

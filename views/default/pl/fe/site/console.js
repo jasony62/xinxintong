@@ -152,6 +152,7 @@ app.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope, 
             location.href = '/rest/pl/fe/matter/link?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
+    //研究项目-单图文
     $scope.addArticle = function() {
         http2.get('/rest/pl/fe/matter/article/create?site=' + $scope.siteId, function(rsp) {
             location.href = '/rest/pl/fe/matter/article?site=' + $scope.siteId + '&id=' + rsp.data;
@@ -167,6 +168,7 @@ app.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope, 
             location.href = '/rest/pl/fe/matter/channel?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
+    //研究项目-登记活动
     $scope.addEnrollByTemplate = function() {
         $uibModal.open({
             templateUrl: '/views/default/pl/fe/_module/enroll-template.html',
@@ -274,6 +276,7 @@ app.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope, 
             location.href = '/rest/pl/fe/matter/merchant/shop?site=' + $scope.siteId + '&id=' + rsp.data;
         });
     };
+    //信息墙
     $scope.addWall = function() {
         http2.get('/rest/pl/fe/matter/wall/create?site=' + $scope.siteId, function(rsp) {
             location.href = '/rest/pl/fe/matter/wall?site=' + $scope.siteId + '&id=' + rsp.data;

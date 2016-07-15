@@ -1,58 +1,78 @@
 <div class='col-md-8'>
-    <div class='tile'>
-        <div class='form-group'>
-            <a href='/rest/pl/fe/matter/signin/app?site={{siteId}}&id={{id}}'>{{app.title}}（设置）</a>
+    <div class="panel panel-primary">
+        <div class="panel-heading">签到链接：复制或分享给用户进行签到</div>
+        <div class="panel-body">
+            <div class='form-control' style='height:auto;word-break:break-all' ng-bind='entry.url'></div>
         </div>
-        <div class='form-group compact'>
-            <div class='help-block'>头图（可选）：建议尺寸：900像素 * 500像素</div>
-            <div style='position:relative'>
-                <div style="width:182px;border:1px solid #CCC">
-                    <div style="height:100px;text-align:center;padding-top:32px" ng-if="!app.pic">
-                        <button class='btn btn-default' ng-click='setPic();'>
-                        <span class='glyphicon glyphicon-picture'></span>选择图片</button>
-                    </div>
-                    <div style='position:relative' ng-if="app.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
-                        <img name='pic' ng-src="{{app.pic}}" width='180px' />
-                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
-                        <span class='glyphicon glyphicon-picture'></span>
-                        </button>
-                        <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
-                        <span class='glyphicon glyphicon-trash'></span>
-                        </button>
+    </div>
+    <div class="panel panel-primary">
+        <div class="panel-heading">二维码签到</div>
+        <div class="panel-body">
+            <div><img ng-src="{{entry.qrcode}}"></div>
+        </div>
+    </div>
+    <div class="panel panel-primary">
+        <div class="panel-heading">投影地址</div>
+        <div class="panel-body">
+            <div class='form-control' style='height:auto;word-break:break-all' ng-bind="opUrl"></div>
+        </div>
+    </div>
+    <div class="panel panel-primary">
+        <div class="panel-heading">公众号分享设置</div>
+        <div class="panel-body">
+            <div class='form-group compact'>
+                <div class='help-block'>头图（可选）：建议尺寸：900像素 * 500像素</div>
+                <div style='position:relative'>
+                    <div style="width:182px;border:1px solid #CCC">
+                        <div style="height:100px;text-align:center;padding-top:32px" ng-if="!app.pic">
+                            <button class='btn btn-default' ng-click='setPic();'>
+                            <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                        </div>
+                        <div style='position:relative' ng-if="app.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                            <img name='pic' ng-src="{{app.pic}}" width='180px' />
+                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                            <span class='glyphicon glyphicon-picture'></span>
+                            </button>
+                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                            <span class='glyphicon glyphicon-trash'></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class='form-group compact'>
-            <div class='help-block'>摘要（可选）：最多120个汉字，240个英文字符</div>
-            <textarea class='form-control' ng-model='app.summary' tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+            <div class='form-group compact'>
+                <div class='help-block'>摘要（可选）：最多120个汉字，240个英文字符</div>
+                <textarea class='form-control' ng-model='app.summary' tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+            </div>
         </div>
     </div>
 </div>
 <div class='col-md-4'>
     <div class='tile'>
-        <button class='btn btn-block btn-default' ng-click="stop()">停止</button>
-    </div>
-    <div class='tile'>
         <div class='form-group'>
-            <div class='help-block'>签到URL</div>
-            <div class='form-control' style='height:auto;word-break:break-all' ng-bind='entry.url'></div>
-        </div>
-        <div class='form-group'>
-            <div class='help-block'>签到二维码</div>
-            <div><img ng-src="{{entry.qrcode}}"></div>
+            <a href='/rest/pl/fe/matter/signin/app?site={{siteId}}&id={{id}}'>{{app.title}}（设置）</a>
         </div>
     </div>
-    <div class='tile'>
-        <div class='form-group'>
-            <div class='help-block'>投影地址</div>
-            <div class='form-control' style='height:auto;word-break:break-all' ng-bind="opUrl"></div>
-        </div>
-    </div>
-    <div class='tile'>
-        <div class='form-group'>
-            <a href='/rest/pl/fe/matter/signin/record?site={{siteId}}&id={{id}}'>签到记录</a>
-        </div>
+    <div class='tile records'>
+        <div class='help-block'>
+            <span>签到情况统计</span>
+            <a href='/rest/pl/fe/matter/signin/record?site={{siteId}}&id={{id}}'>（查看详情）</a></div>
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th>轮次</th>
+                    <th>全部</th>
+                    <th>迟到</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="round in summary" ng-class="{'info':round.active==='Y'}">
+                    <td ng-bind="round.title"></td>
+                    <td ng-bind="round.total"></td>
+                    <td ng-bind="round.late"></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
     <div class='tile'>
         <div class='form-group'>
@@ -62,3 +82,12 @@
         </div>
     </div>
 </div>
+<!-- bottom nav -->
+<nav class="navbar navbar-default navbar-fixed-bottom">
+    <div class="container-fluid" style='text-align:center'>
+        <form class="navbar-form" style='display:inline-block'>
+            <button class='btn btn-lg btn-default' ng-click="stop()">停止</button>
+        </form>
+    </div>
+</nav>
+<!-- end bottom nav -->

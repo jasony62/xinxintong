@@ -165,7 +165,7 @@ class mpaccount_model extends \TMS_MODEL {
 
 		$response = array();
 
-		$mpModel = \TMS_APP::M('mp\mpaccount');
+		$mpModel = \TMS_APP::M('matter\mpaccount');
 		foreach ($mpids as $mpid) {
 			$mpaccount = $mpModel->byId($mpid);
 			$mpsrc = $mpaccount->mpsrc;

@@ -305,11 +305,11 @@ class addressbook_model extends app_base {
      */
     public function getPersonByAb($mpid, $abid, $abbr = null, $dept_id = null, $offset = 0, $limit = null) 
     {
-        $mpa = \TMS_APP::model('mp\mpaccount')->byId($mpid, 'parent_mpid');
+        $mpa = \TMS_APP::model('matter\mpaccount')->byId($mpid, 'parent_mpid');
         //
         $cols = 'SQL_CALC_FOUND_ROWS id,name,email,tels';
         $from = 'xxt_ab_person';
-        $where = "(mpid='$mpid' or mpid='$mpa->parent_mpid')";
+        $where = "(mpid='".$mpid."' or mpid='".$mpa->parent_mpid."')";
 
         if (!empty($abid)) $where .= " and ab_id=$abid";
 

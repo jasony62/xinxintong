@@ -15,7 +15,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
             id = (matter.matter_id || matter.id);
         switch (type) {
             case 'text':
-            case 'addressbook':
             case 'article':
             case 'custom':
             case 'news':
@@ -31,6 +30,9 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
                 break;
             case 'mission':
                 location.href = '/rest/pl/fe/matter/' + type + '?id=' + (matter.mission_id || id) + '&site=' + $scope.siteId;
+                break;
+            case 'addressbook':
+                $scope.addAddressbook();
                 break;
         }
     };
@@ -92,7 +94,11 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
             http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date()).getTime(), function(rsp) {
                 $scope.matters = rsp.data.matters;
             });
-        } else {
+        } else if($scope.matterType === 'addressbook') {
+            http2.get('/rest/pl/fe/matter/addressbook/get', function(rsp) {
+                $scope.matters = rsp.data;
+            });
+        }else {
             $scope.page.at = 1;
             $scope.page.total = 0;
             searchMatters(false);
@@ -189,11 +195,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
     };
     $scope.gotoText = function() {
         location.href = '/rest/pl/fe/matter/text?site=' + $scope.siteId;
-    };
-    $scope.addAddressbook = function() {
-        http2.get('/rest/pl/fe/matter/link/create?site=' + $scope.siteId, function(rsp) {
-            location.href = '/rest/pl/fe/matter/addressbook?site=' + $scope.siteId + '&id=' + rsp.data.id;
-        });
     };
     $scope.addLink = function() {
         http2.get('/rest/pl/fe/matter/link/create?site=' + $scope.siteId, function(rsp) {
@@ -320,6 +321,11 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
     $scope.addMerchant = function() {
         http2.get('/rest/pl/fe/matter/merchant/shop/create?site=' + $scope.siteId, function(rsp) {
             location.href = '/rest/pl/fe/matter/merchant/shop?site=' + $scope.siteId + '&id=' + rsp.data;
+        });
+    };
+    $scope.addAddressbook = function() {
+        http2.get('/rest/pl/fe/matter/addressbook/create?site='+ $scope.siteId, function(rsp) {
+            location.href = '/page/pl/fe/matter/addressbook/edit?id='+rsp.data;
         });
     };
     http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date()).getTime(), function(rsp) {

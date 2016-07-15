@@ -1,0 +1,31 @@
+<div>
+    <div class=''>
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th style='width:48px'>序号</th>
+                    <th>用户信息</th>
+                    <th>留言时间</th>
+                    <th>留言内容</th>
+                    <th style='width:72px'>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat='m in messages'>
+                    <td>{{$index+1}}</td>
+                    <td>{{m.nickname||m.openid}}</td>
+                    <td>{{m.publish_at*1000|date:'MM-dd HH:mm:ss'}}</td>
+                    <td>{{m.data}}</td>
+                    <td>
+                        <button class='btn btn-xs btn-success' ng-click='approve(m)'>
+                            <span class='glyphicon glyphicon-ok'></span>
+                        </button>
+                        <button class='btn btn-xs btn-default' ng-click='reject(m)'>
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

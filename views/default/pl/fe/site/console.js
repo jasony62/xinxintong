@@ -133,14 +133,14 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
             case 'text':
                 $scope.gotoText();
                 break;
-            case 'addressbook':
-                $scope.gotoAddressbook();
-                break;
             case 'link':
                 $scope.addLink();
                 break;
             case 'merchant':
                 $scope.addMerchant();
+                break;
+            case 'addressbook':
+                $scope.addAddressbook();
                 break;
         }
     };
@@ -190,8 +190,10 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
     $scope.gotoText = function() {
         location.href = '/rest/pl/fe/matter/text?site=' + $scope.siteId;
     };
-    $scope.gotoAddressbook = function() {
-        location.href = '/rest/pl/fe/matter/addressbook?site=' + $scope.siteId;
+    $scope.addAddressbook = function() {
+        http2.get('/rest/pl/fe/matter/link/create?site=' + $scope.siteId, function(rsp) {
+            location.href = '/rest/pl/fe/matter/addressbook?site=' + $scope.siteId + '&id=' + rsp.data.id;
+        });
     };
     $scope.addLink = function() {
         http2.get('/rest/pl/fe/matter/link/create?site=' + $scope.siteId, function(rsp) {

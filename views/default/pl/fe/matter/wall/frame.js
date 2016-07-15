@@ -21,10 +21,11 @@ define(['require'], function(require, pageLib) {
 			directive: $compileProvider.directive
 		};
 		$routeProvider
-			.when('/rest/pl/fe/matter/enroll/users', new RouteParam('users'))
-			.when('/rest/pl/fe/matter/enroll/approve', new RouteParam('approve'))
-			.when('/rest/pl/fe/matter/enroll/record', new RouteParam('message'))
-			.when('/rest/pl/fe/matter/enroll/page', new RouteParam('page'))
+			.when('/rest/pl/fe/matter/wall/detail', new RouteParam('detail'))
+			.when('/rest/pl/fe/matter/wall/users', new RouteParam('users'))
+			.when('/rest/pl/fe/matter/wall/approve', new RouteParam('approve'))
+			.when('/rest/pl/fe/matter/wall/record', new RouteParam('message'))
+			.when('/rest/pl/fe/matter/wall/page', new RouteParam('page'))
 			.otherwise(new RouteParam('detail'));
 
 		$locationProvider.html5Mode(true);

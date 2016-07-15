@@ -24,7 +24,7 @@ xxtApp.controller('deptSelectorCtrl', ['$scope', 'http2', '$uibModalInstance', '
     $scope.toggleChild = function(child) {
         if (!child.loaded) {
             child.loaded = true;
-            http2.get('/rest/mp/app/addressbook/dept?abid=' + abid + '&pid=' + child.data.id, function(rsp) {
+            http2.get('/rest/pl/fe/matter/addressbook/dept?abid=' + abid + '&pid=' + child.data.id, function(rsp) {
                 var depts = rsp.data;
                 buildDepts(child.data.id, depts, child);
             });
@@ -40,7 +40,7 @@ xxtApp.controller('deptSelectorCtrl', ['$scope', 'http2', '$uibModalInstance', '
     $scope.depts = {
         children: []
     };
-    http2.get('/rest/mp/app/addressbook/dept?abid=' + abid, function(rsp) {
+    http2.get('/rest/pl/fe/matter/addressbook/dept?abid=' + abid, function(rsp) {
         var depts = rsp.data;
         buildDepts(0, depts, $scope.depts, []);
     });

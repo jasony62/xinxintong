@@ -1,14 +1,14 @@
-var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
-ngApp.config(['$locationProvider', function($lp) {
+var app = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
+app.config(['$locationProvider', function($lp) {
     $lp.html5Mode(true);
 }]);
-ngApp.controller('ctrlSite', ['$scope', '$location', 'http2', function($scope, $location, http2) {
+app.controller('ctrlSite', ['$scope', '$location', 'http2', function($scope, $location, http2) {
     $scope.siteId = $location.search().site;
     http2.get('/rest/pl/fe/site/get?site=' + $scope.siteId, function(rsp) {
         $scope.site = rsp.data;
     });
 }]);
-ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
+app.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
     $scope.matterType = 'recent';
     $scope.open = function(matter) {
         var type = $scope.matterType === 'recent' ? matter.matter_type : $scope.matterType,
@@ -26,10 +26,11 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
             case 'contribute':
             case 'link':
             case 'merchant':
+            case 'wall':
                 location.href = '/rest/pl/fe/matter/' + type + '?id=' + id + '&site=' + $scope.siteId;
                 break;
             case 'mission':
-                location.href = '/rest/pl/fe/matter/' + type + '?id=' + (matter.mission_id || id) + '&site=' + $scope.siteId;
+                location.href = '/rest/pl/fe/matter/' + type + '?id=' + (matter.mission_id || id) + '&site=' + matter.siteid;
                 break;
         }
     };
@@ -138,50 +139,10 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
             case 'merchant':
                 $scope.addMerchant();
                 break;
-        }
-    };
-    $scope.removeMatter = function(evt, matter) {
-        var type = (matter.matter_type || $scope.matterType),
-            id = (matter.matter_id || matter.id),
-            title = (matter.title || matter.matter_title),
-            url = '/rest/pl/fe/matter/';
-
-        evt.stopPropagation();
-        if (window.confirm('确定删除：' + title + '？')) {
-            switch (type) {
-                case 'article':
-                    url += type + '/remove?id=' + id + '&site=' + $scope.siteId;
-                    break;
-                case 'enroll':
-                case 'signin':
-                case 'group':
-                    url += type + '/remove?app=' + id + '&site=' + $scope.siteId;
-                    break;
-            }
-            http2.get(url, function(rsp) {
-                $scope.matters.splice($scope.matters.indexOf(matter), 1);
-            });
-        }
-    };
-    $scope.copyMatter = function(evt, matter) {
-        var type = (matter.matter_type || $scope.matterType),
-            id = (matter.matter_id || matter.id),
-            url = '/rest/pl/fe/matter/';
-
-        evt.stopPropagation();
-        switch (type) {
-            case 'article':
-                url += type + '/copy?id=' + id + '&site=' + $scope.siteId;
-                break;
-            case 'enroll':
-            case 'signin':
-            case 'group':
-                url += type + '/copy?app=' + id + '&site=' + $scope.siteId;
+            case 'wall':
+                $scope.addWall();
                 break;
         }
-        http2.get(url, function(rsp) {
-            location.href = '/rest/pl/fe/matter/' + type + '?site=' + $scope.siteId + '&id=' + rsp.data.id;
-        });
     };
     $scope.gotoText = function() {
         location.href = '/rest/pl/fe/matter/text?site=' + $scope.siteId;
@@ -311,6 +272,11 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
     $scope.addMerchant = function() {
         http2.get('/rest/pl/fe/matter/merchant/shop/create?site=' + $scope.siteId, function(rsp) {
             location.href = '/rest/pl/fe/matter/merchant/shop?site=' + $scope.siteId + '&id=' + rsp.data;
+        });
+    };
+    $scope.addWall = function() {
+        http2.get('/rest/pl/fe/matter/wall/create?site=' + $scope.siteId, function(rsp) {
+            location.href = '/rest/pl/fe/matter/wall?site=' + $scope.siteId + '&id=' + rsp.data;
         });
     };
     http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date()).getTime(), function(rsp) {

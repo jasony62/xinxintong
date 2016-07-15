@@ -196,10 +196,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				}
 			});
 		};
-		$scope.$watch('app', function(app) {
-			if (!app) return;
-			$scope.ep = app.pages[0];
-		});
 		$scope.choosePage = function(page) {
 			if (angular.isString(page)) {
 				for (var i = $scope.app.pages.length - 1; i >= 0; i--) {
@@ -242,6 +238,10 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				$scope.$broadcast('xxt.matter.signin.app.data_schemas.created', newSchema);
 			});
 		};
+		$scope.$watch('app', function(app) {
+			if (!app) return;
+			$scope.ep = app.pages[0];
+		});
 	}]);
 	ngApp.provider.controller('ctrlRound', ['$scope', '$uibModal', 'http2', 'noticebox', function($scope, $uibModal, http2, noticebox) {
 		$scope.batch = function() {
@@ -271,8 +271,13 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 							}
 						})();
 					} else {
-						params.start_at = 0;
-						params.end_at = 0;
+						/*设置阶段的缺省起止时间*/
+						(function() {
+							var nextDay = new Date();
+							nextDay.setTime(nextDay.getTime() + 86400000);
+							params.start_at = nextDay.setHours(0, 0, 0, 0) / 1000;
+							params.end_at = nextDay.setHours(23, 59, 59, 0) / 1000;
+						})();
 					}
 					$scope2.params = params;
 					$scope2.cancel = function() {
@@ -289,6 +294,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 					} else {
 						$scope.app.rounds = $scope.rounds.concat(rsp.data);
 					}
+					$scope.rounds = $scope.app.rounds;
 				});
 			});
 		};

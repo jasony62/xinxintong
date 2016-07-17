@@ -140,6 +140,9 @@ define(['require', 'page'], function(require, pageLib) {
 			});
 			return deferred.promise;
 		};
+		http2.get('/rest/pl/fe/site/member/schema/list?valid=Y&site=' + $scope.siteId, function(rsp) {
+			$scope.memberSchemas = rsp.data;
+		});
 		$scope.getApp();
 	}]);
 	/***/

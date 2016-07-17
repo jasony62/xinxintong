@@ -1,4 +1,5 @@
 define(['frame'], function(ngApp) {
+	'use strict';
 	ngApp.provider.controller('ctrlPublish', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
 		$scope.opUrl = 'http://' + location.host + '/rest/site/op/matter/signin?site=' + $scope.siteId + '&app=' + $scope.id;
 		$scope.stop = function() {
@@ -29,11 +30,9 @@ define(['frame'], function(ngApp) {
 		};
 		$scope.$watch('app', function(app) {
 			if (!app) return;
-			var entry = {},
-				i, l, page, signinUrl;
-			entry = {
+			var entry = {
 				url: $scope.url,
-				qrcode: '/rest/pl/fe/matter/signin/qrcode?site=' + $scope.siteId + '&url=' + encodeURIComponent($scope.url),
+				qrcode: '/rest/site/fe/matter/signin/qrcode?site=' + $scope.siteId + '&url=' + encodeURIComponent($scope.url),
 			};
 			$scope.entry = entry;
 		});

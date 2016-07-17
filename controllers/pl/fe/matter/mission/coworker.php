@@ -102,10 +102,35 @@ class coworker extends \pl\fe\matter\base {
 		return new \ResponseData($url);
 	}
 	/**
+	 * 查看邀请
+	 *
+	 * @param string $code 邀请码
+	 *
+	 */
+	public function invite_action($code) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		/**
+		 * 检查邀请码，获取任务
+		 */
+		$mdoelTsk = $this->model('task\token');
+		$task = $mdoelTsk->taskByCode($code);
+		if (!$task) {
+			return new \ResponseError('邀请不存在或已经过期，请检查邀请码是否正确。');
+		}
+
+		if (!empty($task->params->mission)) {
+			$mission = $this->model('matter\mission')->byId($task->params->mission, ['fields' => 'title']);
+			$task->mission = $mission;
+		}
+
+		return new \ResponseData($task);
+	}
+	/**
 	 * 被邀请参与项目的人接受邀请
 	 *
-	 * @param string $site
-	 * @param int $mission mission's id
 	 * @param string $code 邀请码
 	 *
 	 */
@@ -121,7 +146,7 @@ class coworker extends \pl\fe\matter\base {
 		$mdoelTsk = $this->model('task\token');
 		$task = $mdoelTsk->taskByCode($code);
 		if (!$task) {
-			return new \ResponseError('任务不存在或已经过期');
+			return new \ResponseError('邀请不存在或已经过期，请检查邀请码是否正确。');
 		}
 		$mdoelTsk->closeTask($user, $code);
 

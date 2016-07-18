@@ -15,6 +15,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                 box.classList.add('alert-' + type);
                 box.innerHTML = '<div>' + msg + '</div>';
                 document.body.appendChild(box);
+                _last.type = type;
             } else {
                 if (_last.type !== type) {
                     box.classList.remove('alert-' + type);
@@ -26,6 +27,13 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
             return box;
         };
 
+    this.close = function() {
+        var box;
+        box = document.querySelector('#' + _boxId);
+        if (box) {
+            document.body.removeChild(box);
+        }
+    };
     this.error = function(msg) {
         var box, btn;
 
@@ -69,16 +77,34 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
             _last.timer = null;
         }, 2000);
     };
-}]).service('http2', ['$rootScope', '$http', '$sce', 'noticebox', function($rootScope, $http, $sce, noticebox) {
+    this.progress = function(msg) {
+        /*显示消息框*/
+        _getBox('progress', msg);
+    };
+}]).service('http2', ['$http', '$timeout', '$sce', 'noticebox', function($http, $timeout, $sce, noticebox) {
     this.get = function(url, callback, options) {
+        var _timer;
         options = angular.extend({
             'headers': {
                 'accept': 'application/json'
             },
             'autoBreak': true,
             'autoNotice': true,
+            'showProgress': true,
+            'showProgressDelay': 500,
+            'showProgressText': '操作进行中...',
         }, options);
+        if (options.showProgress === true) {
+            _timer = $timeout(function() {
+                _timer = null;
+                noticebox.progress(options.showProgressText);
+            }, options.showProgressDelay);
+        }
         $http.get(url, options).success(function(rsp) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                noticebox.close();
+            }
             if (angular.isString(rsp)) {
                 if (options.autoNotice) {
                     noticebox.error($sce.trustAsHtml(rsp));
@@ -93,18 +119,36 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
             }
             if (callback) callback(rsp);
         }).error(function(data, status) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                noticebox.close();
+            }
             noticebox.error($sce.trustAsHtml(data));
         });
     };
     this.post = function(url, posted, callback, options) {
+        var _timer;
         options = angular.extend({
             'headers': {
                 'accept': 'application/json'
             },
             'autoBreak': true,
             'autoNotice': true,
+            'showProgress': true,
+            'showProgressDelay': 500,
+            'showProgressText': '操作进行中...',
         }, options);
+        if (options.showProgress === true) {
+            _timer = $timeout(function() {
+                _timer = null;
+                noticebox.progress(options.showProgressText);
+            }, options.showProgressDelay);
+        }
         $http.post(url, posted, options).success(function(rsp) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                noticebox.close();
+            }
             if (angular.isString(rsp)) {
                 if (options.autoNotice) {
                     noticebox.error($sce.trustAsHtml(rsp));
@@ -119,6 +163,10 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
             }
             if (callback) callback(rsp);
         }).error(function(data, status) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                noticebox.close();
+            }
             noticebox.error($sce.trustAsHtml(data));
         });
     };

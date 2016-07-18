@@ -169,7 +169,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
                     url += type + '/remove?app=' + id + '&site=' + $scope.siteId;
                     break;
                 case 'addressbook':
-                    url += type + '/remove?abid=' + matter.id;
+                    url += type + '/remove?id=' + matter.id;
                     break;
             }
             http2.get(url, function(rsp) {

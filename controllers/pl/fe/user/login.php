@@ -28,7 +28,6 @@ class login extends \TMS_CONTROLLER {
 		if (empty($data->email)) {
 			return new \ResponseError('邮箱不允许为空');
 		}
-
 		if (empty($data->password)) {
 			return new \ResponseError('口令不允许为空');
 		}
@@ -36,10 +35,10 @@ class login extends \TMS_CONTROLLER {
 		$modelAct = $this->model('account');
 		/*check*/
 		$result = $modelAct->validate($data->email, $data->password);
-		if ($result[0] === false) {
-			return new \ResponseError($result[1]);
+		if ($result->err_code != 0) {
+			return $result;
 		}
-		$act = $result[1];
+		$act = $result->data;
 
 		return new \ResponseData($act->uid);
 	}

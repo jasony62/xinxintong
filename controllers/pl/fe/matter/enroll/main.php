@@ -581,16 +581,16 @@ class main extends \pl\fe\matter\base {
 			$rst = $model->update(
 				'xxt_enroll',
 				['state' => 0],
-				["siteid" => $site, "id" => $app->id]
+				["id" => $app->id]
 			);
 		} else {
 			$model->delete(
 				'xxt_enroll_receiver',
-				["siteid" => $site, "aid" => $app->id]
+				["aid" => $app->id]
 			);
 			$model->delete(
 				'xxt_enroll_round',
-				["siteid" => $site, "aid" => $app->id]
+				["aid" => $app->id]
 			);
 			$model->delete(
 				'xxt_code_page',
@@ -598,11 +598,11 @@ class main extends \pl\fe\matter\base {
 			);
 			$model->delete(
 				'xxt_enroll_page',
-				["siteid" => $site, "aid" => $app->id]
+				["aid" => $app->id]
 			);
 			$rst = $model->delete(
 				'xxt_enroll',
-				["siteid" => $site, "id" => $app->id]
+				["id" => $app->id]
 			);
 		}
 		/*记录操作日志*/

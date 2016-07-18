@@ -40,7 +40,7 @@ class player extends \pl\fe\matter\base {
 		$q = array(
 			'count(*)',
 			"xxt_group_player",
-			"siteid='$site' and aid='$app' and state=1",
+			"aid='$app' and state=1",
 		);
 
 		$cnt = $this->model()->query_val_ss($q);

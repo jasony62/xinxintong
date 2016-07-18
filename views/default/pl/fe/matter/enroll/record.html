@@ -21,9 +21,10 @@
         <div class='form-group'>
             <combox title='标签' evt-prefix='search-tag' readonly='true' existing='page.tags' options='app.tags'></combox>
         </div>
-        <div class='form-group pull-right' style='width:90px'>
+        <div class='form-group pull-right'>
             <div class='input-group'>
-                <input class='form-control' ng-model='page.size' title='每页条数' placeholder='每页条数'>
+                <span class="input-group-addon">每页条数</span>
+                <input class='form-control' ng-model='page.size' style='width:48px'>
                 <span class='input-group-btn'>
                     <button class='btn btn-default' ng-click='doSearch(1)'>
                         <span class='glyphicon glyphicon-refresh'></span>

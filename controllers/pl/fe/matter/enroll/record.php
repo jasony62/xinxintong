@@ -61,6 +61,10 @@ class record extends \pl\fe\matter\base {
 	 * 给符合条件的登记记录打标签
 	 */
 	public function exportByData_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$posted = $this->getPostJson();
 		$filter = $posted->filter;
 		$target = $posted->target;
@@ -109,6 +113,10 @@ class record extends \pl\fe\matter\base {
 	 * @param string $app
 	 */
 	public function add_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$posted = $this->getPostJson();
 		$current = time();
 		$modelRec = $this->model('matter\enroll\record');
@@ -120,6 +128,9 @@ class record extends \pl\fe\matter\base {
 		$r['enroll_key'] = $ek;
 		$r['enroll_at'] = $current;
 		$r['signin_at'] = $current;
+		if (isset($posted->verified)) {
+			$r['verified'] = $posted->verified;
+		}
 		if (isset($posted->tags)) {
 			$r['tags'] = $posted->tags;
 			$this->model('matter\enroll')->updateTags($app, $posted->tags);
@@ -172,6 +183,10 @@ class record extends \pl\fe\matter\base {
 	 * 清空一条登记信息
 	 */
 	public function remove_action($site, $app, $key) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$rst = $this->model('matter\enroll\record')->remove($app, $key);
 
 		return new \ResponseData($rst);
@@ -180,6 +195,10 @@ class record extends \pl\fe\matter\base {
 	 * 清空登记信息
 	 */
 	public function empty_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$rst = $this->model('matter\enroll\record')->clean($app);
 
 		return new \ResponseData($rst);
@@ -191,6 +210,10 @@ class record extends \pl\fe\matter\base {
 	 * @param $ek record's key
 	 */
 	public function update_action($site, $app, $ek) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$record = $this->getPostJson();
 		$model = $this->model();
 

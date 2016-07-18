@@ -24,7 +24,7 @@ define(['require'], function(require, pageLib) {
 			.when('/rest/pl/fe/matter/wall/detail', new RouteParam('detail'))
 			.when('/rest/pl/fe/matter/wall/users', new RouteParam('users'))
 			.when('/rest/pl/fe/matter/wall/approve', new RouteParam('approve'))
-			.when('/rest/pl/fe/matter/wall/record', new RouteParam('message'))
+			.when('/rest/pl/fe/matter/wall/message', new RouteParam('message'))
 			.when('/rest/pl/fe/matter/wall/page', new RouteParam('page'))
 			.otherwise(new RouteParam('detail'));
 

@@ -33,9 +33,9 @@ class login extends \TMS_CONTROLLER {
 			return new \ResponseError('口令不允许为空');
 		}
 
-		$modelUsr = $this->model('mp\user');
+		$modelAct = $this->model('account');
 		/*check*/
-		$result = $modelUsr->validate($data->email, $data->password);
+		$result = $modelAct->validate($data->email, $data->password);
 		if ($result[0] === false) {
 			return new \ResponseError($result[1]);
 		}
@@ -43,5 +43,4 @@ class login extends \TMS_CONTROLLER {
 
 		return new \ResponseData($act->uid);
 	}
-
 }

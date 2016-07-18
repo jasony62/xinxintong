@@ -269,7 +269,7 @@ class main extends \pl\fe\matter\base {
 		$q = array(
 			"a.*,'{$user->id}' uid",
 			'xxt_article a',
-			"a.siteid='$site' and a.state=1 and a.id=$id",
+			"a.state=1 and a.id=$id",
 		);
 		if (($article = $this->model()->query_obj_ss($q)) && $cascade === 'Y') {
 			/**

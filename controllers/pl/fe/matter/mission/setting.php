@@ -31,7 +31,7 @@ class setting extends \pl\fe\matter\base {
 		$nv['modifier_name'] = $user->name;
 		$nv['modify_at'] = time();
 		/*update*/
-		$rst = $this->model()->update('xxt_mission', $nv, "id='$id'");
+		$rst = $this->model()->update('xxt_mission', $nv, ["id" => $id]);
 		if ($rst) {
 			/*记录操作日志*/
 			$mission = $this->model('matter\mission')->byId($id, 'id,title,summary,pic');
@@ -55,10 +55,10 @@ class setting extends \pl\fe\matter\base {
 
 		$rst = $this->model()->update(
 			'xxt_mission',
-			array(
+			[
 				$page . '_page_name' => $code->name,
-			),
-			"siteid='{$site}' and id='$id'"
+			],
+			["id" => $id]
 		);
 
 		return new \ResponseData($code);

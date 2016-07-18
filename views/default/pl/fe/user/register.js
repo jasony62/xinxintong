@@ -1,4 +1,4 @@
-app.controller('ctrlReg', ['$scope', '$http', '$rootScope', function($scope, $http, $rootScope) {
+app.controller('ctrlReg', ['$scope', 'http2', function($scope, http2) {
     $scope.repeatPwd = (function() {
         return {
             test: function(value) {
@@ -8,15 +8,10 @@ app.controller('ctrlReg', ['$scope', '$http', '$rootScope', function($scope, $ht
         };
     })();
     $scope.register = function() {
-        $http.post('/rest/pl/fe/user/register/do', {
+        http2.post('/rest/pl/fe/user/register/do', {
             email: $scope.email,
             password: $scope.password
-        }).
-        success(function(rsp) {
-            if (rsp.err_code != 0) {
-                $rootScope.errmsg = rsp.err_msg;
-                return;
-            }
+        }, function(rsp) {
             location.replace('/rest/pl/fe/user/login');
         });
     };

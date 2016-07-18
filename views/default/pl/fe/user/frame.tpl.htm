@@ -10,7 +10,6 @@
         </style>
     </head>
     <body ng-app='app' ng-controller='mainCtrl' ng-keypress='keypress($event)'>
-        <notice-box err='errmsg' info='infomsg' delay='1000'></notice-box>
         <?php $sv=TPL::val('subView'); $sv && TPL::output($sv);?>
         <script src="/static/js/jquery.min.js"></script>
         <script src="/static/js/bootstrap.min.js"></script>

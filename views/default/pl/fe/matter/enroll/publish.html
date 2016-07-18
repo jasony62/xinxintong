@@ -1,89 +1,123 @@
 <div id='publish-view' class='row'>
     <div class='col-md-8'>
-        <div class='tile'>
-            <div class='form-group'>
-                <a href='/rest/pl/fe/matter/enroll/app?site={{siteId}}&id={{id}}'>{{app.title}}（设置）</a>
-            </div>
-            <div class='form-group compact'>
-                <div class='help-block'>头图（可选）：建议尺寸：900像素 * 500像素</div>
-                <div style='position:relative'>
-                    <div style="width:182px;border:1px solid #CCC">
-                        <div style="height:100px;text-align:center;padding-top:32px" ng-if="!app.pic">
-                            <button class='btn btn-default' ng-click='setPic();'>
-                            <span class='glyphicon glyphicon-picture'></span>选择图片</button>
-                        </div>
-                        <div style='position:relative' ng-if="app.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
-                            <img name='pic' ng-src="{{app.pic}}" width='180px' />
-                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
-                            <span class='glyphicon glyphicon-picture'></span>
-                            </button>
-                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
-                            <span class='glyphicon glyphicon-trash'></span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class='form-group compact'>
-                <div class='help-block'>摘要（可选）：最多120个汉字，240个英文字符</div>
-                <textarea class='form-control' ng-model='app.summary' tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+        <div class="panel panel-primary">
+            <div class="panel-heading">登记链接：复制或分享给用户进行登记</div>
+            <div class="panel-body">
+                <div class='form-control' style='height:auto;word-break:break-all' ng-bind='entry.url'></div>
             </div>
         </div>
-        <div id='receivers' class='tile' ng-controller="ctrlReceiver">
-            <div class='form-group'>
-                <div class='help-block'>事件提醒：接收用户登记活动提醒</div>
-                <div class='checkbox'>
-                    <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.notify_submit" ng-change="update('notify_submit')">提交登记</label>
-                </div>
+        <div class="panel panel-primary">
+            <div class="panel-heading">二维码登记</div>
+            <div class="panel-body">
+                <div><img ng-src="{{entry.qrcode}}"></div>
             </div>
-            <div class='row'>
-                <div class='col-md-4'>
-                    <div class='form-group' ng-if="supportQrcode.wx==='Y'">
-                        <button id='wxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('wx')">微信扫码作为接收人 <span class="caret"></span></button>
-                    </div>
-                    <div class='form-group' ng-if="supportQrcode.yx==='Y'">
-                        <button id='yxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('yx')">易信扫码作为接收人 <span class="caret"></span></button>
-                    </div>
-                </div>
-                <div class='col-md-8'>
-                    <div class='list-group'>
-                        <div class='list-group-item' ng-repeat="r in receivers" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
-                            <span>{{r.nickname}}</span>
-                            <button class='btn btn-default btn-xs pull-right' ng-show="entered" ng-click="remove(r)">
-                                <span class='glyphicon glyphicon-remove'></span>
-                            </button>
+        </div>
+        <div class="panel panel-primary">
+            <div class="panel-heading">投影地址</div>
+            <div class="panel-body">
+                <div class='form-control' style='height:auto;word-break:break-all' ng-bind="opUrl"></div>
+            </div>
+        </div>
+        <div class="panel panel-primary">
+            <div class="panel-heading">公众号分享设置</div>
+            <div class="panel-body">
+                <div class='form-group compact'>
+                    <div class='help-block'>头图（可选）：建议尺寸：900像素 * 500像素</div>
+                    <div style='position:relative'>
+                        <div style="width:182px;border:1px solid #CCC">
+                            <div style="height:100px;text-align:center;padding-top:32px" ng-if="!app.pic">
+                                <button class='btn btn-default' ng-click='setPic();'>
+                                <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                            </div>
+                            <div style='position:relative' ng-if="app.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                                <img name='pic' ng-src="{{app.pic}}" width='180px' />
+                                <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                                <span class='glyphicon glyphicon-picture'></span>
+                                </button>
+                                <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                                <span class='glyphicon glyphicon-trash'></span>
+                                </button>
+                            </div>
                         </div>
                     </div>
+                </div>
+                <div class='form-group compact'>
+                    <div class='help-block'>摘要（可选）：最多120个汉字，240个英文字符</div>
+                    <textarea class='form-control' ng-model='app.summary' tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
                 </div>
             </div>
         </div>
-        <div id='rounds' class='tile' ng-controller='ctrlRound' ng-if="app.scenarioConfig.can_rounds!=='D'">
-            <button class='btn btn-success btn-block' ng-disabled='app.rounds[0].state==0' ng-click='add()'>增加轮次</button>
-            <div class='list-group' style='max-height:290px;overflow-y:auto;margin-bottom:0'>
-                <li class='list-group-item' ng-repeat='r in app.rounds'>
-                    <span>{{r.title}}</span>（<span>{{roundState[r.state]}}</span>）
-                    <button class="close " ng-click='open(r)'>
-                        <span class='glyphicon glyphicon-edit'></span>
-                    </button>
-                </li>
+        <div class="panel panel-primary">
+            <div class="panel-heading">事件提醒：接收用户登记活动提醒</div>
+            <div class="panel-body" ng-controller="ctrlReceiver">
+                <div class='form-group'>
+                    <div class='checkbox'>
+                        <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.notify_submit" ng-change="update('notify_submit')">提交登记</label>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-4'>
+                        <div class='form-group' ng-if="supportQrcode.wx==='Y'">
+                            <button id='wxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('wx')">微信扫码作为接收人 <span class="caret"></span></button>
+                        </div>
+                        <div class='form-group' ng-if="supportQrcode.yx==='Y'">
+                            <button id='yxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('yx')">易信扫码作为接收人 <span class="caret"></span></button>
+                        </div>
+                    </div>
+                    <div class='col-md-8'>
+                        <div class='list-group'>
+                            <div class='list-group-item' ng-repeat="r in receivers" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
+                                <span>{{r.nickname}}</span>
+                                <button class='btn btn-default btn-xs pull-right' ng-show="entered" ng-click="remove(r)">
+                                    <span class='glyphicon glyphicon-remove'></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     <div class='col-md-4'>
-        <div class='tile'>
-            <div class='form-group compact'>
-                <div class='help-block'>用户进入URL</div>
-                <div class='form-control' style='height:auto;word-break:break-all' ng-bind='entry.url'></div>
+        <div class='tile' ng-if="app.scenarioConfig.can_rounds!=='D'">
+            <div id='rounds' ng-controller='ctrlRound'>
+                <button class='btn btn-success btn-block' ng-disabled='app.rounds[0].state==0' ng-click='add()'>增加轮次</button>
+                <div class='list-group' style='max-height:290px;overflow-y:auto;margin-bottom:0'>
+                    <li class='list-group-item' ng-repeat='r in app.rounds'>
+                        <span>{{r.title}}</span>（<span>{{roundState[r.state]}}</span>）
+                        <button class="close " ng-click='open(r)'>
+                            <span class='glyphicon glyphicon-edit'></span>
+                        </button>
+                    </li>
+                </div>
             </div>
-            <div class='form-group compact'>
-                <div class='help-block'>用户进入二维码</div>
-                <div><img ng-src="{{entry.qrcode}}"></div>
+        </div>
+        <div class='tile records'>
+            <div class='help-block'>
+                <span>已登记数量</span>
+                <a href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}">（查看详情）</a>
+            </div>
+            <div class='summary'>
+                <a href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}" ng-bind="summary.total"></a>
             </div>
         </div>
         <div class='tile'>
-            <div class='form-group compact'>
-                <div class='help-block'>投影地址</div>
-                <div class='form-control' style='height:auto;word-break:break-all' ng-bind="opUrl"></div>
+            <div class='statistic' ng-controller="ctrlStat">
+                <table class='table table-bordered' ng-repeat="s in stat">
+                    <caption>{{s.title}}</caption>
+                    <thead>
+                        <tr>
+                            <th>选项</th>
+                            <th>数量</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="op in s.ops">
+                            <td>{{op.l}}</td>
+                            <td>{{op.c}}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
         <div class='tile'>
@@ -98,12 +132,8 @@
     <nav class="navbar navbar-default navbar-fixed-bottom">
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
+                <a class='btn btn-lg btn-default' href='/rest/pl/fe/matter/enroll/app?site={{siteId}}&id={{id}}'>活动设置</a>
                 <button class='btn btn-lg btn-default' ng-click="stop()">停止收集</button>
-                <a href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}">登记结果</a>
-                <a href="/rest/pl/fe/matter/enroll/stat?site={{siteId}}&id={{id}}">统计结果</a>
-            </form>
-            <form class="navbar-form navbar-right" style='display:inline-block'>
-                <button class='btn btn-lg btn-default' ng-click="remove()">删除活动</button>
             </form>
         </div>
     </nav>

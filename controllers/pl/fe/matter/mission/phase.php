@@ -70,7 +70,8 @@ class phase extends \pl\fe\matter\base {
 
 		$rst = $this->model()->update(
 			'xxt_mission_phase',
-			$data, "siteid='$site' and phase_id='$id'"
+			$data,
+			["phase_id" => $id]
 		);
 
 		return new \ResponseData($rst);
@@ -90,20 +91,20 @@ class phase extends \pl\fe\matter\base {
 
 		$rst = $model->delete(
 			'xxt_mission_phase',
-			"siteid='$site' and phase_id='$id'"
+			["phase_id" => $id]
 		);
 
 		/* 是否还有项目阶段 */
 		$count = (int) $model->query_val_ss([
 			'count(*)',
 			'xxt_mission_phase',
-			"siteid='$site' and id='$mission'",
+			["id" => $mission],
 		]);
 		if ($count === 0) {
 			$model->update(
 				'xxt_mission',
 				['multi_phase' => 'N'],
-				"siteid='$site' and id='$mission'"
+				["id" => $mission]
 			);
 		}
 

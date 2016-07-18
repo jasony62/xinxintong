@@ -27,7 +27,7 @@ class mission_model extends app_base {
 		$q = array(
 			$fields,
 			$this->table(),
-			"id='$id'",
+			["id" => $id],
 		);
 		if (($mission = $this->query_obj_ss($q)) && !empty($cascaded)) {
 			$cascaded = explode(',', $cascaded);

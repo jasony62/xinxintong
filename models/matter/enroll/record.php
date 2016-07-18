@@ -385,6 +385,43 @@ class record_model extends \TMS_MODEL {
 		return $result;
 	}
 	/**
+	 * 签到情况统计
+	 */
+	public function &summary($siteId, $appId) {
+		$modelRnd = \TMS_APP::M('matter\enroll\round');
+		$rounds = $modelRnd->byApp($siteId, $appId, ['fields' => 'rid,title']);
+
+		if (empty($rounds)) {
+			$summary = new \stdClass;
+			/* total */
+			$q = [
+				'count(*)',
+				'xxt_enroll_record',
+				['aid' => $appId, 'state' => 1],
+			];
+			$summary->total = $this->query_val_ss($q);
+		} else {
+			$summary = [];
+			$activeRound = $modelRnd->getActive($siteId, $appId);
+			foreach ($rounds as $round) {
+				/* total */
+				$q = [
+					'count(*)',
+					'xxt_enroll_record',
+					['aid' => $appId, 'state' => 1, 'rid' => $round->rid],
+				];
+				$round->total = $this->query_val_ss($q);
+				if ($activeRound && $round->rid === $activeRound->rid) {
+					$round->active = 'Y';
+				}
+
+				$summary[] = $round;
+			}
+		}
+
+		return $summary;
+	}
+	/**
 	 * 获得指定用户最后一次登记记录
 	 * 如果设置轮次，只返回当前轮次的情况
 	 */

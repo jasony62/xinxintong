@@ -1,4 +1,4 @@
-app.controller('setCtrl', ['$scope', '$http', '$rootScope', function($scope, $http, $rootScope) {
+app.controller('setCtrl', ['$scope', 'http2', 'noticebox', function($scope, http2, noticebox) {
     $scope.repeatPwd = (function() {
         return {
             test: function(value) {
@@ -8,16 +8,11 @@ app.controller('setCtrl', ['$scope', '$http', '$rootScope', function($scope, $ht
         };
     })();
     $scope.changePwd = function() {
-        $http.post('/rest/user/changePwd', {
+        http2.post('/rest/pl/fe/user/changePwd', {
             opwd: $scope.opwd,
             npwd: $scope.npwd
-        }).
-        success(function(rsp) {
-            if (rsp.err_code !== 0) {
-                $rootScope.errmsg = rsp.err_msg;
-                return;
-            }
-            $rootScope.infomsg = '修改成功';
+        }, function(rsp) {
+            noticebox.success('修改成功');
         });
     };
 }]);

@@ -93,7 +93,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
             }
             if (callback) callback(rsp);
         }).error(function(data, status) {
-            $rootScope.errmsg = $sce.trustAsHtml(data);
+            noticebox.error($sce.trustAsHtml(data));
         });
     };
     this.post = function(url, posted, callback, options) {
@@ -119,7 +119,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
             }
             if (callback) callback(rsp);
         }).error(function(data, status) {
-            $rootScope.errmsg = $sce.trustAsHtml(data);
+            noticebox.error($sce.trustAsHtml(data));
         });
     };
 }]).controller('ComboxController', ['$scope', function($scope) {

@@ -196,10 +196,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				}
 			});
 		};
-		$scope.$watch('app', function(app) {
-			if (!app) return;
-			$scope.ep = app.pages[0];
-		});
 		$scope.choosePage = function(page) {
 			if (angular.isString(page)) {
 				for (var i = $scope.app.pages.length - 1; i >= 0; i--) {
@@ -242,6 +238,108 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				$scope.$broadcast('xxt.matter.signin.app.data_schemas.created', newSchema);
 			});
 		};
+		$scope.$watch('app', function(app) {
+			if (!app) return;
+			$scope.ep = app.pages[0];
+		});
+	}]);
+	ngApp.provider.controller('ctrlRound', ['$scope', '$uibModal', 'http2', 'noticebox', function($scope, $uibModal, http2, noticebox) {
+		$scope.batch = function() {
+			$uibModal.open({
+				templateUrl: 'batchRounds.html',
+				backdrop: 'static',
+				resolve: {
+					app: function() {
+						return $scope.app;
+					}
+				},
+				controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
+					var params = {
+						timesOfDay: 2,
+						overwrite: 'Y'
+					};
+					if (app.mission && app.mission_phase_id) {
+						(function() {
+							var i, phase;
+							for (i = app.mission.phases.length - 1; i >= 0; i--) {
+								phase = app.mission.phases[i];
+								if (app.mission_phase_id === phase.phase_id) {
+									params.start_at = phase.start_at;
+									params.end_at = phase.end_at;
+									break;
+								}
+							}
+						})();
+					} else {
+						/*设置阶段的缺省起止时间*/
+						(function() {
+							var nextDay = new Date();
+							nextDay.setTime(nextDay.getTime() + 86400000);
+							params.start_at = nextDay.setHours(0, 0, 0, 0) / 1000;
+							params.end_at = nextDay.setHours(23, 59, 59, 0) / 1000;
+						})();
+					}
+					$scope2.params = params;
+					$scope2.cancel = function() {
+						$mi.dismiss();
+					};
+					$scope2.ok = function() {
+						$mi.close($scope2.params);
+					};
+				}]
+			}).result.then(function(params) {
+				http2.post('/rest/pl/fe/matter/signin/round/batch?site=' + $scope.siteId + '&app=' + $scope.id, params, function(rsp) {
+					if (params.overwrite === 'Y') {
+						$scope.app.rounds = rsp.data;
+					} else {
+						$scope.app.rounds = $scope.rounds.concat(rsp.data);
+					}
+					$scope.rounds = $scope.app.rounds;
+				});
+			});
+		};
+		$scope.add = function() {
+			var newRound = {
+				title: '轮次' + ($scope.rounds.length + 1),
+				start_at: Math.round((new Date()).getTime() / 1000),
+				end_at: Math.round((new Date()).getTime() / 1000) + 7200,
+			};
+			http2.post('/rest/pl/fe/matter/signin/round/add?site=' + $scope.siteId + '&app=' + $scope.id, newRound, function(rsp) {
+				$scope.rounds.push(rsp.data);
+			});
+		};
+		$scope.update = function(round, prop) {
+			var url = '/rest/pl/fe/matter/signin/round/update',
+				posted = {};
+			url += '?site=' + $scope.siteId;
+			url += '&app=' + $scope.id;
+			url += '&rid=' + round.rid;
+			posted[prop] = round[prop];
+			http2.post(url, posted, function(rsp) {
+				noticebox.success('完成保存');
+			});
+		};
+		$scope.$on('xxt.tms-datepicker.change', function(event, data) {
+			data.obj[data.state] = data.value;
+			$scope.update(data.obj, data.state);
+		});
+		$scope.remove = function(round) {
+			var url;
+			if (window.confirm('确定删除：' + round.title + '？')) {
+				url = '/rest/pl/fe/matter/signin/round/remove';
+				url += '?site=' + $scope.siteId;
+				url += '&app=' + $scope.id;
+				url += '&rid=' + round.rid;
+				http2.get(url, function(rsp) {
+					$scope.rounds.splice($scope.rounds.indexOf(round), 1);
+				});
+			}
+		};
+		$scope.$watch('app', function(app) {
+			if (app) {
+				$scope.rounds = app.rounds;
+			}
+		});
 	}]);
 	/**
 	 * 在当前编辑页面中选择应用的登记项
@@ -773,6 +871,46 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		$scope.onPageChange = function() {
 			$scope.ep.$$modified = true;
 		};
+		$scope.$on('tinymce.content.editing', function(event, node) {
+			var domNodeWrap = $(node).parents('[wrap]');
+			if (domNodeWrap.length === 1) {
+				if (/label/i.test(node.nodeName)) {
+					/* schema's wrap */
+					(function freshSchemaByDom() {
+						var oWrap = wrapLib.dataByDom($scope.activeWrap.dom);
+						if (oWrap) {
+							if (oWrap.schema.title !== $scope.activeWrap.schema.title) {
+								$timeout(function() {
+									$scope.activeWrap.schema.title = oWrap.schema.title;
+								});
+							}
+						}
+					})();
+				}
+			} else if (domNodeWrap.length === 2) {
+				/* schema option's wrap */
+				(function() {
+					var $domParentWrap = $(domNodeWrap[0]),
+						oOptionWrap, editingSchema;
+					if (/radio|checkbox/.test($domParentWrap.attr('wrap'))) {
+						oOptionWrap = wrapLib.input.dataByDom(domNodeWrap[0]);
+						if (oOptionWrap.schema && oOptionWrap.schema.ops && oOptionWrap.schema.ops.length === 1) {
+							for (var i = $scope.app.data_schemas.length - 1; i > -0; i--) {
+								editingSchema = $scope.app.data_schemas[i];
+								if (oOptionWrap.schema.id === editingSchema.id) {
+									for (var j = editingSchema.ops.length - 1; j >= 0; j--) {
+										if (oOptionWrap.schema.ops[0].v === editingSchema.ops[j].v) {
+											editingSchema.ops[j].l = oOptionWrap.schema.ops[0].l;
+											break;
+										}
+									}
+								}
+							}
+						}
+					}
+				})();
+			}
+		});
 		$scope.$on('tinymce.multipleimage.open', function(event, callback) {
 			var options = {
 				callback: callback,

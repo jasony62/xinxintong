@@ -17,27 +17,30 @@ class auth extends \TMS_CONTROLLER {
 	 * 进入平台管理页面用户身份验证页面
 	 */
 	public function index_action() {
-		/*记录发起登录的页面*/
+		/**
+		 * 记录发起登录的页面，登录成功后，跳转到该页面
+		 */
 		$ruri = $_SERVER['REQUEST_URI'];
 		if (!empty($ruri) && !in_array($ruri, array('/'))) {
 			$this->mySetCookie('_login_referer', $ruri);
 		}
-		/*登录页面地址*/
+		/**
+		 * 跳转到登录页面
+		 */
 		$path = TMS_APP_API_PREFIX . '/pl/fe/user/login';
-		//$path .= '?callback=' . urlencode(TMS_APP_API_PREFIX . '/pl/fe/user/auth/passed');
 		$this->redirect($path);
 	}
 	/**
 	 * 验证通过后的回调页面
 	 */
 	public function passed_action($uid) {
-		$modelUsr = $this->model('mp\user');
+		$modelAct = $this->model('account');
 		$fromip = $this->client_ip();
-		$modelUsr->update_last_login($uid, $fromip);
+		$modelAct->update_last_login($uid, $fromip);
 		/**
 		 * record account into session and cookie.
 		 */
-		$act = $modelUsr->byId($uid);
+		$act = $modelAct->byId($uid);
 		/**
 		 * 记录客户端登陆状态
 		 */

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <base href="/"/>
+        <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link href="//libs.useso.com/js/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
+        <link href="/static/css/tms.css?_=2" rel="stylesheet">
+        <?php 
+        if ($css = TPL::val('css')) {
+        foreach ($css as $c) {
+        call_user_func_array(array($this,'import_css'), $c);
+        }
+        }
+        ?>
+        <title><?php echo empty($_SESSION['mpaccount']) ? APP_TITLE : $_SESSION['mpaccount']->name;?></title>
+    </head>
+    <body style='padding:71px 0;' ng-app='xxt' ng-controller='mpCtrl' ng-cloak class='ng-cloak'>
+        <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
+        <nav class='navbar navbar-inverse navbar-fixed-top'>
+        <ul class='nav navbar-nav'>
+            <?php $c = TPL::val('layout-top'); $c && TPL::output($c);?>
+        </ul>
+        <ul class='nav navbar-nav navbar-right' style='margin-right:0'>
+            <li><a href='/page/pl/fe/user/settings' target='_self'>设置</a></li>
+            <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+        </ul>
+        </nav>
+        <div class='container-fluid'>
+            <div class='row'>
+                <div class='col-md-2'>
+                    <?php $c = TPL::val('layout-left'); $c && TPL::output($c);?>
+                </div>
+                <div class='col-md-10'>
+                    <?php $c = TPL::val('layout-body'); $c && TPL::output($c);?>
+                </div>
+            </div>
+        </div>
+        <script src="/static/js/jquery.min.js"></script>
+        <script src="/static/js/jquery-ui.min.js"></script>
+        <script src="/static/js/bootstrap.min.js"></script>
+        <script src="/static/js/angular.min.js"></script>
+        <script src="/static/js/angular-route.min.js"></script>
+        <script src="/static/js/angular-sanitize.min.js"></script>
+        <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+        <script src="/static/js/ui-tms.js?_=1"></script>
+        <?php
+        if ($js = TPL::val('global_js')) {
+        call_user_func_array(array($this,'global_js'), $js);
+        }
+        ?>
+        <script>
+            xxtApp=angular.module('xxt',['ui.tms','ui.bootstrap'<?php $m = TPL::val('angular-modules');if (!empty($m)) echo ','.$m;?>]); 
+        </script>
+        <script src="/views/default/mp/frame.js"></script>
+        <?php
+        if ($js = TPL::val('js')) {
+        foreach ($js as $j) {
+        call_user_func_array(array($this,'import_js'), $j);
+        }
+        }
+        ?>
+        <?php if (defined('SAE_MYSQL_HOST_M')) { ?>
+        <script type="text/javascript">
+            var _bdhmProtocol = (("https:" == document.location.protocol) ? "https://" : "http://");
+            document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F40ec59c933400d729f57930675635edb' type='text/javascript'%3E%3C/script%3E"));
+        </script>
+        <?php }?>
+    </body>
+</html>

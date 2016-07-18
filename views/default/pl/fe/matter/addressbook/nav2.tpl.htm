@@ -1,0 +1,19 @@
+<div class='list-group'>
+    <?php
+    $menus = TPL::val('mp_view_entries');
+    $menu = TPL::val('menu');
+    $menu && isset($menus[$menu]) && $menus[$menu]['selected'] = true;
+    ?>
+    <?php if(!empty($menus)) foreach($menus as $href=>$m){ ?>
+    <?php if (isset($m['selected']) && $m['selected']){ ?>
+    <a class='list-group-item active' href="<?php echo $href.'/'.$m['entry'];?>" target="_self"><?php echo $m['title'];?></a>
+    <?php } else { ?>
+    <a class='list-group-item' href="<?php echo $href.'/'.$m['entry'];?>" target="_self"><?php echo $m['title'];?></a>
+    <?php } ?>
+    <?php } ?>                
+</div>
+<?php $tips = TPL::val('tips'); if ($tips) { ?>
+<div class='alert alert-info'>
+    <?php echo $tips;?>
+</div>
+<?php } ?>

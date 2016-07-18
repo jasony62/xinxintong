@@ -19,7 +19,6 @@ xxtApp.controller('ImportAddressbookModalInstCtrl', ['$scope', '$uibModalInstanc
     };
 }]);
 xxtApp.controller('ctrlAddressbook', ['$scope', 'http2', function($scope, http2) {
-    $scope.subView = '';
     $scope.back = function() {
         location.href = '/rest/pl/fe/matter/addressbook';
     };
@@ -47,13 +46,12 @@ xxtApp.controller('ctrlAddressbook', ['$scope', 'http2', function($scope, http2)
             $scope.entryUrl = "http://" + location.host + "/rest/app/addressbook?mpid=" + $scope.editing.mpid + "&id=" + $scope.editing.id;
         });
     });
-    http2.get('/rest/mp/mpaccount/get', function(rsp) {
+    /*http2.get('/rest/mp/mpaccount/get', function(rsp) {
         $scope.mpaccount = rsp.data;
-    });
+    });*/
 }]);
 xxtApp.controller('rollCtrl', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
     $scope.abbr = '';
-    $scope.$parent.subView = 'roll';
     $scope.page = {
         at: 1,
         size: 30
@@ -95,7 +93,6 @@ xxtApp.controller('rollCtrl', ['$scope', '$uibModal', 'http2', function($scope, 
     });
 }]);
 xxtApp.controller('deptCtrl', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
-    $scope.$parent.subView = 'dept';
     $scope.addChild = function(node) {
         var url = '/rest/pl/fe/matter/addressbook/addDept?abid=' + $scope.abid;
         node.data && (url += '&pid=' + node.data.id);
@@ -158,7 +155,7 @@ xxtApp.controller('deptCtrl', ['$scope', 'http2', '$uibModal', function($scope, 
     $scope.updateDept = function(prop) {
         var nv = {};
         nv[prop] = $scope.editingDept[prop];
-        http2.post('/restpl/fe/matter/addressbook/updateDept?abid=' + $scope.abid + '&id=' + $scope.editingDept.id, nv);
+        http2.post('/rest/pl/fe/matter/addressbook/updateDept?abid=' + $scope.abid + '&id=' + $scope.editingDept.id, nv);
     };
     $scope.setDeptParent = function() {
         $uibModal.open({

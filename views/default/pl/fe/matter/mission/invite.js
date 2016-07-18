@@ -13,6 +13,16 @@ define(['require', 'ngSanitize', 'tmsUI'], function(require) {
 				location.href = '/rest/pl/fe/matter/mission?site=' + acl.siteid + '&id=' + acl.mission_id;
 			});
 		};
+		http2.get('/rest/pl/fe/matter/mission/coworker/invite?code=' + inviteCode, function(rsp) {
+			if (rsp.err_code != '0') {
+				$scope.errmsg = rsp.err_msg;
+			} else {
+				$scope.task = rsp.data;
+			}
+		}, {
+			autoBreak: false,
+			autoNotice: false,
+		});
 	}]);
 	/***/
 	require(['domReady!'], function(document) {

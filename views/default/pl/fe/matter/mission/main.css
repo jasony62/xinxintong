@@ -1,9 +1,6 @@
 html,body{height:100%;width:100%}
 body{background:#f8f8f8;position:relative;overflow:hidden;display:flex;flex-direction:column;}
 .navbar.tms-large{font-size:18px;}
-body>nav{display:flex;}
-body>nav>ul:nth-child(2){flex-grow:1;text-align:center;}
-body>nav>ul:nth-child(2)>li{display:inline-block;float:none;}
 .container{flex:1.0;overflow:hidden;position:relative;display:flex;padding:0;}
 #viewSetting,#viewMatter{display:flex;flex-direction:column;border:1px solid #ddd;border-radius:4px;padding:0;background:#fff;}
 #viewSetting{flex:1.0;margin-right:8px;}

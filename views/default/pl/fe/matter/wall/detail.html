@@ -72,6 +72,23 @@
                 <!--<div class='form-control' style='height:auto;word-break:break-all' ng-bind='entry.url'></div>-->
                 <div class='form-control' style='height:auto;word-break:break-all' ng-model='wall.user_url' tms-auto-update tms-wait=1000 tms-update="update('user_url')"></div>
             </div>
+            <div class='form-group compact'>
+                <div class='help-block'>用户进入二维码</div>
+                <div><img ng-src="{{entry.qrcode}}"></div>
+            </div>
+        </div>
+        <div class='tile'>
+            <div class='form-group compact'>
+                <div class='help-block'>投影地址</div>
+                <div class='form-control' style='height:auto;word-break:break-all' ng-bind="opUrl"></div>
+            </div>
+        </div>
+        <div class='tile'>
+            <div class='form-group'>
+                <div>阅读：{{app.read_num}}</div>
+                <div>分享好友：{{app.share_friend_num}}</div>
+                <div>分享朋友圈：{{app.share_timeline_num}}</div>
+            </div>
         </div>
     </div>
 </div>

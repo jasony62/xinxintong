@@ -33,7 +33,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
                 location.href = '/rest/pl/fe/matter/' + type + '?id=' + (matter.mission_id || id) + '&site=' + $scope.siteId;
                 break;
             case 'addressbook':
-                location.href = '/page/pl/fe/matter/'+ type +'/edit?id='+ matter.id;
+                location.href = '/rest/pl/fe/matter/'+ type +'/edit?id='+ matter.id + '&site=' + $scope.siteId;
                 break;
         }
     };
@@ -329,7 +329,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
     };
     $scope.addAddressbook = function() {
         http2.get('/rest/pl/fe/matter/addressbook/create?site='+ $scope.siteId, function(rsp) {
-            location.href = '/page/pl/fe/matter/addressbook/edit?id='+rsp.data;
+            location.href = '/rest/pl/fe/matter/addressbook/edit?site='+ $scope.siteId + '&id=' + rsp.data;
             /*location.href = '/rest/pl/fe/matter/addressbook?site=' + $scope.siteId + '&id=' + rsp.data;*/
         });
     };

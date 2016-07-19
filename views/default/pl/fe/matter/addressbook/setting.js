@@ -1,10 +1,5 @@
-'use strict';
-define(['frame'], function(ngApp) {
-ngApp.provider.controller('ctrlSetting', ['$scope', 'http2', function($scope,http2) {
-/*xxtApp.controller('setCtrl', ['$scope', 'http2', function($scope, http2) {*/
-    /*$scope.back = function() {
-        location.href = '/rest/pl/fe/matter/addressbook';
-    };*/
+define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
+ngApp.provider.controller('ctrlSetting', ['$scope', '$q', 'http2', 'mattersgallery', 'noticebox',function($scope, $q, http2, mattersgallery, noticebox) {
     $scope.update = function(name) {
         var nv = {};
         nv[name] = $scope.editing[name];
@@ -29,8 +24,8 @@ ngApp.provider.controller('ctrlSetting', ['$scope', 'http2', function($scope,htt
             $scope.entryUrl = "http://" + location.host + "/rest/app/addressbook?mpid=" + $scope.editing.mpid + "&id=" + $scope.editing.id;
         });
     });
-    /*http2.get('/rest/mp/mpaccount/get', function(rsp) {
+    http2.get('/rest/mp/mpaccount/get', function(rsp) {
         $scope.mpaccount = rsp.data;
-    });*/
+    });
 }]);
 };

@@ -9,7 +9,7 @@
     <link href="/views/default/pl/fe/matter/addressbook/frame.css?_=1" rel="stylesheet">
 </head>
 
-<body ng-app='app' ng-controller='ctrlAddressbook' ng-cloak class='ng-cloak'>
+<body ng-app='app' ng-controller='ctrlFrame' ng-cloak class='ng-cloak'>
     <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
     <nav class='navbar navbar-inverse navbar-fixed-top'>
         <ul class='nav navbar-nav'>
@@ -21,10 +21,10 @@
     </nav>
     <div class='container'>
         <div class='row'>
-            <div class='navbar navbar-default'>
+            123
+            <!-- <div class='navbar navbar-default'>
                 <ul class='nav navbar-nav'>
-                123
-                    <!-- <li><a href='javascript:void(0);' ng-click="back()"><span class="glyphicon glyphicon-chevron-left"></span></a></li> -->
+                    <li><a href='javascript:void(0);' ng-click="back()"><span class="glyphicon glyphicon-chevron-left"></span></a></li>
                     <li ng-class="{'active':subView=='setting'}"><a href='#' ng-click="subView='setting'">设置</a></li>
                     <li ng-class="{'active':subView=='dept'}"><a href='#' ng-click="subView='dept'">部门</a></li>
                     <li ng-class="{'active':subView=='roll'}"><a href='#' ng-click="subView='roll'">人员</a></li>
@@ -32,7 +32,7 @@
             </div>
             <div>
                 <div ng-init="subView='setting'" ng-include="'/page/pl/fe/matter/addressbook/'+subView"></div>
-            </div>
+            </div> -->
         </div>
     </div>
     <script src="/static/js/jquery.min.js"></script>

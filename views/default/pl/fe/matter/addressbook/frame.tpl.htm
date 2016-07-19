@@ -1,13 +1,50 @@
-<div ng-controller='ctrlAddressbook' ng-init="mpid='<?php echo TPL::S('mpid');?>';abid='<?php echo $_GET['id'];?>'">
-    <div class='navbar navbar-default'>
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <base href="/" />
+    <title>通讯录</title>
+    <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/views/default/pl/fe/matter/addressbook/frame.css?_=1" rel="stylesheet">
+</head>
+
+<body ng-app='app' ng-controller='ctrlAddressbook' ng-cloak class='ng-cloak'>
+    <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
+    <nav class='navbar navbar-inverse navbar-fixed-top'>
         <ul class='nav navbar-nav'>
-            <!-- <li><a href='javascript:void(0);' ng-click="back()"><span class="glyphicon glyphicon-chevron-left"></span></a></li> -->
-            <li ng-class="{'active':subView=='setting'}"><a href='#' ng-click="subView='setting'">设置</a></li>
-            <li ng-class="{'active':subView=='dept'}"><a href='#' ng-click="subView='dept'">部门</a></li>
-            <li ng-class="{'active':subView=='roll'}"><a href='#' ng-click="subView='roll'">人员</a></li>
         </ul>
+        <ul class='nav navbar-nav navbar-right' style='margin-right:0'>
+            <li><a href='/rest/pl/fe/user/settings' target='_self'>设置</a></li>
+            <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+        </ul>
+    </nav>
+    <div class='container'>
+        <div class='row'>
+            <div class='navbar navbar-default'>
+                <ul class='nav navbar-nav'>
+                123
+                    <!-- <li><a href='javascript:void(0);' ng-click="back()"><span class="glyphicon glyphicon-chevron-left"></span></a></li> -->
+                    <li ng-class="{'active':subView=='setting'}"><a href='#' ng-click="subView='setting'">设置</a></li>
+                    <li ng-class="{'active':subView=='dept'}"><a href='#' ng-click="subView='dept'">部门</a></li>
+                    <li ng-class="{'active':subView=='roll'}"><a href='#' ng-click="subView='roll'">人员</a></li>
+                </ul>
+            </div>
+            <div>
+                <div ng-init="subView='setting'" ng-include="'/page/pl/fe/matter/addressbook/'+subView"></div>
+            </div>
+        </div>
     </div>
-    <div>
-        <div ng-init="subView='setting'" ng-include="'/page/mp/app/addressbook/'+subView"></div>
-    </div>
-</div>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/jquery-ui.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-route.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/ui-tms.js?_=1"></script>
+    <script src="/static/js/xxt.ui.js?_=1"></script>
+    <script src="/views/default/pl/fe/matter/addressbook/frame.js?_=1"></script>
+</body>
+
+</html>

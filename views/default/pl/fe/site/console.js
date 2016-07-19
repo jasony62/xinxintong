@@ -32,9 +32,9 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
             case 'mission':
                 location.href = '/rest/pl/fe/matter/' + type + '?id=' + (matter.mission_id || id) + '&site=' + $scope.siteId;
                 break;
-            /*case 'addressbook':
-                location.href = '/rest/pl/fe/matter/'+ type +'/edit?id='+ matter.id + '&site=' + $scope.siteId;
-                break;*/
+            case 'addressbook':
+                location.href = '/rest/pl/fe/matter/' + type + '/edit?id=' + id + '&site=' + $scope.siteId;
+                break;
         }
     };
     $scope.page = {
@@ -329,8 +329,8 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
     };
     $scope.addAddressbook = function() {
         http2.get('/rest/pl/fe/matter/addressbook/create?site='+ $scope.siteId, function(rsp) {
-            /*location.href = '/rest/pl/fe/matter/addressbook/edit?site='+ $scope.siteId + '&id=' + rsp.data;*/
-            location.href = '/rest/pl/fe/matter/addressbook?site=' + $scope.siteId + '&id=' + rsp.data;
+            location.href = '/rest/pl/fe/matter/addressbook/edit?site='+ $scope.siteId + '&id=' + rsp.data;
+           /* location.href = '/rest/pl/fe/matter/addressbook/?site=' + $scope.siteId + '&id=' + rsp.data;*/
         });
     };
     http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date()).getTime(), function(rsp) {

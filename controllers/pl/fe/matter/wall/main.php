@@ -16,38 +16,38 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function index_action() {
-		$this->view_action('/pl/fe/matter/wall');
+		\TPL::output('/pl/fe/matter/wall/frame');
 	}
 	/**
 	 *
 	 */
 	public function detail_action() {
-		$this->view_action('/pl/fe/matter/wall/detail');
+		\TPL::output('/pl/fe/matter/wall/frame');
 	}
 	/**
 	 *
 	 */
 	public function approve_action() {
-		$this->view_action('/pl/fe/matter/wall/detail');
+		\TPL::output('/pl/fe/matter/wall/frame');
 	}
 	/**
 	 *
 	 */
-	public function get_action($wall = null, $src = null,$siteid) {
-		$w = $this->model('matter\wall')->byId($wall, '*');
+	public function get_action($id = null, $src = null,$site) {
+		$w = $this->model('matter\wall')->byId($id, '*');
 		/**
 		 * acl
 		 */
-		$w->acl = $this->model('acl')->byMatter($siteid, 'wall', $wall);
+		$w->acl = $this->model('acl')->byMatter($site, 'wall', $id);
 
 		return new \ResponseData($w);
 	}
 	/**
 	 *
 	 */
-	public function list_action($src = null,$siteid) {
+	public function list_action($src = null,$site) {
 		$q = array('*', 'xxt_wall');
-		$q[2] = "siteid='$siteid'";
+		$q[2] = "siteid='$site'";
 		$q2['o'] = 'create_at desc';
 
 		$w = $this->model()->query_objs_ss($q, $q2);
@@ -57,10 +57,10 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 创建一个讨论组
 	 */
-	public function create_action($siteid) {
+	public function create_action($site) {
 		$wid = uniqid();
 		$newone['id'] = $wid;
-		$newone['siteid'] = $siteid;
+		$newone['siteid'] = $site;
 		$newone['title'] = '新信息墙';
 		$newone['creater'] = \TMS_CLIENT::get_client_uid();
 		$newone['create_at'] = time();

@@ -19,12 +19,18 @@ class enroll_model extends app_base {
 		return 'enroll';
 	}
 	/**
-	 *
+	 * @param string $ver 为了兼容老版本，迁移后应该去掉
 	 */
-	public function getEntryUrl($siteId, $id) {
+	public function getEntryUrl($siteId, $id, $ver = 'NEW') {
 		$url = "http://" . $_SERVER['HTTP_HOST'];
-		$url .= "/rest/site/fe/matter/enroll";
-		$url .= "?site={$siteId}&app=" . $id;
+
+		if ($ver === 'OLD') {
+			$url .= "/rest/app/enroll";
+			$url .= "?mpid={$siteId}&aid=" . $id;
+		} else {
+			$url .= "/rest/site/fe/matter/enroll";
+			$url .= "?site={$siteId}&app=" . $id;
+		}
 
 		return $url;
 	}
@@ -36,11 +42,11 @@ class enroll_model extends app_base {
 	public function &byId($aid, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
-		$q = array(
+		$q = [
 			$fields,
 			'xxt_enroll',
-			"id='$aid'",
-		);
+			["id" => $aid],
+		];
 		if ($app = $this->query_obj_ss($q)) {
 			if (isset($app->entry_rule)) {
 				$app->entry_rule = json_decode($app->entry_rule);

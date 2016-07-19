@@ -33,19 +33,19 @@
                         </a>
                     </li>
                     <li ng-class="{'active':subView=='setting'}">
-                        <a href="/rest/pl/fe/matter/wall/detail?wall={{wid}}">设置</a>
+                        <a href="/rest/pl/fe/matter/wall/detail?id={{id}}&site={{siteId}}">设置</a>
                     </li>
                     <li ng-class="{'active':subView=='users'}">
-                        <a href="/rest/pl/fe/matter/wall/users?wall={{wid}}">在线用户</a>
+                        <a href="/rest/pl/fe/matter/wall/users?id={{id}}&site={{siteId}}">在线用户</a>
                     </li>
                     <li ng-class="{'active':subView=='approve'}">
-                        <a href="/rest/pl/fe/matter/wall/approve?wall={{wid}}">留言审核</a>
+                        <a href="/rest/pl/fe/matter/wall/approve?id={{id}}&site={{siteId}}">留言审核</a>
                     </li>
                     <li ng-class="{'active':subView=='message'}">
-                        <a href="/rest/pl/fe/matter/wall/message?wall={{wid}}">留言管理</a>
+                        <a href="/rest/pl/fe/matter/wall/message?id={{id}}&site={{siteId}}">留言管理</a>
                     </li>
                     <li ng-class="{'active':subView=='page'}">
-                        <a href="/rest/pl/fe/matter/wall/page?wall={{wid}}">页面设置</a>
+                        <a href="/rest/pl/fe/matter/wall/page?id={{id}}&site={{siteId}}">页面设置</a>
                     </li>
                 </ul>
             </nav>

@@ -1,4 +1,4 @@
-define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
+define(['frame'], function(ngApp) {
 ngApp.provider.controller('ctrlSetting', ['$scope', '$q', 'http2', 'mattersgallery', 'noticebox',function($scope, $q, http2, mattersgallery, noticebox) {
     $scope.update = function(name) {
         var nv = {};

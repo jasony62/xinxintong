@@ -1,4 +1,4 @@
-<div ng-controller='rollCtrl'>
+
     <div class='form-group form-inline clearfix'>
         <div class='form-group'>
             <button class='btn btn-success' ng-click='create()'>新建</button>
@@ -56,7 +56,9 @@
                     <input type='file' name='addressbook'/>
                 </div>
                 <div class='checkbox'>
-                    <label><input type='checkbox' ng-model='options.cleanExistent' ng-true-value="'Y'" ng-false-value="'N'">导入时清除已有数据</label>
+                    <label>
+                    <input type='checkbox' ng-model='options.cleanExistent' ng-true-value="'Y'" ng-false-value="'N'"/>导入时清除已有数据
+                    </label>
                 </div>
             </form>
         </div>
@@ -64,4 +66,3 @@
             <button class="btn btn-primary" ng-click="ok()">开始</button>
         </div>
     </script>
-</div>

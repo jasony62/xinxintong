@@ -1,5 +1,5 @@
-'use strict';
-xxtApp.controller('deptCtrl', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
+ define(['frame'], function(ngApp) {
+    ngApp.provider.controller('ctrlDept', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
     $scope.addChild = function(node) {
         var url = '/rest/pl/fe/matter/addressbook/addDept?abid=' + $scope.abid;
         node.data && (url += '&pid=' + node.data.id);
@@ -141,3 +141,4 @@ xxtApp.controller('deptCtrl', ['$scope', 'http2', '$uibModal', function($scope, 
         });
     });
 }]);
+ }

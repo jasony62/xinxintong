@@ -8,24 +8,26 @@
         <span class='glyphicon glyphicon-refresh'></span>
         </button>
     </div>
-    <table class='table table-bordered'>
-        <thead>
+    <div class="form-group ">
+        <table class='table table-bordered'>
+            <thead>
             <tr>
                 <th style='width:48px'>序号</th>
                 <th>用户</th>
                 <th>进入时间</th>
                 <th>留言时间</th>
             </tr>
-        </thead>
-        <tbody>
+            </thead>
+            <tbody>
             <tr ng-repeat='u in users'>
                 <td>{{$index+1}}</td>
                 <td>{{u.nickname}}</td>
                 <td>{{u.join_at*1000|date:'MM-dd HH:mm'}}</td>
                 <td>{{u.last_msg_at*1000|date:'MM-dd HH:mm'}}</td>
             </tr>
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
     <script type="text/ng-template" id="importUser.html">
         <div class="modal-header">
             <button class="close" ng-click="close()">×</button>

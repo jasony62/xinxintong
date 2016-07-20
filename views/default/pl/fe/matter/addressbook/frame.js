@@ -26,9 +26,9 @@ define(['require'], function() {
             .otherwise(new RouteParam('setting'));
 
         $locationProvider.html5Mode(true);
-        /*$uibTooltipProvider.setTriggers({
+        $uibTooltipProvider.setTriggers({
           'show': 'hide'
-        });*/
+        });
     }]);
     ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'noticebox', function($scope, $location, $uibModal, $q, http2, noticebox) {
         var ls = $location.search(),

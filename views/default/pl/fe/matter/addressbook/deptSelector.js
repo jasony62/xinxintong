@@ -1,4 +1,9 @@
-xxtApp.controller('deptSelectorCtrl', ['$scope', 'http2', '$uibModalInstance', 'abid', 'onlyOne', function($scope, http2, $mi, abid, onlyOne) {
+ngApp.controller('deptSelectorCtrl', ['$scope', 'http2', '$uibModalInstance', 'abid', 'onlyOne', '$location', function($scope, http2, $mi, abid, onlyOne,$location) {
+    var ls = $location.search();
+    $scope.id = ls.id;
+    $scope.siteId = ls.site;
+    $scope.modified = false;
+
     var checkedDept = onlyOne ? null : [];
     $scope.checkDepts = function(dept) {
         if (onlyOne) {
@@ -40,7 +45,7 @@ xxtApp.controller('deptSelectorCtrl', ['$scope', 'http2', '$uibModalInstance', '
     $scope.depts = {
         children: []
     };
-    http2.get('/rest/mp/app/addressbook/dept?abid=' + abid, function(rsp) {
+    http2.get('/rest/mp/app/addressbook/dept?abid=' + $scope.id, function(rsp) {
         var depts = rsp.data;
         buildDepts(0, depts, $scope.depts, []);
     });

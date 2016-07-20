@@ -32,8 +32,7 @@ define(['require'], function(require) {
                 'show': 'hide'
             });
         }]);
-    ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'noticebox', function($scope,
-                                                                                                            $location, $uibModal, $q, http2, noticebox) {
+    ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'noticebox', function($scope, $location, $uibModal, $q, http2, noticebox) {
         var ls = $location.search(),
             modifiedData = {};
 
@@ -46,6 +45,12 @@ define(['require'], function(require) {
             });
             http2.get('/rest/pl/fe/site/member/schema/list?valid=Y&site=' + $scope.siteId, function(rsp) {
                 $scope.memberSchemas = rsp.data;
+            });
+            $scope.$watch('abid', function(id) {
+                http2.get('/rest/mp/app/addressbook/get?abid=' + $scope.id, function(rsp) {
+                    $scope.editing = rsp.data;
+                    $scope.entryUrl = "http://" + location.host + "/rest/app/addressbook?mpid=" + $scope.editing.mpid + "&id=" + $scope.editing.id;
+                });
             });
         };
         $scope.getApp();

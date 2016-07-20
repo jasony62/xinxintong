@@ -21,14 +21,8 @@ define(['frame'], function(ngApp) {
             $scope.editing.pic = '';
             $scope.update('pic');
         };
-        $scope.$watch('abid', function(nv) {
-            http2.get('/rest/mp/app/addressbook/get?abid=' + nv, function(rsp) {
-                $scope.editing = rsp.data;
-                $scope.entryUrl = "http://" + location.host + "/rest/app/addressbook?mpid=" + $scope.editing.mpid + "&id=" + $scope.editing.id;
-            });
-        });
-        http2.get('/rest/mp/mpaccount/get', function(rsp) {
+        /*http2.get('/rest/mp/mpaccount/get', function(rsp) {
             $scope.mpaccount = rsp.data;
-        });
+        });*/
     }]);
 });

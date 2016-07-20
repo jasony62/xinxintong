@@ -1,23 +1,3 @@
- ngApp.provider.controller('ImportAddressbookModalInstCtrl', ['$scope', '$uibModalInstance', 'abid', function($scope, $mi, abid) {
-     $scope.options = {};
-     $scope.options.cleanExistent = 'N';
-     $scope.ok = function() {
-         $('#formImport').ajaxSubmit({
-             url: '/rest/pl/fe/matter/addressbook/import?abid=' + abid + '&cleanExistent=' + $scope.options.cleanExistent,
-             type: 'POST',
-             success: function(rsp) {
-                 if (typeof rsp === 'string')
-                     $scope.$root.errmsg = rsp;
-                 else
-                     $scope.$root.infomsg = rsp.err_msg;
-                 $mi.close();
-             }
-         });
-     };
-     $scope.cancel = function() {
-         $mi.dismiss();
-     };
- }]);
  define(['frame'], function(ngApp) {
      ngApp.provider.controller('ctrlRoll', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
          $scope.abbr = '';
@@ -60,5 +40,25 @@
          $scope.$watch('abid', function(nv) {
              $scope.doSearch();
          });
+     }]);
+     ngApp.provider.controller('ImportAddressbookModalInstCtrl', ['$scope', '$uibModalInstance', 'abid', function($scope, $mi, abid) {
+         $scope.options = {};
+         $scope.options.cleanExistent = 'N';
+         $scope.ok = function() {
+             $('#formImport').ajaxSubmit({
+                 url: '/rest/pl/fe/matter/addressbook/import?abid=' + abid + '&cleanExistent=' + $scope.options.cleanExistent,
+                 type: 'POST',
+                 success: function(rsp) {
+                     if (typeof rsp === 'string')
+                         $scope.$root.errmsg = rsp;
+                     else
+                         $scope.$root.infomsg = rsp.err_msg;
+                     $mi.close();
+                 }
+             });
+         };
+         $scope.cancel = function() {
+             $mi.dismiss();
+         };
      }]);
  });

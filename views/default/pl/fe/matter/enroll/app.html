@@ -78,12 +78,40 @@
                     <button class='btn btn-default' ng-click="embedMatter()">添加素材</button>
                 </div>
                 <!-- end embed inner matter-->
+                <!-- toggle schema in pages -->
+                <div class='tile' ng-if="ep.type==='I'">
+                    <div class='help-block'>活动中所有登记项</div>
+                    <div class='list-group' ng-controller="ctrlAppSchemas4Input">
+                        <div class='list-group-item schema' ng-repeat="s in appSchemas">
+                            <div class='checkbox' style='margin:0;padding:0' ng-mouseenter="entered=true" ng-mouseleave="entered=false">
+                                <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div ng-if="ep.type==='V'" ng-controller="ctrlAppSchemas4View">
+                    <div class='list-group-item' ng-repeat="s in appSchemas">
+                        <div class='checkbox' style='margin:0'>
+                            <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
+                        </div>
+                    </div>
+                    <div class='list-group-item' ng-repeat="s in otherSchemas">
+                        <div class='checkbox' style='margin:0'>
+                            <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
+                        </div>
+                    </div>
+                </div>
+                <div class='tile' ng-if="ep.type==='L'">
+                    <button class='btn btn-default' ng-click="newList('records')">登记项列表</button>
+                    <button class='btn btn-default' ng-click="newList('rounds')" ng-if="app.scenarioConfig.can_rounds==='Y'">添加轮次列表</button>
+                </div>
+                <!-- end toggle schema in pages -->
                 
             </div>
             <!--tinymce editor-->
             <div class='col-md-6'>
                 <div class='page-editor'>
-                    <tinymce id='tinymce-page' height='660' change="onPageChange()" toolbar="code"></tinymce>
+                    <tinymce id='tinymce-page' content="ep.html" height='660' change="onPageChange()" toolbar="code"></tinymce>
                     <div class='sidebar'>
                         <button class='btn btn-default' ng-click="removeWrap()" title='删除' ng-disabled='!activeWrap'>
                         <i class='fa fa-remove fa-fw'></i>
@@ -116,34 +144,6 @@
                     <button class='btn btn-block btn-danger' ng-click="removeSchema(activeWrap.schema)">删除登记项</button>
                 </div>
                 <!-- end wrap schema editor-->
-                <!-- toggle schema in pages -->
-                <div class='tile' ng-if="ep.type==='I'">
-                    <div class='help-block'>活动中所有登记项</div>
-                    <div class='list-group' ng-controller="ctrlAppSchemas4Input">
-                        <div class='list-group-item schema' ng-repeat="s in appSchemas">
-                            <div class='checkbox' style='margin:0;padding:0' ng-mouseenter="entered=true" ng-mouseleave="entered=false">
-                                <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div ng-if="ep.type==='V'" ng-controller="ctrlAppSchemas4View">
-                    <div class='list-group-item' ng-repeat="s in appSchemas">
-                        <div class='checkbox' style='margin:0'>
-                            <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
-                        </div>
-                    </div>
-                    <div class='list-group-item' ng-repeat="s in otherSchemas">
-                        <div class='checkbox' style='margin:0'>
-                            <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
-                        </div>
-                    </div>
-                </div>
-                <div class='tile' ng-if="ep.type==='L'">
-                    <button class='btn btn-default' ng-click="newList('records')">登记项列表</button>
-                    <button class='btn btn-default' ng-click="newList('rounds')" ng-if="app.scenarioConfig.can_rounds==='Y'">添加轮次列表</button>
-                </div>
-                <!-- end toggle schema in pages -->
             </div>
             <!-- end wrap editor-->
         </div>

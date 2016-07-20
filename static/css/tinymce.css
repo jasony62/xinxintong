@@ -23,3 +23,6 @@ ul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute}
 ul.img-tiles li.img-thumbnail button{position:absolute;top:0;right:0}
 ul.img-tiles li.img-picker button{position:auto;width:100%;height:100%}
 ul.img-tiles li.img-picker button span{font-size:36px}
+
+/* ie patch */
+label{display:inline;}

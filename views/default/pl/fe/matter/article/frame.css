@@ -2,6 +2,7 @@ body{font-family:"Microsoft Yahei","Helvetica Neue",Helvetica,Arial,sans-serif;b
 body>nav{display:flex;}
 body>nav>ul:nth-child(2){flex-grow:1;text-align:center;}
 body>nav>ul:nth-child(2)>li{display:inline-block;float:none;}
+label{font-weight:400;color:#737373;}
 .tile{position:relative;border:1px solid #ddd;border-radius:4px;padding:8px;background:#f8f8f8;margin-bottom:15px;}
 
 /*setting*/

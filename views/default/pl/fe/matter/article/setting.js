@@ -98,10 +98,6 @@ define(['frame'], function(ngApp) {
 				singleMatter: true
 			});
 		};
-		$scope.onBodyChange = function() {
-			$scope.modified = true;
-			modifiedData['body'] = encodeURIComponent($scope.editing['body']);
-		};
 		$scope.tinymceSave = function() {
 			$scope.update('body');
 			$scope.submit();
@@ -352,5 +348,9 @@ define(['frame'], function(ngApp) {
 		http2.get('/rest/pl/fe/matter/tag/list?site=' + $scope.siteId + '&resType=article&subType=1', function(rsp) {
 			$scope.tags2 = rsp.data;
 		});
+		$scope.onBodyChange = function() {
+			$scope.modified = true;
+			modifiedData['body'] = encodeURIComponent($scope.editing['body']);
+		};
 	}]);
 });

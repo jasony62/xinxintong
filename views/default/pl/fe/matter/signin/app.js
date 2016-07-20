@@ -871,8 +871,9 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		$scope.onPageChange = function() {
 			$scope.ep.$$modified = true;
 		};
-		$scope.$on('tinymce.content.editing', function(event, node) {
-			var domNodeWrap = $(node).parents('[wrap]');
+		$scope.$on('tinymce.node.editing', function(event, data) {
+			var node = data.node,
+				domNodeWrap = $(node).parents('[wrap]');
 			if (domNodeWrap.length === 1) {
 				if (/label/i.test(node.nodeName)) {
 					/* schema's wrap */

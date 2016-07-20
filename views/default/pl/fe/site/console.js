@@ -32,9 +32,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
             case 'mission':
                 location.href = '/rest/pl/fe/matter/' + type + '?id=' + (matter.mission_id || id) + '&site=' + $scope.siteId;
                 break;
-            case 'addressbook':
-                location.href = '/rest/pl/fe/matter/' + type + '/edit?id=' + id + '&site=' + $scope.siteId;
-                break;
         }
     };
     $scope.page = {

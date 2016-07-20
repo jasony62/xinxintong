@@ -20,9 +20,9 @@ define(['require'], function() {
             directive: $compileProvider.directive
         };
         $routeProvider
-            .when('/rest/pl/fe/matter/addressbook/edit/setting', new RouteParam('setting'))
-            .when('/rest/pl/fe/matter/addressbook/edit/dept', new RouteParam('dept'))
-            .when('/rest/pl/fe/matter/addressbook/edit/roll', new RouteParam('roll'))
+            .when('/rest/pl/fe/matter/addressbook/setting', new RouteParam('setting'))
+            .when('/rest/pl/fe/matter/addressbook/dept', new RouteParam('dept'))
+            .when('/rest/pl/fe/matter/addressbook/roll', new RouteParam('roll'))
             .otherwise(new RouteParam('setting'));
 
         $locationProvider.html5Mode(true);
@@ -44,23 +44,6 @@ define(['require'], function() {
             });
             http2.get('/rest/pl/fe/site/member/schema/list?valid=Y&site=' + $scope.siteId, function(rsp) {
                 $scope.memberSchemas = rsp.data;
-            });
-            http2.get('/rest/pl/fe/matter/addressbook/edit?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
-                var app = rsp.data,
-                    mapOfAppSchemas = {};
-                app.tags = (!app.tags || app.tags.length === 0) ? [] : app.tags.split(',');
-                app.type = 'addressbook';
-                app.data_schemas = app.data_schemas && app.data_schemas.length ? JSON.parse(app.data_schemas) : [];
-                angular.forEach(app.data_schemas, function(schema) {
-                    mapOfAppSchemas[schema.id] = schema;
-                });
-                app.entry_rule.scope === undefined && (app.entry_rule.scope = 'none');
-                angular.forEach(app.pages, function(page) {
-                    angular.extend(page, pageLib);
-                    page.arrange(mapOfAppSchemas);
-                });
-                $scope.app = app;
-                $scope.url = 'http://' + location.host + '/rest/site/fe/matter/addressbook?site=' + $scope.siteId + '&app=' + $scope.id;
             });
         };
         $scope.getApp();

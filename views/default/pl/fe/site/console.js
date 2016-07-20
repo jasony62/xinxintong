@@ -329,7 +329,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
     };
     $scope.addAddressbook = function() {
         http2.get('/rest/pl/fe/matter/addressbook/create?site='+ $scope.siteId, function(rsp) {
-            location.href = '/rest/pl/fe/matter/addressbook/edit?site='+ $scope.siteId + '&id=' + rsp.data;
+            location.href = '/rest/pl/fe/matter/addressbook/edit?id='+ rsp.data + '&site=' + $scope.siteId;
            /* location.href = '/rest/pl/fe/matter/addressbook/?site=' + $scope.siteId + '&id=' + rsp.data;*/
         });
     };

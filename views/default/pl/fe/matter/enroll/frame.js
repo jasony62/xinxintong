@@ -1,7 +1,8 @@
 define(['require', 'page'], function(require, pageLib) {
 	'use strict';
 	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'tinymce.ui.xxt', 'ui.xxt', 'channel.fe.pl']);
-	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
+	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider',
+		function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
 		var RouteParam = function(name) {
 			var baseURL = '/views/default/pl/fe/matter/enroll/';
 			this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
@@ -36,7 +37,8 @@ define(['require', 'page'], function(require, pageLib) {
 			'show': 'hide'
 		});
 	}]);
-	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'noticebox', function($scope, $location, $uibModal, $q, http2, noticebox) {
+	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'noticebox',
+		function($scope, $location, $uibModal, $q, http2, noticebox) {
 		var ls = $location.search(),
 			modifiedData = {};
 
@@ -72,9 +74,9 @@ define(['require', 'page'], function(require, pageLib) {
 			if (window.confirm('确定删除活动？')) {
 				http2.get('/rest/pl/fe/matter/enroll/remove?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
 					if ($scope.app.mission) {
-						location = "/rest/pl/fe/matter/mission?site=" + $scope.siteId + "&id=" + $scope.app.mission.id;
+						location.href = "/rest/pl/fe/matter/mission?site=" + $scope.siteId + "&id=" + $scope.app.mission.id;
 					} else {
-						location = '/rest/pl/fe/site/console?site=' + $scope.siteId;
+						location.href = '/rest/pl/fe/site/console?site=' + $scope.siteId;
 					}
 				});
 			}

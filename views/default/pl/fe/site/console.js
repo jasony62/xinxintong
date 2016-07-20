@@ -45,7 +45,11 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
         }
     };
     var searchMatters = function(append) {
-        var url = '/rest/pl/fe/matter/' + $scope.matterType + '/list?site=' + $scope.siteId + $scope.page.j();
+        if($scope.matterType === 'addressbook'){
+            var url = '/rest/pl/fe/matter/' + $scope.matterType + '/get?site=' + $scope.siteId + $scope.page.j();
+        }else{
+            var url = '/rest/pl/fe/matter/' + $scope.matterType + '/list?site=' + $scope.siteId + $scope.page.j();
+        }
         url += '&_=' + (new Date()).getTime();
         switch ($scope.matterType) {
             case 'channel':
@@ -94,10 +98,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
         if ($scope.matterType === 'recent') {
             http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date()).getTime(), function(rsp) {
                 $scope.matters = rsp.data.matters;
-            });
-        } else if($scope.matterType === 'addressbook') {
-            http2.get('/rest/pl/fe/matter/addressbook/get', function(rsp) {
-                $scope.matters = rsp.data;
             });
         }else {
             $scope.page.at = 1;

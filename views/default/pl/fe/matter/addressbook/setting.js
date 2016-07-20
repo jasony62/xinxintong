@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
 ngApp.provider.controller('ctrlSetting', ['$scope', '$q', 'http2', 'mattersgallery', 'noticebox',function($scope, $q, http2, mattersgallery, noticebox) {
-    $scope.update = function(name) {
+    /*$scope.update = function(name) {
         var nv = {};
         nv[name] = $scope.editing[name];
         http2.post('/rest/pl/fe/matter/addressbook/update?abid=' + $scope.editing.id, nv);
@@ -26,6 +26,6 @@ ngApp.provider.controller('ctrlSetting', ['$scope', '$q', 'http2', 'mattersgalle
     });
     http2.get('/rest/mp/mpaccount/get', function(rsp) {
         $scope.mpaccount = rsp.data;
-    });
+    });*/
 }]);
 };

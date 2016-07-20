@@ -123,43 +123,6 @@
                     <button class='btn btn-default' ng-click="embedMatter()">添加素材</button>
                 </div>
                 <!--embed inner matter-->
-                
-            </div>
-            <!--tinymce editor-->
-            <div class='col-md-6'>
-                <div class='page-editor'>
-                    <tinymce content='ep.html' id='tinymce-page' height='660' change="onPageChange()" toolbar="code"></tinymce>
-                    <div class='sidebar'>
-                        <button class='btn btn-default' ng-click="removeWrap()" title='删除' ng-disabled='!activeWrap'>
-                        <i class='fa fa-remove fa-fw'></i>
-                        </button>
-                        <button class='btn btn-default' ng-click="moveWrap('up')" ng-disabled='!activeWrap'>
-                        <span class='fa fa-arrow-up fa-fw'></span>
-                        </button>
-                        <button class='btn btn-default' ng-click="moveWrap('down')" ng-disabled='!activeWrap'>
-                        <span class='fa fa-arrow-down fa-fw'></span>
-                        </button>
-                        <button class='btn btn-default' title='上一级' ng-click="moveWrap('upLevel')" ng-disabled='!activeWrap||activeWrap.upmost'>
-                        <span class='fa fa-level-up fa-fw'></span>
-                        </button>
-                        <button class='btn btn-default' title='下一级' ng-click="moveWrap('downLevel')" ng-disabled='!activeWrap||activeWrap.downmost'>
-                        <i class='fa fa-level-down fa-fw'></i>
-                        </button>
-                        <button class='btn btn-default' title='编辑代码' ng-click="gotoCode()">
-                        <i class='fa fa-code fa-fw'></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <!--tinymce editor-->
-            <div class='col-md-3'>
-                <!--wrap editor-->
-                <div class='tile' ng-if="activeWrap.schema">
-                    <div class='form-group' ng-include="wrapEditorHtml()">
-                    </div>
-                    <button class='btn btn-block btn-danger' ng-click="removeSchema(activeWrap.schema)">删除登记项</button>
-                </div>
-                <!--wrap editor-->
                 <div class='tile' ng-if="ep.type==='I'">
                     <div class='help-block'>已有签到登记项</div>
                     <div class='list-group' ng-controller="ctrlAppSchemas4Input">
@@ -194,6 +157,39 @@
                     <button class='btn btn-default' ng-click="newList('records')">签到项列表</button>
                     <button class='btn btn-default' ng-click="newList('rounds')" ng-if="app.scenarioConfig.can_rounds==='Y'">添加轮次列表</button>
                 </div>
+            </div>
+            <!--tinymce editor-->
+            <div class='col-md-9'>
+                <div class='page-editor'>
+                    <tinymce content='ep.html' id='tinymce-page' height='660' change="onPageChange()" toolbar="code"></tinymce>
+                    <div class='sidebar'>
+                        <button class='btn btn-default' ng-click="removeWrap()" title='删除' ng-disabled='!activeWrap'>
+                        <i class='fa fa-remove fa-fw'></i>
+                        </button>
+                        <button class='btn btn-default' ng-click="moveWrap('up')" ng-disabled='!activeWrap'>
+                        <span class='fa fa-arrow-up fa-fw'></span>
+                        </button>
+                        <button class='btn btn-default' ng-click="moveWrap('down')" ng-disabled='!activeWrap'>
+                        <span class='fa fa-arrow-down fa-fw'></span>
+                        </button>
+                        <button class='btn btn-default' title='上一级' ng-click="moveWrap('upLevel')" ng-disabled='!activeWrap||activeWrap.upmost'>
+                        <span class='fa fa-level-up fa-fw'></span>
+                        </button>
+                        <button class='btn btn-default' title='下一级' ng-click="moveWrap('downLevel')" ng-disabled='!activeWrap||activeWrap.downmost'>
+                        <i class='fa fa-level-down fa-fw'></i>
+                        </button>
+                        <button class='btn btn-default' title='编辑代码' ng-click="gotoCode()">
+                        <i class='fa fa-code fa-fw'></i>
+                        </button>
+                    </div>
+                </div>
+                <!-- end tinymce editor -->
+                <!-- wrap editor -->
+                <div id='wrap-editor' class='tile' ng-if="activeWrap.schema" relative-fixed fixed-height='80'>
+                    <div class='form-group' ng-include="wrapEditorHtml()"></div>
+                    <button class='btn btn-block btn-danger' ng-click="removeSchema(activeWrap.schema)">删除登记项</button>
+                </div>
+                <!-- end wrap editor -->
             </div>
         </div>
     </div>

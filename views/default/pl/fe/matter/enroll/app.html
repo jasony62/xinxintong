@@ -108,8 +108,8 @@
                 <!-- end toggle schema in pages -->
                 
             </div>
-            <!--tinymce editor-->
-            <div class='col-md-6'>
+            <div class='col-md-9'>
+                <!--tinymce editor-->
                 <div class='page-editor'>
                     <tinymce id='tinymce-page' content="ep.html" height='660' change="onPageChange()" toolbar="code"></tinymce>
                     <div class='sidebar'>
@@ -133,19 +133,14 @@
                         </button>
                     </div>
                 </div>
-            </div>
-            <!-- end tinymce editor -->
-            <!-- wrap editor -->
-            <div class='col-md-3'>
+                <!-- end tinymce editor -->
                 <!-- wrap schema editor -->
-                <div class='tile' ng-if="activeWrap.schema">
-                    <div class='form-group' ng-include="wrapEditorHtml()">
-                    </div>
+                <div id='wrap-editor' class='tile' ng-if="activeWrap.schema" relative-fixed fixed-height='80'>
+                    <div class='form-group' ng-include="wrapEditorHtml()"></div>
                     <button class='btn btn-block btn-danger' ng-click="removeSchema(activeWrap.schema)">删除登记项</button>
                 </div>
                 <!-- end wrap schema editor-->
             </div>
-            <!-- end wrap editor-->
         </div>
     </div>
     <!-- end one page -->

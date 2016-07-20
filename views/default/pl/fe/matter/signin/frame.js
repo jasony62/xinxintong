@@ -29,6 +29,39 @@ define(['require', 'page'], function(require, pageLib) {
 
 		$locationProvider.html5Mode(true);
 	}]);
+	ngApp.directive('relativeFixed', function() {
+		return {
+			restrict: 'A',
+			link: function(scope, elem, attrs) {
+				var elem = elem[0],
+					initial = {
+						top: elem.style.top,
+						left: elem.style.left,
+						position: elem.style.position,
+					},
+					fixedHeight = parseInt(attrs.fixedHeight),
+					bodyOffsetTop = elem.offsetTop,
+					bodyOffsetLeft = elem.offsetLeft,
+					offsetParent = elem.offsetParent;
+				while (offsetParent.offsetParent) {
+					bodyOffsetTop += offsetParent.offsetTop;
+					bodyOffsetLeft += offsetParent.offsetLeft;
+					offsetParent = offsetParent.offsetParent;
+				}
+				window.addEventListener('scroll', function(event) {
+					if (document.body.scrollTop + fixedHeight > bodyOffsetTop) {
+						elem.style.position = 'fixed';
+						elem.style.top = fixedHeight + 'px';
+						elem.style.left = bodyOffsetLeft + 'px';
+					} else {
+						elem.style.position = initial.position;
+						elem.style.top = initial.top;
+						elem.style.left = initial.left;
+					}
+				});
+			}
+		}
+	});
 	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'noticebox', function($scope, $location, $uibModal, $q, http2, noticebox) {
 		var ls = $location.search(),
 			modifiedData = {};

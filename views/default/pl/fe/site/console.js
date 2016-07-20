@@ -152,7 +152,7 @@ app.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope, 
             location.href = '/rest/pl/fe/matter/link?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
-    //ÑĞ¾¿ÏîÄ¿-µ¥Í¼ÎÄ
+    //ç ”ç©¶é¡¹ç›®-å•å›¾æ–‡
     $scope.addArticle = function() {
         http2.get('/rest/pl/fe/matter/article/create?site=' + $scope.siteId, function(rsp) {
             location.href = '/rest/pl/fe/matter/article?site=' + $scope.siteId + '&id=' + rsp.data;
@@ -168,7 +168,7 @@ app.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope, 
             location.href = '/rest/pl/fe/matter/channel?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
-    //ÑĞ¾¿ÏîÄ¿-µÇ¼Ç»î¶¯
+    //ç ”ç©¶é¡¹ç›®-ç™»è®°æ´»åŠ¨
     $scope.addEnrollByTemplate = function() {
         $uibModal.open({
             templateUrl: '/views/default/pl/fe/_module/enroll-template.html',
@@ -276,7 +276,7 @@ app.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope, 
             location.href = '/rest/pl/fe/matter/merchant/shop?site=' + $scope.siteId + '&id=' + rsp.data;
         });
     };
-    //ĞÅÏ¢Ç½
+    //ä¿¡æ¯å¢™
     $scope.addWall = function() {
         http2.get('/rest/pl/fe/matter/wall/create?site=' + $scope.siteId, function(rsp) {
             location.href = '/rest/pl/fe/matter/wall?site=' + $scope.siteId + '&id=' + rsp.data;

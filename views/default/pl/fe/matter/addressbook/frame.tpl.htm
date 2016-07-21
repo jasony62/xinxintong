@@ -11,7 +11,7 @@
     <link href="/views/default/pl/fe/matter/addressbook/frame.css?_=4" rel="stylesheet">
 </head>
 
-<body ng-controller='ctrlFrame' ng-cloak class='ng-cloak'>
+<body ng-app="app" ng-controller='ctrlFrame' ng-cloak class='ng-cloak'>
     <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
     <nav class='navbar navbar-inverse navbar-fixed-top'>
         <ul class='nav navbar-nav'>
@@ -26,11 +26,20 @@
     <div class='container'>
         <div class='navbar navbar-default'>
             <ul class='nav navbar-nav'>
-                <li><a href='javascript:void(0);' ng-click="back()"><span
-                        class="glyphicon glyphicon-chevron-left"></span></a></li>
-                <li ng-class="{'active':subView=='setting'}"><a href='/rest/pl/fe/matter/addressbook/setting?id={{id}}&site={{siteId}}' ng-click="subView='setting'">设置</a></li>
-                <li ng-class="{'active':subView=='dept'}"><a href='/rest/pl/fe/matter/addressbook/department?id={{id}}&site={{siteId}}' ng-click="subView='dept'">部门</a></li>
-                <li ng-class="{'active':subView=='roll'}"><a href='/rest/pl/fe/matter/addressbook/roll?id={{id}}&site={{siteId}}' ng-click="subView='roll'">人员</a></li>
+                <li>
+                    <a href='javascript:void(0);' ng-click="back()">
+                        <span class="glyphicon glyphicon-chevron-left"></span>
+                    </a>
+                </li>
+                <li ng-class="{'active':subView=='setting'}">
+                    <a ng-href='/rest/pl/fe/matter/addressbook/setting?id={{id}}&site={{siteId}}' ng-click="subView='setting'">设置</a>
+                </li>
+                <li ng-class="{'active':subView=='dept'}">
+                    <a ng-href='/rest/pl/fe/matter/addressbook/department?id={{id}}&site={{siteId}}' ng-click="subView='dept'">部门</a>
+                </li>
+                <li ng-class="{'active':subView=='roll'}">
+                    <a ng-href='/rest/pl/fe/matter/addressbook/roll?id={{id}}&site={{siteId}}' ng-click="subView='roll'">人员</a>
+                </li>
             </ul>
         </div>
         <div class='row' ng-view>

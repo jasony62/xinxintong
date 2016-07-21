@@ -1,9 +1,10 @@
 define(['frame'], function (ngApp) {
     ngApp.provider.controller('ctrlDepartment', ['$scope', '$location','http2', '$uibModal', function ($scope, $location, http2, $uibModal) {
-        var ls = $location.search();
+        /*var ls = $location.search();
         $scope.id = ls.id;
         $scope.siteId = ls.site;
-        $scope.modified = false;
+        $scope.modified = false;*/
+
         $scope.addChild = function (node) {
             var url = '/rest/pl/fe/matter/addressbook/addDept?abid=' + $scope.id;
             node.data && (url += '&pid=' + node.data.id);

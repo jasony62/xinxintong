@@ -1,10 +1,10 @@
  define(['frame'], function(ngApp) {
-     ngApp.provider.controller('ctrlRoll', ['$scope', '$uibModal', 'http2', '$location',function($scope, $uibModal, http2,$location) {
-         var ls = $location.search();
+     ngApp.provider.controller('ctrlRoll', ['$scope', '$uibModal', 'http2', '$location',function($scope, $uibModal, http2, $location) {
+         /*var ls = $location.search();
 
          $scope.id = ls.id;
          $scope.siteId = ls.site;
-         $scope.modified = false;
+         $scope.modified = false;*/
 
          $scope.abbr = '';
          $scope.page = {

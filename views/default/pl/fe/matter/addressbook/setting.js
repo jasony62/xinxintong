@@ -1,8 +1,8 @@
 define(['frame'], function(ngApp) {
     ngApp.provider.controller('ctrlSetting', ['$scope',  '$location','$q', 'http2', 'mattersgallery', 'noticebox', function ($scope, $location,$q, http2, mattersgallery, noticebox) {
-        var ls = $location.search();
+        /*var ls = $location.search();
         $scope.id = ls.id;
-        $scope.siteId = ls.site;
+        $scope.siteId = ls.site;*/
 
         $scope.back = function() {
             location.href = '/rest/mp/app/addressbook';

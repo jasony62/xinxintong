@@ -119,12 +119,13 @@ define(['require'], function(require, pageLib) {
 				angular.forEach(app.data_schemas, function(schema) {
 					mapOfAppSchemas[schema.id] = schema;
 				});
-				app.entry_rule.scope === undefined && (app.entry_rule.scope = 'none');
+				//暂时隐掉
+				//app.entry_rule.scope === undefined && (app.entry_rule.scope = 'none');
 				angular.forEach(app.pages, function(page) {
 					angular.extend(page, pageLib);
 					page.arrange(mapOfAppSchemas);
 				});
-				$scope.app = app;
+				$scope.wall = app;
 				$scope.url = 'http://' + location.host + '/rest/site/fe/matter/wall?site=' + $scope.siteId + '&app=' + $scope.id;
 			});
 		};

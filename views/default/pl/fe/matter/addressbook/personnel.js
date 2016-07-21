@@ -1,12 +1,12 @@
 define(['frame'],function(ngApp){
     ngApp.provider.controller('ctrlPersonnel', ['$scope', 'http2', '$timeout', '$uibModal', '$location', function ($scope, http2, $timeout, $uibModal, $location) {
-        /*var ls = $location.search();
+        var ls = $location.search();
         $scope.id = ls.id;
         $scope.siteId = ls.site;
-        $scope.modified = false;*/
+        $scope.modified = false;
 
         var getPersonTags = function () {
-            http2.get('/rest/pl/fe/matter/addressbook/tagGet?abid=' + $scope.id, function (rsp) {
+            http2.get('/rest/pl/fe/matter/addressbook/tagGet?abid=' + $scope.id + '&site=' + $scope.siteId, function (rsp) {
                 $scope.options.tags = rsp.data;
                 var i, j, aTagIds, aTags = [];
                 aTagIds = $scope.person.tags ? $scope.person.tags.split(',') : [];
@@ -22,7 +22,7 @@ define(['frame'],function(ngApp){
             });
         };
         var getPerson = function () {
-            http2.get('/rest/pl/fe/matter/addressbook/person?id=' + $scope.id, function (rsp) {
+            http2.get('/rest/pl/fe/matter/addressbook/person?id=' + $scope.id + '&site=' + $scope.siteId, function (rsp) {
                 $scope.person = rsp.data;
                 if ($scope.person.tels && $scope.person.tels.length > 0) {
                     var tels = $scope.person.tels.split(',');
@@ -62,8 +62,8 @@ define(['frame'],function(ngApp){
             }
         };
         $scope.remove = function () {
-            http2.get('/rest/pl/fe/matter/addressbook/personDelete?id=' + $scope.id, function () {
-                location.href = '/rest/pl/fe/matter/addressbook';
+            http2.get('/rest/pl/fe/matter/addressbook/personDelete?id=' + $scope.id + '&site='+ $scope.siteId, function () {
+                location.href = '/rest/pl/fe/site/console?site=' + $scope.siteId;
             });
         };
         $scope.addTel = function () {

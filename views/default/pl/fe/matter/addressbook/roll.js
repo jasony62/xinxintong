@@ -19,12 +19,12 @@
              });
          };
          $scope.create = function() {
-             http2.get('/rest/pl/fe/matter/addressbook/personCreate?abid=' + $scope.id, function(rsp) {
-                 location.href = '/rest/pl/fe/matter/addressbook/personnel?abid=' + rsp.data.ab_id + '&id=' + rsp.data.id;
+             http2.get('/rest/pl/fe/matter/addressbook/personCreate?abid=' + $scope.id + '&site=' + $scope.siteId , function(rsp) {
+                 location.href = '/rest/pl/fe/matter/addressbook/personnel?abid=' + rsp.data.ab_id + '&id=' + rsp.data.id + '&site=' + $scope.siteId;
              });
          };
          $scope.edit = function(person) {
-             location.href = '/rest/pl/fe/matter/addressbook/personnel?id=' + person.id;
+             location.href = '/rest/pl/fe/matter/addressbook/personnel?id=' + person.id + '&site=' + $scope.siteId;
          };
          $scope.keypress = function(event) {
              if (event.keyCode == 13)
@@ -48,11 +48,11 @@
          });
      }]);
      ngApp.provider.controller('ImportAddressbookModalInstCtrl', ['$scope', '$uibModalInstance', 'abid', '$location',function($scope, $mi, abid,$location) {
-         var ls = $location.search();
+         /*var ls = $location.search();
 
          $scope.id = ls.id;
          $scope.siteId = ls.site;
-         $scope.modified = false;
+         $scope.modified = false;*/
 
          $scope.options = {};
          $scope.options.cleanExistent = 'N';

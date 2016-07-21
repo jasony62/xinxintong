@@ -6,7 +6,7 @@ define(['frame'], function (ngApp) {
         $scope.modified = false;*/
 
         $scope.addChild = function (node) {
-            var url = '/rest/pl/fe/matter/addressbook/addDept?abid=' + $scope.id;
+            var url = '/rest/pl/fe/matter/addressbook/addDept?abid=' + $scope.id + $scope.siteId;
             node.data && (url += '&pid=' + node.data.id);
             http2.get(url, function (rsp) {
                 if (node.loaded) {
@@ -40,7 +40,7 @@ define(['frame'], function (ngApp) {
         $scope.toggleChild = function (child) {
             var url;
             if (!child.loaded) {
-                url = '/rest/pl/fe/matter/addressbook/dept?abid=' + $scope.id;
+                url = '/rest/pl/fe/matter/addressbook/dept?abid=' + $scope.id + '&site=' + $scope.siteId;
                 child.data && (url += '&pid=' + child.data.id);
                 child.loaded = true;
                 http2.get(url, function (rsp) {
@@ -168,7 +168,7 @@ define(['frame'], function (ngApp) {
             $scope.toggleChild = function(child) {
                 if (!child.loaded) {
                     child.loaded = true;
-                    http2.get('/rest/mp/app/addressbook/dept?abid=' + $scope.id + '&pid=' + child.data.id, function(rsp) {
+                    http2.get('/rest/mp/app/addressbook/dept?abid=' + $scope.id + '&pid=' + child.data.id , function(rsp) {
                         var depts = rsp.data;
                         buildDepts(child.data.id, depts, child);
                     });
@@ -184,7 +184,7 @@ define(['frame'], function (ngApp) {
             $scope.depts = {
                 children: []
             };
-            http2.get('/rest/mp/app/addressbook/dept?abid=' + $scope.id, function(rsp) {
+            http2.get('/rest/mp/app/addressbook/dept?abid=' + $scope.id + '&site=' + $scope.siteId, function(rsp) {
                 var depts = rsp.data;
                 buildDepts(0, depts, $scope.depts, []);
             });
@@ -193,7 +193,7 @@ define(['frame'], function (ngApp) {
             children: []
         };
         $scope.$watch('abid', function (id) {
-            http2.get('/rest/pl/fe/matter/addressbook/department?abid=' + $scope.id, function (rsp) {
+            http2.get('/rest/pl/fe/matter/addressbook/department?abid=' + $scope.id + '&site=' + $scope.siteId, function (rsp) {
                 var depts = rsp.data;
                 buildOrg(null, depts, $scope.tree);
             });

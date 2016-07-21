@@ -5,7 +5,7 @@ define(['frame'], function(ngApp) {
         $scope.siteId = ls.site;*/
 
         $scope.back = function() {
-            location.href = '/rest/mp/app/addressbook';
+            location.href = '/rest/pl/fe/matter/addressbook';
         };
         $scope.update = function(name) {
             var nv = {};
@@ -26,7 +26,7 @@ define(['frame'], function(ngApp) {
             $scope.update('pic');
         };
         $scope.$watch('abid', function(id) {
-            http2.get('/rest/pl/fe/matter/addressbook/get?abid=' + $scope.id, function(rsp) {
+            http2.get('/rest/pl/fe/matter/addressbook/get?abid=' + $scope.id + '&site='+ $scope.siteId, function(rsp) {
                 $scope.editing = rsp.data;
                 $scope.entryUrl = "http://" + location.host + "/rest/pl/fe/matter/addressbook?mpid=" + $scope.editing.mpid + "&id=" + $scope.editing.id;
             });

@@ -1,4 +1,5 @@
-    ngApp.controller('ctrlPersonnel', ['$scope', 'http2', '$timeout', '$uibModal', '$location', function ($scope, http2, $timeout, $uibModal, $location) {
+define(['frame'],function(ngApp){
+    ngApp.provider.controller('ctrlPersonnel', ['$scope', 'http2', '$timeout', '$uibModal', '$location', function ($scope, http2, $timeout, $uibModal, $location) {
         /*var ls = $location.search();
         $scope.id = ls.id;
         $scope.siteId = ls.site;
@@ -49,7 +50,7 @@
         };
         $scope.options = {};
         $scope.back = function () {
-            location.href = '/rest/pl/fe/matter/addressbook?id=' + $scope.id + 'site= ' + $scope.siteId;
+            location.href = '/rest/pl/fe/matter/addressbook?id=' + $scope.person.ab_id;
         };
         $scope.update = function (name) {
             if (!angular.equals($scope.person, $scope.persisted)) {
@@ -153,3 +154,4 @@
             });
         });
     }]);
+});

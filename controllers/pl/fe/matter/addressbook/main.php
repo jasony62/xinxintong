@@ -20,7 +20,8 @@ class main extends \pl\fe\matter\base {
      *
      */
     public function index_action() {
-        $this->view_action('/pl/fe/matter/addressbook/frame');
+        \TPL::output('/pl/fe/matter/addressbook/frame');
+        die;
     }
 
     /**

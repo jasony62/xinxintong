@@ -4,7 +4,7 @@
 			if (!nv) return;
 			$scope.entry = {
 				url: $scope.url,
-				qrcode: '/rest/pl/fe/matter/contribute/qrcode?url=' + encodeURIComponent($scope.url),
+				qrcode: '/rest/site/fe/matter/contribute/qrcode?site=' + $scope.siteId + '&url=' + encodeURIComponent($scope.url),
 			};
 		});
 		$scope.opUrl = 'http://' + location.host + '/rest/site/op/matter/contribute?site=' + $scope.siteId + '&app=' + $scope.id;

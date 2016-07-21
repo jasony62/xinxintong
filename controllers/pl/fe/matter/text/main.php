@@ -58,6 +58,8 @@ class main extends \pl\fe\matter\base {
 		$d['modifier_name'] = $user->name;
 		$d['modify_at'] = time();
 		$d['title'] = $model->escape($text->title);
+		// @todo should remove
+		$d['content'] = $model->escape($text->title);
 
 		$id = $model->insert('xxt_text', $d, true);
 

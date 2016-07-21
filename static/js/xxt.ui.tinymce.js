@@ -18,7 +18,7 @@ directive('tinymce', function($timeout) {
             /**
              * 通知编辑的内容发生变化
              */
-            var _notifyChangeContent = function(e) {
+            var _notifyChangeContent = function() {
                 var content, phase;
                 content = tinymce.get(scope.id).getContent();
                 if (scope.content !== content) {
@@ -201,22 +201,30 @@ directive('tinymce', function($timeout) {
                     if (scope.contenteditable !== undefined) {
                         $(editor.getBody()).attr('contenteditable', scope.contenteditable);
                     }
-                    scope.$emit('tinymce.instance.init');
+                    scope.initialized = true;
+                    scope.$emit('tinymce.instance.init', editor);
                 }
             };
             if (scope.toolbar) {
                 tinymceConfig.toolbar += ' ' + scope.toolbar;
             }
-            scope.$watch('content', function(nv) {
-                if (nv && nv.length) {
-                    tinymce.init(tinymceConfig);
+            scope.$watch('content', function(content) {
+                var editor;
+                if (content !== undefined) {
+                    if (!scope.initialized) {
+                        tinymce.init(tinymceConfig);
+                    } else {
+                        editor = tinymce.get(scope.id);
+                        editor.setContent(content);
+                        editor.undoManager.clear();
+                    }
                 }
             });
             scope.$on('$destroy', function() {
-                var tinyInstance;
-                if (tinyInstance = tinymce.get(scope.id)) {
-                    tinyInstance.remove();
-                    tinyInstance = null;
+                var editor;
+                if (editor = tinymce.get(scope.id)) {
+                    editor.remove();
+                    editor = null;
                 }
             });
         }

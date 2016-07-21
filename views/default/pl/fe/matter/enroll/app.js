@@ -1,4 +1,4 @@
-define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
+define(['frame', 'schema', 'wrap', 'peditor'], function(ngApp, schemaLib, wrapLib, peditorLib) {
 	/**
 	 * app setting controller
 	 */
@@ -49,22 +49,46 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				$scope.choosePage(page);
 			});
 		};
+		$scope.gotoPageConfig = function() {
+			location = '/rest/pl/fe/matter/enroll/page?site=' + $scope.siteId + '&id=' + $scope.id + '&page=' + $scope.ep.name;
+		};
+		$scope.$on('xxt.tms-datepicker.change', function(event, data) {
+			$scope.app[data.state] = data.value;
+			$scope.update(data.state);
+		});
+		$scope.choosePhase = function() {
+			var phaseId = $scope.app.mission_phase_id,
+				i, phase, newPhase;
+			for (i = $scope.app.mission.phases.length - 1; i >= 0; i--) {
+				phase = $scope.app.mission.phases[i];
+				$scope.app.title = $scope.app.title.replace('-' + phase.title, '');
+				if (phase.phase_id === phaseId) {
+					newPhase = phase;
+				}
+			}
+			if (newPhase) {
+				$scope.app.title += '-' + newPhase.title;
+			}
+			$scope.update(['mission_phase_id', 'title']);
+		};
 		$scope.updPage = function(page, names) {
 			var defer = $q.defer(),
-				url, p = {};
+				updated = {},
+				url;
 			angular.isString(names) && (names = [names]);
 			if (page === $scope.ep && names.indexOf('html') !== -1) {
-				$scope.ep.purifyHtml();
+				page.html = page.purifyInput();
+				console.log('page', page.html);
 			}
 			angular.forEach(names, function(name) {
-				p[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
+				updated[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
 			});
 			url = '/rest/pl/fe/matter/enroll/page/update';
 			url += '?site=' + $scope.siteId;
 			url += '&app=' + $scope.id;
 			url += '&pid=' + page.id;
 			url += '&cname=' + page.code_name;
-			http2.post(url, p, function(rsp) {
+			http2.post(url, updated, function(rsp) {
 				page.$$modified = false;
 				defer.resolve();
 				noticebox.success('完成保存');
@@ -87,28 +111,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 					}
 				});
 			}
-		};
-		$scope.gotoPageConfig = function() {
-			location = '/rest/pl/fe/matter/enroll/page?site=' + $scope.siteId + '&id=' + $scope.id + '&page=' + $scope.ep.name;
-		};
-		$scope.$on('xxt.tms-datepicker.change', function(event, data) {
-			$scope.app[data.state] = data.value;
-			$scope.update(data.state);
-		});
-		$scope.choosePhase = function() {
-			var phaseId = $scope.app.mission_phase_id,
-				i, phase, newPhase;
-			for (i = $scope.app.mission.phases.length - 1; i >= 0; i--) {
-				phase = $scope.app.mission.phases[i];
-				$scope.app.title = $scope.app.title.replace('-' + phase.title, '');
-				if (phase.phase_id === phaseId) {
-					newPhase = phase;
-				}
-			}
-			if (newPhase) {
-				$scope.app.title += '-' + newPhase.title;
-			}
-			$scope.update(['mission_phase_id', 'title']);
 		};
 		$scope.choosePage = function(page) {
 			if (angular.isString(page)) {
@@ -446,32 +448,25 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			};
 			mediagallery.open($scope.siteId, options);
 		});
-		$scope.$on('tinymce.instance.init', function() {
-			var $body;
-			tinymceEditor = tinymce.get('tinymce-page');
-			wrapLib.setEditor(tinymceEditor);
-			if ($scope.ep) {
-				$scope.ep.setEditor(tinymceEditor);
-				tinymceEditor.setContent($scope.ep.html);
-				$body = $(tinymceEditor.getBody());
-				$body.find('input[type=text],textarea').attr('readonly', true);
-				$body.find('input[type=text],textarea').attr('disabled', true);
-				$body.find('input[type=radio],input[type=checkbox]').attr('readonly', true);
-				$body.find('input[type=radio],input[type=checkbox]').attr('disabled', true);
+		$scope.tinymce = peditorLib;
+		/*切换编辑的页面*/
+		$scope.$watch('ep', function(page) {
+			if (!page) return;
+			if (!tinymceEditor) {
+				tinymceEditor = tinymce.get('tinymce-page');
+				wrapLib.setEditor(tinymceEditor);
+			}
+			page.setEditor(tinymceEditor);
+			$scope.setActiveWrap(null);
+			$scope.tinymce.html = page.html;
+			if (page.type === 'I') {
+				//$scope.ep.disableInput();
 			}
 		});
-		$scope.$watch('ep', function(page) {
-			if (page) {
-				$scope.setActiveWrap(null);
-				if (tinymceEditor) {
-					page.setEditor(tinymceEditor);
-					tinymceEditor.setContent(page.html);
-					$body = $(tinymceEditor.getBody());
-					$body.find('input[type=text],textarea').attr('readonly', true);
-					$body.find('input[type=text],textarea').attr('disabled', true);
-					$body.find('input[type=radio],input[type=checkbox]').attr('readonly', true);
-					$body.find('input[type=radio],input[type=checkbox]').attr('disabled', true);
-				}
+		$scope.$on('tinymce.instance.init', function(event, editor) {
+			tinymceEditor = editor;
+			if ($scope.ep) {
+				$scope.ep.setEditor(editor);
 			}
 		});
 	}]);

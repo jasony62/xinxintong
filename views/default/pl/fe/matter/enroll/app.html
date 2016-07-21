@@ -111,7 +111,7 @@
             <div class='col-md-9'>
                 <!--tinymce editor-->
                 <div class='page-editor'>
-                    <tinymce id='tinymce-page' content="ep.html" height='660' change="onPageChange()" toolbar="code"></tinymce>
+                    <tinymce id='tinymce-page' content="tinymce.html" height='660' change="onPageChange()" toolbar="code"></tinymce>
                     <div class='sidebar'>
                         <button class='btn btn-default' ng-click="removeWrap()" title='删除' ng-disabled='!activeWrap'>
                         <i class='fa fa-remove fa-fw'></i>
@@ -122,11 +122,8 @@
                         <button class='btn btn-default' ng-click="moveWrap('down')" ng-disabled='!activeWrap'>
                         <span class='fa fa-arrow-down fa-fw'></span>
                         </button>
-                        <button class='btn btn-default' title='上一级' ng-click="moveWrap('upLevel')" ng-disabled='!activeWrap||activeWrap.upmost'>
-                        <span class='fa fa-level-up fa-fw'></span>
-                        </button>
-                        <button class='btn btn-default' title='下一级' ng-click="moveWrap('downLevel')" ng-disabled='!activeWrap||activeWrap.downmost'>
-                        <i class='fa fa-level-down fa-fw'></i>
+                        <button class='btn btn-default' title='复制' ng-click="copyWrap()" ng-disabled='!activeWrap'>
+                        <span class='fa fa-copy fa-fw'></span>
                         </button>
                         <button class='btn btn-default' title='编辑代码' ng-click="gotoCode()">
                         <i class='fa fa-code fa-fw'></i>

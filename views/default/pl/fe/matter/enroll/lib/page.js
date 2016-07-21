@@ -10,7 +10,18 @@ define(['wrap'], function(wrapLib) {
 		setEditor: function(editor) {
 			_editor = editor;
 		},
-		purifyHtml: function() {
+		disableInput: function() {
+			var $body = $(_editor.getBody());
+			$body.find('input[type=text],textarea').attr('readonly', true);
+			$body.find('input[type=text],textarea').attr('disabled', true);
+			$body.find('input[type=radio],input[type=checkbox]').attr('readonly', true);
+			$body.find('input[type=radio],input[type=checkbox]').attr('disabled', true);
+			_editor.fire('change');
+			//this.html = _editor.getContent();
+
+			//return this.html;
+		},
+		purifyInput: function() {
 			var html;
 			html = $(_editor.getBody()).html();
 			html = $('<div>' + html + '</div>');

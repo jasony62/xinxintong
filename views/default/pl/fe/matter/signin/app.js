@@ -123,7 +123,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				url, p = {};
 			angular.isString(names) && (names = [names]);
 			if (page === $scope.ep && names.indexOf('html') !== -1) {
-				$scope.ep.purifyHtml();
+				page.purifyInput();
 			}
 			angular.forEach(names, function(name) {
 				p[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
@@ -921,18 +921,25 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			mediagallery.open($scope.siteId, options);
 		});
 		$scope.$on('tinymce.instance.init', function() {
-			var $body;
 			tinymceEditor = tinymce.get('tinymce-page');
-			$body = $(tinymceEditor.getBody());
-			$body.find('input[type=text],textarea').attr('readonly', true);
-			$body.find('input[type=radio],input[type=checkbox]').attr('disabled', true);
 			wrapLib.setEditor(tinymceEditor);
-			$scope.ep && $scope.ep.setEditor(tinymceEditor);
+			if ($scope.ep) {
+				$scope.ep.setEditor(tinymceEditor);
+				tinymceEditor.setContent($scope.ep.html);
+				if ($scope.ep.type === 'I') {
+					$scope.ep.disableInput();
+				}
+			}
 		});
 		$scope.$watch('ep', function(page) {
-			if (page) {
-				$scope.setActiveWrap(null);
-				tinymceEditor && page.setEditor(tinymceEditor);
+			if (!page) return;
+			$scope.setActiveWrap(null);
+			if (tinymceEditor) {
+				page.setEditor(tinymceEditor);
+				tinymceEditor.setContent(page.html);
+				if (page.type === 'I') {
+					$scope.ep.disableInput();
+				}
 			}
 		});
 	}]);

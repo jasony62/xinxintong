@@ -20,8 +20,7 @@
          };
          $scope.create = function() {
              http2.get('/rest/pl/fe/matter/addressbook/personCreate?abid=' + $scope.id, function(rsp) {
-                 location.href = '/rest/pl/fe/matter/addressbook/personnel?id=' + $scope.id + '&id=' + rsp.data.id;
-                 /*location.href = '/rest/pl/fe/matter/addressbook/person?id=' + rsp.data.id + '&site=' + $scope.siteId;*/
+                 location.href = '/rest/pl/fe/matter/addressbook/personnel?abid=' + rsp.data.ab_id + '&id=' + rsp.data.id;
              });
          };
          $scope.edit = function(person) {
@@ -44,7 +43,7 @@
                  $scope.doSearch();
              });
          };
-         $scope.$watch('abid', function(id) {
+         $scope.$watch('abid', function() {
              $scope.doSearch();
          });
      }]);

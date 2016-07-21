@@ -24,6 +24,7 @@ define(['require'], function(require) {
             $routeProvider
                 .when('/rest/pl/fe/matter/addressbook/department', new RouteParam('department'))
                 .when('/rest/pl/fe/matter/addressbook/roll', new RouteParam('roll'))
+                .when('/rest/pl/fe/matter/addressbook/person', new RouteParam('person'))
                 .otherwise(new RouteParam('setting'));
 
             $locationProvider.html5Mode(true);

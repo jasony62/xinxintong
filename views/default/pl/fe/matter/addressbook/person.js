@@ -1,6 +1,11 @@
-xxtApp.controller('personCtrl', ['$scope', 'http2', '$timeout', '$uibModal', function ($scope, http2, $timeout, $uibModal) {
+ngApp.provider.controller('ctrlPerson', ['$scope', 'http2', '$timeout', '$uibModal', '$location', function ($scope, http2, $timeout, $uibModal,$location) {
+    var ls = $location.search();
+    $scope.id = ls.id;
+    $scope.siteId = ls.site;
+    $scope.modified = false;
+
     var getPersonTags = function () {
-        http2.get('/rest/pl/fe/matter/addressbook/tagGet?abid=' + $scope.person.ab_id, function (rsp) {
+        http2.get('/rest/pl/fe/matter/addressbook/tagGet?abid=' + $scope.id, function (rsp) {
             $scope.options.tags = rsp.data;
             var i, j, aTagIds, aTags = [];
             aTagIds = $scope.person.tags ? $scope.person.tags.split(',') : [];
@@ -44,7 +49,7 @@ xxtApp.controller('personCtrl', ['$scope', 'http2', '$timeout', '$uibModal', fun
     };
     $scope.options = {};
     $scope.back = function () {
-        location.href = '/page/pl/fe/matter/addressbook/edit?id=' + $scope.person.ab_id;
+        location.href = '/page/pl/fe/matter/addressbook/edit?id=' + $scope.id;
     };
     $scope.update = function (name) {
         if (!angular.equals($scope.person, $scope.persisted)) {
@@ -88,7 +93,7 @@ xxtApp.controller('personCtrl', ['$scope', 'http2', '$timeout', '$uibModal', fun
             var deptids = [];
             for (var i in selected)
                 deptids.push(selected[i].id);
-            http2.post('/rest/pl/fe/matter/addressbook/updPersonDept?abid=' + $scope.person.ab_id + '&id=' + $scope.personId, deptids, function (rsp) {
+            http2.post('/rest/pl/fe/matter/addressbook/updPersonDept?abid=' + $scope.id + '&id=' + $scope.personId, deptids, function (rsp) {
                 for (var j in rsp.data) {
                     for (var i in selected) {
                         if (rsp.data[j].dept_id = selected[i].id) {
@@ -107,7 +112,7 @@ xxtApp.controller('personCtrl', ['$scope', 'http2', '$timeout', '$uibModal', fun
             $scope.person.depts.splice(i, 1);
         });
     };
-    $scope.$watch('personId', function (nv) {
+    $scope.$watch('personId', function (id) {
         getPerson();
     });
     $scope.$on('tag.xxt.combox.add', function (event, newTag) {

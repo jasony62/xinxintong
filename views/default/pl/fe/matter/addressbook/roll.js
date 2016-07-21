@@ -20,11 +20,12 @@
          };
          $scope.create = function() {
              http2.get('/rest/pl/fe/matter/addressbook/personCreate?abid=' + $scope.id, function(rsp) {
-                 location.href = '/page/pl/fe/matter/addressbook/person?abid=' + $scope.id + '&id=' + rsp.data.id;
+                 location.href = '/rest/pl/fe/matter/addressbook/personnel?id=' + $scope.id + '&id=' + rsp.data.id;
+                 /*location.href = '/rest/pl/fe/matter/addressbook/person?id=' + rsp.data.id + '&site=' + $scope.siteId;*/
              });
          };
          $scope.edit = function(person) {
-             location.href = '/page/pl/fe/matter/addressbook/person?id=' + person.id;
+             location.href = '/rest/pl/fe/matter/addressbook/personnel?id=' + person.id;
          };
          $scope.keypress = function(event) {
              if (event.keyCode == 13)

@@ -24,7 +24,7 @@ define(['require'], function(require) {
             $routeProvider
                 .when('/rest/pl/fe/matter/addressbook/department', new RouteParam('department'))
                 .when('/rest/pl/fe/matter/addressbook/roll', new RouteParam('roll'))
-                .when('/rest/pl/fe/matter/addressbook/person', new RouteParam('person'))
+                .when('/rest/pl/fe/matter/addressbook/personnel', new RouteParam('personnel'))
                 .otherwise(new RouteParam('setting'));
 
             $locationProvider.html5Mode(true);
@@ -48,7 +48,7 @@ define(['require'], function(require) {
                 $scope.memberSchemas = rsp.data;
             });
             $scope.$watch('abid', function(id) {
-                http2.get('/rest/mp/app/addressbook/get?abid=' + $scope.id, function(rsp) {
+                http2.get('/rest/pl/fe/matter/addressbook/get?abid=' + $scope.id, function(rsp) {
                     $scope.editing = rsp.data;
                     $scope.entryUrl = "http://" + location.host + "/rest/app/addressbook?mpid=" + $scope.editing.mpid + "&id=" + $scope.editing.id;
                 });

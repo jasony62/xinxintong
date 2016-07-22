@@ -72,7 +72,7 @@ define(['frame'], function (ngApp) {
         };
         $scope.setDeptParent = function () {
             $uibModal.open({
-                templateUrl: 'deptSelector.html',
+                templateUrl: '/views/default/pl/fe/matter/addressbook/deptSelector.html?_=1',
                 controller: 'deptSelectorCtrl',
                 backdrop: 'static',
                 windowClass: 'auto-height',

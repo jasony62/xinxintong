@@ -33,8 +33,7 @@ define(['require'], function(require) {
                 'show': 'hide'
             });
         }]);
-    ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2',
-        function($scope, $location, $uibModal, $q, http2) {
+    ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', function($scope, $location, $uibModal, $q, http2) {
         var ls = $location.search();
         $scope.id = ls.id;
         $scope.siteId = ls.site;

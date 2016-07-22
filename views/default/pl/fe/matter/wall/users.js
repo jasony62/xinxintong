@@ -10,7 +10,7 @@ define(['frame'], function(ngApp) {
             vcode = prompt('是否要退出所有在线用户？，若是，请输入讨论组名称。');
             //下面需修改，与杨总讨论
             if (vcode === $scope.wall.title) {
-                http2.get('/rest/mp/app/wall/users/quit?wall=' + $scope.wid, function(rsp) {
+                http2.get('/rest/pl/fe/matter/wall/users/quit?id=' + $scope.id + '&site=' + $scope.siteId , function(rsp) {
                     $scope.users = null;
                     $scope.$root.infomsg = '操作完成';
                 });
@@ -22,8 +22,9 @@ define(['frame'], function(ngApp) {
                 templateUrl: 'importUser.html',
                 windowClass: 'auto-height',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                    http2.get('/rest/mp/app/enroll/list?page=1&size=999', function(rsp) {
-                        $scope2.apps = rsp.data[0];
+                    http2.get('/rest/pl/fe/matter/enroll/list?page=1&size=999&site=' + $scope.siteId, function(rsp) {
+                        $scope2.apps = rsp.data.apps;
+                        console.log($scope2.apps);
                     });
                     $scope2.chooseApp = function(app) {
                         $scope2.selectedApp = app;
@@ -40,7 +41,7 @@ define(['frame'], function(ngApp) {
                     };
                 }]
             }).result.then(function(app) {
-                    http2.get('/rest/mp/app/wall/users/import?wall=' + $scope.wid + '&app=' + app.id, function(rsp) {
+                    http2.get('/rest/pl/fe/matter/wall/users/import?id=' + $scope.id + '&app=' + app.id +'&site='+ app.siteid, function(rsp) {
                         $scope.$root.infomsg = '导入用户数：' + rsp.data;
                         $scope.doSearch();
                     });
@@ -71,13 +72,13 @@ define(['frame'], function(ngApp) {
                             $mi.dismiss();
                         }
                     };
-                    http2.get('/rest/mp/app/enroll/list?page=1&size=999', function(rsp) {
-                        $scope2.apps = rsp.data[0];
+                    http2.get('/rest/pl/fe/matter/enroll/list?page=1&size=999&site=' + $scope.siteId, function(rsp) {
+                        $scope2.apps = rsp.data.apps;
                     });
                 }]
             }).result.then(function(params) {
                     var url;
-                    url = '/rest/mp/app/wall/users/export?wall=' + $scope.wid;
+                    url = '/rest/pl/fe/matter/wall/users/export?id=' + $scope.id + '&site=' +$scope.siteId;
                     url += '&app=' + params.app.id;
                     url += '&onlySpeaker=' + params.options.onlySpeaker;
                     http2.get(url, function(rsp) {
@@ -87,8 +88,9 @@ define(['frame'], function(ngApp) {
         };
         //刷新
         $scope.doSearch = function() {
-            http2.get('/rest/mp/app/wall/users/list?wall=' + $scope.wid, function(rsp) {
+            http2.get('/rest/pl/fe/matter/wall/users/list?id=' + $scope.id + '&site' + $scope.siteId, function(rsp) {
                 $scope.users = rsp.data;
+                console.log(rsp);
             });
         };
         $scope.doSearch();

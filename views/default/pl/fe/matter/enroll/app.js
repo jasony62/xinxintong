@@ -378,7 +378,7 @@ define(['frame', 'schema', 'wrap', 'peditor'], function(ngApp, schemaLib, wrapLi
 					$timeout.cancel(_timerOfPageUpdate);
 				}
 				_timerOfPageUpdate = $timeout(function() {
-					$scope.updPage($scope.ep, ['data_schemas', 'act_schemas', 'html']);
+					$scope.updPage($scope.ep, ['html']);
 				}, 1000);
 				_timerOfPageUpdate.then(function() {
 					_timerOfPageUpdate = null;

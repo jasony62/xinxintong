@@ -19,10 +19,11 @@ directive('tinymce', function($timeout) {
              * 通知编辑的内容发生变化
              */
             var _notifyChangeContent = function() {
-                // var content, phase;
-                content = tinymce.get(scope.id).getContent();
+                var editor = tinymce.get(scope.id),
+                    content = editor.getContent(),
+                    phase;
+                console.log('change content', content, editor.isDirty());
                 if (scope.content !== content) {
-                    console.log('nnn', content);
                     phase = scope.$root.$$phase;
                     if (phase === '$digest' || phase === '$apply') {
                         scope.content = content;
@@ -52,8 +53,8 @@ directive('tinymce', function($timeout) {
                 content_css: '/static/css/bootstrap.min.css,/static/css/tinymce.css?v=' + (new Date() * 1),
                 setup: function(editor) {
                     /*编辑的内容发生变化*/
-                    editor.on('change', _notifyChangeContent);
-                    editor.on('blur', _notifyChangeContent);
+                    //editor.on('change', _notifyChangeContent);
+                    //editor.on('blur', _notifyChangeContent);
                     /*选择节点*/
                     editor.on('NodeChange', function(e) {
                         var wrap;
@@ -70,6 +71,10 @@ directive('tinymce', function($timeout) {
                             } else {
                                 scope.$emit('tinymce.wrap.select', editor.getBody());
                             }
+                        } else {
+                            //var content = editor.getContent();
+                            //console.log('NodeChange', content, editor.isDirty());
+                            _notifyChangeContent();
                         }
                     });
                     /*编辑节点*/
@@ -195,7 +200,7 @@ directive('tinymce', function($timeout) {
                 },
                 init_instance_callback: function() {
                     var editor = tinymce.get(scope.id);
-                    if (scope.content && scope.content.length) {
+                    if (scope.content) {
                         editor.setContent(scope.content);
                         editor.undoManager.clear();
                     }

@@ -36,7 +36,7 @@
                  controller: 'ImportAddressbookModalInstCtrl',
                  resolve: {
                      abid: function() {
-                         return $scope.editing.id;
+                         return $scope.id;
                      }
                  }
              }).result.then(function() {
@@ -48,11 +48,10 @@
          });
      }]);
      ngApp.provider.controller('ImportAddressbookModalInstCtrl', ['$scope', '$uibModalInstance', 'abid', '$location',function($scope, $mi, abid,$location) {
-         /*var ls = $location.search();
-
+         var ls = $location.search();
          $scope.id = ls.id;
          $scope.siteId = ls.site;
-         $scope.modified = false;*/
+
 
          $scope.options = {};
          $scope.options.cleanExistent = 'N';

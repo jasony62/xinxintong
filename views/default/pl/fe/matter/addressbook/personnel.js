@@ -1,9 +1,7 @@
 define(['frame'],function(ngApp){
     ngApp.provider.controller('ctrlPersonnel', ['$scope', 'http2', '$timeout', '$uibModal', '$location', function ($scope, http2, $timeout, $uibModal, $location) {
-        /*var ls = $location.search();
-        $scope.id = ls.id;
-        $scope.siteId = ls.site;
-        $scope.modified = false;*/
+        var ls = $location.search();
+        $scope.abid = ls.abid;
 
         var getPersonTags = function () {
             http2.get('/rest/pl/fe/matter/addressbook/tagGet?abid=' + $scope.id + '&site=' + $scope.siteId, function (rsp) {
@@ -101,7 +99,7 @@ define(['frame'],function(ngApp){
                     var deptids = [];
                     for (var i in selected)
                         deptids.push(selected[i].id);
-                    http2.post('/rest/pl/fe/matter/addressbook/updPersonDept?abid=' + $scope.id + '&id=' + $scope.personId+ '&site=' + $scope.siteId, deptids, function (rsp) {
+                    http2.post('/rest/pl/fe/matter/addressbook/updPersonDept?abid=' + $scope.abid + '&id=' + $scope.id+ '&site=' + $scope.siteId, deptids, function (rsp) {
                         for (var j in rsp.data) {
                             for (var i in selected) {
                                 if (rsp.data[j].dept_id = selected[i].id) {
@@ -123,8 +121,9 @@ define(['frame'],function(ngApp){
         ngApp.provider.controller('deptSelectorCtrl', ['$scope', 'http2', '$uibModalInstance', 'abid', 'onlyOne', '$location', function($scope, http2, $mi, abid, onlyOne,$location) {
             var ls = $location.search();
             $scope.id = ls.id;
+            $scope.abid = ls.abid;
             $scope.siteId = ls.site;
-            $scope.modified = false;
+
 
             var checkedDept = onlyOne ? null : [];
             $scope.checkDepts = function(dept) {
@@ -151,7 +150,7 @@ define(['frame'],function(ngApp){
             $scope.toggleChild = function(child) {
                 if (!child.loaded) {
                     child.loaded = true;
-                    http2.get('/rest/mp/app/addressbook/dept?abid=' + $scope.id + '&pid=' + child.data.id + '&site=' + $scope.siteId, function(rsp) {
+                    http2.get('/rest/pl/fe/matter/addressbook/dept?abid=' + $scope.id + '&pid=' + child.data.id + '&site=' + $scope.siteId, function(rsp) {
                         var depts = rsp.data;
                         buildDepts(child.data.id, depts, child);
                     });
@@ -167,7 +166,7 @@ define(['frame'],function(ngApp){
             $scope.depts = {
                 children: []
             };
-            http2.get('/rest/mp/app/addressbook/dept?abid=' + $scope.id + '&site=' + $scope.siteId, function(rsp) {
+            http2.get('/rest/pl/fe/matter/addressbook/dept?abid=' + $scope.abid + '&site=' + $scope.siteId, function(rsp) {
                 var depts = rsp.data;
                 buildDepts(0, depts, $scope.depts, []);
             });

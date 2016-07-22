@@ -14,7 +14,7 @@ class main extends \TMS_CONTROLLER {
 	/**
 	 * 用户登录后的首页
 	 */
-	public function index_action($ver =  '1') {
+	public function index_action($ver =  NULL) {
 		if ($ver === '1') {
 			$this->view_action('/pl/fe/main');
 		} else {

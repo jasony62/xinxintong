@@ -168,7 +168,7 @@ define(['frame'], function (ngApp) {
             $scope.toggleChild = function(child) {
                 if (!child.loaded) {
                     child.loaded = true;
-                    http2.get('/rest/mp/app/addressbook/dept?abid=' + $scope.id + '&pid=' + child.data.id + '&site=' + $scope.siteId, function(rsp) {
+                    http2.get('/rest/pl/fe/matter/addressbook/dept?abid=' + $scope.id + '&pid=' + child.data.id + '&site=' + $scope.siteId, function(rsp) {
                         var depts = rsp.data;
                         buildDepts(child.data.id, depts, child);
                     });
@@ -184,7 +184,7 @@ define(['frame'], function (ngApp) {
             $scope.depts = {
                 children: []
             };
-            http2.get('/rest/mp/app/addressbook/dept?abid=' + $scope.id + '&site=' + $scope.siteId, function(rsp) {
+            http2.get('/rest/pl/fe/matter/addressbook/dept?abid=' + $scope.id + '&site=' + $scope.siteId, function(rsp) {
                 var depts = rsp.data;
                 buildDepts(0, depts, $scope.depts, []);
             });

@@ -43,6 +43,7 @@ define(['frame'], function(ngApp) {
             }).result.then(function(app) {
                     http2.get('/rest/pl/fe/matter/wall/users/import?id=' + $scope.id + '&app=' + app.id +'&site='+ app.siteid, function(rsp) {
                         $scope.$root.infomsg = '导入用户数：' + rsp.data;
+                        alert(1);
                         $scope.doSearch();
                     });
                 });

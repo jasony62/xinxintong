@@ -6,7 +6,7 @@ define(['frame'], function (ngApp) {
         $scope.modified = false;*/
 
         $scope.addChild = function (node) {
-            var url = '/rest/pl/fe/matter/addressbook/addDept?abid=' + $scope.id + $scope.siteId;
+            var url = '/rest/pl/fe/matter/addressbook/addDept?abid=' + $scope.id + '&site=' + $scope.siteId;
             node.data && (url += '&pid=' + node.data.id);
             http2.get(url, function (rsp) {
                 if (node.loaded) {
@@ -33,7 +33,7 @@ define(['frame'], function (ngApp) {
                 }
             }
 
-            http2.get('/rest/pl/fe/matter/addressbook/delDept?abid=' + $scope.id + '&id=' + child.data.id, function (rsp) {
+            http2.get('/rest/pl/fe/matter/addressbook/delDept?abid=' + $scope.id + '&site=' + $scope.siteId + '&id=' + child.data.id , function (rsp) {
                 walk($scope.tree);
             });
         };
@@ -68,7 +68,7 @@ define(['frame'], function (ngApp) {
         $scope.updateDept = function (prop) {
             var nv = {};
             nv[prop] = $scope.editingDept[prop];
-            http2.post('/rest/pl/fe/matter/addressbook/updateDept?abid=' + $scope.id + '&id=' + $scope.editingDept.id, nv);
+            http2.post('/rest/pl/fe/matter/addressbook/updateDept?abid=' + $scope.id + '&site=' + $scope.siteId + '&id=' + $scope.editingDept.id, nv);
         };
         $scope.setDeptParent = function () {
             $uibModal.open({
@@ -86,7 +86,7 @@ define(['frame'], function (ngApp) {
                     }
                 }
             }).result.then(function (selected) {
-                    http2.get('/rest/pl/fe/matter/addressbook/setDeptParent?id=' + $scope.editingDept.id + '&pid=' + selected.id, function (rsp) {
+                    http2.get('/rest/pl/fe/matter/addressbook/setDeptParent?id=' + $scope.editingDept.id + '&site=' + $scope.siteId + '&pid=' + selected.id, function (rsp) {
                         $scope.editingDept.pdept = selected;
                         (function walk(target) {
                             var children = target.children,
@@ -119,7 +119,7 @@ define(['frame'], function (ngApp) {
                 });
         };
         $scope.cleanDeptParent = function () {
-            http2.get('/rest/pl/fe/matter/addressbook/setDeptParent?id=' + $scope.editingDept.id + '&pid=0', function (rsp) {
+            http2.get('/rest/pl/fe/matter/addressbook/setDeptParent?id=' + $scope.editingDept.id + '&pid=0'+ '&site=' + $scope.siteId, function (rsp) {
                 $scope.editingDept.pdept = null;
                 (function walk(target) {
                     var children = target.children,
@@ -168,7 +168,7 @@ define(['frame'], function (ngApp) {
             $scope.toggleChild = function(child) {
                 if (!child.loaded) {
                     child.loaded = true;
-                    http2.get('/rest/mp/app/addressbook/dept?abid=' + $scope.id + '&pid=' + child.data.id , function(rsp) {
+                    http2.get('/rest/mp/app/addressbook/dept?abid=' + $scope.id + '&pid=' + child.data.id + '&site=' + $scope.siteId, function(rsp) {
                         var depts = rsp.data;
                         buildDepts(child.data.id, depts, child);
                     });

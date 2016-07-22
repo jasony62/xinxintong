@@ -11,6 +11,7 @@ class users extends \pl\fe\matter\base {
 	 */
 	public function index_action() {
 		\TPL::output('/pl/fe/matter/wall/frame');
+		exit;
 	}
 	/**
 	 * 获得墙内的所有用户

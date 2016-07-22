@@ -11,6 +11,7 @@ class page extends \pl\fe\matter\base {
 	 */
 	public function index_action() {
 		\TPL::output('/pl/fe/matter/wall/frame');
+		exit;
 	}
 	/**
 	 * 获得指定信息墙的定制页

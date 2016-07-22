@@ -17,18 +17,21 @@ class main extends \pl\fe\matter\base {
 	 */
 	public function index_action() {
 		\TPL::output('/pl/fe/matter/wall/frame');
+		exit;
 	}
 	/**
 	 *
 	 */
 	public function detail_action() {
 		\TPL::output('/pl/fe/matter/wall/frame');
+		exit;
 	}
 	/**
 	 *
 	 */
 	public function approve_action() {
 		\TPL::output('/pl/fe/matter/wall/frame');
+		exit;
 	}
 	/**
 	 *
@@ -75,7 +78,11 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * submit basic.
 	 */
-	public function update_action($wall) {
+	public function update_action($site,$app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		
 		$nv = $this->getPostJson();
 		if (isset($nv->title)) {
 			$nv->title = $this->model()->escape($nv->title);
@@ -91,7 +98,13 @@ class main extends \pl\fe\matter\base {
 			$nv->body_css = $this->model()->escape($nv->body_css);
 		}
 
-		$rst = $this->model()->update('xxt_wall', (array) $nv, "id='$wall'");
+		$rst = $this->model()->update('xxt_wall', (array) $nv, "id='$app'");
+		/*记录操作日志*/
+		if ($rst) {
+			$matter = $this->model('matter\wall')->byId($app, 'id,title,summary,pic');
+			$matter->type = 'wall';
+			$this->model('log')->matterOp($site, $user, $matter, 'U');
+		}
 
 		return new \ResponseData($rst);
 	}	

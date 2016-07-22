@@ -76,10 +76,6 @@ define(['frame', 'schema', 'wrap', 'peditor'], function(ngApp, schemaLib, wrapLi
 				updated = {},
 				url;
 			angular.isString(names) && (names = [names]);
-			if (page === $scope.ep && names.indexOf('html') !== -1) {
-				page.html = page.purifyInput();
-				console.log('page', page.html);
-			}
 			angular.forEach(names, function(name) {
 				updated[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
 			});
@@ -230,11 +226,7 @@ define(['frame', 'schema', 'wrap', 'peditor'], function(ngApp, schemaLib, wrapLi
 
 			/* 在当前页面上添加新登记项 */
 			domNewWrap = $scope.ep.appendBySchema(addedSchema);
-			/* 更新后台数据 */
-			$scope.updPage($scope.ep, ['data_schemas', 'html']).then(function() {
-				$scope.setActiveWrap(domNewWrap);
-				deferred.resolve();
-			});
+			$scope.setActiveWrap(domNewWrap);
 			/* 页面滚动到新元素 */
 			$scope.ep.scroll(domNewWrap);
 
@@ -377,16 +369,21 @@ define(['frame', 'schema', 'wrap', 'peditor'], function(ngApp, schemaLib, wrapLi
 		};
 		var _timerOfPageUpdate = null;
 		$scope.onPageChange = function() {
-			$scope.ep.$$modified = true;
-			if (_timerOfPageUpdate !== null) {
-				$timeout.cancel(_timerOfPageUpdate);
+			var html;
+			html = peditorLib.purifyInput();
+			if (html !== $scope.ep.html) {
+				$scope.ep.html = html;
+				$scope.ep.$$modified = true;
+				if (_timerOfPageUpdate !== null) {
+					$timeout.cancel(_timerOfPageUpdate);
+				}
+				_timerOfPageUpdate = $timeout(function() {
+					$scope.updPage($scope.ep, ['data_schemas', 'act_schemas', 'html']);
+				}, 1000);
+				_timerOfPageUpdate.then(function() {
+					_timerOfPageUpdate = null;
+				});
 			}
-			_timerOfPageUpdate = $timeout(function() {
-				$scope.updPage($scope.ep, ['data_schemas', 'act_schemas', 'html']);
-			}, 1000);
-			_timerOfPageUpdate.then(function() {
-				_timerOfPageUpdate = null;
-			});
 		};
 		$scope.$on('tinymce.wrap.add', function(event, domWrap) {
 			$scope.$apply(function() {
@@ -425,7 +422,6 @@ define(['frame', 'schema', 'wrap', 'peditor'], function(ngApp, schemaLib, wrapLi
 						if (oOptionWrap.schema && oOptionWrap.schema.ops && oOptionWrap.schema.ops.length === 1) {
 							for (var i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
 								editingSchema = $scope.app.data_schemas[i];
-								console.log('owrap', editingSchema);
 								if (oOptionWrap.schema.id === editingSchema.id) {
 									for (var j = editingSchema.ops.length - 1; j >= 0; j--) {
 										if (oOptionWrap.schema.ops[0].v === editingSchema.ops[j].v) {
@@ -452,20 +448,20 @@ define(['frame', 'schema', 'wrap', 'peditor'], function(ngApp, schemaLib, wrapLi
 		/*切换编辑的页面*/
 		$scope.$watch('ep', function(page) {
 			if (!page) return;
-			if (!tinymceEditor) {
-				tinymceEditor = tinymce.get('tinymce-page');
+			if (tinymceEditor) {
 				wrapLib.setEditor(tinymceEditor);
+				page.setEditor(tinymceEditor);
 			}
-			page.setEditor(tinymceEditor);
 			$scope.setActiveWrap(null);
 			$scope.tinymce.html = page.html;
 			if (page.type === 'I') {
-				//$scope.ep.disableInput();
+				$scope.tinymce.disableInput(true);
 			}
 		});
 		$scope.$on('tinymce.instance.init', function(event, editor) {
 			tinymceEditor = editor;
 			if ($scope.ep) {
+				wrapLib.setEditor(tinymceEditor);
 				$scope.ep.setEditor(editor);
 			}
 		});

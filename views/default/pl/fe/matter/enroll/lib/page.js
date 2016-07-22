@@ -10,6 +10,7 @@ define(['wrap'], function(wrapLib) {
 		setEditor: function(editor) {
 			_editor = editor;
 		},
+		//should remove
 		disableInput: function() {
 			var $body = $(_editor.getBody());
 			$body.find('input[type=text],textarea').attr('readonly', true);
@@ -21,6 +22,7 @@ define(['wrap'], function(wrapLib) {
 
 			//return this.html;
 		},
+		// should remove
 		purifyInput: function() {
 			var html;
 			html = $(_editor.getBody()).html();

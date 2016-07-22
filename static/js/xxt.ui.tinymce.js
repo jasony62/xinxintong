@@ -19,9 +19,10 @@ directive('tinymce', function($timeout) {
              * 通知编辑的内容发生变化
              */
             var _notifyChangeContent = function() {
-                var content, phase;
+                // var content, phase;
                 content = tinymce.get(scope.id).getContent();
                 if (scope.content !== content) {
+                    console.log('nnn', content);
                     phase = scope.$root.$$phase;
                     if (phase === '$digest' || phase === '$apply') {
                         scope.content = content;
@@ -215,8 +216,10 @@ directive('tinymce', function($timeout) {
                         tinymce.init(tinymceConfig);
                     } else {
                         editor = tinymce.get(scope.id);
-                        editor.setContent(content);
-                        editor.undoManager.clear();
+                        if (content !== editor.getContent()) {
+                            editor.setContent(content);
+                            editor.undoManager.clear();
+                        }
                     }
                 }
             });

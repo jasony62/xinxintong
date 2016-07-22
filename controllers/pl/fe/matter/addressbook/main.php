@@ -9,15 +9,13 @@ require_once dirname(__FILE__) . '/../base.php';
  */
 class main extends \pl\fe\matter\base {
   
-    /**
-     *
-     */
+
     protected function getMatterType() {
         return 'addressbook';
     }
 
     /**
-     *
+     * 通讯录默认方法
      */
     public function index_action() {
         \TPL::output('/pl/fe/matter/addressbook/frame');

@@ -4,9 +4,7 @@ define(['frame'], function(ngApp) {
         $scope.id = ls.id;
         $scope.siteId = ls.site;*/
 
-        $scope.back = function() {
-            location.href = '/rest/pl/fe/matter/addressbook';
-        };
+
         $scope.update = function(name) {
             var nv = {};
             nv[name] = $scope.editing[name];

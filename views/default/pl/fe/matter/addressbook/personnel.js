@@ -1,9 +1,9 @@
 define(['frame'],function(ngApp){
     ngApp.provider.controller('ctrlPersonnel', ['$scope', 'http2', '$timeout', '$uibModal', '$location', function ($scope, http2, $timeout, $uibModal, $location) {
-        var ls = $location.search();
+        /*var ls = $location.search();
         $scope.id = ls.id;
         $scope.siteId = ls.site;
-        $scope.modified = false;
+        $scope.modified = false;*/
 
         var getPersonTags = function () {
             http2.get('/rest/pl/fe/matter/addressbook/tagGet?abid=' + $scope.id + '&site=' + $scope.siteId, function (rsp) {
@@ -44,26 +44,27 @@ define(['frame'],function(ngApp){
             }
             tels = tels.join();
             p.tels = tels;
-            http2.post('/rest/pl/fe/matter/addressbook/personUpdate?id=' + $scope.personId, p, function (rsp) {
+            http2.post('/rest/pl/fe/matter/addressbook/personUpdate?id=' + $scope.id+ '&site=' + $scope.siteId, p, function (rsp) {
                 $scope.persisted = angular.copy($scope.person);
             });
         };
         $scope.options = {};
         $scope.back = function () {
-            location.href = '/rest/pl/fe/matter/addressbook?id=' + $scope.person.ab_id;
+            location.href = '/rest/pl/fe/matter/addressbook/roll?id=' + $scope.person.ab_id + '&site=' + $scope.siteId;
         };
         $scope.update = function (name) {
             if (!angular.equals($scope.person, $scope.persisted)) {
                 var p = {};
                 p[name] = $scope.person[name];
-                http2.post('/rest/pl/fe/matter/addressbook/personUpdate?id=' + $scope.personId, p, function (rsp) {
+                http2.post('/rest/pl/fe/matter/addressbook/personUpdate?id=' + $scope.id + '&site=' + $scope.siteId, p, function (rsp) {
                     $scope.persisted = angular.copy($scope.person);
                 });
             }
         };
         $scope.remove = function () {
             http2.get('/rest/pl/fe/matter/addressbook/personDelete?id=' + $scope.id + '&site='+ $scope.siteId, function () {
-                location.href = '/rest/pl/fe/site/console?site=' + $scope.siteId;
+                /*location.href = '/rest/pl/fe/site/console?site=' + $scope.siteId;*/
+                location.href = '/rest/pl/fe/matter/addressbook/roll?id=' + $scope.person.ab_id + '&site=' + $scope.siteId;
             });
         };
         $scope.addTel = function () {
@@ -100,7 +101,7 @@ define(['frame'],function(ngApp){
                     var deptids = [];
                     for (var i in selected)
                         deptids.push(selected[i].id);
-                    http2.post('/rest/pl/fe/matter/addressbook/updPersonDept?abid=' + $scope.id + '&id=' + $scope.personId, deptids, function (rsp) {
+                    http2.post('/rest/pl/fe/matter/addressbook/updPersonDept?abid=' + $scope.id + '&id=' + $scope.personId+ '&site=' + $scope.siteId, deptids, function (rsp) {
                         for (var j in rsp.data) {
                             for (var i in selected) {
                                 if (rsp.data[j].dept_id = selected[i].id) {
@@ -114,7 +115,7 @@ define(['frame'],function(ngApp){
                 });
         };
         $scope.delDept = function (dept) {
-            http2.get('/rest/pl/fe/matter/addressbook/delPersonDept?id=' + $scope.personId + '&deptid=' + dept.dept_id, function (rsp) {
+            http2.get('/rest/pl/fe/matter/addressbook/delPersonDept?id=' + $scope.personId + '&deptid=' + dept.dept_id+ '&site=' + $scope.siteId, function (rsp) {
                 var i = $scope.person.depts.indexOf(dept);
                 $scope.person.depts.splice(i, 1);
             });
@@ -124,7 +125,7 @@ define(['frame'],function(ngApp){
         });
         $scope.$on('tag.xxt.combox.add', function (event, newTag) {
             var oNewTag = {name: newTag};
-            http2.post('/rest/pl/fe/matter/addressbook/personAddTag?id=' + $scope.person.id, [oNewTag], function (rsp) {
+            http2.post('/rest/pl/fe/matter/addressbook/personAddTag?id=' + $scope.person.id+ '&site=' + $scope.siteId, [oNewTag], function (rsp) {
                 $scope.person.tags = rsp.data;
                 getPersonTags();
             });
@@ -141,14 +142,14 @@ define(['frame'],function(ngApp){
                 }
                 !existing && aNewTags.push(aSelected[i]);
             }
-            http2.post('/rest/pl/fe/matter/addressbook/personAddTag?id=' + person.id, aNewTags, function (rsp) {
+            http2.post('/rest/pl/fe/matter/addressbook/personAddTag?id=' + person.id+ '&site=' + $scope.siteId, aNewTags, function (rsp) {
                 $scope.person.tags2 = person.tags2.concat(aNewTags);
                 $scope.person.tags = rsp.data;
             });
         });
         $scope.$on('tag.xxt.combox.del', function (event, removed) {
             var person = $scope.person;
-            http2.get('/rest/pl/fe/matter/addressbook/personDelTag?id=' + person.id + '&tagid=' + removed.id, function (rsp) {
+            http2.get('/rest/pl/fe/matter/addressbook/personDelTag?id=' + person.id + '&tagid=' + removed.id + '&site=' + $scope.siteId, function (rsp) {
                 person.tags2.splice(person.tags2.indexOf(removed), 1);
                 person.tags = rsp.data;
             });

@@ -36,10 +36,13 @@ define(['require'], function(require) {
     ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2',
         function($scope, $location, $uibModal, $q, http2) {
         var ls = $location.search();
-
         $scope.id = ls.id;
         $scope.siteId = ls.site;
         $scope.modified = false;
+
+        $scope.back = function() {
+           location.href = 'http://localhost/rest/pl/fe/site/console?site='+ $scope.siteId;
+        };
         $scope.getApp = function() {
             http2.get('/rest/pl/fe/site/snsList?site=' + $scope.siteId, function(rsp) {
                 $scope.sns = rsp.data;

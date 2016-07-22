@@ -12,7 +12,7 @@
              size: 30
          };
          $scope.doSearch = function() {
-             var url = '/rest/pl/fe/matter/addressbook/person?abid=' + $scope.id + '&page=' + $scope.page.at + '&size=' + $scope.page.size + '&abbr=' + $scope.abbr;
+             var url = '/rest/pl/fe/matter/addressbook/person?abid=' + $scope.id + '&site=' + $scope.siteId + '&page=' + $scope.page.at + '&size=' + $scope.page.size + '&abbr=' + $scope.abbr;
              http2.get(url, function(rsp) {
                  $scope.page.total = rsp.data.amount;
                  $scope.persons = rsp.data.objects;
@@ -58,7 +58,7 @@
          $scope.options.cleanExistent = 'N';
          $scope.ok = function() {
              $('#formImport').ajaxSubmit({
-                 url: '/rest/pl/fe/matter/addressbook/import?abid=' + $scope.id + '&cleanExistent=' + $scope.options.cleanExistent,
+                 url: '/rest/pl/fe/matter/addressbook/import?abid=' + $scope.id + '&site=' + $scope.siteId + '&cleanExistent=' + $scope.options.cleanExistent,
                  type: 'POST',
                  success: function(rsp) {
                      if (typeof rsp === 'string')

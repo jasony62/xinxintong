@@ -193,7 +193,7 @@ define(['frame'], function (ngApp) {
             children: []
         };
         $scope.$watch('abid', function (id) {
-            http2.get('/rest/pl/fe/matter/addressbook/department?abid=' + $scope.id + '&site=' + $scope.siteId, function (rsp) {
+            http2.get('/rest/pl/fe/matter/addressbook/dept?abid=' + $scope.id + '&site=' + $scope.siteId, function (rsp) {
                 var depts = rsp.data;
                 buildOrg(null, depts, $scope.tree);
             });

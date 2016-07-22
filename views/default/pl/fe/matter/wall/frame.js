@@ -55,11 +55,11 @@ define(['require'], function(require, pageLib) {
 			angular.isString(names) && (names = [names]);
 			angular.forEach(names, function(name) {
 				if (['entry_rule'].indexOf(name) !== -1) {
-					modifiedData[name] = encodeURIComponent($scope.app[name]);
+					modifiedData[name] = encodeURIComponent($scope.wall[name]);
 				} else if (name === 'tags') {
-					modifiedData.tags = $scope.app.tags.join(',');
+					modifiedData.tags = $scope.wall.tags.join(',');
 				} else {
-					modifiedData[name] = $scope.app[name];
+					modifiedData[name] = $scope.wall[name];
 				}
 			});
 			$scope.modified = true;

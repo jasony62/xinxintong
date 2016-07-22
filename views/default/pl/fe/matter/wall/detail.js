@@ -63,6 +63,28 @@ define(['frame'], function(ngApp) {
             }
             return out;
         }
+        $scope.update = function(name) {
+            var nv = {};
+            nv[name] = $scope.wall[name];
+            http2.post('/rest/pl/fe/matter/wall/update?id=' + $scope.id + '&site=' + $scope.siteId, nv);
+        };
+        //$scope.$watch('subView', function(nv) {
+        //    if (nv !== 'approve' && $scope.worker) {
+        //        $scope.worker.terminate();
+        //    }
+        //});
+        //$scope.update = function(name) {
+        //    var nv = {};
+        //    nv[name] = $scope.wall[name];
+        //    console.log(nv);
+        //    alert(1);
+        //    http2.post('/rest/pl/fe/matter/wall/update?id=' + $scope.id + 'site=' +$scope.siteId, nv);
+        //};
+        $scope.$watch('subView', function(nv) {
+            if (nv !== 'approve' && $scope.worker) {
+                $scope.worker.terminate();
+            }
+        });
         //http2.get('/rest/mp/mpaccount/get', function(rsp) {
         //    $scope.mpaccount = rsp.data;
         //    http2.get('/rest/mp/app/wall/get?wall=' + $scope.wid, function(rsp) {

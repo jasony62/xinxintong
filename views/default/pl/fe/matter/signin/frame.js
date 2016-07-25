@@ -1,5 +1,5 @@
 define(['require', 'page'], function(require, pageLib) {
-	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'tinymce.ui.xxt', 'ui.xxt']);
+	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'tinymce.enroll', 'ui.xxt']);
 	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider) {
 		var RouteParam = function(name) {
 			var baseURL = '/views/default/pl/fe/matter/signin/';

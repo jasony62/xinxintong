@@ -212,6 +212,13 @@ class main extends base {
 		}
 		/* 当前访问用户的基本信息 */
 		$user = $this->who;
+		if (!empty($user->members)) {
+			$modelMem = $this->model('site\user\member');
+			foreach ($user->members as $id => $member) {
+				$newMember = $modelMem->byId($id);
+				$user->members->{$id} = $newMember;
+			}
+		}
 		$params['user'] = $user;
 		/* 计算打开哪个页面 */
 		if (empty($page)) {

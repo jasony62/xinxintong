@@ -336,6 +336,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                 var schemas = params.app.data_schemas,
                     mapSchema = {},
                     dataOfRecord = params.record.data,
+                    hasSetMember = false,
                     p, value;
                 angular.forEach(schemas, function(schema) {
                     mapSchema[schema.id] = schema;
@@ -347,7 +348,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                             dataOfRecord.member = JSON.parse(dataOfRecord.member);
                         }
                         $scope.data.member = angular.extend($scope.data.member, dataOfRecord.member);
-                        console.log(dataOfRecord.member);
+                        hasSetMember = true;
                     } else if (dataOfRecord[p].length && mapSchema[p]) {
                         if (mapSchema[p].type === 'img') {
                             value = dataOfRecord[p].split(',');
@@ -370,7 +371,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                 $scope.record = params.record;
             }
             /* 无论是否有登记记录都自动填写用户认证信息 */
-            //PG.setMember(params.user, $scope.data.member);
+            !hasSetMember && PG.setMember(params.user, $scope.data.member);
         });
         var doSubmit = function(nextAction) {
             var ek, btnSubmit;

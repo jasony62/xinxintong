@@ -121,10 +121,8 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		$scope.updPage = function(page, names) {
 			var defer = $q.defer(),
 				url, p = {};
+
 			angular.isString(names) && (names = [names]);
-			if (page === $scope.ep && names.indexOf('html') !== -1) {
-				page.purifyInput();
-			}
 			angular.forEach(names, function(name) {
 				p[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
 			});
@@ -857,9 +855,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		};
 		$scope.gotoCode = function() {
 			window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + $scope.ep.code_name, '_self');
-		};
-		$scope.onPageChange = function() {
-			$scope.ep.$$modified = true;
 		};
 		var _timerOfPageUpdate = null;
 		$scope.$on('tinymce.content.change', function(event, changed) {

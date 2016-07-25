@@ -10,29 +10,28 @@ define(['wrap'], function(wrapLib) {
 		setEditor: function(editor) {
 			_editor = editor;
 		},
-		//should remove
-		disableInput: function() {
-			var $body = $(_editor.getBody());
-			$body.find('input[type=text],textarea').attr('readonly', true);
-			$body.find('input[type=text],textarea').attr('disabled', true);
-			$body.find('input[type=radio],input[type=checkbox]').attr('readonly', true);
-			$body.find('input[type=radio],input[type=checkbox]').attr('disabled', true);
-			_editor.fire('change');
-			//this.html = _editor.getContent();
-
-			//return this.html;
-		},
-		// should remove
-		purifyInput: function() {
+		disableInput: function(refresh) {
 			var html;
-			html = $(_editor.getBody()).html();
+			html = this.html;
+			html = $('<div>' + html + '</div>');
+			html.find('input[type=text],textarea').attr('readonly', true);
+			html.find('input[type=text],textarea').attr('disabled', true);
+			html.find('input[type=radio],input[type=checkbox]').attr('readonly', true);
+			html.find('input[type=radio],input[type=checkbox]').attr('disabled', true);
+			html = html.html();
+			refresh === true && (this.html = html);
+
+			return html;
+		},
+		purifyInput: function(html, persist) {
 			html = $('<div>' + html + '</div>');
 			html.find('.active').removeClass('active');
 			html.find('[readonly]').removeAttr('readonly');
 			html.find('[disabled]').removeAttr('disabled');
-			this.html = html.html();
+			html = html.html();
+			persist === true && (this.html = html);
 
-			return this.html;
+			return html;
 		},
 		setActiveWrap: function(domWrap) {
 			var wrapType;
@@ -86,6 +85,8 @@ define(['wrap'], function(wrapLib) {
 			} else if (action === 'downLevel') {
 				this.setActiveWrap($active.find('[wrap]').get(0));
 			}
+			
+			this.html = _editor.getContent();
 
 			return _activeWrap;
 		},
@@ -270,6 +271,7 @@ define(['wrap'], function(wrapLib) {
 				newWrap = wrapLib.input.newWrap(schema);
 				domNewWrap = wrapLib.input.embed(newWrap);
 				this.data_schemas.push(newWrap);
+				this.html = _editor.getContent();
 			}
 			return domNewWrap;
 		},
@@ -312,6 +314,8 @@ define(['wrap'], function(wrapLib) {
 
 			domNewWrap = wrapLib.button.embed(oWrap);
 			this.act_schemas.push(oWrap);
+
+			this.html = _editor.getContent();
 
 			return domNewWrap;
 		},
@@ -384,7 +388,10 @@ define(['wrap'], function(wrapLib) {
 			}
 
 			$domRemoved.remove();
-			_editor.save();
+
+			this.html = _editor.getContent();
+
+			return $domRemoved[0];
 		},
 		removeSchema2: function(removedSchema) {
 			var pageSchemas = this.data_schemas,
@@ -395,6 +402,7 @@ define(['wrap'], function(wrapLib) {
 					$domRemoved = $(_editor.getBody()).find("[schema='" + removedSchema.id + "']");
 					$domRemoved.remove();
 					pageSchemas.splice(i, 1);
+					this.html = _editor.getContent();
 					return $domRemoved[0];
 				}
 			}
@@ -404,6 +412,80 @@ define(['wrap'], function(wrapLib) {
 		scroll: function(dom) {
 			var domBody = _editor.getBody();
 			domBody.scrollTop = dom.offsetTop - 15;
+		},
+		contentChange: function(node, activeWrap, $timeout) {
+			var domNodeWrap = $(node).parents('[wrap]'),
+				status = {
+					schemaChanged: false,
+					actionChanged: false
+				};
+
+			if (domNodeWrap.length === 1 && domNodeWrap[0].getAttribute('wrap') === 'input') {
+				// 编辑input's label
+				if (/label/i.test(node.nodeName)) {
+					(function freshSchemaByDom() {
+						var oWrap = wrapLib.dataByDom(activeWrap.dom);
+						if (oWrap) {
+							if (oWrap.schema.title !== activeWrap.schema.title) {
+								$timeout(function() {
+									activeWrap.schema.title = oWrap.schema.title;
+									status.schemaChanged = true;
+								});
+							}
+						}
+					})();
+				}
+			} else if (domNodeWrap.length === 1 && domNodeWrap[0].getAttribute('wrap') === 'button') {
+				// 编辑button's span
+				if (/span/i.test(node.nodeName)) {
+					(function freshButtonByDom() {
+						var oWrap = wrapLib.dataByDom(activeWrap.dom);
+						if (oWrap) {
+							if (oWrap.schema.label !== activeWrap.schema.label) {
+								$timeout(function() {
+									activeWrap.schema.label = oWrap.schema.label;
+									status.actionChanged = true;
+								});
+							}
+						}
+					})();
+				}
+			} else if (domNodeWrap.length === 2) {
+				// 编辑input's options
+				(function(page) {
+					var $domParentWrap = $(domNodeWrap[0]),
+						oOptionWrap, editingSchema;
+					if (/radio|checkbox/.test($domParentWrap.attr('wrap'))) {
+						oOptionWrap = wrapLib.input.dataByDom(domNodeWrap[0]);
+						if (oOptionWrap.schema && oOptionWrap.schema.ops && oOptionWrap.schema.ops.length === 1) {
+							for (var i = page.data_schemas.length - 1; i >= 0; i--) {
+								editingSchema = page.data_schemas[i];
+								if (oOptionWrap.schema.id === editingSchema.id) {
+									for (var j = editingSchema.ops.length - 1; j >= 0; j--) {
+										if (oOptionWrap.schema.ops[0].v === editingSchema.ops[j].v) {
+											editingSchema.ops[j].l = oOptionWrap.schema.ops[0].l;
+											status.schemaChanged = true;
+											break;
+										}
+									}
+								}
+							}
+						}
+					}
+				})(this);
+			}
+			// 修改了页面内容
+			(function(page) {
+				var html = _editor.getContent();
+				html = page.purifyInput(html);
+				if (html !== page.html) {
+					page.html = html;
+					status.htmlChanged = true;
+					page.$$modified = true;
+				}
+			})(this);
+
+			return status;
 		}
 	};
 });

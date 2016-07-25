@@ -1,4 +1,4 @@
-define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image", "xxt-geo", "enroll-directive"], function(angular, ngApp) {
+define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image", "xxt-geo"], function(angular, ngApp) {
     'use strict';
 
     ngApp.config(['$compileProvider', function($compileProvider) {

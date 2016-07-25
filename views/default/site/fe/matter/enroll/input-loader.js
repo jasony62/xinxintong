@@ -41,12 +41,8 @@ window.loading = {
 					deps: ['angular-sanitize'],
 					exports: "enroll-common"
 				},
-				"enroll-directive": {
-					deps: ['enroll-common'],
-					exports: "enroll-directive"
-				},
 			},
-			urlArgs: "bust=" + (new Date()).getTime()
+			urlArgs: "bust=" + (new Date() * 1)
 		});
 		require(['xxt-page'], function(loader) {
 			loader.bootstrap('/views/default/site/fe/matter/enroll/input.js');

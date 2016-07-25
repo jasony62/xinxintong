@@ -111,7 +111,7 @@
             <div class='col-md-9'>
                 <!--tinymce editor-->
                 <div class='page-editor'>
-                    <tinymce id='tinymce-page' content="tinymce.html" height='660' change="onPageChange()" toolbar="code"></tinymce>
+                    <tinymce id='tinymce-page' height="660" toolbar="code"></tinymce>
                     <div class='sidebar'>
                         <button class='btn btn-default' ng-click="removeWrap()" title='删除' ng-disabled='!activeWrap'>
                         <i class='fa fa-remove fa-fw'></i>
@@ -145,6 +145,7 @@
     <nav class="navbar navbar-default navbar-fixed-bottom">
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
+                <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/enroll/preview?site={{siteId}}&id={{id}}">预览页面</a>
                 <button class='btn btn-lg btn-success' ng-click="updPage(ep,['data_schemas','act_schemas','html'])">保存修改</button>
                 <button class='btn btn-lg btn-success' ng-click="publish()">收集数据</button>
             </form>

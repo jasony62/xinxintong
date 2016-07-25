@@ -16,6 +16,7 @@ div[wrap].wrap-inline>*{display:inline-block;vertical-align:middle;margin:0 1em 
 div[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
 div[wrap=value]>div{position:relative;}
 div[wrap=value]>div:after{content:'  ';background:#f8f8f8;display:block;position:absolute;top:0;bottom:0;left:0;right:0;}
+div[wrap=button] button{cursor:text;}
 input.form-control[readonly],textarea.form-control[readonly]{background:#fff;}
 ul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;margin:4px;float:left}
 ul.img-tiles li.img-thumbnail{display:none;}

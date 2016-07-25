@@ -26,7 +26,7 @@ provider('srvApp', function() {
 
                 return defer.promise;
             },
-            update: function(app, names) {
+            update: function(names) {
                 var defer = $q.defer(),
                     modifiedData = {},
                     url;

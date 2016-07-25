@@ -41,6 +41,17 @@ directive('tinymce', function($timeout) {
             };
             // tinymce setup
             function _setup(editor) {
+                editor.on('change', function(e) {
+                    var phase;
+                    phase = scope.$root.$$phase;
+                    if (phase === '$digest' || phase === '$apply') {
+                        scope.$emit('tinymce.content.change', false);
+                    } else {
+                        scope.$apply(function() {
+                            scope.$emit('tinymce.content.change', false);
+                        });
+                    }
+                });
                 editor.on('click', function(e) {
                     // 点击Button，Input不触发NodeChange事件，需要自己处理
                     if (/button/i.test(e.target.tagName)) {
@@ -113,13 +124,24 @@ directive('tinymce', function($timeout) {
                     });
                     editor.on('keyup', function(evt) {
                         var node = editor.selection.getNode(),
-                            nodeContent = node.innerHTML;
+                            nodeContent = node.innerHTML,
+                            phase;
                         if (_lastNodeContent !== nodeContent) {
                             // 通知发生变化
-                            scope.$emit('tinymce.content.change', {
-                                node: node,
-                                content: nodeContent
-                            });
+                            phase = scope.$root.$$phase;
+                            if (phase === '$digest' || phase === '$apply') {
+                                scope.$emit('tinymce.content.change', {
+                                    node: node,
+                                    content: nodeContent
+                                });
+                            } else {
+                                scope.$apply(function() {
+                                    scope.$emit('tinymce.content.change', {
+                                        node: node,
+                                        content: nodeContent
+                                    });
+                                });
+                            }
                         }
                     });
                 })();
@@ -156,7 +178,7 @@ directive('tinymce', function($timeout) {
                         selectedId = editor.dom.getAttrib(selectedNode, 'id');
                         if (!selectedId) {
                             tmpId = true;
-                            selectedId = '__mcenew' + (new Date).getTime();
+                            selectedId = '__mcenew' + (new Date() * 1);
                             editor.dom.setAttrib(selectedNode, 'id', selectedId);
                         }
                         scope.$emit('tinymce.multipleimage.open', function(urls, isShowName) {
@@ -182,7 +204,7 @@ directive('tinymce', function($timeout) {
                                 selectedNode = dom.get(selectedId);
                                 dom.setAttrib(selectedNode, 'id', null);
                             }
-                            editor.save();
+                            scope.$emit('tinymce.content.change', false);
                         });
                     }
                 });

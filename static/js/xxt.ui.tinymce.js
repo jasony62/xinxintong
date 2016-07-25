@@ -5,38 +5,12 @@ directive('tinymce', function($timeout) {
         scope: {
             id: '@',
             height: '=',
-            content: '=',
             contenteditable: '=',
-            onsavecallback: '&',
-            update: '&',
-            change: '&',
             toolbar: '@',
         },
         replace: true,
         template: '<textarea></textarea>',
         link: function(scope, elem, attrs) {
-            /**
-             * 通知编辑的内容发生变化
-             */
-            var _notifyChangeContent = function() {
-                var editor = tinymce.get(scope.id),
-                    content = editor.getContent(),
-                    phase;
-                console.log('change content', content, editor.isDirty());
-                if (scope.content !== content) {
-                    phase = scope.$root.$$phase;
-                    if (phase === '$digest' || phase === '$apply') {
-                        scope.content = content;
-                    } else {
-                        scope.$apply(function() {
-                            scope.content = content;
-                        });
-                    }
-                    $timeout(function() {
-                        scope.change && scope.change();
-                    });
-                }
-            };
             var tinymceConfig = {
                 selector: '#' + scope.id,
                 language: 'zh_CN',
@@ -52,83 +26,46 @@ directive('tinymce', function($timeout) {
                 relative_urls: false,
                 content_css: '/static/css/bootstrap.min.css,/static/css/tinymce.css?v=' + (new Date() * 1),
                 setup: function(editor) {
-                    /*编辑的内容发生变化*/
-                    //editor.on('change', _notifyChangeContent);
-                    //editor.on('blur', _notifyChangeContent);
-                    /*选择节点*/
-                    editor.on('NodeChange', function(e) {
-                        var wrap;
-                        if (e.selectionChange === true) {
-                            wrap = e.element;
-                            if (wrap.tagName !== 'HTML') {
-                                if (!wrap.hasAttribute('wrap') && wrap !== editor.getBody()) {
-                                    while (wrap.parentNode !== editor.getBody()) {
-                                        if (wrap.hasAttribute('wrap') || wrap.parentNode === null) break;
-                                        wrap = wrap.parentNode;
-                                    }
-                                }
-                                scope.$emit('tinymce.wrap.select', wrap);
-                            } else {
-                                scope.$emit('tinymce.wrap.select', editor.getBody());
-                            }
-                        } else {
-                            //var content = editor.getContent();
-                            //console.log('NodeChange', content, editor.isDirty());
-                            _notifyChangeContent();
-                        }
-                    });
                     /*编辑节点*/
                     (function() {
                         var _lastContent;
                         editor.on('keydown', function(evt) {
                             var selection = editor.selection,
-                                node = selection.getNode(),
-                                _lastContent = node.innerHTML;
-                            if (evt.keyCode == 13) {
-                                /**
-                                 * 检查组件元素，如果是，在结尾回车时不进行元素的复制，而是添加空行
-                                 */
-                                var dom, wrap;
-                                dom = editor.dom;
-                                if (selection && selection.getNode()) {
-                                    wrap = selection.getNode();
-                                    if (wrap !== editor.getBody()) {
-                                        while (wrap.parentNode !== editor.getBody()) {
-                                            wrap = wrap.parentNode;
-                                        }
-                                        if (wrap.hasAttribute('wrap')) {
-                                            evt.preventDefault();
-                                            var newWrap = dom.create('div', {
-                                                wrap: 'text',
-                                                class: 'form-group'
-                                            }, '&nbsp;');
-                                            dom.insertAfter(newWrap, wrap);
-                                            selection.setCursorLocation(newWrap, 0);
-                                            editor.focus();
-                                            scope.$emit('tinymce.wrap.add', newWrap);
-                                        }
-                                    }
-                                }
-                            } else {
-                                if (node.hasAttribute('wrap') && node.getAttribute('wrap') !== 'text') {
-                                    /*
-                                     * wrap不允许直接被编辑
-                                     */
-                                    evt.preventDefault();
-                                    evt.stopPropagation();
-                                }
-                            }
+                                node = selection.getNode();
+                            _lastContent = node.innerHTML;
                         });
                         editor.on('keyup', function(evt) {
-                            var content = editor.selection.getNode().innerHTML;
+                            var content = editor.selection.getNode().innerHTML,
+                                phase;
                             if (_lastContent !== content) {
-                                scope.$emit('tinymce.node.editing', {
-                                    node: editor.selection.getNode(),
-                                    content: content
-                                });
+                                phase = scope.$root.$$phase;
+                                if (phase === '$digest' || phase === '$apply') {
+                                    scope.$emit('tinymce.content.change', {
+                                        node: editor.selection.getNode(),
+                                        content: content
+                                    });
+                                } else {
+                                    scope.$apply(function() {
+                                        scope.$emit('tinymce.content.change', {
+                                            node: editor.selection.getNode(),
+                                            content: content
+                                        });
+                                    });
+                                }
                             }
                         });
                     })();
+                    editor.on('change', function(e) {
+                        var phase;
+                        phase = scope.$root.$$phase;
+                        if (phase === '$digest' || phase === '$apply') {
+                            scope.$emit('tinymce.content.change', false);
+                        } else {
+                            scope.$apply(function() {
+                                scope.$emit('tinymce.content.change', false);
+                            });
+                        }
+                    });
                     editor.on('BeforeSetContent', function(e) {
                         var c;
                         if (e.content && e.content.length) {
@@ -162,12 +99,12 @@ directive('tinymce', function($timeout) {
                             selectedId = editor.dom.getAttrib(selectedNode, 'id');
                             if (!selectedId) {
                                 tmpId = true;
-                                selectedId = '__mcenew' + (new Date).getTime();
+                                selectedId = '__mcenew' + (new Date() * 1);
                                 editor.dom.setAttrib(selectedNode, 'id', selectedId);
                             }
                             scope.$emit('tinymce.multipleimage.open', function(urls, isShowName) {
                                 var i, t, url, data, dom, pElm;
-                                t = (new Date()).getTime();
+                                t = (new Date() * 1);
                                 dom = editor.dom;
                                 for (i in urls) {
                                     url = urls[i] + '?_=' + t,
@@ -188,14 +125,9 @@ directive('tinymce', function($timeout) {
                                     selectedNode = dom.get(selectedId);
                                     dom.setAttrib(selectedNode, 'id', null);
                                 }
-                                editor.save();
+                                scope.$emit('tinymce.content.change', false);
                             });
                         }
-                    });
-                },
-                save_onsavecallback: function() {
-                    $timeout(function() {
-                        scope.onsavecallback && scope.onsavecallback();
                     });
                 },
                 init_instance_callback: function() {
@@ -214,20 +146,6 @@ directive('tinymce', function($timeout) {
             if (scope.toolbar) {
                 tinymceConfig.toolbar += ' ' + scope.toolbar;
             }
-            scope.$watch('content', function(content) {
-                var editor;
-                if (content !== undefined) {
-                    if (!scope.initialized) {
-                        tinymce.init(tinymceConfig);
-                    } else {
-                        editor = tinymce.get(scope.id);
-                        if (content !== editor.getContent()) {
-                            editor.setContent(content);
-                            editor.undoManager.clear();
-                        }
-                    }
-                }
-            });
             scope.$on('$destroy', function() {
                 var editor;
                 if (editor = tinymce.get(scope.id)) {
@@ -235,6 +153,7 @@ directive('tinymce', function($timeout) {
                     editor = null;
                 }
             });
+            tinymce.init(tinymceConfig);
         }
     }
 });

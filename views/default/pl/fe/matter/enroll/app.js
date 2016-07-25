@@ -358,9 +358,14 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		var _timerOfPageUpdate = null;
 		$scope.$on('tinymce.content.change', function(event, changed) {
 			var status, html;
-
-			status = $scope.ep.contentChange(changed.node, $scope.activeWrap, $timeout);
-
+			if (changed) {
+				status = $scope.ep.contentChange(changed.node, $scope.activeWrap, $timeout);
+			} else {
+				status = {
+					htmlChanged: true
+				};
+				$scope.ep.purifyInput(tinymceEditor.getContent(), true);
+			}
 			/*提交页面内容的修改*/
 			if (status.htmlChanged) {
 				if (_timerOfPageUpdate !== null) {

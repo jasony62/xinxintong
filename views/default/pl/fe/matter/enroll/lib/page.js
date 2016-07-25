@@ -85,7 +85,7 @@ define(['wrap'], function(wrapLib) {
 			} else if (action === 'downLevel') {
 				this.setActiveWrap($active.find('[wrap]').get(0));
 			}
-			
+
 			this.html = _editor.getContent();
 
 			return _activeWrap;
@@ -271,7 +271,7 @@ define(['wrap'], function(wrapLib) {
 				newWrap = wrapLib.input.newWrap(schema);
 				domNewWrap = wrapLib.input.embed(newWrap);
 				this.data_schemas.push(newWrap);
-				this.html = _editor.getContent();
+				this.purifyInput(_editor.getContent(), true);
 			}
 			return domNewWrap;
 		},
@@ -315,7 +315,7 @@ define(['wrap'], function(wrapLib) {
 			domNewWrap = wrapLib.button.embed(oWrap);
 			this.act_schemas.push(oWrap);
 
-			this.html = _editor.getContent();
+			this.purifyInput(_editor.getContent(), true);
 
 			return domNewWrap;
 		},

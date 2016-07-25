@@ -63,7 +63,10 @@
                     <button class='btn btn-default' ng-click="newSchema('file')">上传文件</button>
                     <button class='btn btn-default' ng-click="newSchema('location')">上传位置</button>
                     <button class='btn btn-default' ng-click="newSchema('phase')">项目阶段</button>
-                    <button class='btn btn-default' ng-click="newMember(ms)" ng-repeat="ms in memberSchemas"><span>自定义用户信息：</span><span>{{ms.title}}</span></button>
+                </div>
+                <div class='form-group tile' ng-repeat="ms in memberSchemas" ng-if="ep.type==='I'">
+                    <div class='help-block'>{{ms.title}}</div>
+                    <button class='btn btn-default' ng-click="newMember(ms,s)" ng-repeat="s in ms._schemas">{{s.title}}</button>
                 </div>
                 <!-- end create input wrap -->
                 <!-- create button wrap -->

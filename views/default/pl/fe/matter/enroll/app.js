@@ -126,44 +126,24 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				$scope.$broadcast('xxt.matter.enroll.app.data_schemas.created', newSchema);
 			});
 		};
-		$scope.newMember = function(memberSchema) {
-			var newSchema = schemaLib.newSchema('member'),
-				mapOfMemberSchemas = {};
+		$scope.newMember = function(ms, schema) {
+			var newSchema = schemaLib.newSchema('member');
 
-			angular.forEach($scope.app.data_schemas, function(schema) {
-				if (schema.type === 'member') {
-					mapOfMemberSchemas[schema.id] = schema;
+			newSchema.schema_id = ms.id;
+			newSchema.id = schema.id;
+			newSchema.title = schema.title;
+
+			for (i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
+				if (newSchema.id === $scope.app.data_schemas[i].id) {
+					alert('不允许重复添加登记项');
+					return;
 				}
+			}
+
+			$scope.app.data_schemas.push(newSchema);
+			$scope.update('data_schemas').then(function() {
+				$scope.$broadcast('xxt.matter.enroll.app.data_schemas.created', newSchema);
 			});
-			newSchema.schema_id = memberSchema.id;
-			if (memberSchema.attr_name[0] === '0' && mapOfMemberSchemas['member.name'] === undefined) {
-				newSchema.title = '姓名';
-				newSchema.id = 'member.name';
-			} else if (memberSchema.attr_mobile[0] === '0' && mapOfMemberSchemas['member.mobile'] === undefined) {
-				newSchema.title = '手机';
-				newSchema.id = 'member.mobile';
-			} else if (memberSchema.attr_email[0] === '0' && mapOfMemberSchemas['member.email'] === undefined) {
-				newSchema.title = '邮箱';
-				newSchema.id = 'member.email';
-			} else {
-				(function() {
-					var i, ea;
-					for (var i = memberSchema.extattr.length - 1; i >= 0; i--) {
-						ea = memberSchema.extattr[i];
-						if (mapOfMemberSchemas['member.' + ea.id] === undefined) {
-							newSchema.title = ea.label;
-							newSchema.id = 'member.extattr.' + ea.id;
-							break;
-						}
-					}
-				})();
-			}
-			if (newSchema.id.indexOf('member') === 0) {
-				$scope.app.data_schemas.push(newSchema);
-				$scope.update('data_schemas').then(function() {
-					$scope.$broadcast('xxt.matter.enroll.app.data_schemas.created', newSchema);
-				});
-			}
 		};
 		/*初始化页面数据*/
 		$scope.$watch('app', function(app) {
@@ -772,7 +752,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				$timeout.cancel(timerOfUpdate);
 			}
 			timerOfUpdate = $timeout(function() {
-				$scope.ep.html = $scope.ep.html = tinymce.activeEditor.getContent();
+				$scope.ep.purifyInput(tinymce.activeEditor.getContent(), true);
 				$scope.updPage($scope.ep, ['act_schemas', 'html']);
 			}, 1000);
 			timerOfUpdate.then(function() {

@@ -94,7 +94,6 @@ define(['frame'], function(ngApp) {
 					title: '项目',
 					url: '/rest/pl/fe/matter'
 				}],
-				hasParent: false,
 				singleMatter: true
 			});
 		};

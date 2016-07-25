@@ -21,7 +21,7 @@ directive('tinymce', function($timeout) {
                 plugins: ['save textcolor code table paste fullscreen visualblocks'],
                 toolbar: 'fontsizeselect styleselect forecolor backcolor bullist numlist outdent indent table multipleimage',
                 height: scope.height ? scope.height : 300,
-                forced_root_block: 'div',
+                forced_root_block: 'p',
                 valid_elements: "*[*]",
                 relative_urls: false,
                 content_css: '/static/css/bootstrap.min.css,/static/css/tinymce.css?v=' + (new Date() * 1),

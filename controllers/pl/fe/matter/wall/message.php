@@ -16,17 +16,17 @@ class message extends \pl\fe\matter\base {
 	/**
 	 * 获得所有消息
 	 */
-	public function list_action($wall, $page = 1, $size = 30, $contain = null, $site) {
+	public function list_action($id, $page = 1, $size = 30, $contain = null, $site) {
 		$contain = isset($contain) ? explode(',', $contain) : array();
-		$messages = $this->model('matter\wall')->messages($site, $wall, $page, $size, $contain);
+		$messages = $this->model('matter\wall')->messages($site, $id, $page, $size, $contain);
 
 		return new \ResponseData($messages);
 	}
 	/**
 	 * 获得未审核的消息
 	 */
-	public function pendingList_action($wall, $last = 0, $site) {
-		$messages = $this->model('matter\wall')->pendingMessages($site, $wall, $last);
+	public function pendingList_action($id, $last = 0, $site) {
+		$messages = $this->model('matter\wall')->pendingMessages($site, $id, $last);
 
 		return new \ResponseData(array($messages, time()));
 	}
@@ -90,15 +90,15 @@ class message extends \pl\fe\matter\base {
 	/**
 	 * 清空信息墙的所有数据
 	 */
-	public function reset_action($wall) {
+	public function reset_action($id) {
 		/**
 		 * 清除所有加入的人
 		 */
-		$this->model()->delete('xxt_wall_enroll', "wid='$wall'");
+		$this->model()->delete('xxt_wall_enroll', "wid='$id'");
 		/**
 		 * 清除所有留言
 		 */
-		$rst = $this->model()->delete('xxt_wall_log', "wid='$wall'");
+		$rst = $this->model()->delete('xxt_wall_log', "wid='$id'");
 
 		return new \ResponseData($rst);
 	}

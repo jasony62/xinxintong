@@ -127,6 +127,7 @@ class record_model extends \TMS_MODEL {
 				if (is_string($v)) {
 					$vv = $this->escape($v);
 				} else if (is_object($v) || is_array($v)) {
+					// 多选题，将选项合并为逗号分隔的字符串
 					$vv = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
 				} else {
 					$vv = $v;
@@ -652,7 +653,7 @@ class record_model extends \TMS_MODEL {
 						'xxt_enroll_record_data',
 						"aid='$appId' and state=1 and name='{$schema->id}' and FIND_IN_SET('{$op->v}', value)",
 					);
-					$op['c'] = $this->query_val_ss($q);
+					$op->c = $this->query_val_ss($q);
 					$result[$schema->id]['ops'][] = $op;
 				}
 			}

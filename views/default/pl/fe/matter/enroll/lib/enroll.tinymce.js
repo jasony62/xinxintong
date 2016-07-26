@@ -112,6 +112,16 @@ directive('tinymce', function($timeout) {
                                     }
                                 }
                             }
+                        } else if (evt.keyCode === 8 || evt.keyCode === 46) {
+                            if (_lastNodeContent.length === 1) {
+                                if (node.tagName === 'LABEL' && node.parentNode.hasAttribute('wrap')) {
+                                    evt.preventDefault();
+                                    evt.stopPropagation();
+                                } else if (node.tagName === 'SPAN' && node.parentNode.tagName === 'BUTTON') {
+                                    evt.preventDefault();
+                                    evt.stopPropagation();
+                                }
+                            }
                         } else {
                             if (node.hasAttribute('wrap') && node.getAttribute('wrap') !== 'text') {
                                 /*
@@ -126,6 +136,7 @@ directive('tinymce', function($timeout) {
                         var node = editor.selection.getNode(),
                             nodeContent = node.innerHTML,
                             phase;
+
                         if (_lastNodeContent !== nodeContent) {
                             // 通知发生变化
                             phase = scope.$root.$$phase;

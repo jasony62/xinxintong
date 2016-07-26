@@ -5,7 +5,7 @@ define(['frame'], function(ngApp) {
      */
     ngApp.provider.controller('ctrlMessage', ['$scope', '$q', 'http2',function($scope, $q, http2) {
         $scope.$parent.subView = 'message';
-        //清除信息
+        ////清除信息
         $scope.resetWall = function() {
             var vcode;
             vcode = prompt('是否要删除收到的所有信息？，若是，请输入信息墙名称。');
@@ -17,7 +17,7 @@ define(['frame'], function(ngApp) {
                 });
             }
         };
-        //刷新
+        ////刷新
         $scope.page = {
             at: 1,
             size: 30
@@ -31,6 +31,7 @@ define(['frame'], function(ngApp) {
             url += '?id=' + $scope.id;
             url += '&page=' + page + '&size=' + $scope.page.size + '&contain=total' + '&site=' +$scope.siteId;
             http2.get(url, function(rsp) {
+                console.log(rsp.data[0]);
                 $scope.messages = rsp.data[0];
                 $scope.page.total = rsp.data[1];
             });

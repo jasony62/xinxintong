@@ -1,11 +1,12 @@
 onmessage = function(event) {
+    console.log(event);
     var id = event.data.wid,
         last = event.data.last;
-    doAjax('GET', '/rest/pl/fe/matter/wall/message/pendingList?id=' +  id + '&last=' + last + '&site=' + $scope.siteId, null, function(rsp) {
+    doAjax('GET', '/rest/pl/fe/matter/wall/message/pendingList?id=' +  id + '&last=' + last + '&site=', null, function(rsp) {
         postMessage(rsp.data[0]);
         last = rsp.data[1];
         setInterval(function() {
-            doAjax('GET', '/rest/pl/fe/matter/wall/message/pendingList?id=' +  id  + '&last=' + last + '&site=' + $scope.siteId, null, function(rsp) {
+            doAjax('GET', '/rest/pl/fe/matter/wall/message/pendingList?id=' +  id  + '&last=' + last , null, function(rsp) {
                 postMessage(rsp.data[0]);
                 last = rsp.data[1];
             });

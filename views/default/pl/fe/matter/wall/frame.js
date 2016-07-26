@@ -132,6 +132,25 @@ define(['require'], function(require, pageLib) {
 		};
 		$scope.getApp();
 	}]);
+	ngApp.filter('transState', function () {
+		return function (input) {
+			var out = "";
+			input = parseInt(input);
+			switch (input) {
+				case 0:
+					out = '未审核';
+					break;
+				case 1:
+					out = '审核通过';
+					break;
+				case 2:
+					out = '审核未通过';
+					break;
+
+			}
+			return out;
+		}
+	});
 	/***/
 	require(['domReady!'], function(document) {
 		angular.bootstrap(document, ["app"]);

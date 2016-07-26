@@ -41,13 +41,14 @@
 //        });
 //    });
 //}]);
-define(['frame'], function(ngApp) {
+define(['frame'], function (ngApp) {
     /**
      * app setting controller
      */
-    ngApp.provider.controller('ctrlDetail', ['$scope', '$q', 'http2',function($scope, $q, http2) {
+
+    ngApp.provider.controller('ctrlDetail', ['$scope', '$q', 'http2', function ($scope, $q, http2) {
         $scope.$parent.subView = 'detail';
-        return function(input) {
+        return function (input) {
             var out = "";
             input = parseInt(input);
             switch (input) {
@@ -64,7 +65,7 @@ define(['frame'], function(ngApp) {
             }
             return out;
         }
-        $scope.update = function(name) {
+        $scope.update = function (name) {
             var nv = {};
             nv[name] = $scope.wall[name];
             http2.post('/rest/pl/fe/matter/wall/update?id=' + $scope.id + '&site=' + $scope.siteId, nv);
@@ -81,7 +82,7 @@ define(['frame'], function(ngApp) {
         //    alert(1);
         //    http2.post('/rest/pl/fe/matter/wall/update?id=' + $scope.id + 'site=' +$scope.siteId, nv);
         //};
-        $scope.$watch('subView', function(nv) {
+        $scope.$watch('subView', function (nv) {
             if (nv !== 'approve' && $scope.worker) {
                 $scope.worker.terminate();
             }

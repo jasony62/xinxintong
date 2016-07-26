@@ -40,6 +40,7 @@ define(['frame'], function(ngApp) {
                 $scope.messages.splice(i, 1);
             });
         };
+        console.log($scope.messages);
     }]);
 });
 

@@ -17,7 +17,7 @@ define(['frame'], function(ngApp) {
 			type: 'op',
 			name: '信息墙.大屏幕'
 		}];
-		http2.get('/rest/pl/fe/matter/wall/page/list?id=' + $scope.id + 'site=' + $scope.siteId, function(rsp) {
+		http2.get('/rest/pl/fe/matter/wall/page/list?id=' + $scope.id + '&site=' + $scope.siteId, function(rsp) {
 			$scope.pages = {};
 			angular.forEach(rsp.data, function(page) {
 				$scope.pages[page.type] = page;

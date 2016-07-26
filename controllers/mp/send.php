@@ -108,9 +108,9 @@ class send extends mp_controller {
 				 */
 				$model = $this->model('matter\\' . $matter->type);
 				if ($matter->type === 'text') {
-					$message = $model->forCustomPush($this->mpid, $matter->id);
+					$message = $model->forCustomPush($this->mpid, $matter->id, 'OLD');
 				} else if (in_array($matter->type, array('article', 'news', 'channel'))) {
-					$message = $model->forWxGroupPush($this->mpid, $matter->id);
+					$message = $model->forWxGroupPush($this->mpid, $matter->id, 'OLD');
 				}
 
 			} else if ($mpaccount->mpsrc === 'yx') {

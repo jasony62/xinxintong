@@ -617,6 +617,10 @@ class record_model extends \TMS_MODEL {
 		$result = [];
 
 		$app = \TMS_APP::M('matter\enroll')->byId($appId, ['data_schemas', 'cascaded' => 'N']);
+		if (empty($app->data_schemas)) {
+			return $result;
+		}
+
 		$dataSchemas = json_decode($app->data_schemas);
 
 		foreach ($dataSchemas as $schema) {

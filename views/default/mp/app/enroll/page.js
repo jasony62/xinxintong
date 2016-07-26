@@ -375,7 +375,6 @@
         var onclick, html;
         onclick = def.onclick.length ? " ng-click=\"gotoPage($event,'" + def.onclick + "',r.enroll_key)\"" : '';
         html = '<ul class="list-group">';
-        console.log('hhh', html);
         html += '<li class="list-group-item" ng-repeat="r in records"' + onclick + '>';
         if (def.addEnrollAt)
             html += "<div wrap='static' class='wrap-inline'><label>登记时间</label><div>{{r.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div></div>";
@@ -399,7 +398,7 @@
                     case 'radio':
                     case 'checkbox':
                     case 'option':
-                        html += '<div wrap="static" class="wrap-inline"><label>' + s.title + '</label><div>{{r.data.' + s.id + '|value2Label:"' + s.id + '"}}</div></div>';
+                        html += '<div wrap="static" class="wrap-inline"><label>' + s.title + '</label><div>{{value2Label("' + s.id + ',r)"}}</div></div>';
                         break;
                     case 'img':
                         html += '<div wrap="static" class="wrap-inline"><label>' + s.title + '</label><ul><li ng-repeat="img in r.data.' + s.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul></div>';
@@ -415,6 +414,7 @@
         html += "</li></ul>";
         this.addWrap(page, 'div', {
             'ng-controller': 'ctrlRecords',
+            'enroll-schema': '',
             'enroll-records': 'Y',
             'enroll-records-owner': def.dataScope,
             wrap: 'list',

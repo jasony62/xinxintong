@@ -502,29 +502,48 @@ class main extends \pl\fe\matter\base {
 				$config->schema[] = $schemaPhase;
 			}
 		}
-
+		/**
+		 * 处理页面
+		 */
 		foreach ($pages as $page) {
 			$ap = $modelPage->add($user, $site->id, $app, (array) $page);
-			/* 页面关联的定义 */
-			if (isset($schemaPhase)) {
-				if ($page->type === 'I') {
+			/**
+			 * 处理页面数据定义
+			 */
+			if (empty($page->data_schemas) && !empty($config->schema) && !empty($page->simpleConfig)) {
+				/* 页面使用应用的所有数据定义 */
+				$page->data_schemas = [];
+				foreach ($config->schema as $schema) {
 					$newPageSchema = new \stdClass;
-					$schemaPhaseConfig = new \stdClass;
-					$schemaPhaseConfig->component = 'R';
-					$schemaPhaseConfig->align = 'V';
-					$newPageSchema->schema = $schemaPhase;
-					$newPageSchema->config = $schemaPhaseConfig;
+					$newPageSchema->schema = $schema;
+					$newPageSchema->config = clone $page->simpleConfig;
+					if ($page->type === 'V') {
+						$newPageSchema->config->id = 'V_' . $schema->id;
+					}
 					$page->data_schemas[] = $newPageSchema;
-				} else if ($page->type === 'V') {
-					$newPageSchema = new \stdClass;
-					$schemaPhaseConfig = new \stdClass;
-					$schemaPhaseConfig->id = 'V' . time();
-					$schemaPhaseConfig->pattern = 'record';
-					$schemaPhaseConfig->inline = 'Y';
-					$schemaPhaseConfig->splitLine = 'Y';
-					$newPageSchema->schema = $schemaPhase;
-					$newPageSchema->config = $schemaPhaseConfig;
-					$page->data_schemas[] = $newPageSchema;
+				}
+			} else {
+				/* 自动添加项目阶段定义 */
+				if (isset($schemaPhase)) {
+					if ($page->type === 'I') {
+						$newPageSchema = new \stdClass;
+						$schemaPhaseConfig = new \stdClass;
+						$schemaPhaseConfig->component = 'R';
+						$schemaPhaseConfig->align = 'V';
+						$newPageSchema->schema = $schemaPhase;
+						$newPageSchema->config = $schemaPhaseConfig;
+						$page->data_schemas[] = $newPageSchema;
+					} else if ($page->type === 'V') {
+						$newPageSchema = new \stdClass;
+						$schemaPhaseConfig = new \stdClass;
+						$schemaPhaseConfig->id = 'V' . time();
+						$schemaPhaseConfig->pattern = 'record';
+						$schemaPhaseConfig->inline = 'Y';
+						$schemaPhaseConfig->splitLine = 'Y';
+						$newPageSchema->schema = $schemaPhase;
+						$newPageSchema->config = $schemaPhaseConfig;
+						$page->data_schemas[] = $newPageSchema;
+					}
 				}
 			}
 			$pageSchemas = [];
@@ -545,7 +564,7 @@ class main extends \pl\fe\matter\base {
 			$matched = [];
 			$pattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
 			if (preg_match($pattern, $data['html'], $matched)) {
-				//$html = $modelPage->htmlBySchema($config->schema, $matched[0]);
+				//die('xxxx:' . json_encode($page->data_schemas));
 				$html = $modelPage->htmlBySchema($page->data_schemas, $matched[0]);
 				$data['html'] = preg_replace($pattern, $html, $data['html']);
 			}

@@ -215,6 +215,31 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
             event.stopPropagation();
             facRecord.like(record).then(function(rsp) {});
         };
+        $scope.value2Label = function(key, record) {
+            var val, schemas, i, j, s, aVal, aLab = [];
+            if ($scope.Schema && $scope.Schema.data && record) {
+                val = record.data[key];
+                if (val === undefined) return '';
+                schemas = $scope.Schema.data;
+                for (i = 0, j = schemas.length; i < j; i++) {
+                    s = schemas[i];
+                    if (schemas[i].id === key) {
+                        s = schemas[i];
+                        break;
+                    }
+                }
+                if (s && s.ops && s.ops.length) {
+                    aVal = val.split(',');
+                    for (i = 0, j = s.ops.length; i < j; i++) {
+                        aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].label);
+                    }
+                    if (aLab.length) return aLab.join(',');
+                }
+                return val;
+            } else {
+                return '';
+            }
+        };
         $scope.$on('xxt.app.enroll.filter.rounds', function(event, data) {
             if (options.rid !== data[0].rid) {
                 options.rid = data[0].rid;

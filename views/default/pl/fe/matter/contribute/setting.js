@@ -44,8 +44,32 @@
 			app.params.subChannels.splice(i, 1);
 			$scope.update('params');
 		});
-		$scope.onBodyChange = function() {
-			$scope.update('template_body');
-		};
+		$scope.$on('tinymce.multipleimage.open', function(event, callback) {
+			var options = {
+				callback: callback,
+				multiple: true,
+				setshowname: true
+			};
+			mediagallery.open($scope.siteId, options);
+		});
+		$scope.$watch('app', function(app) {
+			if (app && tinymceEditor) {
+				tinymceEditor.setContent(app.template_body ? app.template_body : '');
+			}
+		});
+		$scope.$on('tinymce.instance.init', function(event, editor) {
+			tinymceEditor = editor;
+			if ($scope.app) {
+				editor.setContent($scope.app.template_body ? $scope.app.template_body : '');
+			}
+		});
+		$scope.$on('tinymce.content.change', function(event, changed) {
+			var content;
+			content = tinymceEditor.getContent();
+			if (content !== $scope.app.template_body) {
+				$scope.app.template_body = content;
+				$scope.update('template_body');
+			}
+		});
 	}]);
 })();

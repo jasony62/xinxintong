@@ -12,8 +12,7 @@ define(['frame'], function(ngApp) {
 		$scope.opUrl = 'http://' + location.host + '/rest/site/op/matter/enroll?site=' + $scope.siteId + '&app=' + $scope.id;
 		$scope.stop = function() {
 			$scope.app.state = 1;
-			$scope.update('state');
-			$scope.submit().then(function() {
+			$scope.update('state').then(function() {
 				location.href = '/rest/pl/fe/matter/enroll/app?site=' + $scope.siteId + '&id=' + $scope.id;
 			});
 		};

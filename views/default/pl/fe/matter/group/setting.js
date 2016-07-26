@@ -1,5 +1,5 @@
 define(['frame'], function(ngApp) {
-	ngApp.provider.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery', 'mattersgallery', 'noticebox', function($scope, http2, $uibModal, mediagallery, mattersgallery, noticebox) {
+	ngApp.provider.controller('ctrlSetting', ['$scope', 'http2', '$q', '$uibModal', 'mattersgallery', 'noticebox', function($scope, http2, $q, $uibModal, mattersgallery, noticebox) {
 		window.onbeforeunload = function(e) {
 			var message;
 			if ($scope.modified) {
@@ -100,6 +100,7 @@ define(['frame'], function(ngApp) {
 				http2.get('/rest/pl/fe/matter/group/player/syncByApp?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
 					noticebox.success('同步' + rsp.data + '个用户');
 					defer.resolve(rsp.data);
+					$scope.$broadcast('xxt.matter.group.player.sync', rsp.data);
 				});
 			}
 			return defer.promise;
@@ -379,6 +380,17 @@ define(['frame'], function(ngApp) {
 				$scope.players = rsp.data;
 			});
 		};
+		$scope.$on('xxt.matter.group.player.sync', function(event, count) {
+			if (count > 0) {
+				if ($scope.editingRound === null) {
+					$scope.allPlayers();
+				} else if ($scope.editingRound === false) {
+					$scope.pendings();
+				} else {
+					$scope.winners($scope.editingRound);
+				}
+			}
+		});
 		$scope.$watch('editingRound', function(round) {
 			if (round === null) {
 				$scope.allPlayers();

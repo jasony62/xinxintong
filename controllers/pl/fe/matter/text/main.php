@@ -22,16 +22,15 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function list_action($site, $fields = '*') {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$q = array(
+		$q = [
 			$fields,
 			'xxt_text',
-			"siteid='$site' and state=1",
-		);
+			["siteid" => $site, "state" => 1],
+		];
 		$q2['o'] = 'create_at desc';
 		$texts = $this->model()->query_objs_ss($q, $q2);
 
@@ -41,8 +40,7 @@ class main extends \pl\fe\matter\base {
 	 * 创建文本素材
 	 */
 	public function create_action($site) {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -58,14 +56,16 @@ class main extends \pl\fe\matter\base {
 		$d['modifier_name'] = $user->name;
 		$d['modify_at'] = time();
 		$d['title'] = $model->escape($text->title);
+		// @todo should remove
+		$d['content'] = $model->escape($text->title);
 
 		$id = $model->insert('xxt_text', $d, true);
 
-		$q = array(
+		$q = [
 			"*",
 			'xxt_text',
-			"id='$id'",
-		);
+			["id" => $id],
+		];
 		$text = $this->model()->query_obj_ss($q);
 
 		return new \ResponseData($text);
@@ -74,8 +74,7 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function delete_action($site, $id) {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -86,7 +85,11 @@ class main extends \pl\fe\matter\base {
 		$nv->modifier_name = $user->name;
 		$nv->modify_at = time();
 
-		$rst = $model->update('xxt_text', $nv, "siteid='$site' and id=$id");
+		$rst = $model->update(
+			'xxt_text',
+			$nv,
+			["siteid" => $site, "id" => $id]
+		);
 
 		return new \ResponseError($rst);
 	}
@@ -94,16 +97,16 @@ class main extends \pl\fe\matter\base {
 	 * 更新文本素材的属性
 	 */
 	public function update_action($site, $id) {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$model = $this->model();
 		$nv = $this->getPostJson();
 
-		if (isset($nv->content)) {
-			$nv->content = $model->escape($nv->content);
+		if (isset($nv->title)) {
+			$nv->title = $model->escape($nv->title);
+			$nv->content = $nv->title;
 		}
 		$nv->modifier = $user->id;
 		$nv->modifier_name = $user->name;
@@ -112,7 +115,7 @@ class main extends \pl\fe\matter\base {
 		$rst = $model->update(
 			'xxt_text',
 			$nv,
-			"siteid='$site' and id=$id"
+			["siteid" => $site, "id" => $id]
 		);
 
 		return new \ResponseData($rst);

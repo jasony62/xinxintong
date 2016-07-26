@@ -44,6 +44,9 @@ define([], function() {
                 newDomWrap = dom.add(body, name, attrs, html);
             }
         }
+
+        _editor.fire('change');
+
         return newDomWrap;
     };
     /**

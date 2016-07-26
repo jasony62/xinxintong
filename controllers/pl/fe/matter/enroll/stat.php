@@ -34,16 +34,17 @@ class stat extends \pl\fe\matter\base {
 			$q = [
 				'create_at',
 				'xxt_enroll_record_stat',
-				"aid='$app'",
+				["aid" => $app],
 			];
 			$q2 = ['r' => ['o' => 0, 'l' => 1]];
-			$last = (int) $model->query_objs_ss($q, $q2);
+			$last = $model->query_objs_ss($q, $q2);
 			/* 上次统计后的新登记记录数 */
-			if ($last) {
+			if (count($last) === 1) {
+				$last = $last[0];
 				$q = [
 					'count(*)',
 					'xxt_enroll_record',
-					"aid='app' and enroll_at>=$last",
+					"aid='$app' and enroll_at>={$last->create_at}",
 				];
 				$newCnt = (int) $model->query_val_ss($q);
 			} else {

@@ -487,7 +487,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			if (event.keyCode === 13) {
 				$scope.addOption();
 			}
-		}
+		};
 		$scope.$on('xxt.editable.remove', function(e, op) {
 			var i = $scope.schema.ops.indexOf(op);
 			$scope.schema.ops.splice(i, 1);
@@ -512,7 +512,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				/* 更新应用的定义 */
 				$scope.update('data_schemas').then(function() {
 					/* 更新当前页面 */
-					$scope.ep.html = tinymce.activeEditor.getContent();
+					$scope.ep.purifyInput(tinymce.activeEditor.getContent(), true);
 					$scope.updPage($scope.ep, ['data_schemas', 'html']);
 					/* 更新其它页面 */
 					angular.forEach($scope.app.pages, function(page) {

@@ -37,13 +37,14 @@ define(['require'], function(require, pageLib) {
 	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'noticebox', function($scope, $location, $uibModal, $q, http2, noticebox) {
 		var ls = $location.search(),
 			modifiedData = {};
-
+		$scope.subView = 'detail';
 		$scope.id = ls.id;
 		$scope.siteId = ls.site;
 		$scope.modified = false;
 		$scope.submit = function() {
 			var defer = $q.defer();
 			http2.post('/rest/pl/fe/matter/wall/update?site=' + $scope.siteId + '&app=' + $scope.id, modifiedData, function(rsp) {
+			//http2.post('/rest/pl/fe/matter/wall/update?wall=' + $scope.id, modifiedData, function(rsp) {
 				$scope.modified = false;
 				modifiedData = {};
 				noticebox.success('完成保存');

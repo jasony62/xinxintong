@@ -6,6 +6,7 @@ define(['frame'], function(ngApp) {
 	ngApp.provider.controller('ctrlPage', ['$scope', '$q', 'http2',function($scope, $q, http2) {
 		//nv是什么 frame.js 可能是传过来的 暂时自定义为true
 		//var nv = true;
+		$scope.$parent.subView = 'page';
 		$scope.$watch('wall', function(nv) {
 			if (nv) {
 				//$scope.url = 'http://' + location.host + '/rest/op/wall?mpid=' + $scope.mpaccount.mpid + '&wall=' + nv.id;

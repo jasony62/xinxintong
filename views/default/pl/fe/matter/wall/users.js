@@ -4,6 +4,7 @@ define(['frame'], function(ngApp) {
      * app setting controller
      */
     ngApp.provider.controller('ctrlUsers', ['$scope', '$q', 'http2','$uibModal',function($scope, $q, http2, $uibModal) {
+        $scope.$parent.subView = 'users';
         //退出信息墙功能
         $scope.quit = function() {
             var vcode;

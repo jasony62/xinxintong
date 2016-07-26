@@ -4,7 +4,7 @@ define(['frame'], function(ngApp) {
      * app setting controller
      */
     ngApp.provider.controller('ctrlMessage', ['$scope', '$q', 'http2',function($scope, $q, http2) {
-
+        $scope.$parent.subView = 'message';
         //清除信息
         $scope.resetWall = function() {
             var vcode;

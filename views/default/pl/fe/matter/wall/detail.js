@@ -46,6 +46,7 @@ define(['frame'], function(ngApp) {
      * app setting controller
      */
     ngApp.provider.controller('ctrlDetail', ['$scope', '$q', 'http2',function($scope, $q, http2) {
+        $scope.$parent.subView = 'detail';
         return function(input) {
             var out = "";
             input = parseInt(input);

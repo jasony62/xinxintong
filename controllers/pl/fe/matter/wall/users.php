@@ -64,7 +64,9 @@ class users extends \pl\fe\matter\base {
 		if ($onlySpeaker === 'Y') {
 			$q[2] .= ' and e.last_msg_at<>0';
 		}
+
 		$users = $this->model()->query_objs_ss($q);
+		
 		// if (count($users)) {
 		// 	$objApp = new \stdClass;
 		// 	$objApp->id = $app;

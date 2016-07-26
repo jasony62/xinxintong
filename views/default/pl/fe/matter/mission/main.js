@@ -36,10 +36,10 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery',
 		}
 	};
 	$scope.sub = 'basic';
-	$scope.subView = '/views/default/pl/fe/matter/mission/basic.html?_=5';
+	$scope.subView = '/views/default/pl/fe/matter/mission/basic.html?_=6';
 	$scope.gotoSub = function(sub) {
 		$scope.sub = sub;
-		$scope.subView = '/views/default/pl/fe/matter/mission/' + sub + '.html?_=5';
+		$scope.subView = '/views/default/pl/fe/matter/mission/' + sub + '.html?_=6';
 	};
 	$scope.submit = function() {
 		http2.post('/rest/pl/fe/matter/mission/setting/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData, function(rsp) {

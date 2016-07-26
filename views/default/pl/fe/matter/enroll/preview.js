@@ -17,4 +17,64 @@ define(['frame'], function(ngApp) {
 			}
 		}, true);
 	}]);
+	/**
+	 * app setting controller
+	 */
+	ngApp.provider.controller('ctrlApp', ['$scope', '$q', 'http2', function($scope, $q, http2) {
+		//
+		function arrangePhases(app) {
+			if (app.mission && app.mission.phases && app.mission.phases.length) {
+				$scope.phases = angular.copy(app.mission.phases);
+				$scope.phases.unshift({
+					title: '全部',
+					phase_id: ''
+				});
+			}
+		};
+		$scope.phases = null;
+		$scope.$on('xxt.tms-datepicker.change', function(event, data) {
+			$scope.app[data.state] = data.value;
+			$scope.update(data.state);
+		});
+		$scope.choosePhase = function() {
+			var phaseId = $scope.app.mission_phase_id,
+				i, phase, newPhase, updatedFields = ['mission_phase_id'];
+
+			// 去掉活动标题中现有的阶段后缀
+			for (i = $scope.app.mission.phases.length - 1; i >= 0; i--) {
+				phase = $scope.app.mission.phases[i];
+				$scope.app.title = $scope.app.title.replace('-' + phase.title, '');
+				if (phase.phase_id === phaseId) {
+					newPhase = phase;
+				}
+			}
+
+			if (newPhase) {
+				// 给活动标题加上阶段后缀
+				$scope.app.title += '-' + newPhase.title;
+				updatedFields.push('title');
+				// 设置活动开始时间
+				if ($scope.app.start_at == 0) {
+					$scope.app.start_at = newPhase.start_at;
+					updatedFields.push('start_at');
+				}
+				// 设置活动结束时间
+				if ($scope.app.end_at == 0) {
+					$scope.app.end_at = newPhase.end_at;
+					updatedFields.push('end_at');
+				}
+			}
+
+			$scope.update(updatedFields);
+		};
+		/*初始化页面数据*/
+		if ($scope.app) {
+			arrangePhases($scope.app);
+		} else {
+			$scope.$watch('app', function(app) {
+				if (!app) return;
+				arrangePhases(app);
+			});
+		}
+	}]);
 });

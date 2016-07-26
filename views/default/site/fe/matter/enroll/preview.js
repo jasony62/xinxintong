@@ -184,15 +184,11 @@ define(["angular", "xxt-page", "enroll-directive", "angular-sanitize"], function
         };
     }]);
     ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', function($scope, Record, LS) {
-        var schemas = [],
-            dataSchemas = JSON.parse($scope.page.data_schemas),
-            i;
+        var schemas = $scope.app.data_schemas;
+
         Record.get(LS.p['ek']);
         $scope.Record = Record;
 
-        for (i in dataSchemas) {
-            schemas.push(dataSchemas[i].schema);
-        }
         $scope.value2Label = function(key) {
             var val, i, j, s, aVal, aLab = [];
             if (schemas && Record.current.data) {

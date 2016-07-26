@@ -11,6 +11,7 @@ define(['frame'], function(ngApp) {
 				return message;
 			}
 		};
+		$scope.editingRound = null;
 		$scope.assignMission = function() {
 			mattersgallery.open($scope.siteId, function(matters, type) {
 				var app;
@@ -84,6 +85,7 @@ define(['frame'], function(ngApp) {
 					data.appType === 'signin' && (params.includeEnroll = data.includeEnroll);
 					http2.post('/rest/pl/fe/matter/group/player/importByApp?site=' + $scope.siteId + '&app=' + $scope.id, params, function(rsp) {
 						$scope.app.sourceApp = data.app;
+						$scope.open(null);
 					});
 				}
 			});
@@ -202,7 +204,6 @@ define(['frame'], function(ngApp) {
 				});
 			}
 		};
-		$scope.editingRound = null;
 		$scope.open = function(round) {
 			$scope.editingRound = round;
 		};

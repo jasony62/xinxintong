@@ -35,3 +35,6 @@ body>nav>ul:nth-child(2)>li{display:inline-block;float:none;}
 #publish-view .records .summary{font-size:32px;text-align:center;}
 #publish-view .statistic caption{text-align:center;border:1px solid #ddd;border-bottom:0;}
 #publish-view .statistic .table-bordered>thead>tr>th{border-bottom:1px;}
+
+/*record-view*/
+#record-view table img{max-width:96px;}

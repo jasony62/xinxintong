@@ -2,7 +2,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 	/**
 	 * app setting controller
 	 */
-	ngApp.provider.controller('ctrlPage', ['$scope', '$q', 'http2', 'srvPage', 'mattersgallery', 'noticebox', function($scope, $q, http2, srvPage, mattersgallery, noticebox) {
+	ngApp.provider.controller('ctrlPage', ['$scope', 'srvPage', function($scope, srvPage) {
 		window.onbeforeunload = function(e) {
 			var message;
 			if ($scope.ep.$$modified) {
@@ -141,7 +141,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			$scope.activeWrap = $scope.ep.setActiveWrap(domWrap);
 		};
 		$scope.wrapEditorHtml = function() {
-			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=21';
+			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=22';
 			return url;
 		};
 		var addInputSchema = function(addedSchema) {
@@ -298,15 +298,19 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		$scope.$on('tinymce.content.change', function(event, changed) {
 			var status, html;
 			if (changed) {
+				// 文档中的节点发生变化
 				status = $scope.ep.contentChange(changed.node, $scope.activeWrap, $timeout);
 			} else {
-				status = {
-					htmlChanged: true
-				};
-				$scope.ep.purifyInput(tinymceEditor.getContent(), true);
+				html = $scope.ep.purifyInput(tinymceEditor.getContent());
+				if (html !== $scope.ep.html) {
+					$scope.ep.html = html;
+					status = {
+						htmlChanged: true
+					};
+				}
 			}
 			/*提交页面内容的修改*/
-			if (status.htmlChanged) {
+			if (status && status.htmlChanged) {
 				if (_timerOfPageUpdate !== null) {
 					$timeout.cancel(_timerOfPageUpdate);
 				}

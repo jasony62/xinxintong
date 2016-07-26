@@ -61,7 +61,9 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
         box = _getBox('success', msg);
         /*保持2秒钟后自动关闭*/
         _last.timer = $timeout(function() {
-            document.body.removeChild(box);
+            if (box.parentNode && box.parentNode === document.body) {
+                document.body.removeChild(box);
+            }
             _last.timer = null;
         }, 2000);
     };

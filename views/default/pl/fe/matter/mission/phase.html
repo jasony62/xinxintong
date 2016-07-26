@@ -15,7 +15,10 @@
         </div>
     </div>
     <div class='input-group'>
-        <span class="input-group-addon">指定阶段数量</span>
+        <span class="input-group-addon">
+            <span ng-if="!phases.length">指定阶段数量</span>
+            <span ng-if="phases.length">增加阶段数量</span>
+        </span>
         <input type='text' class='form-control' ng-model="numberOfNewPhases">
         <span class='input-group-btn'>
             <button class='btn btn-default' ng-click="add()">添加</button>

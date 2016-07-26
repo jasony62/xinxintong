@@ -230,7 +230,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 
 			$scope.app.data_schemas.push(newSchema);
 			$scope.update('data_schemas').then(function() {
-				$scope.$broadcast('xxt.matter.enroll.app.data_schemas.created', newSchema);
+				$scope.$broadcast('xxt.matter.signin.app.data_schemas.created', newSchema);
 			});
 		};
 		$scope.copySchema = function(schema) {
@@ -238,7 +238,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			newSchema.id = 'c' + (new Date() * 1);
 			$scope.app.data_schemas.push(newSchema);
 			$scope.update('data_schemas').then(function() {
-				$scope.$broadcast('xxt.matter.enroll.app.data_schemas.created', newSchema);
+				$scope.$broadcast('xxt.matter.signin.app.data_schemas.created', newSchema);
 			});
 		};
 		$scope.$watch('app', function(app) {
@@ -470,6 +470,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				/* 更新应用的定义 */
 				$scope.update('data_schemas').then(function() {
 					/* 更新当前页面 */
+					$scope.ep.purifyInput(tinymce.activeEditor.getContent(), true);
 					$scope.updPage($scope.ep, ['data_schemas', 'html']);
 					/* 更新其它页面 */
 					angular.forEach($scope.app.pages, function(page) {
@@ -640,6 +641,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				$timeout.cancel(timerOfUpdate);
 			}
 			timerOfUpdate = $timeout(function() {
+				$scope.ep.purifyInput(tinymce.activeEditor.getContent(), true);
 				$scope.updPage($scope.ep, ['act_schemas', 'html']);
 			}, 1000);
 			timerOfUpdate.then(function() {
@@ -778,7 +780,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		};
 		$scope.moveWrap = function(action) {
 			$scope.activeWrap = $scope.ep.moveWrap(action);
-			tinymceEditor.save();
+			$scope.updPage($scope.ep, ['html']);
 		};
 		$scope.embedMatter = function(page) {
 			var options = {
@@ -834,14 +836,17 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			if (changed) {
 				status = $scope.ep.contentChange(changed.node, $scope.activeWrap, $timeout);
 			} else {
-				status = {
-					htmlChanged: true
-				};
-				$scope.ep.purifyInput(tinymceEditor.getContent(), true);
+				html = $scope.ep.purifyInput(tinymceEditor.getContent());
+				if (html !== $scope.ep.html) {
+					$scope.ep.html = html;
+					status = {
+						htmlChanged: true
+					};
+				}
 			}
 
 			/*提交页面内容的修改*/
-			if (status.htmlChanged) {
+			if (status && status.htmlChanged) {
 				if (_timerOfPageUpdate !== null) {
 					$timeout.cancel(_timerOfPageUpdate);
 				}

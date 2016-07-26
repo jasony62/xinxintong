@@ -29,13 +29,13 @@ define(['frame'], function(ngApp) {
             last: 0
         });
         $scope.approve = function(msg) {
-            http2.get('/rest/pl/fe/matter/wall/message/approve?wall=' + $scope.id + '&site=' +$scope.siteId + '&id=' + msg.id, function(rsp) {
+            http2.get('/rest/pl/fe/matter/wall/message/approve?wall=' + $scope.id + '&id=' + msg.id  + '&site=' +$scope.siteId, function(rsp) {
                 var i = $scope.messages.indexOf(msg);
                 $scope.messages.splice(i, 1);
             });
         };
         $scope.reject = function(msg) {
-            http2.get('/rest/pl/fe/matter/wall/message/reject?wall=' + $scope.id + '&site=' +$scope.siteId + '&id=' + msg.id, function(rsp) {
+            http2.get('/rest/pl/fe/matter/wall/message/reject?wall=' + $scope.id + '&id=' + msg.id + '&site=' +$scope.siteId , function(rsp) {
                 var i = $scope.messages.indexOf(msg);
                 $scope.messages.splice(i, 1);
             });

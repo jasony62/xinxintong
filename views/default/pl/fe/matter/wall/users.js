@@ -90,7 +90,9 @@ define(['frame'], function(ngApp) {
         //刷新
         $scope.doSearch = function() {
             http2.get('/rest/pl/fe/matter/wall/users/list?id=' + $scope.id + '&site=' + $scope.siteId, function(rsp) {
+                console.log(rsp);
                 $scope.users = rsp.data;
+                $scope.users = []
             });
         };
         $scope.doSearch();

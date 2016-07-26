@@ -28,7 +28,7 @@ define(['frame'], function(ngApp) {
             else
                 $scope.page.at = page;
             var url = '/rest/pl/fe/matter/wall/message/list';
-            url += 'id=' + $scope.id;
+            url += '?id=' + $scope.id;
             url += '&page=' + page + '&size=' + $scope.page.size + '&contain=total' + '&site=' +$scope.siteId;
             http2.get(url, function(rsp) {
                 $scope.messages = rsp.data[0];

@@ -76,7 +76,7 @@ class main extends \pl\fe\matter\base {
 		$result = ['apps' => null, 'total' => 0];
 		$model = $this->model();
 		$q = [
-			'a.*',
+			"a.*,'enroll' type",
 			'xxt_enroll a',
 			"state<>0",
 		];

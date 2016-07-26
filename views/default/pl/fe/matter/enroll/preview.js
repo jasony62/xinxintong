@@ -22,9 +22,9 @@ define(['frame'], function(ngApp) {
 	 */
 	ngApp.provider.controller('ctrlApp', ['$scope', '$q', 'http2', function($scope, $q, http2) {
 		//
-		function arrangePhases(app) {
-			if (app.mission && app.mission.phases && app.mission.phases.length) {
-				$scope.phases = angular.copy(app.mission.phases);
+		function arrangePhases(mission) {
+			if (mission.phases && mission.phases.length) {
+				$scope.phases = angular.copy(mission.phases);
 				$scope.phases.unshift({
 					title: '全部',
 					phase_id: ''
@@ -68,12 +68,12 @@ define(['frame'], function(ngApp) {
 			$scope.update(updatedFields);
 		};
 		/*初始化页面数据*/
-		if ($scope.app) {
-			arrangePhases($scope.app);
+		if ($scope.app && $scope.app.mission) {
+			arrangePhases($scope.app.mission);
 		} else {
-			$scope.$watch('app', function(app) {
-				if (!app) return;
-				arrangePhases(app);
+			$scope.$watch('app.mission', function(mission) {
+				if (!mission) return;
+				arrangePhases(mission);
 			});
 		}
 	}]);

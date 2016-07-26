@@ -86,7 +86,7 @@ define(['wrap'], function(wrapLib) {
 				this.setActiveWrap($active.find('[wrap]').get(0));
 			}
 
-			this.html = _editor.getContent();
+			this.purifyInput(_editor.getContent(), true);
 
 			return _activeWrap;
 		},

@@ -125,7 +125,7 @@
                         <button class='btn btn-default' ng-click="moveWrap('down')" ng-disabled='!activeWrap'>
                         <span class='fa fa-arrow-down fa-fw'></span>
                         </button>
-                        <button class='btn btn-default' title='复制' ng-click="copyWrap()" ng-disabled='!activeWrap'>
+                        <button ng-if="ep.type==='I'" class='btn btn-default' title='复制' ng-click="copySchema(activeWrap.schema)" ng-disabled='!activeWrap'>
                         <span class='fa fa-copy fa-fw'></span>
                         </button>
                         <button class='btn btn-default' title='编辑代码' ng-click="gotoCode()">

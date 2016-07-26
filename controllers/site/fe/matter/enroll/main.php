@@ -214,9 +214,9 @@ class main extends base {
 		$user = $this->who;
 		if (!empty($user->members)) {
 			$modelMem = $this->model('site\user\member');
-			foreach ($user->members as $id => $member) {
-				$newMember = $modelMem->byId($id);
-				$user->members->{$id} = $newMember;
+			foreach ($user->members as $schemaId => $member) {
+				$freshMember = $modelMem->byId($member->id);
+				$user->members->{$schemaId} = $freshMember;
 			}
 		}
 		$params['user'] = $user;

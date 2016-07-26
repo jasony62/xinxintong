@@ -145,6 +145,14 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				$scope.$broadcast('xxt.matter.enroll.app.data_schemas.created', newSchema);
 			});
 		};
+		$scope.copySchema = function(schema) {
+			var newSchema = angular.copy(schema);
+			newSchema.id = 'c' + (new Date() * 1);
+			$scope.app.data_schemas.push(newSchema);
+			$scope.update('data_schemas').then(function() {
+				$scope.$broadcast('xxt.matter.enroll.app.data_schemas.created', newSchema);
+			});
+		};
 		/*初始化页面数据*/
 		$scope.$watch('app', function(app) {
 			if (!app) return;
@@ -182,7 +190,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			$scope.activeWrap = $scope.ep.setActiveWrap(domWrap);
 		};
 		$scope.wrapEditorHtml = function() {
-			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=20';
+			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=21';
 			return url;
 		};
 		var addInputSchema = function(addedSchema) {
@@ -523,40 +531,16 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				$scope.$broadcast('xxt.editable.add', newOp);
 			});
 		};
+		$scope.onKeyup = function(event) {
+			// 回车时自动添加选项
+			if (event.keyCode === 13) {
+				$scope.addOption();
+			}
+		}
 		$scope.$on('xxt.editable.remove', function(e, op) {
 			var i = $scope.schema.ops.indexOf(op);
 			$scope.schema.ops.splice(i, 1);
 		});
-		$scope.shiftMemberSchema = function() {
-			var memberSchema = $scope.selectedMemberSchema.schema,
-				schemaAttrs = [];
-			$scope.schema.schema_id = memberSchema.id;
-			/*自定义用户属性列表*/
-			memberSchema.attr_name[0] === '0' && (schemaAttrs.push({
-				id: 'name',
-				label: '姓名'
-			}));
-			memberSchema.attr_mobile[0] === '0' && (schemaAttrs.push({
-				id: 'mobile',
-				label: '手机'
-			}));
-			memberSchema.attr_email[0] === '0' && (schemaAttrs.push({
-				id: 'email',
-				label: '邮箱'
-			}));
-			if (memberSchema.extattr && memberSchema.extattr.length) {
-				var i, l, ea;
-				for (i = 0, l = memberSchema.extattr.length; i < l; i++) {
-					ea = memberSchema.extattr[i];
-					schemaAttrs.push({
-						id: 'extattr.' + ea.id,
-						label: ea.label
-					});
-				}
-			}
-			$scope.selectedMemberSchema.attrs = schemaAttrs;
-			$scope.selectedMemberSchema.attr = null;
-		};
 		$scope.$watch('schema.ops', function(nv, ov) {
 			if (nv !== ov) {
 				$scope.updWrap('schema', 'ops');
@@ -594,30 +578,26 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		};
 		if ($scope.schema.type === 'member') {
 			if ($scope.schema.schema_id) {
-				/*自定义用户*/
-				for (var i = $scope.memberSchemas.length - 1; i >= 0; i--) {
-					if ($scope.schema.schema_id === $scope.memberSchemas[i].id) {
-						$scope.selectedMemberSchema = {
-							schema: $scope.memberSchemas[i]
-						};
-						break;
+				(function() {
+					var i, j, memberSchema, schema;
+					/*自定义用户*/
+					for (i = $scope.memberSchemas.length - 1; i >= 0; i--) {
+						memberSchema = $scope.memberSchemas[i];
+						if ($scope.schema.schema_id === memberSchema.id) {
+							for (j = memberSchema._schemas.length - 1; j >= 0; j--) {
+								schema = memberSchema._schemas[j];
+								if ($scope.schema.id === schema.id) {
+									break;
+								}
+							}
+							$scope.selectedMemberSchema = {
+								schema: memberSchema,
+								attr: schema
+							};
+							break;
+						}
 					}
-				}
-				$scope.selectedMemberSchema.schema && $scope.shiftMemberSchema();
-				/*自定义用户属性*/
-				var id = $scope.schema.id.substr(7);
-				for (var i = $scope.selectedMemberSchema.attrs.length - 1; i >= 0; i--) {
-					if (id === $scope.selectedMemberSchema.attrs[i].id) {
-						$scope.selectedMemberSchema.attr = $scope.selectedMemberSchema.attrs[i];
-						break;
-					}
-				}
-			} else {
-				$scope.selectedMemberSchema = {
-					schema: null,
-					attrs: null,
-					attr: null
-				};
+				})();
 			}
 		}
 	}]);

@@ -214,26 +214,31 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				$scope.$broadcast('xxt.matter.signin.app.data_schemas.created', newSchema);
 			});
 		};
-		$scope.newMember = function() {
-			if (!$scope.memberSchemas || $scope.memberSchemas.length === 0) return;
+		$scope.newMember = function(ms, schema) {
+			var newSchema = schemaLib.newSchema('member');
 
-			var memberSchema = $scope.memberSchemas[0],
-				newSchema = schemaLib.newInput('member');
+			newSchema.schema_id = ms.id;
+			newSchema.id = schema.id;
+			newSchema.title = schema.title;
 
-			newSchema.schema_id = memberSchema.id;
-			if (memberSchema.attr_name[0] === '0') {
-				newSchema.title = '姓名';
-				newSchema.id = 'member.name';
-			} else if (memberSchema.attr_mobile[0] === '0') {
-				newSchema.title = '手机';
-				newSchema.id = 'member.mobile';
-			} else if (memberSchema.attr_email[0] === '0') {
-				newSchema.title = '邮箱';
-				newSchema.id = 'member.email';
+			for (i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
+				if (newSchema.id === $scope.app.data_schemas[i].id) {
+					alert('不允许重复添加登记项');
+					return;
+				}
 			}
+
 			$scope.app.data_schemas.push(newSchema);
 			$scope.update('data_schemas').then(function() {
-				$scope.$broadcast('xxt.matter.signin.app.data_schemas.created', newSchema);
+				$scope.$broadcast('xxt.matter.enroll.app.data_schemas.created', newSchema);
+			});
+		};
+		$scope.copySchema = function(schema) {
+			var newSchema = angular.copy(schema);
+			newSchema.id = 'c' + (new Date() * 1);
+			$scope.app.data_schemas.push(newSchema);
+			$scope.update('data_schemas').then(function() {
+				$scope.$broadcast('xxt.matter.enroll.app.data_schemas.created', newSchema);
 			});
 		};
 		$scope.$watch('app', function(app) {
@@ -435,46 +440,16 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				$scope.$broadcast('xxt.editable.add', newOp);
 			});
 		};
+		$scope.onKeyup = function(event) {
+			// 回车时自动添加选项
+			if (event.keyCode === 13) {
+				$scope.addOption();
+			}
+		};
 		$scope.$on('xxt.editable.remove', function(e, op) {
 			var i = $scope.schema.ops.indexOf(op);
 			$scope.schema.ops.splice(i, 1);
 		});
-		$scope.shiftMemberSchema = function() {
-			var memberSchema = $scope.selectedMemberSchema.schema,
-				schemaAttrs = [];
-			$scope.schema.schema_id = memberSchema.id;
-			/*自定义用户属性列表*/
-			memberSchema.attr_name[0] === '0' && (schemaAttrs.push({
-				id: 'name',
-				label: '姓名'
-			}));
-			memberSchema.attr_mobile[0] === '0' && (schemaAttrs.push({
-				id: 'mobile',
-				label: '手机'
-			}));
-			memberSchema.attr_email[0] === '0' && (schemaAttrs.push({
-				id: 'email',
-				label: '邮箱'
-			}));
-			if (memberSchema.extattr && memberSchema.extattr.length) {
-				var i, l, ea;
-				for (i = 0, l = memberSchema.extattr.length; i < l; i++) {
-					ea = memberSchema.extattr[i];
-					schemaAttrs.push({
-						id: 'extattr.' + ea.id,
-						label: ea.label
-					});
-				}
-			}
-			$scope.selectedMemberSchema.attrs = schemaAttrs;
-			$scope.selectedMemberSchema.attr = null;
-		};
-		$scope.shiftMemberSchemaAttr = function() {
-			var attr = $scope.selectedMemberSchema.attr;
-			selectedMemberSchema = attr.label;
-			$scope.schema.id = 'member.' + attr.id;
-			$scope.schema.title = attr.label;
-		};
 		$scope.$watch('schema.ops', function(nv, ov) {
 			if (nv !== ov) {
 				$scope.updWrap('schema', 'ops');
@@ -511,30 +486,26 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		};
 		if ($scope.schema.type === 'member') {
 			if ($scope.schema.schema_id) {
-				/*自定义用户*/
-				for (var i = $scope.memberSchemas.length - 1; i >= 0; i--) {
-					if ($scope.schema.schema_id === $scope.memberSchemas[i].id) {
-						$scope.selectedMemberSchema = {
-							schema: $scope.memberSchemas[i]
-						};
-						break;
+				(function() {
+					var i, j, memberSchema, schema;
+					/*自定义用户*/
+					for (i = $scope.memberSchemas.length - 1; i >= 0; i--) {
+						memberSchema = $scope.memberSchemas[i];
+						if ($scope.schema.schema_id === memberSchema.id) {
+							for (j = memberSchema._schemas.length - 1; j >= 0; j--) {
+								schema = memberSchema._schemas[j];
+								if ($scope.schema.id === schema.id) {
+									break;
+								}
+							}
+							$scope.selectedMemberSchema = {
+								schema: memberSchema,
+								attr: schema
+							};
+							break;
+						}
 					}
-				}
-				$scope.selectedMemberSchema.schema && $scope.shiftMemberSchema();
-				/*自定义用户属性*/
-				var id = $scope.schema.id.substr(7);
-				for (var i = $scope.selectedMemberSchema.attrs.length - 1; i >= 0; i--) {
-					if (id === $scope.selectedMemberSchema.attrs[i].id) {
-						$scope.selectedMemberSchema.attr = $scope.selectedMemberSchema.attrs[i];
-						break;
-					}
-				}
-			} else {
-				$scope.selectedMemberSchema = {
-					schema: null,
-					attrs: null,
-					attr: null
-				};
+				})();
 			}
 		}
 	}]);

@@ -260,13 +260,25 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
         },
         templateUrl: '/static/template/editable.html?_=1',
         link: function(scope, elem, attrs) {
-            var onBlur = function() {
+            function whenBlur() {
                 delete scope.focus;
-                scope.$apply();
-                if (scope.obj[scope.prop].length == 0)
+                if (scope.obj[scope.prop].length == 0) {
                     scope.remove();
-                else if (scope.oldVal !== scope.obj[scope.prop])
+                } else if (scope.oldVal !== scope.obj[scope.prop]) {
                     scope.$emit('xxt.editable.changed', scope.obj);
+                }
+            };
+
+            function onBlur() {
+                var phase;
+                phase = scope.$root.$$phase;
+                if (phase === '$digest' || phase === '$apply') {
+                    whenBlur();
+                } else {
+                    scope.$apply(function() {
+                        whenBlur();
+                    });
+                }
             };
             $(elem).on('click', function(event) {
                 delete scope.enter;
@@ -289,8 +301,9 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                 scope.$emit('xxt.editable.remove', scope.obj);
             };
             scope.$on('xxt.editable.add', function(event, newObj) {
-                if (newObj === scope.obj)
+                if (newObj === scope.obj) {
                     scope.focus = true;
+                }
             });
             scope.$watch('focus', function(nv, ov) {
                 if (nv) {

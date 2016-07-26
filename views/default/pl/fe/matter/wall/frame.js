@@ -132,6 +132,7 @@ define(['require'], function(require, pageLib) {
 		};
 		$scope.getApp();
 	}]);
+	//自定义过滤器
 	ngApp.filter('transState', function () {
 		return function (input) {
 			var out = "";

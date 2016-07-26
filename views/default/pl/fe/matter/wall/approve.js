@@ -12,10 +12,18 @@ define(['frame'], function(ngApp) {
             }
             return false;
         };
+
         $scope.messages = [];
         //这是什么意思
         $scope.$parent.worker = new Worker('/views/default/pl/fe/matter/wall/wallMessages.js?_=2');
+        //发送的数据
+        //$scope.parameter = {
+        //    id : $scope.id,
+        //    site : $scope.siteId
+        //}
+        //$scope.$parent.worker.postMessage();
         $scope.$parent.worker.onmessage = function(event) {
+
             for (var i in event.data) {
                 for (var i in event.data) {
                     if (!inlist(event.data[i].id))
@@ -25,8 +33,9 @@ define(['frame'], function(ngApp) {
             $scope.$apply();
         };
         $scope.$parent.worker.postMessage({
-            wid: $scope.wid,
-            last: 0
+            id: $scope.id,
+            last: 0,
+            site: $scope.siteId
         });
         $scope.approve = function(msg) {
             http2.get('/rest/pl/fe/matter/wall/message/approve?wall=' + $scope.id + '&id=' + msg.id  + '&site=' +$scope.siteId, function(rsp) {
@@ -40,7 +49,6 @@ define(['frame'], function(ngApp) {
                 $scope.messages.splice(i, 1);
             });
         };
-        console.log($scope.messages);
     }]);
 });
 

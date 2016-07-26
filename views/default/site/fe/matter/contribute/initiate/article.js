@@ -54,14 +54,18 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$uibModal', '$timeout'
         location.href = '/rest/site/fe/matter/contribute/initiate?site=' + $scope.siteId + '&entry=' + $scope.entry;
     };
     $scope.edit = function(event, article) {
-        if (article._cascade === true)
+        if (article._cascade === true) {
             $scope.editing = article;
-        else
+        } else {
             $scope.Article.get(article.id).then(function(rsp) {
                 article._cascade = true;
                 article.channels = rsp.channels;
                 $scope.editing = article;
             });
+        }
+    };
+    $scope.update = function(name) {
+        $scope.Article.update($scope.editing, name);
     };
     $scope.setPic = function() {
         var options = {

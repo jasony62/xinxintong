@@ -24,7 +24,7 @@ define(['frame'], function(ngApp) {
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
                     http2.get('/rest/pl/fe/matter/enroll/list?page=1&size=999&site=' + $scope.siteId, function(rsp) {
                         $scope2.apps = rsp.data.apps;
-                        console.log($scope2.apps);
+
                     });
                     $scope2.chooseApp = function(app) {
                         $scope2.selectedApp = app;
@@ -43,7 +43,6 @@ define(['frame'], function(ngApp) {
             }).result.then(function(app) {
                     http2.get('/rest/pl/fe/matter/wall/users/import?id=' + $scope.id + '&app=' + app.id +'&site='+ app.siteid, function(rsp) {
                         $scope.$root.infomsg = '导入用户数：' + rsp.data;
-                        alert(1);
                         $scope.doSearch();
                     });
                 });
@@ -89,9 +88,8 @@ define(['frame'], function(ngApp) {
         };
         //刷新
         $scope.doSearch = function() {
-            http2.get('/rest/pl/fe/matter/wall/users/list?id=' + $scope.id + '&site' + $scope.siteId, function(rsp) {
+            http2.get('/rest/pl/fe/matter/wall/users/list?id=' + $scope.id + '&site=' + $scope.siteId, function(rsp) {
                 $scope.users = rsp.data;
-                console.log(rsp);
             });
         };
         $scope.doSearch();

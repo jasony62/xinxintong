@@ -10,6 +10,9 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	public function index_action() {
+            if(isset($_GET['site'])&& $_GET['site']!=''){
+               $_SESSION['mpid']=  strip_tags($_GET['site']);
+            }
 		\TPL::output('/pl/fe/site/console');
 		exit;
 	}
@@ -27,6 +30,15 @@ class main extends \pl\fe\base {
 		$site['creater_name'] = $user->name;
 		$site['create_at'] = time();
 		$siteid = $this->model('site')->create($site);
+                
+                if ($asparent === 'Y') {
+			$d['token'] = uniqid();
+		}
+                $d['mpid']=$siteid;
+		$d['name'] =  $user->name;
+		$d['asparent'] = $asparent;
+		$d['parent_mpid'] = '';
+		$this->model('matter\mpaccount')->create($d);
 
 		return new \ResponseData(array('id' => $siteid));
 	}

@@ -114,10 +114,13 @@ directive('tinymce', function($timeout) {
                             }
                         } else if (evt.keyCode === 8 || evt.keyCode === 46) {
                             if (_lastNodeContent.length === 1) {
+                                // 模拟删除字符操作，避免节点被删掉
                                 if (node.tagName === 'LABEL' && node.parentNode.hasAttribute('wrap')) {
+                                    node.innerHTML = '';
                                     evt.preventDefault();
                                     evt.stopPropagation();
                                 } else if (node.tagName === 'SPAN' && node.parentNode.tagName === 'BUTTON') {
+                                    node.innerHTML = '';
                                     evt.preventDefault();
                                     evt.stopPropagation();
                                 }

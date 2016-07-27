@@ -1,5 +1,5 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlSetting', ['$scope',  '$location','$q', 'http2', 'mattersgallery', 'noticebox', function ($scope, $location,$q, http2, mattersgallery, noticebox) {
+    ngApp.provider.controller('ctrlSetting', ['$scope',  '$location','$q', 'http2', 'mattersgallery', 'noticebox', 'mediagallery',function ($scope, $location,$q, http2, mattersgallery, noticebox,mediagallery) {
         /*var ls = $location.search();
         $scope.id = ls.id;
         $scope.siteId = ls.site;*/
@@ -17,7 +17,8 @@ define(['frame'], function(ngApp) {
                     $scope.update('pic');
                 }
             };
-            $scope.$broadcast('mediagallery.open', options);
+            //$scope.$broadcast('mediagallery.open', options);
+            mediagallery.open($scope.siteId, options);
         };
         $scope.removePic = function() {
             $scope.editing.pic = '';

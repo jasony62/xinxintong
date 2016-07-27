@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
 	ngApp.provider.controller('ctrlSetting', ['$scope', '$uibModal', 'http2', 'mattersgallery', 'mediagallery', 'noticebox', function($scope, $uibModal, http2, mattersgallery, mediagallery, noticebox) {
-		var modifiedData = {};
+		var tinymceEditor, modifiedData = {};
 		var r = new Resumable({
 			target: '/rest/pl/fe/matter/article/attachment/upload?site=' + $scope.siteId + '&articleid=' + $scope.id,
 			testChunks: false,
@@ -94,17 +94,8 @@ define(['frame'], function(ngApp) {
 					title: '项目',
 					url: '/rest/pl/fe/matter'
 				}],
-				hasParent: false,
 				singleMatter: true
 			});
-		};
-		$scope.onBodyChange = function() {
-			$scope.modified = true;
-			modifiedData['body'] = encodeURIComponent($scope.editing['body']);
-		};
-		$scope.tinymceSave = function() {
-			$scope.update('body');
-			$scope.submit();
 		};
 		$scope.submit = function() {
 			http2.post('/rest/pl/fe/matter/article/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData, function() {
@@ -196,9 +187,7 @@ define(['frame'], function(ngApp) {
 							selection.setCursorLocation(domMatter, 0);
 						});
 					}
-					editor.save();
 					editor.focus();
-					$scope.onBodyChange();
 				}
 			}, options);
 		};
@@ -351,6 +340,26 @@ define(['frame'], function(ngApp) {
 		});
 		http2.get('/rest/pl/fe/matter/tag/list?site=' + $scope.siteId + '&resType=article&subType=1', function(rsp) {
 			$scope.tags2 = rsp.data;
+		});
+		$scope.$watch('editing', function(editing) {
+			if (editing && tinymceEditor) {
+				tinymceEditor.setContent(editing.body);
+			}
+		});
+		$scope.$on('tinymce.instance.init', function(event, editor) {
+			tinymceEditor = editor;
+			if ($scope.editing) {
+				editor.setContent($scope.editing.body);
+			}
+		});
+		$scope.$on('tinymce.content.change', function(event, changed) {
+			var content;
+			content = tinymceEditor.getContent();
+			if (content !== $scope.editing.body) {
+				$scope.editing.body = content;
+				modifiedData['body'] = encodeURIComponent(content);
+				$scope.modified = true;
+			}
 		});
 	}]);
 });

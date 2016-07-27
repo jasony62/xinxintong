@@ -1,4 +1,4 @@
-define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image", "xxt-geo", "enroll-directive"], function(angular, ngApp) {
+define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image", "xxt-geo"], function(angular, ngApp) {
     'use strict';
 
     ngApp.config(['$compileProvider', function($compileProvider) {
@@ -301,7 +301,13 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                     var member2, eles;
                     if (user && member && member.schema_id && user.members) {
                         if (member2 = user.members[member.schema_id]) {
-                            angular.isString(member2.extattr) && (member2.extattr = JSON.parse(member2.extattr));
+                            if (angular.isString(member2.extattr)) {
+                                if (member2.extattr.length) {
+                                    member2.extattr = JSON.parse(member2.extattr);
+                                } else {
+                                    member2.extattr = {};
+                                }
+                            }
                             eles = document.querySelectorAll("[ng-model^='data.member']");
                             angular.forEach(eles, function(ele) {
                                 var attr;
@@ -336,6 +342,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                 var schemas = params.app.data_schemas,
                     mapSchema = {},
                     dataOfRecord = params.record.data,
+                    hasSetMember = false,
                     p, value;
                 angular.forEach(schemas, function(schema) {
                     mapSchema[schema.id] = schema;
@@ -343,7 +350,11 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                 dataOfRecord = params.record.data;
                 for (p in dataOfRecord) {
                     if (p === 'member') {
+                        if (angular.isString(dataOfRecord.member)) {
+                            dataOfRecord.member = JSON.parse(dataOfRecord.member);
+                        }
                         $scope.data.member = angular.extend($scope.data.member, dataOfRecord.member);
+                        hasSetMember = true;
                     } else if (dataOfRecord[p].length && mapSchema[p]) {
                         if (mapSchema[p].type === 'img') {
                             value = dataOfRecord[p].split(',');
@@ -366,7 +377,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                 $scope.record = params.record;
             }
             /* 无论是否有登记记录都自动填写用户认证信息 */
-            PG.setMember(params.user, $scope.data.member);
+            !hasSetMember && PG.setMember(params.user, $scope.data.member);
         });
         var doSubmit = function(nextAction) {
             var ek, btnSubmit;

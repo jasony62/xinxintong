@@ -1,6 +1,6 @@
-app.controller('ctrlLogin', ['$scope', '$http', '$rootScope', function($scope, $http, $rootScope) {
+app.controller('ctrlLogin', ['$scope', 'http2', function($scope, http2) {
     $scope.data = {};
-    $rootScope.keypress = function(event) {
+    $scope.$root.keypress = function(event) {
         var code = event.keyCode || event.which;
         if (code === 13 && $scope.data.email && $scope.data.password) {
             event.preventDefault();
@@ -8,11 +8,7 @@ app.controller('ctrlLogin', ['$scope', '$http', '$rootScope', function($scope, $
         }
     };
     $scope.login = function() {
-        $http.post('/rest/pl/fe/user/login/do', $scope.data).success(function(rsp) {
-            if (rsp.err_code != 0) {
-                $rootScope.errmsg = rsp.err_msg;
-                return;
-            }
+        http2.post('/rest/pl/fe/user/login/do', $scope.data, function(rsp) {
             location.replace('/rest/pl/fe/user/auth/passed?uid=' + rsp.data);
         });
     };

@@ -18,7 +18,7 @@ class account_model extends TMS_MODEL {
 		$q = array(
 			$fields,
 			'account',
-			"uid='$uid'",
+			["uid" => $uid],
 		);
 		$act = $this->query_obj_ss($q);
 
@@ -134,7 +134,9 @@ class account_model extends TMS_MODEL {
 	public function update_last_login($uid, $from_ip) {
 		$updated['last_login'] = time();
 		$updated['last_ip'] = $from_ip;
-		$this->update(self::TABLE_A, $updated, "uid='$uid'");
+		$rst = $this->update(self::TABLE_A, $updated, ["uid" => $uid]);
+
+		return $rst;
 	}
 	/**
 	 *
@@ -142,13 +144,15 @@ class account_model extends TMS_MODEL {
 	public function change_password($email, $password, $pw_salt) {
 		$pw_hash = $this->compile_password($email, $password, $pw_salt);
 		$update_data['password'] = $pw_hash;
-		$this->update(self::TABLE_A, $update_data, "email='$email'");
+		$rst = $this->update(self::TABLE_A, $update_data, ["email" => $email]);
+
+		return $rst;
 	}
 	/**
 	 *
 	 */
 	public function is_email_used($email) {
-		return (bool) $this->query_value('1', self::TABLE_A, "email='$email'");
+		return (bool) $this->query_value('1', self::TABLE_A, ["email" => $email]);
 	}
 	/**
 	 * validate login information.

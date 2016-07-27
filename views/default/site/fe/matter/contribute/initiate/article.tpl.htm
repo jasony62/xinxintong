@@ -10,120 +10,118 @@
         <link href="/static/css/tms.css?_=2" rel="stylesheet">
         <link href="/views/default/site/fe/matter/contribute/initiate/article.css?_=1" rel="stylesheet">
     </head>
-    <body>
-        <div class='ng-cloak' ng-cloak ng-app='xxtApp' ng-controller='ctrlInitiate'>
-            <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
-            <div class='container'>
-                <div class='row'>
-                    <nav id='toolbar' class="navbar navbar-default navbar-fixed-top">
-                        <div class="container text-center">
-                            <button class='btn btn-default' ng-click="back($event)">
-                            <span class='glyphicon glyphicon-list'></span>
-                            </button>
-                            <button ng-if="needReview==='N'&&editing.finished==='N'" class='btn navbar-btn btn-success' ng-click='finish()'>完成</button>
-                            <button ng-if="needReview==='Y'" class='btn navbar-btn btn-default' ng-click='forward()'>送审</button>
-                            <button class='btn navbar-btn btn-danger' ng-click='remove()'>删除</button>
-                        </div>
-                    </nav>
-                    <div class='col-md-4'>
-                        <div class='form-group' ng-if="entryApp.summary">
-                            <div class='alert alert-info' ng-bind="entryApp.summary"></div>
-                        </div>
-                        <div class='form-group'>
-                            <input type='text' class='form-control' ng-model='editing.title' tms-auto-update tms-wait=1000 tms-update="update('title');">
-                            <p class='help-block'>标题：最多35个汉字，70个英文字符</p>
-                        </div>
-                        <div class='form-group'>
-                            <div style="background:#fff;width:182px;border:1px solid #CCC">
-                                <div style="height:100px;text-align:center;padding-top:32px" ng-if="editing.pic==''">
-                                    <button class='btn btn-default' ng-click='setPic();'>
-                                    <span class='glyphicon glyphicon-picture'></span>选择图片</button>
-                                </div>
-                                <div style='position:relative' ng-if="editing.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
-                                    <img name='pic' ng-src="{{editing.pic}}" width='180px' />
-                                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
-                                    <span class='glyphicon glyphicon-picture'></span>
-                                    </button>
-                                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
-                                    <span class='glyphicon glyphicon-trash'></span>
-                                    </button>
-                                </div>
+    <body class='ng-cloak' ng-cloak ng-app='xxtApp' ng-controller='ctrlInitiate'>
+        <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
+        <div class='container'>
+            <div class='row'>
+                <nav id='toolbar' class="navbar navbar-default navbar-fixed-top">
+                    <div class="container text-center">
+                        <button class='btn btn-default' ng-click="back($event)">
+                        <span class='glyphicon glyphicon-list'></span>
+                        </button>
+                        <button ng-if="needReview==='N'&&editing.finished==='N'" class='btn navbar-btn btn-success' ng-click='finish()'>完成</button>
+                        <button ng-if="needReview==='Y'" class='btn navbar-btn btn-default' ng-click='forward()'>送审</button>
+                        <button class='btn navbar-btn btn-danger' ng-click='remove()'>删除</button>
+                    </div>
+                </nav>
+                <div class='col-md-4'>
+                    <div class='form-group' ng-if="entryApp.summary">
+                        <div class='alert alert-info' ng-bind="entryApp.summary"></div>
+                    </div>
+                    <div class='form-group'>
+                        <input type='text' class='form-control' ng-model='editing.title' tms-auto-update tms-wait=1000 tms-update="update('title');">
+                        <p class='help-block'>标题：最多35个汉字，70个英文字符</p>
+                    </div>
+                    <div class='form-group'>
+                        <div style="background:#fff;width:182px;border:1px solid #CCC">
+                            <div style="height:100px;text-align:center;padding-top:32px" ng-if="editing.pic==''">
+                                <button class='btn btn-default' ng-click='setPic();'>
+                                <span class='glyphicon glyphicon-picture'></span>选择图片</button>
                             </div>
-                            <p class='help-block'>头图（可选）：建议尺寸：900像素 * 500像素</p>
-                        </div>
-                        <div class='form-group'>
-                            <textarea class='form-control' ng-model='editing.summary' tms-auto-update tms-wait=1000 tms-update="update('summary');"></textarea>
-                            <p class='help-block'>摘要：最多120个汉字，240个英文字符</p>
-                        </div>
-                        <div class='form-group'>
-                            <combox evt-prefix='sub-channel' readonly=true prop='title' existing='editing.subChannels' options='entryApp.subChannels'></combox>
-                            <p class='help-block'>文章所属频道</p>
-                        </div>
-                        <div class='form-group'>
-                            <div class='form-control' style='word-break: break-all;height:auto'>{{access.url}}</div>
-                            <p class='help-block'>文章URL</p>
-                        </div>
-                        <div class="form-group">
-                            <div><img ng-src="{{access.qrcode}}"></div>
-                            <p class='help-block'>文章二维码</p>
-                        </div>
-                        <div class='form-group'>
-                            <div class='alert alert-info'>
-                                <span>创建日期：{{editing.create_at*1000|date:'yy-MM-dd HH:mm'}}</span>
+                            <div style='position:relative' ng-if="editing.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                                <img name='pic' ng-src="{{editing.pic}}" width='180px' />
+                                <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                                <span class='glyphicon glyphicon-picture'></span>
+                                </button>
+                                <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                                <span class='glyphicon glyphicon-trash'></span>
+                                </button>
                             </div>
                         </div>
-                    </div><!--end right-->
-                    <div class='col-md-8'>
-                        <div class='form-group'>
-                            <tinymce content='editing.body' contenteditable='bodyEditable' onsavecallback="tinymceSave()" toolbar="fullscreen code save" change="onBodyChange()" id='body1' height='600'></tinymce>
-                            <p class='help-block'>正文：少于2万字符</p>
+                        <p class='help-block'>头图（可选）：建议尺寸：900像素 * 500像素</p>
+                    </div>
+                    <div class='form-group'>
+                        <textarea class='form-control' ng-model='editing.summary' tms-auto-update tms-wait=1000 tms-update="update('summary');"></textarea>
+                        <p class='help-block'>摘要：最多120个汉字，240个英文字符</p>
+                    </div>
+                    <div class='form-group'>
+                        <combox evt-prefix='sub-channel' readonly=true prop='title' existing='editing.subChannels' options='entryApp.subChannels'></combox>
+                        <p class='help-block'>文章所属频道</p>
+                    </div>
+                    <div class='form-group'>
+                        <div class='form-control' style='word-break: break-all;height:auto'>{{access.url}}</div>
+                        <p class='help-block'>文章URL</p>
+                    </div>
+                    <div class="form-group">
+                        <div><img ng-src="{{access.qrcode}}"></div>
+                        <p class='help-block'>文章二维码</p>
+                    </div>
+                    <div class='form-group'>
+                        <div class='alert alert-info'>
+                            <span>创建日期：{{editing.create_at*1000|date:'yy-MM-dd HH:mm'}}</span>
                         </div>
-                        <div class='form-group'>
-                            <button id='addAttachment' class='btn btn-default btn-sm'>
-                            <span class='glyphicon glyphicon-plus'></span>
-                            </button>
-                            <ul class='list-group' style='margin-bottom:0'>
-                                <li class='list-group-item' ng-repeat='a in editing.attachments' ng-mouseenter="enter=true" ng-mouseleave="enter=false">
-                                    <span>
-                                        <a ng-href='{{downloadUrl(a)}}' target='_blank'>{{a.name}}</a>
-                                    </span>
-                                    <button class='btn btn-default btn-xs pull-right' ng-if='enter' ng-click='delAttachment($index,a)'>
-                                    <span class='glyphicon glyphicon-remove'></span>
-                                    </button>
-                                </li>
-                            </ul>
-                            <p class='help-block'>附件（可选）</p>
-                        </div>
-                        <div id='logs' class='table' ng-show='logs.length'>
-                            <div class='thead'>
-                                <div class='tr'>
-                                    <div>序号</div>
-                                    <div>发起时间</div>
-                                    <div>处理人</div>
-                                    <div>接收时间</div>
-                                    <div>处理时间</div>
-                                    <div>阶段</div>
-                                    <div>消息</div>
-                                </div>
+                    </div>
+                </div><!--end right-->
+                <div class='col-md-8'>
+                    <div class='form-group'>
+                        <tinymce id='body1' contenteditable='bodyEditable' toolbar="fullscreen code" height='600'></tinymce>
+                        <p class='help-block'>正文：少于2万字符</p>
+                    </div>
+                    <div class='form-group'>
+                        <button id='addAttachment' class='btn btn-default btn-sm'>
+                        <span class='glyphicon glyphicon-plus'></span>
+                        </button>
+                        <ul class='list-group' style='margin-bottom:0'>
+                            <li class='list-group-item' ng-repeat='a in editing.attachments' ng-mouseenter="enter=true" ng-mouseleave="enter=false">
+                                <span>
+                                    <a ng-href='{{downloadUrl(a)}}' target='_blank'>{{a.name}}</a>
+                                </span>
+                                <button class='btn btn-default btn-xs pull-right' ng-if='enter' ng-click='delAttachment($index,a)'>
+                                <span class='glyphicon glyphicon-remove'></span>
+                                </button>
+                            </li>
+                        </ul>
+                        <p class='help-block'>附件（可选）</p>
+                    </div>
+                    <div id='logs' class='table' ng-show='logs.length'>
+                        <div class='thead'>
+                            <div class='tr'>
+                                <div>序号</div>
+                                <div>发起时间</div>
+                                <div>处理人</div>
+                                <div>接收时间</div>
+                                <div>处理时间</div>
+                                <div>阶段</div>
+                                <div>消息</div>
                             </div>
-                            <div class='tbody'>
-                                <div class='tr' ng-repeat="l in logs">
-                                    <div ng-bind="l.seq"></div>
-                                    <div ng-bind="l.send_at*1000|date:'yy-MM-dd HH:mm'"></div>
-                                    <div ng-bind="l.disposer_name"></div>
-                                    <div>
-                                        <span ng-if='l.receive_at>0' ng-bind="l.receive_at*1000|date:'yy-MM-dd HH:mm'"></span>
-                                    </div>
-                                    <div>
-                                        <span ng-if='l.read_at>0' ng-bind="l.read_at*1000|date:'yy-MM-dd HH:mm'"></span>
-                                    </div>
-                                    <div ng-bind="phases[l.phase]"></div>
-                                    <div ng-bind="l.remark"></div>
+                        </div>
+                        <div class='tbody'>
+                            <div class='tr' ng-repeat="l in logs">
+                                <div ng-bind="l.seq"></div>
+                                <div ng-bind="l.send_at*1000|date:'yy-MM-dd HH:mm'"></div>
+                                <div ng-bind="l.disposer_name"></div>
+                                <div>
+                                    <span ng-if='l.receive_at>0' ng-bind="l.receive_at*1000|date:'yy-MM-dd HH:mm'"></span>
                                 </div>
+                                <div>
+                                    <span ng-if='l.read_at>0' ng-bind="l.read_at*1000|date:'yy-MM-dd HH:mm'"></span>
+                                </div>
+                                <div ng-bind="phases[l.phase]"></div>
+                                <div ng-bind="l.remark"></div>
                             </div>
                         </div>
-                    </div><!--end left-->
-                </div>
+                    </div>
+                </div><!--end left-->
             </div>
         </div>
         <script type="text/ng-template" id="review-list.html">
@@ -156,8 +154,8 @@
         <script src="/static/js/resumable.js"></script>
         <script src="/static/js/ui-tms.js?_=1"></script>
         <script src="/static/js/xxt.ui.js?_=1"></script>
-        <script src="/static/js/xxt.ui.tinymce.js"></script>
+        <script src="/static/js/xxt.ui.tinymce.js?_=1"></script>
         <script src="/views/default/site/fe/matter/contribute/base.js"></script>
-        <script src="/views/default/site/fe/matter/contribute/initiate/article.js?_=2"></script>
+        <script src="/views/default/site/fe/matter/contribute/initiate/article.js?_=3"></script>
     </body>
 </html>

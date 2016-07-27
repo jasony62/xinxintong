@@ -1,4 +1,4 @@
-<div>
+<div id='record-view'>
     <div class='form-group form-inline'>
         <div class='form-group'>
             <select class='form-control' ng-model='page.searchBy' ng-options='s.v as s.n for s in searchBys'></select>
@@ -21,9 +21,10 @@
         <div class='form-group'>
             <combox title='标签' evt-prefix='search-tag' readonly='true' existing='page.tags' options='app.tags'></combox>
         </div>
-        <div class='form-group pull-right' style='width:90px'>
+        <div class='form-group pull-right'>
             <div class='input-group'>
-                <input class='form-control' ng-model='page.size' title='每页条数' placeholder='每页条数'>
+                <span class="input-group-addon">每页条数</span>
+                <input class='form-control' ng-model='page.size' style='width:48px'>
                 <span class='input-group-btn'>
                     <button class='btn btn-default' ng-click='doSearch(1)'>
                         <span class='glyphicon glyphicon-refresh'></span>
@@ -85,9 +86,7 @@
         <button class='btn btn-danger' ng-click='empty()'>清空记录</button>
         <button class='btn btn-default' ng-click='addRecord()'>手工添加</button>
         <span>总数：{{page.total}}</span>
-        <pagination style='margin:0;cursor:pointer;vertical-align:bottom' ng-if='page.total>page.size' class='pull-right'
-        boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at"
-        previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
+        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
     </div>
 </div>
 <script type="text/ng-template" id="userPicker.html">

@@ -127,6 +127,7 @@ class record_model extends \TMS_MODEL {
 				if (is_string($v)) {
 					$vv = $this->escape($v);
 				} else if (is_object($v) || is_array($v)) {
+					// 多选题，将选项合并为逗号分隔的字符串
 					$vv = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
 				} else {
 					$vv = $v;
@@ -385,6 +386,43 @@ class record_model extends \TMS_MODEL {
 		return $result;
 	}
 	/**
+	 * 签到情况统计
+	 */
+	public function &summary($siteId, $appId) {
+		$modelRnd = \TMS_APP::M('matter\enroll\round');
+		$rounds = $modelRnd->byApp($siteId, $appId, ['fields' => 'rid,title']);
+
+		if (empty($rounds)) {
+			$summary = new \stdClass;
+			/* total */
+			$q = [
+				'count(*)',
+				'xxt_enroll_record',
+				['aid' => $appId, 'state' => 1],
+			];
+			$summary->total = $this->query_val_ss($q);
+		} else {
+			$summary = [];
+			$activeRound = $modelRnd->getActive($siteId, $appId);
+			foreach ($rounds as $round) {
+				/* total */
+				$q = [
+					'count(*)',
+					'xxt_enroll_record',
+					['aid' => $appId, 'state' => 1, 'rid' => $round->rid],
+				];
+				$round->total = $this->query_val_ss($q);
+				if ($activeRound && $round->rid === $activeRound->rid) {
+					$round->active = 'Y';
+				}
+
+				$summary[] = $round;
+			}
+		}
+
+		return $summary;
+	}
+	/**
 	 * 获得指定用户最后一次登记记录
 	 * 如果设置轮次，只返回当前轮次的情况
 	 */
@@ -580,6 +618,10 @@ class record_model extends \TMS_MODEL {
 		$result = [];
 
 		$app = \TMS_APP::M('matter\enroll')->byId($appId, ['data_schemas', 'cascaded' => 'N']);
+		if (empty($app->data_schemas)) {
+			return $result;
+		}
+
 		$dataSchemas = json_decode($app->data_schemas);
 
 		foreach ($dataSchemas as $schema) {
@@ -611,7 +653,7 @@ class record_model extends \TMS_MODEL {
 						'xxt_enroll_record_data',
 						"aid='$appId' and state=1 and name='{$schema->id}' and FIND_IN_SET('{$op->v}', value)",
 					);
-					$op['c'] = $this->query_val_ss($q);
+					$op->c = $this->query_val_ss($q);
 					$result[$schema->id]['ops'][] = $op;
 				}
 			}

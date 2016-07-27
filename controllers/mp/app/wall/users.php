@@ -19,7 +19,7 @@ class users extends \mp\app\app_base {
 		$q = array(
 			'e.openid,e.join_at,e.last_msg_at,f.nickname',
 			'xxt_wall_enroll e,xxt_fans f',
-			"e.mpid='$this->mpid' and e.wid='$wall' and e.close_at=0 and e.mpid=f.mpid and e.openid=f.openid",
+			"e.wid='$wall' and e.close_at=0 and e.openid=f.openid",
 		);
 
 		$users = $this->model()->query_objs_ss($q);

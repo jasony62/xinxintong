@@ -16,6 +16,9 @@ div[wrap].wrap-inline>*{display:inline-block;vertical-align:middle;margin:0 1em 
 div[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
 div[wrap=value]>div{position:relative;}
 div[wrap=value]>div:after{content:'  ';background:#f8f8f8;display:block;position:absolute;top:0;bottom:0;left:0;right:0;}
+div[wrap=input]>label{display:inline-block;min-width:36px;border:1px dotted #ccc;}
+div[wrap=button] button{cursor:text;min-height:46px;}
+div[wrap=button] button>span{display:inline-block;min-width:36px;border:1px dotted #ccc;}
 input.form-control[readonly],textarea.form-control[readonly]{background:#fff;}
 ul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;margin:4px;float:left}
 ul.img-tiles li.img-thumbnail{display:none;}
@@ -23,3 +26,6 @@ ul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute}
 ul.img-tiles li.img-thumbnail button{position:absolute;top:0;right:0}
 ul.img-tiles li.img-picker button{position:auto;width:100%;height:100%}
 ul.img-tiles li.img-picker button span{font-size:36px}
+
+/* ie patch */
+label{display:inline;}

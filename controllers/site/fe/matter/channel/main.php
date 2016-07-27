@@ -26,7 +26,6 @@ class main extends \site\fe\matter\base {
 			$this->accessControl($site, $id, $channel->authapis, $user->uid, $channel, false);
 		}
 
-		//$channel->matters = $this->model('matter\channel')->getMatters($id, $channel, $site);
 		//$channel->acl = $this->model('acl')->byMatter($site, 'channel', $id);
 		$data['channel'] = $channel;
 

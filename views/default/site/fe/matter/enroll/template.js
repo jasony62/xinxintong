@@ -1,4 +1,4 @@
-define(["angular", "enroll-common", "angular-sanitize", "enroll-directive"], function(angular, ngApp) {
+define(["angular", "enroll-common", "angular-sanitize"], function(angular, ngApp) {
     'use strict';
 
     ngApp.factory('Round', ['$http', '$q', function($http, $q) {

@@ -6,19 +6,15 @@
         <title>项目</title>
         <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
         <link href="/static/css/tms.css?_=2" rel="stylesheet">
-        <link href="/views/default/pl/fe/matter/mission/main.css?_=1" rel="stylesheet">
+        <link href="/views/default/pl/fe/matter/mission/main.css?_=2" rel="stylesheet">
     </head>
     <body ng-app='app' ng-controller='ctrlApp' ng-cloak class='ng-cloak'>
         <nav class='navbar navbar-inverse tms-large'>
             <ul class='nav navbar-nav'>
                 <li><a href='/rest/pl/fe' target='_self'>首页</a></li>
+                <li><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>工作台</a></li>
             </ul>
-            <ul class='nav navbar-nav site'>
-                <li>
-                    <a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>工作台</a>
-                </li>
-            </ul>
-            <ul class='nav navbar-nav navbar-right' style='margin-right:0'>
+            <ul class='nav navbar-nav navbar-right'>
                 <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
                 <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
             </ul>
@@ -37,8 +33,8 @@
                 <div class='attrs' ng-include="subView"></div>
                 <nav class="navbar navbar-default tms-bottom">
                     <div class="navbar-form">
-                        <button class='btn btn-success' ng-click="submit()">保存</button>
-                        <button class='btn btn-default' ng-click="remove()">删除</button>
+                        <button class='btn btn-lg btn-success' ng-click="submit()">保存</button>
+                        <button class='btn btn-lg btn-default' ng-click="remove()">删除</button>
                     </div>
                 </nav>
             </div>
@@ -69,11 +65,11 @@
                 </div>
                 <nav class="navbar navbar-default tms-bottom">
                     <div class="navbar-form">
-                        <button class='btn btn-success' ng-click="addArticle()">+图文</button>
-                        <button class='btn btn-success' ng-click="addEnroll('registration')">+报名</button>
-                        <button class='btn btn-success' ng-click="addSignin()">+签到</button>
-                        <button class='btn btn-success' ng-click="addGroup()">+分组</button>
-                        <button class='btn btn-success' ng-click="addEnroll('voting')">+评价</button>
+                        <button class='btn btn-lg btn-success' ng-click="addArticle()">+图文</button>
+                        <button class='btn btn-lg btn-success' ng-click="addEnroll('registration')">+报名</button>
+                        <button class='btn btn-lg btn-success' ng-click="addSignin()">+签到</button>
+                        <button class='btn btn-lg btn-success' ng-click="addGroup()">+分组</button>
+                        <button class='btn btn-lg btn-success' ng-click="addEnroll('voting')">+评价</button>
                     </div>
                 </nav>
             </div>

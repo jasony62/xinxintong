@@ -7,7 +7,7 @@ ngApp.config(['$routeProvider', function($routeProvider) {
         controller: 'reviewlogCtrl',
     });
 }]);
-ngApp.controller('ctrlInitiate', ['$scope', '$location', '$uibModal', 'http2', 'mediagallery', 'Article', 'Entry', 'Reviewlog', function($scope, $location, $uibModal, http2, mediagallery, Article, Entry, Reviewlog) {
+ngApp.controller('ctrlInitiate', ['$scope', '$location', '$uibModal', '$timeout', 'http2', 'mediagallery', 'Article', 'Entry', 'Reviewlog', function($scope, $location, $uibModal, $timeout, http2, mediagallery, Article, Entry, Reviewlog) {
     $scope.phases = {
         'I': '投稿',
         'R': '审核',
@@ -54,14 +54,18 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$uibModal', 'http2', '
         location.href = '/rest/site/fe/matter/contribute/initiate?site=' + $scope.siteId + '&entry=' + $scope.entry;
     };
     $scope.edit = function(event, article) {
-        if (article._cascade === true)
+        if (article._cascade === true) {
             $scope.editing = article;
-        else
+        } else {
             $scope.Article.get(article.id).then(function(rsp) {
                 article._cascade = true;
                 article.channels = rsp.channels;
                 $scope.editing = article;
             });
+        }
+    };
+    $scope.update = function(name) {
+        $scope.Article.update($scope.editing, name);
     };
     $scope.setPic = function() {
         var options = {
@@ -87,12 +91,6 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$uibModal', 'http2', '
             return message;
         }
     };
-    $scope.onBodyChange = function() {
-        $scope.bodyModified = true;
-    };
-    $scope.tinymceSave = function() {
-        $scope.update('body');
-    };
     $scope.$on('tinymce.multipleimage.open', function(event, callback) {
         var options = {
             callback: callback,
@@ -101,10 +99,6 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$uibModal', 'http2', '
         }
         mediagallery.open($scope.picBoxId, options);
     });
-    $scope.update = function(name) {
-        $scope.Article.update($scope.editing, name);
-        name === 'body' && ($scope.bodyModified = false);
-    };
     $scope.$on('sub-channel.xxt.combox.done', function(event, aSelected) {
         var i, j, c, params = {
             channels: [],
@@ -134,6 +128,35 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$uibModal', 'http2', '
             var i = $scope.editing.subChannels.indexOf(removed);
             $scope.editing.subChannels.splice(i, 1);
         });
+    });
+    var tinymceEditor;
+    $scope.$watch('editing', function(editing) {
+        if (editing && tinymceEditor) {
+            tinymceEditor.setContent(editing.body);
+        }
+    });
+    $scope.$on('tinymce.instance.init', function(event, editor) {
+        tinymceEditor = editor;
+        if ($scope.editing) {
+            editor.setContent($scope.editing.body);
+        }
+    });
+    var timerOfUpdate = null;
+    $scope.$on('tinymce.content.change', function(event, changed) {
+        var content;
+        content = tinymceEditor.getContent();
+        if (content !== $scope.editing.body) {
+            if (timerOfUpdate !== null) {
+                $timeout.cancel(timerOfUpdate);
+            }
+            timerOfUpdate = $timeout(function() {
+                $scope.editing.body = content;
+                $scope.Article.update($scope.editing, 'body');
+            }, 1000);
+            timerOfUpdate.then(function() {
+                timerOfUpdate = null;
+            });
+        }
     });
     var r = new Resumable({
         target: '/rest/site/fe/matter/contribute/attachment/upload?site=' + $scope.siteId + '&articleid=' + $scope.id,

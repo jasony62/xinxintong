@@ -16,6 +16,13 @@ class main extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
+	public function invite_action() {
+		\TPL::output('/pl/fe/matter/mission/invite');
+		exit;
+	}
+	/**
+	 *
+	 */
 	public function get_action($id) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
@@ -114,17 +121,17 @@ class main extends \pl\fe\matter\base {
 			$q = array(
 				'count(*)',
 				'xxt_mission_matter',
-				"siteid='$site' and mission_id='$id'",
+				"mission_id='$id'",
 			);
 			$cnt = (int) $modelMis->query_val_ss($q);
 
 			if ($cnt > 0) {
 				/* 如果已经素材，就只打标记 */
-				$rst = $modelMis->update('xxt_mission', ['state' => 2], "siteid='$site' and id='$id'");
+				$rst = $modelMis->update('xxt_mission', ['state' => 2], ["id" => $id]);
 			} else {
 				/* 清除数据 */
-				$modelMis->delete('xxt_mission_phase', "siteid='$site' and mission_id='$id'");
-				$rst = $modelMis->delete('xxt_mission', "siteid='$site' and id='$id'");
+				$modelMis->delete('xxt_mission_phase', ["mission_id" => $id]);
+				$rst = $modelMis->delete('xxt_mission', ["id" => $id]);
 			}
 		} else {
 			/* 从访问列表中移除当前用户 */

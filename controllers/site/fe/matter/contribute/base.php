@@ -85,11 +85,11 @@ class base extends \site\fe\matter\base {
 			$mid = $article->creater;
 			$phase = 'I';
 		} else {
-			$q = array(
+			$q = [
 				'*',
 				'xxt_article_review_log',
-				"article_id=$id and seq=" . ($disposer->seq - 1),
-			);
+				["article_id" => $id, "seq" => $disposer->seq - 1],
+			];
 			$prev = $this->model()->query_obj_ss($q);
 			$mid = $prev->mid;
 			$phase = $prev->phase;

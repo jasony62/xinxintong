@@ -46,52 +46,27 @@ define(['frame'], function (ngApp) {
      * app setting controller
      */
 
-    ngApp.provider.controller('ctrlDetail', ['$scope', '$q', 'http2', function ($scope, $q, http2) {
+    ngApp.provider.controller('ctrlDetail', ['$scope', '$q', 'http2','mediagallery', function ($scope, $q, http2, mediagallery) {
         $scope.$parent.subView = 'detail';
-        return function (input) {
-            var out = "";
-            input = parseInt(input);
-            switch (input) {
-                case 0:
-                    out = '未审核';
-                    break;
-                case 1:
-                    out = '审核通过';
-                    break;
-                case 2:
-                    out = '审核未通过';
-                    break;
-
-            }
-            return out;
-        }
-        $scope.update = function (name) {
-            var nv = {};
-            nv[name] = $scope.wall[name];
-            http2.post('/rest/pl/fe/matter/wall/update?id=' + $scope.id + '&site=' + $scope.siteId, nv);
+        //上传图片-start
+        $scope.setPic = function() {
+            var options = {
+                callback: function(url) {
+                    $scope.editing.pic = url + '?_=' + (new Date()) * 1;
+                    $scope.update('pic');
+                }
+            };
+            mediagallery.open($scope.siteId, options);
         };
-        //$scope.$watch('subView', function(nv) {
-        //    if (nv !== 'approve' && $scope.worker) {
-        //        $scope.worker.terminate();
-        //    }
-        //});
-        //$scope.update = function(name) {
-        //    var nv = {};
-        //    nv[name] = $scope.wall[name];
-        //    console.log(nv);
-        //    alert(1);
-        //    http2.post('/rest/pl/fe/matter/wall/update?id=' + $scope.id + 'site=' +$scope.siteId, nv);
-        //};
-        $scope.$watch('subView', function (nv) {
-            if (nv !== 'approve' && $scope.worker) {
-                $scope.worker.terminate();
-            }
-        });
-        //http2.get('/rest/mp/mpaccount/get', function(rsp) {
-        //    $scope.mpaccount = rsp.data;
-        //    http2.get('/rest/mp/app/wall/get?wall=' + $scope.wid, function(rsp) {
-        //        $scope.wall = rsp.data;
-        //    });
-        //});
+
+        $scope.submit = function() {
+            http2.post('/rest/pl/fe/matter/wall/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData, function() {
+                modifiedData = {};
+                $scope.modified = false;
+                noticebox.success('完成保存');
+            });
+        };
+        //上传图片-end
+
     }]);
 });

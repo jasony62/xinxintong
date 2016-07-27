@@ -1,5 +1,5 @@
 onmessage = function(event) {
-    console.log(event);
+    //console.log(event);
     var id = event.data.id,
         last = event.data.last;
         site = event.data.site;

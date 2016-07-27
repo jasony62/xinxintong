@@ -59,14 +59,6 @@ define(['frame'], function (ngApp) {
             mediagallery.open($scope.siteId, options);
         };
 
-        $scope.submit = function() {
-            http2.post('/rest/pl/fe/matter/wall/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData, function() {
-                modifiedData = {};
-                $scope.modified = false;
-                noticebox.success('完成保存');
-            });
-        };
         //上传图片-end
-
-    }]);
+       }]);
 });

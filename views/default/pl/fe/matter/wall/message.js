@@ -31,7 +31,7 @@ define(['frame'], function(ngApp) {
             url += '?id=' + $scope.id;
             url += '&page=' + page + '&size=' + $scope.page.size + '&contain=total' + '&site=' +$scope.siteId;
             http2.get(url, function(rsp) {
-                console.log(rsp.data[0]);
+                console.log(rsp);
                 $scope.messages = rsp.data[0];
                 $scope.page.total = rsp.data[1];
             });

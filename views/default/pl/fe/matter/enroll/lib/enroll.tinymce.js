@@ -18,6 +18,7 @@ directive('tinymce', function($timeout) {
                     spanNode, textNode;
                 if (target.children.length) {
                     spanNode = target.children[0]; // first span
+
                     if (spanNode.tagName === 'SPAN') {
                         textNode = spanNode.childNodes[0];
                         selection.select(textNode, false);

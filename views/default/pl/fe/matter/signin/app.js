@@ -922,7 +922,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				} else {
 					html = $scope.ep.html;
 				}
-				editor.setContent($scope.ep.html);
+				editor.setContent(html);
 			}
 		});
 	}]);

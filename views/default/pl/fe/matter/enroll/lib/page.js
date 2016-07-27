@@ -14,6 +14,10 @@ define(['wrap'], function(wrapLib) {
 			var html;
 			html = this.html;
 			html = $('<div>' + html + '</div>');
+			html.find('[wrap=input]').attr('contenteditable', 'false');
+			html.find('[wrap=input]>label').attr('contenteditable', 'true');
+			html.find('[wrap=button]').attr('contenteditable', 'false');
+			html.find('[wrap=button]>button>span').attr('contenteditable', 'true');
 			html.find('input[type=text],textarea').attr('readonly', true);
 			html.find('input[type=text],textarea').attr('disabled', true);
 			html.find('input[type=radio],input[type=checkbox]').attr('readonly', true);
@@ -28,6 +32,7 @@ define(['wrap'], function(wrapLib) {
 			html.find('.active').removeClass('active');
 			html.find('[readonly]').removeAttr('readonly');
 			html.find('[disabled]').removeAttr('disabled');
+			html.find('[contenteditable]').removeAttr('contenteditable');
 			html = html.html();
 			persist === true && (this.html = html);
 

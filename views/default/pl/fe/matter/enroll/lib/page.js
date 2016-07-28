@@ -18,6 +18,8 @@ define(['wrap'], function(wrapLib) {
 			html.find('[wrap=input]>label').attr('contenteditable', 'true');
 			html.find('[wrap=button]').attr('contenteditable', 'false');
 			html.find('[wrap=button]>button>span').attr('contenteditable', 'true');
+			html.find('[wrap=checkbox]>label>span').attr('contenteditable', 'true');
+			html.find('[wrap=radio]>label>span').attr('contenteditable', 'true');
 			html.find('input[type=text],textarea').attr('readonly', true);
 			html.find('input[type=text],textarea').attr('disabled', true);
 			html.find('input[type=radio],input[type=checkbox]').attr('readonly', true);
@@ -119,9 +121,14 @@ define(['wrap'], function(wrapLib) {
 			var dataSchemas = this.data_schemas,
 				actSchemas = this.act_schemas,
 				userSchemas = this.user_schemas;
-			this.data_schemas = dataSchemas && dataSchemas.length ? JSON.parse(dataSchemas) : [];
-			this.act_schemas = actSchemas && actSchemas.length ? JSON.parse(actSchemas) : [];
-			this.user_schemas = userSchemas && userSchemas.length ? JSON.parse(userSchemas) : [];
+
+			try {
+				this.data_schemas = dataSchemas && dataSchemas.length ? JSON.parse(dataSchemas) : [];
+				this.act_schemas = actSchemas && actSchemas.length ? JSON.parse(actSchemas) : [];
+				this.user_schemas = userSchemas && userSchemas.length ? JSON.parse(userSchemas) : [];
+			} catch (e) {
+
+			}
 			if (this.data_schemas.length) {
 				if (this.type === 'I') {
 					angular.forEach(this.data_schemas, function(dataWrap) {
@@ -257,10 +264,12 @@ define(['wrap'], function(wrapLib) {
 			return false;
 		},
 		updateBySchema: function(schema) {
-			if (this.type === 'V' || this.type === 'L') {
-				var $html = $('<div>' + this.html + '</div>');
-				$html.find("[schema='" + schema.id + "']").find('label').html(schema.title);
-				this.html = $html.html();
+			if (schema) {
+				if (this.type === 'V' || this.type === 'L') {
+					var $html = $('<div>' + this.html + '</div>');
+					$html.find("[schema='" + schema.id + "']").find('label').html(schema.title);
+					this.html = $html.html();
+				}
 			}
 		},
 		removeBySchema: function(schema) {
@@ -464,7 +473,7 @@ define(['wrap'], function(wrapLib) {
 						oOptionWrap = wrapLib.input.dataByDom(domNodeWrap[0]);
 						if (oOptionWrap.schema && oOptionWrap.schema.ops && oOptionWrap.schema.ops.length === 1) {
 							for (var i = page.data_schemas.length - 1; i >= 0; i--) {
-								editingSchema = page.data_schemas[i];
+								editingSchema = page.data_schemas[i].schema;
 								if (oOptionWrap.schema.id === editingSchema.id) {
 									for (var j = editingSchema.ops.length - 1; j >= 0; j--) {
 										if (oOptionWrap.schema.ops[0].v === editingSchema.ops[j].v) {

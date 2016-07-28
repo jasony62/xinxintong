@@ -63,6 +63,9 @@ class record_model extends \TMS_MODEL {
 		if (empty($submitkey)) {
 			$submitkey = $user->uid;
 		}
+		// 处理后的登记记录
+		$dbData = new \stdClass;
+
 		// 已有的登记数据
 		$q = array(
 			'name',
@@ -88,6 +91,8 @@ class record_model extends \TMS_MODEL {
 					$vv->extattr = $extattr;
 				}
 				$vv = urldecode(json_encode($vv));
+				//
+				$dbData->{$n} = $vv;
 			} else if (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
 				/* 上传图片 */
 				$vv = array();
@@ -100,6 +105,8 @@ class record_model extends \TMS_MODEL {
 					$vv[] = $rst[1];
 				}
 				$vv = implode(',', $vv);
+				//
+				$dbData->{$n} = $vv;
 			} else if (is_array($v) && isset($v[0]->uniqueIdentifier)) {
 				/* 上传文件 */
 				$fsUser = \TMS_APP::M('fs/local', $siteId, '_user');
@@ -123,6 +130,8 @@ class record_model extends \TMS_MODEL {
 					$vv[] = $file;
 				}
 				$vv = json_encode($vv);
+				//
+				$dbData->{$n} = $vv;
 			} else {
 				if (is_string($v)) {
 					$vv = $this->escape($v);
@@ -132,7 +141,10 @@ class record_model extends \TMS_MODEL {
 				} else {
 					$vv = $v;
 				}
+				//
+				$dbData->{$n} = $vv;
 			}
+
 			if (!empty($fields) && in_array($n, $fields)) {
 				$this->update(
 					'xxt_enroll_record_data',
@@ -151,7 +163,7 @@ class record_model extends \TMS_MODEL {
 			}
 		}
 
-		return array(true);
+		return array(true, $dbData);
 	}
 	/**
 	 * 根据ID返回登记记录
@@ -261,7 +273,6 @@ class record_model extends \TMS_MODEL {
 	 * [2] 数据项的定义
 	 */
 	public function find($siteId, &$app, $options = null) {
-		/* 获得活动的定义 */
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$creater = isset($options->creater) ? $options->creater : null;
@@ -313,7 +324,7 @@ class record_model extends \TMS_MODEL {
 			}
 		}
 		$q = array(
-			'e.enroll_key,e.enroll_at,e.tags,e.follower_num,e.score,e.remark_num,e.userid,e.nickname,e.verified',
+			'e.enroll_key,e.enroll_at,e.tags,e.follower_num,e.score,e.remark_num,e.userid,e.nickname,e.verified,e.data',
 			"xxt_enroll_record e",
 			$w,
 		);
@@ -339,16 +350,17 @@ class record_model extends \TMS_MODEL {
 		if ($records = $this->query_objs_ss($q, $q2)) {
 			foreach ($records as &$r) {
 				/* 获得填写的登记数据 */
-				$qc = array(
-					'name,value',
-					'xxt_enroll_record_data',
-					"enroll_key='$r->enroll_key'",
-				);
-				$cds = $this->query_objs_ss($qc);
-				$r->data = new \stdClass;
-				foreach ($cds as $cd) {
-					$r->data->{$cd->name} = $cd->value;
-				}
+				// $qc = array(
+				// 	'name,value',
+				// 	'xxt_enroll_record_data',
+				// 	"enroll_key='$r->enroll_key'",
+				// );
+				// $cds = $this->query_objs_ss($qc);
+				// $r->data = new \stdClass;
+				// foreach ($cds as $cd) {
+				// 	$r->data->{$cd->name} = $cd->value;
+				// }
+				$r->data = json_decode($r->data);
 				/*获得点赞记录*/
 				$app->can_like_record === 'Y' && $r->likers = $this->likers($r->enroll_key, 1, 3);
 				/*获得邀请数据*/

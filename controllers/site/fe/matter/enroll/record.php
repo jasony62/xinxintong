@@ -85,7 +85,8 @@ class record extends base {
 	 */
 	public function submitkeyGet_action() {
 		/* support CORS */
-		header('Access-Control-Allow-Origin:*');
+		//header('Access-Control-Allow-Origin:*');
+
 		$key = md5(uniqid() . mt_rand());
 
 		return new \ResponseData($key);
@@ -100,10 +101,10 @@ class record extends base {
 	 */
 	public function submit_action($site, $app, $ek = null, $submitkey = '') {
 		/* support CORS */
-		header('Access-Control-Allow-Origin:*');
-		header('Access-Control-Allow-Methods:POST');
-		header('Access-Control-Allow-Headers:Content-Type');
-		$_SERVER['REQUEST_METHOD'] === 'OPTIONS' && exit;
+		//header('Access-Control-Allow-Origin:*');
+		//header('Access-Control-Allow-Methods:POST');
+		//header('Access-Control-Allow-Headers:Content-Type');
+		//$_SERVER['REQUEST_METHOD'] === 'OPTIONS' && exit;
 
 		if (empty($site)) {
 			header('HTTP/1.0 500 parameter error:site is empty.');
@@ -150,23 +151,32 @@ class record extends base {
 			$ek = $modelRec->enroll($site, $app, $user);
 			/*处理自定义信息*/
 			$rst = $modelRec->setData($user, $site, $app, $ek, $posted, $submitkey);
+			if ($rst[0] === true) {
+				$dbData = $modelRec->toJson($rst[1]);
+				$modelRec->update('xxt_enroll_record', ['data' => $dbData], "ek='$ek'");
+			}
 			/*登记提交的积分奖励*/
 			$modelCoin = $this->model('coin\log');
 			$action = 'app.enroll,' . $app->id . '.record.submit';
 			$modelCoin->income($site, $action, $app->id, 'sys', $user->uid);
 		} else {
 			$modelRec = $this->model('matter\enroll\record');
-			/* 已经登记，更新原先提交的数据 */
-			$modelRec->update('xxt_enroll_record',
-				array('enroll_at' => time()),
-				"enroll_key='$ek'"
-			);
 			/* 重新插入新提交的数据 */
 			$rst = $modelRec->setData($user, $site, $app, $ek, $posted, $submitkey);
+			if ($rst[0] === true) {
+				$dbData = $modelRec->toJson($rst[1]);
+				/* 已经登记，更新原先提交的数据 */
+				$modelRec->update('xxt_enroll_record',
+					['enroll_at' => time(), 'data' => $dbData],
+					"enroll_key='$ek'"
+				);
+			}
 		}
+
 		if (false === $rst[0]) {
 			return new \ResponseError($rst[1]);
 		}
+
 		/**
 		 * 通知登记活动事件接收人
 		 */

@@ -24,7 +24,7 @@ class record extends \pl\fe\matter\base {
 	 * [1] 数据总条数
 	 * [2] 数据项的定义
 	 */
-	public function list_action($site, $app, $page = 1, $size = 30, $signinStartAt = null, $signinEndAt = null, $tags = null, $rid = null, $kw = null, $by = null, $orderby = null, $contain = null) {
+	public function list_action($site, $app, $page = 1, $size = 30, $tags = null, $rid = null, $kw = null, $by = null, $orderby = null, $contain = null) {
 		/*应用*/
 		$modelApp = $this->model('matter\enroll');
 		$app = $modelApp->byId($app);
@@ -128,9 +128,8 @@ class record extends \pl\fe\matter\base {
 		$r['enroll_key'] = $ek;
 		$r['enroll_at'] = $current;
 		$r['signin_at'] = $current;
-		if (isset($posted->verified)) {
-			$r['verified'] = $posted->verified;
-		}
+		$r['verified'] = isset($posted->verified) ? $posted->verified : 'N';
+
 		if (isset($posted->tags)) {
 			$r['tags'] = $posted->tags;
 			$this->model('matter\enroll')->updateTags($app, $posted->tags);
@@ -141,6 +140,7 @@ class record extends \pl\fe\matter\base {
 		 * 登记数据
 		 */
 		if (isset($posted->data)) {
+			$dbData = new \stdClass;
 			foreach ($posted->data as $n => $v) {
 				if (in_array($n, array('signin_at', 'comment'))) {
 					continue;
@@ -160,11 +160,17 @@ class record extends \pl\fe\matter\base {
 						}
 					}
 					$v = implode(',', $vv);
+					//
+					$dbData->{$n} = $v;
 				} else if (is_string($v)) {
 					$v = $modelRec->escape($v);
+					//
+					$dbData->{$n} = $v;
 				} else if (is_object($v) || is_array($c = v)) {
 					/*多选题*/
 					$v = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
+					//
+					$dbData->{$n} = $v;
 				}
 				$cd = array(
 					'aid' => $app,
@@ -175,6 +181,9 @@ class record extends \pl\fe\matter\base {
 				$modelRec->insert('xxt_enroll_record_data', $cd, false);
 				$r['data'][$n] = $v;
 			}
+			//
+			$dbData = $modelRec->toJson($dbData);
+			$modelRec->update('xxt_enroll_record', ['data' => $dbData], "enroll_key='$ek'");
 		}
 
 		return new \ResponseData($r);
@@ -228,6 +237,8 @@ class record extends \pl\fe\matter\base {
 					$this->model('matter\enroll')->updateTags($app, $v);
 				}*/
 			} else if ($k === 'data' and is_object($v)) {
+				//
+				$dbData = new \stdClass;
 				foreach ($v as $cn => $cv) {
 					if (is_array($cv) && isset($cv[0]->imgSrc)) {
 						/* 上传图片 */
@@ -245,11 +256,14 @@ class record extends \pl\fe\matter\base {
 							}
 						}
 						$cv = implode(',', $vv);
+						$dbData->{$cn} = $cv;
 					} else if (is_string($cv)) {
 						$cv = $model->escape($cv);
+						$dbData->{$cn} = $cv;
 					} else if (is_object($cv) || is_array($cv)) {
 						/*多选题*/
 						$cv = implode(',', array_keys(array_filter((array) $cv, function ($i) {return $i;})));
+						$dbData->{$cn} = $cv;
 					}
 					/*检查数据项是否存在，如果不存在就先创建一条*/
 					$q = array(
@@ -274,6 +288,9 @@ class record extends \pl\fe\matter\base {
 					}
 					$record->data->{$cn} = $cv;
 				}
+				//
+				$dbData = $model->toJson($dbData);
+				$model->update('xxt_enroll_record', ['data' => $dbData], "enroll_key='$ek'");
 			}
 		}
 

@@ -324,12 +324,14 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 							updatedFields.push('data_schemas');
 							$scope.updPage($scope.ep, updatedFields);
 							/* 更新其它页面 */
-							angular.forEach($scope.app.pages, function(page) {
-								if (page !== $scope.ep) {
-									page.updateBySchema($scope.activeWrap.schema);
-									$scope.updPage(page, ['data_schemas', 'html']);
-								}
-							});
+							if ($scope.activeWrap.schema) {
+								angular.forEach($scope.app.pages, function(page) {
+									if (page !== $scope.ep) {
+										page.updateBySchema($scope.activeWrap.schema);
+										$scope.updPage(page, ['data_schemas', 'html']);
+									}
+								});
+							}
 						});
 					} else {
 						$scope.updPage($scope.ep, updatedFields);

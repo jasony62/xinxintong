@@ -178,6 +178,7 @@ $sql .= ",remark_num int not null default 0"; // 评论数 should remove
 $sql .= ",follower_num int not null default 0"; // 接收邀请的下家
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal,2:as invite log;
 $sql .= ",referrer text"; //
+$sql .= ",data text"; // 登记的数据项
 $sql .= ",verified char(1) not null default 'N'"; // 记录是否已通过审核
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
@@ -233,7 +234,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 自定义登记数据
+ * 自定义登记数据（应该删除）
  */
 $sql = "create table if not exists xxt_enroll_record_data(";
 $sql .= "aid varchar(40) not null";

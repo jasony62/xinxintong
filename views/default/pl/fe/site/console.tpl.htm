@@ -63,7 +63,7 @@
 							<p class='summary' ng-bind='m.matter_summary||m.summary'></p>
 							<div class='attr'>
 								<div class='operator_name' ng-bind='m.operator_name||m.creater_name'></div>
-								<div class='modify_at' title='修改时间' ng-bind="(m.operate_at||m.modify_at||m.join_at)*1000|date:'yy-MM-dd'"></div>
+								<div class='modify_at' title='修改时间' ng-bind="(m.operate_at||m.modify_at||m.join_at||m.create_at)*1000|date:'yy-MM-dd'"></div>
 							</div>
 							<div class='actions' ng-if="entered">
 								<button class='btn btn-default' title='复制' ng-click="copyMatter($event,m)"><span class='glyphicon glyphicon-copy'></span></button>

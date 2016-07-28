@@ -7,12 +7,11 @@ define(['frame'], function(ngApp) {
 		//nv是什么 frame.js 可能是传过来的 暂时自定义为true
 		//var nv = true;
 		$scope.$parent.subView = 'page';
-		$scope.$watch('wall', function(nv) {
-			if (nv) {
-				//$scope.url = 'http://' + location.host + '/rest/op/wall?mpid=' + $scope.mpaccount.mpid + '&wall=' + nv.id;
-				$scope.url = 'http://'+ location.host + '/rest/pl/fe/matter/wall?id=' + $scope.id + '&site=' + $scope.siteId;
-			}
-		});
+		//$scope.$watch('wall', function(nv) {
+		//	if (nv) {
+		//		//$scope.url = 'http://' + location.host + '/rest/op/wall?mpid=' + $scope.mpaccount.mpid + '&wall=' + nv.id;
+		//	}
+		//});
 		//显示信息
 		$scope.pageTypes = [{
 			type: 'op',

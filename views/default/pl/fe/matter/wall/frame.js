@@ -127,7 +127,8 @@ define(['require'], function(require, pageLib) {
 					page.arrange(mapOfAppSchemas);
 				});
 				$scope.wall = app;
-				$scope.url = 'http://' + location.host + '/rest/site/fe/matter/wall?site=' + $scope.siteId + '&app=' + $scope.id;
+				//$scope.url = 'http://' + location.host + '/rest/site/fe/matter/wall?site=' + $scope.siteId + '&id=' + $scope.id;
+				$scope.url = 'http://' + location.host + '/rest/site/fe/matter?site=' + $scope.siteId + '&id=' + $scope.id + '&type=wall';
 			});
 		};
 		$scope.getApp();

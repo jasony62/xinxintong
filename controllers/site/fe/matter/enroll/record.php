@@ -153,7 +153,7 @@ class record extends base {
 			$rst = $modelRec->setData($user, $site, $app, $ek, $posted, $submitkey);
 			if ($rst[0] === true) {
 				$dbData = $modelRec->toJson($rst[1]);
-				$modelRec->update('xxt_enroll_record', ['data' => $dbData], "ek='$ek'");
+				$modelRec->update('xxt_enroll_record', ['data' => $dbData], "enroll_key='$ek'");
 			}
 			/*登记提交的积分奖励*/
 			$modelCoin = $this->model('coin\log');

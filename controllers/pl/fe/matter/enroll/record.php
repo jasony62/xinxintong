@@ -25,6 +25,10 @@ class record extends \pl\fe\matter\base {
 	 * [2] 数据项的定义
 	 */
 	public function list_action($site, $app, $page = 1, $size = 30, $tags = null, $rid = null, $kw = null, $by = null, $orderby = null, $contain = null) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$criteria = $this->getPostJson();
 		/*应用*/
 		$modelApp = $this->model('matter\enroll');
 		$app = $modelApp->byId($app);
@@ -40,7 +44,7 @@ class record extends \pl\fe\matter\base {
 			'contain' => $contain,
 		);
 		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->find($site, $app, $options);
+		$result = $mdoelRec->find($site, $app, $options, $criteria);
 
 		return new \ResponseData($result);
 	}

@@ -60,8 +60,11 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			}
 			$scope.ep = page;
 		};
-		$scope.gotoPageConfig = function() {
-			location = '/rest/pl/fe/matter/enroll/page?site=' + $scope.siteId + '&id=' + $scope.id + '&page=' + $scope.ep.name;
+		$scope.cleanPage = function() {
+			$scope.ep.html = '';
+			$scope.ep.data_schemas = [];
+			$scope.ep.act_schemas = [];
+			srvPage.update($scope.ep, ['data_schemas', 'act_schemas', 'html']);
 		};
 		$scope.newSchema = function(type) {
 			var i, newSchema, mission;

@@ -35,6 +35,7 @@
         <div class='form-group' style='display:none'>
             <select class='form-control' title="排序条件" ng-model='page.orderBy' ng-options='o.v as o.n for o in orderBys' ng-change='doSearch(1)'></select>
         </div>
+        <button class='btn btn-success' ng-click='filter()'>筛选</button>
         <button class='btn btn-success' ng-click='verifyAll()'>全部通过审核</button>
         <button class='btn btn-primary' ng-click="notify()">发送信息</button>
     </div>

@@ -78,6 +78,8 @@ class record_model extends \TMS_MODEL {
 			 * 插入自定义属性
 			 */
 			if ($n === 'member' && is_object($v)) {
+				//
+				$dbData->{$n} = $v;
 				/* 用户认证信息 */
 				$vv = new \stdClass;
 				isset($v->name) && $vv->name = urlencode($v->name);
@@ -90,9 +92,8 @@ class record_model extends \TMS_MODEL {
 					}
 					$vv->extattr = $extattr;
 				}
-				$vv = urldecode(json_encode($vv));
 				//
-				$dbData->{$n} = $vv;
+				$vv = urldecode(json_encode($vv));
 			} else if (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
 				/* 上传图片 */
 				$vv = array();
@@ -265,6 +266,7 @@ class record_model extends \TMS_MODEL {
 	 * --rid 轮次id
 	 * --kw 检索关键词
 	 * --by 检索字段
+	 * $criteria 登记数据过滤条件
 	 *
 	 *
 	 * return
@@ -272,7 +274,7 @@ class record_model extends \TMS_MODEL {
 	 * [1] 数据总条数
 	 * [2] 数据项的定义
 	 */
-	public function find($siteId, &$app, $options = null) {
+	public function find($siteId, &$app, $options = null, $criteria = null) {
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$creater = isset($options->creater) ? $options->creater : null;
@@ -347,6 +349,7 @@ class record_model extends \TMS_MODEL {
 		default:
 			$q2['o'] = 'e.enroll_at desc';
 		}
+		/*处理获得的数据*/
 		if ($records = $this->query_objs_ss($q, $q2)) {
 			foreach ($records as &$r) {
 				/* 获得填写的登记数据 */
@@ -360,7 +363,14 @@ class record_model extends \TMS_MODEL {
 				// foreach ($cds as $cd) {
 				// 	$r->data->{$cd->name} = $cd->value;
 				// }
-				$r->data = json_decode($r->data);
+
+				$data = str_replace("\n", ' ', $r->data);
+				$data = json_decode($data);
+				if ($data === null) {
+					$r->data = 'json error(' . json_last_error() . '):' . $r->data;
+				} else {
+					$r->data = $data;
+				}
 				/*获得点赞记录*/
 				$app->can_like_record === 'Y' && $r->likers = $this->likers($r->enroll_key, 1, 3);
 				/*获得邀请数据*/

@@ -11,7 +11,6 @@
         <link href="/views/default/site/fe/matter/contribute/initiate/article.css?_=1" rel="stylesheet">
     </head>
     <body class='ng-cloak' ng-cloak ng-app='xxtApp' ng-controller='ctrlInitiate'>
-        <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
         <div class='container'>
             <div class='row'>
                 <nav id='toolbar' class="navbar navbar-default navbar-fixed-top">
@@ -29,10 +28,11 @@
                         <div class='alert alert-info' ng-bind="entryApp.summary"></div>
                     </div>
                     <div class='form-group'>
+                        <label>标题：最多35个汉字，70个英文字符</label>
                         <input type='text' class='form-control' ng-model='editing.title' tms-auto-update tms-wait=1000 tms-update="update('title');">
-                        <p class='help-block'>标题：最多35个汉字，70个英文字符</p>
                     </div>
                     <div class='form-group'>
+                        <label>头图（可选）：建议尺寸：900像素 * 500像素</label>
                         <div style="background:#fff;width:182px;border:1px solid #CCC">
                             <div style="height:100px;text-align:center;padding-top:32px" ng-if="editing.pic==''">
                                 <button class='btn btn-default' ng-click='setPic();'>
@@ -48,23 +48,22 @@
                                 </button>
                             </div>
                         </div>
-                        <p class='help-block'>头图（可选）：建议尺寸：900像素 * 500像素</p>
                     </div>
                     <div class='form-group'>
+                        <label>摘要：最多120个汉字，240个英文字符</label>
                         <textarea class='form-control' ng-model='editing.summary' tms-auto-update tms-wait=1000 tms-update="update('summary');"></textarea>
-                        <p class='help-block'>摘要：最多120个汉字，240个英文字符</p>
                     </div>
                     <div class='form-group'>
+                        <label>文章所属频道</label>
                         <combox evt-prefix='sub-channel' readonly=true prop='title' existing='editing.subChannels' options='entryApp.subChannels'></combox>
-                        <p class='help-block'>文章所属频道</p>
                     </div>
                     <div class='form-group'>
+                        <label>文章URL</label>
                         <div class='form-control' style='word-break: break-all;height:auto'>{{access.url}}</div>
-                        <p class='help-block'>文章URL</p>
                     </div>
                     <div class="form-group">
                         <div><img ng-src="{{access.qrcode}}"></div>
-                        <p class='help-block'>文章二维码</p>
+                        <label>文章二维码</p>
                     </div>
                     <div class='form-group'>
                         <div class='alert alert-info'>
@@ -74,10 +73,11 @@
                 </div><!--end right-->
                 <div class='col-md-8'>
                     <div class='form-group'>
+                        <label>正文：少于2万字符</label>
                         <tinymce id='body1' contenteditable='bodyEditable' toolbar="fullscreen code" height='600'></tinymce>
-                        <p class='help-block'>正文：少于2万字符</p>
                     </div>
                     <div class='form-group'>
+                        <label>附件（可选）</label>
                         <button id='addAttachment' class='btn btn-default btn-sm'>
                         <span class='glyphicon glyphicon-plus'></span>
                         </button>
@@ -91,7 +91,6 @@
                                 </button>
                             </li>
                         </ul>
-                        <p class='help-block'>附件（可选）</p>
                     </div>
                     <div id='logs' class='table' ng-show='logs.length'>
                         <div class='thead'>

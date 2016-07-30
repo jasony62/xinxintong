@@ -47,8 +47,22 @@ ngApp.controller('ctrlReview', ['$location', '$scope', '$uibModal', 'http2', 'Ar
     $scope.return = function() {
         $uibModal.open({
             templateUrl: 'replyBox.html',
-            controller: ['$scope', '$uibModalInstance', 'http2', function($scope, $mi, http2) {
+            resolve: {
+                article: function() {
+                    return $scope.editing;
+                },
+                lastDisposer: function() {
+                    if ($scope.logs.length > 1) {
+                        return $scope.logs[$scope.logs.length - 2];
+                    }
+                    return false;
+                }
+            },
+            controller: ['$scope', '$uibModalInstance', 'http2', 'article', 'lastDisposer', function($scope, $mi, http2, article, lastDisposer) {
+                $scope.article = article;
+                $scope.lastDisposer = lastDisposer;
                 $scope.data = {
+                    backTo: 'I',
                     message: ''
                 };
                 $scope.close = function() {
@@ -60,7 +74,7 @@ ngApp.controller('ctrlReview', ['$location', '$scope', '$uibModal', 'http2', 'Ar
             }],
             backdrop: 'static',
         }).result.then(function(data) {
-            $scope.Article.return($scope.editing, data.message).then(function() {
+            $scope.Article.return($scope.editing, data).then(function() {
                 location.href = '/rest/site/fe/matter/contribute/review?site=' + siteId + '&entry=' + $scope.editing.entry;
             });
         });

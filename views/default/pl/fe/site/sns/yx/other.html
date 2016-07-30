@@ -9,7 +9,7 @@
         <div class='col-md-9'>
             <button class='btn btn-default btn-sm' ng-click='setReply()'>指定素材</button>
             <a class='list-group-item' ng-mouseenter='enter=true' ng-mouseleave='enter=false' ng-show='editing.matter' title={{editing.matter.type|typetitle}}>
-                {{editing.matter.title||editing.matter.content}}
+                {{editing.matter.title}}
                 <button class='btn btn-default btn-sm' style='position:absolute;top:4px;right:4px' ng-click='remove()' ng-if='enter'>
                 <span class='glyphicon glyphicon-remove'></span>
                 </button>

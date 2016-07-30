@@ -51,20 +51,14 @@
                                 <div class='send_at' ng-if="a.approved==='Y'||!a.disposer">
                                     <span></span>
                                 </div>
-                                <div ng-if="a.approved==='N'&&a.finished==='N'">
-                                    <span ng-bind="phases[a.disposer.phase]||'未送审'"></span>
+                                <div>
+                                    <span ng-if="a.disposer" ng-bind="phases[a.disposer.phase]"></span>
+                                    <span ng-if="!a.disposer&&a.approved==='N'">编写</span>
+                                    <span ng-if="!a.disposer&&a.approved==='Y'"></span>
                                 </div>
-                                <div ng-if="a.approved==='Y'&&a.finished==='N'">
-                                    <span></span>
-                                </div>
-                                <div ng-if="a.finished==='Y'">
-                                    <span>完成</span>
-                                </div>
-                                <div ng-if="a.approved==='Y'">
-                                    <span ng-bind="approved[a.approved]"></span>
-                                </div>
-                                <div ng-if="a.approved==='N'">
-                                    <span></span>
+                                <div>
+                                    <span ng-if="a.finished==='Y'" ng-bind="approved[a.approved]"></span>
+                                    <span ng-if="a.finished==='N'"></span>
                                 </div>
                                 <div class='read_num' ng-if="a.approved==='Y'">
                                     <span class='visible-xs-inline'>阅读</span>

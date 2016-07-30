@@ -1,6 +1,6 @@
 ngApp.controller('ctrlInitiate', ['$scope', '$location', 'http2', '$uibModal', 'Article', 'Entry', function($scope, $location, http2, $uibModal, Article, Entry) {
     $scope.phases = {
-        'I': '未送审',
+        'I': '编写',
         'R': '审核中',
         'T': '版面'
     };

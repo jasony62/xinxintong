@@ -1,11 +1,11 @@
 <div id='record-view'>
     <div class='form-group form-inline'>
         <div class='form-group'>
-            <select class='form-control' ng-model='page.searchBy' ng-options='s.v as s.n for s in searchBys'></select>
+            <select class='form-control' ng-model="criteria.record.searchBy" ng-options="s.v as s.n for s in searchBys"></select>
         </div>
         <div class='form-group' style='max-width:200px'>
             <div class="input-group">
-                <input type='text' class='form-control' ng-model='page.keyword' placeholder='搜索条件' ng-keyup='keywordKeyup($event)'>
+                <input type='text' class='form-control' ng-model='criteria.record.keyword' placeholder='搜索条件' ng-keyup='keywordKeyup($event)'>
                 <span class="input-group-btn">
                     <button class="btn btn-default" type="button" ng-click='doSearch(1)'>
                         <span class="glyphicon glyphicon-search"></span>

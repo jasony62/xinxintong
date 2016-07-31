@@ -24,25 +24,27 @@ class record extends \pl\fe\matter\base {
 	 * [1] 数据总条数
 	 * [2] 数据项的定义
 	 */
-	public function list_action($site, $app, $page = 1, $size = 30, $tags = null, $rid = null, $kw = null, $by = null, $orderby = null, $contain = null) {
+	public function list_action($site, $app, $page = 1, $size = 30, $rid = null, $orderby = null, $contain = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		// 登记数据过滤条件
 		$criteria = $this->getPostJson();
-		/*应用*/
-		$modelApp = $this->model('matter\enroll');
-		$app = $modelApp->byId($app);
-		/*参数*/
+
+		// 登记记录过滤条件
 		$options = array(
 			'page' => $page,
 			'size' => $size,
-			'tags' => $tags,
 			'rid' => $rid,
-			'kw' => $kw,
-			'by' => $by,
 			'orderby' => $orderby,
 			'contain' => $contain,
 		);
+
+		// 登记活动
+		$modelApp = $this->model('matter\enroll');
+		$app = $modelApp->byId($app);
+
+		// 查询结果
 		$mdoelRec = $this->model('matter\enroll\record');
 		$result = $mdoelRec->find($site, $app, $options, $criteria);
 
@@ -60,56 +62,6 @@ class record extends \pl\fe\matter\base {
 		$summary = $mdoelRec->summary($site, $app);
 
 		return new \ResponseData($summary);
-	}
-	/**
-	 * 给符合条件的登记记录打标签
-	 */
-	public function exportByData_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$posted = $this->getPostJson();
-		$filter = $posted->filter;
-		$target = $posted->target;
-		$includeData = isset($posted->includeData) ? $posted->includeData : 'N';
-
-		if (!empty($target)) {
-			/*更新应用标签*/
-			$modelApp = $this->model('matter\enroll');
-			/*给符合条件的记录打标签*/
-			$modelRec = $this->model('matter\enroll\record');
-			$q = array(
-				'distinct enroll_key',
-				'xxt_enroll_record_data',
-				"aid='$app' and state=1",
-			);
-			$eks = null;
-			foreach ($filter as $k => $v) {
-				$w = "(name='$k' and ";
-				$w .= "concat(',',value,',') like '%,$v,%'";
-				$w .= ')';
-				$q2 = $q;
-				$q2[2] .= ' and ' . $w;
-				$eks2 = $modelRec->query_vals_ss($q2);
-				$eks = ($eks === null) ? $eks2 : array_intersect($eks, $eks2);
-			}
-			if (!empty($eks)) {
-				$objApp = $modelApp->byId($target, array('cascaded' => 'N'));
-				$options = array('cascaded' => $includeData);
-				foreach ($eks as $ek) {
-					$record = $modelRec->byId($ek, $options);
-					$user = new \stdClass;
-					$user->nickname = $record->nickname;
-					$newek = $modelRec->add($site, $objApp, $user);
-					if ($includeData === 'Y') {
-						$modelRec->setData($user, $site, $objApp, $newek, $record->data);
-					}
-				}
-			}
-		}
-
-		return new \ResponseData('ok');
 	}
 	/**
 	 * 手工添加登记信息

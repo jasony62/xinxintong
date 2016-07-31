@@ -17,16 +17,14 @@ define(['frame'], function(ngApp) {
             title: '登记活动',
             url: '/rest/pl/fe/matter'
         }];
-        $scope.doSearch = function(page, criteria) {
+        $scope.doSearch = function(page) {
             var url;
-            criteria = criteria || {};
             page && ($scope.page.at = page);
             url = '/rest/pl/fe/matter/enroll/record/list';
             url += '?site=' + $scope.siteId; // todo
             url += '&app=' + $scope.app.id;
-            url += '&tags=' + $scope.page.tags.join(',');
             url += $scope.page.joinParams();
-            http2.post(url, criteria, function(rsp) {
+            http2.post(url, $scope.criteria, function(rsp) {
                 if (rsp.data) {
                     $scope.records = rsp.data.records ? rsp.data.records : [];
                     rsp.data.total && ($scope.page.total = rsp.data.total);
@@ -45,20 +43,22 @@ define(['frame'], function(ngApp) {
                 });
             });
         };
+        // 过滤条件
+        $scope.criteria = {
+            record: {
+                searchBy: '',
+                keyword: ''
+            }
+        };
         $scope.page = {
             at: 1,
             size: 30,
-            keyword: '',
-            tags: [],
             orderBy: 'time',
             joinParams: function() {
                 var p;
                 p = '&page=' + this.at + '&size=' + this.size;
-                if (this.keyword !== '') {
-                    p += '&kw=' + this.keyword;
-                }
+                this.byRound && (p += '&rid=' + this.byRound);
                 p += '&orderby=' + this.orderBy;
-                p += '&rid=' + (this.byRound ? this.byRound : 'ALL');
                 return p;
             }
         };
@@ -183,7 +183,8 @@ define(['frame'], function(ngApp) {
                     }
                 }
             }).result.then(function(criteria) {
-                $scope.doSearch(1, criteria);
+                $scope.criteria.data = criteria;
+                $scope.doSearch(1);
             });
         };
         $scope.editRecord = function(record) {
@@ -440,9 +441,6 @@ define(['frame'], function(ngApp) {
             } else {
                 return {};
             }
-        };
-        $scope.signin = function() {
-            $scope.record.signin_at = Math.round((new Date()).getTime() / 1000);
         };
         $scope.ok = function() {
             var record = $scope.record,

@@ -299,7 +299,7 @@ class record_model extends \TMS_MODEL {
 		$result->total = 0;
 
 		// 指定登记活动下的登记记录
-		$w = "e.state=1 and e.siteid='$siteId' and e.aid='{$app->id}'";
+		$w = "e.state=1 and e.aid='{$app->id}'";
 
 		if (!empty($creater)) {
 			$w .= " and e.userid='$creater'";

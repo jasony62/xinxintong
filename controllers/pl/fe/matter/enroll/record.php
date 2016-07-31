@@ -351,4 +351,96 @@ class record extends \pl\fe\matter\base {
 
 		return array(true);
 	}
+	/**
+	 * 登记数据导出
+	 */
+	public function export_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		// 登记活动
+		$app = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+		$schemas = json_decode($app->data_schemas);
+
+		// 获得所有有效的登记记录
+		$q = [
+			'enroll_at,verified,data',
+			'xxt_enroll_record',
+			["aid" => $app->id, 'state' => 1],
+		];
+		$records = $this->model()->query_objs_ss($q);
+		if (count($records) === 0) {
+			die('record empty');
+		}
+
+		// 登记记录转换成下载数据
+		$exportedData = [];
+		$size = 0;
+		// 转换标题
+		$titles = ['登记时间', '审核通过'];
+		foreach ($schemas as $schema) {
+			$titles[] = $schema->title;
+		}
+		$titles = implode('|', $titles);
+		$size += strlen($titles);
+		$exportedData[] = $titles;
+		// 转换数据
+		foreach ($records as $record) {
+			$row = [];
+			$row[] = date('y-m-j H:i', $record->enroll_at);
+			$row[] = $record->verified;
+			// 处理登记项
+			$data = str_replace("\n", ' ', $record->data);
+			$data = json_decode($record->data);
+			foreach ($schemas as $schema) {
+				$v = $data->{$schema->id};
+				switch ($schema->type) {
+				case 'single':
+				case 'phase':
+					foreach ($schema->ops as $op) {
+						if ($op->v === $v) {
+							$row[] = $op->l;
+							$disposed = true;
+							break;
+						}
+					}
+					empty($disposed) && $row[] = $v;
+					break;
+				case 'multiple':
+					$labels = [];
+					$v = explode(',', $v);
+					foreach ($v as $oneV) {
+						foreach ($schema->ops as $op) {
+							if ($op->v === $oneV) {
+								$labels[] = $op->l;
+								break;
+							}
+						}
+					}
+					$row[] = implode(',', $labels);
+					break;
+				default:
+					$row[] = $v;
+					break;
+				}
+			}
+			// 将数据转换为'|'分隔的字符串
+			$row = implode('|', $row);
+			$size += strlen($row);
+			$exportedData[] = $row;
+		}
+
+		// 文件下载
+		$size += count($exportedData);
+		$exportedData = implode("\n", $exportedData);
+
+		//header("Content-Type: text/plain;charset=utf-8");
+		//header("Content-Disposition: attachment; filename=" . $app->title . '.txt');
+		//header('Content-Length: ' . $size);
+		//echo $exportedData;
+		//exit;
+
+		return new \ResponseData($exportedData);
+	}
 }

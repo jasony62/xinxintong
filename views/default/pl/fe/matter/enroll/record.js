@@ -189,7 +189,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.editRecord = function(record) {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html',
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=1',
                 controller: 'ctrlEditor',
                 backdrop: 'static',
                 windowClass: 'auto-height',
@@ -219,7 +219,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.addRecord = function() {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html',
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=1',
                 controller: 'ctrlEditor',
                 windowClass: 'auto-height',
                 resolve: {
@@ -316,6 +316,22 @@ define(['frame'], function(ngApp) {
             }, {
                 singleMatter: 'Y',
                 matterTypes: $scope.notifyMatterTypes
+            });
+        };
+        $scope.export = function() {
+            var url, params = {};
+
+            url = '/rest/pl/fe/matter/enroll/record/export';
+            url += '?site=' + $scope.siteId + '&app=' + $scope.id;
+
+            http2.post(url, params, function(rsp) {
+                var blob;
+
+                blob = new Blob([rsp.data], {
+                    type: "text/plain;charset=utf-8"
+                });
+
+                saveAs(blob, $scope.app.title);
             });
         };
         $scope.$watch('selectAll', function(nv) {

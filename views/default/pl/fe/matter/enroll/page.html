@@ -106,7 +106,7 @@
                 <!-- wrap schema editor -->
                 <div id='wrap-editor' class='tile' ng-if="activeWrap.schema" relative-fixed fixed-height='80'>
                     <div class='form-group' ng-include="wrapEditorHtml()"></div>
-                    <button class='btn btn-block btn-danger' ng-click="removeSchema(activeWrap.schema)">删除登记项</button>
+                    <button class='btn btn-block btn-danger' ng-click="removeSchema(activeWrap.schema)">删除</button>
                 </div>
                 <!-- end wrap schema editor-->
             </div>
@@ -117,7 +117,7 @@
     <nav class="navbar navbar-default navbar-fixed-bottom">
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
-                <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/enroll/preview?site={{siteId}}&id={{id}}">预览页面</a>
+                <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/enroll/preview?site={{siteId}}&id={{id}}">活动设置</a>
                 <button class='btn btn-lg btn-success' ng-click="updPage(ep,['data_schemas','act_schemas','html'])">保存修改</button>
                 <button class='btn btn-lg btn-success' ng-click="publish()">收集数据</button>
             </form>

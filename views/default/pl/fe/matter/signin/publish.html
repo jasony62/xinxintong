@@ -3,6 +3,7 @@
         <div class="panel-heading">签到链接：复制或分享给用户进行签到</div>
         <div class="panel-body">
             <div class='form-control' style='height:auto;word-break:break-all' ng-bind='entry.url'></div>
+            <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
         </div>
     </div>
     <div class="panel panel-default">
@@ -15,6 +16,7 @@
         <div class="panel-heading">投影地址</div>
         <div class="panel-body">
             <div class='form-control' style='height:auto;word-break:break-all' ng-bind="opUrl"></div>
+            <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opUrl}}">复制</button>
         </div>
     </div>
     <div class="panel panel-default">

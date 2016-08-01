@@ -402,7 +402,7 @@ define(['frame'], function(ngApp) {
                 optionCriteria;
             // 将单选题/多选题的结果拼成字符串
             angular.forEach(app.data_schemas, function(schema) {
-                if (/single|phase|multiple/.test(schema.type)) {
+                if (/multiple/.test(schema.type)) {
                     if ((optionCriteria = criteria[schema.id])) {
                         criteria[schema.id] = Object.keys(optionCriteria).join(',');
                     }

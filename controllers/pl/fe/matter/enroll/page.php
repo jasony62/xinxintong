@@ -53,13 +53,13 @@ class page extends \pl\fe\matter\base {
 		if ($pid != 0 && count(array_keys(get_object_vars($nv)))) {
 			$model = $this->model();
 			if (isset($nv->data_schemas)) {
-				$nv->data_schemas = $model->toJson($nv->data_schemas);
+				$nv->data_schemas = $model->escape($model->toJson($nv->data_schemas));
 			}
 			if (isset($nv->act_schemas)) {
-				$nv->act_schemas = $model->toJson($nv->act_schemas);
+				$nv->act_schemas = $model->escape($model->toJson($nv->act_schemas));
 			}
 			if (isset($nv->user_schemas)) {
-				$nv->user_schemas = $model->toJson($nv->user_schemas);
+				$nv->user_schemas = $model->escape($model->toJson($nv->user_schemas));
 			}
 			$rst = $model->update(
 				'xxt_enroll_page',

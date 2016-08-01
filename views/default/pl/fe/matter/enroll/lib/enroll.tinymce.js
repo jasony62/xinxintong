@@ -136,7 +136,6 @@ directive('tinymce', function($timeout) {
                                     evt.preventDefault();
                                     evt.stopPropagation();
                                 } else if (node.tagName === 'SPAN' && node.parentNode.parentNode && /checkbox|radio/.test(node.parentNode.parentNode.getAttribute('wrap'))) {
-                                    console.log('xxxxxxx');
                                     node.innerHTML = ' ';
                                     evt.preventDefault();
                                     evt.stopPropagation();

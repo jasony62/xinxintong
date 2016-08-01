@@ -588,6 +588,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		var targetPages = {},
 			inputPages = {},
 			schema = $scope.activeWrap.schema;
+
 		$scope.$watch('app', function(app) {
 			if (!app) return;
 			angular.forEach(app.pages, function(page) {
@@ -606,19 +607,19 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		};
 		$scope.pages = targetPages;
 		$scope.inputPages = inputPages;
-		$scope.choose = function() {
-			var names;
-			schema.label = $scope.buttons[schema.name].l;
-			schema.next = '';
-			if (['addRecord', 'editRecord', 'removeRecord'].indexOf(schema.name) !== -1) {
-				names = Object.keys(inputPages);
-				if (names.length === 0) {
-					alert('没有类型为“填写页”的页面');
-				} else {
-					schema.next = names[0];
-				}
-			}
-		};
+		// $scope.choose = function() {
+		// 	var names;
+		// 	schema.label = $scope.buttons[schema.name].l;
+		// 	schema.next = '';
+		// 	if (['addRecord', 'editRecord', 'removeRecord'].indexOf(schema.name) !== -1) {
+		// 		names = Object.keys(inputPages);
+		// 		if (names.length === 0) {
+		// 			alert('没有类型为“填写页”的页面');
+		// 		} else {
+		// 			schema.next = names[0];
+		// 		}
+		// 	}
+		// };
 		/*直接给带有导航功能的按钮创建页面*/
 		$scope.newPage = function(prop) {
 			$scope.createPage().then(function(page) {
@@ -673,7 +674,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			$scope.activeWrap = $scope.ep.setActiveWrap(domWrap);
 		};
 		$scope.wrapEditorHtml = function() {
-			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=18';
+			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=22';
 			return url;
 		};
 		var addInputSchema = function(addedSchema) {

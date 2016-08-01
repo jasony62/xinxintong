@@ -144,7 +144,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			$scope.activeWrap = $scope.ep.setActiveWrap(domWrap);
 		};
 		$scope.wrapEditorHtml = function() {
-			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=22';
+			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=23';
 			return url;
 		};
 		var addInputSchema = function(addedSchema) {

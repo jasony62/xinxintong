@@ -331,7 +331,7 @@ define(['frame'], function(ngApp) {
                     type: "text/plain;charset=utf-8"
                 });
 
-                saveAs(blob, $scope.app.title);
+                saveAs(blob, $scope.app.title + '.csv');
             });
         };
         $scope.$watch('selectAll', function(nv) {

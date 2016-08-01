@@ -382,7 +382,7 @@ class record extends \pl\fe\matter\base {
 		foreach ($schemas as $schema) {
 			$titles[] = $schema->title;
 		}
-		$titles = implode('|', $titles);
+		$titles = implode("\t", $titles);
 		$size += strlen($titles);
 		$exportedData[] = $titles;
 		// 转换数据
@@ -394,7 +394,7 @@ class record extends \pl\fe\matter\base {
 			$data = str_replace("\n", ' ', $record->data);
 			$data = json_decode($record->data);
 			foreach ($schemas as $schema) {
-				$v = $data->{$schema->id};
+				$v = isset($data->{$schema->id}) ? $data->{$schema->id} : '';
 				switch ($schema->type) {
 				case 'single':
 				case 'phase':
@@ -426,14 +426,14 @@ class record extends \pl\fe\matter\base {
 				}
 			}
 			// 将数据转换为'|'分隔的字符串
-			$row = implode('|', $row);
+			$row = implode("\t", $row);
 			$size += strlen($row);
 			$exportedData[] = $row;
 		}
 
 		// 文件下载
-		$size += count($exportedData);
-		$exportedData = implode("\n", $exportedData);
+		$size += (count($exportedData) - 1) * 2;
+		$exportedData = implode("\r\n", $exportedData);
 
 		//header("Content-Type: text/plain;charset=utf-8");
 		//header("Content-Disposition: attachment; filename=" . $app->title . '.txt');

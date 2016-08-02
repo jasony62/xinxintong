@@ -356,7 +356,11 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
                     location.replace(url);
                 } else if (nextAction === 'closeWindow') {
                     $scope.closeWindow();
-                } else if (nextAction !== undefined && nextAction.length) {
+                } else if (nextAction === '_autoForward') {
+                    // 根据指定的进入规则自动跳转到对应页面
+                    url = LS.j('', 'site', 'app');
+                    location.replace(url);
+                } else if (nextAction && nextAction.length) {
                     url = LS.j('', 'site', 'app');
                     url += '&page=' + nextAction;
                     url += '&ek=' + rsp.data.ek;

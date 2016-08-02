@@ -1,5 +1,6 @@
-define(["enroll-common"], function(ngApp) {
+define(['angular'], function(angular) {
     'use strict';
+
     var __util = {};
     __util.makeDialog = function(id, html) {
         var dlg, $dlg;
@@ -10,9 +11,12 @@ define(["enroll-common"], function(ngApp) {
         dlg += "</div></div>";
         $dlg = $(dlg).attr('id', id);
         $('body').append($dlg);
+
         return $dlg.contents();
     };
-    ngApp.directive('tmsDate', ['$compile', function($compile) {
+
+    var ngMod = angular.module('directive.enroll', []);
+    ngMod.directive('tmsDate', ['$compile', function($compile) {
         return {
             restrict: 'A',
             scope: {
@@ -82,7 +86,7 @@ define(["enroll-common"], function(ngApp) {
             }
         }
     }]);
-    ngApp.directive('tmsCheckboxGroup', function() {
+    ngMod.directive('tmsCheckboxGroup', function() {
         return {
             restrict: 'A',
             link: function(scope, elem, attrs) {
@@ -124,7 +128,7 @@ define(["enroll-common"], function(ngApp) {
             }
         };
     });
-    ngApp.directive('runningButton', function() {
+    ngMod.directive('runningButton', function() {
         return {
             restrict: 'EA',
             template: "<button ng-class=\"isRunning?'btn-default':'btn-primary'\" ng-disabled='isRunning' ng-transclude></button>",
@@ -135,7 +139,7 @@ define(["enroll-common"], function(ngApp) {
             transclude: true
         };
     });
-    ngApp.directive('flexImg', function() {
+    ngMod.directive('flexImg', function() {
         return {
             restrict: 'A',
             replace: true,
@@ -168,7 +172,7 @@ define(["enroll-common"], function(ngApp) {
             }
         }
     });
-    ngApp.directive('tmsFilter', function() {
+    ngMod.directive('tmsFilter', function() {
         return {
             restrict: 'A',
             link: function(scope, ele, attrs) {
@@ -234,7 +238,7 @@ define(["enroll-common"], function(ngApp) {
             }
         };
     });
-    ngApp.directive('enrollRecords', function() {
+    ngMod.directive('enrollRecords', function() {
         return {
             restrict: 'A',
             replace: 'false',
@@ -245,4 +249,6 @@ define(["enroll-common"], function(ngApp) {
             }
         }
     });
+
+    return ngMod;
 });

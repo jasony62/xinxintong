@@ -29,33 +29,39 @@
         </nav>
     </div>
     <!-- end attrs -->
-    <!-- left -->
-    <div class='col-md-4'>
-        <!-- users -->
-        <div class='tile'>
-            <div class='form-group' ng-if="!app.sourceApp">
-                <button class='btn btn-block btn-success' ng-click="importByApp()">导入用户</button>
-            </div>
-            <div class='form-group compact' ng-if="app.sourceApp">
-                <div class="help-block">分组用户来源</div>
-                <div class="input-group">
-                    <div class='form-control' ng-bind="app.sourceApp.title"></div>
-                    <span class="input-group-btn">
-                        <button class="btn btn-default" type="button" ng-click="cancelSourceApp()">
-                            <span class='glyphicon glyphicon-remove'></span>
-                        </button>
-                    </span>
+    <!-- source app -->
+    <div class='col-md-12 source'>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-form">
+                    <div class='form-group' ng-if="!app.sourceApp">
+                        <button class='btn btn-block btn-success' ng-click="importByApp()">导入用户</button>
+                    </div>
+                    <div class='form-group compact' ng-if="app.sourceApp">
+                        <label>分组用户来源</label>
+                        <div class="input-group">
+                            <div class='form-control' ng-bind="app.sourceApp.title"></div>
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" ng-click="cancelSourceApp()">
+                                    <span class='glyphicon glyphicon-remove'></span>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class='form-group' ng-if="app.sourceApp">
+                        <button class='btn btn-block btn-success' ng-click='syncByApp()'>同步用户</button>
+                    </div>
                 </div>
             </div>
-            <div class='form-group' ng-if="app.sourceApp">
-                <button class='btn btn-block btn-success' ng-click='syncByApp()'>同步用户</button>
-            </div>
-        </div>
-        <!-- end users -->
+        </nav>
+    </div>
+    <!-- end source app -->
+    <!-- left -->
+    <div class='col-md-4'>
         <!-- groups -->
         <div class='tile' ng-if="app.sourceApp">
             <div class='form-group'>
-                <button class='btn btn-success' ng-disabled="!app.sourceApp" ng-click="configRule()">设置规则</button>
+                <button class='btn btn-success' ng-disabled="!app.sourceApp" ng-click="configRule()">分组规则</button>
                 <button class='btn btn-success' ng-click="emptyRule()">清除分组</button>
                 <button class='btn btn-success' ng-click="addRound()">添加分组</button>
             </div>
@@ -66,9 +72,6 @@
                     <span>{{r.title}}</span>
                     <button class='btn btn-xs btn-default pull-right' ng-if="r===editingRound" ng-click="removeRound()"><span class='glyphicon glyphicon-remove'></span></button>
                 </a>
-            </div>
-            <div class='form-group'>
-                <button class='btn btn-block btn-success' ng-disabled="!app.sourceApp" ng-click="execute()">进行分组</button>
             </div>
         </div>
         <!-- end groups-->
@@ -234,7 +237,10 @@
     <!-- end right -->
     <!-- bottom nav -->
     <nav class="navbar navbar-default navbar-fixed-bottom">
-        <div class="container-fluid">
+        <div class="container-fluid text-center">
+            <form class="navbar-form" style='display:inline-block'>
+                <button class='btn btn-lg btn-success' ng-disabled="!app.sourceApp||!rounds.length" ng-click="execute()">进行分组</button>
+            </form>
             <form class="navbar-form navbar-right">
                 <button class='btn btn-lg btn-default' ng-click="remove()">删除活动</button>
             </form>

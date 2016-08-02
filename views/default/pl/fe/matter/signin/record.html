@@ -1,4 +1,4 @@
-<div>
+<div id='record-view'>
     <div class='form-group form-inline'>
         <div class='form-group'>
             <select class='form-control' ng-model='page.searchBy' ng-options='s.v as s.n for s in searchBys'></select>
@@ -31,14 +31,8 @@
                 </span>
             </div>
         </div>
-        <div class='form-group' style='display:none'>
+        <div class='form-group hide'>
             <select class='form-control' title="排序条件" ng-model='page.orderBy' ng-options='o.v as o.n for o in orderBys' ng-change='doSearch(1)'></select>
-        </div>
-        <div class='form-group' ng-if="app.can_signin==='Y'" style='width:180px'>
-            <tms-datepicker tms-title='签到范围开始日期' tms-date='signinStartAt' tms-state='signinStartAt'></tms-datepicker>
-        </div>
-        <div class='form-group' ng-if="app.can_signin==='Y'" style='width:180px'>
-            <tms-datepicker tms-title='签到范围结束日期' tms-date='signinEndAt' tms-state='signinEndAt'></tms-datepicker>
         </div>
         <div class='form-group'>
             <button class='btn btn-default' ng-click='tagByData()' disabled>打标签</button>
@@ -97,9 +91,7 @@
         <button class='btn btn-danger' ng-click='empty()'>清空记录</button>
         <button type="button" class="btn btn-default" ng-click='addRecord()'>添加签到记录</button>
         <span>总数：{{page.total}}</span>
-        <pagination style='margin:0;cursor:pointer;vertical-align:bottom' ng-if='page.total>page.size' class='pull-right'
-        boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at"
-        previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
+        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
     </div>
 </div>
 <script type="text/ng-template" id="tagByData.html">

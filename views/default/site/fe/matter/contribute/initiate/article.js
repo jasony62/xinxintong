@@ -7,7 +7,7 @@ ngApp.config(['$routeProvider', function($routeProvider) {
         controller: 'reviewlogCtrl',
     });
 }]);
-ngApp.controller('ctrlInitiate', ['$scope', '$location', '$uibModal', 'http2', 'mediagallery', 'Article', 'Entry', 'Reviewlog', function($scope, $location, $uibModal, http2, mediagallery, Article, Entry, Reviewlog) {
+ngApp.controller('ctrlInitiate', ['$scope', '$location', '$uibModal', '$timeout', 'http2', 'noticebox', 'mediagallery', 'Article', 'Entry', 'Reviewlog', function($scope, $location, $uibModal, $timeout, http2, noticebox, mediagallery, Article, Entry, Reviewlog) {
     $scope.phases = {
         'I': '投稿',
         'R': '审核',
@@ -54,14 +54,18 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$uibModal', 'http2', '
         location.href = '/rest/site/fe/matter/contribute/initiate?site=' + $scope.siteId + '&entry=' + $scope.entry;
     };
     $scope.edit = function(event, article) {
-        if (article._cascade === true)
+        if (article._cascade === true) {
             $scope.editing = article;
-        else
+        } else {
             $scope.Article.get(article.id).then(function(rsp) {
                 article._cascade = true;
                 article.channels = rsp.channels;
                 $scope.editing = article;
             });
+        }
+    };
+    $scope.update = function(name) {
+        $scope.Article.update($scope.editing, name);
     };
     $scope.setPic = function() {
         var options = {
@@ -87,12 +91,6 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$uibModal', 'http2', '
             return message;
         }
     };
-    $scope.onBodyChange = function() {
-        $scope.bodyModified = true;
-    };
-    $scope.tinymceSave = function() {
-        $scope.update('body');
-    };
     $scope.$on('tinymce.multipleimage.open', function(event, callback) {
         var options = {
             callback: callback,
@@ -101,10 +99,6 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$uibModal', 'http2', '
         }
         mediagallery.open($scope.picBoxId, options);
     });
-    $scope.update = function(name) {
-        $scope.Article.update($scope.editing, name);
-        name === 'body' && ($scope.bodyModified = false);
-    };
     $scope.$on('sub-channel.xxt.combox.done', function(event, aSelected) {
         var i, j, c, params = {
             channels: [],
@@ -135,19 +129,50 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$uibModal', 'http2', '
             $scope.editing.subChannels.splice(i, 1);
         });
     });
+    var tinymceEditor;
+    $scope.$watch('editing', function(editing) {
+        if (editing && tinymceEditor) {
+            tinymceEditor.setContent(editing.body);
+        }
+    });
+    $scope.$on('tinymce.instance.init', function(event, editor) {
+        tinymceEditor = editor;
+        if ($scope.editing) {
+            editor.setContent($scope.editing.body);
+        }
+    });
+    var timerOfUpdate = null;
+    $scope.$on('tinymce.content.change', function(event, changed) {
+        var content;
+        content = tinymceEditor.getContent();
+        if (content !== $scope.editing.body) {
+            if (timerOfUpdate !== null) {
+                $timeout.cancel(timerOfUpdate);
+            }
+            timerOfUpdate = $timeout(function() {
+                $scope.editing.body = content;
+                $scope.Article.update($scope.editing, 'body');
+            }, 1000);
+            timerOfUpdate.then(function() {
+                timerOfUpdate = null;
+            });
+        }
+    });
     var r = new Resumable({
         target: '/rest/site/fe/matter/contribute/attachment/upload?site=' + $scope.siteId + '&articleid=' + $scope.id,
         testChunks: false,
     });
     r.assignBrowse(document.getElementById('addAttachment'));
     r.on('fileAdded', function(file, event) {
-        $scope.$root.progmsg = '开始上传文件';
-        $scope.$root.$apply('progmsg');
+        $scope.$apply(function() {
+            noticebox.progress('开始上传文件');
+        });
         r.upload();
     });
     r.on('progress', function(file, event) {
-        $scope.$root.progmsg = '正在上传文件：' + Math.floor(r.progress() * 100) + '%';
-        $scope.$root.$apply('progmsg');
+        $scope.$apply(function() {
+            noticebox.progress('正在上传文件：' + Math.floor(r.progress() * 100) + '%');
+        });
     });
     r.on('complete', function() {
         var f, lastModified, posted;
@@ -162,14 +187,11 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$uibModal', 'http2', '
         };
         http2.post('/rest/site/fe/matter/contribute/attachment/add?site=' + $scope.siteId + '&id=' + $scope.id, posted, function success(rsp) {
             $scope.editing.attachments.push(rsp.data);
-            $scope.$root.progmsg = null;
         });
     });
     $scope.delAttachment = function(index, att) {
-        $scope.$root.progmsg = '删除文件';
         http2.get('/rest/site/fe/matter/contribute/attachment/del?site=' + $scope.siteId + '&id=' + att.id, function success(rsp) {
             $scope.editing.attachments.splice(index, 1);
-            $scope.$root.progmsg = null;
         });
     };
     $scope.downloadUrl = function(att) {
@@ -182,7 +204,7 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$uibModal', 'http2', '
     $scope.finish = function() {
         if ($scope.entryApp.params.requireSubChannel && $scope.entryApp.params.requireSubChannel === 'Y') {
             if (!$scope.editing.subChannels || $scope.editing.subChannels.length === 0) {
-                $scope.errmsg = '请指定投稿频道';
+                noticebox.error('请指定投稿频道');
                 return;
             }
         }
@@ -206,12 +228,12 @@ ngApp.controller('ctrlInitiate', ['$scope', '$location', '$uibModal', 'http2', '
     };
     $scope.forward = function() {
         if ($scope.bodyModified) {
-            $scope.errmsg = '已经修改的正文还没有保存';
+            noticebox.error('已经修改的正文还没有保存');
             return;
         }
         if ($scope.entryApp.params.requireSubChannel && $scope.entryApp.params.requireSubChannel === 'Y') {
             if (!$scope.editing.subChannels || $scope.editing.subChannels.length === 0) {
-                $scope.errmsg = '请指定投稿频道';
+                noticebox.error('请指定投稿频道');
                 return;
             }
         }

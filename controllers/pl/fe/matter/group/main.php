@@ -319,7 +319,10 @@ class main extends \pl\fe\matter\base {
 		$modelGrp = $this->model('matter\group');
 		/* 执行分组 */
 		$winners = $modelGrp->execute($app);
+		if ($winners[0] === false) {
+			return new \ResponseError($winners[1]);
+		}
 
-		return new \ResponseData($winners);
+		return new \ResponseData($winners[1]);
 	}
 }

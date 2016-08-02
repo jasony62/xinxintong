@@ -1,5 +1,9 @@
 define(['frame'], function(ngApp) {
+	'use strict';
 	ngApp.provider.controller('ctrlPublish', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
+		(function() {
+			new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
+		})();
 		$scope.$watch('app', function(app) {
 			if (!app) return;
 			var entry;
@@ -12,9 +16,8 @@ define(['frame'], function(ngApp) {
 		$scope.opUrl = 'http://' + location.host + '/rest/site/op/matter/enroll?site=' + $scope.siteId + '&app=' + $scope.id;
 		$scope.stop = function() {
 			$scope.app.state = 1;
-			$scope.update('state');
-			$scope.submit().then(function() {
-				location.href = '/rest/pl/fe/matter/enroll/app?site=' + $scope.siteId + '&id=' + $scope.id;
+			$scope.update('state').then(function() {
+				location.href = '/rest/pl/fe/matter/enroll/preview?site=' + $scope.siteId + '&id=' + $scope.id;
 			});
 		};
 		$scope.setPic = function() {
@@ -29,6 +32,9 @@ define(['frame'], function(ngApp) {
 		$scope.removePic = function() {
 			$scope.app.pic = '';
 			$scope.update('pic');
+		};
+		$scope.text2Clipboard = function(content) {
+
 		};
 		$scope.summaryOfRecords().then(function(data) {
 			$scope.summary = data;

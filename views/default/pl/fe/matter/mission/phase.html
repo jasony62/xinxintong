@@ -4,18 +4,21 @@
             <div class='action'>
                 <button class='btn btn-default' ng-click="remove(p)">删除阶段</button>
             </div>
-            <div class='help-block'>阶段名称</div>
+            <label>阶段名称</label>
             <input type="text" class="form-control" ng-model="p.title" tms-auto-update tms-wait=1000 tms-update="update(p,'title')">
-            <div class='help-block'>阶段说明</div>
+            <label>阶段说明</label>
             <textarea class="form-control" ng-model="p.summary" tms-auto-update tms-wait=1000 tms-update="update(p,'summary')"></textarea>
-            <div class='help-block'>阶段开始时间</div>
+            <label>阶段开始时间</label>
             <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-obj="p" tms-date='p.start_at' tms-state='phase.start_at'></tms-datepicker>
-            <div class='help-block'>阶段结束时间</div>
+            <label>阶段结束时间</label>
             <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-obj="p" tms-date='p.end_at' tms-state='phase.end_at'></tms-datepicker>
         </div>
     </div>
     <div class='input-group'>
-        <span class="input-group-addon">指定阶段数量</span>
+        <span class="input-group-addon">
+            <span ng-if="!phases.length">指定阶段数量</span>
+            <span ng-if="phases.length">增加阶段数量</span>
+        </span>
         <input type='text' class='form-control' ng-model="numberOfNewPhases">
         <span class='input-group-btn'>
             <button class='btn btn-default' ng-click="add()">添加</button>

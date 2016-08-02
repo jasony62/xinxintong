@@ -1,5 +1,5 @@
-'use strict';
 define(['require'], function() {
+	'use strict';
 	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'tinymce.ui.xxt', 'ui.xxt', 'member.xxt', 'channel.fe.pl']);
 	ngApp.config(['$routeProvider', '$locationProvider', '$controllerProvider', function($routeProvider, $locationProvider, $controllerProvider) {
 		var RouteParam = function(name) {

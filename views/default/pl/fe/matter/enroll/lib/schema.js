@@ -75,7 +75,7 @@ define([], function() {
 					}
 				}
 			} else {
-				schema.id = (proto && proto.id) ? proto.id : 'c' + (new Date()).getTime();
+				schema.id = (proto && proto.id) ? proto.id : 'c' + (new Date() * 1);
 				schema.title = (proto && proto.title) ? proto.title : '新登记项';
 				if (type === 'single' || type === 'multiple') {
 					schema.ops = [{

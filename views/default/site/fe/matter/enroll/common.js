@@ -1,4 +1,4 @@
-define(["angular", "xxt-page"], function(angular, codeAssembler) {
+define(["angular", "xxt-page", 'enroll-directive'], function(angular, codeAssembler) {
     'use strict';
 
     if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.wx) {
@@ -11,7 +11,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
         }, false);
     }
 
-    var ngApp = angular.module('enroll', ['ngSanitize']);
+    var ngApp = angular.module('enroll', ['ngSanitize', 'directive.enroll']);
     ngApp.config(['$controllerProvider', 'lsProvider', function($cp, lsProvider) {
         ngApp.provider = {
             controller: $cp.register

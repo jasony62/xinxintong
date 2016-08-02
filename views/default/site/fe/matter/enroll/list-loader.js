@@ -32,10 +32,6 @@ window.loading = {
 					deps: ['angular-sanitize'],
 					exports: "enroll-common"
 				},
-				"enroll-directive": {
-					deps: ['enroll-common'],
-					exports: "enroll-directive"
-				},
 			},
 			urlArgs: "bust=" + (new Date()).getTime()
 		});

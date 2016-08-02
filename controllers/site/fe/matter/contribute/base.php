@@ -75,21 +75,27 @@ class base extends \site\fe\matter\base {
 	 * 退回到上一步
 	 */
 	public function articleReturn_action($site, $id, $msg = '') {
+		$posted = $this->getPostJson();
+
+		$msg = empty($posted->message) ? '' : $posted->message;
+
 		/**
 		 * 记录日志
 		 */
 		$articleModel = $this->model('matter\article2');
 		$disposer = $articleModel->disposer($id);
-		if ($disposer->seq == 1) {
+		if ((isset($posted->backTo) && $posted->backTo === 'I') || $disposer->seq == 1) {
+			// 退回给投稿人
 			$article = $articleModel->byId($id);
 			$mid = $article->creater;
 			$phase = 'I';
 		} else {
-			$q = array(
+			// 退回给上一处理人
+			$q = [
 				'*',
 				'xxt_article_review_log',
-				"article_id=$id and seq=" . ($disposer->seq - 1),
-			);
+				["article_id" => $id, "seq" => $disposer->seq - 1],
+			];
 			$prev = $this->model()->query_obj_ss($q);
 			$mid = $prev->mid;
 			$phase = $prev->phase;

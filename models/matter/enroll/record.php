@@ -425,11 +425,12 @@ class record_model extends \TMS_MODEL {
 		return $result;
 	}
 	/**
-	 * 签到情况统计
+	 * 登记情况摘要
 	 */
 	public function &summary($siteId, $appId) {
 		$modelRnd = \TMS_APP::M('matter\enroll\round');
-		$rounds = $modelRnd->byApp($siteId, $appId, ['fields' => 'rid,title']);
+		$page = (object) ['num' => 1, 'size' => 5];
+		$rounds = $modelRnd->byApp($siteId, $appId, ['fields' => 'rid,title', 'page' => $page]);
 
 		if (empty($rounds)) {
 			$summary = new \stdClass;

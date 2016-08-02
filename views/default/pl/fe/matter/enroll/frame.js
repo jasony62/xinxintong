@@ -31,6 +31,7 @@ define(['require', 'page'], function(require, pageLib) {
 			.when('/rest/pl/fe/matter/enroll/config', new RouteParam('config'))
 			.otherwise(new RouteParam('preview'));
 
+
 		$locationProvider.html5Mode(true);
 
 		$uibTooltipProvider.setTriggers({

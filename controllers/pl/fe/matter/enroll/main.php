@@ -170,6 +170,85 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($app);
 	}
 	/**
+	 * 复制一个登记活动
+	 *
+	 * @param int $template
+	 *
+	 * @return object ResponseData
+	 */
+	public function createByOther_action($site, $template) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$current = time();
+		$modelApp = $this->model('matter\enroll');
+		$modelPage = $this->model('matter\enroll\page');
+		$modelCode = $this->model('code\page');
+
+		$template = $this->model('shop\shelf')->byId($template);
+		$aid = $template->matter_id;
+		$copied = $modelApp->byId($aid);
+		$copied->title = $template->title;
+		$copied->summary = $template->summary;
+		$copied->pic = $template->pic;
+
+		/**获得的基本信息*/
+		$newaid = uniqid();
+		$newapp = array();
+		$newapp['siteid'] = $site;
+		$newapp['id'] = $newaid;
+		$newapp['creater'] = $user->id;
+		$newapp['creater_src'] = $user->src;
+		$newapp['creater_name'] = $user->name;
+		$newapp['create_at'] = $current;
+		$newapp['modifier'] = $user->id;
+		$newapp['modifier_src'] = $user->src;
+		$newapp['modifier_name'] = $user->name;
+		$newapp['modify_at'] = $current;
+		$newapp['title'] = $copied->title;
+		$newapp['pic'] = $copied->pic;
+		$newapp['summary'] = $copied->summary;
+		$newapp['scenario'] = $copied->scenario;
+		$newapp['scenario_config'] = $copied->scenario_config;
+		$newapp['data_schemas'] = $copied->data_schemas;
+		$newapp['public_visible'] = $copied->public_visible;
+		$newapp['open_lastroll'] = $copied->open_lastroll;
+		$newapp['tags'] = $copied->tags;
+		$newapp['enrolled_entry_page'] = $copied->enrolled_entry_page;
+		$newapp['entry_rule'] = json_encode($copied->entry_rule);
+		$newapp['receiver_page'] = $copied->receiver_page;
+
+		$this->model()->insert('xxt_enroll', $newapp, false);
+
+		/**复制自定义页面*/
+		if ($copied->pages) {
+			foreach ($copied->pages as $ep) {
+				$newPage = $modelPage->add($user, $site, $newaid);
+				$rst = $modelPage->update(
+					'xxt_enroll_page',
+					['title' => $ep->title, 'name' => $ep->name, 'type' => $ep->type, 'data_schemas' => $ep->data_schemas, 'act_schemas' => $ep->act_schemas],
+					["aid" => $newaid, "id" => $newPage->id]
+				);
+				$data = array(
+					'title' => $ep->title,
+					'html' => $ep->html,
+					'css' => $ep->css,
+					'js' => $ep->js,
+				);
+				$modelCode->modify($newPage->code_id, $data);
+			}
+		}
+
+		$app = $modelApp->byId($newaid, ['cascaded' => 'N']);
+
+		/*记录操作日志*/
+		$app->type = 'enroll';
+		$this->model('log')->matterOp($site, $user, $app, 'C');
+
+		return new \ResponseData($app);
+	}
+	/**
 	 *
 	 * 复制一个登记活动
 	 *

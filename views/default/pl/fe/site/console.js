@@ -8,7 +8,7 @@ ngApp.controller('ctrlSite', ['$scope', '$location', 'http2', function($scope, $
         $scope.site = rsp.data;
     });
 }]);
-ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
+ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop', function($scope, $uibModal, http2, templateShop) {
     $scope.matterType = 'recent';
     $scope.open = function(matter) {
         var type = $scope.matterType === 'recent' ? matter.matter_type : $scope.matterType,
@@ -270,6 +270,15 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
                 }
             }
             http2.post(url, config, function(rsp) {
+                location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
+            });
+        });
+    };
+    $scope.addEnrollByTemplate2 = function() {
+        templateShop.choose('enroll').then(function(data) {
+            var url;
+            url = '/rest/pl/fe/matter/enroll/createByOther?site=' + $scope.siteId + '&template=' + data.id;
+            http2.get(url, function(rsp) {
                 location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
             });
         });

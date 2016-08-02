@@ -48,7 +48,7 @@ class page_model extends \TMS_MODEL {
 		$q = array(
 			$fields,
 			'xxt_code_page',
-			"siteid='$siteId' and name='$name' and is_last='Y'",
+			"name='$name' and is_last='Y'",
 		);
 		if ($p = $this->query_obj_ss($q)) {
 			$p->ext_js = array();
@@ -83,7 +83,7 @@ class page_model extends \TMS_MODEL {
 		$q = array(
 			$fields,
 			'xxt_code_page',
-			"siteid='$siteId' and name='$name' and is_last_published='Y'",
+			"name='$name' and is_last_published='Y'",
 		);
 		$p = $this->query_obj_ss($q);
 		if ($p && isset($p->id)) {
@@ -120,7 +120,7 @@ class page_model extends \TMS_MODEL {
 		$q = array(
 			$fields,
 			'xxt_code_page',
-			"siteid='$siteId' and name='$name'",
+			"name='$name'",
 		);
 		if ($p = $this->query_obj_ss($q)) {
 			$p->ext_js = array();

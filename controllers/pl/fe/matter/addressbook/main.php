@@ -1,8 +1,7 @@
 <?php
-
 namespace pl\fe\matter\addressbook;
 
-require_once dirname(__FILE__) . '/../base.php';
+require_once dirname(dirname(__FILE__)) . '/base.php';
 
 /**
  * 通讯录主控制器
@@ -478,5 +477,14 @@ class main extends \pl\fe\matter\base {
 
         return $map;
     }
+        
+        public function list_action($site) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$matters = [];
+
+		return new \ResponseData($matters);
+	}
 
 }

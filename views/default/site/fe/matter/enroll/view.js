@@ -1,5 +1,6 @@
-define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "enroll-directive"], function(angular, ngApp) {
+define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(angular, ngApp) {
     'use strict';
+
     ngApp.factory('Round', ['$http', '$q', 'ls', function($http, $q, LS) {
         var Round, _ins;
         Round = function() {};

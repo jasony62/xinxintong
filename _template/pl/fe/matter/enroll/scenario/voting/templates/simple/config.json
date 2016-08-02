@@ -2,13 +2,23 @@
 	"pages": [{
 		"name": "voting",
 		"title": "投票页",
-		"type": "I"
+		"type": "I",
+		"simpleConfig": {
+			"required": "N",
+			"showname": "label",
+			"align": "V"
+		}
 	}, {
 		"name": "result",
 		"title": "投票结果页",
-		"type": "V"
+		"type": "V",
+		"simpleConfig": {
+			"pattern": "record",
+			"inline": "Y",
+			"splitLine": "Y"
+		}
 	}],
-	"simpleSchema":"投票项1\n选项1\n选项2\n选项3\n选项4\n\n投票项2\n选项1\n选项2\n选项3\n选项4",
+	"simpleSchema": "投票项1\n选项1\n选项2\n选项3\n选项4\n\n投票项2\n选项1\n选项2\n选项3\n选项4",
 	"entryRule": {
 		"otherwise": {
 			"entry": "voting"

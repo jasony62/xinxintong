@@ -1,20 +1,18 @@
-<div id="V1" class="form-group wrap-inline wrap-splitline" wrap="value" ng-controller="ctrlRecord" schema="name" schema-type="name"><label>姓名</label>
-<div>{{Record.current.data.name}}</div>
-</div>
-<div id="V2" class="form-group wrap-inline wrap-splitline" wrap="value" ng-controller="ctrlRecord" schema="mobile" schema-type="mobile"><label>手机</label>
-<div>{{Record.current.data.mobile}}</div>
-</div>
-<div id="V3" class="form-group wrap-inline wrap-splitline" wrap="value" ng-controller="ctrlRecord" schema="email" schema-type="email"><label>邮箱</label>
-<div>{{Record.current.data.email}}</div>
-</div>
-<div id="V4" class="form-group wrap-inline wrap-splitline" wrap="value" ng-controller="ctrlRecord" schema="c1" schema-type="c1"><label>登记信息1</label>
-<div>{{Record.current.data.c1}}</div>
-</div>
-<div id="V5" class="form-group wrap-inline wrap-splitline" wrap="value" ng-controller="ctrlRecord" schema="c2" schema-type="c2"><label>登记信息2</label>
-<div>{{Record.current.data.c2}}</div>
-</div>
-<div id="V6" class="form-group wrap-inline wrap-splitline" wrap="value" ng-controller="ctrlRecord" schema="enrollAt" schema-type="_enrollAt"><label>登记时间</label>
+<div wrap="text" class="form-group">已填写如下登记信息</div>
+<!-- begin: generate by schema -->
+<?php foreach ($this->schema as $def) { 
+$schema = $def->schema;
+?>
+<div id="<?php echo $def->config->id?>" class="form-group wrap-inline wrap-splitline" wrap="value" ng-controller="ctrlRecord" schema="<?php echo $schema->id;?>" schema-type="<?php echo $schema->type;?>"><label><?php echo $schema->title;?></label>
+<?php if (in_array($schema->type,['name','email','mobile','shorttext','longtext'])) { ?>
+<div>{{Record.current.data.<?php echo $schema->id?>}}</div>
+<?php } else if (in_array($schema->type,['_enrollAt'])) { ?>
 <div>{{Record.current.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>
+<?php } else if (in_array($schema->type,['single','phase'])) { ?>
+<div>{{value2Label("<?php echo $schema->id;?>")}}</div>
+<?php } ?>
 </div>
+<?php } ?>
+<!-- end: generate by schema -->
 <div id="act2" class="form-group" wrap="button" ng-controller="ctrlRecord"><button class="btn btn-primary btn-block btn-lg" ng-click="editRecord($event,'enroll')"><span>修改登记</span></button></div>
 <div id="act3" class="form-group" wrap="button" ng-controller="ctrlRecord"><button class="btn btn-primary btn-block btn-lg" ng-click="removeRecord($event,'enroll')"><span>删除登记</span></button></div>

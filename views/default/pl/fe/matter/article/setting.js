@@ -1,19 +1,21 @@
 define(['frame'], function(ngApp) {
-	ngApp.provider.controller('ctrlSetting', ['$scope', '$uibModal', 'http2', 'mattersgallery', 'mediagallery', 'noticebox', function($scope, $uibModal, http2, mattersgallery, mediagallery, noticebox) {
-		var modifiedData = {};
+	ngApp.provider.controller('ctrlSetting', ['$scope', '$uibModal', 'http2', 'noticebox', 'mattersgallery', 'mediagallery', 'noticebox', function($scope, $uibModal, http2, noticebox, mattersgallery, mediagallery, noticebox) {
+		var tinymceEditor, modifiedData = {};
 		var r = new Resumable({
 			target: '/rest/pl/fe/matter/article/attachment/upload?site=' + $scope.siteId + '&articleid=' + $scope.id,
 			testChunks: false,
 		});
 		r.assignBrowse(document.getElementById('addAttachment'));
 		r.on('fileAdded', function(file, event) {
-			$scope.$root.progmsg = '开始上传文件';
-			$scope.$root.$apply('progmsg');
+			$scope.$apply(function() {
+				noticebox.progress('开始上传文件');
+			});
 			r.upload();
 		});
 		r.on('progress', function(file, event) {
-			$scope.$root.progmsg = '正在上传文件：' + Math.floor(r.progress() * 100) + '%';
-			$scope.$root.$apply('progmsg');
+			$scope.$apply(function() {
+				noticebox.progress('正在上传文件：' + Math.floor(r.progress() * 100) + '%');
+			});
 		});
 		r.on('complete', function() {
 			var f, lastModified, posted;
@@ -28,7 +30,6 @@ define(['frame'], function(ngApp) {
 			};
 			http2.post('/rest/pl/fe/matter/article/attachment/add?site=' + $scope.siteId + '&id=' + $scope.id, posted, function success(rsp) {
 				$scope.editing.attachments.push(rsp.data);
-				$scope.$root.progmsg = null;
 			});
 		});
 		$scope.modified = false;
@@ -94,17 +95,8 @@ define(['frame'], function(ngApp) {
 					title: '项目',
 					url: '/rest/pl/fe/matter'
 				}],
-				hasParent: false,
 				singleMatter: true
 			});
-		};
-		$scope.onBodyChange = function() {
-			$scope.modified = true;
-			modifiedData['body'] = encodeURIComponent($scope.editing['body']);
-		};
-		$scope.tinymceSave = function() {
-			$scope.update('body');
-			$scope.submit();
 		};
 		$scope.submit = function() {
 			http2.post('/rest/pl/fe/matter/article/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData, function() {
@@ -127,6 +119,7 @@ define(['frame'], function(ngApp) {
 		$scope.update = function(name) {
 			$scope.modified = true;
 			modifiedData[name] = name === 'body' ? encodeURIComponent($scope.editing[name]) : $scope.editing[name];
+			$scope.submit();
 		};
 		$scope.setPic = function() {
 			var options = {
@@ -195,9 +188,7 @@ define(['frame'], function(ngApp) {
 							selection.setCursorLocation(domMatter, 0);
 						});
 					}
-					editor.save();
 					editor.focus();
-					$scope.onBodyChange();
 				}
 			}, options);
 		};
@@ -336,10 +327,8 @@ define(['frame'], function(ngApp) {
 			});
 		});
 		$scope.delAttachment = function(index, att) {
-			$scope.$root.progmsg = '删除文件';
 			http2.get('/rest/pl/fe/matter/article/attachment/del?site=' + $scope.siteId + '&id=' + att.id, function success(rsp) {
 				$scope.editing.attachments.splice(index, 1);
-				$scope.$root.progmsg = null;
 			});
 		};
 		$scope.downloadUrl = function(att) {
@@ -350,6 +339,26 @@ define(['frame'], function(ngApp) {
 		});
 		http2.get('/rest/pl/fe/matter/tag/list?site=' + $scope.siteId + '&resType=article&subType=1', function(rsp) {
 			$scope.tags2 = rsp.data;
+		});
+		$scope.$watch('editing', function(editing) {
+			if (editing && tinymceEditor) {
+				tinymceEditor.setContent(editing.body);
+			}
+		});
+		$scope.$on('tinymce.instance.init', function(event, editor) {
+			tinymceEditor = editor;
+			if ($scope.editing) {
+				editor.setContent($scope.editing.body);
+			}
+		});
+		$scope.$on('tinymce.content.change', function(event, changed) {
+			var content;
+			content = tinymceEditor.getContent();
+			if (content !== $scope.editing.body) {
+				$scope.editing.body = content;
+				modifiedData['body'] = encodeURIComponent(content);
+				$scope.modified = true;
+			}
 		});
 	}]);
 });

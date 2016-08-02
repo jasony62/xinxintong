@@ -18,10 +18,16 @@ class log_model extends TMS_MODEL {
 	 * 接收消息日志
 	 */
 	public function receive($msg) {
-		$mpid = isset($msg['mpid']) ? $msg['mpid'] : $msg['siteid'];
 		$openid = $msg['from_user'];
-
-		$fan = TMS_APP::model('user/fans')->byOpenid($mpid, $openid, 'nickname');
+		if (isset($msg['mpid'])) {
+			// should remove
+			$mpid = $msg['mpid'];
+			$fan = TMS_APP::model('user/fans')->byOpenid($mpid, $openid, 'nickname');
+		} else {
+			$mpid = $msg['siteid'];
+			$src = $msg['src'];
+			$fan = TMS_APP::model("sns\\" . $src . "\\fans")->byOpenid($mpid, $openid, 'nickname');
+		}
 
 		$createAt = $msg['create_at'];
 

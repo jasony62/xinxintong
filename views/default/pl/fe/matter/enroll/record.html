@@ -1,11 +1,11 @@
-<div>
+<div id='record-view'>
     <div class='form-group form-inline'>
         <div class='form-group'>
-            <select class='form-control' ng-model='page.searchBy' ng-options='s.v as s.n for s in searchBys'></select>
+            <select class='form-control' ng-model="criteria.record.searchBy" ng-options="s.v as s.n for s in searchBys"></select>
         </div>
         <div class='form-group' style='max-width:200px'>
             <div class="input-group">
-                <input type='text' class='form-control' ng-model='page.keyword' placeholder='搜索条件' ng-keyup='keywordKeyup($event)'>
+                <input type='text' class='form-control' ng-model='criteria.record.keyword' placeholder='搜索条件' ng-keyup='keywordKeyup($event)'>
                 <span class="input-group-btn">
                     <button class="btn btn-default" type="button" ng-click='doSearch(1)'>
                         <span class="glyphicon glyphicon-search"></span>
@@ -21,9 +21,10 @@
         <div class='form-group'>
             <combox title='标签' evt-prefix='search-tag' readonly='true' existing='page.tags' options='app.tags'></combox>
         </div>
-        <div class='form-group pull-right' style='width:90px'>
+        <div class='form-group pull-right'>
             <div class='input-group'>
-                <input class='form-control' ng-model='page.size' title='每页条数' placeholder='每页条数'>
+                <span class="input-group-addon">每页条数</span>
+                <input class='form-control' ng-model='page.size' style='width:48px'>
                 <span class='input-group-btn'>
                     <button class='btn btn-default' ng-click='doSearch(1)'>
                         <span class='glyphicon glyphicon-refresh'></span>
@@ -31,11 +32,13 @@
                 </span>
             </div>
         </div>
-        <div class='form-group' style='display:none'>
+        <div class='form-group hide'>
             <select class='form-control' title="排序条件" ng-model='page.orderBy' ng-options='o.v as o.n for o in orderBys' ng-change='doSearch(1)'></select>
         </div>
+        <button class='btn btn-success' ng-click='filter()'>筛选</button>
         <button class='btn btn-success' ng-click='verifyAll()'>全部通过审核</button>
         <button class='btn btn-primary' ng-click="notify()">发送信息</button>
+        <button class='btn btn-primary' ng-click="export()">导出全部数据</button>
     </div>
     <div id='records'>
         <table class='table table-bordered'>
@@ -46,6 +49,7 @@
                     </th>
                     <th style='width:100px'>登记时间</th>
                     <th class='custom-col' ng-repeat="c in  app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
+                    <th style='width:140px'>昵称</th>
                     <th style='width:140px'>标签</th>
                     <th style='width:80px'>审核通过</th>
                     <th style='width:60px' ng-if="app.can_invite==='Y'">邀请</th>
@@ -66,6 +70,7 @@
                             <span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                         </span>
                     </td>
+                    <td>{{r.nickname}}</td>
                     <td>{{r.tags}}</td>
                     <td>{{r.verified}}</td>
                     <td ng-if="app.can_invite==='Y'">{{r.follower_num}}</td>
@@ -85,10 +90,20 @@
         <button class='btn btn-danger' ng-click='empty()'>清空记录</button>
         <button class='btn btn-default' ng-click='addRecord()'>手工添加</button>
         <span>总数：{{page.total}}</span>
-        <pagination style='margin:0;cursor:pointer;vertical-align:bottom' ng-if='page.total>page.size' class='pull-right'
-        boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at"
-        previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
+        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
     </div>
+    <!-- bottom navbar -->
+    <nav class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container-fluid" style='text-align:center'>
+            <form class="navbar-form" style='display:inline-block'>
+                <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/enroll/preview?site={{siteId}}&id={{id}}">活动设置</a>
+            </form>
+            <form class="navbar-form navbar-right" style='display:inline-block'>
+                <button class='btn btn-lg btn-default' ng-click="remove()">删除活动</button>
+            </form>
+        </div>
+    </nav>
+    <!-- end bottom navbar -->
 </div>
 <script type="text/ng-template" id="userPicker.html">
     <div class="modal-header">

@@ -14,3 +14,4 @@ body{background:#f8f8f8;position:relative;overflow:hidden;display:flex;flex-dire
 #viewRecent .thumbnail .summary{flex:1;overflow:hidden;}
 #viewRecent .thumbnail .attr{display:flex;}
 #viewRecent .thumbnail .operator_name{flex:1;}
+#viewRecent .thumbnail .actions{position:absolute;top:8px;right:8px;}

@@ -1,46 +1,177 @@
-angular.module('ui.tms', ['ngSanitize']).service('http2', ['$rootScope', '$http', '$sce', function($rootScope, $http, $sce) {
+angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', function($timeout) {
+    var _boxId = 'tmsbox' + (new Date() * 1),
+        _last = {
+            type: '',
+            timer: null
+        },
+        _getBox = function(type, msg) {
+            var box;
+            box = document.querySelector('#' + _boxId);
+            if (box === null) {
+                box = document.createElement('div');
+                box.setAttribute('id', _boxId);
+                box.classList.add('notice-box');
+                box.classList.add('alert');
+                box.classList.add('alert-' + type);
+                box.innerHTML = '<div>' + msg + '</div>';
+                document.body.appendChild(box);
+                _last.type = type;
+            } else {
+                if (_last.type !== type) {
+                    box.classList.remove('alert-' + type);
+                    _last.type = type;
+                }
+                box.childNodes[0].innerHTML = msg;
+            }
+
+            return box;
+        };
+
+    this.close = function() {
+        var box;
+        box = document.querySelector('#' + _boxId);
+        if (box) {
+            document.body.removeChild(box);
+        }
+    };
+    this.error = function(msg) {
+        var box, btn;
+
+        /*取消自动关闭*/
+        if (_last.timer) {
+            $timeout.cancel(_last.timer);
+            _last.timer = null;
+        }
+        /*显示消息框*/
+        box = _getBox('danger', msg);
+        /*手工关闭*/
+        btn = document.createElement('button');
+        btn.classList.add('close');
+        btn.innerHTML = '<span>&times;</span>';
+        box.insertBefore(btn, box.childNodes[0]);
+        btn.addEventListener('click', function() {
+            document.body.removeChild(box);
+        });
+    };
+    this.success = function(msg) {
+        var box;
+        /*取消自动关闭*/
+        _last.timer && $timeout.cancel(_last.timer);
+        /*显示消息框*/
+        box = _getBox('success', msg);
+        /*保持2秒钟后自动关闭*/
+        _last.timer = $timeout(function() {
+            if (box.parentNode && box.parentNode === document.body) {
+                document.body.removeChild(box);
+            }
+            _last.timer = null;
+        }, 2000);
+    };
+    this.info = function(msg) {
+        var box;
+        /*取消自动关闭*/
+        _last.timer && $timeout.cancel(_last.timer);
+        /*显示消息框*/
+        box = _getBox('info', msg);
+        /*保持2秒钟后自动关闭*/
+        _last.timer = $timeout(function() {
+            if (box.parentNode && box.parentNode === document.body) {
+                document.body.removeChild(box);
+            }
+            _last.timer = null;
+        }, 2000);
+    };
+    this.progress = function(msg) {
+        /*显示消息框*/
+        _getBox('progress', msg);
+    };
+}]).service('http2', ['$http', '$timeout', '$sce', 'noticebox', function($http, $timeout, $sce, noticebox) {
     this.get = function(url, callback, options) {
+        var _timer;
         options = angular.extend({
             'headers': {
                 'accept': 'application/json'
             },
             'autoBreak': true,
             'autoNotice': true,
+            'showProgress': true,
+            'showProgressDelay': 500,
+            'showProgressText': '操作进行中...',
         }, options);
+        if (options.showProgress === true) {
+            _timer = $timeout(function() {
+                _timer = null;
+                noticebox.progress(options.showProgressText);
+            }, options.showProgressDelay);
+        }
         $http.get(url, options).success(function(rsp) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                noticebox.close();
+            }
             if (angular.isString(rsp)) {
-                if (options.autoNotice) $rootScope.errmsg = $sce.trustAsHtml(rsp);
+                if (options.autoNotice) {
+                    noticebox.error($sce.trustAsHtml(rsp));
+                }
                 return;
             }
             if (rsp.err_code != 0) {
-                if (options.autoNotice) $rootScope.errmsg = $sce.trustAsHtml(rsp.err_msg);
+                if (options.autoNotice) {
+                    noticebox.error($sce.trustAsHtml(rsp.err_msg));
+                }
                 if (options.autoBreak) return;
             }
             if (callback) callback(rsp);
         }).error(function(data, status) {
-            $rootScope.errmsg = $sce.trustAsHtml(data);
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                noticebox.close();
+            }
+            noticebox.error($sce.trustAsHtml(data));
         });
     };
     this.post = function(url, posted, callback, options) {
+        var _timer;
         options = angular.extend({
             'headers': {
                 'accept': 'application/json'
             },
             'autoBreak': true,
             'autoNotice': true,
+            'showProgress': true,
+            'showProgressDelay': 500,
+            'showProgressText': '操作进行中...',
         }, options);
+        if (options.showProgress === true) {
+            _timer = $timeout(function() {
+                _timer = null;
+                noticebox.progress(options.showProgressText);
+            }, options.showProgressDelay);
+        }
         $http.post(url, posted, options).success(function(rsp) {
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                noticebox.close();
+            }
             if (angular.isString(rsp)) {
-                if (options.autoNotice) $rootScope.errmsg = $sce.trustAsHtml(rsp);
+                if (options.autoNotice) {
+                    noticebox.error($sce.trustAsHtml(rsp));
+                }
                 return;
             }
             if (rsp.err_code != 0) {
-                if (options.autoNotice) $rootScope.errmsg = $sce.trustAsHtml(rsp.err_msg);
+                if (options.autoNotice) {
+                    noticebox.error($sce.trustAsHtml(rsp.err_msg));
+                }
                 if (options.autoBreak) return;
             }
             if (callback) callback(rsp);
         }).error(function(data, status) {
-            $rootScope.errmsg = $sce.trustAsHtml(data);
+            if (options.showProgress === true) {
+                _timer && $timeout.cancel(_timer);
+                noticebox.close();
+            }
+            noticebox.error($sce.trustAsHtml(data));
         });
     };
 }]).controller('ComboxController', ['$scope', function($scope) {
@@ -133,13 +264,25 @@ angular.module('ui.tms', ['ngSanitize']).service('http2', ['$rootScope', '$http'
         },
         templateUrl: '/static/template/editable.html?_=1',
         link: function(scope, elem, attrs) {
-            var onBlur = function() {
+            function whenBlur() {
                 delete scope.focus;
-                scope.$apply();
-                if (scope.obj[scope.prop].length == 0)
+                if (scope.obj[scope.prop].length == 0) {
                     scope.remove();
-                else if (scope.oldVal !== scope.obj[scope.prop])
+                } else if (scope.oldVal !== scope.obj[scope.prop]) {
                     scope.$emit('xxt.editable.changed', scope.obj);
+                }
+            };
+
+            function onBlur() {
+                var phase;
+                phase = scope.$root.$$phase;
+                if (phase === '$digest' || phase === '$apply') {
+                    whenBlur();
+                } else {
+                    scope.$apply(function() {
+                        whenBlur();
+                    });
+                }
             };
             $(elem).on('click', function(event) {
                 delete scope.enter;
@@ -162,8 +305,9 @@ angular.module('ui.tms', ['ngSanitize']).service('http2', ['$rootScope', '$http'
                 scope.$emit('xxt.editable.remove', scope.obj);
             };
             scope.$on('xxt.editable.add', function(event, newObj) {
-                if (newObj === scope.obj)
+                if (newObj === scope.obj) {
                     scope.focus = true;
+                }
             });
             scope.$watch('focus', function(nv, ov) {
                 if (nv) {
@@ -173,77 +317,6 @@ angular.module('ui.tms', ['ngSanitize']).service('http2', ['$rootScope', '$http'
             }, true);
         }
     }
-}]).service('noticebox', ['$timeout', function($timeout) {
-    var _boxId = 'tmsbox' + (new Date() * 1),
-        _last = {
-            type: '',
-            timer: null
-        },
-        _getBox = function(type, msg) {
-            var box;
-            box = document.querySelector('#' + _boxId);
-            if (box === null) {
-                box = document.createElement('div');
-                box.setAttribute('id', _boxId);
-                box.classList.add('notice-box');
-                box.classList.add('alert');
-                box.classList.add('alert-' + type);
-                box.innerHTML = '<div>' + msg + '</div>';
-                document.body.appendChild(box);
-            } else {
-                if (_last.type !== type) {
-                    box.classList.remove('alert-' + type);
-                    _last.type = type;
-                }
-                box.childNodes[0].innerHTML = msg;
-            }
-
-            return box;
-        };
-
-    this.error = function(msg) {
-        var box, btn;
-
-        /*取消自动关闭*/
-        if (_last.timer) {
-            $timeout.cancel(_last.timer);
-            _last.timer = null;
-        }
-        /*显示消息框*/
-        box = _getBox('danger', msg);
-        /*手工关闭*/
-        btn = document.createElement('button');
-        btn.classList.add('close');
-        btn.innerHTML = '<span>&times;</span>';
-        box.insertBefore(btn, box.childNodes[0]);
-        btn.addEventListener('click', function() {
-            document.body.removeChild(box);
-        });
-    };
-    this.success = function(msg) {
-        var box;
-        /*取消自动关闭*/
-        _last.timer && $timeout.cancel(_last.timer);
-        /*显示消息框*/
-        box = _getBox('success', msg);
-        /*保持2秒钟后自动关闭*/
-        _last.timer = $timeout(function() {
-            document.body.removeChild(box);
-            _last.timer = null;
-        }, 2000);
-    };
-    this.info = function(msg) {
-        var box;
-        /*取消自动关闭*/
-        _last.timer && $timeout.cancel(_last.timer);
-        /*显示消息框*/
-        box = _getBox('info', msg);
-        /*保持2秒钟后自动关闭*/
-        _last.timer = $timeout(function() {
-            document.body.removeChild(box);
-            _last.timer = null;
-        }, 2000);
-    };
 }]).directive('noticeBox', ['$timeout', function($timeout) {
     return {
         restrict: 'EA',
@@ -315,7 +388,7 @@ angular.module('ui.tms', ['ngSanitize']).service('http2', ['$rootScope', '$http'
                     h: true,
                     i: true
                 };
-                $scope.format = 'yyyy-MM-dd HH:mm';
+                $scope.format = 'yy-MM-dd HH:mm';
             } else {
                 mask = (function(mask1) {
                     var mask2, mask1 = mask1.split(',');
@@ -325,7 +398,7 @@ angular.module('ui.tms', ['ngSanitize']).service('http2', ['$rootScope', '$http'
                         m: mask1[1] === 'm' ? true : mask1[1],
                         d: mask1[2] === 'd' ? true : mask1[2],
                     };
-                    $scope.format = 'yyyy-MM-dd';
+                    $scope.format = 'yy-MM-dd';
                     /*time*/
                     if (mask1.length === 5) {
                         if (mask1[3] === 'h') {

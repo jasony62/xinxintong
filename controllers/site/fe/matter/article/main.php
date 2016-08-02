@@ -30,6 +30,10 @@ class main extends \site\fe\matter\base {
 
 		$modelArticle = $this->model('matter\article2');
 		$article = $modelArticle->byId($id);
+		if (false === $article) {
+			return new \ResponseError('not exist');
+		}
+
 		if (isset($article->access_control) && $article->access_control === 'Y' && !empty($article->authapis)) {
 			$this->accessControl($site, $id, $article->authapis, $user->uid, $article, false);
 		}

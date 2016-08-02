@@ -32,9 +32,9 @@ class register extends \TMS_CONTROLLER {
 
 		$nickname = str_replace(strstr($email, '@'), '', $email);
 		$fromip = $this->client_ip();
-		/*
-			 * check
-		*/
+		/**
+		 * check
+		 */
 		if (strlen($email) == 0 || strlen($nickname) == 0 || strlen($password) == 0) {
 			return new \ParameterError("注册失败，参数不完整。");
 		}
@@ -43,7 +43,6 @@ class register extends \TMS_CONTROLLER {
 		if ($this->model('account')->check_email($email)) {
 			return new \DataExistedError('注册失败，注册账号已经存在。');
 		}
-
 		//
 		$account = $this->model('account')->register($email, $password, $nickname, $fromip);
 		/**

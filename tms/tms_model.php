@@ -100,6 +100,7 @@ class TMS_MODEL {
 		$select = $p[0];
 		$from = $p[1];
 		$where = isset($p[2]) ? $p[2] : null;
+
 		return self::query_obj($select, $from, $where);
 	}
 	/**

@@ -240,13 +240,9 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', function($scope
                         url += '/rest/site/fe/matter/enroll/template';
                         url += '?scenario=' + $scope2.data.scenario.name;
                         url += '&template=' + $scope2.data.template.name;
-                        url += '&_=' + (new Date()).getTime();
+                        url += '&page=' + $scope2.data.selectedPage.name;
+                        url += '&_=' + (new Date() * 1);
                         elSimulator.src = url;
-                        elSimulator.onload = function() {
-                            $scope.$apply(function() {
-                                $scope2.choosePage();
-                            });
-                        };
                     });
                 };
                 $scope2.choosePage = function() {

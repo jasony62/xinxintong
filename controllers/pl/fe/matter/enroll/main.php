@@ -554,7 +554,6 @@ class main extends \pl\fe\matter\base {
 			$matched = [];
 			$pattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
 			if (preg_match($pattern, $data['html'], $matched)) {
-				//die('xxxx:' . json_encode($page->data_schemas));
 				$html = $modelPage->htmlBySchema($page->data_schemas, $matched[0]);
 				$data['html'] = preg_replace($pattern, $html, $data['html']);
 			}

@@ -396,7 +396,7 @@ class xxt_base extends TMS_CONTROLLER {
 		 * 消息内容
 		 */
 		$model = $this->model('matter\\' . $matter->type);
-		$message = $model->forCustomPush($mpaccount->mpid, $matter->id);
+		$message = $model->forCustomPush($mpaccount->mpid, $matter->id, 'OLD');
 		/**
 		 * 发送给认证用户
 		 */

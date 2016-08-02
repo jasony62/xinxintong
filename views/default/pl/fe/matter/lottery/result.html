@@ -20,7 +20,7 @@
     </table>
     <div class='form-inline'>
         <div class='form-group'>
-            <select class='form-control' ng-model='byAward' ng-options='a.aid as a.title for a in lottery.awards' ng-change="doSearch()">
+            <select class='form-control' ng-model='byAward' ng-options='a.aid as a.title for a in app.awards' ng-change="doSearch()">
                 <option value=''></option>
             </select>
         </div>

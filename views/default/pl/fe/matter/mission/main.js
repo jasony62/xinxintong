@@ -1,9 +1,12 @@
 var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
-ngApp.config(['$controllerProvider', '$locationProvider', function($controllerProvider, $locationProvider) {
+ngApp.config(['$controllerProvider', '$locationProvider', '$uibTooltipProvider', function($controllerProvider, $locationProvider, $uibTooltipProvider) {
 	ngApp.provider = {
 		controller: $controllerProvider.register
 	};
 	$locationProvider.html5Mode(true);
+	$uibTooltipProvider.setTriggers({
+		'show': 'hide'
+	});
 }]);
 ngApp.controller('ctrlApp', ['$scope', '$location', 'http2', function($scope, $location, http2) {
 	$scope.id = $location.search().id;
@@ -33,10 +36,10 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery',
 		}
 	};
 	$scope.sub = 'basic';
-	$scope.subView = '/views/default/pl/fe/matter/mission/basic.html?_=4';
+	$scope.subView = '/views/default/pl/fe/matter/mission/basic.html?_=7';
 	$scope.gotoSub = function(sub) {
 		$scope.sub = sub;
-		$scope.subView = '/views/default/pl/fe/matter/mission/' + sub + '.html?_=4';
+		$scope.subView = '/views/default/pl/fe/matter/mission/' + sub + '.html?_=7';
 	};
 	$scope.submit = function() {
 		http2.post('/rest/pl/fe/matter/mission/setting/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData, function(rsp) {
@@ -181,7 +184,6 @@ ngApp.controller('ctrlPhase', ['$scope', 'http2', 'noticebox', function($scope, 
 	});
 }]);
 ngApp.controller('ctrlCoworker', ['$scope', 'http2', function($scope, http2) {
-	$scope.inviteURL = 'http://' + location.host + '/rest/pl/fe/matter/mission/invite?site=' + $scope.siteId + '&id=' + $scope.id;
 	$scope.label = '';
 	$scope.add = function() {
 		var url = '/rest/pl/fe/matter/mission/coworker/add?site=' + $scope.siteId + '&mission=' + $scope.id;
@@ -196,6 +198,17 @@ ngApp.controller('ctrlCoworker', ['$scope', 'http2', function($scope, http2) {
 			var index = $scope.coworkers.indexOf(acl);
 			$scope.coworkers.splice(index, 1);
 		});
+	};
+	$scope.makeInvite = function() {
+		http2.get('/rest/pl/fe/matter/mission/coworker/makeInvite?site=' + $scope.siteId + '&mission=' + $scope.id, function(rsp) {
+			var url = 'http://' + location.host + rsp.data;
+			$scope.inviteURL = url;
+			$('#shareMission').trigger('show');
+		});
+	};
+	$scope.closeInvite = function() {
+		$scope.inviteURL = '';
+		$('#shareMission').trigger('hide');
 	};
 	http2.get('/rest/pl/fe/matter/mission/coworker/list?site=' + $scope.siteId + '&mission=' + $scope.id, function(rsp) {
 		$scope.coworkers = rsp.data;

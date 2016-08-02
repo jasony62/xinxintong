@@ -112,8 +112,7 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', function($sc
 				}
 			}, {
 				matterTypes: $scope.matterTypes,
-				hasParent: false,
-				singleMatter: false
+				singleMatter: true
 			});
 		} else {
 			var params = {
@@ -164,7 +163,7 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', function($sc
 			}
 		}
 	};
-	$scope.$parent.$watch('editing', function(nv) {
+	$scope.$watch('editing', function(nv) {
 		if (!nv) return;
 		arrangeMatters();
 	});

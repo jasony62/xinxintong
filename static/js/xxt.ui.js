@@ -28,8 +28,8 @@ angular.module('ui.xxt', ['ui.bootstrap'])
         title: '登记活动',
         url: '/rest/pl/fe/matter'
     }, {
-        value: 'enrollsignin',
-        title: '登记活动签到',
+        value: 'signin',
+        title: '签到活动',
         url: '/rest/pl/fe/matter'
     }, {
         value: 'lottery',

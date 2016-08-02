@@ -34,16 +34,17 @@ class stat extends \pl\fe\matter\base {
 			$q = [
 				'create_at',
 				'xxt_enroll_record_stat',
-				"siteid='$site' and aid='$app'",
+				["aid" => $app],
 			];
 			$q2 = ['r' => ['o' => 0, 'l' => 1]];
-			$last = (int) $model->query_objs_ss($q, $q2);
+			$last = $model->query_objs_ss($q, $q2);
 			/* 上次统计后的新登记记录数 */
-			if ($last) {
+			if (count($last) === 1) {
+				$last = $last[0];
 				$q = [
 					'count(*)',
 					'xxt_enroll_record',
-					"siteid='site' and aid='app' and enroll_at>=$last",
+					"aid='$app' and enroll_at>={$last->create_at}",
 				];
 				$newCnt = (int) $model->query_val_ss($q);
 			} else {
@@ -55,7 +56,7 @@ class stat extends \pl\fe\matter\base {
 				/* 保存统计结果 */
 				$model->delete(
 					'xxt_enroll_record_stat',
-					"siteid='$site' and aid='$app'"
+					"aid='$app'"
 				);
 				foreach ($result as $id => $stat) {
 					foreach ($stat['ops'] as $op) {
@@ -78,7 +79,7 @@ class stat extends \pl\fe\matter\base {
 				$q = [
 					'id,title,v,l,c',
 					'xxt_enroll_record_stat',
-					"siteid='$site' and aid='$app'",
+					"aid='$app'",
 				];
 				$cached = $model->query_objs_ss($q);
 				foreach ($cached as $data) {

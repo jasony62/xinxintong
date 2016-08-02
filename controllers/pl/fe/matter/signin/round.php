@@ -139,7 +139,7 @@ class round extends \pl\fe\matter\base {
 		$rst = $modelRnd->update(
 			'xxt_signin_round',
 			$posted,
-			"siteid='$site' and aid='$app' and rid='$rid'"
+			["aid" => $app, "rid" => $rid]
 		);
 
 		$newRnd = $modelRnd->byId($rid);
@@ -164,7 +164,7 @@ class round extends \pl\fe\matter\base {
 		 */
 		$rst = $modelRnd->delete(
 			'xxt_signin_round',
-			"siteid='$site' and aid='$app' and rid='$rid'"
+			["aid" => $app, "rid" => $rid]
 		);
 
 		return new \ResponseData($rst);

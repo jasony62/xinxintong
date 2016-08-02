@@ -13,15 +13,21 @@
             <ul class='nav navbar-nav'>
                 <li><a href='/rest/pl/fe' target='_self'>首页</a></li>
             </ul>
-            <ul class='nav navbar-nav'>
-            </ul>
-            <ul class='nav navbar-nav'>
+            <ul class='nav navbar-nav navbar-right'>
                 <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
                 <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
             </ul>
         </nav>
         <div class='container'>
-            <button class='btn btn-lg btn-success' ng-click="accept()">接受邀请</button>
+            <div ng-if="task">
+                <div class='form-group message'>
+                    <p class='h3 bg-info'><span ng-bind="task.creater_name"></span>邀请你参与管理项目：<span ng-bind="task.mission.title"></span></p>
+                </div>
+                <button class='btn btn-lg btn-success' ng-click="accept()">接受邀请</button>
+            </div>
+            <div ng-if="!task">
+                <div class='alert alert-info' ng-bind="errmsg"></div>
+            </div>
         </div>
         <script src="/static/js/angular.min.js"></script>
         <script src="/static/js/angular-route.min.js"></script>

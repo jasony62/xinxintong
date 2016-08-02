@@ -124,9 +124,7 @@
         </div>
         <pushnotify class='btn btn-primary' single-matter='Y' matter-types='notifyMatterTypes'>发送信息</pushnotify>
         <span>总数：{{page.total}}</span>
-        <pagination style='margin:0;cursor:pointer;vertical-align:bottom' ng-if='page.total>page.size' class='pull-right'
-        boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at"
-        previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></pagination>
+        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
     </div>
     <script type="text/ng-template" id="tagByData.html">
         <div class="modal-header">

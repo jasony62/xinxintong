@@ -9,7 +9,6 @@
         <link href="/views/default/pl/fe/matter/merchant/shop/frame.css?_=1" rel="stylesheet">
     </head>
     <body  ng-app='app' ng-controller='ctrlShop' ng-cloak class='ng-cloak'>
-        <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
         <nav class='navbar navbar-inverse navbar-fixed-top'>
             <ul class='nav navbar-nav'>
                 <li><a href='/rest/pl/fe' target='_self'>首页</a></li>
@@ -18,8 +17,8 @@
             <ul class='nav navbar-nav shortcut'>
                 <li><a href='/rest/pl/fe/matter/merchant/shop?site={{siteId}}&id={{shopId}}'>{{editing.title}}</a></li>
             </ul>
-            <ul class='nav navbar-nav navbar-right' style='margin-right:0'>
-                <li><a href='/rest/pl/fe/user/settings' target='_self'>设置</a></li>
+            <ul class='nav navbar-nav navbar-right'>
+                <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
                 <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
             </ul>
         </nav>

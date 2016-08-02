@@ -47,9 +47,10 @@ angular.module('xxt', ['infinite-scroll']).config(['$locationProvider', function
             this.nextPage();
         },
         nextPage: function() {
-            //if ($scope.channel === undefined) return;
-            if (this.end) return;
             var url, _this = this;
+
+            if (this.end) return;
+
             this.busy = true;
             url = '/rest/site/fe/matter/channel/mattersGet';
             url += '?site=' + siteId;
@@ -64,6 +65,10 @@ angular.module('xxt', ['infinite-scroll']).config(['$locationProvider', function
                         _this.matters.push(matters[i]);
                     }
                     _this.page++;
+                    // 任意类型素材情况下不支持分页
+                    if ($scope.channel && $scope.channel.matter_type === '') {
+                        _this.end = true;
+                    }
                 } else {
                     _this.end = true;
                 }
@@ -83,6 +88,12 @@ angular.module('xxt', ['infinite-scroll']).config(['$locationProvider', function
                 setShare();
             }
             deferred.resolve();
+            if ($scope.Matter.matters) {
+                // 任意类型素材情况下不支持分页
+                if ($scope.channel.matter_type === '') {
+                    $scope.Matter.matters.end = true;
+                }
+            }
             $http.post('/rest/site/fe/matter/logAccess?site=' + siteId + '&id=' + channelId + '&type=channel&title=' + $scope.channel.title + '&shareby=' + shareby, {
                 search: location.search.replace('?', ''),
                 referer: document.referrer

@@ -1,7 +1,7 @@
 <div ng-controller='setCtrl'>
-    <nav class='navbar navbar-inverse'>
+    <nav class='navbar navbar-inverse tms-large'>
         <ul class='nav navbar-nav'>
-            <li><a href='/page/main' target='_self'>首页</a></li>
+            <li><a href='/rest/pl/fe' target='_self'>首页</a></li>
         </ul>
         <ul class='nav navbar-nav navbar-right'>
             <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
@@ -13,18 +13,18 @@
                 <form name='form'>
                     <style>.help-block{color:red}</style>
                     <div class='form-group'>
-                        <input type='password' class='form-control' ng-model='opwd' placeholder='输入当前密码' autofocus/>
+                        <input type='password' class='form-control input-lg' ng-model='opwd' placeholder='输入当前密码' autofocus/>
                     </div>
                     <div class='form-group'>
-                        <input type='password' class='form-control' name='npwd' ng-model='npwd' ng-minlength='6' ng-maxlength='16' placeholder='输入新密码'/>
+                        <input type='password' class='form-control input-lg' name='npwd' ng-model='npwd' ng-minlength='6' ng-maxlength='16' placeholder='输入新密码'/>
                         <span class='help-block' ng-show="form.npwd.$error.minlength || form.npwd.$error.maxlength">密码由6-16位半角字符（字符、数字、符号）组成，区分大小写</span>
                     </div>
                     <div class='form-group'>
-                        <input type='password' class='form-control' name='npwd2' ng-model='npwd2' ng-pattern='repeatPwd' placeholder='再次输入新密码'/>
+                        <input type='password' class='form-control input-lg' name='npwd2' ng-model='npwd2' ng-pattern='repeatPwd' placeholder='再次输入新密码'/>
                         <span class='help-block' ng-show="form.npwd2.$error.pattern">两次输入的密码不匹配</span>
                     </div>
                     <div class='form-group'>
-                        <button type='button' class='btn btn-primary btn-block' ng-click='changePwd()'>更改密码</button>
+                        <button class='btn btn-lg btn-primary btn-block' ng-click='changePwd()'>更改密码</button>
                     </div>
                 </form>
             </div>

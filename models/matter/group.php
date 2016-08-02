@@ -70,12 +70,15 @@ class group_model extends app_base {
 	/**
 	 *
 	 */
-	public function &execute($appId) {
+	public function execute($appId) {
 		$app = \TMS_APP::M('matter\group')->byId($appId);
 
 		$modelRnd = \TMS_APP::M('matter\group\round');
 		$rst = $modelRnd->clean($appId);
 		$rounds = $modelRnd->byApp($appId);
+		if (empty($rounds)) {
+			return [false, '没有指定分组'];
+		}
 
 		$modelPly = \TMS_APP::M('matter\group\player');
 		$players = $modelPly->pendings($appId);
@@ -115,7 +118,7 @@ class group_model extends app_base {
 			}
 		}
 
-		return $submittedWinners;
+		return [true, $submittedWinners];
 	}
 	/**
 	 *
@@ -167,7 +170,7 @@ class group_model extends app_base {
 		}
 
 		foreach ($target as $k => $v) {
-			if ($candidate->data[$k] === $v) {
+			if ($candidate->data->{$k} === $v) {
 				return true;
 			}
 		}

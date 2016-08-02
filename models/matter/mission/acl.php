@@ -51,7 +51,12 @@ class acl_model extends \TMS_MODEL {
 		return $acl;
 	}
 	/**
+	 * 给项目添加合作者
 	 *
+	 * @param object $inviter
+	 * @param object $mission
+	 * @param object $coworker
+	 * @param string $role Coworker:合作者，Owner：项目创建人，Admin：站点管理员
 	 */
 	public function &add(&$inviter, &$mission, &$coworker, $role = 'C') {
 		$current = time();

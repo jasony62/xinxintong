@@ -7,7 +7,7 @@
                     <a href="#" ng-click="choosePage(p)"><span><i class='fa fa-file-o'></i> {{p.title}}</span></a>
                 </li>
                 <li class="pull-right">
-                    <button uib-popover-template="'pageSetting.html'" popover-placement="bottom" popover-title="页面设置" popover-trigger="outsideClick" class="btn btn-default">页面设置 <span class="caret"></span></button>
+                    <button uib-popover-template="'pageSetting.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="高级设置" popover-trigger="outsideClick" class="btn btn-default">高级设置 <span class="caret"></span></button>
                 </li>
             </ul>
         </div>
@@ -130,6 +130,9 @@
 </div>
 <script type="text/ng-template" id="pageSetting.html">
     <div id="pageSetting">
+        <div class='form-group'>
+            <p>ID: <span ng-bind="ep.name"></span></p>
+        </div>
         <div class='form-group'>
             <input type='text' class='form-control' ng-model="ep.title" tms-auto-update tms-wait=1000 tms-update="updPage(ep,'title')">
         </div>

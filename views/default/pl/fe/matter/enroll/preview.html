@@ -19,7 +19,7 @@
                     </div>
                 </div>
                 <div class="navbar-form navbar-right">
-                    <button uib-popover-template="'appSetting.html'" popover-placement="bottom" popover-title="应用设置" popover-trigger="outsideClick" type="button" class="btn btn-default">活动设置 <span class="caret"></span></button>
+                    <button uib-popover-template="'appSetting.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="高级设置" popover-trigger="outsideClick" type="button" class="btn btn-default">高级设置 <span class="caret"></span></button>
                 </div>
             </div>
         </nav>
@@ -35,19 +35,6 @@
             <div class='form-group compact'>
                 <label>登记截止时间</label>
                 <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='app.end_at' tms-state='end_at'></tms-datepicker>
-            </div>
-        </div>
-        <div class='tile' ng-if="app.scenarioConfig.can_rounds!=='D'">
-            <div id='rounds' ng-controller='ctrlRound'>
-                <button class='btn btn-success btn-block' ng-disabled='app.rounds[0].state==0' ng-click='add()'>增加轮次</button>
-                <div class='list-group' style='max-height:290px;overflow-y:auto;margin-bottom:0'>
-                    <li class='list-group-item' ng-repeat='r in app.rounds'>
-                        <span>{{r.title}}</span>（<span>{{roundState[r.state]}}</span>）
-                        <button class="close " ng-click='open(r)'>
-                            <span class='glyphicon glyphicon-edit'></span>
-                        </button>
-                    </li>
-                </div>
             </div>
         </div>
         <div class="panel panel-default">
@@ -107,6 +94,19 @@
                 </div>
             </div>
         </div>
+        <div class='tile' ng-if="app.scenarioConfig.can_rounds!=='D'">
+            <div id='rounds' ng-controller='ctrlRound'>
+                <button class='btn btn-success btn-block' ng-disabled='app.rounds[0].state==0' ng-click='add()'>增加轮次</button>
+                <div class='list-group' style='max-height:290px;overflow-y:auto;margin-bottom:0'>
+                    <li class='list-group-item' ng-repeat='r in app.rounds'>
+                        <span>{{r.title}}</span>（<span>{{roundState[r.state]}}</span>）
+                        <button class="close " ng-click='open(r)'>
+                            <span class='glyphicon glyphicon-edit'></span>
+                        </button>
+                    </li>
+                </div>
+            </div>
+        </div>
         <div class='tile records' ng-if="app.rounds.length">
             <div class='help-block'>
                 <span>已登记数量</span>
@@ -127,6 +127,13 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+        <div class='tile'>
+            <div class='form-group'>
+                <div>阅读：{{app.read_num}}</div>
+                <div>分享好友：{{app.share_friend_num}}</div>
+                <div>分享朋友圈：{{app.share_timeline_num}}</div>
             </div>
         </div>
         <div class="panel panel-default">
@@ -153,7 +160,7 @@
             <div class="panel-heading">公众号分享设置</div>
             <div class="panel-body">
                 <div class='form-group compact'>
-                    <label>头图（可选）：建议尺寸：900像素 * 500像素</label>
+                    <label>头图（可选）</label>
                     <div style='position:relative'>
                         <div style="width:182px;border:1px solid #CCC">
                             <div style="height:100px;text-align:center;padding-top:32px" ng-if="!app.pic">
@@ -173,16 +180,9 @@
                     </div>
                 </div>
                 <div class='form-group compact'>
-                    <label>摘要（可选）：最多120个汉字，240个英文字符</label>
+                    <label>摘要（可选）</label>
                     <textarea class='form-control' ng-model='app.summary' rows=5 tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
                 </div>
-            </div>
-        </div>
-        <div class='tile'>
-            <div class='form-group'>
-                <div>阅读：{{app.read_num}}</div>
-                <div>分享好友：{{app.share_friend_num}}</div>
-                <div>分享朋友圈：{{app.share_timeline_num}}</div>
             </div>
         </div>
     </div>
@@ -244,4 +244,9 @@
         <button class="btn btn-success pull-left " ng-click="stop() " ng-if='round.state==1'>停用</button>
         <button class="btn btn-success " ng-click="ok() ">保存</button>
     </div>
+</script>
+<script type="text/ng-template" id="joinQrcode.html">
+    <div style="width:200px">
+        <img ng-src="{{qrcodeURL}}" style="width:100%">
+    <div>
 </script>

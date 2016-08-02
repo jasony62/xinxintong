@@ -7,7 +7,7 @@
                     <a href="#" ng-click="choosePage(p)"><span><i class='fa fa-file-o'></i> {{p.title}}</span></a>
                 </li>
                 <li class="pull-right">
-                    <button uib-popover-template="'pageSetting.html'" popover-placement="bottom" popover-title="页面设置" popover-trigger="outsideClick" class="btn btn-default">页面设置 <span class="caret"></span></button>
+                    <button uib-popover-template="'pageSetting.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="高级设置" popover-trigger="outsideClick" class="btn btn-default">高级设置 <span class="caret"></span></button>
                 </li>
             </ul>
         </div>
@@ -106,7 +106,7 @@
                 <!-- wrap schema editor -->
                 <div id='wrap-editor' class='tile' ng-if="activeWrap.schema" relative-fixed fixed-height='80'>
                     <div class='form-group' ng-include="wrapEditorHtml()"></div>
-                    <button class='btn btn-block btn-danger' ng-click="removeSchema(activeWrap.schema)">删除登记项</button>
+                    <button class='btn btn-block btn-danger' ng-click="removeSchema(activeWrap.schema)">删除</button>
                 </div>
                 <!-- end wrap schema editor-->
             </div>
@@ -117,7 +117,7 @@
     <nav class="navbar navbar-default navbar-fixed-bottom">
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
-                <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/enroll/preview?site={{siteId}}&id={{id}}">预览页面</a>
+                <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/enroll/preview?site={{siteId}}&id={{id}}">活动设置</a>
                 <button class='btn btn-lg btn-success' ng-click="updPage(ep,['data_schemas','act_schemas','html'])">保存修改</button>
                 <button class='btn btn-lg btn-success' ng-click="publish()">收集数据</button>
             </form>
@@ -131,10 +131,13 @@
 <script type="text/ng-template" id="pageSetting.html">
     <div id="pageSetting">
         <div class='form-group'>
+            <p>ID: <span ng-bind="ep.name"></span></p>
+        </div>
+        <div class='form-group'>
             <input type='text' class='form-control' ng-model="ep.title" tms-auto-update tms-wait=1000 tms-update="updPage(ep,'title')">
         </div>
         <hr>
-        <button class='btn btn-block btn-default' ng-click="gotoPageConfig()">修改页面</button>
+        <button class='btn btn-block btn-default' ng-click="cleanPage()">清空页面</button>
         <button class='btn btn-block btn-default' ng-click="delPage()">删除页面</button>
         <hr>
         <button class='btn btn-block btn-default' ng-click="addPage()">添加页面</button>

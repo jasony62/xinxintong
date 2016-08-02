@@ -317,12 +317,14 @@ class channel_model extends article_base {
 			$q1[] = "cm.channel_id='$channel_id'";
 
 			$q2['o'] = 'cm.create_at desc';
-			if (isset($params->page) && isset($params->size)) {
-				$q2['r'] = array(
-					'o' => ($params->page - 1) * $params->size,
-					'l' => $params->size,
-				);
-			}
+
+			// 分页获取，如果素材已经删除，或者素材尚未批准的情况下，分页会导致返回的数量不正确
+			// if (isset($params->page) && isset($params->size)) {
+			// 	$q2['r'] = array(
+			// 		'o' => ($params->page - 1) * $params->size,
+			// 		'l' => $params->size,
+			// 	);
+			// }
 
 			$simpleMatters = $this->query_objs_ss($q1, $q2);
 			foreach ($simpleMatters as $sm) {

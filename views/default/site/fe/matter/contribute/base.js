@@ -54,8 +54,7 @@ ngApp.factory('Article', function($q, http2) {
         url = this.baseUrl + 'articleReturn';
         url += '?site=' + this.siteId;
         url += '&id=' + obj.id;
-        url += '&msg=' + msg;
-        http2.get(url, function success(rsp) {
+        http2.post(url, msg, function success(rsp) {
             deferred.resolve(rsp.data);
         });
         return promise;

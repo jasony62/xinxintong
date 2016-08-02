@@ -1,5 +1,8 @@
+<style>
+#replies .list-group-item{min-height:42px}
+</style>
 <div class='col-md-5'>
-    <div class='list-group'>
+    <div id='replies' class='list-group'>
         <a class='list-group-item'><button class='btn btn-success btn-block' ng-click='create()'>新建文本消息</button></a>
         <a class='list-group-item' ng-class="{'active':c===editing}" ng-repeat='c in calls' ng-click='edit(c)'>
             <span>{{c.keyword}}</span>

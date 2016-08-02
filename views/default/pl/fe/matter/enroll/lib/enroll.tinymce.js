@@ -21,8 +21,13 @@ directive('tinymce', function($timeout) {
 
                     if (spanNode.tagName === 'SPAN') {
                         textNode = spanNode.childNodes[0];
-                        selection.select(textNode, false);
-                        selection.setCursorLocation(textNode, 0);
+                        if (textNode) {
+                            selection.select(textNode, false);
+                            selection.setCursorLocation(textNode, textNode.length);
+                        } else {
+                            selection.select(spanNode, false);
+                            selection.setCursorLocation(spanNode, 0);
+                        }
                     }
                 }
             };
@@ -31,12 +36,18 @@ directive('tinymce', function($timeout) {
                 var selection = editor.selection,
                     wrap = target.parentNode,
                     labelNode, textNode;
+
                 if (wrap && wrap.hasAttribute('wrap')) {
                     if (wrap.children[0].tagName === 'LABEL') {
                         labelNode = wrap.children[0];
                         textNode = labelNode.childNodes[0];
-                        selection.select(textNode, false);
-                        selection.setCursorLocation(textNode, 0);
+                        if (textNode) {
+                            selection.select(textNode, false);
+                            selection.setCursorLocation(textNode, textNode.length);
+                        } else {
+                            selection.select(labelNode, false);
+                            selection.setCursorLocation(labelNode, 0);
+                        }
                     }
                 }
             };
@@ -117,11 +128,15 @@ directive('tinymce', function($timeout) {
                             if (_lastNodeContent.length === 1) {
                                 // 模拟删除字符操作，避免节点被删掉
                                 if (node.tagName === 'LABEL' && node.parentNode.hasAttribute('wrap')) {
-                                    node.innerHTML = '';
+                                    node.innerHTML = ' ';
                                     evt.preventDefault();
                                     evt.stopPropagation();
                                 } else if (node.tagName === 'SPAN' && node.parentNode.tagName === 'BUTTON') {
-                                    node.innerHTML = '';
+                                    node.innerHTML = ' ';
+                                    evt.preventDefault();
+                                    evt.stopPropagation();
+                                } else if (node.tagName === 'SPAN' && node.parentNode.parentNode && /checkbox|radio/.test(node.parentNode.parentNode.getAttribute('wrap'))) {
+                                    node.innerHTML = ' ';
                                     evt.preventDefault();
                                     evt.stopPropagation();
                                 }

@@ -60,8 +60,11 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			}
 			$scope.ep = page;
 		};
-		$scope.gotoPageConfig = function() {
-			location = '/rest/pl/fe/matter/enroll/page?site=' + $scope.siteId + '&id=' + $scope.id + '&page=' + $scope.ep.name;
+		$scope.cleanPage = function() {
+			$scope.ep.html = '';
+			$scope.ep.data_schemas = [];
+			$scope.ep.act_schemas = [];
+			srvPage.update($scope.ep, ['data_schemas', 'act_schemas', 'html']);
 		};
 		$scope.newSchema = function(type) {
 			var i, newSchema, mission;
@@ -141,7 +144,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			$scope.activeWrap = $scope.ep.setActiveWrap(domWrap);
 		};
 		$scope.wrapEditorHtml = function() {
-			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=22';
+			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=23';
 			return url;
 		};
 		var addInputSchema = function(addedSchema) {
@@ -324,12 +327,14 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 							updatedFields.push('data_schemas');
 							$scope.updPage($scope.ep, updatedFields);
 							/* 更新其它页面 */
-							angular.forEach($scope.app.pages, function(page) {
-								if (page !== $scope.ep) {
-									page.updateBySchema($scope.activeWrap.schema);
-									$scope.updPage(page, ['data_schemas', 'html']);
-								}
-							});
+							if ($scope.activeWrap.schema) {
+								angular.forEach($scope.app.pages, function(page) {
+									if (page !== $scope.ep) {
+										page.updateBySchema($scope.activeWrap.schema);
+										$scope.updPage(page, ['data_schemas', 'html']);
+									}
+								});
+							}
 						});
 					} else {
 						$scope.updPage($scope.ep, updatedFields);

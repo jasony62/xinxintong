@@ -19,4 +19,16 @@ class inner_model extends base_model {
 	public function &forCustomPush($runningMpid, $id) {
 		die('not support');
 	}
+	/**
+	 *
+	 */
+	public function &bySite($site) {
+		$q = array(
+			'id,title,name',
+			'xxt_inner',
+		);
+		$matters = $this->query_objs_ss($q);
+
+		return $matters;
+	}
 }

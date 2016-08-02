@@ -10,14 +10,15 @@ class page extends \pl\fe\matter\base {
 	 *
 	 */
 	public function index_action() {
-		$this->view_action('/pl/fe/matter/wall/detail');
+		\TPL::output('/pl/fe/matter/wall/frame');
+		exit;
 	}
 	/**
 	 * 获得指定信息墙的定制页
 	 *
 	 * @param string $wall
 	 */
-	public function list_action($wall, $siteid) {
+	public function list_action($id, $site) {
 		$modelPage = $this->model('matter\wall\page');
 		$modelCode = $this->model('code\page');
 
@@ -31,9 +32,9 @@ class page extends \pl\fe\matter\base {
 		);
 		$pages = array();
 		foreach ($wallPages as $wp) {
-			$page = $modelPage->byType($wp['type'], $wall);
+			$page = $modelPage->byType($wp['type'], $id);
 			if (empty($page)) {
-				$page = $modelPage->add($siteid, $wp, $wall);
+				$page = $modelPage->add($site, $wp, $id);
 				$tmplateDir = dirname(__FILE__) . '/template/' . str_replace('.', '/', $wp['type']) . '/';
 				$data = array(
 					'html' => file_get_contents($tmplateDir . 'basic.html'),

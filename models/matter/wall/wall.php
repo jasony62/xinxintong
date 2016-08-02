@@ -1,11 +1,14 @@
 <?php
-namespace matter;
+namespace matter\wall;
 
-require_once dirname(__FILE__) . '/app_base.php';
+require_once dirname(dirname(__FILE__)) . '/wall.php';
 /**
+ * 【信息墙】活动
+ *
+ *  信息墙活动将用户发送的信息汇总显示
  *
  */
-class wall_model extends app_base {
+class wall_model extends \matter\wall_model {
 	/**
 	 * 审核状态
 	 */
@@ -55,7 +58,7 @@ class wall_model extends app_base {
 		$this->update(
 			'xxt_wall_enroll',
 			array('close_at' => time()),
-			"siteid='$runningMpid' and openid='$openid'"
+			"mpid='$runningMpid' and openid='$openid'"
 		);
 		/**
 		 * 加入一个组
@@ -63,7 +66,7 @@ class wall_model extends app_base {
 		$q = array(
 			'count(*)',
 			'xxt_wall_enroll',
-			"siteid='$runningMpid' and wid='$wid' and openid='$openid'",
+			"mpid='$runningMpid' and wid='$wid' and openid='$openid'",
 		);
 		if (1 === (int) $this->query_val_ss($q)) {
 			/**
@@ -75,7 +78,7 @@ class wall_model extends app_base {
 				$q[2]
 			);
 		} else {
-			$i['siteid'] = $runningMpid;
+			$i['mpid'] = $runningMpid;
 			$i['wid'] = $wid;
 			$i['openid'] = $openid;
 			$i['remark'] = $remark;
@@ -106,7 +109,7 @@ class wall_model extends app_base {
 		$q = array(
 			'wid',
 			'xxt_wall_enroll',
-			"siteid='$runningMpid' and openid='$openid' and close_at=0",
+			"mpid='$runningMpid' and openid='$openid' and close_at=0",
 		);
 		$wid = $this->query_val_ss($q);
 
@@ -119,7 +122,7 @@ class wall_model extends app_base {
 		$q = array(
 			'count(*)',
 			'xxt_wall_enroll',
-			"siteid='$runningMpid' and wid='$wid' and openid='$openid' and close_at=0",
+			"mpid='$runningMpid' and wid='$wid' and openid='$openid' and close_at=0",
 		);
 		return 1 === (int) $this->query_val_ss($q);
 	}
@@ -170,7 +173,7 @@ class wall_model extends app_base {
 		$q = array(
 			$fields,
 			'xxt_wall_enroll',
-			"siteid='$runningMpid' and wid='$wid' and close_at=0",
+			"mpid='$runningMpid' and wid='$wid' and close_at=0",
 		);
 
 		$users = $this->query_objs_ss($q);
@@ -252,7 +255,7 @@ class wall_model extends app_base {
 		$this->update(
 			'xxt_wall_enroll',
 			array('close_at' => time()),
-			"siteid='$runningMpid' and wid= '$wid' and openid='$openid'"
+			"mpid='$runningMpid' and wid= '$wid' and openid='$openid'"
 		);
 		$reply = empty($wall->quit_reply) ? '您已退出信息墙' : $wall->quit_reply;
 
@@ -270,7 +273,7 @@ class wall_model extends app_base {
 	 * $ctrl 前端控制器
 	 */
 	private function add($wid, $msg, $ctrl = null) {
-		$siteid = $msg['mpid'];
+		$mpid = $msg['mpid'];
 		$openid = $msg['from_user'];
 
 		$wlog = array(); // 讨论组记录
@@ -287,7 +290,7 @@ class wall_model extends app_base {
 
 		$current = time();
 		$wlog['wid'] = $wid;
-		$wlog['siteid'] = $siteid;
+		$wlog['mpid'] = $mpid;
 		$wlog['openid'] = $openid;
 		$wlog['publish_at'] = $current;
 		/**
@@ -312,7 +315,7 @@ class wall_model extends app_base {
 			$wlog['approve_at'] = $current;
 			$wlog['approved'] = self::APPROVE_PASS;
 			if ('Y' === $wall->push_others) {
-				$this->push_others($siteid, $openid, $msg, $wall, $wid, $ctrl);
+				$this->push_others($mpid, $openid, $msg, $wall, $wid, $ctrl);
 			}
 
 		}
@@ -326,7 +329,7 @@ class wall_model extends app_base {
 		$this->update(
 			'xxt_wall_enroll',
 			array('last_msg_at' => $current),
-			"siteid='$siteid' and openid='$openid'"
+			"mpid='$mpid' and openid='$openid'"
 		);
 
 		return true;
@@ -339,12 +342,12 @@ class wall_model extends app_base {
 	 * $msg
 	 * $wall
 	 */
-	public function push_others($site, $openid, $msg, $wall, $wid, $ctrl) {
-		$mpa = \TMS_APP::M('mp\mpaccount')->byId($site);
+	public function push_others($mpid, $openid, $msg, $wall, $wid, $ctrl) {
+		$mpa = \TMS_APP::M('mp\mpaccount')->byId($mpid);
 		/**
 		 * 获得当前用户的信息
 		 */
-		$member = \TMS_APP::M('user/fans')->byOpenid($site, $openid, 'nickname');
+		$member = \TMS_APP::M('user/fans')->byOpenid($mpid, $openid, 'nickname');
 		/**
 		 * 拼装推送消息
 		 */
@@ -372,10 +375,10 @@ class wall_model extends app_base {
 				/**
 				 * 易信的图片消息不支持MediaId
 				 */
-				$mpproxy = \TMS_APP::M('mpproxy\yx', $site);
+				$mpproxy = \TMS_APP::M('mpproxy\yx', $mpid);
 				$rst = $mpproxy->mediaUpload($msg['data'][1]);
 				if ($rst[0] === false) {
-					$ctrl->sendByOpenid($site, $openid, array(
+					$ctrl->sendByOpenid($mpid, $openid, array(
 						"msgtype" => "text",
 						"text" => array(
 							"content" => urlencode($rst[1]),
@@ -404,7 +407,7 @@ class wall_model extends app_base {
 			/**
 			 * 企业号，或者开通了点对点消息接口易信公众号支持预先定义好组成员
 			 */
-			$groupUsers = \TMS_APP::M('acl')->wallUsers($site, $wid);
+			$groupUsers = \TMS_APP::M('acl')->wallUsers($mpid, $wid);
 			if (!empty($groupUsers)) {
 				/**
 				 * 不推送给发送人
@@ -415,7 +418,7 @@ class wall_model extends app_base {
 				 * 推送给已经加入讨论组的用户
 				 */
 				$joinedGroupUsers = array();
-				$ingroup = $this->joinedUsers($site, $wid);
+				$ingroup = $this->joinedUsers($mpid, $wid);
 				foreach ($ingroup as $ig) {
 					if ($openid === $ig->openid) {
 						continue;
@@ -431,7 +434,7 @@ class wall_model extends app_base {
 				}
 				if (!empty($joinedGroupUsers)) {
 					$message['touser'] = implode('|', $joinedGroupUsers);
-					$ctrl->send2Qyuser($site, $message);
+					$ctrl->send2Qyuser($mpid, $message);
 				}
 				/**
 				 * 推送给未加入讨论组的用户
@@ -442,7 +445,7 @@ class wall_model extends app_base {
 						$joinUrl = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/wall?wid=$wid";
 						$message['text']['content'] = $txt . "（<a href='$joinUrl'>参与讨论</a>）";
 					}
-					$ctrl->send2Qyuser($site, $message);
+					$ctrl->send2Qyuser($mpid, $message);
 				}
 				$finished = true;
 			}
@@ -451,38 +454,16 @@ class wall_model extends app_base {
 			/**
 			 * 通过客服接口发送给墙内所有用户
 			 */
-			$users = $this->joinedUsers($site, $wid);
+			$users = $this->joinedUsers($mpid, $wid);
 			foreach ($users as $user) {
 				if ($openid === $user->openid) {
 					continue;
 				}
 
-				$ctrl->sendByOpenid($site, $user->openid, $message);
+				$ctrl->sendByOpenid($mpid, $user->openid, $message);
 			}
 		}
 
 		return array(true);
-	}
-	/**
-	 *
-	 */
-	protected function table() {
-		return 'xxt_wall';
-	}
-	/**
-	 *
-	 */
-	public function getTypeName() {
-		return 'wall';
-	}
-	/**
-	 *
-	 */
-	public function getEntryUrl($runningMpid, $id) {
-		$url = "http://" . $_SERVER['HTTP_HOST'];
-		$url .= "/rest/app/wall";
-		$url .= "?mpid=$runningMpid&wid=" . $id;
-
-		return $url;
 	}
 }

@@ -16,18 +16,8 @@ class main extends \pl\fe\matter\base {
 	 * 返回视图
 	 */
 	public function index_action($site, $id) {
-		if (strpos($_SERVER['REQUEST_URI'], 'publish') !== false) {
-			\TPL::output('/pl/fe/matter/enroll/frame');
-			exit;
-		} else {
-			$app = $this->model('matter\enroll')->byId($id);
-			if ($app->state === '2') {
-				$this->redirect('/rest/pl/fe/matter/enroll/publish?site=' . $site . '&id=' . $id);
-			} else {
-				\TPL::output('/pl/fe/matter/enroll/frame');
-				exit;
-			}
-		}
+		\TPL::output('/pl/fe/matter/enroll/frame');
+		exit;
 	}
 	/**
 	 * 返回一个登记活动
@@ -76,7 +66,7 @@ class main extends \pl\fe\matter\base {
 		$result = ['apps' => null, 'total' => 0];
 		$model = $this->model();
 		$q = [
-			'a.*',
+			"a.*,'enroll' type",
 			'xxt_enroll a',
 			"state<>0",
 		];

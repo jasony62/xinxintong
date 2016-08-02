@@ -18,10 +18,16 @@ directive('tinymce', function($timeout) {
                     spanNode, textNode;
                 if (target.children.length) {
                     spanNode = target.children[0]; // first span
+
                     if (spanNode.tagName === 'SPAN') {
                         textNode = spanNode.childNodes[0];
-                        selection.select(textNode, false);
-                        selection.setCursorLocation(textNode, 0);
+                        if (textNode) {
+                            selection.select(textNode, false);
+                            selection.setCursorLocation(textNode, textNode.length);
+                        } else {
+                            selection.select(spanNode, false);
+                            selection.setCursorLocation(spanNode, 0);
+                        }
                     }
                 }
             };
@@ -30,12 +36,18 @@ directive('tinymce', function($timeout) {
                 var selection = editor.selection,
                     wrap = target.parentNode,
                     labelNode, textNode;
+
                 if (wrap && wrap.hasAttribute('wrap')) {
                     if (wrap.children[0].tagName === 'LABEL') {
                         labelNode = wrap.children[0];
                         textNode = labelNode.childNodes[0];
-                        selection.select(textNode, false);
-                        selection.setCursorLocation(textNode, 0);
+                        if (textNode) {
+                            selection.select(textNode, false);
+                            selection.setCursorLocation(textNode, textNode.length);
+                        } else {
+                            selection.select(labelNode, false);
+                            selection.setCursorLocation(labelNode, 0);
+                        }
                     }
                 }
             };
@@ -112,6 +124,23 @@ directive('tinymce', function($timeout) {
                                     }
                                 }
                             }
+                        } else if (evt.keyCode === 8 || evt.keyCode === 46) {
+                            if (_lastNodeContent.length === 1) {
+                                // 模拟删除字符操作，避免节点被删掉
+                                if (node.tagName === 'LABEL' && node.parentNode.hasAttribute('wrap')) {
+                                    node.innerHTML = ' ';
+                                    evt.preventDefault();
+                                    evt.stopPropagation();
+                                } else if (node.tagName === 'SPAN' && node.parentNode.tagName === 'BUTTON') {
+                                    node.innerHTML = ' ';
+                                    evt.preventDefault();
+                                    evt.stopPropagation();
+                                } else if (node.tagName === 'SPAN' && node.parentNode.parentNode && /checkbox|radio/.test(node.parentNode.parentNode.getAttribute('wrap'))) {
+                                    node.innerHTML = ' ';
+                                    evt.preventDefault();
+                                    evt.stopPropagation();
+                                }
+                            }
                         } else {
                             if (node.hasAttribute('wrap') && node.getAttribute('wrap') !== 'text') {
                                 /*
@@ -126,6 +155,7 @@ directive('tinymce', function($timeout) {
                         var node = editor.selection.getNode(),
                             nodeContent = node.innerHTML,
                             phase;
+
                         if (_lastNodeContent !== nodeContent) {
                             // 通知发生变化
                             phase = scope.$root.$$phase;

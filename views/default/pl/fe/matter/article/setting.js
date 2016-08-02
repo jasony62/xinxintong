@@ -1,5 +1,5 @@
 define(['frame'], function(ngApp) {
-	ngApp.provider.controller('ctrlSetting', ['$scope', '$uibModal', 'http2', 'mattersgallery', 'mediagallery', 'noticebox', function($scope, $uibModal, http2, mattersgallery, mediagallery, noticebox) {
+	ngApp.provider.controller('ctrlSetting', ['$scope', '$uibModal', 'http2', 'noticebox', 'mattersgallery', 'mediagallery', 'noticebox', function($scope, $uibModal, http2, noticebox, mattersgallery, mediagallery, noticebox) {
 		var tinymceEditor, modifiedData = {};
 		var r = new Resumable({
 			target: '/rest/pl/fe/matter/article/attachment/upload?site=' + $scope.siteId + '&articleid=' + $scope.id,
@@ -7,13 +7,15 @@ define(['frame'], function(ngApp) {
 		});
 		r.assignBrowse(document.getElementById('addAttachment'));
 		r.on('fileAdded', function(file, event) {
-			$scope.$root.progmsg = '开始上传文件';
-			$scope.$root.$apply('progmsg');
+			$scope.$apply(function() {
+				noticebox.progress('开始上传文件');
+			});
 			r.upload();
 		});
 		r.on('progress', function(file, event) {
-			$scope.$root.progmsg = '正在上传文件：' + Math.floor(r.progress() * 100) + '%';
-			$scope.$root.$apply('progmsg');
+			$scope.$apply(function() {
+				noticebox.progress('正在上传文件：' + Math.floor(r.progress() * 100) + '%');
+			});
 		});
 		r.on('complete', function() {
 			var f, lastModified, posted;
@@ -28,7 +30,6 @@ define(['frame'], function(ngApp) {
 			};
 			http2.post('/rest/pl/fe/matter/article/attachment/add?site=' + $scope.siteId + '&id=' + $scope.id, posted, function success(rsp) {
 				$scope.editing.attachments.push(rsp.data);
-				$scope.$root.progmsg = null;
 			});
 		});
 		$scope.modified = false;
@@ -326,10 +327,8 @@ define(['frame'], function(ngApp) {
 			});
 		});
 		$scope.delAttachment = function(index, att) {
-			$scope.$root.progmsg = '删除文件';
 			http2.get('/rest/pl/fe/matter/article/attachment/del?site=' + $scope.siteId + '&id=' + att.id, function success(rsp) {
 				$scope.editing.attachments.splice(index, 1);
-				$scope.$root.progmsg = null;
 			});
 		};
 		$scope.downloadUrl = function(att) {

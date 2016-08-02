@@ -24,23 +24,29 @@ class record extends \pl\fe\matter\base {
 	 * [1] 数据总条数
 	 * [2] 数据项的定义
 	 */
-	public function list_action($site, $app, $page = 1, $size = 30, $signinStartAt = null, $signinEndAt = null, $tags = null, $rid = null, $kw = null, $by = null, $orderby = null, $contain = null) {
-		/*应用*/
-		$modelApp = $this->model('matter\enroll');
-		$app = $modelApp->byId($app);
-		/*参数*/
+	public function list_action($site, $app, $page = 1, $size = 30, $rid = null, $orderby = null, $contain = null) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		// 登记数据过滤条件
+		$criteria = $this->getPostJson();
+
+		// 登记记录过滤条件
 		$options = array(
 			'page' => $page,
 			'size' => $size,
-			'tags' => $tags,
 			'rid' => $rid,
-			'kw' => $kw,
-			'by' => $by,
 			'orderby' => $orderby,
 			'contain' => $contain,
 		);
+
+		// 登记活动
+		$modelApp = $this->model('matter\enroll');
+		$app = $modelApp->byId($app);
+
+		// 查询结果
 		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->find($site, $app, $options);
+		$result = $mdoelRec->find($site, $app, $options, $criteria);
 
 		return new \ResponseData($result);
 	}
@@ -56,56 +62,6 @@ class record extends \pl\fe\matter\base {
 		$summary = $mdoelRec->summary($site, $app);
 
 		return new \ResponseData($summary);
-	}
-	/**
-	 * 给符合条件的登记记录打标签
-	 */
-	public function exportByData_action($site, $app) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$posted = $this->getPostJson();
-		$filter = $posted->filter;
-		$target = $posted->target;
-		$includeData = isset($posted->includeData) ? $posted->includeData : 'N';
-
-		if (!empty($target)) {
-			/*更新应用标签*/
-			$modelApp = $this->model('matter\enroll');
-			/*给符合条件的记录打标签*/
-			$modelRec = $this->model('matter\enroll\record');
-			$q = array(
-				'distinct enroll_key',
-				'xxt_enroll_record_data',
-				"aid='$app' and state=1",
-			);
-			$eks = null;
-			foreach ($filter as $k => $v) {
-				$w = "(name='$k' and ";
-				$w .= "concat(',',value,',') like '%,$v,%'";
-				$w .= ')';
-				$q2 = $q;
-				$q2[2] .= ' and ' . $w;
-				$eks2 = $modelRec->query_vals_ss($q2);
-				$eks = ($eks === null) ? $eks2 : array_intersect($eks, $eks2);
-			}
-			if (!empty($eks)) {
-				$objApp = $modelApp->byId($target, array('cascaded' => 'N'));
-				$options = array('cascaded' => $includeData);
-				foreach ($eks as $ek) {
-					$record = $modelRec->byId($ek, $options);
-					$user = new \stdClass;
-					$user->nickname = $record->nickname;
-					$newek = $modelRec->add($site, $objApp, $user);
-					if ($includeData === 'Y') {
-						$modelRec->setData($user, $site, $objApp, $newek, $record->data);
-					}
-				}
-			}
-		}
-
-		return new \ResponseData('ok');
 	}
 	/**
 	 * 手工添加登记信息
@@ -128,9 +84,8 @@ class record extends \pl\fe\matter\base {
 		$r['enroll_key'] = $ek;
 		$r['enroll_at'] = $current;
 		$r['signin_at'] = $current;
-		if (isset($posted->verified)) {
-			$r['verified'] = $posted->verified;
-		}
+		$r['verified'] = isset($posted->verified) ? $posted->verified : 'N';
+
 		if (isset($posted->tags)) {
 			$r['tags'] = $posted->tags;
 			$this->model('matter\enroll')->updateTags($app, $posted->tags);
@@ -141,6 +96,7 @@ class record extends \pl\fe\matter\base {
 		 * 登记数据
 		 */
 		if (isset($posted->data)) {
+			$dbData = new \stdClass;
 			foreach ($posted->data as $n => $v) {
 				if (in_array($n, array('signin_at', 'comment'))) {
 					continue;
@@ -160,11 +116,17 @@ class record extends \pl\fe\matter\base {
 						}
 					}
 					$v = implode(',', $vv);
+					//
+					$dbData->{$n} = $v;
 				} else if (is_string($v)) {
 					$v = $modelRec->escape($v);
+					//
+					$dbData->{$n} = $v;
 				} else if (is_object($v) || is_array($c = v)) {
 					/*多选题*/
 					$v = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
+					//
+					$dbData->{$n} = $v;
 				}
 				$cd = array(
 					'aid' => $app,
@@ -175,6 +137,9 @@ class record extends \pl\fe\matter\base {
 				$modelRec->insert('xxt_enroll_record_data', $cd, false);
 				$r['data'][$n] = $v;
 			}
+			//
+			$dbData = $modelRec->toJson($dbData);
+			$modelRec->update('xxt_enroll_record', ['data' => $dbData], "enroll_key='$ek'");
 		}
 
 		return new \ResponseData($r);
@@ -228,6 +193,8 @@ class record extends \pl\fe\matter\base {
 					$this->model('matter\enroll')->updateTags($app, $v);
 				}*/
 			} else if ($k === 'data' and is_object($v)) {
+				//
+				$dbData = new \stdClass;
 				foreach ($v as $cn => $cv) {
 					if (is_array($cv) && isset($cv[0]->imgSrc)) {
 						/* 上传图片 */
@@ -245,11 +212,14 @@ class record extends \pl\fe\matter\base {
 							}
 						}
 						$cv = implode(',', $vv);
+						$dbData->{$cn} = $cv;
 					} else if (is_string($cv)) {
 						$cv = $model->escape($cv);
+						$dbData->{$cn} = $cv;
 					} else if (is_object($cv) || is_array($cv)) {
 						/*多选题*/
 						$cv = implode(',', array_keys(array_filter((array) $cv, function ($i) {return $i;})));
+						$dbData->{$cn} = $cv;
 					}
 					/*检查数据项是否存在，如果不存在就先创建一条*/
 					$q = array(
@@ -274,6 +244,9 @@ class record extends \pl\fe\matter\base {
 					}
 					$record->data->{$cn} = $cv;
 				}
+				//
+				$dbData = $model->toJson($dbData);
+				$model->update('xxt_enroll_record', ['data' => $dbData], "enroll_key='$ek'");
 			}
 		}
 
@@ -377,5 +350,97 @@ class record extends \pl\fe\matter\base {
 		}
 
 		return array(true);
+	}
+	/**
+	 * 登记数据导出
+	 */
+	public function export_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		// 登记活动
+		$app = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+		$schemas = json_decode($app->data_schemas);
+
+		// 获得所有有效的登记记录
+		$q = [
+			'enroll_at,verified,data',
+			'xxt_enroll_record',
+			["aid" => $app->id, 'state' => 1],
+		];
+		$records = $this->model()->query_objs_ss($q);
+		if (count($records) === 0) {
+			die('record empty');
+		}
+
+		// 登记记录转换成下载数据
+		$exportedData = [];
+		$size = 0;
+		// 转换标题
+		$titles = ['登记时间', '审核通过'];
+		foreach ($schemas as $schema) {
+			$titles[] = $schema->title;
+		}
+		$titles = implode("\t", $titles);
+		$size += strlen($titles);
+		$exportedData[] = $titles;
+		// 转换数据
+		foreach ($records as $record) {
+			$row = [];
+			$row[] = date('y-m-j H:i', $record->enroll_at);
+			$row[] = $record->verified;
+			// 处理登记项
+			$data = str_replace("\n", ' ', $record->data);
+			$data = json_decode($record->data);
+			foreach ($schemas as $schema) {
+				$v = isset($data->{$schema->id}) ? $data->{$schema->id} : '';
+				switch ($schema->type) {
+				case 'single':
+				case 'phase':
+					foreach ($schema->ops as $op) {
+						if ($op->v === $v) {
+							$row[] = $op->l;
+							$disposed = true;
+							break;
+						}
+					}
+					empty($disposed) && $row[] = $v;
+					break;
+				case 'multiple':
+					$labels = [];
+					$v = explode(',', $v);
+					foreach ($v as $oneV) {
+						foreach ($schema->ops as $op) {
+							if ($op->v === $oneV) {
+								$labels[] = $op->l;
+								break;
+							}
+						}
+					}
+					$row[] = implode(',', $labels);
+					break;
+				default:
+					$row[] = $v;
+					break;
+				}
+			}
+			// 将数据转换为'|'分隔的字符串
+			$row = implode("\t", $row);
+			$size += strlen($row);
+			$exportedData[] = $row;
+		}
+
+		// 文件下载
+		$size += (count($exportedData) - 1) * 2;
+		$exportedData = implode("\r\n", $exportedData);
+
+		//header("Content-Type: text/plain;charset=utf-8");
+		//header("Content-Disposition: attachment; filename=" . $app->title . '.txt');
+		//header('Content-Length: ' . $size);
+		//echo $exportedData;
+		//exit;
+
+		return new \ResponseData($exportedData);
 	}
 }

@@ -1,6 +1,9 @@
 define(['frame'], function(ngApp) {
 	'use strict';
 	ngApp.provider.controller('ctrlPublish', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
+		(function() {
+			var text2Clipboard = new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
+		})();
 		$scope.opUrl = 'http://' + location.host + '/rest/site/op/matter/signin?site=' + $scope.siteId + '&app=' + $scope.id;
 		$scope.stop = function() {
 			$scope.app.state = 3;

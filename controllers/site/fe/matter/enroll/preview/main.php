@@ -143,20 +143,14 @@ class main extends \TMS_CONTROLLER {
 		$entryRule = $app->entry_rule;
 		if (isset($entryRule->scope) && $entryRule->scope === 'member') {
 			foreach ($entryRule->member as $schemaId => $rule) {
-				if (isset($user->members->{$schemaId})) {
-					$page = $rule->entry;
-					break;
-				}
+				$page = $rule->entry;
+				break;
 			}
-			!isset($page) && $page = '$memberschema';
 		} else if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
 			foreach ($entryRule->sns as $snsName => $rule) {
-				if (isset($user->sns->{$snsName})) {
-					$page = $rule->entry;
-					break;
-				}
+				$page = $rule->entry;
+				break;
 			}
-			!isset($page) && $page = '$mpfollow';
 		} else {
 			if (isset($entryRule->otherwise->entry)) {
 				$page = $entryRule->otherwise->entry;

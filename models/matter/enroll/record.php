@@ -63,6 +63,9 @@ class record_model extends \TMS_MODEL {
 		if (empty($submitkey)) {
 			$submitkey = $user->uid;
 		}
+		// 处理后的登记记录
+		$dbData = new \stdClass;
+
 		// 已有的登记数据
 		$q = array(
 			'name',
@@ -75,6 +78,8 @@ class record_model extends \TMS_MODEL {
 			 * 插入自定义属性
 			 */
 			if ($n === 'member' && is_object($v)) {
+				//
+				$dbData->{$n} = $v;
 				/* 用户认证信息 */
 				$vv = new \stdClass;
 				isset($v->name) && $vv->name = urlencode($v->name);
@@ -87,6 +92,7 @@ class record_model extends \TMS_MODEL {
 					}
 					$vv->extattr = $extattr;
 				}
+				//
 				$vv = urldecode(json_encode($vv));
 			} else if (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
 				/* 上传图片 */
@@ -100,6 +106,8 @@ class record_model extends \TMS_MODEL {
 					$vv[] = $rst[1];
 				}
 				$vv = implode(',', $vv);
+				//
+				$dbData->{$n} = $vv;
 			} else if (is_array($v) && isset($v[0]->uniqueIdentifier)) {
 				/* 上传文件 */
 				$fsUser = \TMS_APP::M('fs/local', $siteId, '_user');
@@ -123,15 +131,21 @@ class record_model extends \TMS_MODEL {
 					$vv[] = $file;
 				}
 				$vv = json_encode($vv);
+				//
+				$dbData->{$n} = $vv;
 			} else {
 				if (is_string($v)) {
 					$vv = $this->escape($v);
 				} else if (is_object($v) || is_array($v)) {
+					// 多选题，将选项合并为逗号分隔的字符串
 					$vv = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
 				} else {
 					$vv = $v;
 				}
+				//
+				$dbData->{$n} = $vv;
 			}
+
 			if (!empty($fields) && in_array($n, $fields)) {
 				$this->update(
 					'xxt_enroll_record_data',
@@ -150,7 +164,7 @@ class record_model extends \TMS_MODEL {
 			}
 		}
 
-		return array(true);
+		return array(true, $dbData);
 	}
 	/**
 	 * 根据ID返回登记记录
@@ -252,6 +266,7 @@ class record_model extends \TMS_MODEL {
 	 * --rid 轮次id
 	 * --kw 检索关键词
 	 * --by 检索字段
+	 * $criteria 登记数据过滤条件
 	 *
 	 *
 	 * return
@@ -259,8 +274,7 @@ class record_model extends \TMS_MODEL {
 	 * [1] 数据总条数
 	 * [2] 数据项的定义
 	 */
-	public function find($siteId, &$app, $options = null) {
-		/* 获得活动的定义 */
+	public function find($siteId, &$app, $options = null, $criteria = null) {
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$creater = isset($options->creater) ? $options->creater : null;
@@ -278,13 +292,15 @@ class record_model extends \TMS_MODEL {
 			} else if ($activeRound = $this->M('matter\enroll\round')->getActive($siteId, $app->id)) {
 				$rid = $activeRound->rid;
 			}
-			$kw = isset($options->kw) ? $options->kw : null;
-			$by = isset($options->by) ? $options->by : null;
+			// $kw = isset($options->kw) ? $options->kw : null;
+			// $by = isset($options->by) ? $options->by : null;
 		}
 		$result = new \stdClass; // 返回的结果
 		$result->total = 0;
-		/* 获得登记数据 */
-		$w = "e.state=1 and e.siteid='$siteId' and e.aid='{$app->id}'";
+
+		// 指定登记活动下的登记记录
+		$w = "e.state=1 and e.aid='{$app->id}'";
+
 		if (!empty($creater)) {
 			$w .= " and e.userid='$creater'";
 		} else if (!empty($inviter)) {
@@ -293,32 +309,55 @@ class record_model extends \TMS_MODEL {
 			$inviterek = $this->getLastKey($siteId, $aid, $user);
 			$w .= " and e.referrer='ek:$inviterek'";
 		}
+
+		// 指定了轮次
 		!empty($rid) && $w .= " and e.rid='$rid'";
-		if (!empty($kw) && !empty($by)) {
-			switch ($by) {
-			case 'mobile':
-				$kw && $w .= " and m.mobile like '%$kw%'";
-				break;
-			case 'nickname':
-				$kw && $w .= " and e.nickname like '%$kw%'";
-				break;
-			}
-		}
+
+		// if (!empty($kw) && !empty($by)) {
+		// 	switch ($by) {
+		// 	case 'mobile':
+		// 		$kw && $w .= " and m.mobile like '%$kw%'";
+		// 		break;
+		// 	case 'nickname':
+		// 		$kw && $w .= " and e.nickname like '%$kw%'";
+		// 		break;
+		// 	}
+		// }
 		/*tags*/
-		if (!empty($options->tags)) {
-			$aTags = explode(',', $options->tags);
-			foreach ($aTags as $tag) {
-				$w .= "and concat(',',e.tags,',') like '%,$tag,%'";
+		// if (!empty($options->tags)) {
+		// 	$aTags = explode(',', $options->tags);
+		// 	foreach ($aTags as $tag) {
+		// 		$w .= "and concat(',',e.tags,',') like '%,$tag,%'";
+		// 	}
+		// }
+
+		// 指定了登记数据过滤条件
+		if (isset($criteria->data)) {
+			$whereByData = '';
+			foreach ($criteria->data as $k => $v) {
+				$whereByData .= ' and (';
+				$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
+				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
+				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
+				$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
+				$whereByData .= ')';
 			}
+			$w .= $whereByData;
 		}
-		$q = array(
-			'e.enroll_key,e.enroll_at,e.tags,e.follower_num,e.score,e.remark_num,e.userid,e.nickname,e.verified',
+
+		// 查询参数
+		$q = [
+			'e.enroll_key,e.enroll_at,e.tags,e.follower_num,e.score,e.remark_num,e.userid,e.nickname,e.verified,e.data',
 			"xxt_enroll_record e",
 			$w,
-		);
-		$q2 = array(
-			'r' => array('o' => ($page - 1) * $size, 'l' => $size),
-		);
+		];
+
+		// 查询结果分页
+		$q2 = [
+			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
+		];
+
+		// 查询结果排序
 		switch ($orderby) {
 		case 'time':
 			$q2['o'] = 'e.enroll_at desc';
@@ -335,22 +374,21 @@ class record_model extends \TMS_MODEL {
 		default:
 			$q2['o'] = 'e.enroll_at desc';
 		}
+
+		// 处理获得的数据
 		if ($records = $this->query_objs_ss($q, $q2)) {
 			foreach ($records as &$r) {
-				/* 获得填写的登记数据 */
-				$qc = array(
-					'name,value',
-					'xxt_enroll_record_data',
-					"enroll_key='$r->enroll_key'",
-				);
-				$cds = $this->query_objs_ss($qc);
-				$r->data = new \stdClass;
-				foreach ($cds as $cd) {
-					$r->data->{$cd->name} = $cd->value;
+				$data = str_replace("\n", ' ', $r->data);
+				$data = json_decode($data);
+				if ($data === null) {
+					$r->data = 'json error(' . json_last_error() . '):' . $r->data;
+				} else {
+					$r->data = $data;
 				}
-				/*获得点赞记录*/
+				// 获得点赞记录
 				$app->can_like_record === 'Y' && $r->likers = $this->likers($r->enroll_key, 1, 3);
-				/*获得邀请数据*/
+
+				//获得邀请数据
 				if ($app->can_invite === 'Y') {
 					$qf = array(
 						'id,enroll_key,enroll_at,openid,nickname',
@@ -360,7 +398,8 @@ class record_model extends \TMS_MODEL {
 					$qf2 = array('o' => 'enroll_at');
 					$r->followers = $this->query_objs_ss($qf, $qf2);
 				}
-				/*获得关联抽奖活动记录*/
+
+				//获得关联抽奖活动记录
 				$ql = array(
 					'award_title',
 					'xxt_lottery_log',
@@ -376,7 +415,8 @@ class record_model extends \TMS_MODEL {
 				}
 			}
 			$result->records = $records;
-			/* total */
+
+			// 符合条件的数据总数
 			$q[0] = 'count(*)';
 			$total = (int) $this->query_val_ss($q);
 			$result->total = $total;
@@ -385,11 +425,12 @@ class record_model extends \TMS_MODEL {
 		return $result;
 	}
 	/**
-	 * 签到情况统计
+	 * 登记情况摘要
 	 */
 	public function &summary($siteId, $appId) {
 		$modelRnd = \TMS_APP::M('matter\enroll\round');
-		$rounds = $modelRnd->byApp($siteId, $appId, ['fields' => 'rid,title']);
+		$page = (object) ['num' => 1, 'size' => 5];
+		$rounds = $modelRnd->byApp($siteId, $appId, ['fields' => 'rid,title', 'page' => $page]);
 
 		if (empty($rounds)) {
 			$summary = new \stdClass;
@@ -652,7 +693,7 @@ class record_model extends \TMS_MODEL {
 						'xxt_enroll_record_data',
 						"aid='$appId' and state=1 and name='{$schema->id}' and FIND_IN_SET('{$op->v}', value)",
 					);
-					$op['c'] = $this->query_val_ss($q);
+					$op->c = $this->query_val_ss($q);
 					$result[$schema->id]['ops'][] = $op;
 				}
 			}

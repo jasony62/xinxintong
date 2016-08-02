@@ -79,7 +79,7 @@ define([], function() {
         cls = 'radio';
         config.align === 'H' && (cls += '-inline');
         angular.forEach(schema.ops, function(op) {
-            html += '<li class="' + cls + '" wrap="radio"><label';
+            html += '<li class="' + cls + '" wrap="radio" contenteditable="false"><label';
             if (config.align === 'H') html += ' class="radio-inline"';
             html += '><input type="radio" name="' + schema.id + '"';
             html += ' value="' + op.v + '"';
@@ -88,7 +88,7 @@ define([], function() {
             angular.forEach(schema.attrs, function(attr) {
                 html += 'data-' + attr.name + '="' + attr.value + '"';
             });
-            html += ' disabled><span>' + op.l + '</span></label></li>';
+            html += ' disabled><span contenteditable="true">' + op.l + '</span></label></li>';
         });
         html += '</ul>';
 
@@ -120,12 +120,12 @@ define([], function() {
         cls = 'checkbox';
         config.align === 'H' && (cls += '-inline');
         angular.forEach(schema.ops, function(op) {
-            html += '<li class="' + cls + '" wrap="checkbox"><label';
+            html += '<li class="' + cls + '" wrap="checkbox" contenteditable="false"><label';
             if (config.align === 'H') html += ' class="checkbox-inline"';
             html += '><input type="checkbox" name="' + schema.id + '"';
             config.required === 'Y' && (html += 'required=""');
             html += ' ng-model="data.' + schema.id + '.' + op.v + '"';
-            html += ' disabled><span>' + op.l + '</span></label></li>';
+            html += ' disabled><span contenteditable="true">' + op.l + '</span></label></li>';
         });
         html += '</ul>';
 
@@ -138,9 +138,10 @@ define([], function() {
                 wrap: 'input',
                 class: 'form-group form-group-lg',
                 schema: schema.id,
-                'schema-type': schema.type
+                'schema-type': schema.type,
+                contenteditable: 'false'
             },
-            html = '<label' + (config.showname === 'label' ? '' : ' class="sr-only"') + '>' + schema.title + '</label>';
+            html = '<label' + (config.showname === 'label' ? '' : ' class="sr-only"') + ' contenteditable="true">' + schema.title + '</label>';
         switch (schema.type) {
             case 'name':
             case 'mobile':
@@ -552,10 +553,11 @@ define([], function() {
         var attrs = {
                 id: schema.id,
                 wrap: 'button',
-                class: 'form-group'
+                class: 'form-group',
+                contenteditable: 'false'
             },
             tmplBtn = function(action, label) {
-                return '<button class="btn btn-primary btn-block btn-lg" ng-click="' + action + '"><span>' + label + '</span></button>';
+                return '<button class="btn btn-primary btn-block btn-lg" ng-click="' + action + '"><span contenteditable="true">' + label + '</span></button>';
             },
             prefab, action;
         if (prefab = PrefabActSchema[schema.name]) {

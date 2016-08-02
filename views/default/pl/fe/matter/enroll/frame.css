@@ -1,4 +1,4 @@
-body{background:#f8f8f8;padding:71px 0;}
+body{background:#f8f8f8;padding:71px 0;font-family:Microsoft Yahei,Arial;}
 body>nav{display:flex;}
 body>nav>ul:nth-child(2){flex-grow:1;text-align:center;}
 body>nav>ul:nth-child(2)>li{display:inline-block;float:none;}
@@ -11,6 +11,7 @@ body>nav>ul:nth-child(2)>li{display:inline-block;float:none;}
 #app-view .pages .container-fluid{padding-bottom:8px;}
 
 /*app-view/app-setting*/
+#appSetting{width:160px;font-family:Microsoft Yahei,Arial;}
 #appSetting .checkbox{display:block;}
 #appSetting .checkbox input{margin-right:.5em;}
 
@@ -29,9 +30,12 @@ body>nav>ul:nth-child(2)>li{display:inline-block;float:none;}
 .page-editor .sidebar button:disabled{color:gray}
 
 /*preview-view*/
+#preview-view .records .summary{font-size:32px;text-align:center;}
 #simulator{width:360px;height:640px;border:1px solid #efefef;}
 
 /*publish*/
-#publish-view .records .summary{font-size:32px;text-align:center;}
 #publish-view .statistic caption{text-align:center;border:1px solid #ddd;border-bottom:0;}
 #publish-view .statistic .table-bordered>thead>tr>th{border-bottom:1px;}
+
+/*record-view*/
+#record-view table img{max-width:96px;}

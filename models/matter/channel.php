@@ -170,7 +170,10 @@ class channel_model extends article_base {
 			$q1[] = $this->matterColumns($type) . ",cm.create_at add_at";
 			$q1[] = "$table m,xxt_channel_matter cm";
 			$qaw = "m.state=1 and cm.channel_id=$channel_id and m.id=cm.matter_id and cm.matter_type='$type'";
-
+			if ($type === 'article') {
+				/*审核通过的单图文*/
+				$qaw .= " and m.approved='Y'";
+			}
 			!empty($top) && $top->type === $type && $qaw .= " and m.id<>$top->id";
 
 			!empty($bottom) && $bottom->type === $type && $qaw .= " and m.id<>$bottom->id";
@@ -230,7 +233,7 @@ class channel_model extends article_base {
 		if (!empty($channel->top_type) && $channel->top_type === 'article') {
 			$qt[] = "a.id,a.mpid,a.title,a.summary,a.pic,a.body,a.create_at";
 			$qt[] = 'xxt_article a';
-			$qt[] = "a.id='$channel->top_id' and a.state=1";
+			$qt[] = "a.id='$channel->top_id' and a.state=1 and a.approved='Y'";
 			$top = $this->query_obj_ss($qt);
 		}
 		/**
@@ -239,7 +242,7 @@ class channel_model extends article_base {
 		if (!empty($channel->bottom_type) && $channel->bottom_type === 'article') {
 			$qb[] = 'a.id,a.mpid,a.title,a.summary,a.pic,a.body,a.create_at';
 			$qb[] = 'xxt_article a';
-			$qb[] = "a.id='$channel->bottom_id' and a.state=1";
+			$qb[] = "a.id='$channel->bottom_id' and a.state=1 and a.approved='Y'";
 			$bottom = $this->query_obj_ss($qb);
 		}
 		/**
@@ -247,7 +250,7 @@ class channel_model extends article_base {
 		 */
 		$qa1[] = 'a.id,a.mpid,a.title,a.summary,a.pic,a.body,a.create_at,ca.create_at';
 		$qa1[] = 'xxt_article a,xxt_channel_matter ca';
-		$qaw = "ca.channel_id=$channel_id and a.id=ca.matter_id and ca.matter_type='article' and a.state=1";
+		$qaw = "ca.channel_id=$channel_id and a.id=ca.matter_id and ca.matter_type='article' and a.state=1 and a.approved='Y'";
 		if (!empty($top)) {
 			$qaw .= " and a.id<>$top->id";
 		}
@@ -314,17 +317,22 @@ class channel_model extends article_base {
 			$q1[] = "cm.channel_id='$channel_id'";
 
 			$q2['o'] = 'cm.create_at desc';
-			if (isset($params->page) && isset($params->size)) {
-				$q2['r'] = array(
-					'o' => ($params->page - 1) * $params->size,
-					'l' => $params->size,
-				);
-			}
+
+			// 分页获取，如果素材已经删除，或者素材尚未批准的情况下，分页会导致返回的数量不正确
+			// if (isset($params->page) && isset($params->size)) {
+			// 	$q2['r'] = array(
+			// 		'o' => ($params->page - 1) * $params->size,
+			// 		'l' => $params->size,
+			// 	);
+			// }
 
 			$simpleMatters = $this->query_objs_ss($q1, $q2);
 			foreach ($simpleMatters as $sm) {
 				$fullMatter = \TMS_APP::M('matter\\' . $sm->matter_type)->byId($sm->matter_id);
 				if ($fullMatter && $fullMatter->state === '1') {
+					if ($sm->matter_type === 'article' && $fullMatter->approved !== 'Y') {
+						continue;
+					}
 					$fullMatter->type = $sm->matter_type;
 					$fullMatter->add_at = $sm->create_at;
 					$matters[] = $fullMatter;

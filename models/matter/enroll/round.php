@@ -10,6 +10,7 @@ class round_model extends \TMS_MODEL {
 	public function &byApp($siteId, $aid, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$state = isset($options['state']) ? $options['state'] : false;
+		$page = isset($options['page']) ? $options['page'] : null;
 
 		$q = array(
 			$fields,
@@ -18,7 +19,9 @@ class round_model extends \TMS_MODEL {
 		);
 		$state && $q[2] .= " and state in($state)";
 
-		$q2 = array('o' => 'create_at desc');
+		$q2 = ['o' => 'create_at desc'];
+
+		!empty($page) && $q2['r'] = ['o' => $page->num, 'l' => $page->size];
 
 		$rounds = $this->query_objs_ss($q, $q2);
 

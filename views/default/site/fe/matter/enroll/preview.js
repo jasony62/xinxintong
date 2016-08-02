@@ -162,12 +162,15 @@ define(["angular", "xxt-page", "enroll-directive", "angular-sanitize"], function
         };
         this.addRecord = function(data) {
             var ek = 'ek' + (new Date() * 1);
+
             cache.records[ek] = {
                 enroll_key: ek,
                 enroll_at: Math.round((new Date() * 1) / 1000),
                 data: data
             };
+
             window.localStorage.setItem('enroll-preview', JSON.stringify(cache));
+
             return ek;
         };
         this.clean = function() {
@@ -181,15 +184,11 @@ define(["angular", "xxt-page", "enroll-directive", "angular-sanitize"], function
         };
     }]);
     ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', function($scope, Record, LS) {
-        var schemas = [],
-            dataSchemas = JSON.parse($scope.page.data_schemas),
-            i;
+        var schemas = $scope.app.data_schemas;
+
         Record.get(LS.p['ek']);
         $scope.Record = Record;
 
-        for (i in dataSchemas) {
-            schemas.push(dataSchemas[i].schema);
-        }
         $scope.value2Label = function(key) {
             var val, i, j, s, aVal, aLab = [];
             if (schemas && Record.current.data) {
@@ -227,8 +226,27 @@ define(["angular", "xxt-page", "enroll-directive", "angular-sanitize"], function
             })();
         }
         $scope.submit = function(event, nextAction) {
-            var url, ek;
+            var url, ek, data, i;
+
+            // 处理数据
+            data = angular.copy($scope.data);
+            angular.forEach($scope.app.data_schemas, function(schema) {
+                switch (schema.type) {
+                    case 'multiple':
+                        var val = data[schema.id],
+                            p, val2 = [];
+                        if (angular.isObject(val)) {
+                            for (var p in val) {
+                                val2.push(p);
+                            }
+                            data[schema.id] = val2.join(',');
+                        }
+                        break;
+                }
+            });
+
             ek = srvStorage.addRecord($scope.data);
+
             if (nextAction !== undefined && nextAction.length) {
                 url = LS.j('', 'site', 'app');
                 url += '&page=' + nextAction;

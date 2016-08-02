@@ -97,34 +97,6 @@ class main extends \pl\fe\matter\base {
 		exit;
 	}
 	/**
-	 * 返回单图文视图
-	 */
-	public function edit_action() {
-		\TPL::output('/pl/fe/matter/article/frame');
-		exit;
-	}
-	/**
-	 *
-	 */
-	public function read_action() {
-		\TPL::output('/pl/fe/matter/article/frame');
-		exit;
-	}
-	/**
-	 *
-	 */
-	public function stat_action() {
-		\TPL::output('/pl/fe/matter/article/frame');
-		exit;
-	}
-	/**
-	 *
-	 */
-	public function remark_action() {
-		\TPL::output('/pl/fe/matter/article/frame');
-		exit;
-	}
-	/**
 	 * 获得可见的图文列表
 	 *
 	 * $id article's id
@@ -137,7 +109,7 @@ class main extends \pl\fe\matter\base {
 	 * --$order
 	 *
 	 */
-	public function list_action($site, $page = 1, $size = 30) {
+	public function list_action($site, $page = 1, $size = 30, $mission = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -148,12 +120,21 @@ class main extends \pl\fe\matter\base {
 		/**
 		 * select fields
 		 */
-		$s = "a.id,a.siteid,a.title,a.summary,a.create_at,a.modify_at,a.approved,a.creater,a.creater_name,a.creater_src";
+		$s = "a.id,a.siteid,a.title,a.summary,a.approved,a.mission_id";
+		$s .= ",a.create_at,a.modify_at,a.creater,a.creater_name,a.creater_src";
 		$s .= ",a.read_num,a.score,a.remark_num,a.share_friend_num,a.share_timeline_num,a.download_num";
 		/**
 		 * where
 		 */
-		$w = "a.custom_body='N' and a.siteid='$site' and a.state=1 and finished='Y'";
+		$w = "a.custom_body='N' and a.state=1 and finished='Y'";
+		/**
+		 * 按项目过滤
+		 */
+		if (!empty($mission)) {
+			$w .= " and a.mission_id=$mission";
+		} else {
+			$w .= " and a.siteid='$site'";
+		}
 		/**
 		 * 按频道过滤
 		 */
@@ -281,15 +262,14 @@ class main extends \pl\fe\matter\base {
 	 * @param int $id article's id
 	 */
 	public function get_action($site, $id, $cascade = 'Y') {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$q = array(
 			"a.*,'{$user->id}' uid",
 			'xxt_article a',
-			"a.siteid='$site' and a.state=1 and a.id=$id",
+			"a.state=1 and a.id=$id",
 		);
 		if (($article = $this->model()->query_obj_ss($q)) && $cascade === 'Y') {
 			/**
@@ -405,6 +385,54 @@ class main extends \pl\fe\matter\base {
 		}
 
 		return new \ResponseData($id);
+	}
+	/**
+	 * 创建新图文
+	 */
+	public function copy_action($site, $id, $mission = null) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelArt = $this->model('matter\article');
+
+		$copied = $modelArt->byId($id);
+		$current = time();
+
+		$article = new \stdClass;
+		$article->siteid = $site;
+		$article->mpid = $site;
+		$article->creater = $user->id;
+		$article->creater_src = 'A';
+		$article->creater_name = $user->name;
+		$article->create_at = $current;
+		$article->modifier = $user->id;
+		$article->modifier_src = 'A';
+		$article->modifier_name = $user->name;
+		$article->modify_at = $current;
+		$article->author = $user->name;
+		$article->hide_pic = $copied->hide_pic;
+		$article->title = $copied->title . '（副本）';
+		$article->summary = $copied->summary;
+		$article->body = $modelArt->escape($copied->body);
+		$article->url = $copied->url;
+		if (!empty($mission)) {
+			$article->mission_id = $mission;
+		}
+
+		$article->id = $modelArt->insert('xxt_article', $article, true);
+
+		/* 记录操作日志 */
+		$article->type = 'article';
+		$this->model('log')->matterOp($site, $user, $article, 'C');
+
+		/* 记录和任务的关系 */
+		if (isset($mission)) {
+			$modelMis = $this->model('matter\mission');
+			$modelMis->addMatter($user, $site, $mission, $article);
+		}
+
+		return new \ResponseData($article);
 	}
 	/**
 	 * 更新单图文的字段
@@ -714,7 +742,7 @@ class main extends \pl\fe\matter\base {
 				'modifier_name' => $user->name,
 				'modify_at' => time(),
 			],
-			"siteid='$site' and id='$id'"
+			["id" => $id]
 		);
 		if ($rst) {
 			/**
@@ -752,7 +780,7 @@ class main extends \pl\fe\matter\base {
 		$rst = $this->model()->update(
 			'xxt_article',
 			$nv,
-			"siteid='$siteId' and id='$id'"
+			["id" => $id]
 		);
 		/*记录操作日志*/
 		$article = $this->model('matter\\' . 'article')->byId($id, 'id,title,summary,pic');

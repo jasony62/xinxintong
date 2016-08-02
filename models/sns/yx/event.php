@@ -60,22 +60,24 @@ class event_model extends \TMS_MODEL {
 		$q = array(
 			'id,keyword,match_mode,matter_type,matter_id',
 			'xxt_call_text_yx',
-			"siteid='$siteId'",
+			["siteid" => $siteId],
 		);
-		$mps = $this->query_objs_ss($q);
+		$maps = $this->query_objs_ss($q);
+
 		/**
 		 * match mapping.
 		 */
 		$reply = false;
-		foreach ($mps as $mp) {
-			if ($mp->match_mode == 'full' && $text == $mp->keyword) {
-				$reply = $mp;
+		foreach ($maps as $map) {
+			if ($map->match_mode == 'full' && $text == $map->keyword) {
+				$reply = $map;
 				break;
-			} else if ($mp->match_mode == 'cmd' && preg_match('/^' . preg_quote($mp->keyword) . '.?/i', $text) === 1) {
-				$reply = $mp;
+			} else if ($map->match_mode == 'cmd' && preg_match('/^' . preg_quote($map->keyword) . '.?/i', $text) === 1) {
+				$reply = $map;
 				break;
 			}
 		}
+
 		return $reply;
 	}
 	/**

@@ -1,17 +1,23 @@
-body{background:#f8f8f8;padding:71px 0;}
-.shortcut.navbar-nav{position:absolute;left:50%;margin-left:-58px;float:none;}
+body{background:#f8f8f8;padding:71px 0;font-family:Microsoft Yahei,Arial;}
+body>nav{display:flex;}
+body>nav>ul:nth-child(2){flex-grow:1;text-align:center;}
+body>nav>ul:nth-child(2)>li{display:inline-block;float:none;}
 .tile{position:relative;border:1px solid #ddd;border-radius:4px;padding:8px;background:#f8f8f8;margin-bottom:15px;}
 .tile>.form-group,.tile>.checkbox{padding:8px;background:#fff;border-radius:4px;}
 .tile>.form-group.compact{margin-bottom:0;}
 .tile>.form-group:last-child{margin-bottom:0;}
-#app-view,#publish-view{padding-bottom:71px;}
 
-/*app-setting*/
-#appSetting .checkbox{display:block;}
-#appSetting .checkbox input{margin-right:.5em;}
+/*app-view*/
+#app-view .pages .container-fluid{padding-bottom:8px;}
 
-/*pages*/
-.page-editor{position:relative;float:left;width:550px;}
+/*app-view/app-setting*/
+#appSetting{width:160px;font-family:Microsoft Yahei,Arial;}
+
+/*wrap-editor*/
+#wrap-editor{width:240px;position:relative;left:565px;top:-660px;}
+
+/*app-view pages*/
+.page-editor{position:relative;width:550px;}
 .page-editor .mce-tinymce{margin-right:44px!important}
 .page-editor .mce-tinymce.mce-container.mce-panel{border:1px solid #ccc;}
 .page-editor .mce-tinymce.mce-container.mce-panel.mce-fullscreen{margin-top:51px}
@@ -20,3 +26,14 @@ body{background:#f8f8f8;padding:71px 0;}
 .page-editor .sidebar{width:44px;background:transparent;position:absolute;top:0;right:0;margin-top:35px;}
 .page-editor .sidebar button{height:36px;color:black;border-radius:0;margin-left:-1px;margin-bottom:-1px}
 .page-editor .sidebar button:disabled{color:gray}
+
+/*preview-view*/
+#preview-view .records .summary{font-size:32px;text-align:center;}
+#simulator{width:360px;height:640px;border:1px solid #efefef;}
+
+/*publish*/
+#publish-view .statistic caption{text-align:center;border:1px solid #ddd;border-bottom:0;}
+#publish-view .statistic .table-bordered>thead>tr>th{border-bottom:1px;}
+
+/*record-view*/
+#record-view table img{max-width:96px;}

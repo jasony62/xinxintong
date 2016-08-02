@@ -1,19 +1,21 @@
 define(['frame'], function(ngApp) {
-	ngApp.provider.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', 'mediagallery', function($scope, http2, mattersgallery, mediagallery) {
-		var modifiedData = {};
+	ngApp.provider.controller('ctrlSetting', ['$scope', '$uibModal', 'http2', 'noticebox', 'mattersgallery', 'mediagallery', 'noticebox', function($scope, $uibModal, http2, noticebox, mattersgallery, mediagallery, noticebox) {
+		var tinymceEditor, modifiedData = {};
 		var r = new Resumable({
 			target: '/rest/pl/fe/matter/article/attachment/upload?site=' + $scope.siteId + '&articleid=' + $scope.id,
 			testChunks: false,
 		});
 		r.assignBrowse(document.getElementById('addAttachment'));
 		r.on('fileAdded', function(file, event) {
-			$scope.$root.progmsg = '开始上传文件';
-			$scope.$root.$apply('progmsg');
+			$scope.$apply(function() {
+				noticebox.progress('开始上传文件');
+			});
 			r.upload();
 		});
 		r.on('progress', function(file, event) {
-			$scope.$root.progmsg = '正在上传文件：' + Math.floor(r.progress() * 100) + '%';
-			$scope.$root.$apply('progmsg');
+			$scope.$apply(function() {
+				noticebox.progress('正在上传文件：' + Math.floor(r.progress() * 100) + '%');
+			});
 		});
 		r.on('complete', function() {
 			var f, lastModified, posted;
@@ -28,7 +30,6 @@ define(['frame'], function(ngApp) {
 			};
 			http2.post('/rest/pl/fe/matter/article/attachment/add?site=' + $scope.siteId + '&id=' + $scope.id, posted, function success(rsp) {
 				$scope.editing.attachments.push(rsp.data);
-				$scope.$root.progmsg = null;
 			});
 		});
 		$scope.modified = false;
@@ -43,6 +44,20 @@ define(['frame'], function(ngApp) {
 		}, {
 			value: 'channel',
 			title: '频道',
+			url: '/rest/pl/fe/matter'
+		}, {
+			value: 'enroll',
+			scenario: 'registration',
+			title: '报名',
+			url: '/rest/pl/fe/matter'
+		}, {
+			value: 'enroll',
+			scenario: 'voting',
+			title: '投票',
+			url: '/rest/pl/fe/matter'
+		}, {
+			value: 'signin',
+			title: '签到',
 			url: '/rest/pl/fe/matter'
 		}];
 		$scope.back = function() {
@@ -59,18 +74,35 @@ define(['frame'], function(ngApp) {
 				return message;
 			}
 		};
-		$scope.onBodyChange = function() {
-			$scope.modified = true;
-			modifiedData['body'] = encodeURIComponent($scope.editing['body']);
-		};
-		$scope.tinymceSave = function() {
-			$scope.update('body');
-			$scope.submit();
+		$scope.assignMission = function() {
+			mattersgallery.open($scope.siteId, function(matters, type) {
+				var app;
+				if (matters.length === 1) {
+					app = {
+						id: $scope.id,
+						type: 'article'
+					};
+					http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.siteId + '&id=' + matters[0].mission_id, app, function(rsp) {
+						$scope.editing.mission = rsp.data;
+						$scope.editing.mission_id = rsp.data.id;
+						$scope.update('mission_id');
+						$scope.submit();
+					});
+				}
+			}, {
+				matterTypes: [{
+					value: 'mission',
+					title: '项目',
+					url: '/rest/pl/fe/matter'
+				}],
+				singleMatter: true
+			});
 		};
 		$scope.submit = function() {
 			http2.post('/rest/pl/fe/matter/article/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData, function() {
 				modifiedData = {};
 				$scope.modified = false;
+				noticebox.success('完成保存');
 			});
 		};
 		$scope.remove = function() {
@@ -87,6 +119,7 @@ define(['frame'], function(ngApp) {
 		$scope.update = function(name) {
 			$scope.modified = true;
 			modifiedData[name] = name === 'body' ? encodeURIComponent($scope.editing[name]) : $scope.editing[name];
+			$scope.submit();
 		};
 		$scope.setPic = function() {
 			var options = {
@@ -110,23 +143,54 @@ define(['frame'], function(ngApp) {
 			mediagallery.open($scope.siteId, options);
 		});
 		$scope.embedMatter = function() {
-			mattersgallery.open($scope.siteId, function(matters, type) {
-				var editor, dom, matter, fn;
-				editor = tinymce.get('body1');
-				dom = editor.dom;
-				angular.forEach(matters, function(matter) {
-					fn = "openMatter($event," + matter.id + ",'" + type + "')";
-					tinymceEditor.insertContent(dom.createHTML('p', {
-						'class': 'matter'
-					}, dom.createHTML('span', {
-						"ng-click": fn,
-					}, dom.encode(matter.title))));
-				});
-			}, {
+			var options = {
 				matterTypes: $scope.innerlinkTypes,
-				hasParent: false,
 				singleMatter: true
-			});
+			};
+			if ($scope.editing.mission) {
+				options.mission = $scope.editing.mission;
+			}
+			mattersgallery.open($scope.siteId, function(matters, type) {
+				var editor = tinymce.get('body1'),
+					dom = editor.dom,
+					selection = editor.selection,
+					sibling, domMatter, fn, style;
+
+				style = "cursor:pointer";
+				if (selection && selection.getNode()) {
+					/*选中了页面上已有的元素*/
+					sibling = selection.getNode();
+					if (sibling !== editor.getBody()) {
+						while (sibling.parentNode !== editor.getBody()) {
+							sibling = sibling.parentNode;
+						}
+						angular.forEach(matters, function(matter) {
+							fn = "openMatter($event,'" + matter.id + "','" + type + "')";
+							domMatter = dom.create('p', {
+								'wrap': 'matter'
+							}, dom.createHTML('span', {
+								"ng-click": fn,
+								"style": style
+							}, dom.encode(matter.title)));
+							dom.insertAfter(domMatter, sibling);
+							selection.setCursorLocation(domMatter, 0);
+						});
+					} else {
+						/*没有选中页面上的元素*/
+						angular.forEach(matters, function(matter) {
+							fn = "openMatter($event,'" + matter.id + "','" + type + "')";
+							domMatter = dom.add(editor.getBody(), 'p', {
+								'wrap': 'matter'
+							}, dom.createHTML('span', {
+								"ng-click": fn,
+								"style": style
+							}, dom.encode(matter.title)));
+							selection.setCursorLocation(domMatter, 0);
+						});
+					}
+					editor.focus();
+				}
+			}, options);
 		};
 		var insertVideo = function(url) {
 			var editor, dom, html;
@@ -263,10 +327,8 @@ define(['frame'], function(ngApp) {
 			});
 		});
 		$scope.delAttachment = function(index, att) {
-			$scope.$root.progmsg = '删除文件';
 			http2.get('/rest/pl/fe/matter/article/attachment/del?site=' + $scope.siteId + '&id=' + att.id, function success(rsp) {
 				$scope.editing.attachments.splice(index, 1);
-				$scope.$root.progmsg = null;
 			});
 		};
 		$scope.downloadUrl = function(att) {
@@ -277,6 +339,26 @@ define(['frame'], function(ngApp) {
 		});
 		http2.get('/rest/pl/fe/matter/tag/list?site=' + $scope.siteId + '&resType=article&subType=1', function(rsp) {
 			$scope.tags2 = rsp.data;
+		});
+		$scope.$watch('editing', function(editing) {
+			if (editing && tinymceEditor) {
+				tinymceEditor.setContent(editing.body);
+			}
+		});
+		$scope.$on('tinymce.instance.init', function(event, editor) {
+			tinymceEditor = editor;
+			if ($scope.editing) {
+				editor.setContent($scope.editing.body);
+			}
+		});
+		$scope.$on('tinymce.content.change', function(event, changed) {
+			var content;
+			content = tinymceEditor.getContent();
+			if (content !== $scope.editing.body) {
+				$scope.editing.body = content;
+				modifiedData['body'] = encodeURIComponent(content);
+				$scope.modified = true;
+			}
 		});
 	}]);
 });

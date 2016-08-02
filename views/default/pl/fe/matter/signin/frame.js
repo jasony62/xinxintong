@@ -1,5 +1,5 @@
 define(['require', 'page'], function(require, pageLib) {
-	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'tinymce.ui.xxt', 'ui.xxt']);
+	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'tinymce.enroll', 'ui.xxt']);
 	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider) {
 		var RouteParam = function(name) {
 			var baseURL = '/views/default/pl/fe/matter/signin/';
@@ -29,7 +29,40 @@ define(['require', 'page'], function(require, pageLib) {
 
 		$locationProvider.html5Mode(true);
 	}]);
-	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', function($scope, $location, $uibModal, $q, http2) {
+	ngApp.directive('relativeFixed', function() {
+		return {
+			restrict: 'A',
+			link: function(scope, elem, attrs) {
+				var elem = elem[0],
+					initial = {
+						top: elem.style.top,
+						left: elem.style.left,
+						position: elem.style.position,
+					},
+					fixedHeight = parseInt(attrs.fixedHeight),
+					bodyOffsetTop = elem.offsetTop,
+					bodyOffsetLeft = elem.offsetLeft,
+					offsetParent = elem.offsetParent;
+				while (offsetParent.offsetParent) {
+					bodyOffsetTop += offsetParent.offsetTop;
+					bodyOffsetLeft += offsetParent.offsetLeft;
+					offsetParent = offsetParent.offsetParent;
+				}
+				window.addEventListener('scroll', function(event) {
+					if (document.body.scrollTop + fixedHeight > bodyOffsetTop) {
+						elem.style.position = 'fixed';
+						elem.style.top = fixedHeight + 'px';
+						elem.style.left = bodyOffsetLeft + 'px';
+					} else {
+						elem.style.position = initial.position;
+						elem.style.top = initial.top;
+						elem.style.left = initial.left;
+					}
+				});
+			}
+		}
+	});
+	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'noticebox', function($scope, $location, $uibModal, $q, http2, noticebox) {
 		var ls = $location.search(),
 			modifiedData = {};
 		$scope.id = ls.id;
@@ -44,6 +77,7 @@ define(['require', 'page'], function(require, pageLib) {
 				$scope.modified = false;
 				modifiedData = {};
 				defer.resolve(rsp.data);
+				noticebox.success('完成保存');
 			});
 			return defer.promise;
 		};
@@ -102,10 +136,19 @@ define(['require', 'page'], function(require, pageLib) {
 					angular.extend(page, pageLib);
 					page.arrange(mapOfAppSchemas);
 				});
-				//$scope.persisted = angular.copy(app);
 				$scope.app = app;
 				$scope.url = 'http://' + location.host + '/rest/site/fe/matter/signin?site=' + $scope.siteId + '&app=' + $scope.id;
 			});
+		};
+		$scope.summaryOfRecords = function() {
+			var deferred = $q.defer(),
+				url = '/rest/pl/fe/matter/signin/record/summary';
+			url += '?site=' + $scope.siteId;
+			url += '&app=' + $scope.id;
+			http2.get(url, function(rsp) {
+				deferred.resolve(rsp.data);
+			});
+			return deferred.promise;
 		};
 		http2.get('/rest/pl/fe/site/snsList?site=' + $scope.siteId, function(rsp) {
 			$scope.sns = rsp.data;

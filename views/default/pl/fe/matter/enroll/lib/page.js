@@ -10,16 +10,35 @@ define(['wrap'], function(wrapLib) {
 		setEditor: function(editor) {
 			_editor = editor;
 		},
-		purifyHtml: function() {
+		disableInput: function(refresh) {
 			var html;
-			html = $(_editor.getBody()).html();
+			html = this.html;
+			html = $('<div>' + html + '</div>');
+			html.find('[wrap=input]').attr('contenteditable', 'false');
+			html.find('[wrap=input]>label').attr('contenteditable', 'true');
+			html.find('[wrap=button]').attr('contenteditable', 'false');
+			html.find('[wrap=button]>button>span').attr('contenteditable', 'true');
+			html.find('[wrap=checkbox]>label>span').attr('contenteditable', 'true');
+			html.find('[wrap=radio]>label>span').attr('contenteditable', 'true');
+			html.find('input[type=text],textarea').attr('readonly', true);
+			html.find('input[type=text],textarea').attr('disabled', true);
+			html.find('input[type=radio],input[type=checkbox]').attr('readonly', true);
+			html.find('input[type=radio],input[type=checkbox]').attr('disabled', true);
+			html = html.html();
+			refresh === true && (this.html = html);
+
+			return html;
+		},
+		purifyInput: function(html, persist) {
 			html = $('<div>' + html + '</div>');
 			html.find('.active').removeClass('active');
 			html.find('[readonly]').removeAttr('readonly');
 			html.find('[disabled]').removeAttr('disabled');
-			this.html = html.html();
+			html.find('[contenteditable]').removeAttr('contenteditable');
+			html = html.html();
+			persist === true && (this.html = html);
 
-			return this.html;
+			return html;
 		},
 		setActiveWrap: function(domWrap) {
 			var wrapType;
@@ -44,19 +63,20 @@ define(['wrap'], function(wrapLib) {
 			return _activeWrap;
 		},
 		selectWrap: function(domWrap) {
-			var root = domWrap,
-				selectableWrap = domWrap,
+			var selectableWrap = domWrap,
 				wrapType;
-			while (root.parentNode) root = root.parentNode;
-			$(root).find('.active').removeClass('active');
+
+			$(_editor.getBody()).find('.active').removeClass('active');
 			this.setActiveWrap(null);
-			wrapType = $(selectableWrap).attr('wrap');
-			while (!/text|matter|input|radio|checkbox|value|button|records|rounds/.test(wrapType) && selectableWrap.parentNode) {
-				selectableWrap = selectableWrap.parentNode;
+			if (selectableWrap) {
 				wrapType = $(selectableWrap).attr('wrap');
-			}
-			if (/text|matter|input|radio|checkbox|value|button|records|rounds/.test(wrapType)) {
-				this.setActiveWrap(selectableWrap);
+				while (!/text|matter|input|radio|checkbox|value|button|records|rounds/.test(wrapType) && selectableWrap.parentNode) {
+					selectableWrap = selectableWrap.parentNode;
+					wrapType = $(selectableWrap).attr('wrap');
+				}
+				if (/text|matter|input|radio|checkbox|value|button|records|rounds/.test(wrapType)) {
+					this.setActiveWrap(selectableWrap);
+				}
 			}
 
 			return _activeWrap;
@@ -72,6 +92,8 @@ define(['wrap'], function(wrapLib) {
 			} else if (action === 'downLevel') {
 				this.setActiveWrap($active.find('[wrap]').get(0));
 			}
+
+			this.purifyInput(_editor.getContent(), true);
 
 			return _activeWrap;
 		},
@@ -99,9 +121,14 @@ define(['wrap'], function(wrapLib) {
 			var dataSchemas = this.data_schemas,
 				actSchemas = this.act_schemas,
 				userSchemas = this.user_schemas;
-			this.data_schemas = dataSchemas && dataSchemas.length ? JSON.parse(dataSchemas) : [];
-			this.act_schemas = actSchemas && actSchemas.length ? JSON.parse(actSchemas) : [];
-			this.user_schemas = userSchemas && userSchemas.length ? JSON.parse(userSchemas) : [];
+
+			try {
+				this.data_schemas = dataSchemas && dataSchemas.length ? JSON.parse(dataSchemas) : [];
+				this.act_schemas = actSchemas && actSchemas.length ? JSON.parse(actSchemas) : [];
+				this.user_schemas = userSchemas && userSchemas.length ? JSON.parse(userSchemas) : [];
+			} catch (e) {
+
+			}
 			if (this.data_schemas.length) {
 				if (this.type === 'I') {
 					angular.forEach(this.data_schemas, function(dataWrap) {
@@ -237,10 +264,12 @@ define(['wrap'], function(wrapLib) {
 			return false;
 		},
 		updateBySchema: function(schema) {
-			if (this.type === 'V' || this.type === 'L') {
-				var $html = $('<div>' + this.html + '</div>');
-				$html.find("[schema='" + schema.id + "']").find('label').html(schema.title);
-				this.html = $html.html();
+			if (schema) {
+				if (this.type === 'V' || this.type === 'L') {
+					var $html = $('<div>' + this.html + '</div>');
+					$html.find("[schema='" + schema.id + "']").find('label').html(schema.title);
+					this.html = $html.html();
+				}
 			}
 		},
 		removeBySchema: function(schema) {
@@ -256,6 +285,7 @@ define(['wrap'], function(wrapLib) {
 				newWrap = wrapLib.input.newWrap(schema);
 				domNewWrap = wrapLib.input.embed(newWrap);
 				this.data_schemas.push(newWrap);
+				this.purifyInput(_editor.getContent(), true);
 			}
 			return domNewWrap;
 		},
@@ -298,6 +328,8 @@ define(['wrap'], function(wrapLib) {
 
 			domNewWrap = wrapLib.button.embed(oWrap);
 			this.act_schemas.push(oWrap);
+
+			this.purifyInput(_editor.getContent(), true);
 
 			return domNewWrap;
 		},
@@ -370,7 +402,10 @@ define(['wrap'], function(wrapLib) {
 			}
 
 			$domRemoved.remove();
-			_editor.save();
+
+			this.html = _editor.getContent();
+
+			return $domRemoved[0];
 		},
 		removeSchema2: function(removedSchema) {
 			var pageSchemas = this.data_schemas,
@@ -381,11 +416,90 @@ define(['wrap'], function(wrapLib) {
 					$domRemoved = $(_editor.getBody()).find("[schema='" + removedSchema.id + "']");
 					$domRemoved.remove();
 					pageSchemas.splice(i, 1);
+					this.html = _editor.getContent();
 					return $domRemoved[0];
 				}
 			}
 
 			return false;
+		},
+		scroll: function(dom) {
+			var domBody = _editor.getBody();
+			domBody.scrollTop = dom.offsetTop - 15;
+		},
+		contentChange: function(node, activeWrap, $timeout) {
+			var domNodeWrap = $(node).parents('[wrap]'),
+				status = {
+					schemaChanged: false,
+					actionChanged: false
+				};
+
+			if (domNodeWrap.length === 1 && domNodeWrap[0].getAttribute('wrap') === 'input') {
+				// 编辑input's label
+				if (/label/i.test(node.nodeName)) {
+					(function freshSchemaByDom() {
+						var oWrap = wrapLib.dataByDom(activeWrap.dom);
+						if (oWrap) {
+							if (oWrap.schema.title !== activeWrap.schema.title) {
+								$timeout(function() {
+									activeWrap.schema.title = oWrap.schema.title;
+									status.schemaChanged = true;
+								});
+							}
+						}
+					})();
+				}
+			} else if (domNodeWrap.length === 1 && domNodeWrap[0].getAttribute('wrap') === 'button') {
+				// 编辑button's span
+				if (/span/i.test(node.nodeName)) {
+					(function freshButtonByDom() {
+						var oWrap = wrapLib.dataByDom(activeWrap.dom);
+						if (oWrap) {
+							if (oWrap.schema.label !== activeWrap.schema.label) {
+								$timeout(function() {
+									activeWrap.schema.label = oWrap.schema.label;
+									status.actionChanged = true;
+								});
+							}
+						}
+					})();
+				}
+			} else if (domNodeWrap.length === 2) {
+				// 编辑input's options
+				(function(page) {
+					var $domParentWrap = $(domNodeWrap[0]),
+						oOptionWrap, editingSchema;
+					if (/radio|checkbox/.test($domParentWrap.attr('wrap'))) {
+						oOptionWrap = wrapLib.input.dataByDom(domNodeWrap[0]);
+						if (oOptionWrap.schema && oOptionWrap.schema.ops && oOptionWrap.schema.ops.length === 1) {
+							for (var i = page.data_schemas.length - 1; i >= 0; i--) {
+								editingSchema = page.data_schemas[i].schema;
+								if (oOptionWrap.schema.id === editingSchema.id) {
+									for (var j = editingSchema.ops.length - 1; j >= 0; j--) {
+										if (oOptionWrap.schema.ops[0].v === editingSchema.ops[j].v) {
+											editingSchema.ops[j].l = oOptionWrap.schema.ops[0].l;
+											status.schemaChanged = true;
+											break;
+										}
+									}
+								}
+							}
+						}
+					}
+				})(this);
+			}
+			// 修改了页面内容
+			(function(page) {
+				var html = _editor.getContent();
+				html = page.purifyInput(html);
+				if (html !== page.html) {
+					page.html = html;
+					status.htmlChanged = true;
+					page.$$modified = true;
+				}
+			})(this);
+
+			return status;
 		}
 	};
 });

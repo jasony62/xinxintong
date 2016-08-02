@@ -25,7 +25,7 @@ class round extends \pl\fe\matter\base {
 				$modelRnd->update(
 					'xxt_enroll_round',
 					array('state' => 2),
-					"siteid='$site' and aid='$app' and rid='$lastRound->rid'"
+					"aid='$app' and rid='$lastRound->rid'"
 				);
 			}
 
@@ -49,14 +49,14 @@ class round extends \pl\fe\matter\base {
 			$modelRnd->update(
 				'xxt_enroll',
 				array('multi_rounds' => 'Y'),
-				"siteid='$site' and id='$app'"
+				"id='$app'"
 			);
 		}
 
 		$q = array(
 			'*',
 			'xxt_enroll_round',
-			"siteid='$site' and aid='$app' and rid='$roundId'",
+			"aid='$app' and rid='$roundId'",
 		);
 		$round = $modelRnd->query_obj_ss($q);
 

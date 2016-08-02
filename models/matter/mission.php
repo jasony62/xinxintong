@@ -27,7 +27,7 @@ class mission_model extends app_base {
 		$q = array(
 			$fields,
 			$this->table(),
-			"id='$id'",
+			["id" => $id],
 		);
 		if (($mission = $this->query_obj_ss($q)) && !empty($cascaded)) {
 			$cascaded = explode(',', $cascaded);
@@ -137,14 +137,15 @@ class mission_model extends app_base {
 		$q = array(
 			$fields,
 			'xxt_mission_matter',
-			"siteid='$siteId' and mission_id=$id",
+			" mission_id=$id",
 		);
 		$q2 = array('o' => 'create_at desc');
 		$mms = $this->query_objs_ss($q, $q2);
 		foreach ($mms as &$mm) {
-			$matter = \TMS_APP::M('matter\\' . $mm->matter_type)->byId($mm->matter_id);
-			$matter->type = $mm->matter_type;
-			$matters[] = $matter;
+			if ($matter = \TMS_APP::M('matter\\' . $mm->matter_type)->byId($mm->matter_id)) {
+				$matter->type = $mm->matter_type;
+				$matters[] = $matter;
+			}
 		}
 
 		return $matters;

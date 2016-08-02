@@ -16,18 +16,8 @@ class main extends \pl\fe\matter\base {
 	 * 返回视图
 	 */
 	public function index_action($site, $id) {
-		if (strpos($_SERVER['REQUEST_URI'], 'running') !== false) {
-			\TPL::output('/pl/fe/matter/group/frame');
-			exit;
-		} else {
-			$app = $this->model('matter\group')->byId($id);
-			if ($app->state === '2') {
-				$this->redirect('/rest/pl/fe/matter/group/running?site=' . $site . '&id=' . $id);
-			} else {
-				\TPL::output('/pl/fe/matter/group/frame');
-				exit;
-			}
-		}
+		\TPL::output('/pl/fe/matter/group/frame');
+		exit;
 	}
 	/**
 	 * 返回一个分组活动
@@ -53,7 +43,7 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 返回分组活动列表
 	 */
-	public function list_action($site, $page = 1, $size = 30) {
+	public function list_action($site, $page = 1, $size = 30, $mission = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -61,11 +51,16 @@ class main extends \pl\fe\matter\base {
 		$result = ['apps' => null, 'total' => 0];
 		$model = $this->model();
 		$q = [
-			'g.*',
-			'xxt_group g',
-			"siteid='$site' and state=1",
+			'*',
+			'xxt_group',
+			"state<>0",
 		];
-		$q2['o'] = 'g.modify_at desc';
+		if (empty($mission)) {
+			$q[2] .= " and siteid='$site'";
+		} else {
+			$q[2] .= " and mission_id='$mission'";
+		}
+		$q2['o'] = 'modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
 		if ($apps = $model->query_objs_ss($q, $q2)) {
@@ -110,7 +105,7 @@ class main extends \pl\fe\matter\base {
 		/*create app*/
 		$newapp['id'] = $appId;
 		$newapp['siteid'] = $site->id;
-		$newapp['title'] = empty($customConfig->proto->title) ? '新登记活动' : $customConfig->proto->title;
+		$newapp['title'] = empty($customConfig->proto->title) ? '新分组活动' : $customConfig->proto->title;
 		$newapp['scenario'] = $scenario;
 		$newapp['creater'] = $user->id;
 		$newapp['creater_src'] = $user->src;
@@ -128,6 +123,66 @@ class main extends \pl\fe\matter\base {
 		/*记录和任务的关系*/
 		if (isset($mission)) {
 			$modelMis->addMatter($user, $site->id, $mission->id, $app);
+		}
+
+		return new \ResponseData($app);
+	}
+	/**
+	 *
+	 * 复制一个登记活动
+	 *
+	 * @param string $site
+	 * @param string $app
+	 * @param int $mission
+	 *
+	 */
+	public function copy_action($site, $app, $mission = null) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$current = time();
+		$modelApp = $this->model('matter\group');
+		$modelCode = $this->model('code\page');
+
+		$copied = $modelApp->byId($app);
+		/**
+		 * 获得的基本信息
+		 */
+		$newaid = uniqid();
+		$newapp = [];
+		$newapp['siteid'] = $site;
+		$newapp['id'] = $newaid;
+		$newapp['creater'] = $user->id;
+		$newapp['creater_src'] = $user->src;
+		$newapp['creater_name'] = $user->name;
+		$newapp['create_at'] = $current;
+		$newapp['modifier'] = $user->id;
+		$newapp['modifier_src'] = $user->src;
+		$newapp['modifier_name'] = $user->name;
+		$newapp['modify_at'] = $current;
+		$newapp['title'] = $copied->title . '（副本）';
+		$newapp['pic'] = $copied->pic;
+		$newapp['summary'] = $copied->summary;
+		$newapp['scenario'] = $copied->scenario;
+		$newapp['data_schemas'] = $copied->data_schemas;
+		$newapp['group_rule'] = $copied->group_rule;
+		if (!empty($mission)) {
+			$newapp['mission_id'] = $mission;
+		}
+
+		$this->model()->insert('xxt_group', $newapp, false);
+
+		$app = $modelApp->byId($newaid, ['cascaded' => 'N']);
+
+		/* 记录操作日志 */
+		$app->type = 'group';
+		$this->model('log')->matterOp($site, $user, $app, 'C');
+
+		/* 记录和任务的关系 */
+		if (isset($mission)) {
+			$modelMis = $this->model('matter\mission');
+			$modelMis->addMatter($user, $site, $mission, $app);
 		}
 
 		return new \ResponseData($app);
@@ -152,7 +207,7 @@ class main extends \pl\fe\matter\base {
 		$nv['modifier_name'] = $user->name;
 		$nv['modify_at'] = time();
 
-		$rst = $model->update('xxt_group', $nv, "id='$app'");
+		$rst = $model->update('xxt_group', $nv, ["id" => $app]);
 		/*记录操作日志*/
 		if ($rst) {
 			$app = $this->model('matter\group')->byId($app, 'id,title,summary,pic');
@@ -177,7 +232,7 @@ class main extends \pl\fe\matter\base {
 		/*清除原有的规则*/
 		$modelRnd->delete(
 			'xxt_group_round',
-			"aid='$app'"
+			["aid" => $app]
 		);
 		/*create targets*/
 		$targets = array();
@@ -204,8 +259,8 @@ class main extends \pl\fe\matter\base {
 		/*记录规则*/
 		$rst = $modelRnd->update(
 			'xxt_group',
-			array('group_rule' => $modelRnd->toJson($rule)),
-			"id='$app'"
+			['group_rule' => $modelRnd->toJson($rule)],
+			["id" => $app]
 		);
 
 		return new \ResponseData($rounds);
@@ -229,22 +284,22 @@ class main extends \pl\fe\matter\base {
 		$q = array(
 			'count(*)',
 			'xxt_group_player',
-			"siteid='$site' and aid='$app->id'",
+			["aid" => $app->id],
 		);
 		if ((int) $model->query_val_ss($q) > 0) {
 			$rst = $model->update(
 				'xxt_group',
-				array('state' => 0),
-				"siteid='$site' and id='$app->id'"
+				['state' => 0],
+				["id" => $app->id]
 			);
 		} else {
 			$model->delete(
 				'xxt_group_round',
-				"aid='$app->id'"
+				["aid" => $app->id]
 			);
 			$rst = $model->delete(
 				'xxt_group',
-				"siteid='$site' and id='$app->id'"
+				["id" => $app->id]
 			);
 		}
 		/*记录操作日志*/
@@ -252,5 +307,22 @@ class main extends \pl\fe\matter\base {
 		$this->model('log')->matterOp($site, $user, $app, 'D');
 
 		return new \ResponseData($rst);
+	}
+	/**
+	 * 进行分组
+	 */
+	public function execute_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelGrp = $this->model('matter\group');
+		/* 执行分组 */
+		$winners = $modelGrp->execute($app);
+		if ($winners[0] === false) {
+			return new \ResponseError($winners[1]);
+		}
+
+		return new \ResponseData($winners[1]);
 	}
 }

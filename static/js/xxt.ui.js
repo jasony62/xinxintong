@@ -28,8 +28,8 @@ angular.module('ui.xxt', ['ui.bootstrap'])
         title: '登记活动',
         url: '/rest/pl/fe/matter'
     }, {
-        value: 'enrollsignin',
-        title: '登记活动签到',
+        value: 'signin',
+        title: '签到活动',
         url: '/rest/pl/fe/matter'
     }, {
         value: 'lottery',
@@ -202,16 +202,19 @@ angular.module('ui.xxt', ['ui.bootstrap'])
         var gallery = {};
         gallery.open = function(galleryId, callback, options) {
             $uibModal.open({
-                templateUrl: '/static/template/mattersgallery2.html?_=3',
+                templateUrl: '/static/template/mattersgallery2.html?_=6',
                 controller: ['$scope', '$http', '$uibModalInstance', function($scope, $http, $mi) {
+                    var fields = ['id', 'title'];
                     $scope.matterTypes = options.matterTypes;
                     $scope.singleMatter = options.singleMatter;
-                    $scope.hasParent = options.hasParent;
                     $scope.p = {};
-                    if ($scope.matterTypes && $scope.matterTypes.length)
+                    if ($scope.matterTypes && $scope.matterTypes.length) {
                         $scope.p.matterType = $scope.matterTypes[0];
-
-                    var fields = ['id', 'title'];
+                    }
+                    if (options.mission) {
+                        $scope.mission = options.mission;
+                        $scope.p.sameMission = 'Y';
+                    }
                     $scope.page = {
                         current: 1,
                         size: 10
@@ -222,25 +225,39 @@ angular.module('ui.xxt', ['ui.bootstrap'])
                             $scope.aChecked = [matter];
                         } else {
                             var i = $scope.aChecked.indexOf(matter);
-                            if (i === -1)
+                            if (i === -1) {
                                 $scope.aChecked.push(matter);
-                            else
+                            } else {
                                 $scope.aChecked.splice(i, 1);
+                            }
                         }
                     };
-                    $scope.doSearch = function() {
+                    $scope.doSearch = function(page) {
                         if (!$scope.p.matterType) return;
-                        var url, params = {};
-                        url = $scope.p.matterType.url;
-                        url += '/' + $scope.p.matterType.value;
+                        var matter = $scope.p.matterType,
+                            url = matter.url,
+                            params = {};
+
+                        page && ($scope.page.current = page);
+                        url += '/' + matter.value;
                         url += '/list?site=' + galleryId + '&page=' + $scope.page.current + '&size=' + $scope.page.size + '&fields=' + fields;
-                        $scope.p.fromParent && $scope.p.fromParent == 1 && (params.src = 'p');
+                        /*指定登记活动场景*/
+                        if (matter.value === 'enroll' && matter.scenario) {
+                            url += '&scenario=' + matter.scenario;
+                        }
+                        /*同一个项目*/
+                        if ($scope.p.sameMission === 'Y') {
+                            url += '&mission=' + $scope.mission.id;
+                        }
                         $http.post(url, params).success(function(rsp) {
-                            if (/article|contribute/.test($scope.p.matterType.value)) {
+                            if (/article/.test(matter.value)) {
                                 $scope.matters = rsp.data.articles;
                                 $scope.page.total = rsp.data.total;
-                            } else if (/enroll/.test($scope.p.matterType.value)) {
+                            } else if (/enroll|signin|group|contribute/.test(matter.value)) {
                                 $scope.matters = rsp.data.apps;
+                                $scope.page.total = rsp.data.total;
+                            } else if (/mission/.test(matter.value)) {
+                                $scope.matters = rsp.data.missions;
                                 $scope.page.total = rsp.data.total;
                             } else {
                                 $scope.matters = rsp.data;

@@ -138,7 +138,13 @@
                     <h5 class="modal-title">回复</h5>
                 </div>
                 <div class="modal-body">
-                    <textarea class='form-control' rows=6 ng-model='data.message' tms-auto-focus></textarea>
+                    <div class='radio'>
+                        <label class='radio-inline'><input type='radio' name='backTo' value='I' ng-model="data.backTo">投稿人（{{article.creater_name}}）</label>
+                        <label class='radio-inline' ng-if="lastDisposer"><input type='radio' name='backTo' value='L' ng-model="data.backTo">上一处理人（{{lastDisposer.disposer_name}}）</label>
+                    </div>
+                    <div class='form-group'>
+                        <textarea class='form-control' rows=6 ng-model='data.message' tms-auto-focus></textarea>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-default" ng-click="ok()">确定</button>

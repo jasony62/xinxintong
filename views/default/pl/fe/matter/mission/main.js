@@ -1,9 +1,12 @@
 var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
-ngApp.config(['$controllerProvider', '$locationProvider', function($controllerProvider, $locationProvider) {
+ngApp.config(['$controllerProvider', '$locationProvider', '$uibTooltipProvider', function($controllerProvider, $locationProvider, $uibTooltipProvider) {
 	ngApp.provider = {
 		controller: $controllerProvider.register
 	};
 	$locationProvider.html5Mode(true);
+	$uibTooltipProvider.setTriggers({
+		'show': 'hide'
+	});
 }]);
 ngApp.controller('ctrlApp', ['$scope', '$location', 'http2', function($scope, $location, http2) {
 	$scope.id = $location.search().id;
@@ -18,7 +21,7 @@ ngApp.controller('ctrlApp', ['$scope', '$location', 'http2', function($scope, $l
 		$scope.editing = mission;
 	});
 }]);
-ngApp.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery', function($scope, http2, $uibModal, mediagallery) {
+ngApp.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery', 'noticebox', function($scope, http2, $uibModal, mediagallery, noticebox) {
 	var modifiedData = {};
 	$scope.modified = false;
 	window.onbeforeunload = function(e) {
@@ -33,15 +36,16 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery',
 		}
 	};
 	$scope.sub = 'basic';
-	$scope.subView = '/views/default/pl/fe/matter/mission/basic.html?_=2';
+	$scope.subView = '/views/default/pl/fe/matter/mission/basic.html?_=7';
 	$scope.gotoSub = function(sub) {
 		$scope.sub = sub;
-		$scope.subView = '/views/default/pl/fe/matter/mission/' + sub + '.html?_=2';
+		$scope.subView = '/views/default/pl/fe/matter/mission/' + sub + '.html?_=7';
 	};
 	$scope.submit = function() {
 		http2.post('/rest/pl/fe/matter/mission/setting/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData, function(rsp) {
 			$scope.modified = false;
 			modifiedData = {};
+			noticebox.success('完成保存');
 		});
 	};
 	$scope.remove = function() {
@@ -113,8 +117,9 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery',
 		}
 	};
 }]);
-ngApp.controller('ctrlPhase', ['$scope', 'http2', function($scope, http2) {
-	$scope.add = function() {
+ngApp.controller('ctrlPhase', ['$scope', 'http2', 'noticebox', function($scope, http2, noticebox) {
+	$scope.numberOfNewPhases = 1;
+	var newPhase = function() {
 		var data = {
 			title: '阶段' + ($scope.phases.length + 1)
 		};
@@ -138,14 +143,28 @@ ngApp.controller('ctrlPhase', ['$scope', 'http2', function($scope, http2) {
 			data.start_at = nextDay.setHours(0, 0, 0, 0) / 1000;
 			data.end_at = nextDay.setHours(23, 59, 59, 0) / 1000;
 		})();
-		http2.post('/rest/pl/fe/matter/mission/phase/create?site=' + $scope.siteId + '&mission=' + $scope.id, data, function(rsp) {
-			$scope.phases.push(rsp.data);
-		});
+
+		return data;
+	};
+	$scope.add = function() {
+		var phase;
+		if ($scope.numberOfNewPhases > 0) {
+			phase = newPhase();
+			http2.post('/rest/pl/fe/matter/mission/phase/create?site=' + $scope.siteId + '&mission=' + $scope.id, phase, function(rsp) {
+				$scope.phases.push(rsp.data);
+				$scope.numberOfNewPhases--;
+				if ($scope.numberOfNewPhases > 0) {
+					$scope.add();
+				}
+			});
+		}
 	};
 	$scope.update = function(phase, name) {
 		var modifiedData = {};
 		modifiedData[name] = phase[name];
-		http2.post('/rest/pl/fe/matter/mission/phase/update?site=' + $scope.siteId + '&mission=' + $scope.id + '&id=' + phase.phase_id, modifiedData, function(rsp) {});
+		http2.post('/rest/pl/fe/matter/mission/phase/update?site=' + $scope.siteId + '&mission=' + $scope.id + '&id=' + phase.phase_id, modifiedData, function(rsp) {
+			noticebox.success('完成保存');
+		});
 	};
 	$scope.remove = function(phase) {
 		http2.get('/rest/pl/fe/matter/mission/phase/remove?site=' + $scope.siteId + '&mission=' + $scope.id + '&id=' + phase.phase_id, function(rsp) {
@@ -179,6 +198,17 @@ ngApp.controller('ctrlCoworker', ['$scope', 'http2', function($scope, http2) {
 			var index = $scope.coworkers.indexOf(acl);
 			$scope.coworkers.splice(index, 1);
 		});
+	};
+	$scope.makeInvite = function() {
+		http2.get('/rest/pl/fe/matter/mission/coworker/makeInvite?site=' + $scope.siteId + '&mission=' + $scope.id, function(rsp) {
+			var url = 'http://' + location.host + rsp.data;
+			$scope.inviteURL = url;
+			$('#shareMission').trigger('show');
+		});
+	};
+	$scope.closeInvite = function() {
+		$scope.inviteURL = '';
+		$('#shareMission').trigger('hide');
 	};
 	http2.get('/rest/pl/fe/matter/mission/coworker/list?site=' + $scope.siteId + '&mission=' + $scope.id, function(rsp) {
 		$scope.coworkers = rsp.data;

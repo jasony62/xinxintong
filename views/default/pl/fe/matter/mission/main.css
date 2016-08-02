@@ -1,27 +1,30 @@
 html,body{height:100%;width:100%}
 body{background:#f8f8f8;position:relative;overflow:hidden;display:flex;flex-direction:column;}
-.site.navbar-nav{position:absolute;left:50%;margin-left:-208px;float:none;}
-.site.navbar-nav .active:after{content:' ';position:absolute;left:0;right:0;bottom:-1px;height:3px;background:red;}
+.navbar.tms-large{font-size:18px;}
 .container{flex:1.0;overflow:hidden;position:relative;display:flex;padding:0;}
 #viewSetting,#viewMatter{display:flex;flex-direction:column;border:1px solid #ddd;border-radius:4px;padding:0;background:#fff;}
 #viewSetting{flex:1.0;margin-right:8px;}
-#viewMatter{flex:2.0;margin-left:8px;}
+#viewMatter{flex:2.0;}
 
 /*setting*/
 #viewSetting .attrs{flex:1.0;overflow-y:auto;overflow-x:hidden;padding-left:15px;padding-right:15px;}
-#viewSetting .navbar.tms-top{margin:-1px -1px 0;}
+#viewSetting .navbar.tms-top{margin:-1px -1px 15px;}
 #viewSetting .navbar.tms-bottom{margin:0 -1px;}
+
+/*phase*/
 #viewSetting .phases{phase}
-#viewSetting .phases .phase{counter-increment:phase;}
-#viewSetting .list-group-item.phase:before{content:counter(phase);background:#eee;position:absolute;top:0;left:0;width:32px;height:32px;line-height:32px;text-align:center;}
+#viewSetting .phases .phase{counter-increment:phase;position:relative;}
+#viewSetting .list-group-item.phase:after{content:counter(phase);background:#eee;position:absolute;top:-1px;left:-1px;width:18px;height:18px;line-height:18px;text-align:center;}
+#viewSetting .phases .phase .action{position:absolute;top:-1px;right:-1px;}
 
 /*matter*/
+#viewMatter .navbar.tms-top{margin:-1px -1px 15px;}
 #viewMatter .matters{flex:1.0;overflow-y:auto;overflow-x:hidden;}
 #viewMatter .thumbnail{cursor:pointer;height:145px;display:flex;flex-direction:column;padding:8px;}
 #viewMatter .thumbnail .summary{flex:1;overflow:hidden;}
 #viewMatter .thumbnail .attrs{display:flex;}
 #viewMatter .thumbnail .operator{flex:1;}
-#viewMatter .navbar{margin:0 -1px;}
+#viewMatter .navbar.tms-bottom{margin:0 -1px;}
 
 /*indicator*/
 #viewMatter .thumbnail.indicator{flex-direction:row;align-items:center;background:#f8f8f8;}

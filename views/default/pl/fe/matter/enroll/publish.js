@@ -1,21 +1,23 @@
 define(['frame'], function(ngApp) {
+	'use strict';
 	ngApp.provider.controller('ctrlPublish', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
+		(function() {
+			new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
+		})();
 		$scope.$watch('app', function(app) {
 			if (!app) return;
-			var entry = {},
-				i, l, page, signinUrl;
+			var entry;
 			entry = {
 				url: $scope.url,
-				qrcode: '/rest/pl/fe/matter/enroll/qrcode?url=' + encodeURIComponent($scope.url),
+				qrcode: '/rest/site/fe/matter/enroll/qrcode?site=' + $scope.siteId + '&url=' + encodeURIComponent($scope.url),
 			};
 			$scope.entry = entry;
 		});
 		$scope.opUrl = 'http://' + location.host + '/rest/site/op/matter/enroll?site=' + $scope.siteId + '&app=' + $scope.id;
 		$scope.stop = function() {
 			$scope.app.state = 1;
-			$scope.update('state');
-			$scope.submit().then(function() {
-				location.href = '/rest/pl/fe/matter/enroll/app?site=' + $scope.siteId + '&id=' + $scope.id;
+			$scope.update('state').then(function() {
+				location.href = '/rest/pl/fe/matter/enroll/preview?site=' + $scope.siteId + '&id=' + $scope.id;
 			});
 		};
 		$scope.setPic = function() {
@@ -31,6 +33,12 @@ define(['frame'], function(ngApp) {
 			$scope.app.pic = '';
 			$scope.update('pic');
 		};
+		$scope.text2Clipboard = function(content) {
+
+		};
+		$scope.summaryOfRecords().then(function(data) {
+			$scope.summary = data;
+		});
 	}]);
 	ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', '$interval', function($scope, http2, $interval) {
 		var baseURL = '/rest/pl/fe/matter/enroll/receiver/';
@@ -200,5 +208,16 @@ define(['frame'], function(ngApp) {
 				}
 			});
 		};
+	}]);
+	ngApp.provider.controller('ctrlStat', ['$scope', 'http2', function($scope, http2) {
+		$scope.$watch('app', function(app) {
+			if (!app) return;
+			var url = '/rest/pl/fe/matter/enroll/stat/get';
+			url += '?site=' + $scope.siteId;
+			url += '&app=' + app.id;
+			http2.get(url, function(rsp) {
+				$scope.stat = rsp.data;
+			});
+		});
 	}]);
 });

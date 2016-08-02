@@ -11,8 +11,9 @@ abstract class app_base extends base_model {
 	 *
 	 * $runningMpid
 	 * $id
+	 * @param string $ver 为了兼容老版本，迁移后应该去掉
 	 */
-	public function &forCustomPush($runningMpid, $id) {
+	public function &forCustomPush($runningMpid, $id, $ver = 'NEW') {
 		$app = $this->byId($id);
 
 		if (!empty($app->pic) && stripos($app->pic, 'http') === false) {
@@ -24,7 +25,7 @@ abstract class app_base extends base_model {
 		$ma[] = array(
 			'title' => $app->title,
 			'description' => $app->summary,
-			'url' => $this->getEntryUrl($runningMpid, $id),
+			'url' => $this->getEntryUrl($runningMpid, $id, $ver),
 			'picurl' => $pic,
 		);
 		$msg = array(

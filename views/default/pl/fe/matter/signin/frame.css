@@ -11,6 +11,7 @@ body>nav>ul:nth-child(2)>li{display:inline-block;float:none;}
 .rounds .navbar.round{margin-bottom:-1px;}
 
 /*app-setting*/
+#appSetting{width:200px;}
 #appSetting .checkbox{display:block;}
 #appSetting .checkbox input{margin-right:.5em;}
 

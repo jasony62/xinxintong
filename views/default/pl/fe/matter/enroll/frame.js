@@ -23,13 +23,14 @@ define(['require', 'page'], function(require, pageLib) {
 		$routeProvider
 			.when('/rest/pl/fe/matter/enroll/preview', new RouteParam('preview'))
 			.when('/rest/pl/fe/matter/enroll/page', new RouteParam('page'))
-			.when('/rest/pl/fe/matter/enroll/event', new RouteParam('event'))
+			.when('/rest/pl/fe/matter/enroll/event', new RouteParam('event'))//没进去
 			.when('/rest/pl/fe/matter/enroll/record', new RouteParam('record'))
 			.when('/rest/pl/fe/matter/enroll/stat', new RouteParam('stat'))
-			.when('/rest/pl/fe/matter/enroll/coin', new RouteParam('coin'))
+			.when('/rest/pl/fe/matter/enroll/coin', new RouteParam('coin'))//没进去
 			.when('/rest/pl/fe/matter/enroll/publish', new RouteParam('publish'))
 			.when('/rest/pl/fe/matter/enroll/config', new RouteParam('config'))
 			.otherwise(new RouteParam('preview'));
+
 
 		$locationProvider.html5Mode(true);
 

@@ -37,6 +37,7 @@
 				<div class="input-group">
 					<select class='form-control' ng-model="matterType" ng-change="chooseMatterType()">
 						<option value='recent'>最近</option>
+						<option value='addressbook'>通讯录</option>
 						<option value='mission'>项目</option>
 						<option value='article'>单图文</option>
 						<option value='news'>多图文</option>
@@ -50,6 +51,7 @@
 						<option value='custom'>定制页</option>
 						<option value='link'>链接</option>
 						<option value='merchant'>订购</option>
+						<option value='wall'>信息墙</option>
 					</select>
 					<span class="input-group-btn">
 						<button class='btn btn-default' ng-disabled="matterType==='recent'" ng-click="addMatter()">添加</button>
@@ -62,7 +64,7 @@
 							<p class='summary' ng-bind='m.matter_summary||m.summary'></p>
 							<div class='attr'>
 								<div class='operator_name' ng-bind='m.operator_name||m.creater_name'></div>
-								<div class='modify_at' title='修改时间' ng-bind="(m.operate_at||m.modify_at||m.join_at)*1000|date:'yy-MM-dd'"></div>
+								<div class='modify_at' title='修改时间' ng-bind="(m.operate_at||m.modify_at||m.join_at||m.create_at)*1000|date:'yy-MM-dd'"></div>
 							</div>
 							<div class='actions' ng-if="entered">
 								<button class='btn btn-default' title='复制' ng-click="copyMatter($event,m)"><span class='glyphicon glyphicon-copy'></span></button>
@@ -90,6 +92,7 @@
 		<script src="/static/js/ui-bootstrap-tpls.min.js"></script>
 		<script src="/static/js/ui-tms.js?_=1"></script>
 		<script src="/static/js/xxt.ui.js?_=1"></script>
-		<script src="/views/default/pl/fe/site/console.js?_=5"></script>
+		<script src="/static/js/xxt.ui.tmplshop.js?_=1"></script>
+		<script src="/views/default/pl/fe/site/console.js?_=6"></script>
 	</body>
 </html>

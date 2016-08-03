@@ -1,6 +1,6 @@
 define(['require', 'page'], function(require, pageLib) {
 	'use strict';
-	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'service.enroll', 'tinymce.enroll', 'ui.xxt', 'channel.fe.pl']);
+	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'tmplshop.ui.xxt', 'service.enroll', 'tinymce.enroll', 'ui.xxt', 'channel.fe.pl']);
 	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvAppProvider', 'srvPageProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvAppProvider, srvPageProvider) {
 		var RouteParam = function(name) {
 			var baseURL = '/views/default/pl/fe/matter/enroll/';

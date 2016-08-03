@@ -59,10 +59,11 @@ class base extends \TMS_CONTROLLER {
 			if (isset($config->simpleSchema)) {
 				$html = $modelPage->htmlBySimpleSchema($config->simpleSchema, $matched[0]);
 			} else {
-				$html = $modelPage->htmlBySchema($config->schema, $matched[0]);
+				$html = $modelPage->htmlBySchema($target->data_schemas, $matched[0]);
 			}
 			$target->html = preg_replace($pattern, $html, $target->html);
 		}
+
 		return $target;
 	}
 }

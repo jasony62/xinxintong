@@ -1,12 +1,11 @@
 <?php
-namespace shop;
+namespace pl\fe\shop;
 
-include_once dirname(dirname(__FILE__)) . '/member_base.php';
+require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
- * 素材货架
- * should remove
+ * 素材模版市场
  */
-class shelf extends \member_base {
+class shelf extends \pl\fe\base {
 
 	public function get_access_rule() {
 		$rule_action['rule_type'] = 'black';
@@ -17,11 +16,9 @@ class shelf extends \member_base {
 	/**
 	 *
 	 */
-	public function index_action($mpid, $code = null, $mocker = null) {
-		$openid = $this->doAuth($mpid, $code, $mocker);
-
+	public function index_action($site) {
 		$params = array(
-			'mpid' => $mpid,
+			'mpid' => $site,
 		);
 
 		\TPL::assign('params', $params);
@@ -31,10 +28,14 @@ class shelf extends \member_base {
 	 *
 	 */
 	public function get_action($matterType, $matterId) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$q = array(
 			's.*',
 			"xxt_shop_matter s",
-			"s.matter_type='$matterType' and s.matter_id='$matterId'",
+			["s.matter_type" => $matterType, "s.matter_id" => $matterId],
 		);
 		$item = $this->model()->query_obj_ss($q);
 
@@ -48,18 +49,22 @@ class shelf extends \member_base {
 	 * @param int $size
 	 */
 	public function list_action($matterType, $page = 1, $size = 20) {
-		$uid = \TMS_CLIENT::get_client_uid();
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$model = $this->model();
+		$matterType = $model->escape($matterType);
 
 		$q = array(
 			's.*',
 			"xxt_shop_matter s",
-			"s.matter_type='$matterType' and (creater='$uid' or visible_scope='A')",
+			"s.matter_type='$matterType' and (creater='{$user->id}' or visible_scope='A')",
 		);
-		$q2 = array(
+		$q2 = [
 			'o' => 'put_at desc',
-			'r' => array('o' => ($page - 1) * $size, 'l' => $size),
-		);
-		$model = $this->model();
+			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
+		];
 		if ($items = $model->query_objs_ss($q, $q2)) {
 			$q[0] = "count(*)";
 			$total = $model->query_val_ss($q);
@@ -71,15 +76,19 @@ class shelf extends \member_base {
 	}
 	/**
 	 * 素材上架
-	 * @param string $mpid
+	 *
+	 * @param string $site
 	 * @param string $scope [U|A]
 	 */
-	public function put_action($mpid, $scope) {
-		$account = \TMS_CLIENT::account();
-		$matter = $this->getPostJson();
-		$options = array('scope' => $scope);
+	public function put_action($site, $scope) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 
-		$item = $this->model('shop\shelf')->putMatter($mpid, $account, $matter, $options);
+		$matter = $this->getPostJson();
+		$options = ['scope' => $scope];
+
+		$item = $this->model('shop\shelf')->putMatter($site, $user, $matter, $options);
 
 		return new \ResponseData($item);
 	}
@@ -87,9 +96,13 @@ class shelf extends \member_base {
 	 * @todo 如何检查当前用户是否有权限？
 	 */
 	public function update_action($id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$nv = $this->getPostJson();
 
-		$rst = $this->model()->update('xxt_shop_matter', (array) $nv, "id='$id'");
+		$rst = $this->model()->update('xxt_shop_matter', $nv, "id='$id'");
 
 		return new \ResponseData($rst);
 	}

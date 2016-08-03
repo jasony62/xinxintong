@@ -339,12 +339,12 @@ class wall_model extends app_base {
 	 * $msg
 	 * $wall
 	 */
-	public function push_others($siteid, $openid, $msg, $wall, $wid, $ctrl) {
-		$mpa = \TMS_APP::M('mp\mpaccount')->byId($siteid);
+	public function push_others($site, $openid, $msg, $wall, $wid, $ctrl) {
+		$mpa = \TMS_APP::M('mp\mpaccount')->byId($site);
 		/**
 		 * 获得当前用户的信息
 		 */
-		$member = \TMS_APP::M('user/fans')->byOpenid($siteid, $openid, 'nickname');
+		$member = \TMS_APP::M('user/fans')->byOpenid($site, $openid, 'nickname');
 		/**
 		 * 拼装推送消息
 		 */
@@ -372,10 +372,10 @@ class wall_model extends app_base {
 				/**
 				 * 易信的图片消息不支持MediaId
 				 */
-				$mpproxy = \TMS_APP::M('mpproxy\yx', $siteid);
+				$mpproxy = \TMS_APP::M('mpproxy\yx', $site);
 				$rst = $mpproxy->mediaUpload($msg['data'][1]);
 				if ($rst[0] === false) {
-					$ctrl->sendByOpenid($siteid, $openid, array(
+					$ctrl->sendByOpenid($site, $openid, array(
 						"msgtype" => "text",
 						"text" => array(
 							"content" => urlencode($rst[1]),
@@ -404,7 +404,7 @@ class wall_model extends app_base {
 			/**
 			 * 企业号，或者开通了点对点消息接口易信公众号支持预先定义好组成员
 			 */
-			$groupUsers = \TMS_APP::M('acl')->wallUsers($siteid, $wid);
+			$groupUsers = \TMS_APP::M('acl')->wallUsers($site, $wid);
 			if (!empty($groupUsers)) {
 				/**
 				 * 不推送给发送人
@@ -415,7 +415,7 @@ class wall_model extends app_base {
 				 * 推送给已经加入讨论组的用户
 				 */
 				$joinedGroupUsers = array();
-				$ingroup = $this->joinedUsers($siteid, $wid);
+				$ingroup = $this->joinedUsers($site, $wid);
 				foreach ($ingroup as $ig) {
 					if ($openid === $ig->openid) {
 						continue;
@@ -431,7 +431,7 @@ class wall_model extends app_base {
 				}
 				if (!empty($joinedGroupUsers)) {
 					$message['touser'] = implode('|', $joinedGroupUsers);
-					$ctrl->send2Qyuser($siteid, $message);
+					$ctrl->send2Qyuser($site, $message);
 				}
 				/**
 				 * 推送给未加入讨论组的用户
@@ -442,7 +442,7 @@ class wall_model extends app_base {
 						$joinUrl = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/wall?wid=$wid";
 						$message['text']['content'] = $txt . "（<a href='$joinUrl'>参与讨论</a>）";
 					}
-					$ctrl->send2Qyuser($siteid, $message);
+					$ctrl->send2Qyuser($site, $message);
 				}
 				$finished = true;
 			}
@@ -451,13 +451,13 @@ class wall_model extends app_base {
 			/**
 			 * 通过客服接口发送给墙内所有用户
 			 */
-			$users = $this->joinedUsers($siteid, $wid);
+			$users = $this->joinedUsers($site, $wid);
 			foreach ($users as $user) {
 				if ($openid === $user->openid) {
 					continue;
 				}
 
-				$ctrl->sendByOpenid($siteid, $user->openid, $message);
+				$ctrl->sendByOpenid($site, $user->openid, $message);
 			}
 		}
 

@@ -1,4 +1,4 @@
-var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
+var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'tmplshop.ui.xxt']);
 ngApp.config(['$locationProvider', function($lp) {
     $lp.html5Mode(true);
 }]);
@@ -207,80 +207,28 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
         });
     };
     $scope.addEnrollByTemplate = function() {
-        $uibModal.open({
-            templateUrl: '/views/default/pl/fe/_module/enroll-template.html',
-            size: 'lg',
-            backdrop: 'static',
-            windowClass: 'auto-height template',
-            controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-                $scope2.data = {};
-                $scope2.cancel = function() {
-                    $mi.dismiss();
-                };
-                $scope2.blank = function() {
-                    $mi.close();
-                };
-                $scope2.ok = function() {
-                    $mi.close($scope2.data);
-                };
-                $scope2.chooseScenario = function() {};
-                $scope2.chooseTemplate = function() {
-                    if (!$scope2.data.template) return;
-                    var url;
-                    url = '/rest/pl/fe/matter/enroll/template/config';
-                    url += '?scenario=' + $scope2.data.scenario.name;
-                    url += '&template=' + $scope2.data.template.name;
-                    http2.get(url, function(rsp) {
-                        var elSimulator, url;
-                        $scope2.data.simpleSchema = rsp.data.simpleSchema ? rsp.data.simpleSchema : '';
-                        $scope2.pages = rsp.data.pages;
-                        $scope2.data.selectedPage = $scope2.pages[0];
-                        elSimulator = document.querySelector('#simulator');
-                        url = 'http://' + location.host;
-                        url += '/rest/site/fe/matter/enroll/template';
-                        url += '?scenario=' + $scope2.data.scenario.name;
-                        url += '&template=' + $scope2.data.template.name;
-                        url += '&page=' + $scope2.data.selectedPage.name;
-                        url += '&_=' + (new Date() * 1);
-                        elSimulator.src = url;
-                    });
-                };
-                $scope2.choosePage = function() {
-                    var elSimulator, page;
-                    elSimulator = document.querySelector('#simulator');
-                    config = {
-                        simpleSchema: $scope2.data.simpleSchema
-                    };
-                    page = $scope2.data.selectedPage.name;
-                    elSimulator.contentWindow.renew(page, config);
-                };
-                http2.get('/rest/pl/fe/matter/enroll/template/list', function(rsp) {
-                    $scope2.templates = rsp.data;
+        templateShop.choose('enroll').then(function(choice) {
+            if (choice.source === 'share') {
+                var url, data = choice.data;
+                url = '/rest/pl/fe/matter/enroll/createByOther?site=' + $scope.siteId + '&template=' + data.id;
+                http2.get(url, function(rsp) {
+                    location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
                 });
-            }]
-        }).result.then(function(data) {
-            var url, config;
-            url = '/rest/pl/fe/matter/enroll/create?site=' + $scope.siteId;
-            config = {};
-            if (data) {
-                url += '&scenario=' + data.scenario.name;
-                url += '&template=' + data.template.name;
-                if (data.simpleSchema && data.simpleSchema.length) {
-                    config.simpleSchema = data.simpleSchema;
+            } else if (choice.source === 'platform') {
+                var url, config, data = choice.data;
+                url = '/rest/pl/fe/matter/enroll/create?site=' + $scope.siteId;
+                config = {};
+                if (data) {
+                    url += '&scenario=' + data.scenario.name;
+                    url += '&template=' + data.template.name;
+                    if (data.simpleSchema && data.simpleSchema.length) {
+                        config.simpleSchema = data.simpleSchema;
+                    }
                 }
+                http2.post(url, config, function(rsp) {
+                    location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
+                });
             }
-            http2.post(url, config, function(rsp) {
-                location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
-            });
-        });
-    };
-    $scope.addEnrollByTemplate2 = function() {
-        templateShop.choose('enroll').then(function(data) {
-            var url;
-            url = '/rest/pl/fe/matter/enroll/createByOther?site=' + $scope.siteId + '&template=' + data.id;
-            http2.get(url, function(rsp) {
-                location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
-            });
         });
     };
     $scope.addSignin = function() {

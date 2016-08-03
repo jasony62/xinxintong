@@ -1,8 +1,8 @@
-var app = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
+var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
 app.config(['$locationProvider', function($lp) {
     $lp.html5Mode(true);
 }]);
-app.controller('ctrlSite', ['$scope', '$location', 'http2', function($scope, $location, http2) {
+ngApp.controller('ctrlSite', ['$scope', '$location', 'http2', function($scope, $location, http2) {
     $scope.siteId = $location.search().site;
     http2.get('/rest/pl/fe/site/get?site=' + $scope.siteId, function(rsp) {
         $scope.site = rsp.data;

@@ -1,14 +1,64 @@
+<style>
+#platformBoard .options{position:relative;float:left;width:280px;margin-right:15px;}
+#platformBoard .pages{position:relative;float:left;width:301px;}
+#simulator,#schemaData{width:100%;height:535px;border:1px solid #efefef;}
+#schemaData{resize:none;}
+#shareBoard .thumbnail{height:128px;}
+</style>
 <div class="modal-header">
-    <button class="close" type="button" ng-click="cancel()">×</button>
-    <h5 class="modal-title">选择模板</h5>
+	<button class="close" type="button" ng-click="cancel()">×</button>
+	<h5 class="modal-title">选择模板</h5>
 </div>
 <div class="modal-body">
-    <div class='list-group'>
-        <div class='list-group-item' ng-repeat='t in templates'>
-            <label class='radio-inline'><input type='radio' value='{{$index}}' ng-model='data.choose' ng-change='choose(t)'><span ng-bind='t.title'></span><label>
-        </div>
-    </div>
+	<ul class="nav nav-tabs">
+		<li ng-class="{'active':source==='platform'}"><a ng-click="switchSource('platform')">系统模板</a></li>
+		<li ng-class="{'active':source==='share'}"><a ng-click="switchSource('share')">共享模板</a></li>
+	</ul>
+	<div ng-switch on="source" style='margin-top:15px'>
+		<!-- platform -->
+		<div id='platformBoard' ng-switch-when="platform">
+			<div class='options'>
+		        <div class='form-group'>
+		            <label>场景</label>
+		            <select class='form-control' ng-disabled="fixedScenario" ng-model='data2.scenario' ng-options='s as s.title for s in templates2' ng-change='chooseScenario()'></select>
+		        </div>
+		        <div class='form-group'>
+		            <label>模板</label>
+		            <select class='form-control' ng-model='data2.template' ng-options='t.title for t in data2.scenario.templates' ng-change='chooseTemplate()'></select>
+		        </div>
+		        <div class='form-group' ng-if="data2.scenario.name==='voting'">
+		            <button class='btn btn-default' ng-click='choosePage()'>重新生成页面</button>
+		        </div>
+		        <div class='form-group' ng-if="data2.scenario.name==='voting'">
+		            <textarea id='schemaData' ng-model="data2.simpleSchema"></textarea>
+		        </div>
+		        
+		    </div>
+		    <div class='pages'>
+		        <div class='form-group'>
+		            <label>模版页面预览</label>
+		            <select id='selectedPage' class='form-control' ng-model='data2.selectedPage' ng-options='p.title for p in pages' ng-change='choosePage()'></select>
+		        </div>
+		        <div class='form-group'>
+		            <iframe id='simulator' src=""></iframe>
+		        </div>
+		    </div>
+		</div>
+		<!-- end platform -->
+		<!-- share -->
+		<div id='shareBoard' ng-switch-when="share">
+			<div class='row'>
+				<div class='col-md-4' ng-repeat='t in templates'>
+					<div class='thumbnail'>
+						<label class='radio-inline'><input type='radio' name='template' value='{{$index}}' ng-model='data.choose' ng-change='choose(t)'><span ng-bind='t.title'></span></label>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- end share -->
+	</div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-default" ng-click="ok()">确定</button>
+	<button class="btn btn-default" ng-click="blank()">不使用模版创建</button>
+    <button class="btn btn-success" ng-click="ok()">使用模版创建</button>
 </div>

@@ -197,6 +197,9 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                 url += type + '/copy?app=' + id + '&site=' + $scope.siteId;
                 break;
         }
+        http2.get(url, function(rsp) {
+            location.href = '/rest/pl/fe/matter/' + type + '?site=' + $scope.siteId + '&id=' + rsp.data.id;
+        });
     };
     $scope.gotoText = function() {
         location.href = '/rest/pl/fe/matter/text?site=' + $scope.siteId;

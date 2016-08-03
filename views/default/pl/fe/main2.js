@@ -13,6 +13,12 @@ controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
             $scope.sites = rsp.data;
         });
     };
+    $scope.recommended = function() {
+        var url = '/rest/pl/fe/site/recommended?_=' + t;
+        http2.get(url, function(rsp) {
+            $scope.recommendedSites = rsp.data;
+        });
+    };
     $scope.open = function(event, site) {
         event.preventDefault();
         event.stopPropagation();
@@ -29,4 +35,14 @@ controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
         });
     };
     $scope.list();
+    $scope.recommended();
+    $scope.collectSite = function(evnet, site) {
+        alert('开发中...');
+    };
+    $scope.collectTemplate = function(evnet, template) {
+        alert('开发中...');
+    };
+    http2.get('/rest/pl/fe/shop/shelf/list?matterType=enroll', function(rsp) {
+        $scope.templates = rsp.data.templates;
+    });
 }]);

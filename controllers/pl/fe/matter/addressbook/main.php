@@ -26,7 +26,7 @@ class main extends \pl\fe\matter\base {
      */
     public function get_action($site,$abid = null) {
         if (empty($abid)) {
-            $abs = $this->model('matter\addressbook')->bysiteid($site);
+            $abs = $this->model('matter\addressbook')->bySiteId($site);
             return new \ResponseData($abs);
         } else {
             $ab = $this->model('matter\addressbook')->byId($abid);

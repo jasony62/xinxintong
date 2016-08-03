@@ -41,7 +41,7 @@ class addressbook_model extends app_base {
     /**
      *
      */
-    public function byMpid($siteid)
+    public function bySiteId($siteid)
     {
         $q = array(
             '*',

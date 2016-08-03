@@ -33,7 +33,7 @@ class addressbook_model extends app_base {
     public function getEntryUrl($runningMpid, $id)
     {
         $url = "http://".$_SERVER['HTTP_HOST'];
-        $url .= "/rest/app/addressbook";
+        $url .= "/rest/site/fe/matter/addressbook";
         $url .= "?siteid=$runningMpid&id=".$id;
 
         return $url;

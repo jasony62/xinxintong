@@ -34,19 +34,19 @@ class addressbook_model extends app_base {
     {
         $url = "http://".$_SERVER['HTTP_HOST'];
         $url .= "/rest/app/addressbook";
-        $url .= "?mpid=$runningMpid&id=".$id;
+        $url .= "?siteid=$runningMpid&id=".$id;
 
         return $url;
     }
     /**
      *
      */
-    public function byMpid($mpid)
+    public function byMpid($siteid)
     {
         $q = array(
             '*',
             'xxt_addressbook',
-            "mpid='".$mpid."'",
+            "siteid='$siteid'"
         );
         $q2 = array(
             'o'=>'modify_at desc'
@@ -59,11 +59,11 @@ class addressbook_model extends app_base {
     /**
      *
      */
-    public function insert_ab($mpid, $uid, $title) 
+    public function insert_ab($siteid, $uid, $title) 
     {
         $current = time();
 
-        $ab['mpid'] = $mpid;
+        $ab['siteid'] = $siteid;
         $ab['title'] = $title;
         $ab['creater'] = $uid;
         $ab['create_at'] = $current;
@@ -74,12 +74,12 @@ class addressbook_model extends app_base {
     /**
      *
      */
-    public function remove_ab($mpid, $abid)
+    public function remove_ab($siteid, $abid)
     {
         $q = array(
             'count(*)',
             'xxt_ab_person_dept',
-            "mpid='$mpid' and ab_id=$abid"
+            "siteid='$siteid' and ab_id=$abid"
         );
         if ($this->query_val_ss($q))
             return array(false, '通讯录不为空不允许删除');
@@ -87,7 +87,7 @@ class addressbook_model extends app_base {
         $q = array(
             'count(*)',
             'xxt_ab_person',
-            "mpid='$mpid' and ab_id=$abid"
+            "siteid='$siteid' and ab_id=$abid"
         );
         if ($this->query_val_ss($q))
             return array(false, '通讯录中的用户不为空不允许删除');
@@ -95,7 +95,7 @@ class addressbook_model extends app_base {
         $q = array(
             'count(*)',
             'xxt_ab_dept',
-            "mpid='$mpid' and ab_id=$abid"
+            "siteid='$siteid' and ab_id=$abid"
         );
         if ($this->query_val_ss($q))
             return array(false, '通讯录中的部门不为空不允许删除');
@@ -103,19 +103,19 @@ class addressbook_model extends app_base {
         $q = array(
             'count(*)',
             'xxt_ab_title',
-            "mpid='$mpid' and ab_id=$abid"
+            "siteid='$siteid' and ab_id=$abid"
         );
         if ($this->query_val_ss($q))
             return array(false, '通讯录中的岗位不为空不允许删除');
         
-        $this->delete('xxt_addressbook', "mpid='$mpid' and id=$abid");
+        $this->delete('xxt_addressbook', "siteid='$siteid' and id=$abid");
         
         return array(true);
     }
     /**
      * 添加部门
      */
-    public function addDept($mpid, $abid, $name, $pid, $seq=null) 
+    public function addDept($siteid, $abid, $name, $pid, $seq=null) 
     {
         $isAppend = true;
         if ($seq===null) {
@@ -125,7 +125,7 @@ class addressbook_model extends app_base {
             $q = array(
                 'count(*)',
                 'xxt_ab_dept',
-                "mpid='$mpid' and ab_id=$abid and pid=$pid"
+                "siteid='$siteid' and ab_id=$abid and pid=$pid"
             );
             $lastSeq = (int)$this->query_val_ss($q);
             $seq = $lastSeq + 1;
@@ -133,7 +133,7 @@ class addressbook_model extends app_base {
             $isAppend = false;
         }
         $i = array(
-            'mpid' => $mpid,
+            'siteid' => $siteid,
             'ab_id' => $abid,
             'pid' => $pid,
             'seq' => $seq,
@@ -149,7 +149,7 @@ class addressbook_model extends app_base {
             $q = array(
                 'fullpath',
                 'xxt_ab_dept',
-                "mpid='$mpid' and ab_id=$abid and id=$pid"
+                "siteid='$siteid' and ab_id=$abid and id=$pid"
             );
             $fullpath = $this->query_val_ss($q);
             $fullpath .= ",$id";
@@ -157,7 +157,7 @@ class addressbook_model extends app_base {
         $this->update(
             'xxt_ab_dept', 
             array('fullpath'=>$fullpath), 
-            "mpid='$mpid' and ab_id=$abid and id=$id"
+            "siteid='$siteid' and ab_id=$abid and id=$id"
         );
 
         $dept = $this->query_obj_ss(array('*', 'xxt_ab_dept', "id=$id"));
@@ -170,12 +170,12 @@ class addressbook_model extends app_base {
      * 如果存在子部门不允许删除
      * 如果存在部门成员不允许删除
      */
-    public function delDept($mpid, $id)
+    public function delDept($siteid, $id)
     {
         $q = array(
             'pid,seq',
             'xxt_ab_dept',
-            "mpid='$mpid' and id=$id"
+            "siteid='$siteid' and id=$id"
         );
         if (false === ($dept = $this->query_obj_ss($q))) 
             return array(false, '部门不存在'); 
@@ -185,7 +185,7 @@ class addressbook_model extends app_base {
         $q = array(
             'count(*)',
             'xxt_ab_dept',
-            "mpid='$mpid' and pid=$id"
+            "siteid='$siteid' and pid=$id"
         );
         if (0 < (int)$this->query_val_ss($q))
             return array(false, '存在子部门，不允许删除'); 
@@ -195,7 +195,7 @@ class addressbook_model extends app_base {
         $q = array(
             'count(*)',
             'xxt_ab_person_dept',
-            "mpid='$mpid' and dept_id=$id"
+            "siteid='$siteid' and dept_id=$id"
         );
         if (0 < (int)$this->query_val_ss($q))
             return array(false, '存在用户，不允许删除');
@@ -204,7 +204,7 @@ class addressbook_model extends app_base {
          */
         $rst = (int)$this->delete(
             'xxt_ab_dept',
-            "mpid='$mpid' and id=$id"
+            "siteid='$siteid' and id=$id"
         );
         if ($rst === 1) {
             /**
@@ -212,7 +212,7 @@ class addressbook_model extends app_base {
              */
             $sql = 'update xxt_ab_dept';
             $sql .= ' set seq=seq-1';
-            $sql .= " where mpid='$mpid' and pid=$dept->pid and seq>$dept->seq";
+            $sql .= " where siteid='$siteid' and pid=$dept->pid and seq>$dept->seq";
             $this->update($sql);
         }
 
@@ -220,25 +220,25 @@ class addressbook_model extends app_base {
     }
     /**
      *
-     * $mpid
+     * $siteid
      * $name
      * $email
      * $tels
      * $strict email is unique. true:error,false:return exist id.
      */
-    public function createPerson($mpid, $abid, $name, $email=null, $tels=null, $strict = true) 
+    public function createPerson($siteid, $abid, $name, $email=null, $tels=null, $strict = true) 
     {
         if (empty($email)) {
             $q[] = 'id,name';
             $q[] = 'xxt_ab_person';
-            $q[] = "mpid='$mpid' and ab_id=$abid and name='$name'";
+            $q[] = "siteid='$siteid' and ab_id=$abid and name='$name'";
             if ($p = $this->query_obj_ss($q)) {
                 // data replicated
             }
         } else {
             $q[] = 'id,name';
             $q[] = 'xxt_ab_person';
-            $q[] = "mpid='$mpid' and ab_id=$abid and email='$email'";
+            $q[] = "siteid='$siteid' and ab_id=$abid and email='$email'";
             if ($p = $this->query_obj_ss($q)) {
                 if ($p->name != $name) {
                     // data inconsistent.
@@ -249,7 +249,7 @@ class addressbook_model extends app_base {
                 return $p->id;
             }
         }
-        $i['mpid'] = $mpid;
+        $i['siteid'] = $siteid;
         $i['ab_id'] = $abid;
         $i['name'] = $name;
         $i['pinyin'] = pinyin($name, 'UTF-8');
@@ -263,15 +263,15 @@ class addressbook_model extends app_base {
     /**
      * 给用户添加部门
      */
-    public function addPersonDept($mpid, $abid, $person_id, $dept_id) 
+    public function addPersonDept($siteid, $abid, $person_id, $dept_id) 
     {
         $q[] = 'id';
         $q[] = 'xxt_ab_person_dept';
-        $q[] = "mpid='$mpid' and ab_id=$abid and person_id=$person_id and dept_id=$dept_id";
+        $q[] = "siteid='$siteid' and ab_id=$abid and person_id=$person_id and dept_id=$dept_id";
         if ($id = $this->query_val_ss($q))
             return $id; 
 
-        $i['mpid'] = $mpid;
+        $i['siteid'] = $siteid;
         $i['ab_id'] = $abid;
         $i['person_id'] = $person_id;
         $i['dept_id'] = $dept_id;
@@ -303,13 +303,12 @@ class addressbook_model extends app_base {
     /**
      *
      */
-    public function getPersonByAb($mpid, $abid, $abbr = null, $dept_id = null, $offset = 0, $limit = null) 
-    {
-        $mpa = \TMS_APP::model('mp\mpaccount')->byId($mpid, 'parent_mpid');
+    public function getPersonByAb($siteid, $abid, $abbr = null, $dept_id = null, $offset = 0, $limit = null) 
+    {      
         //
         $cols = 'SQL_CALC_FOUND_ROWS id,name,email,tels';
         $from = 'xxt_ab_person';
-        $where = "(mpid='$mpid' or mpid='$mpa->parent_mpid')";
+        $where = "(siteid='".$siteid."')";
 
         if (!empty($abid)) $where .= " and ab_id=$abid";
 
@@ -346,12 +345,12 @@ class addressbook_model extends app_base {
      *
      * 如果按关键词搜索，如果是中文，优先看是否能匹配部门，如果匹配了，就不再配置用户，提高执行速度
      */
-    public function searchPersons($mpid, $abid, $abbr = null, $deptid = null, $page = 1, $size = 20) 
+    public function searchPersons($siteid, $abid, $abbr = null, $deptid = null, $page = 1, $size = 20) 
     {
         $q = array(
             'id,name,email,tels',
             'xxt_ab_person',
-            "mpid='$mpid' and ab_id=$abid"
+            "siteid='$siteid' and ab_id=$abid"
         );
         if (!empty($abbr)) {
             if (ord($abbr[0]) > 0x80) {

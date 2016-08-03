@@ -40,7 +40,7 @@ define(["angular", "enroll-common", "angular-sanitize"], function(angular, ngApp
         };
         /*join search*/
         function j(method) {
-            var j, l, url = '/rest/site/fe/matter/enroll/template',
+            var i, j, l, url = '/rest/site/fe/matter/enroll/template',
                 _this = this,
                 search = [];
             method && method.length && (url += '/' + method);
@@ -280,44 +280,53 @@ define(["angular", "enroll-common", "angular-sanitize"], function(angular, ngApp
         };
     }]);
     ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
-        window.renew = function(page, config) {
-            $scope.$apply(function() {
-                $scope.CustomConfig = config;
-                $http.post(LS.j('pageGet', 'scenario', 'template') + '&page=' + page, config).success(function(rsp) {
-                    var params;
-                    if (rsp.err_code !== 0) {
-                        $scope.errmsg = rsp.err_msg;
-                        return;
+        function renew(page, config) {
+            $scope.CustomConfig = config;
+            $http.post(LS.j('pageGet', 'scenario', 'template') + '&page=' + page, config).success(function(rsp) {
+                var params;
+                if (rsp.err_code !== 0) {
+                    $scope.errmsg = rsp.err_msg;
+                    return;
+                }
+                params = rsp.data;
+                $scope.params = params;
+                $scope.Page = params.page;
+                $scope.User = params.user;
+                $scope.ActiveRound = params.activeRound;
+                (function setPage(page) {
+                    if (page.ext_css && page.ext_css.length) {
+                        angular.forEach(page.ext_css, function(css) {
+                            var link, head;
+                            link = document.createElement('link');
+                            link.href = css.url;
+                            link.rel = 'stylesheet';
+                            head = document.querySelector('head');
+                            head.appendChild(link);
+                        });
                     }
-                    params = rsp.data;
-                    $scope.params = params;
-                    $scope.Page = params.page;
-                    $scope.User = params.user;
-                    $scope.ActiveRound = params.activeRound;
-                    (function setPage(page) {
-                        if (page.ext_css && page.ext_css.length) {
-                            angular.forEach(page.ext_css, function(css) {
-                                var link, head;
-                                link = document.createElement('link');
-                                link.href = css.url;
-                                link.rel = 'stylesheet';
-                                head = document.querySelector('head');
-                                head.appendChild(link);
-                            });
-                        }
-                        if (page.ext_js && page.ext_js.length) {
-                            angular.forEach(page.ext_js, function(js) {
-                                $.getScript(js.url);
-                            });
-                        }
-                        if (page.js && page.js.length) {
-                            (function dynamicjs() {
-                                eval(page.js);
-                            })();
-                        }
-                    })(params.page);
-                });
+                    if (page.ext_js && page.ext_js.length) {
+                        angular.forEach(page.ext_js, function(js) {
+                            $.getScript(js.url);
+                        });
+                    }
+                    if (page.js && page.js.length) {
+                        (function dynamicjs() {
+                            eval(page.js);
+                        })();
+                    }
+                })(params.page);
             });
+        };
+        window.renew = function(page, config) {
+            var phase;
+            phase = $scope.$root.$$phase;
+            if (phase === '$digest' || phase === '$apply') {
+                renew(page, config);
+            } else {
+                $scope.$apply(function() {
+                    renew(page, config);
+                });
+            }
         };
         $scope.errmsg = '';
         $scope.data = {
@@ -340,6 +349,8 @@ define(["angular", "enroll-common", "angular-sanitize"], function(angular, ngApp
                 $scope.$broadcast('xxt.app.enroll.filter.owner', data);
             }
         });
+
+        window.renew(LS.p.page, {});
     }]);
 
     angular._lazyLoadModule('enroll');

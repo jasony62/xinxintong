@@ -147,7 +147,7 @@ angular.module('ui.xxt', ['ui.bootstrap'])
                     $scope.data = {
                         choose: -1
                     };
-                    http2.get('/rest/shop/shelf/list?matterType=' + type, function(rsp) {
+                    http2.get('/rest/pl/fe/shop/shelf/list?matterType=' + type, function(rsp) {
                         $scope.templates = rsp.data.templates;
                         $scope.page.total = rsp.data.total;
                     });
@@ -168,7 +168,7 @@ angular.module('ui.xxt', ['ui.bootstrap'])
             });
             return deferred.promise;
         };
-        this.share = function(mpid, matter) {
+        this.share = function(siteId, matter) {
             var deferred;
             deferred = $q.defer();
             $uibModal.open({
@@ -183,7 +183,7 @@ angular.module('ui.xxt', ['ui.bootstrap'])
                     $scope.ok = function() {
                         $mi.close($scope.data);
                     };
-                    http2.get('/rest/shop/shelf/get?matterType=' + matter.type + '&matterId=' + matter.id, function(rsp) {
+                    http2.get('/rest/pl/fe/shop/shelf/get?matterType=' + matter.type + '&matterId=' + matter.id, function(rsp) {
                         if (rsp.data) {
                             $scope.data.scope = rsp.data.visible_scope;
                         }
@@ -191,7 +191,7 @@ angular.module('ui.xxt', ['ui.bootstrap'])
                 }],
                 backdrop: 'static'
             }).result.then(function(data) {
-                http2.post('/rest/shop/shelf/put?mpid=' + mpid + '&scope=' + data.scope, matter, function(rsp) {
+                http2.post('/rest/pl/fe/shop/shelf/put?site=' + siteId + '&scope=' + data.scope, matter, function(rsp) {
                     deferred.resolve(rsp.data);
                 });
             });

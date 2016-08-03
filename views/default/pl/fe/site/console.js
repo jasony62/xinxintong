@@ -1,5 +1,5 @@
 var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
-app.config(['$locationProvider', function($lp) {
+ngApp.config(['$locationProvider', function($lp) {
     $lp.html5Mode(true);
 }]);
 ngApp.controller('ctrlSite', ['$scope', '$location', 'http2', function($scope, $location, http2) {

@@ -1,13 +1,66 @@
-<div ng-controller='abCtrl' ng-init="mpid='<?php echo TPL::S('mpid');?>';abid='<?php echo $_GET['id'];?>'">
-    <div class='navbar navbar-default'>
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <base href="/"/>
+    <title>通讯录</title>
+    <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+    <link href="//cdn.bootcss.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet"/>
+    <link href="/static/css/tms.css?_=2" rel="stylesheet">
+    <link href="/views/default/pl/fe/matter/addressbook/frame.css?_=4" rel="stylesheet">
+</head>
+
+<body  ng-controller='ctrlFrame' ng-cloak class='ng-cloak'>
+    <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
+    <nav class='navbar navbar-inverse navbar-fixed-top'>
         <ul class='nav navbar-nav'>
-            <li><a href='javascript:void(0);' ng-click="back()"><span class="glyphicon glyphicon-chevron-left"></span></a></li>
-            <li ng-class="{'active':subView=='setting'}"><a href='#' ng-click="subView='setting'">设置</a></li>
-            <li ng-class="{'active':subView=='dept'}"><a href='#' ng-click="subView='dept'">部门</a></li>
-            <li ng-class="{'active':subView=='roll'}"><a href='#' ng-click="subView='roll'">人员</a></li>
+            <li><a href='/rest/pl/fe' target='_self'>首页</a></li>
+            <li><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>工作台</a></li>
         </ul>
+        <ul class='nav navbar-nav navbar-right' style='margin-right:0'>
+            <li><a href='/rest/pl/fe/user/settings' target='_self'>设置</a></li>
+            <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+        </ul>
+    </nav>
+    <div class='container'>
+        <div class='navbar navbar-default'>
+            <ul class='nav navbar-nav'>
+                <li>
+                    <a href='javascript:void(0);' ng-click="back()">
+                        <span class="glyphicon glyphicon-chevron-left"></span>
+                    </a>
+                </li>
+                <li ng-class="{'active':subView=='setting'}">
+                    <a ng-href='/rest/pl/fe/matter/addressbook/setting?id={{id}}&site={{siteId}}' ng-click="subView='setting'">设置</a>
+                </li>
+                <li ng-class="{'active':subView=='dept'}">
+                    <a ng-href='/rest/pl/fe/matter/addressbook/department?id={{id}}&site={{siteId}}' ng-click="subView='dept'">部门</a>
+                </li>
+                <li ng-class="{'active':subView=='roll'}">
+                    <a ng-href='/rest/pl/fe/matter/addressbook/roll?id={{id}}&site={{siteId}}' ng-click="subView='roll'">人员</a>
+                </li>
+            </ul>
+        </div>
+        <div class='row' ng-view>
+
+        </div>
     </div>
-    <div>
-        <div ng-init="subView='setting'" ng-include="'/page/pl/fe/matter/addressbook/'+subView"></div>
-    </div>
-</div>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/jquery-ui.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/angular-route.min.js"></script>
+    <script src="/static/js/angular-sanitize.min.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+    <script src="/static/js/tinymce/tinymce.min.js"></script>
+    <script src="/static/js/ui-tms.js?_=1"></script>
+    <script src="/static/js/xxt.ui.js?_=1"></script>
+    <script src="/static/js/xxt.ui.tinymce.js?_=2"></script>
+    <script type="text/javascript" src="/static/js/jquery.form.min.js"></script>
+    <script src="/views/default/pl/fe/_module/channel.js?_=1"></script>
+    <script src="/static/js/require.js" data-main="/views/default/pl/fe/matter/addressbook/frame-loader.js?_=4"></script>
+</body>
+
+</html>
+

@@ -87,18 +87,18 @@ define(['require', 'page'], function(require, pageLib) {
 	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'srvApp', function($scope, $location, $uibModal, $q, http2, srvApp) {
 		var ls = $location.search();
 
-			$scope.id = ls.id;
-			$scope.siteId = ls.site;
-			$scope.update = function(names) {
-				return srvApp.update(names);
+		$scope.id = ls.id;
+		$scope.siteId = ls.site;
+		$scope.update = function(names) {
+			return srvApp.update(names);
 		};
 		$scope.remove = function() {
 			if (window.confirm('确定删除活动？')) {
 				srvApp.remove().then(function() {
 					if ($scope.app.mission) {
-						location.href = "/rest/pl/fe/matter/mission?site=" + $scope.siteId + "&id=" + $scope.app.mission.id;
+						location = "/rest/pl/fe/matter/mission?site=" + $scope.siteId + "&id=" + $scope.app.mission.id;
 					} else {
-						location.href = '/rest/pl/fe/site/console?site=' + $scope.siteId;
+						location = '/rest/pl/fe/site/console?site=' + $scope.siteId;
 					}
 				});
 			}
@@ -209,8 +209,8 @@ define(['require', 'page'], function(require, pageLib) {
 			});
 			$scope.app = app;
 			$scope.url = 'http://' + location.host + '/rest/site/fe/matter/enroll?site=' + $scope.siteId + '&app=' + $scope.id;
-			});
-		}]);
+		});
+	}]);
 	/***/
 	require(['domReady!'], function(document) {
 		angular.bootstrap(document, ["app"]);

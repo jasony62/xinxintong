@@ -385,10 +385,10 @@ angular.module('ui.xxt', ['ui.bootstrap'])
         $scope.$watch('obj', function(obj) {
             if (obj && $scope.authapis) objAuthapis();
         });
-        /*http2.get('/rest/mp/authapi/get?valid=Y', function(rsp) {
+        http2.get('/rest/mp/authapi/get?valid=Y', function(rsp) {
             $scope.authapis = rsp.data;
             if ($scope.obj) objAuthapis();
-        });*/
+        });
     }])
     .directive('accesscontrol', function() {
         return {

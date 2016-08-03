@@ -195,7 +195,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             case 'signin':
             case 'group':
                 url += type + '/copy?app=' + id + '&site=' + $scope.siteId;
->>>>>>> master
                 break;
         }
     };

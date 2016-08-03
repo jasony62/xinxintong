@@ -8,7 +8,9 @@ ngApp.controller('ctrlSite', ['$scope', '$location', 'http2', function($scope, $
         $scope.site = rsp.data;
     });
 }]);
+
 ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop', function($scope, $uibModal, http2, templateShop) {
+
     $scope.matterType = 'recent';
     $scope.open = function(matter) {
         var type = $scope.matterType === 'recent' ? matter.matter_type : $scope.matterType,
@@ -27,10 +29,11 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             case 'link':
             case 'addressbook':
             case 'merchant':
+            case 'wall':
                 location.href = '/rest/pl/fe/matter/' + type + '?id=' + id + '&site=' + $scope.siteId;
                 break;
             case 'mission':
-                location.href = '/rest/pl/fe/matter/' + type + '?id=' + (matter.mission_id || id) + '&site=' + $scope.siteId;
+                location.href = '/rest/pl/fe/matter/' + type + '?id=' + (matter.mission_id || id) + '&site=' + matter.siteid;
                 break;
         }
     };
@@ -143,6 +146,10 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             case 'merchant':
                 $scope.addMerchant();
                 break;
+
+            case 'wall':
+                $scope.addWall();
+                break;
             case 'addressbook':
                 $scope.addAddressbook();
                 break;
@@ -202,6 +209,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             location.href = '/rest/pl/fe/matter/link?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
+    //研究项目-单图文
     $scope.addArticle = function() {
         http2.get('/rest/pl/fe/matter/article/create?site=' + $scope.siteId, function(rsp) {
             location.href = '/rest/pl/fe/matter/article?site=' + $scope.siteId + '&id=' + rsp.data;
@@ -217,6 +225,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             location.href = '/rest/pl/fe/matter/channel?site=' + $scope.siteId + '&id=' + rsp.data.id;
         });
     };
+    //研究项目-登记活动
     $scope.addEnrollByTemplate = function() {
         templateShop.choose('enroll').then(function(choice) {
             if (choice.source === 'share') {
@@ -277,10 +286,18 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             location.href = '/rest/pl/fe/matter/merchant/shop?site=' + $scope.siteId + '&id=' + rsp.data;
         });
     };
+
+    //信息墙
+    $scope.addWall = function() {
+        http2.get('/rest/pl/fe/matter/wall/create?site=' + $scope.siteId, function(rsp) {
+            location.href = '/rest/pl/fe/matter/wall?site=' + $scope.siteId + '&id=' + rsp.data;
+        });
+    };
     $scope.addAddressbook = function() {
         http2.get('/rest/pl/fe/matter/addressbook/create?site='+ $scope.siteId, function(rsp) {
             /*location.href = '/rest/pl/fe/matter/addressbook/edit?id='+ rsp.data + '&site=' + $scope.siteId;*/
             location.href = '/rest/pl/fe/matter/addressbook?site=' + $scope.siteId + '&id=' + rsp.data;
+
         });
     };
     http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date()).getTime(), function(rsp) {

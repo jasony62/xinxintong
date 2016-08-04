@@ -21,7 +21,8 @@ class main extends \member_base {
      */
     public function index_action($siteid, $id)
     {
-        $this->view_action('/site/fe/matter/addressbook/index');
+        \TPL::output('/site/fe/matter/channel/main');
+	exit;     
     }
     /**
      * 通讯录查询

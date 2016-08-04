@@ -1,7 +1,7 @@
 <?php
 namespace site\fe\matter\addressbook;
 
-include_once dirname(dirname(__FILE__)) . '/base.php';
+require_once dirname(__FILE__).'/../../../../member_base.php';
 /**
  * 讨论组 
  */

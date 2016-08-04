@@ -48,7 +48,7 @@ if (file_exists(dirname(__FILE__) . '/cus/db.php')) {
 		die("数据库连接失败: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error);
 	}
 	$mysqli->query("SET NAMES UTF8");
-	/* 写连接  */
+	/* 写连接 */
 	$mysqli_w = &$mysqli;
 } else {
 	header('Content-Type: text/plain; charset=utf-8');

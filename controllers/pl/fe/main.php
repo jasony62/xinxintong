@@ -55,7 +55,7 @@ class main extends \TMS_CONTROLLER {
 	}
 	/**
 	 * create an mp account basic information.
-	 * 创建mp 生成一个mpid就是在这个时候生成
+	 *
 	 * $name
 	 * $pmpid parent mp id.
 	 * $asparent

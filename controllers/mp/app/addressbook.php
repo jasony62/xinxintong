@@ -475,7 +475,7 @@ class addressbook extends app_base {
         return $map;
     }
     /**
-     *获得标签通过abid
+     *
      */
     private function getTagsByAbid($abid) 
     {

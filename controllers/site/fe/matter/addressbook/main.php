@@ -21,7 +21,7 @@ class main extends \member_base {
      */
     public function index_action($siteid, $id)
     {
-        \TPL::output('/site/fe/matter/channel/main');
+        \TPL::output('/site/fe/matter/addressbook/index');
 	exit;     
     }
     /**

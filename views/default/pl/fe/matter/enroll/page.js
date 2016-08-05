@@ -144,7 +144,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			$scope.activeWrap = $scope.ep.setActiveWrap(domWrap);
 		};
 		$scope.wrapEditorHtml = function() {
-			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=23';
+			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=24';
 			return url;
 		};
 		var addInputSchema = function(addedSchema) {
@@ -472,21 +472,22 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 	 * input wrap
 	 */
 	ngApp.provider.controller('ctrlInputWrap', ['$scope', '$timeout', function($scope, $timeout) {
-		$scope.schema = $scope.activeWrap.schema;
 		$scope.upperOptions = [];
 		$scope.addOption = function() {
-			if ($scope.schema.ops === undefined)
-				$scope.schema.ops = [];
-			var maxSeq = 0,
+			var schema = $scope.activeWrap.schema,
+				maxSeq = 0,
 				newOp = {
 					l: ''
 				};
-			angular.forEach($scope.schema.ops, function(op) {
+			if (schema.ops === undefined) {
+				schema.ops = [];
+			}
+			angular.forEach(schema.ops, function(op) {
 				var opSeq = parseInt(op.v.substr(1));
 				opSeq > maxSeq && (maxSeq = opSeq);
 			});
 			newOp.v = 'v' + (++maxSeq);
-			$scope.schema.ops.push(newOp);
+			schema.ops.push(newOp);
 			$timeout(function() {
 				$scope.$broadcast('xxt.editable.add', newOp);
 			});
@@ -498,17 +499,19 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			}
 		};
 		$scope.$on('xxt.editable.remove', function(e, op) {
-			var i = $scope.schema.ops.indexOf(op);
-			$scope.schema.ops.splice(i, 1);
+			var schema = $scope.activeWrap.schema,
+				i = schema.ops.indexOf(op);
+			schema.ops.splice(i, 1);
 		});
-		$scope.$watch('schema.ops', function(nv, ov) {
+		$scope.$watch('activeWrap.schema.ops', function(nv, ov) {
 			if (nv !== ov) {
 				$scope.updWrap('schema', 'ops');
 			}
 		}, true);
-		$scope.$watch('schema.setUpper', function(nv) {
+		$scope.$watch('activeWrap.schema.setUpper', function(nv) {
+			var schema = $scope.activeWrap.schema;
 			if (nv === 'Y') {
-				$scope.schema.upper = $scope.schema.ops ? $scope.schema.ops.length : 0;
+				schema.upper = schema.ops ? schema.ops.length : 0;
 			}
 		});
 		var timerOfUpdate = null;
@@ -536,17 +539,17 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				timerOfUpdate = null;
 			});
 		};
-		if ($scope.schema.type === 'member') {
-			if ($scope.schema.schema_id) {
+		if ($scope.activeWrap.schema.type === 'member') {
+			if ($scope.activeWrap.schema.schema_id) {
 				(function() {
 					var i, j, memberSchema, schema;
 					/*自定义用户*/
 					for (i = $scope.memberSchemas.length - 1; i >= 0; i--) {
 						memberSchema = $scope.memberSchemas[i];
-						if ($scope.schema.schema_id === memberSchema.id) {
+						if ($scope.activeWrap.schema.schema_id === memberSchema.id) {
 							for (j = memberSchema._schemas.length - 1; j >= 0; j--) {
 								schema = memberSchema._schemas[j];
-								if ($scope.schema.id === schema.id) {
+								if ($scope.activeWrap.schema.id === schema.id) {
 									break;
 								}
 							}

@@ -98,7 +98,7 @@ class record extends \pl\fe\matter\base {
 		if (isset($posted->data)) {
 			$dbData = new \stdClass;
 			foreach ($posted->data as $n => $v) {
-				if (in_array($n, array('signin_at', 'comment'))) {
+				if (in_array($n, array('comment'))) {
 					continue;
 				} else if (is_array($v) && isset($v[0]->imgSrc)) {
 					/* 上传图片 */
@@ -183,17 +183,17 @@ class record extends \pl\fe\matter\base {
 		$model = $this->model();
 
 		foreach ($record as $k => $v) {
-			if (in_array($k, array('verified', 'signin_at', 'tags', 'comment'))) {
+			if (in_array($k, array('verified', 'tags', 'comment'))) {
 				$model->update(
 					'xxt_enroll_record',
 					array($k => $v),
 					"enroll_key='$ek'"
 				);
-				/*if ($k === 'tags') {
+				// 更新记录的标签时，要同步更新活动的标签，实现标签在整个活动中有效
+				if ($k === 'tags') {
 					$this->model('matter\enroll')->updateTags($app, $v);
-				}*/
+				}
 			} else if ($k === 'data' and is_object($v)) {
-				//
 				$dbData = new \stdClass;
 				foreach ($v as $cn => $cv) {
 					if (is_array($cv) && isset($cv[0]->imgSrc)) {

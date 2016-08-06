@@ -19,7 +19,8 @@
             </select>
         </div>
         <div class='form-group'>
-            <combox title='标签' evt-prefix='search-tag' readonly='true' existing='page.tags' options='app.tags'></combox>
+            <label>标签</label>
+            <combox evt-prefix='search-tag' readonly='true' existing='criteria.tags' options='app.tags'></combox>
         </div>
         <div class='form-group pull-right'>
             <div class='input-group'>
@@ -50,8 +51,9 @@
                     <th style='width:100px'>登记时间</th>
                     <th class='custom-col' ng-repeat="c in  app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
                     <th style='width:140px'>昵称</th>
-                    <th style='width:140px'>标签</th>
                     <th style='width:80px'>审核通过</th>
+                    <th style='width:140px'>标签</th>
+                    <th style='width:140px'>备注</th>
                     <th style='width:60px' ng-if="app.can_invite==='Y'">邀请</th>
                     <th style='width:72px'>操作</th>
                 </tr>
@@ -71,8 +73,9 @@
                         </span>
                     </td>
                     <td>{{r.nickname}}</td>
-                    <td>{{r.tags}}</td>
                     <td>{{r.verified}}</td>
+                    <td>{{r.tags}}</td>
+                    <td>{{r.comment}}</td>
                     <td ng-if="app.can_invite==='Y'">{{r.follower_num}}</td>
                     <td>
                         <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>

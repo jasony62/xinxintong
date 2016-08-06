@@ -323,13 +323,15 @@ class record_model extends \TMS_MODEL {
 		// 		break;
 		// 	}
 		// }
-		/*tags*/
-		// if (!empty($options->tags)) {
-		// 	$aTags = explode(',', $options->tags);
-		// 	foreach ($aTags as $tag) {
-		// 		$w .= "and concat(',',e.tags,',') like '%,$tag,%'";
-		// 	}
-		// }
+
+		// 指定了记录标签
+		if (!empty($criteria->tags)) {
+			$whereByTag = '';
+			foreach ($criteria->tags as $tag) {
+				$whereByTag .= "and concat(',',e.tags,',') like '%,$tag,%'";
+			}
+			$w .= $whereByTag;
+		}
 
 		// 指定了登记数据过滤条件
 		if (isset($criteria->data)) {
@@ -347,7 +349,7 @@ class record_model extends \TMS_MODEL {
 
 		// 查询参数
 		$q = [
-			'e.enroll_key,e.enroll_at,e.tags,e.follower_num,e.score,e.remark_num,e.userid,e.nickname,e.verified,e.data',
+			'e.enroll_key,e.enroll_at,e.tags,e.follower_num,e.score,e.remark_num,e.userid,e.nickname,e.verified,e.comment,e.data',
 			"xxt_enroll_record e",
 			$w,
 		];

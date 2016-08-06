@@ -424,8 +424,11 @@ define(['wrap'], function(wrapLib) {
 			return false;
 		},
 		scroll: function(dom) {
-			var domBody = _editor.getBody();
-			domBody.scrollTop = dom.offsetTop - 15;
+			var domBody = _editor.getBody(),
+				offsetTop = dom.offsetTop;
+			console.log('dddd', dom.offsetTop, domBody.scrollTop);
+			domBody.scrollTop = offsetTop - 15;
+			console.log('dddd', dom.offsetTop, domBody.scrollTop);
 		},
 		contentChange: function(node, activeWrap, $timeout) {
 			var domNodeWrap = $(node).parents('[wrap]'),

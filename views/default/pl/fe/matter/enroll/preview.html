@@ -1,5 +1,5 @@
 <div id='preview-view' class='row'>
-<!-- app -->
+    <!-- app -->
     <div class='col-md-12 app' ng-controller="ctrlApp">
         <nav class="navbar navbar-default">
             <div class="container-fluid">
@@ -78,9 +78,6 @@
     </div>
     <div class='col-md-5' style='text-align:center'>
         <iframe id='simulator' ng-src={{previewURL}}></iframe>
-        <div>
-            <a class='btn btn-lg btn-default' href="/rest/pl/fe/matter/enroll/page?site={{siteId}}&id={{id}}">编辑页面</a>
-        </div>
     </div>
     <div class='col-md-4' ng-controller="ctrlPublish">
         <div class='tile records' ng-if="!app.rounds">
@@ -147,6 +144,9 @@
             <div class="panel-heading">二维码登记</div>
             <div class="panel-body">
                 <div><img id='entryQrcode' ng-src="{{entry.qrcode}}"></div>
+                <div>
+                    <button class='btn btn-default' ng-click="down">下载</button>
+                </div>
             </div>
         </div>
         <div class="panel panel-default hide">
@@ -191,6 +191,7 @@
     <nav class="navbar navbar-default navbar-fixed-bottom">
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
+                <a class='btn btn-lg btn-default' href="/rest/pl/fe/matter/enroll/page?site={{siteId}}&id={{id}}">编辑页面</a>
                 <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}">查看数据</a>
                 <button class='btn btn-lg btn-success' ng-click="shareAsTemplate()">保存为模版</button>
                 

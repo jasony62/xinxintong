@@ -124,6 +124,68 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 	 * page
 	 */
 	ngApp.provider.controller('ctrlEditor', ['$scope', '$q', '$timeout', 'mediagallery', 'mattersgallery', function($scope, $q, $timeout, mediagallery, mattersgallery) {
+		function addInputSchema(addedSchema) {
+			var deferred = $q.defer(),
+				domNewWrap;
+
+			/* 在当前页面上添加新登记项 */
+			domNewWrap = $scope.ep.appendBySchema(addedSchema);
+			$scope.updPage($scope.ep, ['data_schemas', 'html']).then(function() {
+				$scope.setActiveWrap(domNewWrap);
+				/* 页面滚动到新元素 */
+				$scope.ep.scroll(domNewWrap);
+				deferred.resolve();
+			});
+
+			return deferred.promise;
+		};
+
+		function removeSchema(removedSchema) {
+			var deferred = $q.defer();
+
+			if ($scope.ep.removeSchema2(removedSchema)) {
+				$scope.updPage($scope.ep, ['data_schemas', 'html']).then(function() {
+					if ($scope.activeWrap && removedSchema.id === $scope.activeWrap.schema.id) {
+						$scope.setActiveWrap(null);
+					}
+					deferred.resolve(removedSchema);
+				});
+			} else {
+				deferred.resolve(removedSchema);
+			}
+
+			return deferred.promise;
+		};
+
+		function optionSchemaByDom(domWrap) {
+			var parentNode = domWrap,
+				optionDom, schemaOption, schemaOptionId, schemaId, schema;
+
+			optionDom = domWrap.querySelector('input');
+			schemaId = optionDom.getAttribute('name');
+			if (/radio/.test(domWrap.getAttribute('wrap'))) {
+				schemaOptionId = optionDom.getAttribute('value');
+			} else {
+				schemaOptionId = optionDom.getAttribute('ng-model');
+				schemaOptionId = schemaOptionId.split('.')[2];
+			}
+
+			for (var i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
+				if (schemaId === $scope.app.data_schemas[i].id) {
+					schema = $scope.app.data_schemas[i];
+					for (var j = schema.ops.length - 1; j >= 0; j--) {
+						if (schema.ops[j].v === schemaOptionId) {
+							schemaOption = schema.ops[j];
+							break;
+						}
+					}
+					break;
+				}
+			}
+
+			return [schema, schemaOption];
+		};
+
 		var tinymceEditor;
 		$scope.activeWrap = false;
 		$scope.innerlinkTypes = [{
@@ -144,23 +206,8 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			$scope.activeWrap = $scope.ep.setActiveWrap(domWrap);
 		};
 		$scope.wrapEditorHtml = function() {
-			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=24';
+			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=25';
 			return url;
-		};
-		var addInputSchema = function(addedSchema) {
-			var deferred = $q.defer(),
-				domNewWrap;
-
-			/* 在当前页面上添加新登记项 */
-			domNewWrap = $scope.ep.appendBySchema(addedSchema);
-			$scope.updPage($scope.ep, ['data_schemas', 'html']).then(function() {
-				$scope.setActiveWrap(domNewWrap);
-				/* 页面滚动到新元素 */
-				$scope.ep.scroll(domNewWrap);
-				deferred.resolve();
-			});
-
-			return deferred.promise;
 		};
 		/*创建了新的schema*/
 		$scope.$on('xxt.matter.enroll.app.data_schemas.created', function(event, newSchema) {
@@ -184,29 +231,21 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				$scope.$broadcast('xxt.matter.enroll.page.data_schemas.added', addedSchema, 'page');
 			});
 		});
-		var removeSchema = function(removedSchema) {
-			var deferred = $q.defer();
-
-			if ($scope.ep.removeSchema2(removedSchema)) {
-				$scope.updPage($scope.ep, ['data_schemas', 'html']).then(function() {
-					if ($scope.activeWrap && removedSchema.id === $scope.activeWrap.schema.id) {
-						$scope.setActiveWrap(null);
-					}
-					deferred.resolve(removedSchema);
-				});
-			} else {
-				deferred.resolve(removedSchema);
-			}
-
-			return deferred.promise;
+		$scope.refreshWrap = function(wrap) {
+			wrapLib.input.modify(wrap.dom, wrap);
+			$scope.ep.purifyInput(tinymceEditor.getContent(), true);
+			$scope.updPage($scope.ep, ['html']);
 		};
 		$scope.removeSchema = function(removedSchema) {
+			var deferred = $q.defer();
 			if (window.confirm('确定删除所有页面上的登记项？')) {
 				removeSchema(removedSchema).then(function() {
 					/* 通知应用删除登记项 */
 					$scope.$broadcast('xxt.matter.enroll.page.data_schemas.removed', removedSchema, 'app');
+					deferred.resolve();
 				});
 			}
+			return deferred.promise;
 		};
 		$scope.$on('xxt.matter.enroll.page.data_schemas.requestRemove', function(event, removedSchema) {
 			removeSchema(removedSchema).then(function() {
@@ -233,18 +272,52 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		$scope.removeWrap = function() {
 			var wrapType = $scope.activeWrap.type,
 				schema;
-			$scope.ep.removeWrap($scope.activeWrap);
 			if (wrapType === 'button') {
-				$scope.updPage($scope.ep, ['act_schemas', 'html']);
+				$scope.updPage($scope.ep, ['act_schemas', 'html']).then(function() {
+					$scope.ep.removeWrap($scope.activeWrap);
+					$scope.setActiveWrap(null);
+				});
+			} else if (/radio|checkbox/.test(wrapType)) {
+				var optionSchema;
+				schema = optionSchemaByDom($scope.activeWrap.dom);
+				optionSchema = schema[1];
+				schema = schema[0];
+				schema.ops.splice(schema.ops.indexOf(optionSchema), 1);
+				$scope.update('data_schemas').then(function() {
+					/* 更新当前页面 */
+					$scope.ep.purifyInput(tinymceEditor.getContent(), true);
+					$scope.updPage($scope.ep, ['data_schemas', 'html']).then(function() {
+						$scope.ep.removeWrap($scope.activeWrap);
+						$scope.setActiveWrap(null);
+					});
+					/* 更新其它页面 */
+					angular.forEach($scope.app.pages, function(page) {
+						if (page !== $scope.ep) {
+							page.updateBySchema(schema);
+							$scope.updPage(page, ['data_schemas', 'html']);
+						}
+					});
+				});
+			} else if (wrapType === 'text') {
+				$scope.ep.removeWrap($scope.activeWrap);
+				$scope.setActiveWrap(null);
 			} else {
 				schema = $scope.activeWrap.schema;
-				$scope.updPage($scope.ep, ['data_schemas', 'html']).then(function() {
-					if (/input/.test(wrapType)) {
-						$scope.$broadcast('xxt.matter.enroll.page.data_schemas.removed', schema, 'page');
-					}
-				});
+				if ($scope.ep.type === 'I') {
+					$scope.removeSchema(schema).then(function() {
+						$scope.ep.removeWrap($scope.activeWrap);
+						$scope.setActiveWrap(null);
+					});
+				} else {
+					$scope.updPage($scope.ep, ['data_schemas', 'html']).then(function() {
+						$scope.ep.removeWrap($scope.activeWrap);
+						$scope.setActiveWrap(null);
+						if (/input/.test(wrapType)) {
+							$scope.$broadcast('xxt.matter.enroll.page.data_schemas.removed', schema, 'page');
+						}
+					});
+				}
 			}
-			$scope.setActiveWrap(null);
 		};
 		$scope.moveWrap = function(action) {
 			$scope.activeWrap = $scope.ep.moveWrap(action);
@@ -343,6 +416,90 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				_timerOfPageUpdate.then(function() {
 					_timerOfPageUpdate = null;
 				});
+			}
+		});
+		//添加选项
+		$scope.$on('tinymce.option.add', function(event, domWrap) {
+			function addOption(schema, schemaOptionId) {
+				var maxSeq = 0,
+					newOp = {
+						l: ''
+					},
+					optionIndex = -1;
+
+				if (schema.ops === undefined) {
+					schema.ops = [];
+				}
+				angular.forEach(schema.ops, function(op, index) {
+					var opSeq = parseInt(op.v.substr(1));
+					opSeq > maxSeq && (maxSeq = opSeq);
+					if (op.v === schemaOptionId) {
+						optionIndex = index;
+					}
+				});
+				newOp.v = 'v' + (++maxSeq);
+				schema.ops.splice(optionIndex + 1, 0, newOp);
+
+				return newOp;
+			};
+
+			function addOptionWrap(domWrap, schema, newOp) {
+				var html, newOptionWrap;
+
+				if (/radio/.test(domWrap.getAttribute('wrap'))) {
+
+					html = wrapLib.input.newRadio(schema, newOp, {});
+					html = $(html);
+
+					newOptionWrap = dom.create('li', {
+						wrap: 'radio',
+						contenteditable: 'false',
+						class: 'radio'
+					}, html.html());
+				} else {
+					html = wrapLib.input.newCheckbox(schema, newOp, {});
+					html = $(html);
+
+					newOptionWrap = dom.create('li', {
+						wrap: 'checkbox',
+						contenteditable: 'false',
+						class: 'checkbox'
+					}, html.html());
+				}
+
+				var elem = dom.insertAfter(newOptionWrap, domWrap);
+				var textNode = elem.querySelector('label>span');
+				tinymceEditor.selection.select(textNode, false);
+				tinymceEditor.selection.setCursorLocation(textNode, 0);
+			};
+			if (/radio|checkbox/.test(domWrap.getAttribute('wrap'))) {
+				var parentNode = domWrap,
+					optionDom, schemaOptionId, schemaId, schema;
+
+				optionDom = domWrap.querySelector('input');
+				schemaId = optionDom.getAttribute('name');
+				if (/radio/.test(domWrap.getAttribute('wrap'))) {
+					schemaOptionId = optionDom.getAttribute('value');
+				} else {
+					schemaOptionId = optionDom.getAttribute('ng-model');
+					schemaOptionId = schemaOptionId.split('.')[2];
+				}
+
+				for (var i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
+					if (schemaId === $scope.app.data_schemas[i].id) {
+						schema = $scope.app.data_schemas[i];
+						break;
+					}
+				}
+
+				if (schema.ops) {
+					var newOp, dom, newOptionWrap;
+
+					dom = tinymceEditor.dom;
+					newOp = addOption(schema, schemaOptionId);
+
+					addOptionWrap(domWrap, schema, newOp);
+				}
 			}
 		});
 		$scope.$on('tinymce.wrap.add', function(event, domWrap) {

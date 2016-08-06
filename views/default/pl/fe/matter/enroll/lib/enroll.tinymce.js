@@ -110,6 +110,12 @@ directive('tinymce', function($timeout) {
                                 if (wrap !== editor.getBody()) {
                                     while (wrap.parentNode !== editor.getBody()) {
                                         wrap = wrap.parentNode;
+                                        if (wrap.hasAttribute('wrap')) {
+                                            if (/radio|checkbox/.test(wrap.getAttribute('wrap'))) {
+                                                scope.$emit('tinymce.option.add', wrap);
+                                                return;
+                                            }
+                                        }
                                     }
                                     if (wrap.hasAttribute('wrap')) {
                                         evt.preventDefault();
@@ -251,7 +257,7 @@ directive('tinymce', function($timeout) {
                 statusbar: false,
                 plugins: ['save textcolor code table paste fullscreen visualblocks'],
                 toolbar: 'fontsizeselect styleselect forecolor backcolor bullist numlist outdent indent table multipleimage',
-                height: scope.height ? scope.height : 300,
+                //height: scope.height ? scope.height : 300,
                 forced_root_block: 'div',
                 valid_elements: "*[*]",
                 relative_urls: false,

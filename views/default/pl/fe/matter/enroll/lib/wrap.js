@@ -57,7 +57,7 @@ define([], function() {
     InputWrap.prototype.newWrap = function(schema) {
         var oWrap = {
             config: {
-                required: 'N',
+                required: 'Y',
                 showname: 'label'
             },
             schema: schema
@@ -70,6 +70,34 @@ define([], function() {
         }
 
         return oWrap;
+    };
+    InputWrap.prototype.newRadio = function(schema, op, config) {
+        var html;
+
+        html = '<li class="radio" wrap="radio" contenteditable="false"><label';
+        if (config.align === 'H') html += ' class="radio-inline"';
+        html += '><input type="radio" name="' + schema.id + '"';
+        html += ' value="' + op.v + '"';
+        html += ' ng-model="data.' + schema.id + '"';
+        config.required === 'Y' && (html += 'required=""');
+        angular.forEach(schema.attrs, function(attr) {
+            html += 'data-' + attr.name + '="' + attr.value + '"';
+        });
+        html += ' disabled><span contenteditable="true">' + op.l + '</span></label></li>';
+
+        return html;
+    };
+    InputWrap.prototype.newCheckbox = function(schema, op, config) {
+        var html;
+
+        html = '<li class="checkbox" wrap="checkbox" contenteditable="false"><label';
+        if (config.align === 'H') html += ' class="checkbox-inline"';
+        html += '><input type="checkbox" name="' + schema.id + '"';
+        config.required === 'Y' && (html += 'required=""');
+        html += ' ng-model="data.' + schema.id + '.' + op.v + '"';
+        html += ' disabled><span contenteditable="true">' + op.l + '</span></label></li>';
+
+        return html;
     };
     InputWrap.prototype._htmlSingleRadio = function(oWrap) {
         var config = oWrap.config,

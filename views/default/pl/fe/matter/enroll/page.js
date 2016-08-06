@@ -14,20 +14,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				return message;
 			}
 		};
-		$scope.publish = function() {
-			$scope.app.state = 2;
-			if ($scope.ep.$$modified) {
-				$scope.updPage($scope.ep, ['data_schemas', 'act_schemas', 'html']).then(function() {
-					$scope.update('state').then(function() {
-						location.href = '/rest/pl/fe/matter/enroll/publish?site=' + $scope.siteId + '&id=' + $scope.id;
-					});
-				});
-			} else {
-				$scope.update('state').then(function() {
-					location.href = '/rest/pl/fe/matter/enroll/publish?site=' + $scope.siteId + '&id=' + $scope.id;
-				});
-			}
-		};
 		$scope.addPage = function() {
 			$scope.createPage().then(function(page) {
 				$scope.choosePage(page);

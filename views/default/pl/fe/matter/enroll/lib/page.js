@@ -282,9 +282,19 @@ define(['wrap'], function(wrapLib) {
 		},
 		removeBySchema: function(schema) {
 			if (this.type === 'V' || this.type === 'L') {
+				// 清除页面内容
 				var $html = $('<div>' + this.html + '</div>');
 				$html.find("[schema='" + schema.id + "']").remove();
 				this.html = $html.html();
+				if (this.type === 'V') {
+					// 清除数据定义中的项
+					for (var i = this.data_schemas.length - 1; i >= 0; i--) {
+						if (this.data_schemas[i].schema.id === schema.id) {
+							this.data_schemas.splice(i, 1);
+							break;
+						}
+					}
+				}
 			}
 		},
 		appendBySchema: function(schema) {
@@ -434,9 +444,7 @@ define(['wrap'], function(wrapLib) {
 		scroll: function(dom) {
 			var domBody = _editor.getBody(),
 				offsetTop = dom.offsetTop;
-			console.log('dddd', dom.offsetTop, domBody.scrollTop);
 			domBody.scrollTop = offsetTop - 15;
-			console.log('dddd', dom.offsetTop, domBody.scrollTop);
 		},
 		contentChange: function(node, activeWrap, $timeout) {
 			var domNodeWrap = $(node).parents('[wrap]'),

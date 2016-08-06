@@ -139,15 +139,23 @@ define(['wrap'], function(wrapLib) {
 						}
 					});
 				} else if (this.type === 'V') {
-					angular.forEach(this.data_schemas, function(config) {
+					var dataSchemas = [];
+					angular.forEach(this.data_schemas, function(dataSchema) {
+						var config = dataSchema.config,
+							schema = dataSchema.schema,
+							matched = false;
 						if (config.pattern === 'record') {
-							if (config.schema && config.schema.id) {
-								mapOfAppSchemas[config.schema.id] && (config.schema = mapOfAppSchemas[config.schema.id]);
-							} else {
-								console.error('data invalid', config);
+							if (schema && schema.id) {
+								if (mapOfAppSchemas[schema.id]) {
+									dataSchema.schema = mapOfAppSchemas[schema.id];
+									dataSchemas.push(dataSchema);
+									matched = true;
+								}
 							}
 						}
+						if (!matched) console.error('data invalid', dataSchema);
 					});
+					this.data_schemas = dataSchemas;
 				} else if (this.type === 'L') {
 					angular.forEach(this.data_schemas, function(config) {
 						if (config.pattern === 'records') {

@@ -408,6 +408,7 @@ define([], function() {
     ValueWrap.prototype.embed = function(oWrap) {
         var wrapAttrs, label, html, config = oWrap.config,
             schema = oWrap.schema;
+
         wrapAttrs = this.wrapAttrs(oWrap);
         label = '<label>' + schema.title + '</label>'
         html = label + this.htmlValue(schema);
@@ -416,7 +417,10 @@ define([], function() {
     };
     ValueWrap.prototype.modify = function(domWrap, oWrap) {
         var config = oWrap.config,
+            schema = oWrap.schema,
             $wrap = $(domWrap);
+
+        $wrap.find('label').html(schema.title);
         config.inline === 'Y' ? $wrap.addClass('wrap-inline') : $wrap.removeClass('wrap-inline');
         config.splitLine === 'Y' ? $wrap.addClass('wrap-splitline') : $wrap.removeClass('wrap-splitline');
     };

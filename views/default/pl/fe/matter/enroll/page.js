@@ -232,9 +232,14 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			});
 		});
 		$scope.refreshWrap = function(wrap) {
-			wrapLib.input.modify(wrap.dom, wrap);
-			$scope.ep.purifyInput(tinymceEditor.getContent(), true);
-			$scope.updPage($scope.ep, ['html']);
+			if ($scope.ep.type === 'I') {
+				wrapLib.input.modify(wrap.dom, wrap);
+				$scope.ep.purifyInput(tinymceEditor.getContent(), true);
+				$scope.updPage($scope.ep, ['html']);
+			} else if ($scope.ep.type === 'V') {
+				wrapLib.value.modify(wrap.dom, wrap);
+				$scope.updPage($scope.ep, ['html']);
+			}
 		};
 		$scope.removeSchema = function(removedSchema) {
 			var deferred = $q.defer();

@@ -140,32 +140,38 @@ define(['wrap'], function(wrapLib) {
 				console.error(e);
 				this.user_schemas = [];
 			}
-			
+
 			if (this.data_schemas.length) {
 				if (this.type === 'I') {
-					angular.forEach(this.data_schemas, function(dataWrap) {
-						if (dataWrap.schema && dataWrap.schema.id) {
-							mapOfAppSchemas[dataWrap.schema.id] && (dataWrap.schema = mapOfAppSchemas[dataWrap.schema.id]);
-						} else {
-							console.error('data invalid', dataWrap);
+					var dataSchemas = [];
+					angular.forEach(this.data_schemas, function(item) {
+						var matched = false;
+						if (item.schema && item.schema.id) {
+							if (mapOfAppSchemas[item.schema.id]) {
+								item.schema = mapOfAppSchemas[item.schema.id];
+								dataSchemas.push(item);
+								matched = true;
+							}
 						}
+						if (!matched) console.error('data invalid', item);
 					});
+					this.data_schemas = dataSchemas;
 				} else if (this.type === 'V') {
 					var dataSchemas = [];
-					angular.forEach(this.data_schemas, function(dataSchema) {
-						var config = dataSchema.config,
-							schema = dataSchema.schema,
+					angular.forEach(this.data_schemas, function(item) {
+						var config = item.config,
+							schema = item.schema,
 							matched = false;
 						if (config.pattern === 'record') {
 							if (schema && schema.id) {
 								if (mapOfAppSchemas[schema.id]) {
-									dataSchema.schema = mapOfAppSchemas[schema.id];
-									dataSchemas.push(dataSchema);
+									item.schema = mapOfAppSchemas[schema.id];
+									dataSchemas.push(item);
 									matched = true;
 								}
 							}
 						}
-						if (!matched) console.error('data invalid', dataSchema);
+						if (!matched) console.error('data invalid', item);
 					});
 					this.data_schemas = dataSchemas;
 				} else if (this.type === 'L') {

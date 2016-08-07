@@ -25,6 +25,7 @@
         </div>
         <button class='btn btn-success' ng-click='filter()'>筛选</button>
         <button class='btn btn-success' ng-click='verifyAll()'>全部通过审核</button>
+        <button class='btn btn-success' ng-click='batchVerify()'>批量通过审核</button>
         <button class='btn btn-primary' ng-click="notify()">发送信息</button>
         <button class='btn btn-primary' ng-click="export()">导出全部数据</button>
     </div>
@@ -32,8 +33,8 @@
         <table class='table table-bordered'>
             <thead>
                 <tr>
-                    <th style='width:40px'>
-                    </th>
+                    <th style='width:40px'><input type='checkbox' ng-model="selectAll"></th>
+                    <th style='width:40px'></th>
                     <th style='width:100px'>登记时间</th>
                     <th class='custom-col' ng-repeat="c in  app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
                     <th style='width:140px'>昵称</th>
@@ -46,6 +47,7 @@
             </thead>
             <tbody>
                 <tr ng-repeat='r in records' class='record'>
+                    <td><input type='checkbox' ng-model='selected[$index]'></td>
                     <td>{{(page.at-1)*page.size+$index+1}}</td>
                     <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                     <td ng-repeat="c in  app.data_schemas">

@@ -256,6 +256,10 @@ class record extends \pl\fe\matter\base {
 	 * 所有记录通过审核
 	 */
 	public function verifyAll_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$rst = $this->model()->update(
 			'xxt_enroll_record',
 			array('verified' => 'Y'),
@@ -263,6 +267,28 @@ class record extends \pl\fe\matter\base {
 		);
 
 		return new \ResponseData($rst);
+	}
+	/**
+	 * 指定记录通过审核
+	 */
+	public function batchVerify_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$posted = $this->getPostJson();
+		$eks = $posted->eks;
+
+		$model = $this->model();
+		foreach ($eks as $ek) {
+			$rst = $model->update(
+				'xxt_enroll_record',
+				['verified' => 'Y'],
+				"enroll_key='$ek'"
+			);
+		}
+
+		return new \ResponseData('ok');
 	}
 	/**
 	 * 给登记活动的参与人发消息

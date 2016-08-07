@@ -22,7 +22,7 @@ provider('srvApp', function() {
                     try {
                         app.data_schemas = app.data_schemas && app.data_schemas.length ? JSON.parse(app.data_schemas) : [];
                     } catch (e) {
-                        console.log('data invalid', app.data_schemas);
+                        console.log('data invalid', e, app.data_schemas);
                         app.data_schemas = [];
                     }
 

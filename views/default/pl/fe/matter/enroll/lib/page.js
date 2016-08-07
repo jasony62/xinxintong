@@ -124,11 +124,23 @@ define(['wrap'], function(wrapLib) {
 
 			try {
 				this.data_schemas = dataSchemas && dataSchemas.length ? JSON.parse(dataSchemas) : [];
+			} catch (e) {
+				console.error(e);
+				this.data_schemas = [];
+			}
+			try {
 				this.act_schemas = actSchemas && actSchemas.length ? JSON.parse(actSchemas) : [];
+			} catch (e) {
+				console.error(e);
+				this.act_schemas = [];
+			}
+			try {
 				this.user_schemas = userSchemas && userSchemas.length ? JSON.parse(userSchemas) : [];
 			} catch (e) {
-
+				console.error(e);
+				this.user_schemas = [];
 			}
+			
 			if (this.data_schemas.length) {
 				if (this.type === 'I') {
 					angular.forEach(this.data_schemas, function(dataWrap) {

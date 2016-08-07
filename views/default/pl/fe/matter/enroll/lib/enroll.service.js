@@ -19,7 +19,12 @@ provider('srvApp', function() {
                     app.tags = (!app.tags || app.tags.length === 0) ? [] : app.tags.split(',');
                     app.type = 'enroll';
                     app.entry_rule.scope === undefined && (app.entry_rule.scope = 'none');
-                    app.data_schemas = app.data_schemas && app.data_schemas.length ? JSON.parse(app.data_schemas) : [];
+                    try {
+                        app.data_schemas = app.data_schemas && app.data_schemas.length ? JSON.parse(app.data_schemas) : [];
+                    } catch (e) {
+                        console.log('data invalid', app.data_schemas);
+                        app.data_schemas = [];
+                    }
 
                     defer.resolve(app);
                 });

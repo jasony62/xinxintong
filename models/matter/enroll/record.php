@@ -292,8 +292,6 @@ class record_model extends \TMS_MODEL {
 			} else if ($activeRound = $this->M('matter\enroll\round')->getActive($siteId, $app->id)) {
 				$rid = $activeRound->rid;
 			}
-			// $kw = isset($options->kw) ? $options->kw : null;
-			// $by = isset($options->by) ? $options->by : null;
 		}
 		$result = new \stdClass; // 返回的结果
 		$result->total = 0;
@@ -324,11 +322,20 @@ class record_model extends \TMS_MODEL {
 		// 	}
 		// }
 
+		// 指定了登记记录过滤条件
+		if (!empty($criteria->record)) {
+			$whereByRecord = '';
+			if (!empty($criteria->record->verified)) {
+				$whereByRecord .= " and verified='{$criteria->record->verified}'";
+			}
+			$w .= $whereByRecord;
+		}
+
 		// 指定了记录标签
 		if (!empty($criteria->tags)) {
 			$whereByTag = '';
 			foreach ($criteria->tags as $tag) {
-				$whereByTag .= "and concat(',',e.tags,',') like '%,$tag,%'";
+				$whereByTag .= " and concat(',',e.tags,',') like '%,$tag,%'";
 			}
 			$w .= $whereByTag;
 		}
@@ -337,12 +344,14 @@ class record_model extends \TMS_MODEL {
 		if (isset($criteria->data)) {
 			$whereByData = '';
 			foreach ($criteria->data as $k => $v) {
-				$whereByData .= ' and (';
-				$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
-				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
-				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
-				$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
-				$whereByData .= ')';
+				if (!empty($v)) {
+					$whereByData .= ' and (';
+					$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
+					$whereByData .= ')';
+				}
 			}
 			$w .= $whereByData;
 		}

@@ -272,23 +272,24 @@ class record extends \pl\fe\matter\base {
 	 * @param string $tmplmsg
 	 *
 	 */
-	public function notify_action($site, $app, $tmplmsg, $rid = null, $tags = null, $kw = null, $by = null) {
+	public function notify_action($site, $app, $tmplmsg, $rid = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$message = $this->getPostJson();
-		/**
-		 * 用户筛选条件
-		 */
+		$posted = $this->getPostJson();
+		$message = $posted->message;
+
+		// 记录筛选条件
+		$criteria = $posted->criteria;
 		$options = array(
-			'tags' => $tags,
 			'rid' => $rid,
-			'kw' => $kw,
-			'by' => $by,
 		);
 
-		$participants = $this->model('matter\enroll')->participants($site, $app, $tmplmsg, $options);
+		$site = \TMS_MODEL::escape($site);
+		$app = \TMS_MODEL::escape($app);
+
+		$participants = $this->model('matter\enroll')->participants($site, $app, $options, $criteria);
 
 		$rst = $this->notifyWithMatter($site, $participants, $tmplmsg, $message);
 		if ($rst[0] === false) {

@@ -201,7 +201,7 @@ class enroll_model extends app_base {
 	 * [1] 数据总条数
 	 * [2] 数据项的定义
 	 */
-	public function participants($siteId, $appId, $options = null) {
+	public function participants($siteId, $appId, $options = null, $criteria = null) {
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$rid = null;
@@ -214,36 +214,53 @@ class enroll_model extends app_base {
 			} else if ($activeRound = \TMS_APP::M('matter\enroll\round')->getActive($siteId, $appId)) {
 				$rid = $activeRound->rid;
 			}
-
-			$kw = isset($options->kw) ? $options->kw : null;
-			$by = isset($options->by) ? $options->by : null;
 		}
 
-		$w = "e.siteid='$siteId' and aid='$appId' and userid<>''";
-		/**
-		 * 按轮次过滤
-		 */
+		$w = "aid='$appId' and userid<>''";
+
+		// 按轮次过滤
 		!empty($rid) && $w .= " and e.rid='$rid'";
-		/**
-		 * 按标签过滤
-		 */
-		if (!empty($options->tags)) {
-			$aTags = explode(',', $options->tags);
-			foreach ($aTags as $tag) {
-				$w .= "and concat(',',e.tags,',') like '%,$tag,%'";
+
+		// 指定了登记记录过滤条件
+		if (!empty($criteria->record)) {
+			$whereByRecord = '';
+			if (!empty($criteria->record->verified)) {
+				$whereByRecord .= " and verified='{$criteria->record->verified}'";
 			}
+			$w .= $whereByRecord;
 		}
-		/**
-		 * 进行过登记的人
-		 */
-		$q = array(
+
+		// 指定了记录标签
+		if (!empty($criteria->tags)) {
+			$whereByTag = '';
+			foreach ($criteria->tags as $tag) {
+				$whereByTag .= " and concat(',',e.tags,',') like '%,$tag,%'";
+			}
+			$w .= $whereByTag;
+		}
+
+		// 指定了登记数据过滤条件
+		if (isset($criteria->data)) {
+			$whereByData = '';
+			foreach ($criteria->data as $k => $v) {
+				if (!empty($v)) {
+					$whereByData .= ' and (';
+					$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
+					$whereByData .= ')';
+				}
+			}
+			$w .= $whereByData;
+		}
+
+		// 获得填写的登记数据
+		$q = [
 			'userid',
 			"xxt_enroll_record e",
 			$w,
-		);
-		/**
-		 * 获得填写的登记数据
-		 */
+		];
 		$participants = $this->query_vals_ss($q);
 
 		return $participants;

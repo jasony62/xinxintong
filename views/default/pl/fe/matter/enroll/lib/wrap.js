@@ -74,12 +74,13 @@ define([], function() {
     InputWrap.prototype.newRadio = function(schema, op, config) {
         var html;
 
-        html = '<li class="radio" wrap="radio" contenteditable="false"><label';
+        html = '<li class="radio" wrap="radio" contenteditable="false"';
+        config.required === 'Y' && (html += ' required');
+        html = '><label';
         if (config.align === 'H') html += ' class="radio-inline"';
         html += '><input type="radio" name="' + schema.id + '"';
         html += ' value="' + op.v + '"';
         html += ' ng-model="data.' + schema.id + '"';
-        config.required === 'Y' && (html += 'required=""');
         angular.forEach(schema.attrs, function(attr) {
             html += 'data-' + attr.name + '="' + attr.value + '"';
         });
@@ -90,10 +91,11 @@ define([], function() {
     InputWrap.prototype.newCheckbox = function(schema, op, config) {
         var html;
 
-        html = '<li class="checkbox" wrap="checkbox" contenteditable="false"><label';
+        html = '<li class="checkbox" wrap="checkbox" contenteditable="false"';
+        config.required === 'Y' && (html += ' required');
+        html = '><label';
         if (config.align === 'H') html += ' class="checkbox-inline"';
         html += '><input type="checkbox" name="' + schema.id + '"';
-        config.required === 'Y' && (html += 'required=""');
         html += ' ng-model="data.' + schema.id + '.' + op.v + '"';
         html += ' disabled><span contenteditable="true">' + op.l + '</span></label></li>';
 
@@ -107,12 +109,13 @@ define([], function() {
         cls = 'radio';
         config.align === 'H' && (cls += '-inline');
         angular.forEach(schema.ops, function(op) {
-            html += '<li class="' + cls + '" wrap="radio" contenteditable="false"><label';
+            html += '<li class="' + cls + '" wrap="radio" contenteditable="false"';
+            config.required === 'Y' && (html += 'required');
+            html += '><label';
             if (config.align === 'H') html += ' class="radio-inline"';
             html += '><input type="radio" name="' + schema.id + '"';
             html += ' value="' + op.v + '"';
             html += ' ng-model="data.' + schema.id + '"';
-            config.required === 'Y' && (html += 'required=""');
             angular.forEach(schema.attrs, function(attr) {
                 html += 'data-' + attr.name + '="' + attr.value + '"';
             });
@@ -148,10 +151,11 @@ define([], function() {
         cls = 'checkbox';
         config.align === 'H' && (cls += '-inline');
         angular.forEach(schema.ops, function(op) {
-            html += '<li class="' + cls + '" wrap="checkbox" contenteditable="false"><label';
+            html += '<li class="' + cls + '" wrap="checkbox" contenteditable="false"';
+            config.required === 'Y' && (html += 'required');
+            html += '><label';
             if (config.align === 'H') html += ' class="checkbox-inline"';
             html += '><input type="checkbox" name="' + schema.id + '"';
-            config.required === 'Y' && (html += 'required=""');
             html += ' ng-model="data.' + schema.id + '.' + op.v + '"';
             html += ' disabled><span contenteditable="true">' + op.l + '</span></label></li>';
         });

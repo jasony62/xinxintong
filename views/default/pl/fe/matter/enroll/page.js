@@ -550,6 +550,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		var pageSchemas = $scope.ep.data_schemas,
 			appSchemas = $scope.app.data_schemas,
 			chooseState = {};
+
 		angular.forEach(pageSchemas, function(dataWrap) {
 			if (dataWrap.schema) {
 				chooseState[dataWrap.schema.id] = true;
@@ -557,6 +558,8 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				console.error('page[' + $scope.ep.name + '] schema not exist', dataWrap);
 			}
 		});
+
+		$scope.popover = {};
 		$scope.appSchemas = appSchemas;
 		$scope.chooseState = chooseState;
 		$scope.choose = function(schema) {
@@ -564,6 +567,64 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				$scope.$emit('xxt.matter.enroll.page.data_schemas.requestAdd', schema);
 			} else {
 				$scope.$emit('xxt.matter.enroll.page.data_schemas.requestRemove', schema);
+			}
+		};
+		$('body').on('click', function(event) {
+			var target = event.target;
+			if (event.target.tagName === 'SPAN' && target.parentNode && target.parentNode.tagName === 'BUTTON') {
+				target = target.parentNode;
+			}
+			if (target.tagName === 'BUTTON' && target.classList.contains('popover-schema') && target.dataset.schemaIndex !== undefined) {
+				var schema = appSchemas[target.dataset.schemaIndex];
+				if ($scope.popover.target !== target) {
+					if ($scope.popover.target) {
+						$($scope.popover.target).trigger('hide');
+					}
+					$(target).trigger('show');
+					$scope.popover = {
+						target: target,
+						schema: schema,
+						index: target.dataset.schemaIndex
+					};
+				} else {
+					$scope.popover = {};
+					$(target).trigger('hide');
+				}
+			}
+		});
+		$scope.removePopover = function() {
+			$scope.removeSchema($scope.popover.schema).then(function() {
+				$($scope.popover.target).trigger('hide');
+				$scope.popover = {};
+			});
+		};
+		$scope.upPopover = function() {
+			var index = $scope.popover.index;
+			if (index > 0) {
+				$scope.appSchemas.splice(index, 1);
+				$scope.appSchemas.splice(index - 1, 0, $scope.popover.schema);
+				$scope.popover.index--;
+				$scope.popover.modified = true;
+			}
+		};
+		$scope.downPopover = function() {
+			var index = $scope.popover.index;
+			if (index < $scope.appSchemas.length - 1) {
+				$scope.appSchemas.splice(index, 1);
+				$scope.appSchemas.splice(index + 1, 0, $scope.popover.schema);
+				$scope.popover.index++;
+				$scope.popover.modified = true;
+			}
+		};
+		$scope.closePopover = function() {
+			if ($scope.popover.modified) {
+				$scope.update('data_schemas').then(function() {
+					$($scope.popover.target).trigger('hide');
+					$scope.popover = {};
+				});
+			} else {
+				$($scope.popover.target).trigger('hide');
+				$scope.popover = {};
 			}
 		};
 		$scope.$on('xxt.matter.enroll.page.data_schemas.add', function(event, newSchema) {

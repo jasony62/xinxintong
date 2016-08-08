@@ -79,13 +79,15 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
             if (true !== reason) {
                 return reason;
             }
-            dataSchemas = JSON.parse(page.data_schemas);
-            for (var i = dataSchemas.length - 1; i >= 0; i--) {
-                item = dataSchemas[i];
-                if (item.config.required === 'Y') {
-                    value = data[item.schema.id];
-                    if (value === undefined || isEmpty(item.schema, value)) {
-                        return '请填写必填项［' + item.schema.title + '］';
+            if (page.data_schemas && page.data_schemas.length) {
+                dataSchemas = JSON.parse(page.data_schemas);
+                for (var i = dataSchemas.length - 1; i >= 0; i--) {
+                    item = dataSchemas[i];
+                    if (item.config.required === 'Y') {
+                        value = data[item.schema.id];
+                        if (value === undefined || isEmpty(item.schema, value)) {
+                            return '请填写必填项［' + item.schema.title + '］';
+                        }
                     }
                 }
             }

@@ -55,9 +55,9 @@
                 <div class='help-block'>活动中所有登记项</div>
                 <div class='list-group' ng-controller="ctrlAppSchemas4Input">
                     <div class='list-group-item schema' ng-repeat="s in appSchemas">
-                        <div class='checkbox' style='margin:0;padding:0' ng-mouseenter="entered=true" ng-mouseleave="entered=false">
+                        <div class='checkbox' style='margin:0;padding:0'>
                             <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
-                            <button class='btn btn-default btn-xs pull-right' ng-if="entered" ng-click="removeSchema(s)"><span class='glyphicon glyphicon-remove'></span></button>
+                            <button data-schema-index="{{$index}}" uib-popover-template="'schemaAction.html'" popover-append-to-body='true' popover-placement="right-bottom" popover-trigger="show" class='btn btn-default btn-xs pull-right popover-schema'><span class='glyphicon glyphicon-cog'></span></button>
                         </div>
                     </div>
                 </div>
@@ -140,5 +140,13 @@
         <button class='btn btn-block btn-default' ng-click="addPage()">添加页面</button>
         <hr>
         <a href="/rest/pl/fe/matter/enroll/event?site={{siteId}}&id={{id}}">活动进入规则</a>
+    <div>
+</script>
+<script type="text/ng-template" id="schemaAction.html">
+    <div id="schemaAction">
+        <button class='btn btn-sm btn-default' ng-click="removePopover()"><span class='glyphicon glyphicon-trash'></span></button>
+        <button class='btn btn-sm btn-default' ng-click="upPopover()"><span class='glyphicon glyphicon-arrow-up'></span></button>
+        <button class='btn btn-sm btn-default' ng-click="downPopover()"><span class='glyphicon glyphicon-arrow-down'></span></button>
+        <button class="btn btn-sm btn-default" style='border:0;color:#ccc' title='关闭' ng-click="closePopover()"><span class='glyphicon glyphicon-remove'></span></button>
     <div>
 </script>

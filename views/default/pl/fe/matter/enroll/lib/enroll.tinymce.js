@@ -92,6 +92,11 @@ directive('tinymce', function($timeout) {
                         }
                     }
                 });
+                editor.on('undo', function(e) {
+                    console.log('111111',editor.undoManager.hasUndo());
+                    console.log('undo', e);
+                    console.log('22222',editor.undoManager.hasUndo());
+                });
                 /*编辑节点*/
                 (function() {
                     var _lastNodeContent;

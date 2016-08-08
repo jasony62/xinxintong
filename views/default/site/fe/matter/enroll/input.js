@@ -36,14 +36,14 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
 
         function validate(data) {
             var reason;
-            if (document.querySelector('[ng-model="data.name"]') === 1) {
+            if (document.querySelector('[ng-model="data.name"]')) {
                 reason = '请提供您的姓名！';
                 if (false === required(data.name, 2)) {
                     document.querySelector('[ng-model="data.name"]').focus();
                     return reason;
                 }
             }
-            if (document.querySelector('[ng-model="data.mobile"]') === 1) {
+            if (document.querySelector('[ng-model="data.mobile"]')) {
                 reason = '请提供正确的手机号（11位数字）！';
                 if (false === validatePhone(data.mobile)) {
                     document.querySelector('[ng-model="data.mobile"]').focus();

@@ -525,8 +525,8 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 					html = page.html;
 				}
 				tinymceEditor.setContent(html);
+				tinymceEditor.undoManager.clear();
 			}
-
 		});
 		$scope.$on('tinymce.instance.init', function(event, editor) {
 			var html;
@@ -539,7 +539,8 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				} else {
 					html = $scope.ep.html;
 				}
-				editor.setContent(html);
+				tinymceEditor.setContent(html);
+				tinymceEditor.undoManager.clear();
 			}
 		});
 	}]);
@@ -779,6 +780,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 	ngApp.provider.controller('ctrlValueWrap', ['$scope', function($scope) {
 		$scope.updWrap = function(obj, prop) {
 			wrapLib.value.modify($scope.activeWrap.dom, $scope.activeWrap);
+			$scope.ep.html = tinymce.activeEditor.getContent();
 			$scope.updPage($scope.ep, ['data_schemas', 'html']);
 		};
 	}]);

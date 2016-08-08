@@ -8,9 +8,12 @@ body>nav>ul:nth-child(2)>li{display:inline-block;float:none;}
 .tile>.form-group:last-child{margin-bottom:0;}
 
 /*app-view*/
-#page-view{}
 #page-view .pages .container-fluid{padding-bottom:8px;}
 #page-view .page{position:absolute;top:120px;bottom:71px;overflow-y:auto;}
+#page-view .schema .checkbox{margin:0;padding:0;}
+#page-view .schema .checkbox label{margin-right:24px;}
+#page-view .schema .checkbox button{position:absolute;top:0;right:0;}
+#page-view .schema.dndable.ui-sortable-helper{min-height:41px;}
 #page-view .page .page-schemas{position:absolute;top:0;bottom:0;left:0;width:290px;overflow-y:auto;}
 #page-view .page .page-editor{position:absolute;top:0;bottom:0;left:305px;width:540px;overflow-y:auto;}
 #page-view .page .wrap-editor{position:absolute;top:0;bottom:0;left:860px;width:250px;overflow-y:auto;}

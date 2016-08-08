@@ -55,9 +55,9 @@
                 <div class='help-block'>活动中所有登记项</div>
                 <div dnd-list dataset='appSchemas' class='list-group'>
                     <div class='list-group-item dndable schema' ng-repeat="s in appSchemas">
-                        <div class='checkbox' style='margin:0;padding:0'>
+                        <div class='checkbox'>
                             <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
-                            <button data-schema-index="{{$index}}" uib-popover-template="'schemaAction.html'" popover-append-to-body='true' popover-placement="right-bottom" popover-trigger="show" class='btn btn-default btn-xs pull-right popover-schema'><span class='glyphicon glyphicon-cog'></span></button>
+                            <button data-schema-index="{{$index}}" uib-popover-template="'schemaAction.html'" popover-append-to-body='true' popover-placement="right-bottom" popover-trigger="show" class='btn btn-default btn-xs popover-schema'><span class='glyphicon glyphicon-cog'></span></button>
                         </div>
                     </div>
                 </div>

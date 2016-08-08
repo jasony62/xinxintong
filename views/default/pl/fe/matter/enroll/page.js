@@ -571,7 +571,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			}
 		};
 		$scope.$on('orderChanged', function(e, moved) {
-			console.log('dnd', arguments);
+			$scope.update('data_schemas').then(function() {});
 		});
 		$('body').on('click', function(event) {
 			var target = event.target;

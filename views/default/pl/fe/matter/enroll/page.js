@@ -570,6 +570,9 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				$scope.$emit('xxt.matter.enroll.page.data_schemas.requestRemove', schema);
 			}
 		};
+		$scope.$on('orderChanged', function(e, moved) {
+			console.log('dnd', arguments);
+		});
 		$('body').on('click', function(event) {
 			var target = event.target;
 			if (event.target.tagName === 'SPAN' && target.parentNode && target.parentNode.tagName === 'BUTTON') {

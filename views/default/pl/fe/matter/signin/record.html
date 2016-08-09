@@ -1,29 +1,23 @@
 <div id='record-view'>
     <div class='form-group form-inline'>
-        <div class='form-group'>
-            <select class='form-control' ng-model='page.searchBy' ng-options='s.v as s.n for s in searchBys'></select>
-        </div>
-        <div class='form-group' style='max-width:200px'>
-            <div class="input-group">
-                <input type='text' class='form-control' ng-model='page.keyword' placeholder='搜索条件' ng-keyup='keywordKeyup($event)'>
-                <span class="input-group-btn">
-                    <button class="btn btn-default" type="button" ng-click='doSearch(1)'>
-                        <span class="glyphicon glyphicon-search"></span>
-                    </button>
-                </span>
-            </div>
-        </div>
         <div class='form-group' ng-if='app.rounds'>
-            <select class='form-control' title='登记轮次' ng-model='page.byRound' ng-options='r.rid as r.title for r in app.rounds' ng-change='doSearch(1)'>
+        <label>轮次</label>
+            <select class='form-control' ng-model='page.byRound' ng-options='r.rid as r.title for r in app.rounds' ng-change='doSearch(1)'>
                 <option value=>全部</option>
             </select>
         </div>
         <div class='form-group'>
-            <combox title='标签' evt-prefix='search-tag' readonly='true' existing='page.tags' options='app.tags'></combox>
+            <label>标签</label>
+            <combox evt-prefix='search-tag' readonly='true' existing='page.tags' options='app.tags'></combox>
         </div>
-        <div class='form-group pull-right' style='width:90px'>
+        <div class='form-group'>
+            <button class='btn btn-primary' ng-click="notify()">发送信息</button>
+            <button class='btn btn-primary' ng-click="export()">导出全部数据</button>
+        </div>
+        <div class='form-group pull-right'>
             <div class='input-group'>
-                <input class='form-control' ng-model='page.size' title='每页条数' placeholder='每页条数'>
+                <span class="input-group-addon">每页条数</span>
+                <input class='form-control' ng-model='page.size' style='width:48px'>
                 <span class='input-group-btn'>
                     <button class='btn btn-default' ng-click='doSearch(1)'>
                         <span class='glyphicon glyphicon-refresh'></span>
@@ -31,20 +25,13 @@
                 </span>
             </div>
         </div>
-        <div class='form-group hide'>
-            <select class='form-control' title="排序条件" ng-model='page.orderBy' ng-options='o.v as o.n for o in orderBys' ng-change='doSearch(1)'></select>
-        </div>
-        <div class='form-group'>
-            <button class='btn btn-default' ng-click='tagByData()' disabled>打标签</button>
-        </div>
     </div>
     <div id='records'>
         <table class='table table-bordered'>
             <thead>
                 <tr>
-                    <th style='width:40px'>
-                        <input type='checkbox' ng-model="selectAll">
-                    </th>
+                    <th style='width:40px'><input type='checkbox' ng-model="selectAll"></th>
+                    <th style='width:40px'></th>
                     <th style='width:100px'>登记时间</th>
                     <th class='custom-col' ng-repeat="c in  app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
                     <th style='width:100px'>签到时间</th>
@@ -56,9 +43,8 @@
             </thead>
             <tbody>
                 <tr ng-repeat='r in records' class='record'>
-                    <td>
-                        <input type='checkbox' ng-model='selected[$index]'>
-                    </td>
+                    <td><input type='checkbox' ng-model='selected[$index]'></td>
+                    <td>{{(page.at-1)*page.size+$index+1}}</td>
                     <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                     <td ng-repeat="c in  app.data_schemas">
                         <span ng-if="c.id.indexOf('member')===0">{{memberAttr(r.data, c.id)}}</span>
@@ -87,12 +73,23 @@
         </table>
     </div>
     <div class='form-group form-inline'>
-        <combox title='标签' evt-prefix='batch-tag' readonly='true' options='app.tags'></combox>
         <button class='btn btn-danger' ng-click='empty()'>清空记录</button>
         <button type="button" class="btn btn-default" ng-click='addRecord()'>添加签到记录</button>
         <span>总数：{{page.total}}</span>
         <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
     </div>
+    <!-- bottom navbar -->
+    <nav class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container-fluid" style='text-align:center'>
+            <form class="navbar-form" style='display:inline-block'>
+                <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/enroll/preview?site={{siteId}}&id={{id}}">活动设置</a>
+            </form>
+            <form class="navbar-form navbar-right" style='display:inline-block'>
+                <button class='btn btn-lg btn-default' ng-click="remove()">删除活动</button>
+            </form>
+        </div>
+    </nav>
+    <!-- end bottom navbar -->
 </div>
 <script type="text/ng-template" id="tagByData.html">
     <div class="modal-header">

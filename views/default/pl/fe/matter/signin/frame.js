@@ -1,6 +1,6 @@
 define(['require', 'page'], function(require, pageLib) {
 	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'tinymce.enroll', 'ui.xxt']);
-	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider) {
+	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
 		var RouteParam = function(name) {
 			var baseURL = '/views/default/pl/fe/matter/signin/';
 			this.templateUrl = baseURL + name + '.html?_=' + ((new Date()) * 1);
@@ -25,43 +25,13 @@ define(['require', 'page'], function(require, pageLib) {
 			.when('/rest/pl/fe/matter/signin/record', new RouteParam('record'))
 			.when('/rest/pl/fe/matter/signin/publish', new RouteParam('publish'))
 			.when('/rest/pl/fe/matter/signin/event', new RouteParam('event'))
-			.otherwise(new RouteParam('app'));
+			.otherwise(new RouteParam('publish'));
 
 		$locationProvider.html5Mode(true);
+		$uibTooltipProvider.setTriggers({
+			'show': 'hide'
+		});
 	}]);
-	ngApp.directive('relativeFixed', function() {
-		return {
-			restrict: 'A',
-			link: function(scope, elem, attrs) {
-				var elem = elem[0],
-					initial = {
-						top: elem.style.top,
-						left: elem.style.left,
-						position: elem.style.position,
-					},
-					fixedHeight = parseInt(attrs.fixedHeight),
-					bodyOffsetTop = elem.offsetTop,
-					bodyOffsetLeft = elem.offsetLeft,
-					offsetParent = elem.offsetParent;
-				while (offsetParent.offsetParent) {
-					bodyOffsetTop += offsetParent.offsetTop;
-					bodyOffsetLeft += offsetParent.offsetLeft;
-					offsetParent = offsetParent.offsetParent;
-				}
-				window.addEventListener('scroll', function(event) {
-					if (document.body.scrollTop + fixedHeight > bodyOffsetTop) {
-						elem.style.position = 'fixed';
-						elem.style.top = fixedHeight + 'px';
-						elem.style.left = bodyOffsetLeft + 'px';
-					} else {
-						elem.style.position = initial.position;
-						elem.style.top = initial.top;
-						elem.style.left = initial.left;
-					}
-				});
-			}
-		}
-	});
 	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'noticebox', function($scope, $location, $uibModal, $q, http2, noticebox) {
 		var ls = $location.search(),
 			modifiedData = {};
@@ -94,6 +64,17 @@ define(['require', 'page'], function(require, pageLib) {
 
 			return $scope.submit();
 		};
+		$scope.remove = function() {
+            if (window.confirm('确定删除？')) {
+                http2.get('/rest/pl/fe/matter/signin/remove?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+                    if ($scope.app.mission) {
+                        location = "/rest/pl/fe/matter/mission?site=" + $scope.siteId + "&id=" + $scope.app.mission.id;
+                    } else {
+                        location = '/rest/pl/fe/site/console?site=' + $scope.siteId;
+                    }
+                });
+            }
+        };
 		$scope.createPage = function() {
 			var deferred = $q.defer();
 			$uibModal.open({
@@ -155,6 +136,38 @@ define(['require', 'page'], function(require, pageLib) {
 		});
 		http2.get('/rest/pl/fe/site/member/schema/list?valid=Y&site=' + $scope.siteId, function(rsp) {
 			$scope.memberSchemas = rsp.data;
+			angular.forEach(rsp.data, function(ms) {
+				var schemas = [];
+				if (ms.attr_name[0] === '0') {
+					schemas.push({
+						id: 'member.name',
+						title: '姓名',
+					});
+				}
+				if (ms.attr_mobile[0] === '0') {
+					schemas.push({
+						id: 'member.mobile',
+						title: '手机',
+					});
+				}
+				if (ms.attr_email[0] === '0') {
+					schemas.push({
+						id: 'member.email',
+						title: '邮箱',
+					});
+				}
+				(function() {
+					var i, ea;
+					for (var i = ms.extattr.length - 1; i >= 0; i--) {
+						ea = ms.extattr[i];
+						schemas.push({
+							id: 'member.extattr.' + ea.id,
+							title: ea.label,
+						});
+					};
+				})();
+				ms._schemas = schemas;
+			});
 		});
 		$scope.getApp();
 	}]);

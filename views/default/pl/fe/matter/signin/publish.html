@@ -1,4 +1,94 @@
-<div class='col-md-8'>
+<!-- app -->
+<div class='col-md-12 app' ng-controller="ctrlApp">
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-form navbar-left" ng-if="!app.mission">
+                <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
+            </div>
+            <div class="navbar-form navbar-left">
+                <div class='form-group'>
+                    <label>标题</label>
+                    <input type='text' class='form-control' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+                </div>
+                <div class='form-group' ng-if="app.mission.multi_phase==='Y'">
+                    <label>课程期数</label>
+                    <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
+                        <option></option>
+                    </select>
+                </div>
+                <div class='form-group' ng-if="!app.enroll_app_id">
+                    <button class='btn btn-success' ng-click="assignEnrollApp()">指定签到名单</button>
+                </div>
+                <div class='form-group' ng-if="app.enroll_app_id">
+                    <label>签到名单</label>
+                    <div class="input-group">
+                        <div class='form-control' ng-bind="app.enrollApp.title"></div>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" ng-click="cancelEnrollApp()">
+                                <span class='glyphicon glyphicon-remove'></span>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="navbar-form navbar-right">
+                <button uib-popover-template="'appSetting.html'" popover-placement="bottom" popover-title="应用设置" popover-trigger="outsideClick" type="button" class="btn btn-default">活动设置 <span class="caret"></span></button>
+            </div>
+        </div>
+    </nav>
+</div>
+<!-- end app -->
+<!-- rounds -->
+<div class='col-md-8 rounds' ng-controller='ctrlRound'>
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <th>签到轮次</th>
+                <th style='width:180px;'>签到开始时间</th>
+                <th style='width:180px;'>记迟到时间</th>
+                <th style='width:60px;'></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="round in rounds">
+                <td><input type='text' class="form-control" ng-model='round.title' tms-auto-update tms-wait=1000 tms-update="update(round,'title')"></td>
+                <td><tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-obj="round" tms-date="round.start_at" tms-state='start_at'></tms-datepicker></td>
+                <td><tms-datepicker class='tms-datepicker' tms-title='迟到时间' tms-obj="round" tms-date='round.late_at' tms-state='late_at'></tms-datepicker></td>
+                <td><button class="btn btn-default" ng-click="remove(round)"><span class="glyphicon glyphicon-remove"></span></button></td>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <button class="btn btn-success" ng-click="add()"><span class="glyphicon glyphicon-plus"></span></button>
+                    <button class="btn btn-success" ng-click="batch()"><span>批量添加</span></button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<!-- end rounds -->
+<!-- publish -->
+<div class='col-md-4'>
+    <div class='tile records'>
+        <div class='help-block'>
+            <span>签到情况统计</span>
+            <a href='/rest/pl/fe/matter/signin/record?site={{siteId}}&id={{id}}'>（查看详情）</a></div>
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th>轮次</th>
+                    <th>全部</th>
+                    <th>迟到</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="round in summary" ng-class="{'info':round.active==='Y'}">
+                    <td ng-bind="round.title"></td>
+                    <td ng-bind="round.total"></td>
+                    <td ng-bind="round.late"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
     <div class="panel panel-default">
         <div class="panel-heading">签到链接：复制或分享给用户进行签到</div>
         <div class="panel-body">
@@ -9,7 +99,10 @@
     <div class="panel panel-default">
         <div class="panel-heading">二维码签到</div>
         <div class="panel-body">
-            <div><img ng-src="{{entry.qrcode}}"></div>
+            <div><img id='entryQrcode' ng-src="{{entry.qrcode}}"></div>
+            <div>
+                <button class='btn btn-default' ng-click="downloadQrcode(entry.qrcode)">下载</button>
+            </div>
         </div>
     </div>
     <div class="panel panel-default">
@@ -49,48 +142,97 @@
         </div>
     </div>
 </div>
-<div class='col-md-4'>
-    <div class='tile'>
-        <div class='form-group'>
-            <a href='/rest/pl/fe/matter/signin/app?site={{siteId}}&id={{id}}'>{{app.title}}（设置）</a>
-        </div>
-    </div>
-    <div class='tile records'>
-        <div class='help-block'>
-            <span>签到情况统计</span>
-            <a href='/rest/pl/fe/matter/signin/record?site={{siteId}}&id={{id}}'>（查看详情）</a></div>
-        <table class='table table-bordered'>
-            <thead>
-                <tr>
-                    <th>轮次</th>
-                    <th>全部</th>
-                    <th>迟到</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="round in summary" ng-class="{'info':round.active==='Y'}">
-                    <td ng-bind="round.title"></td>
-                    <td ng-bind="round.total"></td>
-                    <td ng-bind="round.late"></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class='tile'>
-        <div class='form-group'>
-            <div>阅读：{{app.read_num}}</div>
-            <div>分享好友：{{app.share_friend_num}}</div>
-            <div>分享朋友圈：{{app.share_timeline_num}}</div>
-        </div>
-    </div>
-</div>
+<!-- end publish -->
 <!-- bottom nav -->
 <nav class="navbar navbar-default navbar-fixed-bottom">
     <div class="container-fluid" style='text-align:center'>
         <form class="navbar-form" style='display:inline-block'>
-            <a class='btn btn-lg btn-default' href='/rest/pl/fe/matter/signin/app?site={{siteId}}&id={{id}}'>活动设置</a>
-            <button class='btn btn-lg btn-default' ng-click="stop()">停止</button>
+            <a class='btn btn-lg btn-default' href='/rest/pl/fe/matter/signin/page?site={{siteId}}&id={{id}}'>页面设置</a>
         </form>
     </div>
 </nav>
 <!-- end bottom nav -->
+<script type="text/ng-template" id="appSetting.html">
+    <div id="appSetting">
+        <div class='tile'>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_header' ng-change="update('use_site_header');">使用站点页眉</label>
+            </div>
+            <div class='checkbox'>
+                <label>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_footer' ng-change="update('use_site_footer');">使用站点页脚</label>
+            </div>
+        </div>
+        <div class='tile' ng-if="app.mission_id>0">
+            <div class='checkbox'>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_header' ng-change="update('use_mission_header');">使用项目页眉</label>
+            </div>
+            <div class='checkbox'>
+                <label class='checkbox-inline'>
+                    <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_footer' ng-change="update('use_mission_footer');">使用项目页脚</label>
+            </div>
+        </div>
+    <div>
+</script>
+<script type="text/ng-template" id="assignEnrollApp.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">筛选条件</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal record-editor">
+            <div class='form-group'>
+                <label class="col-md-3 control-label">目标活动</label>
+                <div class="col-md-9">
+                    <select class="form-control" ng-model="data.source" ng-options="app.id as app.title for app in apps"></select>
+                    <div class='checkbox' ng-if="app.mission">
+                        <label><input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">选择同一个项目中的活动</label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">确定</button>
+    </div>
+</script>
+<script type="text/ng-template" id="batchRounds.html">
+    <div class="modal-header">
+        <button class="close" ng-click="cancel()" type="button">×</button>
+        <h5 class="modal-title">指定签到次数</h5>
+    </div>
+    <div class="modal-body">
+        <div class='form-horizontal'>
+            <div class='form-group'>
+                <label class='col-md-3 control-label'>活动开始时间</label>
+                <div class='col-md-9'>
+                    <tms-datepicker class='tms-datepicker' tms-title='课程开始时间' tms-date='params.start_at' tms-state='start_at'></tms-datepicker>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label class='col-md-3 control-label'>活动结束时间</label>
+                <div class='col-md-9'>
+                    <tms-datepicker class='tms-datepicker' tms-title='课程结束时间' tms-date='params.end_at' tms-state='end_at'></tms-datepicker>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">每天签到次数</label>
+                <div class='col-md-9'>
+                    <label class='radio-inline'><input type='radio' value='1' name='type' ng-model="params.timesOfDay">1次</label>
+                    <label class='radio-inline'><input type='radio' value='2' name='type' ng-model="params.timesOfDay">2次</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-3 control-label">覆盖已有轮次</label>
+                <div class='col-md-9'>
+                    <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="params.overwrite">是</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer" style="margin-top:0">
+        <button class="btn btn-success" ng-click="ok()">确定</button>
+    </div>
+</script>

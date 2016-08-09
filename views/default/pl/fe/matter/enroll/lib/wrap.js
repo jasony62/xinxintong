@@ -76,7 +76,7 @@ define([], function() {
 
         html = '<li class="radio" wrap="radio" contenteditable="false"';
         config.required === 'Y' && (html += ' required');
-        html = '><label';
+        html += '><label';
         if (config.align === 'H') html += ' class="radio-inline"';
         html += '><input type="radio" name="' + schema.id + '"';
         html += ' value="' + op.v + '"';
@@ -93,7 +93,7 @@ define([], function() {
 
         html = '<li class="checkbox" wrap="checkbox" contenteditable="false"';
         config.required === 'Y' && (html += ' required');
-        html = '><label';
+        html += '><label';
         if (config.align === 'H') html += ' class="checkbox-inline"';
         html += '><input type="checkbox" name="' + schema.id + '"';
         html += ' ng-model="data.' + schema.id + '.' + op.v + '"';

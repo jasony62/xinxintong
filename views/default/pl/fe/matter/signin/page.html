@@ -61,14 +61,6 @@
                         </div>
                     </div>
                 </div>
-                <div class='tile' ng-if="app.enroll_app_id">
-                    <div class='help-block'>要在签到名单中验证的登记项</div>
-                    <div class='list-group'>
-                        <div class='list-group-item' ng-repeat="s in app.data_schemas">
-                            <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="s.requireCheck" ng-change="update('data_schemas')">{{s.title}}</label>
-                        </div>
-                    </div>
-                </div>
                 <div ng-if="ep.type==='V'" ng-controller="ctrlAppSchemas4View">
                     <div class='list-group-item' ng-repeat="s in appSchemas">
                         <div class='checkbox' style='margin:0'>

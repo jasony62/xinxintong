@@ -14,15 +14,8 @@ class record extends \pl\fe\matter\base {
 		exit;
 	}
 	/**
-	 * 活动报名名单
+	 * 活动登记名单
 	 *
-	 * 1、如果活动仅限会员报名，那么要叠加会员信息
-	 * 2、如果报名的表单中有扩展信息，那么要提取扩展信息
-	 *
-	 * return
-	 * [0] 数据列表
-	 * [1] 数据总条数
-	 * [2] 数据项的定义
 	 */
 	public function list_action($site, $app, $page = 1, $size = 30, $signinStartAt = null, $signinEndAt = null, $rid = null, $orderby = null, $contain = null) {
 		if (false === ($user = $this->accountUser())) {
@@ -48,6 +41,60 @@ class record extends \pl\fe\matter\base {
 
 		$mdoelRec = $this->model('matter\signin\record');
 		$result = $mdoelRec->find($site, $app, $options, $criteria);
+
+		return new \ResponseData($result);
+	}
+	/**
+	 * 关联的报名名单
+	 */
+	public function listByEnroll_action($site, $app, $page = 1, $size = 30, $rid = null, $orderby = null, $contain = null) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		// 登记数据过滤条件
+		$criteria = $this->getPostJson();
+
+		// 登记记录过滤条件
+		$options = array(
+			'page' => $page,
+			'size' => $size,
+			'rid' => $rid,
+			'orderby' => $orderby,
+			'contain' => $contain,
+		);
+
+		// 登记活动
+		$modelApp = $this->model('matter\signin');
+		$app = $modelApp->byId($app);
+
+		if (empty($app->enroll_app_id)) {
+			return new \ResponseError('参数错误，没有指定关联的报名活动');
+		}
+		// 和签到在同一个项目阶段的报名
+		if (!empty($app->mission_phase_id)) {
+			if (!isset($criteria->data)) {
+				$criteria->data = new \stdClass;
+			}
+			$criteria->data->phase = $app->mission_phase_id;
+		}
+		// 查询结果
+		$enrollApp = $this->model('matter\enroll')->byId($app->enroll_app_id);
+		$mdoelRec = $this->model('matter\enroll\record');
+		$result = $mdoelRec->find($site, $enrollApp, $options, $criteria);
+
+		if ($result->total > 0) {
+			foreach ($result->records as &$record) {
+				$q = [
+					'enroll_at,signin_at,signin_num,data',
+					'xxt_signin_record',
+					"aid='{$app->id}' and verified_enroll_key='$record->enroll_key'",
+				];
+				if ($signinRecord = $modelApp->query_obj_ss($q)) {
+					$signinRecord->data = json_decode($signinRecord->data);
+					$record->_signinRecord = $signinRecord;
+				}
+			}
+		}
 
 		return new \ResponseData($result);
 	}
@@ -216,9 +263,16 @@ class record extends \pl\fe\matter\base {
 					[$k => $v],
 					"enroll_key='$ek'"
 				);
-				// 更新记录的标签时，要同步更新活动的标签，实现标签在整个活动中有效
 				if ($k === 'tags') {
+					// 更新记录的标签时，要同步更新活动的标签，实现标签在整个活动中有效
 					$this->model('matter\signin')->updateTags($app, $v);
+				} else if ($k === 'verified' && $v === 'N') {
+					// 如果不通过验证，去掉关联的报名数据
+					$model->update(
+						'xxt_signin_record',
+						['verified_enroll_key' => ''],
+						"enroll_key='$ek'"
+					);
 				}
 			} elseif ($k === 'data' and is_object($v)) {
 				$dbData = new \stdClass;

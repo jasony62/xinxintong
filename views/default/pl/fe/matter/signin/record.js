@@ -1,27 +1,21 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlRecord', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
-        $scope.notifyMatterTypes = [{
-            value: 'text',
-            title: '文本',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'article',
-            title: '单图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'news',
-            title: '多图文',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'channel',
-            title: '频道',
-            url: '/rest/pl/fe/matter'
-        }, {
-            value: 'enroll',
-            title: '登记活动',
-            url: '/rest/pl/fe/matter'
-        }];
-        $scope.doSearch = function(page) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', function($scope) {
+        // 当前处理的数据集
+        $scope.recordSet = 'signin';
+        $scope.chooseRecordSet = function(name) {
+            $scope.recordSet = name;
+        };
+        $scope.json2Obj = function(json) {
+            if (json && json.length) {
+                obj = JSON.parse(json);
+                return obj;
+            } else {
+                return {};
+            }
+        };
+    }]);
+    ngApp.provider.controller('ctrlSigninRecords', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
+        function searchSigninRecords(page) {
             var url;
             page && ($scope.page.at = page);
             url = '/rest/pl/fe/matter/signin/record/list';
@@ -45,6 +39,31 @@ define(['frame'], function(ngApp) {
                     }
                 });
             });
+        };
+
+        $scope.notifyMatterTypes = [{
+            value: 'text',
+            title: '文本',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'article',
+            title: '单图文',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'news',
+            title: '多图文',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'channel',
+            title: '频道',
+            url: '/rest/pl/fe/matter'
+        }, {
+            value: 'enroll',
+            title: '登记活动',
+            url: '/rest/pl/fe/matter'
+        }];
+        $scope.doSearch = function(page) {
+            searchSigninRecords(page);
         };
         // 过滤条件
         $scope.criteria = {
@@ -151,18 +170,29 @@ define(['frame'], function(ngApp) {
             }
             return val;
         };
-        $scope.json2Obj = function(json) {
-            if (json && json.length) {
-                obj = JSON.parse(json);
-                return obj;
-            } else {
-                return {};
+        $scope.value2Label2 = function(val, key) {
+            var schemas = $scope.app.enrollApp.data_schemas,
+                i, j, s, aVal, aLab = [];
+            if (val === undefined) return '';
+            for (i = 0, j = schemas.length; i < j; i++) {
+                if (schemas[i].id === key) {
+                    s = schemas[i];
+                    break;
+                }
             }
+            if (s && s.ops && s.ops.length) {
+                aVal = val.split(',');
+                for (i = 0, j = s.ops.length; i < j; i++) {
+                    aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
+                }
+                if (aLab.length) return aLab.join(',');
+            }
+            return val;
         };
         $scope.filter = function() {
             $uibModal.open({
                 templateUrl: '/views/default/pl/fe/matter/signin/component/recordFilter.html?_=1',
-                controller: 'ctrlFilter',
+                controller: 'ctrlSigninFilter',
                 windowClass: 'auto-height',
                 backdrop: 'static',
                 resolve: {
@@ -307,14 +337,178 @@ define(['frame'], function(ngApp) {
                 }
             }
         });
+        $scope.enrollDateSchemas = [];
         $scope.$watch('app', function(app) {
             if (!app) return;
-            var mapOfSchemaByType = {};
+            //
+            var mapOfSchemaByType = {},
+                mapOfSchemaById = {};
+
             angular.forEach(app.data_schemas, function(schema) {
                 mapOfSchemaByType[schema.type] === undefined && (mapOfSchemaByType[schema.type] = []);
                 mapOfSchemaByType[schema.type].push(schema.id);
+                mapOfSchemaById[schema.id] = schema;
             });
+            //
             $scope.mapOfSchemaByType = mapOfSchemaByType;
+            // 关联的报名登记项
+            if (app.enrollApp && app.enrollApp.data_schemas) {
+                $scope.enrollDataSchemas = [];
+                angular.forEach(app.enrollApp.data_schemas, function(item) {
+                    if (mapOfSchemaById[item.id] === undefined) {
+                        $scope.enrollDataSchemas.push(item);
+                    }
+                });
+            }
+            $scope.doSearch();
+        });
+    }]);
+    ngApp.provider.controller('ctrlEnrollRecords', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
+        // 过滤条件
+        $scope.criteria = {
+            record: {
+                searchBy: '',
+                keyword: '',
+                verified: ''
+            },
+            tags: [],
+            data: {}
+        };
+        $scope.page = {
+            at: 1,
+            size: 30,
+            orderBy: 'time',
+            byRound: '',
+            joinParams: function() {
+                var p;
+                p = '&page=' + this.at + '&size=' + this.size;
+                this.byRound && (p += '&rid=' + this.byRound);
+                p += '&orderby=' + this.orderBy;
+                return p;
+            }
+        };
+        $scope.orderBys = [{
+            n: '登记时间',
+            v: 'time'
+        }];
+        $scope.doSearch = function(page) {
+            var url;
+            page && ($scope.page.at = page);
+            url = '/rest/pl/fe/matter/signin/record/listByEnroll';
+            url += '?site=' + $scope.siteId; // todo
+            url += '&app=' + $scope.id;
+            url += $scope.page.joinParams();
+            http2.post(url, $scope.criteria, function(rsp) {
+                if (rsp.data) {
+                    $scope.records = rsp.data.records ? rsp.data.records : [];
+                    rsp.data.total && ($scope.page.total = rsp.data.total);
+                } else {
+                    $scope.records = [];
+                }
+                angular.forEach($scope.records, function(record) {
+                    if (record.data) {
+                        if ($scope.mapOfSchemaByType['image'] && $scope.mapOfSchemaByType['image'].length) {
+                            angular.forEach($scope.mapOfSchemaByType['image'], function(schemaId) {
+                                var imgs = record.data[schemaId] ? record.data[schemaId].split(',') : [];
+                                record.data[schemaId] = imgs;
+                            });
+                        }
+                    }
+                });
+            });
+        };
+        // 选中的记录
+        $scope.$on('search-tag.xxt.combox.done', function(event, aSelected) {
+            $scope.criteria.tags = $scope.criteria.tags.concat(aSelected);
+            $scope.doSearch();
+        });
+        $scope.$on('search-tag.xxt.combox.del', function(event, removed) {
+            var i = $scope.criteria.tags.indexOf(removed);
+            $scope.criteria.tags.splice(i, 1);
+            $scope.doSearch();
+        });
+        $scope.memberAttr = function(val, key) {
+            var keys;
+            if (val && val.member) {
+                keys = key.split('.');
+                if (keys.length === 2) {
+                    return val.member[keys[1]];
+                } else if (val.member.extattr) {
+                    return val.member.extattr[keys[2]];
+                } else {
+                    return '';
+                }
+            } else {
+                return '';
+            }
+        };
+        $scope.value2Label = function(val, key) {
+            var schemas = $scope.app.enrollApp.data_schemas,
+                i, j, s, aVal, aLab = [];
+            if (val === undefined) return '';
+            for (i = 0, j = schemas.length; i < j; i++) {
+                if (schemas[i].id === key) {
+                    s = schemas[i];
+                    break;
+                }
+            }
+            if (s && s.ops && s.ops.length) {
+                aVal = val.split(',');
+                for (i = 0, j = s.ops.length; i < j; i++) {
+                    aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
+                }
+                if (aLab.length) return aLab.join(',');
+            }
+            return val;
+        };
+        $scope.filter = function() {
+            $uibModal.open({
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=3',
+                controller: 'ctrlFilter',
+                windowClass: 'auto-height',
+                backdrop: 'static',
+                resolve: {
+                    app: function() {
+                        return $scope.app.enrollApp;
+                    },
+                    criteria: function() {
+                        return angular.copy($scope.criteria);
+                    }
+                }
+            }).result.then(function(criteria) {
+                $scope.criteria = criteria;
+                $scope.doSearch(1);
+            });
+        };
+        $scope.export = function() {
+            var url, params = {
+                criteria: $scope.criteria
+            };
+
+            url = '/rest/pl/fe/matter/enroll/record/export';
+            url += '?site=' + $scope.siteId + '&app=' + $scope.app.enrollApp.id;
+
+            http2.post(url, params, function(rsp) {
+                var blob;
+
+                blob = new Blob([rsp.data], {
+                    type: "text/plain;charset=utf-8"
+                });
+
+                saveAs(blob, $scope.app.title + '.csv');
+            });
+        };
+        $scope.$watch('app', function(app) {
+            if (!app) return;
+            var mapOfSchemaByType = {};
+
+            angular.forEach(app.enrollApp.data_schemas, function(schema) {
+                mapOfSchemaByType[schema.type] === undefined && (mapOfSchemaByType[schema.type] = []);
+                mapOfSchemaByType[schema.type].push(schema.id);
+            });
+
+            $scope.mapOfSchemaByType = mapOfSchemaByType;
+
             $scope.doSearch();
         });
     }]);
@@ -354,7 +548,7 @@ define(['frame'], function(ngApp) {
     /**
      * 设置过滤条件
      */
-    ngApp.provider.controller('ctrlFilter', ['$scope', '$uibModalInstance', 'app', 'criteria', function($scope, $mi, app, lastCriteria) {
+    ngApp.provider.controller('ctrlSigninFilter', ['$scope', '$uibModalInstance', 'app', 'criteria', function($scope, $mi, app, lastCriteria) {
         var canFilteredSchemas = [];
         angular.forEach(app.data_schemas, function(schema) {
             if (false === /image|file/.test(schema.type)) {

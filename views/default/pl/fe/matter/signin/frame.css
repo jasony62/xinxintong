@@ -50,3 +50,5 @@ body>nav>ul:nth-child(2)>li{display:inline-block;float:none;}
 
 /*record-view*/
 #record-view table img{max-width:96px;}
+#signinRecords th,#enrollRecords th{text-align:center;}
+#signinRecords th.enroll{background:yellow;}

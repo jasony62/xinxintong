@@ -218,6 +218,18 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			});
 		});
 		$scope.refreshWrap = function(wrap) {
+			// 更新项目阶段
+			if ('phase' === wrap.schema.type) {
+				var ops = [],
+					phases = $scope.app.mission.phases;
+				angular.forEach(phases, function(phase) {
+					ops.push({
+						l: phase.title,
+						v: phase.phase_id
+					});
+				});
+				wrap.schema.ops = ops;
+			}
 			if ($scope.ep.type === 'I') {
 				wrapLib.input.modify(wrap.dom, wrap);
 				$scope.ep.purifyInput(tinymceEditor.getContent(), true);

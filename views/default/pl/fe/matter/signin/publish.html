@@ -11,7 +11,7 @@
                     <input type='text' class='form-control' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
                 </div>
                 <div class='form-group' ng-if="app.mission.multi_phase==='Y'">
-                    <label>课程期数</label>
+                    <label>项目阶段</label>
                     <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
                         <option></option>
                     </select>
@@ -88,6 +88,14 @@
                 </tr>
             </tbody>
         </table>
+    </div>
+    <div class='tile' ng-if="app.enroll_app_id">
+        <div class='help-block'>要在签到名单中验证的登记项</div>
+        <div class='list-group'>
+            <div class='list-group-item' ng-repeat="s in app.data_schemas">
+                <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="s.requireCheck" ng-change="update('data_schemas')">{{s.title}}</label>
+            </div>
+        </div>
     </div>
     <div class="panel panel-default">
         <div class="panel-heading">签到链接：复制或分享给用户进行签到</div>

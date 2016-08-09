@@ -17,9 +17,10 @@ class record_model extends \TMS_MODEL {
 			'cascaded' => 'N',
 		];
 		if ($userRecord = $this->byUser($user, $siteId, $app, $options)) {
-			/*不允许多次登记*/
+			// 已经登记过，用现有的登记记录
 			$ek = $userRecord->enroll_key;
 		} else {
+			// 没有登记过，产生一条新的登记记录
 			$ek = $this->genKey($siteId, $app->id);
 			$record = [
 				'siteid' => $siteId,
@@ -38,23 +39,28 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 签到
 	 *
+	 * 执行签到，在每个轮次上只能进行一次签到，第一次签到后再提交也不会更改签到时间等信息
 	 * 如果用户已经做过活动登记，那么设置签到时间
 	 * 如果用户没有做个活动登记，那么要先产生一条登记记录，并记录签到时间
 	 */
 	public function &signin(&$user, $siteId, &$app) {
 		$state = new \stdClass;
-		/* 如果当前用户没有登记过，就先签到后登记 */
+
 		if ($record = $this->byUser($user, $siteId, $app)) {
+			// 已经登记过，不需要再登记
 			$ek = $record->enroll_key;
 			$state->enrolled = true;
 		} else {
+			// 没有登记过，先登记
 			$ek = $this->enroll($user, $siteId, $app);
-			$state->enrolled = true;
+			$state->enrolled = false;
 		}
-		/* 执行签到 */
+		/**
+		 * 执行签到，在每个轮次上只能进行一次签到，第一次签到后再提交也不会更改签到时间等信息
+		 */
 		$activeRound = \TMS_APP::M('matter\signin\round')->getActive($siteId, $app->id);
 		if (!$this->userSigned($user, $siteId, $app, $activeRound)) {
-			/* 记录日志 */
+			// 记录签到日志
 			$signinAt = time();
 			$this->insert(
 				'xxt_signin_log',
@@ -69,7 +75,7 @@ class record_model extends \TMS_MODEL {
 				],
 				false
 			);
-			/* 更新状态 */
+			// 更新状态
 			$sql = "update xxt_signin_record set signin_at=$signinAt,signin_num=signin_num+1";
 			$sql .= " where aid='{$app->id}' and enroll_key='$ek'";
 			$rst = $this->update($sql);
@@ -77,6 +83,7 @@ class record_model extends \TMS_MODEL {
 		} else {
 			$state->signed = true;
 		}
+
 		$state->ek = $ek;
 
 		return $state;
@@ -97,6 +104,7 @@ class record_model extends \TMS_MODEL {
 			];
 			$log = $this->query_obj_ss($q);
 		}
+
 		return $log;
 	}
 	/**
@@ -112,8 +120,9 @@ class record_model extends \TMS_MODEL {
 		// 处理后的登记记录
 		$dbData = new \stdClass;
 
-		// 已有的登记数据
-		$fields = $this->query_vals_ss(['name', 'xxt_signin_record_data', "aid='{$app->id}' and enroll_key='$ek'"]);
+		// 清空已有的登记数据
+		$this->delete('xxt_signin_record_data', "aid='{$app->id}' and enroll_key='$ek'");
+
 		foreach ($data as $n => $v) {
 			/**
 			 * 插入自定义属性
@@ -184,22 +193,13 @@ class record_model extends \TMS_MODEL {
 				$dbData->{$n} = $vv;
 			}
 			// 记录数据
-			if (!empty($fields) && in_array($n, $fields)) {
-				$this->update(
-					'xxt_signin_record_data',
-					['value' => $vv],
-					"aid='{$app->id}' and enroll_key='$ek' and name='$n'"
-				);
-				unset($fields[array_search($n, $fields)]);
-			} else {
-				$ic = [
-					'aid' => $app->id,
-					'enroll_key' => $ek,
-					'name' => $n,
-					'value' => $vv,
-				];
-				$this->insert('xxt_signin_record_data', $ic, false);
-			}
+			$ic = [
+				'aid' => $app->id,
+				'enroll_key' => $ek,
+				'name' => $n,
+				'value' => $vv,
+			];
+			$this->insert('xxt_signin_record_data', $ic, false);
 		}
 		// 记录数据
 		$dbData = $this->toJson($dbData);
@@ -216,15 +216,14 @@ class record_model extends \TMS_MODEL {
 	 */
 	public function byId($ek, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
 
 		$q = [
 			$fields,
 			'xxt_signin_record',
-			"enroll_key='$ek'",
+			["enroll_key" => $ek],
 		];
-		if (($record = $this->query_obj_ss($q)) && $cascaded === 'Y') {
-			$record->data = $this->dataById($ek);
+		if ($record = $this->query_obj_ss($q)) {
+			$record->data = empty($record->data) ? new \stdClass : json_decode($record->data);
 		}
 
 		return $record;
@@ -240,14 +239,11 @@ class record_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_signin_record',
-			"state=1 and aid='{$app->id}' and userid='{$user->uid}'",
+			["state" => 1, "aid" => $app->id, "userid" => $user->uid],
 		];
 		if ($userRecord = $this->query_obj_ss($q)) {
+			$userRecord->data = empty($userRecord->data) ? new \stdClass : json_decode($userRecord->data);
 			if ($cascaded === 'Y') {
-				/* 登记记录有可能未进行过登记 */
-				if ($userRecord->enroll_at) {
-					$userRecord->data = $this->dataById($userRecord->enroll_key);
-				}
 				if ($userRecord->signin_at) {
 					$userRecord->signinlogs = $this->signinLogByUser($user, $siteId, $app);
 				}
@@ -255,25 +251,6 @@ class record_model extends \TMS_MODEL {
 		}
 
 		return $userRecord;
-	}
-	/**
-	 * 获得一条登记记录的数据
-	 */
-	public function dataById($ek) {
-		$q = [
-			'name,value',
-			'xxt_signin_record_data',
-			"enroll_key='$ek'",
-		];
-		$cusdata = [];
-		$cdata = $this->query_objs_ss($q);
-		if (count($cdata) > 0) {
-			foreach ($cdata as $cd) {
-				$cusdata[$cd->name] = $cd->value;
-			}
-		}
-
-		return $cusdata;
 	}
 	/**
 	 * 用户的签到记录
@@ -297,17 +274,6 @@ class record_model extends \TMS_MODEL {
 	 */
 	public function genKey($siteId, $appId) {
 		return md5(uniqid() . $siteId . $appId);
-	}
-	/**
-	 *
-	 */
-	public function modify($ek, $data) {
-		$rst = $this->update(
-			'xxt_signin_record',
-			$data,
-			"enroll_key='$ek'"
-		);
-		return $rst;
 	}
 	/**
 	 * 清除一条用户记录

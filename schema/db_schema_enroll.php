@@ -399,6 +399,7 @@ $sql .= ",state tinyint not null default 1"; //0:remove,1:normal
 $sql .= ",referrer text"; // 发起签到的链接
 $sql .= ",data text"; // 登记的数据项
 $sql .= ",verified char(1) not null default 'Y'"; // 记录是否已通过审核
+$sql .= ",verified_enroll_key varchar(32) not null default ''"; // 如果是通过了报名表的验证，记录关联的报名记录
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

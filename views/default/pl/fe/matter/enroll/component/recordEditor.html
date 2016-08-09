@@ -61,8 +61,14 @@ ul.img-tiles li.img-picker button span{font-size:36px}
                 <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="record.verified">是</label>
             </div>
         </div>
-        <div class="form-group hide">
-            <label class="col-md-3 control-label">活动标签</label>
+        <div class="form-group">
+            <label class="col-md-3 control-label">备注</label>
+            <div class="col-md-9">
+                <textarea class='form-control' ng-model="record.comment"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3 control-label">记录标签</label>
             <div class="col-md-9">
                 <combox evt-prefix='tag' existing='record.aTags' options='aTags'></combox>
             </div>

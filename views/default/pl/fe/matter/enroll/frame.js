@@ -27,8 +27,6 @@ define(['require', 'page'], function(require, pageLib) {
 			.when('/rest/pl/fe/matter/enroll/record', new RouteParam('record'))
 			.when('/rest/pl/fe/matter/enroll/stat', new RouteParam('stat'))
 			.when('/rest/pl/fe/matter/enroll/coin', new RouteParam('coin'))
-			.when('/rest/pl/fe/matter/enroll/publish', new RouteParam('publish'))
-			.when('/rest/pl/fe/matter/enroll/config', new RouteParam('config'))
 			.otherwise(new RouteParam('preview'));
 
 		$locationProvider.html5Mode(true);

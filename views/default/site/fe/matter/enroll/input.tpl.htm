@@ -8,9 +8,9 @@
         <title><?php TPL::pt('title');?></title>
         <link href="//cdn.bootcss.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
         <link href='static/css/loading.css?_=1' rel="stylesheet">
-        <link href="/views/default/site/fe/matter/enroll/input.css?_=5" rel="stylesheet">
+        <link href="/views/default/site/fe/matter/enroll/input.css?_=6" rel="stylesheet">
         <link href="/views/default/site/fe/matter/enroll/directive.css?_=2" rel="stylesheet">
-        <style ng-if="appPage.css" ng-bind='appPage.css'></style>
+        <style ng-if="page.css" ng-bind='page.css'></style>
     </head>
     
     <body ng-cloak class='ng-cloak'>
@@ -20,7 +20,7 @@
             <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
             <div class='container'>
                 <div class='row' ng-controller='ctrlInput'>
-                    <form name='page' novalidate dynamic-html="appPage.html">
+                    <form name='enroll' novalidate dynamic-html="page.html">
                     </form>
                 </div>
             </div>

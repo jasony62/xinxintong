@@ -1,5 +1,6 @@
 define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlRecord', ['$scope', 'http2', '$uibModal', 'mattersgallery', 'pushnotify', function($scope, http2, $uibModal, mattersgallery, pushnotify) {
+    'use strict';
+    ngApp.provider.controller('ctrlRecord', ['$scope', 'http2', '$uibModal', 'mattersgallery', 'pushnotify', 'noticebox', function($scope, http2, $uibModal, mattersgallery, pushnotify, noticebox) {
         $scope.notifyMatterTypes = [{
             value: 'article',
             title: '单图文',
@@ -47,8 +48,11 @@ define(['frame'], function(ngApp) {
         $scope.criteria = {
             record: {
                 searchBy: '',
-                keyword: ''
-            }
+                keyword: '',
+                verified: ''
+            },
+            tags: [],
+            data: {}
         };
         $scope.page = {
             at: 1,
@@ -62,10 +66,6 @@ define(['frame'], function(ngApp) {
                 return p;
             }
         };
-        $scope.searchBys = [{
-            n: '昵称',
-            v: 'nickname'
-        }];
         $scope.orderBys = [{
             n: '登记时间',
             v: 'time'
@@ -79,15 +79,16 @@ define(['frame'], function(ngApp) {
             n: '评论数',
             v: 'remark'
         }];
+        // 选中的记录
         $scope.selected = {};
-        $scope.selectAll;
+        $scope.selectAll = undefined;
         $scope.$on('search-tag.xxt.combox.done', function(event, aSelected) {
-            $scope.page.tags = $scope.page.tags.concat(aSelected);
+            $scope.criteria.tags = $scope.criteria.tags.concat(aSelected);
             $scope.doSearch();
         });
         $scope.$on('search-tag.xxt.combox.del', function(event, removed) {
-            var i = $scope.page.tags.indexOf(removed);
-            $scope.page.tags.splice(i, 1);
+            var i = $scope.criteria.tags.indexOf(removed);
+            $scope.criteria.tags.splice(i, 1);
             $scope.doSearch();
         });
         $scope.$on('batch-tag.xxt.combox.done', function(event, aSelected) {
@@ -173,17 +174,20 @@ define(['frame'], function(ngApp) {
         };
         $scope.filter = function() {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=1',
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=3',
                 controller: 'ctrlFilter',
                 windowClass: 'auto-height',
                 backdrop: 'static',
                 resolve: {
                     app: function() {
                         return $scope.app;
+                    },
+                    criteria: function() {
+                        return angular.copy($scope.criteria);
                     }
                 }
             }).result.then(function(criteria) {
-                $scope.criteria.data = criteria;
+                $scope.criteria = criteria;
                 $scope.doSearch(1);
             });
         };
@@ -239,7 +243,6 @@ define(['frame'], function(ngApp) {
                 p = updated[0];
                 tags = updated[1];
                 http2.post('/rest/pl/fe/matter/enroll/record/add?site=' + $scope.siteId + '&app=' + $scope.id, p, function(rsp) {
-                    //$scope.app.tags = tags;
                     var record = rsp.data;
                     if ($scope.mapOfSchemaByType['image'] && $scope.mapOfSchemaByType['image'].length) {
                         angular.forEach($scope.mapOfSchemaByType['image'], function(schemaId) {
@@ -296,9 +299,29 @@ define(['frame'], function(ngApp) {
             http2.get('/rest/pl/fe/matter/enroll/record/verifyAll?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
                 angular.forEach($scope.records, function(record) {
                     record.verified = 'Y';
-                    $scope.$root.infomsg = '完成操作';
                 });
+                noticebox.success('完成操作');
             });
+        };
+        $scope.batchVerify = function() {
+            var eks = [];
+            for (var p in $scope.selected) {
+                if ($scope.selected[p] === true) {
+                    eks.push($scope.records[p].enroll_key);
+                }
+            }
+            if (eks.length) {
+                http2.post('/rest/pl/fe/matter/enroll/record/batchVerify?site=' + $scope.siteId + '&app=' + $scope.id, {
+                    eks: eks
+                }, function(rsp) {
+                    for (var p in $scope.selected) {
+                        if ($scope.selected[p] === true) {
+                            $scope.records[p].verified = 'Y';
+                        }
+                    }
+                    noticebox.success('完成操作');
+                });
+            }
         };
         $scope.notify = function() {
             pushnotify.open($scope.siteId, function(notify) {
@@ -308,9 +331,12 @@ define(['frame'], function(ngApp) {
                     url += '?site=' + $scope.siteId;
                     url += '&app=' + $scope.id;
                     url += '&tmplmsg=' + notify.tmplmsg.id;
-                    //url += $scope.page.joinParams();
-                    http2.post(url, notify.message, function(data) {
-                        $scope.$root.infomsg = '发送成功';
+                    url += $scope.page.joinParams();
+                    http2.post(url, {
+                        message: notify.message,
+                        criteria: $scope.criteria
+                    }, function(data) {
+                        noticebox.success('发送成功');
                     });
                 }
             }, {
@@ -319,7 +345,9 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.export = function() {
-            var url, params = {};
+            var url, params = {
+                criteria: $scope.criteria
+            };
 
             url = '/rest/pl/fe/matter/enroll/record/export';
             url += '?site=' + $scope.siteId + '&app=' + $scope.id;
@@ -335,7 +363,7 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.$watch('selectAll', function(nv) {
-            if (nv !== undefined) {
+            if (nv !== undefined && $scope.records) {
                 for (var i = $scope.records.length - 1; i >= 0; i--) {
                     $scope.selected[i] = nv;
                 }
@@ -388,7 +416,7 @@ define(['frame'], function(ngApp) {
     /**
      * 设置过滤条件
      */
-    ngApp.provider.controller('ctrlFilter', ['$scope', '$uibModalInstance', 'app', function($scope, $mi, app) {
+    ngApp.provider.controller('ctrlFilter', ['$scope', '$uibModalInstance', 'app', 'criteria', function($scope, $mi, app, lastCriteria) {
         var canFilteredSchemas = [];
         angular.forEach(app.data_schemas, function(schema) {
             if (false === /image|file/.test(schema.type)) {
@@ -396,15 +424,15 @@ define(['frame'], function(ngApp) {
             }
         });
         $scope.schemas = canFilteredSchemas;
-        $scope.criteria = {};
+        $scope.criteria = lastCriteria;
         $scope.ok = function() {
             var criteria = $scope.criteria,
                 optionCriteria;
             // 将单选题/多选题的结果拼成字符串
             angular.forEach(app.data_schemas, function(schema) {
                 if (/multiple/.test(schema.type)) {
-                    if ((optionCriteria = criteria[schema.id])) {
-                        criteria[schema.id] = Object.keys(optionCriteria).join(',');
+                    if ((optionCriteria = criteria.data[schema.id])) {
+                        criteria.data[schema.id] = Object.keys(optionCriteria).join(',');
                     }
                 }
             });
@@ -450,25 +478,16 @@ define(['frame'], function(ngApp) {
         $scope.record = record;
         $scope.record.aTags = (!record.tags || record.tags.length === 0) ? [] : record.tags.split(',');
         $scope.aTags = app.tags;
-        $scope.json2Obj = function(json) {
-            if (json && json.length) {
-                obj = JSON.parse(json);
-                return obj;
-            } else {
-                return {};
-            }
-        };
         $scope.ok = function() {
             var record = $scope.record,
                 p = {
-                    //tags: record.aTags.join(','),
+                    tags: record.aTags.join(','),
                     data: {}
                 };
+
             record.tags = p.tags;
-            //if (record.id) {
-            //p.signin_at = record.signin_at;
+            record.comment && (p.comment = record.comment);
             p.verified = record.verified;
-            //}
 
             angular.forEach($scope.app.data_schemas, function(col) {
                 p.data[col.id] = $scope.record.data[col.id];

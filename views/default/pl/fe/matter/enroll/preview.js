@@ -107,8 +107,8 @@ define(['frame'], function(ngApp) {
 			$scope.app.pic = '';
 			$scope.update('pic');
 		};
-		$scope.text2Clipboard = function(content) {
-
+		$scope.downloadQrcode = function(url) {
+			$('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
 		};
 		$scope.summaryOfRecords().then(function(data) {
 			$scope.summary = data;

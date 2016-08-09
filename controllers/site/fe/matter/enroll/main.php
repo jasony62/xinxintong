@@ -89,14 +89,11 @@ class main extends base {
 			if ($this->userAgent() === 'wx') {
 				if (!empty($entryRule->sns->wx->entry)) {
 					if (!isset($this->who->sns->wx)) {
-						if ($wxConfig = $this->model('sns\wx')->bySite($siteid)) {
-							if ($wxConfig->joined === 'Y') {
-								$this->snsOAuth($wxConfig, 'wx');
-							}
-						} else if ($wxConfig = $this->model('sns\wx')->bySite('platform')) {
-							if ($wxConfig->joined === 'Y') {
-								$this->snsOAuth($wxConfig, 'wx');
-							}
+						$modelWx = $this->model('sns\wx');
+						if (($wxConfig = $modelWx->bySite($siteid)) && $wxConfig->joined === 'Y') {
+							$this->snsOAuth($wxConfig, 'wx');
+						} else if (($wxConfig = $modelWx->bySite('platform')) && $wxConfig->joined === 'Y') {
+							$this->snsOAuth($wxConfig, 'wx');
 						}
 					}
 				}

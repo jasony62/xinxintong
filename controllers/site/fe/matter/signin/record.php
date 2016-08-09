@@ -135,16 +135,14 @@ class record extends base {
 			}
 		}
 		/**
-		 * 提交数据
+		 * 保存登记的数据
 		 */
 		$modelRec = $this->model('matter\signin\record');
 		$signState = $modelRec->signin($user, $site, $app);
-		if ($signState->enrolled) {
-			/* 已经登记过，更新原先提交的数据 */
-			$modelRec->update('xxt_signin_record',
-				array('enroll_at' => time()),
-				"enroll_key='{$signState->ek}'"
-			);
+		// 保存登记数据
+		$rst = $modelRec->setData($user, $site, $app, $signState->ek, $signinData, $submitkey);
+		if (false === $rst[0]) {
+			return new \ResponseError($rst[1]);
 		}
 		/**
 		 * 检查签到数据是否在报名表中
@@ -200,13 +198,6 @@ class record extends base {
 					}
 				}
 			}
-		}
-		/**
-		 * 插入提交的数据
-		 */
-		$rst = $modelRec->setData($user, $site, $app, $signState->ek, $signinData, $submitkey);
-		if (false === $rst[0]) {
-			return new \ResponseError($rst[1]);
 		}
 
 		return new \ResponseData($signState);

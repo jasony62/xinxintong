@@ -58,6 +58,7 @@ define(['frame'], function(ngApp) {
             at: 1,
             size: 30,
             orderBy: 'time',
+            byRound: '',
             joinParams: function() {
                 var p;
                 p = '&page=' + this.at + '&size=' + this.size;

@@ -92,7 +92,6 @@ class record_model extends \TMS_MODEL {
 					}
 					$vv->extattr = $extattr;
 				}
-				//
 				$vv = urldecode(json_encode($vv));
 			} else if (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
 				/* 上传图片 */
@@ -106,7 +105,6 @@ class record_model extends \TMS_MODEL {
 					$vv[] = $rst[1];
 				}
 				$vv = implode(',', $vv);
-				//
 				$dbData->{$n} = $vv;
 			} else if (is_array($v) && isset($v[0]->uniqueIdentifier)) {
 				/* 上传文件 */
@@ -131,7 +129,6 @@ class record_model extends \TMS_MODEL {
 					$vv[] = $file;
 				}
 				$vv = json_encode($vv);
-				//
 				$dbData->{$n} = $vv;
 			} else {
 				if (is_string($v)) {
@@ -142,10 +139,9 @@ class record_model extends \TMS_MODEL {
 				} else {
 					$vv = $v;
 				}
-				//
 				$dbData->{$n} = $vv;
 			}
-
+			// 记录数据
 			if (!empty($fields) && in_array($n, $fields)) {
 				$this->update(
 					'xxt_enroll_record_data',
@@ -164,7 +160,7 @@ class record_model extends \TMS_MODEL {
 			}
 		}
 
-		return array(true, $dbData);
+		return [true, $dbData];
 	}
 	/**
 	 * 根据ID返回登记记录

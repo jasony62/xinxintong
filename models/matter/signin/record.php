@@ -109,6 +109,9 @@ class record_model extends \TMS_MODEL {
 		if (empty($submitkey)) {
 			$submitkey = $user->uid;
 		}
+		// 处理后的登记记录
+		$dbData = new \stdClass;
+
 		// 已有的登记数据
 		$fields = $this->query_vals_ss(['name', 'xxt_signin_record_data', "aid='{$app->id}' and enroll_key='$ek'"]);
 		foreach ($data as $n => $v) {
@@ -116,6 +119,8 @@ class record_model extends \TMS_MODEL {
 			 * 插入自定义属性
 			 */
 			if ($n === 'member' && is_object($v)) {
+				//
+				$dbData->{$n} = $v;
 				/* 用户认证信息 */
 				$vv = new \stdClass;
 				isset($v->name) && $vv->name = urlencode($v->name);
@@ -141,6 +146,7 @@ class record_model extends \TMS_MODEL {
 					$vv[] = $rst[1];
 				}
 				$vv = implode(',', $vv);
+				$dbData->{$n} = $vv;
 			} elseif (is_array($v) && isset($v[0]->uniqueIdentifier)) {
 				/* 上传文件 */
 				$fsUser = \TMS_APP::M('fs/local', $siteId, '_user');
@@ -164,6 +170,8 @@ class record_model extends \TMS_MODEL {
 					$vv[] = $file;
 				}
 				$vv = json_encode($vv);
+				//
+				$dbData->{$n} = $vv;
 			} else {
 				if (is_string($v)) {
 					$vv = $this->escape($v);
@@ -172,7 +180,10 @@ class record_model extends \TMS_MODEL {
 				} else {
 					$vv = $v;
 				}
+				//
+				$dbData->{$n} = $vv;
 			}
+			// 记录数据
 			if (!empty($fields) && in_array($n, $fields)) {
 				$this->update(
 					'xxt_signin_record_data',
@@ -190,8 +201,15 @@ class record_model extends \TMS_MODEL {
 				$this->insert('xxt_signin_record_data', $ic, false);
 			}
 		}
+		// 记录数据
+		$dbData = $this->toJson($dbData);
+		$this->update(
+			'xxt_signin_record',
+			['enroll_at' => time(), 'data' => $dbData],
+			"enroll_key='$ek'"
+		);
 
-		return [true];
+		return [true, $dbData];
 	}
 	/**
 	 * 根据ID返回登记记录
@@ -357,7 +375,7 @@ class record_model extends \TMS_MODEL {
 				["aid" => $appId]
 			);
 			$rst = $this->update(
-				'xxt_signin_record_data',
+				'xxt_signin_record_date',
 				['state' => 0],
 				["aid" => $appId]
 			);
@@ -391,8 +409,7 @@ class record_model extends \TMS_MODEL {
 	 * [1] 数据总条数
 	 * [2] 数据项的定义
 	 */
-	public function find($siteId, &$app, $options = null) {
-		/* 获得活动的定义 */
+	public function find($siteId, &$app, $options = null, $criteria = null) {
 		if ($options) {
 			is_array($options) && $options = (object) $options;
 			$creater = isset($options->creater) ? $options->creater : null;
@@ -401,48 +418,78 @@ class record_model extends \TMS_MODEL {
 			$size = isset($options->size) ? $options->size : null;
 			$signinStartAt = isset($options->signinStartAt) ? $options->signinStartAt : null;
 			$signinEndAt = isset($options->signinEndAt) ? $options->signinEndAt : null;
-			$kw = isset($options->kw) ? $options->kw : null;
-			$by = isset($options->by) ? $options->by : null;
 			$roundId = isset($options->rid) ? $options->rid : null;
 		}
+
 		$result = new \stdClass; // 返回的结果
 		$result->total = 0;
 		/* 获得登记数据 */
 		$w = "e.state=1 and e.aid='{$app->id}'";
+
 		if (!empty($creater)) {
 			$w .= " and e.userid='$creater'";
 		}
-		if (!empty($kw) && !empty($by)) {
-			switch ($by) {
-			case 'mobile':
-				$kw && $w .= " and m.mobile like '%$kw%'";
-				break;
-			case 'nickname':
-				$kw && $w .= " and e.nickname like '%$kw%'";
-				break;
-			}
-		}
+		// if (!empty($kw) && !empty($by)) {
+		// 	switch ($by) {
+		// 	case 'mobile':
+		// 		$kw && $w .= " and m.mobile like '%$kw%'";
+		// 		break;
+		// 	case 'nickname':
+		// 		$kw && $w .= " and e.nickname like '%$kw%'";
+		// 		break;
+		// 	}
+		// }
 		/*签到时间*/
 		//if (!empty($signinStartAt) && !empty($signinEndAt)) {
 		//    $w .= " and exists(select 1 from xxt_signin_log l";
 		//    $w .= " where l.signin_at>=$signinStartAt and l.signin_at<=$signinEndAt and l.enroll_key=e.enroll_key";
 		//    $w .= ")";
 		//}
-		/*签到轮次*/
+
+		// 签到轮次
 		if (!empty($roundId)) {
 			$w .= ' and exists(select 1 from xxt_signin_log l';
 			$w .= " where l.rid='$roundId' and l.enroll_key=e.enroll_key";
 			$w .= ')';
 		}
-		/*tags*/
-		if (!empty($options->tags)) {
-			$aTags = explode(',', $options->tags);
-			foreach ($aTags as $tag) {
-				$w .= "and concat(',',e.tags,',') like '%,$tag,%'";
+
+		// 指定了登记记录过滤条件
+		if (!empty($criteria->record)) {
+			$whereByRecord = '';
+			if (!empty($criteria->record->verified)) {
+				$whereByRecord .= " and verified='{$criteria->record->verified}'";
 			}
+			$w .= $whereByRecord;
 		}
+
+		// 指定了记录标签
+		if (!empty($criteria->tags)) {
+			$whereByTag = '';
+			foreach ($criteria->tags as $tag) {
+				$whereByTag .= " and concat(',',e.tags,',') like '%,$tag,%'";
+			}
+			$w .= $whereByTag;
+		}
+
+		// 指定了登记数据过滤条件
+		if (isset($criteria->data)) {
+			$whereByData = '';
+			foreach ($criteria->data as $k => $v) {
+				if (!empty($v)) {
+					$whereByData .= ' and (';
+					$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
+					$whereByData .= ')';
+				}
+			}
+			$w .= $whereByData;
+		}
+
+		// 查询参数
 		$q = [
-			'e.enroll_key,e.enroll_at,e.signin_at,e.signin_num,e.userid,e.nickname,e.verified',
+			'e.enroll_key,e.enroll_at,e.signin_at,e.signin_num,e.userid,e.nickname,e.verified,e.comment,e.tags,e.data',
 			'xxt_signin_record e',
 			$w,
 		];
@@ -450,19 +497,19 @@ class record_model extends \TMS_MODEL {
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
 			'o' => 'e.signin_at desc',
 		];
+
+		// 处理查询结果
 		if ($records = $this->query_objs_ss($q, $q2)) {
 			foreach ($records as &$r) {
-				/* 获得填写的登记数据 */
-				$qc = [
-					'name,value',
-					'xxt_signin_record_data',
-					"enroll_key='$r->enroll_key'",
-				];
-				$cds = $this->query_objs_ss($qc);
-				$r->data = new \stdClass;
-				foreach ($cds as $cd) {
-					$r->data->{$cd->name} = $cd->value;
+				// 登记信息
+				$data = str_replace("\n", ' ', $r->data);
+				$data = json_decode($data);
+				if ($data === null) {
+					$r->data = 'json error(' . json_last_error() . '):' . $r->data;
+				} else {
+					$r->data = $data;
 				}
+				// 签到记录
 				$qs = [
 					'signin_at',
 					'xxt_signin_log',

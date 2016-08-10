@@ -81,14 +81,14 @@ define(['require'], function(require) {
         $scope.setPic = function() {
             var options = {
                 callback: function(url) {
-                    $scope.site.heading_pic = url + '?_=' + (new Date()) * 1;;
+                    $scope.site.heading_pic = url + '?_=' + (new Date() * 1);
                     $scope.update('heading_pic');
                 }
             };
             mediagallery.open($scope.siteId, options);
         };
         $scope.removePic = function() {
-            $scope.features.heading_pic = '';
+            $scope.site.heading_pic = '';
             $scope.update('heading_pic');
         };
         $scope.editPage = function(event, page) {

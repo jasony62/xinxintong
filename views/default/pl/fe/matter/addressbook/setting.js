@@ -8,7 +8,7 @@ define(['frame'], function(ngApp) {
         $scope.update = function(name) {
             var nv = {};
             nv[name] = $scope.editing[name];
-            http2.post('/rest/mp/app/addressbook/update?abid=' + $scope.editing.id, nv);
+            http2.post('/rest/mp/app/addressbook/update?abid=' + $scope.id + '&site='+ $scope.siteId, nv);
         };
         $scope.setPic = function() {
             var options = {
@@ -27,7 +27,7 @@ define(['frame'], function(ngApp) {
         $scope.$watch('abid', function(id) {
             http2.get('/rest/pl/fe/matter/addressbook/get?abid=' + $scope.id + '&site='+ $scope.siteId, function(rsp) {
                 $scope.editing = rsp.data;
-                $scope.entryUrl = "http://" + location.host + "/rest/pl/fe/matter/addressbook?mpid=" + $scope.editing.mpid + "&id=" + $scope.editing.id;
+                $scope.entryUrl = "http://" + location.host + "/rest/site/fe/matter/addressbook?siteid=" + $scope.editing.siteid + "&id=" + $scope.editing.id;
             });
         });
         /*http2.get('/rest/mp/mpaccount/get', function(rsp) {

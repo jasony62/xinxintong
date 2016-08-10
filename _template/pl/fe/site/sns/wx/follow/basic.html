@@ -1,6 +1,6 @@
 <div id='tip'>
 	<p>感谢关注</p>
-	<p><?php echo $this->site->name;?></p>
+	<p><?php echo empty($this->site)? '' : $this->site->name;?></p>
 	<hr/>
 </div>
 <div id='qrcode'>

@@ -1,6 +1,6 @@
 <div ng-controller="ctrlValueWrap">
 	<div class='checkbox'>
-		<p class='form-control' ng-bind="activeWrap.schema.title"></p>
+		<p class='form-control' ng-bind="activeWrap.schema.title" style='height:auto;word-break:break-all;'></p>
 	</div>
 	<div class="checkbox">
 		<label><input type='checkbox' name='inline' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeWrap.config.inline' ng-change="updWrap('config','inline')">标题与数据在同一行</label>

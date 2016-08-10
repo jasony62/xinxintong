@@ -48,7 +48,7 @@ class main extends base {
 			$this->outputError('签到已经结束', $app->title);
 		}
 		if ($ignoretime === 'N') {
-			if ($app->state === '1' || !$this->model('matter\signin\round')->getActive($site, $app->id)) {
+			if (!$this->model('matter\signin\round')->getActive($site, $app->id)) {
 				$this->outputError('还没有开始签到', $app->title);
 			}
 		}

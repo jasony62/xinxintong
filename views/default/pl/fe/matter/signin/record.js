@@ -485,8 +485,9 @@ define(['frame'], function(ngApp) {
                 criteria: $scope.criteria
             };
 
-            url = '/rest/pl/fe/matter/enroll/record/export';
-            url += '?site=' + $scope.siteId + '&app=' + $scope.app.enrollApp.id;
+            url = '/rest/pl/fe/matter/signin/record/exportByEnroll';
+            url += '?site=' + $scope.siteId; // todo
+            url += '&app=' + $scope.id;
 
             http2.post(url, params, function(rsp) {
                 var blob;

@@ -10,7 +10,7 @@
     <div ng-if="recordSet==='signin'" ng-controller="ctrlSigninRecords">
         <div class='form-group form-inline'>
             <div class='form-group' ng-if='app.rounds'>
-            <label>轮次</label>
+                <label>轮次</label>
                 <select class='form-control' ng-model='page.byRound' ng-options='r.rid as r.title for r in app.rounds' ng-change='doSearch(1)'>
                     <option value=>全部</option>
                 </select>
@@ -103,6 +103,22 @@
         </div>
     </div>
     <div ng-if="recordSet==='enroll'" ng-controller="ctrlEnrollRecords">
+        <div class='form-group form-inline'>
+            <div class='form-group'>
+                <button class='btn btn-primary' ng-click="export()">导出全部数据</button>
+            </div>
+            <div class='form-group pull-right'>
+                <div class='input-group'>
+                    <span class="input-group-addon">每页条数</span>
+                    <input class='form-control' ng-model='page.size' style='width:48px'>
+                    <span class='input-group-btn'>
+                        <button class='btn btn-default' ng-click='doSearch(1)'>
+                            <span class='glyphicon glyphicon-refresh'></span>
+                        </button>
+                    </span>
+                </div>
+            </div>
+        </div>
         <div id='enrollRecords'>
             <table class='table table-bordered'>
                 <thead>

@@ -66,13 +66,9 @@ class record_model extends \TMS_MODEL {
 		// 处理后的登记记录
 		$dbData = new \stdClass;
 
-		// 已有的登记数据
-		$q = array(
-			'name',
-			'xxt_enroll_record_data',
-			"aid='{$app->id}' and enroll_key='$ek'",
-		);
-		$fields = $this->query_vals_ss($q);
+		// 清除已有的登记数据
+		$this->delete('xxt_enroll_record_data', "aid='{$app->id}' and enroll_key='$ek'");
+
 		foreach ($data as $n => $v) {
 			/**
 			 * 插入自定义属性
@@ -92,7 +88,6 @@ class record_model extends \TMS_MODEL {
 					}
 					$vv->extattr = $extattr;
 				}
-				//
 				$vv = urldecode(json_encode($vv));
 			} else if (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
 				/* 上传图片 */
@@ -106,7 +101,6 @@ class record_model extends \TMS_MODEL {
 					$vv[] = $rst[1];
 				}
 				$vv = implode(',', $vv);
-				//
 				$dbData->{$n} = $vv;
 			} else if (is_array($v) && isset($v[0]->uniqueIdentifier)) {
 				/* 上传文件 */
@@ -131,7 +125,6 @@ class record_model extends \TMS_MODEL {
 					$vv[] = $file;
 				}
 				$vv = json_encode($vv);
-				//
 				$dbData->{$n} = $vv;
 			} else {
 				if (is_string($v)) {
@@ -142,29 +135,19 @@ class record_model extends \TMS_MODEL {
 				} else {
 					$vv = $v;
 				}
-				//
 				$dbData->{$n} = $vv;
 			}
-
-			if (!empty($fields) && in_array($n, $fields)) {
-				$this->update(
-					'xxt_enroll_record_data',
-					array('value' => $vv),
-					"aid='{$app->id}' and enroll_key='$ek' and name='$n'"
-				);
-				unset($fields[array_search($n, $fields)]);
-			} else {
-				$ic = array(
-					'aid' => $app->id,
-					'enroll_key' => $ek,
-					'name' => $n,
-					'value' => $vv,
-				);
-				$this->insert('xxt_enroll_record_data', $ic, false);
-			}
+			// 记录数据
+			$ic = array(
+				'aid' => $app->id,
+				'enroll_key' => $ek,
+				'name' => $n,
+				'value' => $vv,
+			);
+			$this->insert('xxt_enroll_record_data', $ic, false);
 		}
 
-		return array(true, $dbData);
+		return [true, $dbData];
 	}
 	/**
 	 * 根据ID返回登记记录
@@ -214,41 +197,41 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 根据指定的数据查找匹配的记录
 	 */
-	public function &byData($siteId, &$app, &$data) {
-		$matchedRecords = array();
-		/*需要匹配的条件*/
-		$conditions = array();
-		foreach ($data as $key => $val) {
-			$conditions[] = "(name='$key' and value='$val')";
-		}
-		if (empty($conditions)) {
-			return $matchedRecords;
-		}
-		/*需要匹配的条件的数量*/
-		$countOfConditions = count($conditions);
-		/*将条件转换为SQL*/
-		$conditions = '(' . implode(' or ', $conditions) . ')';
-		/*查找匹配条件的数据*/
-		$q = array(
-			'enroll_key',
-			'xxt_enroll_record_data',
-			"state=1 and aid='{$app->id}' and $conditions",
-		);
-		/*记录每条记录匹配的次数*/
-		$mapOfCount = new \stdClass;
-		$pendings = $this->query_objs_ss($q);
-		foreach ($pendings as &$pending) {
-			if (isset($mapOfCount->{$pending->enroll_key})) {
-				$mapOfCount->{$pending->enroll_key} += 1;
-			} else {
-				$mapOfCount->{$pending->enroll_key} = 1;
+	public function &byData($siteId, &$app, &$data, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		// 查找条件
+		$whereByData = '';
+		foreach ($data as $k => $v) {
+			if (!empty($v)) {
+				$whereByData .= ' and (';
+				$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
+				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
+				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
+				$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
+				$whereByData .= ')';
 			}
-			if ($mapOfCount->{$pending->enroll_key} === $countOfConditions) {
-				$matchedRecords[] = $pending->enroll_key;
+		}
+		// 查找匹配条件的数据
+		$q = [
+			$fields,
+			'xxt_enroll_record',
+			"state=1 and aid='{$app->id}' $whereByData",
+		];
+		$records = $this->query_objs_ss($q);
+		foreach ($records as &$record) {
+			if (empty($record->data)) {
+				$record->data = new \stdClass;
+			} else {
+				$data = json_decode($record->data);
+				if ($data === null) {
+					$record->data = 'json error(' . json_last_error() . '):' . $r->data;
+				} else {
+					$record->data = $data;
+				}
 			}
 		}
 
-		return $matchedRecords;
+		return $records;
 	}
 	/**
 	 * 登记清单
@@ -292,8 +275,6 @@ class record_model extends \TMS_MODEL {
 			} else if ($activeRound = $this->M('matter\enroll\round')->getActive($siteId, $app->id)) {
 				$rid = $activeRound->rid;
 			}
-			// $kw = isset($options->kw) ? $options->kw : null;
-			// $by = isset($options->by) ? $options->by : null;
 		}
 		$result = new \stdClass; // 返回的结果
 		$result->total = 0;
@@ -323,31 +304,44 @@ class record_model extends \TMS_MODEL {
 		// 		break;
 		// 	}
 		// }
-		/*tags*/
-		// if (!empty($options->tags)) {
-		// 	$aTags = explode(',', $options->tags);
-		// 	foreach ($aTags as $tag) {
-		// 		$w .= "and concat(',',e.tags,',') like '%,$tag,%'";
-		// 	}
-		// }
+
+		// 指定了登记记录过滤条件
+		if (!empty($criteria->record)) {
+			$whereByRecord = '';
+			if (!empty($criteria->record->verified)) {
+				$whereByRecord .= " and verified='{$criteria->record->verified}'";
+			}
+			$w .= $whereByRecord;
+		}
+
+		// 指定了记录标签
+		if (!empty($criteria->tags)) {
+			$whereByTag = '';
+			foreach ($criteria->tags as $tag) {
+				$whereByTag .= " and concat(',',e.tags,',') like '%,$tag,%'";
+			}
+			$w .= $whereByTag;
+		}
 
 		// 指定了登记数据过滤条件
 		if (isset($criteria->data)) {
 			$whereByData = '';
 			foreach ($criteria->data as $k => $v) {
-				$whereByData .= ' and (';
-				$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
-				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
-				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
-				$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
-				$whereByData .= ')';
+				if (!empty($v)) {
+					$whereByData .= ' and (';
+					$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
+					$whereByData .= ')';
+				}
 			}
 			$w .= $whereByData;
 		}
 
 		// 查询参数
 		$q = [
-			'e.enroll_key,e.enroll_at,e.tags,e.follower_num,e.score,e.remark_num,e.userid,e.nickname,e.verified,e.data',
+			'e.enroll_key,e.enroll_at,e.tags,e.follower_num,e.score,e.remark_num,e.userid,e.nickname,e.verified,e.comment,e.data',
 			"xxt_enroll_record e",
 			$w,
 		];

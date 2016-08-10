@@ -234,9 +234,8 @@ define(["angular", "xxt-page", 'enroll-directive'], function(angular, codeAssemb
                 codeAssembler.loadCode(ngApp, site.footer_page);
             }
             codeAssembler.loadCode(ngApp, params.page).then(function() {
-                $scope.appPage = params.page;
+                $scope.page = params.page;
             });
-            //setPage($scope, params.page);
             if (tasksOfOnReady.length) {
                 angular.forEach(tasksOfOnReady, PG.exec);
             }

@@ -32,20 +32,21 @@ class page extends \pl\be\base {
 				'follow_page_id' => $code->id,
 				'follow_page_name' => $code->name,
 			),
-			"siteid='{$site->id}'"
+			"siteid='platform'"
 		);
 
-		return new \ResponseData($code->id);
+		return new \ResponseData($code);
 	}
 	/**
 	 * 根据模版重置引导关注页面
 	 *
 	 * @param int $codeId
 	 */
-	public function reset_action($site, $codeId, $template = 'basic') {
+	public function reset_action($site, $name, $template = 'basic') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
 		$site = $this->model('site')->byId($site);
 
 		$data = $this->_makePage($site, $template);
@@ -84,7 +85,7 @@ class page extends \pl\be\base {
 		fwrite($handle, $template);
 		fclose($handle);
 		$s = new \Savant3(array('template' => $tmpfname, 'exceptions' => true));
-		$yx = $this->model('sns\wx')->bySite($site->id);
+		$wx = $this->model('sns\wx')->bySite('platform');
 		$s->assign('site', $site);
 		$s->assign('wx', $wx);
 		$html = $s->getOutput();

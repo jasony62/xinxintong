@@ -326,6 +326,7 @@ $sql .= ",use_site_footer char(1) not null default 'Y'"; // 使用站点页脚
 $sql .= ",use_mission_header char(1) not null default 'Y'"; // 使用项目页眉
 $sql .= ",use_mission_footer char(1) not null default 'Y'"; // 使用项目页脚
 $sql .= ",extattrs text"; //扩展属性
+$sql .= ",tags text";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -396,7 +397,9 @@ $sql .= ",tags text";
 $sql .= ",comment text";
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal
 $sql .= ",referrer text"; // 发起签到的链接
+$sql .= ",data text"; // 登记的数据项
 $sql .= ",verified char(1) not null default 'Y'"; // 记录是否已通过审核
+$sql .= ",verified_enroll_key varchar(32) not null default ''"; // 如果是通过了报名表的验证，记录关联的报名记录
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -490,7 +493,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error: ' . $mysqli->error;
 }
 /**
- * 活动登记记录
+ * 分组活动用户记录
  */
 $sql = "create table if not exists xxt_group_player(";
 $sql .= "id int not null auto_increment";
@@ -507,6 +510,7 @@ $sql .= ",referrer text"; //
 $sql .= ",round_id varchar(32) not null default ''";
 $sql .= ",round_title varchar(40) not null default ''";
 $sql .= ",draw_at int not null";
+$sql .= ",data text"; // 登记的数据项
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

@@ -10,7 +10,7 @@
         <link href='static/css/loading.css?_=1' rel="stylesheet">
         <link href="/views/default/site/fe/matter/enroll/list.css?_=4" rel="stylesheet">
         <link href="/views/default/site/fe/matter/enroll/directive.css?_=1" rel="stylesheet">
-        <style ng-if="appPage.css" ng-bind='appPage.css'></style>
+        <style ng-if="page.css" ng-bind='page.css'></style>
     </head>
     
     <body ng-cloak class='ng-cloak'>
@@ -19,7 +19,7 @@
         <div class="app">
             <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
             <div class='container'>
-                <div class='row' ng-controller='ctrlView' dynamic-html="appPage.html">
+                <div class='row' ng-controller='ctrlView' dynamic-html="page.html">
                 </div>
             </div>
         </div>

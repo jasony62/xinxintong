@@ -112,7 +112,7 @@ class record extends \pl\fe\matter\base {
 		return new \ResponseData($summary);
 	}
 	/**
-	 * 给符合条件的登记记录打标签
+	 * 将数据导出到另一个活动
 	 */
 	public function exportByData_action($site, $app) {
 		if (false === ($user = $this->accountUser())) {
@@ -253,12 +253,13 @@ class record extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
 		$record = $this->getPostJson();
-		$model = $this->model();
+		$modelRec = $this->model('matter\signin\record');
 
 		foreach ($record as $k => $v) {
 			if (in_array($k, ['signin_at', 'verified', 'tags', 'comment'])) {
-				$model->update(
+				$modelRec->update(
 					'xxt_signin_record',
 					[$k => $v],
 					"enroll_key='$ek'"
@@ -268,7 +269,7 @@ class record extends \pl\fe\matter\base {
 					$this->model('matter\signin')->updateTags($app, $v);
 				} else if ($k === 'verified' && $v === 'N') {
 					// 如果不通过验证，去掉关联的报名数据
-					$model->update(
+					$modelRec->update(
 						'xxt_signin_record',
 						['verified_enroll_key' => ''],
 						"enroll_key='$ek'"
@@ -299,7 +300,7 @@ class record extends \pl\fe\matter\base {
 						$cv = implode(',', array_keys(array_filter((array) $cv, function ($i) {return $i;})));
 						$dbData->{$cn} = $cv;
 					} elseif (is_string($cv)) {
-						$cv = $model->escape($cv);
+						$cv = $modelRec->escape($cv);
 						$dbData->{$cn} = $cv;
 					}
 					/*检查数据项是否存在，如果不存在就先创建一条*/
@@ -308,8 +309,8 @@ class record extends \pl\fe\matter\base {
 						'xxt_signin_record_data',
 						"enroll_key='$ek' and name='$cn'",
 					];
-					if (1 === (int) $model->query_val_ss($q)) {
-						$model->update(
+					if (1 === (int) $modelRec->query_val_ss($q)) {
+						$modelRec->update(
 							'xxt_signin_record_data',
 							['value' => $cv],
 							"enroll_key='$ek' and name='$cn'"
@@ -321,13 +322,13 @@ class record extends \pl\fe\matter\base {
 							'name' => $cn,
 							'value' => $cv,
 						];
-						$model->insert('xxt_signin_record_data', $cd, false);
+						$modelRec->insert('xxt_signin_record_data', $cd, false);
 					}
 					$record->data->{$cn} = $cv;
 				}
 				// 记录数据
-				$dbData = $model->toJson($dbData);
-				$model->update('xxt_enroll_record', ['data' => $dbData], "enroll_key='$ek'");
+				$dbData = $modelRec->toJson($dbData);
+				$modelRec->update('xxt_signin_record', ['data' => $dbData], "enroll_key='$ek'");
 			}
 		}
 
@@ -358,6 +359,8 @@ class record extends \pl\fe\matter\base {
 	}
 	/**
 	 * 登记数据导出
+	 *
+	 * 如果活动关联了报名活动，需要将关联的数据导出
 	 */
 	public function export_action($site, $app) {
 		if (false === ($user = $this->accountUser())) {
@@ -365,12 +368,27 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 登记活动
-		$app = $this->model('matter\signin')->byId($app, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+		$app = $this->model('matter\signin')->byId($app, ['fields' => 'id,title,data_schemas,enroll_app_id,tags', 'cascaded' => 'N']);
 		$schemas = json_decode($app->data_schemas);
+
+		// 关联的报名活动
+		if (!empty($app->enroll_app_id)) {
+			$enrollApp = $this->model('matter\enroll')->byId($app->enroll_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+			$enrollSchemas = json_decode($enrollApp->data_schemas);
+			$mapOfSigninSchemas = [];
+			foreach ($schemas as $schema) {
+				$mapOfSigninSchemas[] = $schema->id;
+			}
+			foreach ($enrollSchemas as $schema) {
+				if (!in_array($schema->id, $mapOfSigninSchemas)) {
+					$schemas[] = $schema;
+				}
+			}
+		}
 
 		// 获得所有有效的登记记录
 		$q = [
-			'enroll_at,signin_at,signin_num,verified,data',
+			'enroll_at,signin_at,signin_num,verified,data,tags,comment',
 			'xxt_signin_record',
 			["aid" => $app->id, 'state' => 1],
 		];
@@ -387,12 +405,17 @@ class record extends \pl\fe\matter\base {
 		foreach ($schemas as $schema) {
 			$titles[] = $schema->title;
 		}
+		if (!empty($app->tags)) {
+			$titles[] = '标签';
+		}
+		$titles[] = '备注';
 		$titles = implode("\t", $titles);
 		$size += strlen($titles);
 		$exportedData[] = $titles;
 		// 转换数据
 		foreach ($records as $record) {
 			$row = [];
+			// 基本信息
 			$row[] = date('y-m-j H:i', $record->enroll_at);
 			$row[] = date('y-m-j H:i', $record->signin_at);
 			$row[] = $record->signin_num;
@@ -432,6 +455,12 @@ class record extends \pl\fe\matter\base {
 					break;
 				}
 			}
+			// 基本信息
+			if (!empty($app->tags)) {
+				$row[] = isset($record->tags) ? $record->tags : '';
+			}
+			$row[] = isset($record->comment) ? $record->comment : '';
+
 			// 将数据转换为'|'分隔的字符串
 			$row = implode("\t", $row);
 			$size += strlen($row);

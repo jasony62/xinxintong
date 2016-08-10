@@ -612,18 +612,13 @@ define(['frame'], function(ngApp) {
         $scope.aTags = app.tags;
         $scope.ok = function() {
             var record = $scope.record,
-                p = {
-                    tags: record.aTags.join(','),
-                    data: {}
-                };
+                p = {};
 
-            record.tags = p.tags;
-            record.comment && (p.comment = record.comment);
+            p.data = record.data;
             p.verified = record.verified;
+            p.tags = record.tags = record.aTags.join(',');
+            p.comment = record.comment;
 
-            angular.forEach($scope.app.data_schemas, function(col) {
-                p.data[col.id] = $scope.record.data[col.id];
-            });
             $uibModalInstance.close([p, $scope.aTags]);
         };
         $scope.cancel = function() {

@@ -83,9 +83,8 @@ class record extends \pl\fe\matter\base {
 		$r['siteid'] = $site;
 		$r['enroll_key'] = $ek;
 		$r['enroll_at'] = $current;
-		$r['signin_at'] = $current;
 		$r['verified'] = isset($posted->verified) ? $posted->verified : 'N';
-
+		$r['comment'] = isset($posted->comment) ? $posted->comment : '';
 		if (isset($posted->tags)) {
 			$r['tags'] = $posted->tags;
 			$this->model('matter\enroll')->updateTags($app, $posted->tags);
@@ -98,9 +97,7 @@ class record extends \pl\fe\matter\base {
 		if (isset($posted->data)) {
 			$dbData = new \stdClass;
 			foreach ($posted->data as $n => $v) {
-				if (in_array($n, array('comment'))) {
-					continue;
-				} else if (is_array($v) && isset($v[0]->imgSrc)) {
+				if (is_array($v) && isset($v[0]->imgSrc)) {
 					/* 上传图片 */
 					$vv = array();
 					$fsuser = $this->model('fs/user', $site);

@@ -452,7 +452,7 @@ define(['wrap'], function(wrapLib) {
 					$domRemoved = $(_editor.getBody()).find("[schema='" + removedSchema.id + "']");
 					$domRemoved.remove();
 					pageSchemas.splice(i, 1);
-					this.html = _editor.getContent();
+					this.purifyInput(_editor.getContent(), true);
 					return $domRemoved[0];
 				}
 			}

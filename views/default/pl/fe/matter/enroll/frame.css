@@ -33,8 +33,8 @@ body>nav>ul:nth-child(2)>li{display:inline-block;float:none;}
 .page-editor .sidebar button{height:36px;color:black;border-radius:0;margin-left:-1px;margin-bottom:-1px}
 .page-editor .sidebar button:disabled{color:gray}
 
-/*preview-view*/
-#preview-view .records .summary{font-size:32px;text-align:center;}
+/*publish-view*/
+#publish-view .records .summary{font-size:32px;text-align:center;}
 #simulator{width:360px;height:640px;border:1px solid #efefef;}
 
 /*publish*/

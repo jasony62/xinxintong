@@ -83,9 +83,8 @@ class record extends \pl\fe\matter\base {
 		$r['siteid'] = $site;
 		$r['enroll_key'] = $ek;
 		$r['enroll_at'] = $current;
-		$r['signin_at'] = $current;
 		$r['verified'] = isset($posted->verified) ? $posted->verified : 'N';
-
+		$r['comment'] = isset($posted->comment) ? $posted->comment : '';
 		if (isset($posted->tags)) {
 			$r['tags'] = $posted->tags;
 			$this->model('matter\enroll')->updateTags($app, $posted->tags);
@@ -98,9 +97,7 @@ class record extends \pl\fe\matter\base {
 		if (isset($posted->data)) {
 			$dbData = new \stdClass;
 			foreach ($posted->data as $n => $v) {
-				if (in_array($n, array('signin_at', 'comment'))) {
-					continue;
-				} else if (is_array($v) && isset($v[0]->imgSrc)) {
+				if (is_array($v) && isset($v[0]->imgSrc)) {
 					/* 上传图片 */
 					$vv = array();
 					$fsuser = $this->model('fs/user', $site);
@@ -183,17 +180,17 @@ class record extends \pl\fe\matter\base {
 		$model = $this->model();
 
 		foreach ($record as $k => $v) {
-			if (in_array($k, array('verified', 'signin_at', 'tags', 'comment'))) {
+			if (in_array($k, array('verified', 'tags', 'comment'))) {
 				$model->update(
 					'xxt_enroll_record',
 					array($k => $v),
 					"enroll_key='$ek'"
 				);
-				/*if ($k === 'tags') {
+				// 更新记录的标签时，要同步更新活动的标签，实现标签在整个活动中有效
+				if ($k === 'tags') {
 					$this->model('matter\enroll')->updateTags($app, $v);
-				}*/
+				}
 			} else if ($k === 'data' and is_object($v)) {
-				//
 				$dbData = new \stdClass;
 				foreach ($v as $cn => $cv) {
 					if (is_array($cv) && isset($cv[0]->imgSrc)) {
@@ -256,6 +253,10 @@ class record extends \pl\fe\matter\base {
 	 * 所有记录通过审核
 	 */
 	public function verifyAll_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$rst = $this->model()->update(
 			'xxt_enroll_record',
 			array('verified' => 'Y'),
@@ -265,6 +266,28 @@ class record extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 	/**
+	 * 指定记录通过审核
+	 */
+	public function batchVerify_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$posted = $this->getPostJson();
+		$eks = $posted->eks;
+
+		$model = $this->model();
+		foreach ($eks as $ek) {
+			$rst = $model->update(
+				'xxt_enroll_record',
+				['verified' => 'Y'],
+				"enroll_key='$ek'"
+			);
+		}
+
+		return new \ResponseData('ok');
+	}
+	/**
 	 * 给登记活动的参与人发消息
 	 *
 	 * @param string $site
@@ -272,23 +295,24 @@ class record extends \pl\fe\matter\base {
 	 * @param string $tmplmsg
 	 *
 	 */
-	public function notify_action($site, $app, $tmplmsg, $rid = null, $tags = null, $kw = null, $by = null) {
+	public function notify_action($site, $app, $tmplmsg, $rid = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$message = $this->getPostJson();
-		/**
-		 * 用户筛选条件
-		 */
+		$posted = $this->getPostJson();
+		$message = $posted->message;
+
+		// 记录筛选条件
+		$criteria = $posted->criteria;
 		$options = array(
-			'tags' => $tags,
 			'rid' => $rid,
-			'kw' => $kw,
-			'by' => $by,
 		);
 
-		$participants = $this->model('matter\enroll')->participants($site, $app, $tmplmsg, $options);
+		$site = \TMS_MODEL::escape($site);
+		$app = \TMS_MODEL::escape($app);
+
+		$participants = $this->model('matter\enroll')->participants($site, $app, $options, $criteria);
 
 		$rst = $this->notifyWithMatter($site, $participants, $tmplmsg, $message);
 		if ($rst[0] === false) {

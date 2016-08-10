@@ -246,17 +246,23 @@ class TMS_MODEL {
 	 *
 	 */
 	public static function urlencodeObj($obj) {
+		// 替换为空的
+		$pattern1 = "/[\r\n\t]/";
+
 		if (is_object($obj)) {
 			$newObj = new \stdClass;
 			foreach ($obj as $k => $v) {
+				$k = preg_replace($pattern1, '', $k);
 				$newObj->{urlencode($k)} = self::urlencodeObj($v);
 			}
 		} else if (is_array($obj)) {
 			$newObj = array();
 			foreach ($obj as $k => $v) {
+				$k = preg_replace($pattern1, '', $k);
 				$newObj[urlencode($k)] = self::urlencodeObj($v);
 			}
 		} else {
+			$obj = preg_replace($pattern1, '', $obj);
 			$newObj = urlencode($obj);
 		}
 

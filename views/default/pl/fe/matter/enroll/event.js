@@ -1,7 +1,17 @@
 define(['frame'], function(ngApp) {
-	ngApp.provider.controller('ctrlEvent', ['$scope', 'http2', function($scope, http2) {
-		$scope.pages4OutAcl = [];
-		$scope.pages4Unauth = [];
+	ngApp.provider.controller('ctrlEvent', ['$scope', '$location', 'http2', '$uibModal', function($scope, $location, http2, $uibModal) {
+		window.onbeforeunload = function(e) {
+			var message;
+			if ($scope.modified) {
+				message = '修改还没有保存，是否要离开当前页面？',
+					e = e || window.event;
+				if (e) {
+					e.returnValue = message;
+				}
+				return message;
+			}
+		};
+		$scope.pages4NonMember = [];
 		$scope.pages4Nonfan = [];
 		$scope.updateEntryRule = function() {
 			var p = {
@@ -11,30 +21,44 @@ define(['frame'], function(ngApp) {
 				$scope.persisted = angular.copy($scope.app);
 			});
 		};
-		$scope.$watch('app.pages', function(nv) {
-			var newPage;
-			if (!nv) return;
-			$scope.pages4OutAcl = $scope.app.access_control === 'Y' ? [{
-				name: '$authapi_outacl',
-				title: '提示白名单'
-			}] : [];
-			$scope.pages4Unauth = $scope.app.access_control === 'Y' ? [{
-				name: '$authapi_auth',
-				title: '提示认证'
-			}] : [];
+		$scope.resetEntryRule = function() {
+			http2.get('/rest/pl/fe/matter/enroll/entryRuleReset?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+				$scope.app.entry_rule = rsp.data;
+				$scope.persisted = angular.copy($scope.app);
+			});
+		};
+		$scope.isInputPage = function(pageName) {
+			if (!$scope.app) {
+				return false;
+			}
+			for (var i in $scope.app.pages) {
+				if ($scope.app.pages[i].name === pageName && $scope.app.pages[i].type === 'I') {
+					return true;
+				}
+			}
+			return false;
+		};
+		http2.get('/rest/pl/fe/site/snsList?site=' + $scope.siteId, function(rsp) {
+			$scope.sns = rsp.data;
+		});
+		$scope.$watch('app.pages', function(pages) {
+			if (!pages) return;
+			$scope.pages4NonMember = [{
+				name: '$memberschema',
+				title: '填写自定义用户信息'
+			}];
 			$scope.pages4Nonfan = [{
-				name: '$mp_follow',
+				name: '$mpfollow',
 				title: '提示关注'
 			}];
-			for (var p in nv) {
-				newPage = {
-					name: nv[p].name,
-					title: nv[p].title
+			angular.forEach(pages, function(page) {
+				var newPage = {
+					name: page.name,
+					title: page.title
 				};
-				$scope.pages4OutAcl.push(newPage);
-				$scope.pages4Unauth.push(newPage);
+				$scope.pages4NonMember.push(newPage);
 				$scope.pages4Nonfan.push(newPage);
-			}
+			});
 		}, true);
 	}]);
 });

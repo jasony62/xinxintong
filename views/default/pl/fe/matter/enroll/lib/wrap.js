@@ -57,7 +57,7 @@ define([], function() {
     InputWrap.prototype.newWrap = function(schema) {
         var oWrap = {
             config: {
-                required: 'N',
+                required: 'Y',
                 showname: 'label'
             },
             schema: schema
@@ -71,6 +71,36 @@ define([], function() {
 
         return oWrap;
     };
+    InputWrap.prototype.newRadio = function(schema, op, config) {
+        var html;
+
+        html = '<li class="radio" wrap="radio" contenteditable="false"';
+        config.required === 'Y' && (html += ' required');
+        html += '><label';
+        if (config.align === 'H') html += ' class="radio-inline"';
+        html += '><input type="radio" name="' + schema.id + '"';
+        html += ' value="' + op.v + '"';
+        html += ' ng-model="data.' + schema.id + '"';
+        angular.forEach(schema.attrs, function(attr) {
+            html += 'data-' + attr.name + '="' + attr.value + '"';
+        });
+        html += ' disabled><span contenteditable="true">' + op.l + '</span></label></li>';
+
+        return html;
+    };
+    InputWrap.prototype.newCheckbox = function(schema, op, config) {
+        var html;
+
+        html = '<li class="checkbox" wrap="checkbox" contenteditable="false"';
+        config.required === 'Y' && (html += ' required');
+        html += '><label';
+        if (config.align === 'H') html += ' class="checkbox-inline"';
+        html += '><input type="checkbox" name="' + schema.id + '"';
+        html += ' ng-model="data.' + schema.id + '.' + op.v + '"';
+        html += ' disabled><span contenteditable="true">' + op.l + '</span></label></li>';
+
+        return html;
+    };
     InputWrap.prototype._htmlSingleRadio = function(oWrap) {
         var config = oWrap.config,
             schema = oWrap.schema,
@@ -79,12 +109,13 @@ define([], function() {
         cls = 'radio';
         config.align === 'H' && (cls += '-inline');
         angular.forEach(schema.ops, function(op) {
-            html += '<li class="' + cls + '" wrap="radio" contenteditable="false"><label';
+            html += '<li class="' + cls + '" wrap="radio" contenteditable="false"';
+            config.required === 'Y' && (html += 'required');
+            html += '><label';
             if (config.align === 'H') html += ' class="radio-inline"';
             html += '><input type="radio" name="' + schema.id + '"';
             html += ' value="' + op.v + '"';
             html += ' ng-model="data.' + schema.id + '"';
-            config.required === 'Y' && (html += 'required=""');
             angular.forEach(schema.attrs, function(attr) {
                 html += 'data-' + attr.name + '="' + attr.value + '"';
             });
@@ -120,10 +151,11 @@ define([], function() {
         cls = 'checkbox';
         config.align === 'H' && (cls += '-inline');
         angular.forEach(schema.ops, function(op) {
-            html += '<li class="' + cls + '" wrap="checkbox" contenteditable="false"><label';
+            html += '<li class="' + cls + '" wrap="checkbox" contenteditable="false"';
+            config.required === 'Y' && (html += 'required');
+            html += '><label';
             if (config.align === 'H') html += ' class="checkbox-inline"';
             html += '><input type="checkbox" name="' + schema.id + '"';
-            config.required === 'Y' && (html += 'required=""');
             html += ' ng-model="data.' + schema.id + '.' + op.v + '"';
             html += ' disabled><span contenteditable="true">' + op.l + '</span></label></li>';
         });
@@ -380,6 +412,7 @@ define([], function() {
     ValueWrap.prototype.embed = function(oWrap) {
         var wrapAttrs, label, html, config = oWrap.config,
             schema = oWrap.schema;
+
         wrapAttrs = this.wrapAttrs(oWrap);
         label = '<label>' + schema.title + '</label>'
         html = label + this.htmlValue(schema);
@@ -388,7 +421,10 @@ define([], function() {
     };
     ValueWrap.prototype.modify = function(domWrap, oWrap) {
         var config = oWrap.config,
+            schema = oWrap.schema,
             $wrap = $(domWrap);
+
+        $wrap.find('label').html(schema.title);
         config.inline === 'Y' ? $wrap.addClass('wrap-inline') : $wrap.removeClass('wrap-inline');
         config.splitLine === 'Y' ? $wrap.addClass('wrap-splitline') : $wrap.removeClass('wrap-splitline');
     };

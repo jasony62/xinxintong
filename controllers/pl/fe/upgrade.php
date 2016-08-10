@@ -17,7 +17,7 @@ class upgrade extends \TMS_CONTROLLER {
 	public function do_action($site = null, $app = null, $ek = null, $force = 'N') {
 		$model = $this->model();
 
-		$q = ['enroll_key', 'xxt_enroll_record'];
+		$q = ['enroll_key', 'xxt_signin_record'];
 		$q[2] = $force === 'N' ? "data is null" : '1=1';
 		if (!empty($site)) {
 			$site = $model->escape($site);
@@ -36,7 +36,7 @@ class upgrade extends \TMS_CONTROLLER {
 		foreach ($records as $record) {
 			$qc = [
 				'name,value',
-				'xxt_enroll_record_data',
+				'xxt_signin_record_data',
 				"enroll_key='{$record->enroll_key}'",
 			];
 			$cds = $model->query_objs_ss($qc);
@@ -51,7 +51,7 @@ class upgrade extends \TMS_CONTROLLER {
 			}
 			$data = $model->toJson($data);
 
-			$model->update('xxt_enroll_record', ['data' => $data], "enroll_key='{$record->enroll_key}'");
+			$model->update('xxt_signin_record', ['data' => $data], "enroll_key='{$record->enroll_key}'");
 		}
 
 		return new \ResponseData('ok');

@@ -6,8 +6,8 @@
         <link href="/static/css/tms.css" rel="stylesheet">
         <style type='text/css'>
         body{padding-top:71px;}
-        .site{position:relative;height:120px;cursor:pointer}
-        .site .footer{position:absolute;bottom:4px;left:4px;right:4px}
+        .site,.template{position:relative;height:120px;cursor:pointer}
+        .site .footer,.template .footer{position:absolute;bottom:4px;left:4px;right:4px}
         .site .footer .datetime{display:inline-block;float:right;color:#999}
         </style>
         <title><?php echo APP_TITLE;?></title>
@@ -23,6 +23,7 @@
             <div class='row'>
                 <div class="panel panel-default">
                     <div class="panel-heading clearfix">
+                        <span>我的站点</span>
                         <button class='btn btn-success pull-right' ng-click='create()'><span class='glyphicon glyphicon-plus'></span>创建站点</button>
                     </div>
                     <div class="panel-body">
@@ -32,6 +33,38 @@
                                 <div ng-bind="site.name"></div>
                                 <div class='footer'>
                                     <span class='datetime' ng-bind="site.create_at*1000|date:'yy-MM-dd'"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default hide">
+                    <div class="panel-heading">
+                        推荐站点
+                    </div>
+                    <div class="panel-body">
+                        <div  class='col-md-3' ng-repeat='site in recommendedSites'>
+                            <div class='thumbnail site' ng-mouseenter='mouseenter=true' ng-mouseleave='mouseenter=false'>
+                                <button class='btn btn-default pull-right' ng-if='mouseenter' ng-click="collectSite($event,site)"><span class='glyphicon glyphicon-star-empty'></span></button>
+                                <div ng-bind="site.name"></div>
+                                <div class='footer'>
+                                    <span ng-bind="site.creater_name"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default hide">
+                    <div class="panel-heading">
+                        推荐模版
+                    </div>
+                    <div class="panel-body">
+                        <div  class='col-md-3' ng-repeat='template in templates'>
+                            <div class='thumbnail template' ng-mouseenter='mouseenter=true' ng-mouseleave='mouseenter=false'>
+                                <button class='btn btn-default pull-right' title='收藏' ng-if='mouseenter' ng-click="collectTemplate($event,template)"><span class='glyphicon glyphicon-star-empty'></span></button>
+                                <div ng-bind="template.title"></div>
+                                <div class='footer'>
+                                    <span ng-bind="template.creater_name"></span>
                                 </div>
                             </div>
                         </div>

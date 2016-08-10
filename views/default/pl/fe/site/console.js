@@ -45,9 +45,9 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
         }
     };
     var searchMatters = function(append) {
-        if($scope.matterType === 'addressbook'){
+        if ($scope.matterType === 'addressbook') {
             var url = '/rest/pl/fe/matter/' + $scope.matterType + '/get?site=' + $scope.siteId + $scope.page.j();
-        }else{
+        } else {
             var url = '/rest/pl/fe/matter/' + $scope.matterType + '/list?site=' + $scope.siteId + $scope.page.j();
         }
         url += '&_=' + (new Date()).getTime();
@@ -99,7 +99,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date()).getTime(), function(rsp) {
                 $scope.matters = rsp.data.matters;
             });
-        }else {
+        } else {
             $scope.page.at = 1;
             $scope.page.total = 0;
             searchMatters(false);
@@ -228,24 +228,32 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
     //研究项目-登记活动
     $scope.addEnrollByTemplate = function() {
         templateShop.choose('enroll').then(function(choice) {
-            if (choice.source === 'share') {
-                var url, data = choice.data;
-                url = '/rest/pl/fe/matter/enroll/createByOther?site=' + $scope.siteId + '&template=' + data.id;
-                http2.get(url, function(rsp) {
-                    location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
-                });
-            } else if (choice.source === 'platform') {
-                var url, config, data = choice.data;
-                url = '/rest/pl/fe/matter/enroll/create?site=' + $scope.siteId;
-                config = {};
-                if (data) {
-                    url += '&scenario=' + data.scenario.name;
-                    url += '&template=' + data.template.name;
-                    if (data.simpleSchema && data.simpleSchema.length) {
-                        config.simpleSchema = data.simpleSchema;
+            if (choice) {
+                if (choice.source === 'share') {
+                    var url, data = choice.data;
+                    url = '/rest/pl/fe/matter/enroll/createByOther?site=' + $scope.siteId + '&template=' + data.id;
+                    http2.get(url, function(rsp) {
+                        location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
+                    });
+                } else if (choice.source === 'platform') {
+                    var url, config, data = choice.data;
+                    url = '/rest/pl/fe/matter/enroll/create?site=' + $scope.siteId;
+                    config = {};
+                    if (data) {
+                        url += '&scenario=' + data.scenario.name;
+                        url += '&template=' + data.template.name;
+                        if (data.simpleSchema && data.simpleSchema.length) {
+                            config.simpleSchema = data.simpleSchema;
+                        }
                     }
+                    http2.post(url, config, function(rsp) {
+                        location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
+                    });
                 }
-                http2.post(url, config, function(rsp) {
+            } else {
+                var url;
+                url = '/rest/pl/fe/matter/enroll/create?site=' + $scope.siteId;
+                http2.post(url, {}, function(rsp) {
                     location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
                 });
             }
@@ -294,7 +302,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
         });
     };
     $scope.addAddressbook = function() {
-        http2.get('/rest/pl/fe/matter/addressbook/create?site='+ $scope.siteId, function(rsp) {
+        http2.get('/rest/pl/fe/matter/addressbook/create?site=' + $scope.siteId, function(rsp) {
             /*location.href = '/rest/pl/fe/matter/addressbook/edit?id='+ rsp.data + '&site=' + $scope.siteId;*/
             location.href = '/rest/pl/fe/matter/addressbook?site=' + $scope.siteId + '&id=' + rsp.data;
 

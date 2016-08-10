@@ -6,11 +6,11 @@ define(['main'], function(ngApp) {
 			event.stopPropagation();
 			var name = $scope.wx[prop];
 			if (name && name.length) {
-				location.href = '/rest/pl/fe/code?site=' + $scope.wx.plid + '&name=' + name;
+				location.href = '/rest/pl/fe/code?site=platform&name=' + name;
 			} else {
-				http2.get('/rest/pl/be/sns/wx/page/create?site' + $scope.wx.plid, function(rsp) {
+				http2.get('/rest/pl/be/sns/wx/page/create?site=platform', function(rsp) {
 					$scope.wx[prop] = rsp.data.name;
-					location.href = '/rest/pl/fe/code?site=' + $scope.wx.plid + '&name=' + rsp.data.name;
+					location.href = '/rest/pl/fe/code?site=platform&name=' + rsp.data.name;
 				});
 			}
 		};
@@ -20,13 +20,13 @@ define(['main'], function(ngApp) {
 			if (window.confirm('重置操作将覆盖已经做出的修改，确定重置？')) {
 				var name = $scope.wx[prop];
 				if (name && name.length) {
-					http2.get('/rest/pl/be/sns/wx/page/reset?site' + $scope.wx.plid + '&name=' + name, function(rsp) {
-						location.href = '/rest/pl/fe/code?site=' + $scope.wx.plid + '&name=' + name;
+					http2.get('/rest/pl/be/sns/wx/page/reset?site=platform&name=' + name, function(rsp) {
+						location.href = '/rest/pl/fe/code?site=platform&name=' + name;
 					});
 				} else {
-					http2.get('/rest/pl/be/sns/wx/page/create?site' + $scope.wx.plid, function(rsp) {
+					http2.get('/rest/pl/be/sns/wx/page/create?site=platform', function(rsp) {
 						$scope.wx[prop] = rsp.data.name;
-						location.href = '/rest/pl/fe/code?site=' + $scope.wx.plid + '&name=' + rsp.data.name;
+						location.href = '/rest/pl/fe/code?site=platform&name=' + rsp.data.name;
 					});
 				}
 			}

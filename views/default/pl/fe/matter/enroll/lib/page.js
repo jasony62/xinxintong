@@ -124,30 +124,56 @@ define(['wrap'], function(wrapLib) {
 
 			try {
 				this.data_schemas = dataSchemas && dataSchemas.length ? JSON.parse(dataSchemas) : [];
+			} catch (e) {
+				console.error(e);
+				this.data_schemas = [];
+			}
+			try {
 				this.act_schemas = actSchemas && actSchemas.length ? JSON.parse(actSchemas) : [];
+			} catch (e) {
+				console.error(e);
+				this.act_schemas = [];
+			}
+			try {
 				this.user_schemas = userSchemas && userSchemas.length ? JSON.parse(userSchemas) : [];
 			} catch (e) {
-
+				console.error(e);
+				this.user_schemas = [];
 			}
+
 			if (this.data_schemas.length) {
 				if (this.type === 'I') {
-					angular.forEach(this.data_schemas, function(dataWrap) {
-						if (dataWrap.schema && dataWrap.schema.id) {
-							mapOfAppSchemas[dataWrap.schema.id] && (dataWrap.schema = mapOfAppSchemas[dataWrap.schema.id]);
-						} else {
-							console.error('data invalid', dataWrap);
-						}
-					});
-				} else if (this.type === 'V') {
-					angular.forEach(this.data_schemas, function(config) {
-						if (config.pattern === 'record') {
-							if (config.schema && config.schema.id) {
-								mapOfAppSchemas[config.schema.id] && (config.schema = mapOfAppSchemas[config.schema.id]);
-							} else {
-								console.error('data invalid', config);
+					var dataSchemas = [];
+					angular.forEach(this.data_schemas, function(item) {
+						var matched = false;
+						if (item.schema && item.schema.id) {
+							if (mapOfAppSchemas[item.schema.id]) {
+								item.schema = mapOfAppSchemas[item.schema.id];
+								dataSchemas.push(item);
+								matched = true;
 							}
 						}
+						if (!matched) console.error('data invalid', item);
 					});
+					this.data_schemas = dataSchemas;
+				} else if (this.type === 'V') {
+					var dataSchemas = [];
+					angular.forEach(this.data_schemas, function(item) {
+						var config = item.config,
+							schema = item.schema,
+							matched = false;
+						if (config.pattern === 'record') {
+							if (schema && schema.id) {
+								if (mapOfAppSchemas[schema.id]) {
+									item.schema = mapOfAppSchemas[schema.id];
+									dataSchemas.push(item);
+									matched = true;
+								}
+							}
+						}
+						if (!matched) console.error('data invalid', item);
+					});
+					this.data_schemas = dataSchemas;
 				} else if (this.type === 'L') {
 					angular.forEach(this.data_schemas, function(config) {
 						if (config.pattern === 'records') {
@@ -274,9 +300,19 @@ define(['wrap'], function(wrapLib) {
 		},
 		removeBySchema: function(schema) {
 			if (this.type === 'V' || this.type === 'L') {
+				// 清除页面内容
 				var $html = $('<div>' + this.html + '</div>');
 				$html.find("[schema='" + schema.id + "']").remove();
 				this.html = $html.html();
+				if (this.type === 'V') {
+					// 清除数据定义中的项
+					for (var i = this.data_schemas.length - 1; i >= 0; i--) {
+						if (this.data_schemas[i].schema.id === schema.id) {
+							this.data_schemas.splice(i, 1);
+							break;
+						}
+					}
+				}
 			}
 		},
 		appendBySchema: function(schema) {
@@ -416,7 +452,7 @@ define(['wrap'], function(wrapLib) {
 					$domRemoved = $(_editor.getBody()).find("[schema='" + removedSchema.id + "']");
 					$domRemoved.remove();
 					pageSchemas.splice(i, 1);
-					this.html = _editor.getContent();
+					this.purifyInput(_editor.getContent(), true);
 					return $domRemoved[0];
 				}
 			}
@@ -424,8 +460,9 @@ define(['wrap'], function(wrapLib) {
 			return false;
 		},
 		scroll: function(dom) {
-			var domBody = _editor.getBody();
-			domBody.scrollTop = dom.offsetTop - 15;
+			var domBody = _editor.getBody(),
+				offsetTop = dom.offsetTop;
+			domBody.scrollTop = offsetTop - 15;
 		},
 		contentChange: function(node, activeWrap, $timeout) {
 			var domNodeWrap = $(node).parents('[wrap]'),

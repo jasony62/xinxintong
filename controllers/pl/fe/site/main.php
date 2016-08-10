@@ -64,7 +64,7 @@ class main extends \pl\fe\base {
 		return new \ResponseData($site);
 	}
 	/**
-	 *
+	 * 有权管理的站点
 	 */
 	public function list_action() {
 		$user = $this->accountUser();
@@ -77,6 +77,25 @@ class main extends \pl\fe\base {
 			"(creater='{$user->id}' or exists(select 1 from xxt_site_admin sa where sa.siteid=s.id and uid='{$user->id}')) and state=1",
 		);
 		$q2 = array('o' => 'create_at desc');
+
+		$sites = $this->model()->query_objs_ss($q, $q2);
+
+		return new \ResponseData($sites);
+	}
+	/**
+	 * 推荐给注册用户的站点
+	 */
+	public function recommended_action() {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$q = [
+			'id,creater_name,create_at,name',
+			'xxt_site s',
+			"creater<>'{$user->id}' and state=1",
+		];
+		$q2 = ['o' => 'create_at desc'];
 
 		$sites = $this->model()->query_objs_ss($q, $q2);
 

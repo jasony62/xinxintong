@@ -22,7 +22,7 @@ class base extends \site\fe\matter\base {
 	/**
 	 * 检查登记活动进入规则
 	 */
-	protected function checkEntryRule($site, $app, $user, $redirect = false) {
+	protected function checkEntryRule($siteId, $app, $user, $redirect = false) {
 		$entryRule = $app->entry_rule;
 		if (isset($entryRule->scope) && $entryRule->scope === 'member') {
 			foreach ($entryRule->member as $schemaId => $rule) {
@@ -35,8 +35,24 @@ class base extends \site\fe\matter\base {
 		} else if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
 			foreach ($entryRule->sns as $snsName => $rule) {
 				if (isset($user->sns->{$snsName})) {
-					$page = $rule->entry;
-					break;
+					// 检查用户对应的公众号
+					if ($snsName === 'wx') {
+						$modelWx = $this->model('sns\wx');
+						if (($wxConfig = $modelWx->bySite($siteId)) && $wxConfig->joined === 'Y') {
+							$snsSiteId = $siteId;
+						} else {
+							$snsSiteId = 'platform';
+						}
+					} else {
+						$snsSiteId = $siteId;
+					}
+					// 检查用户是否已经关注
+					$snsUser = $user->sns->{$snsName};
+					$modelSnsUser = $this->model('sns\\' . $snsName . '\fan');
+					if ($modelSnsUser->isFollow($snsSiteId, $snsUser->openid)) {
+						$page = $rule->entry;
+						break;
+					}
 				}
 			}
 			!isset($page) && $page = '$mpfollow';
@@ -56,19 +72,19 @@ class base extends \site\fe\matter\base {
 			}
 			if ($redirect) {
 				/*页面跳转*/
-				$this->gotoMember($site, $aMemberSchemas, $user->uid);
+				$this->gotoMember($siteId, $aMemberSchemas, $user->uid);
 			} else {
 				/*返回地址*/
-				$this->gotoMember($site, $aMemberSchemas, $user->uid, false);
+				$this->gotoMember($siteId, $aMemberSchemas, $user->uid, false);
 			}
 			break;
 		case '$mpfollow':
 			if (isset($entryRule->sns->wx)) {
-				$this->snsFollow($site, 'wx');
+				$this->snsFollow($siteId, 'wx');
 			} else if (isset($entryRule->sns->qy)) {
-				$this->snsFollow($site, 'qy');
+				$this->snsFollow($siteId, 'qy');
 			} else if (isset($entryRule->sns->yx)) {
-				$this->snsFollow($site, 'yx');
+				$this->snsFollow($siteId, 'yx');
 			}
 			break;
 		}

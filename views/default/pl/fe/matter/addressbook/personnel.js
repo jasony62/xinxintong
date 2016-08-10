@@ -89,7 +89,7 @@ define(['frame'],function(ngApp){
                 size: 'lg',
                 resolve: {
                     abid: function () {
-                        return $scope.person.ab_id;
+                        return $scope.abid;
                     },
                     onlyOne: function () {
                         return false;

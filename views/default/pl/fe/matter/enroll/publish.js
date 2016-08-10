@@ -33,77 +33,86 @@ define(['frame'], function(ngApp) {
 			$scope.app.pic = '';
 			$scope.update('pic');
 		};
-		$scope.text2Clipboard = function(content) {
-
+		$scope.downloadQrcode = function(url) {
+			$('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
 		};
 		$scope.summaryOfRecords().then(function(data) {
 			$scope.summary = data;
 		});
 	}]);
-	ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', '$interval', function($scope, http2, $interval) {
-		var baseURL = '/rest/pl/fe/matter/enroll/receiver/';
-		$scope.qrcodeShown = false;
-		$scope.supportQrcode = {
-			wx: 'N',
-			yx: 'N'
-		};
-		$scope.qrcode = function(snsName) {
-			if ($scope.qrcodeShown === false) {
-				var url = '/rest/pl/fe/site/sns/' + snsName + '/qrcode/createOneOff';
-				url += '?site=' + $scope.siteId;
-				url += '&matter_type=enrollreceiver';
-				url += '&matter_id=' + $scope.id;
-				http2.get(url, function(rsp) {
-					var qrcode = rsp.data,
-						eleQrcode = $("#" + snsName + "Qrcode");
-					eleQrcode.trigger('show');
-					$scope.qrcodeURL = qrcode.pic;
-					$scope.qrcodeShown = true;
-					(function() {
-						var fnCheckQrcode, url2;
-						url2 = '/rest/pl/fe/site/sns/' + snsName + '/qrcode/get';
-						url2 += '?site=' + qrcode.siteid;
-						url2 += '&id=' + rsp.data.id;
-						fnCheckQrcode = $interval(function() {
-							http2.get(url2, function(rsp) {
-								if (rsp.data == false) {
-									$interval.cancel(fnCheckQrcode);
-									eleQrcode.trigger('hide');
-									$scope.qrcodeShown = false;
-									(function() {
-										var fnCheckReceiver;
-										fnCheckReceiver = $interval(function() {
-											http2.get('/rest/pl/fe/matter/enroll/receiver/afterJoin?site=' + $scope.siteId + '&app=' + $scope.id + '&timestamp=' + qrcode.create_at, function(rsp) {
-												if (rsp.data.length) {
-													$interval.cancel(fnCheckReceiver);
-													$scope.receivers = $scope.receivers.concat(rsp.data);
-												}
-											});
-										}, 2000);
-									})();
-								}
-							});
-						}, 2000);
-					})();
+	/**
+	 * app setting controller
+	 */
+	ngApp.provider.controller('ctrlApp', ['$scope', '$q', 'http2', function($scope, $q, http2) {
+		//
+		function arrangePhases(mission) {
+			if (mission.phases && mission.phases.length) {
+				$scope.phases = angular.copy(mission.phases);
+				$scope.phases.unshift({
+					title: '全部',
+					phase_id: ''
 				});
-			} else {
-				$("#yxQrcode").trigger('hide');
-				$scope.qrcodeShown = false;
 			}
 		};
-		$scope.remove = function(receiver) {
-			http2.get(baseURL + 'remove?site=' + $scope.siteId + '&app=' + $scope.id + '&receiver=' + receiver.userid, function(rsp) {
-				$scope.receivers.splice($scope.receivers.indexOf(receiver), 1);
-			});
+		$scope.phases = null;
+		$scope.$on('xxt.tms-datepicker.change', function(event, data) {
+			$scope.app[data.state] = data.value;
+			$scope.update(data.state);
+		});
+		$scope.choosePhase = function() {
+			var phaseId = $scope.app.mission_phase_id,
+				i, phase, newPhase, updatedFields = ['mission_phase_id'];
+
+			// 去掉活动标题中现有的阶段后缀
+			for (i = $scope.app.mission.phases.length - 1; i >= 0; i--) {
+				phase = $scope.app.mission.phases[i];
+				$scope.app.title = $scope.app.title.replace('-' + phase.title, '');
+				if (phase.phase_id === phaseId) {
+					newPhase = phase;
+				}
+			}
+
+			if (newPhase) {
+				// 给活动标题加上阶段后缀
+				$scope.app.title += '-' + newPhase.title;
+				updatedFields.push('title');
+				// 设置活动开始时间
+				if ($scope.app.start_at == 0) {
+					$scope.app.start_at = newPhase.start_at;
+					updatedFields.push('start_at');
+				}
+				// 设置活动结束时间
+				if ($scope.app.end_at == 0) {
+					$scope.app.end_at = newPhase.end_at;
+					updatedFields.push('end_at');
+				}
+			}
+
+			$scope.update(updatedFields);
 		};
-		http2.get(baseURL + 'list?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
-			$scope.receivers = rsp.data;
-		});
-		http2.get('/rest/pl/fe/site/snsList?site=' + $scope.siteId, function(rsp) {
-			var snsConfig = rsp.data;
-			snsConfig.wx && (snsConfig.wx.can_qrcode === 'Y') && ($scope.supportQrcode.wx = 'Y');
-			snsConfig.yx && (snsConfig.yx.can_qrcode === 'Y') && ($scope.supportQrcode.yx = 'Y');
-		});
+		/*初始化页面数据*/
+		if ($scope.app && $scope.app.mission) {
+			arrangePhases($scope.app.mission);
+		} else {
+			$scope.$watch('app.mission', function(mission) {
+				if (!mission) return;
+				arrangePhases(mission);
+			});
+		}
+	}]);
+	ngApp.provider.controller('ctrlPreview', ['$scope', 'http2', 'templateShop', function($scope, http2, templateShop) {
+		var previewURL = '/rest/site/fe/matter/enroll/preview?site=' + $scope.siteId + '&app=' + $scope.id + '&start=Y';
+		$scope.params = {
+			openAt: 'ontime'
+		};
+		$scope.shareAsTemplate = function() {
+			templateShop.share($scope.siteId, $scope.app);
+		};
+		$scope.$watch('params', function(params) {
+			if (params) {
+				$scope.previewURL = previewURL + '&openAt=' + params.openAt;
+			}
+		}, true);
 	}]);
 	ngApp.provider.controller('ctrlRound', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
 		$scope.roundState = ['新建', '启用', '停止'];
@@ -209,15 +218,69 @@ define(['frame'], function(ngApp) {
 			});
 		};
 	}]);
-	ngApp.provider.controller('ctrlStat', ['$scope', 'http2', function($scope, http2) {
-		$scope.$watch('app', function(app) {
-			if (!app) return;
-			var url = '/rest/pl/fe/matter/enroll/stat/get';
-			url += '?site=' + $scope.siteId;
-			url += '&app=' + app.id;
-			http2.get(url, function(rsp) {
-				$scope.stat = rsp.data;
+	ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', '$interval', function($scope, http2, $interval) {
+		var baseURL = '/rest/pl/fe/matter/enroll/receiver/';
+		$scope.qrcodeShown = false;
+		$scope.supportQrcode = {
+			wx: 'N',
+			yx: 'N'
+		};
+		$scope.qrcode = function(snsName) {
+			if ($scope.qrcodeShown === false) {
+				var url = '/rest/pl/fe/site/sns/' + snsName + '/qrcode/createOneOff';
+				url += '?site=' + $scope.siteId;
+				url += '&matter_type=enrollreceiver';
+				url += '&matter_id=' + $scope.id;
+				http2.get(url, function(rsp) {
+					var qrcode = rsp.data,
+						eleQrcode = $("#" + snsName + "Qrcode");
+					eleQrcode.trigger('show');
+					$scope.qrcodeURL = qrcode.pic;
+					$scope.qrcodeShown = true;
+					(function() {
+						var fnCheckQrcode, url2;
+						url2 = '/rest/pl/fe/site/sns/' + snsName + '/qrcode/get';
+						url2 += '?site=' + qrcode.siteid;
+						url2 += '&id=' + rsp.data.id;
+						fnCheckQrcode = $interval(function() {
+							http2.get(url2, function(rsp) {
+								if (rsp.data == false) {
+									$interval.cancel(fnCheckQrcode);
+									eleQrcode.trigger('hide');
+									$scope.qrcodeShown = false;
+									(function() {
+										var fnCheckReceiver;
+										fnCheckReceiver = $interval(function() {
+											http2.get('/rest/pl/fe/matter/enroll/receiver/afterJoin?site=' + $scope.siteId + '&app=' + $scope.id + '&timestamp=' + qrcode.create_at, function(rsp) {
+												if (rsp.data.length) {
+													$interval.cancel(fnCheckReceiver);
+													$scope.receivers = $scope.receivers.concat(rsp.data);
+												}
+											});
+										}, 2000);
+									})();
+								}
+							});
+						}, 2000);
+					})();
+				});
+			} else {
+				$("#yxQrcode").trigger('hide');
+				$scope.qrcodeShown = false;
+			}
+		};
+		$scope.remove = function(receiver) {
+			http2.get(baseURL + 'remove?site=' + $scope.siteId + '&app=' + $scope.id + '&receiver=' + receiver.userid, function(rsp) {
+				$scope.receivers.splice($scope.receivers.indexOf(receiver), 1);
 			});
+		};
+		http2.get(baseURL + 'list?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+			$scope.receivers = rsp.data;
+		});
+		http2.get('/rest/pl/fe/site/snsList?site=' + $scope.siteId, function(rsp) {
+			var snsConfig = rsp.data;
+			snsConfig.wx && (snsConfig.wx.can_qrcode === 'Y') && ($scope.supportQrcode.wx = 'Y');
+			snsConfig.yx && (snsConfig.yx.can_qrcode === 'Y') && ($scope.supportQrcode.yx = 'Y');
 		});
 	}]);
 });

@@ -14,12 +14,6 @@ define(['frame'], function(ngApp) {
 			$scope.entry = entry;
 		});
 		$scope.opUrl = 'http://' + location.host + '/rest/site/op/matter/enroll?site=' + $scope.siteId + '&app=' + $scope.id;
-		$scope.stop = function() {
-			$scope.app.state = 1;
-			$scope.update('state').then(function() {
-				location.href = '/rest/pl/fe/matter/enroll/preview?site=' + $scope.siteId + '&id=' + $scope.id;
-			});
-		};
 		$scope.setPic = function() {
 			var options = {
 				callback: function(url) {

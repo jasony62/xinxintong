@@ -1,0 +1,7 @@
+body{font-family:"Microsoft Yahei","Helvetica Neue",Helvetica,Arial,sans-serif;background:#f8f8f8;padding:71px 0;}
+.ng-cloak{display:none;}
+.site.navbar-nav{position:absolute;left:50%;margin-left:-208px;float:none;}
+.site.navbar-nav .active:after{content:' ';position:absolute;left:0;right:0;bottom:-1px;height:3px;background:red;}
+
+/*template*/
+.template{position:relative;height:120px;cursor:pointer}

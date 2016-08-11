@@ -1,0 +1,22 @@
+<div class='container ng-cloak' ng-cloak>
+    <div class='col-md-4'>
+        <div class='thumbnail template' ng-repeat="t in templates">
+            <div class='title' ng-bind="m.title"></div>
+            <div class='summary' ng-bind="t.summary"></div>
+            <div class='heading-pic' heading-pic ng-if="t.pic">
+                <img ng-src='{{m.pic}}'>
+            </div>
+            <div class='creater-datetime'>
+                <div ng-bind="t.put_at*1000|date:'yyyyMMdd'"></div>
+                <div ng-bind="t.creater_name"></div>
+            </div>
+            <div class='actions'>
+                <div>
+                    <a class='btn btn-default' href='/rest/pl/fe/template/shop/show?site={{siteId}}&template={{t.id}}'>预览</a>
+                    <button class='btn btn-success' ng-click='collect(t)'>收藏</button>
+                    <button class='btn btn-success' ng-click='createBy(t)'>创建</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

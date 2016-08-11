@@ -179,6 +179,8 @@ class record extends \pl\fe\matter\base {
 		$record = $this->getPostJson();
 		$model = $this->model();
 
+		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+
 		foreach ($record as $k => $v) {
 			if (in_array($k, array('verified', 'tags', 'comment'))) {
 				$model->update(
@@ -188,7 +190,7 @@ class record extends \pl\fe\matter\base {
 				);
 				// 更新记录的标签时，要同步更新活动的标签，实现标签在整个活动中有效
 				if ($k === 'tags') {
-					$this->model('matter\enroll')->updateTags($app, $v);
+					$this->model('matter\enroll')->updateTags($app->id, $v);
 				}
 			} else if ($k === 'data' and is_object($v)) {
 				$dbData = new \stdClass;
@@ -231,12 +233,12 @@ class record extends \pl\fe\matter\base {
 							"enroll_key='$ek' and name='$cn'"
 						);
 					} else {
-						$cd = array(
-							'aid' => $app,
+						$cd = [
+							'aid' => $app->id,
 							'enroll_key' => $ek,
 							'name' => $cn,
 							'value' => $cv,
-						);
+						];
 						$model->insert('xxt_enroll_record_data', $cd, false);
 					}
 					$record->data->{$cn} = $cv;
@@ -246,6 +248,9 @@ class record extends \pl\fe\matter\base {
 				$model->update('xxt_enroll_record', ['data' => $dbData], "enroll_key='$ek'");
 			}
 		}
+		// 记录操作日志
+		$app->type = 'enroll';
+		$this->model('matter\log')->matterOp($site, $user, $app, 'update', $record);
 
 		return new \ResponseData($record);
 	}
@@ -257,11 +262,17 @@ class record extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+
 		$rst = $this->model()->update(
 			'xxt_enroll_record',
 			array('verified' => 'Y'),
-			"aid='$app'"
+			"aid='{$app->id}'"
 		);
+
+		// 记录操作日志
+		$app->type = 'enroll';
+		$this->model('matter\log')->matterOp($site, $user, $app, 'verify.all');
 
 		return new \ResponseData($rst);
 	}
@@ -276,6 +287,8 @@ class record extends \pl\fe\matter\base {
 		$posted = $this->getPostJson();
 		$eks = $posted->eks;
 
+		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+
 		$model = $this->model();
 		foreach ($eks as $ek) {
 			$rst = $model->update(
@@ -284,6 +297,10 @@ class record extends \pl\fe\matter\base {
 				"enroll_key='$ek'"
 			);
 		}
+
+		// 记录操作日志
+		$app->type = 'enroll';
+		$this->model('matter\log')->matterOp($site, $user, $app, 'verify.batch', $eks);
 
 		return new \ResponseData('ok');
 	}

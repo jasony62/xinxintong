@@ -298,12 +298,14 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.verifyAll = function() {
-            http2.get('/rest/pl/fe/matter/enroll/record/verifyAll?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
-                angular.forEach($scope.records, function(record) {
-                    record.verified = 'Y';
+            if (window.confirm('确定审核通过所有记录（共' + $scope.page.total + '条）？')) {
+                http2.get('/rest/pl/fe/matter/enroll/record/verifyAll?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+                    angular.forEach($scope.records, function(record) {
+                        record.verified = 'Y';
+                    });
+                    noticebox.success('完成操作');
                 });
-                noticebox.success('完成操作');
-            });
+            }
         };
         $scope.batchVerify = function() {
             var eks = [];
@@ -363,6 +365,15 @@ define(['frame'], function(ngApp) {
 
                 saveAs(blob, $scope.app.title + '.csv');
             });
+        };
+        $scope.countSelected = function() {
+            var count = 0;
+            for (var p in $scope.selected) {
+                if ($scope.selected[p] === true) {
+                    count++;
+                }
+            }
+            return count;
         };
         $scope.$watch('selectAll', function(nv) {
             if (nv !== undefined && $scope.records) {

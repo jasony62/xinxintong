@@ -46,7 +46,7 @@
                 <th>签到轮次</th>
                 <th style='width:180px;'>签到开始时间</th>
                 <th style='width:180px;'>记迟到时间</th>
-                <th style='width:60px;'></th>
+                <th style='width:105px;'></th>
             </tr>
         </thead>
         <tbody>
@@ -54,7 +54,10 @@
                 <td><input type='text' class="form-control" ng-model='round.title' tms-auto-update tms-wait=1000 tms-update="update(round,'title')"></td>
                 <td><tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-obj="round" tms-date="round.start_at" tms-state='start_at'></tms-datepicker></td>
                 <td><tms-datepicker class='tms-datepicker' tms-title='迟到时间' tms-obj="round" tms-date='round.late_at' tms-state='late_at'></tms-datepicker></td>
-                <td><button class="btn btn-default" ng-click="remove(round)"><span class="glyphicon glyphicon-remove"></span></button></td>
+                <td>
+                    <button class="btn btn-default" ng-click="remove(round)"><span class="glyphicon glyphicon-remove"></span></button>
+                    <button class="btn btn-default" ng-click="qrcode(round)"><span class="glyphicon glyphicon-qrcode"></span></button>
+                </td>
             </tr>
             <tr>
                 <td colspan="4">
@@ -242,5 +245,35 @@
     </div>
     <div class="modal-footer" style="margin-top:0">
         <button class="btn btn-success" ng-click="ok()">确定</button>
+    </div>
+</script>
+<script type="text/ng-template" id="roundQrcode.html">
+    <div class="modal-header">
+        <button class="close" ng-click="cancel()" type="button">×</button>
+        <h5 class="modal-title">签到：{{popover.title}}</h5>
+    </div>
+    <div class="modal-body">
+            <div class='form-group'>
+                <label>签到链接：仅［{{popover.title}}］有效</label>
+                <div class='input-group'>
+                    <div class='form-control' style='height:auto;word-break:break-all' ng-bind='popover.url'></div>
+                    <span class='input-group-addon'>
+                        <button id='copyURL' class='btn btn-default' data-clipboard-text="{{popover.url}}">复制</button>
+                    </span>
+                </div>
+            </div>
+            <div class='form-group'>
+                <label>签到二维码：仅［{{popover.title}}］有效</label>
+                <div>
+                    <img id='entryQrcode' ng-src="{{popover.qrcode}}">
+                </div>
+                <div>
+                    <button class='btn btn-default' ng-click="downloadQrcode(popover.qrcode)">下载</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="ok()">关闭</button>
     </div>
 </script>

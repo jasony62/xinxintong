@@ -16,32 +16,6 @@ class main extends \pl\fe\matter\base {
 	 * 返回视图
 	 */
 	public function index_action($site, $id) {
-		$app = $this->model('matter\signin')->byId($id);
-		if ($app->state === '2') {
-			$this->redirect('/rest/pl/fe/matter/signin/publish?site=' . $site . '&id=' . $id);
-		} else {
-			\TPL::output('/pl/fe/matter/signin/frame');
-			exit;
-		}
-	}
-	/**
-	 * 返回视图
-	 */
-	public function app_action() {
-		\TPL::output('/pl/fe/matter/signin/frame');
-		exit;
-	}
-	/**
-	 * 返回视图
-	 */
-	public function publish_action() {
-		\TPL::output('/pl/fe/matter/signin/frame');
-		exit;
-	}
-	/**
-	 * 返回视图
-	 */
-	public function event_action() {
 		\TPL::output('/pl/fe/matter/signin/frame');
 		exit;
 	}
@@ -78,7 +52,7 @@ class main extends \pl\fe\matter\base {
 		if (empty($mission)) {
 			$result = $model->bySite($site, $page, $size);
 		} else {
-			$result = $model->bySite($mission, $page, $size);
+			$result = $model->byMission($mission, $page, $size);
 		}
 
 		return new \ResponseData($result);

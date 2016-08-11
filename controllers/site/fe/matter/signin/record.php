@@ -103,10 +103,10 @@ class record extends base {
 	 */
 	public function submit_action($site, $app, $submitkey = '') {
 		/* support CORS */
-		header('Access-Control-Allow-Origin:*');
-		header('Access-Control-Allow-Methods:POST');
-		header('Access-Control-Allow-Headers:Content-Type');
-		$_SERVER['REQUEST_METHOD'] === 'OPTIONS' && exit;
+		//header('Access-Control-Allow-Origin:*');
+		//header('Access-Control-Allow-Methods:POST');
+		//header('Access-Control-Allow-Headers:Content-Type');
+		//$_SERVER['REQUEST_METHOD'] === 'OPTIONS' && exit;
 
 		if (empty($site)) {
 			header('HTTP/1.0 500 parameter error:site is empty.');
@@ -138,7 +138,7 @@ class record extends base {
 			}
 		}
 		/**
-		 * 保存登记的数据
+		 * 签到并保存登记的数据
 		 */
 		$modelRec = $this->model('matter\signin\record');
 		$signState = $modelRec->signin($user, $site, $signinApp);

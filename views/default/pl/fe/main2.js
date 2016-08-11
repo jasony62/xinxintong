@@ -39,10 +39,4 @@ controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
     $scope.collectSite = function(evnet, site) {
         alert('开发中...');
     };
-    $scope.collectTemplate = function(evnet, template) {
-        alert('开发中...');
-    };
-    // http2.get('/rest/pl/fe/shop/shelf/list?matterType=enroll', function(rsp) {
-    //     $scope.templates = rsp.data.templates;
-    // });
 }]);

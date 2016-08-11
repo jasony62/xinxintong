@@ -28,9 +28,10 @@ define(['frame'], function(ngApp) {
             http2.post(url, $scope.criteria, function(rsp) {
                 if (rsp.data) {
                     $scope.records = rsp.data.records ? rsp.data.records : [];
-                    rsp.data.total && ($scope.page.total = rsp.data.total);
+                    $scope.page.total = rsp.data.total;
                 } else {
                     $scope.records = [];
+                    $scope.page.total = 0;
                 }
                 angular.forEach($scope.records, function(record) {
                     if (record.data) {

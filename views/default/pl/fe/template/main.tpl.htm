@@ -3,12 +3,12 @@
     <head>
         <meta charset="UTF-8">
         <base href="/"/>
-        <title>图片库</title>
-        <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <title>模板库</title>
+        <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
         <link href="/static/css/tms.css?_=1" rel="stylesheet">
-        <link href="/views/default/pl/fe/file/frame.css?_=1" rel="stylesheet">
+        <link href="/views/default/pl/fe/template/main.css?_=1" rel="stylesheet">
     </head>
-    <body ng-app='app' ng-controller='ctrlFile' ng-cloak class='ng-cloak'>
+    <body ng-controller='ctrlTemplate' ng-cloak class='ng-cloak'>
         <nav class='navbar navbar-inverse navbar-fixed-top tms-large'>
             <ul class='nav navbar-nav'>
                 <li><a href='/rest/pl/fe' target='_self'>首页</a></li>
@@ -20,11 +20,11 @@
                 <li>
                     <a href='/rest/pl/fe/site/user?site={{siteId}}' target='_self'>用户</a>
                 </li>
-                <li class='active'>
-                    <a href='/rest/pl/fe/file?site={{siteId}}'>图片库</a>
-                </li>
                 <li>
-                    <a href='/rest/pl/fe/temlate?site={{siteId}}' target='_self'>模板库</a>
+                    <a href='/rest/pl/fe/file?site={{siteId}}' target='_self'>图片库</a>
+                </li>
+                <li class='active'>
+                    <a href='/rest/pl/fe/temlate?site={{siteId}}'>模板库</a>
                 </li>
                 <li>
                     <a href='/rest/pl/fe/site/setting?site={{siteId}}' target='_self'>站点设置</a>
@@ -38,9 +38,13 @@
         <div class='container'>
             <div class='row' ng-view></div>
         </div>
+        <script src="/static/js/jquery.min.js"></script>
         <script src="/static/js/angular.min.js"></script>
         <script src="/static/js/angular-route.min.js"></script>
         <script src="/static/js/angular-sanitize.min.js"></script>
-        <script src="/views/default/pl/fe/file/frame.js?_=3"></script>
+        <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+        <script src="/static/js/ui-tms.js?_=1"></script>
+        <script src="/static/js/xxt.ui.js?_=1"></script>
+        <script src="/static/js/require.js" data-main="/views/default/pl/fe/template/main-loader.js?_=1"></script>
     </body>
 </html>

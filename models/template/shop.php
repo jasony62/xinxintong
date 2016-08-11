@@ -1,7 +1,9 @@
 <?php
-namespace shop;
-
-class shelf_model extends \TMS_MODEL {
+namespace template;
+/**
+ * 应用模板商店
+ */
+class shop_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
@@ -40,25 +42,23 @@ class shelf_model extends \TMS_MODEL {
 	 * @param object $matter 共享的素材
 	 */
 	public function putMatter($siteId, $account, $matter, $options = array()) {
-		if ($item = $this->byMatter($matter->id, $matter->type)) {
+		if (isset($matter->id) && $matter->id) {
 			/*更新模板*/
-			$scope = isset($options['scope']) ? $options['scope'] : 'U';
 			$current = time();
 
-			$item = array(
+			$item = [
 				'title' => $matter->title,
 				'pic' => $matter->pic,
 				'summary' => $matter->summary,
-				'visible_scope' => $scope,
-			);
+				'visible_scope' => $matter->visible_scope,
+			];
 			$this->update(
 				'xxt_shop_matter',
 				$item,
-				["siteid" => $siteId, "matter_type" => $matter->type, "matter_id" => $matter->id]
+				["siteid" => $siteId, "matter_type" => $matter->matter_type, "matter_id" => $matter->matter_id]
 			);
 		} else {
 			/*新建模板*/
-			$scope = isset($options['scope']) ? $options['scope'] : 'U';
 			$current = time();
 
 			$item = array(
@@ -66,12 +66,12 @@ class shelf_model extends \TMS_MODEL {
 				'creater_name' => $account->name,
 				'put_at' => $current,
 				'siteid' => $siteId,
-				'matter_type' => $matter->type,
-				'matter_id' => $matter->id,
+				'matter_type' => $matter->matter_type,
+				'matter_id' => $matter->matter_id,
 				'title' => $matter->title,
 				'pic' => $matter->pic,
 				'summary' => $matter->summary,
-				'visible_scope' => $scope,
+				'visible_scope' => $matter->visible_scope,
 			);
 			$id = $this->insert('xxt_shop_matter', $item, true);
 			$item = $this->byId($id);

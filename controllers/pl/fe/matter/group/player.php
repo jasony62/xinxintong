@@ -14,7 +14,7 @@ class player extends \pl\fe\matter\base {
 		exit;
 	}
 	/**
-	 *
+	 * 查看分组数据
 	 */
 	public function list_action($site, $app) {
 		if (false === ($user = $this->accountUser())) {
@@ -28,6 +28,92 @@ class player extends \pl\fe\matter\base {
 		$result = $modelPlayer->find($site, $app);
 
 		return new \ResponseData($result);
+	}
+	/**
+	 * 导出分组数据
+	 */
+	public function export_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelGrp = $this->model('matter\group');
+		$modelPlayer = $this->model('matter\group\player');
+
+		$app = $modelGrp->byId($app);
+		$schemas = json_decode($app->data_schemas);
+		$result = $modelPlayer->find($site, $app);
+		$players = $result->players;
+		if ($result->total == 0) {
+			die('player empty');
+		}
+
+		// 分组记录转换成下载数据
+		$exportedData = [];
+		$size = 0;
+		// 转换标题
+		$titles = ['分组'];
+		foreach ($schemas as $schema) {
+			$titles[] = $schema->title;
+		}
+		$titles = implode("\t", $titles);
+		$size += strlen($titles);
+		$exportedData[] = $titles;
+		// 转换数据
+		foreach ($players as $player) {
+			$row = [];
+			$row[] = $player->round_title;
+			// 处理登记项
+			$data = (object) $player->data;
+			foreach ($schemas as $schema) {
+				$v = isset($data->{$schema->id}) ? $data->{$schema->id} : '';
+				switch ($schema->type) {
+				case 'single':
+				case 'phase':
+					foreach ($schema->ops as $op) {
+						if ($op->v === $v) {
+							$row[] = $op->l;
+							$disposed = true;
+							break;
+						}
+					}
+					empty($disposed) && $row[] = $v;
+					break;
+				case 'multiple':
+					$labels = [];
+					$v = explode(',', $v);
+					foreach ($v as $oneV) {
+						foreach ($schema->ops as $op) {
+							if ($op->v === $oneV) {
+								$labels[] = $op->l;
+								break;
+							}
+						}
+					}
+					$row[] = implode(',', $labels);
+					break;
+				default:
+					$row[] = $v;
+					break;
+				}
+			}
+			// 将数据转换为'|'分隔的字符串
+			$row = implode("\t", $row);
+			$size += strlen($row);
+			$exportedData[] = $row;
+		}
+
+		// 文件下载
+		$size += (count($exportedData) - 1) * 2;
+		$exportedData = implode("\r\n", $exportedData);
+
+		//header("Content-Type: text/plain;charset=utf-8");
+		//header("Content-Disposition: attachment; filename=" . $app->title . '.txt');
+		//header('Content-Length: ' . $size);
+		//echo $exportedData;
+		//exit;
+
+		return new \ResponseData($exportedData);
 	}
 	/**
 	 * 分组用户数量

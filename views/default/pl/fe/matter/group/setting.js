@@ -183,11 +183,14 @@ define(['frame'], function(ngApp) {
 			});
 		};
 		$scope.emptyRule = function() {
-			var url = '/rest/pl/fe/matter/group/configRule?site=' + $scope.siteId + '&app=' + $scope.id;
-			http2.post(url, {}, function(rsp) {
-				$scope.rounds = [];
-				$scope.group_rule = {};
-			});
+			if (window.confirm('本操作将清除已有分组数据，确定执行?')) {
+				var url = '/rest/pl/fe/matter/group/configRule?site=' + $scope.siteId + '&app=' + $scope.id;
+				http2.post(url, {}, function(rsp) {
+					$scope.rounds = [];
+					$scope.group_rule = {};
+					$scope.$broadcast('xxt.matter.group.execute.done', rsp.data);
+				});
+			}
 		};
 		$scope.addRound = function() {
 			var proto = {
@@ -238,6 +241,18 @@ define(['frame'], function(ngApp) {
 				var i = $scope.rounds.indexOf($scope.editingRound);
 				$scope.rounds.splice(i, 1);
 				$scope.editingRound = null;
+			});
+		};
+		$scope.export = function() {
+			var url = '/rest/pl/fe/matter/group/player/export?site=' + $scope.siteId + '&app=' + $scope.id;
+			http2.get(url, function(rsp) {
+				var blob;
+
+				blob = new Blob([rsp.data], {
+					type: "text/plain;charset=utf-8"
+				});
+
+				saveAs(blob, $scope.app.title + '.csv');
 			});
 		};
 		$scope.activeTabIndex = 0;

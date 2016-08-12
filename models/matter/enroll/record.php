@@ -294,17 +294,6 @@ class record_model extends \TMS_MODEL {
 		// 指定了轮次
 		!empty($rid) && $w .= " and e.rid='$rid'";
 
-		// if (!empty($kw) && !empty($by)) {
-		// 	switch ($by) {
-		// 	case 'mobile':
-		// 		$kw && $w .= " and m.mobile like '%$kw%'";
-		// 		break;
-		// 	case 'nickname':
-		// 		$kw && $w .= " and e.nickname like '%$kw%'";
-		// 		break;
-		// 	}
-		// }
-
 		// 指定了登记记录过滤条件
 		if (!empty($criteria->record)) {
 			$whereByRecord = '';
@@ -346,26 +335,31 @@ class record_model extends \TMS_MODEL {
 			$w,
 		];
 
+		$q2 = [];
 		// 查询结果分页
-		$q2 = [
-			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
-		];
+		if (!empty($page) && !empty($size)) {
+			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		}
 
 		// 查询结果排序
-		switch ($orderby) {
-		case 'time':
-			$q2['o'] = 'e.enroll_at desc';
-			break;
-		case 'score':
-			$q2['o'] = 'e.score desc';
-			break;
-		case 'remark':
-			$q2['o'] = 'e.remark_num desc';
-			break;
-		case 'follower':
-			$q2['o'] = 'e.follower_num desc';
-			break;
-		default:
+		if (isset($orderby)) {
+			switch ($orderby) {
+			case 'time':
+				$q2['o'] = 'e.enroll_at desc';
+				break;
+			case 'score':
+				$q2['o'] = 'e.score desc';
+				break;
+			case 'remark':
+				$q2['o'] = 'e.remark_num desc';
+				break;
+			case 'follower':
+				$q2['o'] = 'e.follower_num desc';
+				break;
+			default:
+				$q2['o'] = 'e.enroll_at desc';
+			}
+		} else {
 			$q2['o'] = 'e.enroll_at desc';
 		}
 
@@ -379,11 +373,14 @@ class record_model extends \TMS_MODEL {
 				} else {
 					$r->data = $data;
 				}
+
 				// 获得点赞记录
-				$app->can_like_record === 'Y' && $r->likers = $this->likers($r->enroll_key, 1, 3);
+				if (isset($app->can_like_record)) {
+					$app->can_like_record === 'Y' && $r->likers = $this->likers($r->enroll_key, 1, 3);
+				}
 
 				//获得邀请数据
-				if ($app->can_invite === 'Y') {
+				if (isset($app->can_invite) && $app->can_invite === 'Y') {
 					$qf = array(
 						'id,enroll_key,enroll_at,openid,nickname',
 						'xxt_enroll_record',
@@ -564,7 +561,7 @@ class record_model extends \TMS_MODEL {
 		return $rst;
 	}
 	/**
-	 * 清除一条登记记录
+	 * 登记人清除一条登记记录
 	 *
 	 * @param string $aid
 	 * @param string $ek
@@ -572,12 +569,12 @@ class record_model extends \TMS_MODEL {
 	public function removeByUser($site, $appId, $ek) {
 		$rst = $this->update(
 			'xxt_enroll_record_data',
-			array('state' => 0),
+			['state' => 200],
 			"aid='$appId' and enroll_key='$ek'"
 		);
 		$rst = $this->update(
 			'xxt_enroll_record',
-			array('state' => 0),
+			['state' => 200],
 			"aid='$appId' and enroll_key='$ek'"
 		);
 

@@ -142,7 +142,7 @@ class record extends base {
 		 */
 		$modelRec = $this->model('matter\signin\record');
 		$signState = $modelRec->signin($user, $site, $signinApp);
-		// 保存登记数据
+		// 保存签到登记数据
 		$rst = $modelRec->setData($user, $site, $signinApp, $signState->ek, $signinData, $submitkey);
 		if (false === $rst[0]) {
 			return new \ResponseError($rst[1]);

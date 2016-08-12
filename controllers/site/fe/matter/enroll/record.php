@@ -179,9 +179,9 @@ class record extends base {
 			$rst = $modelRec->setData($user, $site, $app, $ek, $posted, $submitkey);
 			if ($rst[0] === true) {
 				$dbData = $modelRec->toJson($rst[1]);
-				/* 已经登记，更新原先提交的数据 */
+				// 已经登记，更新原先提交的数据，只要进行更新操作就设置为未审核通过的状态
 				$modelRec->update('xxt_enroll_record',
-					['enroll_at' => time(), 'data' => $dbData],
+					['enroll_at' => time(), 'verified' => 'N', 'data' => $dbData],
 					"enroll_key='$ek'"
 				);
 			}

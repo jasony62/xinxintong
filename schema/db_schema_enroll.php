@@ -393,6 +393,7 @@ $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",enroll_at int not null"; // 填写报名信息时间
 $sql .= ",signin_at int not null default 0"; // 签到时间
 $sql .= ",signin_num int not null default 0"; // 签到次数
+$sql .= ",signin_log text"; // 签到日志
 $sql .= ",tags text";
 $sql .= ",comment text";
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal

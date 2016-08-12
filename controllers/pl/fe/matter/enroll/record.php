@@ -207,6 +207,9 @@ class record extends \pl\fe\matter\base {
 				if ($k === 'tags') {
 					$this->model('matter\enroll')->updateTags($app->id, $v);
 				}
+				if ($k === 'verified' && $k === 'Y') {
+					$this->_whenVerifyRecord($app, $ek);
+				}
 			} else if ($k === 'data' and is_object($v)) {
 				$dbData = new \stdClass;
 				foreach ($v as $cn => $cv) {
@@ -281,7 +284,7 @@ class record extends \pl\fe\matter\base {
 
 		$rst = $this->model()->update(
 			'xxt_enroll_record',
-			array('verified' => 'Y'),
+			['verified' => 'Y'],
 			"aid='{$app->id}'"
 		);
 
@@ -311,6 +314,8 @@ class record extends \pl\fe\matter\base {
 				['verified' => 'Y'],
 				"enroll_key='$ek'"
 			);
+			// 进行后续处理
+			$this->_whenVerifyRecord($app, $ek);
 		}
 
 		// 记录操作日志
@@ -318,6 +323,74 @@ class record extends \pl\fe\matter\base {
 		$this->model('matter\log')->matterOp($site, $user, $app, 'verify.batch', $eks);
 
 		return new \ResponseData('ok');
+	}
+	/**
+	 * 验证通过时，如果登记记录有对应的签到记录，且签到记录没有验证通过，那么验证通过
+	 */
+	private function _whenVerifyRecord(&$app, $enrollKey) {
+		if ($app->mission_id) {
+			$model = $this->model('matter\signin\record');
+			$q = [
+				'id',
+				'xxt_signin',
+				"enroll_app_id='{$app->id}'",
+			];
+			$signinApps = $model->query_objs_ss($q);
+			if (count($signinApps)) {
+				$enrollRecord = $this->model('matter\enroll\record')->byId(
+					$enrollKey, ['fields' => 'userid,data', 'cascaded' => 'N']
+				);
+				if (!empty($enrollRecord->data)) {
+					$enrollData = json_decode($enrollRecord->data);
+					foreach ($signinApps as $signinApp) {
+						// 更新对应的签到记录
+						$q = [
+							'*',
+							'xxt_signin_record',
+							"state=1 and verified='N' and aid='$signinApp->id' and userid='$enrollRecord->userid'",
+						];
+						$signinRecords = $model->query_objs_ss($q);
+						if (count($signinRecords)) {
+							foreach ($signinRecords as $signinRecord) {
+								if (empty($signinRecord->data)) {
+									continue;
+								}
+								$signinData = json_decode($signinRecord->data);
+								if ($signinData === null) {
+									$signinData = new \stdClass;
+								}
+								foreach ($enrollData as $k => $v) {
+									$signinData->{$k} = $v;
+								}
+								// 更新数据
+								$model->delete('xxt_signin_record_data', "enroll_key='$signinRecord->enroll_key'");
+								foreach ($signinData as $k => $v) {
+									$ic = [
+										'aid' => $app->id,
+										'enroll_key' => $signinRecord->enroll_key,
+										'name' => $k,
+										'value' => $v,
+									];
+									$model->insert('xxt_signin_record_data', $ic, false);
+								}
+								// 验证通过
+								$model->update(
+									'xxt_signin_record',
+									[
+										'verified' => 'Y',
+										'verified_enroll_key' => $enrollKey,
+										'data' => $model->toJson($signinData),
+									],
+									"enroll_key='$signinRecord->enroll_key'"
+								);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return false;
 	}
 	/**
 	 * 给登记活动的参与人发消息

@@ -181,17 +181,7 @@ class player_model extends \TMS_MODEL {
 		$result = new \stdClass; // 返回的结果
 		$result->total = 0;
 		/* 数据过滤条件 */
-		$w = "e.state=1 and e.siteid='$siteId' and e.aid='{$app->id}'";
-		if (!empty($kw) && !empty($by)) {
-			switch ($by) {
-			case 'mobile':
-				$kw && $w .= " and m.mobile like '%$kw%'";
-				break;
-			case 'nickname':
-				$kw && $w .= " and e.nickname like '%$kw%'";
-				break;
-			}
-		}
+		$w = "e.state=1 and e.aid='{$app->id}'";
 		/*tags*/
 		if (!empty($options->tags)) {
 			$aTags = explode(',', $options->tags);

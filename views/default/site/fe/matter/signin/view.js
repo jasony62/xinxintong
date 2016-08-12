@@ -232,6 +232,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
                 var url = '/rest/site/fe/matter/enroll';
                 url += '?site=' + LS.p.site;
                 url += '&app=' + $scope.app.enroll_app_id;
+                url += '&ignoretime=Y';
                 location.href = url;
             } else {
                 $scope.$root.$errmsg = '没有指定关联报名表，无法填写报名信息';

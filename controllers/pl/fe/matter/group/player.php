@@ -43,10 +43,10 @@ class player extends \pl\fe\matter\base {
 		$app = $modelGrp->byId($app);
 		$schemas = json_decode($app->data_schemas);
 		$result = $modelPlayer->find($site, $app);
-		$players = $result->players;
 		if ($result->total == 0) {
 			die('player empty');
 		}
+		$players = $result->players;
 
 		// 分组记录转换成下载数据
 		$exportedData = [];

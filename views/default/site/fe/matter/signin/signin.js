@@ -319,21 +319,23 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
                     if (p === 'member') {
                         $scope.data.member = angular.extend($scope.data.member, dataOfRecord.member);
                     } else if (dataOfRecord[p].length) {
-                        if (mapSchema[p].type === 'img') {
-                            value = dataOfRecord[p].split(',');
-                            $scope.data[p] = [];
-                            for (var i in value) $scope.data[p].push({
-                                imgSrc: value[i]
-                            });
-                        } else if (mapSchema[p].type === 'file') {
-                            value = JSON.parse(dataOfRecord[p]);
-                            $scope.data[p] = value;
-                        } else if (mapSchema[p].type === 'multiple') {
-                            value = dataOfRecord[p].split(',');
-                            $scope.data[p] = {};
-                            for (var i in value) $scope.data[p][value[i]] = true;
-                        } else {
-                            $scope.data[p] = dataOfRecord[p];
+                        if (mapSchema[p] !== undefined) {
+                            if (mapSchema[p].type === 'img') {
+                                value = dataOfRecord[p].split(',');
+                                $scope.data[p] = [];
+                                for (var i in value) $scope.data[p].push({
+                                    imgSrc: value[i]
+                                });
+                            } else if (mapSchema[p].type === 'file') {
+                                value = JSON.parse(dataOfRecord[p]);
+                                $scope.data[p] = value;
+                            } else if (mapSchema[p].type === 'multiple') {
+                                value = dataOfRecord[p].split(',');
+                                $scope.data[p] = {};
+                                for (var i in value) $scope.data[p][value[i]] = true;
+                            } else {
+                                $scope.data[p] = dataOfRecord[p];
+                            }
                         }
                     }
                 }

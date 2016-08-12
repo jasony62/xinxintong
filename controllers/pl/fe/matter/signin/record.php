@@ -238,6 +238,10 @@ class record extends \pl\fe\matter\base {
 			$dbData = $modelRec->toJson($dbData);
 			$modelRec->update('xxt_signin_record', ['data' => $dbData], "enroll_key='$ek'");
 		}
+		// 记录操作日志
+		$app = $this->model('matter\signin')->byId($app, ['cascaded' => 'N']);
+		$app->type = 'signin';
+		$this->model('matter\log')->matterOp($site, $user, $app, 'add', $ek);
 
 		return new \ResponseData($r);
 	}
@@ -329,6 +333,10 @@ class record extends \pl\fe\matter\base {
 				$modelRec->update('xxt_signin_record', ['data' => $dbData], "enroll_key='$ek'");
 			}
 		}
+		// 记录操作日志
+		$app = $this->model('matter\signin')->byId($app, ['cascaded' => 'N']);
+		$app->type = 'signin';
+		$this->model('matter\log')->matterOp($site, $user, $app, 'update', $record);
 
 		return new \ResponseData($record);
 	}
@@ -339,7 +347,13 @@ class record extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
 		$rst = $this->model('matter\signin\record')->remove($app, $key, $keepData !== 'Y');
+
+		// 记录操作日志
+		$app = $this->model('matter\signin')->byId($app, ['cascaded' => 'N']);
+		$app->type = 'signin';
+		$this->model('matter\log')->matterOp($site, $user, $app, 'remvoe', $key);
 
 		return new \ResponseData($rst);
 	}
@@ -352,6 +366,11 @@ class record extends \pl\fe\matter\base {
 		}
 
 		$rst = $this->model('matter\signin\record')->clean($app, $keepData !== 'Y');
+
+		// 记录操作日志
+		$app = $this->model('matter\signin')->byId($app, ['cascaded' => 'N']);
+		$app->type = 'signin';
+		$this->model('matter\log')->matterOp($site, $user, $app, 'empty');
 
 		return new \ResponseData($rst);
 	}

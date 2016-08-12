@@ -3,7 +3,7 @@ namespace pl\fe\matter\enroll;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /*
- *
+ * 登记记录
  */
 class record extends \pl\fe\matter\base {
 	/**
@@ -139,10 +139,15 @@ class record extends \pl\fe\matter\base {
 			$modelRec->update('xxt_enroll_record', ['data' => $dbData], "enroll_key='$ek'");
 		}
 
+		// 记录操作日志
+		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		$app->type = 'enroll';
+		$this->model('matter\log')->matterOp($site, $user, $app, 'add', $ek);
+
 		return new \ResponseData($r);
 	}
 	/**
-	 * 清空一条登记信息
+	 * 删除一条登记信息
 	 */
 	public function remove_action($site, $app, $key) {
 		if (false === ($user = $this->accountUser())) {
@@ -150,6 +155,11 @@ class record extends \pl\fe\matter\base {
 		}
 
 		$rst = $this->model('matter\enroll\record')->remove($app, $key);
+
+		// 记录操作日志
+		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		$app->type = 'enroll';
+		$this->model('matter\log')->matterOp($site, $user, $app, 'remvoe', $key);
 
 		return new \ResponseData($rst);
 	}
@@ -162,6 +172,11 @@ class record extends \pl\fe\matter\base {
 		}
 
 		$rst = $this->model('matter\enroll\record')->clean($app);
+
+		// 记录操作日志
+		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		$app->type = 'enroll';
+		$this->model('matter\log')->matterOp($site, $user, $app, 'empty');
 
 		return new \ResponseData($rst);
 	}

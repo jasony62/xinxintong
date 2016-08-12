@@ -84,7 +84,16 @@ provider('srvApp', function() {
 
                 angular.isString(names) && (names = [names]);
                 angular.forEach(names, function(name) {
-                    updated[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
+                    if (name === 'html') {
+                        if (page.type === 'I') {
+                            page.purifyInput(tinymce.activeEditor.getContent(), true);
+                        } else {
+                            updated.html = tinymceEditor.getContent();
+                        }
+                        updated.html = encodeURIComponent(page.html);
+                    } else {
+                        updated[name] = page[name];
+                    }
                 });
                 url = '/rest/pl/fe/matter/enroll/page/update';
                 url += '?site=' + siteId;

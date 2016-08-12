@@ -25,7 +25,16 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 
             angular.isString(names) && (names = [names]);
             angular.forEach(names, function(name) {
-                p[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
+                if (name === 'html') {
+                    if (page.type === 'I') {
+                        page.purifyInput(tinymce.activeEditor.getContent(), true);
+                    } else {
+                        page.html = tinymceEditor.getContent();
+                    }
+                    p.html = encodeURIComponent(page.html);
+                } else {
+                    p[name] = page[name];
+                }
             });
             url = '/rest/pl/fe/matter/signin/page/update';
             url += '?site=' + $scope.siteId;

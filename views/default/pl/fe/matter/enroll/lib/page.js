@@ -164,7 +164,10 @@ define(['wrap'], function(wrapLib) {
 							matched = false;
 						if (config.pattern === 'record') {
 							if (schema && schema.id) {
-								if (mapOfAppSchemas[schema.id]) {
+								if (schema.id === 'enrollAt') {
+									matched = true;
+									dataSchemas.push(item);
+								} else if (mapOfAppSchemas[schema.id]) {
 									item.schema = mapOfAppSchemas[schema.id];
 									dataSchemas.push(item);
 									matched = true;

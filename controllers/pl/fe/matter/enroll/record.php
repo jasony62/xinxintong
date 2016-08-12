@@ -197,17 +197,17 @@ class record extends \pl\fe\matter\base {
 		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 
 		foreach ($record as $k => $v) {
-			if (in_array($k, array('verified', 'tags', 'comment'))) {
+			if (in_array($k, ['verified', 'tags', 'comment'])) {
 				$model->update(
 					'xxt_enroll_record',
-					array($k => $v),
+					[$k => $v],
 					"enroll_key='$ek'"
 				);
 				// 更新记录的标签时，要同步更新活动的标签，实现标签在整个活动中有效
 				if ($k === 'tags') {
 					$this->model('matter\enroll')->updateTags($app->id, $v);
 				}
-				if ($k === 'verified' && $k === 'Y') {
+				if ($k === 'verified' && $v === 'Y') {
 					$this->_whenVerifyRecord($app, $ek);
 				}
 			} else if ($k === 'data' and is_object($v)) {

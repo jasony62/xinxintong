@@ -88,7 +88,7 @@ provider('srvApp', function() {
                         if (page.type === 'I') {
                             page.purifyInput(tinymce.activeEditor.getContent(), true);
                         } else {
-                            updated.html = tinymceEditor.getContent();
+                            updated.html = tinymce.activeEditor.getContent();
                         }
                         updated.html = encodeURIComponent(page.html);
                     } else {

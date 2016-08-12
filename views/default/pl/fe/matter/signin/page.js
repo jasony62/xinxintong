@@ -29,7 +29,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
                     if (page.type === 'I') {
                         page.purifyInput(tinymce.activeEditor.getContent(), true);
                     } else {
-                        page.html = tinymceEditor.getContent();
+                        page.html = tinymce.activeEditor.getContent();
                     }
                     p.html = encodeURIComponent(page.html);
                 } else {

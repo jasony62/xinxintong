@@ -1,5 +1,8 @@
 define(['frame'], function(ngApp) {
 	ngApp.provider.controller('ctrlSetting', ['$scope', 'http2', '$q', '$uibModal', 'mattersgallery', 'noticebox', function($scope, http2, $q, $uibModal, mattersgallery, noticebox) {
+		(function() {
+			new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
+		})();
 		window.onbeforeunload = function(e) {
 			var message;
 			if ($scope.modified) {

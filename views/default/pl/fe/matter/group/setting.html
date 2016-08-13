@@ -89,7 +89,8 @@
         <div class='tile'>
             <div class='form-group compact'>
                 <div class='help-block'>投影地址</div>
-                <div class='form-control' ng-bind="opUrl" style="height:auto;word-break:break-all;"></div>
+                <div class='form-control' ng-bind="opUrl" style="overflow:hidden;white-space:nowrap;"></div>
+                <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opUrl}}">复制</button>
             </div>
             <div class='form-group'>
                 <a href="javascript:void(0)" ng-click="gotoCode()">编辑页面</a>

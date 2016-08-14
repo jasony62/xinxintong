@@ -161,20 +161,34 @@ class record extends \pl\fe\matter\base {
 	/**
 	 * 手工添加登记信息
 	 *
+	 * 1、是否带报名信息
+	 * 2、指定签到的轮次和对应的签到时间
+	 *
 	 * @param string $aid
 	 */
-	public function add_action($site, $app) {
+	public function add_action($site, $app, $round = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
 		$posted = $this->getPostJson();
 		$current = time();
 		$modelRec = $this->model('matter\signin\record');
 		$ek = $modelRec->genKey($site, $app);
-
+		// 签到记录的轮次
+		if (empty($round)) {
+			$activeRound = $this->model('matter\signin\round')->getActive($site, $app);
+			if (!$activeRound) {
+				return new \ResponseError('没有指定签到轮次');
+			}
+			$round = $activeRound->rid;
+		}
+		/**
+		 *签到登记记录
+		 */
 		$r = [];
-		$r['aid'] = $app;
 		$r['siteid'] = $site;
+		$r['aid'] = $app;
 		$r['enroll_key'] = $ek;
 		$r['enroll_at'] = $current;
 		$r['signin_at'] = $current;
@@ -238,15 +252,47 @@ class record extends \pl\fe\matter\base {
 			$dbData = $modelRec->toJson($dbData);
 			$modelRec->update('xxt_signin_record', ['data' => $dbData], "enroll_key='$ek'");
 		}
+		/**
+		 * 签到日志
+		 */
+		// 记录签到日志
+		$signinAt = time();
+		$modelRec->insert(
+			'xxt_signin_log',
+			[
+				'siteid' => $site,
+				'aid' => $app,
+				'rid' => $round,
+				'enroll_key' => $ek,
+				'userid' => '',
+				'nickname' => '',
+				'signin_at' => $signinAt,
+			],
+			false
+		);
+		// 记录签到摘要
+		$signinLog = new \stdClass;
+		$signinLog->{$round} = $signinAt;
+		$signinLog = $modelRec->toJson($signinLog);
+		// 更新签到日志状态
+		$sql = "update xxt_signin_record set signin_at=$signinAt,signin_num=1,signin_log='$signinLog'";
+		$sql .= " where aid='$app' and enroll_key='$ek'";
+		$rst = $modelRec->update($sql);
+
 		// 记录操作日志
 		$app = $this->model('matter\signin')->byId($app, ['cascaded' => 'N']);
 		$app->type = 'signin';
 		$this->model('matter\log')->matterOp($site, $user, $app, 'add', $ek);
 
-		return new \ResponseData($r);
+		$record = $modelRec->byId($ek);
+
+		return new \ResponseData($record);
 	}
 	/**
 	 * 更新登记记录
+	 *
+	 * 1、是否带报名信息
+	 * 2、指定签到的轮次和对应的签到时间
 	 *
 	 * @param string $app
 	 * @param $ek record's key

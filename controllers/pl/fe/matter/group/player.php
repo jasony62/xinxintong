@@ -489,17 +489,17 @@ class player extends \pl\fe\matter\base {
 						/*多选题*/
 						$cv = implode(',', array_keys(array_filter((array) $cv, function ($i) {return $i;})));
 					}
-					/*检查数据项是否存在，如果不存在就先创建一条*/
+					// 检查数据项是否存在，如果不存在就先创建一条
 					$q = array(
 						'count(*)',
 						'xxt_group_player_data',
-						"enroll_key='$ek' and name='$cn'",
+						"aid='$app' and enroll_key='$ek' and name='$cn'",
 					);
 					if (1 === (int) $model->query_val_ss($q)) {
 						$model->update(
 							'xxt_group_player_data',
 							array('value' => $cv),
-							"enroll_key='$ek' and name='$cn'"
+							"aid='$app' and enroll_key='$ek' and name='$cn'"
 						);
 					} else {
 						$cd = array(

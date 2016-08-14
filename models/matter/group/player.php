@@ -271,12 +271,12 @@ class player_model extends \TMS_MODEL {
 		} else {
 			$rst = $this->update(
 				'xxt_group_player_data',
-				array('state' => 0),
+				array('state' => 100),
 				"aid='$appId' and enroll_key='$ek'"
 			);
 			$rst = $this->update(
 				'xxt_group_player',
-				array('state' => 0),
+				array('state' => 100),
 				"aid='$appId' and enroll_key='$ek'"
 			);
 		}

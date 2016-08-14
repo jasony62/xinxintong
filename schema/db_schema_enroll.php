@@ -526,7 +526,7 @@ $sql .= ",enroll_key varchar(32) not null";
 $sql .= ",name varchar(40) not null";
 $sql .= ",value text";
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal
-$sql .= ",primary key(aid,enroll_key,name)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+$sql .= ",primary key(aid,enroll_key,name,state)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;

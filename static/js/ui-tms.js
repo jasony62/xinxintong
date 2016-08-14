@@ -367,7 +367,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
         replace: true
     };
 }]).directive('tmsDatepicker', function() {
-    _version = 4;
+    _version = 5;
     return {
         restrict: 'EA',
         scope: {
@@ -426,6 +426,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                     templateUrl: 'tmsModalDatepicker.html',
                     resolve: {
                         date: function() {
+
                             return $scope.date;
                         },
                         mask: function() {
@@ -467,6 +468,33 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                             $scope.hours.push(i);
                         for (var i = 0; i <= 59; i++)
                             $scope.minutes.push(i);
+                        $scope.today = function() {
+                            var d = new Date();
+                            $scope.date = {
+                                year: d.getFullYear(),
+                                month: d.getMonth() + 1,
+                                mday: d.getDate(),
+                                hour: d.getHours(),
+                                minute: d.getMinutes()
+                            };
+                        };
+                        $scope.reset = function(field) {
+                            $scope.date[field] = 0;
+                        };
+                        $scope.next = function(field, options) {
+                            var max = options[options.length - 1];
+
+                            if ($scope.date[field] < max) {
+                                $scope.date[field]++;
+                            }
+                        };
+                        $scope.prev = function(field, options) {
+                            var min = options[0];
+
+                            if ($scope.date[field] > min) {
+                                $scope.date[field]--;
+                            }
+                        };
                         $scope.ok = function() {
                             $mi.close($scope.date);
                         };

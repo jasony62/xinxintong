@@ -175,35 +175,55 @@ class record extends \pl\fe\matter\base {
 		$current = time();
 		$modelRec = $this->model('matter\signin\record');
 		$ek = $modelRec->genKey($site, $app);
-		// 签到记录的轮次
-		if (empty($round)) {
-			$activeRound = $this->model('matter\signin\round')->getActive($site, $app);
-			if (!$activeRound) {
-				return new \ResponseError('没有指定签到轮次');
-			}
-			$round = $activeRound->rid;
-		}
+
 		/**
-		 *签到登记记录
+		 * 签到登记记录
 		 */
-		$r = [];
-		$r['siteid'] = $site;
-		$r['aid'] = $app;
-		$r['enroll_key'] = $ek;
-		$r['enroll_at'] = $current;
-		$r['signin_at'] = $current;
+		$record = new \stdClass;
+		$record->siteid = $site;
+		$record->aid = $app;
+		$record->enroll_key = $ek;
+		$record->enroll_at = $current;
 		if (isset($posted->verified)) {
-			$r['verified'] = $posted->verified;
+			$record->verified = $posted->verified;
 		}
 		if (isset($posted->comment)) {
-			$r['comment'] = $posted->comment;
+			$record->comment = $posted->comment;
 		}
 		if (isset($posted->tags)) {
-			$r['tags'] = $posted->tags;
+			$record->tags = $posted->tags;
 			$this->model('matter\signin')->updateTags($app, $posted->tags);
 		}
-		$id = $modelRec->insert('xxt_signin_record', $r, true);
-		$r['id'] = $id;
+
+		// 签到日志
+		if (isset($posted->signin_log)) {
+			$signinNum = 0;
+			$signinAtLast = 0;
+			$modelSinLog = $this->model('matter\signin\log');
+			foreach ($posted->signin_log as $roundId => $signinAt) {
+				if ($signinAt) {
+					$signinAt > $signinAtLast && $signinAtLast = $signinAt;
+					$signinNum++;
+					// 保存签到日志
+					$modelRec->insert(
+						'xxt_signin_log',
+						[
+							'siteid' => $site,
+							'aid' => $app,
+							'rid' => $roundId,
+							'enroll_key' => $ek,
+							'userid' => '',
+							'nickname' => '',
+							'signin_at' => $signinAt,
+						],
+						false
+					);
+				}
+			}
+			$record->signin_num = $signinNum;
+			$record->signin_at = $signinAtLast;
+			$record->signin_log = \TMS_MODEL::toJson($posted->signin_log);
+		}
 		/**
 		 * 登记数据
 		 */
@@ -246,45 +266,20 @@ class record extends \pl\fe\matter\base {
 					'value' => $v,
 				];
 				$modelRec->insert('xxt_signin_record_data', $cd, false);
-				$r['data'][$n] = $v;
 			}
 			// 记录数据
 			$dbData = $modelRec->toJson($dbData);
-			$modelRec->update('xxt_signin_record', ['data' => $dbData], "enroll_key='$ek'");
+			$record->data = $dbData;
 		}
-		/**
-		 * 签到日志
-		 */
-		// 记录签到日志
-		$signinAt = time();
-		$modelRec->insert(
-			'xxt_signin_log',
-			[
-				'siteid' => $site,
-				'aid' => $app,
-				'rid' => $round,
-				'enroll_key' => $ek,
-				'userid' => '',
-				'nickname' => '',
-				'signin_at' => $signinAt,
-			],
-			false
-		);
-		// 记录签到摘要
-		$signinLog = new \stdClass;
-		$signinLog->{$round} = $signinAt;
-		$signinLog = $modelRec->toJson($signinLog);
-		// 更新签到日志状态
-		$sql = "update xxt_signin_record set signin_at=$signinAt,signin_num=1,signin_log='$signinLog'";
-		$sql .= " where aid='$app' and enroll_key='$ek'";
-		$rst = $modelRec->update($sql);
+
+		// 保存登记记录
+		$modelRec->insert('xxt_signin_record', $record, false);
+		$record = $modelRec->byId($ek);
 
 		// 记录操作日志
 		$app = $this->model('matter\signin')->byId($app, ['cascaded' => 'N']);
 		$app->type = 'signin';
 		$this->model('matter\log')->matterOp($site, $user, $app, 'add', $ek);
-
-		$record = $modelRec->byId($ek);
 
 		return new \ResponseData($record);
 	}
@@ -305,87 +300,129 @@ class record extends \pl\fe\matter\base {
 		$record = $this->getPostJson();
 		$modelRec = $this->model('matter\signin\record');
 		$current = time();
-		//
+
+		$updatedRecord = new \stdClass;
+		$updatedRecord->enroll_at = $current;
+		isset($record->comment) && $updatedRecord->comment = $record->comment;
+
+		// 是否通过验证
+		if (isset($record->verified)) {
+			$updatedRecord->verified = $record->verified;
+			if ($record->verified === 'N') {
+				// 如果不通过验证，解除关联的报名应用信息
+				$updatedRecord->verified_enroll_key = '';
+			}
+		}
+
+		// 标签
+		if (isset($record->tags)) {
+			// 更新记录的标签时，要同步更新活动的标签，实现标签在整个活动中有效
+			$updatedRecord->tags = $record->tags;
+			$this->model('matter\signin')->updateTags($app, $record->tags);
+		}
+
+		// 签到日志
+		if (isset($record->signin_log)) {
+			$signinNum = 0;
+			$signinAtLast = 0;
+			$modelSinLog = $this->model('matter\signin\log');
+			foreach ($record->signin_log as $roundId => $signinAt) {
+				if ($signinAt) {
+					$signinAt > $signinAtLast && $signinAtLast = $signinAt;
+					$signinNum++;
+					// 保存签到日志
+					if ($sinLog = $modelSinLog->byRecord($ek, $roundId)) {
+						$modelSinLog->update(
+							'xxt_signin_log',
+							['signin_at' => $signinAt],
+							['enroll_key' => $ek, 'rid' => $roundId]
+						);
+					} else {
+						$modelRec->insert(
+							'xxt_signin_log',
+							[
+								'siteid' => $site,
+								'aid' => $app,
+								'rid' => $roundId,
+								'enroll_key' => $ek,
+								'userid' => '',
+								'nickname' => '',
+								'signin_at' => $signinAt,
+							],
+							false
+						);
+					}
+				}
+			}
+			$updatedRecord->signin_num = $record->signin_num = $signinNum;
+			$updatedRecord->signin_at = $record->signin_at = $signinAtLast;
+			$updatedRecord->signin_log = \TMS_MODEL::toJson($record->signin_log);
+		}
+
+		// 更新登记数据
+		if (isset($record->data) && is_object($record->data)) {
+			$dbData = new \stdClass;
+			foreach ($record->data as $cn => $cv) {
+				if (is_array($cv) && isset($cv[0]->imgSrc)) {
+					//上传图片
+					$vv = [];
+					$fsuser = $this->model('fs/user', $site);
+					foreach ($cv as $img) {
+						if (preg_match('/^data:.+base64/', $img->imgSrc)) {
+							$rst = $fsuser->storeImg($img);
+							if (false === $rst[0]) {
+								return new \ResponseError($rst[1]);
+							}
+							$vv[] = $rst[1];
+						} else {
+							$vv[] = $img->imgSrc;
+						}
+					}
+					$cv = implode(',', $vv);
+					$dbData->{$cn} = $cv;
+				} elseif (is_object($cv) || is_array($cv)) {
+					// 多选题
+					$cv = implode(',', array_keys(array_filter((array) $cv, function ($i) {return $i;})));
+					$dbData->{$cn} = $cv;
+				} elseif (is_string($cv)) {
+					$cv = $modelRec->escape($cv);
+					$dbData->{$cn} = $cv;
+				}
+				// 检查数据项是否存在，如果不存在就先创建一条
+				$q = [
+					'count(*)',
+					'xxt_signin_record_data',
+					"enroll_key='$ek' and name='$cn'",
+				];
+				if (1 === (int) $modelRec->query_val_ss($q)) {
+					$modelRec->update(
+						'xxt_signin_record_data',
+						['value' => $cv],
+						"enroll_key='$ek' and name='$cn'"
+					);
+				} else {
+					$cd = [
+						'aid' => $app,
+						'enroll_key' => $ek,
+						'name' => $cn,
+						'value' => $cv,
+					];
+					$modelRec->insert('xxt_signin_record_data', $cd, false);
+				}
+				$record->data->{$cn} = $cv;
+			}
+			// 记录数据
+			$dbData = $modelRec->toJson($dbData);
+			$updatedRecord->data = $dbData;
+		}
+
+		// 更新数据
 		$modelRec->update(
 			'xxt_signin_record',
-			['enroll_at' => $current],
+			$updatedRecord,
 			"enroll_key='$ek'"
 		);
 
-		foreach ($record as $k => $v) {
-			if (in_array($k, ['signin_at', 'verified', 'tags', 'comment'])) {
-				$modelRec->update(
-					'xxt_signin_record',
-					[$k => $v],
-					"enroll_key='$ek'"
-				);
-				if ($k === 'tags') {
-					// 更新记录的标签时，要同步更新活动的标签，实现标签在整个活动中有效
-					$this->model('matter\signin')->updateTags($app, $v);
-				} else if ($k === 'verified' && $v === 'N') {
-					// 如果不通过验证，去掉关联的报名数据
-					$modelRec->update(
-						'xxt_signin_record',
-						['verified_enroll_key' => ''],
-						"enroll_key='$ek'"
-					);
-				}
-			} elseif ($k === 'data' and is_object($v)) {
-				$dbData = new \stdClass;
-				foreach ($v as $cn => $cv) {
-					if (is_array($cv) && isset($cv[0]->imgSrc)) {
-						//上传图片
-						$vv = [];
-						$fsuser = $this->model('fs/user', $site);
-						foreach ($cv as $img) {
-							if (preg_match('/^data:.+base64/', $img->imgSrc)) {
-								$rst = $fsuser->storeImg($img);
-								if (false === $rst[0]) {
-									return new \ResponseError($rst[1]);
-								}
-								$vv[] = $rst[1];
-							} else {
-								$vv[] = $img->imgSrc;
-							}
-						}
-						$cv = implode(',', $vv);
-						$dbData->{$cn} = $cv;
-					} elseif (is_object($cv) || is_array($cv)) {
-						// 多选题
-						$cv = implode(',', array_keys(array_filter((array) $cv, function ($i) {return $i;})));
-						$dbData->{$cn} = $cv;
-					} elseif (is_string($cv)) {
-						$cv = $modelRec->escape($cv);
-						$dbData->{$cn} = $cv;
-					}
-					/*检查数据项是否存在，如果不存在就先创建一条*/
-					$q = [
-						'count(*)',
-						'xxt_signin_record_data',
-						"enroll_key='$ek' and name='$cn'",
-					];
-					if (1 === (int) $modelRec->query_val_ss($q)) {
-						$modelRec->update(
-							'xxt_signin_record_data',
-							['value' => $cv],
-							"enroll_key='$ek' and name='$cn'"
-						);
-					} else {
-						$cd = [
-							'aid' => $app,
-							'enroll_key' => $ek,
-							'name' => $cn,
-							'value' => $cv,
-						];
-						$modelRec->insert('xxt_signin_record_data', $cd, false);
-					}
-					$record->data->{$cn} = $cv;
-				}
-				// 记录数据
-				$dbData = $modelRec->toJson($dbData);
-				$modelRec->update('xxt_signin_record', ['data' => $dbData], "enroll_key='$ek'");
-			}
-		}
 		// 记录操作日志
 		$app = $this->model('matter\signin')->byId($app, ['cascaded' => 'N']);
 		$app->type = 'signin';

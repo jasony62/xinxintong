@@ -198,10 +198,10 @@ define(['frame'], function(ngApp) {
         };
         $scope.editRecord = function(record) {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/signin/component/recordEditor.html?_=1',
+                templateUrl: '/views/default/pl/fe/matter/signin/component/recordEditor.html?_=2',
                 controller: 'ctrlEditor',
                 backdrop: 'static',
-                windowClass: 'auto-height',
+                windowClass: 'auto-height middle-width',
                 resolve: {
                     app: function() {
                         return $scope.app;
@@ -228,9 +228,9 @@ define(['frame'], function(ngApp) {
         };
         $scope.addRecord = function() {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/signin/component/recordEditor.html?_=1',
+                templateUrl: '/views/default/pl/fe/matter/signin/component/recordEditor.html?_=2',
                 controller: 'ctrlEditor',
-                windowClass: 'auto-height',
+                windowClass: 'auto-height middle-width',
                 resolve: {
                     app: function() {
                         return $scope.app;
@@ -565,7 +565,7 @@ define(['frame'], function(ngApp) {
             $mi.dismiss('cancel');
         };
     }]);
-    ngApp.provider.controller('ctrlEditor', ['$scope', '$uibModalInstance', '$sce', 'app', 'record', function($scope, $uibModalInstance, $sce, app, record) {
+    ngApp.provider.controller('ctrlEditor', ['$scope', '$uibModalInstance', '$sce', 'app', 'record', function($scope, $mi, $sce, app, record) {
         var p, col, files;
         if (record.data) {
             for (p in app.data_schemas) {
@@ -609,11 +609,12 @@ define(['frame'], function(ngApp) {
             p.verified = record.verified;
             p.tags = record.tags = record.aTags.join(',');
             p.comment = record.comment;
+            p.signin_log = record.signin_log;
 
-            $uibModalInstance.close([p, $scope.aTags]);
+            $mi.close([p, $scope.aTags]);
         };
         $scope.cancel = function() {
-            $uibModalInstance.dismiss('cancel');
+            $mi.dismiss('cancel');
         };
         $scope.chooseImage = function(imgFieldName, count, from) {
             var data = $scope.record.data;
@@ -670,6 +671,12 @@ define(['frame'], function(ngApp) {
         });
         $scope.$on('tag.xxt.combox.del', function(event, removed) {
             $scope.record.aTags.splice($scope.record.aTags.indexOf(removed), 1);
+        });
+        $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+            if (data.state === 'signinAt') {
+                !record.signin_log && (record.signin_log = {});
+                record.signin_log[data.obj.rid] = data.value;
+            }
         });
     }]);
 });

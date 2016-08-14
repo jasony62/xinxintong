@@ -73,6 +73,21 @@ ul.img-tiles li.img-picker button span{font-size:36px}
                 <combox evt-prefix='tag' existing='record.aTags' options='aTags'></combox>
             </div>
         </div>
+        <hr>
+        <table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th>轮次</th>
+                    <th>签到时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="rnd in app.rounds">
+                    <td>{{rnd.title}}</td>
+                    <td style='width:360px'><tms-datepicker class='tms-datepicker' tms-title='签到时间' tms-obj="rnd" tms-date="record.signin_log[rnd.rid]" tms-state="signinAt"></tms-datepicker></td>
+                </tr>
+            </tbody>
+        </table>
     </form>
 </div>
 <div class="modal-footer">

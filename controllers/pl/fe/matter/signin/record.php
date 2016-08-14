@@ -304,6 +304,13 @@ class record extends \pl\fe\matter\base {
 
 		$record = $this->getPostJson();
 		$modelRec = $this->model('matter\signin\record');
+		$current = time();
+		//
+		$modelRec->update(
+			'xxt_signin_record',
+			['enroll_at' => $current],
+			"enroll_key='$ek'"
+		);
 
 		foreach ($record as $k => $v) {
 			if (in_array($k, ['signin_at', 'verified', 'tags', 'comment'])) {

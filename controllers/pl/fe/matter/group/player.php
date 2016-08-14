@@ -337,16 +337,16 @@ class player extends \pl\fe\matter\base {
 					$user = new \stdClass;
 					$user->uid = $record->userid;
 					$user->nickname = $record->nickname;
-					if ($modelPlayer->byId($record->enroll_key, array('cascaded' => 'N'))) {
-						/*已经同步过的用户*/
+					if ($modelPlayer->byId($objGrp->id, $record->enroll_key, ['cascaded' => 'N'])) {
+						// 已经同步过的用户
 						$modelPlayer->setData($user, $siteId, $objGrp, $record->enroll_key, $record->data);
 					} else {
-						/*新用户*/
-						$modelPlayer->enroll($siteId, $objGrp, $user, array('enroll_key' => $record->enroll_key, 'enroll_at' => $record->enroll_at));
+						// 新用户
+						$modelPlayer->enroll($siteId, $objGrp, $user, ['enroll_key' => $record->enroll_key, 'enroll_at' => $record->enroll_at]);
 						$modelPlayer->setData($user, $siteId, $objGrp, $record->enroll_key, $record->data);
 					}
 				} else {
-					/*删除用户*/
+					// 删除用户
 					$modelPlayer->remove($objGrp->id, $record->enroll_key, true);
 				}
 			}

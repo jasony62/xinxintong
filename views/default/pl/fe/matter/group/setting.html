@@ -107,6 +107,7 @@
                 <table class='table table-bordered'>
                     <thead>
                         <tr>
+                            <td>序号</td>
                             <th ng-if="null===editingRound">分组</th>
                             <th class='custom-col' ng-repeat="c in app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
                             <th style='width:72px'>操作</th>
@@ -114,6 +115,7 @@
                     </thead>
                     <tbody>
                         <tr ng-repeat='p in players' class='player'>
+                            <td>{{$index+1}}</td>
                             <td ng-if="null===editingRound">{{p.round_title}}</td>
                             <td ng-repeat="c in app.data_schemas">
                                 <span ng-if="c.id.indexOf('member')===0">{{memberAttr(p.data, c.id)}}</span>
@@ -169,12 +171,14 @@
                         <table class='table table-bordered'>
                             <thead>
                                 <tr>
+                                    <th>序号</th>
                                     <th class='custom-col' ng-repeat="c in app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
                                     <th style='width:72px'>操作</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr ng-repeat='p in players' class='player'>
+                                    <td>{{$index+1}}</td>
                                     <td ng-repeat="c in app.data_schemas">
                                         <span ng-if="c.id.indexOf('member')===0">{{memberAttr(p.data, c.id)}}</span>
                                         <span ng-if="c.type!=='img'&&c.type!=='file'">{{value2Label(p.data[c.id], c.id)}}</span>

@@ -193,9 +193,15 @@ class record extends \pl\fe\matter\base {
 
 		$record = $this->getPostJson();
 		$model = $this->model();
+		$current = time();
 
 		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-
+		//
+		$model->update(
+			'xxt_enroll_record',
+			['enroll_at' => $current],
+			"enroll_key='$ek'"
+		);
 		foreach ($record as $k => $v) {
 			if (in_array($k, ['verified', 'tags', 'comment'])) {
 				$model->update(
@@ -263,7 +269,11 @@ class record extends \pl\fe\matter\base {
 				}
 				//
 				$dbData = $model->toJson($dbData);
-				$model->update('xxt_enroll_record', ['data' => $dbData], "enroll_key='$ek'");
+				$model->update(
+					'xxt_enroll_record',
+					['data' => $dbData],
+					"enroll_key='$ek'"
+				);
 			}
 		}
 		// 记录操作日志

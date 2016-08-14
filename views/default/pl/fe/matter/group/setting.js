@@ -410,6 +410,7 @@ define(['frame'], function(ngApp) {
 				}
 			}
 		});
+		$scope.tableReady = 'N';
 		$scope.$watch('editingRound', function(round) {
 			if (round === null) {
 				$scope.allPlayers();
@@ -418,6 +419,7 @@ define(['frame'], function(ngApp) {
 			} else {
 				$scope.winners(round);
 			}
+			$scope.tableReady = 'Y';
 		});
 		$scope.$on('xxt.matter.group.execute.done', function(winners) {
 			if ($scope.editingRound === null) {

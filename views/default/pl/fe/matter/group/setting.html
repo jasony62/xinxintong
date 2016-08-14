@@ -103,18 +103,27 @@
     <div class='col-md-8' ng-if="!editingRound&&app.sourceApp">
         <!-- result -->
         <div class='tile' ng-controller='ctrlRunning'>
-            <div class='form-group'>
+            <div class='form-group' tms-table-wrap ready='tableReady'>
                 <table class='table table-bordered'>
                     <thead>
                         <tr>
-                            <td>序号</td>
-                            <th ng-if="null===editingRound">分组</th>
-                            <th class='custom-col' ng-repeat="c in app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
+                            <th style='width:72px'>操作</th>
+                            <th style='width:48px'>序号</th>
+                            <th style='width:120px' ng-if="null===editingRound">分组</th>
+                            <th class='custom-col {{c.type}}' ng-repeat="c in app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
                             <th style='width:72px'>操作</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr ng-repeat='p in players' class='player'>
+                            <td>
+                                <button class='btn btn-xs btn-danger' ng-click='removePlayer(p)'>
+                                    <span class='glyphicon glyphicon-remove'></span>
+                                </button>
+                                <button class='btn btn-xs btn-default' ng-click='editPlayer(p)'>
+                                    <span class='glyphicon glyphicon-edit'></span>
+                                </button>
+                            </td>
                             <td>{{$index+1}}</td>
                             <td ng-if="null===editingRound">{{p.round_title}}</td>
                             <td ng-repeat="c in app.data_schemas">
@@ -167,11 +176,11 @@
             <uib-tab index="1" heading="分组结果">
                 <!-- result -->
                 <div class='tile' ng-controller='ctrlRunning'>
-                    <div class='form-group'>
+                    <div class='form-group' tms-table-wrap>
                         <table class='table table-bordered'>
                             <thead>
                                 <tr>
-                                    <th>序号</th>
+                                    <th style='width:48px'>序号</th>
                                     <th class='custom-col' ng-repeat="c in app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
                                     <th style='width:72px'>操作</th>
                                 </tr>

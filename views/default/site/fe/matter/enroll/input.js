@@ -73,6 +73,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
 
         var Input, _ins;
         Input = function() {};
+
         Input.prototype.check = function(data, app, page) {
             var reason, dataSchemas, item, value;
             reason = validate(data);

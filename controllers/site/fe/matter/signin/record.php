@@ -158,7 +158,7 @@ class record extends base {
 				$requireCheckedData = new \stdClass;
 				foreach ($dataSchemas as $dataSchema) {
 					if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
-						$requireCheckedData->{$dataSchema->id} = $signinData->{$dataSchema->id};
+						$requireCheckedData->{$dataSchema->id} = isset($signinData->{$dataSchema->id}) ? $signinData->{$dataSchema->id} : '';
 					}
 				}
 				if ($signinApp->mission_phase_id) {

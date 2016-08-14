@@ -156,6 +156,8 @@ class player extends \pl\fe\matter\base {
 	}
 	/**
 	 * 从关联活动同步数据
+	 *
+	 * 同步在最后一次同步之后的数据或已经删除的数据
 	 */
 	public function syncByApp_action($site, $app) {
 		if (false === ($user = $this->accountUser())) {
@@ -171,7 +173,7 @@ class player extends \pl\fe\matter\base {
 			} else if ($sourceApp->type === 'signin') {
 				$count = $this->_syncBySignin($site, $app, $sourceApp->id);
 			}
-			/* 更新同步时间 */
+			// 更新同步时间
 			$modelGrp->update(
 				'xxt_group',
 				array('last_sync_at' => time()),
@@ -290,6 +292,8 @@ class player extends \pl\fe\matter\base {
 	}
 	/**
 	 * 从登记活动导入数据
+	 *
+	 * 同步在最后一次同步之后的数据或已经删除的数据
 	 */
 	private function _syncByEnroll($siteId, &$objGrp, $byApp) {
 		/* 获取变化的登记数据 */
@@ -297,7 +301,7 @@ class player extends \pl\fe\matter\base {
 		$q = array(
 			'enroll_key,state',
 			'xxt_enroll_record',
-			"aid='$byApp' and enroll_at>{$objGrp->last_sync_at}",
+			"aid='$byApp' and (enroll_at>{$objGrp->last_sync_at} or state<>1)",
 		);
 		$records = $modelRec->query_objs_ss($q);
 
@@ -305,6 +309,8 @@ class player extends \pl\fe\matter\base {
 	}
 	/**
 	 * 从签到活动导入数据
+	 *
+	 * 同步在最后一次同步之后的数据或已经删除的数据
 	 */
 	private function _syncBySignin($siteId, &$objGrp, $byApp) {
 		/* 获取数据 */
@@ -312,7 +318,7 @@ class player extends \pl\fe\matter\base {
 		$q = array(
 			'enroll_key,state',
 			'xxt_signin_record',
-			"aid='$byApp' and enroll_at>{$objGrp->last_sync_at}",
+			"aid='$byApp' and (enroll_at>{$objGrp->last_sync_at} or state<>1)",
 		);
 		$records = $modelRec->query_objs_ss($q);
 
@@ -324,7 +330,7 @@ class player extends \pl\fe\matter\base {
 	private function _syncRecord($siteId, &$objGrp, &$records, &$modelRec) {
 		$modelPlayer = $this->model('matter\group\player');
 		if (!empty($records)) {
-			$options = array('cascaded' => 'Y');
+			$options = ['cascaded' => 'Y'];
 			foreach ($records as $record) {
 				if ($record->state === '1') {
 					$record = $modelRec->byId($record->enroll_key, $options);

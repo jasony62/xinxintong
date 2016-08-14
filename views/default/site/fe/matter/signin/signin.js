@@ -31,8 +31,8 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
             return (value == null || value == "" || value.length < len) ? false : true;
         };
 
-        function validatePhone(value) {
-            return (false === /^1[3|4|5|7|8][0-9]\d{4,8}$/.test(value)) ? false : true;
+        function validateMobile(value) {
+            return (false === /^1[3|4|5|7|8][0-9]\d{8}$/.test(value)) ? false : true;
         };
 
         function validate(data) {
@@ -46,7 +46,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
             }
             if (document.querySelector('[ng-model="data.mobile"]')) {
                 reason = '请提供正确的手机号（11位数字）！';
-                if (false === validatePhone(data.mobile)) {
+                if (false === validateMobile(data.mobile)) {
                     document.querySelector('[ng-model="data.mobile"]').focus();
                     return reason;
                 }

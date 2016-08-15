@@ -314,6 +314,36 @@ class player_model extends \TMS_MODEL {
 		return $rst;
 	}
 	/**
+	 * 移出分组
+	 */
+	public function quitGroup($appId, $ek) {
+		$rst = $this->update(
+			'xxt_group_player',
+			[
+				'round_id' => 0,
+				'round_title' => '',
+			],
+			["aid" => $appId, "enroll_key" => $ek]
+		);
+
+		return $rst;
+	}
+	/**
+	 * 移入分组
+	 */
+	public function joinGroup($appId, &$round, $ek) {
+		$rst = $this->update(
+			'xxt_group_player',
+			[
+				'round_id' => $round->round_id,
+				'round_title' => $round->title,
+			],
+			["aid" => $appId, "enroll_key" => $ek]
+		);
+
+		return $rst;
+	}
+	/**
 	 * 有资格参加指定轮次分组的用户
 	 */
 	public function &pendings($appId, $hasData = 'N') {

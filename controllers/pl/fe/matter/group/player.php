@@ -549,4 +549,74 @@ class player extends \pl\fe\matter\base {
 
 		return new \ResponseData($rst);
 	}
+	/**
+	 * 将用户移出分组
+	 */
+	public function quitGroup_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$eks = $this->getPostJson();
+		if (empty($eks)) {
+			return new \ResponseError('没有指定用户');
+		}
+
+		$result = new \stdClass;
+		$modelPly = $this->model('matter\group\player');
+		foreach ($eks as $ek) {
+			if ($player = $modelPly->byId($app, $ek)) {
+				if ($modelPly->quitGroup($app, $ek)) {
+					$result->{$ek} = $player->round_id;
+				} else {
+					$result->{$ek} = false;
+				}
+			} else {
+				$result->{$ek} = false;
+			}
+		}
+
+		// 记录操作日志
+		$app = $this->model('matter\group')->byId($app, ['cascaded' => 'N']);
+		$app->type = 'group';
+		$this->model('matter\log')->matterOp($site, $user, $app, 'quitGroup', $result);
+
+		return new \ResponseData($result);
+	}
+	/**
+	 * 将用户移入分组
+	 */
+	public function joinGroup_action($site, $app, $round) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$eks = $this->getPostJson();
+		if (empty($eks)) {
+			return new \ResponseError('没有指定用户');
+		}
+
+		$round = $this->model('matter\group\round')->byId($round);
+
+		$result = new \stdClass;
+		$modelPly = $this->model('matter\group\player');
+		foreach ($eks as $ek) {
+			if ($player = $modelPly->byId($app, $ek)) {
+				if ($modelPly->joinGroup($app, $round, $ek)) {
+					$result->{$ek} = $player->round_id;
+				} else {
+					$result->{$ek} = false;
+				}
+			} else {
+				$result->{$ek} = false;
+			}
+		}
+
+		// 记录操作日志
+		$app = $this->model('matter\group')->byId($app, ['cascaded' => 'N']);
+		$app->type = 'group';
+		$this->model('matter\log')->matterOp($site, $user, $app, 'joinGroup', $result);
+
+		return new \ResponseData($result);
+	}
 }

@@ -8,7 +8,7 @@ define(['frame'], function(ngApp) {
         $scope.update = function(name) {
             var nv = {};
             nv[name] = $scope.editing[name];
-            http2.post('/rest/mp/app/addressbook/update?abid=' + $scope.id + '&site='+ $scope.siteId, nv);
+            http2.post('/rest/pl/fe/matter/addressbook/update?abid=' + $scope.id + '&site='+ $scope.siteId, nv);
         };
         $scope.setPic = function() {
             var options = {

@@ -26,39 +26,69 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
     }]);
     ngApp.factory('Input', function($http, $q, $timeout) {
         var Input, _ins;
-        var required = function(value, len) {
+
+        function required(value, len) {
             return (value == null || value == "" || value.length < len) ? false : true;
         };
-        var validatePhone = function(value) {
-            return (false === /^1[3|4|5|7|8][0-9]\d{4,8}$/.test(value)) ? false : true;
+
+        function validateMobile(value) {
+            return (false === /^1[3|4|5|7|8][0-9]\d{8}$/.test(value)) ? false : true;
         };
-        var validate = function(data) {
+
+        function validate(data) {
             var reason;
-            if (document.querySelector('[ng-model="data.name"]') === 1) {
+            if (document.querySelector('[ng-model="data.name"]')) {
                 reason = '请提供您的姓名！';
                 if (false === required(data.name, 2)) {
                     document.querySelector('[ng-model="data.name"]').focus();
                     return reason;
                 }
             }
-            if (document.querySelector('[ng-model="data.mobile"]') === 1) {
+            if (document.querySelector('[ng-model="data.mobile"]')) {
                 reason = '请提供正确的手机号（11位数字）！';
-                if (false === validatePhone(data.mobile)) {
+                if (false === validateMobile(data.mobile)) {
                     document.querySelector('[ng-model="data.mobile"]').focus();
                     return reason;
                 }
             }
             return true;
         };
+
+        function isEmpty(schema, value) {
+            if (value === undefined) {
+                return true;
+            }
+            switch (schema.type) {
+                case 'multiple':
+                    for (var p in value) {
+                        //至少有一个选项
+                        if (value[p] === true) {
+                            return false;
+                        }
+                    }
+                    return true;
+                default:
+                    return value.length === 0;
+            }
+        };
         Input = function() {};
-        Input.prototype.check = function(data) {
-            var reason;
+        Input.prototype.check = function(data, app, page) {
+            var reason, dataSchemas, item, value;
             reason = validate(data);
             if (true !== reason) {
                 return reason;
             }
-            if (document.querySelectorAll('.ng-invalid-required').length) {
-                return '请填写必填项';
+            if (page.data_schemas && page.data_schemas.length) {
+                dataSchemas = JSON.parse(page.data_schemas);
+                for (var i = dataSchemas.length - 1; i >= 0; i--) {
+                    item = dataSchemas[i];
+                    if (item.config.required === 'Y') {
+                        value = data[item.schema.id];
+                        if (value === undefined || isEmpty(item.schema, value)) {
+                            return '请填写必填项［' + item.schema.title + '］';
+                        }
+                    }
+                }
             }
             return true;
         };
@@ -319,21 +349,23 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
                     if (p === 'member') {
                         $scope.data.member = angular.extend($scope.data.member, dataOfRecord.member);
                     } else if (dataOfRecord[p].length) {
-                        if (mapSchema[p].type === 'img') {
-                            value = dataOfRecord[p].split(',');
-                            $scope.data[p] = [];
-                            for (var i in value) $scope.data[p].push({
-                                imgSrc: value[i]
-                            });
-                        } else if (mapSchema[p].type === 'file') {
-                            value = JSON.parse(dataOfRecord[p]);
-                            $scope.data[p] = value;
-                        } else if (mapSchema[p].type === 'multiple') {
-                            value = dataOfRecord[p].split(',');
-                            $scope.data[p] = {};
-                            for (var i in value) $scope.data[p][value[i]] = true;
-                        } else {
-                            $scope.data[p] = dataOfRecord[p];
+                        if (mapSchema[p] !== undefined) {
+                            if (mapSchema[p].type === 'img') {
+                                value = dataOfRecord[p].split(',');
+                                $scope.data[p] = [];
+                                for (var i in value) $scope.data[p].push({
+                                    imgSrc: value[i]
+                                });
+                            } else if (mapSchema[p].type === 'file') {
+                                value = JSON.parse(dataOfRecord[p]);
+                                $scope.data[p] = value;
+                            } else if (mapSchema[p].type === 'multiple') {
+                                value = dataOfRecord[p].split(',');
+                                $scope.data[p] = {};
+                                for (var i in value) $scope.data[p][value[i]] = true;
+                            } else {
+                                $scope.data[p] = dataOfRecord[p];
+                            }
                         }
                     }
                 }
@@ -388,7 +420,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
         };
         $scope.submit = function(event, nextAction) {
             var checkResult, task, seq;
-            if (true === (checkResult = facInput.check($scope.data))) {
+            if (true === (checkResult = facInput.check($scope.data, $scope.app, $scope.page))) {
                 tasksOfBeforeSubmit.length ? doTask(0, nextAction) : doSubmit(nextAction);
             } else {
                 $scope.$parent.errmsg = checkResult;

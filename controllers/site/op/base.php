@@ -24,6 +24,6 @@ class base extends \TMS_CONTROLLER {
 	public function qrcode_action($url) {
 		include TMS_APP_DIR . '/lib/qrcode/qrlib.php';
 		// outputs image directly into browser, as PNG stream
-		\QRcode::png($url;
+		\QRcode::png($url);
 	}
 }

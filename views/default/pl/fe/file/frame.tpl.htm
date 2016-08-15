@@ -9,7 +9,6 @@
         <link href="/views/default/pl/fe/file/frame.css?_=1" rel="stylesheet">
     </head>
     <body ng-app='app' ng-controller='ctrlFile' ng-cloak class='ng-cloak'>
-        <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
         <nav class='navbar navbar-inverse navbar-fixed-top tms-large'>
             <ul class='nav navbar-nav'>
                 <li><a href='/rest/pl/fe' target='_self'>首页</a></li>
@@ -23,6 +22,9 @@
                 </li>
                 <li class='active'>
                     <a href='/rest/pl/fe/file?site={{siteId}}'>图片库</a>
+                </li>
+                <li>
+                    <a href='/rest/pl/fe/temlate?site={{siteId}}' target='_self'>模板库</a>
                 </li>
                 <li>
                     <a href='/rest/pl/fe/site/setting?site={{siteId}}' target='_self'>站点设置</a>

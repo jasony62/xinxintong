@@ -129,14 +129,14 @@ class player_model extends \TMS_MODEL {
 	/**
 	 * 根据ID返回登记记录
 	 */
-	public function &byId($ek, $options = array()) {
+	public function &byId($aid, $ek, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
 
 		$q = array(
 			$fields,
 			'xxt_group_player',
-			"enroll_key='$ek'",
+			"aid='$aid' and enroll_key='$ek' and state=1",
 		);
 		if (($record = $this->query_obj_ss($q)) && $cascaded === 'Y') {
 			$record->data = $this->dataById($ek);
@@ -181,17 +181,7 @@ class player_model extends \TMS_MODEL {
 		$result = new \stdClass; // 返回的结果
 		$result->total = 0;
 		/* 数据过滤条件 */
-		$w = "e.state=1 and e.siteid='$siteId' and e.aid='{$app->id}'";
-		if (!empty($kw) && !empty($by)) {
-			switch ($by) {
-			case 'mobile':
-				$kw && $w .= " and m.mobile like '%$kw%'";
-				break;
-			case 'nickname':
-				$kw && $w .= " and e.nickname like '%$kw%'";
-				break;
-			}
-		}
+		$w = "e.state=1 and e.aid='{$app->id}'";
 		/*tags*/
 		if (!empty($options->tags)) {
 			$aTags = explode(',', $options->tags);
@@ -281,12 +271,12 @@ class player_model extends \TMS_MODEL {
 		} else {
 			$rst = $this->update(
 				'xxt_group_player_data',
-				array('state' => 0),
+				array('state' => 100),
 				"aid='$appId' and enroll_key='$ek'"
 			);
 			$rst = $this->update(
 				'xxt_group_player',
-				array('state' => 0),
+				array('state' => 100),
 				"aid='$appId' and enroll_key='$ek'"
 			);
 		}
@@ -320,6 +310,36 @@ class player_model extends \TMS_MODEL {
 				"aid='$appId'"
 			);
 		}
+
+		return $rst;
+	}
+	/**
+	 * 移出分组
+	 */
+	public function quitGroup($appId, $ek) {
+		$rst = $this->update(
+			'xxt_group_player',
+			[
+				'round_id' => 0,
+				'round_title' => '',
+			],
+			["aid" => $appId, "enroll_key" => $ek]
+		);
+
+		return $rst;
+	}
+	/**
+	 * 移入分组
+	 */
+	public function joinGroup($appId, &$round, $ek) {
+		$rst = $this->update(
+			'xxt_group_player',
+			[
+				'round_id' => $round->round_id,
+				'round_title' => $round->title,
+			],
+			["aid" => $appId, "enroll_key" => $ek]
+		);
 
 		return $rst;
 	}

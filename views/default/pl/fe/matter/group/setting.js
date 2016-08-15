@@ -1,5 +1,8 @@
 define(['frame'], function(ngApp) {
 	ngApp.provider.controller('ctrlSetting', ['$scope', 'http2', '$q', '$uibModal', 'mattersgallery', 'noticebox', function($scope, http2, $q, $uibModal, mattersgallery, noticebox) {
+		(function() {
+			new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
+		})();
 		window.onbeforeunload = function(e) {
 			var message;
 			if ($scope.modified) {
@@ -11,7 +14,7 @@ define(['frame'], function(ngApp) {
 				return message;
 			}
 		};
-		$scope.editingRound = null;
+		$scope.activeRound = null;
 		$scope.assignMission = function() {
 			mattersgallery.open($scope.siteId, function(matters, type) {
 				var app;
@@ -183,11 +186,14 @@ define(['frame'], function(ngApp) {
 			});
 		};
 		$scope.emptyRule = function() {
-			var url = '/rest/pl/fe/matter/group/configRule?site=' + $scope.siteId + '&app=' + $scope.id;
-			http2.post(url, {}, function(rsp) {
-				$scope.rounds = [];
-				$scope.group_rule = {};
-			});
+			if (window.confirm('本操作将清除已有分组数据，确定执行?')) {
+				var url = '/rest/pl/fe/matter/group/configRule?site=' + $scope.siteId + '&app=' + $scope.id;
+				http2.post(url, {}, function(rsp) {
+					$scope.rounds = [];
+					$scope.group_rule = {};
+					$scope.$broadcast('xxt.matter.group.execute.done', rsp.data);
+				});
+			}
 		};
 		$scope.addRound = function() {
 			var proto = {
@@ -205,7 +211,7 @@ define(['frame'], function(ngApp) {
 			}
 		};
 		$scope.open = function(round) {
-			$scope.editingRound = round;
+			$scope.activeRound = round;
 		};
 		$scope.value2Label = function(val, key) {
 			var schemas = $scope.app.data_schemas,
@@ -228,16 +234,28 @@ define(['frame'], function(ngApp) {
 		};
 		$scope.updateRound = function(name) {
 			var nv = {};
-			nv[name] = $scope.editingRound[name];
-			http2.post('/rest/pl/fe/matter/group/round/update?site=' + $scope.siteId + '&app=' + $scope.id + '&rid=' + $scope.editingRound.round_id, nv, function(rsp) {
+			nv[name] = $scope.activeRound[name];
+			http2.post('/rest/pl/fe/matter/group/round/update?site=' + $scope.siteId + '&app=' + $scope.id + '&rid=' + $scope.activeRound.round_id, nv, function(rsp) {
 				noticebox.success('完成保存');
 			});
 		};
 		$scope.removeRound = function() {
-			http2.get('/rest/pl/fe/matter/group/round/remove?site=' + $scope.siteId + '&app=' + $scope.id + '&rid=' + $scope.editingRound.round_id, function(rsp) {
-				var i = $scope.rounds.indexOf($scope.editingRound);
+			http2.get('/rest/pl/fe/matter/group/round/remove?site=' + $scope.siteId + '&app=' + $scope.id + '&rid=' + $scope.activeRound.round_id, function(rsp) {
+				var i = $scope.rounds.indexOf($scope.activeRound);
 				$scope.rounds.splice(i, 1);
-				$scope.editingRound = null;
+				$scope.activeRound = null;
+			});
+		};
+		$scope.export = function() {
+			var url = '/rest/pl/fe/matter/group/player/export?site=' + $scope.siteId + '&app=' + $scope.id;
+			http2.get(url, function(rsp) {
+				var blob;
+
+				blob = new Blob([rsp.data], {
+					type: "text/plain;charset=utf-8"
+				});
+
+				saveAs(blob, $scope.app.title + '.csv');
 			});
 		};
 		$scope.activeTabIndex = 0;
@@ -288,11 +306,11 @@ define(['frame'], function(ngApp) {
 			return labels.join(',');
 		};
 		$scope.saveTargets = function() {
-			$scope.editingRound.targets = $scope.aTargets;
+			$scope.activeRound.targets = $scope.aTargets;
 			$scope.updateRound('targets');
 		};
 	}]);
-	ngApp.provider.controller('ctrlRunning', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
+	ngApp.provider.controller('ctrlPlayers', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
 		$scope.editPlayer = function(player) {
 			$uibModal.open({
 				templateUrl: 'editorPlayer.html',
@@ -312,8 +330,6 @@ define(['frame'], function(ngApp) {
 			}).result.then(function(updated) {
 				var p = updated[0];
 				http2.post('/rest/pl/fe/matter/group/player/update?site=' + $scope.siteId + '&app=' + $scope.id + '&ek=' + player.enroll_key, p, function(rsp) {
-					//tags = updated[1];
-					//$scope.app.tags = tags;
 					angular.extend(player, rsp.data);
 				});
 			});
@@ -343,18 +359,104 @@ define(['frame'], function(ngApp) {
 				});
 			});
 		};
-		$scope.removePlayer = function(record) {
+		$scope.removePlayer = function(player) {
 			if (window.confirm('确认删除？')) {
-				http2.get('/rest/pl/fe/matter/group/player/remove?site=' + $scope.siteId + '&app=' + $scope.id + '&ek=' + record.enroll_key, function(rsp) {
-					var i = $scope.players.indexOf(record);
+				http2.get('/rest/pl/fe/matter/group/player/remove?site=' + $scope.siteId + '&app=' + $scope.id + '&ek=' + player.enroll_key, function(rsp) {
+					var i = $scope.players.indexOf(player);
 					$scope.players.splice(i, 1);
 					$scope.page.total = $scope.page.total - 1;
 				});
 			}
 		};
+		// 当前选中的行
+		$scope.rows = {
+			allSelected: 'N',
+			selected: {}
+		};
+		$scope.selectedPlayers = [];
+		$scope.selectPlayer = function(player) {
+			if ($scope.selectedPlayers.indexOf(player) === -1) {
+				$scope.selectedPlayers.push(player);
+			} else {
+				$scope.selectedPlayers.splice($scope.selectedPlayers.indexOf(player), 1);
+			}
+		};
+		// 选中或取消选中所有行
+		$scope.selectAllRows = function(checked) {
+			var index = 0;
+			if (checked === 'Y') {
+				$scope.selectedPlayers = [];
+				while (index < $scope.players.length) {
+					$scope.selectedPlayers.push($scope.players[index]);
+					$scope.rows.selected[index++] = true;
+				}
+			} else if (checked === 'N') {
+				$scope.rows.selected = {};
+				$scope.selectedPlayers = [];
+			}
+		};
+		/**
+		 * 选中的用户移出分组
+		 */
+		$scope.quitGroup = function(players) {
+			if ($scope.activeRound && players.length) {
+				var url, eks = [];
+
+				url = '/rest/pl/fe/matter/group/player/quitGroup?site=' + $scope.siteId + '&app=' + $scope.id;
+				url += '&round=' + $scope.activeRound.round_id;
+
+				angular.forEach(players, function(player) {
+					eks.push(player.enroll_key);
+				});
+
+				http2.post(url, eks, function(rsp) {
+					var result = rsp.data;
+					angular.forEach(players, function(player) {
+						if (result[player.enroll_key] !== false) {
+							$scope.players.splice($scope.players.indexOf(player), 1);
+						}
+					});
+					$scope.rows.allSelected = 'N';
+					$scope.rows.selected = {};
+					$scope.selectedPlayers = [];
+				});
+			}
+		};
+		/**
+		 * 选中的用户移入分组
+		 */
+		$scope.joinGroup = function(round, players) {
+			if (round && players.length) {
+				var url, eks = [];
+
+				url = '/rest/pl/fe/matter/group/player/joinGroup?site=' + $scope.siteId + '&app=' + $scope.id;
+				url += '&round=' + round.round_id;
+
+				angular.forEach(players, function(player) {
+					eks.push(player.enroll_key);
+				});
+
+				http2.post(url, eks, function(rsp) {
+					var result = rsp.data;
+					angular.forEach(players, function(player) {
+						if (result[player.enroll_key] !== false) {
+							if ($scope.activeRound === false) {
+								$scope.players.splice($scope.players.indexOf(player), 1);
+							} else if ($scope.activeRound === null) {
+								player.round_id = round.round_id;
+								player.round_title = round.title;
+							}
+						}
+					});
+					$scope.rows.allSelected = 'N';
+					$scope.rows.selected = {};
+					$scope.selectedPlayers = [];
+				});
+			}
+		};
 		$scope.empty = function() {
 			var vcode;
-			vcode = prompt('是否要删除所有登记信息？，若是，请输入活动名称。');
+			vcode = prompt('是否要从【' + $scope.app.title + '】删除所有用户？，若是，请输入活动名称。');
 			if (vcode === $scope.app.title) {
 				http2.get('/rest/pl/fe/matter/group/player/empty?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
 					$scope.doSearch(1);
@@ -381,18 +483,35 @@ define(['frame'], function(ngApp) {
 				$scope.players = rsp.data;
 			});
 		};
+		/**
+		 * 完成用户同步操作
+		 */
 		$scope.$on('xxt.matter.group.player.sync', function(event, count) {
 			if (count > 0) {
-				if ($scope.editingRound === null) {
+				if ($scope.activeRound === null) {
 					$scope.allPlayers();
-				} else if ($scope.editingRound === false) {
+				} else if ($scope.activeRound === false) {
 					$scope.pendings();
 				} else {
-					$scope.winners($scope.editingRound);
+					$scope.winners($scope.activeRound);
 				}
 			}
 		});
-		$scope.$watch('editingRound', function(round) {
+		/**
+		 * 完成自动分组操作
+		 */
+		$scope.$on('xxt.matter.group.execute.done', function(winners) {
+			if ($scope.activeRound === null) {
+				$scope.allPlayers();
+			} else if ($scope.activeRound === false) {
+				$scope.pendings();
+			} else {
+				$scope.winners($scope.activeRound);
+			}
+		});
+		// 表格定义是否准备完毕
+		$scope.tableReady = 'N';
+		$scope.$watch('activeRound', function(round) {
 			if (round === null) {
 				$scope.allPlayers();
 			} else if (round === false) {
@@ -400,15 +519,7 @@ define(['frame'], function(ngApp) {
 			} else {
 				$scope.winners(round);
 			}
-		});
-		$scope.$on('xxt.matter.group.execute.done', function(winners) {
-			if ($scope.editingRound === null) {
-				$scope.allPlayers();
-			} else if ($scope.editingRound === false) {
-				$scope.pendings();
-			} else {
-				$scope.winners($scope.editingRound);
-			}
+			$scope.tableReady = 'Y';
 		});
 	}]);
 });

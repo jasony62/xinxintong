@@ -94,8 +94,14 @@
                 <button class='btn btn-default' ng-click="moveWrap('down')" ng-disabled='!activeWrap'>
                 <span class='fa fa-arrow-down fa-fw'></span>
                 </button>
-                <button ng-if="ep.type==='I'" class='btn btn-default' title='复制' ng-click="copySchema(activeWrap.schema)" ng-disabled='!activeWrap'>
-                <span class='fa fa-copy fa-fw'></span>
+                <button class='btn btn-default' ng-click="moveWrap('down')" ng-disabled='!activeWrap'>
+                <span class='fa fa-arrow-down fa-fw'></span>
+                </button>
+                <button class='btn btn-default' title='上一级' ng-click="moveWrap('upLevel')" ng-disabled='!activeWrap'>
+                <span class='fa fa-level-up fa-fw'></span>
+                </button>
+                <button class='btn btn-default' title='下一级' ng-click="moveWrap('downLevel')" ng-disabled='!activeWrap'>
+                <span class='fa fa-level-down fa-fw'></span>
                 </button>
                 <button class='btn btn-default' title='编辑代码' ng-click="gotoCode()">
                 <i class='fa fa-code fa-fw'></i>
@@ -104,7 +110,7 @@
         </div>
         <!-- end tinymce editor -->
         <!-- wrap schema editor -->
-        <div class='wrap-editor tile' ng-if="activeWrap.schema">
+        <div class='wrap-editor tile' ng-if="activeWrap.schema||activeWrap.schemas">
             <div class='form-group' ng-include="wrapEditorHtml()"></div>
             <button class='btn btn-default btn-block' ng-click="refreshWrap(activeWrap)">刷新页面元素</button>
         </div>

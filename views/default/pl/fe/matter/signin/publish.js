@@ -292,6 +292,39 @@ define(['frame'], function(ngApp) {
 				});
 			}
 		};
+		$scope.qrcode = function(round) {
+			$uibModal.open({
+				templateUrl: 'roundQrcode.html',
+				backdrop: 'static',
+				resolve: {
+					round: function() {
+						return round;
+					}
+				},
+				controller: ['$scope', '$timeout', '$uibModalInstance', 'round', function($scope2, $timeout, $mi, round) {
+					var popover = {
+							title: round.title,
+							url: $scope.url + '&round=' + round.rid,
+						},
+						zeroClipboard;
+
+					popover.qrcode = '/rest/site/fe/matter/signin/qrcode?site=' + $scope.siteId + '&url=' + encodeURIComponent(popover.url);
+					$scope2.popover = popover;
+					$scope2.downloadQrcode = function(url) {
+						$('<a href="' + url + '" download="' + round.title + '签到二维码.png"></a>')[0].click();
+					};
+					$scope2.cancel = function() {
+						$mi.dismiss();
+					};
+					$scope2.ok = function() {
+						$mi.dismiss();
+					};
+					$timeout(function() {
+						new ZeroClipboard(document.querySelector('#copyURL'));
+					});
+				}]
+			}).result.then(function() {});
+		};
 		$scope.$watch('app', function(app) {
 			if (app) {
 				$scope.rounds = app.rounds;

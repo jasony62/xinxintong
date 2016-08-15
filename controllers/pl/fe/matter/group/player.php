@@ -14,7 +14,7 @@ class player extends \pl\fe\matter\base {
 		exit;
 	}
 	/**
-	 *
+	 * 查看分组数据
 	 */
 	public function list_action($site, $app) {
 		if (false === ($user = $this->accountUser())) {
@@ -28,6 +28,92 @@ class player extends \pl\fe\matter\base {
 		$result = $modelPlayer->find($site, $app);
 
 		return new \ResponseData($result);
+	}
+	/**
+	 * 导出分组数据
+	 */
+	public function export_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelGrp = $this->model('matter\group');
+		$modelPlayer = $this->model('matter\group\player');
+
+		$app = $modelGrp->byId($app);
+		$schemas = json_decode($app->data_schemas);
+		$result = $modelPlayer->find($site, $app);
+		if ($result->total == 0) {
+			die('player empty');
+		}
+		$players = $result->players;
+
+		// 分组记录转换成下载数据
+		$exportedData = [];
+		$size = 0;
+		// 转换标题
+		$titles = ['分组'];
+		foreach ($schemas as $schema) {
+			$titles[] = $schema->title;
+		}
+		$titles = implode("\t", $titles);
+		$size += strlen($titles);
+		$exportedData[] = $titles;
+		// 转换数据
+		foreach ($players as $player) {
+			$row = [];
+			$row[] = $player->round_title;
+			// 处理登记项
+			$data = (object) $player->data;
+			foreach ($schemas as $schema) {
+				$v = isset($data->{$schema->id}) ? $data->{$schema->id} : '';
+				switch ($schema->type) {
+				case 'single':
+				case 'phase':
+					foreach ($schema->ops as $op) {
+						if ($op->v === $v) {
+							$row[] = $op->l;
+							$disposed = true;
+							break;
+						}
+					}
+					empty($disposed) && $row[] = $v;
+					break;
+				case 'multiple':
+					$labels = [];
+					$v = explode(',', $v);
+					foreach ($v as $oneV) {
+						foreach ($schema->ops as $op) {
+							if ($op->v === $oneV) {
+								$labels[] = $op->l;
+								break;
+							}
+						}
+					}
+					$row[] = implode(',', $labels);
+					break;
+				default:
+					$row[] = $v;
+					break;
+				}
+			}
+			// 将数据转换为'|'分隔的字符串
+			$row = implode("\t", $row);
+			$size += strlen($row);
+			$exportedData[] = $row;
+		}
+
+		// 文件下载
+		$size += (count($exportedData) - 1) * 2;
+		$exportedData = implode("\r\n", $exportedData);
+
+		//header("Content-Type: text/plain;charset=utf-8");
+		//header("Content-Disposition: attachment; filename=" . $app->title . '.txt');
+		//header('Content-Length: ' . $size);
+		//echo $exportedData;
+		//exit;
+
+		return new \ResponseData($exportedData);
 	}
 	/**
 	 * 分组用户数量
@@ -70,6 +156,8 @@ class player extends \pl\fe\matter\base {
 	}
 	/**
 	 * 从关联活动同步数据
+	 *
+	 * 同步在最后一次同步之后的数据或已经删除的数据
 	 */
 	public function syncByApp_action($site, $app) {
 		if (false === ($user = $this->accountUser())) {
@@ -85,7 +173,7 @@ class player extends \pl\fe\matter\base {
 			} else if ($sourceApp->type === 'signin') {
 				$count = $this->_syncBySignin($site, $app, $sourceApp->id);
 			}
-			/* 更新同步时间 */
+			// 更新同步时间
 			$modelGrp->update(
 				'xxt_group',
 				array('last_sync_at' => time()),
@@ -204,6 +292,8 @@ class player extends \pl\fe\matter\base {
 	}
 	/**
 	 * 从登记活动导入数据
+	 *
+	 * 同步在最后一次同步之后的数据或已经删除的数据
 	 */
 	private function _syncByEnroll($siteId, &$objGrp, $byApp) {
 		/* 获取变化的登记数据 */
@@ -211,7 +301,7 @@ class player extends \pl\fe\matter\base {
 		$q = array(
 			'enroll_key,state',
 			'xxt_enroll_record',
-			"aid='$byApp' and enroll_at>{$objGrp->last_sync_at}",
+			"aid='$byApp' and (enroll_at>{$objGrp->last_sync_at} or state<>1)",
 		);
 		$records = $modelRec->query_objs_ss($q);
 
@@ -219,6 +309,8 @@ class player extends \pl\fe\matter\base {
 	}
 	/**
 	 * 从签到活动导入数据
+	 *
+	 * 同步在最后一次同步之后的数据或已经删除的数据
 	 */
 	private function _syncBySignin($siteId, &$objGrp, $byApp) {
 		/* 获取数据 */
@@ -226,7 +318,7 @@ class player extends \pl\fe\matter\base {
 		$q = array(
 			'enroll_key,state',
 			'xxt_signin_record',
-			"aid='$byApp' and enroll_at>{$objGrp->last_sync_at}",
+			"aid='$byApp' and (enroll_at>{$objGrp->last_sync_at} or state<>1)",
 		);
 		$records = $modelRec->query_objs_ss($q);
 
@@ -238,23 +330,23 @@ class player extends \pl\fe\matter\base {
 	private function _syncRecord($siteId, &$objGrp, &$records, &$modelRec) {
 		$modelPlayer = $this->model('matter\group\player');
 		if (!empty($records)) {
-			$options = array('cascaded' => 'Y');
+			$options = ['cascaded' => 'Y'];
 			foreach ($records as $record) {
 				if ($record->state === '1') {
 					$record = $modelRec->byId($record->enroll_key, $options);
 					$user = new \stdClass;
 					$user->uid = $record->userid;
 					$user->nickname = $record->nickname;
-					if ($modelPlayer->byId($record->enroll_key, array('cascaded' => 'N'))) {
-						/*已经同步过的用户*/
+					if ($modelPlayer->byId($objGrp->id, $record->enroll_key, ['cascaded' => 'N'])) {
+						// 已经同步过的用户
 						$modelPlayer->setData($user, $siteId, $objGrp, $record->enroll_key, $record->data);
 					} else {
-						/*新用户*/
-						$modelPlayer->enroll($siteId, $objGrp, $user, array('enroll_key' => $record->enroll_key, 'enroll_at' => $record->enroll_at));
+						// 新用户
+						$modelPlayer->enroll($siteId, $objGrp, $user, ['enroll_key' => $record->enroll_key, 'enroll_at' => $record->enroll_at]);
 						$modelPlayer->setData($user, $siteId, $objGrp, $record->enroll_key, $record->data);
 					}
 				} else {
-					/*删除用户*/
+					// 删除用户
 					$modelPlayer->remove($objGrp->id, $record->enroll_key, true);
 				}
 			}
@@ -397,17 +489,17 @@ class player extends \pl\fe\matter\base {
 						/*多选题*/
 						$cv = implode(',', array_keys(array_filter((array) $cv, function ($i) {return $i;})));
 					}
-					/*检查数据项是否存在，如果不存在就先创建一条*/
+					// 检查数据项是否存在，如果不存在就先创建一条
 					$q = array(
 						'count(*)',
 						'xxt_group_player_data',
-						"enroll_key='$ek' and name='$cn'",
+						"aid='$app' and enroll_key='$ek' and name='$cn'",
 					);
 					if (1 === (int) $model->query_val_ss($q)) {
 						$model->update(
 							'xxt_group_player_data',
 							array('value' => $cv),
-							"enroll_key='$ek' and name='$cn'"
+							"aid='$app' and enroll_key='$ek' and name='$cn'"
 						);
 					} else {
 						$cd = array(
@@ -456,5 +548,75 @@ class player extends \pl\fe\matter\base {
 		$rst = $this->model('matter\group\player')->clean($app, $keepData === 'N');
 
 		return new \ResponseData($rst);
+	}
+	/**
+	 * 将用户移出分组
+	 */
+	public function quitGroup_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$eks = $this->getPostJson();
+		if (empty($eks)) {
+			return new \ResponseError('没有指定用户');
+		}
+
+		$result = new \stdClass;
+		$modelPly = $this->model('matter\group\player');
+		foreach ($eks as $ek) {
+			if ($player = $modelPly->byId($app, $ek)) {
+				if ($modelPly->quitGroup($app, $ek)) {
+					$result->{$ek} = $player->round_id;
+				} else {
+					$result->{$ek} = false;
+				}
+			} else {
+				$result->{$ek} = false;
+			}
+		}
+
+		// 记录操作日志
+		$app = $this->model('matter\group')->byId($app, ['cascaded' => 'N']);
+		$app->type = 'group';
+		$this->model('matter\log')->matterOp($site, $user, $app, 'quitGroup', $result);
+
+		return new \ResponseData($result);
+	}
+	/**
+	 * 将用户移入分组
+	 */
+	public function joinGroup_action($site, $app, $round) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$eks = $this->getPostJson();
+		if (empty($eks)) {
+			return new \ResponseError('没有指定用户');
+		}
+
+		$round = $this->model('matter\group\round')->byId($round);
+
+		$result = new \stdClass;
+		$modelPly = $this->model('matter\group\player');
+		foreach ($eks as $ek) {
+			if ($player = $modelPly->byId($app, $ek)) {
+				if ($modelPly->joinGroup($app, $round, $ek)) {
+					$result->{$ek} = $player->round_id;
+				} else {
+					$result->{$ek} = false;
+				}
+			} else {
+				$result->{$ek} = false;
+			}
+		}
+
+		// 记录操作日志
+		$app = $this->model('matter\group')->byId($app, ['cascaded' => 'N']);
+		$app->type = 'group';
+		$this->model('matter\log')->matterOp($site, $user, $app, 'joinGroup', $result);
+
+		return new \ResponseData($result);
 	}
 }

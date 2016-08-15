@@ -186,7 +186,7 @@ class main extends \pl\fe\matter\base {
 		$modelPage = $this->model('matter\enroll\page');
 		$modelCode = $this->model('code\page');
 
-		$template = $this->model('shop\shelf')->byId($template);
+		$template = $this->model('template\shop')->byId($template);
 		$aid = $template->matter_id;
 		$copied = $modelApp->byId($aid);
 		$copied->title = $template->title;

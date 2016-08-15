@@ -376,7 +376,9 @@ ngApp.controller('ctrlMatter', ['$scope', '$uibModal', 'http2', function($scope,
 				break;
 		}
 	};
-	$scope.fetch = function() {
+	$scope.matterType = '';
+	$scope.list = function(matterType) {
+		matterType===undefined &&()
 		http2.get('/rest/pl/fe/matter/mission/matter/list?site=' + $scope.siteId + '&id=' + $scope.id + '&_=' + (new Date()).getTime(), function(rsp) {
 			var typeCount = {};
 			angular.forEach(rsp.data, function(matter) {
@@ -396,5 +398,5 @@ ngApp.controller('ctrlMatter', ['$scope', '$uibModal', 'http2', function($scope,
 			!typeCount.voting && $scope.indicators.push(indicators.voting);
 		});
 	};
-	$scope.fetch();
+	$scope.list();
 }]);

@@ -42,7 +42,12 @@
                 <nav class="navbar navbar-default tms-top">
                     <div class='container-fluid'>
                         <ul class="nav navbar-nav">
-                            <li class='active'><a href='#'>全部</a></li>
+                            <li ng-class="{'active':matterType===''}"><a ng-click="list()">全部</a></li>
+                            <li ng-class="{'active':matterType==='article'}"><a ng-click="list('article')">图文</a></li>
+                            <li ng-class="{'active':matterType==='registration'}"><a ng-click="list('registration')">报名</a></li>
+                            <li ng-class="{'active':matterType==='signin'}"><a ng-click="list('signin')">签到</a></li>
+                            <li ng-class="{'active':matterType==='group'}"><a ng-click="list('group')">分组</a></li>
+                            <li ng-class="{'active':matterType==='voting'}"><a ng-click="list('voting')">问卷</a></li>
                         </ul>
                     </div>
                 </nav>
@@ -69,7 +74,7 @@
                         <button class='btn btn-lg btn-success' ng-click="addEnroll('registration')">+报名</button>
                         <button class='btn btn-lg btn-success' ng-click="addSignin()">+签到</button>
                         <button class='btn btn-lg btn-success' ng-click="addGroup()">+分组</button>
-                        <button class='btn btn-lg btn-success' ng-click="addEnroll('voting')">+评价</button>
+                        <button class='btn btn-lg btn-success' ng-click="addEnroll('voting')">+问卷</button>
                     </div>
                 </nav>
             </div>

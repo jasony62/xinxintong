@@ -369,7 +369,10 @@ define(['frame'], function(ngApp) {
 			}
 		};
 		// 当前选中的行
-		$scope.selectedRows = {};
+		$scope.rows = {
+			allSelected: 'N',
+			selected: {}
+		};
 		$scope.selectedPlayers = [];
 		$scope.selectPlayer = function(player) {
 			if ($scope.selectedPlayers.indexOf(player) === -1) {
@@ -381,14 +384,14 @@ define(['frame'], function(ngApp) {
 		// 选中或取消选中所有行
 		$scope.selectAllRows = function(checked) {
 			var index = 0;
-			if (checked === true) {
+			if (checked === 'Y') {
 				$scope.selectedPlayers = [];
 				while (index < $scope.players.length) {
 					$scope.selectedPlayers.push($scope.players[index]);
-					$scope.selectedRows[index++] = true;
+					$scope.rows.selected[index++] = true;
 				}
-			} else if (checked === false) {
-				$scope.selectedRows = {};
+			} else if (checked === 'N') {
+				$scope.rows.selected = {};
 				$scope.selectedPlayers = [];
 			}
 		};
@@ -413,6 +416,9 @@ define(['frame'], function(ngApp) {
 							$scope.players.splice($scope.players.indexOf(player), 1);
 						}
 					});
+					$scope.rows.allSelected = 'N';
+					$scope.rows.selected = {};
+					$scope.selectedPlayers = [];
 				});
 			}
 		};
@@ -442,6 +448,9 @@ define(['frame'], function(ngApp) {
 							}
 						}
 					});
+					$scope.rows.allSelected = 'N';
+					$scope.rows.selected = {};
+					$scope.selectedPlayers = [];
 				});
 			}
 		};

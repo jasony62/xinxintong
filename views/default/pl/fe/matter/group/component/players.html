@@ -3,7 +3,7 @@
         <tr>
             <th style='width:72px'>操作</th>
             <th style='width:48px'>序号</th>
-            <th style='width:48px'><input type='checkbox' ng-model="allRowsSelected" ng-change="selectAllRows(allRowsSelected)"></th>
+            <th style='width:48px'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected" ng-change="selectAllRows(rows.allSelected)"></th>
             <th style='width:120px' ng-if="null===activeRound">分组</th>
             <th class='custom-col {{c.type}}' ng-repeat="c in app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
             <th style='width:72px'>操作</th>
@@ -20,7 +20,7 @@
                 </button>
             </td>
             <td>{{$index+1}}</td>
-            <td><input type='checkbox' ng-model="selectedRows[$index]" ng-change="selectPlayer(p)"></td>
+            <td><input type='checkbox' ng-model="rows.selected[$index]" ng-change="selectPlayer(p)"></td>
             <td ng-if="null===activeRound">{{p.round_title}}</td>
             <td ng-repeat="c in app.data_schemas">
                 <span ng-if="c.id.indexOf('member')===0">{{memberAttr(p.data, c.id)}}</span>

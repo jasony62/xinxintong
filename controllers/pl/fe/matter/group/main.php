@@ -119,7 +119,7 @@ class main extends \pl\fe\matter\base {
 		$app = $this->model('matter\group')->byId($appId);
 		/*记录操作日志*/
 		$app->type = 'group';
-		$this->model('log')->matterOp($site->id, $user, $app, 'C');
+		$this->model('matter\log')->matterOp($site->id, $user, $app, 'C');
 		/*记录和任务的关系*/
 		if (isset($mission)) {
 			$modelMis->addMatter($user, $site->id, $mission->id, $app);
@@ -177,7 +177,7 @@ class main extends \pl\fe\matter\base {
 
 		/* 记录操作日志 */
 		$app->type = 'group';
-		$this->model('log')->matterOp($site, $user, $app, 'C');
+		$this->model('matter\log')->matterOp($site, $user, $app, 'C');
 
 		/* 记录和任务的关系 */
 		if (isset($mission)) {
@@ -212,13 +212,13 @@ class main extends \pl\fe\matter\base {
 		if ($rst) {
 			$app = $this->model('matter\group')->byId($app, 'id,title,summary,pic');
 			$app->type = 'group';
-			$this->model('log')->matterOp($site, $user, $app, 'U');
+			$this->model('matter\log')->matterOp($site, $user, $app, 'U');
 		}
 
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 从登记活动导入数据
+	 * 删除所有分组
 	 */
 	public function configRule_action($site, $app) {
 		if (false === ($user = $this->accountUser())) {
@@ -229,7 +229,10 @@ class main extends \pl\fe\matter\base {
 		$rule = $this->getPostJson();
 		$modelRnd = $this->model('matter\group\round');
 
-		/*清除原有的规则*/
+		// 清除现有分组结果
+		$modelRnd->update('xxt_group_player', ['round_id' => '', 'round_title' => ''], ['aid' => $app]);
+
+		// 清除原有的规则
 		$modelRnd->delete(
 			'xxt_group_round',
 			["aid" => $app]
@@ -256,7 +259,7 @@ class main extends \pl\fe\matter\base {
 				$rounds[] = $round;
 			}
 		}
-		/*记录规则*/
+		// 记录规则
 		$rst = $modelRnd->update(
 			'xxt_group',
 			['group_rule' => $modelRnd->toJson($rule)],

@@ -1,5 +1,6 @@
 <div id='record-view'>
-    <div class='form-group form-inline'>
+    <!-- actions -->
+    <div class='form-group form-inline top'>
         <div class='form-group' ng-if='app.rounds'>
             <select class='form-control' title='登记轮次' ng-model='page.byRound' ng-options='r.rid as r.title for r in app.rounds' ng-change='doSearch(1)'>
                 <option value=>全部</option>
@@ -25,66 +26,82 @@
         </div>
         <button class='btn btn-success' ng-click='filter()'>筛选</button>
         <button class='btn btn-success' ng-click='verifyAll()'>全部通过审核</button>
-        <button class='btn btn-success' ng-click='batchVerify()'>批量通过审核</button>
-        <button class='btn btn-primary' ng-click="notify()">发送信息</button>
+        <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchVerify()'>批量通过审核</button>
+        <button class='btn btn-primary' ng-disabled="!countSelected()" ng-click="notify()">发送信息</button>
         <button class='btn btn-primary' ng-click="export()">导出全部数据</button>
     </div>
-    <div id='enrollRecords'>
-        <table class='table table-bordered'>
-            <thead>
-                <tr>
-                    <th style='width:40px'><input type='checkbox' ng-model="selectAll"></th>
-                    <th style='width:40px'></th>
-                    <th style='width:100px'>登记时间</th>
-                    <th class='custom-col' ng-repeat="c in app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
-                    <th style='width:140px'>昵称</th>
-                    <th style='width:80px'>审核通过</th>
-                    <th style='width:140px' ng-if="app.tags.length">标签</th>
-                    <th style='width:140px'>备注</th>
-                    <th style='width:60px' ng-if="app.can_invite==='Y'">邀请</th>
-                    <th style='width:72px'>操作</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat='r in records' class='record'>
-                    <td><input type='checkbox' ng-model='selected[$index]'></td>
-                    <td>{{(page.at-1)*page.size+$index+1}}</td>
-                    <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
-                    <td ng-repeat="c in app.data_schemas">
-                        <span ng-if="c.id.indexOf('member')===0">{{memberAttr(r.data, c.id)}}</span>
-                        <span ng-if="c.type!=='image'&&c.type!=='file'">{{value2Label(r.data[c.id], c.id)}}</span>
-                        <span ng-if="c.type==='image'">
-                            <img ng-repeat="img in r.data[c.id]" ng-src='{{img}}' />
-                        </span>
-                        <span ng-if="c.type==='file'" ng-init="files=json2Obj(r.data[c.id])">
-                            <span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
-                        </span>
-                    </td>
-                    <td>{{r.nickname}}</td>
-                    <td>{{r.verified}}</td>
-                    <td ng-if="app.tags.length">{{r.tags}}</td>
-                    <td>{{r.comment}}</td>
-                    <td ng-if="app.can_invite==='Y'">{{r.follower_num}}</td>
-                    <td>
-                        <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
-                            <span class='glyphicon glyphicon-remove'></span>
-                        </button>
-                        <button class='btn btn-xs btn-default' ng-click='editRecord(r)'>
-                            <span class='glyphicon glyphicon-edit'></span>
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <!-- end actions -->
+    <!-- records -->
+    <div class='middle'>
+        <div id='enrollRecords' class='form-group' tms-table-wrap ready='tmsTableWrapReady'>
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th style='width:72px'>操作</th>
+                        <th style='width:40px'>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
+                        </th>
+                        <th style='width:40px'></th>
+                        <th style='width:100px'>登记时间</th>
+                        <th class='custom-col' ng-repeat="c in app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
+                        <th style='width:140px'>昵称</th>
+                        <th style='width:80px'>审核通过</th>
+                        <th style='width:140px' ng-if="app.tags.length">标签</th>
+                        <th style='width:140px'>备注</th>
+                        <th style='width:60px' ng-if="app.can_invite==='Y'">邀请</th>
+                        <th style='width:72px'>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat='r in records' class='record'>
+                        <td>
+                            <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
+                                <span class='glyphicon glyphicon-remove'></span>
+                            </button>
+                            <button class='btn btn-xs btn-default' ng-click='editRecord(r)'>
+                                <span class='glyphicon glyphicon-edit'></span>
+                            </button>
+                        </td>
+                        <td><input type='checkbox' ng-model="rows.selected[$index]"></td>
+                        <td>{{(page.at-1)*page.size+$index+1}}</td>
+                        <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
+                        <td ng-repeat="c in app.data_schemas">
+                            <span ng-if="c.id.indexOf('member')===0">{{memberAttr(r.data, c.id)}}</span>
+                            <span ng-if="c.type!=='image'&&c.type!=='file'">{{value2Label(r.data[c.id], c.id)}}</span>
+                            <span ng-if="c.type==='image'">
+                                <img ng-repeat="img in r.data[c.id]" ng-src='{{img}}' />
+                            </span>
+                            <span ng-if="c.type==='file'" ng-init="files=json2Obj(r.data[c.id])">
+                                <span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                            </span>
+                        </td>
+                        <td>{{r.nickname}}</td>
+                        <td>{{r.verified}}</td>
+                        <td ng-if="app.tags.length">{{r.tags}}</td>
+                        <td>{{r.comment}}</td>
+                        <td ng-if="app.can_invite==='Y'">{{r.follower_num}}</td>
+                        <td>
+                            <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
+                                <span class='glyphicon glyphicon-remove'></span>
+                            </button>
+                            <button class='btn btn-xs btn-default' ng-click='editRecord(r)'>
+                                <span class='glyphicon glyphicon-edit'></span>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class='form-group form-inline'>
+            <button class='btn btn-danger' ng-click='empty()'>清空记录</button>
+            <button class='btn btn-default' ng-click='addRecord()'>手工添加</button>
+            <span>总数：{{page.total}}</span>
+            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+        </div>
     </div>
-    <div class='form-group form-inline'>
-        <button class='btn btn-danger' ng-click='empty()'>清空记录</button>
-        <button class='btn btn-default' ng-click='addRecord()'>手工添加</button>
-        <span>总数：{{page.total}}</span>
-        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
-    </div>
+    <!-- end records -->
     <!-- bottom navbar -->
-    <nav class="navbar navbar-default navbar-fixed-bottom">
+    <nav class="navbar navbar-default bottom">
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
                 <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布设置</a>

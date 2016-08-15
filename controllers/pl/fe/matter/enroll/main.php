@@ -161,7 +161,7 @@ class main extends \pl\fe\matter\base {
 		$app = $this->model('matter\enroll')->byId($appId);
 		/* 记录操作日志 */
 		$app->type = 'enroll';
-		$this->model('log')->matterOp($site->id, $user, $app, 'C');
+		$this->model('matter\log')->matterOp($site->id, $user, $app, 'C');
 		/* 记录和任务的关系 */
 		if (isset($mission->id)) {
 			$modelMis->addMatter($user, $site->id, $mission->id, $app);
@@ -244,7 +244,7 @@ class main extends \pl\fe\matter\base {
 
 		/*记录操作日志*/
 		$app->type = 'enroll';
-		$this->model('log')->matterOp($site, $user, $app, 'C');
+		$this->model('matter\log')->matterOp($site, $user, $app, 'C');
 
 		return new \ResponseData($app);
 	}
@@ -328,7 +328,7 @@ class main extends \pl\fe\matter\base {
 		$app = $modelApp->byId($newaid, ['cascaded' => 'N']);
 		/* 记录操作日志 */
 		$app->type = 'enroll';
-		$this->model('log')->matterOp($site, $user, $app, 'C');
+		$this->model('matter\log')->matterOp($site, $user, $app, 'C');
 
 		/* 记录和任务的关系 */
 		if (isset($mission)) {
@@ -376,7 +376,7 @@ class main extends \pl\fe\matter\base {
 			/*记录操作日志*/
 			$matter = $this->model('matter\\enroll')->byId($app, 'id,title,summary,pic');
 			$matter->type = 'enroll';
-			$this->model('log')->matterOp($site, $user, $matter, 'U');
+			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
 		}
 
 		return new \ResponseData($rst);
@@ -476,7 +476,7 @@ class main extends \pl\fe\matter\base {
 		if ($rst) {
 			$matter = $this->model('matter\\enroll')->byId($app, 'id,title,summary,pic');
 			$matter->type = 'enroll';
-			$this->model('log')->matterOp($site, $user, $matter, 'U');
+			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
 		}
 
 		return new \ResponseData($entryRule);
@@ -694,7 +694,7 @@ class main extends \pl\fe\matter\base {
 		}
 		/*记录操作日志*/
 		$app->type = 'enroll';
-		$this->model('log')->matterOp($site, $user, $app, 'D');
+		$this->model('matter\log')->matterOp($site, $user, $app, 'D');
 
 		return new \ResponseData($rst);
 	}

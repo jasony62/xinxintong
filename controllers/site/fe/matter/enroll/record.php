@@ -143,6 +143,20 @@ class record extends base {
 			}
 		}
 		/**
+		 * 检查用户是否已经做过报名
+		 * @todo 临时解决方案，通过前端逻辑控制有问题，应该直接在应用上设置
+		 */
+		if ($app->id === '57a48aec7f546' && empty($ek)) {
+			$q = [
+				'enroll_key',
+				'xxt_enroll_record',
+				"aid='{$app->id}' and userid='{$user->uid}'",
+			];
+			if ($existed = $this->model()->query_obj_ss($q)) {
+				$ek = $existed->enroll_key;
+			}
+		}
+		/**
 		 * 处理提交数据
 		 */
 		if (empty($ek)) {
@@ -165,9 +179,9 @@ class record extends base {
 			$rst = $modelRec->setData($user, $site, $app, $ek, $posted, $submitkey);
 			if ($rst[0] === true) {
 				$dbData = $modelRec->toJson($rst[1]);
-				/* 已经登记，更新原先提交的数据 */
+				// 已经登记，更新原先提交的数据，只要进行更新操作就设置为未审核通过的状态
 				$modelRec->update('xxt_enroll_record',
-					['enroll_at' => time(), 'data' => $dbData],
+					['enroll_at' => time(), 'verified' => 'N', 'data' => $dbData],
 					"enroll_key='$ek'"
 				);
 			}

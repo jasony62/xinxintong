@@ -49,7 +49,7 @@ class signin_model extends app_base {
 				/* 页面 */
 				$app->pages = \TMS_APP::M('matter\signin\page')->byApp($appId);
 				/* 轮次 */
-				$app->rounds = \TMS_APP::M('matter\signin\round')->byApp($app->siteid, $appId);
+				$app->rounds = \TMS_APP::M('matter\signin\round')->byApp($appId);
 			}
 		}
 

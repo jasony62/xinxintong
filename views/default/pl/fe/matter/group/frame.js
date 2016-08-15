@@ -20,7 +20,6 @@ define(['require'], function() {
 			controller: $controllerProvider.register
 		};
 		$routeProvider
-			.when('/rest/pl/fe/matter/group/player', new RouteParam('player'))
 			.otherwise(new RouteParam('setting'));
 
 		$locationProvider.html5Mode(true);

@@ -28,9 +28,10 @@ define(['frame'], function(ngApp) {
             http2.post(url, $scope.criteria, function(rsp) {
                 if (rsp.data) {
                     $scope.records = rsp.data.records ? rsp.data.records : [];
-                    rsp.data.total && ($scope.page.total = rsp.data.total);
+                    $scope.page.total = rsp.data.total;
                 } else {
                     $scope.records = [];
+                    $scope.page.total = 0;
                 }
                 angular.forEach($scope.records, function(record) {
                     if (record.data) {
@@ -80,9 +81,6 @@ define(['frame'], function(ngApp) {
             n: '评论数',
             v: 'remark'
         }];
-        // 选中的记录
-        $scope.selected = {};
-        $scope.selectAll = undefined;
         $scope.$on('search-tag.xxt.combox.done', function(event, aSelected) {
             $scope.criteria.tags = $scope.criteria.tags.concat(aSelected);
             $scope.doSearch();
@@ -96,8 +94,8 @@ define(['frame'], function(ngApp) {
             var i, record, records, eks, posted;
             records = [];
             eks = [];
-            for (i in $scope.selected) {
-                if ($scope.selected) {
+            for (i in $scope.rows.selected) {
+                if ($scope.rows.selected) {
                     record = $scope.records[i];
                     eks.push(record.enroll_key);
                     records.push(record);
@@ -125,12 +123,6 @@ define(['frame'], function(ngApp) {
                 });
             }
         });
-        $scope.viewUser = function(fan) {
-            //location.href = '/rest/mp/user?openid=' + fan.openid;
-        };
-        $scope.keywordKeyup = function(evt) {
-            evt.which === 13 && $scope.doSearch();
-        };
         $scope.memberAttr = function(val, key) {
             var keys;
             if (val && val.member) {
@@ -297,17 +289,19 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.verifyAll = function() {
-            http2.get('/rest/pl/fe/matter/enroll/record/verifyAll?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
-                angular.forEach($scope.records, function(record) {
-                    record.verified = 'Y';
+            if (window.confirm('确定审核通过所有记录（共' + $scope.page.total + '条）？')) {
+                http2.get('/rest/pl/fe/matter/enroll/record/verifyAll?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+                    angular.forEach($scope.records, function(record) {
+                        record.verified = 'Y';
+                    });
+                    noticebox.success('完成操作');
                 });
-                noticebox.success('完成操作');
-            });
+            }
         };
         $scope.batchVerify = function() {
             var eks = [];
-            for (var p in $scope.selected) {
-                if ($scope.selected[p] === true) {
+            for (var p in $scope.rows.selected) {
+                if ($scope.rows.selected[p] === true) {
                     eks.push($scope.records[p].enroll_key);
                 }
             }
@@ -315,8 +309,8 @@ define(['frame'], function(ngApp) {
                 http2.post('/rest/pl/fe/matter/enroll/record/batchVerify?site=' + $scope.siteId + '&app=' + $scope.id, {
                     eks: eks
                 }, function(rsp) {
-                    for (var p in $scope.selected) {
-                        if ($scope.selected[p] === true) {
+                    for (var p in $scope.rows.selected) {
+                        if ($scope.rows.selected[p] === true) {
                             $scope.records[p].verified = 'Y';
                         }
                     }
@@ -363,13 +357,31 @@ define(['frame'], function(ngApp) {
                 saveAs(blob, $scope.app.title + '.csv');
             });
         };
-        $scope.$watch('selectAll', function(nv) {
-            if (nv !== undefined && $scope.records) {
-                for (var i = $scope.records.length - 1; i >= 0; i--) {
-                    $scope.selected[i] = nv;
+        $scope.countSelected = function() {
+            var count = 0;
+            for (var p in $scope.rows.selected) {
+                if ($scope.rows.selected[p] === true) {
+                    count++;
                 }
             }
+            return count;
+        };
+        // 选中的记录
+        $scope.rows = {
+            allSelected: 'N',
+            selected: {}
+        };
+        $scope.$watch('rows.allSelected', function(checked) {
+            var index = 0;
+            if (checked === 'Y') {
+                while (index < $scope.records.length) {
+                    $scope.rows.selected[index++] = true;
+                }
+            } else if (checked === 'N') {
+                $scope.rows.selected = {};
+            }
         });
+        $scope.tmsTableWrapReady = 'N'; // 表格定义是否已经准备完毕
         $scope.$watch('app', function(app) {
             if (!app) return;
             var mapOfSchemaByType = {};
@@ -378,6 +390,7 @@ define(['frame'], function(ngApp) {
                 mapOfSchemaByType[schema.type].push(schema.id);
             });
             $scope.mapOfSchemaByType = mapOfSchemaByType;
+            $scope.tmsTableWrapReady = 'Y';
             $scope.doSearch();
         });
     }]);

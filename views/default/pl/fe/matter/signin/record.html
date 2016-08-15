@@ -1,5 +1,5 @@
 <div id='record-view'>
-    <ul class="nav nav-tabs" style="margin-bottom:15px;" ng-if="app.enroll_app_id">
+    <ul class="nav nav-tabs top" style="margin-bottom:15px;" ng-if="app.enroll_app_id">
         <li ng-class="{'active':recordSet==='signin'}">
             <a ng-click="chooseRecordSet('signin')">签到记录</a>
         </li>
@@ -7,7 +7,8 @@
             <a ng-click="chooseRecordSet('enroll')">报名记录</a>
         </li>
     </ul>
-    <div ng-if="recordSet==='signin'" ng-controller="ctrlSigninRecords">
+    <!-- signin -->
+    <div class='middle' ng-if="recordSet==='signin'" ng-controller="ctrlSigninRecords">
         <div class='form-group form-inline'>
             <div class='form-group' ng-if='app.rounds'>
                 <label>轮次</label>
@@ -115,7 +116,9 @@
             <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
         </div>
     </div>
-    <div ng-if="recordSet==='enroll'" ng-controller="ctrlEnrollRecords">
+    <!-- end signin -->
+    <!-- enroll -->
+    <div class='middle' ng-if="recordSet==='enroll'" ng-controller="ctrlEnrollRecords">
         <div class='form-group form-inline'>
             <div class='form-group' ng-if='app.rounds'>
                 <label>轮次</label>
@@ -182,8 +185,9 @@
             <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
         </div>
     </div>
+    <!-- end enroll -->
     <!-- bottom navbar -->
-    <nav class="navbar navbar-default navbar-fixed-bottom">
+    <nav class="navbar navbar-default bottom">
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
                 <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/signin/page?site={{siteId}}&id={{id}}">页面设置</a>

@@ -1,5 +1,7 @@
 define(['frame'], function(ngApp) {
+    'use strict';
     ngApp.provider.controller('ctrlRecord', ['$scope', function($scope) {
+        var mapOfRounds = {}; // 轮次id对应轮次对象
         // 当前处理的数据集
         $scope.recordSet = 'signin';
         $scope.chooseRecordSet = function(name) {
@@ -13,6 +15,26 @@ define(['frame'], function(ngApp) {
                 return {};
             }
         };
+        // 当前签到记录是否迟到？
+        $scope.isSigninLate = function(record, roundId) {
+            var round = mapOfRounds[roundId],
+                signinAt;
+
+            if (record && record.signin_log && round && round.late_at) {
+                signinAt = record.signin_log[roundId];
+                if (signinAt) {
+                    return signinAt > round.late_at;
+                }
+            }
+            return false;
+        };
+        $scope.$watch('app.rounds', function(rounds) {
+            if (rounds && rounds.length) {
+                angular.forEach(rounds, function(round) {
+                    mapOfRounds[round.rid] = round;
+                });
+            }
+        });
     }]);
     ngApp.provider.controller('ctrlSigninRecords', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
         function searchSigninRecords(page) {
@@ -113,8 +135,6 @@ define(['frame'], function(ngApp) {
                 return d.getTime();
             }
         };
-        $scope.selected = {};
-        $scope.selectAll = undefined;
         $scope.$on('search-tag.xxt.combox.done', function(event, aSelected) {
             $scope.criteria.tags = $scope.criteria.tags.concat(aSelected);
             $scope.doSearch();
@@ -319,13 +339,21 @@ define(['frame'], function(ngApp) {
                 saveAs(blob, $scope.app.title + '.csv');
             });
         };
-        $scope.$watch('selectAll', function(nv) {
-            if (nv !== undefined && $scope.records) {
-                for (var i = $scope.records.length - 1; i >= 0; i--) {
-                    $scope.selected[i] = nv;
+        $scope.rows = {
+            allSelected: 'N',
+            selected: {}
+        };
+        $scope.$watch('rows.allSelected', function(checked) {
+            var index = 0;
+            if (checked === 'Y') {
+                while (index < $scope.records.length) {
+                    $scope.rows.selected[index++] = true;
                 }
+            } else if (checked === 'N') {
+                $scope.rows.selected = {};
             }
         });
+        $scope.tmsTableWrapReady = 'N';
         $scope.enrollDateSchemas = [];
         $scope.$watch('app', function(app) {
             if (!app) return;
@@ -349,6 +377,7 @@ define(['frame'], function(ngApp) {
                     }
                 });
             }
+            $scope.tmsTableWrapReady = 'Y';
             $scope.doSearch();
         });
     }]);
@@ -489,6 +518,7 @@ define(['frame'], function(ngApp) {
                 saveAs(blob, $scope.app.title + '.csv');
             });
         };
+        $scope.tmsTableWrapReady = 'N';
         $scope.$watch('app', function(app) {
             if (!app) return;
             var mapOfSchemaByType = {};
@@ -499,6 +529,8 @@ define(['frame'], function(ngApp) {
             });
 
             $scope.mapOfSchemaByType = mapOfSchemaByType;
+
+            $scope.tmsTableWrapReady = 'Y';
 
             $scope.doSearch();
         });

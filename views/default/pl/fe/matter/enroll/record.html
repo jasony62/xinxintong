@@ -29,11 +29,14 @@
         <button class='btn btn-primary' ng-disabled="!countSelected()" ng-click="notify()">发送信息</button>
         <button class='btn btn-primary' ng-click="export()">导出全部数据</button>
     </div>
-    <div id='enrollRecords'>
+    <div id='enrollRecords' class='form-group' tms-table-wrap ready='tmsTableWrapReady'>
         <table class='table table-bordered'>
             <thead>
                 <tr>
-                    <th style='width:40px'><input type='checkbox' ng-model="selectAll"></th>
+                    <th style='width:72px'>操作</th>
+                    <th style='width:40px'>
+                        <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
+                    </th>
                     <th style='width:40px'></th>
                     <th style='width:100px'>登记时间</th>
                     <th class='custom-col' ng-repeat="c in app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
@@ -47,7 +50,15 @@
             </thead>
             <tbody>
                 <tr ng-repeat='r in records' class='record'>
-                    <td><input type='checkbox' ng-model='selected[$index]'></td>
+                    <td>
+                        <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                        <button class='btn btn-xs btn-default' ng-click='editRecord(r)'>
+                            <span class='glyphicon glyphicon-edit'></span>
+                        </button>
+                    </td>
+                    <td><input type='checkbox' ng-model="rows.selected[$index]"></td>
                     <td>{{(page.at-1)*page.size+$index+1}}</td>
                     <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                     <td ng-repeat="c in app.data_schemas">

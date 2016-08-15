@@ -36,12 +36,15 @@
                 </div>
             </div>
         </div>
-        <div id='signinRecords'>
+        <div id='signinRecords' class='form-group' tms-table-wrap ready='tmsTableWrapReady'>
             <table class='table table-bordered'>
                 <thead>
                     <tr>
-                        <th style='width:40px'><input type='checkbox' ng-model="selectAll"></th>
+                        <th style='width:72px'>操作</th>
                         <th style='width:40px'></th>
+                        <th style='width:40px'>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
+                        </th>
                         <th style='width:100px'>登记时间</th>
                         <th class='custom-col signin' ng-repeat="c in app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
                         <th class='custom-col enroll' ng-repeat="c in enrollDataSchemas" title="{{c.ops}}">{{c.title}}</th>
@@ -56,8 +59,16 @@
                 </thead>
                 <tbody>
                     <tr ng-repeat='r in records'>
-                        <td><input type='checkbox' ng-model='selected[$index]'></td>
+                        <td>
+                            <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
+                                <span class='glyphicon glyphicon-remove'></span>
+                            </button>
+                            <button class='btn btn-xs btn-default' ng-click='editRecord(r)'>
+                                <span class='glyphicon glyphicon-edit'></span>
+                            </button>
+                        </td>
                         <td>{{(page.at-1)*page.size+$index+1}}</td>
+                        <td><input type='checkbox' ng-model="rows.selected[$index]"></td>
                         <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                         <td class='signin' ng-repeat="c in app.data_schemas">
                             <span ng-if="c.id.indexOf('member')===0">{{memberAttr(r.data, c.id)}}</span>
@@ -80,9 +91,9 @@
                             </span>
                         </td>
                         <td>{{r.verified}}</td>
-                        <td ng-if="page.byRound"><span ng-if="r.signin_log[page.byRound]">{{r.signin_log[page.byRound]*1000|date:'MM-dd HH:mm'}}</span></td>
+                        <td ng-if="page.byRound"><span ng-class="{'signin_late':isSigninLate(r,page.byRound)}" ng-if="r.signin_log[page.byRound]">{{r.signin_log[page.byRound]*1000|date:'MM-dd HH:mm'}}</span></td>
                         <td ng-if="!page.byRound">{{r.signin_num}}</td>
-                        <td ng-if="!page.byRound" ng-repeat="rnd in app.rounds"><span ng-if="r.signin_log[rnd.rid]">{{r.signin_log[rnd.rid]*1000|date:'MM-dd HH:mm'}}</span></td>
+                        <td ng-if="!page.byRound" ng-repeat="rnd in app.rounds"><span ng-class="{'signin_late':isSigninLate(r,rnd.rid)}" ng-if="r.signin_log[rnd.rid]">{{r.signin_log[rnd.rid]*1000|date:'MM-dd HH:mm'}}</span></td>
                         <td ng-if="app.tags.length">{{r.tags}}</td>
                         <td>{{r.comment}}</td>
                         <td>
@@ -96,12 +107,12 @@
                     </tr>
                 </tbody>
             </table>
-            <div class='form-group form-inline'>
-                <button class='btn btn-danger' ng-click='empty()'>清空记录</button>
-                <button type="button" class="btn btn-default" ng-click='addRecord()'>添加签到记录</button>
-                <span>总数：{{page.total}}</span>
-                <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
-            </div>
+        </div>
+        <div class='form-group form-inline'>
+            <button class='btn btn-danger' ng-click='empty()'>清空记录</button>
+            <button type="button" class="btn btn-default" ng-click='addRecord()'>添加签到记录</button>
+            <span>总数：{{page.total}}</span>
+            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
         </div>
     </div>
     <div ng-if="recordSet==='enroll'" ng-controller="ctrlEnrollRecords">
@@ -127,7 +138,7 @@
                 </div>
             </div>
         </div>
-        <div id='enrollRecords'>
+        <div id='enrollRecords' class-'form-group' tms-table-wrap ready='tmsTableWrapReady'>
             <table class='table table-bordered'>
                 <thead>
                     <tr>
@@ -159,16 +170,16 @@
                         <td>{{r.verified}}</td>
                         <td ng-if="app.enrollApp.tags.length">{{r.tags}}</td>
                         <td>{{r.comment}}</td>
-                        <td ng-if="page.byRound"><span ng-if="r._signinRecord.signin_log[page.byRound]">{{r._signinRecord.signin_log[page.byRound]*1000|date:'MM-dd HH:mm'}}</span></td>
+                        <td ng-if="page.byRound"><span ng-class="{'signin_late':isSigninLate(r._signinRecord,page.byRound)}" ng-if="r._signinRecord.signin_log[page.byRound]">{{r._signinRecord.signin_log[page.byRound]*1000|date:'MM-dd HH:mm'}}</span></td>
                         <td ng-if="!page.byRound">{{r._signinRecord.signin_num}}</td>
-                        <td ng-if="!page.byRound" ng-repeat="rnd in app.rounds"><span ng-if="r._signinRecord.signin_log[rnd.rid]">{{r._signinRecord.signin_log[rnd.rid]*1000|date:'MM-dd HH:mm'}}</span></td>
+                        <td ng-if="!page.byRound" ng-repeat="rnd in app.rounds"><span ng-class="{'signin_late':isSigninLate(r._signinRecord,rnd.rid)}" ng-if="r._signinRecord.signin_log[rnd.rid]">{{r._signinRecord.signin_log[rnd.rid]*1000|date:'MM-dd HH:mm'}}</span></td>
                     </tr>
                 </tbody>
             </table>
-            <div class='form-group form-inline'>
-                <span>总数：{{page.total}}</span>
-                <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
-            </div>
+        </div>
+         <div class='form-group form-inline'>
+            <span>总数：{{page.total}}</span>
+            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
         </div>
     </div>
     <!-- bottom navbar -->

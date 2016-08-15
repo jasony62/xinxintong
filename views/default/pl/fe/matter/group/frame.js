@@ -24,39 +24,6 @@ define(['require'], function() {
 
 		$locationProvider.html5Mode(true);
 	}]);
-	ngApp.directive('tmsTableWrap', function() {
-		return {
-			restrict: 'A',
-			scope: {
-				minColWidth: '@',
-				ready: '='
-			},
-			link: function(scope, elem, attrs) {
-				scope.$watch('ready', function(ready) {
-					if (ready === 'Y') {
-						var eleWrap = elem[0],
-							eleTable = eleWrap.querySelector('table'),
-							minColWidth = scope.minColWidth || 120,
-							eleCols, tableWidth = 0;
-
-						if (eleTable) {
-							eleWrap.style.overflowX = 'auto';
-							eleTable.style.maxWidth = 'none';
-							eleCols = eleTable.querySelectorAll('th');
-							angular.forEach(eleCols, function(eleCol) {
-								if (eleCol.style.width) {
-									tableWidth += parseInt(eleCol.style.width.replace('px', ''));
-								} else {
-									tableWidth += minColWidth;
-								}
-								eleTable.style.width = tableWidth + 'px';
-							});
-						}
-					}
-				});
-			}
-		}
-	});
 	ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', 'noticebox', function($scope, $location, $q, http2, noticebox) {
 		var ls = $location.search(),
 			modifiedData = {};

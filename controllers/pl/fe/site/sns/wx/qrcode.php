@@ -70,11 +70,11 @@ class qrcode extends \pl\fe\base {
 		/**
 		 * 获取可用的场景ID
 		 */
-		$q = array(
+		$q = [
 			'max(scene_id)',
 			'xxt_call_qrcode_wx',
-			"siteid='$site' and expire_at=0",
-		);
+			"siteid='$site' and scene_id<100000",
+		];
 		if ($scene_id = $this->model()->query_val_ss($q)) {
 			$scene_id++;
 		} else {

@@ -195,7 +195,7 @@ class record extends base {
 		/**
 		 * 检查登记数量
 		 */
-		if (empty($ek) && $app->count->limit > 0) {
+		if (empty($ek) && $app->count_limit > 0) {
 
 		}
 		/**

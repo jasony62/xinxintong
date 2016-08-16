@@ -50,6 +50,18 @@ class qrcode extends \pl\fe\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
+		$modelWx = $this->model('sns\wx');
+		$snsSiteId = $site;
+		if (false === ($wxConfig = $modelWx->bySite($snsSiteId)) || $wxConfig->joined !== 'Y') {
+			$snsSiteId = 'platform';
+			$wxConfig = $modelWx->bySite($snsSiteId);
+		}
+
+		if ($wxConfig->can_qrcode === 'N') {
+			return new \ResponseError('公众号还没有开通场景二维码接口');
+		}
+
 		/**
 		 * 获取可用的场景ID
 		 */
@@ -66,7 +78,7 @@ class qrcode extends \pl\fe\base {
 		/**
 		 * 生成二维码
 		 */
-		$wx = $this->model('sns\wx')->bySite($site);
+		$wx = $modelWx->bySite($site);
 		$proxy = $this->model('sns\wx\proxy', $wx);
 		$rst = $proxy->qrcodeCreate($scene_id, false);
 		if ($rst[0] === false) {
@@ -140,6 +152,10 @@ class qrcode extends \pl\fe\base {
 	 * 只要做了扫描，二维码就失效（删除掉）
 	 */
 	public function createOneOff_action($site, $matter_type, $matter_id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$modelWx = $this->model('sns\wx');
 		$snsSiteId = $site;
 		if (false === ($wxConfig = $modelWx->bySite($snsSiteId)) || $wxConfig->joined !== 'Y') {

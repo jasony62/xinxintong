@@ -42,7 +42,12 @@
                 <nav class="navbar navbar-default tms-top">
                     <div class='container-fluid'>
                         <ul class="nav navbar-nav">
-                            <li class='active'><a href='#'>全部</a></li>
+                            <li ng-class="{'active':matterType===''}"><a href='#' ng-click="list()">全部</a></li>
+                            <li ng-class="{'active':matterType==='article'}"><a href='#' ng-click="list('article')">图文</a></li>
+                            <li ng-class="{'active':matterType==='registration'}"><a href='#' ng-click="list('registration')">报名</a></li>
+                            <li ng-class="{'active':matterType==='signin'}"><a href='#' ng-click="list('signin')">签到</a></li>
+                            <li ng-class="{'active':matterType==='group'}"><a href='#' ng-click="list('group')">分组</a></li>
+                            <li ng-class="{'active':matterType==='voting'}"><a href='#' ng-click="list('voting')">问卷</a></li>
                         </ul>
                     </div>
                 </nav>
@@ -52,8 +57,8 @@
                             <h4 class='title' ng-bind='m.title'></h4>
                             <p class='summary' ng-bind='m.summary'></p>
                             <div class='attrs'>
-                                <div class='operator' ng-bind='m._operator'></div>
-                                <div class='operateAt' ng-bind="m._operateAt*1000|date:'yy-MM-dd'"></div>
+                                <div class='operator' ng-bind='m._operator||m.modifier_name'></div>
+                                <div class='operateAt' ng-bind="(m._operateAt||m.modify_at)*1000|date:'yy-MM-dd'"></div>
                             </div>
                         </div>
                     </div>
@@ -64,12 +69,15 @@
                     </div>
                 </div>
                 <nav class="navbar navbar-default tms-bottom">
-                    <div class="navbar-form">
+                    <div class="navbar-form" ng-if="matterType===''">
                         <button class='btn btn-lg btn-success' ng-click="addArticle()">+图文</button>
                         <button class='btn btn-lg btn-success' ng-click="addEnroll('registration')">+报名</button>
                         <button class='btn btn-lg btn-success' ng-click="addSignin()">+签到</button>
                         <button class='btn btn-lg btn-success' ng-click="addGroup()">+分组</button>
-                        <button class='btn btn-lg btn-success' ng-click="addEnroll('voting')">+评价</button>
+                        <button class='btn btn-lg btn-success' ng-click="addEnroll('voting')">+问卷</button>
+                    </div>
+                    <div class="navbar-form" ng-if="matterType!==''" style="text-align:center">
+                        <button class='btn btn-lg btn-success' ng-click="addMatter()">+新建</button>
                     </div>
                 </nav>
             </div>

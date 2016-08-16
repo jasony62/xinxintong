@@ -1,11 +1,11 @@
 <?php
-namespace pl\fe\shop;
+namespace pl\fe\template;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
- * 素材模版市场
+ * 应用模版商店
  */
-class shelf extends \pl\fe\base {
+class shop extends \pl\fe\base {
 
 	public function get_access_rule() {
 		$rule_action['rule_type'] = 'black';
@@ -14,15 +14,11 @@ class shelf extends \pl\fe\base {
 		return $rule_action;
 	}
 	/**
-	 *
+	 * 注册用户模板管理界面
 	 */
 	public function index_action($site) {
-		$params = array(
-			'mpid' => $site,
-		);
-
-		\TPL::assign('params', $params);
-		$this->view_action('/shop/shelf');
+		\TPL::output('/pl/fe/template/main');
+		exit;
 	}
 	/**
 	 *
@@ -56,11 +52,11 @@ class shelf extends \pl\fe\base {
 		$model = $this->model();
 		$matterType = $model->escape($matterType);
 
-		$q = array(
+		$q = [
 			's.*',
 			"xxt_shop_matter s",
-			"s.matter_type='$matterType' and (creater='{$user->id}' or visible_scope='A')",
-		);
+			"s.matter_type='$matterType' and visible_scope='A'",
+		];
 		$q2 = [
 			'o' => 'put_at desc',
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
@@ -72,7 +68,7 @@ class shelf extends \pl\fe\base {
 			$total = 0;
 		}
 
-		return new \ResponseData(array('templates' => $items, 'total' => $total));
+		return new \ResponseData(['templates' => $items, 'total' => $total]);
 	}
 	/**
 	 * 素材上架
@@ -80,15 +76,14 @@ class shelf extends \pl\fe\base {
 	 * @param string $site
 	 * @param string $scope [U|A]
 	 */
-	public function put_action($site, $scope) {
+	public function put_action($site) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$matter = $this->getPostJson();
-		$options = ['scope' => $scope];
 
-		$item = $this->model('shop\shelf')->putMatter($site, $user, $matter, $options);
+		$item = $this->model('template\shop')->putMatter($site, $user, $matter);
 
 		return new \ResponseData($item);
 	}

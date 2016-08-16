@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
 	'use strict';
-	ngApp.provider.controller('ctrlPublish', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
+	ngApp.provider.controller('ctrlPublish', ['$scope', 'http2', 'mediagallery', 'templateShop', function($scope, http2, mediagallery, templateShop) {
 		(function() {
 			new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
 		})();
@@ -14,12 +14,6 @@ define(['frame'], function(ngApp) {
 			$scope.entry = entry;
 		});
 		$scope.opUrl = 'http://' + location.host + '/rest/site/op/matter/enroll?site=' + $scope.siteId + '&app=' + $scope.id;
-		$scope.stop = function() {
-			$scope.app.state = 1;
-			$scope.update('state').then(function() {
-				location.href = '/rest/pl/fe/matter/enroll/preview?site=' + $scope.siteId + '&id=' + $scope.id;
-			});
-		};
 		$scope.setPic = function() {
 			var options = {
 				callback: function(url) {
@@ -39,6 +33,9 @@ define(['frame'], function(ngApp) {
 		$scope.summaryOfRecords().then(function(data) {
 			$scope.summary = data;
 		});
+		$scope.shareAsTemplate = function() {
+			templateShop.share($scope.siteId, $scope.app);
+		};
 	}]);
 	/**
 	 * app setting controller
@@ -100,13 +97,10 @@ define(['frame'], function(ngApp) {
 			});
 		}
 	}]);
-	ngApp.provider.controller('ctrlPreview', ['$scope', 'http2', 'templateShop', function($scope, http2, templateShop) {
+	ngApp.provider.controller('ctrlPreview', ['$scope', 'http2', function($scope, http2) {
 		var previewURL = '/rest/site/fe/matter/enroll/preview?site=' + $scope.siteId + '&app=' + $scope.id + '&start=Y';
 		$scope.params = {
 			openAt: 'ontime'
-		};
-		$scope.shareAsTemplate = function() {
-			templateShop.share($scope.siteId, $scope.app);
 		};
 		$scope.$watch('params', function(params) {
 			if (params) {

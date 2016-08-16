@@ -3,23 +3,25 @@ define([], function() {
 	var base = {
 			title: '',
 			type: '',
+			unique: 'N',
+			_ver: 1
 		},
 		prefab = {
 			'name': {
-				title: '姓名',
-				id: 'name'
+				id: 'name',
+				title: '姓名'
 			},
 			'mobile': {
-				title: '手机',
-				id: 'mobile'
+				id: 'mobile',
+				title: '手机'
 			},
 			'email': {
-				title: '邮箱',
-				id: 'email'
+				id: 'email',
+				title: '邮箱'
 			},
 			'phase': {
-				title: '项目阶段',
-				id: 'phase'
+				id: 'phase',
+				title: '项目阶段'
 			}
 		};
 	return {
@@ -91,6 +93,12 @@ define([], function() {
 			}
 
 			return schema;
+		},
+		_upgrade: function(schema) {
+			if (schema._ver === undefined) {
+				schema.unique = 'N';
+				schema._ver = 1;
+			}
 		}
 	}
 });

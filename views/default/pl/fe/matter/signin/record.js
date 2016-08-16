@@ -1,5 +1,7 @@
 define(['frame'], function(ngApp) {
+    'use strict';
     ngApp.provider.controller('ctrlRecord', ['$scope', function($scope) {
+        var mapOfRounds = {}; // 轮次id对应轮次对象
         // 当前处理的数据集
         $scope.recordSet = 'signin';
         $scope.chooseRecordSet = function(name) {
@@ -13,6 +15,26 @@ define(['frame'], function(ngApp) {
                 return {};
             }
         };
+        // 当前签到记录是否迟到？
+        $scope.isSigninLate = function(record, roundId) {
+            var round = mapOfRounds[roundId],
+                signinAt;
+
+            if (record && record.signin_log && round && round.late_at) {
+                signinAt = record.signin_log[roundId];
+                if (signinAt) {
+                    return signinAt > round.late_at;
+                }
+            }
+            return false;
+        };
+        $scope.$watch('app.rounds', function(rounds) {
+            if (rounds && rounds.length) {
+                angular.forEach(rounds, function(round) {
+                    mapOfRounds[round.rid] = round;
+                });
+            }
+        });
     }]);
     ngApp.provider.controller('ctrlSigninRecords', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
         function searchSigninRecords(page) {
@@ -113,14 +135,6 @@ define(['frame'], function(ngApp) {
                 return d.getTime();
             }
         };
-        $scope.signinStartAt = startAt.getTime() / 1000;
-        $scope.signinEndAt = endAt.getTime() / 1000;
-        $scope.selected = {};
-        $scope.selectAll = undefined;
-        $scope.$on('xxt.tms-datepicker.change', function(evt, data) {
-            $scope[data.state] = data.value;
-            $scope.doSearch(1);
-        });
         $scope.$on('search-tag.xxt.combox.done', function(event, aSelected) {
             $scope.criteria.tags = $scope.criteria.tags.concat(aSelected);
             $scope.doSearch();
@@ -130,12 +144,6 @@ define(['frame'], function(ngApp) {
             $scope.criteria.tags.splice(i, 1);
             $scope.doSearch();
         });
-        $scope.viewUser = function(fan) {
-            //location.href = '/rest/mp/user?openid=' + fan.openid;
-        };
-        $scope.keywordKeyup = function(evt) {
-            evt.which === 13 && $scope.doSearch();
-        };
         $scope.memberAttr = function(val, key) {
             var keys;
             if (val.member) {
@@ -210,10 +218,10 @@ define(['frame'], function(ngApp) {
         };
         $scope.editRecord = function(record) {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/signin/component/recordEditor.html?_=1',
+                templateUrl: '/views/default/pl/fe/matter/signin/component/recordEditor.html?_=2',
                 controller: 'ctrlEditor',
                 backdrop: 'static',
-                windowClass: 'auto-height',
+                windowClass: 'auto-height middle-width',
                 resolve: {
                     app: function() {
                         return $scope.app;
@@ -240,9 +248,9 @@ define(['frame'], function(ngApp) {
         };
         $scope.addRecord = function() {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/signin/component/recordEditor.html?_=1',
+                templateUrl: '/views/default/pl/fe/matter/signin/component/recordEditor.html?_=2',
                 controller: 'ctrlEditor',
-                windowClass: 'auto-height',
+                windowClass: 'auto-height middle-width',
                 resolve: {
                     app: function() {
                         return $scope.app;
@@ -319,6 +327,7 @@ define(['frame'], function(ngApp) {
 
             url = '/rest/pl/fe/matter/signin/record/export';
             url += '?site=' + $scope.siteId + '&app=' + $scope.id;
+            $scope.page.byRound && (url += '&round=' + $scope.page.byRound);
 
             http2.post(url, params, function(rsp) {
                 var blob;
@@ -330,13 +339,21 @@ define(['frame'], function(ngApp) {
                 saveAs(blob, $scope.app.title + '.csv');
             });
         };
-        $scope.$watch('selectAll', function(nv) {
-            if (nv !== undefined && $scope.records) {
-                for (var i = $scope.records.length - 1; i >= 0; i--) {
-                    $scope.selected[i] = nv;
+        $scope.rows = {
+            allSelected: 'N',
+            selected: {}
+        };
+        $scope.$watch('rows.allSelected', function(checked) {
+            var index = 0;
+            if (checked === 'Y') {
+                while (index < $scope.records.length) {
+                    $scope.rows.selected[index++] = true;
                 }
+            } else if (checked === 'N') {
+                $scope.rows.selected = {};
             }
         });
+        $scope.tmsTableWrapReady = 'N';
         $scope.enrollDateSchemas = [];
         $scope.$watch('app', function(app) {
             if (!app) return;
@@ -360,6 +377,7 @@ define(['frame'], function(ngApp) {
                     }
                 });
             }
+            $scope.tmsTableWrapReady = 'Y';
             $scope.doSearch();
         });
     }]);
@@ -485,8 +503,10 @@ define(['frame'], function(ngApp) {
                 criteria: $scope.criteria
             };
 
-            url = '/rest/pl/fe/matter/enroll/record/export';
-            url += '?site=' + $scope.siteId + '&app=' + $scope.app.enrollApp.id;
+            url = '/rest/pl/fe/matter/signin/record/exportByEnroll';
+            url += '?site=' + $scope.siteId; // todo
+            url += '&app=' + $scope.id;
+            $scope.page.byRound && (url += '&round=' + $scope.page.byRound);
 
             http2.post(url, params, function(rsp) {
                 var blob;
@@ -498,6 +518,7 @@ define(['frame'], function(ngApp) {
                 saveAs(blob, $scope.app.title + '.csv');
             });
         };
+        $scope.tmsTableWrapReady = 'N';
         $scope.$watch('app', function(app) {
             if (!app) return;
             var mapOfSchemaByType = {};
@@ -508,6 +529,8 @@ define(['frame'], function(ngApp) {
             });
 
             $scope.mapOfSchemaByType = mapOfSchemaByType;
+
+            $scope.tmsTableWrapReady = 'Y';
 
             $scope.doSearch();
         });
@@ -574,7 +597,7 @@ define(['frame'], function(ngApp) {
             $mi.dismiss('cancel');
         };
     }]);
-    ngApp.provider.controller('ctrlEditor', ['$scope', '$uibModalInstance', '$sce', 'app', 'record', function($scope, $uibModalInstance, $sce, app, record) {
+    ngApp.provider.controller('ctrlEditor', ['$scope', '$uibModalInstance', '$sce', 'app', 'record', function($scope, $mi, $sce, app, record) {
         var p, col, files;
         if (record.data) {
             for (p in app.data_schemas) {
@@ -618,11 +641,12 @@ define(['frame'], function(ngApp) {
             p.verified = record.verified;
             p.tags = record.tags = record.aTags.join(',');
             p.comment = record.comment;
+            p.signin_log = record.signin_log;
 
-            $uibModalInstance.close([p, $scope.aTags]);
+            $mi.close([p, $scope.aTags]);
         };
         $scope.cancel = function() {
-            $uibModalInstance.dismiss('cancel');
+            $mi.dismiss('cancel');
         };
         $scope.chooseImage = function(imgFieldName, count, from) {
             var data = $scope.record.data;
@@ -679,6 +703,12 @@ define(['frame'], function(ngApp) {
         });
         $scope.$on('tag.xxt.combox.del', function(event, removed) {
             $scope.record.aTags.splice($scope.record.aTags.indexOf(removed), 1);
+        });
+        $scope.$on('xxt.tms-datepicker.change', function(event, data) {
+            if (data.state === 'signinAt') {
+                !record.signin_log && (record.signin_log = {});
+                record.signin_log[data.obj.rid] = data.value;
+            }
         });
     }]);
 });

@@ -43,8 +43,10 @@ class main extends base {
 			/* 检查是否需要第三方社交帐号OAuth */
 			$this->_requireSnsOAuth($site, $app);
 		}
-		/* 判断活动的开始结束时间 */
-		$ignoretime === 'N' && $this->_isValid($app);
+		/* 判断活动的开始结束时间。允许指定参数绕过限制，应该改为更严格的检查 */
+		if (empty($page) && $ignoretime === 'N') {
+			$this->_isValid($app);
+		}
 		/* 计算打开哪个页面 */
 		if (empty($page)) {
 			$oPage = $this->_defaultPage($site, $app, true);
@@ -127,10 +129,18 @@ class main extends base {
 	private function _isValid(&$app) {
 		$tipPage = false;
 		$current = time();
-		if ($app->start_at != 0 && !empty($app->before_start_page) && $current < $app->start_at) {
-			$tipPage = $app->before_start_page;
-		} else if ($app->end_at != 0 && !empty($app->after_end_page) && $current > $app->end_at) {
-			$tipPage = $app->after_end_page;
+		if ($app->start_at != 0 && $current < $app->start_at) {
+			if (empty($app->before_start_page)) {
+				$this->outputError('【' . $app->title . '】没有开始', $app->title);
+			} else {
+				$tipPage = $app->before_start_page;
+			}
+		} else if ($app->end_at != 0 && $current > $app->end_at) {
+			if (empty($app->after_end_page)) {
+				$this->outputError('【' . $app->title . '】已经结束', $app->title);
+			} else {
+				$tipPage = $app->after_end_page;
+			}
 		}
 		if ($tipPage !== false) {
 			$mapPages = array();

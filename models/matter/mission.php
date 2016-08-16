@@ -131,16 +131,19 @@ class mission_model extends app_base {
 	/**
 	 *
 	 */
-	public function &mattersById($siteId, $id, $options = array()) {
-		$matters = array();
+	public function &mattersById($siteId, $id, $matterType = null, $options = array()) {
+		$matters = [];
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$q = array(
+
+		$q = [
 			$fields,
 			'xxt_mission_matter',
-			" mission_id=$id",
-		);
-		$q2 = array('o' => 'create_at desc');
+			["mission_id" => $id],
+		];
+		!empty($matterType) && $q[2]['matter_type'] = $matterType;
+		$q2 = ['o' => 'create_at desc'];
 		$mms = $this->query_objs_ss($q, $q2);
+
 		foreach ($mms as &$mm) {
 			if ($matter = \TMS_APP::M('matter\\' . $mm->matter_type)->byId($mm->matter_id)) {
 				$matter->type = $mm->matter_type;

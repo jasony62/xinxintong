@@ -1,14 +1,14 @@
 <div class='tile'>
     <div class='form-group'>
-        <div class='help-block'>项目名称：最多35个汉字，70个英文字符</div>
+        <label>项目名称：最多35个汉字，70个英文字符</label>
         <input type="text" class="form-control" ng-model='editing.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
     </div>
     <div class='form-group'>
-        <div class='help-block'>摘要：最多120个汉字，240个英文字符</div>
+        <label>摘要：最多120个汉字，240个英文字符</label>
         <textarea class='form-control' ng-model="editing.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')" rows='3'></textarea>
     </div>
     <div class='form-group'>
-        <div class='help-block'>头图（可选）：建议尺寸：900像素 * 500像素</div>
+        <label>头图（可选）：建议尺寸：900像素 * 500像素</label>
         <div style="width:182px;border:1px solid #CCC">
             <div style="height:100px;text-align:center;padding-top:32px" ng-if="!editing.pic">
                 <button class='btn btn-default' ng-click='setPic();'>
@@ -26,17 +26,17 @@
         </div>
     </div>
     <div class='form-group'>
-        <div class='help-block'>开始时间（可选）</div>
+        <label>开始时间（可选）</label>
         <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='editing.start_at' tms-state='mission.start_at' tms-mask="y,m,d"></tms-datepicker>
-        <div class='help-block'>结束时间（可选）</div>
+        <label>结束时间（可选）</label>
         <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='editing.end_at' tms-state='mission.end_at' tms-mask="y,m,d,23,59"></tms-datepicker>
     </div>
     <div class='form-group'>
-        <div class='help-block'>扩展属性1</div>
+        <label>扩展属性1</label>
         <input type="text" class="form-control" ng-model="editing.extattrs.attr1" tms-auto-update tms-wait=1000 tms-update="update('extattrs')">
     </div>
     <div class='form-group'>
-        <div class='help-block'>扩展属性2</div>
+        <label>扩展属性2</label>
         <input type="text" class="form-control" ng-model="editing.extattrs.attr2" tms-auto-update tms-wait=1000 tms-update="update('extattrs')">
     </div>
 </div><!--tile-->

@@ -60,7 +60,7 @@ define([], function() {
                 required: 'Y',
                 showname: 'label'
             },
-            schema: schema
+            schema: schema,
         };
         if (/single|multiple|phase/.test(schema.type)) {
             oWrap.config.align = 'V';

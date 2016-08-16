@@ -4,7 +4,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
         var deferred;
         deferred = $q.defer();
         $uibModal.open({
-            templateUrl: '/static/template/templateShop.html?v=2',
+            templateUrl: '/static/template/templateShop.html?_=2',
             backdrop: 'static',
             size: 'lg',
             windowClass: 'auto-height',
@@ -76,7 +76,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                     page = $scope.data2.selectedPage.name;
                     elSimulator.contentWindow.renew(page, config);
                 };
-                http2.get('/rest/pl/fe/shop/shelf/list?matterType=' + type, function(rsp) {
+                http2.get('/rest/pl/fe/template/shop/list?matterType=' + type, function(rsp) {
                     $scope.templates = rsp.data.templates;
                     $scope.page.total = rsp.data.total;
                 });
@@ -93,29 +93,35 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
         var deferred;
         deferred = $q.defer();
         $uibModal.open({
-            templateUrl: '/static/template/templateShare.html?v=1',
+            templateUrl: '/static/template/templateShare.html?_=2',
             controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
-                $scope.data = {
-                    scope: 'U'
-                };
+                $scope.data = {};
                 $scope.cancel = function() {
                     $mi.dismiss();
                 };
                 $scope.ok = function() {
                     $mi.close($scope.data);
                 };
-                http2.get('/rest/pl/fe/shop/shelf/get?matterType=' + matter.type + '&matterId=' + matter.id, function(rsp) {
+                http2.get('/rest/pl/fe/template/shop/get?matterType=' + matter.type + '&matterId=' + matter.id, function(rsp) {
                     if (rsp.data) {
-                        $scope.data.scope = rsp.data.visible_scope;
+                        $scope.data = rsp.data;
+                    } else {
+                        $scope.data.matter_type = matter.type;
+                        $scope.data.matter_id = matter.id;
+                        $scope.data.title = matter.title;
+                        $scope.data.summary = matter.summary;
+                        $scope.data.pic = matter.pic;
+                        $scope.data.visible_scope = 'U';
                     }
                 });
             }],
             backdrop: 'static'
         }).result.then(function(data) {
-            http2.post('/rest/pl/fe/shop/shelf/put?site=' + siteId + '&scope=' + data.scope, matter, function(rsp) {
+            http2.post('/rest/pl/fe/template/shop/put?site=' + siteId, data, function(rsp) {
                 deferred.resolve(rsp.data);
             });
         });
+
         return deferred.promise;
     };
 }]);

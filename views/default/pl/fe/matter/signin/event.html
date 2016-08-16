@@ -8,11 +8,11 @@
                         <td style='padding:0'>
                             <div class='form-inline'>
                                 <div class='form-group'>
-                                    <select style='border:0' class='form-control' ng-model='entryRule.success.entry' ng-options='page.name as page.title for page in app.pages' ng-change="update('entry_rule')">
-                                        <option value=''></option>
+                                    <select style='border:0' class='form-control' ng-model="app.entry_rule.success.entry" ng-options='p.name as p.title for p in app.pages' ng-change="updateEntryRule()">
+                                        <option value=></option>
                                     </select>
                                 </div>
-                                <button class="btn btn-default" type="button" ng-click="gotoPage(entryRule.success.entry)">&gt;</button>
+                                <button class="btn btn-default" type="button" ng-click="gotoPage(app.entry_rule.success.entry)">&gt;</button>
                                 <button class="btn btn-default" type="button" ng-click="newPage('success.entry')">+</button>
                             </div>
                         </td>
@@ -22,11 +22,11 @@
                         <td style='padding:0'>
                             <div class='form-inline'>
                                 <div class='form-group'>
-                                    <select style='border:0' class='form-control' ng-model='entryRule.fail.entry' ng-options='page.name as page.title for page in app.pages' ng-change="update('entry_rule')">
-                                        <option value=''></option>
+                                    <select style='border:0' class='form-control' ng-model="app.entry_rule.fail.entry" ng-options='p.name as p.title for p in app.pages' ng-change="updateEntryRule()" >
+                                        <option value=></option>
                                     </select>
                                 </div>
-                                <button class="btn btn-default" type="button" ng-click="gotoPage(entryRule.fail.entry)">&gt;</button>
+                                <button class="btn btn-default" type="button" ng-click="gotoPage(app.entry_rule.fail.entry)">&gt;</button>
                                 <button class="btn btn-default" type="button" ng-click="newPage('fail.entry')">+</button>
                             </div>
                         </td>

@@ -66,16 +66,15 @@ class qrcode extends \pl\fe\base {
 		if ($wxConfig->can_qrcode === 'N') {
 			return new \ResponseError('公众号还没有开通场景二维码接口');
 		}
-
 		/**
 		 * 获取可用的场景ID
 		 */
 		$q = [
 			'max(scene_id)',
 			'xxt_call_qrcode_wx',
-			"siteid='$site' and scene_id<100000",
+			"siteid='$snsSiteId' and scene_id<100000",
 		];
-		if ($scene_id = $this->model()->query_val_ss($q)) {
+		if ($scene_id = $modelWx->query_val_ss($q)) {
 			$scene_id++;
 		} else {
 			$scene_id = 1;

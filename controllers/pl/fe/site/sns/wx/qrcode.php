@@ -41,9 +41,14 @@ class qrcode extends \pl\fe\base {
 	}
 
 	/**
-	 * 创建一个二维码响应
+	 * 创建微信永久二维码
 	 *
-	 * 微信的永久二维码最大值100000
+	 * 二维码最大值100000
+	 *
+	 * @param string $site
+	 * @param int $expire
+	 * @param string $matter_type
+	 * @param string $matter_id
 	 *
 	 */
 	public function create_action($site, $expire = 0, $matter_type = null, $matter_id = null) {
@@ -90,7 +95,7 @@ class qrcode extends \pl\fe\base {
 		 */
 		$current = time();
 		$d = [];
-		$d['siteid'] = $site;
+		$d['siteid'] = $snsSiteId;
 		$d['scene_id'] = $qrcode->scene_id;
 		$d['create_at'] = $current;
 		$d['expire_at'] = $current + $expire;
@@ -109,39 +114,6 @@ class qrcode extends \pl\fe\base {
 		$d['id'] = $this->model()->insert('xxt_call_qrcode_wx', $d, true);
 
 		return new \ResponseData((object) $d);
-	}
-	/**
-	 * 更新的基本信息
-	 *
-	 * @param string $site
-	 * @param int $id
-	 */
-	public function update_action($site, $id) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$nv = $this->getPostJson();
-
-		$rst = $this->model()->update(
-			'xxt_call_qrcode_wx',
-			$nv,
-			"siteid='$site' and id=$id"
-		);
-		return new \ResponseData($rst);
-	}
-	/**
-	 * 指定回复素材
-	 *
-	 */
-	public function matter_action($site, $id, $type) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$matter = $this->model('matter\base')->getMatterInfoById($type, $id);
-
-		return new \ResponseData($matter);
 	}
 	/**
 	 * 创建一次性二维码
@@ -194,11 +166,6 @@ class qrcode extends \pl\fe\base {
 		}
 		$qrcode = $rst[1];
 
-		// /*用于代码调试*/
-		// $qrcode = new \stdClass;
-		// $qrcode->scene_id = $scene_id;
-		// $qrcode->expire_seconds = 300;
-		// $qrcode->pic = 'http://qrcode.xxt.com';
 		/**
 		 * 保存数据并返回
 		 */
@@ -215,5 +182,38 @@ class qrcode extends \pl\fe\base {
 		$d['id'] = $modelWx->insert('xxt_call_qrcode_wx', $d, true);
 
 		return new \ResponseData((object) $d);
+	}
+	/**
+	 * 更新的基本信息
+	 *
+	 * @param string $site
+	 * @param int $id
+	 */
+	public function update_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$nv = $this->getPostJson();
+
+		$rst = $this->model()->update(
+			'xxt_call_qrcode_wx',
+			$nv,
+			"siteid='$site' and id=$id"
+		);
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 指定回复素材
+	 *
+	 */
+	public function matter_action($site, $id, $type) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$matter = $this->model('matter\base')->getMatterInfoById($type, $id);
+
+		return new \ResponseData($matter);
 	}
 }

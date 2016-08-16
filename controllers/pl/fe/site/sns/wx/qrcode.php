@@ -19,68 +19,37 @@ class qrcode extends \pl\fe\base {
 	 * 只返回永久二维码，不包含临时二维码
 	 */
 	public function list_action($site) {
-		/**
-		 * 公众号自己的文本消息回复
-		 */
-		$q = array(
-			'*',
-			'xxt_call_qrcode_wx',
-			"siteid='$site' and expire_at=0",
-		);
-		$q2['o'] = 'id desc';
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 
-		$calls = $this->model()->query_objs_ss($q, $q2);
+		$calls = $this->model('sns\wx\call\qrcode')->bySite($site);
 
 		return new \ResponseData($calls);
 	}
 	/**
-	 * get onr qrcode calls.
+	 * get qrcode calls.
 	 */
 	public function get_action($site, $id) {
-		/**
-		 * 公众号自己的文本消息回复
-		 */
-		$q = array(
-			'*',
-			'xxt_call_qrcode_wx',
-			"siteid='$site' and id=$id",
-		);
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 
-		$qrcode = $this->model()->query_obj_ss($q);
+		$qrcode = $this->model('sns\wx\call\qrcode')->byId($id);
 
 		return new \ResponseData($qrcode);
 	}
-	/**
-	 * get one text call.
-	 *
-	 * $id int text call id.
-	 * $contain array
-	 */
-	private function &_byId($id, $contain = array('matter')) {
-		$q = array(
-			'id,siteid,name,pic,matter_type,matter_id',
-			'xxt_call_qrcode_wx',
-			"id=$id",
-		);
-		$call = $this->model()->query_obj_ss($q);
 
-		if (!empty($contain) && in_array('matter', $contain)) {
-			if ($call->matter_id) {
-				$call->matter = $this->model('matter\base')->getMatterInfoById($call->matter_type, $call->matter_id);
-			}
-		}
-
-		return $call;
-	}
 	/**
 	 * 创建一个二维码响应
 	 *
-	 * todo 企业号怎么办？
-	 *
-	 * 易信的永久二维码最大值1000
 	 * 微信的永久二维码最大值100000
+	 *
 	 */
-	public function create_action($site) {
+	public function create_action($site, $expire = 0, $matter_type = null, $matter_id = null) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		/**
 		 * 获取可用的场景ID
 		 */
@@ -108,10 +77,23 @@ class qrcode extends \pl\fe\base {
 		/**
 		 * 保存数据并返回
 		 */
+		$current = time();
+		$d = [];
 		$d['siteid'] = $site;
-		$d['name'] = '新场景二维码';
 		$d['scene_id'] = $qrcode->scene_id;
+		$d['create_at'] = $current;
+		$d['expire_at'] = $current + $expire;
 		$d['pic'] = $qrcode->pic;
+		if (!empty($matter_type) && !empty($matter_id)) {
+			$d['matter_type'] = $matter_type;
+			$d['matter_id'] = $matter_id;
+		}
+		// 模拟临时二维码
+		if ((int) $expire === 0) {
+			$d['name'] = '新场景二维码';
+		} else {
+			$d['name'] = '模拟场景二维码';
+		}
 
 		$d['id'] = $this->model()->insert('xxt_call_qrcode_wx', $d, true);
 
@@ -120,11 +102,16 @@ class qrcode extends \pl\fe\base {
 	/**
 	 * 更新的基本信息
 	 *
-	 * $mpid
-	 * $id
+	 * @param string $site
+	 * @param int $id
 	 */
 	public function update_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$nv = $this->getPostJson();
+
 		$rst = $this->model()->update(
 			'xxt_call_qrcode_wx',
 			$nv,
@@ -135,9 +122,12 @@ class qrcode extends \pl\fe\base {
 	/**
 	 * 指定回复素材
 	 *
-	 * //todo 如果是父账号的资源怎么办？
 	 */
 	public function matter_action($site, $id, $type) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$matter = $this->model('matter\base')->getMatterInfoById($type, $id);
 
 		return new \ResponseData($matter);
@@ -161,6 +151,11 @@ class qrcode extends \pl\fe\base {
 			return new \ResponseError('公众号还没有开通场景二维码接口');
 		}
 
+		// 清除过期的二维码
+		$current = time();
+		$modelWx->delete('xxt_call_qrcode_wx', "expire_at<>0 and expire_at<=$current");
+
+		// 生成场景ID
 		$scene_id = mt_rand(100001, mt_getrandmax());
 		while (true) {
 			$q = array(
@@ -168,7 +163,7 @@ class qrcode extends \pl\fe\base {
 				'xxt_call_qrcode_wx',
 				"siteid='$site' and expire_at<>0 and scene_id=$scene_id",
 			);
-			if (1 === (int) $this->model()->query_val_ss($q)) {
+			if (1 === (int) $modelWx->query_val_ss($q)) {
 				$scene_id = mt_rand(100001, mt_getrandmax());
 			} else {
 				break;
@@ -202,7 +197,7 @@ class qrcode extends \pl\fe\base {
 		$d['matter_id'] = $matter_id;
 		$d['pic'] = $qrcode->pic;
 
-		$d['id'] = $this->model()->insert('xxt_call_qrcode_wx', $d, true);
+		$d['id'] = $modelWx->insert('xxt_call_qrcode_wx', $d, true);
 
 		return new \ResponseData((object) $d);
 	}

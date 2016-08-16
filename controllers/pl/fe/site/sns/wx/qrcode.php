@@ -78,8 +78,7 @@ class qrcode extends \pl\fe\base {
 		/**
 		 * 生成二维码
 		 */
-		$wx = $modelWx->bySite($site);
-		$proxy = $this->model('sns\wx\proxy', $wx);
+		$proxy = $this->model('sns\wx\proxy', $wxConfig);
 		$rst = $proxy->qrcodeCreate($scene_id, false);
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);

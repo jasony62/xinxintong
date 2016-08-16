@@ -36,6 +36,12 @@
                 <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='app.end_at' tms-state='end_at'></tms-datepicker>
             </div>
         </div>
+        <div class='tile'>
+            <div class='form-group compact'>
+                <label>允许每用户登记条数</label>
+                <input type='text' class='form-control' ng-model="app.count_limit" tms-auto-update tms-wait=1000 tms-update="update('count_limit')">
+            </div>
+        </div>
         <div class="panel panel-default">
             <div class="panel-heading">事件提醒：接收用户登记活动提醒</div>
             <div class="panel-body" ng-controller="ctrlReceiver">
@@ -135,17 +141,19 @@
         <div class="panel panel-default">
             <div class="panel-heading">登记链接</div>
             <div class="panel-body">
-                <div class='form-control' style='overflow:hidden;white-space:nowrap;' ng-bind='entry.url'></div>
-                <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
+                <div class='input-group'>
+                    <input class='form-control' readonly value="{{entry.url}}">
+                    <span class='input-group-btn'>
+                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
+                    </span>
+                </div>
             </div>
         </div>
         <div class="panel panel-default">
-            <div class="panel-heading">二维码登记</div>
+            <div class="panel-heading">登记二维码</div>
             <div class="panel-body">
-                <div><img id='entryQrcode' ng-src="{{entry.qrcode}}"></div>
-                <div>
-                    <button class='btn btn-default' ng-click="downloadQrcode(entry.qrcode)">下载</button>
-                </div>
+                <span><img id='entryQrcode' ng-src="{{entry.qrcode}}"></span>
+                <button class='btn btn-default' ng-click="downloadQrcode(entry.qrcode)">下载</button>
             </div>
         </div>
         <div class="panel panel-default hide">

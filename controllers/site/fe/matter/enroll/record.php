@@ -195,16 +195,19 @@ class record extends base {
 	 *
 	 */
 	private function _canEnroll($siteId, &$app, &$user, &$posted, $ek) {
+		$modelRec = $this->model('matter\enroll\record');
 		/**
 		 * 检查登记数量
 		 */
 		if (empty($ek) && $app->count_limit > 0) {
-
+			$records = $modelRec->byUser($app->id, $user);
+			if (count($records) >= $app->count_limit) {
+				return [false, ['已经进行过' . count($records) . '次登记，不允再次登记']];
+			}
 		}
 		/**
 		 * 检查提交数据的合法性
 		 */
-		$modelRec = $this->model('matter\enroll\record');
 		$schemas = json_decode($app->data_schemas);
 		foreach ($schemas as $schema) {
 			if (isset($schema->unique) && $schema->unique === 'Y') {

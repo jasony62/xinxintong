@@ -170,25 +170,14 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 获得用户的登记清单
 	 */
-	public function byUser($siteId, $aid, $openid, $rid = null) {
-		if (empty($openid)) {
-			return false;
-		}
-
-		$q = array(
+	public function &byUser($appId, &$user) {
+		$q = [
 			'*',
 			'xxt_enroll_record',
-			"state=1 and mpid='$siteId' and aid='$aid' and openid='$openid'",
-		);
-		if (empty($rid)) {
-			$modelRun = \TMS_APP::M('matter\enroll\round');
-			if ($activeRound = $modelRun->getActive($siteId, $aid)) {
-				$q[2] .= " and rid='$activeRound->rid'";
-			}
-		} else {
-			$q[2] .= " and rid='$rid'";
-		}
-		$q2 = array('o' => 'enroll_at desc');
+			["state" => 1, "aid" => $appId, "userid" => $user->uid],
+		];
+
+		$q2 = ['o' => 'enroll_at desc'];
 
 		$list = $this->query_objs_ss($q, $q2);
 

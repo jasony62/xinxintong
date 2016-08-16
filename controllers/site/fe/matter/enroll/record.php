@@ -127,7 +127,10 @@ class record extends base {
 		// 提交的数据
 		$posted = $this->getPostJson();
 		// 检查是否允许登记
-		$this->_canEnroll($site, $app, $user, $posted, $ek);
+		$result = $this->_canEnroll($site, $app, $user, $posted, $ek);
+		if ($result[0] === false) {
+			return new \ResponseError($result[1]);
+		}
 
 		/**
 		 * 提交用户身份信息

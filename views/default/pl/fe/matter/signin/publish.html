@@ -92,35 +92,43 @@
             </tbody>
         </table>
     </div>
-    <div class='tile' ng-if="app.enroll_app_id">
-        <div class='help-block'>要在签到名单中验证的登记项</div>
-        <div class='list-group'>
-            <div class='list-group-item' ng-repeat="s in app.data_schemas">
-                <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="s.requireCheck" ng-change="update('data_schemas')">{{s.title}}</label>
+    <div class="panel panel-default">
+        <div class="panel-heading">要在签到名单中验证的登记项</div>
+        <div class="panel-body">
+            <div class='list-group' style='margin-bottom:0'>
+                <div class='list-group-item' ng-repeat="s in app.data_schemas">
+                    <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="s.requireCheck" ng-change="update('data_schemas')">{{s.title}}</label>
+                </div>
             </div>
         </div>
     </div>
     <div class="panel panel-default">
         <div class="panel-heading">签到链接：复制或分享给用户进行签到</div>
         <div class="panel-body">
-            <div class='form-control' style='overflow:hidden;white-space:nowrap;' ng-bind='entry.url'></div>
-            <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
+            <div class='input-group'>
+                <input class='form-control' readonly value='{{entry.url}}'>
+                <span class='input-group-btn'>
+                    <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
+                </span>
+            </div>
         </div>
     </div>
     <div class="panel panel-default">
-        <div class="panel-heading">二维码签到</div>
+        <div class="panel-heading">签到二维码</div>
         <div class="panel-body">
-            <div><img id='entryQrcode' ng-src="{{entry.qrcode}}"></div>
-            <div>
-                <button class='btn btn-default' ng-click="downloadQrcode(entry.qrcode)">下载</button>
-            </div>
+            <span><img id='entryQrcode' ng-src="{{entry.qrcode}}"></span>
+            <button class='btn btn-default' ng-click="downloadQrcode(entry.qrcode)">下载</button>
         </div>
     </div>
     <div class="panel panel-default">
         <div class="panel-heading">投影地址</div>
         <div class="panel-body">
-            <div class='form-control' style='height:auto;word-break:break-all' ng-bind="opUrl"></div>
-            <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opUrl}}">复制</button>
+            <div class='input-group'>
+                <input class='form-control' readonly value="{{opUrl}}">
+                <span class='input-group-btn'>
+                    <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opUrl}}">复制</button>
+                </span>
+            </div>
         </div>
     </div>
     <div class="panel panel-default">

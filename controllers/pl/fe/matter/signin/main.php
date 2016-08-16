@@ -251,7 +251,9 @@ class main extends \pl\fe\matter\base {
 		 */
 		$nv = (array) $this->getPostJson();
 		foreach ($nv as $n => $v) {
-			if (in_array($n, ['data_schemas', 'entry_rule'])) {
+			if (in_array($n, ['entry_rule'])) {
+				$nv[$n] = $model->escape(urldecode($v));
+			} elseif (in_array($n, ['data_schemas'])) {
 				$nv[$n] = $model->toJson($v);
 			}
 		}
@@ -330,6 +332,59 @@ class main extends \pl\fe\matter\base {
 		$round = (object) $round;
 
 		return $round;
+	}
+	/**
+	 * 重置活动进入规则
+	 *
+	 * @param string $app
+	 *
+	 */
+	public function entryRuleReset_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$model = $this->model();
+		/*缺省进入规则*/
+		$entryRule = $this->_defaultEntryRule($site, $app);
+		// 更新数据
+		$nv['entry_rule'] = $model->toJson($entryRule);
+		$nv['modifier'] = $user->id;
+		$nv['modifier_src'] = $user->src;
+		$nv['modifier_name'] = $user->name;
+		$nv['modify_at'] = time();
+
+		$rst = $model->update('xxt_signin', $nv, "id='$app'");
+
+		//记录操作日志
+		if ($rst) {
+			$matter = $this->model('matter\signin')->byId($app, 'id,title,summary,pic');
+			$matter->type = 'signin';
+			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
+		}
+
+		return new \ResponseData($entryRule);
+	}
+	/**
+	 * 缺省进入规则
+	 */
+	private function &_defaultEntryRule($site, $appid) {
+		// 第一个登记页
+		$modelPage = $this->model('matter\signin\page');
+		$pages = $modelPage->byApp($appid, ['cascaded' => 'N']);
+		foreach ($pages as $page) {
+			if ($page->type === 'I') {
+				$firstInputPage = $page;
+				break;
+			}
+		}
+		// 设置规则
+		$entryRule = new \stdClass;
+		$entryRule->scope = 'none';
+		$entryRule->otherwise = new \stdClass;
+		$entryRule->otherwise->entry = isset($firstInputPage) ? $firstInputPage->name : '';
+
+		return $entryRule;
 	}
 	/**
 	 * 删除一个活动

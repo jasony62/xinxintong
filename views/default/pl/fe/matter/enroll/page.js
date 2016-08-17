@@ -20,6 +20,14 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			});
 		};
 		$scope.updPage = function(page, names) {
+			if (page === $scope.ep) {
+				if (page.type === 'I') {
+					page.purifyInput(tinymce.activeEditor.getContent(), true);
+				} else {
+					page.html = tinymce.activeEditor.getContent();
+				}
+			}
+
 			return srvPage.update(page, names);
 		};
 		$scope.delPage = function() {
@@ -192,7 +200,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			$scope.activeWrap = $scope.ep.setActiveWrap(domWrap);
 		};
 		$scope.wrapEditorHtml = function() {
-			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=26';
+			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=27';
 			return url;
 		};
 		/*创建了新的schema*/
@@ -218,6 +226,18 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			});
 		});
 		$scope.refreshWrap = function(wrap) {
+			// 更新项目阶段
+			if ('phase' === wrap.schema.type) {
+				var ops = [],
+					phases = $scope.app.mission.phases;
+				angular.forEach(phases, function(phase) {
+					ops.push({
+						l: phase.title,
+						v: phase.phase_id
+					});
+				});
+				wrap.schema.ops = ops;
+			}
 			if ($scope.ep.type === 'I') {
 				wrapLib.input.modify(wrap.dom, wrap);
 				$scope.ep.purifyInput(tinymceEditor.getContent(), true);
@@ -312,7 +332,9 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		};
 		$scope.moveWrap = function(action) {
 			$scope.activeWrap = $scope.ep.moveWrap(action);
-			$scope.updPage($scope.ep, ['html']);
+			if (action === 'up' || action === 'down') {
+				$scope.updPage($scope.ep, ['html']);
+			}
 		};
 		$scope.embedMatter = function(page) {
 			var options = {
@@ -682,7 +704,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		});
 	}]);
 	/**
-	 * input wrap
+	 * 登记项编辑
 	 */
 	ngApp.provider.controller('ctrlInputWrap', ['$scope', '$timeout', function($scope, $timeout) {
 		$scope.upperOptions = [];
@@ -734,12 +756,12 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				$timeout.cancel(timerOfUpdate);
 			}
 			timerOfUpdate = $timeout(function() {
-				/* 更新应用的定义 */
+				// 更新应用的定义
 				$scope.update('data_schemas').then(function() {
-					/* 更新当前页面 */
+					// 更新当前页面
 					$scope.ep.purifyInput(tinymce.activeEditor.getContent(), true);
 					$scope.updPage($scope.ep, ['data_schemas', 'html']);
-					/* 更新其它页面 */
+					// 更新其它页面
 					angular.forEach($scope.app.pages, function(page) {
 						if (page !== $scope.ep) {
 							page.updateBySchema($scope.activeWrap.schema);
@@ -825,6 +847,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				$timeout.cancel(timerOfUpdate);
 			}
 			timerOfUpdate = $timeout(function() {
+				$scope.ep.html = tinymce.activeEditor.getContent();
 				$scope.updPage($scope.ep, ['data_schemas', 'html']);
 			}, 1000);
 			timerOfUpdate.then(function() {

@@ -94,8 +94,14 @@
                 <button class='btn btn-default' ng-click="moveWrap('down')" ng-disabled='!activeWrap'>
                 <span class='fa fa-arrow-down fa-fw'></span>
                 </button>
-                <button ng-if="ep.type==='I'" class='btn btn-default' title='复制' ng-click="copySchema(activeWrap.schema)" ng-disabled='!activeWrap'>
-                <span class='fa fa-copy fa-fw'></span>
+                <button class='btn btn-default' ng-click="moveWrap('down')" ng-disabled='!activeWrap'>
+                <span class='fa fa-arrow-down fa-fw'></span>
+                </button>
+                <button class='btn btn-default' title='上一级' ng-click="moveWrap('upLevel')" ng-disabled='!activeWrap'>
+                <span class='fa fa-level-up fa-fw'></span>
+                </button>
+                <button class='btn btn-default' title='下一级' ng-click="moveWrap('downLevel')" ng-disabled='!activeWrap'>
+                <span class='fa fa-level-down fa-fw'></span>
                 </button>
                 <button class='btn btn-default' title='编辑代码' ng-click="gotoCode()">
                 <i class='fa fa-code fa-fw'></i>
@@ -104,7 +110,7 @@
         </div>
         <!-- end tinymce editor -->
         <!-- wrap schema editor -->
-        <div class='wrap-editor tile' ng-if="activeWrap.schema">
+        <div class='wrap-editor tile' ng-if="activeWrap.schema||activeWrap.schemas">
             <div class='form-group' ng-include="wrapEditorHtml()"></div>
             <button class='btn btn-default btn-block' ng-click="refreshWrap(activeWrap)">刷新页面元素</button>
         </div>
@@ -115,8 +121,8 @@
     <nav class="navbar navbar-default navbar-fixed-bottom">
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
-                <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/enroll/preview?site={{siteId}}&id={{id}}">活动设置</a>
                 <button class='btn btn-lg btn-success' ng-click="updPage(ep,['data_schemas','act_schemas','html'])">保存修改</button>
+                <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布设置</a>
             </form>
             <form class="navbar-form navbar-right" style='display:inline-block'>
                 <button class='btn btn-lg btn-default' ng-click="remove()">删除活动</button>

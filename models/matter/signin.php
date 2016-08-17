@@ -49,7 +49,7 @@ class signin_model extends app_base {
 				/* 页面 */
 				$app->pages = \TMS_APP::M('matter\signin\page')->byApp($appId);
 				/* 轮次 */
-				$app->rounds = \TMS_APP::M('matter\signin\round')->byApp($app->siteid, $appId);
+				$app->rounds = \TMS_APP::M('matter\signin\round')->byApp($appId);
 			}
 		}
 
@@ -98,5 +98,35 @@ class signin_model extends app_base {
 		}
 
 		return $result;
+	}
+	/**
+	 * 更新登记活动标签
+	 */
+	public function updateTags($aid, $tags) {
+		if (empty($tags)) {
+			return false;
+		}
+
+		$options = array('fields' => 'tags', 'cascaded' => 'N');
+		$app = $this->byId($aid, $options);
+		if (empty($app->tags)) {
+			$this->update('xxt_signin', array('tags' => $tags), "id='$aid'");
+		} else {
+			$existent = explode(',', $app->tags);
+			$checked = explode(',', $tags);
+			$updated = array();
+			foreach ($checked as $c) {
+				if (!in_array($c, $existent)) {
+					$updated[] = $c;
+				}
+			}
+			if (count($updated)) {
+				$updated = array_merge($existent, $updated);
+				$updated = implode(',', $updated);
+				$this->update('xxt_signin', array('tags' => $updated), "id='$aid'");
+			}
+		}
+
+		return true;
 	}
 }

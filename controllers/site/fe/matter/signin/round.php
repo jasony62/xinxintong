@@ -17,7 +17,7 @@ class round extends base {
 			'fields' => 'rid,title',
 			'state' => '1,2',
 		);
-		$rounds = $modelRun->byApp($site, $app, $options);
+		$rounds = $modelRun->byApp($app, $options);
 
 		return new \ResponseData($rounds);
 	}

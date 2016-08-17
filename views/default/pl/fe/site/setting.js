@@ -126,9 +126,14 @@ define(['require'], function(require) {
             location.href = '/rest/pl/fe/site/sns/' + snsName + '?site=' + $scope.siteId;
         };
     }]);
-    ngApp.controller('ctrlBasic', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {}]);
-    ngApp.controller('ctrlPage', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {}]);
-    ngApp.controller('ctrlCoin', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {}]);
+    ngApp.controller('ctrlBasic', ['$scope', function($scope) {
+        (function() {
+            var text2Clipboard = new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
+        })();
+        $scope.homeURL = 'http://' + location.host + '/rest/site/fe?site=' + $scope.siteId;
+    }]);
+    ngApp.controller('ctrlPage', ['$scope', function($scope) {}]);
+    ngApp.controller('ctrlCoin', ['$scope', function($scope) {}]);
     ngApp.controller('ctrlMschema', ['$scope', 'http2', '$http', '$uibModal', 'MemberSchema', function($scope, http2, $http, $uibModal, MemberSchema) {
         var service = {
             memberSchema: new MemberSchema($scope.siteId)

@@ -12,12 +12,12 @@ class matter extends \pl\fe\matter\base {
 	 * @param string $site
 	 * @param int $id
 	 */
-	public function list_action($site, $id) {
+	public function list_action($site, $id, $matterType = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$matters = $this->model('matter\mission')->mattersById($site, $id);
+		$matters = $this->model('matter\mission')->mattersById($site, $id, $matterType);
 
 		return new \ResponseData($matters);
 	}

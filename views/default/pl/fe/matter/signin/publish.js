@@ -6,7 +6,7 @@ define(['frame'], function(ngApp) {
 		})();
 		$scope.opUrl = 'http://' + location.host + '/rest/site/op/matter/signin?site=' + $scope.siteId + '&app=' + $scope.id;
 		$scope.downloadQrcode = function(url) {
-			$('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
+			$('<a href="' + url + '" download="签到二维码.png"></a>')[0].click();
 		};
 		$scope.setPic = function() {
 			var options = {
@@ -34,6 +34,29 @@ define(['frame'], function(ngApp) {
 				qrcode: '/rest/site/fe/matter/signin/qrcode?site=' + $scope.siteId + '&url=' + encodeURIComponent($scope.url),
 			};
 			$scope.entry = entry;
+		});
+	}]);
+	/**
+	 * 微信二维码
+	 */
+	ngApp.provider.controller('ctrlWxQrcode', ['$scope', 'http2', function($scope, http2) {
+		$scope.create = function() {
+			var url;
+
+			url = '/rest/pl/fe/site/sns/wx/qrcode/create?site=' + $scope.siteId;
+			url += '&matter_type=signin&matter_id=' + $scope.id;
+			url += '&expire=864000';
+
+			http2.get(url, function(rsp) {
+				$scope.qrcode = rsp.data;
+			});
+		};
+		$scope.download = function() {
+			$('<a href="' + $scope.qrcode.pic + '" download="微信签到二维码.jpeg"></a>')[0].click();
+		};
+		http2.get('/rest/pl/fe/matter/signin/wxQrcode?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+			var qrcodes = rsp.data;
+			$scope.qrcode = qrcodes.length ? qrcodes[0] : false;
 		});
 	}]);
 	/**
@@ -291,6 +314,39 @@ define(['frame'], function(ngApp) {
 					$scope.rounds.splice($scope.rounds.indexOf(round), 1);
 				});
 			}
+		};
+		$scope.qrcode = function(round) {
+			$uibModal.open({
+				templateUrl: 'roundQrcode.html',
+				backdrop: 'static',
+				resolve: {
+					round: function() {
+						return round;
+					}
+				},
+				controller: ['$scope', '$timeout', '$uibModalInstance', 'round', function($scope2, $timeout, $mi, round) {
+					var popover = {
+							title: round.title,
+							url: $scope.url + '&round=' + round.rid,
+						},
+						zeroClipboard;
+
+					popover.qrcode = '/rest/site/fe/matter/signin/qrcode?site=' + $scope.siteId + '&url=' + encodeURIComponent(popover.url);
+					$scope2.popover = popover;
+					$scope2.downloadQrcode = function(url) {
+						$('<a href="' + url + '" download="' + round.title + '签到二维码.png"></a>')[0].click();
+					};
+					$scope2.cancel = function() {
+						$mi.dismiss();
+					};
+					$scope2.ok = function() {
+						$mi.dismiss();
+					};
+					$timeout(function() {
+						new ZeroClipboard(document.querySelector('#copyURL'));
+					});
+				}]
+			}).result.then(function() {});
 		};
 		$scope.$watch('app', function(app) {
 			if (app) {

@@ -34,7 +34,7 @@ class main extends base {
 	 * $code OAuth返回的code
 	 *
 	 */
-	public function index_action($site, $app, $shareby = '', $page = '', $ek = '', $ignoretime = 'N') {
+	public function index_action($site, $app, $round = null, $shareby = '', $page = '', $ek = '', $ignoretime = 'N') {
 		empty($site) && $this->outputError('没有指定站点ID');
 		empty($app) && $this->outputError('签到活动ID为空');
 
@@ -48,8 +48,11 @@ class main extends base {
 			$this->outputError('签到已经结束', $app->title);
 		}
 		if ($ignoretime === 'N') {
-			if ($app->state === '1' || !$this->model('matter\signin\round')->getActive($site, $app->id)) {
-				$this->outputError('还没有开始签到', $app->title);
+			$activeRound = $this->model('matter\signin\round')->getActive($site, $app->id);
+			if (!$activeRound) {
+				$this->outputError('签到还没有开始', $app->title);
+			} else if (!empty($round) && $round !== $activeRound->rid) {
+				$this->outputError('签到二维码或链接无效', $app->title);
 			}
 		}
 		/* 计算打开哪个页面 */

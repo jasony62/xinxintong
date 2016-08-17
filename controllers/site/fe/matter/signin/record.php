@@ -77,7 +77,7 @@ class resumableAliOss {
 	}
 }
 /**
- * 登记活动记录
+ * 签到活动记录
  */
 class record extends base {
 	/**
@@ -91,19 +91,22 @@ class record extends base {
 		return new \ResponseData($key);
 	}
 	/**
-	 * 报名登记页，记录登记信息
+	 * 提交登记数据并签到
+	 *
+	 * 执行签到，在每个轮次上只能进行一次签到，第一次签到后再提交也不会更改签到时间等信息
 	 *
 	 * @param string $site
 	 * @param string $app
 	 * @param string $ek enrollKey 如果要更新之前已经提交的数据，需要指定
 	 * @param string $submitkey 支持文件分段上传
+	 *
 	 */
 	public function submit_action($site, $app, $submitkey = '') {
 		/* support CORS */
-		header('Access-Control-Allow-Origin:*');
-		header('Access-Control-Allow-Methods:POST');
-		header('Access-Control-Allow-Headers:Content-Type');
-		$_SERVER['REQUEST_METHOD'] === 'OPTIONS' && exit;
+		//header('Access-Control-Allow-Origin:*');
+		//header('Access-Control-Allow-Methods:POST');
+		//header('Access-Control-Allow-Headers:Content-Type');
+		//$_SERVER['REQUEST_METHOD'] === 'OPTIONS' && exit;
 
 		if (empty($site)) {
 			header('HTTP/1.0 500 parameter error:site is empty.');
@@ -115,9 +118,9 @@ class record extends base {
 		}
 
 		$modelApp = $this->model('matter\signin');
-		if (false === ($app = $modelApp->byId($app))) {
+		if (false === ($signinApp = $modelApp->byId($app))) {
 			header('HTTP/1.0 500 parameter error:app dosen\'t exist.');
-			die('活动不存在');
+			die('签到活动不存在');
 		}
 		/**
 		 * 提交的数据
@@ -135,78 +138,76 @@ class record extends base {
 			}
 		}
 		/**
-		 * 提交数据
+		 * 签到并保存登记的数据
 		 */
 		$modelRec = $this->model('matter\signin\record');
-		$signState = $modelRec->signin($user, $site, $app);
-		if ($signState->enrolled) {
-			/* 已经登记过，更新原先提交的数据 */
-			$modelRec->update('xxt_signin_record',
-				array('enroll_at' => time()),
-				"enroll_key='{$signState->ek}'"
-			);
+		$signState = $modelRec->signin($user, $site, $signinApp);
+		// 保存签到登记数据
+		$rst = $modelRec->setData($user, $site, $signinApp, $signState->ek, $signinData, $submitkey);
+		if (false === $rst[0]) {
+			return new \ResponseError($rst[1]);
 		}
 		/**
 		 * 检查签到数据是否在报名表中
 		 */
-		if (isset($app->enroll_app_id)) {
-			$enrollApp = $this->model('matter\enroll')->byId($app->enroll_app_id);
+		if (isset($signinApp->enroll_app_id)) {
+			$enrollApp = $this->model('matter\enroll')->byId($signinApp->enroll_app_id);
 			if ($enrollApp) {
 				/*获得要检查的数据*/
-				$dataSchemas = json_decode($app->data_schemas);
+				$dataSchemas = json_decode($signinApp->data_schemas);
 				$requireCheckedData = new \stdClass;
 				foreach ($dataSchemas as $dataSchema) {
 					if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
-						$requireCheckedData->{$dataSchema->id} = $signinData->{$dataSchema->id};
+						$requireCheckedData->{$dataSchema->id} = isset($signinData->{$dataSchema->id}) ? $signinData->{$dataSchema->id} : '';
 					}
 				}
-				if ($app->mission_phase_id) {
+				if ($signinApp->mission_phase_id) {
 					/* 需要匹配项目阶段 */
-					$requireCheckedData->phase = $app->mission_phase_id;
+					$requireCheckedData->phase = $signinApp->mission_phase_id;
 				}
 				/* 在指定的登记活动中检查数据 */
 				$modelEnrollRec = $this->model('matter\enroll\record');
 				$enrollRecords = $modelEnrollRec->byData($site, $enrollApp, $requireCheckedData);
-				if (empty($enrollRecords)) {
+				if (!empty($enrollRecords)) {
+					/**
+					 * 找报名表中找到对应的记录
+					 */
+					$enrollRecord = $enrollRecords[0];
+					if ($enrollRecord->verified === 'Y') {
+						$enrollData = $enrollRecords[0]->data;
+						foreach ($enrollData as $n => $v) {
+							!isset($signinData->{$n}) && $signinData->{$n} = $v;
+						}
+						// 记录报名数据
+						$modelRec->setData($user, $site, $signinApp, $signState->ek, $signinData, $submitkey);
+						// 记录验证状态
+						$modelRec->update(
+							'xxt_signin_record',
+							['verified' => 'Y', 'verified_enroll_key' => $enrollRecord->enroll_key],
+							"enroll_key='{$signState->ek}'"
+						);
+						$signState->verified = 'Y';
+						// 返回指定的验证成功页
+						if (isset($signinApp->entry_rule->success->entry)) {
+							$signState->forword = $signinApp->entry_rule->success->entry;
+						}
+					}
+				}
+				if (!isset($signState->verified)) {
 					/**
 					 * 没有在报名表中找到对应的记录
 					 */
 					$modelRec->update(
 						'xxt_signin_record',
-						['verified' => 'N'],
+						['verified' => 'N', 'verified_enroll_key' => ''],
 						"enroll_key='{$signState->ek}'"
 					);
 					$signState->verified = 'N';
-					if (isset($app->entry_rule->fail->entry)) {
-						$signState->forword = $app->entry_rule->fail->entry;
-					}
-				} else {
-					/**
-					 * 找报名表中找到对应的记录
-					 */
-					$ek = $enrollRecords[0];
-					$enrollData = $modelEnrollRec->dataById($ek);
-					foreach ($enrollData as $n => $v) {
-						!isset($signinData->{$n}) && $signinData->{$n} = $v;
-					}
-					$modelRec->update(
-						'xxt_signin_record',
-						['verified' => 'Y'],
-						"enroll_key='{$signState->ek}'"
-					);
-					$signState->verified = 'Y';
-					if (isset($app->entry_rule->success->entry)) {
-						$signState->forword = $app->entry_rule->success->entry;
+					if (isset($signinApp->entry_rule->fail->entry)) {
+						$signState->forword = $signinApp->entry_rule->fail->entry;
 					}
 				}
 			}
-		}
-		/**
-		 * 插入提交的数据
-		 */
-		$rst = $modelRec->setData($user, $site, $app, $signState->ek, $signinData, $submitkey);
-		if (false === $rst[0]) {
-			return new \ResponseError($rst[1]);
 		}
 
 		return new \ResponseData($signState);
@@ -264,89 +265,27 @@ class record extends base {
 		return new \ResponseData('ok');
 	}
 	/**
-	 * 给当前用户产生一条空的登记记录，记录传递的数据，并返回这条记录
-	 * 适用于抽奖后记录兑奖信息
+	 * 返回指定记录或最后一条记录
 	 *
 	 * @param string $site
 	 * @param string $app
-	 * @param string $once 如果已经有登记记录，不生成新的登记记录
-	 */
-	public function emptyGet_action($site, $app, $once = 'N') {
-		$posted = $this->getPostJson();
-
-		$model = $this->model('matter\signin');
-		if (false === ($app = $model->byId($app))) {
-			return new \ParameterError("指定的活动（$app）不存在");
-		}
-		/**
-		 * 当前访问用户的基本信息
-		 */
-		$user = $this->who;
-		/* 如果已经有登记记录则不登记 */
-		$modelRec = $this->model('matter\signin\record');
-		if ($once === 'Y') {
-			$ek = $modelRec->userLastKey($user, $site, $app);
-		}
-		/* 创建登记记录*/
-		if (empty($ek)) {
-			$ek = $modelRec->enroll($user, $site, $app, time(), (empty($posted->referrer) ? '' : $posted->referrer));
-			/**
-			 * 处理提交数据
-			 */
-			$data = $_GET;
-			unset($data['site']);
-			unset($data['app']);
-			if (!empty($data)) {
-				$data = (object) $data;
-				$rst = $modelRec->setData($user, $site, $app, $ek, $data);
-				if (false === $rst[0]) {
-					return new ResponseError($rst[1]);
-				}
-			}
-		}
-		/*登记记录的URL*/
-		$url = '/rest/site/fe/matter/signin';
-		$url .= '?site=' . $site;
-		$url .= '&app=' . $app->id;
-		$url .= '&ek=' . $ek;
-
-		$rsp = new \stdClass;
-		$rsp->url = $url;
-		$rsp->ek = $ek;
-
-		return new \ResponseData($rsp);
-	}
-	/**
-	 * 返回指定记录或最后一条记录
-	 * @param string $site
-	 * @param string $app
-	 * @param string $ek
 	 */
 	public function get_action($site, $app) {
 		$modelApp = $this->model('matter\signin');
 		$modelRec = $this->model('matter\signin\record');
-		$record = null;
-		$options = array('cascade' => 'N');
+		$options = ['cascade' => 'N'];
+
 		$app = $modelApp->byId($app, $options);
-		/*当前访问用户的基本信息*/
+
+		// 当前访问用户的基本信息
 		$user = $this->who;
-		/**登记数据*/
+
+		// 登记数据
 		$options = array(
 			'fields' => '*',
 		);
-		if ($record = $modelRec->byUser($user, $site, $app, $options)) {
-			$openedek = $record->enroll_key;
-			if ($record->enroll_at) {
-				$record->data = $modelRec->dataById($openedek);
-			}
-			/*登记人信息*/
-			$record->enroller = $user;
-			if (!empty($record->data['member'])) {
-				$record->data['member'] = json_decode($record->data['member']);
-			} else if (isset($record->data['member'])) {
-				$record->data['member'] = new \stdClass;
-			}
-		}
+
+		$record = $modelRec->byUser($user, $site, $app, $options);
 
 		return new \ResponseData($record);
 	}

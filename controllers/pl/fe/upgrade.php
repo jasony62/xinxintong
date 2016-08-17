@@ -17,8 +17,8 @@ class upgrade extends \TMS_CONTROLLER {
 	public function do_action($site = null, $app = null, $ek = null, $force = 'N') {
 		$model = $this->model();
 
-		$q = ['enroll_key', 'xxt_enroll_record'];
-		$q[2] = $force === 'N' ? "data is null" : '1=1';
+		$q = ['enroll_key', 'xxt_signin_record'];
+		$q[2] = $force === 'N' ? "signin_log is null" : '1=1';
 		if (!empty($site)) {
 			$site = $model->escape($site);
 			$q[2] .= " and siteid='$site'";
@@ -35,23 +35,19 @@ class upgrade extends \TMS_CONTROLLER {
 
 		foreach ($records as $record) {
 			$qc = [
-				'name,value',
-				'xxt_enroll_record_data',
+				'rid,signin_at',
+				'xxt_signin_log',
 				"enroll_key='{$record->enroll_key}'",
 			];
-			$cds = $model->query_objs_ss($qc);
+			$logs = $model->query_objs_ss($qc);
 
 			$data = new \stdClass;
-			foreach ($cds as $cd) {
-				if ($cd->name === 'member') {
-					$data->{$cd->name} = json_decode($cd->value);
-				} else {
-					$data->{$cd->name} = $model->escape($cd->value);
-				}
+			foreach ($logs as $log) {
+				$data->{$log->rid} = $log->signin_at;
 			}
 			$data = $model->toJson($data);
 
-			$model->update('xxt_enroll_record', ['data' => $data], "enroll_key='{$record->enroll_key}'");
+			$model->update('xxt_signin_record', ['signin_log' => $data], "enroll_key='{$record->enroll_key}'");
 		}
 
 		return new \ResponseData('ok');

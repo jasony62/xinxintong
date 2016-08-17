@@ -3,7 +3,7 @@ define(['main'], function(ngApp) {
 	ngApp.provider.controller('ctrlQrcode', ['$scope', 'http2', 'matterTypes', 'mattersgallery', function($scope, http2, matterTypes, mattersgallery) {
 		$scope.matterTypes = matterTypes;
 		$scope.create = function() {
-			http2.get('/rest/pl/be/sns/wx/qrcode/create?site=' + $scope.wx.plid, function(rsp) {
+			http2.get('/rest/pl/be/sns/wx/qrcode/create?site=platform', function(rsp) {
 				$scope.calls.splice(0, 0, rsp.data);
 				$scope.edit($scope.calls[0]);
 			});
@@ -11,15 +11,12 @@ define(['main'], function(ngApp) {
 		$scope.update = function(name) {
 			var p = {};
 			p[name] = $scope.editing[name];
-			http2.post('/rest/pl/be/sns/wx/qrcode/update?site=' + $scope.wx.plid + '&id=' + $scope.editing.id, p);
+			http2.post('/rest/pl/be/sns/wx/qrcode/update?site=platform&id=' + $scope.editing.id, p);
 		};
 		$scope.edit = function(call) {
 			if (call && call.matter === undefined && call.matter_id && call.matter_type) {
-				http2.get('/rest/pl/be/sns/wx/qrcode/matter?site=' + $scope.wx.plid + '&id=' + call.matter_id + '&type=' + call.matter_type, function(rsp) {
+				http2.get('/rest/pl/be/sns/wx/qrcode/matter?site=platform&id=' + call.matter_id + '&type=' + call.matter_type, function(rsp) {
 					var matter = rsp.data;
-					if (matter && /text/i.test(matter.type)) {
-						matter.title = matter.content;
-					}
 					$scope.editing.matter = matter;
 				});
 			};
@@ -33,7 +30,7 @@ define(['main'], function(ngApp) {
 							matter_id: matter.id,
 							matter_type: matterType
 						};
-					http2.post('/rest/pl/be/sns/wx/qrcode/update?site=' + $scope.wx.plid + '&id=' + $scope.editing.id, p, function(rsp) {
+					http2.post('/rest/pl/be/sns/wx/qrcode/update?site=platform&id=' + $scope.editing.id, p, function(rsp) {
 						$scope.editing.matter = aSelected[0];
 					});
 				}
@@ -43,7 +40,7 @@ define(['main'], function(ngApp) {
 				singleMatter: true
 			});
 		};
-		http2.get('/rest/pl/be/sns/wx/qrcode/list?site=' + $scope.wx.plid, function(rsp) {
+		http2.get('/rest/pl/be/sns/wx/qrcode/list?site=platform', function(rsp) {
 			$scope.calls = rsp.data;
 			if ($scope.calls.length > 0) {
 				$scope.edit($scope.calls[0]);

@@ -36,10 +36,9 @@ class base extends \TMS_CONTROLLER {
 	 * 检查是否当前的请求是OAuth后返回的请求
 	 */
 	public function afterSnsOAuth() {
-		/* 当前用户的身份信息 */
-		$auth = array();
+		$auth = []; // 当前用户的身份信息
 		if (isset($_GET['mocker'])) {
-			/* 指定的模拟用户 */
+			// 指定的模拟用户
 			list($snsName, $openid) = explode(',', $_GET['mocker']);
 			$snsUser = new \stdclass;
 			$snsUser->openid = $openid;
@@ -51,31 +50,33 @@ class base extends \TMS_CONTROLLER {
 			} else if ($this->myGetcookie("_platform_oauthpending") === 'Y') {
 				$snsSiteId = 'platform';
 			}
-			if (false !== $snsSiteId) {
-				/* oauth回调 */
-				$this->mySetcookie("_{$snsSiteId}_oauthpending", '', time() - 3600);
-				if (isset($_GET['state']) && isset($_GET['code'])) {
-					$state = $_GET['state'];
-					if (strpos($state, 'snsOAuth-') === 0) {
-						$code = $_GET['code'];
-						$snsName = explode('-', $state);
-						if (count($snsName) === 2) {
-							$snsName = $snsName[1];
-							$snsUser = $this->snsOAuthUserByCode($snsSiteId, $code, $snsName);
+			if (false === $snsSiteId) {
+				return false;
+			}
+			// oauth回调
+			$this->mySetcookie("_{$snsSiteId}_oauthpending", '', time() - 3600);
+			if (isset($_GET['state']) && isset($_GET['code'])) {
+				$state = $_GET['state'];
+				if (strpos($state, 'snsOAuth-') === 0) {
+					$code = $_GET['code'];
+					$snsName = explode('-', $state);
+					if (count($snsName) === 2) {
+						$snsName = $snsName[1];
+						if ($snsUser = $this->snsOAuthUserByCode($snsSiteId, $code, $snsName)) {
 							$auth['sns'][$snsName] = $snsUser;
 						}
 					}
 				}
 			}
 		}
+
 		if (!empty($auth)) {
-			/* 如果获得了用户的身份信息，更新保留的用户信息 */
+			// 如果获得了用户的身份信息，更新保留的用户信息
 			$modelWay = $this->model('site\fe\way');
 			$this->who = $modelWay->who($this->siteId, $auth);
-			return true;
 		}
 
-		return false;
+		return true;
 	}
 	/**
 	 * 获得社交帐号用户信息
@@ -164,12 +165,12 @@ class base extends \TMS_CONTROLLER {
 		}
 		$snsProxy = $this->model('sns\\' . $snsName . '\proxy', $snsConfig);
 		$rst = $snsProxy->getOAuthUser($code);
-		$rst[0] === false && die('xxt oauth2 failed: ' . $rst[1]);
-		/**
-		 * 将openid保存在cookie，可用于进行用户身份绑定
-		 * openid不一定是关注用户
-		 */
-		$user = $rst[1];
+		if ($rst[0] === false) {
+			$this->model('log')->log($site, 'snsOAuthUserByCode', 'xxt oauth2 failed: ' . $rst[1]);
+			$user = false;
+		} else {
+			$user = $rst[1];
+		}
 
 		return $user;
 	}

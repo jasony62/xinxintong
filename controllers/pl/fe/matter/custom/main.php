@@ -363,7 +363,7 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$modelTemplate = $this->model('shop\shelf');
+		$modelTemplate = $this->model('template\shop');
 		$template = $modelTemplate->byId($template);
 
 		$modelArt = $this->model('matter\article');

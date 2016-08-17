@@ -17,9 +17,6 @@ define(['main'], function(ngApp) {
 			if (call && call.matter === undefined && call.matter_id && call.matter_type) {
 				http2.get('/rest/pl/fe/site/sns/wx/qrcode/matter?site=' + $scope.siteId + '&id=' + call.matter_id + '&type=' + call.matter_type, function(rsp) {
 					var matter = rsp.data;
-					if (matter && /text/i.test(matter.type)) {
-						matter.title = matter.content;
-					}
 					$scope.editing.matter = matter;
 				});
 			};

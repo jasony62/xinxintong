@@ -3,7 +3,7 @@ namespace site\fe\matter\enroll;
 
 include_once dirname(__FILE__) . '/base.php';
 /**
- *
+ * 文件分段上传阿里云
  */
 class resumableAliOss {
 
@@ -115,25 +115,25 @@ class record extends base {
 			die('参数错误！');
 		}
 
+		// 应用的定义
 		$modelApp = $this->model('matter\enroll');
-		if (false === ($app = $modelApp->byId($app))) {
+		if (false === ($app = $modelApp->byId($app, ['cascaded' => 'N']))) {
 			header('HTTP/1.0 500 parameter error:app dosen\'t exist.');
-			die('活动不存在');
+			die('登记活动不存在');
 		}
-		/**
-		 * 当前访问用户的基本信息
-		 */
+
+		// 当前访问用户的基本信息
 		$user = $this->who;
-		/**
-		 * 当前用户是否可以进行提交操作
-		 */
-		//$this->checkActionRule($site, $app, $user);
-		/**
-		 * 处理提交数据
-		 */
+		// 提交的数据
 		$posted = $this->getPostJson();
+		// 检查是否允许登记
+		$result = $this->_canEnroll($site, $app, $user, $posted, $ek);
+		if ($result[0] === false) {
+			return new \ResponseError($result[1]);
+		}
+
 		/**
-		 * 包含用户身份信息
+		 * 提交用户身份信息
 		 */
 		if (isset($posted->member) && isset($posted->member->schema_id)) {
 			$member = clone $posted->member;
@@ -143,7 +143,7 @@ class record extends base {
 			}
 		}
 		/**
-		 * 处理提交数据
+		 * 提交登记数据
 		 */
 		if (empty($ek)) {
 			/*插入登记数据*/
@@ -165,9 +165,9 @@ class record extends base {
 			$rst = $modelRec->setData($user, $site, $app, $ek, $posted, $submitkey);
 			if ($rst[0] === true) {
 				$dbData = $modelRec->toJson($rst[1]);
-				/* 已经登记，更新原先提交的数据 */
+				// 已经登记，更新原先提交的数据，只要进行更新操作就设置为未审核通过的状态
 				$modelRec->update('xxt_enroll_record',
-					['enroll_at' => time(), 'data' => $dbData],
+					['enroll_at' => time(), 'verified' => 'N', 'data' => $dbData],
 					"enroll_key='$ek'"
 				);
 			}
@@ -185,6 +185,49 @@ class record extends base {
 		}
 
 		return new \ResponseData($ek);
+	}
+	/**
+	 * 检查是否允许用户进行登记
+	 *
+	 * 检查内容：
+	 * 1、应用允许登记的条数（count_limit）
+	 * 2、登记项是否和已有登记记录重复（schema.unique）
+	 *
+	 */
+	private function _canEnroll($siteId, &$app, &$user, &$posted, $ek) {
+		$modelRec = $this->model('matter\enroll\record');
+		/**
+		 * 检查登记数量
+		 */
+		if (empty($ek) && $app->count_limit > 0) {
+			$records = $modelRec->byUser($app->id, $user);
+			if (count($records) >= $app->count_limit) {
+				return [false, ['已经进行过' . count($records) . '次登记，不允再次登记']];
+			}
+		}
+		/**
+		 * 检查提交数据的合法性
+		 */
+		$schemas = json_decode($app->data_schemas);
+		foreach ($schemas as $schema) {
+			if (isset($schema->unique) && $schema->unique === 'Y') {
+				if (empty($posted->{$schema->id})) {
+					return [false, ['唯一项【' . $schema->title . '】不允许为空']];
+				}
+				$checked = new \stdClass;
+				$checked->{$schema->id} = $posted->{$schema->id};
+				$existings = $modelRec->byData($siteId, $app, $checked, ['fields' => 'userid']);
+				if (count($existings)) {
+					foreach ($existings as $existing) {
+						if ($existing->userid !== $user->uid) {
+							return [false, ['唯一项【' . $schema->title . '】不允许重复，请检查填写的数据']];
+						}
+					}
+				}
+			}
+		}
+
+		return [true];
 	}
 	/**
 	 * 提交信息中包含的自定义用户信息

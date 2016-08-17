@@ -415,8 +415,8 @@ class wx extends \member_base {
 		$siteId = $call['siteid'];
 		$data = json_decode($call['data']);
 		if ($reply = $this->model('sns\wx\event')->qrcodeCall($siteId, $data[1])) {
-			if ($reply->expire_at > 0) {
-				/* 一次性二维码，用完后就删除 */
+			if ($reply->scene_id > 100000) {
+				// 临时二维码，用完后就删除
 				$this->model()->delete('xxt_call_qrcode_wx', "id=$reply->id");
 			}
 			$r = $this->model('sns\reply\\' . $reply->matter_type, $call, $reply->matter_id);

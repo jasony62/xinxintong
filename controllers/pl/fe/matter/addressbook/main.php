@@ -46,7 +46,12 @@ class main extends \pl\fe\matter\base {
         $uid = \TMS_CLIENT::get_client_uid();
 
         $abid = $this->model('matter\addressbook')->insert_ab($site, $uid, $title);
-
+        
+        $app = $this->model('matter\addressbook')->byId($abid);
+        $user=$this->accountUser();
+        /* 记录操作日志 */
+        $app->type = 'addressbook';
+        $this->model('matter\log')->matterOp($site, $user, $app, 'C');
         return new \ResponseData($abid);
     }
 

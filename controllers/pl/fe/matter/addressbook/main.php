@@ -59,8 +59,14 @@ class main extends \pl\fe\matter\base {
      * 删除通讯录
      */
     public function remove_action($site,$id) {
+         /*记录操作日志*/
+        $user = $this->accountUser();
+        $app = $this->model('matter\\addressbook')->byId($id);
+        $app->type = 'addressbook';
+        $this->model('matter\log')->matterOp($site, $user, $app, 'D');
+        //删除
         $rst = $this->model('matter\addressbook')->remove_ab($site, $id);
-
+         
         if ($rst[0])
             return new \ResponseData('success');
         else

@@ -82,6 +82,11 @@ class main extends \pl\fe\matter\base {
         $rst = $this->model()->update(
                 'xxt_addressbook', (array) $nv, "siteid='$site' and id='$abid'"
         );
+        /*记录操作日志*/
+        $user=$this->accountUser();
+        $matter = $this->model('matter\addressbook')->byId($abid);
+        $matter->type = 'addressbook';
+        $this->model('matter\log')->matterOp($site, $user, $matter, 'U');
 
         return new \ResponseData($rst);
     }

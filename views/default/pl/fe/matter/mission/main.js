@@ -235,7 +235,7 @@ ngApp.controller('ctrlMatter', ['$scope', '$uibModal', 'http2', function($scope,
 			}
 		},
 		voting: {
-			title: '评价',
+			title: '问卷',
 			handler: function() {
 				$scope.addEnroll('voting');
 			}
@@ -364,8 +364,15 @@ ngApp.controller('ctrlMatter', ['$scope', '$uibModal', 'http2', function($scope,
 			location.href = '/rest/pl/fe/matter/group?site=' + $scope.siteId + '&id=' + rsp.data.id;
 		});
 	};
+	$scope.addMatter = function() {
+		if (/voting|registration/.test($scope.matterType)) {
+			$scope.addEnroll($scope.matterType);
+		} else {
+			$scope['add' + $scope.matterType[0].toUpperCase() + $scope.matterType.substr(1)]();
+		}
+	};
 	$scope.open = function(matter) {
-		var type = matter.type,
+		var type = matter.type || $scope.matterType,
 			id = matter.id;
 		switch (type) {
 			case 'article':
@@ -376,25 +383,67 @@ ngApp.controller('ctrlMatter', ['$scope', '$uibModal', 'http2', function($scope,
 				break;
 		}
 	};
-	$scope.fetch = function() {
-		http2.get('/rest/pl/fe/matter/mission/matter/list?site=' + $scope.siteId + '&id=' + $scope.id + '&_=' + (new Date()).getTime(), function(rsp) {
-			var typeCount = {};
-			angular.forEach(rsp.data, function(matter) {
-				matter._operator = matter.modifier_name || matter.creater_name;
-				matter._operateAt = matter.modifiy_at || matter.create_at;
-				if (matter.type === 'enroll') {
-					typeCount[matter.scenario] ? typeCount[matter.scenario]++ : (typeCount[matter.scenario] = 1);
-				} else {
-					typeCount[matter.type] ? typeCount[matter.type]++ : (typeCount[matter.type] = 1);
+	$scope.matterType = '';
+	$scope.list = function(matterType) {
+		var url;
+
+		matterType === undefined && (matterType = '');
+		$scope.matterType = matterType;
+
+		if (matterType === '') {
+			url = '/rest/pl/fe/matter/mission/matter/list?site=' + $scope.siteId + '&id=' + $scope.id;
+			url += '&_=' + (new Date() * 1);
+
+			http2.get(url, function(rsp) {
+				var typeCount = {};
+				angular.forEach(rsp.data, function(matter) {
+					matter._operator = matter.modifier_name || matter.creater_name;
+					matter._operateAt = matter.modifiy_at || matter.create_at;
+					if (matter.type === 'enroll') {
+						typeCount[matter.scenario] ? typeCount[matter.scenario]++ : (typeCount[matter.scenario] = 1);
+					} else {
+						typeCount[matter.type] ? typeCount[matter.type]++ : (typeCount[matter.type] = 1);
+					}
+				});
+				$scope.matters = rsp.data;
+				$scope.indicators = [];
+				if (matterType === '') {
+					!typeCount.registration && $scope.indicators.push(indicators.registration);
+					!typeCount.signin && $scope.indicators.push(indicators.signin);
+					!typeCount.group && $scope.indicators.push(indicators.group);
+					!typeCount.voting && $scope.indicators.push(indicators.voting);
 				}
 			});
-			$scope.matters = rsp.data;
-			$scope.indicators = [];
-			!typeCount.registration && $scope.indicators.push(indicators.registration);
-			!typeCount.signin && $scope.indicators.push(indicators.signin);
-			!typeCount.group && $scope.indicators.push(indicators.group);
-			!typeCount.voting && $scope.indicators.push(indicators.voting);
-		});
+		} else {
+			var scenario;
+			url = '/rest/pl/fe/matter/';
+			if (/registration|voting/.test(matterType)) {
+				url += 'enroll'
+				scenario = $scope.matterType;
+			} else {
+				url += matterType;
+			}
+			url += '/list?site=' + $scope.siteId;
+			url += '&mission=' + $scope.id;
+			scenario && (url += '&scenario=' + scenario);
+			url += '&_=' + (new Date() * 1);
+			http2.get(url, function(rsp) {
+				$scope.indicators = [];
+				if (/article/.test(matterType)) {
+					$scope.matters = rsp.data.articles;
+					if (rsp.data.total == 0) {
+						indicators.article && $scope.indicators.push(indicators.article);
+					}
+				} else if (/enroll|voting|registration|signin|group/.test(matterType)) {
+					$scope.matters = rsp.data.apps;
+					if (rsp.data.total == 0) {
+						indicators[matterType] && $scope.indicators.push(indicators[matterType]);
+					}
+				} else {
+					$scope.matters = rsp.data;
+				}
+			});
+		}
 	};
-	$scope.fetch();
+	$scope.list();
 }]);

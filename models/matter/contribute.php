@@ -21,10 +21,16 @@ class contribute_model extends app_base {
 	/**
 	 *
 	 */
-	public function getEntryUrl($runningMpid, $id) {
-		$url = "http://" . $_SERVER['HTTP_HOST'];
-		$url .= "/rest/app/contribute";
-		$url .= "?mpid=$runningMpid&entry=contribute," . $id;
+	public function getEntryUrl($siteId, $id, $ver = 'NEW') {
+		if ($ver === 'OLD') {
+			$url = "http://" . $_SERVER['HTTP_HOST'];
+			$url .= "/rest/app/contribute";
+			$url .= "?mpid=$siteId&entry=contribute," . $id;
+		} else {
+			$url = "http://" . $_SERVER['HTTP_HOST'];
+			$url .= "/rest/site/fe/matter/contribute";
+			$url .= "?site={$siteId}&app={$id}";
+		}
 
 		return $url;
 	}

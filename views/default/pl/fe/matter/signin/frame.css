@@ -49,4 +49,13 @@ body>nav>ul:nth-child(2)>li{display:inline-block;float:none;}
 #pageArea .page-wrap{position:absolute;top:0;bottom:0;left:860px;width:250px;overflow-y:auto;}
 
 /*record-view*/
+#record-view{position:absolute;top:71px;bottom:0;left:30px;right:30px;display:flex;flex-direction:column;}
+#record-view .top{flex-shrink:0;flex-grow:0;}
+#record-view .middle{flex-shrink:1;flex-grow:1;overflow:hidden;display:flex;flex-direction:column;}
+#record-view .bottom{flex-shrink:0;flex-grow:0;margin-left:-30px;margin-right:-30px;margin-bottom:0;}
+#record-view .middle>*{flex-shrink:0;flex-grow:0;}
+#record-view #signinRecords,#record-view #enrollRecords{flex-shrink:1;flex-grow:1;overflow:auto;}
 #record-view table img{max-width:96px;}
+#signinRecords th,#enrollRecords th{text-align:center;}
+#signinRecords th.enroll{background:yellow;}
+#signinRecords td span.signin_late,#enrollRecords td span.signin_late{color:red;}

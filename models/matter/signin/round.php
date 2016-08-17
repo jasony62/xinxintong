@@ -26,7 +26,7 @@ class round_model extends \TMS_MODEL {
 	 * @param string $appId
 	 *
 	 */
-	public function &byApp($siteId, $appId, $options = []) {
+	public function &byApp($appId, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$state = isset($options['state']) ? $options['state'] : false;
 

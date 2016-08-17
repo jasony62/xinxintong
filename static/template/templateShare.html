@@ -4,8 +4,36 @@
 </div>
 <div class="modal-body">
 	<div class="form-group">
-		<label class="radio-inline"><input type="radio" name="scope" ng-model="data.scope" value="U">跨账号共享给自己</label>
-		<label class="radio-inline"><input type="radio" name="scope" ng-model="data.scope" value="A">共享给所有人</label>
+		<label class="radio-inline"><input type="radio" name="scope" ng-model="data.visible_scope" value="U">跨账号共享给自己</label>
+		<label class="radio-inline"><input type="radio" name="scope" ng-model="data.visible_scope" value="A">共享给所有人</label>
+	</div>
+	<div class="form-group">
+		<label>标题</label>
+		<input type="text" class="form-control" ng-model="data.title">
+	</div>
+	<div class="form-group">
+		<label>说明</label>
+		<textarea class="form-control" ng-model="data.summary" rows="5"></textarea>
+	</div>
+	<div class="form-group">
+		<label>封面图片</label>
+		<div style='position:relative'>
+            <div style="width:182px;border:1px solid #CCC">
+                <div style="height:100px;text-align:center;padding-top:32px" ng-if="!data.pic">
+                    <button class='btn btn-default' ng-click='setPic();'>
+                    <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+                </div>
+                <div style='position:relative' ng-if="app.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+                    <img name='pic' ng-src="{{data.pic}}" width='180px' />
+                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                    <span class='glyphicon glyphicon-picture'></span>
+                    </button>
+                    <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                    <span class='glyphicon glyphicon-trash'></span>
+                    </button>
+                </div>
+            </div>
+        </div>
 	</div>
 </div>
 <div class="modal-footer">

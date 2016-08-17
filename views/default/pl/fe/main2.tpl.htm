@@ -54,22 +54,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="panel panel-default hide">
-                    <div class="panel-heading">
-                        推荐模版
-                    </div>
-                    <div class="panel-body">
-                        <div  class='col-md-3' ng-repeat='template in templates'>
-                            <div class='thumbnail template' ng-mouseenter='mouseenter=true' ng-mouseleave='mouseenter=false'>
-                                <button class='btn btn-default pull-right' title='收藏' ng-if='mouseenter' ng-click="collectTemplate($event,template)"><span class='glyphicon glyphicon-star-empty'></span></button>
-                                <div ng-bind="template.title"></div>
-                                <div class='footer'>
-                                    <span ng-bind="template.creater_name"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
         <script src="/static/js/angular.min.js"></script>

@@ -11,6 +11,9 @@ body>nav>ul:nth-child(2)>li{display:inline-block;float:none;}
 .tile .form-group,.tile .checkbox{padding:8px;background:#fff;border-radius:4px;}
 .tile .form-group.compact,.tile .checkbox.compact{margin-bottom:0}
 .tile .form-group:last-child{margin-bottom:0;}
+table th{text-align:center;}
+th.name{width:100px;}
+th.mobile{width:100px;}
 
 /*running*/
 .running .rounds .thumbnail{text-align:center;}

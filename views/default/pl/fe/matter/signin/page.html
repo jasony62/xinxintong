@@ -61,14 +61,6 @@
                         </div>
                     </div>
                 </div>
-                <div class='tile' ng-if="app.enroll_app_id">
-                    <div class='help-block'>要在签到名单中验证的登记项</div>
-                    <div class='list-group'>
-                        <div class='list-group-item' ng-repeat="s in app.data_schemas">
-                            <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="s.requireCheck" ng-change="update('data_schemas')">{{s.title}}</label>
-                        </div>
-                    </div>
-                </div>
                 <div ng-if="ep.type==='V'" ng-controller="ctrlAppSchemas4View">
                     <div class='list-group-item' ng-repeat="s in appSchemas">
                         <div class='checkbox' style='margin:0'>
@@ -123,7 +115,7 @@
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
                 <button class='btn btn-lg btn-success' ng-click="updPage(ep,['data_schemas','html'])">保存修改</button>
-                <a class='btn btn-lg btn-default' href='/rest/pl/fe/matter/signin/publish?site={{siteId}}&id={{id}}'>活动设置</a>
+                <a class='btn btn-lg btn-default' href='/rest/pl/fe/matter/signin/publish?site={{siteId}}&id={{id}}'>发布设置</a>
             </form>
             <form class="navbar-form navbar-right" style='display:inline-block'>
                 <button class='btn btn-lg btn-default' ng-click="remove()">删除活动</button>

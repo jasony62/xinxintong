@@ -367,7 +367,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
         replace: true
     };
 }]).directive('tmsDatepicker', function() {
-    _version = 4;
+    _version = 6;
     return {
         restrict: 'EA',
         scope: {
@@ -426,6 +426,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                     templateUrl: 'tmsModalDatepicker.html',
                     resolve: {
                         date: function() {
+
                             return $scope.date;
                         },
                         mask: function() {
@@ -467,6 +468,33 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                             $scope.hours.push(i);
                         for (var i = 0; i <= 59; i++)
                             $scope.minutes.push(i);
+                        $scope.today = function() {
+                            var d = new Date();
+                            $scope.date = {
+                                year: d.getFullYear(),
+                                month: d.getMonth() + 1,
+                                mday: d.getDate(),
+                                hour: d.getHours(),
+                                minute: d.getMinutes()
+                            };
+                        };
+                        $scope.reset = function(field) {
+                            $scope.date[field] = 0;
+                        };
+                        $scope.next = function(field, options) {
+                            var max = options[options.length - 1];
+
+                            if ($scope.date[field] < max) {
+                                $scope.date[field]++;
+                            }
+                        };
+                        $scope.prev = function(field, options) {
+                            var min = options[0];
+
+                            if ($scope.date[field] > min) {
+                                $scope.date[field]--;
+                            }
+                        };
                         $scope.ok = function() {
                             $mi.close($scope.date);
                         };
@@ -732,4 +760,36 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
             });
         }
     };
+}).directive('tmsTableWrap', function() {
+    return {
+        restrict: 'A',
+        scope: {
+            minColWidth: '@',
+            ready: '='
+        },
+        link: function(scope, elem, attrs) {
+            scope.$watch('ready', function(ready) {
+                if (ready === 'Y') {
+                    var eleWrap = elem[0],
+                        eleTable = eleWrap.querySelector('table'),
+                        minColWidth = scope.minColWidth || 120,
+                        eleCols, tableWidth = 0;
+
+                    if (eleTable) {
+                        eleWrap.style.overflowX = 'auto';
+                        eleTable.style.maxWidth = 'none';
+                        eleCols = eleTable.querySelectorAll('th');
+                        angular.forEach(eleCols, function(eleCol) {
+                            if (eleCol.style.width) {
+                                tableWidth += parseInt(eleCol.style.width.replace('px', ''));
+                            } else {
+                                tableWidth += minColWidth;
+                            }
+                            eleTable.style.width = tableWidth + 'px';
+                        });
+                    }
+                }
+            });
+        }
+    }
 });

@@ -164,7 +164,10 @@ define(['wrap'], function(wrapLib) {
 							matched = false;
 						if (config.pattern === 'record') {
 							if (schema && schema.id) {
-								if (mapOfAppSchemas[schema.id]) {
+								if (schema.id === 'enrollAt') {
+									matched = true;
+									dataSchemas.push(item);
+								} else if (mapOfAppSchemas[schema.id]) {
 									item.schema = mapOfAppSchemas[schema.id];
 									dataSchemas.push(item);
 									matched = true;
@@ -175,13 +178,13 @@ define(['wrap'], function(wrapLib) {
 					});
 					this.data_schemas = dataSchemas;
 				} else if (this.type === 'L') {
-					angular.forEach(this.data_schemas, function(config) {
-						if (config.pattern === 'records') {
+					angular.forEach(this.data_schemas, function(item) {
+						if (item.config.pattern === 'records') {
 							var listSchemas = [];
-							angular.forEach(config.schemas, function(schema) {
+							angular.forEach(item.schemas, function(schema) {
 								listSchemas.push(mapOfAppSchemas[schema.id] ? mapOfAppSchemas[schema.id] : schema);
 							});
-							config.schemas = listSchemas;
+							item.schemas = listSchemas;
 						}
 					});
 				}
@@ -452,7 +455,7 @@ define(['wrap'], function(wrapLib) {
 					$domRemoved = $(_editor.getBody()).find("[schema='" + removedSchema.id + "']");
 					$domRemoved.remove();
 					pageSchemas.splice(i, 1);
-					this.html = _editor.getContent();
+					this.purifyInput(_editor.getContent(), true);
 					return $domRemoved[0];
 				}
 			}

@@ -66,13 +66,9 @@ class record_model extends \TMS_MODEL {
 		// 处理后的登记记录
 		$dbData = new \stdClass;
 
-		// 已有的登记数据
-		$q = array(
-			'name',
-			'xxt_enroll_record_data',
-			"aid='{$app->id}' and enroll_key='$ek'",
-		);
-		$fields = $this->query_vals_ss($q);
+		// 清除已有的登记数据
+		$this->delete('xxt_enroll_record_data', "aid='{$app->id}' and enroll_key='$ek'");
+
 		foreach ($data as $n => $v) {
 			/**
 			 * 插入自定义属性
@@ -92,7 +88,6 @@ class record_model extends \TMS_MODEL {
 					}
 					$vv->extattr = $extattr;
 				}
-				//
 				$vv = urldecode(json_encode($vv));
 			} else if (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
 				/* 上传图片 */
@@ -106,7 +101,6 @@ class record_model extends \TMS_MODEL {
 					$vv[] = $rst[1];
 				}
 				$vv = implode(',', $vv);
-				//
 				$dbData->{$n} = $vv;
 			} else if (is_array($v) && isset($v[0]->uniqueIdentifier)) {
 				/* 上传文件 */
@@ -131,7 +125,6 @@ class record_model extends \TMS_MODEL {
 					$vv[] = $file;
 				}
 				$vv = json_encode($vv);
-				//
 				$dbData->{$n} = $vv;
 			} else {
 				if (is_string($v)) {
@@ -142,29 +135,19 @@ class record_model extends \TMS_MODEL {
 				} else {
 					$vv = $v;
 				}
-				//
 				$dbData->{$n} = $vv;
 			}
-
-			if (!empty($fields) && in_array($n, $fields)) {
-				$this->update(
-					'xxt_enroll_record_data',
-					array('value' => $vv),
-					"aid='{$app->id}' and enroll_key='$ek' and name='$n'"
-				);
-				unset($fields[array_search($n, $fields)]);
-			} else {
-				$ic = array(
-					'aid' => $app->id,
-					'enroll_key' => $ek,
-					'name' => $n,
-					'value' => $vv,
-				);
-				$this->insert('xxt_enroll_record_data', $ic, false);
-			}
+			// 记录数据
+			$ic = array(
+				'aid' => $app->id,
+				'enroll_key' => $ek,
+				'name' => $n,
+				'value' => $vv,
+			);
+			$this->insert('xxt_enroll_record_data', $ic, false);
 		}
 
-		return array(true, $dbData);
+		return [true, $dbData];
 	}
 	/**
 	 * 根据ID返回登记记录
@@ -187,25 +170,14 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 获得用户的登记清单
 	 */
-	public function byUser($siteId, $aid, $openid, $rid = null) {
-		if (empty($openid)) {
-			return false;
-		}
-
-		$q = array(
+	public function &byUser($appId, &$user) {
+		$q = [
 			'*',
 			'xxt_enroll_record',
-			"state=1 and mpid='$siteId' and aid='$aid' and openid='$openid'",
-		);
-		if (empty($rid)) {
-			$modelRun = \TMS_APP::M('matter\enroll\round');
-			if ($activeRound = $modelRun->getActive($siteId, $aid)) {
-				$q[2] .= " and rid='$activeRound->rid'";
-			}
-		} else {
-			$q[2] .= " and rid='$rid'";
-		}
-		$q2 = array('o' => 'enroll_at desc');
+			["state" => 1, "aid" => $appId, "userid" => $user->uid],
+		];
+
+		$q2 = ['o' => 'enroll_at desc'];
 
 		$list = $this->query_objs_ss($q, $q2);
 
@@ -214,41 +186,41 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 根据指定的数据查找匹配的记录
 	 */
-	public function &byData($siteId, &$app, &$data) {
-		$matchedRecords = array();
-		/*需要匹配的条件*/
-		$conditions = array();
-		foreach ($data as $key => $val) {
-			$conditions[] = "(name='$key' and value='$val')";
-		}
-		if (empty($conditions)) {
-			return $matchedRecords;
-		}
-		/*需要匹配的条件的数量*/
-		$countOfConditions = count($conditions);
-		/*将条件转换为SQL*/
-		$conditions = '(' . implode(' or ', $conditions) . ')';
-		/*查找匹配条件的数据*/
-		$q = array(
-			'enroll_key',
-			'xxt_enroll_record_data',
-			"state=1 and aid='{$app->id}' and $conditions",
-		);
-		/*记录每条记录匹配的次数*/
-		$mapOfCount = new \stdClass;
-		$pendings = $this->query_objs_ss($q);
-		foreach ($pendings as &$pending) {
-			if (isset($mapOfCount->{$pending->enroll_key})) {
-				$mapOfCount->{$pending->enroll_key} += 1;
-			} else {
-				$mapOfCount->{$pending->enroll_key} = 1;
+	public function &byData($siteId, &$app, &$data, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		// 查找条件
+		$whereByData = '';
+		foreach ($data as $k => $v) {
+			if (!empty($v)) {
+				$whereByData .= ' and (';
+				$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
+				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
+				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
+				$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
+				$whereByData .= ')';
 			}
-			if ($mapOfCount->{$pending->enroll_key} === $countOfConditions) {
-				$matchedRecords[] = $pending->enroll_key;
+		}
+		// 查找匹配条件的数据
+		$q = [
+			$fields,
+			'xxt_enroll_record',
+			"state=1 and aid='{$app->id}' $whereByData",
+		];
+		$records = $this->query_objs_ss($q);
+		foreach ($records as &$record) {
+			if (empty($record->data)) {
+				$record->data = new \stdClass;
+			} else {
+				$data = json_decode($record->data);
+				if ($data === null) {
+					$record->data = 'json error(' . json_last_error() . '):' . $r->data;
+				} else {
+					$record->data = $data;
+				}
 			}
 		}
 
-		return $matchedRecords;
+		return $records;
 	}
 	/**
 	 * 登记清单
@@ -311,17 +283,6 @@ class record_model extends \TMS_MODEL {
 		// 指定了轮次
 		!empty($rid) && $w .= " and e.rid='$rid'";
 
-		// if (!empty($kw) && !empty($by)) {
-		// 	switch ($by) {
-		// 	case 'mobile':
-		// 		$kw && $w .= " and m.mobile like '%$kw%'";
-		// 		break;
-		// 	case 'nickname':
-		// 		$kw && $w .= " and e.nickname like '%$kw%'";
-		// 		break;
-		// 	}
-		// }
-
 		// 指定了登记记录过滤条件
 		if (!empty($criteria->record)) {
 			$whereByRecord = '';
@@ -363,26 +324,31 @@ class record_model extends \TMS_MODEL {
 			$w,
 		];
 
+		$q2 = [];
 		// 查询结果分页
-		$q2 = [
-			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
-		];
+		if (!empty($page) && !empty($size)) {
+			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		}
 
 		// 查询结果排序
-		switch ($orderby) {
-		case 'time':
-			$q2['o'] = 'e.enroll_at desc';
-			break;
-		case 'score':
-			$q2['o'] = 'e.score desc';
-			break;
-		case 'remark':
-			$q2['o'] = 'e.remark_num desc';
-			break;
-		case 'follower':
-			$q2['o'] = 'e.follower_num desc';
-			break;
-		default:
+		if (isset($orderby)) {
+			switch ($orderby) {
+			case 'time':
+				$q2['o'] = 'e.enroll_at desc';
+				break;
+			case 'score':
+				$q2['o'] = 'e.score desc';
+				break;
+			case 'remark':
+				$q2['o'] = 'e.remark_num desc';
+				break;
+			case 'follower':
+				$q2['o'] = 'e.follower_num desc';
+				break;
+			default:
+				$q2['o'] = 'e.enroll_at desc';
+			}
+		} else {
 			$q2['o'] = 'e.enroll_at desc';
 		}
 
@@ -396,11 +362,14 @@ class record_model extends \TMS_MODEL {
 				} else {
 					$r->data = $data;
 				}
+
 				// 获得点赞记录
-				$app->can_like_record === 'Y' && $r->likers = $this->likers($r->enroll_key, 1, 3);
+				if (isset($app->can_like_record)) {
+					$app->can_like_record === 'Y' && $r->likers = $this->likers($r->enroll_key, 1, 3);
+				}
 
 				//获得邀请数据
-				if ($app->can_invite === 'Y') {
+				if (isset($app->can_invite) && $app->can_invite === 'Y') {
 					$qf = array(
 						'id,enroll_key,enroll_at,openid,nickname',
 						'xxt_enroll_record',
@@ -581,7 +550,7 @@ class record_model extends \TMS_MODEL {
 		return $rst;
 	}
 	/**
-	 * 清除一条登记记录
+	 * 登记人清除一条登记记录
 	 *
 	 * @param string $aid
 	 * @param string $ek
@@ -589,12 +558,12 @@ class record_model extends \TMS_MODEL {
 	public function removeByUser($site, $appId, $ek) {
 		$rst = $this->update(
 			'xxt_enroll_record_data',
-			array('state' => 0),
+			['state' => 200],
 			"aid='$appId' and enroll_key='$ek'"
 		);
 		$rst = $this->update(
 			'xxt_enroll_record',
-			array('state' => 0),
+			['state' => 200],
 			"aid='$appId' and enroll_key='$ek'"
 		);
 

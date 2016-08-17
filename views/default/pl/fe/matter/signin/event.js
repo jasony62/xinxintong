@@ -1,7 +1,32 @@
 define(['frame'], function(ngApp) {
-	ngApp.provider.controller('ctrlEvent', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
+	ngApp.provider.controller('ctrlEvent', ['$scope', '$location', 'http2', '$uibModal', function($scope, $location, http2, $uibModal) {
+		window.onbeforeunload = function(e) {
+			var message;
+			if ($scope.modified) {
+				message = '修改还没有保存，是否要离开当前页面？',
+					e = e || window.event;
+				if (e) {
+					e.returnValue = message;
+				}
+				return message;
+			}
+		};
 		$scope.pages4NonMember = [];
 		$scope.pages4Nonfan = [];
+		$scope.updateEntryRule = function() {
+			var p = {
+				entry_rule: encodeURIComponent(JSON.stringify($scope.app.entry_rule))
+			};
+			http2.post('/rest/pl/fe/matter/signin/update?site=' + $scope.siteId + '&app=' + $scope.id, p, function(rsp) {
+				$scope.persisted = angular.copy($scope.app);
+			});
+		};
+		$scope.resetEntryRule = function() {
+			http2.get('/rest/pl/fe/matter/signin/entryRuleReset?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+				$scope.app.entry_rule = rsp.data;
+				$scope.persisted = angular.copy($scope.app);
+			});
+		};
 		$scope.isInputPage = function(pageName) {
 			if (!$scope.app) {
 				return false;
@@ -13,23 +38,11 @@ define(['frame'], function(ngApp) {
 			}
 			return false;
 		};
-		/*直接给进入规则创建页面*/
-		$scope.newPage = function(prop) {
-			$scope.createPage().then(function(page) {
-				var rule = $scope.entryRule;
-				prop = prop.split('.');
-				if (!angular.isObject(rule[prop[0]])) {
-					rule[prop[0]] = {};
-				}
-				rule[prop[0]][prop[1]] = page.name;
-				$scope.update('entry_rule');
-			});
-		};
-		$scope.$watch('app', function(app) {
-			if (!app) return;
-
-			$scope.entryRule = $scope.app.entry_rule;
-
+		http2.get('/rest/pl/fe/site/snsList?site=' + $scope.siteId, function(rsp) {
+			$scope.sns = rsp.data;
+		});
+		$scope.$watch('app.pages', function(pages) {
+			if (!pages) return;
 			$scope.pages4NonMember = [{
 				name: '$memberschema',
 				title: '填写自定义用户信息'
@@ -38,7 +51,7 @@ define(['frame'], function(ngApp) {
 				name: '$mpfollow',
 				title: '提示关注'
 			}];
-			angular.forEach(app.pages, function(page) {
+			angular.forEach(pages, function(page) {
 				var newPage = {
 					name: page.name,
 					title: page.title

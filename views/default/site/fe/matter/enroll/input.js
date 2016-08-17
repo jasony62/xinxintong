@@ -30,8 +30,8 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
             return (value == null || value == "" || value.length < len) ? false : true;
         };
 
-        function validatePhone(value) {
-            return (false === /^1[3|4|5|7|8][0-9]\d{4,8}$/.test(value)) ? false : true;
+        function validateMobile(value) {
+            return (false === /^1[3|4|5|7|8][0-9]\d{8}$/.test(value)) ? false : true;
         };
 
         function validate(data) {
@@ -45,7 +45,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
             }
             if (document.querySelector('[ng-model="data.mobile"]')) {
                 reason = '请提供正确的手机号（11位数字）！';
-                if (false === validatePhone(data.mobile)) {
+                if (false === validateMobile(data.mobile)) {
                     document.querySelector('[ng-model="data.mobile"]').focus();
                     return reason;
                 }
@@ -73,6 +73,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
 
         var Input, _ins;
         Input = function() {};
+
         Input.prototype.check = function(data, app, page) {
             var reason, dataSchemas, item, value;
             reason = validate(data);

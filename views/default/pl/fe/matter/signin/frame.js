@@ -1,4 +1,5 @@
-define(['require', 'page'], function(require, pageLib) {
+define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
+	'use strict';
 	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'tinymce.enroll', 'ui.xxt']);
 	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
 		var RouteParam = function(name) {
@@ -65,16 +66,16 @@ define(['require', 'page'], function(require, pageLib) {
 			return $scope.submit();
 		};
 		$scope.remove = function() {
-            if (window.confirm('确定删除？')) {
-                http2.get('/rest/pl/fe/matter/signin/remove?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
-                    if ($scope.app.mission) {
-                        location = "/rest/pl/fe/matter/mission?site=" + $scope.siteId + "&id=" + $scope.app.mission.id;
-                    } else {
-                        location = '/rest/pl/fe/site/console?site=' + $scope.siteId;
-                    }
-                });
-            }
-        };
+			if (window.confirm('确定删除？')) {
+				http2.get('/rest/pl/fe/matter/signin/remove?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+					if ($scope.app.mission) {
+						location = "/rest/pl/fe/matter/mission?site=" + $scope.siteId + "&id=" + $scope.app.mission.id;
+					} else {
+						location = '/rest/pl/fe/site/console?site=' + $scope.siteId;
+					}
+				});
+			}
+		};
 		$scope.createPage = function() {
 			var deferred = $q.defer();
 			$uibModal.open({
@@ -105,18 +106,22 @@ define(['require', 'page'], function(require, pageLib) {
 			http2.get('/rest/pl/fe/matter/signin/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
 				var app = rsp.data,
 					mapOfAppSchemas = {};
+
 				app.tags = (!app.tags || app.tags.length === 0) ? [] : app.tags.split(',');
 				app.type = 'signin';
 				app.data_schemas = app.data_schemas && app.data_schemas.length ? JSON.parse(app.data_schemas) : [];
 				angular.forEach(app.data_schemas, function(schema) {
+					schemaLib._upgrade(schema);
 					mapOfAppSchemas[schema.id] = schema;
 				});
-				!app.entry_rule && (app.entry_rule = {});
 				app.entry_rule.scope === undefined && (app.entry_rule.scope = 'none');
 				angular.forEach(app.pages, function(page) {
 					angular.extend(page, pageLib);
 					page.arrange(mapOfAppSchemas);
 				});
+				if (app.enrollApp && app.enrollApp.data_schemas) {
+					app.enrollApp.data_schemas = JSON.parse(app.enrollApp.data_schemas);
+				}
 				$scope.app = app;
 				$scope.url = 'http://' + location.host + '/rest/site/fe/matter/signin?site=' + $scope.siteId + '&app=' + $scope.id;
 			});

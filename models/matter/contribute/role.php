@@ -17,7 +17,7 @@ class role_model extends \TMS_MODEL {
 			"c.siteid='$siteId' and c.cid='$cid' and role='$role'",
 		);
 		$users = $this->query_objs_ss($q);
-
+                $q2['o'] = 'id asc';	
 		return $users;
 	}
 }

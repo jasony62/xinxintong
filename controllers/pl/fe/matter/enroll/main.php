@@ -170,7 +170,7 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($app);
 	}
 	/**
-	 * 复制一个登记活动
+	 * 从模版创建一个登记活动
 	 *
 	 * @param int $template
 	 *
@@ -211,6 +211,7 @@ class main extends \pl\fe\matter\base {
 		$newapp['summary'] = $copied->summary;
 		$newapp['scenario'] = $copied->scenario;
 		$newapp['scenario_config'] = $copied->scenario_config;
+		$newapp['count_limit'] = $copied->count_limit;
 		$newapp['data_schemas'] = $copied->data_schemas;
 		$newapp['public_visible'] = $copied->public_visible;
 		$newapp['open_lastroll'] = $copied->open_lastroll;
@@ -287,6 +288,7 @@ class main extends \pl\fe\matter\base {
 		$newapp['summary'] = $modelApp->escape($copied->summary);
 		$newapp['scenario'] = $copied->scenario;
 		$newapp['scenario_config'] = json_encode($copied->scenario_config);
+		$newapp['count_limit'] = $copied->count_limit;
 		$newapp['multi_rounds'] = $copied->multi_rounds;
 		$newapp['data_schemas'] = $copied->data_schemas;
 		$newapp['entry_rule'] = json_encode($copied->entry_rule);

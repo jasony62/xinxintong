@@ -123,8 +123,9 @@ define(['require'], function() {
 		$scope.ok = function() {
 			var c, p, col;
 			p = {
-				tags: $scope.player.aTags.join(','),
 				data: {},
+				comment: $scope.player.comment,
+				tags: $scope.player.aTags.join(','),
 				round_id: $scope.player.round_id
 			};
 			$scope.player.tags = p.tags;

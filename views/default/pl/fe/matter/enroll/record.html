@@ -106,6 +106,7 @@
             <form class="navbar-form" style='display:inline-block'>
                 <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布设置</a>
                 <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/enroll/page?site={{siteId}}&id={{id}}">页面设置</a>
+                <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/enroll/stat?site={{siteId}}&id={{id}}" ng-if="app.scenario==='voting'">统计图表</a>
             </form>
             <form class="navbar-form navbar-right" style='display:inline-block'>
                 <button class='btn btn-lg btn-default' ng-click="remove()">删除活动</button>

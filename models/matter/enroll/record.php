@@ -188,6 +188,8 @@ class record_model extends \TMS_MODEL {
 	 */
 	public function &byData($siteId, &$app, &$data, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$records = false;
+
 		// 查找条件
 		$whereByData = '';
 		foreach ($data as $k => $v) {
@@ -200,6 +202,12 @@ class record_model extends \TMS_MODEL {
 				$whereByData .= ')';
 			}
 		}
+
+		// 没有指定条件时就认为没有符合条件的记录
+		if (empty($whereByData)) {
+			return $records;
+		}
+
 		// 查找匹配条件的数据
 		$q = [
 			$fields,

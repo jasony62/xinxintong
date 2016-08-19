@@ -259,6 +259,9 @@ define(['frame'], function(ngApp) {
                     app: function() {
                         return $scope.app;
                     },
+                    enrollDataSchemas: function() {
+                        return $scope.enrollDataSchemas;
+                    },
                     record: function() {
                         return {
                             aid: $scope.id,

@@ -128,20 +128,24 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 匹配规则
+		$isEmpty = true;
 		$matchCriteria = new \stdClass;
 		$schemas = json_decode($signinApp->data_schemas);
 		foreach ($schemas as $schema) {
-			if (isset($schema->requireCheck) && $schema->requireCheck === 'Y') {
+			if (isset($schema->requireCheck) && $schema->requireCheck === 'Y' && !empty($signinRecord->{$schema->id})) {
 				$matchCriteria->{$schema->id} = $signinRecord->{$schema->id};
+				$isEmpty = false;
 			}
 		}
 
-		// 查找匹配的数据
-		$enrollApp = $this->model('matter\enroll')->byId($signinApp->enroll_app_id, ['cascaded' => 'N']);
-		$modelEnlRec = $this->model('matter\enroll\record');
-		$enlRecords = $modelEnlRec->byData($site, $enrollApp, $matchCriteria);
-		foreach ($enlRecords as $enlRec) {
-			$result[] = $enlRec->data;
+		if (!$isEmpty) {
+			// 查找匹配的数据
+			$enrollApp = $this->model('matter\enroll')->byId($signinApp->enroll_app_id, ['cascaded' => 'N']);
+			$modelEnlRec = $this->model('matter\enroll\record');
+			$enlRecords = $modelEnlRec->byData($site, $enrollApp, $matchCriteria);
+			foreach ($enlRecords as $enlRec) {
+				$result[] = $enlRec->data;
+			}
 		}
 
 		return new \ResponseData($result);

@@ -66,7 +66,7 @@ class main extends \pl\fe\matter\base {
         $this->model('matter\log')->matterOp($site, $user, $app, 'D');
         //删除
         $rst = $this->model('matter\addressbook')->remove_ab($site, $id);
-         
+
         if ($rst[0])
             return new \ResponseData('success');
         else

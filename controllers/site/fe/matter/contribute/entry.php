@@ -16,13 +16,13 @@ class entry extends \site\fe\base {
 		/* 身份信息*/
 		$user = $this->who;
 		$mine = array();
-		$members = $this->model('site\user\member')->byUser($site, $user->uid);
+		$members = $this->model('site\user\member')->byUser($site, $user->uid);               
 		if (!empty($members)) {
 			/**
 			 * 投稿活动
 			 */
 			$entries = $this->model('matter\contribute')->bySite($site, $app);
-
+                       
 			$member = $members[0];
 			if (!empty($entries)) {
 				$modelAcl = $this->model('acl');
@@ -59,7 +59,7 @@ class entry extends \site\fe\base {
 				}
 			}
 		}
-
+           
 		$params = array();
 		$params['entries'] = $mine;
 		$params['user'] = $user;

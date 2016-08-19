@@ -46,6 +46,7 @@
                         <th class='custom-col' ng-repeat="c in app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
                         <th style='width:140px'>昵称</th>
                         <th style='width:80px'>审核通过</th>
+                        <th ng-if="app.scenario==='voting'" style='width:80px'>分数</th>
                         <th style='width:140px' ng-if="app.tags.length">标签</th>
                         <th style='width:140px'>备注</th>
                         <th style='width:60px' ng-if="app.can_invite==='Y'">邀请</th>
@@ -77,6 +78,7 @@
                         </td>
                         <td>{{r.nickname}}</td>
                         <td>{{r.verified}}</td>
+                        <td>{{r.__score}}</td>
                         <td ng-if="app.tags.length">{{r.tags}}</td>
                         <td>{{r.comment}}</td>
                         <td ng-if="app.can_invite==='Y'">{{r.follower_num}}</td>

@@ -200,7 +200,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			$scope.activeWrap = $scope.ep.setActiveWrap(domWrap);
 		};
 		$scope.wrapEditorHtml = function() {
-			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=27';
+			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=29';
 			return url;
 		};
 		/*创建了新的schema*/
@@ -750,8 +750,8 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			}
 		});
 		var timerOfUpdate = null;
-		$scope.updWrap = function(obj, names) {
-			wrapLib.input.modify($scope.activeWrap.dom, $scope.activeWrap);
+		$scope.updWrap = function() {
+			wrapLib[$scope.activeWrap.type].modify($scope.activeWrap.dom, $scope.activeWrap);
 			if (timerOfUpdate !== null) {
 				$timeout.cancel(timerOfUpdate);
 			}

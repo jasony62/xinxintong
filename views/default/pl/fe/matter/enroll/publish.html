@@ -212,6 +212,15 @@
 </div>
 <script type="text/ng-template" id="appSetting.html">
     <div id="appSetting">
+        <div class='form-group'>
+            <select class='form-control' ng-model="app.scenario" ng-change="update('scenario');">
+                <option value=''></option>
+                <option value='registration'>报名</option>
+                <option value='voting'>评价</option>
+                <option value='group_week_report'>周报</option>
+            </select>
+        </div>
+        <hr>
         <div class='checkbox'>
             <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_header' ng-change="update('use_site_header');">使用站点页眉</label>
         </div>

@@ -173,7 +173,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                     url += type + '/remove?app=' + id + '&site=' + $scope.siteId;
                     break;
                 case 'addressbook':
-                    url += type + '/remove?id=' + matter.matter_id + '&site=' + $scope.siteId;
+                    url += type + '/remove?id=' + id + '&site=' + $scope.siteId;
                     break;
             }
             http2.get(url, function(rsp) {

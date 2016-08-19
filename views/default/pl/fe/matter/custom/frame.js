@@ -19,8 +19,8 @@ app.controller('ctrlCustom', ['$scope', '$location', 'http2', function($scope, $
 		url = 'http://' + location.host + '/rest/site/fe/matter?site=' + ls.site + '&id=' + ls.id + '&type=custom';
 		$scope.entry = {
 			url: url,
-			qrcode: '/rest/pl/fe/matter/custom/qrcode?site=' + ls.site + '&url=' + encodeURIComponent(url),
-			/*qrcode: '/rest/site/fe/matter/custom/qrcode?site=' + ls.site + '&url=' + encodeURIComponent(url),*/
+			/*qrcode: '/rest/pl/fe/matter/custom/qrcode?site=' + ls.site + '&url=' + encodeURIComponent(url),*/
+			qrcode: '/rest/site/fe/matter/article/qrcode?site=' + ls.site + '&url=' + encodeURIComponent(url),
 		};
 	});
 }]);

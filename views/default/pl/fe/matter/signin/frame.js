@@ -105,7 +105,7 @@ define(['require', 'page'], function(require, pageLib) {
 			http2.get('/rest/pl/fe/matter/signin/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
 				var app = rsp.data,
 					mapOfAppSchemas = {};
-					
+
 				app.tags = (!app.tags || app.tags.length === 0) ? [] : app.tags.split(',');
 				app.type = 'signin';
 				app.data_schemas = app.data_schemas && app.data_schemas.length ? JSON.parse(app.data_schemas) : [];

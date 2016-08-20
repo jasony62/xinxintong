@@ -792,7 +792,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
                         if ($scope.activeWrap.schema.schema_id === memberSchema.id) {
                             for (j = memberSchema._schemas.length - 1; j >= 0; j--) {
                                 schema = memberSchema._schemas[j];
-                                if ($scope.schema.id === schema.id) {
+                                if ($scope.activeWrap.schema === schema.id) {
                                     break;
                                 }
                             }

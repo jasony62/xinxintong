@@ -387,8 +387,10 @@ class record_model extends \TMS_MODEL {
 				if ($app->scenario === 'voting') {
 					if (!isset($singleSchemas)) {
 						$singleSchemas = $this->_mapOfSingleSchema($app);
+						$countSingleSchemas = count(array_keys((array) $singleSchemas));
 					}
 					$r->_score = $this->_calcScore($singleSchemas, $data);
+					$r->_average = $r->_score / $countSingleSchemas;
 				}
 				// 获得点赞记录
 				if (isset($app->can_like_record)) {

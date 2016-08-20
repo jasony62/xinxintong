@@ -503,12 +503,6 @@ class record extends \pl\fe\matter\base {
 		$schemas = json_decode($app->data_schemas);
 
 		// 获得所有有效的登记记录
-		// $q = [
-		// 	'enroll_at,verified,data',
-		// 	'xxt_enroll_record',
-		// 	["aid" => $app->id, 'state' => 1],
-		// ];
-		// $records = $this->model()->query_objs_ss($q);
 		$records = $this->model('matter\enroll\record')->find($site, $app);
 		if ($records->total === 0) {
 			die('record empty');
@@ -525,7 +519,8 @@ class record extends \pl\fe\matter\base {
 		}
 		// 记录分数
 		if ($app->scenario === 'voting') {
-			$titles[] = '分数';
+			$titles[] = '总分数';
+			$titles[] = '平均分数';
 		}
 		$titles = implode("\t", $titles);
 		$size += strlen($titles);
@@ -572,6 +567,7 @@ class record extends \pl\fe\matter\base {
 			// 记录分数
 			if ($app->scenario === 'voting') {
 				$row[] = $record->_score;
+				$row[] = sprintf('%.2f', $record->_average);
 			}
 			// 将数据转换为'|'分隔的字符串
 			$row = implode("\t", $row);

@@ -33,6 +33,9 @@
                 <button class='btn btn-default' ng-click="newSchema('location')">上传位置</button>
                 <button class='btn btn-default' ng-click="newSchema('phase')">项目阶段</button>
             </div>
+            <div class='form-group tile' ng-if="app.scenario==='voting'">
+                <button class='btn btn-default' ng-click="batchSingleScore()">批量设置单选题分值</button>
+            </div>
             <div class='form-group tile' ng-repeat="ms in memberSchemas" ng-if="ep.type==='I'">
                 <div class='help-block'>{{ms.title}}</div>
                 <button class='btn btn-default' ng-click="newMember(ms,s)" ng-repeat="s in ms._schemas">{{s.title}}</button>

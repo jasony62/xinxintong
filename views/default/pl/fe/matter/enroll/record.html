@@ -78,7 +78,7 @@
                         </td>
                         <td>{{r.nickname}}</td>
                         <td>{{r.verified}}</td>
-                        <td>{{r.__score}}</td>
+                        <td ng-if="app.scenario==='voting'">{{r._score}}</td>
                         <td ng-if="app.tags.length">{{r.tags}}</td>
                         <td>{{r.comment}}</td>
                         <td ng-if="app.can_invite==='Y'">{{r.follower_num}}</td>

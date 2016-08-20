@@ -146,6 +146,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 						});
 					}
 				});
+				$scope.update('data_schemas');
 			});
 		};
 		/*初始化页面数据*/

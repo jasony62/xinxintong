@@ -190,6 +190,19 @@
                     <label>摘要（可选）</label>
                     <textarea class='form-control' ng-model='app.summary' rows=5 tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
                 </div>
+                <div class='form-group compact' ng-if="sns.wx.joined==='Y'&&sns.wx.can_qrcode==='Y'" ng-controller="ctrlWxQrcode">
+                    <div class='help-block'>微信二维码</div>
+                    <div ng-if='!qrcode'>
+                        <button class='btn btn-default' ng-click="create()">生成二维码</button>
+                    </div>
+                    <div ng-if='qrcode'>
+                        <span><img style='width:135px;height:135px;' ng-src="{{qrcode.pic}}"></span>
+                        <button class='btn btn-default' ng-click="download()">下载</button>
+                    </div>
+                </div>
+                <div class='form-group compact' ng-if="sns.yx.joined==='Y'&&sns.yx.can_qrcode==='Y'">
+                    <div class='help-block'>易信二维码</div>
+                </div>
             </div>
         </div>
     </div>
@@ -220,6 +233,8 @@
                 <option value='group_week_report'>周报</option>
             </select>
         </div>
+        <hr>
+        <a href="/rest/pl/fe/matter/enroll/event?site={{siteId}}&id={{id}}">活动进入规则</a>
         <hr>
         <div class='checkbox'>
             <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_header' ng-change="update('use_site_header');">使用站点页眉</label>

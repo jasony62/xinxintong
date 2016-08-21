@@ -162,6 +162,9 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 				ms._schemas = schemas;
 			});
 		});
+		http2.get('/rest/pl/fe/site/snsList?site=' + $scope.siteId, function(rsp) {
+			$scope.sns = rsp.data;
+		});
 		srvApp.get().then(function(app) {
 			var mapOfAppSchemas = {};
 			// 将页面的schema指向应用的schema

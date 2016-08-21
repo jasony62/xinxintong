@@ -20,7 +20,7 @@ define(['frame'], function(ngApp) {
             var round = mapOfRounds[roundId],
                 signinAt;
 
-            if (record && record.signin_log && round && round.late_at) {
+            if (record && record.signin_log && round && round.late_at > 0) {
                 signinAt = parseInt(record.signin_log[roundId]);
                 if (signinAt) {
                     // 忽略秒的影响

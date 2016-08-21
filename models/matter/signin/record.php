@@ -487,7 +487,7 @@ class record_model extends \TMS_MODEL {
 						$q = [
 							'count(*)',
 							'xxt_signin_log',
-							"aid='" . $this->escape($appId) . "' and rid='{$round->rid}' and state=1 and signin_at>" . ((int) $round->late_at + 60),
+							"aid='" . $this->escape($appId) . "' and rid='{$round->rid}' and state=1 and signin_at>" . ((int) $round->late_at + 59),
 						];
 						$round->late = $this->query_val_ss($q);
 					} else {

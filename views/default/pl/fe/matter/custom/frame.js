@@ -1,5 +1,5 @@
-app = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'channel.fe.pl']);
-app.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
+var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'tmplshop.ui.xxt', 'channel.fe.pl']);
+ngApp.config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
 	$routeProvider.when('/rest/pl/fe/matter/custom', {
 		templateUrl: '/views/default/pl/fe/matter/custom/setting.html?_=2',
 		controller: 'ctrlSetting',
@@ -9,7 +9,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider, $loc
 	});
 	$locationProvider.html5Mode(true);
 }]);
-app.controller('ctrlCustom', ['$scope', '$location', 'http2', function($scope, $location, http2) {
+ngApp.controller('ctrlCustom', ['$scope', '$location', 'http2', function($scope, $location, http2) {
 	var ls = $location.search();
 	$scope.id = ls.id;
 	$scope.siteId = ls.site;
@@ -19,11 +19,11 @@ app.controller('ctrlCustom', ['$scope', '$location', 'http2', function($scope, $
 		url = 'http://' + location.host + '/rest/site/fe/matter?site=' + ls.site + '&id=' + ls.id + '&type=custom';
 		$scope.entry = {
 			url: url,
-			qrcode: '/rest/pl/fe/matter/custom/qrcode?url=' + encodeURIComponent(url),
+			qrcode: '/rest/site/fe/matter/article/qrcode?site=' + ls.site + '&url=' + encodeURIComponent(url),
 		};
 	});
 }]);
-app.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', function($scope, http2, mediagallery) {
+ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', 'templateShop', function($scope, http2, mediagallery, templateShop) {
 	var modifiedData = {};
 	$scope.modified = false;
 	$scope.back = function() {

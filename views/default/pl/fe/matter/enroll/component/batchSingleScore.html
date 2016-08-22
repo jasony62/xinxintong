@@ -1,0 +1,17 @@
+<div class="modal-header">
+    <button class="close" ng-click="cancel()" type="button">×</button>
+    <h5 class="modal-title">批量设置单选项分值</h5>
+</div>
+<div class="modal-body">
+    <div class="form-horizontal">
+        <div class='form-group' ng-repeat="score in opScores track by $index">
+            <label class='control-label col-md-3'>选项{{$index+1}}</label>
+            <div class='col-md-9'>
+                <input type='number' class='form-control' ng-model="score">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-success" ng-click="ok()">确定</button>
+</div>

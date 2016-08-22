@@ -50,10 +50,10 @@ class stat extends \pl\fe\matter\base {
 			} else {
 				$newCnt = 999;
 			}
-			/* 如果更新的登记数据，重新计算统计结果 */
+			// 如果更新的登记数据，重新计算统计结果
 			if ($newCnt > 0) {
 				$result = $this->model('matter\enroll\record')->getStat($app);
-				/* 保存统计结果 */
+				// 保存统计结果
 				$model->delete(
 					'xxt_enroll_record_stat',
 					"aid='$app'"
@@ -83,22 +83,20 @@ class stat extends \pl\fe\matter\base {
 				];
 				$cached = $model->query_objs_ss($q);
 				foreach ($cached as $data) {
-					if (isset($result[$data->id])) {
-						$item = &$result[$data->id];
-					} else {
+					if (empty($result[$data->id])) {
 						$item = [
 							'id' => $data->id,
 							'title' => $data->title,
 							'ops' => [],
 						];
-						$result[$data->id] = &$item;
+						$result[$data->id] = $item;
 					}
 					$op = [
 						'v' => $data->v,
 						'l' => $data->l,
 						'c' => $data->c,
 					];
-					$item['ops'][] = $op;
+					$result[$data->id]['ops'][] = $op;
 				}
 			}
 		} else {

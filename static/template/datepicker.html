@@ -1,6 +1,6 @@
 <div class="input-group">
     <div class="form-control" title="{{title}}">
-        <span ng-show="date" ng-bind="date*1000|date:format"></span>
+        <span ng-show="date>0" ng-bind="date*1000|date:format"></span>
     </div>
     <span class="input-group-btn">
         <button class="btn btn-default" ng-click='open()'>

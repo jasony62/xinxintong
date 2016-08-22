@@ -110,53 +110,45 @@ class record extends \pl\fe\matter\base {
 		return new \ResponseData($summary);
 	}
 	/**
-	 * 将数据导出到另一个活动
+	 * 从报名表中查找匹配的记录
 	 */
-	public function exportByData_action($site, $app) {
+	public function matchEnroll_action($site, $app) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$posted = $this->getPostJson();
-		$filter = $posted->filter;
-		$target = $posted->target;
-		$includeData = isset($posted->includeData) ? $posted->includeData : 'N';
 
-		if (!empty($target)) {
-			/*更新应用标签*/
-			$modelApp = $this->model('matter\signin');
-			/*给符合条件的记录打标签*/
-			$modelRec = $this->model('matter\signin\record');
-			$q = [
-				'distinct enroll_key',
-				'xxt_signin_record_data',
-				"aid='$app' and state=1",
-			];
-			$eks = null;
-			foreach ($filter as $k => $v) {
-				$w = "(name='$k' and ";
-				$w .= "concat(',',value,',') like '%,$v,%'";
-				$w .= ')';
-				$q2 = $q;
-				$q2[2] .= ' and ' . $w;
-				$eks2 = $modelRec->query_vals_ss($q2);
-				$eks = ($eks === null) ? $eks2 : array_intersect($eks, $eks2);
-			}
-			if (!empty($eks)) {
-				$objApp = $modelApp->byId($target, ['cascade' => 'N']);
-				$options = ['cascaded' => $includeData];
-				foreach ($eks as $ek) {
-					$record = $modelRec->byId($ek, $options);
-					$user = new \stdClass;
-					$user->nickname = $record->nickname;
-					$newek = $modelRec->add($site, $objApp, $user);
-					if ($includeData === 'Y') {
-						$modelRec->setData($user, $site, $objApp, $newek, $record->data);
-					}
-				}
+		$signinRecord = $this->getPostJson();
+		$result = [];
+
+		// 签到应用
+		$modelApp = $this->model('matter\signin');
+		$signinApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (empty($signinApp->enroll_app_id) || empty($signinApp->data_schemas)) {
+			return new \ParameterError();
+		}
+
+		// 匹配规则
+		$isEmpty = true;
+		$matchCriteria = new \stdClass;
+		$schemas = json_decode($signinApp->data_schemas);
+		foreach ($schemas as $schema) {
+			if (isset($schema->requireCheck) && $schema->requireCheck === 'Y' && !empty($signinRecord->{$schema->id})) {
+				$matchCriteria->{$schema->id} = $signinRecord->{$schema->id};
+				$isEmpty = false;
 			}
 		}
 
-		return new \ResponseData('ok');
+		if (!$isEmpty) {
+			// 查找匹配的数据
+			$enrollApp = $this->model('matter\enroll')->byId($signinApp->enroll_app_id, ['cascaded' => 'N']);
+			$modelEnlRec = $this->model('matter\enroll\record');
+			$enlRecords = $modelEnlRec->byData($site, $enrollApp, $matchCriteria);
+			foreach ($enlRecords as $enlRec) {
+				$result[] = $enlRec->data;
+			}
+		}
+
+		return new \ResponseData($result);
 	}
 	/**
 	 * 手工添加登记信息
@@ -764,5 +756,54 @@ class record extends \pl\fe\matter\base {
 		//exit;
 
 		return new \ResponseData($exportedData);
+	}
+	/**
+	 * 将数据导出到另一个活动
+	 */
+	public function exportByData_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$posted = $this->getPostJson();
+		$filter = $posted->filter;
+		$target = $posted->target;
+		$includeData = isset($posted->includeData) ? $posted->includeData : 'N';
+
+		if (!empty($target)) {
+			/*更新应用标签*/
+			$modelApp = $this->model('matter\signin');
+			/*给符合条件的记录打标签*/
+			$modelRec = $this->model('matter\signin\record');
+			$q = [
+				'distinct enroll_key',
+				'xxt_signin_record_data',
+				"aid='$app' and state=1",
+			];
+			$eks = null;
+			foreach ($filter as $k => $v) {
+				$w = "(name='$k' and ";
+				$w .= "concat(',',value,',') like '%,$v,%'";
+				$w .= ')';
+				$q2 = $q;
+				$q2[2] .= ' and ' . $w;
+				$eks2 = $modelRec->query_vals_ss($q2);
+				$eks = ($eks === null) ? $eks2 : array_intersect($eks, $eks2);
+			}
+			if (!empty($eks)) {
+				$objApp = $modelApp->byId($target, ['cascade' => 'N']);
+				$options = ['cascaded' => $includeData];
+				foreach ($eks as $ek) {
+					$record = $modelRec->byId($ek, $options);
+					$user = new \stdClass;
+					$user->nickname = $record->nickname;
+					$newek = $modelRec->add($site, $objApp, $user);
+					if ($includeData === 'Y') {
+						$modelRec->setData($user, $site, $objApp, $newek, $record->data);
+					}
+				}
+			}
+		}
+
+		return new \ResponseData('ok');
 	}
 }

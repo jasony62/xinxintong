@@ -8,11 +8,11 @@ class fan_model extends \TMS_MODEL {
 	 *
 	 */
 	public function &byOpenid($siteid, $openid, $fields = '*', $followed = null) {
-		$q = array(
+		$q = [
 			$fields,
 			'xxt_site_wxfan',
 			"siteid='$siteid' and openid='$openid'",
-		);
+		];
 		if ($followed === 'Y') {
 			$q[2] .= " and unsubscribe_at=0";
 		}
@@ -24,11 +24,11 @@ class fan_model extends \TMS_MODEL {
 	 *
 	 */
 	public function &byUser($siteid, $userid, $fields = '*', $followed = null) {
-		$q = array(
+		$q = [
 			$fields,
 			'xxt_site_wxfan',
 			"siteid='$siteid' and userid='$userid'",
-		);
+		];
 		if ($followed === 'Y') {
 			$q[2] .= " and unsubscribe_at=0";
 		}
@@ -46,11 +46,11 @@ class fan_model extends \TMS_MODEL {
 			return false;
 		}
 
-		$q = array(
+		$q = [
 			'count(*)',
 			'xxt_site_wxfan',
 			"siteid='$siteid' and openid='$openid' and unsubscribe_at=0",
-		);
+		];
 
 		$isFollow = (1 === (int) $this->query_val_ss($q));
 
@@ -63,7 +63,7 @@ class fan_model extends \TMS_MODEL {
 		$fan = new \stdClass;
 		$fan->siteid = $siteid;
 		$fan->openid = $openid;
-		!empty($options['userid']) && $fan->userid = $options['userid'];
+		//!empty($options['userid']) && $fan->userid = $options['userid'];
 		!empty($options['subscribe_at']) && $fan->subscribe_at = $options['subscribe_at'];
 		!empty($options['sync_at']) && $fan->sync_at = $options['sync_at'];
 
@@ -82,11 +82,11 @@ class fan_model extends \TMS_MODEL {
 	 *
 	 */
 	public function &getGroups($siteid) {
-		$q = array(
+		$q = [
 			'id,name',
 			'xxt_site_wxfangroup',
 			"siteid='$siteid'",
-		);
+		];
 		$q2 = array('o' => 'id');
 
 		$groups = $this->query_objs_ss($q, $q2);

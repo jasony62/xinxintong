@@ -415,17 +415,16 @@ class record extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$site = \TMS_MODEL::escape($site);
+		$app = \TMS_MODEL::escape($app);
 		$posted = $this->getPostJson();
 		$message = $posted->message;
 
 		// 记录筛选条件
 		$criteria = $posted->criteria;
-		$options = array(
+		$options = [
 			'rid' => $rid,
-		);
-
-		$site = \TMS_MODEL::escape($site);
-		$app = \TMS_MODEL::escape($app);
+		];
 
 		$participants = $this->model('matter\enroll')->participants($site, $app, $options, $criteria);
 
@@ -440,19 +439,16 @@ class record extends \pl\fe\matter\base {
 	 * 给用户发送素材
 	 */
 	protected function notifyWithMatter($siteId, &$userIds, $tmplmsgId, &$message) {
-		/**
-		 * 指定的消息发送方式
-		 */
 		if (count($userIds)) {
 			$mapOfUsers = new \stdClass;
 			$modelAcnt = $this->model('site\user\account');
 			$modelWxfan = $modelYxfan = $modelQyfan = false;
 
-			/*微信可以使用平台的公众号*/
+			// 微信可以使用平台的公众号
 			$wxSiteId = false;
 
 			foreach ($userIds as $userid) {
-				$user = $modelAcnt->byId($userid, ['fields' => 'ufrom']);
+				$user = $modelAcnt->byId($userid, ['fields' => 'ufrom,wx_openid,yx_openid,qy_openid']);
 				if (!isset($mapOfUsers->{$userid})) {
 					$mapOfUsers->{$userid} = $user;
 					switch ($user->ufrom) {
@@ -466,22 +462,17 @@ class record extends \pl\fe\matter\base {
 								$wxSiteId = $siteId;
 							}
 						}
-						$modelWxfan === false && $modelWxfan = $this->model('sns\wx\fan');
-						$fan = $modelWxfan->byUser($wxSiteId, $userid, 'openid', 'Y');
-						/*如果定义了发送素材的模版消息，用模版消息发送*/
-						$rst = $this->tmplmsgSendByOpenid($tmplmsgId, $fan->openid, $message);
+						// 用模板消息发送
+						$rst = $this->tmplmsgSendByOpenid($tmplmsgId, $user->wx_openid, $message);
 						if ($rst[0] === false) {
 							return $rst;
 						}
 						break;
 					case 'yx':
-						$modelYxfan === false && $modelYxfan = $this->model('sns\yx\fan');
-						/*如果开放了点对点消息，用点对点消息发送*/
-						$fan = $modelYxfan->byUser($siteId, $userid, 'openid', 'Y');
+						// 如果开放了点对点消息，用点对点消息发送
 						break;
 					case 'qy':
-						$modelQyfan = false && $modelQyfan = $this->model('sns\qy\fan');
-						$fan = $modelQyfan->byUser($siteId, $userid, 'openid', 'Y');
+						// 点对点发送
 						break;
 					}
 				}
@@ -499,19 +490,15 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 登记活动
-		$app = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+		$app = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario', 'cascaded' => 'N']);
 		$schemas = json_decode($app->data_schemas);
 
 		// 获得所有有效的登记记录
-		$q = [
-			'enroll_at,verified,data',
-			'xxt_enroll_record',
-			["aid" => $app->id, 'state' => 1],
-		];
-		$records = $this->model()->query_objs_ss($q);
-		if (count($records) === 0) {
+		$records = $this->model('matter\enroll\record')->find($site, $app);
+		if ($records->total === 0) {
 			die('record empty');
 		}
+		$records = $records->records;
 
 		// 登记记录转换成下载数据
 		$exportedData = [];
@@ -520,6 +507,11 @@ class record extends \pl\fe\matter\base {
 		$titles = ['登记时间', '审核通过'];
 		foreach ($schemas as $schema) {
 			$titles[] = $schema->title;
+		}
+		// 记录分数
+		if ($app->scenario === 'voting') {
+			$titles[] = '总分数';
+			$titles[] = '平均分数';
 		}
 		$titles = implode("\t", $titles);
 		$size += strlen($titles);
@@ -530,8 +522,7 @@ class record extends \pl\fe\matter\base {
 			$row[] = date('y-m-j H:i', $record->enroll_at);
 			$row[] = $record->verified;
 			// 处理登记项
-			$data = str_replace("\n", ' ', $record->data);
-			$data = json_decode($record->data);
+			$data = $record->data;
 			foreach ($schemas as $schema) {
 				$v = isset($data->{$schema->id}) ? $data->{$schema->id} : '';
 				switch ($schema->type) {
@@ -563,6 +554,11 @@ class record extends \pl\fe\matter\base {
 					$row[] = $v;
 					break;
 				}
+			}
+			// 记录分数
+			if ($app->scenario === 'voting') {
+				$row[] = $record->_score;
+				$row[] = sprintf('%.2f', $record->_average);
 			}
 			// 将数据转换为'|'分隔的字符串
 			$row = implode("\t", $row);

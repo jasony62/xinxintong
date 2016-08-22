@@ -392,12 +392,7 @@ class record_model extends \TMS_MODEL {
 					$r->_score = $this->_calcScore($singleSchemas, $data);
 					$r->_average = $r->_score / $countSingleSchemas;
 				}
-				// 获得点赞记录
-				if (isset($app->can_like_record)) {
-					$app->can_like_record === 'Y' && $r->likers = $this->likers($r->enroll_key, 1, 3);
-				}
-
-				//获得邀请数据
+				// 获得邀请数据
 				if (isset($app->can_invite) && $app->can_invite === 'Y') {
 					$qf = array(
 						'id,enroll_key,enroll_at,openid,nickname',
@@ -407,7 +402,6 @@ class record_model extends \TMS_MODEL {
 					$qf2 = array('o' => 'enroll_at');
 					$r->followers = $this->query_objs_ss($qf, $qf2);
 				}
-
 				//获得关联抽奖活动记录
 				$ql = array(
 					'award_title',

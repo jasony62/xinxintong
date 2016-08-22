@@ -45,7 +45,7 @@ define(['frame'], function(ngApp) {
 			var url;
 
 			url = '/rest/pl/fe/site/sns/wx/qrcode/create?site=' + $scope.siteId;
-			url += '&matter_type=signin&matter_id=' + $scope.id;
+			url += '&matter_type=enroll&matter_id=' + $scope.id;
 			url += '&expire=864000';
 
 			http2.get(url, function(rsp) {

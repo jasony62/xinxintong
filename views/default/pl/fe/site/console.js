@@ -165,15 +165,13 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
         if (window.confirm('确定删除：' + title + '？')) {
             switch (type) {
                 case 'article':
+                case 'addressbook':
                     url += type + '/remove?id=' + id + '&site=' + $scope.siteId;
                     break;
                 case 'enroll':
                 case 'signin':
                 case 'group':
                     url += type + '/remove?app=' + id + '&site=' + $scope.siteId;
-                    break;
-                case 'addressbook':
-                    url += type + '/remove?id=' + matter.id + '&site=' + $scope.siteId;
                     break;
             }
             http2.get(url, function(rsp) {

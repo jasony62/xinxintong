@@ -46,7 +46,12 @@ class main extends \pl\fe\matter\base {
         $uid = \TMS_CLIENT::get_client_uid();
 
         $abid = $this->model('matter\addressbook')->insert_ab($site, $uid, $title);
-
+        
+        $app = $this->model('matter\addressbook')->byId($abid);
+        $user=$this->accountUser();
+        /* 记录操作日志 */
+        $app->type = 'addressbook';
+        $this->model('matter\log')->matterOp($site, $user, $app, 'C');
         return new \ResponseData($abid);
     }
 
@@ -54,6 +59,12 @@ class main extends \pl\fe\matter\base {
      * 删除通讯录
      */
     public function remove_action($site,$id) {
+         /*记录操作日志*/
+        $user = $this->accountUser();
+        $app = $this->model('matter\\addressbook')->byId($id);
+        $app->type = 'addressbook';
+        $this->model('matter\log')->matterOp($site, $user, $app, 'D');
+        //删除
         $rst = $this->model('matter\addressbook')->remove_ab($site, $id);
 
         if ($rst[0])
@@ -77,6 +88,11 @@ class main extends \pl\fe\matter\base {
         $rst = $this->model()->update(
                 'xxt_addressbook', (array) $nv, "siteid='$site' and id='$abid'"
         );
+        /*记录操作日志*/
+        $user=$this->accountUser();
+        $matter = $this->model('matter\addressbook')->byId($abid);
+        $matter->type = 'addressbook';
+        $this->model('matter\log')->matterOp($site, $user, $matter, 'U');
 
         return new \ResponseData($rst);
     }

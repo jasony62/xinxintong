@@ -28,8 +28,14 @@ class enroll_model extends app_base {
 			$url .= "/rest/app/enroll";
 			$url .= "?mpid={$siteId}&aid=" . $id;
 		} else {
-			$url .= "/rest/site/fe/matter/enroll";
-			$url .= "?site={$siteId}&app=" . $id;
+			if ($siteId === 'platform') {
+				$app = $this->byId($id, ['cascaded' => 'N']);
+				$url .= "/rest/site/fe/matter/enroll";
+				$url .= "?site={$app->siteid}&app=" . $id;
+			} else {
+				$url .= "/rest/site/fe/matter/enroll";
+				$url .= "?site={$siteId}&app=" . $id;
+			}
 		}
 
 		return $url;

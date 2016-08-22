@@ -2,7 +2,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 	/**
 	 * app setting controller
 	 */
-	ngApp.provider.controller('ctrlPage', ['$scope', 'srvPage', function($scope, srvPage) {
+	ngApp.provider.controller('ctrlPage', ['$scope', 'srvPage', '$uibModal', function($scope, srvPage, $uibModal) {
 		window.onbeforeunload = function(e) {
 			var message;
 			if ($scope.ep.$$modified) {
@@ -108,6 +108,47 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				$scope.$broadcast('xxt.matter.enroll.app.data_schemas.created', newSchema);
 			});
 		};
+		$scope.batchSingleScore = function() {
+			$uibModal.open({
+				templateUrl: '/views/default/pl/fe/matter/enroll/component/batchSingleScore.html?_=1',
+				backdrop: 'static',
+				resolve: {
+					app: function() {
+						return $scope.app;
+					}
+				},
+				controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
+					var maxOpNum = 0,
+						opScores = [];
+
+					app.data_schemas.forEach(function(schema) {
+						if (schema.type === 'single') {
+							schema.ops.length > maxOpNum && (maxOpNum = schema.ops.length);
+						}
+					});
+					while (opScores.length < maxOpNum) {
+						opScores.push(maxOpNum - opScores.length);
+					}
+
+					$scope2.opScores = opScores;
+					$scope2.close = function() {
+						$mi.dismiss();
+					};
+					$scope2.ok = function() {
+						$mi.close(opScores);
+					};
+				}]
+			}).result.then(function(result) {
+				$scope.app.data_schemas.forEach(function(schema) {
+					if (schema.type === 'single') {
+						schema.ops.forEach(function(op, index) {
+							op.score = result[index];
+						});
+					}
+				});
+				$scope.update('data_schemas');
+			});
+		};
 		/*初始化页面数据*/
 		$scope.$watch('app', function(app) {
 			if (!app) return;
@@ -200,7 +241,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			$scope.activeWrap = $scope.ep.setActiveWrap(domWrap);
 		};
 		$scope.wrapEditorHtml = function() {
-			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=27';
+			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=30';
 			return url;
 		};
 		/*创建了新的schema*/
@@ -750,8 +791,8 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			}
 		});
 		var timerOfUpdate = null;
-		$scope.updWrap = function(obj, names) {
-			wrapLib.input.modify($scope.activeWrap.dom, $scope.activeWrap);
+		$scope.updWrap = function() {
+			wrapLib[$scope.activeWrap.type].modify($scope.activeWrap.dom, $scope.activeWrap);
 			if (timerOfUpdate !== null) {
 				$timeout.cancel(timerOfUpdate);
 			}

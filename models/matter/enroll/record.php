@@ -188,6 +188,8 @@ class record_model extends \TMS_MODEL {
 	 */
 	public function &byData($siteId, &$app, &$data, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$records = false;
+
 		// 查找条件
 		$whereByData = '';
 		foreach ($data as $k => $v) {
@@ -200,6 +202,12 @@ class record_model extends \TMS_MODEL {
 				$whereByData .= ')';
 			}
 		}
+
+		// 没有指定条件时就认为没有符合条件的记录
+		if (empty($whereByData)) {
+			return $records;
+		}
+
 		// 查找匹配条件的数据
 		$q = [
 			$fields,
@@ -221,6 +229,39 @@ class record_model extends \TMS_MODEL {
 		}
 
 		return $records;
+	}
+	/**
+	 * 为了计算每条记录的分数，转换schema的形式
+	 */
+	private function _mapOfSingleSchema(&$app) {
+		$singleSchemas = new \stdClass;
+
+		$schemas = is_object($app->data_schemas) ? $app->data_schemas : json_decode($app->data_schemas);
+		foreach ($schemas as $schema) {
+			if ($schema->type === 'single') {
+				$singleSchemas->{$schema->id} = new \stdClass;
+				$singleSchemas->{$schema->id}->ops = new \stdClass;
+				foreach ($schema->ops as $op) {
+					$singleSchemas->{$schema->id}->ops->{$op->v} = $op;
+				}
+			}
+		}
+
+		return $singleSchemas;
+	}
+	/**
+	 * 计算记录的分数
+	 */
+	private function _calcScore(&$singleSchemas, &$data) {
+		$score = 0;
+		foreach ($singleSchemas as $schemaId => $schema) {
+			if (!empty($data->{$schemaId})) {
+				$opScore = empty($schema->ops->{$data->{$schemaId}}->score) ? 0 : $schema->ops->{$data->{$schemaId}}->score;
+				$score += $opScore;
+			}
+		}
+
+		return $score;
 	}
 	/**
 	 * 登记清单
@@ -319,7 +360,7 @@ class record_model extends \TMS_MODEL {
 
 		// 查询参数
 		$q = [
-			'e.enroll_key,e.enroll_at,e.tags,e.follower_num,e.score,e.remark_num,e.userid,e.nickname,e.verified,e.comment,e.data',
+			'e.enroll_key,e.enroll_at,e.tags,e.userid,e.nickname,e.verified,e.comment,e.data',
 			"xxt_enroll_record e",
 			$w,
 		];
@@ -329,28 +370,8 @@ class record_model extends \TMS_MODEL {
 		if (!empty($page) && !empty($size)) {
 			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 		}
-
 		// 查询结果排序
-		if (isset($orderby)) {
-			switch ($orderby) {
-			case 'time':
-				$q2['o'] = 'e.enroll_at desc';
-				break;
-			case 'score':
-				$q2['o'] = 'e.score desc';
-				break;
-			case 'remark':
-				$q2['o'] = 'e.remark_num desc';
-				break;
-			case 'follower':
-				$q2['o'] = 'e.follower_num desc';
-				break;
-			default:
-				$q2['o'] = 'e.enroll_at desc';
-			}
-		} else {
-			$q2['o'] = 'e.enroll_at desc';
-		}
+		$q2['o'] = 'e.enroll_at desc';
 
 		// 处理获得的数据
 		if ($records = $this->query_objs_ss($q, $q2)) {
@@ -362,13 +383,16 @@ class record_model extends \TMS_MODEL {
 				} else {
 					$r->data = $data;
 				}
-
-				// 获得点赞记录
-				if (isset($app->can_like_record)) {
-					$app->can_like_record === 'Y' && $r->likers = $this->likers($r->enroll_key, 1, 3);
+				// 记录的分数
+				if ($app->scenario === 'voting') {
+					if (!isset($singleSchemas)) {
+						$singleSchemas = $this->_mapOfSingleSchema($app);
+						$countSingleSchemas = count(array_keys((array) $singleSchemas));
+					}
+					$r->_score = $this->_calcScore($singleSchemas, $data);
+					$r->_average = $r->_score / $countSingleSchemas;
 				}
-
-				//获得邀请数据
+				// 获得邀请数据
 				if (isset($app->can_invite) && $app->can_invite === 'Y') {
 					$qf = array(
 						'id,enroll_key,enroll_at,openid,nickname',
@@ -378,7 +402,6 @@ class record_model extends \TMS_MODEL {
 					$qf2 = array('o' => 'enroll_at');
 					$r->followers = $this->query_objs_ss($qf, $qf2);
 				}
-
 				//获得关联抽奖活动记录
 				$ql = array(
 					'award_title',

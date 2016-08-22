@@ -170,7 +170,7 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($app);
 	}
 	/**
-	 * 复制一个登记活动
+	 * 从模版创建一个登记活动
 	 *
 	 * @param int $template
 	 *
@@ -211,6 +211,7 @@ class main extends \pl\fe\matter\base {
 		$newapp['summary'] = $copied->summary;
 		$newapp['scenario'] = $copied->scenario;
 		$newapp['scenario_config'] = $copied->scenario_config;
+		$newapp['count_limit'] = $copied->count_limit;
 		$newapp['data_schemas'] = $copied->data_schemas;
 		$newapp['public_visible'] = $copied->public_visible;
 		$newapp['open_lastroll'] = $copied->open_lastroll;
@@ -287,6 +288,7 @@ class main extends \pl\fe\matter\base {
 		$newapp['summary'] = $modelApp->escape($copied->summary);
 		$newapp['scenario'] = $copied->scenario;
 		$newapp['scenario_config'] = json_encode($copied->scenario_config);
+		$newapp['count_limit'] = $copied->count_limit;
 		$newapp['multi_rounds'] = $copied->multi_rounds;
 		$newapp['data_schemas'] = $copied->data_schemas;
 		$newapp['entry_rule'] = json_encode($copied->entry_rule);
@@ -640,6 +642,42 @@ class main extends \pl\fe\matter\base {
 		}
 
 		return $config;
+	}
+	/**
+	 * 应用的微信二维码
+	 *
+	 * @param string $site
+	 * @param string $app
+	 *
+	 */
+	public function wxQrcode_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelQrcode = $this->model('sns\wx\call\qrcode');
+
+		$qrcodes = $modelQrcode->byMatter('enroll', $app);
+
+		return new \ResponseData($qrcodes);
+	}
+	/**
+	 * 应用的易信二维码
+	 *
+	 * @param string $site
+	 * @param string $app
+	 *
+	 */
+	public function yxQrcode_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelQrcode = $this->model('sns\yx\call\qrcode');
+
+		$qrcode = $modelQrcode->byMatter('enroll', $app);
+
+		return new \ResponseData($qrcode);
 	}
 	/**
 	 * 删除一个活动

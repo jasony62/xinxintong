@@ -55,7 +55,7 @@ $sql .= ",city varchar(255) not null default ''";
 $sql .= ",province varchar(255) not null default ''";
 $sql .= ",country varchar(255) not null default ''";
 $sql .= ",forbidden char(1) not null default 'N'";
-$sql .= ",userid varchar(40) not null default ''"; // 对应的站点用户帐号
+$sql .= ",userid varchar(40) not null default ''"; // 对应的站点用户帐号（should remove）
 $sql .= ",primary key(id)";
 $sql .= ")ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
@@ -132,7 +132,7 @@ $sql .= ",city varchar(255) not null default ''";
 $sql .= ",province varchar(255) not null default ''";
 $sql .= ",country varchar(255) not null default ''";
 $sql .= ",forbidden char(1) not null default 'N'";
-$sql .= ",userid varchar(40) not null default ''"; // 对应的站点用户帐号
+$sql .= ",userid varchar(40) not null default ''"; // 对应的站点用户帐号（should remove）
 $sql .= ",primary key(id)";
 $sql .= ")ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
@@ -186,7 +186,7 @@ if (!$mysqli->query($sql)) {
 }
 /****************************************************/
 /**
- * 渠道——微信公众号
+ * 渠道——微信公众号()
  */
 $sql = "create table if not exists xxt_pl_wx(";
 $sql .= "id int not null auto_increment";

@@ -116,11 +116,11 @@ define(['frame'], function(ngApp) {
 				backdrop: 'static'
 			}).result.then(function(data) {
 				$scope.app.enroll_app_id = data.source;
-				$scope.update('enroll_app_id');
-				$scope.submit().then(function(rsp) {
+				$scope.update('enroll_app_id').then(function(rsp) {
 					var app = $scope.app,
 						url = '/rest/pl/fe/matter/enroll/get?site=' + $scope.siteId + '&id=' + app.enroll_app_id;
 					http2.get(url, function(rsp) {
+						rsp.data.data_schemas = JSON.parse(rsp.data.data_schemas);
 						app.enrollApp = rsp.data;
 					});
 					for (var i = app.data_schemas.length - 1; i > 0; i--) {

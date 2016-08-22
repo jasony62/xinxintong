@@ -190,7 +190,7 @@ class player_model extends \TMS_MODEL {
 			}
 		}
 		$q = array(
-			'e.enroll_key,e.enroll_at,e.tags,e.nickname,e.userid,e.round_id,e.round_title',
+			'e.enroll_key,e.enroll_at,e.comment,e.tags,e.nickname,e.userid,e.round_id,e.round_title',
 			"xxt_group_player e",
 			$w,
 		);

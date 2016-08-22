@@ -1,15 +1,15 @@
 angular.module('tmplshop.ui.xxt', ['ui.bootstrap']).
 service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, $q) {
-    this.choose = function(type, callback) {
+    this.choose = function(type, assignedScenario) {
         var deferred;
         deferred = $q.defer();
         $uibModal.open({
-            templateUrl: '/static/template/templateShop.html?_=2',
+            templateUrl: '/static/template/templateShop.html?_=3',
             backdrop: 'static',
             size: 'lg',
             windowClass: 'auto-height',
             controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
-                $scope.source = 'share';
+                $scope.source = 'platform';
                 $scope.page = {
                     size: 10,
                     at: 1,
@@ -74,15 +74,33 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                         simpleSchema: $scope.data2.simpleSchema
                     };
                     page = $scope.data2.selectedPage.name;
-                    elSimulator.contentWindow.renew(page, config);
+                    if (elSimulator.contentWindow.renew) {
+                        elSimulator.contentWindow.renew(page, config);
+                    }
                 };
                 http2.get('/rest/pl/fe/template/shop/list?matterType=' + type, function(rsp) {
                     $scope.templates = rsp.data.templates;
                     $scope.page.total = rsp.data.total;
                 });
-                http2.get('/rest/pl/fe/matter/enroll/template/list', function(rsp) {
-                    $scope.templates2 = rsp.data;
-                });
+                switch (type) {
+                    case 'enroll':
+                        http2.get('/rest/pl/fe/matter/enroll/template/list', function(rsp) {
+                            var oScenarioes = rsp.data,
+                                oTemplates;
+
+                            $scope.templates2 = oScenarioes;
+                            if (assignedScenario && assignedScenario.length) {
+                                if (oScenarioes[assignedScenario]) {
+                                    $scope.data2.scenario = oScenarioes[assignedScenario];
+                                    $scope.fixedScenario = true;
+                                    oTemplates = $scope.data2.scenario.templates;
+                                    $scope.data2.template = oTemplates[Object.keys(oTemplates)];
+                                    $scope.chooseTemplate();
+                                }
+                            }
+                        });
+                        break;
+                }
             }],
         }).result.then(function(data) {
             deferred.resolve(data);

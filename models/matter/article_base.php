@@ -83,7 +83,12 @@ abstract class article_base extends base_model {
 	public function getEntryUrl($siteId, $id) {
 		$url = "http://" . $_SERVER['HTTP_HOST'];
 		$url .= "/rest/site/fe/matter";
-		$url .= "?site={$siteId}&id={$id}&type=" . $this->getTypeName();
+		if ($siteId === 'platform') {
+			$matter = $this->byId($id);
+			$url .= "?site={$matter->siteid}&id={$id}&type=" . $this->getTypeName();
+		} else {
+			$url .= "?site={$siteId}&id={$id}&type=" . $this->getTypeName();
+		}
 
 		return $url;
 	}

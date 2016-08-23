@@ -1,24 +1,304 @@
 {
 	"pages": [{
 		"name": "voting",
-		"title": "投票页",
+		"title": "学员反馈表",
 		"type": "I",
-		"simpleConfig": {
-			"required": "N",
-			"showname": "label",
-			"align": "V"
-		}
+		"data_schemas": [{
+			"schema": {
+				"id": "c1001",
+				"title": "投票项1",
+				"type": "single",
+				"ops": [{
+					"v": "v1",
+					"l": "非常同意",
+					"score": 5
+				}, {
+					"v": "v2",
+					"l": "同意",
+					"score": 4
+				}, {
+					"v": "v3",
+					"l": "一般",
+					"score": 3
+				}, {
+					"v": "v4",
+					"l": "有待提高",
+					"score": 2
+				}, {
+					"v": "v5",
+					"l": "不同意",
+					"score": 1
+				}]
+			},
+			"config": {
+				"required": "Y",
+				"showname": "label",
+				"component": "R",
+				"align": "V"
+			}
+		}, {
+			"schema": {
+				"id": "c1002",
+				"title": "投票项2",
+				"type": "single",
+				"ops": [{
+					"v": "v1",
+					"l": "非常同意",
+					"score": 5
+				}, {
+					"v": "v2",
+					"l": "同意",
+					"score": 4
+				}, {
+					"v": "v3",
+					"l": "一般",
+					"score": 3
+				}, {
+					"v": "v4",
+					"l": "有待提高",
+					"score": 2
+				}, {
+					"v": "v5",
+					"l": "不同意",
+					"score": 1
+				}]
+			},
+			"config": {
+				"required": "Y",
+				"showname": "label",
+				"component": "R",
+				"align": "V"
+			}
+		}, {
+			"schema": {
+				"id": "c1003",
+				"title": "投票项3",
+				"type": "single",
+				"ops": [{
+					"v": "v1",
+					"l": "非常同意",
+					"score": 5
+				}, {
+					"v": "v2",
+					"l": "同意",
+					"score": 4
+				}, {
+					"v": "v3",
+					"l": "一般",
+					"score": 3
+				}, {
+					"v": "v4",
+					"l": "有待提高",
+					"score": 2
+				}, {
+					"v": "v5",
+					"l": "不同意",
+					"score": 1
+				}]
+			},
+			"config": {
+				"required": "Y",
+				"showname": "label",
+				"component": "R",
+				"align": "V"
+			}
+		}],
+		"act_schemas": [{
+			"id": "btnSubmit",
+			"name": "submit",
+			"label": "提交投票",
+			"next": "result"
+		}]
 	}, {
 		"name": "result",
-		"title": "投票结果页",
+		"title": "学员评估后展示页",
 		"type": "V",
-		"simpleConfig": {
-			"pattern": "record",
-			"inline": "Y",
-			"splitLine": "Y"
-		}
+		"data_schemas": [{
+			"config": {
+				"id": "s1",
+				"pattern": "record",
+				"inline": "N",
+				"splitLine": "Y"
+			},
+			"schema": {
+				"id": "c1001",
+				"title": "投票项1",
+				"type": "single",
+				"ops": [{
+					"v": "v1",
+					"l": "非常同意",
+					"score": 5
+				}, {
+					"v": "v2",
+					"l": "同意",
+					"score": 4
+				}, {
+					"v": "v3",
+					"l": "一般",
+					"score": 3
+				}, {
+					"v": "v4",
+					"l": "有待提高",
+					"score": 2
+				}, {
+					"v": "v5",
+					"l": "不同意",
+					"score": 1
+				}]
+			}
+		}, {
+			"config": {
+				"id": "s2",
+				"pattern": "record",
+				"inline": "N",
+				"splitLine": "Y"
+			},
+			"schema": {
+				"id": "c1002",
+				"title": "投票项2",
+				"type": "single",
+				"ops": [{
+					"v": "v1",
+					"l": "非常同意",
+					"score": 5
+				}, {
+					"v": "v2",
+					"l": "同意",
+					"score": 4
+				}, {
+					"v": "v3",
+					"l": "一般",
+					"score": 3
+				}, {
+					"v": "v4",
+					"l": "有待提高",
+					"score": 2
+				}, {
+					"v": "v5",
+					"l": "不同意",
+					"score": 1
+				}]
+			}
+		}, {
+			"config": {
+				"id": "s3",
+				"pattern": "record",
+				"inline": "N",
+				"splitLine": "Y"
+			},
+			"schema": {
+				"id": "c1003",
+				"title": "投票项3",
+				"type": "single",
+				"ops": [{
+					"v": "v1",
+					"l": "非常同意",
+					"score": 5
+				}, {
+					"v": "v2",
+					"l": "同意",
+					"score": 4
+				}, {
+					"v": "v3",
+					"l": "一般",
+					"score": 3
+				}, {
+					"v": "v4",
+					"l": "有待提高",
+					"score": 2
+				}, {
+					"v": "v5",
+					"l": "不同意",
+					"score": 1
+				}]
+			}
+		}],
+		"act_schemas": [{
+			"id": "act2",
+			"name": "editRecord",
+			"label": "修改投票",
+			"next": "voting"
+		}]
 	}],
-	"simpleSchema": "投票项1\n选项1\n选项2\n选项3\n选项4\n\n投票项2\n选项1\n选项2\n选项3\n选项4",
+	"schema": [{
+		"id": "c1001",
+		"title": "投票项1",
+		"type": "single",
+		"ops": [{
+			"v": "v1",
+			"l": "非常同意",
+			"score": 5
+		}, {
+			"v": "v2",
+			"l": "同意",
+			"score": 4
+		}, {
+			"v": "v3",
+			"l": "一般",
+			"score": 3
+		}, {
+			"v": "v4",
+			"l": "有待提高",
+			"score": 2
+		}, {
+			"v": "v5",
+			"l": "不同意",
+			"score": 1
+		}]
+	}, {
+		"id": "c1002",
+		"title": "投票项2",
+		"type": "single",
+		"ops": [{
+			"v": "v1",
+			"l": "非常同意",
+			"score": 5
+		}, {
+			"v": "v2",
+			"l": "同意",
+			"score": 4
+		}, {
+			"v": "v3",
+			"l": "一般",
+			"score": 3
+		}, {
+			"v": "v4",
+			"l": "有待提高",
+			"score": 2
+		}, {
+			"v": "v5",
+			"l": "不同意",
+			"score": 1
+		}]
+	}, {
+		"id": "c1003",
+		"title": "投票项3",
+		"type": "single",
+		"ops": [{
+			"v": "v1",
+			"l": "非常同意",
+			"score": 5
+		}, {
+			"v": "v2",
+			"l": "同意",
+			"score": 4
+		}, {
+			"v": "v3",
+			"l": "一般",
+			"score": 3
+		}, {
+			"v": "v4",
+			"l": "有待提高",
+			"score": 2
+		}, {
+			"v": "v5",
+			"l": "不同意",
+			"score": 1
+		}]
+	}],
+	"scenarioConfig": {
+		"can_rounds": "D"
+	},
 	"entryRule": {
 		"otherwise": {
 			"entry": "voting"

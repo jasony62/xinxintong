@@ -20,24 +20,17 @@
 			<div class='options'>
 		        <div class='form-group'>
 		            <label>场景</label>
-		            <select class='form-control' ng-disabled="fixedScenario" ng-model='data2.scenario' ng-options='s as s.title for s in templates2' ng-change='chooseScenario()'></select>
+		            <select class='form-control' ng-disabled="fixedScenario" ng-model='result.scenario' ng-options='s as s.title for s in templates2' ng-change='chooseScenario()'></select>
 		        </div>
 		        <div class='form-group'>
 		            <label>模板</label>
-		            <select class='form-control' ng-model='data2.template' ng-options='t.title for t in data2.scenario.templates' ng-change='chooseTemplate()'></select>
+		            <select class='form-control' ng-model='result.template' ng-options='t.title for t in result.scenario.templates' ng-change='chooseTemplate()'></select>
 		        </div>
-		        <div class='form-group' ng-if="data2.scenario.name==='voting'">
-		            <button class='btn btn-default' ng-click='choosePage()'>重新生成页面</button>
-		        </div>
-		        <div class='form-group' ng-if="data2.scenario.name==='voting'">
-		            <textarea id='schemaData' ng-model="data2.simpleSchema"></textarea>
-		        </div>
-		        
 		    </div>
 		    <div class='pages'>
 		        <div class='form-group'>
 		            <label>模版页面预览</label>
-		            <select id='selectedPage' class='form-control' ng-model='data2.selectedPage' ng-options='p.title for p in pages' ng-change='choosePage()'></select>
+		            <select id='selectedPage' class='form-control' ng-model='result.selectedPage' ng-options='p.title for p in pages' ng-change='choosePage()'></select>
 		        </div>
 		        <div class='form-group'>
 		            <iframe id='simulator' src=""></iframe>

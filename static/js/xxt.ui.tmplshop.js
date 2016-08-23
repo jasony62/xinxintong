@@ -4,7 +4,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
         var deferred;
         deferred = $q.defer();
         $uibModal.open({
-            templateUrl: '/static/template/templateShop.html?_=3',
+            templateUrl: '/static/template/templateShop.html?_=4',
             backdrop: 'static',
             size: 'lg',
             windowClass: 'auto-height',
@@ -20,6 +20,9 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                 };
                 $scope.switchSource = function(source) {
                     $scope.source = source;
+                    if (source === 'platform') {
+                        $scope.chooseTemplate();
+                    }
                 };
                 $scope.ok = function() {
                     var choice;
@@ -28,7 +31,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                     };
                     switch ($scope.source) {
                         case 'platform':
-                            choice.data = $scope.data2;
+                            choice.data = $scope.result;
                             break;
                         case 'share':
                             choice.data = $scope.templates[$scope.data.choose];
@@ -44,25 +47,31 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                 $scope.cancel = function() {
                     $mi.dismiss();
                 };
-                $scope.data2 = {};
-                $scope.chooseScenario = function() {};
+                $scope.result = {}; // 用户选择结果
+                $scope.chooseScenario = function() {
+                    var oTemplates, keys;
+
+                    oTemplates = $scope.result.scenario.templates;
+                    keys = Object.keys(oTemplates);
+                    $scope.result.template = oTemplates[keys[0]];
+                    $scope.chooseTemplate();
+                };
                 $scope.chooseTemplate = function() {
-                    if (!$scope.data2.template) return;
+                    if (!$scope.result.template) return;
                     var url;
                     url = '/rest/pl/fe/matter/enroll/template/config';
-                    url += '?scenario=' + $scope.data2.scenario.name;
-                    url += '&template=' + $scope.data2.template.name;
+                    url += '?scenario=' + $scope.result.scenario.name;
+                    url += '&template=' + $scope.result.template.name;
                     http2.get(url, function(rsp) {
                         var elSimulator, url;
-                        $scope.data2.simpleSchema = rsp.data.simpleSchema ? rsp.data.simpleSchema : '';
                         $scope.pages = rsp.data.pages;
-                        $scope.data2.selectedPage = $scope.pages[0];
+                        $scope.result.selectedPage = $scope.pages[0];
                         elSimulator = document.querySelector('#simulator');
                         url = 'http://' + location.host;
                         url += '/rest/site/fe/matter/enroll/template';
-                        url += '?scenario=' + $scope.data2.scenario.name;
-                        url += '&template=' + $scope.data2.template.name;
-                        url += '&page=' + $scope.data2.selectedPage.name;
+                        url += '?scenario=' + $scope.result.scenario.name;
+                        url += '&template=' + $scope.result.template.name;
+                        url += '&page=' + $scope.result.selectedPage.name;
                         url += '&_=' + (new Date() * 1);
                         elSimulator.src = url;
                     });
@@ -70,10 +79,8 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                 $scope.choosePage = function() {
                     var elSimulator, page;
                     elSimulator = document.querySelector('#simulator');
-                    config = {
-                        simpleSchema: $scope.data2.simpleSchema
-                    };
-                    page = $scope.data2.selectedPage.name;
+                    config = {};
+                    page = $scope.result.selectedPage.name;
                     if (elSimulator.contentWindow.renew) {
                         elSimulator.contentWindow.renew(page, config);
                     }
@@ -91,10 +98,10 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                             $scope.templates2 = oScenarioes;
                             if (assignedScenario && assignedScenario.length) {
                                 if (oScenarioes[assignedScenario]) {
-                                    $scope.data2.scenario = oScenarioes[assignedScenario];
+                                    $scope.result.scenario = oScenarioes[assignedScenario];
                                     $scope.fixedScenario = true;
-                                    oTemplates = $scope.data2.scenario.templates;
-                                    $scope.data2.template = oTemplates[Object.keys(oTemplates)];
+                                    oTemplates = $scope.result.scenario.templates;
+                                    $scope.result.template = oTemplates[Object.keys(oTemplates)];
                                     $scope.chooseTemplate();
                                 }
                             }
@@ -111,7 +118,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
         var deferred;
         deferred = $q.defer();
         $uibModal.open({
-            templateUrl: '/static/template/templateShare.html?_=2',
+            templateUrl: '/static/template/templateShare.html?_=3',
             controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                 $scope.data = {};
                 $scope.cancel = function() {

@@ -9,7 +9,7 @@
         <link href="//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
         <link href="/views/default/site/fe/matter/enroll/directive.css?_=1" rel="stylesheet">
         <link href="/views/default/site/fe/matter/enroll/template.css?_=2" rel="stylesheet">
-        <style ng-if="Page.css" ng-bind='Page.css'></style>
+        <style ng-if="page.css" ng-bind='page.css'></style>
     </head>
     
     <body ng-cloak class='ng-cloak'>
@@ -18,7 +18,7 @@
             <div id='errmsg' class='alert alert-danger' ng-class="{'active':errmsg}" ng-click="errmsg=''" ng-bind='errmsg'></div>
             <div class='container'>
                 <div class='row'>
-                    <form name='page' novalidate dynamic-html="Page.html">
+                    <form name='enroll' novalidate dynamic-html="page.html">
                     </form>
                 </div>
             </div>

@@ -1,7 +1,7 @@
 {
 	"pages": [{
 		"name": "voting",
-		"title": "学员反馈表",
+		"title": "投票页",
 		"type": "I",
 		"data_schemas": [{
 			"schema": {
@@ -111,7 +111,7 @@
 		}]
 	}, {
 		"name": "result",
-		"title": "学员评估后展示页",
+		"title": "投票结果页",
 		"type": "V",
 		"data_schemas": [{
 			"config": {

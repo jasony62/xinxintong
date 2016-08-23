@@ -508,6 +508,7 @@ class record extends \pl\fe\matter\base {
 		foreach ($schemas as $schema) {
 			$titles[] = $schema->title;
 		}
+		$titles[] = '备注';
 		// 记录分数
 		if ($app->scenario === 'voting') {
 			$titles[] = '总分数';
@@ -555,6 +556,8 @@ class record extends \pl\fe\matter\base {
 					break;
 				}
 			}
+			// 备注
+			$row[] = $record->comment;
 			// 记录分数
 			if ($app->scenario === 'voting') {
 				$row[] = $record->_score;

@@ -5,16 +5,16 @@
         <meta content="telephone=yes" name="format-detection">
         <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport">
         <base href="." />
-        <title>投稿活动</title>
+        <title><?php TPL::pt('title');?></title>
         <link href="/static/css/bootstrap.min.css" rel="stylesheet">
         <link href="/views/default/site/fe/matter/contribute/main.css" rel="stylesheet">
     </head>
     <body>
         <notice-box err='errmsg' info='infomsg' prog='progmsg' delay='2000'></notice-box>
-        <div class='ng-cloak' ng-cloak ng-app='xxtApp' ng-controller='ctrlContribute'>
-            <div class='container'>
-                <div class='row'>
-                    <div class="col-md-4" ng-repeat='e in entries'>
+                        <div class='ng-cloak' ng-cloak ng-app='xxtApp' ng-controller='ctrlContribute'>
+                            <div class='container'>
+                                <div class='row'>
+                                    <div class="col-md-4" ng-repeat='e in entries'>
                         <div class="thumbnail">
                             <p class='title' ng-bind='e.title'></p>
                             <p class='summary' ng-bind='e.summary'></p>

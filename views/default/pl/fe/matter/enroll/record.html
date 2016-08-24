@@ -27,7 +27,8 @@
         <button class='btn btn-success' ng-click='filter()'>筛选</button>
         <button class='btn btn-success' ng-click='verifyAll()'>全部通过审核</button>
         <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchVerify()'>批量通过审核</button>
-        <button class='btn btn-primary' ng-disabled="!countSelected()" ng-click="notify()">发送信息</button>
+        <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-click="notify()">全部发送信息</button>
+        <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-disabled="!countSelected()" ng-click="notify(true)">批量发送信息</button>
         <button class='btn btn-primary' ng-click="export()">导出全部数据</button>
     </div>
     <!-- end actions -->

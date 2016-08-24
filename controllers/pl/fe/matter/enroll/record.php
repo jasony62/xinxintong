@@ -420,17 +420,23 @@ class record extends \pl\fe\matter\base {
 		$posted = $this->getPostJson();
 		$message = $posted->message;
 
-		// 记录筛选条件
-		$criteria = $posted->criteria;
-		$options = [
-			'rid' => $rid,
-		];
+		if (isset($posted->criteria)) {
+			// 筛选条件
+			$criteria = $posted->criteria;
+			$options = [
+				'rid' => $rid,
+			];
+			$participants = $this->model('matter\enroll')->participants($site, $app, $options, $criteria);
+		} else if (isset($posted->users)) {
+			// 直接指定
+			$participants = $posted->users;
+		}
 
-		$participants = $this->model('matter\enroll')->participants($site, $app, $options, $criteria);
-
-		$rst = $this->notifyWithMatter($site, $participants, $tmplmsg, $message);
-		if ($rst[0] === false) {
-			return new \ResponseError($rst[1]);
+		if (count($participants)) {
+			$rst = $this->notifyWithMatter($site, $participants, $tmplmsg, $message);
+			if ($rst[0] === false) {
+				return new \ResponseError($rst[1]);
+			}
 		}
 
 		return new \ResponseData($participants);

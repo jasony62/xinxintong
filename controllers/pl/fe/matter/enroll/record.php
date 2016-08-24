@@ -449,7 +449,7 @@ class record extends \pl\fe\matter\base {
 
 			foreach ($userIds as $userid) {
 				$user = $modelAcnt->byId($userid, ['fields' => 'ufrom,wx_openid,yx_openid,qy_openid']);
-				if (!isset($mapOfUsers->{$userid})) {
+				if ($user && !isset($mapOfUsers->{$userid})) {
 					$mapOfUsers->{$userid} = $user;
 					switch ($user->ufrom) {
 					case 'wx':

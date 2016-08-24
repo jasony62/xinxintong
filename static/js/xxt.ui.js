@@ -585,201 +585,11 @@ directive('userpicker', ['http2', function(http2) {
         },
     };
 }]).
-directive('pushmatter', function() {
-    return {
-        restrict: 'E',
-        scope: {
-            matterId: '@',
-            matterType: '@',
-            mpaccount: '='
-        },
-        controller: ['$rootScope', '$scope', '$uibModal', 'http2', function($rootScope, $scope, $uibModal, http2) {
-            $scope.open = function() {
-                $uibModal.open({
-                    templateUrl: '/static/template/pushmatter.html?_=5',
-                    controller: ['http2', '$scope', '$uibModalInstance', 'userSetAsParam', function(http2, $scope, $uibModalInstance, userSetAsParam) {
-                        $scope.userConfig = {
-                            userScope: ['M']
-                        };
-                        $scope.userSet = {};
-                        $scope.cancel = function() {
-                            $uibModalInstance.dismiss();
-                        };
-                        $scope.ok = function() {
-                            var targetUser, data;
-                            targetUser = /authid_\d+/.test($scope.userSet.userScope) ? 'M' : 'F';
-                            data = {
-                                targetUser: targetUser
-                            };
-                            if (targetUser === 'F') {
-                                if ($scope.userSet.userScope === 'mp')
-                                    data.mps = $scope.userSet.childmps;
-                                else if ($scope.userSet.userScope === 'a')
-                                    data.allUsers = 'Y';
-                                else if ($scope.userScope == 'g')
-                                    data.gs = $scope.userSet.fansGroup;
-                            } else
-                                data.userSet = userSetAsParam.convert($scope.userSet);
-
-                            $uibModalInstance.close(data);
-                        };
-                        http2.get('/rest/mp/mpaccount/apis', function(rsp) {
-                            if (rsp.data.mpsrc === 'qy' || (rsp.data.mpsrc === 'yx' && rsp.data.yx_p2p))
-                                $scope.userConfig.userScope.push('M');
-                        });
-                    }],
-                    backdrop: 'static',
-                    size: 'lg',
-                    windowClass: 'auto-height'
-                }).result.then(function(data) {
-                    data.id = $scope.matterId;
-                    data.type = $scope.matterType;
-                    if (data.mps !== undefined) {
-                        var i, mps;
-                        i = 0;
-                        mps = [];
-                        for (i; i < data.mps.length; i++) {
-                            mps.push(data.mps[i].mpid);
-                        }
-                        data.mps = mps;
-                        http2.post('/rest/mp/send/mass2mps', data, function(rsp) {
-                            $rootScope.infomsg = '发送完成';
-                        });
-                    } else {
-                        if (data.targetUser === 'M' && $scope.mpaccount.mpsrc === 'yx') {
-                            var countOfUsers;
-                            var doSend = function(phase) {
-                                http2.get('/rest/mp/send/yxmember?phase=' + phase, function(rsp) {
-                                    if (rsp.data.nextPhase) {
-                                        doSend(rsp.data.nextPhase);
-                                        $rootScope.progmsg = '正在发送数据，剩余用户：' + rsp.data.countOfOpenids;
-                                    } else {
-                                        var msg;
-                                        msg = '完成向【' + countOfUsers + '】个用户发送';
-                                        if (rsp.data.length) {
-                                            msg += '，失败【' + JSON.stringify(rsp.data) + '】用户';
-                                        }
-                                        $rootScope.progmsg = msg;
-                                    }
-                                });
-                            }
-                            http2.post('/rest/mp/send/yxmember', data, function(rsp) {
-                                if (rsp.data.nextPhase) {
-                                    doSend(rsp.data.nextPhase);
-                                    countOfUsers = rsp.data.countOfOpenids;
-                                    $rootScope.progmsg = '正在发送数据，剩余用户：' + countOfUsers;
-                                } else {
-                                    var msg;
-                                    msg = '完成向【' + countOfUsers + '】个用户发送';
-                                    if (rsp.data.length) {
-                                        msg += '，失败【' + JSON.stringify(rsp.data) + '】用户';
-                                    }
-                                    $rootScope.progmsg = msg;
-                                }
-                            });
-                        } else {
-                            http2.post('/rest/mp/send/mass', data, function(rsp) {
-                                $rootScope.infomsg = '发送完成';
-                            });
-                        }
-                    }
-                });
-            };
-        }],
-        replace: true,
-        transclude: true,
-        template: "<button ng-click='open()' ng-transclude></button>",
-    };
-}).
-directive('pushnotify', function() {
-    return {
-        restrict: 'E',
-        scope: {
-            site: '@',
-            singleMatter: '@',
-            matterTypes: '=',
-        },
-        controller: ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
-            $scope.open = function() {
-                $uibModal.open({
-                    templateUrl: '/static/template/pushnotify.html?_=1',
-                    resolve: {
-                        options: function() {
-                            return {
-                                site: $scope.site,
-                                singleMatter: $scope.singleMatter ? $scope.singleMatter : 'N',
-                                matterTypes: $scope.matterTypes
-                            };
-                        }
-                    },
-                    controller: ['http2', '$scope', '$uibModalInstance', 'options', function(http2, $scope, $mi, options) {
-                        $scope.options = options;
-                        $scope.p = {};
-                        options.matterTypes && options.matterTypes.length && ($scope.p.matterType = options.matterTypes[0]);
-                        var fields = ['id', 'title'];
-                        $scope.page = {
-                            current: 1,
-                            size: 10
-                        };
-                        $scope.aChecked = [];
-                        $scope.doCheck = function(matter) {
-                            if (options.singleMatter === 'Y') {
-                                $scope.aChecked = [matter];
-                            } else {
-                                var i = $scope.aChecked.indexOf(matter);
-                                i === -1 ? $scope.aChecked.push(matter) : $scope.aChecked.splice(i, 1);
-                            }
-                        };
-                        $scope.doSearch = function() {
-                            if (!$scope.p.matterType) return;
-                            var url, params = {};
-                            url = $scope.p.matterType.url;
-                            url += '/' + $scope.p.matterType.value;
-                            url += '/get?site=' + options.site + 'page=' + $scope.page.current + '&size=' + $scope.page.size + '&fields=' + fields;
-                            http2.post(url, params, function(rsp) {
-                                if (/article/.test($scope.p.matterType.value)) {
-                                    $scope.matters = rsp.data.articles;
-                                    $scope.page.total = rsp.data.total;
-                                } else if (/contribute|enroll/.test($scope.p.matterType.value)) {
-                                    $scope.matters = rsp.data.articles;
-                                    rsp.data[1] && ($scope.page.total = rsp.data[1]);
-                                } else {
-                                    $scope.matters = rsp.data;
-                                    $scope.page.total = $scope.matters.length;
-                                }
-                            }, {
-                                headers: {
-                                    'ACCEPT': 'application/json'
-                                }
-                            });
-                        };
-                        $scope.ok = function() {
-                            $mi.close([$scope.aChecked, $scope.p.matterType ? $scope.p.matterType.value : 'article']);
-                        };
-                        $scope.cancel = function() {
-                            $mi.dismiss('cancel');
-                        };
-                        $scope.$watch('p.matterType', function(nv) {
-                            $scope.doSearch();
-                        });
-                    }],
-                    backdrop: 'static',
-                    size: 'lg',
-                    windowClass: 'auto-height'
-                }).result.then(function(data) {
-                    $scope.$emit('pushnotify.xxt.done', data);
-                });
-            };
-        }],
-        replace: true,
-        transclude: true,
-        template: "<button ng-click='open()' ng-transclude></button>",
-    };
-}).factory('pushnotify', ['$uibModal', function($uibModal) {
+factory('pushnotify', ['$uibModal', function($uibModal) {
     return {
         open: function(siteId, callback, options) {
             $uibModal.open({
-                templateUrl: '/static/template/pushnotify.html?_=2',
+                templateUrl: '/static/template/pushnotify.html?_=4',
                 controller: ['http2', '$scope', '$uibModalInstance', function(http2, $scope, $mi) {
                     var fields = 'id,title',
                         url = '/rest/pl/fe/site/setting/notice/get?site=' + siteId + '&name=site.matter.push&cascaded=Y';
@@ -798,8 +608,10 @@ directive('pushnotify', function() {
                     $scope.message = {};
                     $scope.aChecked = [];
                     $scope.doCheck = function(matter) {
-                        if (options.singleMatter === 'Y') {
-                            $scope.aChecked = [matter];
+                        $scope.aChecked = [matter];
+                        if ($scope.p.matterType.value === 'tmplmsg') {
+                            $scope.pickedTmplmsg = matter;
+                        } else {
                             (function() {
                                 angular.forEach($scope.tmplmsgConfig.mapping, function(mapping, prop) {
                                     if (mapping.src === 'text') {
@@ -812,17 +624,20 @@ directive('pushnotify', function() {
                                 });
                             })();
                             $scope.message.url = matter.url;
-                        } else {
-                            var i = $scope.aChecked.indexOf(matter);
-                            i === -1 ? $scope.aChecked.push(matter) : $scope.aChecked.splice(i, 1);
                         }
                     };
                     $scope.doSearch = function() {
                         if (!$scope.p.matterType) return;
                         var url, params = {};
+
                         url = $scope.p.matterType.url;
                         url += '/' + $scope.p.matterType.value;
-                        url += '/list?site=' + siteId + '&page=' + $scope.page.current + '&size=' + $scope.page.size + '&fields=' + fields;
+                        url += '/list?site=' + siteId;
+                        url += '&page=' + $scope.page.current + '&size=' + $scope.page.size;
+                        url += '&fields=' + fields;
+                        if ($scope.p.matterType.value === 'tmplmsg') {
+                            url += '&cascaded=Y';
+                        }
                         http2.post(url, params, function(rsp) {
                             if (/article/.test($scope.p.matterType.value)) {
                                 $scope.matters = rsp.data.articles;
@@ -841,12 +656,22 @@ directive('pushnotify', function() {
                         });
                     };
                     $scope.ok = function() {
-                        var notify = {
-                            matters: $scope.aChecked,
-                            matterType: $scope.p.matterType ? $scope.p.matterType.value : 'article',
-                            tmplmsg: $scope.tmplmsgConfig.tmplmsg,
-                            message: $scope.message
-                        };
+                        var notify;
+                        if ($scope.p.matterType.value === 'tmplmsg') {
+                            notify = {
+                                matters: $scope.aChecked,
+                                matterType: $scope.p.matterType ? $scope.p.matterType.value : 'article',
+                                tmplmsg: $scope.pickedTmplmsg,
+                                message: $scope.message
+                            };
+                        } else {
+                            notify = {
+                                matters: $scope.aChecked,
+                                matterType: $scope.p.matterType ? $scope.p.matterType.value : 'article',
+                                tmplmsg: $scope.tmplmsgConfig.tmplmsg,
+                                message: $scope.message
+                            };
+                        }
                         $mi.close(notify);
                     };
                     $scope.cancel = function() {

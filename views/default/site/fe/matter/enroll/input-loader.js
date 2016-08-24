@@ -59,7 +59,7 @@ window.loading = {
 			}
 		});
 		require(['xxt-page'], function(loader) {
-			loader.bootstrap('/views/default/site/fe/matter/enroll/input.js');
+			loader.bootstrap('/views/default/site/fe/matter/enroll/input.js?_=1');
 		});
 	}
 };

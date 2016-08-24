@@ -495,6 +495,8 @@ class record extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		$invalidChar = "/[\r\n\t]/";
+
 		// 登记活动
 		$app = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario', 'cascaded' => 'N']);
 		$schemas = json_decode($app->data_schemas);
@@ -563,7 +565,7 @@ class record extends \pl\fe\matter\base {
 				}
 			}
 			// 备注
-			$row[] = $record->comment;
+			$row[] = preg_replace($invalidChar, ' ', $record->comment);
 			// 记录分数
 			if ($app->scenario === 'voting') {
 				$row[] = $record->_score;

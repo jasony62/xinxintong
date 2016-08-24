@@ -38,7 +38,10 @@ class main extends base {
 		empty($site) && $this->outputError('没有指定当前站点的ID');
 		empty($app) && $this->outputError('登记活动ID为空');
 
-		$app = $this->modelApp->byId($app, array('cascaded' => 'Y'));
+		$app = $this->modelApp->byId($app, ['cascaded' => 'Y']);
+		if ($app === false) {
+			$this->outputError('指定的登记活动不存在，请检查参数是否正确');
+		}
 		if (!$this->afterSnsOAuth()) {
 			/* 检查是否需要第三方社交帐号OAuth */
 			$this->_requireSnsOAuth($site, $app);

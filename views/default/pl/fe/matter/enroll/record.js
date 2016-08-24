@@ -2,6 +2,10 @@ define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlRecord', ['$scope', 'http2', '$uibModal', 'mattersgallery', 'pushnotify', 'noticebox', function($scope, http2, $uibModal, mattersgallery, pushnotify, noticebox) {
         $scope.notifyMatterTypes = [{
+            value: 'tmplmsg',
+            title: '模板消息',
+            url: '/rest/pl/fe/matter'
+        }, {
             value: 'article',
             title: '单图文',
             url: '/rest/pl/fe/matter'
@@ -337,7 +341,6 @@ define(['frame'], function(ngApp) {
                     });
                 }
             }, {
-                singleMatter: 'Y',
                 matterTypes: $scope.notifyMatterTypes
             });
         };

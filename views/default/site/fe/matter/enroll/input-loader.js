@@ -4,7 +4,16 @@ window.loading = {
 		eleLoading.parentNode.removeChild(eleLoading);
 	},
 	load: function() {
+		var timestamp, minutes;
+		timestamp = new Date();
+		minutes = timestamp.getMinutes();
+		minutes = Math.floor(minutes / 5) * 5;
+		timestamp.setMinutes(minutes);
+		timestamp.setMilliseconds(0);
+		timestamp.setSeconds(0);
+
 		require.config({
+			waitSeconds: 0,
 			paths: {
 				"domReady": '/static/js/domReady',
 				"angular": "/static/js/angular.min",
@@ -42,10 +51,15 @@ window.loading = {
 					exports: "enroll-common"
 				},
 			},
-			urlArgs: "bust=" + (new Date() * 1)
+			urlArgs: function(id, url) {
+				if (/^[xxt-|enroll-]/.test(id)) {
+					return "?bust=" + (timestamp * 1);
+				}
+				return '';
+			}
 		});
 		require(['xxt-page'], function(loader) {
-			loader.bootstrap('/views/default/site/fe/matter/enroll/input.js');
+			loader.bootstrap('/views/default/site/fe/matter/enroll/input.js?_=1');
 		});
 	}
 };

@@ -310,18 +310,20 @@ class page_model extends \TMS_MODEL {
 	 *
 	 */
 	public function &schemaByText(&$simpleSchema) {
-		$schema = array();
+		$schemaWraps = array();
 		$id = 0;
 		$simpleSchema = preg_replace('/\r/', '', $simpleSchema);
 		$lines = preg_split('/\n/', $simpleSchema);
 		foreach ($lines as $i => $line) {
-			if (count($schema) === 0 || empty($line)) {
-				$schema[] = new \stdClass;
+			if (count($schemaWraps) === 0 || empty($line)) {
+				$schemaWrap = new \stdClass;
+				$schemaWrap->schema = new \stdClass;
+				$schemaWraps[] = $schemaWrap;
 			}
 			if (empty($line)) {
 				continue;
 			}
-			$def = &$schema[count($schema) - 1];
+			$def = &$schemaWraps[count($schemaWraps) - 1]->schema;
 
 			if (!isset($def->id)) {
 				$def->id = 'c' . (++$id);
@@ -335,7 +337,8 @@ class page_model extends \TMS_MODEL {
 				$def->ops[] = $op;
 			}
 		}
-		return $schema;
+
+		return $schemaWraps;
 	}
 	/**
 	 *

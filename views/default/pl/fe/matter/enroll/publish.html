@@ -50,10 +50,10 @@
                         <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.notify_submit" ng-change="update('notify_submit')">提交登记</label>
                     </div>
                 </div>
-                <div class='form-group' ng-if="supportQrcode.wx==='Y'">
+                <div class='form-group' ng-if="sns.wx.joined==='Y'&&sns.wx.can_qrcode==='Y'">
                     <button id='wxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('wx')">微信扫码作为接收人 <span class="caret"></span></button>
                 </div>
-                <div class='form-group' ng-if="supportQrcode.yx==='Y'">
+                <div class='form-group'  ng-if="sns.yx.joined==='Y'&&sns.yx.can_qrcode==='Y'">
                     <button id='yxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('yx')">易信扫码作为接收人 <span class="caret"></span></button>
                 </div>
                 <div class='list-group'>

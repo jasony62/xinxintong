@@ -11,7 +11,7 @@ window.loading = {
 		timestamp.setMinutes(minutes);
 		timestamp.setMilliseconds(0);
 		timestamp.setSeconds(0);
-		
+
 		require.config({
 			waitSeconds: 0,
 			paths: {
@@ -45,7 +45,7 @@ window.loading = {
 					exports: "enroll-directive"
 				},
 			},
-			deps: ['/views/default/site/fe/matter/signin/view.js'],
+			deps: ['/views/default/site/fe/matter/signin/view.js?_=1'],
 			urlArgs: function(id, url) {
 				if (/^[xxt-|enroll-]/.test(id)) {
 					return "?bust=" + (timestamp * 1);

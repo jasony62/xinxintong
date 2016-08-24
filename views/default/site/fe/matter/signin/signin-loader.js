@@ -54,7 +54,7 @@ window.loading = {
 					exports: "enroll-directive"
 				},
 			},
-			deps: ['/views/default/site/fe/matter/signin/signin.js'],
+			deps: ['/views/default/site/fe/matter/signin/signin.js?_=1'],
 			urlArgs: function(id, url) {
 				if (/^[xxt-|enroll-]/.test(id)) {
 					return "?bust=" + (timestamp * 1);

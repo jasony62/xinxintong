@@ -24,7 +24,12 @@ class signin_model extends app_base {
 	public function getEntryUrl($siteId, $id) {
 		$url = "http://" . $_SERVER['HTTP_HOST'];
 		$url .= "/rest/site/fe/matter/signin";
-		$url .= "?site={$siteId}&app=" . $id;
+		if ($siteId === 'platform') {
+			$app = $this->byId($id, ['cascaded' => 'N']);
+			$url .= "?site={$app->siteid}&app=" . $id;
+		} else {
+			$url .= "?site={$siteId}&app=" . $id;
+		}
 
 		return $url;
 	}

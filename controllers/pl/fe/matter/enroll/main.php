@@ -170,7 +170,7 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($app);
 	}
 	/**
-	 * 复制一个登记活动
+	 * 从模版创建一个登记活动
 	 *
 	 * @param int $template
 	 *
@@ -211,6 +211,7 @@ class main extends \pl\fe\matter\base {
 		$newapp['summary'] = $copied->summary;
 		$newapp['scenario'] = $copied->scenario;
 		$newapp['scenario_config'] = $copied->scenario_config;
+		$newapp['count_limit'] = $copied->count_limit;
 		$newapp['data_schemas'] = $copied->data_schemas;
 		$newapp['public_visible'] = $copied->public_visible;
 		$newapp['open_lastroll'] = $copied->open_lastroll;
@@ -287,6 +288,7 @@ class main extends \pl\fe\matter\base {
 		$newapp['summary'] = $modelApp->escape($copied->summary);
 		$newapp['scenario'] = $copied->scenario;
 		$newapp['scenario_config'] = json_encode($copied->scenario_config);
+		$newapp['count_limit'] = $copied->count_limit;
 		$newapp['multi_rounds'] = $copied->multi_rounds;
 		$newapp['data_schemas'] = $copied->data_schemas;
 		$newapp['entry_rule'] = json_encode($copied->entry_rule);
@@ -369,11 +371,7 @@ class main extends \pl\fe\matter\base {
 
 		$rst = $model->update('xxt_enroll', $nv, ["id" => $app]);
 		if ($rst) {
-			/*更新级联数据*/
-			if (isset($nv['data_schemas'])) {
-				//$this->_refreshPagesSchema($app);
-			}
-			/*记录操作日志*/
+			// 记录操作日志
 			$matter = $this->model('matter\\enroll')->byId($app, 'id,title,summary,pic');
 			$matter->type = 'enroll';
 			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
@@ -640,6 +638,42 @@ class main extends \pl\fe\matter\base {
 		}
 
 		return $config;
+	}
+	/**
+	 * 应用的微信二维码
+	 *
+	 * @param string $site
+	 * @param string $app
+	 *
+	 */
+	public function wxQrcode_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelQrcode = $this->model('sns\wx\call\qrcode');
+
+		$qrcodes = $modelQrcode->byMatter('enroll', $app);
+
+		return new \ResponseData($qrcodes);
+	}
+	/**
+	 * 应用的易信二维码
+	 *
+	 * @param string $site
+	 * @param string $app
+	 *
+	 */
+	public function yxQrcode_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelQrcode = $this->model('sns\yx\call\qrcode');
+
+		$qrcode = $modelQrcode->byMatter('enroll', $app);
+
+		return new \ResponseData($qrcode);
 	}
 	/**
 	 * 删除一个活动

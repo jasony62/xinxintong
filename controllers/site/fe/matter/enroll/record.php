@@ -596,14 +596,6 @@ class record extends base {
 			} else if (isset($record->data['member'])) {
 				$record->data['member'] = new \stdClass;
 			}
-			/*评论数据*/
-			if ($app->can_like_record === 'Y') {
-				$record->likers = $modelRec->likers($openedek);
-			}
-			/*评论数据*/
-			if ($app->can_remark_record === 'Y') {
-				$record->remarks = $modelRec->remarks($openedek);
-			}
 			/*获得关联抽奖活动记录*/
 			$ql = array(
 				'award_title',

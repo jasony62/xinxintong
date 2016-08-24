@@ -152,8 +152,8 @@ define(["angular", "enroll-common", "angular-sanitize"], function(angular, ngApp
             i;
         facRecord.get($scope.CustomConfig);
         $scope.Record = facRecord;
-        for (i in $scope.Page.data_schemas) {
-            schemas.push($scope.Page.data_schemas[i].schema);
+        for (i in $scope.page.data_schemas) {
+            schemas.push($scope.page.data_schemas[i].schema);
         }
         $scope.value2Label = function(key) {
             var val, i, j, s, aVal, aLab = [];
@@ -290,7 +290,7 @@ define(["angular", "enroll-common", "angular-sanitize"], function(angular, ngApp
                 }
                 params = rsp.data;
                 $scope.params = params;
-                $scope.Page = params.page;
+                $scope.page = params.page;
                 $scope.User = params.user;
                 $scope.ActiveRound = params.activeRound;
                 (function setPage(page) {

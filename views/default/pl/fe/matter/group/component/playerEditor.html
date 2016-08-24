@@ -1,0 +1,46 @@
+<div class="modal-header">
+    <button class="close" type="button" ng-click="cancel()">×</button>
+    <h5 class="modal-title">登记记录</h5>
+</div>
+<div class="modal-body">
+    <form class="form-horizontal player-editor">
+        <div class="form-group" ng-repeat="c in app.data_schemas" ng-if="c.id.indexOf('member')!==0">
+            <label class="col-md-3 control-label">{{c.title}}</label>
+            <div class="col-md-9">
+                <input type='text' class='form-control' ng-if="c.type!=='img'&&c.type!=='file'&&c.type!=='single'" ng-model="player.data[c.id]">
+                <select class='form-control' ng-if="c.type==='single'" ng-model="player.data[c.id]" ng-options="op.v as op.l for op in c.ops">
+                    <option></option>
+                </select>
+                <span ng-if="c.type==='img'" ng-init="imgs=player.data[c.id].split(',')">
+                    <img ng-repeat="img in imgs" ng-src='{{img}}' style="width:100%"/>
+                </span>
+                <span ng-if="c.type==='file'">
+                    <span ng-repeat="file in player.data[c.id]">
+                        <span ng-bind="file.url"></span>
+                        <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
+                            <source src="{{file.url}}" type="{{file.type}}"/>
+                        </video>
+                        <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%"/>
+                    </span>
+                </span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3 control-label">备注</label>
+            <div class="col-md-9">
+                <textarea class='form-control' ng-model="player.comment"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-3 control-label">所属分组</label>
+            <div class="col-md-9">
+                <select class='form-control' ng-model="player.round_id" ng-options="r.round_id as r.title for r in rounds">
+                    <option></option>
+                </select>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="ok()">保存</button>
+</div>

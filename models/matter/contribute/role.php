@@ -11,12 +11,14 @@ class role_model extends \TMS_MODEL {
 		/**
 		 * 直接指定
 		 */
-		$q = array(
+		$q = [
 			'c.id,c.identity,c.idsrc,c.label',
 			'xxt_contribute_user c',
 			"c.siteid='$siteId' and c.cid='$cid' and role='$role'",
-		);
-		$users = $this->query_objs_ss($q);
+		];
+		$q2['o'] = 'id asc';
+
+		$users = $this->query_objs_ss($q, $q2);
 
 		return $users;
 	}

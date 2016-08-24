@@ -199,10 +199,10 @@ class wx extends \member_base {
 		die('');
 	}
 	/**
-	 * 新关注用户
+	 * 用户关注公众号
 	 *
-	 * $call
-	 * $k 场景二维码的scene_id
+	 * @param Object $call
+	 * @param $scene_id 场景二维码的scene_id
 	 */
 	private function _subscribeCall($call, $scene_id = null) {
 		/**
@@ -212,35 +212,37 @@ class wx extends \member_base {
 		$siteId = $call['siteid'];
 		$openid = $call['from_user'];
 		$wxConfig = $this->model('sns\wx')->bySite($siteId);
+		if ($wxConfig && $wxConfig->joined === 'Y') {
+			$snsSiteId = $siteId;
+		} else {
+			$wxConfig = $this->model('sns\wx')->bySite('platform');
+			$snsSiteId = 'platform';
+		}
 		$modelFan = $this->model('sns\wx\fan');
-		if ($fan = $modelFan->byOpenid($siteId, $openid, '*')) {
-			/**
-			 * 粉丝重新关注
-			 */
+		if ($fan = $modelFan->byOpenid($snsSiteId, $openid, '*')) {
+			// 粉丝重新关注
 			$modelFan->update(
 				'xxt_site_wxfan',
-				array(
+				[
 					'subscribe_at' => $current,
 					'unsubscribe_at' => 0,
 					'sync_at' => $current,
-				),
-				"siteid='$siteId' and openid='$openid'"
+				],
+				["siteid" => $snsSiteId, "openid" => $openid]
 			);
 		} else {
-			/**
-			 * 新粉丝关注
-			 */
-			/* 创建站点用户 */
-			$siteUser = $this->model('site\user\account')->blank($siteId, true, array('ufrom' => 'wx'));
-			$fan = $modelFan->blank($siteId, $openid, true, array(
-				'userid' => $siteUser->uid,
+			// 新粉丝关注
+			// 创建站点用户
+			//$siteUser = $this->model('site\user\account')->blank($siteId, true, ['ufrom' => 'wx']);
+			$fan = $modelFan->blank($snsSiteId, $openid, true, [
+				//'userid' => $siteUser->uid,
 				'subscribe_at' => $current,
-				'sync_at' => $current)
+				'sync_at' => $current]
 			);
 			// log
 			$this->model('log')->writeSubscribe($siteId, $openid);
 		}
-		if ($wxConfig->can_fans === 'Y') {
+		if ($wxConfig && $wxConfig->can_fans === 'Y') {
 			/**
 			 * 获取粉丝信息并更新
 			 * todo 是否应该更新用户所属的分组？
@@ -249,20 +251,20 @@ class wx extends \member_base {
 			$fanInfo = $wxProxy->userInfo($openid, false);
 			if ($fanInfo[0]) {
 				/*更新粉丝用户信息*/
-				$nickname = trim($this->model()->escape($fanInfo[1]->nickname));
-				$u = array(
+				$nickname = trim($modelFan->escape($fanInfo[1]->nickname));
+				$u = [
 					'nickname' => empty($nickname) ? '未知' : $nickname,
 					'sex' => $fanInfo[1]->sex,
 					'city' => $fanInfo[1]->city,
-				);
+				];
 				isset($fanInfo[1]->headimgurl) && $u['headimgurl'] = $fanInfo[1]->headimgurl;
 				isset($fanInfo[1]->province) && $u['province'] = $fanInfo[1]->province;
 				isset($fanInfo[1]->country) && $u['country'] = $fanInfo[1]->country;
-				$this->model()->update('xxt_site_wxfan', $u, "siteid='$siteId' and openid='$openid'");
+				$modelFan->update('xxt_site_wxfan', $u, "siteid='$siteId' and openid='$openid'");
 				/*更新站点用户信息 @todo 总是要更新吗？*/
-				$this->model()->update(
+				$modelFan->update(
 					'xxt_site_account',
-					array('nickname' => $u['nickname'], 'headimgurl' => $u['headimgurl']),
+					['nickname' => $u['nickname'], 'headimgurl' => $u['headimgurl']],
 					"uid='$fan->userid'"
 				);
 			}
@@ -415,8 +417,8 @@ class wx extends \member_base {
 		$siteId = $call['siteid'];
 		$data = json_decode($call['data']);
 		if ($reply = $this->model('sns\wx\event')->qrcodeCall($siteId, $data[1])) {
-			if ($reply->expire_at > 0) {
-				/* 一次性二维码，用完后就删除 */
+			if ($reply->scene_id > 100000) {
+				// 临时二维码，用完后就删除
 				$this->model()->delete('xxt_call_qrcode_wx', "id=$reply->id");
 			}
 			$r = $this->model('sns\reply\\' . $reply->matter_type, $call, $reply->matter_id);

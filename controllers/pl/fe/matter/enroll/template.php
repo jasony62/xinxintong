@@ -24,6 +24,9 @@ class template extends \pl\fe\matter\base {
 		$config = file_get_contents($templateDir . '/config.json');
 		$config = preg_replace('/\t|\r|\n/', '', $config);
 		$config = json_decode($config);
+		if (json_last_error()) {
+			$config = json_last_error_msg();
+		}
 
 		return new \ResponseData($config);
 	}

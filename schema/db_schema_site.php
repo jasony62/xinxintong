@@ -91,6 +91,9 @@ $sql .= ",coin_day int not null"; // 虚拟货币日增量
 $sql .= ",coin_week int not null"; // 虚拟货币周增量
 $sql .= ",coin_month int not null"; // 虚拟货币月增量
 $sql .= ",coin_year int not null"; // 虚拟货币年增量
+$sql .= ",wx_openid varchar(255) not null default ''";
+$sql .= ",yx_openid varchar(255) not null default ''";
+$sql .= ",qy_openid varchar(255) not null default ''";
 $sql .= ",PRIMARY KEY (uid)";
 $sql .= ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

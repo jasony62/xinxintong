@@ -6,7 +6,7 @@ define(['frame'], function(ngApp) {
 		})();
 		$scope.opUrl = 'http://' + location.host + '/rest/site/op/matter/signin?site=' + $scope.siteId + '&app=' + $scope.id;
 		$scope.downloadQrcode = function(url) {
-			$('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
+			$('<a href="' + url + '" download="签到二维码.png"></a>')[0].click();
 		};
 		$scope.setPic = function() {
 			var options = {
@@ -34,6 +34,29 @@ define(['frame'], function(ngApp) {
 				qrcode: '/rest/site/fe/matter/signin/qrcode?site=' + $scope.siteId + '&url=' + encodeURIComponent($scope.url),
 			};
 			$scope.entry = entry;
+		});
+	}]);
+	/**
+	 * 微信二维码
+	 */
+	ngApp.provider.controller('ctrlWxQrcode', ['$scope', 'http2', function($scope, http2) {
+		$scope.create = function() {
+			var url;
+
+			url = '/rest/pl/fe/site/sns/wx/qrcode/create?site=' + $scope.siteId;
+			url += '&matter_type=signin&matter_id=' + $scope.id;
+			url += '&expire=864000';
+
+			http2.get(url, function(rsp) {
+				$scope.qrcode = rsp.data;
+			});
+		};
+		$scope.download = function() {
+			$('<a href="' + $scope.qrcode.pic + '" download="微信签到二维码.jpeg"></a>')[0].click();
+		};
+		http2.get('/rest/pl/fe/matter/signin/wxQrcode?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+			var qrcodes = rsp.data;
+			$scope.qrcode = qrcodes.length ? qrcodes[0] : false;
 		});
 	}]);
 	/**
@@ -93,11 +116,11 @@ define(['frame'], function(ngApp) {
 				backdrop: 'static'
 			}).result.then(function(data) {
 				$scope.app.enroll_app_id = data.source;
-				$scope.update('enroll_app_id');
-				$scope.submit().then(function(rsp) {
+				$scope.update('enroll_app_id').then(function(rsp) {
 					var app = $scope.app,
 						url = '/rest/pl/fe/matter/enroll/get?site=' + $scope.siteId + '&id=' + app.enroll_app_id;
 					http2.get(url, function(rsp) {
+						rsp.data.data_schemas = JSON.parse(rsp.data.data_schemas);
 						app.enrollApp = rsp.data;
 					});
 					for (var i = app.data_schemas.length - 1; i > 0; i--) {

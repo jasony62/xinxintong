@@ -56,6 +56,7 @@ class player extends \pl\fe\matter\base {
 		foreach ($schemas as $schema) {
 			$titles[] = $schema->title;
 		}
+		$titles = ['备注'];
 		$titles = implode("\t", $titles);
 		$size += strlen($titles);
 		$exportedData[] = $titles;
@@ -97,6 +98,9 @@ class player extends \pl\fe\matter\base {
 					break;
 				}
 			}
+			// 备注
+			$row[] = empty($player->comment) ? '' : $player->comment;
+
 			// 将数据转换为'|'分隔的字符串
 			$row = implode("\t", $row);
 			$size += strlen($row);
@@ -440,7 +444,15 @@ class player extends \pl\fe\matter\base {
 		$model = $this->model();
 
 		foreach ($record as $k => $v) {
-			if ($k === 'round_id') {
+			if ($k === 'comment') {
+				$model->update(
+					'xxt_group_player',
+					[
+						'comment' => $v,
+					],
+					"aid='$app' and enroll_key='$ek'"
+				);
+			} else if ($k === 'round_id') {
 				if (empty($v)) {
 					$model->update(
 						'xxt_group_player',

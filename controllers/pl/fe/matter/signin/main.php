@@ -334,6 +334,42 @@ class main extends \pl\fe\matter\base {
 		return $round;
 	}
 	/**
+	 * 应用的微信二维码
+	 *
+	 * @param string $site
+	 * @param string $app
+	 *
+	 */
+	public function wxQrcode_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelQrcode = $this->model('sns\wx\call\qrcode');
+
+		$qrcodes = $modelQrcode->byMatter('signin', $app);
+
+		return new \ResponseData($qrcodes);
+	}
+	/**
+	 * 应用的易信二维码
+	 *
+	 * @param string $site
+	 * @param string $app
+	 *
+	 */
+	public function yxQrcode_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelQrcode = $this->model('sns\yx\call\qrcode');
+
+		$qrcode = $modelQrcode->byMatter('signin', $app);
+
+		return new \ResponseData($qrcode);
+	}
+	/**
 	 * 重置活动进入规则
 	 *
 	 * @param string $app

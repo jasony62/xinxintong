@@ -47,21 +47,6 @@
                     <option value=''>缺省提示</option>
                 </select>
             </div>
-            <div class='form-group compact'>
-                <label>已登记时进入</label>
-                <select class='form-control' ng-model='app.enrolled_entry_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('enrolled_entry_page')">
-                    <option value=''></option>
-                </select>
-                <div class='checkbox'>
-                    <label ng-show='isInputPage(app.enrolled_entry_page)'><input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.open_lastroll' ng-change="update('open_lastroll')">显示最后一条登记记录</label>
-                </div>
-            </div>
-        </div>
-        <div class='tile'>
-            <div class='form-group compact'>
-                <label>允许每用户登记条数</label>
-                <input type='text' class='form-control' ng-model="app.count_limit" tms-auto-update tms-wait=1000 tms-update="update('count_limit')">
-            </div>
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">事件提醒：接收用户登记活动提醒</div>
@@ -105,6 +90,7 @@
      <!-- end app -->
     <!-- preview -->
     <div class='col-md-5' style='text-align:center' ng-controller="ctrlPreview">
+        <h5>页面预览</h5>
         <iframe id='simulator' ng-src={{previewURL}}></iframe>
     </div>
     <!-- end preview -->
@@ -190,7 +176,7 @@
         </div>
         <!-- access rule -->
         <div class="panel panel-default" ng-controller="ctrlAccessRule">
-            <div class="panel-heading">进入规则</div>
+            <div class="panel-heading">用户进入规则</div>
             <div class="panel-body">
                 <div class='form-group'>
                     <div class='radio'>
@@ -340,6 +326,11 @@
                 <option value='voting'>评价</option>
                 <option value='group_week_report'>周报</option>
             </select>
+        </div>
+        <hr>
+        <div class='form-group compact'>
+            <label>允许每用户登记条数</label>
+            <input type='text' class='form-control' ng-model="app.count_limit" tms-auto-update tms-wait=1000 tms-update="update('count_limit')">
         </div>
         <hr>
         <a href="/rest/pl/fe/matter/enroll/event?site={{siteId}}&id={{id}}">活动进入规则</a>

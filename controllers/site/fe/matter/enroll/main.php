@@ -163,23 +163,46 @@ class main extends base {
 	}
 	/**
 	 * 当前用户的缺省页面
+	 *
+	 * 1、如果没有登记过，根据设置的进入规则获得指定页面
+	 * 2、如果已经登记过，且指定了登记过访问页面，进入指定的页面
+	 * 3、如果已经登记过，且没有指定登记过访问页面，进入第一个查看页
 	 */
 	private function _defaultPage($site, &$app, $redirect = false) {
 		$user = $this->who;
-		$hasEnrolled = $this->modelApp->userEnrolled($site, $app, $user);
-		if ($hasEnrolled && !empty($app->enrolled_entry_page)) {
-			$page = $app->enrolled_entry_page;
-		} else {
-			$page = $this->checkEntryRule($site, $app, $user, $redirect);
-		}
 		$oPage = null;
-		foreach ($app->pages as $p) {
-			if ($p->name === $page) {
-				$oPage = $p;
-				break;
+
+		$hasEnrolled = $this->modelApp->userEnrolled($site, $app, $user);
+
+		// 根据登记状态确定进入页面
+		if ($hasEnrolled) {
+			if (empty($app->enrolled_entry_page)) {
+				foreach ($app->pages as $p) {
+					if ($p->type === 'V') {
+						$oPage = $p;
+						break;
+					}
+				}
+			} else {
+				$page = $app->enrolled_entry_page;
 			}
 		}
-		if (empty($oPage)) {
+
+		if ($oPage === null) {
+			if (!isset($page)) {
+				// 根据进入规则确定进入页面
+				$page = $this->checkEntryRule($site, $app, $user, $redirect);
+			}
+
+			foreach ($app->pages as $p) {
+				if ($p->name === $page) {
+					$oPage = $p;
+					break;
+				}
+			}
+		}
+
+		if ($oPage === null) {
 			if ($redirect === true) {
 				$this->outputError('指定的页面[' . $page . ']不存在');
 				exit;
@@ -208,7 +231,7 @@ class main extends base {
 		if ($app->use_site_header === 'Y' || $app->use_site_footer === 'Y') {
 			$params['site'] = $this->model('site')->byId(
 				$site,
-				array('cascaded' => 'header_page_name,footer_page_name')
+				['cascaded' => 'header_page_name,footer_page_name']
 			);
 		}
 		/*项目页面设置*/
@@ -216,7 +239,7 @@ class main extends base {
 			if ($app->mission_id) {
 				$params['mission'] = $this->model('matter\mission')->byId(
 					$app->mission_id,
-					array('cascaded' => 'header_page_name,footer_page_name')
+					['cascaded' => 'header_page_name,footer_page_name']
 				);
 			}
 		}
@@ -247,13 +270,14 @@ class main extends base {
 		$modelPage = $this->model('matter\enroll\page');
 		$oPage = $modelPage->byId($app->id, $oPage->id, 'Y');
 		$params['page'] = $oPage;
+
 		/* 自动登记 */
 		$hasEnrolled = $this->modelApp->hasEnrolled($site, $app->id, $user);
 		if (!$hasEnrolled && $app->can_autoenroll === 'Y' && $oPage->autoenroll_onenter === 'Y') {
 			$modelRec = $this->model('matter\enroll\record');
-			$options = array(
+			$options = [
 				'fields' => 'enroll_key,enroll_at',
-			);
+			];
 			$lastRecord = $modelRec->getLast($site, $$app->id, $user, $options);
 			if (false === $lastRecord) {
 				$modelRec->add($site, $app, $user, (empty($posted->referrer) ? '' : $posted->referrer));
@@ -265,33 +289,16 @@ class main extends base {
 				$modelRec->update('xxt_enroll_record', $updated, "enroll_key='$lastRecord->enroll_key'");
 			}
 		}
+
 		if ($app->multi_rounds === 'Y') {
 			$params['activeRound'] = $this->model('matter\enroll\round')->getLast($site, $app->id);
 		}
+
 		/*登记记录*/
-		$newForm = false;
-		if ($oPage->type === 'I' || $oPage->type === 'S') {
-			if ($newRecord === 'Y') {
-				$newForm = true;
-			} else if (empty($ek)) {
-				if ($app->open_lastroll === 'N') {
-					$newForm = true;
-				}
-			}
-			if ($newForm === false) {
-				/*获得最后一条登记数据。登记记录有可能未进行过登记*/
-				$options = array(
-					'fields' => '*',
-				);
-				$modelRec = $this->model('matter\enroll\record');
-				$lastRecord = $modelRec->getLast($site, $app, $user, $options);
-				if ($lastRecord) {
-					if ($lastRecord->enroll_at) {
-						$lastRecord->data = $modelRec->dataById($lastRecord->enroll_key);
-					}
-				}
-				$params['record'] = $lastRecord;
-			}
+		if ($oPage->type === 'I' && $newRecord !== 'Y' && !empty($ek)) {
+			$modelRec = $this->model('matter\enroll\record');
+			$record = $modelRec->byId($ek);
+			$params['record'] = $record;
 		}
 
 		return new \ResponseData($params);

@@ -63,8 +63,9 @@ class main extends base {
 		} else {
 			$templateDir = $this->getTemplateDir($scenario, $template);
 			$data = $this->getData($templateDir);
-
-			$statistic = $data->statistic;
+			if (isset($data->statistic)) {
+				$statistic = $data->statistic;
+			}
 		}
 
 		return new \ResponseData($statistic);

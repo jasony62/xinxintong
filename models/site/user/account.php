@@ -16,7 +16,7 @@ class account_model extends \TMS_MODEL {
 	 * @return object
 	 */
 	public function &byId($uid, $options = array()) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'uid,uname,nickname,email,password,salt';
+		$fields = isset($options['fields']) ? $options['fields'] : 'uid,uname,nickname,email,password,salt,wx_openid,yx_openid,qy_openid';
 		$q = array(
 			$fields,
 			'xxt_site_account',
@@ -33,8 +33,27 @@ class account_model extends \TMS_MODEL {
 	 *
 	 * return object
 	 */
+	public function &byOpenid($siteId, $snsName, $openid, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : 'uid,nickname,password,salt,wx_openid,yx_openid,qy_openid';
+
+		$q = [
+			$fields,
+			'xxt_site_account',
+			"siteid='$siteId' and " . $snsName . '_openid' . "='$openid'",
+		];
+		$act = $this->query_obj_ss($q);
+
+		return $act;
+	}
+	/**
+	 * get account object by it's email
+	 *
+	 * $param string $email
+	 *
+	 * return object
+	 */
 	public function &byUname($siteId, $uname) {
-		$fields = isset($options['fields']) ? $options['fields'] : 'uid,nickname,password,salt';
+		$fields = isset($options['fields']) ? $options['fields'] : 'uid,nickname,password,salt,wx_openid,yx_openid,qy_openid';
 		$q = array(
 			$fields,
 			'xxt_site_account',
@@ -62,6 +81,15 @@ class account_model extends \TMS_MODEL {
 		$account->reg_time = $current;
 		if (isset($options['ufrom'])) {
 			$account->ufrom = $options['ufrom'];
+		}
+		if (isset($options['wx_openid'])) {
+			$account->wx_openid = $options['wx_openid'];
+		}
+		if (isset($options['yx_openid'])) {
+			$account->yx_openid = $options['yx_openid'];
+		}
+		if (isset($options['qy_openid'])) {
+			$account->qy_openid = $options['qy_openid'];
 		}
 		if ($persisted === true) {
 			$this->insert('xxt_site_account', $account, false);

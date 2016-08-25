@@ -93,7 +93,7 @@ define(['main'], function(ngApp) {
 			}).result.then(function(tmplmsg) {
 				var data = {
 					msgid: tmplmsg.id,
-					mapping: []
+					mapping: {}
 				};
 				serNotice.setup($scope.editing, data).then(function(config) {
 					$scope.editing.tmplmsg_config_id = config.id;

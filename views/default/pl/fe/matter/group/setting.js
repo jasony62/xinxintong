@@ -88,6 +88,7 @@ define(['frame'], function(ngApp) {
 					data.appType === 'signin' && (params.includeEnroll = data.includeEnroll);
 					http2.post('/rest/pl/fe/matter/group/player/importByApp?site=' + $scope.siteId + '&app=' + $scope.id, params, function(rsp) {
 						$scope.app.sourceApp = data.app;
+						$scope.app.data_schemas = JSON.parse(rsp.data.data_schemas);
 						$scope.open(null);
 					});
 				}
@@ -95,9 +96,9 @@ define(['frame'], function(ngApp) {
 		};
 		$scope.cancelSourceApp = function() {
 			$scope.app.source_app = '';
+			$scope.app.data_schemas = '';
 			delete $scope.app.sourceApp;
-			$scope.update('source_app');
-			$scope.submit();
+			$scope.update(['source_app', 'data_schemas']);
 		};
 		$scope.syncByApp = function() {
 			var defer = $q.defer();
@@ -313,7 +314,7 @@ define(['frame'], function(ngApp) {
 	ngApp.provider.controller('ctrlPlayers', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
 		$scope.editPlayer = function(player) {
 			$uibModal.open({
-				templateUrl: 'editorPlayer.html',
+				templateUrl: '/views/default/pl/fe/matter/group/component/playerEditor.html?_=1',
 				controller: 'ctrlEditor',
 				windowClass: 'auto-height',
 				resolve: {
@@ -336,7 +337,7 @@ define(['frame'], function(ngApp) {
 		};
 		$scope.addPlayer = function() {
 			$uibModal.open({
-				templateUrl: 'editorPlayer.html',
+				templateUrl: '/views/default/pl/fe/matter/group/component/playerEditor.html?_=1',
 				controller: 'ctrlEditor',
 				windowClass: 'auto-height',
 				resolve: {

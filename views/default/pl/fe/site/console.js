@@ -165,15 +165,13 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
         if (window.confirm('确定删除：' + title + '？')) {
             switch (type) {
                 case 'article':
+                case 'addressbook':
                     url += type + '/remove?id=' + id + '&site=' + $scope.siteId;
                     break;
                 case 'enroll':
                 case 'signin':
                 case 'group':
                     url += type + '/remove?app=' + id + '&site=' + $scope.siteId;
-                    break;
-                case 'addressbook':
-                    url += type + '/remove?id=' + matter.id + '&site=' + $scope.siteId;
                     break;
             }
             http2.get(url, function(rsp) {
@@ -303,7 +301,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
     };
     $scope.addAddressbook = function() {
         http2.get('/rest/pl/fe/matter/addressbook/create?site=' + $scope.siteId, function(rsp) {
-            /*location.href = '/rest/pl/fe/matter/addressbook/edit?id='+ rsp.data + '&site=' + $scope.siteId;*/
             location.href = '/rest/pl/fe/matter/addressbook?site=' + $scope.siteId + '&id=' + rsp.data;
 
         });

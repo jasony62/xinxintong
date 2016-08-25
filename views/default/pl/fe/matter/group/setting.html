@@ -89,8 +89,12 @@
         <div class='tile'>
             <div class='form-group compact'>
                 <div class='help-block'>投影地址</div>
-                <div class='form-control' ng-bind="opUrl" style="overflow:hidden;white-space:nowrap;"></div>
-                <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opUrl}}">复制</button>
+                <div class='input-group'>
+                    <input class='form-control' readonly value="{{opUrl}}">
+                    <span class='input-group-btn'>
+                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opUrl}}">复制</button>
+                    </span>
+                </div>
             </div>
             <div class='form-group'>
                 <a href="javascript:void(0)" ng-click="gotoCode()">编辑页面</a>
@@ -104,7 +108,7 @@
     <div class='col-md-8' ng-if="!activeRound&&app.sourceApp">
         <!-- result -->
         <div class='tile' ng-controller='ctrlPlayers'>
-            <div class='form-group' tms-table-wrap ready='tableReady' ng-include="'/views/default/pl/fe/matter/group/component/players.html?_=1'">
+            <div class='form-group' tms-table-wrap ready='tableReady' ng-include="'/views/default/pl/fe/matter/group/component/players.html?_=2'">
             </div>
             <div class='form-group'>
                 <div class='form-inline'>
@@ -146,7 +150,7 @@
             <uib-tab index="1" heading="分组结果">
                 <!-- result -->
                 <div class='tile' ng-controller='ctrlPlayers'>
-                    <div class='form-group' tms-table-wrap ready='tableReady' ng-include="'/views/default/pl/fe/matter/group/component/players.html?_=1'">
+                    <div class='form-group' tms-table-wrap ready='tableReady' ng-include="'/views/default/pl/fe/matter/group/component/players.html?_=2'">
                     </div>
                     <div class='form-group'>
                         <button class="btn btn-default" ng-disabled="selectedPlayers.length===0" ng-click='quitGroup(selectedPlayers)'>移出分组</button>
@@ -299,47 +303,5 @@
     </div>
     <div class="modal-footer">
         <button class="btn btn-primary" ng-click="ok()">确定</button>
-    </div>
-</script>
-<script type="text/ng-template" id="editorPlayer.html">
-    <div class="modal-header">
-        <button class="close" type="button" ng-click="cancel()">×</button>
-        <h5 class="modal-title">登记记录</h5>
-    </div>
-    <div class="modal-body">
-        <form class="form-horizontal player-editor">
-            <div class="form-group" ng-repeat="c in app.data_schemas" ng-if="c.id.indexOf('member')!==0">
-                <label class="col-md-2 control-label">{{c.title}}</label>
-                <div class="col-md-10">
-                    <input type='text' class='form-control' ng-if="c.type!=='img'&&c.type!=='file'&&c.type!=='single'" ng-model="player.data[c.id]">
-                    <select class='form-control' ng-if="c.type==='single'" ng-model="player.data[c.id]" ng-options="op.v as op.l for op in c.ops">
-                        <option></option>
-                    </select>
-                    <span ng-if="c.type==='img'" ng-init="imgs=player.data[c.id].split(',')">
-                        <img ng-repeat="img in imgs" ng-src='{{img}}' style="width:100%"/>
-                    </span>
-                    <span ng-if="c.type==='file'">
-                        <span ng-repeat="file in player.data[c.id]">
-                            <span ng-bind="file.url"></span>
-                            <video ng-if="file.type.indexOf('video')===0" style="width:100%;" controls="controls">
-                                <source src="{{file.url}}" type="{{file.type}}"/>
-                            </video>
-                            <img ng-if="file.type.indexOf('image')===0" ng-src='{{file.url}}' style="width:100%"/>
-                        </span>
-                    </span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-md-2 control-label">所属分组</label>
-                <div class="col-md-10">
-                    <select class='form-control' ng-model="player.round_id" ng-options="r.round_id as r.title for r in rounds">
-                        <option></option>
-                    </select>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="ok()">保存</button>
     </div>
 </script>

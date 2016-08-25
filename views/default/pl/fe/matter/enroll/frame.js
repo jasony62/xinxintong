@@ -1,4 +1,4 @@
-define(['require', 'page'], function(require, pageLib) {
+define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 	'use strict';
 	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'tmplshop.ui.xxt', 'service.enroll', 'tinymce.enroll', 'ui.xxt', 'channel.fe.pl']);
 	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvAppProvider', 'srvPageProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvAppProvider, srvPageProvider) {
@@ -49,39 +49,6 @@ define(['require', 'page'], function(require, pageLib) {
 			srvPageProvider.setAppId(appId);
 		})();
 	}]);
-	ngApp.directive('relativeFixed', function() {
-		return {
-			restrict: 'A',
-			link: function(scope, elem, attrs) {
-				var elem = elem[0],
-					initial = {
-						top: elem.style.top,
-						left: elem.style.left,
-						position: elem.style.position,
-					},
-					fixedHeight = parseInt(attrs.fixedHeight),
-					bodyOffsetTop = elem.offsetTop,
-					bodyOffsetLeft = elem.offsetLeft,
-					offsetParent = elem.offsetParent;
-				while (offsetParent.offsetParent) {
-					bodyOffsetTop += offsetParent.offsetTop;
-					bodyOffsetLeft += offsetParent.offsetLeft;
-					offsetParent = offsetParent.offsetParent;
-				}
-				window.addEventListener('scroll', function(event) {
-					if (document.body.scrollTop + fixedHeight > bodyOffsetTop) {
-						elem.style.position = 'fixed';
-						elem.style.top = fixedHeight + 'px';
-						elem.style.left = bodyOffsetLeft + 'px';
-					} else {
-						elem.style.position = initial.position;
-						elem.style.top = initial.top;
-						elem.style.left = initial.left;
-					}
-				});
-			}
-		}
-	});
 	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'mattersgallery', 'srvApp', function($scope, $location, $uibModal, $q, http2, mattersgallery, srvApp) {
 		var ls = $location.search();
 
@@ -195,10 +162,14 @@ define(['require', 'page'], function(require, pageLib) {
 				ms._schemas = schemas;
 			});
 		});
+		http2.get('/rest/pl/fe/site/snsList?site=' + $scope.siteId, function(rsp) {
+			$scope.sns = rsp.data;
+		});
 		srvApp.get().then(function(app) {
 			var mapOfAppSchemas = {};
 			// 将页面的schema指向应用的schema
 			angular.forEach(app.data_schemas, function(schema) {
+				schemaLib._upgrade(schema);
 				mapOfAppSchemas[schema.id] = schema;
 			});
 			angular.forEach(app.pages, function(page) {

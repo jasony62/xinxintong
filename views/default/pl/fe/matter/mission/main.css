@@ -20,10 +20,11 @@ body{background:#f8f8f8;position:relative;overflow:hidden;display:flex;flex-dire
 /*matter*/
 #viewMatter .navbar.tms-top{margin:-1px -1px 15px;}
 #viewMatter .matters{flex:1.0;overflow-y:auto;overflow-x:hidden;}
-#viewMatter .thumbnail{cursor:pointer;height:145px;display:flex;flex-direction:column;padding:8px;}
+#viewMatter .thumbnail{position:relative;cursor:pointer;height:145px;display:flex;flex-direction:column;padding:8px;}
 #viewMatter .thumbnail .summary{flex:1;overflow:hidden;}
 #viewMatter .thumbnail .attrs{display:flex;}
 #viewMatter .thumbnail .operator{flex:1;}
+#viewMatter .thumbnail .actions{position:absolute;top:8px;right:8px;}
 #viewMatter .navbar.tms-bottom{margin:0 -1px;}
 
 /*indicator*/

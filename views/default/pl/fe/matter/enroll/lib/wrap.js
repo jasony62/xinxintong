@@ -60,7 +60,7 @@ define([], function() {
                 required: 'Y',
                 showname: 'label'
             },
-            schema: schema
+            schema: schema,
         };
         if (/single|multiple|phase/.test(schema.type)) {
             oWrap.config.align = 'V';
@@ -337,6 +337,82 @@ define([], function() {
             config: {},
             schema: schema
         };
+    };
+    /**
+     * radio wrap class
+     */
+    var RadioWrap = function() {};
+    RadioWrap.prototype = Object.create(Wrap.prototype);
+    RadioWrap.prototype.dataByDom = function(domWrap, page) {
+        var $wrap = $(domWrap),
+            $label = $wrap.find('label'),
+            $input = $label.children('input'),
+            $span = $label.children('span'),
+            schema = {},
+            dataWrap, opVal, op;
+
+        schema.id = $input.attr('name');
+        dataWrap = page.wrapBySchema(schema);
+
+        opVal = $input.val();
+        for (var i = dataWrap.schema.ops.length - 1; i >= 0; i--) {
+            if (dataWrap.schema.ops[i].v === opVal) {
+                op = dataWrap.schema.ops[i];
+                break;
+            }
+        }
+
+        schema.ops = [op];
+
+        return {
+            config: {},
+            schema: schema
+        };
+    };
+    RadioWrap.prototype.modify = function(wrap, dataWrap) {
+        var $wrap = $(wrap),
+            $label = $wrap.find('label'),
+            $span = $label.children('span');
+
+        $span.html(dataWrap.schema.ops[0].l);
+    };
+    /**
+     * checkbox wrap class
+     */
+    var CheckboxWrap = function() {};
+    CheckboxWrap.prototype = Object.create(Wrap.prototype);
+    CheckboxWrap.prototype.dataByDom = function(domWrap, page) {
+        var $wrap = $(domWrap),
+            $label = $wrap.find('label'),
+            $input = $label.children('input'),
+            $span = $label.children('span'),
+            schema = {},
+            dataWrap, opVal, op;
+
+        schema.id = $input.attr('name');
+        dataWrap = page.wrapBySchema(schema);
+
+        opVal = $input.attr('ng-model').split('.').pop();
+        for (var i = dataWrap.schema.ops.length - 1; i >= 0; i--) {
+            if (dataWrap.schema.ops[i].v === opVal) {
+                op = dataWrap.schema.ops[i];
+                break;
+            }
+        }
+
+        schema.ops = [op];
+
+        return {
+            config: {},
+            schema: schema
+        };
+    };
+    CheckboxWrap.prototype.modify = function(wrap, dataWrap) {
+        var $wrap = $(wrap),
+            $label = $wrap.find('label'),
+            $span = $label.children('span');
+
+        $span.html(dataWrap.schema.ops[0].l);
     };
     /**
      * value wrap class 
@@ -718,6 +794,8 @@ define([], function() {
      */
     return {
         input: new InputWrap(),
+        radio: new RadioWrap(),
+        checkbox: new CheckboxWrap(),
         value: new ValueWrap(),
         records: new RecordsWrap(),
         rounds: new RoundsWrap(),

@@ -734,9 +734,10 @@ class proxy_model extends \sns\proxybase {
 	}
 	/**
 	 * 创建一个二维码响应
+	 *
 	 * 微信的永久二维码最大值100000
 	 */
-	public function qrcodeCreate($scene_id, $oneOff = true, $expire = 1800) {
+	public function qrcodeCreate($scene_id, $oneOff = true, $expire = 864000) {
 		$cmd = 'https://api.weixin.qq.com/cgi-bin/qrcode/create';
 
 		if ($oneOff) {

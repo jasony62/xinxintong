@@ -39,6 +39,10 @@ class main extends base {
 		empty($app) && $this->outputError('签到活动ID为空');
 
 		$app = $this->modelApp->byId($app, ['cascade' => 'Y']);
+		if ($app === false) {
+			$this->outputError('指定的签到活动不存在，请检查参数是否正确');
+		}
+
 		if (!$this->afterSnsOAuth()) {
 			/* 检查是否需要第三方社交帐号OAuth */
 			$this->_requireSnsOAuth($site, $app);
@@ -151,7 +155,7 @@ class main extends base {
 		return $oPage;
 	}
 	/**
-	 * 返回登记记录
+	 * 返回签到登记记录
 	 *
 	 * @param string $siteid
 	 * @param string $appid
@@ -160,33 +164,36 @@ class main extends base {
 	public function get_action($site, $app, $page = null) {
 		$params = [];
 
-		/* 签到活动定义 */
-		$app = $this->modelApp->byId($app);
-		$params['app'] = &$app;
-		/*站点页面设置*/
-		if ($app->use_site_header === 'Y' || $app->use_site_footer === 'Y') {
+		// 签到活动定义
+		$signinApp = $this->modelApp->byId($app);
+		$params['app'] = &$signinApp;
+
+		// 站点页面设置
+		if ($signinApp->use_site_header === 'Y' || $signinApp->use_site_footer === 'Y') {
 			$params['site'] = $this->model('site')->byId(
 				$site,
 				['cascaded' => 'header_page_name,footer_page_name']
 			);
 		}
-		/*项目页面设置*/
-		if ($app->use_mission_header === 'Y' || $app->use_mission_footer === 'Y') {
-			if ($app->mission_id) {
+		// 项目页面设置
+		if ($signinApp->use_mission_header === 'Y' || $signinApp->use_mission_footer === 'Y') {
+			if ($signinApp->mission_id) {
 				$params['mission'] = $this->model('matter\mission')->byId(
-					$app->mission_id,
+					$signinApp->mission_id,
 					['cascaded' => 'header_page_name,footer_page_name']
 				);
 			}
 		}
-		/* 当前访问用户的基本信息 */
+
+		// 当前访问用户的基本信息
 		$user = $this->who;
 		$params['user'] = $user;
-		/* 打开哪个页面？ */
+
+		// 打开哪个页面？
 		if (empty($page)) {
-			$oPage = $this->_defaultPage($user, $site, $app);
+			$oPage = $this->_defaultPage($user, $site, $signinApp);
 		} else {
-			foreach ($app->pages as $p) {
+			foreach ($signinApp->pages as $p) {
 				if ($p->name === $page) {
 					$oPage = &$p;
 					break;
@@ -196,11 +203,15 @@ class main extends base {
 		if (empty($oPage)) {
 			return new \ResponseError('页面不存在');
 		}
+
+		// 页面定义
 		$modelPage = $this->model('matter\signin\page');
-		$oPage = $modelPage->byId($app->id, $oPage->id, 'Y');
+		$oPage = $modelPage->byId($signinApp->id, $oPage->id, 'Y');
 		$params['page'] = $oPage;
-		$params['activeRound'] = $this->model('matter\signin\round')->getActive($site, $app->id);
-		/*签到记录*/
+
+		$params['activeRound'] = $this->model('matter\signin\round')->getActive($site, $signinApp->id);
+
+		// 签到记录
 		$newForm = false;
 		if ($oPage->type === 'I') {
 			$options = [
@@ -208,10 +219,35 @@ class main extends base {
 				'cascaded' => 'Y',
 			];
 			$modelRec = $this->model('matter\signin\record');
-			$userRecord = $modelRec->byUser($user, $site, $app, $options);
+			if (false === ($userRecord = $modelRec->byUser($user, $site, $signinApp, $options))) {
+				// 如果关联了报名记录，从报名记录中获得登记信息
+				if (!empty($signinApp->enroll_app_id)) {
+					$userRecord = $this->_recordByEnroll($signinApp, $user);
+				}
+			}
 			$params['record'] = $userRecord;
 		}
 
 		return new \ResponseData($params);
+	}
+	/**
+	 * 从关联的登记活动中获得匹配的数据
+	 */
+	private function _recordByEnroll(&$signinApp, &$user) {
+		$modelEnlRec = $this->model('matter\enroll\record');
+
+		$records = $modelEnlRec->byUser($signinApp->enroll_app_id, $user);
+		if (count($records)) {
+
+			$signinRecord = new \stdClass;
+			foreach ($records as $record) {
+				if ($record->verified === 'Y') {
+					$signinRecord->data = json_decode($record->data);
+					return $signinRecord;
+				}
+			}
+		}
+
+		return false;
 	}
 }

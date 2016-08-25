@@ -38,6 +38,29 @@ define(['frame'], function(ngApp) {
 		};
 	}]);
 	/**
+	 * 微信二维码
+	 */
+	ngApp.provider.controller('ctrlWxQrcode', ['$scope', 'http2', function($scope, http2) {
+		$scope.create = function() {
+			var url;
+
+			url = '/rest/pl/fe/site/sns/wx/qrcode/create?site=' + $scope.siteId;
+			url += '&matter_type=enroll&matter_id=' + $scope.id;
+			url += '&expire=864000';
+
+			http2.get(url, function(rsp) {
+				$scope.qrcode = rsp.data;
+			});
+		};
+		$scope.download = function() {
+			$('<a href="' + $scope.qrcode.pic + '" download="微信登记二维码.jpeg"></a>')[0].click();
+		};
+		http2.get('/rest/pl/fe/matter/enroll/wxQrcode?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+			var qrcodes = rsp.data;
+			$scope.qrcode = qrcodes.length ? qrcodes[0] : false;
+		});
+	}]);
+	/**
 	 * app setting controller
 	 */
 	ngApp.provider.controller('ctrlApp', ['$scope', '$q', 'http2', function($scope, $q, http2) {
@@ -215,10 +238,6 @@ define(['frame'], function(ngApp) {
 	ngApp.provider.controller('ctrlReceiver', ['$scope', 'http2', '$interval', function($scope, http2, $interval) {
 		var baseURL = '/rest/pl/fe/matter/enroll/receiver/';
 		$scope.qrcodeShown = false;
-		$scope.supportQrcode = {
-			wx: 'N',
-			yx: 'N'
-		};
 		$scope.qrcode = function(snsName) {
 			if ($scope.qrcodeShown === false) {
 				var url = '/rest/pl/fe/site/sns/' + snsName + '/qrcode/createOneOff';
@@ -236,6 +255,7 @@ define(['frame'], function(ngApp) {
 						url2 = '/rest/pl/fe/site/sns/' + snsName + '/qrcode/get';
 						url2 += '?site=' + qrcode.siteid;
 						url2 += '&id=' + rsp.data.id;
+						url2 += '&cascaded=N';
 						fnCheckQrcode = $interval(function() {
 							http2.get(url2, function(rsp) {
 								if (rsp.data == false) {
@@ -270,11 +290,6 @@ define(['frame'], function(ngApp) {
 		};
 		http2.get(baseURL + 'list?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
 			$scope.receivers = rsp.data;
-		});
-		http2.get('/rest/pl/fe/site/snsList?site=' + $scope.siteId, function(rsp) {
-			var snsConfig = rsp.data;
-			snsConfig.wx && (snsConfig.wx.can_qrcode === 'Y') && ($scope.supportQrcode.wx = 'Y');
-			snsConfig.yx && (snsConfig.yx.can_qrcode === 'Y') && ($scope.supportQrcode.yx = 'Y');
 		});
 	}]);
 });

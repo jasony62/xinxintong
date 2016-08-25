@@ -2,6 +2,10 @@ define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlRecord', ['$scope', 'http2', '$uibModal', 'mattersgallery', 'pushnotify', 'noticebox', function($scope, http2, $uibModal, mattersgallery, pushnotify, noticebox) {
         $scope.notifyMatterTypes = [{
+            value: 'tmplmsg',
+            title: '模板消息',
+            url: '/rest/pl/fe/matter'
+        }, {
             value: 'article',
             title: '单图文',
             url: '/rest/pl/fe/matter'
@@ -22,27 +26,29 @@ define(['frame'], function(ngApp) {
             var url;
             page && ($scope.page.at = page);
             url = '/rest/pl/fe/matter/enroll/record/list';
-            url += '?site=' + $scope.siteId; // todo
+            url += '?site=' + $scope.siteId;
             url += '&app=' + $scope.app.id;
             url += $scope.page.joinParams();
             http2.post(url, $scope.criteria, function(rsp) {
                 if (rsp.data) {
                     $scope.records = rsp.data.records ? rsp.data.records : [];
                     $scope.page.total = rsp.data.total;
+
+                    // 计算登记项的分数
+                    angular.forEach($scope.records, function(record) {
+                        if (record.data) {
+                            if ($scope.mapOfSchemaByType['image'] && $scope.mapOfSchemaByType['image'].length) {
+                                angular.forEach($scope.mapOfSchemaByType['image'], function(schema) {
+                                    var imgs = record.data[schema.id] ? record.data[schema.id].split(',') : [];
+                                    record.data[schema.id] = imgs;
+                                });
+                            }
+                        }
+                    });
                 } else {
                     $scope.records = [];
                     $scope.page.total = 0;
                 }
-                angular.forEach($scope.records, function(record) {
-                    if (record.data) {
-                        if ($scope.mapOfSchemaByType['image'] && $scope.mapOfSchemaByType['image'].length) {
-                            angular.forEach($scope.mapOfSchemaByType['image'], function(schemaId) {
-                                var imgs = record.data[schemaId] ? record.data[schemaId].split(',') : [];
-                                record.data[schemaId] = imgs;
-                            });
-                        }
-                    }
-                });
             });
         };
         // 过滤条件
@@ -205,9 +211,9 @@ define(['frame'], function(ngApp) {
                 http2.post('/rest/pl/fe/matter/enroll/record/update?site=' + $scope.siteId + '&app=' + $scope.id + '&ek=' + record.enroll_key, p, function(rsp) {
                     var data = rsp.data.data;
                     if ($scope.mapOfSchemaByType['image'] && $scope.mapOfSchemaByType['image'].length) {
-                        angular.forEach($scope.mapOfSchemaByType['image'], function(schemaId) {
-                            var imgs = data[schemaId] ? data[schemaId].split(',') : [];
-                            data[schemaId] = imgs;
+                        angular.forEach($scope.mapOfSchemaByType['image'], function(schema) {
+                            var imgs = data[schema.id] ? data[schema.id].split(',') : [];
+                            data[schema.id] = imgs;
                         });
                     }
                     angular.extend(record, rsp.data);
@@ -238,9 +244,9 @@ define(['frame'], function(ngApp) {
                 http2.post('/rest/pl/fe/matter/enroll/record/add?site=' + $scope.siteId + '&app=' + $scope.id, p, function(rsp) {
                     var record = rsp.data;
                     if ($scope.mapOfSchemaByType['image'] && $scope.mapOfSchemaByType['image'].length) {
-                        angular.forEach($scope.mapOfSchemaByType['image'], function(schemaId) {
-                            var imgs = record.data[schemaId] ? record.data[schemaId].split(',') : [];
-                            record.data[schemaId] = imgs;
+                        angular.forEach($scope.mapOfSchemaByType['image'], function(schema) {
+                            var imgs = record.data[schema.id] ? record.data[schema.id].split(',') : [];
+                            record.data[schema.id] = imgs;
                         });
                     }
                     $scope.records.splice(0, 0, rsp.data);
@@ -318,24 +324,33 @@ define(['frame'], function(ngApp) {
                 });
             }
         };
-        $scope.notify = function() {
+        $scope.notify = function(isBatch) {
             pushnotify.open($scope.siteId, function(notify) {
-                var url;
+                var url, targetAndMsg = {};
                 if (notify.matters.length) {
+                    if (isBatch) {
+                        targetAndMsg.users = [];
+                        Object.keys($scope.rows.selected).forEach(function(key) {
+                            if ($scope.rows.selected[key] === true) {
+                                targetAndMsg.users.push($scope.records[key].userid);
+                            }
+                        });
+                    } else {
+                        targetAndMsg.criteria = $scope.criteria;
+                    }
+                    targetAndMsg.message = notify.message;
+
                     url = '/rest/pl/fe/matter/enroll/record/notify';
                     url += '?site=' + $scope.siteId;
                     url += '&app=' + $scope.id;
                     url += '&tmplmsg=' + notify.tmplmsg.id;
                     url += $scope.page.joinParams();
-                    http2.post(url, {
-                        message: notify.message,
-                        criteria: $scope.criteria
-                    }, function(data) {
+
+                    http2.post(url, targetAndMsg, function(data) {
                         noticebox.success('发送成功');
                     });
                 }
             }, {
-                singleMatter: 'Y',
                 matterTypes: $scope.notifyMatterTypes
             });
         };
@@ -387,7 +402,7 @@ define(['frame'], function(ngApp) {
             var mapOfSchemaByType = {};
             angular.forEach(app.data_schemas, function(schema) {
                 mapOfSchemaByType[schema.type] === undefined && (mapOfSchemaByType[schema.type] = []);
-                mapOfSchemaByType[schema.type].push(schema.id);
+                mapOfSchemaByType[schema.type].push(schema);
             });
             $scope.mapOfSchemaByType = mapOfSchemaByType;
             $scope.tmsTableWrapReady = 'Y';

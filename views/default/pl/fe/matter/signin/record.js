@@ -20,10 +20,11 @@ define(['frame'], function(ngApp) {
             var round = mapOfRounds[roundId],
                 signinAt;
 
-            if (record && record.signin_log && round && round.late_at) {
-                signinAt = record.signin_log[roundId];
+            if (record && record.signin_log && round && round.late_at > 0) {
+                signinAt = parseInt(record.signin_log[roundId]);
                 if (signinAt) {
-                    return signinAt > round.late_at;
+                    // 忽略秒的影响
+                    return signinAt > parseInt(round.late_at) + 59;
                 }
             }
             return false;
@@ -218,13 +219,16 @@ define(['frame'], function(ngApp) {
         };
         $scope.editRecord = function(record) {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/signin/component/recordEditor.html?_=2',
+                templateUrl: '/views/default/pl/fe/matter/signin/component/recordEditor.html?_=3',
                 controller: 'ctrlEditor',
                 backdrop: 'static',
                 windowClass: 'auto-height middle-width',
                 resolve: {
                     app: function() {
                         return $scope.app;
+                    },
+                    enrollDataSchemas: function() {
+                        return $scope.enrollDataSchemas;
                     },
                     record: function() {
                         record.aid = $scope.id;
@@ -248,12 +252,15 @@ define(['frame'], function(ngApp) {
         };
         $scope.addRecord = function() {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/signin/component/recordEditor.html?_=2',
+                templateUrl: '/views/default/pl/fe/matter/signin/component/recordEditor.html?_=3',
                 controller: 'ctrlEditor',
                 windowClass: 'auto-height middle-width',
                 resolve: {
                     app: function() {
                         return $scope.app;
+                    },
+                    enrollDataSchemas: function() {
+                        return $scope.enrollDataSchemas;
                     },
                     record: function() {
                         return {
@@ -354,7 +361,7 @@ define(['frame'], function(ngApp) {
             }
         });
         $scope.tmsTableWrapReady = 'N';
-        $scope.enrollDateSchemas = [];
+        $scope.enrollDataSchemas = [];
         $scope.$watch('app', function(app) {
             if (!app) return;
             //
@@ -597,39 +604,48 @@ define(['frame'], function(ngApp) {
             $mi.dismiss('cancel');
         };
     }]);
-    ngApp.provider.controller('ctrlEditor', ['$scope', '$uibModalInstance', '$sce', 'app', 'record', function($scope, $mi, $sce, app, record) {
-        var p, col, files;
-        if (record.data) {
-            for (p in app.data_schemas) {
-                col = app.data_schemas[p];
-                if (record.data[col.id]) {
-                    if (col.type === 'file') {
-                        files = JSON.parse(record.data[col.id]);
-                        angular.forEach(files, function(file) {
-                            file.url = $sce.trustAsResourceUrl(file.url);
-                        });
-                        record.data[col.id] = files;
-                    } else if (col.type === 'multiple') {
-                        var value = record.data[col.id].split(','),
-                            obj = {};
-                        angular.forEach(value, function(p) {
-                            obj[p] = true;
-                        });
-                        record.data[col.id] = obj;
-                    } else if (col.type === 'image') {
-                        var value = record.data[col.id],
-                            obj = [];
-                        angular.forEach(value, function(p) {
-                            obj.push({
-                                imgSrc: p
-                            });
-                        });
-                        record.data[col.id] = obj;
-                    }
-                }
+    ngApp.provider.controller('ctrlEditor', ['$scope', 'http2', '$uibModalInstance', '$sce', 'app', 'enrollDataSchemas', 'record', function($scope, http2, $mi, $sce, app, enrollDataSchemas, record) {
+        function _convertRecord(col, data) {
+            var files;
+            if (col.type === 'file') {
+                files = JSON.parse(data[col.id]);
+                angular.forEach(files, function(file) {
+                    file.url = $sce.trustAsResourceUrl(file.url);
+                });
+                data[col.id] = files;
+            } else if (col.type === 'multiple') {
+                var value = data[col.id].split(','),
+                    obj = {};
+                angular.forEach(value, function(p) {
+                    obj[p] = true;
+                });
+                data[col.id] = obj;
+            } else if (col.type === 'image') {
+                var value = data[col.id],
+                    obj = [];
+                angular.forEach(value, function(p) {
+                    obj.push({
+                        imgSrc: p
+                    });
+                });
+                data[col.id] = obj;
             }
+            return data;
+        };
+        if (record.data) {
+            angular.forEach(app.data_schemas, function(col) {
+                if (record.data[col.id]) {
+                    _convertRecord(col, record.data);
+                }
+            });
+            angular.forEach(enrollDataSchemas, function(col) {
+                if (record.data[col.id]) {
+                    _convertRecord(col, record.data);
+                }
+            });
         }
         $scope.app = app;
+        $scope.enrollDataSchemas = enrollDataSchemas;
         $scope.record = record;
         $scope.record.aTags = (!record.tags || record.tags.length === 0) ? [] : record.tags.split(',');
         $scope.aTags = app.tags;
@@ -710,5 +726,27 @@ define(['frame'], function(ngApp) {
                 record.signin_log[data.obj.rid] = data.value;
             }
         });
+        $scope.syncByEnroll = function() {
+            var url;
+
+            url = '/rest/pl/fe/matter/signin/record/matchEnroll';
+            url += '?site=' + app.siteid;
+            url += '&app=' + app.id;
+
+            http2.post(url, $scope.record.data, function(rsp) {
+                var matched;
+                if (rsp.data && rsp.data.length === 1) {
+                    matched = rsp.data[0];
+                    angular.forEach(enrollDataSchemas, function(col) {
+                        if (matched[col.id]) {
+                            _convertRecord(col, matched);
+                        }
+                    });
+                    angular.extend(record.data, matched);
+                } else {
+                    alert('没有找到匹配的记录，请检查数据是否一致');
+                }
+            });
+        };
     }]);
 });

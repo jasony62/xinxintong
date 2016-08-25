@@ -9,9 +9,6 @@ class base_model extends \TMS_MODEL {
 	 */
 	public static function getCardInfoById($type, $id) {
 		switch ($type) {
-		case 'enrollsignin':
-			$q = ['id,title,summary,pic', 'xxt_enroll', ["id" => $id]];
-			break;
 		case 'joinwall':
 			$q = ['id,title,summary,pic', 'xxt_wall', ["id" => $id]];
 			break;
@@ -35,9 +32,6 @@ class base_model extends \TMS_MODEL {
 			break;
 		case 'relay':
 			$q = ['id,title', 'xxt_mprelay', ["id" => $id]];
-			break;
-		case 'enrollsignin':
-			$q = ['id,title', 'xxt_enroll', ["id" => $id]];
 			break;
 		case 'joinwall':
 			$q = ['id,title', 'xxt_wall', ["id" => $id]];

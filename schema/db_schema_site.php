@@ -36,7 +36,7 @@ $sql .= ",creater varchar(40) not null";
 $sql .= ",creater_name varchar(255) not null default ''";
 $sql .= ",create_at int not null";
 $sql .= ",event_name varchar(255) not null"; // 事件名称
-$sql .= ",tmplmsg_comfig_id int not null default 0"; // 对应的模版消息ID，引用xxt_tmplmsg_mapping
+$sql .= ",tmplmsg_config_id int not null default 0"; // 对应的模版消息ID，引用xxt_tmplmsg_mapping
 $sql .= ",active char(1) not null default 'N'"; //是否已激活
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

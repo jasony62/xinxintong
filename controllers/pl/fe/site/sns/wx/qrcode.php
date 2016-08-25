@@ -30,12 +30,12 @@ class qrcode extends \pl\fe\base {
 	/**
 	 * get qrcode calls.
 	 */
-	public function get_action($site, $id) {
+	public function get_action($site, $id, $cascaded = 'Y') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$qrcode = $this->model('sns\wx\call\qrcode')->byId($id);
+		$qrcode = $this->model('sns\wx\call\qrcode')->byId($id, ['cascaded' => $cascaded]);
 
 		return new \ResponseData($qrcode);
 	}

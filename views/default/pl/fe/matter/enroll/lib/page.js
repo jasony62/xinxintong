@@ -294,7 +294,9 @@ define(['wrap'], function(wrapLib) {
 		},
 		updateBySchema: function(schema) {
 			if (schema) {
-				if (this.type === 'V' || this.type === 'L') {
+				if (this.type === 'I') {
+
+				} else if (this.type === 'V' || this.type === 'L') {
 					var $html = $('<div>' + this.html + '</div>');
 					$html.find("[schema='" + schema.id + "']").find('label').html(schema.title);
 					this.html = $html.html();

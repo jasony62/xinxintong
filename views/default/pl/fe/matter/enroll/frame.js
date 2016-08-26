@@ -22,6 +22,7 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 		};
 		$routeProvider
 			.when('/rest/pl/fe/matter/enroll/publish', new RouteParam('publish'))
+			.when('/rest/pl/fe/matter/enroll/schema', new RouteParam('schema'))
 			.when('/rest/pl/fe/matter/enroll/page', new RouteParam('page'))
 			.when('/rest/pl/fe/matter/enroll/event', new RouteParam('event'))
 			.when('/rest/pl/fe/matter/enroll/record', new RouteParam('record'))

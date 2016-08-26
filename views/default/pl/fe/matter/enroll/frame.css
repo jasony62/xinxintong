@@ -18,6 +18,10 @@ body>nav>ul:nth-child(2)>li{display:inline-block;float:none;}
 #page-view .page .page-editor{position:absolute;top:0;bottom:0;left:305px;width:540px;overflow-y:auto;}
 #page-view .page .wrap-editor{position:absolute;top:0;bottom:0;left:860px;width:250px;overflow-y:auto;}
 
+/*schema-view*/
+#schema-view .schema>div{position:relative;}
+#schema-view .schema button{position:absolute;top:0;right:0;}
+
 /*app-view/app-setting*/
 #appSetting{width:160px;font-family:Microsoft Yahei,Arial;}
 

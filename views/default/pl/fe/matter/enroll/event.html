@@ -7,7 +7,7 @@
                         <td>开始前进入</td>
                         <td style='padding:0'>
                             <select style='border:0' class='form-control' ng-model='app.before_start_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('before_start_page')">
-                                <option value=''></option>
+                                <option value=''>缺省提示</option>
                             </select>
                         </td>
                     </tr>
@@ -15,7 +15,7 @@
                         <td>结束后进入</td>
                         <td style='padding:0'>
                             <select style='border:0' class='form-control' ng-model='app.after_end_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('after_end_page')">
-                                <option value=''></option>
+                                <option value=''>缺省提示</option>
                             </select>
                         </td>
                     </tr>

@@ -1,5 +1,5 @@
 define(['frame'], function(ngApp) {
-	ngApp.provider.controller('ctrlEvent', ['$scope', '$location', 'http2', '$uibModal', function($scope, $location, http2, $uibModal) {
+	ngApp.provider.controller('ctrlEvent', ['$scope', 'http2', function($scope, http2) {
 		window.onbeforeunload = function(e) {
 			var message;
 			if ($scope.modified) {
@@ -38,9 +38,6 @@ define(['frame'], function(ngApp) {
 			}
 			return false;
 		};
-		http2.get('/rest/pl/fe/site/snsList?site=' + $scope.siteId, function(rsp) {
-			$scope.sns = rsp.data;
-		});
 		$scope.$watch('app.pages', function(pages) {
 			if (!pages) return;
 			$scope.pages4NonMember = [{

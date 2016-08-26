@@ -152,17 +152,16 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 根据ID返回登记记录
 	 */
-	public function byId($ek, $options = array()) {
+	public function &byId($ek, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
 
-		$q = array(
+		$q = [
 			$fields,
 			'xxt_enroll_record',
 			"enroll_key='$ek'",
-		);
-		if (($record = $this->query_obj_ss($q)) && $cascaded === 'Y') {
-			$record->data = $this->dataById($ek);
+		];
+		if ($fields === '*' && ($record = $this->query_obj_ss($q))) {
+			$record->data = json_decode($record->data);
 		}
 
 		return $record;
@@ -471,20 +470,27 @@ class record_model extends \TMS_MODEL {
 	 */
 	public function getLast($siteId, $app, $user, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$q = array(
+
+		$q = [
 			$fields,
 			'xxt_enroll_record',
 			"siteid='$siteId' and aid='{$app->id}' and state=1",
-		);
+		];
 		$q[2] .= " and userid='{$user->uid}'";
 		if ($activeRound = \TMS_APP::M('matter\enroll\round')->getActive($siteId, $app->id)) {
 			$q[2] .= " and rid='$activeRound->rid'";
 		}
-		$q2 = array(
+		$q2 = [
 			'o' => 'enroll_at desc',
-			'r' => array('o' => 0, 'l' => 1),
-		);
+			'r' => ['o' => 0, 'l' => 1],
+		];
 		$records = $this->query_objs_ss($q, $q2);
+
+		if ($fields === '*') {
+			foreach ($records as &$record) {
+				$record->data = json_decode($record->data);
+			}
+		}
 
 		return count($records) === 1 ? $records[0] : false;
 	}

@@ -24,22 +24,28 @@
         </nav>
     </div>
     <!-- end app -->
-    <!-- preview -->
+    <!-- app -->
     <div class='col-md-3' ng-controller="ctrlApp">
         <div class='tile' ng-if="app.scenarioConfig.can_period!=='D'">
             <div class='form-group compact'>
                 <label>登记开始时间</label>
                 <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='app.start_at' tms-state='start_at'></tms-datepicker>
             </div>
+            <div class='form-group compact' ng-if="app.start_at>0">
+                <label>开始前进入页面</label>
+                <select class='form-control' ng-model='app.before_start_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('before_start_page')">
+                    <option value=''>缺省提示</option>
+                </select>
+            </div>
             <div class='form-group compact'>
                 <label>登记截止时间</label>
                 <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='app.end_at' tms-state='end_at'></tms-datepicker>
             </div>
-        </div>
-        <div class='tile'>
-            <div class='form-group compact'>
-                <label>允许每用户登记条数</label>
-                <input type='text' class='form-control' ng-model="app.count_limit" tms-auto-update tms-wait=1000 tms-update="update('count_limit')">
+            <div class='form-group compact' ng-if="app.end_at>0">
+                <label>结束前进入页面</label>
+                <select class='form-control' ng-model='app.after_end_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('after_end_page')">
+                    <option value=''>缺省提示</option>
+                </select>
             </div>
         </div>
         <div class="panel panel-default">
@@ -50,10 +56,10 @@
                         <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.notify_submit" ng-change="update('notify_submit')">提交登记</label>
                     </div>
                 </div>
-                <div class='form-group' ng-if="supportQrcode.wx==='Y'">
+                <div class='form-group' ng-if="sns.wx.joined==='Y'&&sns.wx.can_qrcode==='Y'">
                     <button id='wxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('wx')">微信扫码作为接收人 <span class="caret"></span></button>
                 </div>
-                <div class='form-group' ng-if="supportQrcode.yx==='Y'">
+                <div class='form-group'  ng-if="sns.yx.joined==='Y'&&sns.yx.can_qrcode==='Y'">
                     <button id='yxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('yx')">易信扫码作为接收人 <span class="caret"></span></button>
                 </div>
                 <div class='list-group'>
@@ -81,9 +87,14 @@
             </div>
         </div>
     </div>
+     <!-- end app -->
+    <!-- preview -->
     <div class='col-md-5' style='text-align:center' ng-controller="ctrlPreview">
+        <h5>页面预览</h5>
         <iframe id='simulator' ng-src={{previewURL}}></iframe>
     </div>
+    <!-- end preview -->
+    <!-- publish -->
     <div class='col-md-4'>
         <div class='tile records' ng-if="!app.rounds">
             <div class='help-block'>
@@ -163,11 +174,93 @@
                 <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opUrl}}">复制</button>
             </div>
         </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">公众号分享设置</div>
+        <!-- access rule -->
+        <div class="panel panel-default" ng-controller="ctrlAccessRule">
+            <div class="panel-heading">用户进入规则</div>
             <div class="panel-body">
-                <div class='form-group compact'>
-                    <label>头图（可选）</label>
+                <div class='form-group'>
+                    <div class='radio'>
+                        <label><input type='radio' value='none' ng-model="rule.scope" ng-change="changeUserScope()">不限用户来源</label>
+                    </div>
+                    <div class='radio' ng-if="memberSchemas.length">
+                        <label><input type='radio' value='member' ng-model="rule.scope" ng-change="changeUserScope()">限自定义用户访问</label>
+                    </div>
+                    <div class='radio' ng-if="sns">
+                        <label><input type='radio' value='sns' ng-model="rule.scope" ng-change="changeUserScope()">限公众号关注用户访问</label>
+                    </div>
+                    <table class='table table-bordered' ng-if="rule.scope==='none'">
+                        <tbody>
+                            <tr>
+                                <td>缺省进入页面</td>
+                                <td style='padding:0'>
+                                    <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.otherwise.entry' ng-options="p.name as p.title for p in app.pages"></select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class='table table-bordered' ng-if="rule.scope==='member'">
+                        <tbody>
+                            <tr ng-repeat="ms in memberSchemas">
+                                <td>{{ms.title}}</td>
+                                <td style='padding:0'>
+                                    <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model="app.entry_rule.member[ms.id].entry" ng-options="p.name as p.title for p in app.pages">
+                                        <option value=''></option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>不满足条件用户</td>
+                                <td style='padding:0'>
+                                    <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.other.entry' ng-options="p.name as p.title for p in pages4NonMember"></select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class='table table-bordered' ng-if="rule.scope==='sns'">
+                        <tbody>
+                            <tr ng-if="sns.wx">
+                                <td>微信公众号关注用户</td>
+                                <td style='padding:0'>
+                                    <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.sns.wx.entry' ng-options='p.name as p.title for p in app.pages'>
+                                        <option value=''></option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr ng-if="sns.qy">
+                                <td>微信企业号关注用户</td>
+                                <td style='padding:0'>
+                                    <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.sns.qy.entry' ng-options='p.name as p.title for p in app.pages'>
+                                        <option value=''></option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr ng-if="sns.yx">
+                                <td>易信公众号关注用户</td>
+                                <td style='padding:0'>
+                                    <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.sns.yx.entry' ng-options='p.name as p.title for p in app.pages'>
+                                        <option value=''></option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>不满足条件用户</td>
+                                <td style='padding:0'>
+                                    <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.other.entry' ng-options="p.name as p.title for p in pages4Nonfan"></select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button class='btn btn-block btn-success' ng-click="reset()">重置进入规则</button>
+                </div>
+            </div>
+        </div>
+        <!-- end access rule -->
+        <!-- sns share -->
+        <div class="panel panel-default" ng-if="app.entry_rule.scope==='sns'">
+            <div class="panel-heading">公众号设置</div>
+            <div class="panel-body">
+                <div class='form-group'>
+                    <label>分享卡片头图（可选）</label>
                     <div style='position:relative'>
                         <div style="width:182px;border:1px solid #CCC">
                             <div style="height:100px;text-align:center;padding-top:32px" ng-if="!app.pic">
@@ -186,12 +279,12 @@
                         </div>
                     </div>
                 </div>
-                <div class='form-group compact'>
-                    <label>摘要（可选）</label>
+                <div class='form-group'>
+                    <label>分享卡片摘要（可选）</label>
                     <textarea class='form-control' ng-model='app.summary' rows=5 tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
                 </div>
-                <div class='form-group compact' ng-if="sns.wx.joined==='Y'&&sns.wx.can_qrcode==='Y'" ng-controller="ctrlWxQrcode">
-                    <div class='help-block'>微信二维码</div>
+                <div class='form-group compact' ng-if="sns.wx.can_qrcode==='Y'" ng-controller="ctrlWxQrcode">
+                    <label>微信二维码</label>
                     <div ng-if='!qrcode'>
                         <button class='btn btn-default' ng-click="create()">生成二维码</button>
                     </div>
@@ -200,13 +293,14 @@
                         <button class='btn btn-default' ng-click="download()">下载</button>
                     </div>
                 </div>
-                <div class='form-group compact' ng-if="sns.yx.joined==='Y'&&sns.yx.can_qrcode==='Y'">
-                    <div class='help-block'>易信二维码</div>
+                <div class='form-group compact' ng-if="sns.yx.can_qrcode==='Y'">
+                    <label>易信二维码</label>
                 </div>
             </div>
         </div>
+        <!-- end sns share -->
     </div>
-    <!-- end preview -->
+    <!-- end publish -->
     <!-- bottom navbar -->
     <nav class="navbar navbar-default navbar-fixed-bottom">
         <div class="container-fluid" style='text-align:center'>
@@ -232,6 +326,11 @@
                 <option value='voting'>评价</option>
                 <option value='group_week_report'>周报</option>
             </select>
+        </div>
+        <hr>
+        <div class='form-group compact'>
+            <label>允许每用户登记条数</label>
+            <input type='text' class='form-control' ng-model="app.count_limit" tms-auto-update tms-wait=1000 tms-update="update('count_limit')">
         </div>
         <hr>
         <a href="/rest/pl/fe/matter/enroll/event?site={{siteId}}&id={{id}}">活动进入规则</a>

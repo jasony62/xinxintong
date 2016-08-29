@@ -170,7 +170,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 	/**
 	 * 登记项编辑
 	 */
-	ngApp.provider.controller('ctrlOne', ['$scope', '$timeout', function($scope, $timeout) {
+	ngApp.provider.controller('ctrlEdit', ['$scope', '$timeout', function($scope, $timeout) {
 		$scope.addOption = function() {
 			var schema = $scope.activeSchema,
 				maxSeq = 0,
@@ -190,7 +190,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				$scope.$broadcast('xxt.editable.add', newOp);
 			});
 		};
-		$scope.onKeyup = function(event) {
+		$scope.onOptionKeyup = function(event) {
 			// 回车时自动添加选项
 			if (event.keyCode === 13) {
 				$scope.addOption();
@@ -208,7 +208,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			}
 		}, true);
 		var timerOfUpdate = null;
-		$scope.updWrap = function() {
+		$scope.updSchema = function(prop) {
 			if (timerOfUpdate !== null) {
 				$timeout.cancel(timerOfUpdate);
 			}

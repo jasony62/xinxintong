@@ -293,14 +293,30 @@ define(['wrap'], function(wrapLib) {
 			return false;
 		},
 		updateBySchema: function(schema) {
+			var $html, $wrap, $label, $input;
 			if (schema) {
+				$html = $('<div>' + this.html + '</div>');
 				if (this.type === 'I') {
-
+					$wrap = $html.find("[schema='" + schema.id + "']");
+					$label = $wrap.find('label').html(schema.title);
+					if (/name|email|mobile|shorttext|longtext|member/.test(schema.type)) {
+						$input = $wrap.find('input,select,textarea');
+						$input.attr('title', schema.title);
+						if ($input.attr('placeholder')) {
+							$input.attr('placeholder', schema.title);
+						}
+					} else if (/single|phase/.test(schema.type)) {
+						(function(lib) {
+							var html;
+							if (schema.ops && schema.ops.length > 0) {}
+						})(this);
+					} else if ('multiple' === schema.type) {
+						(function(lib) {})(this);
+					}
 				} else if (this.type === 'V' || this.type === 'L') {
-					var $html = $('<div>' + this.html + '</div>');
 					$html.find("[schema='" + schema.id + "']").find('label').html(schema.title);
-					this.html = $html.html();
 				}
+				this.html = $html.html();
 			}
 		},
 		removeBySchema: function(schema) {

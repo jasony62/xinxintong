@@ -197,7 +197,7 @@ define(['wrap'], function(wrapLib) {
 					this.data_schemas = dataSchemas;
 				} else if (this.type === 'L') {
 					angular.forEach(this.data_schemas, function(item) {
-						if (item.config.pattern === 'records') {
+						if (item.config && item.config.pattern === 'records') {
 							var listSchemas = [];
 							angular.forEach(item.schemas, function(schema) {
 								listSchemas.push(mapOfAppSchemas[schema.id] ? mapOfAppSchemas[schema.id] : schema);

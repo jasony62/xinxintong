@@ -262,14 +262,12 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
             prop: '@',
             obj: '='
         },
-        templateUrl: '/static/template/editable.html?_=1',
+        templateUrl: '/static/template/editable.html?_=2',
         link: function(scope, elem, attrs) {
             function whenBlur() {
                 delete scope.focus;
                 if (scope.obj[scope.prop].length == 0) {
                     scope.remove();
-                } else if (scope.oldVal !== scope.obj[scope.prop]) {
-                    scope.$emit('xxt.editable.changed', scope.obj);
                 }
             };
 
@@ -297,6 +295,9 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                 delete scope.enter;
                 scope.$apply();
             });
+            scope.valueChanged = function() {
+                scope.$emit('xxt.editable.changed', scope.obj);
+            };
             scope.remove = function(event) {
                 if (event) {
                     event.preventDefault();
@@ -579,7 +580,11 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
             if (ui.item.sortable.received && !ui.item.sortable.isCanceled()) {
                 scope.$apply(function() {
                     scope.dataset.splice(ui.item.sortable.dropindex - dndableOffset, 0, ui.item.sortable.moved);
-                    scope.$emit('orderChanged', ui.item.sortable.moved);
+                    if (scope.eventPrefix && scope.eventPrefix.length) {
+                        scope.$emit(scope.eventPrefix + '.orderChanged', movedObj);
+                    } else {
+                        scope.$emit('orderChanged', movedObj);
+                    }
                 });
             }
         };
@@ -601,7 +606,11 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                         ui.item.sortable.dropindex - dndableOffset, 0,
                         scope.dataset.splice(ui.item.sortable.index - dndableOffset, 1)[0]
                     );
-                    scope.$emit('orderChanged', movedObj);
+                    if (scope.eventPrefix && scope.eventPrefix.length) {
+                        scope.$emit(scope.eventPrefix + '.orderChanged', movedObj);
+                    } else {
+                        scope.$emit('orderChanged', movedObj);
+                    }
                 });
             } else {
                 if ((!('dropindex' in ui.item.sortable) || ui.item.sortable.isCanceled()) && element.sortable('option', 'helper') !== 'clone') {
@@ -630,6 +639,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
     return {
         scope: {
             dataset: '=',
+            eventPrefix: '@'
         },
         link: link,
     };

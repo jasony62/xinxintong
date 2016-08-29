@@ -178,6 +178,7 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 				page.arrange(mapOfAppSchemas);
 			});
 			$scope.app = app;
+			app.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
 			$scope.url = 'http://' + location.host + '/rest/site/fe/matter/enroll?site=' + $scope.siteId + '&app=' + $scope.id;
 		});
 	}]);

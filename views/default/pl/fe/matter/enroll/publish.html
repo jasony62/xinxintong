@@ -51,10 +51,8 @@
         <div class="panel panel-default">
             <div class="panel-heading">事件提醒：接收用户登记活动提醒</div>
             <div class="panel-body" ng-controller="ctrlReceiver">
-                <div class='form-group'>
-                    <div class='checkbox'>
-                        <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.notify_submit" ng-change="update('notify_submit')">提交登记</label>
-                    </div>
+                <div class='checkbox'>
+                    <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.notify_submit" ng-change="update('notify_submit')">提交登记</label>
                 </div>
                 <div class='form-group' ng-if="sns.wx.joined==='Y'&&sns.wx.can_qrcode==='Y'">
                     <button id='wxQrcode' uib-popover-template="'joinQrcode.html'" popover-trigger="show" popover-placement="bottom" class="btn btn-default" ng-click="qrcode('wx')">微信扫码作为接收人 <span class="caret"></span></button>

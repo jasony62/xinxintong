@@ -120,8 +120,19 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				}
 			}
 		});
-		$scope.$on('orderChanged', function(e, moved) {
-			$scope.update('data_schemas').then(function() {});
+		$scope.$on('schemas.orderChanged', function(e, moved) {
+			$scope.update('data_schemas').then(function() {
+				var app = $scope.app;
+				if (app.__schemasOrderConsistent === 'Y') {
+					var i = app.data_schemas.indexOf(moved),
+						prevSchema;
+					if (i > 0) prevSchema = app.data_schemas[i - 1];
+					app.pages.forEach(function(page) {
+						page.moveSchema(moved, prevSchema);
+						$scope.updPage(page, ['data_schemas', 'html']);
+					});
+				}
+			});
 		});
 		$scope.removePopover = function() {
 			$scope.removeSchema($scope.popover.schema).then(function() {
@@ -196,17 +207,19 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				$scope.addOption();
 			}
 		};
+		$scope.$on('xxt.editable.changed', function(e, op) {
+			$scope.updSchema('ops');
+		});
 		$scope.$on('xxt.editable.remove', function(e, op) {
 			var schema = $scope.activeSchema,
 				i = schema.ops.indexOf(op);
 
 			schema.ops.splice(i, 1);
+			$scope.updSchema('ops');
 		});
-		$scope.$watch('activeSchema.ops', function(nv, ov) {
-			if (nv !== ov) {
-				$scope.updWrap('schema', 'ops');
-			}
-		}, true);
+		$scope.$on('options.orderChanged', function(e, moved) {
+			$scope.updSchema('ops');
+		});
 		var timerOfUpdate = null;
 		$scope.updSchema = function(prop) {
 			if (timerOfUpdate !== null) {

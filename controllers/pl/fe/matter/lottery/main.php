@@ -113,7 +113,7 @@ class main extends \pl\fe\matter\base {
 		 * 创建定制页
 		 */
 		$modelCode = $this->model('code\page');
-		$page = $modelCode->create($site, $user->id);
+		$page = $modelCode->create($site->id, $user->id);
 		$data = array(
 			'html' => '<button ng-click="play()">开始</button>',
 			'css' => '#pattern button{width:100%;font-size:1.2em;padding:.5em 0}',
@@ -188,7 +188,7 @@ class main extends \pl\fe\matter\base {
 		 * 创建定制页
 		 */
 		$modelCode = $this->model('code\page');
-		$page = $modelCode->create($user->id);
+		$page = $modelCode->create($site->id, $user->id);
 		$data = array(
 			'html' => '<button ng-click="play()">开始</button>',
 			'css' => '#pattern button{width:100%;font-size:1.2em;padding:.5em 0}',

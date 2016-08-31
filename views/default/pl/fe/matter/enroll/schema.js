@@ -95,31 +95,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 	 * 应用的所有登记项
 	 */
 	ngApp.provider.controller('ctrlList', ['$scope', function($scope) {
-
 		$scope.popover = {};
-		$('body').on('click', function(event) {
-			var target = event.target;
-			if (event.target.tagName === 'SPAN' && target.parentNode && target.parentNode.tagName === 'BUTTON') {
-				target = target.parentNode;
-			}
-			if (target.tagName === 'BUTTON' && target.classList.contains('popover-schema') && target.dataset.schemaIndex !== undefined) {
-				var schema = $scope.appSchemas[target.dataset.schemaIndex];
-				if ($scope.popover.target !== target) {
-					if ($scope.popover.target) {
-						$($scope.popover.target).trigger('hide');
-					}
-					$(target).trigger('show');
-					$scope.popover = {
-						target: target,
-						schema: schema,
-						index: target.dataset.schemaIndex
-					};
-				} else {
-					$scope.popover = {};
-					$(target).trigger('hide');
-				}
-			}
-		});
 		$scope.$on('schemas.orderChanged', function(e, moved) {
 			$scope.update('data_schemas').then(function() {
 				var app = $scope.app;
@@ -134,11 +110,17 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				}
 			});
 		});
+		$scope.schemaPopoverHtml = function() {
+			return '/views/default/pl/fe/matter/enroll/schema/main.html?_=4';
+		};
 		$scope.removePopover = function() {
 			$scope.removeSchema($scope.popover.schema).then(function() {
-				$($scope.popover.target).trigger('hide');
-				$scope.popover = {};
+				$scope.closePopover();
 			});
+		};
+		$scope.closePopover = function() {
+			$($scope.popover.target).trigger('hide');
+			$scope.popover = {};
 		};
 		$scope.upPopover = function() {
 			var index = $scope.popover.index;
@@ -158,19 +140,23 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				$scope.popover.modified = true;
 			}
 		};
-		$scope.closePopover = function() {
-			if ($scope.popover.modified) {
-				$scope.update('data_schemas').then(function() {
+		$scope.chooseSchema = function(event, schema) {
+			var target = event.currentTarget;
+			$scope.activeSchema = schema;
+			if ($scope.popover.target !== target) {
+				if ($scope.popover.target) {
 					$($scope.popover.target).trigger('hide');
-					$scope.popover = {};
-				});
+				}
+				$(event.target).trigger('show');
+				$scope.popover = {
+					target: target,
+					schema: schema,
+					index: target.dataset.schemaIndex
+				};
 			} else {
-				$($scope.popover.target).trigger('hide');
+				$(target).trigger('hide');
 				$scope.popover = {};
 			}
-		};
-		$scope.chooseSchema = function(schema) {
-			$scope.activeSchema = schema;
 		};
 		$scope.$watch('app', function(app) {
 			if (app) {

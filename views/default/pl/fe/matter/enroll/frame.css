@@ -21,7 +21,6 @@ body>nav>ul:nth-child(2)>li{display:inline-block;float:none;}
 /*schema-view*/
 #schema-view .schema{cursor:pointer;}
 #schema-view .schema>div{position:relative;}
-#schema-view .schema button{position:absolute;top:0;right:0;}
 #schema-view .schema-options .option{cursor:pointer;}
 
 /*app-view/app-setting*/

@@ -25,16 +25,13 @@
         </div>
         <!-- end create input wrap -->
     </div>
-    <div class='col-md-5'>
+    <div class='col-md-6'>
         <div class="panel panel-default">
             <div class="panel-heading">所有登记项</div>
             <div class="panel-body">
                 <div dnd-list dataset='appSchemas' event-Prefix="schemas" class='list-group'>
-                    <div class='list-group-item dndable schema' ng-class="{'active':s===activeSchema}" ng-repeat="s in appSchemas" ng-click="chooseSchema(s)">
-                        <div>
-                            <span ng-bind="s.title"></span>
-                            <button data-schema-index="{{$index}}" uib-popover-template="'schemaAction.html'" popover-append-to-body='true' popover-placement="right-bottom" popover-trigger="show" class='btn btn-default btn-xs popover-schema'><span class='glyphicon glyphicon-cog'></span></button>
-                        </div>
+                    <div data-schema-index="{{$index}}" uib-popover-template="schemaPopoverHtml()" popover-append-to-body='true' popover-placement="right" popover-trigger="show" class='list-group-item dndable schema' ng-repeat="s in appSchemas" ng-click="chooseSchema($event,s)">
+                        <div><span ng-bind="s.title"></span></div>
                     </div>
                 </div>
                 <div class='checkbox'>
@@ -42,9 +39,6 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class='col-md-4' ng-if="activeSchema">
-        <div class='form-group' ng-include="'/views/default/pl/fe/matter/enroll/schema/main.html?_=3'"></div>
     </div>
     <!-- end wrap schema editor-->
     <!-- bottom navbar-->
@@ -62,11 +56,3 @@
     </nav>
     <!-- end bottom navbar-->
 </div>
-<script type="text/ng-template" id="schemaAction.html">
-    <div id="schemaAction">
-        <button class='btn btn-sm btn-default' ng-click="removePopover()"><span class='glyphicon glyphicon-trash'></span></button>
-        <button class='btn btn-sm btn-default' ng-click="upPopover()"><span class='glyphicon glyphicon-arrow-up'></span></button>
-        <button class='btn btn-sm btn-default' ng-click="downPopover()"><span class='glyphicon glyphicon-arrow-down'></span></button>
-        <button class="btn btn-sm btn-default" style='border:0;color:#ccc' title='关闭' ng-click="closePopover()"><span class='glyphicon glyphicon-remove'></span></button>
-    <div>
-</script>

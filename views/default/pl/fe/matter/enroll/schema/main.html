@@ -18,6 +18,9 @@
     <div class="checkbox" ng-show="['name','mobile','email','shorttext'].indexOf(activeSchema.type)!==-1">
         <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.unique' ng-change="updSchema('unique')">唯一</label>
     </div>
+    <div class="checkbox" ng-show="'name'===activeSchema.type">
+        <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.score' ng-change="updSchema('score')">唯一</label>
+    </div>
     <button class='btn btn-sm btn-default' ng-click="removePopover()"><span class='glyphicon glyphicon-trash'></span></button>
     <button class='btn btn-sm btn-default' ng-click="upPopover()"><span class='glyphicon glyphicon-arrow-up'></span></button>
     <button class='btn btn-sm btn-default' ng-click="downPopover()"><span class='glyphicon glyphicon-arrow-down'></span></button>

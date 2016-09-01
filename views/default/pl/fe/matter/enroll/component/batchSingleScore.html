@@ -10,6 +10,12 @@
                 <input type='number' class='form-control' ng-model="opScores[$index]">
             </div>
         </div>
+        <div class='form-group'>
+            <label class='control-label col-md-3'>打分题</label>
+            <div class='col-md-9'>
+                <label class='checkbox-inline' ng-repeat="schema in singleSchemas"><input type='checkbox' ng-model="schema.score" ng-true-value="'Y'" ng-false-value="'N'"><span>{{schema.title}}</span></label>
+            </div>
+        </div>
     </div>
 </div>
 <div class="modal-footer">

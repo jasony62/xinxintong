@@ -389,7 +389,7 @@ class record_model extends \TMS_MODEL {
 						$countScoreSchemas = count(array_keys((array) $scoreSchemas));
 					}
 					$r->_score = $this->_calcScore($scoreSchemas, $data);
-					$r->_average = $r->_score / $countScoreSchemas;
+					$r->_average = $countScoreSchemas === 0 ? 0 : $r->_score / $countScoreSchemas;
 				}
 				// 获得邀请数据
 				if (isset($app->can_invite) && $app->can_invite === 'Y') {

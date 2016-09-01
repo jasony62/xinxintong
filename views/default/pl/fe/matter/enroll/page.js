@@ -110,7 +110,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		};
 		$scope.batchSingleScore = function() {
 			$uibModal.open({
-				templateUrl: '/views/default/pl/fe/matter/enroll/component/batchSingleScore.html?_=3',
+				templateUrl: '/views/default/pl/fe/matter/enroll/component/batchSingleScore.html?_=5',
 				backdrop: 'static',
 				resolve: {
 					app: function() {
@@ -136,6 +136,19 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 
 					$scope2.opScores = opScores;
 					$scope2.singleSchemas = singleSchemas;
+					$scope2.shiftScoreSchema = function() {
+						maxOpNum = 0;
+						singleSchemas.forEach(function(schema) {
+							if (schema.score === 'Y') {
+								schema.ops.length > maxOpNum && (maxOpNum = schema.ops.length);
+							}
+						});
+						opScores = [];
+						while (opScores.length < maxOpNum) {
+							opScores.push(maxOpNum - opScores.length);
+						}
+						$scope2.opScores = opScores;
+					};
 					$scope2.close = function() {
 						$mi.dismiss();
 					};

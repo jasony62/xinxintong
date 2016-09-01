@@ -10,198 +10,21 @@ define(['wrap'], function(wrapLib) {
 	 * 页面处理逻辑基类
 	 */
 	function Page() {};
-	Page.prototype._arrangeSchemas = function() {
-		var dataSchemas = this.data_schemas,
-			actSchemas = this.act_schemas,
-			userSchemas = this.user_schemas;
-
-		try {
-			this.data_schemas = dataSchemas && dataSchemas.length ? JSON.parse(dataSchemas) : [];
-		} catch (e) {
-			console.error(e);
-			this.data_schemas = [];
-		}
-		try {
-			this.act_schemas = actSchemas && actSchemas.length ? JSON.parse(actSchemas) : [];
-		} catch (e) {
-			console.error(e);
-			this.act_schemas = [];
-		}
-		try {
-			this.user_schemas = userSchemas && userSchemas.length ? JSON.parse(userSchemas) : [];
-		} catch (e) {
-			console.error(e);
-			this.user_schemas = [];
-		}
-	};
-	Page.prototype.removeSchema = function(schema) {
-		// 清除页面内容
-		var $html = $('<div>' + this.html + '</div>');
-		$html.find("[schema='" + schema.id + "']").remove();
-		this.html = $html.html();
-		// 清除数据定义中的项
-		for (var i = this.data_schemas.length - 1; i >= 0; i--) {
-			if (this.data_schemas[i].schema.id === schema.id) {
-				this.data_schemas.splice(i, 1);
-				break;
-			}
-		}
-	};
 	/**
 	 * 输入页处理逻辑基类
 	 */
 	function InputPage() {};
 	InputPage.prototype = Object.create(Page.prototype);
-	InputPage.prototype.appendSchema = function(schema) {
-		var newWrap, domNewWrap;
-		newWrap = wrapLib.input.newWrap(schema);
-		domNewWrap = wrapLib.input.embed(newWrap);
-		this.data_schemas.push(newWrap);
-		return domNewWrap;
-	};
-	InputPage.prototype.updateSchema = function(schema) {
-		var $html, $wrap, $label, $input, oPage = this;
-		$html = $('<div>' + this.html + '</div>');
-		$wrap = $html.find("[schema='" + schema.id + "']");
-		$label = $wrap.find('label').html(schema.title);
-		if (/name|email|mobile|shorttext|longtext|member/.test(schema.type)) {
-			$input = $wrap.find('input,select,textarea');
-			$input.attr('title', schema.title);
-			if ($input.attr('placeholder')) {
-				$input.attr('placeholder', schema.title);
-			}
-		} else if (/single|phase/.test(schema.type)) {
-			(function(lib) {
-				var html, wrapSchema;
-				if (schema.ops && schema.ops.length > 0) {
-					wrapSchema = oPage.wrapBySchema(schema);
-					$wrap.children('ul,select').remove();
-					if (wrapSchema.config) {
-						if (wrapSchema.config.component === 'R') {
-							html = lib.input._htmlSingleRadio(wrapSchema);
-							$wrap.append(html);
-						} else if (wrapSchema.config.component === 'S') {
-							html = lib.input._htmlSingleSelect(wrapSchema);
-							$wrap.append(html);
-						}
-					}
-				}
-			})(wrapLib);
-		} else if ('multiple' === schema.type) {
-			(function(lib) {
-				var html, wrapSchema;
-				if (schema.ops && schema.ops.length > 0) {
-					wrapSchema = oPage.wrapBySchema(schema);
-					html = lib.input._htmlMultiple(wrapSchema);
-					$wrap.children('ul').remove();
-					$wrap.append(html);
-				}
-			})(wrapLib);
-		}
-		this.html = $html.html();
-	};
-	InputPage.prototype.arrange = function(mapOfAppSchemas) {
-		this._arrangeSchemas();
-
-		if (this.data_schemas.length) {
-			var dataSchemas = [];
-			this.data_schemas.forEach(function(item) {
-				var matched = false;
-				if (item.schema && item.schema.id) {
-					if (mapOfAppSchemas[item.schema.id]) {
-						item.schema = mapOfAppSchemas[item.schema.id];
-						dataSchemas.push(item);
-						matched = true;
-					}
-				}
-				if (!matched) console.error('data invalid', item);
-			});
-			this.data_schemas = dataSchemas;
-		} else if (angular.isObject(this.data_schemas)) {
-			this.data_schemas = [];
-		}
-	};
 	/**
 	 * 查看页处理逻辑基类
 	 */
 	function ViewPage() {};
-	ViewPage.prototype = Object.create(Page.prototype);
-	ViewPage.prototype.appendSchema = function(schema) {
-		var oNewWrap = wrapLib.value.newWrap(schema),
-			wrapAttrs, wrapHtml, domNewWrap, $newHtml;
-		/* make wrap */
-		wrapAttrs = wrapLib.value.wrapAttrs(oNewWrap);
-		wrapHtml = wrapLib.value.htmlValue(schema);
-		domNewWrap = $('<div></div>').attr(wrapAttrs).append('<label>' + schema.title + '</label>').append(wrapHtml);
-		/* update page */
-		$newHtml = $('<div>' + this.html + '</div>');
-		if ($newHtml.find("[wrap='value']").length) {
-			$newHtml.find("[wrap='value']:last").after(domNewWrap);
-		} else {
-			$newHtml = $('<div></div>').append(domNewWrap);
-		}
-		this.html = $newHtml.html();
-
-		this.data_schemas.push(oNewWrap);
-
-		return domNewWrap;
-	};
-	ViewPage.prototype.updateSchema = function(schema) {
-		var $html;
-		$html = $('<div>' + this.html + '</div>');
-		$html.find("[schema='" + schema.id + "']").find('label').html(schema.title);
-		this.html = $html.html();
-	};
-	ViewPage.prototype.arrange = function(mapOfAppSchemas) {
-		this._arrangeSchemas();
-
-		if (this.data_schemas.length) {
-			var dataSchemas = [];
-			angular.forEach(this.data_schemas, function(item) {
-				var config = item.config,
-					schema = item.schema,
-					matched = false;
-				if (config && config.pattern === 'record') {
-					if (schema && schema.id) {
-						if (schema.id === 'enrollAt') {
-							matched = true;
-							dataSchemas.push(item);
-						} else if (mapOfAppSchemas[schema.id]) {
-							item.schema = mapOfAppSchemas[schema.id];
-							dataSchemas.push(item);
-							matched = true;
-						}
-					}
-				}
-				if (!matched) console.error('data invalid', item);
-			});
-			this.data_schemas = dataSchemas;
-		} else if (angular.isObject(this.data_schemas)) {
-			this.data_schemas = [];
-		}
-	};
+	InputPage.prototype = Object.create(Page.prototype);
 	/**
 	 * 列表页处理逻辑基类
 	 */
 	function ListPage() {};
 	ListPage.prototype = Object.create(Page.prototype);
-	ListPage.prototype.arrange = function(mapOfAppSchemas) {
-		this._arrangeSchemas();
-
-		if (this.data_schemas.length) {
-			angular.forEach(this.data_schemas, function(item) {
-				if (item.config && item.config.pattern === 'records') {
-					var listSchemas = [];
-					angular.forEach(item.schemas, function(schema) {
-						listSchemas.push(mapOfAppSchemas[schema.id] ? mapOfAppSchemas[schema.id] : schema);
-					});
-					item.schemas = listSchemas;
-				}
-			});
-		} else if (angular.isObject(this.data_schemas)) {
-			this.data_schemas = [];
-		}
-	};
 
 	return {
 		setEditor: function(editor) {

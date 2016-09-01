@@ -169,11 +169,11 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 		srvApp.get().then(function(app) {
 			var mapOfAppSchemas = {};
 			// 将页面的schema指向应用的schema
-			angular.forEach(app.data_schemas, function(schema) {
+			app.data_schemas.forEach(function(schema) {
 				schemaLib._upgrade(schema);
 				mapOfAppSchemas[schema.id] = schema;
 			});
-			angular.forEach(app.pages, function(page) {
+			app.pages.forEach(function(page) {
 				angular.extend(page, pageLib);
 				page.arrange(mapOfAppSchemas);
 			});

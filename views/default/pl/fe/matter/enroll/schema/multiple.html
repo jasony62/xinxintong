@@ -1,0 +1,12 @@
+<style>
+.entered{background:#f8f8f8;}
+</style>
+<div class='form-group'>
+	<div editable prop='title' obj='schema' evt-prefix='title' no-remove="Y"></div>
+</div>
+<div class='options'>
+	<div class='form-group option' ng-class="{'entered':enter}" style='position:relative;' ng-repeat="op in schema.ops" ng-mouseenter="enter=true" ng-mouseleave="enter=false">
+		<input style='position:absolute;' type='checkbox'><div style='margin-left:20px;' editable prop='l' obj='op' evt-prefix='option'></div>
+	</div>
+	<button class="btn btn-default btn-sm" ng-click="addOption(schema)">添加选项</button>
+</div>

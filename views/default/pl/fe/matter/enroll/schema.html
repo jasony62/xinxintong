@@ -29,9 +29,9 @@
         <div class="panel panel-default">
             <div class="panel-heading">所有登记项</div>
             <div class="panel-body">
-                <div dnd-list dataset='appSchemas' event-Prefix="schemas" class='list-group'>
-                    <div data-schema-index="{{$index}}" uib-popover-template="schemaPopoverHtml()" popover-append-to-body='true' popover-placement="right" popover-trigger="show" class='list-group-item dndable schema' ng-repeat="s in appSchemas" ng-click="chooseSchema($event,s)">
-                        <div><span ng-bind="s.title"></span></div>
+                <div dnd-list dataset='appSchemas' evt-prefix="schemas" class='list-group'>
+                    <div data-schema-index="{{$index}}" uib-popover-template="schemaPopoverHtml()" popover-append-to-body='true' popover-placement="right" popover-trigger="show" popover-title="{{schema.title}}" class='list-group-item dndable schema' ng-repeat="schema in appSchemas" ng-click="chooseSchema($event,schema)">
+                        <div ng-include="schemaHtml(schema)"></div>
                     </div>
                 </div>
                 <div class='checkbox'>

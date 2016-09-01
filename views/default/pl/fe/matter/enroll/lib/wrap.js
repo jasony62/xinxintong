@@ -2,6 +2,8 @@ define([], function() {
     'use strict';
     /**/
     var _editor = null;
+    /**/
+    var _page = null;
     /**
      * wrap basic class
      */
@@ -9,43 +11,73 @@ define([], function() {
     /*在指定的editor的文档中添加一个wrap*/
     Wrap.prototype.append = function(name, attrs, html) {
         var dom, body, wrap, newDomWrap, selection, $activeWrap, $upmost;
-        dom = _editor.dom;
-        body = _editor.getBody();
-        $activeWrap = $(body).find('[wrap].active');
-        if ($activeWrap.length) {
-            /*如果有活动状态的wrap，加在这个wrap之后*/
-            $upmost = $activeWrap.parents('[wrap]');
-            $upmost = $upmost.length === 0 ? $activeWrap : $($upmost.get($upmost.length - 1));
-            newDomWrap = dom.create(name, attrs, html);
-            dom.insertAfter(newDomWrap, $upmost[0]);
-        } else {
+
+        if (_page) {
+            var $html = $('<div>' + _page.html + '</div>');
             if (attrs.wrap && attrs.wrap === 'input') {
-                var $inputWrap = $(body).find("[wrap='input']");
+                var $inputWrap = $html.find("[wrap='input']");
+                newDomWrap = $(document.createElement(name)).attr(attrs).html(html);
                 if ($inputWrap.length) {
-                    /*加在最后一个input wrap的后面*/
-                    newDomWrap = dom.create(name, attrs, html);
-                    dom.insertAfter(newDomWrap, $inputWrap[$inputWrap.length - 1]);
+                    // 加到最后一个登记项后面
+                    $inputWrap = $($inputWrap.get($inputWrap.length - 1));
+                    $inputWrap.after(newDomWrap);
                 } else {
-                    /*加在文档的最后*/
-                    newDomWrap = dom.add(body, name, attrs, html);
+                    // 加在文档的最后
+                    $html.append(newDomWrap);
                 }
             } else if (attrs.wrap && attrs.wrap === 'value') {
-                var $valueWrap = $(body).find("[wrap='value']");
+                var $valueWrap = $html.find("[wrap='value']");
                 if ($valueWrap.length) {
-                    /*加在最后一个static wrap的后面*/
-                    newDomWrap = dom.create(name, attrs, html);
-                    dom.insertAfter(newDomWrap, $valueWrap[$valueWrap.length - 1]);
+                    // 加在最后一个static wrap的后面
+                    $inputWrap.after(newDomWrap);
+                } else {
+                    // 加在页面的最后
+                    $html.append(newDomWrap);
+                }
+            } else {
+                // 加在页面的最后
+                $html.append(newDomWrap);
+            }
+            _page.html = $html.html();
+        } else if (_editor) {
+            dom = _editor.dom;
+            body = _editor.getBody();
+            $activeWrap = $(body).find('[wrap].active');
+            if ($activeWrap && $activeWrap.length) {
+                /*如果有活动状态的wrap，加在这个wrap之后*/
+                $upmost = $activeWrap.parents('[wrap]');
+                $upmost = $upmost.length === 0 ? $activeWrap : $($upmost.get($upmost.length - 1));
+                newDomWrap = dom.create(name, attrs, html);
+                dom.insertAfter(newDomWrap, $upmost[0]);
+            } else {
+                if (attrs.wrap && attrs.wrap === 'input') {
+                    var $inputWrap = $(body).find("[wrap='input']");
+                    if ($inputWrap.length) {
+                        /*加在最后一个input wrap的后面*/
+                        newDomWrap = dom.create(name, attrs, html);
+                        dom.insertAfter(newDomWrap, $inputWrap[$inputWrap.length - 1]);
+                    } else {
+                        /*加在文档的最后*/
+                        newDomWrap = dom.add(body, name, attrs, html);
+                    }
+                } else if (attrs.wrap && attrs.wrap === 'value') {
+                    var $valueWrap = $(body).find("[wrap='value']");
+                    if ($valueWrap.length) {
+                        /*加在最后一个static wrap的后面*/
+                        newDomWrap = dom.create(name, attrs, html);
+                        dom.insertAfter(newDomWrap, $valueWrap[$valueWrap.length - 1]);
+                    } else {
+                        /*加在文档的最后*/
+                        newDomWrap = dom.add(body, name, attrs, html);
+                    }
                 } else {
                     /*加在文档的最后*/
                     newDomWrap = dom.add(body, name, attrs, html);
                 }
-            } else {
-                /*加在文档的最后*/
-                newDomWrap = dom.add(body, name, attrs, html);
             }
-        }
 
-        _editor.fire('change');
+            _editor.fire('change');
+        }
 
         return newDomWrap;
     };
@@ -802,6 +834,9 @@ define([], function() {
         button: new ButtonWrap(),
         setEditor: function(editor) {
             _editor = editor;
+        },
+        setPage: function(page) {
+            _page = page;
         },
         dataByDom: function(domWrap, page) {
             var wrapType = $(domWrap).attr('wrap'),

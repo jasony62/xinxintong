@@ -110,7 +110,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 		};
 		$scope.batchSingleScore = function() {
 			$uibModal.open({
-				templateUrl: '/views/default/pl/fe/matter/enroll/component/batchSingleScore.html?_=1',
+				templateUrl: '/views/default/pl/fe/matter/enroll/component/batchSingleScore.html?_=2',
 				backdrop: 'static',
 				resolve: {
 					app: function() {

@@ -3,12 +3,12 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 	/**
 	 *
 	 */
-	ngApp.provider.controller('ctrlSchema', ['$scope', 'srvPage', '$uibModal', function($scope, srvPage, $uibModal) {
+	ngApp.provider.controller('ctrlSchema', ['$scope', '$q', 'srvPage', '$uibModal', function($scope, $q, srvPage, $uibModal) {
 		$scope.updPage = function(page, names) {
 			return srvPage.update(page, names);
 		};
 		$scope.newSchema = function(type) {
-			var i, newSchema, mission;
+			var newSchema, mission;
 			if (type === 'phase') {
 				mission = $scope.app.mission;
 				if (!mission || !mission.phases || mission.phases.length === 0) {
@@ -17,14 +17,19 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				}
 			}
 			newSchema = schemaLib.newSchema(type, $scope.app);
-			for (i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
+			for (var i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
 				if (newSchema.id === $scope.app.data_schemas[i].id) {
 					alert('不允许重复添加登记项');
 					return;
 				}
 			}
 			$scope.app.data_schemas.push(newSchema);
-			$scope.update('data_schemas').then(function() {});
+			$scope.update('data_schemas').then(function() {
+				$scope.app.pages.forEach(function(page) {
+					page.appendSchema(newSchema);
+					$scope.updPage(page, ['data_schemas', 'html']);
+				});
+			});
 		};
 		$scope.newMember = function(ms, schema) {
 			var newSchema = schemaLib.newSchema('member');
@@ -41,13 +46,52 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			}
 
 			$scope.app.data_schemas.push(newSchema);
-			$scope.update('data_schemas').then(function() {});
+			$scope.update('data_schemas').then(function() {
+				$scope.app.pages.forEach(function(page) {
+					page.appendSchema(newSchema);
+					$scope.updPage(page, ['data_schemas', 'html']);
+				});
+			});
 		};
 		$scope.copySchema = function(schema) {
 			var newSchema = angular.copy(schema);
 			newSchema.id = 'c' + (new Date() * 1);
 			$scope.app.data_schemas.push(newSchema);
-			$scope.update('data_schemas').then(function() {});
+			$scope.update('data_schemas').then(function() {
+				$scope.app.pages.forEach(function(page) {
+					page.appendSchema(newSchema);
+					$scope.updPage(page, ['data_schemas', 'html']);
+				});
+			});
+		};
+
+		function removeSchema(removedSchema) {
+			var deferred = $q.defer();
+
+			//从应用的定义中删除
+			$scope.app.data_schemas.splice($scope.app.data_schemas.indexOf(removedSchema), 1);
+			$scope.update('data_schemas').then(function() {
+				$scope.app.pages.forEach(function(page) {
+					if (page.removeBySchema(removedSchema)) {
+						$scope.updPage(page, ['data_schemas', 'html']).then(function() {
+							deferred.resolve(removedSchema);
+						});
+					} else {
+						deferred.resolve(removedSchema);
+					}
+				});
+			});
+
+			return deferred.promise;
+		};
+		$scope.removeSchema = function(removedSchema) {
+			var deferred = $q.defer();
+			if (window.confirm('确定删除所有页面上的登记项？')) {
+				removeSchema(removedSchema).then(function() {
+					deferred.resolve();
+				});
+			}
+			return deferred.promise;
 		};
 		$scope.batchSingleScore = function() {
 			$uibModal.open({
@@ -94,7 +138,7 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 	/**
 	 * 应用的所有登记项
 	 */
-	ngApp.provider.controller('ctrlList', ['$scope', function($scope) {
+	ngApp.provider.controller('ctrlList', ['$scope', '$timeout', function($scope, $timeout) {
 		$scope.popover = {};
 		$scope.$on('schemas.orderChanged', function(e, moved) {
 			$scope.update('data_schemas').then(function() {
@@ -110,8 +154,13 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				}
 			});
 		});
+		$scope.schemaHtml = function(schema) {
+			var bust = (new Date()).getMinutes();
+			return '/views/default/pl/fe/matter/enroll/schema/' + schema.type + '.html?_=' + bust;
+		};
 		$scope.schemaPopoverHtml = function() {
-			return '/views/default/pl/fe/matter/enroll/schema/main.html?_=4';
+			var bust = (new Date()).getMinutes();
+			return '/views/default/pl/fe/matter/enroll/schema/main.html?_=' + bust;
 		};
 		$scope.removePopover = function() {
 			$scope.removeSchema($scope.popover.schema).then(function() {
@@ -141,36 +190,34 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			}
 		};
 		$scope.chooseSchema = function(event, schema) {
-			var target = event.currentTarget;
+			var target = event.currentTarget,
+				page, wrap;
+
 			$scope.activeSchema = schema;
+			$scope.activeConfig = false;
+			$scope.inputPage = false;
+			for (var i = $scope.app.pages.length - 1; i >= 0; i--) {
+				page = $scope.app.pages[i];
+				if (wrap = page.wrapBySchema(schema)) {
+					$scope.inputPage = page;
+					$scope.activeConfig = wrap.config;
+					break;
+				}
+			}
 			if ($scope.popover.target !== target) {
 				if ($scope.popover.target) {
 					$($scope.popover.target).trigger('hide');
 				}
-				$(event.target).trigger('show');
+				$(target).trigger('show');
 				$scope.popover = {
 					target: target,
 					schema: schema,
 					index: target.dataset.schemaIndex
 				};
-			} else {
-				$(target).trigger('hide');
-				$scope.popover = {};
 			}
 		};
-		$scope.$watch('app', function(app) {
-			if (app) {
-				$scope.appSchemas = $scope.app.data_schemas;
-			}
-		});
-	}]);
-	/**
-	 * 登记项编辑
-	 */
-	ngApp.provider.controller('ctrlEdit', ['$scope', '$timeout', function($scope, $timeout) {
-		$scope.addOption = function() {
-			var schema = $scope.activeSchema,
-				maxSeq = 0,
+		$scope.addOption = function(schema) {
+			var maxSeq = 0,
 				newOp = {
 					l: ''
 				};
@@ -187,25 +234,6 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 				$scope.$broadcast('xxt.editable.add', newOp);
 			});
 		};
-		$scope.onOptionKeyup = function(event) {
-			// 回车时自动添加选项
-			if (event.keyCode === 13) {
-				$scope.addOption();
-			}
-		};
-		$scope.$on('xxt.editable.changed', function(e, op) {
-			$scope.updSchema('ops');
-		});
-		$scope.$on('xxt.editable.remove', function(e, op) {
-			var schema = $scope.activeSchema,
-				i = schema.ops.indexOf(op);
-
-			schema.ops.splice(i, 1);
-			$scope.updSchema('ops');
-		});
-		$scope.$on('options.orderChanged', function(e, moved) {
-			$scope.updSchema('ops');
-		});
 		var timerOfUpdate = null;
 		$scope.updSchema = function(prop) {
 			if (timerOfUpdate !== null) {
@@ -224,6 +252,39 @@ define(['frame', 'schema', 'wrap'], function(ngApp, schemaLib, wrapLib) {
 			timerOfUpdate.then(function() {
 				timerOfUpdate = null;
 			});
+		};
+		$scope.updConfig = function(prop) {
+			$scope.inputPage.updateBySchema($scope.activeSchema);
+			$scope.updPage($scope.inputPage, ['data_schemas', 'html']);
+		};
+		$scope.$on('title.xxt.editable.changed', function(e, op) {
+			$scope.updSchema('title');
+		});
+		$scope.$on('option.xxt.editable.changed', function(e, op) {
+			$scope.updSchema('ops');
+		});
+		$scope.$on('option.xxt.editable.remove', function(e, op) {
+			var schema = $scope.activeSchema,
+				i = schema.ops.indexOf(op);
+
+			schema.ops.splice(i, 1);
+			$scope.updSchema('ops');
+		});
+		$scope.$watch('app', function(app) {
+			if (app) {
+				$scope.appSchemas = $scope.app.data_schemas;
+			}
+		});
+	}]);
+	/**
+	 * 登记项编辑
+	 */
+	ngApp.provider.controller('ctrlEdit', ['$scope', '$timeout', function($scope, $timeout) {
+		$scope.onOptionKeyup = function(event) {
+			// 回车时自动添加选项
+			if (event.keyCode === 13) {
+				$scope.addOption();
+			}
 		};
 		if ($scope.activeSchema.type === 'member') {
 			if ($scope.activeSchema.schema_id) {

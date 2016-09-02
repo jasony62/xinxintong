@@ -636,7 +636,7 @@ class record extends \pl\fe\matter\base {
 		// 登记应用
 		$enrollApp = $this->model('matter\enroll')->byId(
 			$signinApp->enroll_app_id,
-			['fields' => 'id,title,data_schemas', 'cascaded' => 'N']
+			['fields' => 'id,title,data_schemas,scenario', 'cascaded' => 'N']
 		);
 		$schemas = json_decode($enrollApp->data_schemas);
 

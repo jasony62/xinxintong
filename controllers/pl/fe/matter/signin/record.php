@@ -82,7 +82,7 @@ class record extends \pl\fe\matter\base {
 		if ($result->total > 0) {
 			foreach ($result->records as &$record) {
 				$q = [
-					'enroll_at,signin_at,signin_num,data,signin_log',
+					'enroll_at,signin_at,signin_num,data,signin_log,tags,comment',
 					'xxt_signin_record',
 					"state=1 and aid='{$signinApp->id}' and verified_enroll_key='$record->enroll_key'",
 				];
@@ -656,6 +656,8 @@ class record extends \pl\fe\matter\base {
 		foreach ($schemas as $schema) {
 			$titles[] = $schema->title;
 		}
+		$titles[] = '报名备注';
+		$titles[] = '报名标签';
 		if (empty($round)) {
 			$titles[] = '签到次数';
 			foreach ($signinApp->rounds as $rnd) {
@@ -664,6 +666,9 @@ class record extends \pl\fe\matter\base {
 		} else {
 			$titles[] = '签到时间';
 		}
+		$titles[] = '签到备注';
+		$titles[] = '签到标签';
+
 		$titles = implode("\t", $titles);
 		$size += strlen($titles);
 		$exportedData[] = $titles;
@@ -707,10 +712,12 @@ class record extends \pl\fe\matter\base {
 					break;
 				}
 			}
+			$row[] = $record->comment;
+			$row[] = $record->tags;
 
 			// 获得对应的签到数据
 			$q = [
-				'enroll_at,signin_num,data,signin_log',
+				'enroll_at,signin_num,data,signin_log,tags,comment',
 				'xxt_signin_record',
 				"state=1 and aid='{$signinApp->id}' and verified_enroll_key='$record->enroll_key'",
 			];
@@ -729,6 +736,8 @@ class record extends \pl\fe\matter\base {
 				} else {
 					$row[] = date('y-m-j H:i', $signinLog->{$round});
 				}
+				$row[] = $signinRecord->comment;
+				$row[] = $signinRecord->tags;
 			} else {
 				if (empty($round)) {
 					foreach ($signinApp->rounds as $rnd) {
@@ -737,6 +746,8 @@ class record extends \pl\fe\matter\base {
 				} else {
 					$row[] = '';
 				}
+				$row[] = ''; // empty comment
+				$row[] = ''; // empty tags
 			}
 
 			// 将数据转换为'|'分隔的字符串

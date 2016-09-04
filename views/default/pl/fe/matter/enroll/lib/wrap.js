@@ -285,7 +285,12 @@ define([], function() {
                 html += '</div>';
                 break;
         }
-        return this.append('div', inpAttrs, html);
+
+        return {
+            tag: 'div',
+            attrs: inpAttrs,
+            html: html
+        };
     };
     InputWrap.prototype.modify = function(wrap, dataWrap) {
         var $wrap, $label, $input, config = dataWrap.config,
@@ -525,7 +530,11 @@ define([], function() {
         label = '<label>' + schema.title + '</label>'
         html = label + this.htmlValue(schema);
 
-        return this.append('div', wrapAttrs, html);
+        return {
+            tag: 'div',
+            attrs: wrapAttrs,
+            html: html
+        }
     };
     ValueWrap.prototype.modify = function(domWrap, oWrap) {
         var config = oWrap.config,
@@ -742,6 +751,7 @@ define([], function() {
     };
     ButtonWrap.prototype.dataByDom = function(domWrap, page) {
         var $button, action, arg, schema = {};
+
         schema.id = $(domWrap).attr('id');
         if (page) {
             return {

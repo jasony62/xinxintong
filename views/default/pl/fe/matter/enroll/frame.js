@@ -128,6 +128,65 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 			});
 			return deferred.promise;
 		};
+		$scope.batchSingleScore = function() {
+			$uibModal.open({
+				templateUrl: '/views/default/pl/fe/matter/enroll/component/batchSingleScore.html?_=5',
+				backdrop: 'static',
+				resolve: {
+					app: function() {
+						return $scope.app;
+					}
+				},
+				controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
+					var maxOpNum = 0,
+						opScores = [],
+						singleSchemas = [];
+
+					app.data_schemas.forEach(function(schema) {
+						if (schema.type === 'single') {
+							if (schema.score === 'Y') {
+								schema.ops.length > maxOpNum && (maxOpNum = schema.ops.length);
+							}
+							singleSchemas.push(schema);
+						}
+					});
+					while (opScores.length < maxOpNum) {
+						opScores.push(maxOpNum - opScores.length);
+					}
+
+					$scope2.opScores = opScores;
+					$scope2.singleSchemas = singleSchemas;
+					$scope2.shiftScoreSchema = function() {
+						maxOpNum = 0;
+						singleSchemas.forEach(function(schema) {
+							if (schema.score === 'Y') {
+								schema.ops.length > maxOpNum && (maxOpNum = schema.ops.length);
+							}
+						});
+						opScores = [];
+						while (opScores.length < maxOpNum) {
+							opScores.push(maxOpNum - opScores.length);
+						}
+						$scope2.opScores = opScores;
+					};
+					$scope2.close = function() {
+						$mi.dismiss();
+					};
+					$scope2.ok = function() {
+						$mi.close(opScores);
+					};
+				}]
+			}).result.then(function(result) {
+				$scope.app.data_schemas.forEach(function(schema) {
+					if (schema.type === 'single' && schema.score === 'Y') {
+						schema.ops.forEach(function(op, index) {
+							op.score = result[index];
+						});
+					}
+				});
+				$scope.update('data_schemas');
+			});
+		};
 		http2.get('/rest/pl/fe/site/member/schema/list?valid=Y&site=' + $scope.siteId, function(rsp) {
 			$scope.memberSchemas = rsp.data;
 			angular.forEach(rsp.data, function(ms) {
@@ -174,7 +233,7 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 				mapOfAppSchemas[schema.id] = schema;
 			});
 			app.pages.forEach(function(page) {
-				angular.extend(page, pageLib);
+				pageLib.enhance(page);
 				page.arrange(mapOfAppSchemas);
 			});
 			$scope.app = app;

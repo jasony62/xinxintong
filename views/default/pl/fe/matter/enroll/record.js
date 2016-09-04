@@ -433,6 +433,7 @@ define(['frame'], function(ngApp) {
                 $table.find('.signin_late').css('color', 'red');
 
                 clipboard.setData("text/html", '<table>' + $table.html() + '</table>');
+                noticebox.success('完成数据复制');
             });
         })();
         $scope.countSelected = function() {

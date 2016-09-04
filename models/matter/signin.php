@@ -113,7 +113,7 @@ class signin_model extends app_base {
 			'xxt_signin',
 			"state<>0 and enroll_app_id='$enrollAppId'",
 		];
-		$q2['o'] = 'create_at desc';
+		$q2['o'] = 'create_at asc';
 
 		$apps = $this->query_objs_ss($q, $q2);
 		$modelRnd = \TMS_APP::M('matter\signin\round');

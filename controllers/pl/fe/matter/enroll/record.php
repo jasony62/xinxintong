@@ -24,7 +24,7 @@ class record extends \pl\fe\matter\base {
 	 * [1] 数据总条数
 	 * [2] 数据项的定义
 	 */
-	public function list_action($site, $app, $page = 1, $size = 30, $rid = null, $orderby = null, $contain = null) {
+	public function list_action($site, $app, $page = 1, $size = 30, $rid = null, $orderby = null, $contain = null, $includeSignin = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -42,11 +42,33 @@ class record extends \pl\fe\matter\base {
 
 		// 登记活动
 		$modelApp = $this->model('matter\enroll');
-		$app = $modelApp->byId($app);
+		$enrollApp = $modelApp->byId($app);
 
 		// 查询结果
 		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->find($site, $app, $options, $criteria);
+		$result = $mdoelRec->find($site, $enrollApp, $options, $criteria);
+
+		// 叠加签到信息
+		$signinApps = $this->model('matter\signin')->byEnroll($enrollApp->id);
+		if (count($signinApps)) {
+			if ($result->total > 0) {
+				foreach ($result->records as &$record) {
+					foreach ($signinApps as $signinApp) {
+						$q = [
+							'enroll_at,signin_at,signin_num,data,signin_log,tags,comment',
+							'xxt_signin_record',
+							"state=1 and aid='{$signinApp->id}' and verified_enroll_key='$record->enroll_key'",
+						];
+						if ($signinRecord = $modelApp->query_obj_ss($q)) {
+							$signinRecord->data = json_decode($signinRecord->data);
+							$signinRecord->signin_log = empty($signinRecord->signin_log) ? new \stdClass : json_decode($signinRecord->signin_log);
+							!isset($record->_signinRecord) && $record->_signinRecord = new \stdClass;
+							$record->_signinRecord->{$signinApp->id} = $signinRecord;
+						}
+					}
+				}
+			}
+		}
 
 		return new \ResponseData($result);
 	}

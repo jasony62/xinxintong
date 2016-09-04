@@ -30,6 +30,8 @@
         <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-click="notify()">全部发送信息</button>
         <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-disabled="!countSelected()" ng-click="notify(true)">批量发送信息</button>
         <button class='btn btn-primary' ng-click="export()">导出全部数据</button>
+        <button id='copyRecords' class='btn btn-primary'>复制全部数据</button>
+        <div class='checkbox' ng-if="app.scenario==='registration'"><label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="content.signin"> 包含签到信息</label></div>
     </div>
     <!-- end actions -->
     <!-- records -->
@@ -52,6 +54,7 @@
                         <th style='width:140px' ng-if="app.tags.length">标签</th>
                         <th style='width:140px'>备注</th>
                         <th style='width:60px' ng-if="app.can_invite==='Y'">邀请</th>
+                        <th ng-if="content.signin==='Y'" ng-repeat="rnd in signinRounds"><span>{{rnd._app.title+rnd.title}}</span></th>
                         <th style='width:72px'>操作</th>
                     </tr>
                 </thead>
@@ -85,6 +88,7 @@
                         <td ng-if="app.tags.length">{{r.tags}}</td>
                         <td>{{r.comment}}</td>
                         <td ng-if="app.can_invite==='Y'">{{r.follower_num}}</td>
+                        <td ng-if="content.signin==='Y'" ng-repeat="rnd in signinRounds"><span ng-class="{'signin_late':isSigninLate(rnd,r)}">{{signinAt(rnd,r)}}</span></td>
                         <td>
                             <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
                                 <span class='glyphicon glyphicon-remove'></span>

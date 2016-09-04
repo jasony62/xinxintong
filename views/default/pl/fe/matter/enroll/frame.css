@@ -55,3 +55,4 @@ body>nav>ul:nth-child(2)>li{display:inline-block;float:none;}
 #record-view #enrollRecords{flex-shrink:1;flex-grow:1;overflow:auto}
 #record-view table img{max-width:96px;}
 #enrollRecords th{text-align:center;}
+#enrollRecords td span.signin_late{color:red;}

@@ -238,7 +238,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 	/**
 	 * 登记项编辑
 	 */
-	ngApp.provider.controller('ctrlEdit', ['$scope', function($scope) {
+	ngApp.provider.controller('ctrlSchemaEdit', ['$scope', function($scope) {
 		if ($scope.activeSchema.type === 'member') {
 			if ($scope.activeSchema.schema_id) {
 				(function() {

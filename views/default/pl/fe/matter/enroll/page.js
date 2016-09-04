@@ -115,7 +115,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 	/**
 	 * page editor
 	 */
-	ngApp.provider.controller('ctrlEditor', ['$scope', '$q', '$timeout', 'mediagallery', 'mattersgallery', function($scope, $q, $timeout, mediagallery, mattersgallery) {
+	ngApp.provider.controller('ctrlPageEdit', ['$scope', '$q', '$timeout', 'mediagallery', 'mattersgallery', function($scope, $q, $timeout, mediagallery, mattersgallery) {
 		function addInputSchema(addedSchema) {
 			var deferred = $q.defer(),
 				domNewWrap;

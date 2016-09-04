@@ -85,7 +85,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 		};
 		$scope.removeSchema = function(removedSchema) {
 			var deferred = $q.defer();
-			if (window.confirm('确定删除所有页面上的登记项？')) {
+			if (window.confirm('确定从所有页面上删除登记项［' + removedSchema.title + '］？')) {
 				removeSchema(removedSchema).then(function() {
 					deferred.resolve();
 				});
@@ -238,7 +238,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 	/**
 	 * 登记项编辑
 	 */
-	ngApp.provider.controller('ctrlEdit', ['$scope', function($scope) {
+	ngApp.provider.controller('ctrlSchemaEdit', ['$scope', function($scope) {
 		if ($scope.activeSchema.type === 'member') {
 			if ($scope.activeSchema.schema_id) {
 				(function() {

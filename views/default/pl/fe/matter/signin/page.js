@@ -119,9 +119,9 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
         });
     }]);
     /**
-     * page
+     * page editor
      */
-    ngApp.provider.controller('ctrlEdit', ['$scope', '$timeout', '$q', 'mediagallery', 'mattersgallery', function($scope, $timeout, $q, mediagallery, mattersgallery) {
+    ngApp.provider.controller('ctrlPageEdit', ['$scope', '$timeout', '$q', 'mediagallery', 'mattersgallery', function($scope, $timeout, $q, mediagallery, mattersgallery) {
         function removeSchema(removedSchema) {
             var deferred = $q.defer();
 
@@ -449,7 +449,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
         $scope.$on('tinymce.instance.init', function(event, editor) {
             tinymceEditor = editor;
             if ($scope.ep) {
-                editorProxy.load(editor, page);
+                editorProxy.load(editor, $scope.ep);
             }
         });
     }]);

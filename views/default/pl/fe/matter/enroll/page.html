@@ -123,12 +123,12 @@
     <nav class="navbar navbar-default navbar-fixed-bottom">
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
-                <a class='btn btn-lg btn-default' href="/rest/pl/fe/matter/enroll/schema?site={{siteId}}&id={{id}}">编辑登记项</a>
-                <button class='btn btn-lg btn-success' ng-click="updPage(ep,['data_schemas','act_schemas','html'])">保存修改</button>
-                <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布设置</a>
+                <a class='btn btn-default' href="/rest/pl/fe/matter/enroll/schema?site={{siteId}}&id={{id}}">编辑登记项</a>
+                <button class='btn btn-success' ng-click="updPage(ep,['data_schemas','act_schemas','html'])">保存修改</button>
+                <a class='btn btn-success' href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布设置</a>
             </form>
             <form class="navbar-form navbar-right" style='display:inline-block'>
-                <button class='btn btn-lg btn-default' ng-click="remove()">删除活动</button>
+                <button class='btn btn-default' ng-click="remove()">删除活动</button>
             </form>
         </div>
     </nav>

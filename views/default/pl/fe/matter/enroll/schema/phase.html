@@ -1,1 +1,5 @@
-<div><div editable prop='title' obj='schema' evt-prefix='title' no-remove="Y"></div></div>
+<div class='schema-options'>
+	<div class='option' ng-repeat="op in schema.ops">
+		<input type='radio' name='{{schema.id}}'><div style='display:inline-block;margin-left:8px;'>{{op.l}}</div>
+	</div>
+</div>

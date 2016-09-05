@@ -97,21 +97,9 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 	 * 应用的所有登记项
 	 */
 	ngApp.provider.controller('ctrlList', ['$scope', '$timeout', function($scope, $timeout) {
+		var mapOfSchemas = {};
+
 		$scope.popover = {};
-		$scope.$on('schemas.orderChanged', function(e, moved) {
-			$scope.update('data_schemas').then(function() {
-				var app = $scope.app;
-				if (app.__schemasOrderConsistent === 'Y') {
-					var i = app.data_schemas.indexOf(moved),
-						prevSchema;
-					if (i > 0) prevSchema = app.data_schemas[i - 1];
-					app.pages.forEach(function(page) {
-						page.moveSchema(moved, prevSchema);
-						$scope.updPage(page, ['data_schemas', 'html']);
-					});
-				}
-			});
-		});
 		$scope.schemaHtml = function(schema) {
 			var bust = (new Date()).getMinutes();
 			return '/views/default/pl/fe/matter/enroll/schema/' + schema.type + '.html?_=' + bust;
@@ -174,7 +162,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 				};
 			}
 		};
-		$scope.addOption = function(schema) {
+		$scope.addOption = function(schema, afterIndex) {
 			var maxSeq = 0,
 				newOp = {
 					l: ''
@@ -188,13 +176,23 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 				opSeq > maxSeq && (maxSeq = opSeq);
 			});
 			newOp.v = 'v' + (++maxSeq);
-			schema.ops.push(newOp);
+			if (afterIndex === undefined) {
+				schema.ops.push(newOp);
+			} else {
+				schema.ops.splice(afterIndex + 1, 0, newOp);
+			}
 			$timeout(function() {
 				$scope.$broadcast('xxt.editable.add', newOp);
 			});
 		};
+		$scope.removeOption = function(schema, op) {
+			var i = schema.ops.indexOf(op);
+
+			schema.ops.splice(i, 1);
+			$scope.updSchema(schema, 'ops');
+		};
 		var timerOfUpdate = null;
-		$scope.updSchema = function(prop) {
+		$scope.updSchema = function(schema, prop) {
 			if (timerOfUpdate !== null) {
 				$timeout.cancel(timerOfUpdate);
 			}
@@ -203,7 +201,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 				$scope.update('data_schemas').then(function() {
 					// 更新页面
 					$scope.app.pages.forEach(function(page) {
-						page.updateSchema($scope.activeSchema);
+						page.updateSchema(schema);
 						$scope.updPage(page, ['data_schemas', 'html']);
 					});
 				});
@@ -216,22 +214,49 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			$scope.inputPage.updateSchema($scope.activeSchema);
 			$scope.updPage($scope.inputPage, ['data_schemas', 'html']);
 		};
-		$scope.$on('title.xxt.editable.changed', function(e, op) {
-			$scope.updSchema('title');
+		$scope.$on('schemas.orderChanged', function(e, moved) {
+			$scope.update('data_schemas').then(function() {
+				var app = $scope.app;
+				if (app.__schemasOrderConsistent === 'Y') {
+					var i = app.data_schemas.indexOf(moved),
+						prevSchema;
+					if (i > 0) prevSchema = app.data_schemas[i - 1];
+					app.pages.forEach(function(page) {
+						page.moveSchema(moved, prevSchema);
+						$scope.updPage(page, ['data_schemas', 'html']);
+					});
+				}
+			});
 		});
-		$scope.$on('option.xxt.editable.changed', function(e, op) {
-			$scope.updSchema('ops');
+		$scope.$on('title.xxt.editable.changed', function(e, schema) {
+			$scope.updSchema(schema, 'title');
 		});
-		$scope.$on('option.xxt.editable.remove', function(e, op) {
-			var schema = $scope.activeSchema,
-				i = schema.ops.indexOf(op);
-
-			schema.ops.splice(i, 1);
-			$scope.updSchema('ops');
+		// 回车添加选项
+		$('body').on('keyup', function(evt) {
+			if (event.keyCode === 13) {
+				var schemaId, opNode, opIndex;
+				opNode = evt.target.parentNode;
+				if (opNode && opNode.getAttribute('evt-prefix') === 'option') {
+					schemaId = opNode.getAttribute('state');
+					opIndex = parseInt(opNode.dataset.index);
+					$scope.$apply(function() {
+						$scope.addOption(mapOfSchemas[schemaId], opIndex);
+					});
+				}
+			}
+		});
+		$scope.$on('options.orderChanged', function(e, moved, schemaId) {
+			$scope.updSchema(mapOfSchemas[schemaId], 'ops');
+		});
+		$scope.$on('option.xxt.editable.changed', function(e, op, schemaId) {
+			$scope.updSchema(mapOfSchemas[schemaId], 'ops');
 		});
 		$scope.$watch('app', function(app) {
 			if (app) {
 				$scope.appSchemas = $scope.app.data_schemas;
+				$scope.appSchemas.forEach(function(schema) {
+					mapOfSchemas[schema.id] = schema;
+				});
 			}
 		});
 	}]);

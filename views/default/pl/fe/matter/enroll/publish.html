@@ -303,14 +303,14 @@
     <nav class="navbar navbar-default navbar-fixed-bottom">
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
-                <a class='btn btn-lg btn-default' href="/rest/pl/fe/matter/enroll/schema?site={{siteId}}&id={{id}}">编辑登记项</a>
-                <a class='btn btn-lg btn-default' href="/rest/pl/fe/matter/enroll/page?site={{siteId}}&id={{id}}">编辑页面</a>
-                <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}">查看数据</a>
-                <button class='btn btn-lg btn-success' ng-click="shareAsTemplate()">保存为模版</button>
+                <a class='btn btn-default' href="/rest/pl/fe/matter/enroll/schema?site={{siteId}}&id={{id}}">编辑登记项</a>
+                <a class='btn btn-default' href="/rest/pl/fe/matter/enroll/page?site={{siteId}}&id={{id}}">编辑页面</a>
+                <a class='btn btn-success' href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}">查看数据</a>
+                <button class='btn btn-success' ng-click="shareAsTemplate()">保存为模版</button>
                 
             </form>
             <form class="navbar-form navbar-right" style='display:inline-block'>
-                <button class='btn btn-lg btn-default' ng-click="remove()">删除活动</button>
+                <button class='btn btn-default' ng-click="remove()">删除活动</button>
             </form>
         </div>
     </nav>

@@ -262,7 +262,8 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
             evtPrefix: '@',
             noRemove: '@',
             prop: '@',
-            obj: '='
+            obj: '=',
+            state: '@'
         },
         templateUrl: '/static/template/editable.html?_=4',
         link: function(scope, elem, attrs) {
@@ -299,9 +300,9 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
             });
             scope.valueChanged = function() {
                 if (scope.evtPrefix && scope.evtPrefix.length) {
-                    scope.$emit(scope.evtPrefix + '.xxt.editable.changed', scope.obj);
+                    scope.$emit(scope.evtPrefix + '.xxt.editable.changed', scope.obj, scope.state);
                 } else {
-                    scope.$emit('xxt.editable.changed', scope.obj);
+                    scope.$emit('xxt.editable.changed', scope.obj, scope.state);
                 }
             };
             scope.remove = function(event) {
@@ -310,9 +311,9 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                     event.stopPropagation();
                 }
                 if (scope.evtPrefix && scope.evtPrefix.length) {
-                    scope.$emit(scope.evtPrefix + '.xxt.editable.remove', scope.obj);
+                    scope.$emit(scope.evtPrefix + '.xxt.editable.remove', scope.obj, scope.state);
                 } else {
-                    scope.$emit('xxt.editable.remove', scope.obj);
+                    scope.$emit('xxt.editable.remove', scope.obj, scope.state);
                 }
             };
             scope.$on('xxt.editable.add', function(event, newObj) {
@@ -591,9 +592,9 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                 scope.$apply(function() {
                     scope.dataset.splice(ui.item.sortable.dropindex - dndableOffset, 0, ui.item.sortable.moved);
                     if (scope.evtPrefix && scope.evtPrefix.length) {
-                        scope.$emit(scope.evtPrefix + '.orderChanged', movedObj);
+                        scope.$emit(scope.evtPrefix + '.orderChanged', movedObj,scope.state);
                     } else {
-                        scope.$emit('orderChanged', movedObj);
+                        scope.$emit('orderChanged', movedObj, scope.state);
                     }
                 });
             }
@@ -617,9 +618,9 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                         scope.dataset.splice(ui.item.sortable.index - dndableOffset, 1)[0]
                     );
                     if (scope.evtPrefix && scope.evtPrefix.length) {
-                        scope.$emit(scope.evtPrefix + '.orderChanged', movedObj);
+                        scope.$emit(scope.evtPrefix + '.orderChanged', movedObj, scope.state);
                     } else {
-                        scope.$emit('orderChanged', movedObj);
+                        scope.$emit('orderChanged', movedObj, scope.state);
                     }
                 });
             } else {
@@ -649,7 +650,8 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
     return {
         scope: {
             dataset: '=',
-            evtPrefix: '@'
+            evtPrefix: '@',
+            state: '@'
         },
         link: link,
     };

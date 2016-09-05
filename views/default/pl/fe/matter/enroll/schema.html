@@ -41,6 +41,13 @@
                     <div editable prop='title' obj='schema' evt-prefix='title' no-remove="Y"></div>
                 </div>
                 <div ng-include="schemaHtml(schema)"></div>
+                <div class='actions'>
+                    <button class="btn btn-default btn-sm" ng-if="['single','phase','multiple'].indexOf(schema.type)!==-1" ng-click="addOption(schema)">添加选项</button>
+                    <button class="btn btn-default btn-sm" ng-click="copySchema(schema)">复制登记项</button>
+                    <button class='btn btn-sm btn-default' ng-click="upSchema(schema)"><span class='glyphicon glyphicon-arrow-up'></span></button>
+                    <button class='btn btn-sm btn-default' ng-click="downSchema(schema)"><span class='glyphicon glyphicon-arrow-down'></span></button>
+                    <button class='btn btn-sm btn-default' ng-click="removeSchema(schema)"><span class='glyphicon glyphicon-trash'></span></button>
+                </div>
             </div>
         </div>
         <div class='checkbox'>

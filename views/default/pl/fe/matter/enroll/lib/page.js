@@ -100,12 +100,16 @@ define(['wrap'], function(wrapLib) {
 		/**
 		 * 添加登记项的html
 		 */
-		_appendWrap: function(tag, attrs, html) {
+		_appendWrap: function(tag, attrs, html, afterWrap) {
 			var newDomWrap, $html, $lastInputWrap;
 
 			$html = $('<div>' + this.html + '</div>');
 			newDomWrap = $(document.createElement(tag)).attr(attrs).html(html);
-			$lastInputWrap = $html.find("[wrap='input']:last");
+			if (afterWrap === undefined) {
+				$lastInputWrap = $html.find("[wrap='input']:last");
+			} else {
+				$lastInputWrap = $html.find("[schema='" + afterWrap.schema.id + "']");
+			}
 
 			if ($lastInputWrap.length) {
 				// 加到最后一个登记项后面
@@ -122,16 +126,26 @@ define(['wrap'], function(wrapLib) {
 		/**
 		 * 页面中添加登记项
 		 */
-		appendSchema: function(schema) {
-			var newWrap, wrapParam, domNewWrap;
+		appendSchema: function(schema, afterSchema) {
+			var newWrap, wrapParam, domNewWrap, afterWrap;
 
 			newWrap = wrapLib.input.newWrap(schema);
 
-			this.data_schemas.push(newWrap);
+			if (afterSchema === undefined) {
+				this.data_schemas.push(newWrap);
+			} else {
+				afterWrap = this.wrapBySchema(afterSchema);
+				var afterIndex = this.data_schemas.indexOf(afterWrap);
+				if (afterIndex === -1) {
+					this.data_schemas.push(newWrap);
+				} else {
+					this.data_schemas.splice(afterIndex + 1, 0, newWrap);
+				}
+			}
 
 			wrapParam = wrapLib.input.embed(newWrap);
 
-			domNewWrap = this._appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
+			domNewWrap = this._appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html, afterWrap);
 
 
 			return domNewWrap;
@@ -215,12 +229,16 @@ define(['wrap'], function(wrapLib) {
 		/**
 		 * 添加登记项的html
 		 */
-		_appendWrap: function(tag, attrs, html) {
+		_appendWrap: function(tag, attrs, html, afterWrap) {
 			var $html, domNewWrap, $lastInputWrap;
 
 			$html = $('<div>' + this.html + '</div>');
 			domNewWrap = $(document.createElement(tag)).attr(attrs).html(html);
-			$lastInputWrap = $html.find("[wrap='value']:last");
+			if (afterWrap === undefined) {
+				$lastInputWrap = $html.find("[wrap='value']:last");
+			} else {
+				$lastInputWrap = $html.find("[schema='" + afterWrap.schema.id + "']");
+			}
 
 			if ($lastInputWrap.length) {
 				$lastInputWrap.after(domNewWrap);
@@ -233,16 +251,26 @@ define(['wrap'], function(wrapLib) {
 		/**
 		 * 页面中添加登记项
 		 */
-		appendSchema: function(schema) {
-			var oNewWrap, domNewWrap, wrapParam;
+		appendSchema: function(schema, afterSchema) {
+			var oNewWrap, domNewWrap, wrapParam, afterWrap;
 
 			oNewWrap = wrapLib.value.newWrap(schema);
 
-			this.data_schemas.push(oNewWrap);
+			if (afterSchema === undefined) {
+				this.data_schemas.push(oNewWrap);
+			} else {
+				afterWrap = this.wrapBySchema(afterSchema);
+				var afterIndex = this.data_schemas.indexOf(afterWrap);
+				if (afterIndex === -1) {
+					this.data_schemas.push(oNewWrap);
+				} else {
+					this.data_schemas.splice(afterIndex + 1, 0, oNewWrap);
+				}
+			}
 
 			wrapParam = wrapLib.value.embed(oNewWrap);
 
-			domNewWrap = this._appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
+			domNewWrap = this._appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html, afterWrap);
 
 			return domNewWrap;
 		},

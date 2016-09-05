@@ -31,13 +31,13 @@ body>nav>ul:nth-child(2)>li{display:inline-block;float:none;}
 #schema-view .schema.phase:after{content:'项目阶段';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #schema-view .schema .title{height:38px;line-height:38px;margin-bottom:5px;overflow:hidden;white-space:nowrap;cursor:move;}
 #schema-view .schema .title div[editable]{display:inline-block;width:320px;}
-#schema-view .schema-options{padding-bottom:5px;margin-bottom:10px;border-bottom:1px dotted #ddd;}
 #schema-view .schema-options .option{position:relative;cursor:move;height:38px;line-height:38px;overflow:hidden;white-space:nowrap;}
 #schema-view .schema-options .option input[type=radio],#schema-view .schema-options .option input[type=checkbox]{vertical-align:middle;margin-top:0;}
 #schema-view .schema-options .option div[editable]{display:inline-block;vertical-align:middle;margin-left:8px;width:300px;}
 #schema-view .schema-options .option.entered{background:#f8f8f8;}
 #schema-view .schema-options .option button{position:absolute;top:50%;right:5px;margin-top:-10px;}
 #schema-view [editable]{cursor:text;}
+#schema-view .actions{margin-top:10px;padding-top:10px;border-top:1px dotted #ddd;}
 
 /*app-view/app-setting*/
 #appSetting{width:160px;font-family:Microsoft Yahei,Arial;}

@@ -55,13 +55,16 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			});
 		};
 		$scope.copySchema = function(schema) {
-			var newSchema = angular.copy(schema);
+			var newSchema = angular.copy(schema),
+				afterIndex;
 
 			newSchema.id = 'c' + (new Date() * 1);
-			$scope.app.data_schemas.push(newSchema);
+			afterIndex = $scope.app.data_schemas.indexOf(schema);
+			$scope.app.data_schemas.splice(afterIndex + 1, 0, newSchema);
+
 			$scope.update('data_schemas').then(function() {
 				$scope.app.pages.forEach(function(page) {
-					page.appendSchema(newSchema);
+					page.appendSchema(newSchema, schema);
 					$scope.updPage(page, ['data_schemas', 'html']);
 				});
 			});
@@ -97,6 +100,21 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 	 * 应用的所有登记项
 	 */
 	ngApp.provider.controller('ctrlList', ['$scope', '$timeout', function($scope, $timeout) {
+		function changeSchemaOrder(moved) {
+			$scope.update('data_schemas').then(function() {
+				var app = $scope.app;
+				if (app.__schemasOrderConsistent === 'Y') {
+					var i = app.data_schemas.indexOf(moved),
+						prevSchema;
+					if (i > 0) prevSchema = app.data_schemas[i - 1];
+					app.pages.forEach(function(page) {
+						page.moveSchema(moved, prevSchema);
+						$scope.updPage(page, ['data_schemas', 'html']);
+					});
+				}
+			});
+		};
+
 		var mapOfSchemas = {};
 
 		$scope.popover = {};
@@ -108,31 +126,24 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			var bust = (new Date()).getMinutes();
 			return '/views/default/pl/fe/matter/enroll/schema/main.html?_=' + bust;
 		};
-		$scope.removePopover = function() {
-			$scope.removeSchema($scope.popover.schema).then(function() {
-				$scope.closePopover();
-			});
-		};
 		$scope.closePopover = function() {
 			$($scope.popover.target).trigger('hide');
 			$scope.popover = {};
 		};
-		$scope.upPopover = function() {
-			var index = $scope.popover.index;
+		$scope.upSchema = function(schema) {
+			var index = $scope.appSchemas.indexOf(schema);
 			if (index > 0) {
 				$scope.appSchemas.splice(index, 1);
-				$scope.appSchemas.splice(index - 1, 0, $scope.popover.schema);
-				$scope.popover.index--;
-				$scope.popover.modified = true;
+				$scope.appSchemas.splice(index - 1, 0, schema);
+				changeSchemaOrder(schema);
 			}
 		};
-		$scope.downPopover = function() {
-			var index = $scope.popover.index;
+		$scope.downSchema = function(schema) {
+			var index = $scope.appSchemas.indexOf(schema);
 			if (index < $scope.appSchemas.length - 1) {
 				$scope.appSchemas.splice(index, 1);
-				$scope.appSchemas.splice(index + 1, 0, $scope.popover.schema);
-				$scope.popover.index++;
-				$scope.popover.modified = true;
+				$scope.appSchemas.splice(index + 1, 0, schema);
+				changeSchemaOrder(schema);
 			}
 		};
 		$scope.chooseSchema = function(event, schema) {
@@ -215,18 +226,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			$scope.updPage($scope.inputPage, ['data_schemas', 'html']);
 		};
 		$scope.$on('schemas.orderChanged', function(e, moved) {
-			$scope.update('data_schemas').then(function() {
-				var app = $scope.app;
-				if (app.__schemasOrderConsistent === 'Y') {
-					var i = app.data_schemas.indexOf(moved),
-						prevSchema;
-					if (i > 0) prevSchema = app.data_schemas[i - 1];
-					app.pages.forEach(function(page) {
-						page.moveSchema(moved, prevSchema);
-						$scope.updPage(page, ['data_schemas', 'html']);
-					});
-				}
-			});
+			changeSchemaOrder(moved);
 		});
 		$scope.$on('title.xxt.editable.changed', function(e, schema) {
 			$scope.updSchema(schema, 'title');

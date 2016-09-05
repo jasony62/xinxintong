@@ -22,7 +22,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 		};
 		$scope.updPage = function(page, names) {
 			if (page === $scope.ep) {
-				editorProxy.purifyInput(tinymce.activeEditor.getContent(), true);
+				editorProxy.purifyInput(editorProxy.getEditor().getContent(), true);
 			}
 
 			return srvPage.update(page, names);

@@ -1,4 +1,8 @@
 <div ng-controller="ctrlSchemaEdit">
+    <div class="form-group">
+        <label>登记项ID</label>
+        <input class='form-control' type='text' ng-model='activeSchema.id' ng-change="updSchema('id')" readonly>
+    </div>
     <div class="form-group" ng-if="activeSchema.type==='member'">
         <select class='form-control' disabled ng-model='selectedMemberSchema.schema' ng-options='ms.title for ms in memberSchemas'>
             <option></option>
@@ -21,8 +25,5 @@
     <div class="checkbox" ng-show="'single'===activeSchema.type">
         <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.score' ng-change="updSchema('score')">打分</label>
     </div>
-    <button class='btn btn-sm btn-default' ng-click="removePopover()"><span class='glyphicon glyphicon-trash'></span></button>
-    <button class='btn btn-sm btn-default' ng-click="upPopover()"><span class='glyphicon glyphicon-arrow-up'></span></button>
-    <button class='btn btn-sm btn-default' ng-click="downPopover()"><span class='glyphicon glyphicon-arrow-down'></span></button>
     <button class='btn btn-default' ng-click="closePopover()">关闭</button>
 </div>

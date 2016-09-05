@@ -24,7 +24,7 @@ body>nav>ul:nth-child(2)>li{display:inline-block;float:none;}
 #schema-view .schemas{index}
 #schema-view .schemas .schema{counter-increment:index;position:relative;padding-left:24px;padding-right:24px;}
 #schema-view .schemas .schema:before{content:counter(index);background:#999;color:#fff;position:absolute;top:-6px;left:-6px;width:18px;height:18px;line-height:18px;text-align:center;border-radius:4px;}
-#schema-view .schema{cursor:pointer;background:#fff;margin-bottom:15px;padding:8px;border:1px solid #ddd;}
+#schema-view .schema{background:#fff;margin-bottom:15px;padding:8px;border:1px solid #ddd;}
 #schema-view .schema.name:after{content:'姓名';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #schema-view .schema.mobile:after{content:'手机';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #schema-view .schema.email:after{content:'邮箱';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}

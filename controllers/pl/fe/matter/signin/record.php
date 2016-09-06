@@ -384,13 +384,13 @@ class record extends \pl\fe\matter\base {
 				$q = [
 					'count(*)',
 					'xxt_signin_record_data',
-					"enroll_key='$ek' and name='$cn'",
+					"aid='$app' and enroll_key='$ek' and name='$cn'",
 				];
 				if (1 === (int) $modelRec->query_val_ss($q)) {
 					$modelRec->update(
 						'xxt_signin_record_data',
 						['value' => $cv],
-						"enroll_key='$ek' and name='$cn'"
+						"aid='$app' and enroll_key='$ek' and name='$cn'"
 					);
 				} else {
 					$cd = [

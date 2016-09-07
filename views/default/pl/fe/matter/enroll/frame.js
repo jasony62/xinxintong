@@ -22,6 +22,7 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 		};
 		$routeProvider
 			.when('/rest/pl/fe/matter/enroll/publish', new RouteParam('publish'))
+			.when('/rest/pl/fe/matter/enroll/schema', new RouteParam('schema'))
 			.when('/rest/pl/fe/matter/enroll/page', new RouteParam('page'))
 			.when('/rest/pl/fe/matter/enroll/event', new RouteParam('event'))
 			.when('/rest/pl/fe/matter/enroll/record', new RouteParam('record'))
@@ -127,6 +128,65 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 			});
 			return deferred.promise;
 		};
+		$scope.batchSingleScore = function() {
+			$uibModal.open({
+				templateUrl: '/views/default/pl/fe/matter/enroll/component/batchSingleScore.html?_=5',
+				backdrop: 'static',
+				resolve: {
+					app: function() {
+						return $scope.app;
+					}
+				},
+				controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
+					var maxOpNum = 0,
+						opScores = [],
+						singleSchemas = [];
+
+					app.data_schemas.forEach(function(schema) {
+						if (schema.type === 'single') {
+							if (schema.score === 'Y') {
+								schema.ops.length > maxOpNum && (maxOpNum = schema.ops.length);
+							}
+							singleSchemas.push(schema);
+						}
+					});
+					while (opScores.length < maxOpNum) {
+						opScores.push(maxOpNum - opScores.length);
+					}
+
+					$scope2.opScores = opScores;
+					$scope2.singleSchemas = singleSchemas;
+					$scope2.shiftScoreSchema = function() {
+						maxOpNum = 0;
+						singleSchemas.forEach(function(schema) {
+							if (schema.score === 'Y') {
+								schema.ops.length > maxOpNum && (maxOpNum = schema.ops.length);
+							}
+						});
+						opScores = [];
+						while (opScores.length < maxOpNum) {
+							opScores.push(maxOpNum - opScores.length);
+						}
+						$scope2.opScores = opScores;
+					};
+					$scope2.close = function() {
+						$mi.dismiss();
+					};
+					$scope2.ok = function() {
+						$mi.close(opScores);
+					};
+				}]
+			}).result.then(function(result) {
+				$scope.app.data_schemas.forEach(function(schema) {
+					if (schema.type === 'single' && schema.score === 'Y') {
+						schema.ops.forEach(function(op, index) {
+							op.score = result[index];
+						});
+					}
+				});
+				$scope.update('data_schemas');
+			});
+		};
 		http2.get('/rest/pl/fe/site/member/schema/list?valid=Y&site=' + $scope.siteId, function(rsp) {
 			$scope.memberSchemas = rsp.data;
 			angular.forEach(rsp.data, function(ms) {
@@ -168,15 +228,16 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 		srvApp.get().then(function(app) {
 			var mapOfAppSchemas = {};
 			// 将页面的schema指向应用的schema
-			angular.forEach(app.data_schemas, function(schema) {
+			app.data_schemas.forEach(function(schema) {
 				schemaLib._upgrade(schema);
 				mapOfAppSchemas[schema.id] = schema;
 			});
-			angular.forEach(app.pages, function(page) {
-				angular.extend(page, pageLib);
+			app.pages.forEach(function(page) {
+				pageLib.enhance(page);
 				page.arrange(mapOfAppSchemas);
 			});
 			$scope.app = app;
+			app.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
 			$scope.url = 'http://' + location.host + '/rest/site/fe/matter/enroll?site=' + $scope.siteId + '&app=' + $scope.id;
 		});
 	}]);

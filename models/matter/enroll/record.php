@@ -160,7 +160,7 @@ class record_model extends \TMS_MODEL {
 			'xxt_enroll_record',
 			"enroll_key='$ek'",
 		];
-		if ($fields === '*' && ($record = $this->query_obj_ss($q))) {
+		if (($record = $this->query_obj_ss($q)) && $fields === '*') {
 			$record->data = json_decode($record->data);
 		}
 
@@ -232,28 +232,28 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 为了计算每条记录的分数，转换schema的形式
 	 */
-	private function _mapOfSingleSchema(&$app) {
-		$singleSchemas = new \stdClass;
+	private function _mapOfScoreSchema(&$app) {
+		$scoreSchemas = new \stdClass;
 
 		$schemas = is_object($app->data_schemas) ? $app->data_schemas : json_decode($app->data_schemas);
 		foreach ($schemas as $schema) {
-			if ($schema->type === 'single') {
-				$singleSchemas->{$schema->id} = new \stdClass;
-				$singleSchemas->{$schema->id}->ops = new \stdClass;
+			if ($schema->type === 'single' && isset($schema->score) && $schema->score === 'Y') {
+				$scoreSchemas->{$schema->id} = new \stdClass;
+				$scoreSchemas->{$schema->id}->ops = new \stdClass;
 				foreach ($schema->ops as $op) {
-					$singleSchemas->{$schema->id}->ops->{$op->v} = $op;
+					$scoreSchemas->{$schema->id}->ops->{$op->v} = $op;
 				}
 			}
 		}
 
-		return $singleSchemas;
+		return $scoreSchemas;
 	}
 	/**
 	 * 计算记录的分数
 	 */
-	private function _calcScore(&$singleSchemas, &$data) {
+	private function _calcScore(&$scoreSchemas, &$data) {
 		$score = 0;
-		foreach ($singleSchemas as $schemaId => $schema) {
+		foreach ($scoreSchemas as $schemaId => $schema) {
 			if (!empty($data->{$schemaId})) {
 				$opScore = empty($schema->ops->{$data->{$schemaId}}->score) ? 0 : $schema->ops->{$data->{$schemaId}}->score;
 				$score += $opScore;
@@ -384,12 +384,12 @@ class record_model extends \TMS_MODEL {
 				}
 				// 记录的分数
 				if ($app->scenario === 'voting') {
-					if (!isset($singleSchemas)) {
-						$singleSchemas = $this->_mapOfSingleSchema($app);
-						$countSingleSchemas = count(array_keys((array) $singleSchemas));
+					if (!isset($scoreSchemas)) {
+						$scoreSchemas = $this->_mapOfScoreSchema($app);
+						$countScoreSchemas = count(array_keys((array) $scoreSchemas));
 					}
-					$r->_score = $this->_calcScore($singleSchemas, $data);
-					$r->_average = $r->_score / $countSingleSchemas;
+					$r->_score = $this->_calcScore($scoreSchemas, $data);
+					$r->_average = $countScoreSchemas === 0 ? 0 : $r->_score / $countScoreSchemas;
 				}
 				// 获得邀请数据
 				if (isset($app->can_invite) && $app->can_invite === 'Y') {

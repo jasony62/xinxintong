@@ -94,6 +94,35 @@ define([], function() {
 
 			return schema;
 		},
+		/**
+		 * @schemaOptionsId 后指定的选项后面添加选项
+		 */
+		addOption: function(schema, schemaOptionId) {
+			var maxSeq = 0,
+				newOp = {
+					l: ''
+				},
+				optionIndex = -1;
+
+			if (schema.ops === undefined) {
+				schema.ops = [];
+			}
+			schema.ops.forEach(function(op, index) {
+				var opSeq = parseInt(op.v.substr(1));
+				opSeq > maxSeq && (maxSeq = opSeq);
+				if (op.v === schemaOptionId) {
+					optionIndex = index;
+				}
+			});
+			newOp.v = 'v' + (++maxSeq);
+			if (schemaOptionId === undefined) {
+				schema.ops.push(newOp);
+			} else {
+				schema.ops.splice(optionIndex + 1, 0, newOp);
+			}
+
+			return newOp;
+		},
 		_upgrade: function(schema) {
 			if (schema._ver === undefined) {
 				schema.unique = 'N';

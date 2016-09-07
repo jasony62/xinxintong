@@ -21,9 +21,10 @@
                 <combox evt-prefix='search-tag' readonly='true' existing='criteria.tags' options='app.tags'></combox>
             </div>
             <div class='form-group'>
-                <button class='btn btn-success' ng-click='filter()'>筛选</button>
+                <button class='btn btn-default' ng-click='filter()'>筛选</button>
                 <button class='btn btn-primary hide' ng-click="notify()">发送信息</button>
-                <button class='btn btn-primary' ng-click="export()">导出全部数据</button>
+                <button class='btn btn-default' ng-click="export()">导出全部数据</button>
+                <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchTag()'>批量打标签</button>
             </div>
             <div class='form-group pull-right'>
                 <div class='input-group'>
@@ -150,10 +151,13 @@
                         <th class='custom-col' ng-repeat="c in app.enrollApp.data_schemas" title="{{c.ops}}">{{c.title}}</th>
                         <th style='width:75px'>审核通过</th>
                         <th style='width:140px' ng-if="app.enrollApp.tags.length">标签</th>
-                        <th style='width:140px'>备注</th>
+                        <th style='width:140px'>报名备注</th>
+                        <th style='width:140px'>报名标签</th>
                         <th ng-if="page.byRound" style='width:100px'>签到时间</th>
                         <th ng-if="!page.byRound" style='width:75px'>签到次数</th>
                         <th ng-if="!page.byRound" ng-repeat="r in app.rounds"><span>{{r.title}}</span></th>
+                        <th style='width:140px'>签到备注</th>
+                        <th style='width:140px'>签到标签</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -173,9 +177,12 @@
                         <td>{{r.verified}}</td>
                         <td ng-if="app.enrollApp.tags.length">{{r.tags}}</td>
                         <td>{{r.comment}}</td>
+                        <td>{{r.tags}}</td>
                         <td ng-if="page.byRound"><span ng-class="{'signin_late':isSigninLate(r._signinRecord,page.byRound)}" ng-if="r._signinRecord.signin_log[page.byRound]">{{r._signinRecord.signin_log[page.byRound]*1000|date:'MM-dd HH:mm'}}</span></td>
                         <td ng-if="!page.byRound">{{r._signinRecord.signin_num}}</td>
                         <td ng-if="!page.byRound" ng-repeat="rnd in app.rounds"><span ng-class="{'signin_late':isSigninLate(r._signinRecord,rnd.rid)}" ng-if="r._signinRecord.signin_log[rnd.rid]">{{r._signinRecord.signin_log[rnd.rid]*1000|date:'MM-dd HH:mm'}}</span></td>
+                        <td>{{r._signinRecord.comment}}</td>
+                        <td>{{r._signinRecord.tags}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -190,11 +197,11 @@
     <nav class="navbar navbar-default bottom">
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
-                <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/signin/page?site={{siteId}}&id={{id}}">页面设置</a>
-                <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/signin/publish?site={{siteId}}&id={{id}}">发布设置</a>
+                <a class='btn btn-success' href="/rest/pl/fe/matter/signin/page?site={{siteId}}&id={{id}}">页面设置</a>
+                <a class='btn btn-success' href="/rest/pl/fe/matter/signin/publish?site={{siteId}}&id={{id}}">发布设置</a>
             </form>
             <form class="navbar-form navbar-right" style='display:inline-block'>
-                <button class='btn btn-lg btn-default' ng-click="remove()">删除活动</button>
+                <button class='btn btn-default' ng-click="remove()">删除活动</button>
             </form>
         </div>
     </nav>

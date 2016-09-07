@@ -79,7 +79,7 @@ define(['require', 'angular', 'cookie'], function(require, angular, Cookies) {
             return false;
         }
     };
-    loadCss("//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css");
+    loadCss("/static/css/bootstrap.min.css");
     window.ngApp = angular.module('app', []);
     ngApp.config(['$controllerProvider', function($cp) {
         ngApp.provider = {

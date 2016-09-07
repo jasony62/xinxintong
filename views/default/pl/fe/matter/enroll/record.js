@@ -1,6 +1,6 @@
 define(['frame'], function(ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlRecord', ['$scope', 'http2', '$uibModal', 'mattersgallery', 'pushnotify', 'noticebox', function($scope, http2, $uibModal, mattersgallery, pushnotify, noticebox) {
+    ngApp.provider.controller('ctrlRecord', ['$scope', '$filter', 'http2', '$uibModal', 'mattersgallery', 'pushnotify', 'noticebox', function($scope, $filter, http2, $uibModal, mattersgallery, pushnotify, noticebox) {
         $scope.notifyMatterTypes = [{
             value: 'tmplmsg',
             title: '模板消息',
@@ -29,6 +29,9 @@ define(['frame'], function(ngApp) {
             url += '?site=' + $scope.siteId;
             url += '&app=' + $scope.app.id;
             url += $scope.page.joinParams();
+            if ($scope.content.signin === 'Y') {
+                url += '&includeSignin=Y';
+            }
             http2.post(url, $scope.criteria, function(rsp) {
                 if (rsp.data) {
                     $scope.records = rsp.data.records ? rsp.data.records : [];
@@ -61,6 +64,7 @@ define(['frame'], function(ngApp) {
             tags: [],
             data: {}
         };
+        // 数据分页条件
         $scope.page = {
             at: 1,
             size: 30,
@@ -74,6 +78,43 @@ define(['frame'], function(ngApp) {
                 return p;
             }
         };
+        // 是否包含签到数据
+        $scope.content = {
+            signin: 'N'
+        };
+        $scope.signinApps = null;
+        $scope.signinRounds = [];
+        $scope.signinAt = function(round, record) {
+            var signinAt;
+            if (record._signinRecord) {
+                if (record._signinRecord[round._app.id]) {
+                    signinAt = record._signinRecord[round._app.id].signin_log[round.rid];
+                }
+            }
+            if (signinAt === undefined) {
+                return '';
+            } else {
+                signinAt = signinAt * 1000;
+                signinAt = $filter('date')(signinAt, 'MM-dd HH:mm');
+                return signinAt;
+            }
+        };
+        // 当前签到记录是否迟到？
+        $scope.isSigninLate = function(round, record) {
+            var signinAt;
+            if (round.late_at > 0 && record._signinRecord) {
+                if (record._signinRecord[round._app.id]) {
+                    signinAt = record._signinRecord[round._app.id].signin_log[round.rid];
+                    if (signinAt) {
+                        signinAt = parseInt(signinAt);
+                        // 忽略秒的影响
+                        return signinAt > parseInt(round.late_at) + 59;
+                    }
+                }
+            }
+            return false;
+        };
+        // 排序规则
         $scope.orderBys = [{
             n: '登记时间',
             v: 'time'
@@ -95,39 +136,6 @@ define(['frame'], function(ngApp) {
             var i = $scope.criteria.tags.indexOf(removed);
             $scope.criteria.tags.splice(i, 1);
             $scope.doSearch();
-        });
-        $scope.$on('batch-tag.xxt.combox.done', function(event, aSelected) {
-            var i, record, records, eks, posted;
-            records = [];
-            eks = [];
-            for (i in $scope.rows.selected) {
-                if ($scope.rows.selected) {
-                    record = $scope.records[i];
-                    eks.push(record.enroll_key);
-                    records.push(record);
-                }
-            }
-            if (eks.length) {
-                posted = {
-                    eks: eks,
-                    tags: aSelected
-                };
-                http2.post('/rest/pl/fe/matter/enroll/record/batchTag?aid=' + $scope.id, posted, function(rsp) {
-                    var i, l, m, n, newTag;
-                    n = aSelected.length;
-                    for (i = 0, l = records.length; i < l; i++) {
-                        record = records[i];
-                        if (!record.tags || record.length === 0) {
-                            record.tags = aSelected.join(',');
-                        } else {
-                            for (m = 0; m < n; m++) {
-                                newTag = aSelected[m];
-                                (',' + record.tags + ',').indexOf(newTag) === -1 && (record.tags += ',' + newTag);
-                            }
-                        }
-                    }
-                });
-            }
         });
         $scope.memberAttr = function(val, key) {
             var keys;
@@ -253,25 +261,84 @@ define(['frame'], function(ngApp) {
                 });
             });
         };
-        $scope.importUser = function() {
+        $scope.batchTag = function() {
             $uibModal.open({
-                templateUrl: "userPicker.html",
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/batchTag.html?_=1',
+                controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
+                    $scope2.appTags = angular.copy(app.tags);
+                    $scope2.data = {
+                        tags: []
+                    };
+                    $scope2.ok = function() {
+                        $mi.close({
+                            tags: $scope2.data.tags,
+                            appTags: $scope2.appTags
+                        });
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss('cancel');
+                    };
+                    $scope2.$on('tag.xxt.combox.done', function(event, aSelected) {
+                        var aNewTags = [];
+                        for (var i in aSelected) {
+                            var existing = false;
+                            for (var j in $scope2.data.tags) {
+                                if (aSelected[i] === $scope2.data.tags[j]) {
+                                    existing = true;
+                                    break;
+                                }
+                            }!existing && aNewTags.push(aSelected[i]);
+                        }
+                        $scope2.data.tags = $scope2.data.tags.concat(aNewTags);
+                    });
+                    $scope2.$on('tag.xxt.combox.add', function(event, newTag) {
+                        $scope2.data.tags.push(newTag);
+                        $scope2.appTags.indexOf(newTag) === -1 && $scope2.appTags.push(newTag);
+                    });
+                    $scope2.$on('tag.xxt.combox.del', function(event, removed) {
+                        $scope2.data.tags.splice($scope2.data.tags.indexOf(removed), 1);
+                    });
+                }],
                 backdrop: 'static',
-                windowClass: 'auto-height',
-                size: 'lg',
-                controller: function($scope, $uibModalInstance) {
-                    $scope.cancel = function() {
-                        $uibModalInstance.dismiss();
+                resolve: {
+                    app: function() {
+                        return $scope.app;
+                    },
+                }
+            }).result.then(function(result) {
+                var record, records = [],
+                    eks = [],
+                    posted = {};
+
+                for (var p in $scope.rows.selected) {
+                    if ($scope.rows.selected[p] === true) {
+                        record = $scope.records[p];
+                        eks.push(record.enroll_key);
+                        records.push(record);
                     }
-                },
-            }).result.then(function(selected) {
-                if (selected.members && selected.members.length) {
-                    var members = [];
-                    for (var i in selected.members)
-                        members.push(selected.members[i].data.mid);
-                    http2.post('/rest/pl/fe/matter/enroll/record/importUser?aid=' + $scope.id, members, function(rsp) {
-                        for (var i in rsp.data)
-                            $scope.records.splice(0, 0, rsp.data[i]);
+                }
+
+                if (eks.length) {
+                    posted = {
+                        eks: eks,
+                        tags: result.tags,
+                        appTags: result.appTags
+                    };
+                    http2.post('/rest/pl/fe/matter/enroll/record/batchTag?site=' + $scope.siteId + '&app=' + $scope.id, posted, function(rsp) {
+                        var i, l, m, n, newTag;
+                        n = result.tags.length;
+                        for (i = 0, l = records.length; i < l; i++) {
+                            record = records[i];
+                            if (!record.tags || record.length === 0) {
+                                record.tags = result.tags.join(',');
+                            } else {
+                                for (m = 0; m < n; m++) {
+                                    newTag = result.tags[m];
+                                    (',' + record.tags + ',').indexOf(newTag) === -1 && (record.tags += ',' + newTag);
+                                }
+                            }
+                        }
+                        $scope.app.tags = result.appTags;
                     });
                 }
             });
@@ -361,6 +428,9 @@ define(['frame'], function(ngApp) {
 
             url = '/rest/pl/fe/matter/enroll/record/export';
             url += '?site=' + $scope.siteId + '&app=' + $scope.id;
+            if ($scope.content.signin === 'Y') {
+                url += '&includeSignin=Y';
+            }
 
             http2.post(url, params, function(rsp) {
                 var blob;
@@ -372,6 +442,26 @@ define(['frame'], function(ngApp) {
                 saveAs(blob, $scope.app.title + '.csv');
             });
         };
+        $scope.copyRecords = function() {};
+        (function() {
+            var client = new ZeroClipboard($("#copyRecords"));
+            client.on("copy", function(event) {
+                var clipboard = event.clipboardData,
+                    $table;
+
+                $table = $($('#enrollRecords').html());
+                $table.find('thead>tr>th:first-child').remove();
+                $table.find('tbody>tr>td:first-child').remove();
+                $table.find('thead>tr>th:first-child').remove();
+                $table.find('tbody>tr>td:first-child').remove();
+                $table.find('thead>tr>th:last-child').remove();
+                $table.find('tbody>tr>td:last-child').remove();
+                $table.find('.signin_late').css('color', 'red');
+
+                clipboard.setData("text/html", '<table>' + $table.html() + '</table>');
+                noticebox.success('完成数据复制');
+            });
+        })();
         $scope.countSelected = function() {
             var count = 0;
             for (var p in $scope.rows.selected) {
@@ -407,6 +497,25 @@ define(['frame'], function(ngApp) {
             $scope.mapOfSchemaByType = mapOfSchemaByType;
             $scope.tmsTableWrapReady = 'Y';
             $scope.doSearch();
+            // 显示扩展内容
+            $scope.$watch('content', function(content) {
+                if (content) {
+                    if (content.signin === 'Y') {
+                        if ($scope.signinApps === null) {
+                            http2.get('/rest/pl/fe/matter/signin/listByEnroll?site=' + $scope.siteId + '&enroll=' + $scope.id, function(rsp) {
+                                $scope.signinApps = rsp.data;
+                                rsp.data.forEach(function(signinApp) {
+                                    signinApp.rounds.forEach(function(round) {
+                                        round._app = signinApp;
+                                    });
+                                    $scope.signinRounds = $scope.signinRounds.concat(signinApp.rounds);
+                                });
+                            });
+                        }
+                    }
+                    $scope.doSearch();
+                }
+            }, true);
         });
     }]);
     ngApp.provider.directive('flexImg', function() {

@@ -58,6 +58,20 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($result);
 	}
 	/**
+	 * 返回和指定登记活动关联的签到活动列表
+	 *
+	 */
+	public function listByEnroll_action($site, $enroll) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$model = $this->model('matter\signin');
+		$result = $model->byEnroll($enroll);
+
+		return new \ResponseData($result);
+	}
+	/**
 	 * 创建一个空的签到活动
 	 *
 	 * @param string $site site's id

@@ -6,7 +6,7 @@
 		"data_schemas": [{
 			"schema": {
 				"id": "name",
-				"title": "名称",
+				"title": "姓名",
 				"type": "name"
 			},
 			"config": {
@@ -73,7 +73,7 @@
 			},
 			"schema": {
 				"id": "name",
-				"title": "名称",
+				"title": "姓名",
 				"type": "name"
 			}
 		}, {
@@ -151,7 +151,7 @@
 	}],
 	"schema": [{
 		"id": "name",
-		"title": "名称",
+		"title": "姓名",
 		"type": "name"
 	}, {
 		"id": "mobile",

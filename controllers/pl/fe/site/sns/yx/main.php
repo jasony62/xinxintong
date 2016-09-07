@@ -24,18 +24,28 @@ class main extends \pl\fe\base {
 	 * 获得公众号配置信息
 	 */
 	public function get_action($site) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$modelYx = $this->model('sns\yx');
 		$yx = $modelYx->bySite($site);
 		if ($yx === false) {
 			/* 不存在就创建一个 */
-			$yx = $modelYx->create($site);
+			$data = ['creater' => $user->id, 'create_at' => time()];
+			$yx = $modelYx->create($site, $data);
 		}
+
 		return new \ResponseData($yx);
 	}
 	/**
 	 * 更新账号配置信息
 	 */
 	public function update_action($site) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$nv = $this->getPostJson();
 
 		/* 如果修改了token，需要重新重新进行连接验证 */
@@ -53,6 +63,10 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	public function checkJoin_action($site) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$site = $this->model('sns\yx')->bySite($site);
 
 		return new \ResponseData($site->joined);

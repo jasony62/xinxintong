@@ -1,0 +1,32 @@
+<div ng-controller="ctrlSchemaEdit">
+    <div class="form-group">
+        <label>登记项ID</label>
+        <input class='form-control' type='text' ng-model='activeSchema.id' ng-change="updSchema('id')" readonly>
+    </div>
+    <div class="form-group" ng-if="activeSchema.type==='member'">
+        <select class='form-control' disabled ng-model='selectedMemberSchema.schema' ng-options='ms.title for ms in memberSchemas'>
+            <option></option>
+        </select>
+        <select class='form-control' disabled ng-model='selectedMemberSchema.attr' ng-options='a.title for a in selectedMemberSchema.schema._schemas'>
+            <option></option>
+        </select>
+    </div>
+    <div class="form-group" ng-if="['single','phase'].indexOf(activeSchema.type)!==-1">
+        <label class="radio-inline"><input type='radio' name='component' value='R' ng-model='activeConfig.component' ng-change="updConfig('component')">单选钮</label>
+        <label class="radio-inline"><input type='radio' name='component' value='S' ng-model='activeConfig.component' ng-change="updConfig('component')">下拉框</label>
+    </div>
+    <div class="form-group" ng-if="(['single','phase'].indexOf(activeSchema.type)!==-1&&activeConfig.component==='R')||activeSchema.type==='multiple'">
+        <label class="radio-inline"><input type='radio' name='align' value='V' ng-model='activeConfig.align' ng-change="updConfig('align')">垂直排列</label>
+        <label class="radio-inline"><input type='radio' name='align' value='H' ng-model='activeConfig.align' ng-change="updConfig('align')">水平排列</label>
+    </div>
+    <div class="checkbox" ng-show="['image'].indexOf(activeSchema.type)===-1">
+        <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeConfig.required' ng-change="updConfig('required')">必填</label>
+    </div>
+    <div class="checkbox" ng-show="['name','mobile','email','shorttext'].indexOf(activeSchema.type)!==-1">
+        <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.unique' ng-change="updSchema('unique')">唯一</label>
+    </div>
+    <div class="checkbox" ng-show="'single'===activeSchema.type">
+        <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.score' ng-change="updSchema('score')">打分</label>
+    </div>
+    <button class='btn btn-default' ng-click="closePopover()">关闭</button>
+</div>

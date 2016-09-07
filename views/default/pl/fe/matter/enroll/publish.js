@@ -61,6 +61,55 @@ define(['frame'], function(ngApp) {
 		});
 	}]);
 	/**
+	 * 访问控制规则
+	 */
+	ngApp.provider.controller('ctrlAccessRule', ['$scope', 'http2', function($scope, http2) {
+		$scope.pages4NonMember = [];
+		$scope.pages4Nonfan = [];
+		$scope.updateEntryRule = function() {
+			var p = {
+				entry_rule: encodeURIComponent(JSON.stringify($scope.app.entry_rule))
+			};
+			http2.post('/rest/pl/fe/matter/enroll/update?site=' + $scope.siteId + '&app=' + $scope.id, p, function(rsp) {
+				$scope.persisted = angular.copy($scope.app);
+			});
+		};
+		$scope.reset = function() {
+			http2.get('/rest/pl/fe/matter/enroll/entryRuleReset?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
+				$scope.app.entry_rule = rsp.data;
+				$scope.persisted = angular.copy($scope.app);
+			});
+		};
+		$scope.rule = {
+			scope: 'none'
+		};
+		$scope.changeUserScope = function() {
+			$scope.app.entry_rule.scope = $scope.rule.scope;
+			$scope.updateEntryRule();
+		};
+		$scope.$watch('app', function(app) {
+			if (!app) return;
+			var pages = app.pages;
+			$scope.rule.scope = app.entry_rule.scope || 'none';
+			$scope.pages4NonMember = [{
+				name: '$memberschema',
+				title: '填写自定义用户信息'
+			}];
+			$scope.pages4Nonfan = [{
+				name: '$mpfollow',
+				title: '提示关注'
+			}];
+			angular.forEach(pages, function(page) {
+				var newPage = {
+					name: page.name,
+					title: page.title
+				};
+				$scope.pages4NonMember.push(newPage);
+				$scope.pages4Nonfan.push(newPage);
+			});
+		}, true);
+	}]);
+	/**
 	 * app setting controller
 	 */
 	ngApp.provider.controller('ctrlApp', ['$scope', '$q', 'http2', function($scope, $q, http2) {
@@ -109,6 +158,17 @@ define(['frame'], function(ngApp) {
 			}
 
 			$scope.update(updatedFields);
+		};
+		$scope.isInputPage = function(pageName) {
+			if (!$scope.app) {
+				return false;
+			}
+			for (var i in $scope.app.pages) {
+				if ($scope.app.pages[i].name === pageName && $scope.app.pages[i].type === 'I') {
+					return true;
+				}
+			}
+			return false;
 		};
 		/*初始化页面数据*/
 		if ($scope.app && $scope.app.mission) {

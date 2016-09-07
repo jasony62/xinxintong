@@ -24,7 +24,7 @@ class record extends \pl\fe\matter\base {
 	 * [1] 数据总条数
 	 * [2] 数据项的定义
 	 */
-	public function list_action($site, $app, $page = 1, $size = 30, $rid = null, $orderby = null, $contain = null) {
+	public function list_action($site, $app, $page = 1, $size = 30, $rid = null, $orderby = null, $contain = null, $includeSignin = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -42,11 +42,32 @@ class record extends \pl\fe\matter\base {
 
 		// 登记活动
 		$modelApp = $this->model('matter\enroll');
-		$app = $modelApp->byId($app);
+		$enrollApp = $modelApp->byId($app);
 
 		// 查询结果
 		$mdoelRec = $this->model('matter\enroll\record');
-		$result = $mdoelRec->find($site, $app, $options, $criteria);
+		$result = $mdoelRec->find($site, $enrollApp, $options, $criteria);
+
+		// 叠加签到信息
+		if ($includeSignin === 'Y') {
+			if ($result->total > 0) {
+				foreach ($result->records as &$record) {
+					$q = [
+						'aid,enroll_at,signin_at,signin_num,data,signin_log,tags,comment',
+						'xxt_signin_record',
+						"state=1 and verified_enroll_key='$record->enroll_key'",
+					];
+					if ($signinRecords = $modelApp->query_objs_ss($q)) {
+						foreach ($signinRecords as $signinRecord) {
+							$signinRecord->data = json_decode($signinRecord->data);
+							$signinRecord->signin_log = empty($signinRecord->signin_log) ? new \stdClass : json_decode($signinRecord->signin_log);
+							!isset($record->_signinRecord) && $record->_signinRecord = new \stdClass;
+							$record->_signinRecord->{$signinRecord->aid} = $signinRecord;
+						}
+					}
+				}
+			}
+		}
 
 		return new \ResponseData($result);
 	}
@@ -401,6 +422,43 @@ class record extends \pl\fe\matter\base {
 		}
 
 		return false;
+	}
+	/**
+	 * 给记录批量添加标签
+	 */
+	public function batchTag_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$posted = $this->getPostJson();
+		$eks = $posted->eks;
+		$tags = $posted->tags;
+
+		/**
+		 * 给记录打标签
+		 */
+		$modelRec = $this->model('matter\enroll\record');
+		if (!empty($eks) && !empty($tags)) {
+			foreach ($eks as $ek) {
+				$record = $modelRec->byId($ek);
+				$existent = $record->tags;
+				if (empty($existent)) {
+					$aNew = $tags;
+				} else {
+					$aExistent = explode(',', $existent);
+					$aNew = array_unique(array_merge($aExistent, $tags));
+				}
+				$newTags = implode(',', $aNew);
+				$modelRec->update('xxt_enroll_record', ['tags' => $newTags], "enroll_key='$ek'");
+			}
+		}
+		/**
+		 * 给应用打标签
+		 */
+		$this->model('matter\enroll')->updateTags($app, $posted->appTags);
+
+		return new \ResponseData('ok');
 	}
 	/**
 	 * 给登记活动的参与人发消息

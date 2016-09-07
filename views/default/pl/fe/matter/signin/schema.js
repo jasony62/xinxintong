@@ -10,13 +10,6 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 		$scope.newSchema = function(type) {
 			var newSchema, mission;
 
-			if (type === 'phase') {
-				mission = $scope.app.mission;
-				if (!mission || !mission.phases || mission.phases.length === 0) {
-					alert('请先指定项目的阶段');
-					return;
-				}
-			}
 			newSchema = schemaLib.newSchema(type, $scope.app);
 			for (var i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
 				if (newSchema.id === $scope.app.data_schemas[i].id) {
@@ -55,13 +48,16 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			});
 		};
 		$scope.copySchema = function(schema) {
-			var newSchema = angular.copy(schema);
+			var newSchema = angular.copy(schema),
+				afterIndex;
 
 			newSchema.id = 'c' + (new Date() * 1);
-			$scope.app.data_schemas.push(newSchema);
+			afterIndex = $scope.app.data_schemas.indexOf(schema);
+			$scope.app.data_schemas.splice(afterIndex + 1, 0, newSchema);
+
 			$scope.update('data_schemas').then(function() {
 				$scope.app.pages.forEach(function(page) {
-					page.appendSchema(newSchema);
+					page.appendSchema(newSchema, schema);
 					$scope.updPage(page, ['data_schemas', 'html']);
 				});
 			});
@@ -85,7 +81,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 		};
 		$scope.removeSchema = function(removedSchema) {
 			var deferred = $q.defer();
-			if (window.confirm('确定删除所有页面上的登记项？')) {
+			if (window.confirm('确定从所有页面上删除登记项［' + removedSchema.title + '］？')) {
 				removeSchema(removedSchema).then(function() {
 					deferred.resolve();
 				});
@@ -97,8 +93,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 	 * 应用的所有登记项
 	 */
 	ngApp.provider.controller('ctrlList', ['$scope', '$timeout', function($scope, $timeout) {
-		$scope.popover = {};
-		$scope.$on('schemas.orderChanged', function(e, moved) {
+		function changeSchemaOrder(moved) {
 			$scope.update('data_schemas').then(function() {
 				var app = $scope.app;
 				if (app.__schemasOrderConsistent === 'Y') {
@@ -111,7 +106,11 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 					});
 				}
 			});
-		});
+		};
+
+		var mapOfSchemas = {};
+
+		$scope.popover = {};
 		$scope.schemaHtml = function(schema) {
 			var bust = (new Date()).getMinutes();
 			return '/views/default/pl/fe/matter/enroll/schema/' + schema.type + '.html?_=' + bust;
@@ -120,31 +119,24 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			var bust = (new Date()).getMinutes();
 			return '/views/default/pl/fe/matter/enroll/schema/main.html?_=' + bust;
 		};
-		$scope.removePopover = function() {
-			$scope.removeSchema($scope.popover.schema).then(function() {
-				$scope.closePopover();
-			});
-		};
 		$scope.closePopover = function() {
 			$($scope.popover.target).trigger('hide');
 			$scope.popover = {};
 		};
-		$scope.upPopover = function() {
-			var index = $scope.popover.index;
+		$scope.upSchema = function(schema) {
+			var index = $scope.appSchemas.indexOf(schema);
 			if (index > 0) {
 				$scope.appSchemas.splice(index, 1);
-				$scope.appSchemas.splice(index - 1, 0, $scope.popover.schema);
-				$scope.popover.index--;
-				$scope.popover.modified = true;
+				$scope.appSchemas.splice(index - 1, 0, schema);
+				changeSchemaOrder(schema);
 			}
 		};
-		$scope.downPopover = function() {
-			var index = $scope.popover.index;
+		$scope.downSchema = function(schema) {
+			var index = $scope.appSchemas.indexOf(schema);
 			if (index < $scope.appSchemas.length - 1) {
 				$scope.appSchemas.splice(index, 1);
-				$scope.appSchemas.splice(index + 1, 0, $scope.popover.schema);
-				$scope.popover.index++;
-				$scope.popover.modified = true;
+				$scope.appSchemas.splice(index + 1, 0, schema);
+				changeSchemaOrder(schema);
 			}
 		};
 		$scope.chooseSchema = function(event, schema) {
@@ -174,7 +166,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 				};
 			}
 		};
-		$scope.addOption = function(schema) {
+		$scope.addOption = function(schema, afterIndex) {
 			var maxSeq = 0,
 				newOp = {
 					l: ''
@@ -188,13 +180,23 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 				opSeq > maxSeq && (maxSeq = opSeq);
 			});
 			newOp.v = 'v' + (++maxSeq);
-			schema.ops.push(newOp);
+			if (afterIndex === undefined) {
+				schema.ops.push(newOp);
+			} else {
+				schema.ops.splice(afterIndex + 1, 0, newOp);
+			}
 			$timeout(function() {
 				$scope.$broadcast('xxt.editable.add', newOp);
 			});
 		};
+		$scope.removeOption = function(schema, op) {
+			var i = schema.ops.indexOf(op);
+
+			schema.ops.splice(i, 1);
+			$scope.updSchema(schema, 'ops');
+		};
 		var timerOfUpdate = null;
-		$scope.updSchema = function(prop) {
+		$scope.updSchema = function(schema, prop) {
 			if (timerOfUpdate !== null) {
 				$timeout.cancel(timerOfUpdate);
 			}
@@ -203,7 +205,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 				$scope.update('data_schemas').then(function() {
 					// 更新页面
 					$scope.app.pages.forEach(function(page) {
-						page.updateSchema($scope.activeSchema);
+						page.updateSchema(schema);
 						$scope.updPage(page, ['data_schemas', 'html']);
 					});
 				});
@@ -216,22 +218,38 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			$scope.inputPage.updateSchema($scope.activeSchema);
 			$scope.updPage($scope.inputPage, ['data_schemas', 'html']);
 		};
-		$scope.$on('title.xxt.editable.changed', function(e, op) {
-			$scope.updSchema('title');
+		$scope.$on('schemas.orderChanged', function(e, moved) {
+			changeSchemaOrder(moved);
 		});
-		$scope.$on('option.xxt.editable.changed', function(e, op) {
-			$scope.updSchema('ops');
+		$scope.$on('title.xxt.editable.changed', function(e, schema) {
+			$scope.updSchema(schema, 'title');
 		});
-		$scope.$on('option.xxt.editable.remove', function(e, op) {
-			var schema = $scope.activeSchema,
-				i = schema.ops.indexOf(op);
-
-			schema.ops.splice(i, 1);
-			$scope.updSchema('ops');
+		// 回车添加选项
+		$('body').on('keyup', function(evt) {
+			if (event.keyCode === 13) {
+				var schemaId, opNode, opIndex;
+				opNode = evt.target.parentNode;
+				if (opNode && opNode.getAttribute('evt-prefix') === 'option') {
+					schemaId = opNode.getAttribute('state');
+					opIndex = parseInt(opNode.dataset.index);
+					$scope.$apply(function() {
+						$scope.addOption(mapOfSchemas[schemaId], opIndex);
+					});
+				}
+			}
+		});
+		$scope.$on('options.orderChanged', function(e, moved, schemaId) {
+			$scope.updSchema(mapOfSchemas[schemaId], 'ops');
+		});
+		$scope.$on('option.xxt.editable.changed', function(e, op, schemaId) {
+			$scope.updSchema(mapOfSchemas[schemaId], 'ops');
 		});
 		$scope.$watch('app', function(app) {
 			if (app) {
 				$scope.appSchemas = $scope.app.data_schemas;
+				$scope.appSchemas.forEach(function(schema) {
+					mapOfSchemas[schema.id] = schema;
+				});
 			}
 		});
 	}]);

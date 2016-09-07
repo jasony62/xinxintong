@@ -423,6 +423,43 @@ class record extends \pl\fe\matter\base {
 		return new \ResponseData($record);
 	}
 	/**
+	 * 给记录批量添加标签
+	 */
+	public function batchTag_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$posted = $this->getPostJson();
+		$eks = $posted->eks;
+		$tags = $posted->tags;
+
+		/**
+		 * 给记录打标签
+		 */
+		$modelRec = $this->model('matter\signin\record');
+		if (!empty($eks) && !empty($tags)) {
+			foreach ($eks as $ek) {
+				$record = $modelRec->byId($ek);
+				$existent = $record->tags;
+				if (empty($existent)) {
+					$aNew = $tags;
+				} else {
+					$aExistent = explode(',', $existent);
+					$aNew = array_unique(array_merge($aExistent, $tags));
+				}
+				$newTags = implode(',', $aNew);
+				$modelRec->update('xxt_signin_record', ['tags' => $newTags], "enroll_key='$ek'");
+			}
+		}
+		/**
+		 * 给应用打标签
+		 */
+		$this->model('matter\signin')->updateTags($app, $posted->appTags);
+
+		return new \ResponseData('ok');
+	}
+	/**
 	 * 清空一条登记信息
 	 */
 	public function remove_action($site, $app, $key, $keepData = 'Y') {

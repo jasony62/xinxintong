@@ -24,13 +24,14 @@
         <div class='form-group hide'>
             <select class='form-control' title="排序条件" ng-model='page.orderBy' ng-options='o.v as o.n for o in orderBys' ng-change='doSearch(1)'></select>
         </div>
-        <button class='btn btn-success' ng-click='filter()'>筛选</button>
+        <button class='btn btn-default' ng-click='filter()'>筛选</button>
         <button class='btn btn-success' ng-click='verifyAll()'>全部通过审核</button>
         <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchVerify()'>批量通过审核</button>
         <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-click="notify()">全部发送信息</button>
         <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-disabled="!countSelected()" ng-click="notify(true)">批量发送信息</button>
-        <button class='btn btn-primary' ng-click="export()">导出全部数据</button>
-        <button id='copyRecords' class='btn btn-primary'>复制全部数据</button>
+        <button class='btn btn-default' ng-click="export()">导出全部数据</button>
+        <button id='copyRecords' class='btn btn-default'>复制全部数据</button>
+        <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchTag()'>批量打标签</button>
         <div class='checkbox' ng-if="app.scenario==='registration'"><label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="content.signin"> 包含签到信息</label></div>
     </div>
     <!-- end actions -->
@@ -124,15 +125,3 @@
     </nav>
     <!-- end bottom navbar -->
 </div>
-<script type="text/ng-template" id="userPicker.html">
-    <div class="modal-header">
-        <button class="close" type="button" ng-click="cancel()">×</button>
-        <h5 class="modal-title">选择自定义用户</h5>
-    </div>
-    <div class="modal-body">
-        <userpicker user-set='userSet' user-config='userConfig'></userpicker>
-    </div>
-    <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="ok()">确定</button>
-    </div>
-</script>

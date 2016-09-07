@@ -130,6 +130,9 @@ class signin_model extends app_base {
 		if (empty($tags)) {
 			return false;
 		}
+		if (is_array($tags)) {
+			$tags = implode(',', $tags);
+		}
 
 		$options = array('fields' => 'tags', 'cascaded' => 'N');
 		$app = $this->byId($aid, $options);

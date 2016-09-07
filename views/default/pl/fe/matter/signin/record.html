@@ -21,9 +21,10 @@
                 <combox evt-prefix='search-tag' readonly='true' existing='criteria.tags' options='app.tags'></combox>
             </div>
             <div class='form-group'>
-                <button class='btn btn-success' ng-click='filter()'>筛选</button>
+                <button class='btn btn-default' ng-click='filter()'>筛选</button>
                 <button class='btn btn-primary hide' ng-click="notify()">发送信息</button>
-                <button class='btn btn-primary' ng-click="export()">导出全部数据</button>
+                <button class='btn btn-default' ng-click="export()">导出全部数据</button>
+                <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchTag()'>批量打标签</button>
             </div>
             <div class='form-group pull-right'>
                 <div class='input-group'>
@@ -196,11 +197,11 @@
     <nav class="navbar navbar-default bottom">
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
-                <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/signin/page?site={{siteId}}&id={{id}}">页面设置</a>
-                <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/signin/publish?site={{siteId}}&id={{id}}">发布设置</a>
+                <a class='btn btn-success' href="/rest/pl/fe/matter/signin/page?site={{siteId}}&id={{id}}">页面设置</a>
+                <a class='btn btn-success' href="/rest/pl/fe/matter/signin/publish?site={{siteId}}&id={{id}}">发布设置</a>
             </form>
             <form class="navbar-form navbar-right" style='display:inline-block'>
-                <button class='btn btn-lg btn-default' ng-click="remove()">删除活动</button>
+                <button class='btn btn-default' ng-click="remove()">删除活动</button>
             </form>
         </div>
     </nav>

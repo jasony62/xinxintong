@@ -160,7 +160,7 @@ class record_model extends \TMS_MODEL {
 			'xxt_enroll_record',
 			"enroll_key='$ek'",
 		];
-		if ($fields === '*' && ($record = $this->query_obj_ss($q))) {
+		if (($record = $this->query_obj_ss($q)) && $fields === '*') {
 			$record->data = json_decode($record->data);
 		}
 

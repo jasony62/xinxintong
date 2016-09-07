@@ -102,6 +102,87 @@
             </div>
         </div>
     </div>
+    <!-- access rule -->
+    <div class="panel panel-default" ng-controller="ctrlAccessRule">
+        <div class="panel-heading">用户进入规则</div>
+        <div class="panel-body">
+            <div class='form-group'>
+                <div class='radio'>
+                    <label><input type='radio' value='none' ng-model="rule.scope" ng-change="changeUserScope()">不限用户来源</label>
+                </div>
+                <div class='radio' ng-if="memberSchemas.length">
+                    <label><input type='radio' value='member' ng-model="rule.scope" ng-change="changeUserScope()">限自定义用户访问</label>
+                </div>
+                <div class='radio' ng-if="sns">
+                    <label><input type='radio' value='sns' ng-model="rule.scope" ng-change="changeUserScope()">限公众号关注用户访问</label>
+                </div>
+                <table class='table table-bordered' ng-if="rule.scope==='none'">
+                    <tbody>
+                        <tr>
+                            <td>缺省进入页面</td>
+                            <td style='padding:0'>
+                                <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.otherwise.entry' ng-options="p.name as p.title for p in app.pages"></select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class='table table-bordered' ng-if="rule.scope==='member'">
+                    <tbody>
+                        <tr ng-repeat="ms in memberSchemas">
+                            <td>{{ms.title}}</td>
+                            <td style='padding:0'>
+                                <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model="app.entry_rule.member[ms.id].entry" ng-options="p.name as p.title for p in app.pages">
+                                    <option value=''></option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>不满足条件用户</td>
+                            <td style='padding:0'>
+                                <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.other.entry' ng-options="p.name as p.title for p in pages4NonMember"></select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class='table table-bordered' ng-if="rule.scope==='sns'">
+                    <tbody>
+                        <tr ng-if="sns.wx">
+                            <td>微信公众号关注用户</td>
+                            <td style='padding:0'>
+                                <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.sns.wx.entry' ng-options='p.name as p.title for p in app.pages'>
+                                    <option value=''></option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr ng-if="sns.qy">
+                            <td>微信企业号关注用户</td>
+                            <td style='padding:0'>
+                                <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.sns.qy.entry' ng-options='p.name as p.title for p in app.pages'>
+                                    <option value=''></option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr ng-if="sns.yx">
+                            <td>易信公众号关注用户</td>
+                            <td style='padding:0'>
+                                <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.sns.yx.entry' ng-options='p.name as p.title for p in app.pages'>
+                                    <option value=''></option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>不满足条件用户</td>
+                            <td style='padding:0'>
+                                <select style='border:0' class='form-control' ng-change="updateEntryRule()" ng-model='app.entry_rule.other.entry' ng-options="p.name as p.title for p in pages4Nonfan"></select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class='btn btn-block btn-success' ng-click="reset()">重置进入规则</button>
+            </div>
+        </div>
+    </div>
+    <!-- end access rule -->
     <div class="panel panel-default" ng-if="sns.wx.joined==='Y'||sns.yx.joined==='Y'">
         <div class="panel-heading">公众号分享设置</div>
         <div class="panel-body">
@@ -179,19 +260,17 @@
 <nav class="navbar navbar-default navbar-fixed-bottom">
     <div class="container-fluid" style='text-align:center'>
         <form class="navbar-form" style='display:inline-block'>
-            <a class='btn btn-lg btn-default' href="/rest/pl/fe/matter/signin/schema?site={{siteId}}&id={{id}}">编辑登记项</a>
-            <a class='btn btn-lg btn-default' href='/rest/pl/fe/matter/signin/page?site={{siteId}}&id={{id}}'>页面设置</a>
+            <a class='btn btn-default' href="/rest/pl/fe/matter/signin/schema?site={{siteId}}&id={{id}}">编辑登记项</a>
+            <a class='btn btn-default' href='/rest/pl/fe/matter/signin/page?site={{siteId}}&id={{id}}'>页面设置</a>
         </form>
         <form class="navbar-form navbar-right" style='display:inline-block'>
-            <button class='btn btn-lg btn-default' ng-click="remove()">删除活动</button>
+            <button class='btn btn-default' ng-click="remove()">删除活动</button>
         </form>
     </div>
 </nav>
 <!-- end bottom nav -->
 <script type="text/ng-template" id="appSetting.html">
     <div id="appSetting">
-        <a href="/rest/pl/fe/matter/signin/event?site={{siteId}}&id={{id}}">活动进入规则</a>
-        <hr>
         <div class='tile'>
             <div class='checkbox'>
                 <label>

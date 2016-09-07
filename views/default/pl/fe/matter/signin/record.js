@@ -286,25 +286,84 @@ define(['frame'], function(ngApp) {
                 });
             });
         };
-        $scope.importUser = function() {
+        $scope.batchTag = function() {
             $uibModal.open({
-                templateUrl: "userPicker.html",
-                backdrop: 'static',
-                windowClass: 'auto-height',
-                size: 'lg',
-                controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
-                    $scope.cancel = function() {
-                        $mi.dismiss();
-                    }
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/batchTag.html?_=1',
+                controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
+                    $scope2.appTags = angular.copy(app.tags);
+                    $scope2.data = {
+                        tags: []
+                    };
+                    $scope2.ok = function() {
+                        $mi.close({
+                            tags: $scope2.data.tags,
+                            appTags: $scope2.appTags
+                        });
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss('cancel');
+                    };
+                    $scope2.$on('tag.xxt.combox.done', function(event, aSelected) {
+                        var aNewTags = [];
+                        for (var i in aSelected) {
+                            var existing = false;
+                            for (var j in $scope2.data.tags) {
+                                if (aSelected[i] === $scope2.data.tags[j]) {
+                                    existing = true;
+                                    break;
+                                }
+                            }!existing && aNewTags.push(aSelected[i]);
+                        }
+                        $scope2.data.tags = $scope2.data.tags.concat(aNewTags);
+                    });
+                    $scope2.$on('tag.xxt.combox.add', function(event, newTag) {
+                        $scope2.data.tags.push(newTag);
+                        $scope2.appTags.indexOf(newTag) === -1 && $scope2.appTags.push(newTag);
+                    });
+                    $scope2.$on('tag.xxt.combox.del', function(event, removed) {
+                        $scope2.data.tags.splice($scope2.data.tags.indexOf(removed), 1);
+                    });
                 }],
-            }).result.then(function(selected) {
-                if (selected.members && selected.members.length) {
-                    var members = [];
-                    for (var i in selected.members)
-                        members.push(selected.members[i].data.mid);
-                    http2.post('/rest/pl/fe/matter/signin/record/importUser?aid=' + $scope.id, members, function(rsp) {
-                        for (var i in rsp.data)
-                            $scope.records.splice(0, 0, rsp.data[i]);
+                backdrop: 'static',
+                resolve: {
+                    app: function() {
+                        return $scope.app;
+                    },
+                }
+            }).result.then(function(result) {
+                var record, records = [],
+                    eks = [],
+                    posted = {};
+
+                for (var p in $scope.rows.selected) {
+                    if ($scope.rows.selected[p] === true) {
+                        record = $scope.records[p];
+                        eks.push(record.enroll_key);
+                        records.push(record);
+                    }
+                }
+
+                if (eks.length) {
+                    posted = {
+                        eks: eks,
+                        tags: result.tags,
+                        appTags: result.appTags
+                    };
+                    http2.post('/rest/pl/fe/matter/signin/record/batchTag?site=' + $scope.siteId + '&app=' + $scope.id, posted, function(rsp) {
+                        var i, l, m, n, newTag;
+                        n = result.tags.length;
+                        for (i = 0, l = records.length; i < l; i++) {
+                            record = records[i];
+                            if (!record.tags || record.length === 0) {
+                                record.tags = result.tags.join(',');
+                            } else {
+                                for (m = 0; m < n; m++) {
+                                    newTag = result.tags[m];
+                                    (',' + record.tags + ',').indexOf(newTag) === -1 && (record.tags += ',' + newTag);
+                                }
+                            }
+                        }
+                        $scope.app.tags = result.appTags;
                     });
                 }
             });
@@ -345,6 +404,15 @@ define(['frame'], function(ngApp) {
 
                 saveAs(blob, $scope.app.title + '.csv');
             });
+        };
+        $scope.countSelected = function() {
+            var count = 0;
+            for (var p in $scope.rows.selected) {
+                if ($scope.rows.selected[p] === true) {
+                    count++;
+                }
+            }
+            return count;
         };
         $scope.rows = {
             allSelected: 'N',

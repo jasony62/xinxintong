@@ -137,39 +137,6 @@ define(['frame'], function(ngApp) {
             $scope.criteria.tags.splice(i, 1);
             $scope.doSearch();
         });
-        $scope.$on('batch-tag.xxt.combox.done', function(event, aSelected) {
-            var i, record, records, eks, posted;
-            records = [];
-            eks = [];
-            for (i in $scope.rows.selected) {
-                if ($scope.rows.selected) {
-                    record = $scope.records[i];
-                    eks.push(record.enroll_key);
-                    records.push(record);
-                }
-            }
-            if (eks.length) {
-                posted = {
-                    eks: eks,
-                    tags: aSelected
-                };
-                http2.post('/rest/pl/fe/matter/enroll/record/batchTag?aid=' + $scope.id, posted, function(rsp) {
-                    var i, l, m, n, newTag;
-                    n = aSelected.length;
-                    for (i = 0, l = records.length; i < l; i++) {
-                        record = records[i];
-                        if (!record.tags || record.length === 0) {
-                            record.tags = aSelected.join(',');
-                        } else {
-                            for (m = 0; m < n; m++) {
-                                newTag = aSelected[m];
-                                (',' + record.tags + ',').indexOf(newTag) === -1 && (record.tags += ',' + newTag);
-                            }
-                        }
-                    }
-                });
-            }
-        });
         $scope.memberAttr = function(val, key) {
             var keys;
             if (val && val.member) {
@@ -294,25 +261,84 @@ define(['frame'], function(ngApp) {
                 });
             });
         };
-        $scope.importUser = function() {
+        $scope.batchTag = function() {
             $uibModal.open({
-                templateUrl: "userPicker.html",
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/batchTag.html?_=1',
+                controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
+                    $scope2.appTags = angular.copy(app.tags);
+                    $scope2.data = {
+                        tags: []
+                    };
+                    $scope2.ok = function() {
+                        $mi.close({
+                            tags: $scope2.data.tags,
+                            appTags: $scope2.appTags
+                        });
+                    };
+                    $scope2.cancel = function() {
+                        $mi.dismiss('cancel');
+                    };
+                    $scope2.$on('tag.xxt.combox.done', function(event, aSelected) {
+                        var aNewTags = [];
+                        for (var i in aSelected) {
+                            var existing = false;
+                            for (var j in $scope2.data.tags) {
+                                if (aSelected[i] === $scope2.data.tags[j]) {
+                                    existing = true;
+                                    break;
+                                }
+                            }!existing && aNewTags.push(aSelected[i]);
+                        }
+                        $scope2.data.tags = $scope2.data.tags.concat(aNewTags);
+                    });
+                    $scope2.$on('tag.xxt.combox.add', function(event, newTag) {
+                        $scope2.data.tags.push(newTag);
+                        $scope2.appTags.indexOf(newTag) === -1 && $scope2.appTags.push(newTag);
+                    });
+                    $scope2.$on('tag.xxt.combox.del', function(event, removed) {
+                        $scope2.data.tags.splice($scope2.data.tags.indexOf(removed), 1);
+                    });
+                }],
                 backdrop: 'static',
-                windowClass: 'auto-height',
-                size: 'lg',
-                controller: function($scope, $uibModalInstance) {
-                    $scope.cancel = function() {
-                        $uibModalInstance.dismiss();
+                resolve: {
+                    app: function() {
+                        return $scope.app;
+                    },
+                }
+            }).result.then(function(result) {
+                var record, records = [],
+                    eks = [],
+                    posted = {};
+
+                for (var p in $scope.rows.selected) {
+                    if ($scope.rows.selected[p] === true) {
+                        record = $scope.records[p];
+                        eks.push(record.enroll_key);
+                        records.push(record);
                     }
-                },
-            }).result.then(function(selected) {
-                if (selected.members && selected.members.length) {
-                    var members = [];
-                    for (var i in selected.members)
-                        members.push(selected.members[i].data.mid);
-                    http2.post('/rest/pl/fe/matter/enroll/record/importUser?aid=' + $scope.id, members, function(rsp) {
-                        for (var i in rsp.data)
-                            $scope.records.splice(0, 0, rsp.data[i]);
+                }
+
+                if (eks.length) {
+                    posted = {
+                        eks: eks,
+                        tags: result.tags,
+                        appTags: result.appTags
+                    };
+                    http2.post('/rest/pl/fe/matter/enroll/record/batchTag?site=' + $scope.siteId + '&app=' + $scope.id, posted, function(rsp) {
+                        var i, l, m, n, newTag;
+                        n = result.tags.length;
+                        for (i = 0, l = records.length; i < l; i++) {
+                            record = records[i];
+                            if (!record.tags || record.length === 0) {
+                                record.tags = result.tags.join(',');
+                            } else {
+                                for (m = 0; m < n; m++) {
+                                    newTag = result.tags[m];
+                                    (',' + record.tags + ',').indexOf(newTag) === -1 && (record.tags += ',' + newTag);
+                                }
+                            }
+                        }
+                        $scope.app.tags = result.appTags;
                     });
                 }
             });

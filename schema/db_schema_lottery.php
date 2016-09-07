@@ -91,7 +91,7 @@ $sql .= ",description text";
 $sql .= ",pic text";
 $sql .= ',prob int not null'; //奖品的概率
 $sql .= ",type int not null default 0"; //奖品的类型，0：没有奖品；1：应用内积分；2：再来一次；3：执行任务；99：实物奖品
-$sql .= ',taskid varchar(32) not null'; //任务ID，仅当type==3时有效
+$sql .= ",taskid varchar(32) not null default ''"; //任务ID，仅当type==3时有效
 $sql .= ",period char(1) not null default 'A'"; // A:accumulate;D:day,W:week,M:month,Y:year
 $sql .= ",quantity int not null default 0"; //奖品的参数，例如：【积分】的数量，【再来一次】的次数
 $sql .= ",user_limit int not null default 0"; //用户获取奖品的数量限制

@@ -4,6 +4,7 @@ require_once '../../db.php';
 $sqls = array();
 //
 $sqls[] = "alter table xxt_lottery change summary summary varchar(240) not null default ''";
+$sqls[] = "alter table xxt_lottery_award change taskid taskid varchar(32) not null default ''";
 
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

@@ -198,6 +198,7 @@ class way_model extends \TMS_MODEL {
 	}
 	/**
 	 * 设置 COOKIE
+	 *
 	 * @param string $name
 	 * @param string $value
 	 * @param int $expire
@@ -209,6 +210,7 @@ class way_model extends \TMS_MODEL {
 		if (!$domain and G_COOKIE_DOMAIN) {
 			$domain = G_COOKIE_DOMAIN;
 		}
+
 		return setcookie(G_COOKIE_PREFIX . $name, $value, $expire, $path, $domain, $secure);
 	}
 	/**
@@ -219,6 +221,7 @@ class way_model extends \TMS_MODEL {
 		if (isset($_COOKIE[$cookiename])) {
 			return $_COOKIE[$cookiename];
 		}
+
 		return false;
 	}
 	/**

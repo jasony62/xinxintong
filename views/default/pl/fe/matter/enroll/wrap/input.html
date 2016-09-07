@@ -39,6 +39,9 @@
     <div class="checkbox" ng-show="['name','mobile','email','shorttext'].indexOf(activeWrap.schema.type)!==-1">
         <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeWrap.schema.unique' ng-change="updWrap(schema,'unique')">唯一</label>
     </div>
+    <div class="checkbox" ng-show="'single'===activeWrap.schema.type">
+        <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeWrap.schema.score' ng-change="updWrap(schema,'score')">打分</label>
+    </div>
     <div class="form-group" ng-if="['image','file'].indexOf(activeWrap.schema.type)!==-1">
         <div class="input-group">
             <span class='input-group-addon'>上传数量</span>

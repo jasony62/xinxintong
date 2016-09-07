@@ -24,7 +24,7 @@ class receiver extends \pl\fe\matter\base {
 		return new \ResponseData($receivers);
 	}
 	/**
-	 *
+	 * 检查加入的接收人
 	 */
 	public function afterJoin_action($site, $app, $timestamp = null) {
 		if (false === ($user = $this->accountUser())) {

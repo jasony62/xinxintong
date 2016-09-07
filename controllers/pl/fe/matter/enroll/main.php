@@ -93,8 +93,11 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 创建一个空的登记活动
 	 *
+	 * @param string $site site's id
+	 * @param string $mission mission's id
 	 * @param string $scenario scenario's name
 	 * @param string $template template's name
+	 *
 	 */
 	public function create_action($site, $mission = null, $scenario = null, $template = null) {
 		if (false === ($user = $this->accountUser())) {
@@ -371,11 +374,7 @@ class main extends \pl\fe\matter\base {
 
 		$rst = $model->update('xxt_enroll', $nv, ["id" => $app]);
 		if ($rst) {
-			/*更新级联数据*/
-			if (isset($nv['data_schemas'])) {
-				//$this->_refreshPagesSchema($app);
-			}
-			/*记录操作日志*/
+			// 记录操作日志
 			$matter = $this->model('matter\\enroll')->byId($app, 'id,title,summary,pic');
 			$matter->type = 'enroll';
 			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');

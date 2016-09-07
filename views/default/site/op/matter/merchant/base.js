@@ -60,7 +60,7 @@ define(['require', 'angular'], function(require, angular) {
             window.loading.finish();
         }
     };
-    loadCss("//libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css");
+    loadCss("/static/css/bootstrap.min.css");
     var ngApp = angular.module('app', []);
     ngApp.config(['$controllerProvider', function($cp) {
         ngApp.provider = {

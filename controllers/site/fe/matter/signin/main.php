@@ -39,6 +39,10 @@ class main extends base {
 		empty($app) && $this->outputError('签到活动ID为空');
 
 		$app = $this->modelApp->byId($app, ['cascade' => 'Y']);
+		if ($app === false) {
+			$this->outputError('指定的签到活动不存在，请检查参数是否正确');
+		}
+
 		if (!$this->afterSnsOAuth()) {
 			/* 检查是否需要第三方社交帐号OAuth */
 			$this->_requireSnsOAuth($site, $app);

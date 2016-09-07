@@ -1,6 +1,6 @@
 define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 	'use strict';
-	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'tinymce.enroll', 'ui.xxt']);
+	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'service.signin', 'tinymce.enroll', 'ui.xxt']);
 	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
 		var RouteParam = function(name) {
 			var baseURL = '/views/default/pl/fe/matter/signin/';
@@ -22,6 +22,7 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 		};
 		$routeProvider
 			.when('/rest/pl/fe/matter/signin/page', new RouteParam('page'))
+			.when('/rest/pl/fe/matter/signin/schema', new RouteParam('schema'))
 			.when('/rest/pl/fe/matter/signin/event', new RouteParam('event'))
 			.when('/rest/pl/fe/matter/signin/record', new RouteParam('record'))
 			.when('/rest/pl/fe/matter/signin/publish', new RouteParam('publish'))
@@ -116,7 +117,7 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 				});
 				app.entry_rule.scope === undefined && (app.entry_rule.scope = 'none');
 				angular.forEach(app.pages, function(page) {
-					angular.extend(page, pageLib);
+					pageLib.enhance(page);
 					page.arrange(mapOfAppSchemas);
 				});
 				if (app.enrollApp && app.enrollApp.data_schemas) {

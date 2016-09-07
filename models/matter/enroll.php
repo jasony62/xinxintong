@@ -28,8 +28,14 @@ class enroll_model extends app_base {
 			$url .= "/rest/app/enroll";
 			$url .= "?mpid={$siteId}&aid=" . $id;
 		} else {
-			$url .= "/rest/site/fe/matter/enroll";
-			$url .= "?site={$siteId}&app=" . $id;
+			if ($siteId === 'platform') {
+				$app = $this->byId($id, ['cascaded' => 'N']);
+				$url .= "/rest/site/fe/matter/enroll";
+				$url .= "?site={$app->siteid}&app=" . $id;
+			} else {
+				$url .= "/rest/site/fe/matter/enroll";
+				$url .= "?site={$siteId}&app=" . $id;
+			}
 		}
 
 		return $url;
@@ -100,11 +106,14 @@ class enroll_model extends app_base {
 		if (empty($tags)) {
 			return false;
 		}
+		if (is_array($tags)) {
+			$tags = implode(',', $tags);
+		}
 
 		$options = array('fields' => 'tags', 'cascaded' => 'N');
 		$app = $this->byId($aid, $options);
 		if (empty($app->tags)) {
-			$this->update('xxt_enroll', array('tags' => $tags), "id='$aid'");
+			$this->update('xxt_enroll', ['tags' => $tags], ["id" => $aid]);
 		} else {
 			$existent = explode(',', $app->tags);
 			$checked = explode(',', $tags);
@@ -117,9 +126,10 @@ class enroll_model extends app_base {
 			if (count($updated)) {
 				$updated = array_merge($existent, $updated);
 				$updated = implode(',', $updated);
-				$this->update('xxt_enroll', array('tags' => $updated), "id='$aid'");
+				$this->update('xxt_enroll', ['tags' => $updated], ["id" => $aid]);
 			}
 		}
+
 		return true;
 	}
 	/**

@@ -203,46 +203,50 @@ define(["angular", "xxt-page", 'enroll-directive'], function(angular, codeAssemb
             }
         };
         $http.get(LS.j('get', 'site', 'app', 'rid', 'page', 'ek', 'newRecord')).success(function(rsp) {
-            if (rsp.err_code !== 0) {
-                $scope.errmsg = rsp.err_msg;
-                return;
+            try {
+                if (rsp.err_code !== 0) {
+                    $scope.errmsg = rsp.err_msg;
+                    return;
+                }
+                var params = rsp.data,
+                    site = params.site,
+                    app = params.app,
+                    mission = params.mission;
+                app.data_schemas = JSON.parse(app.data_schemas);
+                $scope.params = params;
+                $scope.site = site;
+                $scope.mission = mission;
+                $scope.app = app;
+                $scope.user = params.user;
+                if (app.multi_rounds === 'Y') {
+                    $scope.activeRound = params.activeRound;
+                }
+                setShareData($scope, params, $http);
+                if (app.use_site_header === 'Y' && site && site.header_page) {
+                    codeAssembler.loadCode(ngApp, site.header_page);
+                }
+                if (app.use_mission_header === 'Y' && mission && mission.header_page) {
+                    codeAssembler.loadCode(ngApp, mission.header_page);
+                }
+                if (app.use_mission_footer === 'Y' && mission && mission.footer_page) {
+                    codeAssembler.loadCode(ngApp, mission.footer_page);
+                }
+                if (app.use_site_footer === 'Y' && site && site.footer_page) {
+                    codeAssembler.loadCode(ngApp, site.footer_page);
+                }
+                codeAssembler.loadCode(ngApp, params.page).then(function() {
+                    $scope.page = params.page;
+                });
+                if (tasksOfOnReady.length) {
+                    angular.forEach(tasksOfOnReady, PG.exec);
+                }
+                $timeout(function() {
+                    $scope.$broadcast('xxt.app.enroll.ready', params);
+                });
+                window.loading.finish();
+            } catch (e) {
+                alert(e.message);
             }
-            var params = rsp.data,
-                site = params.site,
-                app = params.app,
-                mission = params.mission;
-            app.data_schemas = JSON.parse(app.data_schemas);
-            $scope.params = params;
-            $scope.site = site;
-            $scope.mission = mission;
-            $scope.app = app;
-            $scope.user = params.user;
-            if (app.multi_rounds === 'Y') {
-                $scope.activeRound = params.activeRound;
-            }
-            setShareData($scope, params, $http);
-            if (app.use_site_header === 'Y' && site && site.header_page) {
-                codeAssembler.loadCode(ngApp, site.header_page);
-            }
-            if (app.use_mission_header === 'Y' && mission && mission.header_page) {
-                codeAssembler.loadCode(ngApp, mission.header_page);
-            }
-            if (app.use_mission_footer === 'Y' && mission && mission.footer_page) {
-                codeAssembler.loadCode(ngApp, mission.footer_page);
-            }
-            if (app.use_site_footer === 'Y' && site && site.footer_page) {
-                codeAssembler.loadCode(ngApp, site.footer_page);
-            }
-            codeAssembler.loadCode(ngApp, params.page).then(function() {
-                $scope.page = params.page;
-            });
-            if (tasksOfOnReady.length) {
-                angular.forEach(tasksOfOnReady, PG.exec);
-            }
-            $timeout(function() {
-                $scope.$broadcast('xxt.app.enroll.ready', params);
-            });
-            window.loading.finish();
         }).error(function(content, httpCode) {
             if (httpCode === 401) {
                 var el = document.createElement('iframe');

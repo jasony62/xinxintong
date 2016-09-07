@@ -1,30 +1,11 @@
-<p></p>
-<div ng-controller="ctrlStatistic" enroll-statistic="fromCache=Y;interval=600" wrap="statistic" class="form-group">
-<!-- begin: generate by schema -->
-<?php foreach ($this->schema as $def) { 
-$schema=$def->schema;
-if ($schema->type && ($schema->type==='multiple' || $schema->type==='single')) { ?> 
-<table class="table table-bordered"><caption><?php echo $schema->title;?></caption>
-<thead>
-<tr><th>选项</th><th>数量</th></tr>
-</thead>
-<tbody>
-<tr ng-repeat="op in statistic.<?php echo $schema->id; ?>.ops">
-<td>{{op.l}}</td>
-<td>{{op.c}}</td>
-</tr>
-</tbody>
-</table>
-<?php }} ?>
+<div></div>
+<div id="s1" ng-controller="ctrlRecord" wrap="value" schema="c1001" schema-type="single" class="form-group wrap-splitline"><label>投票项1</label>
+<div>{{value2Label("c1001")}}</div>
 </div>
-<p></p>
-<?php foreach ($this->schema as $def) { 
-$schema = $def->schema;
-?>
-<div id="<?php echo $def->config->id;?>" ng-controller="ctrlRecord" wrap="value" class="form-group wrap-inline wrap-splitline" schema="<?php echo $schema->id;?>" schema-type="<?php echo $schema->type;?>"><label><?php echo $schema->title;?></label>
-<div>{{value2Label("<?php echo $schema->id;?>")}}</div>
+<div id="s2" ng-controller="ctrlRecord" wrap="value" schema="c1002" schema-type="single" class="form-group wrap-splitline"><label>投票项2</label>
+<div>{{value2Label("c1002")}}</div>
 </div>
-<?php } ?>
-<!-- end: generate by schema -->
-<p></p>
-<div wrap="button" class="form-group" ng-controller="ctrlRecord"><button id="btnEditRecord_enroll" class="btn btn-primary btn-block btn-lg" ng-click="editRecord($event,'voting')"><span>修改投票</span></button></div>
+<div id="s3" ng-controller="ctrlRecord" wrap="value" schema="c1003" schema-type="single" class="form-group wrap-splitline"><label>投票项3</label>
+<div>{{value2Label("c1003")}}</div>
+</div>
+<div id="act2" class="form-group" wrap="button" ng-controller="ctrlRecord"><button class="btn btn-primary btn-block btn-lg" ng-click="editRecord($event,'voting')"><span>修改投票</span></button></div>

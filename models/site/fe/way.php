@@ -72,12 +72,23 @@ class way_model extends \TMS_MODEL {
 						$siteUser = $modelSiteUser->blank($siteId, true, ['uid' => $cookieUser->uid, 'ufrom' => $snsName, $snsName . '_openid' => $dbSnsUser->openid]);
 					}
 				} else if ($dbSnsUser->openid !== $siteUser->{$snsName . '_openid'}) {
-					// 更新站点用户关联的认证用户信息
-					$modelSiteUser->update(
-						'xxt_site_account',
-						[$snsName . '_openid' => $dbSnsUser->openid],
-						"uid='{$siteUser->uid}'"
-					);
+					$siteUserBefore = $modelSiteUser->byOpenid($siteId, $snsName, $dbSnsUser->openid);
+					if ($siteUserBefore) {
+						// 记录站点用户关联的站点用户
+						$modelSiteUser->update(
+							'xxt_site_account',
+							['assoc_id' => $siteUserBefore->uid],
+							"uid='{$siteUser->uid}'"
+						);
+						$siteUser = $siteUserBefore;
+					} else {
+						// 更新站点用户关联的认证用户信息
+						$modelSiteUser->update(
+							'xxt_site_account',
+							[$snsName . '_openid' => $dbSnsUser->openid],
+							"uid='{$siteUser->uid}'"
+						);
+					}
 				}
 			}
 		} else {
@@ -187,6 +198,7 @@ class way_model extends \TMS_MODEL {
 	}
 	/**
 	 * 设置 COOKIE
+	 *
 	 * @param string $name
 	 * @param string $value
 	 * @param int $expire
@@ -198,6 +210,7 @@ class way_model extends \TMS_MODEL {
 		if (!$domain and G_COOKIE_DOMAIN) {
 			$domain = G_COOKIE_DOMAIN;
 		}
+
 		return setcookie(G_COOKIE_PREFIX . $name, $value, $expire, $path, $domain, $secure);
 	}
 	/**
@@ -208,6 +221,7 @@ class way_model extends \TMS_MODEL {
 		if (isset($_COOKIE[$cookiename])) {
 			return $_COOKIE[$cookiename];
 		}
+
 		return false;
 	}
 	/**

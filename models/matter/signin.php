@@ -24,7 +24,12 @@ class signin_model extends app_base {
 	public function getEntryUrl($siteId, $id) {
 		$url = "http://" . $_SERVER['HTTP_HOST'];
 		$url .= "/rest/site/fe/matter/signin";
-		$url .= "?site={$siteId}&app=" . $id;
+		if ($siteId === 'platform') {
+			$app = $this->byId($id, ['cascaded' => 'N']);
+			$url .= "?site={$app->siteid}&app=" . $id;
+		} else {
+			$url .= "?site={$siteId}&app=" . $id;
+		}
 
 		return $url;
 	}
@@ -100,11 +105,33 @@ class signin_model extends app_base {
 		return $result;
 	}
 	/**
+	 * 返回和登记活动关联的签到活动
+	 */
+	public function &byEnroll($enrollAppId) {
+		$q = [
+			'*',
+			'xxt_signin',
+			"state<>0 and enroll_app_id='$enrollAppId'",
+		];
+		$q2['o'] = 'create_at asc';
+
+		$apps = $this->query_objs_ss($q, $q2);
+		$modelRnd = \TMS_APP::M('matter\signin\round');
+		foreach ($apps as &$app) {
+			$app->rounds = $modelRnd->byApp($app->id);
+		}
+
+		return $apps;
+	}
+	/**
 	 * 更新登记活动标签
 	 */
 	public function updateTags($aid, $tags) {
 		if (empty($tags)) {
 			return false;
+		}
+		if (is_array($tags)) {
+			$tags = implode(',', $tags);
 		}
 
 		$options = array('fields' => 'tags', 'cascaded' => 'N');

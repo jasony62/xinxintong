@@ -22,7 +22,12 @@ class article2_model extends article_base {
 	public function getEntryUrl($siteId, $id, $userid = null) {
 		$url = "http://" . $_SERVER['HTTP_HOST'];
 		$url .= "/rest/site/fe/matter";
-		$url .= "?site={$siteId}&id={$id}&type=article";
+		if ($siteId === 'platform') {
+			$article = $this->byId($id);
+			$url .= "?site={$article->siteid}&id={$id}&type=article";
+		} else {
+			$url .= "?site={$siteId}&id={$id}&type=article";
+		}
 
 		return $url;
 	}

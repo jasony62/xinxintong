@@ -82,7 +82,7 @@ class record extends \pl\fe\matter\base {
 		if ($result->total > 0) {
 			foreach ($result->records as &$record) {
 				$q = [
-					'enroll_at,signin_at,signin_num,data,signin_log',
+					'enroll_at,signin_at,signin_num,data,signin_log,tags,comment',
 					'xxt_signin_record',
 					"state=1 and aid='{$signinApp->id}' and verified_enroll_key='$record->enroll_key'",
 				];
@@ -384,13 +384,13 @@ class record extends \pl\fe\matter\base {
 				$q = [
 					'count(*)',
 					'xxt_signin_record_data',
-					"enroll_key='$ek' and name='$cn'",
+					"aid='$app' and enroll_key='$ek' and name='$cn'",
 				];
 				if (1 === (int) $modelRec->query_val_ss($q)) {
 					$modelRec->update(
 						'xxt_signin_record_data',
 						['value' => $cv],
-						"enroll_key='$ek' and name='$cn'"
+						"aid='$app' and enroll_key='$ek' and name='$cn'"
 					);
 				} else {
 					$cd = [
@@ -421,6 +421,43 @@ class record extends \pl\fe\matter\base {
 		$this->model('matter\log')->matterOp($site, $user, $app, 'update', $record);
 
 		return new \ResponseData($record);
+	}
+	/**
+	 * 给记录批量添加标签
+	 */
+	public function batchTag_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$posted = $this->getPostJson();
+		$eks = $posted->eks;
+		$tags = $posted->tags;
+
+		/**
+		 * 给记录打标签
+		 */
+		$modelRec = $this->model('matter\signin\record');
+		if (!empty($eks) && !empty($tags)) {
+			foreach ($eks as $ek) {
+				$record = $modelRec->byId($ek);
+				$existent = $record->tags;
+				if (empty($existent)) {
+					$aNew = $tags;
+				} else {
+					$aExistent = explode(',', $existent);
+					$aNew = array_unique(array_merge($aExistent, $tags));
+				}
+				$newTags = implode(',', $aNew);
+				$modelRec->update('xxt_signin_record', ['tags' => $newTags], "enroll_key='$ek'");
+			}
+		}
+		/**
+		 * 给应用打标签
+		 */
+		$this->model('matter\signin')->updateTags($app, $posted->appTags);
+
+		return new \ResponseData('ok');
 	}
 	/**
 	 * 清空一条登记信息
@@ -636,7 +673,7 @@ class record extends \pl\fe\matter\base {
 		// 登记应用
 		$enrollApp = $this->model('matter\enroll')->byId(
 			$signinApp->enroll_app_id,
-			['fields' => 'id,title,data_schemas', 'cascaded' => 'N']
+			['fields' => 'id,title,data_schemas,scenario', 'cascaded' => 'N']
 		);
 		$schemas = json_decode($enrollApp->data_schemas);
 
@@ -656,6 +693,8 @@ class record extends \pl\fe\matter\base {
 		foreach ($schemas as $schema) {
 			$titles[] = $schema->title;
 		}
+		$titles[] = '报名备注';
+		$titles[] = '报名标签';
 		if (empty($round)) {
 			$titles[] = '签到次数';
 			foreach ($signinApp->rounds as $rnd) {
@@ -664,6 +703,9 @@ class record extends \pl\fe\matter\base {
 		} else {
 			$titles[] = '签到时间';
 		}
+		$titles[] = '签到备注';
+		$titles[] = '签到标签';
+
 		$titles = implode("\t", $titles);
 		$size += strlen($titles);
 		$exportedData[] = $titles;
@@ -707,10 +749,12 @@ class record extends \pl\fe\matter\base {
 					break;
 				}
 			}
+			$row[] = $record->comment;
+			$row[] = $record->tags;
 
 			// 获得对应的签到数据
 			$q = [
-				'enroll_at,signin_num,data,signin_log',
+				'enroll_at,signin_num,data,signin_log,tags,comment',
 				'xxt_signin_record',
 				"state=1 and aid='{$signinApp->id}' and verified_enroll_key='$record->enroll_key'",
 			];
@@ -729,6 +773,8 @@ class record extends \pl\fe\matter\base {
 				} else {
 					$row[] = date('y-m-j H:i', $signinLog->{$round});
 				}
+				$row[] = $signinRecord->comment;
+				$row[] = $signinRecord->tags;
 			} else {
 				if (empty($round)) {
 					foreach ($signinApp->rounds as $rnd) {
@@ -737,6 +783,8 @@ class record extends \pl\fe\matter\base {
 				} else {
 					$row[] = '';
 				}
+				$row[] = ''; // empty comment
+				$row[] = ''; // empty tags
 			}
 
 			// 将数据转换为'|'分隔的字符串

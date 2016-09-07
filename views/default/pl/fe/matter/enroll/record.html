@@ -13,7 +13,7 @@
         <div class='form-group pull-right'>
             <div class='input-group'>
                 <span class="input-group-addon">每页条数</span>
-                <input class='form-control' ng-model='page.size' style='width:48px'>
+                <input class='form-control' ng-model='page.size' style='width:64px'>
                 <span class='input-group-btn'>
                     <button class='btn btn-default' ng-click='doSearch(1)'>
                         <span class='glyphicon glyphicon-refresh'></span>
@@ -24,11 +24,15 @@
         <div class='form-group hide'>
             <select class='form-control' title="排序条件" ng-model='page.orderBy' ng-options='o.v as o.n for o in orderBys' ng-change='doSearch(1)'></select>
         </div>
-        <button class='btn btn-success' ng-click='filter()'>筛选</button>
+        <button class='btn btn-default' ng-click='filter()'>筛选</button>
         <button class='btn btn-success' ng-click='verifyAll()'>全部通过审核</button>
         <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchVerify()'>批量通过审核</button>
-        <button class='btn btn-primary' ng-disabled="!countSelected()" ng-click="notify()">发送信息</button>
-        <button class='btn btn-primary' ng-click="export()">导出全部数据</button>
+        <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-click="notify()">全部发送信息</button>
+        <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-disabled="!countSelected()" ng-click="notify(true)">批量发送信息</button>
+        <button class='btn btn-default' ng-click="export()">导出全部数据</button>
+        <button id='copyRecords' class='btn btn-default'>复制全部数据</button>
+        <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchTag()'>批量打标签</button>
+        <div class='checkbox' ng-if="app.scenario==='registration'"><label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="content.signin"> 包含签到信息</label></div>
     </div>
     <!-- end actions -->
     <!-- records -->
@@ -51,6 +55,7 @@
                         <th style='width:140px' ng-if="app.tags.length">标签</th>
                         <th style='width:140px'>备注</th>
                         <th style='width:60px' ng-if="app.can_invite==='Y'">邀请</th>
+                        <th ng-if="content.signin==='Y'" ng-repeat="rnd in signinRounds"><span>{{rnd._app.title+rnd.title}}</span></th>
                         <th style='width:72px'>操作</th>
                     </tr>
                 </thead>
@@ -84,6 +89,7 @@
                         <td ng-if="app.tags.length">{{r.tags}}</td>
                         <td>{{r.comment}}</td>
                         <td ng-if="app.can_invite==='Y'">{{r.follower_num}}</td>
+                        <td ng-if="content.signin==='Y'" ng-repeat="rnd in signinRounds"><span ng-class="{'signin_late':isSigninLate(rnd,r)}">{{signinAt(rnd,r)}}</span></td>
                         <td>
                             <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
                                 <span class='glyphicon glyphicon-remove'></span>
@@ -108,26 +114,14 @@
     <nav class="navbar navbar-default bottom">
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
-                <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布设置</a>
-                <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/enroll/page?site={{siteId}}&id={{id}}">页面设置</a>
-                <a class='btn btn-lg btn-success' href="/rest/pl/fe/matter/enroll/stat?site={{siteId}}&id={{id}}" ng-if="app.scenario==='voting'">统计图表</a>
+                <a class='btn btn-success' href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布设置</a>
+                <a class='btn btn-success' href="/rest/pl/fe/matter/enroll/page?site={{siteId}}&id={{id}}">页面设置</a>
+                <a class='btn btn-success' href="/rest/pl/fe/matter/enroll/stat?site={{siteId}}&id={{id}}" ng-if="app.scenario==='voting'">统计图表</a>
             </form>
             <form class="navbar-form navbar-right" style='display:inline-block'>
-                <button class='btn btn-lg btn-default' ng-click="remove()">删除活动</button>
+                <button class='btn btn-default' ng-click="remove()">删除活动</button>
             </form>
         </div>
     </nav>
     <!-- end bottom navbar -->
 </div>
-<script type="text/ng-template" id="userPicker.html">
-    <div class="modal-header">
-        <button class="close" type="button" ng-click="cancel()">×</button>
-        <h5 class="modal-title">选择自定义用户</h5>
-    </div>
-    <div class="modal-body">
-        <userpicker user-set='userSet' user-config='userConfig'></userpicker>
-    </div>
-    <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="ok()">确定</button>
-    </div>
-</script>

@@ -152,17 +152,16 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 根据ID返回登记记录
 	 */
-	public function byId($ek, $options = array()) {
+	public function &byId($ek, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
 
-		$q = array(
+		$q = [
 			$fields,
 			'xxt_enroll_record',
 			"enroll_key='$ek'",
-		);
-		if (($record = $this->query_obj_ss($q)) && $cascaded === 'Y') {
-			$record->data = $this->dataById($ek);
+		];
+		if (($record = $this->query_obj_ss($q)) && $fields === '*') {
+			$record->data = json_decode($record->data);
 		}
 
 		return $record;
@@ -233,28 +232,28 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 为了计算每条记录的分数，转换schema的形式
 	 */
-	private function _mapOfSingleSchema(&$app) {
-		$singleSchemas = new \stdClass;
+	private function _mapOfScoreSchema(&$app) {
+		$scoreSchemas = new \stdClass;
 
 		$schemas = is_object($app->data_schemas) ? $app->data_schemas : json_decode($app->data_schemas);
 		foreach ($schemas as $schema) {
-			if ($schema->type === 'single') {
-				$singleSchemas->{$schema->id} = new \stdClass;
-				$singleSchemas->{$schema->id}->ops = new \stdClass;
+			if ($schema->type === 'single' && isset($schema->score) && $schema->score === 'Y') {
+				$scoreSchemas->{$schema->id} = new \stdClass;
+				$scoreSchemas->{$schema->id}->ops = new \stdClass;
 				foreach ($schema->ops as $op) {
-					$singleSchemas->{$schema->id}->ops->{$op->v} = $op;
+					$scoreSchemas->{$schema->id}->ops->{$op->v} = $op;
 				}
 			}
 		}
 
-		return $singleSchemas;
+		return $scoreSchemas;
 	}
 	/**
 	 * 计算记录的分数
 	 */
-	private function _calcScore(&$singleSchemas, &$data) {
+	private function _calcScore(&$scoreSchemas, &$data) {
 		$score = 0;
-		foreach ($singleSchemas as $schemaId => $schema) {
+		foreach ($scoreSchemas as $schemaId => $schema) {
 			if (!empty($data->{$schemaId})) {
 				$opScore = empty($schema->ops->{$data->{$schemaId}}->score) ? 0 : $schema->ops->{$data->{$schemaId}}->score;
 				$score += $opScore;
@@ -385,12 +384,12 @@ class record_model extends \TMS_MODEL {
 				}
 				// 记录的分数
 				if ($app->scenario === 'voting') {
-					if (!isset($singleSchemas)) {
-						$singleSchemas = $this->_mapOfSingleSchema($app);
-						$countSingleSchemas = count(array_keys((array) $singleSchemas));
+					if (!isset($scoreSchemas)) {
+						$scoreSchemas = $this->_mapOfScoreSchema($app);
+						$countScoreSchemas = count(array_keys((array) $scoreSchemas));
 					}
-					$r->_score = $this->_calcScore($singleSchemas, $data);
-					$r->_average = $r->_score / $countSingleSchemas;
+					$r->_score = $this->_calcScore($scoreSchemas, $data);
+					$r->_average = $countScoreSchemas === 0 ? 0 : $r->_score / $countScoreSchemas;
 				}
 				// 获得邀请数据
 				if (isset($app->can_invite) && $app->can_invite === 'Y') {
@@ -471,20 +470,27 @@ class record_model extends \TMS_MODEL {
 	 */
 	public function getLast($siteId, $app, $user, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$q = array(
+
+		$q = [
 			$fields,
 			'xxt_enroll_record',
 			"siteid='$siteId' and aid='{$app->id}' and state=1",
-		);
+		];
 		$q[2] .= " and userid='{$user->uid}'";
 		if ($activeRound = \TMS_APP::M('matter\enroll\round')->getActive($siteId, $app->id)) {
 			$q[2] .= " and rid='$activeRound->rid'";
 		}
-		$q2 = array(
+		$q2 = [
 			'o' => 'enroll_at desc',
-			'r' => array('o' => 0, 'l' => 1),
-		);
+			'r' => ['o' => 0, 'l' => 1],
+		];
 		$records = $this->query_objs_ss($q, $q2);
+
+		if ($fields === '*') {
+			foreach ($records as &$record) {
+				$record->data = json_decode($record->data);
+			}
+		}
 
 		return count($records) === 1 ? $records[0] : false;
 	}

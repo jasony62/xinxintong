@@ -566,36 +566,26 @@ class record extends base {
 		$modelRec = $this->model('matter\enroll\record');
 		$openedek = $ek;
 		$record = null;
-		$options = array('cascaded' => 'N');
-		$app = $modelApp->byId($app, $options);
+
+		$app = $modelApp->byId($app, ['cascaded' => 'N']);
 		/*当前访问用户的基本信息*/
 		$user = $this->who;
 		/**登记数据*/
 		if (empty($openedek)) {
-			/*获得最后一条登记数据。登记记录有可能未进行过登记*/
-			$options = array(
-				'fields' => '*',
-			);
-			$record = $modelRec->getLast($site, $app, $user, $options);
+			// 获得最后一条登记数据。登记记录有可能未进行过登记
+			$record = $modelRec->getLast($site, $app, $user, ['fields' => '*']);
 			if ($record) {
 				$openedek = $record->enroll_key;
-				if ($record->enroll_at) {
-					$record->data = $modelRec->dataById($openedek);
-				}
 			}
 		} else {
-			/*打开指定的登记记录*/
+			// 打开指定的登记记录
 			$record = $modelRec->byId($openedek);
 		}
+
 		/**互动数据*/
 		if (!empty($openedek)) {
 			/*登记人信息*/
 			$record->enroller = $user;
-			if (!empty($record->data['member'])) {
-				$record->data['member'] = json_decode($record->data['member']);
-			} else if (isset($record->data['member'])) {
-				$record->data['member'] = new \stdClass;
-			}
 			/*获得关联抽奖活动记录*/
 			$ql = array(
 				'award_title',

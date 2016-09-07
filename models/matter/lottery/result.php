@@ -137,8 +137,11 @@ class result_model extends \TMS_MODEL {
 		 * 更新抽奖状态
 		 */
 		if ($takeaway) {
-			$w = "lid='$lid' and userid='$userid' and last='Y'";
-			$this->update('xxt_lottery_log', array('takeaway' => 'Y'), $w);
+			$this->update(
+				'xxt_lottery_log',
+				['takeaway' => 'Y'],
+				["lid" => $lid, "userid" => $user->uid, "last" => 'Y']
+			);
 		}
 
 		return $takeaway;

@@ -1,0 +1,72 @@
+<div id='schema-view' ng-controller="ctrlList">
+    <div class='' style='width:290px;position:fixed;top:72px'>
+        <!--create schema-->
+        <div class='form-group tile'>
+            <div class='help-block'>添加用户填写项</div>
+            <div class='flexrow'>
+                <button class='btn btn-default' ng-click="newSchema('name')">姓名</button>
+                <button class='btn btn-default' ng-click="newSchema('mobile')">手机</button>
+                <button class='btn btn-default' ng-click="newSchema('email')">邮箱</button>
+            </div>
+            <div class='flexrow'>
+                <button class='btn btn-default' ng-click="newSchema('date')">日期</button>
+                <button class='btn btn-default' ng-click="newSchema('shorttext')">单行文本</button>
+                <button class='btn btn-default' ng-click="newSchema('longtext')">多行文本</button>
+            </div>
+            <div class='flexrow'>
+                <button class='btn btn-default' ng-click="newSchema('single')">单选题</button>
+                <button class='btn btn-default' ng-click="newSchema('multiple')">多选题</button>
+                <button class='btn btn-default' ng-click="newSchema('image')">上传图片</button>
+            </div>
+            <div class='flexrow'>
+                <button class='btn btn-default' ng-click="newSchema('file')">上传文件</button>
+                <button class='btn btn-default' ng-click="newSchema('location')">上传位置</button>
+                <button class='btn btn-default' ng-click="newSchema('phase')">项目阶段</button>
+            </div>
+        </div>
+        <div class='form-group tile' ng-if="app.scenario==='voting'">
+            <button class='btn btn-default' ng-click="batchSingleScore()">批量设置单选题分值</button>
+        </div>
+        <div class='form-group tile' ng-repeat="ms in memberSchemas">
+            <div class='help-block'>{{ms.title}}</div>
+            <button class='btn btn-default' ng-click="newMember(ms,s)" ng-repeat="s in ms._schemas">{{s.title}}</button>
+        </div>
+        <!-- end create schema -->
+    </div>
+    <!-- schema list -->
+    <div class='col-md-6 col-md-offset-3'>
+        <div dnd-list dataset='appSchemas' evt-prefix="schemas" class='schemas'>
+            <div data-schema-index="{{$index}}" class='dndable schema' ng-class="schema.type" ng-repeat="schema in appSchemas">
+                <div class='title' uib-popover-template="schemaPopoverHtml()" popover-append-to-body='true' popover-placement="right" popover-trigger="show" popover-title="{{schema.title}}" ng-click="chooseSchema($event,schema)">
+                    <div editable prop='title' obj='schema' evt-prefix='title' no-remove="Y"></div>
+                </div>
+                <div ng-include="schemaHtml(schema)"></div>
+                <div class='actions'>
+                    <button class="btn btn-default btn-sm" ng-if="['single','phase','multiple'].indexOf(schema.type)!==-1" ng-click="addOption(schema)">添加选项</button>
+                    <button class="btn btn-default btn-sm" ng-click="copySchema(schema)">复制登记项</button>
+                    <button class='btn btn-sm btn-default' ng-click="upSchema(schema)"><span class='glyphicon glyphicon-arrow-up'></span></button>
+                    <button class='btn btn-sm btn-default' ng-click="downSchema(schema)"><span class='glyphicon glyphicon-arrow-down'></span></button>
+                    <button class='btn btn-sm btn-default' ng-click="removeSchema(schema)"><span class='glyphicon glyphicon-trash'></span></button>
+                </div>
+            </div>
+        </div>
+        <div class='checkbox'>
+            <label class='checkbox-inline'><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.__schemasOrderConsistent">页面显示顺序保持一致</label>
+        </div>
+    </div>
+    <!-- end schema list -->
+    <!-- bottom navbar-->
+    <nav class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container-fluid" style='text-align:center'>
+            <form class="navbar-form" style='display:inline-block'>
+                <a class='btn btn-default' href="/rest/pl/fe/matter/enroll/page?site={{siteId}}&id={{id}}">编辑页面</a>
+                <button class='btn btn-success' ng-click="updPage(ep,['data_schemas','act_schemas','html'])">保存修改</button>
+                <a class='btn btn-success' href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布设置</a>
+            </form>
+            <form class="navbar-form navbar-right" style='display:inline-block'>
+                <button class='btn btn-default' ng-click="remove()">删除活动</button>
+            </form>
+        </div>
+    </nav>
+    <!-- end bottom navbar-->
+</div>

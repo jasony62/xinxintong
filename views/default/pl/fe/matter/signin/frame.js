@@ -164,13 +164,15 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 				}
 				(function() {
 					var i, ea;
-					for (var i = ms.extattr.length - 1; i >= 0; i--) {
-						ea = ms.extattr[i];
-						schemas.push({
-							id: 'member.extattr.' + ea.id,
-							title: ea.label,
-						});
-					};
+					if (ms.extattr) {
+						for (i = ms.extattr.length - 1; i >= 0; i--) {
+							ea = ms.extattr[i];
+							schemas.push({
+								id: 'member.extattr.' + ea.id,
+								title: ea.label,
+							});
+						};
+					}
 				})();
 				ms._schemas = schemas;
 			});

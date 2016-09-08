@@ -7,6 +7,43 @@ class fan_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
+	public function &bySite($siteId, $page = 1, $size = 30, $options = []) {
+		$result = new \stdClass;
+
+		$q[] = 'f.openid,f.subscribe_at,f.nickname,f.sex,f.city';
+		$q[] = 'xxt_site_yxfan f';
+		$w = "f.siteid='$siteId' and f.unsubscribe_at=0 and f.forbidden='N'";
+		/**
+		 * search by keyword
+		 */
+		if (!empty($keyword)) {
+			$w .= " and (f.nickname like '%$keyword%'";
+			$w .= ")";
+		}
+		/**
+		 * search by group
+		 */
+		if (!empty($gid)) {
+			$w .= " and f.groupid=$gid";
+		}
+		$q[] = $w;
+
+		/**
+		 * order by and pagination
+		 */
+		$q2['o'] = 'subscribe_at desc';
+		$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+
+		if ($result->fans = $this->query_objs_ss($q, $q2)) {
+			$q[0] = 'count(*)';
+			$result->total = (int) $this->query_val_ss($q);
+		}
+
+		return $result;
+	}
+	/**
+	 *
+	 */
 	public function &byOpenid($siteid, $openid, $fields = '*', $followed = null) {
 		$q = array(
 			$fields,

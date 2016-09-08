@@ -8,6 +8,13 @@ ul{margin:0;padding:0}
 </div>
 <div class="modal-body">
     <form class="form-horizontal">
+    <div class="form-group">
+            <label class="col-md-3 control-label">签到时间</label>
+            <div class="col-md-7">
+                <label class='radio-inline'><input type='radio' name='late' value='Y' ng-model="criteria.late">迟到</label>
+                <label class='radio-inline'><input type='radio' name='late' value='' ng-model="criteria.late">全部</label>
+            </div>
+        </div>
         <div class="form-group">
             <label class="col-md-3 control-label">验证通过</label>
             <div class="col-md-7">

@@ -90,6 +90,7 @@ define(['frame'], function(ngApp) {
         };
         // 过滤条件
         $scope.criteria = {
+            late: '',
             record: {
                 searchBy: '',
                 keyword: '',
@@ -200,7 +201,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.filter = function() {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/signin/component/recordFilter.html?_=1',
+                templateUrl: '/views/default/pl/fe/matter/signin/component/recordFilter.html?_=2',
                 controller: 'ctrlSigninFilter',
                 windowClass: 'auto-height',
                 backdrop: 'static',
@@ -219,7 +220,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.editRecord = function(record) {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/signin/component/recordEditor.html?_=3',
+                templateUrl: '/views/default/pl/fe/matter/signin/component/recordEditor.html?_=4',
                 controller: 'ctrlEditor',
                 backdrop: 'static',
                 windowClass: 'auto-height middle-width',
@@ -252,7 +253,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.addRecord = function() {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/signin/component/recordEditor.html?_=3',
+                templateUrl: '/views/default/pl/fe/matter/signin/component/recordEditor.html?_=4',
                 controller: 'ctrlEditor',
                 windowClass: 'auto-height middle-width',
                 resolve: {
@@ -701,12 +702,12 @@ define(['frame'], function(ngApp) {
             return data;
         };
         if (record.data) {
-            angular.forEach(app.data_schemas, function(col) {
+            app.data_schemas.forEach(function(col) {
                 if (record.data[col.id]) {
                     _convertRecord(col, record.data);
                 }
             });
-            angular.forEach(enrollDataSchemas, function(col) {
+            enrollDataSchemas.forEach(function(col) {
                 if (record.data[col.id]) {
                     _convertRecord(col, record.data);
                 }

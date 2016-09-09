@@ -28,8 +28,8 @@ define(['main'], function(ngApp) {
             var data = {
                 id: $scope.selectedMatter.id,
                 type: $scope.matterType,
-                userSet: [{
-                    identity: -1
+                groups: [{
+                    id: -1
                 }],
             };
             http2.post('/rest/pl/fe/site/sns/wx/send/mass?site=' + $scope.siteId, data, function(rsp) {
@@ -39,5 +39,9 @@ define(['main'], function(ngApp) {
             });
         };
         $scope.fetchMatter();
+
+        http2.get('/rest/pl/fe/site/sns/wx/group/list?site=' + $scope.siteId, function(rsp) {
+            $scope.groups = rsp.data;
+        });
     }]);
 });

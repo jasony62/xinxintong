@@ -8,6 +8,9 @@ class fan_model extends \TMS_MODEL {
 	 *
 	 */
 	public function &bySite($siteId, $page = 1, $size = 30, $options = []) {
+		$keyword = isset($options['keyword']) ? $options['keyword'] : null;
+		$gid = isset($options['gid']) ? $options['gid'] : null;
+
 		$result = new \stdClass;
 
 		$q[] = 'f.openid,f.subscribe_at,f.nickname,f.sex,f.city';
@@ -96,12 +99,12 @@ class fan_model extends \TMS_MODEL {
 	/**
 	 * 创建空的关注用户
 	 */
-	public function &blank($siteid, $openid, $persisted = true, $options = array()) {
+	public function &blank($siteId, $openid, $persisted = true, $options = array()) {
 		$fan = new \stdClass;
-		$fan->siteid = $siteid;
+		$fan->siteid = $siteId;
 		$fan->openid = $openid;
 		//!empty($options['userid']) && $fan->userid = $options['userid'];
-		!empty($options['subscribe_at']) && $fan->subscribe_at = $options['subscribe_at'];
+		$fan->subscribe_at = isset($options['subscribe_at']) ? $options['subscribe_at'] : 0;
 		!empty($options['sync_at']) && $fan->sync_at = $options['sync_at'];
 
 		$fan->nickname = isset($options['nickname']) ? $options['nickname'] : '';
@@ -112,6 +115,8 @@ class fan_model extends \TMS_MODEL {
 		isset($options['city']) && $fan->city = $options['city'];
 
 		$fan->id = $this->insert('xxt_site_wxfan', $fan, true);
+
+		$fan = $this->byOpenid($siteId, $openid);
 
 		return $fan;
 	}

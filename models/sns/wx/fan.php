@@ -105,7 +105,7 @@ class fan_model extends \TMS_MODEL {
 		$fan->openid = $openid;
 		//!empty($options['userid']) && $fan->userid = $options['userid'];
 		$fan->subscribe_at = isset($options['subscribe_at']) ? $options['subscribe_at'] : 0;
-		!empty($options['sync_at']) && $fan->sync_at = $options['sync_at'];
+		$fan->sync_at = isset($options['sync_at']) ? $options['sync_at'] : 0;
 
 		$fan->nickname = isset($options['nickname']) ? $options['nickname'] : '';
 		isset($options['sex']) && $fan->sex = $options['sex'];

@@ -22,6 +22,8 @@ define(['require'], function(require) {
         $lp.html5Mode(true);
         $rp
             .when('/rest/pl/fe/site/sns/yx/setting', new RouteParam('setting'))
+            .when('/rest/pl/fe/site/sns/yx/massmsg', new RouteParam('massmsg'))
+            .when('/rest/pl/fe/site/sns/yx/user', new RouteParam('user'))
             .when('/rest/pl/fe/site/sns/yx/text', new RouteParam('text'))
             .when('/rest/pl/fe/site/sns/yx/menu', new RouteParam('menu'))
             .when('/rest/pl/fe/site/sns/yx/qrcode', new RouteParam('qrcode'))

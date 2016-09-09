@@ -116,24 +116,9 @@ class fan_model extends \TMS_MODEL {
 
 		$fan->id = $this->insert('xxt_site_wxfan', $fan, true);
 
-		$fan = $this->byOpenid($siteId, $openid);
+		//$fan = $this->byOpenid($siteId, $openid);
 
 		return $fan;
-	}
-	/**
-	 *
-	 */
-	public function &getGroups($siteid) {
-		$q = [
-			'id,name',
-			'xxt_site_wxfangroup',
-			"siteid='$siteid'",
-		];
-		$q2 = array('o' => 'id');
-
-		$groups = $this->query_objs_ss($q, $q2);
-
-		return $groups;
 	}
 	/**
 	 *

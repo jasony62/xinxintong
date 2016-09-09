@@ -37,9 +37,9 @@ class main extends \TMS_CONTROLLER {
 	/**
 	 * 创建新页面
 	 */
-	public function create_action() {
+	public function create_action($site) {
 		$uid = \TMS_CLIENT::get_client_uid();
-		$page = $this->model('code\page')->create($uid);
+		$page = $this->model('code\page')->create($site,$uid);
 
 		return new \ResponseData($page);
 	}

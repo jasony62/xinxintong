@@ -23,6 +23,8 @@ define(['require'], function(require) {
         };
         $rp
             .when('/rest/pl/fe/site/sns/wx/setting', new RouteParam('setting'))
+            .when('/rest/pl/fe/site/sns/wx/massmsg', new RouteParam('massmsg'))
+            .when('/rest/pl/fe/site/sns/wx/user', new RouteParam('user'))
             .when('/rest/pl/fe/site/sns/wx/text', new RouteParam('text'))
             .when('/rest/pl/fe/site/sns/wx/menu', new RouteParam('menu'))
             .when('/rest/pl/fe/site/sns/wx/qrcode', new RouteParam('qrcode'))

@@ -1,4 +1,6 @@
-xxtApp.controller('mainCtrl', ['$scope', 'http2', function($scope, http2) {
+xxtApp.controller('mainCtrl', ['$scope', 'http2', '$location',function($scope, http2, $location) {
+    var ls = $location.search();
+    $scope.siteId = ls.site;
     $scope.page = {
         at: 1,
         size: 30
@@ -18,7 +20,7 @@ xxtApp.controller('mainCtrl', ['$scope', 'http2', function($scope, http2) {
         if (pid)
             location.href = '/rest/code?pid=' + pid;
         else {
-            http2.get('/rest/code/create', function(rsp) {
+            http2.get('/rest/code/create?site=' + $scope.siteId, function(rsp) {
                 location.href = '/rest/code?pid=' + rsp.data.id;
             });
         }

@@ -384,6 +384,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
         restrict: 'EA',
         scope: {
             date: '=tmsDate',
+            defaultDate: '@tmsDefaultDate',
             mask: '@tmsMask', //y,m,d,h,i
             title: '@tmsTitle',
             state: '@tmsState',
@@ -438,17 +439,23 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                     templateUrl: 'tmsModalDatepicker.html',
                     resolve: {
                         date: function() {
-
                             return $scope.date;
+                        },
+                        defaultDate: function() {
+                            return $scope.defaultDate;
                         },
                         mask: function() {
                             return mask;
                         }
                     },
-                    controller: ['$scope', '$filter', '$uibModalInstance', 'date', 'mask', function($scope, $filter, $mi, date, mask) {
+                    controller: ['$scope', '$filter', '$uibModalInstance', 'date', 'defaultDate', 'mask', function($scope, $filter, $mi, date, defaultDate, mask) {
                         date = (function() {
                             var d = new Date();
-                            d.setTime(date == 0 ? d.getTime() : date * 1000);
+                            if (defaultDate) {
+                                d.setTime(defaultDate ? defaultDate * 1000 : d.getTime());
+                            } else {
+                                d.setTime(date ? date * 1000 : d.getTime());
+                            }
                             d.setMilliseconds(0);
                             d.setSeconds(0);
                             if (mask.i !== true) {
@@ -592,7 +599,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
                 scope.$apply(function() {
                     scope.dataset.splice(ui.item.sortable.dropindex - dndableOffset, 0, ui.item.sortable.moved);
                     if (scope.evtPrefix && scope.evtPrefix.length) {
-                        scope.$emit(scope.evtPrefix + '.orderChanged', movedObj,scope.state);
+                        scope.$emit(scope.evtPrefix + '.orderChanged', movedObj, scope.state);
                     } else {
                         scope.$emit('orderChanged', movedObj, scope.state);
                     }

@@ -392,6 +392,13 @@ class record_model extends \TMS_MODEL {
 			$w .= ')';
 		}
 
+		// 只列出迟到的
+		if (isset($criteria->late) && $criteria->late === 'Y') {
+			$w .= ' and exists(select 1 from xxt_signin_log l,xxt_signin_round r';
+			$w .= " where l.rid=r.rid and l.enroll_key=e.enroll_key and r.late_at>0 and l.signin_at>r.late_at+60";
+			$w .= ')';
+		}
+
 		// 指定了登记记录过滤条件
 		if (!empty($criteria->record)) {
 			$whereByRecord = '';

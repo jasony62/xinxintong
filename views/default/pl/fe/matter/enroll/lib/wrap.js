@@ -292,49 +292,59 @@ define([], function() {
             html: html
         };
     };
-    InputWrap.prototype.modify = function(wrap, dataWrap) {
+    InputWrap.prototype.modify = function(domWrap, dataWrap) {
         var $wrap, $label, $input, config = dataWrap.config,
             schema = dataWrap.schema;
-        $wrap = $(wrap);
-        $label = $wrap.find('label');
-        $label.html(schema.title);
-        if (/name|email|mobile|shorttext|longtext|member/.test(schema.type)) {
-            $input = $wrap.find('input,select,textarea');
-            if (config.showname === 'label') {
-                $label.removeClass('sr-only');
-                $input.removeAttr('placeholder');
-            } else {
-                $label.addClass('sr-only');
-                $input.attr('placeholder', schema.title);
-            }
-            if (config.required === 'Y') {
-                $input.attr('required', '');
-            } else {
-                $input.removeAttr('required');
-            }
-        } else if (/single|phase/.test(schema.type)) {
-            (function(lib) {
-                var html;
-                if (schema.ops && schema.ops.length > 0) {
-                    $wrap.children('ul,select').remove();
-                    if (config.component === 'R') {
-                        html = lib._htmlSingleRadio(dataWrap);
-                        $wrap.append(html);
-                    } else if (config.component === 'S') {
-                        html = lib._htmlSingleSelect(dataWrap);
+
+        $wrap = $(domWrap);
+
+        if (dataWrap.type === 'input') {
+            $label = $wrap.find('label');
+            $label.html(schema.title);
+
+            if (/name|email|mobile|shorttext|longtext|member/.test(schema.type)) {
+                $input = $wrap.find('input,select,textarea');
+                if (config.showname === 'label') {
+                    $label.removeClass('sr-only');
+                    $input.removeAttr('placeholder');
+                } else {
+                    $label.addClass('sr-only');
+                    $input.attr('placeholder', schema.title);
+                }
+                if (config.required === 'Y') {
+                    $input.attr('required', '');
+                } else {
+                    $input.removeAttr('required');
+                }
+            } else if (/single|phase/.test(schema.type)) {
+                (function(lib) {
+                    var html;
+                    if (schema.ops && schema.ops.length > 0) {
+                        $wrap.children('ul,select').remove();
+                        if (config.component === 'R') {
+                            html = lib._htmlSingleRadio(dataWrap);
+                            $wrap.append(html);
+                        } else if (config.component === 'S') {
+                            html = lib._htmlSingleSelect(dataWrap);
+                            $wrap.append(html);
+                        }
+                    }
+                })(this);
+            } else if ('multiple' === schema.type) {
+                (function(lib) {
+                    var html;
+                    if (schema.ops && schema.ops.length > 0) {
+                        html = lib._htmlMultiple(dataWrap);
+                        $wrap.children('ul').remove();
                         $wrap.append(html);
                     }
-                }
-            })(this);
-        } else if ('multiple' === schema.type) {
-            (function(lib) {
-                var html;
-                if (schema.ops && schema.ops.length > 0) {
-                    html = lib._htmlMultiple(dataWrap);
-                    $wrap.children('ul').remove();
-                    $wrap.append(html);
-                }
-            })(this);
+                })(this);
+            }
+        } else if (/radio|checkbox/.test(dataWrap.type)) {
+            if (schema.ops && schema.ops.length === 1) {
+                $label = $wrap.find('label');
+                $label.find('span').html(schema.ops[0].l);
+            }
         }
     };
     InputWrap.prototype.dataByDom = function(domWrap, page) {
@@ -548,8 +558,22 @@ define([], function() {
     ValueWrap.prototype.dataByDom = function(domWrap, page) {
         var $wrap = $(domWrap),
             wrapId = $wrap.attr('id');
-        if (page && wrapId) {
-            return page.wrapById(wrapId);
+
+        if (page) {
+            if (wrapId) {
+                return page.wrapById(wrapId);
+            } else {
+                var data = page.wrapBySchema({
+                    id: $wrap.attr('schema')
+                });
+                if (data.config === undefined) {
+                    data.config = {
+                        inline: $wrap.hasClass('wrap-inline') ? 'Y' : 'N',
+                        splitLine: $wrap.hasClass('wrap-splitline') ? 'Y' : 'N'
+                    };
+                }
+                return data;
+            }
         } else {
             return {
                 config: {
@@ -637,6 +661,7 @@ define([], function() {
         var html, attrs = {},
             $wrap = $(domWrap),
             config = oWrap.config;
+
         attrs['enroll-records-owner'] = config.dataScope;
         $wrap.attr(attrs);
         $wrap.children('ul').remove();
@@ -648,9 +673,10 @@ define([], function() {
     RecordsWrap.prototype.dataByDom = function(domWrap, page) {
         var $wrap = $(domWrap),
             config = {};
+
         config.id = $wrap.attr('id');
         if (page) {
-            return page.containList(config);
+            return page.wrapByList(config);
         } else {
             config.pattern = 'records';
             config.dataScope = $wrap.attr('enroll-records-owner');
@@ -755,7 +781,7 @@ define([], function() {
         schema.id = $(domWrap).attr('id');
         if (page) {
             return {
-                schema: page.containAct(schema)
+                schema: page.wrapByButton(schema)
             };
         } else {
             $button = $(domWrap).find('button');
@@ -776,25 +802,27 @@ define([], function() {
      */
     var RoundsWrap = function() {};
     RoundsWrap.prototype = Object.create(Wrap.prototype);
-    RoundsWrap.prototype.embed = function(page, dataWrap) {
+    RoundsWrap.prototype.embed = function(dataWrap) {
         var config = dataWrap.config,
             onclick, html, attrs = {
                 'ng-controller': 'ctrlRounds',
                 wrap: 'rounds',
                 class: 'form-group'
             };
+
         config.id && (attrs.id = config.id);
         onclick = config.onclick.length ? " ng-click=\"gotoPage($event,'" + config.onclick + "',null,r.rid)\"" : '';
         html = "<ul class='list-group'><li class='list-group-item' ng-repeat='r in rounds'" + onclick + "><div>{{r.title}}</div></li></ul>";
 
-        return this.append(page, 'div', attrs, html);
+        return this.append('div', attrs, html);
     };
     RoundsWrap.prototype.dataByDom = function(domWrap, page) {
         var $wrap = $(domWrap),
             config = {};
+
         config.id = $wrap.attr('id');
         if (page) {
-            return page.containList(config);
+            return page.wrapByList(config);
         } else {
             config.pattern = 'rounds';
             config.dataScope = $wrap.attr('enroll-records-owner');
@@ -802,6 +830,20 @@ define([], function() {
                 config: config
             };
         }
+    };
+    RoundsWrap.prototype.modify = function(domWrap, oWrap) {
+        var $wrap = $(domWrap),
+            config = oWrap.config,
+            html, onclick;
+
+        $wrap.children('ul').remove();
+
+        onclick = config.onclick.length ? " ng-click=\"gotoPage($event,'" + config.onclick + "',null,r.rid)\"" : '';
+        html = "<ul class='list-group'><li class='list-group-item' ng-repeat='r in rounds'" + onclick + "><div>{{r.title}}</div></li></ul>";
+
+        $wrap.append(html);
+
+        return true;
     };
     /**
      * user wrap class

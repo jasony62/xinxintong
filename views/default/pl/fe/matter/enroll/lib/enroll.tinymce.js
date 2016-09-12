@@ -92,11 +92,6 @@ directive('tinymce', function($timeout) {
                         }
                     }
                 });
-                editor.on('undo', function(e) {
-                    console.log('111111',editor.undoManager.hasUndo());
-                    console.log('undo', e);
-                    console.log('22222',editor.undoManager.hasUndo());
-                });
                 /*编辑节点*/
                 (function() {
                     var _lastNodeContent;
@@ -262,7 +257,6 @@ directive('tinymce', function($timeout) {
                 statusbar: false,
                 plugins: ['save textcolor code table paste fullscreen visualblocks'],
                 toolbar: 'fontsizeselect styleselect forecolor backcolor bullist numlist outdent indent table multipleimage',
-                //height: scope.height ? scope.height : 300,
                 forced_root_block: 'div',
                 valid_elements: "*[*]",
                 relative_urls: false,

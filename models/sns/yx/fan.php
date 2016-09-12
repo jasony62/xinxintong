@@ -107,7 +107,7 @@ class fan_model extends \TMS_MODEL {
 
 		$fan->id = $this->insert('xxt_site_yxfan', $fan, true);
 
-		//$fan = $this->byOpenid($siteId, $openid);
+		//$fan = $this->byOpenid($siteid, $openid);
 
 		return $fan;
 	}

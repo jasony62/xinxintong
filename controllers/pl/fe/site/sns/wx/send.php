@@ -89,11 +89,12 @@ class send extends \pl\fe\base {
 
 		// 要发送的素材
 		$matter = $this->getPostJson();
-		if (empty($matter->userSet)) {
+
+		if (empty($matter->groups)) {
 			return new \ResponseError('请指定接收消息的用户');
 		}
 		// 要接收的用户
-		$userSet = $matter->userSet;
+		$groups = $matter->groups;
 		/**
 		 * 微信的图文群发消息需要上传到公众号平台，所以链接素材无法处理
 		 */
@@ -109,20 +110,20 @@ class send extends \pl\fe\base {
 		/**
 		 * send
 		 */
-		if ($userSet[0]->identity === -1) {
+		if ($groups[0]->id === -1) {
 			/**
 			 * 发给所有用户
 			 */
-			$message['filter'] = array('is_to_all' => true);
+			$message['filter'] = ['is_to_all' => true];
 			$this->_send2group($site, $message, $matter, $warning);
 		} else {
 			/**
 			 * 发送给指定的关注用户组
 			 */
-			foreach ($userSet as $us) {
+			foreach ($groups as $us) {
 				$message['filter'] = [
 					'is_to_all' => false,
-					'group_id' => $us->identity,
+					'group_id' => $us->id,
 				];
 				$this->_send2group($site, $message, $matter, $warning);
 			}

@@ -262,11 +262,13 @@ class wx extends \member_base {
 				isset($fanInfo[1]->country) && $u['country'] = $fanInfo[1]->country;
 				$modelFan->update('xxt_site_wxfan', $u, "siteid='$siteId' and openid='$openid'");
 				/*更新站点用户信息 @todo 总是要更新吗？*/
-				$modelFan->update(
-					'xxt_site_account',
-					['nickname' => $u['nickname'], 'headimgurl' => $u['headimgurl']],
-					"uid='$fan->userid'"
-				);
+				if (!empty($fan->userid)) {
+					$modelFan->update(
+						'xxt_site_account',
+						['nickname' => $u['nickname'], 'headimgurl' => $u['headimgurl']],
+						"uid='$fan->userid'"
+					);
+				}
 			}
 		}
 		if (!empty($scene_id)) {

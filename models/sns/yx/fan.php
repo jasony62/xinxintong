@@ -102,10 +102,12 @@ class fan_model extends \TMS_MODEL {
 		$fan->openid = $openid;
 		$fan->nickname = '';
 		!empty($options['userid']) && $fan->userid = $options['userid'];
-		!empty($options['subscribe_at']) && $fan->subscribe_at = $options['subscribe_at'];
-		!empty($options['sync_at']) && $fan->sync_at = $options['sync_at'];
+		$fan->subscribe_at = isset($options['subscribe_at']) ? $options['subscribe_at'] : 0;
+		$fan->sync_at = isset($options['sync_at']) ? $options['sync_at'] : 0;
 
 		$fan->id = $this->insert('xxt_site_yxfan', $fan, true);
+
+		//$fan = $this->byOpenid($siteId, $openid);
 
 		return $fan;
 	}

@@ -247,11 +247,13 @@ class yx extends \member_base {
 				isset($fanInfo[1]->country) && $u['country'] = $fanInfo[1]->country;
 				$this->model()->update('xxt_site_yxfan', $u, "siteid='$siteId' and openid='$openid'");
 				/*更新站点用户信息 @todo 总是要更新吗？*/
-				$this->model()->update(
-					'xxt_site_account',
-					array('nickname' => $u['nickname'], 'headimgurl' => $u['headimgurl']),
-					"uid='$fan->userid'"
-				);
+				if (!empty($fan->userid)) {
+					$this->model()->update(
+						'xxt_site_account',
+						array('nickname' => $u['nickname'], 'headimgurl' => $u['headimgurl']),
+						"uid='$fan->userid'"
+					);
+				}
 			}
 		}
 		if (!empty($scene_id)) {

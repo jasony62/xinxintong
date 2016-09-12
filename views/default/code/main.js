@@ -21,7 +21,7 @@ xxtApp.controller('mainCtrl', ['$scope', 'http2', '$location',function($scope, h
             location.href = '/rest/pl/fe/code?pid=' + pid;
         else {
             http2.get('/rest/pl/fe/code/create?site=' + $scope.siteId, function(rsp) {
-                location.href = '/rest/code?pid=' + rsp.data.id;
+                location.href = '/rest/pl/fe/code?pid=' + rsp.data.id;
             });
         }
     };

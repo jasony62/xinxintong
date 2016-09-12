@@ -48,7 +48,7 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 			srvPageProvider.setAppId(appId);
 		})();
 	}]);
-	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'noticebox', 'srvApp', function($scope, $location, $uibModal, $q, http2, noticebox, srvApp) {
+	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'srvApp', function($scope, $location, $uibModal, $q, http2, srvApp) {
 		var ls = $location.search();
 
 		$scope.id = ls.id;

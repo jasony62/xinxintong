@@ -242,7 +242,6 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 			var domWrap = editorProxy.appendButton(btn);
 			$scope.setActiveWrap(domWrap);
 		};
-		// @todo
 		$scope.newList = function(pattern) {
 			var domWrap;
 			if (pattern === 'records') {
@@ -256,7 +255,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 			var wrapType = $scope.activeWrap.type,
 				schema;
 
-			if (/input/.test(wrapType)) {
+			if (/input|value/.test(wrapType)) {
 				schema = $scope.activeWrap.schema;
 				$scope.removeSchema(schema).then(function() {
 					editorProxy.removeWrap($scope.activeWrap);
@@ -274,7 +273,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 					originator: $scope.ep,
 					schema: schema
 				});
-			} else if (/button|text|value|records|rounds/.test(wrapType)) {
+			} else if (/button|text|records|rounds/.test(wrapType)) {
 				editorProxy.removeWrap($scope.activeWrap);
 			}
 			$scope.setActiveWrap(null);
@@ -445,7 +444,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 			if (chooseState[schema.id]) {
 				$scope.$emit('xxt.matter.enroll.page.data_schemas.requestAdd', schema);
 			} else {
-				$scope.$emit('$siteId', schema);
+				$scope.$emit('xxt.matter.enroll.page.data_schemas.requestRemove', schema);
 			}
 		};
 		$scope.$on('xxt.matter.enroll.page.data_schemas.removed', function(event, removedSchema) {
@@ -476,7 +475,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 			if (chooseState[schema.id]) {
 				editorProxy.appendSchema(schema);
 			} else {
-				$scope.$emit('$siteId', schema);
+				$scope.$emit('xxt.matter.enroll.page.data_schemas.requestRemove', schema);
 			}
 		};
 		$scope.$on('xxt.matter.enroll.page.data_schemas.removed', function(event, removedSchema) {

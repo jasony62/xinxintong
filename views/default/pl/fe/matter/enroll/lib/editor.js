@@ -277,6 +277,21 @@ define(['wrap'], function(wrapLib) {
 							}
 						})();
 					}
+				} else if (domNodeWrap.length === 1 && domNodeWrap[0].getAttribute('wrap') === 'button') {
+					// 编辑button's span
+					if (/span/i.test(node.nodeName)) {
+						(function freshButtonByDom() {
+							var oWrap = wrapLib.dataByDom(domNodeWrap[0]),
+								pageWrap = _page.wrapByButton(oWrap.schema);
+
+							if (oWrap) {
+								if (oWrap.schema.label !== pageWrap.label) {
+									pageWrap.label = oWrap.schema.label;
+									status.actionChanged = true;
+								}
+							}
+						})();
+					}
 				}
 				// 修改了页面内容
 				var html = _editor.getContent();
@@ -295,6 +310,21 @@ define(['wrap'], function(wrapLib) {
 								if (oWrap.schema.title !== pageWrap.schema.title) {
 									pageWrap.schema.title = oWrap.schema.title;
 									status.schemaChanged = true;
+								}
+							}
+						})();
+					}
+				} else if (domNodeWrap.length === 1 && domNodeWrap[0].getAttribute('wrap') === 'button') {
+					// 编辑button's span
+					if (/span/i.test(node.nodeName)) {
+						(function freshButtonByDom() {
+							var oWrap = wrapLib.dataByDom(domNodeWrap[0]),
+								pageWrap = _page.wrapByButton(oWrap.schema);
+
+							if (oWrap) {
+								if (oWrap.schema.label !== pageWrap.label) {
+									pageWrap.label = oWrap.schema.label;
+									status.actionChanged = true;
 								}
 							}
 						})();

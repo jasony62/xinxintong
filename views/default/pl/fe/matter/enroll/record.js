@@ -442,8 +442,7 @@ define(['frame'], function(ngApp) {
                 saveAs(blob, $scope.app.title + '.csv');
             });
         };
-        $scope.copyRecords = function() {};
-        (function() {
+        (function copyRecords() {
             var client = new ZeroClipboard($("#copyRecords"));
             client.on("copy", function(event) {
                 var clipboard = event.clipboardData,

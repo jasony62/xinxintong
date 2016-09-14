@@ -159,12 +159,21 @@ class user_model {
 			/**
 			 * wx jssdk
 			 */
-			$app = TMS_APP::model('mp\mpaccount')->byId($this->mpid);
-			if ($app->mpsrc === 'wx') {
-				$rst = TMS_APP::model('mpproxy/wx', $this->mpid)->mediaGetUrl($img->serverId);
-			} else {
-				$rst = TMS_APP::model('mpproxy/qy', $this->mpid)->mediaGetUrl($img->serverId);
+			if (($snsConfig = TMS_APP::model('sns\wx')->bySite($this->mpid)) && $snsConfig->joined === 'Y') {
+				$snsProxy = TMS_APP::model('sns\wx\proxy', $snsConfig);
+			} else if (($snsConfig = TMS_APP::modell('sns\wx')->bySite('platform')) && $snsConfig->joined === 'Y') {
+				$snsProxy = TMS_APP::model('sns\wx\proxy', $snsConfig);
+			} else if ($snsConfig = TMS_APP::model('sns\qy')->bySite($this->mpid)) {
+				if ($snsConfig->joined === 'Y') {
+					$snsProxy = TMS_APP::model('sns\qy\proxy', $snsConfig);
+				}
 			}
+			// $app = TMS_APP::model('mp\mpaccount')->byId($this->mpid);
+			// if ($app->mpsrc === 'wx') {
+			// 	$rst = TMS_APP::model('mpproxy/wx', $this->mpid)->mediaGetUrl($img->serverId);
+			// } else {
+			// }
+			$rst = $snsProxy->mediaGetUrl($img->serverId);
 			if ($rst[0] === false) {
 				return $rst;
 			}

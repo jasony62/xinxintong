@@ -419,6 +419,8 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 			tinymceEditor = editor;
 			if ($scope.ep) {
 				editorProxy.load(editor, $scope.ep);
+			} else {
+				editorProxy.setPage(null);
 			}
 		});
 	}]);

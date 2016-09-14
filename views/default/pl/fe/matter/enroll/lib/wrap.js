@@ -253,10 +253,10 @@ define([], function() {
                 html += '<ul class="img-tiles clearfix" name="' + schema.id + '">';
                 html += '<li wrap="img" ng-repeat="img in data.' + schema.id + '" class="img-thumbnail" title="' + schema.title + '">';
                 html += '<img flex-img>';
-                html += '<button class="btn btn-configault btn-xs" ng-click="removeImage(data.' + schema.id + ',$index)"><span class="glyphicon glyphicon-remove"></span></button>';
+                html += '<button class="btn btn-default btn-xs" ng-click="removeImage(data.' + schema.id + ',$index)"><span class="glyphicon glyphicon-remove"></span></button>';
                 html += '</li>';
                 html += '<li class="img-picker">';
-                html += '<button class="btn btn-configault" ng-click="chooseImage(\'' + schema.id + '\',' + config.count + ')"><span class="glyphicon glyphicon-picture"></span><br>上传图片</button>';
+                html += '<button class="btn btn-default" ng-click="chooseImage(\'' + schema.id + '\',' + config.count + ')"><span class="glyphicon glyphicon-picture"></span><br>上传图片</button>';
                 html += '</li>';
                 html += '</ul>';
                 break;
@@ -280,7 +280,7 @@ define([], function() {
                 config.required === 'Y' && (html += 'required=""');
                 html += ' class="form-control">';
                 html += '<span class="input-group-btn">';
-                html += '<button class="btn btn-configault" type="button" ng-click="' + 'getMyLocation(\'' + schema.id + '\')' + '">定位</button>';
+                html += '<button class="btn btn-default" type="button" ng-click="' + 'getMyLocation(\'' + schema.id + '\')' + '">定位</button>';
                 html += '</span>';
                 html += '</div>';
                 break;

@@ -254,10 +254,12 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
     });
     ngApp.directive('tmsFileInput', ['$q', 'ls', function($q, LS) {
         var r, onSubmit;
-        r = new Resumable({
-            target: '/rest/site/fe/matter/enroll/record/uploadFile?site=' + LS.p.site + '&aid=' + LS.p.aid,
-            testChunks: false,
-            chunkSize: 512 * 1024
+        require(['resumable'], function(Resumable) {
+            r = new Resumable({
+                target: '/rest/site/fe/matter/enroll/record/uploadFile?site=' + LS.p.site + '&aid=' + LS.p.aid,
+                testChunks: false,
+                chunkSize: 512 * 1024
+            });
         });
         onSubmit = function($scope) {
             var defer;
@@ -387,12 +389,14 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                         $scope.data.member = angular.extend($scope.data.member, dataOfRecord.member);
                         hasSetMember = true;
                     } else if (dataOfRecord[p].length && mapSchema[p]) {
-                        if (mapSchema[p].type === 'img') {
+                        if (mapSchema[p].type === 'image') {
                             value = dataOfRecord[p].split(',');
                             $scope.data[p] = [];
-                            for (var i in value) $scope.data[p].push({
-                                imgSrc: value[i]
-                            });
+                            for (var i in value) {
+                                $scope.data[p].push({
+                                    imgSrc: value[i]
+                                });
+                            }
                         } else if (mapSchema[p].type === 'file') {
                             value = JSON.parse(dataOfRecord[p]);
                             $scope.data[p] = value;

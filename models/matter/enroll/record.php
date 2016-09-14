@@ -371,14 +371,13 @@ class record_model extends \TMS_MODEL {
 		}
 		// 查询结果排序
 		$q2['o'] = 'e.enroll_at desc';
-
 		// 处理获得的数据
 		if ($records = $this->query_objs_ss($q, $q2)) {
 			foreach ($records as &$r) {
 				$data = str_replace("\n", ' ', $r->data);
 				$data = json_decode($data);
 				if ($data === null) {
-					$r->data = 'json error(' . json_last_error() . '):' . $r->data;
+					$r->data = 'json error(' . json_last_error_msg() . '):' . $r->data;
 				} else {
 					$r->data = $data;
 				}

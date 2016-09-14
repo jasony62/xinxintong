@@ -226,7 +226,7 @@ class enroll_model extends app_base {
 			}
 		}
 
-		$w = "aid='$appId' and userid<>''";
+		$w = "state=1 and aid='$appId' and userid<>''";
 
 		// 按轮次过滤
 		!empty($rid) && $w .= " and e.rid='$rid'";

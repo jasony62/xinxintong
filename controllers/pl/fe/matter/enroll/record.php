@@ -526,10 +526,15 @@ class record extends \pl\fe\matter\base {
 								$wxSiteId = $siteId;
 							}
 						}
-						// 用模板消息发送
-						$rst = $this->tmplmsgSendByOpenid($tmplmsgId, $user->wx_openid, $message);
-						if ($rst[0] === false) {
-							return $rst;
+						// 用模板消息发送。需要考虑用户没有关注情况
+						if ($modelWxfan === false) {
+							$modelWxfan = $this->model('sns\wx\fan');
+						}
+						if ($modelWxfan->isFollow($wxSiteId, $user->wx_openid)) {
+							$rst = $this->tmplmsgSendByOpenid($tmplmsgId, $user->wx_openid, $message);
+							if ($rst[0] === false) {
+								return $rst;
+							}
 						}
 						break;
 					case 'yx':

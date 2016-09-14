@@ -168,11 +168,6 @@ class user_model {
 					$snsProxy = TMS_APP::model('sns\qy\proxy', $snsConfig);
 				}
 			}
-			// $app = TMS_APP::model('mp\mpaccount')->byId($this->mpid);
-			// if ($app->mpsrc === 'wx') {
-			// 	$rst = TMS_APP::model('mpproxy/wx', $this->mpid)->mediaGetUrl($img->serverId);
-			// } else {
-			// }
 			$rst = $snsProxy->mediaGetUrl($img->serverId);
 			if ($rst[0] === false) {
 				return $rst;

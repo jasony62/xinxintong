@@ -161,7 +161,7 @@ class user_model {
 			 */
 			if (($snsConfig = TMS_APP::model('sns\wx')->bySite($this->mpid)) && $snsConfig->joined === 'Y') {
 				$snsProxy = TMS_APP::model('sns\wx\proxy', $snsConfig);
-			} else if (($snsConfig = TMS_APP::modell('sns\wx')->bySite('platform')) && $snsConfig->joined === 'Y') {
+			} else if (($snsConfig = TMS_APP::model('sns\wx')->bySite('platform')) && $snsConfig->joined === 'Y') {
 				$snsProxy = TMS_APP::model('sns\wx\proxy', $snsConfig);
 			} else if ($snsConfig = TMS_APP::model('sns\qy')->bySite($this->mpid)) {
 				if ($snsConfig->joined === 'Y') {

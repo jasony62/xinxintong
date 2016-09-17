@@ -1,4 +1,9 @@
 <div id='stat-view'>
+    <!-- actions -->
+    <div class='form-group form-inline'>
+        <button class='btn btn-default' ng-click="export()">导出全部数据</button>
+    </div>
+    <!-- end actions -->
     <div id='stat-result'>
         <div ng-repeat="s in stat">
             <div id="{{s.id}}" style='height:300px'></div>

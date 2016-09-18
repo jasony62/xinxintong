@@ -1,4 +1,4 @@
-app.controller('setCtrl', ['$scope', 'http2', 'noticebox', function($scope, http2, noticebox) {
+app.controller('ctrlSetting', ['$scope', 'http2', 'noticebox', function($scope, http2, noticebox) {
     $scope.repeatPwd = (function() {
         return {
             test: function(value) {
@@ -15,4 +15,14 @@ app.controller('setCtrl', ['$scope', 'http2', 'noticebox', function($scope, http
             noticebox.success('修改成功');
         });
     };
+    $scope.changeNickname = function() {
+        http2.post('/rest/pl/fe/user/changeNickname', {
+            nickname: $scope.nickname
+        }, function(rsp) {
+            noticebox.success('修改成功');
+        });
+    };
+    http2.get('/rest/pl/fe/user/get', function(rsp) {
+        $scope.nickname = rsp.data.nickname;
+    });
 }]);

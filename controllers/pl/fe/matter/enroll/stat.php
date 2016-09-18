@@ -189,7 +189,7 @@ class stat extends \pl\fe\matter\base {
 					$pie = new \PiePlot($data);
 					$labels = [];
 					foreach ($item['ops'] as $op) {
-						$labels[] = $op['l'] . '：%.1f%%';
+						$labels[] = str_replace('%', '%%', $op['l']) . '：%.1f%%';
 					}
 					$pie->SetLabels($labels, 0.8);
 					$pie->value->SetFont(FF_CHINESE, FS_NORMAL);

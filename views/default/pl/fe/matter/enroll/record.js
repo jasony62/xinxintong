@@ -431,16 +431,16 @@ define(['frame'], function(ngApp) {
             if ($scope.content.signin === 'Y') {
                 url += '&includeSignin=Y';
             }
+            // http2.post(url, params, function(rsp) {
+            //     var blob;
 
-            http2.post(url, params, function(rsp) {
-                var blob;
+            //     blob = new Blob([rsp.data], {
+            //         type: "Content-Type: application/vnd.ms-excel"
+            //     });
 
-                blob = new Blob([rsp.data], {
-                    type: "text/plain;charset=utf-8"
-                });
-
-                saveAs(blob, $scope.app.title + '.csv');
-            });
+            //     saveAs(blob, $scope.app.title + '.xlsx');
+            // });
+            window.open(url);
         };
         (function copyRecords() {
             var client = new ZeroClipboard($("#copyRecords"));

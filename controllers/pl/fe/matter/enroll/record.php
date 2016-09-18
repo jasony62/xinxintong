@@ -553,7 +553,7 @@ class record extends \pl\fe\matter\base {
 	/**
 	 * 登记数据导出
 	 */
-	public function export_action($site, $app) {
+	public function exportCsv_action($site, $app) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -651,5 +651,112 @@ class record extends \pl\fe\matter\base {
 		//exit;
 
 		return new \ResponseData($exportedData);
+	}
+	/**
+	 * 登记数据导出
+	 */
+	public function export_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		// 登记活动
+		$app = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario', 'cascaded' => 'N']);
+		$schemas = json_decode($app->data_schemas);
+
+		// 获得所有有效的登记记录
+		$records = $this->model('matter\enroll\record')->find($site, $app);
+		if ($records->total === 0) {
+			die('record empty');
+		}
+		$records = $records->records;
+
+		require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/PHPExcel.php';
+
+		// Create new PHPExcel object
+		$objPHPExcel = new \PHPExcel();
+		// Set properties
+		$objPHPExcel->getProperties()->setCreator("信信通")
+			->setLastModifiedBy("信信通")
+			->setTitle($app->title)
+			->setSubject($app->title)
+			->setDescription($app->title);
+
+		$objActiveSheet = $objPHPExcel->getActiveSheet();
+
+		$objActiveSheet->setCellValueByColumnAndRow(0, 1, '登记时间');
+		$objActiveSheet->setCellValueByColumnAndRow(1, 1, '审核通过');
+
+		// 转换标题
+		for ($i = 0, $ii = count($schemas); $i < $ii; $i++) {
+			$schema = $schemas[$i];
+			$objActiveSheet->setCellValueByColumnAndRow($i + 2, 1, $schema->title);
+		}
+		$objActiveSheet->setCellValueByColumnAndRow($i + 2, 1, '备注');
+		// 记录分数
+		if ($app->scenario === 'voting') {
+			$objActiveSheet->setCellValueByColumnAndRow($i + 3, 1, '总分数');
+			$objActiveSheet->setCellValueByColumnAndRow($i + 4, 1, '平均分数');
+			$titles[] = '总分数';
+			$titles[] = '平均分数';
+		}
+		// 转换数据
+		for ($j = 0, $jj = count($records); $j < $jj; $j++) {
+			$record = $records[$j];
+			$rowIndex = $j + 2;
+			$objActiveSheet->setCellValueByColumnAndRow(0, $rowIndex, date('y-m-j H:i', $record->enroll_at));
+			$objActiveSheet->setCellValueByColumnAndRow(1, $rowIndex, $record->verified);
+			// 处理登记项
+			$data = $record->data;
+			for ($i = 0, $ii = count($schemas); $i < $ii; $i++) {
+				$schema = $schemas[$i];
+				$v = isset($data->{$schema->id}) ? $data->{$schema->id} : '';
+				switch ($schema->type) {
+				case 'single':
+				case 'phase':
+					foreach ($schema->ops as $op) {
+						if ($op->v === $v) {
+							$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, $op->l);
+							$disposed = true;
+							break;
+						}
+					}
+					empty($disposed) && $objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, $v);
+					break;
+				case 'multiple':
+					$labels = [];
+					$v = explode(',', $v);
+					foreach ($v as $oneV) {
+						foreach ($schema->ops as $op) {
+							if ($op->v === $oneV) {
+								$labels[] = $op->l;
+								break;
+							}
+						}
+					}
+					$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, implode(',', $labels));
+					break;
+				default:
+					$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, $v);
+					break;
+				}
+			}
+			// 备注
+			$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, $record->comment);
+			// 记录分数
+			if ($app->scenario === 'voting') {
+				$objActiveSheet->setCellValueByColumnAndRow($i + 3, $rowIndex, $record->_score);
+				$objActiveSheet->setCellValueByColumnAndRow($i + 4, $rowIndex, sprintf('%.2f', $record->_average));
+			}
+		}
+
+		// 输出
+		header('Content-Type: application/vnd.ms-excel');
+		header('Content-Disposition: attachment;filename="' . $app->title . '.xlsx"');
+		header('Cache-Control: max-age=0');
+		$objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+		$objWriter->save('php://output');
+
+		//return new \ResponseData('');
 	}
 }

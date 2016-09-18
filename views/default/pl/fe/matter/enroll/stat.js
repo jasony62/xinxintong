@@ -1,5 +1,6 @@
 define(['frame'], function(ngApp) {
-	ngApp.provider.controller('ctrlStat', ['$scope', 'http2', '$timeout', 'noticebox', function($scope, http2, $timeout, noticebox) {
+	'use strict';
+	ngApp.provider.controller('ctrlStat', ['$scope', 'http2', '$timeout', function($scope, http2, $timeout) {
 		function drawBarChart(item) {
 			var categories = [],
 				series = [];

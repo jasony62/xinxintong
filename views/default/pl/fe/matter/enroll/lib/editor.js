@@ -67,7 +67,7 @@ define(['wrap'], function(wrapLib) {
 		},
 		setPage: function(page) {
 			_page = page;
-			return this.disableInput();
+			return page ? this.disableInput() : '';
 		},
 		getPage: function() {
 			return _page;

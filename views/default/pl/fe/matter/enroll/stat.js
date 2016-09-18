@@ -87,6 +87,23 @@ define(['frame'], function(ngApp) {
 				}
 			});
 		}
+
+		$scope.export = function() {
+			var url, params = {};
+
+			url = '/rest/pl/fe/matter/enroll/stat/export';
+			url += '?site=' + $scope.siteId + '&app=' + $scope.id;
+
+			http2.post(url, params, function(rsp) {
+				var blob;
+
+				blob = new Blob([rsp.data], {
+					type: "application/vnd.ms-word;charset=utf-8;"
+				});
+
+				saveAs(blob, $scope.app.title + '.doc');
+			});
+		};
 		$scope.$watch('app', function(app) {
 			if (!app) return;
 			var url = '/rest/pl/fe/matter/enroll/stat/get';

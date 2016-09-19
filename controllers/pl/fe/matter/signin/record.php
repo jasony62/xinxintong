@@ -93,7 +93,7 @@ class record extends \pl\fe\matter\base {
 					$lateCount = 0;
 					foreach ($signinApp->rounds as $round) {
 						if (isset($signinRecord->signin_log->{$round->rid}) && !empty($round->late_at)) {
-							if ($signinRecord->signin_log->{$round->rid} > $round->late_at + 60) {
+							if ($signinRecord->signin_log->{$round->rid} > $round->late_at + 59) {
 								$lateCount++;
 							}
 						}
@@ -599,7 +599,7 @@ class record extends \pl\fe\matter\base {
 			if (!empty($round)) {
 				if (isset($signinLog->{$round->rid})) {
 					$signinAt = $signinLog->{$round->rid};
-					if (!empty($round->late_at) && $signinAt > $round->late_at + 60) {
+					if (!empty($round->late_at) && $signinAt > $round->late_at + 59) {
 						$objActiveSheet->setCellValueByColumnAndRow($colNumber, $rowNumber, date('y-m-j H:i', $signinAt));
 						$objActiveSheet->getStyleByColumnAndRow($colNumber++, $rowNumber)->getFont()->getColor()->setRGB('FF0000');
 					} else {
@@ -614,7 +614,7 @@ class record extends \pl\fe\matter\base {
 				foreach ($signinApp->rounds as $rnd) {
 					if (isset($signinLog->{$rnd->rid})) {
 						$signinAt = $signinLog->{$rnd->rid};
-						if (!empty($rnd->late_at) && $signinAt > $rnd->late_at + 60) {
+						if (!empty($rnd->late_at) && $signinAt > $rnd->late_at + 59) {
 							$objActiveSheet->setCellValueByColumnAndRow($colNumber, $rowNumber, date('y-m-j H:i', $signinAt));
 							$objActiveSheet->getStyleByColumnAndRow($colNumber++, $rowNumber)->getFont()->getColor()->setRGB('FF0000');
 							$lateCount++;
@@ -812,7 +812,7 @@ class record extends \pl\fe\matter\base {
 					foreach ($signinApp->rounds as $rnd) {
 						if (isset($signinLog->{$rnd->rid})) {
 							$signinAt = $signinLog->{$rnd->rid};
-							if (!empty($rnd->late_at) && $signinAt > $rnd->late_at + 60) {
+							if (!empty($rnd->late_at) && $signinAt > $rnd->late_at + 59) {
 								$objActiveSheet->setCellValueByColumnAndRow($colNumber, $rowNumber, date('y-m-j H:i', $signinAt));
 								$objActiveSheet->getStyleByColumnAndRow($colNumber++, $rowNumber)->getFont()->getColor()->setRGB('FF0000');
 								$lateCount++;

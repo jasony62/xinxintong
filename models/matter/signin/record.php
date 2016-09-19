@@ -453,7 +453,7 @@ class record_model extends \TMS_MODEL {
 				$lateCount = 0;
 				foreach ($app->rounds as $round) {
 					if (isset($r->signin_log->{$round->rid}) && !empty($round->late_at)) {
-						if ($r->signin_log->{$round->rid} > $round->late_at + 60) {
+						if ($r->signin_log->{$round->rid} > $round->late_at + 59) {
 							$lateCount++;
 						}
 					}

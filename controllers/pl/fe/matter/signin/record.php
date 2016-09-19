@@ -92,8 +92,10 @@ class record extends \pl\fe\matter\base {
 					// 计算迟到次数
 					$lateCount = 0;
 					foreach ($signinApp->rounds as $round) {
-						if (!empty($round->late_at) && $signinRecord->signin_log->{$round->rid} > $round->late_at + 60) {
-							$lateCount++;
+						if (isset($signinRecord->signin_log->{$round->rid}) && !empty($round->late_at)) {
+							if ($signinRecord->signin_log->{$round->rid} > $round->late_at + 60) {
+								$lateCount++;
+							}
 						}
 					}
 					$signinRecord->lateCount = $lateCount;

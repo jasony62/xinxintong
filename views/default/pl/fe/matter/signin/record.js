@@ -388,23 +388,13 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.export = function() {
-            var url, params = {
-                criteria: $scope.criteria
-            };
+            var url;
 
             url = '/rest/pl/fe/matter/signin/record/export';
             url += '?site=' + $scope.siteId + '&app=' + $scope.id;
             $scope.page.byRound && (url += '&round=' + $scope.page.byRound);
 
-            http2.post(url, params, function(rsp) {
-                var blob;
-
-                blob = new Blob([rsp.data], {
-                    type: "text/plain;charset=utf-8"
-                });
-
-                saveAs(blob, $scope.app.title + '.csv');
-            });
+            window.open(url);
         };
         $scope.countSelected = function() {
             var count = 0;
@@ -447,7 +437,7 @@ define(['frame'], function(ngApp) {
             // 关联的报名登记项
             if (app.enrollApp && app.enrollApp.data_schemas) {
                 $scope.enrollDataSchemas = [];
-                angular.forEach(app.enrollApp.data_schemas, function(item) {
+                app.enrollApp.data_schemas.forEach(function(item) {
                     if (mapOfSchemaById[item.id] === undefined) {
                         $scope.enrollDataSchemas.push(item);
                     }
@@ -575,24 +565,14 @@ define(['frame'], function(ngApp) {
             });
         };
         $scope.export = function() {
-            var url, params = {
-                criteria: $scope.criteria
-            };
+            var url;
 
             url = '/rest/pl/fe/matter/signin/record/exportByEnroll';
             url += '?site=' + $scope.siteId; // todo
             url += '&app=' + $scope.id;
             $scope.page.byRound && (url += '&round=' + $scope.page.byRound);
 
-            http2.post(url, params, function(rsp) {
-                var blob;
-
-                blob = new Blob([rsp.data], {
-                    type: "text/plain;charset=utf-8"
-                });
-
-                saveAs(blob, $scope.app.title + '.csv');
-            });
+            window.open(url);
         };
         $scope.tmsTableWrapReady = 'N';
         $scope.$watch('app', function(app) {

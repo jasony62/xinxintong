@@ -449,6 +449,14 @@ class record_model extends \TMS_MODEL {
 			foreach ($records as &$r) {
 				// 签到日志
 				$r->signin_log = json_decode($r->signin_log);
+				// 计算迟到次数
+				$lateCount = 0;
+				foreach ($app->rounds as $round) {
+					if (!empty($round->late_at) && $r->signin_log->{$round->rid} > $round->late_at + 60) {
+						$lateCount++;
+					}
+				}
+				$r->lateCount = $lateCount;
 				// 登记信息
 				$data = str_replace("\n", ' ', $r->data);
 				$data = json_decode($data);

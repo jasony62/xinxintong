@@ -25,6 +25,14 @@ provider('srvApp', function() {
                         console.log('data invalid', e, app.data_schemas);
                         app.data_schemas = [];
                     }
+                    if (app.enrollApp && app.enrollApp.data_schemas) {
+                        try {
+                            app.enrollApp.data_schemas = app.enrollApp.data_schemas && app.enrollApp.data_schemas.length ? JSON.parse(app.enrollApp.data_schemas) : [];
+                        } catch (e) {
+                            console.log('data invalid', e, app.enrollApp.data_schemas);
+                            app.enrollApp.data_schemas = [];
+                        }
+                    }
 
                     defer.resolve(app);
                 });

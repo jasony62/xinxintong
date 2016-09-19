@@ -89,6 +89,14 @@ class record extends \pl\fe\matter\base {
 				if ($signinRecord = $modelApp->query_obj_ss($q)) {
 					$signinRecord->data = json_decode($signinRecord->data);
 					$signinRecord->signin_log = empty($signinRecord->signin_log) ? new \stdClass : json_decode($signinRecord->signin_log);
+					// 计算迟到次数
+					$lateCount = 0;
+					foreach ($signinApp->rounds as $round) {
+						if (!empty($round->late_at) && $signinRecord->signin_log->{$round->rid} > $round->late_at + 60) {
+							$lateCount++;
+						}
+					}
+					$signinRecord->lateCount = $lateCount;
 					$record->_signinRecord = $signinRecord;
 				}
 			}
@@ -506,9 +514,17 @@ class record extends \pl\fe\matter\base {
 		// 登记活动
 		$signinApp = $this->model('matter\signin')->byId(
 			$app,
-			['fields' => 'id,title,data_schemas,enroll_app_id,tags']
+			['fields' => 'id,title,data_schemas,enroll_app_id,tags', 'cascaded' => 'Y']
 		);
 		$schemas = json_decode($signinApp->data_schemas);
+		if (!empty($round)) {
+			foreach ($signinApp->rounds as $rnd) {
+				if ($rnd->rid === $round) {
+					$round = $rnd;
+					break;
+				}
+			}
+		}
 
 		// 关联的报名活动
 		if (!empty($signinApp->enroll_app_id)) {
@@ -536,58 +552,82 @@ class record extends \pl\fe\matter\base {
 			die('record empty');
 		}
 
-		// 登记记录转换成下载数据
-		$exportedData = [];
-		$size = 0;
-		// 转换标题
-		$titles = ['登记时间'];
+		require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/PHPExcel.php';
+
+		// Create new PHPExcel object
+		$objPHPExcel = new \PHPExcel();
+		// Set properties
+		$objPHPExcel->getProperties()->setCreator("信信通")
+			->setLastModifiedBy("信信通")
+			->setTitle($signinApp->title)
+			->setSubject($signinApp->title)
+			->setDescription($signinApp->title);
+
+		$objActiveSheet = $objPHPExcel->getActiveSheet();
+
+		$colNumber = 0;
+		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '登记时间');
+
 		if (!empty($round)) {
-			$titles[] = '签到时间';
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '签到时间');
 		} else {
-			$titles[] = '签到次数';
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '签到次数');
 			foreach ($signinApp->rounds as $rnd) {
-				$titles[] = $rnd->title;
+				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, $rnd->title);
 			}
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '迟到次数');
 		}
-		$titles[] = '审核通过';
+		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '审核通过');
 		foreach ($schemas as $schema) {
-			$titles[] = $schema->title;
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, $schema->title);
 		}
 		if (!empty($signinApp->tags)) {
-			$titles[] = '标签';
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '标签');
 		}
-		$titles[] = '备注';
-		$titles = implode("\t", $titles);
-		$size += strlen($titles);
-		$exportedData[] = $titles;
+		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '备注');
+
 		// 转换数据
+		$rowNumber = 2;
 		foreach ($records as $record) {
-			$row = [];
+			$colNumber = 0;
 			// 基本信息
-			$row[] = date('y-m-j H:i', $record->enroll_at);
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, date('y-m-j H:i', $record->enroll_at));
 			// 处理签到日志
 			$signinLog = empty($record->signin_log) ? new \stdClass : json_decode($record->signin_log);
 			if (!empty($round)) {
-				if (isset($signinLog->{$round})) {
-					$signinAt = $signinLog->{$round};
-					$row[] = date('y-m-j H:i', $signinAt);
+				if (isset($signinLog->{$round->rid})) {
+					$signinAt = $signinLog->{$round->rid};
+					if (!empty($round->late_at) && $signinAt > $round->late_at + 60) {
+						$objActiveSheet->setCellValueByColumnAndRow($colNumber, $rowNumber, date('y-m-j H:i', $signinAt));
+						$objActiveSheet->getStyleByColumnAndRow($colNumber++, $rowNumber)->getFont()->getColor()->setRGB('FF0000');
+					} else {
+						$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, date('y-m-j H:i', $signinAt));
+					}
 				} else {
-					$row[] = '';
+					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
 				}
 			} else {
-				$row[] = $record->signin_num;
+				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $record->signin_num);
+				$lateCount = 0;
 				foreach ($signinApp->rounds as $rnd) {
 					if (isset($signinLog->{$rnd->rid})) {
 						$signinAt = $signinLog->{$rnd->rid};
-						$row[] = date('y-m-j H:i', $signinAt);
+						if (!empty($rnd->late_at) && $signinAt > $rnd->late_at + 60) {
+							$objActiveSheet->setCellValueByColumnAndRow($colNumber, $rowNumber, date('y-m-j H:i', $signinAt));
+							$objActiveSheet->getStyleByColumnAndRow($colNumber++, $rowNumber)->getFont()->getColor()->setRGB('FF0000');
+							$lateCount++;
+						} else {
+							$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, date('y-m-j H:i', $signinAt));
+						}
 					} else {
-						$row[] = '';
+						$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
 					}
 				}
+				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $lateCount);
 			}
-			$row[] = $record->verified;
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $record->verified);
 			// 处理登记项
-			$data = str_replace("\n", ' ', $record->data);
+			//$data = str_replace("\n", ' ', $record->data);
 			$data = json_decode($record->data);
 			foreach ($schemas as $schema) {
 				$v = isset($data->{$schema->id}) ? $data->{$schema->id} : '';
@@ -596,12 +636,12 @@ class record extends \pl\fe\matter\base {
 				case 'phase':
 					foreach ($schema->ops as $op) {
 						if ($op->v === $v) {
-							$row[] = $op->l;
+							$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $op->l);
 							$disposed = true;
 							break;
 						}
 					}
-					empty($disposed) && $row[] = $v;
+					empty($disposed) && $objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $v);
 					break;
 				case 'multiple':
 					$labels = [];
@@ -614,36 +654,30 @@ class record extends \pl\fe\matter\base {
 							}
 						}
 					}
-					$row[] = implode(',', $labels);
+					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, implode(',', $labels));
 					break;
 				default:
-					$row[] = $v;
+					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $v);
 					break;
 				}
 			}
 			// 基本信息
 			if (!empty($signinApp->tags)) {
-				$row[] = isset($record->tags) ? $record->tags : '';
+				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($record->tags) ? $record->tags : '');
 			}
-			$row[] = isset($record->comment) ? $record->comment : '';
-
-			// 将数据转换为'|'分隔的字符串
-			$row = implode("\t", $row);
-			$size += strlen($row);
-			$exportedData[] = $row;
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, isset($record->comment) ? $record->comment : '');
+			// next row
+			$rowNumber++;
 		}
 
-		// 文件下载
-		$size += (count($exportedData) - 1) * 2;
-		$exportedData = implode("\r\n", $exportedData);
+		// 输出
+		header('Content-Type: application/vnd.ms-excel');
+		header('Content-Disposition: attachment;filename="' . $signinApp->title . '.xlsx"');
+		header('Cache-Control: max-age=0');
+		$objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+		$objWriter->save('php://output');
 
-		//header("Content-Type: text/plain;charset=utf-8");
-		//header("Content-Disposition: attachment; filename=" . $signinApp->title . '.txt');
-		//header('Content-Length: ' . $size);
-		//echo $exportedData;
-		//exit;
-
-		return new \ResponseData($exportedData);
+		exit;
 	}
 	/**
 	 * 登记数据导出
@@ -684,37 +718,47 @@ class record extends \pl\fe\matter\base {
 		}
 		$records = $result->records;
 
-		// 登记记录转换成下载数据
-		$exportedData = [];
-		$size = 0;
+		require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/PHPExcel.php';
 
-		// 转换标题
-		$titles = ['登记时间', '审核通过'];
+		// Create new PHPExcel object
+		$objPHPExcel = new \PHPExcel();
+		// Set properties
+		$objPHPExcel->getProperties()->setCreator("信信通")
+			->setLastModifiedBy("信信通")
+			->setTitle($signinApp->title)
+			->setSubject($signinApp->title)
+			->setDescription($signinApp->title);
+
+		$objActiveSheet = $objPHPExcel->getActiveSheet();
+
+		$colNumber = 0;
+		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '登记时间');
+		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '审核通过');
+
 		foreach ($schemas as $schema) {
-			$titles[] = $schema->title;
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, $schema->title);
 		}
-		$titles[] = '报名备注';
-		$titles[] = '报名标签';
+		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '报名备注');
+		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '报名标签');
 		if (empty($round)) {
-			$titles[] = '签到次数';
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '签到次数');
 			foreach ($signinApp->rounds as $rnd) {
-				$titles[] = $rnd->title;
+				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, $rnd->title);
 			}
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '迟到次数');
 		} else {
-			$titles[] = '签到时间';
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '签到时间');
 		}
-		$titles[] = '签到备注';
-		$titles[] = '签到标签';
-
-		$titles = implode("\t", $titles);
-		$size += strlen($titles);
-		$exportedData[] = $titles;
+		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '签到备注');
+		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '签到标签');
 
 		// 转换数据
+		$rowNumber = 2;
 		foreach ($records as $record) {
-			$row = [];
-			$row[] = date('y-m-j H:i', $record->enroll_at);
-			$row[] = $record->verified;
+			$colNumber = 0;
+			// 基本信息
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, date('y-m-j H:i', $record->enroll_at));
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $record->verified);
 			// 处理登记项
 			$data = $record->data;
 			foreach ($schemas as $schema) {
@@ -724,12 +768,12 @@ class record extends \pl\fe\matter\base {
 				case 'phase':
 					foreach ($schema->ops as $op) {
 						if ($op->v === $v) {
-							$row[] = $op->l;
+							$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $op->l);
 							$disposed = true;
 							break;
 						}
 					}
-					empty($disposed) && $row[] = $v;
+					empty($disposed) && $objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $v);
 					break;
 				case 'multiple':
 					$labels = [];
@@ -742,15 +786,15 @@ class record extends \pl\fe\matter\base {
 							}
 						}
 					}
-					$row[] = implode(',', $labels);
+					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, implode(',', $labels));
 					break;
 				default:
-					$row[] = $v;
+					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $v);
 					break;
 				}
 			}
-			$row[] = $record->comment;
-			$row[] = $record->tags;
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $record->comment);
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $record->tags);
 
 			// 获得对应的签到数据
 			$q = [
@@ -761,49 +805,51 @@ class record extends \pl\fe\matter\base {
 			if ($signinRecord = $modelApp->query_obj_ss($q)) {
 				$signinLog = empty($signinRecord->signin_log) ? new \stdClass : json_decode($signinRecord->signin_log);
 				if (empty($round)) {
-					$row[] = $signinRecord->signin_num;
+					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $signinRecord->signin_num);
+					$lateCount = 0;
 					foreach ($signinApp->rounds as $rnd) {
 						if (isset($signinLog->{$rnd->rid})) {
 							$signinAt = $signinLog->{$rnd->rid};
-							$row[] = date('y-m-j H:i', $signinAt);
+							if (!empty($rnd->late_at) && $signinAt > $rnd->late_at + 60) {
+								$objActiveSheet->setCellValueByColumnAndRow($colNumber, $rowNumber, date('y-m-j H:i', $signinAt));
+								$objActiveSheet->getStyleByColumnAndRow($colNumber++, $rowNumber)->getFont()->getColor()->setRGB('FF0000');
+								$lateCount++;
+							} else {
+								$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, date('y-m-j H:i', $signinAt));
+							}
 						} else {
-							$row[] = '';
+							$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
 						}
 					}
+					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $lateCount);
 				} else {
-					$row[] = date('y-m-j H:i', $signinLog->{$round});
+					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, date('y-m-j H:i', $signinLog->{$round}));
 				}
-				$row[] = $signinRecord->comment;
-				$row[] = $signinRecord->tags;
+				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $signinRecord->comment);
+				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $signinRecord->tags);
 			} else {
 				if (empty($round)) {
 					foreach ($signinApp->rounds as $rnd) {
-						$row[] = '';
+						$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
 					}
 				} else {
-					$row[] = '';
+					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
 				}
-				$row[] = ''; // empty comment
-				$row[] = ''; // empty tags
+				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
+				$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, '');
 			}
-
-			// 将数据转换为'|'分隔的字符串
-			$row = implode("\t", $row);
-			$size += strlen($row);
-			$exportedData[] = $row;
+			// next row
+			$rowNumber++;
 		}
 
-		// 文件下载
-		$size += (count($exportedData) - 1) * 2;
-		$exportedData = implode("\r\n", $exportedData);
+		// 输出
+		header('Content-Type: application/vnd.ms-excel');
+		header('Content-Disposition: attachment;filename="' . $signinApp->title . '.xlsx"');
+		header('Cache-Control: max-age=0');
+		$objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+		$objWriter->save('php://output');
 
-		//header("Content-Type: text/plain;charset=utf-8");
-		//header("Content-Disposition: attachment; filename=" . $signinApp->title . '.txt');
-		//header('Content-Length: ' . $size);
-		//echo $exportedData;
-		//exit;
-
-		return new \ResponseData($exportedData);
+		exit;
 	}
 	/**
 	 * 将数据导出到另一个活动

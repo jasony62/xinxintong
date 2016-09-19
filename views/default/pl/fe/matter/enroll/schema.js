@@ -289,4 +289,45 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			}
 		}
 	}]);
+	/**
+	 * 导入导出记录
+	 */
+	ngApp.provider.controller('ctrlImport', ['$scope', 'http2', 'noticebox', function($scope, http2, noticebox) {
+		var r = new Resumable({
+			target: '/rest/pl/fe/matter/enroll/import/upload?site=' + $scope.siteId + '&app=' + $scope.id,
+			testChunks: false,
+		});
+		r.assignBrowse(document.getElementById('btnImportRecords'));
+		r.on('fileAdded', function(file, event) {
+			$scope.$apply(function() {
+				noticebox.progress('开始上传文件');
+			});
+			r.upload();
+		});
+		r.on('progress', function(file, event) {
+			$scope.$apply(function() {
+				noticebox.progress('正在上传文件：' + Math.floor(r.progress() * 100) + '%');
+			});
+		});
+		r.on('complete', function() {
+			var f, lastModified, posted;
+			f = r.files.pop().file;
+			lastModified = f.lastModified ? f.lastModified : (f.lastModifiedDate ? f.lastModifiedDate.getTime() : 0);
+			posted = {
+				name: f.name,
+				size: f.size,
+				type: f.type,
+				lastModified: lastModified,
+				uniqueIdentifier: f.uniqueIdentifier,
+			};
+			http2.post('/rest/pl/fe/matter/enroll/import/endUpload?site=' + $scope.siteId + '&app=' + $scope.id, posted, function success(rsp) {});
+		});
+		$scope.options = {
+			overwrite: 'Y'
+		};
+		$scope.downloadTemplate = function() {
+			var url = '/rest/pl/fe/matter/enroll/import/downloadTemplate?site=' + $scope.siteId + '&app=' + $scope.id;
+			window.open(url);
+		};
+	}]);
 });

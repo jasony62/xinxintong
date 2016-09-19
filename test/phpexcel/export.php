@@ -21,30 +21,30 @@ $objPHPExcel->getProperties()->setCreator("jason")
 
 // set width
 $objActiveSheet = $objPHPExcel->getActiveSheet();
-$objActiveSheet->getColumnDimension('A')->setWidth(20);
-$objActiveSheet->getColumnDimension('B')->setWidth(20);
-$objActiveSheet->getColumnDimension('C')->setWidth(20);
-$objActiveSheet->getColumnDimension('D')->setWidth(20);
+// $objActiveSheet->getColumnDimension('A')->setWidth(20);
+// $objActiveSheet->getColumnDimension('B')->setWidth(20);
+// $objActiveSheet->getColumnDimension('C')->setWidth(20);
+// $objActiveSheet->getColumnDimension('D')->setWidth(20);
 
 // 设置行高度
-$objActiveSheet->getRowDimension('1')->setRowHeight(22);
+//$objActiveSheet->getRowDimension('1')->setRowHeight(22);
 
-$objActiveSheet->getRowDimension('2')->setRowHeight(20);
+//$objActiveSheet->getRowDimension('2')->setRowHeight(20);
 
 // 字体和样式
-$objActiveSheet->getDefaultStyle()->getFont()->setSize(10);
-$objActiveSheet->getStyle('A2:D2')->getFont()->setBold(true);
-$objActiveSheet->getStyle('A1')->getFont()->setBold(true);
+//$objActiveSheet->getDefaultStyle()->getFont()->setSize(10);
+//$objActiveSheet->getStyle('A2:D2')->getFont()->setBold(true);
+//$objActiveSheet->getStyle('A1')->getFont()->setBold(true);
 
-$objActiveSheet->getStyle('A2:D2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-$objActiveSheet->getStyle('A2:D2')->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+//$objActiveSheet->getStyle('A2:D2')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+//$objActiveSheet->getStyle('A2:D2')->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
 
 // 设置水平居中
-$objActiveSheet->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-$objActiveSheet->getStyle('A')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-$objActiveSheet->getStyle('B')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-$objActiveSheet->getStyle('C')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-$objActiveSheet->getStyle('D')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+// $objActiveSheet->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+// $objActiveSheet->getStyle('A')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+// $objActiveSheet->getStyle('B')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+// $objActiveSheet->getStyle('C')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+// $objActiveSheet->getStyle('D')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 
 //  合并
 $objActiveSheet->mergeCells('A1:D1');
@@ -63,10 +63,10 @@ for ($i = 0, $len = count($list); $i < $len; $i++) {
 	$objActiveSheet->setCellValue('B' . ($i + 3), $list[$i]['col2']);
 	$objActiveSheet->setCellValue('C' . ($i + 3), $list[$i]['col3']);
 	$objActiveSheet->setCellValue('D' . ($i + 3), $list[$i]['col4']);
-	$objActiveSheet->getStyle('D' . ($i + 3))->getFont()->getColor()->setRGB('FF0000');
-	$objActiveSheet->getStyle('A' . ($i + 3) . ':D' . ($i + 3))->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
-	$objActiveSheet->getStyle('A' . ($i + 3) . ':D' . ($i + 3))->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
-	$objActiveSheet->getRowDimension($i + 3)->setRowHeight(16);
+	//$objActiveSheet->getStyle('D' . ($i + 3))->getFont()->getColor()->setRGB('FF0000');
+	//$objActiveSheet->getStyle('A' . ($i + 3) . ':D' . ($i + 3))->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+	//$objActiveSheet->getStyle('A' . ($i + 3) . ':D' . ($i + 3))->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+	//$objActiveSheet->getRowDimension($i + 3)->setRowHeight(16);
 }
 
 // Rename sheet

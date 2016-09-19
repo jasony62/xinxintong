@@ -1,7 +1,7 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/PHPExcel.php';
 
-$filename = '演示数据.xlsx';
+$filename = 'abc.xlsx';
 
 $objPHPExcel = PHPExcel_IOFactory::load($filename);
 

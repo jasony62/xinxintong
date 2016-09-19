@@ -431,36 +431,8 @@ define(['frame'], function(ngApp) {
             if ($scope.content.signin === 'Y') {
                 url += '&includeSignin=Y';
             }
-            // http2.post(url, params, function(rsp) {
-            //     var blob;
-
-            //     blob = new Blob([rsp.data], {
-            //         type: "Content-Type: application/vnd.ms-excel"
-            //     });
-
-            //     saveAs(blob, $scope.app.title + '.xlsx');
-            // });
             window.open(url);
         };
-        (function copyRecords() {
-            var client = new ZeroClipboard($("#copyRecords"));
-            client.on("copy", function(event) {
-                var clipboard = event.clipboardData,
-                    $table;
-
-                $table = $($('#enrollRecords').html());
-                $table.find('thead>tr>th:first-child').remove();
-                $table.find('tbody>tr>td:first-child').remove();
-                $table.find('thead>tr>th:first-child').remove();
-                $table.find('tbody>tr>td:first-child').remove();
-                $table.find('thead>tr>th:last-child').remove();
-                $table.find('tbody>tr>td:last-child').remove();
-                $table.find('.signin_late').css('color', 'red');
-
-                clipboard.setData("text/html", '<table>' + $table.html() + '</table>');
-                noticebox.success('完成数据复制');
-            });
-        })();
         $scope.countSelected = function() {
             var count = 0;
             for (var p in $scope.rows.selected) {

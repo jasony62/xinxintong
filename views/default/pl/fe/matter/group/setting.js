@@ -214,6 +214,14 @@ define(['frame'], function(ngApp) {
 		$scope.open = function(round) {
 			$scope.activeRound = round;
 		};
+		$scope.json2Obj = function(json) {
+			if (json && json.length) {
+				obj = JSON.parse(json);
+				return obj;
+			} else {
+				return {};
+			}
+		};
 		$scope.value2Label = function(val, key) {
 			var schemas = $scope.app.data_schemas,
 				i, j, s, aVal, aLab = [];
@@ -249,15 +257,7 @@ define(['frame'], function(ngApp) {
 		};
 		$scope.export = function() {
 			var url = '/rest/pl/fe/matter/group/player/export?site=' + $scope.siteId + '&app=' + $scope.id;
-			http2.get(url, function(rsp) {
-				var blob;
-
-				blob = new Blob([rsp.data], {
-					type: "text/plain;charset=utf-8"
-				});
-
-				saveAs(blob, $scope.app.title + '.csv');
-			});
+			window.open(url);
 		};
 		$scope.activeTabIndex = 0;
 		$scope.activeTab = function(index) {
@@ -314,7 +314,7 @@ define(['frame'], function(ngApp) {
 	ngApp.provider.controller('ctrlPlayers', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
 		$scope.editPlayer = function(player) {
 			$uibModal.open({
-				templateUrl: '/views/default/pl/fe/matter/group/component/playerEditor.html?_=1',
+				templateUrl: '/views/default/pl/fe/matter/group/component/playerEditor.html?_=3',
 				controller: 'ctrlEditor',
 				windowClass: 'auto-height',
 				resolve: {
@@ -337,7 +337,7 @@ define(['frame'], function(ngApp) {
 		};
 		$scope.addPlayer = function() {
 			$uibModal.open({
-				templateUrl: '/views/default/pl/fe/matter/group/component/playerEditor.html?_=1',
+				templateUrl: '/views/default/pl/fe/matter/group/component/playerEditor.html?_=3',
 				controller: 'ctrlEditor',
 				windowClass: 'auto-height',
 				resolve: {

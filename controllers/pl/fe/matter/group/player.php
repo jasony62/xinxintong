@@ -32,7 +32,7 @@ class player extends \pl\fe\matter\base {
 	/**
 	 * 导出分组数据
 	 */
-	public function export_action($site, $app) {
+	public function exportCsv_action($site, $app) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -118,6 +118,105 @@ class player extends \pl\fe\matter\base {
 		//exit;
 
 		return new \ResponseData($exportedData);
+	}
+	/**
+	 * 导出分组数据
+	 */
+	public function export_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelGrp = $this->model('matter\group');
+		$modelPlayer = $this->model('matter\group\player');
+
+		$app = $modelGrp->byId($app);
+		$schemas = json_decode($app->data_schemas);
+		$result = $modelPlayer->find($site, $app);
+		if ($result->total == 0) {
+			die('player empty');
+		}
+		$players = $result->players;
+
+		require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/PHPExcel.php';
+
+		// Create new PHPExcel object
+		$objPHPExcel = new \PHPExcel();
+		// Set properties
+		$objPHPExcel->getProperties()->setCreator("信信通")
+			->setLastModifiedBy("信信通")
+			->setTitle($app->title)
+			->setSubject($app->title)
+			->setDescription($app->title);
+
+		$objActiveSheet = $objPHPExcel->getActiveSheet();
+
+		$colNumber = 0;
+		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '分组');
+
+		// 转换标题
+		foreach ($schemas as $schema) {
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, $schema->title);
+		}
+		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '备注');
+		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '标签');
+
+		// 转换数据
+		$rowNumber = 2;
+		foreach ($players as $player) {
+			$colNumber = 0;
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $player->round_title);
+			// 处理登记项
+			$data = (object) $player->data;
+			foreach ($schemas as $schema) {
+				$v = isset($data->{$schema->id}) ? $data->{$schema->id} : '';
+				switch ($schema->type) {
+				case 'single':
+				case 'phase':
+					foreach ($schema->ops as $op) {
+						if ($op->v === $v) {
+							$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $op->l);
+							$disposed = true;
+							break;
+						}
+					}
+					empty($disposed) && $objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $v);
+					break;
+				case 'multiple':
+					$labels = [];
+					$v = explode(',', $v);
+					foreach ($v as $oneV) {
+						foreach ($schema->ops as $op) {
+							if ($op->v === $oneV) {
+								$labels[] = $op->l;
+								break;
+							}
+						}
+					}
+					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, implode(',', $labels));
+					break;
+				default:
+					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $v);
+					break;
+				}
+			}
+			// 备注
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, empty($player->comment) ? '' : $player->comment);
+			// 标签
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, empty($player->tags) ? '' : $player->tags);
+
+			// next row
+			$rowNumber++;
+		}
+
+		// 输出
+		header('Content-Type: application/vnd.ms-excel');
+		header('Content-Disposition: attachment;filename="' . $app->title . '.xlsx"');
+		header('Cache-Control: max-age=0');
+		$objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+		$objWriter->save('php://output');
+
+		exit;
 	}
 	/**
 	 * 分组用户数量
@@ -386,6 +485,11 @@ class player extends \pl\fe\matter\base {
 			$player['round_id'] = $posted->round_id;
 			$player['round_title'] = $round->title;
 		}
+		$player['comment'] = isset($posted->comment) ? $posted->comment : '';
+		if (isset($posted->tags)) {
+			$player['tags'] = $posted->tags;
+			$this->model('matter\group')->updateTags($app, $posted->tags);
+		}
 		$id = $modelPlayer->insert('xxt_group_player', $player, true);
 		$player['id'] = $id;
 		/**
@@ -444,22 +548,26 @@ class player extends \pl\fe\matter\base {
 		$model = $this->model();
 
 		foreach ($record as $k => $v) {
-			if ($k === 'comment') {
+			if (in_array($k, ['comment', 'tags'])) {
 				$model->update(
 					'xxt_group_player',
 					[
-						'comment' => $v,
+						$k => $v,
 					],
 					"aid='$app' and enroll_key='$ek'"
 				);
+				if ($k === 'tags') {
+
+					$this->model('matter\group')->updateTags($app, $v);
+				}
 			} else if ($k === 'round_id') {
 				if (empty($v)) {
 					$model->update(
 						'xxt_group_player',
-						array(
+						[
 							'round_id' => 0,
 							'round_title' => '',
-						),
+						],
 						"aid='$app' and enroll_key='$ek'"
 					);
 					$record->round_title = '';
@@ -468,10 +576,10 @@ class player extends \pl\fe\matter\base {
 					if ($round = $modelRnd->byId($v)) {
 						$model->update(
 							'xxt_group_player',
-							array(
+							[
 								'round_id' => $v,
 								'round_title' => $round->title,
-							),
+							],
 							"aid='$app' and enroll_key='$ek'"
 						);
 						$record->round_title = $round->title;

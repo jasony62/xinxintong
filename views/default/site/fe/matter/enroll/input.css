@@ -9,6 +9,13 @@ li{margin:0;padding:0}
 #errmsg{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:0;left:50%;margin:0 0 0 -150px;text-align:center;transition:opacity 1s;z-index:-1;word-break:break-all}
 #errmsg.active{opacity:1;height:auto;z-index:999}
 
+/* score schema */
+li[wrap=score]{padding:4px 4px 4px 0;}
+li[wrap=score] label{padding:3px;font-weight:400;}
+li[wrap=score]>.number{display:inline-block;margin-top:6px;border:1px solid #CCC;}
+li[wrap=score]>.number>div{display:inline-block;width:48px;padding:4px 8px;margin:4px 8px;text-align:center;}
+li[wrap=score]>.number>.in{background:#33bb99;}
+
 /* img tiles */
 ul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;margin:0px;padding:0px;float:left}
 ul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute;max-width:none}

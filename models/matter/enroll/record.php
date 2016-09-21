@@ -66,10 +66,17 @@ class record_model extends \TMS_MODEL {
 		// 处理后的登记记录
 		$dbData = new \stdClass;
 
+		$schemas = json_decode($app->data_schemas);
+		$schemasById = [];
+		foreach ($schemas as $schema) {
+			$schemasById[$schema->id] = $schema;
+		}
+
 		// 清除已有的登记数据
 		$this->delete('xxt_enroll_record_data', "aid='{$app->id}' and enroll_key='$ek'");
 
 		foreach ($data as $n => $v) {
+			$schema = $schemasById[$n];
 			/**
 			 * 插入自定义属性
 			 */
@@ -126,12 +133,19 @@ class record_model extends \TMS_MODEL {
 				}
 				$vv = json_encode($vv);
 				$dbData->{$n} = $vv;
+			} else if ($schema->type === 'score') {
+				$dbData->{$n} = $v;
+				$vv = json_encode($v);
 			} else {
 				if (is_string($v)) {
 					$vv = $this->escape($v);
 				} else if (is_object($v) || is_array($v)) {
-					// 多选题，将选项合并为逗号分隔的字符串
-					$vv = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
+					if ($schema->type === 'multiple') {
+						// 多选题，将选项合并为逗号分隔的字符串
+						$vv = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
+					} else {
+						$vv = implode(',', $v);
+					}
 				} else {
 					$vv = $v;
 				}

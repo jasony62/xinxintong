@@ -96,11 +96,19 @@ class record extends \pl\fe\matter\base {
 
 		$posted = $this->getPostJson();
 		$current = time();
-		$modelRec = $this->model('matter\enroll\record');
-		$ek = $modelRec->genKey($site, $app);
 
-		$r = array();
-		$r['aid'] = $app;
+		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		$schemas = json_decode($app->data_schemas);
+		$schemasById = [];
+		foreach ($schemas as $schema) {
+			$schemasById[$schema->id] = $schema;
+		}
+
+		$modelRec = $this->model('matter\enroll\record');
+		$ek = $modelRec->genKey($site, $app->id);
+
+		$r = [];
+		$r['aid'] = $app->id;
 		$r['siteid'] = $site;
 		$r['enroll_key'] = $ek;
 		$r['enroll_at'] = $current;
@@ -108,7 +116,7 @@ class record extends \pl\fe\matter\base {
 		$r['comment'] = isset($posted->comment) ? $posted->comment : '';
 		if (isset($posted->tags)) {
 			$r['tags'] = $posted->tags;
-			$this->model('matter\enroll')->updateTags($app, $posted->tags);
+			$this->model('matter\enroll')->updateTags($app->id, $posted->tags);
 		}
 		$id = $modelRec->insert('xxt_enroll_record', $r, true);
 		$r['id'] = $id;
@@ -118,9 +126,10 @@ class record extends \pl\fe\matter\base {
 		if (isset($posted->data)) {
 			$dbData = new \stdClass;
 			foreach ($posted->data as $n => $v) {
+				$schema = $schemasById[$n];
 				if (is_array($v) && isset($v[0]->imgSrc)) {
 					/* 上传图片 */
-					$vv = array();
+					$vv = [];
 					$fsuser = $this->model('fs/user', $site);
 					foreach ($v as $img) {
 						if (preg_match("/^data:.+base64/", $img->imgSrc)) {
@@ -136,32 +145,32 @@ class record extends \pl\fe\matter\base {
 					$v = implode(',', $vv);
 					//
 					$dbData->{$n} = $v;
+				} else if ($schema->type === 'score') {
+					$dbData->{$n} = $v;
+					$v = json_encode($v);
 				} else if (is_string($v)) {
 					$v = $modelRec->escape($v);
-					//
 					$dbData->{$n} = $v;
 				} else if (is_object($v) || is_array($c = v)) {
 					/*多选题*/
 					$v = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
-					//
 					$dbData->{$n} = $v;
 				}
-				$cd = array(
-					'aid' => $app,
+				$cd = [
+					'aid' => $app->id,
 					'enroll_key' => $ek,
 					'name' => $n,
 					'value' => $v,
-				);
+				];
 				$modelRec->insert('xxt_enroll_record_data', $cd, false);
-				$r['data'][$n] = $v;
 			}
 			//
+			$r['data'] = $dbData;
 			$dbData = $modelRec->toJson($dbData);
 			$modelRec->update('xxt_enroll_record', ['data' => $dbData], "enroll_key='$ek'");
 		}
 
 		// 记录操作日志
-		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		$app->type = 'enroll';
 		$this->model('matter\log')->matterOp($site, $user, $app, 'add', $ek);
 
@@ -217,6 +226,12 @@ class record extends \pl\fe\matter\base {
 		$current = time();
 
 		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		$schemas = json_decode($app->data_schemas);
+		$schemasById = [];
+		foreach ($schemas as $schema) {
+			$schemasById[$schema->id] = $schema;
+		}
+
 		//
 		$model->update(
 			'xxt_enroll_record',
@@ -240,6 +255,7 @@ class record extends \pl\fe\matter\base {
 			} else if ($k === 'data' and is_object($v)) {
 				$dbData = new \stdClass;
 				foreach ($v as $cn => $cv) {
+					$schema = $schemasById[$cn];
 					if (is_array($cv) && isset($cv[0]->imgSrc)) {
 						/* 上传图片 */
 						$vv = array();
@@ -257,6 +273,9 @@ class record extends \pl\fe\matter\base {
 						}
 						$cv = implode(',', $vv);
 						$dbData->{$cn} = $cv;
+					} else if ($schema->type === 'score') {
+						$dbData->{$cn} = $cv;
+						$cv = json_encode($cv);
 					} else if (is_string($cv)) {
 						$cv = $model->escape($cv);
 						$dbData->{$cn} = $cv;
@@ -286,9 +305,9 @@ class record extends \pl\fe\matter\base {
 						];
 						$model->insert('xxt_enroll_record_data', $cd, false);
 					}
-					$record->data->{$cn} = $cv;
 				}
 				//
+				$record->data = $dbData;
 				$dbData = $model->toJson($dbData);
 				$model->update(
 					'xxt_enroll_record',
@@ -634,6 +653,13 @@ class record extends \pl\fe\matter\base {
 						}
 					}
 					$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, implode(',', $labels));
+					break;
+				case 'score':
+					$labels = [];
+					foreach ($schema->ops as $op) {
+						$labels[] = $op->l . ':' . $v->{$op->v};
+					}
+					$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, implode(' / ', $labels));
 					break;
 				default:
 					$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, $v);

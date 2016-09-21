@@ -175,6 +175,7 @@ define([], function() {
         var config = oWrap.config,
             schema = oWrap.schema,
             html, cls;
+
         html = '<ul';
         if (config.setUpper === 'Y') {
             html += ' tms-checkbox-group="' + schema.id + '" tms-checkbox-group-model="data" tms-checkbox-group-upper="' + config.upper + '"';
@@ -182,7 +183,7 @@ define([], function() {
         html += '>';
         cls = 'checkbox';
         config.align === 'H' && (cls += '-inline');
-        angular.forEach(schema.ops, function(op) {
+        schema.ops.forEach(function(op) {
             html += '<li class="' + cls + '" wrap="checkbox" contenteditable="false"';
             config.required === 'Y' && (html += 'required');
             html += '><label';
@@ -190,6 +191,26 @@ define([], function() {
             html += '><input type="checkbox" name="' + schema.id + '"';
             html += ' ng-model="data.' + schema.id + '.' + op.v + '"';
             html += ' disabled><span contenteditable="true">' + op.l + '</span></label></li>';
+        });
+        html += '</ul>';
+
+        return html;
+    };
+    InputWrap.prototype._htmlScoreItem = function(oWrap) {
+        var config = oWrap.config,
+            schema = oWrap.schema,
+            html;
+
+        html = '<ul>';
+        schema.ops.forEach(function(op, index) {
+            html += '<li class="score" wrap="score" contenteditable="false"';
+            config.required === 'Y' && (html += 'required');
+            html += '><div><label contenteditable="true">' + op.l + '</label></div>';
+            html += '<div class="number">';
+            for (var num = schema.range[0]; num <= schema.range[1]; num++) {
+                html += '<div ng-class="{\'in\':lessScore(\'' + schema.id + '\',' + index + ',' + num + ')}" ng-click="score(\'' + schema.id + '\',' + index + ',' + num + ')">' + num + '</div>';
+            }
+            html += '</div></li>';
         });
         html += '</ul>';
 
@@ -283,6 +304,11 @@ define([], function() {
                 html += '<button class="btn btn-default" type="button" ng-click="' + 'getMyLocation(\'' + schema.id + '\')' + '">定位</button>';
                 html += '</span>';
                 html += '</div>';
+                break;
+            case 'score':
+                if (schema.ops && schema.ops.length > 0) {
+                    html += this._htmlScoreItem(oWrap);
+                }
                 break;
         }
 
@@ -469,7 +495,7 @@ define([], function() {
     ValueWrap.prototype.newWrap = function(schema) {
         var oWrap = {
             config: {
-                id: 'V' + (new Date()).getTime(),
+                id: 'V' + (new Date() * 1),
                 pattern: 'record',
                 inline: 'Y',
                 splitLine: 'Y',
@@ -511,6 +537,9 @@ define([], function() {
             case 'phase':
             case 'multiple':
                 html = '<div>{{value2Label("' + schema.id + '")}}</div>';
+                break;
+            case 'score':
+                html = '<div>{{score2Label("' + schema.id + '")}}</div>';
                 break;
             case 'datetime':
                 html = "<div>{{Record.current.data." + schema.id + "|date:'yy-MM-dd HH:mm'}}</div>";

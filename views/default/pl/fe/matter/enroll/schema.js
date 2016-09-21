@@ -3,7 +3,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 	/**
 	 * 登记项管理
 	 */
-	ngApp.provider.controller('ctrlSchema', ['$scope', '$q', 'srvPage', '$uibModal', function($scope, $q, srvPage, $uibModal) {
+	ngApp.provider.controller('ctrlSchema', ['$scope', '$q', '$uibModal', 'srvPage', 'srvApp', function($scope, $q, $uibModal, srvPage, srvApp) {
 		$scope.updPage = function(page, names) {
 			return srvPage.update(page, names);
 		};
@@ -28,7 +28,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			$scope.update('data_schemas').then(function() {
 				$scope.app.pages.forEach(function(page) {
 					page.appendSchema(newSchema);
-					$scope.updPage(page, ['data_schemas', 'html']);
+					srvPage.update(page, ['data_schemas', 'html']);
 				});
 			});
 		};
@@ -47,10 +47,10 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			}
 
 			$scope.app.data_schemas.push(newSchema);
-			$scope.update('data_schemas').then(function() {
+			srvApp.update('data_schemas').then(function() {
 				$scope.app.pages.forEach(function(page) {
 					page.appendSchema(newSchema);
-					$scope.updPage(page, ['data_schemas', 'html']);
+					srvPage.update(page, ['data_schemas', 'html']);
 				});
 			});
 		};
@@ -62,10 +62,10 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			afterIndex = $scope.app.data_schemas.indexOf(schema);
 			$scope.app.data_schemas.splice(afterIndex + 1, 0, newSchema);
 
-			$scope.update('data_schemas').then(function() {
+			srvApp.update('data_schemas').then(function() {
 				$scope.app.pages.forEach(function(page) {
 					page.appendSchema(newSchema, schema);
-					$scope.updPage(page, ['data_schemas', 'html']);
+					srvPage.update(page, ['data_schemas', 'html']);
 				});
 			});
 		};
@@ -75,10 +75,10 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 
 			//从应用的定义中删除
 			$scope.app.data_schemas.splice($scope.app.data_schemas.indexOf(removedSchema), 1);
-			$scope.update('data_schemas').then(function() {
+			srvApp.update('data_schemas').then(function() {
 				$scope.app.pages.forEach(function(page) {
 					if (page.removeSchema(removedSchema)) {
-						$scope.updPage(page, ['data_schemas', 'html']);
+						srvPage.update(page, ['data_schemas', 'html']);
 					}
 				});
 				deferred.resolve(removedSchema);

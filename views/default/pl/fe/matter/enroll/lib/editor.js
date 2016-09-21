@@ -84,6 +84,7 @@ define(['wrap'], function(wrapLib) {
 				html.find('[wrap=button]>button>span').attr('contenteditable', 'true');
 				html.find('[wrap=checkbox]>label>span').attr('contenteditable', 'true');
 				html.find('[wrap=radio]>label>span').attr('contenteditable', 'true');
+				html.find('[wrap=score]>label').attr('contenteditable', 'true');
 				html.find('input[type=text],textarea').attr('readonly', true);
 				html.find('input[type=text],textarea').attr('disabled', true);
 				html.find('input[type=radio],input[type=checkbox]').attr('readonly', true);

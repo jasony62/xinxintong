@@ -25,7 +25,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 				}
 			}
 			$scope.app.data_schemas.push(newSchema);
-			$scope.update('data_schemas').then(function() {
+			srvApp.update('data_schemas').then(function() {
 				$scope.app.pages.forEach(function(page) {
 					page.appendSchema(newSchema);
 					srvPage.update(page, ['data_schemas', 'html']);

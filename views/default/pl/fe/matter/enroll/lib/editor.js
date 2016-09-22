@@ -123,7 +123,7 @@ define(['wrap'], function(wrapLib) {
 				oNewWrap = wrapLib.input.newWrap(newSchema);
 				_page.data_schemas.push(oNewWrap);
 
-				wrapParam = wrapLib.input.embed(oNewWrap);
+				wrapParam = wrapLib.input.embed(oNewWrap, true);
 				domNewWrap = _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
 			} else if (_page.type === 'V') {
 				var wrapParam;
@@ -143,7 +143,7 @@ define(['wrap'], function(wrapLib) {
 			dom = _editor.dom;
 			if (/radio/.test(domWrap.getAttribute('wrap'))) {
 
-				html = wrapLib.input.newRadio(schema, newOp, {});
+				html = wrapLib.input.newRadio(schema, newOp, {}, true);
 				html = $(html);
 
 				newOptionWrap = dom.create('li', {

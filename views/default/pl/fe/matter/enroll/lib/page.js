@@ -47,6 +47,7 @@ define(['wrap'], function(wrapLib) {
 					break;
 				}
 			}
+			return true;
 		},
 		removeButton: function(schema) {
 			for (var i = this.act_schemas.length - 1; i >= 0; i--) {

@@ -111,7 +111,7 @@ directive('tinymce', function($timeout) {
                                     while (wrap.parentNode !== editor.getBody()) {
                                         wrap = wrap.parentNode;
                                         if (wrap.hasAttribute('wrap')) {
-                                            if (/radio|checkbox/.test(wrap.getAttribute('wrap'))) {
+                                            if (/radio|checkbox|score/.test(wrap.getAttribute('wrap'))) {
                                                 scope.$emit('tinymce.option.add', wrap);
                                                 return;
                                             }

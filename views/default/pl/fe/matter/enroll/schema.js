@@ -223,7 +223,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 		};
 		$scope.updConfig = function(prop) {
 			$scope.inputPage.updateSchema($scope.activeSchema);
-			$scope.updPage($scope.inputPage, ['data_schemas', 'html']);
+			srvPage.update($scope.inputPage, ['data_schemas', 'html']);
 		};
 		$scope.$on('schemas.orderChanged', function(e, moved) {
 			changeSchemaOrder(moved);

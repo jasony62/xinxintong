@@ -150,11 +150,33 @@ define([], function() {
         return html;
     };
 
+    function _htmlNumber(schema, op, config, forEdit) {
+        var html, index;
+
+        index = schema.ops.indexOf(op);
+        html = '<li class="score" wrap="score" opvalue="' + op.v + '"';
+        forEdit && (html += ' contenteditable="false"');
+        config.required === 'Y' && (html += 'required');
+        html += '><div><label'
+        forEdit && (html += ' contenteditable="true"');
+        html += '>' + op.l + '</label></div>';
+        html += '<div class="number">';
+        for (var num = schema.range[0]; num <= schema.range[1]; num++) {
+            html += '<div ng-class="{\'in\':lessScore(\'' + schema.id + '\',' + index + ',' + num + ')}" ng-click="score(\'' + schema.id + '\',' + index + ',' + num + ')">' + num + '</div>';
+        }
+        html += '</div></li>';
+
+        return html;
+    };
+
     InputWrap.prototype.newRadio = function(schema, op, config, forEdit) {
         return _htmlRadio(schema, op, config, forEdit);
     };
     InputWrap.prototype.newCheckbox = function(schema, op, config, forEdit) {
         return _htmlCheckbox(schema, op, config, forEdit);
+    };
+    InputWrap.prototype.newNumber = function(schema, op, config, forEdit) {
+        return _htmlNumber(schema, op, config, forEdit);
     };
     InputWrap.prototype._htmlSingleRadio = function(oWrap, forEdit) {
         var config = oWrap.config,
@@ -206,18 +228,8 @@ define([], function() {
             html;
 
         html = '<ul>';
-        schema.ops.forEach(function(op, index) {
-            html += '<li class="score" wrap="score"';
-            forEdit && (html += ' contenteditable="false"');
-            config.required === 'Y' && (html += 'required');
-            html += '><div><label'
-            forEdit && (html += ' contenteditable="true"');
-            html += '>' + op.l + '</label></div>';
-            html += '<div class="number">';
-            for (var num = schema.range[0]; num <= schema.range[1]; num++) {
-                html += '<div ng-class="{\'in\':lessScore(\'' + schema.id + '\',' + index + ',' + num + ')}" ng-click="score(\'' + schema.id + '\',' + index + ',' + num + ')">' + num + '</div>';
-            }
-            html += '</div></li>';
+        schema.ops.forEach(function(op) {
+            html += _htmlNumber(schema, op, config, forEdit);
         });
         html += '</ul>';
 
@@ -404,13 +416,22 @@ define([], function() {
                 $input = $label.children('input'),
                 $span = $label.children('span'),
                 op = {};
+
             schema.id = $input.attr('name');
-            op.l = $wrap.children('label').children('span').html();
+            op.l = $span.html();
             if ($input.attr('type') === 'radio') {
                 op.v = $input.val();
             } else {
                 op.v = $input.attr('ng-model').split('.').pop();
             }
+            schema.ops = [op];
+        } else if ('score' === $wrap.attr('wrap')) {
+            var $label = $wrap.find('label'),
+                op = {};
+
+            schema.id = $wrap.parent().parent().attr('schema');
+            op.l = $label.html();
+            op.v = $wrap.attr('opvalue');
             schema.ops = [op];
         } else {
             schema = false;

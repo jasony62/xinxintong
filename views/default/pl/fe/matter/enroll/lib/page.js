@@ -190,6 +190,16 @@ define(['wrap'], function(wrapLib) {
 						$wrap.append(html);
 					}
 				})(wrapLib);
+			} else if ('score' === schema.type) {
+				(function(lib) {
+					var html, wrapSchema;
+					if (schema.ops && schema.ops.length > 0) {
+						wrapSchema = oPage.wrapBySchema(schema);
+						html = lib.input._htmlScoreItem(wrapSchema);
+						$wrap.children('ul').remove();
+						$wrap.append(html);
+					}
+				})(wrapLib);
 			}
 
 			this.html = $html.html();

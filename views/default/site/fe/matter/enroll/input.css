@@ -13,7 +13,7 @@ li{margin:0;padding:0}
 li[wrap=score]{padding:4px 4px 4px 0;}
 li[wrap=score] label{padding:3px;font-weight:400;}
 li[wrap=score]>.number{display:inline-block;margin-top:6px;border:1px solid #CCC;}
-li[wrap=score]>.number>div{display:inline-block;width:48px;padding:4px 8px;margin:4px 8px;text-align:center;}
+li[wrap=score]>.number>div{display:inline-block;width:48px;padding:4px 4px;margin:4px 4px;text-align:center;border-bottom:1px dotted #ddd}
 li[wrap=score]>.number>.in{background:#33bb99;}
 
 /* img tiles */

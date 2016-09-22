@@ -283,6 +283,50 @@ class article_model extends article_base {
 
 		return $articles;
 	}
+	/*
+     * 返回全部检索内容
+     */
+    public function search_all($site, $keyword) {
+		$s = "id,mpid,title,author,summary,pic,body,url,read_num,create_at,has_attachment,download_num,'article' type";
+		$f = 'xxt_article';
+		$w = "siteid='$site' and state=1 and approved='Y' and can_fullsearch='Y'";             
+		$w .= " and (title like '%$keyword%'";
+		$w .= "or summary like '%$keyword%'";
+		$w .= "or body like '%$keyword%')";             
+                
+		$q = array($s, $f, $w);
+
+		$q2['o'] = 'create_at desc';	
+
+		$articles = parent::query_objs_ss($q, $q2);
+		echo "<pre>";
+		print_r($articles);
+		foreach ($articles as $k => $v) {
+			
+		}
+		//return $articles;
+	}
+    /*
+     * 返回全文检索（统计）数目
+     */
+    public function fullsearch_num($site, $keyword) {
+		$s = "count(*) as c";
+		$f = 'xxt_article';
+		$w = "siteid='$site' and state=1 and approved='Y' and can_fullsearch='Y'";                		
+		$w .= " and (title like '%$keyword%'";
+		$w .= "or summary like '%$keyword%'";
+		$w .= "or body like '%$keyword%')";
+                                     
+		$q = array($s, $f, $w);
+
+		$q2['o'] = 'create_at desc';		
+
+		$r = parent::query_objs_ss($q, $q2);
+		$one=(array)$r[0];
+		$num=$one['c'];
+                
+		return $num;
+	}
 	/**
 	 * 审核记录
 	 *

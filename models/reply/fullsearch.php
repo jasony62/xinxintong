@@ -54,7 +54,7 @@ class fullsearch_model extends MultiArticleReply {
 			$r.="<Title><![CDATA[查看更多]]></Title>";
 			$r.="<Description><![CDATA[查看更多]]></Description>";
 			$r.="<PicUrl><![CDATA[]]></PicUrl>";
-			$r.="<Url><![CDATA[http://".$_SERVER['HTTP_HOST']."/rest/site/fe/matter/article?site=".$_SESSION['site']."&keyword=".$_SESSION['keyword']."]]></Url>";
+			$r.="<Url><![CDATA[http://".$_SERVER['HTTP_HOST']."/rest/site/fe/matter/article/search?site=".$_SESSION['site']."&keyword=".$_SESSION['keyword']."]]></Url>";
 			$r.="</item>";
 		}
 		$r .= '</Articles>';

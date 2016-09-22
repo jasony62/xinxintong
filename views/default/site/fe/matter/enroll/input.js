@@ -254,10 +254,12 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
     });
     ngApp.directive('tmsFileInput', ['$q', 'ls', function($q, LS) {
         var r, onSubmit;
-        r = new Resumable({
-            target: '/rest/site/fe/matter/enroll/record/uploadFile?site=' + LS.p.site + '&aid=' + LS.p.aid,
-            testChunks: false,
-            chunkSize: 512 * 1024
+        require(['resumable'], function(Resumable) {
+            r = new Resumable({
+                target: '/rest/site/fe/matter/enroll/record/uploadFile?site=' + LS.p.site + '&aid=' + LS.p.aid,
+                testChunks: false,
+                chunkSize: 512 * 1024
+            });
         });
         onSubmit = function($scope) {
             var defer;
@@ -369,15 +371,17 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
             }
         };
         $scope.$on('xxt.app.enroll.ready', function(event, params) {
+            var schemas = params.app.data_schemas,
+                schemasById = {},
+                hasSetMember = false,
+                dataOfRecord, p, value;
+
+            schemas.forEach(function(schema) {
+                schemasById[schema.id] = schema;
+            });
+            $scope.schemasById = schemasById;
+
             if (params.record) {
-                var schemas = params.app.data_schemas,
-                    mapSchema = {},
-                    dataOfRecord = params.record.data,
-                    hasSetMember = false,
-                    p, value;
-                angular.forEach(schemas, function(schema) {
-                    mapSchema[schema.id] = schema;
-                });
                 dataOfRecord = params.record.data;
                 for (p in dataOfRecord) {
                     if (p === 'member') {
@@ -386,17 +390,21 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                         }
                         $scope.data.member = angular.extend($scope.data.member, dataOfRecord.member);
                         hasSetMember = true;
-                    } else if (dataOfRecord[p].length && mapSchema[p]) {
-                        if (mapSchema[p].type === 'img') {
+                    } else if (schemasById[p].type === 'score') {
+                        $scope.data[p] = dataOfRecord[p];
+                    } else if (dataOfRecord[p].length && schemasById[p]) {
+                        if (schemasById[p].type === 'image') {
                             value = dataOfRecord[p].split(',');
                             $scope.data[p] = [];
-                            for (var i in value) $scope.data[p].push({
-                                imgSrc: value[i]
-                            });
-                        } else if (mapSchema[p].type === 'file') {
+                            for (var i in value) {
+                                $scope.data[p].push({
+                                    imgSrc: value[i]
+                                });
+                            }
+                        } else if (schemasById[p].type === 'file') {
                             value = JSON.parse(dataOfRecord[p]);
                             $scope.data[p] = value;
-                        } else if (mapSchema[p].type === 'multiple') {
+                        } else if (schemasById[p].type === 'multiple') {
                             value = dataOfRecord[p].split(',');
                             $scope.data[p] = {};
                             for (var i in value) $scope.data[p][value[i]] = true;
@@ -465,6 +473,31 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                     $scope.$parent.errmsg = data.errmsg;
                 }
             });
+        };
+        $scope.score = function(schemaId, opIndex, number) {
+            var schema = $scope.schemasById[schemaId],
+                op = schema.ops[opIndex];
+
+            if ($scope.data[schemaId] === undefined) {
+                $scope.data[schemaId] = {};
+                schema.ops.forEach(function(op) {
+                    $scope.data[schema.id][op.v] = 0;
+                });
+            }
+
+            $scope.data[schemaId][op.v] = number;
+        };
+        $scope.lessScore = function(schemaId, opIndex, number) {
+            if (!$scope.schemasById) return false;
+
+            var schema = $scope.schemasById[schemaId],
+                op = schema.ops[opIndex];
+
+            if ($scope.data[schemaId] === undefined) {
+                return false;
+            }
+
+            return $scope.data[schemaId][op.v] >= number;
         };
         $scope.$watch('data.member.authid', function(nv) {
             if (nv && nv.length) PG.setMember($scope.params, $scope.data.member);

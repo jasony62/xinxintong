@@ -25,7 +25,7 @@ class user extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$result = $this->model('sns\yx\fan')->bySite($site, $page, $size);
+		$result = $this->model('sns\yx\fan')->bySite($site, $page, $size, ['gid' => $gid, 'keyword' => $keyword]);
 
 		return new \ResponseData($result);
 	}

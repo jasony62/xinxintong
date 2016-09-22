@@ -96,11 +96,19 @@ class record extends \pl\fe\matter\base {
 
 		$posted = $this->getPostJson();
 		$current = time();
-		$modelRec = $this->model('matter\enroll\record');
-		$ek = $modelRec->genKey($site, $app);
 
-		$r = array();
-		$r['aid'] = $app;
+		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		$schemas = json_decode($app->data_schemas);
+		$schemasById = [];
+		foreach ($schemas as $schema) {
+			$schemasById[$schema->id] = $schema;
+		}
+
+		$modelRec = $this->model('matter\enroll\record');
+		$ek = $modelRec->genKey($site, $app->id);
+
+		$r = [];
+		$r['aid'] = $app->id;
 		$r['siteid'] = $site;
 		$r['enroll_key'] = $ek;
 		$r['enroll_at'] = $current;
@@ -108,7 +116,7 @@ class record extends \pl\fe\matter\base {
 		$r['comment'] = isset($posted->comment) ? $posted->comment : '';
 		if (isset($posted->tags)) {
 			$r['tags'] = $posted->tags;
-			$this->model('matter\enroll')->updateTags($app, $posted->tags);
+			$this->model('matter\enroll')->updateTags($app->id, $posted->tags);
 		}
 		$id = $modelRec->insert('xxt_enroll_record', $r, true);
 		$r['id'] = $id;
@@ -118,9 +126,10 @@ class record extends \pl\fe\matter\base {
 		if (isset($posted->data)) {
 			$dbData = new \stdClass;
 			foreach ($posted->data as $n => $v) {
+				$schema = $schemasById[$n];
 				if (is_array($v) && isset($v[0]->imgSrc)) {
 					/* 上传图片 */
-					$vv = array();
+					$vv = [];
 					$fsuser = $this->model('fs/user', $site);
 					foreach ($v as $img) {
 						if (preg_match("/^data:.+base64/", $img->imgSrc)) {
@@ -136,32 +145,32 @@ class record extends \pl\fe\matter\base {
 					$v = implode(',', $vv);
 					//
 					$dbData->{$n} = $v;
+				} else if ($schema->type === 'score') {
+					$dbData->{$n} = $v;
+					$v = json_encode($v);
 				} else if (is_string($v)) {
 					$v = $modelRec->escape($v);
-					//
 					$dbData->{$n} = $v;
 				} else if (is_object($v) || is_array($c = v)) {
 					/*多选题*/
 					$v = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
-					//
 					$dbData->{$n} = $v;
 				}
-				$cd = array(
-					'aid' => $app,
+				$cd = [
+					'aid' => $app->id,
 					'enroll_key' => $ek,
 					'name' => $n,
 					'value' => $v,
-				);
+				];
 				$modelRec->insert('xxt_enroll_record_data', $cd, false);
-				$r['data'][$n] = $v;
 			}
 			//
+			$r['data'] = $dbData;
 			$dbData = $modelRec->toJson($dbData);
 			$modelRec->update('xxt_enroll_record', ['data' => $dbData], "enroll_key='$ek'");
 		}
 
 		// 记录操作日志
-		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		$app->type = 'enroll';
 		$this->model('matter\log')->matterOp($site, $user, $app, 'add', $ek);
 
@@ -217,6 +226,12 @@ class record extends \pl\fe\matter\base {
 		$current = time();
 
 		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+		$schemas = json_decode($app->data_schemas);
+		$schemasById = [];
+		foreach ($schemas as $schema) {
+			$schemasById[$schema->id] = $schema;
+		}
+
 		//
 		$model->update(
 			'xxt_enroll_record',
@@ -240,6 +255,7 @@ class record extends \pl\fe\matter\base {
 			} else if ($k === 'data' and is_object($v)) {
 				$dbData = new \stdClass;
 				foreach ($v as $cn => $cv) {
+					$schema = $schemasById[$cn];
 					if (is_array($cv) && isset($cv[0]->imgSrc)) {
 						/* 上传图片 */
 						$vv = array();
@@ -257,6 +273,9 @@ class record extends \pl\fe\matter\base {
 						}
 						$cv = implode(',', $vv);
 						$dbData->{$cn} = $cv;
+					} else if ($schema->type === 'score') {
+						$dbData->{$cn} = $cv;
+						$cv = json_encode($cv);
 					} else if (is_string($cv)) {
 						$cv = $model->escape($cv);
 						$dbData->{$cn} = $cv;
@@ -286,9 +305,9 @@ class record extends \pl\fe\matter\base {
 						];
 						$model->insert('xxt_enroll_record_data', $cd, false);
 					}
-					$record->data->{$cn} = $cv;
 				}
 				//
+				$record->data = $dbData;
 				$dbData = $model->toJson($dbData);
 				$model->update(
 					'xxt_enroll_record',
@@ -526,10 +545,15 @@ class record extends \pl\fe\matter\base {
 								$wxSiteId = $siteId;
 							}
 						}
-						// 用模板消息发送
-						$rst = $this->tmplmsgSendByOpenid($tmplmsgId, $user->wx_openid, $message);
-						if ($rst[0] === false) {
-							return $rst;
+						// 用模板消息发送。需要考虑用户没有关注情况
+						if ($modelWxfan === false) {
+							$modelWxfan = $this->model('sns\wx\fan');
+						}
+						if ($modelWxfan->isFollow($wxSiteId, $user->wx_openid)) {
+							$rst = $this->tmplmsgSendByOpenid($tmplmsgId, $user->wx_openid, $message);
+							if ($rst[0] === false) {
+								return $rst;
+							}
 						}
 						break;
 					case 'yx':
@@ -553,8 +577,6 @@ class record extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$invalidChar = "/[\r\n\t]/";
-
 		// 登记活动
 		$app = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario', 'cascaded' => 'N']);
 		$schemas = json_decode($app->data_schemas);
@@ -566,43 +588,58 @@ class record extends \pl\fe\matter\base {
 		}
 		$records = $records->records;
 
-		// 登记记录转换成下载数据
-		$exportedData = [];
-		$size = 0;
+		require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/PHPExcel.php';
+
+		// Create new PHPExcel object
+		$objPHPExcel = new \PHPExcel();
+		// Set properties
+		$objPHPExcel->getProperties()->setCreator("信信通")
+			->setLastModifiedBy("信信通")
+			->setTitle($app->title)
+			->setSubject($app->title)
+			->setDescription($app->title);
+
+		$objActiveSheet = $objPHPExcel->getActiveSheet();
+
+		$objActiveSheet->setCellValueByColumnAndRow(0, 1, '登记时间');
+		$objActiveSheet->setCellValueByColumnAndRow(1, 1, '审核通过');
+
 		// 转换标题
-		$titles = ['登记时间', '审核通过'];
-		foreach ($schemas as $schema) {
-			$titles[] = $schema->title;
+		for ($i = 0, $ii = count($schemas); $i < $ii; $i++) {
+			$schema = $schemas[$i];
+			$objActiveSheet->setCellValueByColumnAndRow($i + 2, 1, $schema->title);
 		}
-		$titles[] = '备注';
+		$objActiveSheet->setCellValueByColumnAndRow($i + 2, 1, '备注');
+		$objActiveSheet->setCellValueByColumnAndRow($i + 3, 1, '标签');
 		// 记录分数
 		if ($app->scenario === 'voting') {
+			$objActiveSheet->setCellValueByColumnAndRow($i + 4, 1, '总分数');
+			$objActiveSheet->setCellValueByColumnAndRow($i + 5, 1, '平均分数');
 			$titles[] = '总分数';
 			$titles[] = '平均分数';
 		}
-		$titles = implode("\t", $titles);
-		$size += strlen($titles);
-		$exportedData[] = $titles;
 		// 转换数据
-		foreach ($records as $record) {
-			$row = [];
-			$row[] = date('y-m-j H:i', $record->enroll_at);
-			$row[] = $record->verified;
+		for ($j = 0, $jj = count($records); $j < $jj; $j++) {
+			$record = $records[$j];
+			$rowIndex = $j + 2;
+			$objActiveSheet->setCellValueByColumnAndRow(0, $rowIndex, date('y-m-j H:i', $record->enroll_at));
+			$objActiveSheet->setCellValueByColumnAndRow(1, $rowIndex, $record->verified);
 			// 处理登记项
 			$data = $record->data;
-			foreach ($schemas as $schema) {
+			for ($i = 0, $ii = count($schemas); $i < $ii; $i++) {
+				$schema = $schemas[$i];
 				$v = isset($data->{$schema->id}) ? $data->{$schema->id} : '';
 				switch ($schema->type) {
 				case 'single':
 				case 'phase':
 					foreach ($schema->ops as $op) {
 						if ($op->v === $v) {
-							$row[] = $op->l;
+							$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, $op->l);
 							$disposed = true;
 							break;
 						}
 					}
-					empty($disposed) && $row[] = $v;
+					empty($disposed) && $objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, $v);
 					break;
 				case 'multiple':
 					$labels = [];
@@ -615,36 +652,37 @@ class record extends \pl\fe\matter\base {
 							}
 						}
 					}
-					$row[] = implode(',', $labels);
+					$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, implode(',', $labels));
+					break;
+				case 'score':
+					$labels = [];
+					foreach ($schema->ops as $op) {
+						$labels[] = $op->l . ':' . $v->{$op->v};
+					}
+					$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, implode(' / ', $labels));
 					break;
 				default:
-					$row[] = $v;
+					$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, $v);
 					break;
 				}
 			}
 			// 备注
-			$row[] = preg_replace($invalidChar, ' ', $record->comment);
+			$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, $record->comment);
+			// 标签
+			$objActiveSheet->setCellValueByColumnAndRow($i + 3, $rowIndex, $record->tags);
 			// 记录分数
 			if ($app->scenario === 'voting') {
-				$row[] = $record->_score;
-				$row[] = sprintf('%.2f', $record->_average);
+				$objActiveSheet->setCellValueByColumnAndRow($i + 4, $rowIndex, $record->_score);
+				$objActiveSheet->setCellValueByColumnAndRow($i + 5, $rowIndex, sprintf('%.2f', $record->_average));
 			}
-			// 将数据转换为'|'分隔的字符串
-			$row = implode("\t", $row);
-			$size += strlen($row);
-			$exportedData[] = $row;
 		}
 
-		// 文件下载
-		$size += (count($exportedData) - 1) * 2;
-		$exportedData = implode("\r\n", $exportedData);
-
-		//header("Content-Type: text/plain;charset=utf-8");
-		//header("Content-Disposition: attachment; filename=" . $app->title . '.txt');
-		//header('Content-Length: ' . $size);
-		//echo $exportedData;
-		//exit;
-
-		return new \ResponseData($exportedData);
+		// 输出
+		header('Content-Type: application/vnd.ms-excel');
+		header('Content-Disposition: attachment;filename="' . $app->title . '.xlsx"');
+		header('Cache-Control: max-age=0');
+		$objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+		$objWriter->save('php://output');
+		exit;
 	}
 }

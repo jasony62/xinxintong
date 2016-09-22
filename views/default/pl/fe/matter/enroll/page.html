@@ -33,7 +33,7 @@
                 <button class='btn btn-default' ng-click="newSchema('location')">上传位置</button>
                 <button class='btn btn-default' ng-click="newSchema('phase')">项目阶段</button>
             </div>
-            <div class='form-group tile' ng-if="app.scenario==='voting'">
+            <div class='form-group tile' ng-if="app.scenario==='voting'&&ep.type==='I'">
                 <button class='btn btn-default' ng-click="batchSingleScore()">批量设置单选题分值</button>
             </div>
             <div class='form-group tile' ng-repeat="ms in memberSchemas" ng-if="ep.type==='I'">
@@ -112,7 +112,7 @@
         </div>
         <!-- end tinymce editor -->
         <!-- wrap schema editor -->
-        <div class='wrap-editor tile' ng-if="activeWrap.schema||activeWrap.schemas">
+        <div class='wrap-editor tile' ng-if="activeWrap.schema||activeWrap.schemas||activeWrap.type==='rounds'">
             <div class='form-group' ng-include="wrapEditorHtml()"></div>
             <button class='btn btn-default btn-block' ng-click="refreshWrap(activeWrap)">刷新页面元素</button>
         </div>
@@ -124,7 +124,7 @@
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
                 <a class='btn btn-default' href="/rest/pl/fe/matter/enroll/schema?site={{siteId}}&id={{id}}">编辑登记项</a>
-                <button class='btn btn-success' ng-click="updPage(ep,['data_schemas','act_schemas','html'])">保存修改</button>
+                <button class='btn btn-success' ng-click="save()">保存修改</button>
                 <a class='btn btn-success' href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布设置</a>
             </form>
             <form class="navbar-form navbar-right" style='display:inline-block'>
@@ -147,13 +147,5 @@
         <button class='btn btn-block btn-default' ng-click="delPage()">删除页面</button>
         <hr>
         <button class='btn btn-block btn-default' ng-click="addPage()">添加页面</button>
-    <div>
-</script>
-<script type="text/ng-template" id="schemaAction.html">
-    <div id="schemaAction">
-        <button class='btn btn-sm btn-default' ng-click="removePopover()"><span class='glyphicon glyphicon-trash'></span></button>
-        <button class='btn btn-sm btn-default' ng-click="upPopover()"><span class='glyphicon glyphicon-arrow-up'></span></button>
-        <button class='btn btn-sm btn-default' ng-click="downPopover()"><span class='glyphicon glyphicon-arrow-down'></span></button>
-        <button class="btn btn-sm btn-default" style='border:0;color:#ccc' title='关闭' ng-click="closePopover()"><span class='glyphicon glyphicon-remove'></span></button>
     <div>
 </script>

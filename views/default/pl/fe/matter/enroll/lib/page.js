@@ -47,6 +47,15 @@ define(['wrap'], function(wrapLib) {
 					break;
 				}
 			}
+			return true;
+		},
+		removeButton: function(schema) {
+			for (var i = this.act_schemas.length - 1; i >= 0; i--) {
+				if (this.act_schemas[i].id === schema.id) {
+					return this.act_schemas.splice(i, 1);
+				}
+			}
+			return false;
 		},
 		/**
 		 * 调整登记项在页面中的位置
@@ -70,22 +79,11 @@ define(['wrap'], function(wrapLib) {
 			this.html = $html.html();
 		},
 		/**
-		 * 根据登记项获得登记项的包裹对象
+		 * 根据按钮项获得按钮项的包裹对象
 		 */
-		wrapBySchema: function(schema) {
-			var dataWrap, i;
-			for (i = this.data_schemas.length - 1; i >= 0; i--) {
-				dataWrap = this.data_schemas[i];
-				if (schema.id === dataWrap.schema.id) {
-					return dataWrap;
-				}
-			}
-
-			return false;
-		},
-		containAct: function(dataWrap) {
+		wrapByButton: function(schema) {
 			for (var i = this.act_schemas.length - 1; i >= 0; i--) {
-				if (this.act_schemas[i].id === dataWrap.id) {
+				if (this.act_schemas[i].id === schema.id) {
 					return this.act_schemas[i];
 				}
 			}
@@ -192,6 +190,16 @@ define(['wrap'], function(wrapLib) {
 						$wrap.append(html);
 					}
 				})(wrapLib);
+			} else if ('score' === schema.type) {
+				(function(lib) {
+					var html, wrapSchema;
+					if (schema.ops && schema.ops.length > 0) {
+						wrapSchema = oPage.wrapBySchema(schema);
+						html = lib.input._htmlScoreItem(wrapSchema);
+						$wrap.children('ul').remove();
+						$wrap.append(html);
+					}
+				})(wrapLib);
 			}
 
 			this.html = $html.html();
@@ -219,6 +227,20 @@ define(['wrap'], function(wrapLib) {
 			} else if (angular.isObject(this.data_schemas)) {
 				this.data_schemas = [];
 			}
+		},
+		/**
+		 * 根据登记项获得登记项的包裹对象
+		 */
+		wrapBySchema: function(schema) {
+			var dataWrap, i;
+			for (i = this.data_schemas.length - 1; i >= 0; i--) {
+				dataWrap = this.data_schemas[i];
+				if (schema.id === dataWrap.schema.id) {
+					return dataWrap;
+				}
+			}
+
+			return false;
 		},
 	};
 	angular.extend(protoInputPage, protoPage);
@@ -313,6 +335,20 @@ define(['wrap'], function(wrapLib) {
 				this.data_schemas = [];
 			}
 		},
+		/**
+		 * 根据登记项获得登记项的包裹对象
+		 */
+		wrapBySchema: function(schema) {
+			var dataWrap, i;
+			for (i = this.data_schemas.length - 1; i >= 0; i--) {
+				dataWrap = this.data_schemas[i];
+				if (schema.id === dataWrap.schema.id) {
+					return dataWrap;
+				}
+			}
+
+			return false;
+		},
 		wrapById: function(wrapId) {
 			for (var i = this.data_schemas.length - 1; i >= 0; i--) {
 				if (this.data_schemas[i].config.id === wrapId) {
@@ -321,6 +357,16 @@ define(['wrap'], function(wrapLib) {
 			}
 			return false;
 		},
+		removeValue: function(config) {
+			// 从查看页中删除登记项
+			for (var i = this.data_schemas.length - 1; i >= 0; i--) {
+				if (this.data_schemas[i].id === config.id) {
+					return this.data_schemas.splice(i, 1);
+				}
+			}
+
+			return false;
+		}
 	};
 	angular.extend(protoViewPage, protoPage);
 	/**
@@ -376,7 +422,59 @@ define(['wrap'], function(wrapLib) {
 			this.data_schemas.push(dataWrap);
 
 			return wrapLib.rounds.embed(dataWrap);
-		}
+		},
+		wrapByList: function(config) {
+			for (var i = this.data_schemas.length - 1; i >= 0; i--) {
+				if (this.data_schemas[i].config.id === config.id) {
+					return this.data_schemas[i];
+				}
+			}
+
+			return false;
+		},
+		/**
+		 * 根据登记项获得登记项的包裹对象
+		 */
+		wrapBySchema: function(schema) {
+			var listWrap, schemaInList, i;
+			for (i = this.data_schemas.length - 1; i >= 0; i--) {
+				listWrap = this.data_schemas[i];
+				for (var j = listWrap.schemas.length - 1; j >= 0; j--) {
+					schemaInList = listWrap.schemas[j];
+					if (schema.id === schemaInList.id) {
+						return {
+							schema: schemaInList
+						};
+					}
+				}
+			}
+
+			return false;
+		},
+		removeValue: function(config, schema) {
+			// 从列表中删除登记项
+			var i, j, list;
+			for (i = this.data_schemas.length - 1; i >= 0; i--) {
+				list = this.data_schemas[i];
+				if (list.config.id === config.id) {
+					for (j = list.schemas.length - 1; j >= 0; j--) {
+						if (list.schemas[j].id === schema.id) {
+							return list.schemas.splice(j, 1);
+						}
+					}
+				}
+			}
+
+			return false;
+		},
+		updateSchema: function(schema) {
+			var $html;
+
+			$html = $('<div>' + this.html + '</div>');
+			$html.find("[schema='" + schema.id + "']").find('label').html(schema.title);
+
+			this.html = $html.html();
+		},
 	};
 	angular.extend(protoListPage, protoPage);
 
@@ -396,47 +494,6 @@ define(['wrap'], function(wrapLib) {
 					console.error('unknown page', page);
 			}
 		},
-		containList: function(config) {
-			if (this.type === 'L') {
-				for (var i = this.data_schemas.length - 1; i >= 0; i--) {
-					if (this.data_schemas[i].config.id === config.id) {
-						return this.data_schemas[i];
-					}
-				}
-			}
-			return false;
-		},
-		removeAct: function(schema) {
-			for (var i = this.act_schemas.length - 1; i >= 0; i--) {
-				if (this.act_schemas[i].id === schema.id) {
-					return this.act_schemas.splice(i, 1);
-				}
-			}
-			return false;
-		},
-		removeValue: function(config, schema) {
-			if (this.type === 'V') {
-				/*从查看页中删除登记项*/
-				for (var i = this.data_schemas.length - 1; i >= 0; i--) {
-					if (this.data_schemas[i].id === config.id) {
-						return this.data_schemas.splice(i, 1);
-					}
-				}
-			} else if (this.type === 'L' && config.id && schema) {
-				/*从列表中删除登记项*/
-				var i, j, list;
-				for (i = this.data_schemas.length - 1; i >= 0; i--) {
-					list = this.data_schemas[i];
-					if (list.config.id === config.id) {
-						for (j = list.schemas.length - 1; j >= 0; j--) {
-							if (list.schemas[j].id === schema.id) {
-								return list.schemas.splice(j, 1);
-							}
-						}
-					}
-				}
-			}
-			return false;
-		}
+
 	};
 });

@@ -206,12 +206,10 @@ class account_model extends TMS_MODEL {
 		$f = 'account a,account_in_group ag,account_group g';
 		$w = 'a.uid=ag.account_uid and ag.group_id=g.group_id';
 		$w .= " and (a.authed_id='$authed_id' || a.email='$authed_id')";
-		if ($account = $this->query_obj($s, $f, $w)) {
-			return $account;
-		} else {
-			return false;
-		}
 
+		$account = $this->query_obj($s, $f, $w);
+
+		return $account;
 	}
 	/**
 	 *

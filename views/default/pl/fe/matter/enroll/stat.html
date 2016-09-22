@@ -1,21 +1,28 @@
 <div id='stat-view'>
-    <div ng-repeat="s in stat">
-        <div id="{{s.id}}" style='height:300px'></div>
-        <table class='table table-bordered'>
-            <caption>{{s.title}}</caption>
-            <thead>
-                <tr>
-                    <th>选项</th>
-                    <th>数量</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="op in s.ops">
-                    <td>{{op.l}}</td>
-                    <td>{{op.c}}</td>
-                </tr>
-            </tbody>
-        </table>
+    <!-- actions -->
+    <div class='form-group form-inline'>
+        <button class='btn btn-default' ng-click="export()">导出全部数据</button>
+    </div>
+    <!-- end actions -->
+    <div id='stat-result'>
+        <div ng-repeat="s in stat">
+            <div id="{{s.id}}" style='height:300px'></div>
+            <table class='table table-bordered'>
+                <caption>{{s.title}}</caption>
+                <thead>
+                    <tr>
+                        <th>选项</th>
+                        <th>数量</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="op in s.ops">
+                        <td>{{op.l}}</td>
+                        <td>{{op.c}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
     <!-- bottom navbar -->
     <nav class="navbar navbar-default navbar-fixed-bottom">

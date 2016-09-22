@@ -227,18 +227,18 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
     }]);
     ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', function($scope, Record, LS) {
         var facRecord,
-            schemas = $scope.app.data_schemas;
-        $scope.value2Label = function(key) {
+            schemas = $scope.app.data_schemas,
+            schemasById = {};
+
+        schemas.forEach(function(schema) {
+            schemasById[schema.id] = schema;
+        });
+        $scope.value2Label = function(schemaId) {
             var val, i, j, s, aVal, aLab = [];
             if (schemas && facRecord.current.data) {
-                val = facRecord.current.data[key];
+                val = facRecord.current.data[schemaId];
                 if (val === undefined) return '';
-                for (i = 0, j = schemas.length; i < j; i++) {
-                    if (schemas[i].id === key) {
-                        s = schemas[i];
-                        break;
-                    }
-                }
+                s = schemasById[schemaId];
                 if (s && s.ops && s.ops.length) {
                     aVal = val.split(',');
                     for (i = 0, j = s.ops.length; i < j; i++) {
@@ -250,6 +250,23 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
             } else {
                 return '';
             }
+        };
+        $scope.score2Label = function(schemaId) {
+            var label = '',
+                schema = schemasById[schemaId],
+                val;
+
+            if (schema && facRecord.current.data) {
+                val = facRecord.current.data[schemaId];
+                if (schema.ops && schema.ops.length) {
+                    schema.ops.forEach(function(op, index) {
+                        label += op.l + ':' + val[op.v] + ' / ';
+                    });
+                    label = label.replace(/\s\/\s$/, '');
+                }
+            }
+
+            return label;
         };
         $scope.editRecord = function(event, page) {
             page ? $scope.gotoPage(event, page, facRecord.current.enroll_key) : alert('没有指定登记编辑页');

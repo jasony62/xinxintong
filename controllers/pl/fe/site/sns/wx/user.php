@@ -25,7 +25,7 @@ class user extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$result = $this->model('sns\wx\fan')->bySite($site, $page, $size);
+		$result = $this->model('sns\wx\fan')->bySite($site, $page, $size, ['gid' => $gid, 'keyword' => $keyword]);
 
 		return new \ResponseData($result);
 	}
@@ -48,14 +48,6 @@ class user extends \pl\fe\base {
 		}
 
 		return new \ResponseData($fan);
-	}
-	/**
-	 * get groups
-	 */
-	public function group_action() {
-		$groups = $this->model('user/fans')->getGroups($this->mpid);
-
-		return new \ResponseData($groups);
 	}
 	/**
 	 * 用户的交互足迹
@@ -281,112 +273,6 @@ class user extends \pl\fe\base {
 		}
 	}
 	/**
-	 * 从公众平台更新粉丝分组信息
-	 *
-	 * 1、清除现有的分组
-	 * 2、同步公众的号的分组
-	 * 不更新粉丝所属的分组
-	 */
-	public function refreshGroup_action() {
-		$mpa = $this->getMpaccount();
-		$proxy = $this->model("mpproxy/" . $mpa->mpsrc, $this->mpid);
-		$rst = $proxy->groupsGet();
-		if (false === $rst[0]) {
-			return new \ResponseError($rst[1]);
-		}
-
-		$groups = $rst[1]->groups;
-
-		$this->model()->delete('xxt_fansgroup', "mpid='$this->mpid'");
-		foreach ($groups as $g) {
-			$i = array('id' => $g->id, 'mpid' => $this->mpid, 'name' => $g->name);
-			$this->model()->insert('xxt_fansgroup', $i, false);
-		}
-
-		return new \ResponseData(count($groups));
-	}
-	/**
-	 * 添加粉丝分组
-	 *
-	 * 同时在公众平台和本地添加
-	 */
-	public function addGroup_action() {
-		$mpa = $this->getMpaccount();
-		$group = $this->getPostJson();
-		$name = $group->name;
-		/**
-		 * 在公众平台上添加
-		 */
-		$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $this->mpid);
-		$rst = $mpproxy->groupsCreate($group);
-		if ($rst[0] === false) {
-			return new \ResponseError($rst[1]);
-		}
-
-		$group = $rst[1]->group;
-		/**
-		 * 在本地添加
-		 */
-		$group->mpid = $this->mpid;
-		$group->name = $name;
-		$this->model()->insert('xxt_fansgroup', (array) $group, false);
-
-		return new \ResponseData($group);
-	}
-	/**
-	 * 更新粉丝分组的名称
-	 *
-	 * 同时修改公众平台的数据和本地数据
-	 */
-	public function updateGroup_action() {
-		$mpa = $this->getMpaccount();
-		$group = $this->getPostJson();
-		/**
-		 * 更新公众平台上的数据
-		 */
-		$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $this->mpid);
-		$rst = $mpproxy->groupsUpdate($group);
-		if ($rst[0] === false) {
-			return new \ResponseError($rst[1]);
-		}
-
-		/**
-		 * 更新本地数据
-		 */
-		$rst = $this->model()->update(
-			'xxt_fansgroup',
-			array('name' => $group->name),
-			"mpid='$this->mpid' and id='$group->id'"
-		);
-
-		return new \ResponseData($rst);
-	}
-	/**
-	 * 删除粉丝分组
-	 *
-	 * 同时删除公众平台上的数据和本地数据
-	 */
-	public function removeGroup_action() {
-		$mpa = $this->getMpaccount();
-		$group = $this->getPostJson();
-		/**
-		 * 删除公众平台数据
-		 */
-		$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $this->mpid);
-		$rst = $mpproxy->groupsDelete($group);
-		if ($rst[0] === false) {
-			return new \ResponseError($rst[1]);
-		}
-
-		/**
-		 * 删除本地数据
-		 * todo 级联更新粉丝所属分组数据
-		 */
-		$rst = $this->model()->delete('xxt_fansgroup', "mpid='$this->mpid' and id='$group->id'");
-
-		return new \ResponseData($rst);
-	}
-	/**
 	 * 删除一个关注用户
 	 */
 	public function removeOne_action($fid) {
@@ -405,21 +291,5 @@ class user extends \pl\fe\base {
 		$this->model()->update('xxt_fans', array('forbidden' => 'Y'), "fid='$fid'");
 
 		return new \ResponseData('success');
-	}
-	/**
-	 *
-	 */
-	public function wxfansgroup_action() {
-		$mpa = $this->getMpaccount();
-
-		$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc);
-		$rst = $mpproxy->groupsGet();
-
-		if ($rst[0] === false) {
-			return new \ResponseError($rst[1]);
-		} else {
-			return new \ResponseData($rst[1]);
-		}
-
 	}
 }

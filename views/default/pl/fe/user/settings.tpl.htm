@@ -1,4 +1,7 @@
-<div ng-controller='setCtrl'>
+<style>
+.help-block{color:red}
+</style>
+<div ng-controller='ctrlSetting'>
     <nav class='navbar navbar-inverse tms-large'>
         <ul class='nav navbar-nav'>
             <li><a href='/rest/pl/fe' target='_self'>首页</a></li>
@@ -11,7 +14,6 @@
         <div class='row'>
             <div class='col-md-4 col-md-offset-4'>
                 <form name='form'>
-                    <style>.help-block{color:red}</style>
                     <div class='form-group'>
                         <input type='password' class='form-control input-lg' ng-model='opwd' placeholder='输入当前密码' autofocus/>
                     </div>
@@ -25,6 +27,13 @@
                     </div>
                     <div class='form-group'>
                         <button class='btn btn-lg btn-primary btn-block' ng-click='changePwd()'>更改密码</button>
+                    </div>
+                    <hr>
+                    <div class='form-group'>
+                        <input type='text' class='form-control input-lg' name='nickname' ng-model='nickname' placeholder="账号昵称" />
+                    </div>
+                    <div class='form-group'>
+                        <button class='btn btn-lg btn-primary btn-block' ng-click='changeNickname()'>更改昵称</button>
                     </div>
                 </form>
             </div>

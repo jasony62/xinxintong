@@ -50,7 +50,7 @@ window.loading = {
 			}
 		});
 		require(['xxt-page'], function(assembler) {
-			assembler.bootstrap('/views/default/site/fe/matter/enroll/view.js?_=1');
+			assembler.bootstrap('/views/default/site/fe/matter/enroll/view.js?_=' + (timestamp * 1));
 		});
 	}
 };

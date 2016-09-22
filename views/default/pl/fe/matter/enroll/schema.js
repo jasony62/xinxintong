@@ -3,7 +3,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 	/**
 	 * 登记项管理
 	 */
-	ngApp.provider.controller('ctrlSchema', ['$scope', '$q', 'srvPage', '$uibModal', function($scope, $q, srvPage, $uibModal) {
+	ngApp.provider.controller('ctrlSchema', ['$scope', '$q', '$uibModal', 'srvPage', 'srvApp', function($scope, $q, $uibModal, srvPage, srvApp) {
 		$scope.updPage = function(page, names) {
 			return srvPage.update(page, names);
 		};
@@ -28,7 +28,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			$scope.update('data_schemas').then(function() {
 				$scope.app.pages.forEach(function(page) {
 					page.appendSchema(newSchema);
-					$scope.updPage(page, ['data_schemas', 'html']);
+					srvPage.update(page, ['data_schemas', 'html']);
 				});
 			});
 		};
@@ -47,10 +47,10 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			}
 
 			$scope.app.data_schemas.push(newSchema);
-			$scope.update('data_schemas').then(function() {
+			srvApp.update('data_schemas').then(function() {
 				$scope.app.pages.forEach(function(page) {
 					page.appendSchema(newSchema);
-					$scope.updPage(page, ['data_schemas', 'html']);
+					srvPage.update(page, ['data_schemas', 'html']);
 				});
 			});
 		};
@@ -62,10 +62,10 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			afterIndex = $scope.app.data_schemas.indexOf(schema);
 			$scope.app.data_schemas.splice(afterIndex + 1, 0, newSchema);
 
-			$scope.update('data_schemas').then(function() {
+			srvApp.update('data_schemas').then(function() {
 				$scope.app.pages.forEach(function(page) {
 					page.appendSchema(newSchema, schema);
-					$scope.updPage(page, ['data_schemas', 'html']);
+					srvPage.update(page, ['data_schemas', 'html']);
 				});
 			});
 		};
@@ -75,10 +75,10 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 
 			//从应用的定义中删除
 			$scope.app.data_schemas.splice($scope.app.data_schemas.indexOf(removedSchema), 1);
-			$scope.update('data_schemas').then(function() {
+			srvApp.update('data_schemas').then(function() {
 				$scope.app.pages.forEach(function(page) {
 					if (page.removeSchema(removedSchema)) {
-						$scope.updPage(page, ['data_schemas', 'html']);
+						srvPage.update(page, ['data_schemas', 'html']);
 					}
 				});
 				deferred.resolve(removedSchema);
@@ -99,7 +99,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 	/**
 	 * 应用的所有登记项
 	 */
-	ngApp.provider.controller('ctrlList', ['$scope', '$timeout', function($scope, $timeout) {
+	ngApp.provider.controller('ctrlList', ['$scope', '$timeout', 'srvPage', 'srvApp', function($scope, $timeout, srvPage, srvApp) {
 		function changeSchemaOrder(moved) {
 			$scope.update('data_schemas').then(function() {
 				var app = $scope.app;
@@ -209,11 +209,11 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			}
 			timerOfUpdate = $timeout(function() {
 				// 更新应用的定义
-				$scope.update('data_schemas').then(function() {
+				srvApp.update('data_schemas').then(function() {
 					// 更新页面
 					$scope.app.pages.forEach(function(page) {
 						page.updateSchema(schema);
-						$scope.updPage(page, ['data_schemas', 'html']);
+						srvPage.update(page, ['data_schemas', 'html']);
 					});
 				});
 			}, 1000);
@@ -288,5 +288,46 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 				})();
 			}
 		}
+	}]);
+	/**
+	 * 导入导出记录
+	 */
+	ngApp.provider.controller('ctrlImport', ['$scope', 'http2', 'noticebox', function($scope, http2, noticebox) {
+		var r = new Resumable({
+			target: '/rest/pl/fe/matter/enroll/import/upload?site=' + $scope.siteId + '&app=' + $scope.id,
+			testChunks: false,
+		});
+		r.assignBrowse(document.getElementById('btnImportRecords'));
+		r.on('fileAdded', function(file, event) {
+			$scope.$apply(function() {
+				noticebox.progress('开始上传文件');
+			});
+			r.upload();
+		});
+		r.on('progress', function(file, event) {
+			$scope.$apply(function() {
+				noticebox.progress('正在上传文件：' + Math.floor(r.progress() * 100) + '%');
+			});
+		});
+		r.on('complete', function() {
+			var f, lastModified, posted;
+			f = r.files.pop().file;
+			lastModified = f.lastModified ? f.lastModified : (f.lastModifiedDate ? f.lastModifiedDate.getTime() : 0);
+			posted = {
+				name: f.name,
+				size: f.size,
+				type: f.type,
+				lastModified: lastModified,
+				uniqueIdentifier: f.uniqueIdentifier,
+			};
+			http2.post('/rest/pl/fe/matter/enroll/import/endUpload?site=' + $scope.siteId + '&app=' + $scope.id, posted, function success(rsp) {});
+		});
+		$scope.options = {
+			overwrite: 'Y'
+		};
+		$scope.downloadTemplate = function() {
+			var url = '/rest/pl/fe/matter/enroll/import/downloadTemplate?site=' + $scope.siteId + '&app=' + $scope.id;
+			window.open(url);
+		};
 	}]);
 });

@@ -361,10 +361,10 @@ class base extends \TMS_CONTROLLER {
 	 * $url
 	 */
 	public function wxjssdksignpackage_action($site, $url) {
-		if ($snsConfig = $this->model('sns\wx')->bySite($site)) {
-			if ($snsConfig->joined === 'Y') {
-				$snsProxy = $this->model('sns\wx\proxy', $snsConfig);
-			}
+		if (($snsConfig = $this->model('sns\wx')->bySite($site)) && $snsConfig->joined === 'Y') {
+			$snsProxy = $this->model('sns\wx\proxy', $snsConfig);
+		} else if (($snsConfig = $this->model('sns\wx')->bySite('platform')) && $snsConfig->joined === 'Y') {
+			$snsProxy = $this->model('sns\wx\proxy', $snsConfig);
 		} else if ($snsConfig = $this->model('sns\qy')->bySite($site)) {
 			if ($snsConfig->joined === 'Y') {
 				$snsProxy = $this->model('sns\qy\proxy', $snsConfig);

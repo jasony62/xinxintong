@@ -193,48 +193,6 @@ define(['frame'], function(ngApp) {
 				$scope.update('data_schemas');
 			});
 		};
-		$scope.addPage = function() {
-			$scope.createPage().then(function(page) {
-				$scope.choosePage(page);
-			});
-		};
-		$scope.updPage = function(page, names) {
-			var defer = $q.defer(),
-				url, p = {};
-
-			angular.isString(names) && (names = [names]);
-			angular.forEach(names, function(name) {
-				p[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
-			});
-			url = '/rest/pl/fe/matter/signin/page/update';
-			url += '?site=' + $scope.siteId;
-			url += '&app=' + $scope.id;
-			url += '&pid=' + page.id;
-			url += '&cname=' + page.code_name;
-			http2.post(url, p, function(rsp) {
-				page.$$modified = false;
-				noticebox.success('完成保存');
-				defer.resolve();
-			});
-			return defer.promise;
-		};
-		$scope.delPage = function() {
-			if (window.confirm('确定删除页面？')) {
-				var url = '/rest/pl/fe/matter/signin/page/remove';
-				url += '?site=' + $scope.siteId;
-				url += '&app=' + $scope.id;
-				url += '&pid=' + $scope.ep.id;
-				url += '&cname=' + $scope.ep.code_name;
-				http2.get(url, function(rsp) {
-					$scope.app.pages.splice($scope.app.pages.indexOf($scope.ep), 1);
-					if ($scope.app.pages.length) {
-						$scope.choosePage($scope.app.pages[0]);
-					} else {
-						$scope.ep = null;
-					}
-				});
-			}
-		};
 		$scope.choosePhase = function() {
 			var phaseId = $scope.app.mission_phase_id,
 				i, phase, newPhase;

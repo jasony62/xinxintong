@@ -393,8 +393,8 @@ class record extends base {
 			exit;
 		}
 		if (empty($submitkey)) {
-			$user = $this->getUser($site);
-			$submitkey = $user->vid;
+			$user = $this->who;
+			$submitkey = $user->uid;
 		}
 		/** 分块上传文件 */
 		if (defined('SAE_TMP_PATH')) {

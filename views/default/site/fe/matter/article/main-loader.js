@@ -24,7 +24,7 @@ window.loading = {
 					deps: ['hammer']
 				}
 			},
-			urlArgs: "bust=" + (new Date()).getTime()
+			urlArgs: "bust=" + (new Date() * 1)
 		});
 		require(['xxt-page'], function(loader) {
 			loader.bootstrap('/views/default/site/fe/matter/article/main.js');

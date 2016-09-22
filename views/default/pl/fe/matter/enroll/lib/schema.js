@@ -89,6 +89,15 @@ define([], function() {
 					}];
 				} else if (type === 'image' || type === 'file') {
 					schema.count = 1;
+				} else if (type === 'score') {
+					schema.range = [1, 5];
+					schema.ops = [{
+						l: '打分项1',
+						v: 'v1',
+					}, {
+						l: '打分项2',
+						v: 'v2',
+					}];
 				}
 			}
 

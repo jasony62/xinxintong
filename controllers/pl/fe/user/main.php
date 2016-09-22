@@ -1,20 +1,11 @@
 <?php
 namespace pl\fe\user;
+
+require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
- * 平台管理端用户管理
+ * 平台用户管理
  */
-class main extends \TMS_CONTROLLER {
-
-	public function get_access_rule() {
-		$rule_action['rule_type'] = 'white';
-		$rule_action['actions'] = array();
-		$rule_action['actions'][] = 'hello';
-		$rule_action['actions'][] = 'view';
-		$rule_action['actions'][] = 'register';
-		$rule_action['actions'][] = 'login';
-
-		return $rule_action;
-	}
+class main extends \pl\fe\base {
 	/**
 	 * 结束登录状态
 	 */
@@ -23,30 +14,61 @@ class main extends \TMS_CONTROLLER {
 		$this->redirect('');
 	}
 	/**
+	 * 获得当前用户信息
+	 */
+	public function get_action() {
+		if (false === ($loginUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$account = $this->model('account')->byId($loginUser->id, ['fields' => 'email,nickname']);
+
+		return new \ResponseData($account);
+	}
+	/**
 	 * 修改当前用户的口令
 	 */
 	public function changePwd_action() {
-		$account = \TMS_CLIENT::account();
-		if ($account === false) {
+		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$data = $this->getPostJson();
+		$modelAcnt = $this->model('account');
+		$account = $modelAcnt->byId($loginUser->id);
+
 		/**
 		 * check old password
 		 */
 		$old_pwd = $data->opwd;
-		$result = $this->model('account')->validate($account->email, $old_pwd);
+		$result = $modelAcnt->validate($account->email, $old_pwd);
 		if ($result->err_code != 0) {
 			return $result;
 		}
-
 		/**
 		 * set new password
 		 */
 		$new_pwd = $data->npwd;
-		$this->model('account')->change_password($account->email, $new_pwd, $account->salt);
+		$modelAcnt->change_password($account->email, $new_pwd, $account->salt);
 
 		return new \ResponseData($account->uid);
+	}
+	/**
+	 * 修改当前用户的昵称
+	 */
+	public function changeNickname_action() {
+		if (false === ($loginUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$data = $this->getPostJson();
+
+		$rst = $this->model()->update(
+			'account',
+			['nickname' => $data->nickname],
+			['uid' => $loginUser->id]
+		);
+
+		return new \ResponseData($rst);
 	}
 }

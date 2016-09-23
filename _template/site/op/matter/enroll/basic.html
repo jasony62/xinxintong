@@ -4,22 +4,22 @@
 			<table class='table table-bordered'>
 				<thead>
 					<tr>
-						<th style='width:100px'>登记时间</th>
-						<th style='width:80px'>审核通过</th>
+						<th>登记时间</th>
+						<th>审核通过</th>
 						<th class='custom-col' ng-repeat="schema in app.dataSchemas">{{schema.title}}</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr ng-repeat='r in records' class='record' ng-click="edit(r)">
-						<td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
-						<td>{{r.verified}}</td>
-						<td ng-repeat="c in app.dataSchemas">
-							<span ng-if="c.id.indexOf('member')===0">{{memberAttr(r.data, c.id)}}</span>
-							<span ng-if="c.type!=='img'&&c.type!=='file'">{{value2Label(r.data[c.id], c.id)}}</span>
-							<span ng-if="c.type==='img'" ng-init="imgs=r.data[c.id].split(',')">
+						<td data-th='登记时间'><span>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</span></td>
+						<td data-th='审核通过'><span>{{r.verified}}</span></td>
+						<td data-th="{{schema.title}}" ng-repeat="schema in app.dataSchemas">
+							<span ng-if="schema.id.indexOf('member')===0">{{memberAttr(r.data, schema.id)}}</span>
+							<span ng-if="schema.type!=='img'&&schema.type!=='file'">{{value2Label(r.data[schema.id], schema.id)}}</span>
+							<span ng-if="schema.type==='img'" ng-init="imgs=r.data[schema.id].split(',')">
 								<img ng-repeat="img in imgs" ng-src='{{img}}' />
 							</span>
-							<span ng-if="c.type==='file'" ng-init="files=json2Obj(r.data[c.id])">
+							<span ng-if="schema.type==='file'" ng-init="files=json2Obj(r.data[schema.id])">
 								<span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
 							</span>
 						</td>

@@ -28,7 +28,9 @@
 				$scope.winners.push(winner);
 				$http.post(LS.j('/done', 'site', 'app', 'rid') + '&ek=' + winner.enroll_key, {
 					uid: winner.userid,
-					nickname: winner.nickname
+					nickname: winner.nickname,
+					ek: winner.enroll_key,
+					rid: LS.p.rid
 				});
 			}
 			$scope.stopping = false;

@@ -18,9 +18,8 @@ class search extends \site\fe\matter\base{
 	 * 返回所有的搜索结果
 	 */
 	 public function detail_action($site,$keyword='') {
-		$matters = \TMS_APP::model('matter\article')->search_all($site, $keyword);
-	
-		//return new \ResponseData($matters);
+		$matters = \TMS_APP::model('matter\article')->search_all($site, $keyword);	
+		return new \ResponseData($matters);
 	}
 	/*
 	 * 返回所有的内容标签

@@ -299,13 +299,35 @@ class article_model extends article_base {
 		$q2['o'] = 'create_at desc';	
 
 		$articles = parent::query_objs_ss($q, $q2);
-		echo "<pre>";
-		print_r($articles);
+		$articles=json_encode($articles);
+		$articles=json_decode($articles,1);
+		//内容标签
+		$q3="select * from xxt_article_tag t left join xxt_tag g on t.tag_id=g.id where t.mpid='$site' ";	
+		$tag_content=parent::query_objs($q3);
+
+		//频道标签
+		$q4="select m.matter_id,m.channel_id,c.siteid,c.title from xxt_channel_matter m left join xxt_channel c on m.channel_id=c.id where c.siteid='$site' and m.matter_type='article' ";
+		$tag_channel=parent::query_objs($q4);
+		
+		//将一篇文章所有标签放到tag目录下
 		foreach ($articles as $k => $v) {
-			
+			$a=array();
+			foreach ($tag_content as $kc => $vc) {
+				if($v['id']==$vc->res_id){
+					$a['content'][$kc]=$vc->title;
+				}
+			}
+			foreach ($tag_channel as $kl => $vl) {
+				if($v['id']==$vl->matter_id){
+					$a['channel'][$kl]=$vl->title;
+				}
+			}
+			$v['tag']=$a;
+			$b[$k]=$v;
 		}
-		//return $articles;
-	}
+
+		return $b;
+	}	
     /*
      * 返回全文检索（统计）数目
      */

@@ -18,8 +18,6 @@ define(["require", "angular", "util.site"], function(require, angular) {
                 $scope.records = rsp.data.records;
             });
         };
-        $scope.entryURL = 'http://' + location.host + '/rest/site/fe/matter/enroll?site=' + PU.params.site + '&app=' + PU.params.app;
-        $scope.entryQrcode = '/rest/pl/fe/matter/enroll/qrcode?url=' + encodeURIComponent($scope.entryURL);
         $scope.value2Label = function(val, key) {
             var i, schema;
             if (val === undefined) return '';
@@ -47,7 +45,7 @@ define(["require", "angular", "util.site"], function(require, angular) {
                 return;
             }
             $scope.app = rsp.data.app;
-            PageLoader.render($scope, rsp.data.page).then(function() {
+            PageLoader.render($scope, rsp.data.page, ngApp).then(function() {
                 $scope.Page = rsp.data.page;
             });
             if ($scope.app.data_schemas && $scope.app.data_schemas.length) {

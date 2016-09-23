@@ -76,7 +76,6 @@ class record_model extends \TMS_MODEL {
 		$this->delete('xxt_enroll_record_data', "aid='{$app->id}' and enroll_key='$ek'");
 
 		foreach ($data as $n => $v) {
-			$schema = $schemasById[$n];
 			/**
 			 * 插入自定义属性
 			 */
@@ -96,60 +95,63 @@ class record_model extends \TMS_MODEL {
 					$vv->extattr = $extattr;
 				}
 				$vv = urldecode(json_encode($vv));
-			} else if (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
-				/* 上传图片 */
-				$vv = array();
-				$fsuser = \TMS_APP::model('fs/user', $siteId);
-				foreach ($v as $img) {
-					$rst = $fsuser->storeImg($img);
-					if (false === $rst[0]) {
-						return $rst;
-					}
-					$vv[] = $rst[1];
-				}
-				$vv = implode(',', $vv);
-				$dbData->{$n} = $vv;
-			} else if (is_array($v) && isset($v[0]->uniqueIdentifier)) {
-				/* 上传文件 */
-				$fsUser = \TMS_APP::M('fs/local', $siteId, '_user');
-				$fsResum = \TMS_APP::M('fs/local', $siteId, '_resumable');
-				$fsAli = \TMS_APP::M('fs/alioss', $siteId);
-				$vv = array();
-				foreach ($v as $file) {
-					if (defined('SAE_TMP_PATH')) {
-						$dest = '/' . $app->id . '/' . $submitkey . '_' . $file->name;
-						$fileUploaded2 = $fsAli->getBaseURL() . $dest;
-					} else {
-						$fileUploaded = $fsResum->rootDir . '/' . $submitkey . '_' . $file->uniqueIdentifier;
-						!file_exists($fsUser->rootDir . '/' . $submitkey) && mkdir($fsUser->rootDir . '/' . $submitkey, 0777, true);
-						$fileUploaded2 = $fsUser->rootDir . '/' . $submitkey . '/' . $file->name;
-						if (false === rename($fileUploaded, $fileUploaded2)) {
-							return array(false, '移动上传文件失败');
-						}
-					}
-					unset($file->uniqueIdentifier);
-					$file->url = $fileUploaded2;
-					$vv[] = $file;
-				}
-				$vv = json_encode($vv);
-				$dbData->{$n} = $vv;
-			} else if ($schema->type === 'score') {
-				$dbData->{$n} = $v;
-				$vv = json_encode($v);
 			} else {
-				if (is_string($v)) {
-					$vv = $this->escape($v);
-				} else if (is_object($v) || is_array($v)) {
-					if ($schema->type === 'multiple') {
-						// 多选题，将选项合并为逗号分隔的字符串
-						$vv = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
-					} else {
-						$vv = implode(',', $v);
+				$schema = $schemasById[$n];
+				if (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
+					/* 上传图片 */
+					$vv = array();
+					$fsuser = \TMS_APP::model('fs/user', $siteId);
+					foreach ($v as $img) {
+						$rst = $fsuser->storeImg($img);
+						if (false === $rst[0]) {
+							return $rst;
+						}
+						$vv[] = $rst[1];
 					}
+					$vv = implode(',', $vv);
+					$dbData->{$n} = $vv;
+				} else if (is_array($v) && isset($v[0]->uniqueIdentifier)) {
+					/* 上传文件 */
+					$fsUser = \TMS_APP::M('fs/local', $siteId, '_user');
+					$fsResum = \TMS_APP::M('fs/local', $siteId, '_resumable');
+					$fsAli = \TMS_APP::M('fs/alioss', $siteId);
+					$vv = array();
+					foreach ($v as $file) {
+						if (defined('SAE_TMP_PATH')) {
+							$dest = '/' . $app->id . '/' . $submitkey . '_' . $file->name;
+							$fileUploaded2 = $fsAli->getBaseURL() . $dest;
+						} else {
+							$fileUploaded = $fsResum->rootDir . '/' . $submitkey . '_' . $file->uniqueIdentifier;
+							!file_exists($fsUser->rootDir . '/' . $submitkey) && mkdir($fsUser->rootDir . '/' . $submitkey, 0777, true);
+							$fileUploaded2 = $fsUser->rootDir . '/' . $submitkey . '/' . $file->name;
+							if (false === rename($fileUploaded, $fileUploaded2)) {
+								return array(false, '移动上传文件失败');
+							}
+						}
+						unset($file->uniqueIdentifier);
+						$file->url = $fileUploaded2;
+						$vv[] = $file;
+					}
+					$vv = json_encode($vv);
+					$dbData->{$n} = $vv;
+				} else if ($schema->type === 'score') {
+					$dbData->{$n} = $v;
+					$vv = json_encode($v);
 				} else {
-					$vv = $v;
+					if (is_string($v)) {
+						$vv = $this->escape($v);
+					} else if (is_object($v) || is_array($v)) {
+						if ($schema->type === 'multiple') {
+							// 多选题，将选项合并为逗号分隔的字符串
+							$vv = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
+						} else {
+							$vv = implode(',', $v);
+						}
+					} else {
+						$vv = $v;
+					}
+					$dbData->{$n} = $vv;
 				}
-				$dbData->{$n} = $vv;
 			}
 			// 记录数据
 			$ic = array(

@@ -250,14 +250,4 @@ class main extends \site\fe\matter\base {
 
 		return new \ResponseError('不支持的类型');
 	}
-	/*
-	* 返回每个用户的阅读数
-	*/
-	public function uread_action($site)
-	{
-		$sql="SELECT count(*) as num,r.userid uid,r.nickname FROM xxt_log_matter_read r WHERE r.siteid='$site' GROUP BY uid ORDER BY num desc";
-		$r=\TMS_MODEL::query_objs($sql);
-
-		return new \ResponseData($r);
-	}
 }

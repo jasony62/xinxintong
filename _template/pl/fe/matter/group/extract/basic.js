@@ -1,5 +1,5 @@
 (function() {
-	ngApp.provider.controller('ctrlExtract', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
+	ngApp.provider.controller('ctrlExtract', ['$scope', '$http', '$timeout','ls','$interval', function($scope, $http, $timeout, LS, $interval) {
 		var mySwiper, timer, winnerIndex = -1;
 		$scope.speed = 50;
 		$scope.times = 0;
@@ -130,7 +130,7 @@
 			}, $scope.speed);
 		};
 	}]);
-	ngApp.provider.controller('ctrlRounds', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
+	ngApp.provider.controller('ctrlRounds', ['$scope', '$http', '$timeout', 'ls', function($scope, $http, $timeout, LS) {
 		$scope.round = '';
 		$scope.shiftRound = function() {
 			var url, t;

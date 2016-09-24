@@ -121,9 +121,21 @@ define(['frame'], function(ngApp) {
 						type: 'signin'
 					};
 					http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.siteId + '&id=' + matters[0].mission_id, app, function(rsp) {
-						$scope.app.mission = rsp.data;
-						$scope.app.mission_id = rsp.data.id;
-						$scope.update('mission_id');
+						var mission = rsp.data,
+							app = $scope.app,
+							updatedFields = ['mission_id'];
+
+						app.mission = mission;
+						app.mission_id = mission.id;
+						if (!app.pic || app.pic.length === 0) {
+							app.pic = mission.pic;
+							updatedFields.push('pic');
+						}
+						if (!app.summary || app.summary.length === 0) {
+							app.summary = mission.summary;
+							updatedFields.push('summary');
+						}
+						$scope.update(updatedFields);
 					});
 				}
 			}, {

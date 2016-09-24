@@ -83,9 +83,21 @@ define(['frame'], function(ngApp) {
 						type: 'article'
 					};
 					http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.siteId + '&id=' + matters[0].mission_id, app, function(rsp) {
-						$scope.editing.mission = rsp.data;
-						$scope.editing.mission_id = rsp.data.id;
-						$scope.update('mission_id');
+						var mission = rsp.data,
+							editing = $scope.editing,
+							updatedFields = ['mission_id'];
+
+						editing.mission = mission;
+						editing.mission_id = mission.id;
+						if (!editing.pic || editing.pic.length === 0) {
+							editing.pic = mission.pic;
+							updatedFields.push('pic');
+						}
+						if (!editing.summary || editing.summary.length === 0) {
+							editing.summary = mission.summary;
+							updatedFields.push('summary');
+						}
+						$scope.update(updatedFields);
 						$scope.submit();
 					});
 				}

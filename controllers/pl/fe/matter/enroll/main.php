@@ -355,22 +355,22 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$model = $this->model();
+		$model = $this->model('matter\enroll');
 		/**
 		 * 处理数据
 		 */
-		$nv = (array) $this->getPostJson();
+		$nv = $this->getPostJson();
 		foreach ($nv as $n => $v) {
 			if (in_array($n, ['entry_rule'])) {
-				$nv[$n] = $model->escape(urldecode($v));
+				$nv->$n = $model->escape(urldecode($v));
 			} elseif (in_array($n, ['data_schemas'])) {
-				$nv[$n] = $model->toJson($v);
+				$nv->$n = $model->toJson($v);
 			}
 		}
-		$nv['modifier'] = $user->id;
-		$nv['modifier_src'] = $user->src;
-		$nv['modifier_name'] = $user->name;
-		$nv['modify_at'] = time();
+		$nv->modifier = $user->id;
+		$nv->modifier_src = $user->src;
+		$nv->modifier_name = $user->name;
+		$nv->modify_at = time();
 
 		$rst = $model->update('xxt_enroll', $nv, ["id" => $app]);
 		if ($rst) {

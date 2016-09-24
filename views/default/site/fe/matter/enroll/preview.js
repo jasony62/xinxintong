@@ -92,7 +92,7 @@ define(["angular", "xxt-page", "enroll-directive", "angular-sanitize"], function
                 mission = params.mission;
             app.data_schemas = JSON.parse(app.data_schemas);
             $scope.schemasById = {};
-            app.data_schemas.forEach(function(schema) {
+            app.data_schemas && app.data_schemas.forEach(function(schema) {
                 $scope.schemasById[schema.id] = schema;
             });
             $scope.params = params;

@@ -162,7 +162,7 @@ define([], function() {
         html += '>' + op.l + '</label></div>';
         html += '<div class="number">';
         for (var num = schema.range[0]; num <= schema.range[1]; num++) {
-            html += '<div ng-class="{\'in\':lessScore(\'' + schema.id + '\',' + index + ',' + num + ')}" ng-click="score(\'' + schema.id + '\',' + index + ',' + num + ')">' + num + '</div>';
+            html += "<div ng-class=\"{'in':lessScore('" + schema.id + "'," + index + "," + num + ")}\" ng-click=\"score('" + schema.id + "'," + index + "," + num + ")\">" + num + "</div>";
         }
         html += '</div></li>';
 
@@ -258,7 +258,9 @@ define([], function() {
                 config.showname === 'placeholder' && (html += ' placeholder="' + schema.title + '"');
                 config.required === 'Y' && (html += 'required=""');
                 schema.type === 'member' && (html += 'ng-init="data.member.schema_id=' + schema.schema_id + '"');
-                html += ' class="form-control input-lg" readonly>';
+                html += ' class="form-control input-lg"';
+                forEdit && (html += ' readonly');
+                html += '>';
                 break;
             case 'date':
                 inpAttrs['tms-date'] = 'Y';
@@ -273,7 +275,9 @@ define([], function() {
                 html += '<textarea style="height:auto" ng-model="data.' + schema.id + '" title="' + schema.title + '"';
                 config.showname === 'placeholder' && (html += ' placeholder="' + schema.title + '"');
                 config.required === 'Y' && (html += 'required=""');
-                html += ' class="form-control" rows="3"></textarea>';
+                html += ' class="form-control" rows="3"';
+                forEdit && (html += ' readonly');
+                html += '></textarea>';
                 break;
             case 'phase':
             case 'single':

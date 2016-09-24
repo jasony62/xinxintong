@@ -169,6 +169,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
     ngApp.controller('ctrlRecords', ['$scope', 'Record', 'ls', function($scope, Record, LS) {
         var facRecord, options, fnFetch,
             schemas = $scope.app.data_schemas;
+
         $scope.value2Label = function(record, key) {
             var val, i, j, s, aVal, aLab = [];
             if (schemas && record.data) {
@@ -260,7 +261,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
                 val = facRecord.current.data[schemaId];
                 if (schema.ops && schema.ops.length) {
                     schema.ops.forEach(function(op, index) {
-                        label += op.l + ':' + val[op.v] + ' / ';
+                        label += op.l + ':' + (val[op.v] ? val[op.v] : 0) + ' / ';
                     });
                     label = label.replace(/\s\/\s$/, '');
                 }

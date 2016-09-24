@@ -28,7 +28,11 @@ body>nav>ul:nth-child(2)>li{display:inline-block;float:none;}
 #schema-view .schema.name:after{content:'姓名';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #schema-view .schema.mobile:after{content:'手机';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #schema-view .schema.email:after{content:'邮箱';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+#schema-view .schema.member:after{content:'自定义用户';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+#schema-view .schema.single:after{content:'单选题';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #schema-view .schema.phase:after{content:'项目阶段';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+#schema-view .schema.score:after{content:'打分题';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+#schema-view .schema.multiple:after{content:'多选题';position:absolute;top:-6px;right:-6px;background:#999;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 #schema-view .schema .title{height:38px;line-height:38px;margin-bottom:5px;overflow:hidden;white-space:nowrap;cursor:move;}
 #schema-view .schema .title div[editable]{display:inline-block;width:320px;}
 #schema-view .schema-options .option{position:relative;cursor:move;height:38px;line-height:38px;overflow:hidden;white-space:nowrap;}

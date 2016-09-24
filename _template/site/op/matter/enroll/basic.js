@@ -1,4 +1,14 @@
 ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', function($scope, $http, PageUrl) {
+	function submit(ek, posted) {
+		$http.post(PU.j('record/update', 'site', 'app') + '&ek=' + ek, posted).success(function(rsp) {
+			if (rsp.err_code !== 0) {
+				$scope.errmsg = rsp.err_msg;
+				return;
+			}
+			angular.extend($scope.editing, rsp.data);
+		});
+	};
+
 	var PU;
 
 	PU = PageUrl.ins('/rest/site/op/matter/enroll', ['site', 'app']);
@@ -12,15 +22,18 @@ ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', function($
 		$scope.subView = 'list';
 		$scope.editing = null;
 	};
-	$scope.save = function() {
-		var ek = $scope.editing.enroll_key;
+	$scope.verify = function(pass) {
+		var ek = $scope.editing.enroll_key,
+			posted = {};
 
-		$http.post(PU.j('record/update', 'site', 'app') + '&ek=' + ek, $scope.editing).success(function(rsp) {
-			if (rsp.err_code !== 0) {
-				$scope.errmsg = rsp.err_msg;
-				return;
-			}
-			$scope.records = rsp.data.records;
-		});
+		posted.verified = pass;
+		submit(ek, posted);
+	};
+	$scope.update = function(prop) {
+		var ek = $scope.editing.enroll_key,
+			posted = {};
+
+		posted[prop] = $scope.editing[prop];
+		submit(ek, posted);
 	};
 }]);

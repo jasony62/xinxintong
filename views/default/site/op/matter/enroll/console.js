@@ -7,10 +7,24 @@ define(["require", "angular", "util.site"], function(require, angular) {
         };
     }]);
     ngApp.controller('ctrl', ['$scope', '$http', '$timeout', 'PageLoader', 'PageUrl', function($scope, $http, $timeout, PageLoader, PageUrl) {
-        var PU;
+        var PU, criteria = {
+            join: function() {
+                var params = '';
+                if (this.verified && this.verified.length) {
+                    params += '&verified=' + this.verified;
+                }
+                return params;
+            }
+        };
+
         PU = PageUrl.ins('/rest/site/op/matter/enroll', ['site', 'app']);
+
+        $scope.criteria = criteria;
         $scope.getRecords = function() {
-            $http.get(PU.j('record/list', 'site', 'app')).success(function(rsp) {
+            var url = PU.j('record/list', 'site', 'app');
+
+            url += criteria.join();
+            $http.post(url, $scope.criteria).success(function(rsp) {
                 if (rsp.err_code !== 0) {
                     $scope.errmsg = rsp.err_msg;
                     return;
@@ -18,26 +32,43 @@ define(["require", "angular", "util.site"], function(require, angular) {
                 $scope.records = rsp.data.records;
             });
         };
-        $scope.value2Label = function(val, key) {
-            var i, schema;
-            if (val === undefined) return '';
-            for (i = $scope.app.dataSchemas.length - 1; i >= 0; i--) {
-                if ($scope.app.dataSchemas[i].id === key) {
-                    schema = $scope.app.dataSchemas[i];
-                    break;
+        var schemasById = {};
+        $scope.value2String = function(record, schemaId) {
+            var schema, val;
+            if (undefined !== (schema = schemasById[schemaId])) {
+                if (schema.type === 'member' && record.data.member) {
+                    val = record.data.member[schema.id.substr(7)] || '';
+                } else {
+                    val = record.data[schema.id] || '';
+                    if (schema.ops && schema.ops.length) {
+                        if (schema.type === 'score' && angular.isObject(val)) {
+                            var label = '';
+                            schema.ops.forEach(function(op, index) {
+                                label += op.l + ':' + (val[op.v] ? val[op.v] : 0) + ' / ';
+                            });
+                            val = label.replace(/\s\/\s$/, '');
+                        } else if (val.length) {
+                            var aVal, aLab = [];
+                            aVal = val.split(',');
+                            schema.ops.forEach(function(op) {
+                                aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
+                            });
+                            if (aLab.length) val = aLab.join(',');
+                        }
+                    }
                 }
             }
-            if (schema && schema.ops && schema.ops.length) {
-                (function() {
-                    var i, aVal, aLab = [];
-                    aVal = val.split(',');
-                    for (i = schema.ops.length - 1; i >= 0; i--) {
-                        aVal.indexOf(schema.ops[i].v) !== -1 && aLab.push(schema.ops[i].l);
-                    }
-                    aLab.length && (val = aLab.join(','));
-                })();
-            }
+
             return val;
+        };
+        $scope.scoreRangeArray = function(schema) {
+            var arr = [];
+            if (schema.range && schema.range.length === 2) {
+                for (var i = schema.range[0]; i <= schema.range[1]; i++) {
+                    arr.push('' + i);
+                }
+            }
+            return arr;
         };
         $http.get(PU.j('get', 'site', 'app')).success(function(rsp) {
             if (rsp.err_code !== 0) {
@@ -50,6 +81,9 @@ define(["require", "angular", "util.site"], function(require, angular) {
             });
             if ($scope.app.data_schemas && $scope.app.data_schemas.length) {
                 $scope.app.dataSchemas = JSON.parse($scope.app.data_schemas);
+                $scope.app.dataSchemas.forEach(function(schema) {
+                    schemasById[schema.id] = schema;
+                });
             }
             $timeout(function() {
                 $scope.$broadcast('xxt.app.enroll.ready');

@@ -442,6 +442,64 @@ class record_model extends \TMS_MODEL {
 		return $result;
 	}
 	/**
+	 * 登记清单
+	 *
+	 * 1、如果活动仅限会员报名，那么要叠加会员信息
+	 * 2、如果报名的表单中有扩展信息，那么要提取扩展信息
+	 *
+	 * $siteId
+	 * $aid
+	 * $options
+	 * --creater openid
+	 * --visitor openid
+	 * --page
+	 * --size
+	 * --rid 轮次id
+	 * --kw 检索关键词
+	 * --by 检索字段
+	 * $criteria 登记数据过滤条件
+	 *
+	 *
+	 * return
+	 * [0] 数据列表
+	 * [1] 数据总条数
+	 * [2] 数据项的定义
+	 */
+	public function list4Schema($siteId, &$app, $schemaId, $options = null) {
+		if ($options) {
+			is_array($options) && $options = (object) $options;
+			$page = isset($options->page) ? $options->page : null;
+			$size = isset($options->size) ? $options->size : null;
+		}
+		$result = new \stdClass; // 返回的结果
+		$result->total = 0;
+
+		// 查询参数
+		$q = [
+			'value',
+			"xxt_enroll_record_data",
+			"state=1 and aid='{$app->id}' and name='{$schemaId}' and value<>''",
+		];
+
+		$q2 = [];
+		// 查询结果分页
+		if (!empty($page) && !empty($size)) {
+			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		}
+
+		// 处理获得的数据
+		if ($records = $this->query_objs_ss($q, $q2)) {
+			$result->records = $records;
+
+			// 符合条件的数据总数
+			$q[0] = 'count(*)';
+			$total = (int) $this->query_val_ss($q);
+			$result->total = $total;
+		}
+
+		return $result;
+	}
+	/**
 	 * 登记情况摘要
 	 */
 	public function &summary($siteId, $appId) {

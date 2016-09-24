@@ -157,7 +157,7 @@ class stat extends \pl\fe\matter\base {
 		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		$schemas = json_decode($app->data_schemas);
 
-		$result = $this->_getResult($site, $app->id);
+		$statResult = $this->_getResult($site, $app->id);
 
 		$html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">';
 		$html .= '<head>';
@@ -167,80 +167,89 @@ class stat extends \pl\fe\matter\base {
 		$html .= '<body>';
 
 		$mappingOfImages = [];
+		$modelRec = $this->model('matter\enroll\record');
 
-		foreach ($schemas as $schema) {
-			if (!in_array($schema->type, ['single', 'phase', 'multiple'])) {
-				continue;
-			}
+		foreach ($schemas as $index => $schema) {
+			$html .= "<h3><span>第" . ($index + 1) . "项：</span><span>{$schema->title}</span></h3>";
+			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext'])) {
+				$textResult = $modelRec->list4Schema($site, $app, $schema->id);
+				$records = $textResult->records;
+				$html .= "<table><thead><tr><th>登记内容</th></tr></thead>";
+				$html .= "<tbody>";
+				foreach ($records as $record) {
+					$html .= "<tr><td>{$record->value}</td></tr>";
+				}
+				$html .= "</tbody></table>";
+			} else if (in_array($schema->type, ['single', 'phase', 'multiple'])) {
+				$item = $statResult[$schema->id];
+				$data = [];
+				$sum = 0;
+				foreach ($item['ops'] as $op) {
+					$data[] = (int) $op['c'];
+					$sum += (int) $op['c'];
+				}
 
-			$item = $result[$schema->id];
-			$data = [];
-			$sum = 0;
-			foreach ($item['ops'] as $op) {
-				$data[] = (int) $op['c'];
-				$sum += (int) $op['c'];
-			}
-
-			if (in_array($schema->type, ['single', 'phase'])) {
-				// Create a pie pot
-				if ($sum) {
-					$graph = new \PieGraph(400, 200);
+				if (in_array($schema->type, ['single', 'phase'])) {
+					// Create a pie pot
+					if ($sum) {
+						$graph = new \PieGraph(400, 200);
+						$graph->SetShadow();
+						$pie = new \PiePlot($data);
+						$labels = [];
+						foreach ($item['ops'] as $op) {
+							$labels[] = str_replace('%', '%%', $op['l']) . '：%.1f%%';
+						}
+						$pie->SetLabels($labels, 0.8);
+						$pie->value->SetFont(FF_CHINESE, FS_NORMAL);
+						$pie->SetGuideLines(true);
+						$graph->Add($pie);
+					}
+				} else if ($schema->type === 'multiple') {
+					// Create the graph. These two calls are always required
+					$graph = new \Graph(400, 200);
+					$graph->SetScale("textint");
+					// Add a drop shadow
 					$graph->SetShadow();
-					$pie = new \PiePlot($data);
+					// Adjust the margin a bit to make more room for titles
+					$graph->img->SetMargin(40, 30, 20, 40);
+					// Create a bar pot
 					$labels = [];
 					foreach ($item['ops'] as $op) {
-						$labels[] = str_replace('%', '%%', $op['l']) . '：%.1f%%';
+						$labels[] = $op['l'];
 					}
-					$pie->SetLabels($labels, 0.8);
-					$pie->value->SetFont(FF_CHINESE, FS_NORMAL);
-					$pie->SetGuideLines(true);
-					$graph->Add($pie);
+					$bar = new \BarPlot($data);
+					$graph->Add($bar);
+					// Setup the titles
+					$graph->xaxis->title->Set("选项");
+					$graph->yaxis->title->Set("数量");
+					$graph->xaxis->SetTickLabels($labels);
+					$graph->xaxis->SetFont(FF_CHINESE, FS_NORMAL);
+
+					$graph->yaxis->title->SetFont(FF_CHINESE, FS_NORMAL);
+					$graph->xaxis->title->SetFont(FF_CHINESE, FS_NORMAL);
 				}
-			} else if ($schema->type === 'multiple') {
-				// Create the graph. These two calls are always required
-				$graph = new \Graph(400, 200);
-				$graph->SetScale("textint");
-				// Add a drop shadow
-				$graph->SetShadow();
-				// Adjust the margin a bit to make more room for titles
-				$graph->img->SetMargin(40, 30, 20, 40);
-				// Create a bar pot
-				$labels = [];
+				if ($sum) {
+					$graph->title->Set($item['title']);
+					$graph->title->SetFont(FF_CHINESE, FS_NORMAL);
+
+					$graph->Stroke(_IMG_HANDLER);
+					ob_start(); // start buffering
+					$graph->img->Stream(); // print data to buffer
+					$image_data = ob_get_contents(); // retrieve buffer contents
+					ob_end_clean(); // stop buffer
+					$imageBase64 = chunk_split(base64_encode($image_data));
+					//
+					$mappingOfImages[$item['id'] . '.base64'] = $imageBase64;
+					//
+					$html .= '<img src="' . $item['id'] . '.base64" />';
+				}
+				$html .= "<table><thead><tr><th>选项</th><th>数量</th></tr></thead>";
+				$html .= "<tbody>";
 				foreach ($item['ops'] as $op) {
-					$labels[] = $op['l'];
+					$html .= "<tr><td>{$op['l']}</td><td>{$op['c']}</td></tr>";
 				}
-				$bar = new \BarPlot($data);
-				$graph->Add($bar);
-				// Setup the titles
-				$graph->xaxis->title->Set("选项");
-				$graph->yaxis->title->Set("数量");
-				$graph->xaxis->SetTickLabels($labels);
-				$graph->xaxis->SetFont(FF_CHINESE, FS_NORMAL);
-
-				$graph->yaxis->title->SetFont(FF_CHINESE, FS_NORMAL);
-				$graph->xaxis->title->SetFont(FF_CHINESE, FS_NORMAL);
+				$html .= "</tbody></table>";
 			}
-			if ($sum) {
-				$graph->title->Set($item['title']);
-				$graph->title->SetFont(FF_CHINESE, FS_NORMAL);
-
-				$graph->Stroke(_IMG_HANDLER);
-				ob_start(); // start buffering
-				$graph->img->Stream(); // print data to buffer
-				$image_data = ob_get_contents(); // retrieve buffer contents
-				ob_end_clean(); // stop buffer
-				$imageBase64 = chunk_split(base64_encode($image_data));
-				//
-				$mappingOfImages[$item['id'] . '.base64'] = $imageBase64;
-				//
-				$html .= '<img src="' . $item['id'] . '.base64" />';
-			}
-			$html .= "<table><caption>{$item['title']}</caption><thead><tr><th>选项</th><th>数量</th></tr></thead>";
-			$html .= "<tbody>";
-			foreach ($item['ops'] as $op) {
-				$html .= "<tr><td>{$op['l']}</td><td>{$op['c']}</td></tr>";
-			}
-			$html .= "</tbody></table>";
 			$html .= "<div>&nbsp;</div>";
 		}
 

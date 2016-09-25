@@ -747,11 +747,11 @@ class record_model extends \TMS_MODEL {
 		$dataSchemas = json_decode($app->data_schemas);
 
 		foreach ($dataSchemas as $schema) {
-			if (!in_array($schema->type, ['single', 'multiple'])) {
+			if (!in_array($schema->type, ['single', 'multiple', 'phase', 'score'])) {
 				continue;
 			}
-			if ($schema->type === 'single') {
-				$result[$schema->id] = ['title' => $schema->title, 'id' => $schema->id, 'ops' => []];
+			$result[$schema->id] = ['title' => $schema->title, 'id' => $schema->id, 'ops' => []];
+			if (in_array($schema->type, ['single', 'phase'])) {
 				foreach ($schema->ops as $op) {
 					/**
 					 * 获取数据
@@ -765,18 +765,42 @@ class record_model extends \TMS_MODEL {
 					$result[$schema->id]['ops'][] = $op;
 				}
 			} else if ($schema->type === 'multiple') {
-				$result[$schema->id] = ['title' => $schema->title, 'id' => $schema->id, 'ops' => []];
 				foreach ($schema->ops as $op) {
 					/**
 					 * 获取数据
 					 */
-					$q = array(
+					$q = [
 						'count(*)',
 						'xxt_enroll_record_data',
 						"aid='$appId' and state=1 and name='{$schema->id}' and FIND_IN_SET('{$op->v}', value)",
-					);
+					];
 					$op->c = $this->query_val_ss($q);
 					$result[$schema->id]['ops'][] = $op;
+				}
+			} else if ($schema->type === 'score') {
+				$scoreByOp = [];
+				foreach ($schema->ops as &$op) {
+					$op->c = 0;
+					$result[$schema->id]['ops'][] = $op;
+					$scoreByOp[$op->v] = $op;
+				}
+				// 计算总分数
+				$q = [
+					'value',
+					'xxt_enroll_record_data',
+					"aid='$appId' and state=1 and name='{$schema->id}'",
+				];
+				$values = $this->query_objs_ss($q);
+				foreach ($values as $value) {
+					$value = json_decode($value->value);
+					foreach ($value as $opKey => $opValue) {
+						$scoreByOp[$opKey]->c += (int) $opValue;
+					}
+				}
+				// 计算平均分
+				$rowNumber = count($values);
+				foreach ($schema->ops as &$op) {
+					$op->c = $op->c / $rowNumber;
 				}
 			}
 		}

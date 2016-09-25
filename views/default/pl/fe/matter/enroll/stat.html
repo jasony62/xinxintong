@@ -20,6 +20,21 @@
                 </table>
             </div>
             <div ng-if="'score'===schema.type">
+                <div id="{{schema.id}}" style='height:300px'></div>
+                <table class='table table-bordered'>
+                    <thead>
+                        <tr>
+                            <th>打分项</th>
+                            <th>平均分</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="op in stat[schema.id].ops">
+                            <td>{{op.l}}</td>
+                            <td>{{op.c}}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
             <div ng-if="['single','phase','multiple','score'].indexOf(schema.type)===-1" ng-init="page={at:1,size:10}">
                 <table class='table table-bordered'>

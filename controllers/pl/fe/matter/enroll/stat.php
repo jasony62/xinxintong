@@ -153,6 +153,7 @@ class stat extends \pl\fe\matter\base {
 		require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/jpgraph/jpgraph.php';
 		require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/jpgraph/jpgraph_bar.php';
 		require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/jpgraph/jpgraph_pie.php';
+		require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/jpgraph/jpgraph_line.php';
 
 		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		$schemas = json_decode($app->data_schemas);
@@ -195,6 +196,10 @@ class stat extends \pl\fe\matter\base {
 						$graph = new \PieGraph(400, 200);
 						$graph->SetShadow();
 						$pie = new \PiePlot($data);
+						//$pie->SetTheme('pastel');
+						$pie->ShowBorder();
+						$pie->SetColor('black');
+						$pie->setSliceColors(['#F7A35C', '#8085E9', '#90ED7D', '#7CB5EC', '#434348']);
 						$labels = [];
 						foreach ($item['ops'] as $op) {
 							$labels[] = str_replace('%', '%%', $op['l']) . '：%.1f%%';
@@ -244,6 +249,62 @@ class stat extends \pl\fe\matter\base {
 					$html .= '<img src="' . $item['id'] . '.base64" />';
 				}
 				$html .= "<table><thead><tr><th>选项</th><th>数量</th></tr></thead>";
+				$html .= "<tbody>";
+				foreach ($item['ops'] as $op) {
+					$html .= "<tr><td>{$op['l']}</td><td>{$op['c']}</td></tr>";
+				}
+				$html .= "</tbody></table>";
+			} else if ('score' === $schema->type) {
+				//
+				$item = $statResult[$schema->id];
+				$labels = [];
+				$data = [];
+				foreach ($item['ops'] as $op) {
+					$labels[] = $op['l'];
+					$data[] = (float) $op['c'];
+				}
+				// Setup the graph
+				$graph = new \Graph(400, 200);
+				$graph->SetScale("textlin");
+
+				$theme_class = new \UniversalTheme;
+
+				$graph->SetTheme($theme_class);
+				$graph->img->SetAntiAliasing(false);
+				$graph->title->Set($item['title']);
+				$graph->title->SetFont(FF_CHINESE, FS_NORMAL);
+				$graph->SetBox(false);
+
+				$graph->img->SetAntiAliasing();
+
+				$graph->yaxis->HideZeroLabel();
+				$graph->yaxis->HideLine(false);
+				$graph->yaxis->HideTicks(false, false);
+
+				$graph->xgrid->Show();
+				$graph->xgrid->SetLineStyle("solid");
+				$graph->xaxis->SetTickLabels($labels);
+				$graph->xgrid->SetColor('#E3E3E3');
+				$graph->xaxis->SetFont(FF_CHINESE, FS_NORMAL);
+
+				$p1 = new \LinePlot($data);
+				$graph->Add($p1);
+				$p1->SetColor("#6495ED");
+
+				// Output line
+				$graph->Stroke(_IMG_HANDLER);
+				ob_start(); // start buffering
+				$graph->img->Stream(); // print data to buffer
+				$image_data = ob_get_contents(); // retrieve buffer contents
+				ob_end_clean(); // stop buffer
+				$imageBase64 = chunk_split(base64_encode($image_data));
+				//
+				$mappingOfImages[$item['id'] . '.base64'] = $imageBase64;
+				//
+				$html .= '<img src="' . $item['id'] . '.base64" />';
+
+				// table
+				$html .= "<table><thead><tr><th>打分项</th><th>平均分</th></tr></thead>";
 				$html .= "<tbody>";
 				foreach ($item['ops'] as $op) {
 					$html .= "<tr><td>{$op['l']}</td><td>{$op['c']}</td></tr>";

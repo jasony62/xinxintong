@@ -5,7 +5,7 @@ define(['frame'], function(ngApp) {
 			var categories = [],
 				series = [];
 
-			angular.forEach(item.ops, function(op) {
+			item.ops.forEach(function(op) {
 				categories.push(op.l);
 				series.push(parseInt(op.c));
 			});
@@ -76,6 +76,50 @@ define(['frame'], function(ngApp) {
 				series: [{
 					name: '数量',
 					data: series
+				}],
+				lang: {
+					downloadJPEG: "下载JPEG 图片",
+					downloadPDF: "下载PDF文档",
+					downloadPNG: "下载PNG 图片",
+					downloadSVG: "下载SVG 矢量图",
+					printChart: "打印图片",
+					exportButtonTitle: "导出图片"
+				}
+			});
+		}
+
+		function drawLineChart(item) {
+			var categories = [],
+				data = [];
+
+			item.ops.forEach(function(op) {
+				categories.push(op.l);
+				data.push(parseFloat(op.c));
+			});
+			new Highcharts.Chart({
+				chart: {
+					type: 'line',
+					renderTo: item.id
+				},
+				title: {
+					text: item.title,
+				},
+				xAxis: {
+					categories: categories
+				},
+				yAxis: {
+					title: {
+						text: '平均分'
+					},
+					plotLines: [{
+						value: 0,
+						width: 1,
+						color: '#808080'
+					}]
+				},
+				series: [{
+					name: item.title,
+					data: data
 				}],
 				lang: {
 					downloadJPEG: "下载JPEG 图片",
@@ -182,6 +226,8 @@ define(['frame'], function(ngApp) {
 							drawPieChart(item);
 						} else if (/multiple/.test(item._schema.type)) {
 							drawBarChart(item);
+						} else if (/score/.test(item._schema.type)) {
+							drawLineChart(item);
 						}
 					}
 				});

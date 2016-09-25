@@ -115,7 +115,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			});
 		};
 
-		var mapOfSchemas = {};
+		var schemasById = {};
 
 		$scope.popover = {};
 		$scope.schemaHtml = function(schema) {
@@ -240,22 +240,26 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 					schemaId = opNode.getAttribute('state');
 					opIndex = parseInt(opNode.dataset.index);
 					$scope.$apply(function() {
-						$scope.addOption(mapOfSchemas[schemaId], opIndex);
+						$scope.addOption(schemasById[schemaId], opIndex);
 					});
 				}
 			}
 		});
 		$scope.$on('options.orderChanged', function(e, moved, schemaId) {
-			$scope.updSchema(mapOfSchemas[schemaId], 'ops');
+			$scope.updSchema(schemasById[schemaId], 'ops');
 		});
 		$scope.$on('option.xxt.editable.changed', function(e, op, schemaId) {
-			$scope.updSchema(mapOfSchemas[schemaId], 'ops');
+			$scope.updSchema(schemasById[schemaId], 'ops');
 		});
 		$scope.$watch('app', function(app) {
 			if (app) {
 				$scope.appSchemas = $scope.app.data_schemas;
-				$scope.appSchemas.forEach(function(schema) {
-					mapOfSchemas[schema.id] = schema;
+			}
+		});
+		$scope.$watchCollection('app.data_schemas', function(newSchemas, oldSchemas) {
+			if (newSchemas && Object.keys(schemasById).length !== newSchemas.length) {
+				newSchemas.forEach(function(schema) {
+					schemasById[schema.id] = schema;
 				});
 			}
 		});

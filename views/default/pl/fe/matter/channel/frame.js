@@ -167,4 +167,7 @@ app.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', function($sc
 		if (!nv) return;
 		arrangeMatters();
 	});
+	(function() {
+		new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
+	})();
 }]);

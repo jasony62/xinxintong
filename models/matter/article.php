@@ -309,7 +309,7 @@ class article_model extends article_base {
 		$q4="select m.matter_id,m.channel_id,c.siteid,c.title from xxt_channel_matter m left join xxt_channel c on m.channel_id=c.id where c.siteid='$site' and m.matter_type='article' ";
 		$tag_channel=parent::query_objs($q4);
 		
-		//将一篇文章所有标签放到tag目录下
+		//将一篇文章所有标签放到tag下
 		foreach ($articles as $k => $v) {
 			$a=array();
 			foreach ($tag_content as $kc => $vc) {

@@ -11,7 +11,7 @@ class search extends \site\fe\matter\base{
 	 * 搜索页面
 	 */
 	public function index_action() {
-		\TPL::output('/matter/article-list');
+		\TPL::output('/site/fe/matter/article/list');
 		exit;
 	}
 	/*

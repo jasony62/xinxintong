@@ -3,12 +3,12 @@ namespace site\fe\matter\article;
 
 include_once dirname(dirname(__FILE__)) . '/base.php';
 
-/*
-*[查看更多]搜索更多
-*/
+/**
+ *[查看更多]搜索更多
+ */
 class search extends \site\fe\matter\base{
 	/**
-	 * 搜索页面首页
+	 * 搜索页面
 	 */
 	public function index_action() {
 		\TPL::output('/matter/article-list');

@@ -65,7 +65,7 @@ class fullsearch_model extends MultiArticleReply {
 		return $r;
 	}
         
-        /**
+    /**
 	 * 拼装图文回复消息
 	 */
 	private function article_reply($matters) {

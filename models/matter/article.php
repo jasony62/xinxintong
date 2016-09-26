@@ -310,6 +310,7 @@ class article_model extends article_base {
 		$tag_channel=parent::query_objs($q4);
 		
 		//将一篇文章所有标签放到tag下
+		$b=array();
 		foreach ($articles as $k => $v) {
 			$a=array();
 			foreach ($tag_content as $kc => $vc) {

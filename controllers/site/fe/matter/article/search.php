@@ -8,7 +8,7 @@ include_once dirname(dirname(__FILE__)) . '/base.php';
 */
 class search extends \site\fe\matter\base{
 	/**
-	 *
+	 * 搜索页面首页
 	 */
 	public function index_action() {
 		\TPL::output('/matter/article-list');
@@ -17,7 +17,7 @@ class search extends \site\fe\matter\base{
 	/*
 	 * 返回所有的搜索结果
 	 */
-	 public function list_action($site,$keyword='') {
+	public function list_action($site,$keyword='') {
 		$matters = \TMS_APP::model('matter\article')->search_all($site, $keyword);	
 		return new \ResponseData($matters);
 	}

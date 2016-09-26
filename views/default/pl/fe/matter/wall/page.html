@@ -1,8 +1,15 @@
 <!--<div  ng-include="'/rest/pl/fe/matter/wall/nav.html'"></div>-->
 <div class="tile">
-    <div class='form-group'>
-        <label>上墙URL</label>
-        <div class="form-control" ng-bind='url'></div>
+    <div class="panel panel-default">
+        <div class="panel-heading">上墙URL</div>
+        <div class="panel-body">
+            <div class='input-group'>
+                <input class='form-control' readonly value="{{url}}">
+                    <span class='input-group-btn'>
+                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{url}}">复制</button>
+                    </span>
+            </div>
+        </div>
     </div>
     <div class="form-group">
         <table class='table table-bordered'>

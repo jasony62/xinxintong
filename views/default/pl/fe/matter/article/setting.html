@@ -90,12 +90,22 @@
                 <button class='btn btn-block btn-success' ng-click="assignMission()">指定项目</button>
             </div>
         </div>
-        <div class='tile'>
-            <div class='form-group compact'>
-                <div class='form-control' style='word-break: break-all;height:auto'>{{entry.url}}</div>
+        <div class="panel panel-default">
+            <div class="panel-heading">图文链接</div>
+            <div class="panel-body">
+                <div class='input-group'>
+                    <input class='form-control' readonly value="{{entry.url}}">
+                    <span class='input-group-btn'>
+                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
+                    </span>
+                </div>
             </div>
-            <div class="form-group">
-                <div><img ng-src="{{entry.qrcode}}"></div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">登记二维码</div>
+            <div class="panel-body">
+                <span><img id='entryQrcode' ng-src="{{entry.qrcode}}"></span>
+                <button class='btn btn-default' ng-click="downloadQrcode(entry.qrcode)">下载</button>
             </div>
         </div>
         <div class='tile'>

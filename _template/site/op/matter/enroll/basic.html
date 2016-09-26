@@ -4,17 +4,22 @@
 			<table class='table table-bordered'>
 				<thead>
 					<tr>
+						<th style='width:40px'>
+							<input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
+						</th>
 						<th>登记时间</th>
 						<th>审核通过</th>
 						<th ng-repeat="schema in app.dataSchemas">{{schema.title}}</th>
 						<th>标签</th>
 						<th>备注</th>
+						<th style='width:72px'>操作</th>
 					</tr>
 				</thead>
 				<tbody>
-					<tr ng-repeat='r in records' class='record' ng-click="edit(r)">
+					<tr ng-repeat='r in records' class='record'>
+						<td data-th='选择'><input type='checkbox' ng-model="rows.selected[$index]"></td>
 						<td data-th='登记时间'><span>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</span></td>
-						<td data-th='审核通过'><span>{{r.verified}}</span></td>
+						<td data-th='审核通过'><span ng-class="{'notice':r.verified==='N'}">{{r.verified}}</span></td>
 						<td data-th="{{schema.title}}" ng-repeat="schema in app.dataSchemas" ng-switch on="schema.type"> 
 							<span ng-switch-when="image" ng-init="imgs=r.data[schema.id].split(',')">
 								<img ng-repeat="img in imgs" ng-src='{{img}}' />
@@ -26,10 +31,19 @@
 						</td>
 						<td data-th='标签'><span>{{r.tags}}</span></td>
 						<td data-th='备注'><span>{{r.comment}}</span></td>
+						<td data-th='操作'>
+                            <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
+                                <span class='glyphicon glyphicon-remove'></span>
+                            </button>
+                            <button class='btn btn-xs btn-default' ng-click='editRecord(r)'>
+                                <span class='glyphicon glyphicon-edit'></span>
+                            </button>
+                        </td>
 					</tr>
 				</tbody>
 			</table>
 			<div class='form-inline'>
+            	<button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchVerify()'>选中记录通过审核</button>
 				<div class='form-group'>
 					<label>筛选：</label>
 					<select class='form-control' ng-model="criteria.record.verified" ng-change="getRecords()">
@@ -39,6 +53,8 @@
 					</select>
 				</div>
 				<button class='btn btn-success' ng-click="getRecords()">刷新</button>
+            	<span>总数：{{page.total}}</span>
+            	<select class='form-control' ng-model="page.at" ng-options="number as number for number in page.numbers" ng-change="getRecords()"></select>
 			</div>
 		</div>
 		<div id='edit' class='col-md-12' ng-if="subView==='record'">

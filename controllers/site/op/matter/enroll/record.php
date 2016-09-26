@@ -201,4 +201,30 @@ class record extends \site\op\base {
 
 		return false;
 	}
+	/**
+	 * 指定记录通过审核
+	 */
+	public function batchVerify_action($site, $app) {
+		$posted = $this->getPostJson();
+		$eks = $posted->eks;
+
+		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+
+		$model = $this->model();
+		foreach ($eks as $ek) {
+			$rst = $model->update(
+				'xxt_enroll_record',
+				['verified' => 'Y'],
+				"enroll_key='$ek'"
+			);
+			// 进行后续处理
+			$this->_whenVerifyRecord($app, $ek);
+		}
+
+		// 记录操作日志
+		//$app->type = 'enroll';
+		//$this->model('matter\log')->matterOp($site, $user, $app, 'verify.batch', $eks);
+
+		return new \ResponseData('ok');
+	}
 }

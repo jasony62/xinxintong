@@ -8,29 +8,80 @@ define(["require", "angular", "util.site"], function(require, angular) {
     }]);
     ngApp.controller('ctrl', ['$scope', '$http', '$timeout', 'PageLoader', 'PageUrl', function($scope, $http, $timeout, PageLoader, PageUrl) {
         var PU, criteria = {
-            join: function() {
-                var params = '';
-                if (this.verified && this.verified.length) {
-                    params += '&verified=' + this.verified;
+                join: function() {
+                    var params = '';
+                    if (this.verified && this.verified.length) {
+                        params += '&verified=' + this.verified;
+                    }
+                    return params;
                 }
-                return params;
-            }
-        };
+            },
+            page = {
+                at: 1,
+                size: 30,
+                numbers: [],
+                orderBy: 'time',
+                byRound: '',
+                join: function() {
+                    var p;
+                    p = '&page=' + this.at + '&size=' + this.size;
+                    this.byRound && (p += '&rid=' + this.byRound);
+                    p += '&orderby=' + this.orderBy;
+                    return p;
+                },
+                setTotal: function(total) {
+                    var lastNumber;
+                    this.total = total;
+                    this.numbers = [];
+                    lastNumber = Math.ceil(this.total / this.size);
+                    for (var i = 1; i <= lastNumber; i++) {
+                        this.numbers.push(i);
+                    }
+                }
+            };
 
         PU = PageUrl.ins('/rest/site/op/matter/enroll', ['site', 'app']);
-
+        // 数据筛选条件
         $scope.criteria = criteria;
+        // 数据分页条件
+        $scope.page = page;
         $scope.getRecords = function() {
             var url = PU.j('record/list', 'site', 'app');
 
             url += criteria.join();
+            url += page.join();
             $http.post(url, $scope.criteria).success(function(rsp) {
                 if (rsp.err_code !== 0) {
                     $scope.errmsg = rsp.err_msg;
                     return;
                 }
                 $scope.records = rsp.data.records;
+                $scope.page.setTotal(rsp.data.total);
             });
+        };
+        // 选中的记录
+        $scope.rows = {
+            allSelected: 'N',
+            selected: {}
+        };
+        $scope.$watch('rows.allSelected', function(checked) {
+            var index = 0;
+            if (checked === 'Y') {
+                while (index < $scope.records.length) {
+                    $scope.rows.selected[index++] = true;
+                }
+            } else if (checked === 'N') {
+                $scope.rows.selected = {};
+            }
+        });
+        $scope.countSelected = function() {
+            var count = 0;
+            for (var p in $scope.rows.selected) {
+                if ($scope.rows.selected[p] === true) {
+                    count++;
+                }
+            }
+            return count;
         };
         var schemasById = {};
         $scope.value2String = function(record, schemaId) {
@@ -69,6 +120,26 @@ define(["require", "angular", "util.site"], function(require, angular) {
                 }
             }
             return arr;
+        };
+        $scope.batchVerify = function() {
+            var eks = [];
+            for (var p in $scope.rows.selected) {
+                if ($scope.rows.selected[p] === true) {
+                    eks.push($scope.records[p].enroll_key);
+                }
+            }
+            if (eks.length) {
+                var url = PU.j('record/batchVerify', 'site', 'app');
+                $http.post(url, {
+                    eks: eks
+                }).success(function(rsp) {
+                    for (var p in $scope.rows.selected) {
+                        if ($scope.rows.selected[p] === true) {
+                            $scope.records[p].verified = 'Y';
+                        }
+                    }
+                });
+            }
         };
         $http.get(PU.j('get', 'site', 'app')).success(function(rsp) {
             if (rsp.err_code !== 0) {

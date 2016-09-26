@@ -7,3 +7,4 @@
 	.table-bordered>tbody>tr>td>span{display:inline-block;margin-top:4px;}
 	td:before{content:attr(data-th);display:inline-block;width:80px;background:#eee;padding:.5em;margin-right:4px;}
 }
+.notice{color:red;}

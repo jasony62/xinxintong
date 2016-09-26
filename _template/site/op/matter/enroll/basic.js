@@ -9,17 +9,21 @@ ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', function($
 		});
 	};
 
-	var PU;
+	var PU, _history = [];
 
 	PU = PageUrl.ins('/rest/site/op/matter/enroll', ['site', 'app']);
 	$scope.subView = 'list';
 	$scope.editing = null;
-	$scope.edit = function(record) {
+	$scope.editRecord = function(record) {
 		$scope.subView = 'record';
+		_history.push(record);
 		$scope.editing = angular.copy(record);
 	};
 	$scope.back = function() {
+		var origin;
 		$scope.subView = 'list';
+		origin = _history.pop();
+		angular.extend(origin, $scope.editing);
 		$scope.editing = null;
 	};
 	$scope.verify = function(pass) {

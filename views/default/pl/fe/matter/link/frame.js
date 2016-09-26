@@ -171,4 +171,7 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', function($sc
 		}
 	});
 	getInitData();
+	(function() {
+		new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
+	})();
 }]);

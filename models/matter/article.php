@@ -315,12 +315,12 @@ class article_model extends article_base {
 			$a=array();
 			foreach ($tag_content as $kc => $vc) {
 				if($v['id']==$vc->res_id){
-					$a['content'][$kc]=$vc->title;
+					$a['content'][]=$vc->title;
 				}
 			}
 			foreach ($tag_channel as $kl => $vl) {
 				if($v['id']==$vl->matter_id){
-					$a['channel'][$kl]=$vl->title;
+					$a['channel'][]=$vl->title;
 				}
 			}
 			$v['tag']=$a;

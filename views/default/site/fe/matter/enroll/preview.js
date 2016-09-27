@@ -225,9 +225,9 @@ define(["angular", "xxt-page", "enroll-directive", "angular-sanitize"], function
                 if (val = Record.current.data[schemaId]) {
                     if (schema.ops && schema.ops.length) {
                         schema.ops.forEach(function(op, index) {
-                            label += op.l + ':' + val[op.v] + ' / ';
+                            label += '<div>'+op.l + ':' + val[op.v] + '</div>';
                         });
-                        label = label.replace(/\s\/\s$/, '');
+                        //label = label.replace(/\s\/\s$/, '');
                     }
                 }
             }

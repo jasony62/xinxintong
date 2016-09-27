@@ -1,5 +1,11 @@
 define(['frame'], function(ngApp) {
 	ngApp.provider.controller('ctrlSetting', ['$scope', '$uibModal', 'http2', 'noticebox', 'mattersgallery', 'mediagallery', 'noticebox', function($scope, $uibModal, http2, noticebox, mattersgallery, mediagallery, noticebox) {
+		(function() {
+			new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
+		})();
+		$scope.downloadQrcode = function(url) {
+			$('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
+		};
 		var tinymceEditor, modifiedData = {};
 		var r = new Resumable({
 			target: '/rest/pl/fe/matter/article/attachment/upload?site=' + $scope.siteId + '&articleid=' + $scope.id,

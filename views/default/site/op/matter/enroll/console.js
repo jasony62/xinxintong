@@ -33,7 +33,7 @@ define(["require", "angular", "util.site"], function(require, angular) {
                     var lastNumber;
                     this.total = total;
                     this.numbers = [];
-                    lastNumber = Math.ceil(this.total / this.size);
+                    lastNumber = this.total > 0 ? Math.ceil(this.total / this.size) : 1;
                     for (var i = 1; i <= lastNumber; i++) {
                         this.numbers.push(i);
                     }

@@ -8,3 +8,4 @@
 	td:before{content:attr(data-th);display:inline-block;width:80px;background:#eee;padding:.5em;margin-right:4px;}
 }
 .notice{color:red;}
+.navbar-form .form-control{display:inline-block;width:auto;}

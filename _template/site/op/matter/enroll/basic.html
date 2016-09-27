@@ -42,23 +42,29 @@
 					</tr>
 				</tbody>
 			</table>
-			<div class='form-inline'>
-            	<button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchVerify()'>选中记录通过审核</button>
-				<div class='form-group'>
-					<label>筛选：</label>
-					<select class='form-control' ng-model="criteria.record.verified" ng-change="getRecords()">
-						<option value=''>全部审核状态</option>
-						<option value='Y'>审核通过</option>
-						<option value='N'>审核未通过</option>
-					</select>
-					<select class='form-control' ng-model="criteria.data[schema.id]" ng-change="getRecords()" ng-repeat="schema in filterSchemas" ng-options="op.v as op.l for op in schema.ops">
-						<option value=>全部{{schema.title}}</option>
-					</select>
-				</div>
-				<button class='btn btn-success' ng-click="getRecords()">刷新</button>
-            	<span>总数：{{page.total}}</span>
-            	<select class='form-control' ng-model="page.at" ng-options="number as number for number in page.numbers" ng-change="getRecords()"></select>
-			</div>
+			<nav class="navbar navbar-default navbar-fixed-bottom">
+		        <div class="container-fluid">
+		            <form class="navbar-form navbar-left">
+            			<button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchVerify()'>选中记录通过审核</button>
+		            </form>
+		            <form class="navbar-form navbar-left">
+						<select class='form-control' ng-model="criteria.record.verified" ng-change="getRecords()">
+							<option value=''>全部：审核状态</option>
+							<option value='Y'>审核通过</option>
+							<option value='N'>审核未通过</option>
+						</select>
+						<select class='form-control' ng-model="criteria.data[schema.id]" ng-change="getRecords()" ng-repeat="schema in filterSchemas" ng-options="op.v as op.l for op in schema.ops">
+							<option value=>全部：{{schema.title}}</option>
+						</select>
+					</form>
+					<form class="navbar-form navbar-right">
+            			<span>共{{page.total}}条</span>
+            			<span>，第 <select class='form-control' ng-model="page.at" ng-options="number as number for number in page.numbers" ng-change="getRecords()"></select>
+            			<span>页</span>
+						<button class='btn btn-success' ng-click="getRecords()">刷新</button>
+		            </form>
+		        </div>
+		    </nav>
 		</div>
 		<div id='edit' class='col-md-12' ng-if="subView==='record'">
 	        <div class="form-group" ng-repeat="schema in app.dataSchemas">

@@ -40,13 +40,13 @@ angular.module('xxt', ['infinite-scroll']).config(['$locationProvider', function
         $scope.searchKeyword = '';
     }
     /*标签展示*/
-    $scope.transform = function(obj) {
+    /*$scope.transform = function(obj) {
         var arr = [];
         for (var item in obj) {
             arr.push(obj[item].title);
         }
         return arr.join('/');
-    }
+    }*/
     $http.get('/rest/site/fe/matter/article/search/list?site=' + siteId + '&keyword=' + keyWord).success(function(rsp){
         $scope.matters = rsp.data;
     });

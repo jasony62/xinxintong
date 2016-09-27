@@ -27,7 +27,7 @@
 							<span ng-switch-when="image" ng-init="files=json2Obj(r.data[schema.id])">
 								<span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
 							</span>
-							<span ng-switch-default>{{value2String(r,schema.id)}}</span>
+							<span ng-switch-default>{{value2Html(r,schema.id)}}</span>
 						</td>
 						<td data-th='标签'><span>{{r.tags}}</span></td>
 						<td data-th='备注'><span>{{r.comment}}</span></td>
@@ -47,9 +47,12 @@
 				<div class='form-group'>
 					<label>筛选：</label>
 					<select class='form-control' ng-model="criteria.record.verified" ng-change="getRecords()">
-						<option value=''>全部</option>
+						<option value=''>全部审核状态</option>
 						<option value='Y'>审核通过</option>
 						<option value='N'>审核未通过</option>
+					</select>
+					<select class='form-control' ng-model="criteria.data[schema.id]" ng-change="getRecords()" ng-repeat="schema in filterSchemas" ng-options="op.v as op.l for op in schema.ops">
+						<option value=>全部{{schema.title}}</option>
 					</select>
 				</div>
 				<button class='btn btn-success' ng-click="getRecords()">刷新</button>

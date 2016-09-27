@@ -24,7 +24,7 @@ define(["require", "angular", "util.site"], function(require, angular) {
                 byRound: '',
                 join: function() {
                     var p;
-                    p = '&page=' + this.at + '&size=' + this.size;
+                    p = '&page=' + (this.at || 1) + '&size=' + this.size;
                     this.byRound && (p += '&rid=' + this.byRound);
                     p += '&orderby=' + this.orderBy;
                     return p;
@@ -84,7 +84,7 @@ define(["require", "angular", "util.site"], function(require, angular) {
             return count;
         };
         var schemasById = {};
-        $scope.value2String = function(record, schemaId) {
+        $scope.value2Html = function(record, schemaId) {
             var schema, val;
             if (undefined !== (schema = schemasById[schemaId])) {
                 if (schema.type === 'member' && record.data.member) {
@@ -141,6 +141,7 @@ define(["require", "angular", "util.site"], function(require, angular) {
                 });
             }
         };
+        $scope.filterSchemas = [];
         $http.get(PU.j('get', 'site', 'app')).success(function(rsp) {
             if (rsp.err_code !== 0) {
                 $scope.errmsg = rsp.err_msg;
@@ -154,6 +155,9 @@ define(["require", "angular", "util.site"], function(require, angular) {
                 $scope.app.dataSchemas = JSON.parse($scope.app.data_schemas);
                 $scope.app.dataSchemas.forEach(function(schema) {
                     schemasById[schema.id] = schema;
+                    if (/single|phase|multiple/.test(schema.type)) {
+                        $scope.filterSchemas.push(schema);
+                    }
                 });
             }
             $timeout(function() {

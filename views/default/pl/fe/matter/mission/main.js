@@ -258,22 +258,23 @@ ngApp.controller('ctrlMatter', ['$scope', '$uibModal', 'http2', 'templateShop', 
 	$scope.addEnroll = function(assignedScenario) {
 		templateShop.choose('enroll', assignedScenario).then(function(choice) {
 			var url, config = {
-				proto: {
-					title: $scope.editing.title + '-报名'
-				}
+				proto: {}
 			};
+			if (assignedScenario === 'registration') {
+				config.proto.title = $scope.editing.title + '-报名';
+			} else if (assignedScenario === 'voting') {
+				config.proto.title = $scope.editing.title + '-评价';
+			}
 			if (choice) {
 				var data = choice.data;
 				if (choice.source === 'share') {
 					url = '/rest/pl/fe/matter/enroll/createByOther?site=' + $scope.siteId + '&mission=' + $scope.id + '&template=' + data.id;
 				} else if (choice.source === 'platform') {
 					url = '/rest/pl/fe/matter/enroll/create?site=' + $scope.siteId + '&mission=' + $scope.id;
-					if (data) {
-						url += '&scenario=' + data.scenario.name;
-						url += '&template=' + data.template.name;
-						if (data.simpleSchema && data.simpleSchema.length) {
-							config.simpleSchema = data.simpleSchema;
-						}
+					url += '&scenario=' + data.scenario.name;
+					url += '&template=' + data.template.name;
+					if (data.simpleSchema && data.simpleSchema.length) {
+						config.simpleSchema = data.simpleSchema;
 					}
 				}
 			} else {

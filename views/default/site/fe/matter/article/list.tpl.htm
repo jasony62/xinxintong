@@ -17,19 +17,21 @@
             <input type="text" id="searchKeyword" class="form-control" ng-model="searchKeyword" required />
             <span class="input-group-addon glyphicon glyphicon-remove" ng-click="reset()"></span>
         </div>
-        <ul class='list-group'>
-            <li class='list-group-item' ng-repeat='m in matters' ng-click='open(m)'>
-                <div class='content'>
-                    <div ng-if="channel.show_pic_in_page==='Y'" ng-class="{'heading_pic':channel.show_pic_in_page==='Y'}" style="{{'background-image:url('+m.pic+')'}}"></div>
-                    <div class='text'>
-                        <div class='title' ng-bind='m.title'></div>
-                        <div class='summary' ng-bind='m.summary'></div>
-                        <div class="tag" ng-bind='transform(m.tags)'></div>
-                        <div class='create_at' ng-bind="m.add_at*1000|date:'yyyy-MM-dd'"></div>
+        <div id="content" class="content">
+            <ul class='list-group'>
+                <li class='list-group-item' ng-repeat='m in matters' ng-click='open(m)'>
+                    <div class='content'>
+                        <div style="{{'background-image:url('+m.pic+')'}}"></div>
+                        <div class='text'>
+                            <div class='title' ng-bind='m.title'></div>
+                            <div class='summary' ng-bind='m.summary'></div>
+                            <div class="tag" ng-bind='transform(m.tags)'></div>
+                            <div class='create_at' ng-bind="m.create_at*1000|date:'yyyy-MM-dd'"></div>
+                        </div>
                     </div>
-                </div>
-            </li>
-        </ul>
+                </li>
+            </ul>
+        </div>
     </div>
     <script type="text/javascript">
     if (/MicroMessenger/i.test(navigator.userAgent)) {

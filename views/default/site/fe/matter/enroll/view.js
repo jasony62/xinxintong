@@ -252,7 +252,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
                 return '';
             }
         };
-        $scope.score2Label = function(schemaId) {
+        $scope.score2Html = function(schemaId) {
             var label = '',
                 schema = schemasById[schemaId],
                 val;

@@ -187,7 +187,7 @@ define(["angular", "xxt-page", "enroll-directive", "angular-sanitize"], function
             this.current = srvStorage.getRecord(ek);
         };
     }]);
-    ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', function($scope, Record, LS) {
+    ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scope, Record, LS, $sce) {
         var schemas = $scope.app.data_schemas,
             schemasById = {};
 
@@ -216,7 +216,7 @@ define(["angular", "xxt-page", "enroll-directive", "angular-sanitize"], function
             }
             return val;
         };
-        $scope.score2Label = function(schemaId) {
+        $scope.score2Html = function(schemaId) {
             var label = '',
                 schema = schemasById[schemaId],
                 val;
@@ -225,14 +225,13 @@ define(["angular", "xxt-page", "enroll-directive", "angular-sanitize"], function
                 if (val = Record.current.data[schemaId]) {
                     if (schema.ops && schema.ops.length) {
                         schema.ops.forEach(function(op, index) {
-                            label += '<div>'+op.l + ':' + val[op.v] + '</div>';
+                            label += '<div>' + op.l + ': ' + val[op.v] + '</div>';
                         });
-                        //label = label.replace(/\s\/\s$/, '');
                     }
                 }
             }
 
-            return label;
+            return $sce.trustAsHtml(label);
         };
     }]);
     ngApp.controller('ctrlPreview', ['$scope', 'ls', 'srvStorage', function($scope, LS, srvStorage) {

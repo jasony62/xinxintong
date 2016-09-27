@@ -573,7 +573,7 @@ define([], function() {
                 html = '<div>{{value2Label("' + schema.id + '")}}</div>';
                 break;
             case 'score':
-                html = '<div>{{score2Label("' + schema.id + '")}}</div>';
+                html = '<div ng-bind-html="' + "score2Html('" + schema.id + "')" + '"></div>';
                 break;
             case 'datetime':
                 html = "<div>{{Record.current.data." + schema.id + "|date:'yy-MM-dd HH:mm'}}</div>";

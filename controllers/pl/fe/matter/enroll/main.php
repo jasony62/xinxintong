@@ -91,7 +91,7 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($result);
 	}
 	/**
-	 * 创建一个空的登记活动
+	 * 创建登记活动
 	 *
 	 * @param string $site site's id
 	 * @param string $mission mission's id
@@ -173,17 +173,20 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($app);
 	}
 	/**
-	 * 从模版创建一个登记活动
+	 * 从模版创建登记活动
 	 *
+	 * @param string $site
 	 * @param int $template
+	 * @param int $mission
 	 *
 	 * @return object ResponseData
 	 */
-	public function createByOther_action($site, $template) {
+	public function createByOther_action($site, $template, $mission = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
+		$customConfig = $this->getPostJson();
 		$current = time();
 		$modelApp = $this->model('matter\enroll');
 		$modelPage = $this->model('matter\enroll\page');
@@ -192,13 +195,24 @@ class main extends \pl\fe\matter\base {
 		$template = $this->model('template\shop')->byId($template);
 		$aid = $template->matter_id;
 		$copied = $modelApp->byId($aid);
-		$copied->title = $template->title;
-		$copied->summary = $template->summary;
-		$copied->pic = $template->pic;
 
-		/**获得的基本信息*/
 		$newaid = uniqid();
 		$newapp = array();
+		if (empty($mission)) {
+			$newapp['pic'] = $template->pic;
+			$newapp['summary'] = $template->summary;
+			$newapp['use_mission_header'] = 'N';
+			$newapp['use_mission_footer'] = 'N';
+		} else {
+			$modelMis = $this->model('matter\mission');
+			$mission = $modelMis->byId($mission);
+			$newapp['pic'] = $mission->pic;
+			$newapp['summary'] = $mission->summary;
+			$newapp['mission_id'] = $mission->id;
+			$newapp['use_mission_header'] = 'Y';
+			$newapp['use_mission_footer'] = 'Y';
+		}
+		$newapp['title'] = empty($customConfig->proto->title) ? $template->title : $customConfig->proto->title;
 		$newapp['siteid'] = $site;
 		$newapp['id'] = $newaid;
 		$newapp['creater'] = $user->id;
@@ -209,9 +223,6 @@ class main extends \pl\fe\matter\base {
 		$newapp['modifier_src'] = $user->src;
 		$newapp['modifier_name'] = $user->name;
 		$newapp['modify_at'] = $current;
-		$newapp['title'] = $copied->title;
-		$newapp['pic'] = $copied->pic;
-		$newapp['summary'] = $copied->summary;
 		$newapp['scenario'] = $copied->scenario;
 		$newapp['scenario_config'] = $copied->scenario_config;
 		$newapp['count_limit'] = $copied->count_limit;

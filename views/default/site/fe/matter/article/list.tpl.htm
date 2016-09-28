@@ -11,25 +11,31 @@
 </head>
 
 <body ng-cloak class='ng-cloak'>
-    <div class="matters">
-        <div class="input-group">
-            <span class="input-group-addon glyphicon glyphicon-search" ng-click="search()"></span>
-            <input type="text" id="searchKeyword" class="form-control" ng-model="searchKeyword" required />
-            <span class="input-group-addon glyphicon glyphicon-remove" ng-click="reset()"></span>
+    <div class='matters'>
+        <div class='form-group'>
+            <div class='input-group'>
+                <span class='glyphicon glyphicon-search'></span>
+                <input type='text' class='form-control' ng-model='searchKeyword' required />
+            </div>
+            <button type='submit' class='btn' ng-click='search()'>搜 索</button>
         </div>
-        <div id="content" class="content">
+        <div id='content' class='content'>
             <ul class='list-group'>
                 <li class='list-group-item' ng-repeat='m in matters' ng-click='open(m)'>
                     <div class='content'>
                         <div class="heading_pic" style="{{'background-image:url('+m.pic+')'}}"></div>
                         <div class='text'>
-                            <div class='title' ng-bind='m.title'></div>
+                            <h1 class='title' ng-bind='m.title'></h1>
                             <div class='summary' ng-bind='m.summary'></div>
-                            <div class="tag">
-                                <span>{{m.tag.content[0]}}</span>
-                                <span>{{m.tag.channel[0]}}</span>
+                            <div class='row'>
+                                <div class='tag col-xs-7'>
+                                    <span>{{m.tag.content[0]}}<i ng-if='m.tag.content&&m.tag.channel'>&nbsp;|&nbsp; </i>{{m.tag.channel[0]}}</span>
+                                </div>
+                                <div class='col-xs-5'>
+                                    <span class='glyphicon glyphicon-time'></span>
+                                    <span class="create_at" ng-bind="m.create_at*1000|date:'yyyy-MM-dd'"></span>
+                                </div>
                             </div>
-                            <div class='create_at' ng-bind="m.create_at*1000|date:'yyyy-MM-dd'"></div>
                         </div>
                     </div>
                 </li>

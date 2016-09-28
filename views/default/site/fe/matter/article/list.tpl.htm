@@ -28,10 +28,10 @@
                             <h1 class='title' ng-bind='m.title'></h1>
                             <div class='summary' ng-bind='m.summary'></div>
                             <div class='row'>
-                                <div class='tag col-xs-7'>
+                                <div class='tag col-xs-6'>
                                     <span>{{m.tag.content[0]}}<i ng-if='m.tag.content&&m.tag.channel'>&nbsp;|&nbsp; </i>{{m.tag.channel[0]}}</span>
                                 </div>
-                                <div class='col-xs-5'>
+                                <div class='col-xs-6'>
                                     <span class='glyphicon glyphicon-time'></span>
                                     <span class="create_at" ng-bind="m.create_at*1000|date:'yyyy-MM-dd'"></span>
                                 </div>

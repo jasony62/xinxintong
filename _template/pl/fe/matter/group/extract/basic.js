@@ -1,5 +1,5 @@
 (function() {
-	ngApp.provider.controller('ctrlExtract', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
+	ngApp.provider.controller('ctrlExtract', ['$scope', '$http', '$timeout','ls','$interval', function($scope, $http, $timeout, LS, $interval) {
 		var mySwiper, timer, winnerIndex = -1;
 		$scope.speed = 50;
 		$scope.times = 0;
@@ -28,7 +28,9 @@
 				$scope.winners.push(winner);
 				$http.post(LS.j('/done', 'site', 'app', 'rid') + '&ek=' + winner.enroll_key, {
 					uid: winner.userid,
-					nickname: winner.nickname
+					nickname: winner.nickname,
+					ek: winner.enroll_key,
+					rid: LS.p.rid
 				});
 			}
 			$scope.stopping = false;
@@ -130,7 +132,7 @@
 			}, $scope.speed);
 		};
 	}]);
-	ngApp.provider.controller('ctrlRounds', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
+	ngApp.provider.controller('ctrlRounds', ['$scope', '$http', '$timeout', 'ls', function($scope, $http, $timeout, LS) {
 		$scope.round = '';
 		$scope.shiftRound = function() {
 			var url, t;

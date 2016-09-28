@@ -259,7 +259,7 @@ $sql .= ",id varchar(40) not null";
 $sql .= ",title varchar(255) not null";
 $sql .= ",v varchar(40) not null";
 $sql .= ",l varchar(255) not null";
-$sql .= ",c int not null";
+$sql .= ",c double not null";
 $sql .= ",primary key(aid,id,v)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

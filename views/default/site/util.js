@@ -2,7 +2,7 @@
 define(["require", "angular"], function(require, angular) {
 	var module = angular.module('util.site.tms', []);
 	module.service('PageLoader', ['$q', function($q) {
-		this.render = function($scope, data) {
+		this.render = function($scope, data, ngApp) {
 			var defer = $q.defer();
 			if (data.ext_css && data.ext_css.length) {
 				angular.forEach(data.ext_css, function(css) {

@@ -1,11 +1,11 @@
 define(['frame'], function(ngApp) {
 	'use strict';
-	ngApp.provider.controller('ctrlStat', ['$scope', 'http2', '$timeout', function($scope, http2, $timeout) {
+	ngApp.provider.controller('ctrlStat', ['$scope', 'http2', '$timeout', '$q', function($scope, http2, $timeout, $q) {
 		function drawBarChart(item) {
 			var categories = [],
 				series = [];
 
-			angular.forEach(item.ops, function(op) {
+			item.ops.forEach(function(op) {
 				categories.push(op.l);
 				series.push(parseInt(op.c));
 			});
@@ -46,7 +46,7 @@ define(['frame'], function(ngApp) {
 			var categories = [],
 				series = [];
 
-			angular.forEach(item.ops, function(op) {
+			item.ops.forEach(function(op) {
 				series.push({
 					name: op.l,
 					y: parseInt(op.c)
@@ -88,6 +88,95 @@ define(['frame'], function(ngApp) {
 			});
 		}
 
+		function drawLineChart(item) {
+			var categories = [],
+				data = [];
+
+			item.ops.forEach(function(op) {
+				categories.push(op.l);
+				data.push(parseFloat(op.c));
+			});
+			new Highcharts.Chart({
+				chart: {
+					type: 'line',
+					renderTo: item.id
+				},
+				title: {
+					text: item.title,
+				},
+				xAxis: {
+					categories: categories
+				},
+				yAxis: {
+					title: {
+						text: '平均分'
+					},
+					plotLines: [{
+						value: 0,
+						width: 1,
+						color: '#808080'
+					}]
+				},
+				series: [{
+					name: item.title,
+					data: data
+				}],
+				lang: {
+					downloadJPEG: "下载JPEG 图片",
+					downloadPDF: "下载PDF文档",
+					downloadPNG: "下载PNG 图片",
+					downloadSVG: "下载SVG 矢量图",
+					printChart: "打印图片",
+					exportButtonTitle: "导出图片"
+				}
+			});
+		}
+
+		var _cacheOfRecordsBySchema = {
+			recordsBySchema: function(schema, page) {
+				var deferred = $q.defer(),
+					cached,
+					requireGet = false,
+					url;
+
+				if (cached = _cacheOfRecordsBySchema[schema.id]) {
+					if (cached.page && cached.page.at === page.at) {
+						records = cached.records;
+						deferred.resolve(records);
+					} else {
+						if (cached._running) {
+							deferred.resolve(false);
+							return false;
+						}
+						requireGet = true;
+					}
+				} else {
+					cached = {};
+					_cacheOfRecordsBySchema[schema.id] = cached;
+					requireGet = true;
+				}
+
+				if (requireGet) {
+					url = '/rest/pl/fe/matter/enroll/record/list4Schema';
+					url += '?site=' + $scope.siteId + '&app=' + $scope.id;
+					url += '&schema=' + schema.id + '&page=' + page.at + '&size=' + page.size;
+					cached._running = true;
+					http2.get(url, function(rsp) {
+						cached._running = false;
+						cached.page = {
+							at: page.at,
+							size: page.size
+						};
+						cached.records = rsp.data.records;
+						page.total = rsp.data.total;
+						deferred.resolve(rsp.data);
+					});
+				}
+
+				return deferred.promise;
+			}
+		};
+
 		$scope.export = function() {
 			var url, params = {};
 
@@ -103,6 +192,17 @@ define(['frame'], function(ngApp) {
 
 				saveAs(blob, $scope.app.title + '.doc');
 			});
+		};
+		$scope.getRecords = function(schema, page) {
+			var cached;
+
+			if (cached = _cacheOfRecordsBySchema[schema.id]) {
+				if (cached.page && cached.page.at === page.at) {
+					return cached.records;
+				}
+			}
+			_cacheOfRecordsBySchema.recordsBySchema(schema, page);
+			return false;
 		};
 		$scope.$watch('app', function(app) {
 			if (!app) return;
@@ -126,6 +226,8 @@ define(['frame'], function(ngApp) {
 							drawPieChart(item);
 						} else if (/multiple/.test(item._schema.type)) {
 							drawBarChart(item);
+						} else if (/score/.test(item._schema.type)) {
+							drawLineChart(item);
 						}
 					}
 				});

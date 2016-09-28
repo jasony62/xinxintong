@@ -84,7 +84,7 @@ define(['wrap'], function(wrapLib) {
 				html.find('[wrap=button]>button>span').attr('contenteditable', 'true');
 				html.find('[wrap=checkbox]>label>span').attr('contenteditable', 'true');
 				html.find('[wrap=radio]>label>span').attr('contenteditable', 'true');
-				html.find('[wrap=score]>label').attr('contenteditable', 'true');
+				html.find('[wrap=score]>div>label').attr('contenteditable', 'true');
 				html.find('input[type=text],textarea').attr('readonly', true);
 				html.find('input[type=text],textarea').attr('disabled', true);
 				html.find('input[type=radio],input[type=checkbox]').attr('readonly', true);
@@ -123,7 +123,7 @@ define(['wrap'], function(wrapLib) {
 				oNewWrap = wrapLib.input.newWrap(newSchema);
 				_page.data_schemas.push(oNewWrap);
 
-				wrapParam = wrapLib.input.embed(oNewWrap);
+				wrapParam = wrapLib.input.embed(oNewWrap, true);
 				domNewWrap = _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
 			} else if (_page.type === 'V') {
 				var wrapParam;
@@ -138,12 +138,12 @@ define(['wrap'], function(wrapLib) {
 			return domNewWrap;
 		},
 		addOptionWrap: function(domWrap, schema, newOp) {
-			var html, newOptionWrap, dom;
+			var html, newOptionWrap, dom, elem, textNode, wrapType;
 
 			dom = _editor.dom;
-			if (/radio/.test(domWrap.getAttribute('wrap'))) {
-
-				html = wrapLib.input.newRadio(schema, newOp, {});
+			wrapType = domWrap.getAttribute('wrap');
+			if (/radio/.test(wrapType)) {
+				html = wrapLib.input.newRadio(schema, newOp, {}, true);
 				html = $(html);
 
 				newOptionWrap = dom.create('li', {
@@ -151,8 +151,8 @@ define(['wrap'], function(wrapLib) {
 					contenteditable: 'false',
 					class: 'radio'
 				}, html.html());
-			} else {
-				html = wrapLib.input.newCheckbox(schema, newOp, {});
+			} else if (/checkbox/.test(wrapType)) {
+				html = wrapLib.input.newCheckbox(schema, newOp, {}, true);
 				html = $(html);
 
 				newOptionWrap = dom.create('li', {
@@ -160,10 +160,23 @@ define(['wrap'], function(wrapLib) {
 					contenteditable: 'false',
 					class: 'checkbox'
 				}, html.html());
+			} else if (/score/.test(wrapType)) {
+				html = wrapLib.input.newNumber(schema, newOp, {}, true);
+				html = $(html);
+
+				newOptionWrap = dom.create('li', {
+					wrap: 'score',
+					contenteditable: 'false',
+					class: 'score'
+				}, html.html());
 			}
 
-			var elem = dom.insertAfter(newOptionWrap, domWrap);
-			var textNode = elem.querySelector('label>span');
+			elem = dom.insertAfter(newOptionWrap, domWrap);
+			if (/radio|checkbox/.test(wrapType)) {
+				textNode = elem.querySelector('label>span');
+			} else {
+				textNode = elem.querySelector('label');
+			}
 			_editor.selection.select(textNode, false);
 			_editor.selection.setCursorLocation(textNode, 0);
 		},
@@ -233,7 +246,7 @@ define(['wrap'], function(wrapLib) {
 					(function(page) {
 						var $domParentWrap = $(domNodeWrap[0]),
 							oOptionWrap, editingSchema;
-						if (/radio|checkbox/.test($domParentWrap.attr('wrap'))) {
+						if (/radio|checkbox|score/.test($domParentWrap.attr('wrap'))) {
 							oOptionWrap = wrapLib.input.dataByDom(domNodeWrap[0]);
 							if (oOptionWrap.schema && oOptionWrap.schema.ops && oOptionWrap.schema.ops.length === 1) {
 								for (var i = page.data_schemas.length - 1; i >= 0; i--) {
@@ -365,11 +378,11 @@ define(['wrap'], function(wrapLib) {
 			this.setActiveWrap(null);
 			if (selectableWrap) {
 				wrapType = $(selectableWrap).attr('wrap');
-				while (!/text|matter|input|radio|checkbox|value|button|records|rounds/.test(wrapType) && selectableWrap.parentNode) {
+				while (!/text|matter|input|radio|checkbox|value|button|records|rounds|score/.test(wrapType) && selectableWrap.parentNode) {
 					selectableWrap = selectableWrap.parentNode;
 					wrapType = $(selectableWrap).attr('wrap');
 				}
-				if (/text|matter|input|radio|checkbox|value|button|records|rounds/.test(wrapType)) {
+				if (/text|matter|input|radio|checkbox|value|button|records|rounds|score/.test(wrapType)) {
 					this.setActiveWrap(selectableWrap);
 				}
 			}
@@ -391,16 +404,21 @@ define(['wrap'], function(wrapLib) {
 			return _activeWrap;
 		},
 		optionSchemaByDom: function(domWrap, app) {
-			var parentNode = domWrap,
-				optionDom, schemaOption, schemaOptionId, schemaId, schema;
+			var optionDom, schemaOption, schemaOptionId, schemaId, schema, wrapType;
 
-			optionDom = domWrap.querySelector('input');
-			schemaId = optionDom.getAttribute('name');
-			if (/radio/.test(domWrap.getAttribute('wrap'))) {
-				schemaOptionId = optionDom.getAttribute('value');
-			} else {
-				schemaOptionId = optionDom.getAttribute('ng-model');
-				schemaOptionId = schemaOptionId.split('.')[2];
+			wrapType = domWrap.getAttribute('wrap');
+			if (/radio|checkbox/.test(wrapType)) {
+				optionDom = domWrap.querySelector('input');
+				schemaId = optionDom.getAttribute('name');
+				if (/radio/.test(wrapType)) {
+					schemaOptionId = optionDom.getAttribute('value');
+				} else if (/checkbox/.test(wrapType)) {
+					schemaOptionId = optionDom.getAttribute('ng-model');
+					schemaOptionId = schemaOptionId.split('.')[2];
+				}
+			} else if ('score' === wrapType) {
+				schemaId = domWrap.parentNode.parentNode.getAttribute('schema');
+				schemaOptionId = domWrap.getAttribute('opvalue');
 			}
 
 			for (var i = app.data_schemas.length - 1; i >= 0; i--) {

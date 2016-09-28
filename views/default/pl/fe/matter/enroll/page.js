@@ -260,7 +260,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 				$scope.removeSchema(schema).then(function() {
 					editorProxy.removeWrap($scope.activeWrap);
 				});
-			} else if (/radio|checkbox/.test(wrapType)) {
+			} else if (/radio|checkbox|score/.test(wrapType)) {
 				var optionSchema;
 				schema = editorProxy.optionSchemaByDom($scope.activeWrap.dom, $scope.app);
 				optionSchema = schema[1];
@@ -354,31 +354,30 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 		});
 		//添加选项
 		$scope.$on('tinymce.option.add', function(event, domWrap) {
-			if (/radio|checkbox/.test(domWrap.getAttribute('wrap'))) {
-				var parentNode = domWrap,
-					optionDom, schemaOptionId, schemaId, schema;
+			var optionDom, schemaOptionId, schemaId, schema;
 
+			if (/radio|checkbox/.test(domWrap.getAttribute('wrap'))) {
 				optionDom = domWrap.querySelector('input');
 				schemaId = optionDom.getAttribute('name');
 				if (/radio/.test(domWrap.getAttribute('wrap'))) {
 					schemaOptionId = optionDom.getAttribute('value');
-				} else {
+				} else if (/checkbox/.test(domWrap.getAttribute('wrap'))) {
 					schemaOptionId = optionDom.getAttribute('ng-model');
 					schemaOptionId = schemaOptionId.split('.')[2];
 				}
-
-				for (var i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
-					if (schemaId === $scope.app.data_schemas[i].id) {
-						schema = $scope.app.data_schemas[i];
-						break;
+			} else if (/score/.test(domWrap.getAttribute('wrap'))) {
+				schemaId = domWrap.parentNode.parentNode.getAttribute('schema');
+				schemaOptionId = domWrap.getAttribute('opvalue');
+			}
+			for (var i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
+				if (schemaId === $scope.app.data_schemas[i].id) {
+					schema = $scope.app.data_schemas[i];
+					if (schema.ops) {
+						var newOp;
+						newOp = schemaLib.addOption(schema, schemaOptionId);
+						editorProxy.addOptionWrap(domWrap, schema, newOp);
 					}
-				}
-
-				if (schema.ops) {
-					var newOp;
-
-					newOp = schemaLib.addOption(schema, schemaOptionId);
-					editorProxy.addOptionWrap(domWrap, schema, newOp);
+					break;
 				}
 			}
 		});

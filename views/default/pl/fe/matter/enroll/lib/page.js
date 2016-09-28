@@ -145,7 +145,6 @@ define(['wrap'], function(wrapLib) {
 
 			domNewWrap = this._appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html, afterWrap);
 
-
 			return domNewWrap;
 		},
 		/**

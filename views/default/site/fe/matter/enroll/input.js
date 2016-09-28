@@ -73,11 +73,10 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
 
         var Input, _ins;
         Input = function() {};
-
         Input.prototype.check = function(data, app, page) {
             var reason, dataSchemas, item, value;
-            reason = validate(data);
-            if (true !== reason) {
+
+            if (true !== (reason = validate(data))) {
                 return reason;
             }
             if (page.data_schemas && page.data_schemas.length) {
@@ -85,7 +84,11 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                 for (var i = dataSchemas.length - 1; i >= 0; i--) {
                     item = dataSchemas[i];
                     if (item.config.required === 'Y') {
-                        value = data[item.schema.id];
+                        if (item.schema.id.indexOf('member.') === 0) {
+                            value = data['member'][item.schema.id.substr(7)];
+                        } else {
+                            value = data[item.schema.id];
+                        }
                         if (value === undefined || isEmpty(item.schema, value)) {
                             return '请填写必填项［' + item.schema.title + '］';
                         }
@@ -390,32 +393,35 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                         }
                         $scope.data.member = angular.extend($scope.data.member, dataOfRecord.member);
                         hasSetMember = true;
-                    } else if (schemasById[p].type === 'score') {
-                        $scope.data[p] = dataOfRecord[p];
-                    } else if (dataOfRecord[p].length && schemasById[p]) {
-                        if (schemasById[p].type === 'image') {
-                            value = dataOfRecord[p].split(',');
-                            $scope.data[p] = [];
-                            for (var i in value) {
-                                $scope.data[p].push({
-                                    imgSrc: value[i]
-                                });
-                            }
-                        } else if (schemasById[p].type === 'file') {
-                            value = JSON.parse(dataOfRecord[p]);
-                            $scope.data[p] = value;
-                        } else if (schemasById[p].type === 'multiple') {
-                            value = dataOfRecord[p].split(',');
-                            $scope.data[p] = {};
-                            for (var i in value) $scope.data[p][value[i]] = true;
-                        } else {
+                    } else if (undefined !== schemasById[p]) {
+                        var schema = schemasById[p];
+                        if (schema.type === 'score') { // is object
                             $scope.data[p] = dataOfRecord[p];
+                        } else if (dataOfRecord[p].length) { // is string
+                            if (schema.type === 'image') {
+                                value = dataOfRecord[p].split(',');
+                                $scope.data[p] = [];
+                                for (var i in value) {
+                                    $scope.data[p].push({
+                                        imgSrc: value[i]
+                                    });
+                                }
+                            } else if (schema.type === 'file') {
+                                value = JSON.parse(dataOfRecord[p]);
+                                $scope.data[p] = value;
+                            } else if (schema.type === 'multiple') {
+                                value = dataOfRecord[p].split(',');
+                                $scope.data[p] = {};
+                                for (var i in value) $scope.data[p][value[i]] = true;
+                            } else {
+                                $scope.data[p] = dataOfRecord[p];
+                            }
                         }
                     }
                 }
                 $scope.record = params.record;
             }
-            /* 无论是否有登记记录都自动填写用户认证信息 */
+            // 无论是否有登记记录都自动填写用户认证信息
             !hasSetMember && PG.setMember(params.user, $scope.data.member);
         });
         var doSubmit = function(nextAction) {

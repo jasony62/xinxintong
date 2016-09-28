@@ -86,8 +86,8 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 			}).result.then(function(options) {
 				http2.post('/rest/pl/fe/matter/enroll/page/add?site=' + $scope.siteId + '&app=' + $scope.id, options, function(rsp) {
 					var page = rsp.data;
-					angular.extend(page, pageLib);
-					page.arrange();
+					pageLib.enhance(page);
+					page.arrange($scope.mapOfAppSchemas);
 					$scope.app.pages.push(page);
 					deferred.resolve(page);
 				});
@@ -104,9 +104,21 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 						type: 'enroll'
 					};
 					http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.siteId + '&id=' + matters[0].mission_id, app, function(rsp) {
-						$scope.app.mission = rsp.data;
-						$scope.app.mission_id = rsp.data.id;
-						$scope.update('mission_id');
+						var mission = rsp.data,
+							app = $scope.app,
+							updatedFields = ['mission_id'];
+
+						app.mission = mission;
+						app.mission_id = mission.id;
+						if (!app.pic || app.pic.length === 0) {
+							app.pic = mission.pic;
+							updatedFields.push('pic');
+						}
+						if (!app.summary || app.summary.length === 0) {
+							app.summary = mission.summary;
+							updatedFields.push('summary');
+						}
+						srvApp.update(updatedFields);
 					});
 				}
 			}, {
@@ -227,16 +239,16 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 		http2.get('/rest/pl/fe/site/snsList?site=' + $scope.siteId, function(rsp) {
 			$scope.sns = rsp.data;
 		});
+		$scope.mapOfAppSchemas = {};
 		srvApp.get().then(function(app) {
-			var mapOfAppSchemas = {};
 			// 将页面的schema指向应用的schema
 			app.data_schemas.forEach(function(schema) {
 				schemaLib._upgrade(schema);
-				mapOfAppSchemas[schema.id] = schema;
+				$scope.mapOfAppSchemas[schema.id] = schema;
 			});
 			app.pages.forEach(function(page) {
 				pageLib.enhance(page);
-				page.arrange(mapOfAppSchemas);
+				page.arrange($scope.mapOfAppSchemas);
 			});
 			$scope.app = app;
 			app.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致

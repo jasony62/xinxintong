@@ -14,7 +14,8 @@
     </div>
     <div class='list-group'>
         <a href='javascript:void(0)' class='list-group-item' ng-repeat="c in coworkers" ng-mouseenter="entered=true" ng-mouseleave="entered=false">
-            <span>{{c.coworker_label}}</span>
+            <span>{{c.account.nickname}}</span>
+            <span>（{{c.coworker_label}}）</span>
             <button class='close' ng-if="entered" ng-click="remove(c)">&times;</button>
         </a>
     </div>

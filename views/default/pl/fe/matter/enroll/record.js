@@ -152,22 +152,27 @@ define(['frame'], function(ngApp) {
                 return '';
             }
         };
-        $scope.value2Label = function(val, key) {
-            var schemas = $scope.app.data_schemas,
-                i, j, s, aVal, aLab = [];
+
+        $scope.value2Label = function(val, schemaId) {
+            var s;
             if (val === undefined) return '';
-            for (i = 0, j = schemas.length; i < j; i++) {
-                if (schemas[i].id === key) {
-                    s = schemas[i];
-                    break;
-                }
-            }
+            s = schemasById[schemaId];
             if (s && s.ops && s.ops.length) {
-                aVal = val.split(',');
-                for (i = 0, j = s.ops.length; i < j; i++) {
-                    aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
+                if (s.type === 'score') {
+                    var label = '';
+                    s.ops.forEach(function(op, index) {
+                        label += op.l + ':' + val[op.v] + ' / ';
+                    });
+                    label = label.replace(/\s\/\s$/, '');
+                    return label;
+                } else {
+                    var aVal, aLab = [];
+                    aVal = val.split(',');
+                    s.ops.forEach(function(op, i) {
+                        aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
+                    });
+                    if (aLab.length) return aLab.join(',');
                 }
-                if (aLab.length) return aLab.join(',');
             }
             return val;
         };
@@ -200,7 +205,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.editRecord = function(record) {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=1',
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=2',
                 controller: 'ctrlEditor',
                 backdrop: 'static',
                 windowClass: 'auto-height',
@@ -230,7 +235,7 @@ define(['frame'], function(ngApp) {
         };
         $scope.addRecord = function() {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=1',
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=2',
                 controller: 'ctrlEditor',
                 windowClass: 'auto-height',
                 resolve: {
@@ -431,37 +436,8 @@ define(['frame'], function(ngApp) {
             if ($scope.content.signin === 'Y') {
                 url += '&includeSignin=Y';
             }
-
-            http2.post(url, params, function(rsp) {
-                var blob;
-
-                blob = new Blob([rsp.data], {
-                    type: "text/plain;charset=utf-8"
-                });
-
-                saveAs(blob, $scope.app.title + '.csv');
-            });
+            window.open(url);
         };
-        $scope.copyRecords = function() {};
-        (function() {
-            var client = new ZeroClipboard($("#copyRecords"));
-            client.on("copy", function(event) {
-                var clipboard = event.clipboardData,
-                    $table;
-
-                $table = $($('#enrollRecords').html());
-                $table.find('thead>tr>th:first-child').remove();
-                $table.find('tbody>tr>td:first-child').remove();
-                $table.find('thead>tr>th:first-child').remove();
-                $table.find('tbody>tr>td:first-child').remove();
-                $table.find('thead>tr>th:last-child').remove();
-                $table.find('tbody>tr>td:last-child').remove();
-                $table.find('.signin_late').css('color', 'red');
-
-                clipboard.setData("text/html", '<table>' + $table.html() + '</table>');
-                noticebox.success('完成数据复制');
-            });
-        })();
         $scope.countSelected = function() {
             var count = 0;
             for (var p in $scope.rows.selected) {
@@ -486,6 +462,8 @@ define(['frame'], function(ngApp) {
                 $scope.rows.selected = {};
             }
         });
+        var schemasById = {};
+
         $scope.tmsTableWrapReady = 'N'; // 表格定义是否已经准备完毕
         $scope.$watch('app', function(app) {
             if (!app) return;
@@ -496,6 +474,9 @@ define(['frame'], function(ngApp) {
             });
             $scope.mapOfSchemaByType = mapOfSchemaByType;
             $scope.tmsTableWrapReady = 'Y';
+            app.data_schemas.forEach(function(schema) {
+                schemasById[schema.id] = schema;
+            });
             $scope.doSearch();
             // 显示扩展内容
             $scope.$watch('content', function(content) {
@@ -634,6 +615,15 @@ define(['frame'], function(ngApp) {
         };
         $scope.cancel = function() {
             $uibModalInstance.dismiss('cancel');
+        };
+        $scope.scoreRangeArray = function(schema) {
+            var arr = [];
+            if (schema.range && schema.range.length === 2) {
+                for (var i = schema.range[0]; i <= schema.range[1]; i++) {
+                    arr.push('' + i);
+                }
+            }
+            return arr;
         };
         $scope.chooseImage = function(imgFieldName, count, from) {
             var data = $scope.record.data;

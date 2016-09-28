@@ -1,6 +1,7 @@
 .ng-cloak{display:none;}
 html,body{background:#efefef;font-family:Microsoft Yahei,Arial;height:100%;width:100%;}
 body{position:relative;padding:15px;font-size:16px;}
+img{max-width:100%}
 header{margin:-15px -15px 0 -15px;}
 footer{margin:0 -15px -15px -15px;}
 ul{margin:0;padding:0;list-style:none}
@@ -8,9 +9,16 @@ li{margin:0;padding:0}
 #errmsg{display:block;opacity:0;height:0;overflow:hidden;width:300px;position:fixed;top:0;left:50%;margin:0 0 0 -150px;text-align:center;transition:opacity 1s;z-index:-1;word-break:break-all}
 #errmsg.active{opacity:1;height:auto;z-index:999}
 
+/* score schema */
+li[wrap=score]{padding:4px 4px 4px 0;}
+li[wrap=score] label{padding:3px;font-weight:400;}
+li[wrap=score]>.number{display:inline-block;margin-top:6px;border:1px solid #CCC;}
+li[wrap=score]>.number>div{display:inline-block;width:48px;padding:4px 4px;margin:4px 4px;text-align:center;border-bottom:1px dotted #ddd}
+li[wrap=score]>.number>.in{background:#33bb99;}
+
 /* img tiles */
 ul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;margin:0px;padding:0px;float:left}
-ul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute}
+ul.img-tiles li.img-thumbnail img{display:inline-block;position:absolute;max-width:none}
 ul.img-tiles li.img-thumbnail button{position:absolute;top:0;right:0}
 ul.img-tiles li.img-picker button{position:auto;width:100%;height:100%}
 ul.img-tiles li.img-picker button span{font-size:36px}

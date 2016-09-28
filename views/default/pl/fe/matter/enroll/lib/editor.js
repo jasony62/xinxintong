@@ -67,7 +67,7 @@ define(['wrap'], function(wrapLib) {
 		},
 		setPage: function(page) {
 			_page = page;
-			return this.disableInput();
+			return page ? this.disableInput() : '';
 		},
 		getPage: function() {
 			return _page;
@@ -84,6 +84,7 @@ define(['wrap'], function(wrapLib) {
 				html.find('[wrap=button]>button>span').attr('contenteditable', 'true');
 				html.find('[wrap=checkbox]>label>span').attr('contenteditable', 'true');
 				html.find('[wrap=radio]>label>span').attr('contenteditable', 'true');
+				html.find('[wrap=score]>div>label').attr('contenteditable', 'true');
 				html.find('input[type=text],textarea').attr('readonly', true);
 				html.find('input[type=text],textarea').attr('disabled', true);
 				html.find('input[type=radio],input[type=checkbox]').attr('readonly', true);
@@ -98,17 +99,19 @@ define(['wrap'], function(wrapLib) {
 		/**
 		 * 清理代码，去掉额外的页面状态
 		 */
-		purifyInput: function(html, persist) {
-			if (_page.type === 'I') {
-				html = $('<div>' + html + '</div>');
-				html.find('.active').removeClass('active');
+		purifyPage: function(page, persist) {
+			var html = page.html;
+
+			html = $('<div>' + html + '</div>');
+			if (page.type === 'I') {
 				html.find('[readonly]').removeAttr('readonly');
 				html.find('[disabled]').removeAttr('disabled');
 				html.find('[contenteditable]').removeAttr('contenteditable');
-				html = html.html();
 			}
+			html.find('.active').removeClass('active');
+			html = html.html();
 
-			persist === true && (_page.html = html);
+			persist === true && (page.html = html);
 
 			return html;
 		},
@@ -120,7 +123,7 @@ define(['wrap'], function(wrapLib) {
 				oNewWrap = wrapLib.input.newWrap(newSchema);
 				_page.data_schemas.push(oNewWrap);
 
-				wrapParam = wrapLib.input.embed(oNewWrap);
+				wrapParam = wrapLib.input.embed(oNewWrap, true);
 				domNewWrap = _appendWrap(wrapParam.tag, wrapParam.attrs, wrapParam.html);
 			} else if (_page.type === 'V') {
 				var wrapParam;
@@ -135,12 +138,12 @@ define(['wrap'], function(wrapLib) {
 			return domNewWrap;
 		},
 		addOptionWrap: function(domWrap, schema, newOp) {
-			var html, newOptionWrap, dom;
+			var html, newOptionWrap, dom, elem, textNode, wrapType;
 
 			dom = _editor.dom;
-			if (/radio/.test(domWrap.getAttribute('wrap'))) {
-
-				html = wrapLib.input.newRadio(schema, newOp, {});
+			wrapType = domWrap.getAttribute('wrap');
+			if (/radio/.test(wrapType)) {
+				html = wrapLib.input.newRadio(schema, newOp, {}, true);
 				html = $(html);
 
 				newOptionWrap = dom.create('li', {
@@ -148,8 +151,8 @@ define(['wrap'], function(wrapLib) {
 					contenteditable: 'false',
 					class: 'radio'
 				}, html.html());
-			} else {
-				html = wrapLib.input.newCheckbox(schema, newOp, {});
+			} else if (/checkbox/.test(wrapType)) {
+				html = wrapLib.input.newCheckbox(schema, newOp, {}, true);
 				html = $(html);
 
 				newOptionWrap = dom.create('li', {
@@ -157,10 +160,23 @@ define(['wrap'], function(wrapLib) {
 					contenteditable: 'false',
 					class: 'checkbox'
 				}, html.html());
+			} else if (/score/.test(wrapType)) {
+				html = wrapLib.input.newNumber(schema, newOp, {}, true);
+				html = $(html);
+
+				newOptionWrap = dom.create('li', {
+					wrap: 'score',
+					contenteditable: 'false',
+					class: 'score'
+				}, html.html());
 			}
 
-			var elem = dom.insertAfter(newOptionWrap, domWrap);
-			var textNode = elem.querySelector('label>span');
+			elem = dom.insertAfter(newOptionWrap, domWrap);
+			if (/radio|checkbox/.test(wrapType)) {
+				textNode = elem.querySelector('label>span');
+			} else {
+				textNode = elem.querySelector('label');
+			}
 			_editor.selection.select(textNode, false);
 			_editor.selection.setCursorLocation(textNode, 0);
 		},
@@ -170,90 +186,164 @@ define(['wrap'], function(wrapLib) {
 		modifySchema: function(wrap) {
 			if (_page.type === 'I') {
 				wrapLib.input.modify(wrap.dom, wrap);
-				this.purifyInput(_editor.getContent(), true);
 			} else if (_page.type === 'V') {
 				wrapLib.value.modify(wrap.dom, wrap);
-				_page.html = _editor.getContent();
 			} else if (_page.type === 'L') {
-				wrapLib.records.modify(wrap.dom, wrap);
-				_page.html = _editor.getContent();
+				if (wrap.type === 'value') {
+					wrapLib.value.modify(wrap.dom, wrap);
+				} else if (wrap.type === 'records') {
+					wrapLib.records.modify(wrap.dom, wrap);
+				} else if (wrap.type === 'rounds') {
+					wrapLib.rounds.modify(wrap.dom, wrap);
+				}
 			}
 		},
 		modifyButton: function(wrap) {
 			wrapLib.button.modify(wrap.dom, wrap);
-			this.purifyInput(_editor.getContent(), true);
 		},
 		/**
 		 * 页面编辑器内容发生变化
 		 */
-		contentChange: function(node, activeWrap, $timeout) {
+		nodeChange: function(node) {
 			var domNodeWrap = $(node).parents('[wrap]'),
 				status = {
 					schemaChanged: false,
 					actionChanged: false
 				};
+			if (_page.type === 'I') {
+				if (domNodeWrap.length === 1 && domNodeWrap[0].getAttribute('wrap') === 'input') {
+					// 编辑input's label
+					if (/label/i.test(node.nodeName)) {
+						(function freshSchemaByDom() {
+							var oWrap = wrapLib.dataByDom(domNodeWrap[0]),
+								pageWrap = _page.wrapBySchema(oWrap.schema);
 
-			if (domNodeWrap.length === 1 && domNodeWrap[0].getAttribute('wrap') === 'input') {
-				// 编辑input's label
-				if (/label/i.test(node.nodeName)) {
-					(function freshSchemaByDom() {
-						var oWrap = wrapLib.dataByDom(activeWrap.dom);
-						if (oWrap) {
-							if (oWrap.schema.title !== activeWrap.schema.title) {
-								$timeout(function() {
-									activeWrap.schema.title = oWrap.schema.title;
+							if (oWrap) {
+								if (oWrap.schema.title !== pageWrap.schema.title) {
+									pageWrap.schema.title = oWrap.schema.title;
 									status.schemaChanged = true;
-								});
+								}
 							}
-						}
-					})();
-				}
-			} else if (domNodeWrap.length === 1 && domNodeWrap[0].getAttribute('wrap') === 'button') {
-				// 编辑button's span
-				if (/span/i.test(node.nodeName)) {
-					(function freshButtonByDom() {
-						var oWrap = wrapLib.dataByDom(activeWrap.dom);
-						if (oWrap) {
-							if (oWrap.schema.label !== activeWrap.schema.label) {
-								$timeout(function() {
-									activeWrap.schema.label = oWrap.schema.label;
+						})();
+					}
+				} else if (domNodeWrap.length === 1 && domNodeWrap[0].getAttribute('wrap') === 'button') {
+					// 编辑button's span
+					if (/span/i.test(node.nodeName)) {
+						(function freshButtonByDom() {
+							var oWrap = wrapLib.dataByDom(domNodeWrap[0]),
+								pageWrap = _page.wrapByButton(oWrap.schema);
+
+							if (oWrap) {
+								if (oWrap.schema.label !== pageWrap.label) {
+									pageWrap.label = oWrap.schema.label;
 									status.actionChanged = true;
-								});
+								}
 							}
-						}
-					})();
-				}
-			} else if (domNodeWrap.length === 2) {
-				// 编辑input's options
-				(function(page) {
-					var $domParentWrap = $(domNodeWrap[0]),
-						oOptionWrap, editingSchema;
-					if (/radio|checkbox/.test($domParentWrap.attr('wrap'))) {
-						oOptionWrap = wrapLib.input.dataByDom(domNodeWrap[0]);
-						if (oOptionWrap.schema && oOptionWrap.schema.ops && oOptionWrap.schema.ops.length === 1) {
-							for (var i = page.data_schemas.length - 1; i >= 0; i--) {
-								editingSchema = page.data_schemas[i].schema;
-								if (oOptionWrap.schema.id === editingSchema.id) {
-									for (var j = editingSchema.ops.length - 1; j >= 0; j--) {
-										if (oOptionWrap.schema.ops[0].v === editingSchema.ops[j].v) {
-											editingSchema.ops[j].l = oOptionWrap.schema.ops[0].l;
-											status.schemaChanged = true;
-											break;
+						})();
+					}
+				} else if (domNodeWrap.length === 2) {
+					// 编辑input's options
+					(function(page) {
+						var $domParentWrap = $(domNodeWrap[0]),
+							oOptionWrap, editingSchema;
+						if (/radio|checkbox|score/.test($domParentWrap.attr('wrap'))) {
+							oOptionWrap = wrapLib.input.dataByDom(domNodeWrap[0]);
+							if (oOptionWrap.schema && oOptionWrap.schema.ops && oOptionWrap.schema.ops.length === 1) {
+								for (var i = page.data_schemas.length - 1; i >= 0; i--) {
+									editingSchema = page.data_schemas[i].schema;
+									if (oOptionWrap.schema.id === editingSchema.id) {
+										for (var j = editingSchema.ops.length - 1; j >= 0; j--) {
+											if (oOptionWrap.schema.ops[0].v === editingSchema.ops[j].v) {
+												editingSchema.ops[j].l = oOptionWrap.schema.ops[0].l;
+												status.schemaChanged = true;
+												break;
+											}
 										}
 									}
 								}
 							}
 						}
+					})(_page);
+				}
+				// 修改了页面内容
+				var html = _editor.getContent();
+				html = this.purifyPage({
+					type: 'I',
+					html: html
+				});
+				if (html !== _page.html) {
+					status.htmlChanged = true;
+					_page.$$modified = true;
+				}
+			} else if (_page.type === 'V') {
+				if (domNodeWrap.length === 1 && domNodeWrap[0].getAttribute('wrap') === 'value') {
+					// 编辑input's label
+					if (/label/i.test(node.nodeName)) {
+						(function freshSchemaByDom() {
+							var oWrap = wrapLib.dataByDom(domNodeWrap[0]),
+								pageWrap = _page.wrapBySchema(oWrap.schema);
+
+							if (oWrap) {
+								if (oWrap.schema.title !== pageWrap.schema.title) {
+									pageWrap.schema.title = oWrap.schema.title;
+									status.schemaChanged = true;
+								}
+							}
+						})();
 					}
-				})(_page);
-			}
-			// 修改了页面内容
-			var html = _editor.getContent();
-			html = this.purifyInput(html);
-			if (html !== _page.html) {
-				_page.html = html;
-				status.htmlChanged = true;
-				_page.$$modified = true;
+				} else if (domNodeWrap.length === 1 && domNodeWrap[0].getAttribute('wrap') === 'button') {
+					// 编辑button's span
+					if (/span/i.test(node.nodeName)) {
+						(function freshButtonByDom() {
+							var oWrap = wrapLib.dataByDom(domNodeWrap[0]),
+								pageWrap = _page.wrapByButton(oWrap.schema);
+
+							if (oWrap) {
+								if (oWrap.schema.label !== pageWrap.label) {
+									pageWrap.label = oWrap.schema.label;
+									status.actionChanged = true;
+								}
+							}
+						})();
+					}
+				}
+				// 修改了页面内容
+				var html = _editor.getContent();
+				if (html !== _page.html) {
+					status.htmlChanged = true;
+					_page.$$modified = true;
+				}
+			} else if (_page.type === 'L') {
+				if (domNodeWrap.length && domNodeWrap[0].getAttribute('wrap') === 'value') {
+					if (/label/i.test(node.nodeName)) {
+						(function freshSchemaByDom() {
+							var oWrap = wrapLib.dataByDom(domNodeWrap[0]),
+								pageWrap = _page.wrapBySchema(oWrap.schema);
+
+							if (oWrap) {
+								if (oWrap.schema.title !== pageWrap.schema.title) {
+									pageWrap.schema.title = oWrap.schema.title;
+									status.schemaChanged = true;
+								}
+							}
+						})();
+					}
+				} else if (domNodeWrap.length === 1 && domNodeWrap[0].getAttribute('wrap') === 'button') {
+					// 编辑button's span
+					if (/span/i.test(node.nodeName)) {
+						(function freshButtonByDom() {
+							var oWrap = wrapLib.dataByDom(domNodeWrap[0]),
+								pageWrap = _page.wrapByButton(oWrap.schema);
+
+							if (oWrap) {
+								if (oWrap.schema.label !== pageWrap.label) {
+									pageWrap.label = oWrap.schema.label;
+									status.actionChanged = true;
+								}
+							}
+						})();
+					}
+				}
 			}
 
 			return status;
@@ -288,11 +378,11 @@ define(['wrap'], function(wrapLib) {
 			this.setActiveWrap(null);
 			if (selectableWrap) {
 				wrapType = $(selectableWrap).attr('wrap');
-				while (!/text|matter|input|radio|checkbox|value|button|records|rounds/.test(wrapType) && selectableWrap.parentNode) {
+				while (!/text|matter|input|radio|checkbox|value|button|records|rounds|score/.test(wrapType) && selectableWrap.parentNode) {
 					selectableWrap = selectableWrap.parentNode;
 					wrapType = $(selectableWrap).attr('wrap');
 				}
-				if (/text|matter|input|radio|checkbox|value|button|records|rounds/.test(wrapType)) {
+				if (/text|matter|input|radio|checkbox|value|button|records|rounds|score/.test(wrapType)) {
 					this.setActiveWrap(selectableWrap);
 				}
 			}
@@ -311,21 +401,24 @@ define(['wrap'], function(wrapLib) {
 				this.setActiveWrap($active.find('[wrap]').get(0));
 			}
 
-			this.purifyInput(_editor.getContent(), true);
-
 			return _activeWrap;
 		},
 		optionSchemaByDom: function(domWrap, app) {
-			var parentNode = domWrap,
-				optionDom, schemaOption, schemaOptionId, schemaId, schema;
+			var optionDom, schemaOption, schemaOptionId, schemaId, schema, wrapType;
 
-			optionDom = domWrap.querySelector('input');
-			schemaId = optionDom.getAttribute('name');
-			if (/radio/.test(domWrap.getAttribute('wrap'))) {
-				schemaOptionId = optionDom.getAttribute('value');
-			} else {
-				schemaOptionId = optionDom.getAttribute('ng-model');
-				schemaOptionId = schemaOptionId.split('.')[2];
+			wrapType = domWrap.getAttribute('wrap');
+			if (/radio|checkbox/.test(wrapType)) {
+				optionDom = domWrap.querySelector('input');
+				schemaId = optionDom.getAttribute('name');
+				if (/radio/.test(wrapType)) {
+					schemaOptionId = optionDom.getAttribute('value');
+				} else if (/checkbox/.test(wrapType)) {
+					schemaOptionId = optionDom.getAttribute('ng-model');
+					schemaOptionId = schemaOptionId.split('.')[2];
+				}
+			} else if ('score' === wrapType) {
+				schemaId = domWrap.parentNode.parentNode.getAttribute('schema');
+				schemaOptionId = domWrap.getAttribute('opvalue');
 			}
 
 			for (var i = app.data_schemas.length - 1; i >= 0; i--) {
@@ -343,48 +436,6 @@ define(['wrap'], function(wrapLib) {
 
 			return [schema, schemaOption];
 		},
-		containList: function(config) {
-			if (this.type === 'L') {
-				for (var i = this.data_schemas.length - 1; i >= 0; i--) {
-					if (this.data_schemas[i].config.id === config.id) {
-						return this.data_schemas[i];
-					}
-				}
-			}
-			return false;
-		},
-		removeAct: function(schema) {
-			for (var i = this.act_schemas.length - 1; i >= 0; i--) {
-				if (this.act_schemas[i].id === schema.id) {
-					return this.act_schemas.splice(i, 1);
-				}
-			}
-			return false;
-		},
-		removeValue: function(config, schema) {
-			if (this.type === 'V') {
-				/*从查看页中删除登记项*/
-				for (var i = this.data_schemas.length - 1; i >= 0; i--) {
-					if (this.data_schemas[i].id === config.id) {
-						return this.data_schemas.splice(i, 1);
-					}
-				}
-			} else if (this.type === 'L' && config.id && schema) {
-				/*从列表中删除登记项*/
-				var i, j, list;
-				for (i = this.data_schemas.length - 1; i >= 0; i--) {
-					list = this.data_schemas[i];
-					if (list.config.id === config.id) {
-						for (j = list.schemas.length - 1; j >= 0; j--) {
-							if (list.schemas[j].id === schema.id) {
-								return list.schemas.splice(j, 1);
-							}
-						}
-					}
-				}
-			}
-			return false;
-		},
 		appendButton: function(btn) {
 			var oWrap = {
 					id: 'act' + (new Date() * 1),
@@ -396,8 +447,6 @@ define(['wrap'], function(wrapLib) {
 
 			domNewWrap = wrapLib.button.embed(oWrap);
 			_page.act_schemas.push(oWrap);
-
-			this.purifyInput(_editor.getContent(), true);
 
 			return domNewWrap;
 		},
@@ -437,32 +486,34 @@ define(['wrap'], function(wrapLib) {
 		removeWrap: function(oWrap) {
 			var wrapType = oWrap.type,
 				$domRemoved = $(oWrap.dom);
+
 			if (/input/.test(wrapType)) {
 				_page.removeSchema(oWrap.schema);
-			} else
-			if (/button/.test(wrapType)) {
-				this.removeAct(oWrap.schema);
+			} else if (/button/.test(wrapType)) {
+				_page.removeButton(oWrap.schema);
 			} else if (/value/.test(wrapType)) {
 				var config = oWrap.config;
 				if (config) {
 					if (config.id === undefined) {
-						/*列表中的值对象*/
+						// 列表中的值对象
 						var $listWrap = $domRemoved.parents('[wrap]');
 						if ($listWrap.length && $listWrap.attr('wrap') === 'records') {
 							config.id = $listWrap.attr('id');
 						}
-						this.removeValue(config, oWrap.schema);
+						_page.removeValue(config, oWrap.schema);
 					} else {
-						this.removeValue(config);
+						_page.removeValue(config);
 					}
 				}
 			} else if (/records|rounds/.test(wrapType)) {
 				(function removeList() {
-					var listId = $domRemoved.attr('id');
-					for (var i = this.data_schemas.length - 1; i >= 0; i--) {
-						list = this.data_schemas[i];
+					var listId = $domRemoved.attr('id'),
+						list;
+
+					for (var i = _page.data_schemas.length - 1; i >= 0; i--) {
+						list = _page.data_schemas[i];
 						if (list.id === listId) {
-							this.data_schemas.splice(i, 1);
+							_page.data_schemas.splice(i, 1);
 							break;
 						}
 					}
@@ -487,7 +538,6 @@ define(['wrap'], function(wrapLib) {
 					$domRemoved = $(_editor.getBody()).find("[schema='" + removedSchema.id + "']");
 					$domRemoved.remove();
 					pageSchemas.splice(i, 1);
-					this.purifyInput(_editor.getContent(), true);
 					return $domRemoved[0];
 				}
 			}

@@ -18,7 +18,7 @@ window.loading = {
 				"domReady": '/static/js/domReady',
 				"angular": "/static/js/angular.min",
 				"angular-sanitize": "/static/js/angular-sanitize.min",
-				"resumable": "/static/js/resumable.min",
+				"resumable": "/static/js/resumable",
 				"xxt-page": "/static/js/xxt.ui.page",
 				"xxt-share": "/static/js/xxt.share",
 				"xxt-image": "/static/js/xxt.image",
@@ -59,7 +59,7 @@ window.loading = {
 			}
 		});
 		require(['xxt-page'], function(loader) {
-			loader.bootstrap('/views/default/site/fe/matter/enroll/input.js?_=1');
+			loader.bootstrap('/views/default/site/fe/matter/enroll/input.js?_=' + (timestamp * 1));
 		});
 	}
 };

@@ -23,6 +23,9 @@
                         <span class='help-block' ng-show="form.password2.$error.pattern">两次输入的密码不匹配</span>
                     </div>
                     <div class='form-group'>
+                        <input type='text' class='form-control input-lg' name='nickname' ng-model='nickname' placeholder="账号昵称" />
+                    </div>
+                    <div class='form-group'>
                         <button class='btn btn-lg btn-primary btn-block' ng-click='register()'>创建账户</button>
                     </div>
                 </form>

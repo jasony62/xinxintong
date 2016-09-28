@@ -24,7 +24,7 @@ window.loading = {
 			urlArgs: "bust=" + (new Date() * 1)
 		});
 		require(['xxt-page'], function(assembler) {
-			assembler.bootstrap('/views/default/site/fe/matter/enroll/preview.js');
+			assembler.bootstrap('/views/default/site/fe/matter/enroll/preview.js?_=1');
 		});
 	}
 };

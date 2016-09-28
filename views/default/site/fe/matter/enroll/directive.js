@@ -3,16 +3,23 @@ define(['angular'], function(angular) {
 
     var __util = {};
     __util.makeDialog = function(id, html) {
-        var dlg, $dlg;
-        dlg = "<div class='dialog mask'><div class='dialog dlg'>";
+        var dlg, mask;
+
+        mask = document.createElement('div');
+        mask.setAttribute('id', id);
+        mask.classList.add('dialog', 'mask');
+
+        dlg = "<div class='dialog dlg'>";
         html.header && html.header.length && (dlg += "<div class='dlg-header'>" + html.header + "</div>");
         dlg += "<div class='dlg-body'>" + html.body + "</div>";
-        html.footer && html.fotter.length && (dlg += "<div class='dlg-footer'>" + html.footer + "</div>");
-        dlg += "</div></div>";
-        $dlg = $(dlg).attr('id', id);
-        $('body').append($dlg);
+        html.footer && html.footer.length && (dlg += "<div class='dlg-footer'>" + html.footer + "</div>");
+        dlg += "</div>";
 
-        return $dlg.contents();
+        mask.innerHTML = dlg;
+
+        document.body.appendChild(mask);
+
+        return mask.children;
     };
 
     var ngMod = angular.module('directive.enroll', []);
@@ -24,8 +31,10 @@ define(['angular'], function(angular) {
             },
             controller: function($scope) {
                 $scope.close = function() {
+                    var mask;
+                    mask = document.querySelector('#' + $scope.dialogID);
+                    document.body.removeChild(mask);
                     $scope.opened = false;
-                    $('#' + $scope.dialogID).remove();
                 };
                 $scope.ok = function() {
                     var dtObject;
@@ -71,7 +80,7 @@ define(['angular'], function(angular) {
                     event.stopPropagation();
                     if (scope.opened) return;
                     var html, id;
-                    id = '_dlg-' + (new Date()).getTime();
+                    id = '_dlg-' + (new Date() * 1);
                     html = {
                         header: '',
                         body: htmlBody,
@@ -82,7 +91,7 @@ define(['angular'], function(angular) {
                     scope.dialogID = id;
                     $compile(html)(scope);
                 };
-                $(elem).find('[ng-bind]').click(fnOpenPicker);
+                elem[0].querySelector('[ng-bind]').addEventListener('click', fnOpenPicker);
             }
         }
     }]);

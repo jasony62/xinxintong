@@ -24,6 +24,14 @@ class coworker extends \pl\fe\matter\base {
 		];
 		$coworkers = $this->model('matter\mission\acl')->byMission($mission, $options);
 
+		if (!empty($coworkers)) {
+			$modelAcnt = $this->model('account');
+			foreach ($coworkers as &$coworker) {
+				$account = $modelAcnt->byId($coworker->coworker, ['fields' => 'nickname']);
+				$coworker->account = $account;
+			}
+		}
+
 		return new \ResponseData($coworkers);
 	}
 	/**
@@ -58,6 +66,7 @@ class coworker extends \pl\fe\matter\base {
 		$coworker->id = $account->uid;
 		$coworker->label = $account->email;
 		$acl = $modelAcl->add($user, $mission, $coworker);
+		$acl->account = (object) ['nickname' => $account->nickname];
 
 		return new \ResponseData($acl);
 	}

@@ -10,7 +10,8 @@ app.controller('ctrlReg', ['$scope', 'http2', function($scope, http2) {
     $scope.register = function() {
         http2.post('/rest/pl/fe/user/register/do', {
             email: $scope.email,
-            password: $scope.password
+            password: $scope.password,
+            nickname: $scope.nickname,
         }, function(rsp) {
             location.replace('/rest/pl/fe/user/login');
         });

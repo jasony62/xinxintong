@@ -91,6 +91,10 @@ define(["angular", "xxt-page", "enroll-directive", "angular-sanitize"], function
                 app = params.app,
                 mission = params.mission;
             app.data_schemas = JSON.parse(app.data_schemas);
+            $scope.schemasById = {};
+            app.data_schemas && app.data_schemas.forEach(function(schema) {
+                $scope.schemasById[schema.id] = schema;
+            });
             $scope.params = params;
             $scope.site = site;
             $scope.mission = mission;
@@ -183,34 +187,51 @@ define(["angular", "xxt-page", "enroll-directive", "angular-sanitize"], function
             this.current = srvStorage.getRecord(ek);
         };
     }]);
-    ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', function($scope, Record, LS) {
-        var schemas = $scope.app.data_schemas;
+    ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scope, Record, LS, $sce) {
+        var schemas = $scope.app.data_schemas,
+            schemasById = {};
+
+        schemas.forEach(function(schema) {
+            schemasById[schema.id] = schema;
+        });
 
         Record.get(LS.p['ek']);
         $scope.Record = Record;
 
-        $scope.value2Label = function(key) {
-            var val, i, j, s, aVal, aLab = [];
+        $scope.value2Label = function(schemaId) {
+            var val = '',
+                s, aVal, aLab = [];
+
             if (schemas && Record.current.data) {
-                val = Record.current.data[key];
-                if (val === undefined) return '';
-                for (i = 0, j = schemas.length; i < j; i++) {
-                    s = schemas[i];
-                    if (s && s.id === key) {
-                        break;
+                if (val = Record.current.data[schemaId]) {
+                    s = schemasById[schemaId];
+                    if (s && s.ops && s.ops.length) {
+                        aVal = val.split(',');
+                        s.ops.forEach(function(op, i) {
+                            aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
+                        });
+                        if (aLab.length) val = aLab.join(',');
                     }
                 }
-                if (s && s.ops && s.ops.length) {
-                    aVal = val.split(',');
-                    for (i = 0, j = s.ops.length; i < j; i++) {
-                        aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
-                    }
-                    if (aLab.length) return aLab.join(',');
-                }
-                return val;
-            } else {
-                return '';
             }
+            return val;
+        };
+        $scope.score2Html = function(schemaId) {
+            var label = '',
+                schema = schemasById[schemaId],
+                val;
+
+            if (schema && Record.current.data) {
+                if (val = Record.current.data[schemaId]) {
+                    if (schema.ops && schema.ops.length) {
+                        schema.ops.forEach(function(op, index) {
+                            label += '<div>' + op.l + ': ' + val[op.v] + '</div>';
+                        });
+                    }
+                }
+            }
+
+            return $sce.trustAsHtml(label);
         };
     }]);
     ngApp.controller('ctrlPreview', ['$scope', 'ls', 'srvStorage', function($scope, LS, srvStorage) {
@@ -225,6 +246,31 @@ define(["angular", "xxt-page", "enroll-directive", "angular-sanitize"], function
                 angular.extend($scope.data, record.data);
             })();
         }
+        $scope.score = function(schemaId, opIndex, number) {
+            var schema = $scope.schemasById[schemaId],
+                op = schema.ops[opIndex];
+
+            if ($scope.data[schemaId] === undefined) {
+                $scope.data[schemaId] = {};
+                schema.ops.forEach(function(op) {
+                    $scope.data[schema.id][op.v] = 0;
+                });
+            }
+
+            $scope.data[schemaId][op.v] = number;
+        };
+        $scope.lessScore = function(schemaId, opIndex, number) {
+            if (!$scope.schemasById) return false;
+
+            var schema = $scope.schemasById[schemaId],
+                op = schema.ops[opIndex];
+
+            if ($scope.data[schemaId] === undefined) {
+                return false;
+            }
+
+            return $scope.data[schemaId][op.v] >= number;
+        };
         $scope.submit = function(event, nextAction) {
             var url, ek, data, i;
 

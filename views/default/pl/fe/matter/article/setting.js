@@ -1,5 +1,11 @@
 define(['frame'], function(ngApp) {
 	ngApp.provider.controller('ctrlSetting', ['$scope', '$uibModal', 'http2', 'noticebox', 'mattersgallery', 'mediagallery', 'noticebox', function($scope, $uibModal, http2, noticebox, mattersgallery, mediagallery, noticebox) {
+		(function() {
+			new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
+		})();
+		$scope.downloadQrcode = function(url) {
+			$('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
+		};
 		var tinymceEditor, modifiedData = {};
 		var r = new Resumable({
 			target: '/rest/pl/fe/matter/article/attachment/upload?site=' + $scope.siteId + '&articleid=' + $scope.id,
@@ -83,9 +89,21 @@ define(['frame'], function(ngApp) {
 						type: 'article'
 					};
 					http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.siteId + '&id=' + matters[0].mission_id, app, function(rsp) {
-						$scope.editing.mission = rsp.data;
-						$scope.editing.mission_id = rsp.data.id;
-						$scope.update('mission_id');
+						var mission = rsp.data,
+							editing = $scope.editing,
+							updatedFields = ['mission_id'];
+
+						editing.mission = mission;
+						editing.mission_id = mission.id;
+						if (!editing.pic || editing.pic.length === 0) {
+							editing.pic = mission.pic;
+							updatedFields.push('pic');
+						}
+						if (!editing.summary || editing.summary.length === 0) {
+							editing.summary = mission.summary;
+							updatedFields.push('summary');
+						}
+						$scope.update(updatedFields);
 						$scope.submit();
 					});
 				}

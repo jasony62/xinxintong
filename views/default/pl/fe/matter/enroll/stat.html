@@ -1,27 +1,67 @@
 <div id='stat-view'>
-    <div ng-repeat="s in stat">
-        <div id="{{s.id}}" style='height:300px'></div>
-        <table class='table table-bordered'>
-            <caption>{{s.title}}</caption>
-            <thead>
-                <tr>
-                    <th>选项</th>
-                    <th>数量</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="op in s.ops">
-                    <td>{{op.l}}</td>
-                    <td>{{op.c}}</td>
-                </tr>
-            </tbody>
-        </table>
+    <div id='stat-result'>
+        <div ng-repeat="schema in app.data_schemas">
+            <h3><span>第{{$index+1}}项：</span><span ng-bind="schema.title"></span></h3>
+            <div ng-if="['single','phase','multiple'].indexOf(schema.type)!==-1">
+                <div id="{{schema.id}}" style='height:300px'></div>
+                <table class='table table-bordered'>
+                    <thead>
+                        <tr>
+                            <th>选项</th>
+                            <th>数量</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="op in stat[schema.id].ops">
+                            <td>{{op.l}}</td>
+                            <td>{{op.c}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div ng-if="'score'===schema.type">
+                <div id="{{schema.id}}" style='height:300px'></div>
+                <table class='table table-bordered'>
+                    <thead>
+                        <tr>
+                            <th>打分项</th>
+                            <th>平均分</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="op in stat[schema.id].ops">
+                            <td>{{op.l}}</td>
+                            <td>{{op.c}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div ng-if="['single','phase','multiple','score'].indexOf(schema.type)===-1" ng-init="page={at:1,size:10}">
+                <table class='table table-bordered'>
+                    <thead>
+                        <tr>
+                            <th>登记内容</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="record in getRecords(schema,page)">
+                            <td>{{record.value}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class='form-inline'>
+                    <span>总数：{{page.total}}</span>
+                    <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getRecords(schema,page)"></ul>
+                </div>
+            </div>
+        </div>
     </div>
     <!-- bottom navbar -->
     <nav class="navbar navbar-default navbar-fixed-bottom">
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
                 <a class='btn btn-success' href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}">查看数据</a>
+                <button class='btn btn-default' ng-click="export()">导出全部数据</button>
             </form>
             <form class="navbar-form navbar-right" style='display:inline-block'>
                 <button class='btn btn-default' ng-click="remove()">删除活动</button>

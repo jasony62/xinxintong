@@ -1,4 +1,4 @@
-var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
+var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'tmplshop.ui.xxt']);
 ngApp.config(['$controllerProvider', '$locationProvider', '$uibTooltipProvider', function($controllerProvider, $locationProvider, $uibTooltipProvider) {
 	ngApp.provider = {
 		controller: $controllerProvider.register
@@ -39,7 +39,7 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery',
 	$scope.subView = '/views/default/pl/fe/matter/mission/basic.html?_=7';
 	$scope.gotoSub = function(sub) {
 		$scope.sub = sub;
-		$scope.subView = '/views/default/pl/fe/matter/mission/' + sub + '.html?_=7';
+		$scope.subView = '/views/default/pl/fe/matter/mission/' + sub + '.html?_=8';
 	};
 	$scope.submit = function() {
 		http2.post('/rest/pl/fe/matter/mission/setting/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData, function(rsp) {
@@ -214,7 +214,7 @@ ngApp.controller('ctrlCoworker', ['$scope', 'http2', function($scope, http2) {
 		$scope.coworkers = rsp.data;
 	});
 }]);
-ngApp.controller('ctrlMatter', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
+ngApp.controller('ctrlMatter', ['$scope', '$uibModal', 'http2', 'templateShop', function($scope, $uibModal, http2, templateShop) {
 	var indicators = {
 		registration: {
 			title: '在线报名',
@@ -256,86 +256,29 @@ ngApp.controller('ctrlMatter', ['$scope', '$uibModal', 'http2', function($scope,
 		});
 	};
 	$scope.addEnroll = function(assignedScenario) {
-		$uibModal.open({
-			templateUrl: '/views/default/pl/fe/_module/enroll-template.html',
-			backdrop: 'static',
-			windowClass: 'auto-height template',
-			controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
-				$scope2.data = {};
-				$scope2.cancel = function() {
-					$mi.dismiss();
-				};
-				$scope2.blank = function() {
-					$mi.close();
-				};
-				$scope2.ok = function() {
-					$mi.close($scope2.data);
-				};
-				$scope2.chooseScenario = function() {};
-				$scope2.chooseTemplate = function() {
-					if (!$scope2.data.template) return;
-					var url;
-					url = '/rest/pl/fe/matter/enroll/template/config';
-					url += '?scenario=' + $scope2.data.scenario.name;
-					url += '&template=' + $scope2.data.template.name;
-					http2.get(url, function(rsp) {
-						var elSimulator, url;
-						$scope2.data.simpleSchema = rsp.data.simpleSchema ? rsp.data.simpleSchema : '';
-						$scope2.pages = rsp.data.pages;
-						$scope2.data.selectedPage = $scope2.pages[0];
-						elSimulator = document.querySelector('#simulator');
-						url = 'http://' + location.host;
-						url += '/rest/site/fe/matter/enroll/template';
-						url += '?scenario=' + $scope2.data.scenario.name;
-						url += '&template=' + $scope2.data.template.name;
-						url += '&_=' + (new Date()).getTime();
-						elSimulator.src = url;
-						elSimulator.onload = function() {
-							$scope.$apply(function() {
-								$scope2.choosePage();
-							});
-						};
-					});
-				};
-				$scope2.choosePage = function() {
-					var elSimulator, page;
-					elSimulator = document.querySelector('#simulator');
-					config = {
-						simpleSchema: $scope2.data.simpleSchema
-					};
-					page = $scope2.data.selectedPage.name;
-					if (elSimulator.contentWindow.renew) {
-						elSimulator.contentWindow.renew(page, config);
-					}
-				};
-				http2.get('/rest/pl/fe/matter/enroll/template/list', function(rsp) {
-					var keysOfTemplate;
-					$scope2.templates = rsp.data;
-					if (assignedScenario) {
-						$scope2.data.scenario = $scope2.templates[assignedScenario];
-						keysOfTemplate = Object.keys($scope2.data.scenario.templates);
-						if (keysOfTemplate.length) {
-							$scope2.data.template = $scope2.data.scenario.templates[keysOfTemplate[0]];
-							$scope2.chooseTemplate();
-						}
-						$scope2.fixedScenario = true;
-					}
-				});
-			}]
-		}).result.then(function(data) {
-			var url, config;
-			url = '/rest/pl/fe/matter/enroll/create?site=' + $scope.siteId + '&mission=' + $scope.id;
-			config = {
-				proto: {
-					title: $scope.editing.title + '-报名'
-				}
+		templateShop.choose('enroll', assignedScenario).then(function(choice) {
+			var url, config = {
+				proto: {}
 			};
-			if (data) {
-				url += '&scenario=' + data.scenario.name;
-				url += '&template=' + data.template.name;
-				if (data.simpleSchema && data.simpleSchema.length) {
-					config.simpleSchema = data.simpleSchema;
+			if (assignedScenario === 'registration') {
+				config.proto.title = $scope.editing.title + '-报名';
+			} else if (assignedScenario === 'voting') {
+				config.proto.title = $scope.editing.title + '-评价';
+			}
+			if (choice) {
+				var data = choice.data;
+				if (choice.source === 'share') {
+					url = '/rest/pl/fe/matter/enroll/createByOther?site=' + $scope.siteId + '&mission=' + $scope.id + '&template=' + data.id;
+				} else if (choice.source === 'platform') {
+					url = '/rest/pl/fe/matter/enroll/create?site=' + $scope.siteId + '&mission=' + $scope.id;
+					url += '&scenario=' + data.scenario.name;
+					url += '&template=' + data.template.name;
+					if (data.simpleSchema && data.simpleSchema.length) {
+						config.simpleSchema = data.simpleSchema;
+					}
 				}
+			} else {
+				url = '/rest/pl/fe/matter/enroll/create?site=' + $scope.siteId + '&mission=' + $scope.id;
 			}
 			http2.post(url, config, function(rsp) {
 				location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;

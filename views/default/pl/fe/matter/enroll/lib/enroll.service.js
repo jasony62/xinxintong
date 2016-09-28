@@ -115,6 +115,8 @@ provider('srvApp', function() {
                     defer.resolve();
                     noticebox.success('完成删除');
                 });
+
+                return defer.promise;
             }
         };
     }];

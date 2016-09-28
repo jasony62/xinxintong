@@ -27,24 +27,24 @@ class register extends \TMS_CONTROLLER {
 	 */
 	public function do_action() {
 		$data = $this->getPostJson();
-		$email = $data->email;
-		$password = $data->password;
+		$modelAcnt = $this->model('account');
 
-		$nickname = str_replace(strstr($email, '@'), '', $email);
-		$fromip = $this->client_ip();
+		$email = $data->email;
+		$nickname = empty($data->nickname) ? str_replace(strstr($email, '@'), '', $email) : $data->nickname;
+		$password = $data->password;
 		/**
 		 * check
 		 */
 		if (strlen($email) == 0 || strlen($nickname) == 0 || strlen($password) == 0) {
 			return new \ParameterError("注册失败，参数不完整。");
 		}
-
 		// email existed?
-		if ($this->model('account')->check_email($email)) {
+		if ($modelAcnt->check_email($email)) {
 			return new \DataExistedError('注册失败，注册账号已经存在。');
 		}
 		//
-		$account = $this->model('account')->register($email, $password, $nickname, $fromip);
+		$fromip = $this->client_ip();
+		$account = $modelAcnt->register($email, $password, $nickname, $fromip);
 		/**
 		 * record account into session and cookie.
 		 */

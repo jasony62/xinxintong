@@ -26,12 +26,11 @@
         </div>
         <button class='btn btn-default' ng-click='filter()'>筛选</button>
         <button class='btn btn-success' ng-click='verifyAll()'>全部通过审核</button>
-        <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchVerify()'>批量通过审核</button>
+        <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchVerify()'>选中记录通过审核</button>
+        <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchTag()'>选中记录打标签</button>
         <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-click="notify()">全部发送信息</button>
-        <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-disabled="!countSelected()" ng-click="notify(true)">批量发送信息</button>
+        <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-disabled="!countSelected()" ng-click="notify(true)">选中记录发送信息</button>
         <button class='btn btn-default' ng-click="export()">导出全部数据</button>
-        <button id='copyRecords' class='btn btn-default'>复制全部数据</button>
-        <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchTag()'>批量打标签</button>
         <div class='checkbox' ng-if="app.scenario==='registration'"><label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="content.signin"> 包含签到信息</label></div>
     </div>
     <!-- end actions -->
@@ -115,8 +114,9 @@
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
                 <a class='btn btn-success' href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布设置</a>
+                <a class='btn btn-default' href="/rest/pl/fe/matter/enroll/schema?site={{siteId}}&id={{id}}">编辑登记项</a>
                 <a class='btn btn-success' href="/rest/pl/fe/matter/enroll/page?site={{siteId}}&id={{id}}">页面设置</a>
-                <a class='btn btn-success' href="/rest/pl/fe/matter/enroll/stat?site={{siteId}}&id={{id}}" ng-if="app.scenario==='voting'">统计图表</a>
+                <a class='btn btn-success' href="/rest/pl/fe/matter/enroll/stat?site={{siteId}}&id={{id}}" ng-if="app.scenario==='voting'">统计报告</a>
             </form>
             <form class="navbar-form navbar-right" style='display:inline-block'>
                 <button class='btn btn-default' ng-click="remove()">删除活动</button>

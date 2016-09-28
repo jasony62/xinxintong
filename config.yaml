@@ -1,10 +1,10 @@
 name: xinxintong
 version: 1
 handle:
-- rewrite: if ( !is_dir() && !is_file() && path ~ "^/rest/(.*)" ) goto "/app.php/$1"
-- rewrite: if ( !is_dir() && !is_file() && path ~ "^/page/(.*)" ) goto "/app.php/$1"
-- rewrite: if ( !is_dir() && !is_file() && path ~ "^/site/(.*)" ) goto "/app.php/$1"
-- rewrite: if ( !is_dir() && !is_file() && path ~ "^/q/(.*)" ) goto "/app.php/$1"
+- rewrite: if ( !is_dir() && !is_file() && path ~ "^/q/(.*)" ) goto "http://%{HTTP_HOST}/rest/q?code=$1"
+- rewrite: if ( !is_dir() && !is_file() && path ~ "^/rest/(.*)" ) goto "/app.php"
+- rewrite: if ( !is_dir() && !is_file() && path ~ "^/page/(.*)" ) goto "/app.php"
+- rewrite: if ( !is_dir() && !is_file() && path ~ "^/site/(.*)" ) goto "/app.php"
 - compress: if ( out_header["Content-type"] ~ "text/css" ) compress
 - compress: if ( out_header["Content-type"] ~ "text/javascript" ) compress
 - compress: if ( out_header["Content-type"] ~ "text/html" ) compress

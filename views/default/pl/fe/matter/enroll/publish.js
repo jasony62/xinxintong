@@ -13,7 +13,6 @@ define(['frame'], function(ngApp) {
 			};
 			$scope.entry = entry;
 		});
-		$scope.opUrl = 'http://' + location.host + '/rest/site/op/matter/enroll?site=' + $scope.siteId + '&app=' + $scope.id;
 		$scope.setPic = function() {
 			var options = {
 				callback: function(url) {
@@ -35,6 +34,37 @@ define(['frame'], function(ngApp) {
 		});
 		$scope.shareAsTemplate = function() {
 			templateShop.share($scope.siteId, $scope.app);
+		};
+	}]);
+	ngApp.provider.controller('ctrlOpUrl', ['$scope', 'http2', 'srvQuickEntry', function($scope, http2, srvQuickEntry) {
+		var targetUrl, persisted;
+		$scope.opEntry = {};
+		$scope.$watch('app', function(app) {
+			if (!app) return;
+			targetUrl = 'http://' + location.host + '/rest/site/op/matter/enroll?site=' + $scope.siteId + '&app=' + $scope.id;
+			srvQuickEntry.get(targetUrl).then(function(entry) {
+				if (entry) {
+					$scope.opEntry.url = 'http://' + location.host + '/q/' + entry.code;
+					$scope.opEntry.password = entry.password;
+					persisted = entry;
+				}
+			});
+		});
+		$scope.makeOpUrl = function() {
+			srvQuickEntry.add(targetUrl).then(function(task) {
+				$scope.opEntry.url = 'http://' + location.host + '/q/' + task.code;
+			});
+		};
+		$scope.closeOpUrl = function() {
+			srvQuickEntry.remove(targetUrl).then(function(task) {
+				$scope.opEntry.url = '';
+			});
+		};
+		$scope.configOpUrl = function(event, prop) {
+			event.preventDefault();
+			srvQuickEntry.config(targetUrl, {
+				password: $scope.opEntry.password
+			});
 		};
 	}]);
 	/**

@@ -19,3 +19,5 @@ body{height:100%;background-color:#ddd;font-family:Microsoft Yahei,Arial;}
 .summary{font-size:14px;color:#6a6a6a;margin:0.7em 0;min-height:1.2em;overflow:hidden;text-overflow: ellipsis;white-space: nowrap;}
 .row{font-size:12px;color: #a0a0a0;}
 .tag > span {display: block;overflow:hidden;text-overflow: ellipsis;white-space: nowrap;}
+.message{font-size:20px;min-height:10000px;background-color: #fff;color: #6a6a6a;padding:10px 10px;}
+.forbidden{overflow: -scroll;overflow-y:hidden;}

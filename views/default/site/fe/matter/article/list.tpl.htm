@@ -10,7 +10,7 @@
     <link href='/views/default/site/fe/matter/article/list.css?_=1' rel="stylesheet">
 </head>
 
-<body ng-cloak class='ng-cloak'>
+<body ng-cloak class='ng-cloak' ng-class="{'forbidden':!matters.length}">
     <div class='matters'>
         <div class='form-group'>
             <div class='input-group'>
@@ -20,7 +20,7 @@
             <button type='submit' class='btn' ng-click='search()'>搜 索</button>
         </div>
         <div id='content' class='content'>
-            <ul class='list-group'>
+            <ul class='list-group' ng-if='matters.length'>
                 <li class='list-group-item' ng-repeat='m in matters' ng-click='open(m)'>
                     <div class='content'>
                         <div class="heading_pic" style="{{'background-image:url('+m.pic+')'}}"></div>
@@ -40,6 +40,9 @@
                     </div>
                 </li>
             </ul>
+            <div ng-if='!matters.length' class='message'>
+                很抱歉，未找到与<b>“</b><span style='color:red' ng-bind='searchKeyword'></span><b>”</b>相关的文章。
+            </div>
         </div>
     </div>
     <script type="text/javascript">

@@ -47,12 +47,11 @@ angular.module('xxt', []).config(['$locationProvider', function($locationProvide
         $scope.matters = rsp.data;
     });
     $scope.search = function () {
-        $location.search('keyword',$scope.searchKeyword);
         $http.post('/rest/site/fe/matter/article/search/list?site=' + siteId + '&keyword=' + $scope.searchKeyword).success(function(rsp){
             if(rsp.data.length){
                 $scope.matters = rsp.data;
-            }else {
-                angular.element('#content').html('<p>没有值</p>');
+            }else{
+                $scope.matters = [];
             }
         });
     }

@@ -17,7 +17,7 @@
             </ul>
             <ul class='nav navbar-nav'>
                 <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{siteId}}&id={{app.mission.id}}" target='_self'>返回项目</a></li>
-                <li><a href='/rest/pl/fe/matter/signin/app?site={{siteId}}&id={{id}}'>{{app.title}}</a></li>
+                <li class='title'><a title="{{app.title}}" href='/rest/pl/fe/matter/signin/app?site={{siteId}}&id={{id}}'>{{app.title}}</a></li>
             </ul>
             <ul class='nav navbar-nav'>
                 <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>

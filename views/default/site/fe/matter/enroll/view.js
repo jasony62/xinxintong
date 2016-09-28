@@ -169,6 +169,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
     ngApp.controller('ctrlRecords', ['$scope', 'Record', 'ls', function($scope, Record, LS) {
         var facRecord, options, fnFetch,
             schemas = $scope.app.data_schemas;
+
         $scope.value2Label = function(record, key) {
             var val, i, j, s, aVal, aLab = [];
             if (schemas && record.data) {
@@ -225,7 +226,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
         $scope.options = options;
         $scope.fetch = fnFetch;
     }]);
-    ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', function($scope, Record, LS) {
+    ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scope, Record, LS, $sce) {
         var facRecord,
             schemas = $scope.app.data_schemas,
             schemasById = {};
@@ -251,7 +252,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
                 return '';
             }
         };
-        $scope.score2Label = function(schemaId) {
+        $scope.score2Html = function(schemaId) {
             var label = '',
                 schema = schemasById[schemaId],
                 val;
@@ -260,13 +261,11 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
                 val = facRecord.current.data[schemaId];
                 if (schema.ops && schema.ops.length) {
                     schema.ops.forEach(function(op, index) {
-                        label += op.l + ':' + val[op.v] + ' / ';
+                        label += '<div>' + op.l + ': ' + (val[op.v] ? val[op.v] : 0) + '</div>';
                     });
-                    label = label.replace(/\s\/\s$/, '');
                 }
             }
-
-            return label;
+            return $sce.trustAsHtml(label);
         };
         $scope.editRecord = function(event, page) {
             page ? $scope.gotoPage(event, page, facRecord.current.enroll_key) : alert('没有指定登记编辑页');

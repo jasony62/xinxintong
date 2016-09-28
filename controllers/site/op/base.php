@@ -19,6 +19,15 @@ class base extends \TMS_CONTROLLER {
 		$this->siteId = $_GET['site'];
 	}
 	/**
+	 *
+	 */
+	public function get_access_rule() {
+		$rule_action['rule_type'] = 'black';
+		$rule_action['actions'] = array();
+
+		return $rule_action;
+	}
+	/**
 	 * 二维码
 	 */
 	public function qrcode_action($url) {

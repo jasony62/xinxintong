@@ -127,9 +127,15 @@
         <button class='btn btn-block' ng-click="submit()" ng-disabled='!modified' ng-class="modified?'btn-success':'btn-default'">保存</button>
         <button class='btn btn-block btn-default' ng-click="remove()">删除</button>
     </div>
-    <div class='tile'>
-        <div class='form-group'>
-            <div style='word-break: break-all;'>{{entryUrl}}</div>
+    <div class="panel panel-default">
+        <div class="panel-heading">链接</div>
+        <div class="panel-body">
+            <div class='input-group'>
+                <input class='form-control' readonly value="{{entryUrl}}">
+                    <span class='input-group-btn'>
+                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entryUrl}}">复制</button>
+                    </span>
+            </div>
         </div>
     </div>
     <div class='tile'>

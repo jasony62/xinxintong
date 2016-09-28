@@ -16,7 +16,7 @@ class main extends \site\op\base {
 		exit;
 	}
 	/**
-	 * 返回登记记录
+	 *
 	 *
 	 * @param string $siteid
 	 * @param string $appid

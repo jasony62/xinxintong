@@ -4,14 +4,22 @@
             <a href='/rest/pl/fe/matter/contribute/setting?site={{siteId}}&id={{id}}'>{{app.title}} (设置）</a>
         </div>
     </div>
-    <div class='tile'>
-        <div class='form-group'>
-            <label>进入URL</label>
-            <div class='form-control' style='height:auto;word-break:break-all' ng-bind='entry.url'></div>
+    <div class="panel panel-default">
+        <div class="panel-heading">进入URL</div>
+        <div class="panel-body">
+            <div class='input-group'>
+                <input class='form-control' readonly value="{{entry.url}}">
+                    <span class='input-group-btn'>
+                        <button class='btn btn-default text2Clipboard' data-clipboard-text="{{entry.url}}">复制</button>
+                    </span>
+            </div>
         </div>
-        <div class='form-group'>
-            <label>进入二维码</label>
-            <div><img ng-src="{{entry.qrcode}}"></div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">进入二维码</div>
+        <div class="panel-body">
+            <span><img id='entryQrcode' ng-src="{{entry.qrcode}}"></span>
+            <button class='btn btn-default' ng-click="downloadQrcode(entry.qrcode)">下载</button>
         </div>
     </div>
 </div>

@@ -19,7 +19,7 @@ window.loading = {
 				},
 			},
 			deps: ['/views/default/site/op/matter/enroll/console.js?_=1'],
-			urlArgs: "bust=" + (new Date()).getTime()
+			urlArgs: "bust=" + (new Date() * 1)
 		});
 	}
 };

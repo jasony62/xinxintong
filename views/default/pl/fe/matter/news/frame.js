@@ -19,6 +19,7 @@ ngApp.controller('ctrlNews', ['$scope', '$location', 'http2', function($scope, $
 	});
 }]);
 ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', function($scope, http2, mattersgallery) {
+
 	var modifiedData = {};
 	$scope.modified = false;
 	$scope.matterTypes = [{
@@ -110,4 +111,7 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mattersgallery', function($
 		}
 		updateMatters();
 	});
+	(function() {
+		new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
+	})();
 }]);

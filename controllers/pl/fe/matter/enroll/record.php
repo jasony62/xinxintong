@@ -14,15 +14,8 @@ class record extends \pl\fe\matter\base {
 		exit;
 	}
 	/**
-	 * 活动报名名单
+	 * 活动登记名单
 	 *
-	 * 1、如果活动仅限会员报名，那么要叠加会员信息
-	 * 2、如果报名的表单中有扩展信息，那么要提取扩展信息
-	 *
-	 * return
-	 * [0] 数据列表
-	 * [1] 数据总条数
-	 * [2] 数据项的定义
 	 */
 	public function list_action($site, $app, $page = 1, $size = 30, $rid = null, $orderby = null, $contain = null, $includeSignin = null) {
 		if (false === ($user = $this->accountUser())) {
@@ -68,6 +61,33 @@ class record extends \pl\fe\matter\base {
 				}
 			}
 		}
+
+		return new \ResponseData($result);
+	}
+	/**
+	 * 返回指定登记项的活动登记名单
+	 *
+	 */
+	public function list4Schema_action($site, $app, $schema, $page = 1, $size = 10) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		// 登记数据过滤条件
+		$criteria = $this->getPostJson();
+
+		// 登记记录过滤条件
+		$options = [
+			'page' => $page,
+			'size' => $size,
+		];
+
+		// 登记活动
+		$modelApp = $this->model('matter\enroll');
+		$enrollApp = $modelApp->byId($app);
+
+		// 查询结果
+		$mdoelRec = $this->model('matter\enroll\record');
+		$result = $mdoelRec->list4Schema($site, $enrollApp, $schema, $options);
 
 		return new \ResponseData($result);
 	}

@@ -3,7 +3,7 @@ if (/MicroMessenger/.test(navigator.userAgent)) {
     signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
     wx.config(signPackage);
 }
-angular.module('xxt', []).config(['$locationProvider', function($locationProvider) {
+angular.module('xxt', ['infinite-scroll']).config(['$locationProvider', function($locationProvider) {
     $locationProvider.html5Mode(true);
 }]).controller('ctrl', ['$scope', '$location', '$http', '$q', function($scope, $location, $http, $q) {
     var siteId, channelId, shareby,keyWord;
@@ -52,6 +52,7 @@ angular.module('xxt', []).config(['$locationProvider', function($locationProvide
                 $scope.matters = rsp.data;
             }else{
                 $scope.matters = [];
+                $scope.word = $scope.searchKeyword;
             }
         });
     }

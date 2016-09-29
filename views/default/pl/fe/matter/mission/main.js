@@ -39,7 +39,7 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery',
 	$scope.subView = '/views/default/pl/fe/matter/mission/basic.html?_=7';
 	$scope.gotoSub = function(sub) {
 		$scope.sub = sub;
-		$scope.subView = '/views/default/pl/fe/matter/mission/' + sub + '.html?_=8';
+		$scope.subView = '/views/default/pl/fe/matter/mission/' + sub + '.html?_=10';
 	};
 	$scope.submit = function() {
 		http2.post('/rest/pl/fe/matter/mission/setting/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData, function(rsp) {
@@ -185,11 +185,31 @@ ngApp.controller('ctrlPhase', ['$scope', 'http2', 'noticebox', function($scope, 
 }]);
 ngApp.controller('ctrlCoworker', ['$scope', 'http2', function($scope, http2) {
 	$scope.label = '';
+	$scope.openMyCoworkers = function() {
+		if ($scope.myCoworkers && $scope.myCoworkers.length) {
+			$('#popoverMyCoworker').trigger('show');
+		}
+	};
+	$scope.closeMyCoworkers = function() {
+		$('#popoverMyCoworker').trigger('hide');
+	};
+	$scope.chooseMyCoworker = function(coworker) {
+		$scope.label = coworker.coworker_label;
+		$('#popoverMyCoworker').trigger('hide');
+	};
 	$scope.add = function() {
 		var url = '/rest/pl/fe/matter/mission/coworker/add?site=' + $scope.siteId + '&mission=' + $scope.id;
 		url += '&label=' + $scope.label;
 		http2.get(url, function(rsp) {
 			$scope.coworkers.splice(0, 0, rsp.data);
+			if ($scope.myCoworkers && $scope.myCoworkers.length) {
+				for (var i = 0, ii = $scope.myCoworkers.length; i < ii; i++) {
+					if ($scope.label === $scope.myCoworkers[i].coworker_label) {
+						$scope.myCoworkers.splice(i, 1);
+						break;
+					}
+				}
+			}
 			$scope.label = '';
 		});
 	};
@@ -212,6 +232,9 @@ ngApp.controller('ctrlCoworker', ['$scope', 'http2', function($scope, http2) {
 	};
 	http2.get('/rest/pl/fe/matter/mission/coworker/list?site=' + $scope.siteId + '&mission=' + $scope.id, function(rsp) {
 		$scope.coworkers = rsp.data;
+	});
+	http2.get('/rest/pl/fe/matter/mission/coworker/mine?site=' + $scope.siteId + '&mission=' + $scope.id, function(rsp) {
+		$scope.myCoworkers = rsp.data;
 	});
 }]);
 ngApp.controller('ctrlMatter', ['$scope', '$uibModal', 'http2', 'templateShop', function($scope, $uibModal, http2, templateShop) {

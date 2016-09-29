@@ -64,27 +64,30 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$result = ['apps' => null, 'total' => 0];
-		$model = $this->model();
+		$modelApp = $this->model('matter\enroll');
 		$q = [
 			"a.*,'enroll' type",
 			'xxt_enroll a',
 			"state<>0",
 		];
 		if (!empty($mission)) {
-			$q[2] .= " and mission_id=" . $model->escape($mission);
+			$q[2] .= " and mission_id=" . $modelApp->escape($mission);
 		} else {
-			$q[2] .= " and siteid='" . $model->escape($site) . "'";
+			$q[2] .= " and siteid='" . $modelApp->escape($site) . "'";
 		}
 		if (!empty($scenario)) {
-			$q[2] .= " and scenario='" . $model->escape($scenario) . "'";
+			$q[2] .= " and scenario='" . $modelApp->escape($scenario) . "'";
 		}
 		$q2['o'] = 'a.modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
-		if ($apps = $model->query_objs_ss($q, $q2)) {
+		if ($apps = $modelApp->query_objs_ss($q, $q2)) {
+			foreach ($apps as &$app) {
+				$app->url = $modelApp->getEntryUrl($site, $app->id);
+			}
 			$result['apps'] = $apps;
 			$q[0] = 'count(*)';
-			$total = (int) $model->query_val_ss($q);
+			$total = (int) $modelApp->query_val_ss($q);
 			$result['total'] = $total;
 		}
 

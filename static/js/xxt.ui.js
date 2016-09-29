@@ -172,9 +172,9 @@ factory('mattersgallery', function($uibModal) {
                         url = matter.url,
                         params = {};
 
-                    page && ($scope.page.current = page);
+                    page && ($scope.page.at = page);
                     url += '/' + matter.value;
-                    url += '/list?site=' + galleryId + '&page=' + $scope.page.current + '&size=' + $scope.page.size + '&fields=' + fields;
+                    url += '/list?site=' + galleryId + '&page=' + $scope.page.at + '&size=' + $scope.page.size + '&fields=' + fields;
                     /*指定登记活动场景*/
                     if (matter.value === 'enroll' && matter.scenario) {
                         url += '&scenario=' + matter.scenario;
@@ -589,27 +589,34 @@ factory('pushnotify', ['$uibModal', function($uibModal) {
     return {
         open: function(siteId, callback, options) {
             $uibModal.open({
-                templateUrl: '/static/template/pushnotify.html?_=4',
+                templateUrl: '/static/template/pushnotify.html?_=5',
                 controller: ['http2', '$scope', '$uibModalInstance', function(http2, $scope, $mi) {
-                    var fields = 'id,title',
-                        url = '/rest/pl/fe/site/setting/notice/get?site=' + siteId + '&name=site.matter.push&cascaded=Y';
+                    var url = '/rest/pl/fe/site/setting/notice/get?site=' + siteId + '&name=site.matter.push&cascaded=Y',
+                        msgMatter = {},
+                        urlMatterTypes = [];
 
                     $scope.options = options;
-                    $scope.p = {};
-                    options.matterTypes && options.matterTypes.length && ($scope.p.matterType = options.matterTypes[0]);
-                    //站点设置的蔬菜素材通知模版
+                    $scope.msgMatter = msgMatter;
+                    if (options.matterTypes && options.matterTypes.length) {
+                        msgMatter.matterType = options.matterTypes[0];
+                        options.matterTypes.forEach(function(mt) {
+                            mt.value !== 'tmplmsg' && urlMatterTypes.push(mt);
+                        });
+                    }
+                    $scope.urlMatterTypes = urlMatterTypes;
+                    //站点设置的素材通知模版
                     http2.get(url, function(rsp) {
                         $scope.tmplmsgConfig = rsp.data.tmplmsgConfig;
                     });
                     $scope.page = {
-                        current: 1,
+                        at: 1,
                         size: 10
                     };
                     $scope.message = {};
                     $scope.aChecked = [];
                     $scope.doCheck = function(matter) {
                         $scope.aChecked = [matter];
-                        if ($scope.p.matterType.value === 'tmplmsg') {
+                        if (msgMatter.matterType.value === 'tmplmsg') {
                             $scope.pickedTmplmsg = matter;
                         } else {
                             (function() {
@@ -627,23 +634,22 @@ factory('pushnotify', ['$uibModal', function($uibModal) {
                         }
                     };
                     $scope.doSearch = function() {
-                        if (!$scope.p.matterType) return;
-                        var url, params = {};
+                        if (!msgMatter.matterType) return;
+                        var matterType = msgMatter.matterType,
+                            url = matterType.url;
 
-                        url = $scope.p.matterType.url;
-                        url += '/' + $scope.p.matterType.value;
+                        url += '/' + matterType.value;
                         url += '/list?site=' + siteId;
-                        url += '&page=' + $scope.page.current + '&size=' + $scope.page.size;
-                        url += '&fields=' + fields;
-                        if ($scope.p.matterType.value === 'tmplmsg') {
+                        url += '&page=' + $scope.page.at + '&size=' + $scope.page.size;
+                        if (matterType.value === 'tmplmsg') {
                             url += '&cascaded=Y';
                         }
-                        http2.post(url, params, function(rsp) {
-                            if (/article/.test($scope.p.matterType.value)) {
+                        http2.post(url, {}, function(rsp) {
+                            if (/article/.test(matterType.value)) {
                                 $scope.matters = rsp.data.articles;
                                 $scope.page.total = rsp.data.total;
-                            } else if (/contribute|enroll/.test($scope.p.matterType.value)) {
-                                $scope.matters = rsp.data.articles;
+                            } else if (/contribute|enroll/.test(matterType.value)) {
+                                $scope.matters = rsp.data.apps;
                                 rsp.data[1] && ($scope.page.total = rsp.data[1]);
                             } else {
                                 $scope.matters = rsp.data;
@@ -655,19 +661,56 @@ factory('pushnotify', ['$uibModal', function($uibModal) {
                             }
                         });
                     };
+                    $scope.urlMatter = {};
+                    $scope.page2 = {
+                        at: 1,
+                        size: 5
+                    };
+                    $scope.doSearch2 = function() {
+                        if (!$scope.urlMatter.matterType) return;
+                        var matterType = $scope.urlMatter.matterType,
+                            url = matterType.url;
+
+                        url += '/' + matterType.value;
+                        url += '/list?site=' + siteId;
+                        url += '&page=' + $scope.page2.at + '&size=' + $scope.page2.size;
+                        http2.post(url, {}, function(rsp) {
+                            if (/article/.test(matterType.value)) {
+                                $scope.matters2 = rsp.data.articles;
+                                $scope.page2.total = rsp.data.total;
+                            } else if (/contribute|enroll/.test(matterType.value)) {
+                                $scope.matters2 = rsp.data.apps;
+                                rsp.data[1] && ($scope.page2.total = rsp.data[1]);
+                            } else {
+                                $scope.matters2 = rsp.data;
+                                $scope.page2.total = $scope.matters2.length;
+                            }
+                        }, {
+                            headers: {
+                                'ACCEPT': 'application/json'
+                            }
+                        });
+                    };
+                    $scope.doCheck2 = function(matter) {
+                        $scope.urlMatter.selected = matter;
+                        $scope.message.url = matter.url;
+                    };
+                    $scope.changeUrlMatterType = function() {
+                        $scope.doSearch2();
+                    };
                     $scope.ok = function() {
-                        var notify;
-                        if ($scope.p.matterType.value === 'tmplmsg') {
+                        var notify, matterType = msgMatter.matterType;
+                        if (matterType.value === 'tmplmsg') {
                             notify = {
                                 matters: $scope.aChecked,
-                                matterType: $scope.p.matterType ? $scope.p.matterType.value : 'article',
+                                matterType: matterType ? matterType.value : 'article',
                                 tmplmsg: $scope.pickedTmplmsg,
                                 message: $scope.message
                             };
                         } else {
                             notify = {
                                 matters: $scope.aChecked,
-                                matterType: $scope.p.matterType ? $scope.p.matterType.value : 'article',
+                                matterType: matterType ? matterType.value : 'article',
                                 tmplmsg: $scope.tmplmsgConfig.tmplmsg,
                                 message: $scope.message
                             };
@@ -675,9 +718,9 @@ factory('pushnotify', ['$uibModal', function($uibModal) {
                         $mi.close(notify);
                     };
                     $scope.cancel = function() {
-                        $mi.dismiss('cancel');
+                        $mi.dismiss();
                     };
-                    $scope.$watch('p.matterType', function(nv) {
+                    $scope.$watch('msgMatter.matterType', function(nv) {
                         $scope.doSearch();
                     });
                 }],

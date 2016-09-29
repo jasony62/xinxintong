@@ -30,6 +30,10 @@
             <div class='help-block'>{{ms.title}}</div>
             <button class='btn btn-default' ng-click="newMember(ms,s)" ng-repeat="s in ms._schemas">{{s.title}}</button>
         </div>
+        <div class='form-group tile' ng-if="app.enrollApp">
+            <div class='help-block'>{{app.enrollApp.title}}</div>
+            <button class='btn btn-default' ng-click="newByEnroll(s)" ng-repeat="s in app.enrollApp.data_schemas">{{s.title}}</button>
+        </div>
         <!-- end create schema -->
     </div>
     <!-- schema list -->

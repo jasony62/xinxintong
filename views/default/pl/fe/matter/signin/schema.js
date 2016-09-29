@@ -8,7 +8,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			return srvPage.update(page, names);
 		};
 		$scope.newSchema = function(type) {
-			var newSchema, mission;
+			var newSchema;
 
 			newSchema = schemaLib.newSchema(type, $scope.app);
 			for (var i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
@@ -39,6 +39,29 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 				}
 			}
 
+			$scope.app.data_schemas.push(newSchema);
+			$scope.update('data_schemas').then(function() {
+				$scope.app.pages.forEach(function(page) {
+					page.appendSchema(newSchema);
+					$scope.updPage(page, ['data_schemas', 'html']);
+				});
+			});
+		};
+		$scope.newByEnroll = function(schema) {
+			var newSchema;
+
+			newSchema = schemaLib.newSchema(schema.type, $scope.app);
+			newSchema.type === 'member' && (newSchema.schema_id = schema.schema_id);
+			newSchema.id = schema.id;
+			newSchema.title = schema.title;
+			newSchema.requireCheck = 'Y';
+
+			for (var i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
+				if (newSchema.id === $scope.app.data_schemas[i].id) {
+					alert('不允许重复添加登记项');
+					return;
+				}
+			}
 			$scope.app.data_schemas.push(newSchema);
 			$scope.update('data_schemas').then(function() {
 				$scope.app.pages.forEach(function(page) {

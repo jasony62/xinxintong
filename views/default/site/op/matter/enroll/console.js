@@ -40,13 +40,13 @@ define(["require", "angular", "util.site"], function(require, angular) {
                 }
             };
 
-        PU = PageUrl.ins('/rest/site/op/matter/enroll', ['site', 'app']);
+        PU = PageUrl.ins('/rest/site/op/matter/enroll', ['site', 'app', 'accessToken']);
         // 数据筛选条件
         $scope.criteria = criteria;
         // 数据分页条件
         $scope.page = page;
         $scope.getRecords = function() {
-            var url = PU.j('record/list', 'site', 'app');
+            var url = PU.j('record/list', 'site', 'app', 'accessToken');
 
             url += criteria.join();
             url += page.join();
@@ -129,7 +129,7 @@ define(["require", "angular", "util.site"], function(require, angular) {
                 }
             }
             if (eks.length) {
-                var url = PU.j('record/batchVerify', 'site', 'app');
+                var url = PU.j('record/batchVerify', 'site', 'app', 'accessToken');
                 $http.post(url, {
                     eks: eks
                 }).success(function(rsp) {
@@ -142,7 +142,7 @@ define(["require", "angular", "util.site"], function(require, angular) {
             }
         };
         $scope.filterSchemas = [];
-        $http.get(PU.j('get', 'site', 'app')).success(function(rsp) {
+        $http.get(PU.j('get', 'site', 'app', 'accessToken')).success(function(rsp) {
             if (rsp.err_code !== 0) {
                 $scope.errmsg = rsp.err_msg;
                 return;

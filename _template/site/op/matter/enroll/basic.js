@@ -1,7 +1,8 @@
 ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', function($scope, $http, PageUrl) {
 	function submit(ek, posted) {
-		$http.post(PU.j('record/update', 'site', 'app') + '&ek=' + ek, posted).success(function(rsp) {
+		$http.post(PU.j('record/update', 'site', 'app', 'accessToken') + '&ek=' + ek, posted).success(function(rsp) {
 			if (rsp.err_code !== 0) {
+				console.log('xxxxxx');
 				$scope.errmsg = rsp.err_msg;
 				return;
 			}
@@ -11,7 +12,7 @@ ngApp.provider.controller('ctrlBasic', ['$scope', '$http', 'PageUrl', function($
 
 	var PU, _history = [];
 
-	PU = PageUrl.ins('/rest/site/op/matter/enroll', ['site', 'app']);
+	PU = PageUrl.ins('/rest/site/op/matter/enroll', ['site', 'app', 'accessToken']);
 	$scope.subView = 'list';
 	$scope.editing = null;
 	$scope.editRecord = function(record) {

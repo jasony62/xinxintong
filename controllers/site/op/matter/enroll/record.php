@@ -10,6 +10,10 @@ class record extends \site\op\base {
 	 *
 	 */
 	public function list_action($site, $app, $page = 1, $size = 30, $tags = null, $orderby = null) {
+		if (!$this->checkAccessToken()) {
+			return new \InvalidAccessToken();
+		}
+
 		// 登记数据过滤条件
 		$criteria = $this->getPostJson();
 		//
@@ -32,6 +36,10 @@ class record extends \site\op\base {
 	 * @param $ek record's key
 	 */
 	public function update_action($site, $app, $ek) {
+		if (!$this->checkAccessToken()) {
+			return new \InvalidAccessToken();
+		}
+
 		$record = $this->getPostJson();
 		$model = $this->model();
 		$current = time();
@@ -205,6 +213,10 @@ class record extends \site\op\base {
 	 * 指定记录通过审核
 	 */
 	public function batchVerify_action($site, $app) {
+		if (!$this->checkAccessToken()) {
+			return new \InvalidAccessToken();
+		}
+
 		$posted = $this->getPostJson();
 		$eks = $posted->eks;
 

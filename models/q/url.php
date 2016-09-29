@@ -1,8 +1,9 @@
 <?php
+namespace q;
 /**
  * 短地址任务链接
  */
-class task_model extends TMS_MODEL {
+class url_model extends \TMS_MODEL {
 	/**
 	 * 生成任务
 	 *
@@ -12,25 +13,26 @@ class task_model extends TMS_MODEL {
 	 *
 	 * @return string code
 	 */
-	public function addTask($siteId, $userid, $url) {
+	public function add(&$user, $siteId, $url) {
 		$code = $this->genCode();
 
-		$q = ['1', 'xxt_task', ["code" => $code]];
+		$q = ['1', 'xxt_short_url', ['code' => $code, 'state' => 1]];
 
 		while ('1' === $this->query_val_ss($q)) {
 			$code = $this->genCode();
-			$q[2] = "code='$code'";
+			$q[2] = ['code' => $code, 'state' => 1];
 		}
 
-		$task = [
+		$item = [
 			'code' => $code,
 			'siteid' => $siteId,
-			'userid' => $userid,
-			'url' => $url,
+			'creater' => $user->id,
+			'creater_name' => $user->name,
+			'target_url' => $url,
 			'create_at' => time(),
 		];
 
-		$this->insert('xxt_task', $task, false);
+		$this->insert('xxt_short_url', $item, false);
 
 		return $code;
 	}
@@ -43,10 +45,10 @@ class task_model extends TMS_MODEL {
 	 *
 	 * @return string code
 	 */
-	public function remove($siteId, $userid, $url) {
+	public function remove(&$user, $siteId, $url) {
 		$rst = $this->delete(
-			'xxt_task',
-			["url" => $url]
+			'xxt_short_url',
+			["target_url" => $url]
 		);
 
 		return $rst;
@@ -61,11 +63,11 @@ class task_model extends TMS_MODEL {
 	 * @return string task
 	 *
 	 */
-	public function byUrl($siteId, $userid, $url) {
+	public function byUrl(&$user, $siteId, $url) {
 		$q = [
-			'code,create_at',
-			'xxt_task',
-			["url" => $url],
+			'code,create_at,password,expire_at',
+			'xxt_short_url',
+			["target_url" => $url],
 		];
 		$task = $this->query_obj_ss($q);
 
@@ -79,13 +81,13 @@ class task_model extends TMS_MODEL {
 	 */
 	public function byCode($code) {
 		$q = [
-			'siteid,userid,url,create_at',
-			'xxt_task',
+			'target_url,create_at,password',
+			'xxt_short_url',
 			["code" => $code],
 		];
 		$task = $this->query_obj_ss($q);
 		if ($task) {
-			//$this->delete('xxt_task', ["code" => $code]);
+			//$this->delete('xxt_short_url', ["code" => $code]);
 			//if ($task->create_at + 300 < time()) {
 			//	return false;
 			//}

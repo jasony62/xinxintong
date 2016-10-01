@@ -90,6 +90,9 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                 };
                 $scope.searchTemplate = function() {
                     var url = '/rest/pl/fe/template/shop/list?matterType=' + type + '&scope=' + $scope.criteria.scope;
+                    if (assignedScenario && assignedScenario.length) {
+                        url += '&scenario=' + assignedScenario;
+                    }
                     http2.get(url, function(rsp) {
                         $scope.templates = rsp.data.templates;
                         $scope.page.total = rsp.data.total;
@@ -159,6 +162,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                     } else {
                         $scope.data.matter_type = matter.type;
                         $scope.data.matter_id = matter.id;
+                        matter.scenario && ($scope.data.scenario = matter.scenario);
                         $scope.data.title = matter.title;
                         $scope.data.summary = matter.summary;
                         $scope.data.pic = matter.pic;

@@ -41,27 +41,6 @@ class record extends \pl\fe\matter\base {
 		$mdoelRec = $this->model('matter\enroll\record');
 		$result = $mdoelRec->find($site, $enrollApp, $options, $criteria);
 
-		// 叠加签到信息
-		if ($includeSignin === 'Y') {
-			if ($result->total > 0) {
-				foreach ($result->records as &$record) {
-					$q = [
-						'aid,enroll_at,signin_at,signin_num,data,signin_log,tags,comment',
-						'xxt_signin_record',
-						"state=1 and verified_enroll_key='$record->enroll_key'",
-					];
-					if ($signinRecords = $modelApp->query_objs_ss($q)) {
-						foreach ($signinRecords as $signinRecord) {
-							$signinRecord->data = json_decode($signinRecord->data);
-							$signinRecord->signin_log = empty($signinRecord->signin_log) ? new \stdClass : json_decode($signinRecord->signin_log);
-							!isset($record->_signinRecord) && $record->_signinRecord = new \stdClass;
-							$record->_signinRecord->{$signinRecord->aid} = $signinRecord;
-						}
-					}
-				}
-			}
-		}
-
 		return new \ResponseData($result);
 	}
 	/**

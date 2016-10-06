@@ -176,6 +176,44 @@ define(['frame'], function(ngApp) {
             }
             return val;
         };
+        $scope.value2Label2 = function(val, key) {
+            var schemas = $scope.app.enrollApp.data_schemas,
+                i, j, s, aVal, aLab = [];
+            if (val === undefined) return '';
+            for (i = 0, j = schemas.length; i < j; i++) {
+                if (schemas[i].id === key) {
+                    s = schemas[i];
+                    break;
+                }
+            }
+            if (s && s.ops && s.ops.length) {
+                aVal = val.split(',');
+                for (i = 0, j = s.ops.length; i < j; i++) {
+                    aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
+                }
+                if (aLab.length) return aLab.join(',');
+            }
+            return val;
+        };
+        $scope.value2Label3 = function(val, key) {
+            var schemas = $scope.app.groupApp.data_schemas,
+                i, j, s, aVal, aLab = [];
+            if (val === undefined) return '';
+            for (i = 0, j = schemas.length; i < j; i++) {
+                if (schemas[i].id === key) {
+                    s = schemas[i];
+                    break;
+                }
+            }
+            if (s && s.ops && s.ops.length) {
+                aVal = val.split(',');
+                for (i = 0, j = s.ops.length; i < j; i++) {
+                    aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
+                }
+                if (aLab.length) return aLab.join(',');
+            }
+            return val;
+        };
         $scope.json2Obj = function(json) {
             if (json && json.length) {
                 obj = JSON.parse(json);
@@ -205,13 +243,19 @@ define(['frame'], function(ngApp) {
         };
         $scope.editRecord = function(record) {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=2',
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=5',
                 controller: 'ctrlEditor',
                 backdrop: 'static',
                 windowClass: 'auto-height',
                 resolve: {
                     app: function() {
                         return $scope.app;
+                    },
+                    enrollDataSchemas: function() {
+                        return $scope.enrollDataSchemas;
+                    },
+                    groupDataSchemas: function() {
+                        return $scope.groupDataSchemas;
                     },
                     record: function() {
                         record.aid = $scope.id;
@@ -235,12 +279,18 @@ define(['frame'], function(ngApp) {
         };
         $scope.addRecord = function() {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=2',
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=5',
                 controller: 'ctrlEditor',
                 windowClass: 'auto-height',
                 resolve: {
                     app: function() {
                         return $scope.app;
+                    },
+                    enrollDataSchemas: function() {
+                        return $scope.enrollDataSchemas;
+                    },
+                    groupDataSchemas: function() {
+                        return $scope.groupDataSchemas;
                     },
                     record: function() {
                         return {
@@ -477,7 +527,24 @@ define(['frame'], function(ngApp) {
             app.data_schemas.forEach(function(schema) {
                 schemasById[schema.id] = schema;
             });
-            $scope.doSearch();
+            // 关联的登记活动的登记项
+            if (app.enrollApp && app.enrollApp.data_schemas) {
+                $scope.enrollDataSchemas = [];
+                app.enrollApp.data_schemas.forEach(function(item) {
+                    if (schemasById[item.id] === undefined) {
+                        $scope.enrollDataSchemas.push(item);
+                    }
+                });
+            }
+            // 关联的分组活动的登记项
+            if (app.groupApp && app.groupApp.data_schemas) {
+                $scope.groupDataSchemas = [];
+                app.groupApp.data_schemas.forEach(function(item) {
+                    if (schemasById[item.id] === undefined) {
+                        $scope.groupDataSchemas.push(item);
+                    }
+                });
+            }
             // 显示扩展内容
             $scope.$watch('content', function(content) {
                 if (content) {
@@ -561,7 +628,7 @@ define(['frame'], function(ngApp) {
             $mi.dismiss('cancel');
         };
     }]);
-    ngApp.provider.controller('ctrlEditor', ['$scope', '$uibModalInstance', '$sce', 'app', 'record', function($scope, $uibModalInstance, $sce, app, record) {
+    ngApp.provider.controller('ctrlEditor', ['$scope', '$uibModalInstance', '$sce', 'http2', 'app', 'enrollDataSchemas', 'groupDataSchemas', 'record', function($scope, $uibModalInstance, $sce, http2, app, enrollDataSchemas, groupDataSchemas, record) {
         var p, col, files;
         if (record.data) {
             for (p in app.data_schemas) {
@@ -594,6 +661,8 @@ define(['frame'], function(ngApp) {
             }
         }
         $scope.app = app;
+        $scope.enrollDataSchemas = enrollDataSchemas;
+        $scope.groupDataSchemas = groupDataSchemas;
         $scope.record = record;
         $scope.record.aTags = (!record.tags || record.tags.length === 0) ? [] : record.tags.split(',');
         $scope.aTags = app.tags;
@@ -608,9 +677,10 @@ define(['frame'], function(ngApp) {
             record.comment && (p.comment = record.comment);
             p.verified = record.verified;
 
-            angular.forEach($scope.app.data_schemas, function(col) {
-                p.data[col.id] = $scope.record.data[col.id];
-            });
+            //angular.forEach($scope.app.data_schemas, function(col) {
+            //    p.data[col.id] = $scope.record.data[col.id];
+            //});
+            p.data = $scope.record.data;
             $uibModalInstance.close([p, $scope.aTags]);
         };
         $scope.cancel = function() {
@@ -681,5 +751,39 @@ define(['frame'], function(ngApp) {
         $scope.$on('tag.xxt.combox.del', function(event, removed) {
             $scope.record.aTags.splice($scope.record.aTags.indexOf(removed), 1);
         });
+        $scope.syncByEnroll = function() {
+            var url;
+
+            url = '/rest/pl/fe/matter/enroll/record/matchEnroll';
+            url += '?site=' + app.siteid;
+            url += '&app=' + app.id;
+
+            http2.post(url, $scope.record.data, function(rsp) {
+                var matched;
+                if (rsp.data && rsp.data.length === 1) {
+                    matched = rsp.data[0];
+                    angular.extend(record.data, matched);
+                } else {
+                    alert('没有找到匹配的记录，请检查数据是否一致');
+                }
+            });
+        };
+        $scope.syncByGroup = function() {
+            var url;
+
+            url = '/rest/pl/fe/matter/enroll/record/matchGroup';
+            url += '?site=' + app.siteid;
+            url += '&app=' + app.id;
+
+            http2.post(url, $scope.record.data, function(rsp) {
+                var matched;
+                if (rsp.data && rsp.data.length === 1) {
+                    matched = rsp.data[0];
+                    angular.extend(record.data, matched);
+                } else {
+                    alert('没有找到匹配的记录，请检查数据是否一致');
+                }
+            });
+        };
     }]);
 });

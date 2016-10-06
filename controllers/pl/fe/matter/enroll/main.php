@@ -26,18 +26,10 @@ class main extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$app = $this->model('matter\enroll')->byId($id);
-		/**
-		 * 活动签到回复消息
-		 */
-		if ($app->success_matter_type && $app->success_matter_id) {
-			$m = $this->model('matter\base')->getMatterInfoById($app->success_matter_type, $app->success_matter_id);
-			$app->successMatter = $m;
-		}
-		if ($app->failure_matter_type && $app->failure_matter_id) {
-			$m = $this->model('matter\base')->getMatterInfoById($app->failure_matter_type, $app->failure_matter_id);
-			$app->failureMatter = $m;
-		}
+
+		$modelEnl = $this->model('matter\enroll');
+		$app = $modelEnl->byId($id);
+
 		/* channels */
 		$app->channels = $this->model('matter\channel')->byMatter($id, 'enroll');
 		/* acl */
@@ -48,9 +40,17 @@ class main extends \pl\fe\matter\base {
 		if ($rounds = $this->model('matter\enroll\round')->byApp($site, $id)) {
 			!empty($rounds) && $app->rounds = $rounds;
 		}
-		/*所属项目*/
+		/* 所属项目 */
 		if ($app->mission_id) {
 			$app->mission = $this->model('matter\mission')->byId($app->mission_id, ['cascaded' => 'phase']);
+		}
+		/* 关联登记活动 */
+		if ($app->enroll_app_id) {
+			$app->enrollApp = $modelEnl->byId($app->enroll_app_id);
+		}
+		/* 关联分组活动 */
+		if ($app->group_app_id) {
+			$app->groupApp = $this->model('matter\group')->byId($app->group_app_id);
 		}
 
 		return new \ResponseData($app);

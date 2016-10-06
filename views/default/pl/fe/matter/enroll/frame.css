@@ -77,3 +77,5 @@ body>nav>ul:nth-child(2)>.title a{max-width:20em;white-space:nowrap;}
 #record-view table img{max-width:96px;}
 #enrollRecords th{text-align:center;}
 #enrollRecords td span.signin_late{color:red;}
+#record-view #enrollRecords .matched.enroll{background:yellow;}
+#record-view #enrollRecords .matched.group{background:lightgreen;}

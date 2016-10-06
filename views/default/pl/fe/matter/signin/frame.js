@@ -109,7 +109,7 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 		});
 		http2.get('/rest/pl/fe/site/member/schema/list?valid=Y&site=' + $scope.siteId, function(rsp) {
 			$scope.memberSchemas = rsp.data;
-			angular.forEach(rsp.data, function(ms) {
+			rsp.data.forEach(function(ms) {
 				var schemas = [];
 				if (ms.attr_name[0] === '0') {
 					schemas.push({

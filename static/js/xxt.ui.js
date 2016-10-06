@@ -150,7 +150,7 @@ factory('mattersgallery', function($uibModal) {
                     $scope.p.sameMission = 'Y';
                 }
                 $scope.page = {
-                    current: 1,
+                    at: 1,
                     size: 10
                 };
                 $scope.aChecked = [];

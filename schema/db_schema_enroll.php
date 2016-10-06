@@ -34,10 +34,10 @@ $sql .= ",after_end_page varchar(20) not null default ''";
 $sql .= ",access_control char(1) not null default 'N'";
 $sql .= ",authapis text";
 $sql .= ",entry_rule text"; // 参与规则
-$sql .= ",success_matter_type varchar(14)"; // 签到成功回复
-$sql .= ",success_matter_id varchar(128)";
-$sql .= ",failure_matter_type varchar(14)"; // 签到失败回复
-$sql .= ",failure_matter_id varchar(128)";
+$sql .= ",success_matter_type varchar(14)"; // 签到成功回复（should remove）
+$sql .= ",success_matter_id varchar(128)"; // （should remove）
+$sql .= ",failure_matter_type varchar(14)"; // 签到失败回复（should remove）
+$sql .= ",failure_matter_id varchar(128)"; // （should remove）
 $sql .= ",enrolled_entry_page varchar(20) not null default ''";
 $sql .= ",receiver_page varchar(20) not null default ''";
 $sql .= ",remark_notice_page varchar(20) not null default ''";
@@ -52,8 +52,10 @@ $sql .= ",can_autoenroll char(1) not null default 'N'"; // 是否支持自动登
 $sql .= ",can_invite char(1) not null default 'N'"; // 是否支持邀请 should remove
 $sql .= ",can_signin char(1) not null default 'N'"; // 是否支持签到 shuld remove
 $sql .= ",can_lottery char(1) not null default 'N'"; // 是否支持抽奖 should remove
-$sql .= ",remark_notice char(1) not null default 'N'";
+$sql .= ",remark_notice char(1) not null default 'N'"; // 支持评论提醒
 $sql .= ",tags text";
+$sql .= ",enroll_app_id varchar(40) not null default ''"; // 关联的登记活动
+$sql .= ",group_app_id varchar(40) not null default ''"; // 关联的分组活动
 $sql .= ",read_num int not null default 0"; // 阅读数
 $sql .= ",share_friend_num int not null default 0"; // 分享给好友数
 $sql .= ",share_timeline_num int not null default 0"; // 分享朋友圈数
@@ -181,6 +183,8 @@ $sql .= ",state tinyint not null default 1"; //0:remove,1:normal,2:as invite log
 $sql .= ",referrer text"; //
 $sql .= ",data text"; // 登记的数据项
 $sql .= ",verified char(1) not null default 'N'"; // 记录是否已通过审核
+$sql .= ",matched_enroll_key varchar(32) not null default ''"; // 如果关联了登记活动，记录关联的登记记录
+$sql .= ",group_enroll_key varchar(32) not null default ''"; // 如果关联了分组活动，记录关联的分组记录
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

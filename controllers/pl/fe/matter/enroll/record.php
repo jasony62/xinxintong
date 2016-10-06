@@ -115,86 +115,79 @@ class record extends \pl\fe\matter\base {
 		}
 
 		$posted = $this->getPostJson();
-		$current = time();
-
-		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		$schemas = json_decode($app->data_schemas);
-		$schemasById = [];
-		foreach ($schemas as $schema) {
-			$schemasById[$schema->id] = $schema;
-		}
-
+		$modelEnl = $this->model('matter\enroll');
 		$modelRec = $this->model('matter\enroll\record');
-		$ek = $modelRec->genKey($site, $app->id);
 
-		$r = [];
-		$r['aid'] = $app->id;
-		$r['siteid'] = $site;
-		$r['enroll_key'] = $ek;
-		$r['enroll_at'] = $current;
-		$r['verified'] = isset($posted->verified) ? $posted->verified : 'N';
-		$r['comment'] = isset($posted->comment) ? $posted->comment : '';
+		$app = $modelEnl->byId($app, ['cascaded' => 'N']);
+
+		/* 创建登记记录 */
+		$ek = $modelRec->enroll($site, $app);
+		$record = [];
+		$record['verified'] = isset($posted->verified) ? $posted->verified : 'N';
+		$record['comment'] = isset($posted->comment) ? $posted->comment : '';
 		if (isset($posted->tags)) {
-			$r['tags'] = $posted->tags;
-			$this->model('matter\enroll')->updateTags($app->id, $posted->tags);
+			$record['tags'] = $posted->tags;
+			$modelEnl->updateTags($app->id, $posted->tags);
 		}
-		$id = $modelRec->insert('xxt_enroll_record', $r, true);
-		$r['id'] = $id;
-		/**
-		 * 登记数据
-		 */
-		if (isset($posted->data)) {
-			$dbData = new \stdClass;
-			foreach ($posted->data as $n => $v) {
-				$schema = $schemasById[$n];
-				if (is_array($v) && isset($v[0]->imgSrc)) {
-					/* 上传图片 */
-					$vv = [];
-					$fsuser = $this->model('fs/user', $site);
-					foreach ($v as $img) {
-						if (preg_match("/^data:.+base64/", $img->imgSrc)) {
-							$rst = $fsuser->storeImg($img);
-							if (false === $rst[0]) {
-								return new \ResponseError($rst[1]);
-							}
-							$vv[] = $rst[1];
-						} else {
-							$vv[] = $img->imgSrc;
-						}
-					}
-					$v = implode(',', $vv);
-					//
-					$dbData->{$n} = $v;
-				} else if ($schema->type === 'score') {
-					$dbData->{$n} = $v;
-					$v = json_encode($v);
-				} else if (is_string($v)) {
-					$v = $modelRec->escape($v);
-					$dbData->{$n} = $v;
-				} else if (is_object($v) || is_array($c = v)) {
-					/*多选题*/
-					$v = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
-					$dbData->{$n} = $v;
-				}
-				$cd = [
-					'aid' => $app->id,
-					'enroll_key' => $ek,
-					'name' => $n,
-					'value' => $v,
-				];
-				$modelRec->insert('xxt_enroll_record_data', $cd, false);
-			}
-			//
-			$r['data'] = $dbData;
-			$dbData = $modelRec->toJson($dbData);
-			$modelRec->update('xxt_enroll_record', ['data' => $dbData], "enroll_key='$ek'");
-		}
+		$modelRec->update('xxt_enroll_record', $record, "enroll_key='$ek'");
 
-		// 记录操作日志
+		/* 记录登记数据 */
+		$result = $modelRec->setData(null, $site, $app, $ek, $posted->data);
+
+		/* 记录操作日志 */
 		$app->type = 'enroll';
 		$this->model('matter\log')->matterOp($site, $user, $app, 'add', $ek);
 
-		return new \ResponseData($r);
+		/* 返回完整的记录 */
+		$record = $modelRec->byId($ek);
+
+		return new \ResponseData($record);
+	}
+	/**
+	 * 更新登记记录
+	 *
+	 * @param string $app
+	 * @param $ek record's key
+	 */
+	public function update_action($site, $app, $ek) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$record = $this->getPostJson();
+		$modelEnl = $this->model('matter\enroll');
+		$modelRec = $this->model('matter\enroll\record');
+
+		$app = $modelEnl->byId($app, ['cascaded' => 'N']);
+
+		/* 更新记录数据 */
+		$updated = new \stdClass;
+		$updated->enroll_at = time();
+		if (isset($record->comment)) {
+			$updated->comment = $record->comment;
+		}
+		if (isset($record->tags)) {
+			$updated->tags = $record->tags;
+			$modelEnl->updateTags($app->id, $record->tags);
+		}
+		if (isset($record->verified)) {
+			$updated->verified = $record->verified;
+		}
+		$modelEnl->update('xxt_enroll_record', $updated, "enroll_key='$ek'");
+		if ($updated->verified === 'Y') {
+			$this->_whenVerifyRecord($app, $ek);
+		}
+		/* 记录登记数据 */
+		$result = $modelRec->setData(null, $site, $app, $ek, $record->data);
+
+		/* 记录操作日志 */
+		$app->type = 'enroll';
+		$this->model('matter\log')->matterOp($site, $user, $app, 'update', $record);
+
+		/* 返回完整的记录 */
+		$record = $modelRec->byId($ek);
+
+		return new \ResponseData($record);
 	}
 	/**
 	 * 删除一条登记信息
@@ -229,118 +222,6 @@ class record extends \pl\fe\matter\base {
 		$this->model('matter\log')->matterOp($site, $user, $app, 'empty');
 
 		return new \ResponseData($rst);
-	}
-	/**
-	 * 更新登记记录
-	 *
-	 * @param string $app
-	 * @param $ek record's key
-	 */
-	public function update_action($site, $app, $ek) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$record = $this->getPostJson();
-		$model = $this->model();
-		$current = time();
-
-		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
-		$schemas = json_decode($app->data_schemas);
-		$schemasById = [];
-		foreach ($schemas as $schema) {
-			$schemasById[$schema->id] = $schema;
-		}
-
-		//
-		$model->update(
-			'xxt_enroll_record',
-			['enroll_at' => $current],
-			"enroll_key='$ek'"
-		);
-		foreach ($record as $k => $v) {
-			if (in_array($k, ['verified', 'tags', 'comment'])) {
-				$model->update(
-					'xxt_enroll_record',
-					[$k => $v],
-					"enroll_key='$ek'"
-				);
-				// 更新记录的标签时，要同步更新活动的标签，实现标签在整个活动中有效
-				if ($k === 'tags') {
-					$this->model('matter\enroll')->updateTags($app->id, $v);
-				}
-				if ($k === 'verified' && $v === 'Y') {
-					$this->_whenVerifyRecord($app, $ek);
-				}
-			} else if ($k === 'data' and is_object($v)) {
-				$dbData = new \stdClass;
-				foreach ($v as $cn => $cv) {
-					$schema = $schemasById[$cn];
-					if (is_array($cv) && isset($cv[0]->imgSrc)) {
-						/* 上传图片 */
-						$vv = array();
-						$fsuser = $this->model('fs/user', $site);
-						foreach ($cv as $img) {
-							if (preg_match("/^data:.+base64/", $img->imgSrc)) {
-								$rst = $fsuser->storeImg($img);
-								if (false === $rst[0]) {
-									return new \ResponseError($rst[1]);
-								}
-								$vv[] = $rst[1];
-							} else {
-								$vv[] = $img->imgSrc;
-							}
-						}
-						$cv = implode(',', $vv);
-						$dbData->{$cn} = $cv;
-					} else if ($schema->type === 'score') {
-						$dbData->{$cn} = $cv;
-						$cv = json_encode($cv);
-					} else if (is_string($cv)) {
-						$cv = $model->escape($cv);
-						$dbData->{$cn} = $cv;
-					} else if (is_object($cv) || is_array($cv)) {
-						/*多选题*/
-						$cv = implode(',', array_keys(array_filter((array) $cv, function ($i) {return $i;})));
-						$dbData->{$cn} = $cv;
-					}
-					/*检查数据项是否存在，如果不存在就先创建一条*/
-					$q = array(
-						'count(*)',
-						'xxt_enroll_record_data',
-						"enroll_key='$ek' and name='$cn'",
-					);
-					if (1 === (int) $model->query_val_ss($q)) {
-						$model->update(
-							'xxt_enroll_record_data',
-							array('value' => $cv),
-							"enroll_key='$ek' and name='$cn'"
-						);
-					} else {
-						$cd = [
-							'aid' => $app->id,
-							'enroll_key' => $ek,
-							'name' => $cn,
-							'value' => $cv,
-						];
-						$model->insert('xxt_enroll_record_data', $cd, false);
-					}
-				}
-				//
-				$record->data = $dbData;
-				$dbData = $model->toJson($dbData);
-				$model->update(
-					'xxt_enroll_record',
-					['data' => $dbData],
-					"enroll_key='$ek'"
-				);
-			}
-		}
-		// 记录操作日志
-		$app->type = 'enroll';
-		$this->model('matter\log')->matterOp($site, $user, $app, 'update', $record);
-
-		return new \ResponseData($record);
 	}
 	/**
 	 * 所有记录通过审核
@@ -590,6 +471,99 @@ class record extends \pl\fe\matter\base {
 		return array(true);
 	}
 	/**
+	 * 从关联的登记活动中查找匹配的记录
+	 */
+	public function matchEnroll_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$enrollRecord = $this->getPostJson();
+		$result = [];
+
+		// 登记活动
+		$modelApp = $this->model('matter\enroll');
+		$enrollApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (empty($enrollApp->enroll_app_id) || empty($enrollApp->data_schemas)) {
+			return new \ParameterError();
+		}
+
+		// 匹配规则
+		$isEmpty = true;
+		$matchCriteria = new \stdClass;
+		$schemas = json_decode($enrollApp->data_schemas);
+		foreach ($schemas as $schema) {
+			if (isset($schema->requireCheck) && $schema->requireCheck === 'Y') {
+				if (isset($schema->fromApp) && $schema->fromApp === $enrollApp->enroll_app_id) {
+					if (!empty($enrollRecord->{$schema->id})) {
+						$matchCriteria->{$schema->id} = $enrollRecord->{$schema->id};
+						$isEmpty = false;
+					}
+				}
+			}
+		}
+
+		if (!$isEmpty) {
+			// 查找匹配的数据
+			$matchApp = $modelApp->byId($enrollApp->enroll_app_id, ['cascaded' => 'N']);
+			$modelEnlRec = $this->model('matter\enroll\record');
+			$matchRecords = $modelEnlRec->byData($site, $matchApp, $matchCriteria);
+			foreach ($matchRecords as $matchRec) {
+				$result[] = $matchRec->data;
+			}
+		}
+
+		return new \ResponseData($result);
+	}
+	/**
+	 * 从关联的分组活动中查找匹配的记录
+	 */
+	public function matchGroup_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$enrollRecord = $this->getPostJson();
+		$result = [];
+
+		// 签到应用
+		$modelApp = $this->model('matter\enroll');
+		$enrollApp = $modelApp->byId($app, ['cascaded' => 'N']);
+		if (empty($enrollApp->group_app_id) || empty($enrollApp->data_schemas)) {
+			return new \ParameterError();
+		}
+
+		// 匹配规则
+		$isEmpty = true;
+		$matchCriteria = new \stdClass;
+		$schemas = json_decode($enrollApp->data_schemas);
+		foreach ($schemas as $schema) {
+			if (isset($schema->requireCheck) && $schema->requireCheck === 'Y') {
+				if (isset($schema->fromApp) && $schema->fromApp === $enrollApp->group_app_id) {
+					if (!empty($enrollRecord->{$schema->id})) {
+						$matchCriteria->{$schema->id} = $enrollRecord->{$schema->id};
+						$isEmpty = false;
+					}
+				}
+			}
+		}
+
+		if (!$isEmpty) {
+			// 查找匹配的数据
+			$groupApp = $this->model('matter\group')->byId($enrollApp->group_app_id, ['cascaded' => 'N']);
+			$modelGrpRec = $this->model('matter\group\player');
+			$matchedRecords = $modelGrpRec->byData($site, $groupApp, $matchCriteria);
+			foreach ($matchedRecords as $matchedRec) {
+				if (isset($matchedRec->round_id)) {
+					$matchedRec->data->_round_id = $matchedRec->round_id;
+				}
+				$result[] = $matchedRec->data;
+			}
+		}
+
+		return new \ResponseData($result);
+	}
+	/**
 	 * 登记数据导出
 	 */
 	public function export_action($site, $app) {
@@ -598,8 +572,37 @@ class record extends \pl\fe\matter\base {
 		}
 
 		// 登记活动
-		$app = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario', 'cascaded' => 'N']);
+		$app = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario,enroll_app_id,group_app_id', 'cascaded' => 'N']);
 		$schemas = json_decode($app->data_schemas);
+
+		// 关联的登记活动
+		if (!empty($app->enroll_app_id)) {
+			$matchApp = $this->model('matter\enroll')->byId($app->enroll_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+			$enrollSchemas = json_decode($matchApp->data_schemas);
+			$mapOfAppSchemas = [];
+			foreach ($schemas as $schema) {
+				$mapOfAppSchemas[] = $schema->id;
+			}
+			foreach ($enrollSchemas as $schema) {
+				if (!in_array($schema->id, $mapOfAppSchemas)) {
+					$schemas[] = $schema;
+				}
+			}
+		}
+		// 关联的分组活动
+		if (!empty($app->group_app_id)) {
+			$matchApp = $this->model('matter\group')->byId($app->group_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+			$groupSchemas = json_decode($matchApp->data_schemas);
+			$mapOfAppSchemas = [];
+			foreach ($schemas as $schema) {
+				$mapOfAppSchemas[] = $schema->id;
+			}
+			foreach ($groupSchemas as $schema) {
+				if (!in_array($schema->id, $mapOfAppSchemas)) {
+					$schemas[] = $schema;
+				}
+			}
+		}
 
 		// 获得所有有效的登记记录
 		$records = $this->model('matter\enroll\record')->find($site, $app);

@@ -168,64 +168,6 @@ define(['frame'], function(ngApp) {
 				singleMatter: true
 			});
 		};
-		$scope.assignEnrollApp = function() {
-			$uibModal.open({
-				templateUrl: 'assignEnrollApp.html',
-				resolve: {
-					app: function() {
-						return $scope.app;
-					}
-				},
-				controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
-					$scope2.app = app;
-					$scope2.data = {
-						filter: {},
-						source: ''
-					};
-					app.mission && ($scope2.data.sameMission = 'Y');
-					$scope2.cancel = function() {
-						$mi.dismiss();
-					};
-					$scope2.ok = function() {
-						$mi.close($scope2.data);
-					};
-					var url = '/rest/pl/fe/matter/enroll/list?site=' + $scope.siteId + '&scenario=registration&size=999';
-					app.mission && (url += '&mission=' + app.mission.id);
-					http2.get(url, function(rsp) {
-						$scope2.apps = rsp.data.apps;
-					});
-				}],
-				backdrop: 'static'
-			}).result.then(function(data) {
-				$scope.app.enroll_app_id = data.source;
-				$scope.update('enroll_app_id').then(function(rsp) {
-					var app = $scope.app,
-						url = '/rest/pl/fe/matter/enroll/get?site=' + $scope.siteId + '&id=' + app.enroll_app_id;
-					http2.get(url, function(rsp) {
-						rsp.data.data_schemas = JSON.parse(rsp.data.data_schemas);
-						app.enrollApp = rsp.data;
-					});
-					for (var i = app.data_schemas.length - 1; i > 0; i--) {
-						if (app.data_schemas[i].id === 'mobile') {
-							app.data_schemas[i].requireCheck = 'Y';
-							break;
-						}
-					}
-					$scope.update('data_schemas');
-				});
-			});
-		};
-		$scope.cancelEnrollApp = function() {
-			var app = $scope.app;
-			app.enroll_app_id = '';
-			$scope.update('enroll_app_id');
-			$scope.submit().then(function() {
-				angular.forEach(app.data_schemas, function(dataSchema) {
-					delete dataSchema.requireCheck;
-				});
-				$scope.update('data_schemas');
-			});
-		};
 		$scope.choosePhase = function() {
 			var phaseId = $scope.app.mission_phase_id,
 				i, phase, newPhase;

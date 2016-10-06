@@ -141,9 +141,10 @@ class record extends base {
 		 * 签到并保存登记的数据
 		 */
 		$modelRec = $this->model('matter\signin\record');
-		$signState = $modelRec->signin($user, $site, $signinApp);
+		$signState = $modelRec->signin($user, $site, $signinApp, $signinData);
 		// 保存签到登记数据
-		$rst = $modelRec->setData($user, $site, $signinApp, $signState->ek, $signinData, $submitkey);
+		empty($submitkey) && $submitkey = $user->uid;
+		$rst = $modelRec->setData($site, $signinApp, $signState->ek, $signinData, $submitkey);
 		if (false === $rst[0]) {
 			return new \ResponseError($rst[1]);
 		}
@@ -179,7 +180,7 @@ class record extends base {
 							!isset($signinData->{$n}) && $signinData->{$n} = $v;
 						}
 						// 记录报名数据
-						$modelRec->setData($user, $site, $signinApp, $signState->ek, $signinData, $submitkey);
+						$modelRec->setData($site, $signinApp, $signState->ek, $signinData, $submitkey);
 						// 记录验证状态
 						$modelRec->update(
 							'xxt_signin_record',

@@ -1,5 +1,5 @@
 <div id='schema-view' ng-controller="ctrlList">
-    <div class='schema-proto' style='width:290px;position:fixed;top:72px'>
+    <div tms-flex-height top='72' bottom='71' style='width:290px;position:fixed;top:72px'>
         <!--create schema-->
         <div class='form-group tile'>
             <div class='help-block'>添加用户填写项</div>
@@ -27,9 +27,24 @@
             <div class='help-block'>{{ms.title}}</div>
             <button class='btn btn-default' ng-click="newMember(ms,s)" ng-repeat="s in ms._schemas">{{s.title}}</button>
         </div>
-        <div class='form-group tile' ng-if="app.enrollApp">
-            <div class='help-block'>{{app.enrollApp.title}}</div>
-            <button class='btn btn-default' ng-click="newByEnroll(s)" ng-repeat="s in app.enrollApp.data_schemas">{{s.title}}</button>
+        <div class='form-group tile' ng-controller="ctrlApp">
+            <div class='form-group' ng-if="!app.enroll_app_id">
+                <button class='btn btn-success' ng-click="assignEnrollApp()">指定签到名单</button>
+            </div>
+            <div class='form-group' ng-if="app.enroll_app_id">
+                <div class="input-group">
+                    <div class='form-control' ng-bind="app.enrollApp.title"></div>
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="button" ng-click="cancelEnrollApp()">
+                            <span class='glyphicon glyphicon-remove'></span>
+                        </button>
+                    </span>
+                </div>
+            </div>
+            <div class='form-group' ng-if="app.enroll_app_id">
+                <button class='btn btn-default' ng-click="newByEnroll(s)" ng-repeat="s in app.enrollApp.data_schemas">{{s.title}}</button>
+            </div>
+            <div ng-if="app.enroll_app_id" class='help-block'>需要和［<span>{{app.enrollApp.title}}</span>］的登记内容匹配的登记项</div>
         </div>
         <!-- end create schema -->
     </div>
@@ -60,8 +75,8 @@
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
                 <a class='btn btn-default' href="/rest/pl/fe/matter/signin/page?site={{siteId}}&id={{id}}">编辑页面</a>
-                <button class='btn btn-success' ng-click="updPage(ep,['data_schemas','act_schemas','html'])">保存修改</button>
-                <a class='btn btn-success' href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布设置</a>
+                <a class='btn btn-success' href="/rest/pl/fe/matter/signin/publish?site={{siteId}}&id={{id}}">发布设置</a>
+                <a class='btn btn-default' href="/rest/pl/fe/matter/signin/record?site={{siteId}}&id={{id}}">查看数据</a>
             </form>
             <form class="navbar-form navbar-right" style='display:inline-block'>
                 <button class='btn btn-default' ng-click="remove()">删除活动</button>
@@ -70,3 +85,25 @@
     </nav>
     <!-- end bottom navbar-->
 </div>
+<script type="text/ng-template" id="assignEnrollApp.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">筛选条件</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal record-editor">
+            <div class='form-group'>
+                <label class="col-md-3 control-label">目标活动</label>
+                <div class="col-md-9">
+                    <select class="form-control" ng-model="data.source" ng-options="app.id as app.title for app in apps"></select>
+                    <div class='checkbox' ng-if="app.mission">
+                        <label><input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">选择同一个项目中的活动</label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">确定</button>
+    </div>
+</script>

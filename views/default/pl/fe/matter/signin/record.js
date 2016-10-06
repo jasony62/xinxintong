@@ -2,11 +2,6 @@ define(['frame'], function(ngApp) {
     'use strict';
     ngApp.provider.controller('ctrlRecord', ['$scope', function($scope) {
         var mapOfRounds = {}; // 轮次id对应轮次对象
-        // 当前处理的数据集
-        $scope.recordSet = 'signin';
-        $scope.chooseRecordSet = function(name) {
-            $scope.recordSet = name;
-        };
         $scope.json2Obj = function(json) {
             if (json && json.length) {
                 obj = JSON.parse(json);
@@ -37,7 +32,7 @@ define(['frame'], function(ngApp) {
             }
         });
     }]);
-    ngApp.provider.controller('ctrlSigninRecords', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
+    ngApp.provider.controller('ctrlSigninRecords', ['$scope', 'http2', '$uibModal', 'noticebox', function($scope, http2, $uibModal, noticebox) {
         function searchSigninRecords(page) {
             var url;
             page && ($scope.page.at = page);
@@ -396,6 +391,19 @@ define(['frame'], function(ngApp) {
 
             window.open(url);
         };
+        $scope.importByEnrollApp = function() {
+            var url;
+
+            url = '/rest/pl/fe/matter/signin/record/importByEnrollApp';
+            url += '?site=' + $scope.siteId + '&app=' + $scope.id;
+
+            http2.get(url, function(rsp) {
+                noticebox.info('更新了（' + rsp.data + '）条数据');
+                if (rsp.data > 0) {
+                    $scope.doSearch(1);
+                }
+            });
+        };
         $scope.countSelected = function() {
             var count = 0;
             for (var p in $scope.rows.selected) {
@@ -444,150 +452,6 @@ define(['frame'], function(ngApp) {
                 });
             }
             $scope.tmsTableWrapReady = 'Y';
-            $scope.doSearch();
-        });
-    }]);
-    ngApp.provider.controller('ctrlEnrollRecords', ['$scope', 'http2', '$uibModal', function($scope, http2, $uibModal) {
-        // 过滤条件
-        $scope.criteria = {
-            record: {
-                searchBy: '',
-                keyword: '',
-                verified: ''
-            },
-            tags: [],
-            data: {}
-        };
-        $scope.page = {
-            at: 1,
-            size: 30,
-            orderBy: 'time',
-            byRound: '',
-            joinParams: function() {
-                var p;
-                p = '&page=' + this.at + '&size=' + this.size;
-                this.byRound && (p += '&rid=' + this.byRound);
-                p += '&orderby=' + this.orderBy;
-                return p;
-            }
-        };
-        $scope.orderBys = [{
-            n: '登记时间',
-            v: 'time'
-        }];
-        $scope.doSearch = function(page) {
-            var url;
-            page && ($scope.page.at = page);
-            url = '/rest/pl/fe/matter/signin/record/listByEnroll';
-            url += '?site=' + $scope.siteId; // todo
-            url += '&app=' + $scope.id;
-            url += $scope.page.joinParams();
-            http2.post(url, $scope.criteria, function(rsp) {
-                if (rsp.data) {
-                    $scope.records = rsp.data.records ? rsp.data.records : [];
-                    rsp.data.total && ($scope.page.total = rsp.data.total);
-                } else {
-                    $scope.records = [];
-                }
-                angular.forEach($scope.records, function(record) {
-                    if (record.data) {
-                        if ($scope.mapOfSchemaByType['image'] && $scope.mapOfSchemaByType['image'].length) {
-                            angular.forEach($scope.mapOfSchemaByType['image'], function(schemaId) {
-                                var imgs = record.data[schemaId] ? record.data[schemaId].split(',') : [];
-                                record.data[schemaId] = imgs;
-                            });
-                        }
-                    }
-                });
-            });
-        };
-        // 选中的记录
-        $scope.$on('search-tag.xxt.combox.done', function(event, aSelected) {
-            $scope.criteria.tags = $scope.criteria.tags.concat(aSelected);
-            $scope.doSearch();
-        });
-        $scope.$on('search-tag.xxt.combox.del', function(event, removed) {
-            var i = $scope.criteria.tags.indexOf(removed);
-            $scope.criteria.tags.splice(i, 1);
-            $scope.doSearch();
-        });
-        $scope.memberAttr = function(val, key) {
-            var keys;
-            if (val && val.member) {
-                keys = key.split('.');
-                if (keys.length === 2) {
-                    return val.member[keys[1]];
-                } else if (val.member.extattr) {
-                    return val.member.extattr[keys[2]];
-                } else {
-                    return '';
-                }
-            } else {
-                return '';
-            }
-        };
-        $scope.value2Label = function(val, key) {
-            var schemas = $scope.app.enrollApp.data_schemas,
-                i, j, s, aVal, aLab = [];
-            if (val === undefined) return '';
-            for (i = 0, j = schemas.length; i < j; i++) {
-                if (schemas[i].id === key) {
-                    s = schemas[i];
-                    break;
-                }
-            }
-            if (s && s.ops && s.ops.length) {
-                aVal = val.split(',');
-                for (i = 0, j = s.ops.length; i < j; i++) {
-                    aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
-                }
-                if (aLab.length) return aLab.join(',');
-            }
-            return val;
-        };
-        $scope.filter = function() {
-            $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordFilter.html?_=3',
-                controller: 'ctrlFilter',
-                windowClass: 'auto-height',
-                backdrop: 'static',
-                resolve: {
-                    app: function() {
-                        return $scope.app.enrollApp;
-                    },
-                    criteria: function() {
-                        return angular.copy($scope.criteria);
-                    }
-                }
-            }).result.then(function(criteria) {
-                $scope.criteria = criteria;
-                $scope.doSearch(1);
-            });
-        };
-        $scope.export = function() {
-            var url;
-
-            url = '/rest/pl/fe/matter/signin/record/exportByEnroll';
-            url += '?site=' + $scope.siteId; // todo
-            url += '&app=' + $scope.id;
-            $scope.page.byRound && (url += '&round=' + $scope.page.byRound);
-
-            window.open(url);
-        };
-        $scope.tmsTableWrapReady = 'N';
-        $scope.$watch('app', function(app) {
-            if (!app) return;
-            var mapOfSchemaByType = {};
-
-            angular.forEach(app.enrollApp.data_schemas, function(schema) {
-                mapOfSchemaByType[schema.type] === undefined && (mapOfSchemaByType[schema.type] = []);
-                mapOfSchemaByType[schema.type].push(schema.id);
-            });
-
-            $scope.mapOfSchemaByType = mapOfSchemaByType;
-
-            $scope.tmsTableWrapReady = 'Y';
-
             $scope.doSearch();
         });
     }]);

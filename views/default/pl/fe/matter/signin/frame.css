@@ -1,5 +1,5 @@
 body{background:#f8f8f8;padding:71px 0;}
-body>nav{display:flex;}
+body>nav{display:flex;height:50px;}
 body>nav>ul:nth-child(2){flex-grow:1;text-align:center;}
 body>nav>ul:nth-child(2)>li{display:inline-block;float:none;overflow:hidden;}
 body>nav>ul:nth-child(2)>.title a{max-width:20em;white-space:nowrap;}

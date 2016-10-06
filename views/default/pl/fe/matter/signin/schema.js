@@ -50,18 +50,19 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 		$scope.newByEnroll = function(schema) {
 			var newSchema;
 
+			for (var i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
+				if (schema.id === $scope.app.data_schemas[i].id) {
+					alert('不允许重复添加登记项');
+					return;
+				}
+			}
 			newSchema = schemaLib.newSchema(schema.type, $scope.app);
 			newSchema.type === 'member' && (newSchema.schema_id = schema.schema_id);
 			newSchema.id = schema.id;
 			newSchema.title = schema.title;
 			newSchema.requireCheck = 'Y';
+			newSchema.fromApp = $scope.app.enrollApp.id;
 
-			for (var i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
-				if (newSchema.id === $scope.app.data_schemas[i].id) {
-					alert('不允许重复添加登记项');
-					return;
-				}
-			}
 			$scope.app.data_schemas.push(newSchema);
 			$scope.update('data_schemas').then(function() {
 				$scope.app.pages.forEach(function(page) {
@@ -110,6 +111,68 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 				});
 			}
 			return deferred.promise;
+		};
+	}]);
+	/**
+	 * app setting controller
+	 */
+	ngApp.provider.controller('ctrlApp', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
+		$scope.assignEnrollApp = function() {
+			$uibModal.open({
+				templateUrl: 'assignEnrollApp.html',
+				resolve: {
+					app: function() {
+						return $scope.app;
+					}
+				},
+				controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
+					$scope2.app = app;
+					$scope2.data = {
+						filter: {},
+						source: ''
+					};
+					app.mission && ($scope2.data.sameMission = 'Y');
+					$scope2.cancel = function() {
+						$mi.dismiss();
+					};
+					$scope2.ok = function() {
+						$mi.close($scope2.data);
+					};
+					var url = '/rest/pl/fe/matter/enroll/list?site=' + $scope.siteId + '&scenario=registration&size=999';
+					app.mission && (url += '&mission=' + app.mission.id);
+					http2.get(url, function(rsp) {
+						$scope2.apps = rsp.data.apps;
+					});
+				}],
+				backdrop: 'static'
+			}).result.then(function(data) {
+				$scope.app.enroll_app_id = data.source;
+				$scope.update('enroll_app_id').then(function(rsp) {
+					var app = $scope.app,
+						url = '/rest/pl/fe/matter/enroll/get?site=' + $scope.siteId + '&id=' + app.enroll_app_id;
+					http2.get(url, function(rsp) {
+						rsp.data.data_schemas = JSON.parse(rsp.data.data_schemas);
+						app.enrollApp = rsp.data;
+					});
+					for (var i = app.data_schemas.length - 1; i > 0; i--) {
+						if (app.data_schemas[i].id === 'mobile') {
+							app.data_schemas[i].requireCheck = 'Y';
+							break;
+						}
+					}
+					$scope.update('data_schemas');
+				});
+			});
+		};
+		$scope.cancelEnrollApp = function() {
+			var app = $scope.app;
+			app.enroll_app_id = '';
+			$scope.update('enroll_app_id').then(function() {
+				angular.forEach(app.data_schemas, function(dataSchema) {
+					delete dataSchema.requireCheck;
+				});
+				$scope.update('data_schemas');
+			});
 		};
 	}]);
 	/**

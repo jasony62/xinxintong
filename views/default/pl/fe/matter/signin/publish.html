@@ -16,20 +16,6 @@
                         <option></option>
                     </select>
                 </div>
-                <div class='form-group' ng-if="!app.enroll_app_id">
-                    <button class='btn btn-success' ng-click="assignEnrollApp()">指定签到名单</button>
-                </div>
-                <div class='form-group' ng-if="app.enroll_app_id">
-                    <label>签到名单</label>
-                    <div class="input-group">
-                        <div class='form-control' ng-bind="app.enrollApp.title"></div>
-                        <span class="input-group-btn">
-                            <button class="btn btn-default" type="button" ng-click="cancelEnrollApp()">
-                                <span class='glyphicon glyphicon-remove'></span>
-                            </button>
-                        </span>
-                    </div>
-                </div>
             </div>
             <div class="navbar-form navbar-right">
                 <button uib-popover-template="'appSetting.html'" popover-placement="bottom" popover-title="活动设置" popover-trigger="outsideClick" type="button" class="btn btn-default">活动设置 <span class="caret"></span></button>
@@ -262,6 +248,7 @@
         <form class="navbar-form" style='display:inline-block'>
             <a class='btn btn-default' href="/rest/pl/fe/matter/signin/schema?site={{siteId}}&id={{id}}">编辑登记项</a>
             <a class='btn btn-default' href='/rest/pl/fe/matter/signin/page?site={{siteId}}&id={{id}}'>页面设置</a>
+            <a class='btn btn-default' href="/rest/pl/fe/matter/signin/record?site={{siteId}}&id={{id}}">查看数据</a>
         </form>
         <form class="navbar-form navbar-right" style='display:inline-block'>
             <button class='btn btn-default' ng-click="remove()">删除活动</button>
@@ -292,28 +279,6 @@
             </div>
         </div>
     <div>
-</script>
-<script type="text/ng-template" id="assignEnrollApp.html">
-    <div class="modal-header">
-        <button class="close" type="button" ng-click="cancel()">×</button>
-        <h5 class="modal-title">筛选条件</h5>
-    </div>
-    <div class="modal-body">
-        <form class="form-horizontal record-editor">
-            <div class='form-group'>
-                <label class="col-md-3 control-label">目标活动</label>
-                <div class="col-md-9">
-                    <select class="form-control" ng-model="data.source" ng-options="app.id as app.title for app in apps"></select>
-                    <div class='checkbox' ng-if="app.mission">
-                        <label><input disabled type='checkbox' ng-model="data.sameMission" ng-true-value="'Y'" ng-false-value="'N'">选择同一个项目中的活动</label>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="ok()">确定</button>
-    </div>
 </script>
 <script type="text/ng-template" id="batchRounds.html">
     <div class="modal-header">

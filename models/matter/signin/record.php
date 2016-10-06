@@ -13,12 +13,15 @@ class record_model extends \TMS_MODEL {
 	 * @param int $enrollAt
 	 *
 	 */
-	public function enroll(&$user, $siteId, &$app, $enrollAt = null, $referrer = '') {
+	public function enroll($siteId, &$app, $user = null, $data = null) {
+		$enrollAt = isset($data['enrollAt']) ? $data['enrollAt'] : time();
+		$referrer = isset($data['referrer']) ? $data['referrer'] : '';
+
 		$options = [
 			'fields' => 'enroll_key',
 			'cascaded' => 'N',
 		];
-		if ($userRecord = $this->byUser($user, $siteId, $app, $options)) {
+		if (!empty($user) && ($userRecord = $this->byUser($user, $siteId, $app, $options))) {
 			// 已经登记过，用现有的登记记录
 			$ek = $userRecord->enroll_key;
 		} else {
@@ -27,12 +30,15 @@ class record_model extends \TMS_MODEL {
 			$record = [
 				'siteid' => $siteId,
 				'aid' => $app->id,
-				'enroll_at' => $enrollAt === null ? time() : $enrollAt,
+				'enroll_at' => $enrollAt,
 				'enroll_key' => $ek,
-				'userid' => $user->uid,
-				'nickname' => $user->nickname,
+				'userid' => empty($user->uid) ? '' : $user->uid,
+				'nickname' => empty($user->nickname) ? '' : $user->nickname,
 				'referrer' => $referrer,
 			];
+			$record['verified'] = isset($data['verified']) ? $data['verified'] : 'N';
+			isset($data['verified_enroll_key']) && $record['verified_enroll_key'] = $data['verified_enroll_key'];
+
 			$this->insert('xxt_signin_record', $record, false);
 		}
 
@@ -45,16 +51,21 @@ class record_model extends \TMS_MODEL {
 	 * 如果用户已经做过活动登记，那么设置签到时间
 	 * 如果用户没有做个活动登记，那么要先产生一条登记记录，并记录签到时间
 	 */
-	public function &signin(&$user, $siteId, &$app) {
+	public function &signin(&$user, $siteId, &$app, $signinData = null) {
 		$state = new \stdClass;
 
 		if ($record = $this->byUser($user, $siteId, $app)) {
 			// 已经登记过，不需要再登记
 			$ek = $record->enroll_key;
 			$state->enrolled = true;
+		} else if ($signinData && ($records = $this->byData($siteId, $app, $signinData)) && count($records) === 1) {
+			// 已经有手工添加的记录，不需要再登记
+			$ek = $records[0]->enroll_key;
+			$this->update('xxt_signin_record', ['userid' => $user->uid, 'nickname' => $user->nickname], "enroll_key='$ek'");
+			$state->enrolled = true;
 		} else {
 			// 没有登记过，先登记
-			$ek = $this->enroll($user, $siteId, $app);
+			$ek = $this->enroll($siteId, $app, $user);
 			$state->enrolled = false;
 		}
 		/**
@@ -117,12 +128,9 @@ class record_model extends \TMS_MODEL {
 	/**
 	 * 保存登记的数据
 	 */
-	public function setData(&$user, $siteId, &$app, $ek, $data, $submitkey = '') {
+	public function setData($siteId, &$app, $ek, $data, $submitkey) {
 		if (empty($data)) {
 			return [true];
-		}
-		if (empty($submitkey)) {
-			$submitkey = $user->uid;
 		}
 		// 处理后的登记记录
 		$dbData = new \stdClass;
@@ -258,6 +266,53 @@ class record_model extends \TMS_MODEL {
 		}
 
 		return $userRecord;
+	}
+	/**
+	 * 根据指定的数据查找匹配的记录
+	 */
+	public function &byData($siteId, &$app, &$data, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$records = false;
+
+		// 查找条件
+		$whereByData = '';
+		foreach ($data as $k => $v) {
+			if (!empty($v)) {
+				$whereByData .= ' and (';
+				$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
+				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
+				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
+				$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
+				$whereByData .= ')';
+			}
+		}
+
+		// 没有指定条件时就认为没有符合条件的记录
+		if (empty($whereByData)) {
+			return $records;
+		}
+
+		// 查找匹配条件的数据
+		$q = [
+			$fields,
+			'xxt_signin_record',
+			"state=1 and aid='{$app->id}' $whereByData",
+		];
+		$records = $this->query_objs_ss($q);
+		foreach ($records as &$record) {
+			if (empty($record->data)) {
+				$record->data = new \stdClass;
+			} else {
+				$data = json_decode($record->data);
+				if ($data === null) {
+					$record->data = 'json error(' . json_last_error() . '):' . $r->data;
+				} else {
+					$record->data = $data;
+				}
+			}
+		}
+
+		return $records;
 	}
 	/**
 	 * 生成活动登记的key
@@ -435,7 +490,7 @@ class record_model extends \TMS_MODEL {
 
 		// 查询参数
 		$q = [
-			'e.enroll_key,e.enroll_at,e.signin_at,e.signin_num,e.signin_log,e.userid,e.nickname,e.verified,e.comment,e.tags,e.data',
+			'e.enroll_key,e.enroll_at,e.signin_at,e.signin_num,e.signin_log,e.userid,e.nickname,e.verified,e.comment,e.tags,e.data,e.verified_enroll_key',
 			'xxt_signin_record e',
 			$w,
 		];

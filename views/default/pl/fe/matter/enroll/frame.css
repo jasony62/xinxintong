@@ -1,7 +1,7 @@
 body{background:#f8f8f8;padding:71px 0;font-family:Microsoft Yahei,Arial;}
-body>nav{display:flex;}
+body>nav{display:flex;height:50px;}
 body>nav>ul:nth-child(2){flex-grow:1;text-align:center;}
-body>nav>ul:nth-child(2)>li{display:inline-block;float:none;overflow:hidden;}
+body>nav>ul:nth-child(2)>li{height:50px;display:inline-block;float:none;overflow:hidden;}
 body>nav>ul:nth-child(2)>.title a{max-width:20em;white-space:nowrap;}
 .tile{position:relative;border:1px solid #ddd;border-radius:4px;padding:8px;background:#f8f8f8;margin-bottom:15px;}
 .tile>.form-group,.tile>.checkbox{padding:8px;background:#fff;border-radius:4px;}

@@ -29,9 +29,6 @@ define(['frame'], function(ngApp) {
             url += '?site=' + $scope.siteId;
             url += '&app=' + $scope.app.id;
             url += $scope.page.joinParams();
-            if ($scope.content.signin === 'Y') {
-                url += '&includeSignin=Y';
-            }
             http2.post(url, $scope.criteria, function(rsp) {
                 if (rsp.data) {
                     $scope.records = rsp.data.records ? rsp.data.records : [];
@@ -77,42 +74,6 @@ define(['frame'], function(ngApp) {
                 p += '&orderby=' + this.orderBy;
                 return p;
             }
-        };
-        // 是否包含签到数据
-        $scope.content = {
-            signin: 'N'
-        };
-        $scope.signinApps = null;
-        $scope.signinRounds = [];
-        $scope.signinAt = function(round, record) {
-            var signinAt;
-            if (record._signinRecord) {
-                if (record._signinRecord[round._app.id]) {
-                    signinAt = record._signinRecord[round._app.id].signin_log[round.rid];
-                }
-            }
-            if (signinAt === undefined) {
-                return '';
-            } else {
-                signinAt = signinAt * 1000;
-                signinAt = $filter('date')(signinAt, 'MM-dd HH:mm');
-                return signinAt;
-            }
-        };
-        // 当前签到记录是否迟到？
-        $scope.isSigninLate = function(round, record) {
-            var signinAt;
-            if (round.late_at > 0 && record._signinRecord) {
-                if (record._signinRecord[round._app.id]) {
-                    signinAt = record._signinRecord[round._app.id].signin_log[round.rid];
-                    if (signinAt) {
-                        signinAt = parseInt(signinAt);
-                        // 忽略秒的影响
-                        return signinAt > parseInt(round.late_at) + 59;
-                    }
-                }
-            }
-            return false;
         };
         // 排序规则
         $scope.orderBys = [{
@@ -483,9 +444,6 @@ define(['frame'], function(ngApp) {
 
             url = '/rest/pl/fe/matter/enroll/record/export';
             url += '?site=' + $scope.siteId + '&app=' + $scope.id;
-            if ($scope.content.signin === 'Y') {
-                url += '&includeSignin=Y';
-            }
             window.open(url);
         };
         $scope.countSelected = function() {
@@ -545,25 +503,7 @@ define(['frame'], function(ngApp) {
                     }
                 });
             }
-            // 显示扩展内容
-            $scope.$watch('content', function(content) {
-                if (content) {
-                    if (content.signin === 'Y') {
-                        if ($scope.signinApps === null) {
-                            http2.get('/rest/pl/fe/matter/signin/listByEnroll?site=' + $scope.siteId + '&enroll=' + $scope.id, function(rsp) {
-                                $scope.signinApps = rsp.data;
-                                rsp.data.forEach(function(signinApp) {
-                                    signinApp.rounds.forEach(function(round) {
-                                        round._app = signinApp;
-                                    });
-                                    $scope.signinRounds = $scope.signinRounds.concat(signinApp.rounds);
-                                });
-                            });
-                        }
-                    }
-                    $scope.doSearch();
-                }
-            }, true);
+            $scope.doSearch();
         });
     }]);
     ngApp.provider.directive('flexImg', function() {

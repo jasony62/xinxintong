@@ -19,7 +19,7 @@
         <label class="radio-inline"><input type='radio' name='align' value='V' ng-model='activeConfig.align' ng-change="updConfig('align')">垂直排列</label>
         <label class="radio-inline"><input type='radio' name='align' value='H' ng-model='activeConfig.align' ng-change="updConfig('align')">水平排列</label>
     </div>
-    <div class="checkbox" ng-show="['image'].indexOf(activeSchema.type)===-1">
+    <div class="checkbox">
         <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeConfig.required' ng-change="updConfig('required')">必填</label>
     </div>
     <div class="checkbox" ng-show="['name','mobile','email','shorttext'].indexOf(activeSchema.type)!==-1">

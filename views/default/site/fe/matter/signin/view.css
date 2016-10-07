@@ -10,9 +10,11 @@ img{max-width:100%}
 #tipPreview button{float:auto;position:absolute;top:12px;right:8px}
 
 /* default form style*/
-div[wrap].wrap-splitline{padding-bottom:0.5em;border-bottom:1px solid #fff;}
-div[wrap].wrap-inline>*{display:inline-block;vertical-align:middle;margin:0 1em 0 0;}
+div[wrap].wrap-splitline{padding-bottom:0.5em;border-bottom:1px dotted #eee;}
+div[wrap].wrap-inline>*{display:inline-block;vertical-align:top;margin:0 1em 0 0;}
 div[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+div[wrap] ul{list-style:none;padding:0;margin:0;max-width:50%;}
+div[schema-type=image]>ul>li>img{width:100%;}
 div[wrap=matter]>span{cursor:pointer;text-decoration:underline;}
 
 /*list*/

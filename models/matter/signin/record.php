@@ -269,6 +269,8 @@ class record_model extends \TMS_MODEL {
 	}
 	/**
 	 * 根据指定的数据查找匹配的记录
+	 *
+	 * 不是所有的字段都检查，只检查字符串类型
 	 */
 	public function &byData($siteId, &$app, &$data, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
@@ -277,7 +279,7 @@ class record_model extends \TMS_MODEL {
 		// 查找条件
 		$whereByData = '';
 		foreach ($data as $k => $v) {
-			if (!empty($v)) {
+			if (!empty($v) && is_string($v)) {
 				$whereByData .= ' and (';
 				$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
 				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';

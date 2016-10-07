@@ -104,7 +104,6 @@ define(['frame'], function(ngApp) {
 							updatedFields.push('summary');
 						}
 						$scope.update(updatedFields);
-						$scope.submit();
 					});
 				}
 			}, {
@@ -136,7 +135,13 @@ define(['frame'], function(ngApp) {
 		};
 		$scope.update = function(name) {
 			$scope.modified = true;
-			modifiedData[name] = name === 'body' ? encodeURIComponent($scope.editing[name]) : $scope.editing[name];
+			if (angular.isArray(name)) {
+				name.forEach(function(prop) {
+					modifiedData[prop] = prop === 'body' ? encodeURIComponent($scope.editing[prop]) : $scope.editing[prop];
+				});
+			} else {
+				modifiedData[name] = name === 'body' ? encodeURIComponent($scope.editing[name]) : $scope.editing[name];
+			}
 			$scope.submit();
 		};
 		$scope.setPic = function() {

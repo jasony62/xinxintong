@@ -589,7 +589,7 @@ factory('pushnotify', ['$uibModal', function($uibModal) {
     return {
         open: function(siteId, callback, options) {
             $uibModal.open({
-                templateUrl: '/static/template/pushnotify.html?_=5',
+                templateUrl: '/static/template/pushnotify.html?_=6',
                 controller: ['http2', '$scope', '$uibModalInstance', function(http2, $scope, $mi) {
                     var url = '/rest/pl/fe/site/setting/notice/get?site=' + siteId + '&name=site.matter.push&cascaded=Y',
                         msgMatter = {},

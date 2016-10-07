@@ -43,46 +43,4 @@ class setting extends \pl\fe\matter\base {
 
 		return new \ResponseData($rst);
 	}
-	/**
-	 * 创建频道定制页面
-	 */
-	public function pageCreate_action($site, $id, $page) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$code = $this->model('code\page')->create($site, $user->id);
-
-		$rst = $this->model()->update(
-			'xxt_mission',
-			[
-				$page . '_page_name' => $code->name,
-			],
-			["id" => $id]
-		);
-
-		return new \ResponseData($code);
-	}
-	/**
-	 * 重置定制页面
-	 *
-	 * @param int $codeId
-	 */
-	public function pageReset_action($site, $id, $page) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-		$modelMis = $this->model('matter\mission');
-		$mission = $modelMis->byId($id);
-		$data = array(
-			'html' => '',
-			'css' => '',
-			'js' => '',
-		);
-		$modelCode = $this->model('code\page');
-		$code = $modelCode->lastByName($site, $mission->{$page . '_page_name'});
-		$rst = $modelCode->modify($code->id, $data);
-
-		return new \ResponseData($rst);
-	}
 }

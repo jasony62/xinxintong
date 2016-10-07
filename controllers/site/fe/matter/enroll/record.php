@@ -241,10 +241,12 @@ class record extends base {
 		if (isset($groupRecord)) {
 			$updatedEnrollRec['group_enroll_key'] = $groupRecord->enroll_key;
 		}
-		$modelRec->update('xxt_enroll_record',
-			$updatedEnrollRec,
-			"enroll_key='$ek'"
-		);
+		if (count($updatedEnrollRec)) {
+			$modelRec->update('xxt_enroll_record',
+				$updatedEnrollRec,
+				"enroll_key='$ek'"
+			);
+		}
 		/**
 		 * 通知登记活动事件接收人
 		 */

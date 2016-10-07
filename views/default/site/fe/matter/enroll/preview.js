@@ -44,6 +44,85 @@ define(["angular", "xxt-page", "enroll-directive", "angular-sanitize"], function
         lsProvider.params(['start', 'site', 'app', 'rid', 'page', 'ek', 'newRecord', 'openAt']);
     }]);
     ngApp.controller('ctrl', ['$scope', '$http', '$timeout', 'ls', function($scope, $http, $timeout, LS) {
+        function gotoPage() {
+            var url = LS.j('get', 'site', 'app', 'ek', 'openAt', 'page');
+            $http.get(url).success(function(rsp) {
+                if (rsp.err_code !== 0) {
+                    $scope.errmsg = rsp.err_msg;
+                    return;
+                }
+                var params = rsp.data,
+                    site = params.site,
+                    app = params.app,
+                    mission = params.mission;
+                app.data_schemas = JSON.parse(app.data_schemas);
+                $scope.schemasById = {};
+                app.data_schemas && app.data_schemas.forEach(function(schema) {
+                    $scope.schemasById[schema.id] = schema;
+                });
+                $scope.params = params;
+                $scope.site = site;
+                $scope.mission = mission;
+                $scope.app = app;
+                $scope.user = params.user;
+                if (app.multi_rounds === 'Y') {
+                    $scope.activeRound = params.activeRound;
+                }
+                if (app.use_site_header === 'Y' && site && site.header_page) {
+                    codeAssembler.loadCode(ngApp, site.header_page);
+                }
+                if (app.use_mission_header === 'Y' && mission && mission.header_page) {
+                    codeAssembler.loadCode(ngApp, mission.header_page);
+                }
+                if (app.use_mission_footer === 'Y' && mission && mission.footer_page) {
+                    codeAssembler.loadCode(ngApp, mission.footer_page);
+                }
+                if (app.use_site_footer === 'Y' && site && site.footer_page) {
+                    codeAssembler.loadCode(ngApp, site.footer_page);
+                }
+                codeAssembler.loadCode(ngApp, params.page).then(function() {
+                    $scope.page = params.page;
+                });
+                $timeout(function() {
+                    $scope.$broadcast('xxt.app.enroll.ready', params);
+                });
+                window.loading.finish();
+            }).error(function(content, httpCode) {
+                if (httpCode === 401) {
+                    var el = document.createElement('iframe');
+                    el.setAttribute('id', 'frmPopup');
+                    el.onload = function() {
+                        this.height = document.querySelector('body').clientHeight;
+                    };
+                    document.body.appendChild(el);
+                    if (content.indexOf('http') === 0) {
+                        window.onAuthSuccess = function() {
+                            el.style.display = 'none';
+                        };
+                        el.setAttribute('src', content);
+                        el.style.display = 'block';
+                    } else {
+                        if (el.contentDocument && el.contentDocument.body) {
+                            el.contentDocument.body.innerHTML = content;
+                            el.style.display = 'block';
+                        }
+                    }
+                } else {
+                    $scope.errmsg = content;
+                }
+            });
+        };
+        window.gotoPage = function(page) {
+            var phase;
+            phase = $scope.$root.$$phase;
+            if (phase === '$digest' || phase === '$apply') {
+                gotoPage(page);
+            } else {
+                $scope.$apply(function() {
+                    gotoPage(page);
+                });
+            }
+        };
         $scope.errmsg = '';
         $scope.closePreviewTip = function() {
             $scope.preview = 'N';
@@ -81,71 +160,7 @@ define(["angular", "xxt-page", "enroll-directive", "angular-sanitize"], function
                 }
             }
         };
-        $http.get(LS.j('get', 'site', 'app', 'page', 'ek', 'openAt')).success(function(rsp) {
-            if (rsp.err_code !== 0) {
-                $scope.errmsg = rsp.err_msg;
-                return;
-            }
-            var params = rsp.data,
-                site = params.site,
-                app = params.app,
-                mission = params.mission;
-            app.data_schemas = JSON.parse(app.data_schemas);
-            $scope.schemasById = {};
-            app.data_schemas && app.data_schemas.forEach(function(schema) {
-                $scope.schemasById[schema.id] = schema;
-            });
-            $scope.params = params;
-            $scope.site = site;
-            $scope.mission = mission;
-            $scope.app = app;
-            $scope.user = params.user;
-            if (app.multi_rounds === 'Y') {
-                $scope.activeRound = params.activeRound;
-            }
-            if (app.use_site_header === 'Y' && site && site.header_page) {
-                codeAssembler.loadCode(ngApp, site.header_page);
-            }
-            if (app.use_mission_header === 'Y' && mission && mission.header_page) {
-                codeAssembler.loadCode(ngApp, mission.header_page);
-            }
-            if (app.use_mission_footer === 'Y' && mission && mission.footer_page) {
-                codeAssembler.loadCode(ngApp, mission.footer_page);
-            }
-            if (app.use_site_footer === 'Y' && site && site.footer_page) {
-                codeAssembler.loadCode(ngApp, site.footer_page);
-            }
-            codeAssembler.loadCode(ngApp, params.page).then(function() {
-                $scope.page = params.page;
-            });
-            $timeout(function() {
-                $scope.$broadcast('xxt.app.enroll.ready', params);
-            });
-            window.loading.finish();
-        }).error(function(content, httpCode) {
-            if (httpCode === 401) {
-                var el = document.createElement('iframe');
-                el.setAttribute('id', 'frmPopup');
-                el.onload = function() {
-                    this.height = document.querySelector('body').clientHeight;
-                };
-                document.body.appendChild(el);
-                if (content.indexOf('http') === 0) {
-                    window.onAuthSuccess = function() {
-                        el.style.display = 'none';
-                    };
-                    el.setAttribute('src', content);
-                    el.style.display = 'block';
-                } else {
-                    if (el.contentDocument && el.contentDocument.body) {
-                        el.contentDocument.body.innerHTML = content;
-                        el.style.display = 'block';
-                    }
-                }
-            } else {
-                $scope.errmsg = content;
-            }
-        });
+        gotoPage();
     }]);
     ngApp.service('srvStorage', ['ls', function(LS) {
         var cache;
@@ -159,7 +174,6 @@ define(["angular", "xxt-page", "enroll-directive", "angular-sanitize"], function
             };
             window.localStorage.setItem('enroll-preview', JSON.stringify(cache));
         }
-
 
         this.getRecord = function(ek) {
             return cache.records[ek];
@@ -184,7 +198,9 @@ define(["angular", "xxt-page", "enroll-directive", "angular-sanitize"], function
     ngApp.service('Record', ['srvStorage', function(srvStorage) {
         this.current = {};
         this.get = function(ek) {
-            this.current = srvStorage.getRecord(ek);
+            this.current = srvStorage.getRecord(ek) || {
+                enroll_at: Math.floor(new Date() / 1000)
+            };
         };
     }]);
     ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scope, Record, LS, $sce) {

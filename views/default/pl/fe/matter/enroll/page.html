@@ -59,7 +59,7 @@
                 <div class='list-group'>
                     <div class='list-group-item schema' ng-repeat="s in appSchemas">
                         <div class='checkbox'>
-                            <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
+                            <label><input type='checkbox' bs-switch switch-size="mini" ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
                         </div>
                     </div>
                 </div>

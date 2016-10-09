@@ -100,11 +100,13 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', '$uibModal', 'mediagallery',
 				};
 				$scope2.ok = function() {
 					var html = tinymceEditor.getContent();
+					tinymceEditor.remove();
 					$mi.close({
 						html: html
 					});
 				};
 				$scope2.cancel = function() {
+					tinymceEditor.remove();
 					$mi.dismiss();
 				};
 				$scope2.$on('tinymce.multipleimage.open', function(event, callback) {

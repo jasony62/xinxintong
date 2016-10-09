@@ -317,7 +317,7 @@ class record extends \pl\fe\matter\base {
 							'xxt_signin_log',
 							[
 								'siteid' => $site,
-								'aid' => $signinApp,
+								'aid' => $signinApp->id,
 								'rid' => $roundId,
 								'enroll_key' => $ek,
 								'userid' => '',
@@ -327,6 +327,13 @@ class record extends \pl\fe\matter\base {
 							false
 						);
 					}
+				} else {
+					// 清除掉无效的数据
+					unset($record->signin_log->{$roundId});
+					$modelSinLog->delete(
+						'xxt_signin_log',
+						['enroll_key' => $ek, 'rid' => $roundId]
+					);
 				}
 			}
 			$updatedRecord->signin_num = $record->signin_num = $signinNum;

@@ -126,6 +126,18 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 				});
 			});
 		};
+		var _showPopoverPageSetting = false;
+		$scope.popoverPageSetting = function() {
+			if (_showPopoverPageSetting) {
+				$('#popoverPageSetting').trigger('hide');
+			} else {
+				$('#popoverPageSetting').trigger('show');
+				setTimeout(function() {
+					new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
+				});
+			}
+			_showPopoverPageSetting = !_showPopoverPageSetting;
+		};
 		$scope.$watch('app', function(app) {
 			if (!app) return;
 			$scope.ep = app.pages[0];

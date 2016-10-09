@@ -7,7 +7,7 @@
                     <a ng-click="choosePage(p)"><span><i class='fa fa-file-o'></i> {{p.title}}</span></a>
                 </li>
                 <li class="pull-right">
-                    <button uib-popover-template="'pageSetting.html'" popover-append-to-body='true' popover-placement="bottom" popover-trigger="outsideClick" class="btn btn-default">高级设置 <span class="caret"></span></button>
+                    <button id='popoverPageSetting' uib-popover-template="'pageSetting.html'" popover-append-to-body='true' popover-placement="bottom" popover-trigger="show" class="btn btn-default" ng-click="popoverPageSetting()">高级设置 <span class="caret"></span></button>
                 </li>
             </ul>
         </div>
@@ -22,7 +22,7 @@
                 <div class='list-group'>
                     <div class='list-group-item schema' ng-repeat="s in appSchemas">
                         <span ng-bind="s.title"></span>
-                        <span class='pull-right'>
+                        <span class='schema-switch'>
                             <input type='checkbox' bs-switch switch-size="mini" data-on-text="显示" data-off-text="隐藏" ng-model="chooseState[s.id]" ng-change="choose(s)">
                         </span>
                     </div>
@@ -32,14 +32,14 @@
             <div class='tile' ng-if="ep.type==='V'" ng-controller="ctrlAppSchemas4View">
                 <div class='list-group-item' ng-repeat="s in appSchemas">
                     <span ng-bind="s.title"></span>
-                        <span class='pull-right'>
+                        <span class='schema-switch'>
                             <input type='checkbox' bs-switch switch-size="mini" data-on-text="显示" data-off-text="隐藏" ng-model="chooseState[s.id]" ng-change="choose(s)">
                         </span>
                     </span>
                 </div>
                 <div class='list-group-item' ng-repeat="s in otherSchemas">
                     <span ng-bind="s.title"></span>
-                        <span class='pull-right'>
+                        <span class='schema-switch'>
                             <input type='checkbox' bs-switch switch-size="mini" data-on-text="显示" data-off-text="隐藏" ng-model="chooseState[s.id]" ng-change="choose(s)">
                         </span>
                     </span>
@@ -114,6 +114,12 @@
     <div id="pageSetting">
         <div class='form-group'>
             <p>ID: <span ng-bind="ep.name"></span></p>
+            <div class='input-group'>
+                <input class='form-control' readonly value="{{url+'&page='+ep.name}}">
+                <span class='input-group-btn'>
+                    <button class='btn btn-default text2Clipboard' data-clipboard-text="{{url+'&page='+ep.name}}">复制</button>
+                </span>
+            </div>
         </div>
         <div class='form-group'>
             <input type='text' class='form-control' ng-model="ep.title" tms-auto-update tms-wait=1000 tms-update="updPage(ep,'title')">

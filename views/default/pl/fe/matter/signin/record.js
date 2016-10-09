@@ -32,7 +32,7 @@ define(['frame'], function(ngApp) {
             }
         });
     }]);
-    ngApp.provider.controller('ctrlSigninRecords', ['$scope', 'http2', '$uibModal', 'noticebox', function($scope, http2, $uibModal, noticebox) {
+    ngApp.provider.controller('ctrlSigninRecords', ['$scope', 'http2', '$uibModal', 'pushnotify', 'noticebox', function($scope, http2, $uibModal, pushnotify, noticebox) {
         function searchSigninRecords(page) {
             var url;
             page && ($scope.page.at = page);
@@ -60,8 +60,8 @@ define(['frame'], function(ngApp) {
         };
 
         $scope.notifyMatterTypes = [{
-            value: 'text',
-            title: '文本',
+            value: 'tmplmsg',
+            title: '模板消息',
             url: '/rest/pl/fe/matter'
         }, {
             value: 'article',
@@ -381,6 +381,36 @@ define(['frame'], function(ngApp) {
                     $scope.doSearch(1);
                 });
             }
+        };
+        $scope.notify = function(isBatch) {
+            pushnotify.open($scope.siteId, function(notify) {
+                var url, targetAndMsg = {};
+                if (notify.matters.length) {
+                    if (isBatch) {
+                        targetAndMsg.users = [];
+                        Object.keys($scope.rows.selected).forEach(function(key) {
+                            if ($scope.rows.selected[key] === true) {
+                                targetAndMsg.users.push($scope.records[key].userid);
+                            }
+                        });
+                    } else {
+                        targetAndMsg.criteria = $scope.criteria;
+                    }
+                    targetAndMsg.message = notify.message;
+
+                    url = '/rest/pl/fe/matter/signin/record/notify';
+                    url += '?site=' + $scope.siteId;
+                    url += '&app=' + $scope.id;
+                    url += '&tmplmsg=' + notify.tmplmsg.id;
+                    url += $scope.page.joinParams();
+
+                    http2.post(url, targetAndMsg, function(data) {
+                        noticebox.success('发送成功');
+                    });
+                }
+            }, {
+                matterTypes: $scope.notifyMatterTypes
+            });
         };
         $scope.export = function() {
             var url;

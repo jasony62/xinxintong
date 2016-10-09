@@ -17,6 +17,8 @@
                 <button class='btn btn-primary hide' ng-click="notify()">发送信息</button>
                 <button class='btn btn-default' ng-click="export()">导出全部数据</button>
                 <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchTag()'>批量打标签</button>
+                <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-click="notify()">全部发送信息</button>
+                <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-disabled="!countSelected()" ng-click="notify(true)">选中记录发送信息</button>
             </div>
             <div class='form-group' ng-if="app.enroll_app_id">
                 <button class='btn btn-default' ng-click="importByEnrollApp()">导入【<span>{{app.enrollApp.title}}</span>】数据</button>

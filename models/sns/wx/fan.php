@@ -89,7 +89,7 @@ class fan_model extends \TMS_MODEL {
 		$q = [
 			'count(*)',
 			'xxt_site_wxfan',
-			"siteid='$siteid' and openid='$openid' and unsubscribe_at=0",
+			"siteid='$siteid' and openid='$openid' and subscribe_at>0 and unsubscribe_at=0",
 		];
 
 		$isFollow = (1 === (int) $this->query_val_ss($q));

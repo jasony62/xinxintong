@@ -122,7 +122,7 @@ define(['frame'], function(ngApp) {
                 if (s.type === 'score') {
                     var label = '';
                     s.ops.forEach(function(op, index) {
-                        label += op.l + ':' + val[op.v] + ' / ';
+                        label += '<div>' + op.l + ':' + val[op.v] + '</div>';
                     });
                     label = label.replace(/\s\/\s$/, '');
                     return label;

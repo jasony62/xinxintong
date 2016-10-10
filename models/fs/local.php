@@ -87,4 +87,24 @@ class local_model {
 			return false;
 		}
 	}
+	/**
+	 * 和alioss兼容
+	 */
+	public function writeFile($dir, $filename, $content) {
+		$filename = $dir . '/' . $filename;
+
+		return $this->write($filename, $content);
+	}
+	/**
+	 * 和alioss兼容
+	 */
+	public function remove($url) {
+		die('not support.');
+	}
+	/**
+	 *
+	 */
+	public function getFile($url) {
+		die('not support.');
+	}
 }

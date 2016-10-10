@@ -65,7 +65,10 @@ class contribute_model extends app_base {
 			'xxt_contribute_user c',
 			"c.siteid='$siteId' and c.cid='$appId' and role='$role'",
 		);
-		$acls = $this->query_objs_ss($q);
+
+		$q2['o']='id asc'; 
+		      
+		$acls = $this->query_objs_ss($q,$q2);
 
 		return $acls;
 	}

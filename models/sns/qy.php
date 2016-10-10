@@ -22,13 +22,11 @@ class qy_model extends \TMS_MODEL {
 	/**
 	 * 创建绑定的公众号配置信息
 	 */
-	public function &create($siteid) {
-		$qy = array(
-			'siteid' => $siteid,
-		);
-		$this->insert('xxt_site_qy', $qy, false);
+	public function &create($site,$data=[]) {
+		$data['siteid'] = $site;
+		$this->insert('xxt_site_qy', $data, false);
 
-		$qy = $this->bySite($siteid);
+		$qy = $this->bySite($site);
 
 		return $qy;
 	}

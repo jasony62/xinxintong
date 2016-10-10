@@ -26,13 +26,11 @@
         </div>
         <button class='btn btn-default' ng-click='filter()'>筛选</button>
         <button class='btn btn-success' ng-click='verifyAll()'>全部通过审核</button>
-        <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchVerify()'>批量通过审核</button>
+        <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchVerify()'>选中记录通过审核</button>
+        <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchTag()'>选中记录打标签</button>
         <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-click="notify()">全部发送信息</button>
-        <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-disabled="!countSelected()" ng-click="notify(true)">批量发送信息</button>
+        <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-disabled="!countSelected()" ng-click="notify(true)">选中记录发送信息</button>
         <button class='btn btn-default' ng-click="export()">导出全部数据</button>
-        <button id='copyRecords' class='btn btn-default'>复制全部数据</button>
-        <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchTag()'>批量打标签</button>
-        <div class='checkbox' ng-if="app.scenario==='registration'"><label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="content.signin"> 包含签到信息</label></div>
     </div>
     <!-- end actions -->
     <!-- records -->
@@ -47,7 +45,9 @@
                         </th>
                         <th style='width:40px'></th>
                         <th style='width:100px'>登记时间</th>
-                        <th class='custom-col' ng-repeat="c in app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
+                        <th class='custom-col row' ng-repeat="c in app.data_schemas">{{c.title}}</th>
+                        <th class='custom-col matched enroll' ng-repeat="c in enrollDataSchemas">{{c.title}}</th>
+                        <th class='custom-col matched group' ng-repeat="c in groupDataSchemas">{{c.title}}</th>
                         <th style='width:140px'>昵称</th>
                         <th style='width:80px'>审核通过</th>
                         <th ng-if="app.scenario==='voting'" style='width:80px'>总分数</th>
@@ -55,7 +55,6 @@
                         <th style='width:140px' ng-if="app.tags.length">标签</th>
                         <th style='width:140px'>备注</th>
                         <th style='width:60px' ng-if="app.can_invite==='Y'">邀请</th>
-                        <th ng-if="content.signin==='Y'" ng-repeat="rnd in signinRounds"><span>{{rnd._app.title+rnd.title}}</span></th>
                         <th style='width:72px'>操作</th>
                     </tr>
                 </thead>
@@ -82,6 +81,26 @@
                                 <span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </span>
                         </td>
+                        <td class='matched enroll' ng-repeat="c in enrollDataSchemas">
+                            <span ng-if="c.id.indexOf('member')===0">{{memberAttr(r.data, c.id)}}</span>
+                            <span ng-if="c.type!=='image'&&c.type!=='file'">{{value2Label2(r.data[c.id], c.id)}}</span>
+                            <span ng-if="c.type==='image'">
+                                <img ng-repeat="img in r.data[c.id]" ng-src='{{img}}' />
+                            </span>
+                            <span ng-if="c.type==='file'" ng-init="files=json2Obj(r.data[c.id])">
+                                <span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                            </span>
+                        </td>
+                        <td class='matched group' ng-repeat="c in groupDataSchemas">
+                            <span ng-if="c.id.indexOf('member')===0">{{memberAttr(r.data, c.id)}}</span>
+                            <span ng-if="c.type!=='image'&&c.type!=='file'">{{value2Label3(r.data[c.id], c.id)}}</span>
+                            <span ng-if="c.type==='image'">
+                                <img ng-repeat="img in r.data[c.id]" ng-src='{{img}}' />
+                            </span>
+                            <span ng-if="c.type==='file'" ng-init="files=json2Obj(r.data[c.id])">
+                                <span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                            </span>
+                        </td>
                         <td>{{r.nickname}}</td>
                         <td>{{r.verified}}</td>
                         <td ng-if="app.scenario==='voting'">{{r._score}}</td>
@@ -89,7 +108,6 @@
                         <td ng-if="app.tags.length">{{r.tags}}</td>
                         <td>{{r.comment}}</td>
                         <td ng-if="app.can_invite==='Y'">{{r.follower_num}}</td>
-                        <td ng-if="content.signin==='Y'" ng-repeat="rnd in signinRounds"><span ng-class="{'signin_late':isSigninLate(rnd,r)}">{{signinAt(rnd,r)}}</span></td>
                         <td>
                             <button class='btn btn-xs btn-danger' ng-click='removeRecord(r)'>
                                 <span class='glyphicon glyphicon-remove'></span>
@@ -115,8 +133,9 @@
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
                 <a class='btn btn-success' href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布设置</a>
+                <a class='btn btn-default' href="/rest/pl/fe/matter/enroll/schema?site={{siteId}}&id={{id}}">编辑登记项</a>
                 <a class='btn btn-success' href="/rest/pl/fe/matter/enroll/page?site={{siteId}}&id={{id}}">页面设置</a>
-                <a class='btn btn-success' href="/rest/pl/fe/matter/enroll/stat?site={{siteId}}&id={{id}}" ng-if="app.scenario==='voting'">统计图表</a>
+                <a class='btn btn-success' href="/rest/pl/fe/matter/enroll/stat?site={{siteId}}&id={{id}}" ng-if="app.scenario==='voting'">统计报告</a>
             </form>
             <form class="navbar-form navbar-right" style='display:inline-block'>
                 <button class='btn btn-default' ng-click="remove()">删除活动</button>

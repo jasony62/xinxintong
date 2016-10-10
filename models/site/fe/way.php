@@ -123,9 +123,9 @@ class way_model extends \TMS_MODEL {
 		// 更新cookie信息
 		$cookieUser->_ver = 1;
 		$cookieUser->uid = $siteUser->uid;
-		$cookieUser->nickname = $dbSnsUser->nickname;
 		$cookieUser->expire = time() + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);
 		!isset($cookieUser->sns) && $cookieUser->sns = new \stdClass;
+		$cookieUser->nickname = $dbSnsUser->nickname;
 		$cookieUser->sns->{$snsName} = $dbSnsUser;
 
 		return $cookieUser;

@@ -3,7 +3,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 	/**
 	 * 登记项管理
 	 */
-	ngApp.provider.controller('ctrlSchema', ['$scope', '$q', 'srvPage', '$uibModal', function($scope, $q, srvPage, $uibModal) {
+	ngApp.provider.controller('ctrlSchema', ['$scope', '$q', '$uibModal', 'srvPage', 'srvApp', function($scope, $q, $uibModal, srvPage, srvApp) {
 		$scope.updPage = function(page, names) {
 			return srvPage.update(page, names);
 		};
@@ -25,10 +25,10 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 				}
 			}
 			$scope.app.data_schemas.push(newSchema);
-			$scope.update('data_schemas').then(function() {
+			srvApp.update('data_schemas').then(function() {
 				$scope.app.pages.forEach(function(page) {
 					page.appendSchema(newSchema);
-					$scope.updPage(page, ['data_schemas', 'html']);
+					srvPage.update(page, ['data_schemas', 'html']);
 				});
 			});
 		};
@@ -39,7 +39,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			newSchema.id = schema.id;
 			newSchema.title = schema.title;
 
-			for (i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
+			for (var i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
 				if (newSchema.id === $scope.app.data_schemas[i].id) {
 					alert('不允许重复添加登记项');
 					return;
@@ -47,10 +47,38 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			}
 
 			$scope.app.data_schemas.push(newSchema);
-			$scope.update('data_schemas').then(function() {
+			srvApp.update('data_schemas').then(function() {
 				$scope.app.pages.forEach(function(page) {
 					page.appendSchema(newSchema);
-					$scope.updPage(page, ['data_schemas', 'html']);
+					srvPage.update(page, ['data_schemas', 'html']);
+				});
+			});
+		};
+		$scope.newByOtherApp = function(schema, otherApp) {
+			var newSchema;
+
+			for (var i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
+				if (schema.id === $scope.app.data_schemas[i].id) {
+					alert('不允许重复添加登记项');
+					return;
+				}
+			}
+
+			newSchema = schemaLib.newSchema(schema.type, $scope.app);
+			newSchema.type === 'member' && (newSchema.schema_id = schema.schema_id);
+			newSchema.id = schema.id;
+			newSchema.title = schema.title;
+			newSchema.requireCheck = 'Y';
+			newSchema.fromApp = otherApp.id;
+			if (schema.ops) {
+				newSchema.ops = schema.ops;
+			}
+
+			$scope.app.data_schemas.push(newSchema);
+			srvApp.update('data_schemas').then(function() {
+				$scope.app.pages.forEach(function(page) {
+					page.appendSchema(newSchema);
+					srvPage.update(page, ['data_schemas', 'html']);
 				});
 			});
 		};
@@ -62,10 +90,10 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			afterIndex = $scope.app.data_schemas.indexOf(schema);
 			$scope.app.data_schemas.splice(afterIndex + 1, 0, newSchema);
 
-			$scope.update('data_schemas').then(function() {
+			srvApp.update('data_schemas').then(function() {
 				$scope.app.pages.forEach(function(page) {
 					page.appendSchema(newSchema, schema);
-					$scope.updPage(page, ['data_schemas', 'html']);
+					srvPage.update(page, ['data_schemas', 'html']);
 				});
 			});
 		};
@@ -75,10 +103,10 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 
 			//从应用的定义中删除
 			$scope.app.data_schemas.splice($scope.app.data_schemas.indexOf(removedSchema), 1);
-			$scope.update('data_schemas').then(function() {
+			srvApp.update('data_schemas').then(function() {
 				$scope.app.pages.forEach(function(page) {
 					if (page.removeSchema(removedSchema)) {
-						$scope.updPage(page, ['data_schemas', 'html']);
+						srvPage.update(page, ['data_schemas', 'html']);
 					}
 				});
 				deferred.resolve(removedSchema);
@@ -96,10 +124,102 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			return deferred.promise;
 		};
 	}]);
+	ngApp.provider.controller('ctrlApp', ['$scope', '$uibModal', 'http2', 'srvApp', function($scope, $uibModal, http2, srvApp) {
+		$scope.assignEnrollApp = function() {
+			$uibModal.open({
+				templateUrl: 'assignEnrollApp.html',
+				resolve: {
+					app: function() {
+						return $scope.app;
+					}
+				},
+				controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
+					$scope2.app = app;
+					$scope2.data = {
+						filter: {},
+						source: ''
+					};
+					app.mission && ($scope2.data.sameMission = 'Y');
+					$scope2.cancel = function() {
+						$mi.dismiss();
+					};
+					$scope2.ok = function() {
+						$mi.close($scope2.data);
+					};
+					var url = '/rest/pl/fe/matter/enroll/list?site=' + $scope.siteId + '&size=999';
+					app.mission && (url += '&mission=' + app.mission.id);
+					http2.get(url, function(rsp) {
+						$scope2.apps = rsp.data.apps;
+					});
+				}],
+				backdrop: 'static'
+			}).result.then(function(data) {
+				$scope.app.enroll_app_id = data.source;
+				srvApp.update('enroll_app_id').then(function(rsp) {
+					var app = $scope.app,
+						url = '/rest/pl/fe/matter/enroll/get?site=' + $scope.siteId + '&id=' + app.enroll_app_id;
+					http2.get(url, function(rsp) {
+						rsp.data.data_schemas = JSON.parse(rsp.data.data_schemas);
+						app.enrollApp = rsp.data;
+					});
+				});
+			});
+		};
+		$scope.cancelEnrollApp = function() {
+			var app = $scope.app;
+			app.enroll_app_id = '';
+			srvApp.update('enroll_app_id').then(function() {});
+		};
+		$scope.assignGroupApp = function() {
+			$uibModal.open({
+				templateUrl: 'assignGroupApp.html',
+				resolve: {
+					app: function() {
+						return $scope.app;
+					}
+				},
+				controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
+					$scope2.app = app;
+					$scope2.data = {
+						filter: {},
+						source: ''
+					};
+					app.mission && ($scope2.data.sameMission = 'Y');
+					$scope2.cancel = function() {
+						$mi.dismiss();
+					};
+					$scope2.ok = function() {
+						$mi.close($scope2.data);
+					};
+					var url = '/rest/pl/fe/matter/group/list?site=' + $scope.siteId + '&size=999';
+					app.mission && (url += '&mission=' + app.mission.id);
+					http2.get(url, function(rsp) {
+						$scope2.apps = rsp.data.apps;
+					});
+				}],
+				backdrop: 'static'
+			}).result.then(function(data) {
+				$scope.app.group_app_id = data.source;
+				srvApp.update('group_app_id').then(function(rsp) {
+					var app = $scope.app,
+						url = '/rest/pl/fe/matter/group/get?site=' + $scope.siteId + '&app=' + app.group_app_id;
+					http2.get(url, function(rsp) {
+						rsp.data.data_schemas = JSON.parse(rsp.data.data_schemas);
+						app.groupApp = rsp.data;
+					});
+				});
+			});
+		};
+		$scope.cancelGroupApp = function() {
+			var app = $scope.app;
+			app.group_app_id = '';
+			srvApp.update('group_app_id').then(function() {});
+		};
+	}]);
 	/**
 	 * 应用的所有登记项
 	 */
-	ngApp.provider.controller('ctrlList', ['$scope', '$timeout', function($scope, $timeout) {
+	ngApp.provider.controller('ctrlList', ['$scope', '$timeout', 'srvPage', 'srvApp', function($scope, $timeout, srvPage, srvApp) {
 		function changeSchemaOrder(moved) {
 			$scope.update('data_schemas').then(function() {
 				var app = $scope.app;
@@ -115,7 +235,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			});
 		};
 
-		var mapOfSchemas = {};
+		var schemasById = {};
 
 		$scope.popover = {};
 		$scope.schemaHtml = function(schema) {
@@ -209,11 +329,11 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			}
 			timerOfUpdate = $timeout(function() {
 				// 更新应用的定义
-				$scope.update('data_schemas').then(function() {
+				srvApp.update('data_schemas').then(function() {
 					// 更新页面
 					$scope.app.pages.forEach(function(page) {
 						page.updateSchema(schema);
-						$scope.updPage(page, ['data_schemas', 'html']);
+						srvPage.update(page, ['data_schemas', 'html']);
 					});
 				});
 			}, 1000);
@@ -223,7 +343,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 		};
 		$scope.updConfig = function(prop) {
 			$scope.inputPage.updateSchema($scope.activeSchema);
-			$scope.updPage($scope.inputPage, ['data_schemas', 'html']);
+			srvPage.update($scope.inputPage, ['data_schemas', 'html']);
 		};
 		$scope.$on('schemas.orderChanged', function(e, moved) {
 			changeSchemaOrder(moved);
@@ -240,22 +360,26 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 					schemaId = opNode.getAttribute('state');
 					opIndex = parseInt(opNode.dataset.index);
 					$scope.$apply(function() {
-						$scope.addOption(mapOfSchemas[schemaId], opIndex);
+						$scope.addOption(schemasById[schemaId], opIndex);
 					});
 				}
 			}
 		});
 		$scope.$on('options.orderChanged', function(e, moved, schemaId) {
-			$scope.updSchema(mapOfSchemas[schemaId], 'ops');
+			$scope.updSchema(schemasById[schemaId], 'ops');
 		});
 		$scope.$on('option.xxt.editable.changed', function(e, op, schemaId) {
-			$scope.updSchema(mapOfSchemas[schemaId], 'ops');
+			$scope.updSchema(schemasById[schemaId], 'ops');
 		});
 		$scope.$watch('app', function(app) {
 			if (app) {
 				$scope.appSchemas = $scope.app.data_schemas;
-				$scope.appSchemas.forEach(function(schema) {
-					mapOfSchemas[schema.id] = schema;
+			}
+		});
+		$scope.$watchCollection('app.data_schemas', function(newSchemas, oldSchemas) {
+			if (newSchemas && Object.keys(schemasById).length !== newSchemas.length) {
+				newSchemas.forEach(function(schema) {
+					schemasById[schema.id] = schema;
 				});
 			}
 		});
@@ -288,5 +412,46 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 				})();
 			}
 		}
+	}]);
+	/**
+	 * 导入导出记录
+	 */
+	ngApp.provider.controller('ctrlImport', ['$scope', 'http2', 'noticebox', function($scope, http2, noticebox) {
+		var r = new Resumable({
+			target: '/rest/pl/fe/matter/enroll/import/upload?site=' + $scope.siteId + '&app=' + $scope.id,
+			testChunks: false,
+		});
+		r.assignBrowse(document.getElementById('btnImportRecords'));
+		r.on('fileAdded', function(file, event) {
+			$scope.$apply(function() {
+				noticebox.progress('开始上传文件');
+			});
+			r.upload();
+		});
+		r.on('progress', function(file, event) {
+			$scope.$apply(function() {
+				noticebox.progress('正在上传文件：' + Math.floor(r.progress() * 100) + '%');
+			});
+		});
+		r.on('complete', function() {
+			var f, lastModified, posted;
+			f = r.files.pop().file;
+			lastModified = f.lastModified ? f.lastModified : (f.lastModifiedDate ? f.lastModifiedDate.getTime() : 0);
+			posted = {
+				name: f.name,
+				size: f.size,
+				type: f.type,
+				lastModified: lastModified,
+				uniqueIdentifier: f.uniqueIdentifier,
+			};
+			http2.post('/rest/pl/fe/matter/enroll/import/endUpload?site=' + $scope.siteId + '&app=' + $scope.id, posted, function success(rsp) {});
+		});
+		$scope.options = {
+			overwrite: 'Y'
+		};
+		$scope.downloadTemplate = function() {
+			var url = '/rest/pl/fe/matter/enroll/import/downloadTemplate?site=' + $scope.siteId + '&app=' + $scope.id;
+			window.open(url);
+		};
 	}]);
 });

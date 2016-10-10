@@ -26,14 +26,15 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$n = $this->model('matter\news')->byId($id);
+		$modelNews = $this->model('matter\news');
+		$n = $modelNews->byId($id);
 		$n->uid = $user->id;
 		if ($n->empty_reply_type && $n->empty_reply_id) {
 			$n->emptyReply = $this->model('matter\base')->getMatterInfoById($n->empty_reply_type, $n->empty_reply_id);
 		}
 
 		if ($cascade === 'Y') {
-			$n->matters = $this->model('matter\news')->getMatters($n->id);
+			$n->matters = $modelNews->getMatters($n->id);
 			$n->acl = $this->model('acl')->byMatter($site, 'news', $n->id);
 		}
 
@@ -43,27 +44,34 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function list_action($site, $cascade = 'Y') {
-		$user = $this->accountUser();
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 
 		$options = $this->getPostJson();
+		$modelNews = $this->model('matter\news');
+
 		$q = [
 			'n.*',
 			'xxt_news n',
 			"n.siteid='$site' and n.state=1",
 		];
 		$q2['o'] = 'create_at desc';
-		$news = $this->model()->query_objs_ss($q, $q2);
+		$news = $modelNews->query_objs_ss($q, $q2);
 		/**
 		 * 获得子资源
 		 */
 		if ($news) {
+			$modelBase = $this->model('matter\base');
+			$modelAcl = $this->model('acl');
 			foreach ($news as &$n) {
+				$n->url = $modelNews->getEntryUrl($site, $n->id);
 				if ($n->empty_reply_type && $n->empty_reply_id) {
-					$n->emptyReply = $this->model('matter\base')->getMatterInfoById($n->empty_reply_type, $n->empty_reply_id);
+					$n->emptyReply = $modelBase->getMatterInfoById($n->empty_reply_type, $n->empty_reply_id);
 				}
 				if ($cascade === 'Y') {
-					$n->matters = $this->model('matter\news')->getMatters($n->id);
-					$n->acl = $this->model('acl')->byMatter($site, 'news', $n->id);
+					$n->matters = $modelNews->getMatters($n->id);
+					$n->acl = $modelAcl->byMatter($site, 'news', $n->id);
 				}
 			}
 		}

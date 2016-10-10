@@ -26,18 +26,10 @@ class main extends \pl\fe\matter\base {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$app = $this->model('matter\enroll')->byId($id);
-		/**
-		 * 活动签到回复消息
-		 */
-		if ($app->success_matter_type && $app->success_matter_id) {
-			$m = $this->model('matter\base')->getMatterInfoById($app->success_matter_type, $app->success_matter_id);
-			$app->successMatter = $m;
-		}
-		if ($app->failure_matter_type && $app->failure_matter_id) {
-			$m = $this->model('matter\base')->getMatterInfoById($app->failure_matter_type, $app->failure_matter_id);
-			$app->failureMatter = $m;
-		}
+
+		$modelEnl = $this->model('matter\enroll');
+		$app = $modelEnl->byId($id);
+
 		/* channels */
 		$app->channels = $this->model('matter\channel')->byMatter($id, 'enroll');
 		/* acl */
@@ -48,9 +40,17 @@ class main extends \pl\fe\matter\base {
 		if ($rounds = $this->model('matter\enroll\round')->byApp($site, $id)) {
 			!empty($rounds) && $app->rounds = $rounds;
 		}
-		/*所属项目*/
+		/* 所属项目 */
 		if ($app->mission_id) {
 			$app->mission = $this->model('matter\mission')->byId($app->mission_id, ['cascaded' => 'phase']);
+		}
+		/* 关联登记活动 */
+		if ($app->enroll_app_id) {
+			$app->enrollApp = $modelEnl->byId($app->enroll_app_id);
+		}
+		/* 关联分组活动 */
+		if ($app->group_app_id) {
+			$app->groupApp = $this->model('matter\group')->byId($app->group_app_id);
 		}
 
 		return new \ResponseData($app);
@@ -64,34 +64,37 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$result = ['apps' => null, 'total' => 0];
-		$model = $this->model();
+		$modelApp = $this->model('matter\enroll');
 		$q = [
 			"a.*,'enroll' type",
 			'xxt_enroll a',
 			"state<>0",
 		];
 		if (!empty($mission)) {
-			$q[2] .= " and mission_id=" . $model->escape($mission);
+			$q[2] .= " and mission_id=" . $modelApp->escape($mission);
 		} else {
-			$q[2] .= " and siteid='" . $model->escape($site) . "'";
+			$q[2] .= " and siteid='" . $modelApp->escape($site) . "'";
 		}
 		if (!empty($scenario)) {
-			$q[2] .= " and scenario='" . $model->escape($scenario) . "'";
+			$q[2] .= " and scenario='" . $modelApp->escape($scenario) . "'";
 		}
 		$q2['o'] = 'a.modify_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
-		if ($apps = $model->query_objs_ss($q, $q2)) {
+		if ($apps = $modelApp->query_objs_ss($q, $q2)) {
+			foreach ($apps as &$app) {
+				$app->url = $modelApp->getEntryUrl($site, $app->id);
+			}
 			$result['apps'] = $apps;
 			$q[0] = 'count(*)';
-			$total = (int) $model->query_val_ss($q);
+			$total = (int) $modelApp->query_val_ss($q);
 			$result['total'] = $total;
 		}
 
 		return new \ResponseData($result);
 	}
 	/**
-	 * 创建一个空的登记活动
+	 * 创建登记活动
 	 *
 	 * @param string $site site's id
 	 * @param string $mission mission's id
@@ -173,17 +176,20 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($app);
 	}
 	/**
-	 * 从模版创建一个登记活动
+	 * 从模版创建登记活动
 	 *
+	 * @param string $site
 	 * @param int $template
+	 * @param int $mission
 	 *
 	 * @return object ResponseData
 	 */
-	public function createByOther_action($site, $template) {
+	public function createByOther_action($site, $template, $mission = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
+		$customConfig = $this->getPostJson();
 		$current = time();
 		$modelApp = $this->model('matter\enroll');
 		$modelPage = $this->model('matter\enroll\page');
@@ -192,13 +198,24 @@ class main extends \pl\fe\matter\base {
 		$template = $this->model('template\shop')->byId($template);
 		$aid = $template->matter_id;
 		$copied = $modelApp->byId($aid);
-		$copied->title = $template->title;
-		$copied->summary = $template->summary;
-		$copied->pic = $template->pic;
 
-		/**获得的基本信息*/
 		$newaid = uniqid();
 		$newapp = array();
+		if (empty($mission)) {
+			$newapp['pic'] = $template->pic;
+			$newapp['summary'] = $template->summary;
+			$newapp['use_mission_header'] = 'N';
+			$newapp['use_mission_footer'] = 'N';
+		} else {
+			$modelMis = $this->model('matter\mission');
+			$mission = $modelMis->byId($mission);
+			$newapp['pic'] = $mission->pic;
+			$newapp['summary'] = $mission->summary;
+			$newapp['mission_id'] = $mission->id;
+			$newapp['use_mission_header'] = 'Y';
+			$newapp['use_mission_footer'] = 'Y';
+		}
+		$newapp['title'] = empty($customConfig->proto->title) ? $template->title : $customConfig->proto->title;
 		$newapp['siteid'] = $site;
 		$newapp['id'] = $newaid;
 		$newapp['creater'] = $user->id;
@@ -209,9 +226,6 @@ class main extends \pl\fe\matter\base {
 		$newapp['modifier_src'] = $user->src;
 		$newapp['modifier_name'] = $user->name;
 		$newapp['modify_at'] = $current;
-		$newapp['title'] = $copied->title;
-		$newapp['pic'] = $copied->pic;
-		$newapp['summary'] = $copied->summary;
 		$newapp['scenario'] = $copied->scenario;
 		$newapp['scenario_config'] = $copied->scenario_config;
 		$newapp['count_limit'] = $copied->count_limit;
@@ -355,22 +369,22 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$model = $this->model();
+		$model = $this->model('matter\enroll');
 		/**
 		 * 处理数据
 		 */
-		$nv = (array) $this->getPostJson();
+		$nv = $this->getPostJson();
 		foreach ($nv as $n => $v) {
 			if (in_array($n, ['entry_rule'])) {
-				$nv[$n] = $model->escape(urldecode($v));
+				$nv->$n = $model->escape(urldecode($v));
 			} elseif (in_array($n, ['data_schemas'])) {
-				$nv[$n] = $model->toJson($v);
+				$nv->$n = $model->toJson($v);
 			}
 		}
-		$nv['modifier'] = $user->id;
-		$nv['modifier_src'] = $user->src;
-		$nv['modifier_name'] = $user->name;
-		$nv['modify_at'] = time();
+		$nv->modifier = $user->id;
+		$nv->modifier_src = $user->src;
+		$nv->modifier_name = $user->name;
+		$nv->modify_at = time();
 
 		$rst = $model->update('xxt_enroll', $nv, ["id" => $app]);
 		if ($rst) {

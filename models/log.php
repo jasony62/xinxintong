@@ -33,7 +33,7 @@ class log_model extends TMS_MODEL {
 
 		$r = array();
 		$r['mpid'] = $mpid;
-		$r['msgid'] = $msg['msgid'];
+		!empty($msg['msgid']) && $r['msgid'] = $msg['msgid'];
 		$r['to_user'] = $msg['to_user'];
 		$r['openid'] = $openid;
 		$r['nickname'] = !empty($fan) ? $this->escape($fan->nickname) : '';

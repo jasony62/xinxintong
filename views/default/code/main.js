@@ -1,4 +1,6 @@
-xxtApp.controller('mainCtrl', ['$scope', 'http2', function($scope, http2) {
+xxtApp.controller('mainCtrl', ['$scope', 'http2', '$location',function($scope, http2, $location) {
+    var ls = $location.search();
+    $scope.siteId = ls.site;
     $scope.page = {
         at: 1,
         size: 30
@@ -16,10 +18,10 @@ xxtApp.controller('mainCtrl', ['$scope', 'http2', function($scope, http2) {
     };
     $scope.open = function(pid) {
         if (pid)
-            location.href = '/rest/code?pid=' + pid;
+            location.href = '/rest/pl/fe/code?pid=' + pid;
         else {
-            http2.get('/rest/code/create', function(rsp) {
-                location.href = '/rest/code?pid=' + rsp.data.id;
+            http2.get('/rest/pl/fe/code/create?site=' + $scope.siteId, function(rsp) {
+                location.href = '/rest/pl/fe/code?pid=' + rsp.data.id;
             });
         }
     };

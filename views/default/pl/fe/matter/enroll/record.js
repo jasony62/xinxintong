@@ -29,9 +29,6 @@ define(['frame'], function(ngApp) {
             url += '?site=' + $scope.siteId;
             url += '&app=' + $scope.app.id;
             url += $scope.page.joinParams();
-            if ($scope.content.signin === 'Y') {
-                url += '&includeSignin=Y';
-            }
             http2.post(url, $scope.criteria, function(rsp) {
                 if (rsp.data) {
                     $scope.records = rsp.data.records ? rsp.data.records : [];
@@ -78,42 +75,6 @@ define(['frame'], function(ngApp) {
                 return p;
             }
         };
-        // 是否包含签到数据
-        $scope.content = {
-            signin: 'N'
-        };
-        $scope.signinApps = null;
-        $scope.signinRounds = [];
-        $scope.signinAt = function(round, record) {
-            var signinAt;
-            if (record._signinRecord) {
-                if (record._signinRecord[round._app.id]) {
-                    signinAt = record._signinRecord[round._app.id].signin_log[round.rid];
-                }
-            }
-            if (signinAt === undefined) {
-                return '';
-            } else {
-                signinAt = signinAt * 1000;
-                signinAt = $filter('date')(signinAt, 'MM-dd HH:mm');
-                return signinAt;
-            }
-        };
-        // 当前签到记录是否迟到？
-        $scope.isSigninLate = function(round, record) {
-            var signinAt;
-            if (round.late_at > 0 && record._signinRecord) {
-                if (record._signinRecord[round._app.id]) {
-                    signinAt = record._signinRecord[round._app.id].signin_log[round.rid];
-                    if (signinAt) {
-                        signinAt = parseInt(signinAt);
-                        // 忽略秒的影响
-                        return signinAt > parseInt(round.late_at) + 59;
-                    }
-                }
-            }
-            return false;
-        };
         // 排序规则
         $scope.orderBys = [{
             n: '登记时间',
@@ -152,8 +113,51 @@ define(['frame'], function(ngApp) {
                 return '';
             }
         };
-        $scope.value2Label = function(val, key) {
-            var schemas = $scope.app.data_schemas,
+
+        $scope.value2Label = function(val, schemaId) {
+            var s;
+            if (val === undefined) return '';
+            s = schemasById[schemaId];
+            if (s && s.ops && s.ops.length) {
+                if (s.type === 'score') {
+                    var label = '';
+                    s.ops.forEach(function(op, index) {
+                        label += op.l + ':' + val[op.v] + ' / ';
+                    });
+                    label = label.replace(/\s\/\s$/, '');
+                    return label;
+                } else {
+                    var aVal, aLab = [];
+                    aVal = val.split(',');
+                    s.ops.forEach(function(op, i) {
+                        aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
+                    });
+                    if (aLab.length) return aLab.join(',');
+                }
+            }
+            return val;
+        };
+        $scope.value2Label2 = function(val, key) {
+            var schemas = $scope.app.enrollApp.data_schemas,
+                i, j, s, aVal, aLab = [];
+            if (val === undefined) return '';
+            for (i = 0, j = schemas.length; i < j; i++) {
+                if (schemas[i].id === key) {
+                    s = schemas[i];
+                    break;
+                }
+            }
+            if (s && s.ops && s.ops.length) {
+                aVal = val.split(',');
+                for (i = 0, j = s.ops.length; i < j; i++) {
+                    aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
+                }
+                if (aLab.length) return aLab.join(',');
+            }
+            return val;
+        };
+        $scope.value2Label3 = function(val, key) {
+            var schemas = $scope.app.groupApp.data_schemas,
                 i, j, s, aVal, aLab = [];
             if (val === undefined) return '';
             for (i = 0, j = schemas.length; i < j; i++) {
@@ -200,13 +204,19 @@ define(['frame'], function(ngApp) {
         };
         $scope.editRecord = function(record) {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=1',
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=5',
                 controller: 'ctrlEditor',
                 backdrop: 'static',
                 windowClass: 'auto-height',
                 resolve: {
                     app: function() {
                         return $scope.app;
+                    },
+                    enrollDataSchemas: function() {
+                        return $scope.enrollDataSchemas;
+                    },
+                    groupDataSchemas: function() {
+                        return $scope.groupDataSchemas;
                     },
                     record: function() {
                         record.aid = $scope.id;
@@ -230,12 +240,18 @@ define(['frame'], function(ngApp) {
         };
         $scope.addRecord = function() {
             $uibModal.open({
-                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=1',
+                templateUrl: '/views/default/pl/fe/matter/enroll/component/recordEditor.html?_=5',
                 controller: 'ctrlEditor',
                 windowClass: 'auto-height',
                 resolve: {
                     app: function() {
                         return $scope.app;
+                    },
+                    enrollDataSchemas: function() {
+                        return $scope.enrollDataSchemas;
+                    },
+                    groupDataSchemas: function() {
+                        return $scope.groupDataSchemas;
                     },
                     record: function() {
                         return {
@@ -428,40 +444,8 @@ define(['frame'], function(ngApp) {
 
             url = '/rest/pl/fe/matter/enroll/record/export';
             url += '?site=' + $scope.siteId + '&app=' + $scope.id;
-            if ($scope.content.signin === 'Y') {
-                url += '&includeSignin=Y';
-            }
-
-            http2.post(url, params, function(rsp) {
-                var blob;
-
-                blob = new Blob([rsp.data], {
-                    type: "text/plain;charset=utf-8"
-                });
-
-                saveAs(blob, $scope.app.title + '.csv');
-            });
+            window.open(url);
         };
-        $scope.copyRecords = function() {};
-        (function() {
-            var client = new ZeroClipboard($("#copyRecords"));
-            client.on("copy", function(event) {
-                var clipboard = event.clipboardData,
-                    $table;
-
-                $table = $($('#enrollRecords').html());
-                $table.find('thead>tr>th:first-child').remove();
-                $table.find('tbody>tr>td:first-child').remove();
-                $table.find('thead>tr>th:first-child').remove();
-                $table.find('tbody>tr>td:first-child').remove();
-                $table.find('thead>tr>th:last-child').remove();
-                $table.find('tbody>tr>td:last-child').remove();
-                $table.find('.signin_late').css('color', 'red');
-
-                clipboard.setData("text/html", '<table>' + $table.html() + '</table>');
-                noticebox.success('完成数据复制');
-            });
-        })();
         $scope.countSelected = function() {
             var count = 0;
             for (var p in $scope.rows.selected) {
@@ -486,6 +470,8 @@ define(['frame'], function(ngApp) {
                 $scope.rows.selected = {};
             }
         });
+        var schemasById = {};
+
         $scope.tmsTableWrapReady = 'N'; // 表格定义是否已经准备完毕
         $scope.$watch('app', function(app) {
             if (!app) return;
@@ -496,26 +482,28 @@ define(['frame'], function(ngApp) {
             });
             $scope.mapOfSchemaByType = mapOfSchemaByType;
             $scope.tmsTableWrapReady = 'Y';
-            $scope.doSearch();
-            // 显示扩展内容
-            $scope.$watch('content', function(content) {
-                if (content) {
-                    if (content.signin === 'Y') {
-                        if ($scope.signinApps === null) {
-                            http2.get('/rest/pl/fe/matter/signin/listByEnroll?site=' + $scope.siteId + '&enroll=' + $scope.id, function(rsp) {
-                                $scope.signinApps = rsp.data;
-                                rsp.data.forEach(function(signinApp) {
-                                    signinApp.rounds.forEach(function(round) {
-                                        round._app = signinApp;
-                                    });
-                                    $scope.signinRounds = $scope.signinRounds.concat(signinApp.rounds);
-                                });
-                            });
-                        }
+            app.data_schemas.forEach(function(schema) {
+                schemasById[schema.id] = schema;
+            });
+            // 关联的登记活动的登记项
+            if (app.enrollApp && app.enrollApp.data_schemas) {
+                $scope.enrollDataSchemas = [];
+                app.enrollApp.data_schemas.forEach(function(item) {
+                    if (schemasById[item.id] === undefined) {
+                        $scope.enrollDataSchemas.push(item);
                     }
-                    $scope.doSearch();
-                }
-            }, true);
+                });
+            }
+            // 关联的分组活动的登记项
+            if (app.groupApp && app.groupApp.data_schemas) {
+                $scope.groupDataSchemas = [];
+                app.groupApp.data_schemas.forEach(function(item) {
+                    if (schemasById[item.id] === undefined) {
+                        $scope.groupDataSchemas.push(item);
+                    }
+                });
+            }
+            $scope.doSearch();
         });
     }]);
     ngApp.provider.directive('flexImg', function() {
@@ -580,7 +568,7 @@ define(['frame'], function(ngApp) {
             $mi.dismiss('cancel');
         };
     }]);
-    ngApp.provider.controller('ctrlEditor', ['$scope', '$uibModalInstance', '$sce', 'app', 'record', function($scope, $uibModalInstance, $sce, app, record) {
+    ngApp.provider.controller('ctrlEditor', ['$scope', '$uibModalInstance', '$sce', 'http2', 'app', 'enrollDataSchemas', 'groupDataSchemas', 'record', function($scope, $uibModalInstance, $sce, http2, app, enrollDataSchemas, groupDataSchemas, record) {
         var p, col, files;
         if (record.data) {
             for (p in app.data_schemas) {
@@ -613,6 +601,8 @@ define(['frame'], function(ngApp) {
             }
         }
         $scope.app = app;
+        $scope.enrollDataSchemas = enrollDataSchemas;
+        $scope.groupDataSchemas = groupDataSchemas;
         $scope.record = record;
         $scope.record.aTags = (!record.tags || record.tags.length === 0) ? [] : record.tags.split(',');
         $scope.aTags = app.tags;
@@ -627,13 +617,23 @@ define(['frame'], function(ngApp) {
             record.comment && (p.comment = record.comment);
             p.verified = record.verified;
 
-            angular.forEach($scope.app.data_schemas, function(col) {
-                p.data[col.id] = $scope.record.data[col.id];
-            });
+            //angular.forEach($scope.app.data_schemas, function(col) {
+            //    p.data[col.id] = $scope.record.data[col.id];
+            //});
+            p.data = $scope.record.data;
             $uibModalInstance.close([p, $scope.aTags]);
         };
         $scope.cancel = function() {
             $uibModalInstance.dismiss('cancel');
+        };
+        $scope.scoreRangeArray = function(schema) {
+            var arr = [];
+            if (schema.range && schema.range.length === 2) {
+                for (var i = schema.range[0]; i <= schema.range[1]; i++) {
+                    arr.push('' + i);
+                }
+            }
+            return arr;
         };
         $scope.chooseImage = function(imgFieldName, count, from) {
             var data = $scope.record.data;
@@ -691,5 +691,39 @@ define(['frame'], function(ngApp) {
         $scope.$on('tag.xxt.combox.del', function(event, removed) {
             $scope.record.aTags.splice($scope.record.aTags.indexOf(removed), 1);
         });
+        $scope.syncByEnroll = function() {
+            var url;
+
+            url = '/rest/pl/fe/matter/enroll/record/matchEnroll';
+            url += '?site=' + app.siteid;
+            url += '&app=' + app.id;
+
+            http2.post(url, $scope.record.data, function(rsp) {
+                var matched;
+                if (rsp.data && rsp.data.length === 1) {
+                    matched = rsp.data[0];
+                    angular.extend(record.data, matched);
+                } else {
+                    alert('没有找到匹配的记录，请检查数据是否一致');
+                }
+            });
+        };
+        $scope.syncByGroup = function() {
+            var url;
+
+            url = '/rest/pl/fe/matter/enroll/record/matchGroup';
+            url += '?site=' + app.siteid;
+            url += '&app=' + app.id;
+
+            http2.post(url, $scope.record.data, function(rsp) {
+                var matched;
+                if (rsp.data && rsp.data.length === 1) {
+                    matched = rsp.data[0];
+                    angular.extend(record.data, matched);
+                } else {
+                    alert('没有找到匹配的记录，请检查数据是否一致');
+                }
+            });
+        };
     }]);
 });

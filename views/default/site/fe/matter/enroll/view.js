@@ -169,6 +169,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
     ngApp.controller('ctrlRecords', ['$scope', 'Record', 'ls', function($scope, Record, LS) {
         var facRecord, options, fnFetch,
             schemas = $scope.app.data_schemas;
+
         $scope.value2Label = function(record, key) {
             var val, i, j, s, aVal, aLab = [];
             if (schemas && record.data) {
@@ -225,20 +226,20 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
         $scope.options = options;
         $scope.fetch = fnFetch;
     }]);
-    ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', function($scope, Record, LS) {
+    ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scope, Record, LS, $sce) {
         var facRecord,
-            schemas = $scope.app.data_schemas;
-        $scope.value2Label = function(key) {
+            schemas = $scope.app.data_schemas,
+            schemasById = {};
+
+        schemas.forEach(function(schema) {
+            schemasById[schema.id] = schema;
+        });
+        $scope.value2Label = function(schemaId) {
             var val, i, j, s, aVal, aLab = [];
             if (schemas && facRecord.current.data) {
-                val = facRecord.current.data[key];
+                val = facRecord.current.data[schemaId];
                 if (val === undefined) return '';
-                for (i = 0, j = schemas.length; i < j; i++) {
-                    if (schemas[i].id === key) {
-                        s = schemas[i];
-                        break;
-                    }
-                }
+                s = schemasById[schemaId];
                 if (s && s.ops && s.ops.length) {
                     aVal = val.split(',');
                     for (i = 0, j = s.ops.length; i < j; i++) {
@@ -250,6 +251,21 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
             } else {
                 return '';
             }
+        };
+        $scope.score2Html = function(schemaId) {
+            var label = '',
+                schema = schemasById[schemaId],
+                val;
+
+            if (schema && facRecord.current.data) {
+                val = facRecord.current.data[schemaId];
+                if (schema.ops && schema.ops.length) {
+                    schema.ops.forEach(function(op, index) {
+                        label += '<div>' + op.l + ': ' + (val[op.v] ? val[op.v] : 0) + '</div>';
+                    });
+                }
+            }
+            return $sce.trustAsHtml(label);
         };
         $scope.editRecord = function(event, page) {
             page ? $scope.gotoPage(event, page, facRecord.current.enroll_key) : alert('没有指定登记编辑页');

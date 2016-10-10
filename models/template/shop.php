@@ -23,7 +23,7 @@ class shop_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function &byMatter($matterId, $matterType, $options = []) {
+	public function &getMatter($matterId, $matterType, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 
 		$q = [
@@ -43,7 +43,7 @@ class shop_model extends \TMS_MODEL {
 	 */
 	public function putMatter($siteId, $account, $matter, $options = array()) {
 		if (isset($matter->id) && $matter->id) {
-			/*更新模板*/
+			// 更新模板
 			$current = time();
 
 			$item = [
@@ -58,23 +58,33 @@ class shop_model extends \TMS_MODEL {
 				["siteid" => $siteId, "matter_type" => $matter->matter_type, "matter_id" => $matter->matter_id]
 			);
 		} else {
-			/*新建模板*/
+			// 新建模板
 			$current = time();
 
-			$item = array(
+			$item = [
 				'creater' => $account->id,
 				'creater_name' => $account->name,
 				'put_at' => $current,
 				'siteid' => $siteId,
 				'matter_type' => $matter->matter_type,
 				'matter_id' => $matter->matter_id,
+				'scenario' => empty($matter->scenario) ? '' : $matter->scenario,
 				'title' => $matter->title,
 				'pic' => $matter->pic,
 				'summary' => $matter->summary,
 				'visible_scope' => $matter->visible_scope,
-			);
+			];
+
 			$id = $this->insert('xxt_shop_matter', $item, true);
 			$item = $this->byId($id);
+
+			// 添加模板接收人
+			if (!empty($matter->acls)) {
+				$modelAcl = \TMS_APP::M('template\acl');
+				foreach ($matter->acls as $acl) {
+					$acl = $modelAcl->add($account, $item, $acl);
+				}
+			}
 		}
 
 		return $item;

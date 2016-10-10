@@ -47,11 +47,11 @@ class main extends \pl\fe\matter\base {
 		/**
 		 * 素材的来源
 		 */
-		$q = array(
+		$q = [
 			"c.*",
 			'xxt_channel c',
 			"c.siteid='$site' and c.state=1",
-		);
+		];
 		!empty($acceptType) && $q[2] .= " and (matter_type='' or matter_type='$acceptType')";
 		$q2['o'] = 'create_at desc';
 		$channels = $this->model()->query_objs_ss($q, $q2);
@@ -60,6 +60,7 @@ class main extends \pl\fe\matter\base {
 			$modelChn = $this->model('matter\channel');
 			$modelAcl = $this->model('acl');
 			foreach ($channels as $c) {
+				$c->url = $modelChn->getEntryUrl($site, $c->id);
 				$c->matters = $modelChn->getMatters($c->id, $c, $site);
 				$c->acl = $modelAcl->byMatter($site, 'channel', $c->id);
 			}

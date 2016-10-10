@@ -23,11 +23,11 @@ class main extends \pl\fe\matter\base {
 	/**
 	 *
 	 */
-	public function get_action($id) {
+	public function get_action($site, $id) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$mission = $this->model('matter\mission')->byId($id);
+		$mission = $this->model('matter\mission')->byId($id, ['cascaded' => 'header_page_name,footer_page_name']);
 
 		return new \ResponseData($mission);
 	}

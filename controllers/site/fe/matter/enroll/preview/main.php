@@ -146,7 +146,7 @@ class main extends \TMS_CONTROLLER {
 				$page = $rule->entry;
 				break;
 			}
-		} else if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
+		} else if (isset($entryRule->scope) && $entryRule->scope === 'sns' && !empty($entryRule->sns)) {
 			foreach ($entryRule->sns as $snsName => $rule) {
 				$page = $rule->entry;
 				break;

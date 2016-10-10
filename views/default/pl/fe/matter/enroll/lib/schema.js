@@ -8,19 +8,15 @@ define([], function() {
 		},
 		prefab = {
 			'name': {
-				id: 'name',
 				title: '姓名'
 			},
 			'mobile': {
-				id: 'mobile',
 				title: '手机'
 			},
 			'email': {
-				id: 'email',
 				title: '邮箱'
 			},
 			'phase': {
-				id: 'phase',
 				title: '项目阶段'
 			}
 		};
@@ -61,14 +57,21 @@ define([], function() {
 		},
 		newSchema: function(type, app, proto) {
 			var schema = angular.copy(base);
+
+			schema.id = (proto && proto.id) ? proto.id : 's' + (new Date() * 1);
 			schema.type = type;
 			if (prefab[type]) {
-				schema.id = (proto && proto.id) ? proto.id : prefab[type].id;
-				schema.title = (proto && proto.title) ? proto.title : prefab[type].title;
+				var countOfType = 0;
+				app.data_schemas.forEach(function(schema) {
+					if (schema.type === type) {
+						countOfType++;
+					}
+				});
+				schema.title = (proto && proto.title) ? proto.title : (prefab[type].title + (++countOfType));
 				if (type === 'phase') {
 					schema.ops = [];
 					if (app.mission && app.mission.phases) {
-						angular.forEach(app.mission.phases, function(phase) {
+						app.mission.phases.forEach(function(phase) {
 							schema.ops.push({
 								l: phase.title,
 								v: phase.phase_id
@@ -77,8 +80,7 @@ define([], function() {
 					}
 				}
 			} else {
-				schema.id = (proto && proto.id) ? proto.id : 'c' + (new Date() * 1);
-				schema.title = (proto && proto.title) ? proto.title : '新登记项';
+				schema.title = (proto && proto.title) ? proto.title : ('登记项' + app.data_schemas.length);
 				if (type === 'single' || type === 'multiple') {
 					schema.ops = [{
 						l: '选项1',
@@ -89,6 +91,15 @@ define([], function() {
 					}];
 				} else if (type === 'image' || type === 'file') {
 					schema.count = 1;
+				} else if (type === 'score') {
+					schema.range = [1, 5];
+					schema.ops = [{
+						l: '打分项1',
+						v: 'v1',
+					}, {
+						l: '打分项2',
+						v: 'v2',
+					}];
 				}
 			}
 

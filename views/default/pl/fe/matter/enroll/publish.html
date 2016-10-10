@@ -1,31 +1,23 @@
 <div id='publish-view' class='row'>
     <!-- app -->
-    <div class='col-md-12 app' ng-controller="ctrlApp">
-        <nav class="navbar navbar-default">
-            <div class="container-fluid">
-                <div class="navbar-form navbar-left" ng-if="!app.mission">
-                    <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
-                </div>
-                <div class="navbar-form navbar-left">
-                    <div class='form-group'>
-                        <label>标题</label>
-                        <input type='text' class='form-control' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
-                    </div>
-                    <div class='form-group' ng-if="app.mission.multi_phase==='Y'">
-                        <label>项目阶段</label>
-                        <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in phases">
-                        </select>
-                    </div>
-                </div>
-                <div class="navbar-form navbar-right">
-                    <button uib-popover-template="'appSetting.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="高级设置" popover-trigger="outsideClick" type="button" class="btn btn-default">高级设置 <span class="caret"></span></button>
-                </div>
-            </div>
-        </nav>
-    </div>
-    <!-- end app -->
-    <!-- app -->
     <div class='col-md-3' ng-controller="ctrlApp">
+        <div class='tile'>
+            <div class='form-group compact' ng-if="!app.mission">
+                <button class='btn btn-success btn-block' ng-click="assignMission()">指定项目</button>
+            </div>
+            <div class='form-group compact'>
+                <label>活动标题</label>
+                <input type='text' class='form-control' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+            </div>
+            <div class='form-group compact' ng-if="app.mission.multi_phase==='Y'">
+                <label>项目阶段</label>
+                <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in phases">
+                </select>
+            </div>
+            <div class="form-group">
+                <button uib-popover-template="'appSetting.html'" popover-append-to-body='true' popover-placement="bottom" popover-trigger="outsideClick" type="button" class="btn btn-default">高级设置 <span class="caret"></span></button>
+            </div>
+        </div>
         <div class='tile' ng-if="app.scenarioConfig.can_period!=='D'">
             <div class='form-group compact'>
                 <label>登记开始时间</label>
@@ -70,7 +62,7 @@
                 </div>
             </div>
         </div>
-        <div class="panel panel-default">
+        <div class="panel panel-default hide">
             <div class="panel-heading">模拟用户打开时间</div>
             <div class="panel-body">
                 <div class='radio'>
@@ -87,13 +79,20 @@
     </div>
      <!-- end app -->
     <!-- preview -->
-    <div class='col-md-5' style='text-align:center' ng-controller="ctrlPreview">
-        <h5>页面预览</h5>
-        <iframe id='simulator' ng-src={{previewURL}}></iframe>
+    <div class='col-md-6' ng-controller="ctrlPreview">
+        <div id='simulator'>
+            <iframe ng-src={{previewURL}}></iframe>
+        </div>
+        <div id='simulatorActions'>
+            <a class='btn btn-default btn-block' href="/rest/pl/fe/matter/enroll/schema?site={{siteId}}&id={{id}}">修改登记项</a>
+            <button class='btn btn-default btn-block' ng-disabled="!params.hasPrev" ng-click="prevPage()">上一页</button>
+            <button class='btn btn-default btn-block' ng-disabled="!params.hasNext" ng-click="nextPage()">下一页</button>
+            <a class='btn btn-default btn-block' href="/rest/pl/fe/matter/enroll/page?site={{siteId}}&id={{id}}">编辑页面</a>
+        </div>
     </div>
     <!-- end preview -->
     <!-- publish -->
-    <div class='col-md-4'>
+    <div class='col-md-3'>
         <div class='tile records' ng-if="!app.rounds">
             <div class='help-block'>
                 <span>已登记数量</span>
@@ -148,7 +147,7 @@
             </div>
         </div>
         <div class="panel panel-default">
-            <div class="panel-heading">登记链接</div>
+            <div class="panel-heading">用户登记链接</div>
             <div class="panel-body">
                 <div class='input-group'>
                     <input class='form-control' readonly value="{{entry.url}}">
@@ -158,18 +157,27 @@
                 </div>
             </div>
         </div>
+        <div class="panel panel-default" ng-controller="ctrlOpUrl">
+            <div class="panel-heading">活动管理员链接</div>
+            <div class="panel-body">
+                <div class='form-group'>
+                    <div class='input-group'>
+                        <input class='form-control' readonly value="{{opEntry.url}}">
+                        <span class='input-group-btn'>
+                            <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opEntry.url}}">复制</button>
+                        </span>
+                    </div>
+                </div>
+                <button class='btn btn-default' ng-if="!opEntry.url.length" ng-click="makeOpUrl()">生成</button>
+                <button class='btn btn-default' ng-if="opEntry.url.length" ng-click="closeOpUrl()">关闭</button>
+                <button uib-popover-template="'opUrlPasswd.html'" popover-append-to-body='true' popover-placement="bottom" popover-title="访问密码" popover-trigger="outsideClick" type="button" class="btn btn-default" class='btn btn-default' ng-if="opEntry.url.length">密码 <span class="caret"></span></button>
+            </div>
+        </div>
         <div class="panel panel-default">
             <div class="panel-heading">登记二维码</div>
             <div class="panel-body">
                 <span><img id='entryQrcode' ng-src="{{entry.qrcode}}"></span>
                 <button class='btn btn-default' ng-click="downloadQrcode(entry.qrcode)">下载</button>
-            </div>
-        </div>
-        <div class="panel panel-default hide">
-            <div class="panel-heading">投影地址</div>
-            <div class="panel-body">
-                <div class='form-control' style='overflow:hidden;white-space:nowrap;' ng-bind="opUrl"></div>
-                <button class='btn btn-default text2Clipboard' data-clipboard-text="{{opUrl}}">复制</button>
             </div>
         </div>
         <!-- access rule -->
@@ -303,11 +311,8 @@
     <nav class="navbar navbar-default navbar-fixed-bottom">
         <div class="container-fluid" style='text-align:center'>
             <form class="navbar-form" style='display:inline-block'>
-                <a class='btn btn-default' href="/rest/pl/fe/matter/enroll/schema?site={{siteId}}&id={{id}}">编辑登记项</a>
-                <a class='btn btn-default' href="/rest/pl/fe/matter/enroll/page?site={{siteId}}&id={{id}}">编辑页面</a>
                 <a class='btn btn-success' href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}">查看数据</a>
-                <button class='btn btn-success' ng-click="shareAsTemplate()">保存为模版</button>
-                
+                <button class='btn btn-default' ng-click="shareAsTemplate()">保存为模版</button>
             </form>
             <form class="navbar-form navbar-right" style='display:inline-block'>
                 <button class='btn btn-default' ng-click="remove()">删除活动</button>
@@ -348,36 +353,48 @@
         </div>
     <div>
 </script>
-<script type="text/ng-template " id="roundEditor.html ">
-    <div class="modal-header ">
-        <button class="close " type="button " ng-click="close() ">×</button>
+<script type="text/ng-template" id="roundEditor.html ">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="close()">×</button>
         <h5 class="modal-title ">轮次</h5>
     </div>
     <div class="modal-body ">
-        <form class="form-horizontal ">
-            <div class="form-group ">
-                <label class="col-md-2 control-label ">名称</label>
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label class="col-md-2 control-label">名称</label>
                 <div class="col-md-10 ">
-                    <input type='text' class="form-control " ng-model='round.title'>
+                    <input type='text' class="form-control" ng-model='round.title'>
                 </div>
             </div>
-            <div class="form-group ">
-                <label class="col-md-2 control-label ">状态</label>
-                <div class="col-md-10 ">
-                    <p class="form-control-static ">{{roundState[round.state]}}</p>
+            <div class="form-group">
+                <label class="col-md-2 control-label">状态</label>
+                <div class="col-md-10">
+                    <p class="form-control-static">{{roundState[round.state]}}</p>
                 </div>
             </div>
         </form>
     </div>
-    <div class="modal-footer ">
-        <button class="btn btn-danger pull-left " ng-click="remove() " ng-if='round.rid&&round.state==0'>删除</button>
-        <button class="btn btn-success pull-left " ng-click="start() " ng-if='round.state==0'>启用</button>
-        <button class="btn btn-success pull-left " ng-click="stop() " ng-if='round.state==1'>停用</button>
-        <button class="btn btn-success " ng-click="ok() ">保存</button>
+    <div class="modal-footer">
+        <button class="btn btn-danger pull-left" ng-click="remove()" ng-if='round.rid&&round.state==0'>删除</button>
+        <button class="btn btn-success pull-left" ng-click="start()" ng-if='round.state==0'>启用</button>
+        <button class="btn btn-success pull-left" ng-click="stop()" ng-if='round.state==1'>停用</button>
+        <button class="btn btn-success" ng-click="ok() ">保存</button>
     </div>
 </script>
 <script type="text/ng-template" id="joinQrcode.html">
     <div style="width:200px">
         <img ng-src="{{qrcodeURL}}" style="width:100%">
+    <div>
+</script>
+<script type="text/ng-template" id="opUrlPasswd.html">
+    <div id="opUrlPasswd">
+        <div class='form-group'>
+            <div class='input-group'>
+                <input class='form-control' ng-model="opEntry.password">
+                <span class='input-group-btn'>
+                    <button class='btn btn-default' ng-click="configOpUrl($event,'password')">设置</button>
+                </span>
+            </div>
+        </div>
     <div>
 </script>

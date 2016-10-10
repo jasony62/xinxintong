@@ -4,12 +4,15 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
         var deferred;
         deferred = $q.defer();
         $uibModal.open({
-            templateUrl: '/static/template/templateShop.html?_=4',
+            templateUrl: '/static/template/templateShop.html?_=5',
             backdrop: 'static',
             size: 'lg',
             windowClass: 'auto-height',
             controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                 $scope.source = 'platform';
+                $scope.criteria = {
+                    scope: 'A'
+                };
                 $scope.page = {
                     size: 10,
                     at: 1,
@@ -85,10 +88,16 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                         elSimulator.contentWindow.renew(page, config);
                     }
                 };
-                http2.get('/rest/pl/fe/template/shop/list?matterType=' + type, function(rsp) {
-                    $scope.templates = rsp.data.templates;
-                    $scope.page.total = rsp.data.total;
-                });
+                $scope.searchTemplate = function() {
+                    var url = '/rest/pl/fe/template/shop/list?matterType=' + type + '&scope=' + $scope.criteria.scope;
+                    if (assignedScenario && assignedScenario.length) {
+                        url += '&scenario=' + assignedScenario;
+                    }
+                    http2.get(url, function(rsp) {
+                        $scope.templates = rsp.data.templates;
+                        $scope.page.total = rsp.data.total;
+                    });
+                };
                 switch (type) {
                     case 'enroll':
                         http2.get('/rest/pl/fe/matter/enroll/template/list', function(rsp) {
@@ -108,6 +117,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                         });
                         break;
                 }
+                $scope.searchTemplate();
             }],
         }).result.then(function(data) {
             deferred.resolve(data);
@@ -118,14 +128,33 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
         var deferred;
         deferred = $q.defer();
         $uibModal.open({
-            templateUrl: '/static/template/templateShare.html?_=3',
+            templateUrl: '/static/template/templateShare.html?_=5',
             controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                 $scope.data = {};
+                $scope.params = {};
                 $scope.cancel = function() {
                     $mi.dismiss();
                 };
                 $scope.ok = function() {
                     $mi.close($scope.data);
+                };
+                $scope.addReceiver = function() {
+                    http2.get('/rest/pl/fe/template/acl/add?label=' + $scope.params.label + '&matter=' + matter.id + ',' + matter.type, function(rsp) {
+                        if ($scope.data.acls === undefined) {
+                            $scope.data.acls = [];
+                        }
+                        $scope.data.acls.push(rsp.data);
+                        $scope.params.label = '';
+                    });
+                };
+                $scope.removeReceiver = function(acl) {
+                    if (acl.id) {
+                        http2.get('/rest/pl/fe/template/acl/remove?acl=' + acl.id, function(rsp) {
+                            $scope.data.acls.splice($scope.data.acls.indexOf(acl));
+                        });
+                    } else {
+                        $scope.data.acls.splice($scope.data.acls.indexOf(acl));
+                    }
                 };
                 http2.get('/rest/pl/fe/template/shop/get?matterType=' + matter.type + '&matterId=' + matter.id, function(rsp) {
                     if (rsp.data) {
@@ -133,6 +162,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                     } else {
                         $scope.data.matter_type = matter.type;
                         $scope.data.matter_id = matter.id;
+                        matter.scenario && ($scope.data.scenario = matter.scenario);
                         $scope.data.title = matter.title;
                         $scope.data.summary = matter.summary;
                         $scope.data.pic = matter.pic;

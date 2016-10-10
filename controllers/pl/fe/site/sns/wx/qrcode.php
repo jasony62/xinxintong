@@ -97,7 +97,11 @@ class qrcode extends \pl\fe\base {
 		$d['siteid'] = $snsSiteId;
 		$d['scene_id'] = $qrcode->scene_id;
 		$d['create_at'] = $current;
-		$d['expire_at'] = $current + $expire;
+		if (empty($expire)) {
+			$d['expire_at'] = 0;
+		} else {
+			$d['expire_at'] = $current + $expire;
+		}
 		$d['pic'] = $qrcode->pic;
 		if (!empty($matter_type) && !empty($matter_id)) {
 			$d['matter_type'] = $matter_type;

@@ -266,35 +266,27 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$q = array(
+		$q = [
 			"a.*,'{$user->id}' uid",
 			'xxt_article a',
-			"a.state=1 and a.id=$id",
-		);
+			["a.state" => 1, "a.id" => $id],
+		];
 		if (($article = $this->model()->query_obj_ss($q)) && $cascade === 'Y') {
-			/**
-			 * channels
-			 */
+			/* channels */
 			$article->channels = $this->model('matter\channel')->byMatter($id, 'article');
-			/**
-			 * tags
-			 */
+			/* tags */
 			$modelTag = $this->model('tag');
 			$article->tags = $modelTag->tagsByRes($article->id, 'article', 0);
 			$article->tags2 = $modelTag->tagsByRes($article->id, 'article', 1);
-			/**
-			 * acl
-			 */
+			/* acl */
 			$article->acl = $this->model('acl')->byMatter($site, 'article', $id);
-			/**
-			 * attachments
-			 */
+			/* attachments */
 			if ($article->has_attachment === 'Y') {
 				$article->attachments = $this->model()->query_objs_ss(array('*', 'xxt_article_attachment', "article_id='$id'"));
 			}
-			/*所属项目*/
+			/* 所属项目 */
 			if ($article->mission_id) {
-				$article->mission = $this->model('matter\mission')->byMatter($site, $id, 'article');
+				$article->mission = $this->model('matter\mission')->byId($article->mission_id);
 			}
 		}
 

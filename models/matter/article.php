@@ -302,7 +302,7 @@ class article_model extends article_base {
 		$articles=json_encode($articles);
 		$articles=json_decode($articles,1);
 		//内容标签
-		$q3="select * from xxt_article_tag t left join xxt_tag g on t.tag_id=g.id where t.mpid='$site' ";	
+		$q3="select * from xxt_article_tag t left join xxt_tag g on t.tag_id=g.id where t.mpid='$site' and t.sub_type=0";	
 		$tag_content=parent::query_objs($q3);
 
 		//频道标签

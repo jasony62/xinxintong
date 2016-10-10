@@ -1,7 +1,7 @@
 define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 	'use strict';
 	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'service.signin', 'tinymce.enroll', 'ui.xxt']);
-	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider) {
+	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvAppProvider', 'srvPageProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvAppProvider, srvPageProvider) {
 		var RouteParam = function(name) {
 			var baseURL = '/views/default/pl/fe/matter/signin/';
 			this.templateUrl = baseURL + name + '.html?_=' + ((new Date()) * 1);
@@ -33,38 +33,29 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 		$uibTooltipProvider.setTriggers({
 			'show': 'hide'
 		});
+
+		//设置服务参数
+		(function() {
+			var ls, siteId, appId;
+			ls = location.search;
+			siteId = ls.match(/[\?&]site=([^&]*)/)[1];
+			appId = ls.match(/[\?&]id=([^&]*)/)[1];
+			//
+			srvAppProvider.setSiteId(siteId);
+			srvAppProvider.setAppId(appId);
+			//
+			srvPageProvider.setSiteId(siteId);
+			srvPageProvider.setAppId(appId);
+		})();
 	}]);
-	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'noticebox', function($scope, $location, $uibModal, $q, http2, noticebox) {
-		var ls = $location.search(),
-			modifiedData = {};
+	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'srvApp', function($scope, $location, $uibModal, $q, http2, srvApp) {
+		var ls = $location.search();
+
 		$scope.id = ls.id;
 		$scope.siteId = ls.site;
-		$scope.modified = false;
-		$scope.back = function() {
-			history.back();
-		};
-		$scope.submit = function() {
-			var defer = $q.defer();
-			http2.post('/rest/pl/fe/matter/signin/update?site=' + $scope.siteId + '&app=' + $scope.id, modifiedData, function(rsp) {
-				$scope.modified = false;
-				modifiedData = {};
-				defer.resolve(rsp.data);
-				noticebox.success('完成保存');
-			});
-			return defer.promise;
-		};
-		$scope.update = function(names) {
-			angular.isString(names) && (names = [names]);
-			angular.forEach(names, function(name) {
-				if (name === 'tags') {
-					modifiedData.tags = $scope.app.tags.join(',');
-				} else {
-					modifiedData[name] = $scope.app[name];
-				}
-			});
-			$scope.modified = true;
 
-			return $scope.submit();
+		$scope.update = function(names) {
+			return srvApp.update(names);
 		};
 		$scope.remove = function() {
 			if (window.confirm('确定删除？')) {
@@ -94,38 +85,14 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 			}).result.then(function(options) {
 				http2.post('/rest/pl/fe/matter/signin/page/add?site=' + $scope.siteId + '&app=' + $scope.id, options, function(rsp) {
 					var page = rsp.data;
-					angular.extend(page, pageLib);
-					page.arrange();
+					pageLib.enhance(page);
+					page.arrange($scope.mapOfAppSchemas);
 					$scope.app.pages.push(page);
 					deferred.resolve(page);
 				});
 			});
 
 			return deferred.promise;
-		};
-		$scope.getApp = function() {
-			http2.get('/rest/pl/fe/matter/signin/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
-				var app = rsp.data,
-					mapOfAppSchemas = {};
-
-				app.tags = (!app.tags || app.tags.length === 0) ? [] : app.tags.split(',');
-				app.type = 'signin';
-				app.data_schemas = app.data_schemas && app.data_schemas.length ? JSON.parse(app.data_schemas) : [];
-				angular.forEach(app.data_schemas, function(schema) {
-					schemaLib._upgrade(schema);
-					mapOfAppSchemas[schema.id] = schema;
-				});
-				app.entry_rule.scope === undefined && (app.entry_rule.scope = 'none');
-				angular.forEach(app.pages, function(page) {
-					pageLib.enhance(page);
-					page.arrange(mapOfAppSchemas);
-				});
-				if (app.enrollApp && app.enrollApp.data_schemas) {
-					app.enrollApp.data_schemas = JSON.parse(app.enrollApp.data_schemas);
-				}
-				$scope.app = app;
-				$scope.url = 'http://' + location.host + '/rest/site/fe/matter/signin?site=' + $scope.siteId + '&app=' + $scope.id;
-			});
 		};
 		$scope.summaryOfRecords = function() {
 			var deferred = $q.defer(),
@@ -142,7 +109,7 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 		});
 		http2.get('/rest/pl/fe/site/member/schema/list?valid=Y&site=' + $scope.siteId, function(rsp) {
 			$scope.memberSchemas = rsp.data;
-			angular.forEach(rsp.data, function(ms) {
+			rsp.data.forEach(function(ms) {
 				var schemas = [];
 				if (ms.attr_name[0] === '0') {
 					schemas.push({
@@ -177,7 +144,21 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 				ms._schemas = schemas;
 			});
 		});
-		$scope.getApp();
+		$scope.mapOfAppSchemas = {};
+		srvApp.get().then(function(app) {
+			// 将页面的schema指向应用的schema
+			app.data_schemas.forEach(function(schema) {
+				schemaLib._upgrade(schema);
+				$scope.mapOfAppSchemas[schema.id] = schema;
+			});
+			app.pages.forEach(function(page) {
+				pageLib.enhance(page);
+				page.arrange($scope.mapOfAppSchemas);
+			});
+			$scope.app = app;
+			app.__schemasOrderConsistent = 'Y'; //页面上登记项显示顺序与定义顺序一致
+			$scope.url = 'http://' + location.host + '/rest/site/fe/matter/signin?site=' + $scope.siteId + '&app=' + $scope.id;
+		});
 	}]);
 	/***/
 	require(['domReady!'], function(document) {

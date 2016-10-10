@@ -9,20 +9,20 @@ class page_model extends \TMS_MODEL {
 	 */
 	public function &byId($id, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-		$q = array(
+		$q = [
 			$fields,
 			'xxt_code_page',
 			"id=$id",
-		);
+		];
 		if ($p = $this->query_obj_ss($q)) {
-			$p->ext_js = array();
-			$p->ext_css = array();
+			$p->ext_js = [];
+			$p->ext_css = [];
 
-			$q = array(
+			$q = [
 				'*',
 				'xxt_code_external',
 				"code_id=$id",
-			);
+			];
 			$exts = $this->query_objs_ss($q);
 			foreach ($exts as $ext) {
 				if ($ext->type === 'J') {
@@ -219,7 +219,7 @@ class page_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function modify($id, $data) {
+	public function &modify($id, $data) {
 		$data = (array) $data;
 		foreach ($data as $n => $v) {
 			if (in_array($n, array('css', 'html', 'js'))) {
@@ -229,7 +229,9 @@ class page_model extends \TMS_MODEL {
 
 		$rst = $this->update('xxt_code_page', $data, "id=$id");
 
-		return $rst;
+		$code = $this->byId($id);
+
+		return $code;
 	}
 	/**
 	 * 删除代码

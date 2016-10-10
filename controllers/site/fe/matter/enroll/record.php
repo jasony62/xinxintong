@@ -92,7 +92,7 @@ class record extends base {
 		return new \ResponseData($key);
 	}
 	/**
-	 * 报名登记页，记录登记信息
+	 * 记录登记信息
 	 *
 	 * @param string $site
 	 * @param string $app
@@ -116,8 +116,8 @@ class record extends base {
 		}
 
 		// 应用的定义
-		$modelApp = $this->model('matter\enroll');
-		if (false === ($app = $modelApp->byId($app, ['cascaded' => 'N']))) {
+		$modelEnl = $this->model('matter\enroll');
+		if (false === ($enrollApp = $modelEnl->byId($app, ['cascaded' => 'N']))) {
 			header('HTTP/1.0 500 parameter error:app dosen\'t exist.');
 			die('登记活动不存在');
 		}
@@ -125,18 +125,85 @@ class record extends base {
 		// 当前访问用户的基本信息
 		$user = $this->who;
 		// 提交的数据
-		$posted = $this->getPostJson();
+		$enrolledData = $this->getPostJson();
 		// 检查是否允许登记
-		$result = $this->_canEnroll($site, $app, $user, $posted, $ek);
-		if ($result[0] === false) {
-			return new \ResponseError($result[1]);
+		$rst = $this->_canEnroll($site, $enrollApp, $user, $enrolledData, $ek);
+		if ($rst[0] === false) {
+			return new \ResponseError($rst[1]);
 		}
-
+		/**
+		 * 检查是否存在匹配的登记记录
+		 */
+		if (!empty($enrollApp->enroll_app_id)) {
+			$matchApp = $modelEnl->byId($enrollApp->enroll_app_id);
+			if (empty($matchApp)) {
+				return new \ParameterError('指定的登记匹配登记活动不存在');
+			}
+			/* 获得要检查的登记项 */
+			$requireCheckedData = new \stdClass;
+			$dataSchemas = json_decode($enrollApp->data_schemas);
+			foreach ($dataSchemas as $dataSchema) {
+				if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
+					if (isset($dataSchema->fromApp) && $dataSchema->fromApp === $enrollApp->enroll_app_id) {
+						$requireCheckedData->{$dataSchema->id} = isset($enrolledData->{$dataSchema->id}) ? $enrolledData->{$dataSchema->id} : '';
+					}
+				}
+			}
+			/* 在指定的登记活动中检查数据 */
+			$modelMatchRec = $this->model('matter\enroll\record');
+			$matchedRecords = $modelMatchRec->byData($site, $matchApp, $requireCheckedData);
+			if (empty($matchedRecords)) {
+				return new \ParameterError('未在指定的登记活动［' . $matchApp->title . '］中找到与提交数据相匹配的记录');
+			}
+			$matchedRecord = $matchedRecords[0];
+			if ($matchedRecord->verified !== 'Y') {
+				return new \ParameterError('在指定的登记活动［' . $matchApp->title . '］中与提交数据匹配的记录未通过验证');
+			}
+			/* 将匹配的登记记录数据作为提交的登记数据的一部分 */
+			$matchedData = $matchedRecords[0]->data;
+			foreach ($matchedData as $n => $v) {
+				!isset($enrolledData->{$n}) && $enrolledData->{$n} = $v;
+			}
+		}
+		/**
+		 * 检查是否存在匹配的分组记录
+		 */
+		if (!empty($enrollApp->group_app_id)) {
+			$groupApp = $this->model('matter\group')->byId($enrollApp->group_app_id);
+			if (empty($groupApp)) {
+				return new \ParameterError('指定的登记匹配分组活动不存在');
+			}
+			/* 获得要检查的登记项 */
+			$requireCheckedData = new \stdClass;
+			$dataSchemas = json_decode($enrollApp->data_schemas);
+			foreach ($dataSchemas as $dataSchema) {
+				if (isset($dataSchema->requireCheck) && $dataSchema->requireCheck === 'Y') {
+					if (isset($dataSchema->fromApp) && $dataSchema->fromApp === $enrollApp->group_app_id) {
+						$requireCheckedData->{$dataSchema->id} = isset($enrolledData->{$dataSchema->id}) ? $enrolledData->{$dataSchema->id} : '';
+					}
+				}
+			}
+			/* 在指定的登记活动中检查数据 */
+			$modelMatchRec = $this->model('matter\group\player');
+			$groupRecords = $modelMatchRec->byData($site, $groupApp, $requireCheckedData);
+			if (empty($groupRecords)) {
+				return new \ParameterError('未在指定的分组活动［' . $groupApp->title . '］中找到与提交数据相匹配的记录');
+			}
+			$groupRecord = $groupRecords[0];
+			/* 将匹配的登记记录数据作为提交的登记数据的一部分 */
+			$matchedData = $groupRecord->data;
+			foreach ($matchedData as $n => $v) {
+				!isset($enrolledData->{$n}) && $enrolledData->{$n} = $v;
+			}
+			if (isset($groupRecord->round_id)) {
+				$enrolledData->_round_id = $groupRecord->round_id;
+			}
+		}
 		/**
 		 * 提交用户身份信息
 		 */
-		if (isset($posted->member) && isset($posted->member->schema_id)) {
-			$member = clone $posted->member;
+		if (isset($enrolledData->member) && isset($enrolledData->member->schema_id)) {
+			$member = clone $enrolledData->member;
 			$rst = $this->_submitMember($site, $member, $user);
 			if ($rst[0] === false) {
 				return new \ParameterError($rst[1]);
@@ -145,43 +212,46 @@ class record extends base {
 		/**
 		 * 提交登记数据
 		 */
+		$updatedEnrollRec = [];
+		$modelRec = $this->model('matter\enroll\record');
 		if (empty($ek)) {
-			/*插入登记数据*/
-			$modelRec = $this->model('matter\enroll\record');
-			$ek = $modelRec->enroll($site, $app, $user);
-			/*处理自定义信息*/
-			$rst = $modelRec->setData($user, $site, $app, $ek, $posted, $submitkey);
-			if ($rst[0] === true) {
-				$dbData = $modelRec->toJson($rst[1]);
-				$modelRec->update('xxt_enroll_record', ['data' => $dbData], "enroll_key='$ek'");
-			}
-			/*登记提交的积分奖励*/
+			/* 插入登记数据 */
+			$ek = $modelRec->enroll($site, $enrollApp, $user);
+			/* 处理自定义信息 */
+			$rst = $modelRec->setData($user, $site, $enrollApp, $ek, $enrolledData, $submitkey);
+			/* 登记提交的积分奖励 */
 			$modelCoin = $this->model('coin\log');
-			$action = 'app.enroll,' . $app->id . '.record.submit';
-			$modelCoin->income($site, $action, $app->id, 'sys', $user->uid);
+			$action = 'app.enroll,' . $enrollApp->id . '.record.submit';
+			$modelCoin->income($site, $action, $enrollApp->id, 'sys', $user->uid);
 		} else {
-			$modelRec = $this->model('matter\enroll\record');
 			/* 重新插入新提交的数据 */
-			$rst = $modelRec->setData($user, $site, $app, $ek, $posted, $submitkey);
+			$rst = $modelRec->setData($user, $site, $enrollApp, $ek, $enrolledData, $submitkey);
 			if ($rst[0] === true) {
-				$dbData = $modelRec->toJson($rst[1]);
-				// 已经登记，更新原先提交的数据，只要进行更新操作就设置为未审核通过的状态
-				$modelRec->update('xxt_enroll_record',
-					['enroll_at' => time(), 'verified' => 'N', 'data' => $dbData],
-					"enroll_key='$ek'"
-				);
+				/* 已经登记，更新原先提交的数据，只要进行更新操作就设置为未审核通过的状态 */
+				$updatedEnrollRec['enroll_at'] = time();
+				$updatedEnrollRec['verified'] = 'N';
 			}
 		}
-
 		if (false === $rst[0]) {
 			return new \ResponseError($rst[1]);
 		}
-
+		if (isset($matchedRecord)) {
+			$updatedEnrollRec['matched_enroll_key'] = $matchedRecord->enroll_key;
+		}
+		if (isset($groupRecord)) {
+			$updatedEnrollRec['group_enroll_key'] = $groupRecord->enroll_key;
+		}
+		if (count($updatedEnrollRec)) {
+			$modelRec->update('xxt_enroll_record',
+				$updatedEnrollRec,
+				"enroll_key='$ek'"
+			);
+		}
 		/**
 		 * 通知登记活动事件接收人
 		 */
-		if ($app->notify_submit === 'Y') {
-			$this->_notifyReceivers($site, $app, $ek, $user);
+		if ($enrollApp->notify_submit === 'Y') {
+			$this->_notifyReceivers($site, $enrollApp, $ek, $user);
 		}
 
 		return new \ResponseData($ek);
@@ -393,8 +463,8 @@ class record extends base {
 			exit;
 		}
 		if (empty($submitkey)) {
-			$user = $this->getUser($site);
-			$submitkey = $user->vid;
+			$user = $this->who;
+			$submitkey = $user->uid;
 		}
 		/** 分块上传文件 */
 		if (defined('SAE_TMP_PATH')) {
@@ -436,7 +506,11 @@ class record extends base {
 		}
 		/* 创建登记记录*/
 		if (empty($ek)) {
-			$ek = $modelRec->enroll($site, $app, $user, time(), (empty($posted->referrer) ? '' : $posted->referrer));
+			$options = [
+				'enrollAt' => time(),
+				'referrer' => (empty($posted->referrer) ? '' : $posted->referrer),
+			];
+			$ek = $modelRec->enroll($site, $app, $user, $options);
 			/**
 			 * 处理提交数据
 			 */

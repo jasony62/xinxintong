@@ -205,20 +205,13 @@ class wx extends \member_base {
 	 * @param $scene_id 场景二维码的scene_id
 	 */
 	private function _subscribeCall($call, $scene_id = null) {
-		/**
-		 * 记录粉丝关注信息
-		 */
 		$current = time();
 		$siteId = $call['siteid'];
 		$openid = $call['from_user'];
 		$wxConfig = $this->model('sns\wx')->bySite($siteId);
-		if ($wxConfig && $wxConfig->joined === 'Y') {
-			$snsSiteId = $siteId;
-		} else {
-			$wxConfig = $this->model('sns\wx')->bySite('platform');
-			$snsSiteId = 'platform';
-		}
+		$snsSiteId = $siteId;
 		$modelFan = $this->model('sns\wx\fan');
+
 		if ($fan = $modelFan->byOpenid($snsSiteId, $openid, '*')) {
 			// 粉丝重新关注
 			$modelFan->update(
@@ -232,10 +225,7 @@ class wx extends \member_base {
 			);
 		} else {
 			// 新粉丝关注
-			// 创建站点用户
-			//$siteUser = $this->model('site\user\account')->blank($siteId, true, ['ufrom' => 'wx']);
 			$fan = $modelFan->blank($snsSiteId, $openid, true, [
-				//'userid' => $siteUser->uid,
 				'subscribe_at' => $current,
 				'sync_at' => $current]
 			);
@@ -262,11 +252,13 @@ class wx extends \member_base {
 				isset($fanInfo[1]->country) && $u['country'] = $fanInfo[1]->country;
 				$modelFan->update('xxt_site_wxfan', $u, "siteid='$siteId' and openid='$openid'");
 				/*更新站点用户信息 @todo 总是要更新吗？*/
-				$modelFan->update(
-					'xxt_site_account',
-					['nickname' => $u['nickname'], 'headimgurl' => $u['headimgurl']],
-					"uid='$fan->userid'"
-				);
+				if (!empty($fan->userid)) {
+					$modelFan->update(
+						'xxt_site_account',
+						['nickname' => $u['nickname'], 'headimgurl' => $u['headimgurl']],
+						"uid='$fan->userid'"
+					);
+				}
 			}
 		}
 		if (!empty($scene_id)) {

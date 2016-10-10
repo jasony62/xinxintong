@@ -48,22 +48,34 @@ class player extends \pl\fe\matter\base {
 		}
 		$players = $result->players;
 
-		// 分组记录转换成下载数据
-		$exportedData = [];
-		$size = 0;
+		require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/PHPExcel.php';
+
+		// Create new PHPExcel object
+		$objPHPExcel = new \PHPExcel();
+		// Set properties
+		$objPHPExcel->getProperties()->setCreator("信信通")
+			->setLastModifiedBy("信信通")
+			->setTitle($app->title)
+			->setSubject($app->title)
+			->setDescription($app->title);
+
+		$objActiveSheet = $objPHPExcel->getActiveSheet();
+
+		$colNumber = 0;
+		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '分组');
+
 		// 转换标题
-		$titles = ['分组'];
 		foreach ($schemas as $schema) {
-			$titles[] = $schema->title;
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, $schema->title);
 		}
-		$titles = ['备注'];
-		$titles = implode("\t", $titles);
-		$size += strlen($titles);
-		$exportedData[] = $titles;
+		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '备注');
+		$objActiveSheet->setCellValueByColumnAndRow($colNumber++, 1, '标签');
+
 		// 转换数据
+		$rowNumber = 2;
 		foreach ($players as $player) {
-			$row = [];
-			$row[] = $player->round_title;
+			$colNumber = 0;
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $player->round_title);
 			// 处理登记项
 			$data = (object) $player->data;
 			foreach ($schemas as $schema) {
@@ -73,12 +85,12 @@ class player extends \pl\fe\matter\base {
 				case 'phase':
 					foreach ($schema->ops as $op) {
 						if ($op->v === $v) {
-							$row[] = $op->l;
+							$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $op->l);
 							$disposed = true;
 							break;
 						}
 					}
-					empty($disposed) && $row[] = $v;
+					empty($disposed) && $objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $v);
 					break;
 				case 'multiple':
 					$labels = [];
@@ -91,33 +103,30 @@ class player extends \pl\fe\matter\base {
 							}
 						}
 					}
-					$row[] = implode(',', $labels);
+					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, implode(',', $labels));
 					break;
 				default:
-					$row[] = $v;
+					$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, $v);
 					break;
 				}
 			}
 			// 备注
-			$row[] = empty($player->comment) ? '' : $player->comment;
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, empty($player->comment) ? '' : $player->comment);
+			// 标签
+			$objActiveSheet->setCellValueByColumnAndRow($colNumber++, $rowNumber, empty($player->tags) ? '' : $player->tags);
 
-			// 将数据转换为'|'分隔的字符串
-			$row = implode("\t", $row);
-			$size += strlen($row);
-			$exportedData[] = $row;
+			// next row
+			$rowNumber++;
 		}
 
-		// 文件下载
-		$size += (count($exportedData) - 1) * 2;
-		$exportedData = implode("\r\n", $exportedData);
+		// 输出
+		header('Content-Type: application/vnd.ms-excel');
+		header('Content-Disposition: attachment;filename="' . $app->title . '.xlsx"');
+		header('Cache-Control: max-age=0');
+		$objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+		$objWriter->save('php://output');
 
-		//header("Content-Type: text/plain;charset=utf-8");
-		//header("Content-Disposition: attachment; filename=" . $app->title . '.txt');
-		//header('Content-Length: ' . $size);
-		//echo $exportedData;
-		//exit;
-
-		return new \ResponseData($exportedData);
+		exit;
 	}
 	/**
 	 * 分组用户数量
@@ -225,7 +234,7 @@ class player extends \pl\fe\matter\base {
 				$user = new \stdClass;
 				$user->uid = $record->userid;
 				$user->nickname = $record->nickname;
-				$modelPlayer->enroll($site, $objGrp, $user, array('enroll_key' => $ek, 'enroll_at' => $record->enroll_at));
+				$modelPlayer->enroll($site, $objGrp, $user, ['enroll_key' => $ek, 'enroll_at' => $record->enroll_at]);
 				$modelPlayer->setData($user, $site, $objGrp, $ek, $record->data);
 			}
 		}
@@ -261,22 +270,22 @@ class player extends \pl\fe\matter\base {
 		/* 导入活动定义 */
 		$modelGrp->update(
 			'xxt_group',
-			array(
+			[
 				'last_sync_at' => time(),
 				'source_app' => '{"id":"' . $byApp . '","type":"signin"}',
 				'data_schemas' => $sourceDataSchemas,
-			),
+			],
 			"id='$app'"
 		);
 		/* 清空已有数据 */
 		$modelPlayer->clean($app, true);
 		/* 获取数据 */
 		$modelRec = $this->model('matter\signin\record');
-		$q = array(
+		$q = [
 			'enroll_key',
 			'xxt_signin_record',
 			"aid='$byApp' and state=1",
-		);
+		];
 		$eks = $modelRec->query_vals_ss($q);
 		/* 导入数据 */
 		if (!empty($eks)) {
@@ -287,7 +296,7 @@ class player extends \pl\fe\matter\base {
 				$user = new \stdClass;
 				$user->uid = $record->userid;
 				$user->nickname = $record->nickname;
-				$modelPlayer->enroll($site, $objGrp, $user, array('enroll_key' => $ek, 'enroll_at' => $record->enroll_at));
+				$modelPlayer->enroll($site, $objGrp, $user, ['enroll_key' => $ek, 'enroll_at' => $record->enroll_at]);
 				$modelPlayer->setData($user, $site, $objGrp, $ek, $record->data);
 			}
 		}
@@ -359,7 +368,7 @@ class player extends \pl\fe\matter\base {
 		return count($records);
 	}
 	/**
-	 * 手工添加登记信息
+	 * 手工添加分组用户信息
 	 *
 	 * @param string $aid
 	 */
@@ -370,61 +379,39 @@ class player extends \pl\fe\matter\base {
 
 		$posted = $this->getPostJson();
 		$current = time();
+		$modelGrp = $this->model('matter\group');
 		$modelPlayer = $this->model('matter\group\player');
-		$ek = $modelPlayer->genKey($site, $app);
+
+		$app = $modelGrp->byId($app);
+		$ek = $modelPlayer->genKey($site, $app->id);
 		/**
-		 * 登记记录
+		 * 分组用户登记数据
 		 */
-		$player = array();
-		$player['aid'] = $app;
-		$player['siteid'] = $site;
-		$player['enroll_key'] = $ek;
-		$player['enroll_at'] = $current;
+		$user = new \stdClass;
+		$user->uid = '';
+		$user->nickname = '';
+
+		$player = new \stdClass;
+		$player->enroll_key = $ek;
+		$player->enroll_at = $current;
+		$player->comment = isset($posted->comment) ? $posted->comment : '';
+		if (isset($posted->tags)) {
+			$player->tags = $posted->tags;
+			$modelGrp->updateTags($app->id, $posted->tags);
+		}
 		if (!empty($posted->round_id)) {
 			$modelRnd = $this->model('matter\group\round');
 			$round = $modelRnd->byId($posted->round_id);
-			$player['round_id'] = $posted->round_id;
-			$player['round_title'] = $round->title;
+			$player->round_id = $posted->round_id;
+			$player->round_title = $round->title;
 		}
-		$id = $modelPlayer->insert('xxt_group_player', $player, true);
-		$player['id'] = $id;
-		/**
-		 * 登记数据
-		 */
-		if (isset($posted->data)) {
-			foreach ($posted->data as $n => $v) {
-				if (is_array($v) && isset($v[0]->imgSrc)) {
-					/* 上传图片 */
-					$vv = array();
-					$fsuser = $this->model('fs/user', $site);
-					foreach ($v as $img) {
-						if (preg_match("/^data:.+base64/", $img->imgSrc)) {
-							$rst = $fsuser->storeImg($img);
-							if (false === $rst[0]) {
-								return new \ResponseError($rst[1]);
-							}
-							$vv[] = $rst[1];
-						} else {
-							$vv[] = $img->imgSrc;
-						}
-					}
-					$v = implode(',', $vv);
-				} else if (is_string($v)) {
-					$v = $modelPlayer->escape($v);
-				} else if (is_object($v) || is_array($c = v)) {
-					/*多选题*/
-					$v = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
-				}
-				$cd = array(
-					'aid' => $app,
-					'enroll_key' => $ek,
-					'name' => $n,
-					'value' => $v,
-				);
-				$modelPlayer->insert('xxt_group_player_data', $cd, false);
-				$player['data'][$n] = $v;
-			}
+
+		$modelPlayer->enroll($site, $app, $user, $player);
+		$result = $modelPlayer->setData($user, $site, $app, $ek, $posted->data);
+		if (false === $result[0]) {
+			return new \ResponseError($result[1]);
 		}
+		$player->data = json_decode($result[1]);
 
 		return new \ResponseData($player);
 	}
@@ -440,94 +427,50 @@ class player extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$record = $this->getPostJson();
-		$model = $this->model();
+		$player = $this->getPostJson();
+		$modelGrp = $this->model('matter\group');
+		$modelPlayer = $this->model('matter\group\player');
 
-		foreach ($record as $k => $v) {
-			if ($k === 'comment') {
-				$model->update(
-					'xxt_group_player',
-					[
-						'comment' => $v,
-					],
-					"aid='$app' and enroll_key='$ek'"
-				);
-			} else if ($k === 'round_id') {
-				if (empty($v)) {
-					$model->update(
-						'xxt_group_player',
-						array(
-							'round_id' => 0,
-							'round_title' => '',
-						),
-						"aid='$app' and enroll_key='$ek'"
-					);
-					$record->round_title = '';
-				} else {
-					$modelRnd = $this->model('matter\group\round');
-					if ($round = $modelRnd->byId($v)) {
-						$model->update(
-							'xxt_group_player',
-							array(
-								'round_id' => $v,
-								'round_title' => $round->title,
-							),
-							"aid='$app' and enroll_key='$ek'"
-						);
-						$record->round_title = $round->title;
-					}
-				}
-			} else if ($k === 'data' and is_object($v)) {
-				foreach ($v as $cn => $cv) {
-					if (is_array($cv) && isset($cv[0]->imgSrc)) {
-						/* 上传图片 */
-						$vv = array();
-						$fsuser = $this->model('fs/user', $site);
-						foreach ($cv as $img) {
-							if (preg_match("/^data:.+base64/", $img->imgSrc)) {
-								$rst = $fsuser->storeImg($img);
-								if (false === $rst[0]) {
-									return new \ResponseError($rst[1]);
-								}
-								$vv[] = $rst[1];
-							} else {
-								$vv[] = $img->imgSrc;
-							}
-						}
-						$cv = implode(',', $vv);
-					} else if (is_string($cv)) {
-						$cv = $model->escape($cv);
-					} else if (is_object($cv) || is_array($cv)) {
-						/*多选题*/
-						$cv = implode(',', array_keys(array_filter((array) $cv, function ($i) {return $i;})));
-					}
-					// 检查数据项是否存在，如果不存在就先创建一条
-					$q = array(
-						'count(*)',
-						'xxt_group_player_data',
-						"aid='$app' and enroll_key='$ek' and name='$cn'",
-					);
-					if (1 === (int) $model->query_val_ss($q)) {
-						$model->update(
-							'xxt_group_player_data',
-							array('value' => $cv),
-							"aid='$app' and enroll_key='$ek' and name='$cn'"
-						);
-					} else {
-						$cd = array(
-							'aid' => $app,
-							'enroll_key' => $ek,
-							'name' => $cn,
-							'value' => $cv,
-						);
-						$model->insert('xxt_group_player_data', $cd, false);
-					}
-					$record->data->{$cn} = $cv;
+		$app = $modelGrp->byId($app);
+
+		$user = new \stdClass;
+		$user->uid = '';
+		$user->nickname = '';
+
+		/* 更新记录数据 */
+		$record = new \stdClass;
+		if (isset($player->comment)) {
+			$record->comment = $player->comment;
+		}
+		if (isset($player->tags)) {
+			$record->tags = $player->tags;
+		}
+		if (isset($player->round_id)) {
+			if (empty($player->round_id)) {
+				$record->round_id = 0;
+				$record->round_title = '';
+			} else {
+				$modelRnd = $this->model('matter\group\round');
+				if ($round = $modelRnd->byId($player->round_id)) {
+					$record->round_id = $player->round_id;
+					$record->round_title = $round->title;
 				}
 			}
 		}
+		$modelPlayer->update(
+			'xxt_group_player',
+			$record,
+			["aid" => $app->id, "enroll_key" => $ek]
+		);
 
-		return new \ResponseData($record);
+		/* 更新登记数据 */
+		$result = $modelPlayer->setData($user, $site, $app, $ek, $player->data);
+		if (false === $result[0]) {
+			return new \ResponseError($result[1]);
+		}
+		$player->data = json_decode($result[1]);
+
+		return new \ResponseData($player);
 	}
 	/**
 	 * 未分组的人

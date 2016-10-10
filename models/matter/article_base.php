@@ -68,12 +68,12 @@ abstract class article_base extends base_model {
 				'body' => $a->body,
 			);
 		}
-		$msg = array(
+		$msg = [
 			'msgtype' => 'news',
-			'news' => array(
+			'news' => [
 				'articles' => $ma,
-			),
-		);
+			],
+		];
 
 		return $msg;
 	}

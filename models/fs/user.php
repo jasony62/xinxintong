@@ -150,6 +150,11 @@ class user_model {
 
 		if (isset($img->imgSrc) && 0 === strpos($img->imgSrc, 'http')) {
 			$rst = $this->storeUrl($img->imgSrc);
+		} else if (isset($img->imgSrc) && 0 === strpos($img->imgSrc, '/kcfinder/upload')) {
+			/**
+			 * 已经上传本地的
+			 */
+			$rst = [true, $img->imgSrc];
 		} else if (isset($img->imgSrc) && 1 === preg_match('/data:image(.+?);base64/', $img->imgSrc)) {
 			/**
 			 * base64
@@ -159,18 +164,22 @@ class user_model {
 			/**
 			 * wx jssdk
 			 */
-			$app = TMS_APP::model('mp\mpaccount')->byId($this->mpid);
-			if ($app->mpsrc === 'wx') {
-				$rst = TMS_APP::model('mpproxy/wx', $this->mpid)->mediaGetUrl($img->serverId);
-			} else {
-				$rst = TMS_APP::model('mpproxy/qy', $this->mpid)->mediaGetUrl($img->serverId);
+			if (($snsConfig = TMS_APP::model('sns\wx')->bySite($this->mpid)) && $snsConfig->joined === 'Y') {
+				$snsProxy = TMS_APP::model('sns\wx\proxy', $snsConfig);
+			} else if (($snsConfig = TMS_APP::model('sns\wx')->bySite('platform')) && $snsConfig->joined === 'Y') {
+				$snsProxy = TMS_APP::model('sns\wx\proxy', $snsConfig);
+			} else if ($snsConfig = TMS_APP::model('sns\qy')->bySite($this->mpid)) {
+				if ($snsConfig->joined === 'Y') {
+					$snsProxy = TMS_APP::model('sns\qy\proxy', $snsConfig);
+				}
 			}
+			$rst = $snsProxy->mediaGetUrl($img->serverId);
 			if ($rst[0] === false) {
 				return $rst;
 			}
 			$rst = $this->storeUrl($rst[1]);
 		} else {
-			return array(false, '图片数据格式错误');
+			return [false, '图片数据格式错误：' . json_encode($img)];
 		}
 
 		return $rst;

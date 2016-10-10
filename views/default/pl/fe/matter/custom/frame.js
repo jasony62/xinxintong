@@ -144,4 +144,10 @@ ngApp.controller('ctrlSetting', ['$scope', 'http2', 'mediagallery', 'templateSho
 	http2.get('/rest/pl/fe/matter/tag/list?site=' + $scope.siteId + '&resType=article&subType=0', function(rsp) {
 		$scope.tags = rsp.data;
 	});
+	(function() {
+		new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
+	})();
+	$scope.downloadQrcode = function(url) {
+		$('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
+	};
 }]);

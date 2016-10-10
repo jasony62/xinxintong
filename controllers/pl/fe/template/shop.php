@@ -28,12 +28,25 @@ class shop extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$q = array(
+		$model = $this->model();
+		$q = [
 			's.*',
 			"xxt_shop_matter s",
 			["s.matter_type" => $matterType, "s.matter_id" => $matterId],
-		);
-		$item = $this->model()->query_obj_ss($q);
+		];
+		if ($item = $model->query_obj_ss($q)) {
+			if ($item->visible_scope === 'S') {
+				$modelAcl = $this->model('template\acl');
+				$item->acls = $modelAcl->byMatter($matterId, $matterType);
+				if (!empty($item->acls)) {
+					$modelAcnt = $this->model('account');
+					foreach ($item->acls as &$acl) {
+						$account = $modelAcnt->byId($acl->receiver, ['fields' => 'nickname']);
+						$acl->account = $account;
+					}
+				}
+			}
+		}
 
 		return new \ResponseData($item);
 	}
@@ -44,8 +57,8 @@ class shop extends \pl\fe\base {
 	 * @param int $page
 	 * @param int $size
 	 */
-	public function list_action($matterType, $page = 1, $size = 20) {
-		if (false === ($user = $this->accountUser())) {
+	public function list_action($matterType, $scenario = null, $scope = 'A', $page = 1, $size = 20) {
+		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -55,8 +68,23 @@ class shop extends \pl\fe\base {
 		$q = [
 			's.*',
 			"xxt_shop_matter s",
-			"s.matter_type='$matterType' and visible_scope='A'",
+			'',
 		];
+		if (!empty($scenario)) {
+			$q[2] .= "s.scenario='$scenario' and ";
+		}
+		if ($scope === 'U') {
+			$q[2] .= "s.matter_type='$matterType' and creater='{$loginUser->id}'";
+		} else if ($scope === 'S') {
+			// 指定分享的
+			$where = "s.matter_type='$matterType' and s.visible_scope='S'";
+			$where .= " and exists(select 1 from xxt_shop_matter_acl acl";
+			$where .= " where acl.shop_matter_id=s.id and acl.receiver='{$loginUser->id}'";
+			$where .= ")";
+			$q[2] .= $where;
+		} else {
+			$q[2] .= "s.matter_type='$matterType' and visible_scope='A'";
+		}
 		$q2 = [
 			'o' => 'put_at desc',
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
@@ -77,13 +105,13 @@ class shop extends \pl\fe\base {
 	 * @param string $scope [U|A]
 	 */
 	public function put_action($site) {
-		if (false === ($user = $this->accountUser())) {
+		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$matter = $this->getPostJson();
 
-		$item = $this->model('template\shop')->putMatter($site, $user, $matter);
+		$item = $this->model('template\shop')->putMatter($site, $loginUser, $matter);
 
 		return new \ResponseData($item);
 	}

@@ -17,7 +17,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
         $scope.mode = ls.match(/mode=([^&]*)/) ? ls.match(/mode=([^&]*)/)[1] : '';
         var setMpShare = function(xxtShare) {
             var shareid, sharelink;
-            shareid = $scope.user.uid + (new Date()).getTime();
+            shareid = $scope.user.uid + (new Date() * 1);
             xxtShare.options.logger = function(shareto) {
                 /*var url = "/rest/mi/matter/logShare";
                 url += "?shareid=" + shareid;

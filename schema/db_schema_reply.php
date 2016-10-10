@@ -103,8 +103,8 @@ $sql .= ',menu_name varchar(40) not null';
 $sql .= ',l1_pos tinyint not null default 0';
 $sql .= ',l2_pos tinyint not null default 0';
 $sql .= ",url varchar(256) default ''";
-$sql .= ",matter_type varchar(20) not null"; // Text,Article,News
-$sql .= ",matter_id varchar(40) not null";
+$sql .= ",matter_type varchar(20) not null default ''"; // Text,Article,News
+$sql .= ",matter_id varchar(40) not null default ''";
 $sql .= ",asview char(1) not null default 'N'";
 $sql .= ",primary key(siteid,version,menu_key)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
@@ -125,8 +125,8 @@ $sql .= ',menu_name varchar(40) not null';
 $sql .= ',l1_pos tinyint not null default 0';
 $sql .= ',l2_pos tinyint not null default 0';
 $sql .= ",url varchar(256) default ''";
-$sql .= ",matter_type varchar(20) not null"; // Text,Article,News
-$sql .= ",matter_id varchar(40) not null";
+$sql .= ",matter_type varchar(20) not null default ''"; // Text,Article,News
+$sql .= ",matter_id varchar(40) not null default ''";
 $sql .= ",asview char(1) not null default 'N'";
 $sql .= ",primary key(siteid,version,menu_key)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
@@ -147,8 +147,8 @@ $sql .= ',menu_name varchar(40) not null';
 $sql .= ',l1_pos tinyint not null default 0';
 $sql .= ',l2_pos tinyint not null default 0';
 $sql .= ",url varchar(256) default ''";
-$sql .= ",matter_type varchar(20) not null"; // Text,Article,News
-$sql .= ",matter_id varchar(40) not null";
+$sql .= ",matter_type varchar(20) not null default ''"; // Text,Article,News
+$sql .= ",matter_id varchar(40) not null default ''";
 $sql .= ",asview char(1) not null default 'N'";
 $sql .= ",primary key(siteid,version,menu_key)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

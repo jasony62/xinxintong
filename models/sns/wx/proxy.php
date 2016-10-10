@@ -791,7 +791,9 @@ class proxy_model extends \sns\proxybase {
 		/**
 		 * 发送消息
 		 */
-		$message = \TMS_MODEL::toJson($message);
+		//@todo 会把is_to_all:true变为is_to_all:1
+		//$message = \TMS_MODEL::toJson($message);
+		$message = json_encode($message);
 		$rst = $this->messageMassSendall($message);
 
 		return $rst;

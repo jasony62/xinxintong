@@ -41,6 +41,17 @@
 		<!-- share -->
 		<div id='shareBoard' ng-switch-when="share">
 			<div class='row'>
+				<div class='col-md-12'>
+					<div class='form-inline'>
+						<div class='form-group' style='margin-bottom:15px'>
+							<label class='radio-inline'><input type='radio' name='templateScope' value='A' ng-model='criteria.scope' ng-change='searchTemplate()'>全局模板</label>
+							<label class='radio-inline'><input type='radio' name='templateScope' value='U' ng-model='criteria.scope' ng-change='searchTemplate()'>我共享的模板</label>
+							<label class='radio-inline'><input type='radio' name='templateScope' value='S' ng-model='criteria.scope' ng-change='searchTemplate()'>共享给我的模板</label>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class='row'>
 				<div class='col-md-4' ng-repeat='t in templates'>
 					<div class='thumbnail'>
 						<label class='radio-inline'><input type='radio' name='template' value='{{$index}}' ng-model='data.choose' ng-change='choose(t)'><span ng-bind='t.title'></span></label>

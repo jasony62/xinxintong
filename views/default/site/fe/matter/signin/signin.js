@@ -350,12 +350,14 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
                         $scope.data.member = angular.extend($scope.data.member, dataOfRecord.member);
                     } else if (dataOfRecord[p].length) {
                         if (mapSchema[p] !== undefined) {
-                            if (mapSchema[p].type === 'img') {
+                            if (mapSchema[p].type === 'image') {
                                 value = dataOfRecord[p].split(',');
                                 $scope.data[p] = [];
-                                for (var i in value) $scope.data[p].push({
-                                    imgSrc: value[i]
-                                });
+                                for (var i in value) {
+                                    $scope.data[p].push({
+                                        imgSrc: value[i]
+                                    });
+                                }
                             } else if (mapSchema[p].type === 'file') {
                                 value = JSON.parse(dataOfRecord[p]);
                                 $scope.data[p] = value;

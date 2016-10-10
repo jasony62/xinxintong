@@ -20,6 +20,10 @@ div[wrap=input]>label{display:inline-block;min-height:26px;min-width:36px;paddin
 div[wrap=button] button{cursor:text;min-height:46px;}
 div[wrap=button] button>span{display:inline-block;min-height:24px;min-width:36px;padding:0 3px;border:1px dotted #ccc;}
 li[wrap=checkbox]>label>span,li[wrap=radio]>label>span{display:inline-block;min-width:36px;padding:0 3px;border:1px dotted #ccc;}
+li[wrap=score]{padding:4px 4px 4px 0;}
+li[wrap=score] label{padding:3px;font-weight:400;}
+li[wrap=score]>.number{display:inline-block;margin-top:6px;border:1px solid #CCC;}
+li[wrap=score]>.number>div{display:inline-block;width:48px;padding:4px 8px;margin:0 8px;text-align:center;cursor:pointer;}
 input.form-control[readonly],textarea.form-control[readonly]{background:#fff;}
 ul.img-tiles li{position:relative;display:inline-block;overflow:hidden;width:80px;height:80px;margin:4px;float:left}
 ul.img-tiles li.img-thumbnail{display:none;}

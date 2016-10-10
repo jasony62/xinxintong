@@ -10,20 +10,27 @@ class main extends \site\op\base {
 	 *
 	 */
 	public function index_action($app) {
+		if (!$this->checkAccessToken()) {
+			header('HTTP/1.0 500 parameter error:accessToken is invalid.');
+			die('没有获得有效访问令牌！');
+		}
 		$app = $this->model('matter\enroll')->byId($app);
 		\TPL::assign('title', $app->title);
 		\TPL::output('site/op/matter/enroll/console');
 		exit;
 	}
 	/**
-	 * 返回登记记录
+	 *
 	 *
 	 * @param string $siteid
 	 * @param string $appid
 	 */
 	public function get_action($site, $app) {
-		$params = array();
+		if (!$this->checkAccessToken()) {
+			return new \InvalidAccessToken();
+		}
 
+		$params = array();
 		/* 登记活动定义 */
 		$modelApp = $this->model('matter\enroll');
 		$app = $modelApp->byId($app, array('cascaded' => 'Y'), 'Y');
@@ -45,6 +52,10 @@ class main extends \site\op\base {
 	 * 获得页面定义
 	 */
 	public function pageGet_action() {
+		if (!$this->checkAccessToken()) {
+			return new \InvalidAccessToken();
+		}
+
 		$templateDir = TMS_APP_TEMPLATE . '/site/op/matter/enroll';
 		$templateName = $templateDir . '/basic';
 

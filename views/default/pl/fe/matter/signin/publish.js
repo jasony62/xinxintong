@@ -63,27 +63,47 @@ define(['frame'], function(ngApp) {
 	 * 访问控制规则
 	 */
 	ngApp.provider.controller('ctrlAccessRule', ['$scope', 'http2', function($scope, http2) {
+		var firstInputPage;
 		$scope.pages4NonMember = [];
 		$scope.pages4Nonfan = [];
+		$scope.rule = {};
 		$scope.updateEntryRule = function() {
 			var p = {
 				entry_rule: encodeURIComponent(JSON.stringify($scope.app.entry_rule))
 			};
-			http2.post('/rest/pl/fe/matter/signin/update?site=' + $scope.siteId + '&app=' + $scope.id, p, function(rsp) {
-				$scope.persisted = angular.copy($scope.app);
-			});
+			http2.post('/rest/pl/fe/matter/signin/update?site=' + $scope.siteId + '&app=' + $scope.id, p, function(rsp) {});
 		};
 		$scope.reset = function() {
 			http2.get('/rest/pl/fe/matter/signin/entryRuleReset?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
 				$scope.app.entry_rule = rsp.data;
-				$scope.persisted = angular.copy($scope.app);
 			});
 		};
-		$scope.rule = {
-			scope: 'none'
-		};
 		$scope.changeUserScope = function() {
-			$scope.app.entry_rule.scope = $scope.rule.scope;
+			var entryRule = $scope.app.entry_rule;
+			entryRule.scope = $scope.rule.scope;
+			switch ($scope.rule.scope) {
+				case 'member':
+					entryRule.member === undefined && (entryRule.member = {});
+					entryRule.other === undefined && (entryRule.other = {});
+					entryRule.other.entry = '$memberschema';
+					$scope.memberSchemas.forEach(function(ms) {
+						entryRule.member[ms.id] = {
+							entry: firstInputPage ? firstInputPage.name : ''
+						};
+					});
+					break;
+				case 'sns':
+					entryRule.sns === undefined && (entryRule.sns = {});
+					entryRule.other === undefined && (entryRule.other = {});
+					entryRule.other.entry = '$mpfollow';
+					Object.keys($scope.sns).forEach(function(snsName) {
+						entryRule.sns[snsName] = {
+							entry: firstInputPage ? firstInputPage.name : ''
+						};
+					});
+					break;
+				default:
+			}
 			$scope.updateEntryRule();
 		};
 		$scope.$watch('app', function(app) {
@@ -98,13 +118,14 @@ define(['frame'], function(ngApp) {
 				name: '$mpfollow',
 				title: '提示关注'
 			}];
-			angular.forEach(pages, function(page) {
+			pages.forEach(function(page) {
 				var newPage = {
 					name: page.name,
 					title: page.title
 				};
 				$scope.pages4NonMember.push(newPage);
 				$scope.pages4Nonfan.push(newPage);
+				page.type === 'I' && (firstInputPage = newPage);
 			});
 		}, true);
 	}]);
@@ -121,9 +142,21 @@ define(['frame'], function(ngApp) {
 						type: 'signin'
 					};
 					http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.siteId + '&id=' + matters[0].mission_id, app, function(rsp) {
-						$scope.app.mission = rsp.data;
-						$scope.app.mission_id = rsp.data.id;
-						$scope.update('mission_id');
+						var mission = rsp.data,
+							app = $scope.app,
+							updatedFields = ['mission_id'];
+
+						app.mission = mission;
+						app.mission_id = mission.id;
+						if (!app.pic || app.pic.length === 0) {
+							app.pic = mission.pic;
+							updatedFields.push('pic');
+						}
+						if (!app.summary || app.summary.length === 0) {
+							app.summary = mission.summary;
+							updatedFields.push('summary');
+						}
+						$scope.update(updatedFields);
 					});
 				}
 			}, {
@@ -134,106 +167,6 @@ define(['frame'], function(ngApp) {
 				}],
 				singleMatter: true
 			});
-		};
-		$scope.assignEnrollApp = function() {
-			$uibModal.open({
-				templateUrl: 'assignEnrollApp.html',
-				resolve: {
-					app: function() {
-						return $scope.app;
-					}
-				},
-				controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
-					$scope2.app = app;
-					$scope2.data = {
-						filter: {},
-						source: ''
-					};
-					app.mission && ($scope2.data.sameMission = 'Y');
-					$scope2.cancel = function() {
-						$mi.dismiss();
-					};
-					$scope2.ok = function() {
-						$mi.close($scope2.data);
-					};
-					var url = '/rest/pl/fe/matter/enroll/list?site=' + $scope.siteId + '&scenario=registration&size=999';
-					app.mission && (url += '&mission=' + app.mission.id);
-					http2.get(url, function(rsp) {
-						$scope2.apps = rsp.data.apps;
-					});
-				}],
-				backdrop: 'static'
-			}).result.then(function(data) {
-				$scope.app.enroll_app_id = data.source;
-				$scope.update('enroll_app_id').then(function(rsp) {
-					var app = $scope.app,
-						url = '/rest/pl/fe/matter/enroll/get?site=' + $scope.siteId + '&id=' + app.enroll_app_id;
-					http2.get(url, function(rsp) {
-						rsp.data.data_schemas = JSON.parse(rsp.data.data_schemas);
-						app.enrollApp = rsp.data;
-					});
-					for (var i = app.data_schemas.length - 1; i > 0; i--) {
-						if (app.data_schemas[i].id === 'mobile') {
-							app.data_schemas[i].requireCheck = 'Y';
-							break;
-						}
-					}
-					$scope.update('data_schemas');
-				});
-			});
-		};
-		$scope.cancelEnrollApp = function() {
-			var app = $scope.app;
-			app.enroll_app_id = '';
-			$scope.update('enroll_app_id');
-			$scope.submit().then(function() {
-				angular.forEach(app.data_schemas, function(dataSchema) {
-					delete dataSchema.requireCheck;
-				});
-				$scope.update('data_schemas');
-			});
-		};
-		$scope.addPage = function() {
-			$scope.createPage().then(function(page) {
-				$scope.choosePage(page);
-			});
-		};
-		$scope.updPage = function(page, names) {
-			var defer = $q.defer(),
-				url, p = {};
-
-			angular.isString(names) && (names = [names]);
-			angular.forEach(names, function(name) {
-				p[name] = name === 'html' ? encodeURIComponent(page[name]) : page[name];
-			});
-			url = '/rest/pl/fe/matter/signin/page/update';
-			url += '?site=' + $scope.siteId;
-			url += '&app=' + $scope.id;
-			url += '&pid=' + page.id;
-			url += '&cname=' + page.code_name;
-			http2.post(url, p, function(rsp) {
-				page.$$modified = false;
-				noticebox.success('完成保存');
-				defer.resolve();
-			});
-			return defer.promise;
-		};
-		$scope.delPage = function() {
-			if (window.confirm('确定删除页面？')) {
-				var url = '/rest/pl/fe/matter/signin/page/remove';
-				url += '?site=' + $scope.siteId;
-				url += '&app=' + $scope.id;
-				url += '&pid=' + $scope.ep.id;
-				url += '&cname=' + $scope.ep.code_name;
-				http2.get(url, function(rsp) {
-					$scope.app.pages.splice($scope.app.pages.indexOf($scope.ep), 1);
-					if ($scope.app.pages.length) {
-						$scope.choosePage($scope.app.pages[0]);
-					} else {
-						$scope.ep = null;
-					}
-				});
-			}
 		};
 		$scope.choosePhase = function() {
 			var phaseId = $scope.app.mission_phase_id,

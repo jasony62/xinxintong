@@ -25,6 +25,39 @@ provider('srvApp', function() {
                         console.log('data invalid', e, app.data_schemas);
                         app.data_schemas = [];
                     }
+                    if (app.enrollApp && app.enrollApp.data_schemas) {
+                        try {
+                            app.enrollApp.data_schemas = app.enrollApp.data_schemas && app.enrollApp.data_schemas.length ? JSON.parse(app.enrollApp.data_schemas) : [];
+                        } catch (e) {
+                            console.log('data invalid', e, app.enrollApp.data_schemas);
+                            app.enrollApp.data_schemas = [];
+                        }
+                    }
+                    if (app.groupApp && app.groupApp.data_schemas) {
+                        var groupAppDS = app.groupApp.data_schemas;
+                        try {
+                            app.groupApp.data_schemas = groupAppDS && groupAppDS.length ? JSON.parse(groupAppDS) : [];
+                        } catch (e) {
+                            console.log('data invalid', e, groupAppDS);
+                            app.groupApp.data_schemas = [];
+                        }
+                        if (app.groupApp.rounds && app.groupApp.rounds.length) {
+                            var roundDS = {
+                                    id: '_round_id',
+                                    type: 'single',
+                                    title: '分组名称',
+                                },
+                                ops = [];
+                            app.groupApp.rounds.forEach(function(round) {
+                                ops.push({
+                                    v: round.round_id,
+                                    l: round.title
+                                });
+                            });
+                            roundDS.ops = ops;
+                            app.groupApp.data_schemas.splice(0, 0, roundDS);
+                        }
+                    }
 
                     defer.resolve(app);
                 });
@@ -115,6 +148,8 @@ provider('srvApp', function() {
                     defer.resolve();
                     noticebox.success('完成删除');
                 });
+
+                return defer.promise;
             }
         };
     }];

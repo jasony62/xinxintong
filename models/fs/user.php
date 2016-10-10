@@ -1,69 +1,24 @@
 <?php
+require_once dirname(__FILE__) . '/local.php';
 require_once dirname(__FILE__) . '/alioss.php';
-
-class local_fs {
-
-	protected $mpid;
-
-	protected $bucket;
-
-	private $rootDir;
-
-	public function __construct($mpid, $bucket = 'xinxintong') {
-		$this->mpid = $mpid;
-
-		$this->bucket = $bucket;
-
-		$this->rootDir = TMS_UPLOAD_DIR . "$this->mpid/_user";
-	}
-	/**
-	 * 将文件上传到alioss
-	 */
-	public function writeFile($dir, $filename, $content) {
-		$fulldir = $this->rootDir . "/$dir";
-		$storeAt = "$fulldir/$filename";
-
-		!file_exists($fulldir) && mkdir($fulldir, 0755, true);
-		/**
-		 * 写到文件中
-		 */
-		$handle = fopen($storeAt, "w");
-		fwrite($handle, $content);
-		fclose($handle);
-		false === chmod($storeAt, 0755) && die('chmod failed');
-
-		return '/' . $storeAt;
-	}
-	/**
-	 * $url
-	 */
-	public function remove($url) {
-		die('not support.');
-	}
-	/**
-	 *
-	 */
-	public function getFile($url) {
-		die('not support.');
-	}
-}
 /**
  *
  */
 class user_model {
 
-	private $mpid;
-
+	private $siteId;
+	/**
+	 * 文件存储服务
+	 */
 	private $service;
 
-	public function __construct($mpid, $bucket = 'xinxintong') {
-		$this->mpid = $mpid;
+	public function __construct($siteId, $bucket = 'xinxintong') {
+		$this->siteId = $siteId;
 		if (defined('SAE_TMP_PATH')) {
-			$this->service = new alioss_model($mpid, $bucket);
+			$this->service = new alioss_model($siteId, $bucket);
 		} else {
-			$this->service = new local_fs($mpid, $bucket);
+			$this->service = new local_model($siteId, '_user');
 		}
-
 	}
 	/**
 	 * 将文件上传到alioss
@@ -84,7 +39,7 @@ class user_model {
 		return $this->service->getFile($url);
 	}
 	/**
-	 * 将指定url的文件转存到oss
+	 * 存储指定url对应的文件
 	 */
 	public function storeUrl($url) {
 		/**
@@ -119,7 +74,7 @@ class user_model {
 	 * 存储base64的文件数据
 	 */
 	private function storeBase64Image($data) {
-		$matches = array();
+		$matches = [];
 		$rst = preg_match('/data:image\/(.+?);base64\,/', $data, $matches);
 		if (1 !== $rst) {
 			return array(false, '图片数据格式错误' . $rst);
@@ -137,7 +92,7 @@ class user_model {
 		 */
 		$newUrl = $this->writeFile($dir, $storename, $pic);
 
-		return array(true, $newUrl);
+		return [true, $newUrl];
 	}
 	/**
 	 *
@@ -145,30 +100,34 @@ class user_model {
 	 */
 	public function storeImg($img) {
 		if (empty($img->imgSrc) && !isset($img->serverId)) {
-			return array(false, '图片数据为空');
+			return [false, '图片数据为空'];
 		}
-
-		if (isset($img->imgSrc) && 0 === strpos($img->imgSrc, 'http')) {
-			$rst = $this->storeUrl($img->imgSrc);
-		} else if (isset($img->imgSrc) && 0 === strpos($img->imgSrc, '/kcfinder/upload')) {
-			/**
-			 * 已经上传本地的
-			 */
-			$rst = [true, $img->imgSrc];
-		} else if (isset($img->imgSrc) && 1 === preg_match('/data:image(.+?);base64/', $img->imgSrc)) {
-			/**
-			 * base64
-			 */
-			$rst = $this->storeBase64Image($img->imgSrc);
+		if (isset($img->imgSrc)) {
+			if (0 === strpos($img->imgSrc, 'http')) {
+				/**
+				 * url
+				 */
+				$rst = $this->storeUrl($img->imgSrc);
+			} else if (0 === strpos($img->imgSrc, '/' . TMS_UPLOAD_DIR)) {
+				/**
+				 * 已经上传本地的
+				 */
+				$rst = [true, $img->imgSrc];
+			} else if (1 === preg_match('/data:image(.+?);base64/', $img->imgSrc)) {
+				/**
+				 * base64
+				 */
+				$rst = $this->storeBase64Image($img->imgSrc);
+			}
 		} else if (isset($img->serverId)) {
 			/**
 			 * wx jssdk
 			 */
-			if (($snsConfig = TMS_APP::model('sns\wx')->bySite($this->mpid)) && $snsConfig->joined === 'Y') {
+			if (($snsConfig = TMS_APP::model('sns\wx')->bySite($this->siteId)) && $snsConfig->joined === 'Y') {
 				$snsProxy = TMS_APP::model('sns\wx\proxy', $snsConfig);
 			} else if (($snsConfig = TMS_APP::model('sns\wx')->bySite('platform')) && $snsConfig->joined === 'Y') {
 				$snsProxy = TMS_APP::model('sns\wx\proxy', $snsConfig);
-			} else if ($snsConfig = TMS_APP::model('sns\qy')->bySite($this->mpid)) {
+			} else if ($snsConfig = TMS_APP::model('sns\qy')->bySite($this->siteId)) {
 				if ($snsConfig->joined === 'Y') {
 					$snsProxy = TMS_APP::model('sns\qy\proxy', $snsConfig);
 				}
@@ -183,29 +142,5 @@ class user_model {
 		}
 
 		return $rst;
-	}
-	/**
-	 *
-	 */
-	public function storeBase64File($file) {
-		$content = $file->content;
-
-		$rst = preg_match('/data:(.+?);base64\,/', $content, $matches);
-		if (1 !== $rst) {
-			return array(false, '图片数据格式错误' . $rst);
-		}
-
-		$header = $matches[0];
-
-		$content = base64_decode(str_replace($header, "", $content));
-
-		$dir = date("ymdH"); // 每个小时分一个目录
-		$storename = $file->name;
-		/**
-		 * 写到alioss
-		 */
-		$newUrl = $this->writeFile($dir, $storename, $content);
-
-		return array(true, $newUrl);
 	}
 }

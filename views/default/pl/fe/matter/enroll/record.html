@@ -73,7 +73,7 @@
                         <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                         <td ng-repeat="c in app.data_schemas">
                             <span ng-if="c.id.indexOf('member')===0">{{memberAttr(r.data, c.id)}}</span>
-                            <span ng-if="c.type!=='image'&&c.type!=='file'">{{value2Label(r.data[c.id], c.id)}}</span>
+                            <span ng-if="c.type!=='image'&&c.type!=='file'" ng-bind-html="value2Label(r.data[c.id], c.id)"></span>
                             <span ng-if="c.type==='image'">
                                 <img ng-repeat="img in r.data[c.id]" ng-src='{{img}}' />
                             </span>
@@ -83,7 +83,7 @@
                         </td>
                         <td class='matched enroll' ng-repeat="c in enrollDataSchemas">
                             <span ng-if="c.id.indexOf('member')===0">{{memberAttr(r.data, c.id)}}</span>
-                            <span ng-if="c.type!=='image'&&c.type!=='file'">{{value2Label2(r.data[c.id], c.id)}}</span>
+                            <span ng-if="c.type!=='image'&&c.type!=='file'" ng-bind-html="value2Label2(r.data[c.id], c.id)"></span>
                             <span ng-if="c.type==='image'">
                                 <img ng-repeat="img in r.data[c.id]" ng-src='{{img}}' />
                             </span>
@@ -93,7 +93,7 @@
                         </td>
                         <td class='matched group' ng-repeat="c in groupDataSchemas">
                             <span ng-if="c.id.indexOf('member')===0">{{memberAttr(r.data, c.id)}}</span>
-                            <span ng-if="c.type!=='image'&&c.type!=='file'">{{value2Label3(r.data[c.id], c.id)}}</span>
+                            <span ng-if="c.type!=='image'&&c.type!=='file'" ng-bind-html="value2Label3(r.data[c.id], c.id)"></span>
                             <span ng-if="c.type==='image'">
                                 <img ng-repeat="img in r.data[c.id]" ng-src='{{img}}' />
                             </span>

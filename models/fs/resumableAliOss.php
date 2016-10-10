@@ -5,14 +5,20 @@
 class resumableAliOss_model {
 
 	private $siteId;
-
+	/**
+	 * 文件上传后的保存位置
+	 */
 	private $dest;
 
-	public function __construct($siteId, $dest) {
+	private $domain;
+
+	public function __construct($siteId, $dest, $domain = null) {
 
 		$this->siteId = $siteId;
 
 		$this->dest = $dest;
+
+		$this->domain = $domain;
 	}
 	/**
 	 *

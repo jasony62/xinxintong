@@ -32,16 +32,14 @@
             <div class='tile' ng-if="ep.type==='V'" ng-controller="ctrlAppSchemas4View">
                 <div class='list-group-item' ng-repeat="s in appSchemas">
                     <span ng-bind="s.title"></span>
-                        <span class='schema-switch'>
-                            <input type='checkbox' bs-switch switch-size="mini" data-on-text="显示" data-off-text="隐藏" ng-model="chooseState[s.id]" ng-change="choose(s)">
-                        </span>
+                    <span class='schema-switch'>
+                        <input type='checkbox' bs-switch switch-size="mini" data-on-text="显示" data-off-text="隐藏" ng-model="chooseState[s.id]" ng-change="choose(s)">
                     </span>
                 </div>
                 <div class='list-group-item' ng-repeat="s in otherSchemas">
                     <span ng-bind="s.title"></span>
-                        <span class='schema-switch'>
-                            <input type='checkbox' bs-switch switch-size="mini" data-on-text="显示" data-off-text="隐藏" ng-model="chooseState[s.id]" ng-change="choose(s)">
-                        </span>
+                    <span class='schema-switch'>
+                        <input type='checkbox' bs-switch switch-size="mini" data-on-text="显示" data-off-text="隐藏" ng-model="chooseState[s.id]" ng-change="choose(s)">
                     </span>
                 </div>
             </div>

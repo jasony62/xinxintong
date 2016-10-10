@@ -570,7 +570,7 @@ define([], function() {
             case 'single':
             case 'phase':
             case 'multiple':
-                html = '<div>{{value2Label("' + schema.id + '")}}</div>';
+                html = '<div ng-bind-html="value2Label("' + schema.id + '")"></div>';
                 break;
             case 'score':
                 html = '<div ng-bind-html="' + "score2Html('" + schema.id + "')" + '"></div>';
@@ -684,7 +684,10 @@ define([], function() {
                 case 'single':
                 case 'phase':
                 case 'multiple':
-                    html += '<div>{{value2Label(r,"' + schema.id + '")}}</div>';
+                    html += '<div ng-bind-html="value2Label(r,"' + schema.id + '")"></div>';
+                    break;
+                case 'score':
+                    html += '<div ng-bind-html="' + "score2Html('" + schema.id + "')" + '"></div>';
                     break;
                 case 'image':
                     html += '<ul><li ng-repeat="img in r.data.' + schema.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul>';

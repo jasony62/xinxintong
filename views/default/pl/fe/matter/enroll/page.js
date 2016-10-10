@@ -490,6 +490,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 		pageSchemas.forEach(function(config) {
 			config.schema && config.schema.id && (chooseState[config.schema.id] = true);
 		});
+		chooseState['enrollAt'] === undefined && (chooseState['enrollAt'] = false);
 		$scope.chooseState = chooseState;
 		$scope.choose = function(schema) {
 			if (chooseState[schema.id]) {

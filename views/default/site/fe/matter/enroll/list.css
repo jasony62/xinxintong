@@ -18,6 +18,7 @@ div[wrap].wrap-inline>label{width:6em;overflow:hidden;white-space:nowrap;text-ov
 div[wrap=matter]>span{cursor:pointer;text-decoration:underline;}
 
 /*list*/
+li{cursor:pointer;}
 li .wrap-inline>label{padding:7px 0;color:#444;}
 li .wrap-inline{border-bottom:1px dashed #efefef;}
 li .wrap-inline:last-child{border-bottom:0;}

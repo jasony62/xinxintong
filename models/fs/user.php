@@ -125,7 +125,7 @@ class user_model {
 				 * url
 				 */
 				$rst = $this->storeUrl($img->imgSrc);
-			} else if (0 === strpos($img->imgSrc, TMS_UPLOAD_DIR)) {
+			} else if (false !== strpos($img->imgSrc, TMS_UPLOAD_DIR)) {
 				/**
 				 * 已经上传本地的
 				 */

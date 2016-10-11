@@ -102,24 +102,7 @@ class user_model {
 		if (empty($img->imgSrc) && !isset($img->serverId)) {
 			return [false, '图片数据为空'];
 		}
-		if (isset($img->imgSrc)) {
-			if (0 === strpos($img->imgSrc, 'http')) {
-				/**
-				 * url
-				 */
-				$rst = $this->storeUrl($img->imgSrc);
-			} else if (0 === strpos($img->imgSrc, TMS_UPLOAD_DIR)) {
-				/**
-				 * 已经上传本地的
-				 */
-				$rst = [true, $img->imgSrc];
-			} else if (1 === preg_match('/data:image(.+?);base64/', $img->imgSrc)) {
-				/**
-				 * base64
-				 */
-				$rst = $this->storeBase64Image($img->imgSrc);
-			}
-		} else if (isset($img->serverId)) {
+		if (isset($img->serverId)) {
 			/**
 			 * wx jssdk
 			 */
@@ -136,7 +119,25 @@ class user_model {
 			if ($rst[0] !== false) {
 				$rst = $this->storeUrl($rst[1]);
 			}
+		} else if (isset($img->imgSrc)) {
+			if (0 === strpos($img->imgSrc, 'http')) {
+				/**
+				 * url
+				 */
+				$rst = $this->storeUrl($img->imgSrc);
+			} else if (0 === strpos($img->imgSrc, TMS_UPLOAD_DIR)) {
+				/**
+				 * 已经上传本地的
+				 */
+				$rst = [true, $img->imgSrc];
+			} else if (1 === preg_match('/data:image(.+?);base64/', $img->imgSrc)) {
+				/**
+				 * base64
+				 */
+				$rst = $this->storeBase64Image($img->imgSrc);
+			}
 		}
+
 		if (isset($rst)) {
 			return $rst;
 		} else {

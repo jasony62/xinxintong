@@ -421,6 +421,15 @@ define(['frame'], function(ngApp) {
 
             window.open(url);
         };
+        $scope.exportImage = function() {
+            var url;
+
+            url = '/rest/pl/fe/matter/signin/record/exportImage';
+            url += '?site=' + $scope.siteId + '&app=' + $scope.id;
+            $scope.page.byRound && (url += '&round=' + $scope.page.byRound);
+
+            window.open(url);
+        };
         $scope.importByEnrollApp = function() {
             var url;
 

@@ -446,6 +446,15 @@ define(['frame'], function(ngApp) {
             url += '?site=' + $scope.siteId + '&app=' + $scope.id;
             window.open(url);
         };
+        $scope.exportImage = function() {
+            var url, params = {
+                criteria: $scope.criteria
+            };
+
+            url = '/rest/pl/fe/matter/enroll/record/exportImage';
+            url += '?site=' + $scope.siteId + '&app=' + $scope.id;
+            window.open(url);
+        };
         $scope.countSelected = function() {
             var count = 0;
             for (var p in $scope.rows.selected) {

@@ -720,52 +720,117 @@ class record extends \pl\fe\matter\base {
 		exit;
 	}
 	/**
-	 * 将数据导出到另一个活动
+	 * 导出登记数据中的图片
 	 */
-	public function exportByData_action($site, $app) {
+	public function exportImage_action($site, $app) {
 		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
+			die('请先登录系统');
 		}
-		$posted = $this->getPostJson();
-		$filter = $posted->filter;
-		$target = $posted->target;
-		$includeData = isset($posted->includeData) ? $posted->includeData : 'N';
+		if (defined('SAE_TMP_PATH')) {
+			die('部署环境不支持该功能');
+		}
 
-		if (!empty($target)) {
-			/*更新应用标签*/
-			$modelApp = $this->model('matter\signin');
-			/*给符合条件的记录打标签*/
-			$modelRec = $this->model('matter\signin\record');
-			$q = [
-				'distinct enroll_key',
-				'xxt_signin_record_data',
-				"aid='$app' and state=1",
-			];
-			$eks = null;
-			foreach ($filter as $k => $v) {
-				$w = "(name='$k' and ";
-				$w .= "concat(',',value,',') like '%,$v,%'";
-				$w .= ')';
-				$q2 = $q;
-				$q2[2] .= ' and ' . $w;
-				$eks2 = $modelRec->query_vals_ss($q2);
-				$eks = ($eks === null) ? $eks2 : array_intersect($eks, $eks2);
+		$nameSchema = null;
+		$imageSchemas = [];
+
+		// 登记活动
+		$modelApp = $this->model('matter\signin');
+		$signinApp = $modelApp->byId(
+			$app,
+			['fields' => 'id,title,data_schemas,enroll_app_id', 'cascaded' => 'Y']
+		);
+		$schemas = json_decode($signinApp->data_schemas);
+
+		// 关联的登记活动
+		if (!empty($signinApp->enroll_app_id)) {
+			$enrollApp = $this->model('matter\enroll')->byId($signinApp->enroll_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+			$enrollSchemas = json_decode($enrollApp->data_schemas);
+			$mapOfSigninSchemas = [];
+			foreach ($schemas as $schema) {
+				$mapOfSigninSchemas[] = $schema->id;
 			}
-			if (!empty($eks)) {
-				$objApp = $modelApp->byId($target, ['cascade' => 'N']);
-				$options = ['cascaded' => $includeData];
-				foreach ($eks as $ek) {
-					$record = $modelRec->byId($ek, $options);
-					$user = new \stdClass;
-					$user->nickname = $record->nickname;
-					$newek = $modelRec->add($site, $objApp, $user);
-					if ($includeData === 'Y') {
-						$modelRec->setData($user, $site, $objApp, $newek, $record->data);
-					}
+			foreach ($enrollSchemas as $schema) {
+				if (!in_array($schema->id, $mapOfSigninSchemas)) {
+					$schemas[] = $schema;
 				}
 			}
 		}
+		foreach ($schemas as $schema) {
+			if ($schema->type === 'image') {
+				$imageSchemas[] = $schema;
+			} else if ($schema->id === 'name' || (in_array($schema->title, array('姓名', '名称')))) {
+				$nameSchema = $schema;
+			}
+		}
+		if (count($imageSchemas) === 0) {
+			die('活动不包含图片数据');
+		}
 
-		return new \ResponseData('ok');
+		$q = [
+			'data',
+			'xxt_signin_record',
+			["aid" => $signinApp->id, 'state' => 1],
+		];
+		$records = $this->model()->query_objs_ss($q);
+		if (count($records) === 0) {
+			die('record empty');
+		}
+
+		// 转换数据
+		$aImages = [];
+		for ($j = 0, $jj = count($records); $j < $jj; $j++) {
+			$record = $records[$j];
+			// 处理登记项
+			$data = json_decode($record->data);
+			for ($i = 0, $ii = count($imageSchemas); $i < $ii; $i++) {
+				$schema = $imageSchemas[$i];
+				if (!empty($data->{$schema->id})) {
+					$aImages[] = ['url' => $data->{$schema->id}, 'schema' => $schema];
+				}
+			}
+		}
+		$usedRecordName = [];
+		// 输出打包文件
+		$zipFilename = tempnam('/tmp', $signinApp->id);
+		$zip = new \ZipArchive;
+		if ($zip->open($zipFilename, \ZIPARCHIVE::CREATE) === false) {
+			die('无法打开压缩文件，或者文件创建失败');
+		}
+		foreach ($aImages as $image) {
+			$imageFilename = TMS_APP_DIR . '/' . $image['url'];
+			if (file_exists($imageFilename)) {
+				$imageName = basename($imageFilename);
+				/**
+				 * 图片文件名称替换
+				 */
+				if (isset($nameSchema)) {
+					$recordName = $data->{$nameSchema->id};
+					if (!empty($recordName)) {
+						if (isset($usedRecordName[$recordName])) {
+							$usedRecordName[$recordName]++;
+							$recordName = $recordName . '_' . $usedRecordName[$recordName];
+						} else {
+							$usedRecordName[$recordName] = 0;
+						}
+						$imageName = $recordName . '.' . explode('.', $imageName)[1];
+					}
+				}
+				$zip->addFile($imageFilename, $image['schema']->title . '/' . $imageName);
+			}
+		}
+		$zip->close();
+
+		if (!file_exists($zipFilename)) {
+			exit("无法找到压缩文件");
+		}
+		header("Cache-Control: public");
+		header("Content-Description: File Transfer");
+		header('Content-disposition: attachment; filename=' . $signinApp->title . '.zip');
+		header("Content-Type: application/zip");
+		header("Content-Transfer-Encoding: binary");
+		header('Content-Length: ' . filesize($zipFilename));
+		@readfile($zipFilename);
+
+		exit;
 	}
 }

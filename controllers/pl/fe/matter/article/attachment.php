@@ -7,12 +7,12 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class attachment extends \pl\fe\matter\base {
 	/**
-	 * 上传附件
+	 * 分段上传附件
 	 */
 	public function upload_action($site, $articleid) {
 		if (defined('SAE_TMP_PATH')) {
 			$dest = '/article/' . $articleid . '/' . $_POST['resumableFilename'];
-			$resumable = $this->model('fs/resumableAliOss', $site, $dest);
+			$resumable = $this->model('fs/resumableAliOss', $site, $dest, 'xxt-attachment');
 		} else {
 			$modelFs = $this->model('fs/local', $site, '_resumable');
 			$dest = '/article_' . $articleid . '_' . $_POST['resumableIdentifier'];

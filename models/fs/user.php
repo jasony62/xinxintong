@@ -108,7 +108,7 @@ class user_model {
 				 * url
 				 */
 				$rst = $this->storeUrl($img->imgSrc);
-			} else if (0 === strpos($img->imgSrc, '/' . TMS_UPLOAD_DIR)) {
+			} else if (0 === strpos($img->imgSrc, TMS_UPLOAD_DIR)) {
 				/**
 				 * 已经上传本地的
 				 */
@@ -133,14 +133,14 @@ class user_model {
 				}
 			}
 			$rst = $snsProxy->mediaGetUrl($img->serverId);
-			if ($rst[0] === false) {
-				return $rst;
+			if ($rst[0] !== false) {
+				$rst = $this->storeUrl($rst[1]);
 			}
-			$rst = $this->storeUrl($rst[1]);
+		}
+		if (isset($rst)) {
+			return $rst;
 		} else {
 			return [false, '图片数据格式错误：' . json_encode($img)];
 		}
-
-		return $rst;
 	}
 }

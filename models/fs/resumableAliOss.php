@@ -12,13 +12,17 @@ class resumableAliOss_model {
 
 	private $domain;
 
-	public function __construct($siteId, $dest, $domain = null) {
+	private $bucket;
+
+	public function __construct($siteId, $dest, $bucket = 'xxt-attachment', $domain = '_resumable') {
 
 		$this->siteId = $siteId;
 
 		$this->dest = $dest;
 
 		$this->domain = $domain;
+
+		$this->bucket = $bucket;
 	}
 	/**
 	 *
@@ -43,13 +47,9 @@ class resumableAliOss_model {
 		// check that all the parts are present
 		// the size of the last part is between chunkSize and 2*$chunkSize
 		if ($total_files * $chunkSize >= ($totalSize - $chunkSize + 1)) {
-			$fsAlioss = \TMS_APP::M('fs/alioss', $this->siteId, 'xxt-attachment');
+			$fsAlioss = \TMS_APP::M('fs/alioss', $this->siteId, $this->bucket, $this->domain);
 			// create the final destination file
-			if (defined('SAE_TMP_PATH')) {
-				$tmpfname = tempnam(SAE_TMP_PATH, 'xxt');
-			} else {
-				$tmpfname = tempnam(sys_get_temp_dir(), 'xxt');
-			}
+			$tmpfname = tempnam(SAE_TMP_PATH, 'xxt');
 			$handle = fopen($tmpfname, "w");
 			for ($i = 1; $i <= $total_files; $i++) {
 				$content = $fsSae->read($temp_dir . '/' . $fileName . '.part' . $i);

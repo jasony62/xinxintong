@@ -61,8 +61,6 @@ class import extends \pl\fe\matter\base {
 		}
 
 		if (defined('SAE_TMP_PATH')) {
-			//$dest = '/enroll/' . $app . '/' . $_POST['resumableFilename'];
-			//$resumable = $this->model('fs/resumableAliOss', $site, $dest);
 			return new \ResponseError('not support');
 		} else {
 			$modelFs = $this->model('fs/local', $site, '_resumable');
@@ -85,11 +83,6 @@ class import extends \pl\fe\matter\base {
 		$file = $this->getPostJson();
 
 		if (defined('SAE_TMP_PATH')) {
-			// 文件存储在阿里云
-			//$fs = $this->model('fs/alioss', $site, 'xxt-attachment');
-			//$object = $site . '/enroll/' . $app . '/' . $file->name;
-			//
-			//$rsp = $fs->delete_object($object);
 			return new \ResponseError('not support');
 		} else {
 			// 文件存储在本地

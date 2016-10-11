@@ -139,44 +139,41 @@ class record_model extends \TMS_MODEL {
 		$this->delete('xxt_signin_record_data', "aid='{$app->id}' and enroll_key='$ek'");
 
 		foreach ($data as $n => $v) {
-			/**
-			 * 插入自定义属性
-			 */
 			if ($n === 'member' && is_object($v)) {
 				//
 				$dbData->{$n} = $v;
-				/* 用户认证信息 */
-				$vv = new \stdClass;
-				isset($v->name) && $vv->name = urlencode($v->name);
-				isset($v->email) && $vv->email = urlencode($v->email);
-				isset($v->mobile) && $vv->mobile = urlencode($v->mobile);
+				/* 自定义用户信息 */
+				$treatedValue = new \stdClass;
+				isset($v->name) && $treatedValue->name = urlencode($v->name);
+				isset($v->email) && $treatedValue->email = urlencode($v->email);
+				isset($v->mobile) && $treatedValue->mobile = urlencode($v->mobile);
 				if (!empty($v->extattr)) {
 					$extattr = new \stdClass;
 					foreach ($v->extattr as $mek => $mev) {
 						$extattr->{$mek} = urlencode($mev);
 					}
-					$vv->extattr = $extattr;
+					$treatedValue->extattr = $extattr;
 				}
-				$vv = urldecode(json_encode($vv));
+				$treatedValue = urldecode(json_encode($treatedValue));
 			} elseif (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
 				/* 上传图片 */
-				$vv = [];
+				$treatedValue = [];
 				$fsuser = \TMS_APP::model('fs/user', $siteId);
 				foreach ($v as $img) {
 					$rst = $fsuser->storeImg($img);
 					if (false === $rst[0]) {
 						return $rst;
 					}
-					$vv[] = $rst[1];
+					$treatedValue[] = $rst[1];
 				}
-				$vv = implode(',', $vv);
-				$dbData->{$n} = $vv;
+				$treatedValue = implode(',', $treatedValue);
+				$dbData->{$n} = $treatedValue;
 			} elseif (is_array($v) && isset($v[0]->uniqueIdentifier)) {
 				/* 上传文件 */
 				$fsUser = \TMS_APP::M('fs/local', $siteId, '_user');
 				$fsResum = \TMS_APP::M('fs/local', $siteId, '_resumable');
 				$fsAli = \TMS_APP::M('fs/alioss', $siteId);
-				$vv = [];
+				$treatedValue = [];
 				foreach ($v as $file) {
 					if (defined('SAE_TMP_PATH')) {
 						$dest = '/' . $app->id . '/' . $submitkey . '_' . $file->name;
@@ -191,28 +188,28 @@ class record_model extends \TMS_MODEL {
 					}
 					unset($file->uniqueIdentifier);
 					$file->url = $fileUploaded2;
-					$vv[] = $file;
+					$treatedValue[] = $file;
 				}
-				$vv = json_encode($vv);
+				$treatedValue = json_encode($treatedValue);
 				//
-				$dbData->{$n} = $vv;
+				$dbData->{$n} = $treatedValue;
 			} else {
 				if (is_string($v)) {
-					$vv = $this->escape($v);
+					$treatedValue = $this->escape($v);
 				} elseif (is_object($v) || is_array($v)) {
-					$vv = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
+					$treatedValue = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
 				} else {
-					$vv = $v;
+					$treatedValue = $v;
 				}
 				//
-				$dbData->{$n} = $vv;
+				$dbData->{$n} = $treatedValue;
 			}
 			// 记录数据
 			$ic = [
 				'aid' => $app->id,
 				'enroll_key' => $ek,
 				'name' => $n,
-				'value' => $vv,
+				'value' => $treatedValue,
 			];
 			$this->insert('xxt_signin_record_data', $ic, false);
 		}

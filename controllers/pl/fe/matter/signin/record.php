@@ -785,7 +785,7 @@ class record extends \pl\fe\matter\base {
 			for ($i = 0, $ii = count($imageSchemas); $i < $ii; $i++) {
 				$schema = $imageSchemas[$i];
 				if (!empty($data->{$schema->id})) {
-					$aImages[] = ['url' => $data->{$schema->id}, 'schema' => $schema];
+					$aImages[] = ['url' => $data->{$schema->id}, 'schema' => $schema, 'data' => $data];
 				}
 			}
 		}
@@ -804,6 +804,7 @@ class record extends \pl\fe\matter\base {
 				 * 图片文件名称替换
 				 */
 				if (isset($nameSchema)) {
+					$data = $image['data'];
 					$recordName = $data->{$nameSchema->id};
 					if (!empty($recordName)) {
 						if (isset($usedRecordName[$recordName])) {

@@ -113,7 +113,7 @@ class import extends \pl\fe\matter\base {
 		foreach ($schemas as $schema) {
 			$schemasByTitle[$schema->title] = $schema;
 		}
-
+		$filename = \TMS_MODEL::toLocalEncoding($filename);
 		$objPHPExcel = \PHPExcel_IOFactory::load($filename);
 		$objWorksheet = $objPHPExcel->getActiveSheet();
 		$highestRow = $objWorksheet->getHighestRow();
@@ -183,6 +183,20 @@ class import extends \pl\fe\matter\base {
 					if (isset($data->{$schema->id})) {
 						$data->{$schema->id} = rtrim($data->{$schema->id}, ',');
 					}
+				} else if ('score' === $schema->type) {
+					$treatedValue = new \stdClass;
+					$values = explode('/', $value);
+					foreach ($values as $value) {
+						list($label, $score) = explode(':', $value);
+						$label = trim($label);
+						foreach ($schema->ops as $op) {
+							if ($op->l === $label) {
+								$treatedValue->{$op->v} = trim($score);
+								break;
+							}
+						}
+					}
+					$data->{$schema->id} = $treatedValue;
 				} else {
 					$data->{$schema->id} = $value;
 				}
@@ -223,12 +237,15 @@ class import extends \pl\fe\matter\base {
 			 */
 			if (isset($record->data)) {
 				foreach ($record->data as $n => $v) {
-					$cd = array(
+					if (is_object($v) || is_array($v)) {
+						$v = json_encode($v);
+					}
+					$cd = [
 						'aid' => $appId,
 						'enroll_key' => $ek,
 						'name' => $n,
 						'value' => $v,
-					);
+					];
 					$modelRec->insert('xxt_enroll_record_data', $cd, false);
 				}
 				//

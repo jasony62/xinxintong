@@ -409,7 +409,7 @@ class record extends \pl\fe\matter\base {
 		// 记录操作日志
 		$app = $this->model('matter\signin')->byId($app, ['cascaded' => 'N']);
 		$app->type = 'signin';
-		$this->model('matter\log')->matterOp($site, $user, $app, 'remvoe', $key);
+		$this->model('matter\log')->matterOp($site, $user, $app, 'remove', $key);
 
 		return new \ResponseData($rst);
 	}

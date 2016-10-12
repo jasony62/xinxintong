@@ -589,20 +589,25 @@ factory('pushnotify', ['$uibModal', function($uibModal) {
     return {
         open: function(siteId, callback, options) {
             $uibModal.open({
-                templateUrl: '/static/template/pushnotify.html?_=6',
+                templateUrl: '/static/template/pushnotify.html?_=7',
                 controller: ['http2', '$scope', '$uibModalInstance', function(http2, $scope, $mi) {
                     var url = '/rest/pl/fe/site/setting/notice/get?site=' + siteId + '&name=site.matter.push&cascaded=Y',
                         msgMatter = {},
-                        urlMatterTypes = [];
+                        urlMatterTypes = [],
+                        missionId;
 
                     $scope.options = options;
                     $scope.msgMatter = msgMatter;
-                    if (options.matterTypes && options.matterTypes.length) {
-                        msgMatter.matterType = options.matterTypes[0];
-                        options.matterTypes.forEach(function(mt) {
-                            mt.value !== 'tmplmsg' && urlMatterTypes.push(mt);
-                        });
+                    if (options) {
+                        if (options.matterTypes && options.matterTypes.length) {
+                            msgMatter.matterType = options.matterTypes[0];
+                            options.matterTypes.forEach(function(mt) {
+                                mt.value !== 'tmplmsg' && urlMatterTypes.push(mt);
+                            });
+                        }
+                        options.missionId && (missionId = options.missionId);
                     }
+
                     $scope.urlMatterTypes = urlMatterTypes;
                     //站点设置的素材通知模版
                     http2.get(url, function(rsp) {
@@ -644,6 +649,7 @@ factory('pushnotify', ['$uibModal', function($uibModal) {
                         if (matterType.value === 'tmplmsg') {
                             url += '&cascaded=Y';
                         }
+                        missionId && (url += '&mission=' + missionId);
                         http2.post(url, {}, function(rsp) {
                             if (/article/.test(matterType.value)) {
                                 $scope.matters = rsp.data.articles;
@@ -674,6 +680,7 @@ factory('pushnotify', ['$uibModal', function($uibModal) {
                         url += '/' + matterType.value;
                         url += '/list?site=' + siteId;
                         url += '&page=' + $scope.page2.at + '&size=' + $scope.page2.size;
+                        missionId && (url += '&mission=' + missionId);
                         http2.post(url, {}, function(rsp) {
                             if (/article/.test(matterType.value)) {
                                 $scope.matters2 = rsp.data.articles;

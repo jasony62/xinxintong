@@ -570,7 +570,7 @@ define([], function() {
             case 'single':
             case 'phase':
             case 'multiple':
-                html = '<div ng-bind-html="value2Label("' + schema.id + '")"></div>';
+                html = '<div ng-bind-html="' + "value2Label('" + schema.id + "')" + '"></div>';
                 break;
             case 'score':
                 html = '<div ng-bind-html="' + "score2Html('" + schema.id + "')" + '"></div>';

@@ -16,5 +16,8 @@ table th{text-align:center;}
 th.name{width:100px;}
 th.mobile{width:100px;}
 
+/*players*/
+table img{max-width:96px;}
+
 /*running*/
 .running .rounds .thumbnail{text-align:center;}

@@ -668,8 +668,12 @@ define(['frame'], function(ngApp) {
             $scope.record.aTags = $scope.record.aTags.concat(aNewTags);
         });
         $scope.$on('tag.xxt.combox.add', function(event, newTag) {
-            $scope.record.aTags.push(newTag);
-            $scope.aTags.indexOf(newTag) === -1 && $scope.aTags.push(newTag);
+            if (-1 === $scope.record.aTags.indexOf(newTag)) {
+                $scope.record.aTags.push(newTag);
+                if (-1 === $scope.aTags.indexOf(newTag)) {
+                    $scope.aTags.push(newTag);
+                }
+            }
         });
         $scope.$on('tag.xxt.combox.del', function(event, removed) {
             $scope.record.aTags.splice($scope.record.aTags.indexOf(removed), 1);

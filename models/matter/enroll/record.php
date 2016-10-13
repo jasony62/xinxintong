@@ -163,6 +163,9 @@ class record_model extends \TMS_MODEL {
 				$dbData->{$n} = $treatedValue;
 			}
 			// 记录数据
+			if (is_object($treatedValue) || is_array($treatedValue)) {
+				$treatedValue = json_encode($treatedValue);
+			}
 			$ic = [
 				'aid' => $app->id,
 				'enroll_key' => $ek,

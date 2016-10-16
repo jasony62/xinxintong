@@ -1705,7 +1705,6 @@ class Image {
 				if (!$res) {
 					JpGraphError::RaiseL(25108); //("Can't stream image. This is most likely due to a faulty PHP/GD setup. Try to recompile PHP and use the built-in GD library that comes with PHP.");
 				}
-
 			}
 		}
 	}

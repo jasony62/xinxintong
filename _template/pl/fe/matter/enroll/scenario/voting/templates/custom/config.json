@@ -1,4 +1,5 @@
 {
+	"scenario": "voting",
 	"pages": [{
 		"name": "voting",
 		"title": "投票页",

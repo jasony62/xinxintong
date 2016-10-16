@@ -351,6 +351,8 @@
         <div class='checkbox' ng-if="app.mission_id>0">
             <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_footer' ng-change="update('use_mission_footer');">使用项目页脚</label>
         </div>
+        <hr>
+        <button class='btn btn-default btn-block' ng-click="exportAsTemplate()">导出活动定义</button>
     <div>
 </script>
 <script type="text/ng-template" id="roundEditor.html ">

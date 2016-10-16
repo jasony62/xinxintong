@@ -1,4 +1,5 @@
 {
+	"scenario": "registration",
 	"pages": [{
 		"name": "enroll",
 		"title": "填写页",

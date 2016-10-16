@@ -221,6 +221,11 @@ define(['frame'], function(ngApp) {
 			}
 			return false;
 		};
+		$scope.exportAsTemplate = function() {
+			var url;
+			url = '/rest/pl/fe/matter/enroll/exportAsTemplate?site=' + $scope.siteId + '&app=' + $scope.id;
+			window.open(url);
+		};
 		/*初始化页面数据*/
 		if ($scope.app && $scope.app.mission) {
 			arrangePhases($scope.app.mission);

@@ -94,8 +94,7 @@ define(['frame'], function(ngApp) {
 
 			item.ops.forEach(function(op) {
 				categories.push(op.l);
-				op.c = new Number(op.c).toFixed(2);
-				data.push(parseFloat(op.c));
+				data.push(op.c);
 			});
 			new Highcharts.Chart({
 				chart: {
@@ -220,7 +219,9 @@ define(['frame'], function(ngApp) {
 				});
 				$scope.stat = stat;
 				$timeout(function() {
-					var p, item;
+					var p, item, scoreSummary = [],
+						totalScoreSummary = 0,
+						avgScoreSummary = 0;
 					for (p in stat) {
 						item = stat[p];
 						if (/single|phase/.test(item._schema.type)) {
@@ -228,8 +229,39 @@ define(['frame'], function(ngApp) {
 						} else if (/multiple/.test(item._schema.type)) {
 							drawBarChart(item);
 						} else if (/score/.test(item._schema.type)) {
-							drawLineChart(item);
+							if (item.ops.length) {
+								var totalScore = 0,
+									avgScore = 0;
+								item.ops.forEach(function(op) {
+									op.c = parseFloat(new Number(op.c).toFixed(2));
+									totalScore += op.c;
+								});
+								drawLineChart(item);
+								// 添加题目平均分
+								avgScore = parseFloat(new Number(totalScore / item.ops.length).toFixed(2));
+								item.ops.push({
+									l: '本项平均分',
+									c: avgScore
+								});
+								scoreSummary.push({
+									l: item._schema.title,
+									c: avgScore
+								});
+								totalScoreSummary += avgScore;
+							}
 						}
+					}
+					if (scoreSummary.length) {
+						avgScoreSummary = parseFloat(new Number(totalScoreSummary / scoreSummary.length).toFixed(2));
+						scoreSummary.push({
+							l: '所有打分项总平均分',
+							c: avgScoreSummary
+						});
+						scoreSummary.push({
+							l: '所有打分项合计',
+							c: parseFloat(new Number(totalScoreSummary).toFixed(2))
+						});
+						$scope.scoreSummary = scoreSummary;
 					}
 				});
 			});

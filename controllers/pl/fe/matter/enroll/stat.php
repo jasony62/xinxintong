@@ -170,6 +170,8 @@ class stat extends \pl\fe\matter\base {
 		$mappingOfImages = [];
 		$modelRec = $this->model('matter\enroll\record');
 
+		$scoreSummary = []; //所有打分题汇总数据
+		$totalScoreSummary = 0; //所有打分题的平局分合计
 		foreach ($schemas as $index => $schema) {
 			$html .= "<h3><span>第" . ($index + 1) . "项：</span><span>{$schema->title}</span></h3>";
 			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext'])) {
@@ -259,9 +261,12 @@ class stat extends \pl\fe\matter\base {
 				$item = $statResult[$schema->id];
 				$labels = [];
 				$data = [];
-				foreach ($item['ops'] as $op) {
+				$totalScore = 0;
+				foreach ($item['ops'] as &$op) {
 					$labels[] = $op['l'];
-					$data[] = round((float) $op['c'], 2);
+					$op['c'] = round((float) $op['c'], 2);
+					$data[] = $op['c'];
+					$totalScore += $op['c'];
 				}
 				if (count($data) > 1) {
 					// 如果只有1个点，jpgraph会报错，所以跳过绘图。
@@ -309,12 +314,29 @@ class stat extends \pl\fe\matter\base {
 				$html .= "<table><thead><tr><th>打分项</th><th>平均分</th></tr></thead>";
 				$html .= "<tbody>";
 				foreach ($item['ops'] as $op) {
-					$score = round((float) $op['c'], 2);
-					$html .= "<tr><td>{$op['l']}</td><td>{$score}</td></tr>";
+					$html .= "<tr><td>{$op['l']}</td><td>{$op['c']}</td></tr>";
 				}
+				$avgScore = round($totalScore / count($item['ops']), 2);
+				$html .= "<tr><td>本项平均分</td><td>{$avgScore}</td></tr>";
 				$html .= "</tbody></table>";
+				/*打分题汇总*/
+				$scoreSummary[] = ['l' => $schema->title, 'c' => $avgScore];
+				$totalScoreSummary += $avgScore;
 			}
 			$html .= "<div>&nbsp;</div>";
+		}
+		$avgScoreSummary = 0; //所有打分题的平均分
+		if (count($scoreSummary)) {
+			$avgScoreSummary = round($totalScoreSummary / count($scoreSummary), 2);
+			$html .= "<h3><span>打分项汇总</span></h3>";
+			$html .= "<table><thead><tr><th>打分项</th><th>平均分</th></tr></thead>";
+			$html .= "<tbody>";
+			foreach ($scoreSummary as $op) {
+				$html .= "<tr><td>{$op['l']}</td><td>{$op['c']}</td></tr>";
+			}
+			$html .= "<tr><td>所有打分项总平均分</td><td>{$avgScoreSummary}</td></tr>";
+			$html .= "<tr><td>所有打分项合计}</td><td>{$totalScoreSummary}</td></tr>";
+			$html .= "</tbody></table>";
 		}
 
 		$html .= '</body>';

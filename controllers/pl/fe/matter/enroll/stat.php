@@ -302,7 +302,6 @@ class stat extends \pl\fe\matter\base {
 				$mappingOfImages[$item['id'] . '.base64'] = $imageBase64;
 				//
 				$html .= '<img src="' . $item['id'] . '.base64" />';
-
 				// table
 				$html .= "<table><thead><tr><th>打分项</th><th>平均分</th></tr></thead>";
 				$html .= "<tbody>";

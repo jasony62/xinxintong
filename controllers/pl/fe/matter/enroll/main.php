@@ -874,7 +874,7 @@ class main extends \pl\fe\matter\base {
 		header("Content-Description: File Transfer");
 		header('Content-disposition: attachment; filename=' . $app->title . '.json');
 		header("Content-Type: text/plain");
-		header('Content-Length: ' . count($template));
+		header('Content-Length: ' . strlen($template));
 		die($template);
 	}
 }

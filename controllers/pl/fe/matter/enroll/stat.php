@@ -261,7 +261,7 @@ class stat extends \pl\fe\matter\base {
 				$data = [];
 				foreach ($item['ops'] as $op) {
 					$labels[] = $op['l'];
-					$data[] = (float) $op['c'];
+					$data[] = round((float) $op['c'], 2);
 				}
 				if (count($data) > 1) {
 					// 如果只有1个点，jpgraph会报错，所以跳过绘图。
@@ -309,7 +309,8 @@ class stat extends \pl\fe\matter\base {
 				$html .= "<table><thead><tr><th>打分项</th><th>平均分</th></tr></thead>";
 				$html .= "<tbody>";
 				foreach ($item['ops'] as $op) {
-					$html .= "<tr><td>{$op['l']}</td><td>{$op['c']}</td></tr>";
+					$score = round((float) $op['c'], 2);
+					$html .= "<tr><td>{$op['l']}</td><td>{$score}</td></tr>";
 				}
 				$html .= "</tbody></table>";
 			}

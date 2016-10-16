@@ -94,6 +94,7 @@ define(['frame'], function(ngApp) {
 
 			item.ops.forEach(function(op) {
 				categories.push(op.l);
+				op.c = new Number(op.c).toFixed(2);
 				data.push(parseFloat(op.c));
 			});
 			new Highcharts.Chart({

@@ -17,11 +17,15 @@
             </ul>
             <form class='navbar-form'>
                 <div class='form-group'>
-                     <input type='text' class='form-control' size='60' title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+                    <div class='input-group'>
+                        <input type='text' class='form-control' size='60' title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+                        <span class='input-group-btn'>
+                            <button uib-popover-template="'appSetting.html'" popover-append-to-body='true' popover-placement="bottom" popover-trigger="outsideClick" class='btn btn-default'><span class="caret"></span></button>
+                        </span>
+                    </div>
                 </div>
             </form>
             <ul class='nav navbar-nav'>
-                <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
             </ul>
         </nav>
         <div class='container'>

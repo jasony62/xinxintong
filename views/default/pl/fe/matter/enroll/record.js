@@ -24,6 +24,10 @@ define(['frame'], function(ngApp) {
         }];
         $scope.doSearch = function(page) {
             var url;
+            $scope.rows = {
+                allSelected: 'N',
+                selected: {}
+            };
             page && ($scope.page.at = page);
             url = '/rest/pl/fe/matter/enroll/record/list';
             url += '?site=' + $scope.siteId;
@@ -487,7 +491,7 @@ define(['frame'], function(ngApp) {
         $scope.$watch('app', function(app) {
             if (!app) return;
             var mapOfSchemaByType = {};
-            angular.forEach(app.data_schemas, function(schema) {
+            app.data_schemas.forEach(function(schema) {
                 mapOfSchemaByType[schema.type] === undefined && (mapOfSchemaByType[schema.type] = []);
                 mapOfSchemaByType[schema.type].push(schema);
             });

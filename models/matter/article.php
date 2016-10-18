@@ -286,7 +286,7 @@ class article_model extends article_base {
 	/*
      * 返回全部检索内容
      */
-    public function search_all($site, $keyword) {
+    public function &search_all($site, $keyword) {
 		$s = "id,mpid,title,author,summary,pic,body,url,read_num,create_at,has_attachment,download_num,'article' type";
 		$f = 'xxt_article';
 		$w = "siteid='$site' and state=1 and approved='Y' and can_fullsearch='Y'";             

@@ -13,6 +13,7 @@
 	<ul class="nav nav-tabs">
 		<li ng-class="{'active':source==='platform'}"><a ng-click="switchSource('platform')">系统模板</a></li>
 		<li ng-class="{'active':source==='share'}"><a ng-click="switchSource('share')">共享模板</a></li>
+		<li ng-class="{'active':source==='file'}"><a ng-click="switchSource('file')">模板文件</a></li>
 	</ul>
 	<div ng-switch on="source" style='margin-top:15px'>
 		<!-- platform -->
@@ -61,6 +62,11 @@
 			</div>
 		</div>
 		<!-- end share -->
+		<!-- share -->
+		<div id='fileBoard' ng-switch-when="file">
+			<input type="file" class='form-control' onchange="chooseFile(this.files[0])">
+		</div>
+		<!-- end file -->
 	</div>
 </div>
 <div class="modal-footer">

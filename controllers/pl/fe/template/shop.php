@@ -57,7 +57,7 @@ class shop extends \pl\fe\base {
 	 * @param int $page
 	 * @param int $size
 	 */
-	public function list_action($matterType, $scope = 'A', $page = 1, $size = 20) {
+	public function list_action($matterType, $scenario = null, $scope = 'A', $page = 1, $size = 20) {
 		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -68,18 +68,22 @@ class shop extends \pl\fe\base {
 		$q = [
 			's.*',
 			"xxt_shop_matter s",
+			'',
 		];
-		if ($scope === 'A') {
-			$q[] = "s.matter_type='$matterType' and visible_scope='A'";
-		} else if ($scope === 'U') {
-			$q[] = "s.matter_type='$matterType' and creater='{$loginUser->id}'";
+		if (!empty($scenario)) {
+			$q[2] .= "s.scenario='$scenario' and ";
+		}
+		if ($scope === 'U') {
+			$q[2] .= "s.matter_type='$matterType' and creater='{$loginUser->id}'";
 		} else if ($scope === 'S') {
 			// 指定分享的
 			$where = "s.matter_type='$matterType' and s.visible_scope='S'";
 			$where .= " and exists(select 1 from xxt_shop_matter_acl acl";
 			$where .= " where acl.shop_matter_id=s.id and acl.receiver='{$loginUser->id}'";
 			$where .= ")";
-			$q[] = $where;
+			$q[2] .= $where;
+		} else {
+			$q[2] .= "s.matter_type='$matterType' and visible_scope='A'";
 		}
 		$q2 = [
 			'o' => 'put_at desc',

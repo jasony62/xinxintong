@@ -1,5 +1,6 @@
 <div id='stat-view'>
     <div id='stat-result'>
+        <!--schemas-->
         <div ng-repeat="schema in app.data_schemas">
             <h3><span>第{{$index+1}}项：</span><span ng-bind="schema.title"></span></h3>
             <div ng-if="['single','phase','multiple'].indexOf(schema.type)!==-1">
@@ -54,6 +55,25 @@
                     <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="getRecords(schema,page)"></ul>
                 </div>
             </div>
+        </div>
+         <!--schemas-->
+         <div ng-if="scoreSummary.length">
+            <hr style='height:1px;background:#aaa'>
+            <h3><span>打分项汇总</span></h3>
+            <table class='table table-bordered'>
+                <thead>
+                    <tr>
+                        <th>打分项</th>
+                        <th>平均分</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="op in scoreSummary">
+                        <td>{{op.l}}</td>
+                        <td>{{op.c}}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
     <!-- bottom navbar -->

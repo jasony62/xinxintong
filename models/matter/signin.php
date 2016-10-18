@@ -156,4 +156,78 @@ class signin_model extends app_base {
 
 		return true;
 	}
+	/**
+	 * 活动报名名单
+	 *
+	 * 1、如果活动仅限会员报名，那么要叠加会员信息
+	 * 2、如果报名的表单中有扩展信息，那么要提取扩展信息
+	 *
+	 * $mpid
+	 * $aid
+	 * $options
+	 * --creater openid
+	 * --visitor openid
+	 * --page
+	 * --size
+	 * --rid 轮次id
+	 * --kw 检索关键词
+	 * --by 检索字段
+	 *
+	 *
+	 * return
+	 * [0] 数据列表
+	 * [1] 数据总条数
+	 * [2] 数据项的定义
+	 */
+	public function participants($siteId, $appId, $options = null, $criteria = null) {
+		if ($options) {
+			is_array($options) && $options = (object) $options;
+		}
+
+		$w = "state=1 and aid='$appId' and userid<>''";
+
+		// 指定了登记记录过滤条件
+		if (!empty($criteria->record)) {
+			$whereByRecord = '';
+			if (!empty($criteria->record->verified)) {
+				$whereByRecord .= " and verified='{$criteria->record->verified}'";
+			}
+			$w .= $whereByRecord;
+		}
+
+		// 指定了记录标签
+		if (!empty($criteria->tags)) {
+			$whereByTag = '';
+			foreach ($criteria->tags as $tag) {
+				$whereByTag .= " and concat(',',tags,',') like '%,$tag,%'";
+			}
+			$w .= $whereByTag;
+		}
+
+		// 指定了登记数据过滤条件
+		if (isset($criteria->data)) {
+			$whereByData = '';
+			foreach ($criteria->data as $k => $v) {
+				if (!empty($v)) {
+					$whereByData .= ' and (';
+					$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
+					$whereByData .= ')';
+				}
+			}
+			$w .= $whereByData;
+		}
+
+		// 获得填写的登记数据
+		$q = [
+			'userid',
+			"xxt_signin_record",
+			$w,
+		];
+		$participants = $this->query_vals_ss($q);
+
+		return $participants;
+	}
 }

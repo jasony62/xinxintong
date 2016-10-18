@@ -35,6 +35,32 @@ class coworker extends \pl\fe\matter\base {
 		return new \ResponseData($coworkers);
 	}
 	/**
+	 * 任务下的合作人
+	 *
+	 * @param string $site
+	 * @param int $mission mission's id
+	 */
+	public function mine_action($site, $mission) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$options = [
+			'fields' => 'inviter,invite_at,coworker,coworker_label,join_at',
+		];
+		$coworkers = $this->model('matter\mission\acl')->byUser($user, $mission, $options);
+
+		if (!empty($coworkers)) {
+			$modelAcnt = $this->model('account');
+			foreach ($coworkers as &$coworker) {
+				$account = $modelAcnt->byId($coworker->coworker, ['fields' => 'nickname']);
+				$coworker->account = $account;
+			}
+		}
+
+		return new \ResponseData($coworkers);
+	}
+	/**
 	 * 增加项目合作人
 	 *
 	 * @param string $site

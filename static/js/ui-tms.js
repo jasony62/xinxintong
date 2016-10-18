@@ -821,4 +821,17 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
             });
         }
     }
+}).directive('tmsFlexHeight', function() {
+    return {
+        restrict: 'A',
+        scope: {
+            top: '@',
+            bottom: '@'
+        },
+        link: function(scope, elem, attrs) {
+            var bodyHeight = document.documentElement.clientHeight;
+            elem[0].style.height = (bodyHeight - scope.top - scope.bottom) + 'px';
+            elem[0].style.overflowY = 'auto';
+        }
+    }
 });

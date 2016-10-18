@@ -570,7 +570,7 @@ define([], function() {
             case 'single':
             case 'phase':
             case 'multiple':
-                html = '<div>{{value2Label("' + schema.id + '")}}</div>';
+                html = '<div ng-bind-html="' + "value2Label('" + schema.id + "')" + '"></div>';
                 break;
             case 'score':
                 html = '<div ng-bind-html="' + "score2Html('" + schema.id + "')" + '"></div>';
@@ -666,7 +666,7 @@ define([], function() {
         html = '<ul class="list-group">';
         onclick = config.onclick.length ? " ng-click=\"gotoPage($event,'" + config.onclick + "',r.enroll_key)\"" : '';
         html += '<li class="list-group-item" ng-repeat="r in records"' + onclick + '>';
-        angular.forEach(schemas, function(schema) {
+        schemas.forEach(function(schema) {
             html += '<div wrap="value" class="wrap-inline wrap-splitline" schema="' + schema.id + '"><label>' + schema.title + '</label>';
             switch (schema.type) {
                 case 'name':
@@ -684,7 +684,10 @@ define([], function() {
                 case 'single':
                 case 'phase':
                 case 'multiple':
-                    html += '<div>{{value2Label(r,"' + schema.id + '")}}</div>';
+                    html += '<div ng-bind-html="' + "value2Label(r,'" + schema.id + "')" + '"></div>'
+                    break;
+                case 'score':
+                    html += '<div ng-bind-html="' + "score2Html(r,'" + schema.id + "')" + '"></div>';
                     break;
                 case 'image':
                     html += '<ul><li ng-repeat="img in r.data.' + schema.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul>';

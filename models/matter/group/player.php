@@ -12,20 +12,29 @@ class player_model extends \TMS_MODEL {
 	 * @param object $user
 	 * @param array $options
 	 */
-	public function enroll($siteId, &$app, &$user, $options = array()) {
+	public function enroll($siteId, &$app, &$user, $options = []) {
+		if (is_object($options)) {
+			$options = (array) $options;
+		}
+
 		if (isset($options['enroll_key'])) {
 			$ek = $options['enroll_key'];
 		} else {
 			$ek = $this->genKey($siteId, $app->id);
 		}
-		$player = array(
+
+		$player = [
 			'aid' => $app->id,
 			'siteid' => $siteId,
 			'enroll_key' => $ek,
 			'userid' => $user->uid,
 			'nickname' => $user->nickname,
-		);
+		];
 		$player['enroll_at'] = isset($options['enroll_at']) ? $options['enroll_at'] : time();
+		isset($options['round_id']) && $player['round_id'] = $options['round_id'];
+		isset($options['round_title']) && $player['round_title'] = $options['round_title'];
+		isset($options['comment']) && $player['comment'] = $options['comment'];
+		isset($options['tags']) && $player['tags'] = $options['tags'];
 		isset($options['referrer']) && $player['referrer'] = $options['referrer'];
 
 		$this->insert('xxt_group_player', $player, false);
@@ -42,44 +51,62 @@ class player_model extends \TMS_MODEL {
 		if (empty($submitkey)) {
 			$submitkey = $user->uid;
 		}
+		// 处理后的登记记录
+		$dbData = new \stdClass;
+
+		$schemas = json_decode($app->data_schemas);
+		$schemasById = [];
+		foreach ($schemas as $schema) {
+			$schemasById[$schema->id] = $schema;
+		}
+
 		/* 已有的登记数据 */
-		$fields = $this->query_vals_ss(array('name', 'xxt_group_player_data', "aid='{$app->id}' and enroll_key='$ek'"));
+		$fields = $this->query_vals_ss(['name', 'xxt_group_player_data', "aid='{$app->id}' and enroll_key='$ek'"]);
+
 		foreach ($data as $n => $v) {
+			if (!isset($schemasById[$n])) {
+				continue;
+			}
+
+			$schema = $schemasById[$n];
 			/**
 			 * 插入自定义属性
 			 */
 			if ($n === 'member' && is_object($v)) {
-				/* 用户认证信息 */
-				$vv = new \stdClass;
-				isset($v->name) && $vv->name = urlencode($v->name);
-				isset($v->email) && $vv->email = urlencode($v->email);
-				isset($v->mobile) && $vv->mobile = urlencode($v->mobile);
+				//
+				$dbData->{$n} = $v;
+				/* 自定义用户信息 */
+				$treatedValue = new \stdClass;
+				isset($v->name) && $treatedValue->name = urlencode($v->name);
+				isset($v->email) && $treatedValue->email = urlencode($v->email);
+				isset($v->mobile) && $treatedValue->mobile = urlencode($v->mobile);
 				if (!empty($v->extattr)) {
 					$extattr = new \stdClass;
 					foreach ($v->extattr as $mek => $mev) {
 						$extattr->{$mek} = urlencode($mev);
 					}
-					$vv->extattr = $extattr;
+					$treatedValue->extattr = $extattr;
 				}
-				$vv = urldecode(json_encode($vv));
+				$treatedValue = urldecode(json_encode($treatedValue));
 			} else if (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
 				/* 上传图片 */
-				$vv = array();
+				$treatedValue = array();
 				$fsuser = \TMS_APP::model('fs/user', $siteId);
 				foreach ($v as $img) {
 					$rst = $fsuser->storeImg($img);
 					if (false === $rst[0]) {
 						return $rst;
 					}
-					$vv[] = $rst[1];
+					$treatedValue[] = $rst[1];
 				}
-				$vv = implode(',', $vv);
+				$treatedValue = implode(',', $treatedValue);
+				$dbData->{$n} = $treatedValue;
 			} else if (is_array($v) && isset($v[0]->uniqueIdentifier)) {
 				/* 上传文件 */
 				$fsUser = \TMS_APP::M('fs/local', $siteId, '_user');
 				$fsResum = \TMS_APP::M('fs/local', $siteId, '_resumable');
 				$fsAli = \TMS_APP::M('fs/alioss', $siteId);
-				$vv = array();
+				$treatedValue = array();
 				foreach ($v as $file) {
 					if (defined('SAE_TMP_PATH')) {
 						$dest = '/' . $app->id . '/' . $submitkey . '_' . $file->name;
@@ -94,37 +121,49 @@ class player_model extends \TMS_MODEL {
 					}
 					unset($file->uniqueIdentifier);
 					$file->url = $fileUploaded2;
-					$vv[] = $file;
+					$treatedValue[] = $file;
 				}
-				$vv = json_encode($vv);
+				$treatedValue = json_encode($treatedValue);
+				$dbData->{$n} = $treatedValue;
+			} else if ($schema->type === 'score') {
+				$dbData->{$n} = $v;
+				$treatedValue = json_encode($v);
 			} else {
 				if (is_string($v)) {
-					$vv = $this->escape($v);
+					$treatedValue = $this->escape($v);
 				} else if (is_object($v) || is_array($v)) {
-					$vv = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
+					$treatedValue = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
 				} else {
-					$vv = $v;
+					$treatedValue = $v;
 				}
+				$dbData->{$n} = $treatedValue;
 			}
 			if (!empty($fields) && in_array($n, $fields)) {
 				$this->update(
 					'xxt_group_player_data',
-					array('value' => $vv),
+					['value' => $treatedValue],
 					"aid='{$app->id}' and enroll_key='$ek' and name='$n'"
 				);
 				unset($fields[array_search($n, $fields)]);
 			} else {
-				$ic = array(
+				$ic = [
 					'aid' => $app->id,
 					'enroll_key' => $ek,
 					'name' => $n,
-					'value' => $vv,
-				);
+					'value' => $treatedValue,
+				];
 				$this->insert('xxt_group_player_data', $ic, false);
 			}
 		}
+		// 记录数据
+		$dbData = $this->toJson($dbData);
+		$this->update(
+			'xxt_group_player',
+			['enroll_at' => time(), 'data' => $dbData],
+			"enroll_key='$ek'"
+		);
 
-		return array(true);
+		return [true, $dbData];
 	}
 	/**
 	 * 根据ID返回登记记录
@@ -133,34 +172,71 @@ class player_model extends \TMS_MODEL {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
 
-		$q = array(
+		$q = [
 			$fields,
 			'xxt_group_player',
 			"aid='$aid' and enroll_key='$ek' and state=1",
-		);
+		];
 		if (($record = $this->query_obj_ss($q)) && $cascaded === 'Y') {
-			$record->data = $this->dataById($ek);
+			if (!empty($record->data)) {
+				$record->data = json_decode($record->data);
+			}
 		}
 
 		return $record;
 	}
 	/**
-	 * 获得一条登记记录的数据
+	 * 根据指定的数据查找匹配的记录
 	 */
-	public function dataById($ek) {
-		$q = array(
-			'name,value',
-			'xxt_group_player_data',
-			"enroll_key='$ek'",
-		);
-		$cusdata = array();
-		$cdata = $this->query_objs_ss($q);
-		if (count($cdata) > 0) {
-			foreach ($cdata as $cd) {
-				$cusdata[$cd->name] = $cd->value;
+	public function &byData($siteId, &$app, &$data, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+		$records = false;
+
+		// 查找条件
+		$whereByData = '';
+		foreach ($data as $k => $v) {
+			if ($k === '_round_id') {
+				$whereByData .= ' and (';
+				$whereByData .= 'round_id="' . $v . '"';
+				$whereByData .= ')';
+			} else {
+				if (!empty($v)) {
+					$whereByData .= ' and (';
+					$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
+					$whereByData .= ')';
+				}
 			}
 		}
-		return $cusdata;
+
+		// 没有指定条件时就认为没有符合条件的记录
+		if (empty($whereByData)) {
+			return $records;
+		}
+
+		// 查找匹配条件的数据
+		$q = [
+			$fields,
+			'xxt_group_player',
+			"state=1 and aid='{$app->id}' $whereByData",
+		];
+		$records = $this->query_objs_ss($q);
+		foreach ($records as &$record) {
+			if (empty($record->data)) {
+				$record->data = new \stdClass;
+			} else {
+				$data = json_decode($record->data);
+				if ($data === null) {
+					$record->data = 'json error(' . json_last_error() . '):' . $r->data;
+				} else {
+					$record->data = $data;
+				}
+			}
+		}
+
+		return $records;
 	}
 	/**
 	 * 用户清单
@@ -189,23 +265,23 @@ class player_model extends \TMS_MODEL {
 				$w .= "and concat(',',e.tags,',') like '%,$tag,%'";
 			}
 		}
-		$q = array(
-			'e.enroll_key,e.enroll_at,e.comment,e.tags,e.nickname,e.userid,e.round_id,e.round_title',
+		$q = [
+			'e.enroll_key,e.enroll_at,e.comment,e.tags,e.data,e.nickname,e.userid,e.round_id,e.round_title',
 			"xxt_group_player e",
 			$w,
-		);
+		];
 		/* 分页参数 */
 		if (isset($page)) {
-			$q2 = array(
-				'r' => array('o' => ($page - 1) * $size, 'l' => $size),
-			);
+			$q2 = [
+				'r' => ['o' => ($page - 1) * $size, 'l' => $size],
+			];
 		}
 		/* 排序 */
 		$q2['o'] = 'e.enroll_at desc';
 		if ($players = $this->query_objs_ss($q, $q2)) {
 			/* record data */
 			foreach ($players as &$player) {
-				$player->data = $this->dataById($player->enroll_key);
+				$player->data = json_decode($player->data);
 			}
 			$result->players = $players;
 			/* total */

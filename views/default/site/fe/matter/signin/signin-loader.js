@@ -24,6 +24,7 @@ window.loading = {
 				"xxt-geo": "/static/js/xxt.geo",
 				"enroll-directive": "/views/default/site/fe/matter/signin/directive",
 				"enroll-common": "/views/default/site/fe/matter/signin/common",
+				"main": '/views/default/site/fe/matter/signin/signin'
 			},
 			shim: {
 				"angular": {
@@ -54,14 +55,14 @@ window.loading = {
 					exports: "enroll-directive"
 				},
 			},
-			deps: ['/views/default/site/fe/matter/signin/signin.js?_=1'],
 			urlArgs: function(id, url) {
-				if (/^[xxt-|enroll-]/.test(id)) {
+				if (/^[xxt-|enroll-|main]/.test(id)) {
 					return "?bust=" + (timestamp * 1);
 				}
 				return '';
 			}
 		});
+		require(['main']);
 	}
 };
 if (/MicroMessenger/i.test(navigator.userAgent)) {

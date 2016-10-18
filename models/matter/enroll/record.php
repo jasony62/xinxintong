@@ -1,6 +1,8 @@
 <?php
 namespace matter\enroll;
-
+/**
+ * 登记活动记录
+ */
 class record_model extends \TMS_MODEL {
 	/**
 	 * 活动登记（不包括登记数据）
@@ -11,24 +13,29 @@ class record_model extends \TMS_MODEL {
 	 * @param int $enrollAt
 	 * @param string $referrer
 	 */
-	public function enroll($siteId, &$app, &$user, $enrollAt = null, $referrer = '') {
-		$enrollAt === null && $enrollAt = time();
+	public function enroll($siteId, &$app, $user = null, $options = []) {
+
+		$referrer = isset($options['referrer']) ? $options['referrer'] : '';
+		$enrollAt = isset($options['enrollAt']) ? $options['enrollAt'] : time();
+
 		$ek = $this->genKey($siteId, $app->id);
-		$record = array(
+
+		$record = [
 			'aid' => $app->id,
 			'siteid' => $siteId,
 			'mpid' => $siteId,
 			'enroll_at' => $enrollAt,
 			'first_enroll_at' => $enrollAt,
 			'enroll_key' => $ek,
-			'userid' => $user->uid,
+			'userid' => empty($user->uid) ? '' : $user->uid,
 			'referrer' => $referrer,
-		);
+		];
 		/* 记录所属轮次 */
 		$modelRun = \TMS_APP::M('matter\enroll\round');
 		if ($activeRound = $modelRun->getActive($siteId, $app->id)) {
 			$record['rid'] = $activeRound->rid;
 		}
+
 		/* 登记用户昵称 */
 		$entryRule = $app->entry_rule;
 		if (isset($entryRule->scope) && $entryRule->scope === 'member') {
@@ -46,7 +53,7 @@ class record_model extends \TMS_MODEL {
 				}
 			}
 		} else {
-			$record['nickname'] = $user->nickname;
+			$record['nickname'] = empty($user->nickname) ? '' : $user->nickname;
 		}
 
 		$this->insert('xxt_enroll_record', $record, false);
@@ -61,20 +68,18 @@ class record_model extends \TMS_MODEL {
 			return array(true);
 		}
 		if (empty($submitkey)) {
-			$submitkey = $user->uid;
+			$submitkey = empty($user) ? '' : $user->uid;
 		}
 		// 处理后的登记记录
 		$dbData = new \stdClass;
+		// 清除已有的登记数据
+		$this->delete('xxt_enroll_record_data', "aid='{$app->id}' and enroll_key='$ek'");
 
 		$schemas = json_decode($app->data_schemas);
 		$schemasById = [];
 		foreach ($schemas as $schema) {
 			$schemasById[$schema->id] = $schema;
 		}
-
-		// 清除已有的登记数据
-		$this->delete('xxt_enroll_record_data', "aid='{$app->id}' and enroll_key='$ek'");
-
 		foreach ($data as $n => $v) {
 			/**
 			 * 插入自定义属性
@@ -83,39 +88,39 @@ class record_model extends \TMS_MODEL {
 				//
 				$dbData->{$n} = $v;
 				/* 用户认证信息 */
-				$vv = new \stdClass;
-				isset($v->name) && $vv->name = urlencode($v->name);
-				isset($v->email) && $vv->email = urlencode($v->email);
-				isset($v->mobile) && $vv->mobile = urlencode($v->mobile);
+				$treatedValue = new \stdClass;
+				isset($v->name) && $treatedValue->name = urlencode($v->name);
+				isset($v->email) && $treatedValue->email = urlencode($v->email);
+				isset($v->mobile) && $treatedValue->mobile = urlencode($v->mobile);
 				if (!empty($v->extattr)) {
 					$extattr = new \stdClass;
 					foreach ($v->extattr as $mek => $mev) {
 						$extattr->{$mek} = urlencode($mev);
 					}
-					$vv->extattr = $extattr;
+					$treatedValue->extattr = $extattr;
 				}
-				$vv = urldecode(json_encode($vv));
-			} else {
+				$treatedValue = urldecode(json_encode($treatedValue));
+			} else if (isset($schemasById[$n])) {
 				$schema = $schemasById[$n];
 				if (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
 					/* 上传图片 */
-					$vv = array();
+					$treatedValue = [];
 					$fsuser = \TMS_APP::model('fs/user', $siteId);
 					foreach ($v as $img) {
 						$rst = $fsuser->storeImg($img);
 						if (false === $rst[0]) {
 							return $rst;
 						}
-						$vv[] = $rst[1];
+						$treatedValue[] = $rst[1];
 					}
-					$vv = implode(',', $vv);
-					$dbData->{$n} = $vv;
+					$treatedValue = implode(',', $treatedValue);
+					$dbData->{$n} = $treatedValue;
 				} else if (is_array($v) && isset($v[0]->uniqueIdentifier)) {
 					/* 上传文件 */
 					$fsUser = \TMS_APP::M('fs/local', $siteId, '_user');
 					$fsResum = \TMS_APP::M('fs/local', $siteId, '_resumable');
 					$fsAli = \TMS_APP::M('fs/alioss', $siteId);
-					$vv = array();
+					$treatedValue = [];
 					foreach ($v as $file) {
 						if (defined('SAE_TMP_PATH')) {
 							$dest = '/' . $app->id . '/' . $submitkey . '_' . $file->name;
@@ -130,38 +135,48 @@ class record_model extends \TMS_MODEL {
 						}
 						unset($file->uniqueIdentifier);
 						$file->url = $fileUploaded2;
-						$vv[] = $file;
+						$treatedValue[] = $file;
 					}
-					$vv = json_encode($vv);
-					$dbData->{$n} = $vv;
+					$treatedValue = json_encode($treatedValue);
+					$dbData->{$n} = $treatedValue;
 				} else if ($schema->type === 'score') {
 					$dbData->{$n} = $v;
-					$vv = json_encode($v);
+					$treatedValue = json_encode($v);
 				} else {
 					if (is_string($v)) {
-						$vv = $this->escape($v);
+						$treatedValue = $this->escape($v);
 					} else if (is_object($v) || is_array($v)) {
 						if ($schema->type === 'multiple') {
 							// 多选题，将选项合并为逗号分隔的字符串
-							$vv = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
+							$treatedValue = implode(',', array_keys(array_filter((array) $v, function ($i) {return $i;})));
 						} else {
-							$vv = implode(',', $v);
+							$treatedValue = implode(',', $v);
 						}
 					} else {
-						$vv = $v;
+						$treatedValue = $v;
 					}
-					$dbData->{$n} = $vv;
+					$dbData->{$n} = $treatedValue;
 				}
+			} else {
+				/* 如果登记活动指定匹配清单，那么提交数据会包含匹配登记记录的数据，但是这些数据不在登记项定义中 */
+				$treatedValue = $v;
+				$dbData->{$n} = $treatedValue;
 			}
 			// 记录数据
-			$ic = array(
+			if (is_object($treatedValue) || is_array($treatedValue)) {
+				$treatedValue = json_encode($treatedValue);
+			}
+			$ic = [
 				'aid' => $app->id,
 				'enroll_key' => $ek,
 				'name' => $n,
-				'value' => $vv,
-			);
+				'value' => $treatedValue,
+			];
 			$this->insert('xxt_enroll_record_data', $ic, false);
 		}
+		/* 保留冗余数据 */
+		$dbData = $this->toJson($dbData);
+		$this->update('xxt_enroll_record', ['data' => $dbData], "enroll_key='$ek'");
 
 		return [true, $dbData];
 	}
@@ -200,6 +215,8 @@ class record_model extends \TMS_MODEL {
 	}
 	/**
 	 * 根据指定的数据查找匹配的记录
+	 *
+	 * 不是所有的字段都检查，只检查字符串类型
 	 */
 	public function &byData($siteId, &$app, &$data, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
@@ -208,7 +225,7 @@ class record_model extends \TMS_MODEL {
 		// 查找条件
 		$whereByData = '';
 		foreach ($data as $k => $v) {
-			if (!empty($v)) {
+			if (!empty($v) && is_string($v)) {
 				$whereByData .= ' and (';
 				$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
 				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';

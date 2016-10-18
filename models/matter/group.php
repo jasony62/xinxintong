@@ -21,7 +21,7 @@ class group_model extends app_base {
 	/**
 	 *
 	 * $aid string
-	 * $cascaded array []
+	 * $options array
 	 */
 	public function &byId($aid, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
@@ -33,6 +33,8 @@ class group_model extends app_base {
 		);
 		if ($app = $this->query_obj_ss($q)) {
 			if ($cascaded === 'Y') {
+				$rounds = \TMS_APP::M('matter\group\round')->byApp($aid);
+				$app->rounds = $rounds;
 			}
 		}
 

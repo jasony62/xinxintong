@@ -170,6 +170,8 @@ class stat extends \pl\fe\matter\base {
 		$mappingOfImages = [];
 		$modelRec = $this->model('matter\enroll\record');
 
+		$scoreSummary = []; //所有打分题汇总数据
+		$totalScoreSummary = 0; //所有打分题的平局分合计
 		foreach ($schemas as $index => $schema) {
 			$html .= "<h3><span>第" . ($index + 1) . "项：</span><span>{$schema->title}</span></h3>";
 			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext'])) {
@@ -193,7 +195,7 @@ class stat extends \pl\fe\matter\base {
 				if (in_array($schema->type, ['single', 'phase'])) {
 					// Create a pie pot
 					if ($sum) {
-						$graph = new \PieGraph(400, 200);
+						$graph = new \PieGraph(550, 200);
 						$graph->SetShadow();
 						$pie = new \PiePlot($data);
 						//$pie->SetTheme('pastel');
@@ -211,7 +213,7 @@ class stat extends \pl\fe\matter\base {
 					}
 				} else if ($schema->type === 'multiple') {
 					// Create the graph. These two calls are always required
-					$graph = new \Graph(400, 200);
+					$graph = new \Graph(550, 200);
 					$graph->SetScale("textint");
 					// Add a drop shadow
 					$graph->SetShadow();
@@ -259,59 +261,82 @@ class stat extends \pl\fe\matter\base {
 				$item = $statResult[$schema->id];
 				$labels = [];
 				$data = [];
-				foreach ($item['ops'] as $op) {
+				$totalScore = 0;
+				foreach ($item['ops'] as &$op) {
 					$labels[] = $op['l'];
-					$data[] = (float) $op['c'];
+					$op['c'] = round((float) $op['c'], 2);
+					$data[] = $op['c'];
+					$totalScore += $op['c'];
 				}
-				// Setup the graph
-				$graph = new \Graph(400, 200);
-				$graph->SetScale("textlin");
+				if (count($data) > 1) {
+					// 如果只有1个点，jpgraph会报错，所以跳过绘图。
+					// Setup the graph
+					$graph = new \Graph(550, 200);
+					$graph->SetScale("textlin");
 
-				$theme_class = new \UniversalTheme;
+					$theme_class = new \UniversalTheme;
 
-				$graph->SetTheme($theme_class);
-				$graph->img->SetAntiAliasing(false);
-				$graph->title->Set($item['title']);
-				$graph->title->SetFont(FF_CHINESE, FS_NORMAL);
-				$graph->SetBox(false);
+					$graph->SetTheme($theme_class);
+					$graph->img->SetAntiAliasing(false);
+					$graph->title->Set($item['title']);
+					$graph->title->SetFont(FF_CHINESE, FS_NORMAL);
+					$graph->SetBox(false);
 
-				$graph->img->SetAntiAliasing();
+					$graph->img->SetAntiAliasing();
 
-				$graph->yaxis->HideZeroLabel();
-				$graph->yaxis->HideLine(false);
-				$graph->yaxis->HideTicks(false, false);
+					$graph->yaxis->HideZeroLabel();
+					$graph->yaxis->HideLine(false);
+					$graph->yaxis->HideTicks(false, false);
 
-				$graph->xgrid->Show();
-				$graph->xgrid->SetLineStyle("solid");
-				$graph->xaxis->SetTickLabels($labels);
-				$graph->xgrid->SetColor('#E3E3E3');
-				$graph->xaxis->SetFont(FF_CHINESE, FS_NORMAL);
+					$graph->xgrid->Show();
+					$graph->xgrid->SetLineStyle("solid");
+					$graph->xaxis->SetTickLabels($labels);
+					$graph->xgrid->SetColor('#E3E3E3');
+					$graph->xaxis->SetFont(FF_CHINESE, FS_NORMAL);
 
-				$p1 = new \LinePlot($data);
-				$graph->Add($p1);
-				$p1->SetColor("#6495ED");
+					$p1 = new \LinePlot($data);
+					$graph->Add($p1);
+					$p1->SetColor("#6495ED");
 
-				// Output line
-				$graph->Stroke(_IMG_HANDLER);
-				ob_start(); // start buffering
-				$graph->img->Stream(); // print data to buffer
-				$image_data = ob_get_contents(); // retrieve buffer contents
-				ob_end_clean(); // stop buffer
-				$imageBase64 = chunk_split(base64_encode($image_data));
-				//
-				$mappingOfImages[$item['id'] . '.base64'] = $imageBase64;
-				//
-				$html .= '<img src="' . $item['id'] . '.base64" />';
-
+					// Output line
+					$graph->Stroke(_IMG_HANDLER);
+					ob_start(); // start buffering
+					$graph->img->Stream(); // print data to buffer
+					$image_data = ob_get_contents(); // retrieve buffer contents
+					ob_end_clean(); // stop buffer
+					$imageBase64 = chunk_split(base64_encode($image_data));
+					//
+					$mappingOfImages[$item['id'] . '.base64'] = $imageBase64;
+					//
+					$html .= '<img src="' . $item['id'] . '.base64" />';
+				}
 				// table
 				$html .= "<table><thead><tr><th>打分项</th><th>平均分</th></tr></thead>";
 				$html .= "<tbody>";
 				foreach ($item['ops'] as $op) {
 					$html .= "<tr><td>{$op['l']}</td><td>{$op['c']}</td></tr>";
 				}
+				$avgScore = round($totalScore / count($item['ops']), 2);
+				$html .= "<tr><td>本项平均分</td><td>{$avgScore}</td></tr>";
 				$html .= "</tbody></table>";
+				/*打分题汇总*/
+				$scoreSummary[] = ['l' => $schema->title, 'c' => $avgScore];
+				$totalScoreSummary += $avgScore;
 			}
 			$html .= "<div>&nbsp;</div>";
+		}
+		$avgScoreSummary = 0; //所有打分题的平均分
+		if (count($scoreSummary)) {
+			$avgScoreSummary = round($totalScoreSummary / count($scoreSummary), 2);
+			$html .= "<h3><span>打分项汇总</span></h3>";
+			$html .= "<table><thead><tr><th>打分项</th><th>平均分</th></tr></thead>";
+			$html .= "<tbody>";
+			foreach ($scoreSummary as $op) {
+				$html .= "<tr><td>{$op['l']}</td><td>{$op['c']}</td></tr>";
+			}
+			$html .= "<tr><td>所有打分项总平均分</td><td>{$avgScoreSummary}</td></tr>";
+			$html .= "<tr><td>所有打分项合计}</td><td>{$totalScoreSummary}</td></tr>";
+			$html .= "</tbody></table>";
 		}
 
 		$html .= '</body>';

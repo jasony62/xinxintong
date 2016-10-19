@@ -101,23 +101,23 @@
                 <!-- access time -->
                 <table class='table table-bordered' ng-if="app.scenarioConfig.can_period!=='D'">
                     <tr>
-                        <td>登记开始</td>
+                        <td>登记开始前</td>
                         <td style='padding:0;width:180px;'>
                             <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='app.start_at' tms-state='start_at'></tms-datepicker>
                         </td>
                         <td style='padding:0'>
-                            <select class='form-control' ng-model='app.before_start_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('before_start_page')">
+                            <select style='border:0' class='form-control' ng-model='app.before_start_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('before_start_page')">
                                 <option value=''>缺省提示</option>
                             </select>
                         </td>
                     </tr>
                     <tr>
-                        <td>登记结束</td>
+                        <td>登记结束后</td>
                         <td style='padding:0;width:180px;'>
                             <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='app.start_at' tms-state='start_at'></tms-datepicker>
                         </td>
                         <td style='padding:0'>
-                            <select class='form-control' ng-model='app.before_start_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('before_start_page')">
+                            <select style='border:0' class='form-control' ng-model='app.before_start_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('before_start_page')">
                                 <option value=''>缺省提示</option>
                             </select>
                         </td>

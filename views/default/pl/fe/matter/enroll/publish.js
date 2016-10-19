@@ -1,9 +1,9 @@
 define(['frame'], function(ngApp) {
 	'use strict';
-	ngApp.provider.controller('ctrlPublish', ['$scope', 'http2', 'mediagallery', 'templateShop', function($scope, http2, mediagallery, templateShop) {
-		(function() {
+	ngApp.provider.controller('ctrlPublish', ['$scope', 'http2', 'mediagallery', 'templateShop', '$timeout', function($scope, http2, mediagallery, templateShop, $timeout) {
+		$timeout(function() {
 			new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
-		})();
+		});
 		$scope.$watch('app', function(app) {
 			if (!app) return;
 			var entry;
@@ -64,6 +64,37 @@ define(['frame'], function(ngApp) {
 			event.preventDefault();
 			srvQuickEntry.config(targetUrl, {
 				password: $scope.opEntry.password
+			});
+		};
+	}]);
+	ngApp.provider.controller('ctrlReportUrl', ['$scope', 'http2', 'srvQuickEntry', function($scope, http2, srvQuickEntry) {
+		var targetUrl, persisted;
+		$scope.reportEntry = {};
+		$scope.$watch('app', function(app) {
+			if (!app) return;
+			targetUrl = 'http://' + location.host + '/rest/site/op/matter/enroll/report?site=' + $scope.siteId + '&app=' + $scope.id;
+			srvQuickEntry.get(targetUrl).then(function(entry) {
+				if (entry) {
+					$scope.reportEntry.url = 'http://' + location.host + '/q/' + entry.code;
+					$scope.reportEntry.password = entry.password;
+					persisted = entry;
+				}
+			});
+		});
+		$scope.makeUrl = function() {
+			srvQuickEntry.add(targetUrl).then(function(task) {
+				$scope.reportEntry.url = 'http://' + location.host + '/q/' + task.code;
+			});
+		};
+		$scope.closeUrl = function() {
+			srvQuickEntry.remove(targetUrl).then(function(task) {
+				$scope.reportEntry.url = '';
+			});
+		};
+		$scope.configUrl = function(event, prop) {
+			event.preventDefault();
+			srvQuickEntry.config(targetUrl, {
+				password: $scope.reportEntry.password
 			});
 		};
 	}]);

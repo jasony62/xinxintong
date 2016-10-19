@@ -6,7 +6,7 @@ if (/MicroMessenger/.test(navigator.userAgent)) {
 angular.module('xxt', ['infinite-scroll']).config(['$locationProvider', function($locationProvider) {
     $locationProvider.html5Mode(true);
 }]).controller('ctrl', ['$scope', '$location', '$http', '$q', function($scope, $location, $http, $q) {
-    var siteId, channelId, shareby,keyWord;
+    var siteId, channelId, shareby, keyWord;
     /*关键词*/
     keyWord = $location.search().keyword;
     siteId = $location.search().site;
@@ -43,20 +43,25 @@ angular.module('xxt', ['infinite-scroll']).config(['$locationProvider', function
         }
         return arr.join('/');
     }*/
-    $http.get('/rest/site/fe/matter/article/search/list?site=' + siteId + '&keyword=' + keyWord).success(function(rsp){
+    $http.get('/rest/site/fe/matter/article/search/list?site=' + siteId + '&keyword=' + keyWord).success(function(rsp) {
         $scope.matters = rsp.data;
     });
-    $scope.search = function () {
-        $http.post('/rest/site/fe/matter/article/search/list?site=' + siteId + '&keyword=' + $scope.searchKeyword).success(function(rsp){
-            if(rsp.data.length){
+    $scope.keypress = function(event) {
+        if (event.keyCode == 13) {
+            $scope.search();
+        }
+    }
+    $scope.search = function() {
+        $http.post('/rest/site/fe/matter/article/search/list?site=' + siteId + '&keyword=' + $scope.searchKeyword).success(function(rsp) {
+            if (rsp.data.length) {
                 $scope.matters = rsp.data;
-            }else{
+            } else {
                 $scope.matters = [];
                 $scope.word = $scope.searchKeyword;
             }
         });
     }
     $scope.open = function(opened) {
-        location.href = '/rest/site/fe/matter?site='+ siteId + '&id=' + opened.id +'&type=article';
+        location.href = '/rest/site/fe/matter?site=' + siteId + '&id=' + opened.id + '&type=article';
     };
 }]);

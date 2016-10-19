@@ -15,9 +15,9 @@
         <div class='form-group'>
             <div class='input-group'>
                 <span class='glyphicon glyphicon-search'></span>
-                <input type='text' class='form-control' ng-model='searchKeyword' required />
+                <input type='text' class='form-control' ng-model='searchKeyword' ng-keypress='todoSomething($event)' required />
             </div>
-            <button type='submit' class='btn' ng-click='search()'>搜 索</button>
+            <button type='submit' class='btn' ng-click='search()' >搜 索</button>
         </div>
         <div id='content' class='content'>
             <ul class='list-group' ng-if='matters.length'>

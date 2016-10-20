@@ -18,7 +18,7 @@ class log_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_signin_log',
-			['enroll_key' => $ek],
+			['enroll_key' => $ek, 'state' => 1],
 		];
 		if (empty($roundId)) {
 			$q2 = ['o' => 'signin_at'];

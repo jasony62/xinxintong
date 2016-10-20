@@ -200,6 +200,19 @@ define(['frame'], function(ngApp) {
 				singleMatter: true
 			});
 		};
+		$scope.quitMission = function() {
+			var app = $scope.app,
+				matter = {
+					id: app.id,
+					type: 'signin',
+					title: app.title
+				};
+			http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + $scope.siteId + '&id=' + app.mission_id, matter, function(rsp) {
+				delete app.mission;
+				app.mission_id = null;
+				$scope.update(['mission_id']);
+			});
+		};
 		$scope.choosePhase = function() {
 			var phaseId = $scope.app.mission_phase_id,
 				i, phase, newPhase;

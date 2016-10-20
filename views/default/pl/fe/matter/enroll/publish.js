@@ -194,7 +194,7 @@ define(['frame'], function(ngApp) {
 	/**
 	 * app setting controller
 	 */
-	ngApp.provider.controller('ctrlApp', ['$scope', '$q', 'http2', function($scope, $q, http2) {
+	ngApp.provider.controller('ctrlApp', ['$scope', '$q', 'http2', 'mattersgallery', 'srvApp', function($scope, $q, http2, mattersgallery, srvApp) {
 		//
 		function arrangePhases(mission) {
 			if (mission.phases && mission.phases.length) {
@@ -204,6 +204,54 @@ define(['frame'], function(ngApp) {
 					phase_id: ''
 				});
 			}
+		};
+		$scope.assignMission = function() {
+			mattersgallery.open($scope.siteId, function(matters, type) {
+				var app;
+				if (matters.length === 1) {
+					app = {
+						id: $scope.id,
+						type: 'enroll'
+					};
+					http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.siteId + '&id=' + matters[0].mission_id, app, function(rsp) {
+						var mission = rsp.data,
+							app = $scope.app,
+							updatedFields = ['mission_id'];
+
+						app.mission = mission;
+						app.mission_id = mission.id;
+						if (!app.pic || app.pic.length === 0) {
+							app.pic = mission.pic;
+							updatedFields.push('pic');
+						}
+						if (!app.summary || app.summary.length === 0) {
+							app.summary = mission.summary;
+							updatedFields.push('summary');
+						}
+						srvApp.update(updatedFields);
+					});
+				}
+			}, {
+				matterTypes: [{
+					value: 'mission',
+					title: '项目',
+					url: '/rest/pl/fe/matter'
+				}],
+				singleMatter: true
+			});
+		};
+		$scope.quitMission = function() {
+			var app = $scope.app,
+				matter = {
+					id: app.id,
+					type: 'enroll',
+					title: app.title
+				};
+			http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + $scope.siteId + '&id=' + app.mission_id, matter, function(rsp) {
+				delete app.mission;
+				app.mission_id = null;
+				srvApp.update(['mission_id']);
+			});
 		};
 		$scope.phases = null;
 		$scope.$on('xxt.tms-datepicker.change', function(event, data) {
@@ -240,17 +288,6 @@ define(['frame'], function(ngApp) {
 			}
 
 			$scope.update(updatedFields);
-		};
-		$scope.isInputPage = function(pageName) {
-			if (!$scope.app) {
-				return false;
-			}
-			for (var i in $scope.app.pages) {
-				if ($scope.app.pages[i].name === pageName && $scope.app.pages[i].type === 'I') {
-					return true;
-				}
-			}
-			return false;
 		};
 		$scope.exportAsTemplate = function() {
 			var url;

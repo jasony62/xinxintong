@@ -24,9 +24,6 @@
                         </span>
                     </div>
                 </div>
-                <div class='form-group' ng-if="!app.mission">
-                    <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
-                </div>
             </form>
             <ul class='nav navbar-nav'>
             </ul>
@@ -34,6 +31,44 @@
         <div class='container'>
             <div class='row' ng-view></div>
         </div>
+        <script type="text/ng-template" id="appSetting.html">
+            <div id="appSetting" ng-controller="ctrlApp">
+                <div class='form-group'>
+                    <select class='form-control' ng-model="app.scenario" ng-change="update('scenario');">
+                        <option value=''></option>
+                        <option value='registration'>报名</option>
+                        <option value='voting'>评价</option>
+                        <option value='group_week_report'>周报</option>
+                    </select>
+                </div>
+                <hr>
+                <div class='form-group compact'>
+                    <label>允许每用户登记条数</label>
+                    <input type='text' class='form-control' ng-model="app.count_limit" tms-auto-update tms-wait=1000 tms-update="update('count_limit')">
+                </div>
+                <hr>
+                <a href="/rest/pl/fe/matter/enroll/event?site={{siteId}}&id={{id}}">活动进入规则</a>
+                <hr>
+                <div class='checkbox'>
+                    <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_header' ng-change="update('use_site_header');">使用站点页眉</label>
+                </div>
+                <div class='checkbox'>
+                    <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_footer' ng-change="update('use_site_footer');">使用站点页脚</label>
+                </div>
+                <div class='checkbox' ng-if="app.mission_id>0">
+                    <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_header' ng-change="update('use_mission_header');">使用项目页眉</label>
+                </div>
+                <div class='checkbox' ng-if="app.mission_id>0">
+                    <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_footer' ng-change="update('use_mission_footer');">使用项目页脚</label>
+                </div>
+                <hr>
+                <button class='btn btn-default btn-block' ng-click="exportAsTemplate()">导出活动定义</button>
+                <hr>
+                <button class='btn btn-default btn-block' ng-click="remove()">删除活动</button>
+                <hr>
+                <button class='btn btn-default btn-block' ng-click="shareAsTemplate()">保存为模版</button>
+            <div>
+        </script>
         <script src="/static/js/jquery.min.js"></script>
         <script src="/static/js/jquery-ui.min.js"></script>
         <script src="/static/js/bootstrap.min.js"></script>

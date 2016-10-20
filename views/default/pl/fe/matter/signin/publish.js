@@ -36,6 +36,38 @@ define(['frame'], function(ngApp) {
 			$scope.entry = entry;
 		});
 	}]);
+	ngApp.provider.controller('ctrlPreview', ['$scope', 'http2', function($scope, http2) {
+		var previewURL = '/rest/site/fe/matter/signin/preview?site=' + $scope.siteId + '&app=' + $scope.id + '&start=Y',
+			params = {
+				pageAt: -1,
+				hasPrev: false,
+				hasNext: false,
+				openAt: 'ontime'
+			};
+		$scope.nextPage = function() {
+			params.pageAt++;
+			params.hasPrev = true;
+			params.hasNext = params.pageAt < $scope.app.pages.length - 1;
+		};
+		$scope.prevPage = function() {
+			params.pageAt--;
+			params.hasNext = true;
+			params.hasPrev = params.pageAt > 0;
+		};
+		$scope.$watch('app.pages', function(pages) {
+			if (pages) {
+				params.pageAt = 0;
+				params.hasPrev = false;
+				params.hasNext = !!pages.length;
+				$scope.params = params;
+			}
+		});
+		$scope.$watch('params', function(params) {
+			if (params) {
+				$scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + $scope.app.pages[params.pageAt].name;
+			}
+		}, true);
+	}]);
 	/**
 	 * 微信二维码
 	 */

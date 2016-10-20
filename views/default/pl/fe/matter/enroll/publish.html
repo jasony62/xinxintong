@@ -1,4 +1,35 @@
 <div id='publish-view' class='row'>
+    <!-- app -->
+    <div class='col-md-12 app' ng-controller="ctrlApp">
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-form navbar-left">
+                    <div class='form-group compact' ng-if="app.mission">
+                        <label>所属项目</label>
+                        <div class="input-group">
+                            <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly="">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" ng-click="quitMission()">
+                                    <span class='glyphicon glyphicon-remove'></span>
+                                </button>
+                                <a class="btn btn-default" title='查看项目' href="/rest/pl/fe/matter/mission?site={{siteId}}&id={{app.mission.id}}" target='_self'><span class='glyphicon glyphicon-link'></span></a>
+                            </span>
+                        </div>
+                    </div>
+                    <div class='form-group' ng-if="app.mission.multi_phase==='Y'">
+                        <label>项目阶段</label>
+                        <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
+                            <option></option>
+                        </select>
+                    </div>
+                    <div class='form-group' ng-if="!app.mission">
+                        <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- end app -->
     <!-- preview -->
     <div class='col-md-6' ng-controller="ctrlPreview">
         <div id='simulator'>
@@ -110,7 +141,7 @@
                     </div>
                 </div>
             </uib-tab>
-            <uib-tab index="3" heading="进入规则">
+            <uib-tab index="3">
                 <uib-tab-heading>
                     <i class="glyphicon glyphicon-ban-circle"></i> 进入规则
                 </uib-tab-heading>
@@ -290,70 +321,7 @@
         </uib-tabset>
     </div>
     <!-- end setting -->
-    <!-- bottom navbar -->
-    <nav class="navbar navbar-default navbar-fixed-bottom">
-        <div class="container-fluid" style='text-align:center'>
-            <form class="navbar-form" style='display:inline-block'>
-                <button class='btn btn-default' ng-click="shareAsTemplate()">保存为模版</button>
-            </form>
-            <form class="navbar-form navbar-right" style='display:inline-block'>
-                <button class='btn btn-default' ng-click="remove()">删除活动</button>
-            </form>
-        </div>
-    </nav>
-    <!-- end bottom navbar -->
 </div>
-<script type="text/ng-template" id="appSetting.html">
-    <div id="appSetting" ng-controller="ctrlApp">
-        <div class='form-group compact' ng-if="app.mission">
-            <label>所属项目</label>
-            <div class="input-group">
-                <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly="">
-                <span class="input-group-btn">
-                    <button class="btn btn-default" type="button" ng-click="quitMission()">
-                        <span class='glyphicon glyphicon-remove'></span>
-                    </button>
-                    <a class="btn btn-default" title='查看项目' href="/rest/pl/fe/matter/mission?site={{siteId}}&id={{app.mission.id}}" target='_self'><span class='glyphicon glyphicon-link'></span></a>
-                </span>
-            </div>
-        </div>
-        <div class='form-group compact' ng-if="app.mission.multi_phase==='Y'">
-            <label>项目阶段</label>
-            <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in phases">
-            </select>
-        </div>
-        <div class='form-group'>
-            <select class='form-control' ng-model="app.scenario" ng-change="update('scenario');">
-                <option value=''></option>
-                <option value='registration'>报名</option>
-                <option value='voting'>评价</option>
-                <option value='group_week_report'>周报</option>
-            </select>
-        </div>
-        <hr>
-        <div class='form-group compact'>
-            <label>允许每用户登记条数</label>
-            <input type='text' class='form-control' ng-model="app.count_limit" tms-auto-update tms-wait=1000 tms-update="update('count_limit')">
-        </div>
-        <hr>
-        <a href="/rest/pl/fe/matter/enroll/event?site={{siteId}}&id={{id}}">活动进入规则</a>
-        <hr>
-        <div class='checkbox'>
-            <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_header' ng-change="update('use_site_header');">使用站点页眉</label>
-        </div>
-        <div class='checkbox'>
-            <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_footer' ng-change="update('use_site_footer');">使用站点页脚</label>
-        </div>
-        <div class='checkbox' ng-if="app.mission_id>0">
-            <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_header' ng-change="update('use_mission_header');">使用项目页眉</label>
-        </div>
-        <div class='checkbox' ng-if="app.mission_id>0">
-            <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_footer' ng-change="update('use_mission_footer');">使用项目页脚</label>
-        </div>
-        <hr>
-        <button class='btn btn-default btn-block' ng-click="exportAsTemplate()">导出活动定义</button>
-    <div>
-</script>
 <script type="text/ng-template" id="roundEditor.html ">
     <div class="modal-header">
         <button class="close" type="button" ng-click="close()">×</button>

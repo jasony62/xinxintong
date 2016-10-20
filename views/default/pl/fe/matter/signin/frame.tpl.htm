@@ -10,23 +10,52 @@
         <link href="/views/default/pl/fe/matter/signin/frame.css?_=2" rel="stylesheet">
     </head>
     <body ng-controller='ctrlFrame' ng-cloak class='ng-cloak'>
-        <nav class='navbar navbar-inverse navbar-fixed-top tms-large'>
+        <nav class='navbar navbar-default navbar-fixed-top tms-large'>
             <ul class='nav navbar-nav'>
-                <li><a href='/rest/pl/fe' target='_self'>首页</a></li>
                 <li><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>工作台</a></li>
             </ul>
+            <form class='navbar-form'>
+                <div class='form-group'>
+                    <div class='input-group'>
+                        <input type='text' class='form-control' size='60' title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+                        <span class='input-group-btn'>
+                            <button uib-popover-template="'appSetting.html'" popover-append-to-body='true' popover-placement="bottom" popover-trigger="outsideClick" class='btn btn-default'><span class="caret"></span></button>
+                        </span>
+                    </div>
+                </div>
+            </form>
             <ul class='nav navbar-nav'>
-                <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{siteId}}&id={{app.mission.id}}" target='_self'>返回项目</a></li>
-                <li class='title'><a title="{{app.title}}" href='/rest/pl/fe/matter/signin/app?site={{siteId}}&id={{id}}'>{{app.title}}</a></li>
-            </ul>
-            <ul class='nav navbar-nav'>
-                <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
-                <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
             </ul>
         </nav>
         <div class='container'>
             <div class='row' ng-view></div>
         </div>
+        <script type="text/ng-template" id="appSetting.html">
+            <div id="appSetting">
+                <div class=''>
+                    <div class='checkbox'>
+                        <label>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_header' ng-change="update('use_site_header');">使用站点页眉</label>
+                    </div>
+                    <div class='checkbox'>
+                        <label>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_footer' ng-change="update('use_site_footer');">使用站点页脚</label>
+                    </div>
+                </div>
+                <div class='' ng-if="app.mission_id>0">
+                    <div class='checkbox'>
+                        <label class='checkbox-inline'>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_header' ng-change="update('use_mission_header');">使用项目页眉</label>
+                    </div>
+                    <div class='checkbox'>
+                        <label class='checkbox-inline'>
+                            <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_footer' ng-change="update('use_mission_footer');">使用项目页脚</label>
+                    </div>
+                </div>
+                <hr>
+                <button class='btn btn-default' ng-click="remove()">删除活动</button>
+            <div>
+        </script>
         <script src="/static/js/jquery.min.js"></script>
         <script src="/static/js/jquery-ui.min.js"></script>
         <script src="/static/js/bootstrap.min.js"></script>

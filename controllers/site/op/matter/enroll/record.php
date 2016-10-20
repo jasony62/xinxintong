@@ -10,6 +10,10 @@ class record extends \site\op\base {
 	 *
 	 */
 	public function list_action($site, $app, $page = 1, $size = 30, $tags = null, $orderby = null) {
+		if (!$this->checkAccessToken()) {
+			return new \InvalidAccessToken();
+		}
+
 		// 登记数据过滤条件
 		$criteria = $this->getPostJson();
 		//
@@ -32,6 +36,10 @@ class record extends \site\op\base {
 	 * @param $ek record's key
 	 */
 	public function update_action($site, $app, $ek) {
+		if (!$this->checkAccessToken()) {
+			return new \InvalidAccessToken();
+		}
+
 		$record = $this->getPostJson();
 		$model = $this->model();
 		$current = time();
@@ -205,6 +213,10 @@ class record extends \site\op\base {
 	 * 指定记录通过审核
 	 */
 	public function batchVerify_action($site, $app) {
+		if (!$this->checkAccessToken()) {
+			return new \InvalidAccessToken();
+		}
+
 		$posted = $this->getPostJson();
 		$eks = $posted->eks;
 
@@ -226,5 +238,33 @@ class record extends \site\op\base {
 		//$this->model('matter\log')->matterOp($site, $user, $app, 'verify.batch', $eks);
 
 		return new \ResponseData('ok');
+	}
+	/**
+	 * 返回指定登记项的活动登记名单
+	 *
+	 */
+	public function list4Schema_action($site, $app, $schema, $page = 1, $size = 10) {
+		if (!$this->checkAccessToken()) {
+			return new \InvalidAccessToken();
+		}
+
+		// 登记数据过滤条件
+		$criteria = $this->getPostJson();
+
+		// 登记记录过滤条件
+		$options = [
+			'page' => $page,
+			'size' => $size,
+		];
+
+		// 登记活动
+		$modelApp = $this->model('matter\enroll');
+		$enrollApp = $modelApp->byId($app);
+
+		// 查询结果
+		$mdoelRec = $this->model('matter\enroll\record');
+		$result = $mdoelRec->list4Schema($site, $enrollApp, $schema, $options);
+
+		return new \ResponseData($result);
 	}
 }

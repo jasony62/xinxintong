@@ -54,6 +54,34 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 				});
 			});
 		};
+		$scope.newByOtherApp = function(schema, otherApp) {
+			var newSchema;
+
+			for (var i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
+				if (schema.id === $scope.app.data_schemas[i].id) {
+					alert('不允许重复添加登记项');
+					return;
+				}
+			}
+
+			newSchema = schemaLib.newSchema(schema.type, $scope.app);
+			newSchema.type === 'member' && (newSchema.schema_id = schema.schema_id);
+			newSchema.id = schema.id;
+			newSchema.title = schema.title;
+			newSchema.requireCheck = 'Y';
+			newSchema.fromApp = otherApp.id;
+			if (schema.ops) {
+				newSchema.ops = schema.ops;
+			}
+
+			$scope.app.data_schemas.push(newSchema);
+			srvApp.update('data_schemas').then(function() {
+				$scope.app.pages.forEach(function(page) {
+					page.appendSchema(newSchema);
+					srvPage.update(page, ['data_schemas', 'html']);
+				});
+			});
+		};
 		$scope.copySchema = function(schema) {
 			var newSchema = angular.copy(schema),
 				afterIndex;
@@ -94,6 +122,98 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 				});
 			}
 			return deferred.promise;
+		};
+	}]);
+	ngApp.provider.controller('ctrlApp', ['$scope', '$uibModal', 'http2', 'srvApp', function($scope, $uibModal, http2, srvApp) {
+		$scope.assignEnrollApp = function() {
+			$uibModal.open({
+				templateUrl: 'assignEnrollApp.html',
+				resolve: {
+					app: function() {
+						return $scope.app;
+					}
+				},
+				controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
+					$scope2.app = app;
+					$scope2.data = {
+						filter: {},
+						source: ''
+					};
+					app.mission && ($scope2.data.sameMission = 'Y');
+					$scope2.cancel = function() {
+						$mi.dismiss();
+					};
+					$scope2.ok = function() {
+						$mi.close($scope2.data);
+					};
+					var url = '/rest/pl/fe/matter/enroll/list?site=' + $scope.siteId + '&size=999';
+					app.mission && (url += '&mission=' + app.mission.id);
+					http2.get(url, function(rsp) {
+						$scope2.apps = rsp.data.apps;
+					});
+				}],
+				backdrop: 'static'
+			}).result.then(function(data) {
+				$scope.app.enroll_app_id = data.source;
+				srvApp.update('enroll_app_id').then(function(rsp) {
+					var app = $scope.app,
+						url = '/rest/pl/fe/matter/enroll/get?site=' + $scope.siteId + '&id=' + app.enroll_app_id;
+					http2.get(url, function(rsp) {
+						rsp.data.data_schemas = JSON.parse(rsp.data.data_schemas);
+						app.enrollApp = rsp.data;
+					});
+				});
+			});
+		};
+		$scope.cancelEnrollApp = function() {
+			var app = $scope.app;
+			app.enroll_app_id = '';
+			srvApp.update('enroll_app_id').then(function() {});
+		};
+		$scope.assignGroupApp = function() {
+			$uibModal.open({
+				templateUrl: 'assignGroupApp.html',
+				resolve: {
+					app: function() {
+						return $scope.app;
+					}
+				},
+				controller: ['$scope', '$uibModalInstance', 'app', function($scope2, $mi, app) {
+					$scope2.app = app;
+					$scope2.data = {
+						filter: {},
+						source: ''
+					};
+					app.mission && ($scope2.data.sameMission = 'Y');
+					$scope2.cancel = function() {
+						$mi.dismiss();
+					};
+					$scope2.ok = function() {
+						$mi.close($scope2.data);
+					};
+					var url = '/rest/pl/fe/matter/group/list?site=' + $scope.siteId + '&size=999';
+					app.mission && (url += '&mission=' + app.mission.id);
+					http2.get(url, function(rsp) {
+						$scope2.apps = rsp.data.apps;
+					});
+				}],
+				backdrop: 'static'
+			}).result.then(function(data) {
+				$scope.app.group_app_id = data.source;
+				srvApp.update('group_app_id').then(function(rsp) {
+					var app = $scope.app,
+						url = '/rest/pl/fe/matter/group/get?site=' + $scope.siteId + '&app=' + app.group_app_id;
+					http2.get(url, function(rsp) {
+						rsp.data.data_schemas = JSON.parse(rsp.data.data_schemas);
+						app.groupApp = rsp.data;
+					});
+				});
+			});
+		};
+		$scope.cancelGroupApp = function() {
+			var app = $scope.app;
+			app.group_app_id = '';
+			srvApp.update('group_app_id').then(function() {});
 		};
 	}]);
 	/**

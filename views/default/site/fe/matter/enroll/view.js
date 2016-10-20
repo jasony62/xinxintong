@@ -166,66 +166,6 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
         };
         return Stat;
     }]);
-    ngApp.controller('ctrlRecords', ['$scope', 'Record', 'ls', function($scope, Record, LS) {
-        var facRecord, options, fnFetch,
-            schemas = $scope.app.data_schemas;
-
-        $scope.value2Label = function(record, key) {
-            var val, i, j, s, aVal, aLab = [];
-            if (schemas && record.data) {
-                val = record.data[key];
-                if (val === undefined) return '';
-                for (i = 0, j = schemas.length; i < j; i++) {
-                    if (schemas[i].id === key) {
-                        s = schemas[i];
-                        break;
-                    }
-                }
-                if (s && s.ops && s.ops.length) {
-                    aVal = val.split(',');
-                    for (i = 0, j = s.ops.length; i < j; i++) {
-                        aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
-                    }
-                    if (aLab.length) return aLab.join(',');
-                }
-                return val;
-            } else {
-                return '';
-            }
-        };
-        facRecord = Record.ins(LS.p.site, LS.p.app, LS.p.rid);
-        options = {
-            owner: 'U',
-            rid: LS.p.rid
-        };
-        fnFetch = function() {
-            facRecord.list(options.owner, options.rid).then(function(records) {
-                $scope.records = records;
-            });
-        };
-        $scope.like = function(event, record) {
-            event.preventDefault();
-            event.stopPropagation();
-            facRecord.like(record).then(function(rsp) {});
-        };
-        $scope.$on('xxt.app.enroll.filter.rounds', function(event, data) {
-            if (options.rid !== data[0].rid) {
-                options.rid = data[0].rid;
-                fnFetch();
-            }
-        });
-        $scope.$on('xxt.app.enroll.filter.owner', function(event, data) {
-            if (options.owner !== data[0].id) {
-                options.owner = data[0].id;
-                fnFetch();
-            }
-        });
-        $scope.$watch('options', function(nv) {
-            $scope.fetch();
-        }, true);
-        $scope.options = options;
-        $scope.fetch = fnFetch;
-    }]);
     ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scope, Record, LS, $sce) {
         var facRecord,
             schemas = $scope.app.data_schemas,

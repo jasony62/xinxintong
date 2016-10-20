@@ -68,11 +68,13 @@ class shop_model extends \TMS_MODEL {
 				'siteid' => $siteId,
 				'matter_type' => $matter->matter_type,
 				'matter_id' => $matter->matter_id,
+				'scenario' => empty($matter->scenario) ? '' : $matter->scenario,
 				'title' => $matter->title,
 				'pic' => $matter->pic,
 				'summary' => $matter->summary,
 				'visible_scope' => $matter->visible_scope,
 			];
+
 			$id = $this->insert('xxt_shop_matter', $item, true);
 			$item = $this->byId($id);
 

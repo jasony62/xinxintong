@@ -52,7 +52,7 @@ window.loading = {
 				},
 			},
 			urlArgs: function(id, url) {
-				if (/^[xxt-|enroll-]/.test(id)) {
+				if (/^[xxt-|enroll-|main]/.test(id)) {
 					return "?bust=" + (timestamp * 1);
 				}
 				return '';

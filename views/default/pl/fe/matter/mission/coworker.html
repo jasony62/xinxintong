@@ -2,7 +2,7 @@
     <div class='form-group'>
         <div class='help-block'>添加用户共同管理项目</div>
         <div class='input-group'>
-            <input type="text" class="form-control" ng-model='label' placeholder="请输入作为用户账号的邮箱">
+            <input id='popoverMyCoworker' type="text" class="form-control" ng-model='label' placeholder="请输入作为用户账号的邮箱" uib-popover-template="'myCoworker.html'" popover-placement="bottom" popover-trigger="show" ng-click="openMyCoworkers()">
             <span class='input-group-btn'>
                 <button class='btn btn-primary' ng-click='add()' ng-disabled="!label||!label.length"><span class='glyphicon glyphicon-plus'></span></button>
             </span>
@@ -28,6 +28,16 @@
             <div class='form-group'>
                 <button class='btn btn-default' ng-click="closeInvite()">关闭</button>
             </div>
+        <div>
+    </script>
+    <script type="text/ng-template" id="myCoworker.html">
+        <div id="myCoworker">
+            <div class='list-group' style="max-height:205px;overflow-y:auto">
+                <a href='' class='list-group-item' ng-repeat="c in myCoworkers" ng-click="chooseMyCoworker(c)">
+                    <span>{{c.account.nickname}}</span><span>（{{c.coworker_label}}）</span>
+                </a>
+            </div>
+            <button class='btn btn-default' ng-click="closeMyCoworkers()">关闭</button>
         <div>
     </script>
 </div>

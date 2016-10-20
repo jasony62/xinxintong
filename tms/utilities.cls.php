@@ -29,6 +29,11 @@ class ResponseTimeout extends ResponseData {
 		parent::__construct(null, -2, $msg);
 	}
 }
+class InvalidAccessToken extends ResponseData {
+	public function __construct($msg = '没有获得有效访问令牌') {
+		parent::__construct(null, -3, $msg);
+	}
+}
 class ParameterError extends ResponseData {
 	public function __construct($msg = '参数错误。') {
 		parent::__construct(null, 100, $msg);

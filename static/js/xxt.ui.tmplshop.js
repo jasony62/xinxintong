@@ -4,7 +4,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
         var deferred;
         deferred = $q.defer();
         $uibModal.open({
-            templateUrl: '/static/template/templateShop.html?_=5',
+            templateUrl: '/static/template/templateShop.html?_=6',
             backdrop: 'static',
             size: 'lg',
             windowClass: 'auto-height',
@@ -38,6 +38,9 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                             break;
                         case 'share':
                             choice.data = $scope.templates[$scope.data.choose];
+                            break;
+                        case 'file':
+                            choice.data = $scope.fileTemplate;
                             break;
                     }
                     if (choice.data) {
@@ -90,10 +93,26 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                 };
                 $scope.searchTemplate = function() {
                     var url = '/rest/pl/fe/template/shop/list?matterType=' + type + '&scope=' + $scope.criteria.scope;
+                    if (assignedScenario && assignedScenario.length) {
+                        url += '&scenario=' + assignedScenario;
+                    }
                     http2.get(url, function(rsp) {
                         $scope.templates = rsp.data.templates;
                         $scope.page.total = rsp.data.total;
                     });
+                };
+                window.chooseFile = function(file) {
+                    var fReader;
+                    fReader = new FileReader();
+                    fReader.onload = function(evt) {
+                        var template;
+                        template = evt.target.result;
+                        template = JSON.parse(template);
+                        $scope.$apply(function() {
+                            $scope.fileTemplate = template;
+                        });
+                    };
+                    fReader.readAsText(file);
                 };
                 switch (type) {
                     case 'enroll':
@@ -159,6 +178,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                     } else {
                         $scope.data.matter_type = matter.type;
                         $scope.data.matter_id = matter.id;
+                        matter.scenario && ($scope.data.scenario = matter.scenario);
                         $scope.data.title = matter.title;
                         $scope.data.summary = matter.summary;
                         $scope.data.pic = matter.pic;

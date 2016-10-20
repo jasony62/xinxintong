@@ -26,8 +26,8 @@
             <td ng-if="null===activeRound">{{p.round_title}}</td>
             <td ng-repeat="c in app.data_schemas">
                 <span ng-if="c.id.indexOf('member')===0">{{memberAttr(p.data, c.id)}}</span>
-                <span ng-if="c.type!=='img'&&c.type!=='file'">{{value2Label(p.data[c.id], c.id)}}</span>
-                <span ng-if="c.type==='img'" ng-init="imgs=p.data[c.id].split(',')">
+                <span ng-if="c.type!=='image'&&c.type!=='file'">{{value2Label(p.data[c.id], c.id)}}</span>
+                <span ng-if="c.type==='image'" ng-init="imgs=p.data[c.id].split(',')">
                     <img ng-repeat="img in imgs" ng-src='{{img}}' />
                 </span>
                 <span ng-if="c.type==='file'" ng-init="files=json2Obj(p.data[c.id])">

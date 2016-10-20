@@ -39,23 +39,37 @@
         <label>扩展属性2</label>
         <input type="text" class="form-control" ng-model="editing.extattrs.attr2" tms-auto-update tms-wait=1000 tms-update="update('extattrs')">
     </div>
-</div><!--tile-->
+</div>
 <div class='tile'>
     <table class='table table-bordered' style='margin:0'>
         <tr>
-            <td>项目页眉</td>
-            <td>项目页眉</td>
+            <td>给项目中的所有活动和资料添加页眉</td>
             <td>
-                <a href='' ng-click="editPage($event,'header')">编辑页面</a>
-                <a href='' ng-click="resetPage($event,'header')" ng-show="editing.header_page_name.length">重置页面</a>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-default" ng-click="makePagelet('header')">制作</button>
+                    <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+                        <span class="caret"></span>
+                        <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href='' ng-click="codePage($event,'header')">编码</a></li>
+                    </ul>
+                </div>
             </td>
         </tr>
         <tr>
-            <td>项目页脚</td>
-            <td>项目页脚</td>
+            <td>给项目中的所有活动和资料添加页脚</td>
             <td>
-                <a href='' ng-click="editPage($event,'footer')">编辑页面</a>
-                <a href='' ng-click="resetPage($event,'footer')" ng-show="editing.footer_page_name.length">重置页面</a>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-default" ng-click="makePagelet('footer')">制作</button>
+                    <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+                        <span class="caret"></span>
+                        <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href='' ng-click="codePage($event,'footer')">编码</a></li>
+                    </ul>
+                </div>
             </td>
         </tr>
     </table>

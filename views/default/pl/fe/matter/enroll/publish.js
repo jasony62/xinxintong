@@ -1,9 +1,9 @@
 define(['frame'], function(ngApp) {
 	'use strict';
-	ngApp.provider.controller('ctrlPublish', ['$scope', 'http2', 'mediagallery', 'templateShop', function($scope, http2, mediagallery, templateShop) {
-		(function() {
+	ngApp.provider.controller('ctrlPublish', ['$scope', 'http2', 'mediagallery', 'templateShop', '$timeout', function($scope, http2, mediagallery, templateShop, $timeout) {
+		$timeout(function() {
 			new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
-		})();
+		});
 		$scope.$watch('app', function(app) {
 			if (!app) return;
 			var entry;
@@ -13,7 +13,6 @@ define(['frame'], function(ngApp) {
 			};
 			$scope.entry = entry;
 		});
-		$scope.opUrl = 'http://' + location.host + '/rest/site/op/matter/enroll?site=' + $scope.siteId + '&app=' + $scope.id;
 		$scope.setPic = function() {
 			var options = {
 				callback: function(url) {
@@ -35,6 +34,68 @@ define(['frame'], function(ngApp) {
 		});
 		$scope.shareAsTemplate = function() {
 			templateShop.share($scope.siteId, $scope.app);
+		};
+	}]);
+	ngApp.provider.controller('ctrlOpUrl', ['$scope', 'http2', 'srvQuickEntry', function($scope, http2, srvQuickEntry) {
+		var targetUrl, persisted;
+		$scope.opEntry = {};
+		$scope.$watch('app', function(app) {
+			if (!app) return;
+			targetUrl = 'http://' + location.host + '/rest/site/op/matter/enroll?site=' + $scope.siteId + '&app=' + $scope.id;
+			srvQuickEntry.get(targetUrl).then(function(entry) {
+				if (entry) {
+					$scope.opEntry.url = 'http://' + location.host + '/q/' + entry.code;
+					$scope.opEntry.password = entry.password;
+					persisted = entry;
+				}
+			});
+		});
+		$scope.makeOpUrl = function() {
+			srvQuickEntry.add(targetUrl).then(function(task) {
+				$scope.opEntry.url = 'http://' + location.host + '/q/' + task.code;
+			});
+		};
+		$scope.closeOpUrl = function() {
+			srvQuickEntry.remove(targetUrl).then(function(task) {
+				$scope.opEntry.url = '';
+			});
+		};
+		$scope.configOpUrl = function(event, prop) {
+			event.preventDefault();
+			srvQuickEntry.config(targetUrl, {
+				password: $scope.opEntry.password
+			});
+		};
+	}]);
+	ngApp.provider.controller('ctrlReportUrl', ['$scope', 'http2', 'srvQuickEntry', function($scope, http2, srvQuickEntry) {
+		var targetUrl, persisted;
+		$scope.reportEntry = {};
+		$scope.$watch('app', function(app) {
+			if (!app) return;
+			targetUrl = 'http://' + location.host + '/rest/site/op/matter/enroll/report?site=' + $scope.siteId + '&app=' + $scope.id;
+			srvQuickEntry.get(targetUrl).then(function(entry) {
+				if (entry) {
+					$scope.reportEntry.url = 'http://' + location.host + '/q/' + entry.code;
+					$scope.reportEntry.password = entry.password;
+					persisted = entry;
+				}
+			});
+		});
+		$scope.makeUrl = function() {
+			srvQuickEntry.add(targetUrl).then(function(task) {
+				$scope.reportEntry.url = 'http://' + location.host + '/q/' + task.code;
+			});
+		};
+		$scope.closeUrl = function() {
+			srvQuickEntry.remove(targetUrl).then(function(task) {
+				$scope.reportEntry.url = '';
+			});
+		};
+		$scope.configUrl = function(event, prop) {
+			event.preventDefault();
+			srvQuickEntry.config(targetUrl, {
+				password: $scope.reportEntry.password
+			});
 		};
 	}]);
 	/**
@@ -64,27 +125,47 @@ define(['frame'], function(ngApp) {
 	 * 访问控制规则
 	 */
 	ngApp.provider.controller('ctrlAccessRule', ['$scope', 'http2', function($scope, http2) {
+		var firstInputPage;
 		$scope.pages4NonMember = [];
 		$scope.pages4Nonfan = [];
+		$scope.rule = {};
 		$scope.updateEntryRule = function() {
 			var p = {
 				entry_rule: encodeURIComponent(JSON.stringify($scope.app.entry_rule))
 			};
-			http2.post('/rest/pl/fe/matter/enroll/update?site=' + $scope.siteId + '&app=' + $scope.id, p, function(rsp) {
-				$scope.persisted = angular.copy($scope.app);
-			});
+			http2.post('/rest/pl/fe/matter/enroll/update?site=' + $scope.siteId + '&app=' + $scope.id, p, function(rsp) {});
 		};
 		$scope.reset = function() {
 			http2.get('/rest/pl/fe/matter/enroll/entryRuleReset?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
 				$scope.app.entry_rule = rsp.data;
-				$scope.persisted = angular.copy($scope.app);
 			});
 		};
-		$scope.rule = {
-			scope: 'none'
-		};
 		$scope.changeUserScope = function() {
-			$scope.app.entry_rule.scope = $scope.rule.scope;
+			var entryRule = $scope.app.entry_rule;
+			entryRule.scope = $scope.rule.scope;
+			switch ($scope.rule.scope) {
+				case 'member':
+					entryRule.member === undefined && (entryRule.member = {});
+					entryRule.other === undefined && (entryRule.other = {});
+					entryRule.other.entry = '$memberschema';
+					$scope.memberSchemas.forEach(function(ms) {
+						entryRule.member[ms.id] = {
+							entry: firstInputPage ? firstInputPage.name : ''
+						};
+					});
+					break;
+				case 'sns':
+					entryRule.sns === undefined && (entryRule.sns = {});
+					entryRule.other === undefined && (entryRule.other = {});
+					entryRule.other.entry = '$mpfollow';
+					Object.keys($scope.sns).forEach(function(snsName) {
+						entryRule.sns[snsName] = {
+							entry: firstInputPage ? firstInputPage.name : ''
+						};
+					});
+					break;
+				default:
+			}
 			$scope.updateEntryRule();
 		};
 		$scope.$watch('app', function(app) {
@@ -99,13 +180,14 @@ define(['frame'], function(ngApp) {
 				name: '$mpfollow',
 				title: '提示关注'
 			}];
-			angular.forEach(pages, function(page) {
+			pages.forEach(function(page) {
 				var newPage = {
 					name: page.name,
 					title: page.title
 				};
 				$scope.pages4NonMember.push(newPage);
 				$scope.pages4Nonfan.push(newPage);
+				page.type === 'I' && (firstInputPage = newPage);
 			});
 		}, true);
 	}]);
@@ -170,6 +252,11 @@ define(['frame'], function(ngApp) {
 			}
 			return false;
 		};
+		$scope.exportAsTemplate = function() {
+			var url;
+			url = '/rest/pl/fe/matter/enroll/exportAsTemplate?site=' + $scope.siteId + '&app=' + $scope.id;
+			window.open(url);
+		};
 		/*初始化页面数据*/
 		if ($scope.app && $scope.app.mission) {
 			arrangePhases($scope.app.mission);
@@ -181,13 +268,34 @@ define(['frame'], function(ngApp) {
 		}
 	}]);
 	ngApp.provider.controller('ctrlPreview', ['$scope', 'http2', function($scope, http2) {
-		var previewURL = '/rest/site/fe/matter/enroll/preview?site=' + $scope.siteId + '&app=' + $scope.id + '&start=Y';
-		$scope.params = {
-			openAt: 'ontime'
+		var previewURL = '/rest/site/fe/matter/enroll/preview?site=' + $scope.siteId + '&app=' + $scope.id + '&start=Y',
+			params = {
+				pageAt: -1,
+				hasPrev: false,
+				hasNext: false,
+				openAt: 'ontime'
+			};
+		$scope.nextPage = function() {
+			params.pageAt++;
+			params.hasPrev = true;
+			params.hasNext = params.pageAt < $scope.app.pages.length - 1;
 		};
+		$scope.prevPage = function() {
+			params.pageAt--;
+			params.hasNext = true;
+			params.hasPrev = params.pageAt > 0;
+		};
+		$scope.$watch('app.pages', function(pages) {
+			if (pages) {
+				params.pageAt = 0;
+				params.hasPrev = false;
+				params.hasNext = !!pages.length;
+				$scope.params = params;
+			}
+		});
 		$scope.$watch('params', function(params) {
 			if (params) {
-				$scope.previewURL = previewURL + '&openAt=' + params.openAt;
+				$scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + $scope.app.pages[params.pageAt].name;
 			}
 		}, true);
 	}]);

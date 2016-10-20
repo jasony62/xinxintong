@@ -3,80 +3,6 @@ namespace site\fe\matter\signin;
 
 include_once dirname(__FILE__) . '/base.php';
 /**
- *
- */
-class resumableAliOss {
-
-	private $site;
-
-	public function __construct($site, $dest, $domain = '_user') {
-
-		$this->siteId = $site;
-
-		$this->dest = $dest;
-
-		$this->domain = $domain;
-	}
-	/**
-	 *
-	 * Check if all the parts exist, and
-	 * gather all the parts of the file together
-	 *
-	 * @param string $temp_dir - the temporary directory holding all the parts of the file
-	 * @param string $fileName - the original file name
-	 * @param string $chunkSize - each chunk size (in bytes)
-	 * @param string $totalSize - original file size (in bytes)
-	 */
-	private function createFileFromChunks($temp_dir, $fileName, $chunkSize, $totalSize) {
-		/*检查文件是否都已经上传*/
-		$fs = \TMS_APP::M('fs/saestore', $this->siteId);
-		$total_files = 0;
-		$rst = $fs->getListByPath($temp_dir);
-		foreach ($rst['files'] as $file) {
-			if (stripos($file['Name'], $fileName) !== false) {
-				$total_files++;
-			}
-		}
-		/*如果都已经上传，合并分块文件*/
-		if ($total_files * $chunkSize >= ($totalSize - $chunkSize + 1)) {
-			$fsAli = \TMS_APP::M('fs/alioss', $this->siteId, 'xinxintong', $this->domain);
-			// 合并后的临时文件
-			if (defined('SAE_TMP_PATH')) {
-				$tmpfname = tempnam(SAE_TMP_PATH, 'xxt');
-			} else {
-				$tmpfname = tempnam(sys_get_temp_dir(), 'xxt');
-			}
-			$handle = fopen($tmpfname, "w");
-			for ($i = 1; $i <= $total_files; $i++) {
-				$content = $fs->read($temp_dir . '/' . $fileName . '.part' . $i);
-				fwrite($handle, $content);
-				$fs->delete($temp_dir . '/' . $fileName . '.part' . $i);
-			}
-			fclose($handle);
-			/*将文件上传到alioss*/
-			$aliURL = $fsAli->getRootDir() . $this->dest;
-			$rsp = $fsAli->create_mpu_object($aliURL, $tmpfname);
-			echo (json_encode($rsp));
-		}
-	}
-	/**
-	 * 将接收到的分块数据存储在sae的存储中
-	 * 检查是否所有的分块数据都已经上传完成
-	 */
-	public function handleRequest() {
-		$temp_dir = $_POST['resumableIdentifier'];
-		$dest_file = $temp_dir . '/' . $_POST['resumableFilename'] . '.part' . $_POST['resumableChunkNumber'];
-		$content = base64_decode(preg_replace('/data:(.*?)base64\,/', '', $_POST['resumableChunkContent']));
-		$fsSae = \TMS_APP::M('fs/saestore', $this->siteId);
-		if (!$fsSae->write($dest_file, $content)) {
-			return array(false, 'Error saving (move_uploaded_file) chunk ' . $_POST['resumableChunkNumber'] . ' for file ' . $_POST['resumableFilename']);
-		} else {
-			$this->createFileFromChunks($temp_dir, $_POST['resumableFilename'], $_POST['resumableChunkSize'], $_POST['resumableTotalSize']);
-			return array(true);
-		}
-	}
-}
-/**
  * 签到活动记录
  */
 class record extends base {
@@ -141,9 +67,10 @@ class record extends base {
 		 * 签到并保存登记的数据
 		 */
 		$modelRec = $this->model('matter\signin\record');
-		$signState = $modelRec->signin($user, $site, $signinApp);
+		$signState = $modelRec->signin($user, $site, $signinApp, $signinData);
 		// 保存签到登记数据
-		$rst = $modelRec->setData($user, $site, $signinApp, $signState->ek, $signinData, $submitkey);
+		empty($submitkey) && $submitkey = $user->uid;
+		$rst = $modelRec->setData($site, $signinApp, $signState->ek, $signinData, $submitkey);
 		if (false === $rst[0]) {
 			return new \ResponseError($rst[1]);
 		}
@@ -179,7 +106,7 @@ class record extends base {
 							!isset($signinData->{$n}) && $signinData->{$n} = $v;
 						}
 						// 记录报名数据
-						$modelRec->setData($user, $site, $signinApp, $signState->ek, $signinData, $submitkey);
+						$modelRec->setData($site, $signinApp, $signState->ek, $signinData, $submitkey);
 						// 记录验证状态
 						$modelRec->update(
 							'xxt_signin_record',
@@ -247,13 +174,13 @@ class record extends base {
 			exit;
 		}
 		if (empty($submitkey)) {
-			$user = $this->getUser($site);
-			$submitkey = $user->vid;
+			$user = $this->who;
+			$submitkey = $user->uid;
 		}
 		/** 分块上传文件 */
 		if (defined('SAE_TMP_PATH')) {
 			$dest = '/' . $app . '/' . $submitkey . '_' . $_POST['resumableFilename'];
-			$resumable = new resumableAliOss($site, $dest);
+			$resumable = \TMS_APP::M('fs/resumableAliOss', $site, $dest, 'xinxintong');
 			$resumable->handleRequest();
 		} else {
 			$modelFs = \TMS_APP::M('fs/local', $site, '_resumable');

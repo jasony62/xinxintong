@@ -36,6 +36,28 @@ class acl_model extends \TMS_MODEL {
 		return $acls;
 	}
 	/**
+	 * 任务的访问控制列表
+	 *
+	 * @param int $missionId
+	 * @param object $user
+	 * @param array $options
+	 */
+	public function &byUser(&$user, $missionId, $options) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+
+		$missionId = $this->escape($missionId);
+		$q = [
+			$fields,
+			'xxt_mission_acl',
+			"inviter='{$user->id}' and coworker_role='C' and mission_id<>{$missionId}",
+		];
+		$q2 = ['o' => 'invite_at desc'];
+
+		$acls = $this->query_objs_ss($q, $q2);
+
+		return $acls;
+	}
+	/**
 	 *
 	 */
 	public function &byCoworker($missionId, $coworkerId, $options = []) {

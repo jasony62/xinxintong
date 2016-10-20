@@ -56,7 +56,7 @@ class main extends base {
 			if (!$activeRound) {
 				$this->outputError('签到还没有开始', $app->title);
 			} else if (!empty($round) && $round !== $activeRound->rid) {
-				$this->outputError('签到二维码或链接无效', $app->title);
+				$this->outputError('您签到的场次或时间不正确', $app->title);
 			}
 		}
 		/* 计算打开哪个页面 */

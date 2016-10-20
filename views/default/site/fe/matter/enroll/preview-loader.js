@@ -4,6 +4,14 @@ window.loading = {
 		eleLoading.parentNode.removeChild(eleLoading);
 	},
 	load: function() {
+		var timestamp, minutes;
+		timestamp = new Date();
+		minutes = timestamp.getMinutes();
+		minutes = Math.floor(minutes / 5) * 5;
+		timestamp.setMinutes(minutes);
+		timestamp.setMilliseconds(0);
+		timestamp.setSeconds(0);
+
 		require.config({
 			paths: {
 				"domReady": '/static/js/domReady',
@@ -21,10 +29,10 @@ window.loading = {
 					exports: "angular-sanitize"
 				},
 			},
-			urlArgs: "bust=" + (new Date() * 1)
+			urlArgs: "bust=" + (timestamp * 1)
 		});
 		require(['xxt-page'], function(assembler) {
-			assembler.bootstrap('/views/default/site/fe/matter/enroll/preview.js?_=1');
+			assembler.bootstrap('/views/default/site/fe/matter/enroll/preview.js?_=' + (timestamp * 1));
 		});
 	}
 };

@@ -126,6 +126,18 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 				});
 			});
 		};
+		var _showPopoverPageSetting = false;
+		$scope.popoverPageSetting = function() {
+			if (_showPopoverPageSetting) {
+				$('#popoverPageSetting').trigger('hide');
+			} else {
+				$('#popoverPageSetting').trigger('show');
+				setTimeout(function() {
+					new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
+				});
+			}
+			_showPopoverPageSetting = !_showPopoverPageSetting;
+		};
 		$scope.$watch('app', function(app) {
 			if (!app) return;
 			$scope.ep = app.pages[0];
@@ -182,7 +194,14 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 		}];
 		$scope.buttons = schemaLib.buttons;
 		$scope.setActiveWrap = function(domWrap) {
+			var activeWrap;
 			$scope.activeWrap = editorProxy.setActiveWrap(domWrap);
+			activeWrap = $scope.activeWrap;
+			if (activeWrap || activeWrap.schema || activeWrap.schemas || activeWrap.type === 'rounds') {
+				$('#pageEdit').trigger('show');
+			} else {
+				$('#pageEdit').trigger('hide');
+			}
 		};
 		$scope.wrapEditorHtml = function() {
 			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=' + (new Date()).getMinutes();
@@ -383,12 +402,12 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 		});
 		$scope.$on('tinymce.wrap.add', function(event, domWrap) {
 			$scope.$apply(function() {
-				$scope.activeWrap = editorProxy.selectWrap(domWrap);
+				$scope.setActiveWrap(domWrap);
 			});
 		});
 		$scope.$on('tinymce.wrap.select', function(event, domWrap) {
 			$scope.$apply(function() {
-				$scope.activeWrap = editorProxy.selectWrap(domWrap);
+				$scope.setActiveWrap(domWrap);
 			});
 		});
 		$scope.$on('tinymce.multipleimage.open', function(event, callback) {
@@ -471,6 +490,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 		pageSchemas.forEach(function(config) {
 			config.schema && config.schema.id && (chooseState[config.schema.id] = true);
 		});
+		chooseState['enrollAt'] === undefined && (chooseState['enrollAt'] = false);
 		$scope.chooseState = chooseState;
 		$scope.choose = function(schema) {
 			if (chooseState[schema.id]) {

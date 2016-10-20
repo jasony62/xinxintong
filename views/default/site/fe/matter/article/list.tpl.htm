@@ -15,7 +15,7 @@
         <div class='form-group'>
             <div class='input-group'>
                 <span class='glyphicon glyphicon-search'></span>
-                <input type='text' class='form-control' ng-model='searchKeyword' ng-keypress='todoSomething($event)' required />
+                <input type='text' class='form-control' ng-model='searchKeyword' ng-keypress='keypress($event)' required />
             </div>
             <button type='submit' class='btn' ng-click='search()' >搜 索</button>
         </div>
@@ -40,9 +40,7 @@
                     </div>
                 </li>
             </ul>
-            <div ng-if='!matters.length' class='message'>
-                很抱歉，未找到与<b>“</b><span style='color:red' ng-bind='word'></span><b>”</b>相关的文章。
-            </div>
+            <div ng-if='!matters.length' class='message' ng-bind='message'></div>
         </div>
     </div>
     <script type="text/javascript">

@@ -36,45 +36,22 @@ app.controller('ctrl', ['$scope', '$location', '$http', '$q', function($scope, $
     };
     /*输入框需要绑定的内容*/
     $scope.searchKeyword = keyWord;
-
-    var deferred = $q.defer();
-    var promise = deferred.promise;
+    /*发送请求*/
     $http.get('/rest/site/fe/matter/article/search/list?site=' + siteId + '&keyword=' + keyWord).success(function(rsp) {
-        if (rsp.data.length) {
-            deferred.resolve(rsp.data);
-        } else {
-            deferred.reject("很抱歉，未找到与此相关的文章。");
-        }
-    });
-    promise.then(function(result) {
-        $scope.matters = result;
-    }, function(error) {
-        $scope.matters = [];
-        $scope.message = error;
-        return $scope.message;
+        $scope.matters = rsp.data;
     });
     $scope.keypress = function(event) {
         if (event.keyCode == 13) {
             $scope.search();
         }
     }
-    $scope.search = function() {
-        var deferred = $q.defer();
-        var promise = deferred.promise;
+    $scope.search = function(event) {
         $http.post('/rest/site/fe/matter/article/search/list?site=' + siteId + '&keyword=' + $scope.searchKeyword).success(function(rsp) {
-            if (rsp.data.length) {
-                deferred.resolve(rsp.data);
-            } else {
-                deferred.reject("很抱歉，未找到与此相关的文章。");
-            }
-            promise.then(function(result) {
-                $scope.matters = result;
-            }, function(error) {
-                $scope.matters = [];
-                $scope.message = error;
-                return $scope.message;
-            });
+            $scope.matters = rsp.data;
+            $scope.word = $scope.searchKeyword;
         });
+        var url = $location.absUrl().split('&')[0] + '&keyword=' + $scope.searchKeyword;
+        history.replaceState(null, '', url);
     }
     $scope.open = function(opened) {
         location.href = '/rest/site/fe/matter?site=' + siteId + '&id=' + opened.id + '&type=article';

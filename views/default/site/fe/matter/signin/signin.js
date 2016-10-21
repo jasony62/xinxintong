@@ -378,8 +378,11 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
         });
         var doSubmit = function(nextAction) {
             var ek, btnSubmit;
-            btnSubmit = document.querySelector('#btnSubmit');
-            btnSubmit && btnSubmit.setAttribute('disabled', true);
+            if (btnSubmit = document.querySelector('#btnSubmit button')) {
+                btnSubmit.classList.remove('btn-primary');
+                btnSubmit.classList.add('btn-default');
+                btnSubmit.setAttribute('disabled', true);
+            }
             ek = $scope.record ? $scope.record.enroll_key : undefined;
             facInput.submit($scope.data, ek).then(function(rsp) {
                 var url;
@@ -400,7 +403,11 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
                     url += '&ek=' + rsp.data.ek;
                     location.replace(url);
                 } else {
-                    btnSubmit && btnSubmit.removeAttribute('disabled');
+                    if (btnSubmit) {
+                        btnSubmit.classList.add('btn-primary');
+                        btnSubmit.classList.remove('btn-default');
+                        btnSubmit.removeAttribute('disabled');
+                    }
                     if (ek === undefined) {
                         $scope.record = {
                             enroll_key: rsp.data.ek
@@ -409,7 +416,11 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
                     $scope.$broadcast('xxt.app.enroll.submit.done', rsp.data);
                 }
             }, function(reason) {
-                btnSubmit && btnSubmit.removeAttribute('disabled');
+                if (btnSubmit) {
+                    btnSubmit.classList.add('btn-primary');
+                    btnSubmit.classList.remove('btn-default');
+                    btnSubmit.removeAttribute('disabled');
+                }
                 $scope.$parent.errmsg = reason;
             });
         };

@@ -81,6 +81,10 @@ define(['frame'], function(ngApp) {
             url: '/rest/pl/fe/matter'
         }];
         $scope.doSearch = function(page) {
+            $scope.rows = {
+                allSelected: 'N',
+                selected: {}
+            };
             searchSigninRecords(page);
         };
         // 过滤条件
@@ -383,6 +387,10 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.notify = function(isBatch) {
+            var options = {
+                matterTypes: $scope.notifyMatterTypes
+            };
+            $scope.app.mission && (options.missionId = $scope.app.mission.id);
             pushnotify.open($scope.siteId, function(notify) {
                 var url, targetAndMsg = {};
                 if (notify.matters.length) {
@@ -408,14 +416,21 @@ define(['frame'], function(ngApp) {
                         noticebox.success('发送成功');
                     });
                 }
-            }, {
-                matterTypes: $scope.notifyMatterTypes
-            });
+            }, options);
         };
         $scope.export = function() {
             var url;
 
             url = '/rest/pl/fe/matter/signin/record/export';
+            url += '?site=' + $scope.siteId + '&app=' + $scope.id;
+            $scope.page.byRound && (url += '&round=' + $scope.page.byRound);
+
+            window.open(url);
+        };
+        $scope.exportImage = function() {
+            var url;
+
+            url = '/rest/pl/fe/matter/signin/record/exportImage';
             url += '?site=' + $scope.siteId + '&app=' + $scope.id;
             $scope.page.byRound && (url += '&round=' + $scope.page.byRound);
 
@@ -657,8 +672,12 @@ define(['frame'], function(ngApp) {
             $scope.record.aTags = $scope.record.aTags.concat(aNewTags);
         });
         $scope.$on('tag.xxt.combox.add', function(event, newTag) {
-            $scope.record.aTags.push(newTag);
-            $scope.aTags.indexOf(newTag) === -1 && $scope.aTags.push(newTag);
+            if (-1 === $scope.record.aTags.indexOf(newTag)) {
+                $scope.record.aTags.push(newTag);
+                if (-1 === $scope.aTags.indexOf(newTag)) {
+                    $scope.aTags.push(newTag);
+                }
+            }
         });
         $scope.$on('tag.xxt.combox.del', function(event, removed) {
             $scope.record.aTags.splice($scope.record.aTags.indexOf(removed), 1);

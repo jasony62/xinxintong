@@ -247,6 +247,12 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
                     http2.post(url, config, function(rsp) {
                         location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
                     });
+                } else if (choice.source === 'file') {
+                    var url, data = choice.data;
+                    url = '/rest/pl/fe/matter/enroll/createByFile?site=' + $scope.siteId;
+                    http2.post(url, data, function(rsp) {
+                        location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.siteId + '&id=' + rsp.data.id;
+                    });
                 }
             } else {
                 var url;

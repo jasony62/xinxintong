@@ -1,9 +1,12 @@
 <?php
+/**
+ *
+ */
 class alioss_model {
 
 	const ALIOSS_URL = 'http://xinxintong.oss-cn-hangzhou.aliyuncs.com';
 
-	protected $mpid;
+	protected $siteId;
 
 	protected $bucket;
 
@@ -11,27 +14,27 @@ class alioss_model {
 
 	private $rootDir;
 
-	private $mapBucket2Host = array(
+	private $mapBucket2Host = [
 		'xinxintong' => 'oss-cn-hangzhou.aliyuncs.com',
 		'xxt-attachment' => 'oss-cn-shanghai.aliyuncs.com',
-	);
+	];
 	/**
 	 *
 	 */
-	public function __construct($mpid, $bucket = 'xinxintong', $domain = '_user') {
-		$this->mpid = $mpid;
+	public function __construct($siteId, $bucket = 'xinxintong', $domain = '_user') {
+		$this->siteId = $siteId;
 
 		$this->bucket = $bucket;
 
 		$this->hostname = $this->mapBucket2Host[$bucket];
 
-		$this->rootDir = $mpid . "/" . $domain;
+		$this->rootDir = $siteId . "/" . $domain;
 	}
 	/**
 	 *
 	 */
 	protected function &get_alioss() {
-		require_once dirname(dirname(dirname(__FILE__))) . '/lib/ali-oss/sdk.class.php';
+		require_once TMS_APP_DIR . '/lib/ali-oss/sdk.class.php';
 
 		$oss_sdk_service = new ALIOSS(null, null, $this->hostname);
 		//设置是否打开curl调试模式

@@ -41,4 +41,22 @@ class matter extends \pl\fe\matter\base {
 
 		return new \ResponseData($mission);
 	}
+	/**
+	 * 给项目添加素材
+	 *
+	 * @param string $site
+	 * @param int $id
+	 */
+	public function remove_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$matter = $this->getPostJson();
+
+		$modelMis = $this->model('matter\mission');
+		$rst = $modelMis->removeMatter($site, $matter->id, $matter->type);
+
+		return new \ResponseData($rst);
+	}
 }

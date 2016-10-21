@@ -163,6 +163,9 @@ class record_model extends \TMS_MODEL {
 				$dbData->{$n} = $treatedValue;
 			}
 			// 记录数据
+			if (is_object($treatedValue) || is_array($treatedValue)) {
+				$treatedValue = json_encode($treatedValue);
+			}
 			$ic = [
 				'aid' => $app->id,
 				'enroll_key' => $ek,
@@ -812,9 +815,12 @@ class record_model extends \TMS_MODEL {
 					}
 				}
 				// 计算平均分
-				$rowNumber = count($values);
-				foreach ($schema->ops as &$op) {
-					$op->c = $op->c / $rowNumber;
+				if ($rowNumber = count($values)) {
+					foreach ($schema->ops as &$op) {
+						$op->c = $op->c / $rowNumber;
+					}
+				} else {
+					$op->c = 0;
 				}
 			}
 		}

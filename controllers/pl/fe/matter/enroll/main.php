@@ -127,15 +127,20 @@ class main extends \pl\fe\matter\base {
 			$newapp['use_mission_footer'] = 'Y';
 		}
 		$appId = uniqid();
-		/* pages */
 		if (!empty($scenario) && !empty($template)) {
-			$config = $this->_addPageByTemplate($user, $site, $mission, $appId, $scenario, $template, $customConfig);
-			/*进入规则*/
+			$config = $this->_getSysTemplate($scenario, $template);
+			/* 添加页面 */
+			$this->_addPageByTemplate($user, $site, $mission, $appId, $config, $customConfig);
+			/* 登记数量限制 */
+			if (isset($config->count_limit)) {
+				$newapp['count_limit'] = $config->count_limit;
+			}
+			/* 进入规则 */
 			$entryRule = $config->entryRule;
 			if (isset($config->enrolled_entry_page)) {
 				$newapp['enrolled_entry_page'] = $config->enrolled_entry_page;
 			}
-			/*场景设置*/
+			/* 场景设置 */
 			if (isset($config->scenarioConfig)) {
 				$scenarioConfig = $config->scenarioConfig;
 				$newapp['scenario_config'] = json_encode($scenarioConfig);
@@ -176,7 +181,7 @@ class main extends \pl\fe\matter\base {
 		return new \ResponseData($app);
 	}
 	/**
-	 * 从模版创建登记活动
+	 * 从共享模版模版创建登记活动
 	 *
 	 * @param string $site
 	 * @param int $template
@@ -263,6 +268,92 @@ class main extends \pl\fe\matter\base {
 		/*记录操作日志*/
 		$app->type = 'enroll';
 		$this->model('matter\log')->matterOp($site, $user, $app, 'C');
+
+		return new \ResponseData($app);
+	}
+	/**
+	 * 创建登记活动
+	 *
+	 * @param string $site site's id
+	 * @param string $mission mission's id
+	 *
+	 */
+	public function createByFile_action($site, $mission = null) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$config = $this->getPostJson();
+		$current = time();
+		$newapp = [];
+		$site = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
+
+		/* 从站点或任务获得的信息 */
+		if (empty($mission)) {
+			$newapp['pic'] = $site->heading_pic;
+			$newapp['summary'] = '';
+			$newapp['use_mission_header'] = 'N';
+			$newapp['use_mission_footer'] = 'N';
+		} else {
+			$modelMis = $this->model('matter\mission');
+			$mission = $modelMis->byId($mission);
+			$newapp['pic'] = $mission->pic;
+			$newapp['summary'] = $mission->summary;
+			$newapp['mission_id'] = $mission->id;
+			$newapp['use_mission_header'] = 'Y';
+			$newapp['use_mission_footer'] = 'Y';
+		}
+		$appId = uniqid();
+
+		empty($config->scenario) && $newapp['scenario'] = $scenario;
+		/* 登记数量限制 */
+		if (isset($config->count_limit)) {
+			$newapp['count_limit'] = $config->count_limit;
+		}
+		if (!empty($config->pages) && !empty($config->entryRule)) {
+			$this->_addPageByTemplate($user, $site, $mission, $appId, $config, $customConfig);
+			/*进入规则*/
+			$entryRule = $config->entryRule;
+			if (isset($config->enrolled_entry_page)) {
+				$newapp['enrolled_entry_page'] = $config->enrolled_entry_page;
+			}
+			/*场景设置*/
+			if (isset($config->scenarioConfig)) {
+				$scenarioConfig = $config->scenarioConfig;
+				$newapp['scenario_config'] = json_encode($scenarioConfig);
+			}
+		} else {
+			$entryRule = $this->_addBlankPage($user, $site->id, $appId);
+		}
+		if (empty($entryRule)) {
+			return new \ResponseError('没有获得页面进入规则');
+		}
+
+		/* create app */
+		$newapp['id'] = $appId;
+		$newapp['siteid'] = $site->id;
+		$newapp['title'] = empty($customConfig->proto->title) ? '新登记活动' : $customConfig->proto->title;
+		$newapp['creater'] = $user->id;
+		$newapp['creater_src'] = $user->src;
+		$newapp['creater_name'] = $user->name;
+		$newapp['create_at'] = $current;
+		$newapp['modifier'] = $user->id;
+		$newapp['modifier_src'] = $user->src;
+		$newapp['modifier_name'] = $user->name;
+		$newapp['modify_at'] = $current;
+		$newapp['entry_rule'] = json_encode($entryRule);
+		isset($config) && $newapp['data_schemas'] = \TMS_MODEL::toJson($config->schema);
+
+		$this->model()->insert('xxt_enroll', $newapp, false);
+
+		$app = $this->model('matter\enroll')->byId($appId);
+		/* 记录操作日志 */
+		$app->type = 'enroll';
+		$this->model('matter\log')->matterOp($site->id, $user, $app, 'C');
+		/* 记录和任务的关系 */
+		if (isset($mission->id)) {
+			$modelMis->addMatter($user, $site->id, $mission->id, $app);
+		}
 
 		return new \ResponseData($app);
 	}
@@ -545,18 +636,42 @@ class main extends \pl\fe\matter\base {
 		return $entryRule;
 	}
 	/**
+	 * 获得系统内置登记活动模版
+	 *
+	 * @param string $scenario scenario's name
+	 * @param string $template template's name
+	 *
+	 */
+	private function _getSysTemplate($scenario, $template) {
+		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/matter/enroll/scenario/' . $scenario . '/templates/' . $template;
+		$config = file_get_contents($templateDir . '/config.json');
+		$config = preg_replace('/\t|\r|\n/', '', $config);
+		$config = json_decode($config);
+		/**
+		 * 处理页面
+		 */
+		if (!empty($config->pages)) {
+			foreach ($config->pages as &$page) {
+				/* 填充代码 */
+				$code = [
+					'html' => file_get_contents($templateDir . '/' . $page->name . '.html'),
+					'css' => file_get_contents($templateDir . '/' . $page->name . '.css'),
+					'js' => file_get_contents($templateDir . '/' . $page->name . '.js'),
+				];
+				$page->code = $code;
+			}
+		}
+
+		return $config;
+	}
+	/**
 	 * 根据模板生成页面
 	 *
 	 * @param string $app
 	 * @param string $scenario scenario's name
 	 * @param string $template template's name
 	 */
-	private function &_addPageByTemplate(&$user, &$site, &$mission, &$app, $scenario, $template, &$customConfig) {
-		$templateDir = TMS_APP_TEMPLATE . '/pl/fe/matter/enroll/scenario/' . $scenario . '/templates/' . $template;
-		$config = file_get_contents($templateDir . '/config.json');
-		$config = preg_replace('/\t|\r|\n/', '', $config);
-		$config = json_decode($config);
-
+	private function &_addPageByTemplate(&$user, &$site, &$mission, &$app, &$config, &$customConfig) {
 		$pages = $config->pages;
 		if (empty($pages)) {
 			return false;
@@ -639,19 +754,17 @@ class main extends \pl\fe\matter\base {
 				"aid='$app' and id={$ap->id}"
 			);
 			/* 填充页面 */
-			$data = [
-				'html' => file_get_contents($templateDir . '/' . $page->name . '.html'),
-				'css' => file_get_contents($templateDir . '/' . $page->name . '.css'),
-				'js' => file_get_contents($templateDir . '/' . $page->name . '.js'),
-			];
-			/* 页面存在动态信息 */
-			$matched = [];
-			$pattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
-			if (preg_match($pattern, $data['html'], $matched)) {
-				$html = $modelPage->htmlBySchema($page->data_schemas, $matched[0]);
-				$data['html'] = preg_replace($pattern, $html, $data['html']);
+			if (!empty($page->code)) {
+				$code = $page->code;
+				/* 页面存在动态信息 */
+				$matched = [];
+				$pattern = '/<!-- begin: generate by schema -->.*<!-- end: generate by schema -->/s';
+				if (preg_match($pattern, $code['html'], $matched)) {
+					$html = $modelPage->htmlBySchema($page->data_schemas, $matched[0]);
+					$code['html'] = preg_replace($pattern, $html, $code['html']);
+				}
+				$modelCode->modify($ap->code_id, $code);
 			}
-			$modelCode->modify($ap->code_id, $data);
 		}
 
 		return $config;
@@ -748,5 +861,30 @@ class main extends \pl\fe\matter\base {
 		$this->model('matter\log')->matterOp($site, $user, $app, 'D');
 
 		return new \ResponseData($rst);
+	}
+	/**
+	 * 将应用定义导出为模版
+	 */
+	public function exportAsTemplate_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+		$app = $this->model('matter\enroll')->byId($app);
+
+		$template = new \stdClass;
+		/* setting */
+		!empty($app->scenario) && $template->scenario = $app->scenario;
+		$template->count_limit = $app->count_limit;
+
+		/* schema */
+		$template->schema = json_decode($app->data_schemas);
+
+		$template = \TMS_MODEL::toJson($template);
+		header("Cache-Control: public");
+		header("Content-Description: File Transfer");
+		header('Content-disposition: attachment; filename=' . $app->title . '.json');
+		header("Content-Type: text/plain");
+		header('Content-Length: ' . strlen($template));
+		die($template);
 	}
 }

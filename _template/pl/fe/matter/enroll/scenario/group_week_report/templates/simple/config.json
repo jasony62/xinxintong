@@ -1,4 +1,5 @@
 {
+	"scenario": "group_week_report",
 	"pages": [{
 		"name": "enroll",
 		"title": "登记页",

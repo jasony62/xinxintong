@@ -24,6 +24,10 @@ define(['frame'], function(ngApp) {
         }];
         $scope.doSearch = function(page) {
             var url;
+            $scope.rows = {
+                allSelected: 'N',
+                selected: {}
+            };
             page && ($scope.page.at = page);
             url = '/rest/pl/fe/matter/enroll/record/list';
             url += '?site=' + $scope.siteId;
@@ -122,7 +126,7 @@ define(['frame'], function(ngApp) {
                 if (s.type === 'score') {
                     var label = '';
                     s.ops.forEach(function(op, index) {
-                        label += op.l + ':' + val[op.v] + ' / ';
+                        label += '<div>' + op.l + ':' + val[op.v] + '</div>';
                     });
                     label = label.replace(/\s\/\s$/, '');
                     return label;
@@ -408,6 +412,10 @@ define(['frame'], function(ngApp) {
             }
         };
         $scope.notify = function(isBatch) {
+            var options = {
+                matterTypes: $scope.notifyMatterTypes
+            };
+            $scope.app.mission && (options.missionId = $scope.app.mission.id);
             pushnotify.open($scope.siteId, function(notify) {
                 var url, targetAndMsg = {};
                 if (notify.matters.length) {
@@ -433,9 +441,7 @@ define(['frame'], function(ngApp) {
                         noticebox.success('发送成功');
                     });
                 }
-            }, {
-                matterTypes: $scope.notifyMatterTypes
-            });
+            }, options);
         };
         $scope.export = function() {
             var url, params = {
@@ -443,6 +449,15 @@ define(['frame'], function(ngApp) {
             };
 
             url = '/rest/pl/fe/matter/enroll/record/export';
+            url += '?site=' + $scope.siteId + '&app=' + $scope.id;
+            window.open(url);
+        };
+        $scope.exportImage = function() {
+            var url, params = {
+                criteria: $scope.criteria
+            };
+
+            url = '/rest/pl/fe/matter/enroll/record/exportImage';
             url += '?site=' + $scope.siteId + '&app=' + $scope.id;
             window.open(url);
         };
@@ -476,7 +491,7 @@ define(['frame'], function(ngApp) {
         $scope.$watch('app', function(app) {
             if (!app) return;
             var mapOfSchemaByType = {};
-            angular.forEach(app.data_schemas, function(schema) {
+            app.data_schemas.forEach(function(schema) {
                 mapOfSchemaByType[schema.type] === undefined && (mapOfSchemaByType[schema.type] = []);
                 mapOfSchemaByType[schema.type].push(schema);
             });
@@ -685,8 +700,12 @@ define(['frame'], function(ngApp) {
             $scope.record.aTags = $scope.record.aTags.concat(aNewTags);
         });
         $scope.$on('tag.xxt.combox.add', function(event, newTag) {
-            $scope.record.aTags.push(newTag);
-            $scope.aTags.indexOf(newTag) === -1 && $scope.aTags.push(newTag);
+            if (-1 === $scope.record.aTags.indexOf(newTag)) {
+                $scope.record.aTags.push(newTag);
+                if (-1 === $scope.aTags.indexOf(newTag)) {
+                    $scope.aTags.push(newTag);
+                }
+            }
         });
         $scope.$on('tag.xxt.combox.del', function(event, removed) {
             $scope.record.aTags.splice($scope.record.aTags.indexOf(removed), 1);

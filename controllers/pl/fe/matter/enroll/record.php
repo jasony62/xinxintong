@@ -153,12 +153,13 @@ class record extends \pl\fe\matter\base {
 			$updated->verified = $record->verified;
 		}
 		$modelEnl->update('xxt_enroll_record', $updated, "enroll_key='$ek'");
+
+		/* 记录登记数据 */
 		$result = $modelRec->setData(null, $site, $app, $ek, $record->data);
 
 		if ($updated->verified === 'Y') {
 			$this->_whenVerifyRecord($app, $ek);
 		}
-		/* 记录登记数据 */
 
 		/* 记录操作日志 */
 		$app->type = 'enroll';
@@ -182,7 +183,7 @@ class record extends \pl\fe\matter\base {
 		// 记录操作日志
 		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
 		$app->type = 'enroll';
-		$this->model('matter\log')->matterOp($site, $user, $app, 'remvoe', $key);
+		$this->model('matter\log')->matterOp($site, $user, $app, 'remove', $key);
 
 		return new \ResponseData($rst);
 	}
@@ -684,6 +685,132 @@ class record extends \pl\fe\matter\base {
 		header('Cache-Control: max-age=0');
 		$objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
 		$objWriter->save('php://output');
+		exit;
+	}
+	/**
+	 * 导出登记数据中的图片
+	 */
+	public function exportImage_action($site, $app) {
+		if (false === ($user = $this->accountUser())) {
+			die('请先登录系统');
+		}
+		if (defined('SAE_TMP_PATH')) {
+			die('部署环境不支持该功能');
+		}
+
+		$nameSchema = null;
+		$imageSchemas = [];
+
+		// 登记活动
+		$enrollApp = $this->model('matter\enroll')->byId($app, ['fields' => 'id,title,data_schemas,scenario,enroll_app_id,group_app_id', 'cascaded' => 'N']);
+		$schemas = json_decode($enrollApp->data_schemas);
+
+		// 关联的登记活动
+		if (!empty($enrollApp->enroll_app_id)) {
+			$matchApp = $this->model('matter\enroll')->byId($enrollApp->enroll_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+			$enrollSchemas = json_decode($matchApp->data_schemas);
+			$mapOfAppSchemas = [];
+			foreach ($schemas as $schema) {
+				$mapOfAppSchemas[] = $schema->id;
+			}
+			foreach ($enrollSchemas as $schema) {
+				if (!in_array($schema->id, $mapOfAppSchemas)) {
+					$schemas[] = $schema;
+				}
+			}
+		}
+		// 关联的分组活动
+		if (!empty($enrollApp->group_app_id)) {
+			$matchApp = $this->model('matter\group')->byId($enrollApp->group_app_id, ['fields' => 'id,title,data_schemas', 'cascaded' => 'N']);
+			$groupSchemas = json_decode($matchApp->data_schemas);
+			$mapOfAppSchemas = [];
+			foreach ($schemas as $schema) {
+				$mapOfAppSchemas[] = $schema->id;
+			}
+			foreach ($groupSchemas as $schema) {
+				if (!in_array($schema->id, $mapOfAppSchemas)) {
+					$schemas[] = $schema;
+				}
+			}
+		}
+
+		foreach ($schemas as $schema) {
+			if ($schema->type === 'image') {
+				$imageSchemas[] = $schema;
+			} else if ($schema->id === 'name' || (in_array($schema->title, array('姓名', '名称')))) {
+				$nameSchema = $schema;
+			}
+		}
+
+		if (count($imageSchemas) === 0) {
+			die('活动不包含图片数据');
+		}
+
+		// 获得所有有效的登记记录
+		$records = $this->model('matter\enroll\record')->find($site, $enrollApp);
+		if ($records->total === 0) {
+			die('record empty');
+		}
+		$records = $records->records;
+
+		// 转换数据
+		$aImages = [];
+		for ($j = 0, $jj = count($records); $j < $jj; $j++) {
+			$record = $records[$j];
+			// 处理登记项
+			$data = $record->data;
+			for ($i = 0, $ii = count($imageSchemas); $i < $ii; $i++) {
+				$schema = $imageSchemas[$i];
+				if (!empty($data->{$schema->id})) {
+					$aImages[] = ['url' => $data->{$schema->id}, 'schema' => $schema, 'data' => $data];
+				}
+			}
+		}
+
+		// 输出
+		$usedRecordName = [];
+		// 输出打包文件
+		$zipFilename = tempnam('/tmp', $enrollApp->id);
+		$zip = new \ZipArchive;
+		if ($zip->open($zipFilename, \ZIPARCHIVE::CREATE) === false) {
+			die('无法打开压缩文件，或者文件创建失败');
+		}
+		foreach ($aImages as $image) {
+			$imageFilename = TMS_APP_DIR . '/' . $image['url'];
+			if (file_exists($imageFilename)) {
+				$imageName = basename($imageFilename);
+				/**
+				 * 图片文件名称替换
+				 */
+				if (isset($nameSchema)) {
+					$data = $image['data'];
+					$recordName = $data->{$nameSchema->id};
+					if (!empty($recordName)) {
+						if (isset($usedRecordName[$recordName])) {
+							$usedRecordName[$recordName]++;
+							$recordName = $recordName . '_' . $usedRecordName[$recordName];
+						} else {
+							$usedRecordName[$recordName] = 0;
+						}
+						$imageName = $recordName . '.' . explode('.', $imageName)[1];
+					}
+				}
+				$zip->addFile($imageFilename, $image['schema']->title . '/' . $imageName);
+			}
+		}
+		$zip->close();
+
+		if (!file_exists($zipFilename)) {
+			exit("无法找到压缩文件");
+		}
+		header("Cache-Control: public");
+		header("Content-Description: File Transfer");
+		header('Content-disposition: attachment; filename=' . $enrollApp->title . '.zip');
+		header("Content-Type: application/zip");
+		header("Content-Transfer-Encoding: binary");
+		header('Content-Length: ' . filesize($zipFilename));
+		@readfile($zipFilename);
+
 		exit;
 	}
 }

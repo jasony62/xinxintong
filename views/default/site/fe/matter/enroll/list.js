@@ -1,6 +1,6 @@
 define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(angular, ngApp) {
     'use strict';
-    
+
     ngApp.factory('Round', ['$http', '$q', 'ls', function($http, $q, LS) {
         var Round, _ins;
         Round = function() {};
@@ -166,20 +166,20 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
         };
         return Stat;
     }]);
-    ngApp.controller('ctrlRecords', ['$scope', 'Record', 'ls', function($scope, Record, LS) {
+    ngApp.controller('ctrlRecords', ['$scope', 'Record', 'ls', '$sce', function($scope, Record, LS, $sce) {
         var facRecord, options, fnFetch,
-            schemas = $scope.app.data_schemas;
-        $scope.value2Label = function(record, key) {
+            schemas = $scope.app.data_schemas,
+            schemasById = {};
+
+        schemas.forEach(function(schema) {
+            schemasById[schema.id] = schema;
+        });
+        $scope.value2Label = function(record, schemaId) {
             var val, i, j, s, aVal, aLab = [];
             if (schemas && record.data) {
-                val = record.data[key];
+                val = record.data[schemaId];
                 if (val === undefined) return '';
-                for (i = 0, j = schemas.length; i < j; i++) {
-                    if (schemas[i].id === key) {
-                        s = schemas[i];
-                        break;
-                    }
-                }
+                s = schemasById[schemaId];
                 if (s && s.ops && s.ops.length) {
                     aVal = val.split(',');
                     for (i = 0, j = s.ops.length; i < j; i++) {
@@ -191,6 +191,21 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
             } else {
                 return '';
             }
+        };
+        $scope.score2Html = function(record, schemaId) {
+            var label = '',
+                schema = schemasById[schemaId],
+                val;
+
+            if (schema && record.data) {
+                val = record.data[schemaId];
+                if (schema.ops && schema.ops.length) {
+                    schema.ops.forEach(function(op, index) {
+                        label += '<div>' + op.l + ': ' + (val[op.v] ? val[op.v] : 0) + '</div>';
+                    });
+                }
+            }
+            return $sce.trustAsHtml(label);
         };
         facRecord = Record.ins(LS.p.site, LS.p.app, LS.p.rid);
         options = {
@@ -224,65 +239,6 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
         }, true);
         $scope.options = options;
         $scope.fetch = fnFetch;
-    }]);
-    ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', function($scope, Record, LS) {
-        var facRecord,
-            schemas = $scope.app.data_schemas;
-        $scope.value2Label = function(key) {
-            var val, i, j, s, aVal, aLab = [];
-            if (schemas && facRecord.current.data) {
-                val = facRecord.current.data[key];
-                if (val === undefined) return '';
-                for (i = 0, j = schemas.length; i < j; i++) {
-                    if (schemas[i].id === key) {
-                        s = schemas[i];
-                        break;
-                    }
-                }
-                if (s && s.ops && s.ops.length) {
-                    aVal = val.split(',');
-                    for (i = 0, j = s.ops.length; i < j; i++) {
-                        aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
-                    }
-                    if (aLab.length) return aLab.join(',');
-                }
-                return val;
-            } else {
-                return '';
-            }
-        };
-        $scope.editRecord = function(event, page) {
-            page ? $scope.gotoPage(event, page, facRecord.current.enroll_key) : alert('没有指定登记编辑页');
-        };
-        $scope.removeRecord = function(event, page) {
-            facRecord.remove(facRecord.current).then(function(data) {
-                page && $scope.gotoPage(event, page);
-            });
-        };
-        $scope.like = function(event, nextAction) {
-            event.preventDefault();
-            event.stopPropagation();
-            facRecord.like(facRecord.current).then(function(data) {
-                if (nextAction === 'closeWindow') {
-                    $scope.closeWindow();
-                } else if (nextAction !== undefined && nextAction.length) {
-                    var url = LS.j('', 'site', 'app');
-                    url += '&ek=' + facRecord.current.enroll_key;
-                    url += '&page=' + nextAction;
-                    location.replace(url);
-                } else {
-                    alert('操作成功');
-                }
-            });
-        };
-        $scope.likers = function(event) {
-            facRecord.likerList(facRecord.current).then(function(data) {
-                $scope.likers = data.likers;
-            });
-        };
-        facRecord = Record.ins();
-        facRecord.get(LS.p.ek);
-        $scope.Record = facRecord;
     }]);
     ngApp.controller('ctrlRemark', ['$scope', '$http', 'Record', 'ls', function($scope, $http, Record, LS) {
         var facRecord;

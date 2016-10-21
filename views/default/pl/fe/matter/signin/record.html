@@ -16,6 +16,7 @@
                 <button class='btn btn-default' ng-click='filter()'>筛选</button>
                 <button class='btn btn-primary hide' ng-click="notify()">发送信息</button>
                 <button class='btn btn-default' ng-click="export()">导出全部数据</button>
+                <button class='btn btn-default' ng-click="exportImage()">导出全部图片</button>
                 <button class='btn btn-success' ng-disabled="!countSelected()" ng-click='batchTag()'>批量打标签</button>
                 <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-click="notify()">全部发送信息</button>
                 <button class='btn btn-primary' ng-if="app.entry_rule.scope==='sns'" ng-disabled="!countSelected()" ng-click="notify(true)">选中记录发送信息</button>
@@ -121,18 +122,4 @@
         </div>
     </div>
     <!-- end signin -->
-    <!-- bottom navbar -->
-    <nav class="navbar navbar-default bottom">
-        <div class="container-fluid" style='text-align:center'>
-            <form class="navbar-form" style='display:inline-block'>
-                <a class='btn btn-default' href="/rest/pl/fe/matter/signin/schema?site={{siteId}}&id={{id}}">编辑登记项</a>
-                <a class='btn btn-default' href="/rest/pl/fe/matter/signin/page?site={{siteId}}&id={{id}}">页面设置</a>
-                <a class='btn btn-default' href="/rest/pl/fe/matter/signin/publish?site={{siteId}}&id={{id}}">发布设置</a>
-            </form>
-            <form class="navbar-form navbar-right" style='display:inline-block'>
-                <button class='btn btn-default' ng-click="remove()">删除活动</button>
-            </form>
-        </div>
-    </nav>
-    <!-- end bottom navbar -->
 </div>

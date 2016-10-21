@@ -11,23 +11,49 @@
         <link href="/views/default/pl/fe/matter/enroll/frame.css?_=4" rel="stylesheet">
     </head>
     <body ng-controller='ctrlFrame' ng-cloak class='ng-cloak'>
-        <nav class='navbar navbar-inverse navbar-fixed-top tms-large'>
+        <nav class='navbar navbar-default navbar-fixed-top tms-large'>
             <ul class='nav navbar-nav'>
-                <li><a href='/rest/pl/fe' target='_self'>首页</a></li>
                 <li><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>工作台</a></li>
             </ul>
+            <form class='navbar-form'>
+                <div class='form-group'>
+                    <div class='input-group'>
+                        <input type='text' class='form-control' size='60' title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+                        <span class='input-group-btn'>
+                            <button uib-popover-template="'appSetting.html'" popover-append-to-body='true' popover-placement="bottom" popover-trigger="outsideClick" class='btn btn-default'><span class="caret"></span></button>
+                        </span>
+                    </div>
+                </div>
+            </form>
             <ul class='nav navbar-nav'>
-                <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{siteId}}&id={{app.mission.id}}" target='_self'>返回项目</a></li>
-                <li class><a title="{{app.title}}" href='/rest/pl/fe/matter/enroll?site={{siteId}}&id={{id}}'>{{app.title}}</a></li>
-            </ul>
-            <ul class='nav navbar-nav'>
-                <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
-                <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
             </ul>
         </nav>
         <div class='container'>
             <div class='row' ng-view></div>
         </div>
+        <script type="text/ng-template" id="appSetting.html">
+            <div id="appSetting" ng-controller="ctrlApp">
+                <div class='form-group'>
+                    <select class='form-control' ng-model="app.scenario" ng-change="update('scenario');">
+                        <option value=''></option>
+                        <option value='registration'>报名</option>
+                        <option value='voting'>评价</option>
+                        <option value='group_week_report'>周报</option>
+                    </select>
+                </div>
+                <hr>
+                <div class='form-group compact'>
+                    <label>允许每用户登记条数</label>
+                    <input type='text' class='form-control' ng-model="app.count_limit" tms-auto-update tms-wait=1000 tms-update="update('count_limit')">
+                </div>
+                <hr>
+                <a href="/rest/pl/fe/matter/enroll/event?site={{siteId}}&id={{id}}">活动进入规则</a>
+                <hr>
+                <button class='btn btn-default btn-block' ng-click="exportAsTemplate()">导出活动定义</button>
+                <button class='btn btn-default btn-block' ng-click="remove()">删除活动</button>
+                <button class='btn btn-default btn-block' ng-click="shareAsTemplate()">保存为模版</button>
+            <div>
+        </script>
         <script src="/static/js/jquery.min.js"></script>
         <script src="/static/js/jquery-ui.min.js"></script>
         <script src="/static/js/bootstrap.min.js"></script>

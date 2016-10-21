@@ -1,7 +1,7 @@
 define(['require'], function() {
 	'use strict';
 	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
-	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', function($controllerProvider, $routeProvider, $locationProvider) {
+	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider) {
 		var RouteParam = function(name) {
 			var baseURL = '/views/default/pl/fe/matter/group/';
 			this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
@@ -17,7 +17,8 @@ define(['require'], function() {
 			};
 		};
 		ngApp.provider = {
-			controller: $controllerProvider.register
+			controller: $controllerProvider.register,
+			directive: $compileProvider.directive
 		};
 		$routeProvider.otherwise(new RouteParam('setting'));
 
@@ -125,7 +126,7 @@ define(['require'], function() {
 						});
 						player.data[col.id] = obj;
 					} else if (col.type === 'image') {
-						var value = player.data[col.id],
+						var value = player.data[col.id].split(','),
 							obj = [];
 						angular.forEach(value, function(p) {
 							obj.push({

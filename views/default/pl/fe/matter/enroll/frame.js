@@ -24,7 +24,6 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 			.when('/rest/pl/fe/matter/enroll/publish', new RouteParam('publish'))
 			.when('/rest/pl/fe/matter/enroll/schema', new RouteParam('schema'))
 			.when('/rest/pl/fe/matter/enroll/page', new RouteParam('page'))
-			.when('/rest/pl/fe/matter/enroll/event', new RouteParam('event'))
 			.when('/rest/pl/fe/matter/enroll/record', new RouteParam('record'))
 			.when('/rest/pl/fe/matter/enroll/stat', new RouteParam('stat'))
 			.when('/rest/pl/fe/matter/enroll/coin', new RouteParam('coin'))
@@ -97,40 +96,16 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 
 			return deferred.promise;
 		};
-		$scope.assignMission = function() {
-			mattersgallery.open($scope.siteId, function(matters, type) {
-				var app;
-				if (matters.length === 1) {
-					app = {
-						id: $scope.id,
-						type: 'enroll'
-					};
-					http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.siteId + '&id=' + matters[0].mission_id, app, function(rsp) {
-						var mission = rsp.data,
-							app = $scope.app,
-							updatedFields = ['mission_id'];
-
-						app.mission = mission;
-						app.mission_id = mission.id;
-						if (!app.pic || app.pic.length === 0) {
-							app.pic = mission.pic;
-							updatedFields.push('pic');
-						}
-						if (!app.summary || app.summary.length === 0) {
-							app.summary = mission.summary;
-							updatedFields.push('summary');
-						}
-						srvApp.update(updatedFields);
-					});
+		$scope.isInputPage = function(pageName) {
+			if (!$scope.app) {
+				return false;
+			}
+			for (var i in $scope.app.pages) {
+				if ($scope.app.pages[i].name === pageName && $scope.app.pages[i].type === 'I') {
+					return true;
 				}
-			}, {
-				matterTypes: [{
-					value: 'mission',
-					title: '项目',
-					url: '/rest/pl/fe/matter'
-				}],
-				singleMatter: true
-			});
+			}
+			return false;
 		};
 		$scope.summaryOfRecords = function() {
 			var deferred = $q.defer(),

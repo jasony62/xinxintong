@@ -3,10 +3,11 @@ if (/MicroMessenger/.test(navigator.userAgent)) {
     signPackage.jsApiList = ['hideOptionMenu', 'onMenuShareTimeline', 'onMenuShareAppMessage'];
     wx.config(signPackage);
 }
-angular.module('xxt', ['infinite-scroll']).config(['$locationProvider', function($locationProvider) {
+var app = angular.module('xxt', ['infinite-scroll']).config(['$locationProvider', function($locationProvider) {
     $locationProvider.html5Mode(true);
-}]).controller('ctrl', ['$scope', '$location', '$http', '$q', function($scope, $location, $http, $q) {
-    var siteId, channelId, shareby,keyWord;
+}]);
+app.controller('ctrl', ['$scope', '$location', '$http', '$q', function($scope, $location, $http, $q) {
+    var siteId, channelId, shareby, keyWord;
     /*关键词*/
     keyWord = $location.search().keyword;
     siteId = $location.search().site;
@@ -35,28 +36,24 @@ angular.module('xxt', ['infinite-scroll']).config(['$locationProvider', function
     };
     /*输入框需要绑定的内容*/
     $scope.searchKeyword = keyWord;
-    /*标签展示*/
-    /*$scope.transform = function(obj) {
-        var arr = [];
-        for (var item in obj) {
-            arr.push(obj[item].title);
-        }
-        return arr.join('/');
-    }*/
-    $http.get('/rest/site/fe/matter/article/search/list?site=' + siteId + '&keyword=' + keyWord).success(function(rsp){
+    /*发送请求*/
+    $http.get('/rest/site/fe/matter/article/search/list?site=' + siteId + '&keyword=' + keyWord).success(function(rsp) {
         $scope.matters = rsp.data;
     });
-    $scope.search = function () {
-        $http.post('/rest/site/fe/matter/article/search/list?site=' + siteId + '&keyword=' + $scope.searchKeyword).success(function(rsp){
-            if(rsp.data.length){
-                $scope.matters = rsp.data;
-            }else{
-                $scope.matters = [];
-                $scope.word = $scope.searchKeyword;
-            }
+    $scope.keypress = function(event) {
+        if (event.keyCode == 13) {
+            $scope.search();
+        }
+    }
+    $scope.search = function(event) {
+        $http.post('/rest/site/fe/matter/article/search/list?site=' + siteId + '&keyword=' + $scope.searchKeyword).success(function(rsp) {
+            $scope.matters = rsp.data;
+            $scope.word = $scope.searchKeyword;
         });
+        var url = $location.absUrl().split('&')[0] + '&keyword=' + $scope.searchKeyword;
+        history.replaceState(null, '', url);
     }
     $scope.open = function(opened) {
-        location.href = '/rest/site/fe/matter?site='+ siteId + '&id=' + opened.id +'&type=article';
+        location.href = '/rest/site/fe/matter?site=' + siteId + '&id=' + opened.id + '&type=article';
     };
 }]);

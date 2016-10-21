@@ -52,6 +52,8 @@ class record_model extends \TMS_MODEL {
 	 * 如果用户没有做个活动登记，那么要先产生一条登记记录，并记录签到时间
 	 */
 	public function &signin(&$user, $siteId, &$app, $signinData = null) {
+		$modelRnd = \TMS_APP::M('matter\signin\round');
+		$modelLog = \TMS_APP::M('matter\signin\log');
 		$state = new \stdClass;
 
 		if ($record = $this->byUser($user, $siteId, $app)) {
@@ -61,7 +63,11 @@ class record_model extends \TMS_MODEL {
 		} else if ($signinData && ($records = $this->byData($siteId, $app, $signinData)) && count($records) === 1) {
 			// 已经有手工添加的记录，不需要再登记
 			$ek = $records[0]->enroll_key;
-			$this->update('xxt_signin_record', ['userid' => $user->uid, 'nickname' => $user->nickname], "enroll_key='$ek'");
+			$this->update(
+				'xxt_signin_record',
+				['userid' => $user->uid, 'nickname' => $user->nickname],
+				"enroll_key='$ek' and state=1"
+			);
 			$state->enrolled = true;
 		} else {
 			// 没有登记过，先登记
@@ -71,8 +77,18 @@ class record_model extends \TMS_MODEL {
 		/**
 		 * 执行签到，在每个轮次上只能进行一次签到，第一次签到后再提交也不会更改签到时间等信息
 		 */
-		$activeRound = \TMS_APP::M('matter\signin\round')->getActive($siteId, $app->id);
-		if (!$this->userSigned($user, $siteId, $app, $activeRound)) {
+		$activeRound = $modelRnd->getActive($siteId, $app->id);
+		if ($singinLog = $modelLog->byRecord($ek, $activeRound->rid)) {
+			/* 登记记录有对应的签到记录 */
+			$state->signed = true;
+			if (empty($singinLog->userid) || empty($singinLog->nickname)) {
+				$this->update(
+					'xxt_signin_log',
+					['userid' => $user->uid, 'nickname' => $user->nickname],
+					"enroll_key='$ek' and rid='{$activeRound->rid}' and state=1"
+				);
+			}
+		} else {
 			// 记录签到日志
 			$signinAt = time();
 			$this->insert(
@@ -97,9 +113,8 @@ class record_model extends \TMS_MODEL {
 			$sql = "update xxt_signin_record set signin_at=$signinAt,signin_num=signin_num+1,signin_log='$signinLog'";
 			$sql .= " where aid='{$app->id}' and enroll_key='$ek'";
 			$rst = $this->update($sql);
+
 			$state->signed = false;
-		} else {
-			$state->signed = true;
 		}
 
 		$state->ek = $ek;
@@ -108,6 +123,10 @@ class record_model extends \TMS_MODEL {
 	}
 	/**
 	 * 检查用户在指定轮次是否已经签到
+	 *
+	 * 1个用户在1个轮次上只有1条签到记录
+	 * 1条登记记录在1个轮次上只对应1条签到记录
+	 *
 	 */
 	public function &userSigned(&$user, $siteId, &$app, &$round = null) {
 		$log = false;

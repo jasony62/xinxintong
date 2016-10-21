@@ -31,6 +31,29 @@
         <div class='container'>
             <div class='row' ng-view></div>
         </div>
+        <script type="text/ng-template" id="appSetting.html">
+            <div id="appSetting" ng-controller="ctrlApp">
+                <div class='form-group'>
+                    <select class='form-control' ng-model="app.scenario" ng-change="update('scenario');">
+                        <option value=''></option>
+                        <option value='registration'>报名</option>
+                        <option value='voting'>评价</option>
+                        <option value='group_week_report'>周报</option>
+                    </select>
+                </div>
+                <hr>
+                <div class='form-group compact'>
+                    <label>允许每用户登记条数</label>
+                    <input type='text' class='form-control' ng-model="app.count_limit" tms-auto-update tms-wait=1000 tms-update="update('count_limit')">
+                </div>
+                <hr>
+                <a href="/rest/pl/fe/matter/enroll/event?site={{siteId}}&id={{id}}">活动进入规则</a>
+                <hr>
+                <button class='btn btn-default btn-block' ng-click="exportAsTemplate()">导出活动定义</button>
+                <button class='btn btn-default btn-block' ng-click="remove()">删除活动</button>
+                <button class='btn btn-default btn-block' ng-click="shareAsTemplate()">保存为模版</button>
+            <div>
+        </script>
         <script src="/static/js/jquery.min.js"></script>
         <script src="/static/js/jquery-ui.min.js"></script>
         <script src="/static/js/bootstrap.min.js"></script>

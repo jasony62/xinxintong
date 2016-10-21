@@ -153,12 +153,13 @@ class record extends \pl\fe\matter\base {
 			$updated->verified = $record->verified;
 		}
 		$modelEnl->update('xxt_enroll_record', $updated, "enroll_key='$ek'");
+
+		/* 记录登记数据 */
 		$result = $modelRec->setData(null, $site, $app, $ek, $record->data);
 
 		if ($updated->verified === 'Y') {
 			$this->_whenVerifyRecord($app, $ek);
 		}
-		/* 记录登记数据 */
 
 		/* 记录操作日志 */
 		$app->type = 'enroll';

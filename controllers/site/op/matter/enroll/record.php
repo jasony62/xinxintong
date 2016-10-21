@@ -239,4 +239,32 @@ class record extends \site\op\base {
 
 		return new \ResponseData('ok');
 	}
+	/**
+	 * 返回指定登记项的活动登记名单
+	 *
+	 */
+	public function list4Schema_action($site, $app, $schema, $page = 1, $size = 10) {
+		if (!$this->checkAccessToken()) {
+			return new \InvalidAccessToken();
+		}
+
+		// 登记数据过滤条件
+		$criteria = $this->getPostJson();
+
+		// 登记记录过滤条件
+		$options = [
+			'page' => $page,
+			'size' => $size,
+		];
+
+		// 登记活动
+		$modelApp = $this->model('matter\enroll');
+		$enrollApp = $modelApp->byId($app);
+
+		// 查询结果
+		$mdoelRec = $this->model('matter\enroll\record');
+		$result = $mdoelRec->list4Schema($site, $enrollApp, $schema, $options);
+
+		return new \ResponseData($result);
+	}
 }

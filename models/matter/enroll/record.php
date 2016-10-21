@@ -815,9 +815,12 @@ class record_model extends \TMS_MODEL {
 					}
 				}
 				// 计算平均分
-				$rowNumber = count($values);
-				foreach ($schema->ops as &$op) {
-					$op->c = $op->c / $rowNumber;
+				if ($rowNumber = count($values)) {
+					foreach ($schema->ops as &$op) {
+						$op->c = $op->c / $rowNumber;
+					}
+				} else {
+					$op->c = 0;
 				}
 			}
 		}

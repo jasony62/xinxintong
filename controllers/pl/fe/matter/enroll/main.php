@@ -127,16 +127,20 @@ class main extends \pl\fe\matter\base {
 			$newapp['use_mission_footer'] = 'Y';
 		}
 		$appId = uniqid();
-		/* pages */
 		if (!empty($scenario) && !empty($template)) {
 			$config = $this->_getSysTemplate($scenario, $template);
+			/* 添加页面 */
 			$this->_addPageByTemplate($user, $site, $mission, $appId, $config, $customConfig);
-			/*进入规则*/
+			/* 登记数量限制 */
+			if (isset($config->count_limit)) {
+				$newapp['count_limit'] = $config->count_limit;
+			}
+			/* 进入规则 */
 			$entryRule = $config->entryRule;
 			if (isset($config->enrolled_entry_page)) {
 				$newapp['enrolled_entry_page'] = $config->enrolled_entry_page;
 			}
-			/*场景设置*/
+			/* 场景设置 */
 			if (isset($config->scenarioConfig)) {
 				$scenarioConfig = $config->scenarioConfig;
 				$newapp['scenario_config'] = json_encode($scenarioConfig);
@@ -302,7 +306,10 @@ class main extends \pl\fe\matter\base {
 		$appId = uniqid();
 
 		empty($config->scenario) && $newapp['scenario'] = $scenario;
-		/* pages */
+		/* 登记数量限制 */
+		if (isset($config->count_limit)) {
+			$newapp['count_limit'] = $config->count_limit;
+		}
 		if (!empty($config->pages) && !empty($config->entryRule)) {
 			$this->_addPageByTemplate($user, $site, $mission, $appId, $config, $customConfig);
 			/*进入规则*/
@@ -865,7 +872,10 @@ class main extends \pl\fe\matter\base {
 		$app = $this->model('matter\enroll')->byId($app);
 
 		$template = new \stdClass;
+		/* setting */
 		!empty($app->scenario) && $template->scenario = $app->scenario;
+		$template->count_limit = $app->count_limit;
+
 		/* schema */
 		$template->schema = json_decode($app->data_schemas);
 

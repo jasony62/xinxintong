@@ -1,6 +1,6 @@
-body{background:#fff;padding:71px 0;}
+body{background:#fff;padding-top:71px;}
 body>nav{display:flex;height:50px;}
-body>nav>:nth-child(2){flex-grow:1;text-align:center;}
+body>nav>.navbar-form{flex-grow:1;text-align:center;}
 
 /*app-setting*/
 #appSetting{width:200px;}
@@ -44,9 +44,7 @@ body>nav>:nth-child(2){flex-grow:1;text-align:center;}
 #schema-view .actions{margin-top:10px;padding-top:10px;border-top:1px dotted #ddd;}
 
 /*page*/
-#pageArea{height:600px;position:relative;}
-#pageArea .pages .container-fluid{padding-bottom:8px;}
-#pageArea .page{position:absolute;top:120px;bottom:71px;overflow-y:auto;}
+#pageArea{height:677px;position:relative;}
 
 /*page schemas*/
 #pageArea .page-schemas{position:absolute;top:0;bottom:0;left:0;width:290px;overflow-y:auto;}

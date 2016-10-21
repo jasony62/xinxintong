@@ -545,6 +545,7 @@ angular.module('ui.tms', ['ngSanitize']).service('noticebox', ['$timeout', funct
         var fnPending = null;
         var onInput = function() {
             scope.tmsUpdate();
+            scope.$root.$$phase === null && scope.$apply();
         };
         element.on('input', function() {
             fnPending && clearTimeout(fnPending);

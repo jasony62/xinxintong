@@ -53,7 +53,7 @@ class fullsearch_model extends MultiArticleReply {
 			$r.="<item>";
 			$r.="<Title><![CDATA[查看更多]]></Title>";
 			$r.="<Description><![CDATA[查看更多]]></Description>";
-			$r.="<PicUrl><![CDATA[http://xinxintong.oss-cn-hangzhou.aliyuncs.com/9dc76342bbd2d4444748416b3ede427d/%E5%9B%BE%E7%89%87/IMG20160729_103236.jpg]]></PicUrl>";
+			$r.="<PicUrl><![CDATA[http://xinxintong.oss-cn-hangzhou.aliyuncs.com/9dc76342bbd2d4444748416b3ede427d/%E5%9B%BE%E7%89%87/%E5%A4%B4%E5%9B%BE/%E6%90%9C%E7%B4%A2%E5%9B%BE%E6%A0%87.jpg]]></PicUrl>";
 			$r.="<Url><![CDATA[http://".$_SERVER['HTTP_HOST']."/rest/site/fe/matter/article/search?site=".$_SESSION['site']."&keyword=".$_SESSION['keyword']."]]></Url>";
 			$r.="</item>";
 		}

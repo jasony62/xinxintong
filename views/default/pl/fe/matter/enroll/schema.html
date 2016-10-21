@@ -2,7 +2,7 @@
     <!-- end app -->
     <div class='schema-proto' tms-flex-height top='72' bottom='71' style='width:290px;position:fixed;top:72px'>
         <!--create schema-->
-        <div class='form-group tile'>
+        <div class='form-group list-group-item'>
             <div class='help-block'>添加用户填写项</div>
             <div class='flexrow'>
                 <button class='btn btn-default' ng-click="newSchema('name')">姓名</button>
@@ -28,10 +28,10 @@
                 <button class='btn btn-default' ng-click="newSchema('score')">打分题</button>
             </div>
         </div>
-        <div class='form-group tile' ng-if="app.scenario==='voting'">
+        <div class='form-group list-group-item' ng-if="app.scenario==='voting'">
             <button class='btn btn-default' ng-click="batchSingleScore()">批量设置单选题分值</button>
         </div>
-        <div class='form-group tile' ng-controller="ctrlApp">
+        <div class='form-group list-group-item' ng-controller="ctrlApp">
             <div class='form-group' ng-if="!app.enroll_app_id">
                 <button class='btn btn-success' ng-click="assignEnrollApp()">指定登记匹配名单</button>
             </div>
@@ -50,7 +50,7 @@
             </div>
             <div ng-if="app.enroll_app_id" class='help-block'>需要和［<span>{{app.enrollApp.title}}</span>］的登记内容匹配的登记项</div>
         </div>
-        <div class='form-group tile' ng-controller="ctrlApp">
+        <div class='form-group list-group-item' ng-controller="ctrlApp">
             <div class='form-group' ng-if="!app.group_app_id">
                 <button class='btn btn-success' ng-click="assignGroupApp()">指定分组匹配名单</button>
             </div>
@@ -69,13 +69,13 @@
             </div>
             <div ng-if="app.enroll_app_id" class='help-block'>需要和［<span>{{app.groupApp.title}}</span>］的分组内容匹配的登记项</div>
         </div>
-        <div class='form-group tile' ng-repeat="ms in memberSchemas">
+        <div class='form-group list-group-item' ng-repeat="ms in memberSchemas">
             <div class='help-block'>{{ms.title}}</div>
             <button class='btn btn-default' ng-click="newMember(ms,s)" ng-repeat="s in ms._schemas">{{s.title}}</button>
         </div>
         <!-- end create schema -->
         <!-- actions -->
-        <div class='tile' ng-controller="ctrlImport">
+        <div class='list-group-item' ng-controller="ctrlImport">
             <div class='form-group compact'>
                 <button class='btn btn-default btn-block' ng-click="downloadTemplate()">下载导入模板</button>
             </div>

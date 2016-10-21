@@ -56,6 +56,11 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 
 		$scope.id = ls.id;
 		$scope.siteId = ls.site;
+		$scope.subView = '';
+		$scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+			var subView = currentRoute.match(/([^\/]+?)\?/);
+			$scope.subView = subView[1] === 'enroll' ? 'publish' : subView[1];
+		});
 		$scope.update = function(names) {
 			return srvApp.update(names);
 		};

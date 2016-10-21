@@ -204,8 +204,24 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 					var app = $scope.app,
 						url = '/rest/pl/fe/matter/group/get?site=' + $scope.siteId + '&app=' + app.group_app_id;
 					http2.get(url, function(rsp) {
-						rsp.data.data_schemas = JSON.parse(rsp.data.data_schemas);
-						app.groupApp = rsp.data;
+						var groupApp = rsp.data,
+							roundDS = {
+								id: '_round_id',
+								type: 'single',
+								title: '分组名称',
+							},
+							ops = [];
+
+						groupApp.data_schemas = JSON.parse(groupApp.data_schemas);
+						groupApp.rounds.forEach(function(round) {
+							ops.push({
+								v: round.round_id,
+								l: round.title
+							});
+						});
+						roundDS.ops = ops;
+						groupApp.data_schemas.splice(0, 0, roundDS);
+						app.groupApp = groupApp;
 					});
 				});
 			});

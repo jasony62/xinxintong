@@ -47,15 +47,10 @@
     <!-- setting -->
     <div class='col-md-6'>
         <div class='form-group'>
-            <div class='list-group-item' style="position:relative;">
-                <div class='summary'>
-                    <div ng-if="app.rounds.length">当前轮次：{{summary[0].title}}</div>
-                    <div><span>打开次数：{{app.read_num}}</span>，<span ng-if="!app.rounds">登记数量：{{summary.total}}</span><span ng-if="app.rounds.length">登记数量：{{summary[0].total}}</span></div>
-                    <div><span>分享好友：{{app.share_friend_num}}</span>，<span>分享朋友圈：{{app.share_timeline_num}}</span></div>
-                </div>
-                <div style="position:absolute;left:70%;top:50%;margin-top:-17px;">
-                    <a class='btn btn-success' href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}">查看登记数据</a>
-                </div>
+            <div class='list-group-item'>
+                <div ng-if="app.rounds.length">当前轮次：{{summary[0].title}}</div>
+                <div><span>打开次数：{{app.read_num}}</span>，<span ng-if="!app.rounds">登记数量：{{summary.total}}</span><span ng-if="app.rounds.length">登记数量：{{summary[0].total}}</span></div>
+                <div><span>分享好友：{{app.share_friend_num}}</span>，<span>分享朋友圈：{{app.share_timeline_num}}</span></div>
             </div>
         </div>
         <uib-tabset active="0" justified="true">

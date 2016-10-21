@@ -1,6 +1,6 @@
 body{background:#fff;padding:71px 0;font-family:Microsoft Yahei,Arial;}
 body>nav{display:flex;height:50px;}
-body>nav>:nth-child(2){flex-grow:1;text-align:center;}
+body>nav>.navbar-form{flex-grow:1;text-align:center;}
 
 /*app-view*/
 #page-view .pages .container-fluid{padding-bottom:8px;}

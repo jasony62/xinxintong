@@ -3,7 +3,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
     /**
      * app setting controller
      */
-    ngApp.provider.controller('ctrlPage', ['$scope', 'srvPage', function($scope, srvPage) {
+    ngApp.provider.controller('ctrlPage', ['$scope', 'srvApp', 'srvPage', function($scope, srvApp, srvPage) {
         window.onbeforeunload = function(e) {
             var message;
             if ($scope.ep.$$modified) {
@@ -65,40 +65,6 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
                 editorProxy.getEditor().setContent('');
             });
         };
-        $scope.newSchema = function(type) {
-            var newSchema = schemaLib.newSchema(type);
-            for (i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
-                if (newSchema.id === $scope.app.data_schemas[i].id) {
-                    alert('不允许重复添加登记项');
-                    return;
-                }
-            }
-            $scope.app.data_schemas.push(newSchema);
-            $scope.$broadcast('xxt.matter.signin.app.data_schemas.created', newSchema);
-        };
-        $scope.newMember = function(ms, schema) {
-            var newSchema = schemaLib.newSchema('member');
-
-            newSchema.schema_id = ms.id;
-            newSchema.id = schema.id;
-            newSchema.title = schema.title;
-
-            for (i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
-                if (newSchema.id === $scope.app.data_schemas[i].id) {
-                    alert('不允许重复添加登记项');
-                    return;
-                }
-            }
-
-            $scope.app.data_schemas.push(newSchema);
-            $scope.$broadcast('xxt.matter.signin.app.data_schemas.created', newSchema);
-        };
-        $scope.copySchema = function(schema) {
-            var newSchema = angular.copy(schema);
-            newSchema.id = 'c' + (new Date() * 1);
-            $scope.app.data_schemas.push(newSchema);
-            $scope.$broadcast('xxt.matter.signin.app.data_schemas.created', newSchema);
-        };
         /**
          * 修改schema
          */
@@ -114,10 +80,10 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
         });
         $scope.save = function() {
             // 更新应用
-            $scope.update('data_schemas').then(function() {
+            srvApp.update('data_schemas').then(function() {
                 // 更新页面
                 $scope.app.pages.forEach(function(page) {
-                    $scope.updPage(page, ['data_schemas', 'act_schemas', 'html']);
+                    srvPage.update(page, ['data_schemas', 'act_schemas', 'html']);
                 });
             });
         };
@@ -449,9 +415,10 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
             type: '_enrollAt',
             title: '登记时间'
         }];
-        angular.forEach(pageSchemas, function(config) {
-            chooseState[config.schema.id] = true;
+        pageSchemas.forEach(function(config) {
+            config.schema && config.schema.id && (chooseState[config.schema.id] = true);
         });
+        chooseState['enrollAt'] === undefined && (chooseState['enrollAt'] = false);
         $scope.chooseState = chooseState;
         $scope.choose = function(schema) {
             if (chooseState[schema.id]) {

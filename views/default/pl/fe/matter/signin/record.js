@@ -207,8 +207,14 @@ define(['frame'], function(ngApp) {
         $scope.cancel = function() {
             $mi.dismiss();
         };
-        $scope.chooseImage = function(imgFieldName, count, from) {
-            srvRecord.chooseImage($scope.record.data, imgFieldName, count, from);
+        $scope.chooseImage = function(fieldName) {
+            var data = $scope.record.data;
+            srvRecord.chooseImage(fieldName).then(function(img) {
+                $scope.$apply(function() {
+                    data[fieldName] === undefined && (data[fieldName] = []);
+                    data[fieldName].push(img);
+                });
+            });
         };
         $scope.removeImage = function(imgField, index) {
             imgField.splice(index, 1);

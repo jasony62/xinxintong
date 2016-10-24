@@ -69,7 +69,7 @@ provider('srvApp', function() {
                 });
                 url = '/rest/pl/fe/matter/signin/update?site=' + siteId + '&app=' + appId;
                 http2.post(url, modifiedData, function(rsp) {
-                    noticebox.success('完成保存');
+                    //noticebox.success('完成保存');
                     defer.resolve(rsp.data);
                 });
                 return defer.promise;
@@ -853,10 +853,9 @@ provider('srvApp', function() {
                     }
                 });
             },
-            chooseImage: function(data, imgFieldName, count, from) {
+            chooseImage: function(imgFieldName) {
                 var defer = $q.defer();
                 if (imgFieldName !== null) {
-                    data[imgFieldName] === undefined && (data[imgFieldName] = []);
                     var ele = document.createElement('input');
                     ele.setAttribute('type', 'file');
                     ele.addEventListener('change', function(evt) {
@@ -875,7 +874,7 @@ provider('srvApp', function() {
                                 return function(e) {
                                     var img = {};
                                     img.imgSrc = e.target.result.replace(/^.+(,)/, "data:" + theFile.type2 + ";base64,");
-                                    defer.resolve();
+                                    defer.resolve(img);
                                 };
                             })(f);
                             reader.readAsDataURL(f);

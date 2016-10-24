@@ -62,6 +62,9 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 			var subView = currentRoute.match(/([^\/]+?)\?/);
 			$scope.subView = subView[1] === 'signin' ? 'publish' : subView[1];
 		});
+		$scope.update = function(props) {
+			srvApp.update(props);
+		};
 		$scope.assignMission = function() {
 			srvApp.assignMission();
 		};

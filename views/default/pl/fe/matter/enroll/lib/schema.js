@@ -24,19 +24,23 @@ define([], function() {
 		buttons: {
 			submit: {
 				n: 'submit',
-				l: '提交信息'
+				l: '提交信息',
+				scope: ['I']
 			},
 			addRecord: {
 				n: 'addRecord',
-				l: '新增登记'
+				l: '新增登记',
+				scope: ['V', 'L']
 			},
 			editRecord: {
 				n: 'editRecord',
-				l: '修改登记'
+				l: '修改登记',
+				scope: ['V', 'L']
 			},
 			removeRecord: {
 				n: 'removeRecord',
-				l: '删除登记'
+				l: '删除登记',
+				scope: ['V']
 			},
 			sendInvite: {
 				n: 'sendInvite',
@@ -48,11 +52,13 @@ define([], function() {
 			},
 			gotoPage: {
 				n: 'gotoPage',
-				l: '页面导航'
+				l: '页面导航',
+				scope: ['I', 'V', 'L']
 			},
 			closeWindow: {
 				n: 'closeWindow',
-				l: '关闭页面'
+				l: '关闭页面',
+				scope: ['I', 'V', 'L']
 			}
 		},
 		newSchema: function(type, app, proto) {
@@ -80,7 +86,7 @@ define([], function() {
 					}
 				}
 			} else {
-				schema.title = (proto && proto.title) ? proto.title : ('登记项' + app.data_schemas.length);
+				schema.title = (proto && proto.title) ? proto.title : ('登记项' + (app.data_schemas.length + 1));
 				if (type === 'single' || type === 'multiple') {
 					schema.ops = [{
 						l: '选项1',

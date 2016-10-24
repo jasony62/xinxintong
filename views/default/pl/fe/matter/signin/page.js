@@ -42,9 +42,6 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
                 });
             }
         };
-        $scope.gotoPageConfig = function() {
-            location = '/rest/pl/fe/matter/signin/page?site=' + $scope.siteId + '&id=' + $scope.id + '&page=' + $scope.ep.name;
-        };
         $scope.choosePage = function(page) {
             if (angular.isString(page)) {
                 for (var i = $scope.app.pages.length - 1; i >= 0; i--) {
@@ -83,13 +80,13 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
             srvApp.update('data_schemas').then(function() {
                 // 更新页面
                 $scope.app.pages.forEach(function(page) {
-                    srvPage.update(page, ['data_schemas', 'act_schemas', 'html']);
+                    $scope.updPage(page, ['data_schemas', 'act_schemas', 'html']);
                 });
             });
         };
         $scope.$watch('app', function(app) {
             if (!app) return;
-            $scope.ep = app.pages[0];
+            $scope.choosePage(app.pages[0]);
         });
     }]);
     /**
@@ -141,7 +138,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
             title: '频道',
             url: '/rest/pl/fe/matter'
         }];
-        $scope.buttons = schemaLib.buttons;
+
         $scope.setActiveWrap = function(domWrap) {
             $scope.activeWrap = editorProxy.setActiveWrap(domWrap);
         };
@@ -352,6 +349,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
         $scope.$watch('ep', function(newPage) {
             if (!newPage) return;
             $scope.setActiveWrap(null);
+            // page's content
             if (tinymceEditor) {
                 var oldPage = editorProxy.getPage();
                 if (oldPage) {
@@ -362,6 +360,17 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
                 }
                 editorProxy.load(tinymceEditor, newPage);
             }
+            // page's buttons
+            var buttons = [],
+                button, btnName;
+            for (btnName in schemaLib.buttons) {
+                if (btnName === 'addRecord') continue;
+                button = schemaLib.buttons[btnName];
+                if (button.scope && button.scope.indexOf(newPage.type) !== -1) {
+                    buttons.push(button);
+                }
+            }
+            $scope.buttons = buttons;
         });
         $scope.$on('tinymce.instance.init', function(event, editor) {
             tinymceEditor = editor;

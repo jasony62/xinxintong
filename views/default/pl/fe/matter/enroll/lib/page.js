@@ -199,6 +199,14 @@ define(['wrap'], function(wrapLib) {
 						$wrap.append(html);
 					}
 				})(wrapLib);
+			} else if (/image|file/.test(schema.type)) {
+				(function(lib) {
+					var $button = $wrap.find('button'),
+						sNgClick;
+
+					sNgClick = 'chooseImage(' + "'" + schema.id + "'," + schema.count + ')';
+					$button.attr('ng-click', sNgClick);
+				})(wrapLib);
 			}
 
 			this.html = $html.html();

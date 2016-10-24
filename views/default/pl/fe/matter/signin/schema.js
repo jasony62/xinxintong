@@ -5,7 +5,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 	 */
 	ngApp.provider.controller('ctrlSchema', ['$scope', '$q', 'srvApp', 'srvPage', '$uibModal', function($scope, $q, srvApp, srvPage, $uibModal) {
 		function _addSchema(newSchema) {
-			for (i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
+			for (var i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
 				if (newSchema.id === $scope.app.data_schemas[i].id) {
 					alert('不允许重复添加登记项');
 					return;

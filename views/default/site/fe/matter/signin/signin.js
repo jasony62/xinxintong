@@ -73,7 +73,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
         };
         Input = function() {};
         Input.prototype.check = function(data, app, page) {
-            var reason, dataSchemas, item, value;
+            var reason, dataSchemas, item, schema, value;
             reason = validate(data);
             if (true !== reason) {
                 return reason;
@@ -82,10 +82,22 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
                 dataSchemas = JSON.parse(page.data_schemas);
                 for (var i = dataSchemas.length - 1; i >= 0; i--) {
                     item = dataSchemas[i];
+                    schema = item.schema;
                     if (item.config.required === 'Y') {
-                        value = data[item.schema.id];
-                        if (value === undefined || isEmpty(item.schema, value)) {
-                            return '请填写必填项［' + item.schema.title + '］';
+                        if (schema.id.indexOf('member.') === 0) {
+                            value = data['member'][schema.id.substr(7)];
+                        } else {
+                            value = data[schema.id];
+                        }
+                        if (value === undefined || isEmpty(schema, value)) {
+                            return '请填写必填项［' + schema.title + '］';
+                        }
+                    }
+                    if (/image|file/.test(schema.type)) {
+                        if (schema.count) {
+                            if (data[schema.id].length > schema.count) {
+                                return '［' + schema.title + '］超出上传数量（' + schema.count + '）限制';
+                            }
                         }
                     }
                 }

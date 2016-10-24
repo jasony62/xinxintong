@@ -78,9 +78,13 @@
                     </select>
                 </div>
                 <hr>
-                <div class='form-group compact'>
+                <div class='form-group'>
                     <label>允许每用户登记条数</label>
                     <input type='text' class='form-control' ng-model="app.count_limit" tms-auto-update tms-wait=1000 tms-update="update('count_limit')">
+                </div>
+                <div class='form-group'>
+                    <label>活动说明</label>
+                    <textarea type='text' class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
                 </div>
                 <hr>
                 <a href="/rest/pl/fe/matter/enroll/event?site={{siteId}}&id={{id}}">活动进入规则</a>

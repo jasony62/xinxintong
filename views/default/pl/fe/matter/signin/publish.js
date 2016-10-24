@@ -45,16 +45,16 @@ define(['frame'], function(ngApp) {
 			}
 		});
 		$scope.$watch('app.use_site_header', function() {
-			$scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + $scope.app.pages[params.pageAt].name + '&_=' + (new Date() * 1);
+			$scope.app && ($scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + $scope.app.pages[params.pageAt].name + '&_=' + (new Date() * 1));
 		});
 		$scope.$watch('app.use_site_footer', function() {
-			$scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + $scope.app.pages[params.pageAt].name + '&_=' + (new Date() * 1);
+			$scope.app && ($scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + $scope.app.pages[params.pageAt].name + '&_=' + (new Date() * 1));
 		});
 		$scope.$watch('app.use_mission_header', function() {
-			$scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + $scope.app.pages[params.pageAt].name + '&_=' + (new Date() * 1);
+			$scope.app && ($scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + $scope.app.pages[params.pageAt].name + '&_=' + (new Date() * 1));
 		});
 		$scope.$watch('app.use_mission_header', function() {
-			$scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + $scope.app.pages[params.pageAt].name + '&_=' + (new Date() * 1);
+			$scope.app && ($scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + $scope.app.pages[params.pageAt].name + '&_=' + (new Date() * 1));
 		});
 		$scope.$watch('params', function(params) {
 			if (params) {

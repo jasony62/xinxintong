@@ -203,12 +203,16 @@ provider('srvApp', function() {
                         id: oApp.id,
                         type: 'enroll',
                         title: oApp.title
-                    };
+                    },
+                    defer = $q.defer();
                 http2.post('/rest/pl/fe/matter/mission/matter/remove?site=' + siteId + '&id=' + oApp.mission_id, matter, function(rsp) {
                     delete oApp.mission;
                     oApp.mission_id = null;
-                    _this.update(['mission_id']);
+                    _this.update(['mission_id']).then(function() {
+                        defer.resolve();
+                    });
                 });
+                return defer.promise;
             },
             choosePhase: function() {
                 var _this = this,

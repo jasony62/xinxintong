@@ -822,11 +822,14 @@ provider('srvApp', function() {
                 } else if (col.type === 'image') {
                     var value = data[col.id],
                         obj = [];
-                    value.forEach(function(p) {
-                        obj.push({
-                            imgSrc: p
+                    if (value && value.length) {
+                        value = value.split(',');
+                        value.forEach(function(p) {
+                            obj.push({
+                                imgSrc: p
+                            });
                         });
-                    });
+                    }
                     data[col.id] = obj;
                 }
                 return data;

@@ -273,7 +273,7 @@ provider('srvApp', function() {
                 // 关联的分组活动的登记项
                 if (app.groupApp && app.groupApp.data_schemas) {
                     app.groupApp.data_schemas.forEach(function(item) {
-                        if (schemasById[item.id] === undefined) {
+                        if (mapOfSchemaById[item.id] === undefined) {
                             mapOfSchemaById[item.id] = item;
                             groupDataSchemas.push(item);
                         }

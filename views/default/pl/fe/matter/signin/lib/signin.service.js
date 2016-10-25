@@ -515,7 +515,7 @@ provider('srvApp', function() {
     this.setAppId = function(id) {
         appId = id;
     };
-    this.$get = ['$q', '$uibModal', '$sce', 'http2', 'noticebox', function($q, $uibModal, $sce, http2, noticebox) {
+    this.$get = ['$q', '$uibModal', '$sce', 'http2', 'noticebox', 'pushnotify', function($q, $uibModal, $sce, http2, noticebox, pushnotify) {
         function _memberAttr(val, schema) {
             var keys;
             if (val.member) {

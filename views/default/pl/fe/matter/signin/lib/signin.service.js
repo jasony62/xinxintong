@@ -518,7 +518,7 @@ provider('srvApp', function() {
     this.$get = ['$q', '$uibModal', '$sce', 'http2', 'noticebox', 'pushnotify', function($q, $uibModal, $sce, http2, noticebox, pushnotify) {
         function _memberAttr(val, schema) {
             var keys;
-            if (val.member) {
+            if (val && val.member) {
                 keys = schema.id.split('.');
                 if (keys.length === 2) {
                     return val.member[keys[1]];
@@ -669,7 +669,6 @@ provider('srvApp', function() {
                         records = [];
                     }
                     records.forEach(function(record) {
-                        record.data.member && (record.data.member = JSON.parse(record.data.member));
                         _convertRecord4Table(record);
                         _aRecords.push(record);
                     });

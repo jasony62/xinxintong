@@ -32,6 +32,10 @@ define(['frame'], function(ngApp) {
 		$scope.summaryOfRecords().then(function(data) {
 			$scope.summary = data;
 		});
+		$scope.$on('xxt.tms-datepicker.change', function(event, data) {
+			$scope.app[data.state] = data.value;
+			$scope.update(data.state);
+		});
 	}]);
 	ngApp.provider.controller('ctrlOpUrl', ['$scope', 'srvQuickEntry', function($scope, srvQuickEntry) {
 		var targetUrl, persisted;

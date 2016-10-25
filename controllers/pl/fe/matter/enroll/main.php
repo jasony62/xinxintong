@@ -808,19 +808,23 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 删除一个活动
 	 *
-	 * 如果没有报名数据，就将活动彻底删除
-	 * 否则只是打标记
+	 * 只允许活动的创建者删除数据，其他用户不允许删除
+	 * 如果没有报名数据，就将活动彻底删除，否则只是打标记
 	 *
-	 * @param string $app->id
+	 * @param string $site site's id
+	 * @param string $app app's id
 	 */
 	public function remove_action($site, $app) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$model = $this->model();
-		/*在删除数据前获得数据*/
-		$app = $this->model('matter\\enroll')->byId($app, 'id,title,summary,pic');
-		/*删除和任务的关联*/
+		$model = $this->model('matter\enroll');
+		/* 在删除数据前获得数据 */
+		$app = $model->byId($app, 'id,title,summary,pic,creater');
+		if ($app->creater !== $user->id) {
+			return new \ResponseError('没有删除数据的权限');
+		}
+		/* 删除和任务的关联 */
 		$this->model('mission')->removeMatter($site, $app->id, 'enroll');
 		/*check*/
 		$q = [
@@ -856,7 +860,7 @@ class main extends \pl\fe\matter\base {
 				["id" => $app->id]
 			);
 		}
-		/*记录操作日志*/
+		/* 记录操作日志 */
 		$app->type = 'enroll';
 		$this->model('matter\log')->matterOp($site, $user, $app, 'D');
 

@@ -324,18 +324,18 @@ class log_model extends \TMS_MODEL {
 		} else {
 			$page = $options['page'];
 		}
-		$q = array(
+		$q = [
 			$fields,
 			'xxt_log_matter_op',
 			"siteid='$siteId' and last_op='Y' and operation<>'D'",
-		);
-		$q2 = array(
-			'r' => array('o' => ($page->at - 1) * $page->size, 'l' => $page->size),
-			'o' => array('operate_at desc'),
-		);
+		];
+		$q2 = [
+			'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
+			'o' => ['operate_at desc'],
+		];
 
 		$matters = $this->query_objs_ss($q, $q2);
-		$result = array('matters' => $matters);
+		$result = ['matters' => $matters];
 		if (empty($matters)) {
 			$result['total'] = 0;
 		} else {

@@ -33,7 +33,7 @@ class login extends \TMS_CONTROLLER {
 		}
 
 		$modelAct = $this->model('account');
-		/*check*/
+		/* check */
 		$result = $modelAct->validate($data->email, $data->password);
 		if ($result->err_code != 0) {
 			return $result;

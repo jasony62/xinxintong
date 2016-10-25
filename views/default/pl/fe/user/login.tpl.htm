@@ -13,11 +13,11 @@
                 <div class='form-group'>
                     <input type='password' ng-model='data.password' class='form-control input-lg' placeholder='密码' required/>
                 </div>
-                <div class='form-group'>
-                    <button class='btn btn-lg btn-primary btn-block' ng-click='login()'>登录</button>
+                <div class='checkbox' ng-if="supportLocalStorage==='Y'">
+                    <label><input type='checkbox' ng-model='data.rememberMe' ng-true-value="'Y'" ng-false-value="'N'"/>记住我</label>
                 </div>
                 <div class='form-group'>
-                    <p class='help-block'>提示：请勿使用QQ号、手机号码等个人信息做为登陆账号或口令</p>
+                    <button class='btn btn-lg btn-primary btn-block' ng-click='login()'>登录</button>
                 </div>
             </div>
         </div>

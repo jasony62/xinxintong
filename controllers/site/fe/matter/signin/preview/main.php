@@ -179,4 +179,13 @@ class main extends \TMS_CONTROLLER {
 
 		return false;
 	}
+	/**
+	 *
+	 */
+	private function outputError($err, $title = '程序错误') {
+		\TPL::assign('title', $title);
+		\TPL::assign('body', $err);
+		\TPL::output('error');
+		exit;
+	}
 }

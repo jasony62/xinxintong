@@ -568,9 +568,11 @@ provider('srvApp', function() {
                     case 'image':
                         var imgs = record.data[schema.id] ? record.data[schema.id].split(',') : [];
                         data[schema.id] = imgs;
+                        break;
                     case 'file':
                         var files = record.data[schema.id] ? JSON.parse(record.data[schema.id]) : {};
                         data[schema.id] = files;
+                        break;
                     case 'member':
                         data[schema.id] = _memberAttr(record.data[schema.id], schema);
                         break;

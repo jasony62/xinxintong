@@ -14,6 +14,7 @@
         <nav class='navbar navbar-default navbar-fixed-top'>
             <ul class='nav navbar-nav'>
                 <li><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>工作台</a></li>
+                <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{siteId}}&id={{app.mission.id}}" target='_self'>返回项目</a></li>
             </ul>
             <form class='navbar-form'>
                 <div ng-if="subView==='publish'">
@@ -21,7 +22,7 @@
                         <div class='input-group'>
                             <input type='text' class='form-control' size='40' title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
                             <span class='input-group-btn'>
-                                <button uib-popover-template="'appSetting.html'" popover-append-to-body='true' popover-placement="bottom" popover-trigger="outsideClick" class='btn btn-default'><span class="caret"></span></button>
+                                <button uib-popover-template="'appSetting.html'" popover-append-to-body='true' popover-placement="bottom" popover-trigger="outsideClick" class='btn btn-default'><span class="glyphicon glyphicon-cog"></span></button>
                             </span>
                         </div>
                     </div>
@@ -33,7 +34,6 @@
                                 <button class="btn btn-default" type="button" ng-click="quitMission()">
                                     <span class='glyphicon glyphicon-remove'></span>
                                 </button>
-                                <a class="btn btn-default" title='查看项目' href="/rest/pl/fe/matter/mission?site={{siteId}}&id={{app.mission.id}}" target='_self'><span class='glyphicon glyphicon-link'></span></a>
                             </span>
                         </div>
                     </div>

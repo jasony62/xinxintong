@@ -419,16 +419,11 @@ provider('srvApp', function() {
                     });
                 }
             },
-            qrcode: function(round, appUrl) {
+            qrcode: function(app, sns, round, appUrl) {
                 $uibModal.open({
                     templateUrl: 'roundQrcode.html',
                     backdrop: 'static',
-                    resolve: {
-                        round: function() {
-                            return round;
-                        }
-                    },
-                    controller: ['$scope', '$timeout', '$uibModalInstance', 'round', function($scope2, $timeout, $mi, round) {
+                    controller: ['$scope', '$timeout', '$uibModalInstance', function($scope2, $timeout, $mi) {
                         var popover = {
                                 title: round.title,
                                 url: appUrl + '&round=' + round.rid,
@@ -437,18 +432,40 @@ provider('srvApp', function() {
 
                         popover.qrcode = '/rest/site/fe/matter/signin/qrcode?site=' + siteId + '&url=' + encodeURIComponent(popover.url);
                         $scope2.popover = popover;
+                        $scope2.app = app;
+                        $scope2.sns = sns;
                         $scope2.downloadQrcode = function(url) {
-                            $('<a href="' + url + '" download="' + round.title + '签到二维码.png"></a>')[0].click();
+                            $('<a href="' + url + '" download="' + app.title + '_' + round.title + '_签到二维码.png"></a>')[0].click();
                         };
+                        $scope2.createWxQrcode = function() {
+                            var url;
+
+                            url = '/rest/pl/fe/site/sns/wx/qrcode/create?site=' + siteId;
+                            url += '&matter_type=signin&matter_id=' + appId;
+                            url += '&expire=864000';
+
+                            http2.get(url, function(rsp) {
+                                $scope2.qrcode = rsp.data;
+                            });
+                        };
+                        $scope2.downloadWxQrcode = function() {
+                            $('<a href="' + $scope2.qrcode.pic + '" download="' + app.title + '_' + round.title + '_签到二维码.jpeg"></a>')[0].click();
+                        };
+                        if (app.entry_rule.scope === 'sns' && sns.wx.can_qrcode === 'Y') {
+                            http2.get('/rest/pl/fe/matter/signin/wxQrcode?site=' + siteId + '&app=' + appId, function(rsp) {
+                                var qrcodes = rsp.data;
+                                $scope2.qrcode = qrcodes.length ? qrcodes[0] : false;
+                            });
+                        }
+                        $timeout(function() {
+                            new ZeroClipboard(document.querySelector('#copyURL'));
+                        });
                         $scope2.cancel = function() {
                             $mi.dismiss();
                         };
                         $scope2.ok = function() {
                             $mi.dismiss();
                         };
-                        $timeout(function() {
-                            new ZeroClipboard(document.querySelector('#copyURL'));
-                        });
                     }]
                 });
             }

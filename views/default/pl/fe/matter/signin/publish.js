@@ -105,35 +105,12 @@ define(['frame'], function(ngApp) {
 			srvRound.remove(round, $scope.rounds);
 		};
 		$scope.qrcode = function(round) {
-			srvRound.qrcode(round, $scope.url);
+			srvRound.qrcode($scope.app, $scope.sns, round, $scope.url);
 		};
 		$scope.$watch('app', function(app) {
 			if (app) {
 				$scope.rounds = app.rounds;
 			}
-		});
-	}]);
-	/**
-	 * 微信二维码
-	 */
-	ngApp.provider.controller('ctrlWxQrcode', ['$scope', 'http2', function($scope, http2) {
-		$scope.create = function() {
-			var url;
-
-			url = '/rest/pl/fe/site/sns/wx/qrcode/create?site=' + $scope.siteId;
-			url += '&matter_type=signin&matter_id=' + $scope.id;
-			url += '&expire=864000';
-
-			http2.get(url, function(rsp) {
-				$scope.qrcode = rsp.data;
-			});
-		};
-		$scope.download = function() {
-			$('<a href="' + $scope.qrcode.pic + '" download="微信签到二维码.jpeg"></a>')[0].click();
-		};
-		http2.get('/rest/pl/fe/matter/signin/wxQrcode?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
-			var qrcodes = rsp.data;
-			$scope.qrcode = qrcodes.length ? qrcodes[0] : false;
 		});
 	}]);
 });

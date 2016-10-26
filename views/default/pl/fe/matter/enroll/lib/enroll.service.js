@@ -519,6 +519,7 @@ provider('srvApp', function() {
                 } else if (col.type === 'image') {
                     var value = data[col.id],
                         obj = [];
+                    value = value.split(',');
                     value.forEach(function(p) {
                         obj.push({
                             imgSrc: p

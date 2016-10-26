@@ -438,13 +438,17 @@ provider('srvApp', function() {
                             $('<a href="' + url + '" download="' + app.title + '_' + round.title + '_签到二维码.png"></a>')[0].click();
                         };
                         $scope2.createWxQrcode = function() {
-                            var url;
+                            var url, params = {
+                                round: round.rid
+                            };
 
                             url = '/rest/pl/fe/site/sns/wx/qrcode/create?site=' + siteId;
                             url += '&matter_type=signin&matter_id=' + appId;
                             url += '&expire=864000';
 
-                            http2.get(url, function(rsp) {
+                            http2.post(url, {
+                                params: params
+                            }, function(rsp) {
                                 $scope2.qrcode = rsp.data;
                             });
                         };
@@ -452,7 +456,7 @@ provider('srvApp', function() {
                             $('<a href="' + $scope2.qrcode.pic + '" download="' + app.title + '_' + round.title + '_签到二维码.jpeg"></a>')[0].click();
                         };
                         if (app.entry_rule.scope === 'sns' && sns.wx.can_qrcode === 'Y') {
-                            http2.get('/rest/pl/fe/matter/signin/wxQrcode?site=' + siteId + '&app=' + appId, function(rsp) {
+                            http2.get('/rest/pl/fe/matter/signin/wxQrcode?site=' + siteId + '&app=' + appId + '&round=' + round.rid, function(rsp) {
                                 var qrcodes = rsp.data;
                                 $scope2.qrcode = qrcodes.length ? qrcodes[0] : false;
                             });

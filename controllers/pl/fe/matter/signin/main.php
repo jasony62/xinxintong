@@ -352,16 +352,24 @@ class main extends \pl\fe\matter\base {
 	 *
 	 * @param string $site
 	 * @param string $app
+	 * @param string $round
 	 *
 	 */
-	public function wxQrcode_action($site, $app) {
+	public function wxQrcode_action($site, $app, $round = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelQrcode = $this->model('sns\wx\call\qrcode');
 
-		$qrcodes = $modelQrcode->byMatter('signin', $app);
+		if (empty($round)) {
+			$qrcodes = $modelQrcode->byMatter('signin', $app);
+		} else {
+			$params = new \stdClass;
+			$params->round = $round;
+			$params = \TMS_MODEL::toJson($params);
+			$qrcodes = $modelQrcode->byMatter('signin', $app, $params);
+		}
 
 		return new \ResponseData($qrcodes);
 	}

@@ -35,11 +35,9 @@ class event_model extends \TMS_MODEL {
 	}
 	/**
 	 * 根据scene_id获得响应素材
-	 *
-	 * return array(素材的类型，素材的ID)
 	 */
-	public function qrcodeCall($siteId, $scene_id) {
-		$q[] = 'id,scene_id,matter_type,matter_id,expire_at';
+	public function &qrcodeCall($siteId, $scene_id) {
+		$q[] = 'id,scene_id,expire_at,matter_type,matter_id,params';
 		$q[] = 'xxt_call_qrcode_yx';
 		$q[] = "siteid='$siteId' and scene_id=$scene_id";
 

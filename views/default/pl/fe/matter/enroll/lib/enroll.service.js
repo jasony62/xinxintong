@@ -502,28 +502,36 @@ provider('srvApp', function() {
                 });
             },
             convertRecord4Edit: function(col, data) {
-                var files;
                 if (col.type === 'file') {
-                    files = JSON.parse(data[col.id]);
-                    files.forEach(function(file) {
-                        file.url = $sce.trustAsResourceUrl(file.url);
-                    });
+                    var files;
+                    if (data[col.id] && data[col.id].length) {
+                        files = JSON.parse(data[col.id]);
+                        files.forEach(function(file) {
+                            file.url = $sce.trustAsResourceUrl(file.url);
+                        });
+                    }
                     data[col.id] = files;
                 } else if (col.type === 'multiple') {
-                    var value = data[col.id].split(','),
-                        obj = {};
-                    value.forEach(function(p) {
-                        obj[p] = true;
-                    });
+                    var obj = {},
+                        value;
+                    if (data[col.id] && data[col.id].length) {
+                        value = data[col.id].split(',')
+                        value.forEach(function(p) {
+                            obj[p] = true;
+                        });
+                    }
                     data[col.id] = obj;
                 } else if (col.type === 'image') {
                     var value = data[col.id],
                         obj = [];
-                    value.forEach(function(p) {
-                        obj.push({
-                            imgSrc: p
+                    if (value && value.length) {
+                        value = value.split(',');
+                        value.forEach(function(p) {
+                            obj.push({
+                                imgSrc: p
+                            });
                         });
-                    });
+                    }
                     data[col.id] = obj;
                 }
                 return data;

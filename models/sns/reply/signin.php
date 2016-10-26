@@ -28,7 +28,10 @@ class signin_model extends MultiArticleReply {
 		if (empty($this->params)) {
 			$app->entryURL = $modelApp->getEntryUrl($this->call['siteid'], $this->set_id);
 		} else {
+			/* 指定了签到对应的轮次 */
+			$signinRound = \TMS_APP::M('matter\signin\round')->byId($this->params->round, ['fields' => 'title']);
 			$app->entryURL = $modelApp->getEntryUrl($this->call['siteid'], $this->set_id, $this->params->round);
+			$app->title .= '-' . $signinRound->title;
 		}
 
 		return [$app];

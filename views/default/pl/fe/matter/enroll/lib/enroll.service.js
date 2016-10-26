@@ -519,11 +519,7 @@ provider('srvApp', function() {
                 } else if (col.type === 'image') {
                     var value = data[col.id],
                         obj = [];
-                    value.forEach(function(p) {
-                        obj.push({
-                            imgSrc: p
-                        });
-                    });
+                    obj.push({imgSrc:value});
                     data[col.id] = obj;
                 }
                 return data;

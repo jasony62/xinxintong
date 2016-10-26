@@ -46,8 +46,8 @@
                             <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="rows.allSelected">
                         </th>
                         <th style='width:100px'>登记时间</th>
-                        <th class='custom-col signin' ng-repeat="c in app.data_schemas" title="{{c.ops}}">{{c.title}}</th>
-                        <th class='custom-col enroll' ng-repeat="c in enrollDataSchemas" title="{{c.ops}}">{{c.title}}</th>
+                        <th class='custom-col signin' ng-repeat="c in app.data_schemas">{{c.title}}</th>
+                        <th class='custom-col enroll' ng-repeat="c in enrollDataSchemas">{{c.title}}</th>
                         <th style='width:75px'>验证通过</th>
                         <th ng-if="page.byRound" style='width:100px'>签到时间</th>
                         <th ng-if="!page.byRound" style='width:75px'>签到次数</th>

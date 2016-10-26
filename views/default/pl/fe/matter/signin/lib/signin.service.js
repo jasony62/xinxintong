@@ -255,9 +255,9 @@ provider('srvApp', function() {
                     }],
                     backdrop: 'static'
                 }).result.then(function(data) {
-                    app.enroll_oApp_id = data.source;
-                    _this.update('enroll_oApp_id').then(function(rsp) {
-                        var url = '/rest/pl/fe/matter/enroll/get?site=' + siteId + '&id=' + app.enroll_oApp_id;
+                    app.enroll_app_id = data.source;
+                    _this.update('enroll_app_id').then(function(rsp) {
+                        var url = '/rest/pl/fe/matter/enroll/get?site=' + siteId + '&id=' + app.enroll_app_id;
                         http2.get(url, function(rsp) {
                             rsp.data.data_schemas = JSON.parse(rsp.data.data_schemas);
                             app.enrollApp = rsp.data;
@@ -274,8 +274,8 @@ provider('srvApp', function() {
             },
             cancelEnrollApp: function() {
                 var _this = this;
-                app.enroll_oApp_id = '';
-                this.update('enroll_oApp_id').then(function() {
+                app.enroll_app_id = '';
+                this.update('enroll_app_id').then(function() {
                     app.data_schemas.forEach(function(dataSchema) {
                         delete dataSchema.requireCheck;
                     });

@@ -108,8 +108,8 @@ define(['frame'], function(ngApp) {
             srvRecord.exportImage($scope.page);
         };
         $scope.importByEnrollApp = function() {
-            srvRecord.exportImage($scope.page).then(function(data) {
-                if (date && data.length) {
+            srvRecord.importByEnrollApp().then(function(data) {
+                if (data && data.length) {
                     $scope.doSearch(1);
                 }
             });

@@ -65,7 +65,7 @@ class TMS_DB {
 
 			$updateStrs = [];
 			foreach ($data as $key => $val) {
-				$updateStrs[] = '`' . $key . "` = '" . $val . "'";
+				$updateStrs[] = '`' . $key . "` = '" . $this->escape($val) . "'";
 			}
 			$sql .= ' SET ' . implode(', ', $updateStrs);
 

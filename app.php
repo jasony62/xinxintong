@@ -31,7 +31,8 @@ function show_error($message) {
 		$msg = $message;
 	}
 	echo $msg;
-	TMS_APP::M('log')->log('error', 'error', $msg);
+	$method = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'unknown request';
+	TMS_APP::M('log')->log('error', $method, $msg);
 	exit;
 }
 

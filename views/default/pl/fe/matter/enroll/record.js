@@ -234,7 +234,7 @@ define(['frame'], function(ngApp) {
         $scope.chooseImage = function(fieldName) {
             var data = $scope.record.data;
             srvRecord.chooseImage(fieldName).then(function(img) {
-                data[fieldName] === undefined && (data[fieldName] = []);
+                !data[fieldName] && (data[fieldName] = []);
                 data[fieldName].push(img);
             });
         };

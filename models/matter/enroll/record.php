@@ -48,12 +48,12 @@ class record_model extends \TMS_MODEL {
 		} else if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
 			foreach ($entryRule->sns as $snsName => $rule) {
 				if (isset($user->sns->{$snsName})) {
-					$record['nickname'] = $user->sns->{$snsName}->nickname;
+					$record['nickname'] = $this->escape($user->sns->{$snsName}->nickname);
 					break;
 				}
 			}
 		} else {
-			$record['nickname'] = empty($user->nickname) ? '' : $user->nickname;
+			$record['nickname'] = empty($user->nickname) ? '' : $this->escape($user->nickname);
 		}
 
 		$this->insert('xxt_enroll_record', $record, false);

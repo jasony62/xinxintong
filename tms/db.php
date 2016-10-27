@@ -34,7 +34,7 @@ class TMS_DB {
 			$sql = $table;
 		} else {
 			foreach ($data as $key => $val) {
-				$insert_data['`' . $key . '`'] = "'" . $this->escape($val) . "'";
+				$insert_data['`' . $key . '`'] = "'" . $val . "'";
 			}
 
 			$sql = 'INSERT INTO `' . $this->get_table($table);
@@ -65,7 +65,7 @@ class TMS_DB {
 
 			$updateStrs = [];
 			foreach ($data as $key => $val) {
-				$updateStrs[] = '`' . $key . "` = '" . $this->escape($val) . "'";
+				$updateStrs[] = '`' . $key . "` = '" . $val . "'";
 			}
 			$sql .= ' SET ' . implode(', ', $updateStrs);
 

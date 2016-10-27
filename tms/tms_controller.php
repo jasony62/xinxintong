@@ -56,10 +56,13 @@ class TMS_CONTROLLER {
 	/**
 	 *
 	 */
-	protected function &getPostJson() {
+	protected function &getPostJson($requireEscape = false) {
 		if ('POST' === $_SERVER['REQUEST_METHOD']) {
 			$json = file_get_contents("php://input");
 			$obj = json_decode($json);
+			if ($requireEscape === true) {
+				$ojb = \TMS_MODEL::escape($obj);
+			}
 		} else {
 			$obj = null;
 		}

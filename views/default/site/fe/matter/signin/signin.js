@@ -95,7 +95,7 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "xxt-image", "xxt
                     }
                     if (/image|file/.test(schema.type)) {
                         if (schema.count) {
-                            if (data[schema.id].length > schema.count) {
+                            if (data[schema.id] && data[schema.id].length > schema.count) {
                                 return '［' + schema.title + '］超出上传数量（' + schema.count + '）限制';
                             }
                         }

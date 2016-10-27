@@ -102,7 +102,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 	/**
 	 * 应用的所有登记项
 	 */
-	ngApp.provider.controller('ctrlList', ['$scope', '$timeout', function($scope, $timeout) {
+	ngApp.provider.controller('ctrlList', ['$scope', '$timeout', 'srvApp', 'srvPage', function($scope, $timeout, srvApp, srvPage) {
 		function changeSchemaOrder(moved) {
 			srvApp.update('data_schemas').then(function() {
 				var app = $scope.app;

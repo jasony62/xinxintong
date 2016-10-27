@@ -27,14 +27,14 @@ class TMS_DB {
 		return $this->get_prefix() . $name;
 	}
 	/**
-	 *
+	 * 插入数据
 	 */
 	public function insert($table, $data = null, $autoid = false) {
 		if (stripos($table, 'insert') === 0) {
 			$sql = $table;
 		} else {
 			foreach ($data as $key => $val) {
-				$insert_data['`' . $key . '`'] = "'" . $val . "'";
+				$insert_data['`' . $key . '`'] = "'" . $this->escape($val) . "'";
 			}
 
 			$sql = 'INSERT INTO `' . $this->get_table($table);
@@ -53,7 +53,7 @@ class TMS_DB {
 		}
 	}
 	/**
-	 *
+	 * 更新数据
 	 */
 	public function update($table, $data = null, $where = '') {
 		if (stripos($table, 'update') === 0) {
@@ -65,7 +65,7 @@ class TMS_DB {
 
 			$updateStrs = [];
 			foreach ($data as $key => $val) {
-				$updateStrs[] = '`' . $key . "` = '" . $val . "'";
+				$updateStrs[] = '`' . $key . "` = '" . $this->escape($val) . "'";
 			}
 			$sql .= ' SET ' . implode(', ', $updateStrs);
 

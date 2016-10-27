@@ -57,12 +57,17 @@ class TMS_CONTROLLER {
 	 *
 	 */
 	protected function &getPostJson() {
-		$json = file_get_contents("php://input");
-		$obj = json_decode($json);
+		if ('POST' === $_SERVER['REQUEST_METHOD']) {
+			$json = file_get_contents("php://input");
+			$obj = json_decode($json);
+		} else {
+			$obj = null;
+		}
 		return $obj;
 	}
 	/**
 	 * 设置 COOKIE
+	 *
 	 * @param string $name
 	 * @param string $value
 	 * @param int $expire

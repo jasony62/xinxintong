@@ -201,7 +201,7 @@ define(['wrap'], function(wrapLib) {
 				})(wrapLib);
 			} else if (/image|file/.test(schema.type)) {
 				(function(lib) {
-					var $button = $wrap.find('button'),
+					var $button = $wrap.find('li.img-picker button'),
 						sNgClick;
 
 					sNgClick = 'chooseImage(' + "'" + schema.id + "'," + schema.count + ')';

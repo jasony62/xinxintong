@@ -5,9 +5,13 @@ app.controller('ctrlLogin', ['$scope', 'http2', function($scope, http2) {
         if (window.localStorage.getItem('xxt.login.rememberMe') === 'Y') {
             $scope.data.email = window.localStorage.getItem('xxt.login.email');
             $scope.data.rememberMe = 'Y';
+            document.querySelector('[ng-model="data.password"]').focus();
+        } else {
+            document.querySelector('[ng-model="data.email"]').focus();
         }
     } else {
         $scope.supportLocalStorage = 'N';
+        document.querySelector('[ng-model="data.email"]').focus();
     }
     $scope.$root.keypress = function(event) {
         var code = event.keyCode || event.which;

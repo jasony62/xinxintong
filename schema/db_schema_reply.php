@@ -186,6 +186,7 @@ $sql .= ',name varchar(50) not null';
 $sql .= ',pic text';
 $sql .= ',matter_type varchar(20)';
 $sql .= ',matter_id varchar(40)';
+$sql .= ',params text';
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -204,6 +205,7 @@ $sql .= ',name varchar(50) not null';
 $sql .= ',pic text';
 $sql .= ',matter_type varchar(20)';
 $sql .= ',matter_id varchar(40)';
+$sql .= ',params text';
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');

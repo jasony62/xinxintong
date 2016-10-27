@@ -71,9 +71,7 @@ provider('srvApp', function() {
 
                 angular.isString(names) && (names = [names]);
                 names.forEach(function(name) {
-                    if (['entry_rule'].indexOf(name) !== -1) {
-                        modifiedData[name] = encodeURIComponent(JSON.stringify(oApp.entry_rule));
-                    } else if (name === 'tags') {
+                    if (name === 'tags') {
                         modifiedData.tags = oApp.tags.join(',');
                     } else {
                         modifiedData[name] = oApp[name];

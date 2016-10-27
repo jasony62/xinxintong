@@ -460,16 +460,15 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$model = $this->model('matter\enroll');
+		$modelApp = $this->model('matter\enroll');
+		$matter = $modelApp->byId($app, 'id,title,summary,pic');
 		/**
 		 * 处理数据
 		 */
-		$nv = $this->getPostJson();
+		$nv = $this->getPostJson(true);
 		foreach ($nv as $n => $v) {
-			if (in_array($n, ['entry_rule'])) {
-				$nv->$n = $model->escape(urldecode($v));
-			} elseif (in_array($n, ['data_schemas'])) {
-				$nv->$n = $model->toJson($v);
+			if (in_array($n, ['entry_rule', 'data_schemas'])) {
+				$nv->$n = $modelApp->toJson($v);
 			}
 		}
 		$nv->modifier = $user->id;
@@ -477,10 +476,9 @@ class main extends \pl\fe\matter\base {
 		$nv->modifier_name = $user->name;
 		$nv->modify_at = time();
 
-		$rst = $model->update('xxt_enroll', $nv, ["id" => $app]);
+		$rst = $modelApp->update('xxt_enroll', $nv, ["id" => $app]);
 		if ($rst) {
 			// 记录操作日志
-			$matter = $this->model('matter\\enroll')->byId($app, 'id,title,summary,pic');
 			$matter->type = 'enroll';
 			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
 		}

@@ -21,28 +21,37 @@ class main extends \pl\fe\matter\base {
 		exit;
 	}
 	/**
+	 * 获得指定的任务
 	 *
+	 * @param string $site
+	 * @param int $id
 	 */
 	public function get_action($site, $id) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
+		}
+		/* 检查权限 */
+		$modelAcl = $this->model('matter\mission\acl');
+		if (false === ($acl = $modelAcl->byCoworker($id, $user->id))) {
+			return new \ResponseError('任务不存在');
 		}
 		$mission = $this->model('matter\mission')->byId($id, ['cascaded' => 'header_page_name,footer_page_name']);
 
 		return new \ResponseData($mission);
 	}
 	/**
-	 * 任务列表
+	 * 当前用户可访问任务列表
+	 *
+	 * @param string $site
 	 */
 	public function list_action($site, $page = 1, $size = 20) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$modelMis = $this->model('matter\mission');
-		$options = array(
-			'limit' => (object) array('page' => $page, 'size' => $size),
-		);
-		//$result = $modelMis->bySite($site, $options);
+		$options = [
+			'limit' => (object) ['page' => $page, 'size' => $size],
+		];
 		$result = $modelMis->byAcl($user, $options);
 
 		return new \ResponseData($result);
@@ -56,7 +65,7 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$current = time();
-		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
+		$site = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
 
 		$mission = array();
 		/*create empty mission*/
@@ -118,11 +127,11 @@ class main extends \pl\fe\matter\base {
 			$mission->type = 'mission';
 			$this->model('log')->matterOp($site, $user, $mission, 'D');
 			/* 删除数据 */
-			$q = array(
+			$q = [
 				'count(*)',
 				'xxt_mission_matter',
 				"mission_id='$id'",
-			);
+			];
 			$cnt = (int) $modelMis->query_val_ss($q);
 
 			if ($cnt > 0) {

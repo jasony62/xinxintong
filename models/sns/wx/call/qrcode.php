@@ -42,9 +42,9 @@ class qrcode_model extends \TMS_MODEL {
 		return $calls;
 	}
 	/**
-	 *
+	 * 获得素材对应的场景二维码
 	 */
-	public function &byMatter($type, $id) {
+	public function &byMatter($type, $id, $params = null) {
 		// 清除过期的二维码
 		$current = time();
 		//$this->delete('xxt_call_qrcode_wx', "expire_at<>0 and expire_at<=$current");
@@ -55,7 +55,9 @@ class qrcode_model extends \TMS_MODEL {
 			'xxt_call_qrcode_wx',
 			["matter_type" => $type, "matter_id" => $id],
 		];
-
+		if (!empty($params)) {
+			$q[2]['params'] = $params;
+		}
 		$calls = $this->query_objs_ss($q);
 		if (count($calls)) {
 			$current = time();

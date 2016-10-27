@@ -37,9 +37,25 @@ class TMS_MODEL {
 	public static function found_rows() {
 		return TMS_DB::db()->query_value('SELECT FOUND_ROWS()');
 	}
-
-	public static function escape($str) {
-		return TMS_DB::db()->escape($str);
+	/**
+	 *
+	 */
+	public static function escape($data) {
+		if (is_string($data)) {
+			return TMS_DB::db()->escape($data);
+		} else if (is_object($data)) {
+			foreach ($data as $k => $v) {
+				$data->{$k} = TMS_MODEL::escape($v);
+			}
+			return $data;
+		} else if (is_array($data)) {
+			foreach ($data as $k => $v) {
+				$data[$k] = TMS_MODEL::escape($v);
+			}
+			return $data;
+		} else {
+			return false;
+		}
 	}
 	/**
 	 * Array(

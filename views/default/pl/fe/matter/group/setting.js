@@ -266,11 +266,13 @@ define(['frame'], function(ngApp) {
 				}
 			}
 			if (s && s.ops && s.ops.length) {
-				aVal = val.split(',');
-				for (i = 0, j = s.ops.length; i < j; i++) {
-					aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
+				if (angular.isString(val)) {
+					aVal = val.split(',');
+					for (i = 0, j = s.ops.length; i < j; i++) {
+						aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
+					}
+					if (aLab.length) return aLab.join(',');
 				}
-				if (aLab.length) return aLab.join(',');
 			}
 			return val;
 		};

@@ -1,7 +1,7 @@
 define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 	'use strict';
 	var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'tmplshop.ui.xxt', 'service.matter', 'service.enroll', 'tinymce.enroll', 'ui.xxt', 'channel.fe.pl']);
-	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvQuickEntryProvider', 'srvAppProvider', 'srvPageProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvQuickEntryProvider, srvAppProvider, srvPageProvider) {
+	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvQuickEntryProvider', 'srvAppProvider', 'srvPageProvider', 'srvRecordProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvQuickEntryProvider, srvAppProvider, srvPageProvider, srvRecordProvider) {
 		var RouteParam = function(name) {
 			var baseURL = '/views/default/pl/fe/matter/enroll/';
 			this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
@@ -48,14 +48,22 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 			srvPageProvider.setSiteId(siteId);
 			srvPageProvider.setAppId(appId);
 			//
+			srvRecordProvider.setSiteId(siteId);
+			srvRecordProvider.setAppId(appId);
+			//
 			srvQuickEntryProvider.setSiteId(siteId);
 		})();
 	}]);
-	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'mattersgallery', 'srvApp', function($scope, $location, $uibModal, $q, http2, mattersgallery, srvApp) {
+	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'mattersgallery', 'templateShop', 'srvApp', function($scope, $location, $uibModal, $q, http2, mattersgallery, templateShop, srvApp) {
 		var ls = $location.search();
 
 		$scope.id = ls.id;
 		$scope.siteId = ls.site;
+		$scope.subView = '';
+		$scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+			var subView = currentRoute.match(/([^\/]+?)\?/);
+			$scope.subView = subView[1] === 'enroll' ? 'publish' : subView[1];
+		});
 		$scope.update = function(names) {
 			return srvApp.update(names);
 		};
@@ -69,6 +77,24 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 					}
 				});
 			}
+		};
+
+		$scope.assignMission = function() {
+			srvApp.assignMission().then(function(mission) {});
+		};
+		$scope.quitMission = function() {
+			srvApp.quitMission().then(function() {});
+		};
+		$scope.choosePhase = function() {
+			srvApp.choosePhase();
+		};
+		$scope.exportAsTemplate = function() {
+			var url;
+			url = '/rest/pl/fe/matter/enroll/exportAsTemplate?site=' + siteId + '&app=' + appId;
+			window.open(url);
+		};
+		$scope.shareAsTemplate = function() {
+			templateShop.share($scope.siteId, $scope.app);
 		};
 		$scope.createPage = function() {
 			var deferred = $q.defer();

@@ -494,5 +494,7 @@ ngApp.controller('ctrlMatter', ['$scope', 'http2', 'templateShop', function($sco
 			});
 		}
 	};
-	$scope.list();
+	$scope.$watch('editing', function(mission) {
+		mission && $scope.list();
+	});
 }]);

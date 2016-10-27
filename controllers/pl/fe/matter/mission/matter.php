@@ -17,6 +17,12 @@ class matter extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
+		/* 检查权限 */
+		$modelAcl = $this->model('matter\mission\acl');
+		if (false === ($acl = $modelAcl->byCoworker($id, $user->id))) {
+			return new \ResponseError('数据不存在');
+		}
+
 		$matters = $this->model('matter\mission')->mattersById($site, $id, $matterType);
 
 		return new \ResponseData($matters);

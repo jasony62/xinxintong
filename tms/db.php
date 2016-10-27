@@ -27,7 +27,7 @@ class TMS_DB {
 		return $this->get_prefix() . $name;
 	}
 	/**
-	 *
+	 * 插入数据
 	 */
 	public function insert($table, $data = null, $autoid = false) {
 		if (stripos($table, 'insert') === 0) {
@@ -53,7 +53,7 @@ class TMS_DB {
 		}
 	}
 	/**
-	 *
+	 * 更新数据
 	 */
 	public function update($table, $data = null, $where = '') {
 		if (stripos($table, 'update') === 0) {

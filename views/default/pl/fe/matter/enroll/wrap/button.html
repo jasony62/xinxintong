@@ -1,7 +1,7 @@
 <div ng-controller="ctrlButtonWrap">
     <div class="form-group">
         <label>操作类型</label>
-        <select class='form-control' ng-model='activeWrap.schema.name' ng-options='k as v.l for (k,v) in buttons' ng-change="choose()">
+        <select class='form-control' ng-model='activeWrap.schema.name' ng-options='btn.n as btn.l for btn in buttons' ng-change="choose()">
             <option></option>
         </select>
     </div>

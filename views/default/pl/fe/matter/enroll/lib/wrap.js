@@ -302,7 +302,7 @@ define([], function() {
                 html += '<button class="btn btn-default btn-xs" ng-click="removeImage(data.' + schema.id + ',$index)"><span class="glyphicon glyphicon-remove"></span></button>';
                 html += '</li>';
                 html += '<li class="img-picker">';
-                html += '<button class="btn btn-default" ng-click="chooseImage(\'' + schema.id + '\',' + config.count + ')"><span class="glyphicon glyphicon-picture"></span><br>上传图片</button>';
+                html += '<button class="btn btn-default" ng-click="chooseImage(\'' + schema.id + '\',' + schema.count + ')"><span class="glyphicon glyphicon-picture"></span><br>上传图片</button>';
                 html += '</li>';
                 html += '</ul>';
                 break;
@@ -314,7 +314,7 @@ define([], function() {
                 html += '<span class="file-name" ng-bind="file.name"></span>';
                 html += '</li>';
                 html += '<li class="list-group-item file-picker">';
-                html += '<button class="btn btn-success" ng-click="chooseFile(\'' + schema.id + '\',' + config.count + ')">' + schema.title + '</button>';
+                html += '<button class="btn btn-success" ng-click="chooseFile(\'' + schema.id + '\',' + schema.count + ')">' + schema.title + '</button>';
                 html += '</li>';
                 html += '</ul>';
                 break;

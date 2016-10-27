@@ -21,7 +21,7 @@ class signin_model extends app_base {
 	/**
 	 *
 	 */
-	public function getEntryUrl($siteId, $id) {
+	public function getEntryUrl($siteId, $id, $roundId = null) {
 		$url = "http://" . $_SERVER['HTTP_HOST'];
 		$url .= "/rest/site/fe/matter/signin";
 		if ($siteId === 'platform') {
@@ -29,6 +29,10 @@ class signin_model extends app_base {
 			$url .= "?site={$app->siteid}&app=" . $id;
 		} else {
 			$url .= "?site={$siteId}&app=" . $id;
+		}
+
+		if (!empty($roundId)) {
+			$url .= '&round=' . $roundId;
 		}
 
 		return $url;

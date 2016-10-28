@@ -1,39 +1,15 @@
-ngApp = angular.module('app', ['ngSanitize', 'infinite-scroll']);
+ngApp = angular.module('app', ['ngSanitize']);
 ngApp.config(['$controllerProvider', function($cp) {
     ngApp.register = {
         controller: $cp.register
     };
-}]);
-ngApp.factory('Round', ['$http', '$q', function($http, $q) {
-    var Round = function(scenario, template) {
-        this.scenario = scenario;
-        this.template = template;
-    };
-    Round.prototype.list = function() {
-        var _this, deferred, promise, url;
-        _this = this;
-        deferred = $q.defer();
-        promise = deferred.promise;
-        url = '/rest/site/fe/matter/enroll/template/round/list';
-        url += '?scenario=' + _this.scenario;
-        url += '&template=' + _this.template;
-        $http.get(url).success(function(rsp) {
-            if (rsp.err_code != 0) {
-                alert(rsp.data);
-                return;
-            }
-            deferred.resolve(rsp.data);
-        });
-        return promise;
-    };
-    return Round;
 }]);
 LS = (function() {
     function locationSearch() {
         var ls, search;
         ls = location.search;
         search = {};
-        angular.forEach(['scenario', 'template', 'page', 'rid'], function(q) {
+        angular.forEach(['page'], function(q) {
             var match, pattern;
             pattern = new RegExp(q + '=([^&]*)');
             match = ls.match(pattern);
@@ -43,7 +19,7 @@ LS = (function() {
     };
     /*join search*/
     function j(method) {
-        var j, l, url = '/rest/site/fe/matter/enroll/template',
+        var j, l, url = '/rest/site/fe/matter/signin/template',
             _this = this,
             search = [];
         method && method.length && (url += '/' + method);
@@ -60,30 +36,6 @@ LS = (function() {
         j: j
     };
 })();
-ngApp.controller('ctrlRounds', ['$scope', 'Round', function($scope, Round) {
-    var facRound, onDataReadyCallbacks;
-    facRound = new Round(LS.p.scenario, LS.p.template);
-    facRound.list().then(function(rounds) {
-        $scope.rounds = rounds;
-        angular.forEach(onDataReadyCallbacks, function(cb) {
-            cb(rounds);
-        });
-    });
-    onDataReadyCallbacks = [];
-    $scope.onDataReady = function(callback) {
-        onDataReadyCallbacks.push(callback);
-    };
-    $scope.match = function(matched) {
-        var i, l, round;
-        for (i = 0, l = $scope.rounds.length; i < l; i++) {
-            round = $scope.rounds[i];
-            if (matched.rid === $scope.rounds[i].rid) {
-                return $scope.rounds[i];
-            }
-        }
-        return false;
-    };
-}]);
 ngApp.factory('Record', ['$http', '$q', function($http, $q) {
     var _ins, _running, Record;
     Record = function(scenario, template) {
@@ -101,7 +53,7 @@ ngApp.factory('Record', ['$http', '$q', function($http, $q) {
         var _this, url, deferred;
         _this = this;
         deferred = $q.defer();
-        url = '/rest/site/fe/matter/enroll/template/record/get';
+        url = '/rest/site/fe/matter/signin/template/record/get';
         url += '?scenario=' + _this.scenario;
         url += '&template=' + _this.template;
         $http.post(url, config).success(function(rsp) {
@@ -119,7 +71,7 @@ ngApp.factory('Record', ['$http', '$q', function($http, $q) {
         var _this, url, deferred;
         _this = this;
         deferred = $q.defer();
-        url = '/rest/site/fe/matter/enroll/template/record/list';
+        url = '/rest/site/fe/matter/signin/template/record/list';
         url += '?scenario=' + _this.scenario;
         url += '&template=' + _this.template;
         rid !== undefined && rid.length && (url += '&rid=' + rid);
@@ -181,105 +133,6 @@ ngApp.controller('ctrlRecord', ['$scope', 'Record', function($scope, Record) {
         }
     };
 }]);
-ngApp.controller('ctrlRecords', ['$scope', 'Record', function($scope, Record) {
-    var facRecord, options, fnFetch, rid;
-    if (LS.p.rid === '' && $scope.$parent.ActiveRound) {
-        rid = $scope.$parent.ActiveRound.rid;
-    } else {
-        rid = LS.p.rid;
-    }
-    facRecord = Record.ins(LS.p.scenario, LS.p.template);
-    options = {
-        owner: 'A',
-        rid: rid
-    };
-    fnFetch = function() {
-        facRecord.list(options.owner, options.rid).then(function(records) {
-            $scope.records = records;
-        });
-    };
-    $scope.$on('xxt.app.enroll.filter.rounds', function(event, data) {
-        options.rid = data[0].rid;
-        fnFetch();
-    });
-    $scope.$on('xxt.app.enroll.filter.owner', function(event, data) {
-        options.owner = data[0].id;
-        fnFetch();
-    });
-    $scope.fetch = fnFetch;
-    $scope.options = options;
-}]);
-ngApp.controller('ctrlOwnerOptions', ['$scope', function($scope) {
-    $scope.owners = {
-        'A': {
-            id: 'A',
-            label: '全部'
-        },
-        'U': {
-            id: 'U',
-            label: '我的'
-        }
-    };
-    $scope.match = function(owner) {
-        return $scope.owners[owner.id];
-    }
-}]);
-ngApp.controller('ctrlOrderbyOptions', ['$scope', function($scope) {
-    $scope.orderbys = {
-        time: {
-            id: 'time',
-            label: '最新'
-        },
-        score: {
-            id: 'score',
-            label: '点赞'
-        },
-        remark: {
-            id: 'remark',
-            label: '评论'
-        }
-    };
-}]);
-ngApp.controller('ctrlStatistic', ['$scope', '$http', function($scope, $http) {
-    var fnFetch;
-    fnFetch = function() {
-        $http.post(LS.j('statGet', 'scenario', 'template'), $scope.CustomConfig).success(function(rsp) {
-            $scope.statistic = rsp.data;
-        });
-    };
-    fnFetch = function(options) {
-        var url;
-        url = LS.j('statGet', 'scenario', 'template');
-        if (options) {
-            if (options.fromCache && options.fromCache === 'Y') {
-                url += '&fromCache=Y';
-                if (options.interval) {
-                    url += '&interval=' + options.interval;
-                }
-            }
-        }
-        $http.post(url, $scope.CustomConfig).success(function(rsp) {
-            $scope.statistic = rsp.data;
-        });
-    };
-    $scope.fetch = fnFetch;
-}]);
-ngApp.directive('enrollStatistic', [function() {
-    return {
-        restrict: 'A',
-        link: function(scope, elem, attrs) {
-            var i, params, pv, options;
-            params = attrs.enrollStatistic.split(';');
-            options = {};
-            for (i in params) {
-                pv = params[i];
-                pv = pv.split('=');
-                options[pv[0]] = pv[1];
-            }
-            scope.fetch(options);
-        }
-    };
-}]);
 ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, $http, $timeout, $q) {
     window.renew = function(page, config) {
         $scope.$apply(function() {
@@ -328,17 +181,5 @@ ngApp.controller('ctrl', ['$scope', '$http', '$timeout', '$q', function($scope, 
     $scope.gotoPage = function(event, page, ek, rid, fansOnly, newRecord) {};
     $scope.addRecord = function(event) {};
     $scope.editRecord = function(event, page) {};
-    $scope.likeRecord = function(event) {};
-    $scope.remarkRecord = function(event) {};
     $scope.openMatter = function(id, type) {};
-    $scope.$on('xxt.app.enroll.filter.rounds', function(event, data) {
-        if (event.targetScope !== $scope) {
-            $scope.$broadcast('xxt.app.enroll.filter.rounds', data);
-        }
-    });
-    $scope.$on('xxt.app.enroll.filter.owner', function(event, data) {
-        if (event.targetScope !== $scope) {
-            $scope.$broadcast('xxt.app.enroll.filter.owner', data);
-        }
-    });
 }]);

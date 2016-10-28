@@ -19,26 +19,6 @@
         <div class='row'>
             <!--page schemas-->
             <div class='page-schemas'>
-                <!--create input wrap-->
-                <div class='form-group tile hide' ng-if="ep.type==='I'">
-                    <div class='help-block'>添加登记项</div>
-                    <button class='btn btn-default' ng-click="newSchema('name')">姓名</button>
-                    <button class='btn btn-default' ng-click="newSchema('mobile')">手机</button>
-                    <button class='btn btn-default' ng-click="newSchema('email')">邮箱</button>
-                    <button class='btn btn-default' ng-click="newSchema('date')">日期</button>
-                    <button class='btn btn-default' ng-click="newSchema('shorttext')">单行文本</button>
-                    <button class='btn btn-default' ng-click="newSchema('longtext')">多行文本</button>
-                    <button class='btn btn-default' ng-click="newSchema('single')">单选题</button>
-                    <button class='btn btn-default' ng-click="newSchema('multiple')">多选题</button>
-                    <button class='btn btn-default' ng-click="newSchema('image')">上传图片</button>
-                    <button class='btn btn-default' ng-click="newSchema('file')">上传文件</button>
-                    <button class='btn btn-default' ng-click="newSchema('location')">上传位置</button>
-                </div>
-                <div class='form-group tile hide' ng-repeat="ms in memberSchemas" ng-if="ep.type==='I'">
-                    <div class='help-block'>{{ms.title}}</div>
-                    <button class='btn btn-default' ng-click="newMember(ms,s)" ng-repeat="s in ms._schemas">{{s.title}}</button>
-                </div>
-                <!-- end create input wrap -->
                 <!-- create button wrap -->
                 <div class='list-group-item'>
                     <div class='help-block'>添加操作</div>
@@ -55,22 +35,27 @@
                     <div class='help-block'>活动中所有登记项</div>
                     <div class='list-group'>
                         <div class='list-group-item schema' ng-repeat="s in appSchemas">
-                            <div class='checkbox'>
-                                <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
-                            </div>
+                            <span ng-bind="s.title"></span>
+                            <span class='schema-switch'>
+                                <input type='checkbox' bs-switch switch-size="mini" data-on-text="显示" data-off-text="隐藏" ng-model="chooseState[s.id]" ng-change="choose(s)">
+                            </span>
                         </div>
                     </div>
+                    <a class='btn btn-default btn-block' href="/rest/pl/fe/matter/signin/schema?site={{siteId}}&id={{id}}">修改登记项</a>
                 </div>
-                <div ng-if="ep.type==='V'" ng-controller="ctrlAppSchemas4View">
+                <div class='list-group-item' ng-if="ep.type==='V'" ng-controller="ctrlAppSchemas4View">
+                    <div class='help-block'>活动中所有登记项</div>
                     <div class='list-group-item' ng-repeat="s in appSchemas">
-                        <div class='checkbox' style='margin:0'>
-                            <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
-                        </div>
+                        <span ng-bind="s.title"></span>
+                        <span class='schema-switch'>
+                            <input type='checkbox' bs-switch switch-size="mini" data-on-text="显示" data-off-text="隐藏" ng-model="chooseState[s.id]" ng-change="choose(s)">
+                        </span>
                     </div>
                     <div class='list-group-item' ng-repeat="s in otherSchemas">
-                        <div class='checkbox' style='margin:0'>
-                            <label><input type='checkbox' ng-model="chooseState[s.id]" ng-change="choose(s)"><span ng-bind="s.title"></span></label>
-                        </div>
+                        <span ng-bind="s.title"></span>
+                        <span class='schema-switch'>
+                            <input type='checkbox' bs-switch switch-size="mini" data-on-text="显示" data-off-text="隐藏" ng-model="chooseState[s.id]" ng-change="choose(s)">
+                        </span>
                     </div>
                 </div>
             </div>
@@ -116,7 +101,6 @@
             <input type='text' class='form-control' ng-model="ep.title" tms-auto-update tms-wait=1000 tms-update="updPage(ep,'title')">
         </div>
         <hr>
-        <button class='btn btn-block btn-default' ng-click="gotoPageConfig()">修改页面</button>
         <button class='btn btn-block btn-default' ng-click="delPage()">删除页面</button>
         <hr>
         <button class='btn btn-block btn-default' ng-click="addPage()">添加页面</button>

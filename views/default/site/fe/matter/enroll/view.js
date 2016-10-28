@@ -167,34 +167,29 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share"], function(a
         return Stat;
     }]);
     ngApp.controller('ctrlRecord', ['$scope', 'Record', 'ls', '$sce', function($scope, Record, LS, $sce) {
-        var facRecord,
-            schemas = $scope.app.data_schemas,
-            schemasById = {};
+        var facRecord;
 
-        schemas.forEach(function(schema) {
-            schemasById[schema.id] = schema;
-        });
         $scope.value2Label = function(schemaId) {
-            var val, i, j, s, aVal, aLab = [];
-            if (schemas && facRecord.current.data) {
-                val = facRecord.current.data[schemaId];
-                if (val === undefined) return '';
-                s = schemasById[schemaId];
-                if (s && s.ops && s.ops.length) {
-                    aVal = val.split(',');
-                    for (i = 0, j = s.ops.length; i < j; i++) {
-                        aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
+            var val, schema, aVal, aLab = [];
+
+            if ($scope.app.data_schemas && (schema = $scope.app._schemasById[schemaId]) && facRecord.current.data) {
+                if (val = facRecord.current.data[schemaId]) {
+                    if (schema.ops && schema.ops.length) {
+                        aVal = val.split(',');
+                        schema.ops.forEach(function(op) {
+                            aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
+                        });
+                        val = aLab.join(',');
                     }
-                    if (aLab.length) return aLab.join(',');
+                } else {
+                    val = '';
                 }
-                return val;
-            } else {
-                return '';
             }
+            return $sce.trustAsHtml(val);
         };
         $scope.score2Html = function(schemaId) {
             var label = '',
-                schema = schemasById[schemaId],
+                schema = $scope.app._schemasById[schemaId],
                 val;
 
             if (schema && facRecord.current.data) {

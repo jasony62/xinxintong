@@ -1,7 +1,7 @@
 define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 	'use strict';
-	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'service.signin', 'tinymce.enroll', 'ui.xxt']);
-	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvAppProvider', 'srvPageProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvAppProvider, srvPageProvider) {
+	var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'service.signin', 'tinymce.enroll', 'ui.xxt']);
+	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvAppProvider', 'srvRoundProvider', 'srvPageProvider', 'srvRecordProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvAppProvider, srvRoundProvider, srvPageProvider, srvRecordProvider) {
 		var RouteParam = function(name) {
 			var baseURL = '/views/default/pl/fe/matter/signin/';
 			this.templateUrl = baseURL + name + '.html?_=' + ((new Date()) * 1);
@@ -23,10 +23,8 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 		$routeProvider
 			.when('/rest/pl/fe/matter/signin/page', new RouteParam('page'))
 			.when('/rest/pl/fe/matter/signin/schema', new RouteParam('schema'))
-			.when('/rest/pl/fe/matter/signin/event', new RouteParam('event'))
 			.when('/rest/pl/fe/matter/signin/record', new RouteParam('record'))
 			.when('/rest/pl/fe/matter/signin/publish', new RouteParam('publish'))
-			.when('/rest/pl/fe/matter/signin/event', new RouteParam('event'))
 			.otherwise(new RouteParam('publish'));
 
 		$locationProvider.html5Mode(true);
@@ -44,8 +42,14 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 			srvAppProvider.setSiteId(siteId);
 			srvAppProvider.setAppId(appId);
 			//
+			srvRoundProvider.setSiteId(siteId);
+			srvRoundProvider.setAppId(appId);
+			//
 			srvPageProvider.setSiteId(siteId);
 			srvPageProvider.setAppId(appId);
+			//
+			srvRecordProvider.setSiteId(siteId);
+			srvRecordProvider.setAppId(appId);
 		})();
 	}]);
 	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'srvApp', function($scope, $location, $uibModal, $q, http2, srvApp) {
@@ -58,8 +62,17 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 			var subView = currentRoute.match(/([^\/]+?)\?/);
 			$scope.subView = subView[1] === 'signin' ? 'publish' : subView[1];
 		});
-		$scope.update = function(names) {
-			return srvApp.update(names);
+		$scope.update = function(props) {
+			srvApp.update(props);
+		};
+		$scope.assignMission = function() {
+			srvApp.assignMission();
+		};
+		$scope.quitMission = function() {
+			srvApp.quitMission();
+		};
+		$scope.choosePhase = function() {
+			srvApp.choosePhase();
 		};
 		$scope.remove = function() {
 			if (window.confirm('确定删除？')) {

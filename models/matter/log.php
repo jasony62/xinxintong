@@ -276,17 +276,28 @@ class log_model extends \TMS_MODEL {
 	 */
 	public function matterOp($siteId, $user, $matter, $op, $data = null) {
 		$current = time();
-		if ($op !== 'C') {
-			/*更新操作，需要将之前的操作设置为非最后操作*/
-			$d = array(
+		if ($op === 'D') {
+			/* 如果是删除操作，将所有进行过操作的人的最后一次操作都修改为不是最后一次，实现素材对所有人都不可见 */
+			$d = [
 				'last_op' => 'N',
+			];
+			$this->update(
+				'xxt_log_matter_op',
+				$d,
+				"matter_type='$matter->type' and matter_id='$matter->id' and last_op='Y'"
 			);
+		} else if ($op !== 'C') {
+			/* 更新操作，需要将之前的操作设置为非最后操作 */
+			$d = [
+				'last_op' => 'N',
+			];
 			$this->update(
 				'xxt_log_matter_op',
 				$d,
 				"siteid='$siteId' and matter_type='$matter->type' and matter_id='$matter->id' and last_op='Y'"
 			);
 		}
+		/* 记录最后1条操作日志 */
 		$d = array();
 		$d['siteid'] = $siteId;
 		$d['operator'] = $user->id;
@@ -324,18 +335,18 @@ class log_model extends \TMS_MODEL {
 		} else {
 			$page = $options['page'];
 		}
-		$q = array(
+		$q = [
 			$fields,
 			'xxt_log_matter_op',
 			"siteid='$siteId' and last_op='Y' and operation<>'D'",
-		);
-		$q2 = array(
-			'r' => array('o' => ($page->at - 1) * $page->size, 'l' => $page->size),
-			'o' => array('operate_at desc'),
-		);
+		];
+		$q2 = [
+			'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
+			'o' => ['operate_at desc'],
+		];
 
 		$matters = $this->query_objs_ss($q, $q2);
-		$result = array('matters' => $matters);
+		$result = ['matters' => $matters];
 		if (empty($matters)) {
 			$result['total'] = 0;
 		} else {

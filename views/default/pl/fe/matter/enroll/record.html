@@ -73,33 +73,30 @@
                         <td>{{(page.at-1)*page.size+$index+1}}</td>
                         <td>{{(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                         <td ng-repeat="c in app.data_schemas">
-                            <span ng-if="c.id.indexOf('member')===0">{{memberAttr(r.data, c.id)}}</span>
-                            <span ng-if="c.type!=='image'&&c.type!=='file'" ng-bind-html="value2Label(r.data[c.id], c.id)"></span>
+                            <span ng-if="c.type!=='image'&&c.type!=='file'" ng-bind-html="r._data[c.id]"></span>
                             <span ng-if="c.type==='image'">
-                                <img ng-repeat="img in r.data[c.id]" ng-src='{{img}}' />
+                                <img ng-repeat="img in r._data[c.id]" ng-src='{{img}}' />
                             </span>
-                            <span ng-if="c.type==='file'" ng-init="files=json2Obj(r.data[c.id])">
-                                <span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                            <span ng-if="c.type==='file'">
+                                <span ng-repeat='file in r._data[c.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </span>
                         </td>
                         <td class='matched enroll' ng-repeat="c in enrollDataSchemas">
-                            <span ng-if="c.id.indexOf('member')===0">{{memberAttr(r.data, c.id)}}</span>
-                            <span ng-if="c.type!=='image'&&c.type!=='file'" ng-bind-html="value2Label2(r.data[c.id], c.id)"></span>
+                            <span ng-if="c.type!=='image'&&c.type!=='file'" ng-bind-html="r._data[c.id]"></span>
                             <span ng-if="c.type==='image'">
-                                <img ng-repeat="img in r.data[c.id]" ng-src='{{img}}' />
+                                <img ng-repeat="img in r._data[c.id]" ng-src='{{img}}' />
                             </span>
-                            <span ng-if="c.type==='file'" ng-init="files=json2Obj(r.data[c.id])">
-                                <span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                            <span ng-if="c.type==='file'">
+                                <span ng-repeat='file in r._data[c.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </span>
                         </td>
                         <td class='matched group' ng-repeat="c in groupDataSchemas">
-                            <span ng-if="c.id.indexOf('member')===0">{{memberAttr(r.data, c.id)}}</span>
-                            <span ng-if="c.type!=='image'&&c.type!=='file'" ng-bind-html="value2Label3(r.data[c.id], c.id)"></span>
+                            <span ng-if="c.type!=='image'&&c.type!=='file'" ng-bind-html="r._data[c.id]"></span>
                             <span ng-if="c.type==='image'">
-                                <img ng-repeat="img in r.data[c.id]" ng-src='{{img}}' />
+                                <img ng-repeat="img in r._data[c.id]" ng-src='{{img}}' />
                             </span>
-                            <span ng-if="c.type==='file'" ng-init="files=json2Obj(r.data[c.id])">
-                                <span ng-repeat='file in files'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
+                            <span ng-if="c.type==='file'">
+                                <span ng-repeat='file in r._data[c.id]'><a href='{{file.url}}' target="_blank">{{file.name}}</a></span>
                             </span>
                         </td>
                         <td>{{r.nickname}}</td>
@@ -123,25 +120,10 @@
         </div>
         <div class='form-group form-inline'>
             <button class='btn btn-danger' ng-click='empty()'>清空记录</button>
-            <button class='btn btn-default' ng-click='addRecord()'>手工添加</button>
+            <button class='btn btn-default' ng-click='editRecord()'>手工添加</button>
             <span>总数：{{page.total}}</span>
             <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
         </div>
     </div>
     <!-- end records -->
-    <!-- bottom navbar -->
-    <nav class="navbar navbar-default bottom">
-        <div class="container-fluid" style='text-align:center'>
-            <form class="navbar-form" style='display:inline-block'>
-                <a class='btn btn-success' href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}">发布设置</a>
-                <a class='btn btn-default' href="/rest/pl/fe/matter/enroll/schema?site={{siteId}}&id={{id}}">编辑登记项</a>
-                <a class='btn btn-success' href="/rest/pl/fe/matter/enroll/page?site={{siteId}}&id={{id}}">页面设置</a>
-                <a class='btn btn-success' href="/rest/pl/fe/matter/enroll/stat?site={{siteId}}&id={{id}}" ng-if="app.scenario==='voting'">统计报告</a>
-            </form>
-            <form class="navbar-form navbar-right" style='display:inline-block'>
-                <button class='btn btn-default' ng-click="remove()">删除活动</button>
-            </form>
-        </div>
-    </nav>
-    <!-- end bottom navbar -->
 </div>

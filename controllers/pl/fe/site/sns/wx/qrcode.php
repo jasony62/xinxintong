@@ -56,6 +56,7 @@ class qrcode extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
+		$posted = $this->getPostJson();
 		$modelWx = $this->model('sns\wx');
 		$snsSiteId = $site;
 		if (false === ($wxConfig = $modelWx->bySite($snsSiteId)) || $wxConfig->joined !== 'Y') {
@@ -87,7 +88,6 @@ class qrcode extends \pl\fe\base {
 		if ($rst[0] === false) {
 			return new \ResponseError($rst[1]);
 		}
-
 		$qrcode = $rst[1];
 		/**
 		 * 保存数据并返回
@@ -106,6 +106,9 @@ class qrcode extends \pl\fe\base {
 		if (!empty($matter_type) && !empty($matter_id)) {
 			$d['matter_type'] = $matter_type;
 			$d['matter_id'] = $matter_id;
+			if (!empty($posted) && !empty($posted->params)) {
+				$d['params'] = \TMS_MODEL::toJson($posted->params);
+			}
 		}
 		// 模拟临时二维码
 		if ((int) $expire === 0) {

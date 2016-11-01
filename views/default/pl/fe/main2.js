@@ -27,16 +27,6 @@ controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
     $scope.openMission = function(mission) {
         location.href = '/rest/pl/fe/matter/mission?id=' + mission.mission_id;
     };
-    $scope.remove = function(event, site) {
-        event.preventDefault();
-        event.stopPropagation();
-        var url = '/rest/pl/fe/site/remove';
-        url += '?site=' + site.id + '&_=' + t;
-        http2.get(url, function(rsp) {
-            var i = $scope.sites.indexOf(site);
-            $scope.sites.splice(i, 1);
-        });
-    };
     $scope.list();
     $scope.listMission();
 }]);

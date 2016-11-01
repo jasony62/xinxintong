@@ -15,7 +15,7 @@ ini_set('default_charset', 'utf-8');
 /**
  * memory limit
  */
-ini_set('memory_limit', '-1');
+!defined('SAE_TMP_PATH') && ini_set('memory_limit', '-1');
 /**
  * error and exception handle
  */

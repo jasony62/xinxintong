@@ -31,7 +31,7 @@ define(['frame'], function(ngApp) {
 		$scope.remove = function() {
 			if (window.confirm('确定删除项目？')) {
 				http2.get('/rest/pl/fe/matter/mission/remove?id=' + $scope.id, function(rsp) {
-					history.back();
+					location.href = '/rest/pl/fe';
 				});
 			}
 		};

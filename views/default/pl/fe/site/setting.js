@@ -78,6 +78,14 @@ define(['require'], function(require) {
             p[name] = $scope.site[name];
             http2.post('/rest/pl/fe/site/update?site=' + $scope.siteId, p, function(rsp) {});
         };
+        $scope.remove = function() {
+            if (window.confirm('确定删除站点？')) {
+                var url = '/rest/pl/fe/site/remove?site=' + $scope.siteId;
+                http2.get(url, function(rsp) {
+                    location.href = '/rest/pl/fe';
+                });
+            }
+        };
         $scope.setPic = function() {
             var options = {
                 callback: function(url) {

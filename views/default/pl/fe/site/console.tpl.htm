@@ -10,7 +10,7 @@
 	</head>
 	<body ng-app='app' ng-controller='ctrlSite'>
 		<nav class='navbar navbar-default'>
-			<div class='container-fluid'>
+			<div class='container'>
 				<ul class='nav navbar-nav'>
 					<li><a href='/rest/pl/fe' target='_self'>我的首页</a></li>
 				</ul>
@@ -23,9 +23,6 @@
 					</li>
 					<li>
 						<a href='/rest/pl/fe/file?site={{siteId}}' target='_self'>图片库</a>
-					</li>
-					<li>
-						<a href='/rest/pl/fe/template/shop?site={{siteId}}' target='_self'>模板库</a>
 					</li>
 					<li>
 						<a href='/rest/pl/fe/site/setting?site={{siteId}}' target='_self'>站点设置</a>
@@ -75,7 +72,7 @@
 							<div class='modify_at' title='修改时间' ng-bind="(m.operate_at||m.modify_at||m.join_at||m.create_at)*1000|date:'yy-MM-dd HH:mm'"></div>
 						</div>
 						<div class='actions' ng-if="entered">
-							<button class='btn btn-default' title='复制' ng-click="copyMatter($event,m)"><span class='glyphicon glyphicon-copy'></span></button>
+							<button class='btn btn-default' title='复制' ng-click="copyMatter($event,m)">复制</button>
 							<button class='btn btn-default' title='删除' ng-click="removeMatter($event,m)"><span class='glyphicon glyphicon-remove'></span></button>
 						</div>
 					</div>

@@ -23,17 +23,21 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
                 $scope.subView = subView;
             }
         };
-        $http.get('/rest/pl/fe/user/auth/isLogin').success(function(rsp) {
-            $scope.isLogin = rsp.data;
-        });
         $http.get('/rest/home/get').success(function(rsp) {
             if (rsp.err_code !== 0) {
                 $scope.errmsg = rsp.err_msg;
                 return;
             }
             platform = rsp.data.platform;
-            $scope.platform = platform;
-            $scope.shiftPage('home');
+            if (platform.home_page === false) {
+                location.href = '/rest/pl/fe';
+            } else {
+                $http.get('/rest/pl/fe/user/auth/isLogin').success(function(rsp) {
+                    $scope.isLogin = rsp.data;
+                });
+                $scope.platform = platform;
+                $scope.shiftPage('home');
+            }
         }).error(function(content, httpCode) {
             $scope.errmsg = content;
         });

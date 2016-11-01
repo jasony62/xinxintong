@@ -54,7 +54,7 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 			srvQuickEntryProvider.setSiteId(siteId);
 		})();
 	}]);
-	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'mattersgallery', 'templateShop', 'srvApp', function($scope, $location, $uibModal, $q, http2, mattersgallery, templateShop, srvApp) {
+	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'mattersgallery', 'templateShop', 'srvApp', 'noticebox', function($scope, $location, $uibModal, $q, http2, mattersgallery, templateShop, srvApp, noticebox) {
 		var ls = $location.search();
 
 		$scope.id = ls.id;
@@ -90,11 +90,17 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 		};
 		$scope.exportAsTemplate = function() {
 			var url;
-			url = '/rest/pl/fe/matter/enroll/exportAsTemplate?site=' + siteId + '&app=' + appId;
+			url = '/rest/pl/fe/matter/enroll/exportAsTemplate?site=' + $scope.siteId + '&app=' + $scope.id;
 			window.open(url);
 		};
 		$scope.shareAsTemplate = function() {
 			templateShop.share($scope.siteId, $scope.app);
+		};
+		$scope.applyToHome = function() {
+			var url = '/rest/pl/fe/matter/home/apply?site=' + $scope.siteId + '&type=enroll&id=' + $scope.id;
+			http2.get(url, function(rsp) {
+				noticebox.success('完成申请！');
+			});
 		};
 		$scope.createPage = function() {
 			var deferred = $q.defer();

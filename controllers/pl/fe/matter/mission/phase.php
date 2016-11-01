@@ -12,7 +12,7 @@ class phase extends \pl\fe\matter\base {
 	 * @param string $site
 	 * @param int $mission mission's id
 	 */
-	public function list_action($site, $mission) {
+	public function list_action($mission) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -27,18 +27,21 @@ class phase extends \pl\fe\matter\base {
 	 * @param string $site
 	 * @param int $mission mission's id
 	 */
-	public function create_action($site, $mission) {
+	public function create_action($mission) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+
+		$modelMis = $this->model('matter\mission');
+		$mission = $modelMis->byId($mission, 'id,siteid,title,summary,pic');
 
 		$proto = $this->getPostJson();
 		$phaseId = uniqid();
 		$current = time();
 
 		$newPhase = array();
-		$newPhase['siteid'] = $site;
-		$newPhase['mission_id'] = $mission;
+		$newPhase['siteid'] = $mission->siteid;
+		$newPhase['mission_id'] = $mission->id;
 		$newPhase['phase_id'] = $phaseId;
 		$newPhase['title'] = isset($proto->title) ? $proto->title : '新阶段';
 		$newPhase['start_at'] = isset($proto->start_at) ? $proto->start_at : $current;
@@ -50,7 +53,7 @@ class phase extends \pl\fe\matter\base {
 		$this->model()->update(
 			'xxt_mission',
 			['multi_phase' => 'Y'],
-			"id='$mission'"
+			"id='{$mission->id}'"
 		);
 
 		return new \ResponseData($newPhase);
@@ -58,15 +61,15 @@ class phase extends \pl\fe\matter\base {
 	/**
 	 *
 	 *
-	 * @param string $site
 	 * @param int $mission mission's id
+	 * @param int id phase's id
 	 */
-	public function update_action($site, $mission, $id) {
+	public function update_action($mission, $id) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$data = $this->getPostJson();
+		$data = $this->getPostJson(true);
 
 		$rst = $this->model()->update(
 			'xxt_mission_phase',
@@ -79,10 +82,10 @@ class phase extends \pl\fe\matter\base {
 	/**
 	 * 删除项目的阶段
 	 *
-	 * @param string $site
 	 * @param int $mission mission's id
+	 * @param int id phase's id
 	 */
-	public function remove_action($site, $mission, $id) {
+	public function remove_action($mission, $id) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}

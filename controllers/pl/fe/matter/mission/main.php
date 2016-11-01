@@ -10,7 +10,7 @@ class main extends \pl\fe\matter\base {
 	 * 返回视图
 	 */
 	public function index_action() {
-		\TPL::output('/pl/fe/matter/mission/main');
+		\TPL::output('/pl/fe/matter/mission/frame');
 		exit;
 	}
 	/**
@@ -23,10 +23,9 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 获得指定的任务
 	 *
-	 * @param string $site
 	 * @param int $id
 	 */
-	public function get_action($site, $id) {
+	public function get_action($id) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -42,9 +41,10 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 当前用户可访问任务列表
 	 *
-	 * @param string $site
+	 * @param int $page
+	 * @param int $size
 	 */
-	public function list_action($site, $page = 1, $size = 20) {
+	public function list_action($site = null, $page = 1, $size = 20) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -52,7 +52,11 @@ class main extends \pl\fe\matter\base {
 		$options = [
 			'limit' => (object) ['page' => $page, 'size' => $size],
 		];
-		$result = $modelMis->byAcl($user, $options);
+		if (empty($site)) {
+			$result = $modelMis->byAcl($user, $options);
+		} else {
+			$result = $modelMis->bySite($site, $options);
+		}
 
 		return new \ResponseData($result);
 	}

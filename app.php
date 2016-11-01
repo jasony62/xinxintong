@@ -13,6 +13,10 @@ date_default_timezone_set('Asia/Shanghai');
  */
 ini_set('default_charset', 'utf-8');
 /**
+ * memory limit
+ */
+ini_set('memory_limit', '-1');
+/**
  * error and exception handle
  */
 function show_error($message) {
@@ -131,7 +135,7 @@ define('TMS_APP_DIR', dirname(__FILE__));
 /**
  * 平台首页，未指定，或未找到指定地址时跳转到首页。
  */
-!defined('TMS_APP_HOME') && define('TMS_APP_HOME', '');
+!defined('TMS_APP_HOME') && define('TMS_APP_HOME', '/rest/home');
 /**
  * 用户未认证通过时缺省页
  */

@@ -372,11 +372,11 @@ class wx extends \member_base {
 	private function _voiceCall($call) {
 		$data = $call['data'];
 		if (!empty($data[2])) {
-			$this->model('sns\reply\text', $call, $data[2], false);
+			$r = $this->model('sns\reply\text', $call, $data[2], false);
 		} else {
-			$this->model('sns\reply\text', $call, '未开通语音识别接口', false);
+			$r = $this->model('sns\reply\text', $call, '未开通语音识别接口', false);
 		}
-		$tr->exec();
+		$r->exec();
 	}
 	/**
 	 * menu call

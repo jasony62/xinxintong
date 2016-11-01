@@ -7,16 +7,19 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class page extends \pl\fe\matter\base {
 	/**
-	 * 创建频道定制页面
+	 * 创建项目定制页面
 	 */
-	public function create_action($site, $id, $page) {
+	public function create_action($id, $page) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$code = $this->model('code\page')->create($site, $user->id);
+		$modelMis = $this->model('matter\mission');
+		$mission = $modelMis->byId($id, 'id,siteid');
 
-		$rst = $this->model()->update(
+		$code = $this->model('code\page')->create($mission->siteid, $user->id);
+
+		$rst = $modelMis->update(
 			'xxt_mission',
 			[
 				$page . '_page_name' => $code->name,
@@ -27,9 +30,9 @@ class page extends \pl\fe\matter\base {
 		return new \ResponseData($code);
 	}
 	/**
-	 * 创建频道定制页面
+	 * 创建项目定制页面
 	 */
-	public function update_action($site, $id, $page) {
+	public function update_action($id, $page) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -43,7 +46,7 @@ class page extends \pl\fe\matter\base {
 		];
 
 		$modelCode = $this->model('code\page');
-		$code = $modelCode->lastByName($site, $mission->{$page . '_page_name'});
+		$code = $modelCode->lastByName($mission->siteid, $mission->{$page . '_page_name'});
 		$code = $modelCode->modify($code->id, $data);
 
 		return new \ResponseData($code);
@@ -65,7 +68,7 @@ class page extends \pl\fe\matter\base {
 			'js' => '',
 		);
 		$modelCode = $this->model('code\page');
-		$code = $modelCode->lastByName($site, $mission->{$page . '_page_name'});
+		$code = $modelCode->lastByName($mission->siteid, $mission->{$page . '_page_name'});
 		$rst = $modelCode->modify($code->id, $data);
 
 		return new \ResponseData($rst);

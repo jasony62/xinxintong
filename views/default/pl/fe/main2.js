@@ -1,6 +1,6 @@
-angular.module('xxt', ['ui.tms']).
+angular.module('app', ['ui.tms']).
 controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
-    var t = (new Date()).getTime();
+    var t = (new Date() * 1);
     $scope.create = function() {
         var url = '/rest/pl/fe/site/create?_=' + t;;
         http2.get(url, function(rsp) {
@@ -13,16 +13,19 @@ controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
             $scope.sites = rsp.data;
         });
     };
-    $scope.recommended = function() {
-        var url = '/rest/pl/fe/site/recommended?_=' + t;
+    $scope.listMission = function() {
+        var url = '/rest/pl/fe/matter/mission/list?_=' + t;
         http2.get(url, function(rsp) {
-            $scope.recommendedSites = rsp.data;
+            $scope.missions = rsp.data.missions;
         });
     };
     $scope.open = function(event, site) {
         event.preventDefault();
         event.stopPropagation();
         location.href = '/rest/pl/fe/site?site=' + site.id + '&_=' + t;
+    };
+    $scope.openMission = function(mission) {
+        location.href = '/rest/pl/fe/matter/mission?id=' + mission.mission_id;
     };
     $scope.remove = function(event, site) {
         event.preventDefault();
@@ -35,8 +38,5 @@ controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
         });
     };
     $scope.list();
-    //$scope.recommended();
-    $scope.collectSite = function(evnet, site) {
-        alert('开发中...');
-    };
+    $scope.listMission();
 }]);

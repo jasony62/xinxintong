@@ -43,7 +43,7 @@ class main extends \pl\fe\matter\base {
 	 * 返回签到活动列表
 	 *
 	 */
-	public function list_action($site, $page = 1, $size = 30, $mission = null) {
+	public function list_action($site = null, $mission = null, $page = 1, $size = 30) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -97,7 +97,7 @@ class main extends \pl\fe\matter\base {
 		/*从站点和项目中获得pic定义*/
 		$site = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
 		if (!empty($mission)) {
-			$modelMis = $this->model('mission');
+			$modelMis = $this->model('matter\mission');
 			$mission = $modelMis->byId($mission);
 			$newapp['summary'] = $mission->summary;
 			$newapp['pic'] = $mission->pic;
@@ -459,7 +459,7 @@ class main extends \pl\fe\matter\base {
 		$app = $this->model('matter\signin')->byId($app, ['fields' => 'id,title,summary,pic,mission_id', 'cascaded' => 'N']);
 		/*删除和任务的关联*/
 		if ($app->mission_id) {
-			$this->model('mission')->removeMatter($site, $app->id, 'signin');
+			$this->model('matter\mission')->removeMatter($site, $app->id, 'signin');
 		}
 		/*check*/
 		$q = [

@@ -32,7 +32,7 @@ class main extends \pl\fe\matter\base {
 	 * --$order
 	 *
 	 */
-	public function list_action($site, $page = 1, $size = 30, $mission = null) {
+	public function list_action($site = null, $mission = null, $page = 1, $size = 30) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -161,7 +161,7 @@ class main extends \pl\fe\matter\base {
 				/**
 				 * 获得每个图文的url
 				 */
-				$a->url = $modelArt->getEntryUrl($site, $a->id);
+				$a->url = $modelArt->getEntryUrl($a->siteid, $a->id);
 			}
 			/**
 			 * 获得每个图文的tag
@@ -184,7 +184,7 @@ class main extends \pl\fe\matter\base {
 	 *
 	 * @param int $id article's id
 	 */
-	public function get_action($site, $id, $cascade = 'Y') {
+	public function get_action($id, $cascade = 'Y') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -202,7 +202,7 @@ class main extends \pl\fe\matter\base {
 			$article->tags = $modelTag->tagsByRes($article->id, 'article', 0);
 			$article->tags2 = $modelTag->tagsByRes($article->id, 'article', 1);
 			/* acl */
-			$article->acl = $this->model('acl')->byMatter($site, 'article', $id);
+			$article->acl = $this->model('acl')->byMatter($article->siteid, 'article', $id);
 			/* attachments */
 			if ($article->has_attachment === 'Y') {
 				$article->attachments = $this->model()->query_objs_ss(array('*', 'xxt_article_attachment', "article_id='$id'"));
@@ -247,33 +247,40 @@ class main extends \pl\fe\matter\base {
 	}
 	/**
 	 * 创建新图文
+	 * 在站点下或项目下创建图文
+	 *
+	 * @param string $site
+	 * @param int $mission
+	 *
 	 */
-	public function create_action($site, $mission = null) {
+	public function create_action($site = null, $mission = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$article = array();
+		$article = [];
 		$current = time();
 		$customConfig = $this->getPostJson();
-		$site = $this->model('site')->byId($site, array('fields' => 'id,heading_pic'));
 
 		/*从站点或项目获取的定义*/
 		if (empty($mission)) {
-			$article['pic'] = $site->heading_pic; //使用账号缺省头图
+			$site = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
+			$article['siteid'] = $site->id;
+			$article['mpid'] = $site->id;
+			$article['pic'] = $site->heading_pic; //使用站点的缺省头图
 			$article['summary'] = '';
 		} else {
-			$modelMis = $this->model('mission');
+			$modelMis = $this->model('matter\mission');
 			$mission = $modelMis->byId($mission);
+			$article['siteid'] = $mission->siteid;
+			$article['mpid'] = $mission->siteid;
 			$article['summary'] = $mission->summary;
 			$article['pic'] = $mission->pic;
 			$article['mission_id'] = $mission->id;
 		}
-		/*前端指定的信息*/
+		/* 前端指定的信息 */
 		$article['title'] = empty($customConfig->proto->title) ? '新图文' : $customConfig->proto->title;
 
-		$article['siteid'] = $site->id;
-		$article['mpid'] = $site->id;
 		$article['creater'] = $user->id;
 		$article['creater_src'] = 'A';
 		$article['creater_name'] = $user->name;
@@ -292,11 +299,11 @@ class main extends \pl\fe\matter\base {
 		$matter = (object) $article;
 		$matter->id = $id;
 		$matter->type = 'article';
-		$this->model('log')->matterOp($site->id, $user, $matter, 'C');
+		$this->model('log')->matterOp($matter->siteid, $user, $matter, 'C');
 
 		/* 记录和任务的关系 */
 		if (isset($mission->id)) {
-			$modelMis->addMatter($user, $site->id, $mission->id, $matter);
+			$modelMis->addMatter($user, $matter->siteid, $mission->id, $matter);
 		}
 
 		return new \ResponseData($id);

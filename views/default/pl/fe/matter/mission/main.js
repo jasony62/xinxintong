@@ -15,12 +15,6 @@ define(['frame'], function(ngApp) {
 				return message;
 			}
 		};
-		$scope.sub = 'basic';
-		$scope.subView = '/views/default/pl/fe/matter/mission/basic.html?_=7';
-		$scope.gotoSub = function(sub) {
-			$scope.sub = sub;
-			$scope.subView = '/views/default/pl/fe/matter/mission/' + sub + '.html?_=10';
-		};
 		$scope.submit = function() {
 			http2.post('/rest/pl/fe/matter/mission/setting/update?id=' + $scope.id, modifiedData, function(rsp) {
 				$scope.modified = false;

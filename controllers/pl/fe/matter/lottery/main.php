@@ -160,7 +160,7 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$modelMis = $this->model('mission');
+		$modelMis = $this->model('matter\mission');
 		$mission = $modelMis->byId($id);
 		/* lottery */
 		$lid = uniqid();

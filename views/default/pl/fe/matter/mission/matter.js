@@ -21,7 +21,7 @@ define(['frame'], function(ngApp) {
 				}
 			},
 			voting: {
-				title: '问卷',
+				title: '评价',
 				handler: function() {
 					$scope.addEnroll('voting');
 				}
@@ -31,14 +31,14 @@ define(['frame'], function(ngApp) {
 			indicator.handler();
 		};
 		$scope.addArticle = function() {
-			var url = '/rest/pl/fe/matter/article/create?site=' + $scope.editing.siteid + '&mission=' + $scope.id,
+			var url = '/rest/pl/fe/matter/article/create?mission=' + $scope.id,
 				config = {
 					proto: {
 						title: $scope.editing.title + '-资料'
 					}
 				};
 			http2.post(url, config, function(rsp) {
-				location.href = '/rest/pl/fe/matter/article?site=' + $scope.editing.siteid + '&id=' + rsp.data;
+				location.href = '/rest/pl/fe/matter/article?id=' + rsp.data;
 			});
 		};
 		$scope.addEnroll = function(assignedScenario) {
@@ -164,7 +164,7 @@ define(['frame'], function(ngApp) {
 			$scope.matterType = matterType;
 
 			if (matterType === '') {
-				url = '/rest/pl/fe/matter/mission/matter/list?site=' + $scope.editing.siteid + '&id=' + $scope.id;
+				url = '/rest/pl/fe/matter/mission/matter/list?id=' + $scope.id;
 				url += '&_=' + (new Date() * 1);
 
 				http2.get(url, function(rsp) {
@@ -196,8 +196,7 @@ define(['frame'], function(ngApp) {
 				} else {
 					url += matterType;
 				}
-				url += '/list?site=' + +$scope.editing.siteid;
-				url += '&mission=' + $scope.id;
+				url += '/list?mission=' + $scope.id;
 				scenario && (url += '&scenario=' + scenario);
 				url += '&_=' + (new Date() * 1);
 				http2.get(url, function(rsp) {

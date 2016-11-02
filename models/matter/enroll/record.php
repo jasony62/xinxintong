@@ -191,9 +191,7 @@ class record_model extends \TMS_MODEL {
 			'xxt_enroll_record',
 			"enroll_key='$ek'",
 		];
-		if (($record = $this->query_obj_ss($q)) && $fields === '*') {
-			$record->data = json_decode($record->data);
-		}
+		$record = $this->query_obj_ss($q);
 
 		return $record;
 	}
@@ -576,11 +574,11 @@ class record_model extends \TMS_MODEL {
 		];
 		$records = $this->query_objs_ss($q, $q2);
 
-		if ($fields === '*') {
+		/*if ($fields === '*') {
 			foreach ($records as &$record) {
 				$record->data = json_decode($record->data);
 			}
-		}
+		}*/
 
 		return count($records) === 1 ? $records[0] : false;
 	}

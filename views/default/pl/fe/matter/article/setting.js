@@ -7,37 +7,7 @@ define(['frame'], function(ngApp) {
 			$('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
 		};
 		var tinymceEditor, modifiedData = {};
-		var r = new Resumable({
-			target: '/rest/pl/fe/matter/article/attachment/upload?site=' + $scope.editing.siteid + '&articleid=' + $scope.id,
-			testChunks: false,
-		});
-		r.assignBrowse(document.getElementById('addAttachment'));
-		r.on('fileAdded', function(file, event) {
-			$scope.$apply(function() {
-				noticebox.progress('开始上传文件');
-			});
-			r.upload();
-		});
-		r.on('progress', function(file, event) {
-			$scope.$apply(function() {
-				noticebox.progress('正在上传文件：' + Math.floor(r.progress() * 100) + '%');
-			});
-		});
-		r.on('complete', function() {
-			var f, lastModified, posted;
-			f = r.files.pop().file;
-			lastModified = f.lastModified ? f.lastModified : (f.lastModifiedDate ? f.lastModifiedDate.getTime() : 0);
-			posted = {
-				name: f.name,
-				size: f.size,
-				type: f.type,
-				lastModified: lastModified,
-				uniqueIdentifier: f.uniqueIdentifier,
-			};
-			http2.post('/rest/pl/fe/matter/article/attachment/add?site=' + $scope.editing.siteid + '&id=' + $scope.id, posted, function success(rsp) {
-				$scope.editing.attachments.push(rsp.data);
-			});
-		});
+
 		$scope.modified = false;
 		$scope.innerlinkTypes = [{
 			value: 'article',
@@ -364,8 +334,41 @@ define(['frame'], function(ngApp) {
 			$scope.tags2 = rsp.data;
 		});
 		$scope.$watch('editing', function(editing) {
-			if (editing && tinymceEditor) {
-				tinymceEditor.setContent(editing.body);
+			if (editing) {
+				if (tinymceEditor) {
+					tinymceEditor.setContent(editing.body);
+				}
+				var r = new Resumable({
+					target: '/rest/pl/fe/matter/article/attachment/upload?site=' + $scope.editing.siteid + '&articleid=' + $scope.id,
+					testChunks: false,
+				});
+				r.assignBrowse(document.getElementById('addAttachment'));
+				r.on('fileAdded', function(file, event) {
+					$scope.$apply(function() {
+						noticebox.progress('开始上传文件');
+					});
+					r.upload();
+				});
+				r.on('progress', function(file, event) {
+					$scope.$apply(function() {
+						noticebox.progress('正在上传文件：' + Math.floor(r.progress() * 100) + '%');
+					});
+				});
+				r.on('complete', function() {
+					var f, lastModified, posted;
+					f = r.files.pop().file;
+					lastModified = f.lastModified ? f.lastModified : (f.lastModifiedDate ? f.lastModifiedDate.getTime() : 0);
+					posted = {
+						name: f.name,
+						size: f.size,
+						type: f.type,
+						lastModified: lastModified,
+						uniqueIdentifier: f.uniqueIdentifier,
+					};
+					http2.post('/rest/pl/fe/matter/article/attachment/add?site=' + $scope.editing.siteid + '&id=' + $scope.id, posted, function success(rsp) {
+						$scope.editing.attachments.push(rsp.data);
+					});
+				});
 			}
 		});
 		$scope.$on('tinymce.instance.init', function(event, editor) {

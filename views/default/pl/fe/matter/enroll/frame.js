@@ -89,14 +89,20 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 			srvApp.choosePhase();
 		};
 		$scope.exportAsTemplate = function() {
+			// close popover
+			$('body').click();
 			var url;
 			url = '/rest/pl/fe/matter/enroll/exportAsTemplate?site=' + $scope.siteId + '&app=' + $scope.id;
 			window.open(url);
 		};
 		$scope.shareAsTemplate = function() {
+			// close popover
+			$('body').click();
 			templateShop.share($scope.siteId, $scope.app);
 		};
 		$scope.applyToHome = function() {
+			// close popover
+			$('body').click();
 			var url = '/rest/pl/fe/matter/home/apply?site=' + $scope.siteId + '&type=enroll&id=' + $scope.id;
 			http2.get(url, function(rsp) {
 				noticebox.success('完成申请！');

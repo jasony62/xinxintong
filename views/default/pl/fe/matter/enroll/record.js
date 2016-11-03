@@ -95,7 +95,7 @@ define(['frame'], function(ngApp) {
             srvRecord.remove(record);
         };
         $scope.empty = function() {
-            srvRecord.empty(record);
+            srvRecord.empty();
         };
         $scope.verifyAll = function() {
             srvRecord.verifyAll();

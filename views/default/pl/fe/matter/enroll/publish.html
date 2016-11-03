@@ -137,7 +137,10 @@
                 <!-- access rule -->
                 <div ng-controller="ctrlAccessRule">
                     <div class='radio'>
-                        <label><input type='radio' value='none' ng-model="rule.scope" ng-change="changeUserScope()">不限用户来源</label>
+                        <label><input type='radio' value='none' ng-model="rule.scope" ng-change="changeUserScope()">不限用户来源（记录昵称）</label>
+                    </div>
+                    <div class='radio'>
+                        <label><input type='radio' value='anonymous' ng-model="rule.scope" ng-change="changeUserScope()">不限用户来源（匿名）</label>
                     </div>
                     <div class='radio' ng-if="memberSchemas.length">
                         <label><input type='radio' value='member' ng-model="rule.scope" ng-change="changeUserScope()">限自定义用户访问</label>

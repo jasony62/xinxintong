@@ -52,8 +52,12 @@ class record_model extends \TMS_MODEL {
 					break;
 				}
 			}
-		} else {
+		} else if (empty($entryRule->scope) || $entryRule->scope === 'none') {
+			/* 不限制用户访问来源 */
 			$record['nickname'] = empty($user->nickname) ? '' : $this->escape($user->nickname);
+		} else {
+			/* 匿名访问 */
+			$record['nickname'] = '';
 		}
 
 		$this->insert('xxt_enroll_record', $record, false);

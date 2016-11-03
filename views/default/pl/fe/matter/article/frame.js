@@ -27,15 +27,14 @@ define(['require'], function() {
 	ngApp.controller('ctrlArticle', ['$scope', '$location', 'http2', function($scope, $location, http2) {
 		var ls = $location.search();
 		$scope.id = ls.id;
-		$scope.siteId = ls.site;
-		http2.get('/rest/pl/fe/matter/article/get?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
+		http2.get('/rest/pl/fe/matter/article/get?id=' + $scope.id, function(rsp) {
 			var url;
 			$scope.editing = rsp.data;
 			!$scope.editing.attachments && ($scope.editing.attachments = []);
-			url = 'http://' + location.host + '/rest/site/fe/matter?site=' + ls.site + '&id=' + ls.id + '&type=article';
+			url = 'http://' + location.host + '/rest/site/fe/matter?site=' + $scope.editing.siteid + '&id=' + ls.id + '&type=article';
 			$scope.entry = {
 				url: url,
-				qrcode: '/rest/site/fe/matter/article/qrcode?site=' + ls.site + '&url=' + encodeURIComponent(url),
+				qrcode: '/rest/site/fe/matter/article/qrcode?site=' + $scope.editing.siteid + '&url=' + encodeURIComponent(url),
 			};
 		});
 	}]);

@@ -1,7 +1,7 @@
 define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 	'use strict';
 	var ngApp = angular.module('app', ['ngRoute', 'frapontillo.bootstrap-switch', 'ui.tms', 'tmplshop.ui.xxt', 'service.matter', 'service.enroll', 'tinymce.enroll', 'ui.xxt', 'channel.fe.pl']);
-	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvQuickEntryProvider', 'srvAppProvider', 'srvPageProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvQuickEntryProvider, srvAppProvider, srvPageProvider) {
+	ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', '$uibTooltipProvider', 'srvQuickEntryProvider', 'srvAppProvider', 'srvPageProvider', 'srvRecordProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, $uibTooltipProvider, srvQuickEntryProvider, srvAppProvider, srvPageProvider, srvRecordProvider) {
 		var RouteParam = function(name) {
 			var baseURL = '/views/default/pl/fe/matter/enroll/';
 			this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
@@ -24,7 +24,6 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 			.when('/rest/pl/fe/matter/enroll/publish', new RouteParam('publish'))
 			.when('/rest/pl/fe/matter/enroll/schema', new RouteParam('schema'))
 			.when('/rest/pl/fe/matter/enroll/page', new RouteParam('page'))
-			.when('/rest/pl/fe/matter/enroll/event', new RouteParam('event'))
 			.when('/rest/pl/fe/matter/enroll/record', new RouteParam('record'))
 			.when('/rest/pl/fe/matter/enroll/stat', new RouteParam('stat'))
 			.when('/rest/pl/fe/matter/enroll/coin', new RouteParam('coin'))
@@ -49,14 +48,22 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 			srvPageProvider.setSiteId(siteId);
 			srvPageProvider.setAppId(appId);
 			//
+			srvRecordProvider.setSiteId(siteId);
+			srvRecordProvider.setAppId(appId);
+			//
 			srvQuickEntryProvider.setSiteId(siteId);
 		})();
 	}]);
-	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'mattersgallery', 'srvApp', function($scope, $location, $uibModal, $q, http2, mattersgallery, srvApp) {
+	ngApp.controller('ctrlFrame', ['$scope', '$location', '$uibModal', '$q', 'http2', 'mattersgallery', 'templateShop', 'srvApp', 'noticebox', function($scope, $location, $uibModal, $q, http2, mattersgallery, templateShop, srvApp, noticebox) {
 		var ls = $location.search();
 
 		$scope.id = ls.id;
 		$scope.siteId = ls.site;
+		$scope.subView = '';
+		$scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+			var subView = currentRoute.match(/([^\/]+?)\?/);
+			$scope.subView = subView[1] === 'enroll' ? 'publish' : subView[1];
+		});
 		$scope.update = function(names) {
 			return srvApp.update(names);
 		};
@@ -70,6 +77,30 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 					}
 				});
 			}
+		};
+
+		$scope.assignMission = function() {
+			srvApp.assignMission().then(function(mission) {});
+		};
+		$scope.quitMission = function() {
+			srvApp.quitMission().then(function() {});
+		};
+		$scope.choosePhase = function() {
+			srvApp.choosePhase();
+		};
+		$scope.exportAsTemplate = function() {
+			var url;
+			url = '/rest/pl/fe/matter/enroll/exportAsTemplate?site=' + $scope.siteId + '&app=' + $scope.id;
+			window.open(url);
+		};
+		$scope.shareAsTemplate = function() {
+			templateShop.share($scope.siteId, $scope.app);
+		};
+		$scope.applyToHome = function() {
+			var url = '/rest/pl/fe/matter/home/apply?site=' + $scope.siteId + '&type=enroll&id=' + $scope.id;
+			http2.get(url, function(rsp) {
+				noticebox.success('完成申请！');
+			});
 		};
 		$scope.createPage = function() {
 			var deferred = $q.defer();
@@ -97,40 +128,16 @@ define(['require', 'page', 'schema'], function(require, pageLib, schemaLib) {
 
 			return deferred.promise;
 		};
-		$scope.assignMission = function() {
-			mattersgallery.open($scope.siteId, function(matters, type) {
-				var app;
-				if (matters.length === 1) {
-					app = {
-						id: $scope.id,
-						type: 'enroll'
-					};
-					http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.siteId + '&id=' + matters[0].mission_id, app, function(rsp) {
-						var mission = rsp.data,
-							app = $scope.app,
-							updatedFields = ['mission_id'];
-
-						app.mission = mission;
-						app.mission_id = mission.id;
-						if (!app.pic || app.pic.length === 0) {
-							app.pic = mission.pic;
-							updatedFields.push('pic');
-						}
-						if (!app.summary || app.summary.length === 0) {
-							app.summary = mission.summary;
-							updatedFields.push('summary');
-						}
-						srvApp.update(updatedFields);
-					});
+		$scope.isInputPage = function(pageName) {
+			if (!$scope.app) {
+				return false;
+			}
+			for (var i in $scope.app.pages) {
+				if ($scope.app.pages[i].name === pageName && $scope.app.pages[i].type === 'I') {
+					return true;
 				}
-			}, {
-				matterTypes: [{
-					value: 'mission',
-					title: '项目',
-					url: '/rest/pl/fe/matter'
-				}],
-				singleMatter: true
-			});
+			}
+			return false;
 		};
 		$scope.summaryOfRecords = function() {
 			var deferred = $q.defer(),

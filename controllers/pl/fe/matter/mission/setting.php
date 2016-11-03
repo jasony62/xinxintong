@@ -9,35 +9,34 @@ class setting extends \pl\fe\matter\base {
 	/**
 	 * 更新任务设置
 	 */
-	public function update_action($site, $id) {
+	public function update_action($id) {
 		$user = $this->accountUser();
 		if (false === $user) {
 			return new \ResponseTimeout();
 		}
 
-		$model = $this->model();
+		$modelMis = $this->model('matter\mission');
+		$mission = $modelMis->byId($id, 'id,siteid,title,summary,pic');
 		/*data*/
-		$nv = (array) $this->getPostJson();
+		$nv = $this->getPostJson(true);
 		foreach ($nv as $n => $v) {
-			if (in_array($n, array('title', 'summary'))) {
-				$nv[$n] = $model->escape(urldecode($v));
-			} else if (in_array($n, array('extattrs'))) {
-				$nv[$n] = $model->toJson($v);
+			if (in_array($n, ['extattrs'])) {
+				$nv[$n] = $modelMis->toJson($v);
 			}
 		}
 		/*modifier*/
-		$nv['modifier'] = $user->id;
-		$nv['modifier_src'] = $user->src;
-		$nv['modifier_name'] = $user->name;
-		$nv['modify_at'] = time();
+		$nv->modifier = $user->id;
+		$nv->modifier_src = $user->src;
+		$nv->modifier_name = $user->name;
+		$nv->modify_at = time();
 		/*update*/
-		$rst = $this->model()->update('xxt_mission', $nv, ["id" => $id]);
+		$rst = $modelMis->update('xxt_mission', $nv, ["id" => $id]);
 		if ($rst) {
 			/*记录操作日志*/
-			$mission = $this->model('matter\mission')->byId($id, 'id,title,summary,pic');
 			$mission->type = 'mission';
-			$this->model('log')->matterOp($site, $user, $mission, 'U');
+			$this->model('log')->matterOp($mission->siteid, $user, $mission, 'U');
 			/*更新acl*/
+			$mission = $modelMis->escape($mission);
 			$mission = $this->model('matter\mission\acl')->updateMission($mission);
 		}
 

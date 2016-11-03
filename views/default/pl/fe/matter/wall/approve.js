@@ -34,8 +34,6 @@ define(['frame'], function(ngApp) {
             http2.get('/rest/pl/fe/matter/wall/message/approve?wall=' + $scope.id + '&id=' + msg.id  + '&site=' +$scope.siteId, function(rsp) {
                 var i = $scope.messages.indexOf(msg);
                 $scope.messages.splice(i, 1);
-                alert(1);
-                console.log( $scope.messages);
             });
         };
         $scope.reject = function(msg) {

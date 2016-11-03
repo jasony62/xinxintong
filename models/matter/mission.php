@@ -75,27 +75,29 @@ class mission_model extends app_base {
 		return $result;
 	}
 	/**
+	 * 根据用户和访问控制列表返回任务
 	 *
+	 * @param object $user
 	 */
 	public function &byAcl(&$user, $options = array()) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$limit = isset($options['limit']) ? $options['limit'] : (object) array('page' => 1, 'size' => 20);
-		$q = array(
+		$q = [
 			$fields,
 			'xxt_mission_acl',
 			"coworker='{$user->id}'",
-		);
-		$q2 = array(
+		];
+		$q2 = [
 			'o' => 'invite_at desc',
-			'r' => array('o' => ($limit->page - 1) * $limit->size, 'l' => $limit->size),
-		);
+			'r' => ['o' => ($limit->page - 1) * $limit->size, 'l' => $limit->size],
+		];
 
 		if ($missions = $this->query_objs_ss($q, $q2)) {
 			$q[0] = 'count(*)';
 			$total = (int) $this->query_val_ss($q);
-			$result = array('missions' => $missions, 'total' => $total);
+			$result = ['missions' => $missions, 'total' => $total];
 		} else {
-			$result = array('missions' => $missions, 'total' => 0);
+			$result = ['missions' => [], 'total' => 0];
 		}
 
 		return $result;
@@ -119,19 +121,19 @@ class mission_model extends app_base {
 		return true;
 	}
 	/**
-	 *
+	 * 从项目中删除素材
 	 */
-	public function removeMatter($siteId, $matterId, $matterType) {
+	public function removeMatter($missionId, $matterId, $matterType) {
 		$rst = $this->delete(
 			'xxt_mission_matter',
-			"siteid='$siteId' and matter_id='$matterId' and matter_type='$matterType'"
+			"mission_id='$missionId' and matter_id='$matterId' and matter_type='$matterType'"
 		);
 		return $rst;
 	}
 	/**
 	 *
 	 */
-	public function &mattersById($siteId, $id, $matterType = null, $options = array()) {
+	public function &mattersById($id, $matterType = null, $options = array()) {
 		$matters = [];
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 

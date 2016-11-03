@@ -4,51 +4,65 @@
         <meta charset="UTF-8">
         <link href="/static/css/bootstrap.min.css" rel="stylesheet">
         <link href="/static/css/tms.css" rel="stylesheet">
-        <style type='text/css'>
-        body{padding-top:71px;}
-        .site,.template{position:relative;height:120px;cursor:pointer}
-        .site .footer,.template .footer{position:absolute;bottom:4px;left:4px;right:4px}
-        .site .footer .datetime{display:inline-block;float:right;color:#999}
-        </style>
+        <link href="/views/default/pl/fe/main.css?_=1" rel="stylesheet">
         <title><?php echo APP_TITLE;?></title>
     </head>
-    <body ng-app='xxt' ng-controller='ctrlMain'>
-        <nav class='navbar navbar-inverse navbar-fixed-top tms-large' role='navigation'>
-            <ul class='nav navbar-nav navbar-right'>
-                <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
-                <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
-            </ul>
+    <body ng-app='app' ng-controller='ctrlMain'>
+        <nav class='navbar navbar-default'>
+            <div class='container'>
+                <div class='navbar-header'>
+                    <a class='navbar-brand' href='/rest/home' target='_self'><?php echo APP_TITLE;?></a>
+                </div>
+                <ul class='nav navbar-nav navbar-right'>
+                    <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
+                    <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+                </ul>
+            </div>
         </nav>
-        <div class='container'>
-            <div class='row'>
-                <div class="panel panel-default">
-                    <div class="panel-heading clearfix">
-                        <span>我的站点</span>
-                        <button class='btn btn-success pull-right' ng-click='create()'><span class='glyphicon glyphicon-plus'></span>创建站点</button>
-                    </div>
-                    <div class="panel-body">
-                        <div  class='col-md-3' ng-repeat='site in sites'>
-                            <div class='thumbnail site' ng-mouseenter='mouseenter=true' ng-mouseleave='mouseenter=false' ng-click='open($event,site)'>
-                                <button class='btn btn-default pull-right' ng-if='mouseenter' ng-click='remove($event, site)'><span class='glyphicon glyphicon-trash'></span></button>
-                                <div ng-bind="site.name"></div>
-                                <div class='footer'>
-                                    <span class='datetime' ng-bind="site.create_at*1000|date:'yy-MM-dd'"></span>
+        <div class='container ng-cloak' ng-cloak>
+            <div class='row' ng-if="missions.length">
+                <div class='col-md-12'>
+                    <nav class='navbar navbar-default' style='margin-bottom:-1px'>
+                        <div class='container-fluid'>
+                            <ul class='nav navbar-nav'>
+                                <li><a href='javascript:void(0)'>任务</a></li>
+                            </ul>
+                        </div>
+                    </nav>
+                    <div class='tms-panel clearfix'>
+                        <div  class='col-md-4' ng-repeat='m in missions'>
+                            <div class='thumbnail mission' ng-mouseenter='mouseenter=true' ng-mouseleave='mouseenter=false' ng-click='openMission(m)'>
+                                <h4 class='title' ng-bind="m.title"></h4>
+                                <p class='summary' ng-bind="m.summary"></p>
+                                <div class='attr'>
+                                    <div class='creater_name' ng-bind="m.creater_name"></div>
+                                    <div class='create_at' ng-bind="m.create_at*1000|date:'yyyy-MM-dd'"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="panel panel-default hide">
-                    <div class="panel-heading">
-                        推荐站点
-                    </div>
-                    <div class="panel-body">
-                        <div  class='col-md-3' ng-repeat='site in recommendedSites'>
-                            <div class='thumbnail site' ng-mouseenter='mouseenter=true' ng-mouseleave='mouseenter=false'>
-                                <button class='btn btn-default pull-right' ng-if='mouseenter' ng-click="collectSite($event,site)"><span class='glyphicon glyphicon-star-empty'></span></button>
-                                <div ng-bind="site.name"></div>
-                                <div class='footer'>
-                                    <span ng-bind="site.creater_name"></span>
+            </div>
+            <div class='row'>
+                <div class='col-md-12'>
+                    <nav class='navbar navbar-default' style='margin-bottom:-1px'>
+                        <div class='container-fluid'>
+                           <ul class='nav navbar-nav'>
+                                <li><a href='javascript:void(0)'>我的站点</a></li>
+                            </ul>
+                            <form class='navbar-form navbar-right'>
+                                <button class='btn btn-success' ng-click='create()'><span class='glyphicon glyphicon-plus'></span>创建站点</button>
+                            </form>
+                        </div>
+                    </nav>
+                    <div class='tms-panel clearfix'>
+                        <div  class='col-md-4' ng-repeat='site in sites'>
+                            <div class='thumbnail site' ng-mouseenter='mouseenter=true' ng-mouseleave='mouseenter=false' ng-click='open($event,site)'>
+                                <h4 class='title' ng-bind="site.name"></h4>
+                                <p class='summary' ng-bind="site.summary"></p>
+                                <div class='attr'>
+                                    <div class='creater_name' ng-bind="site.creater_name"></div>
+                                    <div class='create_at' ng-bind="site.create_at*1000|date:'yyyy-MM-dd'"></div>
                                 </div>
                             </div>
                         </div>

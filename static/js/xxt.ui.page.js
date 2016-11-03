@@ -28,7 +28,7 @@ define(['angular', 'domReady!'], function(angular) {
         });
         /* 用应用的injector运行模块的run */
         angular.forEach(lazyModule._runBlocks, function(fn) {
-            $injector.invoke(fn);
+            injector.invoke(fn);
         });
     };
     ngApp.config(['$injector', '$controllerProvider', function($injector, $controllerProvider) {

@@ -43,7 +43,7 @@ class main extends \pl\fe\matter\base {
 	 * 返回签到活动列表
 	 *
 	 */
-	public function list_action($site, $page = 1, $size = 30, $mission = null) {
+	public function list_action($site = null, $mission = null, $page = 1, $size = 30) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -97,7 +97,7 @@ class main extends \pl\fe\matter\base {
 		/*从站点和项目中获得pic定义*/
 		$site = $this->model('site')->byId($site, ['fields' => 'id,heading_pic']);
 		if (!empty($mission)) {
-			$modelMis = $this->model('mission');
+			$modelMis = $this->model('matter\mission');
 			$mission = $modelMis->byId($mission);
 			$newapp['summary'] = $mission->summary;
 			$newapp['pic'] = $mission->pic;
@@ -259,26 +259,24 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$model = $this->model();
+		$modelApp = $this->model('matter\signin');
+		$matter = $modelApp->byId($app, ['fields' => 'id,title,summary,pic', 'cascaded' => 'N']);
 		/**
 		 * 处理数据
 		 */
-		$nv = (array) $this->getPostJson();
+		$nv = $this->getPostJson(true);
 		foreach ($nv as $n => $v) {
-			if (in_array($n, ['entry_rule'])) {
-				$nv[$n] = $model->escape(urldecode($v));
-			} elseif (in_array($n, ['data_schemas'])) {
-				$nv[$n] = $model->toJson($v);
+			if (in_array($n, ['entry_rule', 'data_schemas'])) {
+				$nv->{$n} = $modelApp->toJson($v);
 			}
 		}
-		$nv['modifier'] = $user->id;
-		$nv['modifier_src'] = $user->src;
-		$nv['modifier_name'] = $user->name;
-		$nv['modify_at'] = time();
+		$nv->modifier = $user->id;
+		$nv->modifier_src = $user->src;
+		$nv->modifier_name = $user->name;
+		$nv->modify_at = time();
 
-		if ($rst = $model->update('xxt_signin', $nv, ["id" => $app])) {
+		if ($rst = $modelApp->update('xxt_signin', $nv, ["id" => $app])) {
 			/*记录操作日志*/
-			$matter = $this->model('matter\\signin')->byId($app, ['fields' => 'id,title,summary,pic', 'cascaded' => 'N']);
 			$matter->type = 'signin';
 			$this->model('log')->matterOp($site, $user, $matter, 'U');
 		}
@@ -352,16 +350,24 @@ class main extends \pl\fe\matter\base {
 	 *
 	 * @param string $site
 	 * @param string $app
+	 * @param string $round
 	 *
 	 */
-	public function wxQrcode_action($site, $app) {
+	public function wxQrcode_action($site, $app, $round = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelQrcode = $this->model('sns\wx\call\qrcode');
 
-		$qrcodes = $modelQrcode->byMatter('signin', $app);
+		if (empty($round)) {
+			$qrcodes = $modelQrcode->byMatter('signin', $app);
+		} else {
+			$params = new \stdClass;
+			$params->round = $round;
+			$params = \TMS_MODEL::toJson($params);
+			$qrcodes = $modelQrcode->byMatter('signin', $app, $params);
+		}
 
 		return new \ResponseData($qrcodes);
 	}
@@ -453,7 +459,7 @@ class main extends \pl\fe\matter\base {
 		$app = $this->model('matter\signin')->byId($app, ['fields' => 'id,title,summary,pic,mission_id', 'cascaded' => 'N']);
 		/*删除和任务的关联*/
 		if ($app->mission_id) {
-			$this->model('mission')->removeMatter($site, $app->id, 'signin');
+			$this->model('matter\mission')->removeMatter($site, $app->id, 'signin');
 		}
 		/*check*/
 		$q = [

@@ -1,6 +1,9 @@
 var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt', 'tmplshop.ui.xxt']);
-ngApp.config(['$locationProvider', function($lp) {
+ngApp.config(['$locationProvider', '$uibTooltipProvider', function($lp, $uibTooltipProvider) {
     $lp.html5Mode(true);
+    $uibTooltipProvider.setTriggers({
+        'show': 'hide'
+    });
 }]);
 ngApp.controller('ctrlSite', ['$scope', '$location', 'http2', function($scope, $location, http2) {
     $scope.siteId = $location.search().site;
@@ -8,7 +11,6 @@ ngApp.controller('ctrlSite', ['$scope', '$location', 'http2', function($scope, $
         $scope.site = rsp.data;
     });
 }]);
-
 ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop', function($scope, $uibModal, http2, templateShop) {
 
     $scope.matterType = 'recent';
@@ -39,7 +41,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
     };
     $scope.page = {
         at: 1,
-        size: 20,
+        size: 21,
         j: function() {
             return '&page=' + this.at + '&size=' + this.size;
         }
@@ -50,7 +52,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
         } else {
             var url = '/rest/pl/fe/matter/' + $scope.matterType + '/list?site=' + $scope.siteId + $scope.page.j();
         }
-        url += '&_=' + (new Date()).getTime();
+        url += '&_=' + (new Date() * 1);
         switch ($scope.matterType) {
             case 'channel':
                 url += '&cascade=N';
@@ -94,65 +96,16 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
         $scope.page.at++;
         searchMatters(true);
     };
-    $scope.chooseMatterType = function() {
+    $scope.chooseMatterType = function(matterType) {
+        matterType && ($scope.matterType = matterType);
         if ($scope.matterType === 'recent') {
-            http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date()).getTime(), function(rsp) {
+            http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date() * 1), function(rsp) {
                 $scope.matters = rsp.data.matters;
             });
         } else {
             $scope.page.at = 1;
             $scope.page.total = 0;
             searchMatters(false);
-        }
-    };
-    $scope.addMatter = function() {
-        switch ($scope.matterType) {
-            case 'article':
-                $scope.addArticle();
-                break;
-            case 'custom':
-                $scope.addCustom();
-                break;
-            case 'news':
-                $scope.addNews();
-                break;
-            case 'channel':
-                $scope.addChannel();
-                break;
-            case 'enroll':
-                $scope.addEnrollByTemplate();
-                break;
-            case 'signin':
-                $scope.addSignin();
-                break;
-            case 'group':
-                $scope.addGroup();
-                break;
-            case 'lottery':
-                $scope.addLottery();
-                break;
-            case 'contribute':
-                $scope.addContribute();
-                break;
-            case 'mission':
-                $scope.addMission();
-                break;
-            case 'text':
-                $scope.gotoText();
-                break;
-            case 'link':
-                $scope.addLink();
-                break;
-            case 'merchant':
-                $scope.addMerchant();
-                break;
-
-            case 'wall':
-                $scope.addWall();
-                break;
-            case 'addressbook':
-                $scope.addAddressbook();
-                break;
         }
     };
     $scope.removeMatter = function(evt, matter) {
@@ -225,6 +178,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
     };
     //研究项目-登记活动
     $scope.addEnrollByTemplate = function() {
+        $('body').trigger('click');
         templateShop.choose('enroll').then(function(choice) {
             if (choice) {
                 if (choice.source === 'share') {
@@ -298,7 +252,6 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
             location.href = '/rest/pl/fe/matter/merchant/shop?site=' + $scope.siteId + '&id=' + rsp.data;
         });
     };
-
     //信息墙
     $scope.addWall = function() {
         http2.get('/rest/pl/fe/matter/wall/create?site=' + $scope.siteId, function(rsp) {
@@ -311,7 +264,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
 
         });
     };
-    http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date()).getTime(), function(rsp) {
+    http2.get('/rest/pl/fe/site/console/recent?site=' + $scope.siteId + '&_=' + (new Date() * 1), function(rsp) {
         $scope.matters = rsp.data.matters;
     });
 }]);

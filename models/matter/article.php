@@ -286,7 +286,7 @@ class article_model extends article_base {
 	/*
      * 返回全部检索内容
      */
-    public function search_all($site, $keyword) {
+    public function &search_all($site, $keyword) {
 		$s = "id,mpid,title,author,summary,pic,body,url,read_num,create_at,has_attachment,download_num,'article' type";
 		$f = 'xxt_article';
 		$w = "siteid='$site' and state=1 and approved='Y' and can_fullsearch='Y'";             
@@ -301,8 +301,9 @@ class article_model extends article_base {
 		$articles = parent::query_objs_ss($q, $q2);
 		$articles=json_encode($articles);
 		$articles=json_decode($articles,1);
+
 		//内容标签
-		$q3="select * from xxt_article_tag t left join xxt_tag g on t.tag_id=g.id where t.mpid='$site' ";	
+		$q3="select * from xxt_article_tag t left join xxt_tag g on t.tag_id=g.id where t.mpid='$site' and t.sub_type=0";	
 		$tag_content=parent::query_objs($q3);
 
 		//频道标签

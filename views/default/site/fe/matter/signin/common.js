@@ -289,8 +289,14 @@ ngApp.controller('ctrl', ['$scope', '$http', '$timeout', function($scope, $http,
             var params = rsp.data,
                 site = params.site,
                 app = params.app,
-                mission = params.mission;
+                mission = params.mission,
+                schemasById = {};
+
             app.data_schemas = JSON.parse(app.data_schemas);
+            app.data_schemas.forEach(function(schema) {
+                schemasById[schema.id] = schema;
+            });
+            app._schemasById = schemasById;
             $scope.params = params;
             $scope.site = site;
             $scope.mission = mission;

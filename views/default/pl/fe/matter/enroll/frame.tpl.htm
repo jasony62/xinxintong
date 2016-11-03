@@ -11,28 +11,64 @@
         <link href="/views/default/pl/fe/matter/enroll/frame.css?_=4" rel="stylesheet">
     </head>
     <body ng-controller='ctrlFrame' ng-cloak class='ng-cloak'>
-        <nav class='navbar navbar-default navbar-fixed-top tms-large'>
+        <nav class='navbar navbar-default navbar-fixed-top'>
             <ul class='nav navbar-nav'>
                 <li><a href='/rest/pl/fe/site/console?site={{siteId}}' target='_self'>工作台</a></li>
+                <li ng-if="app.mission"><a href="/rest/pl/fe/matter/mission?site={{siteId}}&id={{app.mission.id}}" target='_self'>返回项目</a></li>
             </ul>
             <form class='navbar-form'>
-                <div class='form-group'>
-                    <div class='input-group'>
-                        <input type='text' class='form-control' size='60' title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
-                        <span class='input-group-btn'>
-                            <button uib-popover-template="'appSetting.html'" popover-append-to-body='true' popover-placement="bottom" popover-trigger="outsideClick" class='btn btn-default'><span class="caret"></span></button>
-                        </span>
+                <div ng-if="subView==='publish'">
+                    <div class='form-group'>
+                        <div class='input-group'>
+                            <input type='text' class='form-control' size='40' title='{{app.title}}' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+                            <span class='input-group-btn'>
+                                <button uib-popover-template="'appSetting.html'" popover-append-to-body='true' popover-placement="bottom" popover-trigger="outsideClick" class='btn btn-default'><span class="glyphicon glyphicon-cog"></span></button>
+                            </span>
+                        </div>
                     </div>
-                </div>
+                    <div class='form-group' ng-if="app.mission">
+                        <label>所属项目</label>
+                        <div class="input-group">
+                            <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly="">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button" ng-click="quitMission()">
+                                    <span class='glyphicon glyphicon-remove'></span>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class='form-group' ng-if="app.mission.multi_phase==='Y'">
+                        <label>项目阶段</label>
+                        <select class='form-control' ng-model="app.mission_phase_id" ng-change="choosePhase()" ng-options="phase.phase_id as phase.title for phase in app.mission.phases">
+                            <option value=''>全部</option>
+                        </select>
+                    </div>
+                    <div class='form-group' ng-if="!app.mission">
+                        <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
+                    </div>  
+                </div>  
             </form>
-            <ul class='nav navbar-nav'>
+            <ul class='nav navbar-nav navbar-right' ng-if="subView==='publish'">
+                <li><a href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}" target='_self'>查看数据</a></li>
+            </ul>
+            <ul class='nav navbar-nav navbar-right' ng-if="subView==='record'">
+                <li><a href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}" target='_self'>发布预览</a></li>
+                <li ng-if="app.scenario==='voting'"><a href="/rest/pl/fe/matter/enroll/stat?site={{siteId}}&id={{id}}">统计报告</a></li>
+            </ul>
+            <ul class='nav navbar-nav navbar-right' ng-if="subView==='schema'">
+                <li><a href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}" target='_self'>发布预览</a></li>
+                <li><a href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}" target='_self'>查看数据</a></li>
+            </ul>
+            <ul class='nav navbar-nav navbar-right' ng-if="subView==='page'">
+                <li><a href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}" target='_self'>发布预览</a></li>
+                <li><a href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}" target='_self'>查看数据</a></li>
             </ul>
         </nav>
         <div class='container'>
             <div class='row' ng-view></div>
         </div>
         <script type="text/ng-template" id="appSetting.html">
-            <div id="appSetting" ng-controller="ctrlApp">
+            <div id="appSetting">
                 <div class='form-group'>
                     <select class='form-control' ng-model="app.scenario" ng-change="update('scenario');">
                         <option value=''></option>
@@ -42,31 +78,19 @@
                     </select>
                 </div>
                 <hr>
-                <div class='form-group compact'>
-                    <label>允许每用户登记条数</label>
+                <div class='form-group'>
+                    <label>允许每用户登记条数（0不限制）</label>
                     <input type='text' class='form-control' ng-model="app.count_limit" tms-auto-update tms-wait=1000 tms-update="update('count_limit')">
                 </div>
-                <hr>
-                <a href="/rest/pl/fe/matter/enroll/event?site={{siteId}}&id={{id}}">活动进入规则</a>
-                <hr>
-                <div class='checkbox'>
-                    <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_header' ng-change="update('use_site_header');">使用站点页眉</label>
-                </div>
-                <div class='checkbox'>
-                    <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_site_footer' ng-change="update('use_site_footer');">使用站点页脚</label>
-                </div>
-                <div class='checkbox' ng-if="app.mission_id>0">
-                    <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_header' ng-change="update('use_mission_header');">使用项目页眉</label>
-                </div>
-                <div class='checkbox' ng-if="app.mission_id>0">
-                    <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.use_mission_footer' ng-change="update('use_mission_footer');">使用项目页脚</label>
+                <div class='form-group'>
+                    <label>活动说明</label>
+                    <textarea type='text' class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
                 </div>
                 <hr>
                 <button class='btn btn-default btn-block' ng-click="exportAsTemplate()">导出活动定义</button>
-                <hr>
-                <button class='btn btn-default btn-block' ng-click="remove()">删除活动</button>
-                <hr>
                 <button class='btn btn-default btn-block' ng-click="shareAsTemplate()">保存为模版</button>
+                <button class='btn btn-default btn-block' ng-click="applyToHome()">申请发布到主页</button>
+                <button class='btn btn-default btn-block' ng-click="remove()">删除活动</button>
             <div>
         </script>
         <script src="/static/js/jquery.min.js"></script>
@@ -89,7 +113,7 @@
         <script src="/static/js/xxt.ui.tmplshop.js?_=1"></script>
         <script src="/views/default/pl/fe/_module/channel.js?_=1"></script>
         <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
-        <script src="/views/default/pl/fe/matter/enroll/lib/enroll.service.js?_=1"></script>
+        <script src="/views/default/pl/fe/matter/enroll/lib/enroll.service.js?_=2"></script>
         <script src="/views/default/pl/fe/matter/enroll/lib/enroll.tinymce.js?_=2"></script>
         <script src="/static/js/require.js" data-main="/views/default/pl/fe/matter/enroll/frame-loader.js?_=6"></script>
     </body>

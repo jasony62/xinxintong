@@ -1,0 +1,29 @@
+body{margin-bottom:50px;}
+.tms-panel{border:1px solid #ddd;border-radius:4px;background:#fff;padding:30px 0;margin-bottom:30px;}
+.tms-tile{border:1px solid #ddd;border-radius:4px;padding:15px;}
+.navbar-nav .active:after{content:' ';position:absolute;left:0;right:0;bottom:-1px;height:3px;background:red;}
+/*phase*/
+.phases{phase}
+.phases .phase{counter-increment:phase;position:relative;}
+.phase:after{content:counter(phase);background:#eee;position:absolute;top:-9px;left:9px;width:18px;height:18px;line-height:18px;text-align:center;}
+.phases .phase .action{position:absolute;top:-9px;right:9px;}
+
+/*matter*/
+#viewMatter .thumbnail{position:relative;cursor:pointer;height:180px;display:flex;flex-direction:column;padding:8px;}
+#viewMatter .thumbnail .summary{flex:1;overflow:hidden;}
+#viewMatter .thumbnail .attrs{display:flex;}
+#viewMatter .thumbnail .operator{flex:1;}
+#viewMatter .thumbnail .actions{position:absolute;top:8px;right:8px;}
+
+/*indicator*/
+#viewMatter .thumbnail.indicator{flex-direction:row;align-items:center;background:#f8f8f8;}
+#viewMatter .thumbnail.indicator>div{flex:1.0;font-size:18px;text-align:center;}
+
+/*matter*/
+.article:after{content:'图文';position:absolute;top:-8px;left:-8px;background:green;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+.enroll:after{content:'登记';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+.registration:after{content:'报名';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+.voting:after{content:'投票';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+.signin:after{content:'签到';position:absolute;top:-8px;left:-8px;background:#0000cc;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+.group:after{content:'分组';position:absolute;top:-8px;left:-8px;background:#000099;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+.split:after{content:'分组';position:absolute;top:-8px;left:-8px;background:#000099;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}

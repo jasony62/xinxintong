@@ -14,7 +14,7 @@ class fullsearch_model extends MultiArticleReply {
     {
         parent::__construct($call, null);
         $this->keyword = $keyword;
-        $num=\TMS_APP::model('matter\article')->fullsearch_num($this->call['mpid'], $this->keyword);
+        $num=\TMS_APP::model('matter\article2')->fullsearch_num($this->call['mpid'], $this->keyword);
         $_SESSION['num']=$num;
         $_SESSION['site']=$this->call['mpid'];
         $_SESSION['keyword']=  $this->keyword;
@@ -22,10 +22,10 @@ class fullsearch_model extends MultiArticleReply {
 
     protected function loadMatters() 
     {
-        $mpid = $this->call['mpid'];
+        $site = $this->call['mpid'];
         $page = 1;
         $limit = 5;
-        $matters = \TMS_APP::model('matter\article')->fullsearch_its($mpid, $this->keyword, $page, $limit);
+        $matters = \TMS_APP::model('matter\article2')->fullsearch_its($site, $this->keyword, $page, $limit);
         return $matters;
     }  
     /**

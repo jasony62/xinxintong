@@ -196,7 +196,7 @@ class record_model extends \TMS_MODEL {
 			"enroll_key='$ek'",
 		];
 		if (($record = $this->query_obj_ss($q)) && $fields === '*') {
-			$record->data = json_decode($record->data);
+			$record->data = \TMS_MODEL::toObj($record->data);
 		}
 
 		return $record;
@@ -582,7 +582,7 @@ class record_model extends \TMS_MODEL {
 
 		if ($fields === '*') {
 			foreach ($records as &$record) {
-				$record->data = json_decode($record->data);
+				$record->data = \TMS_MODEL::toObj($record->data);
 			}
 		}
 

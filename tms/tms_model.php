@@ -293,4 +293,51 @@ class TMS_MODEL {
 
 		return $json;
 	}
+	/**
+	 * json解码前先替换字符串
+	 */
+	public static function toCode($obj){
+		if (is_object($obj)) {
+			$newObj = new \stdClass;
+			foreach ($obj as $k => $v) {
+				$v = preg_replace('/\n/', '_#_', $v);
+				$v = preg_replace('/\r/', '_&_', $v);
+				$v = preg_replace('/\t/', '_@_', $v);
+				$newObj->{$k} = self::toCode($v);
+			}
+		} else if (is_array($obj)) {
+			$newObj = array();
+			foreach ($obj as $k => $v) {
+				$v = preg_replace('/\r/', '_&_', $v);
+				$v = preg_replace('/\n/', '_#_', $v);
+				$v = preg_replace('/\t/', '_@_', $v);
+				$newObj[$k] = self::toCode($v);
+			}
+		} else {
+			$obj = preg_replace('/\t/', '_@_', $obj);
+			$obj = preg_replace('/\r/', '_&_', $obj);
+			$obj = preg_replace('/\n/', '_#_', $obj);
+			$newObj = $obj;
+		}
+
+		return $newObj;
+	}
+	/**
+	 * json解码并换回
+	 */
+	public static function toObj($obj){
+		$obj = self::toCode($obj);
+		$obj = json_decode($obj);
+		foreach ($obj as $k => $v) {
+			$newObj = new \stdClass;
+			foreach ($obj as $k => $v) {
+				$v = preg_replace('/_#_/', '\n', $v);
+				$v = preg_replace('/_&_/', '\r', $v);
+				$v = preg_replace('/_@_/', '\t', $v);
+
+				$newObj->{urlencode($k)} = self::toCode($v);
+			}
+		}
+		return $newObj;
+	}
 }

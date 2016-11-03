@@ -523,9 +523,7 @@ class proxy_model extends \sns\proxybase {
 	 * upload menu.
 	 */
 	public function menuCreate($menu) {
-		$app = TMS_APP::M('mp\mpaccount')->byId($this->mpid, 'qy_agentid');
-		$cmd = "https://qyapi.weixin.qq.com/cgi-bin/menu/create?agentid=$app->qy_agentid";
-
+		$cmd = "https://qyapi.weixin.qq.com/cgi-bin/menu/create?agentid=".$this->config->agentid;
 		$rst = $this->httpPost($cmd, $menu);
 
 		return $rst;
@@ -534,10 +532,9 @@ class proxy_model extends \sns\proxybase {
 	 * upload menu.
 	 */
 	public function menuDelete() {
-		$app = TMS_APP::M('mp\mpaccount')->byId($this->mpid, 'qy_agentid');
 		$cmd = "https://qyapi.weixin.qq.com/cgi-bin/menu/delete";
 
-		$rst = $this->httpGet($cmd, array('agentid' => $app->qy_agentid));
+		$rst = $this->httpGet($cmd, array('agentid' => $this->config->agentid));
 
 		return $rst;
 	}
@@ -548,10 +545,9 @@ class proxy_model extends \sns\proxybase {
 	 * $message
 	 */
 	public function messageSend($message, $encoded = false) {
-		$mpa = TMS_APP::M('mp\mpaccount')->byId($this->mpid, 'qy_agentid');
-
+		
 		$cmd = 'https://qyapi.weixin.qq.com/cgi-bin/message/send';
-		$message['agentid'] = $mpa->qy_agentid;
+		$message['agentid'] = $this->config->agentid;
 
 		$posted = TMS_MODEL::toJson($message);
 

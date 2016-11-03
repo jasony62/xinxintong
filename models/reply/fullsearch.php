@@ -14,15 +14,15 @@ class fullsearch_model extends MultiArticleReply {
     {
         parent::__construct($call, null);
         $this->keyword = $keyword;
-        $num=\TMS_APP::model('matter\article2')->fullsearch_num($this->call['mpid'], $this->keyword);
+        $num=\TMS_APP::model('matter\article2')->fullsearch_num($this->call['siteid'], $this->keyword);
         $_SESSION['num']=$num;
-        $_SESSION['site']=$this->call['mpid'];
+        $_SESSION['site']=$this->call['siteid'];
         $_SESSION['keyword']=  $this->keyword;
     }
 
     protected function loadMatters() 
     {
-        $site = $this->call['mpid'];
+        $site = $this->call['siteid'];
         $page = 1;
         $limit = 5;
         $matters = \TMS_APP::model('matter\article2')->fullsearch_its($site, $this->keyword, $page, $limit);
@@ -71,8 +71,8 @@ class fullsearch_model extends MultiArticleReply {
 	private function article_reply($matters) {
 		$r = '';
 		foreach ($matters as $matter) {
-			$matter->mpid = $this->call['mpid'];
-			$runningMpid = $this->call['mpid'];
+			$matter->siteid = $this->call['siteid'];
+			$runningMpid = $this->call['siteid'];
 			$url = \TMS_APP::model('matter\\' . $matter->type)->getEntryUrl($runningMpid, $matter->id, $this->call['from_user'], $this->call);
 			$r .= '<item>';
 			$r .= '<Title><![CDATA[' . $matter->title . ']]></Title>';

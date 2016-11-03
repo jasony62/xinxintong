@@ -131,6 +131,7 @@ class member extends \site\fe\base {
 		$schema = $this->model('site\user\memberschema')->byId($schema, 'id,attr_mobile,attr_email,attr_name,extattr');
 
 		$member = $this->getPostJson();
+		unset($member->id);
 		$member->siteid = $this->siteId;
 		$member->schema_id = $schema->id;
 		/**
@@ -465,19 +466,16 @@ class member extends \site\fe\base {
 	 * $pdid 父部门id
 	 *
 	 */
-	public function syncFromQy_action($site, $authid, $pdid = 1) {
-		if (!($authapi = $this->model('user/authapi')->byId($authid))) {
-			return new \ResponseError('未设置内置认证接口，无法同步通讯录');
-		}
+	public function syncFromQy_action($site, $schemaId, $pdid = 1) {//$pdid = 1是什么意思
 
-		$mp = $this->model('mp\mpaccount')->byId($site, 'qy_joined');
-		if (!$mp && $mp->qy_joined !== 'Y') {
+		$mp = $this->model('sns\qy')->bySite($site);
+		if (!$mp && $mp->joined === 'N') {
 			return new \ResponseError('未与企业号连接，无法同步通讯录');
 		}
 		$timestamp = time(); // 进行同步操作的时间戳
-		$qyproxy = $this->model('mpproxy/qy', $site);
+		$qyproxy = $this->model('sns\qy\proxy', $site);
 		$model = $this->model();
-		$modelDept = $this->model('user/department');
+		$modelDept = $this->model('site\user\department');
 		/**
 		 * 同步部门数据
 		 */
@@ -501,21 +499,21 @@ class member extends \site\fe\base {
 			 */
 			$q = array(
 				'id,fullpath,sync_at',
-				'xxt_member_department',
-				"mpid='$site' and extattr like '%\"id\":$rdept->id,%'",
+				'xxt_site_member_department',
+				"siteid='$site' and extattr like '%\"id\":$rdept->id,%'",
 			);
 			if (!($ldept = $model->query_obj_ss($q))) {
-				$ldept = $modelDept->create($site, $authid, $pid, null);
+				$ldept = $modelDept->create($site, $schemaId, $pid, null);
 			}
 			$model->update(
-				'xxt_member_department',
+				'xxt_site_member_department',
 				array(
 					'pid' => $pid,
 					'sync_at' => $timestamp,
 					'name' => $rdeptName,
 					'extattr' => json_encode($rdept),
 				),
-				"mpid='$site' and id=$ldept->id"
+				"siteid='$site' and id=$ldept->id"
 			);
 			$mapDeptR2L[$rdept->id] = array('id' => $ldept->id, 'path' => $ldept->fullpath);
 		}
@@ -523,8 +521,8 @@ class member extends \site\fe\base {
 		 * 清空同步不存在的部门
 		 */
 		$this->model()->delete(
-			'xxt_member_department',
-			"mpid='$site' and sync_at<" . $timestamp
+			'xxt_site_member_department',
+			"siteid='$site' and sync_at<" . $timestamp
 		);
 		/**
 		 * 同步部门下的用户
@@ -537,14 +535,14 @@ class member extends \site\fe\base {
 			$users = $result[1]->userlist;
 			foreach ($users as $user) {
 				$q = array(
-					'mid,fid,sync_at',
-					'xxt_member',
-					"mpid='$site' and openid='$user->userid'",
+					'sync_at',
+					'xxt_site_qyfan',
+					"siteid='$site' and openid='$user->userid'",
 				);
 				if (!($luser = $model->query_obj_ss($q))) {
-					$this->createQyFan($site, $user, $authid, $timestamp, $mapDeptR2L);
+					$this->createQyFan($site, $user, $schemaId, $timestamp, $mapDeptR2L);
 				} else if ($luser->sync_at < $timestamp) {
-					$this->updateQyFan($site, $luser->fid, $user, $authid, $timestamp, $mapDeptR2L);
+					$this->updateQyFan($site, $luser, $user, $schemaId, $timestamp, $mapDeptR2L);
 				}
 			}
 		}
@@ -552,16 +550,10 @@ class member extends \site\fe\base {
 		 * 清空没有同步的粉丝数据
 		 */
 		$model->delete(
-			'xxt_fans',
-			"mpid='$site' and fid in (select fid from xxt_member where mpid='$site' and sync_at<" . $timestamp . ")"
+			'xxt_site_qyfan',
+			"siteid='$site' and sync_at<" . $timestamp
 		);
-		/**
-		 * 清空没有同步的成员数据
-		 */
-		$model->delete(
-			'xxt_member',
-			"mpid='$site' and sync_at<" . $timestamp
-		);
+		
 		/**
 		 * 同步标签
 		 */
@@ -573,18 +565,18 @@ class member extends \site\fe\base {
 		foreach ($tags as $tag) {
 			$q = array(
 				'id,sync_at',
-				'xxt_member_tag',
-				"mpid='$site' and extattr like '{\"tagid\":$tag->tagid}%'",
+				'xxt_site_member_tag',
+				"siteid='$site' and extattr like '{\"tagid\":$tag->tagid}%'",
 			);
 			if (!($ltag = $model->query_obj_ss($q))) {
 				$t = array(
-					'mpid' => $site,
+					'siteid' => $site,
 					'sync_at' => $timestamp,
 					'name' => $tag->tagname,
-					'authapi_id' => $authid,
+					'schema_id' => $schemaId,
 					'extattr' => json_encode(array('tagid' => $tag->tagid)),
 				);
-				$memberTagId = $model->insert('xxt_member_tag', $t, true);
+				$memberTagId = $model->insert('xxt_site_member_tag', $t, true);
 			} else {
 				$memberTagId = $ltag->id;
 				$t = array(
@@ -592,9 +584,9 @@ class member extends \site\fe\base {
 					'name' => $tag->tagname,
 				);
 				$this->model()->update(
-					'xxt_member_tag',
+					'xxt_site_member_tag',
 					$t,
-					"mpid='$site' and id=$ltag->id"
+					"siteid='$site' and id=$ltag->id"
 				);
 			}
 			/**
@@ -608,19 +600,19 @@ class member extends \site\fe\base {
 			foreach ($tagUsers as $user) {
 				$q = array(
 					'sync_at,tags',
-					'xxt_member',
-					"mpid='$site' and openid='$user->userid'",
+					'xxt_site_qyfan',
+					"siteid='$site' and openid='$user->userid'",
 				);
-				if ($memeber = $model->query_obj_ss($q)) {
-					if (empty($memeber->tags)) {
-						$memeber->tags = $memberTagId;
+				if ($fans = $model->query_obj_ss($q)) {
+					if (empty($fans->tags)) {
+						$fans->tags = $memberTagId;
 					} else {
-						$memeber->tags .= ',' . $memberTagId;
+						$fans->tags .= ',' . $memberTagId;
 					}
 					$model->update(
-						'xxt_member',
-						array('tags' => $memeber->tags),
-						"mpid='$site' and openid='$user->userid'"
+						'xxt_site_qyfan',
+						array('tags' => $fans->tags),
+						"siteid='$site' and openid='$user->userid'"
 					);
 				}
 			}
@@ -629,14 +621,14 @@ class member extends \site\fe\base {
 		 * 清空已有标签
 		 */
 		$model->delete(
-			'xxt_member_tag',
-			"mpid='$site' and sync_at<" . $timestamp
+			'xxt_site_member_tag',
+			"siteid='$site' and sync_at<" . $timestamp
 		);
 
 		$model->update(
-			'xxt_member_authapi',
+			'xxt_site_member_schema',
 			array('sync_from_qy_at' => time()),
-			"authid=$authid"
+			"id=$schemaId"
 		);
 
 		$rst = array(

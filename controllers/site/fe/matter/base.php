@@ -167,6 +167,28 @@ class base extends \site\fe\base {
 		if (empty($members)) {
 			$members = $this->model('site\user\member')->byUser($siteId, $userid, array('schemas' => $memberSchemas));
 		}
+		//如果是企业号的用户访问
+		if (empty($members)) {
+			//根据userid获取xxt_site_account表中的qy_openid如果有则说明是企业号的用户，为内置认证用户
+			$q = array(
+						'qy_openid',
+						'xxt_site_account',
+						"siteid='$siteId' and uid='$userid'",
+					); 
+			$userOpenid = $this->model()->query_obj_ss($q);
+			if($userOpenid && $userOpenid->qy_openid != ''){
+				//根据openid查询粉丝表
+				$p = array(
+							'siteid,openid,nickname,mobile,email,sync_at',
+							'xxt_site_qyfan',
+							"siteid='$siteId' and openid='$userOpenid->qy_openid'",
+						); 
+				$qySnsUser = $this->model()->query_obj_ss($p);
+				if($qySnsUser){
+					$members['qy'] = $qySnsUser;
+				}
+			}
+		}
 		if (empty($members)) {
 			/* 处理版本迁移数据 */
 			$members = $this->__upgradeCookieMembers($siteId, $userid, $aMemberSchemas);
@@ -195,32 +217,37 @@ class base extends \site\fe\base {
 		} else {
 			$model = $this->model();
 			$passed = false;
-			foreach ($members as $member) {
-				if ($this->canAccessObj($siteId, $objId, $member, $memberSchemas, $obj)) {
-					/**
-					 * 检查用户是否通过了验证
-					 */
-					$q = array(
-						'verified',
-						'xxt_site_member',
-						"siteid='$siteId' and id='$member->id'",
-					);
-					if ('Y' !== $model->query_val_ss($q)) {
-						$r = $this->model('site\user\memberschema')->getNotpassStatement($member->schema_id, $siteId);
-						$protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
-						header($protocol . ' 401 Unauthorized');
-						\TPL::assign('title', '访问控制未通过');
-						\TPL::assign('body', $r);
-						\TPL::output('error');
-						exit;
+			//如果时从企业号进入的用户不需要认证
+			if(isset($members['qy'])){
+				$passed = true;
+			}else{
+				foreach ($members as $member) {
+					if ($this->canAccessObj($siteId, $objId, $member, $memberSchemas, $obj)) {
+						/**
+						 * 检查用户是否通过了验证
+						 */
+						$q = array(
+							'verified',
+							'xxt_site_member',
+							"siteid='$siteId' and id='$member->id'",
+						);
+						if ('Y' !== $model->query_val_ss($q)) {
+							$r = $this->model('site\user\memberschema')->getNotpassStatement($member->schema_id, $siteId);
+							$protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0';
+							header($protocol . ' 401 Unauthorized');
+							\TPL::assign('title', '访问控制未通过');
+							\TPL::assign('body', $r);
+							\TPL::output('error');
+							exit;
+						}
+						$passed = true;
+						break;
 					}
-					$passed = true;
-					break;
 				}
-			}
-			!$passed && $this->gotoOutAcl($siteId, $member->schema_id);
+				!$passed && $this->gotoOutAcl($siteId, $member->schema_id);
 
-			return $member;
+				return $member;
+			}
 		}
 	}
 }

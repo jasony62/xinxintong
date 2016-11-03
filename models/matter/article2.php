@@ -285,6 +285,74 @@ class article2_model extends article_base {
 
 		return $articles;
 	}
+	/*
+     * 返回全部检索内容
+     */
+    public function &search_all($site, $keyword) {
+		$s = "id,mpid,title,author,summary,pic,body,url,read_num,create_at,has_attachment,download_num,'article' type";
+		$f = 'xxt_article';
+		$w = "siteid='$site' and state=1 and approved='Y' and can_fullsearch='Y'";             
+		$w .= " and (title like '%$keyword%'";
+		$w .= "or summary like '%$keyword%'";
+		$w .= "or body like '%$keyword%')";             
+                
+		$q = array($s, $f, $w);
+
+		$q2['o'] = 'create_at desc';	
+
+		$articles = parent::query_objs_ss($q, $q2);
+		$articles=json_encode($articles);
+		$articles=json_decode($articles,1);
+
+		//内容标签
+		$q3="select * from xxt_article_tag t left join xxt_tag g on t.tag_id=g.id where t.mpid='$site' and t.sub_type=0";	
+		$tag_content=parent::query_objs($q3);
+
+		//频道标签
+		$q4="select m.matter_id,m.channel_id,c.siteid,c.title from xxt_channel_matter m left join xxt_channel c on m.channel_id=c.id where c.siteid='$site' and m.matter_type='article' ";
+		$tag_channel=parent::query_objs($q4);
+		
+		//将一篇文章所有标签放到tag下
+		$b=array();
+		foreach ($articles as $k => $v) {
+			$a=array();
+			foreach ($tag_content as $kc => $vc) {
+				if($v['id']==$vc->res_id){
+					$a['content'][]=$vc->title;
+				}
+			}
+			foreach ($tag_channel as $kl => $vl) {
+				if($v['id']==$vl->matter_id){
+					$a['channel'][]=$vl->title;
+				}
+			}
+			$v['tag']=$a;
+			$b[$k]=$v;
+		}
+
+		return $b;
+	}	
+    /*
+     * 返回全文检索（统计）数目
+     */
+    public function fullsearch_num($site, $keyword) {
+		$s = "count(*) as c";
+		$f = 'xxt_article';
+		$w = "siteid='$site' and state=1 and approved='Y' and can_fullsearch='Y'";                		
+		$w .= " and (title like '%$keyword%'";
+		$w .= "or summary like '%$keyword%'";
+		$w .= "or body like '%$keyword%')";
+                                     
+		$q = array($s, $f, $w);
+
+		$q2['o'] = 'create_at desc';		
+
+		$r = parent::query_objs_ss($q, $q2);
+		$one=(array)$r[0];
+		$num=$one['c'];
+                
+		return $num;
+	}
 	/**
 	 * 审核记录
 	 *

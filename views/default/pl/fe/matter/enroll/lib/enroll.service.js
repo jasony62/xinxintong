@@ -630,7 +630,9 @@ provider('srvApp', function() {
                 vcode = prompt('是否要删除所有登记信息？，若是，请输入活动名称。');
                 if (vcode === _oApp.title) {
                     http2.get('/rest/pl/fe/matter/enroll/record/empty?site=' + siteId + '&app=' + appId, function(rsp) {
-                        _this.doSearch(1);
+                        _aRecords.splice(0, _aRecords.length);
+                        _oPage.total = 0;
+                        _oPage.at = 1;
                     });
                 }
             },

@@ -219,7 +219,7 @@ class main extends \pl\fe\matter\base {
 			$article['pic'] = $site->heading_pic; //使用账号缺省头图
 			$article['summary'] = '';
 		} else {
-			$modelMis = $this->model('mission');
+			$modelMis = $this->model('matter\mission');
 			$mission = $modelMis->byId($mission);
 			$article['summary'] = $mission->summary;
 			$article['pic'] = $mission->pic;

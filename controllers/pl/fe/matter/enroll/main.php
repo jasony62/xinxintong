@@ -58,7 +58,7 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 返回登记活动列表
 	 */
-	public function list_action($site, $page = 1, $size = 30, $mission = null, $scenario = null) {
+	public function list_action($site = null, $mission = null, $page = 1, $size = 30, $scenario = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -83,7 +83,7 @@ class main extends \pl\fe\matter\base {
 		$q2['r']['l'] = $size;
 		if ($apps = $modelApp->query_objs_ss($q, $q2)) {
 			foreach ($apps as &$app) {
-				$app->url = $modelApp->getEntryUrl($site, $app->id);
+				$app->url = $modelApp->getEntryUrl($app->siteid, $app->id);
 			}
 			$result['apps'] = $apps;
 			$q[0] = 'count(*)';
@@ -823,7 +823,7 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseError('没有删除数据的权限');
 		}
 		/* 删除和任务的关联 */
-		$this->model('mission')->removeMatter($site, $app->id, 'enroll');
+		$this->model('matter\mission')->removeMatter($site, $app->id, 'enroll');
 		/*check*/
 		$q = [
 			'count(*)',

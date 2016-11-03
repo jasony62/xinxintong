@@ -43,7 +43,7 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 返回分组活动列表
 	 */
-	public function list_action($site, $page = 1, $size = 30, $mission = null) {
+	public function list_action($site = null, $mission = null, $page = 1, $size = 30) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -94,7 +94,7 @@ class main extends \pl\fe\matter\base {
 			$newapp['use_mission_header'] = 'N';
 			$newapp['use_mission_footer'] = 'N';
 		} else {
-			$modelMis = $this->model('mission');
+			$modelMis = $this->model('matter\mission');
 			$mission = $modelMis->byId($mission);
 			$newapp['summary'] = $mission->summary;
 			$newapp['pic'] = $mission->pic;
@@ -282,7 +282,7 @@ class main extends \pl\fe\matter\base {
 		/*在删除数据前获得数据*/
 		$app = $this->model('matter\group')->byId($app, 'id,title,summary,pic');
 		/*删除和任务的关联*/
-		$this->model('mission')->removeMatter($site, $app->id, 'group');
+		$this->model('matter\mission')->removeMatter($site, $app->id, 'group');
 		/*check*/
 		$q = array(
 			'count(*)',

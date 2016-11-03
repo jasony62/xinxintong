@@ -1,15 +1,24 @@
 define(['frame'], function(ngApp) {
 	ngApp.provider.controller('ctrlShop', ['$scope', 'http2', function($scope, http2) {
-		$scope.doSearch = function() {
-			http2.get('/rest/pl/fe/template/shop/list?site=' + $scope.siteId + '&matterType=enroll', function(rsp) {
+		$scope.criteria = {
+			scope: 'A'
+		};
+		$scope.page = {
+			size: 21,
+			at: 1,
+			total: 0
+		};
+		$scope.changeScope = function(scope) {
+			$scope.criteria.scope = scope;
+			$scope.searchTemplate();
+		};
+		$scope.searchTemplate = function() {
+			var url = '/rest/pl/fe/template/shop/list?matterType=enroll&scope=' + $scope.criteria.scope;
+			http2.get(url, function(rsp) {
 				$scope.templates = rsp.data.templates;
+				$scope.page.total = rsp.data.total;
 			});
 		};
-		$scope.copyMatter = function(copied) {
-			$http.get('/rest/member/box/enroll/copy?mpid=' + $scope.mpid + '&shopid=' + copied.id).success(function(rsp) {
-				location.href = '/rest/member/box?mpid=' + $scope.mpid;
-			});
-		};
-		$scope.doSearch();
+		$scope.searchTemplate();
 	}]);
 });

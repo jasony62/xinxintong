@@ -6,7 +6,7 @@ require_once '../db.php';
 $sql = "create table if not exists xxt_mission (";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
-$sql .= ",mpid varchar(32) not null default ''";
+$sql .= ",mpid varchar(32) not null default ''"; // should remove
 $sql .= ",title varchar(70) not null";
 $sql .= ",summary varchar(240) not null";
 $sql .= ",pic text";
@@ -47,6 +47,7 @@ $sql .= ",title varchar(70) not null"; // 任务的标题
 $sql .= ",summary varchar(240) not null"; // 任务摘要
 $sql .= ",pic text"; // 任务图片
 $sql .= ",creater varchar(40) not null default ''"; // 任务的创建者
+$sql .= ",creater_name varchar(255) not null default ''";
 $sql .= ",create_at int not null"; // 任务的创建时间
 $sql .= ",inviter varchar(40) not null default ''"; // 邀请人
 $sql .= ",inviter_label varchar(255) not null default ''";

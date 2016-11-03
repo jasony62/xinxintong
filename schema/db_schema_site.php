@@ -6,6 +6,7 @@ require_once "../db.php";
 $sql = "create table if not exists xxt_site(";
 $sql .= "id varchar(32) not null";
 $sql .= ",name varchar(50) not null";
+$sql .= ",summary varchar(240) not null default ''";
 $sql .= ",heading_pic text"; // 缺省头图
 $sql .= ",creater varchar(40) not null";
 $sql .= ",creater_name varchar(255) not null default ''";
@@ -15,6 +16,7 @@ $sql .= ",site_id varchar(32) not null default ''"; // 父站点ID
 $sql .= ",state tinyint not null default 1"; // 1:正常, 0:停用
 $sql .= ",home_page_id int not null default 0"; // 站点主页
 $sql .= ",home_page_name varchar(13) not null default ''"; // 站点主页
+$sql .= ",home_carousel text"; // 首页轮播
 $sql .= ",header_page_id int not null default 0"; // 通用页头
 $sql .= ",header_page_name varchar(13) not null default ''"; // 通用页头
 $sql .= ",footer_page_id int not null default 0"; // 通用页尾
@@ -57,6 +59,25 @@ $sql .= ",primary key(siteid,uid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error(xxt_site_admin): ' . $mysqli->error;
+}
+/**
+ * 站点主页频道
+ */
+$sql = 'create table if not exists xxt_site_home_channel (';
+$sql .= 'id int not null auto_increment';
+$sql .= ",creater varchar(40) not null";
+$sql .= ",creater_name varchar(255) not null default ''";
+$sql .= ',put_at int not null';
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",channel_id int not null";
+$sql .= ",title varchar(70) not null default ''";
+$sql .= ',pic text';
+$sql .= ',summary varchar(240) not null';
+$sql .= ",seq int not null default 0";
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error(xxt_contribute): ' . $mysqli->error;
 }
 /**
  * user account

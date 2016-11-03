@@ -1,20 +1,36 @@
-<div class='container ng-cloak' ng-cloak>
-    <div class='col-md-4'>
-        <div class='thumbnail template' ng-repeat="t in templates">
-            <div class='title' ng-bind="m.title"></div>
-            <div class='summary' ng-bind="t.summary"></div>
-            <div class='heading-pic' heading-pic ng-if="t.pic">
-                <img ng-src='{{m.pic}}'>
-            </div>
-            <div class='creater-datetime'>
-                <div ng-bind="t.put_at*1000|date:'yyyyMMdd'"></div>
-                <div ng-bind="t.creater_name"></div>
-            </div>
-            <div class='actions'>
-                <div>
-                    <a class='btn btn-default' href='/rest/pl/fe/template/shop/show?site={{siteId}}&template={{t.id}}'>预览</a>
-                    <button class='btn btn-success' ng-click='collect(t)'>收藏</button>
-                    <button class='btn btn-success' ng-click='createBy(t)'>创建</button>
+<div class='container'>
+    <nav class='navbar navbar-default'>
+        <div class='container'>
+            <ul class='nav navbar-nav'>
+                <li ng-class="{'active':criteria.scope==='A'}"><a href='' ng-click="changeScope('A')">全部</a></li>
+                <li ng-class="{'active':criteria.scope==='U'}"><a href='' ng-click="changeScope('U')">我的</a></li>
+                <li ng-class="{'active':criteria.scope==='S'}"><a href='' ng-click="changeScope('S')">共享给我的</a></li>
+                <li ng-class="{'active':criteria.scope==='F'}"><a href=''>我收藏的</a></li>
+            </ul>
+            <form class='navbar-form'>
+                <select class='form-control'>
+                    <option>报名</option>
+                    <option>投票</option>
+                </select>
+            </form>
+        </div>
+    </nav>
+    <div class='row'>
+        <div class='col-md-4' ng-repeat="t in templates">
+            <div class='thumbnail template'>
+                <h4 class='title' ng-bind="t.title"></h4>
+                <p class='summary' ng-bind="t.summary"></p>
+                <div class='heading-pic' heading-pic ng-if="t.pic">
+                    <img ng-src='{{m.pic}}'>
+                </div>
+                <div class='attr'>
+                    <div class='creater_name' ng-bind="t.creater_name"></div>
+                    <div class='put_at' ng-bind="t.put_at*1000|date:'yyyy-MM-dd'"></div>
+                </div>
+                <div class='actions'>
+                    <a class='btn btn-sm btn-default' href='/rest/pl/fe/template/shop/show?site={{siteId}}&template={{t.id}}'>预览</a>
+                    <button class='btn btn-sm btn-success' ng-click='collect(t)'>收藏</button>
+                    <button class='btn btn-sm btn-success' ng-click='createBy(t)'>使用</button>
                 </div>
             </div>
         </div>

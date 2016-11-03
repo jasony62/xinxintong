@@ -176,13 +176,15 @@ class stat extends \pl\fe\matter\base {
 			$html .= "<h3><span>第" . ($index + 1) . "项：</span><span>{$schema->title}</span></h3>";
 			if (in_array($schema->type, ['name', 'email', 'mobile', 'date', 'location', 'shorttext', 'longtext'])) {
 				$textResult = $modelRec->list4Schema($site, $app, $schema->id);
-				$records = $textResult->records;
-				$html .= "<table><thead><tr><th>登记内容</th></tr></thead>";
-				$html .= "<tbody>";
-				foreach ($records as $record) {
-					$html .= "<tr><td>{$record->value}</td></tr>";
+				if (!empty($textResult->records)) {
+					$records = $textResult->records;
+					$html .= "<table><thead><tr><th>登记内容</th></tr></thead>";
+					$html .= "<tbody>";
+					foreach ($records as $record) {
+						$html .= "<tr><td>{$record->value}</td></tr>";
+					}
+					$html .= "</tbody></table>";
 				}
-				$html .= "</tbody></table>";
 			} else if (in_array($schema->type, ['single', 'phase', 'multiple'])) {
 				$item = $statResult[$schema->id];
 				$data = [];

@@ -58,7 +58,7 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 返回登记活动列表
 	 */
-	public function list_action($site, $page = 1, $size = 30, $mission = null, $scenario = null) {
+	public function list_action($site = null, $mission = null, $page = 1, $size = 30, $scenario = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -83,7 +83,7 @@ class main extends \pl\fe\matter\base {
 		$q2['r']['l'] = $size;
 		if ($apps = $modelApp->query_objs_ss($q, $q2)) {
 			foreach ($apps as &$app) {
-				$app->url = $modelApp->getEntryUrl($site, $app->id);
+				$app->url = $modelApp->getEntryUrl($app->siteid, $app->id);
 			}
 			$result['apps'] = $apps;
 			$q[0] = 'count(*)';
@@ -460,16 +460,15 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$model = $this->model('matter\enroll');
+		$modelApp = $this->model('matter\enroll');
+		$matter = $modelApp->byId($app, 'id,title,summary,pic');
 		/**
 		 * 处理数据
 		 */
-		$nv = $this->getPostJson();
+		$nv = $this->getPostJson(true);
 		foreach ($nv as $n => $v) {
-			if (in_array($n, ['entry_rule'])) {
-				$nv->$n = $model->escape(urldecode($v));
-			} elseif (in_array($n, ['data_schemas'])) {
-				$nv->$n = $model->toJson($v);
+			if (in_array($n, ['entry_rule', 'data_schemas'])) {
+				$nv->$n = $modelApp->toJson($v);
 			}
 		}
 		$nv->modifier = $user->id;
@@ -477,10 +476,9 @@ class main extends \pl\fe\matter\base {
 		$nv->modifier_name = $user->name;
 		$nv->modify_at = time();
 
-		$rst = $model->update('xxt_enroll', $nv, ["id" => $app]);
+		$rst = $modelApp->update('xxt_enroll', $nv, ["id" => $app]);
 		if ($rst) {
 			// 记录操作日志
-			$matter = $this->model('matter\\enroll')->byId($app, 'id,title,summary,pic');
 			$matter->type = 'enroll';
 			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
 		}
@@ -808,20 +806,24 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 删除一个活动
 	 *
-	 * 如果没有报名数据，就将活动彻底删除
-	 * 否则只是打标记
+	 * 只允许活动的创建者删除数据，其他用户不允许删除
+	 * 如果没有报名数据，就将活动彻底删除，否则只是打标记
 	 *
-	 * @param string $app->id
+	 * @param string $site site's id
+	 * @param string $app app's id
 	 */
 	public function remove_action($site, $app) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-		$model = $this->model();
-		/*在删除数据前获得数据*/
-		$app = $this->model('matter\\enroll')->byId($app, 'id,title,summary,pic');
-		/*删除和任务的关联*/
-		$this->model('mission')->removeMatter($site, $app->id, 'enroll');
+		$model = $this->model('matter\enroll');
+		/* 在删除数据前获得数据 */
+		$app = $model->byId($app, 'id,title,summary,pic,creater');
+		if ($app->creater !== $user->id) {
+			return new \ResponseError('没有删除数据的权限');
+		}
+		/* 删除和任务的关联 */
+		$this->model('matter\mission')->removeMatter($site, $app->id, 'enroll');
 		/*check*/
 		$q = [
 			'count(*)',
@@ -856,7 +858,7 @@ class main extends \pl\fe\matter\base {
 				["id" => $app->id]
 			);
 		}
-		/*记录操作日志*/
+		/* 记录操作日志 */
 		$app->type = 'enroll';
 		$this->model('matter\log')->matterOp($site, $user, $app, 'D');
 

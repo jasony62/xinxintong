@@ -1,7 +1,7 @@
 <div ng-controller="ctrlSchemaEdit">
     <div class="form-group">
         <label>登记项ID</label>
-        <input class='form-control' type='text' ng-model='activeSchema.id' ng-change="updSchema('id')" readonly>
+        <input class='form-control' type='text' ng-model='activeSchema.id' ng-change="updSchema(activeSchema,'id')" readonly>
     </div>
     <div class="form-group" ng-if="activeSchema.type==='member'">
         <select class='form-control' disabled ng-model='selectedMemberSchema.schema' ng-options='ms.title for ms in memberSchemas'>
@@ -23,10 +23,14 @@
         <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeConfig.required' ng-change="updConfig('required')">必填</label>
     </div>
     <div class="checkbox" ng-show="['name','mobile','email','shorttext'].indexOf(activeSchema.type)!==-1">
-        <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.unique' ng-change="updSchema('unique')">唯一</label>
+        <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.unique' ng-change="updSchema(activeSchema,'unique')">唯一</label>
+    </div>
+    <div class="form-group" ng-show="['image','file'].indexOf(activeSchema.type)!==-1">
+        <label>限制数量（填0不限制）</label>
+        <input type='text' class='form-control' ng-model='activeSchema.count' ng-change="updSchema(activeSchema,'count')">
     </div>
     <div class="checkbox" ng-show="'single'===activeSchema.type">
-        <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.score' ng-change="updSchema('score')">打分</label>
+        <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.score' ng-change="updSchema(activeSchema,'score')">打分</label>
     </div>
     <button class='btn btn-default' ng-click="closePopover()">关闭</button>
 </div>

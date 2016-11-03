@@ -197,32 +197,26 @@ define(["require", "angular", "angular-sanitize", "xxt-share", "enroll-directive
         $scope.options = options;
         $scope.fetch = fnFetch;
     }]);
-    ngApp.controller('ctrlRecord', ['$scope', 'Record', function($scope, Record) {
-        var facRecord = Record.ins(),
-            schemas = $scope.app.data_schemas;
-        $scope.value2Label = function(key) {
-            var val, i, j, s, aVal, aLab = [];
-            if (schemas && facRecord.current.data) {
-                val = facRecord.current.data[key];
-                if (val === undefined) return '';
-                for (i = 0, j = schemas.length; i < j; i++) {
-                    s = schemas[i];
-                    if (schemas[i].id === key) {
-                        s = schemas[i];
-                        break;
+    ngApp.controller('ctrlRecord', ['$scope', 'Record', '$sce', function($scope, Record, $sce) {
+        var facRecord = Record.ins();
+
+        $scope.value2Label = function(schemaId) {
+            var val, schema, aVal, aLab = [];
+
+            if ($scope.app.data_schemas && (schema = $scope.app._schemasById[schemaId]) && facRecord.current.data) {
+                if (val = facRecord.current.data[schemaId]) {
+                    if (schema.ops && schema.ops.length) {
+                        aVal = val.split(',');
+                        schema.ops.forEach(function(op) {
+                            aVal.indexOf(op.v) !== -1 && aLab.push(op.l);
+                        });
+                        val = aLab.join(',');
                     }
+                } else {
+                    val = '';
                 }
-                if (s && s.ops && s.ops.length) {
-                    aVal = val.split(',');
-                    for (i = 0, j = s.ops.length; i < j; i++) {
-                        aVal.indexOf(s.ops[i].v) !== -1 && aLab.push(s.ops[i].l);
-                    }
-                    if (aLab.length) return aLab.join(',');
-                }
-                return val;
-            } else {
-                return '';
             }
+            return $sce.trustAsHtml(val);
         };
         $scope.editRecord = function(event, page) {
             page ? $scope.gotoPage(event, page, facRecord.current.enroll_key) : alert('没有指定登记编辑页');

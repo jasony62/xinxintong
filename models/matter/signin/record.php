@@ -33,7 +33,7 @@ class record_model extends \TMS_MODEL {
 				'enroll_at' => $enrollAt,
 				'enroll_key' => $ek,
 				'userid' => empty($user->uid) ? '' : $user->uid,
-				'nickname' => empty($user->nickname) ? '' : $user->nickname,
+				'nickname' => empty($user->nickname) ? '' : $this->escape($user->nickname),
 				'referrer' => $referrer,
 			];
 			$record['verified'] = isset($data['verified']) ? $data['verified'] : 'N';
@@ -65,7 +65,7 @@ class record_model extends \TMS_MODEL {
 			$ek = $records[0]->enroll_key;
 			$this->update(
 				'xxt_signin_record',
-				['userid' => $user->uid, 'nickname' => $user->nickname],
+				['userid' => $user->uid, 'nickname' => $this->escape($user->nickname)],
 				"enroll_key='$ek' and state=1"
 			);
 			$state->enrolled = true;
@@ -84,7 +84,7 @@ class record_model extends \TMS_MODEL {
 			if (empty($singinLog->userid) || empty($singinLog->nickname)) {
 				$this->update(
 					'xxt_signin_log',
-					['userid' => $user->uid, 'nickname' => $user->nickname],
+					['userid' => $user->uid, 'nickname' => $this->escape($user->nickname)],
 					"enroll_key='$ek' and rid='{$activeRound->rid}' and state=1"
 				);
 			}
@@ -99,7 +99,7 @@ class record_model extends \TMS_MODEL {
 					'rid' => $activeRound->rid,
 					'enroll_key' => $ek,
 					'userid' => $user->uid,
-					'nickname' => $user->nickname,
+					'nickname' => $this->escape($user->nickname),
 					'signin_at' => $signinAt,
 				],
 				false

@@ -62,48 +62,6 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 				editorProxy.getEditor().setContent('');
 			});
 		};
-		$scope.newSchema = function(type) {
-			var i, newSchema, mission;
-			if (type === 'phase') {
-				mission = $scope.app.mission;
-				if (!mission || !mission.phases || mission.phases.length === 0) {
-					alert('请先指定项目的阶段');
-					return;
-				}
-			}
-			newSchema = schemaLib.newSchema(type, $scope.app);
-			for (i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
-				if (newSchema.id === $scope.app.data_schemas[i].id) {
-					alert('不允许重复添加登记项');
-					return;
-				}
-			}
-			$scope.app.data_schemas.push(newSchema);
-			$scope.$broadcast('xxt.matter.enroll.app.data_schemas.created', newSchema);
-		};
-		$scope.newMember = function(ms, schema) {
-			var newSchema = schemaLib.newSchema('member');
-
-			newSchema.schema_id = ms.id;
-			newSchema.id = schema.id;
-			newSchema.title = schema.title;
-
-			for (i = $scope.app.data_schemas.length - 1; i >= 0; i--) {
-				if (newSchema.id === $scope.app.data_schemas[i].id) {
-					alert('不允许重复添加登记项');
-					return;
-				}
-			}
-
-			$scope.app.data_schemas.push(newSchema);
-			$scope.$broadcast('xxt.matter.enroll.app.data_schemas.created', newSchema);
-		};
-		$scope.copySchema = function(schema) {
-			var newSchema = angular.copy(schema);
-			newSchema.id = 'c' + (new Date() * 1);
-			$scope.app.data_schemas.push(newSchema);
-			$scope.$broadcast('xxt.matter.enroll.app.data_schemas.created', newSchema);
-		};
 		/**
 		 * 修改schema
 		 */
@@ -204,7 +162,12 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 			}
 		};
 		$scope.wrapEditorHtml = function() {
-			var url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=' + (new Date()).getMinutes();
+			var url;
+			if ($scope.activeWrap.type) {
+				url = '/views/default/pl/fe/matter/enroll/wrap/' + $scope.activeWrap.type + '.html?_=' + (new Date()).getMinutes();
+			} else {
+				url = null;
+			}
 			return url;
 		};
 		// 创建了新的schema
@@ -422,6 +385,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 		$scope.$watch('ep', function(newPage) {
 			if (!newPage) return;
 			$scope.setActiveWrap(null);
+			// page's content
 			if (tinymceEditor) {
 				var oldPage = editorProxy.getPage();
 				if (oldPage) {
@@ -432,6 +396,16 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 				}
 				editorProxy.load(tinymceEditor, newPage);
 			}
+			// page's buttons
+			var buttons = [],
+				button, btnName;
+			for (btnName in schemaLib.buttons) {
+				button = schemaLib.buttons[btnName];
+				if (button.scope && button.scope.indexOf(newPage.type) !== -1) {
+					buttons.push(button);
+				}
+			}
+			$scope.buttons = buttons;
 		});
 		$scope.$on('tinymce.instance.init', function(event, editor) {
 			tinymceEditor = editor;
@@ -450,6 +424,9 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 			appSchemas = $scope.app.data_schemas,
 			chooseState = {};
 
+		appSchemas.forEach(function(schema) {
+			chooseState[schema.id] = false;
+		});
 		pageSchemas.forEach(function(dataWrap) {
 			if (dataWrap.schema) {
 				chooseState[dataWrap.schema.id] = true;
@@ -457,7 +434,6 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 				console.error('page[' + $scope.ep.name + '] schema not exist', dataWrap);
 			}
 		});
-
 		$scope.appSchemas = appSchemas;
 		$scope.chooseState = chooseState;
 		$scope.choose = function(schema) {
@@ -482,6 +458,9 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 			chooseState = {};
 
 		$scope.appSchemas = $scope.app.data_schemas;
+		$scope.appSchemas.forEach(function(schema) {
+			chooseState[schema.id] = false;
+		});
 		$scope.otherSchemas = [{
 			id: 'enrollAt',
 			type: '_enrollAt',

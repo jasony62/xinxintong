@@ -48,12 +48,16 @@ class record_model extends \TMS_MODEL {
 		} else if (isset($entryRule->scope) && $entryRule->scope === 'sns') {
 			foreach ($entryRule->sns as $snsName => $rule) {
 				if (isset($user->sns->{$snsName})) {
-					$record['nickname'] = $user->sns->{$snsName}->nickname;
+					$record['nickname'] = $this->escape($user->sns->{$snsName}->nickname);
 					break;
 				}
 			}
+		} else if (empty($entryRule->scope) || $entryRule->scope === 'none') {
+			/* 不限制用户访问来源 */
+			$record['nickname'] = empty($user->nickname) ? '' : $this->escape($user->nickname);
 		} else {
-			$record['nickname'] = empty($user->nickname) ? '' : $user->nickname;
+			/* 匿名访问 */
+			$record['nickname'] = '';
 		}
 
 		$this->insert('xxt_enroll_record', $record, false);

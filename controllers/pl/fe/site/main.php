@@ -55,11 +55,15 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	public function get_action($site) {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$site = $this->model('site')->byId($site);
+		if ($site) {
+			if (!empty($site->home_carousel)) {
+				$site->home_carousel = json_decode($site->home_carousel);
+			}
+		}
 
 		return new \ResponseData($site);
 	}
@@ -67,8 +71,7 @@ class main extends \pl\fe\base {
 	 * 有权管理的站点
 	 */
 	public function list_action() {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 		$q = array(
@@ -77,25 +80,6 @@ class main extends \pl\fe\base {
 			"(creater='{$user->id}' or exists(select 1 from xxt_site_admin sa where sa.siteid=s.id and uid='{$user->id}')) and state=1",
 		);
 		$q2 = array('o' => 'create_at desc');
-
-		$sites = $this->model()->query_objs_ss($q, $q2);
-
-		return new \ResponseData($sites);
-	}
-	/**
-	 * 推荐给注册用户的站点
-	 */
-	public function recommended_action() {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$q = [
-			'id,creater_name,create_at,name',
-			'xxt_site s',
-			"creater<>'{$user->id}' and state=1",
-		];
-		$q2 = ['o' => 'create_at desc'];
 
 		$sites = $this->model()->query_objs_ss($q, $q2);
 
@@ -142,7 +126,11 @@ class main extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 		$nv = $this->getPostJson();
-
+		foreach ($nv as $n => $v) {
+			if ($n === 'home_carousel') {
+				$nv->{$n} = json_encode($v);
+			}
+		}
 		$rst = $this->model()->update(
 			'xxt_site',
 			$nv,
@@ -150,6 +138,24 @@ class main extends \pl\fe\base {
 		);
 
 		return new \ResponseData($rst);
+	}
+	/**
+	 *
+	 *
+	 * @param string $resType
+	 * @param int 标签的分类
+	 */
+	public function applyToHome_action($site) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelHome = $this->model('site\home');
+		$site = $this->model('site')->byId($site);
+
+		$reply = $modelHome->putSite($site, $user);
+
+		return new \ResponseData($reply);
 	}
 	/**
 	 * 创建站点首页页面

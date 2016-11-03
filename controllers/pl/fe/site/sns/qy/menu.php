@@ -440,9 +440,7 @@ class menu extends \pl\fe\base {
 		if ($qyConfig->joined === 'N') {
 			return new \ResponseError('公众账号未连接成功，请检查。');
 		}
-		if ($qyConfig->can_menu === 'N') {
-			return new \ResponseError("未开通发布菜单高级接口");
-		}
+		
 		$proxy = $this->model("sns\qy\proxy", $qyConfig);
 		$rst = $proxy->menuCreate($literalMenu);
 		if ($rst[0] === false) {

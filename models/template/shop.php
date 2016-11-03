@@ -38,7 +38,7 @@ class shop_model extends \TMS_MODEL {
 	}
 	/**
 	 *
-	 * @param string $siteId 来源于哪个公众号
+	 * @param string $siteId 来源于哪个站点
 	 * @param object $matter 共享的素材
 	 */
 	public function putMatter($siteId, $account, $matter, $options = array()) {
@@ -88,5 +88,61 @@ class shop_model extends \TMS_MODEL {
 		}
 
 		return $item;
+	}
+	/**
+	 * 推送到主页
+	 */
+	public function pushHome($templateId) {
+		$rst = $this->update(
+			'xxt_shop_matter',
+			['push_home' => 'Y'],
+			["id" => $templateId]
+		);
+
+		return $rst;
+	}
+	/**
+	 * 推送到主页
+	 */
+	public function pullHome($templateId) {
+		$rst = $this->update(
+			'xxt_shop_matter',
+			['push_home' => 'N'],
+			["id" => $templateId]
+		);
+
+		return $rst;
+	}
+	/**
+	 * 主页上的
+	 */
+	public function &atHome($options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+
+		$q = [
+			$fields,
+			'xxt_shop_matter',
+			["push_home" => 'Y'],
+		];
+
+		$items = $this->query_objs_ss($q);
+
+		return $items;
+	}
+	/**
+	 * 站点主页上的
+	 */
+	public function &atSiteHome($siteId, $options = []) {
+		$fields = isset($options['fields']) ? $options['fields'] : '*';
+
+		$q = [
+			$fields,
+			'xxt_shop_matter',
+			["siteid" => $siteId, 'visible_scope' => 'A'],
+		];
+
+		$items = $this->query_objs_ss($q);
+
+		return $items;
 	}
 }

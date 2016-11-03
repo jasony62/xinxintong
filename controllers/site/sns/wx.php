@@ -372,11 +372,11 @@ class wx extends \member_base {
 	private function _voiceCall($call) {
 		$data = $call['data'];
 		if (!empty($data[2])) {
-			$this->model('sns\reply\text', $call, $data[2], false);
+			$r = $this->model('sns\reply\text', $call, $data[2], false);
 		} else {
-			$this->model('sns\reply\text', $call, '未开通语音识别接口', false);
+			$r = $this->model('sns\reply\text', $call, '未开通语音识别接口', false);
 		}
-		$tr->exec();
+		$r->exec();
 	}
 	/**
 	 * menu call
@@ -413,7 +413,7 @@ class wx extends \member_base {
 				// 临时二维码，用完后就删除
 				$this->model()->delete('xxt_call_qrcode_wx', "id=$reply->id");
 			}
-			$r = $this->model('sns\reply\\' . $reply->matter_type, $call, $reply->matter_id);
+			$r = $this->model('sns\reply\\' . $reply->matter_type, $call, $reply->matter_id, $reply->params);
 			$r->exec();
 		}
 	}

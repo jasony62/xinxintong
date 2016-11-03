@@ -23,7 +23,7 @@ define(['require'], function(require) {
             service: $provide.service,
         };
         $rp.when('/rest/pl/fe/site/setting/basic', new RouteParam('basic'))
-            .when('/rest/pl/fe/site/setting/page', new RouteParam('page'))
+            .when('/rest/pl/fe/site/setting/page', new RouteParam('page', true))
             .when('/rest/pl/fe/site/setting/mschema', new RouteParam('mschema'))
             .when('/rest/pl/fe/site/setting/admin', new RouteParam('admin', true))
             .when('/rest/pl/fe/site/setting/coin', new RouteParam('coin'))
@@ -78,6 +78,14 @@ define(['require'], function(require) {
             p[name] = $scope.site[name];
             http2.post('/rest/pl/fe/site/update?site=' + $scope.siteId, p, function(rsp) {});
         };
+        $scope.remove = function() {
+            if (window.confirm('确定删除站点？')) {
+                var url = '/rest/pl/fe/site/remove?site=' + $scope.siteId;
+                http2.get(url, function(rsp) {
+                    location.href = '/rest/pl/fe';
+                });
+            }
+        };
         $scope.setPic = function() {
             var options = {
                 callback: function(url) {
@@ -122,8 +130,18 @@ define(['require'], function(require) {
                 }
             }
         };
+        $scope.openPage = function(page) {
+            var name = $scope.site[page + '_page_name'];
+            if (name) {
+                location.href = '/rest/site/home?site=' + $scope.siteId;
+            }
+        };
         $scope.gotoSns = function(snsName) {
             location.href = '/rest/pl/fe/site/sns/' + snsName + '?site=' + $scope.siteId;
+        };
+        $scope.applyToHome = function() {
+            var url = '/rest/pl/fe/site/applyToHome?site=' + $scope.siteId;
+            http2.get(url, function(rsp) {});
         };
     }]);
     ngApp.controller('ctrlBasic', ['$scope', function($scope) {
@@ -132,7 +150,6 @@ define(['require'], function(require) {
         })();
         $scope.homeURL = 'http://' + location.host + '/rest/site/fe?site=' + $scope.siteId;
     }]);
-    ngApp.controller('ctrlPage', ['$scope', function($scope) {}]);
     ngApp.controller('ctrlCoin', ['$scope', function($scope) {}]);
     ngApp.controller('ctrlMschema', ['$scope', 'http2', '$http', '$uibModal', 'MemberSchema', function($scope, http2, $http, $uibModal, MemberSchema) {
         var service = {

@@ -35,18 +35,7 @@ class event_model extends \TMS_MODEL {
 			return false;
 		}
 	}
-	/**
-	 * 根据scene_id获得响应素材
-	 */
-	public function &qrcode_call($siteId, $scene_id) {
-		$q[] = 'id,scene_id,expire_at,matter_type,matter_id,params';
-		$q[] = 'xxt_call_qrcode_qy';
-		$q[] = "siteid='$siteId' and scene_id=$scene_id";
-
-		$cr = $this->query_obj_ss($q);
-
-		return $cr;
-	}
+	
 	/**
 	 * 查找文本消息回复
 	 *

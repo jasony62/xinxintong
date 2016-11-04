@@ -8,7 +8,6 @@ $sql = "create table if not exists xxt_site_qyfan(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",openid varchar(255) not null";
-// $sql .= ",groupid int default 0"; // 缺省属于未分组
 $sql .= ",subscribe_at int not null";
 $sql .= ",unsubscribe_at int not null default 0";
 $sql .= ",sync_at int not null"; // 与公众号最后一次同步时间
@@ -25,7 +24,6 @@ $sql .= ",city varchar(255) not null default ''";
 $sql .= ",province varchar(255) not null default ''";
 $sql .= ",country varchar(255) not null default ''";
 $sql .= ",forbidden char(1) not null default 'N'";
-$sql .= ",userid varchar(40) not null default ''"; // 对应的站点用户帐号（should remove）
 $sql .= ",primary key(id)";
 $sql .= ")ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

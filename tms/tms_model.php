@@ -290,7 +290,6 @@ class TMS_MODEL {
 	public static function toJson($obj) {
 		$obj = self::urlencodeObj($obj);
 		$json = urldecode(json_encode($obj));
-
 		return $json;
 	}
 	/**
@@ -331,10 +330,9 @@ class TMS_MODEL {
 		foreach ($obj as $k => $v) {
 			$newObj = new \stdClass;
 			foreach ($obj as $k => $v) {
-				$v = preg_replace('/_#_/', '\n', $v);
+				$v = preg_replace('/_#_/', '<br/>', $v);
 				$v = preg_replace('/_&_/', '\r', $v);
 				$v = preg_replace('/_@_/', '\t', $v);
-
 				$newObj->{urlencode($k)} = self::toCode($v);
 			}
 		}

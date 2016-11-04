@@ -31,22 +31,10 @@ class shop extends \pl\fe\base {
 		$model = $this->model();
 		$q = [
 			's.*',
-			"xxt_shop_matter s",
+			"xxt_template s",
 			["s.matter_type" => $matterType, "s.matter_id" => $matterId],
 		];
-		if ($item = $model->query_obj_ss($q)) {
-			if ($item->visible_scope === 'S') {
-				$modelAcl = $this->model('template\acl');
-				$item->acls = $modelAcl->byMatter($matterId, $matterType);
-				if (!empty($item->acls)) {
-					$modelAcnt = $this->model('account');
-					foreach ($item->acls as &$acl) {
-						$account = $modelAcnt->byId($acl->receiver, ['fields' => 'nickname']);
-						$acl->account = $account;
-					}
-				}
-			}
-		}
+		$item = $model->query_obj_ss($q);
 
 		return new \ResponseData($item);
 	}
@@ -67,24 +55,13 @@ class shop extends \pl\fe\base {
 
 		$q = [
 			's.*',
-			"xxt_shop_matter s",
+			"xxt_template s",
 			'',
 		];
 		if (!empty($scenario)) {
 			$q[2] .= "s.scenario='$scenario' and ";
 		}
-		if ($scope === 'U') {
-			$q[2] .= "s.matter_type='$matterType' and creater='{$loginUser->id}'";
-		} else if ($scope === 'S') {
-			// 指定分享的
-			$where = "s.matter_type='$matterType' and s.visible_scope='S'";
-			$where .= " and exists(select 1 from xxt_shop_matter_acl acl";
-			$where .= " where acl.shop_matter_id=s.id and acl.receiver='{$loginUser->id}'";
-			$where .= ")";
-			$q[2] .= $where;
-		} else {
-			$q[2] .= "s.matter_type='$matterType' and visible_scope='A'";
-		}
+		$q[2] .= "s.matter_type='$matterType'";
 		$q2 = [
 			'o' => 'put_at desc',
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
@@ -110,8 +87,9 @@ class shop extends \pl\fe\base {
 		}
 
 		$matter = $this->getPostJson();
+		$site = $this->model('site')->byId($site, ['fields', 'id,name']);
 
-		$item = $this->model('template\shop')->putMatter($site, $loginUser, $matter);
+		$item = $this->model('matter\template')->putMatter($site, $loginUser, $matter);
 
 		return new \ResponseData($item);
 	}
@@ -125,7 +103,7 @@ class shop extends \pl\fe\base {
 
 		$nv = $this->getPostJson();
 
-		$rst = $this->model()->update('xxt_shop_matter', $nv, "id='$id'");
+		$rst = $this->model()->update('xxt_template', $nv, "id='$id'");
 
 		return new \ResponseData($rst);
 	}

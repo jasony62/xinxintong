@@ -290,6 +290,7 @@ class TMS_MODEL {
 	public static function toJson($obj) {
 		$obj = self::urlencodeObj($obj);
 		$json = urldecode(json_encode($obj));
+
 		return $json;
 	}
 }

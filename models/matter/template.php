@@ -1,9 +1,9 @@
 <?php
-namespace template;
+namespace matter;
 /**
- * 应用模板商店
+ *
  */
-class shop_model extends \TMS_MODEL {
+class template_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
@@ -12,7 +12,7 @@ class shop_model extends \TMS_MODEL {
 
 		$q = [
 			$fields,
-			'xxt_shop_matter',
+			'xxt_template',
 			["id" => $id],
 		];
 
@@ -28,7 +28,7 @@ class shop_model extends \TMS_MODEL {
 
 		$q = [
 			$fields,
-			'xxt_shop_matter',
+			'xxt_template',
 			["matter_id" => $matterId, "matter_type" => $matterType],
 		];
 
@@ -41,7 +41,7 @@ class shop_model extends \TMS_MODEL {
 	 * @param string $siteId 来源于哪个站点
 	 * @param object $matter 共享的素材
 	 */
-	public function putMatter($siteId, $account, $matter, $options = array()) {
+	public function putMatter(&$site, &$account, &$matter, $options = array()) {
 		if (isset($matter->id) && $matter->id) {
 			// 更新模板
 			$current = time();
@@ -53,9 +53,9 @@ class shop_model extends \TMS_MODEL {
 				'visible_scope' => $matter->visible_scope,
 			];
 			$this->update(
-				'xxt_shop_matter',
+				'xxt_template',
 				$item,
-				["siteid" => $siteId, "matter_type" => $matter->matter_type, "matter_id" => $matter->matter_id]
+				["siteid" => $site->id, "matter_type" => $matter->matter_type, "matter_id" => $matter->matter_id]
 			);
 		} else {
 			// 新建模板
@@ -65,7 +65,8 @@ class shop_model extends \TMS_MODEL {
 				'creater' => $account->id,
 				'creater_name' => $account->name,
 				'put_at' => $current,
-				'siteid' => $siteId,
+				'siteid' => $site->id,
+				'site_name' => $site->name,
 				'matter_type' => $matter->matter_type,
 				'matter_id' => $matter->matter_id,
 				'scenario' => empty($matter->scenario) ? '' : $matter->scenario,
@@ -75,16 +76,16 @@ class shop_model extends \TMS_MODEL {
 				'visible_scope' => $matter->visible_scope,
 			];
 
-			$id = $this->insert('xxt_shop_matter', $item, true);
+			$id = $this->insert('xxt_template', $item, true);
 			$item = $this->byId($id);
 
 			// 添加模板接收人
-			if (!empty($matter->acls)) {
-				$modelAcl = \TMS_APP::M('template\acl');
-				foreach ($matter->acls as $acl) {
-					$acl = $modelAcl->add($account, $item, $acl);
-				}
-			}
+			// if (!empty($matter->acls)) {
+			// 	$modelAcl = \TMS_APP::M('template\acl');
+			// 	foreach ($matter->acls as $acl) {
+			// 		$acl = $modelAcl->add($account, $item, $acl);
+			// 	}
+			// }
 		}
 
 		return $item;
@@ -94,7 +95,7 @@ class shop_model extends \TMS_MODEL {
 	 */
 	public function pushHome($templateId) {
 		$rst = $this->update(
-			'xxt_shop_matter',
+			'xxt_template',
 			['push_home' => 'Y'],
 			["id" => $templateId]
 		);
@@ -106,7 +107,7 @@ class shop_model extends \TMS_MODEL {
 	 */
 	public function pullHome($templateId) {
 		$rst = $this->update(
-			'xxt_shop_matter',
+			'xxt_template',
 			['push_home' => 'N'],
 			["id" => $templateId]
 		);
@@ -121,7 +122,7 @@ class shop_model extends \TMS_MODEL {
 
 		$q = [
 			$fields,
-			'xxt_shop_matter',
+			'xxt_template',
 			["push_home" => 'Y'],
 		];
 
@@ -137,7 +138,7 @@ class shop_model extends \TMS_MODEL {
 
 		$q = [
 			$fields,
-			'xxt_shop_matter',
+			'xxt_template',
 			["siteid" => $siteId, 'visible_scope' => 'A'],
 		];
 

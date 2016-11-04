@@ -196,8 +196,17 @@ class record_model extends \TMS_MODEL {
 			"enroll_key='$ek'",
 		];
 		if (($record = $this->query_obj_ss($q)) && $fields === '*') {
-			//$record->data = json_decode($record->data);
-			$record->data=\TMS_MODEL::toObj($record->data);
+			/* 获得填写的登记数据 */
+				$qc = array(
+					'name,value',
+					'xxt_enroll_record_data',
+					"enroll_key='$ek'",
+				);
+				$cds = $this->query_objs_ss($qc);
+				$record->data = new \stdClass;
+				foreach ($cds as $cd) {
+					$record->data->{$cd->name} = $cd->value;
+				}
 		}
 
 		return $record;
@@ -583,7 +592,17 @@ class record_model extends \TMS_MODEL {
 
 		if ($fields === '*') {
 			foreach ($records as &$record) {
-				$record->data = \TMS_MODEL::toObj($record->data);
+				/* 获得填写的登记数据 */
+				$qc = array(
+					'name,value',
+					'xxt_enroll_record_data',
+					"enroll_key='$record->enroll_key'",
+				);
+				$cds = $this->query_objs_ss($qc);
+				$record->data = new \stdClass;
+				foreach ($cds as $cd) {
+					$record->data->{$cd->name} = $cd->value;
+				}
 			}
 		}
 

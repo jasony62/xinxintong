@@ -9,11 +9,15 @@ class report extends \site\op\base {
 	/**
 	 * 返回视图
 	 */
-	public function index_action() {
+	public function index_action($app) {
 		if (!$this->checkAccessToken()) {
 			header('HTTP/1.0 500 parameter error:accessToken is invalid.');
 			die('没有获得有效访问令牌！');
 		}
+
+		$app = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
+
+		\TPL::assign('title', $app->title);
 		\TPL::output('/site/op/matter/enroll/report');
 		exit;
 	}

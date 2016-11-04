@@ -262,6 +262,16 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 			var bust = (new Date()).getMinutes();
 			return '/views/default/pl/fe/matter/enroll/schema/main.html?_=' + bust;
 		};
+		$scope.assocAppName = function(appId) {
+			var assocApp;
+			if ($scope.app.enrollApp && $scope.app.enrollApp.id === appId) {
+				return $scope.app.enrollApp.title;
+			} else if ($scope.app.groupApp && $scope.app.groupApp.id === appId) {
+				return $scope.app.groupApp.title;
+			} else {
+				return '';
+			}
+		};
 		$scope.closePopover = function() {
 			$($scope.popover.target).trigger('hide');
 			$scope.popover = {};

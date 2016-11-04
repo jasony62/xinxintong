@@ -75,7 +75,7 @@ class main extends \pl\fe\matter\base {
 		} else {
 			$q[2] .= " and siteid='" . $modelApp->escape($site) . "'";
 		}
-		if (!empty($scenario)) {
+		if ($scenario !== null) {
 			$q[2] .= " and scenario='" . $modelApp->escape($scenario) . "'";
 		}
 		$q2['o'] = 'a.modify_at desc';

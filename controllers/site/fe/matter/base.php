@@ -169,7 +169,7 @@ class base extends \site\fe\base {
 		}
 		//如果是企业号的用户访问
 		if (empty($members)) {
-			//根据userid获取xxt_site_account表中的qy_openid如果有则说明是企业号的用户，为内置认证用户
+			//根据userid获取xxt_site_account表中的qy_openid查询粉丝表如果有则说明是企业号的用户，为内置认证用户
 			$q = array(
 						'qy_openid',
 						'xxt_site_account',
@@ -181,7 +181,7 @@ class base extends \site\fe\base {
 				$p = array(
 							'siteid,openid,nickname,mobile,email,sync_at',
 							'xxt_site_qyfan',
-							"siteid='$siteId' and openid='$userOpenid->qy_openid'",
+							"siteid='$siteId' and openid='$userOpenid->qy_openid' and subscribe_at > 0 and unsubscribe_at = 0 ",
 						); 
 				$qySnsUser = $this->model()->query_obj_ss($p);
 				if($qySnsUser){

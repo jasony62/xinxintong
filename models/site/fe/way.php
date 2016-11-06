@@ -13,13 +13,11 @@ class way_model extends \TMS_MODEL {
 		if (!empty($auth)) {
 			/* 有身份用户首次访问，若已经有绑定的站点用户，获取站点用户；否则，创建持久化的站点用户，并绑定关系 */
 			foreach ($auth['sns'] as $snsName => $snsUser) {
-				if ($snsName === 'qy') {
-					$cookieUser = $this->_bindSiteSnsQyUser($siteId, $snsName, $snsUser, $cookieUser);
-				}else{
-					$modelSns = \TMS_App::M('sns\\' . $snsName);
-					$siteSns = $modelSns->bySite($siteId);
-					$cookieUser = $this->_bindSiteSnsUser($siteId, $snsName, $snsUser, $cookieUser);
-				}
+			
+				$modelSns = \TMS_App::M('sns\\' . $snsName);
+				$siteSns = $modelSns->bySite($siteId);
+				$cookieUser = $this->_bindSiteSnsUser($siteId, $snsName, $snsUser, $cookieUser);
+				
 			}
 		} elseif ($cookieUser === false) {
 			/* 无身份用户首次访问，创建非持久化的站点用户 */
@@ -72,7 +70,7 @@ class way_model extends \TMS_MODEL {
 					if ($siteUser === false) {
 						$siteUser = $modelSiteUser->blank($siteId, true, ['uid' => $cookieUser->uid, 'ufrom' => $snsName, $snsName . '_openid' => $dbSnsUser->openid]);
 					}
-				} else if ($dbSnsUser->openid !== $siteUser->{$snsName . '_openid'}) {
+				} else if ($dbSnsUser->openid !== $siteUser->{$snsName . '_openid'}) {//如果时企业号是否也可以采用这样的方式？？（因为验证内置认证的方式不一样是可以这样的）
 					$siteUserBefore = $modelSiteUser->byOpenid($siteId, $snsName, $dbSnsUser->openid);
 					if ($siteUserBefore) {
 						// 记录站点用户关联的站点用户
@@ -103,7 +101,9 @@ class way_model extends \TMS_MODEL {
 			isset($snsUser->city) && $options['city'] = $snsUser->city;
 			if ($cookieUser === false) {
 				$siteUser = $modelSiteUser->blank($siteId, true, ['ufrom' => $snsName, $snsName . '_openid' => $snsUser->openid]);
-				$dbSnsUser = $modelSnsUser->blank($snsSiteId, $snsUser->openid, true, $options);
+				if($snsName != 'qy'){
+					$dbSnsUser = $modelSnsUser->blank($snsSiteId, $snsUser->openid, true, $options);
+				}
 				// 新的cookie用户
 				$cookieUser = new \stdClass;
 			} else {
@@ -112,115 +112,18 @@ class way_model extends \TMS_MODEL {
 					// 没有站点用户创建个新的
 					$siteUser = $modelSiteUser->blank($siteId, true, ['ufrom' => $snsName, $snsName . '_openid' => $snsUser->openid]);
 				}
-				// 保存社交账号信息
-				$dbSnsUser = $modelSnsUser->blank($snsSiteId, $snsUser->openid, true, $options);
-				// 清空不必要的数据，减小cookie尺寸
-				unset($dbSnsUser->siteid);
-				unset($dbSnsUser->subscribe_at);
-				unset($dbSnsUser->sync_at);
-			}
-		}
-
-		// 更新cookie信息
-		$cookieUser->_ver = 1;
-		$cookieUser->uid = $siteUser->uid;
-		$cookieUser->expire = time() + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);
-		!isset($cookieUser->sns) && $cookieUser->sns = new \stdClass;
-		$cookieUser->nickname = $dbSnsUser->nickname;
-		$cookieUser->sns->{$snsName} = $dbSnsUser;
-
-		return $cookieUser;
-	}
-	/**
-	 * 企业号绑定站点第三方认证用户
-	 */
-	private function _bindSiteSnsQyUser($siteId, $snsName, $snsUser, $cookieUser) {
-		$modelSns = \TMS_APP::M('sns\\' . $snsName);
-		$snsConfig = $modelSns->bySite($siteId);
-		if ($snsConfig === false || $snsConfig->joined !== 'Y') {
-			$snsSiteId = 'platform';
-		} else {
-			$snsSiteId = $siteId;
-		}
-		//
-		$modelSiteUser = \TMS_App::M('site\user\account');
-		$modelSnsUser = \TMS_App::M('sns\\' . $snsName . '\fan');
-
-		// 当前用户的社交账号信息
-		$dbSnsUser = $modelSnsUser->byOpenid($snsSiteId, $snsUser->openid, 'openid,nickname,headimgurl,sex,country,province,city,userid');
-		//（已经保存过信息）
-		if ($dbSnsUser) {
-			//没有从社交账号信息中获取到userid(有可能是不是关注用户或者未同步)
-			if(!isset($dbSnsUser->userid) || $dbSnsUser->userid ==''){
-				//没有从本地还缓存中有用户信息
-				if ($cookieUser === false){
-					//根据openid查询站点表
-					$siteUser = $modelSiteUser->byOpenid($siteId, $snsName, $dbSnsUser->openid);
-					//站点表中没有访问用户信息时创建
-					if ($siteUser === false) {
-						$siteUser = $modelSiteUser->blank($siteId, true, ['ufrom' => $snsName, $snsName . '_openid' => $dbSnsUser->openid]);
-					}
-
-					//修改社交账号中的userid
-					$upSnsUser = $modelSnsUser->update(
-							'xxt_site_qyfan',
-							['userid' => $siteUser->uid],
-							"openid='{$dbSnsUser->openid}'"
-					);
-
-					// 新的cookie用户
-					$cookieUser = new \stdClass;
-				
-				}else{
-					// 当前站点用户是否是一个已经持久化的用户，如果不是就创建一个持久化的站点用户
-					$siteUser = $modelSiteUser->byId($cookieUser->uid);
-					if ($siteUser === false) {
-						// 当前关注用户是否已经对应的站点用户？如果不存在就创建新的站点用户
-						$siteUser = $modelSiteUser->byOpenid($siteId, $snsName, $dbSnsUser->openid);
-						if ($siteUser === false) {
-							$siteUser = $modelSiteUser->blank($siteId, true, ['ufrom' => $snsName, $snsName . '_openid' => $dbSnsUser->openid]);							
-						}
-						//修改社交账号中的userid
-						$upSnsUser = $modelSnsUser->update(
-								'xxt_site_qyfan',
-								['userid' => $siteUser->uid],
-								"openid='{$dbSnsUser->openid}'"
-						);
-					} else if ($dbSnsUser->openid === $siteUser->{$snsName . '_openid'}) {
-						//修改社交账号中的userid
-						$upSnsUser = $modelSnsUser->update(
-								'xxt_site_qyfan',
-								['userid' => $siteUser->uid],
-								"openid='{$dbSnsUser->openid}'"
-						);
-					}
+				if($snsName !== 'qy'){
+					// 保存社交账号信息
+					$dbSnsUser = $modelSnsUser->blank($snsSiteId, $snsUser->openid, true, $options);
 				}
-			} else {
-				//如果粉丝表中有userid，那么站点表account中一定有对应的userid，那么直接根据userid查询用户信息
-				$siteUser = $modelSiteUser->byId($dbSnsUser->userid);
+				// 清空不必要的数据，减小cookie尺寸
+				if(isset($dbSnsUser)){
+					unset($dbSnsUser->siteid);
+					unset($dbSnsUser->subscribe_at);
+					unset($dbSnsUser->sync_at);
+				}
 			}
-		}else{
-			/**如果qyfan表中没有用户时到底要不要创建用户到qyfan中
-			*如果fan中没有用户数据也就是不是通过同步过来的，先根据openid查是否已经有了
-			*创建到站点表不创建到fans
-			*/
-			$siteUser = $modelSiteUser->byOpenid($siteId, $snsName, $snsUser->openid);
-			if($siteUser === false){
-				// 不是关注用户，建一个空的关注用户
-				if ($cookieUser === false) {
-					$siteUser = $modelSiteUser->blank($siteId, true, ['ufrom' => $snsName, $snsName . '_openid' => $snsUser->openid]);
-					// 新的cookie用户
-					$cookieUser = new \stdClass;
-				} else {
-					$siteUser = $modelSiteUser->byId($cookieUser->uid);
-					if ($siteUser === false) {
-						// 没有站点用户创建个新的
-						$siteUser = $modelSiteUser->blank($siteId, true, ['ufrom' => $snsName, $snsName . '_openid' => $snsUser->openid]);
-					}
-				}	
-			}
-
-		}	
+		}
 
 		// 更新cookie信息
 		$cookieUser->_ver = 1;
@@ -232,6 +135,7 @@ class way_model extends \TMS_MODEL {
 
 		return $cookieUser;
 	}
+
 	/**
 	 * 绑定自定义用户
 	 */

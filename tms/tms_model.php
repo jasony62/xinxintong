@@ -296,7 +296,7 @@ class TMS_MODEL {
 	/**
 	 * 从数据库取json字符串转对象
 	 */
-	public function strConvert($data)
+	public static function strConvert($data)
 	{
 		if(is_string($data)){
 			$data=preg_replace("/[\r\n]/", "^", $data);

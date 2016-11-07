@@ -14,24 +14,13 @@ class shop extends \pl\fe\base {
 		return $rule_action;
 	}
 	/**
-	 * 注册用户模板管理界面
-	 */
-	public function index_action($site) {
-		\TPL::output('/pl/fe/template/main');
-		exit;
-	}
-	/**
 	 *
 	 */
 	public function get_action($matterType, $matterId) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
 		$model = $this->model();
 		$q = [
-			's.*',
-			"xxt_template s",
+			'*',
+			"xxt_template",
 			["s.matter_type" => $matterType, "s.matter_id" => $matterId],
 		];
 		$item = $model->query_obj_ss($q);
@@ -42,69 +31,79 @@ class shop extends \pl\fe\base {
 	 * 获得模板列表
 	 *
 	 * @param string $matterType
+	 * @param string $scenario
+	 * @param string $site 在哪个站点中查看模版
 	 * @param int $page
 	 * @param int $size
+	 *
 	 */
-	public function list_action($matterType, $scenario = null, $scope = 'A', $page = 1, $size = 20) {
-		if (false === ($loginUser = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$model = $this->model();
-		$matterType = $model->escape($matterType);
+	public function list_action($matterType, $scenario = null, $site = null, $page = 1, $size = 20) {
+		$modelTmpl = $this->model('matter\template');
+		$matterType = $modelTmpl->escape($matterType);
 
 		$q = [
-			's.*',
-			"xxt_template s",
-			'',
+			'*',
+			"xxt_template",
+			"visible_scope='P' and matter_type='$matterType'",
 		];
 		if (!empty($scenario)) {
-			$q[2] .= "s.scenario='$scenario' and ";
+			$q[2] .= " and s.scenario='$scenario'";
 		}
-		$q[2] .= "s.matter_type='$matterType'";
 		$q2 = [
 			'o' => 'put_at desc',
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
 		];
-		if ($items = $model->query_objs_ss($q, $q2)) {
+
+		if ($templates = $modelTmpl->query_objs_ss($q, $q2)) {
 			$q[0] = "count(*)";
-			$total = $model->query_val_ss($q);
+			$total = $modelTmpl->query_val_ss($q);
+			if (!empty($site)) {
+				/* 叠加是否已被站点收藏的信息 */
+				foreach ($templates as &$template) {
+					if ($modelTmpl->isFavorBySite($template, $site)) {
+						$template->_favored = 'Y';
+					}
+				}
+			}
 		} else {
 			$total = 0;
 		}
 
-		return new \ResponseData(['templates' => $items, 'total' => $total]);
+		return new \ResponseData(['templates' => $templates, 'total' => $total]);
 	}
 	/**
-	 * 素材上架
+	 * 当前用户没有收藏过指定模板的站点
 	 *
-	 * @param string $site
-	 * @param string $scope [U|A]
+	 * @param int $template
 	 */
-	public function put_action($site) {
-		if (false === ($loginUser = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$matter = $this->getPostJson();
-		$site = $this->model('site')->byId($site, ['fields', 'id,name']);
-
-		$item = $this->model('matter\template')->putMatter($site, $loginUser, $matter);
-
-		return new \ResponseData($item);
-	}
-	/**
-	 * @todo 如何检查当前用户是否有权限？
-	 */
-	public function update_action($id) {
+	public function siteCanFavor_action($template) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$nv = $this->getPostJson();
+		$modelTmpl = $this->model('matter\template');
+		if (false === ($template = $modelTmpl->byId($template))) {
+			return new \ResponseError('数据不存在');
+		}
+		$q = [
+			'id,creater_name,create_at,name',
+			'xxt_site s',
+			"(creater='{$user->id}' or exists(select 1 from xxt_site_admin sa where sa.siteid=s.id and uid='{$user->id}')) and state=1",
+		];
+		$q2 = ['o' => 'create_at desc'];
 
-		$rst = $this->model()->update('xxt_template', $nv, "id='$id'");
+		$targets = []; // 符合条件的站点
+		$sites = $this->model()->query_objs_ss($q, $q2);
+		foreach ($sites as &$site) {
+			if ($site->id === $template->siteid) {
+				continue;
+			}
+			if ($modelTmpl->isFavorBySite($template, $site->id)) {
+				$site->_favored = 'Y';
+			}
+			$targets[] = $site;
+		}
 
-		return new \ResponseData($rst);
+		return new \ResponseData($targets);
 	}
 }

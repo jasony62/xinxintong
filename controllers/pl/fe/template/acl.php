@@ -61,7 +61,7 @@ class acl extends \pl\fe\base {
 		$acl->receiver = $account->uid;
 		$acl->receiver_label = $account->email;
 
-		$modelShop = $this->model('template\shop');
+		$modelShop = $this->model('matter\template');
 		if ($shopMatter = $modelShop->getMatter($matterId, $matterType)) {
 			$acl = $modelAcl->add($loginUser, $shopMatter, $acl);
 		}

@@ -144,7 +144,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
         var deferred;
         deferred = $q.defer();
         $uibModal.open({
-            templateUrl: '/static/template/templateShare.html?_=6',
+            templateUrl: '/static/template/templateShare.html?_=7',
             controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                 $scope.data = {};
                 $scope.params = {};

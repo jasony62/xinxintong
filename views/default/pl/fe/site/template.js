@@ -3,7 +3,7 @@ define(['require'], function() {
 	var ngApp = angular.module('app', ['ngRoute', 'ui.tms', 'ui.xxt']);
 	ngApp.config(['$routeProvider', '$locationProvider', '$controllerProvider', function($routeProvider, $locationProvider, $controllerProvider) {
 		var RouteParam = function(name) {
-			var baseURL = '/views/default/pl/fe/template/';
+			var baseURL = '/views/default/pl/fe/site/template/';
 			this.templateUrl = baseURL + name + '.html?_=' + (new Date() * 1);
 			this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
 			this.resolve = {

@@ -44,9 +44,9 @@
                     <div class='put_at' ng-bind="t.put_at*1000|date:'yyyy-MM-dd'"></div>
                 </div>
                 <div class='actions'>
-                    <a class='btn btn-sm btn-default' href='/rest/pl/fe/template/shop/show?site={{siteId}}&template={{t.id}}'>预览</a>
-                    <button class='btn btn-sm btn-success' ng-click='collect(t)'>收藏</button>
-                    <button class='btn btn-sm btn-success' ng-click='createBy(t)'>使用</button>
+                    <a class='btn btn-sm btn-default' href='/rest/pl/fe/template/shop/show?site={{siteId}}&template={{t.id}}'>详情</a>
+                    <button class='btn btn-sm btn-success' ng-click="favorTemplate(t)">收藏</button>
+                    <button class='btn btn-sm btn-success' ng-click="useTemplate(t)">使用</button>
                 </div>
             </div>
         </div>

@@ -1,29 +1,18 @@
 define(["angular", "xxt-page"], function(angular, codeAssembler) {
     'use strict';
-    var ngApp = angular.module('home', ['ui.bootstrap', 'ui.tms']);
-    ngApp.config(['$locationProvider', '$controllerProvider', function($lp, $cp) {
+    var ngApp = angular.module('tmpl', ['ui.bootstrap', 'ui.tms']);
+    ngApp.config(['$locationProvider', function($lp) {
         $lp.html5Mode(true);
-        ngApp.provider = {
-            controller: $cp.register
-        };
     }]);
-    ngApp.controller('ctrlMain', ['$scope', '$q', '$uibModal', 'http2', function($scope, $q, $uibModal, http2) {
-        var platform, pages = {};
-        $scope.subView = '';
-        $scope.shiftPage = function(subView) {
-            if ($scope.subView === subView) return;
-            if (pages[subView] === undefined) {
-                codeAssembler.loadCode(ngApp, platform[subView + '_page']).then(function() {
-                    pages[subView] = platform[subView + '_page'];
-                    $scope.page = pages[subView];
-                    $scope.subView = subView;
-                });
-            } else {
-                $scope.page = pages[subView];
-                $scope.subView = subView;
-            }
+    ngApp.controller('ctrlMain', ['$scope', '$location', '$uibModal', 'http2', function($scope, $location, $uibModal, http2) {
+        var template, templateId;
+        $scope.templateId = templateId = $location.search().template;
+        $scope.contribute = function() {
+            var url;
+            url = '/rest/pl/fe/site/template/pushHome?template=' + templateId;
+            http2.get(url, function(rsp) {});
         };
-        $scope.favorTemplate = function(template) {
+        $scope.favorTemplate = function() {
             if ($scope.isLogin === 'N') {
                 location.href = '/rest/pl/fe/user/login';
             } else {
@@ -63,7 +52,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
                 });
             }
         };
-        $scope.useTemplate = function(template) {
+        $scope.useTemplate = function() {
             if ($scope.isLogin === 'N') {
                 location.href = '/rest/pl/fe/user/login';
             } else {
@@ -100,22 +89,51 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
                 });
             }
         };
-        http2.get('/rest/home/get', function(rsp) {
-            platform = rsp.data.platform;
-            if (platform.home_page === false) {
-                location.href = '/rest/pl/fe';
-            } else {
-                http2.get('/rest/pl/fe/user/auth/isLogin', function(rsp) {
-                    $scope.isLogin = rsp.data;
-                });
-                $scope.platform = platform;
-                $scope.shiftPage('home');
-            }
+        http2.get('/rest/pl/fe/user/auth/isLogin', function(rsp) {
+            $scope.isLogin = rsp.data;
         });
+        http2.get('/rest/pl/fe/site/template/get?template=' + $scope.templateId, function(rsp) {
+            $scope.template = template = rsp.data;
+        });
+    }]);
+    ngApp.controller('ctrlPreview', ['$scope', 'http2', function($scope, http2) {
+        var previewURL,
+            params = {
+                pageAt: -1,
+                hasPrev: false,
+                hasNext: false,
+                openAt: 'ontime'
+            };
+        $scope.nextPage = function() {
+            params.pageAt++;
+            params.hasPrev = true;
+            params.hasNext = params.pageAt < $scope.app.pages.length - 1;
+        };
+        $scope.prevPage = function() {
+            params.pageAt--;
+            params.hasNext = true;
+            params.hasPrev = params.pageAt > 0;
+        };
+        $scope.$watch('template', function(template) {
+            if (template === undefined) return;
+            $scope.previewURL = previewURL = '/rest/site/fe/matter/enroll/preview?site=' + template.siteid + '&app=' + template.matter_id + '&start=Y';
+            http2.get('/rest/site/fe/matter/enroll/get?app=' + template.matter_id + '&site=' + template.siteid, function(rsp) {
+                $scope.app = rsp.data.app;
+                params.pageAt = 0;
+                params.hasPrev = false;
+                params.hasNext = !!$scope.app.pages.length;
+                $scope.params = params;
+            });
+        });
+        $scope.$watch('params', function(params) {
+            if (params) {
+                $scope.previewURL = previewURL + '&openAt=' + params.openAt + '&page=' + $scope.app.pages[params.pageAt].name;
+            }
+        }, true);
     }]);
 
     /*bootstrap*/
-    angular._lazyLoadModule('home');
+    angular._lazyLoadModule('tmpl');
 
     return ngApp;
 });

@@ -17,7 +17,7 @@ class recommend extends \pl\be\base {
 	 * 加入到主页
 	 */
 	public function pushTemplate_action($template) {
-		$modelShop = $this->model('template\shop');
+		$modelShop = $this->model('matter\template');
 
 		$rst = $modelShop->pushHome($template);
 
@@ -27,7 +27,7 @@ class recommend extends \pl\be\base {
 	 * 从主页撤销
 	 */
 	public function pullTemplate_action($template) {
-		$modelShop = $this->model('template\shop');
+		$modelShop = $this->model('matter\template');
 
 		$rst = $modelShop->pullHome($template);
 

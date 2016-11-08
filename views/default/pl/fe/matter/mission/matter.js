@@ -93,11 +93,12 @@ define(['frame'], function(ngApp) {
 				location.href = '/rest/pl/fe/matter/group?site=' + $scope.editing.siteid + '&id=' + rsp.data.id;
 			});
 		};
-		$scope.addMatter = function() {
-			if (/voting|registration/.test($scope.matterType)) {
-				$scope.addEnroll($scope.matterType);
+		$scope.addMatter = function(matterType) {
+			$('body').click();
+			if (/voting|registration/.test(matterType)) {
+				$scope.addEnroll(matterType);
 			} else {
-				$scope['add' + $scope.matterType[0].toUpperCase() + $scope.matterType.substr(1)]();
+				$scope['add' + matterType[0].toUpperCase() + matterType.substr(1)]();
 			}
 		};
 		$scope.open = function(matter) {
@@ -190,14 +191,17 @@ define(['frame'], function(ngApp) {
 			} else {
 				var scenario;
 				url = '/rest/pl/fe/matter/';
-				if (/registration|voting/.test(matterType)) {
+				if ('enroll' === matterType) {
+					url += 'enroll';
+					scenario = '';
+				} else if (/registration|voting/.test(matterType)) {
 					url += 'enroll'
 					scenario = $scope.matterType;
 				} else {
 					url += matterType;
 				}
 				url += '/list?mission=' + $scope.id;
-				scenario && (url += '&scenario=' + scenario);
+				scenario !== undefined && (url += '&scenario=' + scenario);
 				url += '&_=' + (new Date() * 1);
 				http2.get(url, function(rsp) {
 					$scope.indicators = [];

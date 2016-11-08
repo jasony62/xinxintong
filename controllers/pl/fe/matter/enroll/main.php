@@ -75,7 +75,7 @@ class main extends \pl\fe\matter\base {
 		} else {
 			$q[2] .= " and siteid='" . $modelApp->escape($site) . "'";
 		}
-		if (!empty($scenario)) {
+		if ($scenario !== null) {
 			$q[2] .= " and scenario='" . $modelApp->escape($scenario) . "'";
 		}
 		$q2['o'] = 'a.modify_at desc';
@@ -200,7 +200,8 @@ class main extends \pl\fe\matter\base {
 		$modelPage = $this->model('matter\enroll\page');
 		$modelCode = $this->model('code\page');
 
-		$template = $this->model('template\shop')->byId($template);
+		$template = $this->model('matter\template')->byId($template);
+		$template = $modelApp->escape($template);
 		$aid = $template->matter_id;
 		$copied = $modelApp->byId($aid);
 

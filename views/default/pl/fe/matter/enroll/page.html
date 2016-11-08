@@ -99,7 +99,7 @@
     <div id="wrapEdit">
         <div class='form-group' ng-include="wrapEditorHtml()"></div>
         <div class='form-group'>
-            <button class='btn btn-default' ng-if="activeWrap.type!=='text'" ng-click="refreshWrap(activeWrap)">刷新页面元素</button>
+            <button class='btn btn-default' ng-if="activeWrap.schema" ng-click="refreshWrap(activeWrap)">刷新页面元素</button>
             <button class='btn btn-default' ng-click="removeWrap()">删除</button>
         </div>
         <div class='form-group'>

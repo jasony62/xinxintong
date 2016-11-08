@@ -23,7 +23,7 @@ class event_model extends \TMS_MODEL {
 	public function menuCall($siteId, $key) {
 		$q = array(
 			'matter_type,matter_id',
-			'xxt_call_menu_qx',
+			'xxt_call_menu_qy',
 			"siteid='$siteId' and menu_key='$key' and published='Y'",
 		);
 		$q2['o'] = 'version desc';
@@ -35,20 +35,7 @@ class event_model extends \TMS_MODEL {
 			return false;
 		}
 	}
-	/**
-	 * 根据scene_id获得响应素材
-	 *
-	 * return array(素材的类型，素材的ID)
-	 */
-	public function qrcodeCall($siteId, $scene_id) {
-		$q[] = 'id,scene_id,matter_type,matter_id,expire_at';
-		$q[] = 'xxt_call_qrcode_qx';
-		$q[] = "siteid='$siteId' and scene_id=$scene_id";
-
-		$cr = $this->query_obj_ss($q);
-
-		return $cr;
-	}
+	
 	/**
 	 * 查找文本消息回复
 	 *
@@ -61,7 +48,7 @@ class event_model extends \TMS_MODEL {
 		 */
 		$q = array(
 			'id,keyword,match_mode,matter_type,matter_id',
-			'xxt_call_text_qx',
+			'xxt_call_text_qy',
 			"siteid='$siteId'",
 		);
 		$mps = $this->query_objs_ss($q);
@@ -83,7 +70,7 @@ class event_model extends \TMS_MODEL {
 	/**
 	 * 关注回复素材
 	 */
-	public function other_Call($siteId, $name) {
+	public function otherCall($siteId, $name) {
 		$p = array(
 			'matter_type,matter_id',
 			'xxt_call_other_qy',

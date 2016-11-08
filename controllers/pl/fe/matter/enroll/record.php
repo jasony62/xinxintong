@@ -163,7 +163,9 @@ class record extends \pl\fe\matter\base {
 
 		/* 记录操作日志 */
 		$app->type = 'enroll';
-		$this->model('matter\log')->matterOp($site, $user, $app, 'update', $record);
+		$record2=\TMS_MODEL::toJson($record);
+		$record2=json_decode($record2);
+		$this->model('matter\log')->matterOp($site, $user, $app, 'update', $record2);
 
 		/* 返回完整的记录 */
 		$record = $modelRec->byId($ek);

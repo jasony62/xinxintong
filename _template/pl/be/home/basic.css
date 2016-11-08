@@ -8,7 +8,7 @@
 #articles:before{content:'热门时讯';position:absolute;top:-15px;left:-15px;background:#0a0;padding:2px 4px;font-size:100%;color:#fff;border-radius:4px;}
 
 /*template/matter*/
-.site,.template,.matter{position:relative;height:200px;cursor:pointer;display:flex;flex-direction:column;padding:15px;}
+.site,.template,.matter{position:relative;height:200px;display:flex;flex-direction:column;padding:15px;}
 .site .summary,.template .summary,.matter .summary{flex:1;overflow:hidden;}
 .site .attr,.template .attr,.matter .attr{display:flex;padding:8px 0;}
 .site .creater_name,.template .creater_name,.matter .creater_name{flex:1;}

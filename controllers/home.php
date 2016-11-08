@@ -49,7 +49,7 @@ class home extends TMS_CONTROLLER {
 	 *
 	 */
 	public function listTemplate_action() {
-		$modelTpl = $this->model('template\shop');
+		$modelTpl = $this->model('matter\template');
 
 		$templates = $modelTpl->atHome();
 

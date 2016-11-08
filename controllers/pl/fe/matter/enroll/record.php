@@ -609,6 +609,10 @@ class record extends \pl\fe\matter\base {
 		// 转换标题
 		for ($i = 0, $ii = count($schemas); $i < $ii; $i++) {
 			$schema = $schemas[$i];
+			/* 跳过图片和文件 */
+			if (in_array(['image', 'file'], $schema->type)) {
+				continue;
+			}
 			$objActiveSheet->setCellValueByColumnAndRow($i + 2, 1, $schema->title);
 		}
 		$objActiveSheet->setCellValueByColumnAndRow($i + 2, 1, '备注');
@@ -631,6 +635,9 @@ class record extends \pl\fe\matter\base {
 			for ($i = 0, $ii = count($schemas); $i < $ii; $i++) {
 				$schema = $schemas[$i];
 				$v = isset($data->{$schema->id}) ? $data->{$schema->id} : '';
+				if (empty($v)) {
+					continue;
+				}
 				switch ($schema->type) {
 				case 'single':
 				case 'phase':
@@ -662,6 +669,9 @@ class record extends \pl\fe\matter\base {
 						$labels[] = $op->l . ':' . $v->{$op->v};
 					}
 					$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, implode(' / ', $labels));
+					break;
+				case 'image':
+				case 'file':
 					break;
 				default:
 					$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, $v);

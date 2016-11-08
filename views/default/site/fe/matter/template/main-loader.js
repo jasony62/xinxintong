@@ -38,7 +38,7 @@ require(['jquery'], function() {
 			require(['ui-bootstrap'], function() {
 				require(['ui-tms'], function() {
 					require(['xxt-page'], function(loader) {
-						loader.bootstrap('/views/default/home.js?_=' + (timestamp * 1));
+						loader.bootstrap('/views/default/site/fe/matter/template/main.js?_=' + (timestamp * 1));
 					});
 				});
 			});

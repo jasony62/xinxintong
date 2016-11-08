@@ -1,7 +1,7 @@
 <?php
 namespace site\sns;
 
-// ---require_once TMS_APP_DIR . '/lib/wxqy/WXBizMsgCrypt.php';
+require_once TMS_APP_DIR . '/lib/wxqy/WXBizMsgCrypt.php';
 require_once dirname(__FILE__) . '/usercall.php';
 require_once dirname(dirname(dirname(__FILE__))) . '/member_base.php';
 
@@ -34,12 +34,12 @@ class qy extends \member_base {
 		case 'POST':
 			$data = file_get_contents("php://input");
 			/* 企业号需要对数据进行解密处理 */
-			/* $rst = $qyProxy->DecryptMsg($_GET, $data);
+			 $rst = $qyProxy->DecryptMsg($_GET, $data);
 			 if ($rst[0] === false) {
 			 	exit;
 			 }
 			 $data = $rst[1];
-			*/
+			
 			$call = new UserCall($data, $site, 'qy');
 			$this->handle($site, $call);
 			break;

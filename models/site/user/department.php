@@ -86,29 +86,6 @@ class department_model extends \TMS_MODEL {
 			'name' => '新部门',
 		);
 		$id = $this->insert('xxt_site_member_department', $i, true);
-		/**
-		 * 更新fullpath
-		 * fullpath包含节点自身的id
-		 */
-		if ($pid == 0) {
-			$fullpath = "$id";
-		} else {
-			/**
-			 * 父节点的fullpath
-			 */
-			$q = array(
-				'fullpath',
-				'xxt_site_member_department',
-				"siteid='$site' and id=$pid",//获得pid的fullpatj，组合成新的fullpath
-			);
-			$fullpath = $this->query_val_ss($q);
-			$fullpath .= ",$id";//本地的id
-		}
-		$this->update(
-			'xxt_site_member_department',
-			array('fullpath' => $fullpath),
-			"siteid='$site' and id=$id"
-		);
 
 		$dept = $this->query_obj_ss(array('*', 'xxt_site_member_department', "id=$id"));
 

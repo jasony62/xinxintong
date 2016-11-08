@@ -466,10 +466,9 @@ class member extends \site\fe\base {
 	 * $pdid 父部门id
 	 *
 	 */
-	public function syncFromQy_action($site, $schemaId, $pdid = 1) {//$pdid = 1是什么意思
-
+	public function syncFromQy_action($site, $schemaId, $pdid = 1) {
 		$mp = $this->model('sns\qy')->bySite($site);
-		if (!$mp && $mp->joined === 'N') {
+		if (!$mp || $mp->joined === 'N') {
 			return new \ResponseError('未与企业号连接，无法同步通讯录');
 		}
 		$timestamp = time(); // 进行同步操作的时间戳
@@ -505,17 +504,37 @@ class member extends \site\fe\base {
 			if (!($ldept = $model->query_obj_ss($q))) {
 				$ldept = $modelDept->create($site, $schemaId, $pid, null);
 			}
+			/**
+			 * 更新fullpath
+			 * fullpath包含节点自身的id
+			 */
+			if ($pid == 0) {
+				$parentfullpath = "$ldept->id";
+			} else {
+				/**
+				 * 父节点的fullpath
+				 */
+				$q = array(
+					'fullpath',
+					'xxt_site_member_department',
+					"siteid='$site' and id=$pid",//获得pid的fullpatj，组合成新的fullpath
+				);
+				$parentfullpath = $model->query_val_ss($q);
+				$parentfullpath .= ",$ldept->id";//本地的id
+			}
+	
 			$model->update(
 				'xxt_site_member_department',
 				array(
 					'pid' => $pid,
 					'sync_at' => $timestamp,
 					'name' => $rdeptName,
+					'fullpath' => $parentfullpath,
 					'extattr' => json_encode($rdept),
 				),
 				"siteid='$site' and id=$ldept->id"
 			);
-			$mapDeptR2L[$rdept->id] = array('id' => $ldept->id, 'path' => $ldept->fullpath);
+			$mapDeptR2L[$rdept->id] = array('id' => $ldept->id, 'path' => $parentfullpath);
 		}
 		/**
 		 * 清空同步不存在的部门
@@ -553,7 +572,6 @@ class member extends \site\fe\base {
 			'xxt_site_qyfan',
 			"siteid='$site' and sync_at<" . $timestamp
 		);
-		
 		/**
 		 * 同步标签
 		 */

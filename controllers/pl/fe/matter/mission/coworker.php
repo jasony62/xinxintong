@@ -9,10 +9,9 @@ class coworker extends \pl\fe\matter\base {
 	/**
 	 * 任务下的合作人
 	 *
-	 * @param string $site
 	 * @param int $mission mission's id
 	 */
-	public function list_action($site, $mission) {
+	public function list_action($mission) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -37,10 +36,9 @@ class coworker extends \pl\fe\matter\base {
 	/**
 	 * 任务下的合作人
 	 *
-	 * @param string $site
 	 * @param int $mission mission's id
 	 */
-	public function mine_action($site, $mission) {
+	public function mine_action($mission) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -63,10 +61,9 @@ class coworker extends \pl\fe\matter\base {
 	/**
 	 * 增加项目合作人
 	 *
-	 * @param string $site
 	 * @param int $mission mission's id
 	 */
-	public function add_action($site, $mission, $label) {
+	public function add_action($mission, $label) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -88,6 +85,7 @@ class coworker extends \pl\fe\matter\base {
 			return new \ResponseError('该账号已经是合作人，不能重复添加！');
 		}
 		/*加入ACL*/
+		$mission = $modelMis->escape($mission);
 		$coworker = new \stdClass;
 		$coworker->id = $account->uid;
 		$coworker->label = $account->email;
@@ -99,10 +97,9 @@ class coworker extends \pl\fe\matter\base {
 	/**
 	 * 删除项目的合作人
 	 *
-	 * @param string $site
 	 * @param int $mission mission's id
 	 */
-	public function remove_action($site, $mission, $coworker) {
+	public function remove_action($mission, $coworker) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -116,21 +113,25 @@ class coworker extends \pl\fe\matter\base {
 	}
 	/**
 	 *
+	 * @param int $mission mission's id
 	 */
-	public function makeInvite_action($site, $mission) {
+	public function makeInvite_action($mission) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
+		$modelMis = $this->model('matter\mission');
 		$modelTsk = $this->model('task\token');
 
-		$name = "share.mission:$mission";
+		$mission = $modelMis->byId($mission, ['cascaded' => 'N']);
+
+		$name = "share.mission:{$mission->id}";
 		$params = new \stdClass;
-		$params->site = $site;
-		$params->mission = $mission;
+		$params->site = $mission->siteid;
+		$params->mission = $mission->id;
 		$params->_version = 1;
 
-		$code = $modelTsk->makeTask($site, $user, $name, $params, 1800);
+		$code = $modelTsk->makeTask($mission->siteid, $user, $name, $params, 1800);
 
 		$url = '/rest/pl/fe/matter/mission/invite?code=' . $code;
 

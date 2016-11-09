@@ -159,14 +159,14 @@ provider('srvApp', function() {
             assignMission: function() {
                 var _this = this,
                     defer = $q.defer();
-                mattersgallery.open(siteId, function(matters, type) {
+                mattersgallery.open(siteId, function(missions) {
                     var matter;
-                    if (matters.length === 1) {
+                    if (missions.length === 1) {
                         matter = {
                             id: appId,
                             type: 'enroll'
                         };
-                        http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + siteId + '&id=' + matters[0].mission_id, matter, function(rsp) {
+                        http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + siteId + '&id=' + missions[0].id, matter, function(rsp) {
                             var mission = rsp.data,
                                 updatedFields = ['mission_id'];
 
@@ -630,7 +630,9 @@ provider('srvApp', function() {
                 vcode = prompt('是否要删除所有登记信息？，若是，请输入活动名称。');
                 if (vcode === _oApp.title) {
                     http2.get('/rest/pl/fe/matter/enroll/record/empty?site=' + siteId + '&app=' + appId, function(rsp) {
-                        _this.doSearch(1);
+                        _aRecords.splice(0, _aRecords.length);
+                        _oPage.total = 0;
+                        _oPage.at = 1;
                     });
                 }
             },

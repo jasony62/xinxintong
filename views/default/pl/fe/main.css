@@ -1,0 +1,10 @@
+body{margin-bottom:50px;}
+.ng-cloak{display:none;}
+.tms-panel{border:1px solid #e7e7e7;border-radius:4px;background:#fff;padding:30px 0;margin-bottom:30px;}
+
+/*mission/site*/
+.site,.mission{position:relative;height:180px;cursor:pointer;display:flex;flex-direction:column;padding:15px;}
+.site .summary,.mission .summary{flex:1;overflow:hidden;}
+.site .attr,.mission .attr{display:flex;padding:8px 0;}
+.site .creater_name,.mission .creater_name{flex:1;}
+.site .actions,.mission .actions{border-top:1px solid #ddd;padding-top:8px;}

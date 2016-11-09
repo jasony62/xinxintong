@@ -1,17 +1,16 @@
-html,body{height:100%;width:100%}
-body{background:#f8f8f8;position:relative;overflow:hidden;display:flex;flex-direction:column;}
+body{margin-bottom:50px;}
 .site.navbar-nav{position:absolute;left:50%;margin-left:-208px;float:none;}
 .site.navbar-nav .active:after{content:' ';position:absolute;left:0;right:0;bottom:-1px;height:3px;background:red;}
-.container{flex:1.0;overflow:hidden;position:relative;display:flex;padding:0;}
-#viewRecent,#viewUsers{flex:1.0;display:flex;flex-direction:column;border:1px solid #ddd;border-radius:4px;background:#fff;}
-#viewRecent{margin-right:8px;}
-#viewUsers{margin-left:8px;}
 
-/*recent*/
-#viewRecent .matters{flex:1.0;overflow-y:auto;overflow-x:hidden;}
-#viewRecent .navbar{margin-bottom:0;}
-#viewRecent .thumbnail{position:relative;height:145px;cursor:pointer;display:flex;flex-direction:column;padding:8px;}
-#viewRecent .thumbnail .summary{flex:1;overflow:hidden;}
-#viewRecent .thumbnail .attr{display:flex;}
-#viewRecent .thumbnail .operator_name{flex:1;}
-#viewRecent .thumbnail .actions{position:absolute;top:8px;right:8px;}
+/*matters*/
+.category{border-top-right-radius:0}
+.thumbnail{position:relative;height:180px;cursor:pointer;display:flex;flex-direction:column;padding:8px;}
+.thumbnail .summary{flex:1;overflow:hidden;}
+.thumbnail .attr{display:flex;}
+.thumbnail .operator_name{flex:1;}
+.thumbnail .actions{position:absolute;top:8px;right:8px;}
+.mission:after{content:'项目';position:absolute;top:-8px;left:-8px;background:red;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+.article:after{content:'图文';position:absolute;top:-8px;left:-8px;background:green;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+.enroll:after{content:'登记';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+.signin:after{content:'签到';position:absolute;top:-8px;left:-8px;background:#0000cc;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+.group:after{content:'分组';position:absolute;top:-8px;left:-8px;background:#000099;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}

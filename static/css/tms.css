@@ -1,5 +1,5 @@
 body,pre,code{font-family:Arial,'Microsoft YaHei'}
-.cloak{display:none}
+.ng-cloak{display:none}
 @media screen and (min-device-width:768px) and (max-device-width:1024px) and (orientation:landscape){
     .container{width:970px}
     .col-md-1,.col-md-2,.col-md-3,.col-md-4,.col-md-5,.col-md-6,.col-md-7,.col-md-8,.col-md-9,.col-md-10,.col-md-11,.col-md-12{float:left}

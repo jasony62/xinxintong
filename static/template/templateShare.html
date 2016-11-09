@@ -1,12 +1,14 @@
 <div class="modal-header">
 	<button class="close" type="button" ng-click="cancel()">×</button>
-	<h5 class="modal-title">共享模板</h5>
+	<h5 class="modal-title">发布模板</h5>
 </div>
 <div class="modal-body">
 	<div class="form-group">
-		<label class="radio-inline"><input type="radio" name="scope" ng-model="data.visible_scope" value="U">共享给自己</label>
-		<label class="radio-inline"><input type="radio" name="scope" ng-model="data.visible_scope" value="A">共享给所有人</label>
-		<label class="radio-inline"><input type="radio" name="scope" ng-model="data.visible_scope" value="S">共享给指定人</label>
+		<label class="radio-inline"><input type="radio" name="scope" ng-model="data.visible_scope" value="S">发布到站点</label>
+		<label class="radio-inline"><input type="radio" name="scope" ng-model="data.visible_scope" value="P">发布到平台</label>
+	</div>
+	<div class="form-group">
+		<label class="checkbox-inline"><input type="checkbox" ng-model="data.contribute" ng-true-value="'Y'" ng-true-value="'N'">申请放到平台主页</label>
 	</div>
 	<div class="form-group">
 		<label>标题</label>
@@ -36,7 +38,7 @@
             </div>
         </div>
 	</div>
-	<div class="form-group" ng-if="data.visible_scope==='S'">
+	<div class="form-group">
 		<label>添加共享用户</label>
         <div class='input-group'>
             <input type="text" class="form-control" ng-model='params.label' placeholder="请输入作为用户账号的邮箱">

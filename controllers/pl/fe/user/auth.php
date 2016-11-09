@@ -1,17 +1,20 @@
 <?php
 namespace pl\fe\user;
+
+require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
  * 平台管理端用户认证
  */
-class auth extends \TMS_CONTROLLER {
-
+class auth extends \pl\fe\base {
+	/**
+	 *
+	 */
 	public function get_access_rule() {
-		$rule_action = array(
+		$ruleAction = [
 			'rule_type' => 'black',
-			'actions' => array(),
-		);
+		];
 
-		return $rule_action;
+		return $ruleAction;
 	}
 	/**
 	 * 进入平台管理页面用户身份验证页面
@@ -29,6 +32,16 @@ class auth extends \TMS_CONTROLLER {
 		 */
 		$path = TMS_APP_API_PREFIX . '/pl/fe/user/login';
 		$this->redirect($path);
+	}
+	/**
+	 * 判断当前用户是否已经登录
+	 */
+	public function isLogin_action() {
+		if ($loginUser = $this->accountUser()) {
+			return new \ResponseData('Y');
+		} else {
+			return new \ResponseData('N');
+		}
 	}
 	/**
 	 * 验证通过后的回调页面

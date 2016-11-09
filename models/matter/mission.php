@@ -121,19 +121,19 @@ class mission_model extends app_base {
 		return true;
 	}
 	/**
-	 *
+	 * 从项目中删除素材
 	 */
-	public function removeMatter($siteId, $matterId, $matterType) {
+	public function removeMatter($missionId, $matterId, $matterType) {
 		$rst = $this->delete(
 			'xxt_mission_matter',
-			"siteid='$siteId' and matter_id='$matterId' and matter_type='$matterType'"
+			"mission_id='$missionId' and matter_id='$matterId' and matter_type='$matterType'"
 		);
 		return $rst;
 	}
 	/**
 	 *
 	 */
-	public function &mattersById($siteId, $id, $matterType = null, $options = array()) {
+	public function &mattersById($id, $matterType = null, $options = array()) {
 		$matters = [];
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 

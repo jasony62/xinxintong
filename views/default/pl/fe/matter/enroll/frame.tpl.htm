@@ -87,8 +87,10 @@
                     <textarea type='text' class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
                 </div>
                 <hr>
-                <button class='btn btn-default btn-block' ng-click="exportAsTemplate()">导出活动定义</button>
-                <button class='btn btn-default btn-block' ng-click="shareAsTemplate()">保存为模版</button>
+                <button class='btn btn-default btn-block' ng-click="shareAsTemplate()">发布模版</button>
+                <button class='btn btn-default btn-block' ng-click="applyToHome()">申请发布到主页</button>
+                <button class='btn btn-default btn-block' ng-click="exportAsTemplate()">导出模版</button>
+                <hr>
                 <button class='btn btn-default btn-block' ng-click="remove()">删除活动</button>
             <div>
         </script>
@@ -112,7 +114,7 @@
         <script src="/static/js/xxt.ui.tmplshop.js?_=1"></script>
         <script src="/views/default/pl/fe/_module/channel.js?_=1"></script>
         <script src="/views/default/pl/fe/_module/matter.service.js?_=1"></script>
-        <script src="/views/default/pl/fe/matter/enroll/lib/enroll.service.js?_=1"></script>
+        <script src="/views/default/pl/fe/matter/enroll/lib/enroll.service.js?_=2"></script>
         <script src="/views/default/pl/fe/matter/enroll/lib/enroll.tinymce.js?_=2"></script>
         <script src="/static/js/require.js" data-main="/views/default/pl/fe/matter/enroll/frame-loader.js?_=6"></script>
     </body>

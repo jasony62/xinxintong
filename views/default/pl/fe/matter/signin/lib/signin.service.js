@@ -107,14 +107,14 @@ provider('srvApp', function() {
             },
             assignMission: function() {
                 var _this = this;
-                mattersgallery.open(siteId, function(matters, type) {
+                mattersgallery.open(siteId, function(missions) {
                     var matter;
-                    if (matters.length === 1) {
+                    if (missions.length === 1) {
                         matter = {
                             id: appId,
                             type: 'signin'
                         };
-                        http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + siteId + '&id=' + matters[0].mission_id, matter, function(rsp) {
+                        http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + siteId + '&id=' + missions[0].id, matter, function(rsp) {
                             var mission = rsp.data,
                                 updatedFields = ['mission_id'];
 

@@ -1,3 +1,50 @@
-<div>
-	site home
+<div class='container' ng-controller="ctrlHome">
+    <div class='row tms-panel' ng-if="site.home_carousel">
+        <div style="height: 305px" ng-controller="ctrlCarousel">
+            <div uib-carousel active="active" interval="myInterval" no-wrap="noWrapSlides">
+                <div uib-slide ng-repeat="slide in slides" index="$index">
+                    <img ng-src="{{slide.picUrl}}" style="height:305px;margin:auto;">
+                    <div class="carousel-caption"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='row tms-panel templates'>
+        <div class='col-md-4' ng-repeat="t in templates">
+            <div class='thumbnail template'>
+                <h4 class='title' ng-bind="t.title"></h4>
+                <p class='summary' ng-bind="t.summary"></p>
+                <div class='heading-pic' heading-pic ng-if="t.pic">
+                    <img ng-src='{{t.pic}}'>
+                </div>
+                <div class='attr'>
+                    <div class='creater_name' ng-bind="t.creater_name"></div>
+                    <div class='put_at' ng-bind="t.put_at*1000|date:'yyyy-MM-dd'"></div>
+                </div>
+                <div class='actions'>
+                    <a class='btn btn-sm btn-default' href='/rest/pl/fe/template/shop/show?site={{siteId}}&template={{t.id}}'>预览</a>
+                    <button class='btn btn-sm btn-success' ng-click='favorTemplate(t)'>收藏</button>
+                    <button class='btn btn-sm btn-success' ng-click='useTemplate(t)'>使用</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='row tms-panel channel' data-title="{{c.title}}" ng-repeat="c in channels">
+        <div class='col-md-4' ng-repeat="m in c._matters">
+            <div class='thumbnail matter'>
+                <h4 class='title' ng-bind="m.title"></h4>
+                <p class='summary' ng-bind="m.summary"></p>
+                <div class='heading-pic' heading-pic ng-if="m.pic">
+                    <img ng-src='{{m.pic}}'>
+                </div>
+                <div class='attr'>
+                    <div class='creater_name' ng-bind="m.creater_name"></div>
+                    <div class='put_at' ng-bind="m.create_at*1000|date:'yyyy-MM-dd'"></div>
+                </div>
+                <div class='actions'>
+                    <button class='btn btn-sm btn-success' ng-click='open(m)'>打开</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

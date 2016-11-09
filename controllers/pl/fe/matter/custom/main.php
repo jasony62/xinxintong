@@ -219,7 +219,7 @@ class main extends \pl\fe\matter\base {
 			$article['pic'] = $site->heading_pic; //使用账号缺省头图
 			$article['summary'] = '';
 		} else {
-			$modelMis = $this->model('mission');
+			$modelMis = $this->model('matter\mission');
 			$mission = $modelMis->byId($mission);
 			$article['summary'] = $mission->summary;
 			$article['pic'] = $mission->pic;
@@ -363,7 +363,7 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$modelTemplate = $this->model('template\shop');
+		$modelTemplate = $this->model('matter\template');
 		$template = $modelTemplate->byId($template);
 
 		$modelArt = $this->model('matter\article');

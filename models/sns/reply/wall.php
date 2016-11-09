@@ -8,8 +8,10 @@ require_once dirname(__FILE__) . '/base.php';
 class wall_model extends MultiArticleReply {
 
 	protected function loadMatters() {
-		$w = \TMS_APP::model('matter\wall')->byId($this->set_id);
-		$w->type = 'wall';
-		return array($w);
+		$app = \TMS_APP::model('matter\base')->getCardInfoById('wall', $this->set_id);
+		$modelApp = \TMS_APP::model('matter\wall');
+		$app->entryURL = $modelApp->getEntryUrl($this->call['siteid'], $this->set_id);
+
+		return array($app);
 	}
 }

@@ -136,7 +136,7 @@ factory('mattersgallery', function($uibModal) {
     var gallery = {};
     gallery.open = function(galleryId, callback, options) {
         $uibModal.open({
-            templateUrl: '/static/template/mattersgallery2.html?_=6',
+            templateUrl: '/static/template/mattersgallery2.html?_=7',
             controller: ['$scope', '$http', '$uibModalInstance', function($scope, $http, $mi) {
                 var fields = ['id', 'title'];
                 $scope.matterTypes = options.matterTypes;

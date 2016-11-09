@@ -7,37 +7,7 @@ define(['frame'], function(ngApp) {
 			$('<a href="' + url + '" download="登记二维码.png"></a>')[0].click();
 		};
 		var tinymceEditor, modifiedData = {};
-		var r = new Resumable({
-			target: '/rest/pl/fe/matter/article/attachment/upload?site=' + $scope.siteId + '&articleid=' + $scope.id,
-			testChunks: false,
-		});
-		r.assignBrowse(document.getElementById('addAttachment'));
-		r.on('fileAdded', function(file, event) {
-			$scope.$apply(function() {
-				noticebox.progress('开始上传文件');
-			});
-			r.upload();
-		});
-		r.on('progress', function(file, event) {
-			$scope.$apply(function() {
-				noticebox.progress('正在上传文件：' + Math.floor(r.progress() * 100) + '%');
-			});
-		});
-		r.on('complete', function() {
-			var f, lastModified, posted;
-			f = r.files.pop().file;
-			lastModified = f.lastModified ? f.lastModified : (f.lastModifiedDate ? f.lastModifiedDate.getTime() : 0);
-			posted = {
-				name: f.name,
-				size: f.size,
-				type: f.type,
-				lastModified: lastModified,
-				uniqueIdentifier: f.uniqueIdentifier,
-			};
-			http2.post('/rest/pl/fe/matter/article/attachment/add?site=' + $scope.siteId + '&id=' + $scope.id, posted, function success(rsp) {
-				$scope.editing.attachments.push(rsp.data);
-			});
-		});
+
 		$scope.modified = false;
 		$scope.innerlinkTypes = [{
 			value: 'article',
@@ -81,14 +51,14 @@ define(['frame'], function(ngApp) {
 			}
 		};
 		$scope.assignMission = function() {
-			mattersgallery.open($scope.siteId, function(matters, type) {
+			mattersgallery.open($scope.editing.siteid, function(matters, type) {
 				var app;
 				if (matters.length === 1) {
 					app = {
 						id: $scope.id,
 						type: 'article'
 					};
-					http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.siteId + '&id=' + matters[0].mission_id, app, function(rsp) {
+					http2.post('/rest/pl/fe/matter/mission/matter/add?site=' + $scope.editing.siteid + '&id=' + matters[0].mission_id, app, function(rsp) {
 						var mission = rsp.data,
 							editing = $scope.editing,
 							updatedFields = ['mission_id'];
@@ -116,7 +86,7 @@ define(['frame'], function(ngApp) {
 			});
 		};
 		$scope.submit = function() {
-			http2.post('/rest/pl/fe/matter/article/update?site=' + $scope.siteId + '&id=' + $scope.id, modifiedData, function() {
+			http2.post('/rest/pl/fe/matter/article/update?site=' + $scope.editing.siteid + '&id=' + $scope.id, modifiedData, function() {
 				modifiedData = {};
 				$scope.modified = false;
 				noticebox.success('完成保存');
@@ -124,11 +94,11 @@ define(['frame'], function(ngApp) {
 		};
 		$scope.remove = function() {
 			if (window.confirm('确定删除？')) {
-				http2.get('/rest/pl/fe/matter/article/remove?site=' + $scope.siteId + '&id=' + $scope.id, function(rsp) {
+				http2.get('/rest/pl/fe/matter/article/remove?site=' + $scope.editing.siteid + '&id=' + $scope.id, function(rsp) {
 					if ($scope.editing.mission) {
-						location = "/rest/pl/fe/matter/mission?site=" + $scope.siteId + "&id=" + $scope.editing.mission.id;
+						location = "/rest/pl/fe/matter/mission?site=" + $scope.editing.siteid + "&id=" + $scope.editing.mission.id;
 					} else {
-						location = '/rest/pl/fe/site/console?site=' + $scope.siteId;
+						location = '/rest/pl/fe/site/console?site=' + $scope.editing.siteid;
 					}
 				});
 			}
@@ -151,7 +121,7 @@ define(['frame'], function(ngApp) {
 					$scope.update('pic');
 				}
 			};
-			mediagallery.open($scope.siteId, options);
+			mediagallery.open($scope.editing.siteid, options);
 		};
 		$scope.removePic = function() {
 			$scope.editing.pic = '';
@@ -163,7 +133,7 @@ define(['frame'], function(ngApp) {
 				multiple: true,
 				setshowname: true
 			};
-			mediagallery.open($scope.siteId, options);
+			mediagallery.open($scope.editing.siteid, options);
 		});
 		$scope.embedMatter = function() {
 			var options = {
@@ -173,7 +143,7 @@ define(['frame'], function(ngApp) {
 			if ($scope.editing.mission) {
 				options.mission = $scope.editing.mission;
 			}
-			mattersgallery.open($scope.siteId, function(matters, type) {
+			mattersgallery.open($scope.editing.siteid, function(matters, type) {
 				var editor = tinymce.get('body1'),
 					dom = editor.dom,
 					selection = editor.selection,
@@ -304,7 +274,7 @@ define(['frame'], function(ngApp) {
 				});
 				!existing && aNewTags.push(selected);
 			});
-			http2.post('/rest/pl/fe/matter/article/tag/add?site=' + $scope.siteId + '&id=' + $scope.id, aNewTags, function(rsp) {
+			http2.post('/rest/pl/fe/matter/article/tag/add?site=' + $scope.editing.siteid + '&id=' + $scope.id, aNewTags, function(rsp) {
 				$scope.editing.tags = $scope.editing.tags.concat(aNewTags);
 			});
 		});
@@ -312,12 +282,12 @@ define(['frame'], function(ngApp) {
 			var oNewTag = {
 				title: newTag
 			};
-			http2.post('/rest/pl/fe/matter/article/tag/add?site=' + $scope.siteId + '&id=' + $scope.id, [oNewTag], function(rsp) {
+			http2.post('/rest/pl/fe/matter/article/tag/add?site=' + $scope.editing.siteid + '&id=' + $scope.id, [oNewTag], function(rsp) {
 				$scope.editing.tags.push(oNewTag);
 			});
 		});
 		$scope.$on('tag.xxt.combox.del', function(event, removed) {
-			http2.post('/rest/pl/fe/matter/article/tag/remove?site=' + $scope.siteId + '&id=' + $scope.id, [removed], function(rsp) {
+			http2.post('/rest/pl/fe/matter/article/tag/remove?site=' + $scope.editing.siteid + '&id=' + $scope.id, [removed], function(rsp) {
 				$scope.editing.tags.splice($scope.editing.tags.indexOf(removed), 1);
 			});
 		});
@@ -332,7 +302,7 @@ define(['frame'], function(ngApp) {
 				});
 				!existing && aNewTags.push(selected);
 			});
-			http2.post('/rest/pl/fe/matter/article/tag/add2?site=' + $scope.siteId + '&id=' + $scope.id, aNewTags, function(rsp) {
+			http2.post('/rest/pl/fe/matter/article/tag/add2?site=' + $scope.editing.siteid + '&id=' + $scope.id, aNewTags, function(rsp) {
 				$scope.editing.tags2 = $scope.editing.tags2.concat(aNewTags);
 			});
 		});
@@ -340,32 +310,65 @@ define(['frame'], function(ngApp) {
 			var oNewTag = {
 				title: newTag
 			};
-			http2.post('/rest/pl/fe/matter/article/tag/add2?site=' + $scope.siteId + '&id=' + $scope.id, [oNewTag], function(rsp) {
+			http2.post('/rest/pl/fe/matter/article/tag/add2?site=' + $scope.editing.siteid + '&id=' + $scope.id, [oNewTag], function(rsp) {
 				$scope.editing.tags2.push(oNewTag);
 			});
 		});
 		$scope.$on('tag2.xxt.combox.del', function(event, removed) {
-			http2.post('/rest/pl/fe/matter/article/tag/remove2?site=' + $scope.siteId + '&id=' + $scope.id, [removed], function(rsp) {
+			http2.post('/rest/pl/fe/matter/article/tag/remove2?site=' + $scope.editing.siteid + '&id=' + $scope.id, [removed], function(rsp) {
 				$scope.editing.tags2.splice($scope.editing.tags2.indexOf(removed), 1);
 			});
 		});
 		$scope.delAttachment = function(index, att) {
-			http2.get('/rest/pl/fe/matter/article/attachment/del?site=' + $scope.siteId + '&id=' + att.id, function success(rsp) {
+			http2.get('/rest/pl/fe/matter/article/attachment/del?site=' + $scope.editing.siteid + '&id=' + att.id, function success(rsp) {
 				$scope.editing.attachments.splice(index, 1);
 			});
 		};
 		$scope.downloadUrl = function(att) {
-			return '/rest/site/fe/matter/article/attachmentGet?site=' + $scope.siteId + '&articleid=' + $scope.editing.id + '&attachmentid=' + att.id;
+			return '/rest/site/fe/matter/article/attachmentGet?site=' + $scope.editing.siteid + '&articleid=' + $scope.editing.id + '&attachmentid=' + att.id;
 		};
-		http2.get('/rest/pl/fe/matter/tag/list?site=' + $scope.siteId + '&resType=article&subType=0', function(rsp) {
+		http2.get('/rest/pl/fe/matter/tag/list?site=' + $scope.editing.siteid + '&resType=article&subType=0', function(rsp) {
 			$scope.tags = rsp.data;
 		});
-		http2.get('/rest/pl/fe/matter/tag/list?site=' + $scope.siteId + '&resType=article&subType=1', function(rsp) {
+		http2.get('/rest/pl/fe/matter/tag/list?site=' + $scope.editing.siteid + '&resType=article&subType=1', function(rsp) {
 			$scope.tags2 = rsp.data;
 		});
 		$scope.$watch('editing', function(editing) {
-			if (editing && tinymceEditor) {
-				tinymceEditor.setContent(editing.body);
+			if (editing) {
+				if (tinymceEditor) {
+					tinymceEditor.setContent(editing.body);
+				}
+				var r = new Resumable({
+					target: '/rest/pl/fe/matter/article/attachment/upload?site=' + $scope.editing.siteid + '&articleid=' + $scope.id,
+					testChunks: false,
+				});
+				r.assignBrowse(document.getElementById('addAttachment'));
+				r.on('fileAdded', function(file, event) {
+					$scope.$apply(function() {
+						noticebox.progress('开始上传文件');
+					});
+					r.upload();
+				});
+				r.on('progress', function(file, event) {
+					$scope.$apply(function() {
+						noticebox.progress('正在上传文件：' + Math.floor(r.progress() * 100) + '%');
+					});
+				});
+				r.on('complete', function() {
+					var f, lastModified, posted;
+					f = r.files.pop().file;
+					lastModified = f.lastModified ? f.lastModified : (f.lastModifiedDate ? f.lastModifiedDate.getTime() : 0);
+					posted = {
+						name: f.name,
+						size: f.size,
+						type: f.type,
+						lastModified: lastModified,
+						uniqueIdentifier: f.uniqueIdentifier,
+					};
+					http2.post('/rest/pl/fe/matter/article/attachment/add?site=' + $scope.editing.siteid + '&id=' + $scope.id, posted, function success(rsp) {
+						$scope.editing.attachments.push(rsp.data);
+					});
+				});
 			}
 		});
 		$scope.$on('tinymce.instance.init', function(event, editor) {
@@ -383,5 +386,11 @@ define(['frame'], function(ngApp) {
 				$scope.modified = true;
 			}
 		});
+		$scope.applyToHome = function() {
+			var url = '/rest/pl/fe/matter/home/apply?site=' + $scope.editing.siteid + '&type=article&id=' + $scope.id;
+			http2.get(url, function(rsp) {
+				noticebox.success('完成申请！');
+			});
+		};
 	}]);
 });

@@ -155,7 +155,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 			var activeWrap;
 			$scope.activeWrap = editorProxy.setActiveWrap(domWrap);
 			activeWrap = $scope.activeWrap;
-			if (activeWrap || activeWrap.schema || activeWrap.schemas || activeWrap.type === 'rounds') {
+			if (activeWrap) {
 				$('#pageEdit').trigger('show');
 			} else {
 				$('#pageEdit').trigger('hide');
@@ -238,10 +238,15 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 				schema;
 
 			if (/input|value/.test(wrapType)) {
-				schema = $scope.activeWrap.schema;
-				$scope.removeSchema(schema).then(function() {
+				if (schema = $scope.activeWrap.schema) {
+					$scope.removeSchema(schema).then(function() {
+						editorProxy.removeWrap($scope.activeWrap);
+						$scope.setActiveWrap(null);
+					});
+				} else {
 					editorProxy.removeWrap($scope.activeWrap);
-				});
+					$scope.setActiveWrap(null);
+				}
 			} else if (/radio|checkbox|score/.test(wrapType)) {
 				var optionSchema;
 				schema = editorProxy.optionSchemaByDom($scope.activeWrap.dom, $scope.app);
@@ -255,10 +260,11 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 					originator: $scope.ep,
 					schema: schema
 				});
+				$scope.setActiveWrap(null);
 			} else if (/button|text|records|rounds/.test(wrapType)) {
 				editorProxy.removeWrap($scope.activeWrap);
+				$scope.setActiveWrap(null);
 			}
-			$scope.setActiveWrap(null);
 		};
 		$scope.moveWrap = function(action) {
 			$scope.activeWrap = editorProxy.moveWrap(action);

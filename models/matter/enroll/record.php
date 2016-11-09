@@ -196,7 +196,7 @@ class record_model extends \TMS_MODEL {
 			"enroll_key='$ek'",
 		];
 		if (($record = $this->query_obj_ss($q)) && $fields === '*') {
-			$record->data = json_decode($record->data);
+			$record->data=\TMS_MODEL::strConvert($record->data);
 		}
 
 		return $record;
@@ -411,13 +411,14 @@ class record_model extends \TMS_MODEL {
 		// 处理获得的数据
 		if ($records = $this->query_objs_ss($q, $q2)) {
 			foreach ($records as &$r) {
-				$data = str_replace("\n", ' ', $r->data);
+				/*$data = str_replace("\n", ' ', $r->data);
 				$data = json_decode($data);
 				if ($data === null) {
 					$r->data = 'json error(' . json_last_error_msg() . '):' . $r->data;
 				} else {
 					$r->data = $data;
-				}
+				}*/
+				$r->data=\TMS_MODEL::strConvert($r->data);
 				// 记录的分数
 				if ($app->scenario === 'voting') {
 					if (!isset($scoreSchemas)) {
@@ -582,7 +583,7 @@ class record_model extends \TMS_MODEL {
 
 		if ($fields === '*') {
 			foreach ($records as &$record) {
-				$record->data = json_decode($record->data);
+				$record->data=\TMS_MODEL::strConvert($record->data);
 			}
 		}
 

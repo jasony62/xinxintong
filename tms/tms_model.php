@@ -262,23 +262,22 @@ class TMS_MODEL {
 	 *
 	 */
 	public static function urlencodeObj($obj) {
-		// 替换为空的
-		$pattern1 = "/[\r\n\t]/";
-
+		
 		if (is_object($obj)) {
 			$newObj = new \stdClass;
 			foreach ($obj as $k => $v) {
-				$k = preg_replace($pattern1, '', $k);
+				$k = htmlspecialchars($k);		
 				$newObj->{urlencode($k)} = self::urlencodeObj($v);
 			}
 		} else if (is_array($obj)) {
 			$newObj = array();
 			foreach ($obj as $k => $v) {
-				$k = preg_replace($pattern1, '', $k);
+				$k = htmlspecialchars($k);	
 				$newObj[urlencode($k)] = self::urlencodeObj($v);
 			}
 		} else {
-			$obj = preg_replace($pattern1, '', $obj);
+			$obj = htmlspecialchars($obj);
+			
 			$newObj = urlencode($obj);
 		}
 
@@ -293,4 +292,23 @@ class TMS_MODEL {
 
 		return $json;
 	}
+	/**
+	 * 从数据库取json字符串转对象
+	 */
+	public static function strConvert($data)
+	{
+		if(is_string($data)){
+			$data=preg_replace("/[\r\n]/", "^", $data);
+		}
+		$data = json_decode($data);
+		if(json_last_error()==0 && is_object($data)){
+			foreach ($data as $k => $v) {
+				$b=preg_replace("/\^/", "\n", $v);
+				$data->{$k}=htmlspecialchars_decode($b);
+			}
+		}
+		
+		return $data;
+	}
+
 }

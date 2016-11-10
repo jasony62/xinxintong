@@ -188,7 +188,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
             }],
             backdrop: 'static'
         }).result.then(function(data) {
-            http2.post('/rest/pl/fe/template/shop/put?site=' + siteId, data, function(rsp) {
+            http2.post('/rest/pl/fe/site/template/put?site=' + siteId, data, function(rsp) {
                 deferred.resolve(rsp.data);
             });
         });

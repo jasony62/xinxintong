@@ -489,7 +489,7 @@ class base extends \TMS_CONTROLLER {
 		$log['sync_data'] = $data;
 		$log['sync_at'] = $timestamp;
 		$log['sync_id'] = $sync_id;
-		$this->model('log')->syncLog($site,$who,$log);
+		$this->model('log')->syncLog($site,$who,$log,'syncFromQy');
 
 		return true;
 	}
@@ -573,7 +573,7 @@ class base extends \TMS_CONTROLLER {
 		$log['sync_data'] = $data;
 		$log['sync_at'] = $timestamp;
 		$log['sync_id'] = $sync_id;
-		$this->model('log')->syncLog($site,$who,$log);
+		$this->model('log')->syncLog($site,$who,$log,'syncFromQy');
 
 		return true;
 	}

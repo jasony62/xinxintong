@@ -678,7 +678,7 @@ class member extends \site\fe\base {
 	}
 
 	//获取同步日志
-	public function syncLog($site,$type = ''){
+	public function syncLog_action($site,$type = ''){
 		if($type == ''){
 			$type = 'syncFromQy';
 		}

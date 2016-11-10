@@ -484,7 +484,7 @@ class base extends \TMS_CONTROLLER {
 		$data = json_encode($fan);
 		$log = [];
 		$log['siteid'] = $site;
-		$log['type'] = '部门用户';
+		$log['sync_type'] = '部门用户';
 		$log['sync_table'] = 'xxt_site_qyfan';
 		$log['sync_data'] = $data;
 		$log['sync_at'] = $timestamp;
@@ -568,7 +568,7 @@ class base extends \TMS_CONTROLLER {
 		$data = json_encode($fan);
 		$log = [];
 		$log['siteid'] = $site;
-		$log['type'] = '部门用户';
+		$log['sync_type'] = '部门用户';
 		$log['sync_table'] = 'xxt_site_qyfan';
 		$log['sync_data'] = $data;
 		$log['sync_at'] = $timestamp;

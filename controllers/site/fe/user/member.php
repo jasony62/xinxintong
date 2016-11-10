@@ -535,12 +535,12 @@ class member extends \site\fe\base {
 			$data = json_encode($i);
 			$log = [];
 			$log['siteid'] = $site;
-			$log['type'] = '部门';
+			$log['sync_type'] = '部门';
 			$log['sync_table'] = 'xxt_site_member_department';
 			$log['sync_data'] = $data;
 			$log['sync_at'] = $timestamp;
 			$log['sync_id'] = $ldept->id;
-			$this->model('log')->syncLog($site,$who,$log);
+			$this->model('log')->syncLog($site,$who,$log,'syncFromQy');
 		}
 		/**
 		 * 清空同步不存在的部门
@@ -618,12 +618,12 @@ class member extends \site\fe\base {
 			$data = json_encode($t);
 			$log = [];
 			$log['siteid'] = $site;
-			$log['type'] = '标签';
+			$log['sync_type'] = '标签';
 			$log['sync_table'] = 'xxt_site_member_tag';
 			$log['sync_data'] = $data;
 			$log['sync_at'] = $timestamp;
 			$log['sync_id'] = $memberTagId;
-			$this->model('log')->syncLog($site,$who,$log);
+			$this->model('log')->syncLog($site,$who,$log,'syncFromQy');
 
 			/**
 			 * 建立标签和成员、部门的关联
@@ -675,5 +675,21 @@ class member extends \site\fe\base {
 		);
 
 		return new \ResponseData($rst);
+	}
+
+	//获取同步日志
+	public function syncLog($site,$type = ''){
+		if($type == ''){
+			$type = 'syncFromQy';
+		}
+
+		$q = array(
+				'*',
+				'xxt_log_sync',
+				"siteid = '$site' and type = '$type'",
+			);
+		$sync = $this->model()->query_objs_ss($q);
+
+		return $sync;
 	}
 }

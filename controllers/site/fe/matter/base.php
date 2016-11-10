@@ -168,26 +168,19 @@ class base extends \site\fe\base {
 			$members = $this->model('site\user\member')->byUser($siteId, $userid, array('schemas' => $memberSchemas));
 		}
 		//如果是企业号的用户访问
-		if ($this->userAgent() === 'wx' && isset($this->who->sns->qy) && empty($members)) {
-			//根据userid获取xxt_site_account表中的qy_openid查询粉丝表如果有则说明是企业号的用户，为内置认证用户
-			$q = array(
-						'qy_openid',
-						'xxt_site_account',
-						"siteid='$siteId' and uid='$userid'",
+		if (isset($this->who->sns->qy) && empty($members)) {
+			//根据openid查询粉丝表
+			$openid = $this->who->sns->qy->openid;
+			$p = array(
+						'siteid,openid,nickname,mobile,email,sync_at',
+						'xxt_site_qyfan',
+						"siteid='$siteId' and openid='$openid' and subscribe_at > 0 and unsubscribe_at = 0 ",
 					); 
-			$userOpenid = $this->model()->query_obj_ss($q);
-			if($userOpenid && $userOpenid->qy_openid != ''){
-				//根据openid查询粉丝表
-				$p = array(
-							'siteid,openid,nickname,mobile,email,sync_at',
-							'xxt_site_qyfan',
-							"siteid='$siteId' and openid='$userOpenid->qy_openid' and subscribe_at > 0 and unsubscribe_at = 0 ",
-						); 
-				$qySnsUser = $this->model()->query_obj_ss($p);
-				if($qySnsUser){
-					$members['qy'] = $qySnsUser;
-				}
+			$qySnsUser = $this->model()->query_obj_ss($p);
+			if($qySnsUser){
+				$members['qy'] = $qySnsUser;
 			}
+			
 		}
 		if (empty($members)) {
 			/* 处理版本迁移数据 */

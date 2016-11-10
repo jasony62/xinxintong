@@ -467,6 +467,7 @@ class member extends \site\fe\base {
 	 *
 	 */
 	public function syncFromQy_action($site, $schemaId, $pdid = 1) {
+		$who = $this->who;
 		$mp = $this->model('sns\qy')->bySite($site);
 		if (!$mp || $mp->joined === 'N') {
 			return new \ResponseError('未与企业号连接，无法同步通讯录');
@@ -504,37 +505,42 @@ class member extends \site\fe\base {
 			if (!($ldept = $model->query_obj_ss($q))) {
 				$ldept = $modelDept->create($site, $schemaId, $pid, null);
 			}
-			/**
-			 * 更新fullpath
-			 * fullpath包含节点自身的id
-			 */
 			if ($pid == 0) {
 				$parentfullpath = "$ldept->id";
-			} else {
-				/**
-				 * 父节点的fullpath
-				 */
-				$q = array(
+			}else{
+				$qp = array(
 					'fullpath',
 					'xxt_site_member_department',
 					"siteid='$site' and id=$pid",//获得pid的fullpatj，组合成新的fullpath
 				);
-				$parentfullpath = $model->query_val_ss($q);
+				$parentfullpath = $model->query_val_ss($qp);
 				$parentfullpath .= ",$ldept->id";//本地的id
 			}
-	
-			$model->update(
-				'xxt_site_member_department',
-				array(
+
+			$i = array(
 					'pid' => $pid,
 					'sync_at' => $timestamp,
 					'name' => $rdeptName,
 					'fullpath' => $parentfullpath,
 					'extattr' => json_encode($rdept),
-				),
+				);
+			$model->update(
+				'xxt_site_member_department',
+				$i,
 				"siteid='$site' and id=$ldept->id"
 			);
 			$mapDeptR2L[$rdept->id] = array('id' => $ldept->id, 'path' => $parentfullpath);
+
+			//记录同步日志
+			$data = json_encode($i);
+			$log = [];
+			$log['siteid'] = $site;
+			$log['type'] = '部门';
+			$log['sync_table'] = 'xxt_site_member_department';
+			$log['sync_data'] = $data;
+			$log['sync_at'] = $timestamp;
+			$log['sync_id'] = $ldept->id;
+			$this->model('log')->syncLog($site,$who,$log);
 		}
 		/**
 		 * 清空同步不存在的部门
@@ -559,9 +565,9 @@ class member extends \site\fe\base {
 					"siteid='$site' and openid='$user->userid'",
 				);
 				if (!($luser = $model->query_obj_ss($q))) {
-					$this->createQyFan($site, $user, $schemaId, $timestamp, $mapDeptR2L);
+					$this->createQyFan($site, $user, $schemaId, $timestamp, $mapDeptR2L,$who);
 				} else if ($luser->sync_at < $timestamp) {
-					$this->updateQyFan($site, $luser, $user, $schemaId, $timestamp, $mapDeptR2L);
+					$this->updateQyFan($site, $luser, $user, $schemaId, $timestamp, $mapDeptR2L,$who);
 				}
 			}
 		}
@@ -607,6 +613,18 @@ class member extends \site\fe\base {
 					"siteid='$site' and id=$ltag->id"
 				);
 			}
+
+			//记录同步日志
+			$data = json_encode($t);
+			$log = [];
+			$log['siteid'] = $site;
+			$log['type'] = '标签';
+			$log['sync_table'] = 'xxt_site_member_tag';
+			$log['sync_data'] = $data;
+			$log['sync_at'] = $timestamp;
+			$log['sync_id'] = $memberTagId;
+			$this->model('log')->syncLog($site,$who,$log);
+
 			/**
 			 * 建立标签和成员、部门的关联
 			 */

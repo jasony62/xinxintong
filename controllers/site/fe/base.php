@@ -403,7 +403,7 @@ class base extends \TMS_CONTROLLER {
 	 *
 	 * $user 企业号用户的详细信息
 	 */
-	protected function createQyFan($site, $user, $schemaId, $timestamp = null, $mapDeptR2L = null) {
+	protected function createQyFan($site, $user, $schemaId, $timestamp = null, $mapDeptR2L = null,$who) {
 
 		$create_at = time();
 		empty($timestamp) && $timestamp = $create_at;
@@ -472,17 +472,31 @@ class base extends \TMS_CONTROLLER {
 				$fan,
 				"siteid='$site' and openid='{$user->userid}'"
 			);
+			$sync_id = $old->id;
 		} else {
 			isset($user->avatar) && $fan['headimgurl'] = $user->avatar;
 			$user->status == 1 && $fan['subscribe_at'] = $timestamp;
-			$model->insert('xxt_site_qyfan', $fan, false);
+			$sync_id = $model->insert('xxt_site_qyfan', $fan, true);
 		}
+
+
+		//记录同步日志
+		$data = json_encode($fan);
+		$log = [];
+		$log['siteid'] = $site;
+		$log['type'] = '部门用户';
+		$log['sync_table'] = 'xxt_site_qyfan';
+		$log['sync_data'] = $data;
+		$log['sync_at'] = $timestamp;
+		$log['sync_id'] = $sync_id;
+		$this->model('log')->syncLog($site,$who,$log);
+
 		return true;
 	}
 	/**
 	 * 更新企业号用户信息
 	 */
-	protected function updateQyFan($site, $luser, $user, $schemaId, $timestamp = null, $mapDeptR2L = null) {
+	protected function updateQyFan($site, $luser, $user, $schemaId, $timestamp = null, $mapDeptR2L = null,$who) {
 		$model = $this->model();
 		empty($timestamp) && $timestamp = time();
 
@@ -540,14 +554,26 @@ class base extends \TMS_CONTROLLER {
 				$fan,
 				"siteid='$site' and openid='{$user->userid}'"
 			);
+			$sync_id = $old->id;
 		} else {
 			$fan['siteid'] = $site;
 			$fan['openid'] = $user->userid;
 			$fan['nickname'] = $user->name;
 			isset($user->avatar) && $fan['headimgurl'] = $user->avatar;
 			$user->status == 1 && $fan['subscribe_at'] = $timestamp;
-			$model->insert('xxt_site_qyfan', $fan, false);
+			$sync_id = $model->insert('xxt_site_qyfan', $fan, true);
 		}
+
+		//记录同步日志
+		$data = json_encode($fan);
+		$log = [];
+		$log['siteid'] = $site;
+		$log['type'] = '部门用户';
+		$log['sync_table'] = 'xxt_site_qyfan';
+		$log['sync_data'] = $data;
+		$log['sync_at'] = $timestamp;
+		$log['sync_id'] = $sync_id;
+		$this->model('log')->syncLog($site,$who,$log);
 
 		return true;
 	}

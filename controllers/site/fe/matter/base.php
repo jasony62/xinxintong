@@ -168,7 +168,7 @@ class base extends \site\fe\base {
 			$members = $this->model('site\user\member')->byUser($siteId, $userid, array('schemas' => $memberSchemas));
 		}
 		//如果是企业号的用户访问
-		if (empty($members)) {
+		if ($this->userAgent() === 'wx' && isset($this->who->sns->qy) && empty($members)) {
 			//根据userid获取xxt_site_account表中的qy_openid查询粉丝表如果有则说明是企业号的用户，为内置认证用户
 			$q = array(
 						'qy_openid',

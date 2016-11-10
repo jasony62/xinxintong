@@ -683,13 +683,9 @@ class member extends \site\fe\base {
 			$type = 'syncFromQy';
 		}
 
-		$q = array(
-				'*',
-				'xxt_log_sync',
-				"siteid = '$site' and type = '$type'",
-			);
-		$sync = $this->model()->query_objs_ss($q);
+		$p = array('*','xxt_log_sync',"siteid = '$site' and type = '$type'");
+		$sync = $this->model()->query_objs_ss($p);
 
-		return $sync;
+		return new \ResponseData($sync);
 	}
 }

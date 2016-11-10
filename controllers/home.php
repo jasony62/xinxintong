@@ -45,10 +45,11 @@ class home extends TMS_CONTROLLER {
 			if ($user = $this->_accountUser()) {
 				$modelSite = $this->model('site');
 				$mySites = $modelSite->byUser($user->id);
-				foreach ($mySites as $mySite) {
-					foreach ($result->sites as &$site) {
+				foreach ($result->sites as &$site) {
+					foreach ($mySites as $mySite) {
 						if ($modelSite->isSubscribedBySite($site->siteid, $mySite->id)) {
 							$site->_subscribed = 'Y';
+							break;
 						}
 					}
 				}

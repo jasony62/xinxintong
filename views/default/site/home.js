@@ -87,6 +87,46 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
 				});
 			}
 		};
+		$scope.subscribeSite = function() {
+			if ($scope.isLogin === 'N') {
+				location.href = '/rest/pl/fe/user/login';
+			} else {
+				var url = '/rest/pl/fe/site/siteCanSubscribe?site=' + $scope.site.id + '&_=' + (new Date() * 1);
+				http2.get(url, function(rsp) {
+					var sites = rsp.data;
+					$uibModal.open({
+						templateUrl: 'subscribeSite.html',
+						dropback: 'static',
+						controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+							$scope2.mySites = sites;
+							$scope2.ok = function() {
+								var selected = [];
+								sites.forEach(function(site) {
+									site._selected === 'Y' && selected.push(site);
+								});
+								if (selected.length) {
+									$mi.close(selected);
+								} else {
+									$mi.dismiss();
+								}
+							};
+							$scope2.cancel = function() {
+								$mi.dismiss();
+							};
+						}]
+					}).result.then(function(selected) {
+						var url = '/rest/pl/fe/site/subscribe?site=' + $scope.site.id;
+						sites = [];
+
+						selected.forEach(function(mySite) {
+							sites.push(mySite.id);
+						});
+						url += '&subscriber=' + sites.join(',');
+						http2.get(url, function(rsp) {});
+					});
+				});
+			}
+		};
 		http2.get('/rest/pl/fe/user/auth/isLogin', function(rsp) {
 			$scope.isLogin = rsp.data;
 		});

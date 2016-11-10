@@ -13,6 +13,12 @@ controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
             $scope.sites = rsp.data;
         });
     };
+    $scope.listTrends = function() {
+        var url = '/rest/pl/fe/trends?_=' + t;
+        http2.get(url, function(rsp) {
+            $scope.trends = rsp.data.trends;
+        });
+    };
     $scope.listMission = function() {
         var url = '/rest/pl/fe/matter/mission/list?_=' + t;
         http2.get(url, function(rsp) {
@@ -28,5 +34,6 @@ controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
         location.href = '/rest/pl/fe/matter/mission?id=' + mission.mission_id;
     };
     $scope.list();
+    $scope.listTrends();
     $scope.listMission();
 }]);

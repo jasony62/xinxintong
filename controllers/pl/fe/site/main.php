@@ -17,8 +17,7 @@ class main extends \pl\fe\base {
 	 * 创建站点
 	 */
 	public function create_action($pid = '', $asparent = 'N') {
-		$user = $this->accountUser();
-		if (false === $user) {
+		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
@@ -68,6 +67,28 @@ class main extends \pl\fe\base {
 		return new \ResponseData($site);
 	}
 	/**
+	 * 关注指定站点
+	 */
+	public function subscribe_action($site, $subscriber) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelSite = $this->model('site');
+
+		if (false === ($target = $modelSite->byId($site))) {
+			return new \ResponseError('数据不存在');
+		}
+
+		$siteIds = explode(',', $subscriber);
+		foreach ($siteIds as $siteId) {
+			$subscriber = $modelSite->byId($siteId);
+			$modelSite->subscribe($user, $target, $subscriber);
+		}
+
+		return new \ResponseData('ok');
+	}
+	/**
 	 * 有权管理的站点
 	 */
 	public function list_action() {
@@ -84,6 +105,35 @@ class main extends \pl\fe\base {
 		$sites = $this->model()->query_objs_ss($q, $q2);
 
 		return new \ResponseData($sites);
+	}
+	/**
+	 * 当前用户没有收藏过指定模板的站点
+	 *
+	 * @param int $template
+	 */
+	public function siteCanSubscribe_action($site) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelSite = $this->model('site');
+		if (false === ($site = $modelSite->byId($site))) {
+			return new \ResponseError('数据不存在');
+		}
+		/* 当前用户管理的站点 */
+		$mySites = $modelSite->byUser($user->id);
+		$targets = []; // 符合条件的站点
+		foreach ($mySites as &$mySite) {
+			if ($mySite->id === $site->id) {
+				continue;
+			}
+			if ($modelSite->isSubscribedBySite($site->id, $mySite->id)) {
+				$mySite->_subscribed = 'Y';
+			}
+			$targets[] = $mySite;
+		}
+
+		return new \ResponseData($targets);
 	}
 	/**
 	 * 获得站点绑定的第三方公众号

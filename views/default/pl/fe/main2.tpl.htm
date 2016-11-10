@@ -24,9 +24,7 @@
                 <div class='col-md-12'>
                     <nav class='navbar navbar-default' style='margin-bottom:-1px'>
                         <div class='container-fluid'>
-                            <ul class='nav navbar-nav'>
-                                <li><a href='javascript:void(0)'>任务</a></li>
-                            </ul>
+                            <p class="navbar-text">任务</p>
                         </div>
                     </nav>
                     <div class='tms-panel clearfix'>
@@ -47,9 +45,28 @@
                 <div class='col-md-12'>
                     <nav class='navbar navbar-default' style='margin-bottom:-1px'>
                         <div class='container-fluid'>
-                           <ul class='nav navbar-nav'>
-                                <li><a href='javascript:void(0)'>我的站点</a></li>
-                            </ul>
+                            <p class="navbar-text">关注</p>
+                        </div>
+                    </nav>
+                    <div class='tms-panel clearfix'>
+                        <div  class='col-md-4' ng-repeat='matter in trends'>
+                            <div class='thumbnail matter' ng-mouseenter='mouseenter=true' ng-mouseleave='mouseenter=false' ng-click='openMatter(matter)'>
+                                <h4 class='title' ng-bind="matter.matter_title"></h4>
+                                <p class='summary' ng-bind="matter.matter_summary"></p>
+                                <div class='attr'>
+                                    <div class='site_name' ng-bind="matter.from_site_name"></div>
+                                    <div class='create_at' ng-bind="matter.put_at*1000|date:'yyyy-MM-dd'"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='row'>
+                <div class='col-md-12'>
+                    <nav class='navbar navbar-default' style='margin-bottom:-1px'>
+                        <div class='container-fluid'>
+                            <p class="navbar-text">站点</p>
                             <form class='navbar-form navbar-right'>
                                 <button class='btn btn-success' ng-click='create()'><span class='glyphicon glyphicon-plus'></span>创建站点</button>
                             </form>

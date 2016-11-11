@@ -14,7 +14,7 @@ $sql .= ",creater varchar(255) not null default ''";//同步者
 $sql .= ",sync_type varchar(20) not null default ''";//同步属性
 $sql .= ",sync_table varchar(20) not null default ''";//同步对应的表
 $sql .= ",sync_id varchar(20) not null default ''";//同步对应表的id
-$sql .= ",sync_data text not null default ''";//同步数据
+$sql .= ",sync_data text ";//同步数据
 $sql .= ",primary key(id)";
 $sql .= ")ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

@@ -678,13 +678,15 @@ class member extends \site\fe\base {
 	}
 
 	//获取同步日志
-	public function syncLog_action($site,$type = ''){
+	public function syncLog_action($site,$type = '',$page,$size){
 		if($type == ''){
 			$type = 'syncFromQy';
 		}
 
 		$p = array('*','xxt_log_sync',"siteid = '$site' and type = '$type'");
-		$sync = $this->model()->query_objs_ss($p);
+		$p2['r']['o'] = ($page - 1) * $size;
+		$p2['r']['l'] = $size;
+		$sync = $this->model()->query_objs_ss($p,$p2);
 
 		return new \ResponseData($sync);
 	}

@@ -682,11 +682,19 @@ class member extends \site\fe\base {
 		if($type == ''){
 			$type = 'syncFromQy';
 		}
-
+		$sync = array();
 		$p = array('*','xxt_log_sync',"siteid = '$site' and type = '$type'");
 		$p2['r']['o'] = ($page - 1) * $size;
 		$p2['r']['l'] = $size;
-		$sync = $this->model()->query_objs_ss($p,$p2);
+		if ($sync = $this->model()->query_objs_ss($p,$p2)) {
+			$sync['data'] = $sync;
+			$q[0] = 'count(*)';
+			$total = (int) $this->model()->query_val_ss($q);
+			$sync['total'] = $total;
+		} else {
+			$sync['data'] = array();
+			$sync['total'] = 0;
+		}
 
 		return new \ResponseData($sync);
 	}

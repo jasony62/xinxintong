@@ -686,6 +686,7 @@ class member extends \site\fe\base {
 		$p = array('*','xxt_log_sync',"siteid = '$site' and type = '$type'");
 		$p2['r']['o'] = ($page - 1) * $size;
 		$p2['r']['l'] = $size;
+		$p2['o'] = 'sync_at desc';
 		if ($sync = $this->model()->query_objs_ss($p,$p2)) {
 			$result['data'] = $sync;
 			$p[0] = 'count(*)';

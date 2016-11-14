@@ -64,7 +64,7 @@ class department_model extends \TMS_MODEL {
 	 * $pid 父节点的id
 	 * $seq 父节点中的序号
 	 */
-	public function create($site, $schemaId, $pid, $seq = null) {
+	public function create($site, $authid, $pid, $seq = null) {
 		$isAppend = ($seq === null);
 		if ($isAppend) {
 			/**
@@ -80,7 +80,7 @@ class department_model extends \TMS_MODEL {
 		}
 		$i = array(
 			'siteid' => $site,
-			'schema_id' => $schemaId,
+			'schema_id' => $authid,
 			'pid' => $pid,
 			'seq' => $seq,
 			'name' => '新部门',

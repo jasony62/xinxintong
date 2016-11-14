@@ -466,7 +466,7 @@ class member extends \site\fe\base {
 	 * $pdid 父部门id
 	 *
 	 */
-	public function syncFromQy_action($site, $schemaId, $pdid = 1) {
+	public function syncFromQy_action($site, $authid, $pdid = 1) {
 		$who = $this->who;
 		$mp = $this->model('sns\qy')->bySite($site);
 		if (!$mp || $mp->joined === 'N') {
@@ -503,7 +503,7 @@ class member extends \site\fe\base {
 				"siteid='$site' and extattr like '%\"id\":$rdept->id,%'",
 			);
 			if (!($ldept = $model->query_obj_ss($q))) {
-				$ldept = $modelDept->create($site, $schemaId, $pid, null);
+				$ldept = $modelDept->create($site, $authid, $pid, null);
 			}
 			if ($pid == 0) {
 				$parentfullpath = "$ldept->id";
@@ -565,9 +565,9 @@ class member extends \site\fe\base {
 					"siteid='$site' and openid='$user->userid'",
 				);
 				if (!($luser = $model->query_obj_ss($q))) {
-					$this->createQyFan($site, $user, $schemaId, $timestamp, $mapDeptR2L,$who);
+					$this->createQyFan($site, $user, $authid, $timestamp, $mapDeptR2L,$who);
 				} else if ($luser->sync_at < $timestamp) {
-					$this->updateQyFan($site, $luser, $user, $schemaId, $timestamp, $mapDeptR2L,$who);
+					$this->updateQyFan($site, $luser, $user, $authid, $timestamp, $mapDeptR2L,$who);
 				}
 			}
 		}
@@ -597,7 +597,7 @@ class member extends \site\fe\base {
 					'siteid' => $site,
 					'sync_at' => $timestamp,
 					'name' => $tag->tagname,
-					'schema_id' => $schemaId,
+					'schema_id' => $authid,
 					'extattr' => json_encode(array('tagid' => $tag->tagid)),
 				);
 				$memberTagId = $model->insert('xxt_site_member_tag', $t, true);
@@ -664,7 +664,7 @@ class member extends \site\fe\base {
 		$model->update(
 			'xxt_site_member_schema',
 			array('sync_from_qy_at' => time()),
-			"id=$schemaId"
+			"id=$authid"
 		);
 
 		$rst = array(

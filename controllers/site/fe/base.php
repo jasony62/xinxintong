@@ -403,7 +403,7 @@ class base extends \TMS_CONTROLLER {
 	 *
 	 * $user 企业号用户的详细信息
 	 */
-	protected function createQyFan($site, $user, $schemaId, $timestamp = null, $mapDeptR2L = null,$who) {
+	protected function createQyFan($site, $user, $authid, $timestamp = null, $mapDeptR2L = null,$who) {
 
 		$create_at = time();
 		empty($timestamp) && $timestamp = $create_at;
@@ -496,7 +496,7 @@ class base extends \TMS_CONTROLLER {
 	/**
 	 * 更新企业号用户信息
 	 */
-	protected function updateQyFan($site, $luser, $user, $schemaId, $timestamp = null, $mapDeptR2L = null,$who) {
+	protected function updateQyFan($site, $luser, $user, $authid, $timestamp = null, $mapDeptR2L = null,$who) {
 		$model = $this->model();
 		empty($timestamp) && $timestamp = time();
 

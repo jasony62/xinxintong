@@ -130,8 +130,13 @@ class way_model extends \TMS_MODEL {
 		$cookieUser->uid = $siteUser->uid;
 		$cookieUser->expire = time() + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);
 		!isset($cookieUser->sns) && $cookieUser->sns = new \stdClass;
-		$cookieUser->nickname = $snsUser->nickname;
-		$cookieUser->sns->{$snsName} = $snsUser;
+		if(!isset($dbSnsUser) ){
+			$cookieUser->nickname = isset($snsUser->nickname)?$snsUser->nickname:'';
+			$cookieUser->sns->{$snsName} = $snsUser;
+		}else{
+		    $cookieUser->nickname = $dbSnsUser->nickname;
+		    $cookieUser->sns->{$snsName} = $dbSnsUser;
+		}
 
 		return $cookieUser;
 	}

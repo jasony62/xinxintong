@@ -636,6 +636,14 @@ class member extends \site\fe\base {
 			 */
 			$result = $qyproxy->tagUserList($tag->tagid);
 			if ($result[0] === false) {
+				//将错误存入同步日志
+				$log = [];
+				$log['type'] = 'syncFromQy';
+				$log['sync_type'] = 'tagUserList';
+				$log['sync_data'] = $result[1];
+				$log['sync_at'] = $timestamp;
+				$this->model('log')->syncLog($site,$who,$log);
+				
 				return new \ResponseError($result[1]);
 			}
 			$tagUsers = $result[1]->userlist;

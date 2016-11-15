@@ -662,16 +662,16 @@ class member extends \site\fe\base {
 			}elseif($typePost->syncType == 'tag'){
 				$p = array('*','xxt_site_member_tag',"siteid = '$site'");
 			}else{
-				$p = array('*','xxt_site_qyfan',"siteid = '$site' and  ");
+				$p = array('*','xxt_site_qyfan',"siteid = '$site' and subscribe_at > 0 and unsubscribe_at = 0 ");
 			} 
-		}elseif($type == 'import2Qy'){
-			$result = array();
-			$p = array('*','xxt_log_sync',"siteid = '$site' and subscribe_at > 0 and unsubscribe_at = 0 ");
+		}else{
+			return new \ResponseData("暂无");
 		}
 
 		$p2['r']['o'] = ($page - 1) * $size;
 		$p2['r']['l'] = $size;
 		$p2['o'] = 'id desc';
+		$result = array();
 		if ($sync = $this->model()->query_objs_ss($p,$p2)) {
 			$result['data'] = $sync;
 			$p[0] = 'count(*)';

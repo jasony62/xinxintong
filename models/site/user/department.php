@@ -85,11 +85,9 @@ class department_model extends \TMS_MODEL {
 			'seq' => $seq,
 			'name' => '新部门',
 		);
-		$id = $this->insert('xxt_site_member_department', $i, true);
+		$i['id'] = $this->insert('xxt_site_member_department', $i, true);
 
-		$dept = $this->query_obj_ss(array('*', 'xxt_site_member_department', "id=$id"));
-
-		return $dept;
+		return $i;
 	}
 	/**
 	 * 删除部门

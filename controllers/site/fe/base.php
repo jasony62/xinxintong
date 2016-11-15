@@ -483,13 +483,13 @@ class base extends \TMS_CONTROLLER {
 		//记录同步日志
 		$data = json_encode($fan);
 		$log = [];
-		$log['siteid'] = $site;
+		$log['type'] = 'syncFromQy';
 		$log['sync_type'] = '部门用户';
 		$log['sync_table'] = 'xxt_site_qyfan';
 		$log['sync_data'] = $data;
 		$log['sync_at'] = $timestamp;
 		$log['sync_id'] = $sync_id;
-		$this->model('log')->syncLog($site,$who,$log,'syncFromQy');
+		$this->model('log')->syncLog($site,$who,$log);
 
 		return true;
 	}
@@ -567,13 +567,13 @@ class base extends \TMS_CONTROLLER {
 		//记录同步日志
 		$data = json_encode($fan);
 		$log = [];
-		$log['siteid'] = $site;
+		$log['type'] = 'syncFromQy';
 		$log['sync_type'] = '部门用户';
 		$log['sync_table'] = 'xxt_site_qyfan';
 		$log['sync_data'] = $data;
 		$log['sync_at'] = $timestamp;
 		$log['sync_id'] = $sync_id;
-		$this->model('log')->syncLog($site,$who,$log,'syncFromQy');
+		$this->model('log')->syncLog($site,$who,$log);
 
 		return true;
 	}

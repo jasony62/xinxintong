@@ -505,6 +505,11 @@ class member extends \site\fe\base {
 			if (!($ldept = $model->query_obj_ss($q))) {
 				$ldept = $modelDept->create($site, $authid, $pid, null);
 			}
+
+			/**
+			 * 更新fullpath
+			 * fullpath包含节点自身的id
+			 */
 			if ($pid == 0) {
 				$parentfullpath = "$ldept->id";
 			}else{
@@ -516,7 +521,6 @@ class member extends \site\fe\base {
 				$parentfullpath = $model->query_val_ss($qp);
 				$parentfullpath .= ",$ldept->id";//本地的id
 			}
-
 			$i = array(
 					'pid' => $pid,
 					'sync_at' => $timestamp,
@@ -534,13 +538,13 @@ class member extends \site\fe\base {
 			//记录同步日志
 			$data = json_encode($i);
 			$log = [];
-			$log['siteid'] = $site;
+			$log['type'] = 'syncFromQy';
 			$log['sync_type'] = '部门';
 			$log['sync_table'] = 'xxt_site_member_department';
 			$log['sync_data'] = $data;
 			$log['sync_at'] = $timestamp;
 			$log['sync_id'] = $ldept->id;
-			$this->model('log')->syncLog($site,$who,$log,'syncFromQy');
+			$this->model('log')->syncLog($site,$who,$log);
 		}
 		/**
 		 * 清空同步不存在的部门
@@ -617,13 +621,13 @@ class member extends \site\fe\base {
 			//记录同步日志
 			$data = json_encode($t);
 			$log = [];
-			$log['siteid'] = $site;
+			$log['type'] = 'syncFromQy';
 			$log['sync_type'] = '标签';
 			$log['sync_table'] = 'xxt_site_member_tag';
 			$log['sync_data'] = $data;
 			$log['sync_at'] = $timestamp;
 			$log['sync_id'] = $memberTagId;
-			$this->model('log')->syncLog($site,$who,$log,'syncFromQy');
+			$this->model('log')->syncLog($site,$who,$log);
 
 			/**
 			 * 建立标签和成员、部门的关联

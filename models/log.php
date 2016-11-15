@@ -602,18 +602,17 @@ class log_model extends TMS_MODEL {
 	/*
 	*企业号同步日志
 	*/
-	public function syncLog($site, $who, $data = [],$type){
+	public function syncLog($site, $who, $log = []){
 		$time = time();
-		if(is_array($data) && !empty($data)){
-			isset($data['siteid'])?$data['siteid']:$data['siteid']=$site;
-			is_string($data['sync_data'])?$data['sync_data']:json_encode($data['sync_data']);
-			isset($data['sync_at'])?$data['sync_at']:$data['sync_at']=$time;
-			isset($data['type'])?$data['type']:$data['type']=$type;
-			isset($data['userid'])?$data['userid']:$data['userid']=$who->uid;
-			isset($data['creater'])?$data['creater']:$data['creater']=$who->nickname;
-			$logid = $this->insert('xxt_log_sync', $data, true);
+		$log['siteid'] = $site;
+		isset($log['sync_data']) && !is_string($log['sync_data']) && $log['sync_data'] = json_encode($log['sync_data']);
+		!isset($log['sync_at']) && $log['sync_at'] = $time;
+		!isset($log['type']) && $log['type'] = '';
+		!isset($log['userid']) && $log['userid'] = $who->uid;
+		!isset($log['creater']) && $log['creater'] = $who->nickname;
 
-			return $logid;
-		}
+		$log['id'] = $this->insert('xxt_log_sync', $log, true);
+
+		return $log;
 	}
 }

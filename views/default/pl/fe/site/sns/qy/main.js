@@ -28,7 +28,12 @@ define(['require'], function(require) {
             .when('/rest/pl/fe/site/sns/qy/other', new RouteParam('other'))
             .when('/rest/pl/fe/site/sns/qy/relay', new RouteParam('relay'))
             .when('/rest/pl/fe/site/sns/qy/page', new RouteParam('page'))
+            //企业号同步
             .when('/rest/pl/fe/site/sns/qy/customapi', new RouteParam('customapi'))
+            //增量同步
+            .when('/rest/pl/fe/site/sns/qy/sync2Qy', new RouteParam('sync2Qy'))
+            //全量同步
+            .when('/rest/pl/fe/site/sns/qy/import2Qy', new RouteParam('import2Qy'))
             .otherwise(new RouteParam('setting'));
     }]);
     ngApp.controller('ctrlQy', ['$scope', '$location', 'http2', function($scope, $location, http2) {

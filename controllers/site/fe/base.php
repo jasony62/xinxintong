@@ -479,18 +479,6 @@ class base extends \TMS_CONTROLLER {
 			$sync_id = $model->insert('xxt_site_qyfan', $fan, true);
 		}
 
-
-		//记录同步日志
-		$data = json_encode($fan);
-		$log = [];
-		$log['siteid'] = $site;
-		$log['sync_type'] = '部门用户';
-		$log['sync_table'] = 'xxt_site_qyfan';
-		$log['sync_data'] = $data;
-		$log['sync_at'] = $timestamp;
-		$log['sync_id'] = $sync_id;
-		$this->model('log')->syncLog($site,$who,$log,'syncFromQy');
-
 		return true;
 	}
 	/**
@@ -563,17 +551,6 @@ class base extends \TMS_CONTROLLER {
 			$user->status == 1 && $fan['subscribe_at'] = $timestamp;
 			$sync_id = $model->insert('xxt_site_qyfan', $fan, true);
 		}
-
-		//记录同步日志
-		$data = json_encode($fan);
-		$log = [];
-		$log['siteid'] = $site;
-		$log['sync_type'] = '部门用户';
-		$log['sync_table'] = 'xxt_site_qyfan';
-		$log['sync_data'] = $data;
-		$log['sync_at'] = $timestamp;
-		$log['sync_id'] = $sync_id;
-		$this->model('log')->syncLog($site,$who,$log,'syncFromQy');
 
 		return true;
 	}

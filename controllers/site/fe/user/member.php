@@ -482,14 +482,6 @@ class member extends \site\fe\base {
 		$mapDeptR2L = array(); // 部门的远程ID和本地ID的映射
 		$result = $qyproxy->departmentList($pdid);
 		if ($result[0] === false) {
-			//将错误存入同步日志
-			$log = [];
-			$log['type'] = 'syncFromQy';
-			$log['sync_type'] = 'departmentList';
-			$log['sync_data'] = $result[1];
-			$log['sync_at'] = $timestamp;
-			$this->model('log')->syncLog($site,$who,$log);
-
 			return new \ResponseError($result[1]);
 		}
 
@@ -513,10 +505,6 @@ class member extends \site\fe\base {
 			if (!($ldept = $model->query_obj_ss($q))) {
 				$ldept = $modelDept->create($site, $authid, $pid, null);
 			}
-			/**
-			 * 更新fullpath
-			 * fullpath包含节点自身的id
-			 */
 			if ($pid == 0) {
 				$parentfullpath = "$ldept->id";
 			}else{
@@ -528,6 +516,7 @@ class member extends \site\fe\base {
 				$parentfullpath = $model->query_val_ss($qp);
 				$parentfullpath .= ",$ldept->id";//本地的id
 			}
+
 			$i = array(
 					'pid' => $pid,
 					'sync_at' => $timestamp,
@@ -540,8 +529,18 @@ class member extends \site\fe\base {
 				$i,
 				"siteid='$site' and id=$ldept->id"
 			);
-
 			$mapDeptR2L[$rdept->id] = array('id' => $ldept->id, 'path' => $parentfullpath);
+
+			//记录同步日志
+			$data = json_encode($i);
+			$log = [];
+			$log['siteid'] = $site;
+			$log['sync_type'] = '部门';
+			$log['sync_table'] = 'xxt_site_member_department';
+			$log['sync_data'] = $data;
+			$log['sync_at'] = $timestamp;
+			$log['sync_id'] = $ldept->id;
+			$this->model('log')->syncLog($site,$who,$log,'syncFromQy');
 		}
 		/**
 		 * 清空同步不存在的部门
@@ -556,14 +555,6 @@ class member extends \site\fe\base {
 		foreach ($rootDepts as $rootDept) {
 			$result = $qyproxy->userList($rootDept->id, 1);
 			if ($result[0] === false) {
-				//将错误存入同步日志
-				$log = [];
-				$log['type'] = 'syncFromQy';
-				$log['sync_type'] = 'userList';
-				$log['sync_data'] = $result[1];
-				$log['sync_at'] = $timestamp;
-				$this->model('log')->syncLog($site,$who,$log);
-
 				return new \ResponseError($result[1]);
 			}
 			$users = $result[1]->userlist;
@@ -592,14 +583,6 @@ class member extends \site\fe\base {
 		 */
 		$result = $qyproxy->tagList();
 		if ($result[0] === false) {
-			//将错误存入同步日志
-			$log = [];
-			$log['type'] = 'syncFromQy';
-			$log['sync_type'] = 'tagList';
-			$log['sync_data'] = $result[1];
-			$log['sync_at'] = $timestamp;
-			$this->model('log')->syncLog($site,$who,$log);
-
 			return new \ResponseError($result[1]);
 		}
 		$tags = $result[1]->taglist;
@@ -630,6 +613,17 @@ class member extends \site\fe\base {
 					"siteid='$site' and id=$ltag->id"
 				);
 			}
+
+			//记录同步日志
+			$data = json_encode($t);
+			$log = [];
+			$log['siteid'] = $site;
+			$log['sync_type'] = '标签';
+			$log['sync_table'] = 'xxt_site_member_tag';
+			$log['sync_data'] = $data;
+			$log['sync_at'] = $timestamp;
+			$log['sync_id'] = $memberTagId;
+			$this->model('log')->syncLog($site,$who,$log,'syncFromQy');
 
 			/**
 			 * 建立标签和成员、部门的关联

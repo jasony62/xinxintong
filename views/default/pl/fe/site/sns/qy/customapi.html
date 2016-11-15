@@ -1,0 +1,56 @@
+<div class="col-md-12">
+    <!--切换日志页-->
+    <nav class="navbar navbar-default">
+        <ul class='nav n navbar-nav ' style='margin-right:0'>
+            <li ng-class="{'active': type ==='syncFromQy'}"><a href='' target='_self'>企业号日志</a></li>
+            <li ng-class="{'active': type ==='sync2Qy'}"><a href='' target='_self'>增量日志</a></li>
+            <li ng-class="{'active': type ==='import2Qy'}"><a href='' target='_self'>全量日志</a></li>
+        </ul>
+    </nav>
+    <!--功能项目-->
+    <div class="alert alert-info">
+        <button type="button" class="btn btn-primary" ng-click="syn()">企业号同步</button>
+    </div>
+    <!--项目切换-->
+    <nav class="navbar navbar-default">
+        <ul class='nav n navbar-nav ' style='margin-right:0'>
+            <li ng-class="{'active': type ==='department'}"><a href='' ng-click="doSearch(1,'department')">部门</a></li>
+            <li ng-class="{'active': type ==='tap'}"><a href='' ng-click="doSearch(1,'tap')">部门</a></li>
+            <li ng-class="{'active': type ==='user'}"><a href='' ng-click="doSearch(1,'user')">用户</a></li>
+        </ul>
+    </nav>
+    <div class="row" style="padding:0 15px">
+        <div class="col-md-12" style="padding-top: 15px ;background:#fff" >
+            <div style="width:1100px;overflow-x:auto">
+                <table class="table table-bordered" >
+                    <thead>
+                    <tr>
+                        <th>同步日期</th>
+                        <th>同步者</th>
+                        <th>属性</th>
+                        <th>表</th>
+                        <th>表ID</th>
+                        <th>数据</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="r in records">
+                        <!--增加日期过滤器-->
+                        <td ng-bind="r.sync_at*1000|date:'yy-MM-dd'"></td>
+                        <td ng-bind="r.creater"></td>
+                        <td ng-bind="r.sync_type"></td>
+                        <td ng-bind="r.sync_table"></td>
+                        <td ng-bind="r.sync_id"></td>
+                        <td ng-bind="r.sync_data"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class='form-group form-inline'>
+                <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+                <ul uib-pagination style='margin:0;cursor:pointer' class='pull-right' ng-if='page.total>page.size' boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+            </div>
+        </div>
+    </div>
+
+</div>

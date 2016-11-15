@@ -534,17 +534,6 @@ class member extends \site\fe\base {
 				"siteid='$site' and id=$ldept->id"
 			);
 			$mapDeptR2L[$rdept->id] = array('id' => $ldept->id, 'path' => $parentfullpath);
-
-			//记录同步日志
-			$data = json_encode($i);
-			$log = [];
-			$log['type'] = 'syncFromQy';
-			$log['sync_type'] = '部门';
-			$log['sync_table'] = 'xxt_site_member_department';
-			$log['sync_data'] = $data;
-			$log['sync_at'] = $timestamp;
-			$log['sync_id'] = $ldept->id;
-			$this->model('log')->syncLog($site,$who,$log);
 		}
 		/**
 		 * 清空同步不存在的部门
@@ -618,30 +607,11 @@ class member extends \site\fe\base {
 				);
 			}
 
-			//记录同步日志
-			$data = json_encode($t);
-			$log = [];
-			$log['type'] = 'syncFromQy';
-			$log['sync_type'] = '标签';
-			$log['sync_table'] = 'xxt_site_member_tag';
-			$log['sync_data'] = $data;
-			$log['sync_at'] = $timestamp;
-			$log['sync_id'] = $memberTagId;
-			$this->model('log')->syncLog($site,$who,$log);
-
 			/**
 			 * 建立标签和成员、部门的关联
 			 */
 			$result = $qyproxy->tagUserList($tag->tagid);
-			if ($result[0] === false) {
-				//将错误存入同步日志
-				$log = [];
-				$log['type'] = 'syncFromQy';
-				$log['sync_type'] = 'tagUserList';
-				$log['sync_data'] = $result[1];
-				$log['sync_at'] = $timestamp;
-				$this->model('log')->syncLog($site,$who,$log);
-				
+			if ($result[0] === false) {				
 				return new \ResponseError($result[1]);
 			}
 			$tagUsers = $result[1]->userlist;
@@ -673,12 +643,6 @@ class member extends \site\fe\base {
 			"siteid='$site' and sync_at<" . $timestamp
 		);
 
-		$model->update(
-			'xxt_site_member_schema',
-			array('sync_from_qy_at' => time()),
-			"id=$authid"
-		);
-
 		$rst = array(
 			isset($rdepts) ? count($rdepts) : 0,
 			isset($users) ? count($users) : 0,
@@ -691,14 +655,23 @@ class member extends \site\fe\base {
 
 	//获取同步日志
 	public function syncLog_action($site,$type = '',$page,$size){
-		if($type == ''){
-			$type = 'syncFromQy';
+		if($type == '' || $type == 'syncFromQy'){
+			$typePost = $this->getPostJson();
+			if($typePost->syncType == 'department'){
+				$p = array('*','xxt_site_member_department',"siteid = '$site'");
+			}elseif($typePost->syncType == 'tag'){
+				$p = array('*','xxt_site_member_tag',"siteid = '$site'");
+			}else{
+				$p = array('*','xxt_site_qyfan',"siteid = '$site' and  ");
+			} 
+		}elseif($type == 'import2Qy'){
+			$result = array();
+			$p = array('*','xxt_log_sync',"siteid = '$site' and subscribe_at > 0 and unsubscribe_at = 0 ");
 		}
-		$result = array();
-		$p = array('*','xxt_log_sync',"siteid = '$site' and type = '$type'");
+
 		$p2['r']['o'] = ($page - 1) * $size;
 		$p2['r']['l'] = $size;
-		$p2['o'] = 'sync_at desc';
+		$p2['o'] = 'id desc';
 		if ($sync = $this->model()->query_objs_ss($p,$p2)) {
 			$result['data'] = $sync;
 			$p[0] = 'count(*)';

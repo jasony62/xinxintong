@@ -33,7 +33,7 @@ define(['frame'], function(ngApp) {
 				});
 			});
 		};
-		$scope.cancelEnrollApp = function() {
+		$scope.cancelUserApp = function() {
 			var mission = $scope.mission;
 			mission.user_app_id = '';
 			$scope.update('user_app_id').then(function() {
@@ -52,8 +52,11 @@ define(['frame'], function(ngApp) {
 			http2.get('/rest/pl/fe/matter/enroll/list?mission=' + mission.id, function(rsp) {
 				_missionApps.enroll = rsp.data.apps;
 			});
-			http2.get('/rest/pl/fe/matter/signin/list?mission=' + mission.id, function(rsp) {
-				_missionApps.signin = rsp.data.apps;
+			http2.get('/rest/pl/fe/matter/signin/list?mission=' + mission.id + '&cascaded=round', function(rsp) {
+				_missionApps.signin = {};
+				rsp.data.apps.forEach(function(app) {
+					_missionApps.signin[app.id] = app;
+				});
 			});
 			http2.get('/rest/pl/fe/matter/group/list?mission=' + mission.id, function(rsp) {
 				_missionApps.group = rsp.data.apps;
@@ -72,14 +75,34 @@ define(['frame'], function(ngApp) {
 			}
 			user.enrollAct = act2Html;
 		};
+		var _signinAppRounds = {};
 
 		function parseSigninAct(user) {
-			var signinAct, act2Html = {};
+			var num, log, signinAct, lateNum,
+				act2Html = {};
 			signinAct = JSON.parse(user.signin_act);
 			for (var appId in signinAct) {
 				act2Html[appId] = [];
 				for (var ek in signinAct[appId]) {
-					act2Html[appId].push(signinAct[appId][ek].num);
+					lateNum = 0;
+					num = signinAct[appId][ek].num;
+					log = signinAct[appId][ek].log;
+					if (_signinAppRounds[appId] === undefined) {
+						_signinAppRounds[appId] = {};
+						$scope.missionApps.signin[appId].rounds.forEach(function(round) {
+							_signinAppRounds[appId][round.rid] = parseInt(round.late_at);
+						});
+					}
+					for (var roundId in log) {
+						if (_signinAppRounds[appId][roundId] && log[roundId] > _signinAppRounds[appId][roundId] + 60) {
+							lateNum++;
+						}
+					}
+					if (lateNum) {
+						act2Html[appId].push('签到:' + num + ',迟到：' + '<span class="signin-late">' + lateNum + '</span>');
+					} else {
+						act2Html[appId].push('签到:' + num);
+					}
 				}
 			}
 			user.signinAct = act2Html;
@@ -133,7 +156,8 @@ define(['frame'], function(ngApp) {
 			_page.at = 1;
 			$scope.doSearch();
 		});
-		$scope.$watch('mission', function(mission) {
+		$scope.$watch('missionApps.signin', function(apps) {
+			if (!apps) return;
 			$scope.doSearch();
 		});
 	}]);

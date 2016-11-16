@@ -1,7 +1,7 @@
-
 <style>
 .enroll{background:#fdd;}
 .signin{background:#dfd;}
+.signin-late{color:red;}
 .group{background:#ddf;}
 </style>
 <nav class='navbar navbar-default'>
@@ -12,7 +12,7 @@
             <div class="input-group">
                 <input class='form-control' title="{{mission.userApp.title}}" value="{{mission.userApp.title}}" readonly="">
                 <span class="input-group-btn">
-                    <button class="btn btn-default" type="button" ng-click="quitMission()" ng-if="mission.userApp">
+                    <button class="btn btn-default" type="button" ng-click="cancelUserApp()" ng-if="mission.userApp">
                         <span class='glyphicon glyphicon-remove'></span>
                     </button>
             		<button class='btn btn-success' ng-click="assignUserApp()" ng-if="!mission.userApp">指定</button>

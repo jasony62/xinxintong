@@ -117,7 +117,7 @@ class way_model extends \TMS_MODEL {
 					$dbSnsUser = $modelSnsUser->blank($snsSiteId, $snsUser->openid, true, $options);
 				}
 				// 清空不必要的数据，减小cookie尺寸
-				if(isset($dbSnsUser)){
+				if($dbSnsUser){
 					unset($dbSnsUser->siteid);
 					unset($dbSnsUser->subscribe_at);
 					unset($dbSnsUser->sync_at);
@@ -130,7 +130,7 @@ class way_model extends \TMS_MODEL {
 		$cookieUser->uid = $siteUser->uid;
 		$cookieUser->expire = time() + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);
 		!isset($cookieUser->sns) && $cookieUser->sns = new \stdClass;
-		if(!isset($dbSnsUser) ){
+		if($dbSnsUser === false){
 			$cookieUser->nickname = isset($snsUser->nickname)?$snsUser->nickname:'';
 			$cookieUser->sns->{$snsName} = $snsUser;
 		}else{

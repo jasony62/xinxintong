@@ -2,9 +2,9 @@
     <!--切换日志页-->
     <nav class="navbar navbar-default">
         <ul class='nav n navbar-nav ' style='margin-right:0'>
-            <li ng-class="{'active': type ==='syncFromQy'}"><a href='' target='_self'>企业号日志</a></li>
-            <li ng-class="{'active': type ==='sync2Qy'}"><a href='' target='_self'>增量日志</a></li>
-            <li ng-class="{'active': type ==='import2Qy'}"><a href='' target='_self'>全量日志</a></li>
+            <li ng-class="{'active': type ==='syncFromQy'}"><a href='' >企业号日志</a></li>
+            <li ng-class="{'active': type ==='sync2Qy'}"><a href='' >增量日志</a></li>
+            <li ng-class="{'active': type ==='import2Qy'}"><a href=''>全量日志</a></li>
         </ul>
     </nav>
     <!--功能项目-->
@@ -19,6 +19,7 @@
             <li ng-class="{'active': syncType ==='user'}"><a href='' ng-click="doSearch(1,'user')">用户</a></li>
         </ul>
     </nav>
+
     <div class="row" style="padding:0 15px">
         <div class="col-md-12" style="padding-top: 15px ;background:#fff" >
             <div style="width:1100px;overflow-x:auto">
@@ -95,4 +96,10 @@
             </div>
         </div>
     </div>
+    <!--企业号日志-->
+    <!--<div ng-if="type ==='syncFromQy"></div>-->
+    <!--&lt;!&ndash;增量日志&ndash;&gt;-->
+    <!--<div ng-if="type ==='sync2Qy"></div>-->
+    <!--&lt;!&ndash;全量日志&ndash;&gt;-->
+    <!--<div ng-if="type ==='import2Qy"></div>-->
 </div>

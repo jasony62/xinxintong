@@ -599,20 +599,4 @@ class log_model extends TMS_MODEL {
 
 		return $result;
 	}
-	/*
-	*企业号同步日志
-	*/
-	public function syncLog($site, $who, $log = []){
-		$time = time();
-		$log['siteid'] = $site;
-		isset($log['sync_data']) && !is_string($log['sync_data']) && $log['sync_data'] = json_encode($log['sync_data']);
-		!isset($log['sync_at']) && $log['sync_at'] = $time;
-		!isset($log['type']) && $log['type'] = '';
-		!isset($log['userid']) && $log['userid'] = $who->uid;
-		!isset($log['creater']) && $log['creater'] = $who->nickname;
-
-		$log['id'] = $this->insert('xxt_log_sync', $log, true);
-
-		return $log;
-	}
 }

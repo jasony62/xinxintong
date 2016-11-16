@@ -345,12 +345,16 @@ class channel_model extends article_base {
 	/**
 	 * 频道中增加素材
 	 *
-	 * $id
-	 * $matter
+	 * @param int $id channel's id
+	 * @param object $matter
 	 */
 	public function addMatter($id, $matter, $creater, $createrName, $createrSrc = 'A') {
 		is_array($matter) && $matter = (object) $matter;
 
+		$channel = $this->byId($id);
+		$matterType = $matter->type;
+		$matter = \TMS_APP::M('matter\\' . $matterType)->byId($matter->id);
+		$matter->type = $matterType;
 		$current = time();
 
 		$newc['matter_id'] = $matter->id;
@@ -360,12 +364,12 @@ class channel_model extends article_base {
 		$newc['creater_src'] = $createrSrc;
 		$newc['creater_name'] = $createrName;
 		// check
-		$q = array(
+		$q = [
 			'count(*)',
 			'xxt_channel_matter',
 			"channel_id=$id and matter_id='$matter->id' and matter_type='matter->type'",
-		);
-		if ('1' === $this->query_val_ss($q)) {
+		];
+		if (1 === (int) $this->query_val_ss($q)) {
 			return false;
 		}
 
@@ -373,6 +377,9 @@ class channel_model extends article_base {
 		$newc['channel_id'] = $id;
 
 		$this->insert('xxt_channel_matter', $newc, false);
+
+		/* 推送给关注站点 */
+		$this->_pushToSubscriber($channel, $matter, $creater, $createrName);
 
 		return true;
 	}
@@ -387,5 +394,34 @@ class channel_model extends article_base {
 			"matter_id='$matter->id' and matter_type='$matter->type' and channel_id=$id");
 
 		return $rst;
+	}
+	/**
+	 * 推送给关注站点
+	 * 如果频道已经发布到主页上，那么频道中增加素材时，将素材推送给站点的关注站点
+	 */
+	private function _pushToSubscriber(&$channel, &$matter, $creater, $createrName) {
+		if (false === $this->_isAtHome($channel->id)) {
+			return false;
+		}
+
+		$user = new \stdClass;
+		$user->id = $creater;
+		$user->name = $createrName;
+
+		$modelSite = \TMS_APP::M('site');
+		return $modelSite->pushToSubscriber($matter, $user);
+	}
+	/**
+	 * 站点是否已发布到站点首页
+	 */
+	private function _isAtHome($id) {
+		$q = [
+			'count(*)',
+			'xxt_site_home_channel',
+			"channel_id=$id",
+		];
+		$cnt = (int) $this->query_val_ss($q);
+
+		return $cnt > 0;
 	}
 }

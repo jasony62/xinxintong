@@ -1,7 +1,11 @@
 body{margin-bottom:50px;}
-.tms-panel{border:1px solid #ddd;border-radius:4px;background:#fff;padding:30px 0;margin-bottom:30px;}
+.tms-panel-heading{margin-bottom:-1px;}
+.tms-panel-body{border:1px solid #eee;border-radius:4px;background:#fff;padding:30px 0;margin-bottom:30px;}
+.tms-panel-body:before{content:' ';display:table;}
+.tms-panel-body:after{content:' ';display:table;clear:both;}
 .tms-tile{border:1px solid #ddd;border-radius:4px;padding:15px;}
 .navbar-nav .active:after{content:' ';position:absolute;left:0;right:0;bottom:-1px;height:3px;background:red;}
+
 /*phase*/
 .phases{phase}
 .phases .phase{counter-increment:phase;position:relative;}

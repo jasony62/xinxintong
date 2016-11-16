@@ -610,7 +610,7 @@ class record extends \pl\fe\matter\base {
 		for ($i = 0, $ii = count($schemas); $i < $ii; $i++) {
 			$schema = $schemas[$i];
 			/* 跳过图片和文件 */
-			if (in_array(['image', 'file'], $schema->type)) {
+			if (in_array($schema->type, ['image', 'file'])) {
 				continue;
 			}
 			$objActiveSheet->setCellValueByColumnAndRow($i + 2, 1, $schema->title);

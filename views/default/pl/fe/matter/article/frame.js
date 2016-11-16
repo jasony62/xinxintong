@@ -29,6 +29,7 @@ define(['require'], function() {
 		$scope.id = ls.id;
 		http2.get('/rest/pl/fe/matter/article/get?id=' + $scope.id, function(rsp) {
 			var url;
+			$scope.siteId = rsp.data.siteid;
 			$scope.editing = rsp.data;
 			!$scope.editing.attachments && ($scope.editing.attachments = []);
 			url = 'http://' + location.host + '/rest/site/fe/matter?site=' + $scope.editing.siteid + '&id=' + ls.id + '&type=article';

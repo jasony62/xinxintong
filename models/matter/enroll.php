@@ -100,6 +100,33 @@ class enroll_model extends app_base {
 		return $result;
 	}
 	/**
+	 * 返回登记活动列表
+	 */
+	public function &byMission($mission, $scenario = null, $page = 1, $size = 30) {
+		$result = new \stdClass;
+
+		$q = [
+			'*',
+			'xxt_enroll',
+			"state<>0 and mission_id='$mission'",
+		];
+		if (!empty($scenario)) {
+			$q[2] .= " and scenario='$scenario'";
+		}
+		$q2['o'] = 'modify_at desc';
+		if ($page) {
+			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		}
+		if ($apps = $this->query_objs_ss($q, $q2)) {
+			$result->apps = $apps;
+			$q[0] = 'count(*)';
+			$total = (int) $this->query_val_ss($q);
+			$result->total = $total;
+		}
+
+		return $result;
+	}
+	/**
 	 * 更新登记活动标签
 	 */
 	public function updateTags($aid, $tags) {

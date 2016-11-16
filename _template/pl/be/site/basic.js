@@ -7,9 +7,6 @@ ngApp.provider.controller('ctrlSite', ['$scope', '$http', function($scope, $http
         at: 1,
         total: 0
     };
-    $scope.open = function(site) {
-        location.href = '/rest/site/home?site=' + site.siteid;
-    };
     $scope.changeScope = function(scope) {
         $scope.criteria.scope = scope;
         $scope.searchTemplate();

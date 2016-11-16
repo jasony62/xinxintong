@@ -40,8 +40,21 @@ class home extends TMS_CONTROLLER {
 	 */
 	public function listSite_action() {
 		$modelHome = $this->model('site\home');
-
 		$result = $modelHome->atHome();
+		if ($result->total) {
+			if ($user = $this->_accountUser()) {
+				$modelSite = $this->model('site');
+				$mySites = $modelSite->byUser($user->id);
+				foreach ($result->sites as &$site) {
+					foreach ($mySites as $mySite) {
+						if ($modelSite->isSubscribedBySite($site->siteid, $mySite->id)) {
+							$site->_subscribed = 'Y';
+							break;
+						}
+					}
+				}
+			}
+		}
 
 		return new \ResponseData($result);
 	}
@@ -74,5 +87,21 @@ class home extends TMS_CONTROLLER {
 		$result = $modelHome->atHomeArticle();
 
 		return new \ResponseData($result);
+	}
+	/**
+	 * 获得当前登录账号的用户信息
+	 */
+	private function &_accountUser() {
+		$account = \TMS_CLIENT::account();
+		if ($account) {
+			$user = new \stdClass;
+			$user->id = $account->uid;
+			$user->name = $account->nickname;
+			$user->src = 'A';
+
+		} else {
+			$user = false;
+		}
+		return $user;
 	}
 }

@@ -27,10 +27,6 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', function($scope, $http
     listTemplates();
     listApps();
     listArticles();
-
-    $scope.openSite = function(site) {
-        location.href = '/rest/site/home?site=' + site.siteid;
-    };
 }]);
 ngApp.provider.controller('ctrlCarousel', function($scope) {
     $scope.myInterval = 5000;

@@ -1,5 +1,5 @@
 .ng-cloak{display:none;}
-body{background:#fff;padding-top:71px;}
+body{padding-top:71px;}
 body>nav{display:flex;height:50px;}
 body>nav>.navbar-form{flex-grow:1;text-align:center;}
 

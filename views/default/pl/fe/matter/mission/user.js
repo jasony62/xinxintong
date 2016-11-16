@@ -44,6 +44,7 @@ define(['frame'], function(ngApp) {
 			var url = '/rest/pl/fe/matter/mission/user/extract?mission=' + $scope.mission.id;
 			http2.get(url, function(rsp) {
 				noticebox.success('完成');
+				$scope.$broadcast('xxt.matter.mission.user.extract');
 			});
 		};
 		$scope.$watch('mission', function(mission) {
@@ -128,6 +129,12 @@ define(['frame'], function(ngApp) {
 				_page.total = rsp.data.total;
 			});
 		};
-		$scope.doSearch();
+		$scope.$on('xxt.matter.mission.user.extract', function() {
+			_page.at = 1;
+			$scope.doSearch();
+		});
+		$scope.$watch('mission', function(mission) {
+			$scope.doSearch();
+		});
 	}]);
 });

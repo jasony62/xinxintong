@@ -70,7 +70,7 @@ class way_model extends \TMS_MODEL {
 					if ($siteUser === false) {
 						$siteUser = $modelSiteUser->blank($siteId, true, ['uid' => $cookieUser->uid, 'ufrom' => $snsName, $snsName . '_openid' => $dbSnsUser->openid]);
 					}
-				} else if ($dbSnsUser->openid !== $siteUser->{$snsName . '_openid'}) {//如果时企业号是否也可以采用这样的方式？？（因为验证内置认证的方式不一样是可以这样的）
+				} else if ($dbSnsUser->openid !== $siteUser->{$snsName . '_openid'}) {
 					$siteUserBefore = $modelSiteUser->byOpenid($siteId, $snsName, $dbSnsUser->openid);
 					if ($siteUserBefore) {
 						// 记录站点用户关联的站点用户

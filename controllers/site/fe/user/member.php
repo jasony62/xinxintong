@@ -467,7 +467,6 @@ class member extends \site\fe\base {
 	 *
 	 */
 	public function syncFromQy_action($site, $authid, $pdid = 1) {
-		$who = $this->who;
 		$mp = $this->model('sns\qy')->bySite($site);
 		if (!$mp || $mp->joined === 'N') {
 			return new \ResponseError('未与企业号连接，无法同步通讯录');
@@ -558,9 +557,9 @@ class member extends \site\fe\base {
 					"siteid='$site' and openid='$user->userid'",
 				);
 				if (!($luser = $model->query_obj_ss($q))) {
-					$this->createQyFan($site, $user, $authid, $timestamp, $mapDeptR2L,$who);
+					$this->createQyFan($site, $user, $authid, $timestamp, $mapDeptR2L);
 				} else if ($luser->sync_at < $timestamp) {
-					$this->updateQyFan($site, $luser, $user, $authid, $timestamp, $mapDeptR2L,$who);
+					$this->updateQyFan($site, $luser, $user, $authid, $timestamp, $mapDeptR2L);
 				}
 			}
 		}

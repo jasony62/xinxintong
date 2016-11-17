@@ -38,8 +38,7 @@ class qy extends \member_base {
 			 if ($rst[0] === false) {
 			 	exit;
 			 }
-			 $data = $rst[1];
-			
+			$data = $rst[1];
 			$call = new UserCall($data, $site, 'qy');
 			$this->handle($site, $call);
 			break;
@@ -59,7 +58,7 @@ class qy extends \member_base {
 		foreach ($tasks as $task) {
 			$rsp = $task->exec();
 			$log = array(
-				'mpid' => $task->siteid,
+				'mpid' => $task->mpid,
 				'task_id' => $task->id,
 				'occur_at' => time(),
 				'result' => json_encode($rsp),

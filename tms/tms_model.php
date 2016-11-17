@@ -261,26 +261,7 @@ class TMS_MODEL {
 	/**
 	 *
 	 */
-	public static function urlencodeObj($obj,$type="origin") {
-		if($type=="encode"){
-		    if (is_object($obj)) {
-				$newObj = new \stdClass;
-				foreach ($obj as $k => $v) {
-					$k = htmlspecialchars($k);			
-					$newObj->{urlencode($k)} = self::urlencodeObj($v);
-				}
-			} else if (is_array($obj)) {
-				$newObj = array();
-				foreach ($obj as $k => $v) {
-					$k = htmlspecialchars($k);
-					$newObj[urlencode($k)] = self::urlencodeObj($v);
-				}
-			} else {
-				$obj = htmlspecialchars($obj);		
-				$newObj = urlencode($obj);
-			}
-	    }else{
-	    	// 替换为空的
+	public static function urlencodeObj($obj) {
 			$pattern1 = "/[\r\n\t]/";
 
 			if (is_object($obj)) {
@@ -299,15 +280,14 @@ class TMS_MODEL {
 				$obj = preg_replace($pattern1, '', $obj);
 				$newObj = urlencode($obj);
 			}
-	    }
 
 		return $newObj;
 	}
 	/**
 	 *
 	 */
-	public static function toJson($obj,$type="origin") {
-		$obj = self::urlencodeObj($obj,$type);
+	public static function toJson($obj) {
+		$obj = self::urlencodeObj($obj);
 		$json = urldecode(json_encode($obj));
 
 		return $json;
@@ -319,12 +299,18 @@ class TMS_MODEL {
 	{
 		if(is_string($data)){
 			$data=preg_replace("/[\r\n]/", "^", $data);
+			$data=preg_replace("/\\\/", "`", $data);
+			$data=preg_replace("/\t/", "龘", $data);
 		}
+
 		$data = json_decode($data);
 		if(json_last_error()==0 && is_object($data)){
 			foreach ($data as $k => $v) {
 				$b=preg_replace("/\^/", "\n", $v);
-				$data->{$k}=htmlspecialchars_decode($b);
+				$b=preg_replace("/\`/",'\\',$b);
+				$b=preg_replace("/龘/","\t",$b);
+				$b=htmlspecialchars_decode($b,ENT_QUOTES);
+				$data->{$k}=$b;
 			}
 		}
 		

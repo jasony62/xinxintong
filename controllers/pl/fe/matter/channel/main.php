@@ -109,7 +109,9 @@ class main extends \pl\fe\matter\base {
 	 * $nv pair of name and value
 	 */
 	public function update_action($site, $id) {
-		$user = $this->accountUser();
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$nv = $this->getPostJson();
 		$current = time();
 
@@ -142,6 +144,9 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function setfixed_action($site, $id, $pos) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$matter = $this->getPostJson();
 
 		if ($pos === 'top') {
@@ -170,7 +175,9 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function addMatter_action($site) {
-		$user = $this->accountUser();
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 
 		$relations = $this->getPostJson();
 
@@ -188,6 +195,9 @@ class main extends \pl\fe\matter\base {
 	 *
 	 */
 	public function removeMatter_action($site, $id, $reload = 'N') {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
 		$matter = $this->getPostJson();
 
 		$model = $this->model('matter\channel');
@@ -205,6 +215,10 @@ class main extends \pl\fe\matter\base {
 	 * 删除频道
 	 */
 	public function delete_action($id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$rst = $this->model()->update('xxt_channel', array('state' => 0), "mpid='$this->mpid' and id=$id");
 
 		return new \ResponseData($rst);

@@ -119,29 +119,38 @@ class record_model extends \TMS_MODEL {
 					}
 					$treatedValue = implode(',', $treatedValue);
 					$dbData->{$n} = $treatedValue;
-				} else if (is_array($v) && isset($v[0]->uniqueIdentifier)) {
-					/* 上传文件 */
-					$fsUser = \TMS_APP::M('fs/local', $siteId, '_user');
-					$fsResum = \TMS_APP::M('fs/local', $siteId, '_resumable');
-					$fsAli = \TMS_APP::M('fs/alioss', $siteId);
-					$treatedValue = [];
-					foreach ($v as $file) {
-						if (defined('SAE_TMP_PATH')) {
-							$dest = '/' . $app->id . '/' . $submitkey . '_' . $file->name;
-							$fileUploaded2 = $fsAli->getBaseURL() . $dest;
-						} else {
-							$fileUploaded = $fsResum->rootDir . '/' . $submitkey . '_' . $file->uniqueIdentifier;
-							!file_exists($fsUser->rootDir . '/' . $submitkey) && mkdir($fsUser->rootDir . '/' . $submitkey, 0777, true);
-							$fileUploaded2 = $fsUser->rootDir . '/' . $submitkey . '/' . $file->name;
-							if (false === rename($fileUploaded, $fileUploaded2)) {
-								return array(false, '移动上传文件失败');
+				} else if ($schema->type === 'file' && is_array($v)) {
+					if (isset($v[0]->uniqueIdentifier)) {
+						/* 新上传的文件 */
+						$treatedValue = [];
+						foreach ($v as $file) {
+							if (defined('SAE_TMP_PATH')) {
+								$fsAli = \TMS_APP::M('fs/alioss', $siteId);
+								$dest = '/' . $app->id . '/' . $submitkey . '_' . $file->name;
+								$fileUploaded2 = $fsAli->getBaseURL() . $dest;
+							} else {
+								$fsUser = \TMS_APP::M('fs/local', $siteId, '_user');
+								$fsResum = \TMS_APP::M('fs/local', $siteId, '_resumable');
+								$fileUploaded = $fsResum->rootDir . '/' . $submitkey . '_' . $file->uniqueIdentifier;
+								$dirUploaded = $fsUser->rootDir . '/' . $submitkey;
+								if (!file_exists($dirUploaded)) {
+									if (false === mkdir($dirUploaded, 0777, true)) {
+										return array(false, '创建文件上传目录失败');
+									}
+								}
+								$fileUploaded2 = $dirUploaded . '/' . $file->name;
+								if (false === rename($fileUploaded, $fileUploaded2)) {
+									return array(false, '移动上传文件失败');
+								}
 							}
+							unset($file->uniqueIdentifier);
+							$file->url = $fileUploaded2;
+							$treatedValue[] = $file;
 						}
-						unset($file->uniqueIdentifier);
-						$file->url = $fileUploaded2;
-						$treatedValue[] = $file;
+					} else {
+						/* 已经上传过的文件 */
+						$treatedValue = $v;
 					}
-					$treatedValue = json_encode($treatedValue);
 					$dbData->{$n} = $treatedValue;
 				} else if ($schema->type === 'score') {
 					$dbData->{$n} = $v;

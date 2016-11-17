@@ -1,16 +1,11 @@
 <?php
 namespace pl\fe;
 
-class main extends \TMS_CONTROLLER {
-	/**
-	 *
-	 */
-	public function get_access_rule() {
-		$rule_action['rule_type'] = 'white';
-		$rule_action['actions'][] = 'hello';
-
-		return $rule_action;
-	}
+require_once dirname(__FILE__) . '/base.php';
+/**
+ * 登录用户的入口页面
+ */
+class main extends \pl\fe\base {
 	/**
 	 * 用户登录后的首页
 	 */
@@ -21,6 +16,41 @@ class main extends \TMS_CONTROLLER {
 			\TPL::output('/pl/fe/main2');
 			exit;
 		}
+	}
+	/**
+	 * 获得当前用户的关注动态
+	 */
+	public function trends_action() {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$result = new \stdClass;
+		$modelSite = $this->model('site');
+		if (($mySites = $modelSite->byUser($user->id)) && count($mySites)) {
+			$mySiteIds = [];
+			foreach ($mySites as $mySite) {
+				$mySiteIds[] = "'{$mySite->id}'";
+			}
+			$mySiteIds = implode(',', $mySiteIds);
+
+			$q = [
+				'*',
+				'xxt_site_subscription',
+				"siteid in($mySiteIds)",
+			];
+			$q2 = ['o' => 'put_at desc'];
+
+			$matters = $modelSite->query_objs_ss($q, $q2);
+
+			$result->trends = $matters;
+			$result->total = count($matters);
+		} else {
+			$result->trends = [];
+			$result->total = 0;
+		}
+
+		return new \ResponseData($result);
 	}
 	/**
 	 * 当前用户可见的所有公众号

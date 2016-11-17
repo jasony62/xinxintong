@@ -21,7 +21,7 @@ class shop extends \pl\fe\base {
 		$q = [
 			'*',
 			"xxt_template",
-			["s.matter_type" => $matterType, "s.matter_id" => $matterId],
+			["matter_type" => $matterType, "matter_id" => $matterId],
 		];
 		$item = $model->query_obj_ss($q);
 
@@ -47,7 +47,7 @@ class shop extends \pl\fe\base {
 			"visible_scope='P' and matter_type='$matterType'",
 		];
 		if (!empty($scenario)) {
-			$q[2] .= " and s.scenario='$scenario'";
+			$q[2] .= " and scenario='$scenario'";
 		}
 		$q2 = [
 			'o' => 'put_at desc',
@@ -85,15 +85,9 @@ class shop extends \pl\fe\base {
 		if (false === ($template = $modelTmpl->byId($template))) {
 			return new \ResponseError('数据不存在');
 		}
-		$q = [
-			'id,creater_name,create_at,name',
-			'xxt_site s',
-			"(creater='{$user->id}' or exists(select 1 from xxt_site_admin sa where sa.siteid=s.id and uid='{$user->id}')) and state=1",
-		];
-		$q2 = ['o' => 'create_at desc'];
 
 		$targets = []; // 符合条件的站点
-		$sites = $this->model()->query_objs_ss($q, $q2);
+		$sites = $this->model('site')->byUser($user->id);
 		foreach ($sites as &$site) {
 			if ($site->id === $template->siteid) {
 				continue;

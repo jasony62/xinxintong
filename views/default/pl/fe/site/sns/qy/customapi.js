@@ -40,15 +40,13 @@ define(['main'], function(ngApp) {
             url += '&authid=' + 0;
             http2.get(url, function (rsp) {
                 if (rsp.err_code == 0) {
-                    alert($scope.type);
-                    //alert("同步" + rsp.data[0] + "个部门，" + rsp.data[1] + "个用户，" + rsp.data[2] + "个标签");
+                    alert("同步" + rsp.data[0] + "个部门，" + rsp.data[1] + "个用户，" + rsp.data[2] + "个标签");
                     //$scope.$root.progmsg = "同步" + rsp.data[0] + "个部门，" + rsp.data[1] + "个用户，" + rsp.data[2] + "个标签";
 
                 }
                 $scope.doSearch(1);
             });
         };
-
-        //$scope.doSearch(1);
+        $scope.doSearch(1);
     }]);
 })

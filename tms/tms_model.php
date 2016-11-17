@@ -261,36 +261,52 @@ class TMS_MODEL {
 	/**
 	 *
 	 */
-	public static function urlencodeObj($obj) {
-		// 替换为空的
-		//$pattern1 = "/\"/";
-		//$pattern2 = "/\'/";
-		if (is_object($obj)) {
-			$newObj = new \stdClass;
-			foreach ($obj as $k => $v) {
-				$k = htmlspecialchars($k);
-				//$k = preg_replace($pattern2, '‘', $k);
-				$newObj->{urlencode($k)} = self::urlencodeObj($v);
+	public static function urlencodeObj($obj,$type="origin") {
+		if($type=="encode"){
+		    if (is_object($obj)) {
+				$newObj = new \stdClass;
+				foreach ($obj as $k => $v) {
+					$k = htmlspecialchars($k);			
+					$newObj->{urlencode($k)} = self::urlencodeObj($v);
+				}
+			} else if (is_array($obj)) {
+				$newObj = array();
+				foreach ($obj as $k => $v) {
+					$k = htmlspecialchars($k);
+					$newObj[urlencode($k)] = self::urlencodeObj($v);
+				}
+			} else {
+				$obj = htmlspecialchars($obj);		
+				$newObj = urlencode($obj);
 			}
-		} else if (is_array($obj)) {
-			$newObj = array();
-			foreach ($obj as $k => $v) {
-				$k = htmlspecialchars($k);
-				//$k = preg_replace($pattern2, '‘', $k);
-				$newObj[urlencode($k)] = self::urlencodeObj($v);
+	    }else{
+	    	// 替换为空的
+			$pattern1 = "/[\r\n\t]/";
+
+			if (is_object($obj)) {
+				$newObj = new \stdClass;
+				foreach ($obj as $k => $v) {
+					$k = preg_replace($pattern1, '', $k);
+					$newObj->{urlencode($k)} = self::urlencodeObj($v);
+				}
+			} else if (is_array($obj)) {
+				$newObj = array();
+				foreach ($obj as $k => $v) {
+					$k = preg_replace($pattern1, '', $k);
+					$newObj[urlencode($k)] = self::urlencodeObj($v);
+				}
+			} else {
+				$obj = preg_replace($pattern1, '', $obj);
+				$newObj = urlencode($obj);
 			}
-		} else {
-			$obj = htmlspecialchars($obj);
-			//$obj = preg_replace($pattern2, '‘', $obj);
-			$newObj = urlencode($obj);
-		}
+	    }
 
 		return $newObj;
 	}
 	/**
 	 *
 	 */
-	public static function toJson($obj,$type="original") {
+	public static function toJson($obj,$type="origin") {
 		$obj = self::urlencodeObj($obj,$type);
 		$json = urldecode(json_encode($obj));
 

@@ -148,7 +148,7 @@ define(['require'], function(require) {
         (function() {
             var text2Clipboard = new ZeroClipboard(document.querySelectorAll('.text2Clipboard'));
         })();
-        $scope.homeURL = 'http://' + location.host + '/rest/site/fe?site=' + $scope.siteId;
+        $scope.homeURL = 'http://' + location.host + '/rest/site/home?site=' + $scope.siteId;
     }]);
     ngApp.controller('ctrlCoin', ['$scope', function($scope) {}]);
     ngApp.controller('ctrlMschema', ['$scope', 'http2', '$http', '$uibModal', 'MemberSchema', function($scope, http2, $http, $uibModal, MemberSchema) {

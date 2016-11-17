@@ -131,7 +131,6 @@ class member extends \site\fe\base {
 		$schema = $this->model('site\user\memberschema')->byId($schema, 'id,attr_mobile,attr_email,attr_name,extattr');
 
 		$member = $this->getPostJson();
-		unset($member->id);
 		$member->siteid = $this->siteId;
 		$member->schema_id = $schema->id;
 		/**

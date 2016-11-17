@@ -1,17 +1,17 @@
 angular.module('tmplshop.ui.xxt', ['ui.bootstrap']).
 service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, $q) {
-    this.choose = function(type, assignedScenario) {
+    this.choose = function(siteId, type, assignedScenario) {
         var deferred;
         deferred = $q.defer();
         $uibModal.open({
-            templateUrl: '/static/template/templateShop.html?_=6',
+            templateUrl: '/static/template/templateShop.html?_=7',
             backdrop: 'static',
             size: 'lg',
             windowClass: 'auto-height',
             controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                 $scope.source = 'platform';
                 $scope.criteria = {
-                    scope: 'A'
+                    scope: 'P'
                 };
                 $scope.page = {
                     size: 10,
@@ -92,7 +92,27 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                     }
                 };
                 $scope.searchTemplate = function() {
-                    var url = '/rest/pl/fe/template/shop/list?matterType=' + type + '&scope=' + $scope.criteria.scope;
+                    var url = '/rest/pl/fe/template/shop/list?matterType=' + type;
+                    if (assignedScenario && assignedScenario.length) {
+                        url += '&scenario=' + assignedScenario;
+                    }
+                    http2.get(url, function(rsp) {
+                        $scope.templates = rsp.data.templates;
+                        $scope.page.total = rsp.data.total;
+                    });
+                };
+                $scope.searchShare2Me = function() {
+                    var url = '/rest/pl/fe/template/shop/share2Me?matterType=' + type;
+                    if (assignedScenario && assignedScenario.length) {
+                        url += '&scenario=' + assignedScenario;
+                    }
+                    http2.get(url, function(rsp) {
+                        $scope.templates = rsp.data.templates;
+                        $scope.page.total = rsp.data.total;
+                    });
+                };
+                $scope.searchBySite = function() {
+                    var url = '/rest/pl/fe/site/template/list?site=' + siteId + '&matterType=' + type + '&scope=S';
                     if (assignedScenario && assignedScenario.length) {
                         url += '&scenario=' + assignedScenario;
                     }

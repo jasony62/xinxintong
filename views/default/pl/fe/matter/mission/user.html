@@ -1,3 +1,72 @@
-<div id='viewUser'>
-user
+<style>
+.enroll{background:#fdd;}
+.signin{background:#dfd;}
+.signin-late{color:red;}
+.group{background:#ddf;}
+</style>
+<nav class='navbar navbar-default'>
+	<div class='container-fluid'>
+		<button class='btn btn-default navbar-btn' ng-click="extract()">抓取用户数据</button>
+		<form class='navbar-form navbar-right'>
+			<label>用户名单</label>
+            <div class="input-group">
+                <input class='form-control' title="{{mission.userApp.title}}" value="{{mission.userApp.title}}" readonly="">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="button" ng-click="cancelUserApp()" ng-if="mission.userApp">
+                        <span class='glyphicon glyphicon-remove'></span>
+                    </button>
+            		<button class='btn btn-success' ng-click="assignUserApp()" ng-if="!mission.userApp">指定</button>
+                </span>
+            </div>
+		</form>
+	</div>
+</nav>
+<div class='row'>
+	<div class='col-md-12' ng-controller="ctrlUserAction">
+		<table class='table table-bordered'>
+            <thead>
+                <tr>
+                    <th style='width:40px'></th>
+                    <th style='width:140px'>昵称</th>
+                    <th class='enroll' ng-repeat="app in missionApps.enroll" ng-bind="app.title"></th>
+                    <th class='signin' ng-repeat="app in missionApps.signin" ng-bind="app.title"></th>
+                    <th class='group' ng-repeat="app in missionApps.group" ng-bind="app.title"></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="u in users">
+                    <td>{{(page.at-1)*page.size+$index+1}}</td>
+                    <td>{{u.nickname}}</td>
+                    <td ng-repeat="app in missionApps.enroll" ng-bind-html="u.enrollAct[app.id]"></td>
+                    <td ng-repeat="app in missionApps.signin" ng-bind-html="u.signinAct[app.id]"></td>
+                    <td ng-repeat="app in missionApps.group" ng-bind-html="u.groupAct[app.id]"></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class='form-group form-inline'>
+            <span>总数：{{page.total}}</span>
+            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+        </div>
+	</div>
 </div>
+<script type="text/ng-template" id="assignUserApp.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">用户名单活动</h5>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class='form-group'>
+                <label class="col-md-3 control-label">目标活动</label>
+                <div class="col-md-9">
+                    <select class="form-control" ng-model="data.appId" ng-options="app.id as app.title for app in apps"></select>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">确定</button>
+    </div>
+</script>

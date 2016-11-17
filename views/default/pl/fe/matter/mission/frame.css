@@ -24,10 +24,10 @@ body{margin-bottom:50px;}
 #viewMatter .thumbnail.indicator>div{flex:1.0;font-size:18px;text-align:center;}
 
 /*matter*/
-.article:after{content:'图文';position:absolute;top:-8px;left:-8px;background:green;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-.enroll:after{content:'登记';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-.registration:after{content:'报名';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-.voting:after{content:'投票';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-.signin:after{content:'签到';position:absolute;top:-8px;left:-8px;background:#0000cc;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-.group:after{content:'分组';position:absolute;top:-8px;left:-8px;background:#000099;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
-.split:after{content:'分组';position:absolute;top:-8px;left:-8px;background:#000099;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+#viewMatter .article:after{content:'图文';position:absolute;top:-8px;left:-8px;background:green;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+#viewMatter .enroll:after{content:'登记';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+#viewMatter .registration:after{content:'报名';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+#viewMatter .voting:after{content:'投票';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+#viewMatter .signin:after{content:'签到';position:absolute;top:-8px;left:-8px;background:#0000cc;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+#viewMatter .group:after{content:'分组';position:absolute;top:-8px;left:-8px;background:#000099;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+#viewMatter .split:after{content:'分组';position:absolute;top:-8px;left:-8px;background:#000099;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}

@@ -1,7 +1,7 @@
 <?php
 require_once '../db.php';
 /**
- * 运营任务，素材和应用的集合
+ * 项目、运营任务，素材和应用的集合
  */
 $sql = "create table if not exists xxt_mission (";
 $sql .= "id int not null auto_increment";
@@ -12,11 +12,11 @@ $sql .= ",summary varchar(240) not null";
 $sql .= ",pic text";
 $sql .= ",creater varchar(40) not null default ''";
 $sql .= ",creater_name varchar(255) not null default ''";
-$sql .= ",creater_src char(1)";
+$sql .= ",creater_src char(1)"; // should remove
 $sql .= ",create_at int not null";
 $sql .= ",modifier varchar(40) not null default ''";
 $sql .= ",modifier_name varchar(255) not null default ''";
-$sql .= ",modifier_src char(1)";
+$sql .= ",modifier_src char(1)"; // should remove
 $sql .= ',modify_at int not null';
 $sql .= ",state tinyint not null default 1"; //0:stop,1:normal
 $sql .= ",access_control char(1) not null default 'N'";
@@ -27,6 +27,7 @@ $sql .= ",header_page_name varchar(13) not null default ''"; // 通用页头
 $sql .= ",footer_page_name varchar(13) not null default ''"; // 通用页尾
 $sql .= ",extattrs text"; //扩展属性
 $sql .= ",multi_phase char(1) not null default 'N'";
+$sql .= ",user_app_id varchar(40) not null default ''"; // 项目的用户名单。项目中的登记活动，例如：报名活动。
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
@@ -100,6 +101,28 @@ $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error(xxt_mission_phase): ' . $mysqli->error;
+}
+/**
+ * 参与任务的用户
+ * 用户清单来源于“xxt_mission.user_app_id”指定的登记活动
+ */
+$sql = "create table if not exists xxt_mission_user(";
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",mission_id int not null";
+$sql .= ",userid varchar(40) not null default ''";
+$sql .= ",nickname varchar(255) not null default ''";
+$sql .= ",first_act_at int not null default 0"; // 首次操作时间
+$sql .= ",last_act_at int not null default 0"; // 最后一次操作时间
+$sql .= ",enroll_app text"; // 登记应用活动记录
+$sql .= ",signin_app text"; // 签到应用活动记录
+$sql .= ",group_app text"; // 分组应用活动记录
+$sql .= ",assoc_enroll_app text"; // 作为关联数据登记应用活动记录
+$sql .= ",assoc_group_app text"; // 作为关联数据登记应用活动记录
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error(xxt_mission_matter): ' . $mysqli->error;
 }
 
 echo 'finish xxt_mission.' . PHP_EOL;

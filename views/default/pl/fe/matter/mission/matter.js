@@ -34,7 +34,7 @@ define(['frame'], function(ngApp) {
 			var url = '/rest/pl/fe/matter/article/create?mission=' + $scope.id,
 				config = {
 					proto: {
-						title: $scope.editing.title + '-资料'
+						title: $scope.mission.title + '-资料'
 					}
 				};
 			http2.post(url, config, function(rsp) {
@@ -42,21 +42,21 @@ define(['frame'], function(ngApp) {
 			});
 		};
 		$scope.addEnroll = function(assignedScenario) {
-			templateShop.choose('enroll', assignedScenario).then(function(choice) {
+			templateShop.choose($scope.mission.siteid, 'enroll', assignedScenario).then(function(choice) {
 				var url, config = {
 					proto: {}
 				};
 				if (assignedScenario === 'registration') {
-					config.proto.title = $scope.editing.title + '-报名';
+					config.proto.title = $scope.mission.title + '-报名';
 				} else if (assignedScenario === 'voting') {
-					config.proto.title = $scope.editing.title + '-评价';
+					config.proto.title = $scope.mission.title + '-评价';
 				}
 				if (choice) {
 					var data = choice.data;
 					if (choice.source === 'share') {
-						url = '/rest/pl/fe/matter/enroll/createByOther?site=' + $scope.editing.siteid + '&mission=' + $scope.id + '&template=' + data.id;
+						url = '/rest/pl/fe/matter/enroll/createByOther?site=' + $scope.mission.siteid + '&mission=' + $scope.id + '&template=' + data.id;
 					} else if (choice.source === 'platform') {
-						url = '/rest/pl/fe/matter/enroll/create?site=' + $scope.editing.siteid + '&mission=' + $scope.id;
+						url = '/rest/pl/fe/matter/enroll/create?site=' + $scope.mission.siteid + '&mission=' + $scope.id;
 						url += '&scenario=' + data.scenario.name;
 						url += '&template=' + data.template.name;
 						if (data.simpleSchema && data.simpleSchema.length) {
@@ -64,33 +64,33 @@ define(['frame'], function(ngApp) {
 						}
 					}
 				} else {
-					url = '/rest/pl/fe/matter/enroll/create?site=' + $scope.editing.siteid + '&mission=' + $scope.id;
+					url = '/rest/pl/fe/matter/enroll/create?site=' + $scope.mission.siteid + '&mission=' + $scope.id;
 				}
 				http2.post(url, config, function(rsp) {
-					location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.editing.siteid + '&id=' + rsp.data.id;
+					location.href = '/rest/pl/fe/matter/enroll?site=' + $scope.mission.siteid + '&id=' + rsp.data.id;
 				});
 			});
 		};
 		$scope.addSignin = function() {
-			var url = '/rest/pl/fe/matter/signin/create?site=' + $scope.editing.siteid + '&mission=' + $scope.id,
+			var url = '/rest/pl/fe/matter/signin/create?site=' + $scope.mission.siteid + '&mission=' + $scope.id,
 				config = {
 					proto: {
-						title: $scope.editing.title + '-签到'
+						title: $scope.mission.title + '-签到'
 					}
 				};
 			http2.post(url, config, function(rsp) {
-				location.href = '/rest/pl/fe/matter/signin?site=' + $scope.editing.siteid + '&id=' + rsp.data.id;
+				location.href = '/rest/pl/fe/matter/signin?site=' + $scope.mission.siteid + '&id=' + rsp.data.id;
 			});
 		};
 		$scope.addGroup = function() {
-			var url = '/rest/pl/fe/matter/group/create?site=' + $scope.editing.siteid + '&mission=' + $scope.id + '&scenario=split',
+			var url = '/rest/pl/fe/matter/group/create?site=' + $scope.mission.siteid + '&mission=' + $scope.id + '&scenario=split',
 				config = {
 					proto: {
-						title: $scope.editing.title + '-分组'
+						title: $scope.mission.title + '-分组'
 					}
 				};
 			http2.post(url, config, function(rsp) {
-				location.href = '/rest/pl/fe/matter/group?site=' + $scope.editing.siteid + '&id=' + rsp.data.id;
+				location.href = '/rest/pl/fe/matter/group?site=' + $scope.mission.siteid + '&id=' + rsp.data.id;
 			});
 		};
 		$scope.addMatter = function(matterType) {
@@ -109,7 +109,7 @@ define(['frame'], function(ngApp) {
 				case 'enroll':
 				case 'group':
 				case 'signin':
-					location.href = '/rest/pl/fe/matter/' + type + '?id=' + id + '&site=' + $scope.editing.siteid;
+					location.href = '/rest/pl/fe/matter/' + type + '?id=' + id + '&site=' + $scope.mission.siteid;
 					break;
 			}
 		};
@@ -124,12 +124,12 @@ define(['frame'], function(ngApp) {
 				switch (type) {
 					case 'article':
 					case 'addressbook':
-						url += type + '/remove?id=' + id + '&site=' + $scope.editing.siteid;
+						url += type + '/remove?id=' + id + '&site=' + $scope.mission.siteid;
 						break;
 					case 'enroll':
 					case 'signin':
 					case 'group':
-						url += type + '/remove?app=' + id + '&site=' + $scope.editing.siteid;
+						url += type + '/remove?app=' + id + '&site=' + $scope.mission.siteid;
 						break;
 				}
 				http2.get(url, function(rsp) {
@@ -145,16 +145,16 @@ define(['frame'], function(ngApp) {
 			evt.stopPropagation();
 			switch (type) {
 				case 'article':
-					url += type + '/copy?id=' + id + '&site=' + $scope.editing.siteid + '&mission=' + $scope.id;
+					url += type + '/copy?id=' + id + '&site=' + $scope.mission.siteid + '&mission=' + $scope.id;
 					break;
 				case 'enroll':
 				case 'signin':
 				case 'group':
-					url += type + '/copy?app=' + id + '&site=' + $scope.editing.siteid + '&mission=' + $scope.id;
+					url += type + '/copy?app=' + id + '&site=' + $scope.mission.siteid + '&mission=' + $scope.id;
 					break;
 			}
 			http2.get(url, function(rsp) {
-				location.href = '/rest/pl/fe/matter/' + type + '?site=' + $scope.editing.siteid + '&id=' + rsp.data.id;
+				location.href = '/rest/pl/fe/matter/' + type + '?site=' + $scope.mission.siteid + '&id=' + rsp.data.id;
 			});
 		};
 		$scope.matterType = '';

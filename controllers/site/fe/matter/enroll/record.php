@@ -384,11 +384,11 @@ class record extends base {
 	 */
 	public function uploadFile_action($site, $app, $submitkey = '') {
 		/* support CORS */
-		header('Access-Control-Allow-Origin:*');
-		header('Access-Control-Allow-Methods:POST');
-		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-			exit;
-		}
+		//header('Access-Control-Allow-Origin:*');
+		//header('Access-Control-Allow-Methods:POST');
+		//if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+		//	exit;
+		//}
 		if (empty($submitkey)) {
 			$user = $this->who;
 			$submitkey = $user->uid;

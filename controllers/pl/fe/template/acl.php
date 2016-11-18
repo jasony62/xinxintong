@@ -50,7 +50,7 @@ class acl extends \pl\fe\base {
 		/**
 		 * has joined?
 		 */
-		$modelAcl = $this->model('template\acl');
+		$modelAcl = $this->model('matter\template\acl');
 		$acl = $modelAcl->byReceiver($loginUser->id, $matterId, $matterType);
 		if ($acl) {
 			return new \ResponseError('【' . $label . '】已经在分享列表中！');
@@ -61,9 +61,9 @@ class acl extends \pl\fe\base {
 		$acl->receiver = $account->uid;
 		$acl->receiver_label = $account->email;
 
-		$modelShop = $this->model('matter\template');
-		if ($shopMatter = $modelShop->getMatter($matterId, $matterType)) {
-			$acl = $modelAcl->add($loginUser, $shopMatter, $acl);
+		$modelTmpl = $this->model('matter\template');
+		if ($template = $modelTmpl->getMatter($matterId, $matterType)) {
+			$acl = $modelAcl->add($loginUser, $template, $acl);
 		}
 
 		$acl->account = (object) ['nickname' => $account->nickname];
@@ -81,7 +81,7 @@ class acl extends \pl\fe\base {
 		}
 
 		$rst = $this->model()->delete(
-			'xxt_shop_matter_acl',
+			'xxt_template_acl',
 			["id" => $acl]
 		);
 

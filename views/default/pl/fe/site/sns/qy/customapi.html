@@ -1,5 +1,4 @@
 <div class="col-md-12">
-    <!--切换日志页-->
     <nav class="navbar navbar-default">
         <ul class='nav n navbar-nav ' style='margin-right:0'>
             <li ng-class="{'active': type ==='syncFromQy'}"><a href='' ng-click="changeNote('syncFromQy')">企业号日志</a></li>
@@ -7,13 +6,10 @@
             <li ng-class="{'active': type ==='import2Qy'}"><a href='' ng-click="changeNote('import2Qy')">全量日志</a></li>
         </ul>
     </nav>
-
-    <!--企业号日志-->
-    <div ng-if="type ==='syncFromQy'"> <!--功能项目-->
+    <div ng-if="type ==='syncFromQy'">
         <div class="alert alert-info">
             <button type="button" class="btn btn-primary" ng-click="syn()">企业号同步</button>
         </div>
-        <!--项目切换-->
         <nav class="navbar navbar-default">
             <ul class='nav n navbar-nav ' style='margin-right:0'>
                 <li ng-class="{'active': syncType ==='department'}"><a href=''
@@ -37,7 +33,6 @@
                         </thead>
                         <tbody>
                         <tr ng-repeat="r in records">
-                            <!--增加日期过滤器-->
                             <td ng-bind="r.sync_at*1000|date:'yy-MM-dd HH : mm'"></td>
                             <td ng-bind="r.pid"></td>
                             <td ng-bind="r.name"></td>
@@ -57,7 +52,6 @@
                         </thead>
                         <tbody>
                         <tr ng-repeat="r in records">
-                            <!--增加日期过滤器-->
                             <td ng-bind="r.sync_at*1000|date:'yy-MM-dd HH : mm'"></td>
                             <td ng-bind="r.name"></td>
                             <td ng-bind="r.type"></td>
@@ -80,7 +74,6 @@
                         </thead>
                         <tbody>
                         <tr ng-repeat="r in records">
-                            <!--增加日期过滤器-->
                             <td ng-bind="r.sync_at*1000|date:'yy-MM-dd HH : mm'"></td>
                             <td ng-bind="r.openid"></td>
                             <td ng-bind="r.nickname"></td>
@@ -103,12 +96,10 @@
             </div>
         </div>
     </div>
-    <!--增量日志-->
     <div ng-if="type ==='sync2Qy'">
         <div class="alert alert-info">
             <button type="button" class="btn btn-primary" ng-click="syn()">增量上传到企业号</button>
         </div>
-        <!--项目切换-->
         <nav class="navbar navbar-default">
             <ul class='nav n navbar-nav ' style='margin-right:0'>
                 <li ng-class="{'active': syncType ==='department'}"><a href=''
@@ -132,7 +123,6 @@
                         </thead>
                         <tbody>
                         <tr ng-repeat="r in records">
-                            <!--增加日期过滤器-->
                             <td ng-bind="r.sync_at*1000|date:'yy-MM-dd HH : mm'"></td>
                             <td ng-bind="r.pid"></td>
                             <td ng-bind="r.name"></td>
@@ -152,7 +142,6 @@
                         </thead>
                         <tbody>
                         <tr ng-repeat="r in records">
-                            <!--增加日期过滤器-->
                             <td ng-bind="r.sync_at*1000|date:'yy-MM-dd HH : mm'"></td>
                             <td ng-bind="r.name"></td>
                             <td ng-bind="r.type"></td>
@@ -175,7 +164,6 @@
                         </thead>
                         <tbody>
                         <tr ng-repeat="r in records">
-                            <!--增加日期过滤器-->
                             <td ng-bind="r.sync_at*1000|date:'yy-MM-dd HH : mm'"></td>
                             <td ng-bind="r.nickname"></td>
                             <td ng-bind="r.mobile"></td>
@@ -197,12 +185,10 @@
             </div>
         </div>
     </div>
-    <!--全量日志-->
     <div ng-if="type ==='import2Qy'">
         <div class="alert alert-info">
             <button type="button" class="btn btn-primary" ng-click="syn()">全量上传到企业号</button>
         </div>
-        <!--项目切换-->
         <nav class="navbar navbar-default">
             <ul class='nav n navbar-nav ' style='margin-right:0'>
                 <li ng-class="{'active': syncType ==='department'}"><a href=''
@@ -226,7 +212,6 @@
                         </thead>
                         <tbody>
                         <tr ng-repeat="r in records">
-                            <!--增加日期过滤器-->
                             <td ng-bind="r.sync_at*1000|date:'yy-MM-dd HH : mm'"></td>
                             <td ng-bind="r.pid"></td>
                             <td ng-bind="r.name"></td>
@@ -246,7 +231,6 @@
                         </thead>
                         <tbody>
                         <tr ng-repeat="r in records">
-                            <!--增加日期过滤器-->
                             <td ng-bind="r.sync_at*1000|date:'yy-MM-dd HH : mm'"></td>
                             <td ng-bind="r.name"></td>
                             <td ng-bind="r.type"></td>
@@ -269,7 +253,6 @@
                         </thead>
                         <tbody>
                         <tr ng-repeat="r in records">
-                            <!--增加日期过滤器-->
                             <td ng-bind="r.sync_at*1000|date:'yy-MM-dd HH : mm'"></td>
                             <td ng-bind="r.nickname"></td>
                             <td ng-bind="r.mobile"></td>

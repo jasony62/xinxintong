@@ -1,18 +1,11 @@
 <?php
-namespace pl\fe\site\template;
+namespace pl\fe\template;
 
-require_once dirname(dirname(dirname(__FILE__))) . '/base.php';
+require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
- * 站点模板管理控制器
+ * 模板库管理控制器
  */
 class main extends \pl\fe\base {
-	/**
-	 *
-	 */
-	public function index_action() {
-		\TPL::output('/pl/fe/site/template');
-		exit;
-	}
 	/**
 	 *
 	 */
@@ -22,63 +15,20 @@ class main extends \pl\fe\base {
 		return new \ResponseData($template);
 	}
 	/**
-	 * 获得模板列表
-	 *
-	 * @param string $matterType
-	 * @param int $page
-	 * @param int $size
+	 * 获得指定素材对应的模版
 	 */
-	public function list_action($site, $matterType, $scenario = null, $scope = 'S', $page = 1, $size = 20) {
-		if (false === ($loginUser = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
+	public function byMatter_action($type, $id) {
 		$model = $this->model();
-		$matterType = $model->escape($matterType);
-
-		if ($scope === 'S') {
-			$q = [
-				's.*',
-				"xxt_template s",
-				"1=1",
-			];
-		} else if (in_array($scope, ['favor', 'purchase'])) {
-			$q = [
-				'*',
-				"xxt_template_order",
-			];
-			if ($scope === 'favor') {
-				$q[2] = "favor='Y'";
-			} else {
-				$q[2] = "purchase='Y'";
-			}
-		}
-		$q[2] .= " and matter_type='$matterType'";
-		if (!empty($scenario)) {
-			$q[2] .= " and s.scenario='$scenario'";
-		}
-		$q[2] .= " and siteid='$site'";
-
-		$q2 = [
-			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
+		$q = [
+			'*',
+			"xxt_template",
+			["matter_type" => $type, "matter_id" => $id],
 		];
-		if ($scope === 'S') {
-			$q2['o'] = 'put_at desc';
-		} else if ($scope === 'favor') {
-			$q2['o'] = 'favor_at desc';
-		} else if ($scope === 'purchase') {
-			$q2['o'] = 'purchase_at desc';
-		}
+		$template = $model->query_obj_ss($q);
 
-		if ($orders = $model->query_objs_ss($q, $q2)) {
-			$q[0] = "count(*)";
-			$total = $model->query_val_ss($q);
-		} else {
-			$total = 0;
-		}
-
-		return new \ResponseData(['templates' => $orders, 'total' => $total]);
+		return new \ResponseData($template);
 	}
+
 	/**
 	 * 模版上架
 	 *
@@ -195,5 +145,82 @@ class main extends \pl\fe\base {
 		}
 
 		return new \ResponseData('ok');
+	}
+	/**
+	 * 当前用户没有收藏过指定模板的站点
+	 *
+	 * @param int $template
+	 */
+	public function siteCanFavor_action($template) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelTmpl = $this->model('matter\template');
+		if (false === ($template = $modelTmpl->byId($template))) {
+			return new \ResponseError('数据不存在');
+		}
+
+		$targets = []; // 符合条件的站点
+		$sites = $this->model('site')->byUser($user->id);
+		foreach ($sites as &$site) {
+			if ($site->id === $template->siteid) {
+				continue;
+			}
+			if ($modelTmpl->isFavorBySite($template, $site->id)) {
+				$site->_favored = 'Y';
+			}
+			$targets[] = $site;
+		}
+
+		return new \ResponseData($targets);
+	}
+	/**
+	 * 获得模板列表
+	 *
+	 * @param string $matterType
+	 * @param string $scenario
+	 * @param string $site 在哪个站点中查看模版
+	 * @param int $page
+	 * @param int $size
+	 *
+	 */
+	public function share2Me_action($matterType, $scenario = null, $site = null, $page = 1, $size = 20) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelTmpl = $this->model('matter\template');
+		$matterType = $modelTmpl->escape($matterType);
+
+		$q = [
+			'*',
+			"xxt_template t",
+			"matter_type='$matterType' and exists(select 1 from xxt_template_acl a where a.receiver='{$user->id}' and t.id=a.template_id)",
+		];
+		if (!empty($scenario)) {
+			$q[2] .= " and scenario='$scenario'";
+		}
+		$q2 = [
+			'o' => 'put_at desc',
+			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
+		];
+
+		if ($templates = $modelTmpl->query_objs_ss($q, $q2)) {
+			$q[0] = "count(*)";
+			$total = $modelTmpl->query_val_ss($q);
+			if (!empty($site)) {
+				/* 叠加是否已被站点收藏的信息 */
+				foreach ($templates as &$template) {
+					if ($modelTmpl->isFavorBySite($template, $site)) {
+						$template->_favored = 'Y';
+					}
+				}
+			}
+		} else {
+			$total = 0;
+		}
+
+		return new \ResponseData(['templates' => $templates, 'total' => $total]);
 	}
 }

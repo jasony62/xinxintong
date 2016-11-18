@@ -92,7 +92,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                     }
                 };
                 $scope.searchTemplate = function() {
-                    var url = '/rest/pl/fe/template/shop/list?matterType=' + type;
+                    var url = '/rest/pl/fe/template/site/list?matterType=' + type + '&scope=P' + '&site=' + siteId;
                     if (assignedScenario && assignedScenario.length) {
                         url += '&scenario=' + assignedScenario;
                     }
@@ -102,7 +102,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                     });
                 };
                 $scope.searchShare2Me = function() {
-                    var url = '/rest/pl/fe/template/shop/share2Me?matterType=' + type;
+                    var url = '/rest/pl/fe/template/share2Me?matterType=' + type;
                     if (assignedScenario && assignedScenario.length) {
                         url += '&scenario=' + assignedScenario;
                     }
@@ -112,7 +112,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                     });
                 };
                 $scope.searchBySite = function() {
-                    var url = '/rest/pl/fe/site/template/list?site=' + siteId + '&matterType=' + type + '&scope=S';
+                    var url = '/rest/pl/fe/template/site/list?site=' + siteId + '&matterType=' + type + '&scope=S';
                     if (assignedScenario && assignedScenario.length) {
                         url += '&scenario=' + assignedScenario;
                     }
@@ -134,6 +134,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                     };
                     fReader.readAsText(file);
                 };
+                /*系统模版*/
                 switch (type) {
                     case 'enroll':
                         http2.get('/rest/pl/fe/matter/enroll/template/list', function(rsp) {
@@ -192,7 +193,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                         $scope.data.acls.splice($scope.data.acls.indexOf(acl));
                     }
                 };
-                http2.get('/rest/pl/fe/template/shop/get?matterType=' + matter.type + '&matterId=' + matter.id, function(rsp) {
+                http2.get('/rest/pl/fe/template/byMatter?type=' + matter.type + '&id=' + matter.id, function(rsp) {
                     if (rsp.data) {
                         $scope.data = rsp.data;
                     } else {
@@ -202,13 +203,13 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                         $scope.data.title = matter.title;
                         $scope.data.summary = matter.summary;
                         $scope.data.pic = matter.pic;
-                        $scope.data.visible_scope = 'U';
+                        $scope.data.visible_scope = 'S';
                     }
                 });
             }],
             backdrop: 'static'
         }).result.then(function(data) {
-            http2.post('/rest/pl/fe/site/template/put?site=' + siteId, data, function(rsp) {
+            http2.post('/rest/pl/fe/template/put?site=' + siteId, data, function(rsp) {
                 deferred.resolve(rsp.data);
             });
         });

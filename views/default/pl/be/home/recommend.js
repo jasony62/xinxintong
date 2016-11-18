@@ -11,7 +11,7 @@ define(['frame'], function(ngApp) {
 			size: 30,
 		};
 		$scope.searchTemplate = function() {
-			var url = '/rest/pl/fe/template/shop/list?matterType=enroll&scope=A';
+			var url = '/rest/pl/fe/template/platform/list?matterType=enroll';
 			http2.get(url, function(rsp) {
 				$scope.templates = rsp.data.templates;
 				$scope.page.total = rsp.data.total;

@@ -11,7 +11,11 @@ define(['frame'], function(ngApp) {
 		};
 		$scope.changeScope = function(scope) {
 			criteria.scope = scope;
-			$scope.searchTemplate();
+			if (scope === 'share2Me') {
+				$scope.searchShare2Me()
+			} else {
+				$scope.searchTemplate();
+			}
 		};
 		$scope.use = function(template) {
 			var templateId, url;
@@ -41,6 +45,15 @@ define(['frame'], function(ngApp) {
 		};
 		$scope.searchTemplate = function() {
 			var url = '/rest/pl/fe/template/site/list?matterType=enroll&scope=' + criteria.scope;
+			url += '&site=' + $scope.siteId;
+
+			http2.get(url, function(rsp) {
+				$scope.templates = rsp.data.templates;
+				$scope.page.total = rsp.data.total;
+			});
+		};
+		$scope.searchShare2Me = function() {
+			var url = '/rest/pl/fe/template/platform/share2Me?matterType=enroll';
 			url += '&site=' + $scope.siteId;
 
 			http2.get(url, function(rsp) {

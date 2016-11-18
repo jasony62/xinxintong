@@ -28,17 +28,11 @@ class site extends \pl\fe\base {
 		$model = $this->model();
 		$matterType = $model->escape($matterType);
 
-		if ($scope === 'P') {
+		if (in_array($scope, ['P', 'S'])) {
 			$q = [
 				'*',
 				"xxt_template",
-				"visible_scope='P'",
-			];
-		} else if ($scope === 'S') {
-			$q = [
-				's.*',
-				"xxt_template s",
-				"visible_scope='S'",
+				"visible_scope='{$scope}'",
 			];
 		} else if (in_array($scope, ['favor', 'purchase'])) {
 			$q = [
@@ -51,16 +45,16 @@ class site extends \pl\fe\base {
 				$q[2] = "purchase='Y'";
 			}
 		}
-		$q[2] .= " and matter_type='$matterType'";
+		$q[2] .= " and matter_type='{$matterType}'";
 		if (!empty($scenario)) {
-			$q[2] .= " and s.scenario='$scenario'";
+			$q[2] .= " and scenario='{$scenario}'";
 		}
-		$q[2] .= " and siteid='$site'";
+		$q[2] .= " and siteid='{$site}'";
 
 		$q2 = [
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
 		];
-		if ($scope === 'S') {
+		if (in_array($scope, ['P', 'S'])) {
 			$q2['o'] = 'put_at desc';
 		} else if ($scope === 'favor') {
 			$q2['o'] = 'favor_at desc';
@@ -68,12 +62,9 @@ class site extends \pl\fe\base {
 			$q2['o'] = 'purchase_at desc';
 		}
 
-		if ($orders = $model->query_objs_ss($q, $q2)) {
-			$q[0] = "count(*)";
-			$total = $model->query_val_ss($q);
-		} else {
-			$total = 0;
-		}
+		$orders = $model->query_objs_ss($q, $q2);
+		$q[0] = "count(*)";
+		$total = $model->query_val_ss($q);
 
 		return new \ResponseData(['templates' => $orders, 'total' => $total]);
 	}

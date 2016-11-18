@@ -102,7 +102,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                     });
                 };
                 $scope.searchShare2Me = function() {
-                    var url = '/rest/pl/fe/template/share2Me?matterType=' + type;
+                    var url = '/rest/pl/fe/template/platform/share2Me?matterType=' + type;
                     if (assignedScenario && assignedScenario.length) {
                         url += '&scenario=' + assignedScenario;
                     }

@@ -13,7 +13,7 @@ ngApp.provider.controller('ctrlTemplate', ['$scope', '$http', function($scope, $
         $scope.searchTemplate();
     };
     $scope.searchTemplate = function() {
-        var url = '/rest/pl/fe/template/shop/list?matterType=enroll&scope=' + criteria.scope;
+        var url = '/rest/pl/fe/template/platform/list?matterType=enroll&scope=' + criteria.scope;
         $http.get(url).success(function(rsp) {
             $scope.templates = rsp.data.templates;
             $scope.page.total = rsp.data.total;

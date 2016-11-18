@@ -1,17 +1,17 @@
 angular.module('tmplshop.ui.xxt', ['ui.bootstrap']).
 service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, $q) {
-    this.choose = function(type, assignedScenario) {
+    this.choose = function(siteId, type, assignedScenario) {
         var deferred;
         deferred = $q.defer();
         $uibModal.open({
-            templateUrl: '/static/template/templateShop.html?_=6',
+            templateUrl: '/static/template/templateShop.html?_=7',
             backdrop: 'static',
             size: 'lg',
             windowClass: 'auto-height',
             controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                 $scope.source = 'platform';
                 $scope.criteria = {
-                    scope: 'A'
+                    scope: 'P'
                 };
                 $scope.page = {
                     size: 10,
@@ -92,7 +92,27 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                     }
                 };
                 $scope.searchTemplate = function() {
-                    var url = '/rest/pl/fe/template/shop/list?matterType=' + type + '&scope=' + $scope.criteria.scope;
+                    var url = '/rest/pl/fe/template/site/list?matterType=' + type + '&scope=P' + '&site=' + siteId;
+                    if (assignedScenario && assignedScenario.length) {
+                        url += '&scenario=' + assignedScenario;
+                    }
+                    http2.get(url, function(rsp) {
+                        $scope.templates = rsp.data.templates;
+                        $scope.page.total = rsp.data.total;
+                    });
+                };
+                $scope.searchShare2Me = function() {
+                    var url = '/rest/pl/fe/template/platform/share2Me?matterType=' + type;
+                    if (assignedScenario && assignedScenario.length) {
+                        url += '&scenario=' + assignedScenario;
+                    }
+                    http2.get(url, function(rsp) {
+                        $scope.templates = rsp.data.templates;
+                        $scope.page.total = rsp.data.total;
+                    });
+                };
+                $scope.searchBySite = function() {
+                    var url = '/rest/pl/fe/template/site/list?site=' + siteId + '&matterType=' + type + '&scope=S';
                     if (assignedScenario && assignedScenario.length) {
                         url += '&scenario=' + assignedScenario;
                     }
@@ -114,6 +134,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                     };
                     fReader.readAsText(file);
                 };
+                /*系统模版*/
                 switch (type) {
                     case 'enroll':
                         http2.get('/rest/pl/fe/matter/enroll/template/list', function(rsp) {
@@ -172,7 +193,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                         $scope.data.acls.splice($scope.data.acls.indexOf(acl));
                     }
                 };
-                http2.get('/rest/pl/fe/template/shop/get?matterType=' + matter.type + '&matterId=' + matter.id, function(rsp) {
+                http2.get('/rest/pl/fe/template/byMatter?type=' + matter.type + '&id=' + matter.id, function(rsp) {
                     if (rsp.data) {
                         $scope.data = rsp.data;
                     } else {
@@ -182,13 +203,13 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                         $scope.data.title = matter.title;
                         $scope.data.summary = matter.summary;
                         $scope.data.pic = matter.pic;
-                        $scope.data.visible_scope = 'U';
+                        $scope.data.visible_scope = 'S';
                     }
                 });
             }],
             backdrop: 'static'
         }).result.then(function(data) {
-            http2.post('/rest/pl/fe/site/template/put?site=' + siteId, data, function(rsp) {
+            http2.post('/rest/pl/fe/template/put?site=' + siteId, data, function(rsp) {
                 deferred.resolve(rsp.data);
             });
         });

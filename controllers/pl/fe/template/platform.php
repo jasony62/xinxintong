@@ -3,9 +3,9 @@ namespace pl\fe\template;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
- * 应用模版商店
+ * 平台模版库
  */
-class shop extends \pl\fe\base {
+class platform extends \pl\fe\base {
 
 	public function get_access_rule() {
 		$rule_action['rule_type'] = 'black';
@@ -14,18 +14,36 @@ class shop extends \pl\fe\base {
 		return $rule_action;
 	}
 	/**
+	 * 获得模板列表
+	 *
+	 * @param string $matterType
+	 * @param string $scenario
+	 * @param int $page
+	 * @param int $size
 	 *
 	 */
-	public function get_action($matterType, $matterId) {
-		$model = $this->model();
+	public function list_action($matterType, $scenario = null, $page = 1, $size = 20) {
+		$modelTmpl = $this->model('matter\template');
+		$matterType = $modelTmpl->escape($matterType);
+
 		$q = [
 			'*',
 			"xxt_template",
-			["matter_type" => $matterType, "matter_id" => $matterId],
+			"visible_scope='P' and matter_type='$matterType'",
 		];
-		$item = $model->query_obj_ss($q);
+		if (!empty($scenario)) {
+			$q[2] .= " and scenario='$scenario'";
+		}
+		$q2 = [
+			'o' => 'put_at desc',
+			'r' => ['o' => ($page - 1) * $size, 'l' => $size],
+		];
 
-		return new \ResponseData($item);
+		$templates = $modelTmpl->query_objs_ss($q, $q2);
+		$q[0] = "count(*)";
+		$total = $modelTmpl->query_val_ss($q);
+
+		return new \ResponseData(['templates' => $templates, 'total' => $total]);
 	}
 	/**
 	 * 获得模板列表
@@ -37,14 +55,18 @@ class shop extends \pl\fe\base {
 	 * @param int $size
 	 *
 	 */
-	public function list_action($matterType, $scenario = null, $site = null, $page = 1, $size = 20) {
+	public function share2Me_action($matterType, $scenario = null, $site = null, $page = 1, $size = 20) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$modelTmpl = $this->model('matter\template');
 		$matterType = $modelTmpl->escape($matterType);
 
 		$q = [
 			'*',
-			"xxt_template",
-			"visible_scope='P' and matter_type='$matterType'",
+			"xxt_template t",
+			"matter_type='$matterType' and exists(select 1 from xxt_template_acl a where a.receiver='{$user->id}' and t.id=a.template_id)",
 		];
 		if (!empty($scenario)) {
 			$q[2] .= " and scenario='$scenario'";
@@ -70,34 +92,5 @@ class shop extends \pl\fe\base {
 		}
 
 		return new \ResponseData(['templates' => $templates, 'total' => $total]);
-	}
-	/**
-	 * 当前用户没有收藏过指定模板的站点
-	 *
-	 * @param int $template
-	 */
-	public function siteCanFavor_action($template) {
-		if (false === ($user = $this->accountUser())) {
-			return new \ResponseTimeout();
-		}
-
-		$modelTmpl = $this->model('matter\template');
-		if (false === ($template = $modelTmpl->byId($template))) {
-			return new \ResponseError('数据不存在');
-		}
-
-		$targets = []; // 符合条件的站点
-		$sites = $this->model('site')->byUser($user->id);
-		foreach ($sites as &$site) {
-			if ($site->id === $template->siteid) {
-				continue;
-			}
-			if ($modelTmpl->isFavorBySite($template, $site->id)) {
-				$site->_favored = 'Y';
-			}
-			$targets[] = $site;
-		}
-
-		return new \ResponseData($targets);
 	}
 }

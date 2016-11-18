@@ -16,7 +16,6 @@ class qy_model extends \TMS_MODEL {
 			"siteid='$siteid'",
 		);
 		$qy = $this->query_obj_ss($q);
-
 		return $qy;
 	}
 	/**

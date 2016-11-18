@@ -34,10 +34,10 @@ class qy extends \member_base {
 		case 'POST':
 			$data = file_get_contents("php://input");
 			/* 企业号需要对数据进行解密处理 */
-			$rst = $qyProxy->DecryptMsg($_GET, $data);
-			if ($rst[0] === false) {
-				exit;
-			}
+			 $rst = $qyProxy->DecryptMsg($_GET, $data);
+			 if ($rst[0] === false) {
+			 	exit;
+			 }
 			$data = $rst[1];
 			$call = new UserCall($data, $site, 'qy');
 			$this->handle($site, $call);

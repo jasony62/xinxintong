@@ -355,7 +355,7 @@ provider('srvApp', function() {
     this.setAppId = function(id) {
         appId = id;
     };
-    this.$get = ['$q', 'http2', 'noticebox', '$uibModal', 'pushnotify', function($q, http2, noticebox, $uibModal, pushnotify) {
+    this.$get = ['$q', '$sce', 'http2', 'noticebox', '$uibModal', 'pushnotify', function($q, $sce, http2, noticebox, $uibModal, pushnotify) {
         function _memberAttr(val, schema) {
             var keys;
             if (val && val.member) {
@@ -407,7 +407,7 @@ provider('srvApp', function() {
                         data[schema.id] = imgs;
                         break;
                     case 'file':
-                        var files = record.data[schema.id] ? JSON.parse(record.data[schema.id]) : {};
+                        var files = record.data[schema.id] ? record.data[schema.id] : {};
                         data[schema.id] = files;
                         break;
                     case 'member':
@@ -503,7 +503,7 @@ provider('srvApp', function() {
                 if (col.type === 'file') {
                     var files;
                     if (data[col.id] && data[col.id].length) {
-                        files = JSON.parse(data[col.id]);
+                        files = data[col.id];
                         files.forEach(function(file) {
                             file.url = $sce.trustAsResourceUrl(file.url);
                         });

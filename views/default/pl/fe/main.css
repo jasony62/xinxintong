@@ -1,6 +1,9 @@
 body{margin-bottom:50px;}
 .ng-cloak{display:none;}
-.tms-panel{border:1px solid #e7e7e7;border-radius:4px;background:#fff;padding:30px 0;margin-bottom:30px;}
+.tms-panel-heading{margin-bottom:-1px;}
+.tms-panel-body{border:1px solid #eee;border-radius:4px;background:#fff;padding:30px 0;margin-bottom:30px;}
+.tms-panel-body:before{content:' ';display:table;}
+.tms-panel-body:after{content:' ';display:table;clear:both;}
 
 /*mission/site*/
 .site,.mission,.matter{position:relative;height:180px;cursor:pointer;display:flex;flex-direction:column;padding:15px;}

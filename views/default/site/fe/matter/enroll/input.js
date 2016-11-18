@@ -267,7 +267,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
         var r, onSubmit;
         require(['resumable'], function(Resumable) {
             r = new Resumable({
-                target: '/rest/site/fe/matter/enroll/record/uploadFile?site=' + LS.p.site + '&aid=' + LS.p.aid,
+                target: LS.j('record/uploadFile', 'site', 'app'),
                 testChunks: false,
                 chunkSize: 512 * 1024
             });
@@ -415,7 +415,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
                                     });
                                 }
                             } else if (schema.type === 'file') {
-                                value = JSON.parse(dataOfRecord[p]);
+                                value = dataOfRecord[p];
                                 $scope.data[p] = value;
                             } else if (schema.type === 'multiple') {
                                 value = dataOfRecord[p].split(',');

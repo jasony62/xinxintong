@@ -172,7 +172,7 @@ class main extends \pl\fe\base {
 		return new \ResponseData($rst);
 	}
 	/**
-	 * 在指定站点中收藏模版
+	 * 在指定站点中使用模版
 	 *
 	 * @param id $templte
 	 * @param string $site 收藏模版的站点ID逗号分隔的字符串

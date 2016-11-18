@@ -22,15 +22,13 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', function($scope, $http
             $scope.articles = rsp.data.matters;
         });
     };
-
+    $scope.openMatter = function(matter) {
+        location.href = '/rest/pl/fe/matter/' + matter.matter_type + '?id=' + matter.matter_id + '&site=' + matter.siteid;
+    };
     listSites();
     listTemplates();
     listApps();
     listArticles();
-
-    $scope.openSite = function(site) {
-        location.href = '/rest/site/home?site=' + site.siteid;
-    };
 }]);
 ngApp.provider.controller('ctrlCarousel', function($scope) {
     $scope.myInterval = 5000;

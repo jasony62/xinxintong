@@ -197,7 +197,7 @@ class base extends \TMS_CONTROLLER {
 	/**
 	 * 尽最大可能向用户发送消息
 	 *
-	 * $mpid
+	 * $site
 	 * $openid
 	 * $message
 	 */
@@ -396,5 +396,162 @@ class base extends \TMS_CONTROLLER {
 		// outputs image directly into browser, as PNG stream
 		//@ob_clean();
 		\QRcode::png($url);
+	}
+	/**
+	 * 创建一个企业号的粉丝用户
+	 * 同步的创建会员用户
+	 *
+	 * $user 企业号用户的详细信息
+	 */
+	protected function createQyFan($site, $user, $authid, $timestamp = null, $mapDeptR2L = null) {
+
+		$create_at = time();
+		empty($timestamp) && $timestamp = $create_at;
+
+		$fan = array();
+		$fan['siteid'] = $site;
+		$fan['openid'] = $user->userid;
+		$fan['nickname'] = $user->name;
+		// $fan['verified'] = 'Y';
+		//$fan['create_at'] = $create_at;
+		$fan['sync_at'] = $timestamp;
+		isset($user->mobile) && $fan['mobile'] = $user->mobile;
+		isset($user->email) && $fan['email'] = $user->email;
+		isset($user->weixinid) && $fan['weixinid'] = $user->weixinid;
+		$extattr = array();
+		if (isset($user->extattr) && !empty($user->extattr->attrs)) {
+			foreach ($user->extattr->attrs as $ea) {
+				$extattr[urlencode($ea->name)] = urlencode($ea->value);
+			}
+
+		}
+		/**
+		 * 处理岗位信息
+		 */
+		if (!empty($user->position)) {
+			$extattr['position'] = urlencode($user->position);
+		}
+
+		$fan['extattr'] = urldecode(json_encode($extattr));
+		/**
+		 * 建立成员和部门之间的关系
+		 */
+		$udepts = array();
+		foreach ($user->department as $ud) {
+			if (empty($mapDeptR2L)) {
+				$q = array(
+					'fullpath',
+					'xxt_site_member_department',
+					"siteid='$site' and extattr like '%\"id\":$ud,%'",
+				);
+				$fullpath = $this->model()->query_val_ss($q);
+				$udepts[] = explode(',', $fullpath);
+			} else {
+				isset($mapDeptR2L[$ud]) && $udepts[] = explode(',', $mapDeptR2L[$ud]['path']);
+			}
+
+		}
+
+		$fan['depts'] = json_encode($udepts);
+
+		$model = $this->model();
+		/**
+		 * 为了兼容服务号和订阅号的操作，生成和成员用户对应的粉丝用户
+		 */
+		if ($old = $this->model('sns\qy\fan')->byOpenid($site, $user->userid)) {
+			isset($user->avatar) && $fan['headimgurl'] = $user->avatar;
+			if ($user->status == 1 && $old->subscribe_at == 0) {
+				$fan['subscribe_at'] = $timestamp;
+			} else if ($user->status == 1 && $old->unsubscribe_at != 0) {
+				$fan['unsubscribe_at'] = 0;
+			} else if ($user->status == 4 && $old->unsubscribe_at == 0) {
+				$fan['unsubscribe_at'] = $timestamp;
+			}
+			$model->update(
+				'xxt_site_qyfan',
+				$fan,
+				"siteid='$site' and openid='{$user->userid}'"
+			);
+			$sync_id = $old->id;
+		} else {
+			isset($user->avatar) && $fan['headimgurl'] = $user->avatar;
+			$user->status == 1 && $fan['subscribe_at'] = $timestamp;
+			$sync_id = $model->insert('xxt_site_qyfan', $fan, true);
+		}
+
+		return true;
+	}
+	/**
+	 * 更新企业号用户信息
+	 */
+	protected function updateQyFan($site, $luser, $user, $authid, $timestamp = null, $mapDeptR2L = null) {
+		$model = $this->model();
+		empty($timestamp) && $timestamp = time();
+
+		$fan = array();
+		$fan['sync_at'] = $timestamp;
+		isset($user->mobile) && $fan['mobile'] = $user->mobile;
+		isset($user->email) && $fan['email'] = $user->email;
+		$extattr = array();
+		if (isset($user->extattr) && !empty($user->extattr->attrs)) {
+			foreach ($user->extattr->attrs as $ea) {
+				$extattr[urlencode($ea->name)] = urlencode($ea->value);
+			}
+		}
+		$fan['tags'] = ''; // 先将成员的标签清空，标签同步的阶段会重新更新
+		/**
+		 * 处理岗位信息
+		 */
+		if (!empty($user->position)) {
+			$extattr['position'] = urlencode($user->position);
+		}
+		$fan['extattr'] = urldecode(json_encode($extattr));
+		/**
+		 * 建立成员和部门之间的关系
+		 */
+		$udepts = array();
+		foreach ($user->department as $ud) {
+			if (empty($mapDeptR2L)) {
+				$q = array(
+					'fullpath',
+					'xxt_site_member_department',
+					"siteid='$site' and extattr like '%\"id\":$ud,%'",
+				);
+				$fullpath = $model->query_val_ss($q);
+				$udepts[] = explode(',', $fullpath);
+			} else {
+				isset($mapDeptR2L[$ud]) && $udepts[] = explode(',', $mapDeptR2L[$ud]['path']);
+			}
+		}
+		$fan['depts'] = json_encode($udepts);
+		/**
+		 * 成员用户对应的粉丝用户
+		 */
+		if ($old = $this->model('sns\qy\fan')->byOpenid($site, $user->userid)) {
+			$fan['nickname'] = $user->name;
+			isset($user->avatar) && $fan['headimgurl'] = $user->avatar;
+			if ($user->status == 1 && $old->subscribe_at == 0) {
+				$fan['subscribe_at'] = $timestamp;
+			} else if ($user->status == 1 && $old->unsubscribe_at != 0) {
+				$fan['unsubscribe_at'] = 0;
+			} else if ($user->status == 4 && $old->unsubscribe_at == 0) {
+				$fan['unsubscribe_at'] = $timestamp;
+			}
+			$model->update(
+				'xxt_site_qyfan',
+				$fan,
+				"siteid='$site' and openid='{$user->userid}'"
+			);
+			$sync_id = $old->id;
+		} else {
+			$fan['siteid'] = $site;
+			$fan['openid'] = $user->userid;
+			$fan['nickname'] = $user->name;
+			isset($user->avatar) && $fan['headimgurl'] = $user->avatar;
+			$user->status == 1 && $fan['subscribe_at'] = $timestamp;
+			$sync_id = $model->insert('xxt_site_qyfan', $fan, true);
+		}
+
+		return true;
 	}
 }

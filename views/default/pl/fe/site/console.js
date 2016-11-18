@@ -179,7 +179,7 @@ ngApp.controller('ctrlConsole', ['$scope', '$uibModal', 'http2', 'templateShop',
     //研究项目-登记活动
     $scope.addEnrollByTemplate = function() {
         $('body').trigger('click');
-        templateShop.choose('enroll').then(function(choice) {
+        templateShop.choose($scope.siteId, 'enroll').then(function(choice) {
             if (choice) {
                 if (choice.source === 'share') {
                     var url, data = choice.data;

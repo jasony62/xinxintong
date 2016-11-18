@@ -32,9 +32,13 @@ class main extends \pl\fe\matter\base {
 		/* 检查权限 */
 		$modelAcl = $this->model('matter\mission\acl');
 		if (false === ($acl = $modelAcl->byCoworker($id, $user->id))) {
-			return new \ResponseError('任务不存在');
+			return new \ResponseError('项目不存在');
 		}
 		$mission = $this->model('matter\mission')->byId($id, ['cascaded' => 'header_page_name,footer_page_name']);
+		/* 关联登记活动 */
+		if ($mission->user_app_id) {
+			$mission->userApp = $this->model('matter\enroll')->byId($mission->user_app_id);
+		}
 
 		return new \ResponseData($mission);
 	}

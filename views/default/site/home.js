@@ -1,6 +1,6 @@
 define(["angular", "xxt-page"], function(angular, codeAssembler) {
 	'use strict';
-	var ngApp = angular.module('home', ['ui.bootstrap', 'ui.tms']);
+	var ngApp = angular.module('home', ['ui.bootstrap', 'ui.tms', 'discuss.ui.xxt']);
 	ngApp.config(['$controllerProvider', function($cp) {
 		ngApp.provider = {
 			controller: $cp.register

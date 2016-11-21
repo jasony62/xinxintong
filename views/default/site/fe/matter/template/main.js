@@ -1,6 +1,6 @@
 define(["angular", "xxt-page"], function(angular, codeAssembler) {
     'use strict';
-    var ngApp = angular.module('tmpl', ['ui.bootstrap', 'ui.tms']);
+    var ngApp = angular.module('tmpl', ['ui.bootstrap', 'ui.tms', 'discuss.ui.xxt']);
     ngApp.config(['$locationProvider', function($lp) {
         $lp.html5Mode(true);
     }]);
@@ -116,7 +116,9 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
         };
         $scope.$watch('template', function(template) {
             if (template === undefined) return;
-            $scope.previewURL = previewURL = '/rest/site/fe/matter/enroll/preview?site=' + template.siteid + '&app=' + template.matter_id + '&start=Y';
+            if (!previewURL) {
+                $scope.previewURL = previewURL = '/rest/site/fe/matter/enroll/preview?site=' + template.siteid + '&app=' + template.matter_id + '&start=Y';
+            }
             http2.get('/rest/site/fe/matter/enroll/get?app=' + template.matter_id + '&site=' + template.siteid, function(rsp) {
                 $scope.app = rsp.data.app;
                 params.pageAt = 0;

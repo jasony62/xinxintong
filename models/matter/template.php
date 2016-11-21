@@ -51,6 +51,7 @@ class template_model extends \TMS_MODEL {
 				'pic' => $matter->pic,
 				'summary' => $matter->summary,
 				'visible_scope' => $matter->visible_scope,
+				'push_home' => isset($matter->push_home) ? $matter->push_home : 'N',
 			];
 			$this->update(
 				'xxt_template',
@@ -74,6 +75,7 @@ class template_model extends \TMS_MODEL {
 				'pic' => $matter->pic,
 				'summary' => $matter->summary,
 				'visible_scope' => $matter->visible_scope,
+				'push_home' => isset($matter->push_home) ? $matter->push_home : 'N',
 			];
 
 			$id = $this->insert('xxt_template', $item, true);
@@ -103,7 +105,7 @@ class template_model extends \TMS_MODEL {
 		return $rst;
 	}
 	/**
-	 * 推送到平台主页
+	 * 取消推送到主页
 	 */
 	public function pullHome($templateId) {
 		$rst = $this->update(
@@ -135,7 +137,6 @@ class template_model extends \TMS_MODEL {
 	 */
 	public function &atSiteHome($siteId, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
-
 		$q = [
 			$fields,
 			'xxt_template',

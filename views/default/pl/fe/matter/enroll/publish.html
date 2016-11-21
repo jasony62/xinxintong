@@ -153,7 +153,7 @@
                             <tr>
                                 <td>缺省进入页面</td>
                                 <td style='padding:0'>
-                                    <select style='border:0' class='form-control' ng-change="update()" ng-model='app.entry_rule.otherwise.entry' ng-options="p.name as p.title for p in app.pages"></select>
+                                    <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.otherwise.entry' ng-options="p.name as p.title for p in app.pages"></select>
                                 </td>
                             </tr>
                         </tbody>
@@ -163,7 +163,7 @@
                             <tr ng-repeat="ms in memberSchemas">
                                 <td>{{ms.title}}</td>
                                 <td style='padding:0'>
-                                    <select style='border:0' class='form-control' ng-change="update()" ng-model="app.entry_rule.member[ms.id].entry" ng-options="p.name as p.title for p in app.pages">
+                                    <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model="app.entry_rule.member[ms.id].entry" ng-options="p.name as p.title for p in app.pages">
                                         <option value=''></option>
                                     </select>
                                 </td>
@@ -171,7 +171,7 @@
                             <tr>
                                 <td>不满足条件用户</td>
                                 <td style='padding:0'>
-                                    <select style='border:0' class='form-control' ng-change="update()" ng-model='app.entry_rule.other.entry' ng-options="p.name as p.title for p in jumpPages.nonMember"></select>
+                                    <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.other.entry' ng-options="p.name as p.title for p in jumpPages.nonMember"></select>
                                 </td>
                             </tr>
                         </tbody>
@@ -181,7 +181,7 @@
                             <tr ng-if="sns.wx">
                                 <td>微信公众号关注用户</td>
                                 <td style='padding:0'>
-                                    <select style='border:0' class='form-control' ng-change="update()" ng-model='app.entry_rule.sns.wx.entry' ng-options='p.name as p.title for p in app.pages'>
+                                    <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.wx.entry' ng-options='p.name as p.title for p in app.pages'>
                                         <option value=''></option>
                                     </select>
                                 </td>
@@ -189,7 +189,7 @@
                             <tr ng-if="sns.qy">
                                 <td>微信企业号关注用户</td>
                                 <td style='padding:0'>
-                                    <select style='border:0' class='form-control' ng-change="update()" ng-model='app.entry_rule.sns.qy.entry' ng-options='p.name as p.title for p in app.pages'>
+                                    <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.qy.entry' ng-options='p.name as p.title for p in app.pages'>
                                         <option value=''></option>
                                     </select>
                                 </td>
@@ -197,7 +197,7 @@
                             <tr ng-if="sns.yx">
                                 <td>易信公众号关注用户</td>
                                 <td style='padding:0'>
-                                    <select style='border:0' class='form-control' ng-change="update()" ng-model='app.entry_rule.sns.yx.entry' ng-options='p.name as p.title for p in app.pages'>
+                                    <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.sns.yx.entry' ng-options='p.name as p.title for p in app.pages'>
                                         <option value=''></option>
                                     </select>
                                 </td>
@@ -205,7 +205,7 @@
                             <tr>
                                 <td>不满足条件用户</td>
                                 <td style='padding:0'>
-                                    <select style='border:0' class='form-control' ng-change="update()" ng-model='app.entry_rule.other.entry' ng-options="p.name as p.title for p in jumpPages.nonfan"></select>
+                                    <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.other.entry' ng-options="p.name as p.title for p in jumpPages.nonfan"></select>
                                 </td>
                             </tr>
                         </tbody>

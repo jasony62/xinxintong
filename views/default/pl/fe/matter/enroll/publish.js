@@ -130,6 +130,9 @@ define(['frame'], function(ngApp) {
 		$scope.update = function() {
 			srvApp.update('entry_rule');
 		};
+		$scope.updateEntryRule = function(enrolled_entry) {
+			srvApp.update(enrolled_entry);
+		};
 		$scope.reset = function() {
 			srvApp.resetEntryRule();
 		};

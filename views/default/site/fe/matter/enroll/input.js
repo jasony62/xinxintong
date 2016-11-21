@@ -338,7 +338,7 @@ define(["angular", "enroll-common", "angular-sanitize", "xxt-share", "xxt-image"
             }
         }
     }]);
-    ngApp.controller('ctrlInput', ['$scope', '$http', 'Input', 'ls', function($scope, $http, Input, LS) {
+    ngApp.controller('ctrlInput', ['$scope', '$http', 'Input', 'ls', '$q',function($scope, $http, Input, LS,$q) {
         var PG = (function() {
             return {
                 setMember: function(user, member) {

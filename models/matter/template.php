@@ -125,7 +125,7 @@ class template_model extends \TMS_MODEL {
 		$q = [
 			$fields,
 			'xxt_template',
-			["push_home" => 'Y'],
+			["visible_scope" => 'P', "push_home" => 'Y'],
 		];
 
 		$items = $this->query_objs_ss($q);

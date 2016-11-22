@@ -92,7 +92,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
         http2.get('/rest/pl/fe/user/auth/isLogin', function(rsp) {
             $scope.isLogin = rsp.data;
         });
-        http2.get('/rest/pl/fe/template/get?template=' + $scope.templateId, function(rsp) {
+        http2.get('/rest/site/fe/matter/template/get?template=' + $scope.templateId, function(rsp) {
             $scope.template = template = rsp.data;
         });
     }]);

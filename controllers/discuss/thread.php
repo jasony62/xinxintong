@@ -58,6 +58,8 @@ class thread extends \discuss\base {
 					}
 				}
 			}
+		} else {
+			$threadUser = null;
 		}
 
 		$rsp = new \stdClass;

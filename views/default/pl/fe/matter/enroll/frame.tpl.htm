@@ -68,7 +68,7 @@
             <div class='row' ng-view></div>
         </div>
         <script type="text/ng-template" id="appSetting.html">
-            <div id="appSetting">
+            <div id="appSetting" style='width:244px'>
                 <div class='form-group'>
                     <select class='form-control' ng-model="app.scenario" ng-change="update('scenario');">
                         <option value=''></option>
@@ -85,6 +85,9 @@
                 <div class='form-group'>
                     <label>活动说明</label>
                     <textarea type='text' class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+                </div>
+                <div class='checkbox'>
+                    <label><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.can_discuss" ng-change="update('can_discuss')">开放用户评论</label>
                 </div>
                 <hr>
                 <button class='btn btn-default btn-block' ng-click="shareAsTemplate()">发布模版</button>

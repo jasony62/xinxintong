@@ -315,8 +315,9 @@ class stat extends \pl\fe\matter\base {
 				// table
 				$html .= "<table><thead><tr><th>打分项</th><th>平均分</th></tr></thead>";
 				$html .= "<tbody>";
-				foreach ($item['ops'] as $op) {
-					$html .= "<tr><td>{$op['l']}</td><td>{$op['c']}</td></tr>";
+
+				foreach ($item['ops'] as $op2) {
+					$html .= "<tr><td>{$op2['l']}</td><td>{$op2['c']}</td></tr>";
 				}
 				$avgScore = round($totalScore / count($item['ops']), 2);
 				$html .= "<tr><td>本项平均分</td><td>{$avgScore}</td></tr>";

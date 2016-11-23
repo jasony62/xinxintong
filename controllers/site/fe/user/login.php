@@ -63,8 +63,10 @@ class login extends \site\fe\base {
 		if (isset($cookieUser->sns)) {
 			$model = $this->model();
 			foreach ($cookieUser->sns as $snsName => $snsUser) {
-				$modelSnsUser = \TMS_App::M('sns\\' . $snsName . '\fan');
-				$modelSnsUser->modifyByOpenid($this->siteId, $snsUser->openid, array('userid' => $cookieUser->uid));
+				if($snsName != 'qy'){
+					$modelSnsUser = \TMS_App::M('sns\\' . $snsName . '\fan');
+					$modelSnsUser->modifyByOpenid($this->siteId, $snsUser->openid, array('userid' => $cookieUser->uid));
+				}
 			}
 		}
 		$snsUsers = array();

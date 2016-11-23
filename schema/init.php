@@ -23,6 +23,7 @@ include_once dirname(__FILE__) . '/db_schema_tag.php';
 include_once dirname(__FILE__) . '/db_schema_task.php';
 include_once dirname(__FILE__) . '/db_schema_user.php';
 include_once dirname(__FILE__) . '/db_schema_wall.php';
+include_once dirname(__FILE__) . '/db_schema_discuss.php';
 /**
  * init data.
  */

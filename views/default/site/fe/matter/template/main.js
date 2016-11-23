@@ -1,6 +1,6 @@
 define(["angular", "xxt-page"], function(angular, codeAssembler) {
     'use strict';
-    var ngApp = angular.module('tmpl', ['ui.bootstrap', 'ui.tms']);
+    var ngApp = angular.module('tmpl', ['ui.bootstrap', 'ui.tms', 'discuss.ui.xxt']);
     ngApp.config(['$locationProvider', function($lp) {
         $lp.html5Mode(true);
     }]);
@@ -9,14 +9,14 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
         $scope.templateId = templateId = $location.search().template;
         $scope.contribute = function() {
             var url;
-            url = '/rest/pl/fe/site/template/pushHome?template=' + templateId;
+            url = '/rest/pl/fe/template/pushHome?template=' + templateId;
             http2.get(url, function(rsp) {});
         };
         $scope.favorTemplate = function() {
             if ($scope.isLogin === 'N') {
                 location.href = '/rest/pl/fe/user/login';
             } else {
-                var url = '/rest/pl/fe/template/shop/siteCanFavor?template=' + template.id + '&_=' + (new Date() * 1);
+                var url = '/rest/pl/fe/template/siteCanFavor?template=' + template.id + '&_=' + (new Date() * 1);
                 http2.get(url, function(rsp) {
                     var sites = rsp.data;
                     $uibModal.open({
@@ -40,7 +40,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
                             };
                         }]
                     }).result.then(function(selected) {
-                        var url = '/rest/pl/fe/site/template/favor?template=' + template.id,
+                        var url = '/rest/pl/fe/template/favor?template=' + template.id,
                             sites = [];
 
                         selected.forEach(function(site) {
@@ -78,7 +78,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
                             };
                         }]
                     }).result.then(function(site) {
-                        var url = '/rest/pl/fe/site/template/purchase?template=' + template.id;
+                        var url = '/rest/pl/fe/template/purchase?template=' + template.id;
                         url += '&site=' + site.id;
                         http2.get(url, function(rsp) {
                             http2.get('/rest/pl/fe/matter/enroll/createByOther?site=' + site.id + '&template=' + template.id, function(rsp) {
@@ -92,7 +92,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
         http2.get('/rest/pl/fe/user/auth/isLogin', function(rsp) {
             $scope.isLogin = rsp.data;
         });
-        http2.get('/rest/pl/fe/site/template/get?template=' + $scope.templateId, function(rsp) {
+        http2.get('/rest/site/fe/matter/template/get?template=' + $scope.templateId, function(rsp) {
             $scope.template = template = rsp.data;
         });
     }]);
@@ -116,7 +116,9 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
         };
         $scope.$watch('template', function(template) {
             if (template === undefined) return;
-            $scope.previewURL = previewURL = '/rest/site/fe/matter/enroll/preview?site=' + template.siteid + '&app=' + template.matter_id + '&start=Y';
+            if (!previewURL) {
+                $scope.previewURL = previewURL = '/rest/site/fe/matter/enroll/preview?site=' + template.siteid + '&app=' + template.matter_id + '&start=Y';
+            }
             http2.get('/rest/site/fe/matter/enroll/get?app=' + template.matter_id + '&site=' + template.siteid, function(rsp) {
                 $scope.app = rsp.data.app;
                 params.pageAt = 0;

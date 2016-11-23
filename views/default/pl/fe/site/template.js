@@ -20,8 +20,7 @@ define(['require'], function() {
 			controller: $controllerProvider.register
 		};
 		$routeProvider
-			.when('/rest/pl/fe/template/shop/show', new RouteParam('show'))
-			.otherwise(new RouteParam('shop'));
+			.otherwise(new RouteParam('shelf'));
 
 		$locationProvider.html5Mode(true);
 	}]);

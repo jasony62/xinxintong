@@ -1,6 +1,6 @@
 define(["angular", "xxt-page"], function(angular, codeAssembler) {
 	'use strict';
-	var ngApp = angular.module('home', ['ui.bootstrap', 'ui.tms']);
+	var ngApp = angular.module('home', ['ui.bootstrap', 'ui.tms', 'discuss.ui.xxt']);
 	ngApp.config(['$controllerProvider', function($cp) {
 		ngApp.provider = {
 			controller: $cp.register
@@ -14,7 +14,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
 			if ($scope.isLogin === 'N') {
 				location.href = '/rest/pl/fe/user/login';
 			} else {
-				var url = '/rest/pl/fe/template/shop/siteCanFavor?template=' + template.id + '&_=' + (new Date() * 1);
+				var url = '/rest/pl/fe/template/siteCanFavor?template=' + template.id + '&_=' + (new Date() * 1);
 				http2.get(url, function(rsp) {
 					var sites = rsp.data;
 					$uibModal.open({
@@ -38,7 +38,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
 							};
 						}]
 					}).result.then(function(selected) {
-						var url = '/rest/pl/fe/site/template/favor?template=' + template.id,
+						var url = '/rest/pl/fe/template/favor?template=' + template.id,
 							sites = [];
 
 						selected.forEach(function(site) {
@@ -76,7 +76,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
 							};
 						}]
 					}).result.then(function(site) {
-						var url = '/rest/pl/fe/site/template/purchase?template=' + template.id;
+						var url = '/rest/pl/fe/template/purchase?template=' + template.id;
 						url += '&site=' + site.id;
 						http2.get(url, function(rsp) {
 							http2.get('/rest/pl/fe/matter/enroll/createByOther?site=' + site.id + '&template=' + template.id, function(rsp) {

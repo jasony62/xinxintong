@@ -19,7 +19,7 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', function($scope, $http
         });
     };
     $scope.openMatter = function(matter) {
-        location.href = '/rest/pl/fe/matter/' + matter.type + '?id=' + matter.id + '&site=' + matter.siteid;
+        location.href = matter.url;
     };
     listTemplates();
     listChannels();

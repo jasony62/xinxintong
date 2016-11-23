@@ -11,6 +11,7 @@ body{margin-bottom:50px;}
 .thumbnail .actions{position:absolute;top:8px;right:8px;}
 .mission:after{content:'项目';position:absolute;top:-8px;left:-8px;background:red;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 .article:after{content:'图文';position:absolute;top:-8px;left:-8px;background:green;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
+.channel:after{content:'频道';position:absolute;top:-8px;left:-8px;background:green;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 .enroll:after{content:'登记';position:absolute;top:-8px;left:-8px;background:#0000ff;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 .signin:after{content:'签到';position:absolute;top:-8px;left:-8px;background:#0000cc;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}
 .group:after{content:'分组';position:absolute;top:-8px;left:-8px;background:#000099;padding:2px 4px;font-size:60%;color:#fff;border-radius:4px;}

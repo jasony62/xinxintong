@@ -6,6 +6,64 @@ class TMS_MODEL {
 	/**
 	 *
 	 */
+	private static $models = [];
+	/**
+	 *
+	 */
+	private static $model_prefix = '_model';
+	/**
+	 * 实例化model
+	 *
+	 * model_path可以用'\'，'/'和'.'进行分割。用'\'代表namespace，用'/'代表目录，用'.'代表文件问题
+	 * 例如：
+	 * 1 - a/b/c，含义为：文件为a/b/c，类为c
+	 * 2 - a/b/c.d，含义为：文件为a/b/c，类为c_d
+	 */
+	public static function &model($model_path = null) {
+		if (!$model_path) {
+			// 缺省的model实例
+			$model_class = 'TMS_MODEL';
+		} else {
+			if (strpos($model_path, "\\")) {
+				$model_class = $model_path;
+				$model_file = preg_replace("/\\\\/", '/', $model_path);
+			} else if (strpos($model_path, '/')) {
+				$model_class = preg_replace('/^.*\//', '', $model_path);
+				$model_file = $model_path;
+			} else if (strpos($model_path, '.')) {
+				$model_class = str_replace('.', '_', $model_path);
+				$model_file = strstr($model_path, '.', true);
+			} else {
+				$model_class = $model_path;
+				$model_file = $model_path;
+			}
+			if (strpos($model_file, self::$model_prefix)) {
+				$model_file = strstr($model_path, self::$model_prefix, true);
+			}
+
+			if (false === strpos($model_class, self::$model_prefix)) {
+				$model_class .= self::$model_prefix;
+			}
+
+		}
+		// no constructed class
+		if (!class_exists($model_class)) {
+			require_once dirname(dirname(__FILE__)) . '/models/' . $model_file . '.php';
+		}
+		$args = func_get_args();
+		if (count($args) <= 1) {
+			$model_obj = new $model_class();
+		} else {
+			$r = new ReflectionClass($model_class);
+			$model_obj = $r->newInstanceArgs(array_slice($args, 1));
+		}
+		self::$models[$model_class] = $model_obj;
+
+		return self::$models[$model_class];
+	}
+	/**
+	 *
+	 */
 	public static function insert($table, $data = null, $autoid = DEFAULT_DB_AUTOID) {
 		return TMS_DB::db()->insert($table, $data, $autoid);
 	}

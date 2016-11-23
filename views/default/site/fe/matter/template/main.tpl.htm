@@ -58,6 +58,7 @@
                         <p class='form-control-static'>说明：<span ng-bind="template.summary"></span></p>
                     </div>
                     <hr>
+                    <div tms-discuss="platform" tms-discuss-ready="template?'Y':'N'" class="ds-thread" data-thread-key="template,{{template.id}}" data-title="{{template.title}}" data-url=""></div>
                 </div>
             </div>
         </div>
@@ -92,6 +93,6 @@
                 <button class="btn btn-success" ng-click="ok() ">确定</button>
             </div>
         </script>
-        <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/matter/template/main-loader.js?_=2"></script>
+        <script src="/static/js/require.js" defer async data-main="/views/default/site/fe/matter/template/main-loader.js?_=3"></script>
     </body>
 </html>

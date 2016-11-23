@@ -46,6 +46,7 @@ $sql .= ",lottery_page_id int not null default 0"; // 抽奖页 should remove
 $sql .= ",open_lastroll char(1) not null default 'Y'"; // 打开最后一条登记记录，还是编辑新的
 $sql .= ",multi_rounds char(1) not null default 'N'"; // 支持轮次
 $sql .= ",notify_submit char(1) not null default 'N'"; // 是否发送提交事件通知
+$sql .= ",can_discuss char(1) not null default 'N'"; // 支持对登记活动进行评论
 $sql .= ",can_like_record char(1) not null default 'N'"; // 支持对登记记录点赞 should remove
 $sql .= ",can_remark_record char(1) not null default 'N'"; // 支持对登记记录评论 should remove
 $sql .= ",can_autoenroll char(1) not null default 'N'"; // 是否支持自动登记

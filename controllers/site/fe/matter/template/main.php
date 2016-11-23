@@ -20,4 +20,12 @@ class main extends \TMS_CONTROLLER {
 		\TPL::output('/site/fe/matter/template/main');
 		exit;
 	}
+	/**
+	 *
+	 */
+	public function get_action($template) {
+		$template = $this->model('matter\template')->byId($template);
+
+		return new \ResponseData($template);
+	}
 }

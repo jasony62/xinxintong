@@ -1,4 +1,4 @@
-define(["angular", "xxt-page", 'enroll-directive'], function(angular, codeAssembler) {
+define(["angular", "xxt-page", "tms-discuss", "enroll-directive"], function(angular, codeAssembler) {
     'use strict';
 
     if (/MicroMessenger/i.test(navigator.userAgent) && window.signPackage && window.wx) {
@@ -11,7 +11,7 @@ define(["angular", "xxt-page", 'enroll-directive'], function(angular, codeAssemb
         }, false);
     }
 
-    var ngApp = angular.module('enroll', ['ngSanitize', 'directive.enroll']);
+    var ngApp = angular.module('enroll', ['ngSanitize', 'discuss.ui.xxt', 'directive.enroll']);
     ngApp.config(['$controllerProvider', 'lsProvider', function($cp, lsProvider) {
         ngApp.provider = {
             controller: $cp.register
@@ -53,7 +53,7 @@ define(["angular", "xxt-page", 'enroll-directive'], function(angular, codeAssemb
             };
         };
     });
-    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', 'ls', function($scope, $http, $timeout, LS) {
+    ngApp.controller('ctrl', ['$scope', '$http', '$timeout', 'ls', 'tmsDiscuss', function($scope, $http, $timeout, LS, tmsDiscuss) {
         var tasksOfOnReady = [];
         $scope.errmsg = '';
         $scope.closePreviewTip = function() {
@@ -245,6 +245,9 @@ define(["angular", "xxt-page", 'enroll-directive'], function(angular, codeAssemb
                 });
                 if (tasksOfOnReady.length) {
                     angular.forEach(tasksOfOnReady, PG.exec);
+                }
+                if (app.can_discuss === 'Y') {
+                    tmsDiscuss.showSwitch(site.id, 'enroll,' + app.id, app.title);
                 }
                 $timeout(function() {
                     $scope.$broadcast('xxt.app.enroll.ready', params);

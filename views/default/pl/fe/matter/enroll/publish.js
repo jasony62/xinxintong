@@ -127,9 +127,6 @@ define(['frame'], function(ngApp) {
 	 */
 	ngApp.provider.controller('ctrlAccessRule', ['$scope', 'http2', 'srvApp', function($scope, http2, srvApp) {
 		$scope.rule = {};
-		$scope.update = function() {
-			srvApp.update('entry_rule');
-		};
 		$scope.reset = function() {
 			srvApp.resetEntryRule();
 		};

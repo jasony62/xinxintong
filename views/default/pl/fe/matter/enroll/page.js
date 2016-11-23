@@ -62,6 +62,9 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 				editorProxy.getEditor().setContent('');
 			});
 		};
+		$scope.gotoCode = function() {
+			window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + $scope.ep.code_name, '_self');
+		};
 		/**
 		 * 修改schema
 		 */
@@ -313,9 +316,6 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 					});
 				}
 			}, options);
-		};
-		$scope.gotoCode = function() {
-			window.open('/rest/pl/fe/code?site=' + $scope.siteId + '&name=' + $scope.ep.code_name, '_self');
 		};
 		$scope.$on('tinymce.content.change', function(event, changedNode) {
 			var status, html;

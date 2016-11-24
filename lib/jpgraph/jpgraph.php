@@ -5157,7 +5157,7 @@ class DisplayValue {
 	private $ff = FF_DEFAULT, $fs = FS_NORMAL, $fsize = 8;
 	private $iFormCallback = '';
 	private $angle = 0;
-	private $color = 'navy', $negcolor = '';
+	private $color = 'black', $negcolor = '';
 	private $iHideZero = false;
 	public $txt = null;
 

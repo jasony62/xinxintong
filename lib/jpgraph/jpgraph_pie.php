@@ -593,7 +593,8 @@ class PiePlot {
 			} else {
 				$img->SetColor($slicecolor);
 			}
-			$arccolor = $this->pie_border && $aaoption === 0 ? $this->color : "";
+			//$arccolor = $this->pie_border && $aaoption === 0 ? $this->color : "";
+			$arccolor = $this->pie_border ? $this->color : '';
 
 			// Calculate the x,y coordinates for the base of this slice taking
 			// the exploded distance into account. Here we use the mid angle as the

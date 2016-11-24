@@ -178,10 +178,11 @@ class stat extends \pl\fe\matter\base {
 				$textResult = $modelRec->list4Schema($site, $app, $schema->id);
 				if (!empty($textResult->records)) {
 					$records = $textResult->records;
-					$html .= "<table><thead><tr><th>登记内容</th></tr></thead>";
+					$html .= "<table><thead><tr><th>序号</th><th>登记内容</th></tr></thead>";
 					$html .= "<tbody>";
-					foreach ($records as $record) {
-						$html .= "<tr><td>{$record->value}</td></tr>";
+					for ($i = 0, $l = count($records); $i < $l; $i++) {
+						$record = $records[$i];
+						$html .= "<tr>" . ($i + 1) . "<td></td><td>{$record->value}</td></tr>";
 					}
 					$html .= "</tbody></table>";
 				}
@@ -190,28 +191,31 @@ class stat extends \pl\fe\matter\base {
 				$data = [];
 				$sum = 0;
 				foreach ($item['ops'] as $op) {
-					$data[] = (int) $op['c'];
-					$sum += (int) $op['c'];
+					if ((int) $op['c'] !== 0) {
+						$data[] = (int) $op['c'];
+						$sum += (int) $op['c'];
+					}
 				}
 
 				if (in_array($schema->type, ['single', 'phase'])) {
 					// Create a pie pot
 					if ($sum) {
-						$graph = new \PieGraph(550, 200);
+						$graph = new \PieGraph(550, 300);
 						$graph->SetShadow();
 						$pie = new \PiePlot($data);
-						//$pie->SetTheme('pastel');
-						$pie->ShowBorder();
-						$pie->SetColor('black');
-						$pie->setSliceColors(['#F7A35C', '#8085E9', '#90ED7D', '#7CB5EC', '#434348']);
 						$labels = [];
-						foreach ($item['ops'] as $op) {
-							$labels[] = str_replace('%', '%%', $op['l']) . '：%.1f%%';
+						for ($i = 0, $l = count($item['ops']); $i < $l; $i++) {
+							$op = $item['ops'][$i];
+							if ((int) $op['c'] !== 0) {
+								$labels[] = '选项' . ($i + 1) . '：%.1f%%';
+							}
 						}
-						$pie->SetLabels($labels, 0.8);
 						$pie->value->SetFont(FF_CHINESE, FS_NORMAL);
-						$pie->SetGuideLines(true);
 						$graph->Add($pie);
+						$pie->ShowBorder();
+						$pie->setSliceColors(['#F7A35C', '#8085E9', '#90ED7D', '#7CB5EC', '#434348']);
+						$pie->SetColor(array(255, 255, 255));
+						$pie->SetLabels($labels, 1);
 					}
 				} else if ($schema->type === 'multiple') {
 					// Create the graph. These two calls are always required
@@ -223,8 +227,11 @@ class stat extends \pl\fe\matter\base {
 					$graph->img->SetMargin(40, 30, 20, 40);
 					// Create a bar pot
 					$labels = [];
-					foreach ($item['ops'] as $op) {
-						$labels[] = $op['l'];
+					for ($i = 0, $l = count($item['ops']); $i < $l; $i++) {
+						$op = $item['ops'][$i];
+						if ((int) $op['c'] !== 0) {
+							$labels[] = '选项' . ($i + 1);
+						}
 					}
 					$bar = new \BarPlot($data);
 					$graph->Add($bar);
@@ -252,10 +259,11 @@ class stat extends \pl\fe\matter\base {
 					//
 					$html .= '<img src="' . $item['id'] . '.base64" />';
 				}
-				$html .= "<table><thead><tr><th>选项</th><th>数量</th></tr></thead>";
+				$html .= "<table><thead><tr><th>选项编号</th><th>选项内容</th><th>数量</th></tr></thead>";
 				$html .= "<tbody>";
-				foreach ($item['ops'] as $op) {
-					$html .= "<tr><td>{$op['l']}</td><td>{$op['c']}</td></tr>";
+				for ($i = 0, $l = count($item['ops']); $i < $l; $i++) {
+					$op = $item['ops'][$i];
+					$html .= "<tr><td>选项" . ($i + 1) . "</td><td>{$op['l']}</td><td>{$op['c']}</td></tr>";
 				}
 				$html .= "</tbody></table>";
 			} else if ('score' === $schema->type) {
@@ -264,8 +272,9 @@ class stat extends \pl\fe\matter\base {
 				$labels = [];
 				$data = [];
 				$totalScore = 0;
-				foreach ($item['ops'] as &$op) {
-					$labels[] = $op['l'];
+				for ($i = 0, $l = count($item['ops']); $i < $l; $i++) {
+					$labels[] = '打分项' . ($i + 1);
+					$op = &$item['ops'][$i];
 					$op['c'] = round((float) $op['c'], 2);
 					$data[] = $op['c'];
 					$totalScore += $op['c'];
@@ -313,11 +322,11 @@ class stat extends \pl\fe\matter\base {
 					$html .= '<img src="' . $item['id'] . '.base64" />';
 				}
 				// table
-				$html .= "<table><thead><tr><th>打分项</th><th>平均分</th></tr></thead>";
+				$html .= "<table><thead><tr><th>打分项编号</th><th>打分项内容</th><th>平均分</th></tr></thead>";
 				$html .= "<tbody>";
-
-				foreach ($item['ops'] as $op2) {
-					$html .= "<tr><td>{$op2['l']}</td><td>{$op2['c']}</td></tr>";
+				for ($i = 0, $l = count($item['ops']); $i < $l; $i++) {
+					$op2 = $item['ops'][$i];
+					$html .= "<tr><td>打分项" . ($i + 1) . "</td><td>{$op2['l']}</td><td>{$op2['c']}</td></tr>";
 				}
 				$avgScore = round($totalScore / count($item['ops']), 2);
 				$html .= "<tr><td>本项平均分</td><td>{$avgScore}</td></tr>";

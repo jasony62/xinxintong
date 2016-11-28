@@ -18,6 +18,29 @@ class main extends \pl\fe\base {
 		}
 	}
 	/**
+	 * 列出站点最近操作的素材
+	 */
+	public function recent_action($page = 1, $size = 30) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelLog = $this->model('matter\log');
+
+		/*分页参数*/
+		$p = new \stdClass;
+		$p->at = $page;
+		$p->size = $size;
+
+		$options = array(
+			'page' => $p,
+		);
+
+		$matters = $modelLog->recentMattersByUser($user, $options);
+
+		return new \ResponseData($matters);
+	}
+	/**
 	 * 获得当前用户的关注动态
 	 */
 	public function trends_action() {

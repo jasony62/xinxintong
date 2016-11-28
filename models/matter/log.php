@@ -356,4 +356,37 @@ class log_model extends \TMS_MODEL {
 
 		return $result;
 	}
+	/**
+	 * 指定用户最近操作的素材
+	 */
+	public function &recentMattersByUser(&$user, $options = array()) {
+		$fields = empty($options['fields']) ? '*' : $options['fields'];
+		if (empty($options['page'])) {
+			$page = new \stdClass;
+			$page->at = 1;
+			$page->size = 30;
+		} else {
+			$page = $options['page'];
+		}
+		$q = [
+			$fields,
+			'xxt_log_matter_op',
+			"operator='{$user->id}' and last_op='Y' and operation<>'D'",
+		];
+		$q2 = [
+			'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
+			'o' => ['operate_at desc'],
+		];
+
+		$matters = $this->query_objs_ss($q, $q2);
+		$result = ['matters' => $matters];
+		if (empty($matters)) {
+			$result['total'] = 0;
+		} else {
+			$q[0] = 'count(*)';
+			$result['total'] = $this->query_val_ss($q);
+		}
+
+		return $result;
+	}
 }

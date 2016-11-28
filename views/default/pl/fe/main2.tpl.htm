@@ -13,18 +13,49 @@
                 <div class='navbar-header'>
                     <a class='navbar-brand' href='/rest/home' target='_self'><?php echo APP_TITLE;?></a>
                 </div>
-                <ul class='nav navbar-nav navbar-right'>
-                    <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
-                    <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
-                </ul>
+                <form class='navbar-form navbar-right'>
+                    <div class="btn-group">
+                        <a href='' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> {{loginUser.nickname}}</a>
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
+                            <li class="divider"></li>
+                            <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+                        </ul>
+                    </div>
+                </form>
             </div>
         </nav>
         <div class='container ng-cloak' ng-cloak>
+            <div class='row' ng-controller="ctrlRecent">
+                <div class='col-md-12'>
+                    <nav class='navbar navbar-default tms-panel-heading'>
+                        <div class='container-fluid'>
+                            <p class="navbar-text">我进行的工作</p>
+                        </div>
+                    </nav>
+                    <div class='tms-panel-body'>
+                        <div  class='col-md-4' ng-repeat='m in matters'>
+                            <div class='thumbnail mission' ng-click='open(m)'>
+                                <h4 class='title' ng-bind="m.matter_title"></h4>
+                                <p class='summary' ng-bind="m.matter_summary"></p>
+                                <div class='attr'>
+                                    <div class='creater_name' ng-bind="m.operator_name"></div>
+                                    <div class='create_at' ng-bind="m.operate_at*1000|date:'yyyy-MM-dd'"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class='row' ng-controller="ctrlMission">
                 <div class='col-md-12'>
                     <nav class='navbar navbar-default tms-panel-heading'>
                         <div class='container-fluid'>
-                            <p class="navbar-text">任务</p>
+                            <p class="navbar-text">我参与的项目</p>
                         </div>
                     </nav>
                     <div class='tms-panel-body'>
@@ -41,11 +72,11 @@
                     </div>
                 </div>
             </div>
-            <div class='row' ng-controller="ctrlTrend">
+            <div class='row hide' ng-controller="ctrlTrend">
                 <div class='col-md-12'>
                     <nav class='navbar navbar-default tms-panel-heading'>
                         <div class='container-fluid'>
-                            <p class="navbar-text">关注</p>
+                            <p class="navbar-text">我关注的团队</p>
                         </div>
                     </nav>
                     <div class='tms-panel-body'>
@@ -66,9 +97,9 @@
                 <div class='col-md-12' ng-controller="ctrlSite">
                     <nav class='navbar navbar-default tms-panel-heading'>
                         <div class='container-fluid'>
-                            <p class="navbar-text">站点</p>
+                            <p class="navbar-text">我所属的团队</p>
                             <form class='navbar-form navbar-right'>
-                                <button class='btn btn-success' ng-click='create()'><span class='glyphicon glyphicon-plus'></span>创建站点</button>
+                                <button class='btn btn-success' ng-click='create()'><span class='glyphicon glyphicon-plus'></span>创建团队</button>
                             </form>
                         </div>
                     </nav>
@@ -87,8 +118,11 @@
                 </div>
             </div>
         </div>
+        <script src="/static/js/jquery.min.js"></script>
+        <script src="/static/js/bootstrap.min.js"></script>
         <script src="/static/js/angular.min.js"></script>
         <script src="/static/js/angular-sanitize.min.js"></script>
+        <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
         <script src="/static/js/ui-tms.js"></script>
         <script src="/views/default/pl/fe/main2.js"></script>
     </body>

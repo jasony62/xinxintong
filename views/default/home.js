@@ -35,16 +35,20 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
             if (pages[subView] === undefined) {
                 codeAssembler.loadCode(ngApp, platform[subView + '_page']).then(function() {
                     pages[subView] = platform[subView + '_page'];
-                    $scope.page = pages[subView];
+                    $scope.page = pages[subView] || {
+                        html: '<div></div>'
+                    };
                     $scope.subView = subView;
                 });
             } else {
-                $scope.page = pages[subView];
+                $scope.page = pages[subView] || {
+                    html: '<div></div>'
+                };
                 $scope.subView = subView;
             }
         };
         $scope.favorTemplate = function(template) {
-            if ($scope.isLogin === 'N') {
+            if ($scope.loginUser === false) {
                 if (window.sessionStorage) {
                     var method = JSON.stringify({
                         name: 'favorTemplate',
@@ -91,7 +95,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
             }
         };
         $scope.useTemplate = function(template) {
-            if ($scope.isLogin === 'N') {
+            if ($scope.loginUser === false) {
                 if (window.sessionStorage) {
                     var method = JSON.stringify({
                         name: 'useTemplate',
@@ -140,7 +144,7 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
             location.href = '/rest/site/home?site=' + site.siteid;
         };
         $scope.subscribeSite = function(site) {
-            if ($scope.isLogin === 'N') {
+            if ($scope.loginUser === false) {
                 if (window.sessionStorage) {
                     var method = JSON.stringify({
                         name: 'subscribeSite',
@@ -197,8 +201,8 @@ define(["angular", "xxt-page"], function(angular, codeAssembler) {
             if (platform.home_page === false) {
                 location.href = '/rest/pl/fe';
             } else {
-                http2.get('/rest/pl/fe/user/auth/isLogin', function(rsp) {
-                    $scope.isLogin = rsp.data;
+                http2.get('/rest/pl/fe/user/get', function(rsp) {
+                    $scope.loginUser = rsp.data;
                     if (window.sessionStorage) {
                         var pendingMethod;
                         if (pendingMethod = window.sessionStorage.getItem('xxt.home.auth.pending')) {

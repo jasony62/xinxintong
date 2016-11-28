@@ -10,6 +10,7 @@ require.config({
 	paths: {
 		"domReady": '/static/js/domReady',
 		"jquery": "/static/js/jquery.min",
+		"bootstrap": "/static/js/bootstrap.min",
 		"angular": "/static/js/angular.min",
 		"angular-sanitize": "/static/js/angular-sanitize.min",
 		"ui-bootstrap": "/static/js/ui-bootstrap-tpls.min",
@@ -33,12 +34,14 @@ require.config({
 	}
 });
 require(['jquery'], function() {
-	require(['angular'], function(angular) {
-		require(['angular-sanitize'], function() {
-			require(['ui-bootstrap'], function() {
-				require(['ui-tms'], function() {
-					require(['xxt-page'], function(loader) {
-						loader.bootstrap('/views/default/home.js?_=' + (timestamp * 1));
+	require(['bootstrap'], function() {
+		require(['angular'], function(angular) {
+			require(['angular-sanitize'], function() {
+				require(['ui-bootstrap'], function() {
+					require(['ui-tms'], function() {
+						require(['xxt-page'], function(loader) {
+							loader.bootstrap('/views/default/home.js?_=' + (timestamp * 1));
+						});
 					});
 				});
 			});

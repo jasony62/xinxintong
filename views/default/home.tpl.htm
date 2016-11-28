@@ -6,7 +6,7 @@
         <base href="/" />
         <title>首页</title>
         <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-        <style>body{margin-bottom:50px;}.ng-cloak:{display:none;}</style>
+        <style>body{margin-bottom:50px;}.ng-cloak{display:none;}</style>
     </head>
     
     <body>
@@ -17,14 +17,24 @@
                     <li ng-class="{'active':subView==='template'}"><a href='' ng-click="shiftPage('template')">模版库</a></li>
                     <li ng-class="{'active':subView==='site'}"><a href='' ng-click="shiftPage('site')">团队</a></li>
                 </ul>
-                <ul class='nav navbar-nav navbar-right ng-cloak' ng-if="isLogin==='N'" ng-cloak>
+                <ul class='nav navbar-nav navbar-right ng-cloak' ng-if="loginUser===false" ng-cloak>
                     <li><a href='/rest/pl/fe/user/login' target='_self'>登录</a></li>
                     <li><a href='/rest/pl/fe/user/register' target='_self'>注册</a></li>
                 </ul>
-                <ul class='nav navbar-nav navbar-right ng-cloak' ng-if="isLogin==='Y'" ng-cloak>
-                    <li><a href="/rest/pl/fe" target='_self'>管理我的团队</a></li>
-                    <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
-                </ul>
+                <form class='navbar-form navbar-right ng-cloak' ng-if="loginUser" ng-cloak>
+                    <div class="btn-group">
+                        <a href='/rest/pl/fe' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> <span ng-bind="loginUser.nickname"></span></a>
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
+                            <li class="divider"></li>
+                            <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+                        </ul>
+                    </div>
+                </form>
             </div>
         </nav>
         <div dynamic-html='page.html'></div>
@@ -75,6 +85,6 @@
                 <button class="btn btn-success" ng-click="ok() ">确定</button>
             </div>
         </script>
-        <script src="/static/js/require.js" defer async data-main="/views/default/home-loader.js?_=2"></script>
+        <script src="/static/js/require.js" defer async data-main="/views/default/home-loader.js?_=3"></script>
     </body>
 </html>

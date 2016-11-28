@@ -293,29 +293,30 @@ class TMS_MODEL {
 		return $json;
 	}
 	/*
-	 *
+	 * '、"、&、<、>用htmlspecialchars转码
+	 * 用urlencode保留中文（显示）
 	 */
 	public static function urlencodeObj2($obj) {
 
-			if (is_object($obj)) {
-				$newObj = new \stdClass;
-				foreach ($obj as $k => $v) {
-					$newObj->{urlencode($k)} = self::urlencodeObj2($v);
-				}
-			} else if (is_array($obj)) {
-				$newObj = array();
-				foreach ($obj as $k => $v) {
-					$newObj[urlencode($k)] = self::urlencodeObj2($v);
-				}
-			} else {
-				$obj=htmlspecialchars($obj,ENT_QUOTES);
-				$newObj = urlencode($obj);
+		if (is_object($obj)) {
+			$newObj = new \stdClass;
+			foreach ($obj as $k => $v) {
+				$newObj->{urlencode($k)} = self::urlencodeObj2($v);
 			}
+		} else if (is_array($obj)) {
+			$newObj = array();
+			foreach ($obj as $k => $v) {
+				$newObj[urlencode($k)] = self::urlencodeObj2($v);
+			}
+		} else {
+			$obj=htmlspecialchars($obj,ENT_QUOTES);
+			$newObj = urlencode($obj);
+		}
 
 		return $newObj;
 	}
 	/**
-	 *
+	 * 修正的转json 的方法
 	 */
 	public static function toJson2($obj) {
 		$obj = self::urlencodeObj2($obj);

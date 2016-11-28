@@ -382,24 +382,25 @@ class record_model extends \TMS_MODEL {
 		if (isset($criteria->data)) {
 			$whereByData = '';
 			foreach ($criteria->data as $k => $v) {
+				
 				if(preg_match("/\\\/", $v)){
-					$v=preg_replace("/\\\/", '\\\\', $v);
+					$v=preg_replace("/\\\/", "\\\\\\", $v);
 				}
-				var_dump($v);
-				$v=htmlspecialchars($v,ENT_QUOTES);
-				if (!empty($v)) {
-					$whereByData .= ' and (';
-					$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
-					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
-					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
-					$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
-					$whereByData .= ' or data like \'%"' . $k . '":"%' . $v . '%"%\'';
-					$whereByData .= ')';
-				}
+
+				$v=$this->escape($v);					
+				$s=htmlspecialchars($v,ENT_QUOTES);
+								
+				$whereByData .= ' and (';
+				$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
+				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
+				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
+				$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
+				$whereByData .= ' or data like \'%"' . $k . '":"%' . $s . '%"%\'';
+				$whereByData .= ')';
 			}
 			$w .= $whereByData;
 		}
-		die();
+		
 		// 查询参数
 		$q = [
 			'e.enroll_key,e.enroll_at,e.tags,e.userid,e.nickname,e.verified,e.comment,e.data',

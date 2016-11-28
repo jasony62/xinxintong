@@ -115,7 +115,7 @@ ngApp.controller('ctrlReview', ['$location', '$scope', '$uibModal', 'http2', 'Ar
 
     };
     $scope.preview = function() {
-        location.href = '/rest/mi/matter?mode=preview&type=article&tpl=std&mpid=' + siteId + '&id=' + id;
+        location.href = '/rest/site/fe/matter?mode=preview&type=article&tpl=std&site=' + siteId + '&id=' + id;
     };
     $scope.Reviewlog.list().then(function(data) {
         $scope.logs = data;

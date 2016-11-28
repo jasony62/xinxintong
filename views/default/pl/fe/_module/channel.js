@@ -1,5 +1,7 @@
 angular.module('channel.fe.pl', ['ui.tms']).
-controller('ctrlSetChannel', ['$scope', 'http2', function($scope, http2) {
+controller('ctrlSetChannel', ['$scope', 'http2', '$location',function($scope, http2, $location) {
+    var ls = $location.search();
+    $scope.siteId = ls.site;
     $scope.$on('channel.xxt.combox.done', function(event, aSelected) {
         var i, j, existing, aNewChannels = [],
             relations = {},

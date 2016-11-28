@@ -270,7 +270,8 @@ $sql .= ",matter_title varchar(70) not null default ''";
 $sql .= ",matter_summary varchar(240) not null default ''";
 $sql .= ",matter_pic text";
 $sql .= ",matter_scenario varchar(255) not null default ''"; // 应用场景
-$sql .= ",last_op char(1) not null default 'Y'";
+$sql .= ",last_op char(1) not null default 'Y'"; // 对象的最后一个操作
+$sql .= ",user_last_op char(1) not null default 'N'"; // 用户的最后一个操作
 $sql .= ",data text"; // 操作相关数据
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

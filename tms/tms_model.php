@@ -347,7 +347,7 @@ class TMS_MODEL {
 		return $data;
 	}
 	/**
-	 * 从数据库取json经strConvert转对象然后将html实体标签换回
+	 * 将html实体标签解码成原来的特殊字符
 	 */
 	public static function htmlDecode($arr)
 	{

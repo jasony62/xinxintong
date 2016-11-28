@@ -292,23 +292,52 @@ class TMS_MODEL {
 
 		return $json;
 	}
+	/*
+	 *
+	 */
+	public static function urlencodeObj2($obj) {
+
+			if (is_object($obj)) {
+				$newObj = new \stdClass;
+				foreach ($obj as $k => $v) {
+					$newObj->{urlencode($k)} = self::urlencodeObj2($v);
+				}
+			} else if (is_array($obj)) {
+				$newObj = array();
+				foreach ($obj as $k => $v) {
+					$newObj[urlencode($k)] = self::urlencodeObj2($v);
+				}
+			} else {
+				$obj=htmlspecialchars($obj,ENT_QUOTES);
+				$newObj = urlencode($obj);
+			}
+
+		return $newObj;
+	}
+	/**
+	 *
+	 */
+	public static function toJson2($obj) {
+		$obj = self::urlencodeObj2($obj);
+		$json = urldecode(json_encode($obj));
+
+		return $json;
+	}
 	/**
 	 * 从数据库取json字符串转对象
 	 */
 	public static function strConvert($data)
 	{
 		if(is_string($data)){
-			$data=preg_replace("/[\r\n]/", "^", $data);
-			$data=preg_replace("/\\\/", "`", $data);
-			$data=preg_replace("/\t/", "龘", $data);
+			$data=preg_replace("/[\r\n]/", urlencode("\n"), $data);
+			$data=preg_replace("/\\\/", urlencode("\\"), $data);
+			$data=preg_replace("/\t/", urlencode("\t"), $data);
 		}
 
 		$data = json_decode($data);
 		if(json_last_error()==0 && is_object($data)){
 			foreach ($data as $k => $v) {
-				$b=preg_replace("/\^/", "\n", $v);
-				$b=preg_replace("/\`/",'\\',$b);
-				$b=preg_replace("/龘/","\t",$b);
+				$b=urldecode($v);
 				$b=htmlspecialchars_decode($b,ENT_QUOTES);
 				$data->{$k}=$b;
 			}

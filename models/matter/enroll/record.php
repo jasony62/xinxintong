@@ -179,7 +179,7 @@ class record_model extends \TMS_MODEL {
 			$this->insert('xxt_enroll_record_data', $ic, false);
 		}
 		/* 保留冗余数据 */
-		$dbData = $this->toJson($dbData);
+		$dbData = $this->toJson2($dbData);
 		$this->update('xxt_enroll_record', ['data' => $dbData], "enroll_key='$ek'");
 
 		return [true, $dbData];
@@ -382,18 +382,24 @@ class record_model extends \TMS_MODEL {
 		if (isset($criteria->data)) {
 			$whereByData = '';
 			foreach ($criteria->data as $k => $v) {
+				if(preg_match("/\\\/", $v)){
+					$v=preg_replace("/\\\/", '\\\\', $v);
+				}
+				var_dump($v);
+				$v=htmlspecialchars($v,ENT_QUOTES);
 				if (!empty($v)) {
 					$whereByData .= ' and (';
 					$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
 					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
 					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
 					$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"%' . $v . '%"%\'';
 					$whereByData .= ')';
 				}
 			}
 			$w .= $whereByData;
 		}
-
+		die();
 		// 查询参数
 		$q = [
 			'e.enroll_key,e.enroll_at,e.tags,e.userid,e.nickname,e.verified,e.comment,e.data',

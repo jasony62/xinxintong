@@ -18,6 +18,7 @@ window.loading = {
 				"domReady": '/static/js/domReady',
 				"angular": "/static/js/angular.min",
 				"angular-sanitize": "/static/js/angular-sanitize.min",
+				"tms-discuss": "/static/js/xxt.ui.discuss2",
 				"resumable": "/static/js/resumable",
 				"xxt-page": "/static/js/xxt.ui.page",
 				"xxt-share": "/static/js/xxt.share",

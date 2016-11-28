@@ -15,6 +15,7 @@ require.config({
 		"angular-sanitize": "/static/js/angular-sanitize.min",
 		"ui-bootstrap": "/static/js/ui-bootstrap-tpls.min",
 		"ui-tms": "/static/js/ui-tms",
+		"xxt-discuss": "/static/js/xxt.ui.discuss",
 		"xxt-page": "/static/js/xxt.ui.page",
 	},
 	shim: {
@@ -42,7 +43,7 @@ require(['jquery'], function() {
 		require(['angular-route'], function() {
 			require(['angular-sanitize'], function() {
 				require(['ui-bootstrap'], function() {
-					require(['ui-tms'], function() {
+					require(['ui-tms', 'xxt-discuss'], function() {
 						require(['xxt-page'], function(loader) {
 							loader.bootstrap('/views/default/site/home.js?_=' + (timestamp * 1));
 						});

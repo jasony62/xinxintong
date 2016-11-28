@@ -102,7 +102,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                     });
                 };
                 $scope.searchShare2Me = function() {
-                    var url = '/rest/pl/fe/template/share2Me?matterType=' + type;
+                    var url = '/rest/pl/fe/template/platform/share2Me?matterType=' + type;
                     if (assignedScenario && assignedScenario.length) {
                         url += '&scenario=' + assignedScenario;
                     }
@@ -165,7 +165,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
         var deferred;
         deferred = $q.defer();
         $uibModal.open({
-            templateUrl: '/static/template/templateShare.html?_=7',
+            templateUrl: '/static/template/templateShare.html?_=9',
             controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                 $scope.data = {};
                 $scope.params = {};

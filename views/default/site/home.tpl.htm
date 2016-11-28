@@ -39,7 +39,11 @@
             </div>
         </div>
         <div id="content" dynamic-html='page.html' ng-cloak class='ng-cloak'></div>
-        <script src="/static/js/require.js" defer async data-main="/views/default/site/home-loader.js?_=2"></script>
+        <div class='container'>
+            <div class='row'>
+                <div tms-discuss="platform" tms-discuss-ready="site?'Y':'N'" class="ds-thread" data-thread-key="site,{{site.id}}" data-title="{{site.name}}" data-url=""></div>
+            </div>
+        </div>
         <script type="text/ng-template" id="favorTemplateSite.html">
             <div class="modal-header">
                 <button class="close" type="button" ng-click="cancel()">×</button>
@@ -87,5 +91,6 @@
                 <button class="btn btn-success" ng-click="ok() ">确定</button>
             </div>
         </script>
+        <script src="/static/js/require.js" defer async data-main="/views/default/site/home-loader.js?_=3"></script>
     </body>
 </html>

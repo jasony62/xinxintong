@@ -75,6 +75,11 @@ class home extends TMS_CONTROLLER {
 		$modelHome = $this->model('matter\home');
 
 		$result = $modelHome->atHome();
+		if (count($result->matters)) {
+			foreach ($result->matters as &$matter) {
+				$matter->url = $this->model('matter\\' . $matter->matter_type)->getEntryUrl($matter->siteid, $matter->matter_id);
+			}
+		}
 
 		return new \ResponseData($result);
 	}
@@ -85,6 +90,11 @@ class home extends TMS_CONTROLLER {
 		$modelHome = $this->model('matter\home');
 
 		$result = $modelHome->atHomeArticle();
+		if (count($result->matters)) {
+			foreach ($result->matters as &$matter) {
+				$matter->url = $this->model('matter\article')->getEntryUrl($matter->siteid, $matter->matter_id);
+			}
+		}
 
 		return new \ResponseData($result);
 	}

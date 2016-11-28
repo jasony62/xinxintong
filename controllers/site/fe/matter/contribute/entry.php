@@ -104,8 +104,11 @@ class entry extends \site\fe\base {
 			/**
 			 * 任务码
 			 */
+			$user = new \stdClass;
+			$user->id = $this->who->uid;
+			$user->name = $this->who->nickname;
 			if ($c->can_taskcode && $c->can_taskcode === 'Y') {
-				$taskCode = $this->model('task')->addTask($site, $this->who->uid, $myUrl);
+				$taskCode = $this->model('q\url')->add($user, $site, $myUrl);
 				$page->html = str_replace('{{taskCode}}', $taskCode, $page->html);
 			}
 			$c->pageShift2Pc = $page;

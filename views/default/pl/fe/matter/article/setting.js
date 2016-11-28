@@ -327,49 +327,48 @@ define(['frame'], function(ngApp) {
 		$scope.downloadUrl = function(att) {
 			return '/rest/site/fe/matter/article/attachmentGet?site=' + $scope.editing.siteid + '&articleid=' + $scope.editing.id + '&attachmentid=' + att.id;
 		};
-		http2.get('/rest/pl/fe/matter/tag/list?site=' + $scope.editing.siteid + '&resType=article&subType=0', function(rsp) {
-			$scope.tags = rsp.data;
-		});
-		http2.get('/rest/pl/fe/matter/tag/list?site=' + $scope.editing.siteid + '&resType=article&subType=1', function(rsp) {
-			$scope.tags2 = rsp.data;
-		});
 		$scope.$watch('editing', function(editing) {
-			if (editing) {
-				if (tinymceEditor) {
-					tinymceEditor.setContent(editing.body);
-				}
-				var r = new Resumable({
-					target: '/rest/pl/fe/matter/article/attachment/upload?site=' + $scope.editing.siteid + '&articleid=' + $scope.id,
-					testChunks: false,
-				});
-				r.assignBrowse(document.getElementById('addAttachment'));
-				r.on('fileAdded', function(file, event) {
-					$scope.$apply(function() {
-						noticebox.progress('开始上传文件');
-					});
-					r.upload();
-				});
-				r.on('progress', function(file, event) {
-					$scope.$apply(function() {
-						noticebox.progress('正在上传文件：' + Math.floor(r.progress() * 100) + '%');
-					});
-				});
-				r.on('complete', function() {
-					var f, lastModified, posted;
-					f = r.files.pop().file;
-					lastModified = f.lastModified ? f.lastModified : (f.lastModifiedDate ? f.lastModifiedDate.getTime() : 0);
-					posted = {
-						name: f.name,
-						size: f.size,
-						type: f.type,
-						lastModified: lastModified,
-						uniqueIdentifier: f.uniqueIdentifier,
-					};
-					http2.post('/rest/pl/fe/matter/article/attachment/add?site=' + $scope.editing.siteid + '&id=' + $scope.id, posted, function success(rsp) {
-						$scope.editing.attachments.push(rsp.data);
-					});
-				});
+			if (!editing) return;
+			http2.get('/rest/pl/fe/matter/tag/list?site=' + $scope.editing.siteid + '&resType=article&subType=0', function(rsp) {
+				$scope.tags = rsp.data;
+			});
+			http2.get('/rest/pl/fe/matter/tag/list?site=' + $scope.editing.siteid + '&resType=article&subType=1', function(rsp) {
+				$scope.tags2 = rsp.data;
+			});
+			if (tinymceEditor) {
+				tinymceEditor.setContent(editing.body);
 			}
+			var r = new Resumable({
+				target: '/rest/pl/fe/matter/article/attachment/upload?site=' + $scope.editing.siteid + '&articleid=' + $scope.id,
+				testChunks: false,
+			});
+			r.assignBrowse(document.getElementById('addAttachment'));
+			r.on('fileAdded', function(file, event) {
+				$scope.$apply(function() {
+					noticebox.progress('开始上传文件');
+				});
+				r.upload();
+			});
+			r.on('progress', function(file, event) {
+				$scope.$apply(function() {
+					noticebox.progress('正在上传文件：' + Math.floor(r.progress() * 100) + '%');
+				});
+			});
+			r.on('complete', function() {
+				var f, lastModified, posted;
+				f = r.files.pop().file;
+				lastModified = f.lastModified ? f.lastModified : (f.lastModifiedDate ? f.lastModifiedDate.getTime() : 0);
+				posted = {
+					name: f.name,
+					size: f.size,
+					type: f.type,
+					lastModified: lastModified,
+					uniqueIdentifier: f.uniqueIdentifier,
+				};
+				http2.post('/rest/pl/fe/matter/article/attachment/add?site=' + $scope.editing.siteid + '&id=' + $scope.id, posted, function success(rsp) {
+					$scope.editing.attachments.push(rsp.data);
+				});
+			});
 		});
 		$scope.$on('tinymce.instance.init', function(event, editor) {
 			tinymceEditor = editor;

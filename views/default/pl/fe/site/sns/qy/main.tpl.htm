@@ -28,6 +28,7 @@
                     <!--<li><a href='/rest/pl/fe/site/sns/qy/qrcode'>扫二维码</a></li>-->
                     <li ng-class="{'active':subView==='relay'}"><a href='/rest/pl/fe/site/sns/qy/relay?site={{siteId}}'>转发接口</a></li>
                     <li ng-class="{'active':subView==='other'}"><a href='/rest/pl/fe/site/sns/qy/other?site={{siteId}}'>其他事件</a></li>
+                    <li ng-class="{'active':subView==='customapi'}"><a href='/rest/pl/fe/site/sns/qy/customapi?site={{siteId}}'>通讯录同步</a></li>
                 </ul>
             </div>
             <div class='row' ng-view></div>

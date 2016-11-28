@@ -316,7 +316,7 @@ class TMS_MODEL {
 		return $newObj;
 	}
 	/**
-	 * 修正的转json 的方法
+	 * 修正的转json 的方法 用于数据库存json的时候
 	 */
 	public static function toJson2($obj) {
 		$obj = self::urlencodeObj2($obj);
@@ -346,5 +346,26 @@ class TMS_MODEL {
 		
 		return $data;
 	}
+	/**
+	 * 从数据库取json经strConvert转对象然后将html实体标签换回
+	 */
+	public static function htmlDecode($arr)
+	{
+		if(is_array($arr)){
+			$b=array();
+			foreach ($arr as $k1 => $v1) {
+				$b[$k1]=self::htmlDecode($v1);
+			}
+		}else if(is_object($arr)){
+			$b=new \stdClass;
+			foreach ($arr as $k2 => $v2) {
+				$b->{$k2}=self::htmlDecode($v2);
+			}
+		}else{
+			$b=htmlspecialchars_decode($arr,ENT_QUOTES);
+		}
+
+		return $b;
+	}	
 
 }

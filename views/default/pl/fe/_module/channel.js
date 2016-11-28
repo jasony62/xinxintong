@@ -1,7 +1,5 @@
 angular.module('channel.fe.pl', ['ui.tms']).
-controller('ctrlSetChannel', ['$scope', 'http2', '$location',function($scope, http2, $location) {
-    var ls = $location.search();
-    $scope.siteId = ls.site;
+controller('ctrlSetChannel', ['$scope', 'http2', function($scope, http2) {
     $scope.$on('channel.xxt.combox.done', function(event, aSelected) {
         var i, j, existing, aNewChannels = [],
             relations = {},
@@ -34,10 +32,17 @@ controller('ctrlSetChannel', ['$scope', 'http2', '$location',function($scope, ht
             matter.channels.splice(matter.channels.indexOf(removed), 1);
         });
     });
-    $scope.$watch('matterType', function(nv) {
+/*    $scope.$watch('matterType', function(nv) {
         if (nv && nv.length) {
             $scope.matterType = nv;
             http2.get('/rest/pl/fe/matter/channel/list?site=' + $scope.siteId + '&acceptType=' + nv + '&cascade=N', function(rsp) {
+                $scope.channels = rsp.data;
+            });
+        }
+    });*/
+    $scope.$watch('siteId', function(siteid) {
+        if (siteid) {
+            http2.get('/rest/pl/fe/matter/channel/list?site=' + siteid + '&cascade=N', function(rsp) {
                 $scope.channels = rsp.data;
             });
         }

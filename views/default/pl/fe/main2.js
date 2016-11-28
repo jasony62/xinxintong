@@ -5,11 +5,19 @@ controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
         $scope.loginUser = rsp.data;
     });
 }]).controller('ctrlRecent', ['$scope', 'http2', function($scope, http2) {
-    var t = (new Date() * 1);
+    var url, page;
+    $scope.page = page = {
+        at: 1,
+        size: 15,
+        j: function() {
+            return 'page=' + this.at + '&size=' + this.size;
+        }
+    };
     $scope.list = function() {
-        var url = '/rest/pl/fe/recent';
+        var url = '/rest/pl/fe/recent?' + page.j();
         http2.get(url, function(rsp) {
             $scope.matters = rsp.data.matters;
+            $scope.page.total = rsp.data.total;
         });
     };
     $scope.open = function(matter) {

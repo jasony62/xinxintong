@@ -30,7 +30,7 @@
             </div>
         </nav>
         <div class='container ng-cloak' ng-cloak>
-            <div class='row' ng-controller="ctrlRecent">
+            <div id='viewRecent' class='row' ng-controller="ctrlRecent">
                 <div class='col-md-12'>
                     <nav class='navbar navbar-default tms-panel-heading'>
                         <div class='container-fluid'>
@@ -38,8 +38,8 @@
                         </div>
                     </nav>
                     <div class='tms-panel-body'>
-                        <div  class='col-md-4' ng-repeat='m in matters'>
-                            <div class='thumbnail mission' ng-click='open(m)'>
+                        <div class='col-md-4' ng-repeat='m in matters'>
+                            <div class='thumbnail matter' ng-class="m.matter_type" ng-click='open(m)'>
                                 <h4 class='title' ng-bind="m.matter_title"></h4>
                                 <p class='summary' ng-bind="m.matter_summary"></p>
                                 <div class='attr'>
@@ -47,6 +47,10 @@
                                     <div class='create_at' ng-bind="m.operate_at*1000|date:'yyyy-MM-dd'"></div>
                                 </div>
                             </div>
+                        </div>
+                        <div class='col-md-12'>
+                            <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+                            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class='pull-right' ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
                         </div>
                     </div>
                 </div>

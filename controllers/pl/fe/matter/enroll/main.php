@@ -452,8 +452,8 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 更新活动的属性信息
 	 *
-	 * @param string $site
-	 * @param string $app
+	 * @param string $site site'id
+	 * @param string $app app'id
 	 *
 	 */
 	public function update_action($site, $app) {
@@ -462,7 +462,6 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		$matter = $modelApp->byId($app, 'id,title,summary,pic');
 		/**
 		 * 处理数据
 		 */
@@ -480,6 +479,7 @@ class main extends \pl\fe\matter\base {
 		$rst = $modelApp->update('xxt_enroll', $nv, ["id" => $app]);
 		if ($rst) {
 			// 记录操作日志
+			$matter = $modelApp->byId($app, 'id,title,summary,pic');
 			$matter->type = 'enroll';
 			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
 		}

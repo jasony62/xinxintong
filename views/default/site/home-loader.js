@@ -10,6 +10,7 @@ require.config({
 	paths: {
 		"domReady": '/static/js/domReady',
 		"jquery": "/static/js/jquery.min",
+		"bootstrap": "/static/js/bootstrap.min",
 		"angular": "/static/js/angular.min",
 		"angular-route": "/static/js/angular-route.min",
 		"angular-sanitize": "/static/js/angular-sanitize.min",
@@ -19,9 +20,6 @@ require.config({
 		"xxt-page": "/static/js/xxt.ui.page",
 	},
 	shim: {
-		"bootstrap": {
-			deps: ['jquery'],
-		},
 		"angular": {
 			deps: ['jquery'],
 			exports: "angular"
@@ -39,13 +37,15 @@ require.config({
 	}
 });
 require(['jquery'], function() {
-	require(['angular'], function(angular) {
-		require(['angular-route'], function() {
-			require(['angular-sanitize'], function() {
-				require(['ui-bootstrap'], function() {
-					require(['ui-tms', 'xxt-discuss'], function() {
-						require(['xxt-page'], function(loader) {
-							loader.bootstrap('/views/default/site/home.js?_=' + (timestamp * 1));
+	require(['bootstrap'], function() {
+		require(['angular'], function(angular) {
+			require(['angular-route'], function() {
+				require(['angular-sanitize'], function() {
+					require(['ui-bootstrap'], function() {
+						require(['ui-tms', 'xxt-discuss'], function() {
+							require(['xxt-page'], function(loader) {
+								loader.bootstrap('/views/default/site/home.js?_=' + (timestamp * 1));
+							});
 						});
 					});
 				});

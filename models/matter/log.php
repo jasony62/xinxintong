@@ -272,9 +272,23 @@ class log_model extends \TMS_MODEL {
 		return true;
 	}
 	/**
-	 * 记录访问素材日志
+	 * 记录操作日志
+	 *
+	 * @param string $siteId
+	 * @param object $user
+	 * @param object $matter
+	 * @param string $op
+	 * @param object|string $data
 	 */
-	public function matterOp($siteId, $user, $matter, $op, $data = null) {
+	public function matterOp($siteId, &$user, &$matter, $op, $data = null) {
+		$q = [
+			'*',
+			'xxt_log_matter_op',
+			"siteid='$siteId' and operator='{$user->id}' and matter_type='$matter->type' and matter_id='$matter->id' and user_last_op='Y'",
+		];
+		$userLastLog = $this->query_obj_ss($q);
+
+		// 更新已有记录状态
 		$current = time();
 		if ($op === 'D') {
 			/* 如果是删除操作，将所有进行过操作的人的最后一次操作都修改为不是最后一次，实现素材对所有人都不可见 */
@@ -288,38 +302,72 @@ class log_model extends \TMS_MODEL {
 			);
 		} else if ($op !== 'C') {
 			/* 更新操作，需要将之前的操作设置为非最后操作 */
-			$d = [
-				'last_op' => 'N',
-			];
 			$this->update(
 				'xxt_log_matter_op',
-				$d,
+				[
+					'last_op' => 'N',
+				],
 				"siteid='$siteId' and matter_type='$matter->type' and matter_id='$matter->id' and last_op='Y'"
 			);
+			/*更新用户的最后一次操作*/
+			$this->update(
+				'xxt_log_matter_op',
+				[
+					'user_last_op' => 'N',
+				],
+				"siteid='$siteId' and operator='{$user->id}' and matter_type='$matter->type' and matter_id='$matter->id' and user_last_op='Y'"
+			);
 		}
-		/* 记录最后1条操作日志 */
-		$d = array();
-		$d['siteid'] = $siteId;
-		$d['operator'] = $user->id;
-		$d['operator_name'] = $user->name;
-		$d['operator_src'] = $user->src;
-		$d['operate_at'] = $current;
-		$d['operation'] = $op;
-		$d['matter_id'] = $matter->id;
-		$d['matter_type'] = $matter->type;
-		$d['matter_title'] = $this->escape($matter->title);
-		!empty($matter->summary) && $d['matter_summary'] = $this->escape($matter->summary);
-		!empty($matter->pic) && $d['matter_pic'] = $matter->pic;
-		!empty($matter->scenario) && $d['matter_scenario'] = $matter->scenario;
-		if (!empty($data)) {
-			if (is_object($data) || is_array($data)) {
-				$d['data'] = $this->toJson($data);
-			} else {
-				$d['data'] = $data;
+		// 记录新日志，或更新日志
+		if ($userLastLog === false || $current > $userLastLog->operate_at + 600) {
+			/* 两次更新操作的间隔超过10分钟，产生新日志 */
+			$d = array();
+			$d['siteid'] = $siteId;
+			$d['operator'] = $user->id;
+			$d['operator_name'] = $user->name;
+			$d['operator_src'] = $user->src;
+			$d['operate_at'] = $current;
+			$d['operation'] = $op;
+			$d['matter_id'] = $matter->id;
+			$d['matter_type'] = $matter->type;
+			$d['matter_title'] = $this->escape($matter->title);
+			!empty($matter->summary) && $d['matter_summary'] = $this->escape($matter->summary);
+			!empty($matter->pic) && $d['matter_pic'] = $matter->pic;
+			!empty($matter->scenario) && $d['matter_scenario'] = $matter->scenario;
+			$d['last_op'] = 'Y';
+			$d['user_last_op'] = 'Y';
+			if (!empty($data)) {
+				if (is_object($data) || is_array($data)) {
+					$d['data'] = $this->toJson($data);
+				} else {
+					$d['data'] = $data;
+				}
 			}
-		}
 
-		$logid = $this->insert('xxt_log_matter_op', $d, true);
+			$logid = $this->insert('xxt_log_matter_op', $d, true);
+		} else {
+			/* 更新之前的日志 */
+			$d = array();
+			$d['operator_name'] = $user->name;
+			$d['operate_at'] = $current;
+			$d['operation'] = $op;
+			$d['matter_title'] = $this->escape($matter->title);
+			!empty($matter->summary) && $d['matter_summary'] = $this->escape($matter->summary);
+			!empty($matter->pic) && $d['matter_pic'] = $matter->pic;
+			!empty($matter->scenario) && $d['matter_scenario'] = $matter->scenario;
+			$d['last_op'] = 'Y';
+			$d['user_last_op'] = 'Y';
+			if (!empty($data)) {
+				if (is_object($data) || is_array($data)) {
+					$d['data'] = $this->toJson($data);
+				} else {
+					$d['data'] = $data;
+				}
+			}
+
+			$logid = $userLastLog->id;
+			$this->update('xxt_log_matter_op', $d, "id=$logid");
+		}
 
 		return $logid;
 	}
@@ -339,6 +387,39 @@ class log_model extends \TMS_MODEL {
 			$fields,
 			'xxt_log_matter_op',
 			"siteid='$siteId' and last_op='Y' and operation<>'D'",
+		];
+		$q2 = [
+			'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
+			'o' => ['operate_at desc'],
+		];
+
+		$matters = $this->query_objs_ss($q, $q2);
+		$result = ['matters' => $matters];
+		if (empty($matters)) {
+			$result['total'] = 0;
+		} else {
+			$q[0] = 'count(*)';
+			$result['total'] = $this->query_val_ss($q);
+		}
+
+		return $result;
+	}
+	/**
+	 * 指定用户最近操作的素材
+	 */
+	public function &recentMattersByUser(&$user, $options = array()) {
+		$fields = empty($options['fields']) ? '*' : $options['fields'];
+		if (empty($options['page'])) {
+			$page = new \stdClass;
+			$page->at = 1;
+			$page->size = 30;
+		} else {
+			$page = $options['page'];
+		}
+		$q = [
+			$fields,
+			'xxt_log_matter_op',
+			"operator='{$user->id}' and user_last_op='Y' and operation<>'D'",
 		];
 		$q2 = [
 			'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],

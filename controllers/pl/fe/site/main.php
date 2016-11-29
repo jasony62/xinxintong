@@ -21,7 +21,7 @@ class main extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$site['name'] = '新站点';
+		$site['name'] = '新团队';
 		$site['creater'] = $user->id;
 		$site['creater_name'] = $user->name;
 		$site['create_at'] = time();

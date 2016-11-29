@@ -1,6 +1,29 @@
-angular.module('app', ['ui.tms']).
+angular.module('app', ['ui.tms', 'ui.bootstrap']).
 controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
-
+    var url = '/rest/pl/fe/user/get?_=' + (new Date() * 1);
+    http2.get(url, function(rsp) {
+        $scope.loginUser = rsp.data;
+    });
+}]).controller('ctrlRecent', ['$scope', 'http2', function($scope, http2) {
+    var url, page;
+    $scope.page = page = {
+        at: 1,
+        size: 15,
+        j: function() {
+            return 'page=' + this.at + '&size=' + this.size;
+        }
+    };
+    $scope.list = function() {
+        var url = '/rest/pl/fe/recent?' + page.j();
+        http2.get(url, function(rsp) {
+            $scope.matters = rsp.data.matters;
+            $scope.page.total = rsp.data.total;
+        });
+    };
+    $scope.open = function(matter) {
+        location.href = location.href = '/rest/pl/fe/matter/' + matter.matter_type + '?id=' + matter.matter_id + '&site=' + matter.siteid;
+    };
+    $scope.list();
 }]).controller('ctrlSite', ['$scope', 'http2', function($scope, http2) {
     var t = (new Date() * 1);
     $scope.create = function() {

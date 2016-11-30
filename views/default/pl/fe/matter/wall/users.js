@@ -27,18 +27,16 @@ define(['frame'], function(ngApp) {
                         appType : 'enroll'
                     } ;
                     $scope2.$watch('data.appType',function(newValus){
+                        var url ;
                         if(newValus === 'enroll'){
-                            http2.get('/rest/pl/fe/matter/enroll/list?page=1&size=999&site=' + $scope.siteId, function(rsp) {
-                                $scope2.apps = rsp.data.apps;
-                            });
+                            url = '/rest/pl/fe/matter/enroll/list?page=1&size=999&site=' + $scope.siteId;
+
                         }else if(newValus === 'signin'){
-                            http2.get('/rest/pl/fe/matter/signin/list?page=1&size=999&site=' + $scope.siteId, function(rsp) {
-                                $scope2.apps = rsp.data.apps;
-                            });
+                            url = '/rest/pl/fe/matter/signin/list?page=1&size=999&site=' + $scope.siteId;
                         }
-                    });
-                    http2.get('/rest/pl/fe/matter/enroll/list?page=1&size=999&site=' + $scope.siteId, function(rsp) {
-                        $scope2.apps = rsp.data.apps;
+                        http2.get(url , function(rsp) {
+                            $scope2.apps = rsp.data.apps;
+                        });
                     });
                     $scope2.chooseApp = function(app) {
                         $scope2.selectedApp = app;

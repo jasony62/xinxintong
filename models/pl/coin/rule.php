@@ -1,10 +1,23 @@
 <?php
-namespace site\coin;
+namespace pl\coin;
 /**
  * 站点内积分规则
  */
 class rule_model extends \TMS_MODEL {
+	/**
+	 *
+	 */
+	public function byAct($act) {
+		$q = array(
+			'*',
+			'xxt_coin_rule',
+			"act='$act'",
+		);
 
+		$rules = $this->query_objs_ss($q);
+
+		return $rules;
+	}
 	/**
 	 * 根据素材过滤器获得
 	 */

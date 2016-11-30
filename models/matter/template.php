@@ -16,14 +16,16 @@ class template_model extends \TMS_MODEL {
 			["id" => $id],
 		];
 
-		$item = $this->query_obj_ss($q);
+		if ($template = $this->query_obj_ss($q)) {
+			$template->type = 'template';
+		}
 
-		return $item;
+		return $template;
 	}
 	/**
 	 *
 	 */
-	public function &getMatter($matterId, $matterType, $options = []) {
+	public function &byMatter($matterId, $matterType, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 
 		$q = [
@@ -32,23 +34,25 @@ class template_model extends \TMS_MODEL {
 			["matter_id" => $matterId, "matter_type" => $matterType],
 		];
 
-		$item = $this->query_obj_ss($q);
+		if ($template = $this->query_obj_ss($q)) {
+			$template->type = 'template';
+		}
 
-		return $item;
+		return $template;
 	}
 	/**
 	 *
 	 * @param string $siteId 来源于哪个站点
 	 * @param object $matter 共享的素材
 	 */
-	public function putMatter(&$site, &$account, &$matter, $options = array()) {
+	public function putMatter(&$site, &$account, &$matter) {
 		if (isset($matter->id) && $matter->id) {
 			// 更新模板
 			$current = time();
-
 			$item = [
 				'title' => $matter->title,
 				'pic' => $matter->pic,
+				'put_at' => $current,
 				'summary' => $matter->summary,
 				'visible_scope' => $matter->visible_scope,
 				'push_home' => isset($matter->push_home) ? $matter->push_home : 'N',
@@ -58,6 +62,7 @@ class template_model extends \TMS_MODEL {
 				$item,
 				["siteid" => $site->id, "matter_type" => $matter->matter_type, "matter_id" => $matter->matter_id]
 			);
+			$item = $this->byMatter($matter->matter_id, $matter->matter_type);
 		} else {
 			// 新建模板
 			$current = time();
@@ -79,7 +84,6 @@ class template_model extends \TMS_MODEL {
 			];
 
 			$id = $this->insert('xxt_template', $item, true);
-			$item = $this->byId($id);
 
 			// 添加模板接收人
 			// if (!empty($matter->acls)) {
@@ -88,6 +92,7 @@ class template_model extends \TMS_MODEL {
 			// 		$acl = $modelAcl->add($account, $item, $acl);
 			// 	}
 			// }
+			$item = $this->byId($id);
 		}
 
 		return $item;

@@ -35,6 +35,27 @@
                     <nav class='navbar navbar-default tms-panel-heading'>
                         <div class='container-fluid'>
                             <p class="navbar-text">我进行的工作</p>
+                            <form class='navbar-form navbar-right'>
+                                <select class='form-control' ng-model="matterType" ng-change="list(1)">
+                                    <option value=''>全部</option>
+                                    <option value='mission'>项目</option>
+                                    <option value='article'>单图文</option>
+                                    <option value='enroll'>登记活动</option>
+                                    <option value='signin'>签到活动</option>
+                                    <option value='group'>分组活动</option>
+                                    <option value='lottery'>抽奖活动</option>
+                                    <option value='news'>多图文</option>
+                                    <option value='channel'>频道</option>
+                                    <option value='contribute'>投稿活动</option>
+                                    <option value='text'>文本</option>
+                                    <option value='link'>链接</option>
+                                    <option value='merchant'>订购</option>
+                                    <option value='wall'>信息墙</option>
+                                    <option value='addressbook'>通讯录</option>
+                                    <option value='custom'>定制页</option>
+                                </select>
+                                <button uib-popover-template="'addMatter.html'" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" popover-title="添加素材" class='btn btn-default'><i class='glyphicon glyphicon-plus'></i> <i class='caret'></i></button>
+                            </form>
                         </div>
                     </nav>
                     <div class='tms-panel-body'>
@@ -72,6 +93,10 @@
                                     <div class='create_at' ng-bind="m.create_at*1000|date:'yyyy-MM-dd'"></div>
                                 </div>
                             </div>
+                        </div>
+                        <div class='col-md-12'>
+                            <span style='height:34px;line-height:34px'>总数：{{page.total}}</span>
+                            <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" class='pull-right' ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="list()"></ul>
                         </div>
                     </div>
                 </div>
@@ -122,12 +147,56 @@
                 </div>
             </div>
         </div>
+        <script type="text/ng-template" id="addMatter.html">
+            <div id="addMatter">
+                <div class='form-group'>
+                    <button class='btn btn-default' ng-click="addMatter('mission')">项目</button>
+                </div>
+                <div class='form-group'>
+                    <button class='btn btn-default' ng-click="addMatter('article')">单图文</button>
+                    <button class='btn btn-default' ng-click="addMatter('news')">多图文</button>
+                    <button class='btn btn-default' ng-click="addMatter('channel')">频道</button>
+                </div>
+                <div class='form-group'>
+                    <button class='btn btn-default' ng-click="addMatter('enroll')">登记活动</button>
+                    <button class='btn btn-default' ng-click="addMatter('signin')">签到活动</button>
+                    <button class='btn btn-default' ng-click="addMatter('group')">分组活动</button>
+                    <button class='btn btn-default' ng-click="addMatter('wall')">信息墙</button>
+                    <button class='btn btn-default' ng-click="addMatter('lottery')">抽奖活动</button>
+                </div>
+                <div class='form-group'>
+                    <button class='btn btn-default' ng-click="addMatter('link')">链接</button>
+                    <button class='btn btn-default' ng-click="addMatter('custom')">定制页</button>
+                </div>
+                <div class='form-group'>
+                    <button class='btn btn-default' ng-click="addMatter('addressbook')">通讯录</button>
+                    <button class='btn btn-default' ng-click="addMatter('contribute')">投稿活动</button>
+                    <button class='btn btn-default' ng-click="addMatter('merchant')">订购活动</button>
+                </div>
+            <div>
+        </script>
+        <script type="text/ng-template" id="addMatterSite.html">
+            <div class="modal-header">
+                <button class="close" type="button" ng-click="cancel()">×</button>
+                <h5 class="modal-title ">指定创建素材的团队</h5>
+            </div>
+            <div class="modal-body ">
+                <div class="radio" ng-repeat="site in mySites">
+                    <label ng-if="site._favored!=='Y'"><input type='radio' name='site' value="{{$index}}" ng-model='data.index'>{{site.name}}</label>
+                </div>
+                <div class='alert alert-danger' ng-if="mySites.length===0">请创建添加素材的团队</div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" ng-click="ok() ">确定</button>
+            </div>
+        </script>
         <script src="/static/js/jquery.min.js"></script>
         <script src="/static/js/bootstrap.min.js"></script>
         <script src="/static/js/angular.min.js"></script>
         <script src="/static/js/angular-sanitize.min.js"></script>
         <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
         <script src="/static/js/ui-tms.js"></script>
+        <script src="/static/js/xxt.ui.tmplshop.js?_=2"></script>
         <script src="/views/default/pl/fe/main2.js"></script>
     </body>
 </html>

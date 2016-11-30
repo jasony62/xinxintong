@@ -10,6 +10,7 @@ th{text-align:center;}
                     <th>昵称</th>
                     <th>来源</th>
                     <th style='width:120px'>注册日期</th>
+                    <th style='width:60px'>积分</th>
                     <th style='width:120px'>操作</th>
                 </tr>
             </thead>
@@ -19,6 +20,7 @@ th{text-align:center;}
                     <td>{{u.nickname}}</td>
                     <td>{{u.ufrom}}</td>
                     <td>{{u.reg_time*1000|date:'yy-MM-dd HH:mm'}}</td>
+                    <td>{{u.coin}}</td>
                     <td>
                         <a href='javascript:void(0)' ng-click='resetPassword(u)'>重置口令</a>
                     </td>

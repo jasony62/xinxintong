@@ -140,24 +140,12 @@ class main extends \site\fe\matter\base {
 		$logid = $this->model('matter\log')->writeMatterRead($siteId, $logUser, $logMatter, $logClient, $shareby, $search, $referer);
 		/**
 		 * coin log
-		 * 如果是投稿人阅读没有奖励
 		 */
-		/*$modelCoin = $this->model('coin\log');
-			if ($type === 'article') {
-				$contribution = $this->model('matter\article')->getContributionInfo($id);
-				if (!empty($contribution->openid) && $contribution->openid !== $logUser->openid) {
-					// for contributor
-					$action = 'app.' . $contribution->entry . '.article.read';
-					$modelCoin->income($siteId, $action, $id, 'sys', $contribution->openid);
-				}
-				if (empty($contribution->openid) || $contribution->openid !== $logUser->openid) {
-					// for reader
-					$modelCoin->income($siteId, 'mp.matter.' . $type . '.read', $id, 'sys', $user->userid);
-				}
-			} else {
-				// for reader
-				$modelCoin->income($siteId, 'mp.matter.' . $type . '.read', $id, 'sys', $user->openid);
-		*/
+		if ($type === 'article') {
+			$modelCoin = $this->model('site\coin\log');
+			$matter = $this->model('matter\article2')->byId($id);
+			$modelCoin->award($matter, $user, 'site.matter.article.read');
+		}
 
 		return $logid;
 	}

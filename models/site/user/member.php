@@ -34,6 +34,37 @@ class member_model extends \TMS_MODEL {
 		return $members;
 	}
 	/**
+	 * 通过openid获取自定义用户信息
+	 *
+	 * $openid
+	 * $fields
+	 * $schema
+	 */
+	public function byOpenid($siteId, $openid,$ufrom, $fields = '*', $options = array()) {
+		//根据openid获取userid
+		$p = array(
+			'uid',
+			'xxt_site_account',
+			"siteid='$siteId' and ".$ufrom."_openid='$openid'",
+		);
+		$userid = $this->query_obj_ss($p);
+
+		$members =array();
+		//如果没有userid,返回空数组
+		if($userid === false){
+			return $members;
+		}
+		$q = array(
+			$fields,
+			'xxt_site_member m',
+			"m.siteid='$siteId' and m.userid='{$userid->uid}' and m.forbidden='N' and exists(select 1 from xxt_site_member_schema a where m.schema_id=a.id and a.valid='Y')",
+		);
+		isset($options['schemas']) && $q[2] .= " and schema_id in (" . $options['schemas'] . ")";
+		$members = $this->query_objs_ss($q);
+
+		return $members;
+	}
+	/**
 	 * 创建一个自定义用户
 	 *
 	 * 自定义用户首先必须是站点用户

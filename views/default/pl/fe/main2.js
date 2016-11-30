@@ -206,8 +206,11 @@ controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
             $scope.sites = rsp.data;
         });
     };
-    $scope.open = function(site) {
-        location.href = '/rest/pl/fe/site?site=' + site.id + '&_=' + t;
+    $scope.openHome = function(site) {
+        location.href = '/rest/site/home?site=' + site.id;
+    };
+    $scope.openConsole = function(site) {
+        location.href = '/rest/pl/fe/site?site=' + site.id;
     };
     $scope.list();
 }]).controller('ctrlMission', ['$scope', 'http2', function($scope, http2) {

@@ -14,17 +14,18 @@ class main extends \pl\fe\base {
 		exit;
 	}
 	/**
-	 * 创建站点
+	 * 创建团队
 	 */
-	public function create_action($pid = '', $asparent = 'N') {
+	public function create_action() {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$site['name'] = '新团队';
+		$site['name'] = $user->name . '的团队';
 		$site['creater'] = $user->id;
 		$site['creater_name'] = $user->name;
 		$site['create_at'] = time();
+
 		$siteid = $this->model('site')->create($site);
 
 		return new \ResponseData(array('id' => $siteid));
@@ -44,7 +45,7 @@ class main extends \pl\fe\base {
 		 */
 		$rst = $this->model()->update(
 			'xxt_site',
-			array('state' => 0),
+			['state' => 0],
 			"id='$site' and creater='{$user->id}'"
 		);
 

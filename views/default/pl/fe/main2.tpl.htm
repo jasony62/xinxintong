@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <link href="/static/css/bootstrap.min.css" rel="stylesheet">
         <link href="/static/css/tms.css" rel="stylesheet">
-        <link href="/views/default/pl/fe/main.css?_=1" rel="stylesheet">
+        <link href="/views/default/pl/fe/main.css?_=2" rel="stylesheet">
         <title><?php echo APP_TITLE;?></title>
     </head>
     <body ng-app='app' ng-controller='ctrlMain'>
@@ -134,12 +134,16 @@
                     </nav>
                     <div class='tms-panel-body'>
                         <div  class='col-md-4' ng-repeat='site in sites'>
-                            <div class='thumbnail site' ng-click="open(site)">
+                            <div class='thumbnail site'>
                                 <h4 class='title' ng-bind="site.name"></h4>
                                 <p class='summary' ng-bind="site.summary"></p>
                                 <div class='attr'>
                                     <div class='creater_name' ng-bind="site.creater_name"></div>
                                     <div class='create_at' ng-bind="site.create_at*1000|date:'yyyy-MM-dd'"></div>
+                                </div>
+                                <div class='actions'>
+                                    <a class='btn btn-sm btn-default' ng-click="openHome(site)">主页</a>
+                                    <a class='btn btn-sm btn-default' ng-click="openConsole(site)">工作台</a>
                                 </div>
                             </div>
                         </div>

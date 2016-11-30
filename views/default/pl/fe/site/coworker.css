@@ -1,0 +1,3 @@
+body{padding:71px 0 50px;}
+.site.navbar-nav{position:absolute;left:50%;margin-left:-208px;float:none;}
+.site.navbar-nav .active:after{content:' ';position:absolute;left:0;right:0;bottom:-1px;height:3px;background:red;}

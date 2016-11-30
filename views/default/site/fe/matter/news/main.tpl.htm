@@ -37,6 +37,13 @@
                 </li>
             </ul>
         </div>
+        <script type="text/javascript">
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+        var siteid = location.search.match(/site=([^&]*)/)[1];
+        document.write("<script src='http:\/\/res.wx.qq.com\/open\/js\/jweixin-1.0.0.js'><\/script>");
+        document.write("<script src='\/rest\/site\/fe\/base\/wxjssdksignpackage?site="+siteid+"&url="+encodeURIComponent(location.href.split('#')[0])+"'><\/script>");
+        }
+        </script>
         <script src="/static/js/angular.min.js"></script>
         <script src="/static/js/xxt.share.js?_=1"></script>
         <script src="/views/default/site/fe/matter/news/main.js?_=2"></script>

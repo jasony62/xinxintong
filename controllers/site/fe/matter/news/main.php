@@ -26,6 +26,7 @@ class main extends \site\fe\matter\base {
 		}
 
 		$data['news'] = $news;
+		$data['user'] = $this->who;
 
 		return new \ResponseData($data);
 	}

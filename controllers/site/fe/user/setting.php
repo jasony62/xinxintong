@@ -46,8 +46,6 @@ class setting extends \site\fe\base {
 			$cookieUser->nickname = $data->nickname;
 			$cookieUser->loginExpire = time() + (86400 * TMS_COOKIE_SITE_LOGIN_EXPIRE);
 			$modelWay->setCookieUser($this->siteId, $cookieUser);
-			/*login*/
-			$modelWay->setCookieLogin($this->siteId, $cookieUser);
 		}
 
 		return new \ResponseData('ok');

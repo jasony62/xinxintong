@@ -23,6 +23,20 @@ define(['frame'], function(ngApp) {
                 templateUrl: 'importUser.html',
                 windowClass: 'auto-height',
                 controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                    $scope2.data = {
+                        appType : 'enroll'
+                    } ;
+                    $scope2.$watch('data.appType',function(newValus){
+                        if(newValus === 'enroll'){
+                            http2.get('/rest/pl/fe/matter/enroll/list?page=1&size=999&site=' + $scope.siteId, function(rsp) {
+                                $scope2.apps = rsp.data.apps;
+                            });
+                        }else if(newValus === 'signin'){
+                            http2.get('/rest/pl/fe/matter/signin/list?page=1&size=999&site=' + $scope.siteId, function(rsp) {
+                                $scope2.apps = rsp.data.apps;
+                            });
+                        }
+                    });
                     http2.get('/rest/pl/fe/matter/enroll/list?page=1&size=999&site=' + $scope.siteId, function(rsp) {
                         $scope2.apps = rsp.data.apps;
                     });

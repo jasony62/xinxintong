@@ -10,6 +10,10 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	public function get_action($template) {
+		if (false === ($loginUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$template = $this->model('matter\template')->byId($template);
 
 		return new \ResponseData($template);
@@ -18,6 +22,10 @@ class main extends \pl\fe\base {
 	 * 获得指定素材对应的模版
 	 */
 	public function byMatter_action($type, $id) {
+		if (false === ($loginUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$model = $this->model();
 		$q = [
 			'*',
@@ -28,9 +36,8 @@ class main extends \pl\fe\base {
 
 		return new \ResponseData($template);
 	}
-
 	/**
-	 * 模版上架
+	 * 发布模版
 	 *
 	 * @param string $site
 	 * @param string $scope [Platform|Site]
@@ -39,13 +46,21 @@ class main extends \pl\fe\base {
 		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
-
+		/* 发布模版 */
 		$matter = $this->getPostJson(true);
-		$site = $this->model('site')->byId($site, ['fields', 'id,name']);
+		$site = $this->model('site')->byId($site, ['fields' => 'id,name']);
 
-		$item = $this->model('matter\template')->putMatter($site, $loginUser, $matter);
+		$modelTmpl = $this->model('matter\template');
+		if ($template = $modelTmpl->byMatter($matter->matter_id, $matter->matter_type)) {
+			$template = $modelTmpl->putMatter($site, $loginUser, $matter);
+		} else {
+			$template = $modelTmpl->putMatter($site, $loginUser, $matter);
+			/* 首次发布模版获得积分 */
+			$modelCoin = $this->model('pl\coin\log');
+			$modelCoin->award($loginUser, 'pl.matter.template.put.' . $template->visible_scope, $template);
+		}
 
-		return new \ResponseData($item);
+		return new \ResponseData($template);
 	}
 	/**
 	 *

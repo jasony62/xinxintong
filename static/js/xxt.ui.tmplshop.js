@@ -4,7 +4,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
         var deferred;
         deferred = $q.defer();
         $uibModal.open({
-            templateUrl: '/static/template/templateShop.html?_=7',
+            templateUrl: '/static/template/templateShop.html?_=8',
             backdrop: 'static',
             size: 'lg',
             windowClass: 'auto-height',
@@ -165,7 +165,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
         var deferred;
         deferred = $q.defer();
         $uibModal.open({
-            templateUrl: '/static/template/templateShare.html?_=9',
+            templateUrl: '/static/template/templateShare.html?_=10',
             controller: ['$scope', '$uibModalInstance', function($scope, $mi) {
                 $scope.data = {};
                 $scope.params = {};
@@ -204,6 +204,7 @@ service('templateShop', ['$uibModal', 'http2', '$q', function($uibModal, http2, 
                         $scope.data.summary = matter.summary;
                         $scope.data.pic = matter.pic;
                         $scope.data.visible_scope = 'S';
+                        $scope.data.coin = 0;
                     }
                 });
             }],

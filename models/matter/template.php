@@ -23,6 +23,10 @@ class template_model extends \TMS_MODEL {
 		return $template;
 	}
 	/**
+	 * 获得素材对应的模版
+	 *
+	 * @param string $matterId 素材ID
+	 * @param string $matterType 素材类型
 	 *
 	 */
 	public function &byMatter($matterId, $matterType, $options = []) {
@@ -34,40 +38,30 @@ class template_model extends \TMS_MODEL {
 			["matter_id" => $matterId, "matter_type" => $matterType],
 		];
 
-		if ($template = $this->query_obj_ss($q)) {
+		$templates = $this->query_objs_ss($q);
+		if (count($templates) > 1) {
+			die('数据错误：存在多条数据，请检查');
+		} else if (count($templates) === 1) {
+			$template = $templates[0];
 			$template->type = 'template';
+		} else {
+			$template = false;
 		}
 
 		return $template;
 	}
 	/**
+	 * 创建或更新素材的模版
 	 *
 	 * @param string $siteId 来源于哪个站点
 	 * @param object $matter 共享的素材
+	 *
 	 */
-	public function putMatter(&$site, &$account, &$matter) {
-		if (isset($matter->id) && $matter->id) {
-			// 更新模板
-			$current = time();
-			$item = [
-				'title' => $matter->title,
-				'pic' => $matter->pic,
-				'put_at' => $current,
-				'summary' => $matter->summary,
-				'visible_scope' => $matter->visible_scope,
-				'push_home' => isset($matter->push_home) ? $matter->push_home : 'N',
-			];
-			$this->update(
-				'xxt_template',
-				$item,
-				["siteid" => $site->id, "matter_type" => $matter->matter_type, "matter_id" => $matter->matter_id]
-			);
-			$item = $this->byMatter($matter->matter_id, $matter->matter_type);
-		} else {
-			// 新建模板
-			$current = time();
-
-			$item = [
+	public function putMatter(&$site, &$account, &$matter, $template = null) {
+		$current = time();
+		if (empty($template->id)) {
+			/* 新建模板 */
+			$template = [
 				'creater' => $account->id,
 				'creater_name' => $account->name,
 				'put_at' => $current,
@@ -79,23 +73,39 @@ class template_model extends \TMS_MODEL {
 				'title' => $matter->title,
 				'pic' => $matter->pic,
 				'summary' => $matter->summary,
+				'coin' => $matter->coin,
 				'visible_scope' => $matter->visible_scope,
 				'push_home' => isset($matter->push_home) ? $matter->push_home : 'N',
 			];
-
-			$id = $this->insert('xxt_template', $item, true);
-
-			// 添加模板接收人
-			// if (!empty($matter->acls)) {
-			// 	$modelAcl = \TMS_APP::M('template\acl');
-			// 	foreach ($matter->acls as $acl) {
-			// 		$acl = $modelAcl->add($account, $item, $acl);
-			// 	}
-			// }
-			$item = $this->byId($id);
+			$id = $this->insert('xxt_template', $template, true);
+			$template = $this->byId($id);
+		} else {
+			/* 更新模板 */
+			$updated = [
+				'title' => $matter->title,
+				'pic' => $matter->pic,
+				'put_at' => $current,
+				'summary' => $matter->summary,
+				'coin' => $matter->coin,
+				'visible_scope' => $matter->visible_scope,
+				'push_home' => isset($matter->push_home) ? $matter->push_home : 'N',
+			];
+			$this->update(
+				'xxt_template',
+				$updated,
+				["id" => $template->id]
+			);
+			$template = $template = $this->byId($template->id);
 		}
+		// 添加模板接收人
+		// if (!empty($matter->acls)) {
+		// 	$modelAcl = \TMS_APP::M('template\acl');
+		// 	foreach ($matter->acls as $acl) {
+		// 		$acl = $modelAcl->add($account, $template, $acl);
+		// 	}
+		// }
 
-		return $item;
+		return $template;
 	}
 	/**
 	 * 推送到主页

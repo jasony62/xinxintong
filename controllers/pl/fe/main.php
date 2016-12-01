@@ -20,21 +20,23 @@ class main extends \pl\fe\base {
 	/**
 	 * 列出站点最近操作的素材
 	 */
-	public function recent_action($page = 1, $size = 30) {
+	public function recent_action($page = 1, $size = 30, $matterType = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
 		$modelLog = $this->model('matter\log');
 
-		/*分页参数*/
+		// 分页参数
 		$p = new \stdClass;
 		$p->at = $page;
 		$p->size = $size;
 
-		$options = array(
+		$options = [
 			'page' => $p,
-		);
+		];
+		// 类型参数
+		!empty($matterType) && $options['matterType'] = $matterType;
 
 		$matters = $modelLog->recentMattersByUser($user, $options);
 

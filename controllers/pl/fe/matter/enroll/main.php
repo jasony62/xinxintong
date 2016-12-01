@@ -475,7 +475,6 @@ class main extends \pl\fe\matter\base {
 		$nv->modifier_src = $user->src;
 		$nv->modifier_name = $user->name;
 		$nv->modify_at = time();
-
 		$rst = $modelApp->update('xxt_enroll', $nv, ["id" => $app]);
 		if ($rst) {
 			// 记录操作日志

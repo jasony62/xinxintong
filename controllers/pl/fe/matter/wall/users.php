@@ -17,12 +17,13 @@ class users extends \pl\fe\matter\base {
 	 * 获得墙内的所有用户
 	 */
 	public function list_action($id, $site) {
+		$ufrom = $this->xxqUfrom($site,$id);
+
 		$q = array(
 			'e.openid,e.join_at,e.last_msg_at,f.nickname',
-			'xxt_wall_enroll e,xxt_fans f',
-			"e.siteid='$site' and e.wid='$id' and e.close_at=0 and e.siteid=f.mpid and e.openid=f.openid",
+			'xxt_wall_enroll e,xxt_site_'.$ufrom.'fan f',
+			"e.siteid='$site' and e.wid='$id' and e.close_at=0 and e.siteid=f.siteid and e.openid=f.openid",
 		);
-
 		$users = $this->model()->query_objs_ss($q);
 
 		return new \ResponseData($users);
@@ -34,16 +35,54 @@ class users extends \pl\fe\matter\base {
 	 * @param string $app
 	 */
 	public function import_action($id, $app, $site) {
-		$sql = 'insert into xxt_wall_enroll';
-		$sql .= '(siteid,wid,join_at,openid)';
-		$sql .= " select distinct";
-		$sql .= " '$site','$id'," . time();
-		$sql .= ',openid';
-		$sql .= " from xxt_enroll_record";
-		$sql .= " where aid='$app' and state=1";
+		$ufrom = $this->xxqUfrom($site,$id);
 
-		$this->model()->insert($sql);
+		$p = array(
+			'userid',
+			'xxt_enroll_record',
+			"siteid='$site' and state=1 and aid='$app'",
+		);
+		$records = $this->model()->query_objs_ss($p);
+		$users = array();
+		foreach ($records as $key => $value) {
+			$users[] = $value->userid;
+		}
+		$users = array_unique($users);
 
+		//先查询出讨论组中已有的openid
+		$q = array(
+			'openid',
+			'xxt_wall_enroll',
+			"siteid='$site' and wid = '$id'"
+			);
+		$openids = $this->model()->query_objs_ss($q);
+		$openids2 =array();
+		foreach ($openids as $key => $value) {
+			$openids2[] = "'".$value->openid."'";
+		}
+		$stropenid = trim(implode(',', $openids2));
+
+		//查询出此用户的openid
+		$accounts = array();
+		foreach ($users as $key => $uid) {
+			$p2 = array(
+				$ufrom.'_openid as openid,nickname',
+				'xxt_site_account',
+			);
+			if(empty($stropenid)){
+				$p2['2'] = "siteid='$site' and uid = '$uid' and ".$ufrom."_openid !=''";
+			}else{
+				$p2['2'] = "siteid='$site' and uid = '$uid' and ".$ufrom."_openid not in (".$stropenid.",'')";
+			}
+			$account = $this->model()->query_obj_ss($p2);
+			$account && $accounts[] = $account;
+		}
+
+		foreach ($accounts as $key => $account) {
+			$sql = "insert into xxt_wall_enroll(siteid,wid,join_at,openid) values('$site','$id',".time().",'{$account->openid}')";
+			$this->model()->insert($sql);
+		}
+			
 		global $mysqli_w;
 		$rows = $mysqli_w->affected_rows;
 
@@ -56,10 +95,12 @@ class users extends \pl\fe\matter\base {
 	 * @param string $app
 	 */
 	public function export_action($id, $app, $onlySpeaker = 'N',$site) {
+		$ufrom = $this->xxqUfrom($site,$id);
+
 		$q = array(
 			'e.openid,f.nickname',
-			'xxt_wall_enroll e,xxt_fans f',
-			"e.siteid='$site' and e.wid='$id' and e.close_at=0 and e.siteid=f.mpid and e.openid=f.openid",
+			'xxt_wall_enroll e,xxt_site_'.$ufrom.'fan f',
+			"e.siteid='$site' and e.wid='$id' and e.close_at=0 and e.siteid=f.siteid and e.openid=f.openid",
 		);
 		if ($onlySpeaker === 'Y') {
 			$q[2] .= ' and e.last_msg_at<>0';
@@ -79,5 +120,20 @@ class users extends \pl\fe\matter\base {
 		$rst = $this->model()->delete('xxt_wall_enroll', "wid='$id'");
 
 		return new \ResponseData($rst);
+	}
+
+	/**
+	*
+	*/
+	public function xxqUfrom($site,$id){
+		$p = array(
+			'ufrom',
+			'xxt_wall',
+			"siteid='$site' and id='$id'",
+		);
+		$wall = $this->model()->query_obj_ss($p);
+		$ufrom = empty($wall->ufrom)?'wx':$wall->ufrom;
+
+		return $ufrom;
 	}
 }

@@ -20,7 +20,7 @@ class main extends \pl\fe\base {
 	/**
 	 * 列出站点最近操作的素材
 	 */
-	public function recent_action($page = 1, $size = 30, $matterType = null) {
+	public function recent_action($page = 1, $size = 30, $matterType = null, $scenario = null) {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -37,6 +37,8 @@ class main extends \pl\fe\base {
 		];
 		// 类型参数
 		!empty($matterType) && $options['matterType'] = $matterType;
+		// 活动场景
+		$scenario !== null && $options['scenario'] = $scenario;
 
 		$matters = $modelLog->recentMattersByUser($user, $options);
 

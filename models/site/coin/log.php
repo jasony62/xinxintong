@@ -17,11 +17,11 @@ class log_model extends \TMS_MODEL {
 		$rules = $modelMat->rulesByMatter($act, $matter);
 		foreach ($rules as $rule) {
 			if ($rule->actor_delta) {
-				$this->award2User($matter, $actor, $act, (int) $rule->actor_delta);
+				$this->award2User($matter->siteid, $actor, $act, (int) $rule->actor_delta);
 			}
 			if ($rule->creator_delta) {
 				if ($creator = $modelMat->getCreator($matter)) {
-					$this->award2User($matter, $creator, $act, (int) $rule->creator_delta);
+					$this->award2User($matter->siteid, $creator, $act, (int) $rule->creator_delta);
 				}
 			}
 		}
@@ -43,7 +43,7 @@ class log_model extends \TMS_MODEL {
 	/**
 	 * 给用户增加积分
 	 */
-	private function award2User($matter, $user, $act, $delta, $payer = 'system') {
+	private function award2User($siteId, $user, $act, $delta, $payer = 'system') {
 		$current = time();
 		// 最后一条积分记录
 		if ($lastLog = $this->lastByUser($user->uid)) {
@@ -54,7 +54,7 @@ class log_model extends \TMS_MODEL {
 		}
 		/*记录日志*/
 		$log = new \stdClass;
-		$log->siteid = $matter->siteid;
+		$log->siteid = $siteId;
 		$log->occur_at = $current;
 		$log->act = $act;
 		$log->payer = $payer;
@@ -99,5 +99,29 @@ class log_model extends \TMS_MODEL {
 		$this->update($sql);
 
 		return $log;
+	}
+	/**
+	 *
+	 * 用户消费积分
+	 *
+	 * @param string $act
+	 * @param object $user 获得积分的用户
+	 * @param int $coin 获得的数额
+	 *
+	 */
+	public function earn($act, $user, $coin) {
+		$this->award2User('platform', $user, $act, (int) $coin);
+	}
+	/**
+	 *
+	 * 用户消费积分
+	 *
+	 * @param string $act
+	 * @param object $payer 付款人的平台账户
+	 * @param int $coin 转账的数额
+	 *
+	 */
+	public function pay($act, $payer, $coin) {
+		$this->award2User('platform', $payer, $act, -1 * (int) $coin);
 	}
 }

@@ -111,4 +111,19 @@ class log_model extends \TMS_MODEL {
 
 		return $log;
 	}
+	/**
+	 *
+	 * 平台用户之间进行转账
+	 *
+	 * @param object $payer 付款人的平台账户
+	 * @param object $payee 收款人的平台账户
+	 * @param int $coin 转账的数额
+	 *
+	 */
+	public function transfer($act, $payer, $payee, $coin) {
+		// 收款人
+		$this->award2User('platform', $payee, $act, (int) $coin, $payer->id);
+		// 付款人
+		$this->award2User('platform', $payer, $act, -1 * (int) $coin, $payee->id);
+	}
 }

@@ -161,7 +161,7 @@ controller('ctrlMain', ['$scope', 'http2', function($scope, http2) {
         http2.get(url, function(rsp) {
             var sites = rsp.data;
             if (sites.length === 1) {
-                addMatter(site[0], matterType);
+                addMatter(sites[0], matterType);
             } else if (sites.length === 0) {
                 createSite().then(function(site) {
                     addMatter(site, matterType);

@@ -18,7 +18,7 @@ class users extends \pl\fe\matter\base {
 	 */
 	public function list_action($id, $site) {
 		$q = array(
-			'*',
+			'wid,openid,join_at,last_msg_at,close_at,siteid,ufrom,userid,nickname',
 			'xxt_wall_enroll',
 			"siteid='$site' and wid='$id' and close_at=0",
 		);

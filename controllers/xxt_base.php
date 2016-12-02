@@ -248,12 +248,12 @@ class xxt_base extends TMS_CONTROLLER {
 	 * $openid
 	 * $message
 	 */
-	public function sendByOpenid($mpid, $openid, $message, $wall = '') {
-		if($wall == ''){
+	public function sendByOpenid($mpid, $openid, $message, $openid_src = null) {
+		if(empty($openid_src)){
 			$mpa = $this->model('mp\mpaccount')->getApis($mpid);
 			$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $mpid);
 		}else{
-			switch ($wall->ufrom) {
+			switch ($openid_src) {
 				case 'yx':
 					$mpa = $this->model('sns\yx')->bySite($mpid);
 					$mpproxy = $this->model('sns\yx\proxy' , $mpa);
@@ -267,8 +267,7 @@ class xxt_base extends TMS_CONTROLLER {
 					$mpa->qy_agentid = $mpa->agentid;
 					$mpa->mpsrc = 'qy';
 					break;
-				
-				case '':
+		
 				case 'wx':
 					$mpa = $this->model('sns\wx')->bySite($mpid);
 					$mpproxy = $this->model('sns\wx\proxy' , $mpa);

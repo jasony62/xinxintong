@@ -2,9 +2,10 @@
 require_once '../../db.php';
 
 $sqls = [];
-$sqls[] = "alter table xxt_wall add ufrom char(5) not null default ''";
+$sqls[] = "alter table xxt_wall_enroll add ufrom char(5) not null default ''";
+$sqls[] = "alter table xxt_wall_enroll add userid varchar(40) not null default ''";
+$sqls[] = "alter table xxt_wall_enroll add nickname varchar(255) not null default ''";
 $sqls[] = "alter table xxt_wall_enroll drop primary key";
-$sqls[] = "alter table xxt_wall_enroll add primary key(openid)";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

@@ -63,7 +63,10 @@ $sql .= ",remark varchar(255) not null default ''";
 $sql .= ",join_at int not null"; // 加入时间
 $sql .= ",last_msg_at int not null default 0";
 $sql .= ",close_at int not null default 0";
-$sql .= ",primary key(wid,openid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+$sql .= ",ufrom char(5) not null default ''";
+$sql .= ",userid varchar(40) not null default ''";
+$sql .= ",nickname varchar(255) not null default ''";
+$sql .= ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;

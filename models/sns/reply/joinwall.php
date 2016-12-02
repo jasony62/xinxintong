@@ -24,7 +24,8 @@ class joinwall_model extends Reply {
 		$wall = \TMS_APP::model('matter\wall');
 		$siteId = $this->call['siteid'];
 		$openid = $this->call['from_user'];
-		$desc = $wall->join($siteId, $this->wid, $openid, $this->remark);
+		$openid2 = array('nickname'=>$this->call['from_nickname'],'ufrom'=>$this->call['src'],'userid'=>$this->call['from_userid']);
+		$desc = $wall->join($siteId, $this->wid, $openid, $this->remark, $openid2);
 		/**
 		 * 返回活动加入成功提示
 		 */

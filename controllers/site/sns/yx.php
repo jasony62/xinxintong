@@ -74,6 +74,17 @@ class yx extends \member_base {
 		$modelLog = $this->model('log');
 		$msg = $call->to_array();
 		$msg['siteid'] = $site;
+		if($msg['from_user'] !== 'mocker'){
+			//获取nickname
+			$from_nickname = $this->model('sns\yx\fan')->byOpenid($site, $msg['from_user'], 'nickname');
+			$msg['from_nickname'] = '';
+			$from_nickname && $msg['from_nickname'] = $from_nickname->nickname;
+			//获取userid
+			$options['fields'] = 'uid';
+			$user = $this->model('site\user\account')->byOpenid($site, $msg['src'],$msg['from_user'],$options);
+			$msg['from_userid'] = '';
+			$user && $msg['from_userid'] = $user->uid;
+		}
 		$modelLog->receive($msg);
 		/**
 		 * 消息分流处理
@@ -145,7 +156,7 @@ class yx extends \member_base {
 	private function _currentForkActivity($msg) {
 		$siteId = $msg['siteid'];
 		$openid = $msg['from_user'];
-		$wall = $this->model('app\wall');
+		$wall = $this->model('matter\wall');
 
 		if ($wid = $wall->joined($siteId, $openid)) {
 			return array($wid, $wall);

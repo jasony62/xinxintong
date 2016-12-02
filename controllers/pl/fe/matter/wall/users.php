@@ -17,12 +17,11 @@ class users extends \pl\fe\matter\base {
 	 * 获得墙内的所有用户
 	 */
 	public function list_action($id, $site) {
-		$ufrom = $this->xxqUfrom($site,$id);
 
 		$q = array(
-			'e.openid,e.join_at,e.last_msg_at,f.nickname',
-			'xxt_wall_enroll e,xxt_site_'.$ufrom.'fan f',
-			"e.siteid='$site' and e.wid='$id' and e.close_at=0 and e.siteid=f.siteid and e.openid=f.openid",
+			'*',
+			'xxt_wall_enroll',
+			"siteid='$site' and wid='$id' and close_at=0",
 		);
 		$users = $this->model()->query_objs_ss($q);
 
@@ -35,51 +34,63 @@ class users extends \pl\fe\matter\base {
 	 * @param string $app
 	 */
 	public function import_action($id, $app, $site) {
-		$ufrom = $this->xxqUfrom($site,$id);
-
-		$p = array(
-			'userid',
-			'xxt_enroll_record',
-			"siteid='$site' and state=1 and aid='$app'",
-		);
-		$records = $this->model()->query_objs_ss($p);
-		$users = array();
-		foreach ($records as $key => $value) {
-			$users[] = $value->userid;
-		}
-		$users = array_unique($users);
-
 		//先查询出讨论组中已有的openid
 		$q = array(
 			'openid',
 			'xxt_wall_enroll',
 			"siteid='$site' and wid = '$id'"
 			);
-		$openids = $this->model()->query_objs_ss($q);
-		$openids2 =array();
-		foreach ($openids as $key => $value) {
-			$openids2[] = "'".$value->openid."'";
+		$wall_openids = $this->model()->query_objs_ss($q);
+		$wall_openids2 =array();
+		foreach ($wall_openids as $key => $wall_openid) {
+			$wall_openids2[] = $wall_openid->openid;
 		}
-		$stropenid = trim(implode(',', $openids2));
 
-		//查询出此用户的openid
-		$accounts = array();
-		foreach ($users as $key => $uid) {
+		//查询出登记活动中的所有userid
+		$p = array(
+			'userid',
+			'xxt_enroll_record',
+			"siteid='$site' and state=1 and aid='$app' and userid != ''",
+		);
+		$users = $this->model()->query_objs_ss($p);
+		$userids = array();
+		foreach ($users as $key => $user) {
+			$userids[] = $user->userid;
+		}
+		$userids = array_unique($userids);
+		//查询出用户所对应的openid
+		$openids = array();
+		foreach ($userids as $key => $uid) {
 			$p2 = array(
-				$ufrom.'_openid as openid,nickname',
+				'uid,ufrom,yx_openid,wx_openid,qy_openid,nickname',
 				'xxt_site_account',
+				"siteid='$site' and uid = '$uid' and ufrom != ''",
 			);
-			if(empty($stropenid)){
-				$p2['2'] = "siteid='$site' and uid = '$uid' and ".$ufrom."_openid !=''";
-			}else{
-				$p2['2'] = "siteid='$site' and uid = '$uid' and ".$ufrom."_openid not in (".$stropenid.",'')";
-			}
+			
 			$account = $this->model()->query_obj_ss($p2);
-			$account && $accounts[] = $account;
+			$account && $openids[] = $account;
 		}
-
-		foreach ($accounts as $key => $account) {
-			$sql = "insert into xxt_wall_enroll(siteid,wid,join_at,openid) values('$site','$id',".time().",'{$account->openid}')";
+		//将用户导入讨论组
+		$join_at = time();
+		foreach ($openids as $key => $openid2) {
+			switch ($openid2->ufrom) {
+				case 'wx':
+					$openid = $openid2->wx_openid;
+					break;
+				case 'yx':
+					$openid = $openid2->yx_openid;
+					break;
+				case 'qy':
+					$openid = $openid2->qy_openid;
+					break;				
+			}
+			//如果用户已在讨论组中不插入
+			if(in_array($openid, $wall_openids2) || $openid=='' ){
+				continue;
+			}
+			$sql = 'insert into xxt_wall_enroll';
+			$sql .= '(siteid,wid,join_at,openid,ufrom,nickname,userid)';
+			$sql .= "values('{$site}','{$id}',$join_at,'{$openid}','{$openid2->ufrom}','{$openid2->nickname}','{$openid2->uid}')";
 			$this->model()->insert($sql);
 		}
 			
@@ -95,12 +106,11 @@ class users extends \pl\fe\matter\base {
 	 * @param string $app
 	 */
 	public function export_action($id, $app, $onlySpeaker = 'N',$site) {
-		$ufrom = $this->xxqUfrom($site,$id);
 
 		$q = array(
-			'e.openid,f.nickname',
-			'xxt_wall_enroll e,xxt_site_'.$ufrom.'fan f',
-			"e.siteid='$site' and e.wid='$id' and e.close_at=0 and e.siteid=f.siteid and e.openid=f.openid",
+			'ufrom,userid,openid,nickname',
+			'xxt_wall_enroll',
+			"siteid='$site' and wid='$id' and e.close_at=0 ",
 		);
 		if ($onlySpeaker === 'Y') {
 			$q[2] .= ' and e.last_msg_at<>0';
@@ -122,18 +132,4 @@ class users extends \pl\fe\matter\base {
 		return new \ResponseData($rst);
 	}
 
-	/**
-	*
-	*/
-	public function xxqUfrom($site,$id){
-		$p = array(
-			'ufrom',
-			'xxt_wall',
-			"siteid='$site' and id='$id'",
-		);
-		$wall = $this->model()->query_obj_ss($p);
-		$ufrom = empty($wall->ufrom)?'wx':$wall->ufrom;
-
-		return $ufrom;
-	}
 }

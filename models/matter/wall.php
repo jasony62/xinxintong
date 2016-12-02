@@ -46,9 +46,10 @@ class wall_model extends app_base {
 	 * $runningMpid 用户所在的公众号，不一定是是信息墙所属的公众号
 	 * $wid
 	 * $openid
+	 * $openid2 用户来源和nickname
 	 * $remark 加入信息墙时输入的事件数据
 	 */
-	public function join($runningMpid, $wid, $openid, $remark = '') {
+	public function join($runningMpid, $wid, $openid, $remark = '', $openid2) {
 		/**
 		 * 加入一个信息墙需要从其他的墙退出
 		 */
@@ -80,6 +81,9 @@ class wall_model extends app_base {
 			$i['openid'] = $openid;
 			$i['remark'] = $remark;
 			$i['join_at'] = time();
+			$i['ufrom'] = $openid2['ufrom'];
+			$i['nickname'] = $openid2['nickname'];
+			$i['userid'] = $openid2['userid'];
 
 			$this->insert('xxt_wall_enroll', $i, false);
 		}
@@ -109,7 +113,6 @@ class wall_model extends app_base {
 			"siteid='$runningMpid' and openid='$openid' and close_at=0",
 		);
 		$wid = $this->query_val_ss($q);
-
 		return $wid;
 	}
 	/**
@@ -294,7 +297,7 @@ class wall_model extends app_base {
 		 * 若发出的是退出指令，用户退出当前信息墙
 		 * 若允许跳过审核，自动审核
 		 */
-		$wall = $this->byId($wid, 'quit_cmd,skip_approve,push_others,quit_reply,user_url,ufrom');
+		$wall = $this->byId($wid, 'quit_cmd,skip_approve,push_others,quit_reply,user_url');
 		if ($msg['type'] === 'text' && $msg['data'] === $wall->quit_cmd) {
 			/**
 			 * 退出信息墙
@@ -340,16 +343,7 @@ class wall_model extends app_base {
 	 * $wall
 	 */
 	public function push_others($site, $openid, $msg, $wall, $wid, $ctrl) {
-		/**
-		 * 获得当前用户的信息
-		 */
-		if($wall->ufrom === 'qy'){
-			$member = \TMS_APP::M('sns\qy\fan')->byOpenid($site, $openid, 'nickname');
-		}elseif($wall->ufrom === 'yx'){
-			$member = \TMS_APP::M('sns\yx\fan')->byOpenid($site, $openid, 'nickname');
-		}else{
-			$member = \TMS_APP::M('sns\wx\fan')->byOpenid($site, $openid, 'nickname');
-		}
+		$openid_src = $msg['src'];
 		/**
 		 * 拼装推送消息
 		 */
@@ -359,10 +353,10 @@ class wall_model extends app_base {
 				$url = $wall->user_url;
 				$url .= strpos($wall->user_url, '?') === false ? '?' : '&';
 				$url .= "openid=$openid";
-				$txt = "<a href='$url'>$member->nickname</a>";
+				$txt = "<a href='$url'>".$msg['from_nickname']."</a>";
 				$txt .= '：' . $msg['data'];
 			} else {
-				$txt = $member->nickname . '：' . $msg['data'];
+				$txt = $msg['from_nickname'] . '：' . $msg['data'];
 			}
 
 			$message = array(
@@ -373,18 +367,19 @@ class wall_model extends app_base {
 			);
 			break;
 		case 'image':
-			if ($wall->ufrom === 'yx' && empty($msg['data'][0])) {
+			if ($msg['src'] === 'yx' && empty($msg['data'][0])) {
 				/**
 				 * 易信的图片消息不支持MediaId
 				 */
-				$mpproxy = \TMS_APP::M('mpproxy\yx', $site);
+				$mpproxy = \TMS_APP::M('sns\yx\proxy', $site);
 				$rst = $mpproxy->mediaUpload($msg['data'][1]);
 				if ($rst[0] === false) {
 					$ctrl->sendByOpenid($site, $openid, array(
 						"msgtype" => "text",
 						"text" => array(
 							"content" => urlencode($rst[1]),
-						))
+						)),
+						$openid_src
 					);
 					return $rst;
 				}
@@ -405,7 +400,7 @@ class wall_model extends app_base {
 		 * 如果当前账号是服务号，那么发送给已经加入讨论组的所有用户
 		 */
 		$finished = false;
-		if ($wall->ufrom === 'qy') {
+		if ($msg['src'] === 'qy') {
 			/**
 			 * 企业号，或者开通了点对点消息接口易信公众号支持预先定义好组成员
 			 */
@@ -462,7 +457,7 @@ class wall_model extends app_base {
 					continue;
 				}
 
-				$ctrl->sendByOpenid($site, $user->openid, $message, $wall);
+				$ctrl->sendByOpenid($site, $user->openid, $message, $openid_src);
 			}
 		}
 

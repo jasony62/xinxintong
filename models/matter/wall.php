@@ -270,7 +270,7 @@ class wall_model extends app_base {
 	 * $ctrl 前端控制器
 	 */
 	private function add($wid, $msg, $ctrl = null) {
-		$siteid = $msg['mpid'];
+		$siteid = $msg['siteid'];
 		$openid = $msg['from_user'];
 
 		$wlog = array(); // 讨论组记录
@@ -294,7 +294,7 @@ class wall_model extends app_base {
 		 * 若发出的是退出指令，用户退出当前信息墙
 		 * 若允许跳过审核，自动审核
 		 */
-		$wall = $this->byId($wid, 'quit_cmd,skip_approve,push_others,quit_reply,user_url');
+		$wall = $this->byId($wid, 'quit_cmd,skip_approve,push_others,quit_reply,user_url,ufrom');
 		if ($msg['type'] === 'text' && $msg['data'] === $wall->quit_cmd) {
 			/**
 			 * 退出信息墙
@@ -340,11 +340,16 @@ class wall_model extends app_base {
 	 * $wall
 	 */
 	public function push_others($site, $openid, $msg, $wall, $wid, $ctrl) {
-		$mpa = \TMS_APP::M('mp\mpaccount')->byId($site);
 		/**
 		 * 获得当前用户的信息
 		 */
-		$member = \TMS_APP::M('user/fans')->byOpenid($site, $openid, 'nickname');
+		if($wall->ufrom === 'qy'){
+			$member = \TMS_APP::M('sns\qy\fan')->byOpenid($site, $openid, 'nickname');
+		}elseif($wall->ufrom === 'yx'){
+			$member = \TMS_APP::M('sns\yx\fan')->byOpenid($site, $openid, 'nickname');
+		}else{
+			$member = \TMS_APP::M('sns\wx\fan')->byOpenid($site, $openid, 'nickname');
+		}
 		/**
 		 * 拼装推送消息
 		 */
@@ -368,7 +373,7 @@ class wall_model extends app_base {
 			);
 			break;
 		case 'image':
-			if ($mpa->mpsrc === 'yx' && empty($msg['data'][0])) {
+			if ($wall->ufrom === 'yx' && empty($msg['data'][0])) {
 				/**
 				 * 易信的图片消息不支持MediaId
 				 */
@@ -400,7 +405,7 @@ class wall_model extends app_base {
 		 * 如果当前账号是服务号，那么发送给已经加入讨论组的所有用户
 		 */
 		$finished = false;
-		if ($mpa->mpsrc === 'qy') {
+		if ($wall->ufrom === 'qy') {
 			/**
 			 * 企业号，或者开通了点对点消息接口易信公众号支持预先定义好组成员
 			 */
@@ -457,7 +462,7 @@ class wall_model extends app_base {
 					continue;
 				}
 
-				$ctrl->sendByOpenid($site, $user->openid, $message);
+				$ctrl->sendByOpenid($site, $user->openid, $message, $wall);
 			}
 		}
 

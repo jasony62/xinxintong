@@ -157,7 +157,7 @@ class main extends \site\fe\matter\base {
 		/**
 		 * define data.
 		 */
-		$lot = $modelLot->byId($app, array('cascaded' => array('award', 'plate')));
+		$lot = $modelLot->byId($app, ['cascaded' => ['award', 'plate']]);
 		/**
 		 * 如果仅限关注用户参与，获得openid
 		 */
@@ -167,74 +167,69 @@ class main extends \site\fe\matter\base {
 				return new \ResponseData(null, 302, $lot->nonfans_alert);
 			}
 		}
-		/**
-		 * 检查是否有奖励的抽奖机会
-		 */
+		/* 检查用户积分 */
+		if ($lot->pay_coin) {
+			$account = $this->model('site\user\account')->byId($this->who->uid, ['fields' => 'uid,nickname,coin']);
+			if ((int) $account->coin < (int) $lot->pay_coin) {
+				return new \ResponseError('参加抽奖【' . $lot->title . '】需要积分（' . $lot->pay_coin . '），你的积分（' . $account->coin . '）不足');
+			}
+		}
+		/* 检查是否有奖励的抽奖机会 */
 		$modelLot->freshEarnChance($lot, $user);
-		/**
-		 * 是否完成了前置任务
-		 */
+		/* 是否完成了前置任务 */
 		$tasks = $modelTsk->byApp($lot->id, array('task_type' => 'can_play'));
 		if (count($tasks)) {
 			foreach ($tasks as $lotTask) {
 				$userTask = $modelTsk->getTaskByUser($user, $lot->id, $lotTask->tid);
 				if ($userTask === false) {
-					/*创建任务*/
+					/* 创建任务 */
 					$modelTsk->addTask4User($user, $lot->id, $lotTask->tid);
 					return new \ResponseData(null, 301, $lotTask->description);
 				}
 				if ($userTask->finished === 'N') {
 					if (false === $modelTsk->checkUserTask($user, $lot->id, $lotTask, $userTask)) {
-						/*任务未完成*/
+						/* 任务未完成 */
 						return new \ResponseData(null, 301, $lotTask->description);
 					}
 				}
 			}
 		}
-		/**
-		 * 还有参加抽奖的机会吗？
-		 */
+		/* 还有参加抽奖的机会吗？ */
 		if (false === $modelRst->canPlay($lot, $user, true)) {
 			return new \ResponseData(null, 301, $lot->nochance_alert);
 		}
-		/**
-		 * 抽奖
-		 */
+		/* 抽奖 */
 		list($selectedSlot, $selectedAwardID, $myAward) = $this->_drawAward($lot, $user);
 
 		if (empty($myAward)) {
 			return new \ResponseData(null, 301, '对不起，没有奖品了！');
 		}
-		/**
-		 * 领取非实体奖品
-		 */
+		/* 领取非实体奖品 */
 		if ($myAward['type'] == 1 || $myAward['type'] == 2 || $myAward['type'] == 3) {
 			$modelRst->acceptAward($app, $user, $myAward);
 		}
-		/**
-		 * 返回奖项信息
-		 */
+		/* 返回奖项信息 */
 		foreach ($lot->awards as $a) {
 			if ($a->aid === $myAward['aid']) {
 				$myAward2 = $a;
 				break;
 			}
 		}
-		/**
-		 * record result
-		 */
+		/* record result */
 		$log = $modelRst->add($site, $app, $user, $myAward2, $enrollKey);
-		/**
-		 * 检查剩余的机会
-		 */
+
+		/* 收取抽奖积分 */
+		if ($lot->pay_coin) {
+			$this->model('site\coin\log')->pay('site.matter.lottery.play', $user, $lot->pay_coin);
+		}
+
+		/* 检查剩余的机会 */
 		$chance = $modelLot->getChance($lot, $user);
-		/**
-		 * 清理冗余数据
-		 */
+
+		/* 清理冗余数据，返回结果 */
 		unset($myAward2->prob);
 		unset($myAward2->quantity);
-
-		$result = array('slot' => $selectedSlot, 'leftChance' => $chance, 'award' => $myAward2, 'log' => $log);
+		$result = ['slot' => $selectedSlot, 'leftChance' => $chance, 'award' => $myAward2, 'log' => $log];
 
 		return new \ResponseData($result);
 	}

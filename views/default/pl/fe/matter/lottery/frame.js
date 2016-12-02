@@ -96,6 +96,38 @@ ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($sco
 	$scope.id = ls.id;
 	$scope.siteId = ls.site;
 	$scope.modified = false;
+	$scope.awardTypes = {
+		'0': {
+			n: '未中奖',
+			v: '0'
+		},
+		'1': {
+			n: '用户积分',
+			v: '1'
+		},
+		'2': {
+			n: '奖励重玩',
+			v: '2'
+		},
+		'3': {
+			n: '完成任务',
+			v: '3'
+		},
+		'99': {
+			n: '实体奖品',
+			v: '99'
+		}
+	};
+	$scope.awardPeriods = {
+		'A': {
+			n: '总计',
+			v: 'A'
+		},
+		'D': {
+			n: '每天',
+			v: 'D'
+		},
+	};
 	$scope.submit = function() {
 		var defer = $q.defer();
 		http2.post('/rest/pl/fe/matter/lottery/update?site=' + $scope.siteId + '&app=' + $scope.id, modifiedData, function(rsp) {
@@ -115,6 +147,10 @@ ngApp.controller('ctrlApp', ['$scope', '$location', '$q', 'http2', function($sco
 		app.tags = (!app.tags || app.tags.length === 0) ? [] : app.tags.split(',');
 		app.type = 'group';
 		$scope.persisted = angular.copy(app);
+		app.awards.forEach(function(award) {
+			award._type = $scope.awardTypes[award.type].n;
+			award._period = $scope.awardPeriods[award.period].n;
+		});
 		$scope.app = app;
 		$scope.url = 'http://' + location.host + '/rest/site/fe/matter/lottery?site=' + $scope.siteId + '&app=' + $scope.id;
 	});

@@ -112,7 +112,7 @@ class TMS_MODEL {
 			}
 			return $data;
 		} else {
-			return false;
+			return $data;
 		}
 	}
 	/**

@@ -17,7 +17,6 @@ class users extends \pl\fe\matter\base {
 	 * 获得墙内的所有用户
 	 */
 	public function list_action($id, $site) {
-
 		$q = array(
 			'*',
 			'xxt_wall_enroll',

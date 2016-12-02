@@ -21,18 +21,13 @@ class main extends \pl\fe\base {
 	/**
 	 * 获得指定素材对应的模版
 	 */
-	public function byMatter_action($type, $id) {
+	public function byMatter_action($id, $type) {
 		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
 
-		$model = $this->model();
-		$q = [
-			'*',
-			"xxt_template",
-			["matter_type" => $type, "matter_id" => $id],
-		];
-		$template = $model->query_obj_ss($q);
+		$modelTmpl = $this->model('matter\template');
+		$template = $modelTmpl->byMatter($id, $type);
 
 		return new \ResponseData($template);
 	}
@@ -52,7 +47,7 @@ class main extends \pl\fe\base {
 
 		$modelTmpl = $this->model('matter\template');
 		if ($template = $modelTmpl->byMatter($matter->matter_id, $matter->matter_type)) {
-			$template = $modelTmpl->putMatter($site, $loginUser, $matter);
+			$template = $modelTmpl->putMatter($site, $loginUser, $matter, $template);
 		} else {
 			$template = $modelTmpl->putMatter($site, $loginUser, $matter);
 			/* 首次发布模版获得积分 */
@@ -63,7 +58,7 @@ class main extends \pl\fe\base {
 		return new \ResponseData($template);
 	}
 	/**
-	 *
+	 * 声请放到平台首页
 	 */
 	public function pushHome_action($template) {
 		if (false === ($user = $this->accountUser())) {

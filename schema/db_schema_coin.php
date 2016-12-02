@@ -35,7 +35,6 @@ $sql .= ",matter_type varchar(20) not null"; // 素材类型
 $sql .= ",matter_filter varchar(40) not null default '*'"; // *|ID:xxxx|
 $sql .= ",actor_delta int not null default 0"; // 进行操作的用户增加的积分
 $sql .= ",creator_delta int not null default 0"; // 素材创建者增加的积分
-
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header("HTTP/1.0 500 Internal Server Error");

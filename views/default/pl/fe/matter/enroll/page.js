@@ -633,7 +633,12 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 		$scope.inputPages = inputPages;
 		$scope.choose = function() {
 			var names;
-			schema.label = $scope.buttons[schema.name].l;
+			//schema.label = $scope.buttons[schema.name].l;
+			for(var i in $scope.buttons){
+				if($scope.buttons[i].n == schema.name){
+					schema.label = $scope.buttons[i].l;
+				}
+			}
 			schema.next = '';
 			if (['addRecord', 'editRecord', 'removeRecord'].indexOf(schema.name) !== -1) {
 				names = Object.keys(inputPages);

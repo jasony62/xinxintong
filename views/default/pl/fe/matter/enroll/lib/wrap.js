@@ -89,11 +89,11 @@ define([], function() {
     InputWrap.prototype.newWrap = function(schema) {
         var oWrap = {
             config: {
-                required: 'Y',
                 showname: 'label'
             },
             schema: schema,
         };
+        oWrap.config.required = 'html' === schema.type ? 'N' : 'Y';
         if (/single|multiple|phase/.test(schema.type)) {
             oWrap.config.align = 'V';
             if (/single|phase/.test(schema.type)) {
@@ -335,6 +335,17 @@ define([], function() {
                     html += this._htmlScoreItem(oWrap, forEdit);
                 }
                 break;
+            case 'html':
+                return {
+                    tag: 'div',
+                    attrs: {
+                        wrap: 'html',
+                        class: 'form-group',
+                        schema: schema.id,
+                        'schema-type': 'html',
+                    },
+                    html: schema.content
+                };
         }
 
         return {
@@ -602,13 +613,27 @@ define([], function() {
             schema = oWrap.schema;
 
         wrapAttrs = this.wrapAttrs(oWrap);
-        label = '<label>' + schema.title + '</label>'
-        html = label + this.htmlValue(schema);
-
-        return {
-            tag: 'div',
-            attrs: wrapAttrs,
-            html: html
+        if (schema.type === 'html') {
+            html = schema.content;
+            return {
+                tag: 'div',
+                attrs: {
+                    id: config.id,
+                    wrap: 'value',
+                    schema: schema.id,
+                    'schema-type': schema.type,
+                    'class': 'form-group'
+                },
+                html: html
+            }
+        } else {
+            label = '<label>' + schema.title + '</label>'
+            html = label + this.htmlValue(schema);
+            return {
+                tag: 'div',
+                attrs: wrapAttrs,
+                html: html
+            }
         }
     };
     ValueWrap.prototype.modify = function(domWrap, oWrap) {

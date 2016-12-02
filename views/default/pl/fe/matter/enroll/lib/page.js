@@ -207,6 +207,8 @@ define(['wrap'], function(wrapLib) {
 					sNgClick = 'chooseImage(' + "'" + schema.id + "'," + schema.count + ')';
 					$button.attr('ng-click', sNgClick);
 				})(wrapLib);
+			} else if ('html' === schema.type) {
+				$wrap.html(schema.content);
 			}
 
 			this.html = $html.html();

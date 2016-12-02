@@ -22,6 +22,9 @@
                 <button class='btn btn-default' ng-click="newSchema('file')">上传文件</button>
                 <button class='btn btn-default' ng-click="newSchema('location')">上传位置</button>
             </div>
+            <div class='flexrow'>
+                <button class='btn btn-default' ng-click="newSchema('html')">描述说明</button>
+            </div>
         </div>
         <div class='form-group list-group-item' ng-repeat="ms in memberSchemas">
             <div class='help-block'>{{ms.title}}</div>

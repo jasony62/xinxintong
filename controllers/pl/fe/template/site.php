@@ -49,7 +49,9 @@ class site extends \pl\fe\base {
 		if (!empty($scenario)) {
 			$q[2] .= " and scenario='{$scenario}'";
 		}
-		$q[2] .= " and siteid='{$site}'";
+		if ($scope === 'S') {
+			$q[2] .= " and siteid='{$site}'";
+		}
 
 		$q2 = [
 			'r' => ['o' => ($page - 1) * $size, 'l' => $size],

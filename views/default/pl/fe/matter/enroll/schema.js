@@ -386,7 +386,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 		};
 		$scope.makePagelet = function(schema) {
 			$uibModal.open({
-				templateUrl: '/views/default/pl/fe/matter/mission/pagelet.html',
+				templateUrl: '/views/default/pl/fe/matter/enroll/component/pagelet.html',
 				controller: ['$scope', '$uibModalInstance', 'mediagallery', function($scope2, $mi, mediagallery) {
 					var tinymceEditor;
 					$scope2.reset = function() {

@@ -403,6 +403,9 @@ define(['wrap'], function(wrapLib) {
 				this.data_schemas = [];
 			}
 		},
+		appendSchema: function(schema, afterSchema) {
+			return false;
+		},
 		appendRecordList: function(app) {
 			var dataWrap = {
 				config: {

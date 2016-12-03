@@ -309,7 +309,11 @@ define(['wrap'], function(wrapLib) {
 			var $html;
 
 			$html = $('<div>' + this.html + '</div>');
-			$html.find("[schema='" + schema.id + "']").find('label').html(schema.title);
+			if (schema.type === 'html') {
+				$html.find("[schema='" + schema.id + "']").html(schema.content);
+			} else {
+				$html.find("[schema='" + schema.id + "']").find('label').html(schema.title);
+			}
 
 			this.html = $html.html();
 		},

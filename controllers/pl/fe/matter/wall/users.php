@@ -18,7 +18,7 @@ class users extends \pl\fe\matter\base {
 	 */
 	public function list_action($id, $site) {
 		$q = array(
-			'wid,openid,join_at,last_msg_at,close_at,siteid,ufrom,userid,nickname',
+			'openid,join_at,last_msg_at,ufrom,userid,nickname',
 			'xxt_wall_enroll',
 			"siteid='$site' and wid='$id' and close_at=0",
 		);
@@ -39,64 +39,52 @@ class users extends \pl\fe\matter\base {
 			'xxt_wall_enroll',
 			"siteid='$site' and wid = '$id'"
 			);
-		$wall_openids = $this->model()->query_objs_ss($q);
-		$wall_openids2 =array();
-		foreach ($wall_openids as $key => $wall_openid) {
-			$wall_openids2[] = $wall_openid->openid;
-		}
-
+		$wallOpenids = $this->model()->query_vals_ss($q);
 		//查询出登记活动中的所有userid
 		$p = array(
-			'userid',
+			"distinct userid",
 			'xxt_enroll_record',
 			"siteid='$site' and state=1 and aid='$app' and userid != ''",
 		);
-		$users = $this->model()->query_objs_ss($p);
-		$userids = array();
-		foreach ($users as $key => $user) {
-			$userids[] = $user->userid;
-		}
-		$userids = array_unique($userids);
-		//查询出用户所对应的openid
-		$openids = array();
+		$userids = $this->model()->query_vals_ss($p);
+		//查询出用户所对应的openid并加入讨论组
+		$join_at = time();
+		$num = 0;
 		foreach ($userids as $key => $uid) {
 			$p2 = array(
-				'uid,ufrom,yx_openid,wx_openid,qy_openid,nickname',
+				'ufrom,yx_openid,wx_openid,qy_openid,nickname',
 				'xxt_site_account',
 				"siteid='$site' and uid = '$uid' and ufrom != ''",
 			);
 			
 			$account = $this->model()->query_obj_ss($p2);
-			$account && $openids[] = $account;
-		}
-		//将用户导入讨论组
-		$join_at = time();
-		foreach ($openids as $key => $openid2) {
-			switch ($openid2->ufrom) {
+			switch ($account->ufrom) {
 				case 'wx':
-					$openid = $openid2->wx_openid;
+					$openid = $account->wx_openid;
 					break;
 				case 'yx':
-					$openid = $openid2->yx_openid;
+					$openid = $account->yx_openid;
 					break;
 				case 'qy':
-					$openid = $openid2->qy_openid;
+					$openid = $account->qy_openid;
 					break;				
 			}
 			//如果用户已在讨论组中不插入
-			if(in_array($openid, $wall_openids2) || $openid=='' ){
+			if(in_array($openid, $wallOpenids) || $openid=='' ){
 				continue;
 			}
-			$sql = 'insert into xxt_wall_enroll';
-			$sql .= '(siteid,wid,join_at,openid,ufrom,nickname,userid)';
-			$sql .= "values('{$site}','{$id}',$join_at,'{$openid}','{$openid2->ufrom}','{$openid2->nickname}','{$openid2->uid}')";
-			$this->model()->insert($sql);
+			$sql['siteid'] = $site;
+			$sql['wid'] = $id;
+			$sql['join_at'] = $join_at;
+			$sql['openid'] = $openid;
+			$sql['ufrom'] = $account->ufrom;
+			$sql['nickname'] = $account->nickname;
+			$sql['userid'] = $uid;
+			$this->model()->insert('xxt_wall_enroll',$sql,false);
+			$num++;
 		}
-			
-		global $mysqli_w;
-		$rows = $mysqli_w->affected_rows;
 
-		return new \ResponseData($rows);
+		return new \ResponseData($num);
 	}
 	/**
 	 * 用户导出到登记活动

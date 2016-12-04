@@ -24,7 +24,29 @@ class joinwall_model extends Reply {
 		$wall = \TMS_APP::model('matter\wall');
 		$siteId = $this->call['siteid'];
 		$openid = $this->call['from_user'];
-		$openid2 = array('nickname'=>$this->call['from_nickname'],'ufrom'=>$this->call['src'],'userid'=>$this->call['from_userid']);
+		if($openid !== 'mocker'){
+			$openid2 = array();
+			switch ($this->call['src']) {
+				case 'wx':
+					//获取nickname
+					$from_nickname = \TMS_APP::model('sns\wx\fan')->byOpenid($siteId, $openid, 'nickname');
+					break;
+				case 'yx':
+					$from_nickname = \TMS_APP::model('sns\yx\fan')->byOpenid($siteId, $openid, 'nickname');
+					break;
+				case 'qy':
+					$from_nickname = \TMS_APP::model('sns\qy\fan')->byOpenid($siteId, $openid, 'nickname');
+					break;
+			}
+			$openid2['nickname'] = $from_nickname->nickname;
+			//获取userid
+			$options['fields'] = 'uid';
+			$user = \TMS_APP::model('site\user\account')->byOpenid($siteId, $this->call['src'], $openid, $options);
+			$openid2['from_userid'] = '';
+			$user && $openid2['from_userid'] = $user->uid;
+			$openid2['ufrom'] = $this->call['src'];
+		}
+		
 		$desc = $wall->join($siteId, $this->wid, $openid, $this->remark, $openid2);
 		/**
 		 * 返回活动加入成功提示

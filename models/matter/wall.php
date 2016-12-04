@@ -83,7 +83,7 @@ class wall_model extends app_base {
 			$i['join_at'] = time();
 			$i['ufrom'] = $openid2['ufrom'];
 			$i['nickname'] = $openid2['nickname'];
-			$i['userid'] = $openid2['userid'];
+			$i['userid'] = $openid2['from_userid'];
 
 			$this->insert('xxt_wall_enroll', $i, false);
 		}
@@ -171,7 +171,7 @@ class wall_model extends app_base {
 	 */
 	public function joinedUsers($runningMpid, $wid, $fields = 'openid') {
 		$q = array(
-			$fields,
+			'openid,ufrom',
 			'xxt_wall_enroll',
 			"siteid='$runningMpid' and wid='$wid' and close_at=0",
 		);
@@ -343,7 +343,27 @@ class wall_model extends app_base {
 	 * $wall
 	 */
 	public function push_others($site, $openid, $msg, $wall, $wid, $ctrl) {
-		$openid_src = $msg['src'];
+		if($openid !== 'mocker'){
+			//获取发送者的nickname
+			switch ($msg['src']) {
+				case 'wx':
+					//获取nickname
+					$from_nickname = \TMS_APP::M('sns\wx\fan')->byOpenid($site, $openid, 'nickname');
+					break;
+				case 'yx':
+					$from_nickname = \TMS_APP::M('sns\yx\fan')->byOpenid($site, $openid, 'nickname');
+					break;
+				case 'qy':
+					$from_nickname = \TMS_APP::M('sns\qy\fan')->byOpenid($site, $openid, 'nickname');
+					break;
+			}
+			$msg['from_nickname'] = $from_nickname->nickname;
+		}
+
+		//查询墙内所有的用户
+		$users = $this->joinedUsers($site, $wid);
+		$usersQy = array();
+
 		/**
 		 * 拼装推送消息
 		 */
@@ -365,13 +385,28 @@ class wall_model extends app_base {
 					"content" => $txt,
 				),
 			);
+			/**
+			 * 通过客服接口发送给墙内所有用户
+			 */
+			foreach ($users as $user) {
+				if ($openid === $user->openid) {
+					continue;
+				}
+				if($user->ufrom == 'qy'){
+					$usersQy[]=$user;
+					continue;
+				}
+				$ctrl->sendByOpenid($site, $user->openid, $message, $user->ufrom);			
+			}
 			break;
 		case 'image':
-			if ($msg['src'] === 'yx' && empty($msg['data'][0])) {
-				/**
-				 * 易信的图片消息不支持MediaId
-				 */
-				$mpproxy = \TMS_APP::M('sns\yx\proxy', $site);
+			/**
+			 * 易信的图片消息不支持MediaId
+			 */
+			//站点绑定的易信公众号信息
+			$yxConfig = \TMS_APP::M('sns\yx')->bySite($site);
+			if ($yxConfig && $yxConfig->joined === 'Y') {			
+				$mpproxy = \TMS_APP::M('sns\yx\proxy', $yxConfig);
 				$rst = $mpproxy->mediaUpload($msg['data'][1]);
 				if ($rst[0] === false) {
 					$ctrl->sendByOpenid($site, $openid, array(
@@ -379,28 +414,49 @@ class wall_model extends app_base {
 						"text" => array(
 							"content" => urlencode($rst[1]),
 						)),
-						$openid_src
+						$msg['src']
 					);
 					return $rst;
 				}
-				$mediaId = $rst[1];
-			} else {
-				$mediaId = $msg['data'][0];
+				$mediaIdYx = $rst[1];
 			}
-
+			$mediaId = $msg['data'][0];
 			$message = array(
 				"msgtype" => "image",
 				"image" => array(
 					"media_id" => $mediaId,
 				),
 			);
+			/**
+			 * 通过客服接口发送给墙内所有用户
+			 */
+			foreach ($users as $user) {
+				if ($openid === $user->openid) {
+					continue;
+				}
+				if($user->ufrom == 'qy'){
+					$usersQy[]=$user;
+					continue;
+				}
+				if($user->ufrom == 'yx'){	
+					$message = array(
+						"msgtype" => "image",
+						"image" => array(
+							"media_id" => $mediaIdYx,
+						),
+					);
+				}
+				$ctrl->sendByOpenid($site, $user->openid, $message, $user->ufrom);
+			}
+
 		}
 		/**
 		 * 如果当前账号是企业号，且指定了参与的用户，那么发送给所有指定的用户；如果指定用户并未加入讨论组，应该提示他加入
 		 * 如果当前账号是服务号，那么发送给已经加入讨论组的所有用户
-		 */
-		$finished = false;
-		if ($msg['src'] === 'qy') {
+			 */
+		if(!empty($usersQy)){
+
+			$finished = false;
 			/**
 			 * 企业号，或者开通了点对点消息接口易信公众号支持预先定义好组成员
 			 */
@@ -446,21 +502,21 @@ class wall_model extends app_base {
 				}
 				$finished = true;
 			}
-		}
-		if (!$finished) {
-			/**
-			 * 通过客服接口发送给墙内所有用户
-			 */
-			$users = $this->joinedUsers($site, $wid);
-			foreach ($users as $user) {
-				if ($openid === $user->openid) {
-					continue;
+			
+			if (!$finished) {
+				/**
+				 * 通过客服接口发送给墙内所有用户
+				 */
+				foreach ($usersQy as $user) {
+					if ($openid === $user->openid) {
+						continue;
+					}
+
+					$ctrl->sendByOpenid($site, $user->openid, $message, $user->ufrom);
 				}
-
-				$ctrl->sendByOpenid($site, $user->openid, $message, $openid_src);
 			}
-		}
 
+		}
 		return array(true);
 	}
 	/**

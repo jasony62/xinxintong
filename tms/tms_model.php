@@ -317,9 +317,9 @@ class TMS_MODEL {
 		return TMS_APP::M($model_path);
 	}
 	/**
-	 *
+	 * 为了解决json_encode处理中文的问题，对对象的值进行urlencode处理
 	 */
-	public static function urlencodeObj($obj) {
+	private static function _urlencodeObj4Json($obj) {
 		// 替换为空的
 		$pattern1 = "/[\r\n\t]/";
 
@@ -327,26 +327,30 @@ class TMS_MODEL {
 			$newObj = new \stdClass;
 			foreach ($obj as $k => $v) {
 				$k = preg_replace($pattern1, '', $k);
-				$newObj->{urlencode($k)} = self::urlencodeObj($v);
+				$newObj->{urlencode($k)} = self::_urlencodeObj4Json($v);
 			}
 		} else if (is_array($obj)) {
 			$newObj = array();
 			foreach ($obj as $k => $v) {
 				$k = preg_replace($pattern1, '', $k);
-				$newObj[urlencode($k)] = self::urlencodeObj($v);
+				$newObj[urlencode($k)] = self::_urlencodeObj4Json($v);
 			}
 		} else {
+			// 处理字符串
 			$obj = preg_replace($pattern1, '', $obj);
+			$obj = str_replace('"', '\"', $obj); // 替换双引号
 			$newObj = urlencode($obj);
 		}
 
 		return $newObj;
 	}
 	/**
+	 * 将对象转换为JSON格式的字符串
 	 *
+	 * 利用urlencode解决中文问题
 	 */
 	public static function toJson($obj) {
-		$obj = self::urlencodeObj($obj);
+		$obj = self::_urlencodeObj4Json($obj);
 		$json = urldecode(json_encode($obj));
 
 		return $json;

@@ -61,12 +61,18 @@ class users extends \pl\fe\matter\base {
 			switch ($account->ufrom) {
 				case 'wx':
 					$openid = $account->wx_openid;
+					$userHeadimgurl = $this->model('sns\wx\fan')->byOpenid($site, $openid, 'headimgurl');
+					$headimgurl = $userHeadimgurl->headimgurl;
 					break;
 				case 'yx':
 					$openid = $account->yx_openid;
+					$userHeadimgurl = $this->model('sns\yx\fan')->byOpenid($site, $openid, 'headimgurl');
+					$headimgurl = $userHeadimgurl->headimgurl;
 					break;
 				case 'qy':
 					$openid = $account->qy_openid;
+					$userHeadimgurl = $this->model('sns\qy\fan')->byOpenid($site, $openid, 'headimgurl');
+					$headimgurl = $userHeadimgurl->headimgurl;
 					break;				
 			}
 			//如果用户已在讨论组中不插入
@@ -80,6 +86,7 @@ class users extends \pl\fe\matter\base {
 			$sql['ufrom'] = $account->ufrom;
 			$sql['nickname'] = $account->nickname;
 			$sql['userid'] = $uid;
+			$sql['headimgurl'] = $headimgurl;
 			$this->model()->insert('xxt_wall_enroll',$sql,false);
 			$num++;
 		}

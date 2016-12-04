@@ -29,16 +29,17 @@ class joinwall_model extends Reply {
 			switch ($this->call['src']) {
 				case 'wx':
 					//获取nickname
-					$from_nickname = \TMS_APP::model('sns\wx\fan')->byOpenid($siteId, $openid, 'nickname');
+					$from_nickname = \TMS_APP::model('sns\wx\fan')->byOpenid($siteId, $openid, 'nickname,headimgurl');
 					break;
 				case 'yx':
-					$from_nickname = \TMS_APP::model('sns\yx\fan')->byOpenid($siteId, $openid, 'nickname');
+					$from_nickname = \TMS_APP::model('sns\yx\fan')->byOpenid($siteId, $openid, 'nickname,headimgurl');
 					break;
 				case 'qy':
-					$from_nickname = \TMS_APP::model('sns\qy\fan')->byOpenid($siteId, $openid, 'nickname');
+					$from_nickname = \TMS_APP::model('sns\qy\fan')->byOpenid($siteId, $openid, 'nickname,headimgurl');
 					break;
 			}
 			$openid2['nickname'] = $from_nickname->nickname;
+			$openid2['headimgurl'] = $from_nickname->headimgurl;
 			//获取userid
 			$options['fields'] = 'uid';
 			$user = \TMS_APP::model('site\user\account')->byOpenid($siteId, $this->call['src'], $openid, $options);

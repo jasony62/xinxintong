@@ -46,7 +46,7 @@ class wall_model extends app_base {
 	 * $runningMpid 用户所在的公众号，不一定是是信息墙所属的公众号
 	 * $wid
 	 * $openid
-	 * $openid2 用户来源和nickname
+	 * $openid2 用户信息
 	 * $remark 加入信息墙时输入的事件数据
 	 */
 	public function join($runningMpid, $wid, $openid, $remark = '', $openid2) {
@@ -84,6 +84,7 @@ class wall_model extends app_base {
 			$i['ufrom'] = $openid2['ufrom'];
 			$i['nickname'] = $openid2['nickname'];
 			$i['userid'] = $openid2['from_userid'];
+			$i['headimgurl'] = $openid2['headimgurl'];
 
 			$this->insert('xxt_wall_enroll', $i, false);
 		}
@@ -207,17 +208,13 @@ class wall_model extends app_base {
 		$current = time();
 
 		$q = array(
-			'l.*,f.nickname,f.headimgurl',
-			'xxt_wall w,xxt_wall_log l,xxt_fans f',
+			'l.*,e.nickname,e.ufrom,e.headimgurl',
+			'xxt_wall_log l,xxt_wall_enroll e',
+			"e.siteid = '{$runningMpid}' and e.wid= '$wid' and l.wid='$wid' and l.openid=e.openid and approved=" . self::APPROVE_PASS,
 		);
-		$w = "w.id=l.wid and f.mpid='$runningMpid' and l.openid=f.openid";
-		$w .= " and l.wid= '$wid' and approved=" . self::APPROVE_PASS;
-		$time > 0 && $w .= " and approve_at>=$time";
-		$q[] = $w;
+		$time > 0 && $q[2] .= " and approve_at>=$time";
 		$q2['o'] = 'approve_at desc';
-
 		$messages = $this->query_objs_ss($q, $q2);
-
 		return array($messages, $current);
 	}
 	/**

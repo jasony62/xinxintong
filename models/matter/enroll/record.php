@@ -89,21 +89,20 @@ class record_model extends \TMS_MODEL {
 			 * 插入自定义属性
 			 */
 			if ($n === 'member' && is_object($v)) {
-				//
 				$dbData->{$n} = $v;
-				/* 用户认证信息 */
+				/* 自定义用户信息 */
 				$treatedValue = new \stdClass;
-				isset($v->name) && $treatedValue->name = urlencode($v->name);
-				isset($v->email) && $treatedValue->email = urlencode($v->email);
-				isset($v->mobile) && $treatedValue->mobile = urlencode($v->mobile);
+				isset($v->name) && $treatedValue->name = $v->name;
+				isset($v->email) && $treatedValue->email = $v->email;
+				isset($v->mobile) && $treatedValue->mobile = $v->mobile;
 				if (!empty($v->extattr)) {
 					$extattr = new \stdClass;
 					foreach ($v->extattr as $mek => $mev) {
-						$extattr->{$mek} = urlencode($mev);
+						$extattr->{$mek} = $mev;
 					}
 					$treatedValue->extattr = $extattr;
 				}
-				$treatedValue = urldecode(json_encode($treatedValue));
+				$treatedValue = $this->toJson($treatedValue);
 			} else if (isset($schemasById[$n])) {
 				$schema = $schemasById[$n];
 				if (is_array($v) && (isset($v[0]->serverId) || isset($v[0]->imgSrc))) {
@@ -157,6 +156,7 @@ class record_model extends \TMS_MODEL {
 					$treatedValue = json_encode($v);
 				} else {
 					if (is_string($v)) {
+						//
 						$treatedValue = $this->escape($v);
 					} else if (is_object($v) || is_array($v)) {
 						if ($schema->type === 'multiple') {
@@ -177,7 +177,7 @@ class record_model extends \TMS_MODEL {
 			}
 			// 记录数据
 			if (is_object($treatedValue) || is_array($treatedValue)) {
-				$treatedValue = json_encode($treatedValue);
+				$treatedValue = $this->toJson($treatedValue);
 			}
 			$ic = [
 				'aid' => $app->id,

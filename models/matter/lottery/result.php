@@ -122,7 +122,7 @@ class result_model extends \TMS_MODEL {
 		switch ($award['type']) {
 		case 1: // 积分
 			$takeaway = true;
-			$this->earnCredits($lid, $user, $award);
+			$this->_earnCoins($lid, $user, $award);
 			break;
 		case 2: // 再来一次
 			$takeaway = true;
@@ -149,9 +149,10 @@ class result_model extends \TMS_MODEL {
 	/**
 	 * 获得积分奖励
 	 */
-	public function earnCredits($lid, &$user, &$award) {
-		$credits = $award['quantity'];
-		//\TMS_APP::model('user/member')->addCredits($mid, $credits);
+	private function _earnCoins($lid, &$user, &$award) {
+		$coin = $award['quantity'];
+		$this->model('site\coin\log')->earn('site.matter.lottery.award', $user, $coin);
+
 		return true;
 	}
 	/**

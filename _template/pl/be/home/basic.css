@@ -3,7 +3,7 @@
 .carousel-control.right{background-image:none;}
 #sites,#templates,#apps,#articles{position:relative;}
 #templates:before{content:'精选模版';position:absolute;top:-15px;left:-15px;background:#f00;padding:2px 4px;font-size:100%;color:#fff;border-radius:4px;}
-#sites:before{content:'精选站点';position:absolute;top:-15px;left:-15px;background:#600;padding:2px 4px;font-size:100%;color:#fff;border-radius:4px;}
+#sites:before{content:'推荐团队';position:absolute;top:-15px;left:-15px;background:#600;padding:2px 4px;font-size:100%;color:#fff;border-radius:4px;}
 #apps:before{content:'推荐活动';position:absolute;top:-15px;left:-15px;background:#00f;padding:2px 4px;font-size:100%;color:#fff;border-radius:4px;}
 #articles:before{content:'热门时讯';position:absolute;top:-15px;left:-15px;background:#0a0;padding:2px 4px;font-size:100%;color:#fff;border-radius:4px;}
 

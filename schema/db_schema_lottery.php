@@ -27,6 +27,7 @@ $sql .= ",pretask char(1) not null default 'N'"; //前置活动连接
 $sql .= ",pretaskdesc text"; //前置活动链接
 $sql .= ",pretaskcount char(1) not null default 'F'"; //前置活动链接
 $sql .= ",chance int not null default 1"; // 可以抽奖的次数
+$sql .= ",pay_coin int not null default 0"; // 参与抽奖需要支付的积分
 $sql .= ",period char(1) not null default 'A'"; // A:accumulate;D:day,W:week,M:month,Y:year
 $sql .= ",nonfans_alert text"; //非关注用户提示
 $sql .= ",nochance_alert text"; //没有抽奖机会提示

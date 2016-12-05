@@ -207,6 +207,8 @@ define(['wrap'], function(wrapLib) {
 					sNgClick = 'chooseImage(' + "'" + schema.id + "'," + schema.count + ')';
 					$button.attr('ng-click', sNgClick);
 				})(wrapLib);
+			} else if ('html' === schema.type) {
+				$wrap.html(schema.content);
 			}
 
 			this.html = $html.html();
@@ -307,7 +309,11 @@ define(['wrap'], function(wrapLib) {
 			var $html;
 
 			$html = $('<div>' + this.html + '</div>');
-			$html.find("[schema='" + schema.id + "']").find('label').html(schema.title);
+			if (schema.type === 'html') {
+				$html.find("[schema='" + schema.id + "']").html(schema.content);
+			} else {
+				$html.find("[schema='" + schema.id + "']").find('label').html(schema.title);
+			}
 
 			this.html = $html.html();
 		},
@@ -396,6 +402,9 @@ define(['wrap'], function(wrapLib) {
 			} else if (angular.isObject(this.data_schemas)) {
 				this.data_schemas = [];
 			}
+		},
+		appendSchema: function(schema, afterSchema) {
+			return false;
 		},
 		appendRecordList: function(app) {
 			var dataWrap = {

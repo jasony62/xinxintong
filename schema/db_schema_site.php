@@ -80,7 +80,43 @@ if (!$mysqli->query($sql)) {
 	echo 'database error(xxt_contribute): ' . $mysqli->error;
 }
 /**
- * user account
+ * 关注了站点的站点
+ */
+$sql = 'create table if not exists xxt_site_subscriber (';
+$sql .= 'id int not null auto_increment';
+$sql .= ",siteid varchar(32) not null"; // 被关注的站点
+$sql .= ",site_name varchar(50) not null";
+$sql .= ",from_siteid varchar(32) not null"; // 那个站点订阅的
+$sql .= ",from_site_name varchar(50) not null";
+$sql .= ",creater varchar(40) not null";
+$sql .= ",creater_name varchar(255) not null default ''";
+$sql .= ',subscribe_at int not null'; // 关注时间
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error(xxt_contribute): ' . $mysqli->error;
+}
+/**
+ * 通过关注站点获得的素材
+ */
+$sql = "create table if not exists xxt_site_subscription (";
+$sql .= "id int not null auto_increment";
+$sql .= ",siteid varchar(32) not null";
+$sql .= ",put_at int not null"; // 站点获得素材的时间
+$sql .= ",from_siteid varchar(32) not null"; // 从哪个站点获得的素材
+$sql .= ",from_site_name varchar(50) not null";
+$sql .= ",matter_id varchar(40) not null";
+$sql .= ",matter_type varchar(20)"; //
+$sql .= ",matter_title varchar(70) not null";
+$sql .= ",matter_pic text";
+$sql .= ",matter_summary varchar(240) not null default ''";
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+if (!$mysqli->query($sql)) {
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error(xxt_contribute): ' . $mysqli->error;
+}
+/**
+ * 站点的用户
  */
 $sql = "create table if not exists xxt_site_account (";
 $sql .= "siteid varchar(32) not null comment '站点id'";
@@ -106,12 +142,12 @@ $sql .= ",read_num int not null default 0"; // 累积阅读数
 $sql .= ",share_friend_num int not null default 0"; // 累积分享给好友数
 $sql .= ",share_timeline_num int not null default 0"; // 累积分享朋友圈数
 $sql .= ",favor_num int not null default 0"; //收藏的数量
-$sql .= ",coin int not null"; // 虚拟货币
-$sql .= ",coin_last_at int not null"; // 最近一次增加虚拟货币
-$sql .= ",coin_day int not null"; // 虚拟货币日增量
-$sql .= ",coin_week int not null"; // 虚拟货币周增量
-$sql .= ",coin_month int not null"; // 虚拟货币月增量
-$sql .= ",coin_year int not null"; // 虚拟货币年增量
+$sql .= ",coin int not null default 0"; // 虚拟货币
+$sql .= ",coin_last_at int not null default 0"; // 最近一次增加虚拟货币
+$sql .= ",coin_day int not null default 0"; // 虚拟货币日增量
+$sql .= ",coin_week int not null default 0"; // 虚拟货币周增量
+$sql .= ",coin_month int not null default 0"; // 虚拟货币月增量
+$sql .= ",coin_year int not null default 0"; // 虚拟货币年增量
 $sql .= ",wx_openid varchar(255) not null default ''";
 $sql .= ",yx_openid varchar(255) not null default ''";
 $sql .= ",qy_openid varchar(255) not null default ''";
@@ -122,7 +158,7 @@ if (!$mysqli->query($sql)) {
 	echo 'database error(xxt_site_account): ' . $mysqli->error;
 }
 /**
- * user favor
+ * 站点用户收藏记录
  */
 $sql = "create table if not exists xxt_site_favor(";
 $sql .= "id int not null auto_increment";

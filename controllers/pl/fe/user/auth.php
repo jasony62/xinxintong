@@ -20,17 +20,16 @@ class auth extends \pl\fe\base {
 	 * 进入平台管理页面用户身份验证页面
 	 */
 	public function index_action() {
-		/**
-		 * 记录发起登录的页面，登录成功后，跳转到该页面
-		 */
-		$ruri = $_SERVER['REQUEST_URI'];
-		if (!empty($ruri) && !in_array($ruri, array('/'))) {
-			$this->mySetCookie('_login_referer', $ruri);
-		}
-		/**
-		 * 跳转到登录页面
-		 */
+		// 登录页面
 		$path = TMS_APP_API_PREFIX . '/pl/fe/user/login';
+		// 记录发起登录的页面，登录成功后，跳转到该页面
+		if (isset($_SERVER['HTTP_REFERER'])) {
+			$referer = $_SERVER['HTTP_REFERER'];
+			if (!empty($referer) && !in_array($referer, array('/'))) {
+				$this->mySetCookie('_login_referer', $referer);
+			}
+		}
+		// 跳转到登录页
 		$this->redirect($path);
 	}
 	/**
@@ -50,21 +49,18 @@ class auth extends \pl\fe\base {
 		$modelAct = $this->model('account');
 		$fromip = $this->client_ip();
 		$modelAct->update_last_login($uid, $fromip);
-		/**
-		 * record account into session and cookie.
-		 */
+
+		// 记录客户端登录状态
 		$act = $modelAct->byId($uid);
-		/**
-		 * 记录客户端登陆状态
-		 */
 		\TMS_CLIENT::account($act);
-		/**
-		 * 跳转到缺省页
-		 */
-		if ($ruri = $this->myGetCookie('_login_referer')) {
+
+		// 页面跳转
+		if ($referer = $this->myGetCookie('_login_referer')) {
+			// 跳转到前一页
 			$this->mySetCookie('_login_referer', '', time() - 3600);
-			$this->redirect($ruri);
+			$this->redirect($referer);
 		} else {
+			// 跳转到缺省页
 			$this->redirect(TMS_APP_API_PREFIX . TMS_APP_AUTHED);
 		}
 	}

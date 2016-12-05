@@ -89,11 +89,11 @@ define([], function() {
     InputWrap.prototype.newWrap = function(schema) {
         var oWrap = {
             config: {
-                required: 'Y',
                 showname: 'label'
             },
             schema: schema,
         };
+        oWrap.config.required = 'html' === schema.type ? 'N' : 'Y';
         if (/single|multiple|phase/.test(schema.type)) {
             oWrap.config.align = 'V';
             if (/single|phase/.test(schema.type)) {
@@ -335,6 +335,17 @@ define([], function() {
                     html += this._htmlScoreItem(oWrap, forEdit);
                 }
                 break;
+            case 'html':
+                return {
+                    tag: 'div',
+                    attrs: {
+                        wrap: 'html',
+                        class: 'form-group',
+                        schema: schema.id,
+                        'schema-type': 'html',
+                    },
+                    html: schema.content
+                };
         }
 
         return {
@@ -581,7 +592,9 @@ define([], function() {
             case 'image':
                 html = '<ul><li ng-repeat="img in Record.current.data.' + schema.id + '.split(\',\')"><img ng-src="{{img}}"></li></ul>';
                 break;
-
+            case 'file':
+                html = '<ul><li ng-repeat="file in Record.current.data.' + schema.id + '"><span ng-bind="file.name"></span></li></ul>';
+                break;
             case '_enrollAt':
                 html = "<div>{{Record.current.enroll_at*1000|date:'yy-MM-dd HH:mm'}}</div>";
                 break;
@@ -600,13 +613,27 @@ define([], function() {
             schema = oWrap.schema;
 
         wrapAttrs = this.wrapAttrs(oWrap);
-        label = '<label>' + schema.title + '</label>'
-        html = label + this.htmlValue(schema);
-
-        return {
-            tag: 'div',
-            attrs: wrapAttrs,
-            html: html
+        if (schema.type === 'html') {
+            html = schema.content;
+            return {
+                tag: 'div',
+                attrs: {
+                    id: config.id,
+                    wrap: 'value',
+                    schema: schema.id,
+                    'schema-type': schema.type,
+                    'class': 'form-group'
+                },
+                html: html
+            }
+        } else {
+            label = '<label>' + schema.title + '</label>'
+            html = label + this.htmlValue(schema);
+            return {
+                tag: 'div',
+                attrs: wrapAttrs,
+                html: html
+            }
         }
     };
     ValueWrap.prototype.modify = function(domWrap, oWrap) {

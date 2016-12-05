@@ -6,6 +6,64 @@ class TMS_MODEL {
 	/**
 	 *
 	 */
+	private static $models = [];
+	/**
+	 *
+	 */
+	private static $model_prefix = '_model';
+	/**
+	 * 实例化model
+	 *
+	 * model_path可以用'\'，'/'和'.'进行分割。用'\'代表namespace，用'/'代表目录，用'.'代表文件问题
+	 * 例如：
+	 * 1 - a/b/c，含义为：文件为a/b/c，类为c
+	 * 2 - a/b/c.d，含义为：文件为a/b/c，类为c_d
+	 */
+	public static function &model($model_path = null) {
+		if (!$model_path) {
+			// 缺省的model实例
+			$model_class = 'TMS_MODEL';
+		} else {
+			if (strpos($model_path, "\\")) {
+				$model_class = $model_path;
+				$model_file = preg_replace("/\\\\/", '/', $model_path);
+			} else if (strpos($model_path, '/')) {
+				$model_class = preg_replace('/^.*\//', '', $model_path);
+				$model_file = $model_path;
+			} else if (strpos($model_path, '.')) {
+				$model_class = str_replace('.', '_', $model_path);
+				$model_file = strstr($model_path, '.', true);
+			} else {
+				$model_class = $model_path;
+				$model_file = $model_path;
+			}
+			if (strpos($model_file, self::$model_prefix)) {
+				$model_file = strstr($model_path, self::$model_prefix, true);
+			}
+
+			if (false === strpos($model_class, self::$model_prefix)) {
+				$model_class .= self::$model_prefix;
+			}
+
+		}
+		// no constructed class
+		if (!class_exists($model_class)) {
+			require_once dirname(dirname(__FILE__)) . '/models/' . $model_file . '.php';
+		}
+		$args = func_get_args();
+		if (count($args) <= 1) {
+			$model_obj = new $model_class();
+		} else {
+			$r = new ReflectionClass($model_class);
+			$model_obj = $r->newInstanceArgs(array_slice($args, 1));
+		}
+		self::$models[$model_class] = $model_obj;
+
+		return self::$models[$model_class];
+	}
+	/**
+	 *
+	 */
 	public static function insert($table, $data = null, $autoid = DEFAULT_DB_AUTOID) {
 		return TMS_DB::db()->insert($table, $data, $autoid);
 	}
@@ -54,7 +112,7 @@ class TMS_MODEL {
 			}
 			return $data;
 		} else {
-			return false;
+			return $data;
 		}
 	}
 	/**
@@ -259,113 +317,43 @@ class TMS_MODEL {
 		return TMS_APP::M($model_path);
 	}
 	/**
-	 *
+	 * 为了解决json_encode处理中文的问题，对对象的值进行urlencode处理
 	 */
-	public static function urlencodeObj($obj) {
-			$pattern1 = "/[\r\n\t]/";
 
-			if (is_object($obj)) {
-				$newObj = new \stdClass;
-				foreach ($obj as $k => $v) {
-					$k = preg_replace($pattern1, '', $k);
-					$newObj->{urlencode($k)} = self::urlencodeObj($v);
-				}
-			} else if (is_array($obj)) {
-				$newObj = array();
-				foreach ($obj as $k => $v) {
-					$k = preg_replace($pattern1, '', $k);
-					$newObj[urlencode($k)] = self::urlencodeObj($v);
-				}
-			} else {
-				$obj = preg_replace($pattern1, '', $obj);
-				$newObj = urlencode($obj);
-			}
-
-		return $newObj;
-	}
-	/**
-	 *
-	 */
-	public static function toJson($obj) {
-		$obj = self::urlencodeObj($obj);
-		$json = urldecode(json_encode($obj));
-
-		return $json;
-	}
-	/*
-	 * '、"、&、<、>用htmlspecialchars转码
-	 * 用urlencode保留中文（显示）
-	 */
-	public static function urlencodeObj2($obj) {
+	private static function _urlencodeObj4Json($obj) {
+		// 替换为空的
+		$pattern1 = "/[\r\n\t]/";
 
 		if (is_object($obj)) {
 			$newObj = new \stdClass;
 			foreach ($obj as $k => $v) {
-				$newObj->{urlencode($k)} = self::urlencodeObj2($v);
+				$k = preg_replace($pattern1, '', $k);
+				$newObj->{urlencode($k)} = self::_urlencodeObj4Json($v);
 			}
 		} else if (is_array($obj)) {
 			$newObj = array();
 			foreach ($obj as $k => $v) {
-				$newObj[urlencode($k)] = self::urlencodeObj2($v);
+				$k = preg_replace($pattern1, '', $k);
+				$newObj[urlencode($k)] = self::_urlencodeObj4Json($v);
 			}
 		} else {
-			$obj=htmlspecialchars($obj,ENT_QUOTES);
+			// 处理字符串
+			$obj = preg_replace($pattern1, '', $obj);
+			$obj = str_replace('"', '\"', $obj); // 替换双引号
 			$newObj = urlencode($obj);
 		}
 
 		return $newObj;
 	}
 	/**
-	 * 修正的转json 的方法 用于数据库存json的时候
+	 * 将对象转换为JSON格式的字符串
+	 *
+	 * 利用urlencode解决中文问题
 	 */
-	public static function toJson2($obj) {
-		$obj = self::urlencodeObj2($obj);
+	public static function toJson($obj) {
+		$obj = self::_urlencodeObj4Json($obj);
 		$json = urldecode(json_encode($obj));
 
 		return $json;
 	}
-	/**
-	 * 从数据库取json字符串转对象
-	 */
-	public static function strConvert($data)
-	{
-		if(is_string($data)){
-			$data=preg_replace("/[\r\n]/", urlencode("\n"), $data);
-			$data=preg_replace("/\\\/", urlencode("\\"), $data);
-			$data=preg_replace("/\t/", urlencode("\t"), $data);
-		}
-
-		$data = json_decode($data);
-		if(json_last_error()==0 && is_object($data)){
-			foreach ($data as $k => $v) {
-				$b=urldecode($v);
-				$b=htmlspecialchars_decode($b,ENT_QUOTES);
-				$data->{$k}=$b;
-			}
-		}
-		
-		return $data;
-	}
-	/**
-	 * 将html实体标签解码成原来的特殊字符
-	 */
-	public static function htmlDecode($arr)
-	{
-		if(is_array($arr)){
-			$b=array();
-			foreach ($arr as $k1 => $v1) {
-				$b[$k1]=self::htmlDecode($v1);
-			}
-		}else if(is_object($arr)){
-			$b=new \stdClass;
-			foreach ($arr as $k2 => $v2) {
-				$b->{$k2}=self::htmlDecode($v2);
-			}
-		}else{
-			$b=htmlspecialchars_decode($arr,ENT_QUOTES);
-		}
-
-		return $b;
-	}	
-
 }

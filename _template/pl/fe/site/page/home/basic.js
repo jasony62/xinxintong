@@ -18,7 +18,9 @@ ngApp.provider.controller('ctrlHome', ['$scope', '$http', function($scope, $http
             });
         });
     };
-
+    $scope.openMatter = function(matter) {
+        location.href = matter.url;
+    };
     listTemplates();
     listChannels();
 }]);

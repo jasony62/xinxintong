@@ -20,10 +20,10 @@ class register extends \TMS_CONTROLLER {
 		$this->view_action('/pl/fe/user/register');
 	}
 	/**
-	 * login
+	 * 用户注册
 	 *
-	 * $param string $email
-	 * $param string $password
+	 * @param string $email
+	 * @param string $password
 	 */
 	public function do_action() {
 		$data = $this->getPostJson();
@@ -32,9 +32,7 @@ class register extends \TMS_CONTROLLER {
 		$email = $data->email;
 		$nickname = empty($data->nickname) ? str_replace(strstr($email, '@'), '', $email) : $data->nickname;
 		$password = $data->password;
-		/**
-		 * check
-		 */
+		// check
 		if (strlen($email) == 0 || strlen($nickname) == 0 || strlen($password) == 0) {
 			return new \ParameterError("注册失败，参数不完整。");
 		}
@@ -45,10 +43,15 @@ class register extends \TMS_CONTROLLER {
 		//
 		$fromip = $this->client_ip();
 		$account = $modelAcnt->register($email, $password, $nickname, $fromip);
-		/**
-		 * record account into session and cookie.
-		 */
+		// record account into session and cookie.
 		\TMS_CLIENT::account($account);
+
+		/* 用户注册获得积分 */
+		$user = new \stdClass;
+		$user->id = $account->uid;
+		$user->name = $account->nickname;
+		$modelCoin = $this->model('pl\coin\log');
+		$modelCoin->award($user, 'pl.user.register');
 
 		return new \ResponseData($account);
 	}

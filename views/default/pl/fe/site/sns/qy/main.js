@@ -28,6 +28,7 @@ define(['require'], function(require) {
             .when('/rest/pl/fe/site/sns/qy/other', new RouteParam('other'))
             .when('/rest/pl/fe/site/sns/qy/relay', new RouteParam('relay'))
             .when('/rest/pl/fe/site/sns/qy/page', new RouteParam('page'))
+            .when('/rest/pl/fe/site/sns/qy/customapi', new RouteParam('customapi'))
             .otherwise(new RouteParam('setting'));
     }]);
     ngApp.controller('ctrlQy', ['$scope', '$location', 'http2', function($scope, $location, http2) {

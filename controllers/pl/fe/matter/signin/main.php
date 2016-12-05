@@ -43,7 +43,7 @@ class main extends \pl\fe\matter\base {
 	 * 返回签到活动列表
 	 *
 	 */
-	public function list_action($site = null, $mission = null, $page = 1, $size = 30) {
+	public function list_action($site = null, $mission = null, $page = null, $size = null, $cascaded = '') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -53,6 +53,17 @@ class main extends \pl\fe\matter\base {
 			$result = $model->bySite($site, $page, $size);
 		} else {
 			$result = $model->byMission($mission, $page, $size);
+		}
+
+		if (strlen($cascaded) && count($result->apps)) {
+			$cascaded = explode(',', $cascaded);
+			$modelRnd = $this->model('matter\signin\round');
+			foreach ($result->apps as &$app) {
+				if (in_array('round', $cascaded)) {
+					/* 轮次 */
+					$app->rounds = $modelRnd->byApp($app->id, ['fields' => 'id,rid,title,start_at,end_at,late_at']);
+				}
+			}
 		}
 
 		return new \ResponseData($result);
@@ -264,10 +275,10 @@ class main extends \pl\fe\matter\base {
 		/**
 		 * 处理数据
 		 */
-		$nv = $this->getPostJson(true);
+		$nv = $this->getPostJson();
 		foreach ($nv as $n => $v) {
 			if (in_array($n, ['entry_rule', 'data_schemas'])) {
-				$nv->{$n} = $modelApp->toJson($v);
+				$nv->{$n} = $modelApp->escape($modelApp->toJson($v));
 			}
 		}
 		$nv->modifier = $user->id;

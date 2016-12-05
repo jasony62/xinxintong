@@ -21,7 +21,7 @@ class account extends \pl\fe\base {
 
 		$result = array();
 		$q = array(
-			'uid,uname,nickname,reg_time',
+			'uid,uname,nickname,reg_time,ufrom,coin',
 			'xxt_site_account',
 			"siteid='{$site}' and uname<>''",
 		);

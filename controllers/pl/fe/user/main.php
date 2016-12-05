@@ -7,6 +7,15 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class main extends \pl\fe\base {
 	/**
+	 *
+	 */
+	public function get_access_rule() {
+		$rule_action['rule_type'] = 'white';
+		$rule_action['actions'][] = 'get';
+
+		return $rule_action;
+	}
+	/**
 	 * 结束登录状态
 	 */
 	public function logout_action() {
@@ -18,7 +27,7 @@ class main extends \pl\fe\base {
 	 */
 	public function get_action() {
 		if (false === ($loginUser = $this->accountUser())) {
-			return new \ResponseTimeout();
+			return new \ResponseData(false);
 		}
 
 		$account = $this->model('account')->byId($loginUser->id, ['fields' => 'email,nickname']);

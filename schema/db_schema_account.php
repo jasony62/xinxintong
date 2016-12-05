@@ -1,31 +1,34 @@
 <?php
 require_once '../db.php';
-// account
-$sql = 'CREATE TABLE IF NOT EXISTS `account` (
-    `uid` varchar(40) NOT NULL COMMENT \'用户的 UID\',
-    `authed_from` varchar(20) DEFAULT \'xxt\' COMMENT \'哪个第三方应用\',
-    `authed_id` varchar(255) DEFAULT NULL COMMENT \'在第三方应用中的标识\',
-    `nickname` varchar(50) DEFAULT NULL COMMENT \'用户昵称\',
-    `email` varchar(255) DEFAULT NULL COMMENT \'EMAIL\',
-    `password` varchar(64) DEFAULT NULL COMMENT \'用户密码\',
-    `salt` varchar(32) DEFAULT NULL COMMENT \'用户附加混淆码\',
-    `reg_time` int DEFAULT NULL COMMENT \'注册时间\',
-    `reg_ip` varchar(128) DEFAULT NULL COMMENT \'注册IP\',
-    `last_login` int DEFAULT \'0\' COMMENT \'最后登录时间\',
-    `last_ip` varchar(128) DEFAULT NULL COMMENT \'最后登录 IP\',
-    `online_time` int DEFAULT \'0\' COMMENT \'在线时间 (分钟)\',
-    `last_active` int DEFAULT NULL COMMENT \'最后活跃时间\',
-    `forbidden` tinyint(3) DEFAULT \'0\' COMMENT \'是否禁止用户\',
-    `is_first_login` tinyint(1) DEFAULT \'1\' COMMENT \'首次登录标记\',
-    PRIMARY KEY (`uid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8';
+// platform account
+$sql = "create table if not exists account (";
+$sql .= "uid varchar(40) not null comment '用户的UID'";
+$sql .= ",authed_from varchar(20) default 'xxt' comment '哪个第三方应用'";
+$sql .= ",authed_id varchar(255) default null comment '在第三方应用中的标识'";
+$sql .= ",nickname varchar(50) default null";
+$sql .= ",email varchar(255) default null";
+$sql .= ",password varchar(64) default null";
+$sql .= ",salt varchar(32) default null";
+$sql .= ",reg_time int default null comment '注册时间'";
+$sql .= ",reg_ip varchar(128) default null comment '注册IP'";
+$sql .= ",last_login int default 0 comment '最后登录时间'";
+$sql .= ",last_ip varchar(128) default null comment '最后登录IP'";
+$sql .= ",online_time int default 0 comment '在线时间(分钟)'";
+$sql .= ",last_active int default null comment '最后活跃时间'";
+$sql .= ",forbidden tinyint(3) default 0 comment '是否禁止用户'";
+$sql .= ",is_first_login tinyint(1) default 1 comment '首次登录标记'";
+$sql .= ",coin int not null default 0"; // 虚拟货币
+$sql .= ",coin_last_at int not null default 0"; // 最近一次增加虚拟货币
+$sql .= ",coin_day int not null default 0"; // 虚拟货币日增量
+$sql .= ",coin_week int not null default 0"; // 虚拟货币周增量
+$sql .= ",coin_month int not null default 0"; // 虚拟货币月增量
+$sql .= ",coin_year int not null default 0"; // 虚拟货币年增量
+$sql .= ",primary key (uid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
-/**
- * account group and group's permissions.
- */
+// account group and group's permissions.
 $sql = 'CREATE TABLE IF NOT EXISTS `account_group` (
     `group_id` int NOT NULL COMMENT \'用户组的 ID\',
     `group_name` varchar(50) NOT NULL COMMENT \'用户组名\',
@@ -36,20 +39,18 @@ $sql = 'CREATE TABLE IF NOT EXISTS `account_group` (
     PRIMARY KEY (`group_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
-/**
- * relation of acount and group.
- */
+// relation of acount and group.
 $sql = 'CREATE TABLE IF NOT EXISTS `account_in_group` (
     `account_uid` varchar(40) NOT NULL COMMENT \'用户的 ID\',
     `group_id` int NOT NULL COMMENT \'用户组的 ID\',
     PRIMARY KEY (`account_uid`,`group_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8';
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: '.$mysqli->error;
+	header('HTTP/1.0 500 Internal Server Error');
+	echo 'database error: ' . $mysqli->error;
 }
 
-echo 'finish account.'.PHP_EOL;
+echo 'finish account.' . PHP_EOL;

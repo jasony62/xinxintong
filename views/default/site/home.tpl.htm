@@ -15,28 +15,56 @@
                 <div class='navbar-header'>
                     <a class='navbar-brand' href='/rest/home' target='_self'><?php echo APP_TITLE;?></a>
                 </div>
-                <ul class='nav navbar-nav navbar-right ng-cloak' ng-if="isLogin==='N'" ng-cloak>
+                <ul class='nav navbar-nav navbar-right ng-cloak' ng-if="loginUser===false" ng-cloak>
                     <li><a href='/rest/pl/fe/user/login' target='_self'>登录</a></li>
                     <li><a href='/rest/pl/fe/user/register' target='_self'>注册</a></li>
                 </ul>
-                <ul class='nav navbar-nav navbar-right ng-cloak' ng-if="isLogin==='Y'" ng-cloak>
-                    <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
-                </ul>
+                <form class='navbar-form navbar-right ng-cloak' ng-if="loginUser" ng-cloak>
+                    <div class="btn-group">
+                        <a href='/rest/pl/fe' target='_self' class="btn btn-default"><i class='glyphicon glyphicon-user'></i> <span ng-bind="loginUser.nickname"></span></a>
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href='/rest/pl/fe/user/settings' target='_self'>用户设置</a></li>
+                            <li class="divider"></li>
+                            <li><a href='/rest/pl/fe/user/logout' target='_self'>退出</a></li>
+                        </ul>
+                    </div>
+                </form>
             </div>
         </nav>
+        <div class='container'>
+            <div class='row'>
+                <nav class='navbar navbar-default'>
+                    <div class='container'>
+                        <p class="navbar-text" ng-bind="site.name"></p>
+                        <form class="navbar-form navbar-right ng-cloak" ng-cloak>
+                            <button type="button" class="btn btn-success" ng-click="subscribeSite()" ng-if="site._subscribed!=='Y'">关注</button>
+                            <button type="button" class="btn btn-default" ng-click="subscribeSite()" ng-if="site._subscribed==='Y'">已关注</button>
+                        </form>
+                    </div>
+                </nav>
+            </div>
+        </div>
         <div id="content" dynamic-html='page.html' ng-cloak class='ng-cloak'></div>
-        <script src="/static/js/require.js" defer async data-main="/views/default/site/home-loader.js?_=2"></script>
+        <div class='container'>
+            <div class='row'>
+                <div tms-discuss="platform" tms-discuss-ready="site?'Y':'N'" class="ds-thread" data-thread-key="site,{{site.id}}" data-title="{{site.name}}" data-url=""></div>
+            </div>
+        </div>
         <script type="text/ng-template" id="favorTemplateSite.html">
             <div class="modal-header">
                 <button class="close" type="button" ng-click="cancel()">×</button>
-                <h5 class="modal-title ">指定收藏模版的站点</h5>
+                <h5 class="modal-title ">指定收藏模版的团队</h5>
             </div>
             <div class="modal-body ">
                 <div class="checkbox" ng-repeat="site in mySites">
                     <label ng-if="site._favored!=='Y'"><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='site._selected'>{{site.name}}</label>
                     <label ng-if="site._favored==='Y'"><input type='checkbox' checked disabled><span>{{site.name}}</span>（已收藏）</label></label>
                 </div>
-                <div class='alert alert-danger' ng-if="mySites.length===0">请创建用于收藏本模版的站点</div>
+                <div class='alert alert-danger' ng-if="mySites.length===0">请创建用于收藏本模版的团队</div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-success" ng-click="ok() ">确定</button>
@@ -45,17 +73,34 @@
         <script type="text/ng-template" id="useTemplateSite.html">
             <div class="modal-header">
                 <button class="close" type="button" ng-click="cancel()">×</button>
-                <h5 class="modal-title ">指定使用模版的站点</h5>
+                <h5 class="modal-title ">指定使用模版的团队</h5>
             </div>
             <div class="modal-body ">
                 <div class="radio" ng-repeat="site in mySites">
                     <label ng-if="site._favored!=='Y'"><input type='radio' name='site' value="{{$index}}" ng-model='data.index'>{{site.name}}</label>
                 </div>
-                <div class='alert alert-danger' ng-if="mySites.length===0">请创建使用模版的站点</div>
+                <div class='alert alert-danger' ng-if="mySites.length===0">请创建使用模版的团队</div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-success" ng-click="ok() ">确定</button>
             </div>
         </script>
+        <script type="text/ng-template" id="subscribeSite.html">
+            <div class="modal-header">
+                <button class="close" type="button" ng-click="cancel()">×</button>
+                <h5 class="modal-title ">指定关注本团队的团队</h5>
+            </div>
+            <div class="modal-body ">
+                <div class="checkbox" ng-repeat="site in mySites">
+                    <label ng-if="site._subscribed!=='Y'"><input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='site._selected'>{{site.name}}</label>
+                    <label ng-if="site._subscribed==='Y'"><input type='checkbox' checked disabled><span>{{site.name}}</span>（已关注）</label></label>
+                </div>
+                <div class='alert alert-danger' ng-if="mySites.length===0">请创建用于关注本团队的团队</div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" ng-click="ok() ">确定</button>
+            </div>
+        </script>
+        <script src="/static/js/require.js" defer async data-main="/views/default/site/home-loader.js?_=4"></script>
     </body>
 </html>

@@ -41,6 +41,36 @@ class group_model extends app_base {
 		return $app;
 	}
 	/**
+	 * 返回项目下的分组活动
+	 */
+	public function &byMission($mission, $scenario = null, $page = null, $size = null) {
+		$result = new \stdClass;
+
+		$q = [
+			'*',
+			'xxt_group',
+			"state=1 and mission_id='$mission'",
+		];
+		if (!empty($scenario)) {
+			$q[2] .= " and scenario='$scenario'";
+		}
+		$q2['o'] = 'modify_at desc';
+		if ($page && $size) {
+			$q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+		}
+
+		$result->apps = $this->query_objs_ss($q, $q2);
+		if ($page && $size) {
+			$q[0] = 'count(*)';
+			$total = (int) $this->query_val_ss($q);
+			$result->total = $total;
+		} else {
+			$result->total = count($result->apps);
+		}
+
+		return $result;
+	}
+	/**
 	 * 更新登记活动标签
 	 */
 	public function updateTags($aid, $tags) {

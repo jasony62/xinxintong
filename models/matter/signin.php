@@ -67,21 +67,25 @@ class signin_model extends app_base {
 	/**
 	 * 返回签到活动列表
 	 */
-	public function &bySite($siteId, $page = 1, $size = 30) {
-		$result = ['apps' => null, 'total' => 0];
+	public function &bySite($siteId, $page = null, $size = null) {
+		$result = new \stdClass;
 		$q = [
 			'*',
 			'xxt_signin',
 			"state<>0 and siteid='$siteId'",
 		];
 		$q2['o'] = 'modify_at desc';
-		$q2['r']['o'] = ($page - 1) * $size;
-		$q2['r']['l'] = $size;
-		if ($apps = $this->query_objs_ss($q, $q2)) {
-			$result['apps'] = $apps;
+		if ($page && $size) {
+			$q2['r']['o'] = ($page - 1) * $size;
+			$q2['r']['l'] = $size;
+		}
+		$result->apps = $this->query_objs_ss($q, $q2);
+		if ($page && $size) {
 			$q[0] = 'count(*)';
 			$total = (int) $this->query_val_ss($q);
-			$result['total'] = $total;
+			$result->total = $total;
+		} else {
+			$result->total = count($result->apps);
 		}
 
 		return $result;
@@ -89,21 +93,25 @@ class signin_model extends app_base {
 	/**
 	 * 返回签到活动列表
 	 */
-	public function &byMission($mission, $page = 1, $size = 30) {
-		$result = ['apps' => null, 'total' => 0];
+	public function &byMission($mission, $page = null, $size = null) {
+		$result = new \stdClass;
 		$q = [
 			'*',
 			'xxt_signin',
 			"state<>0 and mission_id='$mission'",
 		];
 		$q2['o'] = 'modify_at desc';
-		$q2['r']['o'] = ($page - 1) * $size;
-		$q2['r']['l'] = $size;
-		if ($apps = $this->query_objs_ss($q, $q2)) {
-			$result['apps'] = $apps;
+		if ($page && $size) {
+			$q2['r']['o'] = ($page - 1) * $size;
+			$q2['r']['l'] = $size;
+		}
+		$result->apps = $this->query_objs_ss($q, $q2);
+		if ($page && $size) {
 			$q[0] = 'count(*)';
 			$total = (int) $this->query_val_ss($q);
-			$result['total'] = $total;
+			$result->total = $total;
+		} else {
+			$result->total = count($result->apps);
 		}
 
 		return $result;

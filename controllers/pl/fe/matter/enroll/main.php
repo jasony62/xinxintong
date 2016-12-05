@@ -188,6 +188,7 @@ class main extends \pl\fe\matter\base {
 	 * @param int $mission
 	 *
 	 * @return object ResponseData
+	 *
 	 */
 	public function createByOther_action($site, $template, $mission = null) {
 		if (false === ($user = $this->accountUser())) {
@@ -201,6 +202,16 @@ class main extends \pl\fe\matter\base {
 		$modelCode = $this->model('code\page');
 
 		$template = $this->model('matter\template')->byId($template);
+
+		/* 检查用户积分 */
+		if ($template->coin) {
+			$account = $this->model('account')->byId($user->id, ['fields' => 'uid,nickname,coin']);
+			if ((int) $account->coin < (int) $template->coin) {
+				return new \ResponseError('使用模版【' . $template->title . '】需要积分（' . $template->coin . '），你的积分（' . $account->coin . '）不足');
+			}
+		}
+
+		/* 创建活动 */
 		$template = $modelApp->escape($template);
 		$aid = $template->matter_id;
 		$copied = $modelApp->byId($aid);
@@ -245,7 +256,7 @@ class main extends \pl\fe\matter\base {
 
 		$this->model()->insert('xxt_enroll', $newapp, false);
 
-		/**复制自定义页面*/
+		/* 复制自定义页面 */
 		if ($copied->pages) {
 			foreach ($copied->pages as $ep) {
 				$newPage = $modelPage->add($user, $site, $newaid);
@@ -266,9 +277,17 @@ class main extends \pl\fe\matter\base {
 
 		$app = $modelApp->byId($newaid, ['cascaded' => 'N']);
 
-		/*记录操作日志*/
+		/* 记录操作日志 */
 		$app->type = 'enroll';
 		$this->model('matter\log')->matterOp($site, $user, $app, 'C');
+
+		/* 支付积分 */
+		if ($template->coin) {
+			$modelCoin = $this->model('pl\coin\log');
+			$creator = $this->model('account')->byId($template->creater, ['fields' => 'uid id,nickname name']);
+			$modelCoin->transfer('pl.template.use', $user, $creator, (int) $template->coin);
+		}
+		/* 更新模版使用情况数据 */
 
 		return new \ResponseData($app);
 	}
@@ -452,8 +471,8 @@ class main extends \pl\fe\matter\base {
 	/**
 	 * 更新活动的属性信息
 	 *
-	 * @param string $site
-	 * @param string $app
+	 * @param string $site site'id
+	 * @param string $app app'id
 	 *
 	 */
 	public function update_action($site, $app) {
@@ -462,24 +481,23 @@ class main extends \pl\fe\matter\base {
 		}
 
 		$modelApp = $this->model('matter\enroll');
-		$matter = $modelApp->byId($app, 'id,title,summary,pic');
 		/**
 		 * 处理数据
 		 */
-		$nv = $this->getPostJson(true);
+		$nv = $this->getPostJson();
 		foreach ($nv as $n => $v) {
 			if (in_array($n, ['entry_rule', 'data_schemas'])) {
-				$nv->$n = $modelApp->toJson($v);
+				$nv->$n = $modelApp->escape($modelApp->toJson($v));
 			}
 		}
 		$nv->modifier = $user->id;
 		$nv->modifier_src = $user->src;
 		$nv->modifier_name = $user->name;
 		$nv->modify_at = time();
-
 		$rst = $modelApp->update('xxt_enroll', $nv, ["id" => $app]);
 		if ($rst) {
 			// 记录操作日志
+			$matter = $modelApp->byId($app, 'id,title,summary,pic');
 			$matter->type = 'enroll';
 			$this->model('matter\log')->matterOp($site, $user, $matter, 'U');
 		}

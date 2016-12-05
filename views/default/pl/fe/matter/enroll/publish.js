@@ -33,6 +33,7 @@ define(['frame'], function(ngApp) {
 			$scope.summary = data;
 		});
 		$scope.$on('xxt.tms-datepicker.change', function(event, data) {
+			console.log('xxxxxxx');
 			$scope.app[data.state] = data.value;
 			$scope.update(data.state);
 		});
@@ -127,9 +128,6 @@ define(['frame'], function(ngApp) {
 	 */
 	ngApp.provider.controller('ctrlAccessRule', ['$scope', 'http2', 'srvApp', function($scope, http2, srvApp) {
 		$scope.rule = {};
-		$scope.update = function() {
-			srvApp.update('entry_rule');
-		};
 		$scope.reset = function() {
 			srvApp.resetEntryRule();
 		};

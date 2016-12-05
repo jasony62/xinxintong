@@ -13,12 +13,11 @@ class way_model extends \TMS_MODEL {
 		if (!empty($auth)) {
 			/* 有身份用户首次访问，若已经有绑定的站点用户，获取站点用户；否则，创建持久化的站点用户，并绑定关系 */
 			foreach ($auth['sns'] as $snsName => $snsUser) {
-				if ($snsName === 'qy') {
-					continue;
-				}
+			
 				$modelSns = \TMS_App::M('sns\\' . $snsName);
 				$siteSns = $modelSns->bySite($siteId);
 				$cookieUser = $this->_bindSiteSnsUser($siteId, $snsName, $snsUser, $cookieUser);
+				
 			}
 		} elseif ($cookieUser === false) {
 			/* 无身份用户首次访问，创建非持久化的站点用户 */
@@ -102,7 +101,9 @@ class way_model extends \TMS_MODEL {
 			isset($snsUser->city) && $options['city'] = $snsUser->city;
 			if ($cookieUser === false) {
 				$siteUser = $modelSiteUser->blank($siteId, true, ['ufrom' => $snsName, $snsName . '_openid' => $snsUser->openid]);
-				$dbSnsUser = $modelSnsUser->blank($snsSiteId, $snsUser->openid, true, $options);
+				if($snsName != 'qy'){
+					$dbSnsUser = $modelSnsUser->blank($snsSiteId, $snsUser->openid, true, $options);
+				}
 				// 新的cookie用户
 				$cookieUser = new \stdClass;
 			} else {
@@ -111,12 +112,16 @@ class way_model extends \TMS_MODEL {
 					// 没有站点用户创建个新的
 					$siteUser = $modelSiteUser->blank($siteId, true, ['ufrom' => $snsName, $snsName . '_openid' => $snsUser->openid]);
 				}
-				// 保存社交账号信息
-				$dbSnsUser = $modelSnsUser->blank($snsSiteId, $snsUser->openid, true, $options);
+				if($snsName !== 'qy'){
+					// 保存社交账号信息
+					$dbSnsUser = $modelSnsUser->blank($snsSiteId, $snsUser->openid, true, $options);
+				}
 				// 清空不必要的数据，减小cookie尺寸
-				unset($dbSnsUser->siteid);
-				unset($dbSnsUser->subscribe_at);
-				unset($dbSnsUser->sync_at);
+				if($dbSnsUser){
+					unset($dbSnsUser->siteid);
+					unset($dbSnsUser->subscribe_at);
+					unset($dbSnsUser->sync_at);
+				}
 			}
 		}
 
@@ -125,11 +130,17 @@ class way_model extends \TMS_MODEL {
 		$cookieUser->uid = $siteUser->uid;
 		$cookieUser->expire = time() + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);
 		!isset($cookieUser->sns) && $cookieUser->sns = new \stdClass;
-		$cookieUser->nickname = $dbSnsUser->nickname;
-		$cookieUser->sns->{$snsName} = $dbSnsUser;
+		if($dbSnsUser === false){
+			$cookieUser->nickname = isset($snsUser->nickname)?$snsUser->nickname:'';
+			$cookieUser->sns->{$snsName} = $snsUser;
+		}else{
+		    $cookieUser->nickname = $dbSnsUser->nickname;
+		    $cookieUser->sns->{$snsName} = $dbSnsUser;
+		}
 
 		return $cookieUser;
 	}
+
 	/**
 	 * 绑定自定义用户
 	 */

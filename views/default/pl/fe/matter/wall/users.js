@@ -3,7 +3,7 @@ define(['frame'], function(ngApp) {
     /**
      * app setting controller
      */
-    ngApp.provider.controller('ctrlUsers', ['$scope', '$q', 'http2','$uibModal',function($scope, $q, http2, $uibModal) {
+    ngApp.provider.controller('ctrlUsers', ['$scope', 'http2', '$q','$uibModal','noticebox',function($scope,  http2, $q, $uibModal, noticebox) {
         $scope.$parent.subView = 'users';
         //退出信息墙功能
         $scope.quit = function() {
@@ -54,7 +54,9 @@ define(['frame'], function(ngApp) {
                 }]
             }).result.then(function(app) {
                     http2.get('/rest/pl/fe/matter/wall/users/import?id=' + $scope.id + '&app=' + app.id +'&site='+ app.siteid, function(rsp) {
-                        $scope.$root.infomsg = '导入用户数：' + rsp.data;
+                        //$scope.$root.infomsg = '导入用户数：' + rsp.data;
+                        // 显示导入人数
+                        noticebox.success('导入用户数：' + rsp.data);
                         $scope.doSearch();
                     });
                 });
@@ -94,14 +96,14 @@ define(['frame'], function(ngApp) {
                     url += '&app=' + params.app.id;
                     url += '&onlySpeaker=' + params.options.onlySpeaker;
                     http2.get(url, function(rsp) {
-                        $scope.$root.infomsg = '导出用户数：' + rsp.data;
+                        //$scope.$root.infomsg = '导出用户数：' + rsp.data;
+                        noticebox.success('导出用户数：' + rsp.data);
                     });
                 });
         };
         //刷新
         $scope.doSearch = function() {
             http2.get('/rest/pl/fe/matter/wall/users/list?id=' + $scope.id + '&site=' + $scope.siteId, function(rsp) {
-                console.log(rsp.data);
                 $scope.users = rsp.data;
             });
         };

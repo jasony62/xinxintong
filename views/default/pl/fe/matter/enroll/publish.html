@@ -28,7 +28,7 @@
                     <i class="glyphicon glyphicon-link"></i> 访问入口
                 </uib-tab-heading>
                 <div class="panel panel-default">
-                    <div class="panel-heading">登记用户</div>
+                    <div class="panel-heading">填写链接</div>
                     <div class="panel-body">
                         <div class='form-group'>
                             <div class='input-group'>
@@ -58,7 +58,7 @@
                     </div>
                 </div>
                 <div class="panel panel-default" ng-controller="ctrlOpUrl">
-                    <div class="panel-heading">登记管理员</div>
+                    <div class="panel-heading">结果审核页面</div>
                     <div class="panel-body">
                         <div class='form-group'>
                             <div class='input-group'>
@@ -74,7 +74,7 @@
                     </div>
                 </div>
                 <div class="panel panel-default" ng-controller="ctrlReportUrl">
-                    <div class="panel-heading">统计报告链接</div>
+                    <div class="panel-heading">统计报告页面</div>
                     <div class="panel-body">
                         <div class='form-group'>
                             <div class='input-group'>
@@ -115,7 +115,7 @@
                         </td>
                         <td style='padding:0'>
                             <select class='form-control' ng-model='app.before_start_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('before_start_page')">
-                                <option value=''>缺省提示</option>
+                                <option value=''>默认提示</option>
                             </select>
                         </td>
                     </tr>
@@ -126,7 +126,7 @@
                         </td>
                         <td style='padding:0'>
                             <select class='form-control' ng-model='app.before_end_page' ng-options='page.name as page.title for page in app.pages' ng-change="update('before_end_page')">
-                                <option value=''>缺省提示</option>
+                                <option value=''>默认提示</option>
                             </select>
                         </td>
                     </tr>
@@ -151,7 +151,7 @@
                     <table class='table table-bordered' ng-if="rule.scope==='none'">
                         <tbody>
                             <tr>
-                                <td>缺省进入页面</td>
+                                <td>默认进入页面</td>
                                 <td style='padding:0'>
                                     <select style='border:0' class='form-control' ng-change="update('entry_rule')" ng-model='app.entry_rule.otherwise.entry' ng-options="p.name as p.title for p in app.pages"></select>
                                 </td>

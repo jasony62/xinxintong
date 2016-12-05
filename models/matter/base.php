@@ -50,15 +50,17 @@ class base_model extends \TMS_MODEL {
 	/**
 	 *
 	 */
-	public function &byId($id, $options = array()) {
+	public function &byId($id, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 
-		$q = array(
+		$q = [
 			$fields,
 			$this->table(),
 			["id" => $id],
-		);
-		$matter = $this->query_obj_ss($q);
+		];
+		if ($matter = $this->query_obj_ss($q)) {
+			$matter->type = $this->getTypeName();
+		}
 
 		return $matter;
 	}

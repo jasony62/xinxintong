@@ -10,6 +10,10 @@ class main extends \pl\fe\base {
 	 *
 	 */
 	public function get_action($template) {
+		if (false === ($loginUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
 		$template = $this->model('matter\template')->byId($template);
 
 		return new \ResponseData($template);
@@ -17,20 +21,18 @@ class main extends \pl\fe\base {
 	/**
 	 * 获得指定素材对应的模版
 	 */
-	public function byMatter_action($type, $id) {
-		$model = $this->model();
-		$q = [
-			'*',
-			"xxt_template",
-			["matter_type" => $type, "matter_id" => $id],
-		];
-		$template = $model->query_obj_ss($q);
+	public function byMatter_action($id, $type) {
+		if (false === ($loginUser = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$modelTmpl = $this->model('matter\template');
+		$template = $modelTmpl->byMatter($id, $type);
 
 		return new \ResponseData($template);
 	}
-
 	/**
-	 * 模版上架
+	 * 发布模版
 	 *
 	 * @param string $site
 	 * @param string $scope [Platform|Site]
@@ -39,16 +41,24 @@ class main extends \pl\fe\base {
 		if (false === ($loginUser = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
+		/* 发布模版 */
+		$matter = $this->getPostJson();
+		$site = $this->model('site')->byId($site, ['fields' => 'id,name']);
 
-		$matter = $this->getPostJson(true);
-		$site = $this->model('site')->byId($site, ['fields', 'id,name']);
+		$modelTmpl = $this->model('matter\template');
+		if ($template = $modelTmpl->byMatter($matter->matter_id, $matter->matter_type)) {
+			$template = $modelTmpl->putMatter($site, $loginUser, $matter, $template);
+		} else {
+			$template = $modelTmpl->putMatter($site, $loginUser, $matter);
+			/* 首次发布模版获得积分 */
+			$modelCoin = $this->model('pl\coin\log');
+			$modelCoin->award($loginUser, 'pl.matter.template.put.' . $template->visible_scope, $template);
+		}
 
-		$item = $this->model('matter\template')->putMatter($site, $loginUser, $matter);
-
-		return new \ResponseData($item);
+		return new \ResponseData($template);
 	}
 	/**
-	 *
+	 * 声请放到平台首页
 	 */
 	public function pushHome_action($template) {
 		if (false === ($user = $this->accountUser())) {
@@ -69,7 +79,7 @@ class main extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$nv = $this->getPostJson(true);
+		$nv = $this->getPostJson();
 
 		$rst = $this->model()->update('xxt_template', $nv, "id='$id'");
 

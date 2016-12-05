@@ -248,9 +248,33 @@ class xxt_base extends TMS_CONTROLLER {
 	 * $openid
 	 * $message
 	 */
-	public function sendByOpenid($mpid, $openid, $message) {
-		$mpa = $this->model('mp\mpaccount')->getApis($mpid);
-		$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $mpid);
+	public function sendByOpenid($mpid, $openid, $message, $openid_src = null) {
+		if(empty($openid_src)){
+			$mpa = $this->model('mp\mpaccount')->getApis($mpid);
+			$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $mpid);
+		}else{
+			switch ($openid_src) {
+				case 'yx':
+					$mpa = $this->model('sns\yx')->bySite($mpid);
+					$mpproxy = $this->model('sns\yx\proxy' , $mpa);
+					$mpa->yx_p2p = $mpa->can_p2p;
+					$mpa->mpsrc = 'yx';
+					break;
+				
+				case 'qy':
+					$mpa = $this->model('sns\qy')->bySite($mpid);
+					$mpproxy = $this->model('sns\qy\proxy' , $mpa);
+					$mpa->qy_agentid = $mpa->agentid;
+					$mpa->mpsrc = 'qy';
+					break;
+		
+				case 'wx':
+					$mpa = $this->model('sns\wx')->bySite($mpid);
+					$mpproxy = $this->model('sns\wx\proxy' , $mpa);
+					$mpa->mpsrc = 'wx';
+					break;
+			}
+		}
 
 		switch ($mpa->mpsrc) {
 		case 'yx':
@@ -269,7 +293,6 @@ class xxt_base extends TMS_CONTROLLER {
 			$rst = $mpproxy->messageSend($message, $openid);
 			break;
 		}
-
 		return $rst;
 	}
 	/**

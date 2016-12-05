@@ -18,16 +18,16 @@ class setting extends \pl\fe\matter\base {
 		$modelMis = $this->model('matter\mission');
 		$mission = $modelMis->byId($id, 'id,siteid,title,summary,pic');
 		/*data*/
-		$nv = $this->getPostJson(true);
+		$nv = $this->getPostJson();
 		foreach ($nv as $n => $v) {
 			if (in_array($n, ['extattrs'])) {
-				$nv[$n] = $modelMis->toJson($v);
+				$nv[$n] = $modelMis->escape($modelMis->toJson($v));
 			}
 		}
 		/*modifier*/
 		$nv->modifier = $user->id;
 		$nv->modifier_src = $user->src;
-		$nv->modifier_name = $user->name;
+		$nv->modifier_name = $modelMis->escape($user->name);
 		$nv->modify_at = time();
 		/*update*/
 		$rst = $modelMis->update('xxt_mission', $nv, ["id" => $id]);

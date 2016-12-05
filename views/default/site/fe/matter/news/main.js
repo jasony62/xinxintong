@@ -12,17 +12,17 @@ angular.module('xxt', []).config(['$locationProvider', function($locationProvide
     shareby = $location.search().shareby ? $location.search().shareby : '';
     var setShare = function() {
         var shareid, sharelink;
-        shareid = $scope.user.vid + (new Date()).getTime();
+        shareid = $scope.user.uid + (new Date()).getTime();
         window.xxt.share.options.logger = function(shareto) {
-            var url = "/rest/mi/matter/logShare";
-            url += "?shareid=" + shareid;
-            url += "&siteId=" + siteId;
-            url += "&id=" + newsId;
-            url += "&type=news";
-            url += "&title=" + $scope.news.title;
-            url += "&shareto=" + shareto;
-            url += "&shareby=" + shareby;
-            $http.get(url);
+            // var url = "/rest/mi/matter/logShare";
+            // url += "?shareid=" + shareid;
+            // url += "&siteId=" + siteId;
+            // url += "&id=" + newsId;
+            // url += "&type=news";
+            // url += "&title=" + $scope.news.title;
+            // url += "&shareto=" + shareto;
+            // url += "&shareby=" + shareby;
+            // $http.get(url);
         };
         sharelink = location.href;
         if (/shareby=/.test(sharelink)) {

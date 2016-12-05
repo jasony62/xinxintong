@@ -23,32 +23,35 @@ class joinwall_model extends Reply {
 		 */
 		$wall = \TMS_APP::model('matter\wall');
 		$siteId = $this->call['siteid'];
-		$openid = $this->call['from_user'];
-		if($openid !== 'mocker'){
-			$openid2 = array();
+		$user = new \stdClass;
+		$user->openid = $this->call['from_user'];
+		if($user->openid !== 'mocker'){
 			switch ($this->call['src']) {
 				case 'wx':
 					//获取nickname
-					$from_nickname = \TMS_APP::model('sns\wx\fan')->byOpenid($siteId, $openid, 'nickname,headimgurl');
+					$from_nickname = \TMS_APP::model('sns\wx\fan')->byOpenid($siteId, $user->openid, 'nickname,headimgurl');
 					break;
 				case 'yx':
-					$from_nickname = \TMS_APP::model('sns\yx\fan')->byOpenid($siteId, $openid, 'nickname,headimgurl');
+					$from_nickname = \TMS_APP::model('sns\yx\fan')->byOpenid($siteId, $user->openid, 'nickname,headimgurl');
 					break;
 				case 'qy':
-					$from_nickname = \TMS_APP::model('sns\qy\fan')->byOpenid($siteId, $openid, 'nickname,headimgurl');
+					$from_nickname = \TMS_APP::model('sns\qy\fan')->byOpenid($siteId, $user->openid, 'nickname,headimgurl');
 					break;
 			}
-			$openid2['nickname'] = $from_nickname->nickname;
-			$openid2['headimgurl'] = $from_nickname->headimgurl;
+			$user->nickname = $from_nickname->nickname;
+			$user->headimgurl = $from_nickname->headimgurl;
+			$user->ufrom = $this->call['src'];
 			//获取userid
 			$options['fields'] = 'uid';
-			$user = \TMS_APP::model('site\user\account')->byOpenid($siteId, $this->call['src'], $openid, $options);
-			$openid2['from_userid'] = '';
-			$user && $openid2['from_userid'] = $user->uid;
-			$openid2['ufrom'] = $this->call['src'];
+			$user2 = \TMS_APP::model('site\user\account')->byOpenid($siteId, $user->ufrom, $user->openid, $options);
+			if($user2 === false){
+				$user->userid = '';
+			}else{
+				$user->userid = $user2->uid;
+			}
 		}
 		
-		$desc = $wall->join($siteId, $this->wid, $openid, $this->remark, $openid2);
+		$desc = $wall->join($siteId, $this->wid, $user, $this->remark);
 		/**
 		 * 返回活动加入成功提示
 		 */

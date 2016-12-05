@@ -45,18 +45,17 @@ class wall_model extends app_base {
 	 *
 	 * $runningMpid 用户所在的公众号，不一定是是信息墙所属的公众号
 	 * $wid
-	 * $openid
-	 * $openid2 用户信息
+	 * $user 用户信息
 	 * $remark 加入信息墙时输入的事件数据
 	 */
-	public function join($runningMpid, $wid, $openid, $remark = '', $openid2) {
+	public function join($runningMpid, $wid, $user, $remark = '') {
 		/**
 		 * 加入一个信息墙需要从其他的墙退出
 		 */
 		$this->update(
 			'xxt_wall_enroll',
 			array('close_at' => time()),
-			"siteid='$runningMpid' and openid='$openid'"
+			"siteid='$runningMpid' and openid='$user->openid'"
 		);
 		/**
 		 * 加入一个组
@@ -64,7 +63,7 @@ class wall_model extends app_base {
 		$q = array(
 			'count(*)',
 			'xxt_wall_enroll',
-			"siteid='$runningMpid' and wid='$wid' and openid='$openid'",
+			"siteid='$runningMpid' and wid='$wid' and openid='$user->openid'",
 		);
 		if (1 === (int) $this->query_val_ss($q)) {
 			/**
@@ -78,13 +77,13 @@ class wall_model extends app_base {
 		} else {
 			$i['siteid'] = $runningMpid;
 			$i['wid'] = $wid;
-			$i['openid'] = $openid;
+			$i['openid'] = $user->openid;
 			$i['remark'] = $remark;
 			$i['join_at'] = time();
-			$i['ufrom'] = $openid2['ufrom'];
-			$i['nickname'] = $openid2['nickname'];
-			$i['userid'] = $openid2['from_userid'];
-			$i['headimgurl'] = $openid2['headimgurl'];
+			$i['ufrom'] = isset($user->ufrom)?$user->ufrom:'';
+			$i['nickname'] = isset($user->nickname)?$user->nickname:'';
+			$i['userid'] = isset($user->userid)?$user->userid:'';
+			$i['headimgurl'] = isset($user->headimgurl)?$user->headimgurl:'';
 
 			$this->insert('xxt_wall_enroll', $i, false);
 		}
@@ -402,7 +401,7 @@ class wall_model extends app_base {
 			 */
 			//站点绑定的易信公众号信息
 			$yxConfig = \TMS_APP::M('sns\yx')->bySite($site);
-			if ($yxConfig && $yxConfig->joined === 'Y') {			
+			if ($yxConfig && $yxConfig->joined === 'Y') {
 				$mpproxy = \TMS_APP::M('sns\yx\proxy', $yxConfig);
 				$rst = $mpproxy->mediaUpload($msg['data'][1]);
 				if ($rst[0] === false) {
@@ -435,7 +434,24 @@ class wall_model extends app_base {
 					$usersQy[]=$user;
 					continue;
 				}
-				if($user->ufrom == 'yx'){	
+				if($user->ufrom == 'yx'){
+					if(!isset($mediaIdYx)){
+						//站点绑定的易信公众号信息
+						$yxConfig = \TMS_APP::M('sns\yx')->bySite($site);
+						$mpproxy = \TMS_APP::M('sns\yx\proxy', $yxConfig);
+						$rst = $mpproxy->mediaUpload($msg['data'][1]);
+						if ($rst[0] === false) {
+							$ctrl->sendByOpenid($site, $openid, array(
+								"msgtype" => "text",
+								"text" => array(
+									"content" => urlencode($rst[1]),
+								)),
+								$msg['src']
+							);
+							return $rst;
+						}
+						$mediaIdYx = $rst[1];
+					}
 					$message = array(
 						"msgtype" => "image",
 						"image" => array(
@@ -443,6 +459,7 @@ class wall_model extends app_base {
 						),
 					);
 				}
+				
 				$ctrl->sendByOpenid($site, $user->openid, $message, $user->ufrom);
 			}
 

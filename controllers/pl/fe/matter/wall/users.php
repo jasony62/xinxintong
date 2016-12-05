@@ -32,7 +32,7 @@ class users extends \pl\fe\matter\base {
 	 * @param string $wall
 	 * @param string $app
 	 */
-	public function import_action($id, $app, $site) {
+	public function import_action($id, $app, $site, $type) {
 		//先查询出讨论组中已有的openid
 		$q = array(
 			'openid',
@@ -43,7 +43,7 @@ class users extends \pl\fe\matter\base {
 		//查询出登记活动中的所有userid
 		$p = array(
 			"distinct userid",
-			'xxt_enroll_record',
+			'xxt_'.$type.'_record',
 			"siteid='$site' and state=1 and aid='$app' and userid != ''",
 		);
 		$userids = $this->model()->query_vals_ss($p);
@@ -52,29 +52,31 @@ class users extends \pl\fe\matter\base {
 		$num = 0;
 		foreach ($userids as $key => $uid) {
 			$p2 = array(
-				'ufrom,yx_openid,wx_openid,qy_openid,nickname',
+				'ufrom,yx_openid,wx_openid,qy_openid',
 				'xxt_site_account',
 				"siteid='$site' and uid = '$uid' and ufrom != ''",
 			);
 			
 			$account = $this->model()->query_obj_ss($p2);
+			if($account === false){
+				continue;
+			}
 			switch ($account->ufrom) {
 				case 'wx':
 					$openid = $account->wx_openid;
-					$userHeadimgurl = $this->model('sns\wx\fan')->byOpenid($site, $openid, 'headimgurl');
-					$headimgurl = $userHeadimgurl->headimgurl;
+					$dbUser = $this->model('sns\wx\fan')->byOpenid($site, $openid, 'headimgurl,nickname');
 					break;
 				case 'yx':
 					$openid = $account->yx_openid;
-					$userHeadimgurl = $this->model('sns\yx\fan')->byOpenid($site, $openid, 'headimgurl');
-					$headimgurl = $userHeadimgurl->headimgurl;
+					$dbUser = $this->model('sns\yx\fan')->byOpenid($site, $openid, 'headimgurl,nickname');
 					break;
 				case 'qy':
 					$openid = $account->qy_openid;
-					$userHeadimgurl = $this->model('sns\qy\fan')->byOpenid($site, $openid, 'headimgurl');
-					$headimgurl = $userHeadimgurl->headimgurl;
+					$dbUser = $this->model('sns\qy\fan')->byOpenid($site, $openid, 'headimgurl,nickname');
 					break;				
 			}
+			$headimgurl = $dbUser->headimgurl;
+			$nickname = $dbUser->nickname;
 			//如果用户已在讨论组中不插入
 			if(in_array($openid, $wallOpenids) || $openid=='' ){
 				continue;
@@ -84,7 +86,7 @@ class users extends \pl\fe\matter\base {
 			$sql['join_at'] = $join_at;
 			$sql['openid'] = $openid;
 			$sql['ufrom'] = $account->ufrom;
-			$sql['nickname'] = $account->nickname;
+			$sql['nickname'] = $nickname;
 			$sql['userid'] = $uid;
 			$sql['headimgurl'] = $headimgurl;
 			$this->model()->insert('xxt_wall_enroll',$sql,false);

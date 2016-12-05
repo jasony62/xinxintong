@@ -391,25 +391,18 @@ class record_model extends \TMS_MODEL {
 		if (isset($criteria->data)) {
 			$whereByData = '';
 			foreach ($criteria->data as $k => $v) {
-				
-				if(preg_match("/\\\/", $v)){
-					$v=preg_replace("/\\\/", "\\\\\\", $v);
+				if (!empty($v)) {
+					$whereByData .= ' and (';
+					$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
+					$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
+					$whereByData .= ')';
 				}
-
-				$v=$this->escape($v);					
-				$s=htmlspecialchars($v,ENT_QUOTES);
-								
-				$whereByData .= ' and (';
-				$whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
-				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . '"%\'';
-				$whereByData .= ' or data like \'%"' . $k . '":"%,' . $v . ',%"%\'';
-				$whereByData .= ' or data like \'%"' . $k . '":"' . $v . ',%"%\'';
-				$whereByData .= ' or data like \'%"' . $k . '":"%' . $s . '%"%\'';
-				$whereByData .= ')';
 			}
 			$w .= $whereByData;
 		}
-		
+
 		// 查询参数
 		$q = [
 			'e.enroll_key,e.enroll_at,e.tags,e.userid,e.nickname,e.verified,e.comment,e.data',
@@ -427,14 +420,13 @@ class record_model extends \TMS_MODEL {
 		// 处理获得的数据
 		if ($records = $this->query_objs_ss($q, $q2)) {
 			foreach ($records as &$r) {
-				/*$data = str_replace("\n", ' ', $r->data);
+				$data = str_replace("\n", ' ', $r->data);
 				$data = json_decode($data);
 				if ($data === null) {
 					$r->data = 'json error(' . json_last_error_msg() . '):' . $r->data;
 				} else {
 					$r->data = $data;
-				}*/
-				$r->data=\TMS_MODEL::strConvert($r->data);
+				}
 				// 记录的分数
 				if ($app->scenario === 'voting') {
 					if (!isset($scoreSchemas)) {
@@ -599,7 +591,7 @@ class record_model extends \TMS_MODEL {
 
 		if ($fields === '*') {
 			foreach ($records as &$record) {
-				$record->data=\TMS_MODEL::strConvert($record->data);
+				$record->data = json_decode($record->data);
 			}
 		}
 

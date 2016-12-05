@@ -106,6 +106,8 @@ define([], function() {
 						l: '打分项2',
 						v: 'v2',
 					}];
+				} else if (type === 'html') {
+					schema.content = '这是一段描述说明';
 				}
 			}
 

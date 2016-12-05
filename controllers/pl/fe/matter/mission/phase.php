@@ -69,7 +69,7 @@ class phase extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$data = $this->getPostJson(true);
+		$data = $this->getPostJson();
 
 		$rst = $this->model()->update(
 			'xxt_mission_phase',

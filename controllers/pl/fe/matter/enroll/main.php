@@ -484,10 +484,10 @@ class main extends \pl\fe\matter\base {
 		/**
 		 * 处理数据
 		 */
-		$nv = $this->getPostJson(true);
+		$nv = $this->getPostJson();
 		foreach ($nv as $n => $v) {
 			if (in_array($n, ['entry_rule', 'data_schemas'])) {
-				$nv->$n = $modelApp->toJson($v);
+				$nv->$n = $modelApp->escape($modelApp->toJson($v));
 			}
 		}
 		$nv->modifier = $user->id;

@@ -319,7 +319,6 @@ class TMS_MODEL {
 	/**
 	 * 为了解决json_encode处理中文的问题，对对象的值进行urlencode处理
 	 */
-
 	private static function _urlencodeObj4Json($obj) {
 		// 替换为空的
 		$pattern1 = "/[\r\n\t]/";

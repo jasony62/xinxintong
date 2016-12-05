@@ -188,7 +188,7 @@ class record_model extends \TMS_MODEL {
 			$this->insert('xxt_enroll_record_data', $ic, false);
 		}
 		/* 保留冗余数据 */
-		$dbData = $this->toJson2($dbData);
+		$dbData = $this->toJson($dbData);
 		$this->update('xxt_enroll_record', ['data' => $dbData], "enroll_key='$ek'");
 
 		return [true, $dbData];
@@ -205,7 +205,7 @@ class record_model extends \TMS_MODEL {
 			"enroll_key='$ek'",
 		];
 		if (($record = $this->query_obj_ss($q)) && $fields === '*') {
-			$record->data=\TMS_MODEL::strConvert($record->data);
+			$record->data = json_decode($record->data);
 		}
 
 		return $record;

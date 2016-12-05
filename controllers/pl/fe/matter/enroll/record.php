@@ -156,14 +156,14 @@ class record extends \pl\fe\matter\base {
 
 		/* 记录登记数据 */
 		$result = $modelRec->setData(null, $site, $app, $ek, $record->data);
-   
+
 		if ($updated->verified === 'Y') {
 			$this->_whenVerifyRecord($app, $ek);
 		}
 
 		/* 记录操作日志 */
 		$app->type = 'enroll';
-		$this->model('matter\log')->matterOp($site, $user, $app, 'update', $result[1]);
+		$this->model('matter\log')->matterOp($site, $user, $app, 'update', $record);
 
 		/* 返回完整的记录 */
 		$record = $modelRec->byId($ek);

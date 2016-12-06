@@ -70,7 +70,7 @@ class signin_model extends app_base {
 	public function &bySite($siteId, $page = null, $size = null) {
 		$result = new \stdClass;
 		$q = [
-			'*',
+			"*,'signin' type",
 			'xxt_signin',
 			"state<>0 and siteid='$siteId'",
 		];
@@ -96,7 +96,7 @@ class signin_model extends app_base {
 	public function &byMission($mission, $page = null, $size = null) {
 		$result = new \stdClass;
 		$q = [
-			'*',
+			"*,'signin' type",
 			'xxt_signin',
 			"state<>0 and mission_id='$mission'",
 		];

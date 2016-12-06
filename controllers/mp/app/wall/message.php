@@ -68,7 +68,7 @@ class message extends \mp\app\app_base {
 				);
 				break;
 			}
-			$model->push_others($this->mpid, $openid, $msg, $wall, $wall->id, $this);
+			$model->push_others($this->mpid, $openid, $msg, $wall, $wall->id);
 		}
 
 		return new \ResponseData($v);

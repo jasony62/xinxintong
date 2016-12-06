@@ -39,6 +39,7 @@ define(['frame'], function(ngApp) {
                         });
                     });
                     $scope2.chooseApp = function(app) {
+                        !app.type && (app.type =  $scope2.data.appType);
                         $scope2.selectedApp = app;
                     };
                     $scope2.close = function() {

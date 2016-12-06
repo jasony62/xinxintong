@@ -187,6 +187,7 @@ class wall_model extends app_base {
 	 */
 	public function pendingMessages($runningMpid, $wid, $time = 0) {
 		$q = array(
+			'l.*,e.nickname,e.ufrom,e.userid',
 			'xxt_wall_log l,xxt_wall_enroll e',
 			"l.siteid = '$runningMpid' and l.wid = '$wid' and l.wid = e.wid and l.openid = e.openid and approved=" . self::APPROVE_PENDING,
 			);

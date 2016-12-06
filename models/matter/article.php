@@ -266,10 +266,10 @@ class article_model extends article_base {
 	/**
 	 * 全文检索单图文，将符合条件的结果组成多图文
 	 */
-	public function fullsearch_its($mpid, $keyword, $page = 1, $limit = 5) {
-		$s = "id,mpid,title,author,summary,pic,body,url,'article' type";
+	public function &fullsearch_its($site, $keyword, $page = 1, $limit = 5) {
+		$s = "id,mpid,siteid,title,author,summary,pic,body,url,'article' type";
 		$f = 'xxt_article';
-		$w = "mpid='$mpid' and state=1 and approved='Y' and can_fullsearch='Y'";
+		$w = "siteid='$site' and state=1 and approved='Y' and can_fullsearch='Y'";
 		$w .= " and (title like '%$keyword%'";
 		$w .= "or summary like '%$keyword%'";
 		$w .= "or body like '%$keyword%')";

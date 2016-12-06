@@ -308,7 +308,7 @@ class wall_model extends app_base {
 			$wlog['approve_at'] = $current;
 			$wlog['approved'] = self::APPROVE_PASS;
 			if ('Y' === $wall->push_others) {
-				$this->push_others($siteid, $openid, $msg, $wall, $wid, $ctrl);
+				$this->push_others($siteid, $openid, $msg, $wall, $wid);
 			}
 
 		}
@@ -335,7 +335,7 @@ class wall_model extends app_base {
 	 * $msg
 	 * $wall
 	 */
-	public function push_others($site, $openid, $msg, $wall, $wid, $ctrl) {
+	public function push_others($site, $openid, $msg, $wall, $wid) {
 		if($openid !== 'mocker'){
 			if(!isset($msg['from_nickname'])){
 				//获取发送者的nickname
@@ -391,7 +391,7 @@ class wall_model extends app_base {
 					$usersQy[]=$user;
 					continue;
 				}
-				$ctrl->sendByOpenid($site, $user->openid, $message, $user->ufrom);			
+				$this->sendByOpenid($site, $user->openid, $message, $user->ufrom);			
 			}
 			break;
 		case 'image':
@@ -404,7 +404,7 @@ class wall_model extends app_base {
 				$mpproxy = \TMS_APP::M('sns\yx\proxy', $yxConfig);
 				$rst = $mpproxy->mediaUpload($msg['data'][1]);
 				if ($rst[0] === false) {
-					$ctrl->sendByOpenid($site, $openid, array(
+					$this->sendByOpenid($site, $openid, array(
 						"msgtype" => "text",
 						"text" => array(
 							"content" => urlencode($rst[1]),
@@ -440,7 +440,7 @@ class wall_model extends app_base {
 						$mpproxy = \TMS_APP::M('sns\yx\proxy', $yxConfig);
 						$rst = $mpproxy->mediaUpload($msg['data'][1]);
 						if ($rst[0] === false) {
-							$ctrl->sendByOpenid($site, $openid, array(
+							$this->sendByOpenid($site, $openid, array(
 								"msgtype" => "text",
 								"text" => array(
 									"content" => urlencode($rst[1]),
@@ -459,7 +459,7 @@ class wall_model extends app_base {
 					);
 				}
 				
-				$ctrl->sendByOpenid($site, $user->openid, $message, $user->ufrom);
+				$this->sendByOpenid($site, $user->openid, $message, $user->ufrom);
 			}
 
 		}
@@ -500,7 +500,7 @@ class wall_model extends app_base {
 				}
 				if (!empty($joinedGroupUsers)) {
 					$message['touser'] = implode('|', $joinedGroupUsers);
-					$ctrl->send2Qyuser($site, $message);
+					$this->send2Qyuser($site, $message);
 				}
 				/**
 				 * 推送给未加入讨论组的用户
@@ -511,7 +511,7 @@ class wall_model extends app_base {
 						$joinUrl = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/wall?wid=$wid";
 						$message['text']['content'] = $txt . "（<a href='$joinUrl'>参与讨论</a>）";
 					}
-					$ctrl->send2Qyuser($site, $message);
+					$this->send2Qyuser($site, $message);
 				}
 				$finished = true;
 			}
@@ -525,7 +525,7 @@ class wall_model extends app_base {
 						continue;
 					}
 
-					$ctrl->sendByOpenid($site, $user->openid, $message, $user->ufrom);
+					$this->sendByOpenid($site, $user->openid, $message, $user->ufrom);
 				}
 			}
 
@@ -553,5 +553,72 @@ class wall_model extends app_base {
 		$url .= "?mpid=$runningMpid&wid=" . $id;
 
 		return $url;
+	}
+	/**
+	 * 尽最大可能向用户发送消息
+	 *
+	 * $mpid
+	 * $openid
+	 * $message
+	 */
+	 private function sendByOpenid($mpid, $openid, $message, $openid_src = null) {
+		if(empty($openid_src)){
+			$mpa = \TMS_APP::M('mp\mpaccount')->getApis($mpid);
+			$mpproxy = \TMS_APP::M('mpproxy/' . $mpa->mpsrc, $mpid);
+		}else{
+			switch ($openid_src) {
+				case 'yx':
+					$mpa = \TMS_APP::M('sns\yx')->bySite($mpid);
+					$mpproxy = \TMS_APP::M('sns\yx\proxy' , $mpa);
+					$mpa->yx_p2p = $mpa->can_p2p;
+					$mpa->mpsrc = 'yx';
+					break;
+				
+				case 'qy':
+					$mpa = \TMS_APP::M('sns\qy')->bySite($mpid);
+					$mpproxy = \TMS_APP::M('sns\qy\proxy' , $mpa);
+					$mpa->qy_agentid = $mpa->agentid;
+					$mpa->mpsrc = 'qy';
+					break;
+		
+				case 'wx':
+					$mpa = \TMS_APP::M('sns\wx')->bySite($mpid);
+					$mpproxy = \TMS_APP::M('sns\wx\proxy' , $mpa);
+					$mpa->mpsrc = 'wx';
+					break;
+			}
+		}
+
+		switch ($mpa->mpsrc) {
+		case 'yx':
+			if ($mpa->mpsrc === 'yx' && $mpa->yx_p2p === 'Y') {
+				$rst = $mpproxy->messageSend($message, array($openid));
+			} else {
+				$rst = $mpproxy->messageCustomSend($message, $openid);
+			}
+			break;
+		case 'wx':
+			$rst = $mpproxy->messageCustomSend($message, $openid);
+			break;
+		case 'qy':
+			$message['touser'] = $openid;
+			$message['agentid'] = $mpa->qy_agentid;
+			$rst = $mpproxy->messageSend($message, $openid);
+			break;
+		}
+		return $rst;
+	}
+	/**
+	 * 向企业号用户发送消息
+	 *
+	 * $mpid
+	 * $message
+	 */
+	private function send2Qyuser($mpid, $message, $encoded = false) {
+		$mpproxy = \TMS_APP::M('mpproxy/qy', $mpid);
+
+		$rst = $mpproxy->messageSend($message, $encoded);
+
+		return $rst;
 	}
 }

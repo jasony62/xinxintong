@@ -80,7 +80,7 @@ class message extends \pl\fe\matter\base {
 			$msg['from_nickname'] = $user->nickname;
 			$msg['src'] = $user->ufrom;
 			
-			$model->push_others($site, $openid, $msg, $wall, $wall->id, $this);
+			$model->push_others($site, $openid, $msg, $wall, $wall->id);
 		}
 
 		return new \ResponseData($v);
@@ -112,58 +112,5 @@ class message extends \pl\fe\matter\base {
 
 		return new \ResponseData($rst);
 	}
-	/**
-	 * 尽最大可能向用户发送消息
-	 *
-	 * $mpid
-	 * $openid
-	 * $message
-	 */
-	 function sendByOpenid($mpid, $openid, $message, $openid_src = null) {
-		if(empty($openid_src)){
-			$mpa = $this->model('mp\mpaccount')->getApis($mpid);
-			$mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $mpid);
-		}else{
-			switch ($openid_src) {
-				case 'yx':
-					$mpa = $this->model('sns\yx')->bySite($mpid);
-					$mpproxy = $this->model('sns\yx\proxy' , $mpa);
-					$mpa->yx_p2p = $mpa->can_p2p;
-					$mpa->mpsrc = 'yx';
-					break;
-				
-				case 'qy':
-					$mpa = $this->model('sns\qy')->bySite($mpid);
-					$mpproxy = $this->model('sns\qy\proxy' , $mpa);
-					$mpa->qy_agentid = $mpa->agentid;
-					$mpa->mpsrc = 'qy';
-					break;
-		
-				case 'wx':
-					$mpa = $this->model('sns\wx')->bySite($mpid);
-					$mpproxy = $this->model('sns\wx\proxy' , $mpa);
-					$mpa->mpsrc = 'wx';
-					break;
-			}
-		}
-
-		switch ($mpa->mpsrc) {
-		case 'yx':
-			if ($mpa->mpsrc === 'yx' && $mpa->yx_p2p === 'Y') {
-				$rst = $mpproxy->messageSend($message, array($openid));
-			} else {
-				$rst = $mpproxy->messageCustomSend($message, $openid);
-			}
-			break;
-		case 'wx':
-			$rst = $mpproxy->messageCustomSend($message, $openid);
-			break;
-		case 'qy':
-			$message['touser'] = $openid;
-			$message['agentid'] = $mpa->qy_agentid;
-			$rst = $mpproxy->messageSend($message, $openid);
-			break;
-		}
-		return $rst;
-	}
+	
 }

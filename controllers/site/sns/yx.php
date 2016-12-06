@@ -145,7 +145,7 @@ class yx extends \member_base {
 	private function _currentForkActivity($msg) {
 		$siteId = $msg['siteid'];
 		$openid = $msg['from_user'];
-		$wall = $this->model('app\wall');
+		$wall = $this->model('matter\wall');
 
 		if ($wid = $wall->joined($siteId, $openid)) {
 			return array($wid, $wall);

@@ -2,7 +2,9 @@
 require_once '../../db.php';
 
 $sqls = [];
-$sqls[] = "alter table xxt_code_page change html html LONGTEXT not null default ''";
+$sqls[] = "alter table xxt_code_page change html html LONGTEXT ";
+$sqls[] = "alter table xxt_enroll change data_schemas data_schemas longtext ";
+$sqls[] = "alter table xxt_enroll_page change data_schemas data_schemas longtext ";
 //
 foreach ($sqls as $sql) {
 	if (!$mysqli->query($sql)) {

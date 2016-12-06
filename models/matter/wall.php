@@ -187,15 +187,11 @@ class wall_model extends app_base {
 	 */
 	public function pendingMessages($runningMpid, $wid, $time = 0) {
 		$q = array(
-			'l.*,f.nickname',
-			'xxt_wall w,xxt_wall_log l,xxt_fans f',
-		);
-		$w = "w.id=l.wid and f.mpid='$runningMpid' and l.openid=f.openid";
-		$w .= " and l.wid= '$wid' and approved=" . self::APPROVE_PENDING;
-		$time > 0 && $w .= " and publish_at>=$time";
-		$q[] = $w;
+			'xxt_wall_log l,xxt_wall_enroll e',
+			"l.siteid = '$runningMpid' and l.wid = '$wid' and l.wid = e.wid and l.openid = e.openid and approved=" . self::APPROVE_PENDING,
+			);
+		$time > 0 && $q[2] .= " and publish_at>=$time";
 		$q2['o'] = 'publish_at desc';
-
 		return $this->query_objs_ss($q, $q2);
 	}
 	/**

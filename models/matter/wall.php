@@ -146,11 +146,11 @@ class wall_model extends app_base {
 	 * $contain array [totle]
 	 */
 	public function messages($runningMpid, $wid, $page = 1, $size = 30, $contain = null) {
-		$q = array(
-			'l.*,f.nickname',
-			'xxt_wall w,xxt_wall_log l,xxt_fans f',
-			"w.id=l.wid and l.wid= '$wid' and f.mpid='$runningMpid' and l.openid=f.openid",
-		);
+		$q =array(
+			'l.*,e.nickname,e.userid',
+			'xxt_wall_log l,xxt_wall_enroll e',
+			"l.siteid = '$runningMpid' and l.wid = '$wid' and e.wid = l.wid and e.openid = l.openid",
+			);
 		$q2['o'] = 'approve_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
@@ -189,7 +189,7 @@ class wall_model extends app_base {
 		$q = array(
 			'l.*,e.nickname,e.ufrom,e.userid',
 			'xxt_wall_log l,xxt_wall_enroll e',
-			"l.siteid = '$runningMpid' and l.wid = '$wid' and l.wid = e.wid and l.openid = e.openid and approved=" . self::APPROVE_PENDING,
+			"l.siteid = '$runningMpid' and l.wid = '$wid' and e.wid = l.wid and e.openid = l.openid and approved=" . self::APPROVE_PENDING,
 			);
 		$time > 0 && $q[2] .= " and publish_at>=$time";
 		$q2['o'] = 'publish_at desc';
@@ -206,7 +206,7 @@ class wall_model extends app_base {
 		$q = array(
 			'l.*,e.nickname,e.ufrom,e.headimgurl',
 			'xxt_wall_log l,xxt_wall_enroll e',
-			"e.siteid = '{$runningMpid}' and e.wid= '$wid' and l.wid='$wid' and l.openid=e.openid and approved=" . self::APPROVE_PASS,
+			"e.siteid = '{$runningMpid}' and e.wid= '$wid' and l.wid='$wid' and e.openid=l.openid and approved=" . self::APPROVE_PASS,
 		);
 		$time > 0 && $q[2] .= " and approve_at>=$time";
 		$q2['o'] = 'approve_at desc';
@@ -337,20 +337,22 @@ class wall_model extends app_base {
 	 */
 	public function push_others($site, $openid, $msg, $wall, $wid, $ctrl) {
 		if($openid !== 'mocker'){
-			//获取发送者的nickname
-			switch ($msg['src']) {
-				case 'wx':
-					//获取nickname
-					$from_nickname = \TMS_APP::M('sns\wx\fan')->byOpenid($site, $openid, 'nickname');
-					break;
-				case 'yx':
-					$from_nickname = \TMS_APP::M('sns\yx\fan')->byOpenid($site, $openid, 'nickname');
-					break;
-				case 'qy':
-					$from_nickname = \TMS_APP::M('sns\qy\fan')->byOpenid($site, $openid, 'nickname');
-					break;
+			if(!isset($msg['from_nickname'])){
+				//获取发送者的nickname
+				switch ($msg['src']) {
+					case 'wx':
+						//获取nickname
+						$from_nickname = \TMS_APP::M('sns\wx\fan')->byOpenid($site, $openid, 'nickname');
+						break;
+					case 'yx':
+						$from_nickname = \TMS_APP::M('sns\yx\fan')->byOpenid($site, $openid, 'nickname');
+						break;
+					case 'qy':
+						$from_nickname = \TMS_APP::M('sns\qy\fan')->byOpenid($site, $openid, 'nickname');
+						break;
+				}
+				$msg['from_nickname'] = $from_nickname->nickname;
 			}
-			$msg['from_nickname'] = $from_nickname->nickname;
 		}
 
 		//查询墙内所有的用户

@@ -33,7 +33,6 @@ define(['frame'], function(ngApp) {
 			$scope.summary = data;
 		});
 		$scope.$on('xxt.tms-datepicker.change', function(event, data) {
-			console.log('xxxxxxx');
 			$scope.app[data.state] = data.value;
 			$scope.update(data.state);
 		});

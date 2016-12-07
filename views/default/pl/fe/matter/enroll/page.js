@@ -3,7 +3,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 	/**
 	 * app setting controller
 	 */
-	ngApp.provider.controller('ctrlPage', ['$scope', 'srvPage', function($scope, srvPage) {
+	ngApp.provider.controller('ctrlPage', ['$scope', '$location', 'srvPage', function($scope, $location, srvPage) {
 		window.onbeforeunload = function(e) {
 			var message;
 			if ($scope.ep.$$modified) {
@@ -101,7 +101,18 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 		};
 		$scope.$watch('app', function(app) {
 			if (!app) return;
-			$scope.ep = app.pages[0];
+			if (!$scope.ep) {
+				var pageName;
+				if (pageName = $location.search().page) {
+					for (var i = app.pages.length - 1; i >= 0; i--) {
+						if (app.pages[i].name === pageName) {
+							$scope.ep = app.pages[i];
+							break;
+						}
+					}
+				}
+				if (!$scope.ep) $scope.ep = app.pages[0];
+			}
 		});
 	}]);
 	/**
@@ -153,7 +164,6 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 			title: '频道',
 			url: '/rest/pl/fe/matter'
 		}];
-		//$scope.buttons = schemaLib.buttons;
 		$scope.setActiveWrap = function(domWrap) {
 			var activeWrap;
 			$scope.activeWrap = editorProxy.setActiveWrap(domWrap);
@@ -634,11 +644,6 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 		$scope.choose = function() {
 			var names;
 			schema.label = $scope.buttons[schema.name].l;
-			/*for(var i in $scope.buttons){
-				if($scope.buttons[i].n == schema.name){
-					schema.label = $scope.buttons[i].l;
-				}
-			}*/
 			schema.next = '';
 			if (['addRecord', 'editRecord', 'removeRecord'].indexOf(schema.name) !== -1) {
 				names = Object.keys(inputPages);

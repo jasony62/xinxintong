@@ -5,9 +5,16 @@
             <iframe ng-src={{previewURL}}></iframe>
             <div id='simulatorActions'>
                 <a class='btn btn-default btn-block' style='color:#337ab7' href="/rest/pl/fe/matter/enroll/schema?site={{siteId}}&id={{id}}">修改登记项 <i class="glyphicon glyphicon-chevron-right"></i></a>
-                <button class='btn btn-default btn-block' ng-disabled="!params.hasPrev" ng-click="prevPage()">上一页</button>
-                <button class='btn btn-default btn-block' ng-disabled="!params.hasNext" ng-click="nextPage()">下一页</button>
-                <a class='btn btn-default btn-block' style='color:#337ab7' href="/rest/pl/fe/matter/enroll/page?site={{siteId}}&id={{id}}">编辑页面 <i class="glyphicon glyphicon-chevron-right"></i></a>
+                <div class="btn-group btn-block" ng-repeat="page in app.pages">
+                    <button type="button" class="btn btn-default" style="width:125px" title="{{page.title}}" ng-click="showPage(page)">{{page.title}}</button>
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="#" ng-click="gotoPage(page)">编辑页面</a></li>
+                    </ul>
+                </div>
                 <button uib-popover-template="'pageSetting.html'" popover-placement="bottom" popover-append-to-body='true' popover-trigger="outsideClick" class='btn btn-default btn-block'>页面设置 <span class="caret"></span></button>
             </div>
         </div>

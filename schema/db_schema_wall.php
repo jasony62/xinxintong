@@ -55,15 +55,20 @@ if (!$mysqli->query($sql)) {
  * 信息墙用户状态
  */
 $sql = "create table if not exists xxt_wall_enroll(";
-$sql .= "mpid varchar(32) not null default ''";
+$sql .= "id int not null auto_increment";
+$sql .= ",mpid varchar(32) not null default ''";
 $sql .= ",siteid varchar(32) not null default ''";
 $sql .= ",wid varchar(32) not null";
+$sql .= ",userid varchar(40) not null default ''";
 $sql .= ",openid varchar(255) not null";
+$sql .= ",ufrom char(5) not null default ''";
+$sql .= ",nickname varchar(255) not null default ''";
+$sql .= ",headimgurl varchar(255) not null default ''";
 $sql .= ",remark varchar(255) not null default ''";
 $sql .= ",join_at int not null"; // 加入时间
 $sql .= ",last_msg_at int not null default 0";
 $sql .= ",close_at int not null default 0";
-$sql .= ",primary key(wid,openid)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
+$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
 	header('HTTP/1.0 500 Internal Server Error');
 	echo 'database error: ' . $mysqli->error;

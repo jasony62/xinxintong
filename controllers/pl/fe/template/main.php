@@ -42,7 +42,7 @@ class main extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 		/* 发布模版 */
-		$matter = $this->getPostJson(true);
+		$matter = $this->getPostJson();
 		$site = $this->model('site')->byId($site, ['fields' => 'id,name']);
 
 		$modelTmpl = $this->model('matter\template');
@@ -79,7 +79,7 @@ class main extends \pl\fe\base {
 			return new \ResponseTimeout();
 		}
 
-		$nv = $this->getPostJson(true);
+		$nv = $this->getPostJson();
 
 		$rst = $this->model()->update('xxt_template', $nv, "id='$id'");
 

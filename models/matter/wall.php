@@ -45,17 +45,17 @@ class wall_model extends app_base {
 	 *
 	 * $runningMpid 用户所在的公众号，不一定是是信息墙所属的公众号
 	 * $wid
-	 * $openid
+	 * $user 用户信息
 	 * $remark 加入信息墙时输入的事件数据
 	 */
-	public function join($runningMpid, $wid, $openid, $remark = '') {
+	public function join($runningMpid, $wid, $user, $remark = '') {
 		/**
 		 * 加入一个信息墙需要从其他的墙退出
 		 */
 		$this->update(
 			'xxt_wall_enroll',
 			array('close_at' => time()),
-			"siteid='$runningMpid' and openid='$openid'"
+			"siteid='$runningMpid' and openid='$user->openid'"
 		);
 		/**
 		 * 加入一个组
@@ -63,7 +63,7 @@ class wall_model extends app_base {
 		$q = array(
 			'count(*)',
 			'xxt_wall_enroll',
-			"siteid='$runningMpid' and wid='$wid' and openid='$openid'",
+			"siteid='$runningMpid' and wid='$wid' and openid='$user->openid'",
 		);
 		if (1 === (int) $this->query_val_ss($q)) {
 			/**
@@ -77,9 +77,13 @@ class wall_model extends app_base {
 		} else {
 			$i['siteid'] = $runningMpid;
 			$i['wid'] = $wid;
-			$i['openid'] = $openid;
+			$i['openid'] = $user->openid;
 			$i['remark'] = $remark;
 			$i['join_at'] = time();
+			$i['ufrom'] = isset($user->ufrom)?$user->ufrom:'';
+			$i['nickname'] = isset($user->nickname)?$user->nickname:'';
+			$i['userid'] = isset($user->userid)?$user->userid:'';
+			$i['headimgurl'] = isset($user->headimgurl)?$user->headimgurl:'';
 
 			$this->insert('xxt_wall_enroll', $i, false);
 		}
@@ -109,7 +113,6 @@ class wall_model extends app_base {
 			"siteid='$runningMpid' and openid='$openid' and close_at=0",
 		);
 		$wid = $this->query_val_ss($q);
-
 		return $wid;
 	}
 	/**
@@ -143,11 +146,11 @@ class wall_model extends app_base {
 	 * $contain array [totle]
 	 */
 	public function messages($runningMpid, $wid, $page = 1, $size = 30, $contain = null) {
-		$q = array(
-			'l.*,f.nickname',
-			'xxt_wall w,xxt_wall_log l,xxt_fans f',
-			"w.id=l.wid and l.wid= '$wid' and f.mpid='$runningMpid' and l.openid=f.openid",
-		);
+		$q =array(
+			'l.*,e.nickname,e.userid',
+			'xxt_wall_log l,xxt_wall_enroll e',
+			"l.siteid = '$runningMpid' and l.wid = '$wid' and e.wid = l.wid and e.openid = l.openid",
+			);
 		$q2['o'] = 'approve_at desc';
 		$q2['r']['o'] = ($page - 1) * $size;
 		$q2['r']['l'] = $size;
@@ -168,7 +171,7 @@ class wall_model extends app_base {
 	 */
 	public function joinedUsers($runningMpid, $wid, $fields = 'openid') {
 		$q = array(
-			$fields,
+			'openid,ufrom',
 			'xxt_wall_enroll',
 			"siteid='$runningMpid' and wid='$wid' and close_at=0",
 		);
@@ -184,15 +187,12 @@ class wall_model extends app_base {
 	 */
 	public function pendingMessages($runningMpid, $wid, $time = 0) {
 		$q = array(
-			'l.*,f.nickname',
-			'xxt_wall w,xxt_wall_log l,xxt_fans f',
-		);
-		$w = "w.id=l.wid and f.mpid='$runningMpid' and l.openid=f.openid";
-		$w .= " and l.wid= '$wid' and approved=" . self::APPROVE_PENDING;
-		$time > 0 && $w .= " and publish_at>=$time";
-		$q[] = $w;
+			'l.*,e.nickname,e.ufrom,e.userid',
+			'xxt_wall_log l,xxt_wall_enroll e',
+			"l.siteid = '$runningMpid' and l.wid = '$wid' and e.wid = l.wid and e.openid = l.openid and approved=" . self::APPROVE_PENDING,
+			);
+		$time > 0 && $q[2] .= " and publish_at>=$time";
 		$q2['o'] = 'publish_at desc';
-
 		return $this->query_objs_ss($q, $q2);
 	}
 	/**
@@ -204,17 +204,13 @@ class wall_model extends app_base {
 		$current = time();
 
 		$q = array(
-			'l.*,f.nickname,f.headimgurl',
-			'xxt_wall w,xxt_wall_log l,xxt_fans f',
+			'l.*,e.nickname,e.ufrom,e.headimgurl',
+			'xxt_wall_log l,xxt_wall_enroll e',
+			"e.siteid = '{$runningMpid}' and e.wid= '$wid' and l.wid='$wid' and e.openid=l.openid and approved=" . self::APPROVE_PASS,
 		);
-		$w = "w.id=l.wid and f.mpid='$runningMpid' and l.openid=f.openid";
-		$w .= " and l.wid= '$wid' and approved=" . self::APPROVE_PASS;
-		$time > 0 && $w .= " and approve_at>=$time";
-		$q[] = $w;
+		$time > 0 && $q[2] .= " and approve_at>=$time";
 		$q2['o'] = 'approve_at desc';
-
 		$messages = $this->query_objs_ss($q, $q2);
-
 		return array($messages, $current);
 	}
 	/**
@@ -270,7 +266,7 @@ class wall_model extends app_base {
 	 * $ctrl 前端控制器
 	 */
 	private function add($wid, $msg, $ctrl = null) {
-		$siteid = $msg['mpid'];
+		$siteid = $msg['siteid'];
 		$openid = $msg['from_user'];
 
 		$wlog = array(); // 讨论组记录
@@ -312,7 +308,7 @@ class wall_model extends app_base {
 			$wlog['approve_at'] = $current;
 			$wlog['approved'] = self::APPROVE_PASS;
 			if ('Y' === $wall->push_others) {
-				$this->push_others($siteid, $openid, $msg, $wall, $wid, $ctrl);
+				$this->push_others($siteid, $openid, $msg, $wall, $wid);
 			}
 
 		}
@@ -339,12 +335,30 @@ class wall_model extends app_base {
 	 * $msg
 	 * $wall
 	 */
-	public function push_others($site, $openid, $msg, $wall, $wid, $ctrl) {
-		$mpa = \TMS_APP::M('mp\mpaccount')->byId($site);
-		/**
-		 * 获得当前用户的信息
-		 */
-		$member = \TMS_APP::M('user/fans')->byOpenid($site, $openid, 'nickname');
+	public function push_others($site, $openid, $msg, $wall, $wid) {
+		if($openid !== 'mocker'){
+			if(!isset($msg['from_nickname'])){
+				//获取发送者的nickname
+				switch ($msg['src']) {
+					case 'wx':
+						//获取nickname
+						$from_nickname = \TMS_APP::M('sns\wx\fan')->byOpenid($site, $openid, 'nickname');
+						break;
+					case 'yx':
+						$from_nickname = \TMS_APP::M('sns\yx\fan')->byOpenid($site, $openid, 'nickname');
+						break;
+					case 'qy':
+						$from_nickname = \TMS_APP::M('sns\qy\fan')->byOpenid($site, $openid, 'nickname');
+						break;
+				}
+				$msg['from_nickname'] = $from_nickname->nickname;
+			}
+		}
+
+		//查询墙内所有的用户
+		$users = $this->joinedUsers($site, $wid);
+		$usersQy = array();
+
 		/**
 		 * 拼装推送消息
 		 */
@@ -354,10 +368,10 @@ class wall_model extends app_base {
 				$url = $wall->user_url;
 				$url .= strpos($wall->user_url, '?') === false ? '?' : '&';
 				$url .= "openid=$openid";
-				$txt = "<a href='$url'>$member->nickname</a>";
+				$txt = "<a href='$url'>".$msg['from_nickname']."</a>";
 				$txt .= '：' . $msg['data'];
 			} else {
-				$txt = $member->nickname . '：' . $msg['data'];
+				$txt = $msg['from_nickname'] . '：' . $msg['data'];
 			}
 
 			$message = array(
@@ -366,41 +380,96 @@ class wall_model extends app_base {
 					"content" => $txt,
 				),
 			);
+			/**
+			 * 通过客服接口发送给墙内所有用户
+			 */
+			foreach ($users as $user) {
+				if ($openid === $user->openid) {
+					continue;
+				}
+				if($user->ufrom == 'qy'){
+					$usersQy[]=$user;
+					continue;
+				}
+				$this->sendByOpenid($site, $user->openid, $message, $user->ufrom);			
+			}
 			break;
 		case 'image':
-			if ($mpa->mpsrc === 'yx' && empty($msg['data'][0])) {
-				/**
-				 * 易信的图片消息不支持MediaId
-				 */
-				$mpproxy = \TMS_APP::M('mpproxy\yx', $site);
+			/**
+			 * 易信的图片消息不支持MediaId
+			 */
+			//站点绑定的易信公众号信息
+			$yxConfig = \TMS_APP::M('sns\yx')->bySite($site);
+			if ($yxConfig && $yxConfig->joined === 'Y') {
+				$mpproxy = \TMS_APP::M('sns\yx\proxy', $yxConfig);
 				$rst = $mpproxy->mediaUpload($msg['data'][1]);
 				if ($rst[0] === false) {
-					$ctrl->sendByOpenid($site, $openid, array(
+					$this->sendByOpenid($site, $openid, array(
 						"msgtype" => "text",
 						"text" => array(
 							"content" => urlencode($rst[1]),
-						))
+						)),
+						$msg['src']
 					);
 					return $rst;
 				}
-				$mediaId = $rst[1];
-			} else {
-				$mediaId = $msg['data'][0];
+				$mediaIdYx = $rst[1];
 			}
-
+			$mediaId = $msg['data'][0];
 			$message = array(
 				"msgtype" => "image",
 				"image" => array(
 					"media_id" => $mediaId,
 				),
 			);
+			/**
+			 * 通过客服接口发送给墙内所有用户
+			 */
+			foreach ($users as $user) {
+				if ($openid === $user->openid) {
+					continue;
+				}
+				if($user->ufrom == 'qy'){
+					$usersQy[]=$user;
+					continue;
+				}
+				if($user->ufrom == 'yx'){
+					if(!isset($mediaIdYx)){
+						//站点绑定的易信公众号信息
+						$yxConfig = \TMS_APP::M('sns\yx')->bySite($site);
+						$mpproxy = \TMS_APP::M('sns\yx\proxy', $yxConfig);
+						$rst = $mpproxy->mediaUpload($msg['data'][1]);
+						if ($rst[0] === false) {
+							$this->sendByOpenid($site, $openid, array(
+								"msgtype" => "text",
+								"text" => array(
+									"content" => urlencode($rst[1]),
+								)),
+								$msg['src']
+							);
+							return $rst;
+						}
+						$mediaIdYx = $rst[1];
+					}
+					$message = array(
+						"msgtype" => "image",
+						"image" => array(
+							"media_id" => $mediaIdYx,
+						),
+					);
+				}
+				
+				$this->sendByOpenid($site, $user->openid, $message, $user->ufrom);
+			}
+
 		}
 		/**
 		 * 如果当前账号是企业号，且指定了参与的用户，那么发送给所有指定的用户；如果指定用户并未加入讨论组，应该提示他加入
 		 * 如果当前账号是服务号，那么发送给已经加入讨论组的所有用户
-		 */
-		$finished = false;
-		if ($mpa->mpsrc === 'qy') {
+			 */
+		if(!empty($usersQy)){
+
+			$finished = false;
 			/**
 			 * 企业号，或者开通了点对点消息接口易信公众号支持预先定义好组成员
 			 */
@@ -431,7 +500,7 @@ class wall_model extends app_base {
 				}
 				if (!empty($joinedGroupUsers)) {
 					$message['touser'] = implode('|', $joinedGroupUsers);
-					$ctrl->send2Qyuser($site, $message);
+					$this->send2Qyuser($site, $message);
 				}
 				/**
 				 * 推送给未加入讨论组的用户
@@ -442,25 +511,25 @@ class wall_model extends app_base {
 						$joinUrl = 'http://' . $_SERVER['HTTP_HOST'] . "/rest/app/wall?wid=$wid";
 						$message['text']['content'] = $txt . "（<a href='$joinUrl'>参与讨论</a>）";
 					}
-					$ctrl->send2Qyuser($site, $message);
+					$this->send2Qyuser($site, $message);
 				}
 				$finished = true;
 			}
-		}
-		if (!$finished) {
-			/**
-			 * 通过客服接口发送给墙内所有用户
-			 */
-			$users = $this->joinedUsers($site, $wid);
-			foreach ($users as $user) {
-				if ($openid === $user->openid) {
-					continue;
+			
+			if (!$finished) {
+				/**
+				 * 通过客服接口发送给墙内所有用户
+				 */
+				foreach ($usersQy as $user) {
+					if ($openid === $user->openid) {
+						continue;
+					}
+
+					$this->sendByOpenid($site, $user->openid, $message, $user->ufrom);
 				}
-
-				$ctrl->sendByOpenid($site, $user->openid, $message);
 			}
-		}
 
+		}
 		return array(true);
 	}
 	/**
@@ -484,5 +553,72 @@ class wall_model extends app_base {
 		$url .= "?mpid=$runningMpid&wid=" . $id;
 
 		return $url;
+	}
+	/**
+	 * 尽最大可能向用户发送消息
+	 *
+	 * $mpid
+	 * $openid
+	 * $message
+	 */
+	 private function sendByOpenid($mpid, $openid, $message, $openid_src = null) {
+		if(empty($openid_src)){
+			$mpa = \TMS_APP::M('mp\mpaccount')->getApis($mpid);
+			$mpproxy = \TMS_APP::M('mpproxy/' . $mpa->mpsrc, $mpid);
+		}else{
+			switch ($openid_src) {
+				case 'yx':
+					$mpa = \TMS_APP::M('sns\yx')->bySite($mpid);
+					$mpproxy = \TMS_APP::M('sns\yx\proxy' , $mpa);
+					$mpa->yx_p2p = $mpa->can_p2p;
+					$mpa->mpsrc = 'yx';
+					break;
+				
+				case 'qy':
+					$mpa = \TMS_APP::M('sns\qy')->bySite($mpid);
+					$mpproxy = \TMS_APP::M('sns\qy\proxy' , $mpa);
+					$mpa->qy_agentid = $mpa->agentid;
+					$mpa->mpsrc = 'qy';
+					break;
+		
+				case 'wx':
+					$mpa = \TMS_APP::M('sns\wx')->bySite($mpid);
+					$mpproxy = \TMS_APP::M('sns\wx\proxy' , $mpa);
+					$mpa->mpsrc = 'wx';
+					break;
+			}
+		}
+
+		switch ($mpa->mpsrc) {
+		case 'yx':
+			if ($mpa->mpsrc === 'yx' && $mpa->yx_p2p === 'Y') {
+				$rst = $mpproxy->messageSend($message, array($openid));
+			} else {
+				$rst = $mpproxy->messageCustomSend($message, $openid);
+			}
+			break;
+		case 'wx':
+			$rst = $mpproxy->messageCustomSend($message, $openid);
+			break;
+		case 'qy':
+			$message['touser'] = $openid;
+			$message['agentid'] = $mpa->qy_agentid;
+			$rst = $mpproxy->messageSend($message, $openid);
+			break;
+		}
+		return $rst;
+	}
+	/**
+	 * 向企业号用户发送消息
+	 *
+	 * $mpid
+	 * $message
+	 */
+	private function send2Qyuser($mpid, $message, $encoded = false) {
+		$mpproxy = \TMS_APP::M('mpproxy/qy', $mpid);
+
+		$rst = $mpproxy->messageSend($message, $encoded);
+
+		return $rst;
 	}
 }

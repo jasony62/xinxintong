@@ -26,9 +26,11 @@ class base extends \site\fe\matter\base {
 		$entryRule = $app->entry_rule;
 		if (isset($entryRule->scope) && $entryRule->scope === 'member') {
 			foreach ($entryRule->member as $schemaId => $rule) {
-				if (isset($user->members->{$schemaId})) {
-					$page = $rule->entry;
-					break;
+				if (!empty($rule->entry)) {
+					if (isset($user->members->{$schemaId})) {
+						$page = $rule->entry;
+						break;
+					}
 				}
 			}
 			!isset($page) && $page = '$memberschema';
@@ -68,7 +70,9 @@ class base extends \site\fe\matter\base {
 		case '$memberschema':
 			$aMemberSchemas = array();
 			foreach ($entryRule->member as $schemaId => $rule) {
-				$aMemberSchemas[] = $schemaId;
+				if (!empty($rule->entry)) {
+					$aMemberSchemas[] = $schemaId;
+				}
 			}
 			if ($redirect) {
 				/*页面跳转*/

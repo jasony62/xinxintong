@@ -43,7 +43,7 @@ ngApp.controller('ctrlSite', ['$scope', '$location', 'http2', 'userProfile', fun
 	});
 	$scope.currentMemberSchema = function(schemaId) {
 		if (schemaId) {
-			for (var i = $scope.memberSchemas.length - 1; i === 0; i--) {
+			for (var i = $scope.memberSchemas.length - 1; i >= 0; i--) {
 				if ($scope.memberSchemas[i].id == schemaId) {
 					return $scope.memberSchemas[i];
 				}

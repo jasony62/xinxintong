@@ -2,7 +2,12 @@
 <!-- pages -->
     <nav class='navbar navbar-default'>
         <div class='container'>
-            <form class="navbar-form navbar-left">
+            <ul class="nav navbar-nav" ng-if="app.pages.length<=3">
+                <li ng-class="{'active':p===ep}" ng-repeat="p in app.pages">
+                    <a href="" ng-click="choosePage(p)"><span><i class='fa fa-file-o'></i> {{p.title}}</span></a>
+                </li>
+            </ul>
+            <form class="navbar-form navbar-left" ng-if="app.pages.length>3">
                 <div class='form-group'>
                     <select class='form-control' ng-options="p as p.title for p in app.pages" ng-model="ep"></select>
                 </div>

@@ -156,10 +156,11 @@ class base extends \site\fe\matter\base {
 		 * @todo 应该改为模版消息实现
 		 */
 		$url = $this->articleReviewUrl($site, $id);
-		$msg = '投稿活动【' . $c->title . '】有一篇新稿件，';
+		
 		foreach (array('wx', 'yx', 'qy') as $snsName) {
+			$msg = '投稿活动【' . $c->title . '】有一篇新稿件，';
 			if ($snsName === 'yx') {
-				$msg .= '请处理：\n' . $url;
+				$msg .= "请处理：\n" . $url;
 			} else {
 				$msg .= "<a href='" . $url . "'>请处理</a>";
 			}

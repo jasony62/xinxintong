@@ -153,7 +153,7 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 			title: '频道',
 			url: '/rest/pl/fe/matter'
 		}];
-		$scope.buttons = schemaLib.buttons;
+		//$scope.buttons = schemaLib.buttons;
 		$scope.setActiveWrap = function(domWrap) {
 			var activeWrap;
 			$scope.activeWrap = editorProxy.setActiveWrap(domWrap);
@@ -403,12 +403,12 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 				editorProxy.load(tinymceEditor, newPage);
 			}
 			// page's buttons
-			var buttons = [],
+			var buttons = {},
 				button, btnName;
 			for (btnName in schemaLib.buttons) {
 				button = schemaLib.buttons[btnName];
 				if (button.scope && button.scope.indexOf(newPage.type) !== -1) {
-					buttons.push(button);
+					buttons[btnName] = button;
 				}
 			}
 			$scope.buttons = buttons;
@@ -634,6 +634,11 @@ define(['frame', 'schema', 'editor'], function(ngApp, schemaLib, editorProxy) {
 		$scope.choose = function() {
 			var names;
 			schema.label = $scope.buttons[schema.name].l;
+			/*for(var i in $scope.buttons){
+				if($scope.buttons[i].n == schema.name){
+					schema.label = $scope.buttons[i].l;
+				}
+			}*/
 			schema.next = '';
 			if (['addRecord', 'editRecord', 'removeRecord'].indexOf(schema.name) !== -1) {
 				names = Object.keys(inputPages);

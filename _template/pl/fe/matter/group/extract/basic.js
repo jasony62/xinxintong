@@ -54,6 +54,7 @@
 			});
 		};
 		$scope.start = function() {
+			$scope.show = true;
 			if (winnerIndex !== -1) {
 				removePlayer();
 			}
@@ -154,8 +155,10 @@
 					$scope.$parent.currentRound = round;
 					$timeout(function() {
 						$scope.$parent.getUsers().then(function() {
-							$scope.$parent.init();
-							$scope.$parent.start();
+							$timeout(function(){
+						        $scope.$parent.init();
+							    //$scope.$parent.start();
+						    })
 						});
 					});
 					break;

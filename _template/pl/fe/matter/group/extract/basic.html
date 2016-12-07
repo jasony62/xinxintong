@@ -15,9 +15,9 @@
             </div>
         </div>
         <div class='lottery-box'>
-            <div class='swiper-container'>
+            <div class='swiper-container' ng-show="show">
                 <div class='swiper-wrapper'>
-                    <div class='swiper-slide' ng-repeat='p in players'>
+                    <div class='swiper-slide' ng-repeat='p in players' >
                         <div class='name' ng-bind="p.data.name||p.data.mobile||p.data.email"></div>
                     </div>
                 </div>

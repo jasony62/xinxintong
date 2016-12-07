@@ -590,7 +590,7 @@ class record extends \pl\fe\matter\base {
 		}
 		$records = $records->records;
 
-		require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/PHPExcel.php';
+		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
 
 		// Create new PHPExcel object
 		$objPHPExcel = new \PHPExcel();

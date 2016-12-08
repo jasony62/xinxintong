@@ -102,7 +102,7 @@ class main extends \pl\fe\matter\base {
 	 * @param string $template template's name
 	 *
 	 */
-	public function create_action($site, $mission = null, $scenario = null, $template = null) {
+	public function create_action($site, $mission = null, $scenario = 'common', $template = 'simple') {
 		if (false === ($user = $this->accountUser())) {
 			return new \ResponseTimeout();
 		}
@@ -127,31 +127,28 @@ class main extends \pl\fe\matter\base {
 			$newapp['use_mission_footer'] = 'Y';
 		}
 		$appId = uniqid();
-		if (!empty($scenario) && !empty($template)) {
-			$config = $this->_getSysTemplate($scenario, $template);
-			/* 添加页面 */
-			$this->_addPageByTemplate($user, $site, $mission, $appId, $config, $customConfig);
-			/* 登记数量限制 */
-			if (isset($config->count_limit)) {
-				$newapp['count_limit'] = $config->count_limit;
-			}
-			/* 进入规则 */
-			$entryRule = $config->entryRule;
-			if (isset($config->enrolled_entry_page)) {
-				$newapp['enrolled_entry_page'] = $config->enrolled_entry_page;
-			}
-			/* 场景设置 */
-			if (isset($config->scenarioConfig)) {
-				$scenarioConfig = $config->scenarioConfig;
-				$newapp['scenario_config'] = json_encode($scenarioConfig);
-			}
-			$newapp['scenario'] = $scenario;
-		} else {
-			$entryRule = $this->_addBlankPage($user, $site->id, $appId);
-		}
+		/* 使用指定模版 */
+		$config = $this->_getSysTemplate($scenario, $template);
+		/* 进入规则 */
+		$entryRule = $config->entryRule;
 		if (empty($entryRule)) {
 			return new \ResponseError('没有获得页面进入规则');
 		}
+		/* 添加页面 */
+		$this->_addPageByTemplate($user, $site, $mission, $appId, $config, $customConfig);
+		/* 登记数量限制 */
+		if (isset($config->count_limit)) {
+			$newapp['count_limit'] = $config->count_limit;
+		}
+		if (isset($config->enrolled_entry_page)) {
+			$newapp['enrolled_entry_page'] = $config->enrolled_entry_page;
+		}
+		/* 场景设置 */
+		if (isset($config->scenarioConfig)) {
+			$scenarioConfig = $config->scenarioConfig;
+			$newapp['scenario_config'] = json_encode($scenarioConfig);
+		}
+		$newapp['scenario'] = $scenario;
 		/* create app */
 		$newapp['id'] = $appId;
 		$newapp['siteid'] = $site->id;
@@ -633,7 +630,7 @@ class main extends \pl\fe\matter\base {
 		$modelPage = $this->model('matter\enroll\page');
 		/* form page */
 		$page = [
-			'title' => '登记信息页',
+			'title' => '填写信息页',
 			'type' => 'I',
 			'name' => 'z' . $current,
 		];

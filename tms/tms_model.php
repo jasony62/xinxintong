@@ -317,11 +317,10 @@ class TMS_MODEL {
 		return TMS_APP::M($model_path);
 	}
 	/**
-	 * 给JSON的字符转义
+	s	 * 给JSON的字符转义
 	 */
 	private static function _escape4Json($str) {
-		$str = str_replace("\\", "\\\\", $str);
-		$str = str_replace(array('"', "\n", "\r", "\t"), array('\"', "\\n", "\\r", "\\t"), $str);
+		$str = str_replace(array("\\", '"', "\n", "\r", "\t"), array("\\\\", '\"', "\\n", "\\r", "\\t"), $str);
 		return $str;
 	}
 	/**

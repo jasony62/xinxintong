@@ -69,9 +69,9 @@ class profile extends \pl\fe\base {
 			'verified' => (isset($data->verified) && $data->verified === 'Y') ? 'Y' : 'N',
 		);
 		if ($attrs->attr_mobile[5] === '1') {
-			$newMember['openid'] = $data->mobile;
+			$newMember['identity'] = $data->mobile;
 		} else if ($attrs->attr_email[5] === '1') {
-			$newMember['openid'] = $data->email;
+			$newMember['identity'] = $data->email;
 		}
 		/**
 		 * 扩展属性

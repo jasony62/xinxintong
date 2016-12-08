@@ -62,6 +62,7 @@
             </form>
             <ul class='nav navbar-nav navbar-right' ng-if="subView==='publish'">
                 <li><a href="/rest/pl/fe/matter/enroll/record?site={{siteId}}&id={{id}}" target='_self'>查看数据</a></li>
+                <li ng-if="app.scenario==='voting'"><a href="/rest/pl/fe/matter/enroll/stat?site={{siteId}}&id={{id}}">统计报告</a></li>
             </ul>
             <ul class='nav navbar-nav navbar-right' ng-if="subView==='record'">
                 <li><a href="/rest/pl/fe/matter/enroll/publish?site={{siteId}}&id={{id}}" target='_self'>发布预览</a></li>

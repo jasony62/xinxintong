@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . "/lib/wxpay/WxPay.Api.php";
+require_once TMS_APP_DIR . "/lib/wxpay/WxPay.Api.php";
 /**
  *
  * JSAPI支付实现类

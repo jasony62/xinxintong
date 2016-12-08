@@ -30,6 +30,7 @@ class mission_model extends app_base {
 			["id" => $id],
 		);
 		if (($mission = $this->query_obj_ss($q)) && !empty($cascaded)) {
+			$mission->type = 'mission';
 			$cascaded = explode(',', $cascaded);
 			$modelCode = \TMS_APP::M('code\page');
 			foreach ($cascaded as $field) {
@@ -123,11 +124,12 @@ class mission_model extends app_base {
 	/**
 	 * 从项目中删除素材
 	 */
-	public function removeMatter($missionId, $matterId, $matterType) {
+	public function removeMatter($matterId, $matterType) {
 		$rst = $this->delete(
 			'xxt_mission_matter',
-			"mission_id='$missionId' and matter_id='$matterId' and matter_type='$matterType'"
+			"matter_id='$matterId' and matter_type='$matterType'"
 		);
+
 		return $rst;
 	}
 	/**

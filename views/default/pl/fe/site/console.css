@@ -5,6 +5,7 @@ body{margin-bottom:50px;}
 /*matters*/
 .category{border-top-right-radius:0}
 .thumbnail{position:relative;height:180px;cursor:pointer;display:flex;flex-direction:column;padding:8px;}
+.recycle .thumbnail{cursor:auto;}
 .thumbnail .summary{flex:1;overflow:hidden;}
 .thumbnail .attr{display:flex;}
 .thumbnail .operator_name{flex:1;}

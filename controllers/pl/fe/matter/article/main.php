@@ -653,9 +653,15 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 
-		$model = $this->model();
-
-		$rst = $model->update(
+		$modelArt = $this->model('matter\article');
+		$article = $modelArt->byId($id, 'id,title,summary,pic,mission_id,creater');
+		if ($article->creater !== $user->id) {
+			return new \ResponseError('没有删除数据的权限');
+		}
+		if ($article->mission_id) {
+			$this->model('matter\mission')->removeMatter($article->id, 'article');
+		}
+		$rst = $modelArt->update(
 			'xxt_article',
 			[
 				'state' => 0,
@@ -670,7 +676,7 @@ class main extends \pl\fe\matter\base {
 			/**
 			 * 将图文从所属的多图文和频道中删除
 			 */
-			$model->delete('xxt_channel_matter', "matter_id='$id' and matter_type='article'");
+			$modelArt->delete('xxt_channel_matter', "matter_id='$id' and matter_type='article'");
 			$modelNews = $this->model('matter\news');
 			if ($news = $modelNews->byMatter($id, 'article')) {
 				foreach ($news as $n) {
@@ -680,10 +686,37 @@ class main extends \pl\fe\matter\base {
 			/**
 			 * 记录操作日志
 			 */
-			$article = $this->model('matter\\' . 'article')->byId($id, 'id,title,summary,pic');
-			$article->type = 'article';
-			$this->model('log')->matterOp($site, $user, $article, 'D');
+			$this->model('log')->matterOp($site, $user, $article, 'Recycle');
 		}
+
+		return new \ResponseData($rst);
+	}
+	/**
+	 * 恢复被删除的单图文
+	 */
+	public function restore_action($site, $id) {
+		if (false === ($user = $this->accountUser())) {
+			return new \ResponseTimeout();
+		}
+
+		$model = $this->model('matter\article');
+		if (false === ($article = $model->byId($id, 'id,title,summary,pic,mission_id'))) {
+			return new \ResponseError('数据已经被彻底删除，无法恢复');
+		}
+		if ($article->mission_id) {
+			$modelMis = $this->model('matter\mission');
+			$modelMis->addMatter($user, $site, $article->mission_id, $article);
+		}
+
+		/* 恢复数据 */
+		$rst = $model->update(
+			'xxt_article',
+			['state' => 1],
+			["id" => $article->id]
+		);
+
+		/* 记录操作日志 */
+		$this->model('matter\log')->matterOp($site, $user, $article, 'Restore');
 
 		return new \ResponseData($rst);
 	}
@@ -705,7 +738,7 @@ class main extends \pl\fe\matter\base {
 			["id" => $id]
 		);
 		/*记录操作日志*/
-		$article = $this->model('matter\\' . 'article')->byId($id, 'id,title,summary,pic');
+		$article = $this->model('matter\article')->byId($id, 'id,title,summary,pic');
 		$article->type = 'article';
 		$this->model('log')->matterOp($siteId, $user, $article, 'U');
 

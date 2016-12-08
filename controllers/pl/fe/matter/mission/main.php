@@ -133,7 +133,6 @@ class main extends \pl\fe\matter\base {
 			$modelAcl->removeMission($mission);
 			/* 记录操作日志 */
 			$mission->type = 'mission';
-			$this->model('log')->matterOp($site, $user, $mission, 'D');
 			/* 删除数据 */
 			$q = [
 				'count(*)',
@@ -144,11 +143,13 @@ class main extends \pl\fe\matter\base {
 
 			if ($cnt > 0) {
 				/* 如果已经素材，就只打标记 */
-				$rst = $modelMis->update('xxt_mission', ['state' => 2], ["id" => $id]);
+				$rst = $modelMis->update('xxt_mission', ['state' => 0], ["id" => $id]);
+				$this->model('log')->matterOp($site, $user, $mission, 'Recycle');
 			} else {
 				/* 清除数据 */
 				$modelMis->delete('xxt_mission_phase', ["mission_id" => $id]);
 				$rst = $modelMis->delete('xxt_mission', ["id" => $id]);
+				$this->model('log')->matterOp($site, $user, $mission, 'D');
 			}
 		} else {
 			/* 从访问列表中移除当前用户 */

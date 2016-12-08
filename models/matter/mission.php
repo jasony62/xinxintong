@@ -56,7 +56,7 @@ class mission_model extends app_base {
 		$q = [
 			$fields,
 			'xxt_mission',
-			"siteid='$siteId'",
+			"siteid='$siteId' and state=1",
 		];
 		$q2 = [
 			'o' => 'modify_at desc',

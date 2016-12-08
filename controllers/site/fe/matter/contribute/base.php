@@ -156,9 +156,12 @@ class base extends \site\fe\matter\base {
 		 * @todo 应该改为模版消息实现
 		 */
 		$url = $this->articleReviewUrl($site, $id);
-		$member=$this->model('site\user\member')->byId($mid);
-		$account=$this->model('site\user\account')->byId($member->userid);
-		if(isset($account)){
+
+		if($member=$this->model('site\user\member')->byId($mid)){
+			$account=$this->model('site\user\account')->byId($member->userid);
+		}
+
+		if($account){
 			if(!empty($account->yx_openid)){
 				$snsName='yx';
 			}else if(!empty($account->wx_openid)){

@@ -21,25 +21,27 @@ class mission_model extends app_base {
 	/**
 	 *
 	 */
-	public function &byId($id, $options = array()) {
+	public function &byId($id, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : '';
-		$q = array(
+		$q = [
 			$fields,
 			$this->table(),
 			["id" => $id],
-		);
-		if (($mission = $this->query_obj_ss($q)) && !empty($cascaded)) {
+		];
+		if (($mission = $this->query_obj_ss($q))) {
 			$mission->type = 'mission';
-			$cascaded = explode(',', $cascaded);
-			$modelCode = \TMS_APP::M('code\page');
-			foreach ($cascaded as $field) {
-				if ($field === 'header_page_name' && $mission->header_page_name) {
-					$mission->header_page = $modelCode->lastPublishedByName($mission->siteid, $mission->header_page_name, array('fields' => 'id,html,css,js'));
-				} else if ($field === 'footer_page_name' && $mission->footer_page_name) {
-					$mission->footer_page = $modelCode->lastPublishedByName($mission->siteid, $mission->footer_page_name, array('fields' => 'id,html,css,js'));
-				} else if ($field === 'phase') {
-					$mission->phases = \TMS_APP::M('matter\mission\phase')->byMission($id);
+			if (!empty($cascaded)) {
+				$cascaded = explode(',', $cascaded);
+				$modelCode = \TMS_APP::M('code\page');
+				foreach ($cascaded as $field) {
+					if ($field === 'header_page_name' && $mission->header_page_name) {
+						$mission->header_page = $modelCode->lastPublishedByName($mission->siteid, $mission->header_page_name, array('fields' => 'id,html,css,js'));
+					} else if ($field === 'footer_page_name' && $mission->footer_page_name) {
+						$mission->footer_page = $modelCode->lastPublishedByName($mission->siteid, $mission->footer_page_name, array('fields' => 'id,html,css,js'));
+					} else if ($field === 'phase') {
+						$mission->phases = \TMS_APP::M('matter\mission\phase')->byMission($id);
+					}
 				}
 			}
 		}

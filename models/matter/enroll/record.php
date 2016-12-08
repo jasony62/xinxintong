@@ -780,7 +780,7 @@ class record_model extends \TMS_MODEL {
 			if (!in_array($schema->type, ['single', 'multiple', 'phase', 'score'])) {
 				continue;
 			}
-			$result[$schema->id] = ['title' => $schema->title, 'id' => $schema->id, 'ops' => []];
+			$result[$schema->id] = ['title' => isset($schema->title) ? $schema->title : '', 'id' => $schema->id, 'ops' => []];
 			if (in_array($schema->type, ['single', 'phase'])) {
 				foreach ($schema->ops as $op) {
 					/**

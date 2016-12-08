@@ -159,34 +159,28 @@ class base extends \site\fe\matter\base {
 
 		if($member=$this->model('site\user\member')->byId($mid)){
 			$account=$this->model('site\user\account')->byId($member->userid);
-		}
-
-		if($account){
-			if(!empty($account->yx_openid)){
-				$snsName='yx';
-			}else if(!empty($account->wx_openid)){
-				$snsName='wx';
-			}else if(!empty($account->qy_openid)){
-				$snsName='qy';
-			}else{
-				$snsName='';
+			if($account){
+				$arr['wx']=$account->wx_openid;
+				$arr['yx']=$account->yx_openid;
+				$arr['qy']=$account->qy_openid;
+				$arr=array_filter($arr);
+				foreach ($arr as $k => $v) {
+					$account->openid=$v;
+					$msg = '投稿活动【' . $c->title . '】有一篇新稿件，';
+					if ($k === 'yx') {
+						$msg .= "请处理：\n" . $url;
+					} else {
+						$msg .= "<a href='" . $url . "'>请处理</a>";
+					}
+					$message = array(
+						"msgtype" => "text",
+						"text" => array(
+							"content" => $msg,
+						),
+					);
+					$rst = $this->notify($site, $k, $account, $message);
+				}			
 			}
-		}
-
-		$msg = '投稿活动【' . $c->title . '】有一篇新稿件，';
-		if ($snsName === 'yx') {
-			$msg .= "请处理：\n" . $url;
-		} else {
-			$msg .= "<a href='" . $url . "'>请处理</a>";
-		}
-		$message = array(
-			"msgtype" => "text",
-			"text" => array(
-				"content" => $msg,
-			),
-		);
-		if ($snsUser = $this->snsUserByMember($site, $mid, $snsName)) {
-			$rst = $this->notify($site, $snsName, $snsUser, $message);
 		}
 
 		return new \ResponseData('ok');

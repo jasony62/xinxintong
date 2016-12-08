@@ -156,23 +156,22 @@ class base extends \site\fe\matter\base {
 		 * @todo 应该改为模版消息实现
 		 */
 		$url = $this->articleReviewUrl($site, $id);
-		
-		foreach (array('wx', 'yx', 'qy') as $snsName) {
-			$msg = '投稿活动【' . $c->title . '】有一篇新稿件，';
-			if ($snsName === 'yx') {
-				$msg .= "请处理：\n" . $url;
-			} else {
-				$msg .= "<a href='" . $url . "'>请处理</a>";
-			}
-			$message = array(
-				"msgtype" => "text",
-				"text" => array(
-					"content" => $msg,
-				),
-			);
-			if ($snsUser = $this->snsUserByMember($site, $mid, $snsName)) {
-				$rst = $this->notify($site, $snsName, $snsUser, $message);
-			}
+		$snsName=$modelCtrb->getSnsName($site,$mid);
+
+		$msg = '投稿活动【' . $c->title . '】有一篇新稿件，';
+		if ($snsName === 'yx') {
+			$msg .= "请处理：\n" . $url;
+		} else {
+			$msg .= "<a href='" . $url . "'>请处理</a>";
+		}
+		$message = array(
+			"msgtype" => "text",
+			"text" => array(
+				"content" => $msg,
+			),
+		);
+		if ($snsUser = $this->snsUserByMember($site, $mid, $snsName)) {
+			$rst = $this->notify($site, $snsName, $snsUser, $message);
 		}
 
 		return new \ResponseData('ok');

@@ -72,4 +72,21 @@ class contribute_model extends app_base {
 
 		return $acls;
 	}
+	/**
+	 *获得用户绑定的sns信息
+	 */
+	public function &getSnsName($site,$mid)
+	{
+		$sql="SELECT y.openid AS yx,w.openid AS wx,q.openid AS qy
+			  FROM xxt_site_member m 
+			  LEFT JOIN xxt_site_wxfan w ON m.userid=w.userid
+			  LEFT JOIN xxt_site_qyfan q ON m.userid=q.userid
+    		  LEFT JOIN xxt_site_yxfan y ON m.userid=y.userid
+			  WHERE m.siteid='$site' and m.id='$mid'";
+		$r=$this->query_obj($sql);
+		$member=(array)$r;
+		$member=array_filter($member);
+		$type=array_keys($member);
+		return $type[0];
+	}
 }

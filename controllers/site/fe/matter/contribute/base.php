@@ -156,7 +156,19 @@ class base extends \site\fe\matter\base {
 		 * @todo 应该改为模版消息实现
 		 */
 		$url = $this->articleReviewUrl($site, $id);
-		$snsName=$modelCtrb->getSnsName($site,$mid);
+		$member=$this->model('site\user\member')->byId($mid);
+		$account=$this->model('site\user\account')->byId($member->userid);
+		if(isset($account)){
+			if(!empty($account->yx_openid)){
+				$snsName='yx';
+			}else if(!empty($account->wx_openid)){
+				$snsName='wx';
+			}else if(!empty($account->qy_openid)){
+				$snsName='qy';
+			}else{
+				$snsName='';
+			}
+		}
 
 		$msg = '投稿活动【' . $c->title . '】有一篇新稿件，';
 		if ($snsName === 'yx') {

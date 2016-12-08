@@ -102,7 +102,7 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 	/**
 	 * 应用的所有登记项
 	 */
-	ngApp.provider.controller('ctrlList', ['$scope', '$timeout', 'srvApp', 'srvPage', function($scope, $timeout, srvApp, srvPage) {
+	ngApp.provider.controller('ctrlList', ['$scope', '$timeout', '$sce', '$uibModal', 'srvApp', 'srvPage', function($scope, $timeout, $sce, $uibModal, srvApp, srvPage) {
 		function changeSchemaOrder(moved) {
 			srvApp.update('data_schemas').then(function() {
 				var app = $scope.app;
@@ -234,6 +234,49 @@ define(['frame', 'schema'], function(ngApp, schemaLib) {
 		$scope.$on('title.xxt.editable.changed', function(e, schema) {
 			$scope.updSchema(schema, 'title');
 		});
+		$scope.trustAsHtml = function(schema, prop) {
+			return $sce.trustAsHtml(schema[prop]);
+		};
+		$scope.makePagelet = function(schema) {
+			$uibModal.open({
+				templateUrl: '/views/default/pl/fe/matter/enroll/component/pagelet.html',
+				controller: ['$scope', '$uibModalInstance', 'mediagallery', function($scope2, $mi, mediagallery) {
+					var tinymceEditor;
+					$scope2.reset = function() {
+						tinymceEditor.setContent('');
+					};
+					$scope2.ok = function() {
+						var html = tinymceEditor.getContent();
+						tinymceEditor.remove();
+						$mi.close({
+							html: html
+						});
+					};
+					$scope2.cancel = function() {
+						tinymceEditor.remove();
+						$mi.dismiss();
+					};
+					$scope2.$on('tinymce.multipleimage.open', function(event, callback) {
+						var options = {
+							callback: callback,
+							multiple: true,
+							setshowname: true
+						};
+						mediagallery.open($scope.siteId, options);
+					});
+					$scope2.$on('tinymce.instance.init', function(event, editor) {
+						var page;
+						tinymceEditor = editor;
+						editor.setContent(schema.content);
+					});
+				}],
+				size: 'lg',
+				backdrop: 'static'
+			}).result.then(function(result) {
+				schema.content = result.html;
+				$scope.updSchema(schema, 'content');
+			});
+		};
 		// 回车添加选项
 		$('body').on('keyup', function(evt) {
 			if (event.keyCode === 13) {

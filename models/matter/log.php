@@ -421,6 +421,12 @@ class log_model extends \TMS_MODEL {
 			'xxt_log_matter_op',
 			"operator='{$user->id}' and user_last_op='Y' and operation<>'D'",
 		];
+		if (isset($options['matterType'])) {
+			$q[2] .= " and matter_type='" . $options['matterType'] . "'";
+		}
+		if (isset($options['scenario'])) {
+			$q[2] .= " and matter_scenario='" . $options['scenario'] . "'";
+		}
 		$q2 = [
 			'r' => ['o' => ($page->at - 1) * $page->size, 'l' => $page->size],
 			'o' => ['operate_at desc'],

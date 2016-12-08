@@ -8,16 +8,18 @@
         <tr>
             <th>昵称</th>
             <th>登录邮箱</th>
+            <th>积分</th>
             <th>注册日期</th>
             <th>最后登录日期</th>
             <th>用户组</th>
-            <th style='width:48px'>操作</th>
+            <th>操作</th>
         </tr>
     </thead>
     <tbody>
         <tr ng-repeat='u in users'>
             <td>{{u.nickname}}</td>
             <td>{{u.email}}</td>
+            <td>{{u.coin}}</td>
             <td>{{u.reg_time*1000|date:'yyyy-MM-dd'}}</td>
             <td>{{u.last_login*1000|date:'yyyy-MM-dd'}}</td>
             <td style='padding:0'>

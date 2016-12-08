@@ -36,9 +36,14 @@ ngApp.config(['$locationProvider', '$routeProvider', '$controllerProvider', func
 }]);
 ngApp.controller('ctrlSite', ['$scope', '$location', 'http2', 'userProfile', function($scope, $location, http2, userProfile) {
 	$scope.siteId = $location.search().site;
+	$scope.subView = '';
+	$scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+		var subView = currentRoute.match(/([^\/]+?)\?/);
+		$scope.subView = subView ? subView[1] : '';
+	});
 	$scope.currentMemberSchema = function(schemaId) {
 		if (schemaId) {
-			for (var i = $scope.memberSchemas.length - 1; i === 0; i--) {
+			for (var i = $scope.memberSchemas.length - 1; i >= 0; i--) {
 				if ($scope.memberSchemas[i].id == schemaId) {
 					return $scope.memberSchemas[i];
 				}

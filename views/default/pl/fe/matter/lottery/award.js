@@ -1,37 +1,6 @@
 (function() {
     ngApp.provider.controller('ctrlAward', ['$scope', '$uibModal', 'http2', function($scope, $uibModal, http2) {
-        $scope.awardTypes = {
-            '0': {
-                n: '未中奖',
-                v: '0'
-            },
-            '1': {
-                n: '应用积分',
-                v: '1'
-            },
-            '2': {
-                n: '奖励重玩',
-                v: '2'
-            },
-            '3': {
-                n: '完成任务',
-                v: '3'
-            },
-            '99': {
-                n: '实体奖品',
-                v: '99'
-            }
-        };
-        $scope.awardPeriods = {
-            'A': {
-                n: '总计',
-                v: 'A'
-            },
-            'D': {
-                n: '每天',
-                v: 'D'
-            },
-        };
+        
         $scope.addAward = function() {
             http2.get('/rest/pl/fe/matter/lottery/award/add?site=' + $scope.siteId + '&app=' + $scope.id, function(rsp) {
                 $scope.app.awards.push(rsp.data);

@@ -590,7 +590,7 @@ class record extends \pl\fe\matter\base {
 		}
 		$records = $records->records;
 
-		require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/PHPExcel.php';
+		require_once TMS_APP_DIR . '/lib/PHPExcel.php';
 
 		// Create new PHPExcel object
 		$objPHPExcel = new \PHPExcel();
@@ -615,12 +615,13 @@ class record extends \pl\fe\matter\base {
 			}
 			$objActiveSheet->setCellValueByColumnAndRow($i + 2, 1, $schema->title);
 		}
-		$objActiveSheet->setCellValueByColumnAndRow($i + 2, 1, '备注');
-		$objActiveSheet->setCellValueByColumnAndRow($i + 3, 1, '标签');
+		$objActiveSheet->setCellValueByColumnAndRow($i + 2, 1, '昵称');
+		$objActiveSheet->setCellValueByColumnAndRow($i + 3, 1, '备注');
+		$objActiveSheet->setCellValueByColumnAndRow($i + 4, 1, '标签');
 		// 记录分数
 		if ($app->scenario === 'voting') {
-			$objActiveSheet->setCellValueByColumnAndRow($i + 4, 1, '总分数');
-			$objActiveSheet->setCellValueByColumnAndRow($i + 5, 1, '平均分数');
+			$objActiveSheet->setCellValueByColumnAndRow($i + 5, 1, '总分数');
+			$objActiveSheet->setCellValueByColumnAndRow($i + 6, 1, '平均分数');
 			$titles[] = '总分数';
 			$titles[] = '平均分数';
 		}
@@ -678,14 +679,16 @@ class record extends \pl\fe\matter\base {
 					break;
 				}
 			}
+			// 昵称
+			$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, $record->nickname);
 			// 备注
-			$objActiveSheet->setCellValueByColumnAndRow($i + 2, $rowIndex, $record->comment);
+			$objActiveSheet->setCellValueByColumnAndRow($i + 3, $rowIndex, $record->comment);
 			// 标签
-			$objActiveSheet->setCellValueByColumnAndRow($i + 3, $rowIndex, $record->tags);
+			$objActiveSheet->setCellValueByColumnAndRow($i + 4, $rowIndex, $record->tags);
 			// 记录分数
 			if ($app->scenario === 'voting') {
-				$objActiveSheet->setCellValueByColumnAndRow($i + 4, $rowIndex, $record->_score);
-				$objActiveSheet->setCellValueByColumnAndRow($i + 5, $rowIndex, sprintf('%.2f', $record->_average));
+				$objActiveSheet->setCellValueByColumnAndRow($i + 5, $rowIndex, $record->_score);
+				$objActiveSheet->setCellValueByColumnAndRow($i + 6, $rowIndex, sprintf('%.2f', $record->_average));
 			}
 		}
 

@@ -45,7 +45,7 @@ class enroll_model extends app_base {
 	 * $aid string
 	 * $cascaded array []
 	 */
-	public function &byId($aid, $options = array()) {
+	public function &byId($aid, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
 		$q = [
@@ -54,6 +54,7 @@ class enroll_model extends app_base {
 			["id" => $aid],
 		];
 		if ($app = $this->query_obj_ss($q)) {
+			$app->type = 'enroll';
 			if (isset($app->entry_rule)) {
 				$app->entry_rule = json_decode($app->entry_rule);
 			}

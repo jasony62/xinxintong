@@ -329,13 +329,15 @@ class main extends \pl\fe\matter\base {
 			return new \ResponseTimeout();
 		}
 		$model = $this->model();
+		$matter = $this->model('matter\article2')->byId($id, 'id,title,summary,pic');
+		$matter->type = 'custom';
 
 		$rst = $model->update(
 			'xxt_article',
-			array('state' => 0, 'modify_at' => time()),
+			['state' => 0, 'modify_at' => time()],
 			"siteid='$site' and id='$id'"
 		);
-		/** 将图文从所属的多图文和频道中删除 */
+		/* 将图文从所属的多图文和频道中删除 */
 		if ($rst) {
 			$model->delete('xxt_channel_matter', "matter_id='$id' and matter_type='custom'");
 			$modelNews = $this->model('matter\news');
@@ -345,9 +347,7 @@ class main extends \pl\fe\matter\base {
 				}
 			}
 			/*记录操作日志*/
-			$matter = $this->model('matter\article2')->byId($id, 'id,title,summary,pic');
-			$matter->type = 'custom';
-			$this->model('log')->matterOp($site, $user, $matter, 'D');
+			$this->model('log')->matterOp($site, $user, $matter, 'Recycle');
 		}
 
 		return new \ResponseData($rst);

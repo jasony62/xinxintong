@@ -23,15 +23,16 @@ class group_model extends app_base {
 	 * $aid string
 	 * $options array
 	 */
-	public function &byId($aid, $options = array()) {
+	public function &byId($aid, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 		$cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
-		$q = array(
+		$q = [
 			$fields,
 			'xxt_group',
 			"id='$aid'",
-		);
+		];
 		if ($app = $this->query_obj_ss($q)) {
+			$app->type = 'group';
 			if ($cascaded === 'Y') {
 				$rounds = \TMS_APP::M('matter\group\round')->byApp($aid);
 				$app->rounds = $rounds;
